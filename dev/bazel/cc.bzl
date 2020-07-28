@@ -1,5 +1,6 @@
 load("@bazel_skylib//lib:paths.bzl", "paths")
 load("@onedal//dev/bazel:utils.bzl", "utils")
+load("@onedal//dev/bazel/config:config.bzl", "CpuVectorInstructionsProvider")
 
 TransitiveCcInfo = provider(
     fields=[
@@ -34,6 +35,12 @@ def _filter_tagged_linking_contexts(tagged_linking_contexts, tags):
             linking_contexts.append(linking_context)
     return linking_contexts
 
+def _merge_compilation_contexts(compilation_contexts):
+    cc_infos = [CcInfo(compilation_context=x) for x in compilation_contexts]
+    return cc_common.merge_cc_infos(
+        direct_cc_infos = cc_infos
+    ).compilation_context
+
 def _merge_linking_contexts(linking_contexts):
     link_flags = []
     libs_to_link = []
@@ -56,6 +63,136 @@ def _merge_linking_contexts(linking_contexts):
         user_link_flags = utils.unique(link_flags),
     )
 
+def _categorize_sources(source_files, cpu_files_supported = True,
+                                      fpt_files_supported = True):
+    fpt_cpu_files_supported = cpu_files_supported and fpt_files_supported
+    normal_files = []
+    cpu_files = []
+    fpt_files = []
+    fpt_cpu_files = []
+    for file in source_files:
+        filename = file.basename
+        if fpt_cpu_files_supported and ("_fpt_cpu" in filename):
+            fpt_cpu_files.append(file)
+        elif cpu_files_supported and ("_cpu" in filename):
+            cpu_files.append(file)
+        elif fpt_files_supported and ("_fpt" in filename):
+            fpt_files.append(file)
+        else:
+            normal_files.append(file)
+    return struct(
+        normal_files = normal_files,
+        cpu_files = cpu_files,
+        fpt_files = fpt_files,
+        fpt_cpu_files = fpt_cpu_files,
+    )
+
+def _compile(name, ctx, toolchain, feature_config,
+             dep_compilation_contexts, srcs=[], local_defines=[]):
+    inc_dir = paths.dirname(ctx.build_file_path) + "/"
+    gen_dir = ctx.genfiles_dir.path + "/" + inc_dir
+    return cc_common.compile(
+        name = name,
+        srcs = srcs,
+        actions = ctx.actions,
+        public_hdrs = ctx.files.hdrs,
+        cc_toolchain = toolchain,
+        defines = ctx.attr.defines,
+        local_defines = ctx.attr.local_defines + local_defines,
+        user_compile_flags = ctx.attr.copts,
+        includes = (utils.add_prefix(inc_dir, ctx.attr.includes) +
+                    utils.add_prefix(gen_dir, ctx.attr.includes)),
+        quote_includes = (utils.add_prefix(inc_dir, ctx.attr.quote_includes) +
+                          utils.add_prefix(gen_dir, ctx.attr.quote_includes)),
+        system_includes = (utils.add_prefix(inc_dir, ctx.attr.system_includes) +
+                           utils.add_prefix(gen_dir, ctx.attr.system_includes)),
+        compilation_contexts = dep_compilation_contexts,
+        feature_configuration = feature_config,
+        disallow_nopic_outputs = True,
+    )
+
+def _compile_all(name, ctx, toolchain, feature_config, dep_compilation_contexts):
+    fpts = ctx.attr._fpts
+    cpus = ctx.attr._cpus[CpuVectorInstructionsProvider].isa_extensions
+
+    compilation_contexts = []
+    compilation_outputs = []
+
+    sources_by_category = _categorize_sources(
+        source_files = ctx.files.srcs,
+    )
+
+    cpu_defines = {}
+    cpu_feature_configs = {}
+    if sources_by_category.cpu_files or sources_by_category.fpt_cpu_files:
+        for cpu in cpus:
+            cpu_defines[cpu] = ctx.attr.cpu_defines.get(cpu, [])
+            cpu_feature_configs[cpu] = cc_common.configure_features(
+                ctx = ctx,
+                cc_toolchain = toolchain,
+                requested_features = ctx.features + [ "{}_flags".format(cpu) ],
+                unsupported_features = ctx.disabled_features,
+            )
+
+    fpt_defines = {}
+    if sources_by_category.fpt_files or sources_by_category.fpt_cpu_files:
+        for fpt in fpts:
+            fpt_defines[fpt] = ctx.attr.fpt_defines.get(cpu, [])
+
+    # Compile normal files
+    compilation_context, compulation_output = _compile(
+        name, ctx, toolchain, feature_config,
+        dep_compilation_contexts,
+        srcs = sources_by_category.normal_files
+    )
+    compilation_contexts.append(compilation_context)
+    compilation_outputs.append(compulation_output)
+
+    # Compile FPT files
+    if sources_by_category.fpt_files:
+        for fpt in fpts:
+            compilation_context, compulation_output = _compile(
+                name + "_" + fpt, ctx, toolchain, feature_config,
+                dep_compilation_contexts,
+                srcs = sources_by_category.fpt_files,
+                local_defines = fpt_defines[cpu]
+            )
+            compilation_contexts.append(compilation_context)
+            compilation_outputs.append(compulation_output)
+
+    # Compile CPU files
+    if sources_by_category.cpu_files:
+        print(sources_by_category.cpu_files)
+        print(cpus)
+        for cpu in cpus:
+            compilation_context, compulation_output = _compile(
+                name + "_" + cpu, ctx, toolchain, cpu_feature_configs[cpu],
+                dep_compilation_contexts,
+                srcs = sources_by_category.cpu_files,
+                local_defines = cpu_defines[cpu]
+            )
+            compilation_contexts.append(compilation_context)
+            compilation_outputs.append(compulation_output)
+
+    # Compile FPT-CPU files
+    if sources_by_category.fpt_cpu_files:
+        for cpu in cpus:
+            for fpt in fpts:
+                compilation_context, compulation_output = _compile(
+                    name + "_" + fpt + "_" + cpu, ctx, toolchain, cpu_feature_configs[cpu],
+                    dep_compilation_contexts,
+                    srcs = sources_by_category.fpt_cpu_files,
+                    local_defines = cpu_defines[cpu] + fpt_defines[fpt]
+                )
+                compilation_contexts.append(compilation_context)
+                compilation_outputs.append(compulation_output)
+
+    compilation_context = _merge_compilation_contexts(compilation_contexts)
+    compilation_output = cc_common.merge_compilation_outputs(
+        compilation_outputs = compilation_outputs
+    )
+    return compilation_context, compilation_output
+
 
 def _cc_module_impl(ctx):
     toolchain = ctx.toolchains["@bazel_tools//tools/cpp:toolchain_type"]
@@ -65,38 +202,25 @@ def _cc_module_impl(ctx):
         requested_features = ctx.features,
         unsupported_features = ctx.disabled_features,
     )
-    inc_dir = paths.dirname(ctx.build_file_path) + "/"
-    gen_dir = ctx.genfiles_dir.path + "/" + inc_dir
-    compilation_context, compilation_out = cc_common.compile(
+    dep_compilation_contexts = _collect_compilation_contexts(ctx.attr.deps)
+    compilation_context, compilation_outputs = _compile_all(
         name = ctx.label.name,
-        srcs = ctx.files.srcs,
-        actions = ctx.actions,
-        public_hdrs = ctx.files.hdrs,
-        cc_toolchain = toolchain,
-        defines = ctx.attr.defines,
-        local_defines = ctx.attr.local_defines,
-        user_compile_flags = ctx.attr.copts,
-        includes = (utils.add_prefix(inc_dir, ctx.attr.includes) +
-                    utils.add_prefix(gen_dir, ctx.attr.includes)),
-        quote_includes = (utils.add_prefix(inc_dir, ctx.attr.quote_includes) +
-                          utils.add_prefix(gen_dir, ctx.attr.quote_includes)),
-        system_includes = (utils.add_prefix(inc_dir, ctx.attr.system_includes) +
-                           utils.add_prefix(gen_dir, ctx.attr.system_includes)),
-        compilation_contexts = _collect_compilation_contexts(ctx.attr.deps),
-        feature_configuration = feature_config,
-        disallow_nopic_outputs = True,
+        ctx = ctx,
+        toolchain = toolchain,
+        feature_config = feature_config,
+        dep_compilation_contexts = dep_compilation_contexts,
     )
     linking_context, linking_out = cc_common.create_linking_context_from_compilation_outputs(
         name = ctx.label.name,
         actions = ctx.actions,
         cc_toolchain = toolchain,
         feature_configuration = feature_config,
-        compilation_outputs = compilation_out,
+        compilation_outputs = compilation_outputs,
     )
     tagged_linking_contexts = _collect_tagged_linking_contexts(ctx.attr.deps)
     tagged_linking_contexts.append((ctx.attr.lib_tag, linking_context))
-    files_to_build = (compilation_out.pic_objects +
-                      compilation_out.objects)
+    files_to_build = (compilation_outputs.pic_objects +
+                      compilation_outputs.objects)
     default_info = DefaultInfo(
         files = depset(files_to_build)
     )
@@ -118,9 +242,15 @@ _cc_module = rule(
         "copts": attr.string_list(),
         "defines": attr.string_list(),
         "local_defines": attr.string_list(),
+        "cpu_defines": attr.string_list_dict(),
+        "fpt_defines": attr.string_list_dict(),
         "includes": attr.string_list(),
         "quote_includes": attr.string_list(),
         "system_includes": attr.string_list(),
+        "_cpus": attr.label(
+            default = "@config//:cpu",
+        ),
+        "_fpts": attr.string_list(default = ["f32", "f64"])
     },
     toolchains = ["@bazel_tools//tools/cpp:toolchain_type"],
     fragments = ["cpp"],

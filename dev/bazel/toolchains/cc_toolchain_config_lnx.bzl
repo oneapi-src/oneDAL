@@ -286,6 +286,10 @@ def _impl(ctx):
         name = "c++17",
     )
 
+    pedantic_feature = feature(
+        name = "pedantic",
+    )
+
     dbg_feature = feature(
         name = "dbg"
     )
@@ -459,6 +463,25 @@ def _impl(ctx):
                     ),
                 ],
                 with_features = [with_feature_set(features = ["c++17"])],
+            ),
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups = [
+                    flag_group(
+                        flags = ctx.attr.compile_flags_pedantic_cc,
+                    ),
+                ],
+                with_features = [with_feature_set(features = ["pedantic"],
+                                                  not_features = ["dpc++"])],
+            ),
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups = [
+                    flag_group(
+                        flags = ctx.attr.compile_flags_pedantic_dpcc,
+                    ),
+                ],
+                with_features = [with_feature_set(features = ["dpc++", "pedantic"])],
             ),
             flag_set(
                 actions = all_cpp_compile_actions + [ACTION_NAMES.lto_backend],
@@ -1008,6 +1031,7 @@ def _impl(ctx):
     features.append(cxx11_feature)
     features.append(cxx14_feature)
     features.append(cxx17_feature)
+    features.append(pedantic_feature)
     features.append(dbg_feature)
     features.append(opt_feature)
     features.append(supports_pic_feature)
@@ -1018,13 +1042,13 @@ def _impl(ctx):
     features.append(default_compile_flags_feature)
     features.append(force_pic_flags_feature)
     features.append(pic_feature)
-    for cpu_id, flag_value in ctx.attr.cpu_flags.items():
+    for cpu_id, flag_list in ctx.attr.cpu_flags.items():
         cpu_opt_feature = feature(
             name = "{}_flags".format(cpu_id),
             flag_sets = [
                 flag_set(
                     actions = all_compile_actions,
-                    flag_groups = [ flag_group(flags = [flag_value]) ],
+                    flag_groups = [ flag_group(flags = flag_list) ],
                 ),
             ],
         )
@@ -1089,6 +1113,8 @@ cc_toolchain_config = rule(
         "cxx_builtin_include_directories": attr.string_list(),
         "compile_flags_cc": attr.string_list(),
         "compile_flags_dpcc": attr.string_list(),
+        "compile_flags_pedantic_cc": attr.string_list(),
+        "compile_flags_pedantic_dpcc": attr.string_list(),
         "dbg_compile_flags": attr.string_list(),
         "opt_compile_flags": attr.string_list(),
         "cxx_flags": attr.string_list(),
@@ -1101,7 +1127,7 @@ cc_toolchain_config = rule(
         "deterministic_compile_flags": attr.string_list(),
         "supports_start_end_lib": attr.bool(),
         "supports_random_seed": attr.bool(),
-        "cpu_flags": attr.string_dict(),
+        "cpu_flags": attr.string_list_dict(),
     },
     provides = [CcToolchainConfigInfo],
 )

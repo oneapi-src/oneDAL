@@ -5,11 +5,11 @@ load("@bazel_tools//tools/cpp:lib_cc_configure.bzl",
     "write_builtin_include_directory_paths",
 )
 load("@onedal//dev/bazel:utils.bzl",
-    "get_starlark_dict",
     "unique",
 )
 load("@onedal//dev/bazel/toolchains:common.bzl",
     "TEST_CPP_FILE",
+    "get_starlark_list_dict",
     "get_cxx_inc_directories",
     "add_compiler_option_if_supported",
     "add_linker_option_if_supported",
@@ -153,7 +153,8 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                     repo_ctx,
                     reqs,
                     tools.cc,
-                    is_dpcc=False
+                    is_dpcc = False,
+                    category = "common",
                 ) +
                 add_compiler_option_if_supported(
                     # Option supported only by Intel Compiler to disable some warnings:
@@ -161,10 +162,7 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                     repo_ctx,
                     tools.cc,
                     "-diag-disable=remark",
-                ) +
-                [
-
-                ]
+                )
             ),
             "%{compile_flags_dpcc}": get_starlark_list(
                 _add_gcc_toolchain_if_needed(repo_ctx, tools.dpcc) +
@@ -172,7 +170,28 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                     repo_ctx,
                     reqs,
                     tools.dpcc,
-                    is_dpcc=True
+                    is_dpcc = True,
+                    category = "common",
+                )
+            ),
+            "%{compile_flags_pedantic_cc}": get_starlark_list(
+                _add_gcc_toolchain_if_needed(repo_ctx, tools.cc) +
+                get_default_compiler_options(
+                    repo_ctx,
+                    reqs,
+                    tools.cc,
+                    is_dpcc = False,
+                    category = "pedantic",
+                )
+            ),
+            "%{compile_flags_pedantic_dpcc}": get_starlark_list(
+                _add_gcc_toolchain_if_needed(repo_ctx, tools.dpcc) +
+                get_default_compiler_options(
+                    repo_ctx,
+                    reqs,
+                    tools.dpcc,
+                    is_dpcc = True,
+                    category = "pedantic",
                 )
             ),
             "%{cxx_flags}": get_starlark_list(cxx_opts),
@@ -282,7 +301,7 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
             ),
             "%{supports_start_end_lib}": "False" if reqs.compiler_id == "icc" else "True",
             "%{supports_random_seed}": "False" if reqs.compiler_id == "icc" else "True",
-            "%{cpu_flags}": get_starlark_dict(
+            "%{cpu_flags}": get_starlark_list_dict(
                 get_cpu_specific_options(reqs)
             )
         },

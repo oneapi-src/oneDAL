@@ -14,52 +14,67 @@ lnx_cc_common_flags = [
     "-fstack-protector-strong",
     "-fno-strict-overflow",
     "-fno-delete-null-pointer-checks",
-    "-pedantic",
-    "-Wall",
-    "-Wextra",
     "-Wformat",
     "-Wformat-security",
-    "-Werror=unknown-pragmas",
     "-Werror=uninitialized",
     "-Werror=return-type",
     "-Wno-unused-parameter",
     "-Wno-unused-command-line-argument",
 ]
 
-def get_default_flags(arch_id, os_id, compiler_id):
-    if os_id == "lnx":
-        return lnx_cc_common_flags
-    elif os_id == "win":
-        return [
-            # "-nologo",
-            "/EHsc",
-            "/WX",
-            "/DEBUG",
-            "/Z7",
-        ]
-    else:
-        return []
+lnx_cc_pedantic_flags = [
+    "-pedantic",
+    "-Wall",
+    "-Wextra",
+    "-Werror=unknown-pragmas",
+]
 
+lnx_cc_flags = {
+    "common": lnx_cc_common_flags,
+    "pedantic": lnx_cc_pedantic_flags,
+}
+
+def get_default_flags(arch_id, os_id, compiler_id, category="common"):
+    _check_flag_category(category)
+    if os_id == "lnx":
+        return lnx_cc_flags[category]
+    fail("Unsupported OS")
 
 def get_cpu_flags(arch_id, os_id, compiler_id):
-    cpu_flag_pattern = "-march={}"
-    cpu_flags = {
-        "sse2":       "",
-        "ssse3":      "",
-        "sse42":      "",
-        "avx":        "",
-        "avx2":       "",
-        "avx512_mic": "",
-        "avx512":     "",
-    }
+    sse2 = []
+    ssse3 = []
+    sse42 = []
+    avx = []
+    avx2 = []
+    avx512_mic = []
+    avx512 = []
     if compiler_id == "gcc":
-        cpu_flags = {
-            "sse2":       "pentium4" if arch_id == "ia32" else "nocona",
-            "ssse3":      "pentium4" if arch_id == "ia32" else "nocona",
-            "sse42":      "corei7",
-            "avx":        "sandybridge",
-            "avx2":       "haswell",
-            "avx512_mic": "haswell",
-            "avx512":     "haswell",
-        }
-    return { k: cpu_flag_pattern.format(v) for k, v in cpu_flags.items() }
+        sse2       = ["-march={}".format("pentium4" if arch_id == "ia32" else "nocona")]
+        ssse3      = ["-march={}".format("pentium4" if arch_id == "ia32" else "nocona")]
+        sse42      = ["-march=corei7"]
+        avx        = ["-march=sandybridge"]
+        avx2       = ["-march=haswell"]
+        avx512_mic = ["-march=haswell"]
+        avx512     = ["-march=haswell"]
+    elif compiler_id == "icc":
+        sse2       = ["-xSSE2"]
+        ssse3      = ["-xSSE3"]
+        sse42      = ["-xSSE4.2"]
+        avx        = ["-xAVX"]
+        avx2       = ["-xCORE-AVX2"]
+        avx512_mic = ["-xMIC-AVX512"]
+        avx512     = ["-xCORE-AVX512", "-qopt-zmm-usage=high"]
+    return {
+        "sse2":       sse2,
+        "ssse3":      ssse3,
+        "sse42":      sse42,
+        "avx":        avx,
+        "avx2":       avx2,
+        "avx512_mic": avx512_mic,
+        "avx512":     avx512,
+    }
+
+def _check_flag_category(category):
+    if not category in ["common", "pedantic"]:
+        fail("Unsupported compilre flag category '{}' ".format(category) +
+             "expected 'common' or 'pedantic'")

@@ -24,7 +24,7 @@ onedal_cpu_isa_extension_config = rule(
 )
 
 def _datestamp(repo_ctx):
-    return repo_ctx.execute(["date", "+%Y%m%d"]).stdout
+    return repo_ctx.execute(["date", "+%Y%m%d"]).stdout.strip()
 
 def _version_info(repo_ctx):
     # TODO: Read version information from file

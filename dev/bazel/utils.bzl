@@ -7,10 +7,6 @@ def unique(iterable):
     unique_elements = set(iterable)
     return unique_elements.keys()
 
-def get_starlark_dict(dictionary):
-    entries = [ "\"{}\":\"{}\"".format(k, v) for k, v in dictionary.items() ]
-    return ",".join(entries)
-
 def add_prefix(prefix, lst):
     return [ prefix + str(x) for x in lst ]
 
@@ -23,7 +19,6 @@ def warn(msg):
 utils = struct(
     set = set,
     unique = unique,
-    get_starlark_dict = get_starlark_dict,
     add_prefix = add_prefix,
     warn = warn,
 )

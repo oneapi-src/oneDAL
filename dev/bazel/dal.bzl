@@ -85,7 +85,7 @@ def _dal_module(name, lib_tag="dal", features=[], **kwargs):
     cc_module(
         name = name,
         lib_tag = lib_tag,
-        features = [ "c++17" ] + features,
+        features = [ "pedantic", "c++17" ] + features,
         **kwargs,
     )
 

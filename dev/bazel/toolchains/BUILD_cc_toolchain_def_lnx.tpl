@@ -29,6 +29,8 @@ cc_toolchain_config(
     cxx_builtin_include_directories = [%{cxx_builtin_include_directories}],
     compile_flags_cc = [%{compile_flags_cc}],
     compile_flags_dpcc = [%{compile_flags_dpcc}],
+    compile_flags_pedantic_cc = [%{compile_flags_pedantic_cc}],
+    compile_flags_pedantic_dpcc = [%{compile_flags_pedantic_dpcc}],
     opt_compile_flags = [%{opt_compile_flags}],
     dbg_compile_flags = [%{dbg_compile_flags}],
     cxx_flags = [%{cxx_flags}],
