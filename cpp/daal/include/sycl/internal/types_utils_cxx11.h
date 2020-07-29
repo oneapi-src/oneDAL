@@ -26,8 +26,8 @@ namespace oneapi
 {
 namespace internal
 {
-template <typename algorithmType>
-services::Status fillBuffer(services::Buffer<algorithmType> & buf, size_t nElems, algorithmType val);
+//template <typename algorithmType>
+//services::Status fillBuffer(services::Buffer<algorithmType> & buf, size_t nElems, algorithmType val);
 
 namespace interface1
 {
@@ -167,14 +167,14 @@ private:
         void operator()(Typelist<T>)
         {
             // switch back to this block when there is a fix in compiler
-            //auto dst              = dstUnivers.get<T>().toSycl();
-            //cl::sycl::event event = queue.submit([&](cl::sycl::handler & cgh) {
-            //    auto acc = dst.template get_access<cl::sycl::access::mode::write>(cgh);
-            //    cgh.fill(acc, static_cast<T>(value));
-            //});
-            //event.wait();
-            auto dst = dstUnivers.get<T>();
-            fillBuffer(dst, dst.size(), static_cast<T>(value));
+            auto dst              = dstUnivers.get<T>().toSycl();
+            cl::sycl::event event = queue.submit([&](cl::sycl::handler & cgh) {
+                auto acc = dst.template get_access<cl::sycl::access::mode::write>(cgh);
+                cgh.fill(acc, static_cast<T>(value));
+            });
+            event.wait();
+            //auto dst = dstUnivers.get<T>();
+            //fillBuffer(dst, dst.size(), static_cast<T>(value));
         }
     };
 
