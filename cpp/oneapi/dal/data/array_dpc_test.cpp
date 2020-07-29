@@ -132,8 +132,8 @@ TEST(array_dpc_test, can_wrap_const_data_with_offset_and_deleter) {
         });
     }).wait();
 
-    const float* cdata = &data[1];
-    auto arr = array<float>::wrap(cdata, 2, data, default_delete<T>(q));
+    const float* cdata = data;
+    auto arr = array<float>(cdata, 2, make_default_delete<const float>(q));
 
     ASSERT_EQ(arr.get_count(), 2);
     ASSERT_EQ(arr.get_data(), cdata);

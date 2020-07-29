@@ -19,36 +19,42 @@
 #include <cstring>
 
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/detail/dispatcher.hpp"
 #include "oneapi/dal/policy.hpp"
 
 namespace oneapi::dal::detail {
 
-struct host_only_alloc {};
+struct host_only_alloc {
+    host_only_alloc() {}
+    host_only_alloc(const default_parameter_tag&) {}
+};
 
 template <typename T>
-inline T* malloc(const host_policy&, std::int64_t count, host_only_alloc) {
+inline T* malloc(const cpu_dispatch_default&,
+                 std::int64_t count,
+                 const host_only_alloc& kind = {}) {
     return new T[count];
 }
 
 template <typename T>
-inline void free(const host_policy&, T* pointer) {
+inline void free(const cpu_dispatch_default&, T* pointer) {
     delete[] pointer;
 }
 
-inline void memset(const host_policy&, void* dest, std::int32_t value, std::int64_t size) {
+inline void memset(const cpu_dispatch_default&, void* dest, std::int32_t value, std::int64_t size) {
     // TODO: is not safe since std::memset accepts size as size_t
     // TODO: can be optimized in future
     std::memset(dest, value, size);
 }
 
-inline void memcpy(const host_policy&, void* dest, const void* src, std::int64_t size) {
+inline void memcpy(const cpu_dispatch_default&, void* dest, const void* src, std::int64_t size) {
     // TODO: is not safe since std::memset accepts size as size_t
     // TODO: can be optimized in future
     std::memcpy(dest, src, size);
 }
 
 template <typename T>
-inline void fill(const host_policy&, T* dest, std::int64_t count, const T& value) {
+inline void fill(const cpu_dispatch_default&, T* dest, std::int64_t count, const T& value) {
     // TODO: can be optimized in future
     for (std::int64_t i = 0; i < count; i++) {
         dest[i] = value;

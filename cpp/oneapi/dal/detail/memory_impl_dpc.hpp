@@ -22,15 +22,36 @@
 #include "oneapi/dal/policy.hpp"
 
 namespace oneapi::dal::detail {
-
 #ifdef ONEAPI_DAL_DATA_PARALLEL
+
+class data_parallel_alloc {
+public:
+    data_parallel_alloc()
+        : data_parallel_alloc(default_parameter_tag{}) {}
+
+    data_parallel_alloc(const default_parameter_tag&)
+        : kind_(sycl::usm::alloc::shared) {}
+
+    data_parallel_alloc(const sycl::usm::alloc kind)
+        : kind_(kind) {}
+
+    const sycl::usm::alloc& get_kind() const {
+        return kind_;
+    }
+
+private:
+    sycl::usm::alloc kind_;
+};
+
 template <typename T>
-inline T* malloc(const data_parallel_policy& policy, std::int64_t count, sycl::usm::alloc kind) {
+inline T* malloc(const data_parallel_policy& policy,
+                 std::int64_t count,
+                 const data_parallel_alloc& alloc = {}) {
     auto& queue  = policy.get_queue();
     auto device  = queue.get_device();
     auto context = queue.get_context();
     // TODO: is not safe since sycl::memset accepts count as size_t
-    return sycl::malloc<T>(count, device, context, kind);
+    return sycl::malloc<T>(count, device, context, alloc.get_kind());
 }
 
 template <typename T>

@@ -193,8 +193,8 @@ TEST(array_test, can_wrap_const_data_with_offset_and_deleter) {
     data[1] = 1.0f;
     data[2] = 2.0f;
 
-    const float* cdata = &data[1];
-    auto arr = array<float>::wrap(cdata, 2, data, [](float* ptr){ delete[] ptr; });
+    const float* cdata = data;
+    auto arr = array<float>(cdata, 2, [](const float* ptr){ delete[] ptr; });
 
     ASSERT_EQ(arr.get_count(), 2);
     ASSERT_EQ(arr.get_data(), cdata);

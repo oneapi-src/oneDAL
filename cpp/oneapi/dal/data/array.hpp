@@ -36,63 +36,70 @@ public:
 
 public:
     static array<T> empty(std::int64_t count) {
-        return empty_impl(host_policy{}, count, detail::host_only_alloc{});
+        return empty(detail::cpu_dispatch_default{}, count);
+    }
+
+    template <typename Policy, typename AllocKind=default_parameter_tag>
+    static array<T> empty(const Policy& policy,
+                          std::int64_t count,
+                          const AllocKind& alloc = {}) {
+        auto data = detail::malloc<T>(policy, count, alloc);
+        return array<T>{ data, count, make_default_delete<T>(policy) };
     }
 
     template <typename K>
     static array<T> full(std::int64_t count, K&& element) {
-        return full_impl(host_policy{}, count, std::forward<K>(element), detail::host_only_alloc{});
+        return full(detail::cpu_dispatch_default{}, count, std::forward<K>(element));
+    }
+
+    template <typename Policy, typename K, typename AllocKind=default_parameter_tag>
+    static array<T> full(const Policy& policy,
+                         std::int64_t count,
+                         K&& element,
+                         const AllocKind& alloc = {}) {
+        auto array = empty(policy, count, alloc);
+        detail::fill(policy, array.get_mutable_data(), count, std::forward<K>(element));
+        return array;
     }
 
     static array<T> zeros(std::int64_t count) {
         // TODO: can be optimized in future
-        return full_impl(host_policy{}, count, T{}, detail::host_only_alloc{});
+        return full(detail::cpu_dispatch_default{}, count, T{});
     }
 
-    template <typename Deleter = empty_delete<T>>
-    static array<T> wrap(const T* data, std::int64_t count, T* owned_ptr=nullptr, Deleter&& deleter={}) {
-        return { array<T>(owned_ptr, 1, std::forward<Deleter>(deleter)), data, count };
-    }
-
-    template <typename Deleter>
-    static array<T> wrap(T* data, std::int64_t count, Deleter&& deleter) {
-        return { data, count, std::forward<Deleter>(deleter) };
-    }
-
-#ifdef ONEAPI_DAL_DATA_PARALLEL
-    static array<T> empty(const data_parallel_policy& policy,
+    template <typename Policy, typename AllocKind=default_parameter_tag>
+    static array<T> zeros(const Policy& policy,
                           std::int64_t count,
-                          sycl::usm::alloc kind = sycl::usm::alloc::shared) {
-        return empty_impl(policy, count, kind);
-    }
-
-    template <typename K>
-    static array<T> full(const data_parallel_policy& policy,
-                         std::int64_t count,
-                         K&& element,
-                         sycl::usm::alloc kind = sycl::usm::alloc::shared) {
-        return full_impl(policy, count, std::forward<K>(element), kind);
-    }
-
-    static array<T> zeros(const data_parallel_policy& policy,
-                          std::int64_t count,
-                          sycl::usm::alloc kind = sycl::usm::alloc::shared) {
+                          const AllocKind& alloc = {}) {
         // TODO: can be optimized in future
-        return full_impl(policy, count, T{}, kind);
+        return full(policy, count, T{}, alloc);
     }
-#endif
+
+    static array<T> wrap(const T* data, std::int64_t count) {
+        return { data, count, empty_delete<const T>{} };
+    }
+
+    static array<T> wrap(T* data, std::int64_t count) {
+        return { data, count, empty_delete<T>{} };
+    }
 
 public:
-    array() : data_owned_ptr_(nullptr), count_(0) {}
+    array() : data_owned_ptr_(nullptr), data_owned_const_ptr_(nullptr), count_(0) {}
 
     template <typename Deleter>
     array(T* data, std::int64_t count, Deleter&& deleter) {
         reset(data, count, std::forward<Deleter>(deleter));
     }
 
+    template <typename Deleter>
+    array(const T* data, std::int64_t count, Deleter&& deleter) {
+        reset(data, count, std::forward<Deleter>(deleter));
+    }
+
     template <typename Y, typename K>
     array(const array<Y>& ref, K* data, std::int64_t count)
             : data_owned_ptr_(ref.data_owned_ptr_, nullptr),
+              data_owned_const_ptr_(nullptr),
               data_(data),
               count_(count) {}
 
@@ -114,15 +121,22 @@ public:
     }
 
     array& need_mutable_data() {
-        return need_mutable_data_impl(host_policy{}, detail::host_only_alloc{});
+        return need_mutable_data(detail::cpu_dispatch_default{});
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
-    array& need_mutable_data(const data_parallel_policy& policy,
-                             sycl::usm::alloc kind = sycl::usm::alloc::shared) {
-        return need_mutable_data_impl(policy, kind);
+    template <typename Policy, typename AllocKind = default_parameter_tag>
+    array& need_mutable_data(const Policy& policy, const AllocKind& alloc = {}) {
+        if (has_mutable_data() || count_ == 0) {
+            return *this;
+        } else {
+            auto immutable_data = get_data();
+            auto copy_data      = detail::malloc<T>(policy, count_, alloc);
+            detail::memcpy(policy, copy_data, immutable_data, sizeof(T) * count_);
+
+            reset(copy_data, count_, make_default_delete<T>(policy));
+            return *this;
+        }
     }
-#endif
 
     std::int64_t get_count() const {
         return count_;
@@ -134,36 +148,46 @@ public:
 
     void reset() {
         data_owned_ptr_.reset();
+        data_owned_const_ptr_.reset();
         data_  = std::variant<T*, const T*>();
         count_ = 0;
     }
 
     void reset(std::int64_t count) {
-        reset_impl(host_policy{}, count, detail::host_only_alloc{});
+        reset(detail::cpu_dispatch_default{}, count);
+    }
+
+    template <typename Policy, typename AllocKind=default_parameter_tag>
+    void reset(const Policy& policy, std::int64_t count, const AllocKind& alloc = {}) {
+        auto new_data = detail::malloc<T>(policy, count, alloc);
+        reset(new_data, count, make_default_delete<T>(policy));
     }
 
     template <typename Deleter>
     void reset(T* data, std::int64_t count, Deleter&& deleter) {
         // TODO: check input parameters
         data_owned_ptr_.reset(data, std::forward<Deleter>(deleter));
-        data_  = data_owned_ptr_.get();
+        data_owned_const_ptr_.reset();
+        data_  = data;
+        count_ = count;
+    }
+
+    template <typename Deleter>
+    void reset(const T* data, std::int64_t count, Deleter&& deleter) {
+        // TODO: check input parameters
+        data_owned_ptr_.reset();
+        data_owned_const_ptr_.reset(data, std::forward<Deleter>(deleter));
+        data_  = data;
         count_ = count;
     }
 
     template <typename Y, typename K>
     void reset(const array<Y>& ref, K* data, std::int64_t count) {
         data_owned_ptr_ = detail::shared<T>(ref.data_owned_ptr_, nullptr);
+        data_owned_const_ptr_.reset();
         data_           = data;
         count_          = count;
     }
-
-#ifdef ONEAPI_DAL_DATA_PARALLEL
-    void reset(const data_parallel_policy& policy,
-               std::int64_t count,
-               sycl::usm::alloc kind = sycl::usm::alloc::shared) {
-        reset_impl(policy, count, kind);
-    }
-#endif
 
     const T& operator[](std::int64_t index) const {
         return get_data()[index];
@@ -174,43 +198,8 @@ public:
     }
 
 private:
-    template <typename Policy, typename AllocKind>
-    static array<T> empty_impl(Policy&& policy, std::int64_t count, AllocKind&& kind) {
-        auto data = detail::malloc<T>(policy, count, kind);
-        return array<T>{ data, count, default_delete<T, Policy>{ policy } };
-    }
-
-    template <typename K, typename Policy, typename AllocKind>
-    static array<T> full_impl(Policy&& policy, std::int64_t count, K&& element, AllocKind&& kind) {
-        auto array = empty_impl(std::forward<Policy>(policy), count, std::forward<AllocKind>(kind));
-        detail::fill(policy, array.get_mutable_data(), count, element);
-        return array;
-    }
-
-private:
-    template <typename Policy, typename AllocKind>
-    array& need_mutable_data_impl(Policy&& policy, AllocKind&& kind) {
-        if (has_mutable_data() || count_ == 0) {
-            return *this;
-        }
-        else {
-            auto immutable_data = get_data();
-            auto copy_data      = detail::malloc<T>(policy, count_, kind);
-            detail::memcpy(policy, copy_data, immutable_data, sizeof(T) * count_);
-
-            reset(copy_data, count_, default_delete<T, Policy>{ policy });
-            return *this;
-        }
-    }
-
-    template <typename Policy, typename AllocKind>
-    void reset_impl(Policy&& policy, std::int64_t count, AllocKind&& kind) {
-        auto new_data = detail::malloc<T>(policy, count, kind);
-        reset(new_data, count, default_delete<T, Policy>{ policy });
-    }
-
-private:
     detail::shared<T> data_owned_ptr_;
+    detail::shared<const T> data_owned_const_ptr_;
     std::variant<T*, const T*> data_;
 
     std::int64_t count_;

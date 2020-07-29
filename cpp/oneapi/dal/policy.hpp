@@ -60,11 +60,16 @@ private:
 #ifdef ONEAPI_DAL_DATA_PARALLEL
 class ONEAPI_DAL_EXPORT data_parallel_policy : public base {
 public:
-    data_parallel_policy(const sycl::queue& queue);
+    data_parallel_policy(const sycl::queue& queue)
+        : queue_(queue),
+          impl_(nullptr) {} // reserved for future
 
-    sycl::queue& get_queue() const noexcept;
+    sycl::queue& get_queue() const noexcept {
+        return queue_;
+    }
 
 private:
+    mutable sycl::queue queue_;
     dal::detail::pimpl<detail::data_parallel_policy_impl> impl_;
 };
 #endif

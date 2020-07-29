@@ -46,8 +46,7 @@ public:
     virtual void copy_data(sycl::queue& queue,
                            const void* data,
                            std::int64_t row_count,
-                           std::int64_t column_count,
-                           const sycl::vector_class<sycl::event>& dependencies = {}) = 0;
+                           std::int64_t column_count) = 0;
 #endif
 };
 
@@ -154,9 +153,8 @@ public:
     virtual void copy_data(sycl::queue& queue,
                            const void* data,
                            std::int64_t row_count,
-                           std::int64_t column_count,
-                           const sycl::vector_class<sycl::event>& dependencies) override {
-        impl_.copy_data(queue, data, row_count, column_count, dependencies);
+                           std::int64_t column_count) override {
+        impl_.copy_data(queue, data, row_count, column_count);
     }
 
     virtual access_iface_dpc& get_access_iface_dpc() const override {

@@ -39,4 +39,18 @@ private:
     std::remove_reference_t<Policy> policy_;
 };
 
+template <typename T>
+inline auto make_default_delete(const detail::cpu_dispatch_default& policy) {
+    return default_delete<T, detail::cpu_dispatch_default>{ policy };
+}
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+
+template <typename T>
+inline auto make_default_delete(const data_parallel_policy& policy) {
+    return default_delete<T, data_parallel_policy>{ policy };
+}
+
+#endif
+
 } // namespace oneapi::dal

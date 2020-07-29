@@ -75,7 +75,7 @@ public:
 
     void copy_data(const void* data, std::int64_t row_count, std::int64_t column_count) {
         data_.reset(row_count * column_count * get_data_type_size(feature_.get_data_type()));
-        detail::memcpy(host_policy{}, data_.get_mutable_data(), data, data_.get_size());
+        detail::memcpy(detail::cpu_dispatch_default{}, data_.get_mutable_data(), data, data_.get_size());
 
         row_count_    = row_count;
         column_count_ = column_count;
@@ -93,7 +93,7 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    void allocate(sycl::queue& queue,
+    void allocate(const sycl::queue& queue,
                   std::int64_t row_count,
                   std::int64_t column_count,
                   sycl::usm::alloc kind) {
@@ -107,9 +107,7 @@ public:
     void copy_data(sycl::queue& queue,
                    const void* data,
                    std::int64_t row_count,
-                   std::int64_t column_count,
-                   const sycl::vector_class<sycl::event>& dependencies) {
-        detail::wait_and_throw(dependencies);
+                   std::int64_t column_count) {
         data_.reset(queue,
                     row_count * column_count * get_data_type_size(feature_.get_data_type()),
                     sycl::get_pointer_type(data_.get_data(), queue.get_context()));
