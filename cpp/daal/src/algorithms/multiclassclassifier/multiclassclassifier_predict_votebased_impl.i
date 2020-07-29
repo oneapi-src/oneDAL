@@ -76,7 +76,7 @@ public:
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < _nClasses * nRows; i++)
+        for (size_t i = 0; i < _nClasses * nRows; ++i)
         {
             votes[i] = 0;
         }
@@ -89,9 +89,9 @@ public:
             if (nRows != _yTable->getNumberOfRows()) _yTable->resize(nRows);
 
             /* TODO: Try threading here */
-            for (size_t iClass = 1, imodel = 0; iClass < _nClasses; iClass++)
+            for (size_t iClass = 1, imodel = 0; iClass < _nClasses; ++iClass)
             {
-                for (size_t jClass = 0; jClass < iClass; jClass++, imodel++)
+                for (size_t jClass = 0; jClass < iClass; ++jClass, ++imodel)
                 {
                     /* Compute two-class predictions for the pair of classes (iClass, jClass)
                        for the block of input observations */
@@ -106,7 +106,7 @@ public:
                     /* Compute votes for the block of input observations */
                     PRAGMA_IVDEP
                     PRAGMA_VECTOR_ALWAYS
-                    for (size_t i = 0; i < nRows; i++)
+                    for (size_t i = 0; i < nRows; ++i)
                     {
                         if (y[i] >= 0)
                             votes[i * _nClasses + iClass]++;
@@ -266,9 +266,12 @@ protected:
         size_t * const cols            = const_cast<size_t *>(_xRows.cols());
         Status s;
         const size_t * const rows = _xRows.rows();
-        if (!values || !cols || !rows) s |= services::Status(services::ErrorMemoryAllocationFailed);
+        if (!values || !cols || !rows)
+        {
+            s |= services::Status(services::ErrorMemoryAllocationFailed);
+        }
         _rowOffsets[0] = 1;
-        for (size_t i = 0; i < nRows; i++)
+        for (size_t i = 0; i < nRows; ++i)
         {
             const size_t nNonZeroValuesInRow = rows[i + 1] - rows[i];
             _rowOffsets[i + 1]               = _rowOffsets[i] + nNonZeroValuesInRow;

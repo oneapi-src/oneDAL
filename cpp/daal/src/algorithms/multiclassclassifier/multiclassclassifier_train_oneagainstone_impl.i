@@ -143,9 +143,9 @@ Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, ClsType, 
     size_t * classNonZeroValuesCount = buffer.get() + nClasses;
     size_t * classDataSize           = buffer.get() + 2 * nClasses;
     size_t * classIndex              = buffer.get() + 3 * nClasses;
-    for (size_t i = 0; i < nVectors; i++)
+    for (size_t i = 0; i < nVectors; ++i)
     {
-        classLabelsCount[size_t(y[i])]++;
+        ++classLabelsCount[size_t(y[i])];
     }
     if (xTable->getDataLayout() == NumericTableIface::csrArray)
     {
@@ -154,9 +154,12 @@ Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, ClsType, 
         DAAL_CHECK_BLOCK_STATUS(_mtX);
         const size_t * rowOffsets = _mtX.rows();
         /* Compute data size needed to store the largest subset of input tables */
-        for (size_t i = 0; i < nVectors; i++) classNonZeroValuesCount[size_t(y[i])] += (rowOffsets[i + 1] - rowOffsets[i]);
+        for (size_t i = 0; i < nVectors; ++i)
+        {
+            classNonZeroValuesCount[size_t(y[i])] += (rowOffsets[i + 1] - rowOffsets[i]);
+        }
 
-        for (size_t i = 0; i < nClasses; i++)
+        for (size_t i = 0; i < nClasses; ++i)
         {
             classDataSize[i] = classLabelsCount[i] + classNonZeroValuesCount[i];
             classIndex[i]    = i;
