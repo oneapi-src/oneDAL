@@ -259,25 +259,15 @@ public:
 protected:
     Status getDataBlock(size_t startRow, size_t nRows, const NumericTable * a, NumericTablePtr & xTable) DAAL_C11_OVERRIDE
     {
-        _xRows.set(dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(a)), startRow, nRows);
+        const bool toOneBaseRowIndices = true;
+        _xRows.set(dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(a)), startRow, nRows, toOneBaseRowIndices);
         DAAL_CHECK_BLOCK_STATUS(_xRows);
 
         algorithmFPType * const values = const_cast<algorithmFPType *>(_xRows.values());
         size_t * const cols            = const_cast<size_t *>(_xRows.cols());
+        size_t * const rows            = const_cast<size_t *>(_xRows.rows());
         Status s;
-        const size_t * const rows = _xRows.rows();
-        if (!values || !cols || !rows)
-        {
-            s |= services::Status(services::ErrorMemoryAllocationFailed);
-        }
-        _rowOffsets[0] = 1;
-        for (size_t i = 0; i < nRows; ++i)
-        {
-            const size_t nNonZeroValuesInRow = rows[i + 1] - rows[i];
-            _rowOffsets[i + 1]               = _rowOffsets[i] + nNonZeroValuesInRow;
-        }
-
-        xTable = CSRNumericTable::create(values, cols, _rowOffsets.get(), a->getNumberOfColumns(), nRows, CSRNumericTableIface::oneBased, &s);
+        xTable = CSRNumericTable::create(values, cols, rows, a->getNumberOfColumns(), nRows, CSRNumericTableIface::oneBased, &s);
         return s;
     }
 
