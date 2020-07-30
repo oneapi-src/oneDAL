@@ -1,6 +1,6 @@
-/* file: bf_knn_classification_predict_dense_default_batch_fpt_cpu.cpp */
+/* file: bf_knn_classification_predict_result_fpt.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,8 +15,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "src/algorithms/k_nearest_neighbors/bf_knn_classification_predict_dense_default_batch_container.h"
-#include "src/algorithms/k_nearest_neighbors/bf_knn_classification_predict_kernel_impl.i"
+/*
+//++
+//  Implementation of the class defining the K-Nearest Neighbors (kNN) model
+//--
+*/
+
+#include "src/algorithms/k_nearest_neighbors/bf_knn_classification_predict_result.h"
 
 namespace daal
 {
@@ -26,14 +31,8 @@ namespace bf_knn_classification
 {
 namespace prediction
 {
-namespace interface1
-{
-template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
-namespace internal
-{
-template class KNNClassificationPredictKernel<DAAL_FPTYPE, DAAL_CPU>;
-}
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, int method);
 } // namespace prediction
 } // namespace bf_knn_classification
 } // namespace algorithms

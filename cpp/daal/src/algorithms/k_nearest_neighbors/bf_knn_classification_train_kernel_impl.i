@@ -1,4 +1,4 @@
-/* file: bf_knn_classification_predict_dense_default_batch_fpt_cpu.cpp */
+/* file: bf_knn_classification_train_kernel_impl.i */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -15,8 +15,15 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "src/algorithms/k_nearest_neighbors/bf_knn_classification_predict_dense_default_batch_container.h"
-#include "src/algorithms/k_nearest_neighbors/bf_knn_classification_predict_kernel_impl.i"
+#ifndef __BF_KNN_CLASSIFICATION_TRAIN_KERNEL_IMPL_I__
+#define __BF_KNN_CLASSIFICATION_TRAIN_KERNEL_IMPL_I__
+
+#include "algorithms/engines/engine.h"
+#include "services/daal_defines.h"
+
+#include "src/algorithms/k_nearest_neighbors/bf_knn_classification_train_kernel.h"
+#include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
+#include "src/algorithms/k_nearest_neighbors/bf_knn_impl.i"
 
 namespace daal
 {
@@ -24,17 +31,21 @@ namespace algorithms
 {
 namespace bf_knn_classification
 {
-namespace prediction
+namespace training
 {
-namespace interface1
-{
-template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
 namespace internal
 {
-template class KNNClassificationPredictKernel<DAAL_FPTYPE, DAAL_CPU>;
+template <typename algorithmFpType, CpuType cpu>
+services::Status KNNClassificationTrainKernel<algorithmFpType, cpu>::compute(NumericTable * x, NumericTable * y, Model * r, const Parameter & par,
+                                                                             engines::BatchBase & engine)
+{
+    return services::Status();
 }
-} // namespace prediction
+
+} // namespace internal
+} // namespace training
 } // namespace bf_knn_classification
 } // namespace algorithms
 } // namespace daal
+
+#endif

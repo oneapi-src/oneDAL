@@ -91,7 +91,7 @@ public:
 
     typedef algorithms::bf_knn_classification::prediction::Input InputType;
     typedef algorithms::bf_knn_classification::Parameter ParameterType;
-    typedef typename super::ResultType ResultType;
+    typedef algorithms::bf_knn_classification::prediction::Result ResultType;
 
     /** Default constructor */
     Batch();
@@ -124,6 +124,12 @@ public:
     virtual const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
+     * Returns the structure that contains the results of the DBSCAN algorithm
+     * \return Structure that contains the results of the DBSCAN algorithm
+     */
+    ResultPtr getResult() { return _result; }
+
+    /**
      * Get input objects for the BF kNN prediction algorithm
      * \return %Input objects for the BF kNN prediction algorithm
      */
@@ -150,6 +156,7 @@ protected:
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
+        _result.reset(new ResultType());
         services::Status s = _result->allocate<algorithmFPType>(_in, _par, (int)method);
         _res               = _result.get();
         return s;
@@ -159,9 +166,12 @@ protected:
     {
         _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
         _in = &input;
+        _result.reset(new ResultType());
     }
 
 private:
+    ResultPtr _result;
+
     Batch & operator=(const Batch &);
 };
 

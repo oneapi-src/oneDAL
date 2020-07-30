@@ -52,6 +52,25 @@ enum DataUseInModel
     doNotUse = 0, /*!< The input data and labels will not be the component of the trained kNN model */
     doUse    = 1  /*!< The input data and labels will be the component of the trained kNN model */
 };
+/**
+ * <a name="DAAL-ENUM-ALGORITHMS__BF_KNN_CLASSIFICATION__RESULTTOCOMPUTEID"></a>
+ * Available identifiers to specify the result to compute
+ */
+enum ResultToComputeId
+{
+    computeClassLabels         = 0x00000001ULL,
+    computeIndicesOfNeightbors = 0x00000002ULL,
+    computeDistances           = 0x00000004ULL
+};
+/**
+ * <a name="DAAL-ENUM-ALGORITHMS__BF_KNN_CLASSIFICATION__VOTEWEIGHTS"></a>
+ * \brief Weight function used in prediction voting
+ */
+enum VoteWeights
+{
+    voteUniform  = 0,
+    voteDistance = 1
+};
 
 /**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
@@ -73,8 +92,14 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
      *  \param[in] nNeighbors           Number of neighbors
      *  \param[in] dataUse              The option to enable/disable an usage of the input dataset in kNN model
      */
-    Parameter(size_t nClasses = 2, size_t nNeighbors = 1, DataUseInModel dataUse = doNotUse)
-        : daal::algorithms::classifier::Parameter(nClasses), k(nNeighbors), dataUseInModel(dataUse), engine(engines::mcg59::Batch<>::create())
+    Parameter(size_t nClasses = 2, size_t nNeighbors = 1, DataUseInModel dataUse = doNotUse,
+              DAAL_UINT64 resToCompute = computeClassLabels | computeIndicesOfNeightbors | computeDistances, VoteWeights vote = voteUniform)
+        : daal::algorithms::classifier::Parameter(nClasses),
+          k(nNeighbors),
+          dataUseInModel(dataUse),
+          engine(engines::mcg59::Batch<>::create()),
+          resultsToCompute(resToCompute),
+          voteWeights(vote)
     {}
 
     /**
@@ -82,7 +107,12 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
      *  \param[in] other             Object to copy
      */
     Parameter(const Parameter & other)
-        : daal::algorithms::classifier::Parameter(other.nClasses), k(other.k), dataUseInModel(other.dataUseInModel), engine(other.engine->clone())
+        : daal::algorithms::classifier::Parameter(other.nClasses),
+          k(other.k),
+          dataUseInModel(other.dataUseInModel),
+          engine(other.engine->clone()),
+          resultsToCompute(other.resultsToCompute),
+          voteWeights(other.voteWeights)
     {}
 
     /**
@@ -97,6 +127,8 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
             k                                                = other.k;
             dataUseInModel                                   = other.dataUseInModel;
             engine                                           = other.engine->clone();
+            resultsToCompute                                 = other.resultsToCompute;
+            voteWeights                                      = other.voteWeights;
         }
         return *this;
     }
@@ -108,6 +140,8 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
 
     size_t k;                      /*!< Number of neighbors */
     DataUseInModel dataUseInModel; /*!< The option to enable/disable an usage of the input dataset in kNN model */
+    DAAL_UINT64 resultsToCompute;  /*!< 64 bit integer flag that indicates the results to compute */
+    VoteWeights voteWeights;       /*!< Weight function used in prediction */
     engines::EnginePtr engine;     /*!< Engine for random choosing elements from training dataset */
 };
 /* [Parameter source code] */

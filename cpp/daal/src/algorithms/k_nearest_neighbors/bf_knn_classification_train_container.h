@@ -18,12 +18,14 @@
 #ifndef __BF_KNN_CLASSIFICATION_TRAIN_CONTAINER_H__
 #define __BF_KNN_CLASSIFICATION_TRAIN_CONTAINER_H__
 
+#include "sycl/internal/execution_context.h"
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "services/daal_shared_ptr.h"
 #include "algorithms/k_nearest_neighbors/bf_knn_classification_training_batch.h"
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_train_kernel_ucapi.h"
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
+#include "src/algorithms/k_nearest_neighbors/bf_knn_classification_train_kernel.h"
 
 namespace daal
 {
@@ -38,7 +40,17 @@ using namespace daal::data_management;
 template <typename algorithmFpType, training::Method method, CpuType cpu>
 BatchContainer<algorithmFpType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS_SYCL(internal::KNNClassificationTrainKernelUCAPI, DAAL_FPTYPE);
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
+
+    if (deviceInfo.isCpu)
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::KNNClassificationTrainKernel, algorithmFpType);
+    }
+    else
+    {
+        __DAAL_INITIALIZE_KERNELS_SYCL(internal::KNNClassificationTrainKernelUCAPI, DAAL_FPTYPE);
+    }
 }
 
 template <typename algorithmFpType, training::Method method, CpuType cpu>
@@ -68,8 +80,19 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
     status |= r->impl()->setLabels<algorithmFpType>(y, copy);
     DAAL_CHECK_STATUS_VAR(status);
 
-    __DAAL_CALL_KERNEL_SYCL(env, internal::KNNClassificationTrainKernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFpType), compute,
-                            r->impl()->getData().get(), r->impl()->getLabels().get(), r.get(), *par, *par->engine);
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
+
+    if (deviceInfo.isCpu)
+    {
+        __DAAL_CALL_KERNEL(env, internal::KNNClassificationTrainKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFpType), compute, r->impl()->getData().get(),
+                           r->impl()->getLabels().get(), r.get(), *par, *par->engine);
+    }
+    else
+    {
+        __DAAL_CALL_KERNEL_SYCL(env, internal::KNNClassificationTrainKernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFpType), compute,
+                                r->impl()->getData().get(), r->impl()->getLabels().get(), r.get(), *par, *par->engine);
+    }
 }
 
 } // namespace training
