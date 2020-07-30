@@ -26,14 +26,11 @@ namespace oneapi::dal::detail {
 
 class data_parallel_alloc {
 public:
-    data_parallel_alloc()
-        : data_parallel_alloc(default_parameter_tag{}) {}
+    data_parallel_alloc() : data_parallel_alloc(default_parameter_tag{}) {}
 
-    data_parallel_alloc(const default_parameter_tag&)
-        : kind_(sycl::usm::alloc::shared) {}
+    data_parallel_alloc(const default_parameter_tag&) : kind_(sycl::usm::alloc::shared) {}
 
-    data_parallel_alloc(const sycl::usm::alloc kind)
-        : kind_(kind) {}
+    data_parallel_alloc(const sycl::usm::alloc kind) : kind_(kind) {}
 
     const sycl::usm::alloc& get_kind() const {
         return kind_;

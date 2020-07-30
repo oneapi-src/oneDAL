@@ -53,7 +53,11 @@ public:
                      const column_values_block& index,
                      const alloc_kind_t& kind) const {
         if constexpr (has_pull_column_dpc<T, typename Block::data_t>::value) {
-            obj_.pull_column(policy.get_queue(), block, index.column_index, index.rows, kind.get_kind());
+            obj_.pull_column(policy.get_queue(),
+                             block,
+                             index.column_index,
+                             index.rows,
+                             kind.get_kind());
         }
         else {
             throw std::runtime_error("pulling column is not supported for DPC++");

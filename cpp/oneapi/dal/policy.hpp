@@ -61,8 +61,8 @@ private:
 class ONEAPI_DAL_EXPORT data_parallel_policy : public base {
 public:
     data_parallel_policy(const sycl::queue& queue)
-        : queue_(queue),
-          impl_(nullptr) {} // reserved for future
+            : queue_(queue),
+              impl_(nullptr) {} // reserved for future
 
     sycl::queue& get_queue() const noexcept {
         return queue_;

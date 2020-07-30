@@ -35,4 +35,3 @@ inline void wait_and_throw(const sycl::vector_class<sycl::event>& dependencies) 
 #endif // ONEAPI_DAL_DATA_PARALLEL
 
 } // namespace oneapi::dal::detail
-

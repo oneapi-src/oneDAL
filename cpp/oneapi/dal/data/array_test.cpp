@@ -180,7 +180,7 @@ TEST(array_test, can_construct_non_owning_read_only_array) {
 
 TEST(array_test, can_wrap_const_data) {
     const float data[] = { 1.0f, 2.0f, 3.0f };
-    auto arr = array<float>::wrap(data, 3);
+    auto arr           = array<float>::wrap(data, 3);
 
     ASSERT_EQ(arr.get_count(), 3);
     ASSERT_EQ(arr.get_data(), data);
@@ -189,12 +189,14 @@ TEST(array_test, can_wrap_const_data) {
 
 TEST(array_test, can_wrap_const_data_with_offset_and_deleter) {
     float* data = new float[3];
-    data[0] = 0.0f;
-    data[1] = 1.0f;
-    data[2] = 2.0f;
+    data[0]     = 0.0f;
+    data[1]     = 1.0f;
+    data[2]     = 2.0f;
 
     const float* cdata = data;
-    auto arr = array<float>(cdata, 2, [](const float* ptr){ delete[] ptr; });
+    auto arr           = array<float>(cdata, 2, [](const float* ptr) {
+        delete[] ptr;
+    });
 
     ASSERT_EQ(arr.get_count(), 2);
     ASSERT_EQ(arr.get_data(), cdata);

@@ -67,13 +67,11 @@ struct is_homogen_table_builder_impl {
                                  std::int64_t column_count,
                                  sycl::usm::alloc kind),
                                 allocate_dpc)
-    ONEAPI_DAL_HAS_METHOD_TRAIT(void,
-                                copy_data,
-                                (sycl::queue& queue,
-                                 const void* data,
-                                 std::int64_t row_count,
-                                 std::int64_t column_count),
-                                copy_data_dpc)
+    ONEAPI_DAL_HAS_METHOD_TRAIT(
+        void,
+        copy_data,
+        (sycl::queue & queue, const void* data, std::int64_t row_count, std::int64_t column_count),
+        copy_data_dpc)
 
     static constexpr bool value_dpc = has_method_allocate_dpc_v<T> && has_method_copy_data_dpc_v<T>;
     static constexpr bool value     = value_host && value_dpc;

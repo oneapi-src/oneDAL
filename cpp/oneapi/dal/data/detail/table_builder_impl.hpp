@@ -42,7 +42,7 @@ public:
     virtual void allocate(sycl::queue& queue,
                           std::int64_t row_count,
                           std::int64_t column_count,
-                          sycl::usm::alloc kind)                                     = 0;
+                          sycl::usm::alloc kind)      = 0;
     virtual void copy_data(sycl::queue& queue,
                            const void* data,
                            std::int64_t row_count,

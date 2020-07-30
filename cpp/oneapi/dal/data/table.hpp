@@ -18,8 +18,8 @@
 
 #include <type_traits>
 
-#include "oneapi/dal/detail/common_dpc.hpp"
 #include "oneapi/dal/data/detail/table_impl_wrapper.hpp"
+#include "oneapi/dal/detail/common_dpc.hpp"
 #include "oneapi/dal/util/type_traits.hpp"
 
 namespace oneapi::dal {
@@ -132,17 +132,22 @@ private:
         table::init_impl(wrapper);
     }
 
-    template <typename Policy, typename Data, typename Deleter, typename EventList=default_parameter_tag>
+    template <typename Policy,
+              typename Data,
+              typename Deleter,
+              typename EventList = default_parameter_tag>
     void init_impl(const Policy& policy,
-                  std::int64_t row_count,
-                  std::int64_t column_count,
-                  const Data* data_pointer,
-                  Deleter&& data_deleter,
-                  homogen_data_layout layout,
-                  const EventList& dependencies = {}) {
-        array<Data> data_array {data_pointer, row_count*column_count, std::forward<Deleter>(data_deleter)};
+                   std::int64_t row_count,
+                   std::int64_t column_count,
+                   const Data* data_pointer,
+                   Deleter&& data_deleter,
+                   homogen_data_layout layout,
+                   const EventList& dependencies = {}) {
+        array<Data> data_array{ data_pointer,
+                                row_count * column_count,
+                                std::forward<Deleter>(data_deleter) };
 
-        auto byte_data = reinterpret_cast<const byte_t*>(data_pointer);
+        auto byte_data                = reinterpret_cast<const byte_t*>(data_pointer);
         const std::int64_t byte_count = data_array.get_count() * sizeof(Data);
 
         auto byte_array = array<byte_t>{ data_array, byte_data, byte_count };

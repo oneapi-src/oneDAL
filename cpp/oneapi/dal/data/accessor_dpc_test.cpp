@@ -33,7 +33,10 @@ TEST(column_accessor_test, can_get_first_column_from_homogen_table) {
         });
     });
 
-    homogen_table t{ q, 4, 2, data, make_default_delete<const float>(q), homogen_data_layout::row_major, { event } };
+    homogen_table t{
+        q,        4, 2, data, make_default_delete<const float>(q), homogen_data_layout::row_major,
+        { event }
+    };
     column_accessor<const float> acc{ t };
     auto col = acc.pull(q, 0);
 
@@ -56,7 +59,10 @@ TEST(column_accessor_test, can_get_second_column_from_homogen_table_with_convers
         });
     });
 
-    homogen_table t{ q, 4, 2, data, make_default_delete<const float>(q), homogen_data_layout::row_major, { event } };
+    homogen_table t{
+        q,        4, 2, data, make_default_delete<const float>(q), homogen_data_layout::row_major,
+        { event }
+    };
     column_accessor<const double> acc{ t };
     auto col = acc.pull(q, 1);
 
@@ -79,7 +85,10 @@ TEST(column_accessor_test, can_get_first_column_from_homogen_table_with_subset_o
         });
     });
 
-    homogen_table t{ q, 4, 2, data, make_default_delete<const float>(q), homogen_data_layout::row_major, { event } };
+    homogen_table t{
+        q,        4, 2, data, make_default_delete<const float>(q), homogen_data_layout::row_major,
+        { event }
+    };
     column_accessor<const float> acc{ t };
     auto col = acc.pull(q, 0, { 1, 3 });
 

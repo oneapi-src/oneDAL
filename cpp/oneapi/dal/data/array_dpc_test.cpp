@@ -66,10 +66,10 @@ TEST(array_dpc_test, can_construct_array_with_events) {
 
     auto* data = sycl::malloc_shared<float>(count, q);
     q.submit([&](sycl::handler& cgh) {
-        cgh.parallel_for(sycl::range<1>(count), [=](sycl::id<1> idx) {
-            data[idx[0]] = idx;
-        });
-    }).wait();
+         cgh.parallel_for(sycl::range<1>(count), [=](sycl::id<1> idx) {
+             data[idx[0]] = idx;
+         });
+     }).wait();
 
     array<float> arr{ data, 10, make_default_delete<float>(q) };
 
@@ -109,10 +109,10 @@ TEST(array_dpc_test, can_reset_array_with_raw_pointer) {
     constexpr int64_t count = 10;
     auto* data              = sycl::malloc_shared<float>(count, q);
     q.submit([&](sycl::handler& cgh) {
-        cgh.parallel_for(sycl::range<1>(count), [=](sycl::id<1> idx) {
-            data[idx[0]] = idx;
-        });
-    }).wait();
+         cgh.parallel_for(sycl::range<1>(count), [=](sycl::id<1> idx) {
+             data[idx[0]] = idx;
+         });
+     }).wait();
 
     arr.reset(data, count, make_default_delete<float>(q));
 
@@ -129,13 +129,13 @@ TEST(array_dpc_test, can_wrap_const_data_with_offset_and_deleter) {
 
     auto data = sycl::malloc_shared<float>(count, q);
     q.submit([&](sycl::handler& cgh) {
-        cgh.parallel_for(sycl::range<1>(count), [=](sycl::id<1> idx) {
-            data[idx[0]] = idx;
-        });
-    }).wait();
+         cgh.parallel_for(sycl::range<1>(count), [=](sycl::id<1> idx) {
+             data[idx[0]] = idx;
+         });
+     }).wait();
 
     const float* cdata = data;
-    auto arr = array<float>(cdata, 2, make_default_delete<const float>(q));
+    auto arr           = array<float>(cdata, 2, make_default_delete<const float>(q));
 
     ASSERT_EQ(arr.get_count(), 2);
     ASSERT_EQ(arr.get_data(), cdata);

@@ -42,14 +42,16 @@ public:
             : host_access_(get_impl<access_provider_iface>(obj).get_access_iface_host()) {}
 #endif
 
-    template <typename Policy, typename AllocKind=default_parameter_tag>
-    array<data_t> pull(const Policy& policy, const BlockIndex& idx, const AllocKind& alloc = {}) const {
+    template <typename Policy, typename AllocKind = default_parameter_tag>
+    array<data_t> pull(const Policy& policy,
+                       const BlockIndex& idx,
+                       const AllocKind& alloc = {}) const {
         array<data_t> block;
         get_access(policy).pull(policy, block, idx, alloc);
         return block;
     }
 
-    template <typename Policy, typename AllocKind=default_parameter_tag>
+    template <typename Policy, typename AllocKind = default_parameter_tag>
     T* pull(const Policy& policy,
             array<data_t>& block,
             const BlockIndex& idx,
@@ -116,7 +118,7 @@ public:
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     array<data_t> pull(const data_parallel_policy& policy,
-                       const range& rows     = { 0, -1 },
+                       const range& rows             = { 0, -1 },
                        const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
         return base::pull(policy, { rows }, alloc);
     }
@@ -129,7 +131,7 @@ public:
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     T* pull(const data_parallel_policy& policy,
             array<data_t>& block,
-            const range& rows     = { 0, -1 },
+            const range& rows             = { 0, -1 },
             const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
         return base::pull(policy, block, { rows }, alloc);
     }
@@ -174,7 +176,7 @@ public:
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     array<data_t> pull(const data_parallel_policy& policy,
                        std::int64_t column_index,
-                       const range& rows     = { 0, -1 },
+                       const range& rows             = { 0, -1 },
                        const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
         return base::pull(policy, { column_index, rows }, alloc);
     }
@@ -188,7 +190,7 @@ public:
     T* pull(const data_parallel_policy& policy,
             array<data_t>& block,
             std::int64_t column_index,
-            const range& rows     = { 0, -1 },
+            const range& rows             = { 0, -1 },
             const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
         return base::pull(policy, block, { column_index, rows }, alloc);
     }
@@ -210,7 +212,6 @@ public:
         base::push(policy, block, { column_index, rows });
     }
 #endif
-
 };
 
 } // namespace oneapi::dal
