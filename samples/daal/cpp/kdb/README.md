@@ -4,6 +4,8 @@ KDB\* samples for the Intel(R) Data Analytics Acceleration Library (Intel(R) DAA
 
 Unzip the archive with Intel(R) DAAL samples to your working directory (`<sample_dir>`).
 
+“NOTE: The Intel® oneAPI Data Analytics Library (oneDAL)  is able to interface with kdb+. Intel does not provide kdb+ or any license to Kdb+ as part of oneDAL.  kdb+ is available for license from Kx Systems, Inc. under a commercial license (which may include fees) as well as a non-commercial license. You are solely responsible for procuring any license for kdb+ based on your use case.”
+
 ## System Requirements
 You can use Intel(R) DAAL KDB samples on Linux\*, Windows\*, and macOS\* operating systems. For a list of Intel(R) DAAL hardware and software requirements, refer to release notes for the version of Intel(R) DAAL you are using.
 
