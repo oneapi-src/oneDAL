@@ -150,7 +150,7 @@ for sample in "${Hadoop_samples_list[@]}"; do
     hdfs dfs -mkdir -p "/Hadoop/${sample}/data"  >> "${results}/${sample}.log" 2>&1
 
     # Copy datasets to HDFS
-    hdfs dfs -put "./data/${sample}*.csv" "/Hadoop/${sample}/data/" >> "${results}/${sample}.log" 2>&1
+    hdfs dfs -put ./data/"${sample}"*.csv "/Hadoop/${sample}/data/" >> "${results}/${sample}.log" 2>&1
 
     cd sources || exit 1
 
@@ -159,11 +159,11 @@ for sample in "${Hadoop_samples_list[@]}"; do
 
     # Building the sample
     mkdir -p ../build
-    javac -d ./../build/ -sourcepath ./ "./${sample}*.java" ./WriteableData.java >> "${results}/${sample}.log" 2>&1
+    javac -d ./../build/ -sourcepath ./ ./"${sample}"*.java ./WriteableData.java >> "${results}/${sample}.log" 2>&1
 
     # Running the sample
     cd ../build/ || exit 1
-    jar -cvfe "${sample}.jar" "DAAL.${sample}" "./DAAL/${sample}*" ./DAAL/WriteableData.class >> "${results}/${sample}.log" 2>&1
+    jar -cvfe "${sample}.jar" "DAAL.${sample}" ./DAAL/"${sample}"* ./DAAL/WriteableData.class >> "${results}/${sample}.log" 2>&1
 
     cmd="hadoop jar ${sample}.jar -libjars ${LIBJARS} /Hadoop/${sample}/input /Hadoop/${sample}/Results"
     echo "${cmd}" > "${sample}.log"
@@ -180,7 +180,7 @@ for sample in "${Hadoop_samples_list[@]}"; do
         echo -e "$(date +'%H:%M:%S') PASSED\t\t${sample}"
     fi
 
-    hdfs dfs -get "/Hadoop/${sample}/Results/*" "${results}" >> "${results}/${sample}.log" 2>&1
+    hdfs dfs -get /Hadoop/"${sample}"/Results/* "${results}" >> "${results}/${sample}.log" 2>&1
 
     cd ../
 done

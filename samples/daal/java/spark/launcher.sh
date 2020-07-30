@@ -156,10 +156,10 @@ for sample in "${Spark_samples_list[@]}"; do
 
     # Putting input data on HDFS
     hadoop fs -put "./data/${sample}" "/Spark/${sample}/data/" >> "_results/${sample}/${sample}.log" 2>&1
-    hadoop fs -put "./data/${sample}*.csv" "/Spark/${sample}/data/" >> "_results/${sample}/${sample}.log" 2>&1
+    hadoop fs -put ./data/"${sample}"*.csv "/Spark/${sample}/data/" >> "_results/${sample}/${sample}.log" 2>&1
 
     # Building samples
-    javac -d "./_results/${sample}" -sourcepath "./ sources/*${sample}.java" sources/DistributedHDFSDataSet.java
+    javac -d "./_results/${sample}" -sourcepath ./ sources/*"${sample}".java sources/DistributedHDFSDataSet.java
     cd "_results/${sample}" || exit 1
 
     # Creating jar
