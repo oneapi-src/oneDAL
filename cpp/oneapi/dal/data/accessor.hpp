@@ -42,18 +42,18 @@ public:
             : host_access_(get_impl<access_provider_iface>(obj).get_access_iface_host()) {}
 #endif
 
-    template <typename Policy, typename AllocKind>
-    array<data_t> pull(const Policy& policy, const BlockIndex& idx, const AllocKind& alloc) const {
+    template <typename Policy, typename AllocKind=default_parameter_tag>
+    array<data_t> pull(const Policy& policy, const BlockIndex& idx, const AllocKind& alloc = {}) const {
         array<data_t> block;
         get_access(policy).pull(policy, block, idx, alloc);
         return block;
     }
 
-    template <typename Policy, typename AllocKind>
+    template <typename Policy, typename AllocKind=default_parameter_tag>
     T* pull(const Policy& policy,
             array<data_t>& block,
             const BlockIndex& idx,
-            const AllocKind& alloc) const {
+            const AllocKind& alloc = {}) const {
         get_access(policy).pull(policy, block, idx, alloc);
         if constexpr (is_readonly) {
             return block.get_data();
@@ -111,40 +111,44 @@ public:
     row_accessor(const table_builder& b) : base(b) {}
 
     array<data_t> pull(const range& rows = { 0, -1 }) const {
-        return pull(detail::cpu_dispatch_default{}, rows);
+        return base::pull(detail::cpu_dispatch_default{}, { rows });
     }
 
-    template <typename Policy, typename AllocKind=default_parameter_tag>
-    array<data_t> pull(const Policy& policy,
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    array<data_t> pull(const data_parallel_policy& policy,
                        const range& rows     = { 0, -1 },
-                       const AllocKind& alloc = {}) const {
+                       const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
         return base::pull(policy, { rows }, alloc);
     }
+#endif
 
     T* pull(array<data_t>& block, const range& rows = { 0, -1 }) const {
-        return pull(detail::cpu_dispatch_default{}, block, rows);
+        return base::pull(detail::cpu_dispatch_default{}, block, { rows });
     }
 
-    template <typename Policy, typename AllocKind=default_parameter_tag>
-    T* pull(const Policy& policy,
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    T* pull(const data_parallel_policy& policy,
             array<data_t>& block,
             const range& rows     = { 0, -1 },
-            const AllocKind& alloc = {}) const {
+            const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
         return base::pull(policy, block, { rows }, alloc);
     }
+#endif
 
     template <typename Q = T>
     std::enable_if_t<sizeof(Q) && !is_readonly> push(const array<data_t>& block,
                                                      const range& rows = { 0, -1 }) {
-        push(detail::cpu_dispatch_default{}, block, rows);
+        base::push(detail::cpu_dispatch_default{}, block, { rows });
     }
 
-    template <typename Policy, typename Q = T>
-    std::enable_if_t<sizeof(Q) && !is_readonly> push(const Policy& policy,
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    template <typename Q = T>
+    std::enable_if_t<sizeof(Q) && !is_readonly> push(const data_parallel_policy& policy,
                                                      const array<data_t>& block,
                                                      const range& rows = { 0, -1 }) {
         base::push(policy, block, { rows });
     }
+#endif
 };
 
 template <typename T>
@@ -164,44 +168,49 @@ public:
     column_accessor(const table_builder& b) : base(b) {}
 
     array<data_t> pull(std::int64_t column_index, const range& rows = { 0, -1 }) const {
-        return pull(detail::cpu_dispatch_default{}, column_index, rows);
+        return base::pull(detail::cpu_dispatch_default{}, { column_index, rows });
     }
 
-    template <typename Policy, typename AllocKind=default_parameter_tag>
-    array<data_t> pull(const Policy& policy,
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    array<data_t> pull(const data_parallel_policy& policy,
                        std::int64_t column_index,
                        const range& rows     = { 0, -1 },
-                       const AllocKind& alloc = {}) const {
+                       const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
         return base::pull(policy, { column_index, rows }, alloc);
     }
+#endif
 
     T* pull(array<data_t>& block, std::int64_t column_index, const range& rows = { 0, -1 }) const {
-        return base::pull(detail::cpu_dispatch_default{}, block, column_index, rows);
+        return base::pull(detail::cpu_dispatch_default{}, block, { column_index, rows });
     }
 
-    template <typename Policy, typename AllocKind=default_parameter_tag>
-    T* pull(const Policy& policy,
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    T* pull(const data_parallel_policy& policy,
             array<data_t>& block,
             std::int64_t column_index,
             const range& rows     = { 0, -1 },
-            const AllocKind& alloc = {}) const {
+            const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
         return base::pull(policy, block, { column_index, rows }, alloc);
     }
+#endif
 
     template <typename Q = T>
     std::enable_if_t<sizeof(Q) && !is_readonly> push(const array<data_t>& block,
                                                      std::int64_t column_index,
                                                      const range& rows = { 0, -1 }) {
-        push(detail::cpu_dispatch_default{}, block, column_index, rows);
+        base::push(detail::cpu_dispatch_default{}, block, { column_index, rows });
     }
 
-    template <typename Policy, typename Q = T>
-    std::enable_if_t<sizeof(Q) && !is_readonly> push(const Policy& policy,
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    template <typename Q = T>
+    std::enable_if_t<sizeof(Q) && !is_readonly> push(const data_parallel_policy& policy,
                                                      const array<data_t>& block,
                                                      std::int64_t column_index,
                                                      const range& rows = { 0, -1 }) {
         base::push(policy, block, { column_index, rows });
     }
+#endif
+
 };
 
 } // namespace oneapi::dal

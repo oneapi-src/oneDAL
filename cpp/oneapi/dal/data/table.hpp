@@ -90,6 +90,38 @@ public:
                         std::forward<Deleter>(data_deleter),
                         layout) {}
 
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    template <typename Data, typename Deleter>
+    homogen_table(const data_parallel_policy& policy,
+                  std::int64_t row_count,
+                  std::int64_t column_count,
+                  const Data* data_pointer,
+                  Deleter&& data_deleter,
+                  homogen_data_layout layout = homogen_data_layout::row_major,
+                  const sycl::vector_class<sycl::event>& dependencies = {})
+        : homogen_table(policy,
+                        row_count,
+                        column_count,
+                        data_pointer,
+                        std::forward<Deleter>(data_deleter),
+                        layout,
+                        dependencies) {}
+#endif
+
+    template <typename Data>
+    const Data* get_data() const {
+        return reinterpret_cast<const Data*>(this->get_data());
+    }
+
+    const void* get_data() const;
+
+    const homogen_table_metadata& get_metadata() const;
+
+    std::int64_t get_kind() const {
+        return kind();
+    }
+
+private:
     template <typename Policy, typename Data, typename Deleter, typename EventList=default_parameter_tag>
     homogen_table(const Policy& policy,
                   std::int64_t row_count,
@@ -109,20 +141,6 @@ public:
         detail::wait_and_throw(dependencies);
     }
 
-    template <typename Data>
-    const Data* get_data() const {
-        return reinterpret_cast<const Data*>(this->get_data());
-    }
-
-    const void* get_data() const;
-
-    const homogen_table_metadata& get_metadata() const;
-
-    std::int64_t get_kind() const {
-        return kind();
-    }
-
-private:
     template <typename Impl>
     void init_impl(Impl&& impl) {
         // TODO: usage of protected method of base class: a point to break inheritance?

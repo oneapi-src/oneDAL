@@ -56,7 +56,8 @@ inline T* malloc(const data_parallel_policy& policy,
 
 template <typename T>
 inline void free(const data_parallel_policy& policy, T* pointer) {
-    sycl::free(pointer, policy.get_queue());
+    using mutable_t = std::remove_const_t<T>;
+    sycl::free(const_cast<mutable_t*>(pointer), policy.get_queue());
 }
 
 inline void memset(const data_parallel_policy& policy,
