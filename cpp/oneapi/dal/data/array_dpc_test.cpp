@@ -71,7 +71,7 @@ TEST(array_dpc_test, can_construct_array_with_events) {
         });
     }).wait();
 
-    array<float> arr{ data, 10 };
+    array<float> arr{ data, 10, make_default_delete<float>(q) };
 
     ASSERT_EQ(arr.get_count(), 10);
     ASSERT_TRUE(arr.has_mutable_data());
@@ -114,7 +114,7 @@ TEST(array_dpc_test, can_reset_array_with_raw_pointer) {
         });
     }).wait();
 
-    arr.reset(data, count, default_delete<float>(q));
+    arr.reset(data, count, make_default_delete<float>(q));
 
     ASSERT_EQ(arr.get_size(), count * sizeof(float));
     ASSERT_EQ(arr.get_count(), count);
@@ -125,7 +125,9 @@ TEST(array_dpc_test, can_reset_array_with_raw_pointer) {
 
 TEST(array_dpc_test, can_wrap_const_data_with_offset_and_deleter) {
     sycl::queue q{ sycl::gpu_selector() };
-    auto data = sycl::malloc_shared<float>(3, q);
+    constexpr int64_t count = 3;
+
+    auto data = sycl::malloc_shared<float>(count, q);
     q.submit([&](sycl::handler& cgh) {
         cgh.parallel_for(sycl::range<1>(count), [=](sycl::id<1> idx) {
             data[idx[0]] = idx;

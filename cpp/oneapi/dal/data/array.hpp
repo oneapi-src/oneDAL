@@ -53,6 +53,7 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
+    template <typename K>
     static array<T> full(const data_parallel_policy& policy,
                          std::int64_t count,
                          K&& element,
@@ -141,8 +142,8 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    array& need_mutable_data(const data_parallel_policy& policy, const sycl::usm::alloc& alloc = sycl::usm::alloc:shared) {
-        return need_mutable_data(policy, alloc);
+    array& need_mutable_data(const data_parallel_policy& policy, const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
+        return need_mutable_data_impl(policy, alloc);
     }
 #endif
 
@@ -166,7 +167,7 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    void reset(const data_parallel_policy& policy, std::int64_t count, const sycl::usm::alloc& alloc = sycl::usm::alloc:shared) {
+    void reset(const data_parallel_policy& policy, std::int64_t count, const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
         reset_impl(policy, count, alloc);
     }
 #endif

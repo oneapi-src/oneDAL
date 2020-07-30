@@ -82,13 +82,14 @@ public:
                   std::int64_t column_count,
                   const Data* data_pointer,
                   Deleter&& data_deleter,
-                  homogen_data_layout layout = homogen_data_layout::row_major)
-        : homogen_table(detail::cpu_dispatch_default{},
-                        row_count,
-                        column_count,
-                        data_pointer,
-                        std::forward<Deleter>(data_deleter),
-                        layout) {}
+                  homogen_data_layout layout = homogen_data_layout::row_major) {
+        init_impl(detail::cpu_dispatch_default{},
+                  row_count,
+                  column_count,
+                  data_pointer,
+                  std::forward<Deleter>(data_deleter),
+                  layout);
+    }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     template <typename Data, typename Deleter>
@@ -98,14 +99,15 @@ public:
                   const Data* data_pointer,
                   Deleter&& data_deleter,
                   homogen_data_layout layout = homogen_data_layout::row_major,
-                  const sycl::vector_class<sycl::event>& dependencies = {})
-        : homogen_table(policy,
-                        row_count,
-                        column_count,
-                        data_pointer,
-                        std::forward<Deleter>(data_deleter),
-                        layout,
-                        dependencies) {}
+                  const sycl::vector_class<sycl::event>& dependencies = {}) {
+        init_impl(policy,
+                  row_count,
+                  column_count,
+                  data_pointer,
+                  std::forward<Deleter>(data_deleter),
+                  layout,
+                  dependencies);
+    }
 #endif
 
     template <typename Data>
@@ -122,13 +124,21 @@ public:
     }
 
 private:
+    template <typename Impl>
+    void init_impl(Impl&& impl) {
+        // TODO: usage of protected method of base class: a point to break inheritance?
+        auto* wrapper = new detail::homogen_table_impl_wrapper{ std::forward<Impl>(impl),
+                                                                homogen_table::kind() };
+        table::init_impl(wrapper);
+    }
+
     template <typename Policy, typename Data, typename Deleter, typename EventList=default_parameter_tag>
-    homogen_table(const Policy& policy,
+    void init_impl(const Policy& policy,
                   std::int64_t row_count,
                   std::int64_t column_count,
                   const Data* data_pointer,
                   Deleter&& data_deleter,
-                  homogen_data_layout layout = homogen_data_layout::row_major,
+                  homogen_data_layout layout,
                   const EventList& dependencies = {}) {
         array<Data> data_array {data_pointer, row_count*column_count, std::forward<Deleter>(data_deleter)};
 
@@ -139,14 +149,6 @@ private:
 
         init_impl(policy, row_count, column_count, byte_array, make_table_feature<Data>(), layout);
         detail::wait_and_throw(dependencies);
-    }
-
-    template <typename Impl>
-    void init_impl(Impl&& impl) {
-        // TODO: usage of protected method of base class: a point to break inheritance?
-        auto* wrapper = new detail::homogen_table_impl_wrapper{ std::forward<Impl>(impl),
-                                                                homogen_table::kind() };
-        table::init_impl(wrapper);
     }
 
     template <typename Policy>
