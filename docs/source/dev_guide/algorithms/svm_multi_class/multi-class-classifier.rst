@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2014-2020 Intel Corporation
+.. * Copyright 2019-2020 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -198,19 +198,22 @@ Examples
 
     Batch Processing:
 
-    -  :cpp_example:`svm_multi_class_dense_batch.cpp <svm/svm_multi_class_dense_batch.cpp>`
-    -  :cpp_example:`svm_multi_class_csr_batch.cpp <svm/svm_multi_class_csr_batch.cpp>`
+    -  :cpp_example:`svm_multi_class_boser_csr_batch.cpp <svm/svm_multi_class_boser_csr_batch.cpp>`
+    -  :cpp_example:`svm_multi_class_boser_dense_batch.cpp <svm/svm_multi_class_boser_dense_batch.cpp>`
+    -  :cpp_example:`svm_multi_class_thunder_csr_batch.cpp <svm/svm_multi_class_thunder_csr_batch.cpp>`
+    -  :cpp_example:`svm_multi_class_thunder_dense_batch.cpp <svm/svm_multi_class_thunder_dense_batch.cpp>`
 
   .. tab:: Java*
+  
+    Batch Processing:
+
+    -  :java_example:`SVMMultiClassBoserCSRBatch.java <svm/SVMMultiClassBoserCSRBatch.java>`
+    -  :java_example:`SVMMultiClassBoserDenseBatch.java <svm/SVMMultiClassBoserDenseBatch.java>`
+    -  :java_example:`SVMMultiClassThunderCSRBatch.java <svm/SVMMultiClassThunderCSRBatch.java>`
+    -  :java_example:`SVMMultiClassThunderDenseBatch.java <svm/SVMMultiClassThunderDenseBatch.java>`
+
+  .. tab:: Python*
 
     Batch Processing:
-    
-    -  :java_example:`SVMMultiClassDenseBatch.java <svm/SVMMultiClassDenseBatch.java>`
-    -  :java_example:`SVMMultiClassCSRBatch.java <svm/SVMMultiClassCSRBatch.java>`
 
-.. Python*:
-
-.. -  svm_multi_class_dense_batch.py
-.. -  svm_multi_class_csr_batch.py
-.. -  svm_multi_class_metrics_dense_batch.py
-
+    -  :daal4py_example:`svm_multiclass_batch.py`
