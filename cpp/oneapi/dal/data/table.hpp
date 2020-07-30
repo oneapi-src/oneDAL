@@ -135,7 +135,7 @@ private:
     template <typename Policy,
               typename Data,
               typename Deleter,
-              typename EventList = default_parameter_tag>
+              typename EventList = detail::default_parameter_tag>
     void init_impl(const Policy& policy,
                    std::int64_t row_count,
                    std::int64_t column_count,

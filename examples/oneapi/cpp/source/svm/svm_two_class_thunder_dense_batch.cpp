@@ -40,8 +40,8 @@ int main(int argc, char const *argv[]) {
         +1.f,
     };
 
-    const auto x_train_table = dal::homogen_table{ row_count_train, column_count, x_train };
-    const auto y_train_table = dal::homogen_table{ row_count_train, 1, y_train };
+    const auto x_train_table = dal::homogen_table{ row_count_train, column_count, x_train, dal::empty_delete<const float>() };
+    const auto y_train_table = dal::homogen_table{ row_count_train, 1, y_train, dal::empty_delete<const float>() };
 
     const auto kernel_desc = dal::linear_kernel::descriptor{}
         .set_k(1.0)

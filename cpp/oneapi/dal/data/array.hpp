@@ -229,7 +229,7 @@ public:
     }
 
 private:
-    template <typename Policy, typename AllocKind = default_parameter_tag>
+    template <typename Policy, typename AllocKind = detail::default_parameter_tag>
     static array<T> empty_impl(const Policy& policy,
                                std::int64_t count,
                                const AllocKind& alloc = {}) {
@@ -237,7 +237,7 @@ private:
         return array<T>{ data, count, make_default_delete<T>(policy) };
     }
 
-    template <typename Policy, typename K, typename AllocKind = default_parameter_tag>
+    template <typename Policy, typename K, typename AllocKind = detail::default_parameter_tag>
     static array<T> full_impl(const Policy& policy,
                               std::int64_t count,
                               K&& element,
@@ -248,7 +248,7 @@ private:
     }
 
 private:
-    template <typename Policy, typename AllocKind = default_parameter_tag>
+    template <typename Policy, typename AllocKind = detail::default_parameter_tag>
     array& need_mutable_data_impl(const Policy& policy, const AllocKind& alloc = {}) {
         if (has_mutable_data() || count_ == 0) {
             return *this;
@@ -263,7 +263,7 @@ private:
         }
     }
 
-    template <typename Policy, typename AllocKind = default_parameter_tag>
+    template <typename Policy, typename AllocKind = detail::default_parameter_tag>
     void reset_impl(const Policy& policy, std::int64_t count, const AllocKind& alloc = {}) {
         auto new_data = detail::malloc<T>(policy, count, alloc);
         reset(new_data, count, make_default_delete<T>(policy));

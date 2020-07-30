@@ -20,7 +20,7 @@
     #include <CL/sycl.hpp>
 #endif // ONEAPI_DAL_DATA_PARALLEL
 
-#include "oneapi/dal/common.hpp"
+#include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::detail {
 

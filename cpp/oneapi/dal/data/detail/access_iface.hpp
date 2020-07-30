@@ -68,7 +68,7 @@ struct access_iface {
 using access_iface_host = access_iface<cpu_dispatch_default, host_only_alloc>;
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-using access_iface_dpc = access_iface<data_parallel_policy, data_parallel_alloc>;
+using access_iface_dpc = access_iface<data_parallel_policy, sycl::usm::alloc>;
 #endif
 
 class access_provider_iface {

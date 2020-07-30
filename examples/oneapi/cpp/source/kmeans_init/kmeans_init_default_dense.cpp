@@ -37,7 +37,7 @@ int main(int argc, char const* argv[]) {
                            2.f,  5.f, 5.f,  -6.f, 3.f, 0.f, -9.f,
                            3.f, 1.f,  -3.f, 3.f,  5.f,  1.f,  7.f };
 
-    const auto data_table = dal::homogen_table{ row_count, column_count, data };
+    const auto data_table = dal::homogen_table{ row_count, column_count, data, dal::empty_delete<const float>() };
 
     const auto kmeans_init_desc = dal::kmeans_init::descriptor<>()
         .set_cluster_count(cluster_count);

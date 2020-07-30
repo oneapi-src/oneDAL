@@ -21,6 +21,8 @@
 
 namespace oneapi::dal::detail {
 
+struct default_parameter_tag {};
+
 template <typename T>
 using shared = std::shared_ptr<T>;
 
@@ -29,11 +31,6 @@ using unique = std::unique_ptr<T>;
 
 template <typename T>
 using pimpl = shared<T>;
-
-template <typename T>
-struct empty_deleter {
-    void operator()(T*) const noexcept {}
-};
 
 struct pimpl_accessor {
     template <typename Object>

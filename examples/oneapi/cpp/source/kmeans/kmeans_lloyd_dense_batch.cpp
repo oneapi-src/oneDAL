@@ -33,9 +33,9 @@ int main(int argc, char const *argv[]) {
   const float initial_centroids[] = {1.f, 2.f, 3.f, 4.f, 5.f, 6.f, -5.f,
                                      1.f, 2.f, 5.f, 2.f, 9.f, 3.f, 2.f};
 
-  const auto data_table = dal::homogen_table{row_count, column_count, data};
+  const auto data_table = dal::homogen_table{row_count, column_count, data, dal::empty_delete<const float>()};
   const auto initial_centroids_table =
-      dal::homogen_table{1, column_count, initial_centroids};
+      dal::homogen_table{1, column_count, initial_centroids, dal::empty_delete<const float>()};
 
   const auto kmeans_desc = dal::kmeans::descriptor<>()
                                .set_cluster_count(2)
@@ -55,7 +55,7 @@ int main(int argc, char const *argv[]) {
   const float data_test[] = {1.f, 2.f, 5.f, 4.f, 0.f, 3.f, 1.f,
                              2.f, 3.f, 1.f, 2.f, 9.f, 2.f, 2.f};
 
-  const auto data_test_table = dal::homogen_table{2, column_count, data_test};
+  const auto data_test_table = dal::homogen_table{2, column_count, data_test, dal::empty_delete<const float>()};
 
   const auto result_test =
       dal::infer(kmeans_desc, result_train.get_model(), data_test_table);

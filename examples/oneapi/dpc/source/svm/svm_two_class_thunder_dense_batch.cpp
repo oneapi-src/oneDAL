@@ -49,8 +49,8 @@ void run(sycl::queue &queue) {
     auto y_train = sycl::malloc_shared<float>(row_count_train, queue);
     queue.memcpy(y_train, y_train_host, sizeof(float) * row_count_train).wait();
 
-    const auto x_train_table = dal::homogen_table{ queue, row_count_train, column_count, x_train };
-    const auto y_train_table = dal::homogen_table{ queue, row_count_train, 1, y_train };
+    const auto x_train_table = dal::homogen_table{ queue, row_count_train, column_count, x_train, dal::make_default_delete<const float>(queue) };
+    const auto y_train_table = dal::homogen_table{ queue, row_count_train, 1, y_train, dal::make_default_delete<const float>(queue) };
 
     const auto kernel_desc = dal::linear_kernel::descriptor{}
         .set_k(1.0)
@@ -83,8 +83,8 @@ void run(sycl::queue &queue) {
     auto x_test = sycl::malloc_shared<float>(row_count_test * column_count, queue);
     queue.memcpy(x_test, x_test_host, sizeof(float) * row_count_test * column_count).wait();
 
-    const auto x_test_table = dal::homogen_table{ queue, row_count_test, column_count, x_test };
-    const auto y_true_table = dal::homogen_table{ row_count_test, 1, y_true_host };
+    const auto x_test_table = dal::homogen_table{ queue, row_count_test, column_count, x_test, dal::make_default_delete<const float>(queue) };
+    const auto y_true_table = dal::homogen_table{ row_count_test, 1, y_true_host, dal::make_default_delete<const float>(queue) };
 
     const auto result_test = dal::infer(queue, svm_desc, result_train.get_model(), x_test_table);
 
@@ -92,10 +92,6 @@ void run(sycl::queue &queue) {
               << result_test.get_decision_function() << std::endl;
     std::cout << "Labels result:" << std::endl << result_test.get_labels() << std::endl;
     std::cout << "Labels true:" << std::endl << y_true_table << std::endl;
-
-    sycl::free(x_train, queue);
-    sycl::free(y_train, queue);
-    sycl::free(x_test, queue);
 }
 
 int main(int argc, char const *argv[]) {

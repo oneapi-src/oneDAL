@@ -30,9 +30,7 @@ struct host_only_alloc {
 };
 
 template <typename T>
-inline T* malloc(const cpu_dispatch_default&,
-                 std::int64_t count,
-                 const host_only_alloc& kind = {}) {
+inline T* malloc(const cpu_dispatch_default&, std::int64_t count, const host_only_alloc& kind) {
     return new T[count];
 }
 

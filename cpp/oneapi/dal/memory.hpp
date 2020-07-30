@@ -23,7 +23,7 @@ namespace oneapi::dal {
 template <typename T>
 class empty_delete {
 public:
-    void operator()(T*) {}
+    void operator()(T*) const noexcept {}
 };
 
 template <typename T, typename Policy>
@@ -31,7 +31,7 @@ class default_delete {
 public:
     explicit default_delete(const Policy& policy) : policy_(policy) {}
 
-    void operator()(T* data) {
+    void operator()(T* data) const {
         detail::free(policy_, data);
     }
 

@@ -53,16 +53,16 @@ void run(sycl::queue &queue) {
               sizeof(float) * row_count_train * column_count)
       .wait();
   const auto x_train_table =
-      dal::homogen_table{queue, row_count_train, column_count, x_train};
+      dal::homogen_table{queue, row_count_train, column_count, x_train, dal::make_default_delete<const float>(queue)};
 
   auto y_train = sycl::malloc_shared<float>(row_count_train, queue);
   queue.memcpy(y_train, y_train_host, sizeof(float) * row_count_train).wait();
   const auto y_train_table =
-      dal::homogen_table{queue, row_count_train, 1, y_train};
+      dal::homogen_table{queue, row_count_train, 1, y_train, dal::make_default_delete<const float>(queue)};
 
   const auto x_test_table =
-      dal::homogen_table{row_count_test, column_count, x_test_host};
-  const auto y_test_table = dal::homogen_table{row_count_test, 1, y_test_host};
+      dal::homogen_table{row_count_test, column_count, x_test_host, dal::empty_delete<const float>()};
+  const auto y_test_table = dal::homogen_table{row_count_test, 1, y_test_host, dal::empty_delete<const float>()};
 
   const auto df_train_desc =
       df::descriptor<float, df::task::classification, df::method::hist>{}
@@ -102,12 +102,8 @@ void run(sycl::queue &queue) {
     std::cout << "Ground truth:" << std::endl << y_test_table << std::endl;
   } catch (oneapi::dal::unimplemented_error &e) {
     std::cout << "  " << e.what() << std::endl;
-    sycl::free(x_train, queue);
-    sycl::free(y_train, queue);
     return;
   }
-  sycl::free(x_train, queue);
-  sycl::free(y_train, queue);
 }
 
 int main(int argc, char const *argv[]) {

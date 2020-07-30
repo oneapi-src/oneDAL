@@ -32,8 +32,6 @@ namespace oneapi::dal {
 
 using byte_t = std::uint8_t;
 
-struct default_parameter_tag {};
-
 class base {
 public:
     virtual ~base() = default;

@@ -36,8 +36,8 @@ int main(int argc, char const *argv[]) {
         4.f, 5.f, 6.f,
     };
 
-    const auto x_table = dal::homogen_table{ row_count_x, column_count, x };
-    const auto y_table = dal::homogen_table{ row_count_y, column_count, y };
+    const auto x_table = dal::homogen_table{ row_count_x, column_count, x, dal::empty_delete<const float>() };
+    const auto y_table = dal::homogen_table{ row_count_y, column_count, y, dal::empty_delete<const float>() };
     const auto kernel_desc = dal::rbf_kernel::descriptor{}.set_sigma(10.0);
 
     const auto result = dal::compute(kernel_desc, x_table, y_table);
