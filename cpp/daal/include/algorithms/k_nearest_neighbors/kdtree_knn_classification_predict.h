@@ -366,12 +366,32 @@ public:
      */
     services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
+    /**
+     * Returns the structure that contains computed prediction results
+     * \return Structure that contains computed prediction results
+     */
+    ResultPtr getResult() { return ResultType::cast(_result); }
+
+    /**
+     * Registers user-allocated memory for storing the prediction results
+     * \param[in] result Structure for storing the prediction results
+     *
+     * \return Status of computation
+     */
+    services::Status setResult(const ResultPtr & result)
+    {
+        DAAL_CHECK(result, services::ErrorNullResult)
+        _result = result;
+        _res    = _result.get();
+        return services::Status();
+    }
+
 protected:
     virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int)method);
+        services::Status s = static_cast<ResultType *>(_result.get())->allocate<algorithmFPType>(&input, &parameter, (int)method);
         _res               = _result.get();
         return s;
     }
