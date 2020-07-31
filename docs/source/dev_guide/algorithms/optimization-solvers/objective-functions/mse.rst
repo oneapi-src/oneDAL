@@ -194,10 +194,12 @@ Examples
 
 .. tabs::
 
-    .. tab:: C++
+  .. tab:: C++ (CPU)
 
-        - :cpp_example:`mse_dense_batch.cpp <optimization_solvers/mse_dense_batch.cpp>`
+    - :cpp_example:`mse_dense_batch.cpp <optimization_solvers/mse_dense_batch.cpp>`
 
-    .. tab:: Java*
+  .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
-        - :java_example:`MSEDenseBatch.java <optimization_solvers/MSEDenseBatch.java>`
+    - :java_example:`MSEDenseBatch.java <optimization_solvers/MSEDenseBatch.java>`

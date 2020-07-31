@@ -193,6 +193,6 @@ Examples
 
 .. tabs::
 
-    .. tab:: C++
+    .. tab:: C++ (CPU)
 
         - :cpp_example:`sgd_log_loss_dense_batch.cpp <optimization_solvers/sgd_log_loss_dense_batch.cpp>`

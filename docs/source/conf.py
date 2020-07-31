@@ -86,6 +86,7 @@ extlinks = {
     'cpp_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/%s', ''),
     'java_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/%s', ''),
     'daal4py_example': ('https://github.com/IntelPython/daal4py/tree/master/examples/%s', ''),
+    'daal4py_sycl_example': ('https://github.com/IntelPython/daal4py/tree/master/examples/sycl/%s', ''),
     'cpp_sample': ('https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/%s', '')
 }
 

@@ -175,12 +175,24 @@ Examples
 
 .. tabs::
 
-    .. tab:: C++
+  .. tab:: C++ (CPU)
 
-        - :cpp_example:`saga_dense_batch.cpp <optimization_solvers/saga_dense_batch.cpp>`
-        - :cpp_example:`saga_logistic_loss_dense_batch.cpp <optimization_solvers/saga_logistic_loss_dense_batch.cpp>`
+    Batch Processing:
 
-    .. tab:: Java*
+    - :cpp_example:`saga_dense_batch.cpp <optimization_solvers/saga_dense_batch.cpp>`
+    - :cpp_example:`saga_logistic_loss_dense_batch.cpp <optimization_solvers/saga_logistic_loss_dense_batch.cpp>`
 
-        - :java_example:`SAGADenseBatch.java <optimization_solvers/SAGADenseBatch.java>`
-        - :java_example:`SAGALogisticLossDenseBatch.java <optimization_solvers/SAGALogisticLossDenseBatch.java>`
+  .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
+
+    Batch Processing:
+
+    - :java_example:`SAGADenseBatch.java <optimization_solvers/SAGADenseBatch.java>`
+    - :java_example:`SAGALogisticLossDenseBatch.java <optimization_solvers/SAGALogisticLossDenseBatch.java>`
+
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`saga_batch.py`

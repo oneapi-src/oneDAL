@@ -224,16 +224,22 @@ Examples
 
 .. tabs::
 
-    .. tab:: C++
+  .. tab:: C++ (CPU)
 
-        - :cpp_example:`adaboost_samme_two_class_batch.cpp <boosting/adaboost_samme_two_class_batch.cpp>`
-        - :cpp_example:`adaboost_sammer_two_class_batch.cpp <boosting/adaboost_sammer_two_class_batch.cpp>`
-        - :cpp_example:`adaboost_samme_multi_class_batch.cpp <boosting/adaboost_samme_multi_class_batch.cpp>`
-        - :cpp_example:`adaboost_sammer_multi_class_batch.cpp <boosting/adaboost_sammer_multi_class_batch.cpp>`
+    Batch Processing:
 
-    .. tab:: Java*
+    - :cpp_example:`adaboost_samme_two_class_batch.cpp <boosting/adaboost_samme_two_class_batch.cpp>`
+    - :cpp_example:`adaboost_sammer_two_class_batch.cpp <boosting/adaboost_sammer_two_class_batch.cpp>`
+    - :cpp_example:`adaboost_samme_multi_class_batch.cpp <boosting/adaboost_samme_multi_class_batch.cpp>`
+    - :cpp_example:`adaboost_sammer_multi_class_batch.cpp <boosting/adaboost_sammer_multi_class_batch.cpp>`
 
-        - :java_example:`AdaBoostSammeTwoClassBatch.java <boosting/adaboost/AdaBoostSammeTwoClassBatch.java>`
-        - :java_example:`AdaBoostSammerTwoClassBatch.java <boosting/adaboost/AdaBoostSammerTwoClassBatch.java>`
-        - :java_example:`AdaBoostSammeMultiClassBatch.java <boosting/adaboost/AdaBoostSammeMultiClassBatch.java>`
-        - :java_example:`AdaBoostSammerMultiClassBatch.java <boosting/adaboost/AdaBoostSammerMultiClassBatch.java>`
+  .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
+
+    Batch Processing:
+
+    - :java_example:`AdaBoostSammeTwoClassBatch.java <boosting/adaboost/AdaBoostSammeTwoClassBatch.java>`
+    - :java_example:`AdaBoostSammerTwoClassBatch.java <boosting/adaboost/AdaBoostSammerTwoClassBatch.java>`
+    - :java_example:`AdaBoostSammeMultiClassBatch.java <boosting/adaboost/AdaBoostSammeMultiClassBatch.java>`
+    - :java_example:`AdaBoostSammerMultiClassBatch.java <boosting/adaboost/AdaBoostSammerMultiClassBatch.java>`

@@ -139,12 +139,22 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
     - :cpp_example:`out_detect_bacon_dense_batch.cpp <outlier_detection/out_detect_bacon_dense_batch.cpp>`
 
-  .. tab:: Java
+  .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
+
+    Batch Processing:
 
     - :java_example:`OutDetectBaconDenseBatch.java <outlier_detection/OutDetectBaconDenseBatch.java>`
+
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`bacon_outlier_batch.py`

@@ -84,17 +84,7 @@ Examples
 
 .. tabs::
 
-  .. tab:: DPC++
-
-    Batch Processing:
-
-    - :ref:`low_order_moms_dense_batch.cpp`
-
-    Online Processing:
-
-    - :ref:`low_order_moms_dense_online.cpp`
-
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
@@ -112,6 +102,8 @@ Examples
     -  :cpp_example:`low_order_moms_csr_distr.cpp <moments/low_order_moms_csr_distr.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
 
@@ -127,3 +119,27 @@ Examples
 
     -  :java_example:`LowOrderMomsDenseDistr.java <moments/LowOrderMomsDenseDistr.java>`
     -  :java_example:`LowOrderMomsCSRDistr.java <moments/LowOrderMomsCSRDistr.java>`
+
+  .. tab:: Python* with DPC++ support
+
+    Batch Processing:
+
+    - :daal4py_sycl_example:`low_order_moms_dense_batch.py`
+
+    Online Processing:
+
+    - :daal4py_sycl_example:`low_order_moms_streaming.py`
+
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`low_order_moms_dense_batch.py`
+
+    Online Processing:
+
+    - :daal4py_example:`low_order_moms_streaming.py`
+
+    Distributed Processing:
+
+    - :daal4py_example:`low_order_moms_spmd.py`

@@ -96,59 +96,75 @@ Examples
 
 .. tabs::
 
-  .. tab:: DPC++
+   .. tab:: oneAPI DPC++
 
-    Batch Processing:
+      Batch Processing:
 
-    - :ref:`pca_cor_dense_batch.cpp`
+      - :ref:`dpc_pca_cor_dense_batch.cpp`
 
-  .. tab:: C++
+   .. tab:: oneAPI C++
 
-    Batch Processing:
+      Batch Processing:
 
-    -  :cpp_example:`pca_cor_dense_batch.cpp <pca/pca_cor_dense_batch.cpp>`
-    -  :cpp_example:`pca_cor_csr_batch.cpp <pca/pca_cor_csr_batch.cpp>`
-    -  :cpp_example:`pca_svd_dense_batch.cpp <pca/pca_svd_dense_batch.cpp>`
+      - :ref:`cpp_pca_cor_dense_batch.cpp`
 
-    Online Processing:
+   .. tab:: C++ (CPU)
 
-    - :cpp_example:`pca_cor_dense_online.cpp <pca/pca_cor_dense_online.cpp>`
-    - :cpp_example:`pca_cor_csr_online.cpp <pca/pca_cor_csr_online.cpp>`
-    - :cpp_example:`pca_svd_dense_online.cpp <pca/pca_svd_dense_online.cpp>`
+      Batch Processing:
 
-    Distributed Processing:
+      - :cpp_example:`pca_cor_dense_batch.cpp <pca/pca_cor_dense_batch.cpp>`
+      - :cpp_example:`pca_cor_csr_batch.cpp <pca/pca_cor_csr_batch.cpp>`
+      - :cpp_example:`pca_svd_dense_batch.cpp <pca/pca_svd_dense_batch.cpp>`
 
-    - :cpp_example:`pca_cor_dense_distr.cpp <pca/pca_cor_dense_distr.cpp>`
-    - :cpp_example:`pca_cor_csr_distr.cpp <pca/pca_cor_csr_distr.cpp>`
-    - :cpp_example:`pca_svd_dense_distr.cpp <pca/pca_svd_dense_distr.cpp>`
+      Online Processing:
 
-  .. tab:: Java*
+      - :cpp_example:`pca_cor_dense_online.cpp <pca/pca_cor_dense_online.cpp>`
+      - :cpp_example:`pca_cor_csr_online.cpp <pca/pca_cor_csr_online.cpp>`
+      - :cpp_example:`pca_svd_dense_online.cpp <pca/pca_svd_dense_online.cpp>`
 
-    Batch Processing:
+      Distributed Processing:
 
-    -  :java_example:`PCACorDenseBatch.java <pca/PCACorDenseBatch.java>`
-    -  :java_example:`PCACorCSRBatch.java <pca/PCACorCSRBatch.java>`
-    -  :java_example:`PCASVDDenseBatch.java <pca/PCASVDDenseBatch.java>`
+      - :cpp_example:`pca_cor_dense_distr.cpp <pca/pca_cor_dense_distr.cpp>`
+      - :cpp_example:`pca_cor_csr_distr.cpp <pca/pca_cor_csr_distr.cpp>`
+      - :cpp_example:`pca_svd_dense_distr.cpp <pca/pca_svd_dense_distr.cpp>`
 
-    Online Processing:
+   .. tab:: Java*
+  
+      .. note:: There is no support for Java on GPU.
 
-    -  :java_example:`PCACorDenseOnline.java <pca/PCACorDenseOnline.java>`
-    -  :java_example:`PCACorCSROnline.java <pca/PCACorCSROnline.java>`
-    -  :java_example:`PCASVDDenseOnline.java <pca/PCASVDDenseOnline.java>`
+      Batch Processing:
 
-    Distributed Processing:
+      - :java_example:`PCACorDenseBatch.java <pca/PCACorDenseBatch.java>`
+      - :java_example:`PCACorCSRBatch.java <pca/PCACorCSRBatch.java>`
+      - :java_example:`PCASVDDenseBatch.java <pca/PCASVDDenseBatch.java>`
 
-    -  :java_example:`PCACorDenseDistr.java <pca/PCACorDenseDistr.java>`    
-    -  :java_example:`PCACorCSRDistr.java <pca/PCACorCSRDistr.java>`    
-    -  :java_example:`PCASVDDenseDistr.java <pca/PCASVDDenseDistr.java>`    
+      Online Processing:
 
-  .. tab:: Python*
+      - :java_example:`PCACorDenseOnline.java <pca/PCACorDenseOnline.java>`
+      - :java_example:`PCACorCSROnline.java <pca/PCACorCSROnline.java>`
+      - :java_example:`PCASVDDenseOnline.java <pca/PCASVDDenseOnline.java>`
 
-    Batch Processing:
+      Distributed Processing:
 
-    - :daal4py_example:`sycl/pca_batch.py`
-    - :daal4py_example:`pca_batch.py`
+      - :java_example:`PCACorDenseDistr.java <pca/PCACorDenseDistr.java>`    
+      - :java_example:`PCACorCSRDistr.java <pca/PCACorCSRDistr.java>`    
+      - :java_example:`PCASVDDenseDistr.java <pca/PCASVDDenseDistr.java>`    
 
+   .. tab:: Python* with DPC++ support
+
+      Batch Processing:
+
+      - :daal4py_sycl_example:`pca_batch.py`
+
+   .. tab:: Python*
+
+      Batch Processing:
+
+      - :daal4py_example:`pca_batch.py`
+
+      Distributed Processing:
+
+      - :daal4py_example:`pca_spmd.py`
 
 Performance Considerations
 **************************

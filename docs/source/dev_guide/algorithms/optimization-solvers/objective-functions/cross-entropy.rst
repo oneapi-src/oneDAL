@@ -247,7 +247,7 @@ Examples
 
 .. tabs::
     
-    .. tab:: C++
+    .. tab:: C++ (CPU)
 
         - :cpp_example:`lbfgs_cr_entr_loss_dense_batch.cpp <optimization_solvers/lbfgs_cr_entr_loss_dense_batch.cpp>`
 

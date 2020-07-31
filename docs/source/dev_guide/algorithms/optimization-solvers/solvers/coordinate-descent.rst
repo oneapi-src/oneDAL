@@ -113,10 +113,12 @@ Examples
 
 .. tabs::
 
-    .. tab:: C++
+  .. tab:: C++ (CPU)
 
-        - :cpp_example:`cd_dense_batch.cpp <optimization_solvers/cd_dense_batch.cpp>`
+    - :cpp_example:`cd_dense_batch.cpp <optimization_solvers/cd_dense_batch.cpp>`
 
-    .. tab:: Java*
+  .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
-        - :java_example:`CDDenseBatch.java <optimization_solvers/CDDenseBatch.java>`
+    - :java_example:`CDDenseBatch.java <optimization_solvers/CDDenseBatch.java>`

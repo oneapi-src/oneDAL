@@ -126,12 +126,14 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     - :cpp_example:`df_cls_dense_batch_model_builder.cpp <decision_forest/df_cls_dense_batch_model_builder.cpp>`
     - :cpp_example:`df_cls_traversed_model_builder.cpp <decision_forest/df_cls_traversed_model_builder.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     - :java_example:`DfClsDenseBatchModelBuilder.java <decision_forest/DfClsDenseBatchModelBuilder.java>`
     - :java_example:`DfClsTraversedModelBuilder.java <decision_forest/DfClsTraversedModelBuilder.java>`
@@ -231,17 +233,36 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: oneAPI DPC++
+
+    Batch Processing:
+
+    - :ref:`dpc_df_cls_dense_batch.cpp`
+
+  .. tab:: oneAPI C++
+
+    Batch Processing:
+
+    - :ref:`cpp_df_cls_dense_batch.cpp`
+
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
     - :cpp_example:`df_cls_dense_batch.cpp <decision_forest/df_cls_dense_batch.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
     
     - :java_example:`DfClsDenseBatch.java <decision_forest/DfClsDenseBatch.java>`
 
-.. Python*: df_cls_dense_batch.py
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`decision_forest_classification_batch.py`
+    - :daal4py_example:`decision_forest_classification_traverse_batch.py`
 

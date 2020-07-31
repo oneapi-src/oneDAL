@@ -60,10 +60,10 @@ list of features and documentation is available at |daal-docs|_.
    bibliography.rst
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Examples
 
-   sycl_examples.rst
+   examples.rst
 
 .. toctree::
    :maxdepth: 1

@@ -116,7 +116,7 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
@@ -128,6 +128,8 @@ Examples
     - :cpp_example:`impl_als_csr_distr.cpp <implicit_als/impl_als_csr_distr.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
     
