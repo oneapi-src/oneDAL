@@ -273,10 +273,9 @@ protected:
 
 private:
     SubTaskVoteBasedCSR(size_t nClasses, size_t nRows, const SharedPtr<ClsType> & simplePrediction, bool & valid)
-        : super(nClasses, nRows, simplePrediction, valid), _rowOffsets(nRows + 1)
+        : super(nClasses, nRows, simplePrediction, valid)
     {}
 
-    TArrayScalable<size_t, cpu> _rowOffsets;
     ReadRowsCSR<algorithmFPType, cpu> _xRows;
 };
 
