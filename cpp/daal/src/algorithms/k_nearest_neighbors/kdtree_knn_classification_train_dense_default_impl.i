@@ -163,7 +163,10 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     DAAL_CHECK_STATUS(status, buildFirstPartOfKDTree(q, bboxQ, *x, *r, indexes, engine));
     DAAL_CHECK_STATUS(status, buildSecondPartOfKDTree(q, bboxQ, *x, *r, indexes, engine));
     DAAL_CHECK_STATUS(status, rearrangePoints(*x, indexes));
-    DAAL_CHECK_STATUS(status, rearrangePoints(*y, indexes));
+    if (y)
+    {
+        DAAL_CHECK_STATUS(status, rearrangePoints(*y, indexes));
+    }
 
     daal_free(bboxQ);
     bboxQ = nullptr;
