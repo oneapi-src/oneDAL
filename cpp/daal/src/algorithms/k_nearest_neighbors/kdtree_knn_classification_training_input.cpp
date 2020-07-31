@@ -63,27 +63,28 @@ services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter)
 
     if (par != NULL)
     {
+        DAAL_CHECK_EX((par->nClasses > 1) && (par->nClasses < INT_MAX), services::ErrorIncorrectParameter, services::ParameterName, nClassesStr());
+
         if (par->resultsToEvaluate != 0)
         {
             data_management::NumericTablePtr labelsTable = get(classifier::training::labels);
             DAAL_CHECK_STATUS(s, data_management::checkNumericTable(labelsTable.get(), labelsStr(), 0, 0, 1, nRows));
-        }
 
-        DAAL_CHECK_EX((par->nClasses > 1) && (par->nClasses < INT_MAX), services::ErrorIncorrectParameter, services::ParameterName, nClassesStr());
-        const auto nClasses = static_cast<int>(par->nClasses);
+            const auto nClasses = static_cast<int>(par->nClasses);
 
-        data_management::BlockDescriptor<int> yBD;
-        const_cast<data_management::NumericTable *>(labelsTable.get())->getBlockOfRows(0, nRows, data_management::readOnly, yBD);
-        const int * const dy = yBD.getBlockPtr();
-        for (size_t i = 0; i < nRows; ++i)
-        {
-            flag |= (dy[i] >= nClasses);
+            data_management::BlockDescriptor<int> yBD;
+            const_cast<data_management::NumericTable *>(labelsTable.get())->getBlockOfRows(0, nRows, data_management::readOnly, yBD);
+            const int * const dy = yBD.getBlockPtr();
+            for (size_t i = 0; i < nRows; ++i)
+            {
+                flag |= (dy[i] >= nClasses);
+            }
+            if (flag)
+            {
+                DAAL_CHECK_STATUS(s, services::Status(services::ErrorIncorrectClassLabels));
+            }
+            const_cast<data_management::NumericTable *>(labelsTable.get())->releaseBlockOfRows(yBD);
         }
-        if (flag)
-        {
-            DAAL_CHECK_STATUS(s, services::Status(services::ErrorIncorrectClassLabels));
-        }
-        const_cast<data_management::NumericTable *>(labelsTable.get())->releaseBlockOfRows(yBD);
     }
 
     return s;
