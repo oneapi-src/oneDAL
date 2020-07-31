@@ -120,7 +120,7 @@ public:
 };
 
 /**
- * <a name="DAAL-CLASS-ALGORITHMS__RIDGE_REGRESSION__PREDICTION__RESULT"></a>
+ * <a name="DAAL-CLASS-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__PREDICTION__RESULT"></a>
  * \brief Provides interface for the result of KD-tree based kNN model-based prediction
  */
 class DAAL_EXPORT Result : public classifier::prediction::Result
