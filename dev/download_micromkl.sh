@@ -50,16 +50,22 @@ function download_fpk()
   if [ ! -e "${CONDITION}/${MKLFPK_OS}/lib/" ]; then
     if [ -x "$(command -v curl)" ]; then
       echo curl -L -o "${DST}/${FILENAME}" "${SRC}"
-      curl -L -o "${DST}/${FILENAME}" "${SRC}"
+      if curl -L -o "${DST}/${FILENAME}" "${SRC}";
+      then
+        DOWNLOAD_CODE=0
+      fi
     elif [ -x "$(command -v wget)" ]; then
       echo wget -O "${DST}/${FILENAME}" "${SRC}"
-      wget -O "${DST}/${FILENAME}" "${SRC}"
+      if wget -O "${DST}/${FILENAME}" "${SRC}";
+      then
+        DOWNLOAD_CODE=0
+      fi
     else
       echo "curl or wget not available"
       exit 1
     fi
 
-    if [ $? -ne 0 ] || [ ! -e "${DST}/${FILENAME}" ]; then
+    if [ ${DOWNLOAD_CODE} -ne 0 ] || [ ! -e "${DST}/${FILENAME}" ]; then
       echo "Download from ${SRC} to ${DST}/${FILENAME} failed"
       exit 1
     fi

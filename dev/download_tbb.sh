@@ -36,19 +36,27 @@ DST=$(dirname "$0")/../__deps/tbb
 mkdir -p "${DST}/${OS}"
 DST=$(cd "${DST}" || exit 1;pwd)
 
+DOWNLOAD_CODE=1
+
 if [ ! -d "${DST}/${OS}/bin" ]; then
   if [ -x "$(command -v curl)" ]; then
     echo curl -L -o "${DST}/${TBB_PACKAGE}.tgz" "${TBB_URL}"
-    curl -L -o "${DST}/${TBB_PACKAGE}.tgz" "${TBB_URL}"
+    if curl -L -o "${DST}/${TBB_PACKAGE}.tgz" "${TBB_URL}";
+    then
+      DOWNLOAD_CODE=0
+    fi
   elif [ -x "$(command -v wget)" ]; then
     echo wget -O "${DST}/${TBB_PACKAGE}.tgz" "${TBB_URL}"
-    wget -O "${DST}/${TBB_PACKAGE}.tgz" "${TBB_URL}"
+    if wget -O "${DST}/${TBB_PACKAGE}.tgz" "${TBB_URL}";
+    then
+      DOWNLOAD_CODE=0
+    fi
   else
     echo "curl or wget not available"
     exit 1
   fi
 
-  if [ $? -ne 0 ] || [ ! -e "${DST}/${TBB_PACKAGE}.tgz" ]; then
+  if [ ${DOWNLOAD_CODE} -ne 0 ] || [ ! -e "${DST}/${TBB_PACKAGE}.tgz" ]; then
     echo "Download from ${TBB_URL} to ${DST} failed"
     exit 1
   fi
@@ -57,5 +65,5 @@ if [ ! -d "${DST}/${OS}/bin" ]; then
   tar -C "${DST}/${OS}" --strip-components=1 -xvf "${DST}/${TBB_PACKAGE}.tgz" ${TBB_VERSION}
   echo "Downloaded and unpacked oneTBB to ${DST}/${OS}"
 else
-  echo "IoneTBB is already installed in ${DST}/${OS}"
+  echo "oneTBB is already installed in ${DST}/${OS}"
 fi
