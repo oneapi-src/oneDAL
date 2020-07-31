@@ -74,8 +74,8 @@ protected:
                               const KDTreeTable & kdTreeTable, size_t rootTreeNodeIndex, const NumericTable & data, const bool isHomogenSOA,
                               services::internal::TArrayScalable<algorithmFpType *, cpu> & soa_arrays);
 
-    services::Status predict(algorithmFpType & predictedClass, const Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap,
-                             const NumericTable & labels, size_t k, VoteWeights voteWeights, const NumericTable * modelIndices,
+    services::Status predict(algorithmFpType * predictedClass, const Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap,
+                             const NumericTable * labels, size_t k, VoteWeights voteWeights, const NumericTable * modelIndices,
                              data_management::BlockDescriptor<algorithmFpType> & indices,
                              data_management::BlockDescriptor<algorithmFpType> & distances, size_t index);
 };

@@ -282,20 +282,26 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     typedef daal::internal::Math<algorithmFpType, cpu> Math;
 
     size_t k;
-    VoteWeights voteWeights = voteUniform;
+    VoteWeights voteWeights       = voteUniform;
+    DAAL_UINT64 resultsToEvaluate = classifier::computeClassLabels;
 
     {
         auto par1 = dynamic_cast<const kdtree_knn_classification::interface1::Parameter *>(par);
         if (par1) k = par1->k;
 
         auto par2 = dynamic_cast<const kdtree_knn_classification::interface2::Parameter *>(par);
-        if (par2) k = par2->k;
+        if (par2)
+        {
+            k                 = par2->k;
+            resultsToEvaluate = par2->resultsToEvaluate;
+        }
 
         const auto par3 = dynamic_cast<const kdtree_knn_classification::interface3::Parameter *>(par);
         if (par3)
         {
-            k           = par3->k;
-            voteWeights = par3->voteWeights;
+            k                 = par3->k;
+            voteWeights       = par3->voteWeights;
+            resultsToEvaluate = par3->resultsToEvaluate;
         }
 
         if (par1 == NULL && par2 == NULL && par3 == NULL) return Status(ErrorNullParameterNotSupported);
@@ -305,7 +311,11 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     const auto & kdTreeTable     = *(model->impl()->getKDTreeTable());
     const auto rootTreeNodeIndex = model->impl()->getRootNodeIndex();
     const NumericTable & data    = *(model->impl()->getData());
-    const NumericTable & labels  = *(model->impl()->getLabels());
+    const NumericTable * labels  = nullptr;
+    if (resultsToEvaluate != 0)
+    {
+        labels = model->impl()->getLabels();
+    }
 
     const NumericTable * const modelIndices = model->impl()->getIndices().get();
 
@@ -366,6 +376,8 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
         Local * const local = localTLS.local();
         if (local)
         {
+            services::Status s;
+
             const size_t first = iBlock * rowsPerBlock;
             const size_t last  = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
 
@@ -373,31 +385,47 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
             data_management::BlockDescriptor<algorithmFpType> xBD;
             const_cast<NumericTable &>(*x).getBlockOfRows(first, last - first, readOnly, xBD);
             const algorithmFpType * const dx = xBD.getBlockPtr();
-            data_management::BlockDescriptor<algorithmFpType> yBD;
-            y->getBlockOfRows(first, last - first, writeOnly, yBD);
-            auto * const dy = yBD.getBlockPtr();
 
             data_management::BlockDescriptor<algorithmFpType> indicesBD, distancesBD;
             if (indices)
             {
-                const auto s = indices->getBlockOfRows(first, last - first, writeOnly, indicesBD);
+                s = indices->getBlockOfRows(first, last - first, writeOnly, indicesBD);
                 DAAL_CHECK_STATUS_THR(s);
             }
             if (distances)
             {
-                const auto s = distances->getBlockOfRows(first, last - first, writeOnly, distancesBD);
+                s = distances->getBlockOfRows(first, last - first, writeOnly, distancesBD);
                 DAAL_CHECK_STATUS_THR(s);
             }
 
-            for (size_t i = 0; i < last - first; ++i)
+            if (labels)
             {
-                findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data, isHomogenSOA,
-                                     soa_arrays);
-                const auto s = predict(dy[i * yColumnCount], local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i);
-                DAAL_CHECK_STATUS_THR(s)
+                data_management::BlockDescriptor<algorithmFpType> yBD;
+                y->getBlockOfRows(first, last - first, writeOnly, yBD);
+                auto * const dy = yBD.getBlockPtr();
+
+                for (size_t i = 0; i < last - first; ++i)
+                {
+                    findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data,
+                                         isHomogenSOA, soa_arrays);
+                    s = predict(&(dy[i * yColumnCount]), local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i);
+                    DAAL_CHECK_STATUS_THR(s)
+                }
+
+                s |= y->releaseBlockOfRows(yBD);
+                DAAL_CHECK_STATUS_THR(s);
+            }
+            else
+            {
+                for (size_t i = 0; i < last - first; ++i)
+                {
+                    findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data,
+                                         isHomogenSOA, soa_arrays);
+                    s = predict(nullptr, local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i);
+                    DAAL_CHECK_STATUS_THR(s)
+                }
             }
 
-            services::Status s;
             if (indices)
             {
                 s |= indices->releaseBlockOfRows(indicesBD);
@@ -409,7 +437,6 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
             }
             DAAL_CHECK_STATUS_THR(s);
 
-            y->releaseBlockOfRows(yBD);
             const_cast<NumericTable &>(*x).releaseBlockOfRows(xBD);
         }
     });
@@ -570,7 +597,7 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
 
 template <typename algorithmFpType, CpuType cpu>
 services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::predict(
-    algorithmFpType & predictedClass, const Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap, const NumericTable & labels, size_t k,
+    algorithmFpType * predictedClass, const Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap, const NumericTable * labels, size_t k,
     VoteWeights voteWeights, const NumericTable * modelIndices, data_management::BlockDescriptor<algorithmFpType> & indices,
     data_management::BlockDescriptor<algorithmFpType> & distances, size_t index)
 {
@@ -629,110 +656,116 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
         }
     }
 
-    data_management::BlockDescriptor<algorithmFpType> labelBD;
-    algorithmFpType * classes = static_cast<algorithmFpType *>(daal::services::internal::service_malloc<algorithmFpType, cpu>(heapSize));
-    DAAL_CHECK_MALLOC(classes);
-    for (size_t i = 0; i < heapSize; ++i)
+    if (labels)
     {
-        const_cast<NumericTable &>(labels).getBlockOfColumnValues(0, heap[i].index, 1, readOnly, labelBD);
-        classes[i] = *(labelBD.getBlockPtr());
-        const_cast<NumericTable &>(labels).releaseBlockOfColumnValues(labelBD);
-    }
-    daal::algorithms::internal::qSort<algorithmFpType, cpu>(heapSize, classes);
-    algorithmFpType currentClass = classes[0];
-    algorithmFpType winnerClass  = currentClass;
+        DAAL_ASSERT(predictedClass);
 
-    if (voteWeights == voteUniform)
-    {
-        size_t currentWeight = 1;
-        size_t winnerWeight  = currentWeight;
-        for (size_t i = 1; i < heapSize; ++i)
-        {
-            if (classes[i] == currentClass)
-            {
-                if ((++currentWeight) > winnerWeight)
-                {
-                    winnerWeight = currentWeight;
-                    winnerClass  = currentClass;
-                }
-            }
-            else
-            {
-                currentWeight = 1;
-                currentClass  = classes[i];
-            }
-        }
-        predictedClass = winnerClass;
-    }
-    else
-    {
-        DAAL_ASSERT(voteWeights == voteDistance);
-
-        const algorithmFpType epsilon = daal::services::internal::EpsilonVal<algorithmFpType>::get();
-
-        bool isContainZero = false;
-
+        data_management::BlockDescriptor<algorithmFpType> labelBD;
+        algorithmFpType * const classes = static_cast<algorithmFpType *>(daal::services::internal::service_malloc<algorithmFpType, cpu>(heapSize));
+        DAAL_CHECK_MALLOC(classes);
         for (size_t i = 0; i < heapSize; ++i)
         {
-            if (heap[i].distance <= epsilon)
-            {
-                isContainZero = true;
-                break;
-            }
+            const_cast<NumericTable *>(labels)->getBlockOfColumnValues(0, heap[i].index, 1, readOnly, labelBD);
+            classes[i] = *(labelBD.getBlockPtr());
+            const_cast<NumericTable *>(labels)->releaseBlockOfColumnValues(labelBD);
         }
+        daal::algorithms::internal::qSort<algorithmFpType, cpu>(heapSize, classes);
+        algorithmFpType currentClass = classes[0];
+        algorithmFpType winnerClass  = currentClass;
 
-        if (isContainZero)
+        if (voteWeights == voteUniform)
         {
-            size_t currentWeight = (heap[0].distance <= epsilon);
+            size_t currentWeight = 1;
             size_t winnerWeight  = currentWeight;
             for (size_t i = 1; i < heapSize; ++i)
             {
                 if (classes[i] == currentClass)
                 {
-                    currentWeight += (heap[i].distance <= epsilon);
+                    if ((++currentWeight) > winnerWeight)
+                    {
+                        winnerWeight = currentWeight;
+                        winnerClass  = currentClass;
+                    }
                 }
                 else
                 {
-                    currentWeight = (heap[i].distance <= epsilon);
+                    currentWeight = 1;
                     currentClass  = classes[i];
                 }
-
-                if (currentWeight > winnerWeight)
-                {
-                    winnerWeight = currentWeight;
-                    winnerClass  = currentClass;
-                }
             }
-            predictedClass = winnerClass;
+            *predictedClass = winnerClass;
         }
         else
         {
-            algorithmFpType currentWeight = Math::sSqrt(1.0 / heap[0].distance);
-            algorithmFpType winnerWeight  = currentWeight;
-            for (size_t i = 1; i < heapSize; ++i)
-            {
-                if (classes[i] == currentClass)
-                {
-                    currentWeight += Math::sSqrt(1.0 / heap[i].distance);
-                }
-                else
-                {
-                    currentWeight = Math::sSqrt(1.0 / heap[i].distance);
-                    currentClass  = classes[i];
-                }
+            DAAL_ASSERT(voteWeights == voteDistance);
 
-                if (currentWeight > winnerWeight)
+            const algorithmFpType epsilon = daal::services::internal::EpsilonVal<algorithmFpType>::get();
+
+            bool isContainZero = false;
+
+            for (size_t i = 0; i < heapSize; ++i)
+            {
+                if (heap[i].distance <= epsilon)
                 {
-                    winnerWeight = currentWeight;
-                    winnerClass  = currentClass;
+                    isContainZero = true;
+                    break;
                 }
             }
-            predictedClass = winnerClass;
+
+            if (isContainZero)
+            {
+                size_t currentWeight = (heap[0].distance <= epsilon);
+                size_t winnerWeight  = currentWeight;
+                for (size_t i = 1; i < heapSize; ++i)
+                {
+                    if (classes[i] == currentClass)
+                    {
+                        currentWeight += (heap[i].distance <= epsilon);
+                    }
+                    else
+                    {
+                        currentWeight = (heap[i].distance <= epsilon);
+                        currentClass  = classes[i];
+                    }
+
+                    if (currentWeight > winnerWeight)
+                    {
+                        winnerWeight = currentWeight;
+                        winnerClass  = currentClass;
+                    }
+                }
+                *predictedClass = winnerClass;
+            }
+            else
+            {
+                algorithmFpType currentWeight = Math::sSqrt(1.0 / heap[0].distance);
+                algorithmFpType winnerWeight  = currentWeight;
+                for (size_t i = 1; i < heapSize; ++i)
+                {
+                    if (classes[i] == currentClass)
+                    {
+                        currentWeight += Math::sSqrt(1.0 / heap[i].distance);
+                    }
+                    else
+                    {
+                        currentWeight = Math::sSqrt(1.0 / heap[i].distance);
+                        currentClass  = classes[i];
+                    }
+
+                    if (currentWeight > winnerWeight)
+                    {
+                        winnerWeight = currentWeight;
+                        winnerClass  = currentClass;
+                    }
+                }
+                *predictedClass = winnerClass;
+            }
         }
+
+        service_free<algorithmFpType, cpu>(classes);
+        classes = nullptr;
     }
 
-    service_free<algorithmFpType, cpu>(classes);
-    classes = nullptr;
     return services::Status();
 }
 
