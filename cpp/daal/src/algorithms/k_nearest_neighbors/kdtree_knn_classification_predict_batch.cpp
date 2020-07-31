@@ -24,6 +24,7 @@
 #include "algorithms/k_nearest_neighbors/kdtree_knn_classification_predict_types.h"
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
 #include "src/services/daal_strings.h"
+#include <iostream> // Temporary
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -86,12 +87,17 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     errors.setCanThrow(false);
     s |= checkNumericTable(m->impl()->getData().get(), dataStr());
     DAAL_CHECK(s, ErrorModelNotFullInitialized);
+    std::cout << "parameter = " << parameter << std::endl;
     const auto par = dynamic_cast<const kdtree_knn_classification::interface3::Parameter *>(parameter);
+    std::cout << "par = " << par << std::endl;
+    std::cout << "typeid(*parameter).name() = " << typeid(*parameter).name() << std::endl;
     if ((par == nullptr) || (par->resultsToEvaluate != 0))
     {
+        std::cout << "par->resultsToEvaluate" << par->resultsToEvaluate << std::endl;
         s |= checkNumericTable(m->impl()->getLabels().get(), labelsStr());
         DAAL_CHECK(s, ErrorModelNotFullInitialized);
     }
+    std::cout << "checking finished" << std::endl;
     s |= checkNumericTable(m->impl()->getKDTreeTable().get(), kdTreeTableStr(), 0, NumericTableIface::aos, 4);
     DAAL_CHECK(s, ErrorModelNotFullInitialized);
 
