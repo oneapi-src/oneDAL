@@ -42,7 +42,7 @@ size_t nFeatures = 5;
 size_t nClasses  = 5;
 
 kdtree_knn_classification::training::ResultPtr trainingResult;
-classifier::prediction::ResultPtr predictionResult;
+kdtree_knn_classification::prediction::ResultPtr predictionResult;
 NumericTablePtr testGroundTruth;
 
 void trainModel();
@@ -117,6 +117,8 @@ void testModel()
 
 void printResults()
 {
-    printNumericTables<int, int>(testGroundTruth, predictionResult->get(classifier::prediction::prediction), "Ground truth", "Classification results",
-                                 "KD-tree based kNN classification results (first 20 observations):", 20);
+    printNumericTables<int, int>(testGroundTruth, predictionResult->get(kdtree_knn_classification::prediction::prediction), "Ground truth",
+                                 "Classification results", "KD-tree based kNN classification results (first 20 observations):", 20);
+    printNumericTable(predictionResult->get(kdtree_knn_classification::prediction::indices), "Indices", 20);
+    printNumericTable(predictionResult->get(kdtree_knn_classification::prediction::distances), "Distances", 20);
 }
