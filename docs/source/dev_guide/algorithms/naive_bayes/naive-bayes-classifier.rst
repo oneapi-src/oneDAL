@@ -111,7 +111,7 @@ Examples
     
       Online Processing:
 
-      - :java_example:`MnNaiveBayesDenseOnline.java <naive_bayes/MnlNaiveBayesDenseOnline.java>`
+      - :java_example:`MnNaiveBayesDenseOnline.java <naive_bayes/MnNaiveBayesDenseOnline.java>`
       - :java_example:`MnNaiveBayesCSROnline.java <naive_bayes/MnNaiveBayesCSROnline.java>`
 
       Distributed Processing:

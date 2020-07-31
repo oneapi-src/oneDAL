@@ -240,6 +240,6 @@ Examples
     Batch Processing:
 
     - :java_example:`AdaBoostSammeTwoClassBatch.java <boosting/adaboost/AdaBoostSammeTwoClassBatch.java>`
-    - :java_example:`AdaBoostSammerTwoClassBatch.java <boosting/adaboost/AdaBoostSammerTwoClassBatch.java>`
+    - :java_example:`AdaBoostSammerTwoClassBatch.java <boosting/adaboost/AdaBoostSammeRTwoClassBatch.java>`
     - :java_example:`AdaBoostSammeMultiClassBatch.java <boosting/adaboost/AdaBoostSammeMultiClassBatch.java>`
-    - :java_example:`AdaBoostSammerMultiClassBatch.java <boosting/adaboost/AdaBoostSammerMultiClassBatch.java>`
+    - :java_example:`AdaBoostSammerMultiClassBatch.java <boosting/adaboost/AdaBoostSammeRMultiClassBatch.java>`
