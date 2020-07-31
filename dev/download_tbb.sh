@@ -17,9 +17,8 @@
 
 TBB_URL_ROOT="https://github.com/intel/tbb/releases/download/2019_U9/"
 TBB_VERSION="tbb2019_20191006oss"
-TBB_TARGET_PLATFORM=linux
 
-os=`uname`
+os=$(uname)
 if [ "${os}" = "Linux" ]; then
   TBB_OS=lin
   OS=lnx
@@ -33,30 +32,38 @@ fi
 
 TBB_PACKAGE="${TBB_VERSION}_${TBB_OS}"
 TBB_URL=${TBB_URL_ROOT}${TBB_PACKAGE}.tgz
-DST=`dirname $0`/../__deps/tbb
-mkdir -p ${DST}/${OS}
-DST=`cd ${DST};pwd`
+DST=$(dirname "$0")/../__deps/tbb
+mkdir -p "${DST}/${OS}"
+DST=$(cd "${DST}" || exit 1;pwd)
+
+DOWNLOAD_CODE=1
 
 if [ ! -d "${DST}/${OS}/bin" ]; then
   if [ -x "$(command -v curl)" ]; then
     echo curl -L -o "${DST}/${TBB_PACKAGE}.tgz" "${TBB_URL}"
-    curl -L -o "${DST}/${TBB_PACKAGE}.tgz" "${TBB_URL}"
+    if curl -L -o "${DST}/${TBB_PACKAGE}.tgz" "${TBB_URL}";
+    then
+      DOWNLOAD_CODE=0
+    fi
   elif [ -x "$(command -v wget)" ]; then
     echo wget -O "${DST}/${TBB_PACKAGE}.tgz" "${TBB_URL}"
-    wget -O "${DST}/${TBB_PACKAGE}.tgz" "${TBB_URL}"
+    if wget -O "${DST}/${TBB_PACKAGE}.tgz" "${TBB_URL}";
+    then
+      DOWNLOAD_CODE=0
+    fi
   else
     echo "curl or wget not available"
     exit 1
   fi
 
-  if [ $? -ne 0 -o ! -e "${DST}/${TBB_PACKAGE}.tgz" ]; then
+  if [ ${DOWNLOAD_CODE} -ne 0 ] || [ ! -e "${DST}/${TBB_PACKAGE}.tgz" ]; then
     echo "Download from ${TBB_URL} to ${DST} failed"
     exit 1
   fi
 
-  echo tar -xvf "${DST}/${TBB_PACKAGE}.tgz" -C ${DST}
-  tar -C ${DST}/${OS} --strip-components=1 -xvf "${DST}/${TBB_PACKAGE}.tgz" ${TBB_VERSION}
-  echo "Downloaded and unpacked Intel(R) TBB to ${DST}/${OS}"
+  echo tar -xvf "${DST}/${TBB_PACKAGE}.tgz" -C "${DST}"
+  tar -C "${DST}/${OS}" --strip-components=1 -xvf "${DST}/${TBB_PACKAGE}.tgz" ${TBB_VERSION}
+  echo "Downloaded and unpacked oneTBB to ${DST}/${OS}"
 else
-  echo "Intel(R) TBB is already installed in ${DST}/${OS}"
+  echo "oneTBB is already installed in ${DST}/${OS}"
 fi
