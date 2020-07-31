@@ -24,7 +24,6 @@ set DAAL_IA=intel64
 
 :ParseArgs
 if /i "%1"=="" goto :GoodArgs
-if /i "%1"=="ia32"    (set DAAL_IA=ia32)    & shift & goto :ParseArgs
 if /i "%1"=="intel64" (set DAAL_IA=intel64) & shift & goto :ParseArgs
 shift
 goto :ParseArgs
@@ -37,7 +36,6 @@ exit /b 0
 echo.
 echo Syntax:  call %~nx0 [^<arch^>]
 echo Where ^<arch^> is one of
-echo   ia32     - setup environment for IA-32 architecture
 echo   intel64  - setup environment for Intel(R) 64 architecture
 echo default is intel64
 exit /b 0
