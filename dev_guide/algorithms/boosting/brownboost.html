@@ -25,6 +25,8 @@
         <script type="text/javascript" src="../../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../../_static/doctools.js"></script>
         <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script type="text/javascript" src="../../../_static/sphinx_tabs/semantic-ui-2.4.1/tab.min.js"></script>
+        <script type="text/javascript" src="../../../_static/sphinx_tabs/tabs.js"></script>
         <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
@@ -34,6 +36,10 @@
   
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sphinx_tabs/semantic-ui-2.4.1/segment.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sphinx_tabs/semantic-ui-2.4.1/menu.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sphinx_tabs/semantic-ui-2.4.1/tab.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sphinx_tabs/tabs.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="LogitBoost Classifier" href="logitboost.html" />
@@ -136,7 +142,12 @@
 <li class="toctree-l4"><a class="reference internal" href="../../usage/training-and-prediction/regression.html#prediction-stage">Prediction Stage</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../usage/training-and-prediction/recommendation-systems.html">Recommendation Systems Usage Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../usage/training-and-prediction/recommendation-systems.html">Recommendation Systems Usage Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../usage/training-and-prediction/recommendation-systems.html#algorithm-specific-parameters">Algorithm-Specific Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../usage/training-and-prediction/recommendation-systems.html#training-stage">Training Stage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../usage/training-and-prediction/recommendation-systems.html#prediction-stage">Prediction Stage</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -191,13 +202,13 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../kmeans/k-means-clustering.html#initialization">Initialization</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../kmeans/k-means-clustering.html#batch-processing">Batch Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../kmeans/k-means-clustering.html#distributed-processing">Distributed Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../kmeans/initialization-batch.html">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../kmeans/initialization-distributed.html">Distributed Processing</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../kmeans/k-means-clustering.html#id8">Computation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../kmeans/k-means-clustering.html#id9">Batch Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../kmeans/k-means-clustering.html#id10">Distributed Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../kmeans/k-means-clustering.html#id4">Computation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../kmeans/computation-batch.html">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../kmeans/computation-distributed.html">Distributed Processing</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../kmeans/k-means-clustering.html#examples">Examples</a></li>
@@ -216,55 +227,55 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../covariance/correlation-and-variance-covariance-matrices.html">Correlation and Variance-Covariance Matrices</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../covariance/correlation-and-variance-covariance-matrices.html#details">Details</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../covariance/correlation-and-variance-covariance-matrices.html#batch-processing">Batch Processing</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../covariance/correlation-and-variance-covariance-matrices.html#algorithm-input">Algorithm Input</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../covariance/correlation-and-variance-covariance-matrices.html#algorithm-parameters">Algorithm Parameters</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../covariance/correlation-and-variance-covariance-matrices.html#algorithm-output">Algorithm Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../covariance/correlation-and-variance-covariance-matrices.html#computation">Computation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../covariance/computation-batch.html">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../covariance/computation-online.html">Online Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../covariance/computation-distributed.html">Distributed Processing</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../covariance/correlation-and-variance-covariance-matrices.html#online-processing">Online Processing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../covariance/correlation-and-variance-covariance-matrices.html#distributed-processing">Distributed Processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../covariance/correlation-and-variance-covariance-matrices.html#examples">Examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../covariance/correlation-and-variance-covariance-matrices.html#performance-considerations">Performance Considerations</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../pca/principal-component-analysis.html">Principal Component Analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../pca/principal-component-analysis.html#details">Details</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../pca/principal-component-analysis.html#batch-processing">Batch Processing</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../pca/principal-component-analysis.html#algorithm-input">Algorithm Input</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../pca/principal-component-analysis.html#algorithm-parameters">Algorithm Parameters</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../pca/principal-component-analysis.html#algorithm-output">Algorithm Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pca/principal-component-analysis.html#computation">Computation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../pca/computation-batch.html">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../pca/computation-online.html">Online Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../pca/computation-distributed.html">Distributed Processing</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../pca/principal-component-analysis.html#online-processing">Online Processing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../pca/principal-component-analysis.html#distributed-processing">Distributed Processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../pca/principal-component-analysis.html#examples">Examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../pca/principal-component-analysis.html#performance-considerations">Performance Considerations</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../pca/principal-component-analysis.html#id2">Batch Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../pca/principal-component-analysis.html#id3">Online Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../pca/principal-component-analysis.html#id4">Distributed Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../pca/principal-component-analysis.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../pca/principal-component-analysis.html#online-processing">Online Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../pca/principal-component-analysis.html#distributed-processing">Distributed Processing</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../pca/transform.html">Principal Components Analysis Transform</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../pca/transform.html#details">Details</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../pca/transform.html#batch-processing">Batch Processing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../pca/transform.html#dpc-examples">DPC++ Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pca/transform.html#batch-processing">Batch Processing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../pca/transform.html#algorithm-input">Algorithm Input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../pca/transform.html#algorithm-parameters">Algorithm Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../pca/transform.html#algorithm-output">Algorithm Output</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../pca/transform.html#examples">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../svd/singular-value-decomposition.html">Singular Value Decomposition</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../svd/singular-value-decomposition.html#details">Details</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../svd/singular-value-decomposition.html#batch-and-online-processing">Batch and Online Processing</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../svd/singular-value-decomposition.html#algorithm-input">Algorithm Input</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../svd/singular-value-decomposition.html#algorithm-parameters">Algorithm Parameters</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../svd/singular-value-decomposition.html#algorithm-output">Algorithm Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../svd/singular-value-decomposition.html#computation">Computation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../svd/computation-batch-online.html">Batch and Online Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../svd/computation-distributed.html">Distributed Processing</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../svd/singular-value-decomposition.html#distributed-processing">Distributed Processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../svd/singular-value-decomposition.html#examples">Examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../svd/singular-value-decomposition.html#performance-considerations">Performance Considerations</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../svd/singular-value-decomposition.html#online-processing">Online Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../svd/singular-value-decomposition.html#distributed-processing">Distributed Processing</a></li>
 </ul>
 </li>
 </ul>
@@ -314,18 +325,25 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../cholesky/cholesky.html">Cholesky Decomposition</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../cholesky/cholesky.html#details">Details</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../cholesky/cholesky.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cholesky/cholesky.html#batch-processing">Batch Processing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../cholesky/cholesky.html#algorithm-input">Algorithm Input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cholesky/cholesky.html#algorithm-parameters">Algorithm Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cholesky/cholesky.html#algorithm-output">Algorithm Output</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../cholesky/cholesky.html#examples">Examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../cholesky/cholesky.html#performance-considerations">Performance Considerations</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../qr/qr-decomposition.html">QR Decomposition</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../qr/qr-without-pivoting.html">QR Decomposition without Pivoting</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../qr/qr-without-pivoting.html#batch-and-online-processing">Batch and Online Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../qr/qr-without-pivoting.html#distributed-processing">Distributed Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../qr/qr-without-pivoting.html#computation">Computation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../qr/qr-without-pivoting.html#examples">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../qr/qr-pivoted.html">Pivoted QR Decomposition</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../qr/qr-pivoted.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../qr/qr-pivoted.html#examples">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../qr/qr-decomposition.html#performance-considerations">Performance Considerations</a><ul>
@@ -336,26 +354,79 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../outlier_detection/index.html">Outlier Detection</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../outlier_detection/multivariate.html">Multivariate Outlier Detection</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../outlier_detection/multivariate-bacon.html">Multivariate BACON Outlier Detection</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../outlier_detection/univariate.html">Univariate Outlier Detection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../outlier_detection/multivariate.html">Multivariate Outlier Detection</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../outlier_detection/multivariate.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../outlier_detection/multivariate.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../outlier_detection/multivariate.html#examples">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../outlier_detection/multivariate.html#performance-considerations">Performance Considerations</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../outlier_detection/multivariate-bacon.html">Multivariate BACON Outlier Detection</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../outlier_detection/multivariate-bacon.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../outlier_detection/multivariate-bacon.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../outlier_detection/multivariate-bacon.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../outlier_detection/univariate.html">Univariate Outlier Detection</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../outlier_detection/univariate.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../outlier_detection/univariate.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../outlier_detection/univariate.html#examples">Examples</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../distance/index.html">Distance Matrix</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../distance/correlation.html">Correlation Distance Matrix</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../distance/correlation.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../distance/correlation.html#examples">Examples</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../distance/correlation.html#performance-considerations">Performance Considerations</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../distance/cosine.html">Cosine Distance Matrix</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../distance/cosine.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../distance/cosine.html#examples">Examples</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../distance/cosine.html#performance-considerations">Performance Considerations</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../distributions/index.html">Distributions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../engines/index.html">Engines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../distributions/index.html">Distributions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../distributions/uniform.html">Uniform Distribution</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../distributions/uniform.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../distributions/uniform.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../distributions/uniform.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../distributions/normal.html">Normal Distribution</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../distributions/normal.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../distributions/normal.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../distributions/normal.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../distributions/bernoulli.html">Bernoulli Distribution</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../distributions/bernoulli.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../distributions/bernoulli.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../distributions/bernoulli.html#examples">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../distributions/bernoulli.html#performance-considerations">Performance Considerations</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../engines/index.html">Engines</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../engines/mt19937.html">mt19937</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../engines/mt19937.html#batch-processing">Batch Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../engines/mcg59.html">mcg59</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../engines/mcg59.html#batch-processing">Batch Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../engines/mt2203.html">mt2203</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../engines/mt2203.html#batch-processing">Batch Processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../moments/moments-of-low-order.html">Moments of Low Order</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../moments/moments-of-low-order.html#details">Details</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../moments/moments-of-low-order.html#computation">Computation</a><ul>
@@ -364,24 +435,56 @@
 <li class="toctree-l4"><a class="reference internal" href="../moments/computation-distributed.html">Distributed Processing</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../moments/moments-of-low-order.html#dpc-examples">DPC++ Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../moments/moments-of-low-order.html#examples">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../quantiles/index.html">Quantile</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../quantiles/index.html#details">Details</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../quantiles/index.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quantiles/index.html#batch-processing">Batch Processing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../quantiles/index.html#algorithm-input">Algorithm Input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../quantiles/index.html#algorithm-parameters">Algorithm Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../quantiles/index.html#algorithm-output">Algorithm Output</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../quantiles/index.html#examples">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../quality_metrics/index.html">Quality Metrics</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../quality_metrics/default-metric-set.html">Working with the Default Metric Set</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quality_metrics/default-metric-set.html">Working with the Default Metric Set</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../quality_metrics/default/for-binary-classification.html">Quality Metrics for Binary Classification Algorithms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../quality_metrics/default/for-multi-class-classification.html">Quality Metrics for Multi-class Classification Algorithms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../quality_metrics/default/for-linear-regression.html">Quality Metrics for Linear Regression</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../quality_metrics/default/for-pca.html">Quality Metrics for Principal Components Analysis</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../quality_metrics/user-defined.html">Working with User-defined Quality Metrics</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../sorting/index.html">Sorting</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../sorting/index.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../sorting/index.html#batch-processing">Batch Processing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../sorting/index.html#algorithm-input">Algorithm Input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../sorting/index.html#algorithm-parameters">Algorithm Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../sorting/index.html#algorithm-output">Algorithm Output</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../normalization/index.html">Normalization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../sorting/index.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../normalization/index.html">Normalization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../normalization/z-score.html">Z-score</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../normalization/z-score.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../normalization/z-score.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../normalization/z-score.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../normalization/min-max.html">Min-max</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../normalization/min-max.html#problem-statement">Problem Statement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../normalization/min-max.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../normalization/min-max.html#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../optimization-solvers/optimization-solvers.html">Optimization Solvers</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../optimization-solvers/objective-function.html">Objective Function</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/objective-functions/computation.html">Computation</a></li>
@@ -537,13 +640,17 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../implicit_als/implicit-alternating-least-squares.html#initialization">Initialization</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../implicit_als/implicit-alternating-least-squares.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../implicit_als/initialization-batch.html">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../implicit_als/initialization-distributed.html">Distributed Processing</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../implicit_als/implicit-alternating-least-squares.html#computation">Computation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../implicit_als/implicit-alternating-least-squares.html#id1">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../implicit_als/computation-batch.html">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../implicit_als/computation-distributed-training.html">Distributed Processing: Training</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../implicit_als/computation-distributed-prediction.html">Distributed Processing: Prediction of Ratings</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../implicit_als/implicit-alternating-least-squares.html#examples">Examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../implicit_als/implicit-alternating-least-squares.html#performance-considerations">Performance Considerations</a></li>
 </ul>
 </li>
@@ -572,13 +679,12 @@
 <li class="toctree-l4"><a class="reference internal" href="../naive_bayes/naive-bayes-classifier.html#prediction-stage">Prediction Stage</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../naive_bayes/naive-bayes-classifier.html#batch-processing">Batch Processing</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../naive_bayes/naive-bayes-classifier.html#training">Training</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../naive_bayes/naive-bayes-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../naive_bayes/naive-bayes-classifier.html#computation">Computation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../naive_bayes/computation-batch.html">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../naive_bayes/computation-online.html">Online Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../naive_bayes/computation-distributed.html">Distributed Processing</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../naive_bayes/naive-bayes-classifier.html#online-processing">Online Processing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../naive_bayes/naive-bayes-classifier.html#distributed-processing">Distributed Processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../naive_bayes/naive-bayes-classifier.html#examples">Examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../naive_bayes/naive-bayes-classifier.html#performance-considerations">Performance Considerations</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../naive_bayes/naive-bayes-classifier.html#id2">Training Stage</a></li>
@@ -600,7 +706,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#prediction">Prediction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#id9">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#id10">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#performance-considerations">Performance Considerations</a></li>
@@ -628,23 +734,26 @@
 <li class="toctree-l3"><a class="reference internal" href="adaboost.html">AdaBoost Classifier</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="adaboost.html#details">Details</a></li>
 <li class="toctree-l4"><a class="reference internal" href="adaboost.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="adaboost.html#examples">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="adaboost-multiclass.html">AdaBoost Multiclass Classifier</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="adaboost-multiclass.html#details">Details</a></li>
-<li class="toctree-l4"><a class="reference internal" href="adaboost-multiclass.html#samme-method">SAMME method</a></li>
-<li class="toctree-l4"><a class="reference internal" href="adaboost-multiclass.html#samme-r-method">SAMME.R method</a></li>
+<li class="toctree-l4"><a class="reference internal" href="adaboost-multiclass.html#training-stage">Training Stage</a></li>
 <li class="toctree-l4"><a class="reference internal" href="adaboost-multiclass.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="adaboost-multiclass.html#examples">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">BrownBoost Classifier</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#details">Details</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#examples">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="logitboost.html">LogitBoost Classifier</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="logitboost.html#details">Details</a></li>
 <li class="toctree-l4"><a class="reference internal" href="logitboost.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="logitboost.html#examples">Examples</a></li>
 </ul>
 </li>
 </ul>
@@ -673,37 +782,42 @@
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../sycl_examples.html">DPC++ Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/bf_knn_dense_batch.html">bf_knn_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/cor_dense_batch.html">cor_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/cor_dense_online.html">cor_dense_online.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/datastructures_soa.html">datastructures_soa.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/datastructures_usm.html">datastructures_usm.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/dbscan_dense_batch.html">dbscan_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/df_cls_dense_batch.html">df_cls_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/df_reg_dense_batch.html">df_reg_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/gbt_reg_dense_batch.html">gbt_reg_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/kernel_func_lin_dense_batch.html">kernel_func_lin_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/kernel_func_rbf_dense_batch.html">kernel_func_rbf_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/kmeans_dense_batch.html">kmeans_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/kmeans_init_dense_batch.html">kmeans_init_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/lin_reg_norm_eq_dense_batch.html">lin_reg_norm_eq_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/lin_reg_norm_eq_dense_online.html">lin_reg_norm_eq_dense_online.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/log_reg_binary_dense_batch.html">log_reg_binary_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/log_reg_dense_batch.html">log_reg_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/low_order_moms_dense_batch.html">low_order_moms_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/low_order_moms_dense_online.html">low_order_moms_dense_online.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/pca_cor_dense_online.html">pca_cor_dense_online.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/pca_transform_dense_batch.html">pca_transform_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/sgd_mini_log_loss_dense_batch.html">sgd_mini_log_loss_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">oneAPI Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/dpc.html">DPC++</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/df_cls_dense_batch.html">df_cls_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/df_reg_dense_batch.html">df_reg_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/homogen_table_builder.html">homogen_table_builder.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/knn_cls_brute_force_dense_batch.html">knn_cls_brute_force_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/cpp.html">C++</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/df_cls_dense_batch.html">df_cls_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/df_reg_dense_batch.html">df_reg_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/homogen_table_builder.html">homogen_table_builder.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/kmeans_init_default_dense.html">kmeans_init_default_dense.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/kmeans_lloyd_dense_batch.html">kmeans_lloyd_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/knn_cls_kd_tree_dense_batch.html">knn_cls_kd_tree_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/svm_two_class_smo_dense_batch.html">svm_two_class_smo_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 <p class="caption"><span class="caption-text">Notes</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../notes/known_issues.html">Known Issues</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../notes/issues/2021.1-beta08/windows-static-debug-config.html">Static debug configuration not working</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notes/issues/2021.1-beta08/windows-static-debug-config.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../notes/issues/2021.1-beta06/dpcpp-examples-in-vs2017.html">DPC++ examples not working</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../notes/issues/2021.1-beta06/dpcpp-examples-in-vs2017.html#how-to-fix">How to Fix</a></li>
 </ul>
@@ -895,13 +1009,215 @@ It is more robust to noisy data sets than other boosting classification algorith
 For a multi-class case, use <a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#svm-multi-class"><span class="std std-ref">Multi-class Classifier</span></a> framework of the library.</p>
 <div class="section" id="details">
 <h2>Details<a class="headerlink" href="#details" title="Permalink to this headline">¶</a></h2>
-<p>At this moment, algorithm’s details for <a class="reference external" href="https://software.intel.com/en-us/daal-programming-guide-details-30">BrownBoost Classifier</a>
-are only available in Developer Guide for Intel(R) DAAL.</p>
+<p>Given <span class="math notranslate nohighlight">\(n\)</span> feature vectors <span class="math notranslate nohighlight">\(x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})\)</span> of size <span class="math notranslate nohighlight">\(p\)</span>
+and a vector of class labels <span class="math notranslate nohighlight">\(y= (y_1, \ldots, y_n)\)</span>, where <span class="math notranslate nohighlight">\(y_i \in K = \{-1, 1\}\)</span> describes the class
+to which the feature vector <span class="math notranslate nohighlight">\(x_i\)</span> belongs, and a weak learner algorithm,
+the problem is to build a two-class BrownBoost classifier.</p>
+<div class="section" id="training-stage">
+<h3>Training Stage<a class="headerlink" href="#training-stage" title="Permalink to this headline">¶</a></h3>
+<p>The model is trained using the Freund method <a class="reference internal" href="../../../bibliography.html#freund01" id="id2"><span>[Freund01]</span></a> as follows:</p>
+<ol class="arabic">
+<li><p>Calculate <span class="math notranslate nohighlight">\(c = \mathrm{erfinv}^2(1 - \varepsilon)\)</span>, where:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\mathrm{erfinv}(x)\)</span> is an inverse error function,</p></li>
+<li><p><span class="math notranslate nohighlight">\(\varepsilon\)</span> is a target classification error of the algorithm defined as
+<span class="math notranslate nohighlight">\(\frac {1}{n} \sum _{i=1}^{n} |p(x_i) - y_i|\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(p(x) = \text{erf} \left(\frac {\sum _{i=1}^{M} \alpha_i h_i(x)}{\sqrt{c}}\right)\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathrm{erf}(x)\)</span> is the error function,</p></li>
+<li><p><span class="math notranslate nohighlight">\(h_i(x)\)</span> is a hypothesis formulated by the <span class="math notranslate nohighlight">\(i\)</span>-th weak learner, <span class="math notranslate nohighlight">\(i = 1, \ldots, M\)</span>,</p></li>
+<li><p><span class="math notranslate nohighlight">\(\alpha_i\)</span> is the weight of the hypothesis.</p></li>
+</ul>
+</li>
+<li><p>Set initial prediction values: <span class="math notranslate nohighlight">\(r_1(x, y) = 0\)</span>.</p></li>
+<li><p>Set “remaining timing”: <span class="math notranslate nohighlight">\(s_1 = c\)</span>.</p></li>
+<li><p>Do for <span class="math notranslate nohighlight">\(i=1, 2, \ldots\)</span> until <span class="math notranslate nohighlight">\(s_{i+1} \leq 0\)</span></p>
+<ol class="arabic">
+<li><p>With each feature vector and its label of positive weight, associate <span class="math notranslate nohighlight">\(W_i(x, y) = e^{\frac {-(r_i(x, y) + s_i)^2}{c}}\)</span>.</p></li>
+<li><p>Call the weak learner with the distribution defined by normalizing Lmath:<cite>W_i(x, y)</cite> to receive a hypothesis <span class="math notranslate nohighlight">\(h_i(x)\)</span>.</p></li>
+<li><p>Solve the differential equation</p>
+<div class="math notranslate nohighlight">
+\[\frac {dt}{d\alpha} = \gamma =
+\frac {\sum _{(x,y)} \exp (-\frac{1}{c} (r_i(x, y) + \alpha h_i(x) y + s_i - t)^2)h_i(x)y}
+{\sum _{(x,y)} \exp (-\frac{1}{c} (r_i(x, y) + \alpha h_i(x) y + s_i - t)^2)}\]</div>
+<p>with given boundary conditions <span class="math notranslate nohighlight">\(t = 0\)</span> and <span class="math notranslate nohighlight">\(\alpha = 0\)</span> to find <span class="math notranslate nohighlight">\(t_i = t^{*} &gt; 0\)</span>
+and <span class="math notranslate nohighlight">\(\alpha_i = \alpha^{*}\)</span> such that either <span class="math notranslate nohighlight">\(\gamma \leq ν\)</span> or <span class="math notranslate nohighlight">\(t^{*} = s_i\)</span>,
+where <span class="math notranslate nohighlight">\(ν\)</span> is a given small constant needed to avoid degenerate cases.</p>
+</li>
+<li><p>Update the prediction values: <span class="math notranslate nohighlight">\(r_{i+1}(x, y) = r_i(x, y) + \alpha_i h_i(x) y\)</span>.</p></li>
+<li><p>Update “remaining time”: <span class="math notranslate nohighlight">\(s_{i+1} = s_i - t_i\)</span>.</p></li>
+</ol>
+<p>End do</p>
+</li>
+</ol>
+<p>The result of the model training is the array of <span class="math notranslate nohighlight">\(M\)</span> weak learners <span class="math notranslate nohighlight">\(h_i\)</span>.</p>
+</div>
+<div class="section" id="prediction-stage">
+<h3>Prediction Stage<a class="headerlink" href="#prediction-stage" title="Permalink to this headline">¶</a></h3>
+<p>Given the BrownBoost classifier and <span class="math notranslate nohighlight">\(r\)</span> feature vectors <span class="math notranslate nohighlight">\(x_1, \ldots, x_r\)</span>,
+the problem is to calculate the final classification confidence, a number from the interval <span class="math notranslate nohighlight">\([-1, 1]\)</span>, using the rule:</p>
+<div class="math notranslate nohighlight">
+\[p(x) = \text{erf} \left(\frac {\sum _{i=1}^{M} \alpha_i h_i (x)}{\sqrt{c}}\right)\]</div>
+</div>
 </div>
 <div class="section" id="batch-processing">
 <h2>Batch Processing<a class="headerlink" href="#batch-processing" title="Permalink to this headline">¶</a></h2>
-<p>At this moment, the description of <a class="reference external" href="https://software.intel.com/en-us/daal-programming-guide-batch-processing-45">batch processing for BrownBoost Classifier</a>
-is only available in Developer Guide for Intel(R) DAAL.</p>
+<p>BrownBoost classifier follows the general workflow described in <a class="reference internal" href="../../usage/training-and-prediction/classification.html#classification-usage-model"><span class="std std-ref">Classification Usage Model</span></a>.</p>
+<div class="section" id="training">
+<h3>Training<a class="headerlink" href="#training" title="Permalink to this headline">¶</a></h3>
+<p>For a description of the input and output, refer to <a class="reference internal" href="../../usage/training-and-prediction/classification.html#classification-usage-model"><span class="std std-ref">Classification Usage Model</span></a>.</p>
+<p>At the training stage, a BrownBoost classifier has the following parameters:</p>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 33%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Default Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
+<td><p>The computation method used by the BrownBoost classifier. The only training method supported so far is the Y. Freund’s method.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nClasses</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(2\)</span></p></td>
+<td><p>The number of classes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">weakLearnerTraining</span></code></p></td>
+<td><p><strong>DEPRECATED</strong>: Pointer to an object of the weak learner training class</p>
+<p><strong>USE INSTEAD</strong>: Pointer to an object of the classification stump training class</p>
+</td>
+<td><p><strong>DEPRECATED</strong>: Pointer to the training algorithm of the weak learner. By default, a stump weak learner is used.</p>
+<p><strong>USE INSTEAD</strong>: Pointer to the classifier training algorithm. Be default, a classification stump with gini split criterion is used.</p>
+</td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">weakLearnerPrediction</span></code></p></td>
+<td><p><strong>DEPRECATED</strong>: Pointer to an object of the weak learner prediction class</p>
+<p><strong>USE INSTEAD</strong>: Pointer to an object of the classification stump prediction class</p>
+</td>
+<td><p><strong>DEPRECATED</strong>: Pointer to the prediction algorithm of the weak learner. By default, a stump weak learner is used.</p>
+<p><strong>USE INSTEAD</strong>: Pointer to the classifier prediction algorithm. Be default, a classification stump with gini split criterion is used.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">accuracyThreshold</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.01\)</span></p></td>
+<td><p>BrownBoost training accuracy <span class="math notranslate nohighlight">\(\varepsilon\)</span>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">maxIterations</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(100\)</span></p></td>
+<td><p>The maximal number of iterations for the BrownBoost algorithm.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">newtonRaphsonAccuracyThreshold</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(1.0\mathrm{e}-3\)</span></p></td>
+<td><p>Accuracy threshold of the Newton-Raphson method used underneath the BrownBoost algorithm.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">newtonRaphsonMaxIterations</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(100\)</span></p></td>
+<td><p>The maximal number of Newton-Raphson iterations in the algorithm.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">degenerateCasesThreshold</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(1.0\mathrm{e}-2\)</span></p></td>
+<td><p>The threshold used to avoid degenerate cases.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="prediction">
+<h3>Prediction<a class="headerlink" href="#prediction" title="Permalink to this headline">¶</a></h3>
+<p>For a description of the input and output, refer to <a class="reference internal" href="../../usage/training-and-prediction/classification.html#classification-usage-model"><span class="std std-ref">Classification Usage Model</span></a>.</p>
+<p>At the prediction stage, a BrownBoost classifier has the following parameters:</p>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 33%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Default Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
+<td><p>Performance-oriented computation method, the only method supported by the BrownBoost classifier.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nClasses</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(2\)</span></p></td>
+<td><p>The number of classes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">weakLearnerPrediction</span></code></p></td>
+<td><p><strong>DEPRECATED</strong>: Pointer to an object of the weak learner prediction class</p>
+<p><strong>USE INSTEAD</strong>: Pointer to an object of the classification stump prediction class</p>
+</td>
+<td><p><strong>DEPRECATED</strong>: Pointer to the prediction algorithm of the weak learner. By default, a stump weak learner is used.</p>
+<p><strong>USE INSTEAD</strong>: Pointer to the classifier prediction algorithm. Be default, a classification stump with gini split criterion is used.</p>
+</td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">accuracyThreshold</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.01\)</span></p></td>
+<td><p>BrownBoost training accuracy <span class="math notranslate nohighlight">\(\varepsilon\)</span>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="sphinx-tabs docutils container">
+<div class="ui top attached tabular menu sphinx-menu docutils container">
+<div class="active item sphinx-data-tab-0-0 docutils container">
+<div class="docutils container">
+<p>C++ (CPU)</p>
+</div>
+</div>
+<div class="item sphinx-data-tab-0-1 docutils container">
+<div class="docutils container">
+<p>Java*</p>
+</div>
+</div>
+<div class="item sphinx-data-tab-0-2 docutils container">
+<div class="docutils container">
+<p>Python*</p>
+</div>
+</div>
+</div>
+<div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-0 active docutils container">
+<p>Batch Processing:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/boosting/brownboost_dense_batch.cpp">brownboost_dense_batch.cpp</a></p></li>
+</ul>
+</div>
+<div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-1 docutils container">
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There is no support for Java on GPU.</p>
+</div>
+<p>Batch Processing:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/boosting/brownboost/BrownBoostDenseBatch.java">BrownBoostDenseBatch.java</a></p></li>
+</ul>
+</div>
+<div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-2 docutils container">
+<p>Batch Processing:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/IntelPython/daal4py/tree/master/examples/brownboost_batch.py">brownboost_batch.py</a></p></li>
+</ul>
+</div>
+</div>
 </div>
 </div>
 

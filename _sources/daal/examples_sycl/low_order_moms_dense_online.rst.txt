@@ -1,7 +1,0 @@
-.. _low_order_moms_dense_online.cpp:
-
-low_order_moms_dense_online.cpp
-###############################
-
-.. literalinclude:: ../../../../examples/daal/cpp_sycl/source/moments/low_order_moms_dense_online.cpp
-  :language: cpp

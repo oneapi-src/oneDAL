@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2014-2020 Intel Corporation
+.. * Copyright 2020 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ QR decomposition is used in solving linear inverse and least squares problems.
 It also serves as a basis for algorithms that find eigenvalues and eigenvectors.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    qr-without-pivoting.rst
    qr-pivoted.rst

@@ -1,7 +1,0 @@
-.. _log_reg_binary_dense_batch.cpp:
-
-log_reg_binary_dense_batch.cpp
-##############################
-
-.. literalinclude:: ../../../../examples/daal/cpp_sycl/source/logistic_regression/log_reg_binary_dense_batch.cpp
-  :language: cpp

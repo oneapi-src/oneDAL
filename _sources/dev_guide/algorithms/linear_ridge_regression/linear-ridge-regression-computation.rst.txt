@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2014-2020 Intel Corporation
+.. * Copyright 2019-2020 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -395,17 +395,7 @@ Examples
 
 .. tabs::
 
-  .. tab:: DPC++
-
-    Batch Processing:
-
-    - :ref:`lin_reg_norm_eq_dense_batch.cpp`
-
-    Online Processing:
-
-    - :ref:`lin_reg_norm_eq_dense_online.cpp`
-
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
@@ -429,6 +419,8 @@ Examples
 
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
 
@@ -447,3 +439,26 @@ Examples
     - :java_example:`LinRegNormEqDenseDistr.java <linear_regression/>`
     - :java_example:`LinRegQRDenseDistr.java <linear_regression/>`
     - :java_example:`RidgeRegNormEqDenseDistr.java <ridge_regression/>`
+
+  .. tab:: Python* with DPC++ support
+
+    Batch Processing:
+
+    - :daal4py_sycl_example:`linear_regression_batch.py`
+
+  .. tab:: Python* 
+
+    Batch Processing:
+
+    - :daal4py_example:`linear_regression_batch.py`
+    - :daal4py_example:`ridge_regression_batch.py`
+
+    Online Processing:
+
+    - :daal4py_example:`linear_regression_streaming.py`
+    - :daal4py_example:`ridge_regression_streaming.py`
+
+    Distributed Processing:
+
+    - :daal4py_example:`linear_regression_spmd.py`
+    - :daal4py_example:`ridge_regression_spmd.py`

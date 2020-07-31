@@ -1,0 +1,7 @@
+.. _dpc_homogen_table_builder.cpp:
+
+homogen_table_builder.cpp
+#########################
+
+.. literalinclude:: ../../../../examples/oneapi/dpc/source/tables/homogen_table_builder.cpp
+  :language: cpp

@@ -42,7 +42,7 @@
   <link rel="stylesheet" href="../../../_static/sphinx_tabs/tabs.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Density-Based Spatial Clustering of Applications with Noise" href="../dbscan/index.html" />
+    <link rel="next" title="Batch Processing" href="initialization-batch.html" />
     <link rel="prev" title="Analysis" href="../../analysis.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -142,7 +142,12 @@
 <li class="toctree-l4"><a class="reference internal" href="../../usage/training-and-prediction/regression.html#prediction-stage">Prediction Stage</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../usage/training-and-prediction/recommendation-systems.html">Recommendation Systems Usage Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../usage/training-and-prediction/recommendation-systems.html">Recommendation Systems Usage Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../usage/training-and-prediction/recommendation-systems.html#algorithm-specific-parameters">Algorithm-Specific Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../usage/training-and-prediction/recommendation-systems.html#training-stage">Training Stage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../usage/training-and-prediction/recommendation-systems.html#prediction-stage">Prediction Stage</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -197,13 +202,13 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#initialization">Initialization</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#batch-processing">Batch Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#distributed-processing">Distributed Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="initialization-batch.html">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="initialization-distributed.html">Distributed Processing</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#id8">Computation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id9">Batch Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id10">Distributed Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Computation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="computation-batch.html">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="computation-distributed.html">Distributed Processing</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
@@ -222,55 +227,55 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../covariance/correlation-and-variance-covariance-matrices.html">Correlation and Variance-Covariance Matrices</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../covariance/correlation-and-variance-covariance-matrices.html#details">Details</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../covariance/correlation-and-variance-covariance-matrices.html#batch-processing">Batch Processing</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../covariance/correlation-and-variance-covariance-matrices.html#algorithm-input">Algorithm Input</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../covariance/correlation-and-variance-covariance-matrices.html#algorithm-parameters">Algorithm Parameters</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../covariance/correlation-and-variance-covariance-matrices.html#algorithm-output">Algorithm Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../covariance/correlation-and-variance-covariance-matrices.html#computation">Computation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../covariance/computation-batch.html">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../covariance/computation-online.html">Online Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../covariance/computation-distributed.html">Distributed Processing</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../covariance/correlation-and-variance-covariance-matrices.html#online-processing">Online Processing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../covariance/correlation-and-variance-covariance-matrices.html#distributed-processing">Distributed Processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../covariance/correlation-and-variance-covariance-matrices.html#examples">Examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../covariance/correlation-and-variance-covariance-matrices.html#performance-considerations">Performance Considerations</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../pca/principal-component-analysis.html">Principal Component Analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../pca/principal-component-analysis.html#details">Details</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../pca/principal-component-analysis.html#batch-processing">Batch Processing</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../pca/principal-component-analysis.html#algorithm-input">Algorithm Input</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../pca/principal-component-analysis.html#algorithm-parameters">Algorithm Parameters</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../pca/principal-component-analysis.html#algorithm-output">Algorithm Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pca/principal-component-analysis.html#computation">Computation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../pca/computation-batch.html">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../pca/computation-online.html">Online Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../pca/computation-distributed.html">Distributed Processing</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../pca/principal-component-analysis.html#online-processing">Online Processing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../pca/principal-component-analysis.html#distributed-processing">Distributed Processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../pca/principal-component-analysis.html#examples">Examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../pca/principal-component-analysis.html#performance-considerations">Performance Considerations</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../pca/principal-component-analysis.html#id2">Batch Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../pca/principal-component-analysis.html#id3">Online Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../pca/principal-component-analysis.html#id4">Distributed Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../pca/principal-component-analysis.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../pca/principal-component-analysis.html#online-processing">Online Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../pca/principal-component-analysis.html#distributed-processing">Distributed Processing</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../pca/transform.html">Principal Components Analysis Transform</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../pca/transform.html#details">Details</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../pca/transform.html#batch-processing">Batch Processing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../pca/transform.html#dpc-examples">DPC++ Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pca/transform.html#batch-processing">Batch Processing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../pca/transform.html#algorithm-input">Algorithm Input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../pca/transform.html#algorithm-parameters">Algorithm Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../pca/transform.html#algorithm-output">Algorithm Output</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../pca/transform.html#examples">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../svd/singular-value-decomposition.html">Singular Value Decomposition</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../svd/singular-value-decomposition.html#details">Details</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../svd/singular-value-decomposition.html#batch-and-online-processing">Batch and Online Processing</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../svd/singular-value-decomposition.html#algorithm-input">Algorithm Input</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../svd/singular-value-decomposition.html#algorithm-parameters">Algorithm Parameters</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../svd/singular-value-decomposition.html#algorithm-output">Algorithm Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../svd/singular-value-decomposition.html#computation">Computation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../svd/computation-batch-online.html">Batch and Online Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../svd/computation-distributed.html">Distributed Processing</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../svd/singular-value-decomposition.html#distributed-processing">Distributed Processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../svd/singular-value-decomposition.html#examples">Examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../svd/singular-value-decomposition.html#performance-considerations">Performance Considerations</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../svd/singular-value-decomposition.html#online-processing">Online Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../svd/singular-value-decomposition.html#distributed-processing">Distributed Processing</a></li>
 </ul>
 </li>
 </ul>
@@ -320,18 +325,25 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../cholesky/cholesky.html">Cholesky Decomposition</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../cholesky/cholesky.html#details">Details</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../cholesky/cholesky.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cholesky/cholesky.html#batch-processing">Batch Processing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../cholesky/cholesky.html#algorithm-input">Algorithm Input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cholesky/cholesky.html#algorithm-parameters">Algorithm Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cholesky/cholesky.html#algorithm-output">Algorithm Output</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../cholesky/cholesky.html#examples">Examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../cholesky/cholesky.html#performance-considerations">Performance Considerations</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../qr/qr-decomposition.html">QR Decomposition</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../qr/qr-without-pivoting.html">QR Decomposition without Pivoting</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../qr/qr-without-pivoting.html#batch-and-online-processing">Batch and Online Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../qr/qr-without-pivoting.html#distributed-processing">Distributed Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../qr/qr-without-pivoting.html#computation">Computation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../qr/qr-without-pivoting.html#examples">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../qr/qr-pivoted.html">Pivoted QR Decomposition</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../qr/qr-pivoted.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../qr/qr-pivoted.html#examples">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../qr/qr-decomposition.html#performance-considerations">Performance Considerations</a><ul>
@@ -342,26 +354,79 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../outlier_detection/index.html">Outlier Detection</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../outlier_detection/multivariate.html">Multivariate Outlier Detection</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../outlier_detection/multivariate-bacon.html">Multivariate BACON Outlier Detection</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../outlier_detection/univariate.html">Univariate Outlier Detection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../outlier_detection/multivariate.html">Multivariate Outlier Detection</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../outlier_detection/multivariate.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../outlier_detection/multivariate.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../outlier_detection/multivariate.html#examples">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../outlier_detection/multivariate.html#performance-considerations">Performance Considerations</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../outlier_detection/multivariate-bacon.html">Multivariate BACON Outlier Detection</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../outlier_detection/multivariate-bacon.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../outlier_detection/multivariate-bacon.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../outlier_detection/multivariate-bacon.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../outlier_detection/univariate.html">Univariate Outlier Detection</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../outlier_detection/univariate.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../outlier_detection/univariate.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../outlier_detection/univariate.html#examples">Examples</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../distance/index.html">Distance Matrix</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../distance/correlation.html">Correlation Distance Matrix</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../distance/correlation.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../distance/correlation.html#examples">Examples</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../distance/correlation.html#performance-considerations">Performance Considerations</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../distance/cosine.html">Cosine Distance Matrix</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../distance/cosine.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../distance/cosine.html#examples">Examples</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../distance/cosine.html#performance-considerations">Performance Considerations</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../distributions/index.html">Distributions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../engines/index.html">Engines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../distributions/index.html">Distributions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../distributions/uniform.html">Uniform Distribution</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../distributions/uniform.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../distributions/uniform.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../distributions/uniform.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../distributions/normal.html">Normal Distribution</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../distributions/normal.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../distributions/normal.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../distributions/normal.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../distributions/bernoulli.html">Bernoulli Distribution</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../distributions/bernoulli.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../distributions/bernoulli.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../distributions/bernoulli.html#examples">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../distributions/bernoulli.html#performance-considerations">Performance Considerations</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../engines/index.html">Engines</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../engines/mt19937.html">mt19937</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../engines/mt19937.html#batch-processing">Batch Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../engines/mcg59.html">mcg59</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../engines/mcg59.html#batch-processing">Batch Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../engines/mt2203.html">mt2203</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../engines/mt2203.html#batch-processing">Batch Processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../moments/moments-of-low-order.html">Moments of Low Order</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../moments/moments-of-low-order.html#details">Details</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../moments/moments-of-low-order.html#computation">Computation</a><ul>
@@ -370,24 +435,56 @@
 <li class="toctree-l4"><a class="reference internal" href="../moments/computation-distributed.html">Distributed Processing</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../moments/moments-of-low-order.html#dpc-examples">DPC++ Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../moments/moments-of-low-order.html#examples">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../quantiles/index.html">Quantile</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../quantiles/index.html#details">Details</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../quantiles/index.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quantiles/index.html#batch-processing">Batch Processing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../quantiles/index.html#algorithm-input">Algorithm Input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../quantiles/index.html#algorithm-parameters">Algorithm Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../quantiles/index.html#algorithm-output">Algorithm Output</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../quantiles/index.html#examples">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../quality_metrics/index.html">Quality Metrics</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../quality_metrics/default-metric-set.html">Working with the Default Metric Set</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quality_metrics/default-metric-set.html">Working with the Default Metric Set</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../quality_metrics/default/for-binary-classification.html">Quality Metrics for Binary Classification Algorithms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../quality_metrics/default/for-multi-class-classification.html">Quality Metrics for Multi-class Classification Algorithms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../quality_metrics/default/for-linear-regression.html">Quality Metrics for Linear Regression</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../quality_metrics/default/for-pca.html">Quality Metrics for Principal Components Analysis</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../quality_metrics/user-defined.html">Working with User-defined Quality Metrics</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../sorting/index.html">Sorting</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../sorting/index.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../sorting/index.html#batch-processing">Batch Processing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../sorting/index.html#algorithm-input">Algorithm Input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../sorting/index.html#algorithm-parameters">Algorithm Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../sorting/index.html#algorithm-output">Algorithm Output</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../normalization/index.html">Normalization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../sorting/index.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../normalization/index.html">Normalization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../normalization/z-score.html">Z-score</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../normalization/z-score.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../normalization/z-score.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../normalization/z-score.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../normalization/min-max.html">Min-max</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../normalization/min-max.html#problem-statement">Problem Statement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../normalization/min-max.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../normalization/min-max.html#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../optimization-solvers/optimization-solvers.html">Optimization Solvers</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../optimization-solvers/objective-function.html">Objective Function</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/objective-functions/computation.html">Computation</a></li>
@@ -543,13 +640,17 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../implicit_als/implicit-alternating-least-squares.html#initialization">Initialization</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../implicit_als/implicit-alternating-least-squares.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../implicit_als/initialization-batch.html">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../implicit_als/initialization-distributed.html">Distributed Processing</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../implicit_als/implicit-alternating-least-squares.html#computation">Computation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../implicit_als/implicit-alternating-least-squares.html#id1">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../implicit_als/computation-batch.html">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../implicit_als/computation-distributed-training.html">Distributed Processing: Training</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../implicit_als/computation-distributed-prediction.html">Distributed Processing: Prediction of Ratings</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../implicit_als/implicit-alternating-least-squares.html#examples">Examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../implicit_als/implicit-alternating-least-squares.html#performance-considerations">Performance Considerations</a></li>
 </ul>
 </li>
@@ -578,13 +679,12 @@
 <li class="toctree-l4"><a class="reference internal" href="../naive_bayes/naive-bayes-classifier.html#prediction-stage">Prediction Stage</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../naive_bayes/naive-bayes-classifier.html#batch-processing">Batch Processing</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../naive_bayes/naive-bayes-classifier.html#training">Training</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../naive_bayes/naive-bayes-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../naive_bayes/naive-bayes-classifier.html#computation">Computation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../naive_bayes/computation-batch.html">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../naive_bayes/computation-online.html">Online Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../naive_bayes/computation-distributed.html">Distributed Processing</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../naive_bayes/naive-bayes-classifier.html#online-processing">Online Processing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../naive_bayes/naive-bayes-classifier.html#distributed-processing">Distributed Processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../naive_bayes/naive-bayes-classifier.html#examples">Examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../naive_bayes/naive-bayes-classifier.html#performance-considerations">Performance Considerations</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../naive_bayes/naive-bayes-classifier.html#id2">Training Stage</a></li>
@@ -606,7 +706,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#prediction">Prediction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#id9">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#id10">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#performance-considerations">Performance Considerations</a></li>
@@ -634,23 +734,26 @@
 <li class="toctree-l3"><a class="reference internal" href="../boosting/adaboost.html">AdaBoost Classifier</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../boosting/adaboost.html#details">Details</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../boosting/adaboost.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../boosting/adaboost.html#examples">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../boosting/adaboost-multiclass.html">AdaBoost Multiclass Classifier</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../boosting/adaboost-multiclass.html#details">Details</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../boosting/adaboost-multiclass.html#samme-method">SAMME method</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../boosting/adaboost-multiclass.html#samme-r-method">SAMME.R method</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../boosting/adaboost-multiclass.html#training-stage">Training Stage</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../boosting/adaboost-multiclass.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../boosting/adaboost-multiclass.html#examples">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../boosting/brownboost.html">BrownBoost Classifier</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../boosting/brownboost.html#details">Details</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../boosting/brownboost.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../boosting/brownboost.html#examples">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../boosting/logitboost.html">LogitBoost Classifier</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../boosting/logitboost.html#details">Details</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../boosting/logitboost.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../boosting/logitboost.html#examples">Examples</a></li>
 </ul>
 </li>
 </ul>
@@ -679,37 +782,42 @@
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../sycl_examples.html">DPC++ Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/bf_knn_dense_batch.html">bf_knn_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/cor_dense_batch.html">cor_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/cor_dense_online.html">cor_dense_online.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/datastructures_soa.html">datastructures_soa.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/datastructures_usm.html">datastructures_usm.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/dbscan_dense_batch.html">dbscan_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/df_cls_dense_batch.html">df_cls_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/df_reg_dense_batch.html">df_reg_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/gbt_reg_dense_batch.html">gbt_reg_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/kernel_func_lin_dense_batch.html">kernel_func_lin_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/kernel_func_rbf_dense_batch.html">kernel_func_rbf_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/kmeans_dense_batch.html">kmeans_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/kmeans_init_dense_batch.html">kmeans_init_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/lin_reg_norm_eq_dense_batch.html">lin_reg_norm_eq_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/lin_reg_norm_eq_dense_online.html">lin_reg_norm_eq_dense_online.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/log_reg_binary_dense_batch.html">log_reg_binary_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/log_reg_dense_batch.html">log_reg_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/low_order_moms_dense_batch.html">low_order_moms_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/low_order_moms_dense_online.html">low_order_moms_dense_online.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/pca_cor_dense_online.html">pca_cor_dense_online.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/pca_transform_dense_batch.html">pca_transform_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/sgd_mini_log_loss_dense_batch.html">sgd_mini_log_loss_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">oneAPI Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/dpc.html">DPC++</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/df_cls_dense_batch.html">df_cls_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/df_reg_dense_batch.html">df_reg_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/homogen_table_builder.html">homogen_table_builder.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/knn_cls_brute_force_dense_batch.html">knn_cls_brute_force_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/cpp.html">C++</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/df_cls_dense_batch.html">df_cls_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/df_reg_dense_batch.html">df_reg_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/homogen_table_builder.html">homogen_table_builder.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/kmeans_init_default_dense.html">kmeans_init_default_dense.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/kmeans_lloyd_dense_batch.html">kmeans_lloyd_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/knn_cls_kd_tree_dense_batch.html">knn_cls_kd_tree_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/svm_two_class_smo_dense_batch.html">svm_two_class_smo_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 <p class="caption"><span class="caption-text">Notes</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../notes/known_issues.html">Known Issues</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../notes/issues/2021.1-beta08/windows-static-debug-config.html">Static debug configuration not working</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notes/issues/2021.1-beta08/windows-static-debug-config.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../notes/issues/2021.1-beta06/dpcpp-examples-in-vs2017.html">DPC++ examples not working</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../notes/issues/2021.1-beta06/dpcpp-examples-in-vs2017.html#how-to-fix">How to Fix</a></li>
 </ul>
@@ -907,7 +1015,7 @@ analysis of the entire data set to the analysis of clusters.</p>
 centroids. For K-Means, the centroid is defined as the mean of
 feature vectors within the cluster.</p>
 <div class="section" id="details">
-<h2>Details<a class="headerlink" href="#details" title="Permalink to this headline">¶</a></h2>
+<span id="kmeans-details"></span><h2>Details<a class="headerlink" href="#details" title="Permalink to this headline">¶</a></h2>
 <p>Given the set <span class="math notranslate nohighlight">\(X = \{ x_1= (x_{11},\ldots{},x_{1p} ), \ldots{}, x_n = (x_{n1},\ldots{},x_{np} ) \}\)</span>
 of <span class="math notranslate nohighlight">\(n\)</span> <span class="math notranslate nohighlight">\(p\)</span>-dimensional feature vectors and a positive integer <span class="math notranslate nohighlight">\(k\)</span>, the
 problem is to find a set <span class="math notranslate nohighlight">\(C = \{ c_1, \ldots{} , c_k \}\)</span>
@@ -1035,350 +1143,29 @@ more details, see the <em>PartialResult</em> description at Step 1 <a class="ref
 <div class="section" id="initialization">
 <span id="kmeans-init"></span><h2>Initialization<a class="headerlink" href="#initialization" title="Permalink to this headline">¶</a></h2>
 <p>The K-Means clustering algorithm requires initialization of
-centroids as an explicit step. Initialization flow depends by the
+centroids as an explicit step. Initialization flow depends on the
 computation mode. Skip this step if you already calculated initial
 centroids.</p>
-<div class="section" id="batch-processing">
-<h3>Batch Processing<a class="headerlink" href="#batch-processing" title="Permalink to this headline">¶</a></h3>
-<div class="section" id="input">
-<h4>Input<a class="headerlink" href="#input" title="Permalink to this headline">¶</a></h4>
-<p>Centroid initialization for K-Means clustering accepts the input
-described below. Pass the Input ID as a parameter to the methods
-that provide input for your algorithm.</p>
-<table class="colwidths-given docutils align-left">
-<colgroup>
-<col style="width: 14%" />
-<col style="width: 86%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Input ID</p></th>
-<th class="head"><p>Input</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">data</span></code></p></td>
-<td><p>Pointer to the <span class="math notranslate nohighlight">\(n \times p\)</span> numeric table with the data to be clustered.</p></td>
-</tr>
-</tbody>
-</table>
+<p>For initialization, the following computation modes are available:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="initialization-batch.html">Batch Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="initialization-distributed.html">Distributed Processing</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="id4">
+<h2>Computation<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p>The following computation modes are available:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="computation-batch.html">Batch Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="computation-distributed.html">Distributed Processing</a></li>
+</ul>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The input can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p>
-</div>
-</div>
-<div class="section" id="parameters">
-<h4>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h4>
-<p>The following table lists parameters of centroid initialization
-for K-Means clustering, which depend on the initialization method
-parameter method.</p>
-<table class="colwidths-given docutils align-left">
-<colgroup>
-<col style="width: 17%" />
-<col style="width: 17%" />
-<col style="width: 17%" />
-<col style="width: 50%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Parameter</p></th>
-<th class="head"><p>method</p></th>
-<th class="head"><p>Default Value</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
-<td><p>any</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
-<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be float or double.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
-<td><p>Not applicable</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
-<td><p>Available initialization methods for K-Means clustering:</p>
-<p>For CPU:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code> - uses first nClusters points as initial centroids</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">deterministicCSR</span></code> - uses first nClusters points as initial centroids for data in a CSR numeric table</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">randomDense</span></code> - uses random nClusters points as initial centroids</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">randomCSR</span></code> - uses random nClusters points as initial centroids for data in a CSR numeric table</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">plusPlusDense</span></code> - uses K-Means++ algorithm <a class="reference internal" href="../../../bibliography.html#arthur2007" id="id4"><span>[Arthur2007]</span></a></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">plusPlusCSR</span></code> - uses K-Means++ algorithm for data in a CSR numeric table</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">parallelPlusDense</span></code> - uses parallel K-Means++ algorithm [Bahmani2012]</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">parallelPlusCSR</span></code> - uses parallel K-Means++ algorithm for data in a CSR numeric table</p></li>
-</ul>
-<p>For GPU:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code> - uses first nClusters points as initial centroids</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">randomDense</span></code> - uses random nClusters points as initial centroids</p></li>
-</ul>
-</td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nClusters</span></code></p></td>
-<td><p>any</p></td>
-<td><p>Not applicable</p></td>
-<td><p>The number of clusters. Required.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nTrials</span></code></p></td>
-<td><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">parallelPlusDense</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">parallelPlusCSR</span></code></p></li>
-</ul>
-</td>
-<td><p><span class="math notranslate nohighlight">\(1\)</span></p></td>
-<td><p>The number of trails to generate all clusters but the first initial cluster. For details, see <a class="reference internal" href="../../../bibliography.html#arthur2007" id="id5"><span>[Arthur2007]</span></a>, section 5</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oversamplingFactor</span></code></p></td>
-<td><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">parallelPlusDense</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">parallelPlusCSR</span></code></p></li>
-</ul>
-</td>
-<td><p><span class="math notranslate nohighlight">\(0.5\)</span></p></td>
-<td><p>A fraction of nClusters in each of nRounds of parallel K-Means++. L=nClusters*oversamplingFactor points are sampled in a round. For details, see <a class="reference internal" href="../../../bibliography.html#bahmani2012" id="id6"><span>[Bahmani2012]</span></a>, section 3.3.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nRounds</span></code></p></td>
-<td><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">parallelPlusDense</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">parallelPlusCSR</span></code></p></li>
-</ul>
-</td>
-<td><p><span class="math notranslate nohighlight">\(5\)</span></p></td>
-<td><p>The number of rounds for parallel K-Means++. (L*nRounds) must be greater than nClusters. For details, see <a class="reference internal" href="../../../bibliography.html#bahmani2012" id="id7"><span>[Bahmani2012]</span></a>, section 3.3.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">engine</span></code></p></td>
-<td><p>any</p></td>
-<td><p>SharePtr&lt; engines:: mt19937:: Batch&gt;()</p></td>
-<td><p>Pointer to the random number generator engine that is used internally for random numbers generation.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section" id="output">
-<h4>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h4>
-<p>Centroid initialization for K-Means clustering calculates the
-result described below. Pass the Result ID as a parameter to the
-methods that access the results of your algorithm.</p>
-<table class="colwidths-given docutils align-left">
-<colgroup>
-<col style="width: 14%" />
-<col style="width: 86%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Result ID</p></th>
-<th class="head"><p>Result</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">centroids</span></code></p></td>
-<td><p>Pointer to the <span class="math notranslate nohighlight">\(nClusters \times p\)</span> numeric table with the cluster centroids.</p></td>
-</tr>
-</tbody>
-</table>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
-but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
-except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
-</div>
-</div>
-</div>
-<div class="section" id="distributed-processing">
-<h3>Distributed Processing<a class="headerlink" href="#distributed-processing" title="Permalink to this headline">¶</a></h3>
-<p>This mode assumes that the data set is split into <code class="docutils literal notranslate"><span class="pre">nblocks</span></code> blocks across computation nodes.</p>
-<p>At this moment, the description of
-<a class="reference external" href="https://software.intel.com/en-us/daal-programming-guide-distributed-processing-2">distributed processing for K-Means initialization</a>
-is only available in Developer Guide for Intel(R) DAAL.</p>
-</div>
-</div>
-<div class="section" id="id8">
-<h2>Computation<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="id9">
-<h3>Batch Processing<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
-<div class="section" id="algorithm-input">
-<h4>Algorithm Input<a class="headerlink" href="#algorithm-input" title="Permalink to this headline">¶</a></h4>
-<p>The K-Means clustering algorithm accepts the input described
-below. Pass the Input ID as a parameter to the methods that
-provide input for your algorithm.</p>
-<table class="colwidths-given docutils align-left">
-<colgroup>
-<col style="width: 14%" />
-<col style="width: 86%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Input ID</p></th>
-<th class="head"><p>Input</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">data</span></code></p></td>
-<td><p>Pointer to the <span class="math notranslate nohighlight">\(n \times p\)</span> numeric table with the data to be clustered.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">inputCentroids</span></code></p></td>
-<td><p>Pointer to the <span class="math notranslate nohighlight">\(nClusters \times p\)</span> numeric table with the initial centroids.</p></td>
-</tr>
-</tbody>
-</table>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The input for <code class="docutils literal notranslate"><span class="pre">data</span></code> and <code class="docutils literal notranslate"><span class="pre">inputCentroids</span></code> can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p>
-</div>
-</div>
-<div class="section" id="algorithm-parameters">
-<h4>Algorithm Parameters<a class="headerlink" href="#algorithm-parameters" title="Permalink to this headline">¶</a></h4>
-<p>The K-Means clustering algorithm has the following parameters:</p>
-<table class="colwidths-given docutils align-left">
-<colgroup>
-<col style="width: 13%" />
-<col style="width: 13%" />
-<col style="width: 75%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Parameter</p></th>
-<th class="head"><p>Default Value</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
-<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be float or double.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
-<td><p>Available computation methods for K-Means clustering:</p>
-<p>For CPU:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code> - implementation of Lloyd’s algorithm</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">lloydCSR</span></code> - implementation of Lloyd’s algorithm for CSR numeric tables</p></li>
-</ul>
-</div></blockquote>
-<p>For GPU:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code> - implementation of Lloyd’s algorithm</p></li>
-</ul>
-</div></blockquote>
-</td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nClusters</span></code></p></td>
-<td><p>Not applicable</p></td>
-<td><p>The number of clusters. Required to initialize the algorithm.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">maxIterations</span></code></p></td>
-<td><p>Not applicable</p></td>
-<td><p>The number of iterations. Required to initialize the algorithm.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">accuracyThreshold</span></code></p></td>
-<td><p><span class="math notranslate nohighlight">\(0.0\)</span></p></td>
-<td><p>The threshold for termination of the algorithm.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">gamma</span></code></p></td>
-<td><p><span class="math notranslate nohighlight">\(1.0\)</span></p></td>
-<td><p>The weight to be used in distance calculation for binary categorical features.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">distanceType</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">euclidean</span></code></p></td>
-<td><p>The measure of closeness between points (observations) being clustered. The only distance type supported so far is the Euclidian distance.</p></td>
-</tr>
-<tr class="row-odd"><td><p><strong>DEPRECATED:</strong> <code class="docutils literal notranslate"><span class="pre">assignFlag</span></code></p>
-<p><strong>USE INSTEAD:</strong> <code class="docutils literal notranslate"><span class="pre">resultsToEvaluate</span></code></p>
-</td>
-<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
-<td><p>A flag that enables computation of assignments, that is, assigning cluster indices to respective observations.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">resultsToEvaluate</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">computeCentroids</span></code> | <code class="docutils literal notranslate"><span class="pre">computeAssignments</span></code> | <code class="docutils literal notranslate"><span class="pre">computeExactObjectiveFunction</span></code></p></td>
-<td><p>The 64-bit integer flag that specifies which extra characteristics of the K-Means to compute.</p>
-<p>Provide one of the following values to request a single characteristic or use bitwise OR to request a combination of the characteristics:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">computeCentroids</span></code> for computation centroids.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">computeAssignments</span></code> for computation of assignments, that is, assigning cluster indices to respective observations.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">computeExactObjectiveFunction</span></code> for computation of exact ObjectiveFunction.</p></li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section" id="algorithm-output">
-<h4>Algorithm Output<a class="headerlink" href="#algorithm-output" title="Permalink to this headline">¶</a></h4>
-<p>The K-Means clustering algorithm calculates the result described
-below. Pass the Result ID as a parameter to the methods that access
-the results of your algorithm.</p>
-<table class="colwidths-given docutils align-left">
-<colgroup>
-<col style="width: 14%" />
-<col style="width: 86%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Result ID</p></th>
-<th class="head"><p>Result</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">centroids</span></code></p></td>
-<td><p>Pointer to the <span class="math notranslate nohighlight">\(nClusters \times p\)</span> numeric table with the cluster centroids,
-computed when <code class="docutils literal notranslate"><span class="pre">computeCentroids</span></code> option is enabled.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
-but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
-except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
-</div>
-</td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">assignments</span></code></p></td>
-<td><p>Pointer to the <span class="math notranslate nohighlight">\(n \times 1\)</span> numeric table with
-assignments of cluster indices to feature vectors in the input data,
-computed when <code class="docutils literal notranslate"><span class="pre">computeAssignments</span></code> option is enabled.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
-but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
-except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
-</div>
-</td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">objectiveFunction</span></code></p></td>
-<td><p>Pointer to the <span class="math notranslate nohighlight">\(1 \times 1\)</span> numeric table with the minimum value of the objective function
-obtained at the last iteration of the algorithm, might be inexact.
-When <code class="docutils literal notranslate"><span class="pre">computeExactObjectiveFunction</span></code> option is enabled, exact objective function is computed.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
-but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
-except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
-</div>
-</td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nIterations</span></code></p></td>
-<td><p>Pointer to the <span class="math notranslate nohighlight">\(1 \times 1\)</span> numeric table with the actual number of iterations
-done by the algorithm.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
-but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
-except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
-</div>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>You can skip update of centroids and objectiveFunction in the
-result and compute assignments using original inputCentroids.
-To do this, set <code class="docutils literal notranslate"><span class="pre">resultsToEvaluate</span></code> flag only to <code class="docutils literal notranslate"><span class="pre">computeAssignments</span></code> and <code class="docutils literal notranslate"><span class="pre">maxIterations</span></code> to zero.</p>
-</div>
-</div>
-</div>
-<div class="section" id="id10">
-<h3>Distributed Processing<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
-<p>This mode assumes that the data set is split into <code class="docutils literal notranslate"><span class="pre">nblocks</span></code> blocks across computation nodes.</p>
-<p>At this moment, the description of
-<a class="reference external" href="https://software.intel.com/en-us/daal-programming-guide-distributed-processing-3">distributed processing for K-Means computation</a>
-is only available in Developer Guide for Intel(R) DAAL.</p>
+<p>In DPC++, distributed processing for K-Means is only available as a <a class="reference external" href="https://github.com/oneapi-src/oneDAL#technical-preview-features">technical preview feature</a>.</p>
 </div>
 </div>
 <div class="section" id="examples">
@@ -1387,12 +1174,12 @@ is only available in Developer Guide for Intel(R) DAAL.</p>
 <div class="ui top attached tabular menu sphinx-menu docutils container">
 <div class="active item sphinx-data-tab-0-0 docutils container">
 <div class="docutils container">
-<p>DPC++</p>
+<p>oneAPI C++</p>
 </div>
 </div>
 <div class="item sphinx-data-tab-0-1 docutils container">
 <div class="docutils container">
-<p>C++</p>
+<p>C++ (CPU)</p>
 </div>
 </div>
 <div class="item sphinx-data-tab-0-2 docutils container">
@@ -1400,12 +1187,22 @@ is only available in Developer Guide for Intel(R) DAAL.</p>
 <p>Java*</p>
 </div>
 </div>
+<div class="item sphinx-data-tab-0-3 docutils container">
+<div class="docutils container">
+<p>Python* with DPC++ support</p>
+</div>
+</div>
+<div class="item sphinx-data-tab-0-4 docutils container">
+<div class="docutils container">
+<p>Python*</p>
+</div>
+</div>
 </div>
 <div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-0 active docutils container">
 <p>Batch Processing:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="../../../daal/examples_sycl/kmeans_dense_batch.html#kmeans-dense-batch-cpp"><span class="std std-ref">kmeans_dense_batch.cpp</span></a></p></li>
-<li><p><a class="reference internal" href="../../../daal/examples_sycl/kmeans_init_dense_batch.html#kmeans-init-dense-batch-cpp"><span class="std std-ref">kmeans_init_dense_batch.cpp</span></a></p></li>
+<li><p><a class="reference internal" href="../../../examples/cpp/kmeans_lloyd_dense_batch.html#cpp-kmeans-lloyd-dense-batch-cpp"><span class="std std-ref">kmeans_lloyd_dense_batch.cpp</span></a></p></li>
+<li><p><a class="reference internal" href="../../../examples/cpp/kmeans_init_default_dense.html#cpp-kmeans-init-default-dense-cpp"><span class="std std-ref">kmeans_init_default_dense.cpp</span></a></p></li>
 </ul>
 </div>
 <div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-1 docutils container">
@@ -1421,6 +1218,10 @@ is only available in Developer Guide for Intel(R) DAAL.</p>
 </ul>
 </div>
 <div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-2 docutils container">
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There is no support for Java on GPU.</p>
+</div>
 <p>Batch Processing:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/kmeans/KMeansDenseBatch.java">KMeansDenseBatch.java</a></p></li>
@@ -1430,6 +1231,22 @@ is only available in Developer Guide for Intel(R) DAAL.</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/kmeans/KMeansDenseDistr.java">KMeansDenseDistr.java</a></p></li>
 <li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/kmeans/KMeansCSRDistr.java">KMeansCSRDistr.java</a></p></li>
+</ul>
+</div>
+<div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-3 docutils container">
+<p>Batch Processing:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/IntelPython/daal4py/tree/master/examples/sycl/kmeans_batch.py">kmeans_batch.py</a></p></li>
+</ul>
+</div>
+<div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-4 docutils container">
+<p>Batch Processing:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/IntelPython/daal4py/tree/master/examples/kmeans_batch.py">kmeans_batch.py</a></p></li>
+</ul>
+<p>Distributed Processing</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/IntelPython/daal4py/tree/master/examples/kmeans_spmd.py">kmeans_spmd.py</a></p></li>
 </ul>
 </div>
 </div>
@@ -1483,7 +1300,7 @@ instruction sets covered by this notice.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../dbscan/index.html" class="btn btn-neutral float-right" title="Density-Based Spatial Clustering of Applications with Noise" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="initialization-batch.html" class="btn btn-neutral float-right" title="Batch Processing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="../../analysis.html" class="btn btn-neutral float-left" title="Analysis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

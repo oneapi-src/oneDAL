@@ -1,7 +1,0 @@
-.. _bf_knn_dense_batch.cpp:
-
-bf_knn_dense_batch.cpp
-######################
-
-.. literalinclude:: ../../../../examples/daal/cpp_sycl/source/k_nearest_neighbors/bf_knn_dense_batch.cpp
-  :language: cpp
