@@ -234,7 +234,7 @@ public:
     typedef algorithms::kdtree_knn_classification::Parameter ParameterType;
     typedef algorithms::kdtree_knn_classification::training::Result ResultType;
 
-    ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of the algorithm */
+    ParameterType parameter; /*!< \ref interface2::Parameter "Parameters" of the algorithm */
     InputType input;         /*!< %Input objects of the algorithm */
 
     /** Default constructor */
@@ -367,11 +367,11 @@ class DAAL_EXPORT Batch : public classifier::training::Batch
 public:
     typedef classifier::training::Batch super;
 
-    typedef typename super::InputType InputType;
+    typedef algorithms::kdtree_knn_classification::training::Input InputType;
     typedef algorithms::kdtree_knn_classification::Parameter ParameterType;
     typedef algorithms::kdtree_knn_classification::training::Result ResultType;
 
-    ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of the algorithm */
+    ParameterType parameter; /*!< \ref interface3::Parameter "Parameters" of the algorithm */
     InputType input;         /*!< %Input objects of the algorithm */
 
     /** Default constructor */
