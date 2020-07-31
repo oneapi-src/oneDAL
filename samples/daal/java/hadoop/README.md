@@ -1,31 +1,31 @@
-# Intel(R) Data Analytics Acceleration Library Hadoop\* Samples
+# Intel(R) oneAPI Data Analytics Library Hadoop\* Samples
 
-Hadoop\* samples for the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) are designed to show how to use this library on the Hadoop cluster in a Java application.
+Hadoop\* samples for the Intel(R) oneAPI Data Analytics Library (oneDAL) are designed to show how to use this library on the Hadoop cluster in a Java application.
 
-Unzip the archive with Intel(R) DAAL samples to your working directory (`<sample_dir>`).
+Unzip the archive with oneDAL samples to your working directory (`<sample_dir>`).
 
 ## System Requirements
-You can use Intel(R) DAAL Hadoop samples on Linux\* and macOS\* operating systems. For a list of Intel(R) DAAL hardware and software requirements, refer to release notes for the version of Intel(R) DAAL you are using.
+You can use oneDAL Hadoop samples on Linux\* and macOS\* operating systems. For a list of oneDAL hardware and software requirements, refer to release notes for the version of oneDAL you are using.
 
-### Hadoop implementations against which Intel(R) DAAL has been validated:
+### Hadoop implementations against which oneDAL has been validated:
 - Hadoop 2.6.0
 
-**Note:** Intel(R) DAAL is expected to work on many more Hadoop distributions as well. Let us know if you have any troubles with the distribution you are using.
+**Note:** oneDAL is expected to work on many more Hadoop distributions as well. Let us know if you have any troubles with the distribution you are using.
 
 ## Preparation Before Build and Run
 ### Setting Up the Build Environment 
-Before you build the sample, you must set certain environment variables that define the location of related libraries. Intel(R) DAAL includes the `vars` scripts that you can run to set environment variables:
+Before you build the sample, you must set certain environment variables that define the location of related libraries. oneDAL includes the `vars` scripts that you can run to set environment variables:
 
 - On Linux\*, you can find the `vars.sh` shell script at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\linux\daal\bin:
 source vars.s {ia32|intel64}`
 - On macOS\*, you can find the `vars.sh` shell script at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\mac\daal\bin:
 source vars.sh`
 
-For more information about setting environment variables and configuring Intel(R) DAAL, refer to Getting Started guides for the library.
+For more information about setting environment variables and configuring oneDAL, refer to Getting Started guides for the library.
 
 ## Build and Run Instructions
 ### On Linux\* and macOS\*
-To build Intel(R) DAAL Hadoop Java samples, go to the Java Hadoop samples directory:
+To build oneDAL Hadoop Java samples, go to the Java Hadoop samples directory:
 
 ```
 cd <sample_dir>/java/hadoop

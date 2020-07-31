@@ -16,7 +16,7 @@
 #===============================================================================
 
 ##  Content:
-##     Intel(R) Data Analytics Acceleration Library samples
+##     Intel(R) oneAPI Data Analytics Library samples
 ##******************************************************************************
 
 help_message() {

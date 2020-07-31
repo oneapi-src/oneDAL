@@ -16,7 +16,7 @@
 #===============================================================================
 
 ##  Content:
-##     Intel(R) Data Analytics Acceleration Library samples
+##     Intel(R) oneAPI Data Analytics Library samples
 ##******************************************************************************
 # Don't forget to set the env below
 # linux:
