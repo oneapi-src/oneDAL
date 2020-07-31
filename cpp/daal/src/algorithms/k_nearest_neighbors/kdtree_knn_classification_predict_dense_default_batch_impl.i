@@ -314,7 +314,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     const NumericTable * labels  = nullptr;
     if (resultsToEvaluate != 0)
     {
-        labels = model->impl()->getLabels();
+        labels = model->impl()->getLabels().get();
     }
 
     const NumericTable * const modelIndices = model->impl()->getIndices().get();
@@ -661,7 +661,7 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
         DAAL_ASSERT(predictedClass);
 
         data_management::BlockDescriptor<algorithmFpType> labelBD;
-        algorithmFpType * const classes = static_cast<algorithmFpType *>(daal::services::internal::service_malloc<algorithmFpType, cpu>(heapSize));
+        algorithmFpType * classes = static_cast<algorithmFpType *>(daal::services::internal::service_malloc<algorithmFpType, cpu>(heapSize));
         DAAL_CHECK_MALLOC(classes);
         for (size_t i = 0; i < heapSize; ++i)
         {
