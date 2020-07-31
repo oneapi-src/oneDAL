@@ -31,8 +31,6 @@ namespace algorithms
 {
 namespace kdtree_knn_classification
 {
-namespace classification
-{
 namespace training
 {
 namespace interface1
@@ -50,12 +48,12 @@ services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter)
     services::Status s; // Error status
     bool flag = false;  // Flag indicates error in table of labels
 
-    data_management::NumericTablePtr dataTable = get(data);
+    data_management::NumericTablePtr dataTable = get(classifier::training::data);
     DAAL_CHECK_STATUS(s, data_management::checkNumericTable(dataTable.get(), dataStr()));
 
     const size_t nRows = dataTable->getNumberOfRows();
 
-    data_management::NumericTablePtr weightsTable = get(weights);
+    data_management::NumericTablePtr weightsTable = get(classifier::training::weights);
     if (weightsTable)
     {
         DAAL_CHECK_STATUS(s, data_management::checkNumericTable(weightsTable.get(), weightsStr(), 0, 0, 1, nRows));
@@ -67,7 +65,7 @@ services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter)
     {
         if (par->resultsToEvaluate != 0)
         {
-            data_management::NumericTablePtr labelsTable = get(labels);
+            data_management::NumericTablePtr labelsTable = get(classifier::training::labels);
             DAAL_CHECK_STATUS(s, data_management::checkNumericTable(labelsTable.get(), labelsStr(), 0, 0, 1, nRows));
         }
 
@@ -93,7 +91,6 @@ services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter)
 
 } // namespace interface1
 } // namespace training
-} // namespace classification
 } // namespace kdtree_knn_classification
 } // namespace algorithms
 } // namespace daal
