@@ -80,7 +80,7 @@ void trainModel()
     algorithm.input.set(classifier::training::data, trainData);
     algorithm.input.set(classifier::training::labels, trainGroundTruth);
     algorithm.parameter.nClasses         = nClasses;
-    algorithm.parameter.resultsToCompute = computeIndicesOfNeightbors | computeDistances;
+    algorithm.parameter.resultsToCompute = kdtree_knn_classification::computeIndicesOfNeightbors | kdtree_knn_classification::computeDistances;
 
     /* Train the KD-tree based kNN model */
     algorithm.compute();
@@ -108,7 +108,7 @@ void testModel()
     /* Pass the testing data set and trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);
     algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
-    algorithm.parameter.resultsToCompute = computeIndicesOfNeightbors | computeDistances;
+    algorithm.parameter.resultsToCompute = kdtree_knn_classification::computeIndicesOfNeightbors | kdtree_knn_classification::computeDistances;
 
     /* Compute prediction results */
     algorithm.compute();
