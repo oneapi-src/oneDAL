@@ -17,14 +17,13 @@
 #include <CL/sycl.hpp>
 
 #include "gtest/gtest.h"
-#define ONEAPI_DAL_DATA_PARALLEL
 #include "oneapi/dal/algo/kmeans_init.hpp"
 #include "oneapi/dal/data/accessor.hpp"
 #include "oneapi/dal/data/table.hpp"
 
 using namespace oneapi::dal;
 
-TEST(train_kernel_lloyd_dense, test1) {
+TEST(kmeans_init_cpu, train_result) {
     constexpr std::int64_t row_count     = 8;
     constexpr std::int64_t column_count  = 2;
     constexpr std::int64_t cluster_count = 2;

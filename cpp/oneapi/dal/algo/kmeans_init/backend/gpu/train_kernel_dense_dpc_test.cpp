@@ -24,7 +24,7 @@
 
 using namespace oneapi::dal;
 
-TEST(train_kernel_lloyd_dense, test1) {
+TEST(kmeans_init_gpu, train_result) {
     auto selector = sycl::gpu_selector();
     auto queue    = sycl::queue(selector);
 
@@ -36,7 +36,7 @@ TEST(train_kernel_lloyd_dense, test1) {
                                 -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
     auto data               = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(data, data_host, sizeof(float) * row_count * column_count).wait();
-    const auto data_table = homogen_table{ row_count, column_count, data };
+    const auto data_table = homogen_table{ queue, row_count, column_count, data };
 
     const float centroids[] = { 1.0, 1.0, 2.0, 2.0 };
 
@@ -45,7 +45,7 @@ TEST(train_kernel_lloyd_dense, test1) {
     const auto result_train = train(queue, kmeans_desc, data_table);
 
     const auto train_centroids =
-        row_accessor<const float>(result_train.get_centroids()).pull().get_data();
+        row_accessor<const float>(result_train.get_centroids()).pull(queue).get_data();
     for (std::int64_t i = 0; i < cluster_count * column_count; ++i) {
         ASSERT_FLOAT_EQ(centroids[i], train_centroids[i]);
     }
