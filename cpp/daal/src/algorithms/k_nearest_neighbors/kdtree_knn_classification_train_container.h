@@ -79,7 +79,7 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
     r->impl()->setData<algorithmFpType>(x, copy);
 
     NumericTable * labelsPtr = nullptr;
-    if (par->resultToEvaluate != 0)
+    if (par->resultsToEvaluate != 0)
     {
         const NumericTablePtr y = input->get(classifier::training::labels);
         r->impl()->setLabels<algorithmFpType>(y, copy);
