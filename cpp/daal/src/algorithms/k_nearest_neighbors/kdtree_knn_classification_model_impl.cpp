@@ -82,11 +82,9 @@ namespace interface3
 {
 services::Status Parameter::check() const
 {
-    // Inherited.
-    services::Status s = daal::algorithms::classifier::Parameter::check();
-
+    DAAL_CHECK_EX(nClasses > 0, services::ErrorIncorrectParameter, services::ParameterName, nClassesStr());
     DAAL_CHECK_EX(k >= 1, services::ErrorIncorrectParameter, services::ParameterName, kStr());
-    return s;
+    return services::Status();
 }
 } // namespace interface3
 } // namespace kdtree_knn_classification
