@@ -22,15 +22,9 @@ jobs:
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_gnu'
+    platform.type : 'lnx32e'
   pool:
     vmImage: 'ubuntu-18.04'
-  strategy:
-    matrix:
-      lnx32:
-        platform.type : 'lnx32'
-      lnx32e:
-        platform.type : 'lnx32e'
-    maxParallel: 2
   steps:
   - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib openjdk-8-jdk
     displayName: 'apt-get'
@@ -102,12 +96,9 @@ jobs:
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_mac_clang'
+    platform.type : 'mac32e'
   pool:
     vmImage:  'macOS-10.15'
-  strategy:
-    matrix:
-      mac32e:
-        platform.type : 'mac32e'
   steps:
   - script: |
       .ci/scripts/build.sh --platform $(platform.type)
