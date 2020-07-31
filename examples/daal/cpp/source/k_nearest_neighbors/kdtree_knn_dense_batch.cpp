@@ -78,10 +78,8 @@ void trainModel()
 
     /* Pass the training data set and dependent values to the algorithm */
     algorithm.input.set(classifier::training::data, trainData);
-    // algorithm.input.set(classifier::training::labels, trainGroundTruth);
-    algorithm.parameter.resultsToEvaluate = 0;
-    algorithm.parameter.nClasses          = nClasses;
-    // algorithm.parameter.resultsToCompute = kdtree_knn_classification::computeIndicesOfNeightbors | kdtree_knn_classification::computeDistances;
+    algorithm.input.set(classifier::training::labels, trainGroundTruth);
+    algorithm.parameter.nClasses = nClasses;
 
     /* Train the KD-tree based kNN model */
     algorithm.compute();
@@ -109,8 +107,6 @@ void testModel()
     /* Pass the testing data set and trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);
     algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
-    algorithm.parameter.resultsToEvaluate = 0;
-    algorithm.parameter.resultsToCompute  = kdtree_knn_classification::computeIndicesOfNeightbors | kdtree_knn_classification::computeDistances;
 
     /* Compute prediction results */
     algorithm.compute();
@@ -121,8 +117,6 @@ void testModel()
 
 void printResults()
 {
-    // printNumericTables<int, int>(testGroundTruth, predictionResult->get(kdtree_knn_classification::prediction::prediction), "Ground truth",
-    //                              "Classification results", "KD-tree based kNN classification results (first 20 observations):", 20);
-    printNumericTable(predictionResult->get(kdtree_knn_classification::prediction::indices), "Indices", 20);
-    printNumericTable(predictionResult->get(kdtree_knn_classification::prediction::distances), "Distances", 20);
+    printNumericTables<int, int>(testGroundTruth, predictionResult->get(kdtree_knn_classification::prediction::prediction), "Ground truth",
+                                 "Classification results", "KD-tree based kNN classification results (first 20 observations):", 20);
 }
