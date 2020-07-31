@@ -25,6 +25,7 @@
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
 #include "src/services/daal_strings.h"
 #include <iostream> // Temporary
+#include <typeinfo> // Temporary
 
 using namespace daal::data_management;
 using namespace daal::services;
