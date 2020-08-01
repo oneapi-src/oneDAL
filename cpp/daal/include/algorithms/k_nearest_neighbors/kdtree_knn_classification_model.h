@@ -125,7 +125,7 @@ namespace interface2
 {
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__PARAMETER"></a>
- * \brief KD-tree based kNN algorithm parameters
+ * \brief KD-tree based kNN algorithm parameters    \DAAL_DEPRECATED
  *
  * \snippet k_nearest_neighbors/kdtree_knn_classification_model.h Parameter source code
  */
@@ -139,7 +139,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
      *  \param[in] randomSeed           Seed for random choosing elements from training dataset \DAAL_DEPRECATED_USE{ engine }
      *  \param[in] dataUse              The option to enable/disable an usage of the input dataset in kNN model
      */
-    Parameter(size_t nClasses = 2, size_t nNeighbors = 1, int randomSeed = 777, DataUseInModel dataUse = doNotUse)
+    DAAL_DEPRECATED Parameter(size_t nClasses = 2, size_t nNeighbors = 1, int randomSeed = 777, DataUseInModel dataUse = doNotUse)
         : daal::algorithms::classifier::Parameter(nClasses),
           k(nNeighbors),
           seed(randomSeed),
@@ -150,7 +150,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
     /**
      * Checks a parameter of the KD-tree based kNN algorithm
      */
-    services::Status check() const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED_VIRTUAL services::Status check() const DAAL_C11_OVERRIDE;
 
     size_t k;                      /*!< Number of neighbors */
     int seed;                      /*!< Seed for random choosing elements from training dataset \DAAL_DEPRECATED_USE{ engine } */
