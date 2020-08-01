@@ -74,24 +74,22 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
 
 services::Status Result::checkImpl(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter) const
 {
-    services::Status s;
-    // const size_t nRows = (static_cast<const InputIface *>(input))->getNumberOfRows();
+    services::Status s = classifier::prediction::Result::checkImpl(input, parameter);
+    DAAL_CHECK_STATUS_VAR(s);
 
-    // const Input * const in = static_cast<const Input *>(input);
-    // classifier::ModelPtr m = in->get(model);
-    // DAAL_CHECK(m, services::ErrorNullModel);
+    const Parameter * const par = static_cast<const Parameter *>(parameter);
+    DAAL_CHECK(par, services::ErrorNullParameterNotSupported);
 
-    // const Parameter * const par = static_cast<const Parameter *>(parameter);
-    // DAAL_CHECK(par, services::ErrorNullParameterNotSupported);
-
-    // if (par->resultsToEvaluate & computeClassLabels)
-    //     DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(prediction).get(), predictionStr(), data_management::packed_mask, 0, 1, nRows));
-    // if (par->resultsToEvaluate & computeClassProbabilities)
-    //     DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(probabilities).get(), probabilitiesStr(), data_management::packed_mask, 0,
-    //                                                             par->nClasses, nRows));
-    // if (par->resultsToEvaluate & computeClassLogProbabilities)
-    //     DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(logProbabilities).get(), logProbabilitiesStr(), data_management::packed_mask, 0,
-    //                                                             par->nClasses, nRows));
+    const size_t nRows = (static_cast<const InputIface *>(input))->getNumberOfRows();
+    if (par->resultsToCompute & computeIndicesOfNeightbors)
+    {
+        DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(indices).get(), indicesStr(), data_management::packed_mask, 0, par->k, nRows));
+    }
+    if (par->resultsToCompute & computeDistances)
+    {
+        DAAL_CHECK_STATUS(s,
+                          data_management::checkNumericTable(get(distances).get(), distancesStr(), data_management::packed_mask, 0, par->k, nRows));
+    }
 
     return s;
 }
