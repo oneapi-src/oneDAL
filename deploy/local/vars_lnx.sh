@@ -18,7 +18,6 @@
 daal_help() {
     echo "Syntax: source $__daal_tmp_script_name [<arch>]"
     echo "Where <arch> is one of:"
-    echo "  ia32      - setup environment for IA-32 architecture"
     echo "  intel64   - setup environment for Intel(R) 64 architecture"
     echo ""
     echo "default is intel64"
@@ -47,10 +46,6 @@ set_daal_env() {
         do
             opt="$1"
             case $opt in
-                ia32)
-                    __daal_tmp_target_arch="ia32"
-                    shift
-                    ;;
                 intel64)
                     __daal_tmp_target_arch="intel64"
                     shift

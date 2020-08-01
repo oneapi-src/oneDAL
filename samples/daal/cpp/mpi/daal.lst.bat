@@ -16,7 +16,7 @@ rem limitations under the License.
 rem ============================================================================
 
 ::  Content:
-::     Intel(R) Data Analytics Acceleration Library samples list
+::     Intel(R) oneAPI Data Analytics Library samples list
 ::******************************************************************************
 
 set MPI_SAMPLE_LIST=svd_fast_distributed_mpi                      ^
