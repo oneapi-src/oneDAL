@@ -80,7 +80,7 @@ services::Status Result::checkImpl(const daal::algorithms::Input * input, const 
     const Parameter * const par = static_cast<const Parameter *>(parameter);
     DAAL_CHECK(par, services::ErrorNullParameterNotSupported);
 
-    const size_t nRows = (static_cast<const InputIface *>(input))->getNumberOfRows();
+    const size_t nRows = (static_cast<const classifier::prediction::InputIface *>(input))->getNumberOfRows();
     if (par->resultsToCompute & computeIndicesOfNeightbors)
     {
         DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(indices).get(), indicesStr(), data_management::packed_mask, 0, par->k, nRows));
