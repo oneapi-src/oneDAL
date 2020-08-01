@@ -22,6 +22,7 @@
 */
 
 #include "algorithms/k_nearest_neighbors/kdtree_knn_classification_predict_types.h"
+#include "src/services/daal_strings.h"
 #include "src/services/serialization_utils.h"
 
 using namespace daal::data_management;
