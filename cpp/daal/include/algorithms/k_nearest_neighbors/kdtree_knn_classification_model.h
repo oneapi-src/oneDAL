@@ -72,8 +72,9 @@ enum ResultToComputeId
  */
 enum VoteWeights
 {
-    voteUniform  = 0,
-    voteDistance = 1
+    voteUniform  = 0, /*!< Uniform weights for neighbors for prediction voting. All neighbors are weighted equally */
+    voteDistance = 1  /*!< Weight neighbors by the inverse of their distance. Closer neighbors of a query point will have a greater influence
+                           than neighbors that are further away */
 };
 
 /**
