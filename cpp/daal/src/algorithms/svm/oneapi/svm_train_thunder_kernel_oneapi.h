@@ -41,7 +41,7 @@ namespace internal
 using namespace daal::data_management;
 using namespace daal::services;
 
-template <typename algorithmFPType, typename ParameterType, Method method>
+template <typename algorithmFPType, Method method>
 class SVMTrainOneAPI : public Kernel
 {
 public:
@@ -51,8 +51,8 @@ public:
     }
 };
 
-template <typename algorithmFPType, typename ParameterType>
-class SVMTrainOneAPI<algorithmFPType, ParameterType, thunder> : public Kernel
+template <typename algorithmFPType>
+class SVMTrainOneAPI<algorithmFPType, thunder> : public Kernel
 {
     using Helper = utils::internal::HelperSVM<algorithmFPType>;
 
@@ -64,11 +64,12 @@ protected:
                                 services::Buffer<algorithmFPType> & grad, const size_t nVectors, const size_t nWS);
     services::Status smoKernel(const services::Buffer<algorithmFPType> & y, const services::Buffer<algorithmFPType> & kernelWsRows,
                                const services::Buffer<uint32_t> & wsIndices, const uint32_t ldK, const services::Buffer<algorithmFPType> & f,
-                               const algorithmFPType C, const algorithmFPType eps, const algorithmFPType tau, const uint32_t maxInnerIteration,
-                               services::Buffer<algorithmFPType> & alpha, services::Buffer<algorithmFPType> & deltaalpha,
-                               services::Buffer<algorithmFPType> & resinfo, const size_t nWS);
+                               const algorithmFPType C, const algorithmFPType accuracyThreshold, const algorithmFPType tau,
+                               const uint32_t maxInnerIteration, services::Buffer<algorithmFPType> & alpha,
+                               services::Buffer<algorithmFPType> & deltaalpha, services::Buffer<algorithmFPType> & resinfo, const size_t nWS);
 
-    bool checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev, const algorithmFPType eps, size_t & sameLocalDiff);
+    bool checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev, const algorithmFPType accuracyThreshold,
+                            size_t & sameLocalDiff);
 
 private:
     // One of the conditions for stopping is diff stays unchanged. nNoChanges - number of repetitions

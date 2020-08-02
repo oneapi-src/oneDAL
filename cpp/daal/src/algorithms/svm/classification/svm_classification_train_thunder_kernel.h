@@ -52,36 +52,14 @@ struct SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu> : public Kerne
 private:
     services::Status SMOBlockSolver(const algorithmFPType * y, const algorithmFPType * grad, const uint32_t * wsIndices,
                                     const NumericTablePtr & kernelWS, const size_t nVectors, const size_t nWS, const algorithmFPType * cw,
-                                    const double eps, const double tau, algorithmFPType * buffer, char * I, algorithmFPType * alpha,
+                                    const double accuracyThreshold, const double tau, algorithmFPType * buffer, char * I, algorithmFPType * alpha,
                                     algorithmFPType * deltaAlpha, algorithmFPType & localDiff) const;
 
     services::Status updateGrad(const NumericTablePtr & kernelWS, const algorithmFPType * deltaalpha, algorithmFPType * tmpgrad,
                                 algorithmFPType * grad, const size_t nVectors, const size_t nWS);
 
-    bool checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev, const algorithmFPType eps, size_t & sameLocalDiff);
-
-    size_t _blockSizeWS;
-
-    // One of the conditions for stopping is diff stays unchanged. nNoChanges - number of repetitions
-    static const size_t nNoChanges = 5;
-    // The maximum numbers of iteration of the subtask is number of observation in WS x cInnerIterations.
-    // It's enough to find minimum for subtask.
-    static const size_t cInnerIterations = 100;
-    // The maximum block size for blocked SMO solver.
-    // Need of (maxBlockSize*6 + maxBlockSize*maxBlockSize)*sizeof(algorithmFPType) internal memory.
-    // It should fit into the cache L2 including the use of hardware prefetch.
-    static const size_t maxBlockSize = 2048;
-
-    enum MemSmoId
-    {
-        alphaBuffID    = 0,
-        yBuffID        = 1,
-        gradBuffID     = 2,
-        kdBuffID       = 3,
-        oldAlphaBuffID = 4,
-        cwBuffID       = 5,
-        latest         = cwBuffID + 1,
-    };
+    bool checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev, const algorithmFPType accuracyThreshold,
+                            size_t & sameLocalDiff);
 };
 
 } // namespace internal

@@ -1,4 +1,4 @@
-/* file: svm_train_batch_container.h */
+/* file: svm_train_batch_container_v1.h */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -25,7 +25,6 @@
 #include "src/algorithms/svm/svm_train_kernel.h"
 #include "src/algorithms/svm/svm_train_boser_kernel.h"
 #include "algorithms/classifier/classifier_training_types.h"
-#include "src/algorithms/svm/oneapi/svm_train_thunder_kernel_oneapi.h"
 
 namespace daal
 {
@@ -35,9 +34,12 @@ namespace svm
 {
 namespace training
 {
-namespace interface2
+namespace interface1
 {
 using namespace daal::data_management;
+using namespace daal::internal;
+using namespace daal::services::internal;
+using namespace daal::services;
 
 /**
 *  \brief Initialize list of SVM kernels with implementations for supported architectures
@@ -45,16 +47,7 @@ using namespace daal::data_management;
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
-    auto & deviceInfo = context.getInfoDevice();
-    if (method == thunder && !deviceInfo.isCpu)
-    {
-        __DAAL_INITIALIZE_KERNELS_SYCL(internal::SVMTrainOneAPI, algorithmFPType, svm::interface2::Parameter, method);
-    }
-    else
-    {
-        __DAAL_INITIALIZE_KERNELS(internal::SVMTrainImpl, method, svm::interface2::Parameter, algorithmFPType);
-    }
+    __DAAL_INITIALIZE_KERNELS(internal::SVMTrainImpl, method, svm::interface1::Parameter, algorithmFPType);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -69,29 +62,30 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     classifier::training::Input * input = static_cast<classifier::training::Input *>(_in);
     svm::training::Result * result      = static_cast<svm::training::Result *>(_res);
 
-    const NumericTablePtr x       = input->get(classifier::training::data);
-    const NumericTablePtr y       = input->get(classifier::training::labels);
-    const NumericTablePtr weights = input->get(classifier::training::weights);
+    const NumericTablePtr x = input->get(classifier::training::data);
+    const NumericTablePtr y = input->get(classifier::training::labels);
+    const NumericTablePtr weights;
 
-    daal::algorithms::Model * r = static_cast<daal::algorithms::Model *>(result->get(classifier::training::model).get());
+    algorithms::Model * r = static_cast<daal::algorithms::Model *>(result->get(classifier::training::model).get());
 
-    svm::interface2::Parameter * par       = static_cast<svm::interface2::Parameter *>(_par);
-    daal::services::Environment::env & env = *_env;
+    const svm::interface1::Parameter * const par1 = static_cast<svm::interface1::Parameter *>(_par);
+    svm::interface2::Parameter par2;
 
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
-    auto & deviceInfo = context.getInfoDevice();
-    if (method == thunder && !deviceInfo.isCpu)
-    {
-        __DAAL_CALL_KERNEL_SYCL(env, internal::SVMTrainOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, svm::interface2::Parameter, method), compute,
-                                x, *y, r, par);
-    }
-    else
-    {
-        __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType, svm::interface2::Parameter), compute, x,
-                           weights, *y, r, par);
-    }
+    par2.nClasses          = par1->nClasses;
+    par2.C                 = par1->C;
+    par2.accuracyThreshold = par1->accuracyThreshold;
+    par2.tau               = par1->tau;
+    par2.maxIterations     = par1->maxIterations;
+    par2.kernel            = par1->kernel;
+    par2.shrinkingStep     = par1->shrinkingStep;
+    par2.doShrinking       = par1->doShrinking;
+    par2.cacheSize         = par1->cacheSize;
+
+    services::Environment::env & env = *_env;
+    __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, x, weights,
+                       *y, r, &par2);
 }
-} // namespace interface2
+} // namespace interface1
 } // namespace training
 } // namespace svm
 } // namespace algorithms

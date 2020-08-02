@@ -1,4 +1,4 @@
-/* file: svm_train_thunder_batch_fpt_cpu.cpp */
+/* file: svm_classification_train_thunder_batch_fpt_cpu.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -21,9 +21,9 @@
 //--
 */
 
-#include "src/algorithms/svm/svm_train_batch_container.h"
-#include "src/algorithms/svm/svm_train_thunder_kernel.h"
-#include "src/algorithms/svm/svm_train_thunder_impl.i"
+#include "src/algorithms/svm/classification/svm_train_batch_container.h"
+#include "src/algorithms/svm/classification/svm_train_thunder_kernel.h"
+#include "src/algorithms/svm/classification/svm_train_thunder_impl.i"
 
 namespace daal
 {
@@ -31,18 +31,21 @@ namespace algorithms
 {
 namespace svm
 {
+namespace classification
+{
 namespace training
 {
-namespace interface2
+namespace interface3
 {
 template class BatchContainer<DAAL_FPTYPE, thunder, DAAL_CPU>;
 }
 namespace internal
 {
-template struct DAAL_EXPORT SVMTrainImpl<thunder, DAAL_FPTYPE, svm::interface2::Parameter, DAAL_CPU>;
+template struct DAAL_EXPORT SVMTrainImpl<thunder, DAAL_FPTYPE, DAAL_CPU>;
 
 } // namespace internal
 } // namespace training
+} // namespace classification
 } // namespace svm
 } // namespace algorithms
 } // namespace daal

@@ -48,7 +48,7 @@ using namespace daal::data_management;
 using namespace daal::internal;
 using namespace daal::services;
 
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 struct SVMTrainTask
 {
     static const size_t kernelFunctionBlockSize = 1024; /* Size of the block of kernel function elements */
@@ -57,10 +57,10 @@ struct SVMTrainTask
 
     Status init(algorithmFPType C, const NumericTablePtr & wTable, NumericTable & yTable);
 
-    Status setup(const ParameterType & svmPar, const NumericTablePtr & xTable);
+    Status setup(const Parameter & svmPar, const NumericTablePtr & xTable);
 
     /* Perform Sequential Minimum Optimization (SMO) algorithm to find optimal coefficients alpha */
-    Status compute(const ParameterType & svmPar);
+    Status compute(const Parameter & svmPar);
 
     /* Write support vectors and classification coefficients into model */
     Status setResultsToModel(const NumericTable & xTable, Model & model) const;
@@ -98,11 +98,11 @@ protected:
     SVMCacheIface<boser, algorithmFPType, cpu> * _cache; //caches matrix Q (kernel(x[i], x[j])) values
 };
 
-template <Method method, typename algorithmFPType, typename ParameterType, CpuType cpu>
+template <Method method, typename algorithmFPType, CpuType cpu>
 struct SVMTrainImpl : public Kernel
 {
     services::Status compute(const NumericTablePtr & xTable, const NumericTablePtr & wTable, NumericTable & yTable, daal::algorithms::Model * r,
-                             const ParameterType * par)
+                             const Parameter * par)
     {
         return services::ErrorMethodNotImplemented;
     }

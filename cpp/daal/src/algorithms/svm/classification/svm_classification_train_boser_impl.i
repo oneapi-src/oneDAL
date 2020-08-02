@@ -62,12 +62,12 @@ namespace internal
 using namespace daal::internal;
 using namespace daal::services::internal;
 
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-services::Status SVMTrainImpl<boser, algorithmFPType, ParameterType, cpu>::compute(const NumericTablePtr & xTable, const NumericTablePtr & wTable,
-                                                                                   NumericTable & yTable, daal::algorithms::Model * r,
-                                                                                   const ParameterType * svmPar)
+template <typename algorithmFPType, CpuType cpu>
+services::Status SVMTrainImpl<boser, algorithmFPType, Parameter, cpu>::compute(const NumericTablePtr & xTable, const NumericTablePtr & wTable,
+                                                                               NumericTable & yTable, daal::algorithms::Model * r,
+                                                                               const Parameter * svmPar)
 {
-    SVMTrainTask<algorithmFPType, ParameterType, cpu> task(xTable->getNumberOfRows());
+    SVMTrainTask<algorithmFPType, Parameter, cpu> task(xTable->getNumberOfRows());
     services::Status s = task.setup(*svmPar, xTable);
     if (!s) return s;
     DAAL_CHECK_STATUS(s, task.init(svmPar->C, wTable, yTable));
@@ -76,17 +76,17 @@ services::Status SVMTrainImpl<boser, algorithmFPType, ParameterType, cpu>::compu
     return s;
 }
 
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setResultsToModel(const NumericTable & xTable, Model & model) const
+template <typename algorithmFPType, CpuType cpu>
+services::Status SVMTrainTask<algorithmFPType, Parameter, cpu>::setResultsToModel(const NumericTable & xTable, Model & model) const
 {
     SaveResultTask<algorithmFPType, cpu> saveResult(_nVectors, _y.get(), _alpha.get(), _grad.get(), _cache);
     return saveResult.compute(xTable, model, _cw.get());
 }
 
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::compute(const ParameterType & svmPar)
+template <typename algorithmFPType, CpuType cpu>
+services::Status SVMTrainTask<algorithmFPType, Parameter, cpu>::compute(const Parameter & svmPar)
 {
-    const algorithmFPType eps(svmPar.accuracyThreshold);
+    const algorithmFPType accuracyThreshold(svmPar.accuracyThreshold);
     const algorithmFPType tau(svmPar.tau);
 
     services::Status s;
@@ -95,7 +95,7 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::compute(cons
     if (!svmPar.doShrinking)
     {
         size_t iter = 0;
-        for (; s.ok() && (iter < svmPar.maxIterations) && (eps < curEps); ++iter)
+        for (; s.ok() && (iter < svmPar.maxIterations) && (accuracyThreshold < curEps); ++iter)
         {
             int Bi, Bj;
             algorithmFPType delta, ma, Ma;
@@ -107,24 +107,24 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::compute(cons
 
     bool unshrink = false;
     size_t iter   = 0;
-    for (size_t shrinkingIter = 1; (iter < svmPar.maxIterations) && (eps < curEps); ++iter, ++shrinkingIter)
+    for (size_t shrinkingIter = 1; (iter < svmPar.maxIterations) && (accuracyThreshold < curEps); ++iter, ++shrinkingIter)
     {
         int Bi, Bj;
         algorithmFPType delta, ma, Ma;
         if (!findMaximumViolatingPair(nActiveVectors, tau, Bi, Bj, delta, ma, Ma, curEps, s)) return s;
 
-        if (curEps < eps)
+        if (curEps < accuracyThreshold)
         {
             /* Check the optimality condition for the task with excluded variables */
             if (unshrink && nActiveVectors < _nVectors) s = reconstructGradient(nActiveVectors);
             if (!s || !findMaximumViolatingPair(nActiveVectors, tau, Bi, Bj, delta, ma, Ma, curEps, s)) return s;
-            if (curEps < eps) return s; /* Here if the optimality condition holds for the excluded variables */
+            if (curEps < accuracyThreshold) return s; /* Here if the optimality condition holds for the excluded variables */
             shrinkingIter = 0;
         }
         s = update(nActiveVectors, Bi, Bj, delta);
         if ((shrinkingIter % svmPar.shrinkingStep) == 0)
         {
-            if ((!unshrink) && (curEps < 10.0 * eps))
+            if ((!unshrink) && (curEps < 10.0 * accuracyThreshold))
             {
                 unshrink = true;
                 if (nActiveVectors < _nVectors)
@@ -163,9 +163,9 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::compute(cons
  * \return The function returns M(alpha) where
  *              M(alpha) = min(-y[i]*grad[i]): i belongs to I_low(alpha)
  */
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSj(size_t nActiveVectors, algorithmFPType tau, int Bi, algorithmFPType GMin,
-                                                                         int & Bj, algorithmFPType & delta, algorithmFPType & res) const
+template <typename algorithmFPType, CpuType cpu>
+services::Status SVMTrainTask<algorithmFPType, Parameter, cpu>::WSSj(size_t nActiveVectors, algorithmFPType tau, int Bi, algorithmFPType GMin,
+                                                                     int & Bj, algorithmFPType & delta, algorithmFPType & res) const
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair.WSSj);
 
@@ -215,10 +215,10 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSj(size_t 
     return s;
 }
 
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-bool SVMTrainTask<algorithmFPType, ParameterType, cpu>::findMaximumViolatingPair(size_t nActiveVectors, algorithmFPType tau, int & Bi, int & Bj,
-                                                                                 algorithmFPType & delta, algorithmFPType & ma, algorithmFPType & Ma,
-                                                                                 algorithmFPType & curEps, services::Status & s) const
+template <typename algorithmFPType, CpuType cpu>
+bool SVMTrainTask<algorithmFPType, Parameter, cpu>::findMaximumViolatingPair(size_t nActiveVectors, algorithmFPType tau, int & Bi, int & Bj,
+                                                                             algorithmFPType & delta, algorithmFPType & ma, algorithmFPType & Ma,
+                                                                             algorithmFPType & curEps, services::Status & s) const
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair);
 
@@ -232,8 +232,8 @@ bool SVMTrainTask<algorithmFPType, ParameterType, cpu>::findMaximumViolatingPair
     return (Bj != -1);
 }
 
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::update(size_t nActiveVectors, int Bi, int Bj, algorithmFPType delta)
+template <typename algorithmFPType, CpuType cpu>
+services::Status SVMTrainTask<algorithmFPType, Parameter, cpu>::update(size_t nActiveVectors, int Bi, int Bj, algorithmFPType delta)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(updateGrad);
 
@@ -287,9 +287,9 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::update(size_
  * \param[out] newDeltai Resulting difference between old and new value of the Bi-th classification coefficient
  * \param[out] newDeltaj Resulting difference between old and new value of the Bj-th classification coefficient
  */
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-inline void SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateAlpha(int Bi, int Bj, algorithmFPType delta, algorithmFPType & newDeltai,
-                                                                           algorithmFPType & newDeltaj)
+template <typename algorithmFPType, CpuType cpu>
+inline void SVMTrainTask<algorithmFPType, Parameter, cpu>::updateAlpha(int Bi, int Bj, algorithmFPType delta, algorithmFPType & newDeltai,
+                                                                       algorithmFPType & newDeltaj)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(updateAlpha);
     const algorithmFPType * cw = _cw.get();
@@ -322,8 +322,8 @@ inline void SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateAlpha(int B
  *                           in sequential minimum optimization at the current iteration
  * \return Number of observations that remain active (not shrunk) after shrinking
  */
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-size_t SVMTrainTask<algorithmFPType, ParameterType, cpu>::doShrink(size_t nActiveVectors)
+template <typename algorithmFPType, CpuType cpu>
+size_t SVMTrainTask<algorithmFPType, Parameter, cpu>::doShrink(size_t nActiveVectors)
 {
     size_t i                     = 0;
     size_t j                     = nActiveVectors - 1;
@@ -356,8 +356,8 @@ size_t SVMTrainTask<algorithmFPType, ParameterType, cpu>::doShrink(size_t nActiv
  * \param[in] Ma             Value of M(alpha) = min(-y[i]*grad[i]): i belongs to I_LOW (alpha)
  * \return Number of observations to be shrunk
  */
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-size_t SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateShrinkingFlags(size_t nActiveVectors, algorithmFPType ma, algorithmFPType Ma)
+template <typename algorithmFPType, CpuType cpu>
+size_t SVMTrainTask<algorithmFPType, Parameter, cpu>::updateShrinkingFlags(size_t nActiveVectors, algorithmFPType ma, algorithmFPType Ma)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(updateShrinkingFlags);
 
@@ -409,8 +409,8 @@ size_t SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateShrinkingFlags(s
  * \param[in] nActiveVectors Number of observations in a training data set that are used
  *                           in sequential minimum optimization at the current iteration
  */
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::reconstructGradient(size_t & nActiveVectors)
+template <typename algorithmFPType, CpuType cpu>
+services::Status SVMTrainTask<algorithmFPType, Parameter, cpu>::reconstructGradient(size_t & nActiveVectors)
 {
     size_t nBlocks = _nVectors / kernelFunctionBlockSize;
     if (nBlocks * kernelFunctionBlockSize < _nVectors)
@@ -452,8 +452,8 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::reconstructG
  * \param[in] svmPar        Parameters of the algorithm
  * \param[in] xTable        Pointer to numeric table that contains input data set
  */
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setup(const ParameterType & svmPar, const NumericTablePtr & xTable)
+template <typename algorithmFPType, CpuType cpu>
+services::Status SVMTrainTask<algorithmFPType, Parameter, cpu>::setup(const Parameter & svmPar, const NumericTablePtr & xTable)
 {
     _alpha.reset(_nVectors);
     daal::services::internal::service_memset<algorithmFPType, cpu>(_alpha.get(), algorithmFPType(0.0), _nVectors);
@@ -480,8 +480,8 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setup(const 
     return s;
 }
 
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-SVMTrainTask<algorithmFPType, ParameterType, cpu>::~SVMTrainTask()
+template <typename algorithmFPType, CpuType cpu>
+SVMTrainTask<algorithmFPType, Parameter, cpu>::~SVMTrainTask()
 {
     delete _cache;
 }
@@ -493,8 +493,8 @@ SVMTrainTask<algorithmFPType, ParameterType, cpu>::~SVMTrainTask()
 *  \param[in] wTable        Pointer to numeric table that contains weights
 *  \param[in] yTable        Pointer to numeric table that contains class labels
  */
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::init(algorithmFPType C, const NumericTablePtr & wTable, NumericTable & yTable)
+template <typename algorithmFPType, CpuType cpu>
+services::Status SVMTrainTask<algorithmFPType, Parameter, cpu>::init(algorithmFPType C, const NumericTablePtr & wTable, NumericTable & yTable)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(init);
 
@@ -534,8 +534,8 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::init(algorit
  * \param[in] C     Upper bound in constraints of the quadratic optimization problem
  * \param[in] index Index of the feature vector
  */
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-inline void SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateI(size_t index)
+template <typename algorithmFPType, CpuType cpu>
+inline void SVMTrainTask<algorithmFPType, Parameter, cpu>::updateI(size_t index)
 {
     char Ii                      = _I[index];
     const algorithmFPType alphai = _alpha[index];

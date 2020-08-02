@@ -1,6 +1,6 @@
-/* file: svm_train_boser_batch_fpt_cpu.cpp */
+/* file: svm_regression_train_thunder_batch_fpt_dispatcher.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,32 +17,46 @@
 
 /*
 //++
-//  Implementation of SVM boser training algorithm.
+//  Implementation of SVM training algorithm container.
 //--
 */
 
-#include "src/algorithms/svm/svm_train_batch_container.h"
-#include "src/algorithms/svm/svm_train_boser_kernel.h"
-#include "src/algorithms/svm/svm_train_boser_impl.i"
+#include "src/algorithms/svm/regression/svm_regression_train_batch_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL_SAFE(svm::regression::training::BatchContainer, batch, DAAL_FPTYPE, svm::training::thunder)
+
 namespace svm
+{
+namespace regression
 {
 namespace training
 {
-namespace interface2
+namespace interface3
 {
-template class BatchContainer<DAAL_FPTYPE, boser, DAAL_CPU>;
-}
-namespace internal
-{
-template struct DAAL_EXPORT SVMTrainImpl<boser, DAAL_FPTYPE, svm::interface2::Parameter, DAAL_CPU>;
+using BatchType = Batch<DAAL_FPTYPE, svm::training::thunder>;
 
-} // namespace internal
+template <>
+BatchType::Batch()
+{
+    _par = new ParameterType();
+    initialize();
+}
+
+template <>
+BatchType::Batch(const BatchType & other) : input(other.input)
+{
+    _par = new ParameterType(other.parameter());
+    initialize();
+}
+
+} // namespace interface3
 } // namespace training
+} // namespace regression
 } // namespace svm
+
 } // namespace algorithms
 } // namespace daal

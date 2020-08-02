@@ -58,7 +58,7 @@ stump += stump/inner classifier classifier/inner weak_learner/inner
 adaboost += adaboost/inner classifier classifier/inner decision_tree decision_tree/inner stump stump/inner boosting/inner weak_learner/inner
 brownboost += brownboost/inner boosting/inner weak_learner/inner classifier classifier/inner decision_tree decision_tree/inner stump stump/inner
 logitboost += logitboost/inner boosting/inner weak_learner/inner classifier classifier/inner regression decision_tree decision_tree/inner stump stump/inner
-svm += svm/inner classifier classifier/inner kernel_function multiclassclassifier multiclassclassifier/inner
+svm += svm/classification svm/classification/inner classifier classifier/inner svm/regression kernel_function multiclassclassifier multiclassclassifier/inner
 multiclassclassifier += multiclassclassifier/inner classifier classifier/inner
 k_nearest_neighbors += k_nearest_neighbors/inner engines classifier classifier/inner
 logistic_regression += logistic_regression/inner classifier classifier/inner optimization_solver objective_function engines
@@ -160,6 +160,10 @@ CORE.ALGORITHMS.FULL :=                                                       \
     stump/inner                                                               \
     svd                                                                       \
     svm                                                                       \
+    svm                                                                       \
+    svm/classification                                                        \
+    svm/classification/inner                                                  \
+    svm/regression                                                            \
     svm/inner                                                                 \
     weak_learner/inner
 

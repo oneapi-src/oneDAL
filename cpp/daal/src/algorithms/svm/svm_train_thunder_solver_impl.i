@@ -1,4 +1,4 @@
-/* file: svm_train_thunder_impl.i */
+/* file: svm_train_thunder_solver_impl.i */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -69,86 +69,11 @@ namespace training
 {
 namespace internal
 {
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::compute(const NumericTablePtr & xTable, const NumericTablePtr & wTable,
-                                                                                     NumericTable & yTable, daal::algorithms::Model * r,
-                                                                                     const ParameterType * svmPar)
+template <typename algorithmFPType, CpuType cpu>
+services::Status Solver<thunder, algorithmFPType, cpu>::compute(const NumericTablePtr & xTable, const NumericTablePtr & wTable, NumericTable & yTable,
+                                                                daal::algorithms::Model * r, const Parameter * svmPar)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(COMPUTE);
-
     services::Status status;
-
-    const algorithmFPType C(svmPar->C);
-    const algorithmFPType eps(svmPar->accuracyThreshold);
-    const algorithmFPType tau(svmPar->tau);
-    const size_t maxIterations(svmPar->maxIterations);
-    const size_t cacheSize(svmPar->cacheSize);
-    kernel_function::KernelIfacePtr kernel = svmPar->kernel->clone();
-
-    const size_t nVectors = xTable->getNumberOfRows();
-
-    TArray<algorithmFPType, cpu> alphaTArray(nVectors);
-    DAAL_CHECK_MALLOC(alphaTArray.get());
-    algorithmFPType * const alpha = alphaTArray.get();
-
-    TArray<algorithmFPType, cpu> gradTArray(nVectors);
-    DAAL_CHECK_MALLOC(gradTArray.get());
-    algorithmFPType * const grad = gradTArray.get();
-
-    TArray<algorithmFPType, cpu> cwTArray(nVectors);
-    DAAL_CHECK_MALLOC(cwTArray.get());
-    algorithmFPType * const cw = cwTArray.get();
-
-    TArray<algorithmFPType, cpu> yTArray(nVectors);
-    DAAL_CHECK_MALLOC(yTArray.get());
-    algorithmFPType * const y = yTArray.get();
-
-    SafeStatus safeStat;
-
-    size_t nNonZeroWeights = nVectors;
-    {
-        /* The operation copy is lightweight, therefore a large size is chosen
-            so that the number of blocks is a reasonable number. */
-        const size_t blockSize = 16384;
-        const size_t nBlocks   = nVectors / blockSize + !!(nVectors % blockSize);
-
-        DAAL_ITTNOTIFY_SCOPED_TASK(init.set);
-        TlsSum<size_t, cpu> weightsCounter(1);
-        daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
-            const size_t startRow     = iBlock * blockSize;
-            const size_t nRowsInBlock = (iBlock != nBlocks - 1) ? blockSize : nVectors - iBlock * blockSize;
-
-            ReadColumns<algorithmFPType, cpu> mtY(yTable, 0, startRow, nRowsInBlock);
-            DAAL_CHECK_BLOCK_STATUS_THR(mtY);
-            const algorithmFPType * const yIn = mtY.get();
-
-            ReadColumns<algorithmFPType, cpu> mtW(wTable.get(), 0, startRow, nRowsInBlock);
-            DAAL_CHECK_BLOCK_STATUS_THR(mtW);
-            const algorithmFPType * weights = mtW.get();
-
-            size_t * wc = nullptr;
-            if (weights)
-            {
-                wc = weightsCounter.local();
-            }
-            for (size_t i = 0; i < nRowsInBlock; ++i)
-            {
-                y[i + startRow]     = yIn[i] == 0 ? algorithmFPType(-1) : yIn[i];
-                grad[i + startRow]  = -y[i + startRow];
-                alpha[i + startRow] = algorithmFPType(0);
-                cw[i + startRow]    = weights ? weights[i] * C : C;
-                if (weights)
-                {
-                    *wc += static_cast<size_t>(weights[i] != algorithmFPType(0));
-                }
-            }
-        });
-
-        if (wTable.get())
-        {
-            weightsCounter.reduceTo(&nNonZeroWeights, 1);
-        }
-    }
 
     TaskWorkingSet<algorithmFPType, cpu> workSet(nNonZeroWeights, nVectors, maxBlockSize);
     DAAL_CHECK_STATUS(status, workSet.init());
@@ -180,6 +105,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
 
     size_t iter = 0;
     for (; iter < maxIterations; ++iter)
+
     {
         if (iter != 0)
         {
@@ -194,25 +120,25 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
 
             DAAL_CHECK_STATUS(status, cachePtr->getRowsBlock(wsIndices, nWS, kernelWS));
         }
-        DAAL_CHECK_STATUS(
-            status, SMOBlockSolver(y, grad, wsIndices, kernelWS, nVectors, nWS, cw, eps, tau, buffer.get(), I.get(), alpha, deltaAlpha.get(), diff));
+        DAAL_CHECK_STATUS(status, SMOBlockSolver(y, grad, wsIndices, kernelWS, nVectors, nWS, cw, accuracyThreshold, tau, buffer.get(), I.get(),
+                                                 alpha, deltaAlpha.get(), diff));
 
         DAAL_CHECK_STATUS(status, updateGrad(kernelWS, deltaAlpha.get(), gradBuff.get(), grad, nVectors, nWS));
 
-        if (checkStopCondition(diff, diffPrev, eps, sameLocalDiff) && iter >= nNoChanges) break;
+        if (checkStopCondition(diff, diffPrev, accuracyThreshold, sameLocalDiff) && iter >= nNoChanges) break;
         diffPrev = diff;
     }
-    SaveResultTask<algorithmFPType, cpu> saveResult(nVectors, y, alpha, grad, cachePtr.get());
-    DAAL_CHECK_STATUS(status, saveResult.compute(*xTable, *static_cast<Model *>(r), cw));
 
     return status;
 }
 
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMOBlockSolver(
-    const algorithmFPType * y, const algorithmFPType * grad, const uint32_t * wsIndices, const NumericTablePtr & kernelWS, const size_t nVectors,
-    const size_t nWS, const algorithmFPType * cw, const double eps, const double tau, algorithmFPType * buffer, char * I, algorithmFPType * alpha,
-    algorithmFPType * deltaAlpha, algorithmFPType & localDiff) const
+template <typename algorithmFPType, CpuType cpu>
+services::Status Solver<thunder, algorithmFPType, cpu>::SMOBlockSolver(const algorithmFPType * y, const algorithmFPType * grad,
+                                                                       const uint32_t * wsIndices, const NumericTablePtr & kernelWS,
+                                                                       const size_t nVectors, const size_t nWS, const algorithmFPType * cw,
+                                                                       const double accuracyThreshold, const double tau, algorithmFPType * buffer,
+                                                                       char * I, algorithmFPType * alpha, algorithmFPType * deltaAlpha,
+                                                                       algorithmFPType & localDiff) const
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(SMOBlockSolver);
     services::Status status;
@@ -269,6 +195,9 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
     int Bi                   = -1;
     int Bj                   = -1;
 
+    // #ifdef __DAAL_ITTNOTIFY_ENABLE__
+    //     __itt_resume();
+    // #endif
     size_t iter = 0;
     for (; iter < innerMaxIterations; ++iter)
     {
@@ -286,7 +215,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
 
         if (iter == 0)
         {
-            localEps = services::internal::max<cpu, algorithmFPType>(eps, localDiff * algorithmFPType(1e-1));
+            localEps = services::internal::max<cpu, algorithmFPType>(accuracyThreshold, localDiff * algorithmFPType(1e-1));
         }
         if (localDiff < localEps)
         {
@@ -331,6 +260,9 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
             gradLocal[i] += delta * (KiBi - KiBj);
         }
     }
+    // #ifdef __DAAL_ITTNOTIFY_ENABLE__
+    //     __itt_pause();
+    // #endif
 
     /* Compute diff and scatter to alpha vector */
     PRAGMA_IVDEP
@@ -343,11 +275,10 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
     return status;
 }
 
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::updateGrad(const NumericTablePtr & kernelWS,
-                                                                                        const algorithmFPType * deltaalpha,
-                                                                                        algorithmFPType * gradBuff, algorithmFPType * grad,
-                                                                                        const size_t nVectors, const size_t nWS)
+template <typename algorithmFPType, CpuType cpu>
+services::Status Solver<thunder, algorithmFPType, cpu>::updateGrad(const NumericTablePtr & kernelWS, const algorithmFPType * deltaalpha,
+                                                                   algorithmFPType * gradBuff, algorithmFPType * grad, const size_t nVectors,
+                                                                   const size_t nWS)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(updateGrad);
 
@@ -399,12 +330,12 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::upd
     return services::Status();
 }
 
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-bool SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev,
-                                                                                    const algorithmFPType eps, size_t & sameLocalDiff)
+template <typename algorithmFPType, CpuType cpu>
+services::Status Solver<thunder, algorithmFPType, cpu>::checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev,
+                                                                           const algorithmFPType accuracyThreshold, size_t & sameLocalDiff)
 {
-    sameLocalDiff = internal::Math<algorithmFPType, cpu>::sFabs(diff - diffPrev) < eps * 1e-3 ? sameLocalDiff + 1 : 0;
-    if (sameLocalDiff > nNoChanges || diff < eps)
+    sameLocalDiff = internal::Math<algorithmFPType, cpu>::sFabs(diff - diffPrev) < accuracyThreshold * 1e-3 ? sameLocalDiff + 1 : 0;
+    if (sameLocalDiff > nNoChanges || diff < accuracyThreshold)
     {
         return true;
     }

@@ -66,8 +66,6 @@ namespace internal
 template <typename algorithmFPType, CpuType cpu>
 algorithmFPType HelperTrainSVM<algorithmFPType, cpu>::WSSi(size_t nActiveVectors, const algorithmFPType * grad, const char * I, int & Bi)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair.WSSi);
-
     Bi                   = -1;
     algorithmFPType GMin = (MaxVal<algorithmFPType>::get()); // some big negative number
 

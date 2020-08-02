@@ -1,6 +1,6 @@
-/* file: svm_train_boser_kernel.h */
+/* file: svm_regression_train_thunder_kernel.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef __SVM_TRAIN_BOSER_KERNEL_H__
-#define __SVM_TRAIN_BOSER_KERNEL_H__
+#ifndef __SVM_REGRESSION_TRAIN_THUNDER_KERNEL_H__
+#define __SVM_REGRESSION_TRAIN_THUNDER_KERNEL_H__
 
 #include "data_management/data/numeric_table.h"
 #include "algorithms/model.h"
@@ -39,12 +39,14 @@ namespace algorithms
 {
 namespace svm
 {
+namespace regression
+{
 namespace training
 {
 namespace internal
 {
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-struct SVMTrainImpl<boser, algorithmFPType, ParameterType, cpu> : public Kernel
+template <typename algorithmFPType, CpuType cpu>
+struct SVMTrainImpl<thunder, algorithmFPType, cpu> : public Kernel
 {
     services::Status compute(const data_management::NumericTablePtr & xTable, const data_management::NumericTablePtr & wTable,
                              data_management::NumericTable & yTable, daal::algorithms::Model * r, const ParameterType * par);
@@ -52,6 +54,7 @@ struct SVMTrainImpl<boser, algorithmFPType, ParameterType, cpu> : public Kernel
 
 } // namespace internal
 } // namespace training
+} // namespace regression
 } // namespace svm
 } // namespace algorithms
 } // namespace daal

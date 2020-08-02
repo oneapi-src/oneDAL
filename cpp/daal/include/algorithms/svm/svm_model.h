@@ -113,7 +113,7 @@ struct DAAL_EXPORT Parameter : public classifier::Parameter
 {
     Parameter(const services::SharedPtr<kernel_function::KernelIface> & kernelForParameter =
                   services::SharedPtr<kernel_function::KernelIface>(new kernel_function::linear::Batch<>()),
-              double C = 1.0, double accuracyThreshold = 0.001, double tau = 1.0e-6, size_t maxIterations = 1000000, size_t cacheSize = 8000000,
+              double C = 1.0, double epsilon = 0.1, double accuracyThreshold = 0.001, double tau = 1.0e-6, size_t maxIterations = 1000000, size_t cacheSize = 8000000,
               bool doShrinking = true, size_t shrinkingStep = 1000)
         : C(C),
           accuracyThreshold(accuracyThreshold),
@@ -125,6 +125,7 @@ struct DAAL_EXPORT Parameter : public classifier::Parameter
           kernel(kernelForParameter) {};
 
     double C;                                           /*!< Upper bound in constraints of the quadratic optimization problem */
+    double epsilon;                                     /*!< Upper bound in constraints of the quadratic optimization problem */
     double accuracyThreshold;                           /*!< Training accuracy */
     double tau;                                         /*!< Tau parameter of the working set selection scheme */
     size_t maxIterations;                               /*!< Maximal number of iterations for the algorithm */
@@ -138,6 +139,43 @@ struct DAAL_EXPORT Parameter : public classifier::Parameter
 };
 /* [Parameter source code] */
 } // namespace interface2
+
+/**
+ * \brief Contains version 2.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ */
+namespace interface3
+{
+/**
+ * @ingroup svm
+ * @{
+ */
+/**
+ * <a name="DAAL-STRUCT-ALGORITHMS__SVM__PARAMETER"></a>
+ * \brief Optional parameters
+ *
+ * \snippet svm/svm_model.h Parameter source code
+ */
+/* [Parameter source code] */
+struct DAAL_EXPORT Parameter
+{
+    Parameter();
+
+    double C;                                           /*!< Upper bound in constraints of the quadratic optimization problem */
+    double epsilon;                                     /*!< TDB */
+    double accuracyThreshold;                           /*!< Training accuracy */
+    double tau;                                         /*!< Tau parameter of the working set selection scheme */
+    size_t maxIterations;                               /*!< Maximal number of iterations for the algorithm */
+    size_t cacheSize;                                   /*!< Size of cache in bytes to store values of the kernel matrix.
+                                                            A non-zero value enables use of a cache optimization technique */
+    bool doShrinking;                                   /*!< Flag that enables use of the shrinking optimization technique */
+    size_t shrinkingStep;                               /*!< Number of iterations between the steps of shrinking optimization technique */
+    size_t maxInnerIteration;                           /*!< TDB */
+    algorithms::kernel_function::KernelIfacePtr kernel; /*!< Kernel function */
+
+    services::Status check() const DAAL_C11_OVERRIDE;
+};
+/* [Parameter source code] */
+} // namespace interface3
 
 namespace interface1
 {
@@ -155,31 +193,7 @@ class DAAL_EXPORT Model : public classifier::Model
 public:
     DECLARE_MODEL(Model, classifier::Model);
 
-    /**
-     * Constructs the SVM model
-     * \tparam modelFPType  Data type to store SVM model data, double or float
-     * \param[in] dummy     Dummy variable for the templated constructor
-     * \param[in] nColumns  Number of features in input data
-     * \param[in] layout    Data layout of the numeric table of support vectors
-     * \DAAL_DEPRECATED_USE{ Model::create }
-     */
-    template <typename modelFPType>
-    Model(modelFPType dummy, size_t nColumns, data_management::NumericTableIface::StorageLayout layout = data_management::NumericTableIface::aos)
-        : _bias(0.0)
-    {
-        using namespace data_management;
-        if (layout == NumericTableIface::csrArray)
-        {
-            modelFPType * dummyPtr = NULL;
-            _SV.reset(new CSRNumericTable(dummyPtr, NULL, NULL, nColumns));
-        }
-        else
-        {
-            _SV.reset(new HomogenNumericTable<modelFPType>(NULL, nColumns, 0));
-        }
-        _SVCoeff.reset(new HomogenNumericTable<modelFPType>(NULL, 1, 0));
-        _SVIndices.reset(new HomogenNumericTable<int>(NULL, 1, 0));
-    }
+    // Added create() methods into models and numeric tables clasees. Reviewer: Natalia Shakhalova. Approver: Ivan Kuzmin. 2017.07.17
 
     /**
      * Constructs the SVM model
@@ -193,12 +207,6 @@ public:
     DAAL_EXPORT static services::SharedPtr<Model> create(
         size_t nColumns, data_management::NumericTableIface::StorageLayout layout = data_management::NumericTableIface::aos,
         services::Status * stat = NULL);
-
-    /**
-     * Empty constructor for deserialization
-     * \DAAL_DEPRECATED_USE{ Model::create }
-     */
-    Model() : _SV(), _SVCoeff(), _bias(0.0), _SVIndices() {}
 
     /**
      * Constructs empty SVM model for deserialization

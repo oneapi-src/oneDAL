@@ -1,4 +1,4 @@
-/* file: svm_train_thunder_batch_fpt_dispatcher.cpp */
+/* file: svm_regression_train_thunder_batch_fpt_cpu.cpp */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -17,16 +17,35 @@
 
 /*
 //++
-//  Implementation of SVM training algorithm container.
+//  Implementation of SVM thunder training algorithm.
 //--
 */
 
-#include "src/algorithms/svm/svm_train_batch_container.h"
+#include "src/algorithms/svm/regression/svm_train_batch_container.h"
+#include "src/algorithms/svm/regression/svm_train_thunder_kernel.h"
+#include "src/algorithms/svm/regression/svm_train_thunder_impl.i"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL_SAFE(svm::training::BatchContainer, batch, DAAL_FPTYPE, svm::training::thunder)
+namespace svm
+{
+namespace regression
+{
+namespace training
+{
+namespace interface1
+{
+template class BatchContainer<DAAL_FPTYPE, thunder, DAAL_CPU>;
+}
+namespace internal
+{
+template struct DAAL_EXPORT SVMTrainImpl<thunder, DAAL_FPTYPE, DAAL_CPU>;
+
+} // namespace internal
+} // namespace training
+} // namespace regression
+} // namespace svm
 } // namespace algorithms
 } // namespace daal

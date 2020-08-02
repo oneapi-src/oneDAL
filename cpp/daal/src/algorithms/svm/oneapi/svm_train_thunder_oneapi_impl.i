@@ -72,23 +72,23 @@ using namespace daal::internal;
 using namespace daal::services::internal;
 using namespace daal::oneapi::internal;
 
-template <typename algorithmFPType, typename ParameterType>
-services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::updateGrad(const services::Buffer<algorithmFPType> & kernelWS,
-                                                                                     const services::Buffer<algorithmFPType> & deltaalpha,
-                                                                                     services::Buffer<algorithmFPType> & grad, const size_t nVectors,
-                                                                                     const size_t nWS)
+template <typename algorithmFPType>
+services::Status SVMTrainOneAPI<algorithmFPType, thunder>::updateGrad(const services::Buffer<algorithmFPType> & kernelWS,
+                                                                      const services::Buffer<algorithmFPType> & deltaalpha,
+                                                                      services::Buffer<algorithmFPType> & grad, const size_t nVectors,
+                                                                      const size_t nWS)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(updateGrad);
     return BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::Trans, math::Transpose::NoTrans, nVectors, 1, nWS,
                                            algorithmFPType(1), kernelWS, nVectors, 0, deltaalpha, 1, 0, algorithmFPType(1), grad, 1, 0);
 }
 
-template <typename algorithmFPType, typename ParameterType>
-services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::smoKernel(
+template <typename algorithmFPType>
+services::Status SVMTrainOneAPI<algorithmFPType, thunder>::smoKernel(
     const services::Buffer<algorithmFPType> & y, const services::Buffer<algorithmFPType> & kernelWsRows, const services::Buffer<uint32_t> & wsIndices,
-    const uint32_t ldK, const services::Buffer<algorithmFPType> & f, const algorithmFPType C, const algorithmFPType eps, const algorithmFPType tau,
-    const uint32_t maxInnerIteration, services::Buffer<algorithmFPType> & alpha, services::Buffer<algorithmFPType> & deltaalpha,
-    services::Buffer<algorithmFPType> & resinfo, const size_t nWS)
+    const uint32_t ldK, const services::Buffer<algorithmFPType> & f, const algorithmFPType C, const algorithmFPType accuracyThreshold,
+    const algorithmFPType tau, const uint32_t maxInnerIteration, services::Buffer<algorithmFPType> & alpha,
+    services::Buffer<algorithmFPType> & deltaalpha, services::Buffer<algorithmFPType> & resinfo, const size_t nWS)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(smoKernel);
 
@@ -119,7 +119,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::smoKer
     args.set(3, ldK);
     args.set(4, f, AccessModeIds::read);
     args.set(5, C);
-    args.set(6, eps);
+    args.set(6, accuracyThreshold);
     args.set(7, tau);
     args.set(8, maxInnerIteration);
     args.set(9, alpha, AccessModeIds::readwrite);
@@ -141,22 +141,22 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::smoKer
     return status;
 }
 
-template <typename algorithmFPType, typename ParameterType>
-bool SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev,
-                                                                                 const algorithmFPType eps, size_t & sameLocalDiff)
+template <typename algorithmFPType>
+bool SVMTrainOneAPI<algorithmFPType, thunder>::checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev,
+                                                                  const algorithmFPType accuracyThreshold, size_t & sameLocalDiff)
 {
-    sameLocalDiff = utils::internal::abs(diff - diffPrev) < eps * 1e-2 ? sameLocalDiff + 1 : 0;
+    sameLocalDiff = utils::internal::abs(diff - diffPrev) < accuracyThreshold * 1e-2 ? sameLocalDiff + 1 : 0;
 
-    if (sameLocalDiff > nNoChanges || diff < eps)
+    if (sameLocalDiff > nNoChanges || diff < accuracyThreshold)
     {
         return true;
     }
     return false;
 }
 
-template <typename algorithmFPType, typename ParameterType>
-services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::compute(const NumericTablePtr & xTable, NumericTable & yTable,
-                                                                                  daal::algorithms::Model * r, const ParameterType * svmPar)
+template <typename algorithmFPType>
+services::Status SVMTrainOneAPI<algorithmFPType, thunder>::compute(const NumericTablePtr & xTable, NumericTable & yTable, daal::algorithms::Model * r,
+                                                                   const ParameterType * svmPar)
 {
     services::Status status;
 
@@ -164,7 +164,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
     const auto idType = TypeIds::id<algorithmFPType>();
 
     const algorithmFPType C(svmPar->C);
-    const algorithmFPType eps(svmPar->accuracyThreshold);
+    const algorithmFPType accuracyThreshold(svmPar->accuracyThreshold);
     const algorithmFPType tau(svmPar->tau);
     const size_t maxIterations(svmPar->maxIterations);
     const size_t cacheSize(svmPar->cacheSize);
@@ -239,7 +239,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
 
         const services::Buffer<algorithmFPType> & kernelWS = cachePtr->getRowsBlock();
 
-        DAAL_CHECK_STATUS(status, smoKernel(yBuff, kernelWS, wsIndices, nVectors, gradBuff, C, eps, tau, innerMaxIterations, alphaBuff,
+        DAAL_CHECK_STATUS(status, smoKernel(yBuff, kernelWS, wsIndices, nVectors, gradBuff, C, accuracyThreshold, tau, innerMaxIterations, alphaBuff,
                                             deltaalphaBuff, resinfoBuff, nWS));
 
         {
@@ -252,7 +252,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
 
         DAAL_CHECK_STATUS(status, updateGrad(kernelWS, deltaalphaBuff, gradBuff, nVectors, nWS));
 
-        if (checkStopCondition(diff, diffPrev, eps, sameLocalDiff)) break;
+        if (checkStopCondition(diff, diffPrev, accuracyThreshold, sameLocalDiff)) break;
         diffPrev = diff;
     }
 

@@ -169,10 +169,17 @@ protected:
         _kernel->getInput()->set(kernel_function::X, _xTable);
         _kernel->getInput()->set(kernel_function::Y, _blockTask->getTableData());
 
+#ifdef __DAAL_ITTNOTIFY_ENABLE__
+        __itt_resume();
+#endif
         kernel_function::ResultPtr shRes(new kernel_function::Result());
         shRes->set(kernel_function::values, kernelComputeTable);
         _kernel->setResult(shRes);
         DAAL_CHECK_STATUS(status, _kernel->computeNoThrow());
+
+#ifdef __DAAL_ITTNOTIFY_ENABLE__
+        __itt_pause();
+#endif
 
         return status;
     }

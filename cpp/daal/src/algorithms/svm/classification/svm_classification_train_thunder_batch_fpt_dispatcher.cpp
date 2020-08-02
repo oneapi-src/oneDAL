@@ -1,6 +1,6 @@
-/* file: svm_train_boser_batch_fpt_dispatcher.cpp */
+/* file: svm_train_thunder_batch_fpt_dispatcher.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,6 +27,37 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(svm::training::BatchContainer, batch, DAAL_FPTYPE, svm::training::boser)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL_SAFE(svm::classification::training::BatchContainer, batch, DAAL_FPTYPE, svm::training::thunder)
+
+namespace svm
+{
+namespace classification
+{
+namespace training
+{
+namespace interface3
+{
+using BatchType = Batch<DAAL_FPTYPE, svm::training::thunder>;
+
+template <>
+BatchType::Batch(size_t nClasses)
+{
+    _par = new ParameterType();
+    initialize();
+    parameter().nClasses = nClasses;
+}
+
+template <>
+BatchType::Batch(const BatchType & other) : classifier::training::Batch(other), input(other.input)
+{
+    _par = new ParameterType(other.parameter());
+    initialize();
+}
+
+} // namespace interface3
+} // namespace training
+} // namespace classification
+} // namespace svm
+
 } // namespace algorithms
 } // namespace daal
