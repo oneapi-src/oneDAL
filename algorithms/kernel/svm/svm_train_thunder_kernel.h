@@ -69,7 +69,7 @@ private:
     static const size_t cInnerIterations = 100;
     // The maximum block size for blocked SMO solver.
     // Need of (maxBlockSize*6 + maxBlockSize*maxBlockSize)*sizeof(algorithmFPType) internal memory.
-    // It should get into the cache L2 (~1MB).
+    // It should fit into the cache L2 including the use of hardware prefetch.
     static const size_t maxBlockSize = 2048;
 
     enum MemSmoId
