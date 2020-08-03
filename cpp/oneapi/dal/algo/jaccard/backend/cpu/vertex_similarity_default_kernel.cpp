@@ -247,7 +247,6 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
     }
 
     while (i_u <= (n_u - 4) && i_v <= (n_v - 4)) { // not in last n%8 elements
-
         NodeID_t maxu = neigh_u[i_u + 3]; // assumes neighbor list is ordered
         NodeID_t minu = neigh_u[i_u];
         NodeID_t maxv = neigh_v[i_v + 3];
@@ -432,7 +431,6 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
     }
 
     while (i_u <= (n_u - 4) && i_v <= (n_v - 4)) { // not in last n%8 elements
-
         NodeID_t maxu = neigh_u[i_u + 3]; // assumes neighbor list is ordered
         NodeID_t minu = neigh_u[i_u];
         NodeID_t maxv = neigh_v[i_v + 3];

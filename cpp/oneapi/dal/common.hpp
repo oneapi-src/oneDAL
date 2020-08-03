@@ -17,6 +17,7 @@
 #pragma once
 
 #include <cstdint>
+#include <utility>
 
 #if defined(_WIN32) || defined(_WIN64)
     #ifdef __ONEAPI_DAL_ENABLE_DLL_EXPORT__
