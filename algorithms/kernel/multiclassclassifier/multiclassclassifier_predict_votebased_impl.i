@@ -76,7 +76,7 @@ public:
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < _nClasses * nRows; i++)
+        for (size_t i = 0; i < _nClasses * nRows; ++i)
         {
             votes[i] = 0;
         }
@@ -89,9 +89,9 @@ public:
             if (nRows != _yTable->getNumberOfRows()) _yTable->resize(nRows);
 
             /* TODO: Try threading here */
-            for (size_t iClass = 1, imodel = 0; iClass < _nClasses; iClass++)
+            for (size_t iClass = 1, imodel = 0; iClass < _nClasses; ++iClass)
             {
-                for (size_t jClass = 0; jClass < iClass; jClass++, imodel++)
+                for (size_t jClass = 0; jClass < iClass; ++jClass, ++imodel)
                 {
                     /* Compute two-class predictions for the pair of classes (iClass, jClass)
                        for the block of input observations */
@@ -106,7 +106,7 @@ public:
                     /* Compute votes for the block of input observations */
                     PRAGMA_IVDEP
                     PRAGMA_VECTOR_ALWAYS
-                    for (size_t i = 0; i < nRows; i++)
+                    for (size_t i = 0; i < nRows; ++i)
                     {
                         if (y[i] >= 0)
                             votes[i * _nClasses + iClass]++;
@@ -214,7 +214,7 @@ public:
     }
 
 protected:
-    Status getDataBlock(size_t startRow, size_t nRows, const NumericTable * a, NumericTablePtr & xTable)
+    Status getDataBlock(size_t startRow, size_t nRows, const NumericTable * a, NumericTablePtr & xTable) DAAL_C11_OVERRIDE
     {
         _xRows.set(const_cast<NumericTable *>(a), startRow, nRows);
         DAAL_CHECK_BLOCK_STATUS(_xRows);
@@ -257,13 +257,17 @@ public:
     }
 
 protected:
-    Status getDataBlock(size_t startRow, size_t nRows, const NumericTable * a, NumericTablePtr & xTable)
+    Status getDataBlock(size_t startRow, size_t nRows, const NumericTable * a, NumericTablePtr & xTable) DAAL_C11_OVERRIDE
     {
-        _xRows.set(dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(a)), startRow, nRows);
+        const bool toOneBaseRowIndices = true;
+        _xRows.set(dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(a)), startRow, nRows, toOneBaseRowIndices);
         DAAL_CHECK_BLOCK_STATUS(_xRows);
+
+        algorithmFPType * const values = const_cast<algorithmFPType *>(_xRows.values());
+        size_t * const cols            = const_cast<size_t *>(_xRows.cols());
+        size_t * const rows            = const_cast<size_t *>(_xRows.rows());
         Status s;
-        xTable = CSRNumericTable::create(const_cast<algorithmFPType *>(_xRows.values()), _xRows.rows(), _xRows.cols(), a->getNumberOfColumns(), nRows,
-                                         CSRNumericTableIface::oneBased, &s);
+        xTable = CSRNumericTable::create(values, cols, rows, a->getNumberOfColumns(), nRows, CSRNumericTableIface::oneBased, &s);
         return s;
     }
 
@@ -271,6 +275,7 @@ private:
     SubTaskVoteBasedCSR(size_t nClasses, size_t nRows, const SharedPtr<ClsType> & simplePrediction, bool & valid)
         : super(nClasses, nRows, simplePrediction, valid)
     {}
+
     ReadRowsCSR<algorithmFPType, cpu> _xRows;
 };
 
