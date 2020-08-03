@@ -28,6 +28,7 @@ namespace internal
 {
 namespace math
 {
+    
 DAAL_ITTNOTIFY_DOMAIN(daal.oneapi.internal.math.Reducer);
 
 services::Status Reducer::buildProgram(ClKernelFactoryIface & kernelFactory, const BinaryOp op, const TypeId & vectorTypeId)

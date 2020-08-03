@@ -16,20 +16,12 @@
 *******************************************************************************/
 
 #include "src/sycl/dpcpp_reducer.h"
-#include "services/env_detect.h"
-#include "src/externals/service_ittnotify.h"
+#include <CL/sycl.hpp>
 
 #include <cfloat>
 
 namespace daal
 {
-namespace oneapi
-{
-namespace internal
-{
-namespace math
-{
-DAAL_ITTNOTIFY_DOMAIN(daal.oneapi.internal.math.Reducer);
 
 namespace impl
 {
@@ -138,9 +130,11 @@ namespace impl
             cl::sycl::accessor<algorithmFPType, 1, cl::sycl::access::mode::read, cl::sycl::access::target::global_buffer> vectors;
             cl::sycl::accessor<algorithmFPType, 1, cl::sycl::access::mode::write, cl::sycl::access::target::global_buffer> reduces;
             cl::sycl::accessor<algorithmFPType, 1, cl::sycl::access::mode::read_write, cl::sycl::access::target::local> partialReduces;
-    }
+    };
 
-    template struct ReduceSinglepass<float>;
-    template struct ReduceSinglePass<double>;
+    template struct ReduceSinglepassKernel<float>;
+    template struct ReduceSinglePassKernel<double>;
+}
+
 }
 
