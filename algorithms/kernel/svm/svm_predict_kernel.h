@@ -30,7 +30,6 @@
 #include "algorithms/svm/svm_predict_types.h"
 #include "algorithms/kernel/kernel.h"
 
-
 namespace daal
 {
 namespace algorithms
