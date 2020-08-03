@@ -150,20 +150,13 @@ protected:
 
     NumericTablePtr getBlockNTData(const size_t startRow, const size_t nRows, services::Status & status) override
     {
-        _xBlock.set(dynamic_cast<CSRNumericTableIface *>(Super::_xTable.get()), startRow, nRows);
+        const bool toOneBaseRowIndices = true;
+        _xBlock.set(dynamic_cast<CSRNumericTableIface *>(Super::_xTable.get()), startRow, nRows, toOneBaseRowIndices);
         algorithmFPType * const values = const_cast<algorithmFPType *>(_xBlock.values());
         size_t * const cols            = const_cast<size_t *>(_xBlock.cols());
-        const size_t * const rows      = _xBlock.rows();
-        if (!values || !cols || !rows) status |= services::Status(services::ErrorMemoryAllocationFailed);
-        _rowOffsets[0] = 1;
-        for (size_t i = 0; i < nRows; i++)
-        {
-            const size_t nNonZeroValuesInRow = rows[i + 1] - rows[i];
-            _rowOffsets[i + 1]               = _rowOffsets[i] + nNonZeroValuesInRow;
-        }
+        size_t * const rows            = const_cast<size_t *>(_xBlock.rows());
 
-        return CSRNumericTable::create(values, cols, _rowOffsets.get(), Super::_nFeatures, nRows, CSRNumericTableIface::CSRIndexing::oneBased,
-                                       &status);
+        return CSRNumericTable::create(values, cols, rows, Super::_nFeatures, nRows, CSRNumericTableIface::CSRIndexing::oneBased, &status);
     }
 
 private:
