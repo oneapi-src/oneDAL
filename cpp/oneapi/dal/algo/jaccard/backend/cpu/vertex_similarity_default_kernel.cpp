@@ -17,7 +17,6 @@
 #include <iostream>
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
-#include "oneapi/dal/backend/interop/intersection.hpp"
 #include "oneapi/dal/data/graph.hpp"
 
 namespace oneapi::dal::preview {
@@ -57,22 +56,7 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
             i_u += 16;
         __mmask16 match = _mm512_cmpeq_epi32_mask(v_u, v_v);
         if (_mm512_mask2int(match) != 0xffff) { // shortcut case where all neighbors match
-            __m512i circ1  = _mm512_set_epi32(0,
-                                             15,
-                                             14,
-                                             13,
-                                             12,
-                                             11,
-                                             10,
-                                             9,
-                                             8,
-                                             7,
-                                             6,
-                                             5,
-                                             4,
-                                             3,
-                                             2,
-                                             1); // all possible circular shifts for 16 elements
+            __m512i circ1  = _mm512_set_epi32(0, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1);
             __m512i circ2  = _mm512_set_epi32(1, 0, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2);
             __m512i circ3  = _mm512_set_epi32(2, 1, 0, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3);
             __m512i circ4  = _mm512_set_epi32(3, 2, 1, 0, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4);
@@ -184,14 +168,7 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
 
         __mmask8 match = _mm256_cmpeq_epi32_mask(v_u, v_v);
         if (_cvtmask8_u32(match) != 0xff) { // shortcut case where all neighbors match
-            __m256i circ1 = _mm256_set_epi32(0,
-                                             7,
-                                             6,
-                                             5,
-                                             4,
-                                             3,
-                                             2,
-                                             1); // all possible circular shifts for 16 elements
+            __m256i circ1 = _mm256_set_epi32(0, 7, 6, 5, 4, 3, 2, 1); 
             __m256i circ2 = _mm256_set_epi32(1, 0, 7, 6, 5, 4, 3, 2);
             __m256i circ3 = _mm256_set_epi32(2, 1, 0, 7, 6, 5, 4, 3);
             __m256i circ4 = _mm256_set_epi32(3, 2, 1, 0, 7, 6, 5, 4);
@@ -351,14 +328,7 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
         unsigned int scalar_match = _mm256_movemask_ps(reinterpret_cast<__m256>(match));
 
         if (scalar_match != 255) { // shortcut case where all neighbors match
-            __m256i circ1 = _mm256_set_epi32(0,
-                                             7,
-                                             6,
-                                             5,
-                                             4,
-                                             3,
-                                             2,
-                                             1); // all possible circular shifts for 16 elements
+            __m256i circ1 = _mm256_set_epi32(0, 7, 6, 5, 4, 3, 2, 1);
             __m256i circ2 = _mm256_set_epi32(1, 0, 7, 6, 5, 4, 3, 2);
             __m256i circ3 = _mm256_set_epi32(2, 1, 0, 7, 6, 5, 4, 3);
             __m256i circ4 = _mm256_set_epi32(3, 2, 1, 0, 7, 6, 5, 4);
