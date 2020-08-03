@@ -66,3 +66,12 @@ public:
 };
 
 } // namespace oneapi::dal
+
+namespace oneapi::dal::preview {
+
+struct empty_value {};
+
+template <typename T>
+using range = std::pair<T, T>;
+
+} // namespace oneapi::dal::preview
