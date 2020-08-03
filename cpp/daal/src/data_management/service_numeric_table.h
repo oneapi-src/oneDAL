@@ -506,6 +506,13 @@ private:
     bool _toReleaseFlag;
 };
 
+using daal::services::internal::TArray;
+using daal::services::internal::TArrayCalloc;
+using daal::services::internal::TArrayScalable;
+using daal::services::internal::TArrayScalableCalloc;
+
+using daal::services::internal::TNArray;
+
 template <typename algorithmFPType, CpuType cpu, typename NumericTableType = NumericTable>
 using ReadRows = GetRows<algorithmFPType, const algorithmFPType, cpu, readOnly, NumericTableType>;
 
@@ -519,26 +526,32 @@ template <typename algorithmFPType, typename algorithmFPAccessType, CpuType cpu,
 class GetRowsCSR
 {
 public:
-    GetRowsCSR(CSRNumericTableIface & data, size_t iStartFrom, size_t nRows) : _data(&data) { getBlock(iStartFrom, nRows); }
-    GetRowsCSR(CSRNumericTableIface * data, size_t iStartFrom, size_t nRows) : _data(data), _toReleaseFlag(false)
+    GetRowsCSR(CSRNumericTableIface & data, size_t iStartFrom, size_t nRows, bool toOneBaseRowIndices = false)
+        : _data(&data), _toReleaseFlag(false), _toOneBaseRowIndices(toOneBaseRowIndices)
+    {
+        getBlock(iStartFrom, nRows);
+    }
+    GetRowsCSR(CSRNumericTableIface * data, size_t iStartFrom, size_t nRows, bool toOneBaseRowIndices = false)
+        : _data(data), _toReleaseFlag(false), _toOneBaseRowIndices(toOneBaseRowIndices)
     {
         if (_data)
         {
             getBlock(iStartFrom, nRows);
         }
     }
-    GetRowsCSR(CSRNumericTableIface * data = nullptr) : _data(data), _toReleaseFlag(false) {}
+    GetRowsCSR(CSRNumericTableIface * data = nullptr) : _data(data), _toReleaseFlag(false), _toOneBaseRowIndices(false) {}
     ~GetRowsCSR() { release(); }
 
     const algorithmFPAccessType * values() const { return _data ? _block.getBlockValuesPtr() : nullptr; }
     const size_t * cols() const { return _data ? _block.getBlockColumnIndicesPtr() : nullptr; }
-    const size_t * rows() const { return _data ? _block.getBlockRowIndicesPtr() : nullptr; }
+    const size_t * rows() const { return _data ? _toOneBaseRowIndices ? _rowOffsets.get() : _block.getBlockRowIndicesPtr() : nullptr; }
     algorithmFPAccessType * values() { return _data ? _block.getBlockValuesPtr() : nullptr; }
     size_t * cols() { return _data ? _block.getBlockColumnIndicesPtr() : nullptr; }
-    size_t * rows() { return _data ? _block.getBlockRowIndicesPtr() : nullptr; }
+    size_t * rows() { return _data ? _toOneBaseRowIndices ? _rowOffsets.get() : _block.getBlockRowIndicesPtr() : nullptr; }
 
-    void next(size_t iStartFrom, size_t nRows)
+    void next(size_t iStartFrom, size_t nRows, const bool toOneBaseRowIndices = false)
     {
+        _toOneBaseRowIndices = toOneBaseRowIndices;
         if (_data)
         {
             if (_toReleaseFlag)
@@ -548,8 +561,9 @@ public:
             getBlock(iStartFrom, nRows);
         }
     }
-    void set(CSRNumericTableIface * data, size_t iStartFrom, size_t nRows)
+    void set(CSRNumericTableIface * data, size_t iStartFrom, size_t nRows, const bool toOneBaseRowIndices = false)
     {
+        _toOneBaseRowIndices = toOneBaseRowIndices;
         release();
         if (data)
         {
@@ -557,6 +571,7 @@ public:
             getBlock(iStartFrom, nRows);
         }
     }
+
     void release()
     {
         if (_toReleaseFlag)
@@ -576,12 +591,29 @@ private:
     {
         _status        = _data->getSparseBlock(iStartFrom, nRows, mode, _block);
         _toReleaseFlag = _status.ok();
+
+        if (_toOneBaseRowIndices)
+        {
+            if (_rowOffsets.size() < nRows + 1)
+            {
+                _rowOffsets.reset(nRows + 1);
+            }
+            const size_t * const rows = _block.getBlockRowIndicesPtr();
+            _rowOffsets[0]            = 1;
+            for (size_t i = 0; i < nRows; ++i)
+            {
+                const size_t nNonZeroValuesInRow = rows[i + 1] - rows[i];
+                _rowOffsets[i + 1]               = _rowOffsets[i] + nNonZeroValuesInRow;
+            }
+        }
     }
 
 private:
     CSRNumericTableIface * _data;
     CSRBlockDescriptor<algorithmFPType> _block;
+    TArray<size_t, cpu> _rowOffsets;
     services::Status _status;
+    bool _toOneBaseRowIndices;
     bool _toReleaseFlag;
 };
 
@@ -722,13 +754,6 @@ using WritePacked = GetPacked<algorithmFPType, algorithmFPType, cpu, readWrite, 
 
 template <typename algorithmFPType, CpuType cpu, typename NumericTableType = NumericTable>
 using WriteOnlyPacked = GetPacked<algorithmFPType, algorithmFPType, cpu, writeOnly, NumericTableType>;
-
-using daal::services::internal::TArray;
-using daal::services::internal::TArrayCalloc;
-using daal::services::internal::TArrayScalable;
-using daal::services::internal::TArrayScalableCalloc;
-
-using daal::services::internal::TNArray;
 
 template <typename algorithmFPType>
 services::Status createSparseTable(const NumericTablePtr & inputTable, CSRNumericTablePtr & resTable);
