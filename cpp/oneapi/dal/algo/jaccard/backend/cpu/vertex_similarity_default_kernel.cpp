@@ -168,7 +168,7 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
 
         __mmask8 match = _mm256_cmpeq_epi32_mask(v_u, v_v);
         if (_cvtmask8_u32(match) != 0xff) { // shortcut case where all neighbors match
-            __m256i circ1 = _mm256_set_epi32(0, 7, 6, 5, 4, 3, 2, 1); 
+            __m256i circ1 = _mm256_set_epi32(0, 7, 6, 5, 4, 3, 2, 1);
             __m256i circ2 = _mm256_set_epi32(1, 0, 7, 6, 5, 4, 3, 2);
             __m256i circ3 = _mm256_set_epi32(2, 1, 0, 7, 6, 5, 4, 3);
             __m256i circ4 = _mm256_set_epi32(3, 2, 1, 0, 7, 6, 5, 4);
