@@ -269,6 +269,9 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                     tools.cc,
                     "-pass-exit-codes",
                 ) +
+                (
+                    [ "-no-cilk", "-static-intel", ] if reqs.compiler_id == "icc" else []
+                ) +
                 bin_search_flag_cc + link_opts
             ),
             "%{link_flags_dpcc}": get_starlark_list(
@@ -330,7 +333,10 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                 ),
             ),
             "%{no_canonical_system_headers_flags_cc}": get_starlark_list(
-                get_no_canonical_prefixes_opt(repo_ctx, tools.cc)
+                # Probably bug: Intel Compiler links OpenMP runtime if
+                # -fno-canonical-system-headers is provided
+                (get_no_canonical_prefixes_opt(repo_ctx, tools.cc)
+                 if reqs.compiler_id != "icc" else [])
             ),
             "%{no_canonical_system_headers_flags_dpcc}": get_starlark_list(
                 get_no_canonical_prefixes_opt(repo_ctx, tools.dpcc)
@@ -349,9 +355,9 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                 [
                     "-g",
 
-                    # Disable optimizations explicitly?
+                    # Disable optimizations explicitly
                     # Some compilers like Intel uses -O2 by default
-                    # "-O0",
+                    "-O0",
                 ]
             ),
             "%{supports_start_end_lib}": "False" if reqs.compiler_id == "icc" else "True",

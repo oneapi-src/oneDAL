@@ -4,6 +4,7 @@ load("@onedal//dev/bazel/config:config.bzl", "onedal_cpu_isa_extension_config")
 
 onedal_cpu_isa_extension_config(
     name = "cpu",
+    auto_cpu = "%{auto_cpu}",
     build_setting_default = "auto",
 )
 

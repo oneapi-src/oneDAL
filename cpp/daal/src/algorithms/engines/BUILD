@@ -9,4 +9,3 @@ daal_module(
         "@onedal//cpp/daal:core",
     ],
 )
-

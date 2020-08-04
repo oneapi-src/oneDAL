@@ -37,7 +37,14 @@ lnx_cc_flags = {
 def get_default_flags(arch_id, os_id, compiler_id, category="common"):
     _check_flag_category(category)
     if os_id == "lnx":
-        return lnx_cc_flags[category]
+        flags = lnx_cc_flags[category]
+        if compiler_id == "icc" and category == "common":
+            flags = flags + [
+                "-qopenmp-simd",
+                "-mGLOB_freestanding=TRUE",
+                "-mCG_no_libirc=TRUE",
+            ]
+        return flags
     fail("Unsupported OS")
 
 def get_cpu_flags(arch_id, os_id, compiler_id):

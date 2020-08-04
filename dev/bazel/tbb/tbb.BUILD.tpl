@@ -1,5 +1,4 @@
 package(default_visibility = ["//visibility:public"])
-# load("@onedal//dev/bazel:cc.bzl", "cc_module")
 
 cc_library(
     name = "headers",

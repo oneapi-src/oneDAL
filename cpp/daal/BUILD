@@ -55,6 +55,9 @@ daal_module(
     srcs = glob(["src/threading/**/*.cpp"]),
     local_defines = [
         "__DO_TBB_LAYER__",
+        "__TBB_NO_IMPLICIT_LINKAGE",
+        "__TBB_LEGACY_MODE",
+        "TBB_SUPPRESS_DEPRECATED_MESSAGES",
         "TBB_USE_ASSERT=0",
     ],
     deps = [
@@ -62,7 +65,6 @@ daal_module(
         "@tbb//:tbb",
         "@tbb//:tbbmalloc",
         "@micromkl//:mkl_thr",
-        "@micromkl//:mkl_seq",
     ],
 )
 
@@ -100,7 +102,6 @@ daal_module(
 
 daal_module(
     name = "sycl",
-    lib_tag = "daal_core",
     hdrs = glob(["src/sycl/**/*.h", "src/sycl/**/*.cl"]),
     srcs = glob(["src/sycl/**/*.cpp"]),
     deps = [
@@ -133,7 +134,8 @@ daal_static_lib(
     deps = [
         ":core",
         ":core_sycl",
-        "@onedal//cpp/daal/src/algorithms/kmeans",
+        "@onedal//cpp/daal/src/algorithms/kmeans:kmeans",
+        "@onedal//cpp/daal/src/algorithms/kmeans:kmeans_init",
     ],
 )
 
