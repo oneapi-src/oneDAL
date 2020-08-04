@@ -2,6 +2,8 @@ package(default_visibility = ["//visibility:public"])
 load("@onedal//dev/bazel:daal.bzl",
     "daal_module",
     "daal_static_lib",
+    "daal_generate_version",
+    "daal_generate_kernel_defines",
 )
 
 daal_module(
@@ -18,13 +20,26 @@ daal_module(
     ],
 )
 
+daal_generate_version(
+    name = "version",
+    out = "_daal_version_gen.h",
+)
+
+daal_generate_kernel_defines(
+    name = "kernel_defines",
+    out = "_daal_kernel_defines_gen.h",
+)
+
 daal_module(
     name = "service_headers",
     hdrs = glob([
         "src/services/**/*.h",
         "src/externals/**/*.h",
         "src/algorithms/service_*.h",
-    ]),
+    ]) + [
+        ":version",
+        ":kernel_defines",
+    ],
     deps = [
         "@onedal//cpp/daal:includes",
     ],
@@ -77,7 +92,6 @@ daal_module(
     deps = [
         ":service_headers",
         ":threading_headers",
-        "@config//:daal_version_data",
         "@micromkl//:vml_ipp",
     ],
 )

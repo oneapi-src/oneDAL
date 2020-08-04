@@ -17,7 +17,7 @@
 #define _USING_V110_SDK71_ 1
 
 #include "winresrc.h"
-#include "_daal_version.h"
+#include "daal_version.h"
 
 #if   defined(_DAAL_JAVA_INTERF)
   #define FILE_COMMENT "Analitics algorithms for Java*.\0"

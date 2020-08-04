@@ -4,7 +4,7 @@ load("@onedal//dev/bazel:utils.bzl",
     "sets",
 )
 load("@onedal//dev/bazel/config:config.bzl",
-    "CpuVectorInstructionsProvider"
+    "CpuInfo"
 )
 
 ModuleInfo = provider(
@@ -119,7 +119,7 @@ def _compile(name, ctx, toolchain, feature_config,
 
 def _compile_all(name, ctx, toolchain, feature_config, dep_compilation_contexts):
     fpts = ctx.attr._fpts
-    cpus = ctx.attr._cpus[CpuVectorInstructionsProvider].isa_extensions[:]
+    cpus = ctx.attr._cpus[CpuInfo].isa_extensions[:]
     if ctx.attr.disable_mic and "avx512_mic" in cpus:
         cpus.remove("avx512_mic")
 

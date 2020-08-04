@@ -3,6 +3,12 @@ load("@onedal//dev/bazel:cc.bzl",
     "cc_static_lib",
     "cc_executable",
 )
+load("@onedal//dev/bazel:utils.bzl",
+    "sets",
+)
+load("@onedal//dev/bazel/config:config.bzl",
+    "CpuInfo",
+)
 
 def dal_module(name, features=[], hdrs=[], srcs=[],
                host=True, dpc=False, auto=False, **kwargs):
@@ -81,19 +87,6 @@ def dal_algo_shortcuts(*algos):
             deps = [ "@onedal//cpp/oneapi/dal/algo/{0}:{0}_dpc".format(algo) ],
         )
 
-def dal_cpu_dispatcher(name, src, out):
-    _patch_cpu_dispatcher(
-        name = name + "_patch",
-        src = src,
-        out = out,
-    )
-    _dal_module(
-        name = name,
-        hdrs = [
-            ":" + name + "_patch"
-        ]
-    )
-
 def _dal_module(name, lib_tag="dal", features=[], **kwargs):
     cc_module(
         name = name,
@@ -103,26 +96,31 @@ def _dal_module(name, lib_tag="dal", features=[], **kwargs):
         **kwargs,
     )
 
-def _patch_cpu_dispatcher_impl(ctx):
-    # TODO: Patch source file
-    patched_file = ctx.actions.declare_file(ctx.attr.out)
-    ctx.actions.run(
-        outputs = [ patched_file ],
-        inputs = [ ctx.file.src ],
-        executable = "cp",
-        arguments = [ ctx.file.src.path, patched_file.path ]
+def _dal_generate_cpu_dispatcher_impl(ctx):
+    cpus = sets.make(ctx.attr._cpus[CpuInfo].isa_extensions)
+    content = (
+        "// DO NOT EDIT: file is auto-generated on build time\n" +
+        "// DO NOT PUT THIS FILE TO SVC: file is auto-generated on build time\n" +
+        "// CPU detection logic specified in dev/bazel/config.bzl file\n" +
+        "\n" +
+        ("#define ONEDAL_CPU_DISPATCH_SSSE3\n"      if sets.contains(cpus, "ssse3")      else "") +
+        ("#define ONEDAL_CPU_DISPATCH_SSE42\n"      if sets.contains(cpus, "sse42")      else "") +
+        ("#define ONEDAL_CPU_DISPATCH_AVX\n"        if sets.contains(cpus, "avx")        else "") +
+        ("#define ONEDAL_CPU_DISPATCH_AVX2\n"       if sets.contains(cpus, "avx2")       else "") +
+        ("#define ONEDAL_CPU_DISPATCH_AVX512_MIC\n" if sets.contains(cpus, "avx512_mic") else "") +
+        ("#define ONEDAL_CPU_DISPATCH_AVX512\n"     if sets.contains(cpus, "avx512")     else "")
     )
-    return [
-        DefaultInfo(
-            files = depset([ patched_file ])
-        )
-    ]
+    kernel_defines = ctx.actions.declare_file(ctx.attr.out)
+    ctx.actions.write(kernel_defines, content)
+    return [ DefaultInfo(files=depset([ kernel_defines ])) ]
 
-_patch_cpu_dispatcher = rule(
-    implementation = _patch_cpu_dispatcher_impl,
+dal_generate_cpu_dispatcher = rule(
+    implementation = _dal_generate_cpu_dispatcher_impl,
     output_to_genfiles = True,
     attrs = {
-        "src": attr.label(allow_single_file=True, mandatory=True),
         "out": attr.string(mandatory=True),
+        "_cpus": attr.label(
+            default = "@config//:cpu",
+        ),
     },
 )

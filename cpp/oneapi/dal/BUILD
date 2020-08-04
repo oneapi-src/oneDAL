@@ -2,22 +2,23 @@ package(default_visibility = ["//visibility:public"])
 load("@onedal//dev/bazel:dal.bzl",
     "dal_module",
     "dal_static_lib",
-    "dal_cpu_dispatcher"
+    "dal_generate_cpu_dispatcher"
 )
 
-dal_cpu_dispatcher(
-    name = "cpu-dispatcher",
-    src = "backend/dispatcher_cpu.hpp",
-    out = "_patched_dispatcher_cpu.hpp",
+dal_generate_cpu_dispatcher(
+    name = "cpu_dispatcher",
+    out = "_dal_cpu_dispatcher_gen.hpp",
 )
 
 dal_module(
     name = "common",
     dpc = True,
     auto = True,
-    includes = [ "../.." ],
+    includes = [ ".", "../.." ],
+    hdrs = [
+        ":cpu_dispatcher",
+    ],
     deps = [
-        ":cpu-dispatcher",
         "@onedal//cpp/daal:services",
     ],
 )

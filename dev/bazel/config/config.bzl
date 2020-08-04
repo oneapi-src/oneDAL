@@ -1,7 +1,18 @@
 load("@onedal//dev/bazel:utils.bzl", "utils", "sets")
 
-CpuVectorInstructionsProvider = provider(
+CpuInfo = provider(
     fields = ["isa_extensions"]
+)
+
+VersionInfo = provider(
+    fields = [
+        "major",
+        "minor",
+        "update",
+        "build",
+        "buildrev",
+        "status",
+    ]
 )
 
 _ISA_EXTENSIONS = ["sse2", "ssse3", "sse42", "avx", "avx2", "avx512", "avx512_mic"]
@@ -16,7 +27,8 @@ def _check_cpu_extensions(extensions):
         fail("Unsupported CPU extensions: {}\n".format(unsupported) +
              "Allowed extensions: {}".format(_ISA_EXTENSIONS))
 
-def _onedal_cpu_isa_extension_config_impl(ctx):
+
+def _cpu_info_impl(ctx):
     if ctx.build_setting_value == "all":
         isa_extensions = _ISA_EXTENSIONS
     elif ctx.build_setting_value == "modern":
@@ -28,48 +40,41 @@ def _onedal_cpu_isa_extension_config_impl(ctx):
         isa_extensions = [x.strip() for x in isa_extensions]
     isa_extensions = utils.unique(["sse2"] + isa_extensions)
     _check_cpu_extensions(isa_extensions)
-    return CpuVectorInstructionsProvider(
+    return CpuInfo(
         isa_extensions = isa_extensions
     )
 
-onedal_cpu_isa_extension_config = rule(
-    implementation = _onedal_cpu_isa_extension_config_impl,
+cpu_info = rule(
+    implementation = _cpu_info_impl,
     build_setting = config.string(flag = True),
     attrs = {
         "auto_cpu": attr.string(mandatory=True),
     },
 )
 
-def _version_info(repo_ctx):
-    # TODO: Read version information from file
-    return dict(
-        major    = "2021",
-        minor    = "1",
-        update   = "8",
-        build    = utils.datestamp(repo_ctx),
-        buildrev = "work",
-        status   = "B",
-    )
+def _version_info_impl(ctx):
+    return [
+        VersionInfo(
+            major    = ctx.attr.major,
+            minor    = ctx.attr.minor,
+            update   = ctx.attr.update,
+            build    = ctx.attr.build,
+            buildrev = ctx.attr.buildrev,
+            status   = ctx.attr.status,
+        )
+    ]
 
-def _generate_daal_version_data(repo_ctx):
-    repo_ctx.report_progress("Generate DAAL version header")
-    content = (
-        "// DO NOT EDIT: file is auto-generated on build time\n" +
-        "// DO NOT PUT THIS FILE TO SVN: file is auto-generated on build time\n" +
-        "// Product version is specified in src/makefile.ver file\n" +
-        "#define MAJORVERSION {major}\n" +
-        "#define MINORVERSION {minor}\n" +
-        "#define UPDATEVERSION {update}\n" +
-        "#define BUILD \"{build}\"\n" +
-        "#define BUILD_REV \"{buildrev}\"\n" +
-        "#define PRODUCT_STATUS '{status}'\n"
-    )
-    version_info = _version_info(repo_ctx)
-    repo_ctx.file(
-        "_daal_version_data.h",
-        executable = False,
-        content = content.format(**version_info),
-    )
+version_info = rule(
+    implementation = _version_info_impl,
+    attrs = {
+        "major": attr.string(mandatory=True),
+        "minor": attr.string(mandatory=True),
+        "update": attr.string(mandatory=True),
+        "build": attr.string(mandatory=True),
+        "buildrev": attr.string(mandatory=True),
+        "status": attr.string(mandatory=True),
+    },
+)
 
 def _detect_cpu_extension(repo_ctx):
     cpudetect_src = repo_ctx.path(repo_ctx.attr._cpudetect_src)
@@ -94,12 +99,17 @@ def _detect_cpu_extension(repo_ctx):
     return cpudetect_result.stdout.strip()
 
 def _declare_onedal_config_impl(repo_ctx):
-    _generate_daal_version_data(repo_ctx)
     repo_ctx.template(
         "BUILD",
         Label("@onedal//dev/bazel/config:BUILD.tpl"),
         substitutions = {
             "%{auto_cpu}": _detect_cpu_extension(repo_ctx),
+            "%{version_major}":    "2021",
+            "%{version_minor}":    "1",
+            "%{version_update}":   "8",
+            "%{version_build}":    utils.datestamp(repo_ctx),
+            "%{version_buildrev}": "work",
+            "%{version_status}":   "B",
         },
     )
 

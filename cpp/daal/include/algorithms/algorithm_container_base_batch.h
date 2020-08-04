@@ -25,7 +25,7 @@
 #define __ALGORITHM_CONTAINER_BASE_BATCH_H__
 
 #include "services/daal_memory.h"
-#include "services/daal_kernel_defines.h"
+#include "src/services/daal_kernel_defines.h"
 #include "services/internal/gpu_support_checker.h"
 
 namespace daal

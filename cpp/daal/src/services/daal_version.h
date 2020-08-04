@@ -1,4 +1,4 @@
-/* file: _daal_version.h */
+/* file: daal_version.h */
 /*******************************************************************************
 * Copyright 2015-2020 Intel Corporation
 *
@@ -18,7 +18,7 @@
 #ifndef ___DAAL_VERSION_H__
 #define ___DAAL_VERSION_H__
 
-#include "_daal_version_data.h"
+#include "_daal_version_gen.h"
 
 #if PRODUCT_STATUS == 'A'
     #define PRODUCTSTATUS          "alpha"
