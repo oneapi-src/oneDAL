@@ -316,7 +316,7 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
             reinterpret_cast<const __m256i *>(neigh_u + i_u)); // load 8 neighbors of u
         __m256i v_v = _mm256_loadu_si256(
             reinterpret_cast<const __m256i *>(neigh_v + i_v)); // load 8 neighbors of v
-            //_mm256_cvtsi256_si32     _mm_loadu_si128
+        //_mm256_cvtsi256_si32     _mm_loadu_si128
 
         //_mm256_extract_epi32
         if (maxu >= maxv)
