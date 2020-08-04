@@ -57,7 +57,7 @@ public:
     {
         if (_distances)
         {
-            services::daal_free(_distances);
+            services::internal::service_free<FPType, cpu>(_distances);
         }
     }
 
@@ -69,7 +69,7 @@ public:
         const size_t nTrain = trainTable->getNumberOfRows();
         const size_t nTest  = testTable->getNumberOfRows();
 
-        const size_t outerBlockSize = 1024;
+        const size_t outerBlockSize = 32;
         const size_t nOuterBlocks   = nTest / outerBlockSize + !!(nTest % outerBlockSize);
 
         daal::threader_for(nOuterBlocks, nOuterBlocks, [&](size_t outerBlock) {
@@ -124,7 +124,7 @@ public:
         DAAL_CHECK_MALLOC(trainLabel);
         DAAL_CHECK_MALLOC(testLabel);
 
-        const size_t blockSize = 1024;
+        const size_t blockSize = 128;
         const size_t nBlocks   = nTest / blockSize + !!(nTest % blockSize);
 
         daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
