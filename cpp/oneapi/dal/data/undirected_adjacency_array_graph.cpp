@@ -89,10 +89,10 @@ template <typename G>
 auto get_vertex_neighbors_impl(const G &g, const vertex_type<G> &vertex)
     -> const_vertex_edge_range_type<G> {
     const auto &layout = detail::get_impl(g);
-    const_vertex_edge_iterator_type<G> vertex_neighbors_begin =
-        layout->_edges.begin() + layout->_vertexes[vertex];
-    const_vertex_edge_iterator_type<G> vertex_neighbors_end =
-        layout->_edges.begin() + layout->_vertexes[vertex + 1];
+    const_vertex_edge_iterator_type<G> vertex_neighbors_begin(
+        &layout->_edges[layout->_vertexes[vertex]]);
+    const_vertex_edge_iterator_type<G> vertex_neighbors_end(
+        &layout->_edges[layout->_vertexes[vertex + 1]]);
     auto neighbors_range = std::make_pair(vertex_neighbors_begin, vertex_neighbors_end);
     return neighbors_range;
 }
@@ -122,6 +122,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<G>> &edges, G &g) {
     auto layout    = detail::get_impl(g);
     using int_t    = typename G::vertex_size_type;
     using vertex_t = typename G::vertex_type;
+    using edge_t   = typename G::edge_type;
 
     layout->_vertex_count = 0;
     layout->_edge_count   = 0;
@@ -135,7 +136,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<G>> &edges, G &g) {
 
     layout->_vertex_count = max_id + 1;
     int_t *degrees        = (int_t *)malloc(layout->_vertex_count * sizeof(int_t));
-    for (int_t u = 0; u < layout->_vertex_count; ++u) {
+    for (std::int64_t u = 0; u < layout->_vertex_count; ++u) {
         degrees[u] = 0;
     }
 
@@ -144,19 +145,19 @@ void convert_to_csr_impl(const edge_list<vertex_type<G>> &edges, G &g) {
         degrees[edge.second]++;
     }
 
-    layout->_vertexes.resize(layout->_vertex_count + 1);
-    auto _rows              = layout->_vertexes.data();
+    layout->_vertexes       = array<vertex_t>::empty(layout->_vertex_count + 1);
+    auto _rows              = layout->_vertexes.get_mutable_data();
     int_t total_sum_degrees = 0;
     _rows[0]                = total_sum_degrees;
 
-    for (int_t i = 0; i < layout->_vertex_count; ++i) {
+    for (std::int64_t i = 0; i < layout->_vertex_count; ++i) {
         total_sum_degrees += degrees[i];
         _rows[i + 1] = total_sum_degrees;
     }
 
     free(degrees);
-    layout->_edges.resize(_rows[layout->_vertex_count] + 1);
-    auto _cols = layout->_edges.data();
+    layout->_edges = array<edge_t>::empty(_rows[layout->_vertex_count] + 1);
+    auto _cols     = layout->_edges.get_mutable_data();
     auto offests(layout->_vertexes);
 
     for (auto edge : edges) {
