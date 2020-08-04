@@ -30,8 +30,6 @@
 #include "algorithms/svm/svm_predict_types.h"
 #include "algorithms/kernel/kernel.h"
 
-using namespace daal::data_management;
-
 namespace daal
 {
 namespace algorithms
@@ -45,8 +43,8 @@ namespace internal
 template <Method method, typename algorithmFPType, CpuType cpu>
 struct SVMPredictImpl : public Kernel
 {
-    services::Status compute(const NumericTablePtr & xTable, const daal::algorithms::Model * m, NumericTable & r,
-                             const daal::algorithms::Parameter * par);
+    services::Status compute(const data_management::NumericTablePtr & xTable, Model * model, data_management::NumericTable & r,
+                             const svm::Parameter * par);
 };
 
 } // namespace internal

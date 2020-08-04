@@ -150,20 +150,13 @@ protected:
 
     NumericTablePtr getBlockNTData(const size_t startRow, const size_t nRows, services::Status & status) override
     {
-        _xBlock.set(dynamic_cast<CSRNumericTableIface *>(Super::_xTable.get()), startRow, nRows);
+        const bool toOneBaseRowIndices = true;
+        _xBlock.set(dynamic_cast<CSRNumericTableIface *>(Super::_xTable.get()), startRow, nRows, toOneBaseRowIndices);
         algorithmFPType * const values = const_cast<algorithmFPType *>(_xBlock.values());
         size_t * const cols            = const_cast<size_t *>(_xBlock.cols());
-        const size_t * const rows      = _xBlock.rows();
-        if (!values || !cols || !rows) status |= services::Status(services::ErrorMemoryAllocationFailed);
-        _rowOffsets[0] = 1;
-        for (size_t i = 0; i < nRows; i++)
-        {
-            const size_t nNonZeroValuesInRow = rows[i + 1] - rows[i];
-            _rowOffsets[i + 1]               = _rowOffsets[i] + nNonZeroValuesInRow;
-        }
+        size_t * const rows            = const_cast<size_t *>(_xBlock.rows());
 
-        return CSRNumericTable::create(values, cols, _rowOffsets.get(), Super::_nFeatures, nRows, CSRNumericTableIface::CSRIndexing::oneBased,
-                                       &status);
+        return CSRNumericTable::create(values, cols, rows, Super::_nFeatures, nRows, CSRNumericTableIface::CSRIndexing::oneBased, &status);
     }
 
 private:
@@ -174,24 +167,14 @@ private:
 template <typename algorithmFPType, CpuType cpu>
 struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
 {
-    services::Status compute(const NumericTablePtr & xTable, const daal::algorithms::Model * m, NumericTable & r,
-                             const daal::algorithms::Parameter * par)
+    services::Status compute(const NumericTablePtr & xTable, Model * model, NumericTable & r, const svm::Parameter * par)
     {
         const size_t nVectors = xTable->getNumberOfRows();
         WriteOnlyColumns<algorithmFPType, cpu> mtR(r, 0, 0, nVectors);
         DAAL_CHECK_BLOCK_STATUS(mtR);
         algorithmFPType * const distance = mtR.get();
 
-        Model * model = static_cast<Model *>(const_cast<daal::algorithms::Model *>(m));
-        kernel_function::KernelIfacePtr kernel;
-        {
-            svm::interface1::Parameter * parameter = dynamic_cast<svm::interface1::Parameter *>(const_cast<daal::algorithms::Parameter *>(par));
-            if (parameter) kernel = parameter->kernel->clone();
-        }
-        {
-            svm::interface2::Parameter * parameter = dynamic_cast<svm::interface2::Parameter *>(const_cast<daal::algorithms::Parameter *>(par));
-            if (parameter) kernel = parameter->kernel->clone();
-        }
+        kernel_function::KernelIfacePtr kernel = par->kernel->clone();
         DAAL_CHECK(kernel, ErrorNullParameterNotSupported);
 
         NumericTablePtr svCoeffTable = model->getClassificationCoefficients();
