@@ -582,9 +582,10 @@ namespace oneapi::dal::preview {
     const auto column_end = desc.get_column_end();
     const auto number_elements_in_block =
         (row_end - row_begin) * (column_end - column_begin);
-    array<float> jaccard(number_elements_in_block);
-    array<std::pair<std::uint32_t, std::uint32_t>> vertex_pairs(
-        number_elements_in_block);
+    array<float> jaccard = array<float>::empty(number_elements_in_block);
+    array<std::pair<std::uint32_t, std::uint32_t>> vertex_pairs = 
+        array<std::pair<std::uint32_t, std::uint32_t>>::empty
+        (number_elements_in_block);
     size_t nnz = 0;
     for (auto i = row_begin; i < row_end; ++i) {
       const auto i_neighbor_size = get_vertex_degree(my_graph, i);
@@ -615,8 +616,8 @@ namespace oneapi::dal::preview {
         nnz++;
       }
     }
-    jaccard.resize(nnz);
-    vertex_pairs.resize(nnz);
+    jaccard.reset(nnz);
+    vertex_pairs.reset(nnz);
     similarity_result res(jaccard, vertex_pairs);
 
     std::cout << "Jaccard block kernel ended" << std::endl;
