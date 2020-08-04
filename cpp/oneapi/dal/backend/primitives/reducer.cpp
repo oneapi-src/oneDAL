@@ -108,4 +108,56 @@ template struct l2_functor<double>;
 template struct linf_functor<float>;
 template struct linf_functor<double>;
 
+namespace impl {
+
+template<unary_operation UnOp, binary_operation BinOp, typename Float, bool RowMajorLayout = true>
+struct reducer_singlepass_kernel
+{
+    //Zero cost
+    constexpr unary_functor<BinOp> binary;
+    constexpr unary_functor<UnOp> unary;
+        
+    void operator() (cl::sycl::nd_item<2> idx) const {
+        const std::uint32_t local_size = idx.get_local_size(0);
+
+        std::uint32_t global_dim = 1;
+        std::uint32_t local_dim  = n_vectors;
+
+        if constexpr (RowMajorLayout) {
+            global_dim = vector_size;
+            local_dim  = 1;
+        }
+
+        const std::uint32_t item_id  = idx.get_local_id(0);
+        const std::uint32_t group_id = idx.get_global_id(1);
+
+        Float el                = vectors[group_id * global_dim + item_id * local_dim];
+        partial_reduces[item_id] = binary.init_value;
+
+        for(std::uint32_t i = item_id; i < vector_size; i += local_size) {
+            el                       = vectors[group_id * global_dim + i * local_dim];
+            partial_reduces[item_id] = binary(partialReduces[item_id], unary(el));
+        }
+
+        idx.barrier(cl::sycl::access::fence_space::local);
+
+        for(std::uint32_t stride = local_size / 2; stride > 1; stride /= 2) {
+            if(stride > item_id) {
+                partial_reduces[item_id] = binary(partial_reduces[item_id], partial_reduces[item_id + stride]);
+            }
+
+            idx.barrier(cl::sycl::access::fence_space::local);
+        }
+
+        if(item_id == 0) {
+            reduces[group_id] = binary(partial_reduces[item_id], partial_reduces[item_id + 1]);
+        }
+    }
+    protected:
+        std::uint32_t n_vectors, vector_size;
+        cl::sycl::accessor<algorithmFPType, 1, cl::sycl::access::mode::read, cl::sycl::access::target::global_buffer> vectors;
+        cl::sycl::accessor<algorithmFPType, 1, cl::sycl::access::mode::write, cl::sycl::access::target::global_buffer> reduces;
+        cl::sycl::accessor<algorithmFPType, 1, cl::sycl::access::mode::read_write, cl::sycl::access::target::local> partialReduces;
+    };
+
 } // oneapi::dal::backend::primitives
