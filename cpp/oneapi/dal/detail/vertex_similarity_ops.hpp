@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include "oneapi/dal/execution_context.hpp"
-
 namespace oneapi::dal::preview {
 namespace detail {
 
