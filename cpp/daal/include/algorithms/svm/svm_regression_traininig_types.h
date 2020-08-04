@@ -1,6 +1,6 @@
-/* file: svm_train_types.h */
+/* file: svm_regression_traininig_types.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,13 +21,13 @@
 //--
 */
 
-#ifndef __SVM_TRAIN_TYPES_H__
-#define __SVM_TRAIN_TYPES_H__
+#ifndef __SVM_CLASSIFICATION_TRAINING_TYPES_H__
+#define __SVM_CLASSIFICATION_TRAINING_TYPES_H__
 
 #include "algorithms/algorithm.h"
 #include "algorithms/kernel_function/kernel_function.h"
 #include "algorithms/svm/svm_model.h"
-#include "algorithms/classifier/classifier_training_types.h"
+#include "algorithms/regression/regression_training_types.h"
 
 namespace daal
 {
@@ -35,15 +35,6 @@ namespace algorithms
 {
 namespace svm
 {
-/**
- * @defgroup svm_training Training
- * \copydoc daal::algorithms::svm::training
- * @ingroup svm
- * @{
- */
-/**
- * \brief Contains classes to train the SVM model
- */
 namespace training
 {
 /**
@@ -52,11 +43,14 @@ namespace training
  */
 enum Method
 {
-    defaultDense = 0, /*!< Default method.                 */
-    boser        = 0, /*!< Method proposed by Boser et al. */
-    thunder      = 1  /*!< Method proposed by ThunderSVM. */
+    boser        = 0,       /*!< Method proposed by Boser et al. */
+    thunder      = 1        /*!< Method proposed by ThunderSVM. */
+    defaultDense = thunder, /*!< Default method.       */
 };
+} // namespace training
 
+namespace regression
+{
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -67,7 +61,7 @@ namespace interface1
  * \brief Provides methods to access final results obtained with the compute() method of the
  *        SVM training algorithm in the batch processing mode
  */
-class DAAL_EXPORT Result : public classifier::training::Result
+class DAAL_EXPORT Result : public regression::training::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result)
@@ -77,10 +71,10 @@ public:
 
     /**
      * Returns the model trained with the SVM algorithm
-     * \param[in] id    Identifier of the result, \ref classifier::training::ResultId
+     * \param[in] id    Identifier of the result, \ref regression::training::ResultId
      * \return          Model trained with the SVM algorithm
      */
-    daal::algorithms::svm::ModelPtr get(classifier::training::ResultId id) const;
+    daal::algorithms::svm::ModelPtr get(regression::training::ResultId id) const;
 
     /**
      * Allocates memory for storing SVM training results
@@ -108,11 +102,11 @@ protected:
 typedef services::SharedPtr<Result> ResultPtr;
 
 } // namespace interface1
+
 using interface1::Result;
 using interface1::ResultPtr;
 
-} // namespace training
-/** @} */
+} // namespace regression
 } // namespace svm
 } // namespace algorithms
 } // namespace daal

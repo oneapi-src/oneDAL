@@ -1,6 +1,6 @@
-/* file: svm_predict_types.h */
+/* file: svm_regression_predict_types.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
 #ifndef __SVM_PREDICT_TYPES_H__
 #define __SVM_PREDICT_TYPES_H__
 
-#include "algorithms/classifier/classifier_predict_types.h"
+#include "algorithms/regression/regression_predict_types.h"
 #include "algorithms/svm/svm_model.h"
 
 namespace daal
@@ -33,15 +33,8 @@ namespace algorithms
 {
 namespace svm
 {
-/**
- * @defgroup svm_prediction Prediction
- * \copydoc daal::algorithms::svm::prediction
- * @ingroup svm
- * @{
- */
-/**
- * \brief Contains classes to make predictions based on the SVM model
- */
+namespace regression
+{
 namespace prediction
 {
 /**
@@ -62,9 +55,9 @@ namespace interface1
  * <a name="DAAL-CLASS-ALGORITHMS__SVM__PREDICTION__INPUT"></a>
  * \brief Input objects in the prediction stage of the svm algorithm
  */
-class DAAL_EXPORT Input : public classifier::prediction::Input
+class DAAL_EXPORT Input : public regression::prediction::Input
 {
-    typedef classifier::prediction::Input super;
+    typedef regression::prediction::Input super;
 
 public:
     Input();
@@ -80,28 +73,28 @@ public:
      * \param[in] id    Identifier of the input NumericTable object
      * \return          %Input object that corresponds to the given identifier
      */
-    data_management::NumericTablePtr get(classifier::prediction::NumericTableInputId id) const;
+    data_management::NumericTablePtr get(regression::prediction::NumericTableInputId id) const;
 
     /**
      * Returns the input Model object in the prediction stage of the SVM algorithm
      * \param[in] id    Identifier of the input Model object
      * \return          %Input object that corresponds to the given identifier
      */
-    svm::ModelPtr get(classifier::prediction::ModelInputId id) const;
+    svm::ModelPtr get(regression::prediction::ModelInputId id) const;
 
     /**
      * Sets the input NumericTable object in the prediction stage of the classification algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr & ptr);
+    void set(regression::prediction::NumericTableInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Sets the input Model object in the prediction stage of the SVM algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(classifier::prediction::ModelInputId id, const svm::ModelPtr & ptr);
+    void set(regression::prediction::ModelInputId id, const svm::ModelPtr & ptr);
 
     /**
      * Checks the correctness of the input object
@@ -119,6 +112,7 @@ using interface1::Input;
 
 } // namespace prediction
 /** @} */
+} // namespace regression
 } // namespace svm
 } // namespace algorithms
 } // namespace daal
