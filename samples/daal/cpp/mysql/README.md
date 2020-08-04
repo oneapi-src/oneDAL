@@ -1,16 +1,16 @@
-# Intel(R) Data Analytics Acceleration Library MySQL\* Samples
+# Intel(R) oneAPI Data Analytics Library MySQL\* Samples
 
-MySQL\* samples for the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) are designed to show how to use this library with a MySQL database in a C++ application.
+MySQL\* samples for the Intel(R) oneAPI Data Analytics Library (oneDAL) are designed to show how to use this library with a MySQL database in a C++ application.
 
-Unzip the archive with Intel(R) DAAL samples to your working directory (`<sample_dir>`).
+Unzip the archive with oneDAL samples to your working directory (`<sample_dir>`).
 
 ## System Requirements
-You can use Intel(R) DAAL MySQL\* samples on Linux\*, Windows\*, and macOS\* operating systems. For a list of Intel(R) DAAL hardware and software requirements, refer to release notes for the version of Intel(R) DAAL you are using.
+You can use oneDAL MySQL\* samples on Linux\*, Windows\*, and macOS\* operating systems. For a list of oneDAL hardware and software requirements, refer to release notes for the version of oneDAL you are using.
 
-### MySQL\* implementations against which Intel(R) DAAL has been validated:
+### MySQL\* implementations against which oneDAL has been validated:
 - MySQL 5.6.22
 
-**Note:** Intel(R) DAAL is expected to work on other MySQL version as well. Let us know if you have any troubles with the distribution you are using.
+**Note:** oneDAL is expected to work on other MySQL version as well. Let us know if you have any troubles with the distribution you are using.
 
 ## Preparation Before Build and Run
 ### MySQL support
@@ -19,7 +19,7 @@ You can download and install the MySQL\* application from [the official web page
 If your ODBC connector on Windows\* is installed in a directory different from `C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\`, make sure to update the `ODBC_PATH` variable in the `launcher.bat` script with the correct path before running the script.
 
 ### Setting Up the Build Environment
-Before you build the sample, you must set certain environment variables that define the location of related libraries. The Intel(R) DAAL includes the `vars` scripts that you can run to set environment variables:
+Before you build the sample, you must set certain environment variables that define the location of related libraries. The oneDAL includes the `vars` scripts that you can run to set environment variables:
 
 - On Windows\*, you can find the `vars.bat` batch file at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\windows\daal\bin\:
 vars.bat {ia32|intel64}`
@@ -28,11 +28,11 @@ source vars.sh {ia32|intel64}`
 - On macOS\*, you can find the `vars.sh` shell script at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\mac\daal\bin:
 source vars.sh`
 
-For more information about setting environment variables and configuring Intel(R) DAAL, refer to Getting Started guides for the library.
+For more information about setting environment variables and configuring oneDAL, refer to Getting Started guides for the library.
 
 ## Build and Run Instructions
 ### On Windows\*
-To build Intel(R) DAAL MySQL C++ samples, go to the C++ MySQL samples directory and execute the `launcher` command with the `build` parameter:
+To build oneDAL MySQL C++ samples, go to the C++ MySQL samples directory and execute the `launcher` command with the `build` parameter:
 
 ```
 cd <sample_dir>\cpp\mysql
@@ -42,7 +42,7 @@ launcher.bat {ia32|intel64} build
 
 The command creates the `.\_results\ia32` or `.\_results\intel64` directory and builds `*.exe` executables and `*.exe` libraries, as well as creates a log file for build results.
 
-To run Intel(R) DAAL MySQL C++ samples, go to the C++ MySQL samples directory and execute the `launcher` command with the `run` parameter:
+To run oneDAL MySQL C++ samples, go to the C++ MySQL samples directory and execute the `launcher` command with the `run` parameter:
 
 ```
 cd <sample_dir>\cpp\mysql
@@ -55,7 +55,7 @@ Select the same architecture parameter as you provided to the `launcher` command
 For each sample, the results are placed into the `.\_results\ia32\<sample name>\.res` or `.\_results\intel64\<sample name>\.res` file, depending on the specified architecture.
 
 ### On Linux\*
-To build Intel(R) DAAL MySQL C++ samples, go to the C++ MySQL samples directory and execute the `make` command:
+To build oneDAL MySQL C++ samples, go to the C++ MySQL samples directory and execute the `make` command:
 
 ```
 cd <sample_dir>/cpp/mysql
@@ -67,7 +67,7 @@ From the `{libia32|soia32|libintel64|sointel64}` parameters, select the one that
 
 The command creates a directory for the chosen compiler, architecture, and library extension (`a` or `so`). For example: `_results/intel_intel64_a`.
 
-To run Intel(R) DAAL MySQL C++ samples, go to the C++ MySQL samples directory and execute the `make` command in the run mode. For example, if you run the `vars` script with the `intel64` target:
+To run oneDAL MySQL C++ samples, go to the C++ MySQL samples directory and execute the `make` command in the run mode. For example, if you run the `vars` script with the `intel64` target:
 
 ```
 cd <sample_dir>/cpp/mysql
@@ -78,7 +78,7 @@ make libintel64 mode=run
 The `make` command builds a static library for the Intel(R) 64 architecture and runs the executable.
 
 ### On macOS\*
-To build Intel(R) DAAL MySQL C++ samples, go to the C++ MySQL samples directory and execute the `make` command:
+To build oneDAL MySQL C++ samples, go to the C++ MySQL samples directory and execute the `make` command:
 
 ```
 cd <sample_dir>/cpp/mysql
@@ -90,7 +90,7 @@ From the `{libia32|dylibia32|libintel64|dylibintel64}` parameters, select the on
 
 The command creates a directory for the chosen compiler, architecture, and library extension (`a` or `dylib`). For example: `_results/intel_intel64_a`.
 
-To run Intel(R) DAAL MySQL C++ samples, go to the C++ MySQL samples directory and execute the `make` command in the run mode. For example, if you run the `vars` script with the `intel64` target:
+To run oneDAL MySQL C++ samples, go to the C++ MySQL samples directory and execute the `make` command in the run mode. For example, if you run the `vars` script with the `intel64` target:
 
 ```
 cd <sample_dir>/cpp/mysql

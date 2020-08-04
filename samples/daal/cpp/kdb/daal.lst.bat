@@ -16,7 +16,7 @@ rem limitations under the License.
 rem ============================================================================
 
 ::  Content:
-::     Intel(R) Data Analytics Acceleration Library samples list
+::     Intel(R) oneAPI Data Analytics Library samples list
 ::******************************************************************************
 
 set KDB_SAMPLE_LIST=datasource_kdb
