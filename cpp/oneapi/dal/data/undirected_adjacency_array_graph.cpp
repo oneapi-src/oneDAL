@@ -77,7 +77,7 @@ template edge_size_type<graph32> get_edge_count_impl(const graph32 &g);
 template <typename G>
 auto get_vertex_degree_impl(const G &g, const vertex_type<G> &vertex) -> vertex_edge_size_type<G> {
     const auto &layout = detail::get_impl(g);
-    return layout->_vertex_neighbors[vertex + 1] - layout->_vertex_neighbors[vertex];
+    return layout->_degrees[vertex];
 }
 
 template vertex_edge_size_type<graph64> get_vertex_degree_impl(const graph64 &g,
@@ -135,14 +135,11 @@ void convert_to_csr_impl(const edge_list<vertex_type<G>> &edges, G &g) {
     }
 
     layout->_vertex_count = max_id + 1;
-    int_t *degrees        = (int_t *)malloc(layout->_vertex_count * sizeof(int_t));
-    for (std::int64_t u = 0; u < layout->_vertex_count; ++u) {
-        degrees[u] = 0;
-    }
+    layout->_degrees      = array<vertex_t>::zeros(layout->_vertex_count);
 
     for (auto edge : edges) {
-        degrees[edge.first]++;
-        degrees[edge.second]++;
+        layout->_degrees[edge.first]++;
+        layout->_degrees[edge.second]++;
     }
 
     layout->_vertex_neighbors = array<vertex_t>::empty(layout->_vertex_count + 1);
@@ -151,11 +148,10 @@ void convert_to_csr_impl(const edge_list<vertex_type<G>> &edges, G &g) {
     _rows[0]                  = total_sum_degrees;
 
     for (std::int64_t i = 0; i < layout->_vertex_count; ++i) {
-        total_sum_degrees += degrees[i];
+        total_sum_degrees += layout->_degrees[i];
         _rows[i + 1] = total_sum_degrees;
     }
 
-    free(degrees);
     layout->_edge_offsets = array<edge_t>::empty(_rows[layout->_vertex_count] + 1);
     auto _cols            = layout->_edge_offsets.get_mutable_data();
     auto offests(layout->_vertex_neighbors);

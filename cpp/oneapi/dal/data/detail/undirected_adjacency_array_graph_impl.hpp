@@ -59,8 +59,8 @@ public:
     edge_size_type _edge_count;
 
     vertex_set _vertex_neighbors;
+    vertex_set _degrees;
     edge_set _edge_offsets;
-    // vertex_neighbors, edge_offsets
 
     vertex_user_value_set _vertex_value;
     edge_value_set _edge_value;
