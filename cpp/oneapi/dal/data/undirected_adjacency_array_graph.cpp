@@ -77,7 +77,7 @@ template edge_size_type<graph32> get_edge_count_impl(const graph32 &g);
 template <typename G>
 auto get_vertex_degree_impl(const G &g, const vertex_type<G> &vertex) -> vertex_edge_size_type<G> {
     const auto &layout = detail::get_impl(g);
-    return layout->_vertexes[vertex + 1] - layout->_vertexes[vertex];
+    return layout->_vertex_neighbors[vertex + 1] - layout->_vertex_neighbors[vertex];
 }
 
 template vertex_edge_size_type<graph64> get_vertex_degree_impl(const graph64 &g,
@@ -90,9 +90,9 @@ auto get_vertex_neighbors_impl(const G &g, const vertex_type<G> &vertex)
     -> const_vertex_edge_range_type<G> {
     const auto &layout = detail::get_impl(g);
     const_vertex_edge_iterator_type<G> vertex_neighbors_begin(
-        &layout->_edges[layout->_vertexes[vertex]]);
+        &layout->_edge_offsets[layout->_vertex_neighbors[vertex]]);
     const_vertex_edge_iterator_type<G> vertex_neighbors_end(
-        &layout->_edges[layout->_vertexes[vertex + 1]]);
+        &layout->_edge_offsets[layout->_vertex_neighbors[vertex + 1]]);
     auto neighbors_range = std::make_pair(vertex_neighbors_begin, vertex_neighbors_end);
     return neighbors_range;
 }
@@ -145,10 +145,10 @@ void convert_to_csr_impl(const edge_list<vertex_type<G>> &edges, G &g) {
         degrees[edge.second]++;
     }
 
-    layout->_vertexes       = array<vertex_t>::empty(layout->_vertex_count + 1);
-    auto _rows              = layout->_vertexes.get_mutable_data();
-    int_t total_sum_degrees = 0;
-    _rows[0]                = total_sum_degrees;
+    layout->_vertex_neighbors = array<vertex_t>::empty(layout->_vertex_count + 1);
+    auto _rows                = layout->_vertex_neighbors.get_mutable_data();
+    int_t total_sum_degrees   = 0;
+    _rows[0]                  = total_sum_degrees;
 
     for (std::int64_t i = 0; i < layout->_vertex_count; ++i) {
         total_sum_degrees += degrees[i];
@@ -156,9 +156,9 @@ void convert_to_csr_impl(const edge_list<vertex_type<G>> &edges, G &g) {
     }
 
     free(degrees);
-    layout->_edges = array<edge_t>::empty(_rows[layout->_vertex_count] + 1);
-    auto _cols     = layout->_edges.get_mutable_data();
-    auto offests(layout->_vertexes);
+    layout->_edge_offsets = array<edge_t>::empty(_rows[layout->_vertex_count] + 1);
+    auto _cols            = layout->_edge_offsets.get_mutable_data();
+    auto offests(layout->_vertex_neighbors);
 
     for (auto edge : edges) {
         _cols[offests[edge.first]++]  = edge.second;
