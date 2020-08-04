@@ -52,3 +52,39 @@ TEST(kmeans_lloyd_dense_cpu, train_results) {
         ASSERT_FLOAT_EQ(centroids[i], train_centroids[i]);
     }
 }
+
+TEST(kmeans_lloyd_dense_cpu, infer_results) {
+    constexpr std::int64_t row_count     = 8;
+    constexpr std::int64_t column_count  = 2;
+    constexpr std::int64_t cluster_count = 2;
+
+    const float data[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
+                           -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
+
+    const int labels[] = { 1, 1, 1, 1, 0, 0, 0, 0 };
+
+    const float centroids[] = { -1.5, -1.5, 1.5, 1.5 };
+
+    const auto data_table = homogen_table{ row_count, column_count, data };
+
+    const auto kmeans_desc = kmeans::descriptor<>()
+                                 .set_cluster_count(cluster_count)
+                                 .set_max_iteration_count(4)
+                                 .set_accuracy_threshold(0.001);
+
+    const auto result_train = train(kmeans_desc, data_table);
+
+    constexpr std::int64_t infer_row_count = 9;
+    const float data_infer[]               = { 1.0, 1.0,  0.0, 1.0,  1.0,  0.0,  2.0, 2.0,  7.0,
+                                 0.0, -1.0, 0.0, -5.0, -5.0, -5.0, 0.0, -2.0, 1.0 };
+    const auto data_infer_table = homogen_table{ infer_row_count, column_count, data_infer };
+
+    const int infer_labels[] = { 1, 1, 1, 1, 1, 0, 0, 0, 0 };
+
+    const auto result_test = infer(kmeans_desc, result_train.get_model(), data_infer_table);
+
+    const auto test_labels = row_accessor<const int>(result_test.get_labels()).pull().get_data();
+    for (std::int64_t i = 0; i < infer_row_count; ++i) {
+        ASSERT_EQ(infer_labels[i], test_labels[i]);
+    }
+}

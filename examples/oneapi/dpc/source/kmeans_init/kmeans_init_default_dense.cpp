@@ -27,9 +27,6 @@
 using namespace oneapi;
 
 void run(sycl::queue &queue) {
-    std::cout << "Running on " << queue.get_device().get_info<sycl::info::device::name>()
-              << std::endl;
-
     constexpr std::int64_t row_count     = 8;
     constexpr std::int64_t column_count  = 2;
     constexpr std::int64_t cluster_count = 2;
@@ -39,7 +36,7 @@ void run(sycl::queue &queue) {
 
     auto data = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(data, data_host, sizeof(float) * row_count * column_count).wait();
-    const auto data_table = dal::homogen_table{ row_count, column_count, data };
+    const auto data_table = dal::homogen_table{ queue, row_count, column_count, data };
 
     const auto kmeans_init_desc = dal::kmeans_init::descriptor<>().set_cluster_count(cluster_count);
 
@@ -52,6 +49,9 @@ void run(sycl::queue &queue) {
 
 int main(int argc, char const *argv[]) {
     for (auto device : list_devices()) {
+        std::cout << "Running on "
+                  << device.get_info<sycl::info::device::name>()
+                  << std::endl;
         auto queue = sycl::queue{ device };
         run(queue);
     }

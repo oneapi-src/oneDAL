@@ -27,9 +27,6 @@
 using namespace oneapi;
 
 void run(sycl::queue &queue) {
-    std::cout << "Running on " << queue.get_device().get_info<sycl::info::device::name>()
-              << std::endl;
-
     constexpr std::int64_t row_count     = 8;
     constexpr std::int64_t column_count  = 2;
     constexpr std::int64_t cluster_count = 2;
@@ -41,7 +38,7 @@ void run(sycl::queue &queue) {
 
     auto data = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(data, data_host, sizeof(float) * row_count * column_count).wait();
-    const auto data_table = dal::homogen_table{ row_count, column_count, data };
+    const auto data_table = dal::homogen_table{ queue, row_count, column_count, data };
 
     auto initial_centroids = sycl::malloc_shared<float>(cluster_count * column_count, queue);
     queue
@@ -50,7 +47,7 @@ void run(sycl::queue &queue) {
                 sizeof(float) * cluster_count * column_count)
         .wait();
     const auto initial_centroids_table =
-        dal::homogen_table{ cluster_count, column_count, initial_centroids };
+        dal::homogen_table{ queue, cluster_count, column_count, initial_centroids };
 
     const auto kmeans_desc = dal::kmeans::descriptor<>()
                                  .set_cluster_count(cluster_count)
@@ -70,7 +67,7 @@ void run(sycl::queue &queue) {
 
     auto data_test = sycl::malloc_shared<float>(row_count_test * column_count, queue);
     queue.memcpy(data_test, data_test_host, sizeof(float) * row_count_test * column_count).wait();
-    const auto data_test_table = dal::homogen_table{ row_count_test, column_count, data_test };
+    const auto data_test_table = dal::homogen_table{ queue, row_count_test, column_count, data_test };
 
     const auto result_test =
         dal::infer(queue, kmeans_desc, result_train.get_model(), data_test_table);
@@ -83,6 +80,9 @@ void run(sycl::queue &queue) {
 
 int main(int argc, char const *argv[]) {
     for (auto device : list_devices()) {
+        std::cout << "Running on "
+                  << device.get_info<sycl::info::device::name>()
+                  << std::endl;
         auto queue = sycl::queue{ device };
         run(queue);
     }
