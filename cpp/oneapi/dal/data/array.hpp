@@ -40,10 +40,10 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    static array<T> empty(const detail::data_parallel_policy& policy,
+    static array<T> empty(const sycl::queue& queue,
                           std::int64_t count,
                           const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) { // create our allocators from queue and kind
-        return empty_impl(policy, count, alloc);
+        return empty_impl(detail::data_parallel_policy{queue}, count, alloc);
     }
 #endif
 
@@ -54,11 +54,11 @@ public:
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     template <typename K>
-    static array<T> full(const detail::data_parallel_policy& policy,
+    static array<T> full(sycl::queue& queue,
                          std::int64_t count,
                          K&& element,
                          const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
-        return full_impl(policy, count, std::forward<K>(element), alloc);
+        return full_impl(detail::data_parallel_policy{queue}, count, std::forward<K>(element), alloc);
     }
 #endif
 
@@ -68,11 +68,11 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    static array<T> zeros(const detail::data_parallel_policy& policy,
+    static array<T> zeros(sycl::queue& queue,
                           std::int64_t count,
                           const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
         // TODO: can be optimized in future
-        return full_impl(policy, count, T{}, alloc);
+        return full_impl(detail::data_parallel_policy{queue}, count, T{}, alloc);
     }
 #endif
     template <typename Y>
@@ -150,9 +150,9 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    array& need_mutable_data(const detail::data_parallel_policy& policy,
+    array& need_mutable_data(sycl::queue& queue,
                              const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
-        return need_mutable_data_impl(policy, alloc);
+        return need_mutable_data_impl(detail::data_parallel_policy{queue}, alloc);
     }
 #endif
 
@@ -176,10 +176,10 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    void reset(const detail::data_parallel_policy& policy,
+    void reset(const sycl::queue& queue,
                std::int64_t count,
                const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
-        reset_impl(policy, count, alloc);
+        reset_impl(detail::data_parallel_policy{queue}, count, alloc);
     }
 #endif
 

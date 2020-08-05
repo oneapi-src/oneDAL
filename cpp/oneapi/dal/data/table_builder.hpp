@@ -174,23 +174,23 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    auto& allocate(const detail::data_parallel_policy& policy,
+    auto& allocate(const sycl::queue& queue,
                    std::int64_t row_count,
                    std::int64_t column_count,
                    const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
         auto& impl = get_impl();
-        impl.allocate(policy.get_queue(), row_count, column_count, alloc);
+        impl.allocate(queue, row_count, column_count, alloc);
         return *this;
     }
 
-    auto& copy_data(const detail::data_parallel_policy& policy,
+    auto& copy_data(sycl::queue& queue,
                     const void* data,
                     std::int64_t row_count,
                     std::int64_t column_count,
                     const sycl::vector_class<sycl::event>& dependencies = {}) {
         auto& impl = get_impl();
         detail::wait_and_throw(dependencies);
-        impl.copy_data(policy.get_queue(), data, row_count, column_count);
+        impl.copy_data(queue, data, row_count, column_count);
         return *this;
     }
 #endif

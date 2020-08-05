@@ -117,10 +117,10 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    array<data_t> pull(const detail::data_parallel_policy& policy,
+    array<data_t> pull(sycl::queue& queue,
                        const range& rows             = { 0, -1 },
                        const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
-        return base::pull(policy, { rows }, alloc);
+        return base::pull(detail::data_parallel_policy{queue}, { rows }, alloc);
     }
 #endif
 
@@ -129,11 +129,11 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    T* pull(const detail::data_parallel_policy& policy,
+    T* pull(sycl::queue& queue,
             array<data_t>& block,
             const range& rows             = { 0, -1 },
             const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
-        return base::pull(policy, block, { rows }, alloc);
+        return base::pull(detail::data_parallel_policy{queue}, block, { rows }, alloc);
     }
 #endif
 
@@ -145,10 +145,10 @@ public:
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     template <typename Q = T>
-    std::enable_if_t<sizeof(Q) && !is_readonly> push(const detail::data_parallel_policy& policy,
+    std::enable_if_t<sizeof(Q) && !is_readonly> push(sycl::queue& queue,
                                                      const array<data_t>& block,
                                                      const range& rows = { 0, -1 }) {
-        base::push(policy, block, { rows });
+        base::push(detail::data_parallel_policy{queue}, block, { rows });
     }
 #endif
 };
@@ -174,11 +174,11 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    array<data_t> pull(const detail::data_parallel_policy& policy,
+    array<data_t> pull(sycl::queue& queue,
                        std::int64_t column_index,
                        const range& rows             = { 0, -1 },
                        const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
-        return base::pull(policy, { column_index, rows }, alloc);
+        return base::pull(detail::data_parallel_policy{queue}, { column_index, rows }, alloc);
     }
 #endif
 
@@ -187,12 +187,12 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    T* pull(const detail::data_parallel_policy& policy,
+    T* pull(sycl::queue& queue,
             array<data_t>& block,
             std::int64_t column_index,
             const range& rows             = { 0, -1 },
             const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
-        return base::pull(policy, block, { column_index, rows }, alloc);
+        return base::pull(detail::data_parallel_policy{queue}, block, { column_index, rows }, alloc);
     }
 #endif
 
@@ -205,11 +205,11 @@ public:
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     template <typename Q = T>
-    std::enable_if_t<sizeof(Q) && !is_readonly> push(const detail::data_parallel_policy& policy,
+    std::enable_if_t<sizeof(Q) && !is_readonly> push(sycl::queue& queue,
                                                      const array<data_t>& block,
                                                      std::int64_t column_index,
                                                      const range& rows = { 0, -1 }) {
-        base::push(policy, block, { column_index, rows });
+        base::push(detail::data_parallel_policy{queue}, block, { column_index, rows });
     }
 #endif
 };
