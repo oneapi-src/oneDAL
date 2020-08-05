@@ -19,7 +19,9 @@
 #include <algorithm>
 #include <exception>
 
+#ifdef ONEAPI_DAL_DATA_PARALLEL
 #include <CL/sycl.hpp>
+#endif
 
 #include "oneapi/dal/data/array.hpp"
 #include "oneapi/dal/backend/primirives/reducer.hpp"
@@ -91,6 +93,8 @@ template struct binary_functor<float, binary::mul>;
 template struct binary_functor<double, binary::mul>;
 template struct binary_functor<float, binary::min>;
 template struct binary_functor<double, binary::max>;
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
 
 namespace impl {
 
@@ -196,5 +200,7 @@ template struct l2_reducer_singlepass<float>;
 template struct l2_reducer_singlepass<double>;
 template struct linf_reducer_singlepass<float>;
 template struct linf_reducer_singlepass<double>;
+
+#endif
 
 } // oneapi::dal::backend::primitives

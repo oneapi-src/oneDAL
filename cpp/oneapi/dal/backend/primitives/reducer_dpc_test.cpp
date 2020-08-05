@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <clflushoptintrin.h/sycl.hpp>
+#include <CL/sycl.hpp>
 
 #include "gtest/gtest.h"
 
@@ -36,3 +36,4 @@ TEST(reducer_l2, can_handle_array_of_zeros) {
 
     for(int i = 0; i < 7; i++) ASSERT_EQ(raw_ptr[i], 0.f);
 }
+

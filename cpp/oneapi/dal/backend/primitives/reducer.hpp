@@ -16,7 +16,9 @@
 
 #pragma once
 
+#ifdef ONEAPI_DAL_DATA_PARALLEL
 #include <CL/sycl.hpp>
+#endif
 
 #include "oneapi/dal/data/array.hpp"
 
@@ -47,6 +49,8 @@ struct binary_functor {
     constexpr Float operator() (Float a, Float b);
 };
 
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+
 template<unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout = true>
 struct reducer_singlepass {
     reducer_singlepass(cl::sycl::queue& q);
@@ -66,5 +70,7 @@ template<typename Float>
 using l2_reducer_singlepass = typename reducer_singlepass<unary_operation::square, binary_operation::sum, Float>;
 template<typename Float>
 using linf_reducer_singlepass = typename reducer_singlepass<unary_operation::abs, binary_operation::max, Float>;
+
+#endif
 
 } // namespace oneapi::dal::detail
