@@ -19,6 +19,9 @@
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
 #include "oneapi/dal/data/graph_service.hpp"
 
+#include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/interop/table_conversion.hpp"
+
 namespace oneapi::dal::preview {
 namespace jaccard {
 namespace detail {
@@ -601,7 +604,8 @@ similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
     }
     jaccard.reset(nnz);
     vertex_pairs.reset(nnz);
-    similarity_result res(jaccard, vertex_pairs);
+
+    similarity_result res(homogen_table_builder{}.build(), homogen_table_builder{}.build());
 
     std::cout << "Jaccard block kernel ended" << std::endl;
     return res;

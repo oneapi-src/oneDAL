@@ -37,10 +37,10 @@ int main(int argc, char **argv) {
 
     auto result_default = vertex_similarity(jaccard_desc_default, my_graph);
 
-    array<float> jaccard = result_default.get_jaccard_coefficients();
-    array<std::pair<std::uint32_t, std::uint32_t>> vertex_pairs =
-        result_default.get_vertex_pairs();
+    auto jaccard = result_default.get_coeffs();
+    auto vertex_pairs = result_default.get_vertex_pairs();
 
+    /*
     std::cout << "Number of non-zero coefficients in block =" << jaccard.get_size() << std::endl;
     std::cout << "Jaccard indices:" << std::endl;
     for (auto i = 0; i < jaccard.get_size(); ++i) {
@@ -48,4 +48,5 @@ int main(int argc, char **argv) {
                 << vertex_pairs[i].second << ")\tcoefficient: " << jaccard[i]
                 << std::endl;
     }
+    */
 }

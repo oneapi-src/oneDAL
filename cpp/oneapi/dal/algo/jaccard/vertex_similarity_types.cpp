@@ -15,7 +15,6 @@
  *******************************************************************************/
 
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
-#include <iostream>
 #include "oneapi/dal/algo/jaccard/common.hpp"
 
 namespace oneapi::dal::preview {
@@ -41,13 +40,12 @@ const Graph &similarity_input<Graph>::get_graph() const {
 
 class detail::similarity_result_impl : public base {
 public:
-    similarity_result_impl(const array_of_floats &coefficients,
-                           const array_of_pairs_uint32t &vertex_pairs)
-            : coefficients(coefficients),
+    similarity_result_impl(const table &coeffs, const table &vertex_pairs)
+            : coeffs(coeffs),
               vertex_pairs(vertex_pairs) {}
 
-    array_of_floats coefficients;
-    array_of_pairs_uint32t vertex_pairs;
+    table coeffs;
+    table vertex_pairs;
 };
 
 template class detail::similarity_input_impl<undirected_adjacency_array_graph<> &>;
@@ -56,15 +54,14 @@ template class similarity_input<undirected_adjacency_array_graph<> &>;
 
 using detail::similarity_result_impl;
 
-similarity_result::similarity_result(const array_of_floats &coefficients,
-                                     const array_of_pairs_uint32t &vertex_pairs)
-        : impl_(new similarity_result_impl(coefficients, vertex_pairs)) {}
+similarity_result::similarity_result(const table &coeffs, const table &vertex_pairs)
+        : impl_(new similarity_result_impl(coeffs, vertex_pairs)) {}
 
-array_of_floats similarity_result::get_jaccard_coefficients() const {
-    return impl_->coefficients;
+table similarity_result::get_coeffs() const {
+    return impl_->coeffs;
 }
 
-array_of_pairs_uint32t similarity_result::get_vertex_pairs() const {
+table similarity_result::get_vertex_pairs() const {
     return impl_->vertex_pairs;
 }
 } // namespace jaccard

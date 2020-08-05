@@ -39,16 +39,12 @@ private:
     dal::detail::pimpl<detail::similarity_input_impl<Graph>> impl_;
 };
 
-using array_of_floats        = array<float>;
-using array_of_pairs_uint32t = array<std::pair<std::uint32_t, std::uint32_t>>;
-
 class similarity_result {
 public:
     similarity_result(){};
-    similarity_result(const array_of_floats &similarities,
-                      const array_of_pairs_uint32t &vertex_pairs);
-    array_of_floats get_jaccard_coefficients() const;
-    array_of_pairs_uint32t get_vertex_pairs() const;
+    similarity_result(const table &coeffs, const table &vertex_pairs);
+    table get_coeffs() const;
+    table get_vertex_pairs() const;
 
 private:
     dal::detail::pimpl<detail::similarity_result_impl> impl_;
