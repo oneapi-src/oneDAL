@@ -22,9 +22,9 @@ namespace jaccard {
 class detail::descriptor_impl : public base {
 public:
     std::int64_t row_begin    = 0;
-    std::int64_t row_end      = 1;
+    std::int64_t row_end      = 0;
     std::int64_t column_begin = 0;
-    std::int64_t column_end   = 1;
+    std::int64_t column_end   = 0;
 };
 
 using detail::descriptor_impl;
@@ -47,20 +47,22 @@ std::int64_t descriptor_base::get_column_end() const {
     return impl_->column_end;
 }
 
-void descriptor_base::set_row_begin_impl(std::int64_t value) {
-    impl_->row_begin = value;
+void descriptor_base::set_row_range_impl(const int64_t& begin, const int64_t& end) {
+    impl_->row_begin = begin;
+    impl_->row_end   = end;
 }
 
-void descriptor_base::set_row_end_impl(std::int64_t value) {
-    impl_->row_end = value;
+void descriptor_base::set_column_range_impl(const int64_t& begin, const int64_t& end) {
+    impl_->column_begin = begin;
+    impl_->column_end   = end;
 }
 
-void descriptor_base::set_column_begin_impl(std::int64_t value) {
-    impl_->column_begin = value;
-}
-
-void descriptor_base::set_column_end_impl(std::int64_t value) {
-    impl_->column_end = value;
+void descriptor_base::set_block_impl(const std::initializer_list<int64_t>& row_range,
+                                     const std::initializer_list<int64_t>& column_range) {
+    impl_->row_begin    = *row_range.begin();
+    impl_->row_end      = *(row_range.begin() + 1);
+    impl_->column_begin = *column_range.begin();
+    impl_->column_end   = *(column_range.begin() + 1);
 }
 
 } // namespace jaccard
