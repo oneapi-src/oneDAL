@@ -17,7 +17,11 @@
 #include <cmath>
 #include <limits>
 #include <algorithm>
+#include <exception>
 
+#include <CL/sycl.hpp>
+
+#include "oneapi/dal/data/array.hpp"
 #include "oneapi/dal/backend/primirives/reducer.hpp"
 
 namespace oneapi::dal::backend::primitives {
@@ -88,42 +92,23 @@ template struct binary_functor<double, binary::mul>;
 template struct binary_functor<float, binary::min>;
 template struct binary_functor<double, binary::max>;
 
-template<typename Float, unary_operation UnOp, binary_operation BinOp>
-constexpr Float composed_functor<Float, UnOp, BinOp>::operator() (Float a, Float b) {
-    Float unary_res = unary_functor<Float, UnOp>::operator()(b);
-    return binary_functor<Float, BinOp>::operator()(a, std::move(unary_res)); 
-}
-
-template<typename Float, unary_operation UnOp, binary_operation BinOp>
-constexpr Float composed_functor<Float, UnOp, BinOp>::operator() (Float a) {
-    Float unary_res = unary_functor<Float, UnOp>::operator()(b);
-    return binary_functor<Float, BinOp>::operator()(std::move(unary_res)); 
-}
-
-//Direct instantiation
-template struct l1_functor<float>;
-template struct l1_functor<double>;
-template struct l2_functor<float>;
-template struct l2_functor<double>;
-template struct linf_functor<float>;
-template struct linf_functor<double>;
-
 namespace impl {
 
-template<unary_operation UnOp, binary_operation BinOp, typename Float, bool RowMajorLayout = true>
+template<unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout>
 struct reducer_singlepass_kernel
 {
+public:
     //Zero cost
     constexpr unary_functor<BinOp> binary;
     constexpr unary_functor<UnOp> unary;
-        
+public: 
     void operator() (cl::sycl::nd_item<2> idx) const {
         const std::uint32_t local_size = idx.get_local_size(0);
 
         std::uint32_t global_dim = 1;
         std::uint32_t local_dim  = n_vectors;
 
-        if constexpr (RowMajorLayout) {
+        if constexpr (IsRowMajorLayout) {
             global_dim = vector_size;
             local_dim  = 1;
         }
@@ -136,7 +121,7 @@ struct reducer_singlepass_kernel
 
         for(std::uint32_t i = item_id; i < vector_size; i += local_size) {
             el                       = vectors[group_id * global_dim + i * local_dim];
-            partial_reduces[item_id] = binary(partialReduces[item_id], unary(el));
+            partial_reduces[item_id] = binary(partial_reduces[item_id], unary(el));
         }
 
         idx.barrier(cl::sycl::access::fence_space::local);
@@ -153,11 +138,63 @@ struct reducer_singlepass_kernel
             reduces[group_id] = binary(partial_reduces[item_id], partial_reduces[item_id + 1]);
         }
     }
-    protected:
-        std::uint32_t n_vectors, vector_size;
-        cl::sycl::accessor<algorithmFPType, 1, cl::sycl::access::mode::read, cl::sycl::access::target::global_buffer> vectors;
-        cl::sycl::accessor<algorithmFPType, 1, cl::sycl::access::mode::write, cl::sycl::access::target::global_buffer> reduces;
-        cl::sycl::accessor<algorithmFPType, 1, cl::sycl::access::mode::read_write, cl::sycl::access::target::local> partialReduces;
-    };
+protected:
+    typedef cl::sycl::accessor<Float, 1, cl::sycl::access::mode::read_write, cl::sycl::access::target::local> local_acc_t;
+    std::uint32_t vector_size, n_vectors;
+    const Float* vectors;
+    Float* reduces;
+    local_acc_t partial_reduces;
+};
+
+} // impl 
+
+template<unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout>
+reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::reducer_singlepass(cl::sycl::queue& q) : _q(q) {}
+
+template<unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout>
+cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operator() (array<Float> input, array<Float> output, 
+        std::int64_t vector_size, std::int64_t n_vectors, std::int64_t work_items_per_group) {
+    if(input.get_count() < (m * n)) throw std::exception();
+    typedef impl::reducer_single_pass<UnOp, BinOp, Float, IsRowMajorLayout> kernel_t;
+    const std::int64_t local_buff_size = 256;
+    auto event = this->_q.submit(
+        [&](cl::sycl::handler& handler) {
+            typedef cl::sycl::accessor<Float, 1, cl::sycl::access::mode::read_write, cl::sycl::access::target::local> local_acc_t;
+            auto partial_reduces = local_acc_t(cl::sycl::range<1>{local_buff_size}, handler);
+            auto functor_instance = kernel_t{   .vector_size = vector_size, 
+                                                .n_vectors = n_vectors, 
+                                                .vectors = input.get_data(), 
+                                                .reduces = output.get_mutable_data(),
+                                                .partial_reduces = partial_reduces      };
+            const cl::sycl::range<2> local_range{work_items_per_group, 1};
+            const cl::sycl::range<2> global_range{work_items_per_group, n_vectors};
+            const cl::sycl::nd_range<2> call_range(local_range, global_range);
+            handler.parallel_for(call_range, functor_instance);
+        });
+    event.wait();
+    return event;
+}
+
+template<unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout>
+cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operator() (array<Float> input, array<Float> output, 
+        std::int64_t vector_size, std::int64_t n_vectors) {
+    const std::int64_t work_items_per_group = this->_q.get_info<cl::sycl::info::device::max_work_group_size>();
+    return this->operator()(input, output, vector_size, vector_size, n_vectors);
+}
+
+template<unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout>
+typename array<Float> reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operator() (array<const Float> input, std::int64_t m, std::int64_t n) {
+    auto output = array<Float>::zeros(this->_q, m);
+    this->operator()(input, output, m, n);
+    return output;
+}
+
+//Direct instantiation
+template struct l1_reducer_singlepass<float>;
+template struct l1_reducer_singlepass<double>;
+template struct l2_reducer_singlepass<float>;
+template struct l2_reducer_singlepass<double>;
+template struct linf_reducer_singlepass<float>;
+template struct linf_reducer_singlepass<double>;
 
 } // oneapi::dal::backend::primitives

@@ -16,6 +16,10 @@
 
 #pragma once
 
+#include <CL/sycl.hpp>
+
+#include "oneapi/dal/data/array.hpp"
+
 namespace oneapi::dal::backend::primitives {
 
 enum class unary_operation : int {
@@ -36,24 +40,31 @@ enum class binary_operation : int {
     mul
 };
 
-template<typename Float, binary_operation Op = binary_operation::sum>
+template<typename Float, binary_operation Op>
 struct binary_functor {
     constexpr Float init_value;
     constexpr Float operator() (Float arg);
     constexpr Float operator() (Float a, Float b);
 };
 
-template<typename Float, unary_operation UnOp, binary_operation BinOp>
-struct composed_functor : public unary_functor<Float, UnOp>, binary_functor<Float, BinOp> {
-    constexpr Float operator() (Float a) override;
-    constexpr Float operator() (Float a, Float b) override;
+template<unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout = true>
+struct reducer_singlepass {
+    reducer_singlepass(cl::sycl::queue& q);
+    cl::sycl::event operator() (array<Float> input, array<Float> output, 
+        std::int64_t vector_size, std::int64_t n_vectors, std::int64_t work_items_per_group);
+    cl::sycl::event operator() (array<Float> input, array<Float> output, 
+                                            std::int64_t vector_size, std::int64_t n_vectors);
+    typename array<Float> operator() (array<Float> input, 
+                                            std::int64_t vector_size, std::int64_t n_vectors);
+private:
+    cl::sycl::queue& _q;
 };
 
 template<typename Float>
-using l1_functor = typename composed_functor<Float, unary_operation::abs, binary_operation::sum>;
+using l1_reducer_singlepass = typename reducer_singlepass<unary_operation::abs, binary_operation::sum, Float>;
 template<typename Float>
-using l2_functor = typename composed_functor<Float, unary_operation::square, binary_operation::sum>;
+using l2_reducer_singlepass = typename reducer_singlepass<unary_operation::square, binary_operation::sum, Float>;
 template<typename Float>
-using linf_functor = typename composed_functor<Float, unary_operation::abs, binary_operation::max>;
+using linf_reducer_singlepass = typename reducer_singlepass<unary_operation::abs, binary_operation::max, Float>;
 
 } // namespace oneapi::dal::detail
