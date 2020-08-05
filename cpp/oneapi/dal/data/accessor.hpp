@@ -117,7 +117,7 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    array<data_t> pull(const data_parallel_policy& policy,
+    array<data_t> pull(const detail::data_parallel_policy& policy,
                        const range& rows             = { 0, -1 },
                        const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
         return base::pull(policy, { rows }, alloc);
@@ -129,7 +129,7 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    T* pull(const data_parallel_policy& policy,
+    T* pull(const detail::data_parallel_policy& policy,
             array<data_t>& block,
             const range& rows             = { 0, -1 },
             const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
@@ -145,7 +145,7 @@ public:
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     template <typename Q = T>
-    std::enable_if_t<sizeof(Q) && !is_readonly> push(const data_parallel_policy& policy,
+    std::enable_if_t<sizeof(Q) && !is_readonly> push(const detail::data_parallel_policy& policy,
                                                      const array<data_t>& block,
                                                      const range& rows = { 0, -1 }) {
         base::push(policy, block, { rows });
@@ -174,7 +174,7 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    array<data_t> pull(const data_parallel_policy& policy,
+    array<data_t> pull(const detail::data_parallel_policy& policy,
                        std::int64_t column_index,
                        const range& rows             = { 0, -1 },
                        const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
@@ -187,7 +187,7 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    T* pull(const data_parallel_policy& policy,
+    T* pull(const detail::data_parallel_policy& policy,
             array<data_t>& block,
             std::int64_t column_index,
             const range& rows             = { 0, -1 },
@@ -205,7 +205,7 @@ public:
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     template <typename Q = T>
-    std::enable_if_t<sizeof(Q) && !is_readonly> push(const data_parallel_policy& policy,
+    std::enable_if_t<sizeof(Q) && !is_readonly> push(const detail::data_parallel_policy& policy,
                                                      const array<data_t>& block,
                                                      std::int64_t column_index,
                                                      const range& rows = { 0, -1 }) {

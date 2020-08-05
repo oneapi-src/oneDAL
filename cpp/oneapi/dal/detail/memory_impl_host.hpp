@@ -20,7 +20,7 @@
 
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/dispatcher.hpp"
-#include "oneapi/dal/policy.hpp"
+#include "oneapi/dal/detail/policy.hpp"
 
 namespace oneapi::dal::detail {
 

@@ -19,7 +19,7 @@
 #include <cstring>
 
 #include "oneapi/dal/detail/common_dpc.hpp"
-#include "oneapi/dal/policy.hpp"
+#include "oneapi/dal/detail/policy.hpp"
 
 namespace oneapi::dal::detail {
 #ifdef ONEAPI_DAL_DATA_PARALLEL

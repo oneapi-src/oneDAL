@@ -174,7 +174,7 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    auto& allocate(const data_parallel_policy& policy,
+    auto& allocate(const detail::data_parallel_policy& policy,
                    std::int64_t row_count,
                    std::int64_t column_count,
                    const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
@@ -183,7 +183,7 @@ public:
         return *this;
     }
 
-    auto& copy_data(const data_parallel_policy& policy,
+    auto& copy_data(const detail::data_parallel_policy& policy,
                     const void* data,
                     std::int64_t row_count,
                     std::int64_t column_count,

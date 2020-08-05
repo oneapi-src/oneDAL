@@ -17,7 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/detail/dispatcher.hpp"
-#include "oneapi/dal/policy.hpp"
+#include "oneapi/dal/detail/policy.hpp"
 
 #ifdef __ONEDAL_IDE_MODE__
     // If this file is openned in IDE it will complain about
@@ -38,31 +38,33 @@ struct kernel_dispatcher {};
 
 class context_cpu {
 public:
-    explicit context_cpu(const host_policy& ctx)
+    explicit context_cpu(const detail::host_policy& ctx)
             : cpu_extensions_(ctx.get_enabled_cpu_extensions()) {}
 
-    cpu_extension get_enabled_cpu_extensions() const {
+    detail::cpu_extension get_enabled_cpu_extensions() const {
         return cpu_extensions_;
     }
 
 private:
-    cpu_extension cpu_extensions_;
+    detail::cpu_extension cpu_extensions_;
 };
 
 template <typename CpuKernel>
 struct kernel_dispatcher<CpuKernel> {
     template <typename... Args>
-    auto operator()(const host_policy& ctx, Args&&... args) const {
+    auto operator()(const detail::host_policy& ctx, Args&&... args) const {
         return CpuKernel()(context_cpu{ ctx }, std::forward<Args>(args)...);
     }
 };
 
-inline bool test_cpu_extension(cpu_extension mask, cpu_extension test) {
+inline bool test_cpu_extension(detail::cpu_extension mask, detail::cpu_extension test) {
     return ((std::uint64_t)mask & (std::uint64_t)test) > 0;
 }
 
 template <typename Op>
 constexpr auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
+    using detail::cpu_extension;
+
     const cpu_extension cpu_ex = ctx.get_enabled_cpu_extensions();
     ONEDAL_IF_CPU_DISPATCH_AVX512(if (test_cpu_extension(cpu_ex, cpu_extension::avx512)) {
         return op(detail::cpu_dispatch_avx512{});

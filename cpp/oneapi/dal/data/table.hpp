@@ -93,7 +93,7 @@ public:
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     template <typename Data, typename Deleter>
-    homogen_table(const data_parallel_policy& policy,
+    homogen_table(const detail::data_parallel_policy& policy,
                   std::int64_t row_count,
                   std::int64_t column_count,
                   const Data* data_pointer,

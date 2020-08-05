@@ -47,8 +47,8 @@ inline auto make_default_delete(const detail::cpu_dispatch_default& policy) {
 #ifdef ONEAPI_DAL_DATA_PARALLEL
 
 template <typename T>
-inline auto make_default_delete(const data_parallel_policy& policy) {
-    return default_delete<T, data_parallel_policy>{ policy };
+inline auto make_default_delete(const detail::data_parallel_policy& policy) {
+    return default_delete<T, detail::data_parallel_policy>{ policy };
 }
 
 #endif

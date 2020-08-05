@@ -35,14 +35,14 @@ public:
     using data_t = T;
 
 public:
-    static array<T> empty(std::int64_t count) {
+    static array<T> empty(std::int64_t count) { // support allocators in private (empty_impl)
         return empty_impl(detail::cpu_dispatch_default{}, count);
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    static array<T> empty(const data_parallel_policy& policy,
+    static array<T> empty(const detail::data_parallel_policy& policy,
                           std::int64_t count,
-                          const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
+                          const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) { // create our allocators from queue and kind
         return empty_impl(policy, count, alloc);
     }
 #endif
@@ -54,7 +54,7 @@ public:
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     template <typename K>
-    static array<T> full(const data_parallel_policy& policy,
+    static array<T> full(const detail::data_parallel_policy& policy,
                          std::int64_t count,
                          K&& element,
                          const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
@@ -68,14 +68,13 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    static array<T> zeros(const data_parallel_policy& policy,
+    static array<T> zeros(const detail::data_parallel_policy& policy,
                           std::int64_t count,
                           const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
         // TODO: can be optimized in future
         return full_impl(policy, count, T{}, alloc);
     }
 #endif
-
     template <typename Y>
     static array<T> wrap(Y* data, std::int64_t count) {
         return { data, count, empty_delete<const T>{} };
@@ -98,25 +97,26 @@ public:
         reset(data, count, std::forward<Deleter>(deleter));
     }
 
-    template <typename Deleter>
-    array(const T* data, std::int64_t count, Deleter&& deleter) {
-        reset(data, count, std::forward<Deleter>(deleter));
+    template <typename ConstDeleter>
+    array(const T* data, std::int64_t count, ConstDeleter&& deleter) {
+        // static assert on deleter argument
+        reset(data, count, std::forward<ConstDeleter>(deleter));
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     template <typename Deleter>
     array(T* data,
-          std::int64_t count,
-          Deleter&& deleter,
-          const sycl::vector_class<sycl::event>& dependencies) {
+                   std::int64_t count,
+                   Deleter&& deleter,
+                   const sycl::vector_class<sycl::event>& dependencies) {
         reset(data, count, std::forward<Deleter>(deleter), dependencies);
     }
 
     template <typename Deleter>
     array(const T* data,
-          std::int64_t count,
-          Deleter&& deleter,
-          const sycl::vector_class<sycl::event>& dependencies) {
+                   std::int64_t count,
+                   Deleter&& deleter,
+                   const sycl::vector_class<sycl::event>& dependencies) {
         reset(data, count, std::forward<Deleter>(deleter), dependencies);
     }
 #endif
@@ -150,7 +150,7 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    array& need_mutable_data(const data_parallel_policy& policy,
+    array& need_mutable_data(const detail::data_parallel_policy& policy,
                              const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
         return need_mutable_data_impl(policy, alloc);
     }
@@ -176,7 +176,7 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    void reset(const data_parallel_policy& policy,
+    void reset(const detail::data_parallel_policy& policy,
                std::int64_t count,
                const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
         reset_impl(policy, count, alloc);

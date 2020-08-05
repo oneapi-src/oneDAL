@@ -28,7 +28,7 @@ auto infer(Args&&... args) {
 #ifdef ONEAPI_DAL_DATA_PARALLEL
 template <typename... Args>
 auto infer(sycl::queue& queue, Args&&... args) {
-    return detail::infer_dispatch(data_parallel_policy{ queue }, std::forward<Args>(args)...);
+    return detail::infer_dispatch(detail::data_parallel_policy{ queue }, std::forward<Args>(args)...);
 }
 #endif
 

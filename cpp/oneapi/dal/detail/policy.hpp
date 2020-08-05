@@ -23,12 +23,10 @@
 
 #include "oneapi/dal/detail/common.hpp"
 
-namespace oneapi::dal {
+namespace oneapi::dal::detail {
 
-namespace detail {
 class host_policy_impl;
 class data_parallel_policy_impl;
-} // namespace detail
 
 enum class cpu_extension : uint64_t {
     none   = 0U,
@@ -39,6 +37,8 @@ enum class cpu_extension : uint64_t {
     avx2   = 1U << 4,
     avx512 = 1U << 5
 };
+
+struct ONEAPI_DAL_EXPORT default_host_policy {};
 
 class ONEAPI_DAL_EXPORT host_policy : public base {
 public:
@@ -54,23 +54,28 @@ public:
 private:
     void set_enabled_cpu_extensions_impl(const cpu_extension& extensions) noexcept;
 
-    dal::detail::pimpl<detail::host_policy_impl> impl_;
+    pimpl<detail::host_policy_impl> impl_;
 };
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
+// to detail
 class ONEAPI_DAL_EXPORT data_parallel_policy : public base {
 public:
     data_parallel_policy(const sycl::queue& queue)
-            : queue_(queue),
-              impl_(nullptr) {} // reserved for future use
+            : queue_(queue) {
+                init_impl(queue);
+    }
 
     sycl::queue& get_queue() const noexcept {
         return queue_;
     }
 
 private:
+    void init_impl(const sycl::queue& queue);
+
+private:
     mutable sycl::queue queue_;
-    dal::detail::pimpl<detail::data_parallel_policy_impl> impl_;
+    pimpl<data_parallel_policy_impl> impl_;
 };
 #endif
 
@@ -88,4 +93,4 @@ struct is_execution_policy<data_parallel_policy> : std::bool_constant<true> {};
 template <typename T>
 constexpr bool is_execution_policy_v = is_execution_policy<T>::value;
 
-} // namespace oneapi::dal
+} // namespace oneapi::dal::detail

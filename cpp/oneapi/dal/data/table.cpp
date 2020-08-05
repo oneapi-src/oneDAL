@@ -94,7 +94,7 @@ template ONEAPI_DAL_EXPORT void homogen_table::init_impl(const detail::cpu_dispa
                                                          homogen_data_layout);
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-template ONEAPI_DAL_EXPORT void homogen_table::init_impl(const data_parallel_policy&,
+template ONEAPI_DAL_EXPORT void homogen_table::init_impl(const detail::data_parallel_policy&,
                                                          int64_t,
                                                          int64_t,
                                                          const array<byte_t>&,

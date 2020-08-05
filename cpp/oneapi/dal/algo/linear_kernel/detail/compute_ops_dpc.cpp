@@ -20,6 +20,7 @@
 #include "oneapi/dal/backend/dispatcher_dpc.hpp"
 
 namespace oneapi::dal::linear_kernel::detail {
+using oneapi::dal::detail::data_parallel_policy;
 
 template <typename Float, typename Method>
 struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<data_parallel_policy, Float, Method> {
