@@ -94,6 +94,9 @@ endif
 
 COPTS := -std=c++17 \
          -pedantic \
+         -xCORE-AVX512 \
+         -O3 \
+         -qopt-zmm-usage=high \
          -Wall \
          -Wextra \
          -Werror \
