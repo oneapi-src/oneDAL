@@ -20,18 +20,22 @@
 
 namespace oneapi::dal::preview {
 namespace jaccard {
+template <typename Graph>
 class detail::similarity_input_impl : public base {
 public:
-    similarity_input_impl(const graph &graph_data_input) : graph_data(graph_data_input) {}
+    similarity_input_impl(const Graph &graph_data_input) : graph_data(graph_data_input) {}
 
-    const graph &graph_data;
+    const Graph &graph_data;
 };
 
 using detail::similarity_input_impl;
 
-similarity_input::similarity_input(const graph &data) : impl_(new similarity_input_impl(data)) {}
+template <typename Graph>
+similarity_input<Graph>::similarity_input(const Graph &data)
+        : impl_(new similarity_input_impl<Graph>(data)) {}
 
-const graph &similarity_input::get_graph() const {
+template <typename Graph>
+const Graph &similarity_input<Graph>::get_graph() const {
     return impl_->graph_data;
 }
 
@@ -45,6 +49,10 @@ public:
     array_of_floats coefficients;
     array_of_pairs_uint32t vertex_pairs;
 };
+
+template class detail::similarity_input_impl<undirected_adjacency_array_graph<> &>;
+
+template class similarity_input<undirected_adjacency_array_graph<> &>;
 
 using detail::similarity_result_impl;
 

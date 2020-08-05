@@ -27,57 +27,14 @@
 #include <memory>
 
 #include "oneapi/dal/common.hpp"
-#include "oneapi/dal/data/array.hpp"
 #include "oneapi/dal/data/detail/graph_container.hpp"
-#include "oneapi/dal/data/undirected_adjacency_array_graph.hpp"
+#include "oneapi/dal/data/graph_common.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
 /**
  * \brief Contains graph functionality preview as an experimental part of oneapi dal.
  */
 namespace oneapi::dal::preview {
-
-template <typename G>
-using vertex_user_value_type = typename G::vertex_user_value_type;
-
-template <typename G>
-using edge_user_value_type = typename G::edge_user_value_type;
-
-template <typename G>
-using vertex_type = typename G::vertex_type;
-
-template <typename G>
-using vertex_size_type = typename G::vertex_size_type;
-
-template <typename G>
-using edge_size_type = typename G::edge_size_type;
-
-template <typename G>
-using vertex_edge_size_type = typename G::vertex_edge_size_type;
-
-template <typename G>
-using edge_iterator_type = typename G::edge_iterator;
-
-template <typename G>
-using const_edge_iterator_type = typename G::const_edge_iterator;
-
-template <typename G>
-using vertex_edge_iterator_type = typename G::vertex_edge_iterator;
-
-template <typename G>
-using const_vertex_edge_iterator_type = typename G::const_vertex_edge_iterator;
-
-template <typename G>
-using edge_range_type = typename G::edge_range;
-
-template <typename G>
-using const_edge_range_type = typename G::const_edge_range;
-
-template <typename G>
-using vertex_edge_range_type = typename G::vertex_edge_range;
-
-template <typename G>
-using const_vertex_edge_range_type = typename G::const_vertex_edge_range;
 
 /// Get number of vertexes in a graph.
 ///
@@ -123,12 +80,11 @@ constexpr auto get_vertex_value(const G &g, const vertex_type<G> &vertex)
     return get_vertex_value(g, vertex);
 }
 
-template <typename IndexType = std::int64_t>
-using edge_list = detail::graph_container<std::pair<IndexType, IndexType>>;
-
+/*
 template <typename G>
-void convert_to_csr(const edge_list<vertex_type<G>> &edges, G &graph) {
+void convert_to_csr(const edge_list<vertex_type<G>> &edges, G &graph){
     convert_to_csr_impl(edges, graph);
 }
+*/
 
 } // namespace oneapi::dal::preview

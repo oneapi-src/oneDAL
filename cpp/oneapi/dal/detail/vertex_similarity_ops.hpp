@@ -19,13 +19,13 @@
 namespace oneapi::dal::preview {
 namespace detail {
 
-template <typename Descriptor, typename Tag>
+template <typename Descriptor, typename Graph, typename Tag>
 struct vertex_similarity_ops;
 
 template <typename Descriptor, typename Head, typename... Tail>
 auto vertex_similarity_dispatch_by_input(const Descriptor &desc, Head &&head, Tail &&... tail) {
     using tag_t   = typename Descriptor::tag_t;
-    using ops_t   = vertex_similarity_ops<Descriptor, tag_t>;
+    using ops_t   = vertex_similarity_ops<Descriptor, Head, tag_t>;
     using input_t = typename ops_t::input_t;
 
     const auto input = input_t{ std::forward<Head>(head), std::forward<Tail>(tail)... };

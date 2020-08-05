@@ -24,9 +24,9 @@
 namespace oneapi::dal::preview {
 namespace detail {
 
-template <typename Descriptor>
-struct vertex_similarity_ops<Descriptor, jaccard::detail::tag>
-        : jaccard::detail::vertex_similarity_ops<Descriptor> {};
+template <typename Descriptor, typename Graph>
+struct vertex_similarity_ops<Descriptor, Graph, jaccard::detail::tag>
+        : jaccard::detail::vertex_similarity_ops<Descriptor, Graph> {};
 
 } // namespace detail
 } // namespace oneapi::dal::preview

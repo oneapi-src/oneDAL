@@ -21,8 +21,8 @@
 namespace oneapi::dal::preview {
 namespace detail {
 template <>
-edge_list<std::int64_t> load(const std::string &name) {
-    using int_t = std::int64_t;
+edge_list<std::int32_t> load(const std::string &name) {
+    using int_t = std::int32_t;
     edge_list<int_t> elist;
     std::ifstream file(name);
     int_t source_vertex      = 0;

@@ -17,24 +17,26 @@
 #pragma once
 
 #include "oneapi/dal/algo/jaccard/common.hpp"
-#include "oneapi/dal/data/graph.hpp"
 #include "oneapi/dal/data/table.hpp"
+#include "oneapi/dal/data/undirected_adjacency_array_graph.hpp"
 
 namespace oneapi::dal::preview {
 namespace jaccard {
 
 namespace detail {
+template <typename Graph>
 class similarity_input_impl;
 class similarity_result_impl;
 } // namespace detail
 
+template <typename Graph>
 class similarity_input {
 public:
-    similarity_input(const graph &g);
-    const graph &get_graph() const;
+    similarity_input(const Graph &g);
+    const Graph &get_graph() const;
 
 private:
-    dal::detail::pimpl<detail::similarity_input_impl> impl_;
+    dal::detail::pimpl<detail::similarity_input_impl<Graph>> impl_;
 };
 
 using array_of_floats        = array<float>;

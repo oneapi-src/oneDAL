@@ -17,7 +17,7 @@
 #include <iostream>
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
-#include "oneapi/dal/data/graph.hpp"
+#include "oneapi/dal/data/graph_service.hpp"
 
 namespace oneapi::dal::preview {
 namespace jaccard {
@@ -56,7 +56,22 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
             i_u += 16;
         __mmask16 match = _mm512_cmpeq_epi32_mask(v_u, v_v);
         if (_mm512_mask2int(match) != 0xffff) { // shortcut case where all neighbors match
-            __m512i circ1  = _mm512_set_epi32(0, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1);
+            __m512i circ1  = _mm512_set_epi32(0,
+                                             15,
+                                             14,
+                                             13,
+                                             12,
+                                             11,
+                                             10,
+                                             9,
+                                             8,
+                                             7,
+                                             6,
+                                             5,
+                                             4,
+                                             3,
+                                             2,
+                                             1); // all possible circular shifts for 16 elements
             __m512i circ2  = _mm512_set_epi32(1, 0, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2);
             __m512i circ3  = _mm512_set_epi32(2, 1, 0, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3);
             __m512i circ4  = _mm512_set_epi32(3, 2, 1, 0, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4);
@@ -168,7 +183,14 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
 
         __mmask8 match = _mm256_cmpeq_epi32_mask(v_u, v_v);
         if (_cvtmask8_u32(match) != 0xff) { // shortcut case where all neighbors match
-            __m256i circ1 = _mm256_set_epi32(0, 7, 6, 5, 4, 3, 2, 1);
+            __m256i circ1 = _mm256_set_epi32(0,
+                                             7,
+                                             6,
+                                             5,
+                                             4,
+                                             3,
+                                             2,
+                                             1); // all possible circular shifts for 16 elements
             __m256i circ2 = _mm256_set_epi32(1, 0, 7, 6, 5, 4, 3, 2);
             __m256i circ3 = _mm256_set_epi32(2, 1, 0, 7, 6, 5, 4, 3);
             __m256i circ4 = _mm256_set_epi32(3, 2, 1, 0, 7, 6, 5, 4);
@@ -224,6 +246,7 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
     }
 
     while (i_u <= (n_u - 4) && i_v <= (n_v - 4)) { // not in last n%8 elements
+
         NodeID_t maxu = neigh_u[i_u + 3]; // assumes neighbor list is ordered
         NodeID_t minu = neigh_u[i_u];
         NodeID_t maxv = neigh_v[i_v + 3];
@@ -316,7 +339,7 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
             reinterpret_cast<const __m256i *>(neigh_u + i_u)); // load 8 neighbors of u
         __m256i v_v = _mm256_loadu_si256(
             reinterpret_cast<const __m256i *>(neigh_v + i_v)); // load 8 neighbors of v
-        //_mm256_cvtsi256_si32     _mm_loadu_si128
+            //_mm256_cvtsi256_si32     _mm_loadu_si128
 
         //_mm256_extract_epi32
         if (maxu >= maxv)
@@ -328,7 +351,14 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
         unsigned int scalar_match = _mm256_movemask_ps(reinterpret_cast<__m256>(match));
 
         if (scalar_match != 255) { // shortcut case where all neighbors match
-            __m256i circ1 = _mm256_set_epi32(0, 7, 6, 5, 4, 3, 2, 1);
+            __m256i circ1 = _mm256_set_epi32(0,
+                                             7,
+                                             6,
+                                             5,
+                                             4,
+                                             3,
+                                             2,
+                                             1); // all possible circular shifts for 16 elements
             __m256i circ2 = _mm256_set_epi32(1, 0, 7, 6, 5, 4, 3, 2);
             __m256i circ3 = _mm256_set_epi32(2, 1, 0, 7, 6, 5, 4, 3);
             __m256i circ4 = _mm256_set_epi32(3, 2, 1, 0, 7, 6, 5, 4);
@@ -401,6 +431,7 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
     }
 
     while (i_u <= (n_u - 4) && i_v <= (n_v - 4)) { // not in last n%8 elements
+
         NodeID_t maxu = neigh_u[i_u + 3]; // assumes neighbor list is ordered
         NodeID_t minu = neigh_u[i_u];
         NodeID_t maxv = neigh_v[i_v + 3];
@@ -514,8 +545,9 @@ template size_t intersection<uint64_t>(uint64_t *neigh_u,
                                        uint64_t n_u,
                                        uint64_t n_v);
 
+template <typename Graph>
 similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
-                                            const similarity_input &input) {
+                                            const similarity_input<Graph> &input) {
     std::cout << "Jaccard block kernel started" << std::endl;
     const auto my_graph = input.get_graph();
     std::cout << get_vertex_count(my_graph) << std::endl;
@@ -574,6 +606,10 @@ similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
     std::cout << "Jaccard block kernel ended" << std::endl;
     return res;
 }
+
+template similarity_result call_jaccard_block_kernel<undirected_adjacency_array<> &>(
+    const descriptor_base &desc,
+    const similarity_input<undirected_adjacency_array<> &> &input);
 
 } // namespace detail
 } // namespace jaccard
