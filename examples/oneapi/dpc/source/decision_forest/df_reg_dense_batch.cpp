@@ -69,18 +69,17 @@ void run(sycl::queue &queue) {
           .set_tree_count(10)
           .set_features_per_node(2)
           .set_min_observations_in_leaf_node(1)
-          .set_variable_importance_mode(df::variable_importance_mode::mdi)
-          .set_train_results_to_compute(
-              df::train_result_to_compute::compute_out_of_bag_error |
-              df::train_result_to_compute::
-                  compute_out_of_bag_error_per_observation);
+          .set_variable_importance_mode(df::variable_importance_mode::mdi);
 
   const auto df_infer_desc =
       df::descriptor<float, df::task::regression, df::method::dense>();
 
   try {
     const auto result_train =
-        dal::train(queue, df_train_desc, x_train_table, y_train_table);
+        dal::train(queue, df_train_desc, x_train_table, y_train_table,
+              df::train_result_to_compute::compute_out_of_bag_error |
+              df::train_result_to_compute::
+                  compute_out_of_bag_error_per_observation);
 
     std::cout << "Variable importance results:" << std::endl
               << result_train.get_var_importance() << std::endl;

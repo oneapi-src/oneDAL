@@ -70,21 +70,16 @@ void run(sycl::queue &queue) {
           .set_tree_count(10)
           .set_features_per_node(1)
           .set_min_observations_in_leaf_node(1)
-          .set_variable_importance_mode(df::variable_importance_mode::mdi)
-          .set_train_results_to_compute(
-              df::train_result_to_compute::compute_out_of_bag_error);
+          .set_variable_importance_mode(df::variable_importance_mode::mdi);
 
   const auto df_infer_desc =
       df::descriptor<float, df::task::classification, df::method::dense>{}
           .set_class_count(class_count)
-          .set_infer_results_to_compute(
-              df::infer_result_to_compute::compute_class_labels |
-              df::infer_result_to_compute::compute_class_probabilities)
           .set_voting_method(df::voting_method::weighted);
 
   try {
     const auto result_train =
-        dal::train(queue, df_train_desc, x_train_table, y_train_table);
+        dal::train(queue, df_train_desc, x_train_table, y_train_table, df::train_result_to_compute::compute_out_of_bag_error);
 
     std::cout << "Variable importance results:" << std::endl
               << result_train.get_var_importance() << std::endl;
@@ -92,7 +87,9 @@ void run(sycl::queue &queue) {
     std::cout << "OOB error: " << result_train.get_oob_err() << std::endl;
 
     const auto result_infer =
-        dal::infer(df_infer_desc, result_train.get_model(), x_test_table);
+        dal::infer(df_infer_desc, result_train.get_model(), x_test_table,
+              df::infer_result_to_compute::compute_class_labels |
+              df::infer_result_to_compute::compute_class_probabilities);
 
     std::cout << "Prediction results:" << std::endl
               << result_infer.get_labels() << std::endl;

@@ -32,25 +32,40 @@ template <typename Task = task::by_default>
 class infer_input : public base {
 public:
     using pimpl = dal::detail::pimpl<detail::infer_input_impl<Task>>;
-    infer_input(const model<Task>& trained_model, const table& data);
+    infer_input(const model<Task>& trained_model,
+                const table& data,
+                std::uint64_t results_to_compute);
+    infer_input(
+        const model<Task>& trained_model,
+        const table& data,
+        infer_result_to_compute results_to_compute = infer_result_to_compute::compute_class_labels);
 
     model<Task> get_model() const;
+    table get_data() const;
+    std::uint64_t get_results_to_compute() const;
 
     auto& set_model(const model<Task>& value) {
         set_model_impl(value);
         return *this;
     }
-
-    table get_data() const;
-
     auto& set_data(const table& value) {
         set_data_impl(value);
+        return *this;
+    }
+
+    auto& set_results_to_compute(infer_result_to_compute value) {
+        set_results_to_compute_impl(static_cast<std::uint64_t>(value));
+        return *this;
+    }
+    auto& set_results_to_compute(std::uint64_t value) {
+        set_results_to_compute_impl(value);
         return *this;
     }
 
 private:
     void set_model_impl(const model<Task>& value);
     void set_data_impl(const table& value);
+    void set_results_to_compute_impl(std::uint64_t value);
 
     pimpl impl_;
 };

@@ -52,9 +52,10 @@ using reg_model_p = reg::ModelPtr;
 template <typename Float, typename Task>
 static train_result<Task> call_daal_kernel(const context_gpu& ctx,
                                            const descriptor_base<Task>& desc,
-                                           const table& data,
-                                           const table& labels) {
-    auto& queue = ctx.get_queue();
+                                           const train_input<Task>& input) {
+    const table& data   = input.get_data();
+    const table& labels = input.get_labels();
+    auto& queue         = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
     const int64_t row_count    = data.get_row_count();
@@ -89,7 +90,7 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
     daal_parameter.minImpurityDecreaseInSplitNode = desc.get_min_impurity_decrease_in_split_node();
     daal_parameter.maxLeafNodes                   = desc.get_max_leaf_nodes();
 
-    daal_parameter.resultsToCompute = desc.get_train_results_to_compute();
+    daal_parameter.resultsToCompute = input.get_results_to_compute();
 
     auto vimp = desc.get_variable_importance_mode();
 
@@ -101,7 +102,7 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
 
     /* init daal result's objects */
     array<Float> arr_oob_err;
-    if (desc.get_train_results_to_compute() &
+    if (input.get_results_to_compute() &
         static_cast<std::uint64_t>(train_result_to_compute::compute_out_of_bag_error)) {
         arr_oob_err = array<Float>::empty(1 * 1);
 
@@ -111,7 +112,7 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
     }
 
     array<Float> arr_oob_per_obs_err;
-    if (desc.get_train_results_to_compute() &
+    if (input.get_results_to_compute() &
         static_cast<std::uint64_t>(
             train_result_to_compute::compute_out_of_bag_error_per_observation)) {
         arr_oob_per_obs_err = array<Float>::empty(queue, row_count * 1);
@@ -142,11 +143,11 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
 
     /* extract results from daal objects */
 
-    if (desc.get_train_results_to_compute() &
+    if (input.get_results_to_compute() &
         static_cast<std::uint64_t>(train_result_to_compute::compute_out_of_bag_error)) {
         res.set_oob_err(homogen_table_builder{}.reset(arr_oob_err, 1, 1).build());
     }
-    if (desc.get_train_results_to_compute() &
+    if (input.get_results_to_compute() &
         static_cast<std::uint64_t>(
             train_result_to_compute::compute_out_of_bag_error_per_observation)) {
         res.set_oob_per_observation_err(
@@ -164,7 +165,7 @@ template <typename Float, typename Task>
 static train_result<Task> train(const context_gpu& ctx,
                                 const descriptor_base<Task>& desc,
                                 const train_input<Task>& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_labels());
+    return call_daal_kernel<Float>(ctx, desc, input);
 }
 
 template <typename Float, typename Task>

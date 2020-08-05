@@ -41,10 +41,11 @@ using rgr_model_p = rgr::ModelPtr;
 template <typename Float, typename Task>
 static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const descriptor_base<Task>& desc,
-                                           const model<Task>& trained_model,
-                                           const table& data) {
-    const int64_t row_count    = data.get_row_count();
-    const int64_t column_count = data.get_column_count();
+                                           const infer_input<Task>& input) {
+    const model<Task>& trained_model = input.get_model();
+    const table& data                = input.get_data();
+    const int64_t row_count          = data.get_row_count();
+    const int64_t column_count       = data.get_column_count();
 
     auto arr_data = row_accessor<const Float>{ data }.pull();
 
@@ -87,7 +88,7 @@ template <typename Float, typename Task>
 static infer_result<Task> infer(const context_cpu& ctx,
                                 const descriptor_base<Task>& desc,
                                 const infer_input<Task>& input) {
-    return call_daal_kernel<Float, Task>(ctx, desc, input.get_model(), input.get_data());
+    return call_daal_kernel<Float, Task>(ctx, desc, input);
 }
 
 template <typename Float, typename Task>

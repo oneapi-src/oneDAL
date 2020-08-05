@@ -32,25 +32,35 @@ template <typename Task = task::by_default>
 class train_input : public base {
 public:
     using pimpl = dal::detail::pimpl<detail::train_input_impl<Task>>;
-    train_input(const table& data, const table& labels);
+    train_input(const table& data, const table& labels, std::uint64_t results_to_compute = 0);
+    train_input(const table& data, const table& labels, train_result_to_compute results_to_compute);
 
     table get_data() const;
+    table get_labels() const;
+    std::uint64_t get_results_to_compute() const;
 
     auto& set_data(const table& value) {
         set_data_impl(value);
         return *this;
     }
-
-    table get_labels() const;
-
     auto& set_labels(const table& value) {
         set_labels_impl(value);
+        return *this;
+    }
+
+    auto& set_results_to_compute(train_result_to_compute value) {
+        set_results_to_compute_impl(static_cast<std::uint64_t>(value));
+        return *this;
+    }
+    auto& set_results_to_compute(std::uint64_t value) {
+        set_results_to_compute_impl(value);
         return *this;
     }
 
 private:
     void set_data_impl(const table& value);
     void set_labels_impl(const table& value);
+    void set_results_to_compute_impl(std::uint64_t value);
 
     pimpl impl_;
 };

@@ -22,11 +22,23 @@ namespace oneapi::dal::decision_forest {
 template <typename Task>
 class detail::infer_input_impl : public base {
 public:
-    infer_input_impl(const model<Task>& trained_model, const table& data)
+    infer_input_impl(const model<Task>& trained_model,
+                     const table& data,
+                     std::uint64_t results_to_compute)
             : trained_model(trained_model),
-              data(data) {}
+              data(data),
+              results_to_compute(results_to_compute) {}
+    infer_input_impl(
+        const model<Task>& trained_model,
+        const table& data,
+        infer_result_to_compute results_to_compute = infer_result_to_compute::compute_class_labels)
+            : trained_model(trained_model),
+              data(data),
+              results_to_compute(static_cast<std::uint64_t>(results_to_compute)) {}
     model<Task> trained_model;
     table data;
+    std::uint64_t results_to_compute =
+        static_cast<std::uint64_t>(infer_result_to_compute::compute_class_labels);
 };
 
 template <typename Task>
@@ -40,8 +52,16 @@ using detail::infer_input_impl;
 using detail::infer_result_impl;
 
 template <typename Task>
-infer_input<Task>::infer_input(const model<Task>& trained_model, const table& data)
-        : impl_(new infer_input_impl<Task>(trained_model, data)) {}
+infer_input<Task>::infer_input(const model<Task>& trained_model,
+                               const table& data,
+                               std::uint64_t results_to_compute)
+        : impl_(new infer_input_impl<Task>(trained_model, data, results_to_compute)) {}
+
+template <typename Task>
+infer_input<Task>::infer_input(const model<Task>& trained_model,
+                               const table& data,
+                               infer_result_to_compute results_to_compute)
+        : impl_(new infer_input_impl<Task>(trained_model, data, results_to_compute)) {}
 
 template <typename Task>
 model<Task> infer_input<Task>::get_model() const {
@@ -54,6 +74,11 @@ table infer_input<Task>::get_data() const {
 }
 
 template <typename Task>
+std::uint64_t infer_input<Task>::get_results_to_compute() const {
+    return impl_->results_to_compute;
+}
+
+template <typename Task>
 void infer_input<Task>::set_model_impl(const model<Task>& value) {
     impl_->trained_model = value;
 }
@@ -61,6 +86,11 @@ void infer_input<Task>::set_model_impl(const model<Task>& value) {
 template <typename Task>
 void infer_input<Task>::set_data_impl(const table& value) {
     impl_->data = value;
+}
+
+template <typename Task>
+void infer_input<Task>::set_results_to_compute_impl(std::uint64_t value) {
+    impl_->results_to_compute = value;
 }
 
 template class ONEAPI_DAL_EXPORT infer_input<task::classification>;

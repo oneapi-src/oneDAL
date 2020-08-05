@@ -22,10 +22,20 @@ namespace oneapi::dal::decision_forest {
 template <typename Task>
 class detail::train_input_impl : public base {
 public:
-    train_input_impl(const table& data, const table& labels) : data(data), labels(labels) {}
+    train_input_impl(const table& data, const table& labels, std::uint64_t results_to_compute = 0)
+            : data(data),
+              labels(labels),
+              results_to_compute(results_to_compute) {}
+    train_input_impl(const table& data,
+                     const table& labels,
+                     train_result_to_compute results_to_compute)
+            : data(data),
+              labels(labels),
+              results_to_compute(static_cast<std::uint64_t>(results_to_compute)) {}
 
     table data;
     table labels;
+    std::uint64_t results_to_compute = 0;
 };
 
 template <typename Task>
@@ -42,8 +52,16 @@ using detail::train_input_impl;
 using detail::train_result_impl;
 
 template <typename Task>
-train_input<Task>::train_input(const table& data, const table& labels)
-        : impl_(new train_input_impl<Task>(data, labels)) {}
+train_input<Task>::train_input(const table& data,
+                               const table& labels,
+                               std::uint64_t results_to_compute)
+        : impl_(new train_input_impl<Task>(data, labels, results_to_compute)) {}
+
+template <typename Task>
+train_input<Task>::train_input(const table& data,
+                               const table& labels,
+                               train_result_to_compute results_to_compute)
+        : impl_(new train_input_impl<Task>(data, labels, results_to_compute)) {}
 
 template <typename Task>
 table train_input<Task>::get_data() const {
@@ -56,6 +74,11 @@ table train_input<Task>::get_labels() const {
 }
 
 template <typename Task>
+std::uint64_t train_input<Task>::get_results_to_compute() const {
+    return impl_->results_to_compute;
+}
+
+template <typename Task>
 void train_input<Task>::set_data_impl(const table& value) {
     impl_->data = value;
 }
@@ -63,6 +86,11 @@ void train_input<Task>::set_data_impl(const table& value) {
 template <typename Task>
 void train_input<Task>::set_labels_impl(const table& value) {
     impl_->labels = value;
+}
+
+template <typename Task>
+void train_input<Task>::set_results_to_compute_impl(std::uint64_t value) {
+    impl_->results_to_compute = value;
 }
 
 template class ONEAPI_DAL_EXPORT train_input<task::classification>;

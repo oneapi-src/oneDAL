@@ -102,9 +102,6 @@ public:
     bool get_memory_saving_mode() const;
     bool get_bootstrap() const;
 
-    std::uint64_t get_train_results_to_compute() const;
-    std::uint64_t get_infer_results_to_compute() const;
-
     variable_importance_mode get_variable_importance_mode() const;
 
     /* classification specific methods */
@@ -130,11 +127,6 @@ protected:
     void set_min_observations_in_leaf_node_impl(std::int64_t value);
     void set_min_observations_in_split_node_impl(std::int64_t value);
     void set_max_leaf_nodes_impl(std::int64_t value);
-
-    void set_train_results_to_compute_impl(std::uint64_t value);
-    void set_train_results_to_compute_impl(train_result_to_compute value);
-    void set_infer_results_to_compute_impl(std::uint64_t value);
-    void set_infer_results_to_compute_impl(infer_result_to_compute value);
 
     void set_memory_saving_mode_impl(bool value);
     void set_bootstrap_impl(bool value);
@@ -205,23 +197,6 @@ public:
     }
     auto& set_max_leaf_nodes(std::int64_t value) {
         parent::set_max_leaf_nodes_impl(value);
-        return *this;
-    }
-
-    auto& set_train_results_to_compute(std::uint64_t value) {
-        parent::set_train_results_to_compute_impl(value);
-        return *this;
-    }
-    auto& set_train_results_to_compute(train_result_to_compute value) {
-        parent::set_train_results_to_compute_impl(static_cast<std::uint64_t>(value));
-        return *this;
-    }
-    auto& set_infer_results_to_compute(infer_result_to_compute value) {
-        parent::set_infer_results_to_compute_impl(static_cast<std::uint64_t>(value));
-        return *this;
-    }
-    auto& set_infer_results_to_compute(std::uint64_t value) {
-        parent::set_infer_results_to_compute_impl(value);
         return *this;
     }
 

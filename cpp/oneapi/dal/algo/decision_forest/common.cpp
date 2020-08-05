@@ -35,10 +35,6 @@ public:
     std::int64_t min_observations_in_split_node = 2;
     std::int64_t max_leaf_nodes                 = 0;
 
-    std::uint64_t train_results_to_compute = 0;
-    std::uint64_t infer_results_to_compute =
-        static_cast<std::uint64_t>(infer_result_to_compute::compute_class_labels);
-
     bool memory_saving_mode = false;
     bool bootstrap          = true;
 
@@ -61,10 +57,6 @@ public:
     std::int64_t min_observations_in_leaf_node  = 5;
     std::int64_t min_observations_in_split_node = 2;
     std::int64_t max_leaf_nodes                 = 0;
-
-    std::uint64_t train_results_to_compute = 0;
-    std::uint64_t infer_results_to_compute =
-        static_cast<std::uint64_t>(infer_result_to_compute::compute_class_labels);
 
     bool memory_saving_mode = false;
     bool bootstrap          = true;
@@ -125,16 +117,6 @@ template <typename Task>
 std::int64_t descriptor_base<Task>::get_max_leaf_nodes() const {
     return impl_->max_leaf_nodes;
 }
-
-template <typename Task>
-std::uint64_t descriptor_base<Task>::get_train_results_to_compute() const {
-    return impl_->train_results_to_compute;
-}
-template <typename Task>
-std::uint64_t descriptor_base<Task>::get_infer_results_to_compute() const {
-    return impl_->infer_results_to_compute;
-}
-
 template <typename Task>
 bool descriptor_base<Task>::get_memory_saving_mode() const {
     return impl_->memory_saving_mode;
@@ -200,16 +182,6 @@ template <typename Task>
 void descriptor_base<Task>::set_max_leaf_nodes_impl(std::int64_t value) {
     impl_->max_leaf_nodes = value;
 }
-
-template <typename Task>
-void descriptor_base<Task>::set_train_results_to_compute_impl(std::uint64_t value) {
-    impl_->train_results_to_compute = value;
-}
-template <typename Task>
-void descriptor_base<Task>::set_infer_results_to_compute_impl(std::uint64_t value) {
-    impl_->infer_results_to_compute = value;
-}
-
 template <typename Task>
 void descriptor_base<Task>::set_memory_saving_mode_impl(bool value) {
     impl_->memory_saving_mode = value;
