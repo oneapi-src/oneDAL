@@ -38,14 +38,14 @@ public:
     using vertex_type = IndexType;
     using vertex_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<vertex_type>;
-    using vertex_set       = detail::graph_container<vertex_type, vertex_allocator_type>;
-    using vertex_size_type = typename vertex_set::size_type;
+    using vertex_set       = array<vertex_type>;
+    using vertex_size_type = std::int64_t;
 
     using edge_type = IndexType;
     using edge_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<edge_type>;
-    using edge_set       = detail::graph_container<edge_type, edge_allocator_type>;
-    using edge_size_type = typename edge_set::size_type;
+    using edge_set       = array<edge_type>;
+    using edge_size_type = std::int64_t;
 
     using vertex_user_value_type = VertexValue;
     using vertex_user_value_set  = detail::graph_container<vertex_user_value_type, allocator_type>;
@@ -58,8 +58,9 @@ public:
     vertex_size_type _vertex_count;
     edge_size_type _edge_count;
 
-    vertex_set _vertexes;
-    edge_set _edges;
+    vertex_set _vertex_neighbors;
+    vertex_set _degrees;
+    edge_set _edge_offsets;
 
     vertex_user_value_set _vertex_value;
     edge_value_set _edge_value;
