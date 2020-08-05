@@ -52,6 +52,17 @@ enum Method
     voteBased              = 1  /*!< Prediction method that is based on votes returned by two-class classifiers */
 };
 
+/**
+ * <a name="DAAL-ENUM-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__PREDICTION__RESULTID"></a>
+ * \brief Available identifiers of the result for making KD-tree based kNN model-based prediction
+ */
+enum ResultId
+{
+    prediction       = classifier::prediction::prediction,       /*!< Prediction results */
+    decisionFunction = classifier::prediction::lastResultId + 1, /*!< Distances to nearest neighbors */
+    lastResultId     = decision_function
+};
+
 namespace interface1
 {
 /**
