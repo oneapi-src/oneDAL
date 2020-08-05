@@ -47,7 +47,8 @@ using namespace daal::services::internal;
 template <typename algorithmFPType, typename ClsType, typename MultiClsParam, CpuType cpu>
 struct MultiClassClassifierPredictKernel<voteBased, training::oneAgainstOne, algorithmFPType, ClsType, MultiClsParam, cpu> : public Kernel
 {
-    Status compute(const NumericTable * a, const daal::algorithms::Model * m, NumericTable * r, const daal::algorithms::Parameter * par);
+    Status compute(const NumericTable * a, const daal::algorithms::Model * m, NumericTable * pred, NumericTable * df,
+                   const daal::algorithms::Parameter * par);
 };
 
 /** Base class for threading subtask */
@@ -68,19 +69,14 @@ public:
      * \param[in] nonEmptyClassMap Array that contains indices of non-empty classes
      * \return Status of the computations
      */
-    Status predict(size_t startRow, size_t nRows, const NumericTable * a, Model * model, NumericTable * r, const size_t * nonEmptyClassMap)
+    Status predict(size_t startRow, size_t nRows, const NumericTable * a, Model * model, NumericTable * pred, NumericTable * df,
+                   const size_t * nonEmptyClassMap)
     {
         Status s;
         algorithmFPType * y = _aY.get();     // array of two-class classifier predictions
         int * votes         = _aVotes.get(); // array of two-class classifiers' votes
 
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < _nClasses * nRows; ++i)
-        {
-            votes[i] = 0;
-        }
-
+        daal::services::internal::service_memset_seq<size_t, cpu>(votes, 0, _nClasses * nRows);
         {
             NumericTablePtr xTable; // block of rows from the input data set
             s = getDataBlock(startRow, nRows, a, xTable);
@@ -117,22 +113,25 @@ public:
             }
         }
 
-        /* Compute resulting labels as indices of the maximum vote values */
-        WriteOnlyRows<int, cpu> res(r, startRow, nRows);
-        int * labels = res.get();
-        DAAL_CHECK_MALLOC(labels);
-
-        int * votesPtr = votes;
-        for (size_t i = 0; i < nRows; i++, votesPtr += _nClasses)
+        if (pred)
         {
-            labels[i]   = nonEmptyClassMap[0];
-            int maxVote = votesPtr[0];
-            for (size_t iClass = 1; iClass < _nClasses; iClass++)
+            /* Compute resulting labels as indices of the maximum vote values */
+            WriteOnlyRows<int, cpu> res(r, startRow, nRows);
+            int * labels = res.get();
+            DAAL_CHECK_MALLOC(labels);
+
+            int * votesPtr = votes;
+            for (size_t i = 0; i < nRows; i++, votesPtr += _nClasses)
             {
-                if (votesPtr[iClass] > maxVote)
+                labels[i]   = nonEmptyClassMap[0];
+                int maxVote = votesPtr[0];
+                for (size_t iClass = 1; iClass < _nClasses; iClass++)
                 {
-                    maxVote   = votesPtr[iClass];
-                    labels[i] = nonEmptyClassMap[iClass];
+                    if (votesPtr[iClass] > maxVote)
+                    {
+                        maxVote   = votesPtr[iClass];
+                        labels[i] = nonEmptyClassMap[iClass];
+                    }
                 }
             }
         }
@@ -281,7 +280,7 @@ private:
 
 template <typename algorithmFPType, typename ClsType, typename MultiClsParam, CpuType cpu>
 Status MultiClassClassifierPredictKernel<voteBased, training::oneAgainstOne, algorithmFPType, ClsType, MultiClsParam, cpu>::compute(
-    const NumericTable * a, const daal::algorithms::Model * m, NumericTable * r, const daal::algorithms::Parameter * par)
+    const NumericTable * a, const daal::algorithms::Model * m, NumericTable * pred, NumericTable * df, const daal::algorithms::Parameter * par)
 {
     Model * model          = static_cast<Model *>(const_cast<daal::algorithms::Model *>(m));
     MultiClsParam * mccPar = static_cast<MultiClsParam *>(const_cast<daal::algorithms::Parameter *>(par));
@@ -326,7 +325,7 @@ Status MultiClassClassifierPredictKernel<voteBased, training::oneAgainstOne, alg
         const size_t nRows    = (startRow + nRowsInBlock > nVectors) ? nVectors - startRow : nRowsInBlock;
 
         /* Get a block of predictions */
-        Status s = local->predict(startRow, nRows, a, model, r, nonEmptyClassMap);
+        Status s = local->predict(startRow, nRows, a, model, pred, df, nonEmptyClassMap);
         DAAL_CHECK_STATUS_THR(s);
     });
 

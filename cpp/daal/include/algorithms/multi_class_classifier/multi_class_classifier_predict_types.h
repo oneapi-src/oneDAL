@@ -119,6 +119,62 @@ public:
     services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
+/**
+* <a name="DAAL-CLASS-ALGORITHMS__LOGISTIC_REGRESSION__PREDICTION__RESULT"></a>
+* \brief Provides interface for the result of model-based prediction   \DAAL_DEPRECATED
+*/
+class DAAL_EXPORT Result : public classifier::prediction::Result
+{
+    typedef classifier::prediction::Result super;
+
+public:
+    DECLARE_SERIALIZABLE_CAST(Result)
+    Result();
+
+    /**
+    * Returns the result of model-based prediction
+    * \param[in] id    Identifier of the result
+    * \return          Result that corresponds to the given identifier
+    */
+    data_management::NumericTablePtr get(ResultId id) const;
+
+    /**
+    * Sets the result of model-based prediction
+    * \param[in] id      Identifier of the input object
+    * \param[in] value   %Input object
+    */
+    void set(ResultId id, const data_management::NumericTablePtr & value);
+
+    /**
+    * Allocates memory to store a partial result of model-based prediction
+    * \param[in] input   %Input object
+    * \param[in] par     %Parameter of the algorithm
+    * \param[in] method  Algorithm method
+    * \return Status of allocation
+    */
+    template <typename algorithmFPType>
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method);
+
+    /**
+    * Checks the result of model-based prediction
+    * \param[in] input   %Input object
+    * \param[in] par     %Parameter of the algorithm
+    * \param[in] method  Computation method
+    * \return Status of checking
+    */
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+
+protected:
+    /** \private */
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
+    {
+        return daal::algorithms::classifier::prediction::interface1::Result::serialImpl<Archive, onDeserialize>(arch);
+    }
+};
+typedef services::SharedPtr<Result> ResultPtr;
+typedef services::SharedPtr<const Result> ResultConstPtr;
+
 } // namespace interface1
 using interface1::Input;
 

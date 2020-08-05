@@ -258,7 +258,7 @@ public:
 
     typedef algorithms::multi_class_classifier::prediction::Input InputType;
     typedef algorithms::multi_class_classifier::Parameter ParameterType;
-    typedef typename super::ResultType ResultType;
+    typedef algorithms::multi_class_classifier::Result ResultType;
 
     InputType input;         /*!< Input objects of the algorithm */
     ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of the algorithm */
@@ -301,6 +301,19 @@ public:
      */
     virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)pmethod; }
 
+    ResultPtr getResult() { return Result::cast(_result); }
+
+    /**
+     * Resets the results of KD-tree based kNN model training algorithm
+     */
+    services::Status resetResult() DAAL_C11_OVERRIDE
+    {
+        _result.reset(new ResultType());
+        DAAL_CHECK(_result, services::ErrorNullResult);
+        _res = NULL;
+        return services::Status();
+    }
+
     /**
      * Returns a pointer to the newly allocated multi-class classifier prediction algorithm
      * with a copy of input objects and parameters of this multi-class classifier prediction algorithm
@@ -319,7 +332,9 @@ protected:
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int)pmethod);
+        const ResultPtr res = getResult();
+        DAAL_CHECK(_result, services::ErrorNullResult);
+        services::Status s = res->allocate<algorithmFPType>(&input, &parameter, (int)pmethod);
         _res               = _result.get();
         return s;
     }
@@ -329,6 +344,7 @@ protected:
         _in  = &input;
         _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, pmethod, tmethod)(&_env);
         _par = &parameter;
+        _result.reset(new ResultType());
     }
 
 private:
