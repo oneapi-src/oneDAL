@@ -80,11 +80,4 @@ constexpr auto get_vertex_value(const G &g, const vertex_type<G> &vertex)
     return get_vertex_value(g, vertex);
 }
 
-/*
-template <typename G>
-void convert_to_csr(const edge_list<vertex_type<G>> &edges, G &graph){
-    convert_to_csr_impl(edges, graph);
-}
-*/
-
 } // namespace oneapi::dal::preview
