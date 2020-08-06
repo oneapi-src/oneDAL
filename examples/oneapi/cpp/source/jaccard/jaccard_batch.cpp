@@ -355,6 +355,20 @@ void jaccard_block_avx512(const graph my_graph,
 
     int64_t huge_degree_jaccards_size = 0;
 
+    __m512i n_j_start_v = _mm512_set1_epi32(0);
+    __m512i n_j_end_v = _mm512_set1_epi32(0);
+    __m512i n_j_start_v1 = _mm512_set1_epi32(0);
+    __m512i n_j_end_v1 = _mm512_set1_epi32(0);
+    __mmask16 cmpgt1;
+    __mmask16 cmpgt2;
+    __mmask16 worth_intersection;
+    unsigned int ones_num = 0;
+    
+    __m512i j_vertices_tmp1 = _mm512_set_epi32(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
+
+    __m512i j_vertices_tmp2 = _mm512_set1_epi32(0);
+    __m512i j_vertices = _mm512_set1_epi32(0);
+
     __declspec(align(64)) NodeID_t buffer_first[max_buffer_stack_size];
     __declspec(align(64)) NodeID_t buffer_second[max_buffer_stack_size];
      //NodeID_t buffer_first[max_buffer_stack_size];
@@ -374,6 +388,7 @@ void jaccard_block_avx512(const graph my_graph,
     NodeID_t j = 0;
 
     for (NodeID_t i = vert00; i < vert01; i++) {
+        __m512i i_vertex = _mm512_set1_epi32(i);
         NodeID_t size_i = g->_degrees[i];
         auto n_i = g->_vertex_neighbors.data() + g->_edge_offsets[i];
 
@@ -410,7 +425,7 @@ void jaccard_block_avx512(const graph my_graph,
                 g->_vertex_neighbors.data() + g->_edge_offsets[j + 14], g->_vertex_neighbors.data() + g->_edge_offsets[j + 15]
             };
 
-            __m512i n_j_start_v = _mm512_set_epi32(
+            n_j_start_v = _mm512_set_epi32(
                 neighbors_j[0][0], neighbors_j[1][0], 
                 neighbors_j[2][0], neighbors_j[3][0], 
                 neighbors_j[4][0], neighbors_j[5][0],   
@@ -421,7 +436,7 @@ void jaccard_block_avx512(const graph my_graph,
                 neighbors_j[14][0], neighbors_j[15][0]);
 
 
-            __m512i n_j_end_v = _mm512_set_epi32(
+            n_j_end_v = _mm512_set_epi32(
                 neighbors_j[0][sizes_j[0] - 1], neighbors_j[1][sizes_j[1] - 1], 
                 neighbors_j[2][sizes_j[2] - 1], neighbors_j[3][sizes_j[3] - 1],
                 neighbors_j[4][sizes_j[4] - 1], neighbors_j[5][sizes_j[5] - 1], 
@@ -457,7 +472,7 @@ void jaccard_block_avx512(const graph my_graph,
                     g->_vertex_neighbors.data() + g->_edge_offsets[j + 30], g->_vertex_neighbors.data() + g->_edge_offsets[j + 31]
                 };
 
-                __m512i n_j_start_v1 = _mm512_set_epi32(
+                n_j_start_v1 = _mm512_set_epi32(
                     neighbors_j_tmp1[0][0], neighbors_j_tmp1[1][0], 
                     neighbors_j_tmp1[2][0], neighbors_j_tmp1[3][0], 
                     neighbors_j_tmp1[4][0], neighbors_j_tmp1[5][0],   
@@ -467,7 +482,7 @@ void jaccard_block_avx512(const graph my_graph,
                     neighbors_j_tmp1[12][0], neighbors_j_tmp1[13][0],   
                     neighbors_j_tmp1[14][0], neighbors_j_tmp1[15][0]);
 
-                __m512i n_j_end_v1 = _mm512_set_epi32(
+                n_j_end_v1 = _mm512_set_epi32(
                     neighbors_j_tmp1[0][sizes_j_tmp1[0] - 1], neighbors_j_tmp1[1][sizes_j_tmp1[1] - 1], 
                     neighbors_j_tmp1[2][sizes_j_tmp1[2] - 1], neighbors_j_tmp1[3][sizes_j_tmp1[3] - 1],
                     neighbors_j_tmp1[4][sizes_j_tmp1[4] - 1], neighbors_j_tmp1[5][sizes_j_tmp1[5] - 1], 
@@ -479,19 +494,16 @@ void jaccard_block_avx512(const graph my_graph,
 
 
                 //process i data
-                __mmask16 cmpgt1 = _mm512_cmpgt_epi32_mask( n_i_start_v, n_j_end_v);
-                __mmask16 cmpgt2 = _mm512_cmpgt_epi32_mask( n_j_start_v, n_i_end_v);
-                __mmask16 worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
+                cmpgt1 = _mm512_cmpgt_epi32_mask( n_i_start_v, n_j_end_v);
+                cmpgt2 = _mm512_cmpgt_epi32_mask( n_j_start_v, n_i_end_v);
+                worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
 
-                unsigned int ones_num = _popcnt32(_cvtmask16_u32(worth_intersection));
+                ones_num = _popcnt32(_cvtmask16_u32(worth_intersection));
 
                 if (ones_num != 0) {
 
-                    __m512i i_vertex = _mm512_set1_epi32(i);
-                    __m512i j_vertices_tmp1 = _mm512_set_epi32(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
-
-                    __m512i j_vertices_tmp2 = _mm512_set1_epi32(j);
-                    __m512i j_vertices = _mm512_add_epi32(j_vertices_tmp1, j_vertices_tmp2);
+                    j_vertices_tmp2 = _mm512_set1_epi32(j);
+                    j_vertices = _mm512_add_epi32(j_vertices_tmp1, j_vertices_tmp2);
                     
                     _mm512_mask_compressstoreu_epi32((huge_degree_jaccards_first + huge_degree_jaccards_size), worth_intersection , i_vertex);
                     _mm512_mask_compressstoreu_epi32((huge_degree_jaccards_second + huge_degree_jaccards_size), worth_intersection, j_vertices);
@@ -508,19 +520,16 @@ void jaccard_block_avx512(const graph my_graph,
 
             //process n data
 
-            __mmask16 cmpgt1 = _mm512_cmpgt_epi32_mask( n_i_start_v, n_j_end_v);
-            __mmask16 cmpgt2 = _mm512_cmpgt_epi32_mask( n_j_start_v, n_i_end_v);
-            __mmask16 worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
+            cmpgt1 = _mm512_cmpgt_epi32_mask( n_i_start_v, n_j_end_v);
+            cmpgt2 = _mm512_cmpgt_epi32_mask( n_j_start_v, n_i_end_v);
+            worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
 
-            unsigned int ones_num = _popcnt32(_cvtmask16_u32(worth_intersection));
+            ones_num = _popcnt32(_cvtmask16_u32(worth_intersection));
 
             if (ones_num != 0) {
 
-                __m512i i_vertex = _mm512_set1_epi32(i);
-                __m512i j_vertices_tmp1 = _mm512_set_epi32(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
-
-                __m512i j_vertices_tmp2 = _mm512_set1_epi32(j);
-                __m512i j_vertices = _mm512_add_epi32(j_vertices_tmp1, j_vertices_tmp2);
+                j_vertices_tmp2 = _mm512_set1_epi32(j);
+                j_vertices = _mm512_add_epi32(j_vertices_tmp1, j_vertices_tmp2);
                 
                 _mm512_mask_compressstoreu_epi32((huge_degree_jaccards_first + huge_degree_jaccards_size), worth_intersection , i_vertex);
                 _mm512_mask_compressstoreu_epi32((huge_degree_jaccards_second + huge_degree_jaccards_size), worth_intersection, j_vertices);
@@ -671,19 +680,16 @@ void jaccard_block_avx512(const graph my_graph,
 
 
                 //process i data
-                __mmask16 cmpgt1 = _mm512_cmpgt_epi32_mask( n_i_start_v, n_j_end_v);
-                __mmask16 cmpgt2 = _mm512_cmpgt_epi32_mask( n_j_start_v, n_i_end_v);
-                __mmask16 worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
+                cmpgt1 = _mm512_cmpgt_epi32_mask( n_i_start_v, n_j_end_v);
+                cmpgt2 = _mm512_cmpgt_epi32_mask( n_j_start_v, n_i_end_v);
+                worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
 
-                unsigned int ones_num = _popcnt32(_cvtmask16_u32(worth_intersection));
+                ones_num = _popcnt32(_cvtmask16_u32(worth_intersection));
 
                 if (ones_num != 0) {
 
-                    __m512i i_vertex = _mm512_set1_epi32(i);
-                    __m512i j_vertices_tmp1 = _mm512_set_epi32(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
-
-                    __m512i j_vertices_tmp2 = _mm512_set1_epi32(j);
-                    __m512i j_vertices = _mm512_add_epi32(j_vertices_tmp1, j_vertices_tmp2);
+                    j_vertices_tmp2 = _mm512_set1_epi32(j);
+                    j_vertices = _mm512_add_epi32(j_vertices_tmp1, j_vertices_tmp2);
                     
                     _mm512_mask_compressstoreu_epi32((huge_degree_jaccards_first + huge_degree_jaccards_size), worth_intersection , i_vertex);
                     _mm512_mask_compressstoreu_epi32((huge_degree_jaccards_second + huge_degree_jaccards_size), worth_intersection, j_vertices);
@@ -699,19 +705,16 @@ void jaccard_block_avx512(const graph my_graph,
 
             //process n data
 
-            __mmask16 cmpgt1 = _mm512_cmpgt_epi32_mask( n_i_start_v, n_j_end_v);
-            __mmask16 cmpgt2 = _mm512_cmpgt_epi32_mask( n_j_start_v, n_i_end_v);
-            __mmask16 worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
+            cmpgt1 = _mm512_cmpgt_epi32_mask( n_i_start_v, n_j_end_v);
+            cmpgt2 = _mm512_cmpgt_epi32_mask( n_j_start_v, n_i_end_v);
+            worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
 
             unsigned int ones_num = _popcnt32(_cvtmask16_u32(worth_intersection));
 
             if (ones_num != 0) {
 
-                __m512i i_vertex = _mm512_set1_epi32(i);
-                __m512i j_vertices_tmp1 = _mm512_set_epi32(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
-
-                __m512i j_vertices_tmp2 = _mm512_set1_epi32(j);
-                __m512i j_vertices = _mm512_add_epi32(j_vertices_tmp1, j_vertices_tmp2);
+                j_vertices_tmp2 = _mm512_set1_epi32(j);
+                j_vertices = _mm512_add_epi32(j_vertices_tmp1, j_vertices_tmp2);
                 
                 _mm512_mask_compressstoreu_epi32((huge_degree_jaccards_first + huge_degree_jaccards_size), worth_intersection , i_vertex);
                 _mm512_mask_compressstoreu_epi32((huge_degree_jaccards_second + huge_degree_jaccards_size), worth_intersection, j_vertices);
@@ -798,6 +801,13 @@ void jaccard_block_avx512(const graph my_graph,
 
 }
 
+template<class NodeID_t>
+void jaccard_all_row_v(
+                const graph& g, 
+                std::vector<NodeID_t>& jaccard_first,
+                std::vector<NodeID_t>& jaccard_second,
+                std::vector<float>& jaccard_coefficients,
+                NodeID_t block_size_x, NodeID_t block_size_y);
 
 template<class NodeID_t>
 void jaccard_all_row(
@@ -945,7 +955,7 @@ int main(int argc, char ** argv)
 
     int num_trials_custom = 10;
     int num_trials_lib = 1;
-    int num_of_threads = 1;
+    int verify = 0;
 
 
     if (argc < 2) return 0;
@@ -965,7 +975,7 @@ int main(int argc, char ** argv)
         block_size_x = stoi(argv[2]);
         block_size_y = stoi(argv[3]);
         num_trials_custom = stoi(argv[4]);
-        num_of_threads = stoi(argv[5]);
+        verify = stoi(argv[5]);
     }
  //   tbb::task_scheduler_init init(num_of_threads);
 
@@ -1013,7 +1023,11 @@ int main(int argc, char ** argv)
     cout <<"Max: " << time.back() << endl;
 
     string verify_file("/nfs/inn/proj/numerics1/Users/akumin/oneDAL/results_Enron.txt");
-    //verify_results(my_graph, jaccard_first, jaccard_second, jaccard_coefficients, verify_file);
+    if (verify) {
+        jaccard_all_row_v(my_graph, jaccard_first, jaccard_second, jaccard_coefficients, block_size_x, block_size_y);
+        verify_results(my_graph, jaccard_first, jaccard_second, jaccard_coefficients, verify_file);
+    }
+
     return 0;
 }
 
@@ -1176,6 +1190,135 @@ void verify_results(oneapi::dal::preview::graph g, vector<int32_t>& jaccard_firs
   }
 
 }
+
+template<class NodeID_t>
+void jaccard_all_row_v(
+                const graph& g, 
+                std::vector<NodeID_t>& jaccard_first,
+                std::vector<NodeID_t>& jaccard_second,
+                std::vector<float>& jaccard_coefficients,
+                NodeID_t block_size_x, NodeID_t block_size_y) 
+{
+
+    size_t num_nodes = get_vertex_count( g);
+
+    if (block_size_y > num_nodes) {
+        block_size_y = num_nodes;
+    }
+
+    NodeID_t blocks_x = num_nodes;
+    int number_of_threads = tbb::this_task_arena::max_concurrency();
+    cout << "tbb threads " << number_of_threads << endl;
+    std::vector< std::vector<NodeID_t>> blocks_first(number_of_threads, std::vector<NodeID_t> (block_size_y * block_size_x));
+    std::vector< std::vector<NodeID_t>> blocks_second(number_of_threads, std::vector<NodeID_t> (block_size_y * block_size_x));
+    std::vector< std::vector<float>> blocks_jaccards(number_of_threads, std::vector<float> (block_size_y * block_size_x));
+
+    ///*
+    size_t num_non_exists = (num_nodes * num_nodes - num_nodes) / 2 - get_edge_count(g);
+    int64_t jaccard_size = 0;
+    if (!jaccard_first.empty()) {
+        jaccard_first.clear();
+    }
+
+    if (!jaccard_second.empty()) {
+        jaccard_second.clear();
+    }
+
+    if (!jaccard_coefficients.empty()) {
+        jaccard_coefficients.clear();
+    }
+    int32_t ratio_all_coefs_with_nnz_coeffs = 7; 
+    jaccard_first.resize(num_non_exists / ratio_all_coefs_with_nnz_coeffs);
+    jaccard_second.resize(num_non_exists / ratio_all_coefs_with_nnz_coeffs);
+    jaccard_coefficients.resize(num_non_exists / ratio_all_coefs_with_nnz_coeffs);
+    
+
+    std::mutex Mutex;
+    //*/
+    //std::mutex Mutex;
+
+    tbb::parallel_for(tbb::blocked_range<NodeID_t>(0, num_nodes - 1),
+    [&](const tbb::blocked_range<int32_t>& r) {
+        for (NodeID_t i = r.begin(); i != r.end(); ++i) {
+    //for (NodeID_t i = 0; i < num_nodes - 1; ++i) {
+            NodeID_t block_x_begin = i * block_size_x;
+            NodeID_t block_x_end = block_x_begin + block_size_x;
+            if ((i + 1) == blocks_x) {
+                block_x_end = num_nodes;
+            }
+
+            NodeID_t y_start = block_x_begin + 1;
+            NodeID_t blocks_y = (num_nodes - y_start) / block_size_y;
+            if (block_size_y * blocks_y != (num_nodes - y_start)) {
+                blocks_y++;
+            }
+
+            tbb::parallel_for(tbb::blocked_range<NodeID_t>(0, blocks_y),
+                [&](const tbb::blocked_range<int32_t>& inner_r) {
+                for (NodeID_t j = inner_r.begin(); j != inner_r.end(); ++j) {
+                //for (NodeID_t j = 0; j < blocks_y; ++j) {
+                    NodeID_t block_y_begin = y_start + j * block_size_y;
+                    NodeID_t block_y_end = block_y_begin + block_size_y;
+                    if ((j + 1) == blocks_y ) {
+                        block_y_end = num_nodes;
+                    }
+                    NodeID_t jaccard_block_nnz = 0;
+                    //Mutex.lock();
+                     //cout << block_x_begin << " " << block_x_end << " : " <<
+                      //       block_y_begin << " " << block_y_end << endl;
+                    jaccard_block_avx512(g,
+                                    block_x_begin, block_x_end,
+                                    block_y_begin, block_y_end,
+                                    blocks_first[tbb::this_task_arena::current_thread_index()], 
+                                    blocks_second[tbb::this_task_arena::current_thread_index()], 
+                                    blocks_jaccards[tbb::this_task_arena::current_thread_index()], 
+                                    //blocks[0],
+                                    jaccard_block_nnz);
+                    //cout << " out : " << tbb::this_task_arena::current_thread_index() << endl;
+
+                    ///*
+                    Mutex.lock();
+                    int64_t jaccard_block_size = jaccard_block_nnz;
+                    if (jaccard_first.size() < jaccard_size + jaccard_block_size) {
+                        jaccard_first.resize(jaccard_size + jaccard_block_size);
+                    }
+                    if (jaccard_second.size() < jaccard_size + jaccard_block_size) {
+                        jaccard_second.resize(jaccard_size + jaccard_block_size);
+                    }
+                    if (jaccard_coefficients.size() < jaccard_size + jaccard_block_size) {
+                        jaccard_coefficients.resize(jaccard_size + jaccard_block_size);
+                    }                                        
+                    //add_block_nonzero_coeffs_in_jaccard_vector(blocks[tbb::this_task_arena::current_thread_index()].data(), jaccard_block_size, jaccard.data(), jaccard_size, Mutex);
+                    int count = 0;
+                    //cout << jaccard_block_size << endl;
+                    for (int64_t i = 0; i < jaccard_block_size; i++) {
+                        if ((blocks_first[tbb::this_task_arena::current_thread_index()])[i] < (blocks_second[tbb::this_task_arena::current_thread_index()])[i]) {
+                            jaccard_first[jaccard_size + count] = (blocks_first[tbb::this_task_arena::current_thread_index()])[i];
+                            jaccard_second[jaccard_size + count] = (blocks_second[tbb::this_task_arena::current_thread_index()])[i];
+                            jaccard_coefficients[jaccard_size + count] = (blocks_jaccards[tbb::this_task_arena::current_thread_index()])[i];
+                            count++;
+                        }
+                    }
+                    //cout << count << endl;
+                    jaccard_size += count;
+                    //cout << "ok" << endl;
+                    // cout << block_x_begin << " " << block_x_end << " : " <<
+                    //         block_y_begin << " " << block_y_end << endl;
+                    Mutex.unlock();
+                    //*/
+            }}, tbb::simple_partitioner{});
+    }}, tbb::auto_partitioner{});
+    ///*
+    jaccard_first.resize(jaccard_size);//
+    jaccard_second.resize(jaccard_size);//
+    jaccard_coefficients.resize(jaccard_size);//
+    //*/
+    //cout << "time_tail - " << time_tail << endl;
+    //cout << "time_vect - " << time_vect << endl;
+    //cout << "time_all - " << time_vect + time_tail << endl;
+    //cout << "ratio time_tail / time_all - " << time_tail / (time_tail + time_vect) << endl;
+};
+
 
 template<class NodeID_t>
 void jaccard_all_row_true(
