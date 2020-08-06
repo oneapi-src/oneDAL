@@ -89,8 +89,8 @@ services::Status MultiClassClassifierPredictKernel<multiClassClassifierWu, train
     typedef SubTask<algorithmFPType, ClsType, cpu> TSubTask;
     daal::ls<TSubTask *> lsTask([=]() {
         if (a->getDataLayout() == NumericTableIface::csrArray)
-            return (TSubTask *)SubTaskCSR<algorithmFPType, ClsType, cpu>::create(nClasses, nRowsInBlock, a, r, mccPar->prediction);
-        return (TSubTask *)SubTaskDense<algorithmFPType, ClsType, cpu>::create(nClasses, nRowsInBlock, a, r, mccPar->prediction);
+            return (TSubTask *)SubTaskCSR<algorithmFPType, ClsType, cpu>::create(nClasses, nRowsInBlock, a, df, mccPar->prediction);
+        return (TSubTask *)SubTaskDense<algorithmFPType, ClsType, cpu>::create(nClasses, nRowsInBlock, a, df, mccPar->prediction);
     });
 
     daal::SafeStatus safeStat;
@@ -107,7 +107,7 @@ services::Status MultiClassClassifierPredictKernel<multiClassClassifierWu, train
         }
         DAAL_LS_RELEASE(TSubTask, lsTask, local); //releases local storage when leaving this scope
 
-        safeStat |= local->getBlockOfRowsOfResults(r, nFeatures, startRow, nRows, nClasses, nonEmptyClassMap, model, nIter, eps);
+        safeStat |= local->getBlockOfRowsOfResults(pred, nFeatures, startRow, nRows, nClasses, nonEmptyClassMap, model, nIter, eps);
     });
 
     lsTask.reduce([=](SubTask<algorithmFPType, ClsType, cpu> * local) { delete local; });
@@ -199,7 +199,7 @@ inline void updateProbabilities(size_t nClasses, const algorithmFPType * Q, algo
 }
 
 template <typename algorithmFPType, typename ClsType, CpuType cpu>
-services::Status SubTask<algorithmFPType, ClsType, cpu>::getBlockOfRowsOfResults(NumericTable * r, size_t nFeatures, size_t startRow, size_t nRows,
+services::Status SubTask<algorithmFPType, ClsType, cpu>::getBlockOfRowsOfResults(NumericTable * pred, size_t nFeatures, size_t startRow, size_t nRows,
                                                                                  size_t nClasses, const size_t * nonEmptyClassMap, Model * model,
                                                                                  size_t nIter, double eps)
 {

@@ -59,8 +59,8 @@ enum Method
 enum ResultId
 {
     prediction       = classifier::prediction::prediction,       /*!< Prediction results */
-    decisionFunction = classifier::prediction::lastResultId + 1, /*!< Distances to nearest neighbors */
-    lastResultId     = decision_function
+    decisionFunction = classifier::prediction::lastResultId + 1, /*!< Decision function */
+    lastResultId     = decisionFunction
 };
 
 namespace interface1
@@ -153,7 +153,8 @@ public:
     * \return Status of allocation
     */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int pmethod,
+                                          const int tmethod);
 
     /**
     * Checks the result of model-based prediction
@@ -165,11 +166,16 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
+    using classifier::prediction::Result::check;
+
+    /** \private */
+    services::Status checkImpl(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter) const;
+
     /** \private */
     template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)
     {
-        return daal::algorithms::classifier::prediction::interface1::Result::serialImpl<Archive, onDeserialize>(arch);
+        return daal::algorithms::classifier::prediction::Result::serialImpl<Archive, onDeserialize>(arch);
     }
 };
 typedef services::SharedPtr<Result> ResultPtr;
@@ -177,6 +183,9 @@ typedef services::SharedPtr<const Result> ResultConstPtr;
 
 } // namespace interface1
 using interface1::Input;
+using interface1::Result;
+using interface1::ResultPtr;
+using interface1::ResultConstPtr;
 
 } // namespace prediction
 /** @} */

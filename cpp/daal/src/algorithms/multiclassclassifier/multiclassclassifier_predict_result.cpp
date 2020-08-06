@@ -22,6 +22,8 @@
 */
 
 #include "algorithms/multi_class_classifier/multi_class_classifier_predict_types.h"
+#include "src/services/daal_strings.h"
+#include "src/services/serialization_utils.h"
 
 namespace daal
 {
@@ -33,9 +35,9 @@ namespace prediction
 {
 namespace interface1
 {
-__DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_CLASSIFIER_PREDICTION_RESULT_ID);
+__DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_MULTICLASS_PREDICTION_RESULT_ID);
 
-Result::Result() : daal::algorithms::Result(lastResultId + 1) {}
+Result::Result() : classifier::prediction::Result(lastResultId + 1) {}
 
 /**
  * Returns the prediction result of the classification algorithm
@@ -70,10 +72,11 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
 
 services::Status Result::checkImpl(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter) const
 {
-    services::Status s = classifier::prediction::Result::checkImpl(input, parameter);
+    services::Status s;
+    // services::Status s = classifier::prediction::Result::checkImpl(input, parameter);
     DAAL_CHECK_STATUS_VAR(s);
 
-    const size_t nRows          = (static_cast<const InputIface *>(input))->getNumberOfRows();
+    const size_t nRows          = (static_cast<const classifier::prediction::InputIface *>(input))->getNumberOfRows();
     const Parameter * const par = static_cast<const Parameter *>(parameter);
     DAAL_CHECK(par, services::ErrorNullParameterNotSupported);
 
@@ -82,7 +85,7 @@ services::Status Result::checkImpl(const daal::algorithms::Input * input, const 
     if (par->resultsToEvaluate & computeClassLabels)
         DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(prediction).get(), predictionStr(), data_management::packed_mask, 0, 1, nRows));
 
-    if (par->resultsToEvaluate & computeClassLogProbabilities)
+    if (par->resultsToEvaluate & computeDecisionFunction)
         DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(decisionFunction).get(), decisionFunctionStr(), data_management::packed_mask, 0,
                                                                 nClasses * (nClasses - 1) / 2, nRows));
 

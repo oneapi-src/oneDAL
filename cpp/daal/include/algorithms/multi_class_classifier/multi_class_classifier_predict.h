@@ -258,7 +258,7 @@ public:
 
     typedef algorithms::multi_class_classifier::prediction::Input InputType;
     typedef algorithms::multi_class_classifier::Parameter ParameterType;
-    typedef algorithms::multi_class_classifier::Result ResultType;
+    typedef algorithms::multi_class_classifier::prediction::Result ResultType;
 
     InputType input;         /*!< Input objects of the algorithm */
     ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of the algorithm */
@@ -293,7 +293,7 @@ public:
      * Get input objects for the multi-class classifier prediction algorithm
      * \return %Input objects for the multi-class classifier prediction algorithm
      */
-    InputType * getInput() DAAL_C11_OVERRIDE { return &input; }
+    virtual InputType * getInput() DAAL_C11_OVERRIDE { return &input; }
 
     /**
      * Returns method of the algorithm
@@ -301,16 +301,23 @@ public:
      */
     virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)pmethod; }
 
+    /**
+     * Returns the structure that contains computed prediction results
+     * \return Structure that contains computed prediction results
+     */
     ResultPtr getResult() { return Result::cast(_result); }
 
     /**
-     * Resets the results of KD-tree based kNN model training algorithm
+     * Registers user-allocated memory for storing the prediction results
+     * \param[in] result Structure for storing the prediction results
+     *
+     * \return Status of computation
      */
-    services::Status resetResult() DAAL_C11_OVERRIDE
+    services::Status setResult(const ResultPtr & result)
     {
-        _result.reset(new ResultType());
-        DAAL_CHECK(_result, services::ErrorNullResult);
-        _res = NULL;
+        DAAL_CHECK(result, services::ErrorNullResult)
+        _result = result;
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -330,11 +337,9 @@ protected:
         return new Batch<algorithmFPType, pmethod, tmethod>(*this);
     }
 
-    services::Status allocateResult() DAAL_C11_OVERRIDE
+    virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        const ResultPtr res = getResult();
-        DAAL_CHECK(_result, services::ErrorNullResult);
-        services::Status s = res->allocate<algorithmFPType>(&input, &parameter, (int)pmethod);
+        services::Status s = static_cast<ResultType *>(_result.get())->allocate<algorithmFPType>(&input, &parameter, (int)pmethod, (int)tmethod);
         _res               = _result.get();
         return s;
     }

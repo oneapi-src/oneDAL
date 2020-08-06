@@ -45,7 +45,8 @@ using namespace daal::data_management;
  * \param[in] method    Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int pmethod,
+                                              const int tmethod)
 {
     services::Status st;
     const Parameter * par = static_cast<const Parameter *>(parameter);
@@ -63,7 +64,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 }
 
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
-                                                                    const int method);
+                                                                    const int pmethod, const int tmethod);
 
 } // namespace interface1
 
