@@ -24,7 +24,7 @@
 #endif
 
 #include "oneapi/dal/data/array.hpp"
-#include "oneapi/dal/backend/primirives/reducer.hpp"
+#include "oneapi/dal/backend/primitives/reducer.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
