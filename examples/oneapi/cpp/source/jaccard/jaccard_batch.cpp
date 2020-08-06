@@ -361,7 +361,7 @@ void jaccard_block_avx512(const graph my_graph,
     jaccard_size = 0;
     auto g = oneapi::dal::preview::detail::get_impl(my_graph);
     auto g_edge_offsets = g->_edge_offsets.data();
-    auto g_edge_offsets = g->_edge_offsets.data();
+    auto g_vertex_neighbors = g->_vertex_neighbors.data();
     const int max_buffer_stack_size = 5000;
     bool buffer_not_use = jaccards.size() > max_buffer_stack_size ? true : false; 
 
@@ -407,7 +407,7 @@ void jaccard_block_avx512(const graph my_graph,
     for (NodeID_t i = vert00; i < vert01; i++) {
         __m512i i_vertex = _mm512_set1_epi32(i);
         NodeID_t size_i = g->_degrees[i];
-        auto n_i = g->_vertex_neighbors.data() + g->_edge_offsets[i];
+        auto n_i = g_vertex_neighbors + g->_edge_offsets[i];
 
         __m512i size_i_v = _mm512_set1_epi32(size_i);
         __m512i n_i_start_v = _mm512_set1_epi32(g->_vertex_neighbors[g->_edge_offsets[i]]);
@@ -420,8 +420,8 @@ void jaccard_block_avx512(const graph my_graph,
         if (j < vert10 + ((diagonal - vert10) / 16) * 16) {
 
             //load_data(0)
-            start_indices_j_v = _mm512_load_epi32(g->_edge_offsets.data() + j);
-            end_indices_j_v_tmp = _mm512_load_epi32(g->_edge_offsets.data() + j + 1);
+            start_indices_j_v = _mm512_load_epi32(g_edge_offsets + j);
+            end_indices_j_v_tmp = _mm512_load_epi32(g_edge_offsets + j + 1);
             end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
 
             n_j_start_v = _mm512_permutevar_epi32(j_vertices_tmp1 ,_mm512_i32gather_epi32(start_indices_j_v, g->_vertex_neighbors.data(), 4));
@@ -431,8 +431,8 @@ void jaccard_block_avx512(const graph my_graph,
             for (j; j + 16 < vert10 + ((diagonal - vert10) / 16) * 16;) {
 
                 //load_data(i + 1)
-                start_indices_j_v = _mm512_load_epi32(g->_edge_offsets.data() + j + 16);
-                end_indices_j_v_tmp = _mm512_load_epi32(g->_edge_offsets.data() + j + 17);
+                start_indices_j_v = _mm512_load_epi32(g_edge_offsets + j + 16);
+                end_indices_j_v_tmp = _mm512_load_epi32(g_edge_offsets + j + 17);
                 end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
 
 
@@ -489,7 +489,7 @@ void jaccard_block_avx512(const graph my_graph,
 
             for (j = vert10 + ((diagonal - vert10) / 16) * 16; j < diagonal; j++) {
                 NodeID_t size_j = g->_degrees[j];
-                auto n_j = g->_vertex_neighbors.data() + g->_edge_offsets[j];
+                auto n_j = g_vertex_neighbors + g->_edge_offsets[j];
 
                 if (size_j == 0) {
                               continue;
@@ -508,7 +508,7 @@ void jaccard_block_avx512(const graph my_graph,
         else {
                 for (j = vert10; j < diagonal; j++) {
                     NodeID_t size_j = g->_degrees[j];
-                    auto n_j = g->_vertex_neighbors.data() + g->_edge_offsets[j];
+                    auto n_j = g_vertex_neighbors + g->_edge_offsets[j];
 
                     if (size_j == 0) {
                                   continue;
@@ -538,8 +538,8 @@ void jaccard_block_avx512(const graph my_graph,
 
         if (j < tmp_idx + ((vert11 - tmp_idx) / 16) * 16) {
             //load_data(0)
-            start_indices_j_v = _mm512_load_epi32(g->_edge_offsets.data() + j);
-            end_indices_j_v_tmp = _mm512_load_epi32(g->_edge_offsets.data() + j + 1);
+            start_indices_j_v = _mm512_load_epi32(g_edge_offsets + j);
+            end_indices_j_v_tmp = _mm512_load_epi32(g_edge_offsets + j + 1);
             end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
 
             n_j_start_v = _mm512_permutevar_epi32(j_vertices_tmp1 ,_mm512_i32gather_epi32(start_indices_j_v, g->_vertex_neighbors.data(), 4));
@@ -548,8 +548,8 @@ void jaccard_block_avx512(const graph my_graph,
 
             for (j; j + 16 < tmp_idx + ((vert11 - tmp_idx) / 16) * 16;) {
                 //load_data(i + 1)
-                start_indices_j_v = _mm512_load_epi32(g->_edge_offsets.data() + j + 16);
-                end_indices_j_v_tmp = _mm512_load_epi32(g->_edge_offsets.data() + j + 17);
+                start_indices_j_v = _mm512_load_epi32(g_edge_offsets + j + 16);
+                end_indices_j_v_tmp = _mm512_load_epi32(g_edge_offsets + j + 17);
                 end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
 
 
@@ -606,7 +606,7 @@ void jaccard_block_avx512(const graph my_graph,
 
             for (j = tmp_idx + ((vert11 - tmp_idx) / 16) * 16; j < vert11; j++) {
                 NodeID_t size_j = g->_degrees[j];
-                auto n_j = g->_vertex_neighbors.data() + g->_edge_offsets[j];
+                auto n_j = g_vertex_neighbors + g->_edge_offsets[j];
 
                 if (size_j == 0) {
                               continue;
@@ -625,7 +625,7 @@ void jaccard_block_avx512(const graph my_graph,
         else {
                 for (j = tmp_idx; j < vert11; j++) {
                     NodeID_t size_j = g->_degrees[j];
-                    auto n_j = g->_vertex_neighbors.data() + g->_edge_offsets[j];
+                    auto n_j = g_vertex_neighbors + g->_edge_offsets[j];
 
                     if (size_j == 0) {
                                   continue;
