@@ -52,14 +52,15 @@ while [ "$1" != "" ]; do
     shift
 done
 
-if [ "${full_ia}" != "ia32" -a "${full_ia}" != "intel64" -a "${rmode}" != "build" ]; then
-    echo Bad argument arch = ${first_arg} , must be ia32 or intel64
+if [ "${full_ia}" != "ia32" ] && [ "${full_ia}" != "intel64" ] && [ "${rmode}" != "build" ]; then
+    echo Bad argument arch = "${first_arg}" , must be ia32 or intel64
     help_message
     exit 1
 fi
 
-export CLASSPATH=`pwd`${CLASSPATH+:${CLASSPATH}}
-class_path=`pwd`/com/intel/daal/examples
+CLASSPATH=$(pwd)${CLASSPATH+:${CLASSPATH}}
+export CLASSPATH
+class_path=$(pwd)/com/intel/daal/examples
 
 # Setting environment for side javac if the path specified
 path_to_javac=$1
@@ -68,7 +69,8 @@ if [ "${path_to_javac}" != "" ]; then
 fi
 
 # Setting list of Java examples to process
-if [ -z ${Java_example_list} ]; then
+# shellcheck disable=2154,1091
+if [ -z "${Java_example_list}" ]; then
     source ./daal.lst
 fi
 
@@ -76,21 +78,21 @@ fi
 Djava_library_path=${DAALROOT}/lib/${full_ia}
 
 # Setting a path for result folder to put results of examples in
-if [ "${full_ia}"!="" ]; then
+if [ "${full_ia}" != "" ]; then
     result_folder=./_results/${full_ia}
-    if [ -d ${result_folder} ]; then rm -rf ${result_folder}; fi
-    mkdir -p ${result_folder}
+    if [ -d "${result_folder}" ]; then rm -rf "${result_folder}"; fi
+    mkdir -p "${result_folder}"
 fi
 
-for example in ${Java_example_list[@]}; do
+for example in "${Java_example_list[@]}"; do
 # Building examples
     if [ "${rmode}" != "run" ]; then
-        javac ${class_path}/${example}.java
+        javac "${class_path}/${example}.java"
     fi
 # Running examples
     if [ "${rmode}" != "build" ]; then
-        arr=(${example//// })
-        if [ -z ${arr[2]} ]; then
+        arr=("${example//// }")
+        if [ -z "${arr[2]}" ]; then
             example_dir=${arr[0]}
             example_name=${arr[1]}
         else
@@ -100,20 +102,20 @@ for example in ${Java_example_list[@]}; do
         if [ -f "${class_path}/${example}.class" ]; then
             if [ "${full_ia}" == "intel64" ]; then memory=4g; else memory=1g; fi
 
-            [ ! -d ${result_folder}/${example_dir} ] && mkdir -p ${result_folder}/${example_dir}
+            [ ! -d "${result_folder}/${example_dir}" ] && mkdir -p "${result_folder}/${example_dir}"
 
             example_path=com.intel.daal.examples.${example_dir}.${example_name}
             res_path=${result_folder}/${example_dir}/${example_name}.res
 
-            java -Xmx${memory} -Djava.library.path=${Djava_library_path} ${example_path} 2>&1 >${res_path}
+            java -Xmx${memory} -Djava.library.path="${Djava_library_path}" "${example_path}" >"${res_path}" 2>&1
             errcode=$?
             if [ "${errcode}" == "0" ]; then
-                 echo -e "`date +'%H:%M:%S'` PASSED\t\t${example_name}"
+                 echo -e "$(date +'%H:%M:%S') PASSED\t\t${example_name}"
             else
-                 echo -e "`date +'%H:%M:%S'` FAILED\t\t${example_name} with errno ${errcode}"
+                 echo -e "$(date +'%H:%M:%S') FAILED\t\t${example_name} with errno ${errcode}"
             fi
         else
-            echo -e "`date +'%H:%M:%S'` BUILD FAILED\t\t${example_name}"
+            echo -e "$(date +'%H:%M:%S') BUILD FAILED\t\t${example_name}"
         fi
     fi
 done
