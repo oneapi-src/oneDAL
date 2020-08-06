@@ -27,16 +27,20 @@ int main(int argc, char const *argv[]) {
     constexpr std::int64_t column_count  = 2;
     constexpr std::int64_t cluster_count = 2;
 
-    const float data[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
-                           -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
+    const float x_train[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
+                              -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
+    const float x_test[]  = { 1.0, 1.0, 2.0, 2.0 };
 
-    const auto data_table = dal::homogen_table{ row_count, column_count, data };
+    const auto x_train_table = dal::homogen_table{ row_count, column_count, x_train };
+    const auto x_test_table  = dal::homogen_table{ cluster_count, column_count, x_test };
 
     const auto kmeans_init_desc = dal::kmeans_init::descriptor<>().set_cluster_count(cluster_count);
 
-    const auto result = dal::train(kmeans_init_desc, data_table);
+    const auto result = dal::train(kmeans_init_desc, x_train_table);
 
     std::cout << "Initial cetroids:" << std::endl << result.get_centroids() << std::endl;
+
+    std::cout << "Ground truth:" << std::endl << x_test_table << std::endl;
 
     return 0;
 }
