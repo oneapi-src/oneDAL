@@ -67,13 +67,13 @@ private:
 };
 
 template <typename Float>
-typedef reducer_singlepass<unary_operation::abs, binary_operation::sum, Float>
+typedef typename reducer_singlepass<unary_operation::abs, binary_operation::sum, Float>
     l1_reducer_singlepass;
 template <typename Float>
-typedef reducer_singlepass<unary_operation::square, binary_operation::sum, Float>
+typedef typename reducer_singlepass<unary_operation::square, binary_operation::sum, Float>
     l2_reducer_singlepass;
 template <typename Float>
-typedef reducer_singlepass<unary_operation::abs, binary_operation::max, Float>
+typedef typename reducer_singlepass<unary_operation::abs, binary_operation::max, Float>
     linf_reducer_singlepass;
 
 #endif
