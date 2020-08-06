@@ -118,6 +118,7 @@ void testModel()
     algorithm.parameter.training          = training;
     algorithm.parameter.prediction        = prediction;
     algorithm.parameter.resultsToEvaluate = multi_class_classifier::computeClassLabels | multi_class_classifier::computeDecisionFunction;
+    algorithm.parameter.resultsToEvaluate = multi_class_classifier::computeClassLabels;
 
     /* Pass a testing data set and the trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);
@@ -135,6 +136,6 @@ void printResults()
     printNumericTables<int, int>(testGroundTruth, predictionResult->get(multi_class_classifier::prediction::prediction), "Ground truth",
                                  "Classification results", "Multi-class SVM classification sample program results (first 20 observations):", 20);
 
-    printNumericTable(predictionResult->get(multi_class_classifier::prediction::decisionFunction),
-                      "Multi-class SVM classification sample program results (first 20 observations):", 20);
+    // printNumericTable(predictionResult->get(multi_class_classifier::prediction::decisionFunction),
+    //                   "Multi-class SVM classification sample program results (first 20 observations):", 20);
 }
