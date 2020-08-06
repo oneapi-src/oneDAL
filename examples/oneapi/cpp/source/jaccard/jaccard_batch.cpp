@@ -339,6 +339,16 @@ inline void jaccard_block_avx512_true(const graph& my_graph,
               std::vector<float>& jaccards,
               NodeID_t &jaccard_size);
 
+template<class T> inline void Log(const __m512i & value)
+{
+    const size_t n = sizeof(__m512i) / sizeof(T);
+    T buffer[n];
+    _mm512_storeu_si512((__m512i*)buffer, value);
+    for (int i = 0; i < n; i++)
+        std::cout << buffer[i] << " ";
+}
+
+
 template<class NodeID_t>
 void jaccard_block_avx512(const graph my_graph,
               NodeID_t vert00, NodeID_t vert01,
@@ -348,7 +358,7 @@ void jaccard_block_avx512(const graph my_graph,
               std::vector<float>& jaccards,
               NodeID_t &jaccard_size)
 {
-    auto g = oneapi::dal::preview::detail::get_impl(my_graph);
+   auto g = oneapi::dal::preview::detail::get_impl(my_graph);
     jaccard_size = 0;
     NodeID_t j = vert10;
 
@@ -357,6 +367,10 @@ void jaccard_block_avx512(const graph my_graph,
     __m512i n_j_end_v = _mm512_set1_epi32(0);
     __m512i n_j_start_v1 = _mm512_set1_epi32(0);
     __m512i n_j_end_v1 = _mm512_set1_epi32(0);
+
+    __m512i start_indices_j_v = _mm512_set1_epi32(0);
+    __m512i end_indices_j_v_tmp = _mm512_set1_epi32(0);
+    __m512i end_indices_j_v = _mm512_set1_epi32(0);
     
     __m512i j_vertices_tmp1 = _mm512_set_epi32(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
     
@@ -412,95 +426,133 @@ void jaccard_block_avx512(const graph my_graph,
 
         if (j < tmp_idx + ((vert11 - tmp_idx) / 16) * 16) {
             //load_data(0)
-            int sizes_j[16] = {
-                g->_degrees[j], g->_degrees[j + 1],
-                g->_degrees[j + 2], g->_degrees[j + 3],
-                g->_degrees[j + 4], g->_degrees[j + 5],
-                g->_degrees[j + 6], g->_degrees[j + 7],
-                g->_degrees[j + 8], g->_degrees[j + 9],
-                g->_degrees[j + 10], g->_degrees[j + 11],
-                g->_degrees[j + 12], g->_degrees[j + 13],
-                g->_degrees[j + 14], g->_degrees[j + 15]
-            };
+            start_indices_j_v = _mm512_load_epi32(g->_edge_offsets.data() + j);
+            end_indices_j_v_tmp = _mm512_load_epi32(g->_edge_offsets.data() + j + 1);
+            end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
 
-            int* neighbors_j[16] = {
-                g->_vertex_neighbors.data() + g->_edge_offsets[j], g->_vertex_neighbors.data() + g->_edge_offsets[j + 1],
-                g->_vertex_neighbors.data() + g->_edge_offsets[j + 2], g->_vertex_neighbors.data() + g->_edge_offsets[j + 3],
-                g->_vertex_neighbors.data() + g->_edge_offsets[j + 4], g->_vertex_neighbors.data() + g->_edge_offsets[j + 5],
-                g->_vertex_neighbors.data() + g->_edge_offsets[j + 6], g->_vertex_neighbors.data() + g->_edge_offsets[j + 7],
-                g->_vertex_neighbors.data() + g->_edge_offsets[j + 8], g->_vertex_neighbors.data() + g->_edge_offsets[j + 9],
-                g->_vertex_neighbors.data() + g->_edge_offsets[j + 10], g->_vertex_neighbors.data() + g->_edge_offsets[j + 11],
-                g->_vertex_neighbors.data() + g->_edge_offsets[j + 12], g->_vertex_neighbors.data() + g->_edge_offsets[j + 13],
-                g->_vertex_neighbors.data() + g->_edge_offsets[j + 14], g->_vertex_neighbors.data() + g->_edge_offsets[j + 15]
-            };
-
-            n_j_start_v = _mm512_set_epi32(
-                neighbors_j[0][0], neighbors_j[1][0], 
-                neighbors_j[2][0], neighbors_j[3][0], 
-                neighbors_j[4][0], neighbors_j[5][0],   
-                neighbors_j[6][0], neighbors_j[7][0],  
-                neighbors_j[8][0], neighbors_j[9][0],   
-                neighbors_j[10][0], neighbors_j[11][0],  
-                neighbors_j[12][0], neighbors_j[13][0],   
-                neighbors_j[14][0], neighbors_j[15][0]);
+            n_j_start_v = _mm512_permutevar_epi32(j_vertices_tmp1 ,_mm512_i32gather_epi32(start_indices_j_v, g->_vertex_neighbors.data(), 4));
+            n_j_end_v = _mm512_permutevar_epi32(j_vertices_tmp1 ,_mm512_i32gather_epi32(end_indices_j_v, g->_vertex_neighbors.data(), 4));
 
 
-            n_j_end_v = _mm512_set_epi32(
-                neighbors_j[0][sizes_j[0] - 1], neighbors_j[1][sizes_j[1] - 1], 
-                neighbors_j[2][sizes_j[2] - 1], neighbors_j[3][sizes_j[3] - 1],
-                neighbors_j[4][sizes_j[4] - 1], neighbors_j[5][sizes_j[5] - 1], 
-                neighbors_j[6][sizes_j[6] - 1], neighbors_j[7][sizes_j[7] - 1],
-                neighbors_j[8][sizes_j[8] - 1], neighbors_j[9][sizes_j[9] - 1], 
-                neighbors_j[10][sizes_j[10] - 1], neighbors_j[11][sizes_j[11] - 1],
-                neighbors_j[12][sizes_j[12] - 1], neighbors_j[13][sizes_j[13] - 1], 
-                neighbors_j[14][sizes_j[14] - 1], neighbors_j[15][sizes_j[15] - 1] );
+
+
+            // int sizes_j[16] = {
+            //     g->_degrees[j], g->_degrees[j + 1],
+            //     g->_degrees[j + 2], g->_degrees[j + 3],
+            //     g->_degrees[j + 4], g->_degrees[j + 5],
+            //     g->_degrees[j + 6], g->_degrees[j + 7],
+            //     g->_degrees[j + 8], g->_degrees[j + 9],
+            //     g->_degrees[j + 10], g->_degrees[j + 11],
+            //     g->_degrees[j + 12], g->_degrees[j + 13],
+            //     g->_degrees[j + 14], g->_degrees[j + 15]
+            // };
+
+            // int* neighbors_j[16] = {
+            //     g->_vertex_neighbors.data() + g->_edge_offsets[j], g->_vertex_neighbors.data() + g->_edge_offsets[j + 1],
+            //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 2], g->_vertex_neighbors.data() + g->_edge_offsets[j + 3],
+            //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 4], g->_vertex_neighbors.data() + g->_edge_offsets[j + 5],
+            //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 6], g->_vertex_neighbors.data() + g->_edge_offsets[j + 7],
+            //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 8], g->_vertex_neighbors.data() + g->_edge_offsets[j + 9],
+            //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 10], g->_vertex_neighbors.data() + g->_edge_offsets[j + 11],
+            //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 12], g->_vertex_neighbors.data() + g->_edge_offsets[j + 13],
+            //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 14], g->_vertex_neighbors.data() + g->_edge_offsets[j + 15]
+            // };
+
+            // n_j_start_v = _mm512_set_epi32(
+            //     neighbors_j[0][0], neighbors_j[1][0], 
+            //     neighbors_j[2][0], neighbors_j[3][0], 
+            //     neighbors_j[4][0], neighbors_j[5][0],   
+            //     neighbors_j[6][0], neighbors_j[7][0],  
+            //     neighbors_j[8][0], neighbors_j[9][0],   
+            //     neighbors_j[10][0], neighbors_j[11][0],  
+            //     neighbors_j[12][0], neighbors_j[13][0],   
+            //     neighbors_j[14][0], neighbors_j[15][0]);
+
+
+            // n_j_end_v = _mm512_set_epi32(
+            //     neighbors_j[0][sizes_j[0] - 1], neighbors_j[1][sizes_j[1] - 1], 
+            //     neighbors_j[2][sizes_j[2] - 1], neighbors_j[3][sizes_j[3] - 1],
+            //     neighbors_j[4][sizes_j[4] - 1], neighbors_j[5][sizes_j[5] - 1], 
+            //     neighbors_j[6][sizes_j[6] - 1], neighbors_j[7][sizes_j[7] - 1],
+            //     neighbors_j[8][sizes_j[8] - 1], neighbors_j[9][sizes_j[9] - 1], 
+            //     neighbors_j[10][sizes_j[10] - 1], neighbors_j[11][sizes_j[11] - 1],
+            //     neighbors_j[12][sizes_j[12] - 1], neighbors_j[13][sizes_j[13] - 1], 
+            //     neighbors_j[14][sizes_j[14] - 1], neighbors_j[15][sizes_j[15] - 1] );
 
 
             for (j; j + 16 < tmp_idx + ((vert11 - tmp_idx) / 16) * 16;) {
                 //load_data(i + 1)
-                int sizes_j_tmp1[16] = {
-                    g->_degrees[j + 16], g->_degrees[j + 17],
-                    g->_degrees[j + 18], g->_degrees[j + 19],
-                    g->_degrees[j + 20], g->_degrees[j + 21],
-                    g->_degrees[j + 22], g->_degrees[j + 23],
-                    g->_degrees[j + 24], g->_degrees[j + 25],
-                    g->_degrees[j + 26], g->_degrees[j + 27],
-                    g->_degrees[j + 28], g->_degrees[j + 29],
-                    g->_degrees[j + 30], g->_degrees[j + 31]
-                };
+                // int sizes_j_tmp1[16] = {
+                //     g->_degrees[j + 16], g->_degrees[j + 17],
+                //     g->_degrees[j + 18], g->_degrees[j + 19],
+                //     g->_degrees[j + 20], g->_degrees[j + 21],
+                //     g->_degrees[j + 22], g->_degrees[j + 23],
+                //     g->_degrees[j + 24], g->_degrees[j + 25],
+                //     g->_degrees[j + 26], g->_degrees[j + 27],
+                //     g->_degrees[j + 28], g->_degrees[j + 29],
+                //     g->_degrees[j + 30], g->_degrees[j + 31]
+                // };
 
-                int* neighbors_j_tmp1[16] = {
-                    g->_vertex_neighbors.data() + g->_edge_offsets[j + 16], g->_vertex_neighbors.data() + g->_edge_offsets[j + 17],
-                    g->_vertex_neighbors.data() + g->_edge_offsets[j + 18], g->_vertex_neighbors.data() + g->_edge_offsets[j + 19],
-                    g->_vertex_neighbors.data() + g->_edge_offsets[j + 20], g->_vertex_neighbors.data() + g->_edge_offsets[j + 21],
-                    g->_vertex_neighbors.data() + g->_edge_offsets[j + 22], g->_vertex_neighbors.data() + g->_edge_offsets[j + 23],
-                    g->_vertex_neighbors.data() + g->_edge_offsets[j + 24], g->_vertex_neighbors.data() + g->_edge_offsets[j + 25],
-                    g->_vertex_neighbors.data() + g->_edge_offsets[j + 26], g->_vertex_neighbors.data() + g->_edge_offsets[j + 27],
-                    g->_vertex_neighbors.data() + g->_edge_offsets[j + 28], g->_vertex_neighbors.data() + g->_edge_offsets[j + 29],
-                    g->_vertex_neighbors.data() + g->_edge_offsets[j + 30], g->_vertex_neighbors.data() + g->_edge_offsets[j + 31]
-                };
-
-                n_j_start_v1 = _mm512_set_epi32(
-                    neighbors_j_tmp1[0][0], neighbors_j_tmp1[1][0], 
-                    neighbors_j_tmp1[2][0], neighbors_j_tmp1[3][0], 
-                    neighbors_j_tmp1[4][0], neighbors_j_tmp1[5][0],   
-                    neighbors_j_tmp1[6][0], neighbors_j_tmp1[7][0],  
-                    neighbors_j_tmp1[8][0], neighbors_j_tmp1[9][0],   
-                    neighbors_j_tmp1[10][0], neighbors_j_tmp1[11][0],  
-                    neighbors_j_tmp1[12][0], neighbors_j_tmp1[13][0],   
-                    neighbors_j_tmp1[14][0], neighbors_j_tmp1[15][0]);
-
-                n_j_end_v1 = _mm512_set_epi32(
-                    neighbors_j_tmp1[0][sizes_j_tmp1[0] - 1], neighbors_j_tmp1[1][sizes_j_tmp1[1] - 1], 
-                    neighbors_j_tmp1[2][sizes_j_tmp1[2] - 1], neighbors_j_tmp1[3][sizes_j_tmp1[3] - 1],
-                    neighbors_j_tmp1[4][sizes_j_tmp1[4] - 1], neighbors_j_tmp1[5][sizes_j_tmp1[5] - 1], 
-                    neighbors_j_tmp1[6][sizes_j_tmp1[6] - 1], neighbors_j_tmp1[7][sizes_j_tmp1[7] - 1],
-                    neighbors_j_tmp1[8][sizes_j_tmp1[8] - 1], neighbors_j_tmp1[9][sizes_j_tmp1[9] - 1], 
-                    neighbors_j_tmp1[10][sizes_j_tmp1[10] - 1], neighbors_j_tmp1[11][sizes_j_tmp1[11] - 1],
-                    neighbors_j_tmp1[12][sizes_j_tmp1[12] - 1], neighbors_j_tmp1[13][sizes_j_tmp1[13] - 1], 
-                    neighbors_j_tmp1[14][sizes_j_tmp1[14] - 1], neighbors_j_tmp1[15][sizes_j_tmp1[15] - 1] );
+                // int* neighbors_j_tmp1[16] = {
+                //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 16], g->_vertex_neighbors.data() + g->_edge_offsets[j + 17],
+                //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 18], g->_vertex_neighbors.data() + g->_edge_offsets[j + 19],
+                //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 20], g->_vertex_neighbors.data() + g->_edge_offsets[j + 21],
+                //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 22], g->_vertex_neighbors.data() + g->_edge_offsets[j + 23],
+                //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 24], g->_vertex_neighbors.data() + g->_edge_offsets[j + 25],
+                //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 26], g->_vertex_neighbors.data() + g->_edge_offsets[j + 27],
+                //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 28], g->_vertex_neighbors.data() + g->_edge_offsets[j + 29],
+                //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 30], g->_vertex_neighbors.data() + g->_edge_offsets[j + 31]
+                // };
 
 
+
+
+                // n_j_start_v1 = _mm512_set_epi32(
+                //     neighbors_j_tmp1[0][0], neighbors_j_tmp1[1][0], 
+                //     neighbors_j_tmp1[2][0], neighbors_j_tmp1[3][0], 
+                //     neighbors_j_tmp1[4][0], neighbors_j_tmp1[5][0],   
+                //     neighbors_j_tmp1[6][0], neighbors_j_tmp1[7][0],  
+                //     neighbors_j_tmp1[8][0], neighbors_j_tmp1[9][0],   
+                //     neighbors_j_tmp1[10][0], neighbors_j_tmp1[11][0],  
+                //     neighbors_j_tmp1[12][0], neighbors_j_tmp1[13][0],   
+                //     neighbors_j_tmp1[14][0], neighbors_j_tmp1[15][0]);
+
+                // n_j_end_v1 = _mm512_set_epi32(
+                //     neighbors_j_tmp1[0][sizes_j_tmp1[0] - 1], neighbors_j_tmp1[1][sizes_j_tmp1[1] - 1], 
+                //     neighbors_j_tmp1[2][sizes_j_tmp1[2] - 1], neighbors_j_tmp1[3][sizes_j_tmp1[3] - 1],
+                //     neighbors_j_tmp1[4][sizes_j_tmp1[4] - 1], neighbors_j_tmp1[5][sizes_j_tmp1[5] - 1], 
+                //     neighbors_j_tmp1[6][sizes_j_tmp1[6] - 1], neighbors_j_tmp1[7][sizes_j_tmp1[7] - 1],
+                //     neighbors_j_tmp1[8][sizes_j_tmp1[8] - 1], neighbors_j_tmp1[9][sizes_j_tmp1[9] - 1], 
+                //     neighbors_j_tmp1[10][sizes_j_tmp1[10] - 1], neighbors_j_tmp1[11][sizes_j_tmp1[11] - 1],
+                //     neighbors_j_tmp1[12][sizes_j_tmp1[12] - 1], neighbors_j_tmp1[13][sizes_j_tmp1[13] - 1], 
+                //     neighbors_j_tmp1[14][sizes_j_tmp1[14] - 1], neighbors_j_tmp1[15][sizes_j_tmp1[15] - 1] );
+
+                // if ( i == 0 && j < 100) {
+                //     cout << "1 method " << i << " " << j << endl;
+                //     Log<int>(n_j_start_v1);
+                //     cout <<endl;
+                //     Log<int>(n_j_end_v1);
+                //     cout <<endl;
+                    
+                // }
+
+                start_indices_j_v = _mm512_load_epi32(g->_edge_offsets.data() + j + 16);
+                end_indices_j_v_tmp = _mm512_load_epi32(g->_edge_offsets.data() + j + 17);
+                end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
+
+
+                n_j_start_v1 = _mm512_permutevar_epi32(j_vertices_tmp1 ,_mm512_i32gather_epi32(start_indices_j_v, g->_vertex_neighbors.data(), 4));
+                n_j_end_v1 = _mm512_permutevar_epi32(j_vertices_tmp1 ,_mm512_i32gather_epi32(end_indices_j_v, g->_vertex_neighbors.data(), 4));
+
+
+                // if ( i == 0 && j < 100) {
+                //     cout << "second method " << i << " " << j << endl;
+                //     Log<int>(n_j_start_v1);
+                //     cout <<endl;
+                //     Log<int>(n_j_end_v1);
+                //     cout <<endl;
+                //     cout <<endl;
+                // }
                 //process i data
                 cmpgt1 = _mm512_cmpgt_epi32_mask( n_i_start_v, n_j_end_v);
                 cmpgt2 = _mm512_cmpgt_epi32_mask( n_j_start_v, n_i_end_v);
@@ -1257,13 +1309,13 @@ inline void jaccard_block_avx512_true(const graph& my_graph,
     jaccard_size = 0;
     for (NodeID_t i = vert00; i < vert01; i++) {
         NodeID_t size_i = g->_degrees[i];
-        //auto n_i = g.neighs_ptr_list[i];
+        //auto n_i = g->_vertex_neighbors.data() + g->_edge_offsets[i];
 
         NodeID_t diagonal = std::min(i, vert11);
 
         for (NodeID_t j = vert10; j < diagonal; j++) {
             NodeID_t size_j = g->_degrees[j];             
-            //auto n_j = g.neighs_ptr_list[j];
+            //auto n_j = g->_vertex_neighbors.data() + g->_edge_offsets[j];
             
 
 
@@ -1292,7 +1344,7 @@ inline void jaccard_block_avx512_true(const graph& my_graph,
 
         for (NodeID_t j = tmp_idx; j < vert11; j++) {
             NodeID_t size_j = g->_degrees[j];             
-            //auto n_j = g.neighs_ptr_list[j];
+            //auto n_j = g->_vertex_neighbors.data() + g->_edge_offsets[j];
                 // if (i == 0 && j < 10) {
                 //     cout << i << " " << j << endl;
                 //     cout << "offset i, i + 1 = " << g->_edge_offsets[i] << " " << g->_edge_offsets[i + 1] << " " << size_i << endl;
