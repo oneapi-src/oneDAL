@@ -114,6 +114,11 @@ public:
     const binary_functor<Float, BinOp> binary;
     const unary_functor<Float, UnOp> unary;
 
+protected:
+    typedef cl::sycl::
+        accessor<Float, 1, cl::sycl::access::mode::read_write, cl::sycl::access::target::local>
+            local_acc_t;
+
 public:
     reducer_singlepass_kernel(std::int64_t vector_size_,
                               size_t n_vectors_,
@@ -165,9 +170,6 @@ public:
     }
 
 protected:
-    typedef cl::sycl::
-        accessor<Float, 1, cl::sycl::access::mode::read_write, cl::sycl::access::target::local>
-            local_acc_t;
     const std::uint32_t vector_size, n_vectors;
     const Float* vectors;
     Float* reduces;
