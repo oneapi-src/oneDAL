@@ -222,12 +222,12 @@ array<Float> reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operator(
 }
 
 //Direct instantiation
-template struct l1_reducer_singlepass<float>;
-template struct l1_reducer_singlepass<double>;
-template struct l2_reducer_singlepass<float>;
-template struct l2_reducer_singlepass<double>;
-template struct linf_reducer_singlepass<float>;
-template struct linf_reducer_singlepass<double>;
+template l1_reducer_singlepass<float>;
+template l1_reducer_singlepass<double>;
+template l2_reducer_singlepass<float>;
+template l2_reducer_singlepass<double>;
+template linf_reducer_singlepass<float>;
+template linf_reducer_singlepass<double>;
 
 #endif
 
