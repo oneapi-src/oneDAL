@@ -115,6 +115,17 @@ public:
     const unary_functor<Float, UnOp> unary;
 
 public:
+    reducer_singlepass_kernel(std::int64_t vector_size_,
+                              size_t n_vectors_,
+                              const Float* vectors_,
+                              Float* reduces_,
+                              local_acc_t partial_reduces_)
+            : vector_size(vector_size_),
+              n_vectors(n_vectors_),
+              vectors(vectors_),
+              reduces(reduces_),
+              partial_reduces(partial_reduces_){};
+
     void operator()(cl::sycl::nd_item<2> idx) const {
         const std::uint32_t local_size = idx.get_local_range(0);
 
@@ -157,7 +168,7 @@ protected:
     typedef cl::sycl::
         accessor<Float, 1, cl::sycl::access::mode::read_write, cl::sycl::access::target::local>
             local_acc_t;
-    std::uint32_t vector_size, n_vectors;
+    const std::uint32_t vector_size, n_vectors;
     const Float* vectors;
     Float* reduces;
     local_acc_t partial_reduces;
@@ -207,7 +218,7 @@ cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operat
     std::int64_t n_vectors) {
     const std::int64_t work_items_per_group =
         this->_q.get_device().template get_info<cl::sycl::info::device::max_work_group_size>();
-    return this->operator()(input, output, vector_size, vector_size, n_vectors);
+    return this->operator()(input, output, vector_size, n_vectors, work_items_per_group);
 }
 
 //Direct instantiation
