@@ -25,7 +25,6 @@ using namespace oneapi::dal;
 using namespace oneapi::dal::preview;
 
 int main(int argc, char **argv) {
-
     if (argc < 2) return 0;
     std::string filename = argv[1];
     csv_data_source ds(filename);
