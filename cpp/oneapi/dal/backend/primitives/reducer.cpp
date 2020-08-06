@@ -113,7 +113,7 @@ public:
     //Zero cost
     const typename unary_functor<BinOp> binary;
     const typename unary_functor<UnOp> unary;
-    
+
 public:
     void operator()(cl::sycl::nd_item<2> idx) const {
         const std::uint32_t local_size = idx.get_local_range(0);
