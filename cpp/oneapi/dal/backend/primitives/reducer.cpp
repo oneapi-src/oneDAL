@@ -58,9 +58,6 @@ template struct unary_functor<float, unary_operation::abs>;
 template struct unary_functor<double, unary_operation::abs>;
 
 template <typename Float>
-constexpr Float binary_functor<Float, binary_operation::sum>::init_value = 0;
-
-template <typename Float>
 struct binary_functor<Float, binary_operation::sum> {
     constexpr static Float init_value = 0;
 
@@ -99,12 +96,14 @@ struct binary_functor<Float, binary_operation::min> {
 };
 
 //Direct instatiation
-template struct binary_functor<float, binary::sum>;
-template struct binary_functor<double, binary::sum>;
-template struct binary_functor<float, binary::mul>;
-template struct binary_functor<double, binary::mul>;
-template struct binary_functor<float, binary::min>;
-template struct binary_functor<double, binary::max>;
+template struct binary_functor<float, binary_operation::sum>;
+template struct binary_functor<double, binary_operation::sum>;
+template struct binary_functor<float, binary_operation::mul>;
+template struct binary_functor<double, binary_operation::mul>;
+template struct binary_functor<float, binary_operation::min>;
+template struct binary_functor<double, binary_operation::min>;
+template struct binary_functor<float, binary_operation::max>;
+template struct binary_functor<double, binary_operation::max>;
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
 
