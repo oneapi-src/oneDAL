@@ -111,8 +111,8 @@ template <unary_operation UnOp, binary_operation BinOp, typename Float, bool IsR
 struct reducer_singlepass_kernel {
 public:
     //Zero cost
-    constexpr unary_functor<BinOp> binary;
-    constexpr unary_functor<UnOp> unary;
+    constexpr typename unary_functor<BinOp> binary;
+    constexpr typename unary_functor<UnOp> unary;
 
 public:
     void operator()(cl::sycl::nd_item<2> idx) const {
@@ -176,7 +176,7 @@ cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operat
     std::int64_t vector_size,
     std::int64_t n_vectors,
     std::int64_t work_items_per_group) {
-    if (input.get_count() < (m * n))
+    if (input.get_count() < (vector_size * n_vectors))
         throw std::exception();
     typedef impl::reducer_single_pass<UnOp, BinOp, Float, IsRowMajorLayout> kernel_t;
     const std::int64_t local_buff_size = 256;
@@ -190,8 +190,10 @@ cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operat
                                           .vectors         = input.get_data(),
                                           .reduces         = output.get_mutable_data(),
                                           .partial_reduces = partial_reduces };
-        const cl::sycl::range<2> local_range{ work_items_per_group, 1 };
-        const cl::sycl::range<2> global_range{ work_items_per_group, n_vectors };
+        const cl::sycl::range<2> local_range{ 
+            static_cast<size_t>(work_items_per_group), 1 };
+        const cl::sycl::range<2> global_range{ 
+            static_cast<size_t>(work_items_per_group), static_cast<size_t>(n_vectors) };
         const cl::sycl::nd_range<2> call_range(local_range, global_range);
         handler.parallel_for(call_range, functor_instance);
     });
@@ -213,8 +215,8 @@ cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operat
 template <unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout>
 typename array<Float> reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operator()(
     array<const Float> input,
-    std::int64_t m,
-    std::int64_t n) {
+    std::int64_t vector_size,
+    std::int64_t n_vectors) {
     auto output = array<Float>::zeros(this->_q, m);
     this->operator()(input, output, m, n);
     return output;
