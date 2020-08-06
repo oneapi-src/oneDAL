@@ -111,12 +111,12 @@ template <unary_operation UnOp, binary_operation BinOp, typename Float, bool IsR
 struct reducer_singlepass_kernel {
 public:
     //Zero cost
-    constexpr typename unary_functor<BinOp> binary;
-    constexpr typename unary_functor<UnOp> unary;
-
+    const typename unary_functor<BinOp> binary;
+    const typename unary_functor<UnOp> unary;
+    
 public:
     void operator()(cl::sycl::nd_item<2> idx) const {
-        const std::uint32_t local_size = idx.get_local_size(0);
+        const std::uint32_t local_size = idx.get_local_range(0);
 
         std::uint32_t global_dim = 1;
         std::uint32_t local_dim  = n_vectors;
@@ -137,7 +137,7 @@ public:
             partial_reduces[item_id] = binary(partial_reduces[item_id], unary(el));
         }
 
-        idx.barrier(cl::sycl::access::fence_space::local);
+        idx.barrier(cl::sycl::access::fence_space::local_space);
 
         for (std::uint32_t stride = local_size / 2; stride > 1; stride /= 2) {
             if (stride > item_id) {
@@ -145,7 +145,7 @@ public:
                     binary(partial_reduces[item_id], partial_reduces[item_id + stride]);
             }
 
-            idx.barrier(cl::sycl::access::fence_space::local);
+            idx.barrier(cl::sycl::access::fence_space::local_space);
         }
 
         if (item_id == 0) {
@@ -178,7 +178,7 @@ cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operat
     std::int64_t work_items_per_group) {
     if (input.get_count() < (vector_size * n_vectors))
         throw std::exception();
-    typedef impl::reducer_single_pass<UnOp, BinOp, Float, IsRowMajorLayout> kernel_t;
+    typedef impl::reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout> kernel_t;
     const std::int64_t local_buff_size = 256;
     auto event                         = this->_q.submit([&](cl::sycl::handler& handler) {
         typedef cl::sycl::
@@ -212,12 +212,12 @@ cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operat
 }
 
 template <unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout>
-typename array<Float> reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operator()(
+array<Float> reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operator()(
     array<const Float> input,
     std::int64_t vector_size,
     std::int64_t n_vectors) {
-    auto output = array<Float>::zeros(this->_q, m);
-    this->operator()(input, output, m, n);
+    auto output = array<Float>::zeros(this->_q, vector_size);
+    this->operator()(input, output, vector_size, n_vectors);
     return output;
 }
 
