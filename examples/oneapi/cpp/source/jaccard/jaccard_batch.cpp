@@ -358,71 +358,183 @@ void jaccard_block_avx512(const graph my_graph,
               std::vector<float>& jaccards,
               NodeID_t &jaccard_size)
 {
-   auto g = oneapi::dal::preview::detail::get_impl(my_graph);
     jaccard_size = 0;
-    NodeID_t j = vert10;
+    auto g = oneapi::dal::preview::detail::get_impl(my_graph);
+    auto g_edge_offsets = g->_edge_offsets.data();
+    auto g_edge_offsets = g->_edge_offsets.data();
+    const int max_buffer_stack_size = 5000;
+    bool buffer_not_use = jaccards.size() > max_buffer_stack_size ? true : false; 
 
+    int64_t huge_degree_jaccards_size = 0;
 
     __m512i n_j_start_v = _mm512_set1_epi32(0);
     __m512i n_j_end_v = _mm512_set1_epi32(0);
     __m512i n_j_start_v1 = _mm512_set1_epi32(0);
     __m512i n_j_end_v1 = _mm512_set1_epi32(0);
 
-    __m512i start_indices_j_v = _mm512_set1_epi32(0);
+     __m512i start_indices_j_v = _mm512_set1_epi32(0);
     __m512i end_indices_j_v_tmp = _mm512_set1_epi32(0);
-    __m512i end_indices_j_v = _mm512_set1_epi32(0);
+    __m512i end_indices_j_v = _mm512_set1_epi32(0); 
+
+    __mmask16 cmpgt1;
+    __mmask16 cmpgt2;
+    __mmask16 worth_intersection;
+    unsigned int ones_num = 0;
     
     __m512i j_vertices_tmp1 = _mm512_set_epi32(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
-    
-    __m512i j_vertices = _mm512_set1_epi32(0);
+
     __m512i j_vertices_tmp2 = _mm512_set1_epi32(0);
-    int intersection_size = 0;
-    __mmask16 cmpgt1 ;
-    __mmask16 cmpgt2 ;
-    __mmask16 worth_intersection;
-    NodeID_t second16_stack[16] = {0};
-    unsigned int ones_num = 0;
+    __m512i j_vertices = _mm512_set1_epi32(0);
+
+    __declspec(align(64)) NodeID_t buffer_first[max_buffer_stack_size];
+    __declspec(align(64)) NodeID_t buffer_second[max_buffer_stack_size];
+     //NodeID_t buffer_first[max_buffer_stack_size];
+     //NodeID_t buffer_second[max_buffer_stack_size];
+
+    NodeID_t* huge_degree_jaccards_first = buffer_first;
+    NodeID_t* huge_degree_jaccards_second = buffer_second;
+
+
+    if (buffer_not_use)
+    {
+        huge_degree_jaccards_first = (NodeID_t*)_mm_malloc(jaccards.size() * sizeof(NodeID_t), 64);
+        huge_degree_jaccards_second = (NodeID_t*)_mm_malloc(jaccards.size() * sizeof(NodeID_t), 64); 
+
+    }
+
+    NodeID_t j = 0;
 
     for (NodeID_t i = vert00; i < vert01; i++) {
-
+        __m512i i_vertex = _mm512_set1_epi32(i);
         NodeID_t size_i = g->_degrees[i];
         auto n_i = g->_vertex_neighbors.data() + g->_edge_offsets[i];
-        __m512i n_i_start_v = _mm512_set1_epi32(n_i[0]);
-        __m512i n_i_end_v = _mm512_set1_epi32(n_i[size_i - 1]);
-        __m512i i_vertex = _mm512_set1_epi32(i);
 
-        //__m512i size_i_v = _mm512_set1_epi32(size_i);
-
+        __m512i size_i_v = _mm512_set1_epi32(size_i);
+        __m512i n_i_start_v = _mm512_set1_epi32(g->_vertex_neighbors[g->_edge_offsets[i]]);
+        __m512i n_i_end_v = _mm512_set1_epi32(g->_vertex_neighbors[g->_edge_offsets[i + 1] - 1]);
 
 
+        j = vert10;
         NodeID_t diagonal = std::min(i, vert11);
 
-        for (j = vert10; j < diagonal; j++) {
-            NodeID_t size_j = g->_degrees[j];             
-            auto n_j = g->_vertex_neighbors.data() + g->_edge_offsets[j];
-            
+        if (j < vert10 + ((diagonal - vert10) / 16) * 16) {
 
-            if (!(n_i[0] > n_j[size_j -1]) && !(n_j[0] > n_i[size_i - 1])) {
+            //load_data(0)
+            start_indices_j_v = _mm512_load_epi32(g->_edge_offsets.data() + j);
+            end_indices_j_v_tmp = _mm512_load_epi32(g->_edge_offsets.data() + j + 1);
+            end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
 
-                intersection_size = intersection_avx512(n_i, n_j, size_i, size_j);
+            n_j_start_v = _mm512_permutevar_epi32(j_vertices_tmp1 ,_mm512_i32gather_epi32(start_indices_j_v, g->_vertex_neighbors.data(), 4));
+            n_j_end_v = _mm512_permutevar_epi32(j_vertices_tmp1 ,_mm512_i32gather_epi32(end_indices_j_v, g->_vertex_neighbors.data(), 4));
 
-                if (intersection_size) {
-                    vertices_first[jaccard_size] = i;
-                    vertices_second[jaccard_size] = j;
-                    jaccards[jaccard_size] = static_cast<float>(intersection_size) / static_cast<float>(size_i + size_j - intersection_size);
-                    jaccard_size++;   
+
+            for (j; j + 16 < vert10 + ((diagonal - vert10) / 16) * 16;) {
+
+                //load_data(i + 1)
+                start_indices_j_v = _mm512_load_epi32(g->_edge_offsets.data() + j + 16);
+                end_indices_j_v_tmp = _mm512_load_epi32(g->_edge_offsets.data() + j + 17);
+                end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
+
+
+                n_j_start_v1 = _mm512_permutevar_epi32(j_vertices_tmp1 ,_mm512_i32gather_epi32(start_indices_j_v, g->_vertex_neighbors.data(), 4));
+                n_j_end_v1 = _mm512_permutevar_epi32(j_vertices_tmp1 ,_mm512_i32gather_epi32(end_indices_j_v, g->_vertex_neighbors.data(), 4));
+
+
+
+                //process i data
+                cmpgt1 = _mm512_cmpgt_epi32_mask( n_i_start_v, n_j_end_v);
+                cmpgt2 = _mm512_cmpgt_epi32_mask( n_j_start_v, n_i_end_v);
+                worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
+
+                ones_num = _popcnt32(_cvtmask16_u32(worth_intersection));
+
+                if (ones_num != 0) {
+
+                    j_vertices_tmp2 = _mm512_set1_epi32(j);
+                    j_vertices = _mm512_add_epi32(j_vertices_tmp1, j_vertices_tmp2);
+                    
+                    _mm512_mask_compressstoreu_epi32((huge_degree_jaccards_first + huge_degree_jaccards_size), worth_intersection , i_vertex);
+                    _mm512_mask_compressstoreu_epi32((huge_degree_jaccards_second + huge_degree_jaccards_size), worth_intersection, j_vertices);
+
+                    huge_degree_jaccards_size += ones_num;
                 }
+
+                j += 16;
+
+                n_j_start_v = n_j_start_v1;
+                n_j_end_v = n_j_end_v1;
+            }
+            //load_data(n)
+
+            //process n data
+
+            cmpgt1 = _mm512_cmpgt_epi32_mask( n_i_start_v, n_j_end_v);
+            cmpgt2 = _mm512_cmpgt_epi32_mask( n_j_start_v, n_i_end_v);
+            worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
+
+            ones_num = _popcnt32(_cvtmask16_u32(worth_intersection));
+
+            if (ones_num != 0) {
+
+                j_vertices_tmp2 = _mm512_set1_epi32(j);
+                j_vertices = _mm512_add_epi32(j_vertices_tmp1, j_vertices_tmp2);
+                
+                _mm512_mask_compressstoreu_epi32((huge_degree_jaccards_first + huge_degree_jaccards_size), worth_intersection , i_vertex);
+                _mm512_mask_compressstoreu_epi32((huge_degree_jaccards_second + huge_degree_jaccards_size), worth_intersection, j_vertices);
+
+                huge_degree_jaccards_size += ones_num;
+            }
+
+            j += 16;
+
+            for (j = vert10 + ((diagonal - vert10) / 16) * 16; j < diagonal; j++) {
+                NodeID_t size_j = g->_degrees[j];
+                auto n_j = g->_vertex_neighbors.data() + g->_edge_offsets[j];
+
+                if (size_j == 0) {
+                              continue;
+                }
+                if ((n_i[0] > n_j[size_j - 1]) || (n_j[0] > n_i[size_i - 1])) {
+                              //counter++;
+                              continue;
+                }
+
+                             huge_degree_jaccards_first[huge_degree_jaccards_size] = i;
+                             huge_degree_jaccards_second[huge_degree_jaccards_size] = j;
+                              huge_degree_jaccards_size++;
+
             }
         }
+        else {
+                for (j = vert10; j < diagonal; j++) {
+                    NodeID_t size_j = g->_degrees[j];
+                    auto n_j = g->_vertex_neighbors.data() + g->_edge_offsets[j];
 
-        NodeID_t tmp_idx = vert10;
-        if (diagonal >= vert10) {
-            vertices_first[jaccard_size] = i;
-            vertices_second[jaccard_size] = diagonal;
-            jaccards[jaccard_size] = 1.0; 
-            jaccard_size++;
-            tmp_idx = diagonal + 1;
+                    if (size_j == 0) {
+                                  continue;
+                    }
+                    if ((n_i[0] > n_j[size_j - 1]) || (n_j[0] > n_i[size_i - 1])) {
+                                  //counter++;
+                                  continue;
+                    }
+
+                                 huge_degree_jaccards_first[huge_degree_jaccards_size] = i;
+                                 huge_degree_jaccards_second[huge_degree_jaccards_size] = j;
+                                  huge_degree_jaccards_size++;
+
+                }
         }
+
+            int tmp_idx = vert10;
+            if (diagonal >= vert10) {
+                vertices_first[jaccard_size] = i;
+                vertices_second[jaccard_size] = j;
+                jaccards[jaccard_size] = 1.0; 
+                jaccard_size++;
+                tmp_idx = diagonal + 1;
+            }
+
+            j = tmp_idx;  
 
         if (j < tmp_idx + ((vert11 - tmp_idx) / 16) * 16) {
             //load_data(0)
@@ -434,108 +546,8 @@ void jaccard_block_avx512(const graph my_graph,
             n_j_end_v = _mm512_permutevar_epi32(j_vertices_tmp1 ,_mm512_i32gather_epi32(end_indices_j_v, g->_vertex_neighbors.data(), 4));
 
 
-
-
-            // int sizes_j[16] = {
-            //     g->_degrees[j], g->_degrees[j + 1],
-            //     g->_degrees[j + 2], g->_degrees[j + 3],
-            //     g->_degrees[j + 4], g->_degrees[j + 5],
-            //     g->_degrees[j + 6], g->_degrees[j + 7],
-            //     g->_degrees[j + 8], g->_degrees[j + 9],
-            //     g->_degrees[j + 10], g->_degrees[j + 11],
-            //     g->_degrees[j + 12], g->_degrees[j + 13],
-            //     g->_degrees[j + 14], g->_degrees[j + 15]
-            // };
-
-            // int* neighbors_j[16] = {
-            //     g->_vertex_neighbors.data() + g->_edge_offsets[j], g->_vertex_neighbors.data() + g->_edge_offsets[j + 1],
-            //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 2], g->_vertex_neighbors.data() + g->_edge_offsets[j + 3],
-            //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 4], g->_vertex_neighbors.data() + g->_edge_offsets[j + 5],
-            //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 6], g->_vertex_neighbors.data() + g->_edge_offsets[j + 7],
-            //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 8], g->_vertex_neighbors.data() + g->_edge_offsets[j + 9],
-            //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 10], g->_vertex_neighbors.data() + g->_edge_offsets[j + 11],
-            //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 12], g->_vertex_neighbors.data() + g->_edge_offsets[j + 13],
-            //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 14], g->_vertex_neighbors.data() + g->_edge_offsets[j + 15]
-            // };
-
-            // n_j_start_v = _mm512_set_epi32(
-            //     neighbors_j[0][0], neighbors_j[1][0], 
-            //     neighbors_j[2][0], neighbors_j[3][0], 
-            //     neighbors_j[4][0], neighbors_j[5][0],   
-            //     neighbors_j[6][0], neighbors_j[7][0],  
-            //     neighbors_j[8][0], neighbors_j[9][0],   
-            //     neighbors_j[10][0], neighbors_j[11][0],  
-            //     neighbors_j[12][0], neighbors_j[13][0],   
-            //     neighbors_j[14][0], neighbors_j[15][0]);
-
-
-            // n_j_end_v = _mm512_set_epi32(
-            //     neighbors_j[0][sizes_j[0] - 1], neighbors_j[1][sizes_j[1] - 1], 
-            //     neighbors_j[2][sizes_j[2] - 1], neighbors_j[3][sizes_j[3] - 1],
-            //     neighbors_j[4][sizes_j[4] - 1], neighbors_j[5][sizes_j[5] - 1], 
-            //     neighbors_j[6][sizes_j[6] - 1], neighbors_j[7][sizes_j[7] - 1],
-            //     neighbors_j[8][sizes_j[8] - 1], neighbors_j[9][sizes_j[9] - 1], 
-            //     neighbors_j[10][sizes_j[10] - 1], neighbors_j[11][sizes_j[11] - 1],
-            //     neighbors_j[12][sizes_j[12] - 1], neighbors_j[13][sizes_j[13] - 1], 
-            //     neighbors_j[14][sizes_j[14] - 1], neighbors_j[15][sizes_j[15] - 1] );
-
-
             for (j; j + 16 < tmp_idx + ((vert11 - tmp_idx) / 16) * 16;) {
                 //load_data(i + 1)
-                // int sizes_j_tmp1[16] = {
-                //     g->_degrees[j + 16], g->_degrees[j + 17],
-                //     g->_degrees[j + 18], g->_degrees[j + 19],
-                //     g->_degrees[j + 20], g->_degrees[j + 21],
-                //     g->_degrees[j + 22], g->_degrees[j + 23],
-                //     g->_degrees[j + 24], g->_degrees[j + 25],
-                //     g->_degrees[j + 26], g->_degrees[j + 27],
-                //     g->_degrees[j + 28], g->_degrees[j + 29],
-                //     g->_degrees[j + 30], g->_degrees[j + 31]
-                // };
-
-                // int* neighbors_j_tmp1[16] = {
-                //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 16], g->_vertex_neighbors.data() + g->_edge_offsets[j + 17],
-                //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 18], g->_vertex_neighbors.data() + g->_edge_offsets[j + 19],
-                //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 20], g->_vertex_neighbors.data() + g->_edge_offsets[j + 21],
-                //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 22], g->_vertex_neighbors.data() + g->_edge_offsets[j + 23],
-                //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 24], g->_vertex_neighbors.data() + g->_edge_offsets[j + 25],
-                //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 26], g->_vertex_neighbors.data() + g->_edge_offsets[j + 27],
-                //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 28], g->_vertex_neighbors.data() + g->_edge_offsets[j + 29],
-                //     g->_vertex_neighbors.data() + g->_edge_offsets[j + 30], g->_vertex_neighbors.data() + g->_edge_offsets[j + 31]
-                // };
-
-
-
-
-                // n_j_start_v1 = _mm512_set_epi32(
-                //     neighbors_j_tmp1[0][0], neighbors_j_tmp1[1][0], 
-                //     neighbors_j_tmp1[2][0], neighbors_j_tmp1[3][0], 
-                //     neighbors_j_tmp1[4][0], neighbors_j_tmp1[5][0],   
-                //     neighbors_j_tmp1[6][0], neighbors_j_tmp1[7][0],  
-                //     neighbors_j_tmp1[8][0], neighbors_j_tmp1[9][0],   
-                //     neighbors_j_tmp1[10][0], neighbors_j_tmp1[11][0],  
-                //     neighbors_j_tmp1[12][0], neighbors_j_tmp1[13][0],   
-                //     neighbors_j_tmp1[14][0], neighbors_j_tmp1[15][0]);
-
-                // n_j_end_v1 = _mm512_set_epi32(
-                //     neighbors_j_tmp1[0][sizes_j_tmp1[0] - 1], neighbors_j_tmp1[1][sizes_j_tmp1[1] - 1], 
-                //     neighbors_j_tmp1[2][sizes_j_tmp1[2] - 1], neighbors_j_tmp1[3][sizes_j_tmp1[3] - 1],
-                //     neighbors_j_tmp1[4][sizes_j_tmp1[4] - 1], neighbors_j_tmp1[5][sizes_j_tmp1[5] - 1], 
-                //     neighbors_j_tmp1[6][sizes_j_tmp1[6] - 1], neighbors_j_tmp1[7][sizes_j_tmp1[7] - 1],
-                //     neighbors_j_tmp1[8][sizes_j_tmp1[8] - 1], neighbors_j_tmp1[9][sizes_j_tmp1[9] - 1], 
-                //     neighbors_j_tmp1[10][sizes_j_tmp1[10] - 1], neighbors_j_tmp1[11][sizes_j_tmp1[11] - 1],
-                //     neighbors_j_tmp1[12][sizes_j_tmp1[12] - 1], neighbors_j_tmp1[13][sizes_j_tmp1[13] - 1], 
-                //     neighbors_j_tmp1[14][sizes_j_tmp1[14] - 1], neighbors_j_tmp1[15][sizes_j_tmp1[15] - 1] );
-
-                // if ( i == 0 && j < 100) {
-                //     cout << "1 method " << i << " " << j << endl;
-                //     Log<int>(n_j_start_v1);
-                //     cout <<endl;
-                //     Log<int>(n_j_end_v1);
-                //     cout <<endl;
-                    
-                // }
-
                 start_indices_j_v = _mm512_load_epi32(g->_edge_offsets.data() + j + 16);
                 end_indices_j_v_tmp = _mm512_load_epi32(g->_edge_offsets.data() + j + 17);
                 end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
@@ -545,35 +557,23 @@ void jaccard_block_avx512(const graph my_graph,
                 n_j_end_v1 = _mm512_permutevar_epi32(j_vertices_tmp1 ,_mm512_i32gather_epi32(end_indices_j_v, g->_vertex_neighbors.data(), 4));
 
 
-                // if ( i == 0 && j < 100) {
-                //     cout << "second method " << i << " " << j << endl;
-                //     Log<int>(n_j_start_v1);
-                //     cout <<endl;
-                //     Log<int>(n_j_end_v1);
-                //     cout <<endl;
-                //     cout <<endl;
-                // }
+
                 //process i data
                 cmpgt1 = _mm512_cmpgt_epi32_mask( n_i_start_v, n_j_end_v);
                 cmpgt2 = _mm512_cmpgt_epi32_mask( n_j_start_v, n_i_end_v);
-
                 worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
+
                 ones_num = _popcnt32(_cvtmask16_u32(worth_intersection));
 
                 if (ones_num != 0) {
+
                     j_vertices_tmp2 = _mm512_set1_epi32(j);
                     j_vertices = _mm512_add_epi32(j_vertices_tmp1, j_vertices_tmp2);
+                    
+                    _mm512_mask_compressstoreu_epi32((huge_degree_jaccards_first + huge_degree_jaccards_size), worth_intersection , i_vertex);
+                    _mm512_mask_compressstoreu_epi32((huge_degree_jaccards_second + huge_degree_jaccards_size), worth_intersection, j_vertices);
 
-                    _mm512_mask_compressstoreu_epi32((second16_stack), worth_intersection, j_vertices);
-                    for (int s = 0; s < ones_num; s++) {
-                        intersection_size = intersection_avx512(n_i, g->_vertex_neighbors.data() + g->_edge_offsets[second16_stack[s]], size_i, g->_degrees[second16_stack[s]]);
-                        if (intersection_size) {
-                            vertices_first[jaccard_size] = i;
-                            vertices_second[jaccard_size] = second16_stack[s];
-                            jaccards[jaccard_size] = static_cast<float>(intersection_size) / static_cast<float> (size_i + g->_degrees[second16_stack[s]] - intersection_size);
-                            jaccard_size++;
-                        }                
-                    }
+                    huge_degree_jaccards_size += ones_num;
                 }
 
                 j += 16;
@@ -586,67 +586,99 @@ void jaccard_block_avx512(const graph my_graph,
 
             cmpgt1 = _mm512_cmpgt_epi32_mask( n_i_start_v, n_j_end_v);
             cmpgt2 = _mm512_cmpgt_epi32_mask( n_j_start_v, n_i_end_v);
-
             worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
-            ones_num = _popcnt32(_cvtmask16_u32(worth_intersection));
+
+            unsigned int ones_num = _popcnt32(_cvtmask16_u32(worth_intersection));
 
             if (ones_num != 0) {
+
                 j_vertices_tmp2 = _mm512_set1_epi32(j);
                 j_vertices = _mm512_add_epi32(j_vertices_tmp1, j_vertices_tmp2);
+                
+                _mm512_mask_compressstoreu_epi32((huge_degree_jaccards_first + huge_degree_jaccards_size), worth_intersection , i_vertex);
+                _mm512_mask_compressstoreu_epi32((huge_degree_jaccards_second + huge_degree_jaccards_size), worth_intersection, j_vertices);
 
-                _mm512_mask_compressstoreu_epi32((second16_stack), worth_intersection, j_vertices);
-                for (int s = 0; s < ones_num; s++) {
-                    intersection_size = intersection_avx512(n_i, g->_vertex_neighbors.data() + g->_edge_offsets[second16_stack[s]], size_i, g->_degrees[second16_stack[s]]);
-                    if (intersection_size) {
-                        vertices_first[jaccard_size] = i;
-                        vertices_second[jaccard_size] = second16_stack[s];
-                        jaccards[jaccard_size] = static_cast<float>(intersection_size) / static_cast<float> (size_i + g->_degrees[second16_stack[s]] - intersection_size);
-                        jaccard_size++;
-                    }                
-                }
+                huge_degree_jaccards_size += ones_num;
             }
 
             j += 16;
 
 
             for (j = tmp_idx + ((vert11 - tmp_idx) / 16) * 16; j < vert11; j++) {
-                NodeID_t size_j = g->_degrees[j];             
+                NodeID_t size_j = g->_degrees[j];
                 auto n_j = g->_vertex_neighbors.data() + g->_edge_offsets[j];
-                
 
-                if (!(n_i[0] > n_j[size_j -1]) && !(n_j[0] > n_i[size_i - 1])) {
-
-                    intersection_size = intersection_avx512(n_i, n_j, size_i, size_j);
-
-                    if (intersection_size) {
-                        vertices_first[jaccard_size] = i;
-                        vertices_second[jaccard_size] = j;
-                        jaccards[jaccard_size] = static_cast<float>(intersection_size) / static_cast<float>(size_i + size_j - intersection_size);
-                        jaccard_size++;   
-                    }
+                if (size_j == 0) {
+                              continue;
                 }
+                if ((n_i[0] > n_j[size_j - 1]) || (n_j[0] > n_i[size_i - 1])) {
+                              //counter++;
+                              continue;
+                }
+
+                             huge_degree_jaccards_first[huge_degree_jaccards_size] = i;
+                             huge_degree_jaccards_second[huge_degree_jaccards_size] = j;
+                              huge_degree_jaccards_size++;
+
             }
         }
         else {
-            for (j = tmp_idx; j < vert11; j++) {
-                NodeID_t size_j = g->_degrees[j];             
-                auto n_j = g->_vertex_neighbors.data() + g->_edge_offsets[j];
-                
+                for (j = tmp_idx; j < vert11; j++) {
+                    NodeID_t size_j = g->_degrees[j];
+                    auto n_j = g->_vertex_neighbors.data() + g->_edge_offsets[j];
 
-                if (!(n_i[0] > n_j[size_j -1]) && !(n_j[0] > n_i[size_i - 1])) {
-
-                    intersection_size = intersection_avx512(n_i, n_j, size_i, size_j);
-
-                    if (intersection_size) {
-                        vertices_first[jaccard_size] = i;
-                        vertices_second[jaccard_size] = j;
-                        jaccards[jaccard_size] = static_cast<float>(intersection_size) / static_cast<float>(size_i + size_j - intersection_size);
-                        jaccard_size++;   
+                    if (size_j == 0) {
+                                  continue;
                     }
+                    if ((n_i[0] > n_j[size_j - 1]) || (n_j[0] > n_i[size_i - 1])) {
+                                  //counter++;
+                                  continue;
+                    }
+
+                                 huge_degree_jaccards_first[huge_degree_jaccards_size] = i;
+                                 huge_degree_jaccards_second[huge_degree_jaccards_size] = j;
+                                  huge_degree_jaccards_size++;
+
                 }
-            }
         }
     }
+
+
+    //**************processing*******************
+    int jaccard_size_tmp = jaccard_size;
+    //cout << huge_degree_jaccards_size << endl;
+
+    for (NodeID_t i = 0; i < huge_degree_jaccards_size; i++) {
+
+        NodeID_t size_i = g->_degrees[huge_degree_jaccards_first[i]];
+        auto n_i = g->_vertex_neighbors.data() + g->_edge_offsets[huge_degree_jaccards_first[i]];
+
+        NodeID_t size_j = g->_degrees[huge_degree_jaccards_second[i]];
+        auto n_j = g->_vertex_neighbors.data() + g->_edge_offsets[huge_degree_jaccards_second[i]];
+
+        int intersection_size = intersection_avx512(n_i, n_j, size_i, size_j);
+        if (intersection_size) {
+            
+            vertices_first[jaccard_size] = huge_degree_jaccards_first[i];
+            vertices_second[jaccard_size] = huge_degree_jaccards_second[i],
+            jaccards[jaccard_size] = static_cast<float>(intersection_size); 
+        jaccard_size++;
+        }
+
+    }
+
+#pragma vector always
+    for (NodeID_t i = jaccard_size_tmp; i < jaccard_size ; i++) {
+        jaccards[i] = 
+        jaccards[i] / 
+        static_cast<float>(g->_degrees[vertices_first[i]] + g->_degrees[vertices_second[i]] - jaccards[i]);
+    }
+    if (buffer_not_use) {
+        _mm_free(huge_degree_jaccards_first);
+        _mm_free(huge_degree_jaccards_second); 
+    }
+
+
 }
 
 template<class NodeID_t>
