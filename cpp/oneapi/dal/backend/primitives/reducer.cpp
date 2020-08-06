@@ -60,7 +60,7 @@ template struct unary_functor<double, unary_operation::abs>;
 template <typename Float>
 constexpr Float binary_functor<Float, binary_operation::sum>::init_value = 0;
 
-template<typename Float>
+template <typename Float>
 struct binary_functor<Float, binary_operation::sum> {
     constexpr static Float init_value = 0;
 
@@ -69,7 +69,7 @@ struct binary_functor<Float, binary_operation::sum> {
     }
 };
 
-template<typename Float>
+template <typename Float>
 struct binary_functor<Float, binary_operation::mul> {
     constexpr static Float init_value = 1;
 
@@ -78,18 +78,20 @@ struct binary_functor<Float, binary_operation::mul> {
     }
 };
 
-template<typename Float>
+template <typename Float>
 struct binary_functor<Float, binary_operation::max> {
-    constexpr static Float init_value = std::numeric_limits<Float>::min();;
+    constexpr static Float init_value = std::numeric_limits<Float>::min();
+    ;
 
     constexpr Float operator()(Float a, Float b) {
         return std::max(a, b);
     }
 };
 
-template<typename Float>
+template <typename Float>
 struct binary_functor<Float, binary_operation::min> {
-    constexpr static Float init_value = std::numeric_limits<Float>::max();;
+    constexpr static Float init_value = std::numeric_limits<Float>::max();
+    ;
 
     constexpr Float operator()(Float a, Float b) {
         return std::min(a, b);
