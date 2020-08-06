@@ -30,21 +30,21 @@ namespace oneapi::dal::backend::primitives {
 
 template <typename Float>
 struct unary_functor<Float, unary_operation::identity> {
-    constexpr static Float operator()(Float arg) {
+    Float operator()(Float arg) const {
         return arg;
     }
 };
 
 template <typename Float>
 struct unary_functor<Float, unary_operation::abs> {
-    constexpr static Float operator()(Float arg) {
+    Float operator()(Float arg) const {
         return std::abs(arg);
     }
 };
 
 template <typename Float>
 struct unary_functor<Float, unary_operation::square> {
-    constexpr static Float operator()(Float arg) {
+    Float operator()(Float arg) const {
         return (arg * arg);
     }
 };
@@ -61,7 +61,7 @@ template <typename Float>
 struct binary_functor<Float, binary_operation::sum> {
     constexpr static Float init_value = 0;
 
-    constexpr static Float operator()(Float a, Float b) {
+    Float operator()(Float a, Float b) const {
         return (a + b);
     }
 };
@@ -70,7 +70,7 @@ template <typename Float>
 struct binary_functor<Float, binary_operation::mul> {
     constexpr static Float init_value = 1;
 
-    constexpr static Float operator()(Float a, Float b) {
+    Float operator()(Float a, Float b) const {
         return (a * b);
     }
 };
@@ -79,7 +79,7 @@ template <typename Float>
 struct binary_functor<Float, binary_operation::max> {
     constexpr static Float init_value = std::numeric_limits<Float>::min();
 
-    constexpr static Float operator()(Float a, Float b) {
+    Float operator()(Float a, Float b) const {
         return std::max(a, b);
     }
 };
@@ -88,7 +88,7 @@ template <typename Float>
 struct binary_functor<Float, binary_operation::min> {
     constexpr static Float init_value = std::numeric_limits<Float>::max();
 
-    constexpr static Float operator()(Float a, Float b) {
+    Float operator()(Float a, Float b) const {
         return std::min(a, b);
     }
 };

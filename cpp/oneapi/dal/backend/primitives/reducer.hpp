@@ -31,7 +31,7 @@ enum class unary_operation : int { identity, square, abs };
 
 template <typename Float, unary_operation Op = unary_operation::identity>
 struct unary_functor {
-    constexpr static Float operator()(Float arg) const;
+    Float operator()(Float arg) const;
 };
 
 enum class binary_operation : int { min, max, sum, mul };
@@ -40,7 +40,7 @@ template <typename Float, binary_operation Op>
 struct binary_functor {
     //should be initialized anyway
     constexpr static Float init_value = static_cast<Float>(NAN);
-    constexpr static Float operator()(Float a, Float b);
+    Float operator()(Float a, Float b) const;
 };
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
