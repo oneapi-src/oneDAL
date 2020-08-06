@@ -46,13 +46,13 @@ namespace algorithms
 namespace multi_class_classifier
 {
 /**
- * <a name="DAAL-ENUM-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__RESULTTOCOMPUTEID"></a>
+ * <a name="DAAL-ENUM-ALGORITHMS__MULTI_CLASS_CLASSIFIER__RESULTTOCOMPUTEID"></a>
  * Available identifiers to specify the result to compute
  */
 enum ResultToComputeId
 {
     computeClassLabels      = 0x00000001ULL, /*!< Numeric table of size n x 1 with the predicted labels >*/
-    computeDecisionFunction = 0x00000032ULL, /*!< Numeric table of size n x p with the predicted class probabilities for each observation >*/
+    computeDecisionFunction = 0x00000032ULL, /*!< Numeric table of size n x (k*(k-1)/2) with the decision function for each observation >*/
 };
 
 /**

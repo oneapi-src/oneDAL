@@ -96,7 +96,8 @@ public:
                     input->set(classifier::prediction::data, xTable);
                     input->set(classifier::prediction::model, model->getTwoClassClassifierModel(imodel));
 
-                    WriteOnlyColumns<algorithmFPType, cpu> dfBlock(df, imodel, startRow, nRows);
+                    const size_t iClassesForDF = (jClass * (2 * _nClasses - jClass - 1)) / 2 + (iClass - jClass - 1);
+                    WriteOnlyColumns<algorithmFPType, cpu> dfBlock(df, iClassesForDF, startRow, nRows);
                     DAAL_CHECK_BLOCK_STATUS(dfBlock);
                     algorithmFPType * dfData = dfBlock.get();
 
