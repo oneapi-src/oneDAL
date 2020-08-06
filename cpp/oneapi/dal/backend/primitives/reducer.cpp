@@ -190,10 +190,9 @@ cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operat
                                           .vectors         = input.get_data(),
                                           .reduces         = output.get_mutable_data(),
                                           .partial_reduces = partial_reduces };
-        const cl::sycl::range<2> local_range{ 
-            static_cast<size_t>(work_items_per_group), 1 };
-        const cl::sycl::range<2> global_range{ 
-            static_cast<size_t>(work_items_per_group), static_cast<size_t>(n_vectors) };
+        const cl::sycl::range<2> local_range{ static_cast<size_t>(work_items_per_group), 1 };
+        const cl::sycl::range<2> global_range{ static_cast<size_t>(work_items_per_group),
+                                               static_cast<size_t>(n_vectors) };
         const cl::sycl::nd_range<2> call_range(local_range, global_range);
         handler.parallel_for(call_range, functor_instance);
     });
