@@ -30,21 +30,21 @@ namespace oneapi::dal::backend::primitives {
 
 template <typename Float>
 struct unary_functor<Float, unary_operation::identity> {
-    constexpr Float operator()(Float arg) {
+    constexpr static Float operator()(Float arg) {
         return arg;
     }
 };
 
 template <typename Float>
 struct unary_functor<Float, unary_operation::abs> {
-    constexpr Float operator()(Float arg) {
+    constexpr static Float operator()(Float arg) {
         return std::abs(arg);
     }
 };
 
 template <typename Float>
 struct unary_functor<Float, unary_operation::square> {
-    constexpr Float operator()(Float arg) {
+    constexpr static Float operator()(Float arg) {
         return (arg * arg);
     }
 };
@@ -61,7 +61,7 @@ template <typename Float>
 struct binary_functor<Float, binary_operation::sum> {
     constexpr static Float init_value = 0;
 
-    constexpr Float operator()(Float a, Float b) {
+    constexpr static Float operator()(Float a, Float b) {
         return (a + b);
     }
 };
@@ -70,7 +70,7 @@ template <typename Float>
 struct binary_functor<Float, binary_operation::mul> {
     constexpr static Float init_value = 1;
 
-    constexpr Float operator()(Float a, Float b) {
+    constexpr static Float operator()(Float a, Float b) {
         return (a * b);
     }
 };
@@ -79,7 +79,7 @@ template <typename Float>
 struct binary_functor<Float, binary_operation::max> {
     constexpr static Float init_value = std::numeric_limits<Float>::min();
 
-    constexpr Float operator()(Float a, Float b) {
+    constexpr static Float operator()(Float a, Float b) {
         return std::max(a, b);
     }
 };
@@ -88,7 +88,7 @@ template <typename Float>
 struct binary_functor<Float, binary_operation::min> {
     constexpr static Float init_value = std::numeric_limits<Float>::max();
 
-    constexpr Float operator()(Float a, Float b) {
+    constexpr static Float operator()(Float a, Float b) {
         return std::min(a, b);
     }
 };
@@ -207,7 +207,7 @@ cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operat
     std::int64_t vector_size,
     std::int64_t n_vectors) {
     const std::int64_t work_items_per_group =
-        this->_q.get_info<cl::sycl::info::device::max_work_group_size>();
+        this->_q.template get_info<cl::sycl::info::device::max_work_group_size>();
     return this->operator()(input, output, vector_size, vector_size, n_vectors);
 }
 
