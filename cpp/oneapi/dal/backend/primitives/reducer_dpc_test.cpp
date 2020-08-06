@@ -20,8 +20,8 @@
 
 #define ONEAPI_DAL_DATA_PARALLEL
 
-#include "oneapi/dal/data/array.hpp"
 #include "oneapi/backend/primitives/reducer.hpp"
+#include "oneapi/dal/data/array.hpp"
 
 TEST(reducer_l2, can_handle_array_of_zeros) {
     cl::sycl::queue q{ cl::sycl::gpu_selector() };
@@ -34,6 +34,6 @@ TEST(reducer_l2, can_handle_array_of_zeros) {
 
     const float* raw_ptr = res.get_data();
 
-    for(int i = 0; i < 7; i++) ASSERT_EQ(raw_ptr[i], 0.f);
+    for (int i = 0; i < 7; i++)
+        ASSERT_EQ(raw_ptr[i], 0.f);
 }
-

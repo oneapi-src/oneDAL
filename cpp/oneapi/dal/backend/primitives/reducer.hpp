@@ -17,60 +17,64 @@
 #pragma once
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-#include <CL/sycl.hpp>
+    #include <CL/sycl.hpp>
 #endif
 
 #include "oneapi/dal/data/array.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
-enum class unary_operation : int {
-    identity,
-    square,
-    abs
+enum class unary_operation : int { identity, square, abs };
+
+template <typename Float, unary_operation Op = unary_operation::identity>
+struct unary_functor {
+    constexpr Float operator()(Float arg);
 };
 
-template<typename Float, unary_operation Op = unary_operation::identity>
-struct unary_functor { 
-    constexpr Float operator() (Float arg);
-};
+enum class binary_operation : int { min, max, sum, mul };
 
-enum class binary_operation : int {
-    min,
-    max,
-    sum,
-    mul
-};
-
-template<typename Float, binary_operation Op>
+template <typename Float, binary_operation Op>
 struct binary_functor {
     constexpr Float init_value;
-    constexpr Float operator() (Float arg);
-    constexpr Float operator() (Float a, Float b);
+    constexpr Float operator()(Float arg);
+    constexpr Float operator()(Float a, Float b);
 };
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
 
-template<unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout = true>
+template <unary_operation UnOp,
+          binary_operation BinOp,
+          typename Float,
+          bool IsRowMajorLayout = true>
 struct reducer_singlepass {
     reducer_singlepass(cl::sycl::queue& q);
-    cl::sycl::event operator() (array<Float> input, array<Float> output, 
-        std::int64_t vector_size, std::int64_t n_vectors, std::int64_t work_items_per_group);
-    cl::sycl::event operator() (array<Float> input, array<Float> output, 
-                                            std::int64_t vector_size, std::int64_t n_vectors);
-    typename array<Float> operator() (array<Float> input, 
-                                            std::int64_t vector_size, std::int64_t n_vectors);
+    cl::sycl::event operator()(array<Float> input,
+                               array<Float> output,
+                               std::int64_t vector_size,
+                               std::int64_t n_vectors,
+                               std::int64_t work_items_per_group);
+    cl::sycl::event operator()(array<Float> input,
+                               array<Float> output,
+                               std::int64_t vector_size,
+                               std::int64_t n_vectors);
+    typename array<Float> operator()(array<Float> input,
+                                     std::int64_t vector_size,
+                                     std::int64_t n_vectors);
+
 private:
     cl::sycl::queue& _q;
 };
 
-template<typename Float>
-using l1_reducer_singlepass = typename reducer_singlepass<unary_operation::abs, binary_operation::sum, Float>;
-template<typename Float>
-using l2_reducer_singlepass = typename reducer_singlepass<unary_operation::square, binary_operation::sum, Float>;
-template<typename Float>
-using linf_reducer_singlepass = typename reducer_singlepass<unary_operation::abs, binary_operation::max, Float>;
+template <typename Float>
+using l1_reducer_singlepass =
+    typename reducer_singlepass<unary_operation::abs, binary_operation::sum, Float>;
+template <typename Float>
+using l2_reducer_singlepass =
+    typename reducer_singlepass<unary_operation::square, binary_operation::sum, Float>;
+template <typename Float>
+using linf_reducer_singlepass =
+    typename reducer_singlepass<unary_operation::abs, binary_operation::max, Float>;
 
 #endif
 
-} // namespace oneapi::dal::detail
+} // namespace oneapi::dal::backend::primitives
