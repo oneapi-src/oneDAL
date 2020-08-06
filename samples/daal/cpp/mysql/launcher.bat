@@ -16,7 +16,7 @@ rem limitations under the License.
 rem ============================================================================
 
 ::  Content:
-::     Intel(R) Data Analytics Acceleration Library samples creation and run
+::     Intel(R) oneAPI Data Analytics Library samples creation and run
 ::******************************************************************************
 
 set ARCH=%1

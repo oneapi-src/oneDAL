@@ -1,17 +1,17 @@
-# Intel(R) Data Analytics Acceleration Library Apache Arrow\* Samples
+# Intel(R) oneAPI Data Analytics Library Apache Arrow\* Samples
 
-Apache Arrow\* samples for the Intel(R) Data Analytics Acceleration Library (Intel® DAAL) are designed to show how to use this library with the Apache Arrow library in a C++ application.
+Apache Arrow\* samples for the Intel(R) oneAPI Data Analytics Library (oneDAL) are designed to show how to use this library with the Apache Arrow library in a C++ application.
 
-Unzip the archive with Intel(R) DAAL samples to your working directory (`<sample_dir>`).
+Unzip the archive with oneDAL samples to your working directory (`<sample_dir>`).
 
 ## System Requirements
-You can use Intel(R) DAAL Apache Arrow samples on Linux\*, Windows\*, and macOS\* operating systems. For a list of Intel(R) DAAL hardware and software requirements, refer to release notes for the version of Intel(R) DAAL you are using.
+You can use oneDAL Apache Arrow samples on Linux\*, Windows\*, and macOS\* operating systems. For a list of oneDAL hardware and software requirements, refer to release notes for the version of oneDAL you are using.
 
-Apache Arrow implementations against which Intel(R) DAAL has been validated:
+Apache Arrow implementations against which oneDAL has been validated:
 - Apache Arrow 0.15.1
 
 ---
-**Note:** Intel(R) DAAL is expected to work on other Apache Arrow versions as well. Let us know if you have any troubles with the distribution you are using.
+**Note:** oneDAL is expected to work on other Apache Arrow versions as well. Let us know if you have any troubles with the distribution you are using.
 
 ---
 
@@ -22,7 +22,7 @@ You can download and install the Apache Arrow library from their [GitHub\* repos
 For Linux\* and MacOS\* only: set variables `BOOST_SYSTEM_LIBRARY_PATH` with the correct path to `libboost_system.a` and `BOOST_FILESYSTEM_LIBRARY_PATH` with the correct path to `libboost_filesystem.a`.
 
 ### Setting Up the Build Environment
-Before you build the sample, you must set certain environment variables that define the location of related libraries. Intel(R) DAAL includes the `vars` scripts that you can run to set environment variables:
+Before you build the sample, you must set certain environment variables that define the location of related libraries. oneDAL includes the `vars` scripts that you can run to set environment variables:
 
 On Windows\*, you can find the `vars.bat` batch file at:
 
@@ -41,11 +41,11 @@ On macOS\*, you can find the `vars.sh` shell script at:
 
 ---
 
-For more information on how to set environment variables and configure Intel(R) DAAL, refer to Get Started Guides for the library.
+For more information on how to set environment variables and configure oneDAL, refer to Get Started Guides for the library.
 
 ## Build and Run Instructions
 
-Choose the OS you are using and see how to build and run Intel(R) DAAL Apache Arrow C++ samples.
+Choose the OS you are using and see how to build and run oneDAL Apache Arrow C++ samples.
 
 - [Windows\*](#windows)
 - [Linux\*](#linux)

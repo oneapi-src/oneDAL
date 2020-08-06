@@ -52,7 +52,8 @@ public:
     DAAL_NEW_DELETE();
     virtual ~SubTask() {}
 
-    services::Status getDataSubset(size_t nFeatures, size_t nVectors, int classIdxPositive, int classIdxNegative, const int * y, size_t & nRows)
+    services::Status getDataSubset(size_t nFeatures, size_t nVectors, int classIdxPositive, int classIdxNegative, const algorithmFPType * y,
+                                   size_t & nRows)
     {
         nRows = 0;
         /* Prepare "positive" observations of the training subset */
@@ -105,7 +106,7 @@ protected:
 
     bool isValid() const { return _subsetX.get() && _subsetYTable.get() && _simpleTraining.get(); }
 
-    virtual services::Status copyDataIntoSubtable(size_t nFeatures, size_t nVectors, int classIdx, algorithmFPType label, const int * y,
+    virtual services::Status copyDataIntoSubtable(size_t nFeatures, size_t nVectors, int classIdx, algorithmFPType label, const algorithmFPType * y,
                                                   size_t & nRows) = 0;
 
 protected:
@@ -123,6 +124,8 @@ template <typename algorithmFPType, typename ClsType, CpuType cpu>
 class SubTaskCSR : public SubTask<algorithmFPType, ClsType, cpu>
 {
 public:
+    virtual ~SubTaskCSR() DAAL_C11_OVERRIDE {}
+
     typedef SubTask<algorithmFPType, ClsType, cpu> super;
     static SubTaskCSR * create(size_t nFeatures, size_t nSubsetVectors, size_t dataSize, const NumericTable * xTable, const algorithmFPType * weights,
                                const services::SharedPtr<ClsType> & st)
@@ -152,7 +155,7 @@ private:
         }
     }
 
-    virtual services::Status copyDataIntoSubtable(size_t nFeatures, size_t nVectors, int classIdx, algorithmFPType label, const int * y,
+    virtual services::Status copyDataIntoSubtable(size_t nFeatures, size_t nVectors, int classIdx, algorithmFPType label, const algorithmFPType * y,
                                                   size_t & nRows) DAAL_C11_OVERRIDE;
 
 private:
@@ -165,6 +168,8 @@ template <typename algorithmFPType, typename ClsType, CpuType cpu>
 class SubTaskDense : public SubTask<algorithmFPType, ClsType, cpu>
 {
 public:
+    virtual ~SubTaskDense() DAAL_C11_OVERRIDE {}
+
     typedef SubTask<algorithmFPType, ClsType, cpu> super;
     static SubTaskDense * create(size_t nFeatures, size_t nSubsetVectors, size_t dataSize, const NumericTable * xTable,
                                  const algorithmFPType * weights, const services::SharedPtr<ClsType> & st)
@@ -189,7 +194,7 @@ private:
         if (!status) return;
     }
 
-    virtual services::Status copyDataIntoSubtable(size_t nFeatures, size_t nVectors, int classIdx, algorithmFPType label, const int * y,
+    virtual services::Status copyDataIntoSubtable(size_t nFeatures, size_t nVectors, int classIdx, algorithmFPType label, const algorithmFPType * y,
                                                   size_t & nRows) DAAL_C11_OVERRIDE;
 
 private:
@@ -204,7 +209,7 @@ public:
                              const daal::algorithms::Parameter * par);
 
 protected:
-    services::Status computeDataSize(size_t nVectors, size_t nFeatures, size_t nClasses, const NumericTable * xTable, const int * y,
+    services::Status computeDataSize(size_t nVectors, size_t nFeatures, size_t nClasses, const NumericTable * xTable, const algorithmFPType * y,
                                      size_t & nSubsetVectors, size_t & dataSize);
 };
 
