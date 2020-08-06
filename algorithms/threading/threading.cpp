@@ -130,15 +130,19 @@ DAAL_EXPORT void _daal_threader_for_optional(int n, int threads_request, const v
 DAAL_EXPORT void _daal_threader_for_break(int n, int threads_request, const void * a, daal::functype_break func)
 {
 #if defined(__DO_TBB_LAYER__)
-    tbb::parallel_for(tbb::blocked_range<int>(0, n, 1), [&](tbb::blocked_range<int> r) {
-        int i;
-        for (i = r.begin(); i < r.end(); ++i)
-        {
-            bool needBreak = false;
-            func(i, needBreak, a);
-            if (needBreak) tbb::task::self().cancel_group_execution();
-        }
-    });
+    tbb::task_group_context context;
+    tbb::parallel_for(
+        tbb::blocked_range<int>(0, n, 1),
+        [&](tbb::blocked_range<int> r) {
+            int i;
+            for (i = r.begin(); i < r.end(); ++i)
+            {
+                bool needBreak = false;
+                func(i, needBreak, a);
+                if (needBreak) context.cancel_group_execution();
+            }
+        },
+        context);
 #elif defined(__DO_SEQ_LAYER__)
     int i;
     for (i = 0; i < n; ++i)
