@@ -111,8 +111,8 @@ template <unary_operation UnOp, binary_operation BinOp, typename Float, bool IsR
 struct reducer_singlepass_kernel {
 public:
     //Zero cost
-    const typename unary_functor<BinOp> binary;
-    const typename unary_functor<UnOp> unary;
+    const unary_functor<Float, BinOp> binary;
+    const unary_functor<Float, UnOp> unary;
 
 public:
     void operator()(cl::sycl::nd_item<2> idx) const {
@@ -178,7 +178,7 @@ cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operat
     std::int64_t work_items_per_group) {
     if (input.get_count() < (vector_size * n_vectors))
         throw std::exception();
-    typedef impl::reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout> kernel_t;
+    typedef impl::reducer_singlepass_kernel<UnOp, BinOp, Float, IsRowMajorLayout> kernel_t;
     const std::int64_t local_buff_size = 256;
     auto event                         = this->_q.submit([&](cl::sycl::handler& handler) {
         typedef cl::sycl::

@@ -60,23 +60,21 @@ struct reducer_singlepass {
                                array<Float> output,
                                std::int64_t vector_size,
                                std::int64_t n_vectors);
-    typename array<Float> operator()(array<Float> input,
-                                     std::int64_t vector_size,
-                                     std::int64_t n_vectors);
+    array<Float> operator()(array<Float> input, std::int64_t vector_size, std::int64_t n_vectors);
 
 private:
     cl::sycl::queue& _q;
 };
 
 template <typename Float>
-using l1_reducer_singlepass =
-    reducer_singlepass<unary_operation::abs, binary_operation::sum, Float>;
+typedef reducer_singlepass<unary_operation::abs, binary_operation::sum, Float>
+    l1_reducer_singlepass;
 template <typename Float>
-using l2_reducer_singlepass =
-    reducer_singlepass<unary_operation::square, binary_operation::sum, Float>;
+typedef reducer_singlepass<unary_operation::square, binary_operation::sum, Float>
+    l2_reducer_singlepass;
 template <typename Float>
-using linf_reducer_singlepass =
-    reducer_singlepass<unary_operation::abs, binary_operation::max, Float>;
+typedef reducer_singlepass<unary_operation::abs, binary_operation::max, Float>
+    linf_reducer_singlepass;
 
 #endif
 
