@@ -30,5 +30,5 @@ DAAL = homogen_table_builder             \
        svm_two_class_thunder_dense_batch \
        svm_two_class_smo_dense_batch     \
        jaccard_batch                     \
-       graph_service
+       graph_service_functions
 

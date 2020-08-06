@@ -17,7 +17,7 @@
 #include <iostream>
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
-#include "oneapi/dal/data/graph_service.hpp"
+#include "oneapi/dal/data/graph_service_functions.hpp"
 
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
