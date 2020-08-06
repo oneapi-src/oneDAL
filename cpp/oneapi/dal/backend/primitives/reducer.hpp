@@ -50,6 +50,7 @@ template <unary_operation UnOp,
           typename Float,
           bool IsRowMajorLayout = true>
 struct reducer_singlepass {
+public:
     reducer_singlepass(cl::sycl::queue& q);
     cl::sycl::event operator()(array<Float> input,
                                array<Float> output,
@@ -60,7 +61,6 @@ struct reducer_singlepass {
                                array<Float> output,
                                std::int64_t vector_size,
                                std::int64_t n_vectors);
-    array<Float> operator()(array<Float> input, std::int64_t vector_size, std::int64_t n_vectors);
 
 private:
     cl::sycl::queue& _q;

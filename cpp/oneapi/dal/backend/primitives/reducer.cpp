@@ -185,10 +185,10 @@ cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operat
             accessor<Float, 1, cl::sycl::access::mode::read_write, cl::sycl::access::target::local>
                 local_acc_t;
         auto partial_reduces  = local_acc_t(cl::sycl::range<1>{ local_buff_size }, handler);
-        auto functor_instance = kernel_t{ .vector_size     = vector_size,
-                                          .n_vectors       = n_vectors,
-                                          .vectors         = input.get_data(),
-                                          .reduces         = output.get_mutable_data(),
+        auto functor_instance = kernel_t{ .vector_size = static_cast<std::uint32_t>(vector_size),
+                                          .n_vectors   = static_cast<std::uint32_t>(n_vectors),
+                                          .vectors     = input.get_data(),
+                                          .reduces     = output.get_mutable_data(),
                                           .partial_reduces = partial_reduces };
         const cl::sycl::range<2> local_range{ static_cast<size_t>(work_items_per_group), 1 };
         const cl::sycl::range<2> global_range{ static_cast<size_t>(work_items_per_group),
@@ -196,7 +196,6 @@ cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operat
         const cl::sycl::nd_range<2> call_range(local_range, global_range);
         handler.parallel_for(call_range, functor_instance);
     });
-    event.wait();
     return event;
 }
 
@@ -207,18 +206,8 @@ cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operat
     std::int64_t vector_size,
     std::int64_t n_vectors) {
     const std::int64_t work_items_per_group =
-        this->_q.template get_info<cl::sycl::info::device::max_work_group_size>();
+        this->_q.get_device().template get_info<cl::sycl::info::device::max_work_group_size>();
     return this->operator()(input, output, vector_size, vector_size, n_vectors);
-}
-
-template <unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout>
-array<Float> reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operator()(
-    array<const Float> input,
-    std::int64_t vector_size,
-    std::int64_t n_vectors) {
-    auto output = array<Float>::zeros(this->_q, vector_size);
-    this->operator()(input, output, vector_size, n_vectors);
-    return output;
 }
 
 //Direct instantiation
