@@ -78,7 +78,6 @@ struct binary_functor<Float, binary_operation::mul> {
 template <typename Float>
 struct binary_functor<Float, binary_operation::max> {
     constexpr static Float init_value = std::numeric_limits<Float>::min();
-    ;
 
     constexpr Float operator()(Float a, Float b) {
         return std::max(a, b);
@@ -88,7 +87,6 @@ struct binary_functor<Float, binary_operation::max> {
 template <typename Float>
 struct binary_functor<Float, binary_operation::min> {
     constexpr static Float init_value = std::numeric_limits<Float>::max();
-    ;
 
     constexpr Float operator()(Float a, Float b) {
         return std::min(a, b);
