@@ -15,7 +15,7 @@
 #===============================================================================
 
 ##  Content:
-##     Intel(R) Data Analytics Acceleration Library samples list
+##     Intel(R) oneAPI Data Analytics Library samples list
 ##******************************************************************************
 
 ONECCL  =  kmeans_dense_multinode_batch

@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2014-2020 Intel Corporation
+.. * Copyright 2019-2020 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -38,6 +38,16 @@ For more information about algorithms implemented in |short_name|, refer to the 
    *Scalable K-means++*. Proceedings of the VLDB Endowment, 2012.
    Available from
    http://vldb.org/pvldb/vol5/p622_bahmanbahmani_vldb2012.pdf.
+
+.. [Ben2005]
+   Ben-Gal I. Outlier detection. In: Maimon O. and Rockach L. (Eds.)
+   Data Mining and Knowledge Discovery Handbook: A Complete Guide for Practitioners and Researchers",
+   Kluwer Academic Publishers, 2005, ISBN 0-387-24435-2.
+
+.. [Billor2000]
+   Nedret Billor, Ali S. Hadib, and Paul F. Velleman.
+   BACON: blocked adaptive computationally efficient outlier nominators.
+   Computational Statistics & Data Analysis, 34, 279-298, 2000.
 
 .. [Bishop2006] 
    Christopher M. Bishop. *Pattern Recognition and Machine Learning*,
@@ -81,6 +91,11 @@ For more information about algorithms implemented in |short_name|, refer to the 
    incomplete data via the em algorithm*. J. Royal Statist. Soc. Ser.
    B., 39, 1977.
 
+.. [Duchi2011]
+   Elad Hazan, John Duchi, and Yoram Singer.
+   Adaptive subgradient methods for online learning and stochastic optimization.
+   The Journal of Machine Learning Research, 12:21212159, 2011.
+
 .. [Ester96]
    Martin Ester, Hans-Peter Kriegel, Jörg Sander, and Xiaowei Xu.
    A density-based algorithm for discovering clusters in large spatial databases with noise..
@@ -103,6 +118,11 @@ For more information about algorithms implemented in |short_name|, refer to the 
    *Additive Logistic Regression: a Statistical View of Boosting.*.
    1998.
 
+.. [Friedman00]
+   Jerome Friedman, Trevor Hastie, and Robert Tibshirani.
+   Additive Logistic regression: a statistical view of boosting.
+   The Annals of Statistics, 28(2), pp: 337-407, 2000.
+
 .. [Friedman2010] 
    Friedman, Jerome, Trevor Hastie, and Rob Tibshirani.
    *Regularization paths for generalized linear models via coordinate
@@ -113,6 +133,9 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Elements of Statistical Learning Data Mining, Inference, and
    Prediction.* Springer.
 
+.. [Freund01]
+   Yoav Freund. An adaptive version of the boost by majority algorithm.
+   Machine Learning (43), pp. 293-318, 2001.
 
 .. [Hastie2009] 
    Trevor Hastie, Robert Tibshirani, Jerome Friedman. *The Elements
@@ -152,6 +175,12 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Stuart P Lloyd. *Least squares quantization in PCM*. IEEE
    Transactions on Information Theory 1982, 28 (2): 1982pp: 129–137.
 
+.. [Matsumoto98]
+   Matsumoto, M., Nishimura, T. Mersenne Twister:
+   A 623-Dimensionally Equidistributed Uniform Pseudo-Random Number Generator.
+   ACM Transactions on Modeling and Computer Simulation,
+   Vol. 8, No. 1, pp. 3-30, January 1998.
+
 .. [Mitchell97] 
    Tom M. Mitchell. *Machine Learning*. McGraw-Hill Education, 1997.
 
@@ -190,6 +219,11 @@ For more information about algorithms implemented in |short_name|, refer to the 
    David E. Rumelhart, Geoffrey E. Hinton, Ronald J. Williams.
    *Learning representations by back-propagating errors*. Nature
    (323), pp. 533-536, 1986.
+
+.. [Sokolova09]
+   Marina Sokolova, Guy Lapalme. A systematic analysis of performance measures for classification tasks.
+   Information Processing and Management 45 (2009), pp. 427–437.
+   Available from http://atour.iro.umontreal.ca/rali/sites/default/files/publis/SokolovaLapalme-JIPM09.pdf.
 
 .. [Tan2005] 
    Pang-Ning Tan, Michael Steinbach, Vipin Kumar, Introduction to

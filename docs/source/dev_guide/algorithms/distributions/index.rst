@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2014-2020 Intel Corporation
+.. * Copyright 2020 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _distributions:
+
 Distributions
 =============
 
@@ -24,5 +26,64 @@ distributed variates in accordance with the required cumulative distribution fun
 In |short_name|, distribution represents an algorithm interface that runs in-place initialization
 of memory according to the required CDF.
 
-At this moment, the documentation for Distributions is only available in
-`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-distributions>`_.
+.. toctree::
+   :maxdepth: 1
+    
+   uniform.rst
+   normal.rst
+   bernoulli.rst
+
+.. rubric:: Algorithm Input
+
+Distribution algorithms accept the input described below. 
+Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm. 
+For more details, see :ref:`algorithms`.
+
+.. list-table::
+   :widths: 10 60
+   :header-rows: 1
+
+   * - Input ID
+     - Input
+   * - ``tableToFill``
+     - Pointer to the numeric table of size :math:`n \times p`.
+
+       .. note::
+          This input can be an object of any class derived from ``NumericTable``
+          except ``CSRNumericTable``, ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``MergedNumericTable``
+          when it holds one of the above table types.
+
+.. rubric:: Algorithm Parameters
+
+Distribution algorithms have the following common parameter:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 10 30 30   
+   :align: left
+
+   * - Parameter
+     - Default Value
+     - Description
+   * - ``engine``
+     - `SharePtr< engines:: mt19937:: Batch>()`
+     - Pointer to the random number engine.
+
+.. rubric:: Algorithm Output
+
+Distribution algorithms calculate the result described below. 
+Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
+For more details, see :ref:`algorithms`.
+
+.. list-table::
+   :widths: 10 60
+   :header-rows: 1
+
+   * - Result ID
+     - Result
+   * - ``randomNumbers``
+     - Pointer to the :math:`n \times p` numeric table with algorithm results. 
+     
+       In |short_name|, distribution algorithms are in-place,
+       which means that the algorithm does not allocate memory for the distribution result,
+       but returns pointer to the filled input.

@@ -20,7 +20,7 @@ MKLFPK_VERSION="20180112_10"
 MKLGPUFPK_VERSION="20200414"
 WITH_GPU=true
 
-while [ 1 ] ; do
+while true ; do
     if [ "$1" = "--help" ] ; then
         echo "Usage: $0 [with_gpu=true|false]"
         echo "Usage example: $0 with_gpu=true"
@@ -44,36 +44,42 @@ function download_fpk()
   CONDITION=$3
   FILENAME=$4
 
-  mkdir -p ${DST}
-  DST=`cd ${DST};pwd`
+  mkdir -p "${DST}"
+  DST=$(cd "${DST}" || exit 1;pwd)
 
   if [ ! -e "${CONDITION}/${MKLFPK_OS}/lib/" ]; then
     if [ -x "$(command -v curl)" ]; then
       echo curl -L -o "${DST}/${FILENAME}" "${SRC}"
-      curl -L -o "${DST}/${FILENAME}" "${SRC}"
+      if curl -L -o "${DST}/${FILENAME}" "${SRC}";
+      then
+        DOWNLOAD_CODE=0
+      fi
     elif [ -x "$(command -v wget)" ]; then
       echo wget -O "${DST}/${FILENAME}" "${SRC}"
-      wget -O "${DST}/${FILENAME}" "${SRC}"
+      if wget -O "${DST}/${FILENAME}" "${SRC}";
+      then
+        DOWNLOAD_CODE=0
+      fi
     else
       echo "curl or wget not available"
       exit 1
     fi
 
-    if [ $? -ne 0 -o ! -e "${DST}/${FILENAME}" ]; then
+    if [ ${DOWNLOAD_CODE} -ne 0 ] || [ ! -e "${DST}/${FILENAME}" ]; then
       echo "Download from ${SRC} to ${DST}/${FILENAME} failed"
       exit 1
     fi
     set -x
 
-    echo tar -xf "${DST}/${FILENAME}" -C $DST
-    tar -xf "${DST}/${FILENAME}" -C $DST
-    echo "Downloaded and unpacked Intel(R) MKL small libraries to $DST"
+    echo tar -xf "${DST}/${FILENAME}" -C "${DST}"
+    tar -xf "${DST}/${FILENAME}" -C "${DST}"
+    echo "Downloaded and unpacked oneMKL small libraries to ${DST}"
   else
-    echo "Intel(R) MKL small libraries are already installed in $DST"
+    echo "oneMKL small libraries are already installed in ${DST}"
   fi
 }
 
-os=`uname`
+os=$(uname)
 if [ "$os" = "Linux" ]; then
   MKLFPK_OS=lnx
 elif [ "$os" = "Darwin" ]; then
@@ -87,12 +93,12 @@ MKLFPK_PACKAGE="mklfpk_${MKLFPK_OS}_${MKLFPK_VERSION}"
 MKLGPUFPK_PACKAGE="mklgpufpk_${MKLFPK_OS}_${MKLGPUFPK_VERSION}"
 MKLFPK_URL=${MKLFPK_URL_ROOT}${MKLFPK_PACKAGE}.tgz
 MKLGPUFPK_URL=${MKLFPK_URL_ROOT}${MKLGPUFPK_PACKAGE}.tgz
-CPUCOND=`dirname $0`/../__deps/mklfpk
-GPUCOND=`dirname $0`/../__deps/mklgpufpk
+CPUCOND=$(dirname "$0")/../__deps/mklfpk
+GPUCOND=$(dirname "$0")/../__deps/mklgpufpk
 CPUDST="${CPUCOND}"
 GPUDST="${GPUCOND}/${MKLFPK_OS}"
 
 download_fpk "${MKLFPK_URL}" "${CPUDST}" "${CPUCOND}" "${MKLFPK_PACKAGE}.tgz"
-if [ "${MKLFPK_OS}" != "mac" -a "${WITH_GPU}" == "true" ]; then
+if [ "${MKLFPK_OS}" != "mac" ] && [ "${WITH_GPU}" == "true" ]; then
   download_fpk "${MKLGPUFPK_URL}" "${GPUDST}" "${GPUCOND}" "${MKLGPUFPK_PACKAGE}.tgz"
 fi
