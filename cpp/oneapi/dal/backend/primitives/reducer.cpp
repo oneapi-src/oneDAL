@@ -111,7 +111,7 @@ template <unary_operation UnOp, binary_operation BinOp, typename Float, bool IsR
 struct reducer_singlepass_kernel {
 public:
     //Zero cost
-    const unary_functor<Float, BinOp> binary;
+    const binary_functor<Float, BinOp> binary;
     const unary_functor<Float, UnOp> unary;
 
 public:
