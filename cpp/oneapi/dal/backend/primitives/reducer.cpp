@@ -29,19 +29,25 @@
 namespace oneapi::dal::backend::primitives {
 
 template <typename Float>
-constexpr Float unary_functor<Float, unary_operation::identity>::operator()(Float arg) {
-    return arg;
-}
+struct unary_functor<Float, unary_operation::identity> {
+    constexpr Float operator()(Float arg) {
+        return arg;
+    }
+};
 
 template <typename Float>
-constexpr Float unary_functor<Float, unary_operation::abs>::operator()(Float arg) {
-    return std::abs(arg);
-}
+struct unary_functor<Float, unary_operation::abs> {
+    constexpr Float operator()(Float arg) {
+        return std::abs(arg);
+    }
+};
 
 template <typename Float>
-constexpr Float unary_functor<Float, unary_operation::square>::operator()(Float arg) {
-    return (arg * arg);
-}
+struct unary_functor<Float, unary_operation::square> {
+    constexpr Float operator()(Float arg) {
+        return (arg * arg);
+    }
+};
 
 //Direct instatiation
 template struct unary_functor<float, unary_operation::identity>;
@@ -54,39 +60,41 @@ template struct unary_functor<double, unary_operation::abs>;
 template <typename Float>
 constexpr Float binary_functor<Float, binary_operation::sum>::init_value = 0;
 
-template <typename Float>
-constexpr Float binary_functor<Float, binary_operation::mul>::init_value = 1;
+template<typename Float>
+struct binary_functor<Float, binary_operation::sum> {
+    constexpr static Float init_value = 0;
 
-template <typename Float>
-constexpr Float binary_functor<Float, binary_operation::min>::init_value =
-    std::numeric_limits<Float>::max();
+    constexpr Float operator()(Float a, Float b) {
+        return (a + b);
+    }
+};
 
-template <typename Float>
-constexpr Float binary_functor<Float, binary_operation::max>::init_value =
-    std::numeric_limits<Float>::min();
+template<typename Float>
+struct binary_functor<Float, binary_operation::mul> {
+    constexpr static Float init_value = 1;
 
-template <typename Float, binary_operation Op>
-constexpr Float binary_functor<Float, Op>::init_value = 0;
+    constexpr Float operator()(Float a, Float b) {
+        return (a * b);
+    }
+};
 
-template <typename Float>
-constexpr Float binary_functor<Float, binary_operation::sum>::operator()(Float a) {
-    return operator()(init_value, a);
-}
+template<typename Float>
+struct binary_functor<Float, binary_operation::max> {
+    constexpr static Float init_value = std::numeric_limits<Float>::min();;
 
-template <typename Float>
-constexpr Float binary_functor<Float, binary_operation::mul>::operator()(Float a, Float b) {
-    return (a * b);
-}
+    constexpr Float operator()(Float a, Float b) {
+        return std::max(a, b);
+    }
+};
 
-template <typename Float>
-constexpr Float binary_functor<Float, binary_operation::min>::operator()(Float a, Float b) {
-    return std::min(a, b);
-}
+template<typename Float>
+struct binary_functor<Float, binary_operation::min> {
+    constexpr static Float init_value = std::numeric_limits<Float>::max();;
 
-template <typename Float>
-constexpr Float binary_functor<Float, binary_operation::max>::operator()(Float a, Float b) {
-    return std::max(a, b);
-}
+    constexpr Float operator()(Float a, Float b) {
+        return std::min(a, b);
+    }
+};
 
 //Direct instatiation
 template struct binary_functor<float, binary::sum>;

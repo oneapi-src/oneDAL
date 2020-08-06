@@ -35,8 +35,7 @@ enum class binary_operation : int { min, max, sum, mul };
 
 template <typename Float, binary_operation Op>
 struct binary_functor {
-    constexpr Float init_value;
-    constexpr Float operator()(Float arg);
+    constexpr static Float init_value;
     constexpr Float operator()(Float a, Float b);
 };
 
