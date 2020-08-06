@@ -86,15 +86,6 @@ template const_vertex_edge_range_type<graph32> get_vertex_neighbors_impl(
     const vertex_type<graph32> &vertex);
 
 template <typename G>
-auto get_vertex_value_impl(const G &g, const vertex_type<G> &vertex) -> vertex_user_value_type<G> {
-    const auto &layout = detail::get_impl(g);
-    return layout->_vertex_value[vertex];
-}
-
-template vertex_user_value_type<graph32> get_vertex_value_impl(const graph32 &g,
-                                                               const vertex_type<graph32> &vertex);
-
-template <typename G>
 void convert_to_csr_impl(const edge_list<vertex_type<G>> &edges, G &g) {
     auto layout    = detail::get_impl(g);
     using int_t    = typename G::vertex_size_type;

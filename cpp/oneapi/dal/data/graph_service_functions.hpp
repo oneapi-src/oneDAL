@@ -65,19 +65,19 @@ constexpr auto get_edge_count(const G &g) noexcept -> edge_size_type<G> {
 template <typename G>
 constexpr auto get_vertex_degree(const G &g, const vertex_type<G> &vertex)
     -> vertex_edge_size_type<G> {
+    if (vertex < 0 && vertex >= get_vertex_count_impl(g)) {
+        throw out_of_range("Vertex index should be in [0, num_vert)");
+    }
     return get_vertex_degree_impl(g, vertex);
 }
 
 template <typename G>
 constexpr auto get_vertex_neighbors(const G &g, const vertex_type<G> &vertex)
     -> const_vertex_edge_range_type<G> {
+    if (vertex < 0 && vertex >= get_vertex_count_impl(g)) {
+        throw out_of_range("Vertex index should be in [0, num_vert)");
+    }
     return get_vertex_neighbors_impl(g, vertex);
-}
-
-template <typename G>
-constexpr auto get_vertex_value(const G &g, const vertex_type<G> &vertex)
-    -> vertex_user_value_type<G> {
-    return get_vertex_value(g, vertex);
 }
 
 } // namespace oneapi::dal::preview

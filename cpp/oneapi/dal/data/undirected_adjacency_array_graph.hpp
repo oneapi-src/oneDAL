@@ -124,9 +124,6 @@ template <typename G>
 auto get_vertex_neighbors_impl(const G &g, const vertex_type<G> &vertex)
     -> const_vertex_edge_range_type<G>;
 
-template <typename G>
-auto get_vertex_value_impl(const G &g, const vertex_type<G> &vertex) -> vertex_user_value_type<G>;
-
 template <typename IndexType>
 using edge_list = detail::graph_container<std::pair<IndexType, IndexType>>;
 
