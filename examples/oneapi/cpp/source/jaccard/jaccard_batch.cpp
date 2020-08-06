@@ -352,7 +352,7 @@ template<class T> inline void Log512(const __m512 & value)
 {
     const size_t n = sizeof(__m512) / sizeof(T);
     T buffer[n];
-    _mm512_store_pd((__m512*)buffer, value);
+    _mm512_store_ps((__m512*)buffer, value);
     for (int i = 0; i < n; i++)
         std::cout << buffer[i] << " ";
 }
@@ -423,7 +423,7 @@ void jaccard_block_avx512(const graph my_graph,
                 if (intersection_size) {
                     vertices_first[jaccard_size] = i;
                     vertices_second[jaccard_size] = j;
-                    jaccards[jaccard_size] = static_cast<float>(intersection_size) / static_cast<float>(size_i + size_j - intersection_size);
+                    jaccards[jaccard_size] = static_cast<float>(intersection_size);
                     jaccard_size++;   
                 }
             }
@@ -452,7 +452,6 @@ void jaccard_block_avx512(const graph my_graph,
 
             for (j; j + 16 < tmp_idx + ((vert11 - tmp_idx) / 16) * 16;) {
 
-
                 start_indices_j_v = _mm512_load_epi32(g_edge_offsets + j + 16);
                 end_indices_j_v_tmp = _mm512_load_epi32(g_edge_offsets + j + 17);
                 end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
@@ -462,15 +461,6 @@ void jaccard_block_avx512(const graph my_graph,
                 n_j_end_v1 = _mm512_permutevar_epi32(j_vertices_tmp1 ,_mm512_i32gather_epi32(end_indices_j_v, g_vertex_neighbors, 4));
 
 
-                // if ( i == 0 && j < 100) {
-                //     cout << "second method " << i << " " << j << endl;
-                //     Log<int>(n_j_start_v1);
-                //     cout <<endl;
-                //     Log<int>(n_j_end_v1);
-                //     cout <<endl;
-                //     cout <<endl;
-                // }
-                //process i data
                 cmpgt1 = _mm512_cmpgt_epi32_mask( n_i_start_v, n_j_end_v);
                 cmpgt2 = _mm512_cmpgt_epi32_mask( n_j_start_v, n_i_end_v);
 
@@ -485,13 +475,7 @@ void jaccard_block_avx512(const graph my_graph,
 
                     __declspec(align(64)) int stack16_intersections[16] = {0.0};
                     for (int s = 0; s < ones_num; s++) {
-                        stack16_intersections[s] = (intersection_avx512(n_i, g_vertex_neighbors + g_edge_offsets[stack16_j_vertex[s]], size_i, g_degrees[stack16_j_vertex[s]]));
-                        // if (intersection_size) {
-                        //     vertices_first[jaccard_size] = i;
-                        //     vertices_second[jaccard_size] = stack16_j_vertex[s];
-                        //     jaccards[jaccard_size] = static_cast<float>(intersection_size) / static_cast<float> (size_i + g_degrees[stack16_j_vertex[s]] - intersection_size);
-                        //     jaccard_size++;
-                        // }                
+                        stack16_intersections[s] = (intersection_avx512(n_i, g_vertex_neighbors + g_edge_offsets[stack16_j_vertex[s]], size_i, g_degrees[stack16_j_vertex[s]]));           
                     }
                     __m512i intersections_v = _mm512_load_epi32(stack16_intersections);
                     j_vertices = _mm512_load_epi32(stack16_j_vertex);
@@ -501,10 +485,15 @@ void jaccard_block_avx512(const graph my_graph,
                     _mm512_mask_compressstoreu_epi32((vertices_second.data() + jaccard_size), non_zero_coefficients, j_vertices);
                     __m512 tmp_v = _mm512_cvtepi32_ps(intersections_v);
                     _mm512_mask_compressstoreu_ps((jaccards.data() + jaccard_size), non_zero_coefficients, tmp_v);
+                    //cout << i << " " << j << endl;
+                    //Log512<float>(tmp_v); cout << endl;
 
                     jaccard_size += _popcnt32(_cvtmask16_u32(non_zero_coefficients));
 
                 }
+                // if (i == 308 && j > 36600) {
+                //     cout << " catch " << i << " " << j <<endl; 
+                // }
 
                 j += 16;
 
@@ -514,57 +503,85 @@ void jaccard_block_avx512(const graph my_graph,
 
             //process n data
 
-                cmpgt1 = _mm512_cmpgt_epi32_mask( n_i_start_v, n_j_end_v);
-                cmpgt2 = _mm512_cmpgt_epi32_mask( n_j_start_v, n_i_end_v);
 
-                worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
-                ones_num = _popcnt32(_cvtmask16_u32(worth_intersection));
+            cmpgt1 = _mm512_cmpgt_epi32_mask( n_i_start_v, n_j_end_v);
+            cmpgt2 = _mm512_cmpgt_epi32_mask( n_j_start_v, n_i_end_v);
 
-                if (ones_num != 0) {
-                    j_vertices_tmp2 = _mm512_set1_epi32(j);
-                    j_vertices = _mm512_add_epi32(j_vertices_tmp1, j_vertices_tmp2);
+            worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
+            ones_num = _popcnt32(_cvtmask16_u32(worth_intersection));
 
-                    _mm512_mask_compressstoreu_epi32((stack16_j_vertex), worth_intersection, j_vertices);
+            if (ones_num != 0) {
+                j_vertices_tmp2 = _mm512_set1_epi32(j);
+                j_vertices = _mm512_add_epi32(j_vertices_tmp1, j_vertices_tmp2);
 
-                    __declspec(align(64)) int stack16_intersections[16] = {0.0};
-                    for (int s = 0; s < ones_num; s++) {
-                        stack16_intersections[s] = (intersection_avx512(n_i, g_vertex_neighbors + g_edge_offsets[stack16_j_vertex[s]], size_i, g_degrees[stack16_j_vertex[s]]));
-                        // if (intersection_size) {
-                        //     vertices_first[jaccard_size] = i;
-                        //     vertices_second[jaccard_size] = stack16_j_vertex[s];
-                        //     jaccards[jaccard_size] = static_cast<float>(intersection_size) / static_cast<float> (size_i + g_degrees[stack16_j_vertex[s]] - intersection_size);
-                        //     jaccard_size++;
-                        // }                
-                    }
-                    __m512i intersections_v = _mm512_load_epi32(stack16_intersections);
-                    j_vertices = _mm512_load_epi32(stack16_j_vertex);
-                    __mmask16 non_zero_coefficients = _mm512_test_epi32_mask(intersections_v, intersections_v);//_mm512_knot(_mm512_cmpeq_ps_mask(intersections_v, _mm512_set1_ps(0.0)));
-                    _mm512_mask_compressstoreu_epi32((vertices_first.data() + jaccard_size), non_zero_coefficients, i_vertex);
-                    _mm512_mask_compressstoreu_epi32((vertices_second.data() + jaccard_size), non_zero_coefficients, j_vertices);
-                    __m512 tmp_v = _mm512_cvtepi32_ps(intersections_v);
-                    _mm512_mask_compressstoreu_ps((jaccards.data() + jaccard_size), non_zero_coefficients, tmp_v);
+                _mm512_mask_compressstoreu_epi32((stack16_j_vertex), worth_intersection, j_vertices);
 
-                    jaccard_size += _popcnt32(_cvtmask16_u32(non_zero_coefficients));
-
+                __declspec(align(64)) int stack16_intersections[16] = {0.0};
+                for (int s = 0; s < ones_num; s++) {
+                    stack16_intersections[s] = (intersection_avx512(n_i, g_vertex_neighbors + g_edge_offsets[stack16_j_vertex[s]], size_i, g_degrees[stack16_j_vertex[s]]));
+                    // if (intersection_size) {
+                    //     vertices_first[jaccard_size] = i;
+                    //     vertices_second[jaccard_size] = stack16_j_vertex[s];
+                    //     jaccards[jaccard_size] = static_cast<float>(intersection_size) / static_cast<float> (size_i + g_degrees[stack16_j_vertex[s]] - intersection_size);
+                    //     jaccard_size++;
+                    // }                
                 }
+                __m512i intersections_v = _mm512_load_epi32(stack16_intersections);
+                j_vertices = _mm512_load_epi32(stack16_j_vertex);
+                __mmask16 non_zero_coefficients = _mm512_test_epi32_mask(intersections_v, intersections_v);//_mm512_knot(_mm512_cmpeq_ps_mask(intersections_v, _mm512_set1_ps(0.0)));
+                _mm512_mask_compressstoreu_epi32((vertices_first.data() + jaccard_size), non_zero_coefficients, i_vertex);
+                _mm512_mask_compressstoreu_epi32((vertices_second.data() + jaccard_size), non_zero_coefficients, j_vertices);
+                __m512 tmp_v = _mm512_cvtepi32_ps(intersections_v);
+                _mm512_mask_compressstoreu_ps((jaccards.data() + jaccard_size), non_zero_coefficients, tmp_v);
 
-                j += 16;
+                jaccard_size += _popcnt32(_cvtmask16_u32(non_zero_coefficients));
+
+
+
+            }
+
+
+            j += 16;
+
+            for (j = tmp_idx + ((vert11 - tmp_idx) / 16) * 16; j < vert11; j++) {
+                NodeID_t size_j = g_degrees[j];             
+                auto n_j = g_vertex_neighbors + g_edge_offsets[j];
+
+
+                if (!(n_i[0] > n_j[size_j -1]) && !(n_j[0] > n_i[size_i - 1])) {
+
+                    intersection_size = intersection_avx512(n_i, n_j, size_i, size_j);
+                    //cout << i <<" " << j << " " << intersection_size << endl;
+
+                    if (intersection_size) {
+                        vertices_first[jaccard_size] = i;
+                        vertices_second[jaccard_size] = j;
+                        jaccards[jaccard_size] = static_cast<float>(intersection_size);
+                        //cout << i <<" " << j << " " << jaccards[jaccard_size] << endl;
+                        jaccard_size++;  
+
+                    }
+                }
+            }
         }
         else {
             for (j = tmp_idx; j < vert11; j++) {
                 NodeID_t size_j = g_degrees[j];             
                 auto n_j = g_vertex_neighbors + g_edge_offsets[j];
-                
+
 
                 if (!(n_i[0] > n_j[size_j -1]) && !(n_j[0] > n_i[size_i - 1])) {
 
                     intersection_size = intersection_avx512(n_i, n_j, size_i, size_j);
+                    //cout << i <<" " << j << " " << intersection_size << endl;
 
                     if (intersection_size) {
                         vertices_first[jaccard_size] = i;
                         vertices_second[jaccard_size] = j;
-                        jaccards[jaccard_size] = static_cast<float>(intersection_size) / static_cast<float>(size_i + size_j - intersection_size);
-                        jaccard_size++;   
+                        jaccards[jaccard_size] = static_cast<float>(intersection_size);
+                        //cout << i <<" " << j << " " << jaccards[jaccard_size] << endl;
+                        jaccard_size++;  
+
                     }
                 }
             }
@@ -577,6 +594,7 @@ void jaccard_block_avx512(const graph my_graph,
     }
 
 }
+
 
 template<class NodeID_t>
 void jaccard_all_row_v(
@@ -887,6 +905,7 @@ void verify_results(oneapi::dal::preview::graph g, vector<int32_t>& jaccard_firs
       }
       });
 
+    // vector<jaccard_pair> jaccard_lib(0);
     // ifstream myfile;
     // myfile.open(path);
     // if (myfile.is_open())
