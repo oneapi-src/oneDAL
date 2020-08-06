@@ -34,20 +34,8 @@ undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, 
 template class undirected_adjacency_array_graph<empty_value,
                                                 empty_value,
                                                 empty_value,
-                                                std::int64_t,
-                                                std::allocator<empty_value>>;
-
-template class undirected_adjacency_array_graph<empty_value,
-                                                empty_value,
-                                                empty_value,
                                                 std::int32_t,
                                                 std::allocator<empty_value>>;
-
-using graph64 = undirected_adjacency_array_graph<empty_value,
-                                                 empty_value,
-                                                 empty_value,
-                                                 std::int64_t,
-                                                 std::allocator<empty_value>>;
 
 using graph32 = undirected_adjacency_array_graph<empty_value,
                                                  empty_value,
@@ -60,8 +48,7 @@ auto get_vertex_count_impl(const G &g) noexcept -> vertex_size_type<G> {
     const auto &layout = detail::get_impl(g);
     return layout->_vertex_count;
 }
-template auto get_vertex_count_impl<graph64>(const graph64 &g) noexcept
-    -> vertex_size_type<graph64>;
+
 template auto get_vertex_count_impl<graph32>(const graph32 &g) noexcept
     -> vertex_size_type<graph32>;
 
@@ -71,7 +58,6 @@ auto get_edge_count_impl(const G &g) noexcept -> edge_size_type<G> {
     return layout->_edge_count;
 }
 
-template edge_size_type<graph64> get_edge_count_impl(const graph64 &g);
 template edge_size_type<graph32> get_edge_count_impl(const graph32 &g);
 
 template <typename G>
@@ -80,8 +66,6 @@ auto get_vertex_degree_impl(const G &g, const vertex_type<G> &vertex) -> vertex_
     return layout->_vertexes[vertex + 1] - layout->_vertexes[vertex];
 }
 
-template vertex_edge_size_type<graph64> get_vertex_degree_impl(const graph64 &g,
-                                                               const vertex_type<graph64> &vertex);
 template vertex_edge_size_type<graph32> get_vertex_degree_impl(const graph32 &g,
                                                                const vertex_type<graph32> &vertex);
 
@@ -97,10 +81,6 @@ auto get_vertex_neighbors_impl(const G &g, const vertex_type<G> &vertex)
     return neighbors_range;
 }
 
-template const_vertex_edge_range_type<graph64> get_vertex_neighbors_impl(
-    const graph64 &g,
-    const vertex_type<graph64> &vertex);
-
 template const_vertex_edge_range_type<graph32> get_vertex_neighbors_impl(
     const graph32 &g,
     const vertex_type<graph32> &vertex);
@@ -110,9 +90,6 @@ auto get_vertex_value_impl(const G &g, const vertex_type<G> &vertex) -> vertex_u
     const auto &layout = detail::get_impl(g);
     return layout->_vertex_value[vertex];
 }
-
-template vertex_user_value_type<graph64> get_vertex_value_impl(const graph64 &g,
-                                                               const vertex_type<graph64> &vertex);
 
 template vertex_user_value_type<graph32> get_vertex_value_impl(const graph32 &g,
                                                                const vertex_type<graph32> &vertex);
@@ -164,8 +141,6 @@ void convert_to_csr_impl(const edge_list<vertex_type<G>> &edges, G &g) {
         _cols[offests[edge.second]++] = edge.first;
     }
 }
-
-template void convert_to_csr_impl(const edge_list<vertex_type<graph64>> &edges, graph64 &g);
 
 template void convert_to_csr_impl(const edge_list<vertex_type<graph32>> &edges, graph32 &g);
 

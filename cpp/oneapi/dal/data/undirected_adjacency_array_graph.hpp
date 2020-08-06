@@ -112,48 +112,6 @@ private:
 };
 
 template <typename G>
-using vertex_user_value_type = typename G::vertex_user_value_type;
-
-template <typename G>
-using edge_user_value_type = typename G::edge_user_value_type;
-
-template <typename G>
-using vertex_type = typename G::vertex_type;
-
-template <typename G>
-using vertex_size_type = typename G::vertex_size_type;
-
-template <typename G>
-using edge_size_type = typename G::edge_size_type;
-
-template <typename G>
-using vertex_edge_size_type = typename G::vertex_edge_size_type;
-
-template <typename G>
-using edge_iterator_type = typename G::edge_iterator;
-
-template <typename G>
-using const_edge_iterator_type = typename G::const_edge_iterator;
-
-template <typename G>
-using vertex_edge_iterator_type = typename G::vertex_edge_iterator;
-
-template <typename G>
-using const_vertex_edge_iterator_type = typename G::const_vertex_edge_iterator;
-
-template <typename G>
-using edge_range_type = typename G::edge_range;
-
-template <typename G>
-using const_edge_range_type = typename G::const_edge_range;
-
-template <typename G>
-using vertex_edge_range_type = typename G::vertex_edge_range;
-
-template <typename G>
-using const_vertex_edge_range_type = typename G::const_vertex_edge_range;
-
-template <typename G>
 auto get_vertex_count_impl(const G &g) noexcept -> vertex_size_type<G>;
 
 template <typename G>

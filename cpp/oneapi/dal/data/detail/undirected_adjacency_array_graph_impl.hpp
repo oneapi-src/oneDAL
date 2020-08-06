@@ -29,7 +29,7 @@ namespace oneapi::dal::preview::detail {
 template <typename VertexValue = empty_value,
           typename EdgeValue   = empty_value,
           typename GraphValue  = empty_value,
-          typename IndexType   = std::int64_t,
+          typename IndexType   = std::int32_t,
           typename Allocator   = std::allocator<empty_value>>
 class undirected_adjacency_array_graph_impl {
 public:
