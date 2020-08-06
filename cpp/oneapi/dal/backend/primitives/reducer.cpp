@@ -197,12 +197,13 @@ cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operat
         typedef cl::sycl::
             accessor<Float, 1, cl::sycl::access::mode::read_write, cl::sycl::access::target::local>
                 local_acc_t;
-        auto partial_reduces  = local_acc_t(cl::sycl::range<1>{ local_buff_size }, handler);
-        auto functor_instance = kernel_t{ .vector_size = static_cast<std::uint32_t>(vector_size),
-                                          .n_vectors   = static_cast<std::uint32_t>(n_vectors),
-                                          .vectors     = input.get_data(),
-                                          .reduces     = output.get_mutable_data(),
-                                          .partial_reduces = partial_reduces };
+        auto partial_reduces = local_acc_t(cl::sycl::range<1>{ local_buff_size }, handler);
+        auto functor_instance =
+            kernel_t{ /*.vector_size     =*/static_cast<std::uint32_t>(vector_size),
+                      /*.n_vectors       =*/static_cast<std::uint32_t>(n_vectors),
+                      /*.vectors         =*/input.get_data(),
+                      /*.reduces         =*/output.get_mutable_data(),
+                      /*.partial_reduces =*/partial_reduces };
         const cl::sycl::range<2> local_range{ static_cast<size_t>(work_items_per_group), 1 };
         const cl::sycl::range<2> global_range{ static_cast<size_t>(work_items_per_group),
                                                static_cast<size_t>(n_vectors) };
