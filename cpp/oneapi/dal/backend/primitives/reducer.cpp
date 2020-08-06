@@ -134,13 +134,8 @@ public:
     void operator()(cl::sycl::nd_item<2> idx) const {
         const std::uint32_t local_size = idx.get_local_range(0);
 
-        std::uint32_t global_dim = 1;
-        std::uint32_t local_dim  = n_vectors;
-
-        if constexpr (IsRowMajorLayout) {
-            global_dim = vector_size;
-            local_dim  = 1;
-        }
+        const std::uint32_t global_dim = IsRowMajorLayout ? vector_size : 1;
+        const std::uint32_t local_dim  = IsRowMajorLayout ? 1 : n_vectors;
 
         const std::uint32_t item_id  = idx.get_local_id(0);
         const std::uint32_t group_id = idx.get_global_id(1);
@@ -192,8 +187,10 @@ cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operat
     if (input.get_count() < (vector_size * n_vectors))
         throw std::exception();
     typedef impl::reducer_singlepass_kernel<UnOp, BinOp, Float, IsRowMajorLayout> kernel_t;
-    const std::int64_t local_buff_size = 256;
-    auto event                         = this->_q.submit([&](cl::sycl::handler& handler) {
+    const std::int64_t local_buff_size =
+        this->_q.get_device().template get_info<cl::sycl::info::device::max_work_group_size>();
+    ;
+    auto event = this->_q.submit([&](cl::sycl::handler& handler) {
         typedef cl::sycl::
             accessor<Float, 1, cl::sycl::access::mode::read_write, cl::sycl::access::target::local>
                 local_acc_t;
