@@ -83,7 +83,7 @@ public:
                   const Data* data_pointer,
                   Deleter&& data_deleter,
                   homogen_data_layout layout = homogen_data_layout::row_major) {
-        init_impl(detail::cpu_dispatch_default{},
+        init_impl(detail::default_host_policy{},
                   row_count,
                   column_count,
                   data_pointer,

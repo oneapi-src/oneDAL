@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "oneapi/dal/detail/dispatcher.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 
 #ifdef __ONEDAL_IDE_MODE__
@@ -32,6 +31,13 @@
 #endif
 
 namespace oneapi::dal::backend {
+
+struct cpu_dispatch_default {};
+struct cpu_dispatch_ssse3 {};
+struct cpu_dispatch_sse42 {};
+struct cpu_dispatch_avx {};
+struct cpu_dispatch_avx2 {};
+struct cpu_dispatch_avx512 {};
 
 template <typename... Kernels>
 struct kernel_dispatcher {};
@@ -67,21 +73,21 @@ constexpr auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
 
     const cpu_extension cpu_ex = ctx.get_enabled_cpu_extensions();
     ONEDAL_IF_CPU_DISPATCH_AVX512(if (test_cpu_extension(cpu_ex, cpu_extension::avx512)) {
-        return op(detail::cpu_dispatch_avx512{});
+        return op(cpu_dispatch_avx512{});
     })
     ONEDAL_IF_CPU_DISPATCH_AVX2(if (test_cpu_extension(cpu_ex, cpu_extension::avx2)) {
-        return op(detail::cpu_dispatch_avx2{});
+        return op(cpu_dispatch_avx2{});
     })
     ONEDAL_IF_CPU_DISPATCH_AVX(if (test_cpu_extension(cpu_ex, cpu_extension::avx)) {
-        return op(detail::cpu_dispatch_avx{});
+        return op(cpu_dispatch_avx{});
     })
     ONEDAL_IF_CPU_DISPATCH_SSE42(if (test_cpu_extension(cpu_ex, cpu_extension::sse42)) {
-        return op(detail::cpu_dispatch_sse42{});
+        return op(cpu_dispatch_sse42{});
     })
     ONEDAL_IF_CPU_DISPATCH_SSSE3(if (test_cpu_extension(cpu_ex, cpu_extension::ssse3)) {
-        return op(detail::cpu_dispatch_ssse3{});
+        return op(cpu_dispatch_ssse3{});
     })
-    return op(detail::cpu_dispatch_default{});
+    return op(cpu_dispatch_default{});
 }
 
 } // namespace oneapi::dal::backend

@@ -86,7 +86,7 @@ void homogen_table::init_impl(const Policy& policy,
     init_impl(backend::homogen_table_impl(column_count, data, feature, layout));
 }
 
-template ONEAPI_DAL_EXPORT void homogen_table::init_impl(const detail::cpu_dispatch_default&,
+template ONEAPI_DAL_EXPORT void homogen_table::init_impl(const detail::default_host_policy&,
                                                          int64_t,
                                                          int64_t,
                                                          const array<byte_t>&,

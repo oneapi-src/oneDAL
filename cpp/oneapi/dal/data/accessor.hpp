@@ -71,10 +71,10 @@ public:
     }
 
 private:
-    access_iface_host& get_access(const detail::cpu_dispatch_default&) {
+    access_iface_host& get_access(const detail::default_host_policy&) {
         return host_access_;
     }
-    const access_iface_host& get_access(const detail::cpu_dispatch_default&) const {
+    const access_iface_host& get_access(const detail::default_host_policy&) const {
         return host_access_;
     }
 
@@ -113,7 +113,7 @@ public:
     row_accessor(const table_builder& b) : base(b) {}
 
     array<data_t> pull(const range& rows = { 0, -1 }) const {
-        return base::pull(detail::cpu_dispatch_default{}, { rows });
+        return base::pull(detail::default_host_policy{}, { rows });
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -125,7 +125,7 @@ public:
 #endif
 
     T* pull(array<data_t>& block, const range& rows = { 0, -1 }) const {
-        return base::pull(detail::cpu_dispatch_default{}, block, { rows });
+        return base::pull(detail::default_host_policy{}, block, { rows });
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -140,7 +140,7 @@ public:
     template <typename Q = T>
     std::enable_if_t<sizeof(Q) && !is_readonly> push(const array<data_t>& block,
                                                      const range& rows = { 0, -1 }) {
-        base::push(detail::cpu_dispatch_default{}, block, { rows });
+        base::push(detail::default_host_policy{}, block, { rows });
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -170,7 +170,7 @@ public:
     column_accessor(const table_builder& b) : base(b) {}
 
     array<data_t> pull(std::int64_t column_index, const range& rows = { 0, -1 }) const {
-        return base::pull(detail::cpu_dispatch_default{}, { column_index, rows });
+        return base::pull(detail::default_host_policy{}, { column_index, rows });
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -183,7 +183,7 @@ public:
 #endif
 
     T* pull(array<data_t>& block, std::int64_t column_index, const range& rows = { 0, -1 }) const {
-        return base::pull(detail::cpu_dispatch_default{}, block, { column_index, rows });
+        return base::pull(detail::default_host_policy{}, block, { column_index, rows });
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -200,7 +200,7 @@ public:
     std::enable_if_t<sizeof(Q) && !is_readonly> push(const array<data_t>& block,
                                                      std::int64_t column_index,
                                                      const range& rows = { 0, -1 }) {
-        base::push(detail::cpu_dispatch_default{}, block, { column_index, rows });
+        base::push(detail::default_host_policy{}, block, { column_index, rows });
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL

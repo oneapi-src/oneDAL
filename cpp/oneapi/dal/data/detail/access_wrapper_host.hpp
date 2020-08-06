@@ -26,7 +26,7 @@ namespace oneapi::dal::detail {
 template <typename T>
 class access_wrapper_impl_host {
 public:
-    using policy_t     = cpu_dispatch_default;
+    using policy_t     = default_host_policy;
     using alloc_kind_t = host_only_alloc;
 
 public:

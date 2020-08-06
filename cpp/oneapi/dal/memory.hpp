@@ -40,8 +40,8 @@ private:
 };
 
 template <typename T>
-inline auto make_default_delete(const detail::cpu_dispatch_default& policy) {
-    return default_delete<T, detail::cpu_dispatch_default>{ policy };
+inline auto make_default_delete(const detail::default_host_policy& policy) {
+    return default_delete<T, detail::default_host_policy>{ policy };
 }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL

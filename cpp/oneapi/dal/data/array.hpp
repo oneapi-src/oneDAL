@@ -36,7 +36,7 @@ public:
 
 public:
     static array<T> empty(std::int64_t count) { // support allocators in private (empty_impl)
-        return empty_impl(detail::cpu_dispatch_default{}, count);
+        return empty_impl(detail::default_host_policy{}, count);
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -49,7 +49,7 @@ public:
 
     template <typename K>
     static array<T> full(std::int64_t count, K&& element) {
-        return full_impl(detail::cpu_dispatch_default{}, count, std::forward<K>(element));
+        return full_impl(detail::default_host_policy{}, count, std::forward<K>(element));
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -64,7 +64,7 @@ public:
 
     static array<T> zeros(std::int64_t count) {
         // TODO: can be optimized in future
-        return full_impl(detail::cpu_dispatch_default{}, count, T{});
+        return full_impl(detail::default_host_policy{}, count, T{});
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -146,7 +146,7 @@ public:
     }
 
     array& need_mutable_data() {
-        return need_mutable_data_impl(detail::cpu_dispatch_default{});
+        return need_mutable_data_impl(detail::default_host_policy{});
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -172,7 +172,7 @@ public:
     }
 
     void reset(std::int64_t count) {
-        reset_impl(detail::cpu_dispatch_default{}, count);
+        reset_impl(detail::default_host_policy{}, count);
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
