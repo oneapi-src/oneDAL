@@ -16,6 +16,9 @@
 
 #pragma once
 
+#include <cmath>
+#include <cstdint>
+
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     #include <CL/sycl.hpp>
 #endif
@@ -35,7 +38,8 @@ enum class binary_operation : int { min, max, sum, mul };
 
 template <typename Float, binary_operation Op>
 struct binary_functor {
-    constexpr static Float init_value;
+    //should be initialized anyway
+    constexpr static Float init_value = static_cast<Float>(NAN);
     constexpr Float operator()(Float a, Float b);
 };
 
