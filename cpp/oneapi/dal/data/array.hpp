@@ -93,7 +93,7 @@ public:
 #endif
     template <typename Y>
     static array<T> wrap(Y* data, std::int64_t count) {
-        return { data, count, empty_delete<const T>{} };
+        return array<T> { data, count, empty_delete<const T>{} };
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -101,7 +101,7 @@ public:
     static array<T> wrap(Y* data,
                          std::int64_t count,
                          const sycl::vector_class<sycl::event>& dependencies) {
-        return { data, count, empty_delete<const T>{}, dependencies };
+        return array<T> { data, count, empty_delete<const T>{}, dependencies };
     }
 #endif
 
@@ -109,19 +109,19 @@ public:
     array() : data_owned_ptr_(nullptr), data_owned_const_ptr_(nullptr), count_(0) {}
 
     template <typename Deleter>
-    array(T* data, std::int64_t count, Deleter&& deleter) {
+    explicit array(T* data, std::int64_t count, Deleter&& deleter) {
         reset(data, count, std::forward<Deleter>(deleter));
     }
 
     template <typename ConstDeleter>
-    array(const T* data, std::int64_t count, ConstDeleter&& deleter) {
+    explicit array(const T* data, std::int64_t count, ConstDeleter&& deleter) {
         // TODO: static assert on deleter argument
         reset(data, count, std::forward<ConstDeleter>(deleter));
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     template <typename Deleter>
-    array(T* data,
+    explicit array(T* data,
           std::int64_t count,
           Deleter&& deleter,
           const sycl::vector_class<sycl::event>& dependencies) {
@@ -129,7 +129,7 @@ public:
     }
 
     template <typename ConstDeleter>
-    array(const T* data,
+    explicit array(const T* data,
           std::int64_t count,
           ConstDeleter&& deleter,
           const sycl::vector_class<sycl::event>& dependencies) {
@@ -138,7 +138,7 @@ public:
 #endif
 
     template <typename Y, typename K>
-    array(const array<Y>& ref, K* data, std::int64_t count)
+    explicit array(const array<Y>& ref, K* data, std::int64_t count)
             : data_owned_ptr_(ref.data_owned_ptr_, nullptr),
               data_owned_const_ptr_(nullptr),
               data_(data),
