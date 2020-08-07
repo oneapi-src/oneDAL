@@ -112,7 +112,7 @@ RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(
 
 ifeq ($(compiler),intel)
     CC = icc
-    COPTS += $(if $(COVFILE), -m64))
+    COPTS += $(if $(COVFILE), -m64)
 endif
 
 ifeq ($(compiler),gnu)
