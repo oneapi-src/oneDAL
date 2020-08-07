@@ -91,7 +91,7 @@ for example in "${Java_example_list[@]}"; do
     fi
 # Running examples
     if [ "${rmode}" != "build" ]; then
-        arr=("${example//// }")
+        arr=(${example//// })
         if [ -z "${arr[2]}" ]; then
             example_dir=${arr[0]}
             example_name=${arr[1]}
@@ -107,7 +107,8 @@ for example in "${Java_example_list[@]}"; do
             example_path=com.intel.daal.examples.${example_dir}.${example_name}
             res_path=${result_folder}/${example_dir}/${example_name}.res
 
-            java -Xmx${memory} -Djava.library.path=${Djava_library_path} "${example_path}" >"${res_path}" 2>&1
+            java_call="java -Xmx${memory} -Djava.library.path=${Djava_library_path} ${example_path}"
+            ${java_call} >> "${res_path}" 2>&1
             errcode=$?
             if [ "${errcode}" == "0" ]; then
                  echo -e "$(date +'%H:%M:%S') PASSED\t\t${example_name}"
