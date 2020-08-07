@@ -57,15 +57,15 @@ enum class variable_importance_mode {
                        This is MDA_Raw value scaled by its standard deviation. */
 };
 
-enum class train_result_to_compute : std::uint64_t {
-    compute_out_of_bag_error                 = 0x00000001ULL,
-    compute_out_of_bag_error_per_observation = 0x00000002ULL
+enum class error_metric_id : std::uint64_t {
+    none                             = 0x00000000ULL,
+    out_of_bag_error                 = 0x00000001ULL,
+    out_of_bag_error_per_observation = 0x00000002ULL
 };
 
-enum class infer_result_to_compute : std::uint64_t {
-    compute_class_labels =
-        0x00000001ULL, /*!< Numeric table of size n x 1 with the predicted labels >*/
-    compute_class_probabilities =
+enum class result_id : std::uint64_t {
+    class_labels = 0x00000001ULL, /*!< Numeric table of size n x 1 with the predicted labels >*/
+    class_probabilities =
         0x00000002ULL /*!< Numeric table of size n x p with the predicted class probabilities for each observation >*/
 };
 
@@ -102,12 +102,16 @@ public:
     bool get_memory_saving_mode() const;
     bool get_bootstrap() const;
 
-    std::uint64_t get_train_results_to_compute() const;
-    std::uint64_t get_infer_results_to_compute() const;
+    error_metric_id get_error_metrics_to_compute() const;
 
     variable_importance_mode get_variable_importance_mode() const;
 
     /* classification specific methods */
+    template <typename T = Task, typename = is_classification_t<T>>
+    result_id get_results_to_compute() const {
+        return get_results_to_compute_impl();
+    }
+
     template <typename T = Task, typename = is_classification_t<T>>
     std::int64_t get_class_count() const {
         return get_class_count_impl();
@@ -131,10 +135,8 @@ protected:
     void set_min_observations_in_split_node_impl(std::int64_t value);
     void set_max_leaf_nodes_impl(std::int64_t value);
 
-    void set_train_results_to_compute_impl(std::uint64_t value);
-    void set_train_results_to_compute_impl(train_result_to_compute value);
-    void set_infer_results_to_compute_impl(std::uint64_t value);
-    void set_infer_results_to_compute_impl(infer_result_to_compute value);
+    void set_error_metrics_to_compute_impl(error_metric_id value);
+    void set_results_to_compute_impl(result_id value);
 
     void set_memory_saving_mode_impl(bool value);
     void set_bootstrap_impl(bool value);
@@ -142,6 +144,7 @@ protected:
     void set_variable_importance_mode_impl(variable_importance_mode value);
 
     /* classification specific methods */
+    result_id get_results_to_compute_impl() const;
     std::int64_t get_class_count_impl() const;
     voting_method get_voting_method_impl() const;
 
@@ -208,20 +211,8 @@ public:
         return *this;
     }
 
-    auto& set_train_results_to_compute(std::uint64_t value) {
-        parent::set_train_results_to_compute_impl(value);
-        return *this;
-    }
-    auto& set_train_results_to_compute(train_result_to_compute value) {
-        parent::set_train_results_to_compute_impl(static_cast<std::uint64_t>(value));
-        return *this;
-    }
-    auto& set_infer_results_to_compute(infer_result_to_compute value) {
-        parent::set_infer_results_to_compute_impl(static_cast<std::uint64_t>(value));
-        return *this;
-    }
-    auto& set_infer_results_to_compute(std::uint64_t value) {
-        parent::set_infer_results_to_compute_impl(value);
+    auto& set_error_metrics_to_compute(error_metric_id value) {
+        parent::set_error_metrics_to_compute_impl(value);
         return *this;
     }
 
@@ -239,6 +230,11 @@ public:
         return *this;
     }
     /* classification specific methods */
+    template <typename T = Task, typename = is_classification_t<T>>
+    auto& set_results_to_compute(result_id value) {
+        parent::set_results_to_compute_impl(value);
+        return *this;
+    }
 
     template <typename T = Task, typename = is_classification_t<T>>
     auto& set_class_count(std::int64_t value) {
@@ -285,9 +281,33 @@ private:
 
 } // namespace oneapi::dal::decision_forest
 
-ONEAPI_DAL_EXPORT std::uint64_t operator|(
-    oneapi::dal::decision_forest::train_result_to_compute value_left,
-    oneapi::dal::decision_forest::train_result_to_compute value_right);
-ONEAPI_DAL_EXPORT std::uint64_t operator|(
-    oneapi::dal::decision_forest::infer_result_to_compute value_left,
-    oneapi::dal::decision_forest::infer_result_to_compute value_right);
+ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::result_id operator|(
+    oneapi::dal::decision_forest::result_id value_left,
+    oneapi::dal::decision_forest::result_id value_right);
+
+ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::result_id& operator|=(
+    oneapi::dal::decision_forest::result_id& value_left,
+    oneapi::dal::decision_forest::result_id& value_right);
+
+ONEAPI_DAL_EXPORT std::uint64_t operator&(oneapi::dal::decision_forest::result_id value_left,
+                                          oneapi::dal::decision_forest::result_id value_right);
+
+ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::result_id& operator&=(
+    oneapi::dal::decision_forest::result_id& value_left,
+    oneapi::dal::decision_forest::result_id& value_right);
+
+ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::error_metric_id operator|(
+    oneapi::dal::decision_forest::error_metric_id value_left,
+    oneapi::dal::decision_forest::error_metric_id value_right);
+
+ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::error_metric_id& operator|=(
+    oneapi::dal::decision_forest::error_metric_id& value_left,
+    oneapi::dal::decision_forest::error_metric_id& value_right);
+
+ONEAPI_DAL_EXPORT std::uint64_t operator&(
+    oneapi::dal::decision_forest::error_metric_id value_left,
+    oneapi::dal::decision_forest::error_metric_id value_right);
+
+ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::error_metric_id& operator&=(
+    oneapi::dal::decision_forest::error_metric_id& value_left,
+    oneapi::dal::decision_forest::error_metric_id& value_right);

@@ -35,9 +35,8 @@ public:
     std::int64_t min_observations_in_split_node = 2;
     std::int64_t max_leaf_nodes                 = 0;
 
-    std::uint64_t train_results_to_compute = 0;
-    std::uint64_t infer_results_to_compute =
-        static_cast<std::uint64_t>(infer_result_to_compute::compute_class_labels);
+    error_metric_id error_metrics_to_compute = error_metric_id::none;
+    result_id results_to_compute             = result_id::class_labels;
 
     bool memory_saving_mode = false;
     bool bootstrap          = true;
@@ -62,9 +61,8 @@ public:
     std::int64_t min_observations_in_split_node = 2;
     std::int64_t max_leaf_nodes                 = 0;
 
-    std::uint64_t train_results_to_compute = 0;
-    std::uint64_t infer_results_to_compute =
-        static_cast<std::uint64_t>(infer_result_to_compute::compute_class_labels);
+    error_metric_id error_metrics_to_compute = error_metric_id::none;
+    result_id results_to_compute             = result_id::class_labels;
 
     bool memory_saving_mode = false;
     bool bootstrap          = true;
@@ -127,12 +125,8 @@ std::int64_t descriptor_base<Task>::get_max_leaf_nodes() const {
 }
 
 template <typename Task>
-std::uint64_t descriptor_base<Task>::get_train_results_to_compute() const {
-    return impl_->train_results_to_compute;
-}
-template <typename Task>
-std::uint64_t descriptor_base<Task>::get_infer_results_to_compute() const {
-    return impl_->infer_results_to_compute;
+error_metric_id descriptor_base<Task>::get_error_metrics_to_compute() const {
+    return impl_->error_metrics_to_compute;
 }
 
 template <typename Task>
@@ -147,6 +141,11 @@ bool descriptor_base<Task>::get_bootstrap() const {
 template <typename Task>
 variable_importance_mode descriptor_base<Task>::get_variable_importance_mode() const {
     return impl_->variable_importance_mode_value;
+}
+
+template <typename Task>
+result_id descriptor_base<Task>::get_results_to_compute_impl() const {
+    return impl_->results_to_compute;
 }
 
 template <typename Task>
@@ -202,12 +201,12 @@ void descriptor_base<Task>::set_max_leaf_nodes_impl(std::int64_t value) {
 }
 
 template <typename Task>
-void descriptor_base<Task>::set_train_results_to_compute_impl(std::uint64_t value) {
-    impl_->train_results_to_compute = value;
+void descriptor_base<Task>::set_error_metrics_to_compute_impl(error_metric_id value) {
+    impl_->error_metrics_to_compute = value;
 }
 template <typename Task>
-void descriptor_base<Task>::set_infer_results_to_compute_impl(std::uint64_t value) {
-    impl_->infer_results_to_compute = value;
+void descriptor_base<Task>::set_results_to_compute_impl(result_id value) {
+    impl_->results_to_compute = value;
 }
 
 template <typename Task>
@@ -259,11 +258,62 @@ template class ONEAPI_DAL_EXPORT model<task::classification>;
 template class ONEAPI_DAL_EXPORT model<task::regression>;
 } // namespace oneapi::dal::decision_forest
 
-std::uint64_t operator|(oneapi::dal::decision_forest::train_result_to_compute value_left,
-                        oneapi::dal::decision_forest::train_result_to_compute value_right) {
-    return static_cast<std::uint64_t>(value_left) | static_cast<std::uint64_t>(value_right);
+oneapi::dal::decision_forest::result_id operator|(
+    oneapi::dal::decision_forest::result_id value_left,
+    oneapi::dal::decision_forest::result_id value_right) {
+    using T = std::underlying_type_t<oneapi::dal::decision_forest::result_id>;
+    return static_cast<oneapi::dal::decision_forest::result_id>(static_cast<T>(value_left) |
+                                                                static_cast<T>(value_right));
 }
-std::uint64_t operator|(oneapi::dal::decision_forest::infer_result_to_compute value_left,
-                        oneapi::dal::decision_forest::infer_result_to_compute value_right) {
-    return static_cast<std::uint64_t>(value_left) | static_cast<std::uint64_t>(value_right);
+
+oneapi::dal::decision_forest::result_id& operator|=(
+    oneapi::dal::decision_forest::result_id& value_left,
+    oneapi::dal::decision_forest::result_id& value_right) {
+    value_left = value_left | value_right;
+    return value_left;
+}
+
+std::uint64_t operator&(oneapi::dal::decision_forest::result_id value_left,
+                        oneapi::dal::decision_forest::result_id value_right) {
+    return static_cast<std::uint64_t>(value_left) & static_cast<std::uint64_t>(value_right);
+}
+
+oneapi::dal::decision_forest::result_id& operator&=(
+    oneapi::dal::decision_forest::result_id& value_left,
+    oneapi::dal::decision_forest::result_id& value_right) {
+    using T = std::underlying_type_t<oneapi::dal::decision_forest::result_id>;
+
+    value_left = static_cast<oneapi::dal::decision_forest::result_id>(static_cast<T>(value_left) &
+                                                                      static_cast<T>(value_right));
+    return value_left;
+}
+
+oneapi::dal::decision_forest::error_metric_id operator|(
+    oneapi::dal::decision_forest::error_metric_id value_left,
+    oneapi::dal::decision_forest::error_metric_id value_right) {
+    using T = std::underlying_type_t<oneapi::dal::decision_forest::error_metric_id>;
+    return static_cast<oneapi::dal::decision_forest::error_metric_id>(static_cast<T>(value_left) |
+                                                                      static_cast<T>(value_right));
+}
+
+oneapi::dal::decision_forest::error_metric_id& operator|=(
+    oneapi::dal::decision_forest::error_metric_id& value_left,
+    oneapi::dal::decision_forest::error_metric_id& value_right) {
+    value_left = value_left | value_right;
+    return value_left;
+}
+
+std::uint64_t operator&(oneapi::dal::decision_forest::error_metric_id value_left,
+                        oneapi::dal::decision_forest::error_metric_id value_right) {
+    return static_cast<std::uint64_t>(value_left) & static_cast<std::uint64_t>(value_right);
+}
+
+oneapi::dal::decision_forest::error_metric_id& operator&=(
+    oneapi::dal::decision_forest::error_metric_id& value_left,
+    oneapi::dal::decision_forest::error_metric_id& value_right) {
+    using T = std::underlying_type_t<oneapi::dal::decision_forest::error_metric_id>;
+
+    value_left = static_cast<oneapi::dal::decision_forest::error_metric_id>(
+        static_cast<T>(value_left) & static_cast<T>(value_right));
+    return value_left;
 }
