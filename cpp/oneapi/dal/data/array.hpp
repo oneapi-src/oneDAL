@@ -115,7 +115,7 @@ public:
 
     template <typename ConstDeleter>
     array(const T* data, std::int64_t count, ConstDeleter&& deleter) {
-        // static assert on deleter argument
+        // TODO: static assert on deleter argument
         reset(data, count, std::forward<ConstDeleter>(deleter));
     }
 
@@ -128,12 +128,12 @@ public:
         reset(data, count, std::forward<Deleter>(deleter), dependencies);
     }
 
-    template <typename Deleter>
+    template <typename ConstDeleter>
     array(const T* data,
           std::int64_t count,
-          Deleter&& deleter,
+          ConstDeleter&& deleter,
           const sycl::vector_class<sycl::event>& dependencies) {
-        reset(data, count, std::forward<Deleter>(deleter), dependencies);
+        reset(data, count, std::forward<ConstDeleter>(deleter), dependencies);
     }
 #endif
 
@@ -212,23 +212,23 @@ public:
         count_ = count;
     }
 
-    template <typename Deleter>
-    void reset(const T* data, std::int64_t count, Deleter&& deleter) {
+    template <typename ConstDeleter>
+    void reset(const T* data, std::int64_t count, ConstDeleter&& deleter) {
         // TODO: check input parameters
         data_owned_ptr_.reset();
-        data_owned_const_ptr_.reset(data, std::forward<Deleter>(deleter));
+        data_owned_const_ptr_.reset(data, std::forward<ConstDeleter>(deleter));
         data_  = data;
         count_ = count;
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    template <typename Y, typename Deleter>
+    template <typename Y, typename YDeleter>
     void reset(Y* data,
                std::int64_t count,
-               Deleter&& deleter,
+               YDeleter&& deleter,
                const sycl::vector_class<sycl::event>& dependencies) {
         detail::wait_and_throw(dependencies);
-        reset(data, count, std::forward<Deleter>(deleter));
+        reset(data, count, std::forward<YDeleter>(deleter));
     }
 #endif
 

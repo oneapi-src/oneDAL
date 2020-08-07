@@ -77,34 +77,34 @@ public:
         init_impl(std::forward<Impl>(impl));
     }
 
-    template <typename Data, typename Deleter>
+    template <typename Data, typename ConstDeleter>
     homogen_table(std::int64_t row_count,
                   std::int64_t column_count,
                   const Data* data_pointer,
-                  Deleter&& data_deleter,
+                  ConstDeleter&& data_deleter,
                   homogen_data_layout layout = homogen_data_layout::row_major) {
         init_impl(detail::default_host_policy{},
                   row_count,
                   column_count,
                   data_pointer,
-                  std::forward<Deleter>(data_deleter),
+                  std::forward<ConstDeleter>(data_deleter),
                   layout);
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    template <typename Data, typename Deleter>
+    template <typename Data, typename ConstDeleter>
     homogen_table(const sycl::queue& queue,
                   std::int64_t row_count,
                   std::int64_t column_count,
                   const Data* data_pointer,
-                  Deleter&& data_deleter,
+                  ConstDeleter&& data_deleter,
                   homogen_data_layout layout = homogen_data_layout::row_major,
                   const sycl::vector_class<sycl::event>& dependencies = {}) {
         init_impl(detail::data_parallel_policy{ queue },
                   row_count,
                   column_count,
                   data_pointer,
-                  std::forward<Deleter>(data_deleter),
+                  std::forward<ConstDeleter>(data_deleter),
                   layout,
                   dependencies);
         detail::wait_and_throw(dependencies);
@@ -133,16 +133,16 @@ private:
         table::init_impl(wrapper);
     }
 
-    template <typename Policy, typename Data, typename Deleter>
+    template <typename Policy, typename Data, typename ConstDeleter>
     void init_impl(const Policy& policy,
                    std::int64_t row_count,
                    std::int64_t column_count,
                    const Data* data_pointer,
-                   Deleter&& data_deleter,
+                   ConstDeleter&& data_deleter,
                    homogen_data_layout layout) {
         array<Data> data_array{ data_pointer,
                                 row_count * column_count,
-                                std::forward<Deleter>(data_deleter) };
+                                std::forward<ConstDeleter>(data_deleter) };
 
         auto byte_data                = reinterpret_cast<const byte_t*>(data_pointer);
         const std::int64_t byte_count = data_array.get_count() * sizeof(Data);
