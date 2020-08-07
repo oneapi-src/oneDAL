@@ -75,6 +75,12 @@ using l2_reducer_singlepass =
 template <typename Float>
 using linf_reducer_singlepass =
     reducer_singlepass<unary_operation::abs, binary_operation::max, Float>;
+template <typename Float>
+using mean_reducer_singlepass =
+    reducer_singlepass<unary_operation::identity, binary_operation::sum, Float>;
+template <typename Float>
+using geomean_reducer_singlepass =
+    reducer_singlepass<unary_operation::identity, binary_operation::mul, Float>;
 
 #endif
 

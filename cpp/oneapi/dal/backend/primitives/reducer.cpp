@@ -189,7 +189,6 @@ cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operat
     typedef impl::reducer_singlepass_kernel<UnOp, BinOp, Float, IsRowMajorLayout> kernel_t;
     const std::int64_t local_buff_size =
         this->_q.get_device().template get_info<cl::sycl::info::device::max_work_group_size>();
-    ;
     auto event = this->_q.submit([&](cl::sycl::handler& handler) {
         typedef cl::sycl::
             accessor<Float, 1, cl::sycl::access::mode::read_write, cl::sycl::access::target::local>
@@ -228,6 +227,10 @@ template struct reducer_singlepass<unary_operation::square, binary_operation::su
 template struct reducer_singlepass<unary_operation::square, binary_operation::sum, double>;
 template struct reducer_singlepass<unary_operation::abs, binary_operation::max, float>;
 template struct reducer_singlepass<unary_operation::abs, binary_operation::max, double>;
+template struct reducer_singlepass<unary_operation::identity, binary_operation::sum, float>;
+template struct reducer_singlepass<unary_operation::identity, binary_operation::sum, double>;
+template struct reducer_singlepass<unary_operation::identity, binary_operation::mul, float>;
+template struct reducer_singlepass<unary_operation::identity, binary_operation::mul, double>;
 
 #endif
 
