@@ -30,7 +30,6 @@ TEST(reducer_l2, can_handle_array_of_zeros) {
     auto out = oneapi::dal::array<float>::zeros(q, 7);
 
     oneapi::dal::l2_reducer_singlepass reducer(q);
-
     auto res = reducer(inp, out, 7, 5);
     res.wait();
 
@@ -48,7 +47,6 @@ TEST(reducer_mean, can_handle_array) {
         inp[i] = i;
 
     oneapi::dal::mean_reducer_singlepass reducer(q);
-
     auto res = reducer(inp, out, 7, 5);
     res.wait();
 
