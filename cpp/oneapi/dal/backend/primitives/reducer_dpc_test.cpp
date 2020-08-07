@@ -34,8 +34,24 @@ TEST(reducer_l2, can_handle_array_of_zeros) {
     auto res = reducer(inp, out, 7, 5);
     res.wait();
 
-    const float* raw_ptr = out.get_data();
+    for (int i = 0; i < 7; i++)
+        ASSERT_EQ(out[i], 0.f);
+}
+
+TEST(reducer_mean, can_handle_array) {
+    cl::sycl::queue q{ cl::sycl::gpu_selector() };
+
+    auto inp = oneapi::dal::array<float>::zeros(q, 35);
+    auto out = oneapi::dal::array<float>::zeros(q, 7);
+
+    for (int i = 0; i < inp.get_count(); i++)
+        inp[i] = i;
+
+    oneapi::dal::mean_reducer_singlepass reducer(q);
+
+    auto res = reducer(inp, out, 7, 5);
+    res.wait();
 
     for (int i = 0; i < 7; i++)
-        ASSERT_EQ(raw_ptr[i], 0.f);
+        ASSERT_EQ(out[i], 25.f * float(i) + 10.f);
 }

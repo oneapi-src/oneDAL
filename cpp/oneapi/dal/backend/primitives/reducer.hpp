@@ -66,19 +66,19 @@ private:
     cl::sycl::queue& _q;
 };
 
-template <typename Float>
+template <typename Float = float>
 using l1_reducer_singlepass =
     reducer_singlepass<unary_operation::abs, binary_operation::sum, Float>;
-template <typename Float>
+template <typename Float = float>
 using l2_reducer_singlepass =
     reducer_singlepass<unary_operation::square, binary_operation::sum, Float>;
-template <typename Float>
+template <typename Float = float>
 using linf_reducer_singlepass =
     reducer_singlepass<unary_operation::abs, binary_operation::max, Float>;
-template <typename Float>
+template <typename Float = float>
 using mean_reducer_singlepass =
     reducer_singlepass<unary_operation::identity, binary_operation::sum, Float>;
-template <typename Float>
+template <typename Float = float>
 using geomean_reducer_singlepass =
     reducer_singlepass<unary_operation::identity, binary_operation::mul, Float>;
 
