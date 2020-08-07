@@ -23,12 +23,9 @@ setlocal enabledelayedexpansion enableextensions
 
 set errorcode=0
 
-:ParseArgs
 if /i [%1]==[build]       (set rmode=build)       & shift
 if /i [%1]==[run]         (set rmode=run)         & shift
 if /i [%1]==[help]                                          goto :Usage
-
-
 
 goto :CorrectArgs
 
