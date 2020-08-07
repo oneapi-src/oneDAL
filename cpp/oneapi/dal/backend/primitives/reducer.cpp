@@ -256,7 +256,7 @@ reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::reducer_singlepass(cl:
         : _q(q),
           max_work_group_size(std::min<std::int64_t>(
               q.get_device().template get_info<cl::sycl::info::device::max_work_group_size>(),
-              256)) {
+              128)) {
                   std::cout << this->max_work_group_size << ' ' << q.get_device().template get_info<cl::sycl::info::device::max_work_group_size>() << std::endl;
               }
 
