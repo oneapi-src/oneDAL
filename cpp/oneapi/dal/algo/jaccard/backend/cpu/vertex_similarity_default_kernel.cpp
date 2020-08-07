@@ -552,15 +552,17 @@ template <typename Graph>
 similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
                                             const similarity_input<Graph> &input) {
     std::cout << "Jaccard block kernel started" << std::endl;
+
     const auto my_graph = input.get_graph();
-    std::cout << get_vertex_count(my_graph) << std::endl;
-    std::cout << get_edge_count(my_graph) << std::endl;
+    
+    std::cout << get_vertex_count_impl(my_graph) << std::endl;
+    std::cout << get_edge_count_impl(my_graph) << std::endl;
     auto node_id = 0;
-    std::cout << "degree of " << node_id << ": " << get_vertex_degree(my_graph, node_id)
+    std::cout << "degree of " << node_id << ": " << get_vertex_degree_impl(my_graph, node_id)
               << std::endl;
-    for (unsigned int j = 0; j < get_vertex_count(my_graph); ++j) {
+    for (unsigned int j = 0; j < get_vertex_count_impl(my_graph); ++j) {
         std::cout << "neighbors of " << j << ": ";
-        auto neigh = get_vertex_neighbors(my_graph, j);
+        auto neigh = get_vertex_neighbors_impl(my_graph, j);
         for (auto i = neigh.first; i != neigh.second; ++i)
             std::cout << *i << " ";
         std::cout << std::endl;
@@ -575,13 +577,13 @@ similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
         array<std::pair<std::uint32_t, std::uint32_t>>::empty(number_elements_in_block);
     size_t nnz = 0;
     for (auto i = row_begin; i < row_end; ++i) {
-        const auto i_neighbor_size = get_vertex_degree(my_graph, i);
-        const auto i_neigbhors     = get_vertex_neighbors(my_graph, i).first;
+        const auto i_neighbor_size = get_vertex_degree_impl(my_graph, i);
+        const auto i_neigbhors     = get_vertex_neighbors_impl(my_graph, i).first;
         for (auto j = column_begin; j < column_end; ++j) {
             if (j == i)
                 continue;
-            const auto j_neighbor_size = get_vertex_degree(my_graph, j);
-            const auto j_neigbhors     = get_vertex_neighbors(my_graph, j).first;
+            const auto j_neighbor_size = get_vertex_degree_impl(my_graph, j);
+            const auto j_neigbhors     = get_vertex_neighbors_impl(my_graph, j).first;
             size_t intersection_value  = 0;
             size_t i_u = 0, i_v = 0;
             while (i_u < i_neighbor_size && i_v < j_neighbor_size) {
@@ -604,7 +606,7 @@ similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
     }
     jaccard.reset(nnz);
     vertex_pairs.reset(nnz);
-
+    
     similarity_result res(homogen_table_builder{}.build(), homogen_table_builder{}.build());
 
     std::cout << "Jaccard block kernel ended" << std::endl;

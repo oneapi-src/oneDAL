@@ -13,8 +13,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-
-#include <iostream>
-#include "oneapi/dal/algo/jaccard/common.hpp"
-#include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
-#include "oneapi/dal/data/graph_service.hpp"

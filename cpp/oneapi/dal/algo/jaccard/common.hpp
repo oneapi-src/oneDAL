@@ -27,8 +27,8 @@ class descriptor_impl;
 } // namespace detail
 
 namespace method {
-struct all_vertex_pairs {};
-using by_default = all_vertex_pairs;
+struct fast {};
+using by_default = fast;
 } // namespace method
 
 class descriptor_base : public base {

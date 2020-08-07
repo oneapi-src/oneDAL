@@ -30,6 +30,7 @@
 #include "oneapi/dal/data/detail/graph_container.hpp"
 #include "oneapi/dal/data/graph_common.hpp"
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 /**
  * \brief Contains graph functionality preview as an experimental part of oneapi dal.
@@ -65,8 +66,8 @@ constexpr auto get_edge_count(const G &g) noexcept -> edge_size_type<G> {
 template <typename G>
 constexpr auto get_vertex_degree(const G &g, const vertex_type<G> &vertex) noexcept
     -> vertex_edge_size_type<G> {
-    if (vertex < 0 && vertex >= get_vertex_count_impl(g)) {
-        throw out_of_range("Vertex index should be in [0, num_vert)");
+    if (vertex < 0 || (vertex_size_type<G>)vertex >= get_vertex_count_impl(g)) {
+        throw invalid_argument("Vertex index should be in [0, num_vert)");
     }
     return get_vertex_degree_impl(g, vertex);
 }
@@ -74,7 +75,7 @@ constexpr auto get_vertex_degree(const G &g, const vertex_type<G> &vertex) noexc
 template <typename G>
 constexpr auto get_vertex_neighbors(const G &g, const vertex_type<G> &vertex) noexcept
     -> const_vertex_edge_range_type<G> {
-    if (vertex < 0 && vertex >= get_vertex_count_impl(g)) {
+    if (vertex < 0 || (vertex_size_type<G>)vertex >= get_vertex_count_impl(g)) {
         throw out_of_range("Vertex index should be in [0, num_vert)");
     }
     return get_vertex_neighbors_impl(g, vertex);
