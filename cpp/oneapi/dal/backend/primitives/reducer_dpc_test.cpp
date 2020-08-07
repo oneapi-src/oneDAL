@@ -29,7 +29,7 @@ TEST(reducer_l2, can_handle_array_of_zeros) {
     auto inp = oneapi::dal::array<float>::zeros(q, 35);
     auto out = oneapi::dal::array<float>::zeros(q, 7);
 
-    auto reducer = oneapi::dal::backend::primitives::l2_reducer_singlepass<float>(q);
+    auto reducer = oneapi::dal::backend::primitives::l2_reducer_singlepass<float, true>(q);
     auto res     = reducer(inp, out, 7, 5);
     res.wait();
 
@@ -46,7 +46,7 @@ TEST(reducer_mean, can_handle_array) {
     for (int i = 0; i < inp.get_count(); i++)
         inp[i] = i;
 
-    auto reducer = oneapi::dal::backend::primitives::mean_reducer_singlepass<float>(q);
+    auto reducer = oneapi::dal::backend::primitives::mean_reducer_singlepass<float, true>(q);
     auto res     = reducer(inp, out, 7, 5);
     res.wait();
 
