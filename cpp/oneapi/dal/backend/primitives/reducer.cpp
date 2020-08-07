@@ -131,7 +131,7 @@ public:
               reduces(reduces_),
               partial_reduces(partial_reduces_){};
 
-    void operator()(cl::sycl::nd_item<2> idx) const {
+    void operator()(cl::sycl::nd_item<2> idx) {
         const std::uint32_t local_size = idx.get_local_range(0);
 
         const std::uint32_t global_dim = IsRowMajorLayout ? vector_size : 1;
