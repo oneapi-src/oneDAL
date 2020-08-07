@@ -20,10 +20,10 @@ powershell.exe -command "if ($PSVersionTable.PSVersion.Major -ge 3) {exit 1} els
 
 set TBBURL_NUGET=https://www.nuget.org/api/v2/package/inteltbb.redist.win/2019.6.245
 
-set TBBURLROOT=https://github.com/intel/tbb/releases/download/2019_U8/
-set TBBVERSION=tbb2019_20190605oss
+set TBBURLROOT=https://github.com/oneapi-src/oneTBB/releases/download/v2021.1-beta08/
+set TBBVERSION=oneapi-tbb-2021.1-beta08
 
-set TBBPACKAGE=%TBBVERSION%_win
+set TBBPACKAGE=%TBBVERSION%-win
 
 set TBBURL=%TBBURLROOT%%TBBPACKAGE%.zip
 if /i "%1"=="" (
@@ -42,11 +42,11 @@ if not exist "%DST%\win\bin" (
 	powershell.exe -command "if (Get-Command Add-Type -errorAction SilentlyContinue) {Add-Type -Assembly \"System.IO.Compression.FileSystem\"; try { [IO.Compression.zipfile]::ExtractToDirectory(\"%DST%\%TBBPACKAGE%.zip\", \"%DST%\") ; Copy-Item \"%DST%\%TBBVERSION%\*\" -Destination \"%DST%\win\" -Recurse }catch{$_.exception ; exit 1}} else {exit 1}" && goto Exit || goto Error_unpack
 
 :Error_load
-	echo tbb.bat : Error: Failed to load %TBBURL% to %DST%, try to load it manually
+	echo download_tbb.bat : Error: Failed to load %TBBURL% to %DST%, try to load it manually
 	exit /B 1
 
 :Error_unpack
-	echo tbb.bat : Error: Failed to unpack %DST%\%TBBPACKAGE%.zip to %DST%, try unpack the archive manually
+	echo download_tbb.bat : Error: Failed to unpack %DST%\%TBBPACKAGE%.zip to %DST%, try unpack the archive manually
 	exit /B 1
 
 :Exit
