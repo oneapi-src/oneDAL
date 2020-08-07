@@ -19,8 +19,10 @@ if __name__ == "__main__":
         subprocess.call(["bash", "./download_tests.sh", "--alg-name %s" % (alg_name) , "--sklearn-version %s" % (sklearn_version)])
         print(alg_name)
 
+        alg_log = open("_log_%(alg)s.txt" % {"alg": alg_name}, w)
         subprocess.call(["python", "-m", "daal4py", "-m", "pytest", "-s", "--disable-warnings test_%(alg)s.py" % {"alg": alg_name}],
-                         stdout="_log_%(alg)s.txt" % {"alg": alg_name} , env={"IDP_SKLEARN_VERBOSE":"INFO"})
+                         stdout=alg_log, env={"IDP_SKLEARN_VERBOSE":"INFO"})
+        alg_log.close()
 
     make_report(algs_filename=algs_filename,
                 report_filename = report_filename)
