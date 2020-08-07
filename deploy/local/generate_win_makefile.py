@@ -22,9 +22,9 @@ import os
 import sys
 import glob
 
-def get_rules_list(dir):
-    cpp_paths = glob.glob('{}/**/*.cpp'.format(dir))
-    relative_cpp_paths = [ os.path.join('source', os.path.relpath(x, dir)) for x in cpp_paths ]
+def get_rules_list(directory):
+    cpp_paths = glob.glob('{}/**/*.cpp'.format(directory))
+    relative_cpp_paths = [ os.path.join('source', os.path.relpath(x, directory)) for x in cpp_paths ]
     exe_names =  [os.path.basename(x).replace('.cpp', '.exe') for x in cpp_paths ]
     return list(zip(exe_names, relative_cpp_paths))
 

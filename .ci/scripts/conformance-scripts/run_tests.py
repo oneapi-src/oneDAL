@@ -1,5 +1,6 @@
 import re
-import sys, os
+import sys
+import subprocess
 from datetime import datetime
 from subprocess import Popen, PIPE
 from utils import make_report
@@ -15,10 +16,13 @@ if __name__ == "__main__":
 
     print("Confromance testing start")
     for alg_name in algs:
-        os.system("bash ./download_tests.sh --alg-name %s --sklearn-version %s" % (alg_name, sklearn_version))
+        subprocess.call(["./download_tests.sh", "--alg-name %s" % (alg_name) , "--sklearn-version %s" % (sklearn_version)])
         print(alg_name)
 
-        os.system("IDP_SKLEARN_VERBOSE=INFO python -m daal4py -m pytest -s --disable-warnings test_%(alg)s.py > _log_%(alg)s.txt" % {"alg": alg_name})
+        alg_log = open("_log_%(alg)s.txt" % {"alg": alg_name}, "w")
+        subprocess.call(["python", "-m", "daal4py", "-m", "pytest", "-s", "--disable-warnings test_%(alg)s.py" % {"alg": alg_name}],
+                         stdout=alg_log, env={"IDP_SKLEARN_VERBOSE":"INFO"})
+        alg_log.close()
 
     make_report(algs_filename=algs_filename,
                 report_filename = report_filename)
