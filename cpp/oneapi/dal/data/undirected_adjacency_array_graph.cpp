@@ -31,7 +31,7 @@ undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, 
                                                                   IndexType,
                                                                   Allocator>) {}
 
-template class undirected_adjacency_array_graph<empty_value,
+template class ONEAPI_DAL_EXPORT undirected_adjacency_array_graph<empty_value,
                                                 empty_value,
                                                 empty_value,
                                                 std::int32_t,

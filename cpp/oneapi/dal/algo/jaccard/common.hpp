@@ -31,7 +31,7 @@ struct fast {};
 using by_default = fast;
 } // namespace method
 
-class descriptor_base : public base {
+class ONEAPI_DAL_EXPORT descriptor_base : public base {
 public:
     using tag_t    = detail::tag;
     using float_t  = float;

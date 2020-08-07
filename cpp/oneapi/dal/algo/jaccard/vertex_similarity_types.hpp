@@ -30,7 +30,7 @@ class similarity_result_impl;
 } // namespace detail
 
 template <typename Graph>
-class similarity_input {
+class ONEAPI_DAL_EXPORT similarity_input {
 public:
     similarity_input(const Graph &g);
     const Graph &get_graph() const;
@@ -39,7 +39,7 @@ private:
     dal::detail::pimpl<detail::similarity_input_impl<Graph>> impl_;
 };
 
-class similarity_result {
+class ONEAPI_DAL_EXPORT similarity_result {
 public:
     similarity_result(){};
     similarity_result(const table &coeffs, const table &vertex_pairs);

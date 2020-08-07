@@ -32,11 +32,11 @@ similarity_result backend_block<Float, Method, Graph>::operator()(
 }
 
 template <>
-std::shared_ptr<backend_base<undirected_adjacency_array<> &>>
+dal::detail::pimpl<backend_base<undirected_adjacency_array<> &>>
 get_backend<float, method::by_default, undirected_adjacency_array<> &>(
     const descriptor_base &desc,
     const similarity_input<undirected_adjacency_array<> &> &input) {
-    return std::shared_ptr<backend_base<undirected_adjacency_array<> &>>(
+    return dal::detail::pimpl<backend_base<undirected_adjacency_array<> &>>(
         new backend_block<float, method::by_default, undirected_adjacency_array<> &>);
 }
 

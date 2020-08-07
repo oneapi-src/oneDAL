@@ -42,7 +42,7 @@ struct backend_block : public backend_base<Graph> {
 };
 
 template <typename Float, class Method, typename Graph>
-std::shared_ptr<backend_base<Graph>> get_backend(const descriptor_base &desc,
+dal::detail::pimpl<backend_base<Graph>> get_backend(const descriptor_base &desc,
                                                  const similarity_input<Graph> &input);
 } // namespace detail
 } // namespace jaccard

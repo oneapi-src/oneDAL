@@ -50,7 +50,7 @@ public:
 
 template class detail::similarity_input_impl<undirected_adjacency_array_graph<> &>;
 
-template class similarity_input<undirected_adjacency_array_graph<> &>;
+template class ONEAPI_DAL_EXPORT similarity_input<undirected_adjacency_array_graph<> &>;
 
 using detail::similarity_result_impl;
 
