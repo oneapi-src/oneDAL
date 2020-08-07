@@ -82,14 +82,26 @@ def _find_tool(repo_ctx, tool_name, mandatory=False):
             tool_path = repo_ctx.path("tool_not_found.sh")
     return str(tool_path)
 
+def _create_ar_merge_tool(repo_ctx, ar_path):
+    ar_merge_name = "merge_static_libs.sh"
+    repo_ctx.template(
+        ar_merge_name,
+        Label("@onedal//dev/bazel/toolchains:merge_static_libs_lnx.sh.tpl"),
+        { "%{ar_path}": ar_path }
+    )
+    ar_merge_path = repo_ctx.path(ar_merge_name)
+    return str(ar_merge_path)
 
 def _find_tools(repo_ctx, reqs):
     # TODO: Use full compiler path from reqs
+    ar = _find_tool(repo_ctx, "ar", mandatory=True)
+    ar_merge = _create_ar_merge_tool(repo_ctx, ar)
     return struct(
-        cc    = _find_tool(repo_ctx, reqs.compiler_id, mandatory=True),
-        dpcc  = _find_tool(repo_ctx, reqs.dpc_compiler_id, mandatory=False),
-        ar    = _find_tool(repo_ctx, "ar", mandatory=True),
-        strip = _find_tool(repo_ctx, "strip", mandatory=True),
+        cc       = _find_tool(repo_ctx, reqs.compiler_id, mandatory=True),
+        dpcc     = _find_tool(repo_ctx, reqs.dpc_compiler_id, mandatory=False),
+        strip    = _find_tool(repo_ctx, "strip", mandatory=True),
+        ar       = ar,
+        ar_merge = ar_merge,
     )
 
 
@@ -194,10 +206,11 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
             ),
 
             # Tools
-            "%{cc_path}":    tools.cc,
-            "%{dpcc_path}":  tools.dpcc,
-            "%{ar_path}":    tools.ar,
-            "%{strip_path}": tools.strip,
+            "%{cc_path}":       tools.cc,
+            "%{dpcc_path}":     tools.dpcc,
+            "%{ar_path}":       tools.ar,
+            "%{ar_merge_path}": tools.ar_merge,
+            "%{strip_path}":    tools.strip,
 
             "%{cxx_builtin_include_directories}": get_starlark_list(builtin_include_directories),
             "%{compile_flags_cc}": get_starlark_list(

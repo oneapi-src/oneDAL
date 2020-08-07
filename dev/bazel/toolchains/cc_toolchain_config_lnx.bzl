@@ -27,6 +27,7 @@ load("@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
     "artifact_name_pattern",
 )
 load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "ACTION_NAMES")
+load("@onedal//dev/bazel/toolchains:action_names.bzl", "CPP_MERGE_STATIC_LIBRARIES")
 
 all_compile_actions = [
     ACTION_NAMES.c_compile,
@@ -223,6 +224,13 @@ def _impl(ctx):
         ],
     )
 
+    cpp_merge_static_libraries_action = action_config(
+        action_name = CPP_MERGE_STATIC_LIBRARIES,
+        tools = [
+            tool(path = ctx.attr.ar_merge_path)
+        ],
+    )
+
     strip_action = action_config(
         action_name = ACTION_NAMES.strip,
         flag_sets = [
@@ -265,6 +273,7 @@ def _impl(ctx):
         cpp_link_nodeps_dynamic_library_action,
         cpp_link_dynamic_library_action,
         cpp_link_static_library_action,
+        cpp_merge_static_libraries_action,
         strip_action,
     ]
 
@@ -1107,6 +1116,7 @@ cc_toolchain_config = rule(
         "cc_path": attr.string(mandatory = True),
         "dpcc_path": attr.string(mandatory = True),
         "ar_path": attr.string(mandatory = True),
+        "ar_merge_path": attr.string(mandatory = True),
         "strip_path": attr.string(mandatory = True),
         "cxx_builtin_include_directories": attr.string_list(),
         "compile_flags_cc": attr.string_list(),

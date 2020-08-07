@@ -54,36 +54,6 @@ daal_module(
 )
 
 daal_module(
-    name = "threading_seq",
-    srcs = glob(["src/threading/**/*.cpp"]),
-    local_defines = [
-        "__DO_SEQ_LAYER__",
-    ],
-    deps = [
-        ":threading_headers",
-        "@micromkl//:mkl_seq",
-    ],
-)
-
-daal_module(
-    name = "threading_tbb",
-    srcs = glob(["src/threading/**/*.cpp"]),
-    local_defines = [
-        "__DO_TBB_LAYER__",
-        "__TBB_NO_IMPLICIT_LINKAGE",
-        "__TBB_LEGACY_MODE",
-        "TBB_SUPPRESS_DEPRECATED_MESSAGES",
-        "TBB_USE_ASSERT=0",
-    ],
-    deps = [
-        ":threading_headers",
-        "@tbb//:tbb",
-        "@tbb//:tbbmalloc",
-        "@micromkl//:mkl_thr",
-    ],
-)
-
-daal_module(
     name = "services",
     srcs = glob(
         ["src/services/**/*.cpp", "src/externals/**/*.cpp"],
@@ -126,6 +96,36 @@ daal_module(
 )
 
 daal_module(
+    name = "threading_seq",
+    srcs = glob(["src/threading/**/*.cpp"]),
+    local_defines = [
+        "__DO_SEQ_LAYER__",
+    ],
+    deps = [
+        ":threading_headers",
+        "@micromkl//:mkl_seq",
+    ],
+)
+
+daal_module(
+    name = "threading_tbb",
+    srcs = glob(["src/threading/**/*.cpp"]),
+    local_defines = [
+        "__DO_TBB_LAYER__",
+        "__TBB_NO_IMPLICIT_LINKAGE",
+        "__TBB_LEGACY_MODE",
+        "TBB_SUPPRESS_DEPRECATED_MESSAGES",
+        "TBB_USE_ASSERT=0",
+    ],
+    deps = [
+        ":threading_headers",
+        "@tbb//:tbb",
+        "@tbb//:tbbmalloc",
+        "@micromkl//:mkl_thr",
+    ],
+)
+
+daal_module(
     name = "core",
     deps = [
         ":services",
@@ -134,20 +134,11 @@ daal_module(
     ],
 )
 
-daal_module(
-    name = "core_sycl",
-    deps = [
-        ":core",
-        ":sycl",
-    ],
-)
-
 daal_static_lib(
     name = "core_static",
     lib_name = "daal_core",
     deps = [
         ":core",
-        ":core_sycl",
         "@onedal//cpp/daal/src/algorithms/kmeans:kmeans",
         "@onedal//cpp/daal/src/algorithms/kmeans:kmeans_init",
     ],

@@ -25,6 +25,7 @@ cc_toolchain_config(
     cc_path = "%{cc_path}",
     dpcc_path = "%{dpcc_path}",
     ar_path = "%{ar_path}",
+    ar_merge_path = "%{ar_merge_path}",
     strip_path = "%{strip_path}",
     cxx_builtin_include_directories = [%{cxx_builtin_include_directories}],
     compile_flags_cc = [%{compile_flags_cc}],

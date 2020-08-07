@@ -74,6 +74,25 @@ def dal_executable(name, lib_tags=[], **kwargs):
         lib_tags = lib_tags,
     )
 
+def dal_test(name, deps=[], **kwargs):
+    dal_executable(
+        name = name,
+        deps = select({
+            "@config//:dev_test_link_mode": deps,
+            "@config//:static_test_link_mode": [],
+            "@config//:dynamic_test_link_mode": [],
+        }) +
+        select({
+            "@config//:par_test_thread_mode": [
+                "@onedal//cpp/daal:thread_static",
+            ],
+            "@config//:seq_test_thread_mode": [
+                "@onedal//cpp/daal:sequential_static",
+            ],
+        }),
+        **kwargs,
+    )
+
 def dal_algo_shortcuts(*algos):
     for algo in algos:
         _dal_module(
@@ -107,7 +126,6 @@ def _dal_generate_cpu_dispatcher_impl(ctx):
         ("#define ONEDAL_CPU_DISPATCH_SSE42\n"      if sets.contains(cpus, "sse42")      else "") +
         ("#define ONEDAL_CPU_DISPATCH_AVX\n"        if sets.contains(cpus, "avx")        else "") +
         ("#define ONEDAL_CPU_DISPATCH_AVX2\n"       if sets.contains(cpus, "avx2")       else "") +
-        ("#define ONEDAL_CPU_DISPATCH_AVX512_MIC\n" if sets.contains(cpus, "avx512_mic") else "") +
         ("#define ONEDAL_CPU_DISPATCH_AVX512\n"     if sets.contains(cpus, "avx512")     else "")
     )
     kernel_defines = ctx.actions.declare_file(ctx.attr.out)

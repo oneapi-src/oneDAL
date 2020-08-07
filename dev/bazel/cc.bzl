@@ -3,6 +3,9 @@ load("@onedal//dev/bazel:utils.bzl",
     "paths",
     "sets",
 )
+load("@onedal//dev/bazel/toolchains:action_names.bzl",
+    "CPP_MERGE_STATIC_LIBRARIES"
+)
 load("@onedal//dev/bazel/config:config.bzl",
     "CpuInfo"
 )
@@ -13,6 +16,12 @@ ModuleInfo = provider(
         "compilation_context",
     ]
 )
+
+def _create_tagged_linking_context(tag, linking_context):
+    return struct(
+        tag = tag,
+        linking_context = linking_context,
+    )
 
 def _collect_compilation_contexts(deps):
     dep_compilation_contexts = []
@@ -29,13 +38,18 @@ def _collect_tagged_linking_contexts(deps):
             dep_tagged_linking_contexts += dep[ModuleInfo].tagged_linking_contexts
         if CcInfo in dep:
             linking_context = dep[CcInfo].linking_context
-            dep_tagged_linking_contexts.append((None, linking_context))
+            dep_tagged_linking_contexts.append(_create_tagged_linking_context(
+                tag = None,
+                linking_context = linking_context,
+            ))
     return dep_tagged_linking_contexts
 
 def _filter_tagged_linking_contexts(tagged_linking_contexts, tags):
     linking_contexts = []
     tag_set = sets.make(tags)
-    for tag, linking_context in tagged_linking_contexts:
+    for tagged_linking_context in tagged_linking_contexts:
+        tag = tagged_linking_context.tag
+        linking_context = tagged_linking_context.linking_context
         if (not tag) or (not tags) or sets.contains(tag_set, tag):
             linking_contexts.append(linking_context)
     return linking_contexts
@@ -68,6 +82,20 @@ def _merge_linking_contexts(linking_contexts):
         user_link_flags = utils.unique(link_flags),
     )
 
+def _filter_dynamic_libraries_to_link(libraries_to_link):
+    dynamic_libs_to_links = []
+    for lib in libraries_to_link:
+        if lib.dynamic_library:
+            dynamic_libs_to_links.append(lib)
+    return dynamic_libs_to_links
+
+def _filter_static_libraries_to_link(libraries_to_link):
+    static_libs_to_links = []
+    for lib in libraries_to_link:
+        if lib.static_library or lib.pic_static_library:
+            static_libs_to_links.append(lib)
+    return static_libs_to_links
+
 def _categorize_sources(source_files, cpu_files_supported = True,
                                       fpt_files_supported = True):
     fpt_cpu_files_supported = cpu_files_supported and fpt_files_supported
@@ -91,6 +119,7 @@ def _categorize_sources(source_files, cpu_files_supported = True,
         fpt_files = fpt_files,
         fpt_cpu_files = fpt_cpu_files,
     )
+
 
 def _compile(name, ctx, toolchain, feature_config,
              dep_compilation_contexts, srcs=[], local_defines=[]):
@@ -117,12 +146,14 @@ def _compile(name, ctx, toolchain, feature_config,
         disallow_nopic_outputs = True,
     )
 
-def _compile_all(name, ctx, toolchain, feature_config, dep_compilation_contexts):
+
+def _compile_all(name, ctx, toolchain, feature_config, compilation_contexts):
     fpts = ctx.attr._fpts
     cpus = ctx.attr._cpus[CpuInfo].isa_extensions[:]
     if ctx.attr.disable_mic and "avx512_mic" in cpus:
         cpus.remove("avx512_mic")
 
+    dep_compilation_contexts = compilation_contexts
     compilation_contexts = []
     compilation_outputs = []
 
@@ -193,11 +224,122 @@ def _compile_all(name, ctx, toolchain, feature_config, dep_compilation_contexts)
                 compilation_contexts.append(compilation_context)
                 compilation_outputs.append(compulation_output)
 
-    compilation_context = _merge_compilation_contexts(compilation_contexts)
+    compilation_context = _merge_compilation_contexts(
+        compilation_contexts = compilation_contexts,
+    )
     compilation_output = cc_common.merge_compilation_outputs(
-        compilation_outputs = compilation_outputs
+        compilation_outputs = compilation_outputs,
     )
     return compilation_context, compilation_output
+
+
+def _link_static_lib(owner, name, actions, cc_toolchain,
+                     feature_configuration,
+                     objects, linking_contexts):
+    compilation_outputs = cc_common.create_compilation_outputs(
+        objects = objects,
+        pic_objects = objects,
+    )
+    merged_linking_context = _merge_linking_contexts(linking_contexts)
+    dep_static_libs_to_link = _filter_static_libraries_to_link(
+        merged_linking_context.libraries_to_link)
+    dep_dynamic_libs_to_link = _filter_dynamic_libraries_to_link(
+        merged_linking_context.libraries_to_link)
+    tmp_linking_context, linking_outputs = \
+            cc_common.create_linking_context_from_compilation_outputs(
+        name = name + ("_no_deps" if dep_static_libs_to_link else ""),
+        actions = actions,
+        cc_toolchain = cc_toolchain,
+        feature_configuration = feature_configuration,
+        compilation_outputs = compilation_outputs,
+        linking_contexts = linking_contexts,
+        disallow_dynamic_library = True,
+    )
+    if not linking_outputs.library_to_link:
+        return utils.warn("'{}' static library does not contain any " +
+                          "object file".format(name))
+    static_lib = (linking_outputs.library_to_link.static_library or
+                  linking_outputs.library_to_link.pic_static_library)
+    if dep_static_libs_to_link:
+        dep_static_libs = [ (x.static_library or x.pic_static_library)
+                            for x in dep_static_libs_to_link ]
+        dep_static_libs_to_merge = [ static_lib ] + dep_static_libs
+        static_lib = _merge_static_libs(
+            filename = static_lib.basename.replace("_no_deps", ""),
+            actions = actions,
+            cc_toolchain = cc_toolchain,
+            feature_configuration = feature_configuration,
+            static_libs = dep_static_libs_to_merge,
+        )
+    static_lib_to_link = cc_common.create_library_to_link(
+        actions = actions,
+        cc_toolchain = cc_toolchain,
+        feature_configuration = feature_configuration,
+        static_library = static_lib,
+        pic_static_library = static_lib,
+    )
+    linker_input = cc_common.create_linker_input(
+        owner = owner,
+        libraries = depset([static_lib_to_link] + dep_dynamic_libs_to_link),
+        user_link_flags = depset(merged_linking_context.user_link_flags),
+    )
+    linking_context = cc_common.create_linking_context(
+        linker_inputs = depset([ linker_input ]),
+    )
+    return linking_context, static_lib
+
+
+def _merge_static_libs(filename, actions, cc_toolchain,
+                       feature_configuration, static_libs):
+    output_file = actions.declare_file(filename)
+
+    archiver_script_file = actions.declare_file(filename + "-mri.txt")
+    archiver_script = ""
+    archiver_script += "CREATE {}\n".format(output_file.path)
+    for lib in static_libs:
+        archiver_script += "ADDLIB {}\n".format(lib.path)
+    archiver_script += "SAVE\n"
+    actions.write(
+        output = archiver_script_file,
+        content = archiver_script,
+    )
+
+    archiver_path = cc_common.get_tool_for_action(
+        feature_configuration = feature_configuration,
+        action_name = CPP_MERGE_STATIC_LIBRARIES,
+    )
+    archiver_variables = cc_common.create_link_variables(
+        feature_configuration = feature_configuration,
+        cc_toolchain = cc_toolchain,
+        is_using_linker = False,
+    )
+    command_line = cc_common.get_memory_inefficient_command_line(
+        feature_configuration = feature_configuration,
+        action_name = CPP_MERGE_STATIC_LIBRARIES,
+        variables = archiver_variables,
+    )
+    args = actions.args()
+    args.add_all(command_line)
+    args.add(archiver_script_file)
+    env = cc_common.get_environment_variables(
+        feature_configuration = feature_configuration,
+        action_name = CPP_MERGE_STATIC_LIBRARIES,
+        variables = archiver_variables,
+    )
+    actions.run(
+        executable = archiver_path,
+        arguments = [args],
+        env = env,
+        inputs = depset(
+            direct = [archiver_script_file],
+            transitive = [
+                depset(static_libs),
+                cc_toolchain.all_files,
+            ],
+        ),
+        outputs = [output_file],
+    )
+    return output_file
 
 
 def _cc_module_impl(ctx):
@@ -214,8 +356,11 @@ def _cc_module_impl(ctx):
         ctx = ctx,
         toolchain = toolchain,
         feature_config = feature_config,
-        dep_compilation_contexts = dep_compilation_contexts,
+        compilation_contexts = dep_compilation_contexts,
     )
+    if compilation_outputs.objects:
+        fail("Non-PIC object files found, oneDAL assumes " +
+             "all object files are compiled as PIC")
     linking_context, linking_out = cc_common.create_linking_context_from_compilation_outputs(
         name = ctx.label.name,
         actions = ctx.actions,
@@ -224,17 +369,14 @@ def _cc_module_impl(ctx):
         compilation_outputs = compilation_outputs,
     )
     tagged_linking_contexts = _collect_tagged_linking_contexts(ctx.attr.deps)
-    tagged_linking_contexts.append((ctx.attr.lib_tag, linking_context))
-    files_to_build = (compilation_outputs.pic_objects +
-                      compilation_outputs.objects)
-    # default_info = DefaultInfo(
-    #     files = depset(files_to_build)
-    # )
+    tagged_linking_contexts.append(_create_tagged_linking_context(
+        tag = ctx.attr.lib_tag,
+        linking_context = linking_context,
+    ))
     module_info = ModuleInfo(
         compilation_context = compilation_context,
         tagged_linking_contexts = tagged_linking_contexts,
     )
-    # return [default_info, module_info]
     return [module_info]
 
 
@@ -291,30 +433,24 @@ def _cc_static_lib_impl(ctx):
     tagged_linking_contexts = _collect_tagged_linking_contexts(ctx.attr.deps)
     linking_contexts = _filter_tagged_linking_contexts(tagged_linking_contexts, ctx.attr.lib_tags)
     merged_linking_context = _merge_linking_contexts(linking_contexts)
-    object_files = depset(merged_linking_context.objects +
-                          merged_linking_context.pic_objects)
-    compilation_outputs = cc_common.create_compilation_outputs(
-        objects = object_files,
-        pic_objects = object_files,
-    )
-    linking_context, linking_outputs = cc_common.create_linking_context_from_compilation_outputs(
+    if merged_linking_context.objects:
+        fail("Non-PIC object files found, oneDAL assumes " +
+             "all object files are compiled as PIC")
+    object_files = depset(merged_linking_context.pic_objects)
+    linking_context, static_lib = _link_static_lib(
+        owner = ctx.label,
         name = ctx.attr.lib_name,
         actions = ctx.actions,
         cc_toolchain = toolchain,
         feature_configuration = feature_config,
-        compilation_outputs = compilation_outputs,
+        objects = object_files,
         linking_contexts = linking_contexts,
-        disallow_dynamic_library = True,
     )
-    if not linking_outputs.library_to_link:
-        return utils.warn("'{}' static library does not contain any " +
-                          "object file".format(ctx.attr.lib_name))
-    static_lib = (linking_outputs.library_to_link.static_library or
-                  linking_outputs.library_to_link.pic_static_library)
     default_info = DefaultInfo(
         files = depset([ static_lib ]),
     )
     cc_info = CcInfo(
+        # TODO: Pass compilation context
         compilation_context = None,
         linking_context = linking_context,
     )
@@ -342,8 +478,10 @@ def _cc_executable_impl(ctx):
     tagged_linking_contexts = _collect_tagged_linking_contexts(ctx.attr.deps)
     linking_contexts = _filter_tagged_linking_contexts(tagged_linking_contexts, ctx.attr.lib_tags)
     merged_linking_context = _merge_linking_contexts(linking_contexts)
-    object_files = depset(merged_linking_context.objects +
-                          merged_linking_context.pic_objects)
+    if merged_linking_context.objects:
+        fail("Non-PIC object files found, oneDAL assumes " +
+             "all object files are compiled as PIC")
+    object_files = depset(merged_linking_context.pic_objects)
     compilation_outputs = cc_common.create_compilation_outputs(
         objects = object_files,
         pic_objects = object_files,
@@ -353,19 +491,18 @@ def _cc_executable_impl(ctx):
         libraries = depset(merged_linking_context.libraries_to_link),
         user_link_flags = depset(merged_linking_context.user_link_flags),
     )
+    # TODO: Pass compilations outputs via linking contexts
+    #       Individual linking context for each library tag
+    linking_context = cc_common.create_linking_context(
+        linker_inputs = depset([linker_input]),
+    )
     linking_outputs = cc_common.link(
         name = ctx.label.name,
         actions = ctx.actions,
         cc_toolchain = toolchain,
         feature_configuration = feature_config,
-        # TODO: Pass compilations outputs via linking contexts
-        #       Individual linking context for each library tag
         compilation_outputs = compilation_outputs,
-        linking_contexts = [
-            cc_common.create_linking_context(
-                linker_inputs = depset([linker_input]),
-            )
-        ],
+        linking_contexts = [linking_context],
     )
     if not linking_outputs.executable:
         return utils.warn("'{}' executable does not contain any " +

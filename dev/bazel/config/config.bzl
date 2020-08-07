@@ -1,18 +1,26 @@
 load("@onedal//dev/bazel:utils.bzl", "utils", "sets")
 
-CpuInfo = provider(
-    fields = ["isa_extensions"]
+
+ConfigFlagInfo = provider(
+    fields = [
+        "flag",
+    ],
 )
 
-VersionInfo = provider(
+def _config_flag_impl(ctx):
+    return ConfigFlagInfo(
+        flag = ctx.build_setting_value,
+    )
+
+config_flag = rule(
+    implementation = _config_flag_impl,
+    build_setting = config.string(flag = True),
+)
+
+CpuInfo = provider(
     fields = [
-        "major",
-        "minor",
-        "update",
-        "build",
-        "buildrev",
-        "status",
-    ]
+        "isa_extensions",
+    ],
 )
 
 _ISA_EXTENSIONS = ["sse2", "ssse3", "sse42", "avx", "avx2", "avx512", "avx512_mic"]
@@ -26,7 +34,6 @@ def _check_cpu_extensions(extensions):
     if unsupported:
         fail("Unsupported CPU extensions: {}\n".format(unsupported) +
              "Allowed extensions: {}".format(_ISA_EXTENSIONS))
-
 
 def _cpu_info_impl(ctx):
     if ctx.build_setting_value == "all":
@@ -50,6 +57,17 @@ cpu_info = rule(
     attrs = {
         "auto_cpu": attr.string(mandatory=True),
     },
+)
+
+VersionInfo = provider(
+    fields = [
+        "major",
+        "minor",
+        "update",
+        "build",
+        "buildrev",
+        "status",
+    ],
 )
 
 def _version_info_impl(ctx):
