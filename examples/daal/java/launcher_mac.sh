@@ -93,7 +93,7 @@ for example in "${Java_example_list[@]}"; do
             example_path=com.intel.daal.examples.${example_dir}.${example_name}
             res_path=${result_folder}/${example_dir}/${example_name}.res
 
-            java_call="java -Xmx${memory} -Djava.library.path=${Djava_library_path} ${example_path}"
+            java_call="java -Djava.library.path=${Djava_library_path} ${example_path}"
             ${java_call} > "${res_path}" 2>&1
             errcode=$?
             if [ "${errcode}" == "0" ]; then
