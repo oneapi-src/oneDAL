@@ -13,7 +13,9 @@ dal_test(
     name = "kmeans",
     srcs = [ "source/kmeans/kmeans_lloyd_dense_batch.cpp" ],
     deps = [
-        ":example_util",
         "@onedal//cpp/oneapi/dal/algo:kmeans",
+    ],
+    test_deps = [
+        ":example_util",
     ],
 )

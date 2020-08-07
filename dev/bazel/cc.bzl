@@ -289,6 +289,10 @@ def _link_static_lib(owner, name, actions, cc_toolchain,
     return linking_context, static_lib
 
 
+def _get_unique_files(files):
+    files_dict = {f.path: f for f in files }
+    return files_dict.values()
+
 def _merge_static_libs(filename, actions, cc_toolchain,
                        feature_configuration, static_libs):
     output_file = actions.declare_file(filename)
@@ -296,7 +300,7 @@ def _merge_static_libs(filename, actions, cc_toolchain,
     archiver_script_file = actions.declare_file(filename + "-mri.txt")
     archiver_script = ""
     archiver_script += "CREATE {}\n".format(output_file.path)
-    for lib in static_libs:
+    for lib in _get_unique_files(static_libs):
         archiver_script += "ADDLIB {}\n".format(lib.path)
     archiver_script += "SAVE\n"
     actions.write(
@@ -430,6 +434,10 @@ def _cc_static_lib_impl(ctx):
         requested_features = ctx.features,
         unsupported_features = ctx.disabled_features,
     )
+    dep_compilation_contexts = _collect_compilation_contexts(ctx.attr.deps)
+    compilation_context = _merge_compilation_contexts(
+        compilation_contexts = dep_compilation_contexts,
+    )
     tagged_linking_contexts = _collect_tagged_linking_contexts(ctx.attr.deps)
     linking_contexts = _filter_tagged_linking_contexts(tagged_linking_contexts, ctx.attr.lib_tags)
     merged_linking_context = _merge_linking_contexts(linking_contexts)
@@ -450,8 +458,7 @@ def _cc_static_lib_impl(ctx):
         files = depset([ static_lib ]),
     )
     cc_info = CcInfo(
-        # TODO: Pass compilation context
-        compilation_context = None,
+        compilation_context = compilation_context,
         linking_context = linking_context,
     )
     return [default_info, cc_info]

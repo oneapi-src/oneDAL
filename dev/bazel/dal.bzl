@@ -74,12 +74,22 @@ def dal_executable(name, lib_tags=[], **kwargs):
         lib_tags = lib_tags,
     )
 
-def dal_test(name, deps=[], **kwargs):
+def dal_test(name, deps=[], test_deps=[], **kwargs):
+    cc_static_lib(
+        name = name + "_static",
+        lib_name = "onedal_" + name,
+        deps = deps,
+    )
     dal_executable(
         name = name,
         deps = select({
-            "@config//:dev_test_link_mode": deps,
-            "@config//:static_test_link_mode": [],
+            "@config//:dev_test_link_mode": [
+                ":" + name + "_static",
+            ],
+            "@config//:static_test_link_mode": [
+                "@onedal//cpp/oneapi/dal:static",
+                "@onedal//cpp/daal:core_static",
+            ],
             "@config//:dynamic_test_link_mode": [],
         }) +
         select({
@@ -89,7 +99,7 @@ def dal_test(name, deps=[], **kwargs):
             "@config//:seq_test_thread_mode": [
                 "@onedal//cpp/daal:sequential_static",
             ],
-        }),
+        }) + test_deps,
         **kwargs,
     )
 
