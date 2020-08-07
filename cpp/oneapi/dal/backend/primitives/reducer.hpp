@@ -45,6 +45,13 @@ struct binary_functor {
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
 
+namespace impl {
+
+template <unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout>
+struct reducer_singlepass_kernel;
+
+}
+
 template <unary_operation UnOp,
           binary_operation BinOp,
           typename Float,
