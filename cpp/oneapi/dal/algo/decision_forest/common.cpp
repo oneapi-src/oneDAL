@@ -268,7 +268,7 @@ oneapi::dal::decision_forest::result_id operator|(
 
 oneapi::dal::decision_forest::result_id& operator|=(
     oneapi::dal::decision_forest::result_id& value_left,
-    oneapi::dal::decision_forest::result_id& value_right) {
+    oneapi::dal::decision_forest::result_id value_right) {
     value_left = value_left | value_right;
     return value_left;
 }
@@ -280,7 +280,7 @@ std::uint64_t operator&(oneapi::dal::decision_forest::result_id value_left,
 
 oneapi::dal::decision_forest::result_id& operator&=(
     oneapi::dal::decision_forest::result_id& value_left,
-    oneapi::dal::decision_forest::result_id& value_right) {
+    oneapi::dal::decision_forest::result_id value_right) {
     using T = std::underlying_type_t<oneapi::dal::decision_forest::result_id>;
 
     value_left = static_cast<oneapi::dal::decision_forest::result_id>(static_cast<T>(value_left) &
@@ -298,7 +298,7 @@ oneapi::dal::decision_forest::error_metric_id operator|(
 
 oneapi::dal::decision_forest::error_metric_id& operator|=(
     oneapi::dal::decision_forest::error_metric_id& value_left,
-    oneapi::dal::decision_forest::error_metric_id& value_right) {
+    oneapi::dal::decision_forest::error_metric_id value_right) {
     value_left = value_left | value_right;
     return value_left;
 }
@@ -310,7 +310,7 @@ std::uint64_t operator&(oneapi::dal::decision_forest::error_metric_id value_left
 
 oneapi::dal::decision_forest::error_metric_id& operator&=(
     oneapi::dal::decision_forest::error_metric_id& value_left,
-    oneapi::dal::decision_forest::error_metric_id& value_right) {
+    oneapi::dal::decision_forest::error_metric_id value_right) {
     using T = std::underlying_type_t<oneapi::dal::decision_forest::error_metric_id>;
 
     value_left = static_cast<oneapi::dal::decision_forest::error_metric_id>(

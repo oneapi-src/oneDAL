@@ -287,14 +287,14 @@ ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::result_id operator|(
 
 ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::result_id& operator|=(
     oneapi::dal::decision_forest::result_id& value_left,
-    oneapi::dal::decision_forest::result_id& value_right);
+    oneapi::dal::decision_forest::result_id value_right);
 
 ONEAPI_DAL_EXPORT std::uint64_t operator&(oneapi::dal::decision_forest::result_id value_left,
                                           oneapi::dal::decision_forest::result_id value_right);
 
 ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::result_id& operator&=(
     oneapi::dal::decision_forest::result_id& value_left,
-    oneapi::dal::decision_forest::result_id& value_right);
+    oneapi::dal::decision_forest::result_id value_right);
 
 ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::error_metric_id operator|(
     oneapi::dal::decision_forest::error_metric_id value_left,
@@ -302,7 +302,7 @@ ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::error_metric_id operator|(
 
 ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::error_metric_id& operator|=(
     oneapi::dal::decision_forest::error_metric_id& value_left,
-    oneapi::dal::decision_forest::error_metric_id& value_right);
+    oneapi::dal::decision_forest::error_metric_id value_right);
 
 ONEAPI_DAL_EXPORT std::uint64_t operator&(
     oneapi::dal::decision_forest::error_metric_id value_left,
@@ -310,4 +310,4 @@ ONEAPI_DAL_EXPORT std::uint64_t operator&(
 
 ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::error_metric_id& operator&=(
     oneapi::dal::decision_forest::error_metric_id& value_left,
-    oneapi::dal::decision_forest::error_metric_id& value_right);
+    oneapi::dal::decision_forest::error_metric_id value_right);
