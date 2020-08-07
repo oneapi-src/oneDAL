@@ -171,6 +171,82 @@ protected:
     local_acc_t partial_reduces;
 };
 
+//Direct instantiation
+template struct reducer_singlepass_kernel<unary_operation::abs, binary_operation::sum, float, true>;
+template struct reducer_singlepass_kernel<unary_operation::abs,
+                                          binary_operation::sum,
+                                          double,
+                                          true>;
+template struct reducer_singlepass_kernel<unary_operation::square,
+                                          binary_operation::sum,
+                                          float,
+                                          true>;
+template struct reducer_singlepass_kernel<unary_operation::square,
+                                          binary_operation::sum,
+                                          double,
+                                          true>;
+template struct reducer_singlepass_kernel<unary_operation::abs, binary_operation::max, float, true>;
+template struct reducer_singlepass_kernel<unary_operation::abs,
+                                          binary_operation::max,
+                                          double,
+                                          true>;
+template struct reducer_singlepass_kernel<unary_operation::identity,
+                                          binary_operation::sum,
+                                          float,
+                                          true>;
+template struct reducer_singlepass_kernel<unary_operation::identity,
+                                          binary_operation::sum,
+                                          double,
+                                          true>;
+template struct reducer_singlepass_kernel<unary_operation::identity,
+                                          binary_operation::mul,
+                                          float,
+                                          true>;
+template struct reducer_singlepass_kernel<unary_operation::identity,
+                                          binary_operation::mul,
+                                          double,
+                                          true>;
+template struct reducer_singlepass_kernel<unary_operation::abs,
+                                          binary_operation::sum,
+                                          float,
+                                          false>;
+template struct reducer_singlepass_kernel<unary_operation::abs,
+                                          binary_operation::sum,
+                                          double,
+                                          false>;
+template struct reducer_singlepass_kernel<unary_operation::square,
+                                          binary_operation::sum,
+                                          float,
+                                          false>;
+template struct reducer_singlepass_kernel<unary_operation::square,
+                                          binary_operation::sum,
+                                          double,
+                                          false>;
+template struct reducer_singlepass_kernel<unary_operation::abs,
+                                          binary_operation::max,
+                                          float,
+                                          false>;
+template struct reducer_singlepass_kernel<unary_operation::abs,
+                                          binary_operation::max,
+                                          double,
+                                          false>;
+template struct reducer_singlepass_kernel<unary_operation::identity,
+                                          binary_operation::sum,
+                                          float,
+                                          false>;
+template struct reducer_singlepass_kernel<unary_operation::identity,
+                                          binary_operation::sum,
+                                          double,
+                                          false>;
+template struct reducer_singlepass_kernel<unary_operation::identity,
+                                          binary_operation::mul,
+                                          float,
+                                          false>;
+template struct reducer_singlepass_kernel<unary_operation::identity,
+                                          binary_operation::mul,
+                                          double,
+                                          false>;
+
 } // namespace impl
 
 template <unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout>
@@ -221,16 +297,26 @@ cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operat
 }
 
 //Direct instantiation
-template struct reducer_singlepass<unary_operation::abs, binary_operation::sum, float>;
-template struct reducer_singlepass<unary_operation::abs, binary_operation::sum, double>;
-template struct reducer_singlepass<unary_operation::square, binary_operation::sum, float>;
-template struct reducer_singlepass<unary_operation::square, binary_operation::sum, double>;
-template struct reducer_singlepass<unary_operation::abs, binary_operation::max, float>;
-template struct reducer_singlepass<unary_operation::abs, binary_operation::max, double>;
-template struct reducer_singlepass<unary_operation::identity, binary_operation::sum, float>;
-template struct reducer_singlepass<unary_operation::identity, binary_operation::sum, double>;
-template struct reducer_singlepass<unary_operation::identity, binary_operation::mul, float>;
-template struct reducer_singlepass<unary_operation::identity, binary_operation::mul, double>;
+template struct reducer_singlepass<unary_operation::abs, binary_operation::sum, float, true>;
+template struct reducer_singlepass<unary_operation::abs, binary_operation::sum, double, true>;
+template struct reducer_singlepass<unary_operation::square, binary_operation::sum, float, true>;
+template struct reducer_singlepass<unary_operation::square, binary_operation::sum, double, true>;
+template struct reducer_singlepass<unary_operation::abs, binary_operation::max, float, true>;
+template struct reducer_singlepass<unary_operation::abs, binary_operation::max, double, true>;
+template struct reducer_singlepass<unary_operation::identity, binary_operation::sum, float, true>;
+template struct reducer_singlepass<unary_operation::identity, binary_operation::sum, double, true>;
+template struct reducer_singlepass<unary_operation::identity, binary_operation::mul, float, true>;
+template struct reducer_singlepass<unary_operation::identity, binary_operation::mul, double, true>;
+template struct reducer_singlepass<unary_operation::abs, binary_operation::sum, float, false>;
+template struct reducer_singlepass<unary_operation::abs, binary_operation::sum, double, false>;
+template struct reducer_singlepass<unary_operation::square, binary_operation::sum, float, false>;
+template struct reducer_singlepass<unary_operation::square, binary_operation::sum, double, false>;
+template struct reducer_singlepass<unary_operation::abs, binary_operation::max, float, false>;
+template struct reducer_singlepass<unary_operation::abs, binary_operation::max, double, false>;
+template struct reducer_singlepass<unary_operation::identity, binary_operation::sum, float, false>;
+template struct reducer_singlepass<unary_operation::identity, binary_operation::sum, double, false>;
+template struct reducer_singlepass<unary_operation::identity, binary_operation::mul, float, false>;
+template struct reducer_singlepass<unary_operation::identity, binary_operation::mul, double, false>;
 
 #endif
 

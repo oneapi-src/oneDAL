@@ -75,21 +75,21 @@ private:
     const std::int64_t max_work_group_size;
 };
 
-template <typename Float = float>
+template <typename Float = float, bool IsRowMajorLayout = true>
 using l1_reducer_singlepass =
-    reducer_singlepass<unary_operation::abs, binary_operation::sum, Float>;
-template <typename Float = float>
+    reducer_singlepass<unary_operation::abs, binary_operation::sum, Float, IsRowMajorLayout>;
+template <typename Float = float, bool IsRowMajorLayout = true>
 using l2_reducer_singlepass =
-    reducer_singlepass<unary_operation::square, binary_operation::sum, Float>;
-template <typename Float = float>
+    reducer_singlepass<unary_operation::square, binary_operation::sum, Float, IsRowMajorLayout>;
+template <typename Float = float, bool IsRowMajorLayout = true>
 using linf_reducer_singlepass =
-    reducer_singlepass<unary_operation::abs, binary_operation::max, Float>;
-template <typename Float = float>
+    reducer_singlepass<unary_operation::abs, binary_operation::max, Float, IsRowMajorLayout>;
+template <typename Float = float, bool IsRowMajorLayout = true>
 using mean_reducer_singlepass =
-    reducer_singlepass<unary_operation::identity, binary_operation::sum, Float>;
-template <typename Float = float>
+    reducer_singlepass<unary_operation::identity, binary_operation::sum, Float, IsRowMajorLayout>;
+template <typename Float = float, bool IsRowMajorLayout = true>
 using geomean_reducer_singlepass =
-    reducer_singlepass<unary_operation::identity, binary_operation::mul, Float>;
+    reducer_singlepass<unary_operation::identity, binary_operation::mul, Float, IsRowMajorLayout>;
 
 #endif
 
