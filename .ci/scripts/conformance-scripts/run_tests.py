@@ -16,10 +16,11 @@ if __name__ == "__main__":
 
     print("Confromance testing start")
     for alg_name in algs:
-        subprocess.call("bash ./download_tests.sh --alg-name %s --sklearn-version %s" % (alg_name, sklearn_version), shell=False)
+        subprocess.call(["bash", "./download_tests.sh", "--alg-name %s" % (alg_name) , "--sklearn-version %s" % (sklearn_version)])
         print(alg_name)
 
-        subprocess.call("IDP_SKLEARN_VERBOSE=INFO python -m daal4py -m pytest -s --disable-warnings test_%(alg)s.py > _log_%(alg)s.txt" % {"alg": alg_name}, shell=False)
+        subprocess.call(["python", "-m", "daal4py", "-m", "pytest", "-s", "--disable-warnings test_%(alg)s.py" % {"alg": alg_name}],
+                         stdout="_log_%(alg)s.txt" % {"alg": alg_name} , env={"IDP_SKLEARN_VERBOSE":"INFO"})
 
     make_report(algs_filename=algs_filename,
                 report_filename = report_filename)
