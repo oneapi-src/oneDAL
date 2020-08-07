@@ -26,8 +26,10 @@ namespace oneapi::dal::detail {
 template <typename T>
 class access_wrapper_impl_host {
 public:
-    using policy_t     = default_host_policy;
-    using alloc_kind_t = host_only_alloc;
+    using policy_t = default_host_policy;
+
+    template <typename Y>
+    using alloc_t = host_allocator<Y>;
 
 public:
     access_wrapper_impl_host(T& obj) : obj_(obj) {}
@@ -36,7 +38,7 @@ public:
     void pull_rows(const policy_t&,
                    Block& block,
                    const row_block& index,
-                   const alloc_kind_t&) const {
+                   const alloc_t<typename Block::data_t>&) const {
         if constexpr (has_pull_rows_host<T, typename Block::data_t>::value) {
             obj_.pull_rows(block, index.rows);
         }
@@ -49,7 +51,7 @@ public:
     void pull_column(const policy_t&,
                      Block& block,
                      const column_values_block& index,
-                     const alloc_kind_t&) const {
+                     const alloc_t<typename Block::data_t>&) const {
         if constexpr (has_pull_column_host<T, typename Block::data_t>::value) {
             obj_.pull_column(block, index.column_index, index.rows);
         }

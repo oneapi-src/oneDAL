@@ -23,13 +23,8 @@
 
 namespace oneapi::dal::detail {
 
-struct host_only_alloc {
-    host_only_alloc() {}
-    host_only_alloc(const default_parameter_tag&) {}
-};
-
 template <typename T>
-inline T* malloc(const default_host_policy&, std::int64_t count, const host_only_alloc& kind) {
+inline T* malloc(const default_host_policy&, std::int64_t count) {
     return new T[count];
 }
 
@@ -57,5 +52,16 @@ inline void fill(const default_host_policy&, T* dest, std::int64_t count, const 
         dest[i] = value;
     }
 }
+
+template <typename T>
+class host_allocator {
+public:
+    T* allocate(std::int64_t n) const {
+        return malloc<T>(default_host_policy{}, n);
+    }
+    void deallocate(T* p, std::int64_t n) const {
+        return free(default_host_policy{}, p);
+    }
+};
 
 } // namespace oneapi::dal::detail

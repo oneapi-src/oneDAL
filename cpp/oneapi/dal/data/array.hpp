@@ -36,20 +36,27 @@ public:
 
 public:
     static array<T> empty(std::int64_t count) { // support allocators in private (empty_impl)
-        return empty_impl(detail::default_host_policy{}, count);
+        return empty_impl(detail::default_host_policy{}, count, detail::host_allocator<data_t>{});
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    static array<T> empty(const sycl::queue& queue,
-                          std::int64_t count,
-                          const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) { // create our allocators from queue and kind
-        return empty_impl(detail::data_parallel_policy{queue}, count, alloc);
+    static array<T> empty(
+        const sycl::queue& queue,
+        std::int64_t count,
+        const sycl::usm::alloc& alloc =
+            sycl::usm::alloc::shared) { // create our allocators from queue and kind
+        return empty_impl(detail::data_parallel_policy{ queue },
+                          count,
+                          detail::data_parallel_allocator<T>(queue, alloc));
     }
 #endif
 
     template <typename K>
     static array<T> full(std::int64_t count, K&& element) {
-        return full_impl(detail::default_host_policy{}, count, std::forward<K>(element));
+        return full_impl(detail::default_host_policy{},
+                         count,
+                         std::forward<K>(element),
+                         detail::host_allocator<data_t>{});
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -58,13 +65,19 @@ public:
                          std::int64_t count,
                          K&& element,
                          const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
-        return full_impl(detail::data_parallel_policy{queue}, count, std::forward<K>(element), alloc);
+        return full_impl(detail::data_parallel_policy{ queue },
+                         count,
+                         std::forward<K>(element),
+                         detail::data_parallel_allocator<T>(queue, alloc));
     }
 #endif
 
     static array<T> zeros(std::int64_t count) {
         // TODO: can be optimized in future
-        return full_impl(detail::default_host_policy{}, count, T{});
+        return full_impl(detail::default_host_policy{},
+                         count,
+                         T{},
+                         detail::host_allocator<data_t>{});
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -72,7 +85,10 @@ public:
                           std::int64_t count,
                           const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
         // TODO: can be optimized in future
-        return full_impl(detail::data_parallel_policy{queue}, count, T{}, alloc);
+        return full_impl(detail::data_parallel_policy{ queue },
+                         count,
+                         T{},
+                         detail::data_parallel_allocator<T>(queue, alloc));
     }
 #endif
     template <typename Y>
@@ -106,17 +122,17 @@ public:
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     template <typename Deleter>
     array(T* data,
-                   std::int64_t count,
-                   Deleter&& deleter,
-                   const sycl::vector_class<sycl::event>& dependencies) {
+          std::int64_t count,
+          Deleter&& deleter,
+          const sycl::vector_class<sycl::event>& dependencies) {
         reset(data, count, std::forward<Deleter>(deleter), dependencies);
     }
 
     template <typename Deleter>
     array(const T* data,
-                   std::int64_t count,
-                   Deleter&& deleter,
-                   const sycl::vector_class<sycl::event>& dependencies) {
+          std::int64_t count,
+          Deleter&& deleter,
+          const sycl::vector_class<sycl::event>& dependencies) {
         reset(data, count, std::forward<Deleter>(deleter), dependencies);
     }
 #endif
@@ -146,13 +162,15 @@ public:
     }
 
     array& need_mutable_data() {
-        return need_mutable_data_impl(detail::default_host_policy{});
+        return need_mutable_data_impl(detail::default_host_policy{},
+                                      detail::host_allocator<data_t>{});
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     array& need_mutable_data(sycl::queue& queue,
                              const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
-        return need_mutable_data_impl(detail::data_parallel_policy{queue}, alloc);
+        return need_mutable_data_impl(detail::data_parallel_policy{ queue },
+                                      detail::data_parallel_allocator<T>(queue, alloc));
     }
 #endif
 
@@ -172,14 +190,16 @@ public:
     }
 
     void reset(std::int64_t count) {
-        reset_impl(detail::default_host_policy{}, count);
+        reset_impl(detail::default_host_policy{}, count, detail::host_allocator<data_t>{});
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     void reset(const sycl::queue& queue,
                std::int64_t count,
                const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
-        reset_impl(detail::data_parallel_policy{queue}, count, alloc);
+        reset_impl(detail::data_parallel_policy{ queue },
+                   count,
+                   detail::data_parallel_allocator<T>(queue, alloc));
     }
 #endif
 
@@ -229,44 +249,48 @@ public:
     }
 
 private:
-    template <typename Policy, typename AllocKind = detail::default_parameter_tag>
-    static array<T> empty_impl(const Policy& policy,
-                               std::int64_t count,
-                               const AllocKind& alloc = {}) {
-        auto data = detail::malloc<T>(policy, count, alloc);
-        return array<T>{ data, count, make_default_delete<T>(policy) };
+    template <typename Policy, typename Allocator>
+    static array<T> empty_impl(const Policy& policy, std::int64_t count, const Allocator& alloc) {
+        auto data = alloc.allocate(count);
+        return array<T>{ data, count, [alloc, count](T* ptr) {
+                            alloc.deallocate(ptr, count);
+                        } };
     }
 
-    template <typename Policy, typename K, typename AllocKind = detail::default_parameter_tag>
+    template <typename Policy, typename K, typename Allocator>
     static array<T> full_impl(const Policy& policy,
                               std::int64_t count,
                               K&& element,
-                              const AllocKind& alloc = {}) {
+                              const Allocator& alloc) {
         auto array = empty_impl(policy, count, alloc);
         detail::fill(policy, array.get_mutable_data(), count, std::forward<K>(element));
         return array;
     }
 
 private:
-    template <typename Policy, typename AllocKind = detail::default_parameter_tag>
-    array& need_mutable_data_impl(const Policy& policy, const AllocKind& alloc = {}) {
+    template <typename Policy, typename Allocator>
+    array& need_mutable_data_impl(const Policy& policy, const Allocator& alloc) {
         if (has_mutable_data() || count_ == 0) {
             return *this;
         }
         else {
             auto immutable_data = get_data();
-            auto copy_data      = detail::malloc<T>(policy, count_, alloc);
+            auto copy_data      = alloc.allocate(count_);
             detail::memcpy(policy, copy_data, immutable_data, sizeof(T) * count_);
 
-            reset(copy_data, count_, make_default_delete<T>(policy));
+            reset(copy_data, count_, [alloc, count = this->count_](T* ptr) {
+                alloc.deallocate(ptr, count);
+            });
             return *this;
         }
     }
 
-    template <typename Policy, typename AllocKind = detail::default_parameter_tag>
-    void reset_impl(const Policy& policy, std::int64_t count, const AllocKind& alloc = {}) {
-        auto new_data = detail::malloc<T>(policy, count, alloc);
-        reset(new_data, count, make_default_delete<T>(policy));
+    template <typename Policy, typename Allocator>
+    void reset_impl(const Policy& policy, std::int64_t count, const Allocator& alloc) {
+        auto new_data = alloc.allocate(count);
+        reset(new_data, count, [alloc, count](T* ptr) {
+            alloc.deallocate(ptr, count);
+        });
     }
 
 private:

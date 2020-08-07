@@ -71,6 +71,32 @@ inline void fill(const data_parallel_policy& policy, T* dest, std::int64_t count
 
     event.wait();
 }
+
+template <typename T>
+class data_parallel_allocator {
+public:
+    data_parallel_allocator(const data_parallel_policy& policy,
+                            sycl::usm::alloc kind = sycl::usm::alloc::shared)
+            : policy_(policy),
+              kind_(kind) {}
+
+    T* allocate(std::int64_t n) const {
+        return malloc<T>(policy_, n, kind_);
+    }
+
+    void deallocate(T* p, std::int64_t n) const {
+        return free(policy_, p);
+    }
+
+    sycl::usm::alloc get_kind() const {
+        return kind_;
+    }
+
+private:
+    data_parallel_policy policy_;
+    sycl::usm::alloc kind_;
+};
+
 #endif
 
 } // namespace oneapi::dal::detail

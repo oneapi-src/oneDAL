@@ -100,13 +100,14 @@ public:
                   Deleter&& data_deleter,
                   homogen_data_layout layout = homogen_data_layout::row_major,
                   const sycl::vector_class<sycl::event>& dependencies = {}) {
-        init_impl(detail::data_parallel_policy{queue},
+        init_impl(detail::data_parallel_policy{ queue },
                   row_count,
                   column_count,
                   data_pointer,
                   std::forward<Deleter>(data_deleter),
                   layout,
                   dependencies);
+        detail::wait_and_throw(dependencies);
     }
 #endif
 
@@ -132,17 +133,13 @@ private:
         table::init_impl(wrapper);
     }
 
-    template <typename Policy,
-              typename Data,
-              typename Deleter,
-              typename EventList = detail::default_parameter_tag>
+    template <typename Policy, typename Data, typename Deleter>
     void init_impl(const Policy& policy,
                    std::int64_t row_count,
                    std::int64_t column_count,
                    const Data* data_pointer,
                    Deleter&& data_deleter,
-                   homogen_data_layout layout,
-                   const EventList& dependencies = {}) {
+                   homogen_data_layout layout) {
         array<Data> data_array{ data_pointer,
                                 row_count * column_count,
                                 std::forward<Deleter>(data_deleter) };
@@ -153,7 +150,6 @@ private:
         auto byte_array = array<byte_t>{ data_array, byte_data, byte_count };
 
         init_impl(policy, row_count, column_count, byte_array, make_table_feature<Data>(), layout);
-        detail::wait_and_throw(dependencies);
     }
 
     template <typename Policy>

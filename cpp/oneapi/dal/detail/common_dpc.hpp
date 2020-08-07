@@ -24,10 +24,6 @@
 
 namespace oneapi::dal::detail {
 
-inline void wait_and_throw(const default_parameter_tag& dependencies) {
-    return;
-}
-
 #ifdef ONEAPI_DAL_DATA_PARALLEL
 inline void wait_and_throw(const sycl::vector_class<sycl::event>& dependencies) {
     sycl::event::wait_and_throw(dependencies);

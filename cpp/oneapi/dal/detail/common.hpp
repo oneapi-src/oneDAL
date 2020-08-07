@@ -21,8 +21,6 @@
 
 namespace oneapi::dal::detail {
 
-struct default_parameter_tag {};
-
 template <typename T>
 using shared = std::shared_ptr<T>;
 

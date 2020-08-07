@@ -33,29 +33,33 @@ struct column_values_block {
     column_values_block(std::int64_t idx, const range& rows) : column_index(idx), rows(rows) {}
 };
 
-template <typename Policy, typename AllocKind>
+template <typename Policy, template <typename> typename Allocator>
 struct access_iface {
     using array_f32 = array<float>;
     using array_f64 = array<double>;
     using array_i32 = array<std::int32_t>;
 
+    using alloc_f32 = Allocator<float>;
+    using alloc_f64 = Allocator<double>;
+    using alloc_i32 = Allocator<std::int32_t>;
+
     virtual ~access_iface() {}
 
-    virtual void pull(const Policy&, array_f32&, const row_block&, const AllocKind&) const = 0;
-    virtual void pull(const Policy&, array_f64&, const row_block&, const AllocKind&) const = 0;
-    virtual void pull(const Policy&, array_i32&, const row_block&, const AllocKind&) const = 0;
+    virtual void pull(const Policy&, array_f32&, const row_block&, const alloc_f32&) const = 0;
+    virtual void pull(const Policy&, array_f64&, const row_block&, const alloc_f64&) const = 0;
+    virtual void pull(const Policy&, array_i32&, const row_block&, const alloc_i32&) const = 0;
     virtual void pull(const Policy&,
                       array_f32&,
                       const column_values_block&,
-                      const AllocKind&) const                                              = 0;
+                      const alloc_f32&) const                                              = 0;
     virtual void pull(const Policy&,
                       array_f64&,
                       const column_values_block&,
-                      const AllocKind&) const                                              = 0;
+                      const alloc_f64&) const                                              = 0;
     virtual void pull(const Policy&,
                       array_i32&,
                       const column_values_block&,
-                      const AllocKind&) const                                              = 0;
+                      const alloc_i32&) const                                              = 0;
 
     virtual void push(const Policy&, const array_f32&, const row_block&)           = 0;
     virtual void push(const Policy&, const array_f64&, const row_block&)           = 0;
@@ -65,10 +69,10 @@ struct access_iface {
     virtual void push(const Policy&, const array_i32&, const column_values_block&) = 0;
 };
 
-using access_iface_host = access_iface<default_host_policy, host_only_alloc>;
+using access_iface_host = access_iface<default_host_policy, host_allocator>;
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-using access_iface_dpc = access_iface<data_parallel_policy, sycl::usm::alloc>;
+using access_iface_dpc = access_iface<data_parallel_policy, data_parallel_allocator>;
 #endif
 
 class access_provider_iface {

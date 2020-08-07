@@ -28,8 +28,10 @@ namespace oneapi::dal::detail {
 template <typename T>
 class access_wrapper_impl_dpc {
 public:
-    using policy_t     = detail::data_parallel_policy;
-    using alloc_kind_t = sycl::usm::alloc;
+    using policy_t = data_parallel_policy;
+
+    template <typename Y>
+    using alloc_t = data_parallel_allocator<Y>;
 
 public:
     access_wrapper_impl_dpc(T& obj) : obj_(obj) {}
@@ -38,9 +40,9 @@ public:
     void pull_rows(const policy_t& policy,
                    Block& block,
                    const row_block& index,
-                   const alloc_kind_t& kind) const {
+                   const alloc_t<typename Block::data_t>& alloc) const {
         if constexpr (has_pull_rows_dpc<T, typename Block::data_t>::value) {
-            obj_.pull_rows(policy.get_queue(), block, index.rows, kind);
+            obj_.pull_rows(policy.get_queue(), block, index.rows, alloc.get_kind());
         }
         else {
             throw std::runtime_error("pulling rows is not supported for DPC++");
@@ -51,9 +53,13 @@ public:
     void pull_column(const policy_t& policy,
                      Block& block,
                      const column_values_block& index,
-                     const alloc_kind_t& kind) const {
+                     const alloc_t<typename Block::data_t>& alloc) const {
         if constexpr (has_pull_column_dpc<T, typename Block::data_t>::value) {
-            obj_.pull_column(policy.get_queue(), block, index.column_index, index.rows, kind);
+            obj_.pull_column(policy.get_queue(),
+                             block,
+                             index.column_index,
+                             index.rows,
+                             alloc.get_kind());
         }
         else {
             throw std::runtime_error("pulling column is not supported for DPC++");
