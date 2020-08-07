@@ -75,7 +75,6 @@ jobs:
       conda activate CB
       cd daal4py
       conda build --override-channels -c conda-forge -c intel --no-test conda-recipe
-      conda remove tbb --force -y
     displayName: conda build
   - script: |
       $(Pipeline.Workspace)/s/.ci/scripts/conformance_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/inteloneapi

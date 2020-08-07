@@ -35,6 +35,7 @@ source ${BUILD_DIR}/daal/latest/env/vars.sh intel64
 cd ${DAAL4PY_DIR}
 
 # testing
+conda remove tbb --force -y
 python -c "import daal4py"
 mpirun -n 4 python -m unittest discover -v -s tests -p spmd*.py
 mpiexec -localonly -n 4 python -m unittest discover -v -s tests -p spmd*.py
