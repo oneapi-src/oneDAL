@@ -84,6 +84,7 @@ protected:
             if (deviceInfo.isCpu)
             {
                 services::Status status;
+                // TODO: repair table allocation
                 dest = data_management::HomogenNumericTable<algorithmFPType>::create(value->getNumberOfColumns(), value->getNumberOfRows(),
                                                                                      data_management::NumericTable::doAllocate, &status);
                 DAAL_CHECK_STATUS_VAR(status);

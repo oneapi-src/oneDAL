@@ -47,6 +47,8 @@ namespace bf_knn_classification
 {
 namespace internal
 {
+const size_t classBufSize = 10;
+
 template <typename FPType, CpuType cpu>
 class BruteForceNearestNeighbors
 {
@@ -98,9 +100,9 @@ public:
         return services::Status();
     }
 
-    services::Status kClassification(const size_t k, const size_t nClasses, VoteWeights voteWeights, const NumericTable * trainTable,
-                                     const NumericTable * testTable, const NumericTable * trainLabelTable, NumericTable * testLabelTable,
-                                     NumericTable * indicesTable, NumericTable * distancesTable)
+    services::Status kClassification(const size_t k, const size_t nClasses, VoteWeights voteWeights, const DAAL_UINT64 resultsToCompute,
+                                     const NumericTable * trainTable, const NumericTable * testTable, const NumericTable * trainLabelTable,
+                                     NumericTable * testLabelTable, NumericTable * indicesTable, NumericTable * distancesTable)
     {
         daal::SafeStatus s;
 
@@ -116,39 +118,42 @@ public:
 
         kNearest(k, neighborsIndices, neighborsDistances, trainTable, testTable);
 
-        daal::internal::ReadRows<int, cpu> trainLabelRows(const_cast<NumericTable *>(trainLabelTable), 0, nTrain);
-        daal::internal::WriteRows<int, cpu> testLabelRows(testLabelTable, 0, nTest);
+        if (resultsToCompute & computeClassLabels)
+        {
+            daal::internal::ReadRows<int, cpu> trainLabelRows(const_cast<NumericTable *>(trainLabelTable), 0, nTrain);
+            daal::internal::WriteRows<int, cpu> testLabelRows(testLabelTable, 0, nTest);
 
-        const int * trainLabel = trainLabelRows.get();
-        int * testLabel        = testLabelRows.get();
-        DAAL_CHECK_MALLOC(trainLabel);
-        DAAL_CHECK_MALLOC(testLabel);
+            const int * trainLabel = trainLabelRows.get();
+            int * testLabel        = testLabelRows.get();
+            DAAL_CHECK_MALLOC(trainLabel);
+            DAAL_CHECK_MALLOC(testLabel);
 
-        const size_t blockSize = 128;
-        const size_t nBlocks   = nTest / blockSize + !!(nTest % blockSize);
+            const size_t blockSize = 128;
+            const size_t nBlocks   = nTest / blockSize + !!(nTest % blockSize);
+            daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
+                const size_t start = iBlock * blockSize;
+                const size_t end   = iBlock + 1 == nBlocks ? nTest : start + blockSize;
 
-        daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
-            const size_t start = iBlock * blockSize;
-            const size_t end   = iBlock + 1 == nBlocks ? nTest : start + blockSize;
-
-            if (voteWeights == VoteWeights::voteUniform)
-            {
-                s |= uniformWeightedVoting(nClasses, k, end - start, neighborsIndices + start * k, trainLabel, testLabel + start * k);
-            }
-            else
-            {
-                s |= distanceWeightedVoting(nClasses, k, end - start, neighborsDistances + start * k, neighborsIndices + start * k, trainLabel,
-                                            testLabel + start);
-            }
-        });
+                if (voteWeights == VoteWeights::voteUniform)
+                {
+                    s |= uniformWeightedVoting(nClasses, k, end - start, neighborsIndices + start * k, trainLabel, testLabel + start);
+                }
+                else
+                {
+                    s |= distanceWeightedVoting(nClasses, k, end - start, neighborsDistances + start * k, neighborsIndices + start * k, trainLabel,
+                                                testLabel + start);
+                }
+            });
+        }
 
         return s.detach();
     }
 
 protected:
-    services::Status uniformWeightedVoting(size_t nClasses, size_t k, size_t n, int * indices, const int * trainLabel, int * testLabel)
+    services::Status uniformWeightedVoting(const size_t nClasses, const size_t k, const size_t n, int * indices, const int * trainLabel,
+                                           int * testLabel)
     {
-        daal::services::internal::TArray<int, cpu> classWeightsArr(nClasses);
+        daal::services::internal::TNArray<int, classBufSize, cpu> classWeightsArr(nClasses);
         int * classWeights = classWeightsArr.get();
         DAAL_CHECK_MALLOC(classWeights);
 
@@ -177,10 +182,10 @@ protected:
         return services::Status();
     }
 
-    services::Status distanceWeightedVoting(size_t nClasses, size_t k, size_t n, FPType * distances, int * indices, const int * trainLabel,
-                                            int * testLabel)
+    services::Status distanceWeightedVoting(const size_t nClasses, const size_t k, const size_t n, FPType * distances, int * indices,
+                                            const int * trainLabel, int * testLabel)
     {
-        daal::services::internal::TArray<FPType, cpu> classWeightsArr(nClasses);
+        daal::services::internal::TNArray<FPType, classBufSize, cpu> classWeightsArr(nClasses);
         FPType * classWeights = classWeightsArr.get();
         DAAL_CHECK_MALLOC(classWeights);
 

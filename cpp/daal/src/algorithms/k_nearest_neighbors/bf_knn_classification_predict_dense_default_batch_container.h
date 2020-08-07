@@ -18,6 +18,7 @@
 #include "algorithms/k_nearest_neighbors/bf_knn_classification_predict.h"
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_predict_kernel_ucapi.h"
 #include "src/algorithms/k_nearest_neighbors/bf_knn_classification_predict_kernel.h"
+#include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
 
 namespace daal
 {
@@ -39,7 +40,7 @@ BatchContainer<algorithmFpType, method, cpu>::BatchContainer(daal::services::Env
     }
     else
     {
-        __DAAL_INITIALIZE_KERNELS_SYCL(internal::KNNClassificationPredictKernelUCAPI, DAAL_FPTYPE);
+        __DAAL_INITIALIZE_KERNELS_SYCL(internal::KNNClassificationPredictKernelUCAPI, algorithmFpType);
     }
 }
 

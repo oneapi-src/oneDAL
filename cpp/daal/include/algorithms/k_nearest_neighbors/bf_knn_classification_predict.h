@@ -124,10 +124,22 @@ public:
     virtual const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
-     * Returns the structure that contains the results of the DBSCAN algorithm
-     * \return Structure that contains the results of the DBSCAN algorithm
+     * Registers user-allocated memory to store the results of the BF kNN prediction algorithm
+     * \param[in] result  Structure to store the results of the BF kNN prediction algorithm
      */
-    ResultPtr getResult() { return _result; }
+    services::Status setResult(const ResultPtr & result)
+    {
+        DAAL_CHECK(result, services::ErrorNullResult)
+        _result = result;
+        _res    = _result.get();
+        return services::Status();
+    }
+
+    /**
+     * Returns the structure that contains the results of the BF kNN prediction algorithm
+     * \return Structure that contains the results of the BF kNN prediction algorithm
+     */
+    ResultPtr getResult() { return Result::cast(_result); }
 
     /**
      * Get input objects for the BF kNN prediction algorithm
@@ -154,10 +166,9 @@ public:
 protected:
     virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
-    services::Status allocateResult() DAAL_C11_OVERRIDE
+    virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        _result.reset(new ResultType());
-        services::Status s = _result->allocate<algorithmFPType>(_in, _par, (int)method);
+        services::Status s = static_cast<ResultType *>(_result.get())->allocate<algorithmFPType>(&input, _par, (int)method);
         _res               = _result.get();
         return s;
     }
@@ -170,8 +181,6 @@ protected:
     }
 
 private:
-    ResultPtr _result;
-
     Batch & operator=(const Batch &);
 };
 
