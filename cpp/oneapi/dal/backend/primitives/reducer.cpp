@@ -286,7 +286,7 @@ cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operat
         const cl::sycl::range<2> local_range{ static_cast<size_t>(work_items_per_group), 1 };
         const cl::sycl::range<2> global_range{ static_cast<size_t>(work_items_per_group),
                                                static_cast<size_t>(n_vectors) };
-        const cl::sycl::nd_range<2> call_range(local_range, global_range);
+        const cl::sycl::nd_range<2> call_range(global_range, local_range);
         handler.parallel_for<kernel_t>(call_range, functor_instance);
     });
     return event;
