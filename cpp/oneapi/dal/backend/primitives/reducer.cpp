@@ -252,7 +252,7 @@ template struct reducer_singlepass_kernel<unary_operation::identity,
 template <unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout>
 reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::reducer_singlepass(cl::sycl::queue& q)
         : _q(q),
-          max_work_group_size(std::min(
+          max_work_group_size(std::min<std::int64_t>(
               q.get_device().template get_info<cl::sycl::info::device::max_work_group_size>(),
               256)) {}
 
