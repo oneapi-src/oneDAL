@@ -51,6 +51,7 @@ template <unary_operation UnOp,
           bool IsRowMajorLayout = true>
 struct reducer_singlepass {
 public:
+    typedef impl::reducer_singlepass_kernel<UnOp, BinOp, Float, IsRowMajorLayout> kernel_t;
     reducer_singlepass(cl::sycl::queue& q);
     cl::sycl::event operator()(array<Float> input,
                                array<Float> output,
@@ -64,6 +65,7 @@ public:
 
 private:
     cl::sycl::queue& _q;
+    const std::int64_t max_work_group_size;
 };
 
 template <typename Float = float>

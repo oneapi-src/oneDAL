@@ -175,7 +175,9 @@ protected:
 
 template <unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout>
 reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::reducer_singlepass(cl::sycl::queue& q)
-        : _q(q) {}
+        : _q(q),
+          max_work_group_size(
+              q.get_device().template get_info<cl::sycl::info::device::max_work_group_size>()) {}
 
 template <unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout>
 cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operator()(
@@ -184,12 +186,12 @@ cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operat
     std::int64_t vector_size,
     std::int64_t n_vectors,
     std::int64_t work_items_per_group) {
+    if (work_items_per_group > this->max_work_group_size)
+        throw std::exception();
     if (input.get_count() < (vector_size * n_vectors))
         throw std::exception();
-    typedef impl::reducer_singlepass_kernel<UnOp, BinOp, Float, IsRowMajorLayout> kernel_t;
-    const std::int64_t local_buff_size =
-        this->_q.get_device().template get_info<cl::sycl::info::device::max_work_group_size>();
-    auto event = this->_q.submit([&](cl::sycl::handler& handler) {
+    const std::int64_t local_buff_size = std::min(this->max_work_group_size, work_items_per_group);
+    auto event                         = this->_q.submit([&](cl::sycl::handler& handler) {
         typedef cl::sycl::
             accessor<Float, 1, cl::sycl::access::mode::read_write, cl::sycl::access::target::local>
                 local_acc_t;
@@ -215,9 +217,7 @@ cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operat
     array<Float> output,
     std::int64_t vector_size,
     std::int64_t n_vectors) {
-    const std::int64_t work_items_per_group =
-        this->_q.get_device().template get_info<cl::sycl::info::device::max_work_group_size>();
-    return this->operator()(input, output, vector_size, n_vectors, work_items_per_group);
+    return this->operator()(input, output, vector_size, n_vectors, this->max_work_group_size);
 }
 
 //Direct instantiation
