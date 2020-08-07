@@ -20,7 +20,7 @@
 
 #define ONEAPI_DAL_DATA_PARALLEL
 
-#include "oneapi/backend/primitives/reducer.hpp"
+#include "oneapi/dal/backend/primitives/reducer.hpp"
 #include "oneapi/dal/data/array.hpp"
 
 TEST(reducer_l2, can_handle_array_of_zeros) {
