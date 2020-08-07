@@ -27,14 +27,14 @@
 
 namespace oneapi::dal::backend::primitives {
 
-enum class unary_operation : int { identity, square, abs };
+enum class unary_operation : int { identity = 0, square = 1, abs = 2 };
 
 template <typename Float, unary_operation Op = unary_operation::identity>
 struct unary_functor {
     Float operator()(Float arg) const;
 };
 
-enum class binary_operation : int { min, max, sum, mul };
+enum class binary_operation : int { min = 0, max = 1, sum = 2, mul = 3 };
 
 template <typename Float, binary_operation Op>
 struct binary_functor {

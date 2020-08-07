@@ -166,8 +166,8 @@ public:
 
 protected:
     const std::uint32_t vector_size, n_vectors;
-    const Float* vectors;
-    Float* reduces;
+    const Float* const vectors;
+    Float* const reduces;
     local_acc_t partial_reduces;
 };
 
