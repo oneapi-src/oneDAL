@@ -82,7 +82,7 @@ class PCA(val k: Int) {
         val evFull = result._2.getDoubleArray()
         val evArray = new Array[Double](nCols)
 
-        var sum: Double = 0 
+        var sum: Double = 0
         for (i <- 0 to (nCols - 1)) {
             evArray(i) = evFull(i)
             sum = sum + evArray(i)

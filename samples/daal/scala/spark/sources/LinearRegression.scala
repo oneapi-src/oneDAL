@@ -68,7 +68,7 @@ object LinearRegression {
             if (methodbc.value == TrainingMethod.normEqDense.getValue()) {
                 methodLocal = TrainingMethod.normEqDense
             } else {
-                methodLocal = TrainingMethod.qrDense                
+                methodLocal = TrainingMethod.qrDense
             }
             /* Create algorithm to train linear regression model using normal equations method on local nodes */
             val linRegLocal = new TrainingDistributedStep1Local(context, classOf[java.lang.Double], methodLocal)
@@ -102,7 +102,7 @@ object LinearRegression {
                 if (methodbc.value == TrainingMethod.normEqDense.getValue()) {
                     methodLocal = TrainingMethod.normEqDense
                 } else {
-                    methodLocal = TrainingMethod.qrDense                
+                    methodLocal = TrainingMethod.qrDense
                 }
                 /* Create algorithm to merge partial results on local node */
                 val linRegMaster = new TrainingDistributedStep2Master(contextLocal, classOf[java.lang.Double], methodLocal)
