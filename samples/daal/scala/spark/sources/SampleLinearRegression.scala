@@ -31,7 +31,7 @@ import com.intel.daal.algorithms.linear_regression.training.TrainingMethod
 
 object SampleLinearRegression extends App {
 
-    def calculateMSE(model: LinearRegressionModel, data: RDD[LabeledPoint]) : Double = {  
+    def calculateMSE(model: LinearRegressionModel, data: RDD[LabeledPoint]) : Double = {
         val valuesAndPreds = data.map( point => {
              val prediction = model.predict(point.features)
              (point.label, prediction)
