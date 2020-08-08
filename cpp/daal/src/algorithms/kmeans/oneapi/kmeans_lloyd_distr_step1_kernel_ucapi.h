@@ -1,6 +1,6 @@
-/* file: kmeans_dense_lloyd_batch_kernel_ucapi.h */
+/* file: kmeans_lloyd_distr_step1_kernel_ucapi.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2019 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,18 +17,13 @@
 
 /*
 //++
-//  Implementation of K-means Batch Kernel for GPU.
+//  Implementation of K-means Distr Step1 Kernel for GPU.
 //--
 */
 
-#ifndef __KMEANS_DENSE_LLOYD_BATCH_KERNEL_UCAPI_H__
-#define __KMEANS_DENSE_LLOYD_BATCH_KERNEL_UCAPI_H__
+#ifndef __KMEANS_LLOYD_DISTR_STEP1_KERNEL_UCAPI_H__
+#define __KMEANS_LLOYD_DISTR_STEP1_KERNEL_UCAPI_H__
 
-#include "sycl/internal/types.h"
-#include "sycl/internal/execution_context.h"
-#include "algorithms/kmeans/kmeans_types.h"
-#include "src/algorithms/kernel.h"
-#include "data_management/data/numeric_table.h"
 #include "src/algorithms/kmeans/oneapi/kmeans_dense_lloyd_kernel_base_ucapi.h"
 
 using namespace daal::data_management;
@@ -42,10 +37,13 @@ namespace kmeans
 namespace internal
 {
 template <typename algorithmFPType>
-class KMeansDenseLloydBatchKernelUCAPI : public KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>
+class KMeansDistributedStep1KernelUCAPI : public KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>
 {
 public:
-    services::Status compute(const NumericTable * const * a, const NumericTable * const * r, const Parameter * par);
+    services::Status compute(size_t na, const NumericTable * const * a, size_t nr,
+                             const NumericTable * const * r, const Parameter * par);
+    services::Status finalizeCompute(size_t na, const NumericTable * const * a, size_t nr, const NumericTable * const * r, 
+                                     const Parameter * par);
 };
 
 } // namespace internal
