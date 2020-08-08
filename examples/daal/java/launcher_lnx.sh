@@ -20,8 +20,7 @@
 ##******************************************************************************
 
 help_message() {
-    echo "Usage: launcher.sh {arch|help} [rmode] [path_to_javac]"
-    echo "arch          - can be ia32 or intel64, optional for building examples."
+    echo "Usage: launcher.sh [help] [rmode] [path_to_javac]"
     echo "rmode         - optional parameter, can be build (for building examples only) or"
     echo "                run (for running examples only)."
     echo "                buildandrun (to perform both)."
@@ -32,14 +31,12 @@ help_message() {
     echo "Example: launcher.sh ia32 run or launcher.sh intel64 build /export/users/test/jdk1.7/lnx32/jdk1.7.0_67"
 }
 
-full_ia=
 rmode=
 path_to_javac=
-first_arg=$1
 
 while [ "$1" != "" ]; do
     case $1 in
-        ia32|intel64)          full_ia=$1
+        ia32|intel64)          echo "Please switch to new params, 32-bit support deprecated "
                                ;;
         build|run|buildandrun) rmode=$1
                                ;;
@@ -51,12 +48,6 @@ while [ "$1" != "" ]; do
     esac
     shift
 done
-
-if [ "${full_ia}" != "ia32" ] && [ "${full_ia}" != "intel64" ] && [ "${rmode}" != "build" ]; then
-    echo Bad argument arch = "${first_arg}" , must be ia32 or intel64
-    help_message
-    exit 1
-fi
 
 CLASSPATH=$(pwd)${CLASSPATH+:${CLASSPATH}}
 export CLASSPATH
@@ -75,14 +66,12 @@ if [ -z "${Java_example_list}" ]; then
 fi
 
 # Setting path for JavaAPI library
-Djava_library_path=${DAALROOT}/lib/${full_ia}
+Djava_library_path=${DAALROOT}/lib/intel64
 
 # Setting a path for result folder to put results of examples in
-if [ "${full_ia}" != "" ]; then
-    result_folder=./_results/${full_ia}
-    if [ -d "${result_folder}" ]; then rm -rf "${result_folder}"; fi
-    mkdir -p "${result_folder}"
-fi
+result_folder=./_results
+if [ -d "${result_folder}" ]; then rm -rf "${result_folder}"; fi
+mkdir -p "${result_folder}"
 
 for example in "${Java_example_list[@]}"; do
 # Building examples
@@ -100,14 +89,13 @@ for example in "${Java_example_list[@]}"; do
             example_name=${arr[2]}
         fi
         if [ -f "${class_path}/${example}.class" ]; then
-            if [ "${full_ia}" == "intel64" ]; then memory=4g; else memory=1g; fi
 
             [ ! -d "${result_folder}/${example_dir}" ] && mkdir -p "${result_folder}/${example_dir}"
 
             example_path=com.intel.daal.examples.${example_dir}.${example_name}
             res_path=${result_folder}/${example_dir}/${example_name}.res
 
-            java_call="java -Xmx${memory} -Djava.library.path=${Djava_library_path} ${example_path}"
+            java_call="java -Djava.library.path=${Djava_library_path} ${example_path}"
             ${java_call} >> "${res_path}" 2>&1
             errcode=$?
             if [ "${errcode}" == "0" ]; then

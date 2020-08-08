@@ -19,32 +19,21 @@ rem ============================================================================
 ::     Intel(R) oneAPI Data Analytics Library samples creation and run
 ::******************************************************************************
 
-set ARCH=%1
-set RMODE=%2
+setlocal enabledelayedexpansion enableextensions
 
 set errorcode=0
 
-if "%1"=="help" (
-    goto :Usage
-)
-
-if not "%ARCH%"=="ia32" if not "%ARCH%"=="intel64" (
-    echo Bad first argument, must be ia32 or intel64
-    set errorcode=1
-    goto :Usage
-)
-
-if not "%RMODE%"=="build" if not "%RMODE%"=="run" if not "%RMODE%"=="" (
-    echo Bad second argument, must be build or run
-    set errorcode=1
-    goto :Usage
-)
+:ParseArgs
+if /i [%1]==[ia32]        (echo 32-bit version is not supporterd)      & shift & goto :Usage
+if /i [%1]==[intel64]     (set full_ia=intel64)   & shift & goto :ParseArgs
+if /i [%1]==[build]       (set rmode=build)       & shift
+if /i [%1]==[run]         (set rmode=run)         & shift
+if /i [%1]==[help]                                          goto :Usage
 
 goto :CorrectArgs
 
 :Usage
-echo Usage: launcher.bat ^{arch^|help^} [rmode]
-echo arch  - can be ia32 or intel64
+echo Usage: launcher.bat [help] [rmode]
 echo rmode - optional parameter, can be build (for building samples only) or
 echo         run (for running samples only).
 echo         If not specified build and run are performed.
@@ -53,10 +42,9 @@ exit /b errorcode
 
 :CorrectArgs
 
-set RESULT_DIR=_results\%ARCH%
+set RESULT_DIR=_results
 
-if "%ARCH%"=="intel64" set ODBC_PATH="C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x64"
-if "%ARCH%"=="ia32"    set ODBC_PATH="C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86"
+set ODBC_PATH="C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x64"
 
 if not exist %RESULT_DIR% md %RESULT_DIR%
 
