@@ -340,7 +340,6 @@ size_t CompressionStream::copyCompressedArray(byte * ptr, size_t size)
         }
         readSize += rs;
         leftSize -= rs;
-
     } while (readSize < size && _readPos < (*(CBC *)_blocks).size());
 
     if (result)
@@ -536,7 +535,6 @@ size_t DecompressionStream::copyDecompressedArray(byte * ptr, size_t size)
         }
         readSize += rs;
         leftSize -= rs;
-
     } while (readSize < size && _readPos < (*(CBC *)_blocks).size());
 
     if (result)

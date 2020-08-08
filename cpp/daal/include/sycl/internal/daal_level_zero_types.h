@@ -93,7 +93,6 @@ extern "C"
         ZE_RESULT_ERROR_OVERLAPPING_REGIONS,                   ///< [Validation] copy operations do not support overlapping regions of
                                                                ///< memory
         ZE_RESULT_ERROR_UNKNOWN = 0x7fffffff,                  ///< [Core] unknown or internal error
-
     } ze_result_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -101,7 +100,6 @@ extern "C"
     typedef enum _ze_module_desc_version_t
     {
         ZE_MODULE_DESC_VERSION_CURRENT = ZE_MAKE_VERSION(0, 91), ///< version 0.91
-
     } ze_module_desc_version_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -110,7 +108,6 @@ extern "C"
     {
         ZE_MODULE_FORMAT_IL_SPIRV = 0, ///< Format is SPIRV IL format
         ZE_MODULE_FORMAT_NATIVE,       ///< Format is device native format
-
     } ze_module_format_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -120,7 +117,6 @@ extern "C"
         uint32_t numConstants;            ///< [in] Number of specialization constants.
         const uint32_t * pConstantIds;    ///< [in] Pointer to array of IDs that is sized to numConstants.
         const uint64_t * pConstantValues; ///< [in] Pointer to array of values that is sized to numConstants.
-
     } ze_module_constants_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -136,7 +132,6 @@ extern "C"
         const ze_module_constants_t * pConstants; ///< [in] pointer to specialization constants. Valid only for SPIR-V input.
                                                   ///< This must be set to nullptr if no specialization constants are
                                                   ///< provided.
-
     } ze_module_desc_t;
 
 #if defined(__cplusplus)
