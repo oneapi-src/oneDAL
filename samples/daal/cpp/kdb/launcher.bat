@@ -23,6 +23,9 @@ setlocal enabledelayedexpansion enableextensions
 
 set errorcode=0
 
+:ParseArgs
+if /i [%1]==[ia32]        (echo 32-bit version is not supporterd)      & shift & goto :Usage
+if /i [%1]==[intel64]     (set full_ia=intel64)   & shift & goto :ParseArgs
 if /i [%1]==[build]       (set rmode=build)       & shift
 if /i [%1]==[run]         (set rmode=run)         & shift
 if /i [%1]==[help]                                          goto :Usage
