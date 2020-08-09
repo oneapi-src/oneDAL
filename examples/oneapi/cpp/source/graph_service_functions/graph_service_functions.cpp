@@ -28,8 +28,8 @@ int main(int argc, char **argv) {
     if (argc < 2) return 0;
     std::string filename = argv[1];
     csv_data_source ds(filename);
-    edge_list_to_csr_descriptor d;
-    auto my_graph = load_graph<graph>(d, ds);
+    load_graph::descriptor<> d;
+    auto my_graph = load_graph::load(d, ds);
 	std::cout << "Number of vertices: " << get_vertex_count(my_graph) << std::endl;
 	std::cout << "Number of edges: " <<get_edge_count(my_graph) << std::endl;
 	auto node_id = 0;

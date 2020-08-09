@@ -29,8 +29,8 @@ int main(int argc, char **argv) {
     if (argc < 2) return 0;
     std::string filename = argv[1];
     csv_data_source ds(filename);
-    edge_list_to_csr_descriptor d;
-    auto my_graph = load_graph<graph>(d, ds);
+    load_graph::descriptor<> d;
+    auto my_graph = load_graph::load(d, ds);
 
     const auto jaccard_desc_default = jaccard::descriptor<>().set_block({0, 2},{0,3});
 

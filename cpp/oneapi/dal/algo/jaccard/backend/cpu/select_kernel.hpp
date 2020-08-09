@@ -43,7 +43,7 @@ struct backend_block : public backend_base<Graph> {
 
 template <typename Float, class Method, typename Graph>
 dal::detail::pimpl<backend_base<Graph>> get_backend(const descriptor_base &desc,
-                                                 const similarity_input<Graph> &input);
+                                                    const similarity_input<Graph> &input);
 } // namespace detail
 } // namespace jaccard
 } // namespace oneapi::dal::preview

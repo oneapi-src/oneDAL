@@ -32,10 +32,10 @@ undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, 
                                                                   Allocator>) {}
 
 template class ONEAPI_DAL_EXPORT undirected_adjacency_array_graph<empty_value,
-                                                empty_value,
-                                                empty_value,
-                                                std::int32_t,
-                                                std::allocator<empty_value>>;
+                                                                  empty_value,
+                                                                  empty_value,
+                                                                  std::int32_t,
+                                                                  std::allocator<empty_value>>;
 
 using graph32 = undirected_adjacency_array_graph<empty_value,
                                                  empty_value,

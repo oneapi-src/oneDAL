@@ -554,7 +554,7 @@ similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
     std::cout << "Jaccard block kernel started" << std::endl;
 
     const auto my_graph = input.get_graph();
-    
+
     std::cout << get_vertex_count_impl(my_graph) << std::endl;
     std::cout << get_edge_count_impl(my_graph) << std::endl;
     auto node_id = 0;
@@ -606,7 +606,7 @@ similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
     }
     jaccard.reset(nnz);
     vertex_pairs.reset(nnz);
-    
+
     similarity_result res(homogen_table_builder{}.build(), homogen_table_builder{}.build());
 
     std::cout << "Jaccard block kernel ended" << std::endl;

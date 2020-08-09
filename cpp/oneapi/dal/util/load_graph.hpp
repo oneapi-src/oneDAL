@@ -19,22 +19,17 @@
 #include "oneapi/dal/data/undirected_adjacency_array_graph.hpp"
 #include "oneapi/dal/util/csv_data_source.hpp"
 
-namespace oneapi::dal::preview {
+namespace oneapi::dal::preview::load_graph {
 
-struct edge_list_to_csr_descriptor {};
+template <typename Input = edge_list<int32_t>, typename Output = undirected_adjacency_array_graph<>>
+struct descriptor {
+    using output_type = Output;
+    using input_type  = Input;
+};
 
-namespace detail {
-template <typename IndexT>
-edge_list<IndexT> load(const std::string &name);
-}
+template <typename Descriptor>
+using output_type = typename Descriptor::output_type;
 
-template <typename IndexType = std::int64_t>
-using edge_list = detail::graph_container<std::pair<IndexType, IndexType>>;
-
-template <typename G, typename Descriptor, typename DataSource>
-G load_graph(const Descriptor &d, const DataSource &ds) {
-    G graph_data;
-    convert_to_csr_impl(detail::load<typename G::vertex_type>(ds.get_filename()), graph_data);
-    return graph_data;
-}
-} // namespace oneapi::dal::preview
+template <typename Descriptor = load_graph::descriptor<>, typename DataSource = csv_data_source>
+output_type<Descriptor> load(const Descriptor &d, const DataSource &ds);
+} // namespace oneapi::dal::preview::load_graph
