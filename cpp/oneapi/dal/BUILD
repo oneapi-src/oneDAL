@@ -2,7 +2,8 @@ package(default_visibility = ["//visibility:public"])
 load("@onedal//dev/bazel:dal.bzl",
     "dal_module",
     "dal_static_lib",
-    "dal_generate_cpu_dispatcher"
+    "dal_generate_cpu_dispatcher",
+    "dal_algos",
 )
 
 dal_generate_cpu_dispatcher(
@@ -15,11 +16,13 @@ dal_module(
     dpc = True,
     auto = True,
     includes = [ ".", "../.." ],
+    system_includes = [ "../../daal" ],
     hdrs = [
         ":cpu_dispatcher",
     ],
     deps = [
         "@onedal//cpp/daal:services",
+        "@onedal//cpp/daal:data_management",
     ],
 )
 
@@ -30,8 +33,23 @@ dal_module(
         ":common",
         "@onedal//cpp/oneapi/dal/data",
         "@onedal//cpp/oneapi/dal/util",
+        # TODO: Move to depc_dpc
         # "@micromkl_dpc//:mkl_dpc",
     ],
+)
+
+dal_algos(
+    name = "all_algos",
+    algos = [
+        "decision_forest",
+        "kmeans",
+        "kmeans_init",
+        "knn",
+        "linear_kernel",
+        "pca",
+        "rbf_kernel",
+        "svm",
+    ]
 )
 
 dal_static_lib(
@@ -40,14 +58,7 @@ dal_static_lib(
     dpc = True,
     deps = [
         ":core",
-        # "@onedal//cpp/oneapi/dal/algo:decision_forest",
-        "@onedal//cpp/oneapi/dal/algo:kmeans",
-        # "@onedal//cpp/oneapi/dal/algo:kmeans_init",
-        # "@onedal//cpp/oneapi/dal/algo:knn",
-        # "@onedal//cpp/oneapi/dal/algo:linear_kernel",
-        # "@onedal//cpp/oneapi/dal/algo:pca",
-        # "@onedal//cpp/oneapi/dal/algo:rbf_kernel",
-        # "@onedal//cpp/oneapi/dal/algo:svm",
+        ":all_algos",
     ],
     external_deps = [
         "@micromkl//:mkl_seq",

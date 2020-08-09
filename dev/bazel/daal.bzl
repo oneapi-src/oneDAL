@@ -10,7 +10,17 @@ load("@onedal//dev/bazel/config:config.bzl",
     "VersionInfo",
 )
 
-def daal_module(name, features=[], lib_tag="daal", **kwargs):
+def daal_module(name, features=[], lib_tag="daal",
+                hdrs=[], srcs=[], auto=False,
+                opencl=False, **kwargs):
+    if auto:
+        auto_hdrs = native.glob(["**/*.h", "**/*.i"])
+        auto_srcs = native.glob(["**/*.cpp"])
+        if opencl:
+            auto_hdrs += native.glob(["**/*.cl"])
+    else:
+        auto_hdrs = []
+        auto_srcs = []
     cc_module(
         name = name,
         lib_tag = lib_tag,
@@ -28,6 +38,8 @@ def daal_module(name, features=[], lib_tag="daal", **kwargs):
             "f32": [ "DAAL_FPTYPE=float"  ],
             "f64": [ "DAAL_FPTYPE=double" ],
         },
+        hdrs = auto_hdrs + hdrs,
+        srcs = auto_srcs + srcs,
         **kwargs,
     )
 
@@ -36,6 +48,16 @@ def daal_static_lib(name, lib_tags=["daal"], **kwargs):
         name = name,
         lib_tags = lib_tags,
         **kwargs,
+    )
+
+def daal_algorithms(name, algorithms=[]):
+    alg_labels = []
+    for alg_name in algorithms:
+        label = "@onedal//cpp/daal/src/algorithms/{}:kernel".format(alg_name)
+        alg_labels.append(label)
+    cc_module(
+        name = name,
+        deps = alg_labels,
     )
 
 def _daal_generate_version_impl(ctx):

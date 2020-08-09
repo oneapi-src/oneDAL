@@ -1,21 +1,21 @@
 load("@onedal//dev/bazel:cc.bzl",
     "cc_module",
     "cc_static_lib",
-    "cc_executable",
+    "cc_test",
 )
 load("@onedal//dev/bazel:utils.bzl",
     "sets",
+    "paths",
 )
 load("@onedal//dev/bazel/config:config.bzl",
     "CpuInfo",
 )
 
-def dal_module(name, features=[], hdrs=[], srcs=[],
+def dal_module(name, features=[],
+               hdrs=[], srcs=[],
+               hdrs_cc=[], srcs_cc=[],
+               hdrs_dpc=[], srcs_dpc=[],
                host=True, dpc=False, auto=False, **kwargs):
-    hdrs_cc = []
-    srcs_cc = []
-    hdrs_dpc = []
-    srcs_dpc = []
     if auto:
         hpp_filt = ["**/*.hpp"]
         cpp_filt = ["**/*.cpp"]
@@ -63,15 +63,31 @@ def dal_static_lib(name, lib_name, host=True, dpc=False, deps=[],
             **kwargs
         )
 
-def dal_executable(name, lib_tags=[], **kwargs):
+def dal_algos(name, algos):
+    algo_labels = []
+    algo_labels_dpc = []
+    for algo in algos:
+        algo_label = "@onedal//cpp/oneapi/dal/algo/{0}:{0}".format(algo)
+        algo_label_dpc = "@onedal//cpp/oneapi/dal/algo/{0}:{0}_dpc".format(algo)
+        _dal_module(
+            name = algo,
+            hdrs = [ "algo/{}.hpp".format(algo) ],
+            deps = [ algo_label ],
+        )
+        _dal_module(
+            name = algo + "_dpc",
+            hdrs = [ "algo/{}.hpp".format(algo) ],
+            deps = [ algo_label_dpc ],
+        )
+        algo_labels.append(algo_label)
+        algo_labels_dpc.append(algo_label_dpc)
     _dal_module(
-        name = name + "_module",
-        **kwargs,
-    )
-    cc_executable(
         name = name,
-        deps = [":{}_module".format(name)],
-        lib_tags = lib_tags,
+        deps = algo_labels,
+    )
+    _dal_module(
+        name = name + "_dpc",
+        deps = algo_labels_dpc,
     )
 
 def dal_test(name, deps=[], test_deps=[], **kwargs):
@@ -80,8 +96,8 @@ def dal_test(name, deps=[], test_deps=[], **kwargs):
         lib_name = "onedal_" + name,
         deps = deps,
     )
-    dal_executable(
-        name = name,
+    _dal_module(
+        name = name + "_module",
         deps = select({
             "@config//:dev_test_link_mode": [
                 ":" + name + "_static",
@@ -102,18 +118,31 @@ def dal_test(name, deps=[], test_deps=[], **kwargs):
         }) + test_deps,
         **kwargs,
     )
+    cc_test(
+        name = name,
+        deps = [ ":{}_module".format(name) ],
+    )
 
-def dal_algo_shortcuts(*algos):
-    for algo in algos:
-        _dal_module(
-            name = algo,
-            hdrs = [ "{}.hpp".format(algo) ],
-            deps = [ "@onedal//cpp/oneapi/dal/algo/{0}:{0}".format(algo) ],
-        )
-        _dal_module(
-            name = algo + "_dpc",
-            hdrs = [ "{}.hpp".format(algo) ],
-            deps = [ "@onedal//cpp/oneapi/dal/algo/{0}:{0}_dpc".format(algo) ],
+def dal_examples(srcs, non_alg_examples=[]):
+    dal_module(
+        name = "example_util",
+        hdrs = native.glob(["source/example_util/*.hpp"]),
+        includes = [ "source" ],
+    )
+    for src in srcs:
+        _, alg_name, src_file = src.rsplit('/', 2)
+        example_name, _ = paths.split_extension(src_file)
+        if alg_name in non_alg_examples:
+            dep = "@onedal//cpp/oneapi/dal:core"
+        else:
+            dep = "@onedal//cpp/oneapi/dal:{}".format(alg_name)
+        dal_test(
+            name = example_name,
+            srcs = [ src ],
+            deps = [ dep ],
+            test_deps = [
+                ":example_util",
+            ],
         )
 
 def _dal_module(name, lib_tag="dal", features=[], **kwargs):

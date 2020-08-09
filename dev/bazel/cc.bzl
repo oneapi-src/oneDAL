@@ -520,7 +520,18 @@ def _cc_executable_impl(ctx):
     )
     return [default_info]
 
-cc_executable = rule(
+# cc_executable = rule(
+#     implementation = _cc_executable_impl,
+#     attrs = {
+#         "lib_tags": attr.string_list(),
+#         "deps": attr.label_list(mandatory=True),
+#     },
+#     toolchains = ["@bazel_tools//tools/cpp:toolchain_type"],
+#     fragments = ["cpp"],
+#     executable = True,
+# )
+
+cc_test = rule(
     implementation = _cc_executable_impl,
     attrs = {
         "lib_tags": attr.string_list(),
@@ -528,5 +539,5 @@ cc_executable = rule(
     },
     toolchains = ["@bazel_tools//tools/cpp:toolchain_type"],
     fragments = ["cpp"],
-    executable = True,
+    test = True,
 )

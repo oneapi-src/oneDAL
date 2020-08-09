@@ -7,5 +7,6 @@ dal_module(
     auto = True,
     deps = [
         "@onedal//cpp/oneapi/dal:core",
+        "@onedal//cpp/daal/src/algorithms/kernel_function:kernel",
     ]
 )

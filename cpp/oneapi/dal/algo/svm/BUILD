@@ -7,7 +7,8 @@ dal_module(
     auto = True,
     deps = [
         "@onedal//cpp/oneapi/dal:core",
-        "@onedal//cpp/oneapi/dal/algo:linear_kernel",
-        "@onedal//cpp/oneapi/dal/algo:rbf_kernel",
+        "@onedal//cpp/oneapi/dal:linear_kernel",
+        "@onedal//cpp/oneapi/dal:rbf_kernel",
+        "@onedal//cpp/daal/src/algorithms/svm:kernel",
     ]
 )

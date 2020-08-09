@@ -1,21 +1,8 @@
-load("@onedal//dev/bazel:dal.bzl",
-    "dal_module",
-    "dal_test",
-)
+load("@onedal//dev/bazel:dal.bzl", "dal_examples")
 
-dal_module(
-    name = "example_util",
-    hdrs = glob(["source/example_util/*.hpp"]),
-    includes = [ "source" ],
-)
-
-dal_test(
-    name = "kmeans",
-    srcs = [ "source/kmeans/kmeans_lloyd_dense_batch.cpp" ],
-    deps = [
-        "@onedal//cpp/oneapi/dal/algo:kmeans",
-    ],
-    test_deps = [
-        ":example_util",
-    ],
+dal_examples(
+    srcs = glob(["source/**/*.cpp"]),
+    non_alg_examples = [
+        "tables",
+    ]
 )

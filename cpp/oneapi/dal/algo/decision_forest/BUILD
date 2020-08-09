@@ -7,5 +7,7 @@ dal_module(
     auto = True,
     deps = [
         "@onedal//cpp/oneapi/dal:core",
+        "@onedal//cpp/daal/src/algorithms/dtrees/forest/classification:kernel",
+        "@onedal//cpp/daal/src/algorithms/dtrees/forest/regression:kernel",
     ]
 )
