@@ -18,7 +18,7 @@ jobs:
         .ci/scripts/clang-format.sh
       displayName: 'clang-format check'
       failOnStderr: true
-- job: Linux
+- job: 'LinuxMake'
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_gnu'
@@ -47,8 +47,38 @@ jobs:
   - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type)
     displayName: 'examples'
+
+- job: 'LinuxBazel'
+  timeoutInMinutes: 0
+  pool:
+    vmImage: 'ubuntu-18.04'
+  steps:
+  - script: |
+      sudo apt-get update
+      sudo apt-get install gcc-multilib \
+                           g++-multilib \
+                           openjdk-11-jdk \
+                           bazel-3.4.1
+    displayName: 'apt-get'
+  - script: bazel build //cpp/daal:core_static
+    displayName: 'onedal-core-static'
+  - script: bazel build //cpp/daal:thread_static
+    displayName: 'onedal-thread-static'
+  - script: bazel build //cpp/daal:sequential_static
+    displayName: 'onedal-sequential-static'
+  - script: bazel build //cpp/oneapi/dal:static
+    displayName: 'onedal-static'
+  - script: bazel build //cpp/oneapi/dal:static
+    displayName: 'onedal-static'
+  # - script: bazel build //cpp/oneapi/dal:static_dpc
+  #   displayName: 'onedal-static-dpc'
+  - script: bazel test //examples/oneapi/cpp:all --@config//:test_link_mode=dev
+    displayName: 'onedal-cpp-examples-thread-dev'
+  - script: bazel test //examples/oneapi/cpp:all --@config//:test_link_mode=static
+    displayName: 'onedal-cpp-examples-thread-static'
+
 - job: daal4py
-  dependsOn: Linux
+  dependsOn: LinuxMake
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_gnu'
@@ -98,7 +128,7 @@ jobs:
       $(Pipeline.Workspace)/s/.ci/scripts/daal4py_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/inteloneapi --daal4py-dir $(Pipeline.Workspace)/s/daal4py
     timeoutInMinutes: 15
     displayName: daal4py test
-- job: macOS
+- job: 'macOSMake'
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_mac_clang'
