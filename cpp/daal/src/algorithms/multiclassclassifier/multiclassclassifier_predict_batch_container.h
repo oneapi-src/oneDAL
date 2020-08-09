@@ -67,6 +67,7 @@ services::Status BatchContainer<algorithmFPType, pmethod, tmethod, cpu>::compute
     }
     else
     {
+        // for static BC
         classifier::prediction::Result * resultCls = static_cast<classifier::prediction::Result *>(_res);
         r[0]                                       = static_cast<NumericTable *>(resultCls->get(classifier::prediction::ResultId::prediction).get());
         r[1]                                       = nullptr;
