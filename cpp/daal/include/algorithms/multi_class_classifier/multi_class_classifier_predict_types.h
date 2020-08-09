@@ -147,9 +147,10 @@ public:
 
     /**
     * Allocates memory to store a partial result of model-based prediction
-    * \param[in] input   %Input object
-    * \param[in] par     %Parameter of the algorithm
-    * \param[in] method  Algorithm method
+    * \param[in] input    %Input object
+    * \param[in] par      %Parameter of the algorithm
+    * \param[in] pmethod  Computation method for the algorithm, \ref prediction::Method
+    * \param[in] tmethod  Computation method that was used to train the multi-class classifier model, \ref training::Method
     * \return Status of allocation
     */
     template <typename algorithmFPType>

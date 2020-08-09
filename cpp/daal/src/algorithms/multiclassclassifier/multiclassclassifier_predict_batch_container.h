@@ -57,13 +57,23 @@ template <typename algorithmFPType, prediction::Method pmethod, training::Method
 services::Status BatchContainer<algorithmFPType, pmethod, tmethod, cpu>::compute()
 {
     const classifier::prediction::Input * input = static_cast<const classifier::prediction::Input *>(_in);
-    Result * result                             = static_cast<Result *>(_res);
+
+    NumericTable * r[2];
+    Result * result = dynamic_cast<Result *>(_res);
+    if (result)
+    {
+        r[0] = static_cast<NumericTable *>(result->get(ResultId::prediction).get());
+        r[1] = static_cast<NumericTable *>(result->get(ResultId::decisionFunction).get());
+    }
+    else
+    {
+        classifier::prediction::Result * resultCls = static_cast<classifier::prediction::Result *>(_res);
+        r[0]                                       = static_cast<NumericTable *>(resultCls->get(classifier::prediction::ResultId::prediction).get());
+        r[1]                                       = nullptr;
+    }
 
     const NumericTable * a                  = static_cast<NumericTable *>(input->get(classifier::prediction::data).get());
     const multi_class_classifier::Model * m = static_cast<const multi_class_classifier::Model *>(input->get(classifier::prediction::model).get());
-    NumericTable * r[2];
-    r[0] = static_cast<NumericTable *>(result->get(ResultId::prediction).get());
-    r[1] = static_cast<NumericTable *>(result->get(ResultId::decisionFunction).get());
 
     const daal::algorithms::Parameter * par = _par;
     daal::services::Environment::env & env  = *_env;
