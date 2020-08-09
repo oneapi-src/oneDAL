@@ -33,7 +33,6 @@ help_message() {
 
 rmode=
 path_to_javac=
-first_arg=$1
 
 while [ "$1" != "" ]; do
     case $1 in
@@ -48,8 +47,9 @@ while [ "$1" != "" ]; do
     shift
 done
 
-export CLASSPATH=`pwd`${CLASSPATH+:${CLASSPATH}}
-class_path=`pwd`/com/intel/daal/examples
+CLASSPATH=$(pwd)${CLASSPATH+:${CLASSPATH}}
+export CLASSPATH
+class_path=$(pwd)/com/intel/daal/examples
 
 # Setting environment for side javac if the path specified
 path_to_javac=$1
@@ -58,7 +58,8 @@ if [ "${path_to_javac}" != "" ]; then
 fi
 
 # Setting list of Java examples to process
-if [ -z ${Java_example_list} ]; then
+# shellcheck disable=2154,1091
+if [ -z "${Java_example_list}" ]; then
     source ./daal.lst
 fi
 
@@ -70,15 +71,15 @@ result_folder=./_results/intel64
 if [ -d ${result_folder} ]; then rm -rf ${result_folder}; fi
 mkdir -p ${result_folder}
 
-for example in ${Java_example_list[@]}; do
+for example in "${Java_example_list[@]}"; do
 # Building examples
     if [ "${rmode}" != "run" ]; then
-        javac ${class_path}/${example}.java
+        javac "${class_path}/${example}.java"
     fi
 # Running examples
     if [ "${rmode}" != "build" ]; then
         arr=(${example//// })
-        if [ -z ${arr[2]} ]; then
+        if [ -z "${arr[2]}" ]; then
             example_dir=${arr[0]}
             example_name=${arr[1]}
         else
@@ -87,20 +88,21 @@ for example in ${Java_example_list[@]}; do
         fi
         if [ -f "${class_path}/${example}.class" ]; then
 
-            [ ! -d ${result_folder}/${example_dir} ] && mkdir -p ${result_folder}/${example_dir}
+            [ ! -d "${result_folder}/${example_dir}" ] && mkdir -p "${result_folder}/${example_dir}"
 
             example_path=com.intel.daal.examples.${example_dir}.${example_name}
             res_path=${result_folder}/${example_dir}/${example_name}.res
 
-            java -Djava.library.path=${Djava_library_path} ${example_path} 2>&1 >${res_path}
+            java_call="java -Djava.library.path=${Djava_library_path} ${example_path}"
+            ${java_call} > "${res_path}" 2>&1
             errcode=$?
             if [ "${errcode}" == "0" ]; then
-                 echo -e "`date +'%H:%M:%S'` PASSED\t\t${example_name}"
+                 echo -e "$(date +'%H:%M:%S') PASSED\t\t${example_name}"
             else
-                 echo -e "`date +'%H:%M:%S'` FAILED\t\t${example_name} with errno ${errcode}"
+                 echo -e "$(date +'%H:%M:%S') FAILED\t\t${example_name} with errno ${errcode}"
             fi
         else
-            echo -e "`date +'%H:%M:%S'` BUILD FAILED\t\t${example_name}"
+            echo -e "$(date +'%H:%M:%S') BUILD FAILED\t\t${example_name}"
         fi
     fi
 done
