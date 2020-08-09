@@ -16,7 +16,7 @@ dal_module(
     dpc = True,
     auto = True,
     includes = [ ".", "../.." ],
-    system_includes = [ "../../daal" ],
+    system_includes = [ "../../daal", "../../daal/include" ],
     hdrs = [
         ":cpu_dispatcher",
     ],

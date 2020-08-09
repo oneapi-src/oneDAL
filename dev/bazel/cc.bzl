@@ -120,11 +120,49 @@ def _categorize_sources(source_files, cpu_files_supported = True,
         fpt_cpu_files = fpt_cpu_files,
     )
 
+def _normalize_includes(ctx, includes, extra=[]):
+    inc_dir = paths.dirname(ctx.build_file_path) + "/"
+    gen_dir = ctx.genfiles_dir.path + "/" + inc_dir
+    normalized_includes = (utils.add_prefix(inc_dir, includes) +
+                           utils.add_prefix(gen_dir, includes))
+    normalized_includes = [paths.normalize(x) for x in normalized_includes]
+    normalized_includes = utils.unique(normalized_includes + extra)
+    return normalized_includes
+
+def _filter_out_includes(includes, filter):
+    filter_set = sets.make(filter)
+    filtered = []
+    for include in includes:
+        if not sets.contains(filter_set, include):
+            filtered.append(include)
+    return filtered
+
+def _patch_includes(ctx, compilation_context):
+    system_includes = _normalize_includes(
+        ctx,
+        ctx.attr.system_includes,
+        compilation_context.system_includes.to_list(),
+    )
+    includes = _filter_out_includes(
+        _normalize_includes(ctx, ctx.attr.includes, compilation_context.includes.to_list()),
+        system_includes,
+    )
+    quote_includes = _filter_out_includes(
+        _normalize_includes(ctx, ctx.attr.quote_includes, compilation_context.quote_includes.to_list()),
+        system_includes,
+    )
+    return cc_common.create_compilation_context(
+        headers = compilation_context.headers,
+        system_includes = depset(system_includes),
+        includes = depset(includes),
+        quote_includes = depset(quote_includes),
+        framework_includes = compilation_context.framework_includes,
+        defines = compilation_context.defines,
+        local_defines = compilation_context.local_defines,
+    )
 
 def _compile(name, ctx, toolchain, feature_config,
              dep_compilation_contexts, srcs=[], local_defines=[]):
-    inc_dir = paths.dirname(ctx.build_file_path) + "/"
-    gen_dir = ctx.genfiles_dir.path + "/" + inc_dir
     return cc_common.compile(
         name = name,
         srcs = srcs,
@@ -135,17 +173,10 @@ def _compile(name, ctx, toolchain, feature_config,
         defines = ctx.attr.defines,
         local_defines = ctx.attr.local_defines + local_defines,
         user_compile_flags = ctx.attr.copts,
-        includes = (utils.add_prefix(inc_dir, ctx.attr.includes) +
-                    utils.add_prefix(gen_dir, ctx.attr.includes)),
-        quote_includes = (utils.add_prefix(inc_dir, ctx.attr.quote_includes) +
-                          utils.add_prefix(gen_dir, ctx.attr.quote_includes)),
-        system_includes = (utils.add_prefix(inc_dir, ctx.attr.system_includes) +
-                           utils.add_prefix(gen_dir, ctx.attr.system_includes)),
         compilation_contexts = dep_compilation_contexts,
         feature_configuration = feature_config,
         disallow_nopic_outputs = True,
     )
-
 
 def _compile_all(name, ctx, toolchain, feature_config, compilation_contexts):
     fpts = ctx.attr._fpts
@@ -355,12 +386,14 @@ def _cc_module_impl(ctx):
         unsupported_features = ctx.disabled_features,
     )
     dep_compilation_contexts = _collect_compilation_contexts(ctx.attr.deps)
+    dep_compilation_context = _merge_compilation_contexts(dep_compilation_contexts)
+    patched_compilation_context = _patch_includes(ctx, dep_compilation_context)
     compilation_context, compilation_outputs = _compile_all(
         name = ctx.label.name,
         ctx = ctx,
         toolchain = toolchain,
         feature_config = feature_config,
-        compilation_contexts = dep_compilation_contexts,
+        compilation_contexts = [ patched_compilation_context ],
     )
     if compilation_outputs.objects:
         fail("Non-PIC object files found, oneDAL assumes " +
