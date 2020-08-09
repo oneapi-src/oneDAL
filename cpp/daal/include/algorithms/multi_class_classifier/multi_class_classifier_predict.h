@@ -305,7 +305,7 @@ public:
      * Returns the structure that contains computed prediction results
      * \return Structure that contains computed prediction results
      */
-    ResultPtr getResult() { return Result::cast(_result); }
+    multi_class_classifier::prediction::ResultPtr getResult() { return Result::cast(_result); }
 
     /**
      * Registers user-allocated memory for storing the prediction results
@@ -313,13 +313,15 @@ public:
      *
      * \return Status of computation
      */
-    services::Status setResult(const ResultPtr & result)
+    services::Status setResult(const multi_class_classifier::prediction::ResultPtr & result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
         _res    = _result.get();
         return services::Status();
     }
+
+    services::Status setResult(const classifier::prediction::ResultPtr & result) { return super::setResult(result); }
 
     /**
      * Returns a pointer to the newly allocated multi-class classifier prediction algorithm
