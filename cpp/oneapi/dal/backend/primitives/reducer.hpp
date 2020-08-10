@@ -69,6 +69,15 @@ public:
                                array<Float> output,
                                std::int64_t vector_size,
                                std::int64_t n_vectors);
+    cl::sycl::event operator()(const Float* input,
+                               Float* output,
+                               std::int64_t vector_size,
+                               std::int64_t n_vectors,
+                               std::int64_t work_items_per_group);
+    cl::sycl::event operator()(const Float* input,
+                               Float* output,
+                               std::int64_t vector_size,
+                               std::int64_t n_vectors);
 
 private:
     cl::sycl::queue& _q;

@@ -164,7 +164,7 @@ public:
         }
     }
 
-protected:
+private:
     const std::uint32_t vector_size, n_vectors;
     const Float* const vectors;
     Float* const reduces;
@@ -258,15 +258,11 @@ reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::reducer_singlepass(cl:
 
 template <unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout>
 cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operator()(
-    array<Float> input,
-    array<Float> output,
+    const Float* input,
+    Float* output,
     std::int64_t vector_size,
     std::int64_t n_vectors,
     std::int64_t work_items_per_group) {
-    if (work_items_per_group > this->max_work_group_size)
-        throw std::exception();
-    if (input.get_count() < (vector_size * n_vectors))
-        throw std::exception();
     const std::int64_t local_buff_size = std::min(this->max_work_group_size, work_items_per_group);
     auto event                         = this->_q.submit([&](cl::sycl::handler& handler) {
         typedef cl::sycl::
@@ -276,8 +272,8 @@ cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operat
         auto functor_instance =
             kernel_t{ /*.vector_size     =*/static_cast<std::uint32_t>(vector_size),
                       /*.n_vectors       =*/static_cast<std::uint32_t>(n_vectors),
-                      /*.vectors         =*/input.get_data(),
-                      /*.reduces         =*/output.get_mutable_data(),
+                      /*.vectors         =*/input,
+                      /*.reduces         =*/output,
                       /*.partial_reduces =*/partial_reduces };
         const cl::sycl::range<2> local_range{ static_cast<size_t>(work_items_per_group), 1 };
         const cl::sycl::range<2> global_range{ static_cast<size_t>(work_items_per_group),
@@ -286,6 +282,35 @@ cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operat
         handler.parallel_for<kernel_t>(call_range, functor_instance);
     });
     return event;
+}
+
+template <unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout>
+cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operator()(
+    array<Float> input,
+    array<Float> output,
+    std::int64_t vector_size,
+    std::int64_t n_vectors,
+    std::int64_t work_items_per_group) {
+    if (work_items_per_group > this->max_work_group_size)
+        throw std::exception();
+    if (input.get_count() < (vector_size * n_vectors))
+        throw std::exception();
+    if (output.get_count() < (IsRowMajorLayout))
+        this->operator()(input.get_data(),
+                         output.get_mutable_data(),
+                         vector_size,
+                         n_vectors,
+                         work_items_per_group);
+    return event;
+}
+
+template <unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout>
+cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operator()(
+    const Float* input,
+    Float* output,
+    std::int64_t vector_size,
+    std::int64_t n_vectors) {
+    return this->operator()(input, output, vector_size, n_vectors, this->max_work_group_size);
 }
 
 template <unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout>
