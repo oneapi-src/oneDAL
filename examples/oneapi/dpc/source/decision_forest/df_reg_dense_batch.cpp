@@ -61,7 +61,7 @@ void run(sycl::queue &queue) {
           .set_tree_count(10)
           .set_features_per_node(2)
           .set_min_observations_in_leaf_node(1)
-          .set_error_metrics_to_compute(df::error_metric_id::out_of_bag_error | df::error_metric_id::out_of_bag_error_per_observation)
+          .set_error_metric_mode(df::error_metric_mode::out_of_bag_error | df::error_metric_mode::out_of_bag_error_per_observation)
           .set_variable_importance_mode(df::variable_importance_mode::mdi);
 
   const auto df_infer_desc = df::descriptor<float, df::task::regression, df::method::dense>();

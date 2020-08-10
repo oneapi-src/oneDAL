@@ -67,18 +67,18 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     daal_input.set(daal::algorithms::classifier::prediction::model, pinterop_model->get_model());
 
-    auto daal_voting_method = df_interop::convert_to_daal_voting_method(desc.get_voting_method());
+    auto daal_voting_mode = df_interop::convert_to_daal_voting_mode(desc.get_voting_mode());
 
-    auto daal_parameter = cls::prediction::Parameter(desc.get_class_count(), daal_voting_method);
+    auto daal_parameter = cls::prediction::Parameter(desc.get_class_count(), daal_voting_mode);
 
     daal::data_management::NumericTablePtr daal_labels_res;
     daal::data_management::NumericTablePtr daal_labels_prob_res;
 
-    if (desc.get_results_to_compute() & result_id::class_labels) {
+    if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_labels)) {
         daal_labels_res = interop::allocate_daal_homogen_table<Float>(row_count, 1);
     }
 
-    if (desc.get_results_to_compute() & result_id::class_probabilities) {
+    if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_probabilities)) {
         daal_labels_prob_res =
             interop::allocate_daal_homogen_table<Float>(row_count, desc.get_class_count());
     }
@@ -93,16 +93,16 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
         daal_labels_res.get(),
         daal_labels_prob_res.get(),
         desc.get_class_count(),
-        daal_voting_method));
+        daal_voting_mode));
 
     infer_result<Task> res;
 
-    if (desc.get_results_to_compute() & result_id::class_labels) {
+    if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_labels)) {
         auto table_class_labels = interop::convert_from_daal_homogen_table<Float>(daal_labels_res);
         res.set_labels(table_class_labels);
     }
 
-    if (desc.get_results_to_compute() & result_id::class_probabilities) {
+    if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_probabilities)) {
         auto table_class_probs =
             interop::convert_from_daal_homogen_table<Float>(daal_labels_prob_res);
         res.set_probabilities(table_class_probs);

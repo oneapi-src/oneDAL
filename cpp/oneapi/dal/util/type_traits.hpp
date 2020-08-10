@@ -50,4 +50,10 @@ struct is_homogen_table_impl {
 template <typename T>
 inline constexpr bool is_homogen_table_impl_v = is_homogen_table_impl<T>::value;
 
+template <typename T>
+inline constexpr bool check_mask_flag(T mask, T flag) {
+    using U = std::underlying_type_t<T>;
+    return (static_cast<U>(mask) & static_cast<U>(flag)) > 0;
+}
+
 } // namespace oneapi::dal

@@ -34,9 +34,9 @@ namespace cls     = daal::algorithms::decision_forest::classification;
 namespace df         = dal::decision_forest;
 namespace df_interop = dal::backend::interop::decision_forest;
 
-static inline auto convert_to_daal_voting_method(df::voting_method vm) {
-    return df::voting_method::weighted == vm ? cls::prediction::weighted
-                                             : cls::prediction::unweighted;
+static inline auto convert_to_daal_voting_mode(df::voting_mode vm) {
+    return df::voting_mode::weighted == vm ? cls::prediction::weighted
+                                           : cls::prediction::unweighted;
 }
 
 static inline auto convert_to_daal_variable_importance_mode(df::variable_importance_mode vimp) {

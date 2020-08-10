@@ -57,19 +57,19 @@ enum class variable_importance_mode {
                        This is MDA_Raw value scaled by its standard deviation. */
 };
 
-enum class error_metric_id : std::uint64_t {
+enum class error_metric_mode : std::uint64_t {
     none                             = 0x00000000ULL,
     out_of_bag_error                 = 0x00000001ULL,
     out_of_bag_error_per_observation = 0x00000002ULL
 };
 
-enum class result_id : std::uint64_t {
+enum class infer_mode : std::uint64_t {
     class_labels = 0x00000001ULL, /*!< Numeric table of size n x 1 with the predicted labels >*/
     class_probabilities =
         0x00000002ULL /*!< Numeric table of size n x p with the predicted class probabilities for each observation >*/
 };
 
-enum class voting_method { weighted, unweighted };
+enum class voting_mode { weighted, unweighted };
 
 template <typename Task = task::by_default>
 class descriptor_base : public base {
@@ -102,14 +102,14 @@ public:
     bool get_memory_saving_mode() const;
     bool get_bootstrap() const;
 
-    error_metric_id get_error_metrics_to_compute() const;
+    error_metric_mode get_error_metric_mode() const;
 
     variable_importance_mode get_variable_importance_mode() const;
 
     /* classification specific methods */
     template <typename T = Task, typename = is_classification_t<T>>
-    result_id get_results_to_compute() const {
-        return get_results_to_compute_impl();
+    infer_mode get_infer_mode() const {
+        return get_infer_mode_impl();
     }
 
     template <typename T = Task, typename = is_classification_t<T>>
@@ -118,8 +118,8 @@ public:
     }
 
     template <typename T = Task, typename = is_classification_t<T>>
-    voting_method get_voting_method() const {
-        return get_voting_method_impl();
+    voting_mode get_voting_mode() const {
+        return get_voting_mode_impl();
     }
 
 protected:
@@ -135,8 +135,8 @@ protected:
     void set_min_observations_in_split_node_impl(std::int64_t value);
     void set_max_leaf_nodes_impl(std::int64_t value);
 
-    void set_error_metrics_to_compute_impl(error_metric_id value);
-    void set_results_to_compute_impl(result_id value);
+    void set_error_metric_mode_impl(error_metric_mode value);
+    void set_infer_mode_impl(infer_mode value);
 
     void set_memory_saving_mode_impl(bool value);
     void set_bootstrap_impl(bool value);
@@ -144,12 +144,12 @@ protected:
     void set_variable_importance_mode_impl(variable_importance_mode value);
 
     /* classification specific methods */
-    result_id get_results_to_compute_impl() const;
+    infer_mode get_infer_mode_impl() const;
     std::int64_t get_class_count_impl() const;
-    voting_method get_voting_method_impl() const;
+    voting_mode get_voting_mode_impl() const;
 
     void set_class_count_impl(std::int64_t value);
-    void set_voting_method_impl(voting_method value);
+    void set_voting_mode_impl(voting_mode value);
 
 private:
     pimpl impl_;
@@ -211,8 +211,8 @@ public:
         return *this;
     }
 
-    auto& set_error_metrics_to_compute(error_metric_id value) {
-        parent::set_error_metrics_to_compute_impl(value);
+    auto& set_error_metric_mode(error_metric_mode value) {
+        parent::set_error_metric_mode_impl(value);
         return *this;
     }
 
@@ -231,8 +231,8 @@ public:
     }
     /* classification specific methods */
     template <typename T = Task, typename = is_classification_t<T>>
-    auto& set_results_to_compute(result_id value) {
-        parent::set_results_to_compute_impl(value);
+    auto& set_infer_mode(infer_mode value) {
+        parent::set_infer_mode_impl(value);
         return *this;
     }
 
@@ -243,8 +243,8 @@ public:
     }
 
     template <typename T = Task, typename = is_classification_t<T>>
-    auto& set_voting_method(voting_method value) {
-        parent::set_voting_method_impl(value);
+    auto& set_voting_mode(voting_mode value) {
+        parent::set_voting_mode_impl(value);
         return *this;
     }
 };
@@ -281,33 +281,34 @@ private:
 
 } // namespace oneapi::dal::decision_forest
 
-ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::result_id operator|(
-    oneapi::dal::decision_forest::result_id value_left,
-    oneapi::dal::decision_forest::result_id value_right);
+ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::infer_mode operator|(
+    oneapi::dal::decision_forest::infer_mode value_left,
+    oneapi::dal::decision_forest::infer_mode value_right);
 
-ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::result_id& operator|=(
-    oneapi::dal::decision_forest::result_id& value_left,
-    oneapi::dal::decision_forest::result_id value_right);
+ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::infer_mode& operator|=(
+    oneapi::dal::decision_forest::infer_mode& value_left,
+    oneapi::dal::decision_forest::infer_mode value_right);
 
-ONEAPI_DAL_EXPORT std::uint64_t operator&(oneapi::dal::decision_forest::result_id value_left,
-                                          oneapi::dal::decision_forest::result_id value_right);
+ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::infer_mode operator&(
+    oneapi::dal::decision_forest::infer_mode value_left,
+    oneapi::dal::decision_forest::infer_mode value_right);
 
-ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::result_id& operator&=(
-    oneapi::dal::decision_forest::result_id& value_left,
-    oneapi::dal::decision_forest::result_id value_right);
+ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::infer_mode& operator&=(
+    oneapi::dal::decision_forest::infer_mode& value_left,
+    oneapi::dal::decision_forest::infer_mode value_right);
 
-ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::error_metric_id operator|(
-    oneapi::dal::decision_forest::error_metric_id value_left,
-    oneapi::dal::decision_forest::error_metric_id value_right);
+ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::error_metric_mode operator|(
+    oneapi::dal::decision_forest::error_metric_mode value_left,
+    oneapi::dal::decision_forest::error_metric_mode value_right);
 
-ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::error_metric_id& operator|=(
-    oneapi::dal::decision_forest::error_metric_id& value_left,
-    oneapi::dal::decision_forest::error_metric_id value_right);
+ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::error_metric_mode& operator|=(
+    oneapi::dal::decision_forest::error_metric_mode& value_left,
+    oneapi::dal::decision_forest::error_metric_mode value_right);
 
-ONEAPI_DAL_EXPORT std::uint64_t operator&(
-    oneapi::dal::decision_forest::error_metric_id value_left,
-    oneapi::dal::decision_forest::error_metric_id value_right);
+ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::error_metric_mode operator&(
+    oneapi::dal::decision_forest::error_metric_mode value_left,
+    oneapi::dal::decision_forest::error_metric_mode value_right);
 
-ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::error_metric_id& operator&=(
-    oneapi::dal::decision_forest::error_metric_id& value_left,
-    oneapi::dal::decision_forest::error_metric_id value_right);
+ONEAPI_DAL_EXPORT oneapi::dal::decision_forest::error_metric_mode& operator&=(
+    oneapi::dal::decision_forest::error_metric_mode& value_left,
+    oneapi::dal::decision_forest::error_metric_mode value_right);
