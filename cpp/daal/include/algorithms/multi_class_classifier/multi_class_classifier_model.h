@@ -51,8 +51,8 @@ namespace multi_class_classifier
  */
 enum ResultToComputeId
 {
-    computeClassLabels      = 0x00000001ULL, /*!< Numeric table of size n x 1 with the predicted labels >*/
-    computeDecisionFunction = 0x00000032ULL  /*!< Numeric table of size n x (k*(k-1)/2) with the decision function for each observation >*/
+    computeClassLabels      = classifier::computeClassLabels, /*!< Numeric table of size n x 1 with the predicted labels >*/
+    computeDecisionFunction = 0x00000032ULL /*!< Numeric table of size n x (k*(k-1)/2) with the decision function for each observation >*/
 };
 
 /**
