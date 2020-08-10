@@ -28,104 +28,32 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template <typename Float>
-struct unary_functor<Float, unary_operation::identity> {
-    inline Float operator()(Float arg) const {
-        return arg;
-    }
-};
-
-template <typename Float>
-struct unary_functor<Float, unary_operation::abs> {
-    inline Float operator()(Float arg) const {
-        return std::abs(arg);
-    }
-};
-
-template <typename Float>
-struct unary_functor<Float, unary_operation::square> {
-    inline Float operator()(Float arg) const {
-        return (arg * arg);
-    }
-};
-
-//Direct instatiation
-template struct unary_functor<float, unary_operation::identity>;
-template struct unary_functor<double, unary_operation::identity>;
-template struct unary_functor<float, unary_operation::square>;
-template struct unary_functor<double, unary_operation::square>;
-template struct unary_functor<float, unary_operation::abs>;
-template struct unary_functor<double, unary_operation::abs>;
-
-template <typename Float>
-struct binary_functor<Float, binary_operation::sum> {
-    constexpr static inline Float init_value = 0;
-
-    inline Float operator()(Float a, Float b) const {
-        return (a + b);
-    }
-};
-
-template <typename Float>
-struct binary_functor<Float, binary_operation::mul> {
-    constexpr static inline Float init_value = 1;
-
-    inline Float operator()(Float a, Float b) const {
-        return (a * b);
-    }
-};
-
-template <typename Float>
-struct binary_functor<Float, binary_operation::max> {
-    constexpr static inline Float init_value = std::numeric_limits<Float>::min();
-
-    inline Float operator()(Float a, Float b) const {
-        return std::max(a, b);
-    }
-};
-
-template <typename Float>
-struct binary_functor<Float, binary_operation::min> {
-    constexpr static inline Float init_value = std::numeric_limits<Float>::max();
-
-    inline Float operator()(Float a, Float b) const {
-        return std::min(a, b);
-    }
-};
-
-//Direct instatiation
-template struct binary_functor<float, binary_operation::sum>;
-template struct binary_functor<double, binary_operation::sum>;
-template struct binary_functor<float, binary_operation::mul>;
-template struct binary_functor<double, binary_operation::mul>;
-template struct binary_functor<float, binary_operation::min>;
-template struct binary_functor<double, binary_operation::min>;
-template struct binary_functor<float, binary_operation::max>;
-template struct binary_functor<double, binary_operation::max>;
-
 #ifdef ONEAPI_DAL_DATA_PARALLEL
 
 namespace impl {
 
-template <unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout>
+template <typename UnaryFunctor, typename BinaryFunctor, typename Float, bool VectorsAreRows>
 struct reducer_singlepass_kernel {
 public:
-    //Zero cost
-    const binary_functor<Float, BinOp> binary;
-    const unary_functor<Float, UnOp> unary;
+    const BinaryFunctor binary;
+    const UnaryFunctor unary;
 
-protected:
+private:
     typedef cl::sycl::
         accessor<Float, 1, cl::sycl::access::mode::read_write, cl::sycl::access::target::local>
             local_acc_t;
 
 public:
-    reducer_singlepass_kernel(std::int64_t vector_size_,
+    reducer_singlepass_kernel(BinaryFunctor binary_,
+                              UnaryFunctor unary_,
+                              std::int64_t vector_size_,
                               size_t n_vectors_,
                               const Float* vectors_,
                               Float* reduces_,
                               local_acc_t partial_reduces_)
-            : vector_size(vector_size_),
+            : binary(binary_),
+              unary(unary_),
+              vector_size(vector_size_),
               n_vectors(n_vectors_),
               vectors(vectors_),
               reduces(reduces_),
@@ -134,8 +62,8 @@ public:
     void operator()(cl::sycl::nd_item<2> idx) {
         const std::uint32_t local_size = idx.get_local_range(0);
 
-        const std::uint32_t global_dim = IsRowMajorLayout ? vector_size : 1;
-        const std::uint32_t local_dim  = IsRowMajorLayout ? 1 : n_vectors;
+        const std::uint32_t global_dim = VectorsAreRows ? vector_size : 1;
+        const std::uint32_t local_dim  = VectorsAreRows ? 1 : n_vectors;
 
         const std::uint32_t item_id  = idx.get_local_id(0);
         const std::uint32_t group_id = idx.get_global_id(1);
@@ -171,106 +99,35 @@ private:
     local_acc_t partial_reduces;
 };
 
-//Direct instantiation
-template struct reducer_singlepass_kernel<unary_operation::abs, binary_operation::sum, float, true>;
-template struct reducer_singlepass_kernel<unary_operation::abs,
-                                          binary_operation::sum,
-                                          double,
-                                          true>;
-template struct reducer_singlepass_kernel<unary_operation::square,
-                                          binary_operation::sum,
-                                          float,
-                                          true>;
-template struct reducer_singlepass_kernel<unary_operation::square,
-                                          binary_operation::sum,
-                                          double,
-                                          true>;
-template struct reducer_singlepass_kernel<unary_operation::abs, binary_operation::max, float, true>;
-template struct reducer_singlepass_kernel<unary_operation::abs,
-                                          binary_operation::max,
-                                          double,
-                                          true>;
-template struct reducer_singlepass_kernel<unary_operation::identity,
-                                          binary_operation::sum,
-                                          float,
-                                          true>;
-template struct reducer_singlepass_kernel<unary_operation::identity,
-                                          binary_operation::sum,
-                                          double,
-                                          true>;
-template struct reducer_singlepass_kernel<unary_operation::identity,
-                                          binary_operation::mul,
-                                          float,
-                                          true>;
-template struct reducer_singlepass_kernel<unary_operation::identity,
-                                          binary_operation::mul,
-                                          double,
-                                          true>;
-template struct reducer_singlepass_kernel<unary_operation::abs,
-                                          binary_operation::sum,
-                                          float,
-                                          false>;
-template struct reducer_singlepass_kernel<unary_operation::abs,
-                                          binary_operation::sum,
-                                          double,
-                                          false>;
-template struct reducer_singlepass_kernel<unary_operation::square,
-                                          binary_operation::sum,
-                                          float,
-                                          false>;
-template struct reducer_singlepass_kernel<unary_operation::square,
-                                          binary_operation::sum,
-                                          double,
-                                          false>;
-template struct reducer_singlepass_kernel<unary_operation::abs,
-                                          binary_operation::max,
-                                          float,
-                                          false>;
-template struct reducer_singlepass_kernel<unary_operation::abs,
-                                          binary_operation::max,
-                                          double,
-                                          false>;
-template struct reducer_singlepass_kernel<unary_operation::identity,
-                                          binary_operation::sum,
-                                          float,
-                                          false>;
-template struct reducer_singlepass_kernel<unary_operation::identity,
-                                          binary_operation::sum,
-                                          double,
-                                          false>;
-template struct reducer_singlepass_kernel<unary_operation::identity,
-                                          binary_operation::mul,
-                                          float,
-                                          false>;
-template struct reducer_singlepass_kernel<unary_operation::identity,
-                                          binary_operation::mul,
-                                          double,
-                                          false>;
-
 } // namespace impl
 
-template <unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout>
-reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::reducer_singlepass(cl::sycl::queue& q)
-        : _q(q),
+template <typename Float, typename BinaryFunctor, typename UnaryFunctor, data_layout Layout>
+reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, Layout>::reducer_singlepass(cl::sycl::queue& queue, 
+                                                                                  BinaryFunctor binary_func, 
+                                                                                  UnaryFunctor unary_func)
+        : binary(binary_func),
+          unary(unary_func),
+          q(queue),
           max_work_group_size(std::min<std::int64_t>(
-              q.get_device().template get_info<cl::sycl::info::device::max_work_group_size>(),
-              256)) {}
+              queue.get_device().template get_info<cl::sycl::info::device::max_work_group_size>(), 256)) {}
 
-template <unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout>
-cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operator()(
+template <typename Float, typename BinaryFunctor, typename UnaryFunctor, data_layout Layout>
+cl::sycl::event reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, Layout>::operator()(
     const Float* input,
     Float* output,
     std::int64_t vector_size,
     std::int64_t n_vectors,
     std::int64_t work_items_per_group) {
     const std::int64_t local_buff_size = std::min(this->max_work_group_size, work_items_per_group);
-    auto event                         = this->_q.submit([&](cl::sycl::handler& handler) {
+    auto event                         = this->q.submit([&](cl::sycl::handler& handler) {
         typedef cl::sycl::
             accessor<Float, 1, cl::sycl::access::mode::read_write, cl::sycl::access::target::local>
                 local_acc_t;
         auto partial_reduces = local_acc_t(cl::sycl::range<1>{ local_buff_size }, handler);
         auto functor_instance =
-            kernel_t{ /*.vector_size     =*/static_cast<std::uint32_t>(vector_size),
+            kernel_t{ /*.binary          =*/binary,
+                      /*.unary           =*/unary,
+                      /*.vector_size     =*/static_cast<std::uint32_t>(vector_size),
                       /*.n_vectors       =*/static_cast<std::uint32_t>(n_vectors),
                       /*.vectors         =*/input,
                       /*.reduces         =*/output,
@@ -284,8 +141,8 @@ cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operat
     return event;
 }
 
-template <unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout>
-cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operator()(
+template <typename Float, typename BinaryFunctor, typename UnaryFunctor, data_layout Layout>
+cl::sycl::event reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, Layout>::operator()(
     array<Float> input,
     array<Float> output,
     std::int64_t vector_size,
@@ -304,8 +161,8 @@ cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operat
                             work_items_per_group);
 }
 
-template <unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout>
-cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operator()(
+template <typename Float, typename BinaryFunctor, typename UnaryFunctor, data_layout Layout>
+cl::sycl::event reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, Layout>::operator()(
     const Float* input,
     Float* output,
     std::int64_t vector_size,
@@ -313,8 +170,8 @@ cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operat
     return this->operator()(input, output, vector_size, n_vectors, this->max_work_group_size);
 }
 
-template <unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout>
-cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operator()(
+template <typename Float, typename BinaryFunctor, typename UnaryFunctor, data_layout Layout>
+cl::sycl::event reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, Layout>::operator()(
     array<Float> input,
     array<Float> output,
     std::int64_t vector_size,
@@ -323,26 +180,7 @@ cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operat
 }
 
 //Direct instantiation
-template struct reducer_singlepass<unary_operation::abs, binary_operation::sum, float, true>;
-template struct reducer_singlepass<unary_operation::abs, binary_operation::sum, double, true>;
-template struct reducer_singlepass<unary_operation::square, binary_operation::sum, float, true>;
-template struct reducer_singlepass<unary_operation::square, binary_operation::sum, double, true>;
-template struct reducer_singlepass<unary_operation::abs, binary_operation::max, float, true>;
-template struct reducer_singlepass<unary_operation::abs, binary_operation::max, double, true>;
-template struct reducer_singlepass<unary_operation::identity, binary_operation::sum, float, true>;
-template struct reducer_singlepass<unary_operation::identity, binary_operation::sum, double, true>;
-template struct reducer_singlepass<unary_operation::identity, binary_operation::mul, float, true>;
-template struct reducer_singlepass<unary_operation::identity, binary_operation::mul, double, true>;
-template struct reducer_singlepass<unary_operation::abs, binary_operation::sum, float, false>;
-template struct reducer_singlepass<unary_operation::abs, binary_operation::sum, double, false>;
-template struct reducer_singlepass<unary_operation::square, binary_operation::sum, float, false>;
-template struct reducer_singlepass<unary_operation::square, binary_operation::sum, double, false>;
-template struct reducer_singlepass<unary_operation::abs, binary_operation::max, float, false>;
-template struct reducer_singlepass<unary_operation::abs, binary_operation::max, double, false>;
-template struct reducer_singlepass<unary_operation::identity, binary_operation::sum, float, false>;
-template struct reducer_singlepass<unary_operation::identity, binary_operation::sum, double, false>;
-template struct reducer_singlepass<unary_operation::identity, binary_operation::mul, float, false>;
-template struct reducer_singlepass<unary_operation::identity, binary_operation::mul, double, false>;
+
 
 #endif
 

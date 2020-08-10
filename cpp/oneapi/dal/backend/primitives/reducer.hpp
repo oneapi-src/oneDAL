@@ -24,41 +24,33 @@
 #endif
 
 #include "oneapi/dal/data/array.hpp"
+#include "oneapi/dal/backend/primitives/common.hpp"
+#include "oneapi/dal/backend/primitives/functors.hpp"
 
 namespace oneapi::dal::backend::primitives {
-
-enum class unary_operation : int { identity = 0, square = 1, abs = 2 };
-
-template <typename Float, unary_operation Op = unary_operation::identity>
-struct unary_functor {
-    inline Float operator()(Float arg) const;
-};
-
-enum class binary_operation : int { min = 0, max = 1, sum = 2, mul = 3 };
-
-template <typename Float, binary_operation Op>
-struct binary_functor {
-    constexpr static inline Float init_value = static_cast<Float>(NAN);
-    inline Float operator()(Float a, Float b) const;
-};
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
 
 namespace impl {
 
-template <unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout>
+template <typename UnOp, typename BinOp, typename Float, bool VectorsAreRows>
 struct reducer_singlepass_kernel;
 
 }
 
-template <unary_operation UnOp,
-          binary_operation BinOp,
-          typename Float,
-          bool IsRowMajorLayout = true>
+template <typename Float,
+          typename BinaryFunctor,
+          typename UnaryFunctor = unary_functor<Float, unary_operator::identity>,
+          data_layout Layout    = data_layout::row_major>
 struct reducer_singlepass {
+private:
+    constexpr static inline bool vectors_are_rows = (Layout == data_layout::row_major);
+    typedef impl::reducer_singlepass_kernel<UnOp, BinOp, Float, vectors_are_rows> kernel_t;
+    
 public:
-    typedef impl::reducer_singlepass_kernel<UnOp, BinOp, Float, IsRowMajorLayout> kernel_t;
-    reducer_singlepass(cl::sycl::queue& q);
+    reducer_singlepass( cl::sycl::queue& q, 
+                        BinaryFunctor binary_func = BinaryFunctor{}, 
+                        UnaryFunctor unary_func   = UnaryFunctor{});
     cl::sycl::event operator()(array<Float> input,
                                array<Float> output,
                                std::int64_t vector_size,
@@ -77,27 +69,15 @@ public:
                                Float* output,
                                std::int64_t vector_size,
                                std::int64_t n_vectors);
+
+public:
+    const BinaryFunctor binary;
+    const Unary Functor unary;
 
 private:
-    cl::sycl::queue& _q;
+    cl::sycl::queue& q;
     const std::int64_t max_work_group_size;
 };
-
-template <typename Float = float, bool IsRowMajorLayout = true>
-using l1_reducer_singlepass =
-    reducer_singlepass<unary_operation::abs, binary_operation::sum, Float, IsRowMajorLayout>;
-template <typename Float = float, bool IsRowMajorLayout = true>
-using l2_reducer_singlepass =
-    reducer_singlepass<unary_operation::square, binary_operation::sum, Float, IsRowMajorLayout>;
-template <typename Float = float, bool IsRowMajorLayout = true>
-using linf_reducer_singlepass =
-    reducer_singlepass<unary_operation::abs, binary_operation::max, Float, IsRowMajorLayout>;
-template <typename Float = float, bool IsRowMajorLayout = true>
-using mean_reducer_singlepass =
-    reducer_singlepass<unary_operation::identity, binary_operation::sum, Float, IsRowMajorLayout>;
-template <typename Float = float, bool IsRowMajorLayout = true>
-using geomean_reducer_singlepass =
-    reducer_singlepass<unary_operation::identity, binary_operation::mul, Float, IsRowMajorLayout>;
 
 #endif
 
