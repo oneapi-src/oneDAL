@@ -20,6 +20,7 @@
 
 #define ONEAPI_DAL_DATA_PARALLEL
 
+#include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/reducer.hpp"
 #include "oneapi/dal/data/array.hpp"
 
@@ -29,8 +30,8 @@ TEST(reducer_l2_rm, can_handle_array_of_zeros) {
     auto inp = oneapi::dal::array<float>::zeros(q, 35);
     auto out = oneapi::dal::array<float>::zeros(q, 7);
 
-    auto reducer =
-        oneapi::dal::backend::primitives::l2_reducer_singlepass<float, data_layout::row_major>(q);
+    auto reducer = oneapi::dal::backend::primitives::
+        l2_reducer_singlepass<float, oneapi::dal::backend::layout::row_major>(q);
     auto res = reducer(inp, out, 5, 7);
     res.wait();
 
@@ -133,8 +134,8 @@ TEST(reducer_l2_rm, random_data_reduce) {
     for (std::int64_t i = 0; i < size; i++)
         inp[i] = data[i];
 
-    auto reducer =
-        oneapi::dal::backend::primitives::l2_reducer_singlepass<float, layout::row_major>(q);
+    auto reducer = oneapi::dal::backend::primitives::
+        l2_reducer_singlepass<float, oneapi::dal::backend::layout::row_major>(q);
     auto res = reducer(inp, out, 13, 29);
     res.wait();
 
@@ -154,8 +155,8 @@ TEST(reducer_mean, can_handle_array) {
     for (std::int64_t i = 0; i < inp.get_count(); i++)
         inp[i] = static_cast<float>(i);
 
-    auto reducer =
-        oneapi::dal::backend::primitives::mean_reducer_singlepass<float, layout::row_major>(q);
+    auto reducer = oneapi::dal::backend::primitives::
+        mean_reducer_singlepass<float, oneapi::dal::backend::layout::row_major>(q);
     auto res = reducer(inp, out, 5, 7);
     res.wait();
 
