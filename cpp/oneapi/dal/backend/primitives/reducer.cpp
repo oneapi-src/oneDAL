@@ -44,7 +44,7 @@ struct unary_functor<Float, unary_operation::abs> {
 
 template <typename Float>
 struct unary_functor<Float, unary_operation::square> {
-    cFloat operator()(Float arg) const {
+    inline Float operator()(Float arg) const {
         return (arg * arg);
     }
 };
