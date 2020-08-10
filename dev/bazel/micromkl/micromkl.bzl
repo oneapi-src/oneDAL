@@ -2,6 +2,8 @@ load("@onedal//dev/bazel:repos.bzl", "repos")
 
 micromkl_repo = repos.prebuilt_libs_repo_rule(
     root_env_var = "MKLFPKROOT",
+    url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklfpk_lnx_2021.1-beta08.tgz",
+    sha256 = "cc1142f0cfd831e394a09231f89946ce84e87b33212845a46d5e869370570962",
     includes = [
         "include",
         "%{os}/include",
@@ -16,6 +18,7 @@ micromkl_repo = repos.prebuilt_libs_repo_rule(
 
 micromkl_dpc_repo = repos.prebuilt_libs_repo_rule(
     root_env_var = "MKLGPUFPKROOT",
+    url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklgpufpk_lnx_20200414.tgz",
     includes = [
         "include",
     ],
