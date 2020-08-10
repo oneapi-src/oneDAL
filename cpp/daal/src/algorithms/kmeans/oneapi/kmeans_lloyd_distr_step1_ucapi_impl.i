@@ -29,8 +29,6 @@
 
 #include "src/externals/service_ittnotify.h"
 
-#include <iostream>
-
 DAAL_ITTNOTIFY_DOMAIN(kmeans.dense.lloyd.distr.step1.oneapi);
 
 using namespace daal::internal;
@@ -54,7 +52,6 @@ template <typename algorithmFPType>
 Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, const NumericTable * const * a, size_t nr,
                                                                 const NumericTable * const * r, const Parameter * par)
 {
-//    std::cout << "step 1 compute begin" << std::endl;
     DAAL_ITTNOTIFY_SCOPED_TASK(compute);
 
     Status st;
@@ -118,7 +115,6 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
     bool needCandidates = true;
     for (size_t block = 0; block < nBlocks; block++)
     {
-//        std::cout << "block " << block << std::endl;
         auto range = Range::createFromBlock(block, blockSize, nRows);
         BlockDescriptor<algorithmFPType> dataRows;
         DAAL_CHECK_STATUS_VAR(ntData->getBlockOfRows(range.startIndex, range.count, readOnly, dataRows));
@@ -127,22 +123,16 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
         {
             return Status(ErrorNullPtr);
         }
-//        std::cout << "step 1 #1" << std::endl;
         this->computeSquares(inCentroids, this->_centroidsSq, nClusters, nFeatures, &st);
         DAAL_CHECK_STATUS_VAR(st);
-//        std::cout << "step 1 #2" << std::endl;
         this->computeDistances(data, inCentroids, range.count, nClusters, nFeatures, &st);
         DAAL_CHECK_STATUS_VAR(st);
-//        std::cout << "step 1 #3" << std::endl;
         this->computeAssignments(assignments, range.count, nClusters, &st);
         DAAL_CHECK_STATUS_VAR(st);
-//        std::cout << "step 1 #4" << std::endl;
         this->computeSquares(data, this->_dataSq, range.count, nFeatures, &st);
         DAAL_CHECK_STATUS_VAR(st);
-//        std::cout << "step 1 #5" << std::endl;    
         this->partialReduceCentroids(data, assignments, range.count, nClusters, nFeatures, int(block == 0), &st);
         DAAL_CHECK_STATUS_VAR(st);
-//        std::cout << "step 1 #6" << std::endl;    
         if (needCandidates)
         {
             this->getNumEmptyClusters(nClusters, &st);
@@ -167,10 +157,8 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
             }
             needCandidates = hasEmptyClusters;
         }
-//        std::cout << "step 1 #7" << std::endl;    
         this->updateObjectiveFunction(outObjFunction, range.count, nClusters, int(block == 0), &st);
         DAAL_CHECK_STATUS_VAR(st);
-//        std::cout << "step 1 #8" << std::endl;    
         ntData->releaseBlockOfRows(dataRows);
         if (par->assignFlag) {
             BlockDescriptor<int> assignmentsRows;
@@ -180,13 +168,10 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
             ntAssignments->releaseBlockOfRows(assignmentsRows);
         }
     }
-//    std::cout << "step 1 #10" << std::endl;
     this->mergeReduceCentroids(outCentroids, nClusters, nFeatures, &st);
     DAAL_CHECK_STATUS_VAR(st);
-//    std::cout << "step 1 #11" << std::endl;
     context.copy(outCCounters, 0, this->_partialCentroidsCounters, 0, nClusters, &st);
     DAAL_CHECK_STATUS_VAR(st);
-//    std::cout << "step 1 #12" << std::endl;
     ntInCentroids->releaseBlockOfRows(inCentroidsRows);
     ntClusterS0->releaseBlockOfRows(ntClusterS0Rows);
     ntClusterS1->releaseBlockOfRows(ntClusterS1Rows);
@@ -196,7 +181,6 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
         context.copy(outCValues, 0, this->_candidateDistances, 0, nClusters, &st);
     }
     DAAL_CHECK_STATUS_VAR(st);
-//    std::cout << "step 1 #13" << std::endl;
     ntCValues->releaseBlockOfRows(ntCValuesRows);
     if(needCandidates)
     {
@@ -205,7 +189,6 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
         {
             return Status(ErrorNullPtr);
         }
-//        std::cout << "step 1 #13.1" << std::endl;
         for(uint32_t cPos = 0; cPos < nClusters; cPos++)
         {
             int index = hostCandidates.get()[cPos];
@@ -219,11 +202,9 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
             DAAL_CHECK_STATUS_VAR(st);
         }
     }
-//    std::cout << "step 1 #14" << std::endl;
     DAAL_CHECK_STATUS_VAR(st);
     ntCCentroids->releaseBlockOfRows(ntCCentroidsRows);
     ntCCentroids->getBlockOfRows(0, nClusters, writeOnly, ntCCentroidsRows);
-//    std::cout << "step 1 compute end" << std::endl;
     return st;
 }
 
@@ -231,7 +212,6 @@ template <typename algorithmFPType>
 Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::finalizeCompute(size_t na, const NumericTable * const * a, size_t nr,
                                                                                    const NumericTable * const * r, const Parameter * par)
 {
-//    std::cout << "step 1 finalize begin" << std::endl;
     if (!par->assignFlag) return Status();
 
     NumericTable * ntPartialAssignments = const_cast<NumericTable *>(a[0]);
@@ -247,7 +227,6 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::finalizeCompute(size_
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     Status status;
     context.copy(outBlock.getBuffer(), 0, inBlock.getBuffer(), 0, n, &status);
-//    std::cout << "step 1 finalize end" << std::endl;
     return status;
 }
 
