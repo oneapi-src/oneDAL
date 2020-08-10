@@ -40,11 +40,11 @@ struct reducer_singlepass_kernel;
 
 template <typename Float,
           typename BinaryFunctor,
-          typename UnaryFunctor = unary_functor<Float, unary_operator::identity>,
-          data_layout Layout    = data_layout::row_major>
+          typename UnaryFunctor = unary_functor<Float, unary_operation::identity>,
+          layout Layout         = layout::row_major>
 struct reducer_singlepass {
 private:
-    constexpr static inline bool vectors_are_rows = (Layout == data_layout::row_major);
+    constexpr static inline bool vectors_are_rows = (Layout == layout::row_major);
     typedef impl::reducer_singlepass_kernel<UnaryFunctor, BinaryFunctor, Float, vectors_are_rows>
         kernel_t;
 
@@ -73,24 +73,24 @@ public:
 
 public:
     const BinaryFunctor binary;
-    const Unary Functor unary;
+    const UnaryFunctor unary;
 
 private:
     cl::sycl::queue& q;
     const std::int64_t max_work_group_size;
 };
 
-template <typename Float = float, data_layout Layout = data_layout::row_major>
+template <typename Float = float, layout Layout = layout::row_major>
 using l2_reducer_singlepass =
     reducer_singlepass<Float,
                        typename binary_functor<Float, binary_operation::sum>,
                        typename unary_functor<Float, unary_operation::square>,
                        Layout>;
 
-template <typename Float = float, data_layout Layout = data_layout::row_major>
+template <typename Float = float, layout Layout = layout::row_major>
 using mean_reducer_singlepass =
     reducer_singlepass<Float,
-                       typename binary_functor<Float, binary_operation::sum>,
+                       binary_functor<Float, binary_operation::sum>,
                        typename unary_functor<Float, unary_operation::identity>,
                        Layout>;
 

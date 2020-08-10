@@ -55,7 +55,8 @@ enum class binary_operation : int { min = 0, max = 1, sum = 2, mul = 3 };
 template <typename Float, binary_operation Op>
 struct binary_functor {
     constexpr static inline Float default_init_value = static_cast<Float>(NAN);
-    binary_functor(Float init_value_ = default_init_value) : init_value(init_value_){};
+    binary_functor(Float init_value_ = binary_functor<Float, Op>::default_init_value)
+            : init_value(init_value_){};
     inline Float operator()(Float a, Float b) const;
     const Float init_value;
 };
@@ -63,7 +64,9 @@ struct binary_functor {
 template <typename Float>
 struct binary_functor<Float, binary_operation::sum> {
     constexpr static inline Float default_init_value = 0;
-    binary_functor(Float init_value_ = default_init_value) : init_value(init_value_){};
+    binary_functor(
+        Float init_value_ = binary_functor<Float, binary_operation::sum>::default_init_value)
+            : init_value(init_value_){};
     inline Float operator()(Float a, Float b) const {
         return (a + b);
     }
@@ -72,8 +75,10 @@ struct binary_functor<Float, binary_operation::sum> {
 
 template <typename Float>
 struct binary_functor<Float, binary_operation::mul> {
-    constexpr static inline Float init_value = 1;
-    binary_functor(Float init_value_ = default_init_value) : init_value(init_value_){};
+    constexpr static inline Float default_init_value = 1;
+    binary_functor(
+        Float init_value_ = binary_functor<Float, binary_operation::sum>::default_init_value)
+            : init_value(init_value_){};
     inline Float operator()(Float a, Float b) const {
         return (a * b);
     }
@@ -82,8 +87,10 @@ struct binary_functor<Float, binary_operation::mul> {
 
 template <typename Float>
 struct binary_functor<Float, binary_operation::max> {
-    constexpr static inline Float init_value = std::numeric_limits<Float>::min();
-    binary_functor(Float init_value_ = default_init_value) : init_value(init_value_){};
+    constexpr static inline Float default_init_value = std::numeric_limits<Float>::min();
+    binary_functor(
+        Float init_value_ = binary_functor<Float, binary_operation::sum>::default_init_value)
+            : init_value(init_value_){};
     inline Float operator()(Float a, Float b) const {
         return std::max(a, b);
     }
@@ -92,8 +99,10 @@ struct binary_functor<Float, binary_operation::max> {
 
 template <typename Float>
 struct binary_functor<Float, binary_operation::min> {
-    constexpr static inline Float init_value = std::numeric_limits<Float>::max();
-    binary_functor(Float init_value_ = default_init_value) : init_value(init_value_){};
+    constexpr static inline Float defaultinit_value = std::numeric_limits<Float>::max();
+    binary_functor(
+        Float init_value_ = binary_functor<Float, binary_operation::sum>::default_init_value)
+            : init_value(init_value_){};
     inline Float operator()(Float a, Float b) const {
         return std::min(a, b);
     }

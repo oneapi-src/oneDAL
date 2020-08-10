@@ -102,7 +102,7 @@ private:
 
 } // namespace impl
 
-template <typename Float, typename BinaryFunctor, typename UnaryFunctor, data_layout Layout>
+template <typename Float, typename BinaryFunctor, typename UnaryFunctor, layout Layout>
 reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, Layout>::reducer_singlepass(
     cl::sycl::queue& queue,
     BinaryFunctor binary_func,
@@ -114,7 +114,7 @@ reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, Layout>::reducer_singlepa
               queue.get_device().template get_info<cl::sycl::info::device::max_work_group_size>(),
               256)) {}
 
-template <typename Float, typename BinaryFunctor, typename UnaryFunctor, data_layout Layout>
+template <typename Float, typename BinaryFunctor, typename UnaryFunctor, layout Layout>
 cl::sycl::event reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, Layout>::operator()(
     const Float* input,
     Float* output,
@@ -144,7 +144,7 @@ cl::sycl::event reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, Layout>::
     return event;
 }
 
-template <typename Float, typename BinaryFunctor, typename UnaryFunctor, data_layout Layout>
+template <typename Float, typename BinaryFunctor, typename UnaryFunctor, layout Layout>
 cl::sycl::event reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, Layout>::operator()(
     array<Float> input,
     array<Float> output,
@@ -164,7 +164,7 @@ cl::sycl::event reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, Layout>::
                             work_items_per_group);
 }
 
-template <typename Float, typename BinaryFunctor, typename UnaryFunctor, data_layout Layout>
+template <typename Float, typename BinaryFunctor, typename UnaryFunctor, layout Layout>
 cl::sycl::event reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, Layout>::operator()(
     const Float* input,
     Float* output,
@@ -173,7 +173,7 @@ cl::sycl::event reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, Layout>::
     return this->operator()(input, output, vector_size, n_vectors, this->max_work_group_size);
 }
 
-template <typename Float, typename BinaryFunctor, typename UnaryFunctor, data_layout Layout>
+template <typename Float, typename BinaryFunctor, typename UnaryFunctor, layout Layout>
 cl::sycl::event reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, Layout>::operator()(
     array<Float> input,
     array<Float> output,
