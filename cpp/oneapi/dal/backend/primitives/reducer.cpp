@@ -155,7 +155,7 @@ cl::sycl::event reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, Layout>::
         throw std::exception();
     if (input.get_count() < (vector_size * n_vectors))
         throw std::exception();
-    if (output.get_count() < (IsRowMajorLayout ? n_vectors : vector_size))
+    if (output.get_count() < (vectors_are_rows ? n_vectors : vector_size))
         throw std::exception();
     return this->operator()(input.get_data(),
                             output.get_mutable_data(),

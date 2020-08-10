@@ -81,18 +81,16 @@ private:
 };
 
 template <typename Float = float, layout Layout = layout::row_major>
-using l2_reducer_singlepass =
-    reducer_singlepass<Float,
-                       typename binary_functor<Float, binary_operation::sum>,
-                       typename unary_functor<Float, unary_operation::square>,
-                       Layout>;
+using l2_reducer_singlepass = reducer_singlepass<Float,
+                                                 binary_functor<Float, binary_operation::sum>,
+                                                 unary_functor<Float, unary_operation::square>,
+                                                 Layout>;
 
 template <typename Float = float, layout Layout = layout::row_major>
-using mean_reducer_singlepass =
-    reducer_singlepass<Float,
-                       binary_functor<Float, binary_operation::sum>,
-                       typename unary_functor<Float, unary_operation::identity>,
-                       Layout>;
+using mean_reducer_singlepass = reducer_singlepass<Float,
+                                                   binary_functor<Float, binary_operation::sum>,
+                                                   unary_functor<Float, unary_operation::identity>,
+                                                   Layout>;
 
 #endif
 
