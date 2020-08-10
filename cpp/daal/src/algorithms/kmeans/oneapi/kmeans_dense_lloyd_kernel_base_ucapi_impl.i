@@ -237,7 +237,7 @@ void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computeDistances(const Bu
 }
 
 template <typename algorithmFPType>
-void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computeAssignments(const Buffer<int> & assignments, uint32_t blockSize, uint32_t nClusters,
+void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computeAssignments(const UniversalBuffer& assignments, uint32_t blockSize, uint32_t nClusters,
                                                                            Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeAssignments);
@@ -275,7 +275,7 @@ void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computeAssignments(const 
 }
 
 template <typename algorithmFPType>
-void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computePartialCandidates(const Buffer<int> & assignments, uint32_t blockSize,
+void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computePartialCandidates(const UniversalBuffer& assignments, uint32_t blockSize,
                                                                                  uint32_t nClusters, uint32_t reset, Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computePartialCandidates);
@@ -342,7 +342,7 @@ void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::mergePartialCandidates(ui
 }
 
 template <typename algorithmFPType>
-void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::partialReduceCentroids(const Buffer<algorithmFPType> & data, const Buffer<int> & assignments,
+void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::partialReduceCentroids(const Buffer<algorithmFPType> & data, const UniversalBuffer & assignments,
                                                                                uint32_t blockSize, uint32_t nClusters, uint32_t nFeatures,
                                                                                uint32_t doReset, Status * st)
 {

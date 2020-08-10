@@ -26,8 +26,11 @@
 #include "sycl/internal/types.h"
 #include "src/sycl/blas_gpu.h"
 #include "src/algorithms/kmeans/oneapi/kmeans_lloyd_distr_step2_kernel_ucapi.h"
+#include "src/algorithms/kmeans/oneapi/cl_kernels/kmeans_cl_kernels_distr_steps.cl"
+#include "src/data_management/service_numeric_table.h"
 
 #include "src/externals/service_ittnotify.h"
+//#include <iostream>
 
 DAAL_ITTNOTIFY_DOMAIN(kmeans.dense.lloyd.distr.step2.oneapi);
 
@@ -52,12 +55,12 @@ Status KMeansDistributedStep2KernelUCAPI<algorithmFPType>::compute(size_t na, co
 {
     Status st;
     
+//    std::cout << "Step 2 compute begin" << std::endl;
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
 
     const size_t nClusters = par->nClusters;
     const size_t nFeatures = r[1]->getNumberOfColumns();
-    int result             = 0;
 
     NumericTable * ntClusterS0    = const_cast<NumericTable *>(r[0]);
     NumericTable * ntClusterS1    = const_cast<NumericTable *>(r[1]);
@@ -95,31 +98,36 @@ Status KMeansDistributedStep2KernelUCAPI<algorithmFPType>::compute(size_t na, co
 
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(compute.buildProgram);
-        kernel_factory.build(ExecutionTargetIds::device, cachekey.c_str(), kmeans_cl_kernels_distr, build_options.c_str());
+        kernel_factory.build(ExecutionTargetIds::device, cachekey.c_str(), kmeans_cl_kernels_distr_steps, build_options.c_str(), &st);
+        DAAL_CHECK_STATUS_VAR(st);
     }
 
     auto initClustersKernel     = kernel_factory.getKernel("init_clusters_distr", &st);
+    DAAL_CHECK_STATUS_VAR(st);
     auto updateClustersKernel   = kernel_factory.getKernel("update_clusters_distr", &st);
+    DAAL_CHECK_STATUS_VAR(st);
     auto initCandidatesKernel   = kernel_factory.getKernel("init_candidates_distr", &st);
+    DAAL_CHECK_STATUS_VAR(st);
     auto updateCandidatesKernel = kernel_factory.getKernel("update_candidates_distr", &st);
+    DAAL_CHECK_STATUS_VAR(st);
 
     const size_t nBlocks = na / 5;
 
     algorithmFPType tmpObjValue = 0.0;
-
+    
     for (size_t i = 0; i < nBlocks; i++)
     {
         BlockDescriptor<int> ntParClusterS0Rows;
         const_cast<NumericTable *>(a[i * 5 + 0])->getBlockOfRows(0, nClusters, readOnly, ntParClusterS0Rows);
         auto inParClusterS0 = ntParClusterS0Rows.getBuffer();
-
+        
         BlockDescriptor<algorithmFPType> ntParClusterS1Rows;
         const_cast<NumericTable *>(a[i * 5 + 1])->getBlockOfRows(0, nClusters, readOnly, ntParClusterS1Rows);
         auto inParClusterS1 = ntParClusterS1Rows.getBuffer();
-
+        
         updateClusters(context, i == 0 ? initClustersKernel : updateClustersKernel, inParClusterS0, 
                        inParClusterS1, outCCounters, outCentroids, nClusters, nFeatures, &st); 
-
+        
         BlockDescriptor<algorithmFPType> ntParObjFunctionRows;
         const_cast<NumericTable *>(a[i * 5 + 2])->getBlockOfRows(0, 1, readOnly, ntParObjFunctionRows);
         auto inParObjFunction = ntParObjFunctionRows.getBuffer().toHost(data_management::readOnly);
@@ -135,10 +143,17 @@ Status KMeansDistributedStep2KernelUCAPI<algorithmFPType>::compute(size_t na, co
 
         updateCandidates(context, i == 0 ? initCandidatesKernel : updateCandidatesKernel, intParCCandidates,
                         inParCValues, outCCentroids, outCValues, nClusters, &st); 
+
+       const_cast<NumericTable *>(a[i * 5 + 0])->releaseBlockOfRows(ntParClusterS0Rows);
+       const_cast<NumericTable *>(a[i * 5 + 1])->releaseBlockOfRows(ntParClusterS1Rows);
+       const_cast<NumericTable *>(a[i * 5 + 2])->releaseBlockOfRows(ntParObjFunctionRows);
+       const_cast<NumericTable *>(a[i * 5 + 3])->releaseBlockOfRows(ntParCValuesRows);
+       const_cast<NumericTable *>(a[i * 5 + 4])->releaseBlockOfRows(ntParCCandidates);
+
     }
     outObjFunction.get()[0] = tmpObjValue;
     {
-        auto retCentroids = outCentroids.toHost(ReadWriteMode::readOnly);
+        auto retCentroids = outCentroids.toHost(ReadWriteMode::readWrite);
         auto retCCounters = outCCounters.toHost(ReadWriteMode::readOnly);        
         for(int j = 0; j < nClusters; j++) 
         {
@@ -154,6 +169,8 @@ Status KMeansDistributedStep2KernelUCAPI<algorithmFPType>::compute(size_t na, co
     ntObjFunction->releaseBlockOfRows(ntObjFunctionRows);
     ntCValues->releaseBlockOfRows(ntCValuesRows);
     ntCCentroids->releaseBlockOfRows(ntCCentroidsRows);
+//    std::cout << "Step 2 compute end" << std::endl;
+    
     return st;
 }
 
@@ -161,7 +178,6 @@ template <typename algorithmFPType>
 Status KMeansDistributedStep2KernelUCAPI<algorithmFPType>::finalizeCompute(size_t na, const NumericTable * const * a, size_t nr,
                                                                                    const NumericTable * const * r, const Parameter * par)
 {
-    /*
     const size_t p         = a[1]->getNumberOfColumns();
     const size_t nClusters = par->nClusters;
     int result             = 0;
@@ -219,7 +235,7 @@ Status KMeansDistributedStep2KernelUCAPI<algorithmFPType>::finalizeCompute(size_
         }
     }
 
-    return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);*/
+    return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
     return Status();
 }
 
@@ -237,12 +253,19 @@ void KMeansDistributedStep2KernelUCAPI<algorithmFPType>::updateClusters(
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.mergeReduceCentroids);
 
+//    auto & kernel_factory = context.getClKernelFactory();
+//    auto emptyKernel     = kernel_factory.getKernel("empty_kernel", st);
+//    DAAL_CHECK_STATUS_PTR(st);
+
     KernelArguments args(5);
     args.set(0, partialCentroidsCounters, AccessModeIds::read);
     args.set(1, partialCentroids, AccessModeIds::read);
     args.set(2, centroidCounters, AccessModeIds::readwrite);
     args.set(3, centroids, AccessModeIds::readwrite);
     args.set(4, nFeatures);
+    
+    uint32_t localSize = nFeatures > _maxWGSize ? _maxWGSize : nFeatures;
+//    std::cout << "localSize: " << localSize << " " << "; nFeatures: " << nFeatures << "; nClusters: " << nClusters << std::endl;
 
     KernelRange local_range(1, nFeatures > _maxWGSize ? _maxWGSize : nFeatures);
     KernelRange global_range(nClusters, nFeatures);
@@ -257,6 +280,8 @@ void KMeansDistributedStep2KernelUCAPI<algorithmFPType>::updateClusters(
         DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateClusters.run);
         context.run(range, kernelUpdateClusters, args, st);
     }
+    DAAL_CHECK_STATUS_PTR(st);
+//    std::cout << "Run done" << std::endl;
 }
 
 template <typename algorithmFPType>
