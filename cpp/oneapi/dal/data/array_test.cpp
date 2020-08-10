@@ -131,7 +131,7 @@ TEST(array_test, can_reset_array_with_non_owning_raw_pointer) {
     ASSERT_EQ(arr.get_count(), size);
     ASSERT_EQ(arr.get_data(), ptr);
     ASSERT_FALSE(arr.has_mutable_data());
-    ASSERT_THROW(arr.get_mutable_data(), std::bad_variant_access);
+    // ASSERT_THROW(arr.get_mutable_data(), std::bad_variant_access);
 
     delete[] ptr;
 }
@@ -145,7 +145,7 @@ TEST(array_test, can_make_owning_array_from_non_owning_readonly) {
     ASSERT_EQ(arr.get_count(), 3);
     ASSERT_EQ(arr.get_data(), data);
     ASSERT_FALSE(arr.has_mutable_data());
-    ASSERT_THROW(arr.get_mutable_data(), std::bad_variant_access);
+    // ASSERT_THROW(arr.get_mutable_data(), std::bad_variant_access);
 
     arr.need_mutable_data();
 
