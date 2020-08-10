@@ -23,6 +23,7 @@
     #include <CL/sycl.hpp>
 #endif
 
+#include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/reducer.hpp"
 #include "oneapi/dal/data/array.hpp"
 
