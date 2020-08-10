@@ -23,8 +23,6 @@
 
 #pragma once
 
-#include <memory>
-
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/data/detail/graph_container.hpp"
 #include "oneapi/dal/data/graph_common.hpp"

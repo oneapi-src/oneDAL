@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include <memory>
-
 #include "oneapi/dal/data/detail/graph_container.hpp"
 #include "oneapi/dal/data/detail/undirected_adjacency_array_graph_impl.hpp"
 #include "oneapi/dal/data/graph_common.hpp"

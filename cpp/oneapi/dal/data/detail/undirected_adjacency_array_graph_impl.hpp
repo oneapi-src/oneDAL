@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include <memory>
-
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/data/array.hpp"
 #include "oneapi/dal/data/detail/graph_container.hpp"

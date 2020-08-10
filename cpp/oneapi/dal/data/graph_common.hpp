@@ -23,8 +23,6 @@
 
 #pragma once
 
-#include <memory>
-
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
