@@ -37,8 +37,8 @@ void run(sycl::queue &queue) {
 
     auto x_train = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(x_train, x_train_host, sizeof(float) * row_count * column_count).wait();
-    const auto x_train_table = dal::homogen_table{ queue, row_count, column_count, x_train_host };
-    const auto x_test_table  = dal::homogen_table{ cluster_count, column_count, x_test_host };
+    const auto x_train_table = dal::homogen_table{ queue, x_train_host, row_count, column_count, dal::empty_delete<const float>() };
+    const auto x_test_table  = dal::homogen_table{ x_test_host, cluster_count, column_count, dal::empty_delete<const float>() };
 
     const auto kmeans_init_desc = dal::kmeans_init::descriptor<>().set_cluster_count(cluster_count);
 

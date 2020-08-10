@@ -53,16 +53,16 @@ void run(sycl::queue &queue) {
               sizeof(float) * row_count_train * column_count)
       .wait();
   const auto x_train_table =
-      dal::homogen_table{queue, row_count_train, column_count, x_train, dal::make_default_delete<const float>(queue)};
+      dal::homogen_table{queue, x_train, row_count_train, column_count, dal::make_default_delete<const float>(queue)};
 
   auto y_train = sycl::malloc_shared<float>(row_count_train, queue);
   queue.memcpy(y_train, y_train_host, sizeof(float) * row_count_train).wait();
   const auto y_train_table =
-      dal::homogen_table{queue, row_count_train, 1, y_train, dal::make_default_delete<const float>(queue)};
+      dal::homogen_table{queue, y_train, row_count_train, 1, dal::make_default_delete<const float>(queue)};
 
   const auto x_test_table =
-      dal::homogen_table{row_count_test, column_count, x_test_host, dal::empty_delete<const float>()};
-  const auto y_test_table = dal::homogen_table{row_count_test, 1, y_test_host, dal::empty_delete<const float>()};
+      dal::homogen_table{x_test_host, row_count_test, column_count, dal::empty_delete<const float>()};
+  const auto y_test_table = dal::homogen_table{y_test_host, row_count_test, 1, dal::empty_delete<const float>()};
 
   const auto df_train_desc =
       df::descriptor<float, df::task::regression, df::method::hist>{}

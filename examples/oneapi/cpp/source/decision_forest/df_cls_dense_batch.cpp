@@ -42,12 +42,12 @@ int main(int argc, char const *argv[]) {
   };
 
   const auto x_train_table =
-      dal::homogen_table{row_count_train, column_count, x_train, dal::empty_delete<const float>()};
-  const auto y_train_table = dal::homogen_table{row_count_train, 1, y_train, dal::empty_delete<const float>()};
+      dal::homogen_table{x_train, row_count_train, column_count, dal::empty_delete<const float>()};
+  const auto y_train_table = dal::homogen_table{y_train, row_count_train, 1, dal::empty_delete<const float>()};
 
   const auto x_test_table =
-      dal::homogen_table{row_count_test, column_count, x_test, dal::empty_delete<const float>()};
-  const auto y_test_table = dal::homogen_table{row_count_test, 1, y_test, dal::empty_delete<const float>()};
+      dal::homogen_table{x_test, row_count_test, column_count, dal::empty_delete<const float>()};
+  const auto y_test_table = dal::homogen_table{y_test, row_count_test, 1, dal::empty_delete<const float>()};
 
   const auto df_desc =
       df::descriptor<float, df::task::classification, df::method::dense>{}

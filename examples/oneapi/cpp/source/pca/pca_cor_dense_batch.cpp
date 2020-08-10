@@ -34,7 +34,7 @@ int main(int argc, char const *argv[]) {
         -4.f, 3.f,  0.f
     };
 
-    const auto data_table = dal::homogen_table{ row_count, column_count, data, dal::empty_delete<const float>() };
+    const auto data_table = dal::homogen_table{ data, row_count, column_count, dal::empty_delete<const float>() };
 
     const auto pca_desc = dal::pca::descriptor<>()
         .set_component_count(3)

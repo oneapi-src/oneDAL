@@ -36,7 +36,7 @@ TEST(kmeans_init_gpu, train_result) {
                                 -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
     auto data               = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(data, data_host, sizeof(float) * row_count * column_count).wait();
-    const auto data_table = homogen_table{ queue, row_count, column_count, data };
+    const auto data_table = homogen_table{ queue, data, row_count, column_count, empty_delete<const float>() };
 
     const float centroids[] = { 1.0, 1.0, 2.0, 2.0 };
 

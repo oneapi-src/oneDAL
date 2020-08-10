@@ -14,8 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <CL/sycl.hpp>
-
 #include "gtest/gtest.h"
 #include "oneapi/dal/algo/kmeans_init.hpp"
 #include "oneapi/dal/data/accessor.hpp"
@@ -30,7 +28,7 @@ TEST(kmeans_init_cpu, train_result) {
 
     const float data[]    = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
                            -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
-    const auto data_table = homogen_table{ row_count, column_count, data };
+    const auto data_table = homogen_table{ data, row_count, column_count, empty_delete<const float>() };
 
     const float centroids[] = { 1.0, 1.0, 2.0, 2.0 };
 
