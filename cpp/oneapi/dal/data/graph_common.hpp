@@ -1,4 +1,4 @@
-/* file: graph.hpp */
+/* file: graph_common.hpp */
 /*******************************************************************************
  * Copyright 2020 Intel Corporation
  *
