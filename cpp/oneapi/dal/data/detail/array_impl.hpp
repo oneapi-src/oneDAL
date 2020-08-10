@@ -139,13 +139,21 @@ public:
 
     template <typename Y>
     void reset(const array_impl<Y>& ref, T* data, std::int64_t count) {
-        data_owned_ = shared(std::get<1>(ref.data_owned_), data);
+        if(ref.has_mutable_data()) {
+            data_owned_ = shared(std::get<1>(ref.data_owned_), data);
+        } else {
+            data_owned_ = shared(std::get<0>(ref.data_owned_), data);
+        }
         count_ = count;
     }
 
     template <typename Y>
     void reset(const array_impl<Y>& ref, const T* data, std::int64_t count) {
-        data_owned_ = cshared(std::get<0>(ref.data_owned_), data);
+        if(ref.has_mutable_data()) {
+            data_owned_ = cshared(std::get<1>(ref.data_owned_), data);
+        } else {
+            data_owned_ = cshared(std::get<0>(ref.data_owned_), data);
+        }
         count_ = count;
     }
 

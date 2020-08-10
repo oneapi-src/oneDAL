@@ -123,7 +123,7 @@ TEST(homogen_table_test, can_set_custom_implementation) {
 TEST(homogen_table_test, can_construct_rowmajor_table_3x2) {
     float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f };
 
-    homogen_table t{ 3, 2, data, empty_delete<const float>() };
+    homogen_table t{ data, 3, 2, empty_delete<const float>() };
 
     ASSERT_TRUE(t.has_data());
     ASSERT_EQ(3, t.get_row_count());
@@ -143,7 +143,7 @@ TEST(homogen_table_test, can_construct_rowmajor_table_3x2) {
 
 TEST(homogen_table_test, can_construct_colmajor_float64_table) {
     double data[] = { 1., 2., 3., 4., 5., 6. };
-    homogen_table t{ 2, 3, data, empty_delete<const double>(), homogen_data_layout::column_major };
+    homogen_table t{ data, 2, 3, empty_delete<const double>(), homogen_data_layout::column_major };
 
     ASSERT_TRUE(t.has_data());
     ASSERT_EQ(2, t.get_row_count());
@@ -163,7 +163,7 @@ TEST(homogen_table_test, can_construct_colmajor_float64_table) {
 TEST(homogen_table_test, can_construct_table_reference) {
     float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f };
 
-    homogen_table t1{ 3, 2, data, empty_delete<const float>() };
+    homogen_table t1{ data, 3, 2, empty_delete<const float>() };
     homogen_table t2 = t1;
 
     ASSERT_TRUE(t1.has_data());
@@ -189,7 +189,7 @@ TEST(homogen_table_test, can_construct_table_reference) {
 TEST(homogen_table_test, can_construct_table_with_move) {
     float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f };
 
-    homogen_table t1{ 3, 2, data, empty_delete<const float>() };
+    homogen_table t1{ data, 3, 2, empty_delete<const float>() };
     homogen_table t2 = std::move(t1);
 
     ASSERT_FALSE(t1.has_data());
@@ -212,8 +212,8 @@ TEST(homogen_table_test, can_assign_two_table_references) {
 
     std::int32_t data_int[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
 
-    homogen_table t1{ 3, 2, data_float, empty_delete<const float>() };
-    homogen_table t2{ 4, 3, data_int, empty_delete<const std::int32_t>() };
+    homogen_table t1{ data_float, 3, 2, empty_delete<const float>() };
+    homogen_table t2{ data_int, 4, 3, empty_delete<const std::int32_t>() };
 
     t1 = t2;
 
@@ -236,8 +236,8 @@ TEST(homogen_table_test, can_move_assigned_table_reference) {
 
     std::int32_t data_int[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
 
-    homogen_table t1{ 3, 2, data_float, empty_delete<const float>() };
-    homogen_table t2{ 4, 3, data_int, empty_delete<const std::int32_t>() };
+    homogen_table t1{ data_float, 3, 2, empty_delete<const float>() };
+    homogen_table t2{ data_int, 4, 3, empty_delete<const std::int32_t>() };
 
     t1 = std::move(t2);
 
@@ -251,7 +251,7 @@ TEST(homogen_table_test, can_move_assigned_table_reference) {
 TEST(homogen_table_test, can_upcast_table) {
     float data_float[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f };
 
-    table t = homogen_table{ 3, 2, data_float, empty_delete<const float>() };
+    table t = homogen_table{ data_float, 3, 2, empty_delete<const float>() };
 
     ASSERT_TRUE(t.has_data());
     ASSERT_EQ(3, t.get_row_count());
@@ -263,7 +263,7 @@ TEST(homogen_table_test, can_upcast_table) {
 TEST(homogen_table_test, can_read_table_data_via_row_accessor) {
     double data[] = { 1.0, 2.0, 3.0, -1.0, -2.0, -3.0 };
 
-    homogen_table t{ 2, 3, data, empty_delete<const double>() };
+    homogen_table t{ data, 2, 3, empty_delete<const double>() };
     const auto rows_block = row_accessor<const double>(t).pull({ 0, -1 });
 
     ASSERT_EQ(t.get_row_count() * t.get_column_count(), rows_block.get_count());
@@ -277,7 +277,7 @@ TEST(homogen_table_test, can_read_table_data_via_row_accessor) {
 TEST(homogen_table_test, can_read_table_data_via_row_accessor_with_conversion) {
     float data[] = { 1.0f, 2.0f, 3.0f, -1.0f, -2.0f, -3.0f };
 
-    homogen_table t{ 2, 3, data, empty_delete<const float>() };
+    homogen_table t{ data, 2, 3, empty_delete<const float>() };
     auto rows_block = row_accessor<const double>(t).pull({ 0, -1 });
 
     ASSERT_EQ(t.get_row_count() * t.get_column_count(), rows_block.get_count());
@@ -291,7 +291,7 @@ TEST(homogen_table_test, can_read_table_data_via_row_accessor_with_conversion) {
 TEST(homogen_table_test, can_read_table_data_via_row_accessor_and_array_outside) {
     float data[] = { 1.0f, 2.0f, 3.0f, -1.0f, -2.0f, -3.0f };
 
-    homogen_table t{ 2, 3, data, empty_delete<const float>() };
+    homogen_table t{ data, 2, 3, empty_delete<const float>() };
     auto arr = array<float>::empty(10);
 
     auto rows_ptr = row_accessor<const float>(t).pull(arr, { 0, -1 });

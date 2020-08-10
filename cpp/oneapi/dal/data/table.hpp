@@ -78,9 +78,9 @@ public:
     }
 
     template <typename Data, typename ConstDeleter>
-    homogen_table(std::int64_t row_count,
+    homogen_table(const Data* data_pointer,
+                  std::int64_t row_count,
                   std::int64_t column_count,
-                  const Data* data_pointer,
                   ConstDeleter&& data_deleter,
                   homogen_data_layout layout = homogen_data_layout::row_major) {
         init_impl(detail::default_host_policy{},
@@ -94,12 +94,12 @@ public:
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     template <typename Data, typename ConstDeleter>
     homogen_table(const sycl::queue& queue,
+                  const Data* data_pointer,
                   std::int64_t row_count,
                   std::int64_t column_count,
-                  const Data* data_pointer,
                   ConstDeleter&& data_deleter,
-                  homogen_data_layout layout = homogen_data_layout::row_major,
-                  const sycl::vector_class<sycl::event>& dependencies = {}) {
+                  const sycl::vector_class<sycl::event>& dependencies = {},
+                  homogen_data_layout layout = homogen_data_layout::row_major) {
         init_impl(detail::data_parallel_policy{ queue },
                   row_count,
                   column_count,
