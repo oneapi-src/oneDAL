@@ -30,21 +30,21 @@ namespace oneapi::dal::backend::primitives {
 
 template <typename Float>
 struct unary_functor<Float, unary_operation::identity> {
-    Float operator()(Float arg) const {
+    inline Float operator()(Float arg) const {
         return arg;
     }
 };
 
 template <typename Float>
 struct unary_functor<Float, unary_operation::abs> {
-    Float operator()(Float arg) const {
+    inline Float operator()(Float arg) const {
         return std::abs(arg);
     }
 };
 
 template <typename Float>
 struct unary_functor<Float, unary_operation::square> {
-    Float operator()(Float arg) const {
+    cFloat operator()(Float arg) const {
         return (arg * arg);
     }
 };
@@ -59,36 +59,36 @@ template struct unary_functor<double, unary_operation::abs>;
 
 template <typename Float>
 struct binary_functor<Float, binary_operation::sum> {
-    constexpr static Float init_value = 0;
+    constexpr static inline Float init_value = 0;
 
-    Float operator()(Float a, Float b) const {
+    inline Float operator()(Float a, Float b) const {
         return (a + b);
     }
 };
 
 template <typename Float>
 struct binary_functor<Float, binary_operation::mul> {
-    constexpr static Float init_value = 1;
+    constexpr static inline Float init_value = 1;
 
-    Float operator()(Float a, Float b) const {
+    inline Float operator()(Float a, Float b) const {
         return (a * b);
     }
 };
 
 template <typename Float>
 struct binary_functor<Float, binary_operation::max> {
-    constexpr static Float init_value = std::numeric_limits<Float>::min();
+    constexpr static inline Float init_value = std::numeric_limits<Float>::min();
 
-    Float operator()(Float a, Float b) const {
+    inline Float operator()(Float a, Float b) const {
         return std::max(a, b);
     }
 };
 
 template <typename Float>
 struct binary_functor<Float, binary_operation::min> {
-    constexpr static Float init_value = std::numeric_limits<Float>::max();
+    constexpr static inline Float init_value = std::numeric_limits<Float>::max();
 
-    Float operator()(Float a, Float b) const {
+    inline Float operator()(Float a, Float b) const {
         return std::min(a, b);
     }
 };
