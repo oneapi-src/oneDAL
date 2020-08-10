@@ -102,14 +102,16 @@ private:
 } // namespace impl
 
 template <typename Float, typename BinaryFunctor, typename UnaryFunctor, data_layout Layout>
-reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, Layout>::reducer_singlepass(cl::sycl::queue& queue, 
-                                                                                  BinaryFunctor binary_func, 
-                                                                                  UnaryFunctor unary_func)
+reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, Layout>::reducer_singlepass(
+    cl::sycl::queue& queue,
+    BinaryFunctor binary_func,
+    UnaryFunctor unary_func)
         : binary(binary_func),
           unary(unary_func),
           q(queue),
           max_work_group_size(std::min<std::int64_t>(
-              queue.get_device().template get_info<cl::sycl::info::device::max_work_group_size>(), 256)) {}
+              queue.get_device().template get_info<cl::sycl::info::device::max_work_group_size>(),
+              256)) {}
 
 template <typename Float, typename BinaryFunctor, typename UnaryFunctor, data_layout Layout>
 cl::sycl::event reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, Layout>::operator()(
@@ -180,7 +182,6 @@ cl::sycl::event reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, Layout>::
 }
 
 //Direct instantiation
-
 
 #endif
 

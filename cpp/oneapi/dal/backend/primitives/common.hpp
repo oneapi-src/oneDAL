@@ -18,7 +18,6 @@
 
 namespace oneapi::dal::backend::primitives {
 
-enum class layout : int { row_major = 0, col_major = 1};
+enum class layout : int { row_major = 0, col_major = 1 };
 
-} // oneapi::dal::backend::primitives
-
+} // namespace oneapi::dal::backend::primitives

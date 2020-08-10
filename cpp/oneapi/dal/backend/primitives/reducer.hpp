@@ -23,9 +23,9 @@
     #include <CL/sycl.hpp>
 #endif
 
-#include "oneapi/dal/data/array.hpp"
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/functors.hpp"
+#include "oneapi/dal/data/array.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -46,11 +46,11 @@ struct reducer_singlepass {
 private:
     constexpr static inline bool vectors_are_rows = (Layout == data_layout::row_major);
     typedef impl::reducer_singlepass_kernel<UnOp, BinOp, Float, vectors_are_rows> kernel_t;
-    
+
 public:
-    reducer_singlepass( cl::sycl::queue& q, 
-                        BinaryFunctor binary_func = BinaryFunctor{}, 
-                        UnaryFunctor unary_func   = UnaryFunctor{});
+    reducer_singlepass(cl::sycl::queue& q,
+                       BinaryFunctor binary_func = BinaryFunctor{},
+                       UnaryFunctor unary_func   = UnaryFunctor{});
     cl::sycl::event operator()(array<Float> input,
                                array<Float> output,
                                std::int64_t vector_size,
