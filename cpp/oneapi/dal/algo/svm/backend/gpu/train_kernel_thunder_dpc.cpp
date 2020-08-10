@@ -55,10 +55,43 @@ static train_result call_daal_kernel(const context_gpu& ctx,
     auto arr_data  = row_accessor<const Float>{ data }.pull(queue);
     auto arr_label = row_accessor<const Float>{ labels }.pull(queue);
 
+    // TODO: make for dpcpp kernel
+    auto arr_new_label = array<Float>::empty(queue, row_count * 1);
+    arr_label.need_mutable_data(queue);
+    Float value_first_class_label  = arr_label[0];
+    Float value_second_class_label = arr_label[1];
+
+    arr_new_label[0] = Float(-1.0);
+    std::int64_t i   = 1;
+    for (; i < row_count; ++i) {
+        if (arr_label[i] == value_first_class_label) {
+            arr_new_label[i] = Float(-1.0);
+        }
+        else {
+            value_second_class_label = arr_label[i];
+            arr_new_label[i]         = Float(+1.0);
+        }
+    }
+    if (value_first_class_label == value_second_class_label) {
+        throw invalid_argument("Input label data should have more one unique label");
+    }
+
+    for (; i < row_count; ++i) {
+        if (arr_label[i] == value_first_class_label) {
+            arr_new_label[i] = Float(-1.0);
+        }
+        else if (arr_label[i] == value_second_class_label) {
+            arr_new_label[i] = Float(+1.0);
+        }
+        else {
+            throw invalid_argument("Input label data should have only two unique labels");
+        }
+    }
+
     const auto daal_data =
         interop::convert_to_daal_sycl_homogen_table(queue, arr_data, row_count, column_count);
     const auto daal_labels =
-        interop::convert_to_daal_sycl_homogen_table(queue, arr_label, row_count, 1);
+        interop::convert_to_daal_sycl_homogen_table(queue, arr_new_label, row_count, 1);
 
     auto kernel_impl       = desc.get_kernel_impl()->get_impl();
     const auto daal_kernel = kernel_impl->get_daal_kernel_function();
@@ -79,9 +112,11 @@ static train_result call_daal_kernel(const context_gpu& ctx,
     auto table_support_indices =
         interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());
 
-    return train_result()
-        .set_model(convert_from_daal_model<Float>(*daal_model))
-        .set_support_indices(table_support_indices);
+    auto trained_model = convert_from_daal_model<Float>(*daal_model)
+                             .set_first_class_label(value_first_class_label)
+                             .set_second_class_label(value_second_class_label);
+
+    return train_result().set_model(trained_model).set_support_indices(table_support_indices);
 }
 
 template <typename Float>

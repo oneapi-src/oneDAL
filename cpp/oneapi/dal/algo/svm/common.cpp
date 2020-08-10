@@ -140,7 +140,9 @@ public:
     table support_vectors;
     table coefficients;
     double bias;
-    std::int64_t support_vectors_count;
+    std::int64_t support_vector_count;
+    double first_class_label;
+    double second_class_label;
 };
 
 using detail::descriptor_impl;
@@ -235,7 +237,15 @@ double model::get_bias() const {
 }
 
 std::int64_t model::get_support_vector_count() const {
-    return impl_->support_vectors_count;
+    return impl_->support_vector_count;
+}
+
+std::int64_t model::get_first_class_label() const {
+    return impl_->first_class_label;
+}
+
+std::int64_t model::get_second_class_label() const {
+    return impl_->second_class_label;
 }
 
 void model::set_support_vectors_impl(const table &value) {
@@ -251,7 +261,15 @@ void model::set_bias_impl(const double value) {
 }
 
 void model::set_support_vector_count_impl(const std::int64_t value) {
-    impl_->support_vectors_count = value;
+    impl_->support_vector_count = value;
+}
+
+void model::set_first_class_label_impl(const std::int64_t value) {
+    impl_->first_class_label = value;
+}
+
+void model::set_second_class_label_impl(const std::int64_t value) {
+    impl_->second_class_label = value;
 }
 
 } // namespace oneapi::dal::svm

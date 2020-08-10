@@ -24,20 +24,10 @@ int main(int argc, char const *argv[]) {
     constexpr std::int64_t row_count_train = 6;
     constexpr std::int64_t column_count = 2;
     const float x_train[] = {
-        -2.f, -1.f,
-        -1.f, -1.f,
-        -1.f, -2.f,
-        +1.f, +1.f,
-        +1.f, +2.f,
-        +2.f, +1.f,
+        -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f, +1.f, +2.f, +2.f, +1.f,
     };
     const float y_train[] = {
-        -1.f,
-        -1.f,
-        -1.f,
-        +1.f,
-        +1.f,
-        +1.f,
+        0.f, 0.f, 0.f, 1.f, 1.f, 1.f,
     };
 
     const auto x_train_table =
@@ -68,14 +58,12 @@ int main(int argc, char const *argv[]) {
 
     constexpr std::int64_t row_count_test = 3;
     const float x_test[] = {
-        -1.f, -1.f,
-        +2.f, +2.f,
-        +3.f, +2.f,
+        -1.f, -1.f, +2.f, +2.f, +3.f, +2.f,
     };
     const float y_true[] = {
-        -1.f,
-        +1.f,
-        +1.f,
+        0.f,
+        1.f,
+        1.f,
     };
 
     const auto x_test_table =

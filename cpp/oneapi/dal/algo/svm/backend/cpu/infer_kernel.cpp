@@ -41,9 +41,9 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
                                      const descriptor_base& desc,
                                      const model& trained_model,
                                      const table& data) {
-    const int64_t row_count             = data.get_row_count();
-    const int64_t column_count          = data.get_column_count();
-    const int64_t support_vectors_count = trained_model.get_support_vector_count();
+    const int64_t row_count            = data.get_row_count();
+    const int64_t column_count         = data.get_column_count();
+    const int64_t support_vector_count = trained_model.get_support_vector_count();
 
     // TODO: data is table, not a homogen_table. Think better about accessor - is it enough to have just a row_accessor?
     auto arr_data = row_accessor<const Float>{ data }.pull();
@@ -54,10 +54,10 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
     const auto daal_data =
         interop::convert_to_daal_homogen_table(arr_data, row_count, column_count);
     const auto daal_support_vectors = interop::convert_to_daal_homogen_table(arr_support_vectors,
-                                                                             support_vectors_count,
+                                                                             support_vector_count,
                                                                              column_count);
     const auto daal_coefficients =
-        interop::convert_to_daal_homogen_table(arr_coefficients, support_vectors_count, 1);
+        interop::convert_to_daal_homogen_table(arr_coefficients, support_vector_count, 1);
 
     auto daal_model = daal_model_builder{}
                           .set_support_vectors(daal_support_vectors)
@@ -82,7 +82,8 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
 
     auto arr_label = array<Float>::empty(row_count * 1);
     for (std::int64_t i = 0; i < row_count; ++i) {
-        arr_label[i] = arr_decision_function[i] >= 0 ? Float(1.0) : Float(-1.0);
+        arr_label[i] = arr_decision_function[i] >= 0 ? trained_model.get_second_class_label()
+                                                     : trained_model.get_first_class_label();
     }
 
     return infer_result()

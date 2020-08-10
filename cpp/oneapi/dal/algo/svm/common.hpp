@@ -215,11 +215,27 @@ public:
         return *this;
     }
 
+    std::int64_t get_first_class_label() const;
+
+    auto &set_first_class_label(const std::int64_t value) {
+        set_first_class_label_impl(value);
+        return *this;
+    }
+
+    std::int64_t get_second_class_label() const;
+
+    auto &set_second_class_label(const std::int64_t value) {
+        set_second_class_label_impl(value);
+        return *this;
+    }
+
 private:
     void set_support_vectors_impl(const table &);
     void set_coefficients_impl(const table &);
     void set_bias_impl(const double);
     void set_support_vector_count_impl(const std::int64_t);
+    void set_first_class_label_impl(const std::int64_t);
+    void set_second_class_label_impl(const std::int64_t);
 
     dal::detail::pimpl<detail::model_impl> impl_;
 };
