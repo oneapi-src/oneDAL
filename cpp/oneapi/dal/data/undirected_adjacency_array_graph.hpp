@@ -109,21 +109,21 @@ private:
 };
 
 template <typename G>
-auto get_vertex_count_impl(const G &g) noexcept -> vertex_size_type<G>;
+ONEAPI_DAL_EXPORT auto get_vertex_count_impl(const G &g) noexcept -> vertex_size_type<G>;
 
 template <typename G>
-auto get_edge_count_impl(const G &g) noexcept -> edge_size_type<G>;
+ONEAPI_DAL_EXPORT auto get_edge_count_impl(const G &g) noexcept -> edge_size_type<G>;
 
 template <typename G>
-auto get_vertex_degree_impl(const G &g, const vertex_type<G> &vertex) noexcept
+ONEAPI_DAL_EXPORT auto get_vertex_degree_impl(const G &g, const vertex_type<G> &vertex) noexcept
     -> vertex_edge_size_type<G>;
 
 template <typename G>
-auto get_vertex_neighbors_impl(const G &g, const vertex_type<G> &vertex) noexcept
+ONEAPI_DAL_EXPORT auto get_vertex_neighbors_impl(const G &g, const vertex_type<G> &vertex) noexcept
     -> const_vertex_edge_range_type<G>;
 
 template <typename G>
-void convert_to_csr_impl(const edge_list<vertex_type<G>> &edges, G &g);
+ONEAPI_DAL_EXPORT void convert_to_csr_impl(const edge_list<vertex_type<G>> &edges, G &g);
 
 template <typename VertexValue = empty_value,
           typename EdgeValue   = empty_value,
