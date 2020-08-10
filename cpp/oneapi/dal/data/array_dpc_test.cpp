@@ -71,7 +71,7 @@ TEST(array_dpc_test, can_construct_array_with_events) {
          });
      }).wait();
 
-    array<float> arr{ data, 10, make_default_delete<float>(q) };
+    array<float> arr{ q, data, 10, make_default_delete<float>(q) };
 
     ASSERT_EQ(arr.get_count(), 10);
     ASSERT_TRUE(arr.has_mutable_data());
@@ -135,7 +135,7 @@ TEST(array_dpc_test, can_wrap_const_data_with_offset_and_deleter) {
      }).wait();
 
     const float* cdata = data;
-    auto arr           = array<float>(cdata, 2, make_default_delete<const float>(q));
+    auto arr           = array<float>(q, cdata, 2, make_default_delete<const float>(q));
 
     ASSERT_EQ(arr.get_count(), 2);
     ASSERT_EQ(arr.get_data(), cdata);

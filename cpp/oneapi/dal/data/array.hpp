@@ -134,23 +134,25 @@ public:
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     template <typename Deleter>
-    explicit array(T* data,
+    explicit array(const sycl::queue& queue,
+          T* data,
           std::int64_t count,
           Deleter&& deleter,
           const sycl::vector_class<sycl::event>& dependencies)
             : impl_(new impl_t(data, count, std::forward<Deleter>(deleter))) {
         update_data(data, count);
-        // wait
+        detail::wait_and_throw(dependencies);
     }
 
     template <typename ConstDeleter>
-    explicit array(const T* data,
+    explicit array(const sycl::queue& queue,
+          const T* data,
           std::int64_t count,
           ConstDeleter&& deleter,
           const sycl::vector_class<sycl::event>& dependencies)
             : impl_(new impl_t(data, count, std::forward<ConstDeleter>(deleter))) {
         update_data(data, count);
-        // wait
+        detail::wait_and_throw(dependencies);
     }
 #endif
 
