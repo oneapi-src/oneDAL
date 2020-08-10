@@ -20,6 +20,8 @@
 
 DAAL =  df_cls_dense_batch                \
         df_reg_dense_batch                \
+        kmeans_lloyd_dense_batch          \
+        kmeans_init_default_dense         \
         homogen_table_builder             \
         knn_cls_brute_force_dense_batch   \
         linear_kernel_dense_batch         \

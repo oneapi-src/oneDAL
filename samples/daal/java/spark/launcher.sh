@@ -36,18 +36,14 @@
 #  export SCALA_JARS=/usr/local/scala-2.10.4/lib/scala-library.jar
 
 help_message() {
-    echo "Usage: launcher.sh {arch|help}"
-    echo "arch          - can be ia32 or intel64, optional for building examples."
+    echo "Usage: launcher.sh [help]"
     echo "help          - print this message"
-    echo "Example: launcher.sh ia32 or launcher.sh intel64"
+    echo "Example: launcher.sh"
 }
-
-daal_ia=
-first_arg=$1
 
 while [ "$1" != "" ]; do
     case $1 in
-        ia32|intel64)          daal_ia=$1
+        ia32|intel64)          echo "Please switch to new params, 32-bit support deprecated "
                                ;;
         help)                  help_message
                                exit 0
@@ -57,12 +53,6 @@ while [ "$1" != "" ]; do
     esac
     shift
 done
-
-if [ "${daal_ia}" != "ia32" ] && [ "${daal_ia}" != "intel64" ]; then
-    echo "Bad argument arch = ${first_arg} , must be ia32 or intel64"
-    help_message
-    exit 1
-fi
 
 # Setting CLASSPATH to build jar
 export CLASSPATH=${SPARK_HOME}/jars/spark-core_2.11-2.0.0.jar:${SPARK_HOME}/jars/spark-sql_2.11-2.0.0.jar:${SPARK_HOME}/jars/spark-catalyst_2.11-2.0.0.jar:${DAALROOT}/lib/onedal.jar:$CLASSPATH
@@ -108,14 +98,14 @@ else
     export LIBJAVAAPI=libJavaAPI.so
 
     TBBLIBS=
-    if [ -d "${TBBROOT}/lib/${daal_ia}/gcc4.8" ]; then TBBLIBS=${TBBROOT}/lib/${daal_ia}/gcc4.8; fi
+    if [ -d "${TBBROOT}/lib/intel64/gcc4.8" ]; then TBBLIBS=${TBBROOT}/lib/intel64/gcc4.8; fi
     if [ -z "${TBBLIBS}" ]; then
         echo Can not find TBB runtimes
         exit 1
     fi
 
     #Comma-separated list of shared libs
-    export SHAREDLIBS=${DAALROOT}/lib/${daal_ia}/${LIBJAVAAPI}
+    export SHAREDLIBS=${DAALROOT}/lib/intel64/${LIBJAVAAPI}
 
     if [ -f "${TBBLIBS}/libtbb.so" ]; then
         SHAREDLIBS=${SHAREDLIBS},${TBBLIBS}/libtbb.so

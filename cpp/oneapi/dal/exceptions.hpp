@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include <cstring>
-#include <memory>
 #include <new>
 #include <stdexcept>
 #include <system_error>

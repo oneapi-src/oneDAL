@@ -52,12 +52,12 @@ endif
 ifndef TBBROOT
     TBBROOT = ./../../../../../../tbb/latest
 endif
-TBB_PATH = "$(TBBROOT)/lib/$(_IA)/gcc4.8"
+TBB_PATH = "$(TBBROOT)/lib/intel64/gcc4.8"
 
-DAAL_PATH = "$(DAALROOT)/lib/$(_IA)"
+DAAL_PATH = "$(DAALROOT)/lib/intel64"
 DAAL_LIB := $(DAAL_PATH)/libonedal_core.$(RES_EXT) $(DAAL_PATH)/libonedal_thread.$(RES_EXT)
 COPTS := -Wall -w
-RES_DIR=_results/$(compiler)_$(_IA)_$(RES_EXT)
+RES_DIR=_results/$(compiler)_intel64_$(RES_EXT)
 
 ifneq ($(mode),build)
     override mode = run
@@ -92,6 +92,6 @@ _make_ex: $(RES)
 %/.:; mkdir -p $*
 
 libintel64:
-	$(MAKE) _make_ex _IA=intel64 RES_EXT=a
+	$(MAKE) _make_ex RES_EXT=a
 sointel64:
-	$(MAKE) _make_ex _IA=intel64 RES_EXT=so
+	$(MAKE) _make_ex RES_EXT=so
