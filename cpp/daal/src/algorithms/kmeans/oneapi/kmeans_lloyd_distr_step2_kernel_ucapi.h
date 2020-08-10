@@ -46,9 +46,7 @@ public:
                              const NumericTable * const * r, const Parameter * par);
     services::Status finalizeCompute(size_t na, const NumericTable * const * a, size_t nr, const NumericTable * const * r, 
                                      const Parameter * par);
-    void updateClusters(  oneapi::internal::ExecutionContextIface & context,
-                            const oneapi::internal::KernelPtr & kernelUpdateClusters,
-                            const services::Buffer<int> & partialCentroidsCounters,
+    void updateClusters(  bool init, const services::Buffer<int> & partialCentroidsCounters,
                             const services::Buffer<algorithmFPType> & partialCentroids,
                             const services::Buffer<int> & centroidCounters,
                             const services::Buffer<algorithmFPType> & centroids, 
@@ -56,14 +54,13 @@ public:
                             uint32_t nFeatures,
                             services::Status * st);
     
-    void updateCandidates(  oneapi::internal::ExecutionContextIface & context,
-                            const oneapi::internal::KernelPtr & kernelUpdateCandidates,
-                            const services::Buffer<int> & partialCandidates,
+    void updateCandidates(  bool init, const services::Buffer<int> & partialCandidates,
                             const services::Buffer<algorithmFPType> & partialCValues,
                             const services::Buffer<int> & candidates,
                             const services::Buffer<algorithmFPType> & cValues, 
                             uint32_t nClusters,
                             services::Status * st);
+    void buildProgram(oneapi::internal::ClKernelFactoryIface & kernelFactory, services::Status * st);
     uint32_t _maxWGSize = 256;
 };
 
