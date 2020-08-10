@@ -256,7 +256,6 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
     {
         s = ((internal::KMeansDistributedStep2KernelUCAPI<algorithmFPType> *)(_kernel))->compute(na, a, nr, r, par);
     }                                                   
-
     dcInput->clear();
     return s;
 }
@@ -289,7 +288,7 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
     {
     __DAAL_CALL_KERNEL(env, internal::KMeansDistributedStep2Kernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), finalizeCompute, na, a, nr, r,
                        par);
-}
+    }
     else
     {
         return ((internal::KMeansDistributedStep2KernelUCAPI<algorithmFPType> *)(_kernel))->finalizeCompute(na, a, nr, r, par);
