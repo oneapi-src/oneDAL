@@ -33,14 +33,14 @@ TEST(reducer_l2_rm, can_handle_array_of_zeros) {
     auto res     = reducer(inp, out, 5, 7);
     res.wait();
 
-    for (int i = 0; i < 7; i++)
+    for (std::int64_t i = 0; i < 7; i++)
         ASSERT_EQ(out[i], 0.f);
 }
 
 TEST(reducer_l2_rm, random_data_reduce) {
-    constexpr int nx = 13, ny = 29;
-    constexpr int size     = nx * ny;
-    const float data[size] = {
+    constexpr std::int64_t nx = 13, ny = 29;
+    constexpr std::int64_t size = nx * ny;
+    const float data[size]      = {
         6.08266015e-01, 6.05727038e-01, 8.16281435e-01, 8.18671462e-02, 8.17396226e-01,
         9.87432906e-02, 5.50243720e-01, 2.19223528e-01, 2.24632861e-02, 1.56732197e-01,
         7.93423508e-01, 6.40665133e-01, 5.19270739e-01, 5.64113575e-01, 5.61293604e-01,
@@ -129,14 +129,14 @@ TEST(reducer_l2_rm, random_data_reduce) {
     auto inp = oneapi::dal::array<float>::zeros(q, size);
     auto out = oneapi::dal::array<float>::zeros(q, ny);
 
-    for (int i = 0; i < size; i++)
+    for (std::int64_t i = 0; i < size; i++)
         inp[i] = data[i];
 
     auto reducer = oneapi::dal::backend::primitives::l2_reducer_singlepass<float, true>(q);
     auto res     = reducer(inp, out, 13, 29);
     res.wait();
 
-    for (int i = 0; i < ny; i++) {
+    for (std::int64_t i = 0; i < ny; i++) {
         const float ratio = out[i] / result[i];
         ASSERT_LT(ratio, 1.01);
         ASSERT_LT(0.99, ratio);
@@ -149,13 +149,13 @@ TEST(reducer_mean, can_handle_array) {
     auto inp = oneapi::dal::array<float>::zeros(q, 35);
     auto out = oneapi::dal::array<float>::zeros(q, 7);
 
-    for (int i = 0; i < inp.get_count(); i++)
-        inp[i] = i;
+    for (std::int64_t i = 0; i < inp.get_count(); i++)
+        inp[i] = static_cast<float>(i);
 
     auto reducer = oneapi::dal::backend::primitives::mean_reducer_singlepass<float, true>(q);
     auto res     = reducer(inp, out, 5, 7);
     res.wait();
 
-    for (int i = 0; i < 7; i++)
+    for (std::int64_t i = 0; i < 7; i++)
         ASSERT_EQ(out[i], 25.f * float(i) + 10.f);
 }
