@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2014-2020 Intel Corporation
+.. * Copyright 2020 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ A typical workflow with quality metric set is the following:
 Quality metrics are optional. They are computed when the computation is explicitly requested.
 
 .. toctree::
+   :maxdepth: 2
 
    default-metric-set.rst
    user-defined.rst

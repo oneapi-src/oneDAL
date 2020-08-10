@@ -78,7 +78,7 @@ Applications on Windows
             - onedal_core.lib, onedal_thread.lib
           * - Dynamic linking
             - onedal_core_dll.lib
-            - aal_core_dll.lib
+            - onedal_core_dll.lib
 
 Applications on Linux
 ---------------------

@@ -15,11 +15,11 @@
 #===============================================================================
 
 ##  Content:
-##     Intel(R) Data Analytics Acceleration Library examples creation and run
+##     Intel(R) oneAPI Data Analytics Library examples creation and run
 ##******************************************************************************
 
 help:
-	@echo "Usage: make {libintel64|sointel64|help}"
+	@echo "Usage: make {lib|so|libintel64|sointel64|help}"
 	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
 	@echo
 	@echo "name              - example name. Please see daal.lst file."
@@ -39,7 +39,7 @@ help:
 ##                                 applications, static linking
 ##
 ## make sointel64 compiler=clang   - build by Intel(R) oneAPI Compiler and run all examples
-##                                 of Intel(R) DAAL for
+##                                 of oneDAL for
 ##                                 64-bit applications, dynamic linking
 ##
 ## make sointel64                - build by Intel(R) oneAPI Compiler (as default)
@@ -71,12 +71,12 @@ endif
 ifndef DAALROOT
     DAALROOT = ./../../../..
 endif
-DAAL_PATH = "$(DAALROOT)/lib/$(_IA)"
+DAAL_PATH = "$(DAALROOT)/lib/intel64"
 
 ifndef TBBROOT
     TBBROOT = ./../../../../../../tbb/latest
 endif
-TBB_PATH = "$(TBBROOT)/lib/$(_IA)/gcc4.8"
+TBB_PATH = "$(TBBROOT)/lib/intel64/gcc4.8"
 
 EXT_LIB := -Bdynamic -lpthread -ldl -lOpenCL -lccl
 
@@ -106,7 +106,7 @@ endif
 
 LOPTS := -Wl,--start-group -Wl,$(DAAL_LIB),$(EXT_LIB) $(DAAL_PATH)/libonedal_sycl.a -Wl,--end-group
 
-RES_DIR=_results/$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
+RES_DIR=_results/$(compiler)_intel64_$(threading)_$(RES_EXT)
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))
 
 override proc = 2
@@ -115,10 +115,10 @@ CC := $(if $(COVFILE), cov01 -1; covc -i  $(CC),$(CC))
 CRUN = mpirun
 RUNOPTS = -n $(proc) -ppn 1
 
-libintel64:
-	$(MAKE) _make_ex _IA=intel64 RES_EXT=a
-sointel64:
-	$(MAKE) _make_ex _IA=intel64 RES_EXT=so
+lib libintel64:
+	$(MAKE) _make_ex RES_EXT=a
+so sointel64:
+	$(MAKE) _make_ex RES_EXT=so
 
 
 _make_ex: $(RES)

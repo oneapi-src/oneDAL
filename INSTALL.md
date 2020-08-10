@@ -51,7 +51,7 @@ For details, see [System Requirements for oneDAL](https://software.intel.com/en-
 
             source /opt/intel/compilers_and_libraries/linux/bin/compilervars.sh intel64
 
-    - **Intel(R) oneAPI DPC++ Compiler 2021.1-beta03 (Windows\*)**:
+    - **Intel(R) oneAPI DPC++ Compiler 2021.1 (Windows\*)**:
 
             call "C:\Program Files (x86)\inteloneapi\compiler\latest\env\vars.bat" intel64
 
@@ -61,7 +61,7 @@ For details, see [System Requirements for oneDAL](https://software.intel.com/en-
 
             set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_77
             set PATH=%JAVA_HOME%\bin;%PATH%
-            set INCLUDE=%JAVA_HOME%\include;%JAVA_HOME%\include\win32;%INCLUDE%
+            set INCLUDE=%JAVA_HOME%\include;%INCLUDE%
 
     - **Linux\***:
 

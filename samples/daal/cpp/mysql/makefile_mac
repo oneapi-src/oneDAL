@@ -15,11 +15,11 @@
 #===============================================================================
 
 ##  Content:
-##     Intel(R) Data Analytics Acceleration Library samples creation and run
+##     Intel(R) oneAPI Data Analytics Library samples creation and run
 ##******************************************************************************
 
 help:
-	@echo "Usage: make {libia32|dylibia32|libintel64|dylibintel64|help}"
+	@echo "Usage: make {lib|dylib|libintel64|dylibintel64|help}"
 	@echo "[compiler=compiler_name] [mode=mode_name] [sample=sample_name]"
 	@echo
 	@echo "compiler_name       - intel, gnu or clang"
@@ -72,7 +72,7 @@ EXT_LIB := -ltbb -ltbbmalloc -L$(ODBC_PATH)/lib -lodbc -ldl
 COPTS := -Wall -w -stdlib=libc++ -I$(ODBC_PATH)/include
 LOPTS := $(DAAL_LIB) $(EXT_LIB)
 
-RES_DIR=_results/$(compiler)_$(_IA)_$(RES_EXT)
+RES_DIR=_results/$(compiler)_intel64_$(RES_EXT)
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(sample)), $(addsuffix .exe,$(sample))))
 
 
@@ -82,12 +82,12 @@ endif
 
 ifeq ($(compiler),gnu)
     CC = g++
-    COPTS += $(if $(filter ia32, $(_IA)), -m32, -m64)
+    COPTS += -m64
 endif
 
 ifeq ($(compiler),clang)
     CC = clang++
-    COPTS += $(if $(filter ia32, $(_IA)), -m32, -m64)
+    COPTS += -m64
 endif
 
 
@@ -102,11 +102,7 @@ _make_ex: $(RES)
 
 %/.:; mkdir -p $*
 
-libia32:
-	$(MAKE) _make_ex _IA=ia32 RES_EXT=a
-dylibia32:
-	$(MAKE) _make_ex _IA=ia32 RES_EXT=dylib
-libintel64:
-	$(MAKE) _make_ex _IA=intel64 RES_EXT=a
-dylibintel64:
-	$(MAKE) _make_ex _IA=intel64 RES_EXT=dylib
+lib libintel64:
+	$(MAKE) _make_ex RES_EXT=a
+dylib dylibintel64:
+	$(MAKE) _make_ex RES_EXT=dylib
