@@ -183,6 +183,46 @@ cl::sycl::event reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, Layout>::
 }
 
 //Direct instantiation
+template struct template <float,
+                          binary_functor<float, binary_operation::sum>,
+                          unary_functor<float, unary_operation::identity>,
+                          layout::row_major>
+reducer_singlepass;
+template struct template <double,
+                          binary_functor<double, binary_operation::sum>,
+                          unary_functor<double, unary_operation::identity>,
+                          layout::row_major>
+reducer_singlepass;
+template struct template <float,
+                          binary_functor<float, binary_operation::sum>,
+                          unary_functor<float, unary_operation::identity>,
+                          layout::col_major>
+reducer_singlepass;
+template struct template <double,
+                          binary_functor<double, binary_operation::sum>,
+                          unary_functor<double, unary_operation::identity>,
+                          layout::col_major>
+reducer_singlepass;
+template struct template <float,
+                          binary_functor<float, binary_operation::sum>,
+                          unary_functor<float, unary_operation::square>,
+                          layout::row_major>
+reducer_singlepass;
+template struct template <double,
+                          binary_functor<double, binary_operation::sum>,
+                          unary_functor<double, unary_operation::square>,
+                          layout::row_major>
+reducer_singlepass;
+template struct template <float,
+                          binary_functor<float, binary_operation::sum>,
+                          unary_functor<float, unary_operation::square>,
+                          layout::col_major>
+reducer_singlepass;
+template struct template <double,
+                          binary_functor<double, binary_operation::sum>,
+                          unary_functor<double, unary_operation::square>,
+                          layout::col_major>
+reducer_singlepass;
 
 #endif
 
