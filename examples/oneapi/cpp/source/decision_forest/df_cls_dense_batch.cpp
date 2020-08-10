@@ -60,7 +60,7 @@ int main(int argc, char const *argv[]) {
           .set_infer_mode(df::infer_mode::class_labels | df::infer_mode::class_probabilities)
           .set_voting_mode(df::voting_mode::weighted);
 
-  const auto result_train = dal::train(df_desc, x_train_table, y_train_table); 
+  const auto result_train = dal::train(df_desc, x_train_table, y_train_table);
 
   std::cout << "Variable importance results:" << std::endl
             << result_train.get_var_importance() << std::endl;
