@@ -297,12 +297,11 @@ cl::sycl::event reducer_singlepass<UnOp, BinOp, Float, IsRowMajorLayout>::operat
         throw std::exception();
     if (output.get_count() < (IsRowMajorLayout ? n_vectors : vector_size))
         throw std::exception();
-    this->operator()(input.get_data(),
-                     output.get_mutable_data(),
-                     vector_size,
-                     n_vectors,
-                     work_items_per_group);
-    return event;
+    return this->operator()(input.get_data(),
+                            output.get_mutable_data(),
+                            vector_size,
+                            n_vectors,
+                            work_items_per_group);
 }
 
 template <unary_operation UnOp, binary_operation BinOp, typename Float, bool IsRowMajorLayout>
