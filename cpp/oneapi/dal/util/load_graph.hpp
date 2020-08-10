@@ -23,13 +23,13 @@ namespace oneapi::dal::preview::load_graph {
 
 template <typename Input = edge_list<int32_t>, typename Output = undirected_adjacency_array_graph<>>
 struct descriptor {
-    using output_type = Output;
     using input_type  = Input;
+    using output_type = Output;
 };
 
 template <typename Descriptor>
 using output_type = typename Descriptor::output_type;
 
 template <typename Descriptor = load_graph::descriptor<>, typename DataSource = csv_data_source>
-output_type<Descriptor> load(const Descriptor &d, const DataSource &ds);
+output_type<Descriptor> load(const Descriptor &desc, const DataSource &data_source);
 } // namespace oneapi::dal::preview::load_graph

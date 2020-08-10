@@ -14,13 +14,13 @@
  * limitations under the License.
  *******************************************************************************/
 
+#include <iostream>
 
 #include "oneapi/dal/algo/jaccard.hpp"
 #include "oneapi/dal/data/undirected_adjacency_array_graph.hpp"
 #include "oneapi/dal/data/table.hpp"
 #include "oneapi/dal/util/csv_data_source.hpp"
 #include "oneapi/dal/util/load_graph.hpp"
-#include <iostream>
 
 using namespace oneapi::dal;
 using namespace oneapi::dal::preview;

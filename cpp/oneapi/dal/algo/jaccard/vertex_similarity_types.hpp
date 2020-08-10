@@ -42,7 +42,7 @@ private:
 class ONEAPI_DAL_EXPORT similarity_result {
 public:
     similarity_result(){};
-    similarity_result(const table &coeffs, const table &vertex_pairs);
+    similarity_result(const table &vertex_pairs, const table &coeffs);
     table get_coeffs() const;
     table get_vertex_pairs() const;
 

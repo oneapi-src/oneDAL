@@ -23,7 +23,6 @@
 
 #pragma once
 
-#include <cstdint>
 #include <memory>
 
 #include "oneapi/dal/common.hpp"

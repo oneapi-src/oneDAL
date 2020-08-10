@@ -35,10 +35,10 @@ struct backend_base {
 };
 
 template <typename Float, typename Method, typename Graph>
-struct backend_block : public backend_base<Graph> {
+struct backend_default : public backend_base<Graph> {
     virtual similarity_result operator()(const descriptor_base &descriptor,
                                          const similarity_input<Graph> &input);
-    virtual ~backend_block() {}
+    virtual ~backend_default() {}
 };
 
 template <typename Float, class Method, typename Graph>

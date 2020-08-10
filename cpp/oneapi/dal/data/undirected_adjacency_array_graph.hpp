@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include <cstdint>
 #include <memory>
 
 #include "oneapi/dal/data/detail/graph_container.hpp"
@@ -118,10 +117,11 @@ template <typename G>
 auto get_edge_count_impl(const G &g) noexcept -> edge_size_type<G>;
 
 template <typename G>
-auto get_vertex_degree_impl(const G &g, const vertex_type<G> &vertex) -> vertex_edge_size_type<G>;
+auto get_vertex_degree_impl(const G &g, const vertex_type<G> &vertex) noexcept
+    -> vertex_edge_size_type<G>;
 
 template <typename G>
-auto get_vertex_neighbors_impl(const G &g, const vertex_type<G> &vertex)
+auto get_vertex_neighbors_impl(const G &g, const vertex_type<G> &vertex) noexcept
     -> const_vertex_edge_range_type<G>;
 
 template <typename G>

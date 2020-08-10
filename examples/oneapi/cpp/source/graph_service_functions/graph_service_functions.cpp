@@ -16,8 +16,8 @@
 
 #include <iostream>
 
-#include "oneapi/dal/data/undirected_adjacency_array_graph.hpp"
 #include "oneapi/dal/data/graph_service_functions.hpp"
+#include "oneapi/dal/data/undirected_adjacency_array_graph.hpp"
 #include "oneapi/dal/util/csv_data_source.hpp"
 #include "oneapi/dal/util/load_graph.hpp"
 
@@ -32,9 +32,11 @@ int main(int argc, char **argv) {
     auto my_graph = load_graph::load(d, ds);
     std::cout << "Number of vertices: " << get_vertex_count(my_graph) << std::endl;
     std::cout << "Number of edges: " <<get_edge_count(my_graph) << std::endl;
+
     auto node_id = 0;
     std::cout << "Degree of " << node_id << ": "
             << get_vertex_degree(my_graph, node_id) << std::endl;
+
     for (unsigned int j = 0; j < get_vertex_count(my_graph); ++j) {
         std::cout << "Neighbors of " << j << ": ";
         auto neigh = get_vertex_neighbors(my_graph, j);

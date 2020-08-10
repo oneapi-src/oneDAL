@@ -40,7 +40,7 @@ const Graph &similarity_input<Graph>::get_graph() const {
 
 class detail::similarity_result_impl : public base {
 public:
-    similarity_result_impl(const table &coeffs, const table &vertex_pairs)
+    similarity_result_impl(const table &vertex_pairs, const table &coeffs)
             : coeffs(coeffs),
               vertex_pairs(vertex_pairs) {}
 
@@ -54,8 +54,8 @@ template class ONEAPI_DAL_EXPORT similarity_input<undirected_adjacency_array_gra
 
 using detail::similarity_result_impl;
 
-similarity_result::similarity_result(const table &coeffs, const table &vertex_pairs)
-        : impl_(new similarity_result_impl(coeffs, vertex_pairs)) {}
+similarity_result::similarity_result(const table &vertex_pairs, const table &coeffs)
+        : impl_(new similarity_result_impl(vertex_pairs, coeffs)) {}
 
 table similarity_result::get_coeffs() const {
     return impl_->coeffs;

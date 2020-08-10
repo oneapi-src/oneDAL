@@ -23,7 +23,6 @@
 
 #pragma once
 
-#include <cstdint>
 #include <memory>
 
 #include "oneapi/dal/common.hpp"
@@ -64,7 +63,7 @@ constexpr auto get_edge_count(const G &g) noexcept -> edge_size_type<G> {
 ///
 /// @return Result is vertex_type of G.
 template <typename G>
-constexpr auto get_vertex_degree(const G &g, const vertex_type<G> &vertex) noexcept
+constexpr auto get_vertex_degree(const G &g, const vertex_type<G> &vertex)
     -> vertex_edge_size_type<G> {
     if (vertex < 0 || (vertex_size_type<G>)vertex >= get_vertex_count_impl(g)) {
         throw out_of_range("Vertex index should be in [0, vertex_count)");
@@ -73,7 +72,7 @@ constexpr auto get_vertex_degree(const G &g, const vertex_type<G> &vertex) noexc
 }
 
 template <typename G>
-constexpr auto get_vertex_neighbors(const G &g, const vertex_type<G> &vertex) noexcept
+constexpr auto get_vertex_neighbors(const G &g, const vertex_type<G> &vertex)
     -> const_vertex_edge_range_type<G> {
     if (vertex < 0 || (vertex_size_type<G>)vertex >= get_vertex_count_impl(g)) {
         throw out_of_range("Vertex index should be in [0, vertex_count)");
