@@ -92,6 +92,82 @@ using mean_reducer_singlepass = reducer_singlepass<Float,
                                                    unary_functor<Float, unary_operation::identity>,
                                                    Layout>;
 
+template <typename Float,
+          typename BinaryFunctor,
+          typename UnaryFunctor = unary_functor<Float, unary_operation::identity>>
+inline cl::sycl::event reduce_rm(cl::sycl::queue& q,
+                                 const Float* input,
+                                 Float* output,
+                                 std::int64_t vector_size,
+                                 std::int64_t n_vectors,
+                                 BinaryFunctor binary_func,
+                                 UnaryFunctor unary_func           = UnaryFunctor{},
+                                 std::int64_t work_items_per_group = -1) {
+    reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, layour::row_major> kernel(q,
+                                                                                     binary_func,
+                                                                                     unary_func);
+    return (work_items_per_group < 0)
+               ? kernel(input, output, vector_size, n_vectors)
+               : kernel(input, output, vector_size, n_vectors, work_items_per_group);
+}
+
+template <typename Float,
+          typename BinaryFunctor,
+          typename UnaryFunctor = unary_functor<Float, unary_operation::identity>>
+inline cl::sycl::event reduce_rm(cl::sycl::queue& q,
+                                 array<Float> input,
+                                 array<Float> output,
+                                 std::int64_t vector_size,
+                                 std::int64_t n_vectors,
+                                 BinaryFunctor binary_func,
+                                 UnaryFunctor unary_func           = UnaryFunctor{},
+                                 std::int64_t work_items_per_group = -1) {
+    reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, layour::row_major> kernel(q,
+                                                                                     binary_func,
+                                                                                     unary_func);
+    return (work_items_per_group < 0)
+               ? kernel(input, output, vector_size, n_vectors)
+               : kernel(input, output, vector_size, n_vectors, work_items_per_group);
+}
+
+template <typename Float,
+          typename BinaryFunctor,
+          typename UnaryFunctor = unary_functor<Float, unary_operation::identity>>
+inline cl::sycl::event reduce_cm(cl::sycl::queue& q,
+                                 const Float* input,
+                                 Float* output,
+                                 std::int64_t vector_size,
+                                 std::int64_t n_vectors,
+                                 BinaryFunctor binary_func,
+                                 UnaryFunctor unary_func           = UnaryFunctor{},
+                                 std::int64_t work_items_per_group = -1) {
+    reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, layour::col_major> kernel(q,
+                                                                                     binary_func,
+                                                                                     unary_func);
+    return (work_items_per_group < 0)
+               ? kernel(input, output, vector_size, n_vectors)
+               : kernel(input, output, vector_size, n_vectors, work_items_per_group);
+}
+
+template <typename Float,
+          typename BinaryFunctor,
+          typename UnaryFunctor = unary_functor<Float, unary_operation::identity>>
+inline cl::sycl::event reduce_cm(cl::sycl::queue& q,
+                                 array<Float> input,
+                                 array<Float> output,
+                                 std::int64_t vector_size,
+                                 std::int64_t n_vectors,
+                                 BinaryFunctor binary_func,
+                                 UnaryFunctor unary_func           = UnaryFunctor{},
+                                 std::int64_t work_items_per_group = -1) {
+    reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, layour::col_major> kernel(q,
+                                                                                     binary_func,
+                                                                                     unary_func);
+    return (work_items_per_group < 0)
+               ? kernel(input, output, vector_size, n_vectors)
+               : kernel(input, output, vector_size, n_vectors, work_items_per_group);
+}
+
 #endif
 
 } // namespace oneapi::dal::backend::primitives
