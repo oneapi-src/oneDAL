@@ -1,3 +1,4 @@
+  
 /*******************************************************************************
  * Copyright 2020 Intel Corporation
  *
@@ -29,7 +30,7 @@ namespace oneapi::dal::preview::detail {
 template <typename VertexValue = empty_value,
           typename EdgeValue   = empty_value,
           typename GraphValue  = empty_value,
-          typename IndexType   = std::int64_t,
+          typename IndexType   = std::int32_t,
           typename Allocator   = std::allocator<empty_value>>
 class undirected_adjacency_array_graph_impl {
 public:
@@ -38,14 +39,14 @@ public:
     using vertex_type = IndexType;
     using vertex_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<vertex_type>;
-    using vertex_set       = array<vertex_type>;
-    using vertex_size_type = std::int64_t;
+    using vertex_set       = detail::graph_container<vertex_type, vertex_allocator_type>;
+    using vertex_size_type = typename vertex_set::size_type;
 
     using edge_type = IndexType;
     using edge_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<edge_type>;
-    using edge_set       = array<edge_type>;
-    using edge_size_type = std::int64_t;
+    using edge_set       = detail::graph_container<edge_type, edge_allocator_type>;
+    using edge_size_type = typename edge_set::size_type;
 
     using vertex_user_value_type = VertexValue;
     using vertex_user_value_set  = detail::graph_container<vertex_user_value_type, allocator_type>;

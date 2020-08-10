@@ -123,7 +123,7 @@ constexpr auto get_vertex_value(const G &g, const vertex_type<G> &vertex)
     return get_vertex_value(g, vertex);
 }
 
-template <typename IndexType = std::int64_t>
+template <typename IndexType = std::int32_t>
 using edge_list = detail::graph_container<std::pair<IndexType, IndexType>>;
 
 template <typename G>

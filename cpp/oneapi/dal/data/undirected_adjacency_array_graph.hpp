@@ -43,7 +43,7 @@ const typename G::pimpl &get_impl(const G &g) {
 template <typename VertexValue = empty_value,
           typename EdgeValue   = empty_value,
           typename GraphValue  = empty_value,
-          typename IndexType   = std::int64_t,
+          typename IndexType   = std::int32_t,
           typename Allocator   = std::allocator<empty_value>>
 class undirected_adjacency_array_graph {
 public:
@@ -180,7 +180,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<G>> &edges, G &g);
 template <typename VertexValue = empty_value,
           typename EdgeValue   = empty_value,
           typename GraphValue  = empty_value,
-          typename IndexType   = std::int64_t,
+          typename IndexType   = std::int32_t,
           typename Allocator   = std::allocator<empty_value>>
 using undirected_adjacency_array =
     undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>;
