@@ -112,6 +112,7 @@ double computeSumSOA(NumericTable & table, bool & sumIsFinite)
             sum += computeSum<double, cpu>(1, nRows, &colPtr);
             break;
         }
+        default: break;
         }
         sumIsFinite &= !valuesAreNotFinite(&sum, 1, false);
     }
@@ -156,6 +157,7 @@ bool checkFinitenessSOA(NumericTable & table, bool allowNaN)
             valuesAreFinite &= checkFiniteness<double, cpu>(nRows, 1, nRows, &colPtr, allowNaN);
             break;
         }
+        default: break;
         }
     }
 
@@ -265,6 +267,7 @@ double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite)
             *localSum += computeSum<double, avx512>(1, nRows, &colPtr);
             break;
         }
+        default: break;
         }
 
         *localNotFinite |= valuesAreNotFinite(localSum, 1, false);
@@ -464,6 +467,7 @@ bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN)
             *localNotFinite |= !checkFiniteness<double, avx512>(nRows, 1, nRows, &colPtr, allowNaN);
             break;
         }
+        default: break;
         }
 
         if (*localNotFinite)
