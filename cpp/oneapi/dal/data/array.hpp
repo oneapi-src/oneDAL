@@ -138,7 +138,7 @@ public:
           T* data,
           std::int64_t count,
           Deleter&& deleter,
-          const sycl::vector_class<sycl::event>& dependencies)
+          const sycl::vector_class<sycl::event>& dependencies={})
             : impl_(new impl_t(data, count, std::forward<Deleter>(deleter))) {
         update_data(data, count);
         detail::wait_and_throw(dependencies);
@@ -149,7 +149,7 @@ public:
           const T* data,
           std::int64_t count,
           ConstDeleter&& deleter,
-          const sycl::vector_class<sycl::event>& dependencies)
+          const sycl::vector_class<sycl::event>& dependencies={})
             : impl_(new impl_t(data, count, std::forward<ConstDeleter>(deleter))) {
         update_data(data, count);
         detail::wait_and_throw(dependencies);

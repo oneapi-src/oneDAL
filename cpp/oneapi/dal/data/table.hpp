@@ -105,8 +105,7 @@ public:
                   column_count,
                   data_pointer,
                   std::forward<ConstDeleter>(data_deleter),
-                  layout,
-                  dependencies);
+                  layout);
         detail::wait_and_throw(dependencies);
     }
 #endif
