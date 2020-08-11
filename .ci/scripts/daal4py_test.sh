@@ -31,7 +31,7 @@ export PATH=${CONDA_DIR}/bin:$PATH
 source activate conf
 conda list
 source ${ONEAPI_DIR}/compiler/latest/env/vars.sh
-source ${ONEAPI_DIR}/tbb/latest/env/varsh.sh
+source ${ONEAPI_DIR}/tbb/latest/env/vars.sh
 source ${BUILD_DIR}/daal/latest/env/vars.sh intel64
 cd ${DAAL4PY_DIR}
 
