@@ -23,5 +23,5 @@ template class ONEAPI_DAL_EXPORT
                                                   empty_value,
                                                   empty_value,
                                                   std::int32_t,
-                                                  std::allocator<empty_value>>;
+                                                  std::allocator<char>>;
 } // namespace oneapi::dal::preview

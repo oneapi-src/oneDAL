@@ -32,12 +32,12 @@ similarity_result backend_default<Float, Method, Graph>::operator()(
 }
 
 template <>
-dal::detail::pimpl<backend_base<undirected_adjacency_array<> &>>
-get_backend<float, method::by_default, undirected_adjacency_array<> &>(
+dal::detail::pimpl<backend_base<undirected_adjacency_array_graph<> &>>
+get_backend<float, method::by_default, undirected_adjacency_array_graph<> &>(
     const descriptor_base &desc,
-    const similarity_input<undirected_adjacency_array<> &> &input) {
-    return dal::detail::pimpl<backend_base<undirected_adjacency_array<> &>>(
-        new backend_default<float, method::by_default, undirected_adjacency_array<> &>);
+    const similarity_input<undirected_adjacency_array_graph<> &> &input) {
+    return dal::detail::pimpl<backend_base<undirected_adjacency_array_graph<> &>>(
+        new backend_default<float, method::by_default, undirected_adjacency_array_graph<> &>);
 }
 
 } // namespace detail

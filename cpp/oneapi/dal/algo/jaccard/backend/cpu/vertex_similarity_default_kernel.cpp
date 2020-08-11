@@ -612,9 +612,9 @@ similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
     return res;
 }
 
-template similarity_result call_jaccard_block_kernel<undirected_adjacency_array<> &>(
+template similarity_result call_jaccard_block_kernel<undirected_adjacency_array_graph<> &>(
     const descriptor_base &desc,
-    const similarity_input<undirected_adjacency_array<> &> &input);
+    const similarity_input<undirected_adjacency_array_graph<> &> &input);
 
 } // namespace detail
 } // namespace jaccard
