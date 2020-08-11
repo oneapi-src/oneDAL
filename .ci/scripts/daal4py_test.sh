@@ -32,6 +32,7 @@ source activate conf
 conda list
 source ${ONEAPI_DIR}/compiler/latest/env/vars.sh
 source ${BUILD_DIR}/daal/latest/env/vars.sh intel64
+export TBBROOT=${BUILD_DIR}/tbb/latest
 cd ${DAAL4PY_DIR}
 
 # testing
