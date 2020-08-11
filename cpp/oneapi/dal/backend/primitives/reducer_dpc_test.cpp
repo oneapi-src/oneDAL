@@ -32,6 +32,7 @@ TEST(reducer_l2_rm, can_handle_array_of_zeros) {
 
     auto reducer = oneapi::dal::backend::primitives::
         l2_reducer_singlepass<float, oneapi::dal::backend::primitives::layout::row_major>(q);
+    ASSERT_TRUE(reducer.vectors_are_rows);
     ASSERT_EQ(reducer.binary.init_value, 0.f);
     auto res = reducer(inp, out, 5, 7);
     res.wait();
@@ -137,6 +138,7 @@ TEST(reducer_l2_rm, random_data_reduce) {
 
     auto reducer = oneapi::dal::backend::primitives::
         l2_reducer_singlepass<float, oneapi::dal::backend::primitives::layout::row_major>(q);
+    ASSERT_TRUE(reducer.vectors_are_rows);
     ASSERT_EQ(reducer.binary.init_value, 0.f);
     auto res = reducer(inp, out, 13, 29);
     res.wait();
@@ -159,6 +161,7 @@ TEST(reducer_mean, can_handle_array) {
 
     auto reducer = oneapi::dal::backend::primitives::
         mean_reducer_singlepass<float, oneapi::dal::backend::primitives::layout::row_major>(q);
+    ASSERT_TRUE(reducer.vectors_are_rows);
     ASSERT_EQ(reducer.binary.init_value, 0.f);
     auto res = reducer(inp, out, 5, 7);
     res.wait();

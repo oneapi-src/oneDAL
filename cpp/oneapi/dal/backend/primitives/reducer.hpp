@@ -43,8 +43,10 @@ template <typename Float,
           typename UnaryFunctor = unary_functor<Float, unary_operation::identity>,
           layout Layout         = layout::row_major>
 struct reducer_singlepass {
-private:
+public:
     constexpr static inline bool vectors_are_rows = (Layout == layout::row_major);
+
+private:
     typedef impl::reducer_singlepass_kernel<UnaryFunctor, BinaryFunctor, Float, vectors_are_rows>
         kernel_t;
 
@@ -77,6 +79,7 @@ public:
 
 private:
     cl::sycl::queue& q;
+public:
     const std::int64_t max_work_group_size;
 };
 
