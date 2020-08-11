@@ -117,8 +117,9 @@ services::Status PredictRegressionTaskBase<algorithmFPType, cpu>::run(services::
             }
             else
             {
-                daal::threader_for(nRowsToProcess, nRowsToProcess,
-                                   [&](size_t iRow) { res[iRow] += factor * predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols + iStartRow * dim.nCols); });
+                daal::threader_for(nRowsToProcess, nRowsToProcess, [&](size_t iRow) {
+                    res[iRow] += factor * predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols + iStartRow * dim.nCols);
+                });
             }
         });
         s = safeStat.detach();
