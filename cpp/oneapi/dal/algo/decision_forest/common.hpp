@@ -159,7 +159,6 @@ template <typename Float  = descriptor_base<task::by_default>::float_t,
           typename Task   = task::by_default,
           typename Method = descriptor_base<task::by_default>::method_t>
 class descriptor : public descriptor_base<Task> {
-private:
     using parent = descriptor_base<Task>;
 
 public:
@@ -281,70 +280,39 @@ private:
     pimpl impl_;
 };
 
+inline infer_mode operator|(infer_mode value_left, infer_mode value_right) {
+    return bitwise_or(value_left, value_right);
+}
+
+inline infer_mode& operator|=(infer_mode& value_left, infer_mode value_right) {
+    value_left = value_left | value_right;
+    return value_left;
+}
+
+inline infer_mode operator&(infer_mode value_left, infer_mode value_right) {
+    return bitwise_and(value_left, value_right);
+}
+
+inline infer_mode& operator&=(infer_mode& value_left, infer_mode value_right) {
+    value_left = value_left & value_right;
+    return value_left;
+}
+
+inline error_metric_mode operator|(error_metric_mode value_left, error_metric_mode value_right) {
+    return bitwise_or(value_left, value_right);
+}
+
+inline error_metric_mode& operator|=(error_metric_mode& value_left, error_metric_mode value_right) {
+    value_left = value_left | value_right;
+    return value_left;
+}
+
+inline error_metric_mode operator&(error_metric_mode value_left, error_metric_mode value_right) {
+    return bitwise_and(value_left, value_right);
+}
+
+inline error_metric_mode& operator&=(error_metric_mode& value_left, error_metric_mode value_right) {
+    value_left = value_left & value_right;
+    return value_left;
+}
 } // namespace oneapi::dal::decision_forest
-
-inline oneapi::dal::decision_forest::infer_mode operator|(
-    oneapi::dal::decision_forest::infer_mode value_left,
-    oneapi::dal::decision_forest::infer_mode value_right) {
-    using T = std::underlying_type_t<oneapi::dal::decision_forest::infer_mode>;
-    return static_cast<oneapi::dal::decision_forest::infer_mode>(static_cast<T>(value_left) |
-                                                                 static_cast<T>(value_right));
-}
-
-inline oneapi::dal::decision_forest::infer_mode& operator|=(
-    oneapi::dal::decision_forest::infer_mode& value_left,
-    oneapi::dal::decision_forest::infer_mode value_right) {
-    value_left = value_left | value_right;
-    return value_left;
-}
-
-inline oneapi::dal::decision_forest::infer_mode operator&(
-    oneapi::dal::decision_forest::infer_mode value_left,
-    oneapi::dal::decision_forest::infer_mode value_right) {
-    using T = std::underlying_type_t<oneapi::dal::decision_forest::infer_mode>;
-    return static_cast<oneapi::dal::decision_forest::infer_mode>(static_cast<T>(value_left) &
-                                                                 static_cast<T>(value_right));
-}
-
-inline oneapi::dal::decision_forest::infer_mode& operator&=(
-    oneapi::dal::decision_forest::infer_mode& value_left,
-    oneapi::dal::decision_forest::infer_mode value_right) {
-    using T = std::underlying_type_t<oneapi::dal::decision_forest::infer_mode>;
-
-    value_left = static_cast<oneapi::dal::decision_forest::infer_mode>(static_cast<T>(value_left) &
-                                                                       static_cast<T>(value_right));
-    return value_left;
-}
-
-inline oneapi::dal::decision_forest::error_metric_mode operator|(
-    oneapi::dal::decision_forest::error_metric_mode value_left,
-    oneapi::dal::decision_forest::error_metric_mode value_right) {
-    using T = std::underlying_type_t<oneapi::dal::decision_forest::error_metric_mode>;
-    return static_cast<oneapi::dal::decision_forest::error_metric_mode>(
-        static_cast<T>(value_left) | static_cast<T>(value_right));
-}
-
-inline oneapi::dal::decision_forest::error_metric_mode& operator|=(
-    oneapi::dal::decision_forest::error_metric_mode& value_left,
-    oneapi::dal::decision_forest::error_metric_mode value_right) {
-    value_left = value_left | value_right;
-    return value_left;
-}
-
-inline oneapi::dal::decision_forest::error_metric_mode operator&(
-    oneapi::dal::decision_forest::error_metric_mode value_left,
-    oneapi::dal::decision_forest::error_metric_mode value_right) {
-    using T = std::underlying_type_t<oneapi::dal::decision_forest::error_metric_mode>;
-    return static_cast<oneapi::dal::decision_forest::error_metric_mode>(
-        static_cast<T>(value_left) & static_cast<T>(value_right));
-}
-
-inline oneapi::dal::decision_forest::error_metric_mode& operator&=(
-    oneapi::dal::decision_forest::error_metric_mode& value_left,
-    oneapi::dal::decision_forest::error_metric_mode value_right) {
-    using T = std::underlying_type_t<oneapi::dal::decision_forest::error_metric_mode>;
-
-    value_left = static_cast<oneapi::dal::decision_forest::error_metric_mode>(
-        static_cast<T>(value_left) & static_cast<T>(value_right));
-    return value_left;
-}
