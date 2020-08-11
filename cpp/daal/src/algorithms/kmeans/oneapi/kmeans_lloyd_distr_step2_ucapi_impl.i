@@ -1,4 +1,4 @@
-/* file: kmeans_lloyd_distr_step2_impl.i */
+/* file: kmeans_lloyd_distr_step2_ucapi_impl.i */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *

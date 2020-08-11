@@ -1,4 +1,4 @@
-/* file: kmeans_dense_lloyd_batch_kernel_ucapi_fpt.cpp */
+/* file: kmeans_dense_lloyd_distr_step1_kernel_ucapi_fpt.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *

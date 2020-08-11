@@ -1,4 +1,4 @@
-/* file: kmeans_dense_lloyd_distr_step1_fpt_cpu.cpp */
+/* file: kmeans_dense_lloyd_base_kernel_fpt_cpu.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -21,10 +21,8 @@
 //--
 */
 
-//#include "kmeans_lloyd_kernel.h"
 #include "src/algorithms/kmeans/oneapi/kmeans_dense_lloyd_kernel_base_ucapi.h"
 #include "src/algorithms/kmeans/oneapi/kmeans_dense_lloyd_kernel_base_ucapi_impl.i"
-//#include "src/algorithms/kmeans/kmeans_container.h"
 
 namespace daal
 {
