@@ -21,17 +21,21 @@ namespace oneapi::dal::preview {
 namespace jaccard {
 namespace detail {
 
-template <typename Float, class Method>
-struct vertex_similarity_ops_dispatcher<Float, Method> {
-    similarity_result operator()(const descriptor_base &desc, const similarity_input &input) const {
-        static auto impl = get_backend<Float, Method>(desc, input);
-        return (*impl)(desc, input);
-    }
-};
+template <typename Float, class Method, typename Graph>
+ONEAPI_DAL_EXPORT similarity_result
+vertex_similarity_ops_dispatcher<Float, Method, Graph>::operator()(
+    const descriptor_base &desc,
+    const similarity_input<Graph> &input) const {
+    static auto impl = get_backend<Float, Method>(desc, input);
+    return (*impl)(desc, input);
+}
 
-#define INSTANTIATE(F, M) template struct vertex_similarity_ops_dispatcher<F, M>;
+#define INSTANTIATE(F, M, G) \
+    template struct ONEAPI_DAL_EXPORT vertex_similarity_ops_dispatcher<F, M, G>;
 
-INSTANTIATE(float, oneapi::dal::preview::jaccard::method::by_default)
+INSTANTIATE(float,
+            oneapi::dal::preview::jaccard::method::by_default,
+            undirected_adjacency_array<> &)
 
 } // namespace detail
 } // namespace jaccard

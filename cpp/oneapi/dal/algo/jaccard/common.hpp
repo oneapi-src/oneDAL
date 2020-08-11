@@ -15,8 +15,8 @@
 *******************************************************************************/
 
 #pragma once
-#include "oneapi/dal/data/graph.hpp"
 #include "oneapi/dal/data/table.hpp"
+#include "oneapi/dal/data/undirected_adjacency_array_graph.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::preview {
@@ -27,11 +27,11 @@ class descriptor_impl;
 } // namespace detail
 
 namespace method {
-struct all_vertex_pairs {};
-using by_default = all_vertex_pairs;
+struct fast {};
+using by_default = fast;
 } // namespace method
 
-class descriptor_base : public base {
+class ONEAPI_DAL_EXPORT descriptor_base : public base {
 public:
     using tag_t    = detail::tag;
     using float_t  = float;
@@ -39,16 +39,16 @@ public:
 
     descriptor_base();
 
-    auto get_row_begin() const -> std::int64_t;
-    auto get_row_end() const -> std::int64_t;
-    auto get_column_begin() const -> std::int64_t;
-    auto get_column_end() const -> std::int64_t;
+    auto get_row_range_begin() const -> std::int64_t;
+    auto get_row_range_end() const -> std::int64_t;
+    auto get_column_range_begin() const -> std::int64_t;
+    auto get_column_range_end() const -> std::int64_t;
 
 protected:
-    void set_row_begin_impl(std::int64_t value);
-    void set_row_end_impl(std::int64_t value);
-    void set_column_begin_impl(std::int64_t value);
-    void set_column_end_impl(std::int64_t value);
+    void set_row_range_impl(const int64_t& begin, const int64_t& end);
+    void set_column_range_impl(const int64_t& begin, const int64_t& end);
+    void set_block_impl(const std::initializer_list<int64_t>& row_range,
+                        const std::initializer_list<int64_t>& column_range);
 
     oneapi::dal::detail::pimpl<detail::descriptor_impl> impl_;
 };
@@ -58,23 +58,19 @@ class descriptor : public descriptor_base {
 public:
     using method_t = Method;
 
-    auto &set_row_begin(std::int64_t value) {
-        this->set_row_begin_impl(value);
+    auto& set_row_range(const int64_t& begin, const int64_t& end) {
+        this->set_row_range_impl(begin, end);
         return *this;
     }
 
-    auto &set_row_end(std::int64_t value) {
-        this->set_row_end_impl(value);
+    auto& set_column_range(const int64_t& begin, const int64_t& end) {
+        this->set_column_range_impl(begin, end);
         return *this;
     }
 
-    auto &set_column_begin(std::int64_t value) {
-        this->set_column_begin_impl(value);
-        return *this;
-    }
-
-    auto &set_column_end(std::int64_t value) {
-        this->set_column_end_impl(value);
+    auto& set_block(const std::initializer_list<int64_t>& row_range,
+                    const std::initializer_list<int64_t>& column_range) {
+        this->set_block_impl(row_range, column_range);
         return *this;
     }
 };

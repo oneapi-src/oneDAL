@@ -18,15 +18,10 @@
 
 namespace oneapi::dal::preview {
 
-template class detail::undirected_adjacency_array_graph_impl<empty_value,
-                                                             empty_value,
-                                                             empty_value,
-                                                             std::int64_t,
-                                                             std::allocator<empty_value>>;
-
-template class detail::undirected_adjacency_array_graph_impl<empty_value,
-                                                             empty_value,
-                                                             empty_value,
-                                                             std::int32_t,
-                                                             std::allocator<empty_value>>;
+template class ONEAPI_DAL_EXPORT
+    detail::undirected_adjacency_array_graph_impl<empty_value,
+                                                  empty_value,
+                                                  empty_value,
+                                                  std::int32_t,
+                                                  std::allocator<empty_value>>;
 } // namespace oneapi::dal::preview

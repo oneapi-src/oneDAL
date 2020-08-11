@@ -16,14 +16,9 @@
 
 #pragma once
 
-#include <cstdint>
-#include <memory>
-
-#include "oneapi/dal/common.hpp"
-#include "oneapi/dal/data/array.hpp"
 #include "oneapi/dal/data/detail/graph_container.hpp"
 #include "oneapi/dal/data/detail/undirected_adjacency_array_graph_impl.hpp"
-#include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/data/graph_common.hpp"
 
 namespace oneapi::dal::preview {
 
@@ -43,9 +38,9 @@ const typename G::pimpl &get_impl(const G &g) {
 template <typename VertexValue = empty_value,
           typename EdgeValue   = empty_value,
           typename GraphValue  = empty_value,
-          typename IndexType   = std::int64_t,
+          typename IndexType   = std::int32_t,
           typename Allocator   = std::allocator<empty_value>>
-class undirected_adjacency_array_graph {
+class ONEAPI_DAL_EXPORT undirected_adjacency_array_graph {
 public:
     using graph_type =
         undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>;
@@ -114,73 +109,26 @@ private:
 };
 
 template <typename G>
-using vertex_user_value_type = typename G::vertex_user_value_type;
+ONEAPI_DAL_EXPORT auto get_vertex_count_impl(const G &g) noexcept -> vertex_size_type<G>;
 
 template <typename G>
-using edge_user_value_type = typename G::edge_user_value_type;
+ONEAPI_DAL_EXPORT auto get_edge_count_impl(const G &g) noexcept -> edge_size_type<G>;
 
 template <typename G>
-using vertex_type = typename G::vertex_type;
+ONEAPI_DAL_EXPORT auto get_vertex_degree_impl(const G &g, const vertex_type<G> &vertex) noexcept
+    -> vertex_edge_size_type<G>;
 
 template <typename G>
-using vertex_size_type = typename G::vertex_size_type;
-
-template <typename G>
-using edge_size_type = typename G::edge_size_type;
-
-template <typename G>
-using vertex_edge_size_type = typename G::vertex_edge_size_type;
-
-template <typename G>
-using edge_iterator_type = typename G::edge_iterator;
-
-template <typename G>
-using const_edge_iterator_type = typename G::const_edge_iterator;
-
-template <typename G>
-using vertex_edge_iterator_type = typename G::vertex_edge_iterator;
-
-template <typename G>
-using const_vertex_edge_iterator_type = typename G::const_vertex_edge_iterator;
-
-template <typename G>
-using edge_range_type = typename G::edge_range;
-
-template <typename G>
-using const_edge_range_type = typename G::const_edge_range;
-
-template <typename G>
-using vertex_edge_range_type = typename G::vertex_edge_range;
-
-template <typename G>
-using const_vertex_edge_range_type = typename G::const_vertex_edge_range;
-
-template <typename G>
-auto get_vertex_count_impl(const G &g) noexcept -> vertex_size_type<G>;
-
-template <typename G>
-auto get_edge_count_impl(const G &g) noexcept -> edge_size_type<G>;
-
-template <typename G>
-auto get_vertex_degree_impl(const G &g, const vertex_type<G> &vertex) -> vertex_edge_size_type<G>;
-
-template <typename G>
-auto get_vertex_neighbors_impl(const G &g, const vertex_type<G> &vertex)
+ONEAPI_DAL_EXPORT auto get_vertex_neighbors_impl(const G &g, const vertex_type<G> &vertex) noexcept
     -> const_vertex_edge_range_type<G>;
 
 template <typename G>
-auto get_vertex_value_impl(const G &g, const vertex_type<G> &vertex) -> vertex_user_value_type<G>;
-
-template <typename IndexType>
-using edge_list = detail::graph_container<std::pair<IndexType, IndexType>>;
-
-template <typename G>
-void convert_to_csr_impl(const edge_list<vertex_type<G>> &edges, G &g);
+ONEAPI_DAL_EXPORT void convert_to_csr_impl(const edge_list<vertex_type<G>> &edges, G &g);
 
 template <typename VertexValue = empty_value,
           typename EdgeValue   = empty_value,
           typename GraphValue  = empty_value,
-          typename IndexType   = std::int64_t,
+          typename IndexType   = std::int32_t,
           typename Allocator   = std::allocator<empty_value>>
 using undirected_adjacency_array =
     undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>;

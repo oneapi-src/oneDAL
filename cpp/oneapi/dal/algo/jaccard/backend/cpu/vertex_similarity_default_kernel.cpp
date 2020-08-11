@@ -17,7 +17,9 @@
 #include <iostream>
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
-#include "oneapi/dal/data/graph.hpp"
+#include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/interop/table_conversion.hpp"
+#include "oneapi/dal/data/graph_service_functions.hpp"
 
 namespace oneapi::dal::preview {
 namespace jaccard {
@@ -56,7 +58,22 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
             i_u += 16;
         __mmask16 match = _mm512_cmpeq_epi32_mask(v_u, v_v);
         if (_mm512_mask2int(match) != 0xffff) { // shortcut case where all neighbors match
-            __m512i circ1  = _mm512_set_epi32(0, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1);
+            __m512i circ1  = _mm512_set_epi32(0,
+                                             15,
+                                             14,
+                                             13,
+                                             12,
+                                             11,
+                                             10,
+                                             9,
+                                             8,
+                                             7,
+                                             6,
+                                             5,
+                                             4,
+                                             3,
+                                             2,
+                                             1); // all possible circular shifts for 16 elements
             __m512i circ2  = _mm512_set_epi32(1, 0, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2);
             __m512i circ3  = _mm512_set_epi32(2, 1, 0, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3);
             __m512i circ4  = _mm512_set_epi32(3, 2, 1, 0, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4);
@@ -168,7 +185,14 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
 
         __mmask8 match = _mm256_cmpeq_epi32_mask(v_u, v_v);
         if (_cvtmask8_u32(match) != 0xff) { // shortcut case where all neighbors match
-            __m256i circ1 = _mm256_set_epi32(0, 7, 6, 5, 4, 3, 2, 1);
+            __m256i circ1 = _mm256_set_epi32(0,
+                                             7,
+                                             6,
+                                             5,
+                                             4,
+                                             3,
+                                             2,
+                                             1); // all possible circular shifts for 16 elements
             __m256i circ2 = _mm256_set_epi32(1, 0, 7, 6, 5, 4, 3, 2);
             __m256i circ3 = _mm256_set_epi32(2, 1, 0, 7, 6, 5, 4, 3);
             __m256i circ4 = _mm256_set_epi32(3, 2, 1, 0, 7, 6, 5, 4);
@@ -224,6 +248,7 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
     }
 
     while (i_u <= (n_u - 4) && i_v <= (n_v - 4)) { // not in last n%8 elements
+
         NodeID_t maxu = neigh_u[i_u + 3]; // assumes neighbor list is ordered
         NodeID_t minu = neigh_u[i_u];
         NodeID_t maxv = neigh_v[i_v + 3];
@@ -328,7 +353,14 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
         unsigned int scalar_match = _mm256_movemask_ps(reinterpret_cast<__m256>(match));
 
         if (scalar_match != 255) { // shortcut case where all neighbors match
-            __m256i circ1 = _mm256_set_epi32(0, 7, 6, 5, 4, 3, 2, 1);
+            __m256i circ1 = _mm256_set_epi32(0,
+                                             7,
+                                             6,
+                                             5,
+                                             4,
+                                             3,
+                                             2,
+                                             1); // all possible circular shifts for 16 elements
             __m256i circ2 = _mm256_set_epi32(1, 0, 7, 6, 5, 4, 3, 2);
             __m256i circ3 = _mm256_set_epi32(2, 1, 0, 7, 6, 5, 4, 3);
             __m256i circ4 = _mm256_set_epi32(3, 2, 1, 0, 7, 6, 5, 4);
@@ -401,6 +433,7 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
     }
 
     while (i_u <= (n_u - 4) && i_v <= (n_v - 4)) { // not in last n%8 elements
+
         NodeID_t maxu = neigh_u[i_u + 3]; // assumes neighbor list is ordered
         NodeID_t minu = neigh_u[i_u];
         NodeID_t maxv = neigh_v[i_v + 3];
@@ -514,39 +547,42 @@ template size_t intersection<uint64_t>(uint64_t *neigh_u,
                                        uint64_t n_u,
                                        uint64_t n_v);
 
+template <typename Graph>
 similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
-                                            const similarity_input &input) {
+                                            const similarity_input<Graph> &input) {
     std::cout << "Jaccard block kernel started" << std::endl;
+
     const auto my_graph = input.get_graph();
-    std::cout << get_vertex_count(my_graph) << std::endl;
-    std::cout << get_edge_count(my_graph) << std::endl;
+
+    std::cout << get_vertex_count_impl(my_graph) << std::endl;
+    std::cout << get_edge_count_impl(my_graph) << std::endl;
     auto node_id = 0;
-    std::cout << "degree of " << node_id << ": " << get_vertex_degree(my_graph, node_id)
+    std::cout << "degree of " << node_id << ": " << get_vertex_degree_impl(my_graph, node_id)
               << std::endl;
-    for (unsigned int j = 0; j < get_vertex_count(my_graph); ++j) {
+    for (unsigned int j = 0; j < get_vertex_count_impl(my_graph); ++j) {
         std::cout << "neighbors of " << j << ": ";
-        auto neigh = get_vertex_neighbors(my_graph, j);
+        auto neigh = get_vertex_neighbors_impl(my_graph, j);
         for (auto i = neigh.first; i != neigh.second; ++i)
             std::cout << *i << " ";
         std::cout << std::endl;
     }
-    const auto row_begin                = desc.get_row_begin();
-    const auto row_end                  = desc.get_row_end();
-    const auto column_begin             = desc.get_column_begin();
-    const auto column_end               = desc.get_column_end();
+    const auto row_begin                = desc.get_row_range_begin();
+    const auto row_end                  = desc.get_row_range_end();
+    const auto column_begin             = desc.get_column_range_begin();
+    const auto column_end               = desc.get_column_range_end();
     const auto number_elements_in_block = (row_end - row_begin) * (column_end - column_begin);
     array<float> jaccard                = array<float>::empty(number_elements_in_block);
     array<std::pair<std::uint32_t, std::uint32_t>> vertex_pairs =
         array<std::pair<std::uint32_t, std::uint32_t>>::empty(number_elements_in_block);
     size_t nnz = 0;
     for (auto i = row_begin; i < row_end; ++i) {
-        const auto i_neighbor_size = get_vertex_degree(my_graph, i);
-        const auto i_neigbhors     = get_vertex_neighbors(my_graph, i).first;
+        const auto i_neighbor_size = get_vertex_degree_impl(my_graph, i);
+        const auto i_neigbhors     = get_vertex_neighbors_impl(my_graph, i).first;
         for (auto j = column_begin; j < column_end; ++j) {
             if (j == i)
                 continue;
-            const auto j_neighbor_size = get_vertex_degree(my_graph, j);
-            const auto j_neigbhors     = get_vertex_neighbors(my_graph, j).first;
+            const auto j_neighbor_size = get_vertex_degree_impl(my_graph, j);
+            const auto j_neigbhors     = get_vertex_neighbors_impl(my_graph, j).first;
             size_t intersection_value  = 0;
             size_t i_u = 0, i_v = 0;
             while (i_u < i_neighbor_size && i_v < j_neighbor_size) {
@@ -569,11 +605,16 @@ similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
     }
     jaccard.reset(nnz);
     vertex_pairs.reset(nnz);
-    similarity_result res(jaccard, vertex_pairs);
+
+    similarity_result res(homogen_table_builder{}.build(), homogen_table_builder{}.build());
 
     std::cout << "Jaccard block kernel ended" << std::endl;
     return res;
 }
+
+template similarity_result call_jaccard_block_kernel<undirected_adjacency_array<> &>(
+    const descriptor_base &desc,
+    const similarity_input<undirected_adjacency_array<> &> &input);
 
 } // namespace detail
 } // namespace jaccard
