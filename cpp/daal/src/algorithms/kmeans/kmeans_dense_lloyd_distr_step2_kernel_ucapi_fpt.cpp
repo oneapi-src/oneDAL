@@ -1,6 +1,6 @@
-/* file: kmeans_dense_lloyd_distr_step2_fpt_cpu.cpp */
+/* file: kmeans_dense_lloyd_distr_step2_kernel_ucapi_fpt.cpp */
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,9 +21,8 @@
 //--
 */
 
-#include "kmeans_lloyd_kernel.h"
-#include "oneapi/kmeans_lloyd_distr_step2_ucapi_impl.i"
-#include "kmeans_container.h"
+#include "src/algorithms/kmeans/kmeans_lloyd_kernel.h"
+#include "src/algorithms/kmeans/oneapi/kmeans_lloyd_distr_step2_ucapi_impl.i"
 
 namespace daal
 {

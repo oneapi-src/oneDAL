@@ -32,7 +32,6 @@
 #include "src/algorithms/kmeans/oneapi/kmeans_dense_lloyd_batch_kernel_ucapi.h"
 #include "src/algorithms/kmeans/oneapi/kmeans_lloyd_distr_step1_kernel_ucapi.h"
 #include "src/algorithms/kmeans/oneapi/kmeans_lloyd_distr_step2_kernel_ucapi.h"
-#include "src/services/service_arrays.h"
 #include "sycl/internal/execution_context.h"
 
 namespace daal {
