@@ -40,10 +40,8 @@ template <typename algorithmFPType>
 class KMeansDistributedStep1KernelUCAPI : public KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>
 {
 public:
-    services::Status compute(size_t na, const NumericTable * const * a, size_t nr,
-                             const NumericTable * const * r, const Parameter * par);
-    services::Status finalizeCompute(size_t na, const NumericTable * const * a, size_t nr, const NumericTable * const * r, 
-                                     const Parameter * par);
+    services::Status compute(size_t na, const NumericTable * const * a, size_t nr, const NumericTable * const * r, const Parameter * par);
+    services::Status finalizeCompute(size_t na, const NumericTable * const * a, size_t nr, const NumericTable * const * r, const Parameter * par);
 };
 
 } // namespace internal

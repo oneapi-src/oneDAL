@@ -21,7 +21,6 @@
 //--
 */
 
-
 #ifndef __KMEANS_DENSE_LLOYD_KERNEL_BASE_UCAPI_H__
 #define __KMEANS_DENSE_LLOYD_KERNEL_BASE_UCAPI_H__
 
@@ -41,7 +40,6 @@ namespace kmeans
 {
 namespace internal
 {
-
 class Range
 {
 public:
@@ -70,15 +68,15 @@ protected:
     void computeDistances(const services::Buffer<algorithmFPType> & data, const services::Buffer<algorithmFPType> & centroids, uint32_t blockSize,
                           uint32_t nClusters, uint32_t nFeatures, services::Status * st);
 
-    void computeAssignments(const oneapi::internal::UniversalBuffer& assignments, uint32_t blockSize, uint32_t nClusters, services::Status * st);
+    void computeAssignments(const oneapi::internal::UniversalBuffer & assignments, uint32_t blockSize, uint32_t nClusters, services::Status * st);
 
-    void computePartialCandidates(const oneapi::internal::UniversalBuffer& assignments, uint32_t blockSize, uint32_t nClusters, uint32_t reset,
+    void computePartialCandidates(const oneapi::internal::UniversalBuffer & assignments, uint32_t blockSize, uint32_t nClusters, uint32_t reset,
                                   services::Status * st);
 
     void mergePartialCandidates(uint32_t nClusters, services::Status * st);
 
-    void partialReduceCentroids(const services::Buffer<algorithmFPType> & data, const oneapi::internal::UniversalBuffer& assignments, uint32_t blockSize,
-                                uint32_t nClusters, uint32_t nFeatures, uint32_t doReset, services::Status * st);
+    void partialReduceCentroids(const services::Buffer<algorithmFPType> & data, const oneapi::internal::UniversalBuffer & assignments,
+                                uint32_t blockSize, uint32_t nClusters, uint32_t nFeatures, uint32_t doReset, services::Status * st);
 
     void mergeReduceCentroids(const services::Buffer<algorithmFPType> & centroids, uint32_t nClusters, uint32_t nFeatures, services::Status * st);
 

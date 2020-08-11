@@ -37,7 +37,6 @@ using namespace daal::services;
 using namespace daal::oneapi::internal;
 using namespace daal::data_management;
 
-
 namespace daal
 {
 namespace algorithms
@@ -50,23 +49,23 @@ namespace internal
 
 template <typename algorithmFPType>
 Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, const NumericTable * const * a, size_t nr,
-                                                                const NumericTable * const * r, const Parameter * par)
+                                                                   const NumericTable * const * r, const Parameter * par)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute);
 
     Status st;
 
-    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context       = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernelFactory = context.getClKernelFactory();
 
-    NumericTable * ntData         = const_cast<NumericTable *>(a[0]);
-    NumericTable * ntInCentroids  = const_cast<NumericTable *>(a[1]);
-    NumericTable * ntClusterS0    = const_cast<NumericTable *>(r[0]);
-    NumericTable * ntClusterS1    = const_cast<NumericTable *>(r[1]);
-    NumericTable * ntObjFunction  = const_cast<NumericTable *>(r[2]);
-    NumericTable * ntCValues      = const_cast<NumericTable *>(r[3]);
-    NumericTable * ntCCentroids   = const_cast<NumericTable *>(r[4]);
-    NumericTable * ntAssignments  = const_cast<NumericTable *>(r[5]);
+    NumericTable * ntData        = const_cast<NumericTable *>(a[0]);
+    NumericTable * ntInCentroids = const_cast<NumericTable *>(a[1]);
+    NumericTable * ntClusterS0   = const_cast<NumericTable *>(r[0]);
+    NumericTable * ntClusterS1   = const_cast<NumericTable *>(r[1]);
+    NumericTable * ntObjFunction = const_cast<NumericTable *>(r[2]);
+    NumericTable * ntCValues     = const_cast<NumericTable *>(r[3]);
+    NumericTable * ntCCentroids  = const_cast<NumericTable *>(r[4]);
+    NumericTable * ntAssignments = const_cast<NumericTable *>(r[5]);
 
     const size_t nIter     = par->maxIterations;
     const size_t nRows     = ntData->getNumberOfRows();
@@ -110,7 +109,7 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
     DAAL_CHECK_STATUS_VAR(st);
 
     size_t nPartNum = this->getCandidatePartNum(nClusters);
-    size_t nBlocks = nRows / blockSize + int(nRows % blockSize != 0);
+    size_t nBlocks  = nRows / blockSize + int(nRows % blockSize != 0);
 
     bool needCandidates = true;
     for (size_t block = 0; block < nBlocks; block++)
@@ -160,7 +159,8 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
         this->updateObjectiveFunction(outObjFunction, range.count, nClusters, int(block == 0), &st);
         DAAL_CHECK_STATUS_VAR(st);
         ntData->releaseBlockOfRows(dataRows);
-        if (par->assignFlag) {
+        if (par->assignFlag)
+        {
             BlockDescriptor<int> assignmentsRows;
             DAAL_CHECK_STATUS_VAR(ntAssignments->getBlockOfRows(0, nRows, writeOnly, assignmentsRows));
             auto finalAssignments = assignmentsRows.getBuffer();
@@ -176,23 +176,23 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
     ntClusterS0->releaseBlockOfRows(ntClusterS0Rows);
     ntClusterS1->releaseBlockOfRows(ntClusterS1Rows);
     ntObjFunction->releaseBlockOfRows(ntObjFunctionRows);
-    if(needCandidates)
+    if (needCandidates)
     {
         context.copy(outCValues, 0, this->_candidateDistances, 0, nClusters, &st);
     }
     DAAL_CHECK_STATUS_VAR(st);
     ntCValues->releaseBlockOfRows(ntCValuesRows);
-    if(needCandidates)
+    if (needCandidates)
     {
         auto hostCandidates = this->_candidates.template get<int>().toHost(ReadWriteMode::readOnly);
-        if(!hostCandidates)
+        if (!hostCandidates)
         {
             return Status(ErrorNullPtr);
         }
-        for(uint32_t cPos = 0; cPos < nClusters; cPos++)
+        for (uint32_t cPos = 0; cPos < nClusters; cPos++)
         {
             int index = hostCandidates.get()[cPos];
-            if(index < 0 || index > nRows)
+            if (index < 0 || index > nRows)
             {
                 // error out of range
             }
@@ -210,7 +210,7 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
 
 template <typename algorithmFPType>
 Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::finalizeCompute(size_t na, const NumericTable * const * a, size_t nr,
-                                                                                   const NumericTable * const * r, const Parameter * par)
+                                                                           const NumericTable * const * r, const Parameter * par)
 {
     if (!par->assignFlag) return Status();
 
@@ -224,7 +224,7 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::finalizeCompute(size_
     BlockDescriptor<int> outBlock;
     DAAL_CHECK_STATUS_VAR(ntAssignments->getBlockOfRows(0, n, writeOnly, outBlock));
 
-    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = Environment::getInstance()->getDefaultExecutionContext();
     Status status;
     context.copy(outBlock.getBuffer(), 0, inBlock.getBuffer(), 0, n, &status);
     return status;

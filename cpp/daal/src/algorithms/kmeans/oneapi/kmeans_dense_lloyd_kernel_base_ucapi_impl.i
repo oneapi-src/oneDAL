@@ -46,7 +46,6 @@ namespace kmeans
 {
 namespace internal
 {
-
 template <typename algorithmFPType>
 Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::initializeBuffers(uint32_t nClusters, uint32_t nFeatures, uint32_t blockSize)
 {
@@ -165,7 +164,7 @@ const char * KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::getComputeSquares
 
 template <typename algorithmFPType>
 void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computeSquares(const Buffer<algorithmFPType> & data, UniversalBuffer & dataSq, uint32_t nRows,
-                                                                       uint32_t nFeatures, Status * st)
+                                                                      uint32_t nFeatures, Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeSquares);
 
@@ -221,8 +220,8 @@ void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::getNumEmptyClusters(uint3
 
 template <typename algorithmFPType>
 void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computeDistances(const Buffer<algorithmFPType> & data,
-                                                                         const Buffer<algorithmFPType> & centroids, uint32_t blockSize,
-                                                                         uint32_t nClusters, uint32_t nFeatures, Status * st)
+                                                                        const Buffer<algorithmFPType> & centroids, uint32_t blockSize,
+                                                                        uint32_t nClusters, uint32_t nFeatures, Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeDistances);
 
@@ -237,8 +236,8 @@ void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computeDistances(const Bu
 }
 
 template <typename algorithmFPType>
-void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computeAssignments(const UniversalBuffer& assignments, uint32_t blockSize, uint32_t nClusters,
-                                                                           Status * st)
+void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computeAssignments(const UniversalBuffer & assignments, uint32_t blockSize, uint32_t nClusters,
+                                                                          Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeAssignments);
 
@@ -275,8 +274,8 @@ void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computeAssignments(const 
 }
 
 template <typename algorithmFPType>
-void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computePartialCandidates(const UniversalBuffer& assignments, uint32_t blockSize,
-                                                                                 uint32_t nClusters, uint32_t reset, Status * st)
+void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computePartialCandidates(const UniversalBuffer & assignments, uint32_t blockSize,
+                                                                                uint32_t nClusters, uint32_t reset, Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computePartialCandidates);
 
@@ -342,9 +341,9 @@ void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::mergePartialCandidates(ui
 }
 
 template <typename algorithmFPType>
-void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::partialReduceCentroids(const Buffer<algorithmFPType> & data, const UniversalBuffer & assignments,
-                                                                               uint32_t blockSize, uint32_t nClusters, uint32_t nFeatures,
-                                                                               uint32_t doReset, Status * st)
+void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::partialReduceCentroids(const Buffer<algorithmFPType> & data,
+                                                                              const UniversalBuffer & assignments, uint32_t blockSize,
+                                                                              uint32_t nClusters, uint32_t nFeatures, uint32_t doReset, Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.partialReduceCentroids);
 
@@ -370,7 +369,7 @@ void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::partialReduceCentroids(co
 
 template <typename algorithmFPType>
 void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::mergeReduceCentroids(const Buffer<algorithmFPType> & centroids, uint32_t nClusters,
-                                                                             uint32_t nFeatures, Status * st)
+                                                                            uint32_t nFeatures, Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.mergeReduceCentroids);
 
@@ -400,7 +399,7 @@ void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::mergeReduceCentroids(cons
 
 template <typename algorithmFPType>
 void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::updateObjectiveFunction(const Buffer<algorithmFPType> & objFunction, uint32_t blockSize,
-                                                                                uint32_t nClusters, uint32_t doReset, Status * st)
+                                                                               uint32_t nClusters, uint32_t doReset, Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateObjectiveFunction);
 
@@ -487,8 +486,8 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::getBlockSize(uint32_t n
 
 template <typename algorithmFPType>
 Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::setEmptyClusters(NumericTable * const ntData, uint32_t nRows, uint32_t nClusters,
-                                                                           uint32_t nFeatures, Buffer<algorithmFPType> & outCentroids,
-                                                                           algorithmFPType & objFuncCorrection)
+                                                                          uint32_t nFeatures, Buffer<algorithmFPType> & outCentroids,
+                                                                          algorithmFPType & objFuncCorrection)
 {
     auto counters        = _partialCentroidsCounters.template get<int>().toHost(ReadWriteMode::readOnly);
     auto candidatesIds   = _candidates.template get<int>().toHost(ReadWriteMode::readOnly);

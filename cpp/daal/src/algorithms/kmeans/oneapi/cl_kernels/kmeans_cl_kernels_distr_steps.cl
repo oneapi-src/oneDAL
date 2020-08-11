@@ -31,77 +31,60 @@
 DECLARE_SOURCE(
     kmeans_cl_kernels_distr_steps,
 
-__kernel void init_clusters_distr(  __global       int             *partialCentroidsCounters,
-                                    __global       algorithmFPType *partialCentroids,
-                                    __global       int             *cCounters,
-                                    __global       algorithmFPType *centroids,
-                                    int P)
-{
-    const int global_id = get_global_id(0);
-    const int local_id = get_local_id(1);
-//    if(local_id == 0 && global_id == 0)
-//        printf("init_clusters_distr\n");
-    centroids[global_id * P + local_id] = partialCentroids[global_id * P + local_id];
-    if(local_id == 0)
-        cCounters[global_id] = partialCentroidsCounters[global_id];
-}
-
-__kernel void update_clusters_distr(  __global       int             *partialCentroidsCounters,
-                                    __global       algorithmFPType *partialCentroids,
-                                    __global       int             *cCounters,
-                                    __global       algorithmFPType *centroids,
-                                    int P)
-{
-    const int global_id = get_global_id(0);
-    const int local_id = get_local_id(1);
-//    if(local_id == 0 && global_id == 0)
-//        printf("update_clusters_distr\n");
-    const int oldN = partialCentroidsCounters[global_id];
-    const int newN = cCounters[global_id];
-    const algorithmFPType oldContrib = oldN * partialCentroids[global_id * P + local_id];
-    const algorithmFPType newContrib = newN * centroids[global_id * P + local_id];
-    centroids[global_id * P + local_id] = (oldContrib + newContrib) / (oldN + newN) ;
-    if(local_id == 0)
-        cCounters[global_id] = oldN + newN;
-}
-
-__kernel void init_candidates_distr(__global       int             *partialCandidates,
-                                    __global       algorithmFPType *partialCValues,
-                                    __global       int             *candidates,
-                                    __global       algorithmFPType *cValues,
-                                    int K)
-{
-    const int local_id = get_local_id(1);
-    const int local_size = get_local_size(1);
-    for(int i = local_id; i < K; i += local_size) 
-    {
-        candidates[i] = partialCandidates[i];
-        cValues[i] = partialCValues[i];
+    __kernel void init_clusters_distr(__global int * partialCentroidsCounters, __global algorithmFPType * partialCentroids, __global int * cCounters,
+                                      __global algorithmFPType * centroids, int P) {
+        const int global_id = get_global_id(0);
+        const int local_id  = get_local_id(1);
+        //    if(local_id == 0 && global_id == 0)
+        //        printf("init_clusters_distr\n");
+        centroids[global_id * P + local_id] = partialCentroids[global_id * P + local_id];
+        if (local_id == 0) cCounters[global_id] = partialCentroidsCounters[global_id];
     }
-}
 
-__kernel void update_candidates_distr(__global       int             *partialCandidates,
-                                    __global       algorithmFPType *partialCValues,
-                                    __global       int             *candidates,
-                                    __global       algorithmFPType *cValues,
-                                    int K)
-{
-    for (int i = K - 1; i >= 0; i--) 
-    { 
-        int j;
-        algorithmFPType last = cValues[K - 1];
-        for (j = K - 2; j >= 0 && cValues[j] < partialCValues[i]; j--) {
-            cValues[j + 1] = cValues[j]; 
-            candidates[j + 1] = candidates[j];
+    __kernel void update_clusters_distr(__global int * partialCentroidsCounters, __global algorithmFPType * partialCentroids,
+                                        __global int * cCounters, __global algorithmFPType * centroids, int P) {
+        const int global_id = get_global_id(0);
+        const int local_id  = get_local_id(1);
+        //    if(local_id == 0 && global_id == 0)
+        //        printf("update_clusters_distr\n");
+        const int oldN                      = partialCentroidsCounters[global_id];
+        const int newN                      = cCounters[global_id];
+        const algorithmFPType oldContrib    = oldN * partialCentroids[global_id * P + local_id];
+        const algorithmFPType newContrib    = newN * centroids[global_id * P + local_id];
+        centroids[global_id * P + local_id] = (oldContrib + newContrib) / (oldN + newN);
+        if (local_id == 0) cCounters[global_id] = oldN + newN;
+    }
+
+    __kernel void init_candidates_distr(__global int * partialCandidates, __global algorithmFPType * partialCValues, __global int * candidates,
+                                        __global algorithmFPType * cValues, int K) {
+        const int local_id   = get_local_id(1);
+        const int local_size = get_local_size(1);
+        for (int i = local_id; i < K; i += local_size)
+        {
+            candidates[i] = partialCandidates[i];
+            cValues[i]    = partialCValues[i];
         }
-  
-        if (j != K -2 || last < partialCValues[i]) 
-        { 
-            cValues[j + 1] = partialCValues[i];
-            candidates[j + 1] = partialCandidates[i];
-        } 
     }
-}
+
+    __kernel void update_candidates_distr(__global int * partialCandidates, __global algorithmFPType * partialCValues, __global int * candidates,
+                                          __global algorithmFPType * cValues, int K) {
+        for (int i = K - 1; i >= 0; i--)
+        {
+            int j;
+            algorithmFPType last = cValues[K - 1];
+            for (j = K - 2; j >= 0 && cValues[j] < partialCValues[i]; j--)
+            {
+                cValues[j + 1]    = cValues[j];
+                candidates[j + 1] = candidates[j];
+            }
+
+            if (j != K - 2 || last < partialCValues[i])
+            {
+                cValues[j + 1]    = partialCValues[i];
+                candidates[j + 1] = partialCandidates[i];
+            }
+        }
+    }
 
 );
 
