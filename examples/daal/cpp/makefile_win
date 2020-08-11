@@ -19,7 +19,8 @@
 ##******************************************************************************
 
 help:
-	@echo "Usage: nmake {{libia32|dllia32|libintel64|dllintel64|help}}"
+	@echo "Usage: nmake {{lib|dll|libintel64|dllintel64|help}}"
+	@echo "lib is alias for libintel64, dll is alias for dllintel64"
 	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
 	@echo
 	@echo "name              - example name."
@@ -34,13 +35,12 @@ help:
 ##------------------------------------------------------------------------------
 ## examples of using:
 ##
-## nmake libia32 example=kmeans_dense_batch+  	- build by Intel(R) C++ Compiler (as default)
+## nmake lib example=kmeans_dense_batch+  	- build by Intel(R) C++ Compiler (as default)
 ##                                 				  and run kmeans_dense_batch example for 32-bit
 ##                                 				  applications, static linking
 ##
-## nmake dllia32 compiler=msvs     				- build by Microsoft(R) C++ compiler and run all examples
-##                                 				  of Intel(R) DAAL for
-##                                 				  32-bit applications, dynamic linking
+## nmake dll compiler=msvs     				- build by Microsoft(R) C++ compiler and run all examples
+##                                 				  of Intel(R) DAAL dynamic linking
 ##
 ## nmake libintel64 example=kmeans_dense_batch+ - build by Intel(R) C++ Compiler (as default)
 ##                                 				  and run kmeans_dense_batch example for 64-bit
@@ -80,7 +80,7 @@ threading = parallel
 DAALROOT = ..\..\..
 !ENDIF
 
-DAAL_PATH = $(DAALROOT)\lib\$(_IA)
+DAAL_PATH = $(DAALROOT)\lib\intel64
 
 !IF ("$(mode)"=="build")
 RES = $(example:+=.exe)
@@ -111,15 +111,7 @@ CC=cl
 !ENDIF
 
 !IF ("$(compiler)"!="msvs")
-COPTS=-Wall -w $(COPTS)
-
-!IF ("$(_IA)"=="ia32")
-COPTS=-m32 $(COPTS)
-!ENDIF
-
-!IF ("$(_IA)"=="intel64")
-COPTS=-m64 $(COPTS)
-!ENDIF
+COPTS=-Wall -w -m64 $(COPTS)
 
 !ELSE
 COPTS=-W3 -EHsc $(COPTS)
@@ -139,16 +131,12 @@ DAAL_LIB = "$(DAAL_PATH)\onedal_core$(EXT)" $(DAAL_LIB_T)
 
 COPTS = -Isource\utils $(COPTS) $(OUT_OPTS)
 LOPTS = $(DAAL_LIB) $(EXT_LIB)
-RES_DIR  =_results\$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
+RES_DIR  =_results\$(compiler)_intel64_$(threading)_$(RES_EXT)
 
-libia32:
-	nmake comm_func $(RES) $(CLEAN) EXT=.lib _IA=ia32 RES_EXT=lib compiler=$(compiler) threading=$(threading)
-dllia32:
-	nmake comm_func $(RES) $(CLEAN) EXT=_dll.lib _IA=ia32 RES_EXT=dll compiler=$(compiler) threading=$(threading)
-libintel64:
-	nmake comm_func $(RES) $(CLEAN) EXT=.lib _IA=intel64 RES_EXT=lib compiler=$(compiler) threading=$(threading)
-dllintel64:
-	nmake comm_func $(RES) $(CLEAN) EXT=_dll.lib _IA=intel64 RES_EXT=dll compiler=$(compiler) threading=$(threading)
+lib libintel64:
+	nmake comm_func $(RES) $(CLEAN) EXT=.lib RES_EXT=lib compiler=$(compiler) threading=$(threading)
+dll dllintel64:
+	nmake comm_func $(RES) $(CLEAN) EXT=_dll.lib RES_EXT=dll compiler=$(compiler) threading=$(threading)
 
 comm_func:
 	if not exist _results md _results
