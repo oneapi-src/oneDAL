@@ -28,7 +28,7 @@
  */
 namespace oneapi::dal::preview {
 
-/// Graphet number of vertexes in a graph.
+/// Get number of vertexes in a graph.
 ///
 /// @tparam Graph  Type of graph
 ///
@@ -45,7 +45,7 @@ constexpr auto get_edge_count(const Graph& graph) noexcept -> edge_size_type<Gra
     return get_edge_count_impl(graph);
 }
 
-/// Graphet degree of vertex in a graph.
+/// Get degree of vertex in a graph.
 ///
 /// @tparam Graph  Type of graph
 ///
