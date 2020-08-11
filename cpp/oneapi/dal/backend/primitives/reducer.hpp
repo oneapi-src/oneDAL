@@ -103,7 +103,7 @@ inline cl::sycl::event reduce_rm(cl::sycl::queue& q,
                                  BinaryFunctor binary_func,
                                  UnaryFunctor unary_func           = UnaryFunctor{},
                                  std::int64_t work_items_per_group = -1) {
-    reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, layour::row_major> kernel(q,
+    reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, layout::row_major> kernel(q,
                                                                                      binary_func,
                                                                                      unary_func);
     return (work_items_per_group < 0)
@@ -122,7 +122,7 @@ inline cl::sycl::event reduce_rm(cl::sycl::queue& q,
                                  BinaryFunctor binary_func,
                                  UnaryFunctor unary_func           = UnaryFunctor{},
                                  std::int64_t work_items_per_group = -1) {
-    reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, layour::row_major> kernel(q,
+    reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, layout::row_major> kernel(q,
                                                                                      binary_func,
                                                                                      unary_func);
     return (work_items_per_group < 0)
@@ -141,7 +141,7 @@ inline cl::sycl::event reduce_cm(cl::sycl::queue& q,
                                  BinaryFunctor binary_func,
                                  UnaryFunctor unary_func           = UnaryFunctor{},
                                  std::int64_t work_items_per_group = -1) {
-    reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, layour::col_major> kernel(q,
+    reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, layout::col_major> kernel(q,
                                                                                      binary_func,
                                                                                      unary_func);
     return (work_items_per_group < 0)
@@ -160,7 +160,7 @@ inline cl::sycl::event reduce_cm(cl::sycl::queue& q,
                                  BinaryFunctor binary_func,
                                  UnaryFunctor unary_func           = UnaryFunctor{},
                                  std::int64_t work_items_per_group = -1) {
-    reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, layour::col_major> kernel(q,
+    reducer_singlepass<Float, BinaryFunctor, UnaryFunctor, layout::col_major> kernel(q,
                                                                                      binary_func,
                                                                                      unary_func);
     return (work_items_per_group < 0)
