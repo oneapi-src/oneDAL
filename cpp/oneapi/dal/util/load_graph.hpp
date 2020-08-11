@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <fstream>
+
 #include "oneapi/dal/data/undirected_adjacency_array_graph.hpp"
 #include "oneapi/dal/util/csv_data_source.hpp"
 

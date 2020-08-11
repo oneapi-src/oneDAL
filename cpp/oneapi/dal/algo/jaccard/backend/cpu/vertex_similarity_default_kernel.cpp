@@ -566,10 +566,10 @@ similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
             std::cout << *i << " ";
         std::cout << std::endl;
     }
-    const auto row_begin                = desc.get_row_begin();
-    const auto row_end                  = desc.get_row_end();
-    const auto column_begin             = desc.get_column_begin();
-    const auto column_end               = desc.get_column_end();
+    const auto row_begin                = desc.get_row_range_begin();
+    const auto row_end                  = desc.get_row_range_end();
+    const auto column_begin             = desc.get_column_range_begin();
+    const auto column_end               = desc.get_column_range_end();
     const auto number_elements_in_block = (row_end - row_begin) * (column_end - column_begin);
     array<float> jaccard                = array<float>::empty(number_elements_in_block);
     array<std::pair<std::uint32_t, std::uint32_t>> vertex_pairs =

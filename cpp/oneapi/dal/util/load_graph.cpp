@@ -16,9 +16,8 @@
 
 #include "oneapi/dal/util/load_graph.hpp"
 
-#include <fstream>
-
 namespace oneapi::dal::preview::load_graph {
+
 namespace detail {
 edge_list<std::int32_t> load_edge_list(const std::string &name) {
     using int_t = std::int32_t;

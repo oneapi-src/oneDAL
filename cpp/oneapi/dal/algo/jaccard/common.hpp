@@ -39,10 +39,10 @@ public:
 
     descriptor_base();
 
-    auto get_row_begin() const -> std::int64_t;
-    auto get_row_end() const -> std::int64_t;
-    auto get_column_begin() const -> std::int64_t;
-    auto get_column_end() const -> std::int64_t;
+    auto get_row_range_begin() const -> std::int64_t;
+    auto get_row_range_end() const -> std::int64_t;
+    auto get_column_range_begin() const -> std::int64_t;
+    auto get_column_range_end() const -> std::int64_t;
 
 protected:
     void set_row_range_impl(const int64_t& begin, const int64_t& end);

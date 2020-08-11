@@ -79,8 +79,7 @@ ONEAPI_DAL_EXPORT auto get_vertex_neighbors_impl(const G &g, const vertex_type<G
         layout->_edges.begin() + layout->_vertexes[vertex];
     const_vertex_edge_iterator_type<G> vertex_neighbors_end =
         layout->_edges.begin() + layout->_vertexes[vertex + 1];
-    auto neighbors_range = std::make_pair(vertex_neighbors_begin, vertex_neighbors_end);
-    return neighbors_range;
+    return std::make_pair(vertex_neighbors_begin, vertex_neighbors_end);
 }
 
 template ONEAPI_DAL_EXPORT const_vertex_edge_range_type<graph32> get_vertex_neighbors_impl(
