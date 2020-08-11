@@ -18,7 +18,7 @@
 
 #include <cmath>
 #include <limits>
-#include <algorithms>
+#include <algorithm>
 
 namespace oneapi::dal::backend::primitives {
 
