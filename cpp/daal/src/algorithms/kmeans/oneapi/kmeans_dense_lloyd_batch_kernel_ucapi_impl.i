@@ -33,7 +33,6 @@
 
 #include "src/externals/service_ittnotify.h"
 
-
 using namespace daal::services;
 using namespace daal::oneapi::internal;
 using namespace daal::data_management;
@@ -46,7 +45,6 @@ namespace kmeans
 {
 namespace internal
 {
-
 template <typename algorithmFPType>
 Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * const * a, const NumericTable * const * r,
                                                                   const Parameter * par)
@@ -242,7 +240,6 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
 
     return st;
 }
-
 
 } // namespace internal
 } // namespace kmeans
