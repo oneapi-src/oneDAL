@@ -104,7 +104,7 @@ services::Status PredictRegressionTaskBase<algorithmFPType, cpu>::run(services::
     {
         if (!s || host.isCancelled(s, 1)) return s;
         size_t nTreesToUse = ((iTree + dim.nTreesInBlock) < nTreesTotal ? dim.nTreesInBlock : (nTreesTotal - iTree));
-        ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), 0, _data->getNumberOfRows());
+        ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), 0, dim.nRowsTotal);
         daal::threader_for(dim.nDataBlocks, dim.nDataBlocks, [&](size_t iBlock) {
             const size_t iStartRow      = iBlock * dim.nRowsInBlock;
             const size_t nRowsToProcess = (iBlock == dim.nDataBlocks - 1) ? dim.nRowsTotal - iBlock * dim.nRowsInBlock : dim.nRowsInBlock;
@@ -113,12 +113,12 @@ services::Status PredictRegressionTaskBase<algorithmFPType, cpu>::run(services::
             if (nRowsToProcess < 2 * nThreads || cpu == __avx512_mic__)
             {
                 for (size_t iRow = 0; iRow < nRowsToProcess; ++iRow)
-                    res[iRow] += factor * predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols + iStartRow * _data->getNumberOfColumns());
+                    res[iRow] += factor * predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols + iStartRow * dim.nCols);
             }
             else
             {
                 daal::threader_for(nRowsToProcess, nRowsToProcess,
-                                   [&](size_t iRow) { res[iRow] += factor * predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols + iStartRow * _data->getNumberOfColumns()); });
+                                   [&](size_t iRow) { res[iRow] += factor * predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols + iStartRow * dim.nCols); });
             }
         });
         s = safeStat.detach();
