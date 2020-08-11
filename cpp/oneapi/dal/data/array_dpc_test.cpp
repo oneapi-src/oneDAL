@@ -67,7 +67,7 @@ TEST(array_dpc_test, can_construct_array_with_events) {
     auto* data = sycl::malloc_shared<float>(count, q);
     q.submit([&](sycl::handler& cgh) {
          cgh.parallel_for(sycl::range<1>(count), [=](sycl::id<1> idx) {
-             data[idx[0]] = idx;
+             data[idx[0]] = idx[0];
          });
      }).wait();
 
@@ -110,7 +110,7 @@ TEST(array_dpc_test, can_reset_array_with_raw_pointer) {
     auto* data              = sycl::malloc_shared<float>(count, q);
     q.submit([&](sycl::handler& cgh) {
          cgh.parallel_for(sycl::range<1>(count), [=](sycl::id<1> idx) {
-             data[idx[0]] = idx;
+             data[idx[0]] = idx[0];
          });
      }).wait();
 
