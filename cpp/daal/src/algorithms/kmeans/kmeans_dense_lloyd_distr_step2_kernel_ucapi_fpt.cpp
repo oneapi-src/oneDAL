@@ -1,4 +1,4 @@
-/* file: kmeans_dense_lloyd_distr_step1_fpt_cpu.cpp */
+/* file: kmeans_dense_lloyd_distr_step2_fpt_cpu.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
