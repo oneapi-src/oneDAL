@@ -34,6 +34,8 @@
 #include "src/algorithms/kmeans/oneapi/kmeans_lloyd_distr_step2_kernel_ucapi.h"
 #include "sycl/internal/execution_context.h"
 
+#include "src/data_management/service_numeric_table.h"
+
 namespace daal
 {
 namespace algorithms
