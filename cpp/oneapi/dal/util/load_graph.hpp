@@ -33,5 +33,6 @@ template <typename Descriptor>
 using output_type = typename Descriptor::output_type;
 
 template <typename Descriptor = load_graph::descriptor<>, typename DataSource = csv_data_source>
-output_type<Descriptor> load(const Descriptor &desc, const DataSource &data_source);
+ONEAPI_DAL_EXPORT output_type<Descriptor> load(const Descriptor &desc,
+                                               const DataSource &data_source);
 } // namespace oneapi::dal::preview::load_graph

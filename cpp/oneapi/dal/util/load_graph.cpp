@@ -39,7 +39,7 @@ template struct ONEAPI_DAL_EXPORT
     descriptor<edge_list<int32_t>, undirected_adjacency_array_graph<>>;
 
 template <>
-output_type<descriptor<>> load(const descriptor<> &d, const csv_data_source &ds) {
+ONEAPI_DAL_EXPORT output_type<descriptor<>> load(const descriptor<> &d, const csv_data_source &ds) {
     output_type<descriptor<>> graph_data;
     convert_to_csr_impl(detail::load_edge_list(ds.get_filename()), graph_data);
     return graph_data;
