@@ -26,19 +26,17 @@ int main(int argc, char const *argv[]) {
     constexpr std::int64_t column_count = 3;
 
     const float x[] = {
-        1.f, 2.f, 3.f,
-        1.f, -1.f, 0.f,
+        1.f, 2.f, 3.f, 1.f, -1.f, 0.f,
     };
 
     const float y[] = {
-        1.f, 2.f, 3.f,
-        1.f, -1.f, 0.f,
-        4.f, 5.f, 6.f,
+        1.f, 2.f, 3.f, 1.f, -1.f, 0.f, 4.f, 5.f, 6.f,
     };
 
     const auto x_table = dal::homogen_table{ row_count_x, column_count, x };
     const auto y_table = dal::homogen_table{ row_count_y, column_count, y };
-    const auto kernel_desc = dal::linear_kernel::descriptor{}.set_k(2.0).set_b(1.0);
+    const auto kernel_desc =
+        dal::linear_kernel::descriptor{}.set_scale(2.0).set_shift(1.0);
 
     const auto result = dal::compute(kernel_desc, x_table, y_table);
 

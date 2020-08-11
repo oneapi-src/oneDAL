@@ -67,7 +67,7 @@ TEST(svm_thunder_dense_test, can_classify_linear_separable_surface_with_not_defa
     const auto x_train_table = homogen_table{ row_count_train, column_count, x_train };
     const auto y_train_table = homogen_table{ row_count_train, 1, y_train };
 
-    const auto kernel_desc  = linear_kernel::descriptor{}.set_k(0.1).set_b(0.0);
+    const auto kernel_desc  = linear_kernel::descriptor{}.set_scale(0.1).set_shift(0.0);
     const auto svm_desc     = svm::descriptor{ kernel_desc }.set_c(10.0);
     const auto result_train = train(svm_desc, x_train_table, y_train_table);
     ASSERT_EQ(result_train.get_support_vector_count(), 2);

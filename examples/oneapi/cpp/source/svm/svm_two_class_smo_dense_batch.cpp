@@ -24,20 +24,10 @@ int main(int argc, char const *argv[]) {
     constexpr std::int64_t row_count_train = 6;
     constexpr std::int64_t column_count = 2;
     const float x_train[] = {
-        -2.f, -1.f,
-        -1.f, -1.f,
-        -1.f, -2.f,
-        +1.f, +1.f,
-        +1.f, +2.f,
-        +2.f, +1.f,
+        -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f, +1.f, +2.f, +2.f, +1.f,
     };
     const float y_train[] = {
-        -1.f,
-        -1.f,
-        -1.f,
-        +1.f,
-        +1.f,
-        +1.f,
+        -1.f, -1.f, -1.f, +1.f, +1.f, +1.f,
     };
 
     const auto x_train_table =
@@ -46,7 +36,7 @@ int main(int argc, char const *argv[]) {
         dal::homogen_table{ row_count_train, 1, y_train };
 
     const auto kernel_desc =
-        dal::linear_kernel::descriptor{}.set_k(1.0).set_b(0.0);
+        dal::linear_kernel::descriptor{}.set_scale(1.0).set_shift(0.0);
 
     const auto svm_desc =
         dal::svm::descriptor<float,
@@ -68,9 +58,7 @@ int main(int argc, char const *argv[]) {
 
     constexpr std::int64_t row_count_test = 3;
     const float x_test[] = {
-        -1.f, -1.f,
-        +2.f, +2.f,
-        +3.f, +2.f,
+        -1.f, -1.f, +2.f, +2.f, +3.f, +2.f,
     };
     const float y_true[] = {
         -1.f,

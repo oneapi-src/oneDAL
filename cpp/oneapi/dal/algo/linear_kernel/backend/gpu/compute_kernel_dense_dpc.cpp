@@ -59,7 +59,7 @@ static compute_result call_daal_kernel(const context_gpu& ctx,
     const auto daal_values =
         interop::convert_to_daal_sycl_homogen_table(queue, arr_values, row_count_x, row_count_y);
 
-    daal_linear_kernel::Parameter daal_parameter(desc.get_k(), desc.get_b());
+    daal_linear_kernel::Parameter daal_parameter(desc.get_scale(), desc.get_shift());
     daal_linear_kernel_t<Float>().compute(daal_x.get(),
                                           daal_y.get(),
                                           daal_values.get(),

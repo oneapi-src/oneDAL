@@ -41,12 +41,12 @@ public:
 
     descriptor_base();
 
-    double get_k() const;
-    double get_b() const;
+    double get_scale() const;
+    double get_shift() const;
 
 protected:
-    void set_k_impl(const double value);
-    void set_b_impl(const double value);
+    void set_scale_impl(const double value);
+    void set_shift_impl(const double value);
 
     dal::detail::pimpl<detail::descriptor_impl> impl_;
 };
@@ -57,13 +57,13 @@ public:
     using float_t  = Float;
     using method_t = Method;
 
-    auto& set_k(const double value) {
-        set_k_impl(value);
+    auto& set_scale(const double value) {
+        set_scale_impl(value);
         return *this;
     }
 
-    auto& set_b(const double value) {
-        set_b_impl(value);
+    auto& set_shift(const double value) {
+        set_shift_impl(value);
         return *this;
     }
 };

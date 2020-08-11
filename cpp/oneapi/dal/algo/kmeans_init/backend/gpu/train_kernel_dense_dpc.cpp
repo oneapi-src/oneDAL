@@ -48,7 +48,6 @@ struct train_kernel_gpu<Float, method::dense> {
 
         const auto data = input.get_data();
 
-        const int64_t row_count     = data.get_row_count();
         const int64_t column_count  = data.get_column_count();
         const int64_t cluster_count = params.get_cluster_count();
 

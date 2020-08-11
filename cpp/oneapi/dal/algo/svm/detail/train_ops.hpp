@@ -70,8 +70,8 @@ struct train_ops {
         if (!(result.get_support_indices().has_data())) {
             throw internal_error("Result support_indices should not be empty");
         }
-        if (!(result.get_coefficients().has_data())) {
-            throw internal_error("Result coefficients should not be empty");
+        if (!(result.get_coeffs().has_data())) {
+            throw internal_error("Result coeffs should not be empty");
         }
         if (result.get_support_vectors().get_column_count() !=
             input.get_data().get_column_count()) {
@@ -86,9 +86,9 @@ struct train_ops {
             throw internal_error(
                 "Result support_indices row_count should be equal to result support_vectors_count");
         }
-        if (result.get_coefficients().get_row_count() != result.get_support_vector_count()) {
+        if (result.get_coeffs().get_row_count() != result.get_support_vector_count()) {
             throw internal_error(
-                "Result coefficients row_count should be equal to result support_vectors_count");
+                "Result coeffs row_count should be equal to result support_vectors_count");
         }
     }
 
