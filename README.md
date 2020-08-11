@@ -38,9 +38,13 @@ The current version of oneDAL provides Data Parallel C++ (DPC++) API extensions 
 
 
 ## Technical Preview Features 
- 
+
 Technical preview features are introduced to gain early feedback from developers. A preview feature is subject to change in the future releases. Using a preview feature in a production code base is therefore strongly discouraged.
-The only preview feature at the moment is `MultiNodeBatch` for K-Means, a stepless distributed algorithm based on oneCCL.
+The preview features list:
+- `MultiNodeBatch` for K-Means, a stepless distributed algorithm based on oneCCL
+- Graph Analytics: 
+	- Undirected graph without edge and vertex weights (undirected_adjacency_array_graph) - 32bit vertex index only
+	- Jaccard Similarity Coefficients for all vertex pairs, a batch algorithm which process the graph by blocks
 
 ## oneDAL and Intel(R) DAAL
 
