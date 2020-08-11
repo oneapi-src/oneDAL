@@ -52,8 +52,10 @@ TEST(rbf_kernel_dense_gpu_test, can_compute_unit_matrix) {
     auto y = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(y, y_host, sizeof(float) * row_count * column_count).wait();
 
-    const auto x_table = homogen_table{ queue, x, row_count, column_count, empty_delete<const float>() };
-    const auto y_table = homogen_table{ queue, y, row_count, column_count, empty_delete<const float>() };
+    const auto x_table =
+        homogen_table{ queue, x, row_count, column_count, empty_delete<const float>() };
+    const auto y_table =
+        homogen_table{ queue, y, row_count, column_count, empty_delete<const float>() };
 
     const auto kernel_desc  = rbf_kernel::descriptor{};
     const auto values_table = compute(queue, kernel_desc, x_table, y_table).get_values();
@@ -84,7 +86,8 @@ TEST(rbf_kernel_dense_gpu_test, can_compute_same_unit_matrix) {
 
     auto x = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(x, x_host, sizeof(float) * row_count * column_count).wait();
-    const auto x_table = homogen_table{ queue, x, row_count, column_count, empty_delete<const float>()};
+    const auto x_table =
+        homogen_table{ queue, x, row_count, column_count, empty_delete<const float>() };
 
     const auto kernel_desc  = rbf_kernel::descriptor{};
     const auto values_table = compute(queue, kernel_desc, x_table, x_table).get_values();
@@ -118,8 +121,10 @@ TEST(rbf_kernel_dense_gpu_test, can_compute_one_element) {
     auto y = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(y, y_host, sizeof(float) * row_count * column_count).wait();
 
-    const auto x_table = homogen_table{ queue, x, row_count, column_count, empty_delete<const float>() };
-    const auto y_table = homogen_table{ queue, y, row_count, column_count, empty_delete<const float>() };
+    const auto x_table =
+        homogen_table{ queue, x, row_count, column_count, empty_delete<const float>() };
+    const auto y_table =
+        homogen_table{ queue, y, row_count, column_count, empty_delete<const float>() };
 
     const auto kernel_desc  = rbf_kernel::descriptor{};
     const auto values_table = compute(queue, kernel_desc, x_table, y_table).get_values();
@@ -157,8 +162,10 @@ TEST(rbf_kernel_dense_gpu_test, can_compute_diff_matrix) {
     auto y = sycl::malloc_shared<float>(row_count_y * column_count, queue);
     queue.memcpy(y, y_host, sizeof(float) * row_count_y * column_count).wait();
 
-    const auto x_table = homogen_table{ queue, x, row_count_x, column_count, empty_delete<const float>() };
-    const auto y_table = homogen_table{ queue, y, row_count_y, column_count, empty_delete<const float>() };
+    const auto x_table =
+        homogen_table{ queue, x, row_count_x, column_count, empty_delete<const float>() };
+    const auto y_table =
+        homogen_table{ queue, y, row_count_y, column_count, empty_delete<const float>() };
 
     const auto kernel_desc  = rbf_kernel::descriptor{};
     const auto values_table = compute(queue, kernel_desc, x_table, y_table).get_values();
@@ -202,8 +209,10 @@ TEST(rbf_kernel_dense_gpu_test, can_compute_diff_matrix_not_default_params) {
     auto y = sycl::malloc_shared<float>(row_count_y * column_count, queue);
     queue.memcpy(y, y_host, sizeof(float) * row_count_y * column_count).wait();
 
-    const auto x_table = homogen_table{ queue, x, row_count_x, column_count, empty_delete<const float>() };
-    const auto y_table = homogen_table{ queue, y, row_count_y, column_count, empty_delete<const float>() };
+    const auto x_table =
+        homogen_table{ queue, x, row_count_x, column_count, empty_delete<const float>() };
+    const auto y_table =
+        homogen_table{ queue, y, row_count_y, column_count, empty_delete<const float>() };
 
     constexpr double sigma  = 0.9;
     const auto kernel_desc  = rbf_kernel::descriptor{}.set_sigma(sigma);

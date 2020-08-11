@@ -18,15 +18,15 @@
 
 #include <variant>
 
-#include "oneapi/dal/memory.hpp"
 #include "oneapi/dal/exceptions.hpp"
+#include "oneapi/dal/memory.hpp"
 
 namespace oneapi::dal::detail {
 
 template <typename T>
 class array_impl : public base {
     using cshared = detail::shared<const T>;
-    using shared = detail::shared<T>;
+    using shared  = detail::shared<T>;
 
     template <typename U>
     friend class array_impl;
@@ -36,23 +36,22 @@ public:
     static array_impl<T>* empty(const Policy& policy, std::int64_t count, const Allocator& alloc) {
         auto data = alloc.allocate(count);
         return new array_impl<T>{ data, count, [alloc, count](T* ptr) {
-                            alloc.deallocate(ptr, count);
-                        } };
+                                     alloc.deallocate(ptr, count);
+                                 } };
     }
 
     template <typename Policy, typename K, typename Allocator>
     static array_impl<T>* full(const Policy& policy,
-                              std::int64_t count,
-                              K&& element,
-                              const Allocator& alloc) {
+                               std::int64_t count,
+                               K&& element,
+                               const Allocator& alloc) {
         auto array = empty(policy, count, alloc);
         detail::fill(policy, array->get_mutable_data(), count, std::forward<K>(element));
         return array;
     }
 
 public:
-    array_impl()
-        : count_(0) {}
+    array_impl() : count_(0) {}
 
     template <typename Deleter>
     array_impl(T* data, std::int64_t count, Deleter&& d) {
@@ -76,7 +75,8 @@ public:
     const T* get_data() const noexcept {
         if (const auto& mut_ptr = std::get_if<shared>(&data_owned_)) {
             return mut_ptr->get();
-        } else {
+        }
+        else {
             const auto& immut_ptr = std::get<cshared>(data_owned_);
             return immut_ptr.get();
         }
@@ -86,7 +86,8 @@ public:
         try {
             const auto& mut_ptr = std::get<shared>(data_owned_);
             return mut_ptr.get();
-        } catch (std::bad_variant_access&) {
+        }
+        catch (std::bad_variant_access&) {
             throw dal::domain_error("array does not contain mutable data");
         }
     }
@@ -114,7 +115,7 @@ public:
 
     void reset() {
         data_owned_ = std::variant<cshared, shared>();
-        count_ = 0;
+        count_      = 0;
     }
 
     template <typename Policy, typename Allocator>
@@ -128,20 +129,21 @@ public:
     template <typename Deleter>
     void reset(T* data, std::int64_t count, Deleter&& deleter) {
         data_owned_ = shared(data, std::forward<Deleter>(deleter));
-        count_ = count;
+        count_      = count;
     }
 
     template <typename ConstDeleter>
     void reset(const T* data, std::int64_t count, ConstDeleter&& deleter) {
         data_owned_ = cshared(data, std::forward<ConstDeleter>(deleter));
-        count_ = count;
+        count_      = count;
     }
 
     template <typename Y>
     void reset(const array_impl<Y>& ref, T* data, std::int64_t count) {
-        if(ref.has_mutable_data()) {
+        if (ref.has_mutable_data()) {
             data_owned_ = shared(std::get<1>(ref.data_owned_), data);
-        } else {
+        }
+        else {
             data_owned_ = shared(std::get<0>(ref.data_owned_), data);
         }
         count_ = count;
@@ -149,9 +151,10 @@ public:
 
     template <typename Y>
     void reset(const array_impl<Y>& ref, const T* data, std::int64_t count) {
-        if(ref.has_mutable_data()) {
+        if (ref.has_mutable_data()) {
             data_owned_ = cshared(std::get<1>(ref.data_owned_), data);
-        } else {
+        }
+        else {
             data_owned_ = cshared(std::get<0>(ref.data_owned_), data);
         }
         count_ = count;

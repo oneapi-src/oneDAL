@@ -36,7 +36,8 @@ TEST(kmeans_lloyd_dense_gpu, train_results) {
                                 -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
     auto data               = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(data, data_host, sizeof(float) * row_count * column_count).wait();
-    const auto data_table = homogen_table{ queue, data, row_count, column_count, empty_delete<const float>() };
+    const auto data_table =
+        homogen_table{ queue, data, row_count, column_count, empty_delete<const float>() };
 
     const float initial_centroids_host[] = { 0.0, 0.0, 0.0, 0.0 };
     auto initial_centroids = sycl::malloc_shared<float>(cluster_count * column_count, queue);
@@ -45,8 +46,11 @@ TEST(kmeans_lloyd_dense_gpu, train_results) {
                 initial_centroids_host,
                 sizeof(float) * cluster_count * column_count)
         .wait();
-    const auto initial_centroids_table =
-        homogen_table{ queue, initial_centroids, cluster_count, column_count, empty_delete<const float>() };
+    const auto initial_centroids_table = homogen_table{ queue,
+                                                        initial_centroids,
+                                                        cluster_count,
+                                                        column_count,
+                                                        empty_delete<const float>() };
 
     const int labels[]      = { 1, 1, 1, 1, 0, 0, 0, 0 };
     const float centroids[] = { -1.5, -1.5, 1.5, 1.5 };
@@ -85,7 +89,8 @@ TEST(kmeans_lloyd_dense_gpu, infer_results) {
                                 -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
     auto data               = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(data, data_host, sizeof(float) * row_count * column_count).wait();
-    const auto data_table = homogen_table{ queue, data, row_count, column_count, empty_delete<const float>() };
+    const auto data_table =
+        homogen_table{ queue, data, row_count, column_count, empty_delete<const float>() };
 
     const float initial_centroids_host[] = { 0.0, 0.0, 0.0, 0.0 };
     auto initial_centroids = sycl::malloc_shared<float>(cluster_count * column_count, queue);
@@ -94,8 +99,11 @@ TEST(kmeans_lloyd_dense_gpu, infer_results) {
                 initial_centroids_host,
                 sizeof(float) * cluster_count * column_count)
         .wait();
-    const auto initial_centroids_table =
-        homogen_table{ queue, initial_centroids, cluster_count, column_count, empty_delete<const float>() };
+    const auto initial_centroids_table = homogen_table{ queue,
+                                                        initial_centroids,
+                                                        cluster_count,
+                                                        column_count,
+                                                        empty_delete<const float>() };
 
     const int labels[]      = { 1, 1, 1, 1, 0, 0, 0, 0 };
     const float centroids[] = { -1.5, -1.5, 1.5, 1.5 };
@@ -112,7 +120,11 @@ TEST(kmeans_lloyd_dense_gpu, infer_results) {
     auto data_infer = sycl::malloc_shared<float>(infer_row_count * column_count, queue);
     queue.memcpy(data_infer, data_infer_host, sizeof(float) * infer_row_count * column_count)
         .wait();
-    const auto data_infer_table = homogen_table{ queue, data_infer, infer_row_count, column_count, empty_delete<const float>() };
+    const auto data_infer_table = homogen_table{ queue,
+                                                 data_infer,
+                                                 infer_row_count,
+                                                 column_count,
+                                                 empty_delete<const float>() };
 
     const int infer_labels[] = { 1, 1, 1, 1, 1, 0, 0, 0, 0 };
 

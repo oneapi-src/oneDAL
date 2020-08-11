@@ -37,17 +37,15 @@ public:
 
 public:
     static array<T> empty(std::int64_t count) {
-        return array<T>{ impl_t::empty(detail::default_host_policy{},
-                         count,
-                         detail::host_allocator<T>()) };
+        return array<T>{
+            impl_t::empty(detail::default_host_policy{}, count, detail::host_allocator<T>())
+        };
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    static array<T> empty(
-        const sycl::queue& queue,
-        std::int64_t count,
-        const sycl::usm::alloc& alloc =
-            sycl::usm::alloc::shared) {
+    static array<T> empty(const sycl::queue& queue,
+                          std::int64_t count,
+                          const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
         return array<T>{ impl_t::empty(detail::data_parallel_policy{ queue },
                                        count,
                                        detail::data_parallel_allocator<T>(queue, alloc)) };
@@ -57,9 +55,9 @@ public:
     template <typename K>
     static array<T> full(std::int64_t count, K&& element) {
         return array<T>{ impl_t::full(detail::default_host_policy{},
-                                count,
-                                std::forward<K>(element),
-                                detail::host_allocator<T>()) };
+                                      count,
+                                      std::forward<K>(element),
+                                      detail::host_allocator<T>()) };
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -77,10 +75,9 @@ public:
 
     static array<T> zeros(std::int64_t count) {
         // TODO: can be optimized in future
-        return array<T>{ impl_t::full(detail::default_host_policy{},
-                                      count,
-                                      T{},
-                                      detail::host_allocator<T>()) };
+        return array<T>{
+            impl_t::full(detail::default_host_policy{}, count, T{}, detail::host_allocator<T>())
+        };
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -96,7 +93,7 @@ public:
 #endif
     template <typename Y>
     static array<T> wrap(Y* data, std::int64_t count) {
-        return array<T> { data, count, empty_delete<const T>{} };
+        return array<T>{ data, count, empty_delete<const T>{} };
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -104,7 +101,7 @@ public:
     static array<T> wrap(Y* data,
                          std::int64_t count,
                          const sycl::vector_class<sycl::event>& dependencies) {
-        return array<T> { data, count, empty_delete<const T>{}, dependencies };
+        return array<T>{ data, count, empty_delete<const T>{}, dependencies };
     }
 #endif
 
@@ -115,30 +112,30 @@ public:
     }
 
     array(const array<T>& a)
-        : data_ptr_(a.data_ptr_),
-          mutable_data_ptr_(a.mutable_data_ptr_),
-          count_(a.count_),
-          impl_(new impl_t(*a.impl_)) {}
+            : data_ptr_(a.data_ptr_),
+              mutable_data_ptr_(a.mutable_data_ptr_),
+              count_(a.count_),
+              impl_(new impl_t(*a.impl_)) {}
 
     template <typename Deleter>
     explicit array(T* data, std::int64_t count, Deleter&& deleter)
-        : impl_(new impl_t(data, count, std::forward<Deleter>(deleter))) {
+            : impl_(new impl_t(data, count, std::forward<Deleter>(deleter))) {
         update_data(data, count);
     }
 
     template <typename ConstDeleter>
     explicit array(const T* data, std::int64_t count, ConstDeleter&& deleter)
-        : impl_(new impl_t(data, count, std::forward<ConstDeleter>(deleter))) {
+            : impl_(new impl_t(data, count, std::forward<ConstDeleter>(deleter))) {
         update_data(data, count);
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     template <typename Deleter>
     explicit array(const sycl::queue& queue,
-          T* data,
-          std::int64_t count,
-          Deleter&& deleter,
-          const sycl::vector_class<sycl::event>& dependencies={})
+                   T* data,
+                   std::int64_t count,
+                   Deleter&& deleter,
+                   const sycl::vector_class<sycl::event>& dependencies = {})
             : impl_(new impl_t(data, count, std::forward<Deleter>(deleter))) {
         update_data(data, count);
         detail::wait_and_throw(dependencies);
@@ -146,10 +143,10 @@ public:
 
     template <typename ConstDeleter>
     explicit array(const sycl::queue& queue,
-          const T* data,
-          std::int64_t count,
-          ConstDeleter&& deleter,
-          const sycl::vector_class<sycl::event>& dependencies={})
+                   const T* data,
+                   std::int64_t count,
+                   ConstDeleter&& deleter,
+                   const sycl::vector_class<sycl::event>& dependencies = {})
             : impl_(new impl_t(data, count, std::forward<ConstDeleter>(deleter))) {
         update_data(data, count);
         detail::wait_and_throw(dependencies);
@@ -158,14 +155,14 @@ public:
 
     template <typename Y, typename K>
     explicit array(const array<Y>& ref, K* data, std::int64_t count)
-            : impl_(new impl_t(*ref.impl_, data, count)){
+            : impl_(new impl_t(*ref.impl_, data, count)) {
         update_data(data, count);
     }
 
     array<T> operator=(const array<T>& other) {
-        data_ptr_ = other.data_ptr_;
+        data_ptr_         = other.data_ptr_;
         mutable_data_ptr_ = other.mutable_data_ptr_;
-        count_ = other.count_;
+        count_            = other.count_;
         impl_.reset(new impl_t(*other.impl_));
 
         return *this;
@@ -184,8 +181,7 @@ public:
     }
 
     array& need_mutable_data() {
-        impl_->need_mutable_data(detail::default_host_policy{},
-                                 detail::host_allocator<data_t>{});
+        impl_->need_mutable_data(detail::default_host_policy{}, detail::host_allocator<data_t>{});
         update_data(impl_->get_mutable_data(), impl_->get_count());
         return *this;
     }
@@ -224,8 +220,8 @@ public:
                std::int64_t count,
                const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
         impl_->reset(detail::data_parallel_policy{ queue },
-                   count,
-                   detail::data_parallel_allocator<T>(queue, alloc));
+                     count,
+                     detail::data_parallel_allocator<T>(queue, alloc));
         update_data(impl_->get_mutable_data(), count);
     }
 #endif
@@ -276,25 +272,25 @@ public:
     }
 
 private:
-    array(impl_t* impl)
-        : impl_(impl) {
+    array(impl_t* impl) : impl_(impl) {
         if (impl_->has_mutable_data()) {
             update_data(impl_->get_mutable_data(), impl_->get_count());
-        } else {
+        }
+        else {
             update_data(impl_->get_data(), impl_->get_count());
         }
     }
 
     void update_data(const T* data, std::int64_t count) noexcept {
-        data_ptr_ = data;
+        data_ptr_         = data;
         mutable_data_ptr_ = nullptr;
-        count_ = count;
+        count_            = count;
     }
 
     void update_data(T* data, std::int64_t count) noexcept {
-        data_ptr_ = data;
+        data_ptr_         = data;
         mutable_data_ptr_ = data;
-        count_ = count;
+        count_            = count;
     }
 
 private:

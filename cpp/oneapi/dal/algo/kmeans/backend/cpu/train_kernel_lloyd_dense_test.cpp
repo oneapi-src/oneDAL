@@ -32,7 +32,8 @@ TEST(kmeans_lloyd_dense_cpu, train_results) {
 
     const float centroids[] = { -1.5, -1.5, 1.5, 1.5 };
 
-    const auto data_table = homogen_table{ data, row_count, column_count, empty_delete<const float>() };
+    const auto data_table =
+        homogen_table{ data, row_count, column_count, empty_delete<const float>() };
 
     const auto kmeans_desc = kmeans::descriptor<>()
                                  .set_cluster_count(cluster_count)
@@ -65,7 +66,8 @@ TEST(kmeans_lloyd_dense_cpu, infer_results) {
 
     const float centroids[] = { -1.5, -1.5, 1.5, 1.5 };
 
-    const auto data_table = homogen_table{ data, row_count, column_count, empty_delete<const float>() };
+    const auto data_table =
+        homogen_table{ data, row_count, column_count, empty_delete<const float>() };
 
     const auto kmeans_desc = kmeans::descriptor<>()
                                  .set_cluster_count(cluster_count)
@@ -77,7 +79,8 @@ TEST(kmeans_lloyd_dense_cpu, infer_results) {
     constexpr std::int64_t infer_row_count = 9;
     const float data_infer[]               = { 1.0, 1.0,  0.0, 1.0,  1.0,  0.0,  2.0, 2.0,  7.0,
                                  0.0, -1.0, 0.0, -5.0, -5.0, -5.0, 0.0, -2.0, 1.0 };
-    const auto data_infer_table = homogen_table{ data_infer, infer_row_count, column_count, empty_delete<const float>() };
+    const auto data_infer_table =
+        homogen_table{ data_infer, infer_row_count, column_count, empty_delete<const float>() };
 
     const int infer_labels[] = { 1, 1, 1, 1, 1, 0, 0, 0, 0 };
 

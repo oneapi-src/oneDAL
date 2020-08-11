@@ -38,8 +38,10 @@ TEST(linear_kernel_dense_test, can_compute_unit_matrix) {
         1.f,
     };
 
-    const auto x_table = homogen_table{ x_data, row_count, column_count, empty_delete<const float>() };
-    const auto y_table = homogen_table{ y_data, row_count, column_count, empty_delete<const float>() };
+    const auto x_table =
+        homogen_table{ x_data, row_count, column_count, empty_delete<const float>() };
+    const auto y_table =
+        homogen_table{ y_data, row_count, column_count, empty_delete<const float>() };
 
     const auto kernel_desc  = linear_kernel::descriptor{};
     const auto values_table = compute(kernel_desc, x_table, y_table).get_values();
@@ -64,7 +66,8 @@ TEST(linear_kernel_dense_test, can_compute_same_unit_matrix) {
         1.f,
     };
 
-    const auto x_table = homogen_table{ x_data, row_count, column_count, empty_delete<const float>() };
+    const auto x_table =
+        homogen_table{ x_data, row_count, column_count, empty_delete<const float>() };
 
     const auto kernel_desc  = linear_kernel::descriptor{};
     const auto values_table = compute(kernel_desc, x_table, x_table).get_values();
@@ -87,8 +90,10 @@ TEST(linear_kernel_dense_test, can_compute_one_element) {
         10.f,
     };
 
-    const auto x_table = homogen_table{ x_data, row_count, column_count, empty_delete<const float>() };
-    const auto y_table = homogen_table{ y_data, row_count, column_count, empty_delete<const float>() };
+    const auto x_table =
+        homogen_table{ x_data, row_count, column_count, empty_delete<const float>() };
+    const auto y_table =
+        homogen_table{ y_data, row_count, column_count, empty_delete<const float>() };
 
     const auto kernel_desc  = linear_kernel::descriptor{};
     const auto values_table = compute(kernel_desc, x_table, y_table).get_values();
@@ -115,8 +120,10 @@ TEST(linear_kernel_dense_test, can_compute_simple_matrix) {
         1.f,
     };
 
-    const auto x_table = homogen_table{ x_data, row_count, column_count, empty_delete<const float>() };
-    const auto y_table = homogen_table{ y_data, row_count, column_count, empty_delete<const float>() };
+    const auto x_table =
+        homogen_table{ x_data, row_count, column_count, empty_delete<const float>() };
+    const auto y_table =
+        homogen_table{ y_data, row_count, column_count, empty_delete<const float>() };
 
     const auto kernel_desc  = linear_kernel::descriptor{};
     const auto values_table = compute(kernel_desc, x_table, y_table).get_values();
@@ -140,7 +147,8 @@ TEST(linear_kernel_dense_test, can_compute_same_simple_matrix) {
         3.f,
     };
 
-    const auto x_table = homogen_table{ x_data, row_count, column_count, empty_delete<const float>() };
+    const auto x_table =
+        homogen_table{ x_data, row_count, column_count, empty_delete<const float>() };
 
     const auto kernel_desc  = linear_kernel::descriptor{};
     const auto values_table = compute(kernel_desc, x_table, x_table).get_values();
@@ -168,8 +176,10 @@ TEST(linear_kernel_dense_test, can_compute_diff_matrix) {
         3.f,
     };
 
-    const auto x_table = homogen_table{ x_data, row_count_x, column_count, empty_delete<const float>() };
-    const auto y_table = homogen_table{ y_data, row_count_y, column_count, empty_delete<const float>() };
+    const auto x_table =
+        homogen_table{ x_data, row_count_x, column_count, empty_delete<const float>() };
+    const auto y_table =
+        homogen_table{ y_data, row_count_y, column_count, empty_delete<const float>() };
 
     const auto kernel_desc  = linear_kernel::descriptor{};
     const auto values_table = compute(kernel_desc, x_table, y_table).get_values();
@@ -197,8 +207,10 @@ TEST(linear_kernel_dense_test, can_compute_diff_matrix_not_default_params) {
         3.f,
     };
 
-    const auto x_table = homogen_table{ x_data, row_count_x, column_count, empty_delete<const float>() };
-    const auto y_table = homogen_table{ y_data, row_count_y, column_count, empty_delete<const float>() };
+    const auto x_table =
+        homogen_table{ x_data, row_count_x, column_count, empty_delete<const float>() };
+    const auto y_table =
+        homogen_table{ y_data, row_count_y, column_count, empty_delete<const float>() };
 
     const auto kernel_desc  = linear_kernel::descriptor{}.set_k(2.0).set_b(1.0);
     const auto values_table = compute(kernel_desc, x_table, y_table).get_values();
