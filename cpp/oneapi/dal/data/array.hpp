@@ -112,23 +112,23 @@ public:
     }
 
     array(const array<T>& a) : impl_(new impl_t(*a.impl_)) {
-        update_data(impl_->get_mutable_data(), impl_->get_count());
+        update_data(impl_.get());
     }
 
     array(array<T>&& a) : impl_(std::move(a.impl_)) {
-        update_data(impl_->get_mutable_data(), impl_->get_count());
+        update_data(impl_.get());
     }
 
     template <typename Deleter>
     explicit array(T* data, std::int64_t count, Deleter&& deleter)
             : impl_(new impl_t(data, count, std::forward<Deleter>(deleter))) {
-        update_data(data, count);
+        update_data(impl_.get());
     }
 
     template <typename ConstDeleter>
     explicit array(const T* data, std::int64_t count, ConstDeleter&& deleter)
             : impl_(new impl_t(data, count, std::forward<ConstDeleter>(deleter))) {
-        update_data(data, count);
+        update_data(impl_.get());
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -139,7 +139,7 @@ public:
                    Deleter&& deleter,
                    const sycl::vector_class<sycl::event>& dependencies = {})
             : impl_(new impl_t(data, count, std::forward<Deleter>(deleter))) {
-        update_data(data, count);
+        update_data(impl_.get());
         detail::wait_and_throw(dependencies);
     }
 
@@ -150,7 +150,7 @@ public:
                    ConstDeleter&& deleter,
                    const sycl::vector_class<sycl::event>& dependencies = {})
             : impl_(new impl_t(data, count, std::forward<ConstDeleter>(deleter))) {
-        update_data(data, count);
+        update_data(impl_.get());
         detail::wait_and_throw(dependencies);
     }
 #endif
@@ -158,7 +158,7 @@ public:
     template <typename Y, typename K>
     explicit array(const array<Y>& ref, K* data, std::int64_t count)
             : impl_(new impl_t(*ref.impl_, data, count)) {
-        update_data(data, count);
+        update_data(impl_.get());
     }
 
     array<T> operator=(const array<T>& other) {
@@ -290,11 +290,15 @@ private:
 
 private:
     array(impl_t* impl) : impl_(impl) {
-        if (impl_->has_mutable_data()) {
-            update_data(impl_->get_mutable_data(), impl_->get_count());
+        update_data(impl_.get());
+    }
+
+    void update_data(impl_t* impl) {
+        if (impl->has_mutable_data()) {
+            update_data(impl->get_mutable_data(), impl->get_count());
         }
         else {
-            update_data(impl_->get_data(), impl_->get_count());
+            update_data(impl->get_data(), impl->get_count());
         }
     }
 
