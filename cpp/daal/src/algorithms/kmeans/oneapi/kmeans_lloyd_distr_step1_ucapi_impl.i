@@ -168,7 +168,7 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
             ntAssignments->releaseBlockOfRows(assignmentsRows);
         }
     }
-//  stop    
+//  stop
     return Status();
     this->mergeReduceCentroids(outCentroids, nClusters, nFeatures, &st);
     DAAL_CHECK_STATUS_VAR(st);
