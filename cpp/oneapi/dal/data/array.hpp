@@ -174,7 +174,7 @@ public:
         return *this;
     }
 
-    T* get_mutable_data() const noexcept {
+    T* get_mutable_data() const {
         if (!has_mutable_data()) {
             throw dal::domain_error("array does not contain mutable data");
         }
@@ -272,12 +272,12 @@ public:
         update_data(data, count);
     }
 
-    const T& operator[](std::int64_t index) const {
+    const T& operator[](std::int64_t index) const noexcept {
         // TODO: add asserts on data_ptr_
         return data_ptr_[index];
     }
 
-    T& operator[](std::int64_t index) {
+    T& operator[](std::int64_t index) noexcept {
         // TODO: add asserts on mutable_data_ptr_
         return mutable_data_ptr_[index];
     }
