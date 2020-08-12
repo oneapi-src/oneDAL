@@ -14,31 +14,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/pca.hpp"
 #include "oneapi/dal/data/table_reader.hpp"
+#include "oneapi/dal/data/backend/csv_table_reader_impl.hpp"
 
-#include "example_util/utils.hpp"
+namespace oneapi::dal {
 
-using namespace oneapi;
+csv_table_reader::csv_table_reader()
+        : csv_table_reader(new detail::csv_table_reader_impl_wrapper(
+              backend::csv_table_reader_impl{})) {}
 
-const char data_file_name[] = "../../daal/data/batch/pca_normalized.csv";
-
-int main(int argc, char const *argv[]) {
-    const auto data_table = dal::csv_table_reader()
-    	.set_delimiter(',')
-    	.read(data_file_name);
-
-    const auto pca_desc = dal::pca::descriptor<>()
-        .set_component_count(data_table.get_column_count())
-        .set_is_deterministic(true);
-
-    const auto result = dal::train(pca_desc, data_table);
-
-    std::cout << "Eigenvectors:" << std::endl
-              << result.get_eigenvectors() << std::endl;
-
-    std::cout << "Eigenvalues:" << std::endl
-              << result.get_eigenvalues() << std::endl;
-
-    return 0;
-}
+} // namespace oneapi::dal
