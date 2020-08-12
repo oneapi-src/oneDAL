@@ -35,106 +35,60 @@ template class ONEAPI_DAL_EXPORT undirected_adjacency_array_graph<empty_value,
                                                                   empty_value,
                                                                   empty_value,
                                                                   std::int32_t,
-                                                                  std::allocator<empty_value>>;
+                                                                  std::allocator<char>>;
 
-using graph32 = undirected_adjacency_array_graph<empty_value,
-                                                 empty_value,
-                                                 empty_value,
-                                                 std::int32_t,
-                                                 std::allocator<empty_value>>;
+using graph_default = undirected_adjacency_array_graph<empty_value,
+                                                       empty_value,
+                                                       empty_value,
+                                                       std::int32_t,
+                                                       std::allocator<char>>;
+namespace detail {
 
-template <typename G>
-ONEAPI_DAL_EXPORT auto get_vertex_count_impl(const G &g) noexcept -> vertex_size_type<G> {
+template <typename Graph>
+ONEAPI_DAL_EXPORT auto get_vertex_count_impl(const Graph &g) noexcept -> vertex_size_type<Graph> {
     const auto &layout = detail::get_impl(g);
     return layout->_vertex_count;
 }
 
-template ONEAPI_DAL_EXPORT auto get_vertex_count_impl<graph32>(const graph32 &g) noexcept
-    -> vertex_size_type<graph32>;
+template ONEAPI_DAL_EXPORT auto get_vertex_count_impl<graph_default>(
+    const graph_default &g) noexcept -> vertex_size_type<graph_default>;
 
-template <typename G>
-ONEAPI_DAL_EXPORT auto get_edge_count_impl(const G &g) noexcept -> edge_size_type<G> {
+template <typename Graph>
+ONEAPI_DAL_EXPORT auto get_edge_count_impl(const Graph &g) noexcept -> edge_size_type<Graph> {
     const auto &layout = detail::get_impl(g);
     return layout->_edge_count;
 }
 
-template ONEAPI_DAL_EXPORT edge_size_type<graph32> get_edge_count_impl(const graph32 &g);
+template ONEAPI_DAL_EXPORT edge_size_type<graph_default> get_edge_count_impl(
+    const graph_default &g);
 
-template <typename G>
-ONEAPI_DAL_EXPORT auto get_vertex_degree_impl(const G &g, const vertex_type<G> &vertex) noexcept
-    -> vertex_edge_size_type<G> {
+template <typename Graph>
+ONEAPI_DAL_EXPORT auto get_vertex_degree_impl(const Graph &g,
+                                              const vertex_type<Graph> &vertex) noexcept
+    -> vertex_edge_size_type<Graph> {
     const auto &layout = detail::get_impl(g);
     return layout->_vertexes[vertex + 1] - layout->_vertexes[vertex];
 }
 
-template ONEAPI_DAL_EXPORT vertex_edge_size_type<graph32> get_vertex_degree_impl(
-    const graph32 &g,
-    const vertex_type<graph32> &vertex);
+template ONEAPI_DAL_EXPORT vertex_edge_size_type<graph_default> get_vertex_degree_impl(
+    const graph_default &g,
+    const vertex_type<graph_default> &vertex);
 
-template <typename G>
-ONEAPI_DAL_EXPORT auto get_vertex_neighbors_impl(const G &g, const vertex_type<G> &vertex) noexcept
-    -> const_vertex_edge_range_type<G> {
+template <typename Graph>
+ONEAPI_DAL_EXPORT auto get_vertex_neighbors_impl(const Graph &g,
+                                                 const vertex_type<Graph> &vertex) noexcept
+    -> const_vertex_edge_range_type<Graph> {
     const auto &layout = detail::get_impl(g);
-    const_vertex_edge_iterator_type<G> vertex_neighbors_begin =
+    const_vertex_edge_iterator_type<Graph> vertex_neighbors_begin =
         layout->_edges.begin() + layout->_vertexes[vertex];
-    const_vertex_edge_iterator_type<G> vertex_neighbors_end =
+    const_vertex_edge_iterator_type<Graph> vertex_neighbors_end =
         layout->_edges.begin() + layout->_vertexes[vertex + 1];
     return std::make_pair(vertex_neighbors_begin, vertex_neighbors_end);
 }
 
-template ONEAPI_DAL_EXPORT const_vertex_edge_range_type<graph32> get_vertex_neighbors_impl(
-    const graph32 &g,
-    const vertex_type<graph32> &vertex);
-
-template <typename G>
-ONEAPI_DAL_EXPORT void convert_to_csr_impl(const edge_list<vertex_type<G>> &edges, G &g) {
-    auto layout    = detail::get_impl(g);
-    using int_t    = typename G::vertex_size_type;
-    using vertex_t = typename G::vertex_type;
-
-    layout->_vertex_count = 0;
-    layout->_edge_count   = 0;
-
-    vertex_t max_id = 0;
-
-    for (auto edge : edges) {
-        max_id = std::max(max_id, std::max(edge.first, edge.second));
-        layout->_edge_count += 1;
-    }
-
-    layout->_vertex_count = max_id + 1;
-    int_t *degrees        = (int_t *)malloc(layout->_vertex_count * sizeof(int_t));
-    for (int_t u = 0; u < layout->_vertex_count; ++u) {
-        degrees[u] = 0;
-    }
-
-    for (auto edge : edges) {
-        degrees[edge.first]++;
-        degrees[edge.second]++;
-    }
-
-    layout->_vertexes.resize(layout->_vertex_count + 1);
-    auto _rows              = layout->_vertexes.data();
-    int_t total_sum_degrees = 0;
-    _rows[0]                = total_sum_degrees;
-
-    for (int_t i = 0; i < layout->_vertex_count; ++i) {
-        total_sum_degrees += degrees[i];
-        _rows[i + 1] = total_sum_degrees;
-    }
-
-    free(degrees);
-    layout->_edges.resize(_rows[layout->_vertex_count] + 1);
-    auto _cols = layout->_edges.data();
-    auto offests(layout->_vertexes);
-
-    for (auto edge : edges) {
-        _cols[offests[edge.first]++]  = edge.second;
-        _cols[offests[edge.second]++] = edge.first;
-    }
-}
-
-template ONEAPI_DAL_EXPORT void convert_to_csr_impl(const edge_list<vertex_type<graph32>> &edges,
-                                                    graph32 &g);
+template ONEAPI_DAL_EXPORT const_vertex_edge_range_type<graph_default> get_vertex_neighbors_impl(
+    const graph_default &g,
+    const vertex_type<graph_default> &vertex);
+} // namespace detail
 
 } // namespace oneapi::dal::preview

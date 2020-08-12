@@ -15,12 +15,6 @@
  * limitations under the License.
  *******************************************************************************/
 
-/*
-//++
-//  Graph types and service functionality
-//--
-*/
-
 #pragma once
 
 #include "oneapi/dal/common.hpp"
@@ -36,46 +30,46 @@ namespace oneapi::dal::preview {
 
 /// Get number of vertexes in a graph.
 ///
-/// @tparam G  Type of graph
+/// @tparam Graph  Type of graph
 ///
-/// @param [in]   g  graph
+/// @param [in]   graph  Input graph
 ///
-/// @return Result is vertex_size_type of G.
-template <typename G>
-constexpr auto get_vertex_count(const G &g) noexcept -> vertex_size_type<G> {
-    return get_vertex_count_impl(g);
+/// @return Result is vertex_size_type of Graph.
+template <typename Graph>
+constexpr auto get_vertex_count(const Graph& graph) noexcept -> vertex_size_type<Graph> {
+    return detail::get_vertex_count_impl(graph);
 }
 
-template <typename G>
-constexpr auto get_edge_count(const G &g) noexcept -> edge_size_type<G> {
-    return get_edge_count_impl(g);
+template <typename Graph>
+constexpr auto get_edge_count(const Graph& graph) noexcept -> edge_size_type<Graph> {
+    return detail::get_edge_count_impl(graph);
 }
 
 /// Get degree of vertex in a graph.
 ///
-/// @tparam G  Type of graph
+/// @tparam Graph  Type of graph
 ///
-/// @param [in]   g  graph
+/// @param [in]   graph  Input graph
 ///
 /// @param [in]   vertex  vertex which degree to compute
 ///
-/// @return Result is vertex_type of G.
-template <typename G>
-constexpr auto get_vertex_degree(const G &g, const vertex_type<G> &vertex)
-    -> vertex_edge_size_type<G> {
-    if (vertex < 0 || (vertex_size_type<G>)vertex >= get_vertex_count_impl(g)) {
+/// @return Result is vertex_type of Graph.
+template <typename Graph>
+constexpr auto get_vertex_degree(const Graph& graph, const vertex_type<Graph>& vertex)
+    -> vertex_edge_size_type<Graph> {
+    if (vertex < 0 || (vertex_size_type<Graph>)vertex >= get_vertex_count_impl(graph)) {
         throw out_of_range("Vertex index should be in [0, vertex_count)");
     }
-    return get_vertex_degree_impl(g, vertex);
+    return detail::get_vertex_degree_impl(graph, vertex);
 }
 
-template <typename G>
-constexpr auto get_vertex_neighbors(const G &g, const vertex_type<G> &vertex)
-    -> const_vertex_edge_range_type<G> {
-    if (vertex < 0 || (vertex_size_type<G>)vertex >= get_vertex_count_impl(g)) {
+template <typename Graph>
+constexpr auto get_vertex_neighbors(const Graph& graph, const vertex_type<Graph>& vertex)
+    -> const_vertex_edge_range_type<Graph> {
+    if (vertex < 0 || (vertex_size_type<Graph>)vertex >= get_vertex_count_impl(graph)) {
         throw out_of_range("Vertex index should be in [0, vertex_count)");
     }
-    return get_vertex_neighbors_impl(g, vertex);
+    return detail::get_vertex_neighbors_impl(graph, vertex);
 }
 
 } // namespace oneapi::dal::preview

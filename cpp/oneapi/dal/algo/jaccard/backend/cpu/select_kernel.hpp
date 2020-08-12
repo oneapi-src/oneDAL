@@ -18,6 +18,8 @@
 
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
+#include "oneapi/dal/policy.hpp"
 
 #include <memory>
 
@@ -27,7 +29,8 @@ namespace detail {
 
 template <typename Graph>
 struct backend_base {
-    virtual similarity_result operator()(const descriptor_base &descriptor,
+    virtual similarity_result operator()(const dal::backend::context_cpu &ctx,
+                                         const descriptor_base &descriptor,
                                          const similarity_input<Graph> &input) {
         return similarity_result();
     }
@@ -36,7 +39,8 @@ struct backend_base {
 
 template <typename Float, typename Method, typename Graph>
 struct backend_default : public backend_base<Graph> {
-    virtual similarity_result operator()(const descriptor_base &descriptor,
+    virtual similarity_result operator()(const dal::backend::context_cpu &ctx,
+                                         const descriptor_base &descriptor,
                                          const similarity_input<Graph> &input);
     virtual ~backend_default() {}
 };
