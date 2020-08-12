@@ -16,4 +16,4 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/kmeans_init/train.hpp"
+#include "oneapi/dal/algo/kmeans_init/compute.hpp"

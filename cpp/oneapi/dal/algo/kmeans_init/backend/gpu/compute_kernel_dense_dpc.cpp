@@ -20,7 +20,7 @@
 
 #include <src/algorithms/kmeans/oneapi/kmeans_init_dense_batch_kernel_ucapi.h>
 
-#include "oneapi/dal/algo/kmeans_init/backend/gpu/train_kernel.hpp"
+#include "oneapi/dal/algo/kmeans_init/backend/gpu/compute_kernel.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -39,10 +39,10 @@ using daal_kmeans_init_dense_batch_ucapi_kernel_t =
                                                                 Float>;
 
 template <typename Float>
-struct train_kernel_gpu<Float, method::dense> {
-    train_result operator()(const dal::backend::context_gpu& ctx,
+struct compute_kernel_gpu<Float, method::dense> {
+    compute_result operator()(const dal::backend::context_gpu& ctx,
                             const descriptor_base& params,
-                            const train_input& input) const {
+                            const compute_input& input) const {
         auto& queue = ctx.get_queue();
         interop::execution_context_guard guard(queue);
 
@@ -80,12 +80,12 @@ struct train_kernel_gpu<Float, method::dense> {
                                                                          &par,
                                                                          *(par.engine)));
 
-        return train_result().set_centroids(
+        return compute_result().set_centroids(
             homogen_table_builder{}.reset(arr_centroids, cluster_count, column_count).build());
     }
 };
 
-template struct train_kernel_gpu<float, method::dense>;
-template struct train_kernel_gpu<double, method::dense>;
+template struct compute_kernel_gpu<float, method::dense>;
+template struct compute_kernel_gpu<double, method::dense>;
 
 } // namespace oneapi::dal::kmeans_init::backend

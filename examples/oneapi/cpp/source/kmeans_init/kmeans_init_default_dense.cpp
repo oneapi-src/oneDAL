@@ -27,16 +27,16 @@ int main(int argc, char const *argv[]) {
     constexpr std::int64_t column_count  = 2;
     constexpr std::int64_t cluster_count = 2;
 
-    const float x_train[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
+    const float x_compute[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
                               -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
     const float x_test[]  = { 1.0, 1.0, 2.0, 2.0 };
 
-    const auto x_train_table = dal::homogen_table{ x_train, row_count, column_count, dal::empty_delete<const float>() };
+    const auto x_compute_table = dal::homogen_table{ x_compute, row_count, column_count, dal::empty_delete<const float>() };
     const auto x_test_table  = dal::homogen_table{ x_test, cluster_count, column_count, dal::empty_delete<const float>() };
 
     const auto kmeans_init_desc = dal::kmeans_init::descriptor<>().set_cluster_count(cluster_count);
 
-    const auto result = dal::train(kmeans_init_desc, x_train_table);
+    const auto result = dal::compute(kmeans_init_desc, x_compute_table);
 
     std::cout << "Initial cetroids:" << std::endl << result.get_centroids() << std::endl;
 

@@ -16,25 +16,25 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/kmeans_init/train_types.hpp"
+#include "oneapi/dal/algo/kmeans_init/compute_types.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::kmeans_init::detail {
 
 template <typename Context, typename... Options>
-struct train_ops_dispatcher {
-    train_result operator()(const Context&, const descriptor_base&, const train_input&) const;
+struct compute_ops_dispatcher {
+    compute_result operator()(const Context&, const descriptor_base&, const compute_input&) const;
 };
 
 template <typename Descriptor>
-struct train_ops {
+struct compute_ops {
     using float_t           = typename Descriptor::float_t;
     using method_t          = typename Descriptor::method_t;
-    using input_t           = train_input;
-    using result_t          = train_result;
+    using input_t           = compute_input;
+    using result_t          = compute_result;
     using descriptor_base_t = descriptor_base;
 
-    void check_preconditions(const Descriptor& params, const train_input& input) const {
+    void check_preconditions(const Descriptor& params, const compute_input& input) const {
         if (!(input.get_data().has_data())) {
             throw domain_error("Input data should not be empty");
         }
@@ -44,8 +44,8 @@ struct train_ops {
     }
 
     void check_posrtconditions(const Descriptor& params,
-                               const train_input& input,
-                               const train_result& result) const {
+                               const compute_input& input,
+                               const compute_result& result) const {
         if (!(result.get_centroids().has_data())) {
             throw internal_error("Result centroids should not be empty");
         }
@@ -60,9 +60,9 @@ struct train_ops {
     }
 
     template <typename Context>
-    auto operator()(const Context& ctx, const Descriptor& desc, const train_input& input) const {
+    auto operator()(const Context& ctx, const Descriptor& desc, const compute_input& input) const {
         check_preconditions(desc, input);
-        const auto result = train_ops_dispatcher<Context, float_t, method_t>()(ctx, desc, input);
+        const auto result = compute_ops_dispatcher<Context, float_t, method_t>()(ctx, desc, input);
         check_posrtconditions(desc, input, result);
         return result;
     }

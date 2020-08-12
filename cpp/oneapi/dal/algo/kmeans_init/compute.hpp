@@ -16,14 +16,14 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/kmeans_init/detail/train_ops.hpp"
-#include "oneapi/dal/algo/kmeans_init/train_types.hpp"
-#include "oneapi/dal/train.hpp"
+#include "oneapi/dal/algo/kmeans_init/detail/compute_ops.hpp"
+#include "oneapi/dal/algo/kmeans_init/compute_types.hpp"
+#include "oneapi/dal/compute.hpp"
 
 namespace oneapi::dal::detail {
 
 template <typename Descriptor>
-struct train_ops<Descriptor, dal::kmeans_init::detail::tag>
-        : dal::kmeans_init::detail::train_ops<Descriptor> {};
+struct compute_ops<Descriptor, dal::kmeans_init::detail::tag>
+        : dal::kmeans_init::detail::compute_ops<Descriptor> {};
 
 } // namespace oneapi::dal::detail

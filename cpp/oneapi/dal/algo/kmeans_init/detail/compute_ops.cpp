@@ -14,25 +14,25 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/kmeans_init/detail/train_ops.hpp"
-#include "oneapi/dal/algo/kmeans_init/backend/cpu/train_kernel.hpp"
+#include "oneapi/dal/algo/kmeans_init/detail/compute_ops.hpp"
+#include "oneapi/dal/algo/kmeans_init/backend/cpu/compute_kernel.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::kmeans_init::detail {
 using oneapi::dal::detail::host_policy;
 
 template <typename Float, typename Method>
-struct ONEAPI_DAL_EXPORT train_ops_dispatcher<host_policy, Float, Method> {
-    train_result operator()(const host_policy& ctx,
+struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<host_policy, Float, Method> {
+    compute_result operator()(const host_policy& ctx,
                             const descriptor_base& desc,
-                            const train_input& input) const {
+                            const compute_input& input) const {
         using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Method>>;
+            dal::backend::kernel_dispatcher<backend::compute_kernel_cpu<Float, Method>>;
         return kernel_dispatcher_t()(ctx, desc, input);
     }
 };
 
-#define INSTANTIATE(F, M) template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<host_policy, F, M>;
+#define INSTANTIATE(F, M) template struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<host_policy, F, M>;
 
 INSTANTIATE(float, method::dense)
 INSTANTIATE(double, method::dense)
