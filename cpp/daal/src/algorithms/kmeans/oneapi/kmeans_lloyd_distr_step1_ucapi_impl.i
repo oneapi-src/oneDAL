@@ -168,8 +168,6 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
             ntAssignments->releaseBlockOfRows(assignmentsRows);
         }
     }
-//  stop
-    return Status();
     this->mergeReduceCentroids(outCentroids, nClusters, nFeatures, &st);
     DAAL_CHECK_STATUS_VAR(st);
     context.copy(outCCounters, 0, this->_partialCentroidsCounters, 0, nClusters, &st);
@@ -184,6 +182,8 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
     }
     DAAL_CHECK_STATUS_VAR(st);
     ntCValues->releaseBlockOfRows(ntCValuesRows);
+    //  stop
+    return Status();
     if (needCandidates)
     {
         auto hostCandidates = this->_candidates.template get<int>().toHost(ReadWriteMode::readOnly);
