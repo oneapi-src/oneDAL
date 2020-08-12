@@ -88,7 +88,7 @@ public:
             return mut_ptr.get();
         }
         catch (std::bad_variant_access&) {
-            throw dal::domain_error("array does not contain mutable data");
+            throw dal::internal_error("array does not contain mutable data");
         }
     }
 

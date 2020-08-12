@@ -38,7 +38,7 @@ enum class cpu_extension : uint64_t {
     avx512 = 1U << 5
 };
 
-struct ONEAPI_DAL_EXPORT default_host_policy {};
+class ONEAPI_DAL_EXPORT default_host_policy {};
 
 class ONEAPI_DAL_EXPORT host_policy : public base {
 public:

@@ -112,10 +112,14 @@ public:
     }
 
     array(const array<T>& a)
-            : data_ptr_(a.data_ptr_),
-              mutable_data_ptr_(a.mutable_data_ptr_),
-              count_(a.count_),
-              impl_(new impl_t(*a.impl_)) {}
+            : impl_(new impl_t(*a.impl_)) {
+        update_data(impl_->get_mutable_data(), impl_->get_count());
+    }
+
+    array(array<T>&& a)
+        : impl_(std::move(a.impl_)) {
+        update_data(impl_->get_mutable_data(), impl_->get_count());
+    }
 
     template <typename Deleter>
     explicit array(T* data, std::int64_t count, Deleter&& deleter)
@@ -160,15 +164,20 @@ public:
     }
 
     array<T> operator=(const array<T>& other) {
-        data_ptr_         = other.data_ptr_;
-        mutable_data_ptr_ = other.mutable_data_ptr_;
-        count_            = other.count_;
-        impl_.reset(new impl_t(*other.impl_));
+        array<T> tmp { other };
+        swap(*this, tmp);
+        return *this;
+    }
 
+    array<T> operator=(array<T>&& other) {
+        swap(*this, other);
         return *this;
     }
 
     T* get_mutable_data() const noexcept {
+        if (!has_mutable_data()) {
+            throw dal::domain_error("array does not contain mutable data");
+        }
         return mutable_data_ptr_;
     }
 
@@ -264,11 +273,21 @@ public:
     }
 
     const T& operator[](std::int64_t index) const {
+        // TODO: add asserts on data_ptr_
         return data_ptr_[index];
     }
 
     T& operator[](std::int64_t index) {
+        // TODO: add asserts on mutable_data_ptr_
         return mutable_data_ptr_[index];
+    }
+
+private:
+    static void swap(array<T>& a, array<T>& b) {
+        std::swap(a.impl_, b.impl_);
+        std::swap(a.data_ptr_, b.data_ptr_);
+        std::swap(a.mutable_data_ptr_, b.mutable_data_ptr_);
+        std::swap(a.count_, b.count_);
     }
 
 private:
@@ -294,10 +313,10 @@ private:
     }
 
 private:
+    detail::unique<impl_t> impl_;
     const T* data_ptr_;
     T* mutable_data_ptr_;
     std::int64_t count_;
-    detail::unique<impl_t> impl_;
 };
 
 } // namespace oneapi::dal
