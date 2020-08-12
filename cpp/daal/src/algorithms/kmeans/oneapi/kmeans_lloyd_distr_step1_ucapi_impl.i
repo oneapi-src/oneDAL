@@ -206,7 +206,6 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
     return Status();
     DAAL_CHECK_STATUS_VAR(st);
     ntCCentroids->releaseBlockOfRows(ntCCentroidsRows);
-    ntCCentroids->getBlockOfRows(0, nClusters, writeOnly, ntCCentroidsRows);
     return st;
 }
 
