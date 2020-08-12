@@ -15,22 +15,14 @@
 # limitations under the License.
 #===============================================================================
 
-daal_help() {
-    echo "Syntax: source vars.sh"
-}
+__daal_tmp_dir="<INSTALLDIR>"
+__daal_tmp_dir=$__daal_tmp_dir/daal
+if [ ! -d $__daal_tmp_dir ]; then
+    __daal_tmp_dir=$(command -p cd "$(dirname -- "${BASH_SOURCE[0]}")"/..; pwd)
+fi
 
-set_daal_env() {
-    __daal_tmp_dir="<INSTALLDIR>"
-    __daal_tmp_dir=$__daal_tmp_dir/daal
-    if [ ! -d $__daal_tmp_dir ]; then
-        __daal_tmp_dir=$(command -p cd $(dirname -- "${BASH_SOURCE}")/..; pwd)
-    fi
-
-    export DAALROOT=$__daal_tmp_dir
-    export CPATH=$__daal_tmp_dir/include${CPATH+:${CPATH}}
-    export LIBRARY_PATH=$__daal_tmp_dir/lib${LIBRARY_PATH+:${LIBRARY_PATH}}
-    export DYLD_LIBRARY_PATH=$__daal_tmp_dir/lib${DYLD_LIBRARY_PATH+:${DYLD_LIBRARY_PATH}}
-    export CLASSPATH=$__daal_tmp_dir/lib/onedal.jar${CLASSPATH+:${CLASSPATH}}
-}
-
-set_daal_env "$@"
+export DAALROOT=$__daal_tmp_dir
+export CPATH=$__daal_tmp_dir/include${CPATH+:${CPATH}}
+export LIBRARY_PATH=$__daal_tmp_dir/lib${LIBRARY_PATH+:${LIBRARY_PATH}}
+export DYLD_LIBRARY_PATH=$__daal_tmp_dir/lib${DYLD_LIBRARY_PATH+:${DYLD_LIBRARY_PATH}}
+export CLASSPATH=$__daal_tmp_dir/lib/onedal.jar${CLASSPATH+:${CLASSPATH}}
