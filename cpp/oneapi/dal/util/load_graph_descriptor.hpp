@@ -14,14 +14,20 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/data/detail/undirected_adjacency_array_graph_impl.hpp"
+#pragma once
 
-namespace oneapi::dal::preview {
+#include "oneapi/dal/data/graph_common.hpp"
+#include "oneapi/dal/data/undirected_adjacency_array_graph.hpp"
 
-template class ONEAPI_DAL_EXPORT
-    detail::undirected_adjacency_array_graph_impl<empty_value,
-                                                  empty_value,
-                                                  empty_value,
-                                                  std::int32_t,
-                                                  std::allocator<char>>;
-} // namespace oneapi::dal::preview
+namespace oneapi::dal::preview::load_graph {
+
+template <typename Input = edge_list<int32_t>, typename Output = undirected_adjacency_array_graph<>>
+struct descriptor {
+    using input_type  = Input;
+    using output_type = Output;
+};
+
+template <typename Descriptor>
+using output_type = typename Descriptor::output_type;
+
+} // namespace oneapi::dal::preview::load_graph

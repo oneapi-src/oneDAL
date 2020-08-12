@@ -20,23 +20,11 @@
 #pragma once
 
 #include "oneapi/dal/data/detail/graph_container.hpp"
+#include "oneapi/dal/data/detail/graph_service_functions_impl.hpp"
 #include "oneapi/dal/data/detail/undirected_adjacency_array_graph_impl.hpp"
 #include "oneapi/dal/data/graph_common.hpp"
 
 namespace oneapi::dal::preview {
-
-namespace detail {
-
-template <typename G>
-typename G::pimpl &get_impl(G &g) {
-    return g.impl_;
-}
-
-template <typename G>
-const typename G::pimpl &get_impl(const G &g) {
-    return g.impl_;
-}
-} // namespace detail
 
 /// Class for a data management component responsible for representation of data
 /// in the graph format. The class is designed to minimize storage requirements 
@@ -147,36 +135,8 @@ public:
 private:
     pimpl impl_;
 
-    friend pimpl &detail::get_impl<>(graph_type &g);
+    friend pimpl& detail::get_impl<graph_type>(graph_type& graph);
 
-    friend const pimpl &detail::get_impl<>(const graph_type &g);
+    friend const pimpl& detail::get_impl<graph_type>(const graph_type& graph);
 };
-
-template <typename G>
-ONEAPI_DAL_EXPORT auto get_vertex_count_impl(const G &g) noexcept -> vertex_size_type<G>;
-
-template <typename G>
-ONEAPI_DAL_EXPORT auto get_edge_count_impl(const G &g) noexcept -> edge_size_type<G>;
-
-template <typename G>
-ONEAPI_DAL_EXPORT auto get_vertex_degree_impl(const G &g, const vertex_type<G> &vertex) noexcept
-    -> edge_size_type<G>;
-
-template <typename G>
-ONEAPI_DAL_EXPORT auto get_vertex_neighbors_impl(const G &g, const vertex_type<G> &vertex) noexcept
-    -> const_edge_range_type<G>;
-
-template <typename G>
-ONEAPI_DAL_EXPORT void convert_to_csr_impl(const edge_list<vertex_type<G>> &edges, G &g);
-
-template <typename VertexValue = empty_value,
-          typename EdgeValue   = empty_value,
-          typename GraphValue  = empty_value,
-          typename IndexType   = std::int32_t,
-          typename Allocator   = std::allocator<empty_value>>
-using undirected_adjacency_array =
-    undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>;
-
-using graph = undirected_adjacency_array<>;
-
 } // namespace oneapi::dal::preview
