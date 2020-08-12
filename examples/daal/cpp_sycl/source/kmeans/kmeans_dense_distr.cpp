@@ -99,7 +99,7 @@ int main(int argc, char * argv[])
                 localAlgorithm.input.set(kmeans::data, data[i]);
                 localAlgorithm.input.set(kmeans::inputCentroids, centroids);
 
-//                localAlgorithm.compute();
+                localAlgorithm.compute();
             }
         }
     }
