@@ -30,59 +30,59 @@ class csv_table_reader_impl {
 public:
     csv_table_reader_impl() : delimiter_(','), parse_header_(false) {}
 
-	table read(const char * file_name) {
-		using namespace daal::data_management;
+    table read(const char * file_name) {
+        using namespace daal::data_management;
 
-	    CsvDataSourceOptions csv_options = 
-	    	CsvDataSourceOptions::allocateNumericTable | 
-	    	CsvDataSourceOptions::createDictionaryFromContext |
-	    	(parse_header_ ? CsvDataSourceOptions::parseHeader : CsvDataSourceOptions::byDefault);
+        CsvDataSourceOptions csv_options =
+            CsvDataSourceOptions::allocateNumericTable |
+            CsvDataSourceOptions::createDictionaryFromContext |
+            (parse_header_ ? CsvDataSourceOptions::parseHeader : CsvDataSourceOptions::byDefault);
 
-	    FileDataSource<CSVFeatureManager> data_source(file_name, csv_options);
-	    data_source.getFeatureManager().setDelimiter(delimiter_);
-	    data_source.loadDataBlock();
+        FileDataSource<CSVFeatureManager> data_source(file_name, csv_options);
+        data_source.getFeatureManager().setDelimiter(delimiter_);
+        data_source.loadDataBlock();
 
-	    return oneapi::dal::backend::interop::convert_from_daal_homogen_table<DAAL_DATA_TYPE>(data_source.getNumericTable());
-	}
-
-    void set_parse_header(bool parse_header) {
-    	parse_header_ = parse_header;
+        return oneapi::dal::backend::interop::convert_from_daal_homogen_table<DAAL_DATA_TYPE>(data_source.getNumericTable());
     }
 
-	void set_delimiter(char delimiter) {
-		delimiter_ = delimiter;
-	}
+    void set_parse_header(bool parse_header) {
+        parse_header_ = parse_header;
+    }
+
+    void set_delimiter(char delimiter) {
+        delimiter_ = delimiter;
+    }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-	table read(sycl::queue & queue,
-			   const char * file_name) {
+    table read(sycl::queue & queue,
+               const char * file_name) {
 
-		using namespace daal::data_management;
+        using namespace daal::data_management;
 
-	    CsvDataSourceOptions csv_options = 
-	    	CsvDataSourceOptions::allocateNumericTable | 
-	    	CsvDataSourceOptions::createDictionaryFromContext |
-	    	(parse_header_ ? CsvDataSourceOptions::parseHeader : CsvDataSourceOptions::byDefault);
+        CsvDataSourceOptions csv_options =
+            CsvDataSourceOptions::allocateNumericTable |
+            CsvDataSourceOptions::createDictionaryFromContext |
+            (parse_header_ ? CsvDataSourceOptions::parseHeader : CsvDataSourceOptions::byDefault);
 
-	    FileDataSource<CSVFeatureManager> data_source(file_name, csv_options);
-	    data_source.getFeatureManager().setDelimiter(delimiter_);
-	    data_source.loadDataBlock();
+        FileDataSource<CSVFeatureManager> data_source(file_name, csv_options);
+        data_source.getFeatureManager().setDelimiter(delimiter_);
+        data_source.loadDataBlock();
 
-	    auto nt = data_source.getNumericTable();
+        auto nt = data_source.getNumericTable();
 
-	    daal::data_management::BlockDescriptor<DAAL_DATA_TYPE> block;
-	    const std::int64_t row_count    = nt->getNumberOfRows();
-    	const std::int64_t column_count = nt->getNumberOfColumns();
+        daal::data_management::BlockDescriptor<DAAL_DATA_TYPE> block;
+        const std::int64_t row_count    = nt->getNumberOfRows();
+        const std::int64_t column_count = nt->getNumberOfColumns();
 
-	    nt->getBlockOfRows(0, row_count, daal::data_management::readOnly, block);
-    	DAAL_DATA_TYPE* data = block.getBlockPtr();
+        nt->getBlockOfRows(0, row_count, daal::data_management::readOnly, block);
+        DAAL_DATA_TYPE* data = block.getBlockPtr();
 
-    	auto arr = array<DAAL_DATA_TYPE>::empty(queue, row_count * column_count);
+        auto arr = array<DAAL_DATA_TYPE>::empty(queue, row_count * column_count);
         detail::memcpy(queue, arr.get_mutable_data(), data, sizeof(DAAL_DATA_TYPE) * row_count * column_count);
 
         nt->releaseBlockOfRows(block);
 
-    	return homogen_table_builder{}.reset(arr, row_count, column_count).build();
+        return homogen_table_builder{}.reset(arr, row_count, column_count).build();
     }
 #endif
 

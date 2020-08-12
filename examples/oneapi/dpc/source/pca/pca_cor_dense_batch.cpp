@@ -34,8 +34,8 @@ const char data_file_name[] = "../../daal/data/batch/pca_normalized.csv";
 
 void run(sycl::queue& queue) {
     const auto data_table = dal::csv_table_reader()
-    	.set_delimiter(',')
-    	.read(queue, data_file_name);
+        .set_delimiter(',')
+        .read(queue, data_file_name);
 
     const auto pca_desc = dal::pca::descriptor<>()
         .set_component_count(data_table.get_column_count())

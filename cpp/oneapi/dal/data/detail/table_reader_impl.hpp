@@ -22,14 +22,14 @@ namespace oneapi::dal::detail {
 
 class csv_table_reader_impl_iface {
 public:
-	virtual ~csv_table_reader_impl_iface() {}
+    virtual ~csv_table_reader_impl_iface() {}
 
     virtual table read(const char * file_name) = 0;
     virtual void set_delimiter(char delimiter) = 0;
     virtual void set_parse_header(bool parse_header) = 0;
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-	virtual table read(sycl::queue& queue, const char * file_name) = 0;
+    virtual table read(sycl::queue& queue, const char * file_name) = 0;
 #endif
 };
 
@@ -53,7 +53,7 @@ public:
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     virtual table read(sycl::queue& queue,
-    				   const char * file_name) override {
+                       const char * file_name) override {
         return impl_.read(queue, file_name);
     }
 #endif

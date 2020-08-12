@@ -28,8 +28,8 @@ struct is_csv_table_reader_impl {
     ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void, set_parse_header, (bool parse_header))
 
     static constexpr bool value_host = has_method_read_v<T>
-    	&& has_method_set_delimiter_v<T>
-    	&& has_method_set_parse_header_v<T>;
+        && has_method_set_delimiter_v<T>
+        && has_method_set_parse_header_v<T>;
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     ONEAPI_DAL_HAS_METHOD_TRAIT(table, read, (sycl::queue & queue, const char * file_name), read_dpc)
@@ -77,7 +77,7 @@ public:
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     table read(sycl::queue& queue,
-    		   const char * file_name) {
+               const char * file_name) {
         auto& impl = get_impl();
         return impl.read(queue, file_name);
     }
