@@ -197,6 +197,8 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
             {
                 // error out of range
             }
+            //
+            continue;
             BlockDescriptor<algorithmFPType> dataRows;
             DAAL_CHECK_STATUS_VAR(ntData->getBlockOfRows(index, 1, readOnly, dataRows));
             context.copy(outCCentroids, cPos * nFeatures, dataRows.getBuffer(), 0, nFeatures, &st);
