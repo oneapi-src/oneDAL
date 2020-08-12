@@ -15,20 +15,24 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/jaccard/backend/cpu/select_kernel.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::preview {
 namespace jaccard {
 namespace detail {
 
-template <typename Graph>
+template <typename Graph, typename Cpu>
 extern similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
                                                    const similarity_input<Graph> &input);
 
 template <typename Float, typename Method, typename Graph>
 similarity_result backend_default<Float, Method, Graph>::operator()(
+    const dal::backend::context_cpu &ctx,
     const descriptor_base &desc,
     const similarity_input<Graph> &input) {
-    return call_jaccard_block_kernel<Graph>(desc, input);
+    return dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+        return call_jaccard_block_kernel<Graph, decltype(cpu)>(desc, input);
+    });
 }
 
 template <>

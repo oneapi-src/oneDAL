@@ -24,6 +24,7 @@
 #pragma once
 
 #include "oneapi/dal/common.hpp"
+#include "oneapi/dal/data/detail/graph_container.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
 /**

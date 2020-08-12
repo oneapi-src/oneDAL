@@ -37,12 +37,12 @@ namespace oneapi::dal::preview {
 /// @return Result is vertex_size_type of Graph.
 template <typename Graph>
 constexpr auto get_vertex_count(const Graph& graph) noexcept -> vertex_size_type<Graph> {
-    return get_vertex_count_impl(graph);
+    return detail::get_vertex_count_impl(graph);
 }
 
 template <typename Graph>
 constexpr auto get_edge_count(const Graph& graph) noexcept -> edge_size_type<Graph> {
-    return get_edge_count_impl(graph);
+    return detail::get_edge_count_impl(graph);
 }
 
 /// Get degree of vertex in a graph.
@@ -60,7 +60,7 @@ constexpr auto get_vertex_degree(const Graph& graph, const vertex_type<Graph>& v
     if (vertex < 0 || (vertex_size_type<Graph>)vertex >= get_vertex_count_impl(graph)) {
         throw out_of_range("Vertex index should be in [0, vertex_count)");
     }
-    return get_vertex_degree_impl(graph, vertex);
+    return detail::get_vertex_degree_impl(graph, vertex);
 }
 
 template <typename Graph>
@@ -69,7 +69,7 @@ constexpr auto get_vertex_neighbors(const Graph& graph, const vertex_type<Graph>
     if (vertex < 0 || (vertex_size_type<Graph>)vertex >= get_vertex_count_impl(graph)) {
         throw out_of_range("Vertex index should be in [0, vertex_count)");
     }
-    return get_vertex_neighbors_impl(graph, vertex);
+    return detail::get_vertex_neighbors_impl(graph, vertex);
 }
 
 } // namespace oneapi::dal::preview

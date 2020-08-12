@@ -17,14 +17,16 @@
 #include <iostream>
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/data/graph_service_functions.hpp"
+#include "oneapi/dal/policy.hpp"
 
 namespace oneapi::dal::preview {
 namespace jaccard {
 namespace detail {
-
+/*
 template <class NodeID_t>
 size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t n_v) {
     size_t total = 0;
@@ -546,22 +548,25 @@ template size_t intersection<uint64_t>(uint64_t *neigh_u,
                                        uint64_t *neigh_v,
                                        uint64_t n_u,
                                        uint64_t n_v);
+*/
 
-template <typename Graph>
+template <typename Graph, typename Cpu>
 similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
                                             const similarity_input<Graph> &input) {
     std::cout << "Jaccard block kernel started" << std::endl;
 
     const auto my_graph = input.get_graph();
 
-    std::cout << get_vertex_count_impl(my_graph) << std::endl;
-    std::cout << get_edge_count_impl(my_graph) << std::endl;
+    std::cout << oneapi::dal::preview::detail::get_vertex_count_impl(my_graph) << std::endl;
+    std::cout << oneapi::dal::preview::detail::get_edge_count_impl(my_graph) << std::endl;
     auto node_id = 0;
-    std::cout << "degree of " << node_id << ": " << get_vertex_degree_impl(my_graph, node_id)
+    std::cout << "degree of " << node_id << ": "
+              << oneapi::dal::preview::detail::get_vertex_degree_impl(my_graph, node_id)
               << std::endl;
-    for (unsigned int j = 0; j < get_vertex_count_impl(my_graph); ++j) {
+    for (unsigned int j = 0; j < oneapi::dal::preview::detail::get_vertex_count_impl(my_graph);
+         ++j) {
         std::cout << "neighbors of " << j << ": ";
-        auto neigh = get_vertex_neighbors_impl(my_graph, j);
+        auto neigh = oneapi::dal::preview::detail::get_vertex_neighbors_impl(my_graph, j);
         for (auto i = neigh.first; i != neigh.second; ++i)
             std::cout << *i << " ";
         std::cout << std::endl;
@@ -576,14 +581,18 @@ similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
         array<std::pair<std::uint32_t, std::uint32_t>>::empty(number_elements_in_block);
     size_t nnz = 0;
     for (auto i = row_begin; i < row_end; ++i) {
-        const auto i_neighbor_size = get_vertex_degree_impl(my_graph, i);
-        const auto i_neigbhors     = get_vertex_neighbors_impl(my_graph, i).first;
+        const auto i_neighbor_size =
+            oneapi::dal::preview::detail::get_vertex_degree_impl(my_graph, i);
+        const auto i_neigbhors =
+            oneapi::dal::preview::detail::get_vertex_neighbors_impl(my_graph, i).first;
         for (auto j = column_begin; j < column_end; ++j) {
             if (j == i)
                 continue;
-            const auto j_neighbor_size = get_vertex_degree_impl(my_graph, j);
-            const auto j_neigbhors     = get_vertex_neighbors_impl(my_graph, j).first;
-            size_t intersection_value  = 0;
+            const auto j_neighbor_size =
+                oneapi::dal::preview::detail::get_vertex_degree_impl(my_graph, j);
+            const auto j_neigbhors =
+                oneapi::dal::preview::detail::get_vertex_neighbors_impl(my_graph, j).first;
+            size_t intersection_value = 0;
             size_t i_u = 0, i_v = 0;
             while (i_u < i_neighbor_size && i_v < j_neighbor_size) {
                 if (i_neigbhors[i_u] == j_neigbhors[i_v])
@@ -612,9 +621,25 @@ similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
     return res;
 }
 
-template similarity_result call_jaccard_block_kernel<undirected_adjacency_array_graph<> &>(
-    const descriptor_base &desc,
+/*
+    template similarity_result call_jaccard_block_kernel<                
+            undirected_adjacency_array_graph<> &,                         
+            oneapi::dal::cpu_extension::avx512>(                                                         
+    const descriptor_base &desc,                                          
     const similarity_input<undirected_adjacency_array_graph<> &> &input);
+*/
+#define INSTANTIATE(cpu)                                                  \
+    template similarity_result                                            \
+    call_jaccard_block_kernel<undirected_adjacency_array_graph<> &, cpu>( \
+        const descriptor_base &desc,                                      \
+        const similarity_input<undirected_adjacency_array_graph<> &> &input);
+
+INSTANTIATE(oneapi::dal::backend::cpu_dispatch_default)
+INSTANTIATE(oneapi::dal::backend::cpu_dispatch_ssse3)
+INSTANTIATE(oneapi::dal::backend::cpu_dispatch_sse42)
+INSTANTIATE(oneapi::dal::backend::cpu_dispatch_avx)
+INSTANTIATE(oneapi::dal::backend::cpu_dispatch_avx2)
+INSTANTIATE(oneapi::dal::backend::cpu_dispatch_avx512)
 
 } // namespace detail
 } // namespace jaccard

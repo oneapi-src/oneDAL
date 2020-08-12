@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/data/detail/graph_container.hpp"
+#include "oneapi/dal/data/detail/graph_service_functions_impl.hpp"
 #include "oneapi/dal/data/detail/undirected_adjacency_array_graph_impl.hpp"
 #include "oneapi/dal/data/graph_common.hpp"
 
@@ -117,25 +118,4 @@ private:
 
     friend const pimpl& detail::get_impl<graph_type>(const graph_type& graph);
 };
-
-template <typename Graph>
-ONEAPI_DAL_EXPORT auto get_vertex_count_impl(const Graph& graph) noexcept
-    -> vertex_size_type<Graph>;
-
-template <typename Graph>
-ONEAPI_DAL_EXPORT auto get_edge_count_impl(const Graph& graph) noexcept -> edge_size_type<Graph>;
-
-template <typename Graph>
-ONEAPI_DAL_EXPORT auto get_vertex_degree_impl(const Graph& g,
-                                              const vertex_type<Graph>& vertex) noexcept
-    -> vertex_edge_size_type<Graph>;
-
-template <typename Graph>
-ONEAPI_DAL_EXPORT auto get_vertex_neighbors_impl(const Graph& g,
-                                                 const vertex_type<Graph>& vertex) noexcept
-    -> const_vertex_edge_range_type<Graph>;
-
-template <typename Graph>
-ONEAPI_DAL_EXPORT void convert_to_csr_impl(const edge_list<vertex_type<Graph>>& edges,
-                                           Graph& graph);
 } // namespace oneapi::dal::preview

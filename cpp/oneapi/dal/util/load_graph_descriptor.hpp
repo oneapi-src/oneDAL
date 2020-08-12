@@ -16,16 +16,18 @@
 
 #pragma once
 
+#include "oneapi/dal/data/graph_common.hpp"
 #include "oneapi/dal/data/undirected_adjacency_array_graph.hpp"
-#include "oneapi/dal/util/csv_data_source.hpp"
-#include "oneapi/dal/util/detail/load_graph.hpp"
-#include "oneapi/dal/util/load_graph_descriptor.hpp"
 
 namespace oneapi::dal::preview::load_graph {
 
-template <typename Descriptor = descriptor<>, typename DataSource = csv_data_source>
-ONEAPI_DAL_EXPORT output_type<Descriptor> load(const Descriptor &desc,
-                                               const DataSource &data_source) {
-    return detail::load_impl(desc, data_source);
-}
+template <typename Input = edge_list<int32_t>, typename Output = undirected_adjacency_array_graph<>>
+struct descriptor {
+    using input_type  = Input;
+    using output_type = Output;
+};
+
+template <typename Descriptor>
+using output_type = typename Descriptor::output_type;
+
 } // namespace oneapi::dal::preview::load_graph
