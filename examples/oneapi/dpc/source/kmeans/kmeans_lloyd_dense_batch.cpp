@@ -20,7 +20,7 @@
 
 #define ONEAPI_DAL_DATA_PARALLEL
 #include "oneapi/dal/algo/kmeans.hpp"
-#include "oneapi/dal/data/accessor.hpp"
+#include "oneapi/dal/table/accessor.hpp"
 
 #include "example_util/utils.hpp"
 

@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/algo/linear_kernel.hpp"
 #include "oneapi/dal/algo/rbf_kernel.hpp"
-#include "oneapi/dal/data/table.hpp"
+#include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::svm {

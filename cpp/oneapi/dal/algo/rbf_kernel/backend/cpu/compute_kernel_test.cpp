@@ -16,8 +16,8 @@
 
 #include "gtest/gtest.h"
 #include "oneapi/dal/algo/rbf_kernel.hpp"
-#include "oneapi/dal/data/accessor.hpp"
-#include "oneapi/dal/data/table.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/table/homogen.hpp"
 
 #include <cmath>
 

@@ -14,8 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/data/table.hpp"
-#include "oneapi/dal/data/accessor.hpp"
+#include "oneapi/dal/table/table.hpp"
+#include "oneapi/dal/table/accessor.hpp"
 #include "oneapi/dal/algo/pca.hpp"
 
 #include "example_util/utils.hpp"

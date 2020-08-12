@@ -16,7 +16,7 @@
 
 #include "gtest/gtest.h"
 #include "oneapi/dal/algo/kmeans.hpp"
-#include "oneapi/dal/data/accessor.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
 
 using namespace oneapi::dal;
 

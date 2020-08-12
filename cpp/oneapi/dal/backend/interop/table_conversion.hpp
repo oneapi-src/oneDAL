@@ -23,8 +23,7 @@
 #endif
 #include <daal/include/data_management/data/homogen_numeric_table.h>
 
-#include "oneapi/dal/data/accessor.hpp"
-#include "oneapi/dal/data/table_builder.hpp"
+#include "oneapi/dal/table/table_builder.hpp"
 
 namespace oneapi::dal::backend::interop {
 

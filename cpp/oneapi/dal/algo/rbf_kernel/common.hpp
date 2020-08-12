@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "oneapi/dal/data/table.hpp"
+#include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::rbf_kernel {

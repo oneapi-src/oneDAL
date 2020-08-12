@@ -22,6 +22,8 @@
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
+#include "oneapi/dal/table/row_accessor.hpp"
+
 #include <daal/src/algorithms/kernel_function/oneapi/kernel_function_rbf_dense_default_kernel_oneapi.h>
 
 namespace oneapi::dal::rbf_kernel::backend {
