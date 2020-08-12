@@ -57,6 +57,7 @@ jobs:
       sudo apt-get update
       sudo apt-get install gcc-multilib \
                            g++-multilib \
+                           binutils \
                            openjdk-11-jdk \
                            bazel-3.4.1
     displayName: 'apt-get'
@@ -70,8 +71,6 @@ jobs:
     displayName: 'onedal-static'
   - script: bazel build //cpp/oneapi/dal:static
     displayName: 'onedal-static'
-  # - script: bazel build //cpp/oneapi/dal:static_dpc
-  #   displayName: 'onedal-static-dpc'
   - script: bazel test //examples/oneapi/cpp:all --@config//:test_link_mode=dev
     displayName: 'onedal-cpp-examples-thread-dev'
   - script: bazel test //examples/oneapi/cpp:all --@config//:test_link_mode=static

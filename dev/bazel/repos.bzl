@@ -19,7 +19,13 @@ def _download(repo_ctx):
 
 def _prebuilt_libs_repo_impl(repo_ctx):
     root = repo_ctx.os.environ.get(repo_ctx.attr.root_env_var)
-    root = root or _download(repo_ctx)
+    if not root:
+        if repo_ctx.attr.url:
+            root = _download(repo_ctx)
+        elif repo_ctx.attr.fallback_root:
+            root = repo_ctx.attr.fallback_root
+        else:
+            fail("Cannot locate {} dependency".format(repo_ctx.name))
     substitutions = {
         # TODO: Detect OS
         "%{os}": "lnx",
@@ -32,7 +38,8 @@ def _prebuilt_libs_repo_impl(repo_ctx):
         substitutions = substitutions,
     )
 
-def prebuilt_libs_repo_rule(root_env_var, includes, libs, build_template,
+def prebuilt_libs_repo_rule(includes, libs, build_template,
+                            root_env_var="", fallback_root="",
                             url="", sha256="", strip_prefix=""):
     return repository_rule(
         implementation = _prebuilt_libs_repo_impl,
@@ -41,6 +48,7 @@ def prebuilt_libs_repo_rule(root_env_var, includes, libs, build_template,
         ],
         attrs = {
             "root_env_var": attr.string(default=root_env_var),
+            "fallback_root": attr.string(default=fallback_root),
             "url": attr.string(default=url),
             "sha256": attr.string(default=sha256),
             "strip_prefix": attr.string(default=strip_prefix),

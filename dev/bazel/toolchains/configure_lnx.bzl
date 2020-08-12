@@ -176,7 +176,7 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
     # Default compilations/link options
     cxx_opts  = [ ]
     link_opts = [ ]
-    link_libs = [ "-lstdc++", "-ldl" ]
+    link_libs = [ "-lstdc++", "-lm", "-ldl" ]
 
     # Paths to tools/compiler includes
     tools = _find_tools(repo_ctx, reqs)

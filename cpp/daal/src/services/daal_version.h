@@ -18,7 +18,7 @@
 #ifndef ___DAAL_VERSION_H__
 #define ___DAAL_VERSION_H__
 
-#include "_daal_version_gen.h"
+#include "daal_version_gen.h"
 
 #if PRODUCT_STATUS == 'A'
     #define PRODUCTSTATUS          "alpha"

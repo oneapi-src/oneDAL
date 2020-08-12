@@ -1,6 +1,7 @@
 package(default_visibility = ["//visibility:public"])
 load("@onedal//dev/bazel:daal.bzl",
     "daal_module",
+    "daal_depset",
     "daal_static_lib",
     "daal_algorithms",
     "daal_generate_version",
@@ -23,12 +24,12 @@ daal_module(
 
 daal_generate_version(
     name = "version",
-    out = "_daal_version_gen.h",
+    out = "daal_version_gen.h",
 )
 
 daal_generate_kernel_defines(
     name = "kernel_defines",
-    out = "_daal_kernel_defines_gen.h",
+    out = "daal_kernel_defines_gen.h",
 )
 
 daal_module(
@@ -232,6 +233,30 @@ daal_static_lib(
     deps = [
         ":threading_tbb",
     ],
+)
+
+daal_depset(
+    name = "threading_static",
+    deps = select({
+        "@config//:par_test_thread_mode": [
+            "@onedal//cpp/daal:thread_static",
+        ],
+        "@config//:seq_test_thread_mode": [
+            "@onedal//cpp/daal:sequential_static",
+        ],
+    }),
+)
+
+daal_depset(
+    name = "threading_release_static",
+    deps = select({
+        "@config//:par_test_thread_mode": [
+            "@onedal_release//:thread_static",
+        ],
+        "@config//:seq_test_thread_mode": [
+            "@onedal_release//:sequential_static",
+        ],
+    }),
 )
 
 filegroup(

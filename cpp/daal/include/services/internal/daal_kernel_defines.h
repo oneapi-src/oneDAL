@@ -29,7 +29,7 @@
  * @ingroup services
  * @{
  */
-#include "_daal_kernel_defines_gen.h"
+#include "daal_kernel_defines_gen.h"
 
 #define DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, cpuType, ...) ContainerTemplate<__VA_ARGS__, cpuType>
 #define DAAL_KERNEL_CONTAINER_CASE(ContainerTemplate, cpuType, ...)                              \

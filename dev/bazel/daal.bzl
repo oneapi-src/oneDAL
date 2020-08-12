@@ -1,5 +1,6 @@
 load("@onedal//dev/bazel:cc.bzl",
     "cc_module",
+    "cc_depset",
     "cc_static_lib",
 )
 load("@onedal//dev/bazel:utils.bzl",
@@ -43,6 +44,9 @@ def daal_module(name, features=[], lib_tag="daal",
         **kwargs,
     )
 
+def daal_depset(**kwargs):
+    cc_depset(**kwargs)
+
 def daal_static_lib(name, lib_tags=["daal"], **kwargs):
     cc_static_lib(
         name = name,
@@ -62,7 +66,9 @@ def daal_algorithms(name, algorithms=[]):
 
 def _daal_generate_version_impl(ctx):
     vi = ctx.attr._version_info[VersionInfo]
+    version = ctx.actions.declare_file(ctx.attr.out)
     content = (
+        _daal_license_header(version.basename) +
         "// DO NOT EDIT: file is auto-generated on build time\n" +
         "// DO NOT PUT THIS FILE TO SVC: file is auto-generated on build time\n" +
         "// Product version is specified in dev/bazel/config.bzl file\n" +
@@ -74,7 +80,6 @@ def _daal_generate_version_impl(ctx):
         "#define BUILD_REV \"{}\"\n".format(vi.buildrev) +
         "#define PRODUCT_STATUS '{}'\n".format(vi.status)
     )
-    version = ctx.actions.declare_file(ctx.attr.out)
     ctx.actions.write(version, content)
     return [ DefaultInfo(files=depset([ version ])) ]
 
@@ -90,8 +95,10 @@ daal_generate_version = rule(
 )
 
 def _daal_generate_kernel_defines_impl(ctx):
-    cpus = sets.make(ctx.attr._cpus[CpuInfo].isa_extensions)
+    cpus = sets.make(ctx.attr._cpus[CpuInfo].enabled)
+    kernel_defines = ctx.actions.declare_file(ctx.attr.out)
     content = (
+        _daal_license_header(kernel_defines.basename) +
         "// DO NOT EDIT: file is auto-generated on build time\n" +
         "// DO NOT PUT THIS FILE TO SVC: file is auto-generated on build time\n" +
         "// CPU detection logic specified in dev/bazel/config.bzl file\n" +
@@ -103,7 +110,6 @@ def _daal_generate_kernel_defines_impl(ctx):
         ("#define DAAL_KERNEL_AVX512_MIC\n" if sets.contains(cpus, "avx512_mic") else "") +
         ("#define DAAL_KERNEL_AVX512\n"     if sets.contains(cpus, "avx512")     else "")
     )
-    kernel_defines = ctx.actions.declare_file(ctx.attr.out)
     ctx.actions.write(kernel_defines, content)
     return [ DefaultInfo(files=depset([ kernel_defines ])) ]
 
@@ -117,3 +123,24 @@ daal_generate_kernel_defines = rule(
         ),
     },
 )
+
+def _daal_license_header(filename):
+    return (
+        "/* file: {}.h */\n".format(filename) +
+        "/*******************************************************************************\n" +
+        "* Copyright 2014-2020 Intel Corporation\n" +
+        "*\n" +
+        "* Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
+        "* you may not use this file except in compliance with the License.\n" +
+        "* You may obtain a copy of the License at\n" +
+        "*\n" +
+        "*     http://www.apache.org/licenses/LICENSE-2.0\n" +
+        "*\n" +
+        "* Unless required by applicable law or agreed to in writing, software\n" +
+        "* distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
+        "* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
+        "* See the License for the specific language governing permissions and\n" +
+        "* limitations under the License.\n" +
+        "*******************************************************************************/\n" +
+        "\n"
+    )

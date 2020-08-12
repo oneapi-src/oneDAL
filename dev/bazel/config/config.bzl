@@ -1,25 +1,31 @@
 load("@onedal//dev/bazel:utils.bzl", "utils", "sets")
 
-
 ConfigFlagInfo = provider(
     fields = [
         "flag",
+        "allowed",
     ],
 )
 
 def _config_flag_impl(ctx):
+    # TODO: Check for allowed values
     return ConfigFlagInfo(
         flag = ctx.build_setting_value,
+        allowed = ctx.attr.allowed_build_setting_values,
     )
 
 config_flag = rule(
     implementation = _config_flag_impl,
     build_setting = config.string(flag = True),
+    attrs = {
+        "allowed_build_setting_values": attr.string_list(),
+    },
 )
 
 CpuInfo = provider(
     fields = [
-        "isa_extensions",
+        "enabled",
+        "allowed",
     ],
 )
 
@@ -48,7 +54,8 @@ def _cpu_info_impl(ctx):
     isa_extensions = utils.unique(["sse2"] + isa_extensions)
     _check_cpu_extensions(isa_extensions)
     return CpuInfo(
-        isa_extensions = isa_extensions
+        enabled = isa_extensions,
+        allowed = _ISA_EXTENSIONS,
     )
 
 cpu_info = rule(
@@ -56,6 +63,7 @@ cpu_info = rule(
     build_setting = config.string(flag = True),
     attrs = {
         "auto_cpu": attr.string(mandatory=True),
+        "verbose": attr.label(),
     },
 )
 
@@ -94,6 +102,39 @@ version_info = rule(
     },
 )
 
+def _dump_config_info_impl(ctx):
+    config_file = ctx.actions.declare_file("config.json")
+    flags_json = []
+    for target in ctx.attr.flags:
+        json = "      {}: {},".format(target.label.name, target[ConfigFlagInfo].to_json())
+        flags_json.append(json)
+    content = ("{\n" +
+    "   cpu: {},\n".format(ctx.attr.cpu_info[CpuInfo].to_json()) +
+    "   version: {},\n".format(ctx.attr.version_info[VersionInfo].to_json()) +
+    "   flags: {\n" +
+        "\n".join(flags_json) + "\n" +
+    "   }\n" +
+    "}\n")
+    ctx.actions.write(config_file, content)
+    return DefaultInfo(files=depset([ config_file ]))
+
+dump_config_info = rule(
+    implementation = _dump_config_info_impl,
+    attrs = {
+        "cpu_info": attr.label(
+            mandatory=True,
+            providers = [ CpuInfo ],
+        ),
+        "version_info": attr.label(
+            mandatory=True,
+            providers = [ VersionInfo ],
+        ),
+        "flags": attr.label_list(
+            providers = [ ConfigFlagInfo ],
+        ),
+    },
+)
+
 def _detect_cpu_extension(repo_ctx):
     cpudetect_src = repo_ctx.path(repo_ctx.attr._cpudetect_src)
     cpudetect_exe = repo_ctx.path("cpudetect")
@@ -117,11 +158,12 @@ def _detect_cpu_extension(repo_ctx):
     return cpudetect_result.stdout.strip()
 
 def _declare_onedal_config_impl(repo_ctx):
+    auto_cpu = _detect_cpu_extension(repo_ctx)
     repo_ctx.template(
         "BUILD",
         Label("@onedal//dev/bazel/config:BUILD.tpl"),
         substitutions = {
-            "%{auto_cpu}": _detect_cpu_extension(repo_ctx),
+            "%{auto_cpu}":         auto_cpu,
             "%{version_major}":    "2021",
             "%{version_minor}":    "1",
             "%{version_update}":   "8",
@@ -133,6 +175,7 @@ def _declare_onedal_config_impl(repo_ctx):
 
 declare_onedal_config = repository_rule(
     implementation = _declare_onedal_config_impl,
+    local = True,
     attrs = {
         "_cpudetect_src": attr.label(
             default = "@onedal//dev/bazel/config:cpudetect.cpp",

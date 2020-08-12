@@ -101,19 +101,25 @@ def dal_test(name, deps=[], test_deps=[], **kwargs):
         deps = select({
             "@config//:dev_test_link_mode": [
                 ":" + name + "_static",
+                "@onedal//cpp/daal:threading_static",
             ],
             "@config//:static_test_link_mode": [
                 "@onedal//cpp/oneapi/dal:static",
                 "@onedal//cpp/daal:core_static",
+                "@onedal//cpp/daal:threading_static",
             ],
-            "@config//:dynamic_test_link_mode": [],
-        }) +
-        select({
-            "@config//:par_test_thread_mode": [
-                "@onedal//cpp/daal:thread_static",
+            "@config//:dynamic_test_link_mode": [
+                # TODO
+                # ":threading_dynamic",
             ],
-            "@config//:seq_test_thread_mode": [
-                "@onedal//cpp/daal:sequential_static",
+            "@config//:release_static_test_link_mode": [
+                "@onedal_release//:onedal_static",
+                "@onedal_release//:core_static",
+                "@onedal//cpp/daal:threading_release_static",
+            ],
+            "@config//:release_dynamic_test_link_mode": [
+                # TODO
+                # ":threading_release_dynamic",
             ],
         }) + test_deps,
         **kwargs,
@@ -155,7 +161,7 @@ def _dal_module(name, lib_tag="dal", features=[], **kwargs):
     )
 
 def _dal_generate_cpu_dispatcher_impl(ctx):
-    cpus = sets.make(ctx.attr._cpus[CpuInfo].isa_extensions)
+    cpus = sets.make(ctx.attr._cpus[CpuInfo].enabled)
     content = (
         "// DO NOT EDIT: file is auto-generated on build time\n" +
         "// DO NOT PUT THIS FILE TO SVC: file is auto-generated on build time\n" +

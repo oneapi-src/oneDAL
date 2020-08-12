@@ -16,6 +16,12 @@ def warn(msg):
     no_color = "\033[0m"
     print("\n%sWARNING:%s %s\n" % (yellow, no_color, msg))
 
+def info(msg):
+    """Output warning."""
+    yellow = "\033[0;32m"
+    no_color = "\033[0m"
+    print("\n%sINFO:%s %s\n" % (yellow, no_color, msg))
+
 def add_prefix(prefix, lst):
     return [ prefix + str(x) for x in lst ]
 
@@ -31,6 +37,7 @@ def datestamp(repo_ctx):
 utils = struct(
     unique = unique,
     warn = warn,
+    info = info,
     add_prefix = add_prefix,
     substitude = substitude,
     datestamp = datestamp,

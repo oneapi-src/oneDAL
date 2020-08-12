@@ -180,7 +180,7 @@ def _compile(name, ctx, toolchain, feature_config,
 
 def _compile_all(name, ctx, toolchain, feature_config, compilation_contexts):
     fpts = ctx.attr._fpts
-    cpus = ctx.attr._cpus[CpuInfo].isa_extensions[:]
+    cpus = ctx.attr._cpus[CpuInfo].enabled[:]
     if ctx.attr.disable_mic and "avx512_mic" in cpus:
         cpus.remove("avx512_mic")
 
@@ -458,6 +458,25 @@ def cc_module(name, hdrs=[], deps=[], **kwargs):
         ] + deps,
         **kwargs,
     )
+
+
+def _cc_depset_impl(ctx):
+    dep_compilation_contexts = _collect_compilation_contexts(ctx.attr.deps)
+    compilation_context = _merge_compilation_contexts(dep_compilation_contexts)
+    tagged_linking_contexts = _collect_tagged_linking_contexts(ctx.attr.deps)
+    module_info = ModuleInfo(
+        compilation_context = compilation_context,
+        tagged_linking_contexts = tagged_linking_contexts,
+    )
+    return [module_info]
+
+cc_depset = rule(
+    implementation = _cc_depset_impl,
+    attrs = {
+        "deps": attr.label_list(mandatory=True),
+    },
+)
+
 
 def _cc_static_lib_impl(ctx):
     toolchain = ctx.toolchains["@bazel_tools//tools/cpp:toolchain_type"]

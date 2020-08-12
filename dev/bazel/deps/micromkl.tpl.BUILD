@@ -35,7 +35,4 @@ cc_library(
         ":headers",
         "@tbb//:tbb",
     ],
-    linkopts = [
-        "-lm",
-    ],
 )
