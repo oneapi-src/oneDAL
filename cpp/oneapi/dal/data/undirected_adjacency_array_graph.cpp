@@ -62,27 +62,27 @@ template ONEAPI_DAL_EXPORT edge_size_type<graph32> get_edge_count_impl(const gra
 
 template <typename G>
 ONEAPI_DAL_EXPORT auto get_vertex_degree_impl(const G &g, const vertex_type<G> &vertex) noexcept
-    -> vertex_edge_size_type<G> {
+    -> edge_size_type<G> {
     const auto &layout = detail::get_impl(g);
     return layout->_vertexes[vertex + 1] - layout->_vertexes[vertex];
 }
 
-template ONEAPI_DAL_EXPORT vertex_edge_size_type<graph32> get_vertex_degree_impl(
+template ONEAPI_DAL_EXPORT edge_size_type<graph32> get_vertex_degree_impl(
     const graph32 &g,
     const vertex_type<graph32> &vertex);
 
 template <typename G>
 ONEAPI_DAL_EXPORT auto get_vertex_neighbors_impl(const G &g, const vertex_type<G> &vertex) noexcept
-    -> const_vertex_edge_range_type<G> {
+    -> const_edge_range_type<G> {
     const auto &layout = detail::get_impl(g);
-    const_vertex_edge_iterator_type<G> vertex_neighbors_begin =
+    const_edge_iterator_type<G> vertex_neighbors_begin =
         layout->_edges.begin() + layout->_vertexes[vertex];
-    const_vertex_edge_iterator_type<G> vertex_neighbors_end =
+    const_edge_iterator_type<G> vertex_neighbors_end =
         layout->_edges.begin() + layout->_vertexes[vertex + 1];
     return std::make_pair(vertex_neighbors_begin, vertex_neighbors_end);
 }
 
-template ONEAPI_DAL_EXPORT const_vertex_edge_range_type<graph32> get_vertex_neighbors_impl(
+template ONEAPI_DAL_EXPORT const_edge_range_type<graph32> get_vertex_neighbors_impl(
     const graph32 &g,
     const vertex_type<graph32> &vertex);
 

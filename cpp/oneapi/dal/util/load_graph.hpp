@@ -14,6 +14,9 @@
 * limitations under the License.
 *******************************************************************************/
 
+/// @file
+/// Contains the definition of the graph loading functionality
+
 #pragma once
 
 #include <fstream>
@@ -23,6 +26,10 @@
 
 namespace oneapi::dal::preview::load_graph {
 
+/// Structure which defines the parameters of the operation of the graph loading
+///
+/// @tparam Input  Type of the source data
+/// @tparam Output Type of the destination data
 template <typename Input = edge_list<int32_t>, typename Output = undirected_adjacency_array_graph<>>
 struct descriptor {
     using input_type  = Input;
@@ -32,6 +39,15 @@ struct descriptor {
 template <typename Descriptor>
 using output_type = typename Descriptor::output_type;
 
+/// Returns the graph object filled by data from the data source specified in the
+/// descriptor
+///
+/// @tparam Descriptor Type of the descriptor of the operation
+/// @tparam DataSource Type of the data source
+/// @param [in] desc   The descriptor of the operation
+/// @param [in] data_source The data source
+///
+/// @return The graph object filled by data from the data_source
 template <typename Descriptor = load_graph::descriptor<>, typename DataSource = csv_data_source>
 output_type<Descriptor> load(const Descriptor &desc, const DataSource &data_source);
 } // namespace oneapi::dal::preview::load_graph

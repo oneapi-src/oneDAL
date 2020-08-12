@@ -15,11 +15,8 @@
  * limitations under the License.
  *******************************************************************************/
 
-/*
-//++
-//  Graph types and service functionality
-//--
-*/
+/// @file
+/// Contains the service functionality for the graph objects
 
 #pragma once
 
@@ -29,49 +26,62 @@
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
-/**
- * \brief Contains graph functionality preview as an experimental part of oneapi dal.
- */
 namespace oneapi::dal::preview {
 
-/// Get number of vertexes in a graph.
+/// Returns the number of vertices in the graph
 ///
-/// @tparam G  Type of graph
+/// @tparam Graph  Type of the graph
 ///
-/// @param [in]   g  graph
+/// @param [in]   graph  Input graph object
 ///
-/// @return Result is vertex_size_type of G.
+/// @return The number of vertices in the graph
 template <typename G>
 constexpr auto get_vertex_count(const G &g) noexcept -> vertex_size_type<G> {
     return get_vertex_count_impl(g);
 }
 
+/// Returns the number of edges in the graph
+///
+/// @tparam Graph  Type of the graph
+///
+/// @param [in]   graph  Input graph object
+///
+/// @return The number of edges in the graph
 template <typename G>
 constexpr auto get_edge_count(const G &g) noexcept -> edge_size_type<G> {
     return get_edge_count_impl(g);
 }
 
-/// Get degree of vertex in a graph.
+/// Returns the degree for the specified vertex
 ///
-/// @tparam G  Type of graph
+/// @tparam Graph  Type of the graph
 ///
-/// @param [in]   g  graph
+/// @param [in]   graph  Input graph object
 ///
-/// @param [in]   vertex  vertex which degree to compute
+/// @param [in]   vertex Identifier of the vertex
 ///
-/// @return Result is vertex_type of G.
+/// @return The degree of the vertex
 template <typename G>
 constexpr auto get_vertex_degree(const G &g, const vertex_type<G> &vertex)
-    -> vertex_edge_size_type<G> {
+    -> edge_size_type<G> {
     if (vertex < 0 || (vertex_size_type<G>)vertex >= get_vertex_count_impl(g)) {
         throw out_of_range("Vertex index should be in [0, vertex_count)");
     }
     return get_vertex_degree_impl(g, vertex);
 }
 
+/// Returns the range of the vertex neighbors for the specified vertex
+///
+/// @tparam Graph  Type of the graph
+///
+/// @param [in]   graph  Input graph object
+///
+/// @param [in]   vertex Identifier of the vertex
+///
+/// @return The range of the vertex neighbors 
 template <typename G>
 constexpr auto get_vertex_neighbors(const G &g, const vertex_type<G> &vertex)
-    -> const_vertex_edge_range_type<G> {
+    -> const_edge_range_type<G> {
     if (vertex < 0 || (vertex_size_type<G>)vertex >= get_vertex_count_impl(g)) {
         throw out_of_range("Vertex index should be in [0, vertex_count)");
     }
