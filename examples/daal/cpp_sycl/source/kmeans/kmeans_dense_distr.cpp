@@ -55,9 +55,8 @@ int main(int argc, char * argv[])
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
-        daal::services::SyclExecutionContext ctx(queue);
-        services::Environment::getInstance()->setDefaultExecutionContext(ctx);
-
+//        daal::services::SyclExecutionContext ctx(queue);
+//        services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
         NumericTablePtr data[nBlocks];
 
@@ -85,7 +84,6 @@ int main(int argc, char * argv[])
         masterInit.compute();
         masterInit.finalizeCompute();
         centroids = masterInit.getResult()->get(kmeans::init::centroids);
-
     }
 
     return 0;
