@@ -111,13 +111,11 @@ public:
         update_data(null_data, 0);
     }
 
-    array(const array<T>& a)
-            : impl_(new impl_t(*a.impl_)) {
+    array(const array<T>& a) : impl_(new impl_t(*a.impl_)) {
         update_data(impl_->get_mutable_data(), impl_->get_count());
     }
 
-    array(array<T>&& a)
-        : impl_(std::move(a.impl_)) {
+    array(array<T>&& a) : impl_(std::move(a.impl_)) {
         update_data(impl_->get_mutable_data(), impl_->get_count());
     }
 
@@ -164,7 +162,7 @@ public:
     }
 
     array<T> operator=(const array<T>& other) {
-        array<T> tmp { other };
+        array<T> tmp{ other };
         swap(*this, tmp);
         return *this;
     }
