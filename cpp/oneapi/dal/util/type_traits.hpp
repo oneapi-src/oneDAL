@@ -57,12 +57,6 @@ inline constexpr bool check_mask_flag(T mask, T flag) {
 }
 
 template <typename T>
-inline constexpr bool conjunct_masks(T mask, T flag) {
-    using U = std::underlying_type_t<T>;
-    return (static_cast<U>(mask) & static_cast<U>(flag)) > 0;
-}
-
-template <typename T>
 inline constexpr T bitwise_and(T lhs_mask, T rhs_mask) {
     using U = std::underlying_type_t<T>;
     return static_cast<T>(static_cast<U>(lhs_mask) & static_cast<U>(lhs_mask));
