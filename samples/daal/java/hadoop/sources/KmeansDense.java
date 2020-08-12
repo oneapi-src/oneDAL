@@ -103,7 +103,7 @@ public class KmeansDense extends Configured implements Tool {
             job.setJarByClass(KmeansDense.class);
 
             if (job.waitForCompletion(true)) { a = 0; }
-            else { a = 1; };
+            else { a = 1; }
         }
 
         return a;

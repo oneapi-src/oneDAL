@@ -56,12 +56,9 @@ int main(int argc, char const *argv[]) {
           .set_features_per_node(1)
           .set_min_observations_in_leaf_node(1)
           .set_variable_importance_mode(df::variable_importance_mode::mdi)
-          .set_train_results_to_compute(
-              df::train_result_to_compute::compute_out_of_bag_error)
-          .set_infer_results_to_compute(
-              df::infer_result_to_compute::compute_class_labels |
-              df::infer_result_to_compute::compute_class_probabilities)
-          .set_voting_method(df::voting_method::weighted);
+          .set_error_metric_mode(df::error_metric_mode::out_of_bag_error)
+          .set_infer_mode(df::infer_mode::class_labels | df::infer_mode::class_probabilities)
+          .set_voting_mode(df::voting_mode::weighted);
 
   const auto result_train = dal::train(df_desc, x_train_table, y_train_table);
 
@@ -70,8 +67,7 @@ int main(int argc, char const *argv[]) {
 
   std::cout << "OOB error: " << result_train.get_oob_err() << std::endl;
 
-  const auto result_infer =
-      dal::infer(df_desc, result_train.get_model(), x_test_table);
+  const auto result_infer = dal::infer(df_desc, result_train.get_model(), x_test_table);
 
   std::cout << "Prediction results:" << std::endl
             << result_infer.get_labels() << std::endl;

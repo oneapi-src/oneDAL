@@ -15,8 +15,8 @@
 # limitations under the License.
 #===============================================================================
 
-MKLFPK_URL_ROOT="https://github.com/intel/daal/releases/download/Dependencies/"
-MKLFPK_VERSION="20180112_10"
+MKLFPK_URL_ROOT="https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/"
+MKLFPK_VERSION="2021.1-beta08"
 MKLGPUFPK_VERSION="20200414"
 WITH_GPU=true
 

@@ -387,7 +387,6 @@ void Decompressor<rle>::run(byte * out, size_t outLen, size_t off)
             _avail_out = _avail_out - tmp_avail_out;
             _next_out  = (byte *)_next_out + tmp_avail_out;
             this->_usedOutBlockSize += tmp_avail_out;
-
         } while (_avail_in > 0 && _avail_out > 0);
 
         if (_avail_in > 0)
