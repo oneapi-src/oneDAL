@@ -40,8 +40,10 @@ TEST(rbf_kernel_dense_test, can_compute_unit_matrix) {
         1.f,
     };
 
-    const auto x_table = homogen_table{ row_count, column_count, x_data };
-    const auto y_table = homogen_table{ row_count, column_count, y_data };
+    const auto x_table =
+        homogen_table{ x_data, row_count, column_count, empty_delete<const float>() };
+    const auto y_table =
+        homogen_table{ y_data, row_count, column_count, empty_delete<const float>() };
 
     const auto kernel_desc  = rbf_kernel::descriptor{};
     const auto values_table = compute(kernel_desc, x_table, y_table).get_values();
@@ -64,7 +66,8 @@ TEST(rbf_kernel_dense_test, can_compute_same_unit_matrix) {
         1.f,
     };
 
-    const auto x_table = homogen_table{ row_count, column_count, x_data };
+    const auto x_table =
+        homogen_table{ x_data, row_count, column_count, empty_delete<const float>() };
 
     const auto kernel_desc  = rbf_kernel::descriptor{};
     const auto values_table = compute(kernel_desc, x_table, x_table).get_values();
@@ -87,8 +90,10 @@ TEST(rbf_kernel_dense_test, can_compute_one_element) {
         0.1f,
     };
 
-    const auto x_table = homogen_table{ row_count, column_count, x_data };
-    const auto y_table = homogen_table{ row_count, column_count, y_data };
+    const auto x_table =
+        homogen_table{ x_data, row_count, column_count, empty_delete<const float>() };
+    const auto y_table =
+        homogen_table{ y_data, row_count, column_count, empty_delete<const float>() };
 
     const auto kernel_desc  = rbf_kernel::descriptor{};
     const auto values_table = compute(kernel_desc, x_table, y_table).get_values();
@@ -114,8 +119,10 @@ TEST(rbf_kernel_dense_test, can_compute_diff_matrix) {
         3.f,
     };
 
-    const auto x_table = homogen_table{ row_count_x, column_count, x_data };
-    const auto y_table = homogen_table{ row_count_y, column_count, y_data };
+    const auto x_table =
+        homogen_table{ x_data, row_count_x, column_count, empty_delete<const float>() };
+    const auto y_table =
+        homogen_table{ y_data, row_count_y, column_count, empty_delete<const float>() };
 
     const auto kernel_desc  = rbf_kernel::descriptor{};
     const auto values_table = compute(kernel_desc, x_table, y_table).get_values();
@@ -147,8 +154,10 @@ TEST(rbf_kernel_dense_test, can_compute_diff_matrix_not_default_params) {
         3.f,
     };
 
-    const auto x_table      = homogen_table{ row_count_x, column_count, x_data };
-    const auto y_table      = homogen_table{ row_count_y, column_count, y_data };
+    const auto x_table =
+        homogen_table{ x_data, row_count_x, column_count, empty_delete<const float>() };
+    const auto y_table =
+        homogen_table{ y_data, row_count_y, column_count, empty_delete<const float>() };
     constexpr double sigma  = 0.9;
     const auto kernel_desc  = rbf_kernel::descriptor{}.set_sigma(sigma);
     const auto values_table = compute(kernel_desc, x_table, y_table).get_values();

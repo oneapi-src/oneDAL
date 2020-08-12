@@ -29,7 +29,7 @@ class table_feature_impl;
 class table_metadata_impl;
 } // namespace detail
 
-class table_feature {
+class ONEAPI_DAL_EXPORT table_feature {
 public:
     table_feature();
     table_feature(data_type);
@@ -46,11 +46,11 @@ private:
 };
 
 template <typename T>
-table_feature make_table_feature() {
+inline table_feature make_table_feature() {
     return table_feature{ make_data_type<T>() };
 }
 
-class table_metadata {
+class ONEAPI_DAL_EXPORT table_metadata {
     friend detail::pimpl_accessor;
 
 public:
@@ -72,7 +72,7 @@ private:
 
 enum class homogen_data_layout { row_major, column_major };
 
-class homogen_table_metadata : public table_metadata {
+class ONEAPI_DAL_EXPORT homogen_table_metadata : public table_metadata {
 public:
     homogen_table_metadata();
 

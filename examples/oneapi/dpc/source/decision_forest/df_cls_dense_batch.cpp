@@ -48,14 +48,14 @@ void run(sycl::queue &queue) {
 
   auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
   queue.memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count).wait();
-  const auto x_train_table = dal::homogen_table{queue, row_count_train, column_count, x_train};
+  const auto x_train_table = dal::homogen_table{queue, x_train, row_count_train, column_count, dal::empty_delete<const float>()};
 
   auto y_train = sycl::malloc_shared<float>(row_count_train, queue);
   queue.memcpy(y_train, y_train_host, sizeof(float) * row_count_train).wait();
-  const auto y_train_table = dal::homogen_table{queue, row_count_train, 1, y_train};
+  const auto y_train_table = dal::homogen_table{queue, y_train, row_count_train, 1, dal::empty_delete<const float>()};
 
-  const auto x_test_table = dal::homogen_table{row_count_test, column_count, x_test_host};
-  const auto y_test_table = dal::homogen_table{row_count_test, 1, y_test_host};
+  const auto x_test_table = dal::homogen_table{x_test_host, row_count_test, column_count, dal::empty_delete<const float>()};
+  const auto y_test_table = dal::homogen_table{y_test_host, row_count_test, 1, dal::empty_delete<const float>()};
 
   const auto df_train_desc = df::descriptor<float, df::task::classification, df::method::hist>{}
           .set_class_count(class_count)
@@ -88,12 +88,8 @@ void run(sycl::queue &queue) {
     std::cout << "Ground truth:" << std::endl << y_test_table << std::endl;
   } catch (oneapi::dal::unimplemented_error &e) {
     std::cout << "  " << e.what() << std::endl;
-    sycl::free(x_train, queue);
-    sycl::free(y_train, queue);
     return;
   }
-  sycl::free(x_train, queue);
-  sycl::free(y_train, queue);
 }
 
 int main(int argc, char const *argv[]) {
