@@ -16,8 +16,9 @@
 
 #pragma once
 
-#include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/util/type_traits.hpp"
 
 namespace oneapi::dal::decision_forest {
 

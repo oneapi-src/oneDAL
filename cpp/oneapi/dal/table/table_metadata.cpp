@@ -102,8 +102,9 @@ private:
 table_feature::table_feature() : table_feature(data_type::float32) {}
 
 table_feature::table_feature(data_type dtype)
-        : table_feature(dtype,
-                        detail::is_floating_point(dtype) ? feature_type::ratio : feature_type::ordinal) {}
+        : table_feature(
+              dtype,
+              detail::is_floating_point(dtype) ? feature_type::ratio : feature_type::ordinal) {}
 
 table_feature::table_feature(data_type dtype, feature_type ftype)
         : impl_(new detail::table_feature_impl{ dtype, ftype }) {}

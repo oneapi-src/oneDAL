@@ -16,25 +16,23 @@
 
 #pragma once
 
-#include "oneapi/dal/util/detail/type_traits.hpp"
+#include "oneapi/dal/table/common_type_traits.hpp"
 
 namespace oneapi::dal {
 
 template <typename T>
-inline constexpr bool check_mask_flag(T mask, T flag) {
-    using U = std::underlying_type_t<T>;
-    return (static_cast<U>(mask) & static_cast<U>(flag)) > 0;
-}
+struct is_homogen_table_impl {
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(const void*, get_data, () const)
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(const homogen_table_metadata&, get_metadata, () const)
+
+    using base = is_table_impl<T>;
+
+    static constexpr bool value = base::template has_method_get_column_count_v<T> &&
+                                  base::template has_method_get_row_count_v<T> &&
+                                  has_method_get_metadata_v<T> && has_method_get_data_v<T>;
+};
 
 template <typename T>
-inline constexpr T bitwise_and(T lhs_mask, T rhs_mask) {
-    using U = std::underlying_type_t<T>;
-    return static_cast<T>(static_cast<U>(lhs_mask) & static_cast<U>(lhs_mask));
-}
+inline constexpr bool is_homogen_table_impl_v = is_homogen_table_impl<T>::value;
 
-template <typename T>
-inline constexpr T bitwise_or(T lhs_mask, T rhs_mask) {
-    using U = std::underlying_type_t<T>;
-    return static_cast<T>(static_cast<U>(lhs_mask) | static_cast<U>(lhs_mask));
-}
 } // namespace oneapi::dal

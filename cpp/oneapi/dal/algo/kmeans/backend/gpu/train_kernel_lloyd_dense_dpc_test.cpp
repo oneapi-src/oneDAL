@@ -19,8 +19,8 @@
 #include "gtest/gtest.h"
 #define ONEAPI_DAL_DATA_PARALLEL
 #include "oneapi/dal/algo/kmeans.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
 
 using namespace oneapi::dal;
 

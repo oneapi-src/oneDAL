@@ -42,7 +42,8 @@ public:
                        homogen_data_layout layout)
             : meta_(homogen_table_metadata{ feature, layout, p }),
               data_(data),
-              row_count_(data.get_count() / p / detail::get_data_type_size(feature.get_data_type())) {}
+              row_count_(data.get_count() / p /
+                         detail::get_data_type_size(feature.get_data_type())) {}
 
     template <typename Data>
     homogen_table_impl(std::int64_t p, const array<Data>& data, homogen_data_layout layout)

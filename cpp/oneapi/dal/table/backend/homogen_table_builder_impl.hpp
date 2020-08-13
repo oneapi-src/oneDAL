@@ -64,7 +64,8 @@ public:
     }
 
     void allocate(std::int64_t row_count, std::int64_t column_count) {
-        data_.reset(row_count * column_count * detail::get_data_type_size(feature_.get_data_type()));
+        data_.reset(row_count * column_count *
+                    detail::get_data_type_size(feature_.get_data_type()));
         row_count_    = row_count;
         column_count_ = column_count;
     }
@@ -74,7 +75,8 @@ public:
     }
 
     void copy_data(const void* data, std::int64_t row_count, std::int64_t column_count) {
-        data_.reset(row_count * column_count * detail::get_data_type_size(feature_.get_data_type()));
+        data_.reset(row_count * column_count *
+                    detail::get_data_type_size(feature_.get_data_type()));
         detail::memcpy(detail::default_host_policy{},
                        data_.get_mutable_data(),
                        data,

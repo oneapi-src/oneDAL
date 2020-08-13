@@ -17,8 +17,8 @@
 #pragma once
 
 #include "oneapi/dal/array.hpp"
-#include "oneapi/dal/table/detail/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/table/detail/common.hpp"
 
 namespace oneapi::dal {
 

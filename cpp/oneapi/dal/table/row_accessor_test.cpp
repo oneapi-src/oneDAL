@@ -15,8 +15,8 @@
 *******************************************************************************/
 
 #include "oneapi/dal/table/row_accessor.hpp"
-#include "oneapi/dal/table/homogen.hpp"
 #include "gtest/gtest.h"
+#include "oneapi/dal/table/homogen.hpp"
 
 using namespace oneapi::dal;
 

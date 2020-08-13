@@ -16,8 +16,8 @@
 
 #include "gtest/gtest.h"
 #include "oneapi/dal/algo/linear_kernel.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
 
 using namespace oneapi::dal;
 using std::int32_t;

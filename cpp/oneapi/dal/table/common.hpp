@@ -19,8 +19,8 @@
 #include <type_traits>
 
 #include "oneapi/dal/detail/common_dpc.hpp"
+#include "oneapi/dal/table/common_type_traits.hpp"
 #include "oneapi/dal/table/detail/table_impl_wrapper.hpp"
-#include "oneapi/dal/util/type_traits.hpp"
 
 namespace oneapi::dal {
 

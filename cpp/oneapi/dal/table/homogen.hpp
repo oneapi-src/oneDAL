@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/table/homogen_type_traits.hpp"
 
 namespace oneapi::dal {
 

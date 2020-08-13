@@ -15,8 +15,8 @@
 *******************************************************************************/
 
 #include "oneapi/dal/table/column_accessor.hpp"
-#include "oneapi/dal/table/homogen.hpp"
 #include "gtest/gtest.h"
+#include "oneapi/dal/table/homogen.hpp"
 
 using namespace oneapi::dal;
 using std::int32_t;

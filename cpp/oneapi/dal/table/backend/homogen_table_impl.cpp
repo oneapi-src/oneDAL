@@ -123,8 +123,8 @@ void homogen_table_impl::pull_column(array<T>& block, int64_t idx, const range& 
             block.reset(range_count);
         }
 
-        auto src_ptr = data_.get_data() +
-                       detail::get_data_type_size(feature_type) * (idx + rows.start_idx * column_count);
+        auto src_ptr = data_.get_data() + detail::get_data_type_size(feature_type) *
+                                              (idx + rows.start_idx * column_count);
         backend::convert_vector(src_ptr,
                                 block.get_mutable_data(),
                                 feature_type,
