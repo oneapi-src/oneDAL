@@ -28,8 +28,8 @@ namespace oneapi::dal::preview {
 
 /// Class for a data management component responsible for representation of data
 /// in the graph format. The class is designed to minimize storage requirements 
-/// and offer good performance characteristics. Graph is stored in 0-based CSR
-/// format with ordered vertex keys within each row. Self-loops and multi-edges
+/// and offer good performance characteristics. The graph is stored in a 0-based 
+/// CSR format with ordered vertex keys within each row. Self-loops and multi-edges
 /// are not supported.
 ///
 /// @tparam VertexValue  Type of vertex properties
