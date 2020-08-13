@@ -44,7 +44,7 @@ The preview features list:
 - `MultiNodeBatch` for K-Means, a stepless distributed algorithm based on oneCCL
 - Graph Analytics: 
 	- Undirected graph without edge and vertex weights (undirected_adjacency_array_graph) - 32bit vertex index only
-	- Jaccard Similarity Coefficients for all vertex pairs, a batch algorithm which process the graph by blocks
+	- Jaccard Similarity Coefficients for all vertex pairs, a batch algorithm which processes the graph by blocks
 
 ## oneDAL and Intel(R) DAAL
 
