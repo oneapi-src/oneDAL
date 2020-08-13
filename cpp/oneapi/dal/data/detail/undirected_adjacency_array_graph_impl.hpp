@@ -67,14 +67,18 @@ public:
         detail::graph_container<edge_user_value_type, edge_user_value_allocator_type>;
 
     undirected_adjacency_array_graph_impl() = default;
+    undirected_adjacency_array_graph_impl(allocator_type alloc);
 
     vertex_size_type _vertex_count;
     edge_size_type _edge_count;
 
-    vertex_set _vertexes;
-    edge_set _edges;
+    vertex_set _vertex_neighbors;
+    vertex_set _degrees;
+    edge_set _edge_offsets;
 
     vertex_user_value_set _vertex_value;
     edge_user_value_set _edge_value;
+
+    allocator_type _allocator;
 };
 } // namespace oneapi::dal::preview::detail

@@ -71,6 +71,11 @@ using edge_range_type = typename Graph::edge_range;
 template <typename Graph>
 using const_edge_range_type = typename Graph::const_edge_range;
 
+/// Type of the graph allocator
+/// @tparam Graph Type of the graph
+template <typename Graph>
+using graph_allocator = typename Graph::allocator_type;
+
 /// Type of graph representation as an edge list
 /// @tparam IndexType Type of the graph vertex indicies
 template <typename IndexType = std::int32_t>

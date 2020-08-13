@@ -69,6 +69,8 @@ struct Service
 
     static double serv_string_to_double(const char * nptr, char ** endptr) { return _impl::serv_string_to_double(nptr, endptr); }
 
+    static int serv_string_to_int(const char * nptr, char ** endptr) { return _impl::serv_string_to_int(nptr, endptr); }
+
     static int serv_int_to_string(char * buffer, size_t n, int value) { return _impl::serv_int_to_string(buffer, n, value); }
 
     static int serv_double_to_string(char * buffer, size_t n, double value) { return _impl::serv_double_to_string(buffer, n, value); }
