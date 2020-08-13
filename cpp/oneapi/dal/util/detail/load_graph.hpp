@@ -22,6 +22,7 @@
 #include "oneapi/dal/data/detail/undirected_adjacency_array_graph_impl.hpp"
 #include "oneapi/dal/data/graph_common.hpp"
 #include "oneapi/dal/data/undirected_adjacency_array_graph.hpp"
+#include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/util/csv_data_source.hpp"
 #include "oneapi/dal/util/load_graph_descriptor.hpp"
 #include "services/daal_atomic_int.h"
@@ -95,9 +96,12 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     using allocator_atomic_t =
         typename std::allocator_traits<allocator_t>::template rebind_alloc<atomic_t>;
 
-    auto *degrees_vec =
-        new oneapi::dal::preview::detail::graph_container<atomic_t, allocator_atomic_t>(
+    auto *degrees_vec = new (std::nothrow)
+        oneapi::dal::preview::detail::graph_container<atomic_t, allocator_atomic_t>(
             layout_unfilt->_vertex_count);
+    if (degrees_vec == nullptr) {
+        throw oneapi::dal::bad_alloc();
+    }
     daal::services::Atomic<int_t> *degrees_cv = degrees_vec->data();
 
     threader_for(layout_unfilt->_vertex_count, layout_unfilt->_vertex_count, [&](int u) {
@@ -109,9 +113,12 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         degrees_cv[edges[u].second].inc();
     });
 
-    auto *rows_vec =
-        new oneapi::dal::preview::detail::graph_container<atomic_t, allocator_atomic_t>(
+    auto *rows_vec = new (std::nothrow)
+        oneapi::dal::preview::detail::graph_container<atomic_t, allocator_atomic_t>(
             layout_unfilt->_vertex_count + 1);
+    if (rows_vec == nullptr) {
+        throw oneapi::dal::bad_alloc();
+    }
     daal::services::Atomic<int_t> *rows_cv = rows_vec->data();
 
     int_t total_sum_degrees = 0;
