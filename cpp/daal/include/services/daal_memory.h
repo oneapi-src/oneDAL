@@ -97,6 +97,8 @@ DAAL_EXPORT float daal_string_to_float(const char * nptr, char ** endptr);
 
 DAAL_EXPORT double daal_string_to_double(const char * nptr, char ** endptr);
 
+DAAL_EXPORT int daal_string_to_int(const char * nptr, char ** endptr);
+
 DAAL_EXPORT int daal_int_to_string(char * buffer, size_t n, int value);
 
 DAAL_EXPORT int daal_double_to_string(char * buffer, size_t n, double value);

@@ -15,29 +15,28 @@
 *******************************************************************************/
 
 /// @file
-/// Contains the definition of the graph loading functionality
+/// Types and descriptors of the operations for graph loading functionality
 
 #pragma once
 
+#include "oneapi/dal/data/graph_common.hpp"
 #include "oneapi/dal/data/undirected_adjacency_array_graph.hpp"
-#include "oneapi/dal/util/csv_data_source.hpp"
-#include "oneapi/dal/util/detail/load_graph.hpp"
-#include "oneapi/dal/util/load_graph_descriptor.hpp"
 
 namespace oneapi::dal::preview::load_graph {
 
-/// Returns the graph object filled by data from the data source specified in the
-/// descriptor
+/// A structure, which defines the parameters of the graph loading operation
 ///
-/// @tparam Descriptor Type of the operation descriptor
-/// @tparam DataSource Type of the data source
-/// @param [in] desc   The descriptor of the operation
-/// @param [in] data_source The data source
-///
-/// @return The graph object filled by data from the data_source
-template <typename Descriptor = descriptor<>, typename DataSource = csv_data_source>
-ONEAPI_DAL_EXPORT output_type<Descriptor> load(const Descriptor &desc,
-                                               const DataSource &data_source) {
-    return detail::load_impl(desc, data_source);
-}
+/// @tparam Input  Type of the source data
+/// @tparam Output Type of the destination data
+template <typename Input = edge_list<int32_t>, typename Output = undirected_adjacency_array_graph<>>
+struct descriptor {
+    using input_type  = Input;
+    using output_type = Output;
+};
+
+/// Type of the descriptor output format
+/// @tparam Descriptor  Type of the descriptor
+template <typename Descriptor>
+using output_type = typename Descriptor::output_type;
+
 } // namespace oneapi::dal::preview::load_graph

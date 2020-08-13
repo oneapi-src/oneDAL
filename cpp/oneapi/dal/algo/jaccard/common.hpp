@@ -59,7 +59,6 @@ public:
     using method_t = Method;
 
     auto& set_row_range(const int64_t& begin, const int64_t& end) {
-        
         this->set_row_range_impl(begin, end);
         return *this;
     }

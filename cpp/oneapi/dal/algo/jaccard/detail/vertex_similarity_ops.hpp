@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
+#include "oneapi/dal/policy.hpp"
 
 namespace oneapi::dal::preview {
 namespace jaccard {
@@ -43,7 +44,7 @@ struct vertex_similarity_ops {
         const auto column_begin             = desc.get_column_range_begin();
         const auto column_end               = desc.get_column_range_end(); 
         auto vertex_count = get_vertex_count(input.get_graph().get_impl()->_vertex_count);
-        if (row_begin < 0 || row_end || column_begin < 0 || column_end < 0) {
+        if (row_begin < 0 || row_end < 0 || column_begin < 0 || column_end < 0) {
             throw oneapi::dal::invalid_argument("Negative interval");
         } 
         if (row_begin >= row_end) {
@@ -61,8 +62,6 @@ struct vertex_similarity_ops {
         check_preconditions(desc, input);
         return vertex_similarity_ops_dispatcher<float_t, method_t, Graph>()(desc, input);
     }
-
-    auto 
 };
 
 } // namespace detail

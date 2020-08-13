@@ -18,6 +18,8 @@
 
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
+#include "oneapi/dal/policy.hpp"
 
 #include <memory>
 

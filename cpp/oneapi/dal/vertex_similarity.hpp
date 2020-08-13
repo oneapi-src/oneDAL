@@ -14,6 +14,10 @@
 * limitations under the License.
 *******************************************************************************/
 
+/// @file
+/// Contains the definition of the main processing function for vertex 
+/// similarity family of the functions
+
 #pragma once
 
 #include "oneapi/dal/detail/vertex_similarity_ops.hpp"
