@@ -97,7 +97,7 @@ public:
     using edge_range              = range<edge_iterator>;
     using const_edge_range        = range<const_edge_iterator>;
 
-    /// Constructor for an empty undirected_adjacency_array_graph
+    /// Constructs an empty undirected_adjacency_array_graph
     undirected_adjacency_array_graph();
 
     /// Move constructor for undirected_adjacency_array_graph
@@ -106,15 +106,15 @@ public:
     /// Copy constructor for undirected_adjacency_array_graph
     undirected_adjacency_array_graph(const undirected_adjacency_array_graph& graph) = default;
 
-    /// Constructor for an empty undirected_adjacency_array_graph with specified allocator 
+    /// Constructs an empty undirected_adjacency_array_graph with specified allocator 
     undirected_adjacency_array_graph(allocator_type alloc){};
 
-    /// Constructor for an empty undirected_adjacency_array_graph with specified graph properties
+    /// Constructs an empty undirected_adjacency_array_graph with specified graph properties
     /// and allocator
     undirected_adjacency_array_graph(const graph_user_value_type& graph_user_value,
                                      allocator_type allocator = allocator_type()){};
     
-    /// Constructor for an empty undirected_adjacency_array_graph with move graph properties and 
+    /// Constructs an empty undirected_adjacency_array_graph with move graph properties and 
     /// allocator
     undirected_adjacency_array_graph(graph_user_value_type&& graph_user_value,
                                      allocator_type allocator = allocator_type()){};
