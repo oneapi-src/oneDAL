@@ -50,4 +50,21 @@ struct is_homogen_table_impl {
 template <typename T>
 inline constexpr bool is_homogen_table_impl_v = is_homogen_table_impl<T>::value;
 
+template <typename T>
+inline constexpr bool check_mask_flag(T mask, T flag) {
+    using U = std::underlying_type_t<T>;
+    return (static_cast<U>(mask) & static_cast<U>(flag)) > 0;
+}
+
+template <typename T>
+inline constexpr T bitwise_and(T lhs_mask, T rhs_mask) {
+    using U = std::underlying_type_t<T>;
+    return static_cast<T>(static_cast<U>(lhs_mask) & static_cast<U>(lhs_mask));
+}
+
+template <typename T>
+inline constexpr T bitwise_or(T lhs_mask, T rhs_mask) {
+    using U = std::underlying_type_t<T>;
+    return static_cast<T>(static_cast<U>(lhs_mask) | static_cast<U>(lhs_mask));
+}
 } // namespace oneapi::dal

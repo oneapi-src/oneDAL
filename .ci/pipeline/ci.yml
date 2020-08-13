@@ -22,15 +22,9 @@ jobs:
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_gnu'
+    platform.type : 'lnx32e'
   pool:
     vmImage: 'ubuntu-18.04'
-  strategy:
-    matrix:
-      lnx32:
-        platform.type : 'lnx32'
-      lnx32e:
-        platform.type : 'lnx32e'
-    maxParallel: 2
   steps:
   - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib openjdk-8-jdk
     displayName: 'apt-get'
@@ -53,39 +47,39 @@ jobs:
   pool:
     vmImage: 'ubuntu-18.04'
   steps:
-  - displayName: 'apt-get'
-    script: |
+  - script: |
       sudo apt-get update
       sudo apt-get install gcc-multilib \
                            g++-multilib \
                            binutils \
                            openjdk-11-jdk \
                            bazel-3.4.1
+    displayName: 'apt-get'
 
-  - displayName: 'config-dump'
-    script: |
+  - script: |
       bazel build @config//:dump
       cat bazel-bin/external/config/config.json
+    displayName: 'config-dump'
 
-  - displayName: 'release'
-    script: |
+  - script: |
       bazel build :release
+    displayName: 'release'
 
-  - displayName: 'cpp-examples-thread-dev'
-    script: |
+  - script: |
       bazel test //examples/oneapi/cpp:all \
                  --@config//:test_link_mode=dev
+    displayName: 'cpp-examples-thread-dev'
 
-  - displayName: 'cpp-examples-thread-static'
-    script: |
+  - script: |
       bazel test //examples/oneapi/cpp:all \
                  --@config//:test_link_mode=static
+    displayName: 'cpp-examples-thread-static'
 
-  - displayName: 'cpp-examples-thread-release-static'
-    script: |
+  - script: |
       export DAALROOT=`pwd`/bazel-bin/release/daal/latest
       bazel test //examples/oneapi/cpp:all \
                  --@config//:test_link_mode=release_static
+    displayName: 'cpp-examples-thread-release-static'
 
 - job: daal4py
   dependsOn: LinuxMake
@@ -115,7 +109,7 @@ jobs:
       conda create -q -y -n CB python=3.7 conda-build conda-verify
     displayName: Create Anaconda environment
   - script: |
-      export DPCPP_VAR=/opt/intel/inteloneapi/compiler/latest/env/vars.sh
+      export DPCPP_VAR=/opt/intel/oneapi/compiler/latest/env/vars.sh
       export DAALROOT=$(Pipeline.Workspace)/daal/latest
       . $HOME/miniconda/etc/profile.d/conda.sh
       conda activate CB
@@ -123,7 +117,7 @@ jobs:
       conda build --override-channels -c conda-forge -c intel --no-test conda-recipe
     displayName: conda build
   - script: |
-      $(Pipeline.Workspace)/s/.ci/scripts/conformance_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/inteloneapi
+      $(Pipeline.Workspace)/s/.ci/scripts/conformance_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/oneapi
     timeoutInMinutes: 15
     displayName: conformance
   - script: |
@@ -135,19 +129,17 @@ jobs:
       artifactName: '$(platform.type) conformance tests report'
       targetPath: '$(Build.ArtifactStagingDirectory)/'
   - script: |
-      $(Pipeline.Workspace)/s/.ci/scripts/daal4py_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/inteloneapi --daal4py-dir $(Pipeline.Workspace)/s/daal4py
+      export TBBROOT=$(Pipeline.Workspace)/tbb/latest
+      $(Pipeline.Workspace)/s/.ci/scripts/daal4py_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/oneapi --daal4py-dir $(Pipeline.Workspace)/s/daal4py
     timeoutInMinutes: 15
     displayName: daal4py test
 - job: 'macOSMake'
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_mac_clang'
+    platform.type : 'mac32e'
   pool:
     vmImage:  'macOS-10.15'
-  strategy:
-    matrix:
-      mac32e:
-        platform.type : 'mac32e'
   steps:
   - script: |
       .ci/scripts/build.sh --platform $(platform.type)
@@ -172,5 +164,3 @@ jobs:
 #      call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
 #      call .\__deps\tbb\bin\tbbvars.bat intel64 14_uwp
 #     make daal COMPILER=vc PLAT="win32e"
-
-

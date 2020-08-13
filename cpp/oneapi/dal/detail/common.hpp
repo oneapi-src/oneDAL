@@ -17,11 +17,6 @@
 #pragma once
 
 #include <memory>
-
-#ifdef ONEAPI_DAL_DATA_PARALLEL
-#include <CL/sycl.hpp>
-#endif
-
 #include "oneapi/dal/common.hpp"
 
 namespace oneapi::dal::detail {
@@ -34,11 +29,6 @@ using unique = std::unique_ptr<T>;
 
 template <typename T>
 using pimpl = shared<T>;
-
-template <typename T>
-struct empty_deleter {
-    void operator()(T*) const noexcept {}
-};
 
 struct pimpl_accessor {
     template <typename Object>
@@ -64,24 +54,18 @@ struct pimpl_accessor {
 };
 
 template <typename Impl, typename Object>
-inline Impl& get_impl(Object&& object) {
+Impl& get_impl(Object&& object) {
     return static_cast<Impl&>(*pimpl_accessor().get_pimpl(object));
 }
 
 template <typename Object, typename Pimpl>
-inline Object make_from_pimpl(const Pimpl& impl) {
+Object make_from_pimpl(const Pimpl& impl) {
     return pimpl_accessor().template make_from_pimpl<Object>(impl);
 }
 
 template <typename Object, typename Pimpl>
-inline Object make_from_pointer(typename Object::pimpl::element_type* pointer) {
+Object make_from_pointer(typename Object::pimpl::element_type* pointer) {
     return pimpl_accessor().template make_from_pointer<Object>(pointer);
 }
-
-#ifdef ONEAPI_DAL_DATA_PARALLEL
-inline void wait_and_throw(const sycl::vector_class<sycl::event>& dependencies) {
-    sycl::event::wait_and_throw(dependencies);
-}
-#endif
 
 } // namespace oneapi::dal::detail

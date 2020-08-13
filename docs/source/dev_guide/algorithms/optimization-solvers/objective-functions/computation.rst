@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2014-2020 Intel Corporation
+.. * Copyright 2020 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -72,6 +72,8 @@ The objective function has the following parameters:
           Certain component of proximal projection
 
        .. note:: On GPU, ``resultsToCompute`` only computes ``value``, ``gradient``, and ``hessian``.
+
+.. _objective_function_output:
 
 Output
 ******

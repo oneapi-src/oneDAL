@@ -1,31 +1,31 @@
-# Intel(R) Data Analytics Acceleration Library Spark\* Samples
+# Intel(R) oneAPI Data Analytics Library Spark\* Samples
 
-Spark\* samples for the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) are designed to show how to use this library on the Spark cluster in a Java application.
+Spark\* samples for the Intel(R) oneAPI Data Analytics Library (oneDAL) are designed to show how to use this library on the Spark cluster in a Java application.
 
-Unzip the archive with Intel(R) DAAL samples to your working directory (`<sample_dir>`).
+Unzip the archive with oneDAL samples to your working directory (`<sample_dir>`).
 
 ## System Requirements
-You can use Intel(R) DAAL Spark samples on Linux\* and macOS\* operating systems. For a list of Intel(R) DAAL hardware and software requirements, refer to release notes for the version of Intel(R) DAAL you are using.
+You can use oneDAL Spark samples on Linux\* and macOS\* operating systems. For a list of oneDAL hardware and software requirements, refer to release notes for the version of oneDAL you are using.
 
-### Spark implementations against which Intel(R) DAAL has been validated:
+### Spark implementations against which oneDAL has been validated:
 - Spark 2.0.0
 
-**Note:** Intel(R) DAAL is expected to work on many more Spark distributions as well. Let us know if you have any troubles with the distribution you are using.
+**Note:** oneDAL is expected to work on many more Spark distributions as well. Let us know if you have any troubles with the distribution you are using.
 
 ## Preparation Before Build and Run
 ### Setting Up the Build Environment 
-Before you build the sample, you must set certain environment variables that define the location of related libraries. The Intel(R) DAAL includes the `vars` scripts that you can run to set environment variables:
+Before you build the sample, you must set certain environment variables that define the location of related libraries. The oneDAL includes the `vars` scripts that you can run to set environment variables:
 
 - On Linux\*, you can find the `vars.sh` shell script at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\linux\daal\bin:
 source vars.sh {ia32|intel64}`
 - On macOS\*, you can find the `vars.sh` shell script at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\mac\daal\bin:
 source vars.sh`
 
-For more information about setting environment variables and configuring Intel(R) DAAL, refer to Getting Started guides for the library.
+For more information about setting environment variables and configuring oneDAL, refer to Getting Started guides for the library.
 
 ## Build and Run Instructions
 ### On Linux\* and macOS\*
-To build Intel(R) DAAL Spark Java samples, go to the Java Spark samples directory:
+To build oneDAL Spark Java samples, go to the Java Spark samples directory:
 
 ```
 cd <sample_dir>/java/spark

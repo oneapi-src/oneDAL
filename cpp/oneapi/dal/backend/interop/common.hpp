@@ -44,7 +44,8 @@ struct to_daal_cpu_type<cpu_dispatch_avx2> : daal_cpu_value<daal::avx2> {};
 template <>
 struct to_daal_cpu_type<cpu_dispatch_avx512> : daal_cpu_value<daal::avx512> {};
 
-inline constexpr cpu_extension from_daal_cpu_type(daal::CpuType cpu) {
+inline constexpr detail::cpu_extension from_daal_cpu_type(daal::CpuType cpu) {
+    using detail::cpu_extension;
     switch (cpu) {
         case daal::sse2:
             return cpu_extension::sse2;
@@ -65,7 +66,7 @@ inline constexpr cpu_extension from_daal_cpu_type(daal::CpuType cpu) {
     return cpu_extension::none;
 }
 
-inline cpu_extension detect_top_cpu_extension() {
+inline detail::cpu_extension detect_top_cpu_extension() {
     const auto daal_cpu = (daal::CpuType)__daal_serv_cpu_detect(0);
     return from_daal_cpu_type(daal_cpu);
 }

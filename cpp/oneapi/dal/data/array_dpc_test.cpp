@@ -65,13 +65,13 @@ TEST(array_dpc_test, can_construct_array_with_events) {
     constexpr std::int64_t count = 10;
 
     auto* data = sycl::malloc_shared<float>(count, q);
-    auto event = q.submit([&](sycl::handler& cgh) {
-        cgh.parallel_for(sycl::range<1>(count), [=](sycl::id<1> idx) {
-            data[idx[0]] = idx;
-        });
-    });
+    q.submit([&](sycl::handler& cgh) {
+         cgh.parallel_for(sycl::range<1>(count), [=](sycl::id<1> idx) {
+             data[idx[0]] = idx[0];
+         });
+     }).wait();
 
-    array<float> arr{ q, data, 10, { event } };
+    array<float> arr{ q, data, 10, make_default_delete<float>(q) };
 
     ASSERT_EQ(arr.get_count(), 10);
     ASSERT_TRUE(arr.has_mutable_data());
@@ -108,17 +108,36 @@ TEST(array_dpc_test, can_reset_array_with_raw_pointer) {
 
     constexpr int64_t count = 10;
     auto* data              = sycl::malloc_shared<float>(count, q);
-    auto event              = q.submit([&](sycl::handler& cgh) {
-        cgh.parallel_for(sycl::range<1>(count), [=](sycl::id<1> idx) {
-            data[idx[0]] = idx;
-        });
-    });
+    q.submit([&](sycl::handler& cgh) {
+         cgh.parallel_for(sycl::range<1>(count), [=](sycl::id<1> idx) {
+             data[idx[0]] = idx[0];
+         });
+     }).wait();
 
-    arr.reset(q, data, count, { event });
+    arr.reset(data, count, make_default_delete<float>(q));
 
     ASSERT_EQ(arr.get_size(), count * sizeof(float));
     ASSERT_EQ(arr.get_count(), count);
     ASSERT_TRUE(arr.has_mutable_data());
     ASSERT_EQ(arr.get_mutable_data(), data);
     ASSERT_EQ(arr.get_data(), data);
+}
+
+TEST(array_dpc_test, can_wrap_const_data_with_offset_and_deleter) {
+    sycl::queue q{ sycl::gpu_selector() };
+    constexpr int64_t count = 3;
+
+    auto data = sycl::malloc_shared<float>(count, q);
+    q.submit([&](sycl::handler& cgh) {
+         cgh.parallel_for(sycl::range<1>(count), [=](sycl::id<1> idx) {
+             data[idx[0]] = idx;
+         });
+     }).wait();
+
+    const float* cdata = data;
+    auto arr           = array<float>(q, cdata, 2, make_default_delete<const float>(q));
+
+    ASSERT_EQ(arr.get_count(), 2);
+    ASSERT_EQ(arr.get_data(), cdata);
+    ASSERT_FALSE(arr.has_mutable_data());
 }

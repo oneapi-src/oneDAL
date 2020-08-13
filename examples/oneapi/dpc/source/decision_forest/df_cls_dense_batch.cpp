@@ -46,53 +46,39 @@ void run(sycl::queue &queue) {
       1.f,
   };
 
-  auto x_train =
-      sycl::malloc_shared<float>(row_count_train * column_count, queue);
-  queue
-      .memcpy(x_train, x_train_host,
-              sizeof(float) * row_count_train * column_count)
-      .wait();
-  const auto x_train_table =
-      dal::homogen_table{queue, row_count_train, column_count, x_train};
+  auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
+  queue.memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count).wait();
+  const auto x_train_table = dal::homogen_table{queue, x_train, row_count_train, column_count, dal::empty_delete<const float>()};
 
   auto y_train = sycl::malloc_shared<float>(row_count_train, queue);
   queue.memcpy(y_train, y_train_host, sizeof(float) * row_count_train).wait();
-  const auto y_train_table =
-      dal::homogen_table{queue, row_count_train, 1, y_train};
+  const auto y_train_table = dal::homogen_table{queue, y_train, row_count_train, 1, dal::empty_delete<const float>()};
 
-  const auto x_test_table =
-      dal::homogen_table{row_count_test, column_count, x_test_host};
-  const auto y_test_table = dal::homogen_table{row_count_test, 1, y_test_host};
+  const auto x_test_table = dal::homogen_table{x_test_host, row_count_test, column_count, dal::empty_delete<const float>()};
+  const auto y_test_table = dal::homogen_table{y_test_host, row_count_test, 1, dal::empty_delete<const float>()};
 
-  const auto df_train_desc =
-      df::descriptor<float, df::task::classification, df::method::hist>{}
+  const auto df_train_desc = df::descriptor<float, df::task::classification, df::method::hist>{}
           .set_class_count(class_count)
           .set_tree_count(10)
           .set_features_per_node(1)
           .set_min_observations_in_leaf_node(1)
-          .set_variable_importance_mode(df::variable_importance_mode::mdi)
-          .set_train_results_to_compute(
-              df::train_result_to_compute::compute_out_of_bag_error);
+          .set_error_metric_mode(df::error_metric_mode::out_of_bag_error)
+          .set_variable_importance_mode(df::variable_importance_mode::mdi);
 
-  const auto df_infer_desc =
-      df::descriptor<float, df::task::classification, df::method::dense>{}
+  const auto df_infer_desc = df::descriptor<float, df::task::classification, df::method::dense>{}
           .set_class_count(class_count)
-          .set_infer_results_to_compute(
-              df::infer_result_to_compute::compute_class_labels |
-              df::infer_result_to_compute::compute_class_probabilities)
-          .set_voting_method(df::voting_method::weighted);
+          .set_infer_mode(df::infer_mode::class_labels | df::infer_mode::class_probabilities)
+          .set_voting_mode(df::voting_mode::weighted);
 
   try {
-    const auto result_train =
-        dal::train(queue, df_train_desc, x_train_table, y_train_table);
+    const auto result_train = dal::train(queue, df_train_desc, x_train_table, y_train_table);
 
     std::cout << "Variable importance results:" << std::endl
               << result_train.get_var_importance() << std::endl;
 
     std::cout << "OOB error: " << result_train.get_oob_err() << std::endl;
 
-    const auto result_infer =
-        dal::infer(df_infer_desc, result_train.get_model(), x_test_table);
+    const auto result_infer = dal::infer(df_infer_desc, result_train.get_model(), x_test_table);
 
     std::cout << "Prediction results:" << std::endl
               << result_infer.get_labels() << std::endl;
@@ -102,12 +88,8 @@ void run(sycl::queue &queue) {
     std::cout << "Ground truth:" << std::endl << y_test_table << std::endl;
   } catch (oneapi::dal::unimplemented_error &e) {
     std::cout << "  " << e.what() << std::endl;
-    sycl::free(x_train, queue);
-    sycl::free(y_train, queue);
     return;
   }
-  sycl::free(x_train, queue);
-  sycl::free(y_train, queue);
 }
 
 int main(int argc, char const *argv[]) {

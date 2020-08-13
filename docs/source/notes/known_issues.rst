@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2014-2020 Intel Corporation
+.. * Copyright 2020 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -23,6 +23,12 @@ Known Issues
 ============
 
 For more details, refer to |dpcpp_comp_release_notes|_.
+
+.. toctree::
+  :maxdepth: 1
+  :caption: 2021.1-beta08
+
+  issues/2021.1-beta08/windows-static-debug-config.rst
 
 .. toctree::
   :maxdepth: 1
