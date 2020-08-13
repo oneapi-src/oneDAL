@@ -14,26 +14,44 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <iostream>
+#include <immintrin.h>
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/data/graph_service_functions.hpp"
+//#include "daal_defines.hpp"
+
+
 
 namespace oneapi::dal::preview {
 namespace jaccard {
 namespace detail {
 
+#if defined(__INTEL_COMPILER) 
+    DAAL_FORCEINLINE  int _popcnt32_redef(int a) {
+        return _popcnt32(a);
+    }
+#else
+    DAAL_FORCEINLINE  int _popcnt32_redef(int a) {
+            int count=0;
+    while (n!=0) {
+        n = n & (n-1);
+        count++;
+    }
+    return count;
+    }
+#endif
+
 template<class NodeID_t> //__declspec(noinline)
-__forceinline size_t  intersection_avx2(const NodeID_t * const __restrict neigh_u, 
-       const NodeID_t* const __restrict neigh_v, const NodeID_t& n_u, const NodeID_t& n_v)
+size_t  intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t n_v)
 {
+
        size_t total = 0;
        NodeID_t i_u = 0, i_v = 0;
-       const NodeID_t n_u_8_end = n_u - 8;
+#ifdef AVX512
+        const NodeID_t n_u_8_end = n_u - 8;
        const NodeID_t n_v_8_end = n_v - 8;
-
        while (i_u <= n_u_8_end && i_v <= n_v_8_end)
        {   
               const NodeID_t minu = neigh_u[i_u];
@@ -103,7 +121,7 @@ __forceinline size_t  intersection_avx2(const NodeID_t * const __restrict neigh_
                              | scalar_match3 | scalar_match4 | scalar_match5
                              | scalar_match6 | scalar_match7;
 
-                      total += _popcnt32(final_match);
+                      total += _popcnt32_redef(final_match);
               }
               else
               {
@@ -189,7 +207,7 @@ __forceinline size_t  intersection_avx2(const NodeID_t * const __restrict neigh_
 
                       unsigned int final_match = scalar_match | scalar_match1 | scalar_match2 | scalar_match3;
 
-                      total += _popcnt32(final_match);
+                      total += _popcnt32_redef(final_match);
               }
               else
               {
@@ -223,6 +241,7 @@ __forceinline size_t  intersection_avx2(const NodeID_t * const __restrict neigh_
               }
               i_v += 4;
        }
+#endif
 
        while (i_u < n_u && i_v < n_v) {
               if ((neigh_u[i_u] > neigh_v[n_v - 1]) || (neigh_v[i_v] > neigh_u[n_u - 1])) {
@@ -247,99 +266,12 @@ template size_t intersection<uint64_t>(uint64_t *neigh_u,
                                        uint64_t n_v);
 
 
-template<class NodeID_t>
-inline void jaccard_block_avx512_best(const graph& my_graph,
-              NodeID_t row_begin, NodeID_t row_end,
-              NodeID_t column_begin, NodeID_t column_end,
-              std::vector<NodeID_t>& vertices_first,
-              std::vector<NodeID_t>& vertices_second,
-              std::vector<float>& jaccards,
-              NodeID_t &jaccard_size) 
-{
-    if (row_begin < 0 || row_end < 0 || column_begin < 0 || column_end < 0) {
-        throw oneapi::dal::invalid_argument("negative interval");
-    }    
-    auto vertex_count = get_vertex_count(my_graph);
-    auto edge_count = get_edge_count(my_graph);
-    if (vertex_count <= 0 || edge_count <= 0) {
-        throw oneapi::dal::invalid_argument("empty graph");
-    }
-    if (row_begin > vertex_count || row_end > vertex_count || column_begin > vertex_count || column_end > vertex_count) {
-        throw oneapi::dal::invalid_argument("interval > vertex_count");
-    }
-    if (row_begin >= row_end) {
-        throw oneapi::dal::invalid_argument("vertex00 >= vertex01");
-    }
-    if (column_begin >= column_end) {
-        throw oneapi::dal::invalid_argument("vertex01 >= vertex11");
-    }
-
-   auto g = input.get_graph();
-    auto g_edge_offsets = g->_edge_offsets.data();
-    auto g_vertex_neighbors = g->_vertex_neighbors.data();
-    auto g_degrees = g->_degrees.data();
-
-    jaccard_size = 0;
-    int j = column_begin;
-    int intersection_size=0;
-    for (NodeID_t i = row_begin; i < row_end; i++) {
-                NodeID_t i_neighbor_size = g_degrees[i];             
-                auto i_neigbhors = g_vertex_neighbors + g_edge_offsets[i];
-
-        NodeID_t diagonal = std::min(i, column_end);
-
-            for (j = column_begin; j < diagonal; j++) {
-                NodeID_t j_neighbor_size = g_degrees[j];             
-                auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
-
-                if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size -1]) && !(j_neigbhors[0] > i_neigbhors[i_neighbor_size - 1])) {
-
-                    intersection_size = intersection_avx2(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
-                    if (intersection_size) {
-                        vertices_first[jaccard_size] = i;
-                        vertices_second[jaccard_size] = j;
-                        jaccards[jaccard_size] = static_cast<float>(intersection_size);
-                        jaccard_size++;  
-
-                    }
-                }
-            }
-
-        NodeID_t tmp_idx = column_begin;
-        if (diagonal >= column_begin) {
-            vertices_first[jaccard_size] = i;
-            vertices_second[jaccard_size] = diagonal;
-            jaccards[jaccard_size] = 1.0; 
-            jaccard_size++;
-            tmp_idx = diagonal + 1;
-        }
-
-
-        for (j = tmp_idx; j < column_end; j++) {
-                NodeID_t j_neighbor_size = g_degrees[j];             
-                auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
-
-                if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size -1]) && !(j_neigbhors[0] > i_neigbhors[i_neighbor_size - 1])) {
-
-                    intersection_size = intersection_avx2(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
-                    if (intersection_size) {
-                        vertices_first[jaccard_size] = i;
-                        vertices_second[jaccard_size] = j;
-                        jaccards[jaccard_size] = static_cast<float>(intersection_size);
-                        jaccard_size++;  
-
-                    }
-                }
-            }
-    }
-}
-
-
 
 template <typename Graph>
 similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
                                             const similarity_input<Graph> &input) {
-    auto g = input.get_graph();
+    auto my_graph = input.get_graph();
+    auto g = oneapi::dal::preview::detail::get_impl(my_graph);
     auto g_edge_offsets = g->_edge_offsets.data();
     auto g_vertex_neighbors = g->_vertex_neighbors.data();
     auto g_degrees = g->_degrees.data();
@@ -350,8 +282,8 @@ similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
     if (row_begin < 0 || row_end < 0 || column_begin < 0 || column_end < 0) {
         throw oneapi::dal::invalid_argument("negative interval");
     }    
-    auto vertex_count = get_vertex_count_impl(my_graph);
-    auto edge_count = get_edge_count_impl(my_graph);
+    auto vertex_count = (int64_t)get_vertex_count_impl(my_graph);
+    auto edge_count = (int64_t)get_edge_count_impl(my_graph);
     if (vertex_count <= 0 || edge_count <= 0) {
         throw oneapi::dal::invalid_argument("empty graph");
     }
@@ -377,9 +309,9 @@ similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
             const auto j_neighbor_size = g_degrees[j];             
             const auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
             if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size -1]) && !(j_neigbhors[0] > i_neigbhors[i_neighbor_size - 1])) {
-                auto intersection_size = intersection_avx2(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
-                if (intersection_size) {
-                    jaccard[nnz]      = float(intersection_value) / float(i_neigbhor_size + j_neighbor_size - intersection_size);
+                auto intersection_value = intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
+                if (intersection_value) {
+                    jaccard[nnz]      = float(intersection_value) / float(i_neighbor_size + j_neighbor_size - intersection_value);
                     vertex_pairs[nnz] = std::make_pair(i, j);
                     nnz++; 
                 }
@@ -399,9 +331,9 @@ similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
             const auto j_neighbor_size = g_degrees[j];             
             const auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
             if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size -1]) && !(j_neigbhors[0] > i_neigbhors[i_neighbor_size - 1])) {
-                auto intersection_size = intersection_avx2(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
-                if (intersection_size) {
-                    jaccard[nnz]      = float(intersection_value) / float(i_neigbhor_size + j_neighbor_size - intersection_size);
+                auto intersection_value = intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
+                if (intersection_value) {
+                    jaccard[nnz]      = float(intersection_value) / float(i_neighbor_size + j_neighbor_size - intersection_value);
                     vertex_pairs[nnz] = std::make_pair(i, j);
                     nnz++; 
                 }
@@ -412,8 +344,6 @@ similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
     vertex_pairs.reset(nnz);
 
     similarity_result res(homogen_table_builder{}.build(), homogen_table_builder{}.build());
-
-    std::cout << "Jaccard block kernel ended" << std::endl;
     return res;
 }
 

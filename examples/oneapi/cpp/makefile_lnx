@@ -19,17 +19,17 @@
 ##******************************************************************************
 
 help:
-    @echo "Usage: make {lib|so|libintel64|sointel64|help}"
-    @echo "lib is alias for libintel64, so is alias for sointel64"
-    @echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
-    @echo
-    @echo "name              - example name. Please see daal.lst file"
-    @echo
-    @echo "compiler_name     - can be intel, gnu or clang. Default value is gnu."
-    @echo
-    @echo "threading_name    - can be parallel or sequential. Default value is parallel."
-    @echo
-    @echo "mode_name         - can be build or run. Default is run"
+	@echo "Usage: make {lib|so|libintel64|sointel64|help}"
+	@echo "lib is alias for libintel64, so is alias for sointel64"
+	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
+	@echo
+	@echo "name              - example name. Please see daal.lst file"
+	@echo
+	@echo "compiler_name     - can be intel, gnu or clang. Default value is gnu."
+	@echo
+	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
+	@echo
+	@echo "mode_name         - can be build or run. Default is run"
 
 ##------------------------------------------------------------------------------
 ## examples of using:
@@ -94,9 +94,6 @@ endif
 
 COPTS := -std=c++17 \
          -pedantic \
-         -xCORE-AVX2 \
-         -O3 \
-         -qopt-zmm-usage=high \
          -Wall \
          -Wextra \
          -Werror \
@@ -138,21 +135,21 @@ endif
 CC := $(if $(COVFILE), cov01 -1; covc -i  $(CC),$(CC))
 
 lib libintel64:
-    $(MAKE) _make_ex RES_EXT=a
+	$(MAKE) _make_ex RES_EXT=a
 so sointel64:
-    $(MAKE) _make_ex RES_EXT=so
+	$(MAKE) _make_ex RES_EXT=so
 
 
 _make_ex: $(RES)
 
 vpath
-vpath %.cpp $(addprefix ./source/,decision_forest kmeans kmeans_init knn linear_kernel pca rbf_kernel svm tables jaccard)
+vpath %.cpp $(addprefix ./source/,decision_forest kmeans kmeans_init knn linear_kernel pca rbf_kernel svm tables jaccard graph_service_functions)
 
 .SECONDARY:
 $(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.
-    $(CC) $(COPTS) $< -o $@ $(LOPTS)
+	$(CC) $(COPTS) $< -o $@ $(LOPTS)
 
 $(RES_DIR)/%.res:  $(RES_DIR)/%.exe
-    $< > $@
+	$< > $@
 
 %/.:; mkdir -p $*
