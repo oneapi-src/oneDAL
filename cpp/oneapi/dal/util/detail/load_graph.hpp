@@ -100,7 +100,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         oneapi::dal::preview::detail::graph_container<atomic_t, allocator_atomic_t>(
             layout_unfilt->_vertex_count);
     if (degrees_vec == nullptr) {
-        throw oneapi::dal::bad_alloc();
+        throw bad_alloc();
     }
     daal::services::Atomic<int_t> *degrees_cv = degrees_vec->data();
 
@@ -117,7 +117,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         oneapi::dal::preview::detail::graph_container<atomic_t, allocator_atomic_t>(
             layout_unfilt->_vertex_count + 1);
     if (rows_vec == nullptr) {
-        throw oneapi::dal::bad_alloc();
+        throw bad_alloc();
     }
     daal::services::Atomic<int_t> *rows_cv = rows_vec->data();
 
