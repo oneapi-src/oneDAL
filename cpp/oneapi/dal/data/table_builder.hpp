@@ -62,19 +62,16 @@ struct is_homogen_table_builder_impl {
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     ONEAPI_DAL_HAS_METHOD_TRAIT(void,
                                 allocate,
-                                (sycl::queue & queue,
+                                (const sycl::queue& queue,
                                  std::int64_t row_count,
                                  std::int64_t column_count,
                                  sycl::usm::alloc kind),
                                 allocate_dpc)
-    ONEAPI_DAL_HAS_METHOD_TRAIT(void,
-                                copy_data,
-                                (sycl::queue & queue,
-                                 const void* data,
-                                 std::int64_t row_count,
-                                 std::int64_t column_count,
-                                 const sycl::vector_class<sycl::event>& dependencies),
-                                copy_data_dpc)
+    ONEAPI_DAL_HAS_METHOD_TRAIT(
+        void,
+        copy_data,
+        (sycl::queue & queue, const void* data, std::int64_t row_count, std::int64_t column_count),
+        copy_data_dpc)
 
     static constexpr bool value_dpc = has_method_allocate_dpc_v<T> && has_method_copy_data_dpc_v<T>;
     static constexpr bool value     = value_host && value_dpc;
@@ -177,21 +174,23 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    auto& allocate(sycl::queue& queue,
+    auto& allocate(const sycl::queue& queue,
                    std::int64_t row_count,
                    std::int64_t column_count,
-                   sycl::usm::alloc kind = sycl::usm::alloc::shared) {
+                   const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
         auto& impl = get_impl();
-        impl.allocate(queue, row_count, column_count, kind);
+        impl.allocate(queue, row_count, column_count, alloc);
         return *this;
     }
+
     auto& copy_data(sycl::queue& queue,
                     const void* data,
                     std::int64_t row_count,
                     std::int64_t column_count,
                     const sycl::vector_class<sycl::event>& dependencies = {}) {
         auto& impl = get_impl();
-        impl.copy_data(queue, data, row_count, column_count, dependencies);
+        detail::wait_and_throw(dependencies);
+        impl.copy_data(queue, data, row_count, column_count);
         return *this;
     }
 #endif

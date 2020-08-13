@@ -19,6 +19,7 @@
 #include <type_traits>
 
 #include "oneapi/dal/data/detail/table_impl_wrapper.hpp"
+#include "oneapi/dal/detail/common_dpc.hpp"
 #include "oneapi/dal/util/type_traits.hpp"
 
 namespace oneapi::dal {
@@ -76,20 +77,37 @@ public:
         init_impl(std::forward<Impl>(impl));
     }
 
-    template <typename Data>
-    homogen_table(std::int64_t row_count,
-                  std::int64_t column_count,
-                  const Data* data_pointer,
-                  homogen_data_layout layout = homogen_data_layout::row_major);
-
-#ifdef ONEAPI_DAL_DATA_PARALLEL
-    template <typename Data>
-    homogen_table(sycl::queue& queue,
+    template <typename Data, typename ConstDeleter>
+    homogen_table(const Data* data_pointer,
                   std::int64_t row_count,
                   std::int64_t column_count,
+                  ConstDeleter&& data_deleter,
+                  homogen_data_layout layout = homogen_data_layout::row_major) {
+        init_impl(detail::default_host_policy{},
+                  row_count,
+                  column_count,
+                  data_pointer,
+                  std::forward<ConstDeleter>(data_deleter),
+                  layout);
+    }
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    template <typename Data, typename ConstDeleter>
+    homogen_table(const sycl::queue& queue,
                   const Data* data_pointer,
-                  homogen_data_layout layout = homogen_data_layout::row_major,
-                  const sycl::vector_class<sycl::event>& dependencies = {});
+                  std::int64_t row_count,
+                  std::int64_t column_count,
+                  ConstDeleter&& data_deleter,
+                  const sycl::vector_class<sycl::event>& dependencies = {},
+                  homogen_data_layout layout = homogen_data_layout::row_major) {
+        init_impl(detail::data_parallel_policy{ queue },
+                  row_count,
+                  column_count,
+                  data_pointer,
+                  std::forward<ConstDeleter>(data_deleter),
+                  layout);
+        detail::wait_and_throw(dependencies);
+    }
 #endif
 
     template <typename Data>
@@ -113,6 +131,33 @@ private:
                                                                 homogen_table::kind() };
         table::init_impl(wrapper);
     }
+
+    template <typename Policy, typename Data, typename ConstDeleter>
+    void init_impl(const Policy& policy,
+                   std::int64_t row_count,
+                   std::int64_t column_count,
+                   const Data* data_pointer,
+                   ConstDeleter&& data_deleter,
+                   homogen_data_layout layout) {
+        array<Data> data_array{ data_pointer,
+                                row_count * column_count,
+                                std::forward<ConstDeleter>(data_deleter) };
+
+        auto byte_data                = reinterpret_cast<const byte_t*>(data_pointer);
+        const std::int64_t byte_count = data_array.get_count() * sizeof(Data);
+
+        auto byte_array = array<byte_t>{ data_array, byte_data, byte_count };
+
+        init_impl(policy, row_count, column_count, byte_array, make_table_feature<Data>(), layout);
+    }
+
+    template <typename Policy>
+    void init_impl(const Policy& policy,
+                   std::int64_t row_count,
+                   std::int64_t column_count,
+                   const array<byte_t>& data,
+                   const table_feature& feature,
+                   homogen_data_layout layout);
 
 private:
     homogen_table(const pimpl& impl) : table(impl) {}

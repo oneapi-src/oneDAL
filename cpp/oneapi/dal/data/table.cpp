@@ -66,14 +66,6 @@ int64_t homogen_table::kind() {
 
 homogen_table::homogen_table() : homogen_table(backend::homogen_table_impl{}) {}
 
-template <typename Data>
-homogen_table::homogen_table(int64_t row_count,
-                             int64_t column_count,
-                             const Data* data_pointer,
-                             homogen_data_layout layout)
-        : homogen_table(
-              backend::homogen_table_impl(row_count, column_count, data_pointer, layout)) {}
-
 const homogen_table_metadata& homogen_table::get_metadata() const {
     const auto& impl = detail::get_impl<detail::homogen_table_impl_iface>(*this);
     return impl.get_metadata();
@@ -84,17 +76,30 @@ const void* homogen_table::get_data() const {
     return impl.get_data();
 }
 
-template ONEAPI_DAL_EXPORT homogen_table::homogen_table(int64_t,
-                                                        int64_t,
-                                                        const float*,
-                                                        homogen_data_layout);
-template ONEAPI_DAL_EXPORT homogen_table::homogen_table(int64_t,
-                                                        int64_t,
-                                                        const double*,
-                                                        homogen_data_layout);
-template ONEAPI_DAL_EXPORT homogen_table::homogen_table(int64_t,
-                                                        int64_t,
-                                                        const std::int32_t*,
-                                                        homogen_data_layout);
+template <typename Policy>
+void homogen_table::init_impl(const Policy& policy,
+                              int64_t row_count,
+                              int64_t column_count,
+                              const array<byte_t>& data,
+                              const table_feature& feature,
+                              homogen_data_layout layout) {
+    init_impl(backend::homogen_table_impl(column_count, data, feature, layout));
+}
+
+template ONEAPI_DAL_EXPORT void homogen_table::init_impl(const detail::default_host_policy&,
+                                                         int64_t,
+                                                         int64_t,
+                                                         const array<byte_t>&,
+                                                         const table_feature&,
+                                                         homogen_data_layout);
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+template ONEAPI_DAL_EXPORT void homogen_table::init_impl(const detail::data_parallel_policy&,
+                                                         int64_t,
+                                                         int64_t,
+                                                         const array<byte_t>&,
+                                                         const table_feature&,
+                                                         homogen_data_layout);
+#endif
 
 } // namespace oneapi::dal

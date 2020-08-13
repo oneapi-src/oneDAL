@@ -14,17 +14,15 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/policy.hpp"
+#include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 
-namespace oneapi::dal {
+namespace oneapi::dal::detail {
 
-class detail::host_policy_impl : public base {
+class host_policy_impl : public base {
 public:
     cpu_extension cpu_extensions_mask = backend::interop::detect_top_cpu_extension();
 };
-
-using detail::host_policy_impl;
 
 host_policy::host_policy() : impl_(new host_policy_impl()) {}
 
@@ -36,4 +34,10 @@ cpu_extension host_policy::get_enabled_cpu_extensions() const noexcept {
     return impl_->cpu_extensions_mask;
 }
 
-} // namespace oneapi::dal
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+void data_parallel_policy::init_impl(const sycl::queue& queue) {
+    this->impl_ = nullptr; // reserved for future use
+}
+#endif
+
+} // namespace oneapi::dal::detail

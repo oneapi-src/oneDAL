@@ -23,7 +23,7 @@ using std::int32_t;
 TEST(column_accessor_test, can_get_first_column_from_homogen_table) {
     float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f };
 
-    homogen_table t{ 4, 2, data };
+    homogen_table t{ data, 4, 2, empty_delete<const float>() };
     column_accessor<const float> acc{ t };
     auto col = acc.pull(0);
 
@@ -38,7 +38,7 @@ TEST(column_accessor_test, can_get_first_column_from_homogen_table) {
 TEST(column_accessor_test, can_get_second_column_from_homogen_table_with_conversion) {
     float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f };
 
-    homogen_table t{ 4, 2, data };
+    homogen_table t{ data, 4, 2, empty_delete<const float>() };
     column_accessor<const double> acc{ t };
     auto col = acc.pull(1);
 
@@ -53,7 +53,7 @@ TEST(column_accessor_test, can_get_second_column_from_homogen_table_with_convers
 TEST(column_accessor_test, can_get_first_column_from_homogen_table_with_subset_of_rows) {
     float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f };
 
-    homogen_table t{ 4, 2, data };
+    homogen_table t{ data, 4, 2, empty_delete<const float>() };
     column_accessor<const float> acc{ t };
     auto col = acc.pull(0, { 1, 3 });
 

@@ -47,7 +47,6 @@ public:
     {
         daal::services::Environment::getInstance()->setDynamicLibraryThreadingTypeOnWindows(daal::services::Environment::SingleThreaded);
     }
-
 } windowsThreadingSetter;
 
 #endif
