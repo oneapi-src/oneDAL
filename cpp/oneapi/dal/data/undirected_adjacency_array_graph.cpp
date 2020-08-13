@@ -37,8 +37,7 @@ template <typename VertexValue,
           typename IndexType,
           typename Allocator>
 undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::
-    undirected_adjacency_array_graph(undirected_adjacency_array_graph const &graph):undirected_adjacency_array_graph(){
-
+    undirected_adjacency_array_graph(const undirected_adjacency_array_graph& graph):undirected_adjacency_array_graph(){
         const auto &layout = detail::get_impl(graph);
 
         impl_->_vertex_count = layout->_vertex_count;
@@ -57,8 +56,7 @@ template <typename VertexValue,
           typename IndexType,
           typename Allocator>
 undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::
-    undirected_adjacency_array_graph(undirected_adjacency_array_graph &&graph):undirected_adjacency_array_graph(){
-
+    undirected_adjacency_array_graph(undirected_adjacency_array_graph&& graph):undirected_adjacency_array_graph(){
         auto &layout = detail::get_impl(graph);
 
         impl_->_vertex_count = layout->_vertex_count;
@@ -80,7 +78,7 @@ template <typename VertexValue,
           typename IndexType,
           typename Allocator>
 undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>&
-    undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::operator=(undirected_adjacency_array_graph const &graph){
+    undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::operator=(const undirected_adjacency_array_graph& graph){
         if (&graph != this) {
             const auto &layout = detail::get_impl(graph);
 
@@ -102,7 +100,7 @@ template <typename VertexValue,
           typename IndexType,
           typename Allocator>
 undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>&
-    undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::operator=(undirected_adjacency_array_graph &&graph){
+    undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::operator=(undirected_adjacency_array_graph&& graph){
         if (&graph != this) {
             auto &layout = detail::get_impl(graph);
 

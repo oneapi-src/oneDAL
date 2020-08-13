@@ -22,7 +22,6 @@
 */
 
 #pragma once
-#include <type_traits>
 
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/data/detail/graph_container.hpp"

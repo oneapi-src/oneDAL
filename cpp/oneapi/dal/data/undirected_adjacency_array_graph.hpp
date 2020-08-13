@@ -90,11 +90,11 @@ public:
     using vertex_edge_range       = range<vertex_edge_iterator>;
     using const_vertex_edge_range = range<const_vertex_edge_iterator>;
 
-    static_assert(std::is_integral_v<vertex_type> && std::is_signed_v<vertex_type> && sizeof(vertex_type) == 4, "Wrong vertex type. It must be 4 bytes signed integer");
+    static_assert(std::is_integral_v<vertex_type> && std::is_signed_v<vertex_type> && sizeof(vertex_type) == 4, "Use 32 bit signed integer for vertex index type");
 
     undirected_adjacency_array_graph();
-    undirected_adjacency_array_graph(undirected_adjacency_array_graph &&graph);
-    undirected_adjacency_array_graph(undirected_adjacency_array_graph const &graph);
+    undirected_adjacency_array_graph(undirected_adjacency_array_graph&& graph);
+    undirected_adjacency_array_graph(const undirected_adjacency_array_graph& graph);
 
     undirected_adjacency_array_graph(allocator_type alloc){};
     undirected_adjacency_array_graph(const graph_user_value_type& graph_user_value,
@@ -102,8 +102,8 @@ public:
     undirected_adjacency_array_graph(graph_user_value_type&& graph_user_value,
                                      allocator_type allocator = allocator_type()){};
 
-    undirected_adjacency_array_graph &operator=(undirected_adjacency_array_graph const &graph);
-    undirected_adjacency_array_graph &operator=(undirected_adjacency_array_graph &&graph);
+    undirected_adjacency_array_graph &operator=(const undirected_adjacency_array_graph& graph);
+    undirected_adjacency_array_graph &operator=(undirected_adjacency_array_graph&& graph);
 
     using pimpl =
         oneapi::dal::detail::pimpl<detail::undirected_adjacency_array_graph_impl<VertexValue,
