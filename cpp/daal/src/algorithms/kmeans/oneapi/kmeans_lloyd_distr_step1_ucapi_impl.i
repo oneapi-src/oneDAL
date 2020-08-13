@@ -182,7 +182,6 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
     }
     DAAL_CHECK_STATUS_VAR(st);
     ntCValues->releaseBlockOfRows(ntCValuesRows);
-    //  stop
     if (needCandidates)
     {
         auto hostCandidates = this->_candidates.template get<int>().toHost(ReadWriteMode::readOnly);
@@ -195,17 +194,14 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
             int index = hostCandidates.get()[cPos];
             if (index < 0 || index > nRows)
             {
-                // error out of range
+                continue;
             }
-            //
-            continue;
             BlockDescriptor<algorithmFPType> dataRows;
             DAAL_CHECK_STATUS_VAR(ntData->getBlockOfRows(index, 1, readOnly, dataRows));
             context.copy(outCCentroids, cPos * nFeatures, dataRows.getBuffer(), 0, nFeatures, &st);
             DAAL_CHECK_STATUS_VAR(st);
         }
     }
-    return Status();
     DAAL_CHECK_STATUS_VAR(st);
     ntCCentroids->releaseBlockOfRows(ntCCentroidsRows);
     return st;
