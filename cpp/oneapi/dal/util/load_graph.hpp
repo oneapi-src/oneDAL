@@ -29,7 +29,7 @@ namespace oneapi::dal::preview::load_graph {
 /// Returns the graph object filled by data from the data source specified in the
 /// descriptor
 ///
-/// @tparam Descriptor Type of the descriptor of the operation
+/// @tparam Descriptor Type of the operation descriptor
 /// @tparam DataSource Type of the data source
 /// @param [in] desc   The descriptor of the operation
 /// @param [in] data_source The data source
