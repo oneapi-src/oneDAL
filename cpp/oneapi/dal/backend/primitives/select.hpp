@@ -33,11 +33,11 @@ namespace impl {
 template <typename Float>
 struct select_small_k_l2_kernel;
 
-} // impl
+} // namespace impl
 
-template<typename Float>
+template <typename Float>
 struct select_small_k_l2;
 
 #endif
 
-} // oneapi::dal::backend::primitives
+} // namespace oneapi::dal::backend::primitives
