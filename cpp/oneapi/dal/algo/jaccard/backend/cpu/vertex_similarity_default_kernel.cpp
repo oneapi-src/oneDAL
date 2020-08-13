@@ -622,10 +622,10 @@ similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
 }
 
 /*
-    template similarity_result call_jaccard_block_kernel<                
-            undirected_adjacency_array_graph<> &,                         
-            oneapi::dal::cpu_extension::avx512>(                                                         
-    const descriptor_base &desc,                                          
+    template similarity_result call_jaccard_block_kernel<
+            undirected_adjacency_array_graph<> &,
+            oneapi::dal::cpu_extension::avx512>(
+    const descriptor_base &desc,
     const similarity_input<undirected_adjacency_array_graph<> &> &input);
 */
 #define INSTANTIATE(cpu)                                                  \
