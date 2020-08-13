@@ -21,23 +21,23 @@ namespace jaccard {
 namespace detail {
 
 template <typename Graph>
-extern similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
-                                                   const similarity_input<Graph> &input);
+extern vertex_similarity_result call_jaccard_default_kernel(const descriptor_base& desc,
+                                                   const vertex_similarity_input<Graph>& input);
 
 template <typename Float, typename Method, typename Graph>
-similarity_result backend_default<Float, Method, Graph>::operator()(
-    const descriptor_base &desc,
-    const similarity_input<Graph> &input) {
-    return call_jaccard_block_kernel<Graph>(desc, input);
+vertex_similarity_result backend_default<Float, Method, Graph>::operator()(
+    const descriptor_base& desc,
+    const vertex_similarity_input<Graph>& input) {
+    return call_jaccard_default_kernel<Graph>(desc, input);
 }
 
 template <>
-dal::detail::pimpl<backend_base<undirected_adjacency_array<> &>>
-get_backend<float, method::by_default, undirected_adjacency_array<> &>(
-    const descriptor_base &desc,
-    const similarity_input<undirected_adjacency_array<> &> &input) {
-    return dal::detail::pimpl<backend_base<undirected_adjacency_array<> &>>(
-        new backend_default<float, method::by_default, undirected_adjacency_array<> &>);
+dal::detail::pimpl<backend_base<undirected_adjacency_array<>&>>
+get_backend<float, method::by_default, undirected_adjacency_array<>&>(
+    const descriptor_base& desc,
+    const vertex_similarity_input<undirected_adjacency_array<>&>& input) {
+    return dal::detail::pimpl<backend_base<undirected_adjacency_array<>&>>(
+        new backend_default<float, method::by_default, undirected_adjacency_array<>&>);
 }
 
 } // namespace detail

@@ -20,6 +20,7 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/data/graph_service_functions.hpp"
+
 //#include "daal_defines.hpp"
 
 
@@ -35,8 +36,8 @@ namespace detail {
 #else
     DAAL_FORCEINLINE  int _popcnt32_redef(int a) {
             int count=0;
-    while (n!=0) {
-        n = n & (n-1);
+    while (a!=0) {
+        a = a & (a-1);
         count++;
     }
     return count;
@@ -265,47 +266,37 @@ template size_t intersection<uint64_t>(uint64_t *neigh_u,
                                        uint64_t n_u,
                                        uint64_t n_v);
 
-
+DAAL_FORCEINLINE int64_t min(int64_t a, int64_t b) {
+    if (a >= b) {
+        return b;
+    }
+    else{
+        return a;
+    }
+}
 
 template <typename Graph>
-similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
-                                            const similarity_input<Graph> &input) {
+vertex_similarity_result call_jaccard_default_kernel(const descriptor_base& desc,
+                                            const vertex_similarity_input<Graph>& input) {
     auto my_graph = input.get_graph();
     auto g = oneapi::dal::preview::detail::get_impl(my_graph);
     auto g_edge_offsets = g->_edge_offsets.data();
     auto g_vertex_neighbors = g->_vertex_neighbors.data();
     auto g_degrees = g->_degrees.data();
-    const auto row_begin                = desc.get_row_range_begin();
-    const auto row_end                  = desc.get_row_range_end();
-    const auto column_begin             = desc.get_column_range_begin();
-    const auto column_end               = desc.get_column_range_end();
-    if (row_begin < 0 || row_end < 0 || column_begin < 0 || column_end < 0) {
-        throw oneapi::dal::invalid_argument("negative interval");
-    }    
-    auto vertex_count = (int64_t)get_vertex_count_impl(my_graph);
-    auto edge_count = (int64_t)get_edge_count_impl(my_graph);
-    if (vertex_count <= 0 || edge_count <= 0) {
-        throw oneapi::dal::invalid_argument("empty graph");
-    }
-    if (row_begin > vertex_count || row_end > vertex_count || column_begin > vertex_count || column_end > vertex_count) {
-        throw oneapi::dal::invalid_argument("interval > vertex_count");
-    }
-    if (row_begin >= row_end) {
-        throw oneapi::dal::invalid_argument("row_begin >= row_end");
-    }
-    if (column_begin >= column_end) {
-        throw oneapi::dal::invalid_argument("column_begin >= column_end");
-    }    
+    const int32_t row_begin             = static_cast<int32_t>(desc.get_row_range_begin());
+    const auto row_end                  = static_cast<int32_t>(desc.get_row_range_end());
+    const auto column_begin             = static_cast<int32_t>(desc.get_column_range_begin());
+    const auto column_end               = static_cast<int32_t>(desc.get_column_range_end()); 
     const auto number_elements_in_block = (row_end - row_begin) * (column_end - column_begin);
     array<float> jaccard                = array<float>::empty(number_elements_in_block);
     array<std::pair<std::uint32_t, std::uint32_t>> vertex_pairs =
         array<std::pair<std::uint32_t, std::uint32_t>>::empty(number_elements_in_block);
     size_t nnz = 0;
-    for (auto i = row_begin; i < row_end; ++i) {
+    for (int32_t i = row_begin; i < row_end; ++i) {
         const auto i_neighbor_size = g_degrees[i];             
         const auto i_neigbhors = g_vertex_neighbors + g_edge_offsets[i];
-        const auto diagonal = std::min(i, column_end);
-        for (auto j = column_begin; j < diagonal; j++) {
+        const auto diagonal = min(i, column_end);
+        for (int32_t j = column_begin; j < diagonal; j++) {
             const auto j_neighbor_size = g_degrees[j];             
             const auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
             if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size -1]) && !(j_neigbhors[0] > i_neigbhors[i_neighbor_size - 1])) {
@@ -327,7 +318,7 @@ similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
         }
 
 
-        for (auto j = tmp_idx; j < column_end; j++) {
+        for (int32_t j = tmp_idx; j < column_end; j++) {
             const auto j_neighbor_size = g_degrees[j];             
             const auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
             if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size -1]) && !(j_neigbhors[0] > i_neigbhors[i_neighbor_size - 1])) {
@@ -343,13 +334,13 @@ similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
     jaccard.reset(nnz);
     vertex_pairs.reset(nnz);
 
-    similarity_result res(homogen_table_builder{}.build(), homogen_table_builder{}.build());
+    vertex_similarity_result res(homogen_table_builder{}.build(), homogen_table_builder{}.build());
     return res;
 }
 
-template similarity_result call_jaccard_block_kernel<undirected_adjacency_array<> &>(
-    const descriptor_base &desc,
-    const similarity_input<undirected_adjacency_array<> &> &input);
+template vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array<>&>(
+    const descriptor_base& desc,
+    const vertex_similarity_input<undirected_adjacency_array<>&>& input);
 
 
 

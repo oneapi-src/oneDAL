@@ -27,23 +27,23 @@ namespace detail {
 
 template <typename Graph>
 struct backend_base {
-    virtual similarity_result operator()(const descriptor_base &descriptor,
-                                         const similarity_input<Graph> &input) {
-        return similarity_result();
+    virtual vertex_similarity_result operator()(const descriptor_base& descriptor,
+                                         const vertex_similarity_input<Graph>& input) {
+        return vertex_similarity_result();
     }
     virtual ~backend_base() {}
 };
 
 template <typename Float, typename Method, typename Graph>
 struct backend_default : public backend_base<Graph> {
-    virtual similarity_result operator()(const descriptor_base &descriptor,
-                                         const similarity_input<Graph> &input);
+    virtual vertex_similarity_result operator()(const descriptor_base& descriptor,
+                                         const vertex_similarity_input<Graph>& input);
     virtual ~backend_default() {}
 };
 
 template <typename Float, class Method, typename Graph>
-dal::detail::pimpl<backend_base<Graph>> get_backend(const descriptor_base &desc,
-                                                    const similarity_input<Graph> &input);
+dal::detail::pimpl<backend_base<Graph>> get_backend(const descriptor_base& desc,
+                                                    const vertex_similarity_input<Graph>& input);
 } // namespace detail
 } // namespace jaccard
 } // namespace oneapi::dal::preview

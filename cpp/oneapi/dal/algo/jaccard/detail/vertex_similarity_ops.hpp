@@ -25,8 +25,8 @@ namespace detail {
 
 template <typename Float, class Method, typename Graph>
 struct ONEAPI_DAL_EXPORT vertex_similarity_ops_dispatcher {
-    similarity_result operator()(const descriptor_base &descriptor,
-                                 const similarity_input<Graph> &input) const;
+    similarity_result operator()(const descriptor_base& descriptor,
+                                 const similarity_input<Graph>& input) const;
 };
 
 template <typename Descriptor, typename Graph>
@@ -37,9 +37,32 @@ struct vertex_similarity_ops {
     using result_t          = similarity_result;
     using descriptor_base_t = descriptor_base;
 
-    auto operator()(const Descriptor &desc, const similarity_input<Graph> &input) const {
+    void check_preconditions(const Descriptor& param, const similarity_input<Graph>& input) const {
+        const auto row_begin                = desc.get_row_range_begin();
+        const auto row_end                  = desc.get_row_range_end();
+        const auto column_begin             = desc.get_column_range_begin();
+        const auto column_end               = desc.get_column_range_end(); 
+        auto vertex_count = get_vertex_count(input.get_graph().get_impl()->_vertex_count);
+        if (row_begin < 0 || row_end || column_begin < 0 || column_end < 0) {
+            throw oneapi::dal::invalid_argument("Negative interval");
+        } 
+        if (row_begin >= row_end) {
+            throw oneapi::dal::invalid_argument("row_begin >= row_end");
+        } 
+        if (column_begin >= column_end) {
+            throw oneapi::dal::invalid_argument("column_begin >= column_end");
+        }        
+        if (row_begin > vertex_count || row_end > vertex_count || column_begin > vertex_count || column_end > vertex_count) {
+            throw oneapi::dal::out_of_range("interval > vertex_count");
+        } 
+    }
+
+    auto operator()(const Descriptor& desc, const similarity_input<Graph>& input) const {
+        check_preconditions(desc, input);
         return vertex_similarity_ops_dispatcher<float_t, method_t, Graph>()(desc, input);
     }
+
+    auto 
 };
 
 } // namespace detail
