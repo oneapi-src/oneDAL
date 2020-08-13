@@ -78,7 +78,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     if (edges.size() == 0) {
         layout->_vertex_count = 0;
         layout->_edge_count   = 0;
-        return;
+        throw invalid_argument("Empty edge list");
     }
 
     Graph g_unfiltred;
@@ -103,6 +103,9 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         throw bad_alloc();
     }
     daal::services::Atomic<int_t> *degrees_cv = degrees_vec->data();
+    if (degrees_cv == nullptr) {
+        throw bad_alloc();
+    }
 
     threader_for(layout_unfilt->_vertex_count, layout_unfilt->_vertex_count, [&](int u) {
         degrees_cv[u].set(0);
@@ -120,6 +123,9 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         throw bad_alloc();
     }
     daal::services::Atomic<int_t> *rows_cv = rows_vec->data();
+    if (rows_cv == nullptr) {
+        throw bad_alloc();
+    }
 
     int_t total_sum_degrees = 0;
     rows_cv[0].set(total_sum_degrees);
@@ -182,15 +188,14 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         std::move(vector_vertex_t(layout->_edge_offsets[layout->_vertex_count]));
 
     threader_for(layout->_vertex_count, layout->_vertex_count, [&](int u) {
-        auto neighs = oneapi::dal::preview::detail::get_vertex_neighbors_impl(g_unfiltred, u);
-        for (int_t i = 0; i < oneapi::dal::preview::detail::get_vertex_degree_impl(g, u); i++) {
+        for (int_t i = 0; i < layout->_degrees[u]; i++) {
             *(layout->_vertex_neighbors.begin() + layout->_edge_offsets[u] + i) =
-                *(neighs.first + i);
+                *(layout_unfilt->_vertex_neighbors.begin() + layout_unfilt->_edge_offsets[u] + i);
         }
     });
 
     return;
-}
+} // namespace oneapi::dal::preview::load_graph::detail
 
 template <typename Descriptor, typename DataSource>
 output_type<Descriptor> load_impl(const Descriptor &desc, const DataSource &data_source) {
