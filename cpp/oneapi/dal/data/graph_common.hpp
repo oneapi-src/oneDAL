@@ -36,7 +36,7 @@ using vertex_user_value_type = typename Graph::vertex_user_value_type;
 template <typename Graph>
 using edge_user_value_type = typename Graph::edge_user_value_type;
 
-/// Type of the graph vertex indicies
+/// Type of the graph vertex indices
 /// @tparam Graph Type of the graph
 template <typename Graph>
 using vertex_type = typename Graph::vertex_type;
