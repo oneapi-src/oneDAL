@@ -186,13 +186,8 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
 }
 
 template <typename Descriptor, typename DataSource>
-output_type<Descriptor> load_impl(const Descriptor &desc, const DataSource &data_source);
-
-template <>
-output_type<descriptor<>> load_impl<descriptor<>, csv_data_source>(
-    const descriptor<> &desc,
-    const csv_data_source &data_source) {
-    output_type<descriptor<>> graph;
+output_type<Descriptor> load_impl(const Descriptor &desc, const DataSource &data_source) {
+    output_type<Descriptor> graph;
     convert_to_csr_impl(load_edge_list(data_source.get_filename()), graph);
     return graph;
 }
