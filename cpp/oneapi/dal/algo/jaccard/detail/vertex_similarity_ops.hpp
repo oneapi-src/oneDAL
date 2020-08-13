@@ -18,14 +18,16 @@
 
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
+#include "oneapi/dal/policy.hpp"
 
 namespace oneapi::dal::preview {
 namespace jaccard {
 namespace detail {
 
-template <typename Float, class Method, typename Graph>
+template <typename Policy, typename Float, class Method, typename Graph>
 struct ONEAPI_DAL_EXPORT vertex_similarity_ops_dispatcher {
-    similarity_result operator()(const descriptor_base &descriptor,
+    similarity_result operator()(const Policy &policy,
+                                 const descriptor_base &descriptor,
                                  const similarity_input<Graph> &input) const;
 };
 
@@ -37,8 +39,13 @@ struct vertex_similarity_ops {
     using result_t          = similarity_result;
     using descriptor_base_t = descriptor_base;
 
-    auto operator()(const Descriptor &desc, const similarity_input<Graph> &input) const {
-        return vertex_similarity_ops_dispatcher<float_t, method_t, Graph>()(desc, input);
+    template <typename Policy>
+    auto operator()(const Policy &policy,
+                    const Descriptor &desc,
+                    const similarity_input<Graph> &input) const {
+        return vertex_similarity_ops_dispatcher<Policy, float_t, method_t, Graph>()(policy,
+                                                                                    desc,
+                                                                                    input);
     }
 };
 
