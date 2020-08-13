@@ -14,6 +14,9 @@
 * limitations under the License.
 *******************************************************************************/
 
+/// @file
+/// Includes the entry point for the Jaccard Similarity algorithm 
+
 #pragma once
 
 #include "oneapi/dal/algo/jaccard/vertex_similarity.hpp"

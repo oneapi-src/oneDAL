@@ -14,6 +14,9 @@
 * limitations under the License.
 *******************************************************************************/
 
+/// @file
+/// Contains the definition of the graph loading functionality
+
 #pragma once
 
 #include "oneapi/dal/data/undirected_adjacency_array_graph.hpp"
@@ -23,6 +26,15 @@
 
 namespace oneapi::dal::preview::load_graph {
 
+/// Returns the graph object filled by data from the data source specified in the
+/// descriptor
+///
+/// @tparam Descriptor Type of the operation descriptor
+/// @tparam DataSource Type of the data source
+/// @param [in] desc   The descriptor of the operation
+/// @param [in] data_source The data source
+///
+/// @return The graph object filled by data from the data_source
 template <typename Descriptor = descriptor<>, typename DataSource = csv_data_source>
 ONEAPI_DAL_EXPORT output_type<Descriptor> load(const Descriptor &desc,
                                                const DataSource &data_source) {
