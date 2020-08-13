@@ -30,23 +30,6 @@
 
 namespace oneapi::dal::preview::load_graph::detail {
 
-edge_list<std::int32_t> load_edge_list(const std::string &name) {
-    using int_t = std::int32_t;
-
-    std::ifstream file(name);
-    edge_list<int_t> elist;
-
-    char source_vertex[32], destination_vertex[32];
-    while (file >> source_vertex >> destination_vertex) {
-        auto edge = std::make_pair(daal::services::daal_string_to_int(&source_vertex[0], 0),
-                                   daal::services::daal_string_to_int(&destination_vertex[0], 0));
-        elist.push_back(edge);
-    }
-
-    file.close();
-    return elist;
-}
-
 typedef void (*functype)(int i, const void *a);
 
 extern "C" {
@@ -66,6 +49,23 @@ inline void threader_for(int n, int threads_request, const F &lambda) {
     _daal_threader_for(n, threads_request, a, threader_func<F>);
 }
 
+edge_list<std::int32_t> load_edge_list(const std::string &name) {
+    using int_t = std::int32_t;
+
+    std::ifstream file(name);
+    edge_list<int_t> elist;
+
+    char source_vertex[32], destination_vertex[32];
+    while (file >> source_vertex >> destination_vertex) {
+        auto edge = std::make_pair(daal::services::daal_string_to_int(&source_vertex[0], 0),
+                                   daal::services::daal_string_to_int(&destination_vertex[0], 0));
+        elist.push_back(edge);
+    }
+
+    file.close();
+    return elist;
+}
+
 template <typename Graph>
 void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     auto layout           = oneapi::dal::preview::detail::get_impl(g);
@@ -74,6 +74,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     using vector_vertex_t = typename Graph::vertex_set;
     using vector_edge_t   = typename Graph::edge_set;
     using allocator_t     = typename Graph::allocator_type;
+    using vertex_size_t   = typename Graph::vertex_size_type;
 
     if (edges.size() == 0) {
         layout->_vertex_count = 0;
@@ -130,7 +131,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     int_t total_sum_degrees = 0;
     rows_cv[0].set(total_sum_degrees);
 
-    for (size_t i = 0; i < layout_unfilt->_vertex_count; ++i) {
+    for (vertex_size_t i = 0; i < layout_unfilt->_vertex_count; ++i) {
         total_sum_degrees += degrees_cv[i].get();
         rows_cv[i + 1].set(total_sum_degrees);
     }
@@ -178,7 +179,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     total_sum_degrees = 0;
     layout->_edge_offsets.push_back(total_sum_degrees);
 
-    for (size_t i = 0; i < layout->_vertex_count; ++i) {
+    for (vertex_size_t i = 0; i < layout->_vertex_count; ++i) {
         total_sum_degrees += layout->_degrees[i];
         layout->_edge_offsets.push_back(total_sum_degrees);
     }
@@ -188,7 +189,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         std::move(vector_vertex_t(layout->_edge_offsets[layout->_vertex_count]));
 
     threader_for(layout->_vertex_count, layout->_vertex_count, [&](int u) {
-        for (int_t i = 0; i < layout->_degrees[u]; i++) {
+        for (vertex_size_t i = 0; i < layout->_degrees[u]; i++) {
             *(layout->_vertex_neighbors.begin() + layout->_edge_offsets[u] + i) =
                 *(layout_unfilt->_vertex_neighbors.begin() + layout_unfilt->_edge_offsets[u] + i);
         }
