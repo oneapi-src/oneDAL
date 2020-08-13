@@ -90,19 +90,29 @@ public:
     using vertex_edge_range       = range<vertex_edge_iterator>;
     using const_vertex_edge_range = range<const_vertex_edge_iterator>;
 
-    undirected_adjacency_array_graph();
-    undirected_adjacency_array_graph(undirected_adjacency_array_graph&& graph)      = default;
-    undirected_adjacency_array_graph(const undirected_adjacency_array_graph& graph) = default;
+    undirected_adjacency_array_graph()
+            : impl_(new detail::undirected_adjacency_array_graph_impl<VertexValue,
+                                                                      EdgeValue,
+                                                                      GraphValue,
+                                                                      IndexType,
+                                                                      Allocator>) {}
+    undirected_adjacency_array_graph(undirected_adjacency_array_graph &&graph)      = default;
+    undirected_adjacency_array_graph(const undirected_adjacency_array_graph &graph) = default;
 
-    undirected_adjacency_array_graph(allocator_type alloc){};
-    undirected_adjacency_array_graph(const graph_user_value_type& graph_user_value,
+    undirected_adjacency_array_graph(allocator_type alloc)
+            : impl_(new detail::undirected_adjacency_array_graph_impl<VertexValue,
+                                                                      EdgeValue,
+                                                                      GraphValue,
+                                                                      IndexType,
+                                                                      Allocator>(alloc)) {}
+    undirected_adjacency_array_graph(const graph_user_value_type &graph_user_value,
                                      allocator_type allocator = allocator_type()){};
-    undirected_adjacency_array_graph(graph_user_value_type&& graph_user_value,
+    undirected_adjacency_array_graph(graph_user_value_type &&graph_user_value,
                                      allocator_type allocator = allocator_type()){};
 
-    undirected_adjacency_array_graph& operator=(const undirected_adjacency_array_graph& graph) =
+    undirected_adjacency_array_graph &operator=(const undirected_adjacency_array_graph &graph) =
         default;
-    undirected_adjacency_array_graph& operator=(undirected_adjacency_array_graph&& graph) = default;
+    undirected_adjacency_array_graph &operator=(undirected_adjacency_array_graph &&graph) = default;
 
     using pimpl =
         oneapi::dal::detail::pimpl<detail::undirected_adjacency_array_graph_impl<VertexValue,
@@ -114,8 +124,67 @@ public:
 private:
     pimpl impl_;
 
-    friend pimpl& detail::get_impl<graph_type>(graph_type& graph);
+    friend pimpl &detail::get_impl<graph_type>(graph_type &graph);
 
-    friend const pimpl& detail::get_impl<graph_type>(const graph_type& graph);
+    friend const pimpl &detail::get_impl<graph_type>(const graph_type &graph);
 };
+namespace detail {
+template <typename Graph>
+ONEAPI_DAL_EXPORT auto get_vertex_count_impl(const Graph &g) noexcept -> vertex_size_type<Graph>;
+
+template <typename Graph>
+ONEAPI_DAL_EXPORT auto get_edge_count_impl(const Graph &g) noexcept -> edge_size_type<Graph>;
+
+template <typename Graph>
+ONEAPI_DAL_EXPORT auto get_vertex_degree_impl(const Graph &g,
+                                              const vertex_type<Graph> &vertex) noexcept
+    -> vertex_edge_size_type<Graph>;
+
+template <typename Graph>
+ONEAPI_DAL_EXPORT auto get_vertex_neighbors_impl(const Graph &g,
+                                                 const vertex_type<Graph> &vertex) noexcept
+    -> const_vertex_edge_range_type<Graph>;
+
+template <typename Graph>
+ONEAPI_DAL_EXPORT auto get_vertex_count_impl(const Graph &g) noexcept -> vertex_size_type<Graph> {
+    const auto &layout = detail::get_impl(g);
+    return layout->_vertex_count;
+}
+
+template <typename Graph>
+ONEAPI_DAL_EXPORT auto get_edge_count_impl(const Graph &g) noexcept -> edge_size_type<Graph> {
+    const auto &layout = detail::get_impl(g);
+    return layout->_edge_count;
+}
+
+template <typename Graph>
+ONEAPI_DAL_EXPORT auto get_vertex_degree_impl(const Graph &g,
+                                              const vertex_type<Graph> &vertex) noexcept
+    -> vertex_edge_size_type<Graph> {
+    const auto &layout = detail::get_impl(g);
+    return layout->_degrees[vertex];
+}
+
+template <typename Graph>
+ONEAPI_DAL_EXPORT auto get_vertex_neighbors_impl(const Graph &g,
+                                                 const vertex_type<Graph> &vertex) noexcept
+    -> const_vertex_edge_range_type<Graph> {
+    const auto &layout = detail::get_impl(g);
+    const_vertex_edge_iterator_type<Graph> vertex_neighbors_begin =
+        layout->_vertex_neighbors.begin() + layout->_edge_offsets[vertex];
+    const_vertex_edge_iterator_type<Graph> vertex_neighbors_end =
+        layout->_vertex_neighbors.begin() + layout->_edge_offsets[vertex + 1];
+    return std::make_pair(vertex_neighbors_begin, vertex_neighbors_end);
+}
+} // namespace detail
+template <typename VertexValue = empty_value,
+          typename EdgeValue   = empty_value,
+          typename GraphValue  = empty_value,
+          typename IndexType   = std::int32_t,
+          typename Allocator   = std::allocator<empty_value>>
+using undirected_adjacency_array =
+    undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>;
+
+using graph = undirected_adjacency_array<>;
+
 } // namespace oneapi::dal::preview
