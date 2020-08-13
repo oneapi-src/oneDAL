@@ -36,7 +36,7 @@ namespace impl {
 template <typename UnOp, typename BinOp, typename Float, bool VectorsAreRows>
 struct reducer_singlepass_kernel;
 
-}
+} // impl
 
 template <typename Float,
           typename BinaryFunctor,
