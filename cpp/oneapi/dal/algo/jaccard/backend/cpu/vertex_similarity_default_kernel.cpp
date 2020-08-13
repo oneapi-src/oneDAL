@@ -23,8 +23,6 @@
 
 //#include "daal_defines.hpp"
 
-
-
 namespace oneapi::dal::preview {
 namespace jaccard {
 namespace detail {
@@ -265,7 +263,6 @@ template size_t intersection<uint64_t>(uint64_t *neigh_u,
                                        uint64_t *neigh_v,
                                        uint64_t n_u,
                                        uint64_t n_v);
-*/
 
 DAAL_FORCEINLINE int64_t min(int64_t a, int64_t b) {
     if (a >= b) {

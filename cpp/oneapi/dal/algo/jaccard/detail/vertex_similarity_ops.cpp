@@ -23,10 +23,10 @@ namespace jaccard {
 namespace detail {
 
 template <typename Float, class Method, typename Graph>
-ONEAPI_DAL_EXPORT similarity_result
+ONEAPI_DAL_EXPORT vertex_similarity_result
 vertex_similarity_ops_dispatcher<Float, Method, Graph>::operator()(
     const descriptor_base &desc,
-    const similarity_input<Graph> &input) const {
+    const vertex_similarity_input<Graph> &input) const {
     static auto impl = get_backend<Float, Method>(desc, input);
     return (*impl)(desc, input);
 }

@@ -151,12 +151,12 @@ ONEAPI_DAL_EXPORT auto get_edge_count_impl(const Graph &g) noexcept -> edge_size
 template <typename Graph>
 ONEAPI_DAL_EXPORT auto get_vertex_degree_impl(const Graph &g,
                                               const vertex_type<Graph> &vertex) noexcept
-    -> vertex_edge_size_type<Graph>;
+    -> edge_size_type<Graph>;
 
 template <typename Graph>
 ONEAPI_DAL_EXPORT auto get_vertex_neighbors_impl(const Graph &g,
                                                  const vertex_type<Graph> &vertex) noexcept
-    -> const_vertex_edge_range_type<Graph>;
+    -> const_edge_range_type<Graph>;
 
 template <typename Graph>
 ONEAPI_DAL_EXPORT auto get_vertex_count_impl(const Graph &g) noexcept -> vertex_size_type<Graph> {
@@ -173,7 +173,7 @@ ONEAPI_DAL_EXPORT auto get_edge_count_impl(const Graph &g) noexcept -> edge_size
 template <typename Graph>
 ONEAPI_DAL_EXPORT auto get_vertex_degree_impl(const Graph &g,
                                               const vertex_type<Graph> &vertex) noexcept
-    -> vertex_edge_size_type<Graph> {
+    -> edge_size_type<Graph> {
     const auto &layout = detail::get_impl(g);
     return layout->_degrees[vertex];
 }
@@ -181,11 +181,11 @@ ONEAPI_DAL_EXPORT auto get_vertex_degree_impl(const Graph &g,
 template <typename Graph>
 ONEAPI_DAL_EXPORT auto get_vertex_neighbors_impl(const Graph &g,
                                                  const vertex_type<Graph> &vertex) noexcept
-    -> const_vertex_edge_range_type<Graph> {
+    -> const_edge_range_type<Graph> {
     const auto &layout = detail::get_impl(g);
-    const_vertex_edge_iterator_type<Graph> vertex_neighbors_begin =
+    const_edge_iterator_type<Graph> vertex_neighbors_begin =
         layout->_vertex_neighbors.begin() + layout->_edge_offsets[vertex];
-    const_vertex_edge_iterator_type<Graph> vertex_neighbors_end =
+    const_edge_iterator_type<Graph> vertex_neighbors_end =
         layout->_vertex_neighbors.begin() + layout->_edge_offsets[vertex + 1];
     return std::make_pair(vertex_neighbors_begin, vertex_neighbors_end);
 }

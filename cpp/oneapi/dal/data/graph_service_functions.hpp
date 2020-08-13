@@ -35,9 +35,9 @@ namespace oneapi::dal::preview {
 /// @param [in]   graph  Input graph object
 ///
 /// @return The number of vertices in the graph
-template <typename G>
-constexpr auto get_vertex_count(const G &g) noexcept -> vertex_size_type<G> {
-    return get_vertex_count_impl(g);
+template <typename Graph>
+constexpr auto get_vertex_count(const Graph &graph) noexcept -> vertex_size_type<Graph> {
+    return get_vertex_count_impl(graph);
 }
 
 /// Returns the number of edges in the graph
@@ -47,9 +47,9 @@ constexpr auto get_vertex_count(const G &g) noexcept -> vertex_size_type<G> {
 /// @param [in]   graph  Input graph object
 ///
 /// @return The number of edges in the graph
-template <typename G>
-constexpr auto get_edge_count(const G &g) noexcept -> edge_size_type<G> {
-    return get_edge_count_impl(g);
+template <typename Graph>
+constexpr auto get_edge_count(const Graph& graph) noexcept -> edge_size_type<Graph> {
+    return get_edge_count_impl(graph);
 }
 
 /// Returns the degree for the specified vertex
@@ -61,10 +61,10 @@ constexpr auto get_edge_count(const G &g) noexcept -> edge_size_type<G> {
 /// @param [in]   vertex Identifier of the vertex
 ///
 /// @return The degree of the vertex
-template <typename G>
-constexpr auto get_vertex_degree(const G &g, const vertex_type<G> &vertex)
-    -> edge_size_type<G> {
-    if (vertex < 0 || (vertex_size_type<G>)vertex >= get_vertex_count_impl(g)) {
+template <typename Graph>
+constexpr auto get_vertex_degree(const Graph& graph, const vertex_type<Graph> &vertex)
+    -> edge_size_type<Graph> {
+    if (vertex < 0 || (vertex_size_type<Graph>)vertex >= get_vertex_count_impl(graph)) {
         throw out_of_range("Vertex index should be in [0, vertex_count)");
     }
     return detail::get_vertex_degree_impl(graph, vertex);
@@ -79,10 +79,10 @@ constexpr auto get_vertex_degree(const G &g, const vertex_type<G> &vertex)
 /// @param [in]   vertex Identifier of the vertex
 ///
 /// @return The range of the vertex neighbors 
-template <typename G>
-constexpr auto get_vertex_neighbors(const G &g, const vertex_type<G> &vertex)
-    -> const_edge_range_type<G> {
-    if (vertex < 0 || (vertex_size_type<G>)vertex >= get_vertex_count_impl(g)) {
+template <typename Graph>
+constexpr auto get_vertex_neighbors(const Graph &graph, const vertex_type<Graph> &vertex)
+    -> const_edge_range_type<Graph> {
+    if (vertex < 0 || (vertex_size_type<Graph>)vertex >= get_vertex_count_impl(graph)) {
         throw out_of_range("Vertex index should be in [0, vertex_count)");
     }
     return detail::get_vertex_neighbors_impl(graph, vertex);
