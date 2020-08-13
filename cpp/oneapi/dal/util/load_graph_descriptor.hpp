@@ -24,7 +24,7 @@
 
 namespace oneapi::dal::preview::load_graph {
 
-/// Structure which defines the parameters of the operation of the graph loading
+/// A structure, which defines the parameters of the graph loading operation
 ///
 /// @tparam Input  Type of the source data
 /// @tparam Output Type of the destination data
