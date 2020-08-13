@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/kmeans_init/detail/compute_ops.hpp"
 #include "oneapi/dal/algo/kmeans_init/compute_types.hpp"
+#include "oneapi/dal/algo/kmeans_init/detail/compute_ops.hpp"
 #include "oneapi/dal/compute.hpp"
 
 namespace oneapi::dal::detail {

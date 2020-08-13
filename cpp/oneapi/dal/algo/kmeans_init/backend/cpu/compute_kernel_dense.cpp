@@ -35,8 +35,8 @@ using daal_kmeans_init_dense_kernel_t =
 
 template <typename Float>
 static compute_result call_daal_kernel(const context_cpu& ctx,
-                                     const descriptor_base& desc,
-                                     const table& data) {
+                                       const descriptor_base& desc,
+                                       const table& data) {
     const int64_t column_count  = data.get_column_count();
     const int64_t cluster_count = desc.get_cluster_count();
 
@@ -70,16 +70,16 @@ static compute_result call_daal_kernel(const context_cpu& ctx,
 
 template <typename Float>
 static compute_result compute(const context_cpu& ctx,
-                          const descriptor_base& desc,
-                          const compute_input& input) {
+                              const descriptor_base& desc,
+                              const compute_input& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_data());
 }
 
 template <typename Float>
 struct compute_kernel_cpu<Float, method::dense> {
     compute_result operator()(const context_cpu& ctx,
-                            const descriptor_base& desc,
-                            const compute_input& input) const {
+                              const descriptor_base& desc,
+                              const compute_input& input) const {
         return compute<Float>(ctx, desc, input);
     }
 };

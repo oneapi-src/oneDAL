@@ -41,8 +41,8 @@ using daal_kmeans_init_dense_batch_ucapi_kernel_t =
 template <typename Float>
 struct compute_kernel_gpu<Float, method::dense> {
     compute_result operator()(const dal::backend::context_gpu& ctx,
-                            const descriptor_base& params,
-                            const compute_input& input) const {
+                              const descriptor_base& params,
+                              const compute_input& input) const {
         auto& queue = ctx.get_queue();
         interop::execution_context_guard guard(queue);
 

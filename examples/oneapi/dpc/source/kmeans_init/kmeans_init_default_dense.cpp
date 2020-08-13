@@ -32,13 +32,20 @@ void run(sycl::queue &queue) {
     constexpr std::int64_t cluster_count = 2;
 
     const float x_compute_host[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
-                                   -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
-    const float x_test_host[]  = { 1.0, 1.0, 2.0, 2.0 };
+                                     -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
+    const float x_test_host[]    = { 1.0, 1.0, 2.0, 2.0 };
 
     auto x_compute = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(x_compute, x_compute_host, sizeof(float) * row_count * column_count).wait();
-    const auto x_compute_table = dal::homogen_table{ queue, x_compute_host, row_count, column_count, dal::empty_delete<const float>() };
-    const auto x_test_table  = dal::homogen_table{ x_test_host, cluster_count, column_count, dal::empty_delete<const float>() };
+    const auto x_compute_table = dal::homogen_table{ queue,
+                                                     x_compute_host,
+                                                     row_count,
+                                                     column_count,
+                                                     dal::empty_delete<const float>() };
+    const auto x_test_table    = dal::homogen_table{ x_test_host,
+                                                  cluster_count,
+                                                  column_count,
+                                                  dal::empty_delete<const float>() };
 
     const auto kmeans_init_desc = dal::kmeans_init::descriptor<>().set_cluster_count(cluster_count);
 

@@ -24,8 +24,8 @@ namespace oneapi::dal::kmeans_init::backend {
 template <typename Float, typename Method>
 struct compute_kernel_cpu {
     compute_result operator()(const dal::backend::context_cpu& ctx,
-                            const descriptor_base& params,
-                            const compute_input& input) const;
+                              const descriptor_base& params,
+                              const compute_input& input) const;
 };
 
 } // namespace oneapi::dal::kmeans_init::backend
