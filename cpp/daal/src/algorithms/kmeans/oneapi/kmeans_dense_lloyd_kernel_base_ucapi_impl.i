@@ -1,6 +1,6 @@
 /* file: kmeans_dense_lloyd_kernel_base_ucapi_impl.i */
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -493,7 +493,7 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::setEmptyClusters(Numeri
     auto candidatesIds   = _candidates.template get<int>().toHost(ReadWriteMode::readOnly);
     auto candidatesDists = _candidateDistances.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly);
     auto clusterFeatures = outCentroids.toHost(ReadWriteMode::readWrite);
-    if (counters.get() == NULL || candidatesIds.get() == NULL || candidatesDists.get() == NULL || clusterFeatures.get() == NULL)
+    if (!counters.get() || !candidatesIds.get() || !candidatesDists.get() || !clusterFeatures.get())
     {
         return Status(ErrorNullPtr);
     }
@@ -512,7 +512,7 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::setEmptyClusters(Numeri
             BlockDescriptor<algorithmFPType> singleRow;
             DAAL_CHECK_STATUS_VAR(ntData->getBlockOfRows(0, nRows, readOnly, singleRow));
             auto rowData = singleRow.getBlockPtr();
-            if (rowData == NULL)
+            if (!rowData)
             {
                 return Status(ErrorNullPtr);
             }

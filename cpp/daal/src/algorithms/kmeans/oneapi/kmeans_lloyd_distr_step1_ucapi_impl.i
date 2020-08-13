@@ -1,6 +1,6 @@
 /* file: kmeans_lloyd_distr_step1_ucapi_impl.i */
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -45,8 +45,6 @@ namespace kmeans
 {
 namespace internal
 {
-#define __DAAL_FABS(a) (((a) > (algorithmFPType)0.0) ? (a) : (-(a)))
-
 template <typename algorithmFPType>
 Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, const NumericTable * const * a, size_t nr,
                                                                    const NumericTable * const * r, const Parameter * par)
@@ -77,30 +75,36 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
     DAAL_CHECK_STATUS_VAR(this->initializeBuffers(nClusters, nFeatures, blockSize));
 
     BlockDescriptor<algorithmFPType> inCentroidsRows;
-    ntInCentroids->getBlockOfRows(0, nClusters, readOnly, inCentroidsRows);
+    DAAL_CHECK_STATUS_VAR(ntInCentroids->getBlockOfRows(0, nClusters, readOnly, inCentroidsRows));
     auto inCentroids = inCentroidsRows.getBuffer();
 
     BlockDescriptor<int> ntClusterS0Rows;
-    ntClusterS0->getBlockOfRows(0, nClusters, writeOnly, ntClusterS0Rows);
+    DAAL_CHECK_STATUS_VAR(ntClusterS0->getBlockOfRows(0, nClusters, writeOnly, ntClusterS0Rows));
     auto outCCounters = ntClusterS0Rows.getBuffer();
 
     BlockDescriptor<algorithmFPType> ntClusterS1Rows;
-    ntClusterS1->getBlockOfRows(0, nClusters, writeOnly, ntClusterS1Rows);
+    DAAL_CHECK_STATUS_VAR(ntClusterS1->getBlockOfRows(0, nClusters, writeOnly, ntClusterS1Rows));
     auto outCentroids = ntClusterS1Rows.getBuffer();
 
     BlockDescriptor<algorithmFPType> ntObjFunctionRows;
-    ntObjFunction->getBlockOfRows(0, nClusters, writeOnly, ntObjFunctionRows);
+    DAAL_CHECK_STATUS_VAR(ntObjFunction->getBlockOfRows(0, nClusters, writeOnly, ntObjFunctionRows));
     auto outObjFunction = ntObjFunctionRows.getBuffer();
 
+    if (!inCentroids || !outCCounters || !outCentroids || !outObjFunction)
+    {
+        return Status(ErrorNullPtr);
+    }
+
     BlockDescriptor<algorithmFPType> ntCValuesRows;
-    ntCValues->getBlockOfRows(0, nClusters, writeOnly, ntCValuesRows);
+    DAAL_CHECK_STATUS_VAR(ntCValues->getBlockOfRows(0, nClusters, writeOnly, ntCValuesRows));
     auto outCValues = UniversalBuffer(ntCValuesRows.getBuffer());
-    context.fill(outCValues, sizeof(algorithmFPType) == 4 ? FLT_MAX : DBL_MAX, &st);
-    DAAL_CHECK_STATUS_VAR(st);
 
     BlockDescriptor<algorithmFPType> ntCCentroidsRows;
-    ntCCentroids->getBlockOfRows(0, nClusters, writeOnly, ntCCentroidsRows);
+    DAAL_CHECK_STATUS_VAR(ntCCentroids->getBlockOfRows(0, nClusters, writeOnly, ntCCentroidsRows));
     auto outCCentroids = UniversalBuffer(ntCCentroidsRows.getBuffer());
+
+    context.fill(outCValues, sizeof(algorithmFPType) == 4 ? FLT_MAX : DBL_MAX, &st);
+    DAAL_CHECK_STATUS_VAR(st);
 
     this->buildProgram(kernelFactory, nClusters, &st);
     DAAL_CHECK_STATUS_VAR(st);
@@ -165,25 +169,24 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
             DAAL_CHECK_STATUS_VAR(ntAssignments->getBlockOfRows(0, nRows, writeOnly, assignmentsRows));
             auto finalAssignments = assignmentsRows.getBuffer();
             context.copy(finalAssignments, range.startIndex, assignments, 0, range.count, &st);
-            ntAssignments->releaseBlockOfRows(assignmentsRows);
+            DAAL_CHECK_STATUS_VAR(st);
+            DAAL_CHECK_STATUS_VAR(ntAssignments->releaseBlockOfRows(assignmentsRows));
         }
     }
-//  stop    
-    return Status();
     this->mergeReduceCentroids(outCentroids, nClusters, nFeatures, &st);
     DAAL_CHECK_STATUS_VAR(st);
     context.copy(outCCounters, 0, this->_partialCentroidsCounters, 0, nClusters, &st);
     DAAL_CHECK_STATUS_VAR(st);
-    ntInCentroids->releaseBlockOfRows(inCentroidsRows);
-    ntClusterS0->releaseBlockOfRows(ntClusterS0Rows);
-    ntClusterS1->releaseBlockOfRows(ntClusterS1Rows);
-    ntObjFunction->releaseBlockOfRows(ntObjFunctionRows);
+    DAAL_CHECK_STATUS_VAR(ntInCentroids->releaseBlockOfRows(inCentroidsRows));
+    DAAL_CHECK_STATUS_VAR(ntClusterS0->releaseBlockOfRows(ntClusterS0Rows));
+    DAAL_CHECK_STATUS_VAR(ntClusterS1->releaseBlockOfRows(ntClusterS1Rows));
+    DAAL_CHECK_STATUS_VAR(ntObjFunction->releaseBlockOfRows(ntObjFunctionRows));
     if (needCandidates)
     {
         context.copy(outCValues, 0, this->_candidateDistances, 0, nClusters, &st);
     }
     DAAL_CHECK_STATUS_VAR(st);
-    ntCValues->releaseBlockOfRows(ntCValuesRows);
+    DAAL_CHECK_STATUS_VAR(ntCValues->releaseBlockOfRows(ntCValuesRows));
     if (needCandidates)
     {
         auto hostCandidates = this->_candidates.template get<int>().toHost(ReadWriteMode::readOnly);
@@ -196,7 +199,7 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
             int index = hostCandidates.get()[cPos];
             if (index < 0 || index > nRows)
             {
-                // error out of range
+                continue;
             }
             BlockDescriptor<algorithmFPType> dataRows;
             DAAL_CHECK_STATUS_VAR(ntData->getBlockOfRows(index, 1, readOnly, dataRows));
@@ -204,9 +207,7 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
             DAAL_CHECK_STATUS_VAR(st);
         }
     }
-    DAAL_CHECK_STATUS_VAR(st);
-    ntCCentroids->releaseBlockOfRows(ntCCentroidsRows);
-    ntCCentroids->getBlockOfRows(0, nClusters, writeOnly, ntCCentroidsRows);
+    DAAL_CHECK_STATUS_VAR(ntCCentroids->releaseBlockOfRows(ntCCentroidsRows));
     return st;
 }
 
@@ -229,6 +230,8 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::finalizeCompute(size_
     auto & context = Environment::getInstance()->getDefaultExecutionContext();
     Status status;
     context.copy(outBlock.getBuffer(), 0, inBlock.getBuffer(), 0, n, &status);
+    DAAL_CHECK_STATUS_VAR(ntPartialAssignments->releaseBlockOfRows(inBlock));
+    DAAL_CHECK_STATUS_VAR(ntAssignments->releaseBlockOfRows(outBlock));
     return status;
 }
 

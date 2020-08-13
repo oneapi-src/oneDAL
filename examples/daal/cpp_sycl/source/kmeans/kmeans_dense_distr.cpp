@@ -58,6 +58,8 @@ int main(int argc, char * argv[])
         daal::services::SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
+        kmeans::Distributed<step2Master> masterAlgorithm(nClusters);
+
         NumericTablePtr data[nBlocks];
 
         NumericTablePtr centroids;
@@ -100,8 +102,36 @@ int main(int argc, char * argv[])
                 localAlgorithm.input.set(kmeans::inputCentroids, centroids);
 
                 localAlgorithm.compute();
+
+                masterAlgorithm.input.add(kmeans::partialResults, localAlgorithm.getPartialResult());
             }
+
+            masterAlgorithm.compute();
+            masterAlgorithm.finalizeCompute();
+
+            centroids         = masterAlgorithm.getResult()->get(kmeans::centroids);
+            objectiveFunction = masterAlgorithm.getResult()->get(kmeans::objectiveFunction);
         }
+
+        /* Calculate assignments */
+        for (size_t i = 0; i < nBlocks; i++)
+        {
+            /* Create an algorithm object for the K-Means algorithm */
+            kmeans::Batch<> localAlgorithm(nClusters, 0);
+
+            /* Set the input data to the algorithm */
+            localAlgorithm.input.set(kmeans::data, data[i]);
+            localAlgorithm.input.set(kmeans::inputCentroids, centroids);
+
+            localAlgorithm.compute();
+
+            assignments[i] = localAlgorithm.getResult()->get(kmeans::assignments);
+        }
+
+        /* Print the clusterization results */
+        printNumericTable(assignments[0], "First 10 cluster assignments from 1st node:", 10);
+        printNumericTable(centroids, "First 10 dimensions of centroids:", 20, 10);
+        printNumericTable(objectiveFunction, "Objective function value:");
     }
 
     return 0;
