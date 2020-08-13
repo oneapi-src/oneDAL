@@ -19,6 +19,7 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::svm::detail {
+using oneapi::dal::detail::host_policy;
 
 template <typename Float, typename Task, typename Method>
 struct ONEAPI_DAL_EXPORT infer_ops_dispatcher<host_policy, Float, Task, Method> {

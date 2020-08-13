@@ -16,21 +16,41 @@
 
 #pragma once
 
-#include "oneapi/dal/detail/infer_ops.hpp"
+#include "oneapi/dal/detail/memory.hpp"
 
 namespace oneapi::dal {
 
-template <typename... Args>
-auto infer(Args&&... args) {
-    return detail::infer_dispatch(std::forward<Args>(args)...);
+template <typename T>
+class empty_delete {
+public:
+    void operator()(T*) const noexcept {}
+};
+
+template <typename T, typename Policy>
+class default_delete {
+public:
+    explicit default_delete(const Policy& policy) : policy_(policy) {}
+
+    void operator()(T* data) const {
+        detail::free(policy_, data);
+    }
+
+private:
+    std::remove_reference_t<Policy> policy_;
+};
+
+template <typename T>
+inline auto make_default_delete(const detail::default_host_policy& policy) {
+    return default_delete<T, detail::default_host_policy>{ policy };
 }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-template <typename... Args>
-auto infer(sycl::queue& queue, Args&&... args) {
-    return detail::infer_dispatch(detail::data_parallel_policy{ queue },
-                                  std::forward<Args>(args)...);
+
+template <typename T>
+inline auto make_default_delete(const detail::data_parallel_policy& policy) {
+    return default_delete<T, detail::data_parallel_policy>{ policy };
 }
+
 #endif
 
 } // namespace oneapi::dal

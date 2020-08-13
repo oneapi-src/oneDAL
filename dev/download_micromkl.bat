@@ -18,8 +18,8 @@ rem ============================================================================
 rem req: PowerShell 3.0+
 powershell.exe -command "if ($PSVersionTable.PSVersion.Major -ge 3) {exit 1} else {Write-Host \"The script requires PowerShell 3.0 or above (current version: $($PSVersionTable.PSVersion.Major).$($PSVersionTable.PSVersion.Minor))\"}" && goto Error_load
 
-set MKLURLROOT=https://github.com/intel/daal/releases/download/Dependencies/
-set MKLVERSION=20180112_10
+set MKLURLROOT=https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/
+set MKLVERSION=2021.1-beta08
 set MKLGPUVERSION=20200414
 
 set MKLPACKAGE=mklfpk_win_%MKLVERSION%
@@ -60,11 +60,11 @@ if not exist "%CONDITION%\win\lib" (
 	powershell.exe -command "if (Get-Command Add-Type -errorAction SilentlyContinue) {Add-Type -Assembly \"System.IO.Compression.FileSystem\"; try { [IO.Compression.zipfile]::ExtractToDirectory(\"%DST%\%FILENAME%.zip\", \"%DST%\")}catch{$_.exception ; exit 1}} else {exit 1}" && goto Exit || goto Error_unpack
 
 :Error_load
-	echo mklfpk.bat : Error: Failed to load %SRC% to %DST%, try to load it manually
+	echo download_mklfpk.bat : Error: Failed to load %SRC% to %DST%, try to load it manually
 	exit /B 1
 
 :Error_unpack
-	echo mklfpk.bat : Error: Failed to unpack %DST%\%FILENAME%.zip to %DST%, try unpack the archive manually
+	echo download_mklfpk.bat : Error: Failed to unpack %DST%\%FILENAME%.zip to %DST%, try unpack the archive manually
 	exit /B 1
 
 :Exit

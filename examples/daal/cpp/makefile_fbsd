@@ -19,7 +19,8 @@
 ##******************************************************************************
 
 help:
-	@echo "Usage: make {libia32|soia32|libintel64|sointel64|help}"
+	@echo "Usage: make {lib|so|libintel64|sointel64|help}"
+	@echo "lib is alias for libintel64, so is alias for sointel64"
 	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
 	@echo
 	@echo "name              - example name. Please see daal.lst file"
@@ -36,13 +37,11 @@ help:
 ##------------------------------------------------------------------------------
 ## examples of using:
 ##
-## make libia32 example=assoc_rules_apriori_batch  - build  by Intel(R) C++ Compiler (as default)
-##                                 and  run  association_rules  example  for 32-bit
-##                                 applications, static linking
+## make lib example=pca_cor_dense_batch - build  by Intel(R) C++ Compiler (as default)
+##                                 and run pca_cor_dense_batch example, static linking
 ##
-## make soia32 compiler=clang    - build by Clang C++ compiler and run all examples
-##                                 of Intel(R) DAAL for
-##                                 32-bit applications, dynamic linking
+## make so compiler=gnu          - build by GNU C++ compiler and run all examples,
+##                                 dynamic linking
 ##
 ## make libintel64 compiler=gnu  - build by GNU C++ compiler and run all example
 ##                                 of Intel(R) DAAL for
@@ -78,8 +77,8 @@ endif
 ifndef DAALROOT
     DAALROOT = ./../../..
 endif
-DAAL_PATH = "$(DAALROOT)/lib/$(_IA)_fre"
-TBB_PATH = "$(TBBROOT)/lib/$(_IA)_lin/gcc4.4" "$(TBBROOT)/lib/$(_IA)_lin/gcc4.8"
+DAAL_PATH = "$(DAALROOT)/lib/intel64_fre"
+TBB_PATH = "$(TBBROOT)/lib/intel64_lin/gcc4.4" "$(TBBROOT)/lib/intel64_lin/gcc4.8"
 
 EXT_LIB :=
 
@@ -96,7 +95,7 @@ DAAL_LIB := $(DAAL_PATH)/libonedal_core.$(RES_EXT) $(DAAL_LIB_T)
 COPTS := -Wall -w -I./source/utils -I/usr/include/c++/v1 -I/usr/local/include
 LOPTS := -Wl,--start-group $(DAAL_LIB) $(EXT_LIB) -Wl,--end-group -lc++
 
-RES_DIR=_results/$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
+RES_DIR=_results/$(compiler)_intel64_$(threading)_$(RES_EXT)
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))
 
 ifeq ($(compiler),intel)
@@ -105,22 +104,18 @@ endif
 
 ifeq ($(compiler),gnu)
     CC = g++
-    COPTS += $(if $(filter ia32, $(_IA)), -m32, -m64)
+    COPTS += -m64
 endif
 
 ifeq ($(compiler),clang)
     CC = clang++
-    COPTS += $(if $(filter ia32, $(_IA)), -m32, -m64) -stdlib=libstdc++ -fgnu-runtime -L/usr/local/lib/gcc6
+    COPTS += -m64 -stdlib=libstdc++ -fgnu-runtime -L/usr/local/lib/gcc6
 endif
 
-libia32:
-	$(MAKE) _make_ex _IA=ia32 RES_EXT=a
-soia32:
-	$(MAKE) _make_ex _IA=ia32 RES_EXT=so
-libintel64:
-	$(MAKE) _make_ex _IA=intel64 RES_EXT=a
-sointel64:
-	$(MAKE) _make_ex _IA=intel64 RES_EXT=so
+lib libintel64:
+	$(MAKE) _make_ex RES_EXT=a
+so sointel64:
+	$(MAKE) _make_ex RES_EXT=so
 
 
 

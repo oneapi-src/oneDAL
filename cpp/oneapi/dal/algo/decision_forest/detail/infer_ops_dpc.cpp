@@ -20,6 +20,7 @@
 #include "oneapi/dal/backend/dispatcher_dpc.hpp"
 
 namespace oneapi::dal::decision_forest::detail {
+using oneapi::dal::detail::data_parallel_policy;
 
 template <typename Float, typename Task, typename Method>
 struct infer_ops_dispatcher<data_parallel_policy, Float, Task, Method> {

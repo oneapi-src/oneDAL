@@ -35,15 +35,14 @@ public:
     std::int64_t min_observations_in_split_node = 2;
     std::int64_t max_leaf_nodes                 = 0;
 
-    std::uint64_t train_results_to_compute = 0;
-    std::uint64_t infer_results_to_compute =
-        static_cast<std::uint64_t>(infer_result_to_compute::compute_class_labels);
+    error_metric_mode error_metric_mode_value = error_metric_mode::none;
+    infer_mode infer_mode_value               = infer_mode::class_labels;
 
     bool memory_saving_mode = false;
     bool bootstrap          = true;
 
     variable_importance_mode variable_importance_mode_value = variable_importance_mode::none;
-    voting_method voting_method_value                       = voting_method::weighted;
+    voting_mode voting_mode_value                           = voting_mode::weighted;
 };
 
 template <>
@@ -62,9 +61,8 @@ public:
     std::int64_t min_observations_in_split_node = 2;
     std::int64_t max_leaf_nodes                 = 0;
 
-    std::uint64_t train_results_to_compute = 0;
-    std::uint64_t infer_results_to_compute =
-        static_cast<std::uint64_t>(infer_result_to_compute::compute_class_labels);
+    error_metric_mode error_metric_mode_value = error_metric_mode::none;
+    infer_mode infer_mode_value               = infer_mode::class_labels;
 
     bool memory_saving_mode = false;
     bool bootstrap          = true;
@@ -72,7 +70,7 @@ public:
     // engine field
 
     variable_importance_mode variable_importance_mode_value = variable_importance_mode::none;
-    voting_method voting_method_value                       = voting_method::weighted;
+    voting_mode voting_mode_value                           = voting_mode::weighted;
 };
 
 using detail::descriptor_impl;
@@ -127,12 +125,8 @@ std::int64_t descriptor_base<Task>::get_max_leaf_nodes() const {
 }
 
 template <typename Task>
-std::uint64_t descriptor_base<Task>::get_train_results_to_compute() const {
-    return impl_->train_results_to_compute;
-}
-template <typename Task>
-std::uint64_t descriptor_base<Task>::get_infer_results_to_compute() const {
-    return impl_->infer_results_to_compute;
+error_metric_mode descriptor_base<Task>::get_error_metric_mode() const {
+    return impl_->error_metric_mode_value;
 }
 
 template <typename Task>
@@ -150,12 +144,17 @@ variable_importance_mode descriptor_base<Task>::get_variable_importance_mode() c
 }
 
 template <typename Task>
+infer_mode descriptor_base<Task>::get_infer_mode_impl() const {
+    return impl_->infer_mode_value;
+}
+
+template <typename Task>
 std::int64_t descriptor_base<Task>::get_class_count_impl() const {
     return impl_->class_count;
 }
 template <typename Task>
-voting_method descriptor_base<Task>::get_voting_method_impl() const {
-    return impl_->voting_method_value;
+voting_mode descriptor_base<Task>::get_voting_mode_impl() const {
+    return impl_->voting_mode_value;
 }
 /*setters implementation*/
 
@@ -202,12 +201,12 @@ void descriptor_base<Task>::set_max_leaf_nodes_impl(std::int64_t value) {
 }
 
 template <typename Task>
-void descriptor_base<Task>::set_train_results_to_compute_impl(std::uint64_t value) {
-    impl_->train_results_to_compute = value;
+void descriptor_base<Task>::set_error_metric_mode_impl(error_metric_mode value) {
+    impl_->error_metric_mode_value = value;
 }
 template <typename Task>
-void descriptor_base<Task>::set_infer_results_to_compute_impl(std::uint64_t value) {
-    impl_->infer_results_to_compute = value;
+void descriptor_base<Task>::set_infer_mode_impl(infer_mode value) {
+    impl_->infer_mode_value = value;
 }
 
 template <typename Task>
@@ -229,8 +228,8 @@ void descriptor_base<Task>::set_class_count_impl(std::int64_t value) {
     impl_->class_count = value;
 }
 template <typename Task>
-void descriptor_base<Task>::set_voting_method_impl(voting_method value) {
-    impl_->voting_method_value = value;
+void descriptor_base<Task>::set_voting_mode_impl(voting_mode value) {
+    impl_->voting_mode_value = value;
 }
 
 template class ONEAPI_DAL_EXPORT descriptor_base<task::classification>;
@@ -258,12 +257,3 @@ void model<Task>::clear() {
 template class ONEAPI_DAL_EXPORT model<task::classification>;
 template class ONEAPI_DAL_EXPORT model<task::regression>;
 } // namespace oneapi::dal::decision_forest
-
-std::uint64_t operator|(oneapi::dal::decision_forest::train_result_to_compute value_left,
-                        oneapi::dal::decision_forest::train_result_to_compute value_right) {
-    return static_cast<std::uint64_t>(value_left) | static_cast<std::uint64_t>(value_right);
-}
-std::uint64_t operator|(oneapi::dal::decision_forest::infer_result_to_compute value_left,
-                        oneapi::dal::decision_forest::infer_result_to_compute value_right) {
-    return static_cast<std::uint64_t>(value_left) | static_cast<std::uint64_t>(value_right);
-}

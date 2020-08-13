@@ -14,25 +14,15 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/interop/common.hpp"
-#include "oneapi/dal/policy.hpp"
+#pragma once
 
-namespace oneapi::dal {
+namespace oneapi::dal::detail {
 
-class detail::data_parallel_policy_impl : public base {
-public:
-    explicit data_parallel_policy_impl(const sycl::queue& queue) : queue(queue) {}
+struct cpu_dispatch_default {};
+struct cpu_dispatch_ssse3 {};
+struct cpu_dispatch_sse42 {};
+struct cpu_dispatch_avx {};
+struct cpu_dispatch_avx2 {};
+struct cpu_dispatch_avx512 {};
 
-    sycl::queue queue;
-};
-
-using detail::data_parallel_policy_impl;
-
-data_parallel_policy::data_parallel_policy(const sycl::queue& queue)
-        : impl_(new data_parallel_policy_impl(queue)) {}
-
-sycl::queue& data_parallel_policy::get_queue() const noexcept {
-    return impl_->queue;
-}
-
-} // namespace oneapi::dal
+} // namespace oneapi::dal::detail

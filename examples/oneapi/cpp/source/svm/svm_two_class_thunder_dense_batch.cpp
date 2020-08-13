@@ -40,8 +40,8 @@ int main(int argc, char const *argv[]) {
         +1.f,
     };
 
-    const auto x_train_table = dal::homogen_table{ row_count_train, column_count, x_train };
-    const auto y_train_table = dal::homogen_table{ row_count_train, 1, y_train };
+    const auto x_train_table = dal::homogen_table{ x_train, row_count_train, column_count, dal::empty_delete<const float>() };
+    const auto y_train_table = dal::homogen_table{ y_train, row_count_train, 1, dal::empty_delete<const float>() };
 
     const auto kernel_desc = dal::linear_kernel::descriptor{}
         .set_k(1.0)
@@ -71,8 +71,8 @@ int main(int argc, char const *argv[]) {
         +1.f,
     };
 
-    const auto x_test_table = dal::homogen_table{ row_count_test, column_count, x_test };
-    const auto y_true_table = dal::homogen_table{ row_count_test, 1, y_true };
+    const auto x_test_table = dal::homogen_table{ x_test, row_count_test, column_count, dal::empty_delete<const float>() };
+    const auto y_true_table = dal::homogen_table{ y_true, row_count_test, 1, dal::empty_delete<const float>() };
 
     const auto result_test = dal::infer(svm_desc, result_train.get_model(), x_test_table);
 

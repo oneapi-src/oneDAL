@@ -42,7 +42,7 @@ void run(sycl::queue &queue) {
 
     auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
     queue.memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count).wait();
-    const auto x_train_table = dal::homogen_table{ queue, row_count_train, column_count, x_train };
+    const auto x_train_table = dal::homogen_table{ queue, x_train, row_count_train, column_count, dal::empty_delete<const float>() };
 
     auto initial_centroids = sycl::malloc_shared<float>(cluster_count * column_count, queue);
     queue
@@ -51,13 +51,13 @@ void run(sycl::queue &queue) {
                 sizeof(float) * cluster_count * column_count)
         .wait();
     const auto initial_centroids_table =
-        dal::homogen_table{ queue, cluster_count, column_count, initial_centroids };
+        dal::homogen_table{ queue, initial_centroids, cluster_count, column_count, dal::empty_delete<const float>() };
 
     auto x_test = sycl::malloc_shared<float>(row_count_test * column_count, queue);
     queue.memcpy(x_test, x_test_host, sizeof(float) * row_count_test * column_count).wait();
-    const auto x_test_table = dal::homogen_table{ queue, row_count_test, column_count, x_test };
+    const auto x_test_table = dal::homogen_table{ queue, x_test, row_count_test, column_count, dal::empty_delete<const float>() };
 
-    const auto y_test_table = dal::homogen_table{ row_count_test, 1, y_test_host };
+    const auto y_test_table = dal::homogen_table{ queue, y_test_host, row_count_test, 1, dal::empty_delete<const float>() };
 
     const auto kmeans_desc = dal::kmeans::descriptor<>()
                                  .set_cluster_count(cluster_count)
