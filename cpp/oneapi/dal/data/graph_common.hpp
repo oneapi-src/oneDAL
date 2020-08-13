@@ -71,7 +71,7 @@ using edge_range_type = typename Graph::edge_range;
 template <typename Graph>
 using const_edge_range_type = typename Graph::const_edge_range;
 
-/// Type of the graph representation as edge list
+/// Type of graph representation as an edge list
 /// @tparam IndexType Type of the graph vertex indicies
 template <typename IndexType = std::int32_t>
 using edge_list = detail::graph_container<std::pair<IndexType, IndexType>>;
