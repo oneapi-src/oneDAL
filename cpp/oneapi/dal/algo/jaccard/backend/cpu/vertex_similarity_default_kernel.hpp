@@ -33,5 +33,3 @@ similarity_result call_jaccard_block_kernel(const descriptor_base &desc,
 } // namespace detail
 } // namespace jaccard
 } // namespace oneapi::dal::preview
-
-

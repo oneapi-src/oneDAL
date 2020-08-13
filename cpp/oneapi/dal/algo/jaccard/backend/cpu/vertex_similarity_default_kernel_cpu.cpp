@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include <iostream>
+#include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
@@ -22,7 +23,6 @@
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/data/graph_service_functions.hpp"
 #include "oneapi/dal/policy.hpp"
-#include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
 
 namespace oneapi::dal::preview {
 namespace jaccard {

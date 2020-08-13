@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-#include <iostream>
 #include <immintrin.h>
+#include <iostream>
 
+#include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
@@ -23,15 +24,16 @@
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/data/graph_service_functions.hpp"
 #include "oneapi/dal/policy.hpp"
-#include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
 
 namespace oneapi::dal::preview {
 namespace jaccard {
 namespace detail {
 
 template <>
-similarity_result call_jaccard_block_kernel<undirected_adjacency_array_graph<> &, oneapi::dal::backend::cpu_dispatch_avx512>(const descriptor_base &desc,
-                                            const similarity_input<undirected_adjacency_array_graph<> &> &input) {
+similarity_result call_jaccard_block_kernel<undirected_adjacency_array_graph<> &,
+                                            oneapi::dal::backend::cpu_dispatch_avx512>(
+    const descriptor_base &desc,
+    const similarity_input<undirected_adjacency_array_graph<> &> &input) {
     std::cout << "Hi! I am avx512 specialization!" << std::endl;
 
     const auto my_graph = input.get_graph();
@@ -73,22 +75,7 @@ similarity_result call_jaccard_block_kernel<undirected_adjacency_array_graph<> &
                 oneapi::dal::preview::detail::get_vertex_neighbors_impl(my_graph, j).first;
             size_t intersection_value = 0;
             size_t i_u = 0, i_v = 0;
-            __m512i circ1  = _mm512_set_epi32(0,
-                                             15,
-                                             14,
-                                             13,
-                                             12,
-                                             11,
-                                             10,
-                                             9,
-                                             8,
-                                             7,
-                                             6,
-                                             5,
-                                             4,
-                                             3,
-                                             2,
-                                             1);
+            __m512i circ1 = _mm512_set_epi32(0, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1);
             while (i_u < i_neighbor_size && i_v < j_neighbor_size) {
                 if (i_neigbhors[i_u] == j_neigbhors[i_v])
                     intersection_value++, i_u++, i_v++;

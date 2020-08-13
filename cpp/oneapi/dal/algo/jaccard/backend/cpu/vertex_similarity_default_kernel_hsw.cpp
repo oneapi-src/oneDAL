@@ -14,6 +14,7 @@
  * limitations under the License.
  *******************************************************************************/
 #include <iostream>
+#include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
@@ -21,17 +22,18 @@
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/data/graph_service_functions.hpp"
 #include "oneapi/dal/policy.hpp"
-#include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
 
 namespace oneapi::dal::preview {
 namespace jaccard {
 namespace detail {
 
 template <>
-similarity_result call_jaccard_block_kernel<undirected_adjacency_array_graph<> &, oneapi::dal::backend::cpu_dispatch_avx2>(const descriptor_base &desc,
-                                            const similarity_input<undirected_adjacency_array_graph<> &> &input) {
+similarity_result call_jaccard_block_kernel<undirected_adjacency_array_graph<> &,
+                                            oneapi::dal::backend::cpu_dispatch_avx2>(
+    const descriptor_base &desc,
+    const similarity_input<undirected_adjacency_array_graph<> &> &input) {
     std::cout << "Hi! I am avx2 specialization!" << std::endl;
-    __m256i circ2 = _mm256_set_epi32(1, 0, 7, 6, 5, 4, 3, 2);
+    __m256i circ2       = _mm256_set_epi32(1, 0, 7, 6, 5, 4, 3, 2);
     const auto my_graph = input.get_graph();
 
     std::cout << oneapi::dal::preview::detail::get_vertex_count_impl(my_graph) << std::endl;

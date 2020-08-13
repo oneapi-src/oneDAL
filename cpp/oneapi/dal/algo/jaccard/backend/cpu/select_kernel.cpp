@@ -15,8 +15,8 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/jaccard/backend/cpu/select_kernel.hpp"
-#include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::preview {
 namespace jaccard {
