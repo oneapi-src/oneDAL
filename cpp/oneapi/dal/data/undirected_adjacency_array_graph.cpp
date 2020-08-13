@@ -37,12 +37,7 @@ template <typename VertexValue,
           typename IndexType,
           typename Allocator>
 undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::
-    undirected_adjacency_array_graph(undirected_adjacency_array_graph const &graph){
-        impl_ = new detail::undirected_adjacency_array_graph_impl<VertexValue,
-                                                                  EdgeValue,
-                                                                  GraphValue,
-                                                                  IndexType,
-                                                                  Allocator>;
+    undirected_adjacency_array_graph(undirected_adjacency_array_graph const &graph):undirected_adjacency_array_graph(){
 
         const auto &layout = detail::get_impl(graph);
 
@@ -62,12 +57,7 @@ template <typename VertexValue,
           typename IndexType,
           typename Allocator>
 undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::
-    undirected_adjacency_array_graph(undirected_adjacency_array_graph &&graph){
-        impl_ = new detail::undirected_adjacency_array_graph_impl<VertexValue,
-                                                                  EdgeValue,
-                                                                  GraphValue,
-                                                                  IndexType,
-                                                                  Allocator>;
+    undirected_adjacency_array_graph(undirected_adjacency_array_graph &&graph):undirected_adjacency_array_graph(){
 
         auto &layout = detail::get_impl(graph);
 
