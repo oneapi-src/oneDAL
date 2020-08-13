@@ -35,5 +35,4 @@ template ONEAPI_DAL_EXPORT auto get_vertex_count_impl<graph_default>(
     const graph_default &g) noexcept -> vertex_size_type<graph_default>;
 
 } // namespace detail
-
 } // namespace oneapi::dal::preview

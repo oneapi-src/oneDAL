@@ -15,11 +15,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Graph types and service functionality
-//--
-*/
+/// @file
+/// Graph related common data type aliases
 
 #pragma once
 
@@ -27,57 +24,61 @@
 #include "oneapi/dal/data/detail/graph_container.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
-/**
- * \brief Contains graph functionality preview as an experimental part of oneapi dal.
- */
 namespace oneapi::dal::preview {
 
+/// Type of the graph vertex properties
+/// @tparam Graph Type of the graph 
 template <typename Graph>
 using vertex_user_value_type = typename Graph::vertex_user_value_type;
 
+/// Type of the graph edge properties
+/// @tparam Graph Type of the graph
 template <typename Graph>
 using edge_user_value_type = typename Graph::edge_user_value_type;
 
+/// Type of the graph vertex indices
+/// @tparam Graph Type of the graph
 template <typename Graph>
 using vertex_type = typename Graph::vertex_type;
 
+/// Type of the graph vertex set size
+/// @tparam Graph Type of the graph
 template <typename Graph>
 using vertex_size_type = typename Graph::vertex_size_type;
 
+/// Type of the graph edge set size
+/// @tparam Graph Type of the graph
 template <typename Graph>
 using edge_size_type = typename Graph::edge_size_type;
 
-template <typename Graph>
-using vertex_edge_size_type = typename Graph::vertex_edge_size_type;
-
+/// Type of the graph edge iterator
+/// @tparam Graph Type of the graph
 template <typename Graph>
 using edge_iterator_type = typename Graph::edge_iterator;
 
+/// Type of the constant graph edge iterator
+/// @tparam Graph Type of the graph
 template <typename Graph>
 using const_edge_iterator_type = typename Graph::const_edge_iterator;
 
-template <typename Graph>
-using vertex_edge_iterator_type = typename Graph::vertex_edge_iterator;
-
-template <typename Graph>
-using const_vertex_edge_iterator_type = typename Graph::const_vertex_edge_iterator;
-
+/// Type of the graph range of the edges
+/// @tparam Graph Type of the graph
 template <typename Graph>
 using edge_range_type = typename Graph::edge_range;
 
+/// Type of the constant graph range of the edges
+/// @tparam Graph Type of the graph
 template <typename Graph>
 using const_edge_range_type = typename Graph::const_edge_range;
 
-template <typename Graph>
-using vertex_edge_range_type = typename Graph::vertex_edge_range;
-
-template <typename Graph>
-using const_vertex_edge_range_type = typename Graph::const_vertex_edge_range;
-
-template <typename IndexType = std::int32_t>
-using edge_list = detail::graph_container<std::pair<IndexType, IndexType>>;
-
+/// Type of the graph allocator
+/// @tparam Graph Type of the graph
 template <typename Graph>
 using graph_allocator = typename Graph::allocator_type;
+
+/// Type of graph representation as an edge list
+/// @tparam IndexType Type of the graph vertex indicies
+template <typename IndexType = std::int32_t>
+using edge_list = detail::graph_container<std::pair<IndexType, IndexType>>;
 
 } // namespace oneapi::dal::preview
