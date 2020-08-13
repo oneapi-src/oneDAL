@@ -197,7 +197,7 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
         for (uint32_t cPos = 0; cPos < nClusters; cPos++)
         {
             int index = hostCandidates.get()[cPos];
-            if (index < 0 || index > nRows)
+            if (index < 0 || index >= nRows)
             {
                 continue;
             }
