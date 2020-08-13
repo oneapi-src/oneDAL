@@ -31,6 +31,106 @@ undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, 
                                                                   IndexType,
                                                                   Allocator>) {}
 
+template <typename VertexValue,
+          typename EdgeValue,
+          typename GraphValue,
+          typename IndexType,
+          typename Allocator>
+undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::
+    undirected_adjacency_array_graph(undirected_adjacency_array_graph const &graph){
+        impl_ = new detail::undirected_adjacency_array_graph_impl<VertexValue,
+                                                                  EdgeValue,
+                                                                  GraphValue,
+                                                                  IndexType,
+                                                                  Allocator>;
+
+        const auto &layout = detail::get_impl(graph);
+
+        impl_->_vertex_count = layout->_vertex_count;
+        impl_->_edge_count = layout->_edge_count;
+
+        impl_->_vertexes = layout->_vertexes;
+        impl_->_edges = layout->_edges;
+
+        impl_->_vertex_value = layout->_vertex_value;
+        impl_->_edge_value = layout->_edge_value;
+}
+
+template <typename VertexValue,
+          typename EdgeValue,
+          typename GraphValue,
+          typename IndexType,
+          typename Allocator>
+undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::
+    undirected_adjacency_array_graph(undirected_adjacency_array_graph &&graph){
+        impl_ = new detail::undirected_adjacency_array_graph_impl<VertexValue,
+                                                                  EdgeValue,
+                                                                  GraphValue,
+                                                                  IndexType,
+                                                                  Allocator>;
+
+        auto &layout = detail::get_impl(graph);
+
+        impl_->_vertex_count = layout->_vertex_count;
+        layout->_vertex_count = 0;
+
+        impl_->_edge_count = layout->_edge_count;
+        layout->_edge_count = 0;
+
+        impl_->_vertexes = std::move(layout->_vertexes);
+        impl_->_edges = std::move(layout->_edges);
+
+        impl_->_vertex_value = std::move(layout->_vertex_value);
+        impl_->_edge_value = std::move(layout->_edge_value);
+}
+
+template <typename VertexValue,
+          typename EdgeValue,
+          typename GraphValue,
+          typename IndexType,
+          typename Allocator>
+undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>&
+    undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::operator=(undirected_adjacency_array_graph const &graph){
+        if (&graph != this) {
+            const auto &layout = detail::get_impl(graph);
+
+            impl_->_vertex_count = layout->_vertex_count;
+            impl_->_edge_count = layout->_edge_count;
+
+            impl_->_vertexes = layout->_vertexes;
+           impl_->_edges = layout->_edges;
+
+            impl_->_vertex_value = layout->_vertex_value;
+            impl_->_edge_value = layout->_edge_value;
+        }
+        return *this;
+}
+
+template <typename VertexValue,
+          typename EdgeValue,
+          typename GraphValue,
+          typename IndexType,
+          typename Allocator>
+undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>&
+    undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::operator=(undirected_adjacency_array_graph &&graph){
+        if (&graph != this) {
+            auto &layout = detail::get_impl(graph);
+
+            impl_->_vertex_count = layout->_vertex_count;
+            layout->_vertex_count = 0;
+
+            impl_->_edge_count = layout->_edge_count;
+            layout->_edge_count = 0;
+
+            impl_->_vertexes = std::move(layout->_vertexes);
+            impl_->_edges = std::move(layout->_edges);
+
+            impl_->_vertex_value = std::move(layout->_vertex_value);
+            impl_->_edge_value = std::move(layout->_edge_value);
+        }
+        return *this;
+}
+
 template class ONEAPI_DAL_EXPORT undirected_adjacency_array_graph<empty_value,
                                                                   empty_value,
                                                                   empty_value,

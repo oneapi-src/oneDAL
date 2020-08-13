@@ -22,6 +22,7 @@
 */
 
 #pragma once
+#include <type_traits>
 
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
