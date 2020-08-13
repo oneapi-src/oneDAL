@@ -577,6 +577,14 @@ ONEAPI.incdirs := $(ONEAPI.incdirs.common) $(CORE.incdirs.thirdp)
 
 ONEAPI.dispatcher_cpu = $(WORKDIR)/_onedal_dispatcher_cpu.hpp
 
+ONEAPI.dispatcher_tag.nrh := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_default
+ONEAPI.dispatcher_tag.mrm := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_ssse3
+ONEAPI.dispatcher_tag.neh := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_sse42
+ONEAPI.dispatcher_tag.snb := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx
+ONEAPI.dispatcher_tag.knl := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx2
+ONEAPI.dispatcher_tag.hsw := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx2
+ONEAPI.dispatcher_tag.skx := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx512
+
 ONEAPI.srcdir := $(CPPDIR.onedal)
 ONEAPI.srcdirs.base := $(ONEAPI.srcdir) \
                        $(ONEAPI.srcdir)/algo \
@@ -603,6 +611,16 @@ ONEAPI.objs_y.dpc := $(ONEAPI.srcs.dpc:%.cpp=$(ONEAPI.tmpdir_y.dpc)/%.$o)
 ONEAPI.objs_a.all := $(ONEAPI.objs_a) $(ONEAPI.objs_a.dpc)
 ONEAPI.objs_y.all := $(ONEAPI.objs_y) $(ONEAPI.objs_y.dpc)
 
+# Populate _cpu files -> _cpu_%cpu_name%, where %cpu_name% is $(USECPUS.files)
+# $1: List of object files
+populate_cpus = $(call notcontaining,_cpu,$1) \
+                $(foreach ccc,$(USECPUS.files),$(subst _cpu,_cpu_$(ccc),$(call containing,_cpu,$1)))
+
+ONEAPI.objs_a := $(call populate_cpus,$(ONEAPI.objs_a))
+ONEAPI.objs_y := $(call populate_cpus,$(ONEAPI.objs_y))
+ONEAPI.objs_a.dpc := $(call populate_cpus,$(ONEAPI.objs_a.dpc))
+ONEAPI.objs_y.dpc := $(call populate_cpus,$(ONEAPI.objs_y.dpc))
+
 -include $(ONEAPI.tmpdir_a)/*.d
 -include $(ONEAPI.tmpdir_y)/*.d
 -include $(ONEAPI.tmpdir_a.dpc)/*.d
@@ -613,7 +631,15 @@ ONEAPI.objs_y.all := $(ONEAPI.objs_y) $(ONEAPI.objs_y.dpc)
 # $2: Temporary directory where object file is stored
 # $3: Compiler id (C or DPC)
 define .ONEAPI.compile
-$1: $(1:$2/%.$o=%.cpp) | $(dir $1)/. ; $(value $3.COMPILE)
+$(eval template_source_cpp := $(1:$2/%.$o=%.cpp))
+$(eval template_source_cpp := $(subst _cpu_nrh,_cpu,$(template_source_cpp)))
+$(eval template_source_cpp := $(subst _cpu_mrm,_cpu,$(template_source_cpp)))
+$(eval template_source_cpp := $(subst _cpu_neh,_cpu,$(template_source_cpp)))
+$(eval template_source_cpp := $(subst _cpu_snb,_cpu,$(template_source_cpp)))
+$(eval template_source_cpp := $(subst _cpu_hsw,_cpu,$(template_source_cpp)))
+$(eval template_source_cpp := $(subst _cpu_knl,_cpu,$(template_source_cpp)))
+$(eval template_source_cpp := $(subst _cpu_skx,_cpu,$(template_source_cpp)))
+$1: $(template_source_cpp) | $(dir $1)/. ; $(value $3.COMPILE)
 endef
 
 # Declares target to compile static library
@@ -648,25 +674,39 @@ $(ONEAPI.tmpdir_y.dpc)/inc_y_folders.txt: | $(ONEAPI.tmpdir_y.dpc)/.
 
 # Set compilation options to the object files which are part of STATIC lib
 $(ONEAPI.objs_a): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_a)/inc_a_folders.txt
-$(ONEAPI.objs_a): COPT := $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic.opts) \
+$(ONEAPI.objs_a): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic.opts) \
                           -DDAAL_NOTHROW_EXCEPTIONS \
                           -DDAAL_HIDE_DEPRECATED \
                           -D__TBB_NO_IMPLICIT_LINKAGE \
                           -DTBB_USE_ASSERT=0 \
-                           @$(ONEAPI.tmpdir_a)/inc_a_folders.txt \
+                           @$(ONEAPI.tmpdir_a)/inc_a_folders.txt 
+$(call containing,_nrh, $(ONEAPI.objs_a)): COPT += $(p4_OPT)   $(ONEAPI.dispatcher_tag.nrh)
+$(call containing,_mrm, $(ONEAPI.objs_a)): COPT += $(mc_OPT)   $(ONEAPI.dispatcher_tag.mrm)
+$(call containing,_neh, $(ONEAPI.objs_a)): COPT += $(mc3_OPT)  $(ONEAPI.dispatcher_tag.neh)
+$(call containing,_snb, $(ONEAPI.objs_a)): COPT += $(avx_OPT)  $(ONEAPI.dispatcher_tag.snb)
+$(call containing,_hsw, $(ONEAPI.objs_a)): COPT += $(avx2_OPT) $(ONEAPI.dispatcher_tag.hsw)
+$(call containing,_knl, $(ONEAPI.objs_a)): COPT += $(avx2_OPT) $(ONEAPI.dispatcher_tag.knl)
+$(call containing,_skx, $(ONEAPI.objs_a)): COPT += $(skx_OPT)  $(ONEAPI.dispatcher_tag.skx)
 
 $(ONEAPI.objs_a.dpc): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_a.dpc)/inc_a_folders.txt
-$(ONEAPI.objs_a.dpc): COPT := $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.opts) \
+$(ONEAPI.objs_a.dpc): COPT += $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.opts) \
                               -DDAAL_NOTHROW_EXCEPTIONS \
                               -DDAAL_HIDE_DEPRECATED \
 							  -DONEAPI_DAL_DATA_PARALLEL \
                               -D__TBB_NO_IMPLICIT_LINKAGE \
                               -DTBB_USE_ASSERT=0 \
                                @$(ONEAPI.tmpdir_a.dpc)/inc_a_folders.txt
+$(call containing,_nrh, $(ONEAPI.objs_a.dpc)): COPT += $(p4_OPT.dpcpp)   $(ONEAPI.dispatcher_tag.nrh)
+$(call containing,_mrm, $(ONEAPI.objs_a.dpc)): COPT += $(mc_OPT.dpcpp)   $(ONEAPI.dispatcher_tag.mrm)
+$(call containing,_neh, $(ONEAPI.objs_a.dpc)): COPT += $(mc3_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.neh)
+$(call containing,_snb, $(ONEAPI.objs_a.dpc)): COPT += $(avx_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.snb)
+$(call containing,_hsw, $(ONEAPI.objs_a.dpc)): COPT += $(avx2_OPT.dpcpp) $(ONEAPI.dispatcher_tag.hsw)
+$(call containing,_knl, $(ONEAPI.objs_a.dpc)): COPT += $(avx2_OPT.dpcpp) $(ONEAPI.dispatcher_tag.knl)
+$(call containing,_skx, $(ONEAPI.objs_a.dpc)): COPT += $(skx_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.skx)
 
 # Set compilation options to the object files which are part of DYNAMIC lib
 $(ONEAPI.objs_y): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_y)/inc_y_folders.txt
-$(ONEAPI.objs_y): COPT := $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic.opts) \
+$(ONEAPI.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic.opts) \
                           -DDAAL_NOTHROW_EXCEPTIONS \
                           -DDAAL_HIDE_DEPRECATED \
                           $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG) \
@@ -674,9 +714,16 @@ $(ONEAPI.objs_y): COPT := $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic
                           -D__TBB_NO_IMPLICIT_LINKAGE \
                           -DTBB_USE_ASSERT=0 \
                           @$(ONEAPI.tmpdir_y)/inc_y_folders.txt
+$(call containing,_nrh, $(ONEAPI.objs_y)): COPT += $(p4_OPT)   $(ONEAPI.dispatcher_tag.nrh)
+$(call containing,_mrm, $(ONEAPI.objs_y)): COPT += $(mc_OPT)   $(ONEAPI.dispatcher_tag.mrm)
+$(call containing,_neh, $(ONEAPI.objs_y)): COPT += $(mc3_OPT)  $(ONEAPI.dispatcher_tag.neh)
+$(call containing,_snb, $(ONEAPI.objs_y)): COPT += $(avx_OPT)  $(ONEAPI.dispatcher_tag.snb)
+$(call containing,_hsw, $(ONEAPI.objs_y)): COPT += $(avx2_OPT) $(ONEAPI.dispatcher_tag.hsw)
+$(call containing,_knl, $(ONEAPI.objs_y)): COPT += $(avx2_OPT) $(ONEAPI.dispatcher_tag.knl)
+$(call containing,_skx, $(ONEAPI.objs_y)): COPT += $(skx_OPT)  $(ONEAPI.dispatcher_tag.skx)
 
 $(ONEAPI.objs_y.dpc): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_y.dpc)/inc_y_folders.txt
-$(ONEAPI.objs_y.dpc): COPT := $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.opts) \
+$(ONEAPI.objs_y.dpc): COPT += $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.opts) \
                               -DDAAL_NOTHROW_EXCEPTIONS \
                               -DDAAL_HIDE_DEPRECATED \
 							  -DONEAPI_DAL_DATA_PARALLEL \
@@ -685,6 +732,13 @@ $(ONEAPI.objs_y.dpc): COPT := $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.op
                               -D__TBB_NO_IMPLICIT_LINKAGE \
                               -DTBB_USE_ASSERT=0 \
                               @$(ONEAPI.tmpdir_y.dpc)/inc_y_folders.txt
+$(call containing,_nrh, $(ONEAPI.objs_y.dpc)): COPT += $(p4_OPT.dpcpp)   $(ONEAPI.dispatcher_tag.nrh)
+$(call containing,_mrm, $(ONEAPI.objs_y.dpc)): COPT += $(mc_OPT.dpcpp)   $(ONEAPI.dispatcher_tag.mrm)
+$(call containing,_neh, $(ONEAPI.objs_y.dpc)): COPT += $(mc3_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.neh)
+$(call containing,_snb, $(ONEAPI.objs_y.dpc)): COPT += $(avx_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.snb)
+$(call containing,_hsw, $(ONEAPI.objs_y.dpc)): COPT += $(avx2_OPT.dpcpp) $(ONEAPI.dispatcher_tag.hsw)
+$(call containing,_knl, $(ONEAPI.objs_y.dpc)): COPT += $(avx2_OPT.dpcpp) $(ONEAPI.dispatcher_tag.knl)
+$(call containing,_skx, $(ONEAPI.objs_y.dpc)): COPT += $(skx_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.skx)
 
 $(foreach x,$(ONEAPI.objs_a),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_a),C)))
 $(foreach x,$(ONEAPI.objs_y),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_y),C)))
