@@ -524,6 +524,23 @@ $(WORKDIR.lib)/$(core_y):                   $(daaldep.ipp) $(daaldep.vml) $(daal
                                             $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
 $(CORE.kernel_defines): | $(shell dirname $(CORE.kernel_defines))/.
+	echo "/* file: daal_kernel_defines_gen.h */" >> $@
+	echo "/*******************************************************************************" >> $@
+	echo "* Copyright 2014-2020 Intel Corporation" >> $@
+	echo "*" >> $@
+	echo "* Licensed under the Apache License, Version 2.0 (the \"License\");" >> $@
+	echo "* you may not use this file except in compliance with the License." >> $@
+	echo "* You may obtain a copy of the License at" >> $@
+	echo "*" >> $@
+	echo "*     http://www.apache.org/licenses/LICENSE-2.0" >> $@
+	echo "*" >> $@
+	echo "* Unless required by applicable law or agreed to in writing, software" >> $@
+	echo "* distributed under the License is distributed on an \"AS IS\" BASIS," >> $@
+	echo "* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied." >> $@
+	echo "* See the License for the specific language governing permissions and" >> $@
+	echo "* limitations under the License." >> $@
+	echo "*******************************************************************************/" >> $@
+	echo "" >> $@
 	$(if $(filter ssse3,$(USECPUS)),echo "#define DAAL_KERNEL_SSSE3" >> $@)
 	$(if $(filter sse42,$(USECPUS)),echo "#define DAAL_KERNEL_SSE42" >> $@)
 	$(if $(filter avx,$(USECPUS)),echo "#define DAAL_KERNEL_AVX" >> $@)

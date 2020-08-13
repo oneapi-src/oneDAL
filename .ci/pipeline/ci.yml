@@ -53,28 +53,39 @@ jobs:
   pool:
     vmImage: 'ubuntu-18.04'
   steps:
-  - script: |
+  - displayName: 'apt-get'
+    script: |
       sudo apt-get update
       sudo apt-get install gcc-multilib \
                            g++-multilib \
                            binutils \
                            openjdk-11-jdk \
                            bazel-3.4.1
-    displayName: 'apt-get'
-  - script: bazel build //cpp/daal:core_static
-    displayName: 'onedal-core-static'
-  - script: bazel build //cpp/daal:thread_static
-    displayName: 'onedal-thread-static'
-  - script: bazel build //cpp/daal:sequential_static
-    displayName: 'onedal-sequential-static'
-  - script: bazel build //cpp/oneapi/dal:static
-    displayName: 'onedal-static'
-  - script: bazel build //cpp/oneapi/dal:static
-    displayName: 'onedal-static'
-  - script: bazel test //examples/oneapi/cpp:all --@config//:test_link_mode=dev
-    displayName: 'onedal-cpp-examples-thread-dev'
-  - script: bazel test //examples/oneapi/cpp:all --@config//:test_link_mode=static
-    displayName: 'onedal-cpp-examples-thread-static'
+
+  - displayName: 'config-dump'
+    script: |
+      bazel build @config//:dump
+      cat bazel-bin/external/config/config.json
+
+  - displayName: 'release'
+    script: |
+      bazel build :release
+
+  - displayName: 'cpp-examples-thread-dev'
+    script: |
+      bazel test //examples/oneapi/cpp:all \
+                 --@config//:test_link_mode=dev
+
+  - displayName: 'cpp-examples-thread-static'
+    script: |
+      bazel test //examples/oneapi/cpp:all \
+                 --@config//:test_link_mode=static
+
+  - displayName: 'cpp-examples-thread-release-static'
+    script: |
+      export DAALROOT=`pwd`/bazel-bin/release/daal/latest
+      bazel test //examples/oneapi/cpp:all \
+                 --@config//:test_link_mode=release_static
 
 - job: daal4py
   dependsOn: LinuxMake

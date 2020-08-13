@@ -9,14 +9,20 @@ load("@onedal//dev/bazel:daal.bzl",
 )
 
 daal_module(
-    name = "includes",
+    name = "public_includes",
     hdrs = glob(["include/**/*.h"]),
-    includes = [ ".", "include" ],
+    includes = [ "include" ],
+)
+
+daal_module(
+    name = "includes",
+    includes = [ "." ],
     defines = [
         "DAAL_NOTHROW_EXCEPTIONS",
         "DAAL_HIDE_DEPRECATED",
     ],
     deps = [
+        ":public_includes",
         "@micromkl//:headers",
         "@micromkl_dpc//:headers",
     ],
@@ -212,7 +218,7 @@ daal_algorithms(
 
 daal_static_lib(
     name = "core_static",
-    lib_name = "daal_core",
+    lib_name = "onedal_core",
     deps = [
         ":core",
         ":all_algorithms",
@@ -221,7 +227,7 @@ daal_static_lib(
 
 daal_static_lib(
     name = "sequential_static",
-    lib_name = "daal_sequential",
+    lib_name = "onedal_sequential",
     deps = [
         ":threading_seq",
     ],
@@ -229,7 +235,7 @@ daal_static_lib(
 
 daal_static_lib(
     name = "thread_static",
-    lib_name = "daal_thread",
+    lib_name = "onedal_thread",
     deps = [
         ":threading_tbb",
     ],

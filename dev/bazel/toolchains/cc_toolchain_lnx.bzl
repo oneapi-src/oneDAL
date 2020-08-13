@@ -76,7 +76,7 @@ def _find_tool(repo_ctx, tool_name, mandatory=False):
         else:
             repo_ctx.template(
                 "tool_not_found.sh",
-                Label("@onedal//dev/bazel/toolchains:tool_not_found.sh.tpl"),
+                Label("@onedal//dev/bazel/toolchains/tools:tool_not_found.tpl.sh"),
                 { "%{tool_name}": tool_name }
             )
             tool_path = repo_ctx.path("tool_not_found.sh")
@@ -86,7 +86,7 @@ def _create_ar_merge_tool(repo_ctx, ar_path):
     ar_merge_name = "merge_static_libs.sh"
     repo_ctx.template(
         ar_merge_name,
-        Label("@onedal//dev/bazel/toolchains:merge_static_libs_lnx.sh.tpl"),
+        Label("@onedal//dev/bazel/toolchains/tools:merge_static_libs_lnx.tpl.sh"),
         { "%{ar_path}": ar_path }
     )
     ar_merge_path = repo_ctx.path(ar_merge_name)
@@ -188,7 +188,7 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
 
     repo_ctx.template(
         "BUILD",
-        Label("@onedal//dev/bazel/toolchains:BUILD_cc_toolchain_def_lnx.tpl"),
+        Label("@onedal//dev/bazel/toolchains:cc_toolchain_lnx.tpl.BUILD"),
         {
             # Various IDs
             "%{cc_toolchain_identifier}": get_toolchain_identifier(reqs),

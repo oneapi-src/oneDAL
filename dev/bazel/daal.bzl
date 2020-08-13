@@ -126,7 +126,7 @@ daal_generate_kernel_defines = rule(
 
 def _daal_license_header(filename):
     return (
-        "/* file: {}.h */\n".format(filename) +
+        "/* file: {} */\n".format(filename) +
         "/*******************************************************************************\n" +
         "* Copyright 2014-2020 Intel Corporation\n" +
         "*\n" +

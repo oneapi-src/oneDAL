@@ -46,6 +46,7 @@ def prebuilt_libs_repo_rule(includes, libs, build_template,
         environ = [
             root_env_var,
         ],
+        local = True,
         attrs = {
             "root_env_var": attr.string(default=root_env_var),
             "fallback_root": attr.string(default=fallback_root),

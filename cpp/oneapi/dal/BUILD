@@ -2,6 +2,7 @@ package(default_visibility = ["//visibility:public"])
 load("@onedal//dev/bazel:dal.bzl",
     "dal_module",
     "dal_static_lib",
+    "dal_public_includes",
     "dal_generate_cpu_dispatcher",
     "dal_algos",
 )
@@ -16,7 +17,10 @@ dal_module(
     dpc = True,
     auto = True,
     includes = [ ".", "../.." ],
-    system_includes = [ "../../daal", "../../daal/include" ],
+    system_includes = [
+        "../../daal",
+        "../../daal/include",
+    ],
     hdrs = [
         ":cpu_dispatcher",
     ],
@@ -50,6 +54,15 @@ dal_algos(
         "rbf_kernel",
         "svm",
     ]
+)
+
+dal_public_includes(
+    name = "public_includes",
+    deps = [
+        ":all_algos_public_includes",
+        "@onedal//cpp/oneapi/dal/data:public_includes",
+        "@onedal//cpp/oneapi/dal/util:public_includes",
+    ],
 )
 
 dal_static_lib(

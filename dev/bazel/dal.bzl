@@ -11,38 +11,52 @@ load("@onedal//dev/bazel/config:config.bzl",
     "CpuInfo",
 )
 
+def dal_public_includes(name, deps=[]):
+    _dal_module(
+        name = name,
+        hdrs = native.glob(["**/*.hpp"], exclude=["backend/**/*"]),
+        deps = deps,
+    )
+
 def dal_module(name, features=[],
                hdrs=[], srcs=[],
                hdrs_cc=[], srcs_cc=[],
                hdrs_dpc=[], srcs_dpc=[],
-               host=True, dpc=False, auto=False, **kwargs):
+               host=True, dpc=False, auto=False,
+               public_includes=False, **kwargs):
     if auto:
         hpp_filt = ["**/*.hpp"]
         cpp_filt = ["**/*.cpp"]
         dpc_filt = ["**/*_dpc.cpp"]
         test_filt = ["**/*_test*"]
         hdrs_all = native.glob(hpp_filt, exclude=test_filt)
-        hdrs_cc = hdrs_all
-        hdrs_dpc = hdrs_all
-        srcs_cc = native.glob(cpp_filt, exclude=test_filt + dpc_filt)
-        srcs_dpc = native.glob(cpp_filt, exclude=test_filt)
+        hdrs_cc_auto = hdrs_all
+        hdrs_dpc_auto = hdrs_all
+        srcs_cc_auto = native.glob(cpp_filt, exclude=test_filt + dpc_filt)
+        srcs_dpc_auto = native.glob(cpp_filt, exclude=test_filt)
+    else:
+        hdrs_cc_auto = []
+        hdrs_dpc_auto = []
+        srcs_cc_auto = []
+        srcs_dpc_auto = []
     if host:
         _dal_module(
             name = name,
             features = features,
-            hdrs = hdrs_cc + hdrs,
-            srcs = srcs_cc + srcs,
+            hdrs = hdrs_cc_auto + hdrs_cc + hdrs,
+            srcs = srcs_cc_auto + srcs_cc + srcs,
             **kwargs,
         )
     if dpc:
         _dal_module(
             name = name + "_dpc",
             features = ["dpc++"] + features,
-            hdrs = hdrs_dpc + hdrs,
-            srcs = srcs_dpc + srcs,
+            hdrs = hdrs_dpc_auto + hdrs_dpc + hdrs,
+            srcs = srcs_dpc_auto + srcs_dpc + srcs,
             local_defines = [ "ONEAPI_DAL_DATA_PARALLEL" ],
             **kwargs,
         )
+
 
 def dal_static_lib(name, lib_name, host=True, dpc=False, deps=[],
                    lib_tags=["dal"], external_deps=[], **kwargs):
@@ -66,9 +80,11 @@ def dal_static_lib(name, lib_name, host=True, dpc=False, deps=[],
 def dal_algos(name, algos):
     algo_labels = []
     algo_labels_dpc = []
+    public_includes_labels = []
     for algo in algos:
         algo_label = "@onedal//cpp/oneapi/dal/algo/{0}:{0}".format(algo)
         algo_label_dpc = "@onedal//cpp/oneapi/dal/algo/{0}:{0}_dpc".format(algo)
+        public_includes_label = "@onedal//cpp/oneapi/dal/algo/{0}:public_includes".format(algo)
         _dal_module(
             name = algo,
             hdrs = [ "algo/{}.hpp".format(algo) ],
@@ -81,6 +97,11 @@ def dal_algos(name, algos):
         )
         algo_labels.append(algo_label)
         algo_labels_dpc.append(algo_label_dpc)
+        public_includes_labels.append(public_includes_label)
+    _dal_module(
+        name = name + "_public_includes",
+        deps = public_includes_labels,
+    )
     _dal_module(
         name = name,
         deps = algo_labels,

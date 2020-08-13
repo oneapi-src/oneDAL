@@ -16,6 +16,39 @@ _INC_DIR_MARKER_END = "End of search list"
 _MAC_FRAMEWORK_SUFFIX = " (framework directory)"
 _MAC_FRAMEWORK_SUFFIX_LEN = len(_MAC_FRAMEWORK_SUFFIX)
 
+def detect_os(repo_ctx):
+    if "linux" in repo_ctx.os.name:
+        return "lnx"
+    elif "mac" in repo_ctx.os.name:
+        return "mac"
+    elif "windows" in repo_ctx.os.name:
+        return "win"
+
+def detect_default_compiler(repo_ctx, os_id):
+    compiler_id = "icc"
+    is_icc_available = repo_ctx.which("icc") != None
+    if not is_icc_available:
+        compiler_id = {
+            "lnx": "gcc",
+            "mac": "clang",
+            "win": "cl",
+        }[os_id]
+    return compiler_id
+
+def detect_compiler(repo_ctx, os_id):
+    if not "CC" in repo_ctx.os.environ:
+        return detect_default_compiler(repo_ctx, os_id)
+    compiler_path = repo_ctx.os.environ["CC"]
+    # TODO: Use more relieble way to detect compiler
+    if "gcc" in compiler_path:
+        return "gcc"
+    elif "clang" in compiler_path:
+        return "clang"
+    elif "cl" in compiler_path:
+        return "cl"
+    elif "icc" in compiler_path:
+        return "icc"
+
 def get_starlark_dict(dictionary):
     entries = [ "\"{}\":\"{}\"".format(k, v) for k, v in dictionary.items() ]
     return ",\n    ".join(entries)
