@@ -151,7 +151,8 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
             dal::detail::homogen_table_builder{}.reset(arr_oob_per_obs_err, row_count, 1).build());
     }
     if (variable_importance_mode::none != vimp) {
-        res.set_var_importance(dal::detail::homogen_table_builder{}.reset(arr_var_imp, 1, column_count).build());
+        res.set_var_importance(
+            dal::detail::homogen_table_builder{}.reset(arr_var_imp, 1, column_count).build());
     }
 
     return res.set_model(dal::detail::pimpl_accessor().make_from_pimpl<model<Task>>(

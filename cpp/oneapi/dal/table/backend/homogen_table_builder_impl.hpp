@@ -32,11 +32,11 @@ public:
         auto& t_impl = detail::get_impl<detail::homogen_table_impl_iface>(t);
         auto& meta   = t_impl.get_metadata();
 
-        layout_  = t.get_data_layout();
-        dtype_ = meta.get_data_type(0);
+        layout_ = t.get_data_layout();
+        dtype_  = meta.get_data_type(0);
 
-        std::int64_t data_size = detail::get_data_type_size(dtype_) *
-                                 t_impl.get_row_count() * t_impl.get_column_count();
+        std::int64_t data_size =
+            detail::get_data_type_size(dtype_) * t_impl.get_row_count() * t_impl.get_column_count();
 
         // TODO: make data move without copying
         // now we are accepting const data pointer from table
@@ -64,8 +64,7 @@ public:
     }
 
     void allocate(std::int64_t row_count, std::int64_t column_count) {
-        data_.reset(row_count * column_count *
-                    detail::get_data_type_size(dtype_));
+        data_.reset(row_count * column_count * detail::get_data_type_size(dtype_));
         row_count_    = row_count;
         column_count_ = column_count;
     }
@@ -75,8 +74,7 @@ public:
     }
 
     void copy_data(const void* data, std::int64_t row_count, std::int64_t column_count) {
-        data_.reset(row_count * column_count *
-                    detail::get_data_type_size(dtype_));
+        data_.reset(row_count * column_count * detail::get_data_type_size(dtype_));
         detail::memcpy(detail::default_host_policy{},
                        data_.get_mutable_data(),
                        data,
@@ -102,9 +100,7 @@ public:
                   std::int64_t row_count,
                   std::int64_t column_count,
                   sycl::usm::alloc kind) {
-        data_.reset(queue,
-                    row_count * column_count * detail::get_data_type_size(dtype_),
-                    kind);
+        data_.reset(queue, row_count * column_count * detail::get_data_type_size(dtype_), kind);
         row_count_    = row_count;
         column_count_ = column_count;
     }

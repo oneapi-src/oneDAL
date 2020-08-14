@@ -49,7 +49,11 @@ public:
                               std::int64_t row_count,
                               std::int64_t column_count,
                               data_layout layout = data_layout::row_major) {
-        return homogen_table{ data_pointer, row_count, column_count, empty_delete<const Data>(), layout };
+        return homogen_table{ data_pointer,
+                              row_count,
+                              column_count,
+                              empty_delete<const Data>(),
+                              layout };
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -60,7 +64,10 @@ public:
                               std::int64_t column_count,
                               const sycl::vector_class<sycl::event>& dependencies = {},
                               data_layout layout = data_layout::row_major) {
-        return homogen_table{ queue, data_pointer, row_count, column_count, empty_delete<const Data>(), dependencies, layout };
+        return homogen_table{
+            queue,        data_pointer, row_count, column_count, empty_delete<const Data>(),
+            dependencies, layout
+        };
     }
 #endif
 
@@ -97,7 +104,7 @@ public:
                   std::int64_t column_count,
                   ConstDeleter&& data_deleter,
                   const sycl::vector_class<sycl::event>& dependencies = {},
-                  data_layout layout = data_layout::row_major) {
+                  data_layout layout                                  = data_layout::row_major) {
         init_impl(detail::data_parallel_policy{ queue },
                   row_count,
                   column_count,
@@ -144,7 +151,12 @@ private:
 
         auto byte_array = array<byte_t>{ data_array, byte_data, byte_count };
 
-        init_impl(policy, row_count, column_count, byte_array, detail::make_data_type<Data>(), layout);
+        init_impl(policy,
+                  row_count,
+                  column_count,
+                  byte_array,
+                  detail::make_data_type<Data>(),
+                  layout);
     }
 
     template <typename Policy>

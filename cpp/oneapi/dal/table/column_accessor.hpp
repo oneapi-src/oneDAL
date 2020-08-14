@@ -30,9 +30,10 @@ public:
     static constexpr bool is_readonly = base::is_readonly;
 
 public:
-    template <typename K,
-              typename = std::enable_if_t<is_readonly && (std::is_base_of_v<table, K> ||
-                                                          std::is_base_of_v<detail::table_builder, K>)>>
+    template <
+        typename K,
+        typename = std::enable_if_t<is_readonly && (std::is_base_of_v<table, K> ||
+                                                    std::is_base_of_v<detail::table_builder, K>)>>
     column_accessor(const K& obj) : base(obj) {}
 
     column_accessor(const detail::table_builder& b) : base(b) {}

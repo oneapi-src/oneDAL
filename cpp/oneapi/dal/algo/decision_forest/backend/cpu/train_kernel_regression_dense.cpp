@@ -117,7 +117,8 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     }
     if (variable_importance_mode::none != vimp) {
         auto arr_var_imp = array<Float>::empty(1 * column_count);
-        res.set_var_importance(dal::detail::homogen_table_builder{}.reset(arr_var_imp, 1, column_count).build());
+        res.set_var_importance(
+            dal::detail::homogen_table_builder{}.reset(arr_var_imp, 1, column_count).build());
 
         const auto res_var_imp =
             interop::convert_to_daal_homogen_table(arr_var_imp, 1, column_count);

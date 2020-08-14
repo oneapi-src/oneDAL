@@ -58,10 +58,8 @@ struct is_table_impl {
     ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(data_layout, get_data_layout, () const)
 
     static constexpr bool value = has_method_get_column_count_v<T> &&
-                                  has_method_get_row_count_v<T> &&
-                                  has_method_get_metadata_v<T> &&
-                                  has_method_get_kind_v<T> &&
-                                  has_method_get_data_layout_v<T>;
+                                  has_method_get_row_count_v<T> && has_method_get_metadata_v<T> &&
+                                  has_method_get_kind_v<T> && has_method_get_data_layout_v<T>;
 };
 
 template <typename T>

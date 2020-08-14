@@ -15,8 +15,8 @@
 *******************************************************************************/
 
 #include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/table/backend/empty_table_impl.hpp"
 #include "oneapi/dal/exceptions.hpp"
+#include "oneapi/dal/table/backend/empty_table_impl.hpp"
 
 using std::int64_t;
 
@@ -48,8 +48,8 @@ public:
 class simple_metadata_impl : public detail::table_metadata_impl {
 public:
     simple_metadata_impl(const array<data_type>& dtypes, const array<feature_type>& ftypes)
-        : dtypes_(dtypes),
-          ftypes_(ftypes) {
+            : dtypes_(dtypes),
+              ftypes_(ftypes) {
         if (dtypes_.get_count() != ftypes_.get_count()) {
             throw out_of_range("data type and feature type arrays shall be the same size");
         }
@@ -70,10 +70,12 @@ public:
         }
         return dtypes_[i];
     }
+
 private:
     bool is_in_range(int64_t i) const {
         return i >= 0 && i < dtypes_.get_count();
     }
+
 private:
     array<data_type> dtypes_;
     array<feature_type> ftypes_;
@@ -83,7 +85,7 @@ private:
 table_metadata::table_metadata() : impl_(new backend::empty_metadata_impl()) {}
 
 table_metadata::table_metadata(const array<data_type>& dtypes, const array<feature_type>& ftypes)
-    : impl_(new backend::simple_metadata_impl(dtypes, ftypes)) {}
+        : impl_(new backend::simple_metadata_impl(dtypes, ftypes)) {}
 
 int64_t table_metadata::get_feature_count() const {
     return impl_->get_feature_count();

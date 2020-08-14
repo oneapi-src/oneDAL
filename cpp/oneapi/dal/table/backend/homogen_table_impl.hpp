@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "oneapi/dal/table/detail/common.hpp"
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/table/detail/common.hpp"
 
 namespace oneapi::dal::backend {
 
@@ -29,13 +29,13 @@ public:
                        const array<byte_t>& data,
                        data_type dtype,
                        data_layout layout)
-            : meta_(
-                array<data_type>::full(p, dtype),
-                array<feature_type>::full(p, detail::is_floating_point(dtype) ? feature_type::ratio : feature_type::ordinal)
-            ),
+            : meta_(array<data_type>::full(p, dtype),
+                    array<feature_type>::full(p,
+                                              detail::is_floating_point(dtype)
+                                                  ? feature_type::ratio
+                                                  : feature_type::ordinal)),
               data_(data),
-              row_count_(data.get_count() / p /
-                         detail::get_data_type_size(dtype)),
+              row_count_(data.get_count() / p / detail::get_data_type_size(dtype)),
               col_count_(p),
               layout_(layout) {}
 

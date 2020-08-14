@@ -100,7 +100,8 @@ struct infer_kernel_gpu<Float, method::by_default> {
             daal_kmeans_lloyd_dense_ucapi_kernel_t<Float>().compute(daal_input, daal_output, &par));
 
         return infer_result()
-            .set_labels(dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build())
+            .set_labels(
+                dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build())
             .set_objective_function_value(static_cast<double>(arr_objective_function_value[0]));
     }
 };

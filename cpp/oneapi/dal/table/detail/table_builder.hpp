@@ -17,8 +17,8 @@
 #pragma once
 
 #include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/detail/table_builder_impl.hpp"
+#include "oneapi/dal/table/homogen.hpp"
 
 namespace oneapi::dal::detail {
 

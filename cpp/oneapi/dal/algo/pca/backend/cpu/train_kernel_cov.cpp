@@ -83,9 +83,11 @@ static train_result call_daal_kernel(const context_cpu& ctx,
                                                                 *daal_variances));
 
     return train_result()
-        .set_model(model().set_eigenvectors(
-            dal::detail::homogen_table_builder{}.reset(arr_eigvec, column_count, component_count).build()))
-        .set_eigenvalues(dal::detail::homogen_table_builder{}.reset(arr_eigval, 1, component_count).build());
+        .set_model(model().set_eigenvectors(dal::detail::homogen_table_builder{}
+                                                .reset(arr_eigvec, column_count, component_count)
+                                                .build()))
+        .set_eigenvalues(
+            dal::detail::homogen_table_builder{}.reset(arr_eigval, 1, component_count).build());
 }
 
 template <typename Float>

@@ -35,7 +35,7 @@ public:
     virtual void set_data_type(data_type dt)                                                    = 0;
     virtual void set_feature_type(feature_type ft)                                              = 0;
     virtual void allocate(std::int64_t row_count, std::int64_t column_count)                    = 0;
-    virtual void set_layout(data_layout layout)                                         = 0;
+    virtual void set_layout(data_layout layout)                                                 = 0;
     virtual void copy_data(const void* data, std::int64_t row_count, std::int64_t column_count) = 0;
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL

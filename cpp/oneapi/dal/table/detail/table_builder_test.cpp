@@ -62,7 +62,6 @@ TEST(homogen_table_builder_test, can_construct_table) {
     ASSERT_EQ(3, t.get_row_count());
     ASSERT_EQ(2, t.get_column_count());
 
-
     ASSERT_EQ(data_layout::row_major, t.get_data_layout());
 
     auto meta = t.get_metadata();

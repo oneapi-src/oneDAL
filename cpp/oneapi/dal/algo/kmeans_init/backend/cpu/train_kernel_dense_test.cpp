@@ -26,10 +26,9 @@ TEST(kmeans_init_cpu, train_result) {
     constexpr std::int64_t column_count  = 2;
     constexpr std::int64_t cluster_count = 2;
 
-    const float data[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
+    const float data[]    = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
                            -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
-    const auto data_table =
-        homogen_table::wrap( data, row_count, column_count);
+    const auto data_table = homogen_table::wrap(data, row_count, column_count);
 
     const float centroids[] = { 1.0, 1.0, 2.0, 2.0 };
 

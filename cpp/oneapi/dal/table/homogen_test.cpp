@@ -60,7 +60,7 @@ TEST(homogen_table_test, can_set_custom_implementation) {
             return m;
         }
 
-        data_layout get_data_layout () const {
+        data_layout get_data_layout() const {
             return data_layout::column_major;
         }
 
@@ -205,7 +205,7 @@ TEST(homogen_table_test, can_move_assigned_table_reference) {
 TEST(homogen_table_test, can_upcast_table) {
     float data_float[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f };
 
-    table t = homogen_table::wrap( data_float, 3, 2);
+    table t = homogen_table::wrap(data_float, 3, 2);
 
     ASSERT_TRUE(t.has_data());
     ASSERT_EQ(3, t.get_row_count());
