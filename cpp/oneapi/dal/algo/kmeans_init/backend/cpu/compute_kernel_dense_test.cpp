@@ -21,7 +21,7 @@
 
 using namespace oneapi::dal;
 
-TEST(kmeans_init_cpu, train_result) {
+TEST(kmeans_init_cpu, compute_result) {
     constexpr std::int64_t row_count     = 8;
     constexpr std::int64_t column_count  = 2;
     constexpr std::int64_t cluster_count = 2;
@@ -34,11 +34,11 @@ TEST(kmeans_init_cpu, train_result) {
 
     const auto kmeans_desc = kmeans_init::descriptor<>().set_cluster_count(cluster_count);
 
-    const auto result_train = train(kmeans_desc, data_table);
+    const auto result_compute = compute(kmeans_desc, data_table);
 
-    const auto train_centroids =
-        row_accessor<const float>(result_train.get_centroids()).pull().get_data();
+    const auto compute_centroids =
+        row_accessor<const float>(result_compute.get_centroids()).pull().get_data();
     for (std::int64_t i = 0; i < cluster_count * column_count; ++i) {
-        ASSERT_FLOAT_EQ(centroids[i], train_centroids[i]);
+        ASSERT_FLOAT_EQ(centroids[i], compute_centroids[i]);
     }
 }

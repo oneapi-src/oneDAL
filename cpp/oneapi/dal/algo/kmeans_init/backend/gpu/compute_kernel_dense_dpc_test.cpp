@@ -24,7 +24,7 @@
 
 using namespace oneapi::dal;
 
-TEST(kmeans_init_gpu, train_result) {
+TEST(kmeans_init_gpu, compute_result) {
     auto selector = sycl::gpu_selector();
     auto queue    = sycl::queue(selector);
 
@@ -42,12 +42,12 @@ TEST(kmeans_init_gpu, train_result) {
 
     const auto kmeans_desc = kmeans_init::descriptor<>().set_cluster_count(cluster_count);
 
-    const auto result_train = train(queue, kmeans_desc, data_table);
+    const auto result_compute = compute(queue, kmeans_desc, data_table);
 
-    const auto train_centroids =
-        row_accessor<const float>(result_train.get_centroids()).pull(queue).get_data();
+    const auto compute_centroids =
+        row_accessor<const float>(result_compute.get_centroids()).pull(queue).get_data();
     for (std::int64_t i = 0; i < cluster_count * column_count; ++i) {
-        ASSERT_FLOAT_EQ(centroids[i], train_centroids[i]);
+        ASSERT_FLOAT_EQ(centroids[i], compute_centroids[i]);
     }
 
     sycl::free(data, queue);

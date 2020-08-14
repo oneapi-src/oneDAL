@@ -14,28 +14,26 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/kmeans_init/backend/cpu/train_kernel.hpp"
-#include "oneapi/dal/algo/kmeans_init/backend/gpu/train_kernel.hpp"
-#include "oneapi/dal/algo/kmeans_init/detail/train_ops.hpp"
-#include "oneapi/dal/backend/dispatcher_dpc.hpp"
+#include "oneapi/dal/algo/kmeans_init/detail/compute_ops.hpp"
+#include "oneapi/dal/algo/kmeans_init/backend/cpu/compute_kernel.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::kmeans_init::detail {
-using oneapi::dal::detail::data_parallel_policy;
+using oneapi::dal::detail::host_policy;
 
 template <typename Float, typename Method>
-struct ONEAPI_DAL_EXPORT train_ops_dispatcher<data_parallel_policy, Float, Method> {
-    train_result operator()(const data_parallel_policy& ctx,
-                            const descriptor_base& params,
-                            const train_input& input) const {
+struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<host_policy, Float, Method> {
+    compute_result operator()(const host_policy& ctx,
+                              const descriptor_base& desc,
+                              const compute_input& input) const {
         using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Method>,
-                                            backend::train_kernel_gpu<Float, Method>>;
-        return kernel_dispatcher_t{}(ctx, params, input);
+            dal::backend::kernel_dispatcher<backend::compute_kernel_cpu<Float, Method>>;
+        return kernel_dispatcher_t()(ctx, desc, input);
     }
 };
 
 #define INSTANTIATE(F, M) \
-    template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<data_parallel_policy, F, M>;
+    template struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<host_policy, F, M>;
 
 INSTANTIATE(float, method::dense)
 INSTANTIATE(double, method::dense)
