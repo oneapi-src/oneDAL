@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
   auto jaccard_coeffs = result_vertex_similarity.get_coeffs();
   auto vertex_pairs = result_vertex_similarity.get_vertex_pairs();
   auto nonzero_coeff_count = result_vertex_similarity.get_nonzero_coeff_count();
-
+/*
   std::cout << "The number of nonzero Jaccard coeffs in the block: "
             << nonzero_coeff_count << std::endl;
 
@@ -85,4 +85,5 @@ int main(int argc, char **argv) {
 
   std::cout << "Jaccard values: " << std::endl;
   print_vertex_similarity_result(jaccard_coeffs, nonzero_coeff_count);
+  */
 }
