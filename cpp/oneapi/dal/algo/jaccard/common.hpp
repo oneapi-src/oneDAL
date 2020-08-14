@@ -31,17 +31,26 @@ struct fast {};
 using by_default = fast;
 } // namespace method
 
+/// The base class for the Jaccard similarity algorithm descriptor
 class ONEAPI_DAL_EXPORT descriptor_base : public base {
 public:
     using tag_t    = detail::tag;
     using float_t  = float;
     using method_t = method::by_default;
 
+    /// Constructs the empty descriptor
     descriptor_base();
 
+    /// Returns the begin of the row of the graph block
     auto get_row_range_begin() const -> std::int64_t;
+
+    /// Returns the end of the row of the graph block
     auto get_row_range_end() const -> std::int64_t;
+
+    /// Returns the begin of the column of the graph block
     auto get_column_range_begin() const -> std::int64_t;
+
+    /// Returns the end of the column of the graph block
     auto get_column_range_end() const -> std::int64_t;
 
 protected:
@@ -53,21 +62,38 @@ protected:
     oneapi::dal::detail::pimpl<detail::descriptor_impl> impl_;
 };
 
+/// Class for the Jaccard similarity algorithm descriptor
+///
+/// @tparam Float The data type of the result
+/// @tparam Method The algorithm method
 template <typename Float = descriptor_base::float_t, typename Method = descriptor_base::method_t>
 class descriptor : public descriptor_base {
 public:
     using method_t = Method;
 
+    /// Sets the range of the rows of the graph block for Jaccard similarity computation
+    ///
+    /// @param [in] begin  The begin of the row of the graph block  
+    /// @param [in] end    The end of the row of the graph block  
     auto& set_row_range(const int64_t& begin, const int64_t& end) {
         this->set_row_range_impl(begin, end);
         return *this;
     }
 
+    /// Sets the range of the columns of the graph block for Jaccard similarity computation
+    ///
+    /// @param [in] begin  The begin of the column of the graph block  
+    /// @param [in] end    The end of the column of the graph block 
     auto& set_column_range(const int64_t& begin, const int64_t& end) {
         this->set_column_range_impl(begin, end);
         return *this;
     }
 
+    /// Sets the range of the rows and columns of the graph block for Jaccard similarity 
+    /// computation
+    ///
+    /// @param [in] row_range     The range of the rows of the graph block  
+    /// @param [in] column_range  The range of the columns of the graph block 
     auto& set_block(const std::initializer_list<int64_t>& row_range,
                     const std::initializer_list<int64_t>& column_range) {
         this->set_block_impl(row_range, column_range);
