@@ -23,6 +23,8 @@
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
+#include "oneapi/dal/table/row_accessor.hpp"
+
 namespace oneapi::dal::svm::backend {
 
 using std::int64_t;
@@ -87,8 +89,8 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
 
     return infer_result()
         .set_decision_function(
-            homogen_table_builder{}.reset(arr_decision_function, row_count, 1).build())
-        .set_labels(homogen_table_builder{}.reset(arr_label, row_count, 1).build());
+            dal::detail::homogen_table_builder{}.reset(arr_decision_function, row_count, 1).build())
+        .set_labels(dal::detail::homogen_table_builder{}.reset(arr_label, row_count, 1).build());
 }
 
 template <typename Float>

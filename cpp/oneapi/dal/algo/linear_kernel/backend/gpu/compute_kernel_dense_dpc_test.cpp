@@ -19,8 +19,8 @@
 #include "gtest/gtest.h"
 #define ONEAPI_DAL_DATA_PARALLEL
 #include "oneapi/dal/algo/linear_kernel.hpp"
-#include "oneapi/dal/data/accessor.hpp"
-#include "oneapi/dal/data/table.hpp"
+#include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
 
 using namespace oneapi::dal;
 using std::int32_t;
@@ -50,10 +50,8 @@ TEST(linear_kernel_dense_test, can_compute_unit_matrix) {
     auto y = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(y, y_host, sizeof(float) * row_count * column_count).wait();
 
-    const auto x_table =
-        homogen_table{ queue, x, row_count, column_count, empty_delete<const float>() };
-    const auto y_table =
-        homogen_table{ queue, y, row_count, column_count, empty_delete<const float>() };
+    const auto x_table = homogen_table::wrap(queue, x, row_count, column_count);
+    const auto y_table = homogen_table::wrap(queue, y, row_count, column_count);
 
     const auto kernel_desc    = linear_kernel::descriptor{};
     const auto result_compute = compute(queue, kernel_desc, x_table, y_table);
@@ -86,8 +84,7 @@ TEST(linear_kernel_dense_test, can_compute_same_unit_matrix) {
     auto x = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(x, x_host, sizeof(float) * row_count * column_count).wait();
 
-    const auto x_table =
-        homogen_table{ queue, x, row_count, column_count, empty_delete<const float>() };
+    const auto x_table = homogen_table::wrap(queue, x, row_count, column_count);
 
     const auto kernel_desc  = linear_kernel::descriptor{};
     const auto values_table = compute(queue, kernel_desc, x_table, x_table).get_values();
@@ -121,10 +118,8 @@ TEST(linear_kernel_dense_test, can_compute_one_element) {
     auto y = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(y, y_host, sizeof(float) * row_count * column_count).wait();
 
-    const auto x_table =
-        homogen_table{ queue, x, row_count, column_count, empty_delete<const float>() };
-    const auto y_table =
-        homogen_table{ queue, y, row_count, column_count, empty_delete<const float>() };
+    const auto x_table = homogen_table::wrap(queue, x, row_count, column_count);
+    const auto y_table = homogen_table::wrap(queue, y, row_count, column_count);
 
     const auto kernel_desc  = linear_kernel::descriptor{};
     const auto values_table = compute(queue, kernel_desc, x_table, y_table).get_values();
@@ -163,10 +158,8 @@ TEST(linear_kernel_dense_test, can_compute_simple_matrix) {
     auto y = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(y, y_host, sizeof(float) * row_count * column_count).wait();
 
-    const auto x_table =
-        homogen_table{ queue, x, row_count, column_count, empty_delete<const float>() };
-    const auto y_table =
-        homogen_table{ queue, y, row_count, column_count, empty_delete<const float>() };
+    const auto x_table = homogen_table::wrap(queue, x, row_count, column_count);
+    const auto y_table = homogen_table::wrap(queue, y, row_count, column_count);
 
     const auto kernel_desc  = linear_kernel::descriptor{};
     const auto values_table = compute(queue, kernel_desc, x_table, y_table).get_values();
@@ -199,8 +192,7 @@ TEST(linear_kernel_dense_test, can_compute_same_simple_matrix) {
     auto x = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(x, x_host, sizeof(float) * row_count * column_count).wait();
 
-    const auto x_table =
-        homogen_table{ queue, x, row_count, column_count, empty_delete<const float>() };
+    const auto x_table = homogen_table::wrap(queue, x, row_count, column_count);
 
     const auto kernel_desc  = linear_kernel::descriptor{};
     const auto values_table = compute(queue, kernel_desc, x_table, x_table).get_values();
@@ -239,10 +231,8 @@ TEST(linear_kernel_dense_test, can_compute_diff_matrix) {
     auto y = sycl::malloc_shared<float>(row_count_y * column_count, queue);
     queue.memcpy(y, y_host, sizeof(float) * row_count_y * column_count).wait();
 
-    const auto x_table =
-        homogen_table{ queue, x, row_count_x, column_count, empty_delete<const float>() };
-    const auto y_table =
-        homogen_table{ queue, y, row_count_y, column_count, empty_delete<const float>() };
+    const auto x_table = homogen_table::wrap(queue, x, row_count_x, column_count);
+    const auto y_table = homogen_table::wrap(queue, y, row_count_y, column_count);
 
     const auto kernel_desc  = linear_kernel::descriptor{};
     const auto values_table = compute(queue, kernel_desc, x_table, y_table).get_values();
@@ -282,10 +272,8 @@ TEST(linear_kernel_dense_test, can_compute_diff_matrix_not_default_params) {
     auto y = sycl::malloc_shared<float>(row_count_y * column_count, queue);
     queue.memcpy(y, y_host, sizeof(float) * row_count_y * column_count).wait();
 
-    const auto x_table =
-        homogen_table{ queue, x, row_count_x, column_count, empty_delete<const float>() };
-    const auto y_table =
-        homogen_table{ queue, y, row_count_y, column_count, empty_delete<const float>() };
+    const auto x_table = homogen_table::wrap(queue, x, row_count_x, column_count);
+    const auto y_table = homogen_table::wrap(queue, y, row_count_y, column_count);
 
     const auto kernel_desc  = linear_kernel::descriptor{}.set_k(2.0).set_b(1.0);
     const auto values_table = compute(queue, kernel_desc, x_table, y_table).get_values();

@@ -32,6 +32,8 @@
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
+#include "oneapi/dal/table/row_accessor.hpp"
+
 namespace oneapi::dal::decision_forest::backend {
 
 using dal::backend::context_cpu;
@@ -97,7 +99,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     /* init daal result's objects */
     if (check_mask_flag(desc.get_error_metric_mode(), error_metric_mode::out_of_bag_error)) {
         auto arr_oob_err = array<Float>::empty(1 * 1);
-        res.set_oob_err(homogen_table_builder{}.reset(arr_oob_err, 1, 1).build());
+        res.set_oob_err(dal::detail::homogen_table_builder{}.reset(arr_oob_err, 1, 1).build());
 
         const auto res_oob_err = interop::convert_to_daal_homogen_table(arr_oob_err, 1, 1);
         daal_result.set(cls::training::outOfBagError, res_oob_err);
@@ -107,7 +109,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                         error_metric_mode::out_of_bag_error_per_observation)) {
         auto arr_oob_per_obs_err = array<Float>::empty(row_count * 1);
         res.set_oob_per_observation_err(
-            homogen_table_builder{}.reset(arr_oob_per_obs_err, row_count, 1).build());
+            dal::detail::homogen_table_builder{}.reset(arr_oob_per_obs_err, row_count, 1).build());
 
         const auto res_oob_per_obs_err =
             interop::convert_to_daal_homogen_table(arr_oob_per_obs_err, row_count, 1);
@@ -115,7 +117,8 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     }
     if (variable_importance_mode::none != vimp) {
         auto arr_var_imp = array<Float>::empty(1 * column_count);
-        res.set_var_importance(homogen_table_builder{}.reset(arr_var_imp, 1, column_count).build());
+        res.set_var_importance(
+            dal::detail::homogen_table_builder{}.reset(arr_var_imp, 1, column_count).build());
 
         const auto res_var_imp =
             interop::convert_to_daal_homogen_table(arr_var_imp, 1, column_count);
