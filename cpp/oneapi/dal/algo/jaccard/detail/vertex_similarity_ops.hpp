@@ -28,7 +28,7 @@ template <typename Policy, typename Float, class Method, typename Graph>
 struct ONEAPI_DAL_EXPORT vertex_similarity_ops_dispatcher {
     vertex_similarity_result operator()(const Policy &policy,
                                         const descriptor_base &descriptor,
-                                        const vertex_similarity_input<Graph> &input) const;
+                                        vertex_similarity_input<Graph> &input) const;
 };
 
 template <typename Descriptor, typename Graph>
@@ -39,8 +39,7 @@ struct vertex_similarity_ops {
     using result_t          = vertex_similarity_result;
     using descriptor_base_t = descriptor_base;
 
-    void check_preconditions(const Descriptor &param,
-                             const vertex_similarity_input<Graph> &input) const {
+    void check_preconditions(const Descriptor &param, vertex_similarity_input<Graph> &input) const {
         const auto row_begin    = param.get_row_range_begin();
         const auto row_end      = param.get_row_range_end();
         const auto column_begin = param.get_column_range_begin();
@@ -65,7 +64,7 @@ struct vertex_similarity_ops {
     template <typename Policy>
     auto operator()(const Policy &policy,
                     const Descriptor &desc,
-                    const vertex_similarity_input<Graph> &input) const {
+                    vertex_similarity_input<Graph> &input) const {
         check_preconditions(desc, input);
         return vertex_similarity_ops_dispatcher<Policy, float_t, method_t, Graph>()(policy,
                                                                                     desc,

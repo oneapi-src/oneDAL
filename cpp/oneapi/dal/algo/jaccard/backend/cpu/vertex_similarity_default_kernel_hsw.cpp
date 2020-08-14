@@ -15,7 +15,6 @@
  *******************************************************************************/
 
 #include <immintrin.h>
-#include <iostream>
 
 #include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
 #include "oneapi/dal/algo/jaccard/common.hpp"
@@ -45,16 +44,16 @@ DAAL_FORCEINLINE int _popcnt32_redef(int a) {
 }
 #endif
 
-template <class NodeID_t>
-size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t n_v) {
-    size_t total = 0;
-    NodeID_t i_u = 0, i_v = 0;
+template <class VertexType> //__declspec(noinline)
+size_t intersection(VertexType *neigh_u, VertexType *neigh_v, VertexType n_u, VertexType n_v) {
+    size_t total   = 0;
+    VertexType i_u = 0, i_v = 0;
 
-    const NodeID_t n_u_8_end = n_u - 8;
-    const NodeID_t n_v_8_end = n_v - 8;
+    const VertexType n_u_8_end = n_u - 8;
+    const VertexType n_v_8_end = n_v - 8;
     while (i_u <= n_u_8_end && i_v <= n_v_8_end) {
-        const NodeID_t minu = neigh_u[i_u];
-        const NodeID_t maxv = neigh_v[i_v + 7];
+        const VertexType minu = neigh_u[i_u];
+        const VertexType maxv = neigh_v[i_v + 7];
 
         if (minu > maxv) {
             if (minu > neigh_v[n_v - 1]) {
@@ -64,8 +63,8 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
             continue;
         }
 
-        const NodeID_t maxu = neigh_u[i_u + 7]; // assumes neighbor list is ordered
-        const NodeID_t minv = neigh_v[i_v];
+        const VertexType maxu = neigh_u[i_u + 7]; // assumes neighbor list is ordered
+        const VertexType minv = neigh_v[i_v];
 
         if (minv > maxu) {
             if (minv > neigh_u[n_u - 1]) {
@@ -137,9 +136,9 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
     }
 
     for (; i_u <= n_u_8_end && i_v < n_v; i_u += 8) {
-        __m256i v_u = _mm256_load_si256(reinterpret_cast<const __m256i *>(neigh_u + i_u));
+        __m256i v_u = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(neigh_u + i_u));
 
-        const NodeID_t neighu_iu = neigh_u[i_u + 7];
+        const VertexType neighu_iu = neigh_u[i_u + 7];
         for (; neigh_v[i_v] <= neighu_iu && i_v < n_v; i_v++) {
             __m256i tmp_v_v = _mm256_set1_epi32(neigh_v[i_v]);
 
@@ -149,9 +148,10 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
         }
     }
     for (; i_v <= n_v_8_end && i_u < n_u; i_v += 8) {
-        __m256i v_v = _mm256_load_si256(
+        //cout << i_v << " " << i_u << endl;
+        __m256i v_v = _mm256_loadu_si256(
             reinterpret_cast<const __m256i *>(neigh_v + i_v)); // load 8 neighbors of v
-        const NodeID_t neighv_iv = neigh_v[i_v + 7];
+        const VertexType neighv_iv = neigh_v[i_v + 7];
         for (; neigh_u[i_u] <= neighv_iv && i_u < n_u; i_u++) {
             __m256i tmp_v_u           = _mm256_set1_epi32(neigh_u[i_u]);
             __m256i match             = _mm256_cmpeq_epi32(v_v, tmp_v_u);
@@ -160,14 +160,14 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
         }
     }
 
-    const NodeID_t n_u_4_end = n_u - 4;
-    const NodeID_t n_v_4_end = n_v - 4;
+    const VertexType n_u_4_end = n_u - 4;
+    const VertexType n_v_4_end = n_v - 4;
 
     while (i_u <= n_u_4_end && i_v <= n_v_4_end) { // not in last n%8 elements
 
         // assumes neighbor list is ordered
-        NodeID_t minu = neigh_u[i_u];
-        NodeID_t maxv = neigh_v[i_v + 3];
+        VertexType minu = neigh_u[i_u];
+        VertexType maxv = neigh_v[i_v + 3];
 
         if (minu > maxv) {
             if (minu > neigh_v[n_v - 1]) {
@@ -176,8 +176,8 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
             i_v += 4;
             continue;
         }
-        NodeID_t minv = neigh_v[i_v];
-        NodeID_t maxu = neigh_u[i_u + 3];
+        VertexType minv = neigh_v[i_v];
+        VertexType maxu = neigh_u[i_u + 3];
         if (minv > maxu) {
             if (minv > neigh_u[n_u - 1]) {
                 return total;
@@ -220,9 +220,9 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
     }
 
     if (i_u <= n_u_4_end && i_v < n_v) {
-        __m128i v_u = _mm_load_si128(
+        __m128i v_u = _mm_loadu_si128(
             reinterpret_cast<const __m128i *>(neigh_u + i_u)); // load 8 neighbors of u
-        const NodeID_t neighu_iu = neigh_u[i_u + 3];
+        const VertexType neighu_iu = neigh_u[i_u + 3];
         for (; neigh_v[i_v] <= neighu_iu && i_v < n_v; i_v++) {
             __m128i tmp_v_v           = _mm_set1_epi32(neigh_v[i_v]);
             __m128i match             = _mm_cmpeq_epi32(v_u, tmp_v_v);
@@ -232,9 +232,9 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
         i_u += 4;
     }
     if (i_v <= n_v_4_end && i_u < n_u) {
-        __m128i v_v = _mm_load_si128(
+        __m128i v_v = _mm_loadu_si128(
             reinterpret_cast<const __m128i *>(neigh_v + i_v)); // load 8 neighbors of v
-        const NodeID_t neighv_iv = neigh_v[i_v + 3];
+        const VertexType neighv_iv = neigh_v[i_v + 3];
         for (; neigh_u[i_u] <= neighv_iv && i_u < n_u; i_u++) {
             __m128i tmp_v_u           = _mm_set1_epi32(neigh_u[i_u]);
             __m128i match             = _mm_cmpeq_epi32(v_v, tmp_v_u);
@@ -259,15 +259,10 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
 }
 
 template size_t intersection<int32_t>(int32_t *neigh_u, int32_t *neigh_v, int32_t n_u, int32_t n_v);
-template size_t intersection<int64_t>(int64_t *neigh_u, int64_t *neigh_v, int64_t n_u, int64_t n_v);
 template size_t intersection<uint32_t>(uint32_t *neigh_u,
                                        uint32_t *neigh_v,
                                        uint32_t n_u,
                                        uint32_t n_v);
-template size_t intersection<uint64_t>(uint64_t *neigh_u,
-                                       uint64_t *neigh_v,
-                                       uint64_t n_u,
-                                       uint64_t n_v);
 
 DAAL_FORCEINLINE int64_t min(int64_t a, int64_t b) {
     if (a >= b) {
@@ -282,7 +277,7 @@ template <>
 vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_graph<>,
                                                      oneapi::dal::backend::cpu_dispatch_avx2>(
     const descriptor_base &desc,
-    const vertex_similarity_input<undirected_adjacency_array_graph<>> &input) {
+    vertex_similarity_input<undirected_adjacency_array_graph<>> &input) {
     auto my_graph                       = input.get_graph();
     auto g                              = oneapi::dal::preview::detail::get_impl(my_graph);
     auto g_edge_offsets                 = g->_edge_offsets.data();
@@ -293,9 +288,10 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
     const auto column_begin             = static_cast<int32_t>(desc.get_column_range_begin());
     const auto column_end               = static_cast<int32_t>(desc.get_column_range_end());
     const auto number_elements_in_block = (row_end - row_begin) * (column_end - column_begin);
-    array<float> jaccard                = array<float>::empty(number_elements_in_block);
-    array<uint32_t> vertex_pairs        = array<uint32_t>::empty(2 * number_elements_in_block);
-    size_t nnz                          = 0;
+    int *first_vertices                 = reinterpret_cast<int *>(input.get_result_ptr());
+    int *second_vertices                = first_vertices + number_elements_in_block;
+    float *jaccard = reinterpret_cast<float *>(first_vertices + 2 * number_elements_in_block);
+    int64_t nnz    = 0;
     for (int32_t i = row_begin; i < row_end; ++i) {
         const auto i_neighbor_size = g_degrees[i];
         const auto i_neigbhors     = g_vertex_neighbors + g_edge_offsets[i];
@@ -310,8 +306,8 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                 if (intersection_value) {
                     jaccard[nnz] = float(intersection_value) /
                                    float(i_neighbor_size + j_neighbor_size - intersection_value);
-                    vertex_pairs[nnz]                            = i;
-                    vertex_pairs[number_elements_in_block + nnz] = j;
+                    first_vertices[nnz]  = i;
+                    second_vertices[nnz] = j;
                     nnz++;
                 }
             }
@@ -319,9 +315,9 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
 
         auto tmp_idx = column_begin;
         if (diagonal >= column_begin) {
-            jaccard[nnz]                                 = 1.0;
-            vertex_pairs[nnz]                            = i;
-            vertex_pairs[number_elements_in_block + nnz] = diagonal;
+            jaccard[nnz]         = 1.0;
+            first_vertices[nnz]  = i;
+            second_vertices[nnz] = diagonal;
             nnz++;
             tmp_idx = diagonal + 1;
         }
@@ -336,21 +332,25 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                 if (intersection_value) {
                     jaccard[nnz] = float(intersection_value) /
                                    float(i_neighbor_size + j_neighbor_size - intersection_value);
-                    vertex_pairs[nnz]                            = i;
-                    vertex_pairs[number_elements_in_block + nnz] = diagonal;
+                    first_vertices[nnz]  = i;
+                    second_vertices[nnz] = j;
                     nnz++;
                 }
             }
         }
     }
-    jaccard.reset(nnz);
-    for (size_t i = number_elements_in_block; i < number_elements_in_block + nnz; i++) {
-        vertex_pairs[i - nnz] = vertex_pairs[i];
-    }
-    vertex_pairs.reset(2 * nnz);
-
-    vertex_similarity_result res(homogen_table_builder{}.reset(vertex_pairs, 2, nnz).build(),
-                                 homogen_table_builder{}.reset(jaccard, 1, nnz).build());
+    vertex_similarity_result res(
+        homogen_table_builder{}
+            .reset(array(first_vertices, 2 * number_elements_in_block, empty_delete<const int>()),
+                   2,
+                   number_elements_in_block)
+            .build(),
+        homogen_table_builder{}
+            .reset(array(jaccard, number_elements_in_block, empty_delete<const float>()),
+                   1,
+                   number_elements_in_block)
+            .build(),
+        nnz);
     return res;
 }
 
@@ -358,7 +358,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
     template vertex_similarity_result                                     \
     call_jaccard_default_kernel<undirected_adjacency_array_graph<>, cpu>( \
         const descriptor_base &desc,                                      \
-        const vertex_similarity_input<undirected_adjacency_array_graph<>> &input);
+        vertex_similarity_input<undirected_adjacency_array_graph<>> &input);
 
 INSTANTIATE(oneapi::dal::backend::cpu_dispatch_avx2)
 } // namespace detail

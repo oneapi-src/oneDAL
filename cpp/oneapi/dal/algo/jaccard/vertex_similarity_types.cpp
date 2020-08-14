@@ -22,30 +22,42 @@ namespace jaccard {
 template <typename Graph>
 class detail::vertex_similarity_input_impl : public base {
 public:
-    vertex_similarity_input_impl(const Graph& graph_data_input) : graph_data(graph_data_input) {}
+    vertex_similarity_input_impl(const Graph& graph_data_input, void* result_ptr_input)
+            : graph_data(graph_data_input),
+              result_ptr(result_ptr_input) {}
 
     const Graph& graph_data;
+    void* result_ptr;
 };
 
 using detail::vertex_similarity_input_impl;
 
 template <typename Graph>
-vertex_similarity_input<Graph>::vertex_similarity_input(const Graph& data)
-        : impl_(new vertex_similarity_input_impl<Graph>(data)) {}
+vertex_similarity_input<Graph>::vertex_similarity_input(const Graph& data, void* result_ptr_input)
+        : impl_(new vertex_similarity_input_impl<Graph>(data, result_ptr_input)) {}
 
 template <typename Graph>
 const Graph& vertex_similarity_input<Graph>::get_graph() const {
     return impl_->graph_data;
 }
 
+template <typename Graph>
+void* vertex_similarity_input<Graph>::get_result_ptr() {
+    return impl_->result_ptr;
+}
+
 class detail::vertex_similarity_result_impl : public base {
 public:
-    vertex_similarity_result_impl(const table& vertex_pairs, const table& coeffs)
+    vertex_similarity_result_impl(const table& vertex_pairs,
+                                  const table& coeffs,
+                                  int64_t& nonzero_coeff_count)
             : coeffs(coeffs),
-              vertex_pairs(vertex_pairs) {}
+              vertex_pairs(vertex_pairs),
+              nonzero_coeff_count(nonzero_coeff_count) {}
 
     table coeffs;
     table vertex_pairs;
+    int64_t nonzero_coeff_count;
 };
 
 template class detail::vertex_similarity_input_impl<undirected_adjacency_array_graph<>>;
@@ -54,8 +66,10 @@ template class ONEAPI_DAL_EXPORT vertex_similarity_input<undirected_adjacency_ar
 
 using detail::vertex_similarity_result_impl;
 
-vertex_similarity_result::vertex_similarity_result(const table& vertex_pairs, const table& coeffs)
-        : impl_(new vertex_similarity_result_impl(vertex_pairs, coeffs)) {}
+vertex_similarity_result::vertex_similarity_result(const table& vertex_pairs,
+                                                   const table& coeffs,
+                                                   int64_t& nonzero_coeff_count)
+        : impl_(new vertex_similarity_result_impl(vertex_pairs, coeffs, nonzero_coeff_count)) {}
 
 table vertex_similarity_result::get_coeffs() const {
     return impl_->coeffs;
@@ -63,6 +77,10 @@ table vertex_similarity_result::get_coeffs() const {
 
 table vertex_similarity_result::get_vertex_pairs() const {
     return impl_->vertex_pairs;
+}
+
+int64_t vertex_similarity_result::get_nonzero_coeff_count() const {
+    return impl_->nonzero_coeff_count;
 }
 } // namespace jaccard
 } // namespace oneapi::dal::preview

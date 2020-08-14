@@ -33,8 +33,9 @@ class vertex_similarity_result_impl;
 template <typename Graph>
 class ONEAPI_DAL_EXPORT vertex_similarity_input {
 public:
-    vertex_similarity_input(const Graph& graph);
+    vertex_similarity_input(const Graph& graph, void* result_ptr);
     const Graph& get_graph() const;
+    void* get_result_ptr();
 
 private:
     dal::detail::pimpl<detail::vertex_similarity_input_impl<Graph>> impl_;
@@ -43,9 +44,12 @@ private:
 class ONEAPI_DAL_EXPORT vertex_similarity_result {
 public:
     vertex_similarity_result(){};
-    vertex_similarity_result(const table& vertex_pairs, const table& coeffs);
+    vertex_similarity_result(const table& vertex_pairs,
+                             const table& coeffs,
+                             int64_t& nonzero_coeff_count);
     table get_coeffs() const;
     table get_vertex_pairs() const;
+    int64_t get_nonzero_coeff_count() const;
 
 private:
     dal::detail::pimpl<detail::vertex_similarity_result_impl> impl_;

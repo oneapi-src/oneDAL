@@ -28,7 +28,7 @@ ONEAPI_DAL_EXPORT vertex_similarity_result
 vertex_similarity_ops_dispatcher<Policy, Float, Method, Graph>::operator()(
     const Policy &policy,
     const descriptor_base &desc,
-    const vertex_similarity_input<Graph> &input) const {
+    vertex_similarity_input<Graph> &input) const {
     static auto impl = get_backend<Float, Method>(desc, input);
     return (*impl)(oneapi::dal::backend::context_cpu{ policy }, desc, input);
 }

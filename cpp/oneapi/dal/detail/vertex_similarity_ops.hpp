@@ -30,7 +30,7 @@ auto vertex_similarity_dispatch_by_input(const Descriptor &desc, Head &&head, Ta
     using ops_t   = vertex_similarity_ops<Descriptor, std::decay_t<Head>, tag_t>;
     using input_t = typename ops_t::input_t;
 
-    const auto input = input_t{ std::forward<Head>(head), std::forward<Tail>(tail)... };
+    auto input = input_t{ std::forward<Head>(head), std::forward<Tail>(tail)... };
     return ops_t()(oneapi::dal::detail::host_policy{}, desc, input);
 }
 
