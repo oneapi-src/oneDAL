@@ -291,9 +291,8 @@ vertex_similarity_result call_jaccard_default_kernel(const descriptor_base &desc
     const auto column_end               = static_cast<int32_t>(desc.get_column_range_end());
     const auto number_elements_in_block = (row_end - row_begin) * (column_end - column_begin);
     array<float> jaccard                = array<float>::empty(number_elements_in_block);
-    array<std::pair<std::uint32_t, std::uint32_t>> vertex_pairs =
-        array<std::pair<std::uint32_t, std::uint32_t>>::empty(number_elements_in_block);
-    size_t nnz = 0;
+    array<uint32_t> vertex_pairs        = array<uint32_t>::empty(2 * number_elements_in_block);
+    size_t nnz                          = 0;
     for (int32_t i = row_begin; i < row_end; ++i) {
         const auto i_neighbor_size = g_degrees[i];
         const auto i_neigbhors     = g_vertex_neighbors + g_edge_offsets[i];
@@ -308,7 +307,8 @@ vertex_similarity_result call_jaccard_default_kernel(const descriptor_base &desc
                 if (intersection_value) {
                     jaccard[nnz] = float(intersection_value) /
                                    float(i_neighbor_size + j_neighbor_size - intersection_value);
-                    vertex_pairs[nnz] = std::make_pair(i, j);
+                    vertex_pairs[nnz]                            = i;
+                    vertex_pairs[number_elements_in_block + nnz] = j;
                     nnz++;
                 }
             }
@@ -316,8 +316,9 @@ vertex_similarity_result call_jaccard_default_kernel(const descriptor_base &desc
 
         auto tmp_idx = column_begin;
         if (diagonal >= column_begin) {
-            jaccard[nnz]      = 1.0;
-            vertex_pairs[nnz] = std::make_pair(i, diagonal);
+            jaccard[nnz]                                 = 1.0;
+            vertex_pairs[nnz]                            = i;
+            vertex_pairs[number_elements_in_block + nnz] = diagonal;
             nnz++;
             tmp_idx = diagonal + 1;
         }
@@ -332,16 +333,21 @@ vertex_similarity_result call_jaccard_default_kernel(const descriptor_base &desc
                 if (intersection_value) {
                     jaccard[nnz] = float(intersection_value) /
                                    float(i_neighbor_size + j_neighbor_size - intersection_value);
-                    vertex_pairs[nnz] = std::make_pair(i, j);
+                    vertex_pairs[nnz]                            = i;
+                    vertex_pairs[number_elements_in_block + nnz] = diagonal;
                     nnz++;
                 }
             }
         }
     }
     jaccard.reset(nnz);
-    vertex_pairs.reset(nnz);
+    for (size_t i = number_elements_in_block; i < number_elements_in_block + nnz; i++) {
+        vertex_pairs[i - nnz] = vertex_pairs[i];
+    }
+    vertex_pairs.reset(2 * nnz);
 
-    vertex_similarity_result res(homogen_table_builder{}.build(), homogen_table_builder{}.build());
+    vertex_similarity_result res(homogen_table_builder{}.reset(vertex_pairs, 2, nnz).build(),
+                                 homogen_table_builder{}.reset(jaccard, 1, nnz).build());
     return res;
 }
 
