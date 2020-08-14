@@ -29,7 +29,7 @@ namespace detail {
 
 template <typename Graph, typename Cpu>
 vertex_similarity_result call_jaccard_default_kernel(const descriptor_base &desc,
-                                                     const vertex_similarity_input<Graph> &input);
+                                                     vertex_similarity_input<Graph> &input);
 } // namespace detail
 } // namespace jaccard
 } // namespace oneapi::dal::preview
