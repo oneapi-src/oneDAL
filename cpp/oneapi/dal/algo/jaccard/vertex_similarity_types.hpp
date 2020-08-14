@@ -44,7 +44,7 @@ public:
     /// Constructs the algorithm input initialized with the graph and the pointer
     /// to the allocated memory for the result. The size of the required memory
     /// can be computed by formula:
-    /// size =  (vertex_pair_element_count * vertex_pair_size + 
+    /// size =  (vertex_pair_element_count * vertex_pair_size +
     ///         jaccard_coeff_element_count * jaccard_coeff_size) * vertex_pairs_count,
     /// where:
     /// - vertex_pair_element_count is 2 (vertex1, vertex2);
