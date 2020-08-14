@@ -17,9 +17,25 @@
 #pragma once
 
 #include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/table/homogen_type_traits.hpp"
+#include "oneapi/dal/table/detail/common.hpp"
 
 namespace oneapi::dal {
+
+template <typename T>
+struct is_homogen_table_impl {
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(const void*, get_data, () const)
+
+    using base = is_table_impl<T>;
+
+    static constexpr bool value = base::template has_method_get_column_count_v<T> &&
+                                  base::template has_method_get_row_count_v<T> &&
+                                  base::template has_method_get_metadata_v<T> &&
+                                  base::template has_method_get_data_layout_v<T> &&
+                                  has_method_get_data_v<T>;
+};
+
+template <typename T>
+inline constexpr bool is_homogen_table_impl_v = is_homogen_table_impl<T>::value;
 
 class ONEAPI_DAL_EXPORT homogen_table : public table {
     friend detail::pimpl_accessor;
@@ -44,7 +60,7 @@ public:
                   std::int64_t row_count,
                   std::int64_t column_count,
                   ConstDeleter&& data_deleter,
-                  homogen_data_layout layout = homogen_data_layout::row_major) {
+                  data_layout layout = data_layout::row_major) {
         init_impl(detail::default_host_policy{},
                   row_count,
                   column_count,
@@ -61,7 +77,7 @@ public:
                   std::int64_t column_count,
                   ConstDeleter&& data_deleter,
                   const sycl::vector_class<sycl::event>& dependencies = {},
-                  homogen_data_layout layout = homogen_data_layout::row_major) {
+                  data_layout layout = data_layout::row_major) {
         init_impl(detail::data_parallel_policy{ queue },
                   row_count,
                   column_count,
@@ -78,8 +94,6 @@ public:
     }
 
     const void* get_data() const;
-
-    const homogen_table_metadata& get_metadata() const;
 
     std::int64_t get_kind() const {
         return kind();
@@ -100,7 +114,7 @@ private:
                    std::int64_t column_count,
                    const Data* data_pointer,
                    ConstDeleter&& data_deleter,
-                   homogen_data_layout layout) {
+                   data_layout layout) {
         array<Data> data_array{ data_pointer,
                                 row_count * column_count,
                                 std::forward<ConstDeleter>(data_deleter) };
@@ -110,7 +124,7 @@ private:
 
         auto byte_array = array<byte_t>{ data_array, byte_data, byte_count };
 
-        init_impl(policy, row_count, column_count, byte_array, make_table_feature<Data>(), layout);
+        init_impl(policy, row_count, column_count, byte_array, detail::make_data_type<Data>(), layout);
     }
 
     template <typename Policy>
@@ -118,8 +132,8 @@ private:
                    std::int64_t row_count,
                    std::int64_t column_count,
                    const array<byte_t>& data,
-                   const table_feature& feature,
-                   homogen_data_layout layout);
+                   const data_type& dtype,
+                   data_layout layout);
 
 private:
     homogen_table(const pimpl& impl) : table(impl) {}

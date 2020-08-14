@@ -62,6 +62,11 @@ constexpr bool is_floating_point(data_type t) {
 }
 
 template <typename T>
+constexpr bool is_floating_point() {
+    return is_floating_point(make_data_type<T>());
+}
+
+template <typename T>
 constexpr data_type make_data_type_impl() {
     if constexpr (std::is_same_v<std::int32_t, T>) {
         return data_type::int32;

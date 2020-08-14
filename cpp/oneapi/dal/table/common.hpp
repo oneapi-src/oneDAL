@@ -19,10 +19,53 @@
 #include <type_traits>
 
 #include "oneapi/dal/detail/common_dpc.hpp"
-#include "oneapi/dal/table/common_type_traits.hpp"
 #include "oneapi/dal/table/detail/table_impl_wrapper.hpp"
 
 namespace oneapi::dal {
+
+enum class feature_type { nominal, ordinal, interval, ratio };
+enum class data_layout { unknown, row_major, column_major };
+
+namespace detail {
+class table_metadata_impl;
+} // namespace detail
+
+class ONEAPI_DAL_EXPORT table_metadata {
+    friend detail::pimpl_accessor;
+    using pimpl = detail::pimpl<detail::table_metadata_impl>;
+
+public:
+    table_metadata();
+    table_metadata(const array<data_type>& dtypes, const array<feature_type>& ftypes);
+
+    std::int64_t get_feature_count() const;
+    const feature_type& get_feature_type(std::int64_t feature_index) const;
+    const data_type& get_data_type(std::int64_t feature_index) const;
+
+private:
+    table_metadata(const pimpl& impl) : impl_(impl) {}
+
+private:
+    pimpl impl_;
+};
+
+template <typename T>
+struct is_table_impl {
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(std::int64_t, get_column_count, () const)
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(std::int64_t, get_row_count, () const)
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(const table_metadata&, get_metadata, () const)
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(std::int64_t, get_kind, () const)
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(data_layout, get_data_layout, () const)
+
+    static constexpr bool value = has_method_get_column_count_v<T> &&
+                                  has_method_get_row_count_v<T> &&
+                                  has_method_get_metadata_v<T> &&
+                                  has_method_get_kind_v<T> &&
+                                  has_method_get_data_layout_v<T>;
+};
+
+template <typename T>
+inline constexpr bool is_table_impl_v = is_table_impl<T>::value;
 
 class ONEAPI_DAL_EXPORT table {
     friend detail::pimpl_accessor;
@@ -49,6 +92,7 @@ public:
     std::int64_t get_row_count() const;
     const table_metadata& get_metadata() const;
     std::int64_t get_kind() const;
+    data_layout get_data_layout() const;
 
 protected:
     table(const pimpl& impl) : impl_(impl) {}

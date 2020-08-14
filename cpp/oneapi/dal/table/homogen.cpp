@@ -27,11 +27,6 @@ int64_t homogen_table::kind() {
 
 homogen_table::homogen_table() : homogen_table(backend::homogen_table_impl{}) {}
 
-const homogen_table_metadata& homogen_table::get_metadata() const {
-    const auto& impl = detail::get_impl<detail::homogen_table_impl_iface>(*this);
-    return impl.get_metadata();
-}
-
 const void* homogen_table::get_data() const {
     const auto& impl = detail::get_impl<detail::homogen_table_impl_iface>(*this);
     return impl.get_data();
@@ -42,25 +37,25 @@ void homogen_table::init_impl(const Policy& policy,
                               int64_t row_count,
                               int64_t column_count,
                               const array<byte_t>& data,
-                              const table_feature& feature,
-                              homogen_data_layout layout) {
-    init_impl(backend::homogen_table_impl(column_count, data, feature, layout));
+                              const data_type& dtype,
+                              data_layout layout) {
+    init_impl(backend::homogen_table_impl(column_count, data, dtype, layout));
 }
 
 template ONEAPI_DAL_EXPORT void homogen_table::init_impl(const detail::default_host_policy&,
                                                          int64_t,
                                                          int64_t,
                                                          const array<byte_t>&,
-                                                         const table_feature&,
-                                                         homogen_data_layout);
+                                                         const data_type&,
+                                                         data_layout);
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
 template ONEAPI_DAL_EXPORT void homogen_table::init_impl(const detail::data_parallel_policy&,
                                                          int64_t,
                                                          int64_t,
                                                          const array<byte_t>&,
-                                                         const table_feature&,
-                                                         homogen_data_layout);
+                                                         const data_type&,
+                                                         data_layout);
 #endif
 
 } // namespace oneapi::dal

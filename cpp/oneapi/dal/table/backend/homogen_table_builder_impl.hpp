@@ -26,16 +26,16 @@ public:
     homogen_table_builder_impl()
             : row_count_(0),
               column_count_(0),
-              layout_(homogen_data_layout::row_major) {}
+              layout_(data_layout::row_major) {}
 
     void reset(homogen_table&& t) {
         auto& t_impl = detail::get_impl<detail::homogen_table_impl_iface>(t);
         auto& meta   = t_impl.get_metadata();
 
-        layout_  = meta.get_data_layout();
-        feature_ = meta.get_feature(0);
+        layout_  = t.get_data_layout();
+        dtype_ = meta.get_data_type(0);
 
-        std::int64_t data_size = detail::get_data_type_size(feature_.get_data_type()) *
+        std::int64_t data_size = detail::get_data_type_size(dtype_) *
                                  t_impl.get_row_count() * t_impl.get_column_count();
 
         // TODO: make data move without copying
@@ -53,30 +53,30 @@ public:
     }
 
     void set_data_type(data_type dt) {
-        feature_.set_data_type(dt);
+        dtype_ = dt;
         data_.reset();
         row_count_    = 0;
         column_count_ = 0;
     }
 
     void set_feature_type(feature_type ft) {
-        feature_.set_type(ft);
+        // TODO: not propagated to homogen_table_impl
     }
 
     void allocate(std::int64_t row_count, std::int64_t column_count) {
         data_.reset(row_count * column_count *
-                    detail::get_data_type_size(feature_.get_data_type()));
+                    detail::get_data_type_size(dtype_));
         row_count_    = row_count;
         column_count_ = column_count;
     }
 
-    void set_layout(homogen_data_layout layout) {
+    void set_layout(data_layout layout) {
         layout_ = layout;
     }
 
     void copy_data(const void* data, std::int64_t row_count, std::int64_t column_count) {
         data_.reset(row_count * column_count *
-                    detail::get_data_type_size(feature_.get_data_type()));
+                    detail::get_data_type_size(dtype_));
         detail::memcpy(detail::default_host_policy{},
                        data_.get_mutable_data(),
                        data,
@@ -87,12 +87,12 @@ public:
     }
 
     homogen_table build() {
-        homogen_table new_table{ homogen_table_impl{ column_count_, data_, feature_, layout_ } };
+        homogen_table new_table{ homogen_table_impl{ column_count_, data_, dtype_, layout_ } };
         data_.reset();
         row_count_    = 0;
         column_count_ = 0;
-        layout_       = homogen_data_layout::row_major;
-        feature_      = table_feature();
+        layout_       = data_layout::row_major;
+        dtype_        = data_type::float32; // TODO: default data_type
 
         return new_table;
     }
@@ -103,7 +103,7 @@ public:
                   std::int64_t column_count,
                   sycl::usm::alloc kind) {
         data_.reset(queue,
-                    row_count * column_count * detail::get_data_type_size(feature_.get_data_type()),
+                    row_count * column_count * detail::get_data_type_size(dtype_),
                     kind);
         row_count_    = row_count;
         column_count_ = column_count;
@@ -114,7 +114,7 @@ public:
                    std::int64_t row_count,
                    std::int64_t column_count) {
         data_.reset(queue,
-                    row_count * column_count * detail::get_data_type_size(feature_.get_data_type()),
+                    row_count * column_count * detail::get_data_type_size(dtype_),
                     sycl::get_pointer_type(data_.get_data(), queue.get_context()));
         detail::memcpy(queue, data_.get_mutable_data(), data, data_.get_size());
 
@@ -128,25 +128,25 @@ public:
     // pull_*() methods can be generalized between table and builder
     template <typename T>
     void pull_rows(array<T>& a, const range& r) const {
-        homogen_table_impl impl{ column_count_, data_, feature_, layout_ };
+        homogen_table_impl impl{ column_count_, data_, dtype_, layout_ };
         impl.pull_rows(a, r);
     }
 
     template <typename T>
     void push_rows(const array<T>& a, const range& r) {
-        homogen_table_impl impl{ column_count_, data_, feature_, layout_ };
+        homogen_table_impl impl{ column_count_, data_, dtype_, layout_ };
         impl.push_rows(a, r);
     }
 
     template <typename T>
     void pull_column(array<T>& a, std::int64_t idx, const range& r) const {
-        homogen_table_impl impl{ column_count_, data_, feature_, layout_ };
+        homogen_table_impl impl{ column_count_, data_, dtype_, layout_ };
         impl.pull_column(a, idx, r);
     }
 
     template <typename T>
     void push_column(const array<T>& a, std::int64_t idx, const range& r) {
-        homogen_table_impl impl{ column_count_, data_, feature_, layout_ };
+        homogen_table_impl impl{ column_count_, data_, dtype_, layout_ };
         impl.push_column(a, idx, r);
     }
 
@@ -156,13 +156,13 @@ public:
                    array<T>& a,
                    const range& r,
                    const sycl::usm::alloc& kind) const {
-        homogen_table_impl impl{ column_count_, data_, feature_, layout_ };
+        homogen_table_impl impl{ column_count_, data_, dtype_, layout_ };
         impl.pull_rows(a, r);
     }
 
     template <typename T>
     void push_rows(sycl::queue& q, const array<T>& a, const range& r) {
-        homogen_table_impl impl{ column_count_, data_, feature_, layout_ };
+        homogen_table_impl impl{ column_count_, data_, dtype_, layout_ };
         impl.push_rows(a, r);
     }
 
@@ -172,13 +172,13 @@ public:
                      std::int64_t idx,
                      const range& r,
                      const sycl::usm::alloc& kind) const {
-        homogen_table_impl impl{ column_count_, data_, feature_, layout_ };
+        homogen_table_impl impl{ column_count_, data_, dtype_, layout_ };
         impl.pull_column(a, idx, r);
     }
 
     template <typename T>
     void push_column(sycl::queue& q, const array<T>& a, std::int64_t idx, const range& r) {
-        homogen_table_impl impl{ column_count_, data_, feature_, layout_ };
+        homogen_table_impl impl{ column_count_, data_, dtype_, layout_ };
         impl.push_column(a, idx, r);
     }
 #endif
@@ -187,8 +187,8 @@ private:
     array<byte_t> data_;
     int64_t row_count_;
     int64_t column_count_;
-    homogen_data_layout layout_;
-    table_feature feature_;
+    data_layout layout_;
+    data_type dtype_;
 };
 
 } // namespace oneapi::dal::backend

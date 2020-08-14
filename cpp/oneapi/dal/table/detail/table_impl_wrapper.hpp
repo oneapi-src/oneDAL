@@ -36,28 +36,32 @@ public:
               host_access_ptr_(new access_wrapper_host<Impl>{ impl_ }) {}
 #endif
 
-    virtual std::int64_t get_column_count() const override {
+    std::int64_t get_column_count() const override {
         return impl_.get_column_count();
     }
 
-    virtual std::int64_t get_row_count() const override {
+    std::int64_t get_row_count() const override {
         return impl_.get_row_count();
     }
 
-    virtual const table_metadata& get_metadata() const override {
+    const table_metadata& get_metadata() const override {
         return impl_.get_metadata();
     }
 
-    virtual std::int64_t get_kind() const override {
+    std::int64_t get_kind() const override {
         return impl_.get_kind();
     }
 
-    virtual access_iface_host& get_access_iface_host() const override {
+    data_layout get_data_layout() const override {
+        return impl_.get_data_layout();
+    }
+
+    access_iface_host& get_access_iface_host() const override {
         return *host_access_ptr_.get();
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    virtual access_iface_dpc& get_access_iface_dpc() const override {
+    access_iface_dpc& get_access_iface_dpc() const override {
         return *dpc_access_ptr_.get();
     }
 #endif
@@ -91,32 +95,36 @@ public:
               host_access_ptr_(new access_wrapper_host<Impl>{ impl_ }) {}
 #endif
 
-    virtual std::int64_t get_column_count() const override {
+    std::int64_t get_column_count() const override {
         return impl_.get_column_count();
     }
 
-    virtual std::int64_t get_row_count() const override {
+    std::int64_t get_row_count() const override {
         return impl_.get_row_count();
     }
 
-    virtual const homogen_table_metadata& get_metadata() const override {
+    const table_metadata& get_metadata() const override {
         return impl_.get_metadata();
     }
 
-    virtual const void* get_data() const override {
+    const void* get_data() const override {
         return impl_.get_data();
     }
 
-    virtual std::int64_t get_kind() const override {
+    std::int64_t get_kind() const override {
         return kind_;
     }
 
-    virtual access_iface_host& get_access_iface_host() const override {
+    data_layout get_data_layout() const override {
+        return impl_.get_data_layout();
+    }
+
+    access_iface_host& get_access_iface_host() const override {
         return *host_access_ptr_.get();
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    virtual access_iface_dpc& get_access_iface_dpc() const override {
+    access_iface_dpc& get_access_iface_dpc() const override {
         return *dpc_access_ptr_.get();
     }
 #endif

@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "oneapi/dal/table/table_metadata.hpp"
+#include "oneapi/dal/table/common.hpp"
 
 namespace oneapi::dal::backend {
 
@@ -40,6 +40,10 @@ public:
     const table_metadata& get_metadata() const {
         static table_metadata tm;
         return tm;
+    }
+
+    data_layout get_data_layout() const {
+        return data_layout::unknown;
     }
 
     template <typename T>

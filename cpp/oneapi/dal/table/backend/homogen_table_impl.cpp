@@ -33,11 +33,11 @@ void homogen_table_impl::pull_rows(array<T>& block, const range& rows) const {
     const int64_t range_count   = rows.get_element_count(row_count) * column_count;
     const data_type block_dtype = detail::make_data_type<T>();
 
-    if (meta_.get_data_layout() != homogen_data_layout::row_major) {
+    if (layout_ != data_layout::row_major) {
         throw std::runtime_error("unsupported data layout");
     }
 
-    const auto feature_type = meta_.get_feature(0).get_data_type();
+    const auto feature_type = meta_.get_data_type(0);
     if (block_dtype == feature_type) {
         auto row_data          = reinterpret_cast<const T*>(data_.get_data());
         auto row_start_pointer = row_data + rows.start_idx * column_count;
@@ -68,12 +68,12 @@ void homogen_table_impl::push_rows(const array<T>& block, const range& rows) {
     const int64_t range_count   = rows.get_element_count(row_count) * column_count;
     const data_type block_dtype = detail::make_data_type<T>();
 
-    if (meta_.get_data_layout() != homogen_data_layout::row_major) {
+    if (layout_ != data_layout::row_major) {
         throw std::runtime_error("unsupported data layout");
     }
 
     data_.need_mutable_data();
-    const auto feature_type = meta_.get_feature(0).get_data_type();
+    const auto feature_type = meta_.get_data_type(0);
     if (block_dtype == feature_type) {
         auto row_data          = reinterpret_cast<T*>(data_.get_mutable_data());
         auto row_start_pointer = row_data + rows.start_idx * column_count;
@@ -107,11 +107,11 @@ void homogen_table_impl::pull_column(array<T>& block, int64_t idx, const range& 
     const int64_t range_count   = rows.get_element_count(row_count);
     const data_type block_dtype = detail::make_data_type<T>();
 
-    if (meta_.get_data_layout() != homogen_data_layout::row_major) {
+    if (layout_ != data_layout::row_major) {
         throw std::runtime_error("unsupported data layout");
     }
 
-    const auto feature_type = meta_.get_feature(0).get_data_type();
+    const auto feature_type = meta_.get_data_type(0);
     if (block_dtype == feature_type && column_count == 1) {
         // TODO: assert idx == 0
 
@@ -144,7 +144,7 @@ void homogen_table_impl::push_column(const array<T>& block, int64_t idx, const r
     const int64_t range_count   = rows.get_element_count(row_count);
     const data_type block_dtype = detail::make_data_type<T>();
 
-    auto feature_type = meta_.get_feature(0).get_data_type();
+    auto feature_type = meta_.get_data_type(0);
     const int64_t row_offset =
         detail::get_data_type_size(feature_type) * (idx + rows.start_idx * column_count);
 

@@ -47,6 +47,10 @@ TEST(table_test, can_set_custom_implementation) {
             return kind;
         }
 
+        data_layout get_data_layout() const {
+            return data_layout::row_major;
+        }
+
         void pull_rows(array<float>& a, const range& r) const {}
         void pull_rows(array<double>& a, const range& r) const {}
         void pull_rows(array<std::int32_t>& a, const range& r) const {}
@@ -67,4 +71,5 @@ TEST(table_test, can_set_custom_implementation) {
     table t{ table_impl{} };
     ASSERT_TRUE(t.has_data());
     ASSERT_EQ(t.get_kind(), table_impl{}.get_kind());
+    ASSERT_EQ(data_layout::row_major, t.get_data_layout());
 }

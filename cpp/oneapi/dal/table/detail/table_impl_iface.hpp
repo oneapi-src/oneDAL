@@ -17,7 +17,13 @@
 #pragma once
 
 #include "oneapi/dal/table/detail/access_iface.hpp"
-#include "oneapi/dal/table/table_metadata.hpp"
+
+namespace oneapi::dal {
+
+class table_metadata;
+enum class data_layout;
+
+} // namespace oneapi::dal
 
 namespace oneapi::dal::detail {
 
@@ -27,12 +33,12 @@ public:
     virtual std::int64_t get_row_count() const         = 0;
     virtual const table_metadata& get_metadata() const = 0;
     virtual std::int64_t get_kind() const              = 0;
+    virtual data_layout get_data_layout() const        = 0;
 };
 
 class homogen_table_impl_iface : public table_impl_iface {
 public:
-    virtual const void* get_data() const                       = 0;
-    virtual const homogen_table_metadata& get_metadata() const = 0;
+    virtual const void* get_data() const = 0;
 };
 
 } // namespace oneapi::dal::detail
