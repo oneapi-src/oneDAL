@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/util/type_traits.hpp"
+#include "oneapi/dal/util/common.hpp"
 
 namespace oneapi::dal::decision_forest {
 
