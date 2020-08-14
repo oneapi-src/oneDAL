@@ -34,7 +34,8 @@ vertex_similarity_ops_dispatcher<Policy, Float, Method, Graph>::operator()(
 }
 
 #define INSTANTIATE(F, M, G) \
-    template struct ONEAPI_DAL_EXPORT vertex_similarity_ops_dispatcher<host_policy, F, M, G>;
+    template struct ONEAPI_DAL_EXPORT vertex_similarity_ops_dispatcher \
+    <oneapi::dal::detail::host_policy, F, M, G>;
 
 INSTANTIATE(float,
             oneapi::dal::preview::jaccard::method::by_default,
