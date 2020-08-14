@@ -18,11 +18,13 @@
 #include <cmath>
 #include <exception>
 #include <limits>
+#include <list>
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     #include <CL/sycl.hpp>
 #endif
 
+#include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/select.hpp"
 #include "oneapi/dal/data/array.hpp"
 
@@ -49,6 +51,7 @@ public:
                            idx_t* output_indices_,
                            Float* output_distances_,
                            idx_t k_,
+                           idx_t n_vectors_,
                            idx_t k_width_,
                            idx_t vector_size_;
                            dist_acc_t dwspace_, idxs_acc_t iwspace_)
@@ -56,7 +59,8 @@ public:
               input_norms(input_norms_),
               output_indices(output_indices_),
               output_distances(output_distances_),
-              k(k_),
+              k(k_), 
+              n_vectors(n_vectors_),
               k_width(k_with_),
               vector_size(vector_size_),
               dwspace(dwspace_),
@@ -76,11 +80,13 @@ public:
 
         // Copying from output to loacl buffer to enable merging
         {
-            const idx_t* const irow = &(output_indices[gyid * k]);
-            const Float* const drow = &(ouput_distances[gyid * k]);
-            for (idx_t shift = lxid; shift < k; shift += xrange) {
-                iwspace[lrid + shift] = irow[shift];
-                dwspace[lrid + shift] = drow[shift];
+            if(gyid < n_vectors) {
+                const idx_t* const irow = &(output_indices[gyid * k]);
+                const Float* const drow = &(ouput_distances[gyid * k]);
+                for (idx_t shift = lxid; shift < k; shift += xrange) {
+                    iwspace[lrid + shift] = irow[shift];
+                    dwspace[lrid + shift] = drow[shift];
+                }
             }
             idx.barrier(cl::sycl::access::fence_space::local_space);
             // TODO: Optimize with async_work_group_copy
@@ -100,25 +106,12 @@ public:
                 // TODO: Another sort?
                 // Odd-Even Sorting
                 {
-                    // Temporary variables for swap
-                    Float tdst;
-                    idx_t tidx;
                     // Sorting itself
                     for (idx_t step = 0; step < k_width; ++step) {
-                        for (idx_t i = lxid + step % 2; i + 1 < k_width; i += xrange) {
-                            if (dwspace[lrid + i] > dwspace[lrid + i + 1]) {
-                                // TODO: Another swaping?
-                                {
-                                    tdst                  = dwspace[lrid + i];
-                                    dwspace[lrid + i]     = dwspace[lrid + i + 1];
-                                    dwspace[lrid + i + 1] = tdst;
-                                }
-                                {
-                                    tidx                  = iwspace[lrid + i];
-                                    iwspace[lrid + i]     = iwspace[lrid + i + 1];
-                                    iwspace[lrid + i + 1] = tidx;
-                                }
-                            }
+                        for (idx_t i = 2 * lxid + step & 1; i + 1 < k_width; i += xrange) {
+                            const bool swap = dwspace[lrid + i] > dwspace[lrid + i + 1];
+                            conditional_swap<Float>(dwspace[lrid + i], dwspace[lrid + i + 1], swap);
+                            conditional_swap<idx_t>(iwspace[lrid + i], iwspace[lrid + i + 1], swap);
                         }
                         idx.barrier(cl::sycl::access::fence_space::local_space);
                     }
@@ -128,11 +121,13 @@ public:
 
         //Exit from algorithm
         {
-            const idx_t* const irow = &(output_indices[gyid * k]);
-            const Float* const drow = &(ouput_distances[gyid * k]);
-            for (idx_t shift = lxid; shift < k; shift += xrange) {
-                irow[shift] = iwspace[lyid * k_width + shift];
-                drow[shift] = dwspace[lyid * k_width + shift];
+            if(gyid < n_vectors) {
+                const idx_t* const irow = &(output_indices[gyid * k]);
+                const Float* const drow = &(ouput_distances[gyid * k]);
+                for (idx_t shift = lxid; shift < k; shift += xrange) {
+                    irow[shift] = iwspace[lrid + shift];
+                    drow[shift] = dwspace[lrid + shift];
+                }
             }
             // TODO: Optimize with async_work_group_copy
         }
@@ -143,13 +138,55 @@ private:
     const Float* const input_norms;
     idx_t* const output_indices;
     Float* const output_distances;
-    const idx_t k, k_width, vector_size;
+    const idx_t k, n_vectors,
+    k_width, vector_size;
     dist_acc_t dwspace;
     idxs_acc_t iwspace;
 };
 
 } // namespace impl
 
+template<typename Float>
+select_small_k_l2<Float>::select_small_k_l2(cl::sycl::queue& queue)
+    : q(queue), 
+      max_work_group_size(queue.get_device().template get_info<cl::sycl::info::device::max_work_group_size>()),
+      max_local_size(queue.get_device().template get_info<cl::sycl::info::device::local_mem_size>() / elem_size),
+      preferred_width(queue.get_device().template get_info<preferred_size_flag>()) {}
+
+template<typename Float>
+std::pair<std::int64_t, std::int64_t> small_k_l2
+
+template<typename Float>
+cl::sycl::event select_small_k_l2<Float>::operator() ( const Float* cross, 
+                                                       const Float* norms, 
+                                                       const std::int64_t batch_size,
+                                                       const std::int64_t queue_size,
+                                                       const std::int64_t k,
+                                                       idx_t* nearest_indices,
+                                                       Float* nearest_distances) {
+    if(k > max_local_size)
+        throw std::exception();
+    const idx_t min_k_width = preferred_size * (k / preferred_size + 1);
+    const idx_t yrange_mem_lim = max_local_size / min_k_width;
+    const idx_t yrange_max_lim = std::min(yrange_mem_lim, max_work_group_size);
+    const idx_t yrange_min_lim = std::min(yrange_mem_lim, 
+                                    std::min(prefered_size, max_work_group_size));
+    idx_t yrange = yrange_min_lim, k_width = min_k_width;
+    for(; yrange < yrange_max_lim; yrange++) {
+        // Optimal size
+        k_width = max_local_size / yrange; 
+        if(k_width % preffered_size == 0) break;
+    }
+    if(yrange * k_width > max_local_size)
+        throw std::exception();
+    
+
+}
+
+template struct select_small_k_l2<float>;
+template struct select_small_k_l2<double>;
+
 #endif
 
 } // namespace oneapi::dal::backend::primitives
+
