@@ -56,8 +56,7 @@ int main(int argc, char **argv) {
   // compute the maximal required memory for the result of the block processing
   // in bytes
   auto block_result_size =
-      (vertex_pair_element_count + jaccard_coeff_element_count) *
-      vertex_pair_size * jaccard_coeff_size * vertex_pairs_count;
+      (vertex_pair_element_count * vertex_pair_size + jaccard_coeff_element_count * jaccard_coeff_size) * vertex_pairs_count;
 
   // allocate memory for the result of the block processing
   auto result_buffer_ptr =
@@ -76,7 +75,7 @@ int main(int argc, char **argv) {
   auto jaccard_coeffs = result_vertex_similarity.get_coeffs();
   auto vertex_pairs = result_vertex_similarity.get_vertex_pairs();
   auto nonzero_coeff_count = result_vertex_similarity.get_nonzero_coeff_count();
-/*
+
   std::cout << "The number of nonzero Jaccard coeffs in the block: "
             << nonzero_coeff_count << std::endl;
 
@@ -85,5 +84,5 @@ int main(int argc, char **argv) {
 
   std::cout << "Jaccard values: " << std::endl;
   print_vertex_similarity_result(jaccard_coeffs, nonzero_coeff_count);
-  */
+  
 }
