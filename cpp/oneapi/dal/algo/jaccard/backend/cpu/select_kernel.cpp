@@ -15,17 +15,12 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/jaccard/backend/cpu/select_kernel.hpp"
+#include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::preview {
 namespace jaccard {
 namespace detail {
-
-template <typename Graph, typename Cpu>
-extern vertex_similarity_result call_jaccard_default_kernel(
-    const descriptor_base &desc,
-    const vertex_similarity_input<Graph> &input);
-
 template <typename Float, typename Method, typename Graph>
 vertex_similarity_result backend_default<Float, Method, Graph>::operator()(
     const dal::backend::context_cpu &ctx,
@@ -44,7 +39,6 @@ get_backend<float, method::by_default, undirected_adjacency_array_graph<>>(
     return dal::detail::pimpl<backend_base<undirected_adjacency_array_graph<>>>(
         new backend_default<float, method::by_default, undirected_adjacency_array_graph<>>);
 }
-
 } // namespace detail
 } // namespace jaccard
 } // namespace oneapi::dal::preview

@@ -1,20 +1,23 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*******************************************************************************/
+ * Copyright 2020 Intel Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *******************************************************************************/
 
 #include <immintrin.h>
+#include <iostream>
+
+#include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
@@ -22,7 +25,6 @@
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/data/graph_service_functions.hpp"
 #include "oneapi/dal/detail/policy.hpp"
-//#include "daal_defines.hpp"
 
 namespace oneapi::dal::preview {
 namespace jaccard {
@@ -43,11 +45,11 @@ DAAL_FORCEINLINE int _popcnt32_redef(int a) {
 }
 #endif
 
-template <class NodeID_t> //__declspec(noinline)
+template <class NodeID_t> 
 size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t n_v) {
     size_t total = 0;
     NodeID_t i_u = 0, i_v = 0;
-#ifdef AVX512
+
     const NodeID_t n_u_8_end = n_u - 8;
     const NodeID_t n_v_8_end = n_v - 8;
     while (i_u <= n_u_8_end && i_v <= n_v_8_end) {
@@ -241,7 +243,6 @@ size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t
         }
         i_v += 4;
     }
-#endif
 
     while (i_u < n_u && i_v < n_v) {
         if ((neigh_u[i_u] > neigh_v[n_v - 1]) || (neigh_v[i_v] > neigh_u[n_u - 1])) {
@@ -277,9 +278,11 @@ DAAL_FORCEINLINE int64_t min(int64_t a, int64_t b) {
     }
 }
 
-template <typename Graph, typename Cpu>
-vertex_similarity_result call_jaccard_default_kernel(const descriptor_base &desc,
-                                                     const vertex_similarity_input<Graph> &input) {
+template <>
+vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_graph<>,
+                                            oneapi::dal::backend::cpu_dispatch_avx2>(
+    const descriptor_base &desc,
+    const vertex_similarity_input<undirected_adjacency_array_graph<>> &input) {
     auto my_graph                       = input.get_graph();
     auto g                              = oneapi::dal::preview::detail::get_impl(my_graph);
     auto g_edge_offsets                 = g->_edge_offsets.data();
@@ -353,17 +356,11 @@ vertex_similarity_result call_jaccard_default_kernel(const descriptor_base &desc
 
 #define INSTANTIATE(cpu)                                                  \
     template vertex_similarity_result                                     \
-    call_jaccard_default_kernel<undirected_adjacency_array_graph<>, cpu>( \
+    call_jaccard_default_kernel<undirected_adjacency_array_graph<> , cpu>(\
         const descriptor_base &desc,                                      \
         const vertex_similarity_input<undirected_adjacency_array_graph<>> &input);
 
-INSTANTIATE(oneapi::dal::backend::cpu_dispatch_default)
-INSTANTIATE(oneapi::dal::backend::cpu_dispatch_ssse3)
-INSTANTIATE(oneapi::dal::backend::cpu_dispatch_sse42)
-INSTANTIATE(oneapi::dal::backend::cpu_dispatch_avx)
 INSTANTIATE(oneapi::dal::backend::cpu_dispatch_avx2)
-INSTANTIATE(oneapi::dal::backend::cpu_dispatch_avx512)
-
 } // namespace detail
 } // namespace jaccard
 } // namespace oneapi::dal::preview
