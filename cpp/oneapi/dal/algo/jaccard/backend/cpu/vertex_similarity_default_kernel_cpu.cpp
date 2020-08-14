@@ -31,7 +31,7 @@ namespace detail {
 
 template <typename Graph, typename Cpu>
 vertex_similarity_result call_jaccard_default_kernel(const descriptor_base &desc,
-                                            const vertex_similarity_input<Graph> &input) {
+                                                     const vertex_similarity_input<Graph> &input) {
     std::cout << "Jaccard default kernel started" << std::endl;
 
     const auto my_graph = input.get_graph();

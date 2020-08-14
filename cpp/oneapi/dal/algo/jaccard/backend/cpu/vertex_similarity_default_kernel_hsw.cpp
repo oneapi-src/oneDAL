@@ -45,7 +45,7 @@ DAAL_FORCEINLINE int _popcnt32_redef(int a) {
 }
 #endif
 
-template <class NodeID_t> 
+template <class NodeID_t>
 size_t intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_t n_v) {
     size_t total = 0;
     NodeID_t i_u = 0, i_v = 0;
@@ -280,7 +280,7 @@ DAAL_FORCEINLINE int64_t min(int64_t a, int64_t b) {
 
 template <>
 vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_graph<>,
-                                            oneapi::dal::backend::cpu_dispatch_avx2>(
+                                                     oneapi::dal::backend::cpu_dispatch_avx2>(
     const descriptor_base &desc,
     const vertex_similarity_input<undirected_adjacency_array_graph<>> &input) {
     auto my_graph                       = input.get_graph();
@@ -356,7 +356,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
 
 #define INSTANTIATE(cpu)                                                  \
     template vertex_similarity_result                                     \
-    call_jaccard_default_kernel<undirected_adjacency_array_graph<> , cpu>(\
+    call_jaccard_default_kernel<undirected_adjacency_array_graph<>, cpu>( \
         const descriptor_base &desc,                                      \
         const vertex_similarity_input<undirected_adjacency_array_graph<>> &input);
 

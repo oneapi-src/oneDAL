@@ -280,7 +280,7 @@ DAAL_FORCEINLINE int64_t min(int64_t a, int64_t b) {
 
 template <>
 vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_graph<>,
-                                            oneapi::dal::backend::cpu_dispatch_avx512>(
+                                                     oneapi::dal::backend::cpu_dispatch_avx512>(
     const descriptor_base &desc,
     const vertex_similarity_input<undirected_adjacency_array_graph<>> &input) {
     auto my_graph                       = input.get_graph();
@@ -355,7 +355,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
 }
 
 #define INSTANTIATE(cpu)                                                  \
-    template vertex_similarity_result                                            \
+    template vertex_similarity_result                                     \
     call_jaccard_default_kernel<undirected_adjacency_array_graph<>, cpu>( \
         const descriptor_base &desc,                                      \
         const vertex_similarity_input<undirected_adjacency_array_graph<>> &input);
