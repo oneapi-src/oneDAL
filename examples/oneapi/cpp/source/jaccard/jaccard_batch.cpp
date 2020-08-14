@@ -84,5 +84,5 @@ int main(int argc, char **argv) {
 
   std::cout << "Jaccard values: " << std::endl;
   print_vertex_similarity_result(jaccard_coeffs, nonzero_coeff_count);
-  
+
 }
