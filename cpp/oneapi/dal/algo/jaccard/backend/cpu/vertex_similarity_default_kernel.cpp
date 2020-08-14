@@ -17,10 +17,11 @@
 #include <immintrin.h>
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/data/graph_service_functions.hpp"
-
+#include "oneapi/dal/policy.hpp"
 //#include "daal_defines.hpp"
 
 namespace oneapi::dal::preview {
@@ -273,7 +274,7 @@ DAAL_FORCEINLINE int64_t min(int64_t a, int64_t b) {
     }
 }
 
-template <typename Graph>
+template <typename Graph, typename Cpu>
 vertex_similarity_result call_jaccard_default_kernel(const descriptor_base& desc,
                                             const vertex_similarity_input<Graph>& input) {
     auto my_graph = input.get_graph();
@@ -336,11 +337,18 @@ vertex_similarity_result call_jaccard_default_kernel(const descriptor_base& desc
     return res;
 }
 
-template vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array<>&>(
-    const descriptor_base& desc,
-    const vertex_similarity_input<undirected_adjacency_array<>&>& input);
+#define INSTANTIATE(cpu)                                                  \
+    template vertex_similarity_result                                            \
+    call_jaccard_default_kernel<undirected_adjacency_array_graph<> &, cpu>( \
+        const descriptor_base &desc,                                      \
+        const vertex_similarity_input<undirected_adjacency_array_graph<> &> &input);
 
-
+INSTANTIATE(oneapi::dal::backend::cpu_dispatch_default)
+INSTANTIATE(oneapi::dal::backend::cpu_dispatch_ssse3)
+INSTANTIATE(oneapi::dal::backend::cpu_dispatch_sse42)
+INSTANTIATE(oneapi::dal::backend::cpu_dispatch_avx)
+INSTANTIATE(oneapi::dal::backend::cpu_dispatch_avx2)
+INSTANTIATE(oneapi::dal::backend::cpu_dispatch_avx512)
 
 
 

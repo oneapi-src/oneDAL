@@ -1,11 +1,11 @@
 #include "oneapi/dal/algo/jaccard.hpp"
-//#include "oneapi/dal/data/undirected_adjacency_array_graph.hpp"
+#include "oneapi/dal/data/undirected_adjacency_array_graph.hpp"
 #include "oneapi/dal/data/table.hpp"
 #include "oneapi/dal/util/csv_data_source.hpp"
 #include "oneapi/dal/util/load_graph.hpp"
+#include "oneapi/dal/data/graph_service_functions.hpp"
 
-#include "oneapi/dal/data/graph.hpp"
- #include "tbb/global_control.h"
+#include "tbb/global_control.h"
 
 using namespace oneapi::dal;
 using namespace oneapi::dal::preview;
@@ -23,11 +23,11 @@ using namespace oneapi::dal::preview;
 #include "tbb/parallel_sort.h"
 #include "tbb/task_scheduler_init.h"
 
-
+using graph_type = oneapi::dal::preview::undirected_adjacency_array_graph<>;
 using namespace std;
 using namespace std::chrono;
 
-void jaccard_all_block(const graph& my_graph, int block_i, int block_j, int number_of_threads)
+void jaccard_all_block(const graph_type& my_graph, int block_i, int block_j, int number_of_threads)
 {
     int num = get_vertex_count(my_graph);
 
@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
     for(int p = 0; p < num_trials_custom; p++) {
         auto start = high_resolution_clock::now();
         //jaccard_all_row(my_graph, jaccard_first, jaccard_second, jaccard_coefficients, block_size_x, block_size_y);
-        jaccard_all_block(my_graph, block_size_x,block_size_y,1);
+        //jaccard_all_block(my_graph, block_size_x,block_size_y,1);
         //jaccard_status = jaccard_all_row(g, jaccard, block_size_x, block_size_y, 1);
             int block_i = block_size_x;
     int block_j = block_size_y;

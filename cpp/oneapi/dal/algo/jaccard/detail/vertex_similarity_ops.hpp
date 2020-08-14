@@ -24,10 +24,11 @@ namespace oneapi::dal::preview {
 namespace jaccard {
 namespace detail {
 
-template <typename Float, class Method, typename Graph>
+template <typename Policy, typename Float, class Method, typename Graph>
 struct ONEAPI_DAL_EXPORT vertex_similarity_ops_dispatcher {
-    vertex_similarity_result operator()(const descriptor_base& descriptor,
-                                 const vertex_similarity_input<Graph>& input) const;
+    vertex_similarity_result operator()(const Policy &policy,
+                                 const descriptor_base &descriptor,
+                                 const vertex_similarity_input<Graph> &input) const;
 };
 
 template <typename Descriptor, typename Graph>
@@ -43,7 +44,7 @@ struct vertex_similarity_ops {
         const auto row_end                  = param.get_row_range_end();
         const auto column_begin             = param.get_column_range_begin();
         const auto column_end               = param.get_column_range_end(); 
-        auto vertex_count = get_vertex_count(input.get_graph().get_impl()->_vertex_count);
+        auto vertex_count = oneapi::dal::preview::detail::get_impl(input.get_graph())->_vertex_count;
         if (row_begin < 0 || row_end < 0 || column_begin < 0 || column_end < 0) {
             throw oneapi::dal::invalid_argument("Negative interval");
         } 
@@ -58,12 +59,18 @@ struct vertex_similarity_ops {
         } 
     }
 
-    auto operator()(const Descriptor& desc, const vertex_similarity_input<Graph>& input) const {
+    template <typename Policy>
+    auto operator()(const Policy &policy,
+                    const Descriptor &desc,
+                    const vertex_similarity_input<Graph> &input) const {
         check_preconditions(desc, input);
-        return vertex_similarity_ops_dispatcher<float_t, method_t, Graph>()(desc, input);
+        return vertex_similarity_ops_dispatcher<Policy, float_t, method_t, Graph>()(policy,
+                                                                                    desc,
+                                                                                    input);
     }
 };
 
 } // namespace detail
 } // namespace jaccard
 } // namespace oneapi::dal::preview
+

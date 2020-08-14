@@ -1,3 +1,4 @@
+
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -22,21 +23,22 @@ namespace oneapi::dal::preview {
 namespace jaccard {
 namespace detail {
 
-template <typename Float, class Method, typename Graph>
+template <typename Policy, typename Float, class Method, typename Graph>
 ONEAPI_DAL_EXPORT vertex_similarity_result
-vertex_similarity_ops_dispatcher<Float, Method, Graph>::operator()(
+vertex_similarity_ops_dispatcher<Policy, Float, Method, Graph>::operator()(
+    const Policy &policy,
     const descriptor_base &desc,
     const vertex_similarity_input<Graph> &input) const {
     static auto impl = get_backend<Float, Method>(desc, input);
-    return (*impl)(desc, input);
+    return (*impl)(oneapi::dal::backend::context_cpu{ policy }, desc, input);
 }
 
 #define INSTANTIATE(F, M, G) \
-    template struct ONEAPI_DAL_EXPORT vertex_similarity_ops_dispatcher<F, M, G>;
+    template struct ONEAPI_DAL_EXPORT vertex_similarity_ops_dispatcher<host_policy, F, M, G>;
 
 INSTANTIATE(float,
             oneapi::dal::preview::jaccard::method::by_default,
-            undirected_adjacency_array<> &)
+            undirected_adjacency_array_graph<> &)
 
 } // namespace detail
 } // namespace jaccard

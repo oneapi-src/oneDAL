@@ -20,10 +20,7 @@
 
 #pragma once
 
-#include "oneapi/dal/common.hpp"
-#include "oneapi/dal/data/detail/graph_container.hpp"
 #include "oneapi/dal/data/graph_common.hpp"
-#include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::preview {
@@ -37,7 +34,7 @@ namespace oneapi::dal::preview {
 /// @return The number of vertices in the graph
 template <typename Graph>
 constexpr auto get_vertex_count(const Graph &graph) noexcept -> vertex_size_type<Graph> {
-    return get_vertex_count_impl(graph);
+    return detail::get_vertex_count_impl(graph);
 }
 
 /// Returns the number of edges in the graph
@@ -49,7 +46,7 @@ constexpr auto get_vertex_count(const Graph &graph) noexcept -> vertex_size_type
 /// @return The number of edges in the graph
 template <typename Graph>
 constexpr auto get_edge_count(const Graph& graph) noexcept -> edge_size_type<Graph> {
-    return get_edge_count_impl(graph);
+    return detail::get_edge_count_impl(graph);
 }
 
 /// Returns the degree for the specified vertex
@@ -64,7 +61,7 @@ constexpr auto get_edge_count(const Graph& graph) noexcept -> edge_size_type<Gra
 template <typename Graph>
 constexpr auto get_vertex_degree(const Graph& graph, const vertex_type<Graph> &vertex)
     -> edge_size_type<Graph> {
-    if (vertex < 0 || (vertex_size_type<Graph>)vertex >= get_vertex_count_impl(graph)) {
+    if (vertex < 0 || (vertex_size_type<Graph>)vertex >= detail::get_vertex_count_impl(graph)) {
         throw out_of_range("Vertex index should be in [0, vertex_count)");
     }
     return detail::get_vertex_degree_impl(graph, vertex);
@@ -82,7 +79,7 @@ constexpr auto get_vertex_degree(const Graph& graph, const vertex_type<Graph> &v
 template <typename Graph>
 constexpr auto get_vertex_neighbors(const Graph &graph, const vertex_type<Graph> &vertex)
     -> const_edge_range_type<Graph> {
-    if (vertex < 0 || (vertex_size_type<Graph>)vertex >= get_vertex_count_impl(graph)) {
+    if (vertex < 0 || (vertex_size_type<Graph>)vertex >= detail::get_vertex_count_impl(graph)) {
         throw out_of_range("Vertex index should be in [0, vertex_count)");
     }
     return detail::get_vertex_neighbors_impl(graph, vertex);
