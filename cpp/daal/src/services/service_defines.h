@@ -52,7 +52,7 @@ bool daal_check_is_intel_cpu();
     #define PRAGMA_ICC_TO_STR(ARGS)
     #define PRAGMA_ICC_OMP(ARGS)
     #define PRAGMA_ICC_NO16(ARGS)
-    #define DAAL_TYPENAME           typename
+    #define DAAL_TYPENAME typename
 #elif defined(_MSC_VER)
     #define PRAGMA_IVDEP
     #define PRAGMA_NOVECTOR
@@ -71,7 +71,7 @@ bool daal_check_is_intel_cpu();
     #define PRAGMA_VECTOR_ALWAYS
     #define PRAGMA_ICC_OMP(ARGS)
     #define PRAGMA_ICC_NO16(ARGS)
-    #define DAAL_TYPENAME           typename
+    #define DAAL_TYPENAME typename
 #endif
 
 #if defined __APPLE__ && defined __INTEL_COMPILER && (__INTEL_COMPILER == 1600)

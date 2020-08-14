@@ -14,8 +14,6 @@
 # limitations under the License.
 #===============================================================================
 
-"""A Starlark cc_toolchain configuration rule"""
-
 load("@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
     "feature",
     "feature_set",

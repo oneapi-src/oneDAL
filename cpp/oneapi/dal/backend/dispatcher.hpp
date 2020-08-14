@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/backend/dispatcher_cpu.hpp"
+#include "oneapi/dal/detail/policy.hpp"
 
 namespace oneapi::dal::backend {
 
