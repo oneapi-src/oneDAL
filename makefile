@@ -492,7 +492,7 @@ $(WORKDIR.lib)/$(core_y):                   $(daaldep.ipp) $(daaldep.vml) $(daal
 $(CORE.kernel_defines): | $(shell dirname $(CORE.kernel_defines))/.
 	echo "/* file: daal_kernel_defines_gen.h */" >> $@
 	echo "/*******************************************************************************" >> $@
-	echo "* Copyright 2014-2020 Intel Corporation" >> $@
+	echo "* Copyright Intel Corporation" >> $@
 	echo "*" >> $@
 	echo "* Licensed under the Apache License, Version 2.0 (the \"License\");" >> $@
 	echo "* you may not use this file except in compliance with the License." >> $@
