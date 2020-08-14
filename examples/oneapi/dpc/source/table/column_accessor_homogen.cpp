@@ -21,6 +21,8 @@
 #include "oneapi/dal/table/column_accessor.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 
+#include "example_util/dpc_helpers.hpp"
+
 using namespace oneapi;
 
 void run(sycl::queue &queue) {
