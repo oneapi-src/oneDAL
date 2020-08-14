@@ -34,7 +34,7 @@ void run(sycl::queue& queue) {
 
     const auto data_table = dal::read(queue, csv_reader_desc, data_file_name).get_table();
 
-/*    
+/*
     const auto data_table = dal::csv_table_reader()
         .set_delimiter(',')
         .read(queue, data_file_name);

@@ -21,7 +21,7 @@
 namespace oneapi::dal {
 
 class ONEAPI_DAL_EXPORT input_stream {
-public:                                  
+public:
     input_stream(const char * file_name) {
         const size_t len = strlen(file_name);
         file_name_ = new char[len];

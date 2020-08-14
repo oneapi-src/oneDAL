@@ -61,4 +61,3 @@ read_result read_kernel_gpu::operator()(const dal::backend::context_gpu& ctx,
 }
 
 } // namespace oneapi::dal::csv_table_reader::backend
-
