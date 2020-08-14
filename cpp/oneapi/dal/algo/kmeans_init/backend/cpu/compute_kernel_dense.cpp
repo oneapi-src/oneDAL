@@ -66,8 +66,9 @@ static compute_result call_daal_kernel(const context_cpu& ctx,
                                                                           &par,
                                                                           *(par.engine)));
 
-    return compute_result().set_centroids(
-        dal::detail::homogen_table_builder{}.reset(arr_centroids, cluster_count, column_count).build());
+    return compute_result().set_centroids(dal::detail::homogen_table_builder{}
+                                              .reset(arr_centroids, cluster_count, column_count)
+                                              .build());
 }
 
 template <typename Float>
