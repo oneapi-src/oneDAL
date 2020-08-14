@@ -18,7 +18,7 @@
 #include <iostream>
 
 #define ONEAPI_DAL_DATA_PARALLEL
-#include "oneapi/dal/table/accessor.hpp"
+#include "oneapi/dal/table/table_builder.hpp"
 
 #include "example_util/utils.hpp"
 

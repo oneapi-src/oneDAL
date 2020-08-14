@@ -17,7 +17,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "oneapi/dal/table/accessor.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
 
 #include "example_util/utils.hpp"
 
