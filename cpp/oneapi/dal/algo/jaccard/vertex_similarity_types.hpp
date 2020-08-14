@@ -44,11 +44,13 @@ public:
     /// Constructs the algorithm input initialized with the graph and the pointer
     /// to the allocated memory for the result. The size of the required memory
     /// can be computed by formula:
-    /// size = 3 * vertex_pair_size * jaccard_coeff_size * vertex_pairs_count,
+    /// size =  (vertex_pair_element_count * vertex_pair_size + 
+    ///         jaccard_coeff_element_count * jaccard_coeff_size) * vertex_pairs_count,
     /// where:
-    /// - 3 is the number of items in result element (vertex1, vertex2, coeff);
-    /// - vertex_pair_size is 2 * sizeof(int32_t);
-    /// - jaccard_coeff_size is 1 * sizeof(float);
+    /// - vertex_pair_element_count is 2 (vertex1, vertex2);
+    /// - vertex_pair_size is (2 * sizeof(int32_t));
+    /// - jaccard_coeff_element_count is 1 (coeff);
+    /// - jaccard_coeff_size is (1 * sizeof(float));
     /// - vertex_pairs_count is the number of vertices in the block
     ///
     /// @param [in]   graph  The input graph
