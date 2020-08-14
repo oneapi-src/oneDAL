@@ -51,9 +51,9 @@ TEST(linear_kernel_dense_test, can_compute_unit_matrix) {
     queue.memcpy(y, y_host, sizeof(float) * row_count * column_count).wait();
 
     const auto x_table =
-        homogen_table{ queue, x, row_count, column_count, empty_delete<const float>() };
+        homogen_table::wrap( queue, x, row_count, column_count);
     const auto y_table =
-        homogen_table{ queue, y, row_count, column_count, empty_delete<const float>() };
+        homogen_table::wrap( queue, y, row_count, column_count);
 
     const auto kernel_desc    = linear_kernel::descriptor{};
     const auto result_compute = compute(queue, kernel_desc, x_table, y_table);
@@ -87,7 +87,7 @@ TEST(linear_kernel_dense_test, can_compute_same_unit_matrix) {
     queue.memcpy(x, x_host, sizeof(float) * row_count * column_count).wait();
 
     const auto x_table =
-        homogen_table{ queue, x, row_count, column_count, empty_delete<const float>() };
+        homogen_table::wrap( queue, x, row_count, column_count);
 
     const auto kernel_desc  = linear_kernel::descriptor{};
     const auto values_table = compute(queue, kernel_desc, x_table, x_table).get_values();
@@ -122,9 +122,9 @@ TEST(linear_kernel_dense_test, can_compute_one_element) {
     queue.memcpy(y, y_host, sizeof(float) * row_count * column_count).wait();
 
     const auto x_table =
-        homogen_table{ queue, x, row_count, column_count, empty_delete<const float>() };
+        homogen_table::wrap( queue, x, row_count, column_count);
     const auto y_table =
-        homogen_table{ queue, y, row_count, column_count, empty_delete<const float>() };
+        homogen_table::wrap( queue, y, row_count, column_count);
 
     const auto kernel_desc  = linear_kernel::descriptor{};
     const auto values_table = compute(queue, kernel_desc, x_table, y_table).get_values();
@@ -164,9 +164,9 @@ TEST(linear_kernel_dense_test, can_compute_simple_matrix) {
     queue.memcpy(y, y_host, sizeof(float) * row_count * column_count).wait();
 
     const auto x_table =
-        homogen_table{ queue, x, row_count, column_count, empty_delete<const float>() };
+        homogen_table::wrap( queue, x, row_count, column_count);
     const auto y_table =
-        homogen_table{ queue, y, row_count, column_count, empty_delete<const float>() };
+        homogen_table::wrap( queue, y, row_count, column_count);
 
     const auto kernel_desc  = linear_kernel::descriptor{};
     const auto values_table = compute(queue, kernel_desc, x_table, y_table).get_values();
@@ -200,7 +200,7 @@ TEST(linear_kernel_dense_test, can_compute_same_simple_matrix) {
     queue.memcpy(x, x_host, sizeof(float) * row_count * column_count).wait();
 
     const auto x_table =
-        homogen_table{ queue, x, row_count, column_count, empty_delete<const float>() };
+        homogen_table::wrap( queue, x, row_count, column_count);
 
     const auto kernel_desc  = linear_kernel::descriptor{};
     const auto values_table = compute(queue, kernel_desc, x_table, x_table).get_values();
@@ -240,9 +240,9 @@ TEST(linear_kernel_dense_test, can_compute_diff_matrix) {
     queue.memcpy(y, y_host, sizeof(float) * row_count_y * column_count).wait();
 
     const auto x_table =
-        homogen_table{ queue, x, row_count_x, column_count, empty_delete<const float>() };
+        homogen_table::wrap( queue, x, row_count_x, column_count);
     const auto y_table =
-        homogen_table{ queue, y, row_count_y, column_count, empty_delete<const float>() };
+        homogen_table::wrap( queue, y, row_count_y, column_count);
 
     const auto kernel_desc  = linear_kernel::descriptor{};
     const auto values_table = compute(queue, kernel_desc, x_table, y_table).get_values();
@@ -283,9 +283,9 @@ TEST(linear_kernel_dense_test, can_compute_diff_matrix_not_default_params) {
     queue.memcpy(y, y_host, sizeof(float) * row_count_y * column_count).wait();
 
     const auto x_table =
-        homogen_table{ queue, x, row_count_x, column_count, empty_delete<const float>() };
+        homogen_table::wrap( queue, x, row_count_x, column_count);
     const auto y_table =
-        homogen_table{ queue, y, row_count_y, column_count, empty_delete<const float>() };
+        homogen_table::wrap( queue, y, row_count_y, column_count);
 
     const auto kernel_desc  = linear_kernel::descriptor{}.set_k(2.0).set_b(1.0);
     const auto values_table = compute(queue, kernel_desc, x_table, y_table).get_values();

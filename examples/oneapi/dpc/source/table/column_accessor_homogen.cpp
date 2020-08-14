@@ -14,43 +14,42 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <iomanip>
+#include <CL/sycl.hpp>
 #include <iostream>
 
 #define ONEAPI_DAL_DATA_PARALLEL
-#include "oneapi/dal/table/table_builder.hpp"
-
-#include "example_util/utils.hpp"
+#include "oneapi/dal/table/column_accessor.hpp"
+#include "oneapi/dal/table/homogen.hpp"
 
 using namespace oneapi;
 
-void run(sycl::queue& queue) {
-    constexpr std::int64_t row_count = 5;
-    constexpr std::int64_t column_count = 3;
+void run(sycl::queue &queue) {
+    constexpr std::int64_t row_count = 6;
+    constexpr std::int64_t column_count = 2;
+    const float data_host[] = {
+        0.f, 6.f,
+        1.f, 7.f,
+        2.f, 8.f,
+        3.f, 9.f,
+        4.f, 10.f,
+        5.f, 11.f,
+    };
 
-    dal::homogen_table_builder builder;
-    builder.set_data_type(dal::data_type::float32)
-           .allocate(queue, row_count, column_count);
+    auto data = sycl::malloc_shared<float>(row_count * column_count, queue);
+    queue.memcpy(data, data_host, sizeof(float) * row_count * column_count).wait();
 
-    {
-        dal::row_accessor<float> acc { builder };
-        auto rows = acc.pull(queue);
+    auto table = dal::homogen_table{ queue, data, row_count, column_count, dal::make_default_delete<const float>(queue)};
+    dal::column_accessor<const float> acc { table };
 
-        auto event = queue.submit([&](sycl::handler& cgh) {
-            rows.need_mutable_data(queue);
-            auto data = rows.get_mutable_data();
-            cgh.parallel_for(sycl::range<1>(rows.get_count()), [=](sycl::id<1> idx) {
-                data[idx[0]] = float(idx);
-            });
-        });
-        event.wait();
+    for(std::int64_t col = 0; col < table.get_column_count(); col++) {
+        std::cout << "column " << col << " values: ";
 
-        acc.push(queue, rows);
+        const auto col_values = acc.pull(queue, col);
+        for(std::int64_t i = 0; i < col_values.get_count(); i++) {
+            std::cout << col_values[i] << ", ";
+        }
+        std::cout << std::endl;
     }
-
-    auto table = builder.build();
-    std::cout << "Table values:" << std::endl
-              << table << std::endl;
 }
 
 int main(int argc, char const *argv[]) {

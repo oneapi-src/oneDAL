@@ -44,6 +44,26 @@ class ONEAPI_DAL_EXPORT homogen_table : public table {
 public:
     static std::int64_t kind();
 
+    template <typename Data>
+    static homogen_table wrap(const Data* data_pointer,
+                              std::int64_t row_count,
+                              std::int64_t column_count,
+                              data_layout layout = data_layout::row_major) {
+        return homogen_table{ data_pointer, row_count, column_count, empty_delete<const Data>(), layout };
+    }
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    template <typename Data>
+    static homogen_table wrap(const sycl::queue& queue,
+                              const Data* data_pointer,
+                              std::int64_t row_count,
+                              std::int64_t column_count,
+                              const sycl::vector_class<sycl::event>& dependencies = {},
+                              data_layout layout = data_layout::row_major) {
+        return homogen_table{ queue, data_pointer, row_count, column_count, empty_delete<const Data>(), dependencies, layout };
+    }
+#endif
+
 public:
     homogen_table();
 

@@ -29,7 +29,7 @@ TEST(kmeans_init_cpu, train_result) {
     const float data[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
                            -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
     const auto data_table =
-        homogen_table{ data, row_count, column_count, empty_delete<const float>() };
+        homogen_table::wrap( data, row_count, column_count);
 
     const float centroids[] = { 1.0, 1.0, 2.0, 2.0 };
 

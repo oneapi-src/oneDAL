@@ -14,37 +14,37 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <iomanip>
 #include <iostream>
 
-#include "oneapi/dal/table/row_accessor.hpp"
-
-#include "example_util/utils.hpp"
+#include "oneapi/dal/table/column_accessor.hpp"
+#include "oneapi/dal/table/homogen.hpp"
 
 using namespace oneapi;
 
 int main(int argc, char const *argv[]) {
-    constexpr std::int64_t row_count = 5;
-    constexpr std::int64_t column_count = 3;
+    constexpr std::int64_t row_count = 6;
+    constexpr std::int64_t column_count = 2;
+    const float data[] = {
+        0.f, 6.f,
+        1.f, 7.f,
+        2.f, 8.f,
+        3.f, 9.f,
+        4.f, 10.f,
+        5.f, 11.f,
+    };
 
-    dal::homogen_table_builder builder;
-    builder.set_data_type(dal::data_type::float32)
-           .allocate(row_count, column_count);
+    auto table = dal::homogen_table::wrap(data, row_count, column_count);
+    dal::column_accessor<const float> acc { table };
 
-    {
-        dal::row_accessor<float> acc { builder };
-        auto rows = acc.pull();
+    for(std::int64_t col = 0; col < table.get_column_count(); col++) {
+        std::cout << "column " << col << " values: ";
 
-        rows.need_mutable_data();
-        for(std::int64_t i = 0; i < rows.get_count(); i++) {
-            rows[i] = float(i);
+        const auto col_values = acc.pull(col);
+        for(std::int64_t i = 0; i < col_values.get_count(); i++) {
+            std::cout << col_values[i] << ", ";
         }
-
-        acc.push(rows);
+        std::cout << std::endl;
     }
 
-    auto table = builder.build();
-    std::cout << "Table values:" << std::endl
-              << table << std::endl;
     return 0;
 }
