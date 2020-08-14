@@ -22,14 +22,14 @@ namespace oneapi::dal::csv_table_reader::detail {
 using oneapi::dal::detail::host_policy;
 
 template<>
-struct ONEAPI_DAL_EXPORT read_ops_dispatcher<host_policy> {
-    read_result operator()(const host_policy& ctx,
-                            const descriptor_base& desc,
-                            const read_input& input) const {
-        using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::read_kernel_cpu>;
-        return kernel_dispatcher_t()(ctx, desc, input);
-    }
-};
+read_result read_ops_dispatcher<host_policy>::operator()(const host_policy& ctx,
+                                                         const descriptor_base& desc,
+                                                         const read_input& input) const {
+    using kernel_dispatcher_t =
+        dal::backend::kernel_dispatcher<backend::read_kernel_cpu>;
+    return kernel_dispatcher_t()(ctx, desc, input);
+}
+
+template struct ONEAPI_DAL_EXPORT read_ops_dispatcher<host_policy>;
 
 } // namespace oneapi::dal::csv_table_reader::detail

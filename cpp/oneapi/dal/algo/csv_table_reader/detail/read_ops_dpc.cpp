@@ -23,15 +23,15 @@ namespace oneapi::dal::csv_table_reader::detail {
 using oneapi::dal::detail::data_parallel_policy;
 
 template<>
-struct ONEAPI_DAL_EXPORT read_ops_dispatcher<data_parallel_policy> {
-    read_result operator()(const data_parallel_policy& ctx,
-                            const descriptor_base& params,
-                            const read_input& input) const {
-        using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::read_kernel_cpu,
-                                            backend::read_kernel_gpu>;
-        return kernel_dispatcher_t{}(ctx, params, input);
-    }
-};
+read_result read_ops_dispatcher<data_parallel_policy>::operator()(const data_parallel_policy& ctx,
+                                                                  const descriptor_base& params,
+                                                                  const read_input& input) const {
+    using kernel_dispatcher_t =
+        dal::backend::kernel_dispatcher<backend::read_kernel_cpu,
+                                        backend::read_kernel_gpu>;
+    return kernel_dispatcher_t{}(ctx, params, input);
+}
+
+template struct ONEAPI_DAL_EXPORT read_ops_dispatcher<data_parallel_policy>;
 
 } // namespace oneapi::dal::csv_table_reader::detail
