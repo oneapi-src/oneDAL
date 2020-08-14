@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 /// @file
-/// Contains the definition of the input and output for Jaccard Similarity 
+/// Contains the definition of the input and output for Jaccard Similarity
 /// algorithm
 
 #pragma once
@@ -41,18 +41,18 @@ class vertex_similarity_result_impl;
 template <typename Graph>
 class ONEAPI_DAL_EXPORT vertex_similarity_input {
 public:
-    /// Constructs the algorithm input initialized with the graph and the pointer 
+    /// Constructs the algorithm input initialized with the graph and the pointer
     /// to the allocated memory for the result. The size of the required memory
-    /// can be computed by formula: 
-    /// size = 3 * vertex_pair_size * jaccard_coeff_size * vertex_pairs_count, 
+    /// can be computed by formula:
+    /// size = 3 * vertex_pair_size * jaccard_coeff_size * vertex_pairs_count,
     /// where:
     /// - 3 is the number of items in result element (vertex1, vertex2, coeff);
     /// - vertex_pair_size is 2 * sizeof(int32_t);
     /// - jaccard_coeff_size is 1 * sizeof(float);
-    /// - vertex_pairs_count is the number of vertices in the block  
+    /// - vertex_pairs_count is the number of vertices in the block
     ///
     /// @param [in]   graph  The input graph
-    /// @param [in/out]  result_ptr  The pointer to the allocated memory 
+    /// @param [in/out]  result_ptr  The pointer to the allocated memory
     /// for storing the result
     vertex_similarity_input(const Graph& graph, void* result_ptr);
 
@@ -61,6 +61,7 @@ public:
 
     /// Returns the input pointer to the result
     void* get_result_ptr();
+
 private:
     dal::detail::pimpl<detail::vertex_similarity_input_impl<Graph>> impl_;
 };
@@ -68,11 +69,11 @@ private:
 /// Class for the description of the result of the Jaccard Similarity algorithm
 class ONEAPI_DAL_EXPORT vertex_similarity_result {
 public:
-    /// Constructs the empty result 
+    /// Constructs the empty result
     vertex_similarity_result(){};
 
-    /// Constructs the algorithm result initialized with the table of vertex pairs, 
-    /// the table of the corresponding computed Jaccard similarity coefficients and 
+    /// Constructs the algorithm result initialized with the table of vertex pairs,
+    /// the table of the corresponding computed Jaccard similarity coefficients and
     /// the number of non-zero Jaccard similarity coefficients in the block.
     ///
     /// @param [in]   vertex_pairs  The table of size 2*nonzero_coeff_count with
@@ -80,17 +81,17 @@ public:
     ///                             similarity coefficients
     /// @param [in]   coeffs        The table of size 1*nonzero_coeff_count with
     ///                             non-zero Jaccard similarity coefficients
-    /// 
+    ///
     /// @param [in] nonzero_coeff_count The number of non-zero Jaccard coefficients
     vertex_similarity_result(const table& vertex_pairs,
                              const table& coeffs,
                              int64_t& nonzero_coeff_count);
-    
-    /// Returns the table of size 1*nonzero_coeff_count with non-zero Jaccard 
+
+    /// Returns the table of size 1*nonzero_coeff_count with non-zero Jaccard
     /// similarity coefficients
     table get_coeffs() const;
 
-    /// Returns the table of size 2*nonzero_coeff_count with vertex pairs which have 
+    /// Returns the table of size 2*nonzero_coeff_count with vertex pairs which have
     /// non-zero Jaccard similarity coefficients
     table get_vertex_pairs() const;
 
