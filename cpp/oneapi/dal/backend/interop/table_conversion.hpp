@@ -76,8 +76,6 @@ inline table convert_from_daal_homogen_table(const daal::data_management::Numeri
     return homogen_table_builder{}.reset(arr, row_count, column_count).build();
 }
 
-
-
 #ifdef ONEAPI_DAL_DATA_PARALLEL
 template <typename T>
 inline auto convert_to_daal_sycl_homogen_table(sycl::queue& queue,

@@ -45,7 +45,7 @@ constexpr auto get_vertex_count(const Graph &graph) noexcept -> vertex_size_type
 ///
 /// @return The number of edges in the graph
 template <typename Graph>
-constexpr auto get_edge_count(const Graph& graph) noexcept -> edge_size_type<Graph> {
+constexpr auto get_edge_count(const Graph &graph) noexcept -> edge_size_type<Graph> {
     return detail::get_edge_count_impl(graph);
 }
 
@@ -59,7 +59,7 @@ constexpr auto get_edge_count(const Graph& graph) noexcept -> edge_size_type<Gra
 ///
 /// @return The degree of the vertex
 template <typename Graph>
-constexpr auto get_vertex_degree(const Graph& graph, const vertex_type<Graph> &vertex)
+constexpr auto get_vertex_degree(const Graph &graph, const vertex_type<Graph> &vertex)
     -> edge_size_type<Graph> {
     if (vertex < 0 || (vertex_size_type<Graph>)vertex >= detail::get_vertex_count_impl(graph)) {
         throw out_of_range("Vertex index should be in [0, vertex_count)");

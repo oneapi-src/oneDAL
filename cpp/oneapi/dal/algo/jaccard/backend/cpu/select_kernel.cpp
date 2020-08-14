@@ -22,8 +22,9 @@ namespace jaccard {
 namespace detail {
 
 template <typename Graph, typename Cpu>
-extern vertex_similarity_result call_jaccard_default_kernel(const descriptor_base &desc,
-                                                   const vertex_similarity_input<Graph> &input);
+extern vertex_similarity_result call_jaccard_default_kernel(
+    const descriptor_base &desc,
+    const vertex_similarity_input<Graph> &input);
 
 template <typename Float, typename Method, typename Graph>
 vertex_similarity_result backend_default<Float, Method, Graph>::operator()(

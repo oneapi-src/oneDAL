@@ -24,7 +24,7 @@ class detail::vertex_similarity_input_impl : public base {
 public:
     vertex_similarity_input_impl(const Graph& graph_data_input) : graph_data(graph_data_input) {}
 
-    const Graph &graph_data;
+    const Graph& graph_data;
 };
 
 using detail::vertex_similarity_input_impl;
