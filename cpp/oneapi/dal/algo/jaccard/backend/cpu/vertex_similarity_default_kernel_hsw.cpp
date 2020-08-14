@@ -148,7 +148,6 @@ size_t intersection(VertexType *neigh_u, VertexType *neigh_v, VertexType n_u, Ve
         }
     }
     for (; i_v <= n_v_8_end && i_u < n_u; i_v += 8) {
-        //cout << i_v << " " << i_u << endl;
         __m256i v_v = _mm256_loadu_si256(
             reinterpret_cast<const __m256i *>(neigh_v + i_v)); // load 8 neighbors of v
         const VertexType neighv_iv = neigh_v[i_v + 7];
