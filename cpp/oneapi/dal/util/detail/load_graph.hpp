@@ -192,7 +192,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         std::move(vector_vertex_t(layout->_edge_offsets[layout->_vertex_count]));
 
     threader_for(layout->_vertex_count, layout->_vertex_count, [&](int u) {
-        for (vertex_size_t i = 0; i < layout->_degrees[u]; i++) {
+        for (vertex_t i = 0; i < layout->_degrees[u]; i++) {
             *(layout->_vertex_neighbors.begin() + layout->_edge_offsets[u] + i) =
                 *(layout_unfilt->_vertex_neighbors.begin() + layout_unfilt->_edge_offsets[u] + i);
         }

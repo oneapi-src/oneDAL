@@ -44,19 +44,18 @@ struct vertex_similarity_ops {
         const auto row_end      = param.get_row_range_end();
         const auto column_begin = param.get_column_range_begin();
         const auto column_end   = param.get_column_range_end();
-        auto vertex_count =
-            oneapi::dal::preview::detail::get_impl(input.get_graph())->_vertex_count;
-        if (row_begin < 0 || row_end < 0 || column_begin < 0 || column_end < 0) {
+        auto vertex_count       = static_cast<int64_t>(
+            oneapi::dal::preview::detail::get_impl(input.get_graph())->_vertex_count);
+        if (row_begin < 0 || column_begin < 0) {
             throw oneapi::dal::invalid_argument("Negative interval");
         }
-        if (row_begin >= row_end) {
-            throw oneapi::dal::invalid_argument("row_begin >= row_end");
+        if (row_begin > row_end) {
+            throw oneapi::dal::invalid_argument("row_begin > row_end");
         }
-        if (column_begin >= column_end) {
-            throw oneapi::dal::invalid_argument("column_begin >= column_end");
+        if (column_begin > column_end) {
+            throw oneapi::dal::invalid_argument("column_begin > column_end");
         }
-        if (row_begin > vertex_count || row_end > vertex_count || column_begin > vertex_count ||
-            column_end > vertex_count) {
+        if (row_end > vertex_count || column_end > vertex_count) {
             throw oneapi::dal::out_of_range("interval > vertex_count");
         }
     }
