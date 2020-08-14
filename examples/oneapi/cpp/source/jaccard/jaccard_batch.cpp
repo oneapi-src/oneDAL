@@ -37,7 +37,7 @@ using namespace oneapi::dal::preview;
 #include "tbb/parallel_reduce.h"
 #include "tbb/partitioner.h"
 #include "tbb/parallel_sort.h"
-#include "tbb/task_scheduler_init.h"
+//#include "tbb/task_scheduler_init.h"
 
 using graph_type = oneapi::dal::preview::undirected_adjacency_array_graph<>;
 using namespace std;

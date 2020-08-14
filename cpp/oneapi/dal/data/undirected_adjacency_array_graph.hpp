@@ -20,7 +20,6 @@
 #pragma once
 
 #include "oneapi/dal/data/detail/graph_container.hpp"
-#include "oneapi/dal/data/detail/graph_service_functions_impl.hpp"
 #include "oneapi/dal/data/detail/undirected_adjacency_array_graph_impl.hpp"
 #include "oneapi/dal/data/graph_common.hpp"
 
@@ -143,63 +142,4 @@ private:
 
     friend const pimpl &detail::get_impl<graph_type>(const graph_type &graph);
 };
-namespace detail {
-template <typename Graph>
-ONEAPI_DAL_EXPORT auto get_vertex_count_impl(const Graph &g) noexcept -> vertex_size_type<Graph>;
-
-template <typename Graph>
-ONEAPI_DAL_EXPORT auto get_edge_count_impl(const Graph &g) noexcept -> edge_size_type<Graph>;
-
-template <typename Graph>
-ONEAPI_DAL_EXPORT auto get_vertex_degree_impl(const Graph &g,
-                                              const vertex_type<Graph> &vertex) noexcept
-    -> edge_size_type<Graph>;
-
-template <typename Graph>
-ONEAPI_DAL_EXPORT auto get_vertex_neighbors_impl(const Graph &g,
-                                                 const vertex_type<Graph> &vertex) noexcept
-    -> const_edge_range_type<Graph>;
-
-template <typename Graph>
-ONEAPI_DAL_EXPORT auto get_vertex_count_impl(const Graph &g) noexcept -> vertex_size_type<Graph> {
-    const auto &layout = detail::get_impl(g);
-    return layout->_vertex_count;
-}
-
-template <typename Graph>
-ONEAPI_DAL_EXPORT auto get_edge_count_impl(const Graph &g) noexcept -> edge_size_type<Graph> {
-    const auto &layout = detail::get_impl(g);
-    return layout->_edge_count;
-}
-
-template <typename Graph>
-ONEAPI_DAL_EXPORT auto get_vertex_degree_impl(const Graph &g,
-                                              const vertex_type<Graph> &vertex) noexcept
-    -> edge_size_type<Graph> {
-    const auto &layout = detail::get_impl(g);
-    return layout->_degrees[vertex];
-}
-
-template <typename Graph>
-ONEAPI_DAL_EXPORT auto get_vertex_neighbors_impl(const Graph &g,
-                                                 const vertex_type<Graph> &vertex) noexcept
-    -> const_edge_range_type<Graph> {
-    const auto &layout = detail::get_impl(g);
-    const_edge_iterator_type<Graph> vertex_neighbors_begin =
-        layout->_vertex_neighbors.begin() + layout->_edge_offsets[vertex];
-    const_edge_iterator_type<Graph> vertex_neighbors_end =
-        layout->_vertex_neighbors.begin() + layout->_edge_offsets[vertex + 1];
-    return std::make_pair(vertex_neighbors_begin, vertex_neighbors_end);
-}
-} // namespace detail
-template <typename VertexValue = empty_value,
-          typename EdgeValue   = empty_value,
-          typename GraphValue  = empty_value,
-          typename IndexType   = std::int32_t,
-          typename Allocator   = std::allocator<empty_value>>
-using undirected_adjacency_array =
-    undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>;
-
-using graph = undirected_adjacency_array<>;
-
 } // namespace oneapi::dal::preview
