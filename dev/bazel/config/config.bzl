@@ -177,7 +177,7 @@ def _declare_onedal_config_impl(repo_ctx):
     auto_cpu = _detect_cpu_extension(repo_ctx)
     repo_ctx.template(
         "BUILD",
-        Label("@onedal//dev/bazel/config:BUILD.tpl"),
+        Label("@onedal//dev/bazel/config:config.tpl.BUILD"),
         substitutions = {
             "%{auto_cpu}":         auto_cpu,
             "%{version_major}":    "2021",
