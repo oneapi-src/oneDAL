@@ -37,21 +37,34 @@ struct select_small_k_l2_kernel;
 
 template <typename Float>
 struct select_small_k_l2 {
-public: 
+public:
     typedef std::uint32_t idx_t;
     typedef select_small_k_l2_kernel<Float> kernel_t;
-    constexpr inline static std::int64_t elem_size = sizeof(std::uint32_t) + sizeof(Float); 
-    constexpr inline static int preferred_size_flag = std::is_same<Float, float>::value ? 
-        cl::sycl::info::device::preferred_vector_width_float : cl::sycl::info::device::preferred_vector_width_double;
+    constexpr inline static std::int64_t elem_size = sizeof(std::uint32_t) + sizeof(Float);
+    constexpr inline static int preferred_size_flag =
+        std::is_same<Float, float>::value ? cl::sycl::info::device::preferred_vector_width_float
+                                          : cl::sycl::info::device::preferred_vector_width_double;
+
 public:
     select_small_k_l2(cl::sycl::queue& queue);
-    cl::sycl::event operator() (const Float* cross, 
-                                const Float* norms, 
-                                const std::int64_t batch_size,
-                                const std::int64_t queue_size,
-                                const std::int64_t k,
-                                float* nearest);
-    std::pair<std::int64_t, std::int64_t> preferred_local_size(const std::int64_t k) const;
+    cl::sycl::event operator()(const Float* cross,
+                               const Float* norms,
+                               const std::int64_t batch_size,
+                               const std::int64_t queue_size,
+                               const std::int64_t k,
+                               idx_t* nearest_indices,
+                               Float* nearest_distances);
+    cl::sycl::event operator()(const Float* cross,
+                               const Float* norms,
+                               const std::int64_t batch_size,
+                               const std::int64_t queue_size,
+                               const std::int64_t k,
+                               idx_t* nearest_indices,
+                               Float* nearest_distances,
+                               const std::int64_t k_width,
+                               const std::int64_t yrange);
+    std::pair<std::int64_t, std::int64_t> preferred_local_size(const std::int64_t k);
+
 private:
     cl::sycl::queue& q;
     const std::int64_t max_work_group_size, max_local_size, preferred_width;
@@ -59,5 +72,4 @@ private:
 
 #endif
 
-} // namespace oneapi::dal::backend::primitives 
-
+} // namespace oneapi::dal::backend::primitives
