@@ -27,8 +27,8 @@
 namespace oneapi::dal::preview {
 
 /// Class for a data management component responsible for representation of data
-/// in the graph format. The class is designed to minimize storage requirements 
-/// and offer good performance characteristics. The graph is stored in a 0-based 
+/// in the graph format. The class is designed to minimize storage requirements
+/// and offer good performance characteristics. The graph is stored in a 0-based
 /// CSR format with ordered vertex keys within each row. Self-loops and multi-edges
 /// are not supported.
 ///
@@ -94,38 +94,40 @@ public:
     using edge_index      = IndexType;
 
     // ranges
-    using edge_range              = range<edge_iterator>;
-    using const_edge_range        = range<const_edge_iterator>;
+    using edge_range       = range<edge_iterator>;
+    using const_edge_range = range<const_edge_iterator>;
 
-    static_assert(std::is_integral_v<vertex_type> && std::is_signed_v<vertex_type> && sizeof(vertex_type) == 4, "Use 32 bit signed integer for vertex index type");
-    
+    static_assert(std::is_integral_v<vertex_type> && std::is_signed_v<vertex_type> &&
+                      sizeof(vertex_type) == 4,
+                  "Use 32 bit signed integer for vertex index type");
+
     /// Constructs an empty undirected_adjacency_array_graph
     undirected_adjacency_array_graph();
 
     /// Move constructor for undirected_adjacency_array_graph
-    undirected_adjacency_array_graph(undirected_adjacency_array_graph&& graph);
+    undirected_adjacency_array_graph(undirected_adjacency_array_graph &&graph);
 
     /// Copy constructor for undirected_adjacency_array_graph
-    undirected_adjacency_array_graph(const undirected_adjacency_array_graph& graph);
+    undirected_adjacency_array_graph(const undirected_adjacency_array_graph &graph);
 
-    /// Constructs an empty undirected_adjacency_array_graph with specified allocator 
+    /// Constructs an empty undirected_adjacency_array_graph with specified allocator
     undirected_adjacency_array_graph(allocator_type alloc){};
 
     /// Constructs an empty undirected_adjacency_array_graph with specified graph properties
     /// and allocator
-    undirected_adjacency_array_graph(const graph_user_value_type& graph_user_value,
+    undirected_adjacency_array_graph(const graph_user_value_type &graph_user_value,
                                      allocator_type allocator = allocator_type()){};
-    
-    /// Constructs an empty undirected_adjacency_array_graph with move graph properties and 
+
+    /// Constructs an empty undirected_adjacency_array_graph with move graph properties and
     /// allocator
-    undirected_adjacency_array_graph(graph_user_value_type&& graph_user_value,
+    undirected_adjacency_array_graph(graph_user_value_type &&graph_user_value,
                                      allocator_type allocator = allocator_type()){};
 
     /// Copy operator for undirected_adjacency_array_graph
-    undirected_adjacency_array_graph &operator=(const undirected_adjacency_array_graph& graph);
-    
+    undirected_adjacency_array_graph &operator=(const undirected_adjacency_array_graph &graph);
+
     /// Move operator for undirected_adjacency_array_graph
-    undirected_adjacency_array_graph &operator=(undirected_adjacency_array_graph&& graph);
+    undirected_adjacency_array_graph &operator=(undirected_adjacency_array_graph &&graph);
 
     using pimpl =
         oneapi::dal::detail::pimpl<detail::undirected_adjacency_array_graph_impl<VertexValue,
@@ -151,12 +153,12 @@ ONEAPI_DAL_EXPORT auto get_edge_count_impl(const Graph &g) noexcept -> edge_size
 template <typename Graph>
 ONEAPI_DAL_EXPORT auto get_vertex_degree_impl(const Graph &g,
                                               const vertex_type<Graph> &vertex) noexcept
-    -> vertex_edge_size_type<Graph>;
+    -> edge_size_type<Graph>;
 
 template <typename Graph>
 ONEAPI_DAL_EXPORT auto get_vertex_neighbors_impl(const Graph &g,
                                                  const vertex_type<Graph> &vertex) noexcept
-    -> const_vertex_edge_range_type<Graph>;
+    -> const_edge_range_type<Graph>;
 
 template <typename Graph>
 ONEAPI_DAL_EXPORT auto get_vertex_count_impl(const Graph &g) noexcept -> vertex_size_type<Graph> {
@@ -173,7 +175,7 @@ ONEAPI_DAL_EXPORT auto get_edge_count_impl(const Graph &g) noexcept -> edge_size
 template <typename Graph>
 ONEAPI_DAL_EXPORT auto get_vertex_degree_impl(const Graph &g,
                                               const vertex_type<Graph> &vertex) noexcept
-    -> vertex_edge_size_type<Graph> {
+    -> edge_size_type<Graph> {
     const auto &layout = detail::get_impl(g);
     return layout->_degrees[vertex];
 }
@@ -181,11 +183,11 @@ ONEAPI_DAL_EXPORT auto get_vertex_degree_impl(const Graph &g,
 template <typename Graph>
 ONEAPI_DAL_EXPORT auto get_vertex_neighbors_impl(const Graph &g,
                                                  const vertex_type<Graph> &vertex) noexcept
-    -> const_vertex_edge_range_type<Graph> {
+    -> const_edge_range_type<Graph> {
     const auto &layout = detail::get_impl(g);
-    const_vertex_edge_iterator_type<Graph> vertex_neighbors_begin =
+    const_edge_iterator_type<Graph> vertex_neighbors_begin =
         layout->_vertex_neighbors.begin() + layout->_edge_offsets[vertex];
-    const_vertex_edge_iterator_type<Graph> vertex_neighbors_end =
+    const_edge_iterator_type<Graph> vertex_neighbors_end =
         layout->_vertex_neighbors.begin() + layout->_edge_offsets[vertex + 1];
     return std::make_pair(vertex_neighbors_begin, vertex_neighbors_end);
 }

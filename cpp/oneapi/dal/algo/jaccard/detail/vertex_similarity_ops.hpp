@@ -26,23 +26,47 @@ namespace detail {
 
 template <typename Policy, typename Float, class Method, typename Graph>
 struct ONEAPI_DAL_EXPORT vertex_similarity_ops_dispatcher {
-    similarity_result operator()(const Policy &policy,
-                                 const descriptor_base &descriptor,
-                                 const similarity_input<Graph> &input) const;
+    vertex_similarity_result operator()(const Policy &policy,
+                                        const descriptor_base &descriptor,
+                                        const vertex_similarity_input<Graph> &input) const;
 };
 
 template <typename Descriptor, typename Graph>
 struct vertex_similarity_ops {
     using float_t           = typename Descriptor::float_t;
     using method_t          = typename Descriptor::method_t;
-    using input_t           = similarity_input<Graph>;
-    using result_t          = similarity_result;
+    using input_t           = vertex_similarity_input<Graph>;
+    using result_t          = vertex_similarity_result;
     using descriptor_base_t = descriptor_base;
+
+    void check_preconditions(const Descriptor &param,
+                             const vertex_similarity_input<Graph> &input) const {
+        const auto row_begin    = param.get_row_range_begin();
+        const auto row_end      = param.get_row_range_end();
+        const auto column_begin = param.get_column_range_begin();
+        const auto column_end   = param.get_column_range_end();
+        auto vertex_count =
+            oneapi::dal::preview::detail::get_impl(input.get_graph())->_vertex_count;
+        if (row_begin < 0 || row_end < 0 || column_begin < 0 || column_end < 0) {
+            throw oneapi::dal::invalid_argument("Negative interval");
+        }
+        if (row_begin >= row_end) {
+            throw oneapi::dal::invalid_argument("row_begin >= row_end");
+        }
+        if (column_begin >= column_end) {
+            throw oneapi::dal::invalid_argument("column_begin >= column_end");
+        }
+        if (row_begin > vertex_count || row_end > vertex_count || column_begin > vertex_count ||
+            column_end > vertex_count) {
+            throw oneapi::dal::out_of_range("interval > vertex_count");
+        }
+    }
 
     template <typename Policy>
     auto operator()(const Policy &policy,
                     const Descriptor &desc,
-                    const similarity_input<Graph> &input) const {
+                    const vertex_similarity_input<Graph> &input) const {
+        check_preconditions(desc, input);
         return vertex_similarity_ops_dispatcher<Policy, float_t, method_t, Graph>()(policy,
                                                                                     desc,
                                                                                     input);

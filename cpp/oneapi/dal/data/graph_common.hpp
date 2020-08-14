@@ -27,7 +27,7 @@
 namespace oneapi::dal::preview {
 
 /// Type of the graph vertex properties
-/// @tparam Graph Type of the graph 
+/// @tparam Graph Type of the graph
 template <typename Graph>
 using vertex_user_value_type = typename Graph::vertex_user_value_type;
 
