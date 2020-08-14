@@ -27,7 +27,7 @@ using graph_type = oneapi::dal::preview::undirected_adjacency_array_graph<>;
 using namespace std;
 using namespace std::chrono;
 
-void jaccard_all_block(const graph_type& my_graph, int block_i, int block_j, int number_of_threads)
+void jaccard_all_block(graph_type& my_graph, int block_i, int block_j, int number_of_threads)
 {
     int num = get_vertex_count(my_graph);
 

@@ -339,9 +339,9 @@ vertex_similarity_result call_jaccard_default_kernel(const descriptor_base& desc
 
 #define INSTANTIATE(cpu)                                                  \
     template vertex_similarity_result                                            \
-    call_jaccard_default_kernel<undirected_adjacency_array_graph<> &, cpu>( \
+    call_jaccard_default_kernel<undirected_adjacency_array_graph<>, cpu>( \
         const descriptor_base &desc,                                      \
-        const vertex_similarity_input<undirected_adjacency_array_graph<> &> &input);
+        const vertex_similarity_input<undirected_adjacency_array_graph<>> &input);
 
 INSTANTIATE(oneapi::dal::backend::cpu_dispatch_default)
 INSTANTIATE(oneapi::dal::backend::cpu_dispatch_ssse3)

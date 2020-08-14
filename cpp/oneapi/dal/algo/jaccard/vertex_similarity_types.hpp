@@ -33,7 +33,7 @@ class vertex_similarity_result_impl;
 template <typename Graph>
 class ONEAPI_DAL_EXPORT vertex_similarity_input {
 public:
-    vertex_similarity_input(const Graph& g);
+    vertex_similarity_input(const Graph& graph);
     const Graph& get_graph() const;
 
 private:

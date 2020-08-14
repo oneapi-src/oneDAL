@@ -38,7 +38,7 @@ vertex_similarity_ops_dispatcher<Policy, Float, Method, Graph>::operator()(
 
 INSTANTIATE(float,
             oneapi::dal::preview::jaccard::method::by_default,
-            undirected_adjacency_array_graph<> &)
+            undirected_adjacency_array_graph<>)
 
 } // namespace detail
 } // namespace jaccard
