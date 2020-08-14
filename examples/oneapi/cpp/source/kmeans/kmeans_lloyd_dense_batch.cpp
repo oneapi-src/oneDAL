@@ -33,12 +33,12 @@ int main(int argc, char const *argv[]) {
 
     const float initial_centroids[] = { 1.0, 0.0, -1.0, 0.0 };
 
-    const auto x_train_table = dal::homogen_table::wrap( x_train, row_count_train, column_count);
+    const auto x_train_table = dal::homogen_table::wrap(x_train, row_count_train, column_count);
     const auto initial_centroids_table =
         dal::homogen_table::wrap( initial_centroids, cluster_count, column_count);
 
-    const auto x_test_table = dal::homogen_table::wrap( x_test, row_count_test, column_count);
-    const auto y_test_table = dal::homogen_table::wrap( y_test, row_count_test, 1);
+    const auto x_test_table = dal::homogen_table::wrap(x_test, row_count_test, column_count);
+    const auto y_test_table = dal::homogen_table::wrap(y_test, row_count_test, 1);
 
     const auto kmeans_desc = dal::kmeans::descriptor<>()
                                  .set_cluster_count(cluster_count)

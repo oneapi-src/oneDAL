@@ -31,8 +31,8 @@ int main(int argc, char const *argv[]) {
                                 -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
     const float x_test[]    = { 1.0, 1.0, 2.0, 2.0 };
 
-    const auto x_train_table = dal::homogen_table::wrap( x_compute, row_count, column_count);
-    const auto x_test_table  = dal::homogen_table::wrap( x_test, cluster_count, column_count);
+    const auto x_compute_table = dal::homogen_table::wrap(x_compute, row_count, column_count);
+    const auto x_test_table  = dal::homogen_table::wrap(x_test, cluster_count, column_count);
 
     const auto kmeans_init_desc = dal::kmeans_init::descriptor<>().set_cluster_count(cluster_count);
 
