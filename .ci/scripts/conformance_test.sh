@@ -33,10 +33,20 @@ conda remove -y daal --force
 conda install -y -c conda-forge scikit-learn
 conda install $HOME/miniconda/envs/CB/conda-bld/linux-64/daal4py*.tar.bz2
 conda list
-source ${ONEAPI_DIR}/compiler/latest/env/vars.sh
-source ${BUILD_DIR}/daal/latest/env/vars.sh intel64
+compiler_vars=${ONEAPI_DIR}/compiler/latest/env/vars.sh
+if ! [ -f "${compiler_vars}" ]; then
+    echo "Can't find compiler vars ${compiler_vars}"
+    exit 1
+fi
+source "${compiler_vars}"
+dal_vars=${BUILD_DIR}/daal/latest/env/vars.sh
+if ! [ -f "${dal_vars}" ]; then
+    echo "Can't find oneDAL vars ${dal_vars}"
+    exit 1
+fi
+source ${dal_vars} intel64
 
 # testing
-cd .ci/scripts/conformance-scripts/
+cd .ci/scripts/conformance-scripts/ || exit 1
 python run_tests.py 0.23.1
 cd ../../..

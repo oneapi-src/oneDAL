@@ -20,6 +20,7 @@
 #include "oneapi/dal/backend/dispatcher_dpc.hpp"
 
 namespace oneapi::dal::knn::detail {
+using oneapi::dal::detail::data_parallel_policy;
 template <typename Float, typename Method>
 struct ONEAPI_DAL_EXPORT infer_ops_dispatcher<data_parallel_policy, Float, Method> {
     infer_result operator()(const data_parallel_policy& ctx,
