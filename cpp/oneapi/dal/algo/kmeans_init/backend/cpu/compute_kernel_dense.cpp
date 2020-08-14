@@ -16,7 +16,7 @@
 
 #include <daal/src/algorithms/kmeans/kmeans_init_kernel.h>
 
-#include "oneapi/dal/algo/kmeans_init/backend/cpu/train_kernel.hpp"
+#include "oneapi/dal/algo/kmeans_init/backend/cpu/compute_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -34,9 +34,9 @@ using daal_kmeans_init_dense_kernel_t =
     daal_kmeans_init::internal::KMeansInitKernel<daal_kmeans_init::defaultDense, Float, Cpu>;
 
 template <typename Float>
-static train_result call_daal_kernel(const context_cpu& ctx,
-                                     const descriptor_base& desc,
-                                     const table& data) {
+static compute_result call_daal_kernel(const context_cpu& ctx,
+                                       const descriptor_base& desc,
+                                       const table& data) {
     const int64_t column_count  = data.get_column_count();
     const int64_t cluster_count = desc.get_cluster_count();
 
@@ -64,27 +64,27 @@ static train_result call_daal_kernel(const context_cpu& ctx,
                                                                           &par,
                                                                           *(par.engine)));
 
-    return train_result().set_centroids(
+    return compute_result().set_centroids(
         homogen_table_builder{}.reset(arr_centroids, cluster_count, column_count).build());
 }
 
 template <typename Float>
-static train_result train(const context_cpu& ctx,
-                          const descriptor_base& desc,
-                          const train_input& input) {
+static compute_result compute(const context_cpu& ctx,
+                              const descriptor_base& desc,
+                              const compute_input& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_data());
 }
 
 template <typename Float>
-struct train_kernel_cpu<Float, method::dense> {
-    train_result operator()(const context_cpu& ctx,
-                            const descriptor_base& desc,
-                            const train_input& input) const {
-        return train<Float>(ctx, desc, input);
+struct compute_kernel_cpu<Float, method::dense> {
+    compute_result operator()(const context_cpu& ctx,
+                              const descriptor_base& desc,
+                              const compute_input& input) const {
+        return compute<Float>(ctx, desc, input);
     }
 };
 
-template struct train_kernel_cpu<float, method::dense>;
-template struct train_kernel_cpu<double, method::dense>;
+template struct compute_kernel_cpu<float, method::dense>;
+template struct compute_kernel_cpu<double, method::dense>;
 
 } // namespace oneapi::dal::kmeans_init::backend

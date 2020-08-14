@@ -14,44 +14,49 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/kmeans_init/train_types.hpp"
-#include "oneapi/dal/detail/common.hpp"
+#pragma once
+
+#include "oneapi/dal/algo/kmeans_init/common.hpp"
 
 namespace oneapi::dal::kmeans_init {
 
-class detail::train_input_impl : public base {
-public:
-    train_input_impl(const table& data) : data(data) {}
+namespace detail {
+class compute_input_impl;
+class compute_result_impl;
+} // namespace detail
 
-    table data;
+class ONEAPI_DAL_EXPORT compute_input : public base {
+public:
+    compute_input(const table& data);
+
+    table get_data() const;
+
+    auto& set_data(const table& data) {
+        set_data_impl(data);
+        return *this;
+    }
+
+private:
+    void set_data_impl(const table& data);
+
+    dal::detail::pimpl<detail::compute_input_impl> impl_;
 };
 
-class detail::train_result_impl : public base {
+class ONEAPI_DAL_EXPORT compute_result {
 public:
-    table centroids;
+    compute_result();
+
+    table get_centroids() const;
+
+    auto& set_centroids(const table& value) {
+        set_centroids_impl(value);
+        return *this;
+    }
+
+private:
+    void set_centroids_impl(const table&);
+
+    dal::detail::pimpl<detail::compute_result_impl> impl_;
 };
-
-using detail::train_input_impl;
-using detail::train_result_impl;
-
-train_input::train_input(const table& data) : impl_(new train_input_impl(data)) {}
-
-table train_input::get_data() const {
-    return impl_->data;
-}
-
-void train_input::set_data_impl(const table& value) {
-    impl_->data = value;
-}
-
-train_result::train_result() : impl_(new train_result_impl{}) {}
-
-table train_result::get_centroids() const {
-    return impl_->centroids;
-}
-
-void train_result::set_centroids_impl(const table& value) {
-    impl_->centroids = value;
-}
 
 } // namespace oneapi::dal::kmeans_init

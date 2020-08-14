@@ -14,42 +14,32 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <CL/sycl.hpp>
-
 #include "gtest/gtest.h"
-#define ONEAPI_DAL_DATA_PARALLEL
 #include "oneapi/dal/algo/kmeans_init.hpp"
 #include "oneapi/dal/data/accessor.hpp"
 #include "oneapi/dal/data/table.hpp"
 
 using namespace oneapi::dal;
 
-TEST(kmeans_init_gpu, train_result) {
-    auto selector = sycl::gpu_selector();
-    auto queue    = sycl::queue(selector);
-
+TEST(kmeans_init_cpu, compute_result) {
     constexpr std::int64_t row_count     = 8;
     constexpr std::int64_t column_count  = 2;
     constexpr std::int64_t cluster_count = 2;
 
-    const float data_host[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
-                                -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
-    auto data               = sycl::malloc_shared<float>(row_count * column_count, queue);
-    queue.memcpy(data, data_host, sizeof(float) * row_count * column_count).wait();
+    const float data[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
+                           -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
     const auto data_table =
-        homogen_table{ queue, data, row_count, column_count, empty_delete<const float>() };
+        homogen_table{ data, row_count, column_count, empty_delete<const float>() };
 
     const float centroids[] = { 1.0, 1.0, 2.0, 2.0 };
 
     const auto kmeans_desc = kmeans_init::descriptor<>().set_cluster_count(cluster_count);
 
-    const auto result_train = train(queue, kmeans_desc, data_table);
+    const auto result_compute = compute(kmeans_desc, data_table);
 
-    const auto train_centroids =
-        row_accessor<const float>(result_train.get_centroids()).pull(queue).get_data();
+    const auto compute_centroids =
+        row_accessor<const float>(result_compute.get_centroids()).pull().get_data();
     for (std::int64_t i = 0; i < cluster_count * column_count; ++i) {
-        ASSERT_FLOAT_EQ(centroids[i], train_centroids[i]);
+        ASSERT_FLOAT_EQ(centroids[i], compute_centroids[i]);
     }
-
-    sycl::free(data, queue);
 }
