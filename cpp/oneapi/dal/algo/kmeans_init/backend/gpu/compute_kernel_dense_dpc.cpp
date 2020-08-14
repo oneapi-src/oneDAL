@@ -25,6 +25,8 @@
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
+#include "oneapi/dal/table/row_accessor.hpp"
+
 namespace oneapi::dal::kmeans_init::backend {
 
 using std::int64_t;
@@ -80,8 +82,9 @@ struct compute_kernel_gpu<Float, method::dense> {
                                                                          &par,
                                                                          *(par.engine)));
 
-        return compute_result().set_centroids(
-            homogen_table_builder{}.reset(arr_centroids, cluster_count, column_count).build());
+        return compute_result().set_centroids(dal::detail::homogen_table_builder{}
+                                                  .reset(arr_centroids, cluster_count, column_count)
+                                                  .build());
     }
 };
 

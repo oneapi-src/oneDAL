@@ -20,7 +20,6 @@
 
 #define ONEAPI_DAL_DATA_PARALLEL
 #include "oneapi/dal/algo/kmeans_init.hpp"
-#include "oneapi/dal/data/accessor.hpp"
 
 #include "example_util/utils.hpp"
 
@@ -37,15 +36,8 @@ void run(sycl::queue &queue) {
 
     auto x_compute = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(x_compute, x_compute_host, sizeof(float) * row_count * column_count).wait();
-    const auto x_compute_table = dal::homogen_table{ queue,
-                                                     x_compute_host,
-                                                     row_count,
-                                                     column_count,
-                                                     dal::empty_delete<const float>() };
-    const auto x_test_table    = dal::homogen_table{ x_test_host,
-                                                  cluster_count,
-                                                  column_count,
-                                                  dal::empty_delete<const float>() };
+    const auto x_compute_table = dal::homogen_table::wrap(queue, x_compute, row_count, column_count);
+    const auto x_test_table  = dal::homogen_table::wrap(x_test_host, cluster_count, column_count);
 
     const auto kmeans_init_desc = dal::kmeans_init::descriptor<>().set_cluster_count(cluster_count);
 

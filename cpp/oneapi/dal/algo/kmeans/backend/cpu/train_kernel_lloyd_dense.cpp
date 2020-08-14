@@ -23,6 +23,8 @@
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
+#include "oneapi/dal/table/row_accessor.hpp"
+
 namespace oneapi::dal::kmeans::backend {
 
 using std::int64_t;
@@ -121,11 +123,12 @@ static train_result call_daal_kernel(const context_cpu& ctx,
                                                                            &par));
 
     return train_result()
-        .set_labels(homogen_table_builder{}.reset(arr_labels, row_count, 1).build())
+        .set_labels(dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build())
         .set_iteration_count(static_cast<std::int64_t>(arr_iteration_count[0]))
         .set_objective_function_value(static_cast<double>(arr_objective_function_value[0]))
-        .set_model(model().set_centroids(
-            homogen_table_builder{}.reset(arr_centroids, cluster_count, column_count).build()));
+        .set_model(model().set_centroids(dal::detail::homogen_table_builder{}
+                                             .reset(arr_centroids, cluster_count, column_count)
+                                             .build()));
 }
 
 template <typename Float>

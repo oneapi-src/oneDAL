@@ -16,8 +16,8 @@
 
 #include "gtest/gtest.h"
 #include "oneapi/dal/algo/svm.hpp"
-#include "oneapi/dal/data/accessor.hpp"
-#include "oneapi/dal/data/table.hpp"
+#include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
 
 using namespace oneapi::dal;
 using std::int32_t;
@@ -33,10 +33,8 @@ TEST(svm_thunder_dense_test, can_classify_linear_separable_surface) {
     };
     constexpr std::int64_t support_index_negative = 1;
     constexpr std::int64_t support_index_positive = 3;
-    const auto x_train_table =
-        homogen_table{ x_train, row_count_train, column_count, empty_delete<const float>() };
-    const auto y_train_table =
-        homogen_table{ y_train, row_count_train, 1, empty_delete<const float>() };
+    const auto x_train_table = homogen_table::wrap(x_train, row_count_train, column_count);
+    const auto y_train_table = homogen_table::wrap(y_train, row_count_train, 1);
 
     const auto svm_desc     = svm::descriptor{}.set_c(1.0);
     const auto result_train = train(svm_desc, x_train_table, y_train_table);
@@ -66,10 +64,8 @@ TEST(svm_thunder_dense_test, can_classify_linear_separable_surface_with_not_defa
     };
     constexpr std::int64_t support_index_negative = 1;
     constexpr std::int64_t support_index_positive = 3;
-    const auto x_train_table =
-        homogen_table{ x_train, row_count_train, column_count, empty_delete<const float>() };
-    const auto y_train_table =
-        homogen_table{ y_train, row_count_train, 1, empty_delete<const float>() };
+    const auto x_train_table = homogen_table::wrap(x_train, row_count_train, column_count);
+    const auto y_train_table = homogen_table::wrap(y_train, row_count_train, 1);
 
     const auto kernel_desc  = linear_kernel::descriptor{}.set_k(0.1).set_b(0.0);
     const auto svm_desc     = svm::descriptor{ kernel_desc }.set_c(10.0);
@@ -97,11 +93,9 @@ TEST(svm_thunder_dense_test, can_classify_linear_separable_surface_with_big_marg
     const float y_train[] = {
         -1.f, -1.f, -1.f, +1.f, +1.f, +1.f,
     };
-    const auto x_train_table =
-        homogen_table{ x_train, row_count_train, column_count, empty_delete<const float>() };
-    const auto y_train_table =
-        homogen_table{ y_train, row_count_train, 1, empty_delete<const float>() };
-    const auto svm_desc = svm::descriptor{}.set_c(1e-1);
+    const auto x_train_table = homogen_table::wrap(x_train, row_count_train, column_count);
+    const auto y_train_table = homogen_table::wrap(y_train, row_count_train, 1);
+    const auto svm_desc      = svm::descriptor{}.set_c(1e-1);
 
     const auto result_train = train(svm_desc, x_train_table, y_train_table);
     ASSERT_EQ(result_train.get_support_vector_count(), row_count_train);
@@ -131,10 +125,8 @@ TEST(svm_thunder_dense_test, can_classify_linear_not_separable_surface) {
     const float y_train[]                  = { -1.f, -1.f, -1.f, +1.f, +1.f, +1.f, +1.f, -1.f };
     constexpr std::int64_t support_index_negative = 1;
     constexpr std::int64_t support_index_positive = 3;
-    const auto x_train_table =
-        homogen_table{ x_train, row_count_train, column_count, empty_delete<const float>() };
-    const auto y_train_table =
-        homogen_table{ y_train, row_count_train, 1, empty_delete<const float>() };
+    const auto x_train_table = homogen_table::wrap(x_train, row_count_train, column_count);
+    const auto y_train_table = homogen_table::wrap(y_train, row_count_train, 1);
 
     const auto svm_desc     = svm::descriptor{}.set_c(1.0);
     const auto result_train = train(svm_desc, x_train_table, y_train_table);
@@ -162,10 +154,8 @@ TEST(svm_thunder_dense_test, can_classify_quadric_separable_surface_with_rbf_ker
     };
     constexpr std::int64_t support_index_negative = 1;
     constexpr std::int64_t support_index_positive = 3;
-    const auto x_train_table =
-        homogen_table{ x_train, row_count_train, column_count, empty_delete<const float>() };
-    const auto y_train_table =
-        homogen_table{ y_train, row_count_train, 1, empty_delete<const float>() };
+    const auto x_train_table = homogen_table::wrap(x_train, row_count_train, column_count);
+    const auto y_train_table = homogen_table::wrap(y_train, row_count_train, 1);
 
     const auto kernel_desc  = rbf_kernel::descriptor{}.set_sigma(1.0);
     const auto svm_desc     = svm::descriptor{ kernel_desc }.set_c(1.0);
@@ -196,12 +186,9 @@ TEST(svm_thunder_dense_test, can_classify_linear_separable_surface_with_equal_we
     const float weights[] = {
         +1.f, +1.f, +1.f, +1.f, +1.f, +1.f,
     };
-    const auto x_train_table =
-        homogen_table{ x_train, row_count_train, column_count, empty_delete<const float>() };
-    const auto y_train_table =
-        homogen_table{ y_train, row_count_train, 1, empty_delete<const float>() };
-    const auto weights_table =
-        homogen_table{ weights, row_count_train, 1, empty_delete<const float>() };
+    const auto x_train_table = homogen_table::wrap(x_train, row_count_train, column_count);
+    const auto y_train_table = homogen_table::wrap(y_train, row_count_train, 1);
+    const auto weights_table = homogen_table::wrap(weights, row_count_train, 1);
 
     const auto svm_desc     = svm::descriptor{}.set_c(0.1);
     const auto result_train = train(svm_desc, x_train_table, y_train_table, weights_table);
@@ -210,8 +197,8 @@ TEST(svm_thunder_dense_test, can_classify_linear_separable_surface_with_equal_we
         -1.f,
         1.f,
     };
-    const auto x_test_table = homogen_table{ x_test, 1, column_count, empty_delete<const float>() };
-    const auto result_infer = infer(svm_desc, result_train.get_model(), x_test_table);
+    const auto x_test_table      = homogen_table::wrap(x_test, 1, column_count);
+    const auto result_infer      = infer(svm_desc, result_train.get_model(), x_test_table);
     auto decision_function_table = result_infer.get_decision_function();
     const auto decision_function = row_accessor<const float>(decision_function_table).pull();
     ASSERT_NEAR(decision_function[0], 0.f, 1e-6);
@@ -229,12 +216,9 @@ TEST(svm_thunder_dense_test, can_classify_linear_separable_surface_with_boundary
     const float weights[] = {
         +10.f, +0.1f, +0.1f, +0.1f, +.1f, 10.f,
     };
-    const auto x_train_table =
-        homogen_table{ x_train, row_count_train, column_count, empty_delete<const float>() };
-    const auto y_train_table =
-        homogen_table{ y_train, row_count_train, 1, empty_delete<const float>() };
-    const auto weights_table =
-        homogen_table{ weights, row_count_train, 1, empty_delete<const float>() };
+    const auto x_train_table = homogen_table::wrap(x_train, row_count_train, column_count);
+    const auto y_train_table = homogen_table::wrap(y_train, row_count_train, 1);
+    const auto weights_table = homogen_table::wrap(weights, row_count_train, 1);
 
     const auto svm_desc     = svm::descriptor{}.set_c(0.1);
     const auto result_train = train(svm_desc, x_train_table, y_train_table, weights_table);
@@ -243,8 +227,8 @@ TEST(svm_thunder_dense_test, can_classify_linear_separable_surface_with_boundary
         -1.f,
         1.f,
     };
-    const auto x_test_table = homogen_table{ x_test, 1, column_count, empty_delete<const float>() };
-    const auto result_infer = infer(svm_desc, result_train.get_model(), x_test_table);
+    const auto x_test_table      = homogen_table::wrap(x_test, 1, column_count);
+    const auto result_infer      = infer(svm_desc, result_train.get_model(), x_test_table);
     auto decision_function_table = result_infer.get_decision_function();
     const auto decision_function = row_accessor<const float>(decision_function_table).pull();
     ASSERT_LT(decision_function[0], 0.f);
@@ -262,12 +246,9 @@ TEST(svm_thunder_dense_test, can_classify_linear_separable_surface_with_center_w
     const float weights[] = {
         +0.1f, +0.1f, +10.f, +10.f, +0.1f, +0.1f,
     };
-    const auto x_train_table =
-        homogen_table{ x_train, row_count_train, column_count, empty_delete<const float>() };
-    const auto y_train_table =
-        homogen_table{ y_train, row_count_train, 1, empty_delete<const float>() };
-    const auto weights_table =
-        homogen_table{ weights, row_count_train, 1, empty_delete<const float>() };
+    const auto x_train_table = homogen_table::wrap(x_train, row_count_train, column_count);
+    const auto y_train_table = homogen_table::wrap(y_train, row_count_train, 1);
+    const auto weights_table = homogen_table::wrap(weights, row_count_train, 1);
 
     const auto svm_desc     = svm::descriptor{}.set_c(0.1);
     const auto result_train = train(svm_desc, x_train_table, y_train_table, weights_table);
@@ -276,8 +257,8 @@ TEST(svm_thunder_dense_test, can_classify_linear_separable_surface_with_center_w
         -1.f,
         1.f,
     };
-    const auto x_test_table = homogen_table{ x_test, 1, column_count, empty_delete<const float>() };
-    const auto result_infer = infer(svm_desc, result_train.get_model(), x_test_table);
+    const auto x_test_table      = homogen_table::wrap(x_test, 1, column_count);
+    const auto result_infer      = infer(svm_desc, result_train.get_model(), x_test_table);
     auto decision_function_table = result_infer.get_decision_function();
     const auto decision_function = row_accessor<const float>(decision_function_table).pull();
     ASSERT_GT(decision_function[0], 0.f);
@@ -292,10 +273,8 @@ TEST(svm_thunder_dense_test, can_classify_linear_separable_surface_with_differen
     const float y_train[] = {
         -1.f, -1.f, -1.f, +1.f, +1.f, +1.f,
     };
-    const auto x_train_table =
-        homogen_table{ x_train, row_count_train, column_count, empty_delete<const float>() };
-    const auto y_train_table =
-        homogen_table{ y_train, row_count_train, 1, empty_delete<const float>() };
+    const auto x_train_table  = homogen_table::wrap(x_train, row_count_train, column_count);
+    const auto y_train_table  = homogen_table::wrap(y_train, row_count_train, 1);
     const auto svm_desc_train = svm::descriptor<float>{}.set_c(1e-1);
 
     const auto result_train = train(svm_desc_train, x_train_table, y_train_table);

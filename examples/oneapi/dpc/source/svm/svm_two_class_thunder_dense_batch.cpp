@@ -84,7 +84,7 @@ void run(sycl::queue &queue) {
     queue.memcpy(x_test, x_test_host, sizeof(float) * row_count_test * column_count).wait();
 
     const auto x_test_table = dal::homogen_table{ queue, x_test, row_count_test, column_count, dal::make_default_delete<const float>(queue) };
-    const auto y_true_table = dal::homogen_table{ y_true_host, row_count_test, 1, dal::make_default_delete<const float>(queue) };
+    const auto y_true_table = dal::homogen_table::wrap( y_true_host, row_count_test, 1);
 
     const auto result_test = dal::infer(queue, svm_desc, result_train.get_model(), x_test_table);
 

@@ -16,8 +16,8 @@
 
 #include "gtest/gtest.h"
 #include "oneapi/dal/algo/kmeans_init.hpp"
-#include "oneapi/dal/data/accessor.hpp"
-#include "oneapi/dal/data/table.hpp"
+#include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
 
 using namespace oneapi::dal;
 
@@ -26,10 +26,9 @@ TEST(kmeans_init_cpu, compute_result) {
     constexpr std::int64_t column_count  = 2;
     constexpr std::int64_t cluster_count = 2;
 
-    const float data[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
+    const float data[]    = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
                            -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
-    const auto data_table =
-        homogen_table{ data, row_count, column_count, empty_delete<const float>() };
+    const auto data_table = homogen_table::wrap(data, row_count, column_count);
 
     const float centroids[] = { 1.0, 1.0, 2.0, 2.0 };
 
