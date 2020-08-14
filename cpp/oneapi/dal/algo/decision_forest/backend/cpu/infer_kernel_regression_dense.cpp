@@ -57,8 +57,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     auto model_pimpl = dal::detail::pimpl_accessor().get_pimpl(trained_model);
     if (!model_pimpl->is_interop()) {
-        // throw exception
-        return infer_result<Task>();
+        throw dal::invalid_argument("Input model is inconsistent with kernel type");
     }
 
     auto pinterop_model =

@@ -106,7 +106,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     if (check_mask_flag(desc.get_error_metric_mode(),
                         error_metric_mode::out_of_bag_error_per_observation)) {
         auto arr_oob_per_obs_err = array<Float>::empty(row_count * 1);
-        res.set_oob_per_observation_err(
+        res.set_oob_err_per_observation(
             homogen_table_builder{}.reset(arr_oob_per_obs_err, row_count, 1).build());
 
         const auto res_oob_per_obs_err =
@@ -144,7 +144,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                         error_metric_mode::out_of_bag_error_per_observation)) {
         auto table_oob_per_obs_err = interop::convert_from_daal_homogen_table<Float>(
             daal_result.get(cls::training::outOfBagErrorPerObservation));
-        res.set_oob_per_observation_err(table_oob_per_obs_err);
+        res.set_oob_err_per_observation(table_oob_per_obs_err);
     }
 
     if (variable_importance_mode::none != vimp) {
