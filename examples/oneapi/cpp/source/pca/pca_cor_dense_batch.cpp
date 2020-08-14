@@ -15,7 +15,8 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/pca.hpp"
-#include "oneapi/dal/data/table_reader.hpp"
+#include "oneapi/dal/algo/csv_table_reader.hpp"
+// #include "oneapi/dal/data/table_reader.hpp"
 
 #include "example_util/utils.hpp"
 
@@ -24,9 +25,16 @@ using namespace oneapi;
 const char data_file_name[] = "../../daal/data/batch/pca_normalized.csv";
 
 int main(int argc, char const *argv[]) {
+    const auto csv_reader_desc = dal::csv_table_reader::descriptor()
+        .set_delimiter(',');
+
+    const auto data_table = dal::read(csv_reader_desc, data_file_name).get_table();
+
+/*
     const auto data_table = dal::csv_table_reader()
         .set_delimiter(',')
         .read(data_file_name);
+*/
 
     const auto pca_desc = dal::pca::descriptor<>()
         .set_component_count(data_table.get_column_count())
