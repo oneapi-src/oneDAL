@@ -143,15 +143,15 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
     /* extract results from daal objects */
 
     if (check_mask_flag(desc.get_error_metric_mode(), error_metric_mode::out_of_bag_error)) {
-        res.set_oob_err(homogen_table_builder{}.reset(arr_oob_err, 1, 1).build());
+        res.set_oob_err(dal::detail::homogen_table_builder{}.reset(arr_oob_err, 1, 1).build());
     }
     if (check_mask_flag(desc.get_error_metric_mode(),
                         error_metric_mode::out_of_bag_error_per_observation)) {
         res.set_oob_per_observation_err(
-            homogen_table_builder{}.reset(arr_oob_per_obs_err, row_count, 1).build());
+            dal::detail::homogen_table_builder{}.reset(arr_oob_per_obs_err, row_count, 1).build());
     }
     if (variable_importance_mode::none != vimp) {
-        res.set_var_importance(homogen_table_builder{}.reset(arr_var_imp, 1, column_count).build());
+        res.set_var_importance(dal::detail::homogen_table_builder{}.reset(arr_var_imp, 1, column_count).build());
     }
 
     return res.set_model(dal::detail::pimpl_accessor().make_from_pimpl<model<Task>>(

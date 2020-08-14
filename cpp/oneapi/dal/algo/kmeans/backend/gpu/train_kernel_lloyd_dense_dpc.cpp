@@ -106,11 +106,11 @@ struct train_kernel_gpu<Float, method::lloyd_dense> {
             daal_kmeans_lloyd_dense_ucapi_kernel_t<Float>().compute(daal_input, daal_output, &par));
 
         return train_result()
-            .set_labels(homogen_table_builder{}.reset(arr_labels, row_count, 1).build())
+            .set_labels(dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build())
             .set_iteration_count(static_cast<std::int64_t>(arr_iteration_count[0]))
             .set_objective_function_value(static_cast<double>(arr_objective_function_value[0]))
             .set_model(model().set_centroids(
-                homogen_table_builder{}.reset(arr_centroids, cluster_count, column_count).build()));
+                dal::detail::homogen_table_builder{}.reset(arr_centroids, cluster_count, column_count).build()));
     }
 };
 

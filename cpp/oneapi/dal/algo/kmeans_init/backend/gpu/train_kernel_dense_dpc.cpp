@@ -83,7 +83,7 @@ struct train_kernel_gpu<Float, method::dense> {
                                                                          *(par.engine)));
 
         return train_result().set_centroids(
-            homogen_table_builder{}.reset(arr_centroids, cluster_count, column_count).build());
+            dal::detail::homogen_table_builder{}.reset(arr_centroids, cluster_count, column_count).build());
     }
 };
 

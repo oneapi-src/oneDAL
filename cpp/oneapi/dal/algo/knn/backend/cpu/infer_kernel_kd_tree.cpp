@@ -64,7 +64,7 @@ static infer_result call_daal_kernel(const context_cpu &ctx,
         daal_labels.get(),
         &daal_parameter));
     return infer_result().set_labels(
-        homogen_table_builder{}.reset(arr_labels, row_count, 1).build());
+        dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build());
 }
 
 template <typename Float>

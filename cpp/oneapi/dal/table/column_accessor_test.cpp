@@ -67,7 +67,7 @@ TEST(column_accessor_test, can_get_first_column_from_homogen_table_with_subset_o
 }
 
 TEST(column_accessor_test, can_get_columns_from_homogen_table_builder) {
-    homogen_table_builder b;
+    detail::homogen_table_builder b;
     b.reset(array<float>::zeros(3 * 2), 3, 2);
     {
         column_accessor<double> acc{ b };

@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/table/table_builder.hpp"
+#include "oneapi/dal/table/detail/table_builder.hpp"
 #include "gtest/gtest.h"
 #include "oneapi/dal/table/row_accessor.hpp"
 
@@ -56,7 +56,7 @@ TEST(homogen_table_builder_test, can_construct_table) {
 
     array<float> arr{ data, 3 * 2, [](auto) {
                      } };
-    homogen_table t = homogen_table_builder{}.reset(arr, 3, 2).build();
+    homogen_table t = detail::homogen_table_builder{}.reset(arr, 3, 2).build();
 
     ASSERT_TRUE(t.has_data());
     ASSERT_EQ(3, t.get_row_count());

@@ -83,7 +83,7 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
                                                                            &par));
 
     return infer_result()
-        .set_labels(homogen_table_builder{}.reset(arr_labels, row_count, 1).build())
+        .set_labels(dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build())
         .set_objective_function_value(static_cast<double>(arr_objective_function_value[0]));
 }
 

@@ -17,7 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/table/detail/accessor_base.hpp"
-#include "oneapi/dal/table/table_builder.hpp"
+#include "oneapi/dal/table/detail/table_builder.hpp"
 
 namespace oneapi::dal {
 
@@ -32,10 +32,10 @@ public:
 public:
     template <typename K,
               typename = std::enable_if_t<is_readonly && (std::is_base_of_v<table, K> ||
-                                                          std::is_base_of_v<table_builder, K>)>>
+                                                          std::is_base_of_v<detail::table_builder, K>)>>
     column_accessor(const K& obj) : base(obj) {}
 
-    column_accessor(const table_builder& b) : base(b) {}
+    column_accessor(const detail::table_builder& b) : base(b) {}
 
     array<data_t> pull(std::int64_t column_index, const range& rows = { 0, -1 }) const {
         return base::pull(detail::default_host_policy{},

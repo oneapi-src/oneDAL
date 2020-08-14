@@ -14,13 +14,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/table/table_builder.hpp"
+#include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/table/backend/homogen_table_builder_impl.hpp"
 
-namespace oneapi::dal {
+namespace oneapi::dal::detail {
 
 homogen_table_builder::homogen_table_builder()
         : table_builder(new detail::homogen_table_builder_impl_wrapper(
               backend::homogen_table_builder_impl{})) {}
 
-} // namespace oneapi::dal
+} // namespace oneapi::dal::detail

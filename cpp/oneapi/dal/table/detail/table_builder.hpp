@@ -20,7 +20,7 @@
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/detail/table_builder_impl.hpp"
 
-namespace oneapi::dal {
+namespace oneapi::dal::detail {
 
 template <typename T>
 struct is_table_builder_impl {
@@ -202,4 +202,4 @@ private:
     }
 };
 
-} // namespace oneapi::dal
+} // namespace oneapi::dal::detail
