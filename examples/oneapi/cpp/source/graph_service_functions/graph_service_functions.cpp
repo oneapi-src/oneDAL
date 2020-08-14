@@ -24,10 +24,9 @@
 using namespace oneapi::dal;
 using namespace oneapi::dal::preview;
 
+const std::string filename("../data/graph.csv");
+
 int main(int argc, char **argv) {
-    if (argc < 2)
-        return 0;
-    std::string filename = argv[1];
     csv_data_source ds(filename);
     load_graph::descriptor<> d;
     auto my_graph = load_graph::load(d, ds);
