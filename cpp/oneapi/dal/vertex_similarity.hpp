@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 /// @file
-/// Contains the definition of the main processing function for vertex 
+/// Contains the definition of the main processing function for vertex
 /// similarity family of the functions
 
 #pragma once

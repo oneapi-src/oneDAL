@@ -1,3 +1,19 @@
+/*******************************************************************************
+* Copyright 2020 Intel Corporation
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*******************************************************************************/
+
 #include "oneapi/dal/algo/jaccard.hpp"
 #include "oneapi/dal/data/undirected_adjacency_array_graph.hpp"
 #include "oneapi/dal/data/table.hpp"
@@ -11,7 +27,7 @@ using namespace oneapi::dal;
 using namespace oneapi::dal::preview;
 
 #include <iostream>
-#include <chrono> 
+#include <chrono>
 #include <stdexcept>
 #include <set>
 #include <mutex>
@@ -43,8 +59,10 @@ void jaccard_all_block(graph_type& my_graph, int block_i, int block_j, int numbe
                 int block_size_i = block_i + delta; int begin_i = 0; int i_tail = 0;
                 int shift = i * block_size_i;
                 if (i >= blocks - tail) {
-                    block_size_i = block_i + delta + 1; begin_i = (blocks - tail) * (block_i + delta); i_tail = blocks - tail;
-                    shift = (blocks - tail) * (block_i + delta) + (i - (blocks - tail)) * block_size_i;
+                    block_size_i = block_i + delta + 1; begin_i = (blocks - tail) *
+                    (block_i + delta); i_tail = blocks - tail;
+                    shift = (blocks - tail) * (block_i + delta) + (i - (blocks - tail))
+                    * block_size_i;
                 }
                 int num_sh = (num - shift);
                 int blocks_j = num_sh / block_j;
@@ -53,9 +71,10 @@ void jaccard_all_block(graph_type& my_graph, int block_i, int block_j, int numbe
                 if (blocks_j > 0) {
                     delta_j = remain_els_j / blocks_j;
                 }
-                else { 
+                else {
                     const auto jaccard_desc_default = jaccard::descriptor<>().set_block(
-                        {begin_i + (i - i_tail) * block_size_i, begin_i + (i - i_tail + 1) * block_size_i},
+                        {begin_i + (i - i_tail) * block_size_i, begin_i + (i - i_tail + 1)
+                    * block_size_i},
                         {begin_i + (i - i_tail) * block_size_i, (int)num});
                     int jaccard_block_nnz = 0;
                     vertex_similarity(jaccard_desc_default, my_graph);
@@ -66,7 +85,8 @@ void jaccard_all_block(graph_type& my_graph, int block_i, int block_j, int numbe
                     //[&](const tbb::blocked_range<int>& inner_r) {
                         //for (int j = inner_r.begin(); j != inner_r.end(); ++j) {
                         for (int j = 0; j < blocks_j ; ++j) {
-                            int block_size_j = block_j + delta_j; int begin_j = shift; int j_tail = 0; int block_size_j_end = block_j + delta_j;
+                            int block_size_j = block_j + delta_j; int begin_j = shift;
+                int j_tail = 0; int block_size_j_end = block_j + delta_j;
                             if (j >= blocks_j - tail_j) {
                                 block_size_j = block_j + delta_j + 1;
                                 begin_j = (blocks_j - tail_j) * (block_j + delta_j) + shift;
@@ -74,12 +94,17 @@ void jaccard_all_block(graph_type& my_graph, int block_i, int block_j, int numbe
                             }
 
                                 int jaccard_block_nnz = 0;
-                                //Mutex.lock();
-                                 //cout << begin_i + (i - i_tail) * block_size_i << " " << begin_i + (i - i_tail + 1) * block_size_i << " : " <<
-                                  //       begin_j + (j - j_tail) * block_size_j << " " << begin_j + (j - j_tail) * block_size_j + block_size_j_end << endl;
-                        const auto jaccard_desc_default = jaccard::descriptor<>().set_block(
-                        {begin_i + (i - i_tail) * block_size_i, begin_i + (i - i_tail + 1) * block_size_i},
-                        {begin_j + (j - j_tail) * block_size_j, begin_j + (j - j_tail) * block_size_j + block_size_j_end});
+                                /*Mutex.lock();
+                                 cout << begin_i + (i - i_tail) * block_size_i << " " <<
+                 begin_i + (i - i_tail + 1) * block_size_i << " : " <<
+                                         begin_j + (j - j_tail) * block_size_j << " " <<
+                begin_j + (j - j_tail) * block_size_j + block_size_j_end << endl;
+                                */
+            const auto jaccard_desc_default = jaccard::descriptor<>().set_block(
+                        {begin_i + (i - i_tail) * block_size_i, begin_i + (i - i_tail + 1) *
+            block_size_i},
+                        {begin_j + (j - j_tail) * block_size_j, begin_j + (j - j_tail) * block_size_j
+                 + block_size_j_end});
                         vertex_similarity(jaccard_desc_default, my_graph);
 
                         }//}, tbb::simple_partitioner{});
@@ -114,13 +139,15 @@ int main(int argc, char **argv) {
     }
 
     tbb::global_control c(tbb::global_control::max_allowed_parallelism, tbb_threads_number);
-    cout << "jaccard_non_existent with custom block_size = " << block_size_x <<"x" <<block_size_y << endl;
+    cout << "jaccard_non_existent with custom block_size = " << block_size_x <<"x"
+    <<block_size_y << endl;
     vector<double> time;
     double median;
 
     for(int p = 0; p < num_trials_custom; p++) {
         auto start = high_resolution_clock::now();
-        //jaccard_all_row(my_graph, jaccard_first, jaccard_second, jaccard_coefficients, block_size_x, block_size_y);
+        //jaccard_all_row(my_graph, jaccard_first, jaccard_second, jaccard_coefficients,
+        //block_size_x, block_size_y);
         //jaccard_all_block(my_graph, block_size_x,block_size_y,1);
         //jaccard_status = jaccard_all_row(g, jaccard, block_size_x, block_size_y, 1);
             int block_i = block_size_x;
@@ -139,7 +166,8 @@ int main(int argc, char **argv) {
                 int block_size_i = block_i + delta; int begin_i = 0; int i_tail = 0;
                 int shift = i * block_size_i;
                 if (i >= blocks - tail) {
-                    block_size_i = block_i + delta + 1; begin_i = (blocks - tail) * (block_i + delta); i_tail = blocks - tail;
+                    block_size_i = block_i + delta + 1; begin_i = (blocks - tail) *
+            (block_i + delta); i_tail = blocks - tail;
                     shift = (blocks - tail) * (block_i + delta) + (i - (blocks - tail)) * block_size_i;
                 }
                 int num_sh = (num - shift);
@@ -149,9 +177,10 @@ int main(int argc, char **argv) {
                 if (blocks_j > 0) {
                     delta_j = remain_els_j / blocks_j;
                 }
-                else { 
+                else {
                     const auto jaccard_desc_default = jaccard::descriptor<>().set_block(
-                        {begin_i + (i - i_tail) * block_size_i, begin_i + (i - i_tail + 1) * block_size_i},
+                        {begin_i + (i - i_tail) * block_size_i, begin_i + (i - i_tail + 1)
+            * block_size_i},
                         {begin_i + (i - i_tail) * block_size_i, (int)num});
                     int jaccard_block_nnz = 0;
                     vertex_similarity(jaccard_desc_default, my_graph);
@@ -162,7 +191,8 @@ int main(int argc, char **argv) {
                     //[&](const tbb::blocked_range<int>& inner_r) {
                         //for (int j = inner_r.begin(); j != inner_r.end(); ++j) {
                         for (int j = 0; j < blocks_j ; ++j) {
-                            int block_size_j = block_j + delta_j; int begin_j = shift; int j_tail = 0; int block_size_j_end = block_j + delta_j;
+                            int block_size_j = block_j + delta_j; int begin_j = shift;
+                int j_tail = 0; int block_size_j_end = block_j + delta_j;
                             if (j >= blocks_j - tail_j) {
                                 block_size_j = block_j + delta_j + 1;
                                 begin_j = (blocks_j - tail_j) * (block_j + delta_j) + shift;
@@ -170,12 +200,16 @@ int main(int argc, char **argv) {
                             }
 
                                 int jaccard_block_nnz = 0;
-                                //Mutex.lock();
-                                 //cout << begin_i + (i - i_tail) * block_size_i << " " << begin_i + (i - i_tail + 1) * block_size_i << " : " <<
-                                  //       begin_j + (j - j_tail) * block_size_j << " " << begin_j + (j - j_tail) * block_size_j + block_size_j_end << endl;
-                        const auto jaccard_desc_default = jaccard::descriptor<>().set_block(
+                                /*Mutex.lock();
+                                cout << begin_i + (i - i_tail) * block_size_i << " " << begin_i
+                 + (i - i_tail + 1) * block_size_i << " : " <<
+                                       begin_j + (j - j_tail) * block_size_j << " " << begin_j +
+                (j - j_tail) * block_size_j + block_size_j_end << endl;
+                        */
+            const auto jaccard_desc_default = jaccard::descriptor<>().set_block(
                         {begin_i + (i - i_tail) * block_size_i, begin_i + (i - i_tail + 1) * block_size_i},
-                        {begin_j + (j - j_tail) * block_size_j, begin_j + (j - j_tail) * block_size_j + block_size_j_end});
+                        {begin_j + (j - j_tail) * block_size_j, begin_j + (j - j_tail) * block_size_j +
+             block_size_j_end});
                         vertex_similarity(jaccard_desc_default, my_graph);
 
                         }//}, tbb::simple_partitioner{});

@@ -27,8 +27,8 @@
 namespace oneapi::dal::preview {
 
 /// Class for a data management component responsible for representation of data
-/// in the graph format. The class is designed to minimize storage requirements 
-/// and offer good performance characteristics. The graph is stored in a 0-based 
+/// in the graph format. The class is designed to minimize storage requirements
+/// and offer good performance characteristics. The graph is stored in a 0-based
 /// CSR format with ordered vertex keys within each row. Self-loops and multi-edges
 /// are not supported.
 ///
@@ -98,7 +98,7 @@ public:
     using const_edge_range        = range<const_edge_iterator>;
 
     static_assert(std::is_integral_v<vertex_type> && std::is_signed_v<vertex_type> && sizeof(vertex_type) == 4, "Use 32 bit signed integer for vertex index type");
-    
+
     /// Constructs an empty undirected_adjacency_array_graph
     undirected_adjacency_array_graph();
 
@@ -108,22 +108,22 @@ public:
     /// Copy constructor for undirected_adjacency_array_graph
     undirected_adjacency_array_graph(const undirected_adjacency_array_graph& graph);
 
-    /// Constructs an empty undirected_adjacency_array_graph with specified allocator 
+    /// Constructs an empty undirected_adjacency_array_graph with specified allocator
     undirected_adjacency_array_graph(allocator_type alloc){};
 
     /// Constructs an empty undirected_adjacency_array_graph with specified graph properties
     /// and allocator
     undirected_adjacency_array_graph(const graph_user_value_type& graph_user_value,
                                      allocator_type allocator = allocator_type()){};
-    
-    /// Constructs an empty undirected_adjacency_array_graph with move graph properties and 
+
+    /// Constructs an empty undirected_adjacency_array_graph with move graph properties and
     /// allocator
     undirected_adjacency_array_graph(graph_user_value_type&& graph_user_value,
                                      allocator_type allocator = allocator_type()){};
 
     /// Copy operator for undirected_adjacency_array_graph
     undirected_adjacency_array_graph &operator=(const undirected_adjacency_array_graph& graph);
-    
+
     /// Move operator for undirected_adjacency_array_graph
     undirected_adjacency_array_graph &operator=(undirected_adjacency_array_graph&& graph);
 

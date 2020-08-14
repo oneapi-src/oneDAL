@@ -28,7 +28,7 @@ namespace oneapi::dal::preview {
 namespace jaccard {
 namespace detail {
 
-#if defined(__INTEL_COMPILER) 
+#if defined(__INTEL_COMPILER)
     DAAL_FORCEINLINE  int _popcnt32_redef(int a) {
         return _popcnt32(a);
     }
@@ -53,7 +53,7 @@ size_t  intersection(NodeID_t *neigh_u, NodeID_t *neigh_v, NodeID_t n_u, NodeID_
         const NodeID_t n_u_8_end = n_u - 8;
        const NodeID_t n_v_8_end = n_v - 8;
        while (i_u <= n_u_8_end && i_v <= n_v_8_end)
-       {   
+       {
               const NodeID_t minu = neigh_u[i_u];
               const NodeID_t maxv = neigh_v[i_v + 7];
 
@@ -285,25 +285,25 @@ vertex_similarity_result call_jaccard_default_kernel(const descriptor_base& desc
     const int32_t row_begin             = static_cast<int32_t>(desc.get_row_range_begin());
     const auto row_end                  = static_cast<int32_t>(desc.get_row_range_end());
     const auto column_begin             = static_cast<int32_t>(desc.get_column_range_begin());
-    const auto column_end               = static_cast<int32_t>(desc.get_column_range_end()); 
+    const auto column_end               = static_cast<int32_t>(desc.get_column_range_end());
     const auto number_elements_in_block = (row_end - row_begin) * (column_end - column_begin);
     array<float> jaccard                = array<float>::empty(number_elements_in_block);
     array<std::pair<std::uint32_t, std::uint32_t>> vertex_pairs =
         array<std::pair<std::uint32_t, std::uint32_t>>::empty(number_elements_in_block);
     size_t nnz = 0;
     for (int32_t i = row_begin; i < row_end; ++i) {
-        const auto i_neighbor_size = g_degrees[i];             
+        const auto i_neighbor_size = g_degrees[i];
         const auto i_neigbhors = g_vertex_neighbors + g_edge_offsets[i];
         const auto diagonal = min(i, column_end);
         for (int32_t j = column_begin; j < diagonal; j++) {
-            const auto j_neighbor_size = g_degrees[j];             
+            const auto j_neighbor_size = g_degrees[j];
             const auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
             if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size -1]) && !(j_neigbhors[0] > i_neigbhors[i_neighbor_size - 1])) {
                 auto intersection_value = intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
                 if (intersection_value) {
                     jaccard[nnz]      = float(intersection_value) / float(i_neighbor_size + j_neighbor_size - intersection_value);
                     vertex_pairs[nnz] = std::make_pair(i, j);
-                    nnz++; 
+                    nnz++;
                 }
             }
         }
@@ -312,20 +312,20 @@ vertex_similarity_result call_jaccard_default_kernel(const descriptor_base& desc
         if (diagonal >= column_begin) {
             jaccard[nnz]      = 1.0;
             vertex_pairs[nnz] = std::make_pair(i, diagonal);
-            nnz++; 
+            nnz++;
             tmp_idx = diagonal + 1;
         }
 
 
         for (int32_t j = tmp_idx; j < column_end; j++) {
-            const auto j_neighbor_size = g_degrees[j];             
+            const auto j_neighbor_size = g_degrees[j];
             const auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
             if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size -1]) && !(j_neigbhors[0] > i_neigbhors[i_neighbor_size - 1])) {
                 auto intersection_value = intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
                 if (intersection_value) {
                     jaccard[nnz]      = float(intersection_value) / float(i_neighbor_size + j_neighbor_size - intersection_value);
                     vertex_pairs[nnz] = std::make_pair(i, j);
-                    nnz++; 
+                    nnz++;
                 }
             }
         }

@@ -75,7 +75,7 @@ constexpr auto get_vertex_degree(const Graph& graph, const vertex_type<Graph> &v
 ///
 /// @param [in]   vertex Identifier of the vertex
 ///
-/// @return The range of the vertex neighbors 
+/// @return The range of the vertex neighbors
 template <typename Graph>
 constexpr auto get_vertex_neighbors(const Graph &graph, const vertex_type<Graph> &vertex)
     -> const_edge_range_type<Graph> {
