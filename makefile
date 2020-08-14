@@ -384,8 +384,9 @@ expat += $(if $(OS_is_win),%.bat %.vcxproj %.filters %.user %.sln %makefile_$(_O
 release.EXAMPLES.CPP   := $(filter $(expat),$(shell find examples/daal/cpp  -type f)) $(filter $(expat),$(shell find examples/daal/cpp_sycl -type f))
 release.EXAMPLES.DATA  := $(filter $(expat),$(shell find examples/daal/data -type f))
 release.EXAMPLES.JAVA  := $(filter $(expat),$(shell find examples/daal/java -type f))
-release.ONEAPI.EXAMPLES.CPP := $(filter $(expat),$(shell find examples/oneapi/cpp -type f))
-release.ONEAPI.EXAMPLES.DPC := $(filter $(expat),$(shell find examples/oneapi/dpc -type f))
+release.ONEAPI.EXAMPLES.CPP  := $(filter $(expat),$(shell find examples/oneapi/cpp -type f))
+release.ONEAPI.EXAMPLES.DPC  := $(filter $(expat),$(shell find examples/oneapi/dpc -type f))
+release.ONEAPI.EXAMPLES.DATA := $(filter $(expat),$(shell find examples/oneapi/data -type f))
 
 # List env files to populate release.
 release.ENV = deploy/local/vars_$(_OS).$(scr)
@@ -943,8 +944,8 @@ _oneapi_c: $(WORKDIR.lib)/$(oneapi_a) $(WORKDIR.lib)/$(oneapi_y)
 _oneapi_dpc: info.building.oneapi.DPC++.part
 _oneapi_dpc: $(WORKDIR.lib)/$(oneapi_a.dpc)
 
-_release_oneapi_c: _release_oneapi_c_h
-_release_oneapi_dpc: _release_oneapi_c
+_release_oneapi_c: _release_oneapi_c_h _release_oneapi_common
+_release_oneapi_dpc: _release_oneapi_c _release_oneapi_common
 
 #-------------------------------------------------------------------------------
 # Populating RELEASEDIR
@@ -1026,6 +1027,7 @@ $(foreach x,$(release.EXAMPLES.CPP),$(eval $(call .release.x,$x,$(RELEASEDIR.daa
 $(foreach x,$(release.EXAMPLES.JAVA),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_jj)))
 $(foreach x,$(release.ONEAPI.EXAMPLES.CPP),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_oneapi_c)))
 $(foreach x,$(release.ONEAPI.EXAMPLES.DPC),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_oneapi_dpc)))
+$(foreach x,$(release.ONEAPI.EXAMPLES.DATA),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_oneapi_common)))
 
 #----- releasing VS solutions
 ifeq ($(OS_is_win),yes)

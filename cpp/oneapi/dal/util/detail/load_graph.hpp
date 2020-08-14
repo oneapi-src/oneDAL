@@ -53,6 +53,9 @@ edge_list<std::int32_t> load_edge_list(const std::string &name) {
     using int_t = std::int32_t;
 
     std::ifstream file(name);
+    if (!file.is_open()) {
+        throw invalid_argument("File not found");
+    }
     edge_list<int_t> elist;
 
     char source_vertex[32], destination_vertex[32];
