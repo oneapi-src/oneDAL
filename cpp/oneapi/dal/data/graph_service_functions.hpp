@@ -20,8 +20,8 @@
 
 #pragma once
 
+#include "oneapi/dal/data/detail/graph_service_functions_impl.hpp"
 #include "oneapi/dal/data/graph_common.hpp"
-#include "oneapi/dal/data/undirected_adjacency_array_graph.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::preview {
