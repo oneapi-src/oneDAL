@@ -17,13 +17,13 @@ daal_module(
     name = "public_includes",
     hdrs = glob(["include/**/*.h"], exclude=["**/daal_kernel_defines.h"]),
     includes = [ "include" ],
-    deps = [
-        ":kernel_defines",
-    ],
 )
 
 daal_module(
     name = "includes",
+    hdrs = [
+        ":kernel_defines",
+    ],
     includes = [ "." ],
     defines = [
         "DAAL_NOTHROW_EXCEPTIONS",
@@ -49,10 +49,9 @@ daal_module(
         "src/algorithms/service_*.h",
     ]) + [
         ":version",
-        ":kernel_defines",
     ],
     deps = [
-        "@onedal//cpp/daal:includes",
+        ":includes",
     ],
 )
 
