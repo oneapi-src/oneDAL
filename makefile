@@ -583,7 +583,7 @@ ONEAPI.dispatcher_tag.nrh := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_de
 ONEAPI.dispatcher_tag.mrm := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_ssse3
 ONEAPI.dispatcher_tag.neh := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_sse42
 ONEAPI.dispatcher_tag.snb := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx
-ONEAPI.dispatcher_tag.knl := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx2
+ONEAPI.dispatcher_tag.knl := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx512_mic
 ONEAPI.dispatcher_tag.hsw := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx2
 ONEAPI.dispatcher_tag.skx := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx512
 
@@ -615,6 +615,8 @@ ONEAPI.objs_y.all := $(ONEAPI.objs_y) $(ONEAPI.objs_y.dpc)
 
 # Populate _cpu files -> _cpu_%cpu_name%, where %cpu_name% is $(USECPUS.files)
 # $1: List of object files
+CPU_knl := knl
+USECPUS.files := $(filter-out $(CPU_knl),$(USECPUS.files))
 populate_cpus = $(foreach ccc,$(USECPUS.files),$(subst _cpu,_cpu_$(ccc),$(call containing,_cpu,$1))) \
                 $(call notcontaining,_cpu,$1)
 
@@ -639,7 +641,6 @@ $(eval template_source_cpp := $(subst _cpu_mrm,_cpu,$(template_source_cpp)))
 $(eval template_source_cpp := $(subst _cpu_neh,_cpu,$(template_source_cpp)))
 $(eval template_source_cpp := $(subst _cpu_snb,_cpu,$(template_source_cpp)))
 $(eval template_source_cpp := $(subst _cpu_hsw,_cpu,$(template_source_cpp)))
-$(eval template_source_cpp := $(subst _cpu_knl,_cpu,$(template_source_cpp)))
 $(eval template_source_cpp := $(subst _cpu_skx,_cpu,$(template_source_cpp)))
 $1: $(template_source_cpp) | $(dir $1)/. ; $(value $3.COMPILE)
 endef
