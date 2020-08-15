@@ -124,7 +124,6 @@ USECPUS.out.defs := $(subst sse2,^\#define DAAL_KERNEL_SSE2\b,$(subst ssse3,^\#d
 USECPUS.out.defs := $(subst $(space)^,|^,$(strip $(USECPUS.out.defs)))
 USECPUS.out.defs.filter := $(if $(USECPUS.out.defs),sed $(sed.-b) $(sed.-i) -E -e 's/$(USECPUS.out.defs)/$(sed.eol)/')
 
-
 #===============================================================================
 # Paths
 #===============================================================================
@@ -430,8 +429,6 @@ CORE.srcdirs  := $(CORE.SERV.srcdir) $(CORE.srcdir)                  \
                  $(CPPDIR.daal)/src/sycl \
                  $(CPPDIR.daal)/src/data_management
 
-CORE.kernel_defines = $(RELEASEDIR.include)/services/internal/daal_kernel_defines_gen.h
-
 CORE.incdirs.common := $(RELEASEDIR.include) $(CPPDIR.daal) $(WORKDIR)
 CORE.incdirs.thirdp := $(MKLFPKDIR.include) $(TBBDIR.include)
 CORE.incdirs := $(CORE.incdirs.common) $(CORE.incdirs.thirdp)
@@ -489,32 +486,7 @@ $(WORKDIR.lib)/$(core_y):                   $(daaldep.ipp) $(daaldep.vml) $(daal
                                             $(if $(PLAT_is_win32e),$(CORE.srcdir)/export_win32e.def) \
                                             $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
-$(CORE.kernel_defines): | $(shell dirname $(CORE.kernel_defines))/.
-	echo "/* file: daal_kernel_defines_gen.h */" >> $@
-	echo "/*******************************************************************************" >> $@
-	echo "* Copyright Intel Corporation" >> $@
-	echo "*" >> $@
-	echo "* Licensed under the Apache License, Version 2.0 (the \"License\");" >> $@
-	echo "* you may not use this file except in compliance with the License." >> $@
-	echo "* You may obtain a copy of the License at" >> $@
-	echo "*" >> $@
-	echo "*     http://www.apache.org/licenses/LICENSE-2.0" >> $@
-	echo "*" >> $@
-	echo "* Unless required by applicable law or agreed to in writing, software" >> $@
-	echo "* distributed under the License is distributed on an \"AS IS\" BASIS," >> $@
-	echo "* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied." >> $@
-	echo "* See the License for the specific language governing permissions and" >> $@
-	echo "* limitations under the License." >> $@
-	echo "*******************************************************************************/" >> $@
-	echo "" >> $@
-	$(if $(filter ssse3,$(USECPUS)),echo "#define DAAL_KERNEL_SSSE3" >> $@)
-	$(if $(filter sse42,$(USECPUS)),echo "#define DAAL_KERNEL_SSE42" >> $@)
-	$(if $(filter avx,$(USECPUS)),echo "#define DAAL_KERNEL_AVX" >> $@)
-	$(if $(filter avx2,$(USECPUS)),echo "#define DAAL_KERNEL_AVX2" >> $@)
-	$(if $(filter avx512,$(USECPUS)),echo "#define DAAL_KERNEL_AVX512" >> $@)
-	$(if $(filter avx512_mic,$(USECPUS)),echo "#define DAAL_KERNEL_AVX512_MIC" >> $@)
-
-$(CORE.objs_a): $(CORE.kernel_defines) $(CORE.tmpdir_a)/inc_a_folders.txt
+$(CORE.objs_a): $(CORE.tmpdir_a)/inc_a_folders.txt
 $(CORE.objs_a): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC)
 $(CORE.objs_a): COPT += -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0
 $(CORE.objs_a): COPT += @$(CORE.tmpdir_a)/inc_a_folders.txt
@@ -529,7 +501,7 @@ $(call containing,_skx, $(CORE.objs_a)): COPT += $(skx_OPT)  -DDAAL_CPU=avx512
 $(call containing,_flt, $(CORE.objs_a)): COPT += -DDAAL_FPTYPE=float
 $(call containing,_dbl, $(CORE.objs_a)): COPT += -DDAAL_FPTYPE=double
 
-$(CORE.objs_y): $(CORE.kernel_defines) $(CORE.tmpdir_y)/inc_y_folders.txt
+$(CORE.objs_y): $(CORE.tmpdir_y)/inc_y_folders.txt
 $(CORE.objs_y): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC)
 $(CORE.objs_y): COPT += -D__DAAL_IMPLEMENTATION -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG) -DTBB_USE_ASSERT=0
 $(CORE.objs_y): COPT += @$(CORE.tmpdir_y)/inc_y_folders.txt
@@ -1092,6 +1064,7 @@ define .release.dd
 $3: $2
 $2: $1 ; $(value mkdir)$(value cpy)
 	$(if $(filter %library_version_info.h,$2),+$(daalmake) -f makefile update_headers_version)
+	$(if $(USECPUS.out.defs.filter),$(if $(filter %daal_kernel_defines.h,$2),$(USECPUS.out.defs.filter) $2; rm -rf $(subst .h,.h.bak,$2)))
 endef
 $(foreach d,$(release.HEADERS.COMMON),$(eval $(call .release.dd,$d,$(subst $(CPPDIR.daal)/include/,$(RELEASEDIR.include)/,$d),_release_c_h)))
 $(foreach d,$(release.HEADERS.OSSPEC),$(eval $(call .release.dd,$d,$(subst $(CPPDIR.daal)/include/,$(RELEASEDIR.include)/,$(subst _$(_OS),,$d)),_release_c_h)))

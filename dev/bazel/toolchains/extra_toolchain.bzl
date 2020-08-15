@@ -20,16 +20,14 @@ load("@onedal//dev/bazel/toolchains:extra_toolchain_lnx.bzl",
 
 ExtraToolchainInfo = provider(
     fields = [
-        # TODO
-        "placeholder",
+        "patch_daal_kernel_defines",
     ],
 )
 
 def _extra_toolchain_impl(ctx):
     toolchain_info = platform_common.ToolchainInfo(
         extra_toolchain_info = ExtraToolchainInfo(
-            # TODO
-            placeholder = "",
+            patch_daal_kernel_defines = ctx.attr.patch_daal_kernel_defines,
         ),
     )
     return [toolchain_info]
@@ -37,7 +35,7 @@ def _extra_toolchain_impl(ctx):
 extra_toolchain = rule(
     implementation = _extra_toolchain_impl,
     attrs = {
-        # TODO
+        "patch_daal_kernel_defines": attr.string(mandatory=True),
     },
 )
 

@@ -5,13 +5,21 @@ load("@onedal//dev/bazel:daal.bzl",
     "daal_static_lib",
     "daal_algorithms",
     "daal_generate_version",
-    "daal_generate_kernel_defines",
+    "daal_patch_kernel_defines",
+)
+
+daal_patch_kernel_defines(
+    name = "kernel_defines",
+    src = "include/services/internal/daal_kernel_defines.h",
 )
 
 daal_module(
     name = "public_includes",
-    hdrs = glob(["include/**/*.h"]),
+    hdrs = glob(["include/**/*.h"], exclude=["**/daal_kernel_defines.h"]),
     includes = [ "include" ],
+    deps = [
+        ":kernel_defines",
+    ],
 )
 
 daal_module(
@@ -31,11 +39,6 @@ daal_module(
 daal_generate_version(
     name = "version",
     out = "daal_version_gen.h",
-)
-
-daal_generate_kernel_defines(
-    name = "kernel_defines",
-    out = "daal_kernel_defines_gen.h",
 )
 
 daal_module(

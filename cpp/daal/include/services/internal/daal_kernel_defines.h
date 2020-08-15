@@ -29,7 +29,12 @@
  * @ingroup services
  * @{
  */
-#include "daal_kernel_defines_gen.h"
+#define DAAL_KERNEL_SSSE3
+#define DAAL_KERNEL_SSE42
+#define DAAL_KERNEL_AVX
+#define DAAL_KERNEL_AVX2
+#define DAAL_KERNEL_AVX512_MIC
+#define DAAL_KERNEL_AVX512
 
 #define DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, cpuType, ...) ContainerTemplate<__VA_ARGS__, cpuType>
 #define DAAL_KERNEL_CONTAINER_CASE(ContainerTemplate, cpuType, ...)                              \

@@ -21,6 +21,7 @@ load("@onedal//dev/bazel:cc.bzl",
 )
 load("@onedal//dev/bazel:utils.bzl",
     "sets",
+    "paths",
 )
 load("@onedal//dev/bazel/config:config.bzl",
     "CpuInfo",
@@ -84,7 +85,6 @@ def _daal_generate_version_impl(ctx):
     vi = ctx.attr._version_info[VersionInfo]
     version = ctx.actions.declare_file(ctx.attr.out)
     content = (
-        _daal_license_header(version.basename) +
         "// DO NOT EDIT: file is auto-generated on build time\n" +
         "// DO NOT PUT THIS FILE TO SVC: file is auto-generated on build time\n" +
         "// Product version is specified in dev/bazel/config.bzl file\n" +
@@ -110,53 +110,44 @@ daal_generate_version = rule(
     },
 )
 
-def _daal_generate_kernel_defines_impl(ctx):
-    cpus = sets.make(ctx.attr._cpus[CpuInfo].enabled)
-    kernel_defines = ctx.actions.declare_file(ctx.attr.out)
-    content = (
-        _daal_license_header(kernel_defines.basename) +
-        "// DO NOT EDIT: file is auto-generated on build time\n" +
-        "// DO NOT PUT THIS FILE TO SVC: file is auto-generated on build time\n" +
-        "// CPU detection logic specified in dev/bazel/config.bzl file\n" +
-        "\n" +
-        ("#define DAAL_KERNEL_SSSE3\n"      if sets.contains(cpus, "ssse3")      else "") +
-        ("#define DAAL_KERNEL_SSE42\n"      if sets.contains(cpus, "sse42")      else "") +
-        ("#define DAAL_KERNEL_AVX\n"        if sets.contains(cpus, "avx")        else "") +
-        ("#define DAAL_KERNEL_AVX2\n"       if sets.contains(cpus, "avx2")       else "") +
-        ("#define DAAL_KERNEL_AVX512_MIC\n" if sets.contains(cpus, "avx512_mic") else "") +
-        ("#define DAAL_KERNEL_AVX512\n"     if sets.contains(cpus, "avx512")     else "")
+def _get_tool_for_kernel_defines_patching(ctx):
+    return ctx.toolchains["@onedal//dev/bazel/toolchains:extra"] \
+        .extra_toolchain_info.patch_daal_kernel_defines
+
+def _get_disabled_cpus(ctx):
+    cpu_info = ctx.attr._cpus[CpuInfo]
+    all_cpus = sets.make(cpu_info.allowed)
+    enabled_cpus = sets.make(cpu_info.enabled)
+    return sets.difference(all_cpus, enabled_cpus)
+
+def _declare_patched_kernel_defines(ctx):
+    relpath = paths.dirname(ctx.build_file_path)
+    patched_path = paths.relativize(ctx.file.src.path, relpath)
+    return ctx.actions.declare_file(patched_path)
+
+def _daal_patch_kernel_defines_impl(ctx):
+    disabled_cpus = _get_disabled_cpus(ctx)
+    kernel_defines = _declare_patched_kernel_defines(ctx)
+    ctx.actions.run(
+        executable = _get_tool_for_kernel_defines_patching(ctx),
+        arguments = [
+            ctx.file.src.path,
+            kernel_defines.path,
+            " ".join(sets.to_list(disabled_cpus)),
+        ],
+        inputs = [ctx.file.src],
+        outputs = [kernel_defines],
     )
-    ctx.actions.write(kernel_defines, content)
     return [ DefaultInfo(files=depset([ kernel_defines ])) ]
 
-daal_generate_kernel_defines = rule(
-    implementation = _daal_generate_kernel_defines_impl,
+daal_patch_kernel_defines = rule(
+    implementation = _daal_patch_kernel_defines_impl,
     output_to_genfiles = True,
     attrs = {
-        "out": attr.string(mandatory=True),
+        "src": attr.label(allow_single_file=True, mandatory=True),
         "_cpus": attr.label(
             default = "@config//:cpu",
         ),
     },
+    toolchains = ["@onedal//dev/bazel/toolchains:extra"],
 )
-
-def _daal_license_header(filename):
-    return (
-        "/* file: {} */\n".format(filename) +
-        "/*******************************************************************************\n" +
-        "* Copyright Intel Corporation\n" +
-        "*\n" +
-        "* Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
-        "* you may not use this file except in compliance with the License.\n" +
-        "* You may obtain a copy of the License at\n" +
-        "*\n" +
-        "*     http://www.apache.org/licenses/LICENSE-2.0\n" +
-        "*\n" +
-        "* Unless required by applicable law or agreed to in writing, software\n" +
-        "* distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
-        "* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
-        "* See the License for the specific language governing permissions and\n" +
-        "* limitations under the License.\n" +
-        "*******************************************************************************/\n" +
-        "\n"
-    )
