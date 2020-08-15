@@ -571,7 +571,7 @@ ONEAPI.dispatcher_tag.skx := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_av
 ONEAPI.srcdir := $(CPPDIR.onedal)
 ONEAPI.srcdirs.base := $(ONEAPI.srcdir) \
                        $(ONEAPI.srcdir)/algo \
-                       $(ONEAPI.srcdir)/data \
+                       $(ONEAPI.srcdir)/table \
                        $(ONEAPI.srcdir)/util \
                        $(addprefix $(ONEAPI.srcdir)/algo/, $(ONEAPI.ALGOS))
 ONEAPI.srcdirs.detail := $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type d -name detail))

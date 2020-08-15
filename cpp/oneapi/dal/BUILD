@@ -35,7 +35,7 @@ dal_module(
     dpc = True,
     deps = [
         ":common",
-        "@onedal//cpp/oneapi/dal/data",
+        "@onedal//cpp/oneapi/dal/table",
         "@onedal//cpp/oneapi/dal/util",
         # TODO: Move to depc_dpc
         # "@micromkl_dpc//:mkl_dpc",
@@ -60,7 +60,7 @@ dal_public_includes(
     name = "public_includes",
     deps = [
         ":all_algos_public_includes",
-        "@onedal//cpp/oneapi/dal/data:public_includes",
+        "@onedal//cpp/oneapi/dal/table:public_includes",
         "@onedal//cpp/oneapi/dal/util:public_includes",
     ],
 )
