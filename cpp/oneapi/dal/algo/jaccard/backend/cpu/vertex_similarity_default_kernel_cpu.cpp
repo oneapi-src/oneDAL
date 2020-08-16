@@ -23,14 +23,13 @@
 #include "oneapi/dal/data/detail/graph_service_functions_impl.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 
-#include <iostream>
-
 namespace oneapi::dal::preview {
 namespace jaccard {
 namespace detail {
 
 template <class VertexType>
-DAAL_FORCEINLINE size_t intersection(VertexType *neigh_u, VertexType *neigh_v, VertexType n_u, VertexType n_v) {
+DAAL_FORCEINLINE size_t
+intersection(VertexType *neigh_u, VertexType *neigh_v, VertexType n_u, VertexType n_v) {
     size_t total   = 0;
     VertexType i_u = 0, i_v = 0;
     while (i_u < n_u && i_v < n_v) {
@@ -65,15 +64,6 @@ DAAL_FORCEINLINE int64_t min(int64_t a, int64_t b) {
 template <typename Graph, typename Cpu>
 vertex_similarity_result call_jaccard_default_kernel(const descriptor_base &desc,
                                                      vertex_similarity_input<Graph> &input) {
-        std::cout << "------------------------------------------------" << std::endl;
-    std::cout << "------------------------------------------------" << std::endl;
-    std::cout << "------------------------------------------------" << std::endl;
-    std::cout << "------------------------------------------------" << std::endl;
-    std::cout << "I am default kernel" << std::endl;
-    std::cout << "------------------------------------------------" << std::endl;
-    std::cout << "------------------------------------------------" << std::endl;
-    std::cout << "------------------------------------------------" << std::endl;
-    std::cout << "------------------------------------------------" << std::endl;
     auto my_graph                       = input.get_graph();
     auto g                              = oneapi::dal::preview::detail::get_impl(my_graph);
     auto g_edge_offsets                 = g->_edge_offsets.data();
