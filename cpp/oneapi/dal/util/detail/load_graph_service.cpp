@@ -14,9 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
-
-#include "oneapi/dal/util/detail/load_graph.hpp"
+#include "oneapi/dal/util/detail/load_graph_service.hpp"
+#include "oneapi/dal/detail/common.hpp"
 #include "src/externals/service_service.h"
 
 namespace oneapi::dal::preview::load_graph::detail {
