@@ -67,7 +67,7 @@ public:
         detail::graph_container<edge_user_value_type, edge_user_value_allocator_type>;
 
     undirected_adjacency_array_graph_impl() = default;
-    undirected_adjacency_array_graph_impl(allocator_type alloc);
+    virtual ~undirected_adjacency_array_graph_impl() {}
 
     vertex_size_type _vertex_count;
     edge_size_type _edge_count;
