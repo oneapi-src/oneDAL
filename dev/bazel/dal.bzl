@@ -21,6 +21,7 @@ load("@onedal//dev/bazel:cc.bzl",
 )
 load("@onedal//dev/bazel:utils.bzl",
     "sets",
+    "utils",
     "paths",
 )
 load("@onedal//dev/bazel/config:config.bzl",
@@ -127,9 +128,9 @@ def dal_algos(name, algos):
         deps = algo_labels_dpc,
     )
 
-def dal_test(name, deps=[], test_deps=[], **kwargs):
+def dal_test(name, deps=[], test_deps=[], gtest=True, **kwargs):
     _dal_module(
-        name = name + "_module",
+        name = name + "_test",
         deps = select({
             "@config//:dev_test_link_mode": [
                 "@onedal//cpp/daal:threading_static",
@@ -152,12 +153,29 @@ def dal_test(name, deps=[], test_deps=[], **kwargs):
                 # TODO
                 # ":threading_release_dynamic",
             ],
-        }) + test_deps,
+        }) + test_deps + ([
+            "@gtest//:gtest_main",
+        ] if gtest else []),
         **kwargs,
     )
     cc_test(
         name = name,
-        deps = [ ":{}_module".format(name) ],
+        deps = [ ":{}_test".format(name) ],
+    )
+
+def dal_test_suite(name, srcs=[], tests=[], **kwargs):
+    targets = []
+    for test_file in srcs:
+        target = test_file.replace(".cpp", "").replace("/", "_")
+        dal_test(
+            name = target,
+            srcs = [test_file],
+            **kwargs,
+        )
+        targets.append(":" + target)
+    native.test_suite(
+        name = name,
+        tests = tests + targets,
     )
 
 def dal_examples(srcs, non_alg_examples=[]):
@@ -180,6 +198,7 @@ def dal_examples(srcs, non_alg_examples=[]):
             test_deps = [
                 ":example_util",
             ],
+            gtest = False,
         )
 
 def _dal_module(name, lib_tag="dal", features=[], **kwargs):

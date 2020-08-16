@@ -1,5 +1,9 @@
 package(default_visibility = ["//visibility:public"])
-load("@onedal//dev/bazel:dal.bzl", "dal_module", "dal_public_includes")
+load("@onedal//dev/bazel:dal.bzl",
+    "dal_module",
+    "dal_public_includes",
+    "dal_test_suite",
+)
 
 dal_public_includes(
     name = "public_includes",
@@ -15,4 +19,15 @@ dal_module(
         "@onedal//cpp/oneapi/dal:rbf_kernel",
         "@onedal//cpp/daal/src/algorithms/svm:kernel",
     ]
+)
+
+dal_test_suite(
+    name = "cpu_tests",
+    srcs = [
+        # Diabled
+        # "backend/cpu/train_kernel_test.cpp",
+    ],
+    deps = [
+        ":svm",
+    ],
 )

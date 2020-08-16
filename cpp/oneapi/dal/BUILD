@@ -5,7 +5,7 @@ load("@onedal//dev/bazel:dal.bzl",
     "dal_public_includes",
     "dal_generate_cpu_dispatcher",
     "dal_algos",
-    "dal_test",
+    "dal_test_suite",
 )
 
 dal_generate_cpu_dispatcher(
@@ -87,4 +87,10 @@ filegroup(
     ],
 )
 
-# dal_test()
+dal_test_suite(
+    name = "common_tests",
+    srcs = [
+        "array_test.cpp",
+    ],
+    deps = [ ":common" ],
+)
