@@ -139,10 +139,8 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     layout->_degrees = std::move(vector_vertex_t(layout->_vertex_count));
 
     threader_for(_unf_vertex_count, _unf_vertex_count, [&](vertex_t u) {
-        vertex_t e1                    = _unf_edge_offset_vec.at(u);
-        vertex_t e2                    = _unf_edge_offset_vec.at(u + 1);
-        vector_vertex_t::iterator ptr1 = _unf_vert_neighs_vec.begin() + e1;
-        vector_vertex_t::iterator ptr2 = _unf_vert_neighs_vec.begin() + e2;
+        auto ptr1 = _unf_vert_neighs_vec.begin() + _unf_edge_offset_vec[u];
+        auto ptr2 = _unf_vert_neighs_vec.begin() + _unf_edge_offset_vec[u + 1];
         std::sort(ptr1, ptr2);
         auto neighs_u_new_end = std::unique(ptr1, ptr2);
         neighs_u_new_end      = std::remove(ptr1, neighs_u_new_end, u);
