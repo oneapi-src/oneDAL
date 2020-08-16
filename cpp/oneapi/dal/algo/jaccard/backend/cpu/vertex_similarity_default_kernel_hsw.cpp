@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include <immintrin.h>
+#include <iostream>
 
 #include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
 #include "oneapi/dal/algo/jaccard/common.hpp"
@@ -44,7 +45,7 @@ DAAL_FORCEINLINE int _popcnt32_redef(int a) {
 }
 #endif
 
-template <class VertexType> //__declspec(noinline)
+template <class VertexType>
 DAAL_FORCEINLINE size_t intersection(VertexType *neigh_u, VertexType *neigh_v, VertexType n_u, VertexType n_v) {
     size_t total   = 0;
     VertexType i_u = 0, i_v = 0;
@@ -272,6 +273,15 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                                                      oneapi::dal::backend::cpu_dispatch_avx2>(
     const descriptor_base &desc,
     vertex_similarity_input<undirected_adjacency_array_graph<>> &input) {
+    std::cout << "------------------------------------------------" << std::endl;
+    std::cout << "------------------------------------------------" << std::endl;
+    std::cout << "------------------------------------------------" << std::endl;
+    std::cout << "------------------------------------------------" << std::endl;
+    std::cout << "I am AVX2 specialization" << std::endl;
+    std::cout << "------------------------------------------------" << std::endl;
+    std::cout << "------------------------------------------------" << std::endl;
+    std::cout << "------------------------------------------------" << std::endl;
+    std::cout << "------------------------------------------------" << std::endl;
     auto my_graph                       = input.get_graph();
     auto g                              = oneapi::dal::preview::detail::get_impl(my_graph);
     auto g_edge_offsets                 = g->_edge_offsets.data();
