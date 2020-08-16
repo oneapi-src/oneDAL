@@ -48,7 +48,7 @@ class params : public params_base {
 public:
 
     params(const char * file_name) : params_base(file_name) {}
-    
+
     auto& set_delimiter(char value) {
         set_delimiter_impl(value);
         return *this;
