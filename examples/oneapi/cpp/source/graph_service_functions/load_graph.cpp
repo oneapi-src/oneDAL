@@ -16,8 +16,8 @@
 
 #include <iostream>
 
-#include "oneapi/dal/data/graph_service_functions.hpp"
-#include "oneapi/dal/data/undirected_adjacency_array_graph.hpp"
+#include "oneapi/dal/graph/graph_service_functions.hpp"
+#include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
 #include "oneapi/dal/util/csv_data_source.hpp"
 #include "oneapi/dal/util/load_graph.hpp"
 

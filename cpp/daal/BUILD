@@ -1,0 +1,277 @@
+package(default_visibility = ["//visibility:public"])
+load("@onedal//dev/bazel:daal.bzl",
+    "daal_module",
+    "daal_depset",
+    "daal_static_lib",
+    "daal_algorithms",
+    "daal_generate_version",
+    "daal_patch_kernel_defines",
+)
+
+daal_patch_kernel_defines(
+    name = "kernel_defines",
+    src = "include/services/internal/daal_kernel_defines.h",
+)
+
+daal_module(
+    name = "public_includes",
+    hdrs = glob(["include/**/*.h"], exclude=["**/daal_kernel_defines.h"]),
+    includes = [ "include" ],
+)
+
+daal_module(
+    name = "includes",
+    hdrs = [
+        ":kernel_defines",
+    ],
+    includes = [ "." ],
+    defines = [
+        "DAAL_NOTHROW_EXCEPTIONS",
+        "DAAL_HIDE_DEPRECATED",
+    ],
+    deps = [
+        ":public_includes",
+        "@micromkl//:headers",
+        "@micromkl_dpc//:headers",
+    ],
+)
+
+daal_generate_version(
+    name = "version",
+    out = "daal_version_gen.h",
+)
+
+daal_module(
+    name = "service_headers",
+    hdrs = glob([
+        "src/services/**/*.h",
+        "src/externals/**/*.h",
+        "src/algorithms/service_*.h",
+    ]) + [
+        ":version",
+    ],
+    deps = [
+        ":includes",
+    ],
+)
+
+daal_module(
+    name = "threading_headers",
+    hdrs = glob(["src/threading/**/*.h"]),
+    deps = [
+        ":service_headers",
+    ],
+)
+
+daal_module(
+    name = "services",
+    srcs = glob(
+        ["src/services/**/*.cpp", "src/externals/**/*.cpp"],
+        exclude = ["src/externals/**/*_win_dll.cpp"],
+    ),
+    deps = [
+        ":service_headers",
+        ":threading_headers",
+        "@micromkl//:vml_ipp",
+    ],
+)
+
+daal_module(
+    name = "data_management",
+    hdrs = glob(["src/data_management/**/*.h"]),
+    srcs = glob(["src/data_management/**/*.cpp"]),
+    deps = [
+        ":services",
+    ],
+)
+
+daal_module(
+    name = "algorithms_base",
+    hdrs = glob(["src/algorithms/*.h"], exclude=["src/algorithms/service_*"]),
+    srcs = glob(["src/algorithms/*.cpp"], exclude=["src/algorithms/service_*"]),
+    deps = [
+        ":services",
+    ],
+)
+
+daal_module(
+    name = "sycl",
+    hdrs = glob(["src/sycl/**/*.h", "src/sycl/**/*.cl"]),
+    srcs = glob(["src/sycl/**/*.cpp"]),
+    deps = [
+        ":services",
+        "@onedal//cpp/daal/src/algorithms/engines:kernel",
+        "@micromkl_dpc//:headers",
+    ],
+)
+
+daal_module(
+    name = "threading_seq",
+    srcs = glob(["src/threading/**/*.cpp"]),
+    local_defines = [
+        "__DO_SEQ_LAYER__",
+    ],
+    deps = [
+        ":threading_headers",
+        "@micromkl//:mkl_seq",
+    ],
+)
+
+daal_module(
+    name = "threading_tbb",
+    srcs = glob(["src/threading/**/*.cpp"]),
+    local_defines = [
+        "__DO_TBB_LAYER__",
+        "__TBB_NO_IMPLICIT_LINKAGE",
+        "__TBB_LEGACY_MODE",
+        "TBB_SUPPRESS_DEPRECATED_MESSAGES",
+        "TBB_USE_ASSERT=0",
+    ],
+    deps = [
+        ":threading_headers",
+        "@tbb//:tbb",
+        "@tbb//:tbbmalloc",
+        "@micromkl//:mkl_thr",
+    ],
+)
+
+daal_module(
+    name = "core",
+    deps = [
+        ":services",
+        ":data_management",
+        ":algorithms_base",
+    ],
+)
+
+daal_algorithms(
+    name = "all_algorithms",
+    algorithms = [
+        # "adaboost",
+        # "assocrules",
+        # "brownboost",
+        # "cholesky",
+        "classifier",
+        # "cordistance",
+        # "cosdistance",
+        "covariance",
+        # "decision_tree",
+        "distributions",
+        # "distributions/bernoulli",
+        # "distributions/normal",
+        # "distributions/uniform",
+        "dtrees/forest/classification",
+        "dtrees/forest/regression",
+        # "dtrees/gbt",
+        # "dtrees/gbt/regression",
+        # "dtrees/gbt/classification",
+        # "dtrees/regression",
+        # "dbscan",
+        # "elastic_net",
+        "engines",
+        # "engines/mcg59",
+        # "engines/mt19937",
+        # "engines/mt2203",
+        # "em",
+        # "implicit_als",
+        "kernel_function",
+        "kmeans",
+        "k_nearest_neighbors",
+        # "lbfgs",
+        # "linear_model",
+        # "lasso_regression",
+        # "linear_regression",
+        # "logistic_regression",
+        # "logitboost",
+        # "low_order_moments",
+        # "multiclassclassifier",
+        # "naivebayes",
+        # "normalization/minmax",
+        "normalization/zscore",
+        # "objective_function",
+        # "objective_function/cross_entropy_loss",
+        # "objective_function/logistic_loss",
+        # "objective_function/mse",
+        # "optimization_solver",
+        # "optimization_solver/sgd",
+        # "optimization_solver/lbfgs",
+        # "optimization_solver/adagrad",
+        # "optimization_solver/saga",
+        # "optimization_solver/coordinate_descent",
+        # "outlierdetection_multivariate",
+        # "outlierdetection_bacon",
+        # "outlierdetection_univariate",
+        "pca",
+        # "pca/metrics",
+        # "pca/transform",
+        # "pivoted_qr",
+        "qr",
+        # "quantiles",
+        # "regression",
+        # "ridge_regression",
+        # "sgd",
+        # "sorting",
+        # "stump",
+        "svd",
+        "svm",
+        # "weak_learner/",
+    ],
+)
+
+daal_static_lib(
+    name = "core_static",
+    lib_name = "onedal_core",
+    deps = [
+        ":core",
+        ":all_algorithms",
+    ],
+)
+
+daal_static_lib(
+    name = "sequential_static",
+    lib_name = "onedal_sequential",
+    deps = [
+        ":threading_seq",
+    ],
+)
+
+daal_static_lib(
+    name = "thread_static",
+    lib_name = "onedal_thread",
+    deps = [
+        ":threading_tbb",
+    ],
+)
+
+daal_depset(
+    name = "threading_static",
+    deps = select({
+        "@config//:par_test_thread_mode": [
+            "@onedal//cpp/daal:thread_static",
+        ],
+        "@config//:seq_test_thread_mode": [
+            "@onedal//cpp/daal:sequential_static",
+        ],
+    }),
+)
+
+daal_depset(
+    name = "threading_release_static",
+    deps = select({
+        "@config//:par_test_thread_mode": [
+            "@onedal_release//:thread_static",
+        ],
+        "@config//:seq_test_thread_mode": [
+            "@onedal_release//:sequential_static",
+        ],
+    }),
+)
+
+filegroup(
+    name = "all_static",
+    srcs = [
+        ":core_static",
+        ":sequential_static",
+        ":thread_static",
+    ],
+)

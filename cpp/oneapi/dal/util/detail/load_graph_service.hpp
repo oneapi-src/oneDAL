@@ -18,10 +18,10 @@
 
 #include <fstream>
 
-#include "oneapi/dal/data/detail/graph_container.hpp"
-#include "oneapi/dal/data/detail/undirected_adjacency_array_graph_impl.hpp"
-#include "oneapi/dal/data/graph_common.hpp"
-#include "oneapi/dal/data/undirected_adjacency_array_graph.hpp"
+#include "oneapi/dal/graph/detail/graph_container.hpp"
+#include "oneapi/dal/graph/detail/undirected_adjacency_array_graph_impl.hpp"
+#include "oneapi/dal/graph/graph_common.hpp"
+#include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
 #include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/util/csv_data_source.hpp"
 #include "oneapi/dal/util/load_graph_descriptor.hpp"

@@ -22,7 +22,7 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
-#include "oneapi/dal/data/detail/graph_service_functions_impl.hpp"
+#include "oneapi/dal/graph/detail/graph_service_functions_impl.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 
 namespace oneapi::dal::preview {

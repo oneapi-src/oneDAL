@@ -18,8 +18,6 @@
 #include <iostream>
 
 #include "oneapi/dal/algo/knn.hpp"
-#include "oneapi/dal/data/accessor.hpp"
-#include "oneapi/dal/data/table.hpp"
 
 #include "example_util/utils.hpp"
 

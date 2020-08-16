@@ -22,6 +22,9 @@
 
 namespace oneapi::dal::detail {
 
+template <typename T, typename... Args>
+struct is_one_of : public std::disjunction<std::is_same<T, Args>...> {};
+
 template <typename T>
 using shared = std::shared_ptr<T>;
 

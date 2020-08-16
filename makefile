@@ -124,22 +124,6 @@ USECPUS.out.defs := $(subst sse2,^\#define DAAL_KERNEL_SSE2\b,$(subst ssse3,^\#d
 USECPUS.out.defs := $(subst $(space)^,|^,$(strip $(USECPUS.out.defs)))
 USECPUS.out.defs.filter := $(if $(USECPUS.out.defs),sed $(sed.-b) $(sed.-i) -E -e 's/$(USECPUS.out.defs)/$(sed.eol)/')
 
-USECPUS.oneapi.out.defs := \
-    $(subst ssse3,^\#define ONEDAL_CPU_DISPATCH_SSSE3\b, \
-        $(subst sse42,^\#define ONEDAL_CPU_DISPATCH_SSE42\b, \
-            $(subst avx,^\#define ONEDAL_CPU_DISPATCH_AVX\b, \
-                $(subst avx2,^\#define ONEDAL_CPU_DISPATCH_AVX2\b, \
-                    $(subst avx512,^\#define ONEDAL_CPU_DISPATCH_AVX512\b, \
-                        $(USECPUS.out) \
-                    ) \
-                ) \
-            ) \
-	    ) \
-	)
-USECPUS.oneapi.out.defs := $(subst $(space)^,|^,$(strip $(USECPUS.oneapi.out.defs)))
-USECPUS.oneapi.out.defs.filter := $(if $(USECPUS.oneapi.out.defs),sed $(sed.-b) $(sed.-i) -E -e 's/$(USECPUS.oneapi.out.defs)/$(sed.eol)/')
-
-
 #===============================================================================
 # Paths
 #===============================================================================
@@ -577,8 +561,7 @@ ONEAPI.incdirs.common := $(CPPDIR)
 ONEAPI.incdirs.thirdp := $(CORE.incdirs.common) $(MKLFPKDIR.include) $(TBBDIR.include)
 ONEAPI.incdirs := $(ONEAPI.incdirs.common) $(CORE.incdirs.thirdp)
 
-ONEAPI.dispatcher_cpu = $(WORKDIR)/_onedal_dispatcher_cpu.hpp
-
+ONEAPI.dispatcher_cpu = $(WORKDIR)/_dal_cpu_dispatcher_gen.hpp
 ONEAPI.dispatcher_tag.nrh := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_default
 ONEAPI.dispatcher_tag.mrm := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_ssse3
 ONEAPI.dispatcher_tag.neh := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_sse42
@@ -590,7 +573,8 @@ ONEAPI.dispatcher_tag.skx := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_av
 ONEAPI.srcdir := $(CPPDIR.onedal)
 ONEAPI.srcdirs.base := $(ONEAPI.srcdir) \
                        $(ONEAPI.srcdir)/algo \
-                       $(ONEAPI.srcdir)/data \
+                       $(ONEAPI.srcdir)/table \
+                       $(ONEAPI.srcdir)/graph \
                        $(ONEAPI.srcdir)/util \
                        $(addprefix $(ONEAPI.srcdir)/algo/, $(ONEAPI.ALGOS))
 ONEAPI.srcdirs.detail := $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type d -name detail))
@@ -654,10 +638,12 @@ $1: LOPT:=
 $1: $(1:%.$a=%_link.txt) | $(dir $1)/. ; $(value LINK.STATIC)
 endef
 
-# Create file that defines available CPU instruction sets
-$(ONEAPI.dispatcher_cpu): $(ONEAPI.srcdir)/backend/dispatcher_cpu.hpp | $(WORKDIR)/.
-	cp -fp $< $@
-	$(if $(USECPUS.out.defs.filter), $(USECPUS.oneapi.out.defs.filter) $@)
+$(ONEAPI.dispatcher_cpu): | $(WORKDIR)/.
+	$(if $(filter ssse3,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_SSSE3" >> $@)
+	$(if $(filter sse42,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_SSE42" >> $@)
+	$(if $(filter avx,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_AVX" >> $@)
+	$(if $(filter avx2,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_AVX2" >> $@)
+	$(if $(filter avx512,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_AVX512" >> $@)
 
 # Create file with include paths
 ONEAPI.include_options := $(addprefix -I, $(ONEAPI.incdirs.common)) \
@@ -682,7 +668,7 @@ $(ONEAPI.objs_a): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic
                           -DDAAL_HIDE_DEPRECATED \
                           -D__TBB_NO_IMPLICIT_LINKAGE \
                           -DTBB_USE_ASSERT=0 \
-                           @$(ONEAPI.tmpdir_a)/inc_a_folders.txt 
+                           @$(ONEAPI.tmpdir_a)/inc_a_folders.txt
 $(call containing,_nrh, $(ONEAPI.objs_a)): COPT += $(p4_OPT)   $(ONEAPI.dispatcher_tag.nrh)
 $(call containing,_mrm, $(ONEAPI.objs_a)): COPT += $(mc_OPT)   $(ONEAPI.dispatcher_tag.mrm)
 $(call containing,_neh, $(ONEAPI.objs_a)): COPT += $(mc3_OPT)  $(ONEAPI.dispatcher_tag.neh)

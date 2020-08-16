@@ -19,8 +19,8 @@
 #include <iomanip>
 #include <iostream>
 
-#include "oneapi/dal/data/accessor.hpp"
-#include "oneapi/dal/data/table.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/table/common.hpp"
 
 std::ostream &operator<<(std::ostream &stream,
                          const oneapi::dal::table &table) {
