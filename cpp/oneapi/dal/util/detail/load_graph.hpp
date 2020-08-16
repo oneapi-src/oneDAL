@@ -136,11 +136,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
 
     layout->_vertex_count = _unf_vertex_count;
 
-    // layout->_degrees.resize(layout->_vertex_count);
-    layout->_degrees.reserve(layout->_vertex_count);
-    for (vertex_size_t i = 0; i < layout->_vertex_count; i++) {
-        layout->_degrees.push_back(0);
-    }
+    layout->_degrees.resize(layout->_vertex_count);
 
     threader_for(_unf_vertex_count, _unf_vertex_count, [&](vertex_t u) {
         auto ptr1 = _unf_vert_neighs_vec.begin() + _unf_edge_offset_vec[u];

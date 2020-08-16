@@ -104,16 +104,12 @@ public:
     undirected_adjacency_array_graph();
 
     /// Constructs an empty undirected_adjacency_array_graph
-    virtual ~undirected_adjacency_array_graph() {}
-
+    virtual ~undirected_adjacency_array_graph() = default;
     /// Move constructor for undirected_adjacency_array_graph
     undirected_adjacency_array_graph(undirected_adjacency_array_graph &&graph);
 
     /// Copy constructor for undirected_adjacency_array_graph
     undirected_adjacency_array_graph(const undirected_adjacency_array_graph &graph);
-
-    /// Constructs an empty undirected_adjacency_array_graph with specified allocator
-    undirected_adjacency_array_graph(allocator_type alloc){};
 
     /// Constructs an empty undirected_adjacency_array_graph with specified graph properties
     /// and allocator
@@ -151,30 +147,13 @@ template <typename VertexValue,
           typename GraphValue,
           typename IndexType,
           typename Allocator>
-struct D {
-    void operator()(detail::undirected_adjacency_array_graph_impl<VertexValue,
-                                                                  EdgeValue,
-                                                                  GraphValue,
-                                                                  IndexType,
-                                                                  Allocator> *p) const {
-        // std::cout << "Call delete from function object...\n";
-        delete p;
-    }
-};
-
-template <typename VertexValue,
-          typename EdgeValue,
-          typename GraphValue,
-          typename IndexType,
-          typename Allocator>
 undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::
     undirected_adjacency_array_graph()
         : impl_(new detail::undirected_adjacency_array_graph_impl<VertexValue,
                                                                   EdgeValue,
                                                                   GraphValue,
                                                                   IndexType,
-                                                                  Allocator>,
-                D<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>()) {}
+                                                                  Allocator>) {}
 
 template <typename VertexValue,
           typename EdgeValue,

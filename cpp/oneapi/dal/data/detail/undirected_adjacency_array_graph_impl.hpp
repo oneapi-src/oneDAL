@@ -66,8 +66,8 @@ public:
     using edge_user_value_set =
         detail::graph_container<edge_user_value_type, edge_user_value_allocator_type>;
 
-    undirected_adjacency_array_graph_impl() = default;
-    virtual ~undirected_adjacency_array_graph_impl() {}
+    undirected_adjacency_array_graph_impl()          = default;
+    virtual ~undirected_adjacency_array_graph_impl() = default;
 
     vertex_size_type _vertex_count;
     edge_size_type _edge_count;
