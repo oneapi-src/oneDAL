@@ -27,8 +27,9 @@ namespace oneapi::dal::preview {
 namespace jaccard {
 namespace detail {
 
-template <class VertexType> //__declspec(noinline)
-size_t intersection(VertexType *neigh_u, VertexType *neigh_v, VertexType n_u, VertexType n_v) {
+template <class VertexType>
+DAAL_FORCEINLINE size_t
+intersection(VertexType *neigh_u, VertexType *neigh_v, VertexType n_u, VertexType n_v) {
     size_t total   = 0;
     VertexType i_u = 0, i_v = 0;
     while (i_u < n_u && i_v < n_v) {
