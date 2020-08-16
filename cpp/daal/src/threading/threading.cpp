@@ -45,10 +45,6 @@ using namespace daal::services;
     #include "src/externals/service_service.h"
 #endif
 
-#if defined(ONEAPI_DAL_EXPORT)
-    #define DAAL_EXPORT ONEAPI_DAL_EXPORT
-#endif
-
 DAAL_EXPORT void * _threaded_scalable_malloc(const size_t size, const size_t alignment)
 {
 #if defined(__DO_TBB_LAYER__)
