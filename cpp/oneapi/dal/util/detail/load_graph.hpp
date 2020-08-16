@@ -28,13 +28,18 @@
 #include "services/daal_atomic_int.h"
 #include "services/daal_memory.h"
 
-namespace oneapi::dal::preview::load_graph::detail {
-
+namespace oneapi::dal::preview {
 typedef void (*functype)(int i, const void *a);
+}
 
 extern "C" {
-DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void *a, functype func);
+ONEAPI_DAL_EXPORT void _daal_threader_for_oneapi(int n,
+                                                 int threads_request,
+                                                 const void *a,
+                                                 oneapi::dal::preview::functype func);
 }
+
+namespace oneapi::dal::preview::load_graph::detail {
 
 template <typename F>
 inline void threader_func(int i, const void *a) {
@@ -43,11 +48,13 @@ inline void threader_func(int i, const void *a) {
 }
 
 template <typename F>
-inline void threader_for(int n, int threads_request, const F &lambda) {
+inline ONEAPI_DAL_EXPORT void threader_for(size_t n, size_t threads_request, const F &lambda) {
     const void *a = static_cast<const void *>(&lambda);
 
-    _daal_threader_for(n, threads_request, a, threader_func<F>);
+    _daal_threader_for_oneapi((int)n, (int)threads_request, a, threader_func<F>);
 }
+
+ONEAPI_DAL_EXPORT int daal_string_to_int(const char *nptr, char **endptr);
 
 edge_list<std::int32_t> load_edge_list(const std::string &name) {
     using int_t = std::int32_t;
@@ -60,8 +67,8 @@ edge_list<std::int32_t> load_edge_list(const std::string &name) {
 
     char source_vertex[32], destination_vertex[32];
     while (file >> source_vertex >> destination_vertex) {
-        auto edge = std::make_pair(daal::services::daal_string_to_int(&source_vertex[0], 0),
-                                   daal::services::daal_string_to_int(&destination_vertex[0], 0));
+        auto edge = std::make_pair(daal_string_to_int(&source_vertex[0], 0),
+                                   daal_string_to_int(&destination_vertex[0], 0));
         elist.push_back(edge);
     }
 
@@ -96,7 +103,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
 
     layout_unfilt->_vertex_count = max_node_id + 1;
 
-    using atomic_t = typename daal::services::Atomic<int_t>;
+    using atomic_t = typename daal::services::Atomic<vertex_t>;
     using allocator_atomic_t =
         typename std::allocator_traits<allocator_t>::template rebind_alloc<atomic_t>;
 
@@ -106,16 +113,16 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     if (degrees_vec == nullptr) {
         throw bad_alloc();
     }
-    daal::services::Atomic<int_t> *degrees_cv = degrees_vec->data();
+    daal::services::Atomic<vertex_t> *degrees_cv = degrees_vec->data();
     if (degrees_cv == nullptr) {
         throw bad_alloc();
     }
 
-    threader_for(layout_unfilt->_vertex_count, layout_unfilt->_vertex_count, [&](int u) {
+    threader_for(layout_unfilt->_vertex_count, layout_unfilt->_vertex_count, [&](vertex_t u) {
         degrees_cv[u].set(0);
     });
 
-    threader_for(edges.size(), edges.size(), [&](int u) {
+    threader_for(edges.size(), edges.size(), [&](vertex_t u) {
         degrees_cv[edges[u].first].inc();
         degrees_cv[edges[u].second].inc();
     });
@@ -126,12 +133,12 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     if (rows_vec == nullptr) {
         throw bad_alloc();
     }
-    daal::services::Atomic<int_t> *rows_cv = rows_vec->data();
+    daal::services::Atomic<vertex_t> *rows_cv = rows_vec->data();
     if (rows_cv == nullptr) {
         throw bad_alloc();
     }
 
-    int_t total_sum_degrees = 0;
+    vertex_t total_sum_degrees = 0;
     rows_cv[0].set(total_sum_degrees);
 
     for (vertex_size_t i = 0; i < layout_unfilt->_vertex_count; ++i) {
@@ -146,11 +153,13 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     auto _rows_un                = layout_unfilt->_edge_offsets.data();
     auto _cols_un                = layout_unfilt->_vertex_neighbors.data();
 
-    threader_for(layout_unfilt->_vertex_count + 1, layout_unfilt->_vertex_count + 1, [&](int n) {
-        _rows_un[n] = rows_cv[n].get();
-    });
+    threader_for(layout_unfilt->_vertex_count + 1,
+                 layout_unfilt->_vertex_count + 1,
+                 [&](vertex_t n) {
+                     _rows_un[n] = rows_cv[n].get();
+                 });
 
-    threader_for(edges.size(), edges.size(), [&](int u) {
+    threader_for(edges.size(), edges.size(), [&](vertex_t u) {
         _cols_un[rows_cv[edges[u].first].inc() - 1]  = edges[u].second;
         _cols_un[rows_cv[edges[u].second].inc() - 1] = edges[u].first;
     });
@@ -162,7 +171,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
 
     layout->_degrees = std::move(vector_vertex_t(layout->_vertex_count));
 
-    threader_for(layout_unfilt->_vertex_count, layout_unfilt->_vertex_count, [&](int u) {
+    threader_for(layout_unfilt->_vertex_count, layout_unfilt->_vertex_count, [&](vertex_t u) {
         std::sort(layout_unfilt->_vertex_neighbors.begin() + layout_unfilt->_edge_offsets[u],
                   layout_unfilt->_vertex_neighbors.begin() + layout_unfilt->_edge_offsets[u + 1]);
         auto neighs_u_new_end = std::unique(
@@ -172,8 +181,9 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
             std::remove(layout_unfilt->_vertex_neighbors.begin() + layout_unfilt->_edge_offsets[u],
                         neighs_u_new_end,
                         u);
-        layout->_degrees[u] = neighs_u_new_end - (layout_unfilt->_vertex_neighbors.begin() +
-                                                  layout_unfilt->_edge_offsets[u]);
+        layout->_degrees[u] = (vertex_t)std::distance(
+            (layout_unfilt->_vertex_neighbors.begin() + layout_unfilt->_edge_offsets[u]),
+            neighs_u_new_end);
     });
 
     layout->_edge_offsets.clear();
@@ -191,7 +201,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     layout->_vertex_neighbors =
         std::move(vector_vertex_t(layout->_edge_offsets[layout->_vertex_count]));
 
-    threader_for(layout->_vertex_count, layout->_vertex_count, [&](int u) {
+    threader_for(layout->_vertex_count, layout->_vertex_count, [&](vertex_t u) {
         for (vertex_t i = 0; i < layout->_degrees[u]; i++) {
             *(layout->_vertex_neighbors.begin() + layout->_edge_offsets[u] + i) =
                 *(layout_unfilt->_vertex_neighbors.begin() + layout_unfilt->_edge_offsets[u] + i);
