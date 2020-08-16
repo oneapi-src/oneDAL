@@ -139,12 +139,12 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     layout->_degrees = std::move(vector_vertex_t(layout->_vertex_count));
 
     threader_for(_unf_vertex_count, _unf_vertex_count, [&](vertex_t u) {
-        auto ptr1 = _unf_vert_neighs_vec.begin() + _unf_edge_offset_vec[u];
-        auto ptr2 = _unf_vert_neighs_vec.begin() + _unf_edge_offset_vec[u + 1];
-        std::sort(ptr1, ptr2);
-        auto neighs_u_new_end = std::unique(ptr1, ptr2);
-        neighs_u_new_end      = std::remove(ptr1, neighs_u_new_end, u);
-        layout->_degrees[u]   = (vertex_t)std::distance(ptr1, neighs_u_new_end);
+        auto start_p = _unf_vert_neighs_vec.begin() + _unf_edge_offset_vec[u];
+        auto end_p   = _unf_vert_neighs_vec.begin() + _unf_edge_offset_vec[u + 1];
+        std::sort(start_p, end_p);
+        auto neighs_u_new_end = std::unique(start_p, end_p);
+        neighs_u_new_end      = std::remove(start_p, neighs_u_new_end, u);
+        layout->_degrees[u]   = (vertex_t)std::distance(start_p, neighs_u_new_end);
     });
 
     layout->_edge_offsets.clear();
