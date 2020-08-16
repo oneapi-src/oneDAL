@@ -76,7 +76,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
 
     layout_unfilt->_vertex_count = max_node_id + 1;
 
-    using atomic_t = typename daal::services::Atomic<vertex_t>;
+    using atomic_t = typename daal::services::Atomic<vertex_size_t>;
     using allocator_atomic_t =
         typename std::allocator_traits<allocator_t>::template rebind_alloc<atomic_t>;
 
@@ -86,7 +86,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     if (degrees_vec == nullptr) {
         throw bad_alloc();
     }
-    daal::services::Atomic<vertex_t> *degrees_cv = degrees_vec->data();
+    atomic_t *degrees_cv = degrees_vec->data();
     if (degrees_cv == nullptr) {
         throw bad_alloc();
     }
@@ -106,7 +106,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     if (rows_vec == nullptr) {
         throw bad_alloc();
     }
-    daal::services::Atomic<vertex_t> *rows_cv = rows_vec->data();
+    atomic_t *rows_cv = rows_vec->data();
     if (rows_cv == nullptr) {
         throw bad_alloc();
     }
