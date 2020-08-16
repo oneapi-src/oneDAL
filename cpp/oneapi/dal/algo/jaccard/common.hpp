@@ -15,9 +15,9 @@
 *******************************************************************************/
 
 #pragma once
-#include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
+#include "oneapi/dal/table/common.hpp"
 
 namespace oneapi::dal::preview {
 namespace jaccard {

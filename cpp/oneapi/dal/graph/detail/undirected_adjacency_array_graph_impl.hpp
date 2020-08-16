@@ -17,8 +17,8 @@
 #pragma once
 
 #include "oneapi/dal/common.hpp"
-#include "oneapi/dal/graph/detail/graph_container.hpp"
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/graph/detail/graph_container.hpp"
 
 namespace oneapi::dal::preview::detail {
 
