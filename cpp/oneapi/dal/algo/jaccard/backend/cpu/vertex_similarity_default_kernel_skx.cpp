@@ -263,13 +263,8 @@ template size_t intersection<uint32_t>(uint32_t *neigh_u,
                                        uint32_t n_u,
                                        uint32_t n_v);
 
-DAAL_FORCEINLINE int64_t min(int64_t a, int64_t b) {
-    if (a >= b) {
-        return b;
-    }
-    else {
-        return a;
-    }
+DAAL_FORCEINLINE int64_t min_skx(int64_t a, int64_t b) {
+    return (a <= b) ? a : b;
 }
 
 template <>
@@ -294,7 +289,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
     for (int32_t i = row_begin; i < row_end; ++i) {
         const auto i_neighbor_size = g_degrees[i];
         const auto i_neigbhors     = g_vertex_neighbors + g_edge_offsets[i];
-        const auto diagonal        = min(i, column_end);
+        const auto diagonal        = min_skx(i, column_end);
         for (int32_t j = column_begin; j < diagonal; j++) {
             const auto j_neighbor_size = g_degrees[j];
             const auto j_neigbhors     = g_vertex_neighbors + g_edge_offsets[j];
