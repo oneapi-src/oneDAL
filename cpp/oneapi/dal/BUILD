@@ -5,6 +5,7 @@ load("@onedal//dev/bazel:dal.bzl",
     "dal_public_includes",
     "dal_generate_cpu_dispatcher",
     "dal_algos",
+    "dal_test",
 )
 
 dal_generate_cpu_dispatcher(
@@ -85,3 +86,5 @@ filegroup(
         ":static_dpc",
     ],
 )
+
+# dal_test()

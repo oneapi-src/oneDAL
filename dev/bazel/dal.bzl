@@ -128,18 +128,12 @@ def dal_algos(name, algos):
     )
 
 def dal_test(name, deps=[], test_deps=[], **kwargs):
-    cc_static_lib(
-        name = name + "_static",
-        lib_name = "onedal_" + name,
-        deps = deps,
-    )
     _dal_module(
         name = name + "_module",
         deps = select({
             "@config//:dev_test_link_mode": [
-                ":" + name + "_static",
                 "@onedal//cpp/daal:threading_static",
-            ],
+            ] + deps,
             "@config//:static_test_link_mode": [
                 "@onedal//cpp/oneapi/dal:static",
                 "@onedal//cpp/daal:core_static",
