@@ -14,17 +14,17 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/csv_table_reader/detail/read_ops.hpp"
-#include "oneapi/dal/algo/csv_table_reader/backend/cpu/read_kernel.hpp"
+#include "oneapi/dal/io/csv_data_source/detail/read_ops.hpp"
+#include "oneapi/dal/io/csv_data_source/backend/cpu/read_kernel.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 
-namespace oneapi::dal::csv_table_reader::detail {
+namespace oneapi::dal::csv_data_source::detail {
 using oneapi::dal::detail::host_policy;
 
 template<>
-read_result<table> read_ops_dispatcher<table, host_policy>::operator()(const host_policy& ctx,
-                                                         const descriptor_base& desc,
-                                                         const read_input<table>& input) const {
+table read_ops_dispatcher<table, host_policy>::operator()(const host_policy& ctx,
+                                                          const params_base& desc,
+                                                          const read_input<table>& input) const {
     using kernel_dispatcher_t =
         dal::backend::kernel_dispatcher<backend::read_kernel_cpu<table>>;
     return kernel_dispatcher_t()(ctx, desc, input);
@@ -32,4 +32,4 @@ read_result<table> read_ops_dispatcher<table, host_policy>::operator()(const hos
 
 template struct ONEAPI_DAL_EXPORT read_ops_dispatcher<table, host_policy>;
 
-} // namespace oneapi::dal::csv_table_reader::detail
+} // namespace oneapi::dal::csv_data_source::detail

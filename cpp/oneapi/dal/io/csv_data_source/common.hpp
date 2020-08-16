@@ -16,34 +16,39 @@
 
 #pragma once
 
-#include "oneapi/dal/data/table.hpp"
+#include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
-namespace oneapi::dal::csv_table_reader {
+namespace oneapi::dal::csv_data_source {
 
 namespace detail {
 struct tag {};
-class descriptor_impl;
+class params_impl;
 } // namespace detail
 
-class ONEAPI_DAL_EXPORT descriptor_base : public base {
+class ONEAPI_DAL_EXPORT params_base : public base {
 public:
     using tag_t    = detail::tag;
 
-    descriptor_base();
+    params_base(const char * file_name);
 
     auto get_delimiter() const -> char;
     auto get_parse_header() const -> bool;
+    auto get_file_name() const -> const char *;
 
 protected:
     void set_delimiter_impl(char value);
     void set_parse_header_impl(bool value);
+    void set_file_name_impl(const char *);
 
-    dal::detail::pimpl<detail::descriptor_impl> impl_;
+    dal::detail::pimpl<detail::params_impl> impl_;
 };
 
-class descriptor : public descriptor_base {
+class params : public params_base {
 public:
+
+    params(const char * file_name) : params_base(file_name) {}
+    
     auto& set_delimiter(char value) {
         set_delimiter_impl(value);
         return *this;
@@ -53,6 +58,11 @@ public:
         set_parse_header_impl(value);
         return *this;
     }
+
+    auto& set_file_name(const char * value) {
+        set_file_name_impl(value);
+        return *this;
+    }
 };
 
-} // namespace oneapi::dal::csv_table_reader
+} // namespace oneapi::dal::csv_data_source

@@ -14,35 +14,30 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/csv_table_reader/common.hpp"
-#include "oneapi/dal/exceptions.hpp"
+#pragma once
 
-namespace oneapi::dal::csv_table_reader {
+#include "oneapi/dal/io/csv_data_source/common.hpp"
 
-class detail::descriptor_impl : public base {
+namespace oneapi::dal::csv_data_source {
+
+namespace detail {
+template<typename Object>
+class read_input_impl;
+
+template<>
+class read_input_impl<table>;
+} // namespace detail
+
+template<typename Object>
+class read_input;
+
+template<>
+class ONEAPI_DAL_EXPORT read_input<table> : public base {
 public:
-    char delimiter    = ',';
-    bool parse_header = false;
+    read_input();
+
+private:
+    dal::detail::pimpl<detail::read_input_impl<table>> impl_;
 };
 
-using detail::descriptor_impl;
-
-descriptor_base::descriptor_base() : impl_(new descriptor_impl{}) {}
-
-char descriptor_base::get_delimiter() const {
-    return impl_->delimiter;
-}
-
-bool descriptor_base::get_parse_header() const {
-    return impl_->parse_header;
-}
-
-void descriptor_base::set_delimiter_impl(char value) {
-    impl_->delimiter = value;
-}
-
-void descriptor_base::set_parse_header_impl(bool value) {
-    impl_->parse_header = value;
-}
-
-} // namespace oneapi::dal::csv_table_reader
+} // namespace oneapi::dal::pca

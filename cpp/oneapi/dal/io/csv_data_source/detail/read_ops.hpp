@@ -16,23 +16,22 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/csv_table_reader/read_types.hpp"
-#include "oneapi/dal/data/table.hpp"
-#include "oneapi/dal/data/accessor.hpp"
+#include "oneapi/dal/io/csv_data_source/read_types.hpp"
+#include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
-namespace oneapi::dal::csv_table_reader::detail {
+namespace oneapi::dal::csv_data_source::detail {
 
 template <typename table, typename Context, typename... Options>
 struct ONEAPI_DAL_EXPORT read_ops_dispatcher {
-    read_result<table> operator()(const Context&, const descriptor_base&, const read_input<table>&) const;
+    table operator()(const Context&, const params_base&, const read_input<table>&) const;
 };
 
 template <typename table, typename Descriptor>
 struct read_ops {
     using input_t           = read_input<table>;
-    using result_t          = read_result<table>;
-    using descriptor_base_t = descriptor_base;
+    using result_t          = table;
+    using descriptor_base_t = params_base;
 
     void check_preconditions(const Descriptor& params, const input_t& input) const {
     }
@@ -51,4 +50,4 @@ struct read_ops {
     }
 };
 
-} // namespace oneapi::dal::csv_table_reader::detail
+} // namespace oneapi::dal::csv_data_source::detail

@@ -17,20 +17,19 @@
 #include <daal/include/data_management/data_source/file_data_source.h>
 #include <daal/include/data_management/data_source/csv_feature_manager.h>
 
-#include "oneapi/dal/algo/csv_table_reader/backend/cpu/read_kernel.hpp"
-#include "oneapi/dal/data/table.hpp"
-#include "oneapi/dal/data/table_builder.hpp"
+#include "oneapi/dal/io/csv_data_source/backend/cpu/read_kernel.hpp"
+#include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 #include <iostream>
 
-namespace oneapi::dal::csv_table_reader::backend {
+namespace oneapi::dal::csv_data_source::backend {
 
-read_result<table> read_kernel_cpu<table>::operator()(const dal::backend::context_cpu& ctx,
-                                        const descriptor_base& params,
-                                        const read_input<table>& input) const {
+table read_kernel_cpu<table>::operator()(const dal::backend::context_cpu& ctx,
+                                         const params_base& params,
+                                         const read_input<table>& input) const {
     using namespace daal::data_management;
 
     CsvDataSourceOptions csv_options =
@@ -38,11 +37,11 @@ read_result<table> read_kernel_cpu<table>::operator()(const dal::backend::contex
         CsvDataSourceOptions::createDictionaryFromContext |
         (params.get_parse_header() ? CsvDataSourceOptions::parseHeader : CsvDataSourceOptions::byDefault);
 
-    FileDataSource<CSVFeatureManager> data_source(input.get_file_name(), csv_options);
+    FileDataSource<CSVFeatureManager> data_source(params.get_file_name(), csv_options);
     data_source.getFeatureManager().setDelimiter(params.get_delimiter());
     data_source.loadDataBlock();
 
-    return read_result<table>{}.set_table(oneapi::dal::backend::interop::convert_from_daal_homogen_table<DAAL_DATA_TYPE>(data_source.getNumericTable()));
+    return oneapi::dal::backend::interop::convert_from_daal_homogen_table<DAAL_DATA_TYPE>(data_source.getNumericTable());
 }
 
-} // namespace oneapi::dal::csv_table_reader::backend
+} // namespace oneapi::dal::csv_data_source::backend

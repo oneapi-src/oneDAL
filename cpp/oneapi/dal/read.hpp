@@ -17,7 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/detail/read_ops.hpp"
-#include "oneapi/dal/data/table.hpp"
+#include "oneapi/dal/table/common.hpp"
 
 namespace oneapi::dal {
 

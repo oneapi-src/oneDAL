@@ -16,19 +16,19 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/csv_table_reader/read_types.hpp"
+#include "oneapi/dal/io/csv_data_source/read_types.hpp"
 #include "oneapi/dal/backend/dispatcher_dpc.hpp"
 
-namespace oneapi::dal::csv_table_reader::backend {
+namespace oneapi::dal::csv_data_source::backend {
 
 template<typename Object>
 struct read_kernel_gpu;
 
 template<>
 struct read_kernel_gpu<table> {
-    read_result<table> operator()(const dal::backend::context_gpu& ctx,
-                           const descriptor_base& params,
-                           const read_input<table>& input) const;
+    table operator()(const dal::backend::context_gpu& ctx,
+                     const params_base& params,
+                     const read_input<table>& input) const;
 };
 
-} // namespace oneapi::dal::csv_table_reader::backend
+} // namespace oneapi::dal::csv_data_source::backend

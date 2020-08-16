@@ -14,9 +14,9 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/csv_table_reader/backend/gpu/read_kernel.hpp"
-#include "oneapi/dal/data/table.hpp"
-#include "oneapi/dal/data/table_builder.hpp"
+#include "oneapi/dal/io/csv_data_source/backend/gpu/read_kernel.hpp"
+#include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -25,11 +25,11 @@
 #include "daal/include/data_management/data_source/file_data_source.h"
 #include "daal/include/data_management/data_source/csv_feature_manager.h"
 
-namespace oneapi::dal::csv_table_reader::backend {
+namespace oneapi::dal::csv_data_source::backend {
 
-read_result<table> read_kernel_gpu<table>::operator()(const dal::backend::context_gpu& ctx,
-                                        const descriptor_base& params,
-                                        const read_input<table>& input) const {
+table read_kernel_gpu<table>::operator()(const dal::backend::context_gpu& ctx,
+                                         const params_base& params,
+                                         const read_input<table>& input) const {
     auto& queue = ctx.get_queue();
 
     using namespace daal::data_management;
@@ -39,7 +39,7 @@ read_result<table> read_kernel_gpu<table>::operator()(const dal::backend::contex
         CsvDataSourceOptions::createDictionaryFromContext |
         (params.get_parse_header() ? CsvDataSourceOptions::parseHeader : CsvDataSourceOptions::byDefault);
 
-    FileDataSource<CSVFeatureManager> data_source(input.get_file_name(), csv_options);
+    FileDataSource<CSVFeatureManager> data_source(params.get_file_name(), csv_options);
     data_source.getFeatureManager().setDelimiter(params.get_delimiter());
     data_source.loadDataBlock();
 
@@ -57,7 +57,7 @@ read_result<table> read_kernel_gpu<table>::operator()(const dal::backend::contex
 
     nt->releaseBlockOfRows(block);
 
-    return read_result<table>{}.set_table(homogen_table_builder{}.reset(arr, row_count, column_count).build());
+    return dal::detail::homogen_table_builder{}.reset(arr, row_count, column_count).build();
 }
 
-} // namespace oneapi::dal::csv_table_reader::backend
+} // namespace oneapi::dal::csv_data_source::backend

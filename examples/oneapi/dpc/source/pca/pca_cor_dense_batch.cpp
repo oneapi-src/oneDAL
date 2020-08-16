@@ -20,7 +20,7 @@
 
 #define ONEAPI_DAL_DATA_PARALLEL
 #include "oneapi/dal/algo/pca.hpp"
-#include "oneapi/dal/algo/csv_table_reader.hpp"
+#include "oneapi/dal/io/csv_data_source.hpp"
 
 #include "example_util/utils.hpp"
 
@@ -29,16 +29,10 @@ using namespace oneapi;
 const char data_file_name[] = "../../daal/data/batch/pca_normalized.csv";
 
 void run(sycl::queue& queue) {
-    const auto csv_reader_desc = dal::csv_table_reader::descriptor()
+    const auto data_source = dal::csv_data_source::params(data_file_name)
         .set_delimiter(',');
 
-    const auto data_table = dal::read(queue, csv_reader_desc, data_file_name).get_table();
-
-/*
-    const auto data_table = dal::csv_table_reader()
-        .set_delimiter(',')
-        .read(queue, data_file_name);
-*/
+    const auto data_table = dal::read(queue, data_source);
 
     const auto pca_desc = dal::pca::descriptor<>()
         .set_component_count(data_table.get_column_count())

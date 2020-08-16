@@ -16,31 +16,19 @@
 
 #pragma once
 
-#include "oneapi/dal/detail/memory.hpp"
+#include "oneapi/dal/io/csv_data_source/read_types.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
-namespace oneapi::dal {
+namespace oneapi::dal::csv_data_source::backend {
 
-class ONEAPI_DAL_EXPORT input_stream {
-public:
-    input_stream(const char * file_name) {
-        const size_t len = strlen(file_name);
-        file_name_ = new char[len + 1];
-        detail::memcpy(detail::default_host_policy{}, file_name_, file_name, sizeof(char) * len);
-        file_name_[len] = '\0';
-    }
+template<typename Object>
+struct read_kernel_cpu;
 
-    input_stream(const input_stream& other) : input_stream(other.get_file_name()) {}
-
-    ~input_stream() {
-        delete [] file_name_;
-    }
-
-    const char * get_file_name() const {
-        return file_name_;
-    }
-
-private:
-    char * file_name_;
+template<>
+struct read_kernel_cpu<table> {
+    table operator()(const dal::backend::context_cpu& ctx,
+                     const params_base& params,
+                     const read_input<table>& input) const;
 };
 
-} // namespace oneapi::dal
+} // namespace oneapi::dal::csv_data_source::backend

@@ -578,6 +578,7 @@ ONEAPI.srcdirs.base := $(ONEAPI.srcdir) \
                        $(ONEAPI.srcdir)/util \
                        $(ONEAPI.srcdir)/io \
                        $(addprefix $(ONEAPI.srcdir)/algo/, $(ONEAPI.ALGOS))
+                       $(addprefix $(ONEAPI.srcdir)/io/, $(ONEAPI.IO))
 ONEAPI.srcdirs.detail := $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type d -name detail))
 ONEAPI.srcdirs.backend := $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type d -name backend))
 ONEAPI.srcdirs := $(ONEAPI.srcdirs.base) $(ONEAPI.srcdirs.detail) $(ONEAPI.srcdirs.backend)
