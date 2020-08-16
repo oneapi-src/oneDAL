@@ -24,6 +24,7 @@
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/graph/detail/graph_service_functions_impl.hpp"
 #include "oneapi/dal/detail/policy.hpp"
+#include "oneapi/dal/table/detail/table_builder.hpp"
 
 namespace oneapi::dal::preview {
 namespace jaccard {
@@ -335,12 +336,12 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
         }
     }
     vertex_similarity_result res(
-        homogen_table_builder{}
+        oneapi::dal::detail::homogen_table_builder{}
             .reset(array(first_vertices, 2 * number_elements_in_block, empty_delete<const int>()),
                    2,
                    number_elements_in_block)
             .build(),
-        homogen_table_builder{}
+        oneapi::dal::detail::homogen_table_builder{}
             .reset(array(jaccard, number_elements_in_block, empty_delete<const float>()),
                    1,
                    number_elements_in_block)
