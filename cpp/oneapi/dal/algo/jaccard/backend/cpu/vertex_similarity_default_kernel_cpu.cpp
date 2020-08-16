@@ -139,6 +139,8 @@ vertex_similarity_result call_jaccard_default_kernel(const descriptor_base &desc
     return res;
 }
 
+ONEAPI_DAL_EXPORT void dummy(){}
+
 #define INSTANTIATE(cpu)                                                  \
     template vertex_similarity_result                                     \
     call_jaccard_default_kernel<undirected_adjacency_array_graph<>, cpu>( \
