@@ -348,13 +348,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
     return res;
 }
 
-#define INSTANTIATE(cpu)                                                  \
-    template vertex_similarity_result                                     \
-    call_jaccard_default_kernel<undirected_adjacency_array_graph<>, cpu>( \
-        const descriptor_base &desc,                                      \
-        vertex_similarity_input<undirected_adjacency_array_graph<>> &input);
-
-//INSTANTIATE(oneapi::dal::backend::cpu_dispatch_avx512)
+ONEAPI_DAL_EXPORT void dummy_skx(){}
 } // namespace detail
 } // namespace jaccard
 } // namespace oneapi::dal::preview

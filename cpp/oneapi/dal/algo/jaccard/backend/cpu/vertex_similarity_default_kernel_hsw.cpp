@@ -45,7 +45,7 @@ DAAL_FORCEINLINE int _popcnt32_redef(int a) {
 #endif
 
 template <class VertexType> //__declspec(noinline)
-size_t intersection(VertexType *neigh_u, VertexType *neigh_v, VertexType n_u, VertexType n_v) {
+DAAL_FORCEINLINE size_t intersection(VertexType *neigh_u, VertexType *neigh_v, VertexType n_u, VertexType n_v) {
     size_t total   = 0;
     VertexType i_u = 0, i_v = 0;
 
@@ -348,13 +348,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
     return res;
 }
 
-#define INSTANTIATE(cpu)                                                  \
-    template vertex_similarity_result                                     \
-    call_jaccard_default_kernel<undirected_adjacency_array_graph<>, cpu>( \
-        const descriptor_base &desc,                                      \
-        vertex_similarity_input<undirected_adjacency_array_graph<>> &input);
-
-//INSTANTIATE(oneapi::dal::backend::cpu_dispatch_avx2)
+ONEAPI_DAL_EXPORT void dummy_hsw(){}
 } // namespace detail
 } // namespace jaccard
 } // namespace oneapi::dal::preview
