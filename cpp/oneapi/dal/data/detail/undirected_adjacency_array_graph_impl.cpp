@@ -16,12 +16,11 @@
 
 #include "oneapi/dal/data/detail/undirected_adjacency_array_graph_impl.hpp"
 
-namespace oneapi::dal::preview {
+namespace oneapi::dal::preview::detail {
 
-template class ONEAPI_DAL_EXPORT
-    detail::undirected_adjacency_array_graph_impl<empty_value,
-                                                  empty_value,
-                                                  empty_value,
-                                                  std::int32_t,
-                                                  std::allocator<char>>;
-} // namespace oneapi::dal::preview
+template class ONEAPI_DAL_EXPORT undirected_adjacency_array_graph_impl<empty_value,
+                                                                       empty_value,
+                                                                       empty_value,
+                                                                       std::int32_t,
+                                                                       std::allocator<char>>;
+} // namespace oneapi::dal::preview::detail
