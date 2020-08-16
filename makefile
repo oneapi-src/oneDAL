@@ -617,8 +617,8 @@ ONEAPI.objs_y.all := $(ONEAPI.objs_y) $(ONEAPI.objs_y.dpc)
 # $1: List of object files
 CPU_knl := knl
 USECPUS.files := $(filter-out $(CPU_knl),$(USECPUS.files))
-populate_cpus = $(foreach ccc,$(USECPUS.files),$(subst _cpu,_cpu_$(ccc),$(call containing,_cpu,$1))) \
-                $(call notcontaining,_cpu,$1)
+populate_cpus = $(call notcontaining,_cpu,$1) \
+                $(foreach ccc,$(USECPUS.files),$(subst _cpu,_cpu_$(ccc),$(call containing,_cpu,$1)))
 
 ONEAPI.objs_a := $(call populate_cpus,$(ONEAPI.objs_a))
 ONEAPI.objs_y := $(call populate_cpus,$(ONEAPI.objs_y))
