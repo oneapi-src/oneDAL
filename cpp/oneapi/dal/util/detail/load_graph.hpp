@@ -65,16 +65,13 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         throw invalid_argument("Empty edge list");
     }
 
-    Graph g_unfiltred;
-    auto layout_unfilt = oneapi::dal::preview::detail::get_impl(g_unfiltred);
-
     vertex_t max_node_id = edges[0].first;
     for (auto u : edges) {
         vertex_t max_id_in_edge = std::max(u.first, u.second);
         max_node_id             = std::max(max_node_id, max_id_in_edge);
     }
 
-    layout_unfilt->_vertex_count = max_node_id + 1;
+    vertex_t _unf_vertex_count = max_node_id + 1;
 
     using atomic_t = typename daal::services::Atomic<vertex_t>;
     using allocator_atomic_t =
@@ -82,7 +79,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
 
     auto *degrees_vec = new (std::nothrow)
         oneapi::dal::preview::detail::graph_container<atomic_t, allocator_atomic_t>(
-            layout_unfilt->_vertex_count);
+            _unf_vertex_count);
     if (degrees_vec == nullptr) {
         throw bad_alloc();
     }
@@ -91,7 +88,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         throw bad_alloc();
     }
 
-    threader_for(layout_unfilt->_vertex_count, layout_unfilt->_vertex_count, [&](vertex_t u) {
+    threader_for(_unf_vertex_count, _unf_vertex_count, [&](vertex_t u) {
         degrees_cv[u].set(0);
     });
 
@@ -102,7 +99,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
 
     auto *rows_vec = new (std::nothrow)
         oneapi::dal::preview::detail::graph_container<atomic_t, allocator_atomic_t>(
-            layout_unfilt->_vertex_count + 1);
+            _unf_vertex_count + 1);
     if (rows_vec == nullptr) {
         throw bad_alloc();
     }
@@ -114,70 +111,65 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     vertex_t total_sum_degrees = 0;
     rows_cv[0].set(total_sum_degrees);
 
-    for (vertex_size_t i = 0; i < layout_unfilt->_vertex_count; ++i) {
+    for (vertex_size_t i = 0; i < _unf_vertex_count; ++i) {
         total_sum_degrees += degrees_cv[i].get();
         rows_cv[i + 1].set(total_sum_degrees);
     }
     delete degrees_vec;
 
-    layout_unfilt->_vertex_neighbors =
-        std::move(vector_vertex_t(rows_cv[layout_unfilt->_vertex_count].get()));
-    layout_unfilt->_edge_offsets = std::move(vector_edge_t(layout_unfilt->_vertex_count + 1));
-    auto _rows_un                = layout_unfilt->_edge_offsets.data();
-    auto _cols_un                = layout_unfilt->_vertex_neighbors.data();
+    vector_vertex_t _unf_vert_neighs_vec(rows_cv[_unf_vertex_count].get());
+    vector_edge_t _unf_edge_offset_vec(_unf_vertex_count + 1);
+    auto _unf_edge_offset_arr = _unf_edge_offset_vec.data();
+    auto _unf_vert_neighs_arr = _unf_vert_neighs_vec.data();
 
-    threader_for(layout_unfilt->_vertex_count + 1,
-                 layout_unfilt->_vertex_count + 1,
-                 [&](vertex_t n) {
-                     _rows_un[n] = rows_cv[n].get();
-                 });
+    threader_for(_unf_vertex_count + 1, _unf_vertex_count + 1, [&](vertex_t n) {
+        _unf_edge_offset_arr[n] = rows_cv[n].get();
+    });
 
     threader_for(edges.size(), edges.size(), [&](vertex_t u) {
-        _cols_un[rows_cv[edges[u].first].inc() - 1]  = edges[u].second;
-        _cols_un[rows_cv[edges[u].second].inc() - 1] = edges[u].first;
+        _unf_vert_neighs_arr[rows_cv[edges[u].first].inc() - 1]  = edges[u].second;
+        _unf_vert_neighs_arr[rows_cv[edges[u].second].inc() - 1] = edges[u].first;
     });
     delete rows_vec;
 
     //removing self-loops,  multiple edges from graph, and make neighbors in CSR sorted
 
-    layout->_vertex_count = layout_unfilt->_vertex_count;
+    layout->_vertex_count = _unf_vertex_count;
 
     layout->_degrees = std::move(vector_vertex_t(layout->_vertex_count));
 
-    threader_for(layout_unfilt->_vertex_count, layout_unfilt->_vertex_count, [&](vertex_t u) {
-        std::sort(layout_unfilt->_vertex_neighbors.begin() + layout_unfilt->_edge_offsets[u],
-                  layout_unfilt->_vertex_neighbors.begin() + layout_unfilt->_edge_offsets[u + 1]);
-        auto neighs_u_new_end = std::unique(
-            layout_unfilt->_vertex_neighbors.begin() + layout_unfilt->_edge_offsets[u],
-            layout_unfilt->_vertex_neighbors.begin() + layout_unfilt->_edge_offsets[u + 1]);
-        neighs_u_new_end =
-            std::remove(layout_unfilt->_vertex_neighbors.begin() + layout_unfilt->_edge_offsets[u],
-                        neighs_u_new_end,
-                        u);
-        layout->_degrees[u] = (vertex_t)std::distance(
-            (layout_unfilt->_vertex_neighbors.begin() + layout_unfilt->_edge_offsets[u]),
-            neighs_u_new_end);
+    threader_for(_unf_vertex_count, _unf_vertex_count, [&](vertex_t u) {
+        vertex_t e1                    = _unf_edge_offset_vec.at(u);
+        vertex_t e2                    = _unf_edge_offset_vec.at(u + 1);
+        vector_vertex_t::iterator ptr1 = _unf_vert_neighs_vec.begin() + e1;
+        vector_vertex_t::iterator ptr2 = _unf_vert_neighs_vec.begin() + e2;
+        std::sort(ptr1, ptr2);
+        auto neighs_u_new_end = std::unique(ptr1, ptr2);
+        neighs_u_new_end      = std::remove(ptr1, neighs_u_new_end, u);
+        layout->_degrees[u]   = (vertex_t)std::distance(ptr1, neighs_u_new_end);
     });
 
-    layout->_edge_offsets.clear();
-    layout->_edge_offsets.reserve(layout->_vertex_count + 1);
+    layout->_edge_offsets = std::move(vector_edge_t(layout->_vertex_count + 1));
 
-    total_sum_degrees = 0;
-    layout->_edge_offsets.push_back(total_sum_degrees);
+    total_sum_degrees        = 0;
+    layout->_edge_offsets[0] = total_sum_degrees;
 
     for (vertex_size_t i = 0; i < layout->_vertex_count; ++i) {
         total_sum_degrees += layout->_degrees[i];
-        layout->_edge_offsets.push_back(total_sum_degrees);
+        layout->_edge_offsets[i + 1] = total_sum_degrees;
     }
     layout->_edge_count = layout->_edge_offsets[layout->_vertex_count] / 2;
 
     layout->_vertex_neighbors =
         std::move(vector_vertex_t(layout->_edge_offsets[layout->_vertex_count]));
 
+    auto vert_neighs = layout->_vertex_neighbors.data();
+    auto edge_offs   = layout->_edge_offsets.data();
     threader_for(layout->_vertex_count, layout->_vertex_count, [&](vertex_t u) {
+        auto u_neighs      = vert_neighs + edge_offs[u];
+        auto _u_neighs_unf = _unf_vert_neighs_arr + _unf_edge_offset_arr[u];
         for (vertex_t i = 0; i < layout->_degrees[u]; i++) {
-            *(layout->_vertex_neighbors.begin() + layout->_edge_offsets[u] + i) =
-                *(layout_unfilt->_vertex_neighbors.begin() + layout_unfilt->_edge_offsets[u] + i);
+            u_neighs[i] = _u_neighs_unf[i];
         }
     });
 
