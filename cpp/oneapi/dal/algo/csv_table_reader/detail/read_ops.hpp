@@ -17,20 +17,21 @@
 #pragma once
 
 #include "oneapi/dal/algo/csv_table_reader/read_types.hpp"
+#include "oneapi/dal/data/table.hpp"
 #include "oneapi/dal/data/accessor.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::csv_table_reader::detail {
 
-template <typename Context, typename... Options>
+template <typename table, typename Context, typename... Options>
 struct ONEAPI_DAL_EXPORT read_ops_dispatcher {
-    read_result operator()(const Context&, const descriptor_base&, const read_input&) const;
+    read_result<table> operator()(const Context&, const descriptor_base&, const read_input<table>&) const;
 };
 
-template <typename Descriptor>
+template <typename table, typename Descriptor>
 struct read_ops {
-    using input_t           = read_input;
-    using result_t          = read_result;
+    using input_t           = read_input<table>;
+    using result_t          = read_result<table>;
     using descriptor_base_t = descriptor_base;
 
     void check_preconditions(const Descriptor& params, const input_t& input) const {
@@ -42,9 +43,9 @@ struct read_ops {
     }
 
     template <typename Context>
-    auto operator()(const Context& ctx, const Descriptor& desc, const read_input& input) const {
+    auto operator()(const Context& ctx, const Descriptor& desc, const read_input<table>& input) const {
         check_preconditions(desc, input);
-        const auto result = read_ops_dispatcher<Context>()(ctx, desc, input);
+        const auto result = read_ops_dispatcher<table, Context>()(ctx, desc, input);
         check_postconditions(desc, input, result);
         return result;
     }

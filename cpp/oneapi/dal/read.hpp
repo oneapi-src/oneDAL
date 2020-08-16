@@ -17,18 +17,19 @@
 #pragma once
 
 #include "oneapi/dal/detail/read_ops.hpp"
+#include "oneapi/dal/data/table.hpp"
 
 namespace oneapi::dal {
 
-template <typename... Args>
+template <typename Object = dal::table, typename... Args>
 auto read(Args&&... args) {
-    return detail::read_dispatch(std::forward<Args>(args)...);
+    return detail::read_dispatch<Object>(std::forward<Args>(args)...);
 }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-template <typename... Args>
+template <typename Object = dal::table, typename... Args>
 auto read(sycl::queue& queue, Args&&... args) {
-    return detail::read_dispatch(detail::data_parallel_policy{ queue },
+    return detail::read_dispatch<Object>(detail::data_parallel_policy{ queue },
                                  std::forward<Args>(args)...);
 }
 #endif

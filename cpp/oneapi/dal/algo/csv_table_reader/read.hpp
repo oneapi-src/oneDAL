@@ -22,7 +22,7 @@
 
 namespace oneapi::dal::detail {
 
-template <typename Descriptor>
-struct read_ops<Descriptor, dal::csv_table_reader::detail::tag> : dal::csv_table_reader::detail::read_ops<Descriptor> {};
+template <typename table, typename Descriptor>
+struct read_ops<table, Descriptor, dal::csv_table_reader::detail::tag> : dal::csv_table_reader::detail::read_ops<table, Descriptor> {};
 
 } // namespace oneapi::dal::detail

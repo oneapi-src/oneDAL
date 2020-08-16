@@ -16,41 +16,54 @@
 
 #include "oneapi/dal/algo/csv_table_reader/read_types.hpp"
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/detail/memory.hpp"
+#include "oneapi/dal/data/table.hpp"
 
 namespace oneapi::dal::csv_table_reader {
 
-class detail::read_input_impl : public base {
+template<>
+class detail::read_input_impl<table> : public base {
 public:
-    read_input_impl(const input_stream& stream) : stream(stream) {}
+    read_input_impl(const char * file_name) {
+        const size_t len = strlen(file_name);
+        this->file_name = new char[len + 1];
+        dal::detail::memcpy(dal::detail::default_host_policy{}, this->file_name, file_name, sizeof(char) * len);
+        this->file_name[len] = '\0';
+    }
 
-    input_stream stream;
+    ~read_input_impl() {
+        delete [] file_name;
+    }
+
+    char * file_name;
 };
 
-class detail::read_result_impl : public base {
+template<>
+class detail::read_result_impl<table> : public base {
 public:
     table value;
 };
 
-using detail::read_input_impl;
-using detail::read_result_impl;
+read_input<table>::read_input(const char * file_name) : impl_(new detail::read_input_impl<table>(file_name)) {}
 
-read_input::read_input(const input_stream& stream) : impl_(new read_input_impl(stream)) {}
-
-input_stream read_input::get_input_stream() const {
-    return impl_->stream;
+const char * read_input<table>::get_file_name() const {
+    return impl_->file_name;
 }
 
-void read_input::set_input_stream_impl(const input_stream& stream) {
-    impl_->stream = stream;
+void read_input<table>::set_file_name_impl(const char * file_name) {
+    const size_t len = strlen(file_name);
+    impl_->file_name = new char[len + 1];
+    dal::detail::memcpy(dal::detail::default_host_policy{}, impl_->file_name, file_name, sizeof(char) * len);
+    impl_->file_name[len] = '\0';
 }
 
-read_result::read_result() : impl_(new read_result_impl{}) {}
+read_result<table>::read_result() : impl_(new detail::read_result_impl<table>{}) {}
 
-table read_result::get_table() const {
+table read_result<table>::get_table() const {
     return impl_->value;
 }
 
-void read_result::set_table_impl(const table& value) {
+void read_result<table>::set_table_impl(const table& value) {
     impl_->value = value;
 }
 

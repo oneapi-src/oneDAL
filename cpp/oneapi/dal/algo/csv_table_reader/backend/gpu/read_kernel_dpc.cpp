@@ -27,9 +27,9 @@
 
 namespace oneapi::dal::csv_table_reader::backend {
 
-read_result read_kernel_gpu::operator()(const dal::backend::context_gpu& ctx,
+read_result<table> read_kernel_gpu<table>::operator()(const dal::backend::context_gpu& ctx,
                                         const descriptor_base& params,
-                                        const read_input& input) const {
+                                        const read_input<table>& input) const {
     auto& queue = ctx.get_queue();
 
     using namespace daal::data_management;
@@ -39,7 +39,7 @@ read_result read_kernel_gpu::operator()(const dal::backend::context_gpu& ctx,
         CsvDataSourceOptions::createDictionaryFromContext |
         (params.get_parse_header() ? CsvDataSourceOptions::parseHeader : CsvDataSourceOptions::byDefault);
 
-    FileDataSource<CSVFeatureManager> data_source(input.get_input_stream().get_file_name(), csv_options);
+    FileDataSource<CSVFeatureManager> data_source(input.get_file_name(), csv_options);
     data_source.getFeatureManager().setDelimiter(params.get_delimiter());
     data_source.loadDataBlock();
 
@@ -57,7 +57,7 @@ read_result read_kernel_gpu::operator()(const dal::backend::context_gpu& ctx,
 
     nt->releaseBlockOfRows(block);
 
-    return read_result{}.set_table(homogen_table_builder{}.reset(arr, row_count, column_count).build());
+    return read_result<table>{}.set_table(homogen_table_builder{}.reset(arr, row_count, column_count).build());
 }
 
 } // namespace oneapi::dal::csv_table_reader::backend

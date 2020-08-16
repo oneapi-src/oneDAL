@@ -20,15 +20,15 @@
 
 namespace oneapi::dal::detail {
 
-template <typename Descriptor, typename Tag>
+template <typename Object, typename Descriptor, typename Tag>
 struct read_ops;
 
-template <typename Descriptor>
-using tagged_read_ops = read_ops<Descriptor, typename Descriptor::tag_t>;
+template <typename Object, typename Descriptor>
+using tagged_read_ops = read_ops<Object, Descriptor, typename Descriptor::tag_t>;
 
-template <typename Head, typename... Tail>
+template <typename Object, typename Head, typename... Tail>
 auto read_dispatch(Head&& head, Tail&&... tail) {
-    using dispatcher_t = ops_policy_dispatcher<std::decay_t<Head>, tagged_read_ops>;
+    using dispatcher_t = ops_policy_dispatcher_object<Object, std::decay_t<Head>, tagged_read_ops>;
     return dispatcher_t{}(std::forward<Head>(head), std::forward<Tail>(tail)...);
 }
 

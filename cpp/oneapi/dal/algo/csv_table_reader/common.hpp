@@ -24,7 +24,6 @@ namespace oneapi::dal::csv_table_reader {
 namespace detail {
 struct tag {};
 class descriptor_impl;
-class model_impl;
 } // namespace detail
 
 class ONEAPI_DAL_EXPORT descriptor_base : public base {

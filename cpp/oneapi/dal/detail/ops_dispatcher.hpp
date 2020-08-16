@@ -71,4 +71,34 @@ struct ops_policy_dispatcher<T, Ops, /* IsPolicy = */ false> {
     }
 };
 
+template <typename Object, typename T, template <typename, typename> typename Ops, bool IsPolicy = is_execution_policy_v<T>>
+struct ops_policy_dispatcher_object;
+
+template <typename Object, typename T, template <typename, typename> typename Ops>
+struct ops_policy_dispatcher_object<Object, T, Ops, /* IsPolicy = */ true> {
+    template <typename Policy, typename Descriptor, typename Head, typename... Tail>
+    auto operator()(Policy&& policy, Descriptor&& desc, Head&& head, Tail&&... tail) {
+        using ops_t        = Ops<Object, std::decay_t<Descriptor>>;
+        using dispatcher_t = ops_input_dispatcher<std::decay_t<Head>, ops_t>;
+        return dispatcher_t{}(std::forward<Policy>(policy),
+                              std::forward<Descriptor>(desc),
+                              std::forward<Head>(head),
+                              std::forward<Tail>(tail)...);
+    }
+};
+
+template <typename Object, typename T, template <typename, typename> typename Ops>
+struct ops_policy_dispatcher_object<Object, T, Ops, /* IsPolicy = */ false> {
+    template <typename Descriptor, typename Head, typename... Tail>
+    auto operator()(Descriptor&& desc, Head&& head, Tail&&... tail) {
+        using ops_t        = Ops<Object, std::decay_t<Descriptor>>;
+        using dispatcher_t = ops_input_dispatcher<std::decay_t<Head>, ops_t>;
+        return dispatcher_t{}(host_policy{},
+                              std::forward<Descriptor>(desc),
+                              std::forward<Head>(head),
+                              std::forward<Tail>(tail)...);
+    }
+};
+
+
 } // namespace oneapi::dal::detail

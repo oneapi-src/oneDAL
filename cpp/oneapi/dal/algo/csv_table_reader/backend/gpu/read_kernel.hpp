@@ -21,10 +21,14 @@
 
 namespace oneapi::dal::csv_table_reader::backend {
 
-struct read_kernel_gpu {
-    read_result operator()(const dal::backend::context_gpu& ctx,
+template<typename Object>
+struct read_kernel_gpu;
+
+template<>
+struct read_kernel_gpu<table> {
+    read_result<table> operator()(const dal::backend::context_gpu& ctx,
                            const descriptor_base& params,
-                           const read_input& input) const;
+                           const read_input<table>& input) const;
 };
 
 } // namespace oneapi::dal::csv_table_reader::backend

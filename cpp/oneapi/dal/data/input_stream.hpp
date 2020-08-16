@@ -24,15 +24,18 @@ class ONEAPI_DAL_EXPORT input_stream {
 public:
     input_stream(const char * file_name) {
         const size_t len = strlen(file_name);
-        file_name_ = new char[len];
+        file_name_ = new char[len + 1];
         detail::memcpy(detail::default_host_policy{}, file_name_, file_name, sizeof(char) * len);
+        file_name_[len] = '\0';
     }
+
+    input_stream(const input_stream& other) : input_stream(other.get_file_name()) {}
 
     ~input_stream() {
         delete [] file_name_;
     }
 
-    const char * get_file_name() {
+    const char * get_file_name() const {
         return file_name_;
     }
 

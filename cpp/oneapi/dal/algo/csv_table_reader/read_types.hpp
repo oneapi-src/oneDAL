@@ -17,33 +17,47 @@
 #pragma once
 
 #include "oneapi/dal/algo/csv_table_reader/common.hpp"
-#include "oneapi/dal/data/input_stream.hpp"
 
 namespace oneapi::dal::csv_table_reader {
 
 namespace detail {
+template<typename Object>
 class read_input_impl;
+template<typename Object>
 class read_result_impl;
+
+template<>
+class read_input_impl<table>;
+template<>
+class read_result_impl<table>;
 } // namespace detail
 
-class ONEAPI_DAL_EXPORT read_input : public base {
+template<typename Object>
+class read_input;
+
+template<>
+class ONEAPI_DAL_EXPORT read_input<table> : public base {
 public:
-    read_input(const input_stream& stream);
+    read_input(const char * file_name);
 
-    input_stream get_input_stream() const;
+    const char * get_file_name() const;
 
-    auto& set_input_stream(const input_stream& stream) {
-        set_input_stream_impl(stream);
+    auto& set_file_name(const char * file_name) {
+        set_file_name_impl(file_name);
         return *this;
     }
 
 private:
-    void set_input_stream_impl(const input_stream& stream);
+    void set_file_name_impl(const char * file_name);
 
-    dal::detail::pimpl<detail::read_input_impl> impl_;
+    dal::detail::pimpl<detail::read_input_impl<table>> impl_;
 };
 
-class ONEAPI_DAL_EXPORT read_result {
+template<typename Object>
+class read_result;
+
+template<>
+class ONEAPI_DAL_EXPORT read_result<table> {
 public:
     read_result();
 
@@ -57,7 +71,7 @@ public:
 private:
     void set_table_impl(const table&);
 
-    dal::detail::pimpl<detail::read_result_impl> impl_;
+    dal::detail::pimpl<detail::read_result_impl<table>> impl_;
 };
 
 } // namespace oneapi::dal::pca
