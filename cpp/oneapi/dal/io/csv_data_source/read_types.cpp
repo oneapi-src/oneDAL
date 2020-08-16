@@ -25,8 +25,6 @@ template<>
 class detail::read_input_impl<table> : public base {
 public:
     read_input_impl() {}
-
-    ~read_input_impl() {}
 };
 
 read_input<table>::read_input() : impl_(new detail::read_input_impl<table>()) {}

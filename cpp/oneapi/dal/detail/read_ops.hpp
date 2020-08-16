@@ -25,13 +25,7 @@ struct read_ops;
 
 template <typename Object, typename Descriptor>
 using tagged_read_ops = read_ops<Object, Descriptor, typename Descriptor::tag_t>;
-/*
-template <typename Object, typename Head>
-auto read_dispatch(Head&& head) {
-    using dispatcher_t = ops_policy_dispatcher_object<Object, std::decay_t<Head>, tagged_read_ops>;
-    return dispatcher_t{}(std::forward<Head>(head));
-}
-*/
+
 template <typename Object, typename Head, typename... Tail>
 auto read_dispatch(Head&& head, Tail&&... tail) {
     using dispatcher_t = ops_policy_dispatcher_object<Object, std::decay_t<Head>, tagged_read_ops>;
