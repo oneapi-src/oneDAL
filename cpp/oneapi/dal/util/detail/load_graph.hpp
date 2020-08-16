@@ -76,7 +76,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
 
     layout_unfilt->_vertex_count = max_node_id + 1;
 
-    using atomic_t = typename daal::services::Atomic<vertex_size_t>;
+    using atomic_t = typename daal::services::Atomic<vertex_t>;
     using allocator_atomic_t =
         typename std::allocator_traits<allocator_t>::template rebind_alloc<atomic_t>;
 
