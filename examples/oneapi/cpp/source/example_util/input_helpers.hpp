@@ -14,25 +14,28 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <iostream>
+#pragma once
 
-#include "oneapi/dal/graph/graph_service_functions.hpp"
-#include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
-#include "oneapi/dal/util/csv_data_source.hpp"
-#include "oneapi/dal/util/load_graph.hpp"
+#include <vector>
+#include <string>
+#include <fstream>
 
-using namespace oneapi::dal;
-using namespace oneapi::dal::preview;
+inline bool check_file(const std::string& name) {
+    return std::ifstream{name}.good();
+}
 
-const std::string filename("../data/graph.csv");
+inline std::string get_data_path(const std::string& name) {
+    const std::vector<std::string> paths = {
+        "../data",
+        "examples/oneapi/data"
+    };
 
-int main(int argc, char **argv) {
-    csv_data_source ds(filename);
-    load_graph::descriptor<> d;
-    auto my_graph = load_graph::load(d, ds);
+    for (const auto& path : paths) {
+        const std::string try_path = path + "/" + name;
+        if (check_file(try_path)) {
+            return try_path;
+        }
+    }
 
-    std::cout << "Graph is read from file: " << filename << std::endl;
-    std::cout << "Number of vertices: " << get_vertex_count(my_graph) << std::endl;
-    std::cout << "Number of edges: " << get_edge_count(my_graph) << std::endl;
-    return 0;
+    return name;
 }
