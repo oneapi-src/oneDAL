@@ -166,12 +166,14 @@ std::pair<std::int64_t, std::int64_t> select_small_k_l2<Float>::preferred_local_
         std::min(yrange_mem_lim, std::min(prefered_size, max_work_group_size));
     idx_t yrange = yrange_min_lim, k_width = min_k_width;
     for (; yrange < yrange_max_lim; yrange++) {
-        // Optimal size
+        // Optimal k_width
         k_width = max_local_size / yrange;
         if (k_width % preffered_size == 0)
             break;
     }
     if (yrange * k_width > max_local_size)
+        throw std::exception();
+    if (yrange > max_work_group_size)
         throw std::exception();
     return std::pair<std::int64_t, std::int64_t>(k_width, y_range);
 }
@@ -189,6 +191,8 @@ cl::sycl::event select_small_k_l2<Float>::operator()(const Float* cross,
     const idx_t local_buff_size = k_width * yrange; 
     if (local_buff_size > max_local_size)
         throw std::exception();
+    if (yrange <= 0)
+        throw std::exception();
     auto result = this->q.submit([&](cl::sycl::handler& handler) {
         typedef cl::sycl::
             accessor<idx_t, 1, cl::sycl::access::mode::read_write, cl::sycl::access::target::local>
@@ -196,10 +200,22 @@ cl::sycl::event select_small_k_l2<Float>::operator()(const Float* cross,
         typedef cl::sycl::
             accessor<Float, 1, cl::sycl::access::mode::read_write, cl::sycl::access::target::local>
                 local_dist_acc_t;
+        size_t xrange = max_work_group_size / yrange;
+        cl::sycl::range<2> local_range{ static_cast<size_t>(), static_cast<size_t>(yrange) };
         auto local_indices = local_idxs_acc_t(cl::sycl::range<1>{ local_buff_size }, handler);
         auto local_distances = local_dist_acc_t(cl::sycl::range<1>{ local_buff_size }, handler);
         auto functor_instance =
-            kernel_t{ };
+            kernel_t{ /*.input_cross = */ cross,
+                      /*.input_norms = */ norms,
+                      /*.output_indices = */ nearest_indices,
+                      /*.output_distances = */ nearest_distances,
+                      /*.k = */ k,
+                      /*.n_vectors = */ queue_size,
+                      /*.k_width = */ k_width,
+                      /*.vector_size = */ vector_size,
+                      /*.dwspace = */ local_distances,
+                      /*.iwspace = */ local_indices
+            };
         handler.parallel_for<kernel_t>(call_range, functor_instance); 
     });
     return result;
