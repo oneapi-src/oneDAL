@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "oneapi/dal/policy.hpp"
+#include "oneapi/dal/detail/policy.hpp"
 
 namespace oneapi::dal::detail {
 

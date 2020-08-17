@@ -18,8 +18,6 @@
 #include <iostream>
 
 #include "oneapi/dal/algo/knn.hpp"
-#include "oneapi/dal/data/accessor.hpp"
-#include "oneapi/dal/data/table.hpp"
 
 #include "example_util/utils.hpp"
 
@@ -35,8 +33,8 @@ int main(int argc, char const *argv[]) {
   const float y_train[] = {0, 1, 0, 1, 1};
 
   const auto x_train_table =
-      dal::homogen_table{row_count, column_count, x_train};
-  const auto y_train_table = dal::homogen_table{row_count, 1, y_train};
+      dal::homogen_table{x_train, row_count, column_count, dal::empty_delete<const float>()};
+  const auto y_train_table = dal::homogen_table{y_train, row_count, 1, dal::empty_delete<const float>()};
 
   const auto knn_desc =
       dal::knn::descriptor<float, oneapi::dal::knn::method::kd_tree>()
@@ -51,8 +49,8 @@ int main(int argc, char const *argv[]) {
 
   const float y_true[] = {0, 1, 0, 1, 1};
 
-  const auto x_test_table = dal::homogen_table{row_count, column_count, x_test};
-  const auto y_true_table = dal::homogen_table{row_count, 1, y_true};
+  const auto x_test_table = dal::homogen_table{x_test, row_count, column_count, dal::empty_delete<const float>()};
+  const auto y_true_table = dal::homogen_table{y_true, row_count, 1, dal::empty_delete<const float>()};
 
   const auto test_result =
       dal::infer(knn_desc, x_test_table, train_result.get_model());

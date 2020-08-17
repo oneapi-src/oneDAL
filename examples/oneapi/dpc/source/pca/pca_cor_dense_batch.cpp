@@ -20,7 +20,6 @@
 
 #define ONEAPI_DAL_DATA_PARALLEL
 #include "oneapi/dal/algo/pca.hpp"
-#include "oneapi/dal/data/accessor.hpp"
 
 #include "example_util/utils.hpp"
 
@@ -40,7 +39,7 @@ void run(sycl::queue& queue) {
     auto data = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(data, data_host, sizeof(float) * row_count * column_count).wait();
 
-    const auto data_table = dal::homogen_table{ row_count, column_count, data };
+    const auto data_table = dal::homogen_table{ data, row_count, column_count, dal::make_default_delete<const float>(queue) };
 
     const auto pca_desc = dal::pca::descriptor<>()
         .set_component_count(3)
@@ -53,8 +52,6 @@ void run(sycl::queue& queue) {
 
     std::cout << "Eigenvalues:" << std::endl
               << result.get_eigenvalues() << std::endl;
-
-    sycl::free(data, queue);
 }
 
 int main(int argc, char const *argv[]) {

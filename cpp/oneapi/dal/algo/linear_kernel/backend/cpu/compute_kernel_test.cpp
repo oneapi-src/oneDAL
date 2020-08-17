@@ -16,8 +16,8 @@
 
 #include "gtest/gtest.h"
 #include "oneapi/dal/algo/linear_kernel.hpp"
-#include "oneapi/dal/data/accessor.hpp"
-#include "oneapi/dal/data/table.hpp"
+#include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
 
 using namespace oneapi::dal;
 using std::int32_t;
@@ -38,15 +38,17 @@ TEST(linear_kernel_dense_test, can_compute_unit_matrix) {
         1.f,
     };
 
-    const auto x_table = homogen_table{ row_count, column_count, x_data };
-    const auto y_table = homogen_table{ row_count, column_count, y_data };
+    const auto x_table = homogen_table::wrap(x_data, row_count, column_count);
+    const auto y_table = homogen_table::wrap(y_data, row_count, column_count);
 
     const auto kernel_desc  = linear_kernel::descriptor{};
     const auto values_table = compute(kernel_desc, x_table, y_table).get_values();
+
     ASSERT_EQ(values_table.get_row_count(), row_count);
     ASSERT_EQ(values_table.get_column_count(), row_count);
 
     const auto values = row_accessor<const float>(values_table).pull();
+
     for (size_t i = 0; i < values.get_count(); i++) {
         ASSERT_FLOAT_EQ(values[i], static_cast<float>(column_count));
     }
@@ -62,7 +64,7 @@ TEST(linear_kernel_dense_test, can_compute_same_unit_matrix) {
         1.f,
     };
 
-    const auto x_table = homogen_table{ row_count, column_count, x_data };
+    const auto x_table = homogen_table::wrap(x_data, row_count, column_count);
 
     const auto kernel_desc  = linear_kernel::descriptor{};
     const auto values_table = compute(kernel_desc, x_table, x_table).get_values();
@@ -85,8 +87,8 @@ TEST(linear_kernel_dense_test, can_compute_one_element) {
         10.f,
     };
 
-    const auto x_table = homogen_table{ row_count, column_count, x_data };
-    const auto y_table = homogen_table{ row_count, column_count, y_data };
+    const auto x_table = homogen_table::wrap(x_data, row_count, column_count);
+    const auto y_table = homogen_table::wrap(y_data, row_count, column_count);
 
     const auto kernel_desc  = linear_kernel::descriptor{};
     const auto values_table = compute(kernel_desc, x_table, y_table).get_values();
@@ -113,8 +115,8 @@ TEST(linear_kernel_dense_test, can_compute_simple_matrix) {
         1.f,
     };
 
-    const auto x_table = homogen_table{ row_count, column_count, x_data };
-    const auto y_table = homogen_table{ row_count, column_count, y_data };
+    const auto x_table = homogen_table::wrap(x_data, row_count, column_count);
+    const auto y_table = homogen_table::wrap(y_data, row_count, column_count);
 
     const auto kernel_desc  = linear_kernel::descriptor{};
     const auto values_table = compute(kernel_desc, x_table, y_table).get_values();
@@ -138,7 +140,7 @@ TEST(linear_kernel_dense_test, can_compute_same_simple_matrix) {
         3.f,
     };
 
-    const auto x_table = homogen_table{ row_count, column_count, x_data };
+    const auto x_table = homogen_table::wrap(x_data, row_count, column_count);
 
     const auto kernel_desc  = linear_kernel::descriptor{};
     const auto values_table = compute(kernel_desc, x_table, x_table).get_values();
@@ -166,8 +168,8 @@ TEST(linear_kernel_dense_test, can_compute_diff_matrix) {
         3.f,
     };
 
-    const auto x_table = homogen_table{ row_count_x, column_count, x_data };
-    const auto y_table = homogen_table{ row_count_y, column_count, y_data };
+    const auto x_table = homogen_table::wrap(x_data, row_count_x, column_count);
+    const auto y_table = homogen_table::wrap(y_data, row_count_y, column_count);
 
     const auto kernel_desc  = linear_kernel::descriptor{};
     const auto values_table = compute(kernel_desc, x_table, y_table).get_values();
@@ -195,8 +197,8 @@ TEST(linear_kernel_dense_test, can_compute_diff_matrix_not_default_params) {
         3.f,
     };
 
-    const auto x_table = homogen_table{ row_count_x, column_count, x_data };
-    const auto y_table = homogen_table{ row_count_y, column_count, y_data };
+    const auto x_table = homogen_table::wrap(x_data, row_count_x, column_count);
+    const auto y_table = homogen_table::wrap(y_data, row_count_y, column_count);
 
     const auto kernel_desc  = linear_kernel::descriptor{}.set_scale(2.0).set_shift(1.0);
     const auto values_table = compute(kernel_desc, x_table, y_table).get_values();

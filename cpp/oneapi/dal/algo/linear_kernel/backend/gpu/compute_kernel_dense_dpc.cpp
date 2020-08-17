@@ -22,6 +22,8 @@
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
+#include "oneapi/dal/table/row_accessor.hpp"
+
 #include <daal/src/algorithms/kernel_function/oneapi/kernel_function_linear_dense_default_kernel_oneapi.h>
 
 namespace oneapi::dal::linear_kernel::backend {
@@ -66,7 +68,7 @@ static compute_result call_daal_kernel(const context_gpu& ctx,
                                           &daal_parameter);
 
     return compute_result().set_values(
-        homogen_table_builder{}.reset(arr_values, row_count_x, row_count_y).build());
+        dal::detail::homogen_table_builder{}.reset(arr_values, row_count_x, row_count_y).build());
 }
 
 template <typename Float>

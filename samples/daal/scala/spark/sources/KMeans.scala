@@ -36,7 +36,7 @@ import com.intel.daal.algorithms.kmeans.init._
 import com.intel.daal.data_management.data._
 import com.intel.daal.services._
 
-class DAALKMeansModel(override val clusterCenters: Array[Vector]) extends KMeansModel(clusterCenters) {}
+class DAALKMeansModel(override val clusterCenters: Array[Vector]) extends KMeansModel(clusterCenters)
 
 object KMeans {
     def train(data: RDD[Vector], nClusters: Int, nIterations: Int): DAALKMeansModel = {
@@ -49,7 +49,7 @@ object KMeans {
     }
 }
 
-class KMeansResult private (var centroids: HomogenNumericTable, var nIterations: Int, var nClusters: Long) {}
+class KMeansResult private (var centroids: HomogenNumericTable, var nIterations: Int, var nClusters: Long)
 
 class KMeans private (private var nClusters: Int, private var nIterations: Int) {
 

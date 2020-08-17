@@ -15,8 +15,8 @@
 # limitations under the License.
 #===============================================================================
 
-TBB_URL_ROOT="https://github.com/intel/tbb/releases/download/2019_U9/"
-TBB_VERSION="tbb2019_20191006oss"
+TBB_URL_ROOT="https://github.com/oneapi-src/oneTBB/releases/download/v2021.1-beta08/"
+TBB_VERSION="oneapi-tbb-2021.1-beta08"
 
 os=$(uname)
 if [ "${os}" = "Linux" ]; then
@@ -30,7 +30,7 @@ else
   exit 1
 fi
 
-TBB_PACKAGE="${TBB_VERSION}_${TBB_OS}"
+TBB_PACKAGE="${TBB_VERSION}-${TBB_OS}"
 TBB_URL=${TBB_URL_ROOT}${TBB_PACKAGE}.tgz
 DST=$(dirname "$0")/../__deps/tbb
 mkdir -p "${DST}/${OS}"
