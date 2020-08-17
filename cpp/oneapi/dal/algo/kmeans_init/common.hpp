@@ -28,6 +28,9 @@ class descriptor_impl;
 
 namespace method {
 struct dense {};
+struct random_dense {};
+struct plus_plus_dense {};
+struct parallel_plus_dense {};
 using by_default = dense;
 } // namespace method
 

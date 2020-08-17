@@ -35,7 +35,19 @@ template <typename Float, daal::CpuType Cpu>
 using daal_kmeans_init_dense_kernel_t =
     daal_kmeans_init::internal::KMeansInitKernel<daal_kmeans_init::defaultDense, Float, Cpu>;
 
-template <typename Float>
+template <typename Float, daal::CpuType Cpu>
+using daal_kmeans_init_random_dense_kernel_t =
+    daal_kmeans_init::internal::KMeansInitKernel<daal_kmeans_init::randomDense, Float, Cpu>;
+
+template <typename Float, daal::CpuType Cpu>
+using daal_kmeans_init_plus_plus_dense_kernel_t =
+    daal_kmeans_init::internal::KMeansInitKernel<daal_kmeans_init::plusPlusDense, Float, Cpu>;
+
+template <typename Float, daal::CpuType Cpu>
+using daal_kmeans_init_parallel_plus_dense_kernel_t =
+    daal_kmeans_init::internal::KMeansInitKernel<daal_kmeans_init::parallelPlusDense, Float, Cpu>;
+
+template <typename Float, typename Method>
 static compute_result call_daal_kernel(const context_cpu& ctx,
                                        const descriptor_base& desc,
                                        const table& data) {
@@ -57,37 +69,72 @@ static compute_result call_daal_kernel(const context_cpu& ctx,
     const size_t len_output                                 = 1;
     daal::data_management::NumericTable* output[len_output] = { daal_centroids.get() };
 
-    interop::status_to_exception(
-        interop::call_daal_kernel<Float, daal_kmeans_init_dense_kernel_t>(ctx,
-                                                                          len_input,
-                                                                          input,
-                                                                          len_output,
-                                                                          output,
-                                                                          &par,
-                                                                          *(par.engine)));
+    if constexpr (std::is_same_v<Method, method::dense>)
+        interop::status_to_exception(
+            interop::call_daal_kernel<Float, daal_kmeans_init_dense_kernel_t>(ctx,
+                                                                              len_input,
+                                                                              input,
+                                                                              len_output,
+                                                                              output,
+                                                                              &par,
+                                                                              *(par.engine)));
+    else if constexpr (std::is_same_v<Method, method::random_dense>)
+        interop::status_to_exception(
+            interop::call_daal_kernel<Float, daal_kmeans_init_random_dense_kernel_t>(
+                ctx,
+                len_input,
+                input,
+                len_output,
+                output,
+                &par,
+                *(par.engine)));
+    else if constexpr (std::is_same_v<Method, method::plus_plus_dense>)
+        interop::status_to_exception(
+            interop::call_daal_kernel<Float, daal_kmeans_init_plus_plus_dense_kernel_t>(
+                ctx,
+                len_input,
+                input,
+                len_output,
+                output,
+                &par,
+                *(par.engine)));
+    else if constexpr (std::is_same_v<Method, method::parallel_plus_dense>)
+        interop::status_to_exception(
+            interop::call_daal_kernel<Float, daal_kmeans_init_parallel_plus_dense_kernel_t>(
+                ctx,
+                len_input,
+                input,
+                len_output,
+                output,
+                &par,
+                *(par.engine)));
 
     return compute_result().set_centroids(dal::detail::homogen_table_builder{}
                                               .reset(arr_centroids, cluster_count, column_count)
                                               .build());
 }
 
-template <typename Float>
+template <typename Float, typename Method>
 static compute_result compute(const context_cpu& ctx,
                               const descriptor_base& desc,
                               const compute_input& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data());
+    return call_daal_kernel<Float, Method>(ctx, desc, input.get_data());
 }
 
-template <typename Float>
-struct compute_kernel_cpu<Float, method::dense> {
-    compute_result operator()(const context_cpu& ctx,
-                              const descriptor_base& desc,
-                              const compute_input& input) const {
-        return compute<Float>(ctx, desc, input);
-    }
-};
+template <typename Float, typename Method>
+compute_result compute_kernel_cpu<Float, Method>::operator()(const context_cpu& ctx,
+                                                             const descriptor_base& desc,
+                                                             const compute_input& input) const {
+    return compute<Float, Method>(ctx, desc, input);
+}
 
 template struct compute_kernel_cpu<float, method::dense>;
 template struct compute_kernel_cpu<double, method::dense>;
+template struct compute_kernel_cpu<float, method::random_dense>;
+template struct compute_kernel_cpu<double, method::random_dense>;
+template struct compute_kernel_cpu<float, method::plus_plus_dense>;
+template struct compute_kernel_cpu<double, method::plus_plus_dense>;
+template struct compute_kernel_cpu<float, method::parallel_plus_dense>;
+template struct compute_kernel_cpu<double, method::parallel_plus_dense>;
 
 } // namespace oneapi::dal::kmeans_init::backend
