@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include <algorithm>
-#include <cmath>
+#include <utility>
 #include <exception>
 #include <limits>
 #include <list>
@@ -156,7 +156,7 @@ select_small_k_l2<Float>::select_small_k_l2(cl::sycl::queue& queue)
           preferred_width(queue.get_device().template get_info<preferred_size_flag>()) {}
 
 template <typename Float>
-std::pair<std::int64_t, std::int64_t> select_small_k_l2<Float>(const std::int64_t k) {
+std::pair<std::int64_t, std::int64_t> select_small_k_l2<Float>::preferred_local_size(const std::int64_t k) {
     if (k > max_local_size)
         throw std::exception();
     const idx_t min_k_width    = preferred_size * (k / preferred_size + 1);
@@ -186,12 +186,21 @@ cl::sycl::event select_small_k_l2<Float>::operator()(const Float* cross,
                                                      Float* nearest_distances,
                                                      const std::int64_t k_width,
                                                      const std::int64_t yrange) {
-    if ((k_width * yrange) > max_local_size)
+    const idx_t local_buff_size = k_width * yrange; 
+    if (local_buff_size > max_local_size)
         throw std::exception();
     auto result = this->q.submit([&](cl::sycl::handler& handler) {
         typedef cl::sycl::
+            accessor<idx_t, 1, cl::sycl::access::mode::read_write, cl::sycl::access::target::local>
+                local_idxs_acc_t;
+        typedef cl::sycl::
             accessor<Float, 1, cl::sycl::access::mode::read_write, cl::sycl::access::target::local>
-                local_acc_t;
+                local_dist_acc_t;
+        auto local_indices = local_idxs_acc_t(cl::sycl::range<1>{ local_buff_size }, handler);
+        auto local_distances = local_dist_acc_t(cl::sycl::range<1>{ local_buff_size }, handler);
+        auto functor_instance =
+            kernel_t{ };
+        handler.parallel_for<kernel_t>(call_range, functor_instance); 
     });
     return result;
 }

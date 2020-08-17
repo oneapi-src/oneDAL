@@ -39,6 +39,7 @@ template <typename Float>
 struct select_small_k_l2 {
 public:
     typedef std::uint32_t idx_t;
+    typedef std::pair<std::int 
     typedef select_small_k_l2_kernel<Float> kernel_t;
     constexpr inline static std::int64_t elem_size = sizeof(std::uint32_t) + sizeof(Float);
     constexpr inline static int preferred_size_flag =
