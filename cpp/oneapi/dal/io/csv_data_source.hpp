@@ -14,25 +14,21 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <iostream>
+#pragma once
 
-#include "oneapi/dal/graph/graph_service_functions.hpp"
-#include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
-#include "oneapi/dal/io/csv_data_source.hpp"
-#include "oneapi/dal/io/load_graph.hpp"
+#include <string>
 
-using namespace oneapi::dal;
-using namespace oneapi::dal::preview;
+namespace oneapi::dal::preview {
 
-const std::string filename("../data/graph.csv");
+class ONEAPI_DAL_EXPORT csv_data_source {
+public:
+    csv_data_source(std::string filename) : _file_name(filename) {}
+    std::string get_filename() const {
+        return _file_name;
+    }
 
-int main(int argc, char **argv) {
-    csv_data_source ds(filename);
-    load_graph::descriptor<> d;
-    auto my_graph = load_graph::load(d, ds);
+private:
+    std::string _file_name;
+};
 
-    std::cout << "Graph is read from file: " << filename << std::endl;
-    std::cout << "Number of vertices: " << get_vertex_count(my_graph) << std::endl;
-    std::cout << "Number of edges: " << get_edge_count(my_graph) << std::endl;
-    return 0;
-}
+} // namespace oneapi::dal::preview

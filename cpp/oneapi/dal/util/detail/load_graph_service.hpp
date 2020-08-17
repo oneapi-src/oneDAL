@@ -23,8 +23,8 @@
 #include "oneapi/dal/graph/detail/undirected_adjacency_array_graph_impl.hpp"
 #include "oneapi/dal/graph/graph_common.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
-#include "oneapi/dal/util/csv_data_source.hpp"
-#include "oneapi/dal/util/load_graph_descriptor.hpp"
+#include "oneapi/dal/io/csv_data_source.hpp"
+#include "oneapi/dal/io/load_graph_descriptor.hpp"
 #include "services/daal_atomic_int.h"
 #include "services/daal_memory.h"
 
