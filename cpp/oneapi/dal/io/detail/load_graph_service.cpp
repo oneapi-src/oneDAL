@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/util/detail/load_graph_service.hpp"
+#include "oneapi/dal/io/detail/load_graph_service.hpp"
 #include "oneapi/dal/detail/common.hpp"
 #include "src/externals/service_service.h"
 #include "src/threading/threading.h"
