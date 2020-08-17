@@ -33,16 +33,7 @@ bool daal_check_is_intel_cpu();
 
 #define DAAL_CHECK_CPU_ENVIRONMENT (daal_check_is_intel_cpu())
 
-#if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
-    #define PRAGMA_IVDEP
-    #define PRAGMA_NOVECTOR
-    #define PRAGMA_VECTOR_ALIGNED
-    #define PRAGMA_VECTOR_UNALIGNED
-    #define PRAGMA_VECTOR_ALWAYS
-    #define PRAGMA_ICC_OMP(ARGS)
-    #define PRAGMA_ICC_NO16(ARGS)
-    #define DAAL_TYPENAME
-#else
+#if defined(__INTEL_COMPILER)
     #define PRAGMA_IVDEP            _Pragma("ivdep")
     #define PRAGMA_NOVECTOR         _Pragma("novector")
     #define PRAGMA_VECTOR_ALIGNED   _Pragma("vector aligned")
@@ -52,6 +43,35 @@ bool daal_check_is_intel_cpu();
     #define PRAGMA_ICC_OMP(ARGS)    PRAGMA_ICC_TO_STR(omp ARGS)
     #define PRAGMA_ICC_NO16(ARGS)   PRAGMA_ICC_TO_STR(ARGS)
     #define DAAL_TYPENAME           typename
+#elif defined(__GNUC__)
+    #define PRAGMA_IVDEP
+    #define PRAGMA_NOVECTOR
+    #define PRAGMA_VECTOR_ALIGNED
+    #define PRAGMA_VECTOR_UNALIGNED
+    #define PRAGMA_VECTOR_ALWAYS
+    #define PRAGMA_ICC_TO_STR(ARGS)
+    #define PRAGMA_ICC_OMP(ARGS)
+    #define PRAGMA_ICC_NO16(ARGS)
+    #define DAAL_TYPENAME typename
+#elif defined(_MSC_VER)
+    #define PRAGMA_IVDEP
+    #define PRAGMA_NOVECTOR
+    #define PRAGMA_VECTOR_ALIGNED
+    #define PRAGMA_VECTOR_UNALIGNED
+    #define PRAGMA_VECTOR_ALWAYS
+    #define PRAGMA_ICC_TO_STR(ARGS)
+    #define PRAGMA_ICC_OMP(ARGS)
+    #define PRAGMA_ICC_NO16(ARGS)
+    #define DAAL_TYPENAME
+#else
+    #define PRAGMA_IVDEP
+    #define PRAGMA_NOVECTOR
+    #define PRAGMA_VECTOR_ALIGNED
+    #define PRAGMA_VECTOR_UNALIGNED
+    #define PRAGMA_VECTOR_ALWAYS
+    #define PRAGMA_ICC_OMP(ARGS)
+    #define PRAGMA_ICC_NO16(ARGS)
+    #define DAAL_TYPENAME typename
 #endif
 
 #if defined __APPLE__ && defined __INTEL_COMPILER && (__INTEL_COMPILER == 1600)
