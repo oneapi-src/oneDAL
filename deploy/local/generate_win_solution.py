@@ -28,7 +28,7 @@ Project("{solution_guid}") = "{example_name}", "vcproj\{example_name}\{example_n
 EndProject
 '''
 
-_sln_project_platform_decl = '''
+_sln_project_platform_decl_debug = '''
         {example_guid}.Debug.dynamic.sequential|x64.ActiveCfg = Debug.dynamic.sequential|x64
         {example_guid}.Debug.dynamic.sequential|x64.Build.0 = Debug.dynamic.sequential|x64
         {example_guid}.Debug.dynamic.threaded|x64.ActiveCfg = Debug.dynamic.threaded|x64
@@ -36,7 +36,9 @@ _sln_project_platform_decl = '''
         {example_guid}.Debug.static.sequential|x64.ActiveCfg = Debug.static.sequential|x64
         {example_guid}.Debug.static.sequential|x64.Build.0 = Debug.static.sequential|x64
         {example_guid}.Debug.static.threaded|x64.ActiveCfg = Debug.static.threaded|x64
-        {example_guid}.Debug.static.threaded|x64.Build.0 = Debug.static.threaded|x64
+        {example_guid}.Debug.static.threaded|x64.Build.0 = Debug.static.threaded|x64'''
+
+_sln_project_platform_decl_release = '''
         {example_guid}.Release.dynamic.sequential|x64.ActiveCfg = Release.dynamic.sequential|x64
         {example_guid}.Release.dynamic.sequential|x64.Build.0 = Release.dynamic.sequential|x64
         {example_guid}.Release.dynamic.threaded|x64.ActiveCfg = Release.dynamic.threaded|x64
@@ -44,8 +46,10 @@ _sln_project_platform_decl = '''
         {example_guid}.Release.static.sequential|x64.ActiveCfg = Release.static.sequential|x64
         {example_guid}.Release.static.sequential|x64.Build.0 = Release.static.sequential|x64
         {example_guid}.Release.static.threaded|x64.ActiveCfg = Release.static.threaded|x64
-        {example_guid}.Release.static.threaded|x64.Build.0 = Release.static.threaded|x64
-'''
+        {example_guid}.Release.static.threaded|x64.Build.0 = Release.static.threaded|x64'''
+
+_sln_project_platform_decl = _sln_project_platform_decl_debug + _sln_project_platform_decl_release
+
 
 _this_dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -92,9 +96,15 @@ def generate_sln(config, examples_info):
             example_name = name,
             example_guid = guid
         )
-        platfrom_decl = _sln_project_platform_decl.format(
-            example_guid = guid
-        )
+        exclude_debug_cpps = ['jaccard_batch', 'load_graph', 'graph_service_functions']
+        if name in exclude_debug_cpps:
+            platfrom_decl = _sln_project_platform_decl_release.format(
+                example_guid = guid
+            )
+        else:
+            platfrom_decl = _sln_project_platform_decl.format(
+                example_guid = guid
+            )
         all_project_decls.append(project_decl)
         all_platform_decl.append(platfrom_decl)
     all_project_decls_str = ''.join(all_project_decls)
