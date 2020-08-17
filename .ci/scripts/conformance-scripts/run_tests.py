@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
         alg_log = open("_log_%s.txt" % (alg_name), "w")
         subprocess.call(["python", "-m", "daal4py", "-m", "pytest", "-s", "--disable-warnings", "test_%s.py" % (alg_name)],
-                         stdout=alg_log, env={"IDP_SKLEARN_VERBOSE":"INFO"})
+                         stdout=alg_log)
         alg_log.close()
 
     make_report(algs_filename=algs_filename,

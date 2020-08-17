@@ -49,5 +49,6 @@ source ${dal_vars} intel64
 
 # testing
 cd .ci/scripts/conformance-scripts/ || exit 1
+export IDP_SKLEARN_VERBOSE=INFO
 python run_tests.py ${PYTHON_VERSION}
 cd ../../..
