@@ -597,17 +597,29 @@ ONEAPI.objs_y.dpc := $(ONEAPI.srcs.dpc:%.cpp=$(ONEAPI.tmpdir_y.dpc)/%.$o)
 ONEAPI.objs_a.all := $(ONEAPI.objs_a) $(ONEAPI.objs_a.dpc)
 ONEAPI.objs_y.all := $(ONEAPI.objs_y) $(ONEAPI.objs_y.dpc)
 
+USECPUS.files_no_knl := $(filter-out knl,$(USECPUS.files))
 # Populate _cpu files -> _cpu_%cpu_name%, where %cpu_name% is $(USECPUS.files)
-# $1: List of object files
-CPU_knl := knl
-USECPUS.files := $(filter-out $(CPU_knl),$(USECPUS.files))
-populate_cpus = $(call notcontaining,_cpu,$1) \
-                $(foreach ccc,$(USECPUS.files),$(subst _cpu,_cpu_$(ccc),$(call containing,_cpu,$1)))
+# $1 Output variable name
+# $2 List of object files
+define .populate_cpus
+$(eval non_cpu_files := $(call notcontaining,_cpu,$2))
+$(eval cpu_files := $(call containing,_cpu,$2))
+$(eval nrh_files := $(subst _nrh,_cpu_nrh,$(call containing,_nrh,$(non_cpu_files))))
+$(eval mrm_files := $(subst _mrm,_cpu_mrm,$(call containing,_mrm,$(non_cpu_files))))
+$(eval neh_files := $(subst _neh,_cpu_neh,$(call containing,_neh,$(non_cpu_files))))
+$(eval snb_files := $(subst _snb,_cpu_snb,$(call containing,_snb,$(non_cpu_files))))
+$(eval hsw_files := $(subst _hsw,_cpu_hsw,$(call containing,_hsw,$(non_cpu_files))))
+$(eval skx_files := $(subst _skx,_cpu_skx,$(call containing,_skx,$(non_cpu_files))))
+$(eval user_cpu_files := $(nrh_files) $(mrm_files) $(neh_files) $(snb_files) $(hsw_files) $(skx_files))
+$(eval populated_cpu_files := $(foreach ccc,$(USECPUS.files_no_knl),$(subst _cpu,_cpu_$(ccc),$(cpu_files))))
+$(eval populated_cpu_files := $(filter-out $(user_cpu_files),$(populated_cpu_files)))
+$(eval $1 := $(non_cpu_files) $(populated_cpu_files))
+endef
 
-ONEAPI.objs_a := $(call populate_cpus,$(ONEAPI.objs_a))
-ONEAPI.objs_y := $(call populate_cpus,$(ONEAPI.objs_y))
-ONEAPI.objs_a.dpc := $(call populate_cpus,$(ONEAPI.objs_a.dpc))
-ONEAPI.objs_y.dpc := $(call populate_cpus,$(ONEAPI.objs_y.dpc))
+$(eval $(call .populate_cpus,ONEAPI.objs_a,$(ONEAPI.objs_a)))
+$(eval $(call .populate_cpus,ONEAPI.objs_y,$(ONEAPI.objs_y)))
+$(eval $(call .populate_cpus,ONEAPI.objs_a.dpc,$(ONEAPI.objs_a.dpc)))
+$(eval $(call .populate_cpus,ONEAPI.objs_y.dpc,$(ONEAPI.objs_y.dpc)))
 
 -include $(ONEAPI.tmpdir_a)/*.d
 -include $(ONEAPI.tmpdir_y)/*.d
