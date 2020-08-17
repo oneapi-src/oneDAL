@@ -31,11 +31,11 @@ namespace jaccard {
 namespace detail {
 
 #if defined(__INTEL_COMPILER)
-DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t& a) {
+DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &a) {
     return _popcnt32(a);
 }
 #else
-DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t& a) {
+DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &a) {
     std::int32_t count = 0;
     while (a != 0) {
         a = a & (a - 1);
@@ -45,9 +45,11 @@ DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t& a) {
 }
 #endif
 
-DAAL_FORCEINLINE std::size_t
-intersection(std::int32_t *neigh_u, std::int32_t *neigh_v, std::int32_t n_u, std::int32_t n_v) {
-    std::size_t total   = 0;
+DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
+                                          std::int32_t *neigh_v,
+                                          std::int32_t n_u,
+                                          std::int32_t n_v) {
+    std::size_t total = 0;
     std::int32_t i_u = 0, i_v = 0;
 
     const std::int32_t n_u_8_end = n_u - 8;
@@ -258,11 +260,11 @@ intersection(std::int32_t *neigh_u, std::int32_t *neigh_v, std::int32_t n_u, std
     return total;
 }
 
-DAAL_FORCEINLINE std::int32_t min_hsw(const std::int32_t& a, const std::int32_t& b) {
+DAAL_FORCEINLINE std::int32_t min_hsw(const std::int32_t &a, const std::int32_t &b) {
     return (a >= b) ? b : a;
 }
 
-template<typename Cpu>
+template <typename Cpu>
 vertex_similarity_result call_jaccard_default_kernel_avx2(
     const descriptor_base &desc,
     vertex_similarity_input<undirected_adjacency_array_graph<>> &input) {
@@ -271,15 +273,15 @@ vertex_similarity_result call_jaccard_default_kernel_avx2(
     auto g_edge_offsets                 = g->_edge_offsets.data();
     auto g_vertex_neighbors             = g->_vertex_neighbors.data();
     auto g_degrees                      = g->_degrees.data();
-    const std::int32_t row_begin             = static_cast<std::int32_t>(desc.get_row_range_begin());
+    const std::int32_t row_begin        = static_cast<std::int32_t>(desc.get_row_range_begin());
     const auto row_end                  = static_cast<std::int32_t>(desc.get_row_range_end());
     const auto column_begin             = static_cast<std::int32_t>(desc.get_column_range_begin());
     const auto column_end               = static_cast<std::int32_t>(desc.get_column_range_end());
     const auto number_elements_in_block = (row_end - row_begin) * (column_end - column_begin);
     int *first_vertices                 = reinterpret_cast<int *>(input.get_result_ptr());
     int *second_vertices                = first_vertices + number_elements_in_block;
-    float *jaccard = reinterpret_cast<float *>(first_vertices + 2 * number_elements_in_block);
-    std::int64_t nnz    = 0;
+    float *jaccard   = reinterpret_cast<float *>(first_vertices + 2 * number_elements_in_block);
+    std::int64_t nnz = 0;
     for (std::int32_t i = row_begin; i < row_end; ++i) {
         const auto i_neighbor_size = g_degrees[i];
         const auto i_neigbhors     = g_vertex_neighbors + g_edge_offsets[i];
