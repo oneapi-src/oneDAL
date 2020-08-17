@@ -68,7 +68,7 @@ using detail::vertex_similarity_result_impl;
 
 vertex_similarity_result::vertex_similarity_result(const table& vertex_pairs,
                                                    const table& coeffs,
-                                                   int64_t& nonzero_coeff_count)
+                                                   std::int64_t& nonzero_coeff_count)
         : impl_(new vertex_similarity_result_impl(vertex_pairs, coeffs, nonzero_coeff_count)) {}
 
 table vertex_similarity_result::get_coeffs() const {

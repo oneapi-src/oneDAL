@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/graph/detail/graph_container.hpp"
 #include "oneapi/dal/graph/graph_common.hpp"
+#include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
 
 namespace oneapi::dal::preview::detail {
 

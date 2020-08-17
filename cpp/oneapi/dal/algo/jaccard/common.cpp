@@ -47,18 +47,18 @@ std::int64_t descriptor_base::get_column_range_end() const {
     return impl_->column_range_end;
 }
 
-void descriptor_base::set_row_range_impl(const int64_t& begin, const int64_t& end) {
+void descriptor_base::set_row_range_impl(const std::int64_t& begin, const std::int64_t& end) {
     impl_->row_range_begin = begin;
     impl_->row_range_end   = end;
 }
 
-void descriptor_base::set_column_range_impl(const int64_t& begin, const int64_t& end) {
+void descriptor_base::set_column_range_impl(const std::int64_t& begin, const std::int64_t& end) {
     impl_->column_range_begin = begin;
     impl_->column_range_end   = end;
 }
 
-void descriptor_base::set_block_impl(const std::initializer_list<int64_t>& row_range,
-                                     const std::initializer_list<int64_t>& column_range) {
+void descriptor_base::set_block_impl(const std::initializer_list<std::int64_t>& row_range,
+                                     const std::initializer_list<std::int64_t>& column_range) {
     impl_->row_range_begin    = *row_range.begin();
     impl_->row_range_end      = *(row_range.begin() + 1);
     impl_->column_range_begin = *column_range.begin();

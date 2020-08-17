@@ -44,12 +44,9 @@ public:
     /// Constructs the algorithm input initialized with the graph and the pointer
     /// to the allocated memory for the result. The size of the required memory
     /// can be computed by formula:
-    /// size =  (vertex_pair_element_count * vertex_pair_size +
-    ///         jaccard_coeff_element_count * jaccard_coeff_size) * vertex_pairs_count,
+    /// size = (vertex_pair_size + jaccard_coeff_size) * vertex_pairs_count,
     /// where:
-    /// - vertex_pair_element_count is 2 (vertex1, vertex2);
     /// - vertex_pair_size is (2 * sizeof(int32_t));
-    /// - jaccard_coeff_element_count is 1 (coeff);
     /// - jaccard_coeff_size is (1 * sizeof(float));
     /// - vertex_pairs_count is the number of vertices in the block
     ///
@@ -87,7 +84,7 @@ public:
     /// @param [in] nonzero_coeff_count The number of non-zero Jaccard coefficients
     vertex_similarity_result(const table& vertex_pairs,
                              const table& coeffs,
-                             int64_t& nonzero_coeff_count);
+                             std::int64_t& nonzero_coeff_count);
 
     /// Returns the table of size 1*nonzero_coeff_count with non-zero Jaccard
     /// similarity coefficients

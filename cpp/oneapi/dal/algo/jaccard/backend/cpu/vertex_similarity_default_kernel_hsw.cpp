@@ -31,12 +31,12 @@ namespace jaccard {
 namespace detail {
 
 #if defined(__INTEL_COMPILER)
-DAAL_FORCEINLINE int _popcnt32_redef(int a) {
+DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t& a) {
     return _popcnt32(a);
 }
 #else
-DAAL_FORCEINLINE int _popcnt32_redef(int a) {
-    int count = 0;
+DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t& a) {
+    std::int32_t count = 0;
     while (a != 0) {
         a = a & (a - 1);
         count++;
@@ -45,17 +45,16 @@ DAAL_FORCEINLINE int _popcnt32_redef(int a) {
 }
 #endif
 
-template <class VertexType>
-DAAL_FORCEINLINE size_t
-intersection(VertexType *neigh_u, VertexType *neigh_v, VertexType n_u, VertexType n_v) {
-    size_t total   = 0;
-    VertexType i_u = 0, i_v = 0;
+DAAL_FORCEINLINE std::size_t
+intersection(std::int32_t *neigh_u, std::int32_t *neigh_v, std::int32_t n_u, std::int32_t n_v) {
+    std::size_t total   = 0;
+    std::int32_t i_u = 0, i_v = 0;
 
-    const VertexType n_u_8_end = n_u - 8;
-    const VertexType n_v_8_end = n_v - 8;
+    const std::int32_t n_u_8_end = n_u - 8;
+    const std::int32_t n_v_8_end = n_v - 8;
     while (i_u <= n_u_8_end && i_v <= n_v_8_end) {
-        const VertexType minu = neigh_u[i_u];
-        const VertexType maxv = neigh_v[i_v + 7];
+        const std::int32_t minu = neigh_u[i_u];
+        const std::int32_t maxv = neigh_v[i_v + 7];
 
         if (minu > maxv) {
             if (minu > neigh_v[n_v - 1]) {
@@ -65,8 +64,8 @@ intersection(VertexType *neigh_u, VertexType *neigh_v, VertexType n_u, VertexTyp
             continue;
         }
 
-        const VertexType maxu = neigh_u[i_u + 7]; // assumes neighbor list is ordered
-        const VertexType minv = neigh_v[i_v];
+        const std::int32_t maxu = neigh_u[i_u + 7]; // assumes neighbor list is ordered
+        const std::int32_t minv = neigh_v[i_v];
 
         if (minv > maxu) {
             if (minv > neigh_u[n_u - 1]) {
@@ -140,7 +139,7 @@ intersection(VertexType *neigh_u, VertexType *neigh_v, VertexType n_u, VertexTyp
     for (; i_u <= n_u_8_end && i_v < n_v; i_u += 8) {
         __m256i v_u = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(neigh_u + i_u));
 
-        const VertexType neighu_iu = neigh_u[i_u + 7];
+        const std::int32_t neighu_iu = neigh_u[i_u + 7];
         for (; neigh_v[i_v] <= neighu_iu && i_v < n_v; i_v++) {
             __m256i tmp_v_v = _mm256_set1_epi32(neigh_v[i_v]);
 
@@ -152,7 +151,7 @@ intersection(VertexType *neigh_u, VertexType *neigh_v, VertexType n_u, VertexTyp
     for (; i_v <= n_v_8_end && i_u < n_u; i_v += 8) {
         __m256i v_v = _mm256_loadu_si256(
             reinterpret_cast<const __m256i *>(neigh_v + i_v)); // load 8 neighbors of v
-        const VertexType neighv_iv = neigh_v[i_v + 7];
+        const std::int32_t neighv_iv = neigh_v[i_v + 7];
         for (; neigh_u[i_u] <= neighv_iv && i_u < n_u; i_u++) {
             __m256i tmp_v_u           = _mm256_set1_epi32(neigh_u[i_u]);
             __m256i match             = _mm256_cmpeq_epi32(v_v, tmp_v_u);
@@ -161,14 +160,14 @@ intersection(VertexType *neigh_u, VertexType *neigh_v, VertexType n_u, VertexTyp
         }
     }
 
-    const VertexType n_u_4_end = n_u - 4;
-    const VertexType n_v_4_end = n_v - 4;
+    const std::int32_t n_u_4_end = n_u - 4;
+    const std::int32_t n_v_4_end = n_v - 4;
 
     while (i_u <= n_u_4_end && i_v <= n_v_4_end) { // not in last n%8 elements
 
         // assumes neighbor list is ordered
-        VertexType minu = neigh_u[i_u];
-        VertexType maxv = neigh_v[i_v + 3];
+        std::int32_t minu = neigh_u[i_u];
+        std::int32_t maxv = neigh_v[i_v + 3];
 
         if (minu > maxv) {
             if (minu > neigh_v[n_v - 1]) {
@@ -177,8 +176,8 @@ intersection(VertexType *neigh_u, VertexType *neigh_v, VertexType n_u, VertexTyp
             i_v += 4;
             continue;
         }
-        VertexType minv = neigh_v[i_v];
-        VertexType maxu = neigh_u[i_u + 3];
+        std::int32_t minv = neigh_v[i_v];
+        std::int32_t maxu = neigh_u[i_u + 3];
         if (minv > maxu) {
             if (minv > neigh_u[n_u - 1]) {
                 return total;
@@ -223,7 +222,7 @@ intersection(VertexType *neigh_u, VertexType *neigh_v, VertexType n_u, VertexTyp
     if (i_u <= n_u_4_end && i_v < n_v) {
         __m128i v_u = _mm_loadu_si128(
             reinterpret_cast<const __m128i *>(neigh_u + i_u)); // load 8 neighbors of u
-        const VertexType neighu_iu = neigh_u[i_u + 3];
+        const std::int32_t neighu_iu = neigh_u[i_u + 3];
         for (; neigh_v[i_v] <= neighu_iu && i_v < n_v; i_v++) {
             __m128i tmp_v_v           = _mm_set1_epi32(neigh_v[i_v]);
             __m128i match             = _mm_cmpeq_epi32(v_u, tmp_v_v);
@@ -235,7 +234,7 @@ intersection(VertexType *neigh_u, VertexType *neigh_v, VertexType n_u, VertexTyp
     if (i_v <= n_v_4_end && i_u < n_u) {
         __m128i v_v = _mm_loadu_si128(
             reinterpret_cast<const __m128i *>(neigh_v + i_v)); // load 8 neighbors of v
-        const VertexType neighv_iv = neigh_v[i_v + 3];
+        const std::int32_t neighv_iv = neigh_v[i_v + 3];
         for (; neigh_u[i_u] <= neighv_iv && i_u < n_u; i_u++) {
             __m128i tmp_v_u           = _mm_set1_epi32(neigh_u[i_u]);
             __m128i match             = _mm_cmpeq_epi32(v_v, tmp_v_u);
@@ -259,13 +258,7 @@ intersection(VertexType *neigh_u, VertexType *neigh_v, VertexType n_u, VertexTyp
     return total;
 }
 
-template size_t intersection<int32_t>(int32_t *neigh_u, int32_t *neigh_v, int32_t n_u, int32_t n_v);
-template size_t intersection<uint32_t>(uint32_t *neigh_u,
-                                       uint32_t *neigh_v,
-                                       uint32_t n_u,
-                                       uint32_t n_v);
-
-DAAL_FORCEINLINE int64_t min_hsw(int64_t a, int64_t b) {
+DAAL_FORCEINLINE std::int32_t min_hsw(const std::int32_t& a, const std::int32_t& b) {
     return (a >= b) ? b : a;
 }
 
@@ -279,20 +272,20 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
     auto g_edge_offsets                 = g->_edge_offsets.data();
     auto g_vertex_neighbors             = g->_vertex_neighbors.data();
     auto g_degrees                      = g->_degrees.data();
-    const int32_t row_begin             = static_cast<int32_t>(desc.get_row_range_begin());
-    const auto row_end                  = static_cast<int32_t>(desc.get_row_range_end());
-    const auto column_begin             = static_cast<int32_t>(desc.get_column_range_begin());
-    const auto column_end               = static_cast<int32_t>(desc.get_column_range_end());
+    const std::int32_t row_begin             = static_cast<std::int32_t>(desc.get_row_range_begin());
+    const auto row_end                  = static_cast<std::int32_t>(desc.get_row_range_end());
+    const auto column_begin             = static_cast<std::int32_t>(desc.get_column_range_begin());
+    const auto column_end               = static_cast<std::int32_t>(desc.get_column_range_end());
     const auto number_elements_in_block = (row_end - row_begin) * (column_end - column_begin);
     int *first_vertices                 = reinterpret_cast<int *>(input.get_result_ptr());
     int *second_vertices                = first_vertices + number_elements_in_block;
     float *jaccard = reinterpret_cast<float *>(first_vertices + 2 * number_elements_in_block);
-    int64_t nnz    = 0;
-    for (int32_t i = row_begin; i < row_end; ++i) {
+    std::int64_t nnz    = 0;
+    for (std::int32_t i = row_begin; i < row_end; ++i) {
         const auto i_neighbor_size = g_degrees[i];
         const auto i_neigbhors     = g_vertex_neighbors + g_edge_offsets[i];
         const auto diagonal        = min_hsw(i, column_end);
-        for (int32_t j = column_begin; j < diagonal; j++) {
+        for (std::int32_t j = column_begin; j < diagonal; j++) {
             const auto j_neighbor_size = g_degrees[j];
             const auto j_neigbhors     = g_vertex_neighbors + g_edge_offsets[j];
             if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&
@@ -318,7 +311,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
             tmp_idx = diagonal + 1;
         }
 
-        for (int32_t j = tmp_idx; j < column_end; j++) {
+        for (std::int32_t j = tmp_idx; j < column_end; j++) {
             const auto j_neighbor_size = g_degrees[j];
             const auto j_neigbhors     = g_vertex_neighbors + g_edge_offsets[j];
             if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&

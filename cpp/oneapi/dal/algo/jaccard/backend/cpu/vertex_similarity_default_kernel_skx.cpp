@@ -31,12 +31,12 @@ namespace jaccard {
 namespace detail {
 
 #if defined(__INTEL_COMPILER)
-DAAL_FORCEINLINE int _popcnt32_redef(int a) {
+DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t& a) {
     return _popcnt32(a);
 }
 #else
-DAAL_FORCEINLINE int _popcnt32_redef(int a) {
-    int count = 0;
+DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t& a) {
+    std::int32_t count = 0;
     while (a != 0) {
         a = a & (a - 1);
         count++;
@@ -46,9 +46,9 @@ DAAL_FORCEINLINE int _popcnt32_redef(int a) {
 #endif
 
 template <class VertexType>
-DAAL_FORCEINLINE size_t
+DAAL_FORCEINLINE std::size_t
 intersection(VertexType *neigh_u, VertexType *neigh_v, VertexType n_u, VertexType n_v) {
-    size_t total   = 0;
+    std::size_t total   = 0;
     VertexType i_u = 0, i_v = 0;
 
     const VertexType n_u_8_end = n_u - 8;
@@ -259,13 +259,7 @@ intersection(VertexType *neigh_u, VertexType *neigh_v, VertexType n_u, VertexTyp
     return total;
 }
 
-template size_t intersection<int32_t>(int32_t *neigh_u, int32_t *neigh_v, int32_t n_u, int32_t n_v);
-template size_t intersection<uint32_t>(uint32_t *neigh_u,
-                                       uint32_t *neigh_v,
-                                       uint32_t n_u,
-                                       uint32_t n_v);
-
-DAAL_FORCEINLINE int64_t min_skx(int64_t a, int64_t b) {
+DAAL_FORCEINLINE std::int32_t min_skx(const std::int32_t& a, const std::int32_t& b) {
     return (a <= b) ? a : b;
 }
 
@@ -279,20 +273,20 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
     auto g_edge_offsets                 = g->_edge_offsets.data();
     auto g_vertex_neighbors             = g->_vertex_neighbors.data();
     auto g_degrees                      = g->_degrees.data();
-    const int32_t row_begin             = static_cast<int32_t>(desc.get_row_range_begin());
-    const auto row_end                  = static_cast<int32_t>(desc.get_row_range_end());
-    const auto column_begin             = static_cast<int32_t>(desc.get_column_range_begin());
-    const auto column_end               = static_cast<int32_t>(desc.get_column_range_end());
+    const std::int32_t row_begin             = static_cast<std::int32_t>(desc.get_row_range_begin());
+    const auto row_end                  = static_cast<std::int32_t>(desc.get_row_range_end());
+    const auto column_begin             = static_cast<std::int32_t>(desc.get_column_range_begin());
+    const auto column_end               = static_cast<std::int32_t>(desc.get_column_range_end());
     const auto number_elements_in_block = (row_end - row_begin) * (column_end - column_begin);
     int *first_vertices                 = reinterpret_cast<int *>(input.get_result_ptr());
     int *second_vertices                = first_vertices + number_elements_in_block;
     float *jaccard = reinterpret_cast<float *>(first_vertices + 2 * number_elements_in_block);
-    int64_t nnz    = 0;
-    for (int32_t i = row_begin; i < row_end; ++i) {
+    std::int64_t nnz    = 0;
+    for (std::int32_t i = row_begin; i < row_end; ++i) {
         const auto i_neighbor_size = g_degrees[i];
         const auto i_neigbhors     = g_vertex_neighbors + g_edge_offsets[i];
         const auto diagonal        = min_skx(i, column_end);
-        for (int32_t j = column_begin; j < diagonal; j++) {
+        for (std::int32_t j = column_begin; j < diagonal; j++) {
             const auto j_neighbor_size = g_degrees[j];
             const auto j_neigbhors     = g_vertex_neighbors + g_edge_offsets[j];
             if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&
@@ -318,7 +312,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
             tmp_idx = diagonal + 1;
         }
 
-        for (int32_t j = tmp_idx; j < column_end; j++) {
+        for (std::int32_t j = tmp_idx; j < column_end; j++) {
             const auto j_neighbor_size = g_degrees[j];
             const auto j_neigbhors     = g_vertex_neighbors + g_edge_offsets[j];
             if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&
