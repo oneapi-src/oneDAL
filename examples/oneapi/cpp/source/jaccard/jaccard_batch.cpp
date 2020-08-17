@@ -29,60 +29,48 @@ using namespace oneapi::dal;
 using namespace oneapi::dal::preview;
 
 int main(int argc, char **argv) {
-  // read the graph
-  csv_data_source ds(filename);
-  load_graph::descriptor<> d;
-  auto my_graph = load_graph::load(d, ds);
+    // read the graph
+    csv_data_source ds(filename);
+    load_graph::descriptor<> d;
+    auto my_graph = load_graph::load(d, ds);
 
-  // set blocks ranges
-  auto row_range_begin = 0;
-  auto row_range_end = 2;
-  auto column_range_begin = 0;
-  auto column_range_end = 3;
+    // set blocks ranges
+    auto row_range_begin = 0;
+    auto row_range_end = 2;
+    auto column_range_begin = 0;
+    auto column_range_end = 3;
 
-  // comupte the number of the vertex pairs in the block of the graph
-  auto vertex_pairs_count = (row_range_end - row_range_begin) *
-                            (column_range_end - column_range_begin);
+    // compute the maximal required memory for the result of the block processing
+    // in bytes
+    auto max_block_size = compute_max_block_size(row_range_begin,
+                            row_range_end,
+                            column_range_begin,
+                            column_range_end);
 
-  // compute the size of the result element for the algorithm
-  auto vertex_pair_element_count = 2;   // 2 elements in the vertex pair
-  auto jaccard_coeff_element_count = 1; // 1 Jaccard coeff for the vertex pair
+    // allocate memory for the result of the block processing
+    auto result_buffer_ptr =
+        std::shared_ptr<byte_t>(new byte_t[max_block_size]);
 
-  auto vertex_pair_size =
-      vertex_pair_element_count * sizeof(int32_t); // size in bytes
-  auto jaccard_coeff_size =
-      jaccard_coeff_element_count * sizeof(float); // size in bytes
+    // set algorithm parameters
+    const auto jaccard_desc_default = jaccard::descriptor<>().set_block(
+        {row_range_begin, row_range_end}, {column_range_begin, column_range_end});
 
-  // compute the maximal required memory for the result of the block processing
-  // in bytes
-  auto block_result_size =
-      (vertex_pair_size + jaccard_coeff_size) * vertex_pairs_count;
+    // compute Jaccard similarity coefficients
+    auto result_vertex_similarity =
+        vertex_similarity(jaccard_desc_default, my_graph,
+                          static_cast<void *>(result_buffer_ptr.get()));
 
-  // allocate memory for the result of the block processing
-  auto result_buffer_ptr =
-      std::shared_ptr<byte_t>(new byte_t[block_result_size]);
+    // extract the result
+    auto jaccard_coeffs = result_vertex_similarity.get_coeffs();
+    auto vertex_pairs = result_vertex_similarity.get_vertex_pairs();
+    auto nonzero_coeff_count = result_vertex_similarity.get_nonzero_coeff_count();
 
-  // set algorithm parameters
-  const auto jaccard_desc_default = jaccard::descriptor<>().set_block(
-      {row_range_begin, row_range_end}, {column_range_begin, column_range_end});
+    std::cout << "The number of nonzero Jaccard coeffs in the block: "
+              << nonzero_coeff_count << std::endl;
 
-  // compute Jaccard similarity coefficients
-  auto result_vertex_similarity =
-      vertex_similarity(jaccard_desc_default, my_graph,
-                        static_cast<void *>(result_buffer_ptr.get()));
+    std::cout << "Vertex pairs: " << std::endl;
+    print_vertex_similarity_result(vertex_pairs, nonzero_coeff_count);
 
-  // extract the result
-  auto jaccard_coeffs = result_vertex_similarity.get_coeffs();
-  auto vertex_pairs = result_vertex_similarity.get_vertex_pairs();
-  auto nonzero_coeff_count = result_vertex_similarity.get_nonzero_coeff_count();
-
-  std::cout << "The number of nonzero Jaccard coeffs in the block: "
-            << nonzero_coeff_count << std::endl;
-
-  std::cout << "Vertex pairs: " << std::endl;
-  print_vertex_similarity_result(vertex_pairs, nonzero_coeff_count);
-
-  std::cout << "Jaccard values: " << std::endl;
-  print_vertex_similarity_result(jaccard_coeffs, nonzero_coeff_count);
-
+    std::cout << "Jaccard values: " << std::endl;
+    print_vertex_similarity_result(jaccard_coeffs, nonzero_coeff_count);
 }
