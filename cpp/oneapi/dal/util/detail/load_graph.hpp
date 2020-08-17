@@ -112,7 +112,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     vertex_t total_sum_degrees = 0;
     rows_cv[0].set(total_sum_degrees);
 
-    for (vertex_size_t i = 0; i < _unf_vertex_count; ++i) {
+    for (vertex_t i = 0; i < _unf_vertex_count; ++i) {
         total_sum_degrees += degrees_cv[i].get();
         rows_cv[i + 1].set(total_sum_degrees);
     }
