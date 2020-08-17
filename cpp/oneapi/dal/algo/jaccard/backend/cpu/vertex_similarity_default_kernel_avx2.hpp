@@ -31,12 +31,13 @@ namespace jaccard {
 namespace detail {
 
 #if defined(__INTEL_COMPILER)
-DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &a) {
-    return _popcnt32(a);
+DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
+    return _popcnt32(x);
 }
 #else
-DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &a) {
+DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
     std::int32_t count = 0;
+    std::int32_t a = x;
     while (a != 0) {
         a = a & (a - 1);
         count++;
