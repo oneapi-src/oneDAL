@@ -17,7 +17,6 @@
 #pragma once
 
 #include "oneapi/dal/io/csv/common.hpp"
-//#include "oneapi/dal/io/read_types.hpp"
 
 namespace oneapi::dal::csv {
 
@@ -29,7 +28,7 @@ template<>
 class read_args_impl<table>;
 } // namespace detail
 
-template<typename Object>
+template<typename Object = table>
 class read_args;
 
 template<>
