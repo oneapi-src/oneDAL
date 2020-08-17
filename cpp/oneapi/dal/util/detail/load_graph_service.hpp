@@ -19,6 +19,8 @@
 #include "services/daal_atomic_int.h"
 #include "services/daal_memory.h"
 
+#include "oneapi/dal/graph/graph_common.hpp"
+
 namespace oneapi::dal::preview {
 typedef void (*functype)(int i, const void *a);
 }
