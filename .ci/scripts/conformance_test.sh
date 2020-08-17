@@ -48,5 +48,5 @@ source ${dal_vars} intel64
 
 # testing
 cd .ci/scripts/conformance-scripts/ || exit 1
-python run_tests.py 0.23.1
+python run_tests.py 0.23.2
 cd ../../..
