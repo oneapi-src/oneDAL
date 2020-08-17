@@ -16,13 +16,4 @@
 
 #pragma once
 
-#include "oneapi/dal/io/csv_data_source/detail/read_ops.hpp"
-#include "oneapi/dal/io/csv_data_source/read_types.hpp"
-#include "oneapi/dal/read.hpp"
-
-namespace oneapi::dal::detail {
-
-template <typename table, typename Descriptor>
-struct read_ops<table, Descriptor, dal::csv_data_source::detail::tag> : dal::csv_data_source::detail::read_ops<table, Descriptor> {};
-
-} // namespace oneapi::dal::detail
+#include "oneapi/dal/io/csv/read.hpp"

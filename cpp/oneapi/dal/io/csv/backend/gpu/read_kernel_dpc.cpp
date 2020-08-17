@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/io/csv_data_source/backend/gpu/read_kernel.hpp"
+#include "oneapi/dal/io/csv/backend/gpu/read_kernel.hpp"
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
@@ -25,11 +25,11 @@
 #include "daal/include/data_management/data_source/file_data_source.h"
 #include "daal/include/data_management/data_source/csv_feature_manager.h"
 
-namespace oneapi::dal::csv_data_source::backend {
+namespace oneapi::dal::csv::backend {
 
 table read_kernel_gpu<table>::operator()(const dal::backend::context_gpu& ctx,
-                                         const params_base& params,
-                                         const read_input<table>& input) const {
+                                         const data_source_base& data_source,
+                                         const read_args<table>& args) const {
     auto& queue = ctx.get_queue();
 
     using namespace daal::data_management;
@@ -37,13 +37,13 @@ table read_kernel_gpu<table>::operator()(const dal::backend::context_gpu& ctx,
     CsvDataSourceOptions csv_options =
         CsvDataSourceOptions::allocateNumericTable |
         CsvDataSourceOptions::createDictionaryFromContext |
-        (params.get_parse_header() ? CsvDataSourceOptions::parseHeader : CsvDataSourceOptions::byDefault);
+        (data_source.get_parse_header() ? CsvDataSourceOptions::parseHeader : CsvDataSourceOptions::byDefault);
 
-    FileDataSource<CSVFeatureManager> data_source(params.get_file_name(), csv_options);
-    data_source.getFeatureManager().setDelimiter(params.get_delimiter());
-    data_source.loadDataBlock();
+    FileDataSource<CSVFeatureManager> daal_data_source(data_source.get_file_name(), csv_options);
+    daal_data_source.getFeatureManager().setDelimiter(data_source.get_delimiter());
+    daal_data_source.loadDataBlock();
 
-    auto nt = data_source.getNumericTable();
+    auto nt = daal_data_source.getNumericTable();
 
     daal::data_management::BlockDescriptor<DAAL_DATA_TYPE> block;
     const std::int64_t row_count    = nt->getNumberOfRows();
@@ -60,4 +60,4 @@ table read_kernel_gpu<table>::operator()(const dal::backend::context_gpu& ctx,
     return dal::detail::homogen_table_builder{}.reset(arr, row_count, column_count).build();
 }
 
-} // namespace oneapi::dal::csv_data_source::backend
+} // namespace oneapi::dal::csv::backend

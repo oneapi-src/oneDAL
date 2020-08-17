@@ -19,18 +19,18 @@
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
-namespace oneapi::dal::csv_data_source {
+namespace oneapi::dal::csv {
 
 namespace detail {
-struct tag {};
-class params_impl;
+struct data_source_tag {};
+class data_source_impl;
 } // namespace detail
 
-class ONEAPI_DAL_EXPORT params_base : public base {
+class ONEAPI_DAL_EXPORT data_source_base : public base {
 public:
-    using tag_t    = detail::tag;
+    using tag_t    = detail::data_source_tag;
 
-    params_base(const char * file_name);
+    data_source_base(const char * file_name);
 
     auto get_delimiter() const -> char;
     auto get_parse_header() const -> bool;
@@ -41,13 +41,13 @@ protected:
     void set_parse_header_impl(bool value);
     void set_file_name_impl(const char *);
 
-    dal::detail::pimpl<detail::params_impl> impl_;
+    dal::detail::pimpl<detail::data_source_impl> impl_;
 };
 
-class params : public params_base {
+class data_source : public data_source_base {
 public:
 
-    params(const char * file_name) : params_base(file_name) {}
+    data_source(const char * file_name) : data_source_base(file_name) {}
 
     auto& set_delimiter(char value) {
         set_delimiter_impl(value);
@@ -65,4 +65,4 @@ public:
     }
 };
 
-} // namespace oneapi::dal::csv_data_source
+} // namespace oneapi::dal::csv

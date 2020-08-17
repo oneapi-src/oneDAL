@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/pca.hpp"
-#include "oneapi/dal/io/csv_data_source.hpp"
+#include "oneapi/dal/io/csv.hpp"
 
 #include "example_util/utils.hpp"
 
@@ -24,7 +24,7 @@ using namespace oneapi;
 const char data_file_name[] = "../../daal/data/batch/pca_normalized.csv";
 
 int main(int argc, char const *argv[]) {
-    const auto data_source = dal::csv_data_source::params(data_file_name)
+    const auto data_source = dal::csv::data_source(data_file_name)
         .set_delimiter(',');
 
     const auto data_table = dal::read(data_source);

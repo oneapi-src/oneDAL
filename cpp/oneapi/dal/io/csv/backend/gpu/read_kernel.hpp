@@ -14,19 +14,21 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/io/csv_data_source/read_types.hpp"
-#include "oneapi/dal/detail/common.hpp"
-#include "oneapi/dal/detail/memory.hpp"
-#include "oneapi/dal/table/common.hpp"
+#pragma once
 
-namespace oneapi::dal::csv_data_source {
+#include "oneapi/dal/io/csv/read_types.hpp"
+#include "oneapi/dal/backend/dispatcher_dpc.hpp"
+
+namespace oneapi::dal::csv::backend {
+
+template<typename Object>
+struct read_kernel_gpu;
 
 template<>
-class detail::read_input_impl<table> : public base {
-public:
-    read_input_impl() {}
+struct read_kernel_gpu<table> {
+    table operator()(const dal::backend::context_gpu& ctx,
+                     const data_source_base& data_source,
+                     const read_args<table>& args) const;
 };
 
-read_input<table>::read_input() : impl_(new detail::read_input_impl<table>()) {}
-
-} // namespace oneapi::dal::pca
+} // namespace oneapi::dal::csv::backend

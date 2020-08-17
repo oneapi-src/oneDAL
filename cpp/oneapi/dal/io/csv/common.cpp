@@ -14,49 +14,49 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/io/csv_data_source/common.hpp"
+#include "oneapi/dal/io/csv/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
-namespace oneapi::dal::csv_data_source {
+namespace oneapi::dal::csv {
 
-class detail::params_impl : public base {
+class detail::data_source_impl : public base {
 public:
     char delimiter    = ',';
     bool parse_header = false;
     char * file_name  = nullptr;
 };
 
-using detail::params_impl;
+using detail::data_source_impl;
 
-params_base::params_base(const char * file_name) : impl_(new params_impl{}) {
+data_source_base::data_source_base(const char * file_name) : impl_(new data_source_impl{}) {
     set_file_name_impl(file_name);
 }
 
-char params_base::get_delimiter() const {
+char data_source_base::get_delimiter() const {
     return impl_->delimiter;
 }
 
-bool params_base::get_parse_header() const {
+bool data_source_base::get_parse_header() const {
     return impl_->parse_header;
 }
 
-const char * params_base::get_file_name() const {
+const char * data_source_base::get_file_name() const {
     return impl_->file_name;
 }
 
-void params_base::set_delimiter_impl(char value) {
+void data_source_base::set_delimiter_impl(char value) {
     impl_->delimiter = value;
 }
 
-void params_base::set_parse_header_impl(bool value) {
+void data_source_base::set_parse_header_impl(bool value) {
     impl_->parse_header = value;
 }
 
-void params_base::set_file_name_impl(const char * value) {
+void data_source_base::set_file_name_impl(const char * value) {
     const size_t len = strlen(value);
     impl_->file_name = new char[len + 1];
     dal::detail::memcpy(dal::detail::default_host_policy{}, impl_->file_name, value, sizeof(char) * len);
     impl_->file_name[len] = '\0';
 }
 
-} // namespace oneapi::dal::csv_data_source
+} // namespace oneapi::dal::csv

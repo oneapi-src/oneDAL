@@ -14,30 +14,19 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "oneapi/dal/io/csv/read_types.hpp"
+#include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/detail/memory.hpp"
+#include "oneapi/dal/table/common.hpp"
 
-#include "oneapi/dal/io/csv_data_source/common.hpp"
-
-namespace oneapi::dal::csv_data_source {
-
-namespace detail {
-template<typename Object>
-class read_input_impl;
+namespace oneapi::dal::csv {
 
 template<>
-class read_input_impl<table>;
-} // namespace detail
-
-template<typename Object>
-class read_input;
-
-template<>
-class ONEAPI_DAL_EXPORT read_input<table> : public base {
+class detail::read_args_impl<table> : public base {
 public:
-    read_input();
-
-private:
-    dal::detail::pimpl<detail::read_input_impl<table>> impl_;
+    read_args_impl() {}
 };
 
-} // namespace oneapi::dal::pca
+read_args<table>::read_args() : impl_(new detail::read_args_impl<table>()) {}
+
+} // namespace oneapi::dal::csv

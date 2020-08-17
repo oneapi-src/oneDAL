@@ -246,7 +246,7 @@ ONEAPI.ALGOS :=     \
     jaccard
 
 ONEAPI.IO :=     \
-    csv_data_source
+    csv
 
 JJ.ALGORITHMS       := adaboost                                                  \
                        adaboost/prediction                                       \

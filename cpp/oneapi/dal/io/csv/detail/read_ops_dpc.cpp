@@ -14,24 +14,24 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/io/csv_data_source/backend/cpu/read_kernel.hpp"
-#include "oneapi/dal/io/csv_data_source/backend/gpu/read_kernel.hpp"
-#include "oneapi/dal/io/csv_data_source/detail/read_ops.hpp"
+#include "oneapi/dal/io/csv/backend/cpu/read_kernel.hpp"
+#include "oneapi/dal/io/csv/backend/gpu/read_kernel.hpp"
+#include "oneapi/dal/io/csv/detail/read_ops.hpp"
 #include "oneapi/dal/backend/dispatcher_dpc.hpp"
 
-namespace oneapi::dal::csv_data_source::detail {
+namespace oneapi::dal::csv::detail {
 using oneapi::dal::detail::data_parallel_policy;
 
 template<>
 table read_ops_dispatcher<table, data_parallel_policy>::operator()(const data_parallel_policy& ctx,
-                                                                   const params_base& params,
-                                                                   const read_input<table>& input) const {
+                                                                   const data_source_base& data_source,
+                                                                   const read_args<table>& args) const {
     using kernel_dispatcher_t =
         dal::backend::kernel_dispatcher<backend::read_kernel_cpu<table>,
                                         backend::read_kernel_gpu<table>>;
-    return kernel_dispatcher_t{}(ctx, params, input);
+    return kernel_dispatcher_t{}(ctx, data_source, args);
 }
 
 template struct ONEAPI_DAL_EXPORT read_ops_dispatcher<table, data_parallel_policy>;
 
-} // namespace oneapi::dal::csv_data_source::detail
+} // namespace oneapi::dal::csv::detail
