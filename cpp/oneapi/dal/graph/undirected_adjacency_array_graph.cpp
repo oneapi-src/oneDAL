@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
+#include "oneapi/dal/graph/detail/undirected_adjacency_array_graph.hpp"
 #include "oneapi/dal/graph/detail/graph_service_functions_impl.hpp"
 
 namespace oneapi::dal::preview {
