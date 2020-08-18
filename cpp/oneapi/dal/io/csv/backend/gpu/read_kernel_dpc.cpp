@@ -58,7 +58,8 @@ table read_kernel_gpu<table>::operator()(const dal::backend::context_gpu& ctx,
     const std::int64_t row_count    = nt->getNumberOfRows();
     const std::int64_t column_count = nt->getNumberOfColumns();
 
-    interop::status_to_exception(nt->getBlockOfRows(0, row_count, daal::data_management::readOnly, block));
+    interop::status_to_exception(
+        nt->getBlockOfRows(0, row_count, daal::data_management::readOnly, block));
     DAAL_DATA_TYPE* data = block.getBlockPtr();
 
     auto arr = array<DAAL_DATA_TYPE>::empty(queue, row_count * column_count);
