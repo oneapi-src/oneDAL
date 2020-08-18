@@ -20,7 +20,6 @@
 
 #define ONEAPI_DAL_DATA_PARALLEL
 #include "oneapi/dal/algo/pca.hpp"
-#include "oneapi/dal/data/accessor.hpp"
 
 #include "example_util/utils.hpp"
 

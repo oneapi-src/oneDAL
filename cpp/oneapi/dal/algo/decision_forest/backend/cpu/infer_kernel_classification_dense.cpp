@@ -16,6 +16,8 @@
 
 #include <daal/src/algorithms/dtrees/forest/classification/df_classification_predict_dense_default_batch.h>
 
+#include "oneapi/dal/table/row_accessor.hpp"
+
 #include "oneapi/dal/algo/decision_forest/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"

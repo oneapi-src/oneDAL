@@ -14,8 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/data/table.hpp"
-#include "oneapi/dal/data/accessor.hpp"
 #include "oneapi/dal/algo/pca.hpp"
 
 #include "example_util/utils.hpp"
@@ -34,7 +32,7 @@ int main(int argc, char const *argv[]) {
         -4.f, 3.f,  0.f
     };
 
-    const auto data_table = dal::homogen_table{ data, row_count, column_count, dal::empty_delete<const float>() };
+    const auto data_table = dal::homogen_table::wrap( data, row_count, column_count);
 
     const auto pca_desc = dal::pca::descriptor<>()
         .set_component_count(3)

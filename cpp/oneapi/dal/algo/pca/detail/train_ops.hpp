@@ -17,8 +17,8 @@
 #pragma once
 
 #include "oneapi/dal/algo/pca/train_types.hpp"
-#include "oneapi/dal/data/accessor.hpp"
 #include "oneapi/dal/exceptions.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::pca::detail {
 

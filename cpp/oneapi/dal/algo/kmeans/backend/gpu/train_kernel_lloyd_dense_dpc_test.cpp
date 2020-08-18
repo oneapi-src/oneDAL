@@ -19,8 +19,8 @@
 #include "gtest/gtest.h"
 #define ONEAPI_DAL_DATA_PARALLEL
 #include "oneapi/dal/algo/kmeans.hpp"
-#include "oneapi/dal/data/accessor.hpp"
-#include "oneapi/dal/data/table.hpp"
+#include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
 
 using namespace oneapi::dal;
 
@@ -36,8 +36,7 @@ TEST(kmeans_lloyd_dense_gpu, train_results) {
                                 -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
     auto data               = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(data, data_host, sizeof(float) * row_count * column_count).wait();
-    const auto data_table =
-        homogen_table{ queue, data, row_count, column_count, empty_delete<const float>() };
+    const auto data_table = homogen_table::wrap(queue, data, row_count, column_count);
 
     const float initial_centroids_host[] = { 0.0, 0.0, 0.0, 0.0 };
     auto initial_centroids = sycl::malloc_shared<float>(cluster_count * column_count, queue);
@@ -89,8 +88,7 @@ TEST(kmeans_lloyd_dense_gpu, infer_results) {
                                 -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
     auto data               = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(data, data_host, sizeof(float) * row_count * column_count).wait();
-    const auto data_table =
-        homogen_table{ queue, data, row_count, column_count, empty_delete<const float>() };
+    const auto data_table = homogen_table::wrap(queue, data, row_count, column_count);
 
     const float initial_centroids_host[] = { 0.0, 0.0, 0.0, 0.0 };
     auto initial_centroids = sycl::malloc_shared<float>(cluster_count * column_count, queue);
