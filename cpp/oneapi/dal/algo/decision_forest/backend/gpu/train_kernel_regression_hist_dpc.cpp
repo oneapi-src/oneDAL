@@ -147,7 +147,7 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
     }
     if (check_mask_flag(desc.get_error_metric_mode(),
                         error_metric_mode::out_of_bag_error_per_observation)) {
-        res.set_oob_per_observation_err(
+        res.set_oob_err_per_observation(
             dal::detail::homogen_table_builder{}.reset(arr_oob_per_obs_err, row_count, 1).build());
     }
     if (variable_importance_mode::none != vimp) {

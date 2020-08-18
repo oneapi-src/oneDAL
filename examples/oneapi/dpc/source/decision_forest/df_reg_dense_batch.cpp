@@ -74,7 +74,7 @@ void run(sycl::queue &queue) {
 
     std::cout << "OOB error: " << result_train.get_oob_err() << std::endl;
     std::cout << "OOB error per observation:" << std::endl
-              << result_train.get_oob_per_observation_err() << std::endl;
+              << result_train.get_oob_err_per_observation() << std::endl;
 
     const auto result_infer = dal::infer(df_infer_desc, result_train.get_model(), x_test_table);
 
