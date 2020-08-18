@@ -46,11 +46,11 @@ if ! [ -f "${dal_vars}" ]; then
     exit 1
 fi
 source ${dal_vars} intel64
-cp ${BUILD_DIR}/tbb/latest/intel64/libtbb.so.12 $CONDA_PREFIX/lib/
+cp ${BUILD_DIR}/tbb/latest/lib/intel64/libtbb.so.12 $CONDA_PREFIX/lib/
 
 # testing
 cd .ci/scripts/conformance-scripts/ || exit 1
 export IDP_SKLEARN_VERBOSE=INFO
-ll
+ls -l
 python run_tests.py ${PYTHON_VERSION}
 cd ../../..
