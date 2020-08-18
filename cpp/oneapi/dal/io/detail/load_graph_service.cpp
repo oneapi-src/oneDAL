@@ -15,7 +15,6 @@
 *******************************************************************************/
 
 #include "oneapi/dal/io/detail/load_graph_service.hpp"
-#include <iostream>
 #include "oneapi/dal/detail/common.hpp"
 #include "src/externals/service_service.h"
 #include "src/threading/threading.h"

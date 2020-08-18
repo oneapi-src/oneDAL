@@ -37,7 +37,7 @@ DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
 #else
 DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
     std::int32_t count = 0;
-    std::int32_t a = x;
+    std::int32_t a     = x;
     while (a != 0) {
         a = a & (a - 1);
         count++;

@@ -16,12 +16,11 @@
 
 #include <iostream>
 
+#include "example_util/utils.hpp"
 #include "oneapi/dal/graph/graph_service_functions.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
 #include "oneapi/dal/io/csv_data_source.hpp"
 #include "oneapi/dal/io/load_graph.hpp"
-
-#include "example_util/utils.hpp"
 
 using namespace oneapi::dal;
 using namespace oneapi::dal::preview;
