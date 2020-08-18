@@ -19,6 +19,7 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::linear_kernel::detail {
+using oneapi::dal::detail::host_policy;
 
 template <typename Float, typename Method>
 struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<host_policy, Float, Method> {

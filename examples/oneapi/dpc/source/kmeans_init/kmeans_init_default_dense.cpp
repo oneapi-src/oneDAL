@@ -20,7 +20,6 @@
 
 #define ONEAPI_DAL_DATA_PARALLEL
 #include "oneapi/dal/algo/kmeans_init.hpp"
-#include "oneapi/dal/data/accessor.hpp"
 
 #include "example_util/utils.hpp"
 
@@ -31,24 +30,24 @@ void run(sycl::queue &queue) {
     constexpr std::int64_t column_count  = 2;
     constexpr std::int64_t cluster_count = 2;
 
-    const float x_train_host[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
-                                   -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
-    const float x_test_host[]  = { 1.0, 1.0, 2.0, 2.0 };
+    const float x_compute_host[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
+                                     -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
+    const float x_test_host[]    = { 1.0, 1.0, 2.0, 2.0 };
 
-    auto x_train = sycl::malloc_shared<float>(row_count * column_count, queue);
-    queue.memcpy(x_train, x_train_host, sizeof(float) * row_count * column_count).wait();
-    const auto x_train_table = dal::homogen_table{ queue, row_count, column_count, x_train_host };
-    const auto x_test_table  = dal::homogen_table{ cluster_count, column_count, x_test_host };
+    auto x_compute = sycl::malloc_shared<float>(row_count * column_count, queue);
+    queue.memcpy(x_compute, x_compute_host, sizeof(float) * row_count * column_count).wait();
+    const auto x_compute_table = dal::homogen_table::wrap(queue, x_compute, row_count, column_count);
+    const auto x_test_table  = dal::homogen_table::wrap(x_test_host, cluster_count, column_count);
 
     const auto kmeans_init_desc = dal::kmeans_init::descriptor<>().set_cluster_count(cluster_count);
 
-    const auto result = dal::train(queue, kmeans_init_desc, x_train_table);
+    const auto result = dal::compute(queue, kmeans_init_desc, x_compute_table);
 
     std::cout << "Initial cetroids:" << std::endl << result.get_centroids() << std::endl;
 
     std::cout << "Ground truth:" << std::endl << x_test_table << std::endl;
 
-    sycl::free(x_train, queue);
+    sycl::free(x_compute, queue);
 }
 
 int main(int argc, char const *argv[]) {

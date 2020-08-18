@@ -50,8 +50,8 @@ void run(sycl::queue &queue) {
     auto y = sycl::malloc_shared<float>(row_count_y * column_count, queue);
     queue.memcpy(y, y_host, sizeof(float) * row_count_y * column_count).wait();
 
-    const auto x_table = dal::homogen_table{ queue, row_count_x, column_count, x };
-    const auto y_table = dal::homogen_table{ queue, row_count_y, column_count, y };
+    const auto x_table = dal::homogen_table{ queue, x, row_count_x, column_count, dal::make_default_delete<const float>(queue) };
+    const auto y_table = dal::homogen_table{ queue, y, row_count_y, column_count, dal::make_default_delete<const float>(queue) };
     const auto kernel_desc = dal::linear_kernel::descriptor{}
         .set_k(2.0)
         .set_b(1.0);
@@ -59,9 +59,6 @@ void run(sycl::queue &queue) {
     const auto result = dal::compute(queue, kernel_desc, x_table, y_table);
 
     std::cout << "Values:" << std::endl << result.get_values() << std::endl;
-
-    sycl::free(x, queue);
-    sycl::free(y, queue);
 }
 
 int main(int argc, char const *argv[]) {
