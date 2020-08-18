@@ -23,12 +23,12 @@ class detail::data_source_impl : public base {
 public:
     char delimiter    = ',';
     bool parse_header = false;
-    char * file_name  = nullptr;
+    char* file_name   = nullptr;
 };
 
 using detail::data_source_impl;
 
-data_source_base::data_source_base(const char * file_name) : impl_(new data_source_impl{}) {
+data_source_base::data_source_base(const char* file_name) : impl_(new data_source_impl{}) {
     set_file_name_impl(file_name);
 }
 
@@ -40,7 +40,7 @@ bool data_source_base::get_parse_header() const {
     return impl_->parse_header;
 }
 
-const char * data_source_base::get_file_name() const {
+const char* data_source_base::get_file_name() const {
     return impl_->file_name;
 }
 
@@ -52,10 +52,13 @@ void data_source_base::set_parse_header_impl(bool value) {
     impl_->parse_header = value;
 }
 
-void data_source_base::set_file_name_impl(const char * value) {
+void data_source_base::set_file_name_impl(const char* value) {
     const size_t len = strlen(value);
     impl_->file_name = new char[len + 1];
-    dal::detail::memcpy(dal::detail::default_host_policy{}, impl_->file_name, value, sizeof(char) * len);
+    dal::detail::memcpy(dal::detail::default_host_policy{},
+                        impl_->file_name,
+                        value,
+                        sizeof(char) * len);
     impl_->file_name[len] = '\0';
 }
 

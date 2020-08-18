@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/table/common.hpp"
 
 namespace oneapi::dal::csv {
 
@@ -28,26 +28,25 @@ class data_source_impl;
 
 class ONEAPI_DAL_EXPORT data_source_base : public base {
 public:
-    using tag_t    = detail::data_source_tag;
+    using tag_t = detail::data_source_tag;
 
-    data_source_base(const char * file_name);
+    data_source_base(const char* file_name);
 
     auto get_delimiter() const -> char;
     auto get_parse_header() const -> bool;
-    auto get_file_name() const -> const char *;
+    auto get_file_name() const -> const char*;
 
 protected:
     void set_delimiter_impl(char value);
     void set_parse_header_impl(bool value);
-    void set_file_name_impl(const char *);
+    void set_file_name_impl(const char*);
 
     dal::detail::pimpl<detail::data_source_impl> impl_;
 };
 
 class data_source : public data_source_base {
 public:
-
-    data_source(const char * file_name) : data_source_base(file_name) {}
+    data_source(const char* file_name) : data_source_base(file_name) {}
 
     auto& set_delimiter(char value) {
         set_delimiter_impl(value);
@@ -59,7 +58,7 @@ public:
         return *this;
     }
 
-    auto& set_file_name(const char * value) {
+    auto& set_file_name(const char* value) {
         set_file_name_impl(value);
         return *this;
     }

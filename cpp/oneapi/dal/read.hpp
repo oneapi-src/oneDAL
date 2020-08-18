@@ -30,7 +30,7 @@ auto read(Args&&... args) {
 template <typename Object = dal::table, typename... Args>
 auto read(sycl::queue& queue, Args&&... args) {
     return detail::read_dispatch<Object>(detail::data_parallel_policy{ queue },
-                                 std::forward<Args>(args)...);
+                                         std::forward<Args>(args)...);
 }
 #endif
 

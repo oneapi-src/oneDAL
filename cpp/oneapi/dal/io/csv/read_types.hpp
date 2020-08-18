@@ -21,17 +21,17 @@
 namespace oneapi::dal::csv {
 
 namespace detail {
-template<typename Object>
+template <typename Object>
 class read_args_impl;
 
-template<>
+template <>
 class read_args_impl<table>;
 } // namespace detail
 
-template<typename Object = table>
+template <typename Object = table>
 class read_args;
 
-template<>
+template <>
 class ONEAPI_DAL_EXPORT read_args<table> : public base {
 public:
     read_args();

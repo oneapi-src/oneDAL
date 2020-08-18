@@ -21,7 +21,7 @@
 
 namespace oneapi::dal::csv {
 
-template<>
+template <>
 class detail::read_args_impl<table> : public base {
 public:
     read_args_impl() {}
