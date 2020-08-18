@@ -16,5 +16,19 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/decision_forest/infer.hpp"
-#include "oneapi/dal/algo/decision_forest/train.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
+#include "oneapi/dal/io/csv/read_types.hpp"
+
+namespace oneapi::dal::csv::backend {
+
+template <typename Object>
+struct read_kernel_cpu;
+
+template <>
+struct read_kernel_cpu<table> {
+    table operator()(const dal::backend::context_cpu& ctx,
+                     const data_source_base& data_source,
+                     const read_args<table>& args) const;
+};
+
+} // namespace oneapi::dal::csv::backend
