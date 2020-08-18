@@ -43,7 +43,7 @@ class ONEAPI_DAL_EXPORT vertex_similarity_input {
 public:
     /// Constructs the algorithm input initialized with the graph and the pointer
     /// to the allocated memory for the result. The size of the required memory
-    /// can be computed by formula:
+    /// can be computed by the formula:
     /// size = (vertex_pair_size + jaccard_coeff_size) * vertex_pairs_count,
     /// where:
     /// - vertex_pair_size is (2 * sizeof(int32_t));
@@ -72,7 +72,7 @@ public:
     vertex_similarity_result(){};
 
     /// Constructs the algorithm result initialized with the table of vertex pairs,
-    /// the table of the corresponding computed Jaccard similarity coefficients and
+    /// the table of the corresponding computed Jaccard similarity coefficients, and
     /// the number of non-zero Jaccard similarity coefficients in the block.
     ///
     /// @param [in]   vertex_pairs  The table of size 2*nonzero_coeff_count with

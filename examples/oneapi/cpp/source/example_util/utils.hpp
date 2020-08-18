@@ -24,7 +24,7 @@ std::size_t compute_max_block_size(const std::int64_t& row_range_begin,
                             const std::int64_t& row_range_end,
                             const std::int64_t& column_range_begin,
                             const std::int64_t& column_range_end) {
-    // comupte the number of the vertex pairs in the block of the graph
+    // compute the number of the vertex pairs in the block of the graph
     auto vertex_pairs_count = (row_range_end - row_range_begin) *
                             (column_range_end - column_range_begin);
 
