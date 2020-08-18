@@ -20,8 +20,8 @@
 
 namespace oneapi::dal::decision_forest {
 
-inline void check_domain_cond(bool value, const char * description) {
-    if (!(value))                                 \
+inline void check_domain_cond(bool value, const char* description) {
+    if (!(value))
         throw dal::domain_error(description);
 }
 
@@ -167,7 +167,7 @@ voting_mode descriptor_base<Task>::get_voting_mode_impl() const {
 template <typename Task>
 void descriptor_base<Task>::set_observations_per_tree_fraction_impl(double value) {
     check_domain_cond((value > 0.0 && value <= 1.0),
-                          "observations_per_tree_fraction schould be > 0.0 and <= 1.0");
+                      "observations_per_tree_fraction schould be > 0.0 and <= 1.0");
     impl_->observations_per_tree_fraction = value;
 }
 template <typename Task>
@@ -178,7 +178,7 @@ void descriptor_base<Task>::set_impurity_threshold_impl(double value) {
 template <typename Task>
 void descriptor_base<Task>::set_min_weight_fraction_in_leaf_node_impl(double value) {
     check_domain_cond((value >= 0.0 && value <= 0.5),
-                          "min_weight_fraction_in_leaf_node schould be >= 0.0 and <= 0.5");
+                      "min_weight_fraction_in_leaf_node schould be >= 0.0 and <= 0.5");
     impl_->min_weight_fraction_in_leaf_node = value;
 }
 template <typename Task>
