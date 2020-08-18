@@ -20,6 +20,6 @@
 
 namespace oneapi::dal::backend {
 
-enum class layout : int { row_major = 0, col_major = 1 };
+enum class layout : int { row_major = 0, rm = 0, col_major = 1, cm = 1 };
 
 } // namespace oneapi::dal::backend
