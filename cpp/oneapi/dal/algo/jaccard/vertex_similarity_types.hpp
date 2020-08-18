@@ -91,11 +91,11 @@ public:
 
     /// Returns the table of size 1*nonzero_coeff_count with non-zero Jaccard
     /// similarity coefficients
-    table get_coeffs() const;
+    table& get_coeffs() const;
 
     /// Returns the table of size 2*nonzero_coeff_count with vertex pairs which have
     /// non-zero Jaccard similarity coefficients
-    table get_vertex_pairs() const;
+    table& get_vertex_pairs() const;
 
     /// The number of non-zero Jaccard similarity coefficients in the block
     int64_t get_nonzero_coeff_count() const;

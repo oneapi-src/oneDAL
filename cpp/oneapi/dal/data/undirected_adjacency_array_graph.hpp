@@ -103,6 +103,13 @@ public:
     /// Constructs an empty undirected_adjacency_array_graph
     undirected_adjacency_array_graph();
 
+    using pimpl =
+        oneapi::dal::detail::pimpl<detail::undirected_adjacency_array_graph_impl<VertexValue,
+                                                                                 EdgeValue,
+                                                                                 GraphValue,
+                                                                                 IndexType,
+                                                                                 Allocator>>;
+
     /// Move constructor for undirected_adjacency_array_graph
     undirected_adjacency_array_graph(undirected_adjacency_array_graph &&graph);
 
@@ -122,22 +129,15 @@ public:
     undirected_adjacency_array_graph(graph_user_value_type &&graph_user_value,
                                      allocator_type allocator = allocator_type()){};
 
+    pimpl impl_;
+
     /// Copy operator for undirected_adjacency_array_graph
     undirected_adjacency_array_graph &operator=(const undirected_adjacency_array_graph &graph);
 
     /// Move operator for undirected_adjacency_array_graph
     undirected_adjacency_array_graph &operator=(undirected_adjacency_array_graph &&graph);
 
-    using pimpl =
-        oneapi::dal::detail::pimpl<detail::undirected_adjacency_array_graph_impl<VertexValue,
-                                                                                 EdgeValue,
-                                                                                 GraphValue,
-                                                                                 IndexType,
-                                                                                 Allocator>>;
-
 private:
-    pimpl impl_;
-
     friend pimpl &detail::get_impl<graph_type>(graph_type &graph);
 
     friend const pimpl &detail::get_impl<graph_type>(const graph_type &graph);

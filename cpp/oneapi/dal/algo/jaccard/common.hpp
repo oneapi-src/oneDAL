@@ -22,6 +22,13 @@
 namespace oneapi::dal::preview {
 namespace jaccard {
 namespace detail {
+
+#if defined(_MSC_VER) || defined(__INTEL_COMPILER)
+    #define GRAPH_FORCEINLINE __forceinline
+#else
+    #define GRAPH_FORCEINLINE inline __attribute__((always_inline))
+#endif
+
 struct tag {};
 class descriptor_impl;
 } // namespace detail

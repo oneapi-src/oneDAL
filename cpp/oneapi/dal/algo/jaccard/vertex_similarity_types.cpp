@@ -71,11 +71,11 @@ vertex_similarity_result::vertex_similarity_result(const table& vertex_pairs,
                                                    int64_t& nonzero_coeff_count)
         : impl_(new vertex_similarity_result_impl(vertex_pairs, coeffs, nonzero_coeff_count)) {}
 
-table vertex_similarity_result::get_coeffs() const {
+table& vertex_similarity_result::get_coeffs() const {
     return impl_->coeffs;
 }
 
-table vertex_similarity_result::get_vertex_pairs() const {
+table& vertex_similarity_result::get_vertex_pairs() const {
     return impl_->vertex_pairs;
 }
 
