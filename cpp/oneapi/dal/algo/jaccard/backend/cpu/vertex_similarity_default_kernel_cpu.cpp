@@ -136,12 +136,6 @@ vertex_similarity_result call_jaccard_default_kernel(const descriptor_base &desc
     return res;
 }
 
-#define INSTANTIATE(cpu)                                                  \
-    template vertex_similarity_result                                     \
-    call_jaccard_default_kernel<undirected_adjacency_array_graph<>, cpu>( \
-        const descriptor_base &desc,                                      \
-        vertex_similarity_input<undirected_adjacency_array_graph<>> &input);
-
 INSTANTIATE(__CPU_TAG__)
 } // namespace detail
 } // namespace jaccard

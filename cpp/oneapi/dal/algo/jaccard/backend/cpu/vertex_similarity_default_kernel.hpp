@@ -30,6 +30,12 @@ namespace detail {
 template <typename Graph, typename Cpu>
 vertex_similarity_result call_jaccard_default_kernel(const descriptor_base &desc,
                                                      vertex_similarity_input<Graph> &input);
+
+#define INSTANTIATE(cpu)                                                  \
+    template vertex_similarity_result                                     \
+    call_jaccard_default_kernel<undirected_adjacency_array_graph<>, cpu>( \
+        const descriptor_base &desc,                                      \
+        vertex_similarity_input<undirected_adjacency_array_graph<>> &input);
 } // namespace detail
 } // namespace jaccard
 } // namespace oneapi::dal::preview
