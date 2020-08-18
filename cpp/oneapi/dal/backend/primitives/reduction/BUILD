@@ -2,7 +2,7 @@ package(default_visibility = ["//visibility:public"])
 load("@onedal//dev/bazel:dal.bzl", "dal_module")
 
 dal_module(
-    name = "reducer",
+    name = "reduction",
     dpc = True,
     auto = True,
     deps = [
