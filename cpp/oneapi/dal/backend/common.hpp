@@ -17,3 +17,9 @@
 #pragma once
 
 #include "oneapi/dal/backend/dispatcher.hpp"
+
+namespace oneapi::dal::backend {
+
+enum class layout : int { row_major = 0, col_major = 1 };
+
+} // namespace oneapi::dal::backend
