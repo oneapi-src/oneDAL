@@ -27,7 +27,7 @@
 
 #include "oneapi/dal/backend/primitives/functors.hpp"
 #include "oneapi/dal/backend/primitives/reducer.hpp"
-#include "oneapi/dal/data/array.hpp"
+#include "oneapi/dal/backend/array.hpp"
 
 namespace oneapi::dal::backend::primitives {
 

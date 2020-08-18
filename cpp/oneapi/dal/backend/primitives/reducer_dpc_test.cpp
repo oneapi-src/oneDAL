@@ -24,7 +24,7 @@
 
 #include "oneapi/dal/backend/primitives/functors.hpp"
 #include "oneapi/dal/backend/primitives/reducer.hpp"
-#include "oneapi/dal/data/array.hpp"
+#include "oneapi/dal/backend/array.hpp"
 
 TEST(reducer_l2_rm, can_handle_array_of_zeros) {
     cl::sycl::queue q{ cl::sycl::gpu_selector() };
