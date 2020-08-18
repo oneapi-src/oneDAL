@@ -101,7 +101,7 @@ public:
     }
 };
 
-ONEAPI_DAL_EXPORT struct caching_builder {
+struct ONEAPI_DAL_EXPORT caching_builder {
     void* operator()(const std::size_t& size);
 
     std::shared_ptr<byte_t> result_ptr;
