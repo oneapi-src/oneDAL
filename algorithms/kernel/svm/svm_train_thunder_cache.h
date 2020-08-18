@@ -182,10 +182,17 @@ protected:
         _kernelOriginalIndex.reset(nSize);
         DAAL_CHECK_MALLOC(_kernelOriginalIndex.get());
 
-        auto dict = NumericTableDictionaryCPU<cpu>::create(_cacheSize, DictionaryIface::FeaturesEqual::equal, &status);
+        _cacheData.reset(_lineSize * _cacheSize);
+        DAAL_CHECK_MALLOC(_cacheData.get());
+
+        _cache = SOANumericTableCPU<cpu>::create(_cacheSize, _lineSize, DictionaryIface::FeaturesEqual::equal, &status);
         DAAL_CHECK_STATUS_VAR(status);
-        DAAL_CHECK_STATUS(status, dict->template setAllFeatures<algorithmFPType>());
-        _cache = SOANumericTableCPU<cpu>::create(dict, _lineSize, NumericTable::AllocationFlag::doAllocate, &status);
+
+        for (int i = 0; i < _cacheSize; ++i)
+        {
+            auto cachei = &_cacheData[i * _lineSize];
+            DAAL_CHECK_STATUS(status, _cache->template setArray<algorithmFPType>(cachei, i));
+        }
         DAAL_CHECK_STATUS_VAR(status);
 
         SubDataTaskBase<algorithmFPType, cpu> * task = nullptr;
@@ -210,6 +217,7 @@ protected:
     TArray<uint32_t, cpu> _kernelOriginalIndex;
     TArray<uint32_t, cpu> _kernelIndex;
     services::SharedPtr<SOANumericTableCPU<cpu> > _cache;
+    TArrayScalable<algorithmFPType, cpu> _cacheData;
 };
 
 } // namespace internal
