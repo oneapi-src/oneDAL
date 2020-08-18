@@ -31,6 +31,18 @@ template <typename Graph, typename Cpu>
 vertex_similarity_result call_jaccard_default_kernel(const descriptor_base &desc,
                                                      vertex_similarity_input<Graph> &input);
 
+template <>
+vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_graph<>,
+                                                     oneapi::dal::backend::cpu_dispatch_avx2>(
+    const descriptor_base &desc,
+    vertex_similarity_input<undirected_adjacency_array_graph<>> &input);
+
+template <>
+vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_graph<>,
+                                                     oneapi::dal::backend::cpu_dispatch_avx512>(
+    const descriptor_base &desc,
+    vertex_similarity_input<undirected_adjacency_array_graph<>> &input);
+
 #define INSTANTIATE(cpu)                                                  \
     template vertex_similarity_result                                     \
     call_jaccard_default_kernel<undirected_adjacency_array_graph<>, cpu>( \
