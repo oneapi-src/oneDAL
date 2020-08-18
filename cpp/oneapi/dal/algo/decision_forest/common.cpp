@@ -18,11 +18,12 @@
 #include "oneapi/dal/algo/decision_forest/detail/model_impl.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
-#define DAL_CHECK_DOMAIN_COND(cond, description) \
-    if (!(cond))                                 \
-        throw domain_error(description);
-
 namespace oneapi::dal::decision_forest {
+
+inline void check_domain_cond(bool value, const char * description) {
+    if (!(value))                                 \
+        throw dal::domain_error(description);
+}
 
 template <>
 class detail::descriptor_impl<task::classification> : public base {
@@ -165,55 +166,55 @@ voting_mode descriptor_base<Task>::get_voting_mode_impl() const {
 
 template <typename Task>
 void descriptor_base<Task>::set_observations_per_tree_fraction_impl(double value) {
-    DAL_CHECK_DOMAIN_COND((value > 0.0 && value <= 1.0),
+    check_domain_cond((value > 0.0 && value <= 1.0),
                           "observations_per_tree_fraction schould be > 0.0 and <= 1.0");
     impl_->observations_per_tree_fraction = value;
 }
 template <typename Task>
 void descriptor_base<Task>::set_impurity_threshold_impl(double value) {
-    DAL_CHECK_DOMAIN_COND((value >= 0.0), "impurity_threshold schould be >= 0.0");
+    check_domain_cond((value >= 0.0), "impurity_threshold schould be >= 0.0");
     impl_->impurity_threshold = value;
 }
 template <typename Task>
 void descriptor_base<Task>::set_min_weight_fraction_in_leaf_node_impl(double value) {
-    DAL_CHECK_DOMAIN_COND((value >= 0.0 && value <= 0.5),
+    check_domain_cond((value >= 0.0 && value <= 0.5),
                           "min_weight_fraction_in_leaf_node schould be >= 0.0 and <= 0.5");
     impl_->min_weight_fraction_in_leaf_node = value;
 }
 template <typename Task>
 void descriptor_base<Task>::set_min_impurity_decrease_in_split_node_impl(double value) {
-    DAL_CHECK_DOMAIN_COND((value >= 0.0), "min_impurity_decrease_in_split_node schould be >= 0.0");
+    check_domain_cond((value >= 0.0), "min_impurity_decrease_in_split_node schould be >= 0.0");
     impl_->min_impurity_decrease_in_split_node = value;
 }
 
 template <typename Task>
 void descriptor_base<Task>::set_tree_count_impl(std::int64_t value) {
-    DAL_CHECK_DOMAIN_COND((value > 0), "tree_count schould be > 0");
+    check_domain_cond((value > 0), "tree_count schould be > 0");
     impl_->tree_count = value;
 }
 template <typename Task>
 void descriptor_base<Task>::set_features_per_node_impl(std::int64_t value) {
-    DAL_CHECK_DOMAIN_COND((value >= 0), "features_per_node schould be >= 0");
+    check_domain_cond((value >= 0), "features_per_node schould be >= 0");
     impl_->features_per_node = value;
 }
 template <typename Task>
 void descriptor_base<Task>::set_max_tree_depth_impl(std::int64_t value) {
-    DAL_CHECK_DOMAIN_COND((value >= 0), "max_tree_depth schould be >= 0");
+    check_domain_cond((value >= 0), "max_tree_depth schould be >= 0");
     impl_->max_tree_depth = value;
 }
 template <typename Task>
 void descriptor_base<Task>::set_min_observations_in_leaf_node_impl(std::int64_t value) {
-    DAL_CHECK_DOMAIN_COND((value > 0), "min_observations_in_leaf_node schould be > 0");
+    check_domain_cond((value > 0), "min_observations_in_leaf_node schould be > 0");
     impl_->min_observations_in_leaf_node = value;
 }
 template <typename Task>
 void descriptor_base<Task>::set_min_observations_in_split_node_impl(std::int64_t value) {
-    DAL_CHECK_DOMAIN_COND((value > 0), "min_observations_in_split_node schould be > 0");
+    check_domain_cond((value > 0), "min_observations_in_split_node schould be > 0");
     impl_->min_observations_in_split_node = value;
 }
 template <typename Task>
 void descriptor_base<Task>::set_max_leaf_nodes_impl(std::int64_t value) {
-    DAL_CHECK_DOMAIN_COND((value >= 0), "max_leaf_nodes schould be >= 0");
+    check_domain_cond((value >= 0), "max_leaf_nodes schould be >= 0");
     impl_->max_leaf_nodes = value;
 }
 
@@ -242,7 +243,7 @@ void descriptor_base<Task>::set_variable_importance_mode_impl(variable_importanc
 
 template <typename Task>
 void descriptor_base<Task>::set_class_count_impl(std::int64_t value) {
-    DAL_CHECK_DOMAIN_COND((value > 0), "class_count schould be > 0");
+    check_domain_cond((value > 0), "class_count schould be > 0");
     impl_->class_count = value;
 }
 template <typename Task>

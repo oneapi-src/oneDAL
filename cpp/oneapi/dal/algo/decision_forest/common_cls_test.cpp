@@ -16,12 +16,7 @@
 
 #include "gtest/gtest.h"
 #include "oneapi/dal/algo/decision_forest.hpp"
-#include "oneapi/dal/data/accessor.hpp"
-#include "oneapi/dal/data/table.hpp"
-
-//#include "oneapi/dal/algo/decision_forest/common_test.h"
-
-#include <cmath>
+#include "oneapi/dal/table/row_accessor.hpp"
 
 using namespace oneapi;
 namespace df = oneapi::dal::decision_forest;

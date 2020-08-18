@@ -19,11 +19,7 @@
 #include "gtest/gtest.h"
 #define ONEAPI_DAL_DATA_PARALLEL
 #include "oneapi/dal/algo/decision_forest.hpp"
-#include "oneapi/dal/algo/decision_forest/common_utils_test.hpp"
-#include "oneapi/dal/data/accessor.hpp"
-#include "oneapi/dal/data/table.hpp"
-
-#include <cmath>
+#include "oneapi/dal/algo/decision_forest/test/utils.hpp"
 
 using namespace oneapi;
 namespace df = oneapi::dal::decision_forest;
