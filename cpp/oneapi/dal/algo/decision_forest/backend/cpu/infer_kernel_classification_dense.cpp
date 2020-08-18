@@ -24,6 +24,7 @@
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 #include "oneapi/dal/algo/decision_forest/backend/interop_helpers.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
@@ -60,8 +61,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     auto model_pimpl = dal::detail::pimpl_accessor().get_pimpl(trained_model);
     if (!model_pimpl->is_interop()) {
-        // throw exception
-        return infer_result<Task>();
+        throw dal::internal_error("Input model is inconsistent with kernel type");
     }
 
     auto pinterop_model =

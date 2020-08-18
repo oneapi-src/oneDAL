@@ -65,7 +65,7 @@ int main(int argc, char const *argv[]) {
 
   std::cout << "OOB error: " << result_train.get_oob_err() << std::endl;
   std::cout << "OOB error per observation:" << std::endl
-            << result_train.get_oob_per_observation_err() << std::endl;
+            << result_train.get_oob_err_per_observation() << std::endl;
 
   const auto result_infer = dal::infer(df_desc, result_train.get_model(), x_test_table);
 

@@ -64,7 +64,7 @@ public:
     model<Task> get_model() const;
 
     table get_oob_err() const;
-    table get_oob_per_observation_err() const;
+    table get_oob_err_per_observation() const;
     table get_var_importance() const;
 
     auto& set_model(const model<Task>& value) {
@@ -77,8 +77,8 @@ public:
         return *this;
     }
 
-    auto& set_oob_per_observation_err(const table& value) {
-        set_oob_per_observation_err_impl(value);
+    auto& set_oob_err_per_observation(const table& value) {
+        set_oob_err_per_observation_impl(value);
         return *this;
     }
 
@@ -91,7 +91,7 @@ private:
     void set_model_impl(const model<Task>&);
 
     void set_oob_err_impl(const table&);
-    void set_oob_per_observation_err_impl(const table&);
+    void set_oob_err_per_observation_impl(const table&);
     void set_var_importance_impl(const table&);
 
     pimpl impl_;
