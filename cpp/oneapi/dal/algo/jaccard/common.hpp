@@ -103,7 +103,7 @@ public:
 
 struct caching_builder {
     void* operator()(const std::size_t& size);
-    
+
     std::shared_ptr<byte_t> result_ptr;
     std::size_t block_max_size = 0;
 };

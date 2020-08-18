@@ -44,7 +44,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
     return call_jaccard_default_kernel_avx2<oneapi::dal::backend::cpu_dispatch_avx2>(desc, input);
 }
 
-INSTANTIATE(oneapi::dal::backend::cpu_dispatch_avx2)
+//INSTANTIATE(oneapi::dal::backend::cpu_dispatch_avx2)
 } // namespace detail
 } // namespace jaccard
 } // namespace oneapi::dal::preview
