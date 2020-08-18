@@ -50,13 +50,15 @@ table read_kernel_gpu<table>::operator()(const dal::backend::context_gpu& ctx,
     daal_data_source.getFeatureManager().setDelimiter(data_source.get_delimiter());
     daal_data_source.loadDataBlock();
 
+    interop::status_to_exception(daal_data_source.status());
+
     auto nt = daal_data_source.getNumericTable();
 
     daal::data_management::BlockDescriptor<DAAL_DATA_TYPE> block;
     const std::int64_t row_count    = nt->getNumberOfRows();
     const std::int64_t column_count = nt->getNumberOfColumns();
 
-    nt->getBlockOfRows(0, row_count, daal::data_management::readOnly, block);
+    interop::status_to_exception(nt->getBlockOfRows(0, row_count, daal::data_management::readOnly, block));
     DAAL_DATA_TYPE* data = block.getBlockPtr();
 
     auto arr = array<DAAL_DATA_TYPE>::empty(queue, row_count * column_count);
@@ -65,7 +67,7 @@ table read_kernel_gpu<table>::operator()(const dal::backend::context_gpu& ctx,
                         data,
                         sizeof(DAAL_DATA_TYPE) * row_count * column_count);
 
-    nt->releaseBlockOfRows(block);
+    interop::status_to_exception(nt->releaseBlockOfRows(block));
 
     return dal::detail::homogen_table_builder{}.reset(arr, row_count, column_count).build();
 }

@@ -56,6 +56,13 @@ dal_collect_modules(
     ],
 )
 
+dal_io(
+    name = "all_io",
+    io = [
+        "csv",
+    ]
+)
+
 dal_public_includes(
     name = "public_includes",
     dal_deps = [
