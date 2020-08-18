@@ -253,7 +253,7 @@ TEST(svm_thunder_dense_gpu_test, can_classify_any_two_labels) {
 
     auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
     queue.memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count).wait();
-    const auto x_train_table = homogen_table{ queue, row_count_train, column_count, x_train };
+    const auto x_train_table = homogen_table::wrap(queue, x_train, row_count_train, column_count);
 
     const float expected_labels_range[range_count][2] = {
         { -1.f, +1.f },
@@ -291,9 +291,9 @@ TEST(svm_thunder_dense_gpu_test, can_classify_any_two_labels) {
             -1.f,
             -1.f,
             -1.f,
-            +0.f,
-            +0.f,
-            +0.f,
+            0.f,
+            0.f,
+            0.f,
         },
     };
 
@@ -303,7 +303,7 @@ TEST(svm_thunder_dense_gpu_test, can_classify_any_two_labels) {
 
         auto y_train = sycl::malloc_shared<float>(row_count_train * 1, queue);
         queue.memcpy(y_train, y_train_host, sizeof(float) * row_count_train * 1).wait();
-        const auto y_train_table = homogen_table{ queue, row_count_train, 1, y_train };
+        const auto y_train_table = homogen_table::wrap(queue, y_train, row_count_train, 1);
 
         const auto svm_desc_train = svm::descriptor<float>{}.set_c(1e-1);
 

@@ -18,9 +18,10 @@
 #include <daal/src/algorithms/svm/svm_train_thunder_kernel.h>
 
 #include "oneapi/dal/algo/svm/backend/cpu/train_kernel.hpp"
-
 #include "oneapi/dal/algo/svm/backend/interop_model.hpp"
 #include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
+#include "oneapi/dal/algo/svm/backend/utils.hpp"
+
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -57,39 +58,10 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     auto arr_data    = row_accessor<const Float>{ data }.pull();
     auto arr_weights = row_accessor<const Float>{ weights }.pull();
 
-    auto arr_label     = row_accessor<const Float>{ labels }.pull();
-    auto arr_new_label = array<Float>::empty(row_count * 1);
+    auto arr_label = row_accessor<const Float>{ labels }.pull();
 
-    arr_label.need_mutable_data();
-    Float value_first_class_label  = arr_label[0];
-    Float value_second_class_label = arr_label[1];
-
-    arr_new_label[0] = Float(-1.0);
-    std::int64_t i   = 1;
-    for (; i < row_count; ++i) {
-        if (arr_label[i] == value_first_class_label) {
-            arr_new_label[i] = Float(-1.0);
-        }
-        else {
-            value_second_class_label = arr_label[i];
-            arr_new_label[i]         = Float(+1.0);
-        }
-    }
-    if (value_first_class_label == value_second_class_label) {
-        throw invalid_argument("Input label data should have more one unique label");
-    }
-
-    for (; i < row_count; ++i) {
-        if (arr_label[i] == value_first_class_label) {
-            arr_new_label[i] = Float(-1.0);
-        }
-        else if (arr_label[i] == value_second_class_label) {
-            arr_new_label[i] = Float(+1.0);
-        }
-        else {
-            throw invalid_argument("Input label data should have only two unique labels");
-        }
-    }
+    binary_label_t<Float> unique_label;
+    auto arr_new_label = convert_labels(arr_label, { Float(-1.0), Float(1.0) }, unique_label);
 
     const auto daal_data =
         interop::convert_to_daal_homogen_table(arr_data, row_count, column_count);
@@ -131,8 +103,8 @@ static train_result call_daal_kernel(const context_cpu& ctx,
         interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());
 
     auto trained_model = convert_from_daal_model<Float>(*daal_model)
-                             .set_first_class_label(value_first_class_label)
-                             .set_second_class_label(value_second_class_label);
+                             .set_first_class_label(unique_label.first)
+                             .set_second_class_label(unique_label.second);
 
     return train_result().set_model(trained_model).set_support_indices(table_support_indices);
 }
