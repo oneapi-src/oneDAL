@@ -16,19 +16,20 @@
 
 #include <iostream>
 
-#include "example_util/utils.hpp"
 #include "oneapi/dal/algo/jaccard.hpp"
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
-#include "oneapi/dal/util/csv_data_source.hpp"
-#include "oneapi/dal/util/load_graph.hpp"
+#include "oneapi/dal/io/csv_data_source.hpp"
+#include "oneapi/dal/io/load_graph.hpp"
 
-const std::string filename("../data/graph.csv");
+#include "example_util/utils.hpp"
 
 using namespace oneapi::dal;
 using namespace oneapi::dal::preview;
 
 int main(int argc, char **argv) {
+  const std::string filename = get_data_path("graph.csv");
+
   // read the graph
   csv_data_source ds(filename);
   load_graph::descriptor<> d;

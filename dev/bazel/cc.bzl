@@ -392,6 +392,47 @@ def _merge_static_libs(filename, actions, cc_toolchain,
     )
     return output_file
 
+def _link_executable(ctx):
+    toolchain = ctx.toolchains["@bazel_tools//tools/cpp:toolchain_type"]
+    feature_config = cc_common.configure_features(
+        ctx = ctx,
+        cc_toolchain = toolchain,
+        requested_features = ctx.features,
+        unsupported_features = ctx.disabled_features,
+    )
+    tagged_linking_contexts = _collect_tagged_linking_contexts(ctx.attr.deps)
+    linking_contexts = _filter_tagged_linking_contexts(tagged_linking_contexts, ctx.attr.lib_tags)
+    merged_linking_context = _merge_linking_contexts(linking_contexts)
+    if merged_linking_context.objects:
+        fail("Non-PIC object files found, oneDAL assumes " +
+             "all object files are compiled as PIC")
+    object_files = depset(merged_linking_context.pic_objects)
+    compilation_outputs = cc_common.create_compilation_outputs(
+        objects = object_files,
+        pic_objects = object_files,
+    )
+    linker_input = cc_common.create_linker_input(
+        owner = ctx.label,
+        libraries = depset(merged_linking_context.libraries_to_link),
+        user_link_flags = depset(merged_linking_context.user_link_flags),
+    )
+    # TODO: Pass compilations outputs via linking contexts
+    #       Individual linking context for each library tag
+    linking_context = cc_common.create_linking_context(
+        linker_inputs = depset([linker_input]),
+    )
+    linking_outputs = cc_common.link(
+        name = ctx.label.name,
+        actions = ctx.actions,
+        cc_toolchain = toolchain,
+        feature_configuration = feature_config,
+        compilation_outputs = compilation_outputs,
+        linking_contexts = [linking_context],
+    )
+    if not linking_outputs.executable:
+        return utils.warn("'{}' executable does not contain any " +
+                          "object file".format(ctx.label.name))
+    return linking_outputs.executable
 
 def _cc_module_impl(ctx):
     toolchain = ctx.toolchains["@bazel_tools//tools/cpp:toolchain_type"]
@@ -543,67 +584,23 @@ cc_static_lib = rule(
 )
 
 def _cc_executable_impl(ctx):
-    toolchain = ctx.toolchains["@bazel_tools//tools/cpp:toolchain_type"]
-    feature_config = cc_common.configure_features(
-        ctx = ctx,
-        cc_toolchain = toolchain,
-        requested_features = ctx.features,
-        unsupported_features = ctx.disabled_features,
-    )
-    tagged_linking_contexts = _collect_tagged_linking_contexts(ctx.attr.deps)
-    linking_contexts = _filter_tagged_linking_contexts(tagged_linking_contexts, ctx.attr.lib_tags)
-    merged_linking_context = _merge_linking_contexts(linking_contexts)
-    if merged_linking_context.objects:
-        fail("Non-PIC object files found, oneDAL assumes " +
-             "all object files are compiled as PIC")
-    object_files = depset(merged_linking_context.pic_objects)
-    compilation_outputs = cc_common.create_compilation_outputs(
-        objects = object_files,
-        pic_objects = object_files,
-    )
-    linker_input = cc_common.create_linker_input(
-        owner = ctx.label,
-        libraries = depset(merged_linking_context.libraries_to_link),
-        user_link_flags = depset(merged_linking_context.user_link_flags),
-    )
-    # TODO: Pass compilations outputs via linking contexts
-    #       Individual linking context for each library tag
-    linking_context = cc_common.create_linking_context(
-        linker_inputs = depset([linker_input]),
-    )
-    linking_outputs = cc_common.link(
-        name = ctx.label.name,
-        actions = ctx.actions,
-        cc_toolchain = toolchain,
-        feature_configuration = feature_config,
-        compilation_outputs = compilation_outputs,
-        linking_contexts = [linking_context],
-    )
-    if not linking_outputs.executable:
-        return utils.warn("'{}' executable does not contain any " +
-                          "object file".format(ctx.label.name))
+    executable = _link_executable(ctx)
     default_info = DefaultInfo(
-        files = depset([ linking_outputs.executable ]),
-        executable = linking_outputs.executable,
+        files = depset([ executable ]),
+        runfiles = ctx.runfiles(
+            files = ctx.files.data,
+        ),
+        executable = executable,
     )
     return [default_info]
 
-# cc_executable = rule(
-#     implementation = _cc_executable_impl,
-#     attrs = {
-#         "lib_tags": attr.string_list(),
-#         "deps": attr.label_list(mandatory=True),
-#     },
-#     toolchains = ["@bazel_tools//tools/cpp:toolchain_type"],
-#     fragments = ["cpp"],
-#     executable = True,
-# )
 
 cc_test = rule(
     implementation = _cc_executable_impl,
     attrs = {
         "lib_tags": attr.string_list(),
         "deps": attr.label_list(mandatory=True),
+        "data": attr.label_list(allow_files=True),
     },
     toolchains = ["@bazel_tools//tools/cpp:toolchain_type"],
     fragments = ["cpp"],
