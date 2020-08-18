@@ -350,7 +350,7 @@ daaldep.rt.seq  := $(daaldep.$(PLAT).rt.seq)
 daaldep.rt.dpc  := $(daaldep.$(PLAT).rt.dpc)
 
 # List oneAPI header files to populate release/include.
-release.ONEAPI.HEADERS.exclude := ! -path "*/backend/*" ! -path "*.impl.*" ! -path "*_test.*"
+release.ONEAPI.HEADERS.exclude := ! -path "*/backend/*" ! -path "*.impl.*" ! -path "*_test.*" ! -path "*/test/*" 
 release.ONEAPI.HEADERS := $(shell find $(CPPDIR) -type f -name "*.hpp" $(release.ONEAPI.HEADERS.exclude))
 release.ONEAPI.HEADERS.OSSPEC := $(foreach fn,$(release.ONEAPI.HEADERS),$(if $(filter %$(_OS),$(basename $(fn))),$(fn)))
 release.ONEAPI.HEADERS.COMMON := $(foreach fn,$(release.ONEAPI.HEADERS),$(if $(filter $(addprefix %,$(OSList)),$(basename $(fn))),,$(fn)))

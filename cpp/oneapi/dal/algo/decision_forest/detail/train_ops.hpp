@@ -47,6 +47,20 @@ struct train_ops {
         if (input.get_data().get_row_count() != input.get_labels().get_row_count()) {
             throw invalid_argument("Input data row_count should be equal to labels row_count");
         }
+        if (!params.get_bootstrap() &&
+            (params.get_variable_importance_mode() == variable_importance_mode::mda_raw ||
+             params.get_variable_importance_mode() == variable_importance_mode::mda_scaled)) {
+            throw invalid_argument(
+                "Parameter 'bootstrap' is incompatible with requested variable importance mode");
+        }
+
+        if (!params.get_bootstrap() &&
+            (check_mask_flag(params.get_error_metric_mode(), error_metric_mode::out_of_bag_error) ||
+             check_mask_flag(params.get_error_metric_mode(),
+                             error_metric_mode::out_of_bag_error_per_observation))) {
+            throw invalid_argument(
+                "Parameter 'bootstrap' is incompatible with requested OOB result (no out-of-bag observations)");
+        }
     }
 
     void check_postconditions(const Descriptor& params,
