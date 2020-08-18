@@ -19,18 +19,6 @@
 
 namespace oneapi::dal::preview {
 
-template class ONEAPI_DAL_EXPORT undirected_adjacency_array_graph<empty_value,
-                                                                  empty_value,
-                                                                  empty_value,
-                                                                  std::int32_t,
-                                                                  std::allocator<char>>;
-
-using graph_default = undirected_adjacency_array_graph<empty_value,
-                                                       empty_value,
-                                                       empty_value,
-                                                       std::int32_t,
-                                                       std::allocator<char>>;
-
 template <typename VertexValue,
           typename EdgeValue,
           typename GraphValue,
@@ -139,6 +127,18 @@ undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, 
     }
     return *this;
 }
+
+template class ONEAPI_DAL_EXPORT undirected_adjacency_array_graph<empty_value,
+                                                                  empty_value,
+                                                                  empty_value,
+                                                                  std::int32_t,
+                                                                  std::allocator<char>>;
+
+using graph_default = undirected_adjacency_array_graph<empty_value,
+                                                       empty_value,
+                                                       empty_value,
+                                                       std::int32_t,
+                                                       std::allocator<char>>;
 
 namespace detail {
 
