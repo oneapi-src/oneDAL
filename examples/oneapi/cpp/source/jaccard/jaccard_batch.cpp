@@ -16,13 +16,12 @@
 
 #include <iostream>
 
+#include "example_util/utils.hpp"
 #include "oneapi/dal/algo/jaccard.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
 #include "oneapi/dal/io/csv_data_source.hpp"
 #include "oneapi/dal/io/load_graph.hpp"
 #include "oneapi/dal/table/common.hpp"
-
-#include "example_util/utils.hpp"
 
 using namespace oneapi::dal;
 using namespace oneapi::dal::preview;
@@ -39,7 +38,7 @@ int main(int argc, char **argv) {
     auto column_range_begin = 0;
     auto column_range_end = 3;
 
-    // compute the maximal required memory for the result of the block processing
+    // compute the maximum required memory for the result of the block processing
     // in bytes
     auto max_block_size = compute_max_block_size(row_range_begin,
                             row_range_end,
