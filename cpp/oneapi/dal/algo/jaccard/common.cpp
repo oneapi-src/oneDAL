@@ -65,5 +65,14 @@ void descriptor_base::set_block_impl(const std::initializer_list<std::int64_t>& 
     impl_->column_range_end   = *(column_range.begin() + 1);
 }
 
+void* caching_builder::operator()(const std::size_t& size) {
+    if (size > block_max_size) {
+        block_max_size = size;
+        result_ptr.reset();
+        result_ptr = std::shared_ptr<byte_t>(new byte_t[block_max_size]);
+    }
+    return static_cast<void*>(result_ptr.get());
+}
+
 } // namespace jaccard
 } // namespace oneapi::dal::preview
