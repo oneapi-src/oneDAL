@@ -14,6 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#pragma once
+
 #include <immintrin.h>
 
 #include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
@@ -261,16 +263,12 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
     return total;
 }
 
-DAAL_FORCEINLINE std::int32_t min_hsw(const std::int32_t &a, const std::int32_t &b) {
-    return (a >= b) ? b : a;
-}
-
 template <typename Cpu>
 vertex_similarity_result call_jaccard_default_kernel_avx2(
     const descriptor_base &desc,
     vertex_similarity_input<undirected_adjacency_array_graph<>> &input) {
-    auto my_graph                       = input.get_graph();
-    auto g                              = oneapi::dal::preview::detail::get_impl(my_graph);
+    const auto &my_graph                = input.get_graph();
+    const auto &g                       = oneapi::dal::preview::detail::get_impl(my_graph);
     auto g_edge_offsets                 = g->_edge_offsets.data();
     auto g_vertex_neighbors             = g->_vertex_neighbors.data();
     auto g_degrees                      = g->_degrees.data();
@@ -279,14 +277,17 @@ vertex_similarity_result call_jaccard_default_kernel_avx2(
     const auto column_begin             = static_cast<std::int32_t>(desc.get_column_range_begin());
     const auto column_end               = static_cast<std::int32_t>(desc.get_column_range_end());
     const auto number_elements_in_block = (row_end - row_begin) * (column_end - column_begin);
-    int *first_vertices                 = reinterpret_cast<int *>(input.get_result_ptr());
-    int *second_vertices                = first_vertices + number_elements_in_block;
-    float *jaccard   = reinterpret_cast<float *>(first_vertices + 2 * number_elements_in_block);
-    std::int64_t nnz = 0;
+    const size_t max_block_size =
+        compute_max_block_size(row_begin, row_end, column_begin, column_end);
+    void *result_ptr     = input.get_caching_builder()(max_block_size);
+    int *first_vertices  = reinterpret_cast<int *>(result_ptr);
+    int *second_vertices = first_vertices + number_elements_in_block;
+    float *jaccard       = reinterpret_cast<float *>(first_vertices + 2 * number_elements_in_block);
+    std::int64_t nnz     = 0;
     for (std::int32_t i = row_begin; i < row_end; ++i) {
         const auto i_neighbor_size = g_degrees[i];
         const auto i_neigbhors     = g_vertex_neighbors + g_edge_offsets[i];
-        const auto diagonal        = min_hsw(i, column_end);
+        const auto diagonal        = min(i, column_end);
         for (std::int32_t j = column_begin; j < diagonal; j++) {
             const auto j_neighbor_size = g_degrees[j];
             const auto j_neigbhors     = g_vertex_neighbors + g_edge_offsets[j];
@@ -304,16 +305,14 @@ vertex_similarity_result call_jaccard_default_kernel_avx2(
             }
         }
 
-        auto tmp_idx = column_begin;
-        if (diagonal >= column_begin) {
+        if (diagonal >= column_begin && diagonal < column_end) {
             jaccard[nnz]         = 1.0;
             first_vertices[nnz]  = i;
             second_vertices[nnz] = diagonal;
             nnz++;
-            tmp_idx = diagonal + 1;
         }
 
-        for (std::int32_t j = tmp_idx; j < column_end; j++) {
+        for (std::int32_t j = max(column_begin, diagonal + 1); j < column_end; j++) {
             const auto j_neighbor_size = g_degrees[j];
             const auto j_neigbhors     = g_vertex_neighbors + g_edge_offsets[j];
             if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&
@@ -330,18 +329,9 @@ vertex_similarity_result call_jaccard_default_kernel_avx2(
             }
         }
     }
-    vertex_similarity_result res(
-        oneapi::dal::detail::homogen_table_builder{}
-            .reset(array(first_vertices, 2 * number_elements_in_block, empty_delete<const int>()),
-                   2,
-                   number_elements_in_block)
-            .build(),
-        oneapi::dal::detail::homogen_table_builder{}
-            .reset(array(jaccard, number_elements_in_block, empty_delete<const float>()),
-                   1,
-                   number_elements_in_block)
-            .build(),
-        nnz);
+    vertex_similarity_result res(homogen_table::wrap(first_vertices, 2, number_elements_in_block),
+                                 homogen_table::wrap(jaccard, 1, number_elements_in_block),
+                                 nnz);
     return res;
 }
 } // namespace detail

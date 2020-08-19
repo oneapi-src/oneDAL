@@ -24,8 +24,9 @@ import glob
 
 def get_rules_list(directory):
     cpp_paths = glob.glob('{}/**/*.cpp'.format(directory))
-    relative_cpp_paths = [ os.path.join('source', os.path.relpath(x, directory)) for x in cpp_paths ]
-    exe_names =  [os.path.basename(x).replace('.cpp', '.exe') for x in cpp_paths ]
+    exclude_example = 'jaccard_batch_app'
+    relative_cpp_paths = [ os.path.join('source', os.path.relpath(x, directory)) for x in cpp_paths if exclude_example not in x]
+    exe_names =  [os.path.basename(x).replace('.cpp', '.exe') for x in cpp_paths if exclude_example not in x]
     return list(zip(exe_names, relative_cpp_paths))
 
 if __name__ == '__main__':
@@ -35,7 +36,7 @@ if __name__ == '__main__':
         source_dir, out_dir = sys.argv[1], sys.argv[2]
 
         rules = get_rules_list(os.path.join(source_dir, 'source'))
-
+        
         examples_list_str = 'EXAMPLES_LIST = \\\n' + '{}' * len(rules)
         examples_list_str = examples_list_str.format(*[exe.replace('.exe', '+') + '\\\n' for exe, _ in rules])
 
