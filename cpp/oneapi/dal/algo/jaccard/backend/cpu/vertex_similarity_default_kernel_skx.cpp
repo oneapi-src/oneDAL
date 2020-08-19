@@ -273,6 +273,15 @@ DAAL_FORCEINLINE int64_t min(int64_t a, int64_t b) {
     }
 }
 
+DAAL_FORCEINLINE int64_t max(int64_t a, int64_t b) {
+    if (a <= b) {
+        return b;
+    }
+    else {
+        return a;
+    }
+}
+
 template <>
 vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_graph<>,
                                                      oneapi::dal::backend::cpu_dispatch_avx512>(
@@ -313,16 +322,14 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
             }
         }
 
-        auto tmp_idx = column_begin;
-        if (diagonal >= column_begin) {
+        if (diagonal >= column_begin && diagonal < column_end) {
             jaccard[nnz]         = 1.0;
             first_vertices[nnz]  = i;
             second_vertices[nnz] = diagonal;
             nnz++;
-            tmp_idx = diagonal + 1;
         }
 
-        for (int32_t j = tmp_idx; j < column_end; j++) {
+        for (int32_t j = max(column_begin, diagonal + 1); j < column_end; j++) {
             const auto j_neighbor_size = g_degrees[j];
             const auto j_neigbhors     = g_vertex_neighbors + g_edge_offsets[j];
             if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&

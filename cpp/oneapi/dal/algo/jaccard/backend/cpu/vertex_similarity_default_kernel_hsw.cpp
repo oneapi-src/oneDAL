@@ -30,11 +30,11 @@ namespace jaccard {
 namespace detail {
 
 #if defined(__INTEL_COMPILER)
-__forceinline int _popcnt32_redef(int a) {
+DAAL_FORCEINLINE int _popcnt32_redef(int a) {
     return _popcnt32(a);
 }
 #else
-__forceinline int _popcnt32_redef(int a) {
+DAAL_FORCEINLINE int _popcnt32_redef(int a) {
     int count = 0;
     while (a != 0) {
         a = a & (a - 1);
@@ -45,7 +45,7 @@ __forceinline int _popcnt32_redef(int a) {
 #endif
 
 template <class VertexType> //__declspec(noinline)
-__forceinline size_t intersection(VertexType *neigh_u,
+DAAL_FORCEINLINE size_t intersection(VertexType *neigh_u,
                                   VertexType *neigh_v,
                                   VertexType n_u,
                                   VertexType n_v) {
@@ -266,8 +266,17 @@ template size_t intersection<uint32_t>(uint32_t *neigh_u,
                                        uint32_t n_u,
                                        uint32_t n_v);
 
-__forceinline int64_t min(int64_t a, int64_t b) {
+DAAL_FORCEINLINE int64_t min(int64_t a, int64_t b) {
     if (a >= b) {
+        return b;
+    }
+    else {
+        return a;
+    }
+}
+
+DAAL_FORCEINLINE int64_t max(int64_t a, int64_t b) {
+    if (a <= b) {
         return b;
     }
     else {
@@ -315,16 +324,14 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
             }
         }
 
-        auto tmp_idx = column_begin;
-        if (diagonal >= column_begin) {
+        if (diagonal >= column_begin && diagonal < column_end) {
             jaccard[nnz]         = 1.0;
             first_vertices[nnz]  = i;
             second_vertices[nnz] = diagonal;
             nnz++;
-            tmp_idx = diagonal + 1;
         }
 
-        for (int32_t j = tmp_idx; j < column_end; j++) {
+        for (int32_t j = max(column_begin, diagonal + 1); j < column_end; j++) {
             const auto j_neighbor_size = g_degrees[j];
             const auto j_neigbhors     = g_vertex_neighbors + g_edge_offsets[j];
             if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&
