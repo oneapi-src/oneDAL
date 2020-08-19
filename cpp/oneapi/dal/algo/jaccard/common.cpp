@@ -47,12 +47,12 @@ std::int64_t descriptor_base::get_column_range_end() const {
     return impl_->column_range_end;
 }
 
-void descriptor_base::set_row_range_impl(const std::int64_t& begin, const std::int64_t& end) {
+void descriptor_base::set_row_range_impl(std::int64_t begin, std::int64_t end) {
     impl_->row_range_begin = begin;
     impl_->row_range_end   = end;
 }
 
-void descriptor_base::set_column_range_impl(const std::int64_t& begin, const std::int64_t& end) {
+void descriptor_base::set_column_range_impl(std::int64_t begin, std::int64_t end) {
     impl_->column_range_begin = begin;
     impl_->column_range_end   = end;
 }
@@ -65,7 +65,7 @@ void descriptor_base::set_block_impl(const std::initializer_list<std::int64_t>& 
     impl_->column_range_end   = *(column_range.begin() + 1);
 }
 
-void* caching_builder::operator()(const std::size_t& block_max_size) {
+void* caching_builder::operator()(std::size_t block_max_size) {
     if (size < block_max_size) {
         size = block_max_size;
         result_ptr.reset();
