@@ -76,7 +76,7 @@ public:
     /// @param [in] nonzero_coeff_count The number of non-zero Jaccard coefficients
     vertex_similarity_result(const table& vertex_pairs,
                              const table& coeffs,
-                             std::int64_t& nonzero_coeff_count);
+                             std::int64_t nonzero_coeff_count);
 
     /// Returns the table of size 1*nonzero_coeff_count with non-zero Jaccard
     /// similarity coefficients
