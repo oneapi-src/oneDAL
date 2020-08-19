@@ -34,10 +34,8 @@ int main(int argc, char **argv) {
   auto my_graph = load_graph::load(d, ds);
 
   // set blocks ranges
-  auto row_range_begin = 0;
-  auto row_range_end = 2;
-  auto column_range_begin = 0;
-  auto column_range_end = 3;
+  auto row_range_begin = 0; auto row_range_end = 2;
+  auto column_range_begin = 0; auto column_range_end = 3;
 
   // compute the maximum required memory for the result of the block processing
   // in bytes
@@ -49,11 +47,11 @@ int main(int argc, char **argv) {
       {row_range_begin, row_range_end}, {column_range_begin, column_range_end});
 
   // create caching builder for jaccard result
-  jaccard::caching_builder jaccard_memory;
+  jaccard::caching_builder caching_builder;
 
   // compute Jaccard similarity coefficients
   auto result_vertex_similarity = vertex_similarity(
-      jaccard_desc_default, my_graph, jaccard_memory(max_block_size));
+      jaccard_desc_default, my_graph, caching_builder(max_block_size));
 
   // extract the result
   auto jaccard_coeffs = result_vertex_similarity.get_coeffs();

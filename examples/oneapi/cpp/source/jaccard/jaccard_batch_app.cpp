@@ -37,12 +37,12 @@ using namespace std::chrono;
 /// matrix is processed only as it is symmetic for undirected graph.
 ///
 /// @param [in]   g  The input graph
-/// @param [in]   row_size  The size of block by rows
-/// @param [in]   column_size The size of block by columns
+/// @param [in]   block_row_count    The size of block by rows
+/// @param [in]   block_column_count The size of block by columns
 template <class Graph>
 void vertex_similarity_block_processing(const Graph &g,
-                                        const std::int32_t row_size,
-                                        const std::int32_t column_size);
+                                        const std::int32_t block_row_count,
+                                        const std::int32_t block_column_count);
 
 int main(int argc, char **argv) {
   // load the graph
@@ -50,11 +50,11 @@ int main(int argc, char **argv) {
   ;
   csv_data_source ds(filename);
   load_graph::descriptor<> d;
-  auto my_graph = load_graph::load(d, ds);
+  auto graph = load_graph::load(d, ds);
 
   // set the block sizes for Jaccard similarity block processing
-  int32_t row_size = 2;
-  int32_t column_size = 5;
+  int32_t block_row_count = 2;
+  int32_t block_column_count = 5;
 
   // set the number of threads
   int32_t tbb_threads_number = 4;
@@ -62,18 +62,18 @@ int main(int argc, char **argv) {
                         tbb_threads_number);
 
   // compute Jaccard similarity coefficients for the graph
-  vertex_similarity_block_processing(my_graph, row_size, column_size);
+  vertex_similarity_block_processing(graph, block_row_count, block_column_count);
 
   return 0;
 }
 
 template <class Graph>
 void vertex_similarity_block_processing(const Graph &g,
-                                        const std::int32_t row_size,
-                                        const std::int32_t column_size) {
+                                        const std::int32_t block_row_count,
+                                        const std::int32_t block_column_count) {
   // compute the maximum required memory for the result of the block processing
   // in bytes
-  auto max_block_size = compute_max_block_size(0, row_size, 0, column_size);
+  auto max_block_size = compute_max_block_size(0, block_row_count, 0, block_column_count);
 
   // reserve memory for all threads
   std::vector<std::vector<byte_t>> processing_blocks(
@@ -84,38 +84,38 @@ void vertex_similarity_block_processing(const Graph &g,
   std::int32_t vertex_count = get_vertex_count(g);
 
   // compute the number of rows
-  std::int32_t rows_count = vertex_count / row_size;
-  if (vertex_count % row_size) {
-    rows_count++;
+  std::int32_t row_count = vertex_count / block_row_count;
+  if (vertex_count % block_row_count) {
+    row_count++;
   }
 
   // parallel processing by rows
   tbb::parallel_for(
-      tbb::blocked_range<int>(0, rows_count),
+      tbb::blocked_range<int>(0, row_count),
       [&](const tbb::blocked_range<int> &r) {
         for (int i = r.begin(); i != r.end(); ++i) {
           // compute the range of rows
-          int32_t block_begin_row = i * row_size;
-          int32_t block_end_row = (i + 1) * row_size;
+          int32_t block_begin_row = i * block_row_count;
+          int32_t block_end_row = (i + 1) * block_row_count;
 
           // start column ranges from diagonal
           int32_t begin_column = 1 + block_begin_row;
 
           // compute the number of columns
-          int32_t columns_count = (vertex_count - begin_column) / column_size;
-          if ((vertex_count - begin_column) % column_size) {
-            columns_count++;
+          int32_t column_count = (vertex_count - begin_column) / block_column_count;
+          if ((vertex_count - begin_column) % block_column_count) {
+            column_count++;
           }
 
           // parallel processing by columns
           tbb::parallel_for(
-              tbb::blocked_range<int>(0, columns_count),
+              tbb::blocked_range<int>(0, column_count),
               [&](const tbb::blocked_range<int> &inner_r) {
                 for (int j = inner_r.begin(); j != inner_r.end(); ++j) {
                   // compute the range of columns
-                  int32_t block_begin_column = begin_column + j * column_size;
+                  int32_t block_begin_column = begin_column + j * block_column_count;
                   int32_t block_end_column =
-                      begin_column + (j + 1) * column_size;
+                      begin_column + (j + 1) * block_column_count;
 
                   // set block ranges for the vertex similarity algorithm
                   const auto jaccard_desc_default =
