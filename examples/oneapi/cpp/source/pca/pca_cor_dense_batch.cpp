@@ -21,10 +21,11 @@
 
 using namespace oneapi;
 
-const char data_file_name[] = "../../daal/data/batch/pca_normalized.csv";
+const char data_file_name[] = "pca_normalized.csv";
 
 int main(int argc, char const *argv[]) {
-    const auto data_table = dal::read(dal::csv::data_source{data_file_name});
+
+    const auto data_table = dal::read(dal::csv::data_source{get_data_path(data_file_name)});
 
     const auto pca_desc = dal::pca::descriptor<>()
         .set_component_count(data_table.get_column_count())

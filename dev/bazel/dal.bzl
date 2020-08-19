@@ -201,14 +201,7 @@ def dal_example_suite(name, srcs, **kwargs):
     for src in srcs:
         _, alg_name, src_file = src.rsplit('/', 2)
         example_name, _ = paths.split_extension(src_file)
-        if alg_name in non_alg_examples:
-            dep = [ "@onedal//cpp/oneapi/dal:core" ]
-        else:
-            dep = [
-                "@onedal//cpp/oneapi/dal:{}".format(alg_name),
-                "@onedal//cpp/oneapi/dal:csv",
-            ]
-        dal_test(
+        dal_example(
             name = example_name,
             srcs = [ src ],
             **kwargs,
