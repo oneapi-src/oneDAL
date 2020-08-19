@@ -26,7 +26,7 @@
 
 using namespace oneapi;
 
-const char data_file_name[] = "../../daal/data/batch/pca_normalized.csv";
+const char data_file_name[] = "../data/pca_normalized.csv";
 
 void run(sycl::queue& queue) {
     const auto data_table = dal::read(queue, dal::csv::data_source{data_file_name});
