@@ -22,11 +22,11 @@
 
 #include "example_util/utils.hpp"
 #include "oneapi/dal/algo/jaccard.hpp"
-#include "oneapi/dal/data/graph_service_functions.hpp"
-#include "oneapi/dal/data/table.hpp"
-#include "oneapi/dal/data/undirected_adjacency_array_graph.hpp"
-#include "oneapi/dal/util/csv_data_source.hpp"
-#include "oneapi/dal/util/load_graph.hpp"
+#include "oneapi/dal/graph/graph_service_functions.hpp"
+#include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
+#include "oneapi/dal/io/csv_data_source.hpp"
+#include "oneapi/dal/io/load_graph.hpp"
+#include "oneapi/dal/table/homogen.hpp"
 
 using namespace oneapi::dal;
 using namespace oneapi::dal::preview;
@@ -40,12 +40,14 @@ using namespace std::chrono;
 /// @param [in]   row_size  The size of block by rows
 /// @param [in]   column_size The size of block by columns
 template <class Graph>
-void vertex_similarity_block_processing(const Graph &g, const std::int32_t row_size,
-                                        const std::int32_t column_size); 
+void vertex_similarity_block_processing(const Graph &g,
+                                        const std::int32_t row_size,
+                                        const std::int32_t column_size);
 
 int main(int argc, char **argv) {
   // load the graph
-  std::string filename = get_data_path("graph.csv");;
+  std::string filename = get_data_path("graph.csv");
+  ;
   csv_data_source ds(filename);
   load_graph::descriptor<> d;
   auto my_graph = load_graph::load(d, ds);
@@ -66,16 +68,17 @@ int main(int argc, char **argv) {
 }
 
 template <class Graph>
-void vertex_similarity_block_processing(const Graph &g, const std::int32_t row_size,
-                                        const std::int32_t column_size); {
+void vertex_similarity_block_processing(const Graph &g,
+                                        const std::int32_t row_size,
+                                        const std::int32_t column_size) {
   // compute the maximum required memory for the result of the block processing
   // in bytes
   auto max_block_size = compute_max_block_size(0, row_size, 0, column_size);
-  
+
   // reserve memory for all threads
   std::vector<std::vector<byte_t>> processing_blocks(
       tbb::this_task_arena::max_concurrency(),
-      std::vector<byte_t>(block_result_size)); 
+      std::vector<byte_t>(max_block_size));
 
   // compute the number of vertices in graph
   std::int32_t vertex_count = get_vertex_count(g);
@@ -96,11 +99,10 @@ void vertex_similarity_block_processing(const Graph &g, const std::int32_t row_s
           int32_t block_end_row = (i + 1) * row_size;
 
           // start column ranges from diagonal
-          int32_t begin_column = 1 + block_begin_row; 
+          int32_t begin_column = 1 + block_begin_row;
 
           // compute the number of columns
-          int32_t columns_count =
-              (vertex_count - begin_column) / column_size; 
+          int32_t columns_count = (vertex_count - begin_column) / column_size;
           if ((vertex_count - begin_column) % column_size) {
             columns_count++;
           }
@@ -114,7 +116,7 @@ void vertex_similarity_block_processing(const Graph &g, const std::int32_t row_s
                   int32_t block_begin_column = begin_column + j * column_size;
                   int32_t block_end_column =
                       begin_column + (j + 1) * column_size;
-                  
+
                   // set block ranges for the vertex similarity algorithm
                   const auto jaccard_desc_default =
                       jaccard::descriptor<>().set_block(
@@ -122,7 +124,7 @@ void vertex_similarity_block_processing(const Graph &g, const std::int32_t row_s
                            std::min(block_end_row, vertex_count)},
                           {block_begin_column,
                            std::min(block_end_column, vertex_count)});
-                  
+
                   // compute Jaccard coefficients for the block
                   vertex_similarity(
                       jaccard_desc_default, g,
@@ -130,7 +132,7 @@ void vertex_similarity_block_processing(const Graph &g, const std::int32_t row_s
                           (processing_blocks
                                [tbb::this_task_arena::current_thread_index()])
                               .data()));
-                  
+
                   // do application specific postprocessing of the result here
                 }
               },

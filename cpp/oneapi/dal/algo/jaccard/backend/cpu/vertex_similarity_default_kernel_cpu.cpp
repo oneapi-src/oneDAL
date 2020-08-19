@@ -53,7 +53,7 @@ DAAL_FORCEINLINE std::int32_t min(const std::int32_t &a, const std::int32_t &b) 
 }
 
 DAAL_FORCEINLINE std::int64_t max(const std::int64_t a, const std::int64_t b) {
-    return (a <= b) ? b : a; 
+    return (a <= b) ? b : a;
 }
 
 template <typename Graph, typename Cpu>
