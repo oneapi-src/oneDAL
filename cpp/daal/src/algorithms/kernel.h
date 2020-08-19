@@ -66,6 +66,10 @@
 #define __DAAL_CALL_KERNEL_STATUS(env, KernelClass, templateArguments, method, ...) \
     ((KernelClass<templateArguments, cpu> *)(_kernel))->method(__VA_ARGS__);
 
+#undef __DAAL_CALL_KERNEL_STATUS_SYCL
+#define __DAAL_CALL_KERNEL_STATUS_SYCL(env, KernelClass, templateArguments, method, ...) \
+    ((KernelClass<templateArguments> *)(_kernel))->method(__VA_ARGS__);
+
 #define __DAAL_GET_CPUID int cpuid = daalEnv->cpuid;
 
 #define __DAAL_GET_CPUID_SAFE \

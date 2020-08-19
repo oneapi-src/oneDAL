@@ -122,10 +122,6 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
         BlockDescriptor<algorithmFPType> dataRows;
         DAAL_CHECK_STATUS_VAR(ntData->getBlockOfRows(range.startIndex, range.count, readOnly, dataRows));
         auto data = dataRows.getBuffer();
-        if (!data)
-        {
-            return Status(ErrorNullPtr);
-        }
         this->computeSquares(inCentroids, this->_centroidsSq, nClusters, nFeatures, &st);
         DAAL_CHECK_STATUS_VAR(st);
         this->computeDistances(data, inCentroids, range.count, nClusters, nFeatures, &st);

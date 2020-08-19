@@ -35,8 +35,6 @@ DECLARE_SOURCE(
                                       __global algorithmFPType * centroids, int P) {
         const int global_id = get_global_id(0);
         const int local_id  = get_local_id(1);
-        //    if(local_id == 0 && global_id == 0)
-        //        printf("init_clusters_distr\n");
         centroids[global_id * P + local_id] = partialCentroids[global_id * P + local_id];
         if (local_id == 0) cCounters[global_id] = partialCentroidsCounters[global_id];
     }
@@ -45,8 +43,6 @@ DECLARE_SOURCE(
                                         __global int * cCounters, __global algorithmFPType * centroids, int P) {
         const int global_id = get_global_id(0);
         const int local_id  = get_local_id(1);
-        //    if(local_id == 0 && global_id == 0)
-        //        printf("update_clusters_distr\n");
         const int oldN                      = partialCentroidsCounters[global_id];
         const int newN                      = cCounters[global_id];
         const algorithmFPType oldContrib    = oldN * partialCentroids[global_id * P + local_id];
