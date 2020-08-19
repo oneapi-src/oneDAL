@@ -27,7 +27,7 @@ struct read_kernel_cpu;
 template <>
 struct read_kernel_cpu<table> {
     table operator()(const dal::backend::context_cpu& ctx,
-                     const data_source_base& data_source,
+                     const data_source& ds,
                      const read_args<table>& args) const;
 };
 

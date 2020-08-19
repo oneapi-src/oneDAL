@@ -36,20 +36,19 @@ namespace oneapi::dal::csv::backend {
 namespace interop = dal::backend::interop;
 
 table read_kernel_gpu<table>::operator()(const dal::backend::context_gpu& ctx,
-                                         const data_source_base& data_source,
+                                         const data_source& ds,
                                          const read_args<table>& args) const {
     auto& queue = ctx.get_queue();
 
     using namespace daal::data_management;
 
-    CsvDataSourceOptions csv_options =
-        CsvDataSourceOptions::allocateNumericTable |
-        CsvDataSourceOptions::createDictionaryFromContext |
-        (data_source.get_parse_header() ? CsvDataSourceOptions::parseHeader
-                                        : CsvDataSourceOptions::byDefault);
+    CsvDataSourceOptions csv_options = CsvDataSourceOptions::allocateNumericTable |
+                                       CsvDataSourceOptions::createDictionaryFromContext |
+                                       (ds.get_parse_header() ? CsvDataSourceOptions::parseHeader
+                                                              : CsvDataSourceOptions::byDefault);
 
-    FileDataSource<CSVFeatureManager> daal_data_source(data_source.get_file_name(), csv_options);
-    daal_data_source.getFeatureManager().setDelimiter(data_source.get_delimiter());
+    FileDataSource<CSVFeatureManager> daal_data_source(ds.get_file_name(), csv_options);
+    daal_data_source.getFeatureManager().setDelimiter(ds.get_delimiter());
     daal_data_source.loadDataBlock();
 
     interop::status_to_exception(daal_data_source.status());

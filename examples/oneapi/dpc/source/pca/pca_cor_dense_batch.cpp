@@ -29,10 +29,7 @@ using namespace oneapi;
 const char data_file_name[] = "../../daal/data/batch/pca_normalized.csv";
 
 void run(sycl::queue& queue) {
-    const auto data_source = dal::csv::data_source(data_file_name)
-        .set_delimiter(',');
-
-    const auto data_table = dal::read(queue, data_source);
+    const auto data_table = dal::read(queue, dal::csv::data_source{data_file_name});
 
     const auto pca_desc = dal::pca::descriptor<>()
         .set_component_count(data_table.get_column_count())

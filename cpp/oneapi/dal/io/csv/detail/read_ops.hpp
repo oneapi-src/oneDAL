@@ -22,30 +22,31 @@
 
 namespace oneapi::dal::csv::detail {
 
-template <typename table, typename Context, typename... Options>
+template <typename Object, typename Context, typename... Options>
 struct ONEAPI_DAL_EXPORT read_ops_dispatcher {
-    table operator()(const Context&, const data_source_base&, const read_args<table>&) const;
+    table operator()(const Context&, const data_source&, const read_args<table>&) const;
 };
 
-template <typename table, typename Descriptor>
-struct read_ops {
+template <typename Object, typename Descriptor>
+struct read_ops;
+
+template <>
+struct read_ops<table, data_source> {
     using input_t           = read_args<table>;
     using result_t          = table;
-    using descriptor_base_t = data_source_base;
+    using descriptor_base_t = data_source;
 
-    void check_preconditions(const Descriptor& data_source, const input_t& input) const {}
+    void check_preconditions(const data_source& ds, const input_t& input) const {}
 
-    void check_postconditions(const Descriptor& data_source,
+    void check_postconditions(const data_source& ds,
                               const input_t& input,
                               const result_t& result) const {}
 
     template <typename Context>
-    auto operator()(const Context& ctx,
-                    const Descriptor& desc,
-                    const read_args<table>& args) const {
-        check_preconditions(desc, args);
-        const auto result = read_ops_dispatcher<table, Context>()(ctx, desc, args);
-        check_postconditions(desc, args, result);
+    auto operator()(const Context& ctx, const data_source& ds, const read_args<table>& args) const {
+        check_preconditions(ds, args);
+        const auto result = read_ops_dispatcher<table, Context>()(ctx, ds, args);
+        check_postconditions(ds, args, result);
         return result;
     }
 };

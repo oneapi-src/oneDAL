@@ -23,10 +23,10 @@ using oneapi::dal::detail::host_policy;
 
 template <>
 table read_ops_dispatcher<table, host_policy>::operator()(const host_policy& ctx,
-                                                          const data_source_base& data_source,
+                                                          const data_source& ds,
                                                           const read_args<table>& args) const {
     using kernel_dispatcher_t = dal::backend::kernel_dispatcher<backend::read_kernel_cpu<table>>;
-    return kernel_dispatcher_t()(ctx, data_source, args);
+    return kernel_dispatcher_t()(ctx, ds, args);
 }
 
 template struct ONEAPI_DAL_EXPORT read_ops_dispatcher<table, host_policy>;

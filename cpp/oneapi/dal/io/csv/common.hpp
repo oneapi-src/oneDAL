@@ -26,42 +26,37 @@ struct data_source_tag {};
 class data_source_impl;
 } // namespace detail
 
-class ONEAPI_DAL_EXPORT data_source_base : public base {
+class ONEAPI_DAL_EXPORT data_source : public base {
 public:
     using tag_t = detail::data_source_tag;
 
-    data_source_base(const char* file_name);
+    data_source(const char *file_name);
 
-    auto get_delimiter() const -> char;
-    auto get_parse_header() const -> bool;
-    auto get_file_name() const -> const char*;
+    char get_delimiter() const;
+    bool get_parse_header() const;
+    const char *get_file_name() const;
 
-protected:
-    void set_delimiter_impl(char value);
-    void set_parse_header_impl(bool value);
-    void set_file_name_impl(const char*);
-
-    dal::detail::pimpl<detail::data_source_impl> impl_;
-};
-
-class data_source : public data_source_base {
-public:
-    data_source(const char* file_name) : data_source_base(file_name) {}
-
-    auto& set_delimiter(char value) {
+    auto &set_delimiter(char value) {
         set_delimiter_impl(value);
         return *this;
     }
 
-    auto& set_parse_header(bool value) {
+    auto &set_parse_header(bool value) {
         set_parse_header_impl(value);
         return *this;
     }
 
-    auto& set_file_name(const char* value) {
+    auto &set_file_name(const char *value) {
         set_file_name_impl(value);
         return *this;
     }
+
+private:
+    void set_delimiter_impl(char value);
+    void set_parse_header_impl(bool value);
+    void set_file_name_impl(const char *);
+
+    dal::detail::pimpl<detail::data_source_impl> impl_;
 };
 
 } // namespace oneapi::dal::csv
