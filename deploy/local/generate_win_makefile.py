@@ -36,7 +36,7 @@ if __name__ == '__main__':
         source_dir, out_dir = sys.argv[1], sys.argv[2]
 
         rules = get_rules_list(os.path.join(source_dir, 'source'))
-        
+
         examples_list_str = 'EXAMPLES_LIST = \\\n' + '{}' * len(rules)
         examples_list_str = examples_list_str.format(*[exe.replace('.exe', '+') + '\\\n' for exe, _ in rules])
 
