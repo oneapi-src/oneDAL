@@ -29,13 +29,13 @@ namespace daal_rbf_kernel    = daal::algorithms::kernel_function::rbf;
 template <typename Float, typename Method>
 class daal_interop_linear_kernel_impl : public kernel_function_impl {
 public:
-    daal_interop_linear_kernel_impl(double k, double b) : k_(k), b_(b) {}
+    daal_interop_linear_kernel_impl(double scale, double shift) : scale_(scale), shift_(shift) {}
 
     daal_kf get_daal_kernel_function() override {
         constexpr daal_linear_kernel::Method daal_method = get_daal_method();
         auto alg         = new daal_linear_kernel::Batch<Float, daal_method>;
-        alg->parameter.k = k_;
-        alg->parameter.b = b_;
+        alg->parameter.k = scale_;
+        alg->parameter.b = shift_;
         return daal_kf(alg);
     }
 
@@ -48,8 +48,8 @@ private:
         return daal_linear_kernel::Method::defaultDense;
     }
 
-    double k_;
-    double b_;
+    double scale_;
+    double shift_;
 };
 
 template <typename F, typename M>
@@ -58,7 +58,8 @@ using linear_kernel_t = linear_kernel::descriptor<F, M>;
 template <typename F, typename M>
 kernel_function<linear_kernel_t<F, M>>::kernel_function(const linear_kernel_t<F, M> &kernel)
         : kernel_(kernel),
-          impl_(new daal_interop_linear_kernel_impl<F, M>{ kernel.get_k(), kernel.get_b() }) {}
+          impl_(new daal_interop_linear_kernel_impl<F, M>{ kernel.get_scale(),
+                                                           kernel.get_shift() }) {}
 
 template <typename F, typename M>
 kernel_function_impl *kernel_function<linear_kernel_t<F, M>>::get_impl() const {
@@ -138,7 +139,7 @@ public:
 class detail::model_impl : public base {
 public:
     table support_vectors;
-    table coefficients;
+    table coeffs;
     double bias;
     std::int64_t support_vectors_count;
 };
@@ -226,8 +227,8 @@ table model::get_support_vectors() const {
     return impl_->support_vectors;
 }
 
-table model::get_coefficients() const {
-    return impl_->coefficients;
+table model::get_coeffs() const {
+    return impl_->coeffs;
 }
 
 double model::get_bias() const {
@@ -242,8 +243,8 @@ void model::set_support_vectors_impl(const table &value) {
     impl_->support_vectors = value;
 }
 
-void model::set_coefficients_impl(const table &value) {
-    impl_->coefficients = value;
+void model::set_coeffs_impl(const table &value) {
+    impl_->coeffs = value;
 }
 
 void model::set_bias_impl(const double value) {
