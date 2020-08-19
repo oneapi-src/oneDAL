@@ -194,10 +194,10 @@ public:
         return *this;
     }
 
-    table get_coefficients() const;
+    table get_coeffs() const;
 
-    auto &set_coefficients(const table &value) {
-        set_coefficients_impl(value);
+    auto &set_coeffs(const table &value) {
+        set_coeffs_impl(value);
         return *this;
     }
 
@@ -217,7 +217,7 @@ public:
 
 private:
     void set_support_vectors_impl(const table &);
-    void set_coefficients_impl(const table &);
+    void set_coeffs_impl(const table &);
     void set_bias_impl(const double);
     void set_support_vector_count_impl(const std::int64_t);
 
