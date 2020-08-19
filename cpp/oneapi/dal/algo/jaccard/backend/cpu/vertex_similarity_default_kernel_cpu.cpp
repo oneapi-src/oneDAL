@@ -48,19 +48,11 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
     return total;
 }
 
-DAAL_FORCEINLINE std::int32_t min(const std::int32_t &a, const std::int32_t &b) {
-    return (a >= b) ? b : a;
-}
-
-DAAL_FORCEINLINE std::int64_t max(const std::int64_t a, const std::int64_t b) {
-    return (a <= b) ? b : a;
-}
-
 template <typename Graph, typename Cpu>
 vertex_similarity_result call_jaccard_default_kernel(const descriptor_base &desc,
                                                      vertex_similarity_input<Graph> &input) {
     const auto &my_graph                = input.get_graph();
-    auto g                              = oneapi::dal::preview::detail::get_impl(my_graph);
+    const auto &g                       = oneapi::dal::preview::detail::get_impl(my_graph);
     auto g_edge_offsets                 = g->_edge_offsets.data();
     auto g_vertex_neighbors             = g->_vertex_neighbors.data();
     auto g_degrees                      = g->_degrees.data();
@@ -132,6 +124,12 @@ vertex_similarity_result call_jaccard_default_kernel(const descriptor_base &desc
         nnz);
     return res;
 }
+
+#define INSTANTIATE(cpu)                                                  \
+    template vertex_similarity_result                                     \
+    call_jaccard_default_kernel<undirected_adjacency_array_graph<>, cpu>( \
+        const descriptor_base &desc,                                      \
+        vertex_similarity_input<undirected_adjacency_array_graph<>> &input);
 
 INSTANTIATE(__CPU_TAG__)
 } // namespace detail

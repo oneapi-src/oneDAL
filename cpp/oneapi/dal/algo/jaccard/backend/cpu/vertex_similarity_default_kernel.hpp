@@ -21,6 +21,7 @@
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
+#include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 
@@ -32,11 +33,14 @@ template <typename Graph, typename Cpu>
 vertex_similarity_result call_jaccard_default_kernel(const descriptor_base &desc,
                                                      vertex_similarity_input<Graph> &input);
 
-#define INSTANTIATE(cpu)                                                  \
-    template vertex_similarity_result                                     \
-    call_jaccard_default_kernel<undirected_adjacency_array_graph<>, cpu>( \
-        const descriptor_base &desc,                                      \
-        vertex_similarity_input<undirected_adjacency_array_graph<>> &input);
+DAAL_FORCEINLINE std::int32_t min(const std::int32_t &a, const std::int32_t &b) {
+    return (a >= b) ? b : a;
+}
+
+DAAL_FORCEINLINE std::int32_t max(const std::int32_t &a, const std::int32_t &b) {
+    return (a <= b) ? b : a;
+}
+
 } // namespace detail
 } // namespace jaccard
 } // namespace oneapi::dal::preview

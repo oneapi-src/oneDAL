@@ -33,8 +33,8 @@ namespace oneapi::dal::preview {
 ///
 /// @tparam VertexValue  Type of vertex properties
 /// @tparam EdgeValue    Type of edge properties
-/// @tparam GraphValue   Type of graph properties 
-/// @tparam IndexType    Type of vertex indices 
+/// @tparam GraphValue   Type of graph properties
+/// @tparam IndexType    Type of vertex indices
 /// @tparam Allocator    Type of the custom allocator (currently not supported)
 template <typename VertexValue = empty_value,
           typename EdgeValue   = empty_value,
