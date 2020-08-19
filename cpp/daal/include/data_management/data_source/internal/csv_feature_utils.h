@@ -19,7 +19,7 @@
 #define __CSV_FEATURE_UTILS_H__
 
 #ifdef ONEAPI_DAL_DATA_CONVERSION
-#elif
+#else
     #include <sstream>
 #endif
 
@@ -175,7 +175,7 @@ private:
         char * endptr;
         daal::services::daal_string_to_float(token.c_str(), &endptr);
         return endptr != token.c_str();
-#elif
+#else
         std::istringstream iss(token.c_str());
         DAAL_DATA_TYPE f = 0.0;
         iss >> f;
