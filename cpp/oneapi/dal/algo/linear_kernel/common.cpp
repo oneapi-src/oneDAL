@@ -20,28 +20,28 @@ namespace oneapi::dal::linear_kernel {
 
 class detail::descriptor_impl : public base {
 public:
-    double k = 1.0;
-    double b = 0.0;
+    double scale = 1.0;
+    double shift = 0.0;
 };
 
 using detail::descriptor_impl;
 
 descriptor_base::descriptor_base() : impl_(new descriptor_impl{}) {}
 
-double descriptor_base::get_k() const {
-    return impl_->k;
+double descriptor_base::get_scale() const {
+    return impl_->scale;
 }
 
-double descriptor_base::get_b() const {
-    return impl_->b;
+double descriptor_base::get_shift() const {
+    return impl_->shift;
 }
 
-void descriptor_base::set_k_impl(const double value) {
-    impl_->k = value;
+void descriptor_base::set_scale_impl(double value) {
+    impl_->scale = value;
 }
 
-void descriptor_base::set_b_impl(const double value) {
-    impl_->b = value;
+void descriptor_base::set_shift_impl(double value) {
+    impl_->shift = value;
 }
 
 } // namespace oneapi::dal::linear_kernel

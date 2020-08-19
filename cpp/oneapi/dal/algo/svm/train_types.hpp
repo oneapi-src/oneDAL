@@ -65,7 +65,7 @@ public:
     model get_model() const;
     table get_support_vectors() const;
     table get_support_indices() const;
-    table get_coefficients() const;
+    table get_coeffs() const;
     double get_bias() const;
     std::int64_t get_support_vector_count() const;
 
@@ -84,17 +84,17 @@ public:
         return *this;
     }
 
-    auto& set_coefficients(const table& value) {
-        set_coefficients_impl(value);
+    auto& set_coeffs(const table& value) {
+        set_coeffs_impl(value);
         return *this;
     }
 
-    auto& set_bias(const double value) {
+    auto& set_bias(double value) {
         set_bias_impl(value);
         return *this;
     }
 
-    auto& set_support_vector_count(const std::int64_t value) {
+    auto& set_support_vector_count(std::int64_t value) {
         set_support_vector_count_impl(value);
         return *this;
     }
@@ -103,9 +103,9 @@ private:
     void set_model_impl(const model&);
     void set_support_vectors_impl(const table&);
     void set_support_indices_impl(const table&);
-    void set_coefficients_impl(const table&);
-    void set_bias_impl(const double);
-    void set_support_vector_count_impl(const std::int64_t);
+    void set_coeffs_impl(const table&);
+    void set_bias_impl(double);
+    void set_support_vector_count_impl(std::int64_t);
 
     dal::detail::pimpl<detail::train_result_impl> impl_;
 };

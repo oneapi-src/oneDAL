@@ -58,8 +58,7 @@ static infer_result call_daal_kernel(const context_gpu& ctx,
     auto arr_data = row_accessor<const Float>{ data }.pull(queue);
     auto arr_support_vectors =
         row_accessor<const Float>{ trained_model.get_support_vectors() }.pull(queue);
-    auto arr_coefficients =
-        row_accessor<const Float>{ trained_model.get_coefficients() }.pull(queue);
+    auto arr_coeffs = row_accessor<const Float>{ trained_model.get_coeffs() }.pull(queue);
 
     const auto daal_data =
         interop::convert_to_daal_sycl_homogen_table(queue, arr_data, row_count, column_count);
@@ -68,14 +67,12 @@ static infer_result call_daal_kernel(const context_gpu& ctx,
                                                     arr_support_vectors,
                                                     support_vector_count,
                                                     column_count);
-    const auto daal_coefficients = interop::convert_to_daal_sycl_homogen_table(queue,
-                                                                               arr_coefficients,
-                                                                               support_vector_count,
-                                                                               1);
+    const auto daal_coeffs =
+        interop::convert_to_daal_sycl_homogen_table(queue, arr_coeffs, support_vector_count, 1);
 
     auto daal_model = daal_model_builder{}
                           .set_support_vectors(daal_support_vectors)
-                          .set_coefficients(daal_coefficients)
+                          .set_coeffs(daal_coeffs)
                           .set_bias(trained_model.get_bias());
 
     auto kernel_impl       = desc.get_kernel_impl()->get_impl();

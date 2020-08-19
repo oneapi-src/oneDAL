@@ -32,7 +32,7 @@ double descriptor_base::get_sigma() const {
     return impl_->sigma;
 }
 
-void descriptor_base::set_sigma_impl(const double value) {
+void descriptor_base::set_sigma_impl(double value) {
     if (value <= 0.0) {
         throw domain_error("sigma should be > 0.0");
     }

@@ -200,7 +200,7 @@ TEST(linear_kernel_dense_test, can_compute_diff_matrix_not_default_params) {
     const auto x_table = homogen_table::wrap(x_data, row_count_x, column_count);
     const auto y_table = homogen_table::wrap(y_data, row_count_y, column_count);
 
-    const auto kernel_desc  = linear_kernel::descriptor{}.set_k(2.0).set_b(1.0);
+    const auto kernel_desc  = linear_kernel::descriptor{}.set_scale(2.0).set_shift(1.0);
     const auto values_table = compute(kernel_desc, x_table, y_table).get_values();
     ASSERT_EQ(values_table.get_row_count(), row_count_x);
     ASSERT_EQ(values_table.get_column_count(), row_count_y);

@@ -27,7 +27,11 @@ int main(int argc, char const *argv[]) {
         -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f, +1.f, +2.f, +2.f, +1.f,
     };
     const float y_train[] = {
+<<<<<<< HEAD
         0.f, 0.f, 0.f, 1.f, 1.f, 1.f,
+=======
+        -1.f, -1.f, -1.f, +1.f, +1.f, +1.f,
+>>>>>>> e8b6cae4b2aec1bf8be729e7af42868306b56761
     };
 
     const auto x_train_table =
@@ -36,7 +40,11 @@ int main(int argc, char const *argv[]) {
         dal::homogen_table::wrap(y_train, row_count_train, 1);
 
     const auto kernel_desc =
+<<<<<<< HEAD
         dal::linear_kernel::descriptor{}.set_k(1.0).set_b(0.0);
+=======
+        dal::linear_kernel::descriptor{}.set_scale(1.0).set_shift(0.0);
+>>>>>>> e8b6cae4b2aec1bf8be729e7af42868306b56761
 
     const auto svm_desc = dal::svm::descriptor{ kernel_desc }
                               .set_c(1.0)

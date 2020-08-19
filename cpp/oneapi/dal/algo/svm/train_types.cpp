@@ -80,8 +80,8 @@ table train_result::get_support_indices() const {
     return impl_->support_indices;
 }
 
-table train_result::get_coefficients() const {
-    return impl_->trained_model.get_coefficients();
+table train_result::get_coeffs() const {
+    return impl_->trained_model.get_coeffs();
 }
 
 double train_result::get_bias() const {
@@ -103,15 +103,15 @@ void train_result::set_support_indices_impl(const table& value) {
     impl_->support_indices = value;
 }
 
-void train_result::set_coefficients_impl(const table& value) {
-    impl_->trained_model.set_coefficients(value);
+void train_result::set_coeffs_impl(const table& value) {
+    impl_->trained_model.set_coeffs(value);
 }
 
-void train_result::set_bias_impl(const double value) {
+void train_result::set_bias_impl(double value) {
     impl_->trained_model.set_bias(value);
 }
 
-void train_result::set_support_vector_count_impl(const std::int64_t value) {
+void train_result::set_support_vector_count_impl(std::int64_t value) {
     impl_->trained_model.set_support_vector_count(value);
 }
 
