@@ -37,21 +37,15 @@ int main(int argc, char **argv) {
   auto row_range_begin = 0; auto row_range_end = 2;
   auto column_range_begin = 0; auto column_range_end = 3;
 
-  // compute the maximum required memory for the result of the block processing
-  // in bytes
-  auto max_block_size = compute_max_block_size(
-      row_range_begin, row_range_end, column_range_begin, column_range_end);
-
   // set algorithm parameters
-  const auto jaccard_desc_default = jaccard::descriptor<>().set_block(
+  const auto jaccard_desc = jaccard::descriptor<>().set_block(
       {row_range_begin, row_range_end}, {column_range_begin, column_range_end});
 
   // create caching builder for jaccard result
-  jaccard::caching_builder caching_builder;
+  jaccard::caching_builder builder;
 
   // compute Jaccard similarity coefficients
-  auto result_vertex_similarity = vertex_similarity(
-      jaccard_desc_default, my_graph, caching_builder(max_block_size));
+  auto result_vertex_similarity = vertex_similarity(jaccard_desc, my_graph, builder);
 
   // extract the result
   auto jaccard_coeffs = result_vertex_similarity.get_coeffs();

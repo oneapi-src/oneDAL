@@ -101,11 +101,16 @@ public:
     }
 };
 
+/// Structure for the caching builder
 struct ONEAPI_DAL_EXPORT caching_builder {
-    void* operator()(const std::size_t& size);
+    /// Returns the pointer to the allocated memory of size block_max_size.
+    ///
+    /// @param [in]   block_max_size  The required size of memory
+    /// @param [in/out]  builder  The caching builder
+    void* operator()(const std::size_t& block_max_size);
 
     std::shared_ptr<byte_t> result_ptr;
-    std::size_t block_max_size = 0;
+    std::size_t size = 0;
 };
 } // namespace jaccard
 } // namespace oneapi::dal::preview
