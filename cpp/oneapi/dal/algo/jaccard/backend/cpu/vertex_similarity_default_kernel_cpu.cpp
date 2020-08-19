@@ -49,18 +49,17 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
 }
 
 DAAL_FORCEINLINE std::int32_t min(const std::int32_t &a, const std::int32_t &b) {
-    if (a >= b) {
-        return b;
-    }
-    else {
-        return a;
-    }
+    return (a >= b) ? b : a;
+}
+
+DAAL_FORCEINLINE std::int64_t max(const std::int64_t a, const std::int64_t b) {
+    return (a <= b) ? b : a; 
 }
 
 template <typename Graph, typename Cpu>
 vertex_similarity_result call_jaccard_default_kernel(const descriptor_base &desc,
                                                      vertex_similarity_input<Graph> &input) {
-    auto my_graph                       = input.get_graph();
+    const auto &my_graph                = input.get_graph();
     auto g                              = oneapi::dal::preview::detail::get_impl(my_graph);
     auto g_edge_offsets                 = g->_edge_offsets.data();
     auto g_vertex_neighbors             = g->_vertex_neighbors.data();
@@ -95,16 +94,14 @@ vertex_similarity_result call_jaccard_default_kernel(const descriptor_base &desc
             }
         }
 
-        auto tmp_idx = column_begin;
-        if (diagonal >= column_begin) {
+        if (diagonal >= column_begin && diagonal < column_end) {
             jaccard[nnz]         = 1.0;
             first_vertices[nnz]  = i;
             second_vertices[nnz] = diagonal;
             nnz++;
-            tmp_idx = diagonal + 1;
         }
 
-        for (std::int32_t j = tmp_idx; j < column_end; j++) {
+        for (std::int32_t j = max(column_begin, diagonal + 1); j < column_end; j++) {
             const auto j_neighbor_size = g_degrees[j];
             const auto j_neigbhors     = g_vertex_neighbors + g_edge_offsets[j];
             if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&
