@@ -151,7 +151,8 @@ services::Status DistributedContainer<step1Local, algorithmFPType, method, cpu>:
     }
     else
     {
-        __DAAL_CALL_KERNEL_SYCL(env, internal::KMeansDistributedStep1KernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType), compute, na, a, nr, r, par);
+        __DAAL_CALL_KERNEL_SYCL(env, internal::KMeansDistributedStep1KernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType), compute, na, a, nr, r,
+                                par);
     }
 }
 
@@ -181,8 +182,8 @@ services::Status DistributedContainer<step1Local, algorithmFPType, method, cpu>:
     }
     else
     {
-        __DAAL_CALL_KERNEL_SYCL(env, internal::KMeansDistributedStep1KernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType), finalizeCompute, na, a, nr,
-                           r, par);
+        __DAAL_CALL_KERNEL_SYCL(env, internal::KMeansDistributedStep1KernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType), finalizeCompute, na, a,
+                                nr, r, par);
     }
 }
 
@@ -254,7 +255,7 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
     else
     {
         s = __DAAL_CALL_KERNEL_STATUS_SYCL(env, internal::KMeansDistributedStep2KernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType), compute, na, a,
-                                      nr, r, par);
+                                           nr, r, par);
     }
     dcInput->clear();
     return s;
@@ -291,8 +292,8 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
     }
     else
     {
-        __DAAL_CALL_KERNEL_SYCL(env, internal::KMeansDistributedStep2KernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType), finalizeCompute, na, a, nr,
-                           r, par);
+        __DAAL_CALL_KERNEL_SYCL(env, internal::KMeansDistributedStep2KernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType), finalizeCompute, na, a,
+                                nr, r, par);
     }
 }
 
