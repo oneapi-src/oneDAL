@@ -22,19 +22,20 @@ namespace jaccard {
 template <typename Graph>
 class detail::vertex_similarity_input_impl : public base {
 public:
-    vertex_similarity_input_impl(const Graph& graph_data_input, void* result_ptr_input)
+    vertex_similarity_input_impl(const Graph& graph_data_input, caching_builder& builder_input)
             : graph_data(graph_data_input),
-              result_ptr(result_ptr_input) {}
+              builder(builder_input) {}
 
     const Graph& graph_data;
-    void* result_ptr;
+    caching_builder& builder;
 };
 
 using detail::vertex_similarity_input_impl;
 
 template <typename Graph>
-vertex_similarity_input<Graph>::vertex_similarity_input(const Graph& data, void* result_ptr_input)
-        : impl_(new vertex_similarity_input_impl<Graph>(data, result_ptr_input)) {}
+vertex_similarity_input<Graph>::vertex_similarity_input(const Graph& data,
+                                                        caching_builder& builder_input)
+        : impl_(new vertex_similarity_input_impl<Graph>(data, builder_input)) {}
 
 template <typename Graph>
 const Graph& vertex_similarity_input<Graph>::get_graph() const {
@@ -42,8 +43,8 @@ const Graph& vertex_similarity_input<Graph>::get_graph() const {
 }
 
 template <typename Graph>
-void* vertex_similarity_input<Graph>::get_result_ptr() {
-    return impl_->result_ptr;
+caching_builder& vertex_similarity_input<Graph>::get_caching_builder() {
+    return impl_->builder;
 }
 
 class detail::vertex_similarity_result_impl : public base {
@@ -71,11 +72,11 @@ vertex_similarity_result::vertex_similarity_result(const table& vertex_pairs,
                                                    std::int64_t& nonzero_coeff_count)
         : impl_(new vertex_similarity_result_impl(vertex_pairs, coeffs, nonzero_coeff_count)) {}
 
-table& vertex_similarity_result::get_coeffs() const {
+table vertex_similarity_result::get_coeffs() const {
     return impl_->coeffs;
 }
 
-table& vertex_similarity_result::get_vertex_pairs() const {
+table vertex_similarity_result::get_vertex_pairs() const {
     return impl_->vertex_pairs;
 }
 

@@ -41,25 +41,17 @@ class vertex_similarity_result_impl;
 template <typename Graph>
 class ONEAPI_DAL_EXPORT vertex_similarity_input {
 public:
-    /// Constructs the algorithm input initialized with the graph and the pointer
-    /// to the allocated memory for the result. The size of the required memory
-    /// can be computed by the formula:
-    /// size = (vertex_pair_size + jaccard_coeff_size) * vertex_pairs_count,
-    /// where:
-    /// - vertex_pair_size is (2 * sizeof(int32_t));
-    /// - jaccard_coeff_size is (1 * sizeof(float));
-    /// - vertex_pairs_count is the number of vertices in the block
+    /// Constructs the algorithm input initialized with the graph and the caching builder.
     ///
     /// @param [in]   graph  The input graph
-    /// @param [in/out]  result_ptr  The pointer to the allocated memory
-    /// for storing the result
-    vertex_similarity_input(const Graph& graph, void* result_ptr);
+    /// @param [in/out]  builder  The caching builder
+    vertex_similarity_input(const Graph& graph, caching_builder& builder);
 
     /// Returns the constant reference to the input graph
     const Graph& get_graph() const;
 
-    /// Returns the input pointer to the result
-    void* get_result_ptr();
+    /// Returns the caching_builder for the result
+    caching_builder& get_caching_builder();
 
 private:
     dal::detail::pimpl<detail::vertex_similarity_input_impl<Graph>> impl_;
@@ -88,11 +80,11 @@ public:
 
     /// Returns the table of size 1*nonzero_coeff_count with non-zero Jaccard
     /// similarity coefficients
-    table& get_coeffs() const;
+    table get_coeffs() const;
 
     /// Returns the table of size 2*nonzero_coeff_count with vertex pairs which have
     /// non-zero Jaccard similarity coefficients
-    table& get_vertex_pairs() const;
+    table get_vertex_pairs() const;
 
     /// The number of non-zero Jaccard similarity coefficients in the block
     std::int64_t get_nonzero_coeff_count() const;
