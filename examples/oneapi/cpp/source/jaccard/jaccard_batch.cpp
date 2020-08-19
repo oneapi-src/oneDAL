@@ -46,18 +46,16 @@ int main(int argc, char **argv) {
                             column_range_begin,
                             column_range_end);
 
-    // allocate memory for the result of the block processing
-    auto result_buffer_ptr =
-        std::shared_ptr<byte_t>(new byte_t[max_block_size]);
-
     // set algorithm parameters
     const auto jaccard_desc_default = jaccard::descriptor<>().set_block(
         {row_range_begin, row_range_end}, {column_range_begin, column_range_end});
 
+    // create caching builder for jaccard result
+    jaccard::caching_builder jaccard_memory;
+
     // compute Jaccard similarity coefficients
     auto result_vertex_similarity =
-        vertex_similarity(jaccard_desc_default, my_graph,
-                          static_cast<void *>(result_buffer_ptr.get()));
+        vertex_similarity(jaccard_desc_default, my_graph, jaccard_memory(max_block_size));
 
     // extract the result
     auto jaccard_coeffs = result_vertex_similarity.get_coeffs();
