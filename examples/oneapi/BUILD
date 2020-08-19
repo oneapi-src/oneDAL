@@ -1,6 +1,7 @@
-package(default_visibility = ["//visibility:public"])
+ackage(default_visibility = ["//visibility:public"])
 
 filegroup(
     name = "data",
     srcs = glob(["data/**/*.csv"]),
 )
+

@@ -27,6 +27,7 @@ inline bool check_file(const std::string& name) {
 inline std::string get_data_path(const std::string& name) {
     const std::vector<std::string> paths = {
         "../data",
+        "../../daal/data/batch/",
         "examples/oneapi/data"
     };
 
