@@ -120,6 +120,7 @@ def dal_static_lib(name, lib_name, dal_deps=[], host_deps=[],
         **kwargs
     )
 
+
 def dal_test(name, dal_deps=[], test_deps=[], data=[],
              gtest=True, tags=[], **kwargs):
     # TODO: Add support for DPC++
