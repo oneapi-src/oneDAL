@@ -19,6 +19,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <iostream>
 
 inline bool check_file(const std::string& name) {
     return std::ifstream{name}.good();
@@ -27,12 +28,12 @@ inline bool check_file(const std::string& name) {
 inline std::string get_data_path(const std::string& name) {
     const std::vector<std::string> paths = {
         "../data",
-        "../../daal/data/batch/",
         "examples/oneapi/data"
     };
 
     for (const auto& path : paths) {
         const std::string try_path = path + "/" + name;
+        std::cout << try_path << std::endl;
         if (check_file(try_path)) {
             return try_path;
         }
