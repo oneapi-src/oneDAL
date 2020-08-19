@@ -33,6 +33,8 @@
 
 namespace oneapi::dal::csv::backend {
 
+namespace interop = dal::backend::interop;
+
 table read_kernel_gpu<table>::operator()(const dal::backend::context_gpu& ctx,
                                          const data_source_base& data_source,
                                          const read_args<table>& args) const {
