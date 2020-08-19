@@ -82,7 +82,7 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
                                                                     *daal_decision_function,
                                                                     &daal_parameter));
 
-    auto arr_label = array<Float>::empty(row_count * 1);
+    auto arr_label  = array<Float>::empty(row_count * 1);
     auto label_data = arr_label.get_mutable_data();
     for (std::int64_t i = 0; i < row_count; ++i) {
         label_data[i] = arr_decision_function[i] >= 0 ? Float(1.0) : Float(-1.0);
