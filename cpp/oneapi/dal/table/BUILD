@@ -1,19 +1,13 @@
 package(default_visibility = ["//visibility:public"])
 load("@onedal//dev/bazel:dal.bzl",
     "dal_module",
-    "dal_public_includes",
     "dal_test_suite",
-)
-
-dal_public_includes(
-    name = "public_includes",
 )
 
 dal_module(
     name = "table",
-    dpc = True,
     auto = True,
-    deps = [
+    dal_deps = [
         "@onedal//cpp/oneapi/dal:common",
         "@onedal//cpp/oneapi/dal/util",
     ]
@@ -25,7 +19,7 @@ dal_test_suite(
         "common_test.cpp",
         "homogen_test.cpp",
     ],
-    deps = [ ":table" ],
+    dal_deps = [ ":table" ],
 )
 
 dal_test_suite(
@@ -34,7 +28,7 @@ dal_test_suite(
         "row_accessor_test.cpp",
         "column_accessor_test.cpp",
     ],
-    deps = [ ":table" ],
+    dal_deps = [ ":table" ],
 )
 
 dal_test_suite(
@@ -42,5 +36,5 @@ dal_test_suite(
     srcs = [
         "detail/table_builder_test.cpp",
     ],
-    deps = [ ":table" ],
+    dal_deps = [ ":table" ],
 )

@@ -1,22 +1,18 @@
 package(default_visibility = ["//visibility:public"])
 load("@onedal//dev/bazel:dal.bzl",
     "dal_module",
-    "dal_public_includes",
     "dal_test_suite",
-)
-
-dal_public_includes(
-    name = "public_includes",
 )
 
 dal_module(
     name = "kmeans",
-    dpc = True,
     auto = True,
-    deps = [
+    dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
+    ],
+    extra_deps = [
         "@onedal//cpp/daal/src/algorithms/kmeans:kernel",
-    ]
+    ],
 )
 
 dal_test_suite(
@@ -24,7 +20,7 @@ dal_test_suite(
     srcs = [
         "backend/cpu/train_kernel_lloyd_dense_test.cpp",
     ],
-    deps = [
+    dal_deps = [
         ":kmeans",
     ],
 )

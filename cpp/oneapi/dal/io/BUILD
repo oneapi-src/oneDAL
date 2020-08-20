@@ -1,14 +1,10 @@
 package(default_visibility = ["//visibility:public"])
-load("@onedal//dev/bazel:dal.bzl", "dal_module", "dal_public_includes")
-
-dal_public_includes(
-    name = "public_includes",
-)
+load("@onedal//dev/bazel:dal.bzl", "dal_module")
 
 dal_module(
     name = "io",
     auto = True,
-    deps = [
+    dal_deps = [
         "@onedal//cpp/oneapi/dal:common",
         "@onedal//cpp/oneapi/dal/table",
         "@onedal//cpp/oneapi/dal/graph",

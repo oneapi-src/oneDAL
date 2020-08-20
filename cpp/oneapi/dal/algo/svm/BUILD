@@ -1,22 +1,18 @@
 package(default_visibility = ["//visibility:public"])
 load("@onedal//dev/bazel:dal.bzl",
     "dal_module",
-    "dal_public_includes",
     "dal_test_suite",
-)
-
-dal_public_includes(
-    name = "public_includes",
 )
 
 dal_module(
     name = "svm",
-    dpc = True,
     auto = True,
-    deps = [
+    dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
-        "@onedal//cpp/oneapi/dal:linear_kernel",
-        "@onedal//cpp/oneapi/dal:rbf_kernel",
+        "@onedal//cpp/oneapi/dal/algo:linear_kernel",
+        "@onedal//cpp/oneapi/dal/algo:rbf_kernel",
+    ],
+    extra_deps = [
         "@onedal//cpp/daal/src/algorithms/svm:kernel",
     ]
 )
@@ -24,10 +20,9 @@ dal_module(
 dal_test_suite(
     name = "cpu_tests",
     srcs = [
-        # Diabled
-        # "backend/cpu/train_kernel_test.cpp",
+        "backend/cpu/train_kernel_test.cpp",
     ],
-    deps = [
+    dal_deps = [
         ":svm",
     ],
 )

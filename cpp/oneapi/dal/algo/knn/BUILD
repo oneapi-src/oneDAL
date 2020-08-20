@@ -1,16 +1,15 @@
 package(default_visibility = ["//visibility:public"])
-load("@onedal//dev/bazel:dal.bzl", "dal_module", "dal_public_includes")
-
-dal_public_includes(
-    name = "public_includes",
+load("@onedal//dev/bazel:dal.bzl",
+    "dal_module",
 )
 
 dal_module(
     name = "knn",
-    dpc = True,
     auto = True,
-    deps = [
+    dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
+    ],
+    extra_deps = [
         "@onedal//cpp/daal/src/algorithms/k_nearest_neighbors:kernel",
-    ]
+    ],
 )

@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "gtest/gtest.h"
-#include "oneapi/dal/algo/linear_kernel.hpp"
+#include "oneapi/dal/algo/linear_kernel/compute.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
@@ -49,7 +49,7 @@ TEST(linear_kernel_dense_test, can_compute_unit_matrix) {
 
     const auto values = row_accessor<const float>(values_table).pull();
 
-    for (size_t i = 0; i < values.get_count(); i++) {
+    for (std::int64_t i = 0; i < values.get_count(); i++) {
         ASSERT_FLOAT_EQ(values[i], static_cast<float>(column_count));
     }
 }
@@ -72,7 +72,7 @@ TEST(linear_kernel_dense_test, can_compute_same_unit_matrix) {
     ASSERT_EQ(values_table.get_column_count(), row_count);
 
     const auto values = row_accessor<const float>(values_table).pull();
-    for (size_t i = 0; i < values.get_count(); i++) {
+    for (std::int64_t i = 0; i < values.get_count(); i++) {
         ASSERT_FLOAT_EQ(values[i], static_cast<float>(column_count));
     }
 }

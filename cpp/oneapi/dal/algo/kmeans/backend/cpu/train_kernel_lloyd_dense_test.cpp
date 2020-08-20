@@ -15,7 +15,8 @@
 *******************************************************************************/
 
 #include "gtest/gtest.h"
-#include "oneapi/dal/algo/kmeans.hpp"
+#include "oneapi/dal/algo/kmeans/train.hpp"
+#include "oneapi/dal/algo/kmeans/infer.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
 using namespace oneapi::dal;
@@ -60,10 +61,6 @@ TEST(kmeans_lloyd_dense_cpu, infer_results) {
 
     const float data[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
                            -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
-
-    const int labels[] = { 1, 1, 1, 1, 0, 0, 0, 0 };
-
-    const float centroids[] = { -1.5, -1.5, 1.5, 1.5 };
 
     const auto data_table = homogen_table::wrap(data, row_count, column_count);
 
