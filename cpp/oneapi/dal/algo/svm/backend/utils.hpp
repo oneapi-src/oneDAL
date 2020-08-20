@@ -65,7 +65,7 @@ static array<Float> convert_labels(const array<Float>& arr_label,
 
     out_binary_labels.first  = value_first_class_label;
     out_binary_labels.second = value_second_class_label;
-    return new_label_data;
+    return new_label_arr;
 }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -114,7 +114,7 @@ static array<Float> convert_labels(const sycl::queue& queue,
     out_binary_labels.first  = value_first_class_label;
     out_binary_labels.second = value_second_class_label;
 
-    return new_label_data;
+    return new_label_arr;
 }
 
 #endif
