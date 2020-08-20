@@ -62,7 +62,7 @@ struct train_ops {
         if (result.get_support_vector_count() < 0 ||
             result.get_support_vector_count() > input.get_data().get_row_count()) {
             throw internal_error(
-                "Result support_vectors_count should be >= 0 and <= input data row_count");
+                "Result support_vector_count should be >= 0 and <= input data row_count");
         }
         if (!(result.get_support_vectors().has_data())) {
             throw internal_error("Result support_vectors should not be empty");
@@ -80,15 +80,15 @@ struct train_ops {
         }
         if (result.get_support_vectors().get_row_count() != result.get_support_vector_count()) {
             throw internal_error(
-                "Result support_vectors row_count should be equal to result support_vectors_count");
+                "Result support_vectors row_count should be equal to result support_vector_count");
         }
         if (result.get_support_indices().get_row_count() != result.get_support_vector_count()) {
             throw internal_error(
-                "Result support_indices row_count should be equal to result support_vectors_count");
+                "Result support_indices row_count should be equal to result support_vector_count");
         }
         if (result.get_coeffs().get_row_count() != result.get_support_vector_count()) {
             throw internal_error(
-                "Result coeffs row_count should be equal to result support_vectors_count");
+                "Result coeffs row_count should be equal to result support_vector_count");
         }
     }
 

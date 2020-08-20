@@ -89,12 +89,12 @@ public:
         return *this;
     }
 
-    auto& set_bias(const double value) {
+    auto& set_bias(double value) {
         set_bias_impl(value);
         return *this;
     }
 
-    auto& set_support_vector_count(const std::int64_t value) {
+    auto& set_support_vector_count(std::int64_t value) {
         set_support_vector_count_impl(value);
         return *this;
     }
@@ -104,8 +104,8 @@ private:
     void set_support_vectors_impl(const table&);
     void set_support_indices_impl(const table&);
     void set_coeffs_impl(const table&);
-    void set_bias_impl(const double);
-    void set_support_vector_count_impl(const std::int64_t);
+    void set_bias_impl(double);
+    void set_support_vector_count_impl(std::int64_t);
 
     dal::detail::pimpl<detail::train_result_impl> impl_;
 };
