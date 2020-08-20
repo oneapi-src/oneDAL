@@ -33,7 +33,7 @@ public:
 
     data_source(const char *file_name) : file_name_(std::string(file_name)) {}
 
-    data_source(const std::string &file_name) : file_name_(file_name) {}
+    data_source(std::string file_name) : file_name_(file_name) {}
 
     char get_delimiter() const {
         return delimiter_;
@@ -43,7 +43,7 @@ public:
         return parse_header_;
     }
 
-    const std::string &get_file_name() const {
+    std::string get_file_name() const {
         return file_name_;
     }
 
