@@ -31,7 +31,7 @@ struct dense {};
 struct random_dense {};
 struct plus_plus_dense {};
 struct parallel_plus_dense {};
-using by_default = dense;
+using by_default = plus_plus_dense;
 } // namespace method
 
 class ONEAPI_DAL_EXPORT descriptor_base : public base {

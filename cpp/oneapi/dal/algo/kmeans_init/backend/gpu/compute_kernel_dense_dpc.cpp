@@ -18,9 +18,11 @@
 #define DAAL_SYCL_INTERFACE_USM
 #define DAAL_SYCL_INTERFACE_REVERSED_RANGE
 
+#include <include/algorithms/kmeans/kmeans_init_types.h>
 #include <src/algorithms/kmeans/oneapi/kmeans_init_dense_batch_kernel_ucapi.h>
 
 #include "oneapi/dal/algo/kmeans_init/backend/gpu/compute_kernel.hpp"
+#include "oneapi/dal/algo/kmeans_init/backend/to_daal_method.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -35,34 +37,22 @@ using dal::backend::context_gpu;
 namespace daal_kmeans_init = daal::algorithms::kmeans::init;
 namespace interop          = dal::backend::interop;
 
-template <typename Float>
-using daal_kmeans_init_dense_batch_ucapi_kernel_t =
-    daal_kmeans_init::internal::KMeansInitDenseBatchKernelUCAPI<daal_kmeans_init::defaultDense,
-                                                                Float>;
-
-template <typename Float>
-using daal_kmeans_init_random_dense_batch_ucapi_kernel_t =
-    daal_kmeans_init::internal::KMeansInitDenseBatchKernelUCAPI<daal_kmeans_init::randomDense,
-                                                                Float>;
-
-template <typename Float>
-using daal_kmeans_init_plus_plus_dense_batch_ucapi_kernel_t =
-    daal_kmeans_init::internal::KMeansInitDenseBatchKernelUCAPI<daal_kmeans_init::plusPlusDense,
-                                                                Float>;
-
-template <typename Float>
-using daal_kmeans_init_parallel_plus_dense_batch_ucapi_kernel_t =
-    daal_kmeans_init::internal::KMeansInitDenseBatchKernelUCAPI<daal_kmeans_init::parallelPlusDense,
+template <typename Float, typename Method>
+using daal_kmeans_init_kernel_t =
+    daal_kmeans_init::internal::KMeansInitDenseBatchKernelUCAPI<to_daal_method<Method>::value,
                                                                 Float>;
 
 template <typename Float, typename Method>
-compute_result compute_kernel_gpu<Float, Method>::operator()(const dal::backend::context_gpu& ctx,
-                                                             const descriptor_base& params,
-                                                             const compute_input& input) const {
+static compute_result call_daal_kernel(const context_gpu& ctx,
+                                       const descriptor_base& params,
+                                       const table& data) {
+    if constexpr (std::is_same_v<Method, method::plus_plus_dense>)
+        throw unimplemented_error("plus_plus_dense method is not implemented for GPU");
+    if constexpr (std::is_same_v<Method, method::parallel_plus_dense>)
+        throw unimplemented_error("parallel_plus_dense method is not implemented for GPU");
+
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
-
-    const auto data = input.get_data();
 
     const int64_t column_count  = data.get_column_count();
     const int64_t cluster_count = params.get_cluster_count();
@@ -86,30 +76,30 @@ compute_result compute_kernel_gpu<Float, Method>::operator()(const dal::backend:
     const size_t len_daal_output                                      = 1;
     daal::data_management::NumericTable* daal_output[len_daal_output] = { daal_centroids.get() };
 
-    if constexpr (std::is_same_v<Method, method::dense>)
-        interop::status_to_exception(
-            daal_kmeans_init_dense_batch_ucapi_kernel_t<Float>().compute(len_daal_input,
-                                                                         daal_input,
-                                                                         len_daal_output,
-                                                                         daal_output,
-                                                                         &par,
-                                                                         *(par.engine)));
-    else if constexpr (std::is_same_v<Method, method::random_dense>)
-        interop::status_to_exception(
-            daal_kmeans_init_random_dense_batch_ucapi_kernel_t<Float>().compute(len_daal_input,
-                                                                                daal_input,
-                                                                                len_daal_output,
-                                                                                daal_output,
-                                                                                &par,
-                                                                                *(par.engine)));
-    else if constexpr (std::is_same_v<Method, method::plus_plus_dense>)
-        throw unimplemented_error("plus_plus_dense method is not implemented for GPU");
-    else if constexpr (std::is_same_v<Method, method::parallel_plus_dense>)
-        throw unimplemented_error("parallel_plus_dense method is not implemented for GPU");
+    interop::status_to_exception(daal_kmeans_init_kernel_t<Float, Method>().compute(len_daal_input,
+                                                                                    daal_input,
+                                                                                    len_daal_output,
+                                                                                    daal_output,
+                                                                                    &par,
+                                                                                    *(par.engine)));
 
     return compute_result().set_centroids(dal::detail::homogen_table_builder{}
                                               .reset(arr_centroids, cluster_count, column_count)
                                               .build());
+}
+
+template <typename Float, typename Method>
+static compute_result compute(const context_gpu& ctx,
+                              const descriptor_base& desc,
+                              const compute_input& input) {
+    return call_daal_kernel<Float, Method>(ctx, desc, input.get_data());
+}
+
+template <typename Float, typename Method>
+compute_result compute_kernel_gpu<Float, Method>::operator()(const context_gpu& ctx,
+                                                             const descriptor_base& desc,
+                                                             const compute_input& input) const {
+    return compute<Float, Method>(ctx, desc, input);
 }
 
 template struct compute_kernel_gpu<float, method::dense>;
