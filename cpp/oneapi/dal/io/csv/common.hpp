@@ -33,7 +33,7 @@ public:
     using tag_t = detail::data_source_tag;
 
     data_source(const char *file_name);
-    data_source(const std::string& file_name);
+    data_source(const std::string &file_name);
 
     char get_delimiter() const;
     bool get_parse_header() const;

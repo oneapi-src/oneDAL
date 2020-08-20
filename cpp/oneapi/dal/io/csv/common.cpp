@@ -32,7 +32,7 @@ data_source::data_source(const char *file_name) : impl_(new data_source_impl{}) 
     set_file_name_impl(file_name);
 }
 
-data_source::data_source(const std::string& file_name) : impl_(new data_source_impl{}) {
+data_source::data_source(const std::string &file_name) : impl_(new data_source_impl{}) {
     set_file_name_impl(file_name.c_str());
 }
 
