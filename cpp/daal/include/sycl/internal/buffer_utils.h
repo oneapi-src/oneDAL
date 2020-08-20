@@ -129,11 +129,11 @@ public:
     {
         _st = services::Status();
 
-        auto buffer    = _src.template get<DataType>();
+        auto buffer = _src.template get<DataType>();
         if (_offset != 0)
         {
             auto subbuffer = buffer.getSubBuffer(_offset, _size);
-            _dest = subbuffer;
+            _dest          = subbuffer;
         }
         else
         {
