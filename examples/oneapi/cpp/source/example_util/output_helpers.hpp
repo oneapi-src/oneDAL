@@ -36,3 +36,16 @@ std::ostream &operator<<(std::ostream &stream,
   }
   return stream;
 }
+
+void print_vertex_similarity_result(const oneapi::dal::table &table, const int64_t& nnz_count) {
+  auto arr = oneapi::dal::row_accessor<const float>(table).pull();
+  const auto x = arr.get_data();
+
+  for (std::int64_t i = 0; i < table.get_row_count(); i++) {
+    for (std::int64_t j = 0; j < nnz_count; j++) {
+      std::cout << std::setw(10) << std::setiosflags(std::ios::fixed)
+                << std::setprecision(3) << x[i * table.get_column_count() + j];
+    }
+    std::cout << std::endl;
+  }
+}

@@ -33,6 +33,11 @@ double daal::services::daal_string_to_double(const char * nptr, char ** endptr)
     return daal::internal::Service<>::serv_string_to_double(nptr, endptr);
 }
 
+int daal::services::daal_string_to_int(const char * nptr, char ** endptr)
+{
+    return daal::internal::Service<>::serv_string_to_int(nptr, endptr);
+}
+
 int daal::services::daal_int_to_string(char * buffer, size_t n, int value)
 {
     return daal::internal::Service<>::serv_int_to_string(buffer, n, value);
