@@ -20,7 +20,7 @@
 using namespace oneapi;
 
 template <typename T>
-double calculate_classification_error(const dal::table& infer_labels, const T* ground_truth) {
+inline double calculate_classification_error(const dal::table& infer_labels, const T* ground_truth) {
     const auto labels                  = dal::row_accessor<const T>(infer_labels).pull();
     std::int64_t incorrect_label_count = 0;
 
@@ -31,7 +31,7 @@ double calculate_classification_error(const dal::table& infer_labels, const T* g
 }
 
 template <typename T>
-double calculate_classification_error(const dal::table& infer_labels,
+inline double calculate_classification_error(const dal::table& infer_labels,
                                       const dal::homogen_table& ground_truth) {
     const auto labels                  = dal::row_accessor<const T>(infer_labels).pull();
     const auto truth_labels            = dal::row_accessor<const T>(ground_truth).pull();
@@ -44,7 +44,7 @@ double calculate_classification_error(const dal::table& infer_labels,
 }
 
 template <typename T>
-double calculate_mse(const dal::table& infer_labels, const T* ground_truth) {
+inline double calculate_mse(const dal::table& infer_labels, const T* ground_truth) {
     double mean       = 0.0;
     const auto labels = dal::row_accessor<const T>(infer_labels).pull();
     for (size_t i = 0; i < labels.get_count(); i++) {
@@ -56,7 +56,7 @@ double calculate_mse(const dal::table& infer_labels, const T* ground_truth) {
 }
 
 template <typename T>
-double calculate_mse(const dal::table& infer_labels, const dal::table& ground_truth) {
+inline double calculate_mse(const dal::table& infer_labels, const dal::table& ground_truth) {
     double mean             = 0.0;
     const auto labels       = dal::row_accessor<const T>(infer_labels).pull();
     const auto truth_labels = dal::row_accessor<const T>(ground_truth).pull();
@@ -68,7 +68,7 @@ double calculate_mse(const dal::table& infer_labels, const dal::table& ground_tr
     return mean;
 }
 
-void verify_oob_err_vs_oob_err_per_observation(const dal::table& oob_err,
+inline void verify_oob_err_vs_oob_err_per_observation(const dal::table& oob_err,
                                                const dal::table& oob_err_per_observation,
                                                double threshold) {
     const auto oob_err_val = dal::row_accessor<const double>(oob_err).pull();
