@@ -76,9 +76,10 @@ TEST(column_accessor_test, can_get_columns_from_homogen_table_builder) {
 
             ASSERT_EQ(col.get_count(), 3);
             col.need_mutable_data();
+            double* col_data = col.get_mutable_data();
             for (std::int64_t i = 0; i < col.get_count(); i++) {
                 ASSERT_DOUBLE_EQ(col[i], 0.0);
-                col[i] = col_idx + 1;
+                col_data[i] = col_idx + 1;
             }
 
             acc.push(col, col_idx);

@@ -15,7 +15,8 @@
 *******************************************************************************/
 
 #include "gtest/gtest.h"
-#include "oneapi/dal/algo/svm.hpp"
+#include "oneapi/dal/algo/svm/infer.hpp"
+#include "oneapi/dal/algo/svm/train.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
@@ -102,17 +103,17 @@ TEST(svm_thunder_dense_test, can_classify_linear_separable_surface_with_big_marg
 
     auto support_indices_table = result_train.get_support_indices();
     const auto support_indices = row_accessor<const float>(support_indices_table).pull();
-    for (size_t i = 0; i < support_indices.get_count(); i++)
+    for (std::int64_t i = 0; i < support_indices.get_count(); i++)
         ASSERT_EQ(support_indices[i], i);
 
     const auto result_infer = infer(svm_desc, result_train.get_model(), x_train_table);
 
     auto labels_table = result_infer.get_labels();
     const auto labels = row_accessor<const float>(labels_table).pull();
-    for (size_t i = 0; i < row_count_train / 2; i++) {
+    for (std::int64_t i = 0; i < row_count_train / 2; i++) {
         ASSERT_FLOAT_EQ(labels[i], -1.f);
     }
-    for (size_t i = row_count_train / 2; i < row_count_train; i++) {
+    for (std::int64_t i = row_count_train / 2; i < row_count_train; i++) {
         ASSERT_FLOAT_EQ(labels[i], +1.f);
     }
 }
@@ -123,8 +124,6 @@ TEST(svm_thunder_dense_test, can_classify_linear_not_separable_surface) {
     const float x_train[]                  = { -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f,
                               +1.f, +2.f, +2.f, +1.f, -3.f, -3.f, +3.f, +3.f };
     const float y_train[]                  = { -1.f, -1.f, -1.f, +1.f, +1.f, +1.f, +1.f, -1.f };
-    constexpr std::int64_t support_index_negative = 1;
-    constexpr std::int64_t support_index_positive = 3;
     const auto x_train_table = homogen_table::wrap(x_train, row_count_train, column_count);
     const auto y_train_table = homogen_table::wrap(y_train, row_count_train, 1);
 
@@ -134,10 +133,10 @@ TEST(svm_thunder_dense_test, can_classify_linear_not_separable_surface) {
     const auto result_infer = infer(svm_desc, result_train.get_model(), x_train_table);
     auto labels_table       = result_infer.get_labels();
     const auto labels       = row_accessor<const float>(labels_table).pull();
-    for (size_t i = 0; i < 3; i++) {
+    for (int i = 0; i < 3; i++) {
         ASSERT_FLOAT_EQ(labels[i], -1.f);
     }
-    for (size_t i = 3; i < 6; i++) {
+    for (int i = 3; i < 6; i++) {
         ASSERT_FLOAT_EQ(labels[i], +1.f);
     }
 }
@@ -152,8 +151,6 @@ TEST(svm_thunder_dense_test, can_classify_quadric_separable_surface_with_rbf_ker
     const float y_train[] = {
         -1.f, -1.f, -1.f, -1.f, -1.f, -1.f, +1.f, +1.f, +1.f, +1.f, +1.f, +1.f,
     };
-    constexpr std::int64_t support_index_negative = 1;
-    constexpr std::int64_t support_index_positive = 3;
     const auto x_train_table = homogen_table::wrap(x_train, row_count_train, column_count);
     const auto y_train_table = homogen_table::wrap(y_train, row_count_train, 1);
 
@@ -166,10 +163,10 @@ TEST(svm_thunder_dense_test, can_classify_quadric_separable_surface_with_rbf_ker
 
     auto labels_table = result_infer.get_labels();
     const auto labels = row_accessor<const float>(labels_table).pull();
-    for (size_t i = 0; i < row_count_train / 2; i++) {
+    for (std::int64_t i = 0; i < row_count_train / 2; i++) {
         ASSERT_FLOAT_EQ(labels[i], -1.f);
     }
-    for (size_t i = row_count_train / 2; i < row_count_train; i++) {
+    for (std::int64_t i = row_count_train / 2; i < row_count_train; i++) {
         ASSERT_FLOAT_EQ(labels[i], +1.f);
     }
 }
@@ -282,7 +279,7 @@ TEST(svm_thunder_dense_test, can_classify_linear_separable_surface_with_differen
 
     auto support_indices_table = result_train.get_support_indices();
     const auto support_indices = row_accessor<const float>(support_indices_table).pull();
-    for (size_t i = 0; i < support_indices.get_count(); i++)
+    for (std::int64_t i = 0; i < support_indices.get_count(); i++)
         ASSERT_EQ(support_indices[i], i);
 
     const auto svm_desc_infer = svm::descriptor<double>{}.set_c(1e-1);
@@ -290,10 +287,10 @@ TEST(svm_thunder_dense_test, can_classify_linear_separable_surface_with_differen
 
     auto labels_table = result_infer.get_labels();
     const auto labels = row_accessor<const float>(labels_table).pull();
-    for (size_t i = 0; i < row_count_train / 2; i++) {
+    for (std::int64_t i = 0; i < row_count_train / 2; i++) {
         ASSERT_FLOAT_EQ(labels[i], -1.f);
     }
-    for (size_t i = row_count_train / 2; i < row_count_train; i++) {
+    for (std::int64_t i = row_count_train / 2; i < row_count_train; i++) {
         ASSERT_FLOAT_EQ(labels[i], +1.f);
     }
 }
