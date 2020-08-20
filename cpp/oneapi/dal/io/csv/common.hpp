@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <cstring>
+#include <string>
 
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/common.hpp"
@@ -37,7 +37,7 @@ public:
 
     char get_delimiter() const;
     bool get_parse_header() const;
-    const char *get_file_name() const;
+    const std::string &get_file_name() const;
 
     auto &set_delimiter(char value) {
         set_delimiter_impl(value);
@@ -54,10 +54,16 @@ public:
         return *this;
     }
 
+    auto &set_file_name(const std::string &value) {
+        set_file_name_impl(value);
+        return *this;
+    }
+
 private:
     void set_delimiter_impl(char value);
     void set_parse_header_impl(bool value);
     void set_file_name_impl(const char *);
+    void set_file_name_impl(const std::string &);
 
     dal::detail::pimpl<detail::data_source_impl> impl_;
 };

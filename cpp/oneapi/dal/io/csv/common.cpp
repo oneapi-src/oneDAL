@@ -21,9 +21,9 @@ namespace oneapi::dal::csv {
 
 class detail::data_source_impl : public base {
 public:
-    char delimiter    = ',';
-    bool parse_header = false;
-    char *file_name   = nullptr;
+    char delimiter        = ',';
+    bool parse_header     = false;
+    std::string file_name = "";
 };
 
 using detail::data_source_impl;
@@ -33,7 +33,7 @@ data_source::data_source(const char *file_name) : impl_(new data_source_impl{}) 
 }
 
 data_source::data_source(const std::string &file_name) : impl_(new data_source_impl{}) {
-    set_file_name_impl(file_name.c_str());
+    set_file_name_impl(file_name);
 }
 
 char data_source::get_delimiter() const {
@@ -44,7 +44,7 @@ bool data_source::get_parse_header() const {
     return impl_->parse_header;
 }
 
-const char *data_source::get_file_name() const {
+const std::string &data_source::get_file_name() const {
     return impl_->file_name;
 }
 
@@ -57,13 +57,11 @@ void data_source::set_parse_header_impl(bool value) {
 }
 
 void data_source::set_file_name_impl(const char *value) {
-    const size_t len = strlen(value);
-    impl_->file_name = new char[len + 1];
-    dal::detail::memcpy(dal::detail::default_host_policy{},
-                        impl_->file_name,
-                        value,
-                        sizeof(char) * len);
-    impl_->file_name[len] = '\0';
+    impl_->file_name = std::string(value);
+}
+
+void data_source::set_file_name_impl(const std::string &value) {
+    impl_->file_name = value;
 }
 
 } // namespace oneapi::dal::csv

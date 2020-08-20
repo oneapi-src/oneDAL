@@ -43,7 +43,7 @@ table read_kernel_cpu<table>::operator()(const dal::backend::context_cpu& ctx,
                                        (ds.get_parse_header() ? CsvDataSourceOptions::parseHeader
                                                               : CsvDataSourceOptions::byDefault);
 
-    FileDataSource<CSVFeatureManager> daal_data_source(ds.get_file_name(), csv_options);
+    FileDataSource<CSVFeatureManager> daal_data_source(ds.get_file_name().c_str(), csv_options);
     daal_data_source.getFeatureManager().setDelimiter(ds.get_delimiter());
     daal_data_source.loadDataBlock();
 
