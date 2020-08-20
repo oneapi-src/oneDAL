@@ -25,7 +25,7 @@
 #define __SVM_PREDICT_TYPES_H__
 
 #include "algorithms/regression/regression_predict_types.h"
-#include "algorithms/svm/svm_model.h"
+#include "algorithms/svm/svm_regression_model.h"
 
 namespace daal
 {

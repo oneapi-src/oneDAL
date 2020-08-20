@@ -27,7 +27,7 @@
 #include "algorithms/algorithm.h"
 #include "data_management/data/numeric_table.h"
 #include "algorithms/classifier/classifier_predict.h"
-#include "algorithms/svm/svm_predict_types.h"
+#include "algorithms/svm/svm_classification_predict_types.h"
 
 namespace daal
 {

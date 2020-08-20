@@ -122,7 +122,6 @@ struct DAAL_EXPORT Parameter : public classifier::Parameter
           kernel(kernelForParameter) {};
 
     double C;                                           /*!< Upper bound in constraints of the quadratic optimization problem */
-    double epsilon;                                     /*!< Upper bound in constraints of the quadratic optimization problem */
     double accuracyThreshold;                           /*!< Training accuracy */
     double tau;                                         /*!< Tau parameter of the working set selection scheme */
     size_t maxIterations;                               /*!< Maximal number of iterations for the algorithm */
@@ -137,43 +136,10 @@ struct DAAL_EXPORT Parameter : public classifier::Parameter
 /* [Parameter source code] */
 } // namespace interface2
 
-/**
- * \brief Contains version 3.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
- */
-namespace interface3
-{
-/**
- * @ingroup svm
- * @{
- */
-/**
- * <a name="DAAL-STRUCT-ALGORITHMS__SVM__PARAMETER"></a>
- * \brief Optional parameters
- *
- * \snippet svm/svm_parameter.h Parameter source code
- */
-/* [Parameter source code] */
-struct DAAL_EXPORT Parameter : public classifier::Parameter
-{
-    Parameter();
+using interface2::Parameter;
 
-    double C;                                           /*!< Upper bound in constraints of the quadratic optimization problem */
-    double epsilon;                                     /*!< The error tolerance parameter of the loss function for regression task. */
-    double accuracyThreshold;                           /*!< Training accuracy */
-    double tau;                                         /*!< Tau parameter of the working set selection scheme */
-    size_t maxIterations;                               /*!< Maximal number of iterations for the algorithm */
-    size_t cacheSize;                                   /*!< Size of cache in bytes to store values of the kernel matrix.
-                                                            A non-zero value enables use of a cache optimization technique */
-    bool doShrinking;                                   /*!< Flag that enables use of the shrinking optimization technique */
-    size_t shrinkingStep;                               /*!< Number of iterations between the steps of shrinking optimization technique */
-    size_t maxInnerIteration;                           /*!< TDB */
-    algorithms::kernel_function::KernelIfacePtr kernel; /*!< Kernel function */
-
-    services::Status check() const DAAL_C11_OVERRIDE;
-};
-/* [Parameter source code] */
-} // namespace interface3
-
-using interface3::Result;
+} // namespace svm
+} // namespace algorithms
+} // namespace daal
 
 #endif

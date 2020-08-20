@@ -35,7 +35,7 @@ namespace algorithms
 {
 namespace svm
 {
-namespace training
+namespace regression
 {
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__SVM__TRAINING__METHOD"></a>
@@ -47,9 +47,9 @@ enum Method
     thunder      = 1        /*!< Method proposed by ThunderSVM. */
     defaultDense = thunder, /*!< Default method.       */
 };
-} // namespace training
+} // namespace regression
 
-namespace regression
+namespace training
 {
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
@@ -106,7 +106,7 @@ typedef services::SharedPtr<Result> ResultPtr;
 using interface1::Result;
 using interface1::ResultPtr;
 
-} // namespace regression
+} // namespace training
 } // namespace svm
 } // namespace algorithms
 } // namespace daal

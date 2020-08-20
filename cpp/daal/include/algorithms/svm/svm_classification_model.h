@@ -1,6 +1,6 @@
-/* file: svm_model.h */
+/* file: svm_classification_model.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@
 #include "algorithms/kernel_function/kernel_function_linear.h"
 #include "algorithms/kernel_function/kernel_function_types.h"
 #include "algorithms/classifier/classifier_model.h"
+#include "algorithms/svm/svm_parameter.h"
 
 namespace daal
 {
@@ -61,7 +62,7 @@ namespace interface1
  *      - \ref training::interface1::Batch "training::Batch" class
  *      - \ref prediction::interface1::Batch "prediction::Batch" class
  */
-class DAAL_EXPORT Model : public classifier::Model
+class DAAL_EXPORT Model : public daal::algorithms::classifier::Model
 {
 public:
     DECLARE_MODEL(Model, classifier::Model);
@@ -134,6 +135,8 @@ public:
      */
     DAAL_DEPRECATED size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE { return (_SV ? _SV->getNumberOfColumns() : 0); }
 
+    Model();
+
 protected:
     data_management::NumericTablePtr _SV;        /*!< \private Support vectors */
     data_management::NumericTablePtr _SVCoeff;   /*!< \private Classification coefficients */
@@ -161,10 +164,35 @@ typedef services::SharedPtr<Model> ModelPtr;
 /** @} */
 } // namespace interface1
 
+using interface1::Model;
+using interface1::ModelPtr;
+
 namespace classification
 {
 namespace interface1
 {
+/**
+ * @ingroup svm
+ * @{
+ */
+/**
+ * <a name="DAAL-STRUCT-ALGORITHMS__SVM__CLASSIFICATION__PARAMETER"></a>
+ * \brief Optional parameters
+ *
+ * \snippet svm/svm_classification_model.h Parameter source code
+/* [interface1::Parameter source code] */
+
+struct DAAL_EXPORT Parameter : public classifier::Parameter, public daal::algorithms::svm::Parameter
+{
+    Parameter(const services::SharedPtr<kernel_function::KernelIface> & kernelForParameter =
+                  services::SharedPtr<kernel_function::KernelIface>(new kernel_function::linear::Batch<>()))
+        : daal::algorithms::svm::Parameter(kernelForParameter)
+    {}
+
+    services::Status check() const DAAL_C11_OVERRIDE;
+};
+/* [interface1::Parameter source code] */
+
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__SVM__MODEL"></a>
  * \brief %Model of the classifier trained by the svm::training::Batch algorithm
@@ -234,16 +262,22 @@ public:
     data_management::NumericTablePtr getCoefficients();
 
     /**
+     * Returns classification coefficients constructed during the training of the SVM model
+     * \return Array of classification coefficients
+     */
+    DAAL_DEPRECATED data_management::NumericTablePtr getClassificationCoefficients() { return getCoefficients(); }
+
+    /**
      * Returns the bias constructed during the training of the SVM model
      * \return Bias
      */
-    virtual double getBias();
+    double getBias();
 
     /**
      * Sets the bias for the SVM model
      * \param bias  Bias of the model
      */
-    virtual void setBias(double bias);
+    void setBias(double bias);
 
     /**
      *  Retrieves the number of features in the dataset was used on the training stage
@@ -252,9 +286,12 @@ public:
     size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE;
 
 protected:
-    services::Status serializeImpl(data_management::InputDataArchive * arch) DAAL_C11_OVERRIDE;
+    template <typename modelFPType>
+    DAAL_EXPORT Model(modelFPType dummy, size_t nColumns, data_management::NumericTableIface::StorageLayout layout, services::Status & st);
 
-    services::Status deserializeImpl(const data_management::OutputDataArchive * arch) DAAL_C11_OVERRIDE;
+    // services::Status serializeImpl(data_management::InputDataArchive * arch) DAAL_C11_OVERRIDE;
+
+    // services::Status deserializeImpl(const data_management::OutputDataArchive * arch) DAAL_C11_OVERRIDE;
 
 private:
     ModelImplPtr _impl; /*!< Model implementation */

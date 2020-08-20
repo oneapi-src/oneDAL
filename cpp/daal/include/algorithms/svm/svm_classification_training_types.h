@@ -1,4 +1,4 @@
-/* file: svm_classification_train_types.h */
+/* file: svm_classification_training_types.h */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -26,7 +26,7 @@
 
 #include "algorithms/algorithm.h"
 #include "algorithms/kernel_function/kernel_function.h"
-#include "algorithms/svm/svm_model.h"
+#include "algorithms/svm/svm_classification_model.h"
 #include "algorithms/classifier/classifier_training_types.h"
 
 namespace daal
@@ -43,12 +43,10 @@ namespace training
  */
 enum Method
 {
-    boser        = 0,       /*!< Method proposed by Boser et al. */
-    thunder      = 1        /*!< Method proposed by ThunderSVM. */
-    defaultDense = thunder, /*!< Default method.       */
+    boser        = 0,      /*!< Method proposed by Boser et al. */
+    thunder      = 1,      /*!< Method proposed by ThunderSVM. */
+    defaultDense = thunder /*!< Default method.       */
 };
-
-} // namespace training
 
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
@@ -106,10 +104,23 @@ typedef services::SharedPtr<Result> ResultPtr;
 using interface1::Result;
 using interface1::ResultPtr;
 
-} // namespace svm
+} // namespace training
 
 namespace classification
 {
+namespace training
+{
+/**
+ * <a name="DAAL-ENUM-ALGORITHMS__SVM__CLASSIFICATION_TRAINING__METHOD"></a>
+ * Available methods to train the SVM model
+ */
+enum Method
+{
+    boser        = 0,      /*!< Method proposed by Boser et al. */
+    thunder      = 1,      /*!< Method proposed by ThunderSVM. */
+    defaultDense = thunder /*!< Default method.       */
+};
+
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -165,8 +176,9 @@ typedef services::SharedPtr<Result> ResultPtr;
 using interface1::Result;
 using interface1::ResultPtr;
 
+} // namespace training
 } // namespace classification
+} // namespace svm
 } // namespace algorithms
-} // namespace daal
 } // namespace daal
 #endif

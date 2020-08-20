@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef __SVM_CLASSIFICATION_MODEL_H__
-#define __SVM_CLASSIFICATION_MODEL_H__
+#ifndef __SVM_regression_MODEL_H__
+#define __SVM_regression_MODEL_H__
 
 #include "data_management/data/homogen_numeric_table.h"
 #include "data_management/data/csr_numeric_table.h"
@@ -51,6 +51,30 @@ namespace regression
 {
 namespace interface1
 {
+/**
+ * @ingroup svm
+ * @{
+ */
+/**
+ * <a name="DAAL-STRUCT-ALGORITHMS__SVM__REGRESSION__PARAMETER"></a>
+ * \brief Optional parameters
+ *
+ * \snippet svm/svm_regression_model.h Parameter source code
+/* [interface1::Parameter source code] */
+
+struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter, public daal::algorithms::svm::Parameter
+{
+    Parameter(const services::SharedPtr<kernel_function::KernelIface> & kernelForParameter =
+                  services::SharedPtr<kernel_function::KernelIface>(new kernel_function::linear::Batch<>()))
+        : daal::algorithms::svm::Parameter(kernelForParameter), epsilon(0.1)
+    {}
+
+    services::Status check() const DAAL_C11_OVERRIDE;
+
+    double epsilon; /*!< The error tolerance parameter of the loss function for regression task. */
+};
+/* [interface1::Parameter source code] */
+
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__SVM__MODEL"></a>
  * \brief %Model of the regression trained by the svm::training::Batch algorithm

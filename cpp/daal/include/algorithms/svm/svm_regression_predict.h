@@ -27,7 +27,7 @@
 #include "algorithms/algorithm.h"
 #include "data_management/data/numeric_table.h"
 #include "algorithms/regression/regression_predict.h"
-#include "algorithms/svm/svm_predict_types.h"
+#include "algorithms/svm/svm_regression_predict_types.h"
 
 namespace daal
 {

@@ -27,7 +27,7 @@
 
 #include "algorithms/algorithm.h"
 
-#include "algorithms/svm/svm_train_types.h"
+#include "algorithms/svm/svm_regression_training_types.h.h"
 #include "algorithms/regression/regression_training_batch.h"
 
 namespace daal

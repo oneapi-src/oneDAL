@@ -27,7 +27,7 @@
 
 #include "algorithms/algorithm.h"
 
-#include "algorithms/svm/svm_train_types.h"
+#include "algorithms/svm/svm_classification_training_types.h"
 #include "algorithms/classifier/classifier_training_batch.h"
 
 namespace daal

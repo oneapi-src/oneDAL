@@ -60,7 +60,7 @@ enum ResultId
 {
     prediction       = classifier::prediction::prediction,       /*!< Prediction results */
     decisionFunction = classifier::prediction::lastResultId + 1, /*!< Distances to nearest neighbors */
-    lastResultId     = decision_function
+    lastResultId     = decisionFunction
 };
 
 namespace interface1

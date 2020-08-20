@@ -1,4 +1,4 @@
-/* file: svm_predict_types.h */
+/* file: svm_classification_predict_types.h */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -25,7 +25,7 @@
 #define __SVM_PREDICT_TYPES_H__
 
 #include "algorithms/classifier/classifier_predict_types.h"
-#include "algorithms/svm/svm_model.h"
+#include "algorithms/svm/svm_classification_model.h"
 
 namespace daal
 {
@@ -123,6 +123,15 @@ namespace classification
 namespace prediction
 {
 /**
+ * <a name="DAAL-ENUM-ALGORITHMS__SVM__PREDICTION__METHOD"></a>
+ * Available methods to run predictions based on the SVM model
+ */
+enum Method
+{
+    defaultDense = 0 /*!< Default SVM model-based prediction method */
+};
+
+/**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
 namespace interface1
@@ -156,7 +165,7 @@ public:
      * \param[in] id    Identifier of the input Model object
      * \return          %Input object that corresponds to the given identifier
      */
-    svm::ModelPtr get(classifier::prediction::ModelInputId id) const;
+    svm::classification::ModelPtr get(classifier::prediction::ModelInputId id) const;
 
     /**
      * Sets the input NumericTable object in the prediction stage of the classification algorithm
@@ -170,7 +179,7 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(classifier::prediction::ModelInputId id, const svm::ModelPtr & ptr);
+    void set(classifier::prediction::ModelInputId id, const svm::classification::ModelPtr & ptr);
 
     /**
      * Checks the correctness of the input object
