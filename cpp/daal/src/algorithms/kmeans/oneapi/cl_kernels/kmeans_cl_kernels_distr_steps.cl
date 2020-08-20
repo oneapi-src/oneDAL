@@ -31,16 +31,16 @@
 DECLARE_SOURCE(
     kmeans_cl_kernels_distr_steps,
 
-    __kernel void init_clusters_distr(__global int * partialCentroidsCounters, __global algorithmFPType * partialCentroids, __global int * cCounters,
-                                      __global algorithmFPType * centroids, int P) {
+    __kernel void init_clusters(__global int * partialCentroidsCounters, __global algorithmFPType * partialCentroids, __global int * cCounters,
+                                __global algorithmFPType * centroids, int P) {
         const int global_id                 = get_global_id(0);
         const int local_id                  = get_local_id(1);
         centroids[global_id * P + local_id] = partialCentroids[global_id * P + local_id];
         if (local_id == 0) cCounters[global_id] = partialCentroidsCounters[global_id];
     }
 
-    __kernel void update_clusters_distr(__global int * partialCentroidsCounters, __global algorithmFPType * partialCentroids,
-                                        __global int * cCounters, __global algorithmFPType * centroids, int P) {
+    __kernel void update_clusters(__global int * partialCentroidsCounters, __global algorithmFPType * partialCentroids, __global int * cCounters,
+                                  __global algorithmFPType * centroids, int P) {
         const int global_id                 = get_global_id(0);
         const int local_id                  = get_local_id(1);
         const int oldN                      = partialCentroidsCounters[global_id];
@@ -51,8 +51,8 @@ DECLARE_SOURCE(
         if (local_id == 0) cCounters[global_id] = oldN + newN;
     }
 
-    __kernel void init_candidates_distr(__global int * partialCandidates, __global algorithmFPType * partialCValues, __global int * candidates,
-                                        __global algorithmFPType * cValues, int K) {
+    __kernel void init_candidates(__global int * partialCandidates, __global algorithmFPType * partialCValues, __global int * candidates,
+                                  __global algorithmFPType * cValues, int K) {
         const int local_id   = get_local_id(1);
         const int local_size = get_local_size(1);
         for (int i = local_id; i < K; i += local_size)
@@ -62,8 +62,8 @@ DECLARE_SOURCE(
         }
     }
 
-    __kernel void update_candidates_distr(__global int * partialCandidates, __global algorithmFPType * partialCValues, __global int * candidates,
-                                          __global algorithmFPType * cValues, int K) {
+    __kernel void update_candidates(__global int * partialCandidates, __global algorithmFPType * partialCValues, __global int * candidates,
+                                    __global algorithmFPType * cValues, int K) {
         for (int i = K - 1; i >= 0; i--)
         {
             int j;
