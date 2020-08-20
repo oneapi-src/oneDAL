@@ -19,22 +19,18 @@
 
 #include "example_util/utils.hpp"
 #include "oneapi/dal/algo/kmeans_init.hpp"
+#include "oneapi/dal/io/csv.hpp"
 
 using namespace oneapi;
 
+const char train_data_file_name[] = "kmeans_init_dense.csv";
+const char test_data_file_name[]  = "kmeans_init_dense_ground_truth.csv";
+
 int main(int argc, char const *argv[]) {
-    constexpr std::int64_t row_count     = 8;
-    constexpr std::int64_t column_count  = 2;
-    constexpr std::int64_t cluster_count = 2;
+    const auto x_compute_table = dal::read(dal::csv::data_source{get_data_path(train_data_file_name)});
+    const auto x_test_table    = dal::read(dal::csv::data_source{get_data_path(test_data_file_name)});;
 
-    const float x_compute[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
-                                -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
-    const float x_test[]    = { 1.0, 1.0, 2.0, 2.0 };
-
-    const auto x_compute_table = dal::homogen_table::wrap(x_compute, row_count, column_count);
-    const auto x_test_table  = dal::homogen_table::wrap(x_test, cluster_count, column_count);
-
-    const auto kmeans_init_desc = dal::kmeans_init::descriptor<>().set_cluster_count(cluster_count);
+    const auto kmeans_init_desc = dal::kmeans_init::descriptor<>().set_cluster_count(2);
 
     const auto result = dal::compute(kmeans_init_desc, x_compute_table);
 

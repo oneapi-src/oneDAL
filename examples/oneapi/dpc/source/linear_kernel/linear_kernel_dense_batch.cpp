@@ -18,46 +18,23 @@
 
 #define ONEAPI_DAL_DATA_PARALLEL
 #include "oneapi/dal/algo/linear_kernel.hpp"
+#include "oneapi/dal/io/csv.hpp"
 
 #include "example_util/utils.hpp"
 
 using namespace oneapi;
+
+const char data_file_name[] = "kernel_function.csv";
 
 void run(sycl::queue &queue) {
     std::cout << "Running on " << queue.get_device().get_info<sycl::info::device::name>()
               << std::endl
               << std::endl;
 
-    constexpr std::int64_t row_count_x  = 2;
-    constexpr std::int64_t row_count_y  = 3;
-    constexpr std::int64_t column_count = 3;
+    const auto x_table = dal::read(queue, dal::csv::data_source{get_data_path(data_file_name)});
+    const auto y_table = dal::read(queue, dal::csv::data_source{get_data_path(data_file_name)});
 
-    const float x_host[] = {
-        1.f, 2.f, 3.f, 1.f, -1.f, 0.f,
-    };
-
-    const float y_host[] = {
-        1.f, 2.f, 3.f, 1.f, -1.f, 0.f, 4.f, 5.f, 6.f,
-    };
-
-    auto x = sycl::malloc_shared<float>(row_count_x * column_count, queue);
-    queue.memcpy(x, x_host, sizeof(float) * row_count_x * column_count).wait();
-
-    auto y = sycl::malloc_shared<float>(row_count_y * column_count, queue);
-    queue.memcpy(y, y_host, sizeof(float) * row_count_y * column_count).wait();
-
-    const auto kernel_desc = dal::linear_kernel::descriptor{}.set_scale(2.0).set_shift(1.0);
-
-    const auto x_table = dal::homogen_table{ queue,
-                                             x,
-                                             row_count_x,
-                                             column_count,
-                                             dal::make_default_delete<const float>(queue) };
-    const auto y_table = dal::homogen_table{ queue,
-                                             y,
-                                             row_count_y,
-                                             column_count,
-                                             dal::make_default_delete<const float>(queue) };
+    const auto kernel_desc = dal::linear_kernel::descriptor{}.set_scale(1.0).set_shift(0.0);
 
     const auto result = dal::compute(queue, kernel_desc, x_table, y_table);
 

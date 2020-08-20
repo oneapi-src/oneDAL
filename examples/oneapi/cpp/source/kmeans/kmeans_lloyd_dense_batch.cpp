@@ -16,33 +16,25 @@
 
 #include "example_util/utils.hpp"
 #include "oneapi/dal/algo/kmeans.hpp"
+#include "oneapi/dal/io/csv.hpp"
 
 using namespace oneapi;
 
+const char train_data_file_name[]        = "kmeans_dense_train_data.csv";
+const char initial_centroids_file_name[] = "kmeans_dense_train_centroids.csv";
+const char test_data_file_name[]         = "kmeans_dense_test_data.csv";
+const char test_label_file_name[]        = "kmeans_dense_test_label.csv";
+
 int main(int argc, char const *argv[]) {
-    constexpr std::int64_t row_count_train = 8;
-    constexpr std::int64_t row_count_test  = 2;
-    constexpr std::int64_t column_count    = 2;
-    constexpr std::int64_t cluster_count   = 2;
+    const auto x_train_table           = dal::read(dal::csv::data_source{get_data_path(train_data_file_name)});
+    const auto initial_centroids_table = dal::read(dal::csv::data_source{get_data_path(initial_centroids_file_name)});
 
-    const float x_train[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
-                              -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
-    const float x_test[]  = { 10.0, 10.0, -10.0, -10.0 };
-
-    const float y_test[] = { 0.0, 1.0 };
-
-    const float initial_centroids[] = { 1.0, 0.0, -1.0, 0.0 };
-
-    const auto x_train_table = dal::homogen_table::wrap(x_train, row_count_train, column_count);
-    const auto initial_centroids_table =
-        dal::homogen_table::wrap( initial_centroids, cluster_count, column_count);
-
-    const auto x_test_table = dal::homogen_table::wrap(x_test, row_count_test, column_count);
-    const auto y_test_table = dal::homogen_table::wrap(y_test, row_count_test, 1);
+    const auto x_test_table = dal::read(dal::csv::data_source{get_data_path(test_data_file_name)});
+    const auto y_test_table = dal::read(dal::csv::data_source{get_data_path(test_label_file_name)});
 
     const auto kmeans_desc = dal::kmeans::descriptor<>()
-                                 .set_cluster_count(cluster_count)
-                                 .set_max_iteration_count(100)
+                                 .set_cluster_count(20)
+                                 .set_max_iteration_count(5)
                                  .set_accuracy_threshold(0.001);
 
     const auto result_train = dal::train(kmeans_desc, x_train_table, initial_centroids_table);

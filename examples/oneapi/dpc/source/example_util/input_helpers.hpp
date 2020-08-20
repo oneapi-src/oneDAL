@@ -14,24 +14,28 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/linear_kernel.hpp"
-#include "oneapi/dal/io/csv.hpp"
+#pragma once
 
-#include "example_util/utils.hpp"
+#include <vector>
+#include <string>
+#include <fstream>
 
-using namespace oneapi;
+inline bool check_file(const std::string& name) {
+    return std::ifstream{name}.good();
+}
 
-const char data_file_name[] = "kernel_function.csv";
+inline std::string get_data_path(const std::string& name) {
+    const std::vector<std::string> paths = {
+        "../data",
+        "examples/oneapi/data"
+    };
 
-int main(int argc, char const *argv[]) {
-    const auto x_table = dal::read(dal::csv::data_source{get_data_path(data_file_name)});
-    const auto y_table = dal::read(dal::csv::data_source{get_data_path(data_file_name)});
-    const auto kernel_desc =
-        dal::linear_kernel::descriptor{}.set_scale(1.0).set_shift(0.0);
+    for (const auto& path : paths) {
+        const std::string try_path = path + "/" + name;
+        if (check_file(try_path)) {
+            return try_path;
+        }
+    }
 
-    const auto result = dal::compute(kernel_desc, x_table, y_table);
-
-    std::cout << "Values:" << std::endl << result.get_values() << std::endl;
-
-    return 0;
+    return name;
 }

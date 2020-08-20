@@ -16,45 +16,32 @@
 
 #include "example_util/utils.hpp"
 #include "oneapi/dal/algo/decision_forest.hpp"
+#include "oneapi/dal/io/csv.hpp"
 
 using namespace oneapi;
 namespace df = oneapi::dal::decision_forest;
 
+const char train_data_file_name[]  = "df_classification_train_data.csv";
+const char train_label_file_name[] = "df_classification_train_label.csv";
+const char test_data_file_name[]   = "df_classification_test_data.csv";
+const char test_label_file_name[]  = "df_classification_test_label.csv";
+
 int main(int argc, char const *argv[]) {
-  constexpr std::int64_t row_count_train = 6;
-  constexpr std::int64_t row_count_test = 3;
-  constexpr std::int64_t column_count = 2;
+  const auto x_train_table = dal::read(dal::csv::data_source{get_data_path(train_data_file_name)});
+  const auto y_train_table = dal::read(dal::csv::data_source{get_data_path(train_label_file_name)});
 
-  const float x_train[] = {
-      -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f, +1.f, +2.f, +2.f, +1.f,
-  };
-  const float y_train[] = {
-      0.f, 0.f, 0.f, 1.f, 1.f, 1.f,
-  };
-
-  const float x_test[] = {
-      -1.f, -1.f, 2.f, 2.f, 3.f, 2.f,
-  };
-  const float y_test[] = {
-      0.f,
-      1.f,
-      1.f,
-  };
-
-  const auto x_train_table =
-      dal::homogen_table{x_train, row_count_train, column_count, dal::empty_delete<const float>()};
-  const auto y_train_table = dal::homogen_table{y_train, row_count_train, 1, dal::empty_delete<const float>()};
-
-  const auto x_test_table =
-      dal::homogen_table{x_test, row_count_test, column_count, dal::empty_delete<const float>()};
-  const auto y_test_table = dal::homogen_table{y_test, row_count_test, 1, dal::empty_delete<const float>()};
+  const auto x_test_table = dal::read(dal::csv::data_source{get_data_path(test_data_file_name)});
+  const auto y_test_table = dal::read(dal::csv::data_source{get_data_path(test_label_file_name)});
 
   const auto df_desc =
       df::descriptor<float, df::task::classification, df::method::dense>{}
-          .set_class_count(2)
+          .set_class_count(5)
           .set_tree_count(10)
           .set_features_per_node(1)
-          .set_min_observations_in_leaf_node(1)
+          .set_min_observations_in_leaf_node(8)
+          .set_min_observations_in_split_node(16)
+          .set_min_weight_fraction_in_leaf_node(0.0)
+          .set_min_impurity_decrease_in_split_node(0.0)
           .set_variable_importance_mode(df::variable_importance_mode::mdi)
           .set_error_metric_mode(df::error_metric_mode::out_of_bag_error)
           .set_infer_mode(df::infer_mode::class_labels | df::infer_mode::class_probabilities)

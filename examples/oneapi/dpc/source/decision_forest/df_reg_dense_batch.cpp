@@ -16,6 +16,7 @@
 
 #define ONEAPI_DAL_DATA_PARALLEL
 #include "oneapi/dal/algo/decision_forest.hpp"
+#include "oneapi/dal/io/csv.hpp"
 
 #include "example_util/utils.hpp"
 #include "oneapi/dal/exceptions.hpp"
@@ -23,43 +24,21 @@
 using namespace oneapi;
 namespace df = oneapi::dal::decision_forest;
 
+const char train_data_file_name[]  = "df_classification_train_data.csv";
+const char train_label_file_name[] = "df_classification_train_label.csv";
+const char test_data_file_name[]   = "df_classification_test_data.csv";
+const char test_label_file_name[]  = "df_classification_test_label.csv";
+
 void run(sycl::queue &queue) {
-  constexpr std::int64_t row_count_train = 10;
-  constexpr std::int64_t row_count_test = 5;
-  constexpr std::int64_t column_count = 2;
+  const auto x_train_table = dal::read(queue, dal::csv::data_source{get_data_path(train_data_file_name)});
+  const auto y_train_table = dal::read(queue, dal::csv::data_source{get_data_path(train_label_file_name)});
 
-  const float x_train_host[] = {
-      0.1f,  0.25f, 0.15f, 0.35f, 0.25f, 0.55f, 0.3f, 0.65f, 0.4f, 0.85f,
-      0.45f, 0.95f, 0.55f, 1.15f, 0.6f,  1.25f, 0.7f, 1.45f, 0.8f, 1.65f,
-  };
-
-  const float y_train_host[] = {
-      0.0079f, 0.0160f, 0.0407f, 0.0573f, 0.0989f,
-      0.1240f, 0.1827f, 0.2163f, 0.2919f, 0.3789f,
-  };
-
-  const float x_test_host[] = {
-      0.2f, 0.45f, 0.35f, 0.75f, 0.5f, 1.05f, 0.65f, 1.35f, 0.75f, 1.55f,
-  };
-
-  const float y_test_host[] = {
-      0.0269f, 0.0767f, 0.1519f, 0.2527f, 0.3340f,
-  };
-
-  auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
-  queue.memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count).wait();
-  const auto x_train_table = dal::homogen_table{queue, x_train, row_count_train, column_count, dal::empty_delete<const float>()};
-
-  auto y_train = sycl::malloc_shared<float>(row_count_train, queue);
-  queue.memcpy(y_train, y_train_host, sizeof(float) * row_count_train).wait();
-  const auto y_train_table = dal::homogen_table{queue, y_train, row_count_train, 1, dal::empty_delete<const float>()};
-
-  const auto x_test_table = dal::homogen_table{x_test_host, row_count_test, column_count, dal::empty_delete<const float>()};
-  const auto y_test_table = dal::homogen_table{y_test_host, row_count_test, 1, dal::empty_delete<const float>()};
+  const auto x_test_table = dal::read(dal::csv::data_source{get_data_path(test_data_file_name)});
+  const auto y_test_table = dal::read(dal::csv::data_source{get_data_path(test_label_file_name)});
 
   const auto df_train_desc = df::descriptor<float, df::task::regression, df::method::hist>{}
-          .set_tree_count(10)
-          .set_features_per_node(2)
+          .set_tree_count(100)
+          .set_features_per_node(0)
           .set_min_observations_in_leaf_node(1)
           .set_error_metric_mode(df::error_metric_mode::out_of_bag_error | df::error_metric_mode::out_of_bag_error_per_observation)
           .set_variable_importance_mode(df::variable_importance_mode::mdi);
