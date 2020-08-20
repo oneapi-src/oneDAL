@@ -20,7 +20,8 @@
 using namespace oneapi;
 
 template <typename T>
-inline double calculate_classification_error(const dal::table& infer_labels, const T* ground_truth) {
+inline double calculate_classification_error(const dal::table& infer_labels,
+                                             const T* ground_truth) {
     const auto labels                  = dal::row_accessor<const T>(infer_labels).pull();
     std::int64_t incorrect_label_count = 0;
 
@@ -32,7 +33,7 @@ inline double calculate_classification_error(const dal::table& infer_labels, con
 
 template <typename T>
 inline double calculate_classification_error(const dal::table& infer_labels,
-                                      const dal::homogen_table& ground_truth) {
+                                             const dal::homogen_table& ground_truth) {
     const auto labels                  = dal::row_accessor<const T>(infer_labels).pull();
     const auto truth_labels            = dal::row_accessor<const T>(ground_truth).pull();
     std::int64_t incorrect_label_count = 0;
@@ -69,8 +70,8 @@ inline double calculate_mse(const dal::table& infer_labels, const dal::table& gr
 }
 
 inline void verify_oob_err_vs_oob_err_per_observation(const dal::table& oob_err,
-                                               const dal::table& oob_err_per_observation,
-                                               double threshold) {
+                                                      const dal::table& oob_err_per_observation,
+                                                      double threshold) {
     const auto oob_err_val = dal::row_accessor<const double>(oob_err).pull();
     const auto oob_err_per_obs_arr =
         dal::row_accessor<const double>(oob_err_per_observation).pull();
