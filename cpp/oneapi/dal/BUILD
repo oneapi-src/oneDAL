@@ -56,9 +56,9 @@ dal_collect_modules(
     ],
 )
 
-dal_ios(
-    name = "all_ios",
-    ios = [
+dal_io(
+    name = "all_io",
+    io = [
         "csv",
     ]
 )

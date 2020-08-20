@@ -4,4 +4,3 @@ filegroup(
     name = "data",
     srcs = glob(["data/**/*.csv"]),
 )
-
