@@ -90,10 +90,11 @@ static infer_result call_daal_kernel(const context_gpu& ctx,
                                                                             &daal_parameter));
 
     // TODO: rework with help dpcpp code
-    auto arr_label = array<Float>::empty(row_count * 1);
+    auto arr_label  = array<Float>::empty(row_count * 1);
+    auto label_data = arr_label.get_mutable_data();
     for (std::int64_t i = 0; i < row_count; ++i) {
-        arr_label[i] = arr_decision_function[i] >= 0 ? trained_model.get_second_class_label()
-                                                     : trained_model.get_first_class_label();
+        label_data[i] = arr_decision_function[i] >= 0 ? trained_model.get_second_class_label()
+                                                      : trained_model.get_first_class_label();
     }
 
     return infer_result()

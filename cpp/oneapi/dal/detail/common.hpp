@@ -17,6 +17,7 @@
 #pragma once
 
 #include <memory>
+
 #include "oneapi/dal/common.hpp"
 
 namespace oneapi::dal::detail {

@@ -127,7 +127,7 @@ def dal_algos(name, algos):
         deps = algo_labels_dpc,
     )
 
-def dal_test(name, deps=[], test_deps=[], **kwargs):
+def dal_test(name, deps=[], test_deps=[], data=[], **kwargs):
     cc_static_lib(
         name = name + "_static",
         lib_name = "onedal_" + name,
@@ -164,28 +164,44 @@ def dal_test(name, deps=[], test_deps=[], **kwargs):
     cc_test(
         name = name,
         deps = [ ":{}_module".format(name) ],
+        data = data,
     )
 
-def dal_examples(srcs, non_alg_examples=[]):
-    dal_module(
-        name = "example_util",
-        hdrs = native.glob(["source/example_util/*.hpp"]),
-        includes = [ "source" ],
+def dal_example(name, deps=[], **kwargs):
+    dal_test(
+        name = name,
+        deps = [
+            "@onedal//cpp/oneapi/dal:core",
+            "@onedal//cpp/oneapi/dal/io",
+        ] + deps,
+        **kwargs,
     )
+
+def dal_example_suite(name, srcs, **kwargs):
+    suite_deps = []
     for src in srcs:
         _, alg_name, src_file = src.rsplit('/', 2)
         example_name, _ = paths.split_extension(src_file)
-        if alg_name in non_alg_examples:
-            dep = "@onedal//cpp/oneapi/dal:core"
-        else:
-            dep = "@onedal//cpp/oneapi/dal:{}".format(alg_name)
-        dal_test(
+        dal_example(
             name = example_name,
             srcs = [ src ],
-            deps = [ dep ],
-            test_deps = [
-                ":example_util",
+            **kwargs,
+        )
+        suite_deps.append(":" + example_name)
+    native.test_suite(
+        name = name,
+        tests = suite_deps,
+    )
+
+def dal_algo_example_suite(algos, deps=[], **kwargs):
+    for algo in algos:
+        dal_example_suite(
+            name = algo,
+            srcs = native.glob(["source/{}/*.cpp".format(algo)]),
+            deps = deps + [
+                "@onedal//cpp/oneapi/dal/algo/{}".format(algo),
             ],
+            **kwargs,
         )
 
 def _dal_module(name, lib_tag="dal", features=[], **kwargs):
@@ -194,6 +210,14 @@ def _dal_module(name, lib_tag="dal", features=[], **kwargs):
         lib_tag = lib_tag,
         features = [ "pedantic", "c++17" ] + features,
         disable_mic = True,
+        cpu_defines = {
+            "sse2":   [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_default" ],
+            "ssse3":  [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_ssse3"   ],
+            "sse42":  [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_sse42"   ],
+            "avx":    [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx"     ],
+            "avx2":   [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx2"    ],
+            "avx512": [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx512"  ],
+        },
         **kwargs,
     )
 
