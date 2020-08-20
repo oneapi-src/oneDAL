@@ -25,52 +25,64 @@ namespace oneapi::dal::csv {
 
 namespace detail {
 struct data_source_tag {};
+class data_source_impl;
 } // namespace detail
 
-class ONEAPI_DAL_EXPORT data_source : public base {
+class ONEAPI_DAL_EXPORT data_source_base : public base {
 public:
     using tag_t = detail::data_source_tag;
 
-    data_source(const char *file_name) : file_name_(std::string(file_name)) {}
-
-    data_source(std::string file_name) : file_name_(file_name) {}
+    data_source_base(const char *file_name);
 
     char get_delimiter() const {
-        return delimiter_;
+        return get_delimiter_impl();
     }
 
     bool get_parse_header() const {
-        return parse_header_;
+        return get_parse_header_impl();
     }
 
     std::string get_file_name() const {
-        return file_name_;
+        return std::string(get_file_name_impl());
     }
 
+protected:
+    char get_delimiter_impl() const;
+    bool get_parse_header_impl() const;
+    const char *get_file_name_impl() const;
+
+    void set_delimiter_impl(char value);
+    void set_parse_header_impl(bool value);
+    void set_file_name_impl(const char *);
+
+    dal::detail::pimpl<detail::data_source_impl> impl_;
+};
+
+class data_source : public data_source_base {
+public:
+    data_source(const char *file_name) : data_source_base(file_name) {}
+
+    data_source(const std::string &file_name) : data_source_base(file_name.c_str()) {}
+
     auto &set_delimiter(char value) {
-        delimiter_ = value;
+        set_delimiter_impl(value);
         return *this;
     }
 
     auto &set_parse_header(bool value) {
-        parse_header_ = value;
+        set_parse_header_impl(value);
         return *this;
     }
 
     auto &set_file_name(const char *value) {
-        file_name_ = std::string(value);
+        set_file_name_impl(value);
         return *this;
     }
 
     auto &set_file_name(const std::string &value) {
-        file_name_ = value;
+        set_file_name_impl(value.c_str());
         return *this;
     }
-
-private:
-    char delimiter_        = ',';
-    bool parse_header_     = false;
-    std::string file_name_ = "";
 };
 
 } // namespace oneapi::dal::csv
