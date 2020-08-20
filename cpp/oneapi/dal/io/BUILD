@@ -1,5 +1,8 @@
 package(default_visibility = ["//visibility:public"])
-load("@onedal//dev/bazel:dal.bzl", "dal_module")
+load("@onedal//dev/bazel:dal.bzl",
+    "dal_module",
+    "dal_test_suite",
+)
 
 dal_module(
     name = "io",
@@ -10,4 +13,9 @@ dal_module(
         "@onedal//cpp/oneapi/dal/graph",
         "@onedal//cpp/oneapi/dal/util",
     ],
+)
+
+dal_test_suite(
+    name = "tests",
+    tests = [],
 )

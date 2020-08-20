@@ -94,10 +94,11 @@ def dal_public_includes(name, dal_deps=[], **kwargs):
         name = name,
         deps = dal_deps + _get_dpc_deps(dal_deps),
         include = [
-            "oneapi/dal",
+            "oneapi/dal/",
         ],
         exclude = [
-            "backend",
+            "backend/",
+            "test/",
             "bazel-",
         ],
     )
@@ -169,6 +170,17 @@ def dal_test_suite(name, srcs=[], tests=[], **kwargs):
     native.test_suite(
         name = name,
         tests = tests + targets,
+    )
+
+def dal_collect_tests(name, root, modules, tests=[], **kwargs):
+    test_deps = []
+    for module_name in modules:
+        test_label = "{0}/{1}:tests".format(root, module_name)
+        test_deps.append(test_label)
+    dal_test_suite(
+        name = name,
+        tests = tests + test_deps,
+        **kwargs,
     )
 
 def dal_example(name, dal_deps=[], **kwargs):

@@ -15,7 +15,8 @@
 *******************************************************************************/
 
 #include "gtest/gtest.h"
-#include "oneapi/dal/algo/decision_forest.hpp"
+#include "oneapi/dal/algo/decision_forest/train.hpp"
+#include "oneapi/dal/algo/decision_forest/infer.hpp"
 #include "oneapi/dal/algo/decision_forest/test/utils.hpp"
 
 using namespace oneapi;

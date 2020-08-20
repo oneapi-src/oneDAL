@@ -24,3 +24,10 @@ dal_test_suite(
         ":rbf_kernel",
     ],
 )
+
+dal_test_suite(
+    name = "tests",
+    tests = [
+        ":cpu_tests",
+    ],
+)

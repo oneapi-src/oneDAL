@@ -26,3 +26,10 @@ dal_test_suite(
         ":svm",
     ],
 )
+
+dal_test_suite(
+    name = "tests",
+    tests = [
+        ":cpu_tests",
+    ],
+)

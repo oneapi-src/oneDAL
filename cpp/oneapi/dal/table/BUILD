@@ -38,3 +38,12 @@ dal_test_suite(
     ],
     dal_deps = [ ":table" ],
 )
+
+dal_test_suite(
+    name = "tests",
+    tests = [
+        ":table_tests",
+        ":accessor_tests",
+        ":builder_tests",
+    ]
+)
