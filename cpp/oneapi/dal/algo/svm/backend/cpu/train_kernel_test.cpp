@@ -15,8 +15,8 @@
 *******************************************************************************/
 
 #include "gtest/gtest.h"
-#include "oneapi/dal/algo/svm/train.hpp"
 #include "oneapi/dal/algo/svm/infer.hpp"
+#include "oneapi/dal/algo/svm/train.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 

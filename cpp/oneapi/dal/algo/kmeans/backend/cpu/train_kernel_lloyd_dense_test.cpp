@@ -15,8 +15,8 @@
 *******************************************************************************/
 
 #include "gtest/gtest.h"
-#include "oneapi/dal/algo/kmeans/train.hpp"
 #include "oneapi/dal/algo/kmeans/infer.hpp"
+#include "oneapi/dal/algo/kmeans/train.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
 using namespace oneapi::dal;
