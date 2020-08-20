@@ -17,6 +17,12 @@
 load("@onedal//dev/bazel:utils.bzl", "utils", "paths")
 load("@onedal//dev/bazel:cc.bzl", "ModuleInfo")
 
+def _match_file_name(file, entries):
+    for entry in entries:
+        if entry in file.path:
+            return True
+    return False
+
 def _get_unique_files(files):
     files_dict = {f.path: f for f in files }
     return files_dict.values()
@@ -88,7 +94,6 @@ def _copy_to_release_impl(ctx):
     files += _copy_lib(ctx, prefix)
     return [DefaultInfo(files=depset(files))]
 
-
 _release = rule(
     implementation = _copy_to_release_impl,
     attrs = {
@@ -100,6 +105,30 @@ _release = rule(
     toolchains = [
         "@onedal//dev/bazel/toolchains:extra"
     ],
+)
+
+def _headers_filter_impl(ctx):
+    all_headers = []
+    for dep in ctx.attr.deps:
+        all_headers += _collect_headers(dep)
+    all_headers = _get_unique_files(all_headers)
+    filtered_headers = []
+    for header in all_headers:
+        if (_match_file_name(header, ctx.attr.include) and
+            not _match_file_name(header, ctx.attr.exclude)):
+            filtered_headers.append(header)
+    return [
+        DefaultInfo(files = depset(filtered_headers))
+    ]
+
+
+headers_filter = rule(
+    implementation = _headers_filter_impl,
+    attrs = {
+        "deps": attr.label_list(allow_files=True),
+        "include": attr.string_list(),
+        "exclude": attr.string_list(),
+    },
 )
 
 def release_include(hdrs, skip_prefix="", prefix=""):

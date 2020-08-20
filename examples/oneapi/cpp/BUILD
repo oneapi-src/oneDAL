@@ -21,7 +21,7 @@ _DATA_DEPS = [
 dal_example_suite(
     name = "graph",
     srcs = glob(["source/graph/*.cpp"]),
-    deps = [
+    dal_deps = [
         "@onedal//cpp/oneapi/dal/graph",
     ],
     data = _DATA_DEPS,
@@ -31,7 +31,7 @@ dal_example_suite(
 dal_example_suite(
     name = "table",
     srcs = glob(["source/table/*.cpp"]),
-    deps = [
+    dal_deps = [
         "@onedal//cpp/oneapi/dal/table",
     ],
     data = _DATA_DEPS,

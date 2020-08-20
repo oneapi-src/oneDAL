@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "gtest/gtest.h"
-#include "oneapi/dal/algo/kmeans_init.hpp"
+#include "oneapi/dal/algo/kmeans_init/compute.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
