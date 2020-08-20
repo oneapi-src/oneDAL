@@ -26,6 +26,7 @@
 
 #include "mkl_daal.h"
 #include "istrconv_daal.h"
+#include "istrconv_daal_el.h"
 
 namespace daal
 {
@@ -63,6 +64,8 @@ struct MklService
     static float serv_string_to_float(const char * nptr, char ** endptr) { return __FPK_string_to_float(nptr, endptr); }
 
     static double serv_string_to_double(const char * nptr, char ** endptr) { return __FPK_string_to_double(nptr, endptr); }
+
+    static int serv_string_to_int(const char * nptr, char ** endptr) { return __FPK_string_to_int_generic(nptr, endptr); }
 
     static int serv_int_to_string(char * buffer, size_t n, int value) { return __FPK_int_to_string(buffer, n, value); }
 
