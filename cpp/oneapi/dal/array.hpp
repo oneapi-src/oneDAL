@@ -275,11 +275,6 @@ public:
         return data_ptr_[index];
     }
 
-    T& operator[](std::int64_t index) noexcept {
-        // TODO: add asserts on mutable_data_ptr_
-        return mutable_data_ptr_[index];
-    }
-
 private:
     static void swap(array<T>& a, array<T>& b) {
         std::swap(a.impl_, b.impl_);
