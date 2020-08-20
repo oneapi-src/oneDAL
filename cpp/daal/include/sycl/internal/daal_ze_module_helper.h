@@ -64,7 +64,8 @@ class ZeModuleHelper : public Base
 public:
     ZeModuleHelper()                       = delete;
     ZeModuleHelper(const ZeModuleHelper &) = delete;
-    ZeModuleHelper(ze_device_handle_t zeDevice, size_t binarySize, const uint8_t * pBinary, services::Status * status = nullptr)
+    ZeModuleHelper(ze_context_handle_t zeContext, ze_device_handle_t zeDevice, size_t binarySize, const uint8_t * pBinary,
+                   services::Status * status = nullptr)
     {
         services::Status localStatus;
 
@@ -84,14 +85,15 @@ public:
 
         _zeModuleCreateF = stZeModuleCreateF;
 
-        ze_module_desc_t desc { ZE_MODULE_DESC_VERSION_CURRENT };
+        ze_module_desc_t desc;
+        desc.stype        = ZE_STRUCTURE_TYPE_MODULE_DESC;
         desc.format       = ZE_MODULE_FORMAT_NATIVE;
         desc.inputSize    = binarySize;
         desc.pInputModule = pBinary;
         desc.pBuildFlags  = "";
         desc.pConstants   = nullptr;
 
-        DAAL_CHECK_LEVEL_ZERO(_zeModuleCreateF(zeDevice, &desc, &_moduleLevelZero, nullptr), status);
+        DAAL_CHECK_LEVEL_ZERO(_zeModuleCreateF(zeContext, zeDevice, &desc, &_moduleLevelZero, nullptr), status);
     }
 
     ~ZeModuleHelper()

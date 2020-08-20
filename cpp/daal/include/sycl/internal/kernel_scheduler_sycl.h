@@ -228,7 +228,8 @@ public:
             services::internal::tryAssignStatus(status, localStatus);
             return;
         }
-        initModuleLevelZero((ze_device_handle_t)deviceQueue.get_device().get(), status);
+        initModuleLevelZero(deviceQueue.get_context().get_native<cl::sycl::backend::level_zero>(),
+                            deviceQueue.get_device().get_native<cl::sycl::backend::level_zero>(), status);
     }
 
     ze_module_handle_t getModuleLevelZero() const { return _moduleLevelZeroPtr->get(); }
@@ -270,7 +271,7 @@ private:
     }
 
         #ifndef DAAL_DISABLE_LEVEL_ZERO
-    void initModuleLevelZero(ze_device_handle_t zeDevice, services::Status * status = nullptr)
+    void initModuleLevelZero(ze_context_handle_t zeContext, ze_device_handle_t zeDevice, services::Status * status = nullptr)
     {
         size_t binarySize = 0;
         DAAL_CHECK_OPENCL(clGetProgramInfo(get(), CL_PROGRAM_BINARY_SIZES, sizeof(size_t), &binarySize, NULL), status);
@@ -283,7 +284,7 @@ private:
         }
 
         DAAL_CHECK_OPENCL(clGetProgramInfo(get(), CL_PROGRAM_BINARIES, sizeof(binary), &binary, NULL), status);
-        _moduleLevelZeroPtr.reset(new ZeModuleHelper(zeDevice, binarySize, binary, status));
+        _moduleLevelZeroPtr.reset(new ZeModuleHelper(zeContext, zeDevice, binarySize, binary, status));
         daal::services::daal_free(binary);
     }
         #endif // DAAL_DISABLE_LEVEL_ZERO
@@ -376,7 +377,7 @@ public:
 
     cl::sycl::kernel toSycl(const cl::sycl::context & ctx) const
     {
-        cl::sycl::program prg = cl::sycl::level0::make<cl::sycl::program>(ctx, getProgramRef().getModuleLevelZero());
+        cl::sycl::program prg = cl::sycl::level_zero::make<cl::sycl::program>(ctx, getProgramRef().getModuleLevelZero());
 
         return prg.get_kernel(_clKernelRef.getName());
     }
