@@ -29,8 +29,7 @@ dal_test_suite(
 dal_test_suite(
     name = "cpu_tests",
     srcs = glob([
-        # TODO: Temporary broken (does not compile)
-        # "backend/cpu/*_test.cpp",
+        "backend/cpu/*_test.cpp",
     ]),
     dal_deps = [
         ":decision_forest",

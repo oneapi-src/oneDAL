@@ -25,7 +25,7 @@ inline double calculate_classification_error(const dal::table& infer_labels,
     const auto labels                  = dal::row_accessor<const T>(infer_labels).pull();
     std::int64_t incorrect_label_count = 0;
 
-    for (size_t i = 0; i < labels.get_count(); i++) {
+    for (std::int64_t i = 0; i < labels.get_count(); i++) {
         incorrect_label_count += (static_cast<int>(labels[i]) != static_cast<int>(ground_truth[i]));
     }
     return static_cast<double>(incorrect_label_count) / labels.get_count();
@@ -38,7 +38,7 @@ inline double calculate_classification_error(const dal::table& infer_labels,
     const auto truth_labels            = dal::row_accessor<const T>(ground_truth).pull();
     std::int64_t incorrect_label_count = 0;
 
-    for (size_t i = 0; i < labels.get_count(); i++) {
+    for (std::int64_t i = 0; i < labels.get_count(); i++) {
         incorrect_label_count += (static_cast<int>(labels[i]) != static_cast<int>(truth_labels[i]));
     }
     return static_cast<double>(incorrect_label_count) / labels.get_count();
@@ -48,7 +48,7 @@ template <typename T>
 inline double calculate_mse(const dal::table& infer_labels, const T* ground_truth) {
     double mean       = 0.0;
     const auto labels = dal::row_accessor<const T>(infer_labels).pull();
-    for (size_t i = 0; i < labels.get_count(); i++) {
+    for (std::int64_t i = 0; i < labels.get_count(); i++) {
         double val = (labels[i] - ground_truth[i]) * (labels[i] - ground_truth[i]);
         mean += (val - mean) / static_cast<double>(i + 1);
     }
@@ -61,7 +61,7 @@ inline double calculate_mse(const dal::table& infer_labels, const dal::table& gr
     double mean             = 0.0;
     const auto labels       = dal::row_accessor<const T>(infer_labels).pull();
     const auto truth_labels = dal::row_accessor<const T>(ground_truth).pull();
-    for (size_t i = 0; i < labels.get_count(); i++) {
+    for (std::int64_t i = 0; i < labels.get_count(); i++) {
         double val = (labels[i] - truth_labels[i]) * (labels[i] - truth_labels[i]);
         mean += (val - mean) / static_cast<double>(i + 1);
     }
@@ -78,7 +78,7 @@ inline void verify_oob_err_vs_oob_err_per_observation(const dal::table& oob_err,
 
     std::int64_t oob_err_obs_count = 0;
     double ref_oob_err             = 0.0;
-    for (size_t i = 0; i < oob_err_per_obs_arr.get_count(); i++) {
+    for (std::int64_t i = 0; i < oob_err_per_obs_arr.get_count(); i++) {
         if (oob_err_per_obs_arr[i] >= 0.0) {
             oob_err_obs_count++;
             ref_oob_err += oob_err_per_obs_arr[i];
