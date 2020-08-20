@@ -220,6 +220,7 @@ def dal_algo_example_suite(algos, dal_deps=[], **kwargs):
             srcs = native.glob(["source/{}/*.cpp".format(algo)]),
             dal_deps = dal_deps + [
                 "@onedal//cpp/oneapi/dal/algo:{}".format(algo),
+                "@onedal//cpp/oneapi/dal/io:csv",
             ],
             **kwargs,
         )
