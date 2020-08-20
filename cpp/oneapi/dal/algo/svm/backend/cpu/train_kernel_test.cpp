@@ -297,3 +297,73 @@ TEST(svm_thunder_dense_test, can_classify_linear_separable_surface_with_differen
         ASSERT_FLOAT_EQ(labels[i], +1.f);
     }
 }
+
+TEST(svm_thunder_dense_test, can_classify_any_two_labels) {
+    constexpr std::int64_t row_count_train = 6;
+    constexpr std::int64_t column_count    = 2;
+    constexpr std::int64_t range_count     = 4;
+    const float x_train[]                  = {
+        -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f, +1.f, +2.f, +2.f, +1.f,
+    };
+    const float expected_labels_range[range_count][2] = {
+        { -1.f, +1.f },
+        { +0.f, +1.f },
+        { +0.f, +2.f },
+        { -1.f, +0.f },
+    };
+
+    const float y_train_range[range_count][row_count_train] = {
+        {
+            -1.f,
+            -1.f,
+            -1.f,
+            +1.f,
+            +1.f,
+            +1.f,
+        },
+        {
+            0.f,
+            0.f,
+            0.f,
+            +1.f,
+            +1.f,
+            +1.f,
+        },
+        {
+            0.f,
+            0.f,
+            0.f,
+            +2.f,
+            +2.f,
+            +2.f,
+        },
+        {
+            -1.f,
+            -1.f,
+            -1.f,
+            +0.f,
+            +0.f,
+            +0.f,
+        },
+    };
+
+    for (std::int64_t i = 0; i < range_count; ++i) {
+        const auto y_train         = y_train_range[i];
+        const auto expected_labels = expected_labels_range[i];
+        const auto x_train_table   = homogen_table{ row_count_train, column_count, x_train };
+        const auto y_train_table   = homogen_table{ row_count_train, 1, y_train };
+        const auto svm_desc_train  = svm::descriptor<float>{}.set_c(1e-1);
+
+        const auto result_train = train(svm_desc_train, x_train_table, y_train_table);
+        ASSERT_EQ(result_train.get_support_vector_count(), row_count_train);
+
+        auto support_indices_table = result_train.get_support_indices();
+        const auto support_indices = row_accessor<const float>(support_indices_table).pull();
+        for (size_t i = 0; i < support_indices.get_count(); i++) {
+            ASSERT_EQ(support_indices[i], i);
+        }
+
+        ASSERT_EQ(result_train.get_model().get_first_class_label(), expected_labels[0]);
+        ASSERT_EQ(result_train.get_model().get_second_class_label(), expected_labels[1]);
+    }
+}

@@ -27,13 +27,13 @@ int main(int argc, char const *argv[]) {
         -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f, +1.f, +2.f, +2.f, +1.f,
     };
     const float y_train[] = {
-        -1.f, -1.f, -1.f, +1.f, +1.f, +1.f,
+        0.f, 0.f, 0.f, 1.f, 1.f, 1.f,
     };
 
     const auto x_train_table =
-        dal::homogen_table::wrap( x_train, row_count_train, column_count);
+        dal::homogen_table::wrap(x_train, row_count_train, column_count);
     const auto y_train_table =
-        dal::homogen_table::wrap( y_train, row_count_train, 1);
+        dal::homogen_table::wrap(y_train, row_count_train, 1);
 
     const auto kernel_desc =
         dal::linear_kernel::descriptor{}.set_scale(1.0).set_shift(0.0);
@@ -61,14 +61,15 @@ int main(int argc, char const *argv[]) {
         -1.f, -1.f, +2.f, +2.f, +3.f, +2.f,
     };
     const float y_true[] = {
-        -1.f,
-        +1.f,
-        +1.f,
+        0.f,
+        1.f,
+        1.f,
     };
 
     const auto x_test_table =
-        dal::homogen_table::wrap( x_test, row_count_test, column_count);
-    const auto y_true_table = dal::homogen_table::wrap( y_true, row_count_test, 1);
+        dal::homogen_table::wrap(x_test, row_count_test, column_count);
+    const auto y_true_table =
+        dal::homogen_table::wrap(y_true, row_count_test, 1);
 
     const auto result_test =
         dal::infer(svm_desc, result_train.get_model(), x_test_table);

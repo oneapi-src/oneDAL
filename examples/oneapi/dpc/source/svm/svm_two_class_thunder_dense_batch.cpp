@@ -30,7 +30,7 @@ void run(sycl::queue &queue) {
         -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f, +1.f, +2.f, +2.f, +1.f,
     };
     const float y_train_host[] = {
-        -1.f, -1.f, -1.f, +1.f, +1.f, +1.f,
+        0.f, 0.f, 0.f, 1.f, 1.f, 1.f,
     };
 
     auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
@@ -39,12 +39,19 @@ void run(sycl::queue &queue) {
     auto y_train = sycl::malloc_shared<float>(row_count_train, queue);
     queue.memcpy(y_train, y_train_host, sizeof(float) * row_count_train).wait();
 
-    const auto x_train_table = dal::homogen_table{ queue, x_train, row_count_train, column_count, dal::make_default_delete<const float>(queue) };
-    const auto y_train_table = dal::homogen_table{ queue, y_train, row_count_train, 1, dal::make_default_delete<const float>(queue) };
+    const auto x_train_table = dal::homogen_table{ queue,
+                                                   x_train,
+                                                   row_count_train,
+                                                   column_count,
+                                                   dal::make_default_delete<const float>(queue) };
+    const auto y_train_table = dal::homogen_table{ queue,
+                                                   y_train,
+                                                   row_count_train,
+                                                   1,
+                                                   dal::make_default_delete<const float>(queue) };
 
     const auto kernel_desc = dal::linear_kernel::descriptor{}.set_scale(1.0).set_shift(0.0);
-
-    const auto svm_desc = dal::svm::descriptor{ kernel_desc }
+    const auto svm_desc    = dal::svm::descriptor{ kernel_desc }
                               .set_c(1.0)
                               .set_accuracy_threshold(0.01)
                               .set_max_iteration_count(100)
@@ -61,16 +68,20 @@ void run(sycl::queue &queue) {
         -1.f, -1.f, +2.f, +2.f, +3.f, +2.f,
     };
     const float y_true_host[] = {
-        -1.f,
-        +1.f,
-        +1.f,
+        0.f,
+        1.f,
+        1.f,
     };
 
     auto x_test = sycl::malloc_shared<float>(row_count_test * column_count, queue);
     queue.memcpy(x_test, x_test_host, sizeof(float) * row_count_test * column_count).wait();
 
-    const auto x_test_table = dal::homogen_table{ queue, x_test, row_count_test, column_count, dal::make_default_delete<const float>(queue) };
-    const auto y_true_table = dal::homogen_table::wrap( y_true_host, row_count_test, 1);
+    const auto x_test_table = dal::homogen_table{ queue,
+                                                  x_test,
+                                                  row_count_test,
+                                                  column_count,
+                                                  dal::make_default_delete<const float>(queue) };
+    const auto y_true_table = dal::homogen_table::wrap(y_true_host, row_count_test, 1);
 
     const auto result_test = dal::infer(queue, svm_desc, result_train.get_model(), x_test_table);
 

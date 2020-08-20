@@ -45,8 +45,8 @@ public:
     double get_shift() const;
 
 protected:
-    void set_scale_impl(const double value);
-    void set_shift_impl(const double value);
+    void set_scale_impl(double value);
+    void set_shift_impl(double value);
 
     dal::detail::pimpl<detail::descriptor_impl> impl_;
 };
@@ -57,12 +57,12 @@ public:
     using float_t  = Float;
     using method_t = Method;
 
-    auto& set_scale(const double value) {
+    auto& set_scale(double value) {
         set_scale_impl(value);
         return *this;
     }
 
-    auto& set_shift(const double value) {
+    auto& set_shift(double value) {
         set_shift_impl(value);
         return *this;
     }

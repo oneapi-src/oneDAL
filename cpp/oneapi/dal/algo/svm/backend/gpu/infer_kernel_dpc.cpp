@@ -50,9 +50,9 @@ static infer_result call_daal_kernel(const context_gpu& ctx,
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
-    const int64_t row_count             = data.get_row_count();
-    const int64_t column_count          = data.get_column_count();
-    const int64_t support_vectors_count = trained_model.get_support_vector_count();
+    const int64_t row_count            = data.get_row_count();
+    const int64_t column_count         = data.get_column_count();
+    const int64_t support_vector_count = trained_model.get_support_vector_count();
 
     // TODO: data is table, not a homogen_table. Think better about accessor - is it enough to have just a row_accessor?
     auto arr_data = row_accessor<const Float>{ data }.pull(queue);
@@ -65,10 +65,10 @@ static infer_result call_daal_kernel(const context_gpu& ctx,
     const auto daal_support_vectors =
         interop::convert_to_daal_sycl_homogen_table(queue,
                                                     arr_support_vectors,
-                                                    support_vectors_count,
+                                                    support_vector_count,
                                                     column_count);
     const auto daal_coeffs =
-        interop::convert_to_daal_sycl_homogen_table(queue, arr_coeffs, support_vectors_count, 1);
+        interop::convert_to_daal_sycl_homogen_table(queue, arr_coeffs, support_vector_count, 1);
 
     auto daal_model = daal_model_builder{}
                           .set_support_vectors(daal_support_vectors)
@@ -93,7 +93,8 @@ static infer_result call_daal_kernel(const context_gpu& ctx,
     auto arr_label  = array<Float>::empty(row_count * 1);
     auto label_data = arr_label.get_mutable_data();
     for (std::int64_t i = 0; i < row_count; ++i) {
-        label_data[i] = arr_decision_function[i] >= 0 ? Float(1.0) : Float(-1.0);
+        label_data[i] = arr_decision_function[i] >= 0 ? trained_model.get_second_class_label()
+                                                      : trained_model.get_first_class_label();
     }
 
     return infer_result()

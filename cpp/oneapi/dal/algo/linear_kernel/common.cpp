@@ -36,11 +36,11 @@ double descriptor_base::get_shift() const {
     return impl_->shift;
 }
 
-void descriptor_base::set_scale_impl(const double value) {
+void descriptor_base::set_scale_impl(double value) {
     impl_->scale = value;
 }
 
-void descriptor_base::set_shift_impl(const double value) {
+void descriptor_base::set_shift_impl(double value) {
     impl_->shift = value;
 }
 
