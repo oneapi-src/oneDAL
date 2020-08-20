@@ -120,7 +120,8 @@ def dal_static_lib(name, lib_name, dal_deps=[], host_deps=[],
         **kwargs
     )
 
-def dal_test(name, dal_deps=[], test_deps=[], data=[], gtest=True, **kwargs):
+def dal_test(name, dal_deps=[], test_deps=[], data=[],
+             gtest=True, tags=[], **kwargs):
     # TODO: Add support for DPC++
     _dal_module(
         name = "_" + name,
@@ -155,6 +156,7 @@ def dal_test(name, dal_deps=[], test_deps=[], data=[], gtest=True, **kwargs):
         name = name,
         deps = [ ":_" + name ],
         data = data,
+        tags = tags,
     )
 
 def dal_test_suite(name, srcs=[], tests=[], **kwargs):
