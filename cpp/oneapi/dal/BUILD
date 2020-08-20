@@ -35,6 +35,7 @@ dal_module(
     dpc = True,
     deps = [
         ":common",
+        "@onedal//cpp/oneapi/dal/graph",
         "@onedal//cpp/oneapi/dal/table",
         "@onedal//cpp/oneapi/dal/util",
         # TODO: Move to depc_dpc
@@ -46,6 +47,7 @@ dal_algos(
     name = "all_algos",
     algos = [
         "decision_forest",
+        "jaccard",
         "kmeans",
         "kmeans_init",
         "knn",
@@ -60,8 +62,10 @@ dal_public_includes(
     name = "public_includes",
     deps = [
         ":all_algos_public_includes",
+        "@onedal//cpp/oneapi/dal/graph:public_includes",
         "@onedal//cpp/oneapi/dal/table:public_includes",
         "@onedal//cpp/oneapi/dal/util:public_includes",
+        "@onedal//cpp/oneapi/dal/io:public_includes",
     ],
 )
 
@@ -72,6 +76,7 @@ dal_static_lib(
     deps = [
         ":core",
         ":all_algos",
+        "@onedal//cpp/oneapi/dal/io",
     ],
     external_deps = [
         "@micromkl//:mkl_seq",

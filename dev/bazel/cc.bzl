@@ -112,6 +112,40 @@ def _filter_static_libraries_to_link(libraries_to_link):
             static_libs_to_links.append(lib)
     return static_libs_to_links
 
+# TODO: Replace file sufix to ISA
+_CPU_SUFFIX_TO_ISA_MAP = {
+    "_nrh": "sse2",
+    "_mrm": "ssse3",
+    "_neh": "sse42",
+    "_snb": "avx",
+    "_hsw": "avx2",
+    "_skx": "avx512",
+    "_knl": "avx512_mic",
+}
+_CPU_SUFFIX_TO_ISA_BACK_MAP = {
+    "sse2":       "_nrh",
+    "ssse3":      "_mrm",
+    "sse42":      "_neh",
+    "avx":        "_snb",
+    "avx2":       "_hsw",
+    "avx512":     "_skx",
+    "avx512_mic": "_knl",
+}
+_CPU_SUFFIXES = _CPU_SUFFIX_TO_ISA_MAP.keys()
+
+def _match_file_suffix(filename, suffixes_to_match):
+    name, _ = paths.split_extension(filename)
+    for suffix in suffixes_to_match:
+        if name.rfind(suffix) > 0:
+            return suffix
+
+def _remove_file_suffix(filename, suffix):
+    suffix_index = filename.rfind(suffix)
+    if suffix_index > 0:
+        return filename[:suffix_index] + filename[suffix_index + len(suffix):]
+    else:
+        return filename
+
 def _categorize_sources(source_files, cpu_files_supported = True,
                                       fpt_files_supported = True):
     fpt_cpu_files_supported = cpu_files_supported and fpt_files_supported
@@ -119,22 +153,51 @@ def _categorize_sources(source_files, cpu_files_supported = True,
     cpu_files = []
     fpt_files = []
     fpt_cpu_files = []
+    special_cpu_files = None
     for file in source_files:
         filename = file.basename
-        if fpt_cpu_files_supported and ("_fpt_cpu" in filename):
+        if fpt_cpu_files_supported and _match_file_suffix(filename, ["_fpt_cpu"]):
             fpt_cpu_files.append(file)
-        elif cpu_files_supported and ("_cpu" in filename):
-            cpu_files.append(file)
-        elif fpt_files_supported and ("_fpt" in filename):
+        elif fpt_files_supported and _match_file_suffix(filename, ["_fpt"]):
             fpt_files.append(file)
+        elif cpu_files_supported and _match_file_suffix(filename, ["_cpu"]):
+            cpu_files.append(file)
         else:
-            normal_files.append(file)
+            cpu_suffix = _match_file_suffix(filename, _CPU_SUFFIXES)
+            if cpu_suffix:
+                if not special_cpu_files:
+                    special_cpu_files = {v: [] for v in _CPU_SUFFIX_TO_ISA_MAP.values()}
+                isa = _CPU_SUFFIX_TO_ISA_MAP[cpu_suffix]
+                special_cpu_files[isa].append(file)
+            else:
+                normal_files.append(file)
     return struct(
         normal_files = normal_files,
         cpu_files = cpu_files,
         fpt_files = fpt_files,
         fpt_cpu_files = fpt_cpu_files,
+        special_cpu_files = special_cpu_files,
     )
+
+def _normalize_cpu_files(general_cpu_files, special_cpu_files):
+    normalized_cpu_files = {}
+    general_dict = {}
+    for file in general_cpu_files:
+        name, _ = paths.split_extension(file.path)
+        basename = _remove_file_suffix(name, "_cpu")
+        general_dict[basename] = file
+    for isa, special_files in special_cpu_files.items():
+        specific_dict = {}
+        suffix = _CPU_SUFFIX_TO_ISA_BACK_MAP[isa]
+        for file in special_files:
+            name, _ = paths.split_extension(file.path)
+            basename = _remove_file_suffix(name, suffix)
+            specific_dict[basename] = file
+        merged_dict = {}
+        merged_dict.update(**general_dict)
+        merged_dict.update(**specific_dict)
+        normalized_cpu_files[isa] = merged_dict.values()
+    return normalized_cpu_files
 
 def _normalize_includes(ctx, includes, extra=[]):
     inc_dir = paths.dirname(ctx.build_file_path) + "/"
@@ -248,15 +311,28 @@ def _compile_all(name, ctx, toolchain, feature_config, compilation_contexts):
 
     # Compile CPU files
     if sources_by_category.cpu_files:
-        for cpu in cpus:
-            compilation_context, compulation_output = _compile(
-                name + "_" + cpu, ctx, toolchain, cpu_feature_configs[cpu],
-                dep_compilation_contexts,
-                srcs = sources_by_category.cpu_files,
-                local_defines = cpu_defines[cpu]
-            )
-            compilation_contexts.append(compilation_context)
-            compilation_outputs.append(compulation_output)
+        if sources_by_category.special_cpu_files:
+            cpu_to_file_dict = _normalize_cpu_files(sources_by_category.cpu_files,
+                                                    sources_by_category.special_cpu_files)
+            for cpu in cpus:
+                compilation_context, compulation_output = _compile(
+                    name + "_" + cpu, ctx, toolchain, cpu_feature_configs[cpu],
+                    dep_compilation_contexts,
+                    srcs = cpu_to_file_dict[cpu],
+                    local_defines = cpu_defines[cpu]
+                )
+                compilation_contexts.append(compilation_context)
+                compilation_outputs.append(compulation_output)
+        else:
+            for cpu in cpus:
+                compilation_context, compulation_output = _compile(
+                    name + "_" + cpu, ctx, toolchain, cpu_feature_configs[cpu],
+                    dep_compilation_contexts,
+                    srcs = sources_by_category.cpu_files,
+                    local_defines = cpu_defines[cpu]
+                )
+                compilation_contexts.append(compilation_context)
+                compilation_outputs.append(compulation_output)
 
     # Compile FPT-CPU files
     if sources_by_category.fpt_cpu_files:
@@ -392,6 +468,47 @@ def _merge_static_libs(filename, actions, cc_toolchain,
     )
     return output_file
 
+def _link_executable(ctx):
+    toolchain = ctx.toolchains["@bazel_tools//tools/cpp:toolchain_type"]
+    feature_config = cc_common.configure_features(
+        ctx = ctx,
+        cc_toolchain = toolchain,
+        requested_features = ctx.features,
+        unsupported_features = ctx.disabled_features,
+    )
+    tagged_linking_contexts = _collect_tagged_linking_contexts(ctx.attr.deps)
+    linking_contexts = _filter_tagged_linking_contexts(tagged_linking_contexts, ctx.attr.lib_tags)
+    merged_linking_context = _merge_linking_contexts(linking_contexts)
+    if merged_linking_context.objects:
+        fail("Non-PIC object files found, oneDAL assumes " +
+             "all object files are compiled as PIC")
+    object_files = depset(merged_linking_context.pic_objects)
+    compilation_outputs = cc_common.create_compilation_outputs(
+        objects = object_files,
+        pic_objects = object_files,
+    )
+    linker_input = cc_common.create_linker_input(
+        owner = ctx.label,
+        libraries = depset(merged_linking_context.libraries_to_link),
+        user_link_flags = depset(merged_linking_context.user_link_flags),
+    )
+    # TODO: Pass compilations outputs via linking contexts
+    #       Individual linking context for each library tag
+    linking_context = cc_common.create_linking_context(
+        linker_inputs = depset([linker_input]),
+    )
+    linking_outputs = cc_common.link(
+        name = ctx.label.name,
+        actions = ctx.actions,
+        cc_toolchain = toolchain,
+        feature_configuration = feature_config,
+        compilation_outputs = compilation_outputs,
+        linking_contexts = [linking_context],
+    )
+    if not linking_outputs.executable:
+        return utils.warn("'{}' executable does not contain any " +
+                          "object file".format(ctx.label.name))
+    return linking_outputs.executable
 
 def _cc_module_impl(ctx):
     toolchain = ctx.toolchains["@bazel_tools//tools/cpp:toolchain_type"]
@@ -543,67 +660,23 @@ cc_static_lib = rule(
 )
 
 def _cc_executable_impl(ctx):
-    toolchain = ctx.toolchains["@bazel_tools//tools/cpp:toolchain_type"]
-    feature_config = cc_common.configure_features(
-        ctx = ctx,
-        cc_toolchain = toolchain,
-        requested_features = ctx.features,
-        unsupported_features = ctx.disabled_features,
-    )
-    tagged_linking_contexts = _collect_tagged_linking_contexts(ctx.attr.deps)
-    linking_contexts = _filter_tagged_linking_contexts(tagged_linking_contexts, ctx.attr.lib_tags)
-    merged_linking_context = _merge_linking_contexts(linking_contexts)
-    if merged_linking_context.objects:
-        fail("Non-PIC object files found, oneDAL assumes " +
-             "all object files are compiled as PIC")
-    object_files = depset(merged_linking_context.pic_objects)
-    compilation_outputs = cc_common.create_compilation_outputs(
-        objects = object_files,
-        pic_objects = object_files,
-    )
-    linker_input = cc_common.create_linker_input(
-        owner = ctx.label,
-        libraries = depset(merged_linking_context.libraries_to_link),
-        user_link_flags = depset(merged_linking_context.user_link_flags),
-    )
-    # TODO: Pass compilations outputs via linking contexts
-    #       Individual linking context for each library tag
-    linking_context = cc_common.create_linking_context(
-        linker_inputs = depset([linker_input]),
-    )
-    linking_outputs = cc_common.link(
-        name = ctx.label.name,
-        actions = ctx.actions,
-        cc_toolchain = toolchain,
-        feature_configuration = feature_config,
-        compilation_outputs = compilation_outputs,
-        linking_contexts = [linking_context],
-    )
-    if not linking_outputs.executable:
-        return utils.warn("'{}' executable does not contain any " +
-                          "object file".format(ctx.label.name))
+    executable = _link_executable(ctx)
     default_info = DefaultInfo(
-        files = depset([ linking_outputs.executable ]),
-        executable = linking_outputs.executable,
+        files = depset([ executable ]),
+        runfiles = ctx.runfiles(
+            files = ctx.files.data,
+        ),
+        executable = executable,
     )
     return [default_info]
 
-# cc_executable = rule(
-#     implementation = _cc_executable_impl,
-#     attrs = {
-#         "lib_tags": attr.string_list(),
-#         "deps": attr.label_list(mandatory=True),
-#     },
-#     toolchains = ["@bazel_tools//tools/cpp:toolchain_type"],
-#     fragments = ["cpp"],
-#     executable = True,
-# )
 
 cc_test = rule(
     implementation = _cc_executable_impl,
     attrs = {
         "lib_tags": attr.string_list(),
         "deps": attr.label_list(mandatory=True),
+        "data": attr.label_list(allow_files=True),
     },
     toolchains = ["@bazel_tools//tools/cpp:toolchain_type"],
     fragments = ["cpp"],

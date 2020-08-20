@@ -368,8 +368,9 @@ expat += $(if $(OS_is_win),%.bat %.vcxproj %.filters %.user %.sln %makefile_$(_O
 release.EXAMPLES.CPP   := $(filter $(expat),$(shell find examples/daal/cpp  -type f)) $(filter $(expat),$(shell find examples/daal/cpp_sycl -type f))
 release.EXAMPLES.DATA  := $(filter $(expat),$(shell find examples/daal/data -type f))
 release.EXAMPLES.JAVA  := $(filter $(expat),$(shell find examples/daal/java -type f))
-release.ONEAPI.EXAMPLES.CPP := $(filter $(expat),$(shell find examples/oneapi/cpp -type f))
-release.ONEAPI.EXAMPLES.DPC := $(filter $(expat),$(shell find examples/oneapi/dpc -type f))
+release.ONEAPI.EXAMPLES.CPP  := $(filter $(expat),$(shell find examples/oneapi/cpp -type f))
+release.ONEAPI.EXAMPLES.DPC  := $(filter $(expat),$(shell find examples/oneapi/dpc -type f))
+release.ONEAPI.EXAMPLES.DATA := $(filter $(expat),$(shell find examples/oneapi/data -type f))
 
 # List env files to populate release.
 release.ENV = deploy/local/vars_$(_OS).$(scr)
@@ -565,6 +566,7 @@ ONEAPI.dispatcher_tag.nrh := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_de
 ONEAPI.dispatcher_tag.mrm := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_ssse3
 ONEAPI.dispatcher_tag.neh := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_sse42
 ONEAPI.dispatcher_tag.snb := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx
+ONEAPI.dispatcher_tag.knl := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx512_mic
 ONEAPI.dispatcher_tag.hsw := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx2
 ONEAPI.dispatcher_tag.skx := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx512
 
@@ -572,7 +574,9 @@ ONEAPI.srcdir := $(CPPDIR.onedal)
 ONEAPI.srcdirs.base := $(ONEAPI.srcdir) \
                        $(ONEAPI.srcdir)/algo \
                        $(ONEAPI.srcdir)/table \
+                       $(ONEAPI.srcdir)/graph \
                        $(ONEAPI.srcdir)/util \
+                       $(ONEAPI.srcdir)/io \
                        $(addprefix $(ONEAPI.srcdir)/algo/, $(ONEAPI.ALGOS))
 ONEAPI.srcdirs.detail := $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type d -name detail))
 ONEAPI.srcdirs.backend := $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type d -name backend))
@@ -594,15 +598,29 @@ ONEAPI.objs_y.dpc := $(ONEAPI.srcs.dpc:%.cpp=$(ONEAPI.tmpdir_y.dpc)/%.$o)
 ONEAPI.objs_a.all := $(ONEAPI.objs_a) $(ONEAPI.objs_a.dpc)
 ONEAPI.objs_y.all := $(ONEAPI.objs_y) $(ONEAPI.objs_y.dpc)
 
+USECPUS.files_no_knl := $(filter-out knl,$(USECPUS.files))
 # Populate _cpu files -> _cpu_%cpu_name%, where %cpu_name% is $(USECPUS.files)
-# $1: List of object files
-populate_cpus = $(call notcontaining,_cpu,$1) \
-                $(foreach ccc,$(USECPUS.files),$(subst _cpu,_cpu_$(ccc),$(call containing,_cpu,$1)))
+# $1 Output variable name
+# $2 List of object files
+define .populate_cpus
+$(eval non_cpu_files := $(call notcontaining,_cpu,$2))
+$(eval cpu_files := $(call containing,_cpu,$2))
+$(eval nrh_files := $(subst _nrh,_cpu_nrh,$(call containing,_nrh,$(non_cpu_files))))
+$(eval mrm_files := $(subst _mrm,_cpu_mrm,$(call containing,_mrm,$(non_cpu_files))))
+$(eval neh_files := $(subst _neh,_cpu_neh,$(call containing,_neh,$(non_cpu_files))))
+$(eval snb_files := $(subst _snb,_cpu_snb,$(call containing,_snb,$(non_cpu_files))))
+$(eval hsw_files := $(subst _hsw,_cpu_hsw,$(call containing,_hsw,$(non_cpu_files))))
+$(eval skx_files := $(subst _skx,_cpu_skx,$(call containing,_skx,$(non_cpu_files))))
+$(eval user_cpu_files := $(nrh_files) $(mrm_files) $(neh_files) $(snb_files) $(hsw_files) $(skx_files))
+$(eval populated_cpu_files := $(foreach ccc,$(USECPUS.files_no_knl),$(subst _cpu,_cpu_$(ccc),$(cpu_files))))
+$(eval populated_cpu_files := $(filter-out $(user_cpu_files),$(populated_cpu_files)))
+$(eval $1 := $(non_cpu_files) $(populated_cpu_files))
+endef
 
-ONEAPI.objs_a := $(call populate_cpus,$(ONEAPI.objs_a))
-ONEAPI.objs_y := $(call populate_cpus,$(ONEAPI.objs_y))
-ONEAPI.objs_a.dpc := $(call populate_cpus,$(ONEAPI.objs_a.dpc))
-ONEAPI.objs_y.dpc := $(call populate_cpus,$(ONEAPI.objs_y.dpc))
+$(eval $(call .populate_cpus,ONEAPI.objs_a,$(ONEAPI.objs_a)))
+$(eval $(call .populate_cpus,ONEAPI.objs_y,$(ONEAPI.objs_y)))
+$(eval $(call .populate_cpus,ONEAPI.objs_a.dpc,$(ONEAPI.objs_a.dpc)))
+$(eval $(call .populate_cpus,ONEAPI.objs_y.dpc,$(ONEAPI.objs_y.dpc)))
 
 -include $(ONEAPI.tmpdir_a)/*.d
 -include $(ONEAPI.tmpdir_y)/*.d
@@ -620,7 +638,6 @@ $(eval template_source_cpp := $(subst _cpu_mrm,_cpu,$(template_source_cpp)))
 $(eval template_source_cpp := $(subst _cpu_neh,_cpu,$(template_source_cpp)))
 $(eval template_source_cpp := $(subst _cpu_snb,_cpu,$(template_source_cpp)))
 $(eval template_source_cpp := $(subst _cpu_hsw,_cpu,$(template_source_cpp)))
-$(eval template_source_cpp := $(subst _cpu_knl,_cpu,$(template_source_cpp)))
 $(eval template_source_cpp := $(subst _cpu_skx,_cpu,$(template_source_cpp)))
 $1: $(template_source_cpp) | $(dir $1)/. ; $(value $3.COMPILE)
 endef
@@ -670,6 +687,7 @@ $(call containing,_mrm, $(ONEAPI.objs_a)): COPT += $(mc_OPT)   $(ONEAPI.dispatch
 $(call containing,_neh, $(ONEAPI.objs_a)): COPT += $(mc3_OPT)  $(ONEAPI.dispatcher_tag.neh)
 $(call containing,_snb, $(ONEAPI.objs_a)): COPT += $(avx_OPT)  $(ONEAPI.dispatcher_tag.snb)
 $(call containing,_hsw, $(ONEAPI.objs_a)): COPT += $(avx2_OPT) $(ONEAPI.dispatcher_tag.hsw)
+$(call containing,_knl, $(ONEAPI.objs_a)): COPT += $(avx2_OPT) $(ONEAPI.dispatcher_tag.knl)
 $(call containing,_skx, $(ONEAPI.objs_a)): COPT += $(skx_OPT)  $(ONEAPI.dispatcher_tag.skx)
 
 $(ONEAPI.objs_a.dpc): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_a.dpc)/inc_a_folders.txt
@@ -685,6 +703,7 @@ $(call containing,_mrm, $(ONEAPI.objs_a.dpc)): COPT += $(mc_OPT.dpcpp)   $(ONEAP
 $(call containing,_neh, $(ONEAPI.objs_a.dpc)): COPT += $(mc3_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.neh)
 $(call containing,_snb, $(ONEAPI.objs_a.dpc)): COPT += $(avx_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.snb)
 $(call containing,_hsw, $(ONEAPI.objs_a.dpc)): COPT += $(avx2_OPT.dpcpp) $(ONEAPI.dispatcher_tag.hsw)
+$(call containing,_knl, $(ONEAPI.objs_a.dpc)): COPT += $(avx2_OPT.dpcpp) $(ONEAPI.dispatcher_tag.knl)
 $(call containing,_skx, $(ONEAPI.objs_a.dpc)): COPT += $(skx_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.skx)
 
 # Set compilation options to the object files which are part of DYNAMIC lib
@@ -702,6 +721,7 @@ $(call containing,_mrm, $(ONEAPI.objs_y)): COPT += $(mc_OPT)   $(ONEAPI.dispatch
 $(call containing,_neh, $(ONEAPI.objs_y)): COPT += $(mc3_OPT)  $(ONEAPI.dispatcher_tag.neh)
 $(call containing,_snb, $(ONEAPI.objs_y)): COPT += $(avx_OPT)  $(ONEAPI.dispatcher_tag.snb)
 $(call containing,_hsw, $(ONEAPI.objs_y)): COPT += $(avx2_OPT) $(ONEAPI.dispatcher_tag.hsw)
+$(call containing,_knl, $(ONEAPI.objs_y)): COPT += $(avx2_OPT) $(ONEAPI.dispatcher_tag.knl)
 $(call containing,_skx, $(ONEAPI.objs_y)): COPT += $(skx_OPT)  $(ONEAPI.dispatcher_tag.skx)
 
 $(ONEAPI.objs_y.dpc): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_y.dpc)/inc_y_folders.txt
@@ -719,8 +739,8 @@ $(call containing,_mrm, $(ONEAPI.objs_y.dpc)): COPT += $(mc_OPT.dpcpp)   $(ONEAP
 $(call containing,_neh, $(ONEAPI.objs_y.dpc)): COPT += $(mc3_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.neh)
 $(call containing,_snb, $(ONEAPI.objs_y.dpc)): COPT += $(avx_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.snb)
 $(call containing,_hsw, $(ONEAPI.objs_y.dpc)): COPT += $(avx2_OPT.dpcpp) $(ONEAPI.dispatcher_tag.hsw)
+$(call containing,_knl, $(ONEAPI.objs_y.dpc)): COPT += $(avx2_OPT.dpcpp) $(ONEAPI.dispatcher_tag.knl)
 $(call containing,_skx, $(ONEAPI.objs_y.dpc)): COPT += $(skx_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.skx)
-
 
 $(foreach x,$(ONEAPI.objs_a),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_a),C)))
 $(foreach x,$(ONEAPI.objs_y),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_y),C)))
@@ -924,8 +944,8 @@ _oneapi_c: $(WORKDIR.lib)/$(oneapi_a) $(WORKDIR.lib)/$(oneapi_y)
 _oneapi_dpc: info.building.oneapi.DPC++.part
 _oneapi_dpc: $(WORKDIR.lib)/$(oneapi_a.dpc)
 
-_release_oneapi_c: _release_oneapi_c_h
-_release_oneapi_dpc: _release_oneapi_c
+_release_oneapi_c: _release_oneapi_c_h _release_oneapi_common
+_release_oneapi_dpc: _release_oneapi_c _release_oneapi_common
 
 #-------------------------------------------------------------------------------
 # Populating RELEASEDIR
@@ -1007,6 +1027,7 @@ $(foreach x,$(release.EXAMPLES.CPP),$(eval $(call .release.x,$x,$(RELEASEDIR.daa
 $(foreach x,$(release.EXAMPLES.JAVA),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_jj)))
 $(foreach x,$(release.ONEAPI.EXAMPLES.CPP),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_oneapi_c)))
 $(foreach x,$(release.ONEAPI.EXAMPLES.DPC),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_oneapi_dpc)))
+$(foreach x,$(release.ONEAPI.EXAMPLES.DATA),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_oneapi_common)))
 
 #----- releasing VS solutions
 ifeq ($(OS_is_win),yes)
