@@ -120,7 +120,6 @@ def dal_static_lib(name, lib_name, dal_deps=[], host_deps=[],
         **kwargs
     )
 
-
 def dal_test(name, dal_deps=[], test_deps=[], data=[],
              gtest=True, tags=[], **kwargs):
     # TODO: Add support for DPC++
@@ -192,7 +191,6 @@ def dal_example(name, dal_deps=[], **kwargs):
         dal_deps = [
             "@onedal//cpp/oneapi/dal:core",
             "@onedal//cpp/oneapi/dal/io",
-            "@onedal//cpp/oneapi/dal/io:csv",
         ] + dal_deps,
         gtest = False,
         **kwargs,
