@@ -32,18 +32,20 @@
 namespace oneapi::dal::csv::backend {
 
 namespace interop = dal::backend::interop;
+namespace daal_dm = daal::data_management;
 
+template <>
 table read_kernel_cpu<table>::operator()(const dal::backend::context_cpu& ctx,
                                          const data_source& ds,
                                          const read_args<table>& args) const {
-    using namespace daal::data_management;
+    daal_dm::CsvDataSourceOptions csv_options(daal_dm::operator|(
+        daal_dm::operator|(daal_dm::CsvDataSourceOptions::allocateNumericTable,
+                           daal_dm::CsvDataSourceOptions::createDictionaryFromContext),
+        (ds.get_parse_header() ? daal_dm::CsvDataSourceOptions::parseHeader
+                               : daal_dm::CsvDataSourceOptions::byDefault)));
 
-    CsvDataSourceOptions csv_options = CsvDataSourceOptions::allocateNumericTable |
-                                       CsvDataSourceOptions::createDictionaryFromContext |
-                                       (ds.get_parse_header() ? CsvDataSourceOptions::parseHeader
-                                                              : CsvDataSourceOptions::byDefault);
-
-    FileDataSource<CSVFeatureManager> daal_data_source(ds.get_file_name().c_str(), csv_options);
+    daal_dm::FileDataSource<daal_dm::CSVFeatureManager> daal_data_source(ds.get_file_name().c_str(),
+                                                                         csv_options);
     daal_data_source.getFeatureManager().setDelimiter(ds.get_delimiter());
     daal_data_source.loadDataBlock();
 

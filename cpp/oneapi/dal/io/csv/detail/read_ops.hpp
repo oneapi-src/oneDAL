@@ -27,25 +27,29 @@ struct ONEAPI_DAL_EXPORT read_ops_dispatcher {
     table operator()(const Context&, const data_source&, const read_args<table>&) const;
 };
 
-template <typename Object, typename Descriptor>
+template <typename Object, typename DataSource>
 struct read_ops;
 
-template <>
-struct read_ops<table, data_source> {
-    using input_t           = read_args<table>;
-    using result_t          = table;
-    using descriptor_base_t = data_source;
+template <typename Object>
+struct read_ops<Object, data_source> {
+    static_assert(std::is_same_v<Object, table>, "CSV data source defined only for table");
 
-    void check_preconditions(const data_source& ds, const input_t& input) const {}
+    using args_t             = read_args<Object>;
+    using result_t           = Object;
+    using data_source_base_t = data_source;
+
+    void check_preconditions(const data_source& ds, const args_t& args) const {}
 
     void check_postconditions(const data_source& ds,
-                              const input_t& input,
+                              const args_t& args,
                               const result_t& result) const {}
 
     template <typename Context>
-    auto operator()(const Context& ctx, const data_source& ds, const read_args<table>& args) const {
+    auto operator()(const Context& ctx,
+                    const data_source& ds,
+                    const read_args<Object>& args) const {
         check_preconditions(ds, args);
-        const auto result = read_ops_dispatcher<table, Context>()(ctx, ds, args);
+        const auto result = read_ops_dispatcher<Object, Context>()(ctx, ds, args);
         check_postconditions(ds, args, result);
         return result;
     }

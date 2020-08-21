@@ -24,9 +24,9 @@ namespace oneapi::dal {
 
 namespace detail {
 
-template <typename table, typename Descriptor>
-struct read_ops<table, Descriptor, dal::csv::detail::data_source_tag>
-        : dal::csv::detail::read_ops<table, Descriptor> {};
+template <typename table, typename DataSource>
+struct read_ops<table, DataSource, dal::csv::detail::data_source_tag>
+        : dal::csv::detail::read_ops<table, DataSource> {};
 
 } // namespace detail
 

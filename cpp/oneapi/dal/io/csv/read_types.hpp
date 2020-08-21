@@ -23,9 +23,6 @@ namespace oneapi::dal::csv {
 namespace detail {
 template <typename Object>
 class read_args_impl;
-
-template <>
-class read_args_impl<table>;
 } // namespace detail
 
 template <typename Object = table>

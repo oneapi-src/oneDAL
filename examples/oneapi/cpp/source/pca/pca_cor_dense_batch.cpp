@@ -21,16 +21,16 @@
 
 using namespace oneapi;
 
-const char data_file_name[] = "pca_normalized.csv";
-
 int main(int argc, char const *argv[]) {
-    const auto data_table = dal::read(dal::csv::data_source{get_data_path(data_file_name)});
+    const std::string data_file_name = get_data_path("pca_normalized.csv");
+
+    const auto data = dal::read<dal::table>(dal::csv::data_source{data_file_name});
 
     const auto pca_desc = dal::pca::descriptor<>()
-        .set_component_count(data_table.get_column_count())
+        .set_component_count(data.get_column_count())
         .set_is_deterministic(true);
 
-    const auto result = dal::train(pca_desc, data_table);
+    const auto result = dal::train(pca_desc, data);
 
     std::cout << "Eigenvectors:" << std::endl
               << result.get_eigenvectors() << std::endl;

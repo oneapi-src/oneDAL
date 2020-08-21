@@ -21,15 +21,15 @@
 
 using namespace oneapi;
 
-const char data_file_name[] = "kernel_function.csv";
-
 int main(int argc, char const *argv[]) {
-    const auto x_table = dal::read(dal::csv::data_source{get_data_path(data_file_name)});
-    const auto y_table = dal::read(dal::csv::data_source{get_data_path(data_file_name)});
+    const std::string data_file_name = get_data_path("kernel_function.csv");
+
+    const auto x = dal::read<dal::table>(dal::csv::data_source{data_file_name});
+    const auto y = dal::read<dal::table>(dal::csv::data_source{data_file_name});
     const auto kernel_desc =
         dal::linear_kernel::descriptor{}.set_scale(1.0).set_shift(0.0);
 
-    const auto result = dal::compute(kernel_desc, x_table, y_table);
+    const auto result = dal::compute(kernel_desc, x, y);
 
     std::cout << "Values:" << std::endl << result.get_values() << std::endl;
 

@@ -24,14 +24,14 @@
 
 using namespace oneapi;
 
-const char train_data_file_name[]  = "k_nearest_neighbors_train_data.csv";
-const char train_label_file_name[] = "k_nearest_neighbors_train_label.csv";
-const char test_data_file_name[]   = "k_nearest_neighbors_test_data.csv";
-const char test_label_file_name[]  = "k_nearest_neighbors_test_label.csv";
-
 int main(int argc, char const *argv[]) {
-  const auto x_train_table = dal::read(dal::csv::data_source{get_data_path(train_data_file_name)});
-  const auto y_train_table = dal::read(dal::csv::data_source{get_data_path(train_label_file_name)});
+  const std::string train_data_file_name  = get_data_path("k_nearest_neighbors_train_data.csv");
+  const std::string train_label_file_name = get_data_path("k_nearest_neighbors_train_label.csv");
+  const std::string test_data_file_name   = get_data_path("k_nearest_neighbors_test_data.csv");
+  const std::string test_label_file_name  = get_data_path("k_nearest_neighbors_test_label.csv");
+
+  const auto x_train = dal::read<dal::table>(dal::csv::data_source{train_data_file_name});
+  const auto y_train = dal::read<dal::table>(dal::csv::data_source{train_label_file_name});
 
   const auto knn_desc =
       dal::knn::descriptor<float, oneapi::dal::knn::method::kd_tree>()
@@ -39,17 +39,17 @@ int main(int argc, char const *argv[]) {
           .set_neighbor_count(1)
           .set_data_use_in_model(false);
 
-  const auto train_result = dal::train(knn_desc, x_train_table, y_train_table);
+  const auto train_result = dal::train(knn_desc, x_train, y_train);
 
-  const auto x_test_table = dal::read(dal::csv::data_source{get_data_path(test_data_file_name)});
-  const auto y_true_table = dal::read(dal::csv::data_source{get_data_path(test_label_file_name)});
+  const auto x_test = dal::read<dal::table>(dal::csv::data_source{test_data_file_name});
+  const auto y_true = dal::read<dal::table>(dal::csv::data_source{test_label_file_name});
 
   const auto test_result =
-      dal::infer(knn_desc, x_test_table, train_result.get_model());
+      dal::infer(knn_desc, x_test, train_result.get_model());
 
   std::cout << "Test results:" << std::endl
             << test_result.get_labels() << std::endl;
-  std::cout << "True labels:" << std::endl << y_true_table << std::endl;
+  std::cout << "True labels:" << std::endl << y_true << std::endl;
 
   return 0;
 }

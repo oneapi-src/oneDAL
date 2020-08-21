@@ -26,17 +26,17 @@
 
 using namespace oneapi;
 
-const char train_data_file_name[]        = "kmeans_dense_train_data.csv";
-const char initial_centroids_file_name[] = "kmeans_dense_train_centroids.csv";
-const char test_data_file_name[]         = "kmeans_dense_test_data.csv";
-const char test_label_file_name[]        = "kmeans_dense_test_label.csv";
-
 void run(sycl::queue &queue) {
-    const auto x_train_table           = dal::read(queue, dal::csv::data_source{get_data_path(train_data_file_name)});
-    const auto initial_centroids_table = dal::read(queue, dal::csv::data_source{get_data_path(initial_centroids_file_name)});
+    const std::string train_data_file_name        = get_data_path("kmeans_dense_train_data.csv");
+    const std::string initial_centroids_file_name = get_data_path("kmeans_dense_train_centroids.csv");
+    const std::string test_data_file_name         = get_data_path("kmeans_dense_test_data.csv");
+    const std::string test_label_file_name        = get_data_path("kmeans_dense_test_label.csv");
 
-    const auto x_test_table = dal::read(queue, dal::csv::data_source{get_data_path(test_data_file_name)});
-    const auto y_test_table = dal::read(queue, dal::csv::data_source{get_data_path(test_label_file_name)});
+    const auto x_train           = dal::read<dal::table>(queue, dal::csv::data_source{train_data_file_name});
+    const auto initial_centroids = dal::read<dal::table>(queue, dal::csv::data_source{initial_centroids_file_name});
+
+    const auto x_test = dal::read<dal::table>(queue, dal::csv::data_source{test_data_file_name});
+    const auto y_test = dal::read<dal::table>(queue, dal::csv::data_source{test_label_file_name});
 
     const auto kmeans_desc = dal::kmeans::descriptor<>()
                                  .set_cluster_count(20)
@@ -44,7 +44,7 @@ void run(sycl::queue &queue) {
                                  .set_accuracy_threshold(0.001);
 
     const auto result_train =
-        dal::train(queue, kmeans_desc, x_train_table, initial_centroids_table);
+        dal::train(queue, kmeans_desc, x_train, initial_centroids);
 
     std::cout << "Iteration count: " << result_train.get_iteration_count() << std::endl;
     std::cout << "Objective function value: " << result_train.get_objective_function_value()
@@ -52,11 +52,11 @@ void run(sycl::queue &queue) {
     std::cout << "Lables:" << std::endl << result_train.get_labels() << std::endl;
     std::cout << "Centroids:" << std::endl << result_train.get_model().get_centroids() << std::endl;
 
-    const auto result_test = dal::infer(queue, kmeans_desc, result_train.get_model(), x_test_table);
+    const auto result_test = dal::infer(queue, kmeans_desc, result_train.get_model(), x_test);
 
     std::cout << "Infer result:" << std::endl << result_test.get_labels() << std::endl;
 
-    std::cout << "Ground truth:" << std::endl << y_test_table << std::endl;
+    std::cout << "Ground truth:" << std::endl << y_test << std::endl;
 }
 
 int main(int argc, char const *argv[]) {

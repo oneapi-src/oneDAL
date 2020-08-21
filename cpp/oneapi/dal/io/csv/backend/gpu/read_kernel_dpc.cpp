@@ -34,20 +34,22 @@
 namespace oneapi::dal::csv::backend {
 
 namespace interop = dal::backend::interop;
+namespace daal_dm = daal::data_management;
 
+template <>
 table read_kernel_gpu<table>::operator()(const dal::backend::context_gpu& ctx,
                                          const data_source& ds,
                                          const read_args<table>& args) const {
     auto& queue = ctx.get_queue();
 
-    using namespace daal::data_management;
+    daal_dm::CsvDataSourceOptions csv_options(daal_dm::operator|(
+        daal_dm::operator|(daal_dm::CsvDataSourceOptions::allocateNumericTable,
+                           daal_dm::CsvDataSourceOptions::createDictionaryFromContext),
+        (ds.get_parse_header() ? daal_dm::CsvDataSourceOptions::parseHeader
+                               : daal_dm::CsvDataSourceOptions::byDefault)));
 
-    CsvDataSourceOptions csv_options = CsvDataSourceOptions::allocateNumericTable |
-                                       CsvDataSourceOptions::createDictionaryFromContext |
-                                       (ds.get_parse_header() ? CsvDataSourceOptions::parseHeader
-                                                              : CsvDataSourceOptions::byDefault);
-
-    FileDataSource<CSVFeatureManager> daal_data_source(ds.get_file_name().c_str(), csv_options);
+    daal_dm::FileDataSource<daal_dm::CSVFeatureManager> daal_data_source(ds.get_file_name().c_str(),
+                                                                         csv_options);
     daal_data_source.getFeatureManager().setDelimiter(ds.get_delimiter());
     daal_data_source.loadDataBlock();
 
@@ -55,12 +57,11 @@ table read_kernel_gpu<table>::operator()(const dal::backend::context_gpu& ctx,
 
     auto nt = daal_data_source.getNumericTable();
 
-    daal::data_management::BlockDescriptor<DAAL_DATA_TYPE> block;
+    daal_dm::BlockDescriptor<DAAL_DATA_TYPE> block;
     const std::int64_t row_count    = nt->getNumberOfRows();
     const std::int64_t column_count = nt->getNumberOfColumns();
 
-    interop::status_to_exception(
-        nt->getBlockOfRows(0, row_count, daal::data_management::readOnly, block));
+    interop::status_to_exception(nt->getBlockOfRows(0, row_count, daal_dm::readOnly, block));
     DAAL_DATA_TYPE* data = block.getBlockPtr();
 
     auto arr = array<DAAL_DATA_TYPE>::empty(queue, row_count * column_count);

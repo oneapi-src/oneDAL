@@ -32,7 +32,7 @@ class ONEAPI_DAL_EXPORT data_source_base : public base {
 public:
     using tag_t = detail::data_source_tag;
 
-    data_source_base(const char *file_name);
+    explicit data_source_base(const char *file_name);
 
     char get_delimiter() const {
         return get_delimiter_impl();

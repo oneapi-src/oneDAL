@@ -24,17 +24,17 @@
 using namespace oneapi;
 namespace df = oneapi::dal::decision_forest;
 
-const char train_data_file_name[]  = "df_classification_train_data.csv";
-const char train_label_file_name[] = "df_classification_train_label.csv";
-const char test_data_file_name[]   = "df_classification_test_data.csv";
-const char test_label_file_name[]  = "df_classification_test_label.csv";
-
 void run(sycl::queue &queue) {
-  const auto x_train_table = dal::read(queue, dal::csv::data_source{get_data_path(train_data_file_name)});
-  const auto y_train_table = dal::read(queue, dal::csv::data_source{get_data_path(train_label_file_name)});
+  const std::string train_data_file_name  = get_data_path("df_classification_train_data.csv");
+  const std::string train_label_file_name = get_data_path("df_classification_train_label.csv");
+  const std::string test_data_file_name   = get_data_path("df_classification_test_data.csv");
+  const std::string test_label_file_name  = get_data_path("df_classification_test_label.csv");
 
-  const auto x_test_table = dal::read(dal::csv::data_source{get_data_path(test_data_file_name)});
-  const auto y_test_table = dal::read(dal::csv::data_source{get_data_path(test_label_file_name)});
+  const auto x_train = dal::read<dal::table>(queue, dal::csv::data_source{train_data_file_name});
+  const auto y_train = dal::read<dal::table>(queue, dal::csv::data_source{train_label_file_name});
+
+  const auto x_test = dal::read<dal::table>(dal::csv::data_source{test_data_file_name});
+  const auto y_test = dal::read<dal::table>(dal::csv::data_source{test_label_file_name});
 
   const auto df_train_desc = df::descriptor<float, df::task::classification, df::method::hist>{}
           .set_class_count(5)
@@ -53,21 +53,21 @@ void run(sycl::queue &queue) {
           .set_voting_mode(df::voting_mode::weighted);
 
   try {
-    const auto result_train = dal::train(queue, df_train_desc, x_train_table, y_train_table);
+    const auto result_train = dal::train(queue, df_train_desc, x_train, y_train);
 
     std::cout << "Variable importance results:" << std::endl
               << result_train.get_var_importance() << std::endl;
 
     std::cout << "OOB error: " << result_train.get_oob_err() << std::endl;
 
-    const auto result_infer = dal::infer(df_infer_desc, result_train.get_model(), x_test_table);
+    const auto result_infer = dal::infer(df_infer_desc, result_train.get_model(), x_test);
 
     std::cout << "Prediction results:" << std::endl
               << result_infer.get_labels() << std::endl;
     std::cout << "Probabilities results:" << std::endl
               << result_infer.get_probabilities() << std::endl;
 
-    std::cout << "Ground truth:" << std::endl << y_test_table << std::endl;
+    std::cout << "Ground truth:" << std::endl << y_test << std::endl;
   } catch (oneapi::dal::unimplemented_error &e) {
     std::cout << "  " << e.what() << std::endl;
     return;

@@ -26,20 +26,20 @@
 
 using namespace oneapi;
 
-const char train_data_file_name[] = "kmeans_init_dense.csv";
-const char test_data_file_name[]  = "kmeans_init_dense_ground_truth.csv";
-
 void run(sycl::queue &queue) {
-    const auto x_compute_table = dal::read(queue, dal::csv::data_source{get_data_path(train_data_file_name)});
-    const auto x_test_table    = dal::read(dal::csv::data_source{get_data_path(test_data_file_name)});;
+    const std::string train_data_file_name = get_data_path("kmeans_init_dense.csv");
+    const std::string test_data_file_name  = get_data_path("kmeans_init_dense_ground_truth.csv");
+
+    const auto x_compute = dal::read<dal::table>(queue, dal::csv::data_source{train_data_file_name});
+    const auto x_test    = dal::read<dal::table>(dal::csv::data_source{test_data_file_name});;
 
     const auto kmeans_init_desc = dal::kmeans_init::descriptor<>().set_cluster_count(2);
 
-    const auto result = dal::compute(queue, kmeans_init_desc, x_compute_table);
+    const auto result = dal::compute(queue, kmeans_init_desc, x_compute);
 
     std::cout << "Initial cetroids:" << std::endl << result.get_centroids() << std::endl;
 
-    std::cout << "Ground truth:" << std::endl << x_test_table << std::endl;
+    std::cout << "Ground truth:" << std::endl << x_test << std::endl;
 }
 
 int main(int argc, char const *argv[]) {
