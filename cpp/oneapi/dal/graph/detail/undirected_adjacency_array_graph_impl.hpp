@@ -23,12 +23,12 @@
 namespace oneapi::dal::preview::detail {
 
 template <typename Graph>
-typename Graph::pimpl& get_impl(Graph& graph) {
+ONEAPI_DAL_EXPORT typename Graph::pimpl& get_impl(Graph& graph) {
     return graph.impl_;
 }
 
 template <typename Graph>
-const typename Graph::pimpl& get_impl(const Graph& graph) {
+ONEAPI_DAL_EXPORT const typename Graph::pimpl& get_impl(const Graph& graph) {
     return graph.impl_;
 }
 

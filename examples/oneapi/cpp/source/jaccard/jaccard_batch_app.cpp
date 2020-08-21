@@ -14,7 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <chrono>
 #include <iostream>
 
 #include "tbb/global_control.h"
@@ -31,7 +30,6 @@
 using namespace oneapi::dal;
 using namespace oneapi::dal::preview;
 using namespace std;
-using namespace std::chrono;
 
 /// Computes Jaccard similarity coefficients for the graph. The upper triangular
 /// matrix is processed only as it is symmetic for undirected graph.
