@@ -136,8 +136,8 @@ public:
 
 private:
     pimpl impl_;
-    friend pimpl &detail::get_impl<graph_type>(graph_type &graph);
+    friend pimpl &oneapi::dal::preview::detail::get_impl<graph_type>(graph_type &graph);
 
-    friend const pimpl &detail::get_impl<graph_type>(const graph_type &graph);
+    friend const pimpl &oneapi::dal::preview::detail::get_impl<graph_type>(const graph_type &graph);
 };
 } // namespace oneapi::dal::preview

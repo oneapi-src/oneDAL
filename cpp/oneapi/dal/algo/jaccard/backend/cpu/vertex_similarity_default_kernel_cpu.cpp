@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
+#include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel_scalar.hpp"
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
@@ -28,105 +29,18 @@ namespace oneapi::dal::preview {
 namespace jaccard {
 namespace detail {
 
-DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
-                                          std::int32_t *neigh_v,
-                                          std::int32_t n_u,
-                                          std::int32_t n_v) {
-    std::size_t total = 0;
-    std::int32_t i_u = 0, i_v = 0;
-    while (i_u < n_u && i_v < n_v) {
-        if ((neigh_u[i_u] > neigh_v[n_v - 1]) || (neigh_v[i_v] > neigh_u[n_u - 1])) {
-            return total;
-        }
-        if (neigh_u[i_u] == neigh_v[i_v])
-            total++, i_u++, i_v++;
-        else if (neigh_u[i_u] < neigh_v[i_v])
-            i_u++;
-        else if (neigh_u[i_u] > neigh_v[i_v])
-            i_v++;
-    }
-    return total;
+template vertex_similarity_result call_jaccard_default_kernel_scalar<__CPU_TAG__>(
+    const descriptor_base &desc,
+    vertex_similarity_input<undirected_adjacency_array_graph<>> &input);
+
+template <>
+vertex_similarity_result
+call_jaccard_default_kernel<undirected_adjacency_array_graph<>, __CPU_TAG__>(
+    const descriptor_base &desc,
+    vertex_similarity_input<undirected_adjacency_array_graph<>> &input) {
+    return call_jaccard_default_kernel_scalar<__CPU_TAG__>(desc, input);
 }
 
-template <typename Graph, typename Cpu>
-vertex_similarity_result call_jaccard_default_kernel(const descriptor_base &desc,
-                                                     vertex_similarity_input<Graph> &input) {
-    const auto &my_graph         = input.get_graph();
-    const auto &g                = oneapi::dal::preview::detail::get_impl(my_graph);
-    auto g_edge_offsets          = g->_edge_offsets.data();
-    auto g_vertex_neighbors      = g->_vertex_neighbors.data();
-    auto g_degrees               = g->_degrees.data();
-    const std::int32_t row_begin = static_cast<std::int32_t>(desc.get_row_range_begin());
-    const auto row_end           = static_cast<std::int32_t>(desc.get_row_range_end());
-    const auto column_begin      = static_cast<std::int32_t>(desc.get_column_range_begin());
-    const auto column_end        = static_cast<std::int32_t>(desc.get_column_range_end());
-    const std::size_t number_elements_in_block =
-        (row_end - row_begin) * (column_end - column_begin);
-    const size_t max_block_size =
-        compute_max_block_size(row_begin, row_end, column_begin, column_end);
-    void *result_ptr     = input.get_caching_builder()(max_block_size);
-    int *first_vertices  = reinterpret_cast<int *>(result_ptr);
-    int *second_vertices = first_vertices + number_elements_in_block;
-    float *jaccard       = reinterpret_cast<float *>(first_vertices + 2 * number_elements_in_block);
-    std::int64_t nnz     = 0;
-    for (std::int32_t i = row_begin; i < row_end; ++i) {
-        const auto i_neighbor_size = g_degrees[i];
-        const auto i_neigbhors     = g_vertex_neighbors + g_edge_offsets[i];
-        const auto diagonal        = min(i, column_end);
-        for (std::int32_t j = column_begin; j < diagonal; j++) {
-            const auto j_neighbor_size = g_degrees[j];
-            const auto j_neigbhors     = g_vertex_neighbors + g_edge_offsets[j];
-            if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&
-                !(j_neigbhors[0] > i_neigbhors[i_neighbor_size - 1])) {
-                auto intersection_value =
-                    intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
-                if (intersection_value) {
-                    jaccard[nnz] = float(intersection_value) /
-                                   float(i_neighbor_size + j_neighbor_size - intersection_value);
-                    first_vertices[nnz]  = i;
-                    second_vertices[nnz] = j;
-                    nnz++;
-                }
-            }
-        }
-
-        if (diagonal >= column_begin && diagonal < column_end) {
-            jaccard[nnz]         = 1.0;
-            first_vertices[nnz]  = i;
-            second_vertices[nnz] = diagonal;
-            nnz++;
-        }
-
-        for (std::int32_t j = max(column_begin, diagonal + 1); j < column_end; j++) {
-            const auto j_neighbor_size = g_degrees[j];
-            const auto j_neigbhors     = g_vertex_neighbors + g_edge_offsets[j];
-            if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&
-                !(j_neigbhors[0] > i_neigbhors[i_neighbor_size - 1])) {
-                auto intersection_value =
-                    intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
-                if (intersection_value) {
-                    jaccard[nnz] = float(intersection_value) /
-                                   float(i_neighbor_size + j_neighbor_size - intersection_value);
-                    first_vertices[nnz]  = i;
-                    second_vertices[nnz] = j;
-                    nnz++;
-                }
-            }
-        }
-    }
-    vertex_similarity_result res(homogen_table::wrap(first_vertices, 2, number_elements_in_block),
-                                 homogen_table::wrap(jaccard, 1, number_elements_in_block),
-                                 nnz);
-    return res;
-}
-
-#define INSTANTIATE(cpu)                                                  \
-    template vertex_similarity_result                                     \
-    call_jaccard_default_kernel<undirected_adjacency_array_graph<>, cpu>( \
-        const descriptor_base &desc,                                      \
-        vertex_similarity_input<undirected_adjacency_array_graph<>> &input);
-
-INSTANTIATE(__CPU_TAG__)
 } // namespace detail
 } // namespace jaccard
 } // namespace oneapi::dal::preview
