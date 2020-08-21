@@ -294,7 +294,7 @@ release.ONEAPI.LIBS_Y.dpc := $(oneapi_y.dpc)
 # Libraries required for building
 daaldep.lnx32e.mkl.thr := $(MKLFPKDIR.libia)/$(plib)daal_mkl_thread.$a
 daaldep.lnx32e.mkl.seq := $(MKLFPKDIR.libia)/$(plib)daal_mkl_sequential.$a
-daaldep.lnx32e.mkl := -Wl,-Bstatic,$(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core.$a
+daaldep.lnx32e.mkl := $(-Wl,-Bstatic,$(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core.$a)
 daaldep.lnx32e.vml :=
 daaldep.lnx32e.ipp := $(if $(COV.libia),$(COV.libia)/libcov.a)
 daaldep.lnx32e.rt.thr := -L$(RELEASEDIR.tbb.soia) -ltbb -ltbbmalloc -lpthread $(daaldep.lnx32e.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov.a)
