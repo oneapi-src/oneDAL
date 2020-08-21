@@ -34,7 +34,7 @@ DAAL = column_accessor_homogen           \
        df_cls_dense_batch                \
        df_reg_dense_batch                \
        kmeans_lloyd_dense_batch          \
-       kmeans_init_plus_plus_dense       \
+       kmeans_init_dense                 \
        knn_cls_kd_tree_dense_batch       \
        linear_kernel_dense_batch         \
        pca_cor_dense_batch               \
