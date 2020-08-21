@@ -670,7 +670,6 @@ def _cc_executable_impl(ctx):
     )
     return [default_info]
 
-
 cc_test = rule(
     implementation = _cc_executable_impl,
     attrs = {

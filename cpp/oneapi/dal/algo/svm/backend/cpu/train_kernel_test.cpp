@@ -347,8 +347,8 @@ TEST(svm_thunder_dense_test, can_classify_any_two_labels) {
     for (std::int64_t i = 0; i < range_count; ++i) {
         const auto y_train         = y_train_range[i];
         const auto expected_labels = expected_labels_range[i];
-        const auto x_train_table   = homogen_table{ row_count_train, column_count, x_train };
-        const auto y_train_table   = homogen_table{ row_count_train, 1, y_train };
+        const auto x_train_table   = homogen_table::wrap(x_train, row_count_train, column_count);
+        const auto y_train_table   = homogen_table::wrap(y_train, row_count_train, 1);
         const auto svm_desc_train  = svm::descriptor<float>{}.set_c(1e-1);
 
         const auto result_train = train(svm_desc_train, x_train_table, y_train_table);
