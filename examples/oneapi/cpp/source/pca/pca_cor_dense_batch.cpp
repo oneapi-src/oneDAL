@@ -15,30 +15,22 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/pca.hpp"
+#include "oneapi/dal/io/csv.hpp"
 
 #include "example_util/utils.hpp"
 
 using namespace oneapi;
 
 int main(int argc, char const *argv[]) {
-    constexpr std::int64_t row_count = 5;
-    constexpr std::int64_t column_count = 3;
+    const std::string data_file_name = get_data_path("pca_normalized.csv");
 
-    const float data[] = {
-        1.f,  2.f,  3.f,
-        1.f,  -1.f, 0.f,
-        4.f,  5.f,  6.f,
-        1.f,  2.f,  5.f,
-        -4.f, 3.f,  0.f
-    };
-
-    const auto data_table = dal::homogen_table::wrap( data, row_count, column_count);
+    const auto data = dal::read<dal::table>(dal::csv::data_source{data_file_name});
 
     const auto pca_desc = dal::pca::descriptor<>()
-        .set_component_count(3)
+        .set_component_count(data.get_column_count())
         .set_is_deterministic(true);
 
-    const auto result = dal::train(pca_desc, data_table);
+    const auto result = dal::train(pca_desc, data);
 
     std::cout << "Eigenvectors:" << std::endl
               << result.get_eigenvectors() << std::endl;

@@ -16,19 +16,22 @@
 
 #pragma once
 
-#include <string>
+#include "oneapi/dal/detail/read_ops.hpp"
+#include "oneapi/dal/table/common.hpp"
 
-namespace oneapi::dal::preview {
+namespace oneapi::dal {
 
-class ONEAPI_DAL_EXPORT csv_data_source {
-public:
-    csv_data_source(std::string filename) : _file_name(filename) {}
-    std::string get_filename() const {
-        return _file_name;
-    }
+template <typename Object, typename... Args>
+auto read(Args&&... args) {
+    return detail::read_dispatch<Object>(std::forward<Args>(args)...);
+}
 
-private:
-    std::string _file_name;
-};
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+template <typename Object, typename... Args>
+auto read(sycl::queue& queue, Args&&... args) {
+    return detail::read_dispatch<Object>(detail::data_parallel_policy{ queue },
+                                         std::forward<Args>(args)...);
+}
+#endif
 
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal

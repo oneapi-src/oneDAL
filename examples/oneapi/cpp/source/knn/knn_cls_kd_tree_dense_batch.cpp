@@ -18,46 +18,38 @@
 #include <iostream>
 
 #include "oneapi/dal/algo/knn.hpp"
+#include "oneapi/dal/io/csv.hpp"
 
 #include "example_util/utils.hpp"
 
 using namespace oneapi;
 
 int main(int argc, char const *argv[]) {
-  constexpr std::int64_t row_count = 5;
-  constexpr std::int64_t column_count = 3;
+  const std::string train_data_file_name  = get_data_path("k_nearest_neighbors_train_data.csv");
+  const std::string train_label_file_name = get_data_path("k_nearest_neighbors_train_label.csv");
+  const std::string test_data_file_name   = get_data_path("k_nearest_neighbors_test_data.csv");
+  const std::string test_label_file_name  = get_data_path("k_nearest_neighbors_test_label.csv");
 
-  const float x_train[] = {1.f, 2.f, 3.f, 1.f, -1.f, 0.f, 4.f, 5.f,
-                           6.f, 1.f, 2.f, 5.f, -4.f, 3.f, 0.f};
-
-  const float y_train[] = {0, 1, 0, 1, 1};
-
-  const auto x_train_table =
-      dal::homogen_table{x_train, row_count, column_count, dal::empty_delete<const float>()};
-  const auto y_train_table = dal::homogen_table{y_train, row_count, 1, dal::empty_delete<const float>()};
+  const auto x_train = dal::read<dal::table>(dal::csv::data_source{train_data_file_name});
+  const auto y_train = dal::read<dal::table>(dal::csv::data_source{train_label_file_name});
 
   const auto knn_desc =
       dal::knn::descriptor<float, oneapi::dal::knn::method::kd_tree>()
-          .set_class_count(2)
+          .set_class_count(5)
           .set_neighbor_count(1)
           .set_data_use_in_model(false);
 
-  const auto train_result = dal::train(knn_desc, x_train_table, y_train_table);
+  const auto train_result = dal::train(knn_desc, x_train, y_train);
 
-  const float x_test[] = {1.f, 2.f, 2.f, 1.f, -1.f, 1.f, 4.f, 6.f,
-                          6.f, 2.f, 2.f, 5.f, -4.f, 3.f, 1.f};
-
-  const float y_true[] = {0, 1, 0, 1, 1};
-
-  const auto x_test_table = dal::homogen_table{x_test, row_count, column_count, dal::empty_delete<const float>()};
-  const auto y_true_table = dal::homogen_table{y_true, row_count, 1, dal::empty_delete<const float>()};
+  const auto x_test = dal::read<dal::table>(dal::csv::data_source{test_data_file_name});
+  const auto y_true = dal::read<dal::table>(dal::csv::data_source{test_label_file_name});
 
   const auto test_result =
-      dal::infer(knn_desc, x_test_table, train_result.get_model());
+      dal::infer(knn_desc, x_test, train_result.get_model());
 
   std::cout << "Test results:" << std::endl
             << test_result.get_labels() << std::endl;
-  std::cout << "True labels:" << std::endl << y_true_table << std::endl;
+  std::cout << "True labels:" << std::endl << y_true << std::endl;
 
   return 0;
 }
