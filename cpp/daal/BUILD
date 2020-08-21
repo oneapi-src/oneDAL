@@ -46,7 +46,7 @@ daal_module(
     hdrs = glob([
         "src/services/**/*.h",
         "src/externals/**/*.h",
-        "src/algorithms/service_*.h",
+        "src/algorithms/*.h",
     ]) + [
         ":version",
     ],
@@ -65,8 +65,11 @@ daal_module(
 
 daal_module(
     name = "services",
-    srcs = glob(
-        ["src/services/**/*.cpp", "src/externals/**/*.cpp"],
+    srcs = glob([
+            "src/services/**/*.cpp",
+            "src/externals/**/*.cpp",
+            "src/algorithms/*.cpp",
+        ],
         exclude = ["src/externals/**/*_win_dll.cpp"],
     ),
     deps = [
@@ -80,15 +83,6 @@ daal_module(
     name = "data_management",
     hdrs = glob(["src/data_management/**/*.h"]),
     srcs = glob(["src/data_management/**/*.cpp"]),
-    deps = [
-        ":services",
-    ],
-)
-
-daal_module(
-    name = "algorithms_base",
-    hdrs = glob(["src/algorithms/*.h"], exclude=["src/algorithms/service_*"]),
-    srcs = glob(["src/algorithms/*.cpp"], exclude=["src/algorithms/service_*"]),
     deps = [
         ":services",
     ],
@@ -140,7 +134,6 @@ daal_module(
     deps = [
         ":services",
         ":data_management",
-        ":algorithms_base",
     ],
 )
 

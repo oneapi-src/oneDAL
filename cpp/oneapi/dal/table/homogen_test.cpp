@@ -152,7 +152,6 @@ TEST(homogen_table_test, can_construct_table_with_move) {
     ASSERT_EQ(3, t2.get_row_count());
     ASSERT_EQ(2, t2.get_column_count());
 
-    const auto& m1 = t1.get_metadata();
     const auto& m2 = t2.get_metadata();
 
     ASSERT_EQ(data_layout::row_major, t2.get_data_layout());

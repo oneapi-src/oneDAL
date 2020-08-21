@@ -15,7 +15,8 @@
 *******************************************************************************/
 
 #include "gtest/gtest.h"
-#include "oneapi/dal/algo/decision_forest.hpp"
+#include "oneapi/dal/algo/decision_forest/infer.hpp"
+#include "oneapi/dal/algo/decision_forest/train.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
 using namespace oneapi;
@@ -149,7 +150,6 @@ TEST(df_bad_arg_tests, set_max_leaf_nodes) {
 
 TEST(df_bad_arg_tests, set_train_data) {
     constexpr std::int64_t row_count_train = 6;
-    constexpr std::int64_t column_count    = 2;
 
     const float y_train[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f };
 
@@ -265,7 +265,6 @@ TEST(df_bad_arg_tests, set_infer_data) {
         -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f, +1.f, +2.f, +2.f, +1.f
     };
     const float y_train[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f };
-    const float x_test[]  = { -1.f, -1.f, 2.f, 2.f, 3.f, 2.f };
 
     const auto x_train_table = dal::homogen_table{ x_train,
                                                    row_count_train,

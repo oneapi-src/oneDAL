@@ -1,10 +1,12 @@
 package(default_visibility = ["//visibility:public"])
 load("@onedal//dev/bazel:dal.bzl",
     "dal_module",
-    "dal_static_lib",
+    "dal_collect_modules",
     "dal_public_includes",
+    "dal_static_lib",
+    "dal_test_suite",
+    "dal_collect_tests",
     "dal_generate_cpu_dispatcher",
-    "dal_algos",
 )
 
 dal_generate_cpu_dispatcher(
@@ -14,7 +16,6 @@ dal_generate_cpu_dispatcher(
 
 dal_module(
     name = "common",
-    dpc = True,
     auto = True,
     includes = [ ".", "../.." ],
     system_includes = [
@@ -24,61 +25,53 @@ dal_module(
     hdrs = [
         ":cpu_dispatcher",
     ],
-    deps = [
+    extra_deps = [
         "@onedal//cpp/daal:services",
         "@onedal//cpp/daal:data_management",
     ],
 )
 
-dal_module(
+dal_collect_modules(
     name = "core",
-    dpc = True,
-    deps = [
+    root = "@onedal//cpp/oneapi/dal",
+    modules = [
+        "graph",
+        "table",
+        "util",
+    ],
+    dal_deps = [
         ":common",
-        "@onedal//cpp/oneapi/dal/graph",
-        "@onedal//cpp/oneapi/dal/table",
-        "@onedal//cpp/oneapi/dal/util",
-        # TODO: Move to depc_dpc
-        # "@micromkl_dpc//:mkl_dpc",
+    ],
+    dpc_deps = [
+        "@micromkl_dpc//:mkl_dpc",
     ],
 )
 
-dal_algos(
-    name = "all_algos",
-    algos = [
-        "decision_forest",
-        "jaccard",
-        "kmeans",
-        "kmeans_init",
-        "knn",
-        "linear_kernel",
-        "pca",
-        "rbf_kernel",
-        "svm",
-    ]
+dal_collect_modules(
+    name = "optional",
+    root = "@onedal//cpp/oneapi/dal",
+    modules = [
+        "algo",
+        "io",
+    ],
 )
 
 dal_public_includes(
     name = "public_includes",
-    deps = [
-        ":all_algos_public_includes",
-        "@onedal//cpp/oneapi/dal/graph:public_includes",
-        "@onedal//cpp/oneapi/dal/table:public_includes",
-        "@onedal//cpp/oneapi/dal/util:public_includes",
-        "@onedal//cpp/oneapi/dal/io:public_includes",
+    dal_deps = [
+        ":core",
+        ":optional",
     ],
 )
 
 dal_static_lib(
     name = "static",
     lib_name = "onedal",
-    dpc = True,
-    deps = [
+    dal_deps = [
         ":core",
-        ":all_algos",
-        "@onedal//cpp/oneapi/dal/io",
+        ":optional",
     ],
-    external_deps = [
+    extra_deps = [
         "@micromkl//:mkl_seq",
     ],
 )
@@ -88,5 +81,28 @@ filegroup(
     srcs = [
         ":static",
         ":static_dpc",
+    ],
+)
+
+dal_test_suite(
+    name = "common_tests",
+    srcs = [
+        "array_test.cpp",
+    ],
+    dal_deps = [ ":common" ],
+)
+
+dal_collect_tests(
+    name = "tests",
+    root = "@onedal//cpp/oneapi/dal",
+    modules = [
+        "algo",
+        "graph",
+        "io",
+        "table",
+        "util",
+    ],
+    tests = [
+        ":common_tests",
     ],
 )
