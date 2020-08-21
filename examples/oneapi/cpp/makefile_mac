@@ -75,7 +75,7 @@ endif
 ifndef DAALROOT
     DAALROOT = ./../../..
 endif
-DAAL_PATH = $(DAALROOT)/lib/intel64
+DAAL_PATH = $(DAALROOT)/lib
 
 ifndef TBBROOT
     TBBROOT = ./../../../../../tbb/latest
@@ -110,7 +110,7 @@ COPTS := -std=c++17 \
          -Werror=uninitialized \
          -Werror=unknown-pragmas \
          -Wno-unused-parameter \
-		 -stdlib=libc++ \
+         -stdlib=libc++ \
          -I./source \
          -I"$(DAALROOT)/include"
 
