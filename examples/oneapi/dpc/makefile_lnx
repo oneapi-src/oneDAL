@@ -55,10 +55,10 @@ help:
 ##
 ##------------------------------------------------------------------------------
 
-include daal.lst
+include onedal.lst
 
 ifndef example
-    example = $(DAAL)
+    example = $(ONEDAL)
 endif
 
 ifneq ($(compiler),dpc++)
