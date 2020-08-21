@@ -20,8 +20,8 @@
 #pragma once
 
 #include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
-#include "oneapi/dal/io/graph_csv_data_source.hpp"
 #include "oneapi/dal/io/detail/load_graph.hpp"
+#include "oneapi/dal/io/graph_csv_data_source.hpp"
 #include "oneapi/dal/io/load_graph_descriptor.hpp"
 
 namespace oneapi::dal::preview::load_graph {
