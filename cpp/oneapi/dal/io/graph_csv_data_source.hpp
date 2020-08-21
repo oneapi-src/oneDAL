@@ -20,9 +20,9 @@
 
 namespace oneapi::dal::preview {
 
-class ONEAPI_DAL_EXPORT csv_data_source {
+class ONEAPI_DAL_EXPORT graph_csv_data_source {
 public:
-    csv_data_source(std::string filename) : _file_name(filename) {}
+    graph_csv_data_source(std::string filename) : _file_name(filename) {}
     std::string get_filename() const {
         return _file_name;
     }
