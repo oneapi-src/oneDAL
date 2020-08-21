@@ -5,25 +5,25 @@ load("@onedal//dev/bazel:dal.bzl",
     "dal_collect_modules",
 )
 
+dal_module(
+    name = "graph_csv",
+    hdrs = glob(["**/*graph*.hpp"]),
+    srcs = glob(["**/*graph*.cpp"]),
+    dal_deps = [
+        "@onedal//cpp/oneapi/dal:core",
+    ],
+)
+
 IOS = [
     "csv",
 ]
 
 dal_collect_modules(
-    name = "ios",
+    name = "io",
     root = "@onedal//cpp/oneapi/dal/io",
     modules = IOS,
-)
-
-dal_module(
-    name = "io",
-    auto = True,
     dal_deps = [
-        ":ios",
-        "@onedal//cpp/oneapi/dal:common",
-        "@onedal//cpp/oneapi/dal/table",
-        "@onedal//cpp/oneapi/dal/graph",
-        "@onedal//cpp/oneapi/dal/util",
+        ":graph_csv",
     ],
 )
 
