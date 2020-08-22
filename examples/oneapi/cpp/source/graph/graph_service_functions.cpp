@@ -19,7 +19,7 @@
 #include "example_util/utils.hpp"
 #include "oneapi/dal/graph/graph_service_functions.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
-#include "oneapi/dal/io/csv_data_source.hpp"
+#include "oneapi/dal/io/graph_csv_data_source.hpp"
 #include "oneapi/dal/io/load_graph.hpp"
 
 using namespace oneapi::dal;
@@ -28,7 +28,7 @@ using namespace oneapi::dal::preview;
 int main(int argc, char **argv) {
     const std::string filename = get_data_path("graph.csv");
 
-    csv_data_source ds(filename);
+    graph_csv_data_source ds(filename);
     load_graph::descriptor<> d;
     auto my_graph = load_graph::load(d, ds);
     std::cout << "Number of vertices: " << get_vertex_count(my_graph) << std::endl;

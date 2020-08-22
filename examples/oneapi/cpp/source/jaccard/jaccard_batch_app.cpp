@@ -24,7 +24,7 @@
 #include "oneapi/dal/algo/jaccard.hpp"
 #include "oneapi/dal/graph/graph_service_functions.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
-#include "oneapi/dal/io/csv_data_source.hpp"
+#include "oneapi/dal/io/graph_csv_data_source.hpp"
 #include "oneapi/dal/io/load_graph.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 
@@ -47,7 +47,7 @@ void vertex_similarity_block_processing(const Graph &g,
 int main(int argc, char **argv) {
   // load the graph
   std::string filename = get_data_path("graph.csv");
-  csv_data_source ds(filename);
+  graph_csv_data_source ds(filename);
   load_graph::descriptor<> d;
   auto graph = load_graph::load(d, ds);
 

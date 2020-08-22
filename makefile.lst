@@ -245,6 +245,9 @@ ONEAPI.ALGOS :=     \
     svm             \
     jaccard
 
+ONEAPI.IO :=     \
+    csv
+
 JJ.ALGORITHMS       := adaboost                                                  \
                        adaboost/prediction                                       \
                        adaboost/quality_metric_set                               \
