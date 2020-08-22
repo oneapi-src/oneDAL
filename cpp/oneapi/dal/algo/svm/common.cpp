@@ -141,7 +141,9 @@ public:
     table support_vectors;
     table coeffs;
     double bias;
-    std::int64_t support_vectors_count;
+    std::int64_t support_vector_count;
+    double first_class_label;
+    double second_class_label;
 };
 
 using detail::descriptor_impl;
@@ -174,42 +176,42 @@ bool descriptor_base::get_shrinking() const {
     return impl_->shrinking;
 }
 
-void descriptor_base::set_c_impl(const double value) {
+void descriptor_base::set_c_impl(double value) {
     if (value <= 0.0) {
         throw domain_error("c should be > 0");
     }
     impl_->c = value;
 }
 
-void descriptor_base::set_accuracy_threshold_impl(const double value) {
+void descriptor_base::set_accuracy_threshold_impl(double value) {
     if (value < 0.0) {
         throw domain_error("accuracy_threshold should be >= 0.0");
     }
     impl_->accuracy_threshold = value;
 }
 
-void descriptor_base::set_max_iteration_count_impl(const std::int64_t value) {
+void descriptor_base::set_max_iteration_count_impl(std::int64_t value) {
     if (value <= 0) {
         throw domain_error("max_iteration_count should be > 0");
     }
     impl_->max_iteration_count = value;
 }
 
-void descriptor_base::set_cache_size_impl(const double value) {
+void descriptor_base::set_cache_size_impl(double value) {
     if (value <= 0.0) {
         throw domain_error("cache_size should be > 0");
     }
     impl_->cache_size = value;
 }
 
-void descriptor_base::set_tau_impl(const double value) {
+void descriptor_base::set_tau_impl(double value) {
     if (value <= 0.0) {
         throw domain_error("tau should be > 0");
     }
     impl_->tau = value;
 }
 
-void descriptor_base::set_shrinking_impl(const bool value) {
+void descriptor_base::set_shrinking_impl(bool value) {
     impl_->shrinking = value;
 }
 
@@ -236,7 +238,15 @@ double model::get_bias() const {
 }
 
 std::int64_t model::get_support_vector_count() const {
-    return impl_->support_vectors_count;
+    return impl_->support_vector_count;
+}
+
+std::int64_t model::get_first_class_label() const {
+    return impl_->first_class_label;
+}
+
+std::int64_t model::get_second_class_label() const {
+    return impl_->second_class_label;
 }
 
 void model::set_support_vectors_impl(const table &value) {
@@ -247,12 +257,20 @@ void model::set_coeffs_impl(const table &value) {
     impl_->coeffs = value;
 }
 
-void model::set_bias_impl(const double value) {
+void model::set_bias_impl(double value) {
     impl_->bias = value;
 }
 
-void model::set_support_vector_count_impl(const std::int64_t value) {
-    impl_->support_vectors_count = value;
+void model::set_support_vector_count_impl(std::int64_t value) {
+    impl_->support_vector_count = value;
+}
+
+void model::set_first_class_label_impl(std::int64_t value) {
+    impl_->first_class_label = value;
+}
+
+void model::set_second_class_label_impl(std::int64_t value) {
+    impl_->second_class_label = value;
 }
 
 } // namespace oneapi::dal::svm
