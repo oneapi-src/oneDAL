@@ -26,6 +26,7 @@
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/graph/detail/graph_service_functions_impl.hpp"
+#include "oneapi/dal/graph/detail/undirected_adjacency_array_graph_impl.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
 namespace oneapi::dal::preview {
@@ -89,7 +90,7 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
         i_u = (maxu <= maxv) ? i_u + 8 : i_u;
 
         __m256i match             = _mm256_cmpeq_epi32(v_u, v_v);
-        unsigned int scalar_match = _mm256_movemask_ps(reinterpret_cast<__m256>(match));
+        unsigned int scalar_match = _mm256_movemask_ps(_mm256_castsi256_ps(match));
 
         if (scalar_match != 255) { // shortcut case where all neighbors match
             __m256i circ1 = _mm256_set_epi32(0,
@@ -123,13 +124,13 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
             __m256i tmp_match6 = _mm256_cmpeq_epi32(v_u, v_v6);
             __m256i tmp_match7 = _mm256_cmpeq_epi32(v_u, v_v7);
 
-            unsigned int scalar_match1 = _mm256_movemask_ps(reinterpret_cast<__m256>(tmp_match1));
-            unsigned int scalar_match2 = _mm256_movemask_ps(reinterpret_cast<__m256>(tmp_match2));
-            unsigned int scalar_match3 = _mm256_movemask_ps(reinterpret_cast<__m256>(tmp_match3));
-            unsigned int scalar_match4 = _mm256_movemask_ps(reinterpret_cast<__m256>(tmp_match4));
-            unsigned int scalar_match5 = _mm256_movemask_ps(reinterpret_cast<__m256>(tmp_match5));
-            unsigned int scalar_match6 = _mm256_movemask_ps(reinterpret_cast<__m256>(tmp_match6));
-            unsigned int scalar_match7 = _mm256_movemask_ps(reinterpret_cast<__m256>(tmp_match7));
+            unsigned int scalar_match1 = _mm256_movemask_ps(_mm256_castsi256_ps(tmp_match1));
+            unsigned int scalar_match2 = _mm256_movemask_ps(_mm256_castsi256_ps(tmp_match2));
+            unsigned int scalar_match3 = _mm256_movemask_ps(_mm256_castsi256_ps(tmp_match3));
+            unsigned int scalar_match4 = _mm256_movemask_ps(_mm256_castsi256_ps(tmp_match4));
+            unsigned int scalar_match5 = _mm256_movemask_ps(_mm256_castsi256_ps(tmp_match5));
+            unsigned int scalar_match6 = _mm256_movemask_ps(_mm256_castsi256_ps(tmp_match6));
+            unsigned int scalar_match7 = _mm256_movemask_ps(_mm256_castsi256_ps(tmp_match7));
             unsigned int final_match   = scalar_match | scalar_match1 | scalar_match2 |
                                        scalar_match3 | scalar_match4 | scalar_match5 |
                                        scalar_match6 | scalar_match7;
@@ -149,7 +150,7 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
             __m256i tmp_v_v = _mm256_set1_epi32(neigh_v[i_v]);
 
             __m256i match             = _mm256_cmpeq_epi32(v_u, tmp_v_v);
-            unsigned int scalar_match = _mm256_movemask_ps(reinterpret_cast<__m256>(match));
+            unsigned int scalar_match = _mm256_movemask_ps(_mm256_castsi256_ps(match));
             total                     = scalar_match != 0 ? total + 1 : total;
         }
     }
@@ -160,7 +161,7 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
         for (; neigh_u[i_u] <= neighv_iv && i_u < n_u; i_u++) {
             __m256i tmp_v_u           = _mm256_set1_epi32(neigh_u[i_u]);
             __m256i match             = _mm256_cmpeq_epi32(v_v, tmp_v_u);
-            unsigned int scalar_match = _mm256_movemask_ps(reinterpret_cast<__m256>(match));
+            unsigned int scalar_match = _mm256_movemask_ps(_mm256_castsi256_ps(match));
             total                     = scalar_match != 0 ? total + 1 : total;
         }
     }
@@ -200,7 +201,7 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
         i_u = (maxu <= maxv) ? i_u + 4 : i_u;
 
         __m128i match             = _mm_cmpeq_epi32(v_u, v_v);
-        unsigned int scalar_match = _mm_movemask_ps(reinterpret_cast<__m128>(match));
+        unsigned int scalar_match = _mm_movemask_ps(_mm_castsi128_ps(match));
 
         if (scalar_match != 155) { // shortcut case where all neighbors match
             __m128i v_v1 = _mm_shuffle_epi32(v_v, _MM_SHUFFLE(0, 3, 2, 1));
@@ -211,9 +212,9 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
             __m128i tmp_match2 = _mm_cmpeq_epi32(v_u, v_v2);
             __m128i tmp_match3 = _mm_cmpeq_epi32(v_u, v_v3);
 
-            unsigned int scalar_match1 = _mm_movemask_ps(reinterpret_cast<__m128>(tmp_match1));
-            unsigned int scalar_match2 = _mm_movemask_ps(reinterpret_cast<__m128>(tmp_match2));
-            unsigned int scalar_match3 = _mm_movemask_ps(reinterpret_cast<__m128>(tmp_match3));
+            unsigned int scalar_match1 = _mm_movemask_ps(_mm_castsi128_ps(tmp_match1));
+            unsigned int scalar_match2 = _mm_movemask_ps(_mm_castsi128_ps(tmp_match2));
+            unsigned int scalar_match3 = _mm_movemask_ps(_mm_castsi128_ps(tmp_match3));
 
             unsigned int final_match = scalar_match | scalar_match1 | scalar_match2 | scalar_match3;
 
@@ -231,7 +232,7 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
         for (; neigh_v[i_v] <= neighu_iu && i_v < n_v; i_v++) {
             __m128i tmp_v_v           = _mm_set1_epi32(neigh_v[i_v]);
             __m128i match             = _mm_cmpeq_epi32(v_u, tmp_v_v);
-            unsigned int scalar_match = _mm_movemask_ps(reinterpret_cast<__m128>(match));
+            unsigned int scalar_match = _mm_movemask_ps(_mm_castsi128_ps(match));
             total                     = scalar_match != 0 ? total + 1 : total;
         }
         i_u += 4;
@@ -243,7 +244,7 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
         for (; neigh_u[i_u] <= neighv_iv && i_u < n_u; i_u++) {
             __m128i tmp_v_u           = _mm_set1_epi32(neigh_u[i_u]);
             __m128i match             = _mm_cmpeq_epi32(v_v, tmp_v_u);
-            unsigned int scalar_match = _mm_movemask_ps(reinterpret_cast<__m128>(match));
+            unsigned int scalar_match = _mm_movemask_ps(_mm_castsi128_ps(match));
             total                     = scalar_match != 0 ? total + 1 : total;
         }
         i_v += 4;
