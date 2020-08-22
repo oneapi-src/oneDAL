@@ -21,7 +21,7 @@ load("@bazel_tools//tools/cpp:lib_cc_configure.bzl",
     "write_builtin_include_directory_paths",
 )
 load("@onedal//dev/bazel:utils.bzl",
-    "unique",
+    "utils",
 )
 load("@onedal//dev/bazel/toolchains:common.bzl",
     "TEST_CPP_FILE",
@@ -122,7 +122,7 @@ def _find_tools(repo_ctx, reqs):
 
 
 def _preapre_builtin_include_directory_paths(repo_ctx, tools):
-    builtin_include_directories = unique(
+    builtin_include_directories = utils.unique(
         get_cxx_inc_directories(repo_ctx, tools.cc, "-xc") +
         get_cxx_inc_directories(repo_ctx, tools.cc, "-xc++") +
         get_cxx_inc_directories(

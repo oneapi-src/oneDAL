@@ -15,4 +15,16 @@
 # limitations under the License.
 #===============================================================================
 
-%{ar_path} -M < $1
+output=$1
+
+shift
+input=$*
+
+mri="CREATE ${output}\n"
+for lib in $input
+do
+    mri+="ADDLIB ${lib}\n"
+done
+mri+="SAVE\n"
+
+printf "${mri[@]}" | %{ar_path} -M
