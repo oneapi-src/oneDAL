@@ -19,13 +19,13 @@
 ##******************************************************************************
 
 help:
-	@echo "Usage: make {lib|so|libintel64|sointel64|help}"
-	@echo "lib is alias for libintel64, so is alias for sointel64"
+	@echo "Usage: make {lib|dylib|libintel64|dylibintel64|help}"
+	@echo "lib is alias for libintel64, dylib is alias for dylibintel64"
 	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
 	@echo
 	@echo "name              - example name. Please see daal.lst file"
 	@echo
-	@echo "compiler_name     - can be intel, gnu or clang. Default value is intel."
+	@echo "compiler_name     - can be intel or clang. Default value is intel."
 	@echo
 	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
 	@echo
@@ -35,19 +35,20 @@ help:
 ## examples of using:
 ##
 ## make lib example=pca_cor_dense_batch - build  by Intel(R) C++ Compiler (as default)
-##                                 and run pca_cor_dense_batch example, static linking
+##                                        and run pca_cor_dense_batch example, static
+##                                        linking
 ##
-## make so compiler=gnu          - build by GNU C++ compiler and run all examples,
-##                                 dynamic linking
+## make dylib compiler=clang          - build by Clang C++ compiler and run all examples,
+##                                      dynamic linking
 ##
-## make libintel64 compiler=gnu  - build by GNU C++ compiler and run all examples,
-##                                 static linking
+## make libintel64 compiler=clang  - build by Clang C++ compiler and run all examples,
+##                                   static linking
 ##
-## make sointel64                - build by Intel(R) C++ Compiler (as default)
-##                                 and run all examples, dynamic linking
+## make dylibintel64                - build by Intel(R) C++ Compiler (as default)
+##                                    and run all examples, dynamic linking
 ##
-## make sointel64 mode=build     - build only (not run) by Intel(R) C++ Compiler
-##                                 (as default) all examples, dynamic linking
+## make dylibintel64 mode=build     - build only (not run) by Intel(R) C++ Compiler
+##                                    (as default) all examples, dynamic linking
 ##
 ## make help                     - show help
 ##
@@ -59,10 +60,8 @@ ifndef example
     example = $(ONEDAL)
 endif
 
-ifneq ($(compiler),gnu)
-    ifneq ($(compiler),clang)
-        override compiler = intel
-    endif
+ifneq ($(compiler),clang)
+	override compiler = intel
 endif
 
 ifneq ($(mode),build)
@@ -76,17 +75,17 @@ endif
 ifndef DAALROOT
     DAALROOT = ./../../..
 endif
-DAAL_PATH = $(DAALROOT)/lib/intel64
+DAAL_PATH = $(DAALROOT)/lib
 
 ifndef TBBROOT
     TBBROOT = ./../../../../../tbb/latest
 endif
-TBB_PATH = $(TBBROOT)/lib/intel64/gcc4.8
+TBB_PATH = $(TBBROOT)/lib
 
-onedal.so := -lonedal
-onedal_core.so := -lonedal_core
-onedal_thread.so := -lonedal_thread
-onedal_sequential.so := -lonedal_sequential
+onedal.dylib := -lonedal
+onedal_core.dylib := -lonedal_core
+onedal_thread.dylib := -lonedal_thread
+onedal_sequential.dylib := -lonedal_sequential
 
 onedal.a := "$(DAAL_PATH)/libonedal.a"
 onedal_core.a := "$(DAAL_PATH)/libonedal_core.a"
@@ -111,6 +110,7 @@ COPTS := -std=c++17 \
          -Werror=uninitialized \
          -Werror=unknown-pragmas \
          -Wno-unused-parameter \
+         -stdlib=libc++ \
          -I./source \
          -I"$(DAALROOT)/include"
 
@@ -119,7 +119,6 @@ LIBS := $(onedal) \
         $(onedal_threading) \
         -ltbb \
         -ltbbmalloc \
-        -lpthread \
         -ldl
 
 LOPTS := -L"$(DAAL_PATH)" \
@@ -130,24 +129,19 @@ RES_DIR=_results/$(compiler)_intel64_$(threading)_$(RES_EXT)
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))
 
 ifeq ($(compiler),intel)
-    CC = icc -diag-disable=remark
-endif
-
-ifeq ($(compiler),gnu)
-    CC = g++
+    CC = icc
 endif
 
 ifeq ($(compiler),clang)
-    gcc_toolchain := $(realpath $(dir $(shell which gcc))/..)
-    CC = clang++ --gcc-toolchain=$(gcc_toolchain)
+    CC = clang++
 endif
 
-CC := $(if $(COVFILE), cov01 -1; covc -i  $(CC),$(CC))
+RPATH=-Wl,-rpath,$(DAAL_PATH) -Wl,-rpath,$(TBB_PATH)
 
 lib libintel64:
 	$(MAKE) _make_ex RES_EXT=a
-so sointel64:
-	$(MAKE) _make_ex RES_EXT=so
+dylib dylibintel64:
+	$(MAKE) _make_ex RES_EXT=dylib
 
 
 _make_ex: $(RES)
@@ -157,7 +151,7 @@ vpath %.cpp $(addprefix ./source/,decision_forest kmeans kmeans_init knn linear_
 
 .SECONDARY:
 $(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.
-	$(CC) $(COPTS) $< -o $@ $(LOPTS)
+	$(CC) $(COPTS) $< -o $@ $(RPATH) $(LOPTS)
 
 $(RES_DIR)/%.res:  $(RES_DIR)/%.exe
 	$< > $@
