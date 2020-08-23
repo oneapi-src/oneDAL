@@ -37,6 +37,8 @@ def _create_tagged_linking_context(tag, linking_context):
     )
 
 def _collect_tagged_linking_contexts(deps):
+    # TODO: Merge linking contexts with the same tag to minimize amount
+    #       of linking contexts need to be collected by the modules
     dep_tagged_linking_contexts = []
     for dep in deps:
         if _ModuleInfo in dep:
@@ -57,6 +59,11 @@ def _filter_tagged_linking_contexts(tagged_linking_contexts, tags):
         linking_context = tagged_linking_context.linking_context
         if (not tag) or (not tags) or sets.contains(tag_set, tag):
             linking_contexts.append(linking_context)
+    return linking_contexts
+
+def _collect_and_filter_linking_contexts(deps, tags):
+    tagged_linking_contexts = _collect_tagged_linking_contexts(deps)
+    linking_contexts = _filter_tagged_linking_contexts(tagged_linking_contexts, tags)
     return linking_contexts
 
 def _unpack_linking_contexts(linking_contexts):
@@ -86,13 +93,23 @@ def _unpack_linking_contexts(linking_contexts):
         fail("Non-PIC object files found, oneDAL assumes " +
              "all object files are compiled as PIC")
     return struct(
-        objects = pic_objects,
-        dynamic_libraries = dynamic_libs,
+        objects = depset(pic_objects).to_list(),
+        dynamic_libraries = depset(dynamic_libs).to_list(),
         dynamic_libraries_to_link = dynamic_libs_to_link,
-        static_libraries = static_libs,
+        static_libraries = depset(static_libs).to_list(),
         static_libraries_to_link = static_libs_to_link,
+        libraries_to_link = static_libs_to_link + dynamic_libs_to_link,
         user_link_flags = utils.unique(link_flags),
     )
+
+def _override_tags(tagged_linking_contexts, tag):
+    overridden = []
+    for tagged_linking_context in tagged_linking_contexts:
+        overridden.append(_create_tagged_linking_context(
+            tag = tag,
+            linking_context = tagged_linking_context.linking_context,
+        ))
+    return overridden
 
 common = struct(
     ModuleInfo = _ModuleInfo,
@@ -102,7 +119,7 @@ common = struct(
     create_tagged_linking_context = _create_tagged_linking_context,
     collect_tagged_linking_contexts = _collect_tagged_linking_contexts,
     filter_tagged_linking_contexts = _filter_tagged_linking_contexts,
+    collect_and_filter_linking_contexts = _collect_and_filter_linking_contexts,
     unpack_linking_contexts = _unpack_linking_contexts,
-    filter_dynamic_libraries_to_link = _filter_dynamic_libraries_to_link,
-    filter_static_libraries_to_link = _filter_static_libraries_to_link,
+    override_tags = _override_tags,
 )

@@ -71,9 +71,9 @@ dal_static_lib(
         ":core",
         ":optional",
     ],
-    extra_deps = [
-        "@micromkl//:mkl_seq",
-    ],
+    # extra_deps = [
+    #     "@micromkl//:mkl_seq",
+    # ],
 )
 
 filegroup(

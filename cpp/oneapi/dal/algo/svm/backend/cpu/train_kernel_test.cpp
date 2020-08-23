@@ -356,7 +356,7 @@ TEST(svm_thunder_dense_test, can_classify_any_two_labels) {
 
         auto support_indices_table = result_train.get_support_indices();
         const auto support_indices = row_accessor<const float>(support_indices_table).pull();
-        for (size_t i = 0; i < support_indices.get_count(); i++) {
+        for (std::int64_t i = 0; i < support_indices.get_count(); i++) {
             ASSERT_EQ(support_indices[i], i);
         }
 

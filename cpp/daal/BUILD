@@ -1,11 +1,34 @@
 package(default_visibility = ["//visibility:public"])
 load("@onedal//dev/bazel:daal.bzl",
     "daal_module",
-    "daal_depset",
     "daal_static_lib",
     "daal_algorithms",
     "daal_generate_version",
     "daal_patch_kernel_defines",
+)
+
+daal_module(
+    name = "microvmlipp",
+    override_deps_lib_tag = True,
+    deps = [
+        "@micromkl//:vml_ipp",
+    ],
+)
+
+daal_module(
+    name = "micromkl_sequential",
+    override_deps_lib_tag = True,
+    deps = [
+        "@micromkl//:mkl_seq",
+    ],
+)
+
+daal_module(
+    name = "micromkl_thread",
+    override_deps_lib_tag = True,
+    deps = [
+        "@micromkl//:mkl_thr",
+    ],
 )
 
 daal_patch_kernel_defines(
@@ -75,7 +98,7 @@ daal_module(
     deps = [
         ":service_headers",
         ":threading_headers",
-        "@micromkl//:vml_ipp",
+        ":microvmlipp",
     ],
 )
 
@@ -107,7 +130,7 @@ daal_module(
     ],
     deps = [
         ":threading_headers",
-        "@micromkl//:mkl_seq",
+        ":micromkl_sequential",
     ],
 )
 
@@ -123,9 +146,9 @@ daal_module(
     ],
     deps = [
         ":threading_headers",
+        ":micromkl_thread",
         "@tbb//:tbb",
         "@tbb//:tbbmalloc",
-        "@micromkl//:mkl_thr",
     ],
 )
 
@@ -236,7 +259,7 @@ daal_static_lib(
     ],
 )
 
-daal_depset(
+daal_module(
     name = "threading_static",
     deps = select({
         "@config//:par_test_thread_mode": [
@@ -248,7 +271,7 @@ daal_depset(
     }),
 )
 
-daal_depset(
+daal_module(
     name = "threading_release_static",
     deps = select({
         "@config//:par_test_thread_mode": [

@@ -3,9 +3,6 @@ load("@onedal//dev/bazel:utils.bzl",
     "paths",
     "sets",
 )
-load("@onedal//dev/bazel/config:config.bzl",
-    "CpuInfo",
-)
 load("@onedal//dev/bazel/cc:common.bzl",
     onedal_cc_common = "common",
 )

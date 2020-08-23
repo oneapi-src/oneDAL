@@ -19,6 +19,9 @@ load("@onedal//dev/bazel:utils.bzl",
     "paths",
     "sets",
 )
+load("@onedal//dev/bazel/config:config.bzl",
+    "CpuInfo",
+)
 load("@onedal//dev/bazel/cc:common.bzl",
     onedal_cc_common = "common",
 )
@@ -29,10 +32,9 @@ load("@onedal//dev/bazel/cc:link.bzl",
     onedal_cc_link = "link",
 )
 
-
 ModuleInfo = onedal_cc_common.ModuleInfo
 
-def _cc_module_impl(ctx):
+def _init_cc_rule(ctx):
     toolchain = ctx.toolchains["@bazel_tools//tools/cpp:toolchain_type"]
     feature_config = cc_common.configure_features(
         ctx = ctx,
@@ -40,6 +42,10 @@ def _cc_module_impl(ctx):
         requested_features = ctx.features,
         unsupported_features = ctx.disabled_features,
     )
+    return toolchain, feature_config
+
+def _cc_module_impl(ctx):
+    toolchain, feature_config = _init_cc_rule(ctx)
     dep_compilation_contexts = onedal_cc_common.collect_compilation_contexts(ctx.attr.deps)
     compilation_context, compilation_outputs = onedal_cc_compile.compile(
         name = ctx.label.name,
@@ -49,6 +55,8 @@ def _cc_module_impl(ctx):
         compilation_contexts = dep_compilation_contexts,
         fpts = ctx.attr._fpts,
         cpus = ctx.attr._cpus[CpuInfo].enabled,
+        cpu_defines = ctx.attr.cpu_defines,
+        fpt_defines = ctx.attr.fpt_defines,
         disable_mic = ctx.attr.disable_mic,
         srcs = ctx.files.srcs,
         public_hdrs = ctx.files.hdrs,
@@ -71,6 +79,9 @@ def _cc_module_impl(ctx):
         compilation_outputs = compilation_outputs,
     )
     tagged_linking_contexts = onedal_cc_common.collect_tagged_linking_contexts(ctx.attr.deps)
+    if ctx.attr.override_deps_lib_tag:
+        tagged_linking_contexts = onedal_cc_common. \
+            override_tags(tagged_linking_contexts, ctx.attr.lib_tag)
     tagged_linking_contexts.append(onedal_cc_common.create_tagged_linking_context(
         tag = ctx.attr.lib_tag,
         linking_context = linking_context,
@@ -85,6 +96,7 @@ _cc_module = rule(
     implementation = _cc_module_impl,
     attrs = {
         "lib_tag": attr.string(),
+        "override_deps_lib_tag": attr.bool(default=False),
         "srcs": attr.label_list(allow_files=True),
         "hdrs": attr.label_list(allow_files=True),
         "private_hdrs": attr.label_list(allow_files=True),
@@ -124,36 +136,12 @@ def cc_module(name, hdrs=[], deps=[], **kwargs):
     )
 
 
-def _cc_depset_impl(ctx):
-    module_info = ModuleInfo(
-        compilation_context = onedal_cc_common. \
-            collect_and_merge_compilation_contexts(ctx.attr.deps),
-        tagged_linking_contexts = onedal_cc_common. \
-            collect_tagged_linking_contexts(ctx.attr.deps),
-    )
-    return [module_info]
-
-cc_depset = rule(
-    implementation = _cc_depset_impl,
-    attrs = {
-        "deps": attr.label_list(mandatory=True),
-    },
-)
-
-
 def _cc_static_lib_impl(ctx):
-    toolchain = ctx.toolchains["@bazel_tools//tools/cpp:toolchain_type"]
-    feature_config = cc_common.configure_features(
-        ctx = ctx,
-        cc_toolchain = toolchain,
-        requested_features = ctx.features,
-        unsupported_features = ctx.disabled_features,
-    )
+    toolchain, feature_config = _init_cc_rule(ctx)
     compilation_context = onedal_cc_common.collect_and_merge_compilation_contexts(ctx.attr.deps)
-    tagged_linking_contexts = onedal_cc_common.collect_tagged_linking_contexts(ctx.attr.deps)
-    linking_contexts = onedal_cc_common.filter_tagged_linking_contexts(
-        tagged_linking_contexts, ctx.attr.lib_tags)
-    linking_context, static_lib = onedal_cc_link.link_static_lib(
+    linking_contexts = onedal_cc_common.collect_and_filter_linking_contexts(
+        ctx.attr.deps, ctx.attr.lib_tags)
+    linking_context, static_lib = onedal_cc_link.static(
         owner = ctx.label,
         name = ctx.attr.lib_name,
         actions = ctx.actions,
@@ -181,17 +169,14 @@ cc_static_lib = rule(
     fragments = ["cpp"],
 )
 
-def _cc_executable_impl(ctx):
-    toolchain = ctx.toolchains["@bazel_tools//tools/cpp:toolchain_type"]
-    feature_config = cc_common.configure_features(
-        ctx = ctx,
-        cc_toolchain = toolchain,
-        requested_features = ctx.features,
-        unsupported_features = ctx.disabled_features,
-    )
-    executable = _link_executable(
+def _cc_test_impl(ctx):
+    toolchain, feature_config = _init_cc_rule(ctx)
+    tagged_linking_contexts = onedal_cc_common.collect_tagged_linking_contexts(ctx.attr.deps)
+    linking_contexts = onedal_cc_common.filter_tagged_linking_contexts(
+        tagged_linking_contexts, ctx.attr.lib_tags)
+    executable = onedal_cc_link.executable(
         owner = ctx.label,
-        name = ctx.attr.lib_name,
+        name = ctx.label.name,
         actions = ctx.actions,
         cc_toolchain = toolchain,
         feature_configuration = feature_config,
@@ -207,7 +192,7 @@ def _cc_executable_impl(ctx):
     return [default_info]
 
 cc_test = rule(
-    implementation = _cc_executable_impl,
+    implementation = _cc_test_impl,
     attrs = {
         "lib_tags": attr.string_list(),
         "deps": attr.label_list(mandatory=True),
