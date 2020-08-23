@@ -34,13 +34,13 @@ load("@onedal//dev/bazel/cc:link.bzl",
 
 ModuleInfo = onedal_cc_common.ModuleInfo
 
-def _init_cc_rule(ctx):
+def _init_cc_rule(ctx, disable=[]):
     toolchain = ctx.toolchains["@bazel_tools//tools/cpp:toolchain_type"]
     feature_config = cc_common.configure_features(
         ctx = ctx,
         cc_toolchain = toolchain,
         requested_features = ctx.features,
-        unsupported_features = ctx.disabled_features,
+        unsupported_features = ctx.disabled_features + disable,
     )
     return toolchain, feature_config
 
@@ -168,6 +168,44 @@ cc_static_lib = rule(
     toolchains = ["@bazel_tools//tools/cpp:toolchain_type"],
     fragments = ["cpp"],
 )
+
+
+def _cc_dynamic_lib_impl(ctx):
+    toolchain, feature_config = _init_cc_rule(ctx, disable=[
+        "default_libraries",
+        "dynamic_libraries_to_link",
+    ])
+    compilation_context = onedal_cc_common.collect_and_merge_compilation_contexts(ctx.attr.deps)
+    linking_contexts = onedal_cc_common.collect_and_filter_linking_contexts(
+        ctx.attr.deps, ctx.attr.lib_tags)
+    linking_context, dynamic_lib = onedal_cc_link.dynamic(
+        owner = ctx.label,
+        name = ctx.attr.lib_name,
+        actions = ctx.actions,
+        cc_toolchain = toolchain,
+        feature_configuration = feature_config,
+        linking_contexts = linking_contexts,
+    )
+    default_info = DefaultInfo(
+        files = depset([ dynamic_lib ]),
+    )
+    cc_info = CcInfo(
+        compilation_context = compilation_context,
+        linking_context = linking_context,
+    )
+    return [default_info, cc_info]
+
+cc_dynamic_lib = rule(
+    implementation = _cc_dynamic_lib_impl,
+    attrs = {
+        "lib_name": attr.string(),
+        "lib_tags": attr.string_list(),
+        "deps": attr.label_list(mandatory=True),
+    },
+    toolchains = ["@bazel_tools//tools/cpp:toolchain_type"],
+    fragments = ["cpp"],
+)
+
 
 def _cc_test_impl(ctx):
     toolchain, feature_config = _init_cc_rule(ctx)

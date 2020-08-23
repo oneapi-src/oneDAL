@@ -589,7 +589,21 @@ def _impl(ctx):
                         iterate_over = "user_link_flags",
                         expand_if_available = "user_link_flags",
                     ),
-                ] + ([flag_group(flags = ctx.attr.link_libs)] if ctx.attr.link_libs else []),
+                ],
+            ),
+        ],
+    )
+
+    default_libraries_feature = feature(
+        name = "default_libraries",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = all_link_actions + lto_index_actions,
+                flag_groups = (
+                    [flag_group(flags = ctx.attr.link_libs)]
+                    if ctx.attr.link_libs else []
+                ),
             ),
         ],
     )
@@ -897,28 +911,7 @@ def _impl(ctx):
                                 flags = ["%{libraries_to_link.name}"],
                                 expand_if_equal = variable_with_value(
                                     name = "libraries_to_link.type",
-                                    value = "interface_library",
-                                ),
-                            ),
-                            flag_group(
-                                flags = ["%{libraries_to_link.name}"],
-                                expand_if_equal = variable_with_value(
-                                    name = "libraries_to_link.type",
                                     value = "static_library",
-                                ),
-                            ),
-                            flag_group(
-                                flags = ["-l%{libraries_to_link.name}"],
-                                expand_if_equal = variable_with_value(
-                                    name = "libraries_to_link.type",
-                                    value = "dynamic_library",
-                                ),
-                            ),
-                            flag_group(
-                                flags = ["-l:%{libraries_to_link.name}"],
-                                expand_if_equal = variable_with_value(
-                                    name = "libraries_to_link.type",
-                                    value = "versioned_dynamic_library",
                                 ),
                             ),
                             flag_group(
@@ -938,6 +931,45 @@ def _impl(ctx):
                     flag_group(
                         flags = ["-Wl,@%{thinlto_param_file}"],
                         expand_if_true = "thinlto_param_file",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    dynamic_libraries_to_link_feature = feature(
+        name = "dynamic_libraries_to_link",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = all_link_actions + lto_index_actions,
+                flag_groups = [
+                    flag_group(
+                        iterate_over = "libraries_to_link",
+                        flag_groups = [
+                            flag_group(
+                                flags = ["%{libraries_to_link.name}"],
+                                expand_if_equal = variable_with_value(
+                                    name = "libraries_to_link.type",
+                                    value = "interface_library",
+                                ),
+                            ),
+                            flag_group(
+                                flags = ["-l%{libraries_to_link.name}"],
+                                expand_if_equal = variable_with_value(
+                                    name = "libraries_to_link.type",
+                                    value = "dynamic_library",
+                                ),
+                            ),
+                            flag_group(
+                                flags = ["-l:%{libraries_to_link.name}"],
+                                expand_if_equal = variable_with_value(
+                                    name = "libraries_to_link.type",
+                                    value = "versioned_dynamic_library",
+                                ),
+                            ),
+                        ],
+                        expand_if_available = "libraries_to_link",
                     ),
                 ],
             ),
@@ -1079,7 +1111,9 @@ def _impl(ctx):
     features.append(library_search_directories_feature)
     features.append(runtime_library_search_directories_feature)
     features.append(libraries_to_link_feature)
+    features.append(dynamic_libraries_to_link_feature)
     features.append(user_link_flags_feature)
+    features.append(default_libraries_feature)
 
     # Static linking
     features.append(archiver_flags_feature)

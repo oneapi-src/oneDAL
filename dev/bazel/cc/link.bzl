@@ -10,6 +10,19 @@ load("@onedal//dev/bazel/cc:common.bzl",
     onedal_cc_common = "common",
 )
 
+def _filter_user_link_flags(feature_configuration, user_link_flags):
+    strip_dynamic_libraries_from_user_link_flags = not cc_common.is_enabled(
+        feature_configuration = feature_configuration,
+        feature_name = "dynamic_libraries_to_link",
+    )
+    if strip_dynamic_libraries_from_user_link_flags:
+        filtered_flags = []
+        for flag in user_link_flags:
+            if not flag.startswith("-l"):
+                filtered_flags.append(flag)
+        return filtered_flags
+    return user_link_flags
+
 def _merge_static_libs(filename, actions, cc_toolchain,
                        feature_configuration, static_libs):
     output_file = actions.declare_file(filename)
@@ -97,17 +110,22 @@ def _static(owner, name, actions, cc_toolchain,
     )
     return linking_context, static_lib
 
-def _executable(owner, name, actions, cc_toolchain,
-                feature_configuration, linking_contexts):
+def _link(owner, name, actions, cc_toolchain,
+          feature_configuration, linking_contexts,
+          is_executable=False):
     unpacked_linking_context = onedal_cc_common.unpack_linking_contexts(linking_contexts)
     compilation_outputs = cc_common.create_compilation_outputs(
         objects = depset(unpacked_linking_context.objects),
         pic_objects = depset(unpacked_linking_context.objects),
     )
+    user_link_flags = _filter_user_link_flags(
+        feature_configuration,
+        unpacked_linking_context.user_link_flags
+    )
     linker_input = cc_common.create_linker_input(
         owner = owner,
         libraries = depset(unpacked_linking_context.libraries_to_link),
-        user_link_flags = depset(unpacked_linking_context.user_link_flags),
+        user_link_flags = depset(user_link_flags),
     )
     # TODO: Pass compilations outputs via linking contexts
     #       Individual linking context for each library tag
@@ -122,6 +140,46 @@ def _executable(owner, name, actions, cc_toolchain,
         feature_configuration = feature_configuration,
         compilation_outputs = compilation_outputs,
         linking_contexts = [linking_context],
+        output_type = "executable" if is_executable else "dynamic_library",
+        link_deps_statically = True,
+    )
+    return unpacked_linking_context, linking_outputs
+
+def _dynamic(owner, name, actions, cc_toolchain,
+             feature_configuration, linking_contexts):
+    unpacked_linking_context, linking_outputs = _link(
+        owner, name, actions, cc_toolchain,
+        feature_configuration, linking_contexts
+    )
+    library_to_link = linking_outputs.library_to_link
+    if not (library_to_link and library_to_link.resolved_symlink_dynamic_library):
+        return utils.warn("'{}' dynamic library does not contain any " +
+                          "object file".format(name))
+    # TODO: Handle interface dynamic library fro Windows
+    dynamic_lib = library_to_link.resolved_symlink_dynamic_library
+    dynamic_lib_to_link = cc_common.create_library_to_link(
+        actions = actions,
+        cc_toolchain = cc_toolchain,
+        feature_configuration = feature_configuration,
+        dynamic_library = dynamic_lib,
+    )
+    linker_input = cc_common.create_linker_input(
+        owner = owner,
+        libraries = depset([dynamic_lib_to_link] +
+                           unpacked_linking_context.dynamic_libraries_to_link),
+        user_link_flags = depset(unpacked_linking_context.user_link_flags),
+    )
+    linking_context = cc_common.create_linking_context(
+        linker_inputs = depset([ linker_input ]),
+    )
+    return linking_context, dynamic_lib
+
+def _executable(owner, name, actions, cc_toolchain,
+                feature_configuration, linking_contexts):
+    _, linking_outputs = _link(
+        owner, name, actions, cc_toolchain,
+        feature_configuration, linking_contexts,
+        is_executable = True,
     )
     if not linking_outputs.executable:
         return utils.warn("'{}' executable does not contain any " +
@@ -130,5 +188,6 @@ def _executable(owner, name, actions, cc_toolchain,
 
 link = struct(
     static = _static,
+    dynamic = _dynamic,
     executable = _executable,
 )

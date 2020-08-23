@@ -2,6 +2,7 @@ package(default_visibility = ["//visibility:public"])
 load("@onedal//dev/bazel:daal.bzl",
     "daal_module",
     "daal_static_lib",
+    "daal_dynamic_lib",
     "daal_algorithms",
     "daal_generate_version",
     "daal_patch_kernel_defines",
@@ -253,6 +254,31 @@ daal_static_lib(
 
 daal_static_lib(
     name = "thread_static",
+    lib_name = "onedal_thread",
+    deps = [
+        ":threading_tbb",
+    ],
+)
+
+daal_dynamic_lib(
+    name = "core_dynamic",
+    lib_name = "onedal_core",
+    deps = [
+        ":core",
+        ":all_algorithms",
+    ],
+)
+
+daal_dynamic_lib(
+    name = "sequential_dynamic",
+    lib_name = "onedal_sequential",
+    deps = [
+        ":threading_seq",
+    ],
+)
+
+daal_dynamic_lib(
+    name = "thread_dynamic",
     lib_name = "onedal_thread",
     deps = [
         ":threading_tbb",
