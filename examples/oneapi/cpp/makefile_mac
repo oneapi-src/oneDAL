@@ -136,6 +136,8 @@ ifeq ($(compiler),clang)
     CC = clang++
 endif
 
+RPATH=-Wl,-rpath,$(DAAL_PATH) -Wl,-rpath,$(TBB_PATH)
+
 lib libintel64:
 	$(MAKE) _make_ex RES_EXT=a
 dylib dylibintel64:
@@ -149,7 +151,7 @@ vpath %.cpp $(addprefix ./source/,decision_forest kmeans kmeans_init knn linear_
 
 .SECONDARY:
 $(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.
-	$(CC) $(COPTS) $< -o $@ $(LOPTS)
+	$(CC) $(COPTS) $< -o $@ $(RPATH) $(LOPTS)
 
 $(RES_DIR)/%.res:  $(RES_DIR)/%.exe
 	$< > $@
