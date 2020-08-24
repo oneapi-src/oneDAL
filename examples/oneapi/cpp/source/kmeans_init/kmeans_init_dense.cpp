@@ -36,26 +36,32 @@ void run_compute(dal::table x_train,
 
     std::cout << "Initial cetroids for " << method_name << ":" << std::endl
               << result.get_centroids() << std::endl;
-    std::cout << "Ground truth for " << method_name << ":" << std::endl
-              << x_test << std::endl;
+    std::cout << "Ground truth for " << method_name << ":" << std::endl << x_test << std::endl;
 }
 
 int main(int argc, char const *argv[]) {
-    constexpr std::int64_t row_count     = 8;
     constexpr std::int64_t column_count  = 2;
     constexpr std::int64_t cluster_count = 2;
 
     const std::string train_data_file_name = get_data_path("kmeans_init_dense.csv");
-    const std::string test_dense_data_file_name  = get_data_path("kmeans_init_dense_ground_truth.csv");
-    const std::string test_random_dense_data_file_name  = get_data_path("kmeans_init_random_dense_ground_truth.csv");
-    const std::string test_plus_plus_dense_data_file_name  = get_data_path("kmeans_init_plus_plus_dense_ground_truth.csv");
-    const std::string test_parallel_plus_data_file_name  = get_data_path("kmeans_init_parallel_plus_dense_ground_truth.csv");
+    const std::string test_dense_data_file_name =
+        get_data_path("kmeans_init_dense_ground_truth.csv");
+    const std::string test_random_dense_data_file_name =
+        get_data_path("kmeans_init_random_dense_ground_truth.csv");
+    const std::string test_plus_plus_dense_data_file_name =
+        get_data_path("kmeans_init_plus_plus_dense_ground_truth.csv");
+    const std::string test_parallel_plus_data_file_name =
+        get_data_path("kmeans_init_parallel_plus_dense_ground_truth.csv");
 
-    const auto x_train = dal::read<dal::table>(dal::csv::data_source{train_data_file_name});
-    const auto x_test_dense = dal::read<dal::table>(dal::csv::data_source{test_dense_data_file_name});
-    const auto x_test_random_dense = dal::read<dal::table>(dal::csv::data_source{test_random_dense_data_file_name});
-    const auto x_test_plus_plus_dense = dal::read<dal::table>(dal::csv::data_source{test_plus_plus_dense_data_file_name});
-    const auto x_test_parallel_plus_dense = dal::read<dal::table>(dal::csv::data_source{test_parallel_plus_data_file_name});
+    const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
+    const auto x_test_dense =
+        dal::read<dal::table>(dal::csv::data_source{ test_dense_data_file_name });
+    const auto x_test_random_dense =
+        dal::read<dal::table>(dal::csv::data_source{ test_random_dense_data_file_name });
+    const auto x_test_plus_plus_dense =
+        dal::read<dal::table>(dal::csv::data_source{ test_plus_plus_dense_data_file_name });
+    const auto x_test_parallel_plus_dense =
+        dal::read<dal::table>(dal::csv::data_source{ test_parallel_plus_data_file_name });
 
     run_compute<dal::kmeans_init::method::dense>(x_train,
                                                  x_test_dense,

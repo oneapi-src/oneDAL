@@ -18,17 +18,4 @@
 ##     Intel(R) oneAPI Data Analytics Library samples list
 ##******************************************************************************
 
-<<<<<<< 584e18694453bbfcbc199733623c27b01e6a3488:samples/daal/cpp/oneccl/daal_lnx.lst
 ONECCL  =  kmeans_dense_multinode_batch
-=======
-DAAL =  column_accessor_homogen           \
-        df_cls_dense_batch                \
-        df_reg_dense_batch                \
-        kmeans_lloyd_dense_batch          \
-        kmeans_init_random_dense          \
-        knn_cls_brute_force_dense_batch   \
-        linear_kernel_dense_batch         \
-        pca_cor_dense_batch               \
-        rbf_kernel_dense_batch            \
-        svm_two_class_thunder_dense_batch
->>>>>>> kmeans_init methods true parsing:examples/oneapi/dpc/daal_lnx.lst
