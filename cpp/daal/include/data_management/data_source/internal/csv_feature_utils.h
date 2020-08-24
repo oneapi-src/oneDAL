@@ -18,7 +18,10 @@
 #ifndef __CSV_FEATURE_UTILS_H__
 #define __CSV_FEATURE_UTILS_H__
 
-#include <sstream>
+#ifdef ONEAPI_DAL_DATA_CONVERSION
+#else
+    #include <sstream>
+#endif
 
 #include "services/collection.h"
 #include "services/daal_string.h"
@@ -168,10 +171,16 @@ private:
 
     static bool isNumericalFeature(const services::StringView & token)
     {
+#ifdef ONEAPI_DAL_DATA_CONVERSION
+        char * endptr;
+        daal::services::daal_string_to_float(token.c_str(), &endptr);
+        return endptr != token.c_str();
+#else
         std::istringstream iss(token.c_str());
         DAAL_DATA_TYPE f = 0.0;
         iss >> f;
         return !(iss.fail());
+#endif
     }
 
 private:

@@ -34,7 +34,7 @@ public:
     model<Task> trained_model;
 
     table oob_err;
-    table oob_per_observation_err;
+    table oob_err_per_observation;
     table variable_importance;
 };
 
@@ -83,8 +83,8 @@ table train_result<Task>::get_oob_err() const {
 }
 
 template <typename Task>
-table train_result<Task>::get_oob_per_observation_err() const {
-    return impl_->oob_per_observation_err;
+table train_result<Task>::get_oob_err_per_observation() const {
+    return impl_->oob_err_per_observation;
 }
 
 template <typename Task>
@@ -103,8 +103,8 @@ void train_result<Task>::set_oob_err_impl(const table& value) {
 }
 
 template <typename Task>
-void train_result<Task>::set_oob_per_observation_err_impl(const table& value) {
-    impl_->oob_per_observation_err = value;
+void train_result<Task>::set_oob_err_per_observation_impl(const table& value) {
+    impl_->oob_err_per_observation = value;
 }
 
 template <typename Task>

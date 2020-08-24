@@ -18,8 +18,8 @@
 
 #include "oneapi/dal/algo/linear_kernel.hpp"
 #include "oneapi/dal/algo/rbf_kernel.hpp"
-#include "oneapi/dal/data/table.hpp"
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/table/common.hpp"
 
 namespace oneapi::dal::svm {
 
@@ -114,13 +114,13 @@ public:
 protected:
     explicit descriptor_base(const detail::kf_iface_ptr &kernel);
 
-    void set_c_impl(const double value);
-    void set_accuracy_threshold_impl(const double value);
-    void set_max_iteration_count_impl(const std::int64_t value);
-    void set_cache_size_impl(const double value);
-    void set_tau_impl(const double value);
-    void set_shrinking_impl(const bool value);
-    void set_kernel_impl(const detail::kf_iface_ptr &kernel);
+    void set_c_impl(double);
+    void set_accuracy_threshold_impl(double);
+    void set_max_iteration_count_impl(std::int64_t);
+    void set_cache_size_impl(double);
+    void set_tau_impl(double);
+    void set_shrinking_impl(bool);
+    void set_kernel_impl(const detail::kf_iface_ptr &);
 
     dal::detail::pimpl<detail::descriptor_impl> impl_;
 };
@@ -150,32 +150,32 @@ public:
         return *this;
     }
 
-    auto &set_c(const double value) {
+    auto &set_c(double value) {
         set_c_impl(value);
         return *this;
     }
 
-    auto &set_accuracy_threshold(const double value) {
+    auto &set_accuracy_threshold(double value) {
         set_accuracy_threshold_impl(value);
         return *this;
     }
 
-    auto &set_max_iteration_count(const std::int64_t value) {
+    auto &set_max_iteration_count(std::int64_t value) {
         set_max_iteration_count_impl(value);
         return *this;
     }
 
-    auto &set_cache_size(const double value) {
+    auto &set_cache_size(double value) {
         set_cache_size_impl(value);
         return *this;
     }
 
-    auto &set_tau(const double value) {
+    auto &set_tau(double value) {
         set_tau_impl(value);
         return *this;
     }
 
-    auto &set_shrinking(const bool value) {
+    auto &set_shrinking(bool value) {
         set_shrinking_impl(value);
         return *this;
     }
@@ -194,32 +194,48 @@ public:
         return *this;
     }
 
-    table get_coefficients() const;
+    table get_coeffs() const;
 
-    auto &set_coefficients(const table &value) {
-        set_coefficients_impl(value);
+    auto &set_coeffs(const table &value) {
+        set_coeffs_impl(value);
         return *this;
     }
 
     double get_bias() const;
 
-    auto &set_bias(const double value) {
+    auto &set_bias(double value) {
         set_bias_impl(value);
         return *this;
     }
 
     std::int64_t get_support_vector_count() const;
 
-    auto &set_support_vector_count(const std::int64_t value) {
+    auto &set_support_vector_count(std::int64_t value) {
         set_support_vector_count_impl(value);
+        return *this;
+    }
+
+    std::int64_t get_first_class_label() const;
+
+    auto &set_first_class_label(std::int64_t value) {
+        set_first_class_label_impl(value);
+        return *this;
+    }
+
+    std::int64_t get_second_class_label() const;
+
+    auto &set_second_class_label(std::int64_t value) {
+        set_second_class_label_impl(value);
         return *this;
     }
 
 private:
     void set_support_vectors_impl(const table &);
-    void set_coefficients_impl(const table &);
-    void set_bias_impl(const double);
-    void set_support_vector_count_impl(const std::int64_t);
+    void set_coeffs_impl(const table &);
+    void set_bias_impl(double);
+    void set_support_vector_count_impl(std::int64_t);
+    void set_first_class_label_impl(std::int64_t);
+    void set_second_class_label_impl(std::int64_t);
 
     dal::detail::pimpl<detail::model_impl> impl_;
 };

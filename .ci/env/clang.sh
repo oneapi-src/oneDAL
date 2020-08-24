@@ -16,7 +16,7 @@
 # limitations under the License.
 #===============================================================================
 
-UBUNTU_DISTRO="$(cat /etc/lsb-release | grep CODENAME | sed 's/.*=//g')"
+UBUNTU_DISTRO="$(grep CODENAME /etc/lsb-release | sed 's/.*=//g')"
 
 sudo add-apt-repository "deb http://apt.llvm.org/${UBUNTU_DISTRO}/ llvm-toolchain-${UBUNTU_DISTRO}-9 main"
 sudo add-apt-repository "deb-src http://apt.llvm.org/${UBUNTU_DISTRO}/ llvm-toolchain-${UBUNTU_DISTRO}-9 main"

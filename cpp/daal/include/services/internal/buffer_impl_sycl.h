@@ -146,6 +146,10 @@ public:
          * non-const reference, so we remove cv-qualifier for _syclBuffer
         */
         BufferType & buffer = const_cast<BufferType &>(_syclBuffer);
+        if ((offset == 0) && (size == this->size()))
+        {
+            return new SyclBuffer<T>(buffer);
+        }
         return new SyclBuffer<T>(BufferType(buffer, offset, size));
     }
 

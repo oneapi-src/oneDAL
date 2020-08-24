@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "oneapi/dal/data/table.hpp"
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/table/common.hpp"
 
 namespace oneapi::dal::pca {
 
