@@ -20,61 +20,52 @@
 
 #define ONEAPI_DAL_DATA_PARALLEL
 #include "example_util/utils.hpp"
+#include "oneapi/dal/algo/kmeans.hpp"
 #include "oneapi/dal/algo/kmeans_init.hpp"
 #include "oneapi/dal/io/csv.hpp"
 
 using namespace oneapi;
 
 template <typename Method>
-void run_compute(sycl::queue &queue,
-                 dal::table x_train,
-                 dal::table x_test,
-                 std::int64_t cluster_count,
-                 std::int64_t column_count,
-                 const char *method_name) {
+void run_compute(sycl::queue &queue, dal::table x_train, const char *method_name) {
+    constexpr std::int64_t cluster_count       = 20;
+    constexpr std::int64_t max_iteration_count = 1000;
+    constexpr double accuracy_threshold        = 0.01;
+
     const auto kmeans_init_desc =
         dal::kmeans_init::descriptor<float, Method>().set_cluster_count(cluster_count);
 
-    const auto result = dal::compute(queue, kmeans_init_desc, x_train);
+    const auto result_init = dal::compute(queue, kmeans_init_desc, x_train);
 
-    std::cout << "Initial cetroids for " << method_name << ":" << std::endl
-              << result.get_centroids() << std::endl;
-    std::cout << "Ground truth for " << method_name << ":" << std::endl << x_test << std::endl;
+    const auto kmeans_desc = dal::kmeans::descriptor<>()
+                                 .set_cluster_count(cluster_count)
+                                 .set_max_iteration_count(max_iteration_count)
+                                 .set_accuracy_threshold(accuracy_threshold);
+
+    const auto result_train = dal::train(queue, kmeans_desc, x_train, result_init.get_centroids());
+
+    std::cout << "Method: " << method_name << std::endl;
+    std::cout << "Max_iteration_count: " << max_iteration_count
+              << ", Accuracy_threshold: " << accuracy_threshold << std::endl;
+    std::cout << "Iteration count: " << result_train.get_iteration_count()
+              << ", Objective function value: " << result_train.get_objective_function_value()
+              << '\n'
+              << std::endl;
 }
 
 int main(int argc, char const *argv[]) {
-    constexpr std::int64_t column_count  = 2;
-    constexpr std::int64_t cluster_count = 2;
-
     const std::string train_data_file_name = get_data_path("kmeans_init_dense.csv");
-    const std::string test_dense_data_file_name =
-        get_data_path("kmeans_init_dense_ground_truth.csv");
-    const std::string test_random_dense_data_file_name =
-        get_data_path("kmeans_init_random_dense_ground_truth.csv");
 
     for (auto device : list_devices()) {
-        std::cout << "Running on " << device.get_info<sycl::info::device::name>() << std::endl;
+        std::cout << "Running on " << device.get_info<sycl::info::device::name>() << '\n'
+                  << std::endl;
         auto queue = sycl::queue{ device };
 
         const auto x_train =
             dal::read<dal::table>(queue, dal::csv::data_source{ train_data_file_name });
-        const auto x_test_dense =
-            dal::read<dal::table>(queue, dal::csv::data_source{ test_dense_data_file_name });
-        const auto x_test_random_dense =
-            dal::read<dal::table>(queue, dal::csv::data_source{ test_random_dense_data_file_name });
 
-        run_compute<dal::kmeans_init::method::dense>(queue,
-                                                     x_train,
-                                                     x_test_dense,
-                                                     cluster_count,
-                                                     column_count,
-                                                     "dense");
-        run_compute<dal::kmeans_init::method::random_dense>(queue,
-                                                            x_train,
-                                                            x_test_random_dense,
-                                                            cluster_count,
-                                                            column_count,
-                                                            "random_dense");
+        run_compute<dal::kmeans_init::method::dense>(queue, x_train, "dense");
+        run_compute<dal::kmeans_init::method::random_dense>(queue, x_train, "random_dense");
     }
     return 0;
 }
