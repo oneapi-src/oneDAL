@@ -45,8 +45,8 @@ void run_compute(sycl::queue &queue, dal::table x_train, const char *method_name
     const auto result_train = dal::train(queue, kmeans_desc, x_train, result_init.get_centroids());
 
     std::cout << "Method: " << method_name << std::endl;
-    std::cout << "Max_iteration_count: " << max_iteration_count
-              << ", Accuracy_threshold: " << accuracy_threshold << std::endl;
+    std::cout << "Max iteration count: " << max_iteration_count
+              << ", Accuracy threshold: " << accuracy_threshold << std::endl;
     std::cout << "Iteration count: " << result_train.get_iteration_count()
               << ", Objective function value: " << result_train.get_objective_function_value()
               << '\n'
