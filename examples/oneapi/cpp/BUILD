@@ -38,12 +38,22 @@ dal_example_suite(
     test_deps = _TEST_DEPS,
 )
 
+dal_example_suite(
+    name = "kmeans_init",
+    srcs = glob(["source/kmeans_init/*.cpp"]),
+    dal_deps = [
+        "@onedal//cpp/oneapi/dal/algo:kmeans",
+        "@onedal//cpp/oneapi/dal/algo:kmeans_init",
+    ],
+    data = _DATA_DEPS,
+    test_deps = _TEST_DEPS,
+)
+
 dal_algo_example_suite(
     algos = [
         "decision_forest",
         "jaccard",
         "kmeans",
-        "kmeans_init",
         "knn",
         "linear_kernel",
         "pca",
