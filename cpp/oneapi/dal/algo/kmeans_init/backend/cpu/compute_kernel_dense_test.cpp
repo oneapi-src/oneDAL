@@ -32,7 +32,7 @@ TEST(kmeans_init_cpu, compute_result) {
 
     const float centroids[] = { 1.0, 1.0, 2.0, 2.0 };
 
-    const auto kmeans_desc = kmeans_init::descriptor<>().set_cluster_count(cluster_count);
+    const auto kmeans_desc = kmeans_init::descriptor<float, kmeans_init::method::dense>().set_cluster_count(cluster_count);
 
     const auto result_compute = compute(kmeans_desc, data_table);
 
