@@ -17,34 +17,26 @@
 #include <iomanip>
 #include <iostream>
 
-#include "oneapi/dal/algo/kmeans_init.hpp"
 #include "example_util/utils.hpp"
+#include "oneapi/dal/algo/kmeans_init.hpp"
+#include "oneapi/dal/io/csv.hpp"
 
 using namespace oneapi;
 
-int main(int argc, char const* argv[]) {
-    constexpr std::int64_t row_count    = 8;
-    constexpr std::int64_t column_count = 7;
+int main(int argc, char const *argv[]) {
+    const std::string train_data_file_name = get_data_path("kmeans_init_dense.csv");
+    const std::string test_data_file_name  = get_data_path("kmeans_init_dense_ground_truth.csv");
 
-    const size_t cluster_count = 2;
+    const auto x_compute = dal::read<dal::table>(dal::csv::data_source{train_data_file_name});
+    const auto x_test    = dal::read<dal::table>(dal::csv::data_source{test_data_file_name});;
 
-    const float data[] = { 1.f,  2.f, 3.f,  4.f,  5.f,  6.f,  -5.f,
-                           1.f, -1.f, 0.f,  3.f, 1.f, 2.f,  3.f,
-                           4.f,  5.f,  6.f,  1.f,  0.f,  0.f, 0.f,
-                           1.f,  2.f, 5.f, 2.f,  9.f, 3.f,  2.f,
-                           -4.f, 3.f,  0.f,  4.f, 2.f,  7.f,  5.f,
-                           4.f, 2.f,  0.f, -4.f, 0.f,  3.f,  -8.f,
-                           2.f,  5.f, 5.f,  -6.f, 3.f, 0.f, -9.f,
-                           3.f, 1.f,  -3.f, 3.f,  5.f,  1.f,  7.f };
+    const auto kmeans_init_desc = dal::kmeans_init::descriptor<>().set_cluster_count(2);
 
-    const auto data_table = dal::homogen_table{ row_count, column_count, data };
-
-    const auto kmeans_init_desc = dal::kmeans_init::descriptor<>()
-        .set_cluster_count(cluster_count);
-
-    const auto result = dal::train(kmeans_init_desc, data_table);
+    const auto result = dal::compute(kmeans_init_desc, x_compute);
 
     std::cout << "Initial cetroids:" << std::endl << result.get_centroids() << std::endl;
+
+    std::cout << "Ground truth:" << std::endl << x_test << std::endl;
 
     return 0;
 }

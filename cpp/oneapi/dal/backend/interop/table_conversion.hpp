@@ -23,8 +23,7 @@
 #endif
 #include <daal/include/data_management/data/homogen_numeric_table.h>
 
-#include "oneapi/dal/data/accessor.hpp"
-#include "oneapi/dal/data/table_builder.hpp"
+#include "oneapi/dal/table/detail/table_builder.hpp"
 
 namespace oneapi::dal::backend::interop {
 
@@ -73,7 +72,7 @@ inline table convert_from_daal_homogen_table(const daal::data_management::Numeri
     array<T> arr(data, row_count * column_count, [nt, block](T* p) mutable {
         nt->releaseBlockOfRows(block);
     });
-    return homogen_table_builder{}.reset(arr, row_count, column_count).build();
+    return detail::homogen_table_builder{}.reset(arr, row_count, column_count).build();
 }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL

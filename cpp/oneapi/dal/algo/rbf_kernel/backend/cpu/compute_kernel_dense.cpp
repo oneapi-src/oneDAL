@@ -21,6 +21,8 @@
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
+#include "oneapi/dal/table/row_accessor.hpp"
+
 namespace oneapi::dal::rbf_kernel::backend {
 
 using dal::backend::context_cpu;
@@ -61,7 +63,7 @@ static compute_result call_daal_kernel(const context_cpu& ctx,
                                                             &daal_parameter));
 
     return compute_result().set_values(
-        homogen_table_builder{}.reset(arr_values, row_count_x, row_count_y).build());
+        dal::detail::homogen_table_builder{}.reset(arr_values, row_count_x, row_count_y).build());
 }
 
 template <typename Float>

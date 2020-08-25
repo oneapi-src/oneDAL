@@ -15,58 +15,81 @@
 # limitations under the License.
 #===============================================================================
 
-daal_help() {
-    echo "Syntax: source $__daal_tmp_script_name [<arch>]"
-    echo "Where <arch> is one of:"
-    echo "  ia32      - setup environment for IA-32 architecture"
-    echo "  intel64   - setup environment for Intel(R) 64 architecture"
-    echo ""
-    echo "default is intel64"
-    echo ""
-    echo "If the arguments to the sourced script are ignored (consult docs for"
-    echo "your shell) the alternative way to specify target is environment"
-    echo "variables COMPILERVARS_ARCHITECTURE or DAALVARS_ARCHITECTURE to pass"
-    echo "<arch> to the script."
-    echo ""
+# ############################################################################
+# Get absolute path to script, when sourced from bash, zsh and ksh shells.
+# Uses `readlink` to remove links and `pwd -P` to turn into an absolute path.
+# Derived from similar function used by VTune and Advisor.
+# Converted into a POSIX-compliant function.
+
+# Usage:
+#   script_dir=$(get_script_path "$script_rel_path")
+#
+# Inputs:
+#   script/relative/pathname/scriptname
+#
+# Outputs:
+#   /script/absolute/pathname
+# executing function in a *subshell* to localize vars and effects on `cd`
+get_script_path() (
+  script="$1"
+  while [ -L "$script" ] ; do
+    # combining next two lines fails in zsh shell
+    script_dir=$(command dirname -- "$script")
+    script_dir=$(cd "$script_dir" && command pwd -P)
+    script="$(readlink "$script")"
+    case $script in
+      (/*) ;;
+       (*) script="$script_dir/$script" ;;
+    esac
+  done
+  # combining next two lines fails in zsh shell
+  script_dir=$(command dirname -- "$script")
+  script_dir=$(cd "$script_dir" && command pwd -P)
+  echo "$script_dir"
+)
+
+# ############################################################################
+# Even though this script is designed to be POSIX compatible, there are lines
+# in the code block below that are _not_ POSIX compatible. This works within a
+# POSIX compatible shell because they are single-pass interpreters. Each "if
+# test" that checks for a non-POSIX shell (zsh, bash, etc.) will return a
+# "false" condition in a POSIX shell and, thus, will skip the non-POSIX lines.
+# This requires that the "if test" constructs _are_ POSIX compatible.
+
+usage() {
+  printf "%s\n"   "ERROR: This script must be sourced."
+  printf "%s\n"   "Usage: source $1"
+  return 2 2>/dev/null || exit 2
 }
 
-set_daal_env() {
-    __daal_tmp_dir=$(command -p cd $(dirname -- "${BASH_SOURCE}")/..; pwd)
+if [ -n "$ZSH_VERSION" ] ; then
+  # shellcheck disable=2039,2015  # following only executed in zsh
+  [[ $ZSH_EVAL_CONTEXT =~ :file$ ]] && vars_script_name="${(%):-%x}" || usage "${(%):-%x}"
+elif [ -n "$KSH_VERSION" ] ; then
+  # shellcheck disable=2039,2015  # following only executed in ksh
+  [[ $(cd "$(dirname -- "$0")" && printf '%s' "${PWD%/}/")$(basename -- "$0") != \
+  "${.sh.file}" ]] && vars_script_name="${.sh.file}" || usage "$0"
+elif [ -n "$BASH_VERSION" ] ; then
+  # shellcheck disable=2039,2015  # following only executed in bash
+  (return 0 2>/dev/null) && vars_script_name="${BASH_SOURCE[0]}" || usage "${BASH_SOURCE[0]}"
+else
+  case ${0##*/} in (sh|dash) vars_script_name="" ;; esac
+fi
 
-    __daal_tmp_script_name="vars.sh"
-    __daal_tmp_target_arch="intel64"
+if [ "" = "$vars_script_name" ] ; then
+  >&2 echo ":: ERROR: Unable to proceed: no support for sourcing from '[dash|sh]' shell." ;
+  >&2 echo "   Can be caused by sourcing from inside a \"shebang-less\" script." ;
+  return 1
+fi
 
-    if [ -z "$1" ] ; then
-        if [ -n "$DAALVARS_ARCHITECTURE" ] ; then
-            __daal_tmp_target_arch="$DAALVARS_ARCHITECTURE"
-        elif [ -n "$COMPILERVARS_ARCHITECTURE" ] ; then
-            __daal_tmp_target_arch="$COMPILERVARS_ARCHITECTURE"
-        fi
-    else
-        while [ $# -gt 0 ]
-        do
-            opt="$1"
-            case $opt in
-                ia32)
-                    __daal_tmp_target_arch="ia32"
-                    shift
-                    ;;
-                intel64)
-                    __daal_tmp_target_arch="intel64"
-                    shift
-                    ;;
-                *)
-                    shift
-                    ;;
-            esac
-        done
-    fi
+__daal_tmp_dir="<INSTALLDIR>"
+__daal_tmp_dir=$__daal_tmp_dir/daal
+if [ ! -d $__daal_tmp_dir ]; then
+    __daal_tmp_dir=$(dirname -- "$(get_script_path "$vars_script_name")")
+fi
 
-    export DAALROOT=$__daal_tmp_dir
-    export CPATH=$__daal_tmp_dir/include${CPATH+:${CPATH}}
-    export LIBRARY_PATH=$__daal_tmp_dir/lib/${__daal_tmp_target_arch}${LIBRARY_PATH+:${LIBRARY_PATH}}
-    export LD_LIBRARY_PATH=$__daal_tmp_dir/lib/${__daal_tmp_target_arch}${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}
-    export CLASSPATH=$__daal_tmp_dir/lib/onedal.jar${CLASSPATH+:${CLASSPATH}}
-}
-
-set_daal_env "$@"
+export DAALROOT=$__daal_tmp_dir
+export CPATH=$__daal_tmp_dir/include${CPATH+:${CPATH}}
+export LIBRARY_PATH=$__daal_tmp_dir/lib/intel64${LIBRARY_PATH+:${LIBRARY_PATH}}
+export LD_LIBRARY_PATH=$__daal_tmp_dir/lib/intel64${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}
+export CLASSPATH=$__daal_tmp_dir/lib/onedal.jar${CLASSPATH+:${CLASSPATH}}

@@ -15,71 +15,49 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/svm.hpp"
+#include "oneapi/dal/io/csv.hpp"
 
 #include "example_util/utils.hpp"
 
 using namespace oneapi;
 
 int main(int argc, char const *argv[]) {
-    constexpr std::int64_t row_count_train = 6;
-    constexpr std::int64_t column_count = 2;
-    const float x_train[] = {
-        -2.f, -1.f,
-        -1.f, -1.f,
-        -1.f, -2.f,
-        +1.f, +1.f,
-        +1.f, +2.f,
-        +2.f, +1.f,
-    };
-    const float y_train[] = {
-        -1.f,
-        -1.f,
-        -1.f,
-        +1.f,
-        +1.f,
-        +1.f,
-    };
+    const std::string train_data_file_name  = get_data_path("svm_two_class_train_dense_data.csv");
+    const std::string train_label_file_name = get_data_path("svm_two_class_train_dense_label.csv");
+    const std::string test_data_file_name   = get_data_path("svm_two_class_test_dense_data.csv");
+    const std::string test_label_file_name  = get_data_path("svm_two_class_test_dense_label.csv");
 
-    const auto x_train_table = dal::homogen_table{ row_count_train, column_count, x_train };
-    const auto y_train_table = dal::homogen_table{ row_count_train, 1, y_train };
+    const auto x_train = dal::read<dal::table>(dal::csv::data_source{train_data_file_name});
+    const auto y_train = dal::read<dal::table>(dal::csv::data_source{train_label_file_name});
 
-    const auto kernel_desc = dal::linear_kernel::descriptor{}
-        .set_k(1.0)
-        .set_b(0.0);
+    const auto kernel_desc =
+        dal::linear_kernel::descriptor{}.set_scale(1.0).set_shift(0.0);
 
     const auto svm_desc = dal::svm::descriptor{ kernel_desc }
-        .set_c(1.0)
-        .set_accuracy_threshold(0.01)
-        .set_max_iteration_count(100)
-        .set_cache_size(200.0)
-        .set_tau(1e-6);
+                              .set_c(1.0)
+                              .set_accuracy_threshold(0.001)
+                              .set_max_iteration_count(1000)
+                              .set_cache_size(8)
+                              .set_tau(1e-6);
 
-    const auto result_train = dal::train(svm_desc, x_train_table, y_train_table);
+    const auto result_train =
+        dal::train(svm_desc, x_train, y_train);
 
     std::cout << "Bias:" << std::endl << result_train.get_bias() << std::endl;
-    std::cout << "Support indices:" << std::endl << result_train.get_support_indices() << std::endl;
+    std::cout << "Support indices:" << std::endl
+              << result_train.get_support_indices() << std::endl;
 
-    constexpr std::int64_t row_count_test = 3;
-    const float x_test[] = {
-        -1.f, -1.f,
-        +2.f, +2.f,
-        +3.f, +2.f,
-    };
-    const float y_true[] = {
-        -1.f,
-        +1.f,
-        +1.f,
-    };
+    const auto x_test = dal::read<dal::table>(dal::csv::data_source{test_data_file_name});
+    const auto y_true = dal::read<dal::table>(dal::csv::data_source{test_label_file_name});
 
-    const auto x_test_table = dal::homogen_table{ row_count_test, column_count, x_test };
-    const auto y_true_table = dal::homogen_table{ row_count_test, 1, y_true };
-
-    const auto result_test = dal::infer(svm_desc, result_train.get_model(), x_test_table);
+    const auto result_test =
+        dal::infer(svm_desc, result_train.get_model(), x_test);
 
     std::cout << "Decision function result:" << std::endl
               << result_test.get_decision_function() << std::endl;
-    std::cout << "Labels result:" << std::endl << result_test.get_labels() << std::endl;
-    std::cout << "Labels true:" << std::endl << y_true_table << std::endl;
+    std::cout << "Labels result:" << std::endl
+              << result_test.get_labels() << std::endl;
+    std::cout << "Labels true:" << std::endl << y_true << std::endl;
 
     return 0;
 }

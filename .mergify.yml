@@ -1,0 +1,17 @@
+pull_request_rules:
+  - name: backport patches to 2021 branch
+    conditions:
+      - base=master
+      - label=backport-2021
+    actions:
+      backport:
+        branches:
+          - rls/2021-gold-mnt
+  - name: backport patches to 2020 branch
+    conditions:
+      - base=master
+      - label=backport-2020
+    actions:
+      backport:
+        branches:
+          - rls/daal-2020-mnt

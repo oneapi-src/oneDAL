@@ -25,7 +25,7 @@ help:
 	@echo
 	@echo "name              - example name. Please see daal.lst file"
 	@echo
-	@echo "compiler_name     - can be intel, gnu or clang. Default value is gnu."
+	@echo "compiler_name     - can be intel, gnu or clang. Default value is intel."
 	@echo
 	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
 	@echo
@@ -53,10 +53,10 @@ help:
 ##
 ##------------------------------------------------------------------------------
 
-include daal.lst
+include onedal.lst
 
 ifndef example
-    example = $(DAAL)
+    example = $(ONEDAL)
 endif
 
 ifneq ($(compiler),gnu)
@@ -69,6 +69,10 @@ ifneq ($(mode),build)
     override mode = run
 endif
 
+ifneq ($(threading),sequential)
+    override threading = parallel
+endif
+
 ifndef DAALROOT
     DAALROOT = ./../../..
 endif
@@ -79,18 +83,24 @@ ifndef TBBROOT
 endif
 TBB_PATH = $(TBBROOT)/lib/intel64/gcc4.8
 
-ifeq ($(RES_EXT),so)
-    -B := -Bdynamic
-else
-    -B := -Bstatic
-endif
+onedal.so := -lonedal
+onedal_core.so := -lonedal_core
+onedal_thread.so := -lonedal_thread
+onedal_sequential.so := -lonedal_sequential
 
-ifeq ($(threading),sequential)
-    THREADING_LIB := onedal_sequential
-else
-    override threading = parallel
-    THREADING_LIB := onedal_thread
-endif
+onedal.a := "$(DAAL_PATH)/libonedal.a"
+onedal_core.a := "$(DAAL_PATH)/libonedal_core.a"
+onedal_thread.a := "$(DAAL_PATH)/libonedal_thread.a"
+onedal_sequential.a := "$(DAAL_PATH)/libonedal_sequential.a"
+
+onedal := $(onedal.$(RES_EXT))
+onedal_core := $(onedal_core.$(RES_EXT))
+onedal_thread := $(onedal_thread.$(RES_EXT))
+onedal_sequential := $(onedal_sequential.$(RES_EXT))
+
+onedal_threading.parallel := $(onedal_thread)
+onedal_threading.sequential := $(onedal_sequential)
+onedal_threading := $(onedal_threading.$(threading))
 
 COPTS := -std=c++17 \
          -pedantic \
@@ -104,13 +114,13 @@ COPTS := -std=c++17 \
          -I./source \
          -I"$(DAALROOT)/include"
 
-LIBS := -Wl,$(-B) -lonedal \
-        -Wl,$(-B) -lonedal_core \
-        -Wl,$(-B) -l$(THREADING_LIB) \
-        -Wl,-Bdynamic -ltbb \
-        -Wl,-Bdynamic -ltbbmalloc \
-        -Wl,-Bdynamic -lpthread \
-        -Wl,-Bdynamic -ldl
+LIBS := $(onedal) \
+        $(onedal_core) \
+        $(onedal_threading) \
+        -ltbb \
+        -ltbbmalloc \
+        -lpthread \
+        -ldl
 
 LOPTS := -L"$(DAAL_PATH)" \
          -L"$(TBB_PATH)" \
@@ -120,7 +130,7 @@ RES_DIR=_results/$(compiler)_intel64_$(threading)_$(RES_EXT)
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))
 
 ifeq ($(compiler),intel)
-    CC = icc
+    CC = icc -diag-disable=remark
 endif
 
 ifeq ($(compiler),gnu)
@@ -143,7 +153,7 @@ so sointel64:
 _make_ex: $(RES)
 
 vpath
-vpath %.cpp $(addprefix ./source/,decision_forest kmeans kmeans_init knn linear_kernel pca rbf_kernel svm tables)
+vpath %.cpp $(addprefix ./source/,decision_forest kmeans kmeans_init knn linear_kernel pca rbf_kernel svm table jaccard graph)
 
 .SECONDARY:
 $(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.

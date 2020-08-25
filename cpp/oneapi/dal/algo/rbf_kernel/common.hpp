@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "oneapi/dal/data/table.hpp"
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/table/common.hpp"
 
 namespace oneapi::dal::rbf_kernel {
 
@@ -44,7 +44,7 @@ public:
     double get_sigma() const;
 
 protected:
-    void set_sigma_impl(const double value);
+    void set_sigma_impl(double);
 
     dal::detail::pimpl<detail::descriptor_impl> impl_;
 };
@@ -55,7 +55,7 @@ public:
     using float_t  = Float;
     using method_t = Method;
 
-    auto& set_sigma(const double value) {
+    auto& set_sigma(double value) {
         set_sigma_impl(value);
         return *this;
     }
