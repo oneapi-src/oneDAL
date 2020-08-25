@@ -41,7 +41,7 @@ oneDAL is the perfect solution if you are interested in a high-performance machi
 
 | *Speedups of Intel&reg; oneDAL powered Scikit-learn over the original Scikit-learn, 28 cores, 1 thread/core* |
 |:--:|
-| ![](https://github.com/oneapi-src/oneDAL/tree/master/docs/readme-charts/IDP%20scikit-learn%20accelearation%20compared%20with%20stock%20scikit-learn.png) |
+| ![](docs/readme-charts/IDP%20scikit-learn%20accelearation%20compared%20with%20stock%20scikit-learn.png) |
 
 
 The size of the data is growing exponentially, as is the need for high-performance and scalable frameworks to analyze all this data and extract some benefits from it.
@@ -50,8 +50,8 @@ Besides superior performance on a single node, the distribution mechanics of one
 
 Intel&reg; oneDAL K-means fit, strong scaling result | Intel&reg; oneDAL K-means fit, weak scaling results
 :-------------------------:|:-------------------------:
-![](https://github.com/oneapi-src/oneDAL/tree/master/docs/readme-charts/Intel%20oneDAL%20KMeans%20strong%20scaling.png)  |
-![](https://github.com/oneapi-src/oneDAL/tree/master/docs/readme-charts/intel%20oneDAL%20KMeans%20weak%20scaling.png)
+![](docs/readme-charts/Intel%20oneDAL%20KMeans%20strong%20scaling.png)  |
+![](docs/readme-charts/intel%20oneDAL%20KMeans%20weak%20scaling.png)
 
 ## Installation
 
@@ -171,7 +171,7 @@ For more details browse our [daal4py documentation](https://intelpython.github.i
 
 ## oneDAL Samples
 
-<img align="right" style="display:inline;" height=300 width=550 src="https://github.com/oneapi-src/oneDAL/tree/master/docs/readme-charts/intel%20oneDAL%20Spark%20samples%20vs%20Apache%20Spark%20MLlib.png"></a>
+<img align="right" style="display:inline;" height=300 width=550 src="docs/readme-charts/intel%20oneDAL%20Spark%20samples%20vs%20Apache%20Spark%20MLlib.png"></a>
 
 Samples is a non official part of a project, that contains examples of how oneDAL can be used in different applications.
 
