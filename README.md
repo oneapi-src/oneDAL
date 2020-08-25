@@ -50,8 +50,7 @@ Besides superior performance on a single node, the distribution mechanics of one
 
 Intel&reg; oneDAL K-means fit, strong scaling result | Intel&reg; oneDAL K-means fit, weak scaling results
 :-------------------------:|:-------------------------:
-![](docs/readme-charts/Intel%20oneDAL%20KMeans%20strong%20scaling.png)  |
-![](docs/readme-charts/intel%20oneDAL%20KMeans%20weak%20scaling.png)
+![](docs/readme-charts/Intel%20oneDAL%20KMeans%20strong%20scaling.png)  | ![](docs/readme-charts/intel%20oneDAL%20KMeans%20weak%20scaling.png)
 
 ## Installation
 
