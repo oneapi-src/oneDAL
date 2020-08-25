@@ -26,11 +26,6 @@
 
         #ifndef DAAL_DISABLE_LEVEL_ZERO
             #include "sycl/internal/daal_ze_module_helper.h"
-            #if (defined(__SYCL_COMPILER_VERSION) && (__SYCL_COMPILER_VERSION >= 20200701))
-                #include <CL/sycl/backend/level_zero.hpp>
-            #else
-                #include <CL/sycl/backend/Intel_level0.hpp>
-            #endif
         #endif // DAAL_DISABLE_LEVEL_ZERO
 
         #include <cstring>
@@ -216,7 +211,6 @@ public:
     {
         initOpenClProgramRef(clContext, clDevice, programName, programSrc, options, status);
     }
-
         #ifndef DAAL_DISABLE_LEVEL_ZERO
     explicit OpenClProgramRef(cl_context clContext, cl_device_id clDevice, cl::sycl::queue & deviceQueue, const char * programName,
                               const char * programSrc, const char * options, services::Status * status = nullptr)
@@ -228,16 +222,10 @@ public:
             services::internal::tryAssignStatus(status, localStatus);
             return;
         }
-        _moduleLevelZeroPtr.reset(new ZeModuleHelper(deviceQueue.get_context().get_native<cl::sycl::backend::level_zero>(),
-                                                     deviceQueue.get_device().get_native<cl::sycl::backend::level_zero>(), get(), status));
+        initModuleLevelZero(deviceQueue, status);
     }
 
-    ze_module_handle_t getModuleLevelZero(services::Status * status = nullptr) const
-    {
-        ze_module_handle_t module;
-        _moduleLevelZeroPtr->zeModuleCreate(&module, status);
-        return module;
-    }
+    cl::sycl::program getProgramLevelZero() const { return _moduleLevelZeroPtr->getZeProgram(); }
         #endif // DAAL_DISABLE_LEVEL_ZERO
 
     const char * getName() const { return _programName.c_str(); }
@@ -274,6 +262,25 @@ private:
         #endif
         DAAL_CHECK_OPENCL(err, status)
     }
+
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
+    void initModuleLevelZero(cl::sycl::queue & deviceQueue, services::Status * status = nullptr)
+    {
+        size_t binarySize = 0;
+        DAAL_CHECK_OPENCL(clGetProgramInfo(get(), CL_PROGRAM_BINARY_SIZES, sizeof(size_t), &binarySize, NULL), status);
+
+        auto binary = (unsigned char *)daal::services::daal_malloc(binarySize);
+        if (binary == nullptr)
+        {
+            services::internal::tryAssignStatus(status, services::ErrorMemoryAllocationFailed);
+            return;
+        }
+
+        DAAL_CHECK_OPENCL(clGetProgramInfo(get(), CL_PROGRAM_BINARIES, sizeof(binary), &binary, NULL), status);
+        _moduleLevelZeroPtr.reset(new ZeModuleHelper(deviceQueue, binarySize, binary, status));
+        daal::services::daal_free(binary);
+    }
+        #endif // DAAL_DISABLE_LEVEL_ZERO
 
 private:
     services::String _programName;
@@ -361,12 +368,7 @@ public:
         : OpenClKernel(executionTarget, programRef), _clKernelRef(kernelRef)
     {}
 
-    cl::sycl::kernel toSycl(const cl::sycl::context & ctx) const
-    {
-        cl::sycl::program prg = cl::sycl::level_zero::make<cl::sycl::program>(ctx, getProgramRef().getModuleLevelZero());
-
-        return prg.get_kernel(_clKernelRef.getName());
-    }
+    cl::sycl::kernel toSycl(const cl::sycl::context & ctx) const { return getProgramRef().getProgramLevelZero().get_kernel(_clKernelRef.getName()); }
 
 private:
     OpenClKernelLevelZeroRef _clKernelRef;
