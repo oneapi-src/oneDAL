@@ -211,7 +211,7 @@ public:
     typedef classifier::prediction::Batch super;
 
     typedef algorithms::kdtree_knn_classification::prediction::Input InputType;
-    typedef algorithms::kdtree_knn_classification::Parameter ParameterType;
+    typedef algorithms::kdtree_knn_classification::interface2::Parameter ParameterType;
     typedef typename super::ResultType ResultType;
 
     InputType input;         /*!< %Input data structure */

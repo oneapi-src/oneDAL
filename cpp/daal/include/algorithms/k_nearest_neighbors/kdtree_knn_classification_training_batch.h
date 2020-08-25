@@ -231,7 +231,7 @@ public:
     typedef classifier::training::Batch super;
 
     typedef typename super::InputType InputType;
-    typedef algorithms::kdtree_knn_classification::Parameter ParameterType;
+    typedef algorithms::kdtree_knn_classification::interface2::Parameter ParameterType;
     typedef algorithms::kdtree_knn_classification::training::Result ResultType;
 
     ParameterType parameter; /*!< \ref interface2::Parameter "Parameters" of the algorithm */
