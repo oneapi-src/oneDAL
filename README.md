@@ -39,9 +39,9 @@ Check out our [examples](#examples)  and [documentation](#documentation)  for in
 
 oneDAL is the perfect solution if you are interested in a high-performance machine learning framework. oneDAL uses machine learning algorithms optimizations and full power of your hardware to achieve greater performance than alternative solutions offers.
 
-| *Speedupds of Intel&reg; oneDAL powered Scikit-learn over the original Scikit-learn, 28 cores, 1 thread/core* |
+| *Speedups of Intel&reg; oneDAL powered Scikit-learn over the original Scikit-learn, 28 cores, 1 thread/core* |
 |:--:|
-| ![](https://github.com/PivovarA/daal/raw/dev/apivovar-newReadme/.github/charts/IDP%20scikit-learn%20accelearation%20compared%20with%20stock%20scikit-learn.png) |
+| ![](https://github.com/oneapi-src/oneDAL/tree/master/docs/readme-charts/IDP%20scikit-learn%20accelearation%20compared%20with%20stock%20scikit-learn.png) |
 
 
 The size of the data is growing exponentially, as is the need for high-performance and scalable frameworks to analyze all this data and extract some benefits from it.
