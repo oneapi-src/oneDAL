@@ -1,0 +1,4 @@
+FPType double
+HW 7 x m5.2xlarge AWS instances
+SW Intel DAAL 2020 Gold, Apache Spark 2.4.4, emr-5.27.0 
+Spark config num executors 12; executor cores 8; executor memory 19GB; task cpus 8

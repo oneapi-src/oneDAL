@@ -26,9 +26,9 @@
  Intel&reg; oneAPI Data Analytics Library (oneDAL) is a powerful machine liearning library that helps speed up big data analysis.
  Intel&reg; oneDAL solvers are also used in [Intel Distribution for Python]([https://software.intel.com/en-us/distribution-for-python](https://software.intel.com/en-us/distribution-for-python)) in scikit-learn optimization.
 
-## Build yours high-performance data science application with intel&reg; DAAL
+## Build yours high-performance data science application with intel&reg; oneDAL
 
- intel&reg; DAAL use all capabilities of your hardware, which allows you to get an incredible performance boost on the classic machine learning algorithms.
+ intel&reg; oneDAL use all capabilities of your hardware, which allows you to get an incredible performance boost on the classic machine learning algorithms.
 We provide highly optimized algorithmic building blocks for all stages of data analytics: **preprocessing**, **transformation**, **analysis**, **modeling**, **validation**, and **decision making**.
 
 The current version of oneDAL provides Data Parallel C++ (DPC++) API extensions to the traditional C++ interface.
@@ -37,22 +37,41 @@ Check out our [examples](#examples)  and [documentation](#documentation)  for in
 
 ## Improve performance of your ML application
 
-DAAL is the perfect solution if you are interested in a high-performance machine learning framework. DAAL uses machine learning algorithms optimizations and full power of your hardware to achieve greater performance than alternative solutions offers.
+oneDAL is the perfect solution if you are interested in a high-performance machine learning framework. oneDAL uses machine learning algorithms optimizations and full power of your hardware to achieve greater performance than alternative solutions offers.
 
-<img style="display:inline;" height=auto width=auto src="https://github.com/PivovarA/daal/raw/dev/apivovar-newReadme/.github/charts/IDP%20scikit-learn%20accelearation%20compared%20with%20stock%20scikit-learn.png"></a>
+| *Speedupds of Intel&reg; oneDAL powered Scikit-learn over the original Scikit-learn, 28 cores, 1 thread/core* |
+|:--:|
+| ![](https://github.com/PivovarA/daal/raw/dev/apivovar-newReadme/.github/charts/IDP%20scikit-learn%20accelearation%20compared%20with%20stock%20scikit-learn.png) |
 
 
 The size of the data is growing exponentially, as is the need for high-performance and scalable frameworks to analyze all this data and extract some benefits from it.
-Besides superior performance on a single node, the distribution mechanics of DAAL provides excellent strong and weak scaling.
+Besides superior performance on a single node, the distribution mechanics of oneDAL provides excellent strong and weak scaling.
 
 
-Intel&reg; DAAL K-means fit, strong scaling result | Intel&reg; DAAL K-means fit, weak scaling results
+Intel&reg; oneDAL K-means fit, strong scaling result | Intel&reg; oneDAL K-means fit, weak scaling results
 :-------------------------:|:-------------------------:
-![](https://github.com/PivovarA/daal/raw/dev/apivovar-newReadme/.github/charts/Intel%20DAAL%20KMeans%20strong%20scaling.png)  |  ![](https://github.com/PivovarA/daal/raw/dev/apivovar-newReadme/.github/charts/intel%20DAAL%20KMeans%20weak%20scaling.png)
+![](https://github.com/oneapi-src/oneDAL/tree/master/docs/readme-charts/Intel%20oneDAL%20KMeans%20strong%20scaling.png)  |
+![](https://github.com/oneapi-src/oneDAL/tree/master/docs/readme-charts/intel%20oneDAL%20KMeans%20weak%20scaling.png)
+
+## Installation
+
+You can install oneDAL:
+
+- from [oneDAL home page](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onedal.html) as a part of Intel&reg; oneAPI Base Toolkit.
+- from [GitHub\*](https://github.com/oneapi-src/oneDAL/releases).
+
+## Installation from Source
+See [Installation from Sources](INSTALL.md) for details.
+
+## Technical Preview Features
+
+Technical preview features are introduced to gain early feedback from developers. A technical preview feature is subject to change in the future releases. Using a technical preview feature in a production code base is therefore strongly discouraged.
+In C++ APIs, technical preview features are located in `daal::preview` and `onedal::preview` namespaces. In Java APIs, technical preview features are located in packages that have the `com.intel.daal.preview` name prefix.
+The only preview feature at the moment is `MultiNodeBatch` for K-Means, a stepless distributed algorithm based on oneCCL.
 
 ## Python API
 
-[daal4py](https://github.com/IntelPython/daal4py) is an Intel&reg; DAAL python API.
+Intel&reg; oneDAL has a python API that is provided as a standalone python library called [daal4py](https://github.com/IntelPython/daal4py).
 Below is an example of how daal4py can be used for calculation KMeans clusters
 
 ```python
@@ -96,7 +115,9 @@ result = alg.compute(data, centroids)
 ```
 
 ## Scikit-learn patching
-daal4py also have an API which matches API from scikit-learn.
+
+Python interface to efficient Intel® Data Analytics and Acceleration Library (DAAL) provided by daal4py allows one to create scikit-learn compatible estimators, transformers, clusterers, etc. powered by DAAL which are nearly as efficient as native programs.
+daal4py have an API which matches API from scikit-learn.
 This framework allows you to speed up your existing projects by changing one line of code
 
 ```python
@@ -110,7 +131,7 @@ svm = SVC(kernel='rbf', gamma='scale', C = 0.5).fit(X, y)
 print(svm.score(X, y))
 ```
 
-In addition daal4py provides an option to replace some scikit-learn methods by daal solvers which makes it possible to get a performance gain **without any code changes**. This approach is the basis of Intel distribution for python scikit-learn. You can patch stock scikit-learn by using the only following commandline flag
+In addition daal4py provides an option to replace some scikit-learn methods by oneDAL solvers which makes it possible to get a performance gain **without any code changes**. This approach is the basis of Intel distribution for python scikit-learn. You can patch stock scikit-learn by using the only following commandline flag
 ```bash
 python -m daal4py my_application.py
 ```
@@ -118,13 +139,17 @@ Patches can also be enabled programmatically:
 ```python
 from sklearn.svm import SVC
 from sklearn.datasets import load_digits
+from time import time
 
 svm_sklearn = SVC(kernel="rbf", gamma="scale", C=0.5)
+
+digits = load_digits()
+X, y = digits.data, digits.target
 
 start = time()
 svm_sklearn = svm_sklearn.fit(X, y)
 end = time()
-print(start-end) # output: 0.141261...
+print(end - start) # output: 0.141261...
 print(svm_sklearn.score(X, y)) # output: 0.9905397885364496
 
 from daal4py.sklearn import patch_sklearn
@@ -136,7 +161,7 @@ svm_d4p = SVC(kernel="rbf", gamma="scale", C=0.5)
 start = time()
 svm_d4p = svm_d4p.fit(X, y)
 end = time()
-print(start-end) # output: 0.032536...
+print(end - start) # output: 0.032536...
 print(svm_d4p.score(X, y)) # output: 0.9905397885364496
 ```
 
@@ -144,48 +169,35 @@ print(svm_d4p.score(X, y)) # output: 0.9905397885364496
 For more details browse our [daal4py documentation](https://intelpython.github.io/daal4py/).
 
 
-## DAAL Samples
+## oneDAL Samples
 
-<img align="right" style="display:inline;" height=300 width=550 src="https://github.com/PivovarA/daal/raw/dev/apivovar-newReadme/.github/charts/intel%20DAAL%20Spark%20samples%20vs%20Apache%20Spark%20MLlib.png"></a>
+<img align="right" style="display:inline;" height=300 width=550 src="https://github.com/oneapi-src/oneDAL/tree/master/docs/readme-charts/intel%20oneDAL%20Spark%20samples%20vs%20Apache%20Spark%20MLlib.png"></a>
 
-Samples is a non official part of a project, that contains examples of how DAAL can be used in different applications.
+Samples is a non official part of a project, that contains examples of how oneDAL can be used in different applications.
 
-**DAAL Spark Samples is a good example.**
-DAAL provides scala / java interfaces that match Apache Spark MlLib API and use DAAL solvers under the hood. This implementation allows you to get a 3-18X increase in performance compared to default Apache Spark MLlib.
+**oneDAL Spark Samples is a good example.**
+oneDAL provides scala / java interfaces that match Apache Spark MlLib API and use oneDAL solvers under the hood. This implementation allows you to get a 3-18X increase in performance compared to default Apache Spark MLlib.
 
   ## Examples
 
-Except C++ and Python API DAAL also provide API for C++ SYCL and Java languages. Check out tabs below for more examples.
-- [C++](https://github.com/intel/daal/tree/master/examples/daal/cpp)
-- [C++ SYCL*](https://github.com/intel/daal/tree/master/examples/daal/cpp_sycl)
-- [Java](https://github.com/intel/daal/tree/master/examples/daal/java)
+Except C++ and Python API oneDAL also provide API for C++ SYCL and Java languages. Check out tabs below for more examples.
+- [C++](https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp)
+- [C++ SYCL\*](https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp_sycl)
+- [Java](https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java)
+- [Python](https://github.com/IntelPython/daal4py/tree/master/examples)
 
 Data Examples for different computation modes:
 
-- [Batch](https://github.com/intel/daal/tree/master/examples/daal/data/batch)
-- [Distributed](https://github.com/intel/daal/tree/master/examples/daal/data/distributed)
-- [Online](https://github.com/intel/daal/tree/master/examples/daal/data/online)
+- [Batch](https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/data/batch)
+- [Distributed](https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/data/distributed)
+- [Online](https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/data/online)
 
 ## Documentation
-- [Get Started](http://intel.github.io/daal/getstarted.html)
-- [oneDAL documentation](http://intel.github.io/daal/)
-- [Specifications](https://spec.oneapi.com/oneDAL/index.html)
-- [Release Notes](https://software.intel.com/en-us/articles/oneapi-dal-release-notes)
-
-## Installation
-
-You can install oneDAL:
-
-- from [oneDAL home page](https://software.intel.com/en-us/oneapi/onedal) as a part of Intel&reg; oneAPI Base Toolkit.
-- from [GitHub\*](https://github.com/intel/daal/releases).
-
-## Installation from Source
-See [Installation from Sources](INSTALL.md) for details.
-
-## Technical Preview Features
-
-Technical preview features are introduced to gain early feedback from developers. A preview feature is subject to change in the future releases. Using a preview feature in a production code base is therefore strongly discouraged.
-The only preview feature at the moment is `MultiNodeBatch` for K-Means, a stepless distributed algorithm based on oneCCL.
+- [Get Started](http://oneapi-src.github.io/oneDAL/getstarted.html)
+- [oneDAL documentation](http://oneapi-src.github.io/oneDAL/)
+- [Specifications](https://spec.oneapi.com/versions/latest/elements/oneDAL/source/index.html)
+- [Release Notes](https://software.intel.com/content/www/us/en/develop/articles/oneapi-dal-release-notes.html)
+- [Known Issues](https://oneapi-src.github.io/oneDAL/notes/known_issues.html)
 
 ## oneDAL and Intel&reg; DAAL
 
@@ -195,5 +207,5 @@ This repository contains branches corresponding to both oneAPI and classical ver
 
 |Product|Latest release|Branch|Resources|
 |-------|--------------|------|:-------------:|
-|oneDAL       |2021.1-beta06|[master](https://github.com/oneapi-src/oneDAL)</br>[rls/onedal-beta06-rls](https://github.com/oneapi-src/oneDAL/tree/rls/onedal-beta06-rls)|&nbsp;&nbsp;&nbsp;[Home page](https://software.intel.com/en-us/oneapi/onedal)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[Documentation](http://oneapi-src.github.io/oneDAL/)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[System Requirements](https://software.intel.com/en-us/articles/system-requirements-for-oneapi-data-analytics-library#)|
-|Intel&reg; DAAL|2020 Gold|[rls/daal-2020-rls](https://github.com/oneapi-src/oneDAL/tree/rls/daal-2020-rls)</br>[rls/daal-2020-mnt](https://github.com/oneapi-src/oneDAL/tree/rls/daal-2020-mnt) (contains ongoing fixes)|&nbsp;&nbsp;&nbsp;[Home page](https://software.intel.com/en-us/daal)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[Developer Guide](https://software.intel.com/en-us/daal-programming-guide)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[System Requirements](https://software.intel.com/en-us/articles/intel-data-analytics-acceleration-library-2020-system-requirements)|
+|oneDAL       |2021.1-beta08|[master](https://github.com/oneapi-src/oneDAL)</br>[rls/onedal-beta08-rls](https://github.com/oneapi-src/oneDAL/tree/rls/onedal-beta08-rls)|&nbsp;&nbsp;&nbsp;[Home page](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onedal.html)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[Documentation](http://oneapi-src.github.io/oneDAL/)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[System Requirements](https://software.intel.com/content/www/us/en/develop/articles/system-requirements-for-oneapi-data-analytics-library.html)|
+|Intel&reg; DAAL|2020 Gold|[rls/daal-2020-rls](https://github.com/oneapi-src/oneDAL/tree/rls/daal-2020-rls)</br>[rls/daal-2020-mnt](https://github.com/oneapi-src/oneDAL/tree/rls/daal-2020-mnt) (contains ongoing fixes)|&nbsp;&nbsp;&nbsp;[Home page](https://software.intel.com/content/www/us/en/develop/tools/data-analytics-acceleration-library.html)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[Developer Guide](https://software.intel.com/content/www/us/en/develop/documentation/daal-programming-guide/top.html)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[System Requirements](https://software.intel.com/content/www/us/en/develop/articles/intel-data-analytics-acceleration-library-2020-system-requirements.html)|

@@ -1,0 +1,4 @@
+FPType float32
+HW Intel Xeon Processor E5-2698 v3 @2.3GHz, 2 sockets, 16 cores per socket
+SW Intel® DAAL (2019.3), MPI4Py (3.0.0), Intel® Distribution Of Python (IDP) 3.6.8
+Details available in the article https://arxiv.org/abs/1909.11822
