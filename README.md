@@ -26,6 +26,19 @@
  Intel&reg; oneAPI Data Analytics Library (oneDAL) is a powerful machine liearning library that helps speed up big data analysis.
  Intel&reg; oneDAL solvers are also used in [Intel Distribution for Python]([https://software.intel.com/en-us/distribution-for-python](https://software.intel.com/en-us/distribution-for-python)) in scikit-learn optimization.
 
+## Table of Contents
+- [Build yours high-performance data science application with intel&reg; oneDAL](#build-yours-high-performance-data-science-application-with-intel-onedal)
+- [Improve performance of your ML application](#improve-performance-of-your-ml-application)
+- [Installation](#installation)
+- [Installation from Source](#installation-from-source)
+- [Technical Preview Features](#technical-preview-features)
+- [Python API](#python-api)
+- [Scikit-learn patching](#scikit-learn-patching)
+- [oneDAL Samples](#onedal-samples)
+- [Examples](#examples)
+- [Documentation](#documentation)
+- [oneDAL and Intel&reg; DAAL](#onedal-and-intel-daal)
+
 ## Build yours high-performance data science application with intel&reg; oneDAL
 
  intel&reg; oneDAL use all capabilities of your hardware, which allows you to get an incredible performance boost on the classic machine learning algorithms.
