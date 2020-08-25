@@ -228,11 +228,16 @@ public:
             services::internal::tryAssignStatus(status, localStatus);
             return;
         }
-        initModuleLevelZero(deviceQueue.get_context().get_native<cl::sycl::backend::level_zero>(),
-                            deviceQueue.get_device().get_native<cl::sycl::backend::level_zero>(), status);
+        _moduleLevelZeroPtr.reset(new ZeModuleHelper(deviceQueue.get_context().get_native<cl::sycl::backend::level_zero>(),
+                                                     deviceQueue.get_device().get_native<cl::sycl::backend::level_zero>(), get(), status));
     }
 
-    ze_module_handle_t getModuleLevelZero() const { return _moduleLevelZeroPtr->get(); }
+    ze_module_handle_t getModuleLevelZero(services::Status * status = nullptr) const
+    {
+        ze_module_handle_t module;
+        _moduleLevelZeroPtr->zeModuleCreate(&module, status);
+        return module;
+    }
         #endif // DAAL_DISABLE_LEVEL_ZERO
 
     const char * getName() const { return _programName.c_str(); }
@@ -269,25 +274,6 @@ private:
         #endif
         DAAL_CHECK_OPENCL(err, status)
     }
-
-        #ifndef DAAL_DISABLE_LEVEL_ZERO
-    void initModuleLevelZero(ze_context_handle_t zeContext, ze_device_handle_t zeDevice, services::Status * status = nullptr)
-    {
-        size_t binarySize = 0;
-        DAAL_CHECK_OPENCL(clGetProgramInfo(get(), CL_PROGRAM_BINARY_SIZES, sizeof(size_t), &binarySize, NULL), status);
-
-        auto binary = (unsigned char *)daal::services::daal_malloc(binarySize);
-        if (binary == nullptr)
-        {
-            services::internal::tryAssignStatus(status, services::ErrorMemoryAllocationFailed);
-            return;
-        }
-
-        DAAL_CHECK_OPENCL(clGetProgramInfo(get(), CL_PROGRAM_BINARIES, sizeof(binary), &binary, NULL), status);
-        _moduleLevelZeroPtr.reset(new ZeModuleHelper(zeContext, zeDevice, binarySize, binary, status));
-        daal::services::daal_free(binary);
-    }
-        #endif // DAAL_DISABLE_LEVEL_ZERO
 
 private:
     services::String _programName;

@@ -25,6 +25,7 @@
     #ifndef __DAAL_ONEAPI_INTERNAL_DAAL_ZE_MODULE_HELPER_H__
         #define __DAAL_ONEAPI_INTERNAL_DAAL_ZE_MODULE_HELPER_H__
 
+        #include <CL/cl.h>
         #include "sycl/internal/daal_level_zero_common.h"
 
         #ifndef DAAL_DISABLE_LEVEL_ZERO
@@ -32,6 +33,14 @@
             #include "sycl/internal/error_handling.h"
             #include "services/daal_shared_ptr.h"
             #include "services/internal/dynamic_lib_helper.h"
+
+            #define _P(...)              \
+                do                       \
+                {                        \
+                    printf(__VA_ARGS__); \
+                    printf("\n");        \
+                    fflush(0);           \
+                } while (0)
 
 namespace daal
 {
@@ -64,8 +73,8 @@ class ZeModuleHelper : public Base
 public:
     ZeModuleHelper()                       = delete;
     ZeModuleHelper(const ZeModuleHelper &) = delete;
-    ZeModuleHelper(ze_context_handle_t zeContext, ze_device_handle_t zeDevice, size_t binarySize, const uint8_t * pBinary,
-                   services::Status * status = nullptr)
+    ZeModuleHelper(ze_context_handle_t zeContext, ze_device_handle_t zeDevice, cl_program clProgram, services::Status * status = nullptr)
+        : _zeContext(zeContext), _zeDevice(zeDevice), _binarySize(0), _pBinary(nullptr)
     {
         services::Status localStatus;
 
@@ -85,41 +94,39 @@ public:
 
         _zeModuleCreateF = stZeModuleCreateF;
 
-        ze_module_desc_t desc;
-        desc.stype        = ZE_STRUCTURE_TYPE_MODULE_DESC;
-        desc.format       = ZE_MODULE_FORMAT_NATIVE;
-        desc.inputSize    = binarySize;
-        desc.pInputModule = pBinary;
-        desc.pBuildFlags  = "";
-        desc.pConstants   = nullptr;
+        DAAL_CHECK_OPENCL(clGetProgramInfo(clProgram, CL_PROGRAM_BINARY_SIZES, sizeof(size_t), &_binarySize, NULL), status);
 
-        DAAL_CHECK_LEVEL_ZERO(_zeModuleCreateF(zeContext, zeDevice, &desc, &_moduleLevelZero, nullptr), status);
+        _pBinary = (unsigned char *)daal::services::daal_malloc(_binarySize);
+        if (_pBinary == nullptr)
+        {
+            services::internal::tryAssignStatus(status, services::ErrorMemoryAllocationFailed);
+            return;
+        }
+
+        DAAL_CHECK_OPENCL(clGetProgramInfo(clProgram, CL_PROGRAM_BINARIES, sizeof(_pBinary), &_pBinary, NULL), status);
     }
 
-    ~ZeModuleHelper()
+    ~ZeModuleHelper() { daal::services::daal_free(_pBinary); }
+
+    void zeModuleCreate(ze_module_handle_t * moduleLevelZero, services::Status * status = nullptr)
     {
-        services::Status localStatus;
+        ze_module_desc_t zeDesc;
+        zeDesc.stype        = ZE_STRUCTURE_TYPE_MODULE_DESC;
+        zeDesc.format       = ZE_MODULE_FORMAT_NATIVE;
+        zeDesc.inputSize    = _binarySize;
+        zeDesc.pInputModule = _pBinary;
+        zeDesc.pBuildFlags  = "";
+        zeDesc.pConstants   = nullptr;
 
-        static services::internal::DynamicLibHelper zeLibD(zeLoaderName, libLoadFlags, &localStatus);
-        if (!localStatus.ok())
-        {
-            return;
-        }
-
-        zeModuleDestroyFT zeModuleDestroyF = zeLibD.getSymbol<zeModuleDestroyFT>(zeModuleDestroyFuncName, &localStatus);
-        if (!localStatus.ok())
-        {
-            return;
-        }
-
-        zeModuleDestroyF(_moduleLevelZero);
+        DAAL_CHECK_LEVEL_ZERO(_zeModuleCreateF(_zeContext, _zeDevice, &zeDesc, moduleLevelZero, nullptr), status);
     }
-
-    ze_module_handle_t get() { return _moduleLevelZero; }
 
 private:
-    ze_module_handle_t _moduleLevelZero;
+    ze_context_handle_t _zeContext;
+    ze_device_handle_t _zeDevice;
     zeModuleCreateFT _zeModuleCreateF;
+    unsigned char * _pBinary;
+    size_t _binarySize;
 };
 
 typedef services::SharedPtr<ZeModuleHelper> ZeModuleHelperPtr;
