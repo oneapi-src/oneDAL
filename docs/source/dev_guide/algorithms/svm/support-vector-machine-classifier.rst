@@ -237,6 +237,7 @@ Examples
     Batch Processing:
     
     - :ref:`dpc_svm_two_class_thunder_dense_batch.cpp`
+    - :ref:`cpp_svm_two_class_smo_dense_batch.cpp`
 
   .. tab:: oneAPI C++
 
