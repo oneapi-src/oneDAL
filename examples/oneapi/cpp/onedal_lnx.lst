@@ -31,4 +31,5 @@ ONEDAL = column_accessor_homogen           \
          svm_two_class_smo_dense_batch     \
          jaccard_batch                     \
          load_graph                        \
+         measure                           \
          graph_service_functions

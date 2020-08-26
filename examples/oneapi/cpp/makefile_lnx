@@ -160,6 +160,6 @@ $(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.
 	$(CC) $(COPTS) $< -o $@ $(LOPTS)
 
 $(RES_DIR)/%.res:  $(RES_DIR)/%.exe
-	$< > $@
+	# $< > $@
 
 %/.:; mkdir -p $*

@@ -29,6 +29,7 @@
 #include "oneapi/dal/io/load_graph_descriptor.hpp"
 #include "services/daal_atomic_int.h"
 #include "services/daal_memory.h"
+#include "oneapi/dal/io/detail/meas.hpp"
 
 namespace oneapi::dal::preview::load_graph::detail {
 edge_list<std::int32_t> load_edge_list(const std::string &name) {
