@@ -32,12 +32,11 @@ Intel&reg; oneDAL solvers are also used in [Intel Distribution for Python]([http
 ## Table of Contents
 - [Build yours high-performance data science application with intel&reg; oneDAL](#build-yours-high-performance-data-science-application-with-intel-onedal)
 - [Technical Preview Features](#technical-preview-features)
-- [Installation](#installation)
-- [Installation from Source](#installation-from-source)
 - [Python API](#python-api)
 - [Scikit-learn patching](#scikit-learn-patching)
 - [Distributed multi-node mode](#distributed-multi-node-mode)
-- [oneDAL Samples](#onedal-samples)
+- [Installation](#installation)
+- [Installation from Source](#installation-from-source)
 - [Examples](#examples)
 - [Samples](#samples)
 - [oneDAL Apache Spark MLlib samples](#onedal-apache-spark-mllib-samples)
@@ -68,16 +67,6 @@ Check out our [examples](#examples)  and [documentation](#documentation)  for in
 Technical preview features are introduced to gain early feedback from developers. A technical preview feature is subject to change in the future releases. Using a technical preview feature in a production code base is therefore strongly discouraged.
 In C++ APIs, technical preview features are located in `daal::preview` and `onedal::preview` namespaces. In Java APIs, technical preview features are located in packages that have the `com.intel.daal.preview` name prefix.
 The only preview feature at the moment is `MultiNodeBatch` for K-Means, a stepless distributed algorithm based on oneCCL.
-
-## Installation
-
-You can install oneDAL:
-
-- from [oneDAL home page](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onedal.html) as a part of Intel&reg; oneAPI Base Toolkit.
-- from [GitHub\*](https://github.com/oneapi-src/oneDAL/releases).
-
-## Installation from Source
-See [Installation from Sources](INSTALL.md) for details.
 
 ## Python API
 
@@ -185,6 +174,16 @@ result = alg.compute(data, centroids)
 ```
 
 For more details browse our [daal4py documentation](https://intelpython.github.io/daal4py/).
+
+## Installation
+
+You can install oneDAL:
+
+- from [oneDAL home page](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onedal.html) as a part of Intel&reg; oneAPI Base Toolkit.
+- from [GitHub\*](https://github.com/oneapi-src/oneDAL/releases).
+
+### Installation from Source
+See [Installation from Sources](INSTALL.md) for details.
 
 ## Examples
 
