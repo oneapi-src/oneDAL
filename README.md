@@ -24,46 +24,41 @@
 [![Build Status](https://dev.azure.com/daal/DAAL/_apis/build/status/intel.daal?branchName=master)](https://dev.azure.com/daal/DAAL/_build/latest?definitionId=3&branchName=master) ![License](https://img.shields.io/github/license/intel/daal.svg)
 
  Intel&reg; oneAPI Data Analytics Library (oneDAL) is a powerful machine liearning library that helps speed up big data analysis.
+ Intel&reg; oneAPI Data Analytics Library is an extenstion of Intel&reg; Data Analytics Acceleration Library (Intel&reg; DAAL).
  Intel&reg; oneDAL solvers are also used in [Intel Distribution for Python]([https://software.intel.com/en-us/distribution-for-python](https://software.intel.com/en-us/distribution-for-python)) in scikit-learn optimization.
 
 ## Table of Contents
 - [Build yours high-performance data science application with intel&reg; oneDAL](#build-yours-high-performance-data-science-application-with-intel-onedal)
-- [Improve performance of your ML application](#improve-performance-of-your-ml-application)
 - [Installation](#installation)
 - [Installation from Source](#installation-from-source)
 - [Technical Preview Features](#technical-preview-features)
 - [Python API](#python-api)
 - [Scikit-learn patching](#scikit-learn-patching)
+- [Distributed multi-node mode](#distributed-multi-node-mode)
 - [oneDAL Samples](#onedal-samples)
 - [Examples](#examples)
+- [Samples](#samples)
+- [oneDAL Apache Spark MLlib samples](#onedal-apache-spark-mllib-samples)
 - [Documentation](#documentation)
 - [oneDAL and Intel&reg; DAAL](#onedal-and-intel-daal)
 
 ## Build yours high-performance data science application with intel&reg; oneDAL
 
- intel&reg; oneDAL use all capabilities of your hardware, which allows you to get an incredible performance boost on the classic machine learning algorithms.
+Intel&reg; oneDAL uses all capabilities of Intel&reg; hardware, which allows you to get an sugnificant performance boost on the classic machine learning algorithms.
+
 We provide highly optimized algorithmic building blocks for all stages of data analytics: **preprocessing**, **transformation**, **analysis**, **modeling**, **validation**, and **decision making**.
 
 The current version of oneDAL provides Data Parallel C++ (DPC++) API extensions to the traditional C++ interface.
 
-Check out our [examples](#examples)  and [documentation](#documentation)  for information about our API
-
-## Improve performance of your ML application
-
-oneDAL is the perfect solution if you are interested in a high-performance machine learning framework. oneDAL uses machine learning algorithms optimizations and full power of your hardware to achieve greater performance than alternative solutions offers.
-
-| *Speedups of Intel&reg; oneDAL powered Scikit-learn over the original Scikit-learn, 28 cores, 1 thread/core* |
-|:--:|
-| ![](docs/readme-charts/IDP%20scikit-learn%20accelearation%20compared%20with%20stock%20scikit-learn.png) |
-
-
 The size of the data is growing exponentially, as is the need for high-performance and scalable frameworks to analyze all this data and extract some benefits from it.
-Besides superior performance on a single node, the distribution mechanics of oneDAL provides excellent strong and weak scaling.
-
+Besides superior performance on a single node, the oneDAL distributed multi-node algorithms implementations also provides excellent strong and weak scaling (check charts below).
 
 Intel&reg; oneDAL K-means fit, strong scaling result | Intel&reg; oneDAL K-means fit, weak scaling results
 :-------------------------:|:-------------------------:
-![](docs/readme-charts/Intel%20oneDAL%20KMeans%20strong%20scaling.png)  | ![](docs/readme-charts/intel%20oneDAL%20KMeans%20weak%20scaling.png)
+![](docs/readme-charts/Intel%20oneDAL%20KMeans%20strong%20scaling.png)  |
+![](docs/readme-charts/intel%20oneDAL%20KMeans%20weak%20scaling.png)
+
+Check out our [examples](#examples)  and [documentation](#documentation)  for information about our API
 
 ## Installation
 
@@ -103,32 +98,14 @@ alg = d4p.kmeans(nClusters = 10, maxIterations = 50, fptype = "float",
 result = alg.compute(data, centroids)
 ```
 
-Often data scientists require different tools for analysis regular and big data. daal4py offers various processing models, which makes it easy to enable distributed multi-node mode.
-```python
-import numpy as np
-import pandas as pd
-import daal4py as d4p
+### Scikit-learn patching
 
-d4p.daalinit() # <-- Initialize SPMD mode
-data = pd.read_csv("local_kmeans_data.csv", dtype = np.float32)
+Python interface to efficient Intel® oneDAL provided by daal4py allows one to create scikit-learn compatible estimators, transformers, clusterers, etc. powered by oneDAL which are nearly as efficient as native programs.
 
-init_alg = d4p.kmeans_init(nClusters = 10,
-                           fptype = "float",
-                           method = "randomDense",
-                           distributed = True) # <-- change model to distributed
+| *Speedups of Intel&reg; oneDAL powered Scikit-learn over the original Scikit-learn, 28 cores, 1 thread/core* |
+|:--:|
+| ![](docs/readme-charts/IDP%20scikit-learn%20accelearation%20compared%20with%20stock%20scikit-learn.png) |
 
-centroids = init_alg.compute(data).centroids
-
-alg = d4p.kmeans(nClusters = 10, maxIterations = 50, fptype = "float",
-                 accuracyThreshold = 0, assignFlag = False,
-                 distributed = True)  # <-- change model to distributed
-
-result = alg.compute(data, centroids)
-```
-
-## Scikit-learn patching
-
-Python interface to efficient Intel® Data Analytics and Acceleration Library (DAAL) provided by daal4py allows one to create scikit-learn compatible estimators, transformers, clusterers, etc. powered by DAAL which are nearly as efficient as native programs.
 daal4py have an API which matches API from scikit-learn.
 This framework allows you to speed up your existing projects by changing one line of code
 
@@ -177,40 +154,71 @@ print(end - start) # output: 0.032536...
 print(svm_d4p.score(X, y)) # output: 0.9905397885364496
 ```
 
+### Distributed multi-node mode
+
+Often data scientists require different tools for analysis regular and big data. daal4py offers various processing models, which makes it easy to enable distributed multi-node mode.
+
+```python
+import numpy as np
+import pandas as pd
+import daal4py as d4p
+
+d4p.daalinit() # <-- Initialize SPMD mode
+data = pd.read_csv("local_kmeans_data.csv", dtype = np.float32)
+
+init_alg = d4p.kmeans_init(nClusters = 10,
+                           fptype = "float",
+                           method = "randomDense",
+                           distributed = True) # <-- change model to distributed
+
+centroids = init_alg.compute(data).centroids
+
+alg = d4p.kmeans(nClusters = 10, maxIterations = 50, fptype = "float",
+                 accuracyThreshold = 0, assignFlag = False,
+                 distributed = True)  # <-- change model to distributed
+
+result = alg.compute(data, centroids)
+```
 
 For more details browse our [daal4py documentation](https://intelpython.github.io/daal4py/).
 
-
-## oneDAL Samples
-
-<img align="right" style="display:inline;" height=300 width=550 src="docs/readme-charts/intel%20oneDAL%20Spark%20samples%20vs%20Apache%20Spark%20MLlib.png"></a>
-
-Samples is a non official part of a project, that contains examples of how oneDAL can be used in different applications.
-
-**oneDAL Spark Samples is a good example.**
-oneDAL provides scala / java interfaces that match Apache Spark MlLib API and use oneDAL solvers under the hood. This implementation allows you to get a 3-18X increase in performance compared to default Apache Spark MLlib.
-
-  ## Examples
+## Examples
 
 Except C++ and Python API oneDAL also provide API for C++ SYCL and Java languages. Check out tabs below for more examples.
 - [C++](https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp)
-- [C++ SYCL\*](https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp_sycl)
+- [oneAPI C++](https://github.com/oneapi-src/oneDAL/tree/master/examples/oneapi/cpp)
+- [oneAPI DPC++](https://github.com/oneapi-src/oneDAL/tree/master/examples/oneapi/dpc)
 - [Java](https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java)
 - [Python](https://github.com/IntelPython/daal4py/tree/master/examples)
-
-Data Examples for different computation modes:
-
-- [Batch](https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/data/batch)
-- [Distributed](https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/data/distributed)
-- [Online](https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/data/online)
 
 ## Documentation
 - [Get Started](http://oneapi-src.github.io/oneDAL/getstarted.html)
 - [System Requirements](https://software.intel.com/content/www/us/en/develop/articles/system-requirements-for-oneapi-data-analytics-library.html)
 - [oneDAL documentation](http://oneapi-src.github.io/oneDAL/)
-- [Specifications](https://spec.oneapi.com/versions/latest/elements/oneDAL/source/index.html)
+- [Specification](https://spec.oneapi.com/versions/latest/elements/oneDAL/source/index.html)
 - [Release Notes](https://software.intel.com/content/www/us/en/develop/articles/oneapi-dal-release-notes.html)
 - [Known Issues](https://oneapi-src.github.io/oneDAL/notes/known_issues.html)
+
+## Samples
+Samples is an examples of how oneDAL can be used in different applications.
+- [Apache Arrow](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/arrow)
+- [KDB](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/kdb)
+- [MPI](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/mpi)
+- [MySQL](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/mysql)
+- [oneCCL](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/oneccl)
+- [Hadoop](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/java/hadoop)
+- [Java Spark](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/java/spark)
+- [Scala Spark](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/scala/spark)
+
+
+## oneDAL Apache Spark MLlib samples
+
+<img align="right" style="display:inline;" height=300 width=550 src="docs/readme-charts/intel%20oneDAL%20Spark%20samples%20vs%20Apache%20Spark%20MLlib.png"></a>
+
+oneDAL provides scala / java interfaces that match Apache Spark MlLib API and use oneDAL solvers under the hood. This implementation allows you to get a 3-18X increase in performance compared to default Apache Spark MLlib.
+
+Check [oneDAL Scala Spark samples](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/scala/spark) tab for more details.
+
 
 ## oneDAL and Intel&reg; DAAL
 
