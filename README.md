@@ -217,7 +217,7 @@ Samples is an examples of how oneDAL can be used in different applications.
 
 ## oneDAL Apache Spark MLlib samples
 
-<img align="right" style="display:inline;" height=300 width=550 src="docs/readme-charts/intel%20oneDAL%20Spark%20samples%20vs%20Apache%20Spark%20MLlib.png"></a><div style="clear:both">Your text here.</div>
+<img align="right" style="display:inline;" height=300 width=550 src="docs/readme-charts/intel%20oneDAL%20Spark%20samples%20vs%20Apache%20Spark%20MLlib.png"></a>
 
 oneDAL provides scala / java interfaces that match Apache Spark MlLib API and use oneDAL solvers under the hood. This implementation allows you to get a 3-18X increase in performance compared to default Apache Spark MLlib.
 
