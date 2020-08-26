@@ -59,6 +59,8 @@ Intel&reg; oneDAL K-means fit, strong scaling result | Intel&reg; oneDAL K-means
 :-------------------------:|:-------------------------:
 ![](docs/readme-charts/Intel%20oneDAL%20KMeans%20strong%20scaling.png)  |   ![](docs/readme-charts/intel%20oneDAL%20KMeans%20weak%20scaling.png)
 
+>*technical details: FPType float32; HW Intel Xeon Processor E5-2698 v3 @2.3GHz, 2 sockets, 16 cores per socket; SW Intel® DAAL (2019.3), MPI4Py (3.0.0), Intel® Distribution Of Python (IDP) 3.6.8; Details available in the article https://arxiv.org/abs/1909.11822*
+
 Check out our [examples](#examples)  and [documentation](#documentation)  for information about our API
 
 ## Technical Preview Features
@@ -106,6 +108,7 @@ Python interface to efficient Intel® oneDAL provided by daal4py allows one to c
 | *Speedups of Intel&reg; oneDAL powered Scikit-learn over the original Scikit-learn, 28 cores, 1 thread/core* |
 |:--:|
 | ![](docs/readme-charts/IDP%20scikit-learn%20accelearation%20compared%20with%20stock%20scikit-learn.png) |
+| *Check [this article](https://medium.com/intel-analytics-software/accelerate-your-scikit-learn-applications-a06cacf44912) for more technical details* |
 
 daal4py have an API which matches API from scikit-learn.
 This framework allows you to speed up your existing projects by changing one line of code
@@ -214,9 +217,11 @@ Samples is an examples of how oneDAL can be used in different applications.
 
 ## oneDAL Apache Spark MLlib samples
 
-<img align="right" style="display:inline;" height=300 width=550 src="docs/readme-charts/intel%20oneDAL%20Spark%20samples%20vs%20Apache%20Spark%20MLlib.png"></a>
+<img align="right" style="display:inline;" height=300 width=550 src="docs/readme-charts/intel%20oneDAL%20Spark%20samples%20vs%20Apache%20Spark%20MLlib.png"></a><div style="clear:both">Your text here.</div>
 
 oneDAL provides scala / java interfaces that match Apache Spark MlLib API and use oneDAL solvers under the hood. This implementation allows you to get a 3-18X increase in performance compared to default Apache Spark MLlib.
+
+>*technical details: FPType double; HW 7 x m5.2xlarge AWS instances; SW Intel DAAL 2020 Gold, Apache Spark 2.4.4, emr-5.27.0; Spark config num executors 12, executor cores 8, executor memory 19GB, task cpus 8*
 
 Check [oneDAL Scala Spark samples](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/scala/spark) tab for more details.
 
