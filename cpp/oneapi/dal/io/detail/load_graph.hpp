@@ -137,8 +137,9 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     //removing self-loops,  multiple edges from graph, and make neighbors in CSR sorted
 
     layout->_vertex_count = _unf_vertex_count;
+    vertex_size_t _vertex_count = _unf_vertex_count;
 
-    layout->_degrees = std::move(vector_vertex_t(layout->_vertex_count));
+    layout->_degrees = std::move(vector_vertex_t(_vertex_count));
 
     threader_for(_unf_vertex_count, _unf_vertex_count, [&](vertex_t u) {
         auto start_p = _unf_vert_neighs_vec.begin() + _unf_edge_offset_vec[u];
@@ -149,24 +150,27 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         layout->_degrees[u]   = (vertex_t)std::distance(start_p, neighs_u_new_end);
     });
 
-    layout->_edge_offsets.clear();
-    layout->_edge_offsets.reserve(layout->_vertex_count + 1);
+    layout->_edge_offsets = std::move(vector_vertex_t(_vertex_count + 1));
+    // layout->_edge_offsets.reserve(_vertex_count + 1);
 
     total_sum_degrees = 0;
-    layout->_edge_offsets.push_back(total_sum_degrees);
+    auto & edge_offsets = layout->_edge_offsets;
+    auto degrees_data = layout->_degrees.data();
+    auto edge_offsets_data = layout->_edge_offsets.data();
+    edge_offsets_data[0] = total_sum_degrees;
 
-    for (vertex_size_t i = 0; i < layout->_vertex_count; ++i) {
-        total_sum_degrees += layout->_degrees[i];
-        layout->_edge_offsets.push_back(total_sum_degrees);
+    for (vertex_size_t i = 0; i < _vertex_count; ++i) {
+        total_sum_degrees += degrees_data[i]; 
+        edge_offsets_data[i+1]=total_sum_degrees;
     }
-    layout->_edge_count = layout->_edge_offsets[layout->_vertex_count] / 2;
+    layout->_edge_count = layout->_edge_offsets[_vertex_count] / 2;
 
     layout->_vertex_neighbors =
-        std::move(vector_vertex_t(layout->_edge_offsets[layout->_vertex_count]));
+        std::move(vector_vertex_t(layout->_edge_offsets[_vertex_count]));
 
     auto vert_neighs = layout->_vertex_neighbors.data();
     auto edge_offs   = layout->_edge_offsets.data();
-    threader_for(layout->_vertex_count, layout->_vertex_count, [&](vertex_t u) {
+    threader_for(_vertex_count, _vertex_count, [&](vertex_t u) {
         auto u_neighs      = vert_neighs + edge_offs[u];
         auto _u_neighs_unf = _unf_vert_neighs_arr + _unf_edge_offset_arr[u];
         for (vertex_t i = 0; i < layout->_degrees[u]; i++) {

@@ -103,6 +103,7 @@ onedal_threading.sequential := $(onedal_sequential)
 onedal_threading := $(onedal_threading.$(threading))
 
 COPTS := -std=c++17 \
+-g \
          -pedantic \
          -Wall \
          -Wextra \
