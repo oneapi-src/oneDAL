@@ -365,13 +365,14 @@ class OpenClKernelLevelZero : public OpenClKernel
 {
 public:
     explicit OpenClKernelLevelZero(ExecutionTargetId executionTarget, const OpenClProgramRef & programRef, const OpenClKernelLevelZeroRef & kernelRef)
-        : OpenClKernel(executionTarget, programRef), _clKernelRef(kernelRef)
+        : OpenClKernel(executionTarget, programRef), _clKernelRef(kernelRef), syclKernel(getProgramRef().getProgramLevelZero().get_kernel(_clKernelRef.getName()))
     {}
 
-    cl::sycl::kernel toSycl(const cl::sycl::context & ctx) const { return getProgramRef().getProgramLevelZero().get_kernel(_clKernelRef.getName()); }
+    cl::sycl::kernel toSycl(const cl::sycl::context & ctx) const { return syclKernel; }
 
 private:
     OpenClKernelLevelZeroRef _clKernelRef;
+    cl::sycl::kernel syclKernel;
 };
         #endif // DAAL_DISABLE_LEVEL_ZERO
 

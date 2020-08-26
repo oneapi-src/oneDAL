@@ -109,7 +109,7 @@ public:
         _program = cl::sycl::level_zero::make<cl::sycl::program>(deviceQueue.get_context(), _moduleLevelZero);
     }
 
-    ~ZeModuleHelper() {}
+    ~ZeModuleHelper() = default;
 
     cl::sycl::program getZeProgram() { return _program; }
 
