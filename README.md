@@ -3,19 +3,19 @@
 <!--
 ******************************************************************************
 * Copyright 2014-2020 Intel Corporation
-  *
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-  *
+*
 * http://www.apache.org/licenses/LICENSE-2.0
-  *
+*
 * Unless required by applicable law or agreed to in writing, software
 * distributed under the License is distributed on an "AS IS" BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 * See the License for the specific language governing permissions and
 * limitations under the License.
-  *******************************************************************************/-->
+*******************************************************************************/-->
 
 # Intel&reg; oneAPI Data Analytics Library
 
@@ -23,15 +23,17 @@
 
 [![Build Status](https://dev.azure.com/daal/DAAL/_apis/build/status/intel.daal?branchName=master)](https://dev.azure.com/daal/DAAL/_build/latest?definitionId=3&branchName=master) ![License](https://img.shields.io/github/license/intel/daal.svg)
 
- Intel&reg; oneAPI Data Analytics Library (oneDAL) is a powerful machine liearning library that helps speed up big data analysis.
- Intel&reg; oneAPI Data Analytics Library is an extenstion of Intel&reg; Data Analytics Acceleration Library (Intel&reg; DAAL).
- Intel&reg; oneDAL solvers are also used in [Intel Distribution for Python]([https://software.intel.com/en-us/distribution-for-python](https://software.intel.com/en-us/distribution-for-python)) in scikit-learn optimization.
+Intel&reg; oneAPI Data Analytics Library (oneDAL) is a powerful machine liearning library that helps speed up big data analysis.
+
+Intel&reg; oneAPI Data Analytics Library is an extenstion of Intel&reg; Data Analytics Acceleration Library (Intel&reg; DAAL).
+
+Intel&reg; oneDAL solvers are also used in [Intel Distribution for Python]([https://software.intel.com/en-us/distribution-for-python](https://software.intel.com/en-us/distribution-for-python)) in scikit-learn optimization.
 
 ## Table of Contents
 - [Build yours high-performance data science application with intel&reg; oneDAL](#build-yours-high-performance-data-science-application-with-intel-onedal)
+- [Technical Preview Features](#technical-preview-features)
 - [Installation](#installation)
 - [Installation from Source](#installation-from-source)
-- [Technical Preview Features](#technical-preview-features)
 - [Python API](#python-api)
 - [Scikit-learn patching](#scikit-learn-patching)
 - [Distributed multi-node mode](#distributed-multi-node-mode)
@@ -55,9 +57,15 @@ Besides superior performance on a single node, the oneDAL distributed multi-node
 
 Intel&reg; oneDAL K-means fit, strong scaling result | Intel&reg; oneDAL K-means fit, weak scaling results
 :-------------------------:|:-------------------------:
-![](docs/readme-charts/Intel%20oneDAL%20KMeans%20strong%20scaling.png)  | ![](docs/readme-charts/intel%20oneDAL%20KMeans%20weak%20scaling.png)
+![](docs/readme-charts/Intel%20oneDAL%20KMeans%20strong%20scaling.png)  |   ![](docs/readme-charts/intel%20oneDAL%20KMeans%20weak%20scaling.png)
 
 Check out our [examples](#examples)  and [documentation](#documentation)  for information about our API
+
+## Technical Preview Features
+
+Technical preview features are introduced to gain early feedback from developers. A technical preview feature is subject to change in the future releases. Using a technical preview feature in a production code base is therefore strongly discouraged.
+In C++ APIs, technical preview features are located in `daal::preview` and `onedal::preview` namespaces. In Java APIs, technical preview features are located in packages that have the `com.intel.daal.preview` name prefix.
+The only preview feature at the moment is `MultiNodeBatch` for K-Means, a stepless distributed algorithm based on oneCCL.
 
 ## Installation
 
@@ -68,12 +76,6 @@ You can install oneDAL:
 
 ## Installation from Source
 See [Installation from Sources](INSTALL.md) for details.
-
-## Technical Preview Features
-
-Technical preview features are introduced to gain early feedback from developers. A technical preview feature is subject to change in the future releases. Using a technical preview feature in a production code base is therefore strongly discouraged.
-In C++ APIs, technical preview features are located in `daal::preview` and `onedal::preview` namespaces. In Java APIs, technical preview features are located in packages that have the `com.intel.daal.preview` name prefix.
-The only preview feature at the moment is `MultiNodeBatch` for K-Means, a stepless distributed algorithm based on oneCCL.
 
 ## Python API
 
