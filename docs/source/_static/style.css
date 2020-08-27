@@ -91,6 +91,10 @@ div.quotation {
   padding: 1em 0 0 1em;
 }
 
+.rst-content div[class^='highlight'] pre {
+   white-space: pre-line;
+}
+
 /*
 .rst-content tt.literal, .rst-content code.literal, .highlight {
    background: #f0f0f0;

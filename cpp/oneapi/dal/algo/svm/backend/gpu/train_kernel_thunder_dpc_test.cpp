@@ -19,8 +19,8 @@
 #include "gtest/gtest.h"
 #define ONEAPI_DAL_DATA_PARALLEL
 #include "oneapi/dal/algo/svm.hpp"
-#include "oneapi/dal/data/accessor.hpp"
-#include "oneapi/dal/data/table.hpp"
+#include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
 
 using namespace oneapi::dal;
 using std::int32_t;
@@ -44,8 +44,8 @@ TEST(svm_thunder_dense_gpu_test, can_classify_linear_separable_surface) {
     auto y_train = sycl::malloc_shared<float>(row_count_train * 1, queue);
     queue.memcpy(y_train, y_train_host, sizeof(float) * row_count_train * 1).wait();
 
-    const auto x_train_table = homogen_table{ queue, row_count_train, column_count, x_train };
-    const auto y_train_table = homogen_table{ queue, row_count_train, 1, y_train };
+    const auto x_train_table = homogen_table::wrap(queue, x_train, row_count_train, column_count);
+    const auto y_train_table = homogen_table::wrap(queue, y_train, row_count_train, 1);
 
     constexpr std::int64_t support_index_negative = 1;
     constexpr std::int64_t support_index_positive = 3;
@@ -86,16 +86,17 @@ TEST(svm_thunder_dense_gpu_test,
 
     auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
     queue.memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count).wait();
-    const auto x_train_table = homogen_table{ row_count_train, column_count, x_train };
+
+    const auto x_train_table = homogen_table::wrap(queue, x_train, row_count_train, column_count);
 
     auto y_train = sycl::malloc_shared<float>(row_count_train * 1, queue);
     queue.memcpy(y_train, y_train_host, sizeof(float) * row_count_train * 1).wait();
-    const auto y_train_table = homogen_table{ row_count_train, 1, y_train };
+    const auto y_train_table = homogen_table::wrap(queue, y_train, row_count_train, 1);
 
     constexpr std::int64_t support_index_negative = 1;
     constexpr std::int64_t support_index_positive = 3;
 
-    const auto kernel_desc  = linear_kernel::descriptor{}.set_k(0.1).set_b(0.0);
+    const auto kernel_desc  = linear_kernel::descriptor{}.set_scale(0.1).set_shift(0.0);
     const auto svm_desc     = svm::descriptor{ kernel_desc }.set_c(10.0);
     const auto result_train = train(queue, svm_desc, x_train_table, y_train_table);
     ASSERT_EQ(result_train.get_support_vector_count(), 2);
@@ -130,11 +131,11 @@ TEST(svm_thunder_dense_gpu_test, can_classify_linear_separable_surface_with_big_
 
     auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
     queue.memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count).wait();
-    const auto x_train_table = homogen_table{ row_count_train, column_count, x_train };
+    const auto x_train_table = homogen_table::wrap(queue, x_train, row_count_train, column_count);
 
     auto y_train = sycl::malloc_shared<float>(row_count_train * 1, queue);
     queue.memcpy(y_train, y_train_host, sizeof(float) * row_count_train * 1).wait();
-    const auto y_train_table = homogen_table{ row_count_train, 1, y_train };
+    const auto y_train_table = homogen_table::wrap(queue, y_train, row_count_train, 1);
 
     const auto svm_desc     = svm::descriptor{}.set_c(1e-1);
     const auto result_train = train(queue, svm_desc, x_train_table, y_train_table);
@@ -173,11 +174,11 @@ TEST(svm_thunder_dense_gpu_test, can_classify_linear_separable_surface_with_big_
 
     auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
     queue.memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count).wait();
-    const auto x_train_table = homogen_table{ row_count_train, column_count, x_train };
+    const auto x_train_table = homogen_table{ queue, row_count_train, column_count, x_train };
 
     auto y_train = sycl::malloc_shared<float>(row_count_train * 1, queue);
     queue.memcpy(y_train, y_train_host, sizeof(float) * row_count_train * 1).wait();
-    const auto y_train_table = homogen_table{ row_count_train, 1, y_train };
+    const auto y_train_table = homogen_table{ queue, row_count_train, 1, y_train };
 
     const auto svm_desc     = svm::descriptor{}.set_c(1.0);
     const auto result_train = train(queue, svm_desc, x_train_table, y_train_table);
@@ -212,11 +213,12 @@ TEST(svm_thunder_dense_gpu_test, can_classify_quadric_separable_surface_with_rbf
 
     auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
     queue.memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count).wait();
-    const auto x_train_table = homogen_table{ row_count_train, column_count, x_train };
+
+    const auto x_train_table = homogen_table::wrap(queue, x_train, row_count_train, column_count);
 
     auto y_train = sycl::malloc_shared<float>(row_count_train * 1, queue);
     queue.memcpy(y_train, y_train_host, sizeof(float) * row_count_train * 1).wait();
-    const auto y_train_table = homogen_table{ row_count_train, 1, y_train };
+    const auto y_train_table = homogen_table::wrap(queue, y_train, row_count_train, 1);
 
     const auto kernel_desc  = rbf_kernel::descriptor{}.set_sigma(1.0);
     const auto svm_desc     = svm::descriptor{ kernel_desc }.set_c(1.0);
@@ -236,4 +238,88 @@ TEST(svm_thunder_dense_gpu_test, can_classify_quadric_separable_surface_with_rbf
 
     sycl::free(x_train, queue);
     sycl::free(y_train, queue);
+}
+
+TEST(svm_thunder_dense_gpu_test, can_classify_any_two_labels) {
+    constexpr std::int64_t row_count_train = 6;
+    constexpr std::int64_t column_count    = 2;
+    constexpr std::int64_t range_count     = 4;
+    const float x_train_host[]             = {
+        -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f, +1.f, +2.f, +2.f, +1.f,
+    };
+
+    auto selector = sycl::gpu_selector();
+    auto queue    = sycl::queue(selector);
+
+    auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
+    queue.memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count).wait();
+    const auto x_train_table = homogen_table::wrap(queue, x_train, row_count_train, column_count);
+
+    const float expected_labels_range[range_count][2] = {
+        { -1.f, +1.f },
+        { +0.f, +1.f },
+        { +0.f, +2.f },
+        { -1.f, +0.f },
+    };
+
+    const float y_train_range[range_count][row_count_train] = {
+        {
+            -1.f,
+            -1.f,
+            -1.f,
+            +1.f,
+            +1.f,
+            +1.f,
+        },
+        {
+            0.f,
+            0.f,
+            0.f,
+            +1.f,
+            +1.f,
+            +1.f,
+        },
+        {
+            0.f,
+            0.f,
+            0.f,
+            +2.f,
+            +2.f,
+            +2.f,
+        },
+        {
+            -1.f,
+            -1.f,
+            -1.f,
+            0.f,
+            0.f,
+            0.f,
+        },
+    };
+
+    for (std::int64_t i = 0; i < range_count; ++i) {
+        const auto y_train_host    = y_train_range[i];
+        const auto expected_labels = expected_labels_range[i];
+
+        auto y_train = sycl::malloc_shared<float>(row_count_train * 1, queue);
+        queue.memcpy(y_train, y_train_host, sizeof(float) * row_count_train * 1).wait();
+        const auto y_train_table = homogen_table::wrap(queue, y_train, row_count_train, 1);
+
+        const auto svm_desc_train = svm::descriptor<float>{}.set_c(1e-1);
+
+        const auto result_train = train(queue, svm_desc_train, x_train_table, y_train_table);
+        ASSERT_EQ(result_train.get_support_vector_count(), row_count_train);
+
+        auto support_indices_table = result_train.get_support_indices();
+        const auto support_indices = row_accessor<const float>(support_indices_table).pull();
+        for (size_t i = 0; i < support_indices.get_count(); i++) {
+            ASSERT_EQ(support_indices[i], i);
+        }
+
+        ASSERT_EQ(result_train.get_model().get_first_class_label(), expected_labels[0]);
+        ASSERT_EQ(result_train.get_model().get_second_class_label(), expected_labels[1]);
+        sycl::free(y_train, queue);
+    }
+
+    sycl::free(x_train, queue);
 }

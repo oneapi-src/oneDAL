@@ -16,7 +16,7 @@
 #===============================================================================
 
 ##  Content:
-##     Intel(R) Data Analytics Acceleration Library samples list
+##     Intel(R) oneAPI Data Analytics Library samples list
 ##******************************************************************************
 
 Hadoop_samples_list=( CovarianceDense        \

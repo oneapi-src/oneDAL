@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2014-2020 Intel Corporation
+.. * Copyright 2020 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -21,5 +21,83 @@ Random number engines are used for uniformly distributed random numbers generati
 value that allows to select a particular random number sequence. 
 Initialization is an engine-specific procedure.
 
-At this moment, the documentation for Engines is only available in
-`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-engines>`_.
+.. rubric:: Algorithm Input
+
+Engines accept the input described below.
+Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
+For more details, see :ref:`algorithms`.
+
+.. list-table::
+   :widths: 10 60
+   :header-rows: 1
+
+   * - Input ID
+     - Input
+   * - ``tableToFill``
+     - Pointer to the numeric table of size :math:`n \times p`.
+
+       This input can be an object of any class derived from ``NumericTable``
+       except ``CSRNumericTable``, ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``,
+       and ``MergedNumericTable`` when it holds one of the above table types.  
+
+.. rubric:: Algorithm Output
+
+Engines calculate the result described below.
+Pass the Result ID as a parameter to the methods that access the results of your algorithm.
+For more details, see :ref:`algorithms`.
+
+.. list-table::
+   :widths: 10 60
+   :header-rows: 1
+
+   * - Result ID
+     - Result
+   * - ``randomNumbers``
+     - Pointer to the :math:`n \times p` numeric table with generated random floating-point values of single or double precision.
+     
+       In |short_name|, engines are in-place, which means that the algorithm does not allocate memory for the distribution result,
+       but returns pointer to the filled input.
+
+.. note:: In the current version of the library, engines are used for random number generation only as a parameter of another algorithm.
+
+.. rubric:: Parallel Random Number Generation
+
+The following methods that support generation of sequences of random numbers in parallel are supported in library:
+
+Family
+    Engines follow the same algorithmic scheme with different algorithmic parameters.
+    The set of the parameters guarantee independence of random number sequences produced by the engines.
+    
+    The example below demonstrates the idea for the case when 2 engines from the same family are used to generate 2 random sequences:
+
+    .. image:: images/englines-family-method-example.jpg
+        :width: 300
+
+SkipAhead
+    This method skips ``nskip`` elements of the original random sequence.
+    This method allows to produce ``nThreads`` non-overlapping subsequences.
+    
+    The example below demonstrates the idea for the case when 2 subsequences are used from the random sequence:
+
+    .. image:: images/englines-skipahead-method-example.jpg
+        :width: 300
+
+LeapFrog
+    This method generates random numbers with a stride of ``nThreads``. 
+    ``threadIdx`` is an index of the current thread.
+    
+    The example below demonstrates the idea for the case when 2 subsequences are used from the random sequence:
+
+    .. image:: images/englines-leapfrog-method-example.jpg
+        :width: 300
+
+These methods are represented with member functions of classes that represent functionality described in the Engines section. See API References for details.
+
+.. note:: Support of these methods is engine-specific.
+
+.. toctree::
+    :maxdepth: 1
+    
+    mt19937.rst
+    mcg59.rst
+    mt2203.rst

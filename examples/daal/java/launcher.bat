@@ -24,24 +24,16 @@ setlocal enabledelayedexpansion enableextensions
 set errorcode=0
 
 :ParseArgs
-if /i [%1]==[ia32]        (set full_ia=ia32)      & shift & goto :ParseArgs
+if /i [%1]==[ia32]        (echo 32-bit version is not supporterd)      & shift & goto :Usage
 if /i [%1]==[intel64]     (set full_ia=intel64)   & shift & goto :ParseArgs
-if /i [%1]==[build]       (set rmode=build)       & shift & goto :CheckArgs
-if /i [%1]==[run]         (set rmode=run)         & shift & goto :CheckArgs
+if /i [%1]==[build]       (set rmode=build)       & shift
+if /i [%1]==[run]         (set rmode=run)         & shift
 if /i [%1]==[help]                                          goto :Usage
-
-:CheckArgs
-if not defined full_ia if not "%rmode%"=="build" (
-   echo Bad argument ^{arch^} , must be ia32 or intel64
-   set errorcode=1
-   goto :Usage
-)
 
 goto :CorrectArgs
 
 :Usage
-echo Usage:  launcher.bat ^{arch^|help^} [rmode] [path_to_javac]
-echo arch          - can be ia32 or intel64, optional for building examples
+echo Usage:  launcher.bat [help] [rmode] [path_to_javac]
 echo rmode         - optional parameter, can be build (for building examples only) or
 echo                 run (for running examples only).
 echo                 If not specified build and run are performed.
@@ -71,15 +63,13 @@ if not defined Java_example_list (
 )
 
 :: Setting path for JavaAPI library
-set Djava_library_path="%DAALROOT%"\..\redist\%full_ia%\daal
-set Djava_library_path="%DAALROOT%"\redist\%full_ia%;%Djava_library_path%
+set Djava_library_path="%DAALROOT%"\..\redist\intel64\daal
+set Djava_library_path="%DAALROOT%"\redist\intel64;%Djava_library_path%
 
 :: Setting a path for result folder to put results of examples in
-if defined full_ia (
-    set result_folder=_results\%full_ia%
-    if exist !result_folder! rd /S /Q !result_folder!
-    md !result_folder!
-)
+set result_folder=_results
+if exist !result_folder! rd /S /Q !result_folder!
+md !result_folder!
 
 for %%A in (%Java_example_list%) do (
 :: Building java examples from the list and writing info in the build log
@@ -95,8 +85,7 @@ for %%A in (%Java_example_list%) do (
                 if "%%c"=="" (
                     if not exist !result_folder!\%%a md !result_folder!\%%a
 
-                    if "%full_ia%"=="intel64" ( set memory=4g ) else ( set memory=1g )
-                    java -Xmx!memory! -Djava.library.path=%Djava_library_path% com.intel.daal.examples.%%a.%%b > !result_folder!\%%a\%%b.res
+                    java -Djava.library.path=%Djava_library_path% com.intel.daal.examples.%%a.%%b > !result_folder!\%%a\%%b.res
 
                     set errorcode=!ERRORLEVEL!
                     if !errorcode! == 0 ( echo !time! PASSED %%b ) else ( echo !time! FAILED %%b with errno !errorcode!)
@@ -104,8 +93,7 @@ for %%A in (%Java_example_list%) do (
                     if not exist !result_folder!\%%a md !result_folder!\%%a
                     if not exist !result_folder!\%%a\%%b md !result_folder!\%%a\%%b
 
-                    if "%full_ia%"=="intel64" ( set memory=2g ) else ( set memory=1g )
-                    java -Xmx!memory! -Djava.library.path=%Djava_library_path% com.intel.daal.examples.%%a.%%b.%%c > !result_folder!\%%a\%%b\%%c.res
+                    java -Djava.library.path=%Djava_library_path% com.intel.daal.examples.%%a.%%b.%%c > !result_folder!\%%a\%%b\%%c.res
 
                     set errorcode=!ERRORLEVEL!
                     if !errorcode! == 0 ( echo !time! PASSED %%c ) else ( echo !time! FAILED %%c with errno !errorcode! )

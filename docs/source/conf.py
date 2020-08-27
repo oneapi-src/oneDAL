@@ -38,7 +38,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Intel&reg; oneAPI Data Analytics Library Documentation (Beta)'
-copyright = '2014 - 2020, Intel Corporation'
+copyright = '2014 - 2020, Intel Corporation' # pylint: disable=redefined-builtin
 author = 'Intel'
 
 # The full version, including alpha/beta/rc tags

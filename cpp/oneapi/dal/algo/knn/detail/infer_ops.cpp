@@ -19,6 +19,7 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::knn::detail {
+using oneapi::dal::detail::host_policy;
 
 template <typename Float, typename Method>
 struct infer_ops_dispatcher<host_policy, Float, Method> {

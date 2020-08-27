@@ -95,7 +95,7 @@ class DataStructuresHomogen {
         HomogenNumericTable newDataTable = new HomogenNumericTable(context, newData, nFeaturesHomogen, nNewVectors);
         /* Ensure the data has changed */
         readFeatureIdx = 1;
-        FloatBuffer dataFloat = FloatBuffer.allocate((int) nNewVectors);;
+        FloatBuffer dataFloat = FloatBuffer.allocate((int) nNewVectors);
 
         dataFloat = newDataTable.getBlockOfColumnValues((long)readFeatureIdx, (long)firstReadRow, (long)nNewVectors, dataFloat);
         printFloatBuffer(dataFloat, 1, nNewVectors, "\nPrint the second feature of new data:");

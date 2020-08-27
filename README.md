@@ -65,7 +65,11 @@ Check out our [examples](#examples)  and [documentation](#documentation)  for in
 
 Technical preview features are introduced to gain early feedback from developers. A technical preview feature is subject to change in the future releases. Using a technical preview feature in a production code base is therefore strongly discouraged.
 In C++ APIs, technical preview features are located in `daal::preview` and `onedal::preview` namespaces. In Java APIs, technical preview features are located in packages that have the `com.intel.daal.preview` name prefix.
-The only preview feature at the moment is `MultiNodeBatch` for K-Means, a stepless distributed algorithm based on oneCCL.
+The preview features list:
+- `MultiNodeBatch` for K-Means, a stepless distributed algorithm based on oneCCL
+- Graph Analytics: 
+	- Undirected graph without edge and vertex weights (undirected_adjacency_array_graph) - 32bit vertex index only
+	- Jaccard Similarity Coefficients for all vertex pairs, a batch algorithm which processes the graph by blocks
 
 ## Python API
 

@@ -17,9 +17,13 @@
 #pragma once
 
 #include <memory>
+
 #include "oneapi/dal/common.hpp"
 
 namespace oneapi::dal::detail {
+
+template <typename T, typename... Args>
+struct is_one_of : public std::disjunction<std::is_same<T, Args>...> {};
 
 template <typename T>
 using shared = std::shared_ptr<T>;
@@ -29,11 +33,6 @@ using unique = std::unique_ptr<T>;
 
 template <typename T>
 using pimpl = shared<T>;
-
-template <typename T>
-struct empty_deleter {
-    void operator()(T*) const noexcept {}
-};
 
 struct pimpl_accessor {
     template <typename Object>

@@ -1,11 +1,11 @@
-# Intel(R) Data Analytics Acceleration Library Message-Passing Interface Samples
+# Intel(R) oneAPI Data Analytics Library Message-Passing Interface Samples
 
-Message-passing interface (MPI) samples for the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) are designed to show how to use this library with the Intel(R) MPI library in a C++ application.
+Message-passing interface (MPI) samples for the Intel(R) oneAPI Data Analytics Library (oneDAL) are designed to show how to use this library with the Intel(R) MPI library in a C++ application.
 
-Unzip the archive with Intel(R) DAAL samples to your working directory (`<sample_dir>`).
+Unzip the archive with oneDAL samples to your working directory (`<sample_dir>`).
 
 ## System Requirements
-The Intel(R) DAAL includes distributed algorithms that can run on MPI-based cluster environments of Linux\* and Windows\* operating systems with the Intel(R) MPI library. For a list of Intel(R) DAAL hardware and software requirements, refer to release notes for the version of Intel(R) DAAL you are using.
+The oneDAL includes distributed algorithms that can run on MPI-based cluster environments of Linux\* and Windows\* operating systems with the Intel(R) MPI library. For a list of oneDAL hardware and software requirements, refer to release notes for the version of oneDAL you are using.
 
 ## Preparation Before Build and Run
 ### MPI support
@@ -23,18 +23,18 @@ source mpivars.sh`
 Check the documentation that comes with your MPI implementation for implementation-specific details of linking.
 
 ### Setting Up the Build Environment 
-Before you build the sample, you must set certain environment variables that define the location of related libraries. Intel(R) DAAL includes the `vars` scripts that you can run to set environment variables:
+Before you build the sample, you must set certain environment variables that define the location of related libraries. oneDAL includes the `vars` scripts that you can run to set environment variables:
 
 - On Windows\*, you can find the `vars.bat` batch file at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\windows\daal\bin\:
 vars.bat intel64`
 - On Linux OS\*, you can find the `vars.sh` shell script at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\linux\daal\bin\:
 source vars.sh intel64`
 
-For more information about setting environment variables and configuring Intel(R) DAAL, refer to Getting Started guides for the library.
+For more information about setting environment variables and configuring oneDAL, refer to Getting Started guides for the library.
 
 ## Build and Run Instructions
 ### On Windows\*
-To build Intel(R) DAAL MPI C++ samples, go to the C++ MPI samples directory and execute the `launcher` command with the `build` parameter:
+To build oneDAL MPI C++ samples, go to the C++ MPI samples directory and execute the `launcher` command with the `build` parameter:
 
 ```
 cd <sample_dir>\cpp\mpi
@@ -44,7 +44,7 @@ launcher.bat build
 
 The command creates the `.\_results\intel64` directory and builds `*.exe` executables and `*.exe` libraries, as well as creates a log file for build results.
 
-To run Intel(R) DAAL MPI C++ samples, go to the C++ MPI samples directory and execute the `launcher` command with the `run` parameter:
+To run oneDAL MPI C++ samples, go to the C++ MPI samples directory and execute the `launcher` command with the `run` parameter:
 
 ```
 cd <sample_dir>\cpp\mpi
@@ -55,7 +55,7 @@ launcher.bat run
 For each sample, the results are placed into the `.\_results\intel64\<sample name>\.res` file.
 
 ### On Linux\*
-To build Intel(R) DAAL MPI C++ samples, go to the C++ MPI samples directory and execute the `make` command:
+To build oneDAL MPI C++ samples, go to the C++ MPI samples directory and execute the `make` command:
 
 ```
 cd <sample_dir>/cpp/mpi
@@ -69,7 +69,7 @@ The names of the samples are available in the `daal.lst` file. If a sample name 
 
 The command creates a directory for the chosen library extension (`a` or `so`). For example: `_results/intel_intel64_a`.
 
-To run Intel(R) DAAL MPI C++ samples, go to the C++ MPI samples directory and execute the `make` command in the run mode. For example, if you run the `vars` script with the `intel64` target:
+To run oneDAL MPI C++ samples, go to the C++ MPI samples directory and execute the `make` command in the run mode. For example, if you run the `vars` script with the `intel64` target:
 
 ```
 cd <sample_dir>/cpp/mpi 

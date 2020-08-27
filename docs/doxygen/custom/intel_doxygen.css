@@ -1,4 +1,4 @@
-﻿/* The standard CSS for doxygen 1.8.8 */
+/* The standard CSS for doxygen 1.8.8 */
 
 body, table, div, p, dl {
     font-family: "Intel Clear", Verdana, Arial, sans-serif;
@@ -27,8 +27,8 @@ h1.groupheader {
     font-size:15pt;
     font-weight:normal;
 	padding-bottom:1px;
-    margin-left:0pt;
-    margin-bottom:0px;
+    margin-left:0;
+    margin-bottom:0;
    /* border-bottom:1px solid #0071c5; */
 }
 
@@ -95,11 +95,11 @@ p.startli, p.startdd {
 }
 
 p.starttd {
-	margin-top: 0px;
+	margin-top: 0;
 }
 
 p.endli {
-	margin-bottom: 0px;
+	margin-bottom: 0;
 }
 
 p.enddd {
@@ -178,15 +178,12 @@ a.el {
     font-family:"Courier New", Courier, monospace;
 }
 
-a.elRef {
-}
-
 a.code, a.code:visited, a.line, a.line:visited {
-	color: #4665A2; 
+	color: #4665A2;
 }
 
 a.codeRef, a.codeRef:visited, a.lineRef, a.lineRef:visited {
-	color: #4665A2; 
+	color: #4665A2;
 }
 
 /* @end */
@@ -203,7 +200,6 @@ pre.fragment {
         margin: 4px 8px 4px 2px;
         overflow: auto;
         word-wrap: break-word;
-        font-size:  9pt;
         line-height: 125%;
         font-family: monospace, fixed;
         font-size: 105%;
@@ -229,8 +225,8 @@ div.line {
 	word-wrap: break-word;      /* IE 5.5+ */
 	text-indent: -53px;
 	padding-left: 53px;
-	padding-bottom: 0px;
-	margin: 0px;
+	padding-bottom: 0;
+	margin: 0;
 	-webkit-transition-property: background-color, box-shadow;
 	-webkit-transition-duration: 0.5s;
 	-moz-transition-property: background-color, box-shadow;
@@ -309,7 +305,7 @@ td.indexkey {
 	background-color: #EBEFF6;
 	font-weight: bold;
 	border: 1px solid #C4CFE5;
-	margin: 2px 0px 2px 0;
+	margin: 2px 0;
 	padding: 2px 10px;
         white-space: nowrap;
         vertical-align: top;
@@ -319,7 +315,7 @@ td.indexvalue {
 	background-color: #EBEFF6;
 	border: 1px solid #C4CFE5;
 	padding: 2px 10px;
-	margin: 2px 0px;
+	margin: 2px 0;
 }
 
 tr.memlist {
@@ -330,23 +326,19 @@ p.formulaDsp {
 	text-align: center;
 }
 
-img.formulaDsp {
-	
-}
-
 img.formulaInl {
 	vertical-align: middle;
 }
 
 div.center {
 	text-align: center;
-        margin-top: 0px;
-        margin-bottom: 0px;
-        padding: 0px;
+        margin-top: 0;
+        margin-bottom: 0;
+        padding: 0;
 }
 
 div.center img {
-	border: 0px;
+	border: 0;
 }
 
 address.footer {
@@ -355,7 +347,7 @@ address.footer {
 }
 
 img.footer {
-	border: 0px;
+	border: 0;
 	vertical-align: middle;
 }
 
@@ -389,20 +381,20 @@ span.charliteral {
 	color: #008080
 }
 
-span.vhdldigit { 
-	color: #ff00ff 
+span.vhdldigit {
+	color: #ff00ff
 }
 
-span.vhdlchar { 
-	color: #333333 
+span.vhdlchar {
+	color: #333333
 }
 
-span.vhdlkeyword { 
-	color: #700070 
+span.vhdlkeyword {
+	color: #700070
 }
 
-span.vhdllogic { 
-	color: #ff0000 
+span.vhdllogic {
+	color: #ff0000
 }
 
 blockquote {
@@ -449,7 +441,7 @@ th.dirtab {
 }
 
 hr {
-	height: 0px;
+	height: 0;
 	border: none;
 	border-top: 1px solid #4A6AAA;
 }
@@ -461,8 +453,8 @@ hr.footer {
 /* @group Member Descriptions */
 
 table.memberdecls {
-	border-spacing: 0px;
-	padding: 0px;
+	border-spacing: 0;
+	padding: 0;
 }
 
 .memberdecls td, .fieldtable tr {
@@ -495,18 +487,18 @@ table.memberdecls {
 .memTemplParams, .memTemplItemRight, .memItemLeft, .memItemRight {
   font-family:"Courier New", Courier, monospace;
   font-size: 10pt;
-}  
+}
 
 .mdescLeft, .mdescRight {
-	padding: 0px 8px 4px 8px;
+	padding: 0 8px 4px;
 	color: #555;
 }
 
 .memSeparator {
         border-bottom: 1px solid #DEE4F0;
         line-height: 1px;
-        margin: 0px;
-        padding: 0px;
+        margin: 0;
+        padding: 0;
 }
 
 .memItemLeft, .memTemplItemLeft {
@@ -582,10 +574,10 @@ table.memberdecls {
         border-top: 1px solid #A8B8D9;
         border-left: 1px solid #A8B8D9;
         border-right: 1px solid #A8B8D9;
-        padding: 6px 0px 6px 0px;
+        padding: 6px 0;
         color: #253555;
         font-weight: bold;
-        text-shadow: 0px 1px 1px rgba(255, 255, 255, 0.9);
+        text-shadow: 0 1px 1px rgba(255, 255, 255, 0.9);
         background-image:url('nav_f.png');
         background-repeat:repeat-x;
         background-color: #E2E8F2;
@@ -605,11 +597,10 @@ table.memberdecls {
 }
 
 .memdoc, dl.reflist dd {
-        border-bottom: 1px solid #A8B8D9;      
-        border-left: 1px solid #A8B8D9;      
-        border-right: 1px solid #A8B8D9; 
-        padding: 6px 10px 2px 10px;
-        background-color: #FBFCFD;
+        border-bottom: 1px solid #A8B8D9;
+        border-left: 1px solid #A8B8D9;
+        border-right: 1px solid #A8B8D9;
+        padding: 6px 10px 2px;
         border-top-width: 0;
         background-image:url('nav_g.png');
         background-repeat:repeat-x;
@@ -633,7 +624,7 @@ dl.reflist dt {
 }
 
 dl.reflist dd {
-        margin: 0px 0px 10px 0px;
+        margin: 0 0 10px;
         padding: 5px;
 }
 
@@ -661,9 +652,9 @@ dl.reflist dd {
 }
 
 .params, .retval, .exception, .tparams {
-        margin-left: 0px;
-        padding-left: 0px;
-}       
+        margin-left: 0;
+        padding-left: 0;
+}
 
 .params .paramname, .retval .paramname {
         font-style: italic;
@@ -673,7 +664,7 @@ dl.reflist dd {
 .params .paramtype {
         font-style: italic;
         vertical-align: top;
-}       
+}
         
 .params .paramdir {
         font-family: "courier new",courier,monospace;
@@ -681,17 +672,17 @@ dl.reflist dd {
 }
 
 table.mlabels {
-	border-spacing: 0px;
+	border-spacing: 0;
 }
 
 td.mlabels-left {
 	width: 100%;
-	padding: 0px;
+	padding: 0;
 }
 
 td.mlabels-right {
 	vertical-align: bottom;
-	padding: 0px;
+	padding: 0;
 	white-space: nowrap;
 }
 
@@ -722,7 +713,7 @@ span.mlabel {
 /* these are for tree view inside a (index) page */
 
 div.directory {
-        margin: 10px 0px;
+        margin: 10px 0;
         border-top: 1px solid #9CAFD4;
         border-bottom: 1px solid #9CAFD4;
         width: 100%;
@@ -733,8 +724,8 @@ div.directory {
 }
 
 .directory td {
-        margin: 0px;
-        padding: 0px;
+        margin: 0;
+        padding: 0;
 	vertical-align: top;
 }
 
@@ -823,7 +814,7 @@ div.directory {
     height: 18px;
     margin-bottom: 4px;
     background-image:url('ftv2folderopen.png');
-    background-position: 0px -4px;
+    background-position: 0 -4px;
     background-repeat: repeat-y;
     vertical-align:top;
     display: inline-block;
@@ -834,7 +825,7 @@ div.directory {
     height: 18px;
     margin-bottom: 4px;
     background-image:url('ftv2folderclosed.png');
-    background-position: 0px -4px;
+    background-position: 0 -4px;
     background-repeat: repeat-y;
     vertical-align:top;
     display: inline-block;
@@ -845,7 +836,7 @@ div.directory {
     height: 18px;
     margin-bottom: 4px;
     background-image:url('ftv2doc.png');
-    background-position: 0px -4px;
+    background-position: 0 -4px;
     background-repeat: repeat-y;
     vertical-align:top;
     display: inline-block;
@@ -897,7 +888,7 @@ table.fieldtable {
         /*width: 100%;*/
         margin-bottom: 10px;
         border: 1px solid #A8B8D9;
-        border-spacing: 0px;
+        border-spacing: 0;
         -moz-border-radius: 4px;
         -webkit-border-radius: 4px;
         border-radius: 4px;
@@ -928,8 +919,8 @@ table.fieldtable {
 }
 
 .fieldtable td.fielddoc p:first-child {
-        margin-top: 0px;
-}       
+        margin-top: 0;
+}
         
 .fieldtable td.fielddoc p:last-child {
         margin-bottom: 2px;
@@ -959,7 +950,7 @@ table.fieldtable {
 
 
 .tabsearch {
-	top: 0px;
+	top: 0;
 	left: 10px;
 	height: 36px;
 	background-image: url('tab_b.png');
@@ -979,8 +970,8 @@ table.fieldtable {
 	color:#8AA0CC;
 	border:solid 1px #C2CDE4;
 	overflow:hidden;
-	margin:0px;
-	padding:0px;
+	margin:0;
+	padding:0;
 }
 
 .navpath li
@@ -999,12 +990,11 @@ table.fieldtable {
 {
 	height:32px;
 	display:block;
-	text-decoration: none;
 	outline: none;
 	color: #283A5D;
 	font-family: 'Lucida Grande',Geneva,Helvetica,Arial,sans-serif;
-	text-shadow: 0px 1px 1px rgba(255, 255, 255, 0.9);
-	text-decoration: none;        
+	text-shadow: 0 1px 1px rgba(255, 255, 255, 0.9);
+	text-decoration: none;
 }
 
 .navpath li.navelem a:hover
@@ -1033,7 +1023,7 @@ div.summary
 	padding-right: 5px;
 	width: 50%;
 	text-align: right;
-}       
+}
 
 div.summary a
 {
@@ -1075,8 +1065,8 @@ dl
 /* dl.note, dl.warning, dl.attention, dl.pre, dl.post, dl.invariant, dl.deprecated, dl.todo, dl.test, dl.bug */
 dl.section
 {
-	margin-left: 0px;
-	padding-left: 0px;
+	margin-left: 0;
+	padding-left: 0;
 }
 
 dl.note
@@ -1157,35 +1147,35 @@ div.textblock h3 {
 }
  
 #projectlogo img
-{ 
-	border: 0px none;
+{
+	border: 0 none;
 }
  
 #projectname
 {
 	font: 300% Tahoma, Arial,sans-serif;
-	margin: 0px;
-	padding: 2px 0px;
+	margin: 0;
+	padding: 2px 0;
 }
     
 #projectbrief
 {
 	font: 120% Tahoma, Arial,sans-serif;
-	margin: 0px;
-	padding: 0px;
+	margin: 0;
+	padding: 0;
 }
 
 #projectnumber
 {
 	font: 50% Tahoma, Arial,sans-serif;
-	margin: 0px;
-	padding: 0px;
+	margin: 0;
+	padding: 0;
 }
 
 #titlearea
 {
-	padding: 0px;
-	margin: 0px;
+	padding: 0;
+	margin: 0;
 	width: 100%;
 	border-bottom: 1px solid #5373B4;
 }
@@ -1241,7 +1231,7 @@ div.toc {
         padding: 14px 25px;
         background-color: #F4F6FA;
         border: 1px solid #D8DFEE;
-        border-radius: 7px 7px 7px 7px;
+        border-radius: 7px;
         float: right;
         height: auto;
         margin: 0 20px 10px 10px;
@@ -1266,11 +1256,11 @@ div.toc h3 {
 div.toc ul {
         list-style: none outside none;
         border: medium none;
-        padding: 0px;
-}       
+        padding: 0;
+}
 
 div.toc li.level1 {
-        margin-left: 0px;
+        margin-left: 0;
 }
 
 div.toc li.level2 {
@@ -1298,7 +1288,7 @@ div.toc li.level4 {
 }
 
 .inherit_header td {
-        padding: 6px 0px 2px 5px;
+        padding: 6px 0 2px 5px;
 }
 
 .inherit {
@@ -1320,8 +1310,6 @@ tr.heading h2 {
 
 .optimization-notice {
     max-width: 960px;
-    margin: 0 auto;
-    padding: 0 15px;
     position: relative;
     font-size: 15px;
     color: gray;
@@ -1337,7 +1325,7 @@ tr.heading h2 {
 	white-space: nowrap;
 	background-color: white;
 	border: 1px solid gray;
-	border-radius: 4px 4px 4px 4px;
+	border-radius: 4px;
 	box-shadow: 1px 1px 7px gray;
 	display: none;
 	font-size: smaller;
@@ -1366,15 +1354,15 @@ tr.heading h2 {
 }
 
 #powerTip div {
-        margin: 0px;
-        padding: 0px;
+        margin: 0;
+        padding: 0;
         font: 12px/16px Roboto,sans-serif;
 }
 
 #powerTip:before, #powerTip:after {
 	content: "";
 	position: absolute;
-	margin: 0px;
+	margin: 0;
 }
 
 #powerTip.n:after,  #powerTip.n:before,
@@ -1415,12 +1403,12 @@ tr.heading h2 {
 #powerTip.n:after, #powerTip.ne:after, #powerTip.nw:after {
 	border-top-color: #ffffff;
 	border-width: 10px;
-	margin: 0px -10px;
+	margin: 0 -10px;
 }
 #powerTip.n:before {
 	border-top-color: #808080;
 	border-width: 11px;
-	margin: 0px -11px;
+	margin: 0 -11px;
 }
 #powerTip.n:after, #powerTip.n:before {
 	left: 50%;
@@ -1443,13 +1431,13 @@ tr.heading h2 {
 #powerTip.s:after, #powerTip.se:after, #powerTip.sw:after {
 	border-bottom-color: #ffffff;
 	border-width: 10px;
-	margin: 0px -10px;
+	margin: 0 -10px;
 }
 
 #powerTip.s:before, #powerTip.se:before, #powerTip.sw:before {
 	border-bottom-color: #808080;
 	border-width: 11px;
-	margin: 0px -11px;
+	margin: 0 -11px;
 }
 
 #powerTip.s:after, #powerTip.s:before {

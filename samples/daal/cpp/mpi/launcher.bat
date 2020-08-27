@@ -16,26 +16,18 @@ rem limitations under the License.
 rem ============================================================================
 
 ::  Content:
-::     Intel(R) Data Analytics Acceleration Library samples creation and run
+::     Intel(R) oneAPI Data Analytics Library samples creation and run
 ::******************************************************************************
 
-set ARCH=intel64
-set RMODE=%1
+setlocal enabledelayedexpansion enableextensions
 
 set errorcode=0
 
-if "%1"=="help" (
-    goto :Usage
-)
-
-if not "%RMODE%"=="build" if not "%RMODE%"=="run" if not "%RMODE%"=="" (
-    echo Bad first argument, must be build or run
-    set errorcode=1
-    goto :Usage
-)
+if /i [%1]==[build]       (set rmode=build)       & shift
+if /i [%1]==[run]         (set rmode=run)         & shift
+if /i [%1]==[help]                                          goto :Usage
 
 goto :CorrectArgs
-
 :Usage
 echo Usage: launcher.bat ^{rmode^|help^}
 echo rmode - optional parameter, can be build (for building samples only) or
@@ -46,7 +38,7 @@ exit /b errorcode
 
 :CorrectArgs
 
-if not defined RESULT_DIR set RESULT_DIR=_results\%ARCH%
+if not defined RESULT_DIR set RESULT_DIR=_results
 if not exist %RESULT_DIR% md %RESULT_DIR%
 
 echo %RESULT_DIR%

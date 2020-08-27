@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "oneapi/dal/data/table.hpp"
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/table/common.hpp"
 
 namespace oneapi::dal::kmeans_init {
 
@@ -28,7 +28,10 @@ class descriptor_impl;
 
 namespace method {
 struct dense {};
-using by_default = dense;
+struct random_dense {};
+struct plus_plus_dense {};
+struct parallel_plus_dense {};
+using by_default = random_dense;
 } // namespace method
 
 class ONEAPI_DAL_EXPORT descriptor_base : public base {
