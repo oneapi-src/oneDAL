@@ -81,7 +81,7 @@ private:
                            int64_t lda, cl::sycl::buffer<double, 1> b, int64_t ldb, double beta, cl::sycl::buffer<double, 1> c, int64_t ldc,
                            int64_t offset_a, int64_t offset_b, int64_t offset_c)
     {
-        fpk::gpu::dgemm_sycl(&_queue, transa, transb, m, n, k, alpha, &a, lda, &b, ldb, beta, &c, ldc, offset_a, offset_b, offset_c);
+        ::oneapi::fpk::gpu::dgemm_sycl(&_queue, transa, transb, m, n, k, alpha, &a, lda, &b, ldb, beta, &c, ldc, offset_a, offset_b, offset_c);
     }
 
     template <>
@@ -89,7 +89,7 @@ private:
                           int64_t lda, cl::sycl::buffer<float, 1> b, int64_t ldb, float beta, cl::sycl::buffer<float, 1> c, int64_t ldc,
                           int64_t offset_a, int64_t offset_b, int64_t offset_c)
     {
-        fpk::gpu::sgemm_sycl(&_queue, transa, transb, m, n, k, alpha, &a, lda, &b, ldb, beta, &c, ldc, offset_a, offset_b, offset_c);
+        ::oneapi::fpk::gpu::sgemm_sycl(&_queue, transa, transb, m, n, k, alpha, &a, lda, &b, ldb, beta, &c, ldc, offset_a, offset_b, offset_c);
     }
 
     cl::sycl::queue & _queue;
@@ -132,14 +132,14 @@ private:
     void innerSyrk(MKL_UPLO uplo, MKL_TRANSPOSE trans, int64_t n, int64_t k, double alpha, cl::sycl::buffer<double, 1> a, int64_t lda, double beta,
                    cl::sycl::buffer<double, 1> c, int64_t ldc, int64_t offset_a, int64_t offset_c)
     {
-        fpk::gpu::dsyrk_sycl(&_queue, uplo, trans, n, k, alpha, &a, lda, beta, &c, ldc, offset_a, offset_c);
+        ::oneapi::fpk::gpu::dsyrk_sycl(&_queue, uplo, trans, n, k, alpha, &a, lda, beta, &c, ldc, offset_a, offset_c);
     }
 
     template <>
     void innerSyrk(MKL_UPLO uplo, MKL_TRANSPOSE trans, int64_t n, int64_t k, float alpha, cl::sycl::buffer<float, 1> a, int64_t lda, float beta,
                    cl::sycl::buffer<float, 1> c, int64_t ldc, int64_t offset_a, int64_t offset_c)
     {
-        fpk::gpu::ssyrk_sycl(&_queue, uplo, trans, n, k, alpha, &a, lda, beta, &c, ldc, offset_a, offset_c);
+        ::oneapi::fpk::gpu::ssyrk_sycl(&_queue, uplo, trans, n, k, alpha, &a, lda, beta, &c, ldc, offset_a, offset_c);
     }
 
     cl::sycl::queue & _queue;
@@ -160,7 +160,7 @@ struct MKLAxpy
         cl::sycl::buffer<algorithmFPType, 1> x_sycl_buff = x_buffer.toSycl();
         cl::sycl::buffer<algorithmFPType, 1> y_sycl_buff = y_buffer.toSycl();
 
-        fpk::blas::axpy(_queue, n, a, x_sycl_buff, incx, y_sycl_buff, incy);
+        ::oneapi::fpk::blas::axpy(_queue, n, a, x_sycl_buff, incx, y_sycl_buff, incy);
 
         _queue.wait();
         return services::Status();
