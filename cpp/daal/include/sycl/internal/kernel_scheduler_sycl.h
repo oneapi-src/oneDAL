@@ -365,7 +365,9 @@ class OpenClKernelLevelZero : public OpenClKernel
 {
 public:
     explicit OpenClKernelLevelZero(ExecutionTargetId executionTarget, const OpenClProgramRef & programRef, const OpenClKernelLevelZeroRef & kernelRef)
-        : OpenClKernel(executionTarget, programRef), _clKernelRef(kernelRef), syclKernel(getProgramRef().getProgramLevelZero().get_kernel(_clKernelRef.getName()))
+        : OpenClKernel(executionTarget, programRef),
+          _clKernelRef(kernelRef),
+          syclKernel(getProgramRef().getProgramLevelZero().get_kernel(_clKernelRef.getName()))
     {}
 
     cl::sycl::kernel toSycl(const cl::sycl::context & ctx) const { return syclKernel; }
