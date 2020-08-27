@@ -160,7 +160,6 @@ extern "C"
     typedef struct _ze_ipc_mem_handle_t
     {
         char data[ZE_MAX_IPC_HANDLE_SIZE]; ///< [out] Opaque data representing an IPC handle
-
     } ze_ipc_mem_handle_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -168,7 +167,6 @@ extern "C"
     typedef struct _ze_ipc_event_pool_handle_t
     {
         char data[ZE_MAX_IPC_HANDLE_SIZE]; ///< [out] Opaque data representing an IPC handle
-
     } ze_ipc_event_pool_handle_t;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -227,7 +225,6 @@ extern "C"
                                                                      ///< memory
         ZE_RESULT_ERROR_UNKNOWN = 0x7ffffffe,                        ///< [Core] unknown or internal error
         ZE_RESULT_FORCE_UINT32  = 0x7fffffff
-
     } ze_result_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -268,7 +265,6 @@ extern "C"
         ZE_STRUCTURE_TYPE_PHYSICAL_MEM_DESC                 = 0x20,       ///< ::ze_physical_mem_desc_t
         ZE_STRUCTURE_TYPE_RAYTRACING_MEM_ALLOC_EXT_DESC     = 0x00010001, ///< ::ze_raytracing_mem_alloc_ext_desc_t
         ZE_STRUCTURE_TYPE_FORCE_UINT32                      = 0x7fffffff
-
     } ze_structure_type_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -279,7 +275,6 @@ extern "C"
         ZE_EXTERNAL_MEMORY_TYPE_FLAG_OPAQUE_FD    = ZE_BIT(0), ///< an opaque POSIX file descriptor handle
         ZE_EXTERNAL_MEMORY_TYPE_FLAG_DMA_BUF      = ZE_BIT(1), ///< a file descriptor handle for a Linux dma_buf
         ZE_EXTERNAL_MEMORY_TYPE_FLAG_FORCE_UINT32 = 0x7fffffff
-
     } ze_external_memory_type_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -288,7 +283,6 @@ extern "C"
     {
         ze_structure_type_t stype; ///< [in] type of this structure
         void * pNext;              ///< [in,out][optional] pointer to extension-specific structure
-
     } ze_base_properties_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -297,7 +291,6 @@ extern "C"
     {
         ze_structure_type_t stype; ///< [in] type of this structure
         const void * pNext;        ///< [in][optional] pointer to extension-specific structure
-
     } ze_base_desc_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -524,7 +517,6 @@ extern "C"
     {
         ZE_INIT_FLAG_GPU_ONLY     = ZE_BIT(0), ///< only initialize GPU drivers
         ZE_INIT_FLAG_FORCE_UINT32 = 0x7fffffff
-
     } ze_init_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -593,7 +585,6 @@ extern "C"
         ZE_API_VERSION_1_0          = ZE_MAKE_VERSION(1, 0), ///< version 1.0
         ZE_API_VERSION_CURRENT      = ZE_MAKE_VERSION(1, 0), ///< latest known version
         ZE_API_VERSION_FORCE_UINT32 = 0x7fffffff
-
     } ze_api_version_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -626,7 +617,6 @@ extern "C"
     typedef struct _ze_driver_uuid_t
     {
         uint8_t id[ZE_MAX_DRIVER_UUID_SIZE]; ///< [out] opaque data representing a driver UUID
-
     } ze_driver_uuid_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -639,7 +629,6 @@ extern "C"
         uint32_t driverVersion;    ///< [out] driver version
                                    ///< The driver version is a non-zero, monotonically increasing value where
                                    ///< higher values always indicate a more recent version.
-
     } ze_driver_properties_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -676,7 +665,6 @@ extern "C"
         ZE_IPC_PROPERTY_FLAG_EVENT_POOL = ZE_BIT(1), ///< Supports passing event pools between processes. See
                                                      ///< ::zeEventPoolGetIpcHandle.
         ZE_IPC_PROPERTY_FLAG_FORCE_UINT32 = 0x7fffffff
-
     } ze_ipc_property_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -686,7 +674,6 @@ extern "C"
         ze_structure_type_t stype;     ///< [in] type of this structure
         void * pNext;                  ///< [in,out][optional] pointer to extension-specific structure
         ze_ipc_property_flags_t flags; ///< [out] 0 (none) or a valid combination of ::ze_ipc_property_flag_t
-
     } ze_driver_ipc_properties_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -721,7 +708,6 @@ extern "C"
     {
         char name[ZE_MAX_EXTENSION_NAME]; ///< [out] extension name
         uint32_t version;                 ///< [out] extension version using ::ZE_MAKE_VERSION
-
     } ze_driver_extension_properties_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -838,7 +824,6 @@ extern "C"
         ZE_DEVICE_TYPE_FPGA         = 3, ///< Field Programmable Gate Array
         ZE_DEVICE_TYPE_MCA          = 4, ///< Memory Copy Accelerator
         ZE_DEVICE_TYPE_FORCE_UINT32 = 0x7fffffff
-
     } ze_device_type_t;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -852,7 +837,6 @@ extern "C"
     typedef struct _ze_device_uuid_t
     {
         uint8_t id[ZE_MAX_DEVICE_UUID_SIZE]; ///< [out] opaque data representing a device UUID
-
     } ze_device_uuid_t;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -871,7 +855,6 @@ extern "C"
         ZE_DEVICE_PROPERTY_FLAG_ECC            = ZE_BIT(2), ///< Device supports error correction memory access.
         ZE_DEVICE_PROPERTY_FLAG_ONDEMANDPAGING = ZE_BIT(3), ///< Device supports on-demand page-faulting.
         ZE_DEVICE_PROPERTY_FLAG_FORCE_UINT32   = 0x7fffffff
-
     } ze_device_property_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -903,7 +886,6 @@ extern "C"
         ze_device_uuid_t uuid;             ///< [out] universal unique identifier. Note: Subdevices will have their
                                            ///< own uuid.
         char name[ZE_MAX_DEVICE_NAME];     ///< [out] Device name
-
     } ze_device_properties_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -918,7 +900,6 @@ extern "C"
                            ///< Must be UINT32_MAX (all) or less than ::ze_device_properties_t.numEUsPerSubslice.
         uint32_t thread;   ///< [in,out] the thread number within its EU.
                            ///< Must be UINT32_MAX (all) or less than ::ze_device_properties_t.numThreadsPerEU.
-
     } ze_device_thread_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -969,7 +950,6 @@ extern "C"
         uint32_t numSubGroupSizes;                     ///< [out] Number of subgroup sizes supported. This indicates number of
                                                        ///< entries in subGroupSizes.
         uint32_t subGroupSizes[ZE_SUBGROUPSIZE_COUNT]; ///< [out] Size group sizes supported.
-
     } ze_device_compute_properties_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1007,7 +987,6 @@ extern "C"
     typedef struct _ze_native_kernel_uuid_t
     {
         uint8_t id[ZE_MAX_NATIVE_KERNEL_UUID_SIZE]; ///< [out] opaque data representing a native kernel UUID
-
     } ze_native_kernel_uuid_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1020,7 +999,6 @@ extern "C"
         ZE_DEVICE_MODULE_FLAG_INT64_ATOMICS = ZE_BIT(2), ///< Device supports 64-bit atomic operations
         ZE_DEVICE_MODULE_FLAG_DP4A          = ZE_BIT(3), ///< Device supports four component dot product and accumulate operations
         ZE_DEVICE_MODULE_FLAG_FORCE_UINT32  = 0x7fffffff
-
     } ze_device_module_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1038,7 +1016,6 @@ extern "C"
                                                            ///< operations.
         ZE_DEVICE_FP_FLAG_SOFT_FLOAT   = ZE_BIT(7),        ///< Uses software implementation for basic floating-point operations.
         ZE_DEVICE_FP_FLAG_FORCE_UINT32 = 0x7fffffff
-
     } ze_device_fp_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1068,7 +1045,6 @@ extern "C"
                                                        ///< Application is responsible for ensuring UUID matches before creating
                                                        ///< module using
                                                        ///< previously created native kernel.
-
     } ze_device_module_properties_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1102,7 +1078,6 @@ extern "C"
                                                                               ///< See ::zeCommandListAppendLaunchCooperativeKernel for more details.
         ZE_COMMAND_QUEUE_GROUP_PROPERTY_FLAG_METRICS      = ZE_BIT(3),        ///< Command queue groups supports metric streamers and queries.
         ZE_COMMAND_QUEUE_GROUP_PROPERTY_FLAG_FORCE_UINT32 = 0x7fffffff
-
     } ze_command_queue_group_property_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1117,7 +1092,6 @@ extern "C"
         size_t maxMemoryFillPatternSize;               ///< [out] maximum `pattern_size` supported by command queue group.
                                                        ///< See ::zeCommandListAppendMemoryFill for more details.
         uint32_t numQueues;                            ///< [out] the number of physical command queues within the group.
-
     } ze_command_queue_group_properties_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1166,7 +1140,6 @@ extern "C"
     {
         ZE_DEVICE_MEMORY_PROPERTY_FLAG_TBD          = ZE_BIT(0), ///< reserved for future use
         ZE_DEVICE_MEMORY_PROPERTY_FLAG_FORCE_UINT32 = 0x7fffffff
-
     } ze_device_memory_property_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1182,7 +1155,6 @@ extern "C"
         uint32_t maxBusWidth;                    ///< [out] Maximum bus width between device and memory.
         uint64_t totalSize;                      ///< [out] Total memory size in bytes that is available to the device.
         char name[ZE_MAX_DEVICE_NAME];           ///< [out] Memory name
-
     } ze_device_memory_properties_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1238,7 +1210,6 @@ extern "C"
         ZE_MEMORY_ACCESS_CAP_FLAG_CONCURRENT        = ZE_BIT(2), ///< Supports concurrent access
         ZE_MEMORY_ACCESS_CAP_FLAG_CONCURRENT_ATOMIC = ZE_BIT(3), ///< Supports concurrent atomic access
         ZE_MEMORY_ACCESS_CAP_FLAG_FORCE_UINT32      = 0x7fffffff
-
     } ze_memory_access_cap_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1258,7 +1229,6 @@ extern "C"
             ///< returns 0 (unsupported) or a combination of ::ze_memory_access_cap_flag_t.
         ze_memory_access_cap_flags_t sharedSystemAllocCapabilities; ///< [out] shared, system memory capabilities.
                                                                     ///< returns 0 (unsupported) or a combination of ::ze_memory_access_cap_flag_t.
-
     } ze_device_memory_access_properties_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1292,7 +1262,6 @@ extern "C"
     {
         ZE_DEVICE_CACHE_PROPERTY_FLAG_USER_CONTROL = ZE_BIT(0), ///< Device support User Cache Control (i.e. SLM section vs Generic Cache)
         ZE_DEVICE_CACHE_PROPERTY_FLAG_FORCE_UINT32 = 0x7fffffff
-
     } ze_device_cache_property_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1304,7 +1273,6 @@ extern "C"
         ze_device_cache_property_flags_t flags; ///< [out] 0 (none) or a valid combination of
                                                 ///< ::ze_device_cache_property_flag_t
         size_t cacheSize;                       ///< [out] Per-cache size, in bytes
-
     } ze_device_cache_properties_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1364,7 +1332,6 @@ extern "C"
         uint32_t maxWriteImageArgs;   ///< [out] Returns the maximum number of simultaneous image objects that
                                       ///< can be written to by a kernel. if 0, then writing images is
                                       ///< unsupported.
-
     } ze_device_image_properties_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1398,7 +1365,6 @@ extern "C"
         ze_external_memory_type_flags_t memoryAllocationExportTypes; ///< [out] Supported external memory export types for memory allocations.
         ze_external_memory_type_flags_t imageImportTypes;            ///< [out] Supported external memory import types for images.
         ze_external_memory_type_flags_t imageExportTypes;            ///< [out] Supported external memory export types for images.
-
     } ze_device_external_memory_properties_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1429,7 +1395,6 @@ extern "C"
         ZE_DEVICE_P2P_PROPERTY_FLAG_ACCESS       = ZE_BIT(0), ///< Device supports access between peer devices.
         ZE_DEVICE_P2P_PROPERTY_FLAG_ATOMICS      = ZE_BIT(1), ///< Device supports atomics between peer devices.
         ZE_DEVICE_P2P_PROPERTY_FLAG_FORCE_UINT32 = 0x7fffffff
-
     } ze_device_p2p_property_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1441,7 +1406,6 @@ extern "C"
         void * pNext;                         ///< [in,out][optional] pointer to extension-specific structure
         ze_device_p2p_property_flags_t flags; ///< [out] 0 (none) or a valid combination of
                                               ///< ::ze_device_p2p_property_flag_t
-
     } ze_device_p2p_properties_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1539,7 +1503,6 @@ extern "C"
     {
         ZE_CONTEXT_FLAG_TBD          = ZE_BIT(0), ///< reserved for future use
         ZE_CONTEXT_FLAG_FORCE_UINT32 = 0x7fffffff
-
     } ze_context_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1551,7 +1514,6 @@ extern "C"
         ze_context_flags_t flags;  ///< [in] creation flags.
                                    ///< must be 0 (default) or a valid combination of ::ze_context_flag_t;
                                    ///< default behavior may use implicit driver-based heuristics.
-
     } ze_context_desc_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1642,7 +1604,6 @@ extern "C"
                                                          ///< this flag should be used when applications want full control over
                                                          ///< multi-engine submission and scheduling.
         ZE_COMMAND_QUEUE_FLAG_FORCE_UINT32 = 0x7fffffff
-
     } ze_command_queue_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1655,7 +1616,6 @@ extern "C"
         ZE_COMMAND_QUEUE_MODE_ASYNCHRONOUS = 2, ///< Device execution is scheduled and will complete in future;
                                                 ///< explicit synchronization object must be used to determine completeness
         ZE_COMMAND_QUEUE_MODE_FORCE_UINT32 = 0x7fffffff
-
     } ze_command_queue_mode_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1666,7 +1626,6 @@ extern "C"
         ZE_COMMAND_QUEUE_PRIORITY_PRIORITY_LOW  = 1, ///< lower priority than normal
         ZE_COMMAND_QUEUE_PRIORITY_PRIORITY_HIGH = 2, ///< higher priority than normal
         ZE_COMMAND_QUEUE_PRIORITY_FORCE_UINT32  = 0x7fffffff
-
     } ze_command_queue_priority_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1684,7 +1643,6 @@ extern "C"
                                               ///< latency and throughput.
         ze_command_queue_mode_t mode;         ///< [in] operation mode
         ze_command_queue_priority_t priority; ///< [in] priority
-
     } ze_command_queue_desc_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1845,7 +1803,6 @@ extern "C"
                                                         ///< this flag should be used when applications want full control over
                                                         ///< multi-engine submission and scheduling.
         ZE_COMMAND_LIST_FLAG_FORCE_UINT32 = 0x7fffffff
-
     } ze_command_list_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1860,7 +1817,6 @@ extern "C"
                                            ///< must be 0 (default) or a valid combination of ::ze_command_list_flag_t;
                                            ///< default behavior may use implicit driver-based heuristics to balance
                                            ///< latency and throughput.
-
     } ze_command_list_desc_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -2261,7 +2217,6 @@ extern "C"
         uint32_t height;  ///< [in] The region height relative to origin in rows
         uint32_t depth;   ///< [in] The region depth relative to origin in slices. Set this to 0 for
                           ///< 2D copy.
-
     } ze_copy_region_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -2416,7 +2371,6 @@ extern "C"
         uint32_t height;  ///< [in] The region height relative to origin in pixels
         uint32_t depth;   ///< [in] The region depth relative to origin. For 1D or 2D images, set
                           ///< this to 1.
-
     } ze_image_region_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -2610,7 +2564,6 @@ extern "C"
         ZE_MEMORY_ADVICE_BIAS_CACHED              = 6, ///< hints that memory should be cached
         ZE_MEMORY_ADVICE_BIAS_UNCACHED            = 7, ///< hints that memory should be not be cached
         ZE_MEMORY_ADVICE_FORCE_UINT32             = 0x7fffffff
-
     } ze_memory_advice_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -2672,7 +2625,6 @@ extern "C"
         ZE_EVENT_POOL_FLAG_KERNEL_TIMESTAMP = ZE_BIT(2), ///< Indicates all events in pool will contain kernel timestamps; cannot be
                                                          ///< combined with ::ZE_EVENT_POOL_FLAG_IPC
         ZE_EVENT_POOL_FLAG_FORCE_UINT32 = 0x7fffffff
-
     } ze_event_pool_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -2686,7 +2638,6 @@ extern "C"
                                      ///< default behavior is signals and waits are visible to the entire device
                                      ///< and peer devices.
         uint32_t count;              ///< [in] number of events within the pool; must be greater than 0
-
     } ze_event_pool_desc_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -2762,7 +2713,6 @@ extern "C"
         ZE_EVENT_SCOPE_FLAG_HOST = ZE_BIT(2),      ///< cache hierarchies are flushed or invalidated sufficient for device and
                                                    ///< host access
         ZE_EVENT_SCOPE_FLAG_FORCE_UINT32 = 0x7fffffff
-
     } ze_event_scope_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -2783,7 +2733,6 @@ extern "C"
                                        ///< must be 0 (default) or a valid combination of ::ze_event_scope_flag_t;
                                        ///< default behavior is execution synchronization only, no cache
                                        ///< hierarchies are invalidated.
-
     } ze_event_desc_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -3116,7 +3065,6 @@ extern "C"
     {
         uint64_t kernelStart; ///< [out] device clock at start of kernel execution
         uint64_t kernelEnd;   ///< [out] device clock at end of kernel execution
-
     } ze_kernel_timestamp_data_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -3126,7 +3074,6 @@ extern "C"
         ze_kernel_timestamp_data_t global;  ///< [out] wall-clock data
         ze_kernel_timestamp_data_t context; ///< [out] context-active data; only includes clocks while device context
                                             ///< was actively executing.
-
     } ze_kernel_timestamp_result_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -3219,7 +3166,6 @@ extern "C"
     {
         ZE_FENCE_FLAG_SIGNALED     = ZE_BIT(0), ///< fence is created in the signaled state, otherwise not signaled.
         ZE_FENCE_FLAG_FORCE_UINT32 = 0x7fffffff
-
     } ze_fence_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -3230,7 +3176,6 @@ extern "C"
         const void * pNext;        ///< [in][optional] pointer to extension-specific structure
         ze_fence_flags_t flags;    ///< [in] creation flags.
                                    ///< must be 0 (default) or a valid combination of ::ze_fence_flag_t.
-
     } ze_fence_desc_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -3381,7 +3326,6 @@ extern "C"
         ZE_IMAGE_FLAG_KERNEL_WRITE  = ZE_BIT(0), ///< kernels will write contents
         ZE_IMAGE_FLAG_BIAS_UNCACHED = ZE_BIT(1), ///< device should not cache contents
         ZE_IMAGE_FLAG_FORCE_UINT32  = 0x7fffffff
-
     } ze_image_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -3395,7 +3339,6 @@ extern "C"
         ZE_IMAGE_TYPE_3D           = 4, ///< 3D
         ZE_IMAGE_TYPE_BUFFER       = 5, ///< Buffer
         ZE_IMAGE_TYPE_FORCE_UINT32 = 0x7fffffff
-
     } ze_image_type_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -3431,7 +3374,6 @@ extern "C"
         ZE_IMAGE_FORMAT_LAYOUT_Y216         = 26, ///< Media Format: Y216. Format type and swizzle is ignored for this.
         ZE_IMAGE_FORMAT_LAYOUT_P216         = 27, ///< Media Format: P216. Format type and swizzle is ignored for this.
         ZE_IMAGE_FORMAT_LAYOUT_FORCE_UINT32 = 0x7fffffff
-
     } ze_image_format_layout_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -3444,7 +3386,6 @@ extern "C"
         ZE_IMAGE_FORMAT_TYPE_SNORM        = 3, ///< Signed normalized integer
         ZE_IMAGE_FORMAT_TYPE_FLOAT        = 4, ///< Float
         ZE_IMAGE_FORMAT_TYPE_FORCE_UINT32 = 0x7fffffff
-
     } ze_image_format_type_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -3459,7 +3400,6 @@ extern "C"
         ZE_IMAGE_FORMAT_SWIZZLE_1            = 5, ///< One
         ZE_IMAGE_FORMAT_SWIZZLE_X            = 6, ///< Don't care
         ZE_IMAGE_FORMAT_SWIZZLE_FORCE_UINT32 = 0x7fffffff
-
     } ze_image_format_swizzle_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -3473,7 +3413,6 @@ extern "C"
         ze_image_format_swizzle_t y;     ///< [in] image component swizzle into channel y
         ze_image_format_swizzle_t z;     ///< [in] image component swizzle into channel z
         ze_image_format_swizzle_t w;     ///< [in] image component swizzle into channel w
-
     } ze_image_format_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -3511,7 +3450,6 @@ extern "C"
                                    ///< ::ze_device_image_properties_t.maxImageArraySlices for limits.
                                    ///< other: ignored.
         uint32_t miplevels;        ///< [in] mipmap levels (must be 0)
-
     } ze_image_desc_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -3522,7 +3460,6 @@ extern "C"
         ZE_IMAGE_SAMPLER_FILTER_FLAG_POINT        = ZE_BIT(0), ///< device supports point filtering
         ZE_IMAGE_SAMPLER_FILTER_FLAG_LINEAR       = ZE_BIT(1), ///< device supports linear filtering
         ZE_IMAGE_SAMPLER_FILTER_FLAG_FORCE_UINT32 = 0x7fffffff
-
     } ze_image_sampler_filter_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -3533,7 +3470,6 @@ extern "C"
         void * pNext;                                       ///< [in,out][optional] pointer to extension-specific structure
         ze_image_sampler_filter_flags_t samplerFilterFlags; ///< [out] supported sampler filtering.
                                                             ///< returns 0 (unsupported) or a combination of ::ze_image_sampler_filter_flag_t.
-
     } ze_image_properties_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -3632,7 +3568,6 @@ extern "C"
         ZE_DEVICE_MEM_ALLOC_FLAG_BIAS_CACHED   = ZE_BIT(0), ///< device should cache allocation
         ZE_DEVICE_MEM_ALLOC_FLAG_BIAS_UNCACHED = ZE_BIT(1), ///< device should not cache allocation (UC)
         ZE_DEVICE_MEM_ALLOC_FLAG_FORCE_UINT32  = 0x7fffffff
-
     } ze_device_mem_alloc_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -3646,7 +3581,6 @@ extern "C"
                                            ///< default behavior may use implicit driver-based heuristics.
         uint32_t ordinal;                  ///< [in] ordinal of the device's local memory to allocate from.
                                            ///< must be less than the count returned from ::zeDeviceGetMemoryProperties.
-
     } ze_device_mem_alloc_desc_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -3658,7 +3592,6 @@ extern "C"
         ZE_HOST_MEM_ALLOC_FLAG_BIAS_UNCACHED       = ZE_BIT(1), ///< host should not cache allocation (UC)
         ZE_HOST_MEM_ALLOC_FLAG_BIAS_WRITE_COMBINED = ZE_BIT(2), ///< host memory should be allocated write-combined (WC)
         ZE_HOST_MEM_ALLOC_FLAG_FORCE_UINT32        = 0x7fffffff
-
     } ze_host_mem_alloc_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -3670,7 +3603,6 @@ extern "C"
         ze_host_mem_alloc_flags_t flags; ///< [in] flags specifying additional allocation controls.
                                          ///< must be 0 (default) or a valid combination of ::ze_host_mem_alloc_flag_t;
                                          ///< default behavior may use implicit driver-based heuristics.
-
     } ze_host_mem_alloc_desc_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -3845,7 +3777,6 @@ extern "C"
         ZE_MEMORY_TYPE_DEVICE       = 2, ///< the memory pointed to is a device allocation
         ZE_MEMORY_TYPE_SHARED       = 3, ///< the memory pointed to is a shared ownership allocation
         ZE_MEMORY_TYPE_FORCE_UINT32 = 0x7fffffff
-
     } ze_memory_type_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -3857,7 +3788,6 @@ extern "C"
         ze_memory_type_t type;     ///< [out] type of allocated memory
         uint64_t id;               ///< [out] identifier for this allocation
         uint64_t pageSize;         ///< [out] page size used for allocation
-
     } ze_memory_allocation_properties_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -3939,7 +3869,6 @@ extern "C"
     {
         ZE_IPC_MEMORY_FLAG_TBD          = ZE_BIT(0), ///< reserved for future use
         ZE_IPC_MEMORY_FLAG_FORCE_UINT32 = 0x7fffffff
-
     } ze_ipc_memory_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -4013,7 +3942,6 @@ extern "C"
         const void * pNext;                    ///< [in][optional] pointer to extension-specific structure
         ze_external_memory_type_flags_t flags; ///< [in] flags specifying memory export types for this allocation.
                                                ///< must be 0 (default) or a valid combination of ::ze_external_memory_type_flags_t
-
     } ze_external_memory_export_desc_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -4033,7 +3961,6 @@ extern "C"
         ze_external_memory_type_flags_t flags; ///< [in] flags specifying the memory import type for the file descriptor.
                                                ///< must be 0 (default) or a valid combination of ::ze_external_memory_type_flags_t
         int fd;                                ///< [in] the file descriptor handle to import
-
     } ze_external_memory_import_fd_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -4055,7 +3982,6 @@ extern "C"
         ze_external_memory_type_flags_t flags; ///< [in] flags specifying the memory export type for the file descriptor.
                                                ///< must be 0 (default) or a valid combination of ::ze_external_memory_type_flags_t
         int fd;                                ///< [out] the exported file descriptor handle representing the allocation.
-
     } ze_external_memory_export_fd_t;
 
 #if !defined(__GNUC__)
@@ -4072,7 +3998,6 @@ extern "C"
         ZE_MODULE_FORMAT_IL_SPIRV     = 0, ///< Format is SPIRV IL format
         ZE_MODULE_FORMAT_NATIVE       = 1, ///< Format is device native format
         ZE_MODULE_FORMAT_FORCE_UINT32 = 0x7fffffff
-
     } ze_module_format_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -4084,7 +4009,6 @@ extern "C"
                                        ///< numConstants.
         const void ** pConstantValues; ///< [in][range(0, numConstants)] Array of pointers to values that is sized
                                        ///< to numConstants.
-
     } ze_module_constants_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -4112,7 +4036,6 @@ extern "C"
         const ze_module_constants_t * pConstants; ///< [in][optional] pointer to specialization constants. Valid only for
                                                   ///< SPIR-V input. This must be set to nullptr if no specialization
                                                   ///< constants are provided.
-
     } ze_module_desc_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -4360,7 +4283,6 @@ extern "C"
         ZE_MODULE_PROPERTY_FLAG_IMPORTS = ZE_BIT(0), ///< Module has imports (i.e. imported global variables and/or kernels).
                                                      ///< See ::zeModuleDynamicLink.
         ZE_MODULE_PROPERTY_FLAG_FORCE_UINT32 = 0x7fffffff
-
     } ze_module_property_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -4370,7 +4292,6 @@ extern "C"
         ze_structure_type_t stype;        ///< [in] type of this structure
         void * pNext;                     ///< [in,out][optional] pointer to extension-specific structure
         ze_module_property_flags_t flags; ///< [out] 0 (none) or a valid combination of ::ze_module_property_flag_t
-
     } ze_module_properties_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -4402,7 +4323,6 @@ extern "C"
         ZE_KERNEL_FLAG_EXPLICIT_RESIDENCY = ZE_BIT(1), ///< application is responsible for all residency of device allocations.
                                                        ///< driver may disable implicit residency management.
         ZE_KERNEL_FLAG_FORCE_UINT32 = 0x7fffffff
-
     } ze_kernel_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -4415,7 +4335,6 @@ extern "C"
                                    ///< must be 0 (default) or a valid combination of ::ze_kernel_flag_t;
                                    ///< default behavior may use driver-based residency.
         const char * pKernelName;  ///< [in] null-terminated name of kernel in module
-
     } ze_kernel_desc_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -4606,7 +4525,6 @@ extern "C"
         ZE_KERNEL_INDIRECT_ACCESS_FLAG_DEVICE       = ZE_BIT(1), ///< Indicates that the kernel accesses device allocations indirectly.
         ZE_KERNEL_INDIRECT_ACCESS_FLAG_SHARED       = ZE_BIT(2), ///< Indicates that the kernel accesses shared allocations indirectly.
         ZE_KERNEL_INDIRECT_ACCESS_FLAG_FORCE_UINT32 = 0x7fffffff
-
     } ze_kernel_indirect_access_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -4689,7 +4607,6 @@ extern "C"
         ZE_CACHE_CONFIG_FLAG_LARGE_SLM    = ZE_BIT(0), ///< Large SLM size
         ZE_CACHE_CONFIG_FLAG_LARGE_DATA   = ZE_BIT(1), ///< Large General Data size
         ZE_CACHE_CONFIG_FLAG_FORCE_UINT32 = 0x7fffffff
-
     } ze_cache_config_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -4739,7 +4656,6 @@ extern "C"
     {
         uint8_t kid[ZE_MAX_KERNEL_UUID_SIZE]; ///< [out] opaque data representing a kernel UUID
         uint8_t mid[ZE_MAX_MODULE_UUID_SIZE]; ///< [out] opaque data representing the kernel's module UUID
-
     } ze_kernel_uuid_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -4765,7 +4681,6 @@ extern "C"
         uint32_t privateMemSize;       ///< [out] private memory size allocated by compiler used by each thread
         uint32_t spillMemSize;         ///< [out] spill memory size allocated by compiler
         ze_kernel_uuid_t uuid;         ///< [out] universal unique identifier.
-
     } ze_kernel_properties_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -4819,7 +4734,6 @@ extern "C"
         uint32_t groupCountX; ///< [in] number of thread groups in X dimension
         uint32_t groupCountY; ///< [in] number of thread groups in Y dimension
         uint32_t groupCountZ; ///< [in] number of thread groups in Z dimension
-
     } ze_group_count_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -5013,7 +4927,6 @@ extern "C"
         ZE_RAYTRACING_EXT_VERSION_1_0          = ZE_MAKE_VERSION(1, 0), ///< version 1.0
         ZE_RAYTRACING_EXT_VERSION_CURRENT      = ZE_MAKE_VERSION(1, 0), ///< latest known version
         ZE_RAYTRACING_EXT_VERSION_FORCE_UINT32 = 0x7fffffff
-
     } ze_raytracing_ext_version_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -5023,7 +4936,6 @@ extern "C"
     {
         ZE_RAYTRACING_MEM_ALLOC_EXT_FLAG_TBD          = ZE_BIT(0), ///< reserved for future use
         ZE_RAYTRACING_MEM_ALLOC_EXT_FLAG_FORCE_UINT32 = 0x7fffffff
-
     } ze_raytracing_mem_alloc_ext_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -5041,7 +4953,6 @@ extern "C"
         ze_raytracing_mem_alloc_ext_flags_t flags; ///< [in] flags specifying additional allocation controls.
                                                    ///< must be 0 (default) or a valid combination of ::ze_raytracing_mem_alloc_ext_flag_t;
                                                    ///< default behavior may use implicit driver-based heuristics.
-
     } ze_raytracing_mem_alloc_ext_desc_t;
 
 #if !defined(__GNUC__)
@@ -5174,7 +5085,6 @@ extern "C"
                                                      ///< (0.0f, 0.0f, 0.0f, 1.0f).
         ZE_SAMPLER_ADDRESS_MODE_MIRROR       = 4,    ///< Out-of-bounds coordinates are mirrored starting from edge.
         ZE_SAMPLER_ADDRESS_MODE_FORCE_UINT32 = 0x7fffffff
-
     } ze_sampler_address_mode_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -5184,7 +5094,6 @@ extern "C"
         ZE_SAMPLER_FILTER_MODE_NEAREST      = 0, ///< No coordinate modifications for out of bounds image access.
         ZE_SAMPLER_FILTER_MODE_LINEAR       = 1, ///< Out-of-bounds coordinates are wrapped back around.
         ZE_SAMPLER_FILTER_MODE_FORCE_UINT32 = 0x7fffffff
-
     } ze_sampler_filter_mode_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -5197,7 +5106,6 @@ extern "C"
                                                ///< coordinates are handled.
         ze_sampler_filter_mode_t filterMode;   ///< [in] Sampler filter mode to determine how samples are filtered.
         ze_bool_t isNormalized;                ///< [in] Are coordinates normalized [0, 1] or not.
-
     } ze_sampler_desc_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -5266,7 +5174,6 @@ extern "C"
         ZE_MEMORY_ACCESS_ATTRIBUTE_READWRITE    = 1, ///< Indicates the memory page supports read write access.
         ZE_MEMORY_ACCESS_ATTRIBUTE_READONLY     = 2, ///< Indicates the memory page supports read-only access.
         ZE_MEMORY_ACCESS_ATTRIBUTE_FORCE_UINT32 = 0x7fffffff
-
     } ze_memory_access_attribute_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -5364,7 +5271,6 @@ extern "C"
     {
         ZE_PHYSICAL_MEM_FLAG_TBD          = ZE_BIT(0), ///< reserved for future use.
         ZE_PHYSICAL_MEM_FLAG_FORCE_UINT32 = 0x7fffffff
-
     } ze_physical_mem_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -5376,7 +5282,6 @@ extern "C"
         ze_physical_mem_flags_t flags; ///< [in] creation flags.
                                        ///< must be 0 (default) or a valid combination of ::ze_physical_mem_flag_t.
         size_t size;                   ///< [in] size in bytes to reserve; must be page aligned.
-
     } ze_physical_mem_desc_t;
 
     ///////////////////////////////////////////////////////////////////////////////
