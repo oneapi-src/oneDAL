@@ -1,5 +1,3 @@
-
-
 <!--
 ******************************************************************************
 * Copyright 2014-2020 Intel Corporation
@@ -30,7 +28,6 @@ Intel&reg; oneAPI Data Analytics Library is an extension of Intel&reg; Data Anal
 
 ## Table of Contents
 - [Build yours high-performance data science application with intel&reg; oneDAL](#build-yours-high-performance-data-science-application-with-intel-onedal)
-- [Technical Preview Features](#technical-preview-features)
 - [Python API](#python-api)
 - [Scikit-learn patching](#scikit-learn-patching)
 - [Distributed multi-node mode](#distributed-multi-node-mode)
@@ -40,6 +37,7 @@ Intel&reg; oneAPI Data Analytics Library is an extension of Intel&reg; Data Anal
 - [Examples](#examples)
 - [Samples](#samples)
 - [Documentation](#documentation)
+- [Technical Preview Features](#technical-preview-features)
 - [oneDAL and Intel&reg; DAAL](#onedal-and-intel-daal)
 
 ## Build yours high-performance data science application with intel&reg; oneDAL
@@ -60,16 +58,6 @@ Intel&reg; oneDAL K-means fit, strong scaling result | Intel&reg; oneDAL K-means
 >*technical details: FPType: float32; HW: Intel Xeon Processor E5-2698 v3 @2.3GHz, 2 sockets, 16 cores per socket; SW: Intel® DAAL (2019.3), MPI4Py (3.0.0), Intel® Distribution Of Python (IDP) 3.6.8; Details available in the article https://arxiv.org/abs/1909.11822*
 
 Check out our [examples](#examples)  and [documentation](#documentation)  for information about our API
-
-## Technical Preview Features
-
-Technical preview features are introduced to gain early feedback from developers. A technical preview feature is subject to change in the future releases. Using a technical preview feature in a production code base is therefore strongly discouraged.
-In C++ APIs, technical preview features are located in `daal::preview` and `onedal::preview` namespaces. In Java APIs, technical preview features are located in packages that have the `com.intel.daal.preview` name prefix.
-The preview features list:
-- `MultiNodeBatch` for K-Means, a stepless distributed algorithm based on oneCCL
-- Graph Analytics: 
-	- Undirected graph without edge and vertex weights (undirected_adjacency_array_graph) - 32bit vertex index only
-	- Jaccard Similarity Coefficients for all vertex pairs, a batch algorithm which processes the graph by blocks
 
 ## Python API
 
@@ -225,6 +213,16 @@ Samples is an examples of how oneDAL can be used in different applications.
 - [Hadoop](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/java/hadoop)
 - [Java Spark](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/java/spark)
 - [Scala Spark](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/scala/spark)
+
+## Technical Preview Features
+
+Technical preview features are introduced to gain early feedback from developers. A technical preview feature is subject to change in the future releases. Using a technical preview feature in a production code base is therefore strongly discouraged.
+In C++ APIs, technical preview features are located in `daal::preview` and `onedal::preview` namespaces. In Java APIs, technical preview features are located in packages that have the `com.intel.daal.preview` name prefix.
+The preview features list:
+- `MultiNodeBatch` for K-Means, a stepless distributed algorithm based on oneCCL
+- Graph Analytics: 
+	- Undirected graph without edge and vertex weights (undirected_adjacency_array_graph) - 32bit vertex index only
+	- Jaccard Similarity Coefficients for all vertex pairs, a batch algorithm which processes the graph by blocks
 
 ## oneDAL and Intel&reg; DAAL
 
