@@ -49,7 +49,7 @@ We provide highly optimized algorithmic building blocks for all stages of data a
 The current version of oneDAL provides Data Parallel C++ (DPC++) API extensions to the traditional C++ interface.
 
 The size of the data is growing exponentially, as is the need for high-performance and scalable frameworks to analyze all this data and extract some benefits from it.
-Besides superior performance on a single node, the oneDAL distributed multi-node algorithms implementations also provides excellent strong and weak scaling (check charts below).
+Besides superior performance on a single node, the oneDAL distributed computation mode also provides excellent strong and weak scaling (check charts below).
 
 Intel&reg; oneDAL K-means fit, strong scaling result | Intel&reg; oneDAL K-means fit, weak scaling results
 :-------------------------:|:-------------------------:
