@@ -29,9 +29,16 @@
 
         #ifndef DAAL_DISABLE_LEVEL_ZERO
 
+            #include <CL/sycl.hpp>
             #include "sycl/internal/error_handling.h"
             #include "services/daal_shared_ptr.h"
             #include "services/internal/dynamic_lib_helper.h"
+
+            #if (defined(__SYCL_COMPILER_VERSION) && (__SYCL_COMPILER_VERSION >= 20200701))
+                #include <CL/sycl/backend/level_zero.hpp>
+            #else
+                #include <CL/sycl/backend/Intel_level0.hpp>
+            #endif
 
 namespace daal
 {
@@ -64,7 +71,8 @@ class ZeModuleHelper : public Base
 public:
     ZeModuleHelper()                       = delete;
     ZeModuleHelper(const ZeModuleHelper &) = delete;
-    ZeModuleHelper(ze_device_handle_t zeDevice, size_t binarySize, const uint8_t * pBinary, services::Status * status = nullptr)
+    ZeModuleHelper(cl::sycl::queue & deviceQueue, size_t binarySize, const uint8_t * pBinary, services::Status * status = nullptr)
+        : _program(deviceQueue.get_context())
     {
         services::Status localStatus;
 
@@ -84,39 +92,29 @@ public:
 
         _zeModuleCreateF = stZeModuleCreateF;
 
-        ze_module_desc_t desc { ZE_MODULE_DESC_VERSION_CURRENT };
+        ze_module_desc_t desc;
+        desc.stype        = ZE_STRUCTURE_TYPE_MODULE_DESC;
         desc.format       = ZE_MODULE_FORMAT_NATIVE;
         desc.inputSize    = binarySize;
         desc.pInputModule = pBinary;
         desc.pBuildFlags  = "";
         desc.pConstants   = nullptr;
 
-        DAAL_CHECK_LEVEL_ZERO(_zeModuleCreateF(zeDevice, &desc, &_moduleLevelZero, nullptr), status);
+        ze_module_handle_t _moduleLevelZero;
+        DAAL_CHECK_LEVEL_ZERO(
+            _zeModuleCreateF(deviceQueue.get_context().get_native<cl::sycl::backend::level_zero>(),
+                             deviceQueue.get_device().get_native<cl::sycl::backend::level_zero>(), &desc, &_moduleLevelZero, nullptr),
+            status);
+
+        _program = cl::sycl::level_zero::make<cl::sycl::program>(deviceQueue.get_context(), _moduleLevelZero);
     }
 
-    ~ZeModuleHelper()
-    {
-        services::Status localStatus;
+    ~ZeModuleHelper() = default;
 
-        static services::internal::DynamicLibHelper zeLibD(zeLoaderName, libLoadFlags, &localStatus);
-        if (!localStatus.ok())
-        {
-            return;
-        }
-
-        zeModuleDestroyFT zeModuleDestroyF = zeLibD.getSymbol<zeModuleDestroyFT>(zeModuleDestroyFuncName, &localStatus);
-        if (!localStatus.ok())
-        {
-            return;
-        }
-
-        zeModuleDestroyF(_moduleLevelZero);
-    }
-
-    ze_module_handle_t get() { return _moduleLevelZero; }
+    cl::sycl::program getZeProgram() { return _program; }
 
 private:
-    ze_module_handle_t _moduleLevelZero;
+    cl::sycl::program _program;
     zeModuleCreateFT _zeModuleCreateF;
 };
 
