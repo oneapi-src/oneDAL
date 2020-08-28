@@ -110,6 +110,15 @@ DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, 
 #endif
 }
 
+DAAL_EXPORT void _daal_parallel_sort(int * begin_ptr, int * end_ptr)
+{
+#if defined(__DO_TBB_LAYER__)
+    tbb::parallel_sort(begin_ptr, end_ptr);
+#elif defined(__DO_SEQ_LAYER__)
+    // daal::algorithms::internal::qSort<int, daal::sse2>(end_ptr - begin_ptr, begin_ptr);
+#endif
+}
+
 DAAL_EXPORT void _daal_threader_for_blocked(int n, int threads_request, const void * a, daal::functype2 func)
 {
 #if defined(__DO_TBB_LAYER__)

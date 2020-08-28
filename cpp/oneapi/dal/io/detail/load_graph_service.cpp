@@ -33,3 +33,7 @@ ONEAPI_DAL_EXPORT void _daal_threader_for_oneapi(int n,
                                                  oneapi::dal::preview::functype func) {
     _daal_threader_for(n, threads_request, a, static_cast<daal::functype>(func));
 }
+
+ONEAPI_DAL_EXPORT void _daal_parallel_sort_oneapi(int* begin_ptr, int* end_ptr) {
+    _daal_parallel_sort(begin_ptr, end_ptr);
+}
