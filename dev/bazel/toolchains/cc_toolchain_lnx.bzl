@@ -357,19 +357,17 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
             "%{opt_compile_flags}": get_starlark_list(
                 [
                     # No debug symbols.
-                    # Maybe we should enable https://gcc.gnu.org/wiki/DebugFission for opt or
-                    # even generally? However, that can't happen here, as it requires special
-                    # handling in Bazel.
                     "-g0",
 
                     # Conservative choice for -O
-                    # -O3 can increase binary size and even slow down the resulting binaries.
-                    # Profile first and / or use FDO if you need better performance than this.
                     "-O2",
 
+                    # It turns out that some GCC builds set _FORTIFY_SOURCE internally,
+                    # so we need to undefine it first
+                    "-U_FORTIFY_SOURCE",
+
                     # Security hardening on by default.
-                    # Conservative choice; -D_FORTIFY_SOURCE=2 may be unsafe in some cases.
-                    "-D_FORTIFY_SOURCE=1",
+                    "-D_FORTIFY_SOURCE=2",
 
                     # Disable assertions
                     "-DNDEBUG",
