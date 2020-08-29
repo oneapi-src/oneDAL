@@ -123,7 +123,7 @@ def _find_tools(repo_ctx, reqs):
     # TODO: Use full compiler path from reqs
     ar_path = _find_tool(repo_ctx, "ar", mandatory=True)
     cc_path = _find_tool(repo_ctx, reqs.compiler_id, mandatory=True)
-    dpcc_path = _find_tool(repo_ctx, reqs.dpc_compiler_id, mandatory=True)
+    dpcc_path = _find_tool(repo_ctx, reqs.dpc_compiler_id, mandatory=False)
     strip_path = _find_tool(repo_ctx, "strip", mandatory=True)
     cc_link_path = _create_dynamic_link_wrapper(repo_ctx, "cc", cc_path)
     dpcc_link_path = _create_dynamic_link_wrapper(repo_ctx, "dpc", dpcc_path)
