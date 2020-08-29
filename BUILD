@@ -27,5 +27,6 @@ release(
         "@onedal//cpp/daal:thread_dynamic",
         "@onedal//cpp/daal:sequential_dynamic",
         "@onedal//cpp/oneapi/dal:static",
+        "@onedal//cpp/oneapi/dal:dynamic",
     ],
 )

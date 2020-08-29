@@ -163,8 +163,9 @@ def dal_test(name, dal_deps=[], test_deps=[], data=[],
                 "@onedal//cpp/daal:threading_release_static",
             ],
             "@config//:release_dynamic_test_link_mode": [
-                # TODO
-                # ":threading_release_dynamic",
+                "@onedal_release//:onedal_dynamic",
+                "@onedal_release//:core_dynamic",
+                "@onedal//cpp/daal:threading_release_dynamic",
             ],
         }) + test_deps + ([
             "@gtest//:gtest_main",

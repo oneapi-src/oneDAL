@@ -326,6 +326,18 @@ daal_module(
     }),
 )
 
+daal_module(
+    name = "threading_release_dynamic",
+    deps = select({
+        "@config//:par_test_thread_mode": [
+            "@onedal_release//:thread_dynamic",
+        ],
+        "@config//:seq_test_thread_mode": [
+            "@onedal_release//:sequential_dynamic",
+        ],
+    }),
+)
+
 filegroup(
     name = "all_static",
     srcs = [

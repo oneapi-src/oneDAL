@@ -17,6 +17,13 @@ cc_library(
 )
 
 cc_library(
+    name = "tbbmalloc_binary",
+    srcs = [
+        "lib/intel64/gcc4.8/libtbbmalloc.so.2",
+    ],
+)
+
+cc_library(
     name = "tbb",
     deps = [
         ":headers",
@@ -26,10 +33,8 @@ cc_library(
 
 cc_library(
     name = "tbbmalloc",
-    srcs = [
-        "lib/intel64/gcc4.8/libtbbmalloc.so.2",
-    ],
     deps = [
         ":headers",
+        ":tbbmalloc_binary",
     ],
 )
