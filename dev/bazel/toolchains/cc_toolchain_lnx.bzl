@@ -22,6 +22,7 @@ load("@bazel_tools//tools/cpp:lib_cc_configure.bzl",
 )
 load("@onedal//dev/bazel:utils.bzl",
     "utils",
+    "paths",
 )
 load("@onedal//dev/bazel/toolchains:common.bzl",
     "TEST_CPP_FILE",
@@ -108,16 +109,33 @@ def _create_ar_merge_tool(repo_ctx, ar_path):
     ar_merge_path = repo_ctx.path(ar_merge_name)
     return str(ar_merge_path)
 
+def _create_dynamic_link_wrapper(repo_ctx, prefix, cc_path):
+    wrapper_name = prefix + "_dynamic_link.sh"
+    repo_ctx.template(
+        wrapper_name,
+        Label("@onedal//dev/bazel/toolchains/tools:dynamic_link_lnx.tpl.sh"),
+        { "%{cc_path}": cc_path }
+    )
+    wrapper_path = repo_ctx.path(wrapper_name)
+    return str(wrapper_path)
+
 def _find_tools(repo_ctx, reqs):
     # TODO: Use full compiler path from reqs
-    ar = _find_tool(repo_ctx, "ar", mandatory=True)
-    ar_merge = _create_ar_merge_tool(repo_ctx, ar)
+    ar_path = _find_tool(repo_ctx, "ar", mandatory=True)
+    cc_path = _find_tool(repo_ctx, reqs.compiler_id, mandatory=True)
+    dpcc_path = _find_tool(repo_ctx, reqs.dpc_compiler_id, mandatory=True)
+    strip_path = _find_tool(repo_ctx, "strip", mandatory=True)
+    cc_link_path = _create_dynamic_link_wrapper(repo_ctx, "cc", cc_path)
+    dpcc_link_path = _create_dynamic_link_wrapper(repo_ctx, "dpc", dpcc_path)
+    ar_merge_path = _create_ar_merge_tool(repo_ctx, ar_path)
     return struct(
-        cc       = _find_tool(repo_ctx, reqs.compiler_id, mandatory=True),
-        dpcc     = _find_tool(repo_ctx, reqs.dpc_compiler_id, mandatory=False),
-        strip    = _find_tool(repo_ctx, "strip", mandatory=True),
-        ar       = ar,
-        ar_merge = ar_merge,
+        cc        = cc_path,
+        dpcc      = dpcc_path,
+        cc_link   = cc_link_path,
+        dpcc_link = dpcc_link_path,
+        strip     = strip_path,
+        ar        = ar_path,
+        ar_merge  = ar_merge_path,
     )
 
 
@@ -192,7 +210,7 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
     # Default compilations/link options
     cxx_opts  = [ ]
     link_opts = [ ]
-    link_libs = [ "-lstdc++", "-lm", "-ldl" ]
+    dynamic_link_libs = [ "-lstdc++", "-lm", "-ldl" ]
 
     # Paths to tools/compiler includes
     tools = _find_tools(repo_ctx, reqs)
@@ -217,16 +235,25 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
             "%{target_system_name}":      reqs.os_id + "-" + reqs.target_arch_id,
 
             "%{supports_param_files}": "1",
-            "%{cc_compiler_deps}": get_starlark_list(
-                [":builtin_include_directory_paths"]
-            ),
+            "%{compiler_deps}": get_starlark_list([
+                ":builtin_include_directory_paths",
+            ]),
+            "%{ar_deps}": get_starlark_list([
+                ":" + paths.basename(tools.ar_merge),
+            ]),
+            "%{linker_deps}": get_starlark_list([
+                ":" + paths.basename(tools.cc_link),
+                ":" + paths.basename(tools.dpcc_link),
+            ]),
 
             # Tools
-            "%{cc_path}":       tools.cc,
-            "%{dpcc_path}":     tools.dpcc,
-            "%{ar_path}":       tools.ar,
-            "%{ar_merge_path}": tools.ar_merge,
-            "%{strip_path}":    tools.strip,
+            "%{cc_path}":        tools.cc,
+            "%{dpcc_path}":      tools.dpcc,
+            "%{cc_link_path}":   tools.cc_link,
+            "%{dpcc_link_path}": tools.dpcc_link,
+            "%{ar_path}":        tools.ar,
+            "%{ar_merge_path}":  tools.ar_merge,
+            "%{strip_path}":     tools.strip,
 
             "%{cxx_builtin_include_directories}": get_starlark_list(builtin_include_directories),
             "%{compile_flags_cc}": get_starlark_list(
@@ -326,7 +353,7 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                 ) +
                 bin_search_flag_dpcc + link_opts
             ),
-            "%{link_libs}": get_starlark_list(link_libs),
+            "%{dynamic_link_libs}": get_starlark_list(dynamic_link_libs),
             "%{opt_compile_flags}": get_starlark_list(
                 [
                     # No debug symbols.

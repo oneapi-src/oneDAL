@@ -4,6 +4,7 @@ load("@onedal//dev/bazel:dal.bzl",
     "dal_collect_modules",
     "dal_public_includes",
     "dal_static_lib",
+    "dal_dynamic_lib",
     "dal_test_suite",
     "dal_collect_tests",
     "dal_generate_cpu_dispatcher",
@@ -71,9 +72,15 @@ dal_static_lib(
         ":core",
         ":optional",
     ],
-    # extra_deps = [
-    #     "@micromkl//:mkl_seq",
-    # ],
+)
+
+dal_dynamic_lib(
+    name = "dynamic",
+    lib_name = "onedal",
+    dal_deps = [
+        ":core",
+        ":optional",
+    ],
 )
 
 filegroup(
@@ -81,6 +88,14 @@ filegroup(
     srcs = [
         ":static",
         ":static_dpc",
+    ],
+)
+
+filegroup(
+    name = "all_dynamic",
+    srcs = [
+        ":dynamic",
+        ":dynamic_dpc",
     ],
 )
 

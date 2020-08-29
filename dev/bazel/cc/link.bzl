@@ -11,9 +11,9 @@ load("@onedal//dev/bazel/cc:common.bzl",
 )
 
 def _filter_user_link_flags(feature_configuration, user_link_flags):
-    strip_dynamic_libraries_from_user_link_flags = not cc_common.is_enabled(
+    strip_dynamic_libraries_from_user_link_flags = cc_common.is_enabled(
         feature_configuration = feature_configuration,
-        feature_name = "dynamic_libraries_to_link",
+        feature_name = "do_not_link_dynamic_dependencies",
     )
     if strip_dynamic_libraries_from_user_link_flags:
         filtered_flags = []
@@ -112,7 +112,7 @@ def _static(owner, name, actions, cc_toolchain,
 
 def _link(owner, name, actions, cc_toolchain,
           feature_configuration, linking_contexts,
-          is_executable=False):
+          def_file=None, is_executable=False):
     unpacked_linking_context = onedal_cc_common.unpack_linking_contexts(linking_contexts)
     compilation_outputs = cc_common.create_compilation_outputs(
         objects = depset(unpacked_linking_context.objects),
@@ -142,20 +142,24 @@ def _link(owner, name, actions, cc_toolchain,
         linking_contexts = [linking_context],
         output_type = "executable" if is_executable else "dynamic_library",
         link_deps_statically = True,
+        user_link_flags = ["@" + def_file.path] if def_file else [],
+        additional_inputs = [def_file] if def_file else [],
     )
     return unpacked_linking_context, linking_outputs
 
 def _dynamic(owner, name, actions, cc_toolchain,
-             feature_configuration, linking_contexts):
+             feature_configuration, linking_contexts,
+             def_file=None):
     unpacked_linking_context, linking_outputs = _link(
         owner, name, actions, cc_toolchain,
-        feature_configuration, linking_contexts
+        feature_configuration, linking_contexts,
+        def_file,
     )
     library_to_link = linking_outputs.library_to_link
     if not (library_to_link and library_to_link.resolved_symlink_dynamic_library):
         return utils.warn("'{}' dynamic library does not contain any " +
                           "object file".format(name))
-    # TODO: Handle interface dynamic library fro Windows
+    # TODO: Handle interface dynamic library on Windows
     dynamic_lib = library_to_link.resolved_symlink_dynamic_library
     dynamic_lib_to_link = cc_common.create_library_to_link(
         actions = actions,

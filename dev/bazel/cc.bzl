@@ -34,13 +34,13 @@ load("@onedal//dev/bazel/cc:link.bzl",
 
 ModuleInfo = onedal_cc_common.ModuleInfo
 
-def _init_cc_rule(ctx, disable=[]):
+def _init_cc_rule(ctx, features=[], disable_features=[]):
     toolchain = ctx.toolchains["@bazel_tools//tools/cpp:toolchain_type"]
     feature_config = cc_common.configure_features(
         ctx = ctx,
         cc_toolchain = toolchain,
-        requested_features = ctx.features,
-        unsupported_features = ctx.disabled_features + disable,
+        requested_features = ctx.features + features,
+        unsupported_features = ctx.disabled_features + disable_features,
     )
     return toolchain, feature_config
 
@@ -171,9 +171,13 @@ cc_static_lib = rule(
 
 
 def _cc_dynamic_lib_impl(ctx):
-    toolchain, feature_config = _init_cc_rule(ctx, disable=[
-        "default_libraries",
-        "dynamic_libraries_to_link",
+    toolchain, feature_config = _init_cc_rule(ctx, features=[
+        # This feature will force toolchain to not link the produced executable/dynamic library
+        # against dynamic dependencies (-l) on Linux and MacOs. It's needed to get dependency-free
+        # .so/.dylib, where the symbols need to be resolved at executable build-time. On Windows
+        # this feature shall not make difference, because all symbols are need to be resolved at DLL
+        # build-time.
+        "do_not_link_dynamic_dependencies",
     ])
     compilation_context = onedal_cc_common.collect_and_merge_compilation_contexts(ctx.attr.deps)
     linking_contexts = onedal_cc_common.collect_and_filter_linking_contexts(
@@ -185,6 +189,7 @@ def _cc_dynamic_lib_impl(ctx):
         cc_toolchain = toolchain,
         feature_configuration = feature_config,
         linking_contexts = linking_contexts,
+        def_file = ctx.file.def_file,
     )
     default_info = DefaultInfo(
         files = depset([ dynamic_lib ]),
@@ -201,6 +206,7 @@ cc_dynamic_lib = rule(
         "lib_name": attr.string(),
         "lib_tags": attr.string_list(),
         "deps": attr.label_list(mandatory=True),
+        "def_file": attr.label(allow_single_file=True),
     },
     toolchains = ["@bazel_tools//tools/cpp:toolchain_type"],
     fragments = ["cpp"],

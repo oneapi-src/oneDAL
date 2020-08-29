@@ -9,7 +9,17 @@ filegroup(
 
 filegroup(
     name = "compiler_deps",
-    srcs = [%{cc_compiler_deps}],
+    srcs = [%{compiler_deps}],
+)
+
+filegroup(
+    name = "ar_deps",
+    srcs = [%{ar_deps}],
+)
+
+filegroup(
+    name = "linker_deps",
+    srcs = [%{linker_deps}],
 )
 
 cc_toolchain_config(
@@ -24,6 +34,8 @@ cc_toolchain_config(
     abi_libc_version = "%{abi_libc_version}",
     cc_path = "%{cc_path}",
     dpcc_path = "%{dpcc_path}",
+    cc_link_path = "%{cc_link_path}",
+    dpcc_link_path = "%{dpcc_link_path}",
     ar_path = "%{ar_path}",
     ar_merge_path = "%{ar_merge_path}",
     strip_path = "%{strip_path}",
@@ -37,7 +49,7 @@ cc_toolchain_config(
     cxx_flags = [%{cxx_flags}],
     link_flags_cc = [%{link_flags_cc}],
     link_flags_dpcc = [%{link_flags_dpcc}],
-    link_libs = [%{link_libs}],
+    dynamic_link_libs = [%{dynamic_link_libs}],
     opt_link_flags = [%{opt_link_flags}],
     no_canonical_system_headers_flags_cc = [%{no_canonical_system_headers_flags_cc}],
     no_canonical_system_headers_flags_dpcc = [%{no_canonical_system_headers_flags_dpcc}],
@@ -52,11 +64,11 @@ cc_toolchain(
     toolchain_identifier = "%{cc_toolchain_identifier}",
     toolchain_config = ":%{cc_toolchain_identifier}_config",
     all_files = ":compiler_deps",
-    ar_files = ":compiler_deps",
+    ar_files = ":ar_deps",
     as_files = ":compiler_deps",
     compiler_files = ":compiler_deps",
     dwp_files = ":empty",
-    linker_files = ":compiler_deps",
+    linker_files = ":linker_deps",
     objcopy_files = ":empty",
     strip_files = ":empty",
     supports_param_files = %{supports_param_files},

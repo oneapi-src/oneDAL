@@ -13,6 +13,9 @@ daal_module(
     override_deps_lib_tag = True,
     deps = [
         "@micromkl//:vml_ipp",
+        # FIXME: Currently vml_ipp lib depends on TBB, but it shouldn't
+        #        Remove TBB from deps once problem with vml_ipp is resolved
+        "@tbb//:tbb_binary",
     ],
 )
 
@@ -275,6 +278,7 @@ daal_dynamic_lib(
     deps = [
         ":threading_seq",
     ],
+    def_file = "src/threading/export_lnx32e.def",
 )
 
 daal_dynamic_lib(
@@ -283,6 +287,7 @@ daal_dynamic_lib(
     deps = [
         ":threading_tbb",
     ],
+    def_file = "src/threading/export_lnx32e.def",
 )
 
 daal_module(
@@ -293,6 +298,18 @@ daal_module(
         ],
         "@config//:seq_test_thread_mode": [
             "@onedal//cpp/daal:sequential_static",
+        ],
+    }),
+)
+
+daal_module(
+    name = "threading_dynamic",
+    deps = select({
+        "@config//:par_test_thread_mode": [
+            "@onedal//cpp/daal:thread_dynamic",
+        ],
+        "@config//:seq_test_thread_mode": [
+            "@onedal//cpp/daal:sequential_dynamic",
         ],
     }),
 )
