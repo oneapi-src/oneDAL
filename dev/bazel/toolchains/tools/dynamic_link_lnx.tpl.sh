@@ -26,7 +26,7 @@ do
 done
 
 if [[ ${def_file} ]]; then
-    export_symbols=`grep -v -E '^(EXPORTS|;|$)' ${def_file} | sed -e 's/^/-u /'`
+    export_symbols=$(grep -v -E '^(EXPORTS|;|$)' ${def_file} | sed -e 's/^/-u /')
     echo ${export_symbols} > ${def_file}_patched
     %{cc_path} "${args_patched[@]}" "@${def_file}_patched"
 else
