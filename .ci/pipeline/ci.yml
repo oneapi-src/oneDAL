@@ -4,7 +4,16 @@
 # https://docs.microsoft.com/azure/devops/pipelines/apps/c-cpp/gcc
 
 trigger:
-- master
+  branches:
+    include:
+    - master
+    - rls/*
+
+pr:
+  branches:
+    include:
+    - master
+    - rls/*
 
 jobs:
 - job: 'ClangFormat'
@@ -29,8 +38,11 @@ jobs:
   - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib openjdk-8-jdk
     displayName: 'apt-get'
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type)
-    displayName: 'make'
+      .ci/scripts/build.sh --platform $(platform.type) --target daal
+    displayName: 'make daal'
+  - script: |
+      .ci/scripts/build.sh --platform $(platform.type) --target oneapi_c
+    displayName: 'make oneapi_c'
   - script: |
       cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
     displayName: 'Copy build'
@@ -148,8 +160,11 @@ jobs:
     vmImage:  'macOS-10.15'
   steps:
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type)
-    displayName: 'make'
+      .ci/scripts/build.sh --platform $(platform.type) --target daal
+    displayName: 'make daal'
+  - script: |
+      .ci/scripts/build.sh --platform $(platform.type) --target oneapi_c
+    displayName: 'make oneapi_c'
   - script: |
       cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
     displayName: 'Copy build'
