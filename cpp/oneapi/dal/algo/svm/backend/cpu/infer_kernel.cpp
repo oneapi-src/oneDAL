@@ -30,9 +30,9 @@ namespace oneapi::dal::svm::backend {
 using std::int64_t;
 using dal::backend::context_cpu;
 
-namespace daal_svm             = daal::algorithms::svm;
+namespace daal_svm = daal::algorithms::svm;
 namespace daal_kernel_function = daal::algorithms::kernel_function;
-namespace interop              = dal::backend::interop;
+namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
 using daal_svm_predict_kernel_t =
@@ -43,8 +43,8 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
                                      const descriptor_base& desc,
                                      const model& trained_model,
                                      const table& data) {
-    const int64_t row_count            = data.get_row_count();
-    const int64_t column_count         = data.get_column_count();
+    const int64_t row_count = data.get_row_count();
+    const int64_t column_count = data.get_column_count();
     const int64_t support_vector_count = trained_model.get_support_vector_count();
 
     // TODO: data is table, not a homogen_table. Think better about accessor - is it enough to have just a row_accessor?
@@ -66,7 +66,7 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
                           .set_coeffs(daal_coeffs)
                           .set_bias(trained_model.get_bias());
 
-    auto kernel_impl       = desc.get_kernel_impl()->get_impl();
+    auto kernel_impl = desc.get_kernel_impl()->get_impl();
     const auto daal_kernel = kernel_impl->get_daal_kernel_function();
 
     daal_svm::Parameter daal_parameter(daal_kernel);
@@ -82,7 +82,7 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
                                                                     *daal_decision_function,
                                                                     &daal_parameter));
 
-    auto arr_label  = array<Float>::empty(row_count * 1);
+    auto arr_label = array<Float>::empty(row_count * 1);
     auto label_data = arr_label.get_mutable_data();
     for (std::int64_t i = 0; i < row_count; ++i) {
         label_data[i] = arr_decision_function[i] >= 0 ? trained_model.get_second_class_label()

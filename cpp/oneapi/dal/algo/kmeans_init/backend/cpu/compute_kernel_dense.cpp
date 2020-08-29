@@ -29,7 +29,7 @@ using std::int64_t;
 using dal::backend::context_cpu;
 
 namespace daal_kmeans_init = daal::algorithms::kmeans::init;
-namespace interop          = dal::backend::interop;
+namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu, typename Method>
 using daal_kmeans_init_kernel_t =
@@ -39,13 +39,13 @@ template <typename Float, typename Method>
 static compute_result call_daal_kernel(const context_cpu& ctx,
                                        const descriptor_base& desc,
                                        const table& data) {
-    const int64_t column_count  = data.get_column_count();
+    const int64_t column_count = data.get_column_count();
     const int64_t cluster_count = desc.get_cluster_count();
 
     daal_kmeans_init::Parameter par(cluster_count);
 
-    auto arr_data          = row_accessor<const Float>{ data }.pull();
-    const auto daal_data   = interop::convert_to_daal_homogen_table(arr_data,
+    auto arr_data = row_accessor<const Float>{ data }.pull();
+    const auto daal_data = interop::convert_to_daal_homogen_table(arr_data,
                                                                   data.get_row_count(),
                                                                   data.get_column_count());
     const size_t len_input = 1;
@@ -54,7 +54,7 @@ static compute_result call_daal_kernel(const context_cpu& ctx,
     array<Float> arr_centroids = array<Float>::empty(cluster_count * column_count);
     const auto daal_centroids =
         interop::convert_to_daal_homogen_table(arr_centroids, cluster_count, column_count);
-    const size_t len_output                                 = 1;
+    const size_t len_output = 1;
     daal::data_management::NumericTable* output[len_output] = { daal_centroids.get() };
 
     interop::status_to_exception(dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {

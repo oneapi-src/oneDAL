@@ -59,8 +59,8 @@ enum class variable_importance_mode {
 };
 
 enum class error_metric_mode : std::uint64_t {
-    none                             = 0x00000000ULL,
-    out_of_bag_error                 = 0x00000001ULL,
+    none = 0x00000000ULL,
+    out_of_bag_error = 0x00000001ULL,
     out_of_bag_error_per_observation = 0x00000002ULL
 };
 
@@ -77,11 +77,11 @@ class descriptor_base : public base {
     friend dal::detail::pimpl_accessor;
 
 public:
-    using tag_t    = detail::tag;
-    using float_t  = float;
-    using task_t   = Task;
+    using tag_t = detail::tag;
+    using float_t = float;
+    using task_t = Task;
     using method_t = method::by_default;
-    using pimpl    = typename dal::detail::pimpl<detail::descriptor_impl<task_t>>;
+    using pimpl = typename dal::detail::pimpl<detail::descriptor_impl<task_t>>;
     template <typename T>
     using is_classification_t =
         std::enable_if_t<std::is_same_v<T, std::decay_t<task::classification>>>;
@@ -156,15 +156,15 @@ private:
     pimpl impl_;
 };
 /* task descriptor */
-template <typename Float  = descriptor_base<task::by_default>::float_t,
-          typename Task   = task::by_default,
+template <typename Float = descriptor_base<task::by_default>::float_t,
+          typename Task = task::by_default,
           typename Method = descriptor_base<task::by_default>::method_t>
 class descriptor : public descriptor_base<Task> {
     using parent = descriptor_base<Task>;
 
 public:
-    using float_t  = Float;
-    using task_t   = Task;
+    using float_t = Float;
+    using task_t = Task;
     using method_t = Method;
 
     template <typename T>
@@ -258,7 +258,7 @@ class model : public base {
 
 public:
     using task_t = Task;
-    using pimpl  = typename dal::detail::pimpl<detail::model_impl<Task>>;
+    using pimpl = typename dal::detail::pimpl<detail::model_impl<Task>>;
     template <typename T>
     using is_classification_t =
         std::enable_if_t<std::is_same_v<T, std::decay_t<task::classification>>>;

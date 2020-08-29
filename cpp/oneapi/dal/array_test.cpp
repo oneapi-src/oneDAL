@@ -51,7 +51,7 @@ TEST(array_test, can_construct_array_of_ones) {
 
 TEST(array_test, can_construct_array_from_raw_pointer) {
     constexpr int64_t size = 10;
-    auto ptr               = new float[size];
+    auto ptr = new float[size];
     for (int64_t i = 0; i < size; i++) {
         ptr[i] = float(i);
     }
@@ -69,7 +69,7 @@ TEST(array_test, can_construct_array_from_raw_pointer) {
 }
 
 TEST(array_test, can_construct_array_reference) {
-    auto arr          = array<float>::zeros(5);
+    auto arr = array<float>::zeros(5);
     array<float> arr2 = arr;
 
     ASSERT_EQ(arr.get_count(), arr2.get_count());
@@ -110,7 +110,7 @@ TEST(array_test, can_reset_array_with_raw_pointer) {
     auto arr = array<float>::zeros(5);
 
     constexpr int64_t size = 10;
-    auto ptr               = new float[size];
+    auto ptr = new float[size];
     arr.reset(ptr, size, [](auto ptr) {
         delete[] ptr;
     });
@@ -125,7 +125,7 @@ TEST(array_test, can_reset_array_with_non_owning_raw_pointer) {
     auto arr = array<float>::zeros(5);
 
     constexpr int64_t size = 10;
-    const float* ptr       = new float[size];
+    const float* ptr = new float[size];
     arr.reset(array<float>(), ptr, size);
 
     ASSERT_EQ(arr.get_count(), size);
@@ -161,8 +161,7 @@ TEST(array_test, can_make_owning_array_from_non_owning_readonly) {
 
 TEST(array_test, can_construct_non_owning_read_write_array) {
     float data[] = { 1.0f, 2.0f, 3.0f };
-    array<float> arr{ data, 3, [](auto) {
-                     } };
+    array<float> arr{ data, 3, [](auto) {} };
 
     ASSERT_EQ(arr.get_count(), 3);
     ASSERT_EQ(arr.get_data(), data);
@@ -180,7 +179,7 @@ TEST(array_test, can_construct_non_owning_read_only_array) {
 
 TEST(array_test, can_wrap_const_data) {
     const float data[] = { 1.0f, 2.0f, 3.0f };
-    auto arr           = array<float>::wrap(data, 3);
+    auto arr = array<float>::wrap(data, 3);
 
     ASSERT_EQ(arr.get_count(), 3);
     ASSERT_EQ(arr.get_data(), data);
@@ -189,12 +188,12 @@ TEST(array_test, can_wrap_const_data) {
 
 TEST(array_test, can_wrap_const_data_with_offset_and_deleter) {
     float* data = new float[3];
-    data[0]     = 0.0f;
-    data[1]     = 1.0f;
-    data[2]     = 2.0f;
+    data[0] = 0.0f;
+    data[1] = 1.0f;
+    data[2] = 2.0f;
 
     const float* cdata = data;
-    auto arr           = array<float>(cdata, 2, [](const float* ptr) {
+    auto arr = array<float>(cdata, 2, [](const float* ptr) {
         delete[] ptr;
     });
 

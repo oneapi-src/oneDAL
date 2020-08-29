@@ -29,7 +29,7 @@ namespace oneapi::dal::knn::backend {
 using dal::backend::context_cpu;
 
 namespace daal_knn = daal::algorithms::kdtree_knn_classification;
-namespace interop  = dal::backend::interop;
+namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
 using daal_knn_kd_tree_kernel_t = daal_knn::prediction::internal::
@@ -40,10 +40,10 @@ static infer_result call_daal_kernel(const context_cpu &ctx,
                                      const descriptor_base &desc,
                                      const table &data,
                                      model m) {
-    const std::int64_t row_count    = data.get_row_count();
+    const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
 
-    auto arr_data   = row_accessor<const Float>{ data }.pull();
+    auto arr_data = row_accessor<const Float>{ data }.pull();
     auto arr_labels = array<Float>::empty(1 * row_count);
 
     const auto daal_data =

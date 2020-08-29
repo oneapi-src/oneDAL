@@ -22,9 +22,9 @@ namespace oneapi::dal::svm {
 
 namespace detail {
 
-using daal_kf                = daal::algorithms::kernel_function::KernelIfacePtr;
+using daal_kf = daal::algorithms::kernel_function::KernelIfacePtr;
 namespace daal_linear_kernel = daal::algorithms::kernel_function::linear;
-namespace daal_rbf_kernel    = daal::algorithms::kernel_function::rbf;
+namespace daal_rbf_kernel = daal::algorithms::kernel_function::rbf;
 
 template <typename Float, typename Method>
 class daal_interop_linear_kernel_impl : public kernel_function_impl {
@@ -33,7 +33,7 @@ public:
 
     daal_kf get_daal_kernel_function() override {
         constexpr daal_linear_kernel::Method daal_method = get_daal_method();
-        auto alg         = new daal_linear_kernel::Batch<Float, daal_method>;
+        auto alg = new daal_linear_kernel::Batch<Float, daal_method>;
         alg->parameter.k = scale_;
         alg->parameter.b = shift_;
         return daal_kf(alg);
@@ -85,7 +85,7 @@ public:
 
     daal_kf get_daal_kernel_function() override {
         constexpr daal_rbf_kernel::Method daal_method = get_daal_method();
-        auto alg             = new daal_rbf_kernel::Batch<Float, daal_method>;
+        auto alg = new daal_rbf_kernel::Batch<Float, daal_method>;
         alg->parameter.sigma = sigma_;
         return daal_kf(alg);
     }
@@ -128,12 +128,12 @@ public:
     explicit descriptor_impl(const detail::kf_iface_ptr &kernel) : kernel(kernel) {}
 
     detail::kf_iface_ptr kernel;
-    double c                         = 1.0;
-    double accuracy_threshold        = 0.001;
+    double c = 1.0;
+    double accuracy_threshold = 0.001;
     std::int64_t max_iteration_count = 100000;
-    double cache_size                = 200.0;
-    double tau                       = 1e-6;
-    bool shrinking                   = true;
+    double cache_size = 200.0;
+    double tau = 1e-6;
+    bool shrinking = true;
 };
 
 class detail::model_impl : public base {

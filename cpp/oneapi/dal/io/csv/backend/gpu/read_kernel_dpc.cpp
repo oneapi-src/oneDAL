@@ -16,10 +16,10 @@
 
 #ifndef ONEAPI_DAL_DATA_CONVERSION
 
-    #define ONEAPI_DAL_DATA_CONVERSION
-    #include "daal/include/data_management/data_source/csv_feature_manager.h"
-    #include "daal/include/data_management/data_source/file_data_source.h"
-    #undef ONEAPI_DAL_DATA_CONVERSION
+#define ONEAPI_DAL_DATA_CONVERSION
+#include "daal/include/data_management/data_source/csv_feature_manager.h"
+#include "daal/include/data_management/data_source/file_data_source.h"
+#undef ONEAPI_DAL_DATA_CONVERSION
 
 #endif
 
@@ -59,7 +59,7 @@ table read_kernel_gpu<table>::operator()(const dal::backend::context_gpu& ctx,
     auto nt = daal_data_source.getNumericTable();
 
     daal_dm::BlockDescriptor<DAAL_DATA_TYPE> block;
-    const std::int64_t row_count    = nt->getNumberOfRows();
+    const std::int64_t row_count = nt->getNumberOfRows();
     const std::int64_t column_count = nt->getNumberOfColumns();
 
     interop::status_to_exception(nt->getBlockOfRows(0, row_count, daal_dm::readOnly, block));
