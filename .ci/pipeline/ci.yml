@@ -79,7 +79,7 @@ jobs:
 
   - script: |
       bazel test //examples/oneapi/cpp:all \
-                 --@config//:test_link_mode=dev
+                 --@config//:test_link_mode=dev \
                  --@config//:test_thread_mode=par
     displayName: 'cpp-examples-thread-dev'
 
