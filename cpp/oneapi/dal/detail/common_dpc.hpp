@@ -17,7 +17,7 @@
 #pragma once
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    #include <CL/sycl.hpp>
+#include <CL/sycl.hpp>
 #endif // ONEAPI_DAL_DATA_PARALLEL
 
 #include "oneapi/dal/detail/common.hpp"

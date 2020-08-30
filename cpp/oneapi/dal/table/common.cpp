@@ -26,9 +26,9 @@ class detail::table_metadata_impl {
 public:
     virtual ~table_metadata_impl() {}
 
-    virtual int64_t get_feature_count() const                         = 0;
+    virtual int64_t get_feature_count() const = 0;
     virtual const feature_type& get_feature_type(int64_t index) const = 0;
-    virtual const data_type& get_data_type(int64_t index) const       = 0;
+    virtual const data_type& get_data_type(int64_t index) const = 0;
 };
 
 namespace backend {
@@ -102,7 +102,7 @@ const data_type& table_metadata::get_data_type(int64_t feature_index) const {
 table::table() : table(backend::empty_table_impl{}) {}
 
 table::table(table&& t) : impl_(std::move(t.impl_)) {
-    using wrapper     = detail::table_impl_wrapper<backend::empty_table_impl>;
+    using wrapper = detail::table_impl_wrapper<backend::empty_table_impl>;
     using wrapper_ptr = detail::shared<wrapper>;
 
     t.impl_ = wrapper_ptr(new wrapper(backend::empty_table_impl{}));

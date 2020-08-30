@@ -26,7 +26,7 @@ namespace oneapi::dal::detail {
 template <typename T>
 class array_impl : public base {
     using cshared = detail::shared<const T>;
-    using shared  = detail::shared<T>;
+    using shared = detail::shared<T>;
 
     template <typename U>
     friend class array_impl;
@@ -103,7 +103,7 @@ public:
         }
         else {
             auto immutable_data = get_data();
-            auto copy_data      = alloc.allocate(count_);
+            auto copy_data = alloc.allocate(count_);
             detail::memcpy(policy, copy_data, immutable_data, sizeof(T) * count_);
 
             reset(copy_data, count_, [alloc, count = this->count_](T* ptr) {
@@ -115,7 +115,7 @@ public:
 
     void reset() {
         data_owned_ = std::variant<cshared, shared>();
-        count_      = 0;
+        count_ = 0;
     }
 
     template <typename Policy, typename Allocator>
@@ -129,13 +129,13 @@ public:
     template <typename Deleter>
     void reset(T* data, std::int64_t count, Deleter&& deleter) {
         data_owned_ = shared(data, std::forward<Deleter>(deleter));
-        count_      = count;
+        count_ = count;
     }
 
     template <typename ConstDeleter>
     void reset(const T* data, std::int64_t count, ConstDeleter&& deleter) {
         data_owned_ = cshared(data, std::forward<ConstDeleter>(deleter));
-        count_      = count;
+        count_ = count;
     }
 
     template <typename Y>

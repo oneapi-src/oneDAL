@@ -97,9 +97,9 @@ using by_default = classification;
 
 class ONEAPI_DAL_EXPORT descriptor_base : public base {
 public:
-    using tag_t    = detail::tag;
-    using float_t  = float;
-    using task_t   = task::by_default;
+    using tag_t = detail::tag;
+    using float_t = float;
+    using task_t = task::by_default;
     using method_t = method::by_default;
     using kernel_t = linear_kernel::descriptor<float_t>;
 
@@ -125,14 +125,14 @@ protected:
     dal::detail::pimpl<detail::descriptor_impl> impl_;
 };
 
-template <typename Float  = descriptor_base::float_t,
-          typename Task   = descriptor_base::task_t,
+template <typename Float = descriptor_base::float_t,
+          typename Task = descriptor_base::task_t,
           typename Method = descriptor_base::method_t,
           typename Kernel = descriptor_base::kernel_t>
 class descriptor : public descriptor_base {
 public:
-    using float_t  = Float;
-    using task_t   = Task;
+    using float_t = Float;
+    using task_t = Task;
     using method_t = Method;
     using kernel_t = Kernel;
 
@@ -140,7 +140,7 @@ public:
             : descriptor_base(std::make_shared<detail::kernel_function<Kernel>>(kernel)) {}
 
     const Kernel &get_kernel() const {
-        using kf_t    = detail::kernel_function<Kernel>;
+        using kf_t = detail::kernel_function<Kernel>;
         const auto kf = std::static_pointer_cast<kf_t>(get_kernel_impl());
         return kf->get_kernel();
     }

@@ -30,7 +30,7 @@ namespace oneapi::dal::preview::load_graph {
 /// @tparam Output Type of the destination data
 template <typename Input = edge_list<int32_t>, typename Output = undirected_adjacency_array_graph<>>
 struct descriptor {
-    using input_type  = Input;
+    using input_type = Input;
     using output_type = Output;
 };
 

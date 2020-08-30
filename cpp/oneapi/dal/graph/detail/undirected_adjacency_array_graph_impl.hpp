@@ -33,10 +33,10 @@ ONEAPI_DAL_EXPORT const typename Graph::pimpl& get_impl(const Graph& graph) {
 }
 
 template <typename VertexValue = empty_value,
-          typename EdgeValue   = empty_value,
-          typename GraphValue  = empty_value,
-          typename IndexType   = std::int32_t,
-          typename Allocator   = std::allocator<char>>
+          typename EdgeValue = empty_value,
+          typename GraphValue = empty_value,
+          typename IndexType = std::int32_t,
+          typename Allocator = std::allocator<char>>
 class ONEAPI_DAL_EXPORT undirected_adjacency_array_graph_impl {
 public:
     using allocator_type = Allocator;
@@ -44,13 +44,13 @@ public:
     using vertex_type = IndexType;
     using vertex_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<vertex_type>;
-    using vertex_set       = detail::graph_container<vertex_type, vertex_allocator_type>;
+    using vertex_set = detail::graph_container<vertex_type, vertex_allocator_type>;
     using vertex_size_type = typename vertex_set::size_type;
 
     using edge_type = IndexType;
     using edge_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<edge_type>;
-    using edge_set       = detail::graph_container<edge_type, edge_allocator_type>;
+    using edge_set = detail::graph_container<edge_type, edge_allocator_type>;
     using edge_size_type = typename edge_set::size_type;
 
     using vertex_user_value_type = VertexValue;
@@ -65,7 +65,7 @@ public:
     using edge_user_value_set =
         detail::graph_container<edge_user_value_type, edge_user_value_allocator_type>;
 
-    undirected_adjacency_array_graph_impl()          = default;
+    undirected_adjacency_array_graph_impl() = default;
     virtual ~undirected_adjacency_array_graph_impl() = default;
 
     vertex_size_type _vertex_count;

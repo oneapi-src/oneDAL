@@ -26,7 +26,7 @@ namespace oneapi::dal {
 
 class ONEAPI_DAL_EXPORT exception {
 public:
-    virtual ~exception()                      = default;
+    virtual ~exception() = default;
     virtual const char* what() const noexcept = 0;
 };
 

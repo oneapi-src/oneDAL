@@ -76,7 +76,7 @@ public:
 
     template <typename Impl,
               typename ImplType = std::decay_t<Impl>,
-              typename          = std::enable_if_t<is_homogen_table_impl_v<ImplType> &&
+              typename = std::enable_if_t<is_homogen_table_impl_v<ImplType> &&
                                           !std::is_base_of_v<table, ImplType>>>
     homogen_table(Impl&& impl) {
         init_impl(std::forward<Impl>(impl));
@@ -104,7 +104,7 @@ public:
                   std::int64_t column_count,
                   ConstDeleter&& data_deleter,
                   const sycl::vector_class<sycl::event>& dependencies = {},
-                  data_layout layout                                  = data_layout::row_major) {
+                  data_layout layout = data_layout::row_major) {
         init_impl(detail::data_parallel_policy{ queue },
                   row_count,
                   column_count,
@@ -146,7 +146,7 @@ private:
                                 row_count * column_count,
                                 std::forward<ConstDeleter>(data_deleter) };
 
-        auto byte_data                = reinterpret_cast<const byte_t*>(data_pointer);
+        auto byte_data = reinterpret_cast<const byte_t*>(data_pointer);
         const std::int64_t byte_count = data_array.get_count() * sizeof(Data);
 
         auto byte_array = array<byte_t>{ data_array, byte_data, byte_count };

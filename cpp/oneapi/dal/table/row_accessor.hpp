@@ -26,7 +26,7 @@ class row_accessor : private detail::accessor_base<T, detail::row_block> {
     using base = detail::accessor_base<T, detail::row_block>;
 
 public:
-    using data_t                      = typename base::data_t;
+    using data_t = typename base::data_t;
     static constexpr bool is_readonly = base::is_readonly;
 
 public:
@@ -46,7 +46,7 @@ public:
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     array<data_t> pull(sycl::queue& queue,
-                       const range& rows             = { 0, -1 },
+                       const range& rows = { 0, -1 },
                        const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
         return base::pull(detail::data_parallel_policy{ queue },
                           { rows },
@@ -64,7 +64,7 @@ public:
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     T* pull(sycl::queue& queue,
             array<data_t>& block,
-            const range& rows             = { 0, -1 },
+            const range& rows = { 0, -1 },
             const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
         return base::pull(detail::data_parallel_policy{ queue },
                           block,
