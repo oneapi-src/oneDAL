@@ -17,9 +17,9 @@
 #pragma once
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    #define DAAL_SYCL_INTERFACE
-    #define DAAL_SYCL_INTERFACE_USM
-    #include <daal/include/data_management/data/numeric_table_sycl_homogen.h>
+#define DAAL_SYCL_INTERFACE
+#define DAAL_SYCL_INTERFACE_USM
+#include <daal/include/data_management/data/numeric_table_sycl_homogen.h>
 #endif
 #include <daal/include/data_management/data/homogen_numeric_table.h>
 
@@ -64,7 +64,7 @@ inline auto convert_to_daal_homogen_table(array<T>& data,
 template <typename T>
 inline table convert_from_daal_homogen_table(const daal::data_management::NumericTablePtr& nt) {
     daal::data_management::BlockDescriptor<T> block;
-    const std::int64_t row_count    = nt->getNumberOfRows();
+    const std::int64_t row_count = nt->getNumberOfRows();
     const std::int64_t column_count = nt->getNumberOfColumns();
 
     nt->getBlockOfRows(0, row_count, daal::data_management::readOnly, block);

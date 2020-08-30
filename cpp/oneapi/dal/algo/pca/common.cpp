@@ -22,7 +22,7 @@ namespace oneapi::dal::pca {
 class detail::descriptor_impl : public base {
 public:
     std::int64_t component_count = -1;
-    bool is_deterministic        = false;
+    bool is_deterministic = false;
 };
 
 class detail::model_impl : public base {

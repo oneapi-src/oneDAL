@@ -16,10 +16,10 @@
 
 #ifndef ONEAPI_DAL_DATA_CONVERSION
 
-    #define ONEAPI_DAL_DATA_CONVERSION
-    #include "daal/include/data_management/data_source/csv_feature_manager.h"
-    #include "daal/include/data_management/data_source/file_data_source.h"
-    #undef ONEAPI_DAL_DATA_CONVERSION
+#define ONEAPI_DAL_DATA_CONVERSION
+#include "daal/include/data_management/data_source/csv_feature_manager.h"
+#include "daal/include/data_management/data_source/file_data_source.h"
+#undef ONEAPI_DAL_DATA_CONVERSION
 
 #endif
 

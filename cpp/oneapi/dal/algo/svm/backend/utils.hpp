@@ -29,21 +29,21 @@ static array<Float> convert_labels(const array<Float>& arr_label,
                                    const binary_label_t<Float>& in_binary_labels,
                                    binary_label_t<Float>& out_binary_labels) {
     const std::int64_t count = arr_label.get_count();
-    auto new_label_arr       = array<Float>::empty(count);
-    auto new_label_data      = new_label_arr.get_mutable_data();
+    auto new_label_arr = array<Float>::empty(count);
+    auto new_label_data = new_label_arr.get_mutable_data();
 
-    Float value_first_class_label  = arr_label[0];
+    Float value_first_class_label = arr_label[0];
     Float value_second_class_label = arr_label[1];
 
     new_label_data[0] = in_binary_labels.first;
-    std::int64_t i    = 1;
+    std::int64_t i = 1;
     for (; i < count; ++i) {
         if (arr_label[i] == value_first_class_label) {
             new_label_data[i] = in_binary_labels.first;
         }
         else {
             value_second_class_label = arr_label[i];
-            new_label_data[i]        = in_binary_labels.second;
+            new_label_data[i] = in_binary_labels.second;
             break;
         }
     }
@@ -63,7 +63,7 @@ static array<Float> convert_labels(const array<Float>& arr_label,
         }
     }
 
-    out_binary_labels.first  = value_first_class_label;
+    out_binary_labels.first = value_first_class_label;
     out_binary_labels.second = value_second_class_label;
     return new_label_arr;
 }
@@ -77,21 +77,21 @@ static array<Float> convert_labels(const sycl::queue& queue,
                                    binary_label_t<Float>& out_binary_labels) {
     // TODO: make for dpcpp kernel
     const std::int64_t count = arr_label.get_count();
-    auto new_label_arr       = array<Float>::empty(queue, count);
-    auto new_label_data      = new_label_arr.get_mutable_data();
+    auto new_label_arr = array<Float>::empty(queue, count);
+    auto new_label_data = new_label_arr.get_mutable_data();
 
-    Float value_first_class_label  = arr_label[0];
+    Float value_first_class_label = arr_label[0];
     Float value_second_class_label = arr_label[1];
 
     new_label_data[0] = in_binary_labels.first;
-    std::int64_t i    = 1;
+    std::int64_t i = 1;
     for (; i < count; ++i) {
         if (arr_label[i] == value_first_class_label) {
             new_label_data[i] = in_binary_labels.first;
         }
         else {
             value_second_class_label = arr_label[i];
-            new_label_data[i]        = in_binary_labels.second;
+            new_label_data[i] = in_binary_labels.second;
             break;
         }
     }
@@ -111,7 +111,7 @@ static array<Float> convert_labels(const sycl::queue& queue,
         }
     }
 
-    out_binary_labels.first  = value_first_class_label;
+    out_binary_labels.first = value_first_class_label;
     out_binary_labels.second = value_second_class_label;
 
     return new_label_arr;

@@ -25,10 +25,10 @@ using namespace oneapi;
 namespace df = oneapi::dal::decision_forest;
 
 TEST(infer_and_train_cls_kernels_test, can_process_simple_case_default_params) {
-    constexpr double accuracy_threshold    = 0.05;
+    constexpr double accuracy_threshold = 0.05;
     constexpr std::int64_t row_count_train = 6;
-    constexpr std::int64_t row_count_test  = 3;
-    constexpr std::int64_t column_count    = 2;
+    constexpr std::int64_t row_count_test = 3;
+    constexpr std::int64_t column_count = 2;
 
     const float x_train_host[] = { -2.f, -1.f, -1.f, -1.f, -1.f, -2.f,
                                    +1.f, +1.f, +1.f, +2.f, +2.f, +1.f };
@@ -38,7 +38,7 @@ TEST(infer_and_train_cls_kernels_test, can_process_simple_case_default_params) {
     const float y_test_host[] = { 0.f, 1.f, 1.f };
 
     auto selector = sycl::gpu_selector();
-    auto queue    = sycl::queue(selector);
+    auto queue = sycl::queue(selector);
 
     auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
     queue.memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count).wait();
@@ -78,12 +78,12 @@ TEST(infer_and_train_cls_kernels_test, can_process_simple_case_default_params) {
 }
 
 TEST(infer_and_train_cls_kernels_test, can_process_simple_case_non_default_params) {
-    constexpr double accuracy_threshold    = 0.05;
+    constexpr double accuracy_threshold = 0.05;
     constexpr std::int64_t row_count_train = 6;
-    constexpr std::int64_t row_count_test  = 3;
-    constexpr std::int64_t column_count    = 2;
-    constexpr std::int64_t tree_count      = 10;
-    constexpr std::int64_t class_count     = 2;
+    constexpr std::int64_t row_count_test = 3;
+    constexpr std::int64_t column_count = 2;
+    constexpr std::int64_t tree_count = 10;
+    constexpr std::int64_t class_count = 2;
 
     const float x_train_host[] = { -2.f, -1.f, -1.f, -1.f, -1.f, -2.f,
                                    +1.f, +1.f, +1.f, +2.f, +2.f, +1.f };
@@ -93,7 +93,7 @@ TEST(infer_and_train_cls_kernels_test, can_process_simple_case_non_default_param
     const float y_test_host[] = { 0.f, 1.f, 1.f };
 
     auto selector = sycl::gpu_selector();
-    auto queue    = sycl::queue(selector);
+    auto queue = sycl::queue(selector);
 
     auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
     queue.memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count).wait();
@@ -159,10 +159,10 @@ TEST(infer_and_train_cls_kernels_test, can_process_simple_case_non_default_param
 }
 
 TEST(infer_and_train_cls_kernels_test, can_process_corner_case) {
-    constexpr double accuracy_threshold    = 0.05;
+    constexpr double accuracy_threshold = 0.05;
     constexpr std::int64_t row_count_train = 3;
-    constexpr std::int64_t row_count_test  = 1;
-    constexpr std::int64_t column_count    = 1;
+    constexpr std::int64_t row_count_test = 1;
+    constexpr std::int64_t column_count = 1;
 
     const float x_train_host[] = { -1.f, 2.f, 2.3f };
     const float y_train_host[] = { 0.f, 1.f, 1.f };
@@ -171,7 +171,7 @@ TEST(infer_and_train_cls_kernels_test, can_process_corner_case) {
     const float y_test_host[] = { 1.f };
 
     auto selector = sycl::gpu_selector();
-    auto queue    = sycl::queue(selector);
+    auto queue = sycl::queue(selector);
 
     auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
     queue.memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count).wait();

@@ -2,7 +2,7 @@
 Language: Cpp
 AccessModifierOffset: -4
 AlignAfterOpenBracket: Align
-AlignConsecutiveAssignments: true
+AlignConsecutiveAssignments: false
 AlignConsecutiveDeclarations: false
 AlignConsecutiveMacros: true
 AlignEscapedNewlines: Left
@@ -12,10 +12,10 @@ AllowAllArgumentsOnNextLine: false
 AllowAllConstructorInitializersOnNextLine: false
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: false
-AllowShortCaseLabelsOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: Empty
 AllowShortIfStatementsOnASingleLine: Never
-AllowShortLambdasOnASingleLine: None
+AllowShortLambdasOnASingleLine: Empty
 AllowShortLoopsOnASingleLine: false
 AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakAfterReturnType: None
@@ -72,7 +72,7 @@ IncludeCategories:
     Priority:        3
 IncludeIsMainRegex: '([-_](test|unittest))?$'
 IndentCaseLabels: true
-IndentPPDirectives: BeforeHash
+IndentPPDirectives: None
 IndentWidth: 4
 IndentWrappedFunctionNames: false
 KeepEmptyLinesAtTheStartOfBlocks: false
@@ -118,7 +118,7 @@ RawStringFormats:
     CanonicalDelimiter: ''
     BasedOnStyle: google
 ReflowComments: false
-SortIncludes: true
+SortIncludes: false
 SortUsingDeclarations: false
 SpaceAfterCStyleCast: false
 SpaceAfterLogicalNot: false

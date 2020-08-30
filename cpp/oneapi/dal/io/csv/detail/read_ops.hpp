@@ -34,8 +34,8 @@ template <typename Object>
 struct read_ops<Object, data_source> {
     static_assert(std::is_same_v<Object, table>, "CSV data source defined only for table");
 
-    using args_t             = read_args<Object>;
-    using result_t           = Object;
+    using args_t = read_args<Object>;
+    using result_t = Object;
     using data_source_base_t = data_source;
 
     void check_preconditions(const data_source& ds, const args_t& args) const {}
