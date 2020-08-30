@@ -66,9 +66,14 @@ def _merge_static_libs(filename, actions, cc_toolchain,
 def _static(owner, name, actions, cc_toolchain,
             feature_configuration, linking_contexts):
     unpacked_linking_context = onedal_cc_common.unpack_linking_contexts(linking_contexts)
+    if (unpacked_linking_context.objects and
+        unpacked_linking_context.pic_objects):
+        utils.warn("Static library {} contains mix of PIC and non-PIC code".format(name))
+    all_objects = depset(unpacked_linking_context.pic_objects +
+                         unpacked_linking_context.objects)
     compilation_outputs = cc_common.create_compilation_outputs(
-        objects = depset(unpacked_linking_context.objects),
-        pic_objects = depset(unpacked_linking_context.objects),
+        objects = all_objects,
+        pic_objects = all_objects,
     )
     _, linking_outputs = cc_common.create_linking_context_from_compilation_outputs(
         name = name + ("_no_deps" if unpacked_linking_context.static_libraries else ""),
@@ -114,9 +119,14 @@ def _link(owner, name, actions, cc_toolchain,
           feature_configuration, linking_contexts,
           def_file=None, is_executable=False):
     unpacked_linking_context = onedal_cc_common.unpack_linking_contexts(linking_contexts)
+    if not is_executable and unpacked_linking_context.objects:
+        fail("Dynamic library {} contains non-PIC object files: {}".format(
+            name, unpacked_linking_context.objects))
+    all_objects = depset(unpacked_linking_context.pic_objects +
+                         unpacked_linking_context.objects)
     compilation_outputs = cc_common.create_compilation_outputs(
-        objects = depset(unpacked_linking_context.objects),
-        pic_objects = depset(unpacked_linking_context.objects),
+        objects = all_objects,
+        pic_objects = all_objects,
     )
     user_link_flags = _filter_user_link_flags(
         feature_configuration,

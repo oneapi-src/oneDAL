@@ -89,11 +89,9 @@ def _unpack_linking_contexts(linking_contexts):
                     static_libs.append(lib_to_link.static_library or
                                        lib_to_link.pic_static_library)
             link_flags += linker_input.user_link_flags
-    if objects:
-        fail("Non-PIC object files found, oneDAL assumes " +
-             "all object files are compiled as PIC")
     return struct(
-        objects = depset(pic_objects).to_list(),
+        pic_objects = depset(pic_objects).to_list(),
+        objects = depset(objects).to_list(),
         dynamic_libraries = depset(dynamic_libs).to_list(),
         dynamic_libraries_to_link = dynamic_libs_to_link,
         static_libraries = depset(static_libs).to_list(),
