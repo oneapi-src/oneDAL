@@ -87,7 +87,8 @@ def _find_tool(repo_ctx, tool_name, mandatory=False):
     if tool_name.startswith("/"):
         return tool_name
     tool_path = repo_ctx.which(tool_name)
-    if not tool_path:
+    is_found = tool_path != None
+    if not is_found:
         if mandatory:
             auto_configure_fail("Cannot find {}; try to correct your $PATH".format(tool_name))
         else:
@@ -97,7 +98,7 @@ def _find_tool(repo_ctx, tool_name, mandatory=False):
                 { "%{tool_name}": tool_name }
             )
             tool_path = repo_ctx.path("tool_not_found.sh")
-    return str(tool_path)
+    return str(tool_path), is_found
 
 def _create_ar_merge_tool(repo_ctx, ar_path):
     ar_merge_name = "merge_static_libs.sh"
@@ -121,21 +122,22 @@ def _create_dynamic_link_wrapper(repo_ctx, prefix, cc_path):
 
 def _find_tools(repo_ctx, reqs):
     # TODO: Use full compiler path from reqs
-    ar_path = _find_tool(repo_ctx, "ar", mandatory=True)
-    cc_path = _find_tool(repo_ctx, reqs.compiler_id, mandatory=True)
-    dpcc_path = _find_tool(repo_ctx, reqs.dpc_compiler_id, mandatory=False)
-    strip_path = _find_tool(repo_ctx, "strip", mandatory=True)
+    ar_path, _ = _find_tool(repo_ctx, "ar", mandatory=True)
+    cc_path, _ = _find_tool(repo_ctx, reqs.compiler_id, mandatory=True)
+    strip_path, _ = _find_tool(repo_ctx, "strip", mandatory=True)
+    dpcc_path, dpcpp_found = _find_tool(repo_ctx, reqs.dpc_compiler_id, mandatory=False)
     cc_link_path = _create_dynamic_link_wrapper(repo_ctx, "cc", cc_path)
     dpcc_link_path = _create_dynamic_link_wrapper(repo_ctx, "dpc", dpcc_path)
     ar_merge_path = _create_ar_merge_tool(repo_ctx, ar_path)
     return struct(
-        cc        = cc_path,
-        dpcc      = dpcc_path,
-        cc_link   = cc_link_path,
-        dpcc_link = dpcc_link_path,
-        strip     = strip_path,
-        ar        = ar_path,
-        ar_merge  = ar_merge_path,
+        cc           = cc_path,
+        dpcc         = dpcc_path,
+        cc_link      = cc_link_path,
+        dpcc_link    = dpcc_link_path,
+        strip        = strip_path,
+        ar           = ar_path,
+        ar_merge     = ar_merge_path,
+        is_dpc_found = dpcpp_found,
     )
 
 
@@ -282,9 +284,8 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                     is_dpcc = True,
                     category = "common",
                 )
-            ),
+            ) if tools.is_dpc_found else "",
             "%{compile_flags_pedantic_cc}": get_starlark_list(
-                _add_gcc_toolchain_if_needed(repo_ctx, tools.cc) +
                 get_default_compiler_options(
                     repo_ctx,
                     reqs,
@@ -294,7 +295,6 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                 )
             ),
             "%{compile_flags_pedantic_dpcc}": get_starlark_list(
-                _add_gcc_toolchain_if_needed(repo_ctx, tools.dpcc) +
                 get_default_compiler_options(
                     repo_ctx,
                     reqs,
@@ -302,7 +302,7 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                     is_dpcc = True,
                     category = "pedantic",
                 )
-            ),
+            ) if tools.is_dpc_found else "",
             "%{cxx_flags}": get_starlark_list(cxx_opts),
             "%{link_flags_cc}": get_starlark_list(
                 _add_gold_linker_path_if_available(repo_ctx, tools.cc) +
@@ -352,7 +352,7 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                     "-pass-exit-codes",
                 ) +
                 bin_search_flag_dpcc + link_opts
-            ),
+            ) if tools.is_dpc_found else "",
             "%{dynamic_link_libs}": get_starlark_list(dynamic_link_libs),
             "%{opt_compile_flags}": get_starlark_list(
                 [
@@ -394,7 +394,7 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
             ),
             "%{no_canonical_system_headers_flags_dpcc}": get_starlark_list(
                 get_no_canonical_prefixes_opt(repo_ctx, tools.dpcc)
-            ),
+            ) if tools.is_dpc_found else "",
             "%{deterministic_compile_flags}": get_starlark_list(
                 [
                     # Make C++ compilation deterministic. Use linkstamping instead of these

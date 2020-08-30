@@ -498,7 +498,7 @@ def _impl(ctx):
                     flag_group(
                         flags = ctx.attr.compile_flags_pedantic_cc,
                     ),
-                ],
+                ] if ctx.attr.compile_flags_pedantic_cc else [],
                 with_features = [with_feature_set(features = ["pedantic"],
                                                   not_features = ["dpc++"])],
             ),
@@ -508,7 +508,7 @@ def _impl(ctx):
                     flag_group(
                         flags = ctx.attr.compile_flags_pedantic_dpcc,
                     ),
-                ],
+                ] if ctx.attr.compile_flags_pedantic_dpcc else [],
                 with_features = [with_feature_set(features = ["dpc++", "pedantic"])],
             ),
             flag_set(
