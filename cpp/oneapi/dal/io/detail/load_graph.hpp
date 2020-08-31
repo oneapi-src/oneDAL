@@ -81,10 +81,6 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     using allocator_atomic_t =
         typename std::allocator_traits<allocator_t>::template rebind_alloc<atomic_t>;
 
-    // auto *degrees_vec = new (std::nothrow)
-    //     oneapi::dal::preview::detail::graph_container<atomic_t, allocator_atomic_t>(
-    //         _unf_vertex_count);
-
     void *degrees_vec_void =
         (void *)layout->_allocator.allocate(_unf_vertex_count * (sizeof(atomic_t) / sizeof(char)));
     atomic_t *degrees_vec = new (degrees_vec_void) atomic_t[_unf_vertex_count];
@@ -92,23 +88,19 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     if (degrees_vec == nullptr) {
         throw bad_alloc();
     }
-    atomic_t *degrees_cv = degrees_vec; //->data();
+    atomic_t *degrees_cv = degrees_vec;
     if (degrees_cv == nullptr) {
         throw bad_alloc();
     }
 
-    threader_for(_unf_vertex_count, _unf_vertex_count, [&](vertex_t u) {
-        degrees_cv[u].set(0);
-    });
+    // threader_for(_unf_vertex_count, _unf_vertex_count, [&](vertex_t u) {
+    // degrees_cv[u].set(0); // zero is set in constructor
+    // });
 
     threader_for(edges.size(), edges.size(), [&](vertex_t u) {
         degrees_cv[edges[u].first].inc();
         degrees_cv[edges[u].second].inc();
     });
-
-    // auto *rows_vec = new (std::nothrow)
-    //     oneapi::dal::preview::detail::graph_container<atomic_t, allocator_atomic_t>(
-    //         _unf_vertex_count + 1);
 
     void *rows_vec_void = (void *)layout->_allocator.allocate((_unf_vertex_count + 1) *
                                                               (sizeof(atomic_t) / sizeof(char)));
@@ -117,7 +109,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     if (rows_vec == nullptr) {
         throw bad_alloc();
     }
-    atomic_t *rows_cv = rows_vec; //->data();
+    atomic_t *rows_cv = rows_vec;
     if (rows_cv == nullptr) {
         throw bad_alloc();
     }
@@ -132,11 +124,6 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     // delete degrees_vec;
     layout->_allocator.deallocate((char *)degrees_vec_void,
                                   _unf_vertex_count * (sizeof(atomic_t) / sizeof(char)));
-
-    // vector_vertex_t _unf_vert_neighs_vec(rows_cv[_unf_vertex_count].get());
-    // vector_edge_t _unf_edge_offset_vec(_unf_vertex_count + 1);
-    // auto _unf_edge_offset_arr = _unf_edge_offset_vec.data();
-    // auto _unf_vert_neighs_arr = _unf_vert_neighs_vec.data();
 
     void *_unf_vert_neighs_vec_void = (void *)layout->_allocator.allocate(
         (rows_cv[_unf_vertex_count].get()) * (sizeof(vertex_t) / sizeof(char)));
@@ -169,7 +156,9 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     threader_for(_unf_vertex_count, _unf_vertex_count, [&](vertex_t u) {
         auto start_p = _unf_vert_neighs_arr + _unf_edge_offset_arr[u];
         auto end_p   = _unf_vert_neighs_arr + _unf_edge_offset_arr[u + 1];
-        std::sort(start_p, end_p);
+
+        parallel_sort(start_p, end_p);
+
         auto neighs_u_new_end = std::unique(start_p, end_p);
         neighs_u_new_end      = std::remove(start_p, neighs_u_new_end, u);
         layout->_degrees[u]   = (vertex_t)std::distance(start_p, neighs_u_new_end);
