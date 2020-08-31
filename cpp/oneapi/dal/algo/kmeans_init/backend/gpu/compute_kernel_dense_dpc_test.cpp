@@ -26,15 +26,15 @@ using namespace oneapi::dal;
 
 TEST(kmeans_init_gpu, compute_result) {
     auto selector = sycl::gpu_selector();
-    auto queue    = sycl::queue(selector);
+    auto queue = sycl::queue(selector);
 
-    constexpr std::int64_t row_count     = 8;
-    constexpr std::int64_t column_count  = 2;
+    constexpr std::int64_t row_count = 8;
+    constexpr std::int64_t column_count = 2;
     constexpr std::int64_t cluster_count = 2;
 
     const float data_host[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
                                 -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
-    auto data               = sycl::malloc_shared<float>(row_count * column_count, queue);
+    auto data = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(data, data_host, sizeof(float) * row_count * column_count).wait();
     const auto data_table = homogen_table::wrap(queue, data, row_count, column_count);
 

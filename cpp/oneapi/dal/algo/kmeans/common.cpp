@@ -21,9 +21,9 @@ namespace oneapi::dal::kmeans {
 
 class detail::descriptor_impl : public base {
 public:
-    std::int64_t cluster_count       = 2;
+    std::int64_t cluster_count = 2;
     std::int64_t max_iteration_count = 100;
-    double accuracy_threshold        = 0;
+    double accuracy_threshold = 0;
 };
 
 class detail::model_impl : public base {

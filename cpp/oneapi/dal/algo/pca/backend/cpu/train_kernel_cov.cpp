@@ -30,7 +30,7 @@ using dal::backend::context_cpu;
 
 namespace daal_pca = daal::algorithms::pca;
 namespace daal_cov = daal::algorithms::covariance;
-namespace interop  = dal::backend::interop;
+namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
 using daal_pca_cor_kernel_t = daal_pca::internal::PCACorrelationKernel<daal::batch, Float, Cpu>;
@@ -39,15 +39,15 @@ template <typename Float>
 static train_result call_daal_kernel(const context_cpu& ctx,
                                      const descriptor_base& desc,
                                      const table& data) {
-    const int64_t row_count       = data.get_row_count();
-    const int64_t column_count    = data.get_column_count();
+    const int64_t row_count = data.get_row_count();
+    const int64_t column_count = data.get_column_count();
     const int64_t component_count = desc.get_component_count();
 
-    auto arr_data   = row_accessor<const Float>{ data }.pull();
+    auto arr_data = row_accessor<const Float>{ data }.pull();
     auto arr_eigvec = array<Float>::empty(column_count * component_count);
     auto arr_eigval = array<Float>::empty(1 * component_count);
-    auto arr_means  = array<Float>::empty(1 * component_count);
-    auto arr_vars   = array<Float>::empty(1 * component_count);
+    auto arr_means = array<Float>::empty(1 * component_count);
+    auto arr_vars = array<Float>::empty(1 * component_count);
 
     // TODO: read-only access performed with deep copy of data since daal numeric tables are mutable.
     // Need to create special immutable homogen table on daal interop side

@@ -35,7 +35,7 @@ class detail::train_result_impl : public base {
 public:
     model trained_model;
     table labels;
-    std::int64_t iteration_count    = 0;
+    std::int64_t iteration_count = 0;
     double objective_function_value = 0.0;
 };
 

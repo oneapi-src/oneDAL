@@ -28,8 +28,8 @@ template <typename T>
 inline T* malloc(const data_parallel_policy& policy,
                  std::int64_t count,
                  const sycl::usm::alloc& alloc) {
-    auto& queue  = policy.get_queue();
-    auto device  = queue.get_device();
+    auto& queue = policy.get_queue();
+    auto device = queue.get_device();
     auto context = queue.get_context();
     // TODO: is not safe since sycl::memset accepts count as size_t
     return sycl::malloc<T>(count, device, context, alloc);
@@ -63,7 +63,7 @@ template <typename T>
 inline void fill(const data_parallel_policy& policy, T* dest, std::int64_t count, const T& value) {
     // TODO: can be optimized in future
     auto& queue = policy.get_queue();
-    auto event  = queue.submit([&](sycl::handler& cgh) {
+    auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.parallel_for<class oneapi_dal_memory_fill>(sycl::range<1>(count), [=](sycl::id<1> idx) {
             dest[idx[0]] = value;
         });

@@ -26,33 +26,22 @@ using namespace daal::data_management;
 
 features::IndexNumType getIndexNumType(data_type t) {
     switch (t) {
-        case data_type::int32:
-            return features::DAAL_INT32_S;
-        case data_type::int64:
-            return features::DAAL_INT64_S;
-        case data_type::uint32:
-            return features::DAAL_INT32_U;
-        case data_type::uint64:
-            return features::DAAL_INT64_U;
-        case data_type::float32:
-            return features::DAAL_FLOAT32;
-        case data_type::float64:
-            return features::DAAL_FLOAT64;
-        default:
-            return features::DAAL_OTHER_T;
+        case data_type::int32: return features::DAAL_INT32_S;
+        case data_type::int64: return features::DAAL_INT64_S;
+        case data_type::uint32: return features::DAAL_INT32_U;
+        case data_type::uint64: return features::DAAL_INT64_U;
+        case data_type::float32: return features::DAAL_FLOAT32;
+        case data_type::float64: return features::DAAL_FLOAT64;
+        default: return features::DAAL_OTHER_T;
     }
 }
 
 internal::ConversionDataType getConversionDataType(data_type t) {
     switch (t) {
-        case data_type::int32:
-            return internal::DAAL_INT32;
-        case data_type::float32:
-            return internal::DAAL_SINGLE;
-        case data_type::float64:
-            return internal::DAAL_DOUBLE;
-        default:
-            return internal::DAAL_OTHER;
+        case data_type::int32: return internal::DAAL_INT32;
+        case data_type::float32: return internal::DAAL_SINGLE;
+        case data_type::float64: return internal::DAAL_DOUBLE;
+        default: return internal::DAAL_OTHER;
     }
 }
 
@@ -63,7 +52,7 @@ void daal_convert_dispatcher(data_type src_type,
                              UpCast&& ucast,
                              Args&&... args) {
     auto from_type = getIndexNumType(src_type);
-    auto to_type   = getConversionDataType(dest_type);
+    auto to_type = getConversionDataType(dest_type);
 
     auto check_types = [](auto from_type, auto to_type) {
         if (from_type == features::DAAL_OTHER_T || to_type == internal::DAAL_OTHER) {
@@ -74,7 +63,7 @@ void daal_convert_dispatcher(data_type src_type,
     if (getConversionDataType(dest_type) == internal::DAAL_OTHER &&
         getConversionDataType(src_type) != internal::DAAL_OTHER) {
         from_type = getIndexNumType(dest_type);
-        to_type   = getConversionDataType(src_type);
+        to_type = getConversionDataType(src_type);
 
         check_types(from_type, to_type);
         dcast(from_type, to_type)(std::forward<Args>(args)...);

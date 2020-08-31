@@ -27,8 +27,8 @@ using std::int32_t;
 
 TEST(svm_thunder_dense_gpu_test, can_classify_linear_separable_surface) {
     constexpr std::int64_t row_count_train = 6;
-    constexpr std::int64_t column_count    = 2;
-    const float x_train_host[]             = {
+    constexpr std::int64_t column_count = 2;
+    const float x_train_host[] = {
         -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f, +1.f, +2.f, +2.f, +1.f,
     };
     const float y_train_host[] = {
@@ -36,7 +36,7 @@ TEST(svm_thunder_dense_gpu_test, can_classify_linear_separable_surface) {
     };
 
     auto selector = sycl::gpu_selector();
-    auto queue    = sycl::queue(selector);
+    auto queue = sycl::queue(selector);
 
     auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
     queue.memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count).wait();
@@ -50,7 +50,7 @@ TEST(svm_thunder_dense_gpu_test, can_classify_linear_separable_surface) {
     constexpr std::int64_t support_index_negative = 1;
     constexpr std::int64_t support_index_positive = 3;
 
-    const auto svm_desc     = svm::descriptor{}.set_c(1.0);
+    const auto svm_desc = svm::descriptor{}.set_c(1.0);
     const auto result_train = train(queue, svm_desc, x_train_table, y_train_table);
     ASSERT_EQ(result_train.get_support_vector_count(), 2);
 
@@ -59,7 +59,7 @@ TEST(svm_thunder_dense_gpu_test, can_classify_linear_separable_surface) {
     ASSERT_EQ(support_indices[0], support_index_negative);
     ASSERT_EQ(support_indices[1], support_index_positive);
 
-    const auto result_infer      = infer(queue, svm_desc, result_train.get_model(), x_train_table);
+    const auto result_infer = infer(queue, svm_desc, result_train.get_model(), x_train_table);
     auto decision_function_table = result_infer.get_decision_function();
     const auto decision_function = row_accessor<const float>(decision_function_table).pull();
 
@@ -73,8 +73,8 @@ TEST(svm_thunder_dense_gpu_test, can_classify_linear_separable_surface) {
 TEST(svm_thunder_dense_gpu_test,
      can_classify_linear_separable_surface_with_not_default_linear_kernel) {
     constexpr std::int64_t row_count_train = 6;
-    constexpr std::int64_t column_count    = 2;
-    const float x_train_host[]             = {
+    constexpr std::int64_t column_count = 2;
+    const float x_train_host[] = {
         -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f, +1.f, +2.f, +2.f, +1.f,
     };
     const float y_train_host[] = {
@@ -82,7 +82,7 @@ TEST(svm_thunder_dense_gpu_test,
     };
 
     auto selector = sycl::gpu_selector();
-    auto queue    = sycl::queue(selector);
+    auto queue = sycl::queue(selector);
 
     auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
     queue.memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count).wait();
@@ -96,8 +96,8 @@ TEST(svm_thunder_dense_gpu_test,
     constexpr std::int64_t support_index_negative = 1;
     constexpr std::int64_t support_index_positive = 3;
 
-    const auto kernel_desc  = linear_kernel::descriptor{}.set_scale(0.1).set_shift(0.0);
-    const auto svm_desc     = svm::descriptor{ kernel_desc }.set_c(10.0);
+    const auto kernel_desc = linear_kernel::descriptor{}.set_scale(0.1).set_shift(0.0);
+    const auto svm_desc = svm::descriptor{ kernel_desc }.set_c(10.0);
     const auto result_train = train(queue, svm_desc, x_train_table, y_train_table);
     ASSERT_EQ(result_train.get_support_vector_count(), 2);
 
@@ -106,7 +106,7 @@ TEST(svm_thunder_dense_gpu_test,
     ASSERT_EQ(support_indices[0], support_index_negative);
     ASSERT_EQ(support_indices[1], support_index_positive);
 
-    const auto result_infer      = infer(queue, svm_desc, result_train.get_model(), x_train_table);
+    const auto result_infer = infer(queue, svm_desc, result_train.get_model(), x_train_table);
     auto decision_function_table = result_infer.get_decision_function();
     const auto decision_function = row_accessor<const float>(decision_function_table).pull(queue);
     ASSERT_FLOAT_EQ(decision_function[support_index_negative], -1.f);
@@ -118,8 +118,8 @@ TEST(svm_thunder_dense_gpu_test,
 
 TEST(svm_thunder_dense_gpu_test, can_classify_linear_separable_surface_with_big_margin) {
     constexpr std::int64_t row_count_train = 6;
-    constexpr std::int64_t column_count    = 2;
-    const float x_train_host[]             = {
+    constexpr std::int64_t column_count = 2;
+    const float x_train_host[] = {
         -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f, +1.f, +2.f, +2.f, +1.f,
     };
     const float y_train_host[] = {
@@ -127,7 +127,7 @@ TEST(svm_thunder_dense_gpu_test, can_classify_linear_separable_surface_with_big_
     };
 
     auto selector = sycl::gpu_selector();
-    auto queue    = sycl::queue(selector);
+    auto queue = sycl::queue(selector);
 
     auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
     queue.memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count).wait();
@@ -137,7 +137,7 @@ TEST(svm_thunder_dense_gpu_test, can_classify_linear_separable_surface_with_big_
     queue.memcpy(y_train, y_train_host, sizeof(float) * row_count_train * 1).wait();
     const auto y_train_table = homogen_table::wrap(queue, y_train, row_count_train, 1);
 
-    const auto svm_desc     = svm::descriptor{}.set_c(1e-1);
+    const auto svm_desc = svm::descriptor{}.set_c(1e-1);
     const auto result_train = train(queue, svm_desc, x_train_table, y_train_table);
     ASSERT_EQ(result_train.get_support_vector_count(), row_count_train);
 
@@ -199,8 +199,8 @@ TEST(svm_thunder_dense_gpu_test, can_classify_linear_separable_surface_with_big_
 
 TEST(svm_thunder_dense_gpu_test, can_classify_quadric_separable_surface_with_rbf_kernel) {
     constexpr std::int64_t row_count_train = 12;
-    constexpr std::int64_t column_count    = 2;
-    const float x_train_host[]             = {
+    constexpr std::int64_t column_count = 2;
+    const float x_train_host[] = {
         -2.f, 0.f, -2.f, -1.f,  -2.f, +1.f,  +2.f, 0.f,  +2.f, -1.f,  +2.f, +1.f,
         -1.f, 0.f, -1.f, -0.5f, -1.f, +0.5f, +1.f, 0.5f, +1.f, -0.5f, +1.f, +0.5f,
     };
@@ -209,7 +209,7 @@ TEST(svm_thunder_dense_gpu_test, can_classify_quadric_separable_surface_with_rbf
     };
 
     auto selector = sycl::gpu_selector();
-    auto queue    = sycl::queue(selector);
+    auto queue = sycl::queue(selector);
 
     auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
     queue.memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count).wait();
@@ -220,8 +220,8 @@ TEST(svm_thunder_dense_gpu_test, can_classify_quadric_separable_surface_with_rbf
     queue.memcpy(y_train, y_train_host, sizeof(float) * row_count_train * 1).wait();
     const auto y_train_table = homogen_table::wrap(queue, y_train, row_count_train, 1);
 
-    const auto kernel_desc  = rbf_kernel::descriptor{}.set_sigma(1.0);
-    const auto svm_desc     = svm::descriptor{ kernel_desc }.set_c(1.0);
+    const auto kernel_desc = rbf_kernel::descriptor{}.set_sigma(1.0);
+    const auto svm_desc = svm::descriptor{ kernel_desc }.set_c(1.0);
     const auto result_train = train(queue, svm_desc, x_train_table, y_train_table);
     ASSERT_EQ(result_train.get_support_vector_count(), row_count_train);
 
@@ -242,14 +242,14 @@ TEST(svm_thunder_dense_gpu_test, can_classify_quadric_separable_surface_with_rbf
 
 TEST(svm_thunder_dense_gpu_test, can_classify_any_two_labels) {
     constexpr std::int64_t row_count_train = 6;
-    constexpr std::int64_t column_count    = 2;
-    constexpr std::int64_t range_count     = 4;
-    const float x_train_host[]             = {
+    constexpr std::int64_t column_count = 2;
+    constexpr std::int64_t range_count = 4;
+    const float x_train_host[] = {
         -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f, +1.f, +2.f, +2.f, +1.f,
     };
 
     auto selector = sycl::gpu_selector();
-    auto queue    = sycl::queue(selector);
+    auto queue = sycl::queue(selector);
 
     auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
     queue.memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count).wait();
@@ -298,7 +298,7 @@ TEST(svm_thunder_dense_gpu_test, can_classify_any_two_labels) {
     };
 
     for (std::int64_t i = 0; i < range_count; ++i) {
-        const auto y_train_host    = y_train_range[i];
+        const auto y_train_host = y_train_range[i];
         const auto expected_labels = expected_labels_range[i];
 
         auto y_train = sycl::malloc_shared<float>(row_count_train * 1, queue);
