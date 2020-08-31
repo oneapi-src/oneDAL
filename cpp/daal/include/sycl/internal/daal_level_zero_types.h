@@ -1144,7 +1144,7 @@ extern "C"
 
     ///////////////////////////////////////////////////////////////////////////////
     /// @brief Device local memory properties queried using
-    ///        ::zeDeviceGetMemoryProperties
+    ///        zeDeviceGetMemoryProperties
     typedef struct _ze_device_memory_properties_t
     {
         ze_structure_type_t stype;               ///< [in] type of this structure
