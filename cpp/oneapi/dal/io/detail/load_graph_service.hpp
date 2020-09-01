@@ -53,7 +53,6 @@ inline ONEAPI_DAL_EXPORT void threader_for(size_t n, size_t threads_request, con
 
 ONEAPI_DAL_EXPORT int daal_string_to_int(const char *nptr, char **endptr);
 
-template <typename F>
 inline ONEAPI_DAL_EXPORT void parallel_sort(int *begin_ptr, int *end_ptr) {
     _daal_parallel_sort_oneapi(begin_ptr, end_ptr);
 }
