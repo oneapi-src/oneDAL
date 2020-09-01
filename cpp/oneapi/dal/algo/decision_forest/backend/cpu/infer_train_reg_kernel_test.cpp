@@ -23,10 +23,10 @@ using namespace oneapi;
 namespace df = oneapi::dal::decision_forest;
 
 TEST(infer_and_train_reg_kernels_test, can_process_simple_case_default_params) {
-    const double mse_threshold             = 0.05;
+    const double mse_threshold = 0.05;
     constexpr std::int64_t row_count_train = 10;
-    constexpr std::int64_t row_count_test  = 5;
-    constexpr std::int64_t column_count    = 2;
+    constexpr std::int64_t row_count_test = 5;
+    constexpr std::int64_t column_count = 2;
 
     const float x_train[] = {
         0.1f,  0.25f, 0.15f, 0.35f, 0.25f, 0.55f, 0.3f, 0.65f, 0.4f, 0.85f,
@@ -56,7 +56,7 @@ TEST(infer_and_train_reg_kernels_test, can_process_simple_case_default_params) {
                                                   column_count,
                                                   dal::empty_delete<const float>() };
 
-    const auto df_desc      = df::descriptor<float, df::task::regression, df::method::dense>{};
+    const auto df_desc = df::descriptor<float, df::task::regression, df::method::dense>{};
     const auto result_train = dal::train(df_desc, x_train_table, y_train_table);
     ASSERT_EQ(!(result_train.get_var_importance().has_data()), true);
     ASSERT_EQ(!(result_train.get_oob_err().has_data()), true);
@@ -73,11 +73,11 @@ TEST(infer_and_train_reg_kernels_test, can_process_simple_case_default_params) {
 }
 
 TEST(infer_and_train_reg_kernels_test, can_process_simple_case_non_default_params) {
-    const double mse_threshold             = 0.05;
+    const double mse_threshold = 0.05;
     constexpr std::int64_t row_count_train = 10;
-    constexpr std::int64_t row_count_test  = 5;
-    constexpr std::int64_t column_count    = 2;
-    constexpr std::int64_t tree_count      = 10;
+    constexpr std::int64_t row_count_test = 5;
+    constexpr std::int64_t column_count = 2;
+    constexpr std::int64_t tree_count = 10;
 
     const float x_train[] = {
         0.1f,  0.25f, 0.15f, 0.35f, 0.25f, 0.55f, 0.3f, 0.65f, 0.4f, 0.85f,

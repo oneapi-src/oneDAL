@@ -51,19 +51,19 @@ struct access_iface {
     virtual void pull(const Policy&,
                       array_f32&,
                       const column_values_block&,
-                      const alloc_f32&) const                                              = 0;
+                      const alloc_f32&) const = 0;
     virtual void pull(const Policy&,
                       array_f64&,
                       const column_values_block&,
-                      const alloc_f64&) const                                              = 0;
+                      const alloc_f64&) const = 0;
     virtual void pull(const Policy&,
                       array_i32&,
                       const column_values_block&,
-                      const alloc_i32&) const                                              = 0;
+                      const alloc_i32&) const = 0;
 
-    virtual void push(const Policy&, const array_f32&, const row_block&)           = 0;
-    virtual void push(const Policy&, const array_f64&, const row_block&)           = 0;
-    virtual void push(const Policy&, const array_i32&, const row_block&)           = 0;
+    virtual void push(const Policy&, const array_f32&, const row_block&) = 0;
+    virtual void push(const Policy&, const array_f64&, const row_block&) = 0;
+    virtual void push(const Policy&, const array_i32&, const row_block&) = 0;
     virtual void push(const Policy&, const array_f32&, const column_values_block&) = 0;
     virtual void push(const Policy&, const array_f64&, const column_values_block&) = 0;
     virtual void push(const Policy&, const array_i32&, const column_values_block&) = 0;

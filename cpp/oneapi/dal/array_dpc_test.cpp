@@ -107,7 +107,7 @@ TEST(array_dpc_test, can_reset_array_with_raw_pointer) {
     auto arr = array<float>::zeros(q, 5);
 
     constexpr int64_t count = 10;
-    auto* data              = sycl::malloc_shared<float>(count, q);
+    auto* data = sycl::malloc_shared<float>(count, q);
     q.submit([&](sycl::handler& cgh) {
          cgh.parallel_for(sycl::range<1>(count), [=](sycl::id<1> idx) {
              data[idx[0]] = idx[0];
@@ -135,7 +135,7 @@ TEST(array_dpc_test, can_wrap_const_data_with_offset_and_deleter) {
      }).wait();
 
     const float* cdata = data;
-    auto arr           = array<float>(q, cdata, 2, make_default_delete<const float>(q));
+    auto arr = array<float>(q, cdata, 2, make_default_delete<const float>(q));
 
     ASSERT_EQ(arr.get_count(), 2);
     ASSERT_EQ(arr.get_data(), cdata);

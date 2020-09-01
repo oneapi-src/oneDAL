@@ -60,7 +60,13 @@ PLAT_is_$(PLAT)          := yes
 #===============================================================================
 
 ifeq ($(OS_is_lnx),yes)
-DPC.COMPILE.gcc_toolchain := $(realpath $(dir $(shell which gcc))/..)
+GCC_TOOLCHAIN_PATH := $(realpath $(dir $(shell which gcc))/..)
+
+ifeq ($(COMPILER_is_clang),yes)
+C.COMPILE.gcc_toolchain := $(GCC_TOOLCHAIN_PATH)
+endif
+
+DPC.COMPILE.gcc_toolchain := $(GCC_TOOLCHAIN_PATH)
 include dev/make/cmplr.dpcpp.mk
 endif
 

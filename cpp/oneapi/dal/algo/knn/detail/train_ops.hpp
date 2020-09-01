@@ -28,10 +28,10 @@ struct ONEAPI_DAL_EXPORT train_ops_dispatcher {
 
 template <typename Descriptor>
 struct train_ops {
-    using float_t           = typename Descriptor::float_t;
-    using method_t          = typename Descriptor::method_t;
-    using input_t           = train_input;
-    using result_t          = train_result;
+    using float_t = typename Descriptor::float_t;
+    using method_t = typename Descriptor::method_t;
+    using input_t = train_input;
+    using result_t = train_result;
     using descriptor_base_t = descriptor_base;
 
     void check_preconditions(const Descriptor& params, const train_input& input) const {

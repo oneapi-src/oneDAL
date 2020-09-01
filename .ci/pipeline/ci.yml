@@ -4,7 +4,16 @@
 # https://docs.microsoft.com/azure/devops/pipelines/apps/c-cpp/gcc
 
 trigger:
-- master
+  branches:
+    include:
+    - master
+    - rls/*
+
+pr:
+  branches:
+    include:
+    - master
+    - rls/*
 
 jobs:
 - job: 'ClangFormat'
