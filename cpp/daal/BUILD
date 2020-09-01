@@ -13,8 +13,8 @@ daal_module(
     override_deps_lib_tag = True,
     deps = [
         "@micromkl//:vml_ipp",
-        # FIXME: Currently vml_ipp lib depends on TBB, but it shouldn't
-        #        Remove TBB from deps once problem with vml_ipp is resolved
+        # TODO: Currently vml_ipp lib depends on TBB, but it shouldn't
+        #       Remove TBB from deps once problem with vml_ipp is resolved
         "@tbb//:tbb_binary",
     ],
 )

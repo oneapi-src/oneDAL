@@ -16,8 +16,8 @@ cc_library(
     ],
     deps = [
         ":headers",
-        # FIXME: Currently vml_ipp lib depends on TBB, but it shouldn't
-        #        Remove TBB from deps once problem with vml_ipp is resolved
+        # TODO: Currently vml_ipp lib depends on TBB, but it shouldn't
+        #       Remove TBB from deps once problem with vml_ipp is resolved
         "@tbb//:tbb_binary",
     ],
 )
@@ -61,8 +61,8 @@ cc_library(
     ],
     deps = [
         ":headers",
-        # FIXME: Currently vml_ipp lib depends on TBB, but it shouldn't
-        #        Remove TBB from deps once problem with vml_ipp is resolved
+        # TODO: Currently vml_ipp lib depends on TBB, but it shouldn't
+        #       Remove TBB from deps once problem with vml_ipp is resolved
         "@tbb//:tbb_binary",
     ],
 )
