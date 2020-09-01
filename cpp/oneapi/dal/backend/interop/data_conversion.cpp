@@ -1,0 +1,106 @@
+/*******************************************************************************
+* Copyright 2020 Intel Corporation
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*******************************************************************************/
+
+#include "oneapi/dal/backend/interop/data_conversion.hpp"
+#include "oneapi/dal/exceptions.hpp"
+
+using namespace daal::data_management;
+
+namespace oneapi::dal::backend::interop {
+
+features::IndexNumType getIndexNumType(data_type t) {
+    switch (t) {
+        case data_type::int32: return features::DAAL_INT32_S;
+        case data_type::int64: return features::DAAL_INT64_S;
+        case data_type::uint32: return features::DAAL_INT32_U;
+        case data_type::uint64: return features::DAAL_INT64_U;
+        case data_type::float32: return features::DAAL_FLOAT32;
+        case data_type::float64: return features::DAAL_FLOAT64;
+        default: return features::DAAL_OTHER_T;
+    }
+}
+
+internal::ConversionDataType getConversionDataType(data_type t) {
+    switch (t) {
+        case data_type::int32: return internal::DAAL_INT32;
+        case data_type::float32: return internal::DAAL_SINGLE;
+        case data_type::float64: return internal::DAAL_DOUBLE;
+        default: return internal::DAAL_OTHER;
+    }
+}
+
+template <typename DownCast, typename UpCast, typename... Args>
+void daal_convert_dispatcher(data_type src_type,
+                             data_type dest_type,
+                             DownCast&& dcast,
+                             UpCast&& ucast,
+                             Args&&... args) {
+    auto from_type = getIndexNumType(src_type);
+    auto to_type = getConversionDataType(dest_type);
+
+    auto check_types = [](auto from_type, auto to_type) {
+        if (from_type == features::DAAL_OTHER_T || to_type == internal::DAAL_OTHER) {
+            throw internal_error("unsupported conversion types");
+        }
+    };
+
+    if (getConversionDataType(dest_type) == internal::DAAL_OTHER &&
+        getConversionDataType(src_type) != internal::DAAL_OTHER) {
+        from_type = getIndexNumType(dest_type);
+        to_type = getConversionDataType(src_type);
+
+        check_types(from_type, to_type);
+        dcast(from_type, to_type)(std::forward<Args>(args)...);
+    }
+    else {
+        check_types(from_type, to_type);
+        ucast(from_type, to_type)(std::forward<Args>(args)...);
+    }
+}
+
+void daal_convert(const void* src,
+                  void* dst,
+                  data_type src_type,
+                  data_type dst_type,
+                  std::int64_t size) {
+    daal_convert_dispatcher(src_type,
+                            dst_type,
+                            internal::getVectorDownCast,
+                            internal::getVectorUpCast,
+                            size,
+                            src,
+                            dst);
+}
+
+void daal_convert(const void* src,
+                  void* dst,
+                  data_type src_type,
+                  data_type dst_type,
+                  std::int64_t src_stride,
+                  std::int64_t dst_stride,
+                  std::int64_t size) {
+    daal_convert_dispatcher(src_type,
+                            dst_type,
+                            internal::getVectorStrideDownCast,
+                            internal::getVectorStrideUpCast,
+                            size,
+                            src,
+                            src_stride,
+                            dst,
+                            dst_stride);
+}
+
+} // namespace oneapi::dal::backend::interop
