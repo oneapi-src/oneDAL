@@ -50,9 +50,10 @@ table read_kernel_gpu<table>::operator()(const dal::backend::context_gpu& ctx,
 
     daal_dm::FileDataSource<daal_dm::CSVFeatureManager> daal_data_source(ds.get_file_name().c_str(),
                                                                          csv_options);
+    interop::status_to_exception(daal_data_source.status());
+
     daal_data_source.getFeatureManager().setDelimiter(ds.get_delimiter());
     daal_data_source.loadDataBlock();
-
     interop::status_to_exception(daal_data_source.status());
 
     auto nt = daal_data_source.getNumericTable();

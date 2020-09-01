@@ -46,9 +46,10 @@ table read_kernel_cpu<table>::operator()(const dal::backend::context_cpu& ctx,
 
     daal_dm::FileDataSource<daal_dm::CSVFeatureManager> daal_data_source(ds.get_file_name().c_str(),
                                                                          csv_options);
+    interop::status_to_exception(daal_data_source.status());
+
     daal_data_source.getFeatureManager().setDelimiter(ds.get_delimiter());
     daal_data_source.loadDataBlock();
-
     interop::status_to_exception(daal_data_source.status());
 
     return oneapi::dal::backend::interop::convert_from_daal_homogen_table<DAAL_DATA_TYPE>(
