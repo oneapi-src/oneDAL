@@ -231,39 +231,39 @@ extern "C"
     /// @brief Defines structure types
     typedef enum _ze_structure_type_t
     {
-        ZE_STRUCTURE_TYPE_DRIVER_PROPERTIES                 = 0x1,        ///< ::ze_driver_properties_t
-        ZE_STRUCTURE_TYPE_DRIVER_IPC_PROPERTIES             = 0x2,        ///< ::ze_driver_ipc_properties_t
-        ZE_STRUCTURE_TYPE_DEVICE_PROPERTIES                 = 0x3,        ///< ::ze_device_properties_t
-        ZE_STRUCTURE_TYPE_DEVICE_COMPUTE_PROPERTIES         = 0x4,        ///< ::ze_device_compute_properties_t
-        ZE_STRUCTURE_TYPE_DEVICE_MODULE_PROPERTIES          = 0x5,        ///< ::ze_device_module_properties_t
-        ZE_STRUCTURE_TYPE_COMMAND_QUEUE_GROUP_PROPERTIES    = 0x6,        ///< ::ze_command_queue_group_properties_t
-        ZE_STRUCTURE_TYPE_DEVICE_MEMORY_PROPERTIES          = 0x7,        ///< ::ze_device_memory_properties_t
-        ZE_STRUCTURE_TYPE_DEVICE_MEMORY_ACCESS_PROPERTIES   = 0x8,        ///< ::ze_device_memory_access_properties_t
-        ZE_STRUCTURE_TYPE_DEVICE_CACHE_PROPERTIES           = 0x9,        ///< ::ze_device_cache_properties_t
-        ZE_STRUCTURE_TYPE_DEVICE_IMAGE_PROPERTIES           = 0xa,        ///< ::ze_device_image_properties_t
-        ZE_STRUCTURE_TYPE_DEVICE_P2P_PROPERTIES             = 0xb,        ///< ::ze_device_p2p_properties_t
-        ZE_STRUCTURE_TYPE_DEVICE_EXTERNAL_MEMORY_PROPERTIES = 0xc,        ///< ::ze_device_external_memory_properties_t
-        ZE_STRUCTURE_TYPE_CONTEXT_DESC                      = 0xd,        ///< ::ze_context_desc_t
-        ZE_STRUCTURE_TYPE_COMMAND_QUEUE_DESC                = 0xe,        ///< ::ze_command_queue_desc_t
-        ZE_STRUCTURE_TYPE_COMMAND_LIST_DESC                 = 0xf,        ///< ::ze_command_list_desc_t
-        ZE_STRUCTURE_TYPE_EVENT_POOL_DESC                   = 0x10,       ///< ::ze_event_pool_desc_t
-        ZE_STRUCTURE_TYPE_EVENT_DESC                        = 0x11,       ///< ::ze_event_desc_t
-        ZE_STRUCTURE_TYPE_FENCE_DESC                        = 0x12,       ///< ::ze_fence_desc_t
-        ZE_STRUCTURE_TYPE_IMAGE_DESC                        = 0x13,       ///< ::ze_image_desc_t
-        ZE_STRUCTURE_TYPE_IMAGE_PROPERTIES                  = 0x14,       ///< ::ze_image_properties_t
-        ZE_STRUCTURE_TYPE_DEVICE_MEM_ALLOC_DESC             = 0x15,       ///< ::ze_device_mem_alloc_desc_t
-        ZE_STRUCTURE_TYPE_HOST_MEM_ALLOC_DESC               = 0x16,       ///< ::ze_host_mem_alloc_desc_t
-        ZE_STRUCTURE_TYPE_MEMORY_ALLOCATION_PROPERTIES      = 0x17,       ///< ::ze_memory_allocation_properties_t
-        ZE_STRUCTURE_TYPE_EXTERNAL_MEMORY_EXPORT_DESC       = 0x18,       ///< ::ze_external_memory_export_desc_t
-        ZE_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMPORT_FD         = 0x19,       ///< ::ze_external_memory_import_fd_t
-        ZE_STRUCTURE_TYPE_EXTERNAL_MEMORY_EXPORT_FD         = 0x1a,       ///< ::ze_external_memory_export_fd_t
-        ZE_STRUCTURE_TYPE_MODULE_DESC                       = 0x1b,       ///< ::ze_module_desc_t
-        ZE_STRUCTURE_TYPE_MODULE_PROPERTIES                 = 0x1c,       ///< ::ze_module_properties_t
-        ZE_STRUCTURE_TYPE_KERNEL_DESC                       = 0x1d,       ///< ::ze_kernel_desc_t
-        ZE_STRUCTURE_TYPE_KERNEL_PROPERTIES                 = 0x1e,       ///< ::ze_kernel_properties_t
-        ZE_STRUCTURE_TYPE_SAMPLER_DESC                      = 0x1f,       ///< ::ze_sampler_desc_t
-        ZE_STRUCTURE_TYPE_PHYSICAL_MEM_DESC                 = 0x20,       ///< ::ze_physical_mem_desc_t
-        ZE_STRUCTURE_TYPE_RAYTRACING_MEM_ALLOC_EXT_DESC     = 0x00010001, ///< ::ze_raytracing_mem_alloc_ext_desc_t
+        ZE_STRUCTURE_TYPE_DRIVER_PROPERTIES                 = 0x1,        ///< ze_driver_properties_t
+        ZE_STRUCTURE_TYPE_DRIVER_IPC_PROPERTIES             = 0x2,        ///< ze_driver_ipc_properties_t
+        ZE_STRUCTURE_TYPE_DEVICE_PROPERTIES                 = 0x3,        ///< ze_device_properties_t
+        ZE_STRUCTURE_TYPE_DEVICE_COMPUTE_PROPERTIES         = 0x4,        ///< ze_device_compute_properties_t
+        ZE_STRUCTURE_TYPE_DEVICE_MODULE_PROPERTIES          = 0x5,        ///< ze_device_module_properties_t
+        ZE_STRUCTURE_TYPE_COMMAND_QUEUE_GROUP_PROPERTIES    = 0x6,        ///< ze_command_queue_group_properties_t
+        ZE_STRUCTURE_TYPE_DEVICE_MEMORY_PROPERTIES          = 0x7,        ///< ze_device_memory_properties_t
+        ZE_STRUCTURE_TYPE_DEVICE_MEMORY_ACCESS_PROPERTIES   = 0x8,        ///< ze_device_memory_access_properties_t
+        ZE_STRUCTURE_TYPE_DEVICE_CACHE_PROPERTIES           = 0x9,        ///< ze_device_cache_properties_t
+        ZE_STRUCTURE_TYPE_DEVICE_IMAGE_PROPERTIES           = 0xa,        ///< ze_device_image_properties_t
+        ZE_STRUCTURE_TYPE_DEVICE_P2P_PROPERTIES             = 0xb,        ///< ze_device_p2p_properties_t
+        ZE_STRUCTURE_TYPE_DEVICE_EXTERNAL_MEMORY_PROPERTIES = 0xc,        ///< ze_device_external_memory_properties_t
+        ZE_STRUCTURE_TYPE_CONTEXT_DESC                      = 0xd,        ///< ze_context_desc_t
+        ZE_STRUCTURE_TYPE_COMMAND_QUEUE_DESC                = 0xe,        ///< ze_command_queue_desc_t
+        ZE_STRUCTURE_TYPE_COMMAND_LIST_DESC                 = 0xf,        ///< ze_command_list_desc_t
+        ZE_STRUCTURE_TYPE_EVENT_POOL_DESC                   = 0x10,       ///< ze_event_pool_desc_t
+        ZE_STRUCTURE_TYPE_EVENT_DESC                        = 0x11,       ///< ze_event_desc_t
+        ZE_STRUCTURE_TYPE_FENCE_DESC                        = 0x12,       ///< ze_fence_desc_t
+        ZE_STRUCTURE_TYPE_IMAGE_DESC                        = 0x13,       ///< ze_image_desc_t
+        ZE_STRUCTURE_TYPE_IMAGE_PROPERTIES                  = 0x14,       ///< ze_image_properties_t
+        ZE_STRUCTURE_TYPE_DEVICE_MEM_ALLOC_DESC             = 0x15,       ///< ze_device_mem_alloc_desc_t
+        ZE_STRUCTURE_TYPE_HOST_MEM_ALLOC_DESC               = 0x16,       ///< ze_host_mem_alloc_desc_t
+        ZE_STRUCTURE_TYPE_MEMORY_ALLOCATION_PROPERTIES      = 0x17,       ///< ze_memory_allocation_properties_t
+        ZE_STRUCTURE_TYPE_EXTERNAL_MEMORY_EXPORT_DESC       = 0x18,       ///< ze_external_memory_export_desc_t
+        ZE_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMPORT_FD         = 0x19,       ///< ze_external_memory_import_fd_t
+        ZE_STRUCTURE_TYPE_EXTERNAL_MEMORY_EXPORT_FD         = 0x1a,       ///< ze_external_memory_export_fd_t
+        ZE_STRUCTURE_TYPE_MODULE_DESC                       = 0x1b,       ///< ze_module_desc_t
+        ZE_STRUCTURE_TYPE_MODULE_PROPERTIES                 = 0x1c,       ///< ze_module_properties_t
+        ZE_STRUCTURE_TYPE_KERNEL_DESC                       = 0x1d,       ///< ze_kernel_desc_t
+        ZE_STRUCTURE_TYPE_KERNEL_PROPERTIES                 = 0x1e,       ///< ze_kernel_properties_t
+        ZE_STRUCTURE_TYPE_SAMPLER_DESC                      = 0x1f,       ///< ze_sampler_desc_t
+        ZE_STRUCTURE_TYPE_PHYSICAL_MEM_DESC                 = 0x20,       ///< ze_physical_mem_desc_t
+        ZE_STRUCTURE_TYPE_RAYTRACING_MEM_ALLOC_EXT_DESC     = 0x00010001, ///< ze_raytracing_mem_alloc_ext_desc_t
         ZE_STRUCTURE_TYPE_FORCE_UINT32                      = 0x7fffffff
     } ze_structure_type_t;
 
@@ -525,20 +525,20 @@ extern "C"
     /// @details
     ///     - This function must be called before any other API function.
     ///     - If this function is not called then all other functions will return
-    ///       ::ZE_RESULT_ERROR_UNINITIALIZED.
+    ///       ZE_RESULT_ERROR_UNINITIALIZED.
     ///     - Only one instance of each driver will be initialized per process.
     ///     - This function is thread-safe for scenarios where multiple libraries
     ///       may initialize the driver(s) simultaneously.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_ENUMERATION
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_ENUMERATION
     ///         + `0x1 < flags`
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
     ZE_APIEXPORT ze_result_t ZE_APICALL zeInit(ze_init_flags_t flags ///< [in] initialization flags.
-                                                                     ///< must be 0 (default) or a combination of ::ze_init_flag_t.
+                                                                     ///< must be 0 (default) or a combination of ze_init_flag_t.
     );
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -558,10 +558,10 @@ extern "C"
     ///     - clGetPlatformIDs
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pCount`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeDriverGet(
         uint32_t * pCount,             ///< [in,out] pointer to the number of driver instances.
@@ -579,7 +579,7 @@ extern "C"
     ///
     /// @details
     ///     - API versions contain major and minor attributes, use
-    ///       ::ZE_MAJOR_VERSION and ::ZE_MINOR_VERSION
+    ///       ZE_MAJOR_VERSION and ZE_MINOR_VERSION
     typedef enum _ze_api_version_t
     {
         ZE_API_VERSION_1_0          = ZE_MAKE_VERSION(1, 0), ///< version 1.0
@@ -595,12 +595,12 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hDriver`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == version`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeDriverGetApiVersion(ze_driver_handle_t hDriver, ///< [in] handle of the driver instance
                                                               ze_api_version_t * version  ///< [out] api version
@@ -620,7 +620,7 @@ extern "C"
     } ze_driver_uuid_t;
 
     ///////////////////////////////////////////////////////////////////////////////
-    /// @brief Driver properties queried using ::zeDriverGetProperties
+    /// @brief Driver properties queried using zeDriverGetProperties
     typedef struct _ze_driver_properties_t
     {
         ze_structure_type_t stype; ///< [in] type of this structure
@@ -643,12 +643,12 @@ extern "C"
     ///     - **clGetPlatformInfo**
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hDriver`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pDriverProperties`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeDriverGetProperties(
         ze_driver_handle_t hDriver,                ///< [in] handle of the driver instance
@@ -661,19 +661,19 @@ extern "C"
     typedef enum _ze_ipc_property_flag_t
     {
         ZE_IPC_PROPERTY_FLAG_MEMORY = ZE_BIT(0),     ///< Supports passing memory allocations between processes. See
-                                                     ///< ::zeMemGetIpcHandle.
+                                                     ///< zeMemGetIpcHandle.
         ZE_IPC_PROPERTY_FLAG_EVENT_POOL = ZE_BIT(1), ///< Supports passing event pools between processes. See
-                                                     ///< ::zeEventPoolGetIpcHandle.
+                                                     ///< zeEventPoolGetIpcHandle.
         ZE_IPC_PROPERTY_FLAG_FORCE_UINT32 = 0x7fffffff
     } ze_ipc_property_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
-    /// @brief IPC properties queried using ::zeDriverGetIpcProperties
+    /// @brief IPC properties queried using zeDriverGetIpcProperties
     typedef struct _ze_driver_ipc_properties_t
     {
         ze_structure_type_t stype;     ///< [in] type of this structure
         void * pNext;                  ///< [in,out][optional] pointer to extension-specific structure
-        ze_ipc_property_flags_t flags; ///< [out] 0 (none) or a valid combination of ::ze_ipc_property_flag_t
+        ze_ipc_property_flags_t flags; ///< [out] 0 (none) or a valid combination of ze_ipc_property_flag_t
     } ze_driver_ipc_properties_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -684,12 +684,12 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hDriver`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pIpcProperties`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeDriverGetIpcProperties(
         ze_driver_handle_t hDriver,                 ///< [in] handle of the driver instance
@@ -703,11 +703,11 @@ extern "C"
 #endif // ZE_MAX_EXTENSION_NAME
 
     ///////////////////////////////////////////////////////////////////////////////
-    /// @brief Extension properties queried using ::zeDriverGetExtensionProperties
+    /// @brief Extension properties queried using zeDriverGetExtensionProperties
     typedef struct _ze_driver_extension_properties_t
     {
         char name[ZE_MAX_EXTENSION_NAME]; ///< [out] extension name
-        uint32_t version;                 ///< [out] extension version using ::ZE_MAKE_VERSION
+        uint32_t version;                 ///< [out] extension version using ZE_MAKE_VERSION
     } ze_driver_extension_properties_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -722,12 +722,12 @@ extern "C"
     ///     - **vkEnumerateInstanceExtensionProperties**
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hDriver`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pCount`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeDriverGetExtensionProperties(
         ze_driver_handle_t hDriver,                             ///< [in] handle of the driver instance
@@ -757,18 +757,18 @@ extern "C"
     ///     - Multiple calls to this function will return identical device handles,
     ///       in the same order.
     ///     - The number and order of handles returned from this function is
-    ///       affected by the ::ZE_AFFINITY_MASK and ::ZE_ENABLE_PCI_ID_DEVICE_ORDER
+    ///       affected by the ZE_AFFINITY_MASK and ZE_ENABLE_PCI_ID_DEVICE_ORDER
     ///       environment variables.
     ///     - The application may call this function from simultaneous threads.
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hDriver`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pCount`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeDeviceGet(
         ze_driver_handle_t hDriver,    ///< [in] handle of the driver instance
@@ -788,7 +788,7 @@ extern "C"
     ///     - Multiple calls to this function will return identical device handles,
     ///       in the same order.
     ///     - The number of handles returned from this function is affected by the
-    ///       ::ZE_AFFINITY_MASK environment variable.
+    ///       ZE_AFFINITY_MASK environment variable.
     ///     - The application may call this function from simultaneous threads.
     ///     - The implementation of this function should be lock-free.
     ///
@@ -797,12 +797,12 @@ extern "C"
     ///     - clCreateSubDevices
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hDevice`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pCount`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeDeviceGetSubDevices(
         ze_device_handle_t hDevice,       ///< [in] handle of the device object
@@ -858,7 +858,7 @@ extern "C"
     } ze_device_property_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
-    /// @brief Device properties queried using ::zeDeviceGetProperties
+    /// @brief Device properties queried using zeDeviceGetProperties
     typedef struct _ze_device_properties_t
     {
         ze_structure_type_t stype;         ///< [in] type of this structure
@@ -866,8 +866,8 @@ extern "C"
         ze_device_type_t type;             ///< [out] generic device type
         uint32_t vendorId;                 ///< [out] vendor id from PCI configuration
         uint32_t deviceId;                 ///< [out] device id from PCI configuration
-        ze_device_property_flags_t flags;  ///< [out] 0 (none) or a valid combination of ::ze_device_property_flag_t
-        uint32_t subdeviceId;              ///< [out] sub-device id. Only valid if ::ZE_DEVICE_PROPERTY_FLAG_SUBDEVICE
+        ze_device_property_flags_t flags;  ///< [out] 0 (none) or a valid combination of ze_device_property_flag_t
+        uint32_t subdeviceId;              ///< [out] sub-device id. Only valid if ZE_DEVICE_PROPERTY_FLAG_SUBDEVICE
                                            ///< is set.
         uint32_t coreClockRate;            ///< [out] Clock rate for device core.
         uint64_t maxMemAllocSize;          ///< [out] Maximum memory allocation size.
@@ -893,13 +893,13 @@ extern "C"
     typedef struct _ze_device_thread_t
     {
         uint32_t slice;    ///< [in,out] the slice number.
-                           ///< Must be UINT32_MAX (all) or less than ::ze_device_properties_t.numSlices.
+                           ///< Must be UINT32_MAX (all) or less than ze_device_properties_t.numSlices.
         uint32_t subslice; ///< [in,out] the sub-slice number within its slice.
-                           ///< Must be UINT32_MAX (all) or less than ::ze_device_properties_t.numSubslicesPerSlice.
+                           ///< Must be UINT32_MAX (all) or less than ze_device_properties_t.numSubslicesPerSlice.
         uint32_t eu;       ///< [in,out] the EU number within its sub-slice.
-                           ///< Must be UINT32_MAX (all) or less than ::ze_device_properties_t.numEUsPerSubslice.
+                           ///< Must be UINT32_MAX (all) or less than ze_device_properties_t.numEUsPerSubslice.
         uint32_t thread;   ///< [in,out] the thread number within its EU.
-                           ///< Must be UINT32_MAX (all) or less than ::ze_device_properties_t.numThreadsPerEU.
+                           ///< Must be UINT32_MAX (all) or less than ze_device_properties_t.numThreadsPerEU.
     } ze_device_thread_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -914,12 +914,12 @@ extern "C"
     ///     - clGetDeviceInfo
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hDevice`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pDeviceProperties`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeDeviceGetProperties(
         ze_device_handle_t hDevice,                ///< [in] handle of the device
@@ -933,7 +933,7 @@ extern "C"
 #endif // ZE_SUBGROUPSIZE_COUNT
 
     ///////////////////////////////////////////////////////////////////////////////
-    /// @brief Device compute properties queried using ::zeDeviceGetComputeProperties
+    /// @brief Device compute properties queried using zeDeviceGetComputeProperties
     typedef struct _ze_device_compute_properties_t
     {
         ze_structure_type_t stype;                     ///< [in] type of this structure
@@ -964,12 +964,12 @@ extern "C"
     ///     - clGetDeviceInfo
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hDevice`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pComputeProperties`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeDeviceGetComputeProperties(
         ze_device_handle_t hDevice,                         ///< [in] handle of the device
@@ -1019,23 +1019,23 @@ extern "C"
     } ze_device_fp_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
-    /// @brief Device module properties queried using ::zeDeviceGetModuleProperties
+    /// @brief Device module properties queried using zeDeviceGetModuleProperties
     typedef struct _ze_device_module_properties_t
     {
         ze_structure_type_t stype;                     ///< [in] type of this structure
         void * pNext;                                  ///< [in,out][optional] pointer to extension-specific structure
         uint32_t spirvVersionSupported;                ///< [out] Maximum supported SPIR-V version.
                                                        ///< Returns zero if SPIR-V is not supported.
-                                                       ///< Contains major and minor attributes, use ::ZE_MAJOR_VERSION and ::ZE_MINOR_VERSION.
-        ze_device_module_flags_t flags;                ///< [out] 0 or a valid combination of ::ze_device_module_flag_t
+                                                       ///< Contains major and minor attributes, use ZE_MAJOR_VERSION and ZE_MINOR_VERSION.
+        ze_device_module_flags_t flags;                ///< [out] 0 or a valid combination of ze_device_module_flag_t
         ze_device_fp_flags_t fp16flags;                ///< [out] Capabilities for half-precision floating-point operations.
-                                                       ///< returns 0 (if ::ZE_DEVICE_MODULE_FLAG_FP16 is not set) or a
-                                                       ///< combination of ::ze_device_fp_flag_t.
+                                                       ///< returns 0 (if ZE_DEVICE_MODULE_FLAG_FP16 is not set) or a
+                                                       ///< combination of ze_device_fp_flag_t.
         ze_device_fp_flags_t fp32flags;                ///< [out] Capabilities for single-precision floating-point operations.
-                                                       ///< returns a combination of ::ze_device_fp_flag_t.
+                                                       ///< returns a combination of ze_device_fp_flag_t.
         ze_device_fp_flags_t fp64flags;                ///< [out] Capabilities for double-precision floating-point operations.
-                                                       ///< returns 0 (if ::ZE_DEVICE_MODULE_FLAG_FP64 is not set) or a
-                                                       ///< combination of ::ze_device_fp_flag_t.
+                                                       ///< returns 0 (if ZE_DEVICE_MODULE_FLAG_FP64 is not set) or a
+                                                       ///< combination of ze_device_fp_flag_t.
         uint32_t maxArgumentsSize;                     ///< [out] Maximum kernel argument size that is supported.
         uint32_t printfBufferSize;                     ///< [out] Maximum size of internal buffer that holds output of printf
                                                        ///< calls from kernel.
@@ -1055,12 +1055,12 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hDevice`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pModuleProperties`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeDeviceGetModuleProperties(
         ze_device_handle_t hDevice,                       ///< [in] handle of the device
@@ -1075,22 +1075,22 @@ extern "C"
         ZE_COMMAND_QUEUE_GROUP_PROPERTY_FLAG_COMPUTE             = ZE_BIT(0), ///< Command queue group supports enqueing compute commands.
         ZE_COMMAND_QUEUE_GROUP_PROPERTY_FLAG_COPY                = ZE_BIT(1), ///< Command queue group supports enqueing copy commands.
         ZE_COMMAND_QUEUE_GROUP_PROPERTY_FLAG_COOPERATIVE_KERNELS = ZE_BIT(2), ///< Command queue group supports cooperative kernels.
-                                                                              ///< See ::zeCommandListAppendLaunchCooperativeKernel for more details.
+                                                                              ///< See zeCommandListAppendLaunchCooperativeKernel for more details.
         ZE_COMMAND_QUEUE_GROUP_PROPERTY_FLAG_METRICS      = ZE_BIT(3),        ///< Command queue groups supports metric streamers and queries.
         ZE_COMMAND_QUEUE_GROUP_PROPERTY_FLAG_FORCE_UINT32 = 0x7fffffff
     } ze_command_queue_group_property_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
     /// @brief Command queue group properties queried using
-    ///        ::zeDeviceGetCommandQueueGroupProperties
+    ///        zeDeviceGetCommandQueueGroupProperties
     typedef struct _ze_command_queue_group_properties_t
     {
         ze_structure_type_t stype;                     ///< [in] type of this structure
         void * pNext;                                  ///< [in,out][optional] pointer to extension-specific structure
         ze_command_queue_group_property_flags_t flags; ///< [out] 0 (none) or a valid combination of
-                                                       ///< ::ze_command_queue_group_property_flag_t
+                                                       ///< ze_command_queue_group_property_flag_t
         size_t maxMemoryFillPatternSize;               ///< [out] maximum `pattern_size` supported by command queue group.
-                                                       ///< See ::zeCommandListAppendMemoryFill for more details.
+                                                       ///< See zeCommandListAppendMemoryFill for more details.
         uint32_t numQueues;                            ///< [out] the number of physical command queues within the group.
     } ze_command_queue_group_properties_t;
 
@@ -1112,12 +1112,12 @@ extern "C"
     ///     - **vkGetPhysicalDeviceQueueFamilyProperties**
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hDevice`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pCount`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeDeviceGetCommandQueueGroupProperties(
         ze_device_handle_t hDevice,                                        ///< [in] handle of the device
@@ -1144,13 +1144,13 @@ extern "C"
 
     ///////////////////////////////////////////////////////////////////////////////
     /// @brief Device local memory properties queried using
-    ///        ::zeDeviceGetMemoryProperties
+    ///        zeDeviceGetMemoryProperties
     typedef struct _ze_device_memory_properties_t
     {
         ze_structure_type_t stype;               ///< [in] type of this structure
         void * pNext;                            ///< [in,out][optional] pointer to extension-specific structure
         ze_device_memory_property_flags_t flags; ///< [out] 0 (none) or a valid combination of
-                                                 ///< ::ze_device_memory_property_flag_t
+                                                 ///< ze_device_memory_property_flag_t
         uint32_t maxClockRate;                   ///< [out] Maximum clock rate for device memory.
         uint32_t maxBusWidth;                    ///< [out] Maximum bus width between device and memory.
         uint64_t totalSize;                      ///< [out] Total memory size in bytes that is available to the device.
@@ -1175,12 +1175,12 @@ extern "C"
     ///     - clGetDeviceInfo
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hDevice`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pCount`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeDeviceGetMemoryProperties(
         ze_device_handle_t hDevice,                    ///< [in] handle of the device
@@ -1214,21 +1214,21 @@ extern "C"
 
     ///////////////////////////////////////////////////////////////////////////////
     /// @brief Device memory access properties queried using
-    ///        ::zeDeviceGetMemoryAccessProperties
+    ///        zeDeviceGetMemoryAccessProperties
     typedef struct _ze_device_memory_access_properties_t
     {
         ze_structure_type_t stype;                            ///< [in] type of this structure
         void * pNext;                                         ///< [in,out][optional] pointer to extension-specific structure
         ze_memory_access_cap_flags_t hostAllocCapabilities;   ///< [out] host memory capabilities.
-                                                              ///< returns 0 (unsupported) or a combination of ::ze_memory_access_cap_flag_t.
+                                                              ///< returns 0 (unsupported) or a combination of ze_memory_access_cap_flag_t.
         ze_memory_access_cap_flags_t deviceAllocCapabilities; ///< [out] device memory capabilities.
-                                                              ///< returns 0 (unsupported) or a combination of ::ze_memory_access_cap_flag_t.
+                                                              ///< returns 0 (unsupported) or a combination of ze_memory_access_cap_flag_t.
         ze_memory_access_cap_flags_t sharedSingleDeviceAllocCapabilities; ///< [out] shared, single-device memory capabilities.
-            ///< returns 0 (unsupported) or a combination of ::ze_memory_access_cap_flag_t.
+            ///< returns 0 (unsupported) or a combination of ze_memory_access_cap_flag_t.
         ze_memory_access_cap_flags_t sharedCrossDeviceAllocCapabilities; ///< [out] shared, cross-device memory capabilities.
-            ///< returns 0 (unsupported) or a combination of ::ze_memory_access_cap_flag_t.
+            ///< returns 0 (unsupported) or a combination of ze_memory_access_cap_flag_t.
         ze_memory_access_cap_flags_t sharedSystemAllocCapabilities; ///< [out] shared, system memory capabilities.
-                                                                    ///< returns 0 (unsupported) or a combination of ::ze_memory_access_cap_flag_t.
+                                                                    ///< returns 0 (unsupported) or a combination of ze_memory_access_cap_flag_t.
     } ze_device_memory_access_properties_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1243,12 +1243,12 @@ extern "C"
     ///     - clGetDeviceInfo
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hDevice`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pMemAccessProperties`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeDeviceGetMemoryAccessProperties(
         ze_device_handle_t hDevice,                                 ///< [in] handle of the device
@@ -1265,13 +1265,13 @@ extern "C"
     } ze_device_cache_property_flag_t;
 
     ///////////////////////////////////////////////////////////////////////////////
-    /// @brief Device cache properties queried using ::zeDeviceGetCacheProperties
+    /// @brief Device cache properties queried using zeDeviceGetCacheProperties
     typedef struct _ze_device_cache_properties_t
     {
         ze_structure_type_t stype;              ///< [in] type of this structure
         void * pNext;                           ///< [in,out][optional] pointer to extension-specific structure
         ze_device_cache_property_flags_t flags; ///< [out] 0 (none) or a valid combination of
-                                                ///< ::ze_device_cache_property_flag_t
+                                                ///< ze_device_cache_property_flag_t
         size_t cacheSize;                       ///< [out] Per-cache size, in bytes
     } ze_device_cache_properties_t;
 
@@ -1287,12 +1287,12 @@ extern "C"
     ///     - clGetDeviceInfo
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hDevice`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pCount`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeDeviceGetCacheProperties(
         ze_device_handle_t hDevice,                     ///< [in] handle of the device
@@ -1309,7 +1309,7 @@ extern "C"
     );
 
     ///////////////////////////////////////////////////////////////////////////////
-    /// @brief Device image properties queried using ::zeDeviceGetImageProperties
+    /// @brief Device image properties queried using zeDeviceGetImageProperties
     typedef struct _ze_device_image_properties_t
     {
         ze_structure_type_t stype;    ///< [in] type of this structure
@@ -1338,17 +1338,17 @@ extern "C"
     /// @brief Retrieves image properties of the device
     ///
     /// @details
-    ///     - See ::zeImageGetProperties for format-specific capabilities.
+    ///     - See zeImageGetProperties for format-specific capabilities.
     ///     - The application may call this function from simultaneous threads.
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hDevice`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pImageProperties`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeDeviceGetImageProperties(
         ze_device_handle_t hDevice,                     ///< [in] handle of the device
@@ -1375,12 +1375,12 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hDevice`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pExternalMemoryProperties`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeDeviceGetExternalMemoryProperties(
         ze_device_handle_t hDevice,                                        ///< [in] handle of the device
@@ -1399,13 +1399,13 @@ extern "C"
 
     ///////////////////////////////////////////////////////////////////////////////
     /// @brief Device peer-to-peer properties queried using
-    ///        ::zeDeviceGetP2PProperties
+    ///        zeDeviceGetP2PProperties
     typedef struct _ze_device_p2p_properties_t
     {
         ze_structure_type_t stype;            ///< [in] type of this structure
         void * pNext;                         ///< [in,out][optional] pointer to extension-specific structure
         ze_device_p2p_property_flags_t flags; ///< [out] 0 (none) or a valid combination of
-                                              ///< ::ze_device_p2p_property_flag_t
+                                              ///< ze_device_p2p_property_flag_t
     } ze_device_p2p_properties_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1417,13 +1417,13 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hDevice`
     ///         + `nullptr == hPeerDevice`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pP2PProperties`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeDeviceGetP2PProperties(
         ze_device_handle_t hDevice,                 ///< [in] handle of the device performing the access
@@ -1453,13 +1453,13 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hDevice`
     ///         + `nullptr == hPeerDevice`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == value`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeDeviceCanAccessPeer(ze_device_handle_t hDevice,     ///< [in] handle of the device performing the access
                                                               ze_device_handle_t hPeerDevice, ///< [in] handle of the peer device with the allocation
@@ -1477,14 +1477,14 @@ extern "C"
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hDevice`
-    ///     - ::ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_SUCCESS
     ///         + Device is available for use.
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
     ///         + Device is lost; must be reset for use.
     ZE_APIEXPORT ze_result_t ZE_APICALL zeDeviceGetStatus(ze_device_handle_t hDevice ///< [in] handle of the device
     );
@@ -1512,7 +1512,7 @@ extern "C"
         ze_structure_type_t stype; ///< [in] type of this structure
         const void * pNext;        ///< [in][optional] pointer to extension-specific structure
         ze_context_flags_t flags;  ///< [in] creation flags.
-                                   ///< must be 0 (default) or a valid combination of ::ze_context_flag_t;
+                                   ///< must be 0 (default) or a valid combination of ze_context_flag_t;
                                    ///< default behavior may use implicit driver-based heuristics.
     } ze_context_desc_t;
 
@@ -1526,18 +1526,18 @@ extern "C"
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hDriver`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == desc`
     ///         + `nullptr == phContext`
-    ///     - ::ZE_RESULT_ERROR_INVALID_ENUMERATION
+    ///     - ZE_RESULT_ERROR_INVALID_ENUMERATION
     ///         + `0x1 < desc->flags`
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
     ZE_APIEXPORT ze_result_t ZE_APICALL zeContextCreate(ze_driver_handle_t hDriver,     ///< [in] handle of the driver object
                                                         const ze_context_desc_t * desc, ///< [in] pointer to context descriptor
                                                         ze_context_handle_t * phContext ///< [out] pointer to handle of context object created
@@ -1556,12 +1556,12 @@ extern "C"
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
-    ///     - ::ZE_RESULT_ERROR_HANDLE_OBJECT_IN_USE
+    ///     - ZE_RESULT_ERROR_HANDLE_OBJECT_IN_USE
     ZE_APIEXPORT ze_result_t ZE_APICALL zeContextDestroy(ze_context_handle_t hContext ///< [in][release] handle of context object to destroy
     );
 
@@ -1574,14 +1574,14 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
-    ///     - ::ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_SUCCESS
     ///         + Context is available for use.
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
     ///         + Context is invalid; due to device lost or reset.
     ZE_APIEXPORT ze_result_t ZE_APICALL zeContextGetStatus(ze_context_handle_t hContext ///< [in] handle of context object
     );
@@ -1636,9 +1636,9 @@ extern "C"
         const void * pNext;                   ///< [in][optional] pointer to extension-specific structure
         uint32_t ordinal;                     ///< [in] command queue group ordinal
         uint32_t index;                       ///< [in] command queue index within the group;
-                                              ///< must be zero if ::ZE_COMMAND_QUEUE_FLAG_EXPLICIT_ONLY is not set
+                                              ///< must be zero if ZE_COMMAND_QUEUE_FLAG_EXPLICIT_ONLY is not set
         ze_command_queue_flags_t flags;       ///< [in] usage flags.
-                                              ///< must be 0 (default) or a valid combination of ::ze_command_queue_flag_t;
+                                              ///< must be 0 (default) or a valid combination of ze_command_queue_flag_t;
                                               ///< default behavior may use implicit driver-based heuristics to balance
                                               ///< latency and throughput.
         ze_command_queue_mode_t mode;         ///< [in] operation mode
@@ -1661,21 +1661,21 @@ extern "C"
     ///     - **clCreateCommandQueue**
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
     ///         + `nullptr == hDevice`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == desc`
     ///         + `nullptr == phCommandQueue`
-    ///     - ::ZE_RESULT_ERROR_INVALID_ENUMERATION
+    ///     - ZE_RESULT_ERROR_INVALID_ENUMERATION
     ///         + `0x1 < desc->flags`
-    ///         + `::ZE_COMMAND_QUEUE_MODE_ASYNCHRONOUS < desc->mode`
-    ///         + `::ZE_COMMAND_QUEUE_PRIORITY_PRIORITY_HIGH < desc->priority`
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
+    ///         + `ZE_COMMAND_QUEUE_MODE_ASYNCHRONOUS < desc->mode`
+    ///         + `ZE_COMMAND_QUEUE_PRIORITY_PRIORITY_HIGH < desc->priority`
+    ///     - ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandQueueCreate(
         ze_context_handle_t hContext,              ///< [in] handle of the context object
         ze_device_handle_t hDevice,                ///< [in] handle of the device object
@@ -1702,12 +1702,12 @@ extern "C"
     ///     - **clReleaseCommandQueue**
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandQueue`
-    ///     - ::ZE_RESULT_ERROR_HANDLE_OBJECT_IN_USE
+    ///     - ZE_RESULT_ERROR_HANDLE_OBJECT_IN_USE
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandQueueDestroy(
         ze_command_queue_handle_t hCommandQueue ///< [in][release] handle of command queue object to destroy
     );
@@ -1731,17 +1731,17 @@ extern "C"
     ///     - vkQueueSubmit
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandQueue`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == phCommandLists`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SIZE
+    ///     - ZE_RESULT_ERROR_INVALID_SIZE
     ///         + `0 == numCommandLists`
-    ///     - ::ZE_RESULT_ERROR_INVALID_COMMAND_LIST_TYPE
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_ERROR_INVALID_COMMAND_LIST_TYPE
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandQueueExecuteCommandLists(
         ze_command_queue_handle_t hCommandQueue,   ///< [in] handle of the command queue
         uint32_t numCommandLists,                  ///< [in] number of command lists to execute
@@ -1758,17 +1758,17 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandQueue`
-    ///     - ::ZE_RESULT_NOT_READY
+    ///     - ZE_RESULT_NOT_READY
     ///         + timeout expired
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandQueueSynchronize(
         ze_command_queue_handle_t hCommandQueue, ///< [in] handle of the command queue
         uint64_t timeout                         ///< [in] if non-zero, then indicates the maximum time (in nanoseconds) to
-                                                 ///< yield before returning ::ZE_RESULT_SUCCESS or ::ZE_RESULT_NOT_READY;
+                                                 ///< yield before returning ZE_RESULT_SUCCESS or ZE_RESULT_NOT_READY;
                                                  ///< if zero, then immediately returns the status of the command queue;
                                                  ///< if UINT64_MAX, then function will not return until complete or device
                                                  ///< is lost.
@@ -1790,11 +1790,11 @@ extern "C"
     {
         ZE_COMMAND_LIST_FLAG_RELAXED_ORDERING = ZE_BIT(0),    ///< driver may reorder commands (e.g., kernels, copies) between barriers
                                                               ///< and synchronization primitives.
-                                                              ///< using this flag may increase Host overhead of ::zeCommandListClose.
+                                                              ///< using this flag may increase Host overhead of zeCommandListClose.
                                                               ///< therefore, this flag should **not** be set for low-latency usage-models.
         ZE_COMMAND_LIST_FLAG_MAXIMIZE_THROUGHPUT = ZE_BIT(1), ///< driver may perform additional optimizations that increase execution
                                                               ///< throughput.
-        ///< using this flag may increase Host overhead of ::zeCommandListClose and ::zeCommandQueueExecuteCommandLists.
+        ///< using this flag may increase Host overhead of zeCommandListClose and zeCommandQueueExecuteCommandLists.
         ///< therefore, this flag should **not** be set for low-latency usage-models.
         ZE_COMMAND_LIST_FLAG_EXPLICIT_ONLY = ZE_BIT(2), ///< command list should be optimized for submission to a single command
                                                         ///< queue and device engine.
@@ -1814,7 +1814,7 @@ extern "C"
         uint32_t commandQueueGroupOrdinal; ///< [in] command queue group ordinal to which this command list will be
                                            ///< submitted
         ze_command_list_flags_t flags;     ///< [in] usage flags.
-                                           ///< must be 0 (default) or a valid combination of ::ze_command_list_flag_t;
+                                           ///< must be 0 (default) or a valid combination of ze_command_list_flag_t;
                                            ///< default behavior may use implicit driver-based heuristics to balance
                                            ///< latency and throughput.
     } ze_command_list_desc_t;
@@ -1832,19 +1832,19 @@ extern "C"
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
     ///         + `nullptr == hDevice`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == desc`
     ///         + `nullptr == phCommandList`
-    ///     - ::ZE_RESULT_ERROR_INVALID_ENUMERATION
+    ///     - ZE_RESULT_ERROR_INVALID_ENUMERATION
     ///         + `0x7 < desc->flags`
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandListCreate(
         ze_context_handle_t hContext,            ///< [in] handle of the context object
         ze_device_handle_t hDevice,              ///< [in] handle of the device object
@@ -1867,21 +1867,21 @@ extern "C"
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
     ///         + `nullptr == hDevice`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == altdesc`
     ///         + `nullptr == phCommandList`
-    ///     - ::ZE_RESULT_ERROR_INVALID_ENUMERATION
+    ///     - ZE_RESULT_ERROR_INVALID_ENUMERATION
     ///         + `0x1 < altdesc->flags`
-    ///         + `::ZE_COMMAND_QUEUE_MODE_ASYNCHRONOUS < altdesc->mode`
-    ///         + `::ZE_COMMAND_QUEUE_PRIORITY_PRIORITY_HIGH < altdesc->priority`
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
+    ///         + `ZE_COMMAND_QUEUE_MODE_ASYNCHRONOUS < altdesc->mode`
+    ///         + `ZE_COMMAND_QUEUE_PRIORITY_PRIORITY_HIGH < altdesc->priority`
+    ///     - ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandListCreateImmediate(
         ze_context_handle_t hContext,            ///< [in] handle of the context object
         ze_device_handle_t hDevice,              ///< [in] handle of the device object
@@ -1902,12 +1902,12 @@ extern "C"
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandList`
-    ///     - ::ZE_RESULT_ERROR_HANDLE_OBJECT_IN_USE
+    ///     - ZE_RESULT_ERROR_HANDLE_OBJECT_IN_USE
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandListDestroy(
         ze_command_list_handle_t hCommandList ///< [in][release] handle of command list object to destroy
     );
@@ -1921,10 +1921,10 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandList`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandListClose(ze_command_list_handle_t hCommandList ///< [in] handle of command list object to close
     );
@@ -1941,10 +1941,10 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandList`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandListReset(ze_command_list_handle_t hCommandList ///< [in] handle of command list object to reset
     );
@@ -1957,9 +1957,9 @@ extern "C"
     ///     - The application must ensure the events are accessible by the device on
     ///       which the command list was created.
     ///     - The timestamp frequency can be queried from
-    ///       ::ze_device_properties_t.timerResolution.
+    ///       ze_device_properties_t.timerResolution.
     ///     - The number of valid bits in the timestamp value can be queried from
-    ///       ::ze_device_properties_t.timestampValidBits.
+    ///       ze_device_properties_t.timestampValidBits.
     ///     - The application must ensure the memory pointed to by dstptr is
     ///       accessible by the device on which the command list was created.
     ///     - The application must ensure the command list and events were created,
@@ -1969,15 +1969,15 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandList`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == dstptr`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
-    ///     - ::ZE_RESULT_ERROR_INVALID_SIZE
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_ERROR_INVALID_SIZE
     ///         + `(nullptr == phWaitEvents) && (0 < numWaitEvents)`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandListAppendWriteGlobalTimestamp(
         ze_command_list_handle_t hCommandList, ///< [in] handle of the command list
@@ -2019,13 +2019,13 @@ extern "C"
     ///     - clEnqueueBarrierWithWaitList
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandList`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
-    ///     - ::ZE_RESULT_ERROR_INVALID_SIZE
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_ERROR_INVALID_SIZE
     ///         + `(nullptr == phWaitEvents) && (0 < numWaitEvents)`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandListAppendBarrier(
         ze_command_list_handle_t hCommandList, ///< [in] handle of the command list
@@ -2053,16 +2053,16 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandList`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pRangeSizes`
     ///         + `nullptr == pRanges`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
-    ///     - ::ZE_RESULT_ERROR_INVALID_SIZE
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_ERROR_INVALID_SIZE
     ///         + `(nullptr == phWaitEvents) && (0 < numWaitEvents)`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandListAppendMemoryRangesBarrier(
         ze_command_list_handle_t hCommandList, ///< [in] handle of the command list
@@ -2090,10 +2090,10 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
     ///         + `nullptr == hDevice`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeContextSystemBarrier(ze_context_handle_t hContext, ///< [in] handle of context object
@@ -2132,16 +2132,16 @@ extern "C"
     ///     - **clEnqueueSVMMemcpy**
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandList`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == dstptr`
     ///         + `nullptr == srcptr`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
-    ///     - ::ZE_RESULT_ERROR_INVALID_SIZE
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_ERROR_INVALID_SIZE
     ///         + `(nullptr == phWaitEvents) && (0 < numWaitEvents)`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandListAppendMemoryCopy(
         ze_command_list_handle_t hCommandList, ///< [in] handle of command list
@@ -2167,7 +2167,7 @@ extern "C"
     ///     - The value to initialize memory to is described by the pattern and the
     ///       pattern size.
     ///     - The pattern size must be a power-of-two and less than
-    ///       ::ze_command_queue_group_properties_t.maxMemoryFillPatternSize.
+    ///       ze_command_queue_group_properties_t.maxMemoryFillPatternSize.
     ///     - The application must ensure the events are accessible by the device on
     ///       which the command list was created.
     ///     - The application must enusre the command list and events were created,
@@ -2182,16 +2182,16 @@ extern "C"
     ///     - **clEnqueueSVMMemFill**
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandList`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == ptr`
     ///         + `nullptr == pattern`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
-    ///     - ::ZE_RESULT_ERROR_INVALID_SIZE
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_ERROR_INVALID_SIZE
     ///         + `(nullptr == phWaitEvents) && (0 < numWaitEvents)`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandListAppendMemoryFill(
         ze_command_list_handle_t hCommandList, ///< [in] handle of command list
@@ -2241,19 +2241,19 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandList`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == dstptr`
     ///         + `nullptr == dstRegion`
     ///         + `nullptr == srcptr`
     ///         + `nullptr == srcRegion`
-    ///     - ::ZE_RESULT_ERROR_OVERLAPPING_REGIONS
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
-    ///     - ::ZE_RESULT_ERROR_INVALID_SIZE
+    ///     - ZE_RESULT_ERROR_OVERLAPPING_REGIONS
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_ERROR_INVALID_SIZE
     ///         + `(nullptr == phWaitEvents) && (0 < numWaitEvents)`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandListAppendMemoryCopyRegion(
         ze_command_list_handle_t hCommandList, ///< [in] handle of command list
@@ -2261,13 +2261,13 @@ extern "C"
         const ze_copy_region_t * dstRegion,    ///< [in] pointer to destination region to copy to
         uint32_t dstPitch,                     ///< [in] destination pitch in bytes
         uint32_t dstSlicePitch,                ///< [in] destination slice pitch in bytes. This is required for 3D region
-                                               ///< copies where ::ze_copy_region_t.depth is not 0, otherwise it's
+                                               ///< copies where ze_copy_region_t.depth is not 0, otherwise it's
                                                ///< ignored.
         const void * srcptr,                   ///< [in] pointer to source memory to copy from
         const ze_copy_region_t * srcRegion,    ///< [in] pointer to source region to copy from
         uint32_t srcPitch,                     ///< [in] source pitch in bytes
         uint32_t srcSlicePitch,                ///< [in] source slice pitch in bytes. This is required for 3D region
-                                               ///< copies where ::ze_copy_region_t.depth is not 0, otherwise it's
+                                               ///< copies where ze_copy_region_t.depth is not 0, otherwise it's
                                                ///< ignored.
         ze_event_handle_t hSignalEvent,        ///< [in][optional] handle of the event to signal on completion
         uint32_t numWaitEvents,                ///< [in][optional] number of events to wait on before launching; must be 0
@@ -2295,17 +2295,17 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandList`
     ///         + `nullptr == hContextSrc`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == dstptr`
     ///         + `nullptr == srcptr`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
-    ///     - ::ZE_RESULT_ERROR_INVALID_SIZE
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_ERROR_INVALID_SIZE
     ///         + `(nullptr == phWaitEvents) && (0 < numWaitEvents)`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandListAppendMemoryCopyFromContext(
         ze_command_list_handle_t hCommandList, ///< [in] handle of command list
@@ -2339,15 +2339,15 @@ extern "C"
     ///     - **clEnqueueCopyImage**
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandList`
     ///         + `nullptr == hDstImage`
     ///         + `nullptr == hSrcImage`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
-    ///     - ::ZE_RESULT_ERROR_INVALID_SIZE
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_ERROR_INVALID_SIZE
     ///         + `(nullptr == phWaitEvents) && (0 < numWaitEvents)`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandListAppendImageCopy(
         ze_command_list_handle_t hCommandList, ///< [in] handle of command list
@@ -2391,16 +2391,16 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandList`
     ///         + `nullptr == hDstImage`
     ///         + `nullptr == hSrcImage`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
-    ///     - ::ZE_RESULT_ERROR_OVERLAPPING_REGIONS
-    ///     - ::ZE_RESULT_ERROR_INVALID_SIZE
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_ERROR_OVERLAPPING_REGIONS
+    ///     - ZE_RESULT_ERROR_INVALID_SIZE
     ///         + `(nullptr == phWaitEvents) && (0 < numWaitEvents)`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandListAppendImageCopyRegion(
         ze_command_list_handle_t hCommandList, ///< [in] handle of command list
@@ -2439,16 +2439,16 @@ extern "C"
     ///     - clEnqueueReadImage
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandList`
     ///         + `nullptr == hSrcImage`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == dstptr`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
-    ///     - ::ZE_RESULT_ERROR_INVALID_SIZE
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_ERROR_INVALID_SIZE
     ///         + `(nullptr == phWaitEvents) && (0 < numWaitEvents)`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandListAppendImageCopyToMemory(
         ze_command_list_handle_t hCommandList, ///< [in] handle of command list
@@ -2486,16 +2486,16 @@ extern "C"
     ///     - clEnqueueWriteImage
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandList`
     ///         + `nullptr == hDstImage`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == srcptr`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
-    ///     - ::ZE_RESULT_ERROR_INVALID_SIZE
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_ERROR_INVALID_SIZE
     ///         + `(nullptr == phWaitEvents) && (0 < numWaitEvents)`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandListAppendImageCopyFromMemory(
         ze_command_list_handle_t hCommandList, ///< [in] handle of command list
@@ -2539,12 +2539,12 @@ extern "C"
     ///     - clEnqueueSVMMigrateMem
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandList`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == ptr`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandListAppendMemoryPrefetch(ze_command_list_handle_t hCommandList, ///< [in] handle of command list
                                                                           const void * ptr, ///< [in] pointer to start of the memory range to prefetch
@@ -2556,11 +2556,11 @@ extern "C"
     typedef enum _ze_memory_advice_t
     {
         ZE_MEMORY_ADVICE_SET_READ_MOSTLY          = 0, ///< hint that memory will be read from frequently and written to rarely
-        ZE_MEMORY_ADVICE_CLEAR_READ_MOSTLY        = 1, ///< removes the affect of ::ZE_MEMORY_ADVICE_SET_READ_MOSTLY
+        ZE_MEMORY_ADVICE_CLEAR_READ_MOSTLY        = 1, ///< removes the affect of ZE_MEMORY_ADVICE_SET_READ_MOSTLY
         ZE_MEMORY_ADVICE_SET_PREFERRED_LOCATION   = 2, ///< hint that the preferred memory location is the specified device
-        ZE_MEMORY_ADVICE_CLEAR_PREFERRED_LOCATION = 3, ///< removes the affect of ::ZE_MEMORY_ADVICE_SET_PREFERRED_LOCATION
+        ZE_MEMORY_ADVICE_CLEAR_PREFERRED_LOCATION = 3, ///< removes the affect of ZE_MEMORY_ADVICE_SET_PREFERRED_LOCATION
         ZE_MEMORY_ADVICE_SET_NON_ATOMIC_MOSTLY    = 4, ///< hints that memory will mostly be accessed non-atomically
-        ZE_MEMORY_ADVICE_CLEAR_NON_ATOMIC_MOSTLY  = 5, ///< removes the affect of ::ZE_MEMORY_ADVICE_SET_NON_ATOMIC_MOSTLY
+        ZE_MEMORY_ADVICE_CLEAR_NON_ATOMIC_MOSTLY  = 5, ///< removes the affect of ZE_MEMORY_ADVICE_SET_NON_ATOMIC_MOSTLY
         ZE_MEMORY_ADVICE_BIAS_CACHED              = 6, ///< hints that memory should be cached
         ZE_MEMORY_ADVICE_BIAS_UNCACHED            = 7, ///< hints that memory should be not be cached
         ZE_MEMORY_ADVICE_FORCE_UINT32             = 0x7fffffff
@@ -2591,16 +2591,16 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandList`
     ///         + `nullptr == hDevice`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == ptr`
-    ///     - ::ZE_RESULT_ERROR_INVALID_ENUMERATION
-    ///         + `::ZE_MEMORY_ADVICE_BIAS_UNCACHED < advice`
+    ///     - ZE_RESULT_ERROR_INVALID_ENUMERATION
+    ///         + `ZE_MEMORY_ADVICE_BIAS_UNCACHED < advice`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandListAppendMemAdvise(ze_command_list_handle_t hCommandList, ///< [in] handle of command list
                                                                      ze_device_handle_t hDevice, ///< [in] device associated with the memory advice
                                                                      const void * ptr,           ///< [in] Pointer to the start of the memory range
@@ -2623,7 +2623,7 @@ extern "C"
         ZE_EVENT_POOL_FLAG_HOST_VISIBLE     = ZE_BIT(0), ///< signals and waits are also visible to host
         ZE_EVENT_POOL_FLAG_IPC              = ZE_BIT(1), ///< signals and waits may be shared across processes
         ZE_EVENT_POOL_FLAG_KERNEL_TIMESTAMP = ZE_BIT(2), ///< Indicates all events in pool will contain kernel timestamps; cannot be
-                                                         ///< combined with ::ZE_EVENT_POOL_FLAG_IPC
+                                                         ///< combined with ZE_EVENT_POOL_FLAG_IPC
         ZE_EVENT_POOL_FLAG_FORCE_UINT32 = 0x7fffffff
     } ze_event_pool_flag_t;
 
@@ -2634,7 +2634,7 @@ extern "C"
         ze_structure_type_t stype;   ///< [in] type of this structure
         const void * pNext;          ///< [in][optional] pointer to extension-specific structure
         ze_event_pool_flags_t flags; ///< [in] creation flags.
-                                     ///< must be 0 (default) or a valid combination of ::ze_event_pool_flag_t;
+                                     ///< must be 0 (default) or a valid combination of ze_event_pool_flag_t;
                                      ///< default behavior is signals and waits are visible to the entire device
                                      ///< and peer devices.
         uint32_t count;              ///< [in] number of events within the pool; must be greater than 0
@@ -2650,19 +2650,19 @@ extern "C"
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == desc`
     ///         + `nullptr == phEventPool`
-    ///     - ::ZE_RESULT_ERROR_INVALID_ENUMERATION
+    ///     - ZE_RESULT_ERROR_INVALID_ENUMERATION
     ///         + `0x7 < desc->flags`
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
-    ///     - ::ZE_RESULT_ERROR_INVALID_SIZE
+    ///     - ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
+    ///     - ZE_RESULT_ERROR_INVALID_SIZE
     ///         + `0 < desc->count`
     ///         + `(nullptr == phDevices) && (0 < numDevices)`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeEventPoolCreate(
@@ -2692,12 +2692,12 @@ extern "C"
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hEventPool`
-    ///     - ::ZE_RESULT_ERROR_HANDLE_OBJECT_IN_USE
+    ///     - ZE_RESULT_ERROR_HANDLE_OBJECT_IN_USE
     ZE_APIEXPORT ze_result_t ZE_APICALL zeEventPoolDestroy(ze_event_pool_handle_t hEventPool ///< [in][release] handle of event pool object to destroy
     );
 
@@ -2725,12 +2725,12 @@ extern "C"
                                        ///< specified during pool creation
         ze_event_scope_flags_t signal; ///< [in] defines the scope of relevant cache hierarchies to flush on a
                                        ///< signal action before the event is triggered.
-                                       ///< must be 0 (default) or a valid combination of ::ze_event_scope_flag_t;
+                                       ///< must be 0 (default) or a valid combination of ze_event_scope_flag_t;
                                        ///< default behavior is execution synchronization only, no cache
                                        ///< hierarchies are flushed.
         ze_event_scope_flags_t wait;   ///< [in] defines the scope of relevant cache hierarchies to invalidate on
                                        ///< a wait action after the event is complete.
-                                       ///< must be 0 (default) or a valid combination of ::ze_event_scope_flag_t;
+                                       ///< must be 0 (default) or a valid combination of ze_event_scope_flag_t;
                                        ///< default behavior is execution synchronization only, no cache
                                        ///< hierarchies are invalidated.
     } ze_event_desc_t;
@@ -2753,18 +2753,18 @@ extern "C"
     ///     - vkCreateEvent
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hEventPool`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == desc`
     ///         + `nullptr == phEvent`
-    ///     - ::ZE_RESULT_ERROR_INVALID_ENUMERATION
+    ///     - ZE_RESULT_ERROR_INVALID_ENUMERATION
     ///         + `0x7 < desc->signal`
     ///         + `0x7 < desc->wait`
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
     ZE_APIEXPORT ze_result_t ZE_APICALL zeEventCreate(ze_event_pool_handle_t hEventPool, ///< [in] handle of the event pool
                                                       const ze_event_desc_t * desc,      ///< [in] pointer to event descriptor
                                                       ze_event_handle_t * phEvent        ///< [out] pointer to handle of event object created
@@ -2788,12 +2788,12 @@ extern "C"
     ///     - vkDestroyEvent
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hEvent`
-    ///     - ::ZE_RESULT_ERROR_HANDLE_OBJECT_IN_USE
+    ///     - ZE_RESULT_ERROR_HANDLE_OBJECT_IN_USE
     ZE_APIEXPORT ze_result_t ZE_APICALL zeEventDestroy(ze_event_handle_t hEvent ///< [in][release] handle of event object to destroy
     );
 
@@ -2802,18 +2802,18 @@ extern "C"
     ///        be shared with another process.
     ///
     /// @details
-    ///     - Event pool must have been created with ::ZE_EVENT_POOL_FLAG_IPC.
+    ///     - Event pool must have been created with ZE_EVENT_POOL_FLAG_IPC.
     ///     - The application may call this function from simultaneous threads.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hEventPool`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == phIpc`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
     ZE_APIEXPORT ze_result_t ZE_APICALL zeEventPoolGetIpcHandle(ze_event_pool_handle_t hEventPool, ///< [in] handle of event pool object
                                                                 ze_ipc_event_pool_handle_t * phIpc ///< [out] Returned IPC event handle
     );
@@ -2826,16 +2826,16 @@ extern "C"
     ///     - Multiple calls to this function with the same IPC handle will return
     ///       unique event pool handles.
     ///     - The event handle in this process should not be freed with
-    ///       ::zeEventPoolDestroy, but rather with ::zeEventPoolCloseIpcHandle.
+    ///       zeEventPoolDestroy, but rather with zeEventPoolCloseIpcHandle.
     ///     - The application may call this function from simultaneous threads.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == phEventPool`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeEventPoolOpenIpcHandle(
         ze_context_handle_t hContext,        ///< [in] handle of the context object to associate with the IPC event pool
@@ -2849,15 +2849,15 @@ extern "C"
     ///
     /// @details
     ///     - Closes an IPC event handle by destroying events that were opened in
-    ///       this process using ::zeEventPoolOpenIpcHandle.
+    ///       this process using zeEventPoolOpenIpcHandle.
     ///     - The application must **not** call this function from simultaneous
     ///       threads with the same event pool handle.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hEventPool`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeEventPoolCloseIpcHandle(ze_event_pool_handle_t hEventPool ///< [in][release] handle of event pool object
     );
@@ -2869,7 +2869,7 @@ extern "C"
     ///     - The application must ensure the events are accessible by the device on
     ///       which the command list was created.
     ///     - The duration of an event created from an event pool that was created
-    ///       using ::ZE_EVENT_POOL_FLAG_KERNEL_TIMESTAMP flag is undefined.
+    ///       using ZE_EVENT_POOL_FLAG_KERNEL_TIMESTAMP flag is undefined.
     ///       However, for consistency and orthogonality the event will report
     ///       correctly as signaled when used by other event API functionality.
     ///     - The application must ensure the command list and events were created
@@ -2884,13 +2884,13 @@ extern "C"
     ///     - vkCmdSetEvent
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandList`
     ///         + `nullptr == hEvent`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandListAppendSignalEvent(ze_command_list_handle_t hCommandList, ///< [in] handle of the command list
                                                                        ze_event_handle_t hEvent               ///< [in] handle of the event
     );
@@ -2908,14 +2908,14 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandList`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == phEvents`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandListAppendWaitOnEvents(
         ze_command_list_handle_t hCommandList, ///< [in] handle of the command list
         uint32_t numEvents,                    ///< [in] number of events to wait on before continuing
@@ -2928,7 +2928,7 @@ extern "C"
     ///
     /// @details
     ///     - The duration of an event created from an event pool that was created
-    ///       using ::ZE_EVENT_POOL_FLAG_KERNEL_TIMESTAMP flag is undefined.
+    ///       using ZE_EVENT_POOL_FLAG_KERNEL_TIMESTAMP flag is undefined.
     ///       However, for consistency and orthogonality the event will report
     ///       correctly as signaled when used by other event API functionality.
     ///     - The application may call this function from simultaneous threads.
@@ -2939,12 +2939,12 @@ extern "C"
     ///     - clSetUserEventStatus
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hEvent`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
     ZE_APIEXPORT ze_result_t ZE_APICALL zeEventHostSignal(ze_event_handle_t hEvent ///< [in] handle of the event
     );
 
@@ -2960,19 +2960,19 @@ extern "C"
     ///     - clWaitForEvents
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hEvent`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
-    ///     - ::ZE_RESULT_NOT_READY
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_NOT_READY
     ///         + timeout expired
     ZE_APIEXPORT ze_result_t ZE_APICALL zeEventHostSynchronize(
         ze_event_handle_t hEvent, ///< [in] handle of the event
         uint64_t timeout          ///< [in] if non-zero, then indicates the maximum time (in nanoseconds) to
-                                  ///< yield before returning ::ZE_RESULT_SUCCESS or ::ZE_RESULT_NOT_READY;
-                                  ///< if zero, then operates exactly like ::zeEventQueryStatus;
+                                  ///< yield before returning ZE_RESULT_SUCCESS or ZE_RESULT_NOT_READY;
+                                  ///< if zero, then operates exactly like zeEventQueryStatus;
                                   ///< if UINT64_MAX, then function will not return until complete or device
                                   ///< is lost.
                                   ///< Due to external dependencies, timeout may be rounded to the closest
@@ -2992,13 +2992,13 @@ extern "C"
     ///     - vkGetEventStatus
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hEvent`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
-    ///     - ::ZE_RESULT_NOT_READY
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_NOT_READY
     ///         + not signaled
     ZE_APIEXPORT ze_result_t ZE_APICALL zeEventQueryStatus(ze_event_handle_t hEvent ///< [in] handle of the event
     );
@@ -3021,13 +3021,13 @@ extern "C"
     ///     - vkResetEvent
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandList`
     ///         + `nullptr == hEvent`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandListAppendEventReset(ze_command_list_handle_t hCommandList, ///< [in] handle of the command list
                                                                       ze_event_handle_t hEvent               ///< [in] handle of the event
     );
@@ -3044,12 +3044,12 @@ extern "C"
     ///     - vkResetEvent
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hEvent`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
     ZE_APIEXPORT ze_result_t ZE_APICALL zeEventHostReset(ze_event_handle_t hEvent ///< [in] handle of the event
     );
 
@@ -3058,9 +3058,9 @@ extern "C"
     ///
     /// @details
     ///     - The timestamp frequency can be queried from
-    ///       ::ze_device_properties_t.timerResolution.
+    ///       ze_device_properties_t.timerResolution.
     ///     - The number of valid bits in the timestamp value can be queried from
-    ///       ::ze_device_properties_t.kernelTimestampValidBits.
+    ///       ze_device_properties_t.kernelTimestampValidBits.
     typedef struct _ze_kernel_timestamp_data_t
     {
         uint64_t kernelStart; ///< [out] device clock at start of kernel execution
@@ -3081,22 +3081,22 @@ extern "C"
     ///
     /// @details
     ///     - The application must ensure the event was created from an event pool
-    ///       that was created using ::ZE_EVENT_POOL_FLAG_KERNEL_TIMESTAMP flag.
+    ///       that was created using ZE_EVENT_POOL_FLAG_KERNEL_TIMESTAMP flag.
     ///     - The destination memory will be unmodified if the event has not been
     ///       signaled.
     ///     - The application may call this function from simultaneous threads.
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hEvent`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == dstptr`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
-    ///     - ::ZE_RESULT_NOT_READY
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_NOT_READY
     ///         + not signaled
     ZE_APIEXPORT ze_result_t ZE_APICALL zeEventQueryKernelTimestamp(
         ze_event_handle_t hEvent,             ///< [in] handle of the event
@@ -3110,7 +3110,7 @@ extern "C"
     ///     - The application must ensure the events are accessible by the device on
     ///       which the command list was created.
     ///     - The application must ensure the events were created from an event pool
-    ///       that was created using ::ZE_EVENT_POOL_FLAG_KERNEL_TIMESTAMP flag.
+    ///       that was created using ZE_EVENT_POOL_FLAG_KERNEL_TIMESTAMP flag.
     ///     - The application must ensure the memory pointed to by both dstptr and
     ///       pOffsets is accessible by the device on which the command list was
     ///       created.
@@ -3125,22 +3125,22 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandList`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == phEvents`
     ///         + `nullptr == dstptr`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
-    ///     - ::ZE_RESULT_ERROR_INVALID_SIZE
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_ERROR_INVALID_SIZE
     ///         + `(nullptr == phWaitEvents) && (0 < numWaitEvents)`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandListAppendQueryKernelTimestamps(
         ze_command_list_handle_t hCommandList, ///< [in] handle of the command list
         uint32_t numEvents,                    ///< [in] the number of timestamp events to query
         ze_event_handle_t * phEvents,          ///< [in][range(0, numEvents)] handles of timestamp events to query
-        void * dstptr,                         ///< [in,out] pointer to memory where ::ze_kernel_timestamp_result_t will
+        void * dstptr,                         ///< [in,out] pointer to memory where ze_kernel_timestamp_result_t will
                                                ///< be written; must be size-aligned.
         const size_t * pOffsets,               ///< [in][optional][range(0, numEvents)] offset, in bytes, to write
                                                ///< results; address must be 4byte-aligned and offsets must be
@@ -3175,7 +3175,7 @@ extern "C"
         ze_structure_type_t stype; ///< [in] type of this structure
         const void * pNext;        ///< [in][optional] pointer to extension-specific structure
         ze_fence_flags_t flags;    ///< [in] creation flags.
-                                   ///< must be 0 (default) or a valid combination of ::ze_fence_flag_t.
+                                   ///< must be 0 (default) or a valid combination of ze_fence_flag_t.
     } ze_fence_desc_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -3194,18 +3194,18 @@ extern "C"
     ///     - **vkCreateFence**
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandQueue`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == desc`
     ///         + `nullptr == phFence`
-    ///     - ::ZE_RESULT_ERROR_INVALID_ENUMERATION
+    ///     - ZE_RESULT_ERROR_INVALID_ENUMERATION
     ///         + `0x1 < desc->flags`
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
     ZE_APIEXPORT ze_result_t ZE_APICALL zeFenceCreate(ze_command_queue_handle_t hCommandQueue, ///< [in] handle of command queue
                                                       const ze_fence_desc_t * desc,            ///< [in] pointer to fence descriptor
                                                       ze_fence_handle_t * phFence              ///< [out] pointer to handle of fence object created
@@ -3228,12 +3228,12 @@ extern "C"
     ///     - **vkDestroyFence**
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hFence`
-    ///     - ::ZE_RESULT_ERROR_HANDLE_OBJECT_IN_USE
+    ///     - ZE_RESULT_ERROR_HANDLE_OBJECT_IN_USE
     ZE_APIEXPORT ze_result_t ZE_APICALL zeFenceDestroy(ze_fence_handle_t hFence ///< [in][release] handle of fence object to destroy
     );
 
@@ -3249,19 +3249,19 @@ extern "C"
     ///     - **vkWaitForFences**
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hFence`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
-    ///     - ::ZE_RESULT_NOT_READY
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_NOT_READY
     ///         + timeout expired
     ZE_APIEXPORT ze_result_t ZE_APICALL zeFenceHostSynchronize(
         ze_fence_handle_t hFence, ///< [in] handle of the fence
         uint64_t timeout          ///< [in] if non-zero, then indicates the maximum time (in nanoseconds) to
-                                  ///< yield before returning ::ZE_RESULT_SUCCESS or ::ZE_RESULT_NOT_READY;
-                                  ///< if zero, then operates exactly like ::zeFenceQueryStatus;
+                                  ///< yield before returning ZE_RESULT_SUCCESS or ZE_RESULT_NOT_READY;
+                                  ///< if zero, then operates exactly like zeFenceQueryStatus;
                                   ///< if UINT64_MAX, then function will not return until complete or device
                                   ///< is lost.
                                   ///< Due to external dependencies, timeout may be rounded to the closest
@@ -3280,13 +3280,13 @@ extern "C"
     ///     - **vkGetFenceStatus**
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hFence`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
-    ///     - ::ZE_RESULT_NOT_READY
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_NOT_READY
     ///         + not signaled
     ZE_APIEXPORT ze_result_t ZE_APICALL zeFenceQueryStatus(ze_fence_handle_t hFence ///< [in] handle of the fence
     );
@@ -3303,10 +3303,10 @@ extern "C"
     ///     - **vkResetFences**
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hFence`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeFenceReset(ze_fence_handle_t hFence ///< [in] handle of the fence
     );
@@ -3408,7 +3408,7 @@ extern "C"
     {
         ze_image_format_layout_t layout; ///< [in] image format component layout
         ze_image_format_type_t type;     ///< [in] image format type. Media formats can't be used for
-                                         ///< ::ZE_IMAGE_TYPE_BUFFER.
+                                         ///< ZE_IMAGE_TYPE_BUFFER.
         ze_image_format_swizzle_t x;     ///< [in] image component swizzle into channel x
         ze_image_format_swizzle_t y;     ///< [in] image component swizzle into channel y
         ze_image_format_swizzle_t z;     ///< [in] image component swizzle into channel z
@@ -3422,32 +3422,32 @@ extern "C"
         ze_structure_type_t stype; ///< [in] type of this structure
         const void * pNext;        ///< [in][optional] pointer to extension-specific structure
         ze_image_flags_t flags;    ///< [in] creation flags.
-                                   ///< must be 0 (default) or a valid combination of ::ze_image_flag_t;
+                                   ///< must be 0 (default) or a valid combination of ze_image_flag_t;
                                    ///< default is read-only, cached access.
         ze_image_type_t type;      ///< [in] image type
         ze_image_format_t format;  ///< [in] image format
         uint64_t width;            ///< [in] width dimension.
-                                   ///< ::ZE_IMAGE_TYPE_BUFFER: size in bytes; see
-                                   ///< ::ze_device_image_properties_t.maxImageBufferSize for limits.
-                                   ///< ::ZE_IMAGE_TYPE_1D, ::ZE_IMAGE_TYPE_1DARRAY: width in pixels; see
-                                   ///< ::ze_device_image_properties_t.maxImageDims1D for limits.
-                                   ///< ::ZE_IMAGE_TYPE_2D, ::ZE_IMAGE_TYPE_2DARRAY: width in pixels; see
-                                   ///< ::ze_device_image_properties_t.maxImageDims2D for limits.
-                                   ///< ::ZE_IMAGE_TYPE_3D: width in pixels; see
-                                   ///< ::ze_device_image_properties_t.maxImageDims3D for limits.
+                                   ///< ZE_IMAGE_TYPE_BUFFER: size in bytes; see
+                                   ///< ze_device_image_properties_t.maxImageBufferSize for limits.
+                                   ///< ZE_IMAGE_TYPE_1D, ZE_IMAGE_TYPE_1DARRAY: width in pixels; see
+                                   ///< ze_device_image_properties_t.maxImageDims1D for limits.
+                                   ///< ZE_IMAGE_TYPE_2D, ZE_IMAGE_TYPE_2DARRAY: width in pixels; see
+                                   ///< ze_device_image_properties_t.maxImageDims2D for limits.
+                                   ///< ZE_IMAGE_TYPE_3D: width in pixels; see
+                                   ///< ze_device_image_properties_t.maxImageDims3D for limits.
         uint32_t height;           ///< [in] height dimension.
-                                   ///< ::ZE_IMAGE_TYPE_2D, ::ZE_IMAGE_TYPE_2DARRAY: height in pixels; see
-                                   ///< ::ze_device_image_properties_t.maxImageDims2D for limits.
-                                   ///< ::ZE_IMAGE_TYPE_3D: height in pixels; see
-                                   ///< ::ze_device_image_properties_t.maxImageDims3D for limits.
+                                   ///< ZE_IMAGE_TYPE_2D, ZE_IMAGE_TYPE_2DARRAY: height in pixels; see
+                                   ///< ze_device_image_properties_t.maxImageDims2D for limits.
+                                   ///< ZE_IMAGE_TYPE_3D: height in pixels; see
+                                   ///< ze_device_image_properties_t.maxImageDims3D for limits.
                                    ///< other: ignored.
         uint32_t depth;            ///< [in] depth dimension.
-                                   ///< ::ZE_IMAGE_TYPE_3D: depth in pixels; see
-                                   ///< ::ze_device_image_properties_t.maxImageDims3D for limits.
+                                   ///< ZE_IMAGE_TYPE_3D: depth in pixels; see
+                                   ///< ze_device_image_properties_t.maxImageDims3D for limits.
                                    ///< other: ignored.
         uint32_t arraylevels;      ///< [in] array levels.
-                                   ///< ::ZE_IMAGE_TYPE_1DARRAY, ::ZE_IMAGE_TYPE_2DARRAY: see
-                                   ///< ::ze_device_image_properties_t.maxImageArraySlices for limits.
+                                   ///< ZE_IMAGE_TYPE_1DARRAY, ZE_IMAGE_TYPE_2DARRAY: see
+                                   ///< ze_device_image_properties_t.maxImageArraySlices for limits.
                                    ///< other: ignored.
         uint32_t miplevels;        ///< [in] mipmap levels (must be 0)
     } ze_image_desc_t;
@@ -3469,7 +3469,7 @@ extern "C"
         ze_structure_type_t stype;                          ///< [in] type of this structure
         void * pNext;                                       ///< [in,out][optional] pointer to extension-specific structure
         ze_image_sampler_filter_flags_t samplerFilterFlags; ///< [out] supported sampler filtering.
-                                                            ///< returns 0 (unsupported) or a combination of ::ze_image_sampler_filter_flag_t.
+                                                            ///< returns 0 (unsupported) or a combination of ze_image_sampler_filter_flag_t.
     } ze_image_properties_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -3480,17 +3480,17 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hDevice`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == desc`
     ///         + `nullptr == pImageProperties`
-    ///     - ::ZE_RESULT_ERROR_INVALID_ENUMERATION
+    ///     - ZE_RESULT_ERROR_INVALID_ENUMERATION
     ///         + `0x3 < desc->flags`
-    ///         + `::ZE_IMAGE_TYPE_BUFFER < desc->type`
+    ///         + `ZE_IMAGE_TYPE_BUFFER < desc->type`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeImageGetProperties(ze_device_handle_t hDevice,              ///< [in] handle of the device
                                                              const ze_image_desc_t * desc,            ///< [in] pointer to image descriptor
                                                              ze_image_properties_t * pImageProperties ///< [out] pointer to image properties
@@ -3510,21 +3510,21 @@ extern "C"
     ///     - clCreateImage
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
     ///         + `nullptr == hDevice`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == desc`
     ///         + `nullptr == phImage`
-    ///     - ::ZE_RESULT_ERROR_INVALID_ENUMERATION
+    ///     - ZE_RESULT_ERROR_INVALID_ENUMERATION
     ///         + `0x3 < desc->flags`
-    ///         + `::ZE_IMAGE_TYPE_BUFFER < desc->type`
-    ///     - ::ZE_RESULT_ERROR_UNSUPPORTED_IMAGE_FORMAT
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
+    ///         + `ZE_IMAGE_TYPE_BUFFER < desc->type`
+    ///     - ZE_RESULT_ERROR_UNSUPPORTED_IMAGE_FORMAT
+    ///     - ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
     ZE_APIEXPORT ze_result_t ZE_APICALL zeImageCreate(ze_context_handle_t hContext, ///< [in] handle of the context object
                                                       ze_device_handle_t hDevice,   ///< [in] handle of the device
                                                       const ze_image_desc_t * desc, ///< [in] pointer to image descriptor
@@ -3544,12 +3544,12 @@ extern "C"
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hImage`
-    ///     - ::ZE_RESULT_ERROR_HANDLE_OBJECT_IN_USE
+    ///     - ZE_RESULT_ERROR_HANDLE_OBJECT_IN_USE
     ZE_APIEXPORT ze_result_t ZE_APICALL zeImageDestroy(ze_image_handle_t hImage ///< [in][release] handle of image object to destroy
     );
 
@@ -3577,10 +3577,10 @@ extern "C"
         ze_structure_type_t stype;         ///< [in] type of this structure
         const void * pNext;                ///< [in][optional] pointer to extension-specific structure
         ze_device_mem_alloc_flags_t flags; ///< [in] flags specifying additional allocation controls.
-                                           ///< must be 0 (default) or a valid combination of ::ze_device_mem_alloc_flag_t;
+                                           ///< must be 0 (default) or a valid combination of ze_device_mem_alloc_flag_t;
                                            ///< default behavior may use implicit driver-based heuristics.
         uint32_t ordinal;                  ///< [in] ordinal of the device's local memory to allocate from.
-                                           ///< must be less than the count returned from ::zeDeviceGetMemoryProperties.
+                                           ///< must be less than the count returned from zeDeviceGetMemoryProperties.
     } ze_device_mem_alloc_desc_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -3601,7 +3601,7 @@ extern "C"
         ze_structure_type_t stype;       ///< [in] type of this structure
         const void * pNext;              ///< [in][optional] pointer to extension-specific structure
         ze_host_mem_alloc_flags_t flags; ///< [in] flags specifying additional allocation controls.
-                                         ///< must be 0 (default) or a valid combination of ::ze_host_mem_alloc_flag_t;
+                                         ///< must be 0 (default) or a valid combination of ze_host_mem_alloc_flag_t;
                                          ///< default behavior may use implicit driver-based heuristics.
     } ze_host_mem_alloc_desc_t;
 
@@ -3628,31 +3628,31 @@ extern "C"
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == device_desc`
     ///         + `nullptr == host_desc`
     ///         + `nullptr == pptr`
-    ///     - ::ZE_RESULT_ERROR_INVALID_ENUMERATION
+    ///     - ZE_RESULT_ERROR_INVALID_ENUMERATION
     ///         + `0x3 < device_desc->flags`
     ///         + `0x7 < host_desc->flags`
-    ///     - ::ZE_RESULT_ERROR_UNSUPPORTED_SIZE
+    ///     - ZE_RESULT_ERROR_UNSUPPORTED_SIZE
     ///         + `0 == size`
-    ///     - ::ZE_RESULT_ERROR_UNSUPPORTED_ALIGNMENT
+    ///     - ZE_RESULT_ERROR_UNSUPPORTED_ALIGNMENT
     ///         + Must be zero or a power-of-two
     ///         + `0 != (alignment & (alignment - 1))`
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
     ZE_APIEXPORT ze_result_t ZE_APICALL zeMemAllocShared(
         ze_context_handle_t hContext,                   ///< [in] handle of the context object
         const ze_device_mem_alloc_desc_t * device_desc, ///< [in] pointer to device memory allocation descriptor
         const ze_host_mem_alloc_desc_t * host_desc,     ///< [in] pointer to host memory allocation descriptor
         size_t size,                                    ///< [in] size in bytes to allocate; must be less-than
-                                                        ///< ::ze_device_properties_t.maxMemAllocSize.
+                                                        ///< ze_device_properties_t.maxMemAllocSize.
         size_t alignment,                               ///< [in] minimum alignment in bytes for the allocation; must be a power of
                                                         ///< two.
         ze_device_handle_t hDevice,                     ///< [in][optional] device handle to associate with
@@ -3672,29 +3672,29 @@ extern "C"
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
     ///         + `nullptr == hDevice`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == device_desc`
     ///         + `nullptr == pptr`
-    ///     - ::ZE_RESULT_ERROR_INVALID_ENUMERATION
+    ///     - ZE_RESULT_ERROR_INVALID_ENUMERATION
     ///         + `0x3 < device_desc->flags`
-    ///     - ::ZE_RESULT_ERROR_UNSUPPORTED_SIZE
+    ///     - ZE_RESULT_ERROR_UNSUPPORTED_SIZE
     ///         + `0 == size`
-    ///     - ::ZE_RESULT_ERROR_UNSUPPORTED_ALIGNMENT
+    ///     - ZE_RESULT_ERROR_UNSUPPORTED_ALIGNMENT
     ///         + Must be zero or a power-of-two
     ///         + `0 != (alignment & (alignment - 1))`
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
     ZE_APIEXPORT ze_result_t ZE_APICALL zeMemAllocDevice(
         ze_context_handle_t hContext,                   ///< [in] handle of the context object
         const ze_device_mem_alloc_desc_t * device_desc, ///< [in] pointer to device memory allocation descriptor
         size_t size,                                    ///< [in] size in bytes to allocate; must be less-than
-                                                        ///< ::ze_device_properties_t.maxMemAllocSize.
+                                                        ///< ze_device_properties_t.maxMemAllocSize.
         size_t alignment,                               ///< [in] minimum alignment in bytes for the allocation; must be a power of
                                                         ///< two.
         ze_device_handle_t hDevice,                     ///< [in] handle of the device
@@ -3716,28 +3716,28 @@ extern "C"
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == host_desc`
     ///         + `nullptr == pptr`
-    ///     - ::ZE_RESULT_ERROR_INVALID_ENUMERATION
+    ///     - ZE_RESULT_ERROR_INVALID_ENUMERATION
     ///         + `0x7 < host_desc->flags`
-    ///     - ::ZE_RESULT_ERROR_UNSUPPORTED_SIZE
+    ///     - ZE_RESULT_ERROR_UNSUPPORTED_SIZE
     ///         + `0 == size`
-    ///     - ::ZE_RESULT_ERROR_UNSUPPORTED_ALIGNMENT
+    ///     - ZE_RESULT_ERROR_UNSUPPORTED_ALIGNMENT
     ///         + Must be zero or a power-of-two
     ///         + `0 != (alignment & (alignment - 1))`
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
     ZE_APIEXPORT ze_result_t ZE_APICALL zeMemAllocHost(
         ze_context_handle_t hContext,               ///< [in] handle of the context object
         const ze_host_mem_alloc_desc_t * host_desc, ///< [in] pointer to host memory allocation descriptor
         size_t size,                                ///< [in] size in bytes to allocate; must be less-than
-                                                    ///< ::ze_device_properties_t.maxMemAllocSize.
+                                                    ///< ze_device_properties_t.maxMemAllocSize.
         size_t alignment,                           ///< [in] minimum alignment in bytes for the allocation; must be a power of
                                                     ///< two.
         void ** pptr                                ///< [out] pointer to host allocation
@@ -3757,12 +3757,12 @@ extern "C"
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == ptr`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeMemFree(ze_context_handle_t hContext, ///< [in] handle of the context object
                                                   void * ptr                    ///< [in][release] pointer to memory to free
@@ -3780,7 +3780,7 @@ extern "C"
     } ze_memory_type_t;
 
     ///////////////////////////////////////////////////////////////////////////////
-    /// @brief Memory allocation properties queried using ::zeMemGetAllocProperties
+    /// @brief Memory allocation properties queried using zeMemGetAllocProperties
     typedef struct _ze_memory_allocation_properties_t
     {
         ze_structure_type_t stype; ///< [in] type of this structure
@@ -3798,16 +3798,16 @@ extern "C"
     ///     - The application may query attributes of a memory allocation unrelated
     ///       to the context.
     ///       When this occurs, the returned allocation type will be
-    ///       ::ZE_MEMORY_TYPE_UNKNOWN, and the returned identifier and associated
+    ///       ZE_MEMORY_TYPE_UNKNOWN, and the returned identifier and associated
     ///       device is unspecified.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == ptr`
     ///         + `nullptr == pMemAllocProperties`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeMemGetAllocProperties(
@@ -3824,12 +3824,12 @@ extern "C"
     ///     - The application may call this function from simultaneous threads.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == ptr`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeMemGetAddressRange(ze_context_handle_t hContext, ///< [in] handle of the context object
                                                              const void * ptr,             ///< [in] memory pointer to query
@@ -3844,17 +3844,17 @@ extern "C"
     ///     - Takes a pointer to a device memory allocation and creates an IPC
     ///       memory handle for exporting it for use in another process.
     ///     - The pointer must be base pointer of the device memory allocation; i.e.
-    ///       the value returned from ::zeMemAllocDevice.
+    ///       the value returned from zeMemAllocDevice.
     ///     - The application may call this function from simultaneous threads.
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == ptr`
     ///         + `nullptr == pIpcHandle`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeMemGetIpcHandle(ze_context_handle_t hContext,    ///< [in] handle of the context object
@@ -3879,29 +3879,29 @@ extern "C"
     ///     - Takes an IPC memory handle from a remote process and associates it
     ///       with a device pointer usable in this process.
     ///     - The device pointer in this process should not be freed with
-    ///       ::zeMemFree, but rather with ::zeMemCloseIpcHandle.
+    ///       zeMemFree, but rather with zeMemCloseIpcHandle.
     ///     - Multiple calls to this function with the same IPC handle will return
     ///       unique pointers.
     ///     - The application may call this function from simultaneous threads.
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
     ///         + `nullptr == hDevice`
-    ///     - ::ZE_RESULT_ERROR_INVALID_ENUMERATION
+    ///     - ZE_RESULT_ERROR_INVALID_ENUMERATION
     ///         + `0x1 < flags`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pptr`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeMemOpenIpcHandle(
         ze_context_handle_t hContext, ///< [in] handle of the context object
         ze_device_handle_t hDevice,   ///< [in] handle of the device to associate with the IPC memory handle
         ze_ipc_mem_handle_t handle,   ///< [in] IPC memory handle
         ze_ipc_memory_flags_t flags,  ///< [in] flags controlling the operation.
-                                      ///< must be 0 (default) or a valid combination of ::ze_ipc_memory_flag_t.
+                                      ///< must be 0 (default) or a valid combination of ze_ipc_memory_flag_t.
         void ** pptr                  ///< [out] pointer to device allocation in this process
     );
 
@@ -3910,18 +3910,18 @@ extern "C"
     ///
     /// @details
     ///     - Closes an IPC memory handle by unmapping memory that was opened in
-    ///       this process using ::zeMemOpenIpcHandle.
+    ///       this process using zeMemOpenIpcHandle.
     ///     - The application must **not** call this function from simultaneous
     ///       threads with the same pointer.
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == ptr`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeMemCloseIpcHandle(ze_context_handle_t hContext, ///< [in] handle of the context object
                                                             const void * ptr ///< [in][release] pointer to device allocation in this process
@@ -3931,17 +3931,17 @@ extern "C"
     /// @brief Additional allocation descriptor for exporting external memory
     ///
     /// @details
-    ///     - This structure may be passed to ::zeMemAllocDevice, via the `pNext`
-    ///       member of ::ze_device_mem_alloc_desc_t, to indicate an exportable
+    ///     - This structure may be passed to zeMemAllocDevice, via the `pNext`
+    ///       member of ze_device_mem_alloc_desc_t, to indicate an exportable
     ///       memory allocation.
-    ///     - This structure may be passed to ::zeImageCreate, via the `pNext`
-    ///       member of ::ze_image_desc_t, to indicate an exportable image.
+    ///     - This structure may be passed to zeImageCreate, via the `pNext`
+    ///       member of ze_image_desc_t, to indicate an exportable image.
     typedef struct _ze_external_memory_export_desc_t
     {
         ze_structure_type_t stype;             ///< [in] type of this structure
         const void * pNext;                    ///< [in][optional] pointer to extension-specific structure
         ze_external_memory_type_flags_t flags; ///< [in] flags specifying memory export types for this allocation.
-                                               ///< must be 0 (default) or a valid combination of ::ze_external_memory_type_flags_t
+                                               ///< must be 0 (default) or a valid combination of ze_external_memory_type_flags_t
     } ze_external_memory_export_desc_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -3949,17 +3949,17 @@ extern "C"
     ///        file descriptor
     ///
     /// @details
-    ///     - This structure may be passed to ::zeMemAllocDevice, via the `pNext`
-    ///       member of ::ze_device_mem_alloc_desc_t, to import memory from a file
+    ///     - This structure may be passed to zeMemAllocDevice, via the `pNext`
+    ///       member of ze_device_mem_alloc_desc_t, to import memory from a file
     ///       descriptor.
-    ///     - This structure may be passed to ::zeImageCreate, via the `pNext`
-    ///       member of ::ze_image_desc_t, to import memory from a file descriptor.
+    ///     - This structure may be passed to zeImageCreate, via the `pNext`
+    ///       member of ze_image_desc_t, to import memory from a file descriptor.
     typedef struct _ze_external_memory_import_fd_t
     {
         ze_structure_type_t stype;             ///< [in] type of this structure
         const void * pNext;                    ///< [in][optional] pointer to extension-specific structure
         ze_external_memory_type_flags_t flags; ///< [in] flags specifying the memory import type for the file descriptor.
-                                               ///< must be 0 (default) or a valid combination of ::ze_external_memory_type_flags_t
+                                               ///< must be 0 (default) or a valid combination of ze_external_memory_type_flags_t
         int fd;                                ///< [in] the file descriptor handle to import
     } ze_external_memory_import_fd_t;
 
@@ -3967,11 +3967,11 @@ extern "C"
     /// @brief Exports an allocation as a file descriptor
     ///
     /// @details
-    ///     - This structure may be passed to ::zeMemGetAllocProperties, via the
-    ///       `pNext` member of ::ze_memory_allocation_properties_t, to export a
+    ///     - This structure may be passed to zeMemGetAllocProperties, via the
+    ///       `pNext` member of ze_memory_allocation_properties_t, to export a
     ///       memory allocation as a file descriptor.
-    ///     - This structure may be passed to ::zeImageGetProperties, via the
-    ///       `pNext` member of ::ze_image_properties_t, to export an image as a
+    ///     - This structure may be passed to zeImageGetProperties, via the
+    ///       `pNext` member of ze_image_properties_t, to export an image as a
     ///       file descriptor.
     ///     - The requested memory export type must have been specified when the
     ///       allocation was made.
@@ -3980,7 +3980,7 @@ extern "C"
         ze_structure_type_t stype;             ///< [in] type of this structure
         const void * pNext;                    ///< [in][optional] pointer to extension-specific structure
         ze_external_memory_type_flags_t flags; ///< [in] flags specifying the memory export type for the file descriptor.
-                                               ///< must be 0 (default) or a valid combination of ::ze_external_memory_type_flags_t
+                                               ///< must be 0 (default) or a valid combination of ze_external_memory_type_flags_t
         int fd;                                ///< [out] the exported file descriptor handle representing the allocation.
     } ze_external_memory_export_fd_t;
 
@@ -4046,33 +4046,33 @@ extern "C"
     ///     - The application must only use the module for the device, or its
     ///       sub-devices, which was provided during creation.
     ///     - The module can be copied to other devices and contexts within the same
-    ///       driver instance by using ::zeModuleGetNativeBinary.
+    ///       driver instance by using zeModuleGetNativeBinary.
     ///     - A build log can optionally be returned to the caller. The caller is
-    ///       responsible for destroying build log using ::zeModuleBuildLogDestroy.
+    ///       responsible for destroying build log using zeModuleBuildLogDestroy.
     ///     - The module descriptor constants are only supported for SPIR-V
     ///       specialization constants.
     ///     - The application may call this function from simultaneous threads.
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
     ///         + `nullptr == hDevice`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == desc`
     ///         + `nullptr == desc->pInputModule`
     ///         + `nullptr == phModule`
-    ///     - ::ZE_RESULT_ERROR_INVALID_ENUMERATION
-    ///         + `::ZE_MODULE_FORMAT_NATIVE < desc->format`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NATIVE_BINARY
-    ///     - ::ZE_RESULT_ERROR_INVALID_SIZE
+    ///     - ZE_RESULT_ERROR_INVALID_ENUMERATION
+    ///         + `ZE_MODULE_FORMAT_NATIVE < desc->format`
+    ///     - ZE_RESULT_ERROR_INVALID_NATIVE_BINARY
+    ///     - ZE_RESULT_ERROR_INVALID_SIZE
     ///         + `0 == desc->inputSize`
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
-    ///     - ::ZE_RESULT_ERROR_MODULE_BUILD_FAILURE
+    ///     - ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
+    ///     - ZE_RESULT_ERROR_MODULE_BUILD_FAILURE
     ZE_APIEXPORT ze_result_t ZE_APICALL zeModuleCreate(
         ze_context_handle_t hContext,             ///< [in] handle of the context object
         ze_device_handle_t hDevice,               ///< [in] handle of the device
@@ -4096,12 +4096,12 @@ extern "C"
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hModule`
-    ///     - ::ZE_RESULT_ERROR_HANDLE_OBJECT_IN_USE
+    ///     - ZE_RESULT_ERROR_HANDLE_OBJECT_IN_USE
     ZE_APIEXPORT ze_result_t ZE_APICALL zeModuleDestroy(ze_module_handle_t hModule ///< [in][release] handle of the module
     );
 
@@ -4119,7 +4119,7 @@ extern "C"
     ///       linked.
     ///     - Modules cannot be partially linked. All modules needed to satisfy all
     ///       import dependencies for a module must be passed in or
-    ///       ::ZE_RESULT_ERROR_MODULE_LINK_FAILURE will returned.
+    ///       ZE_RESULT_ERROR_MODULE_LINK_FAILURE will returned.
     ///     - Modules with imports need to be linked before kernel objects can be
     ///       created from them.
     ///     - Modules will only be linked once. A module can be used in multiple
@@ -4129,19 +4129,19 @@ extern "C"
     ///     - ModuleGetNativeBinary can be called on any module regardless of
     ///       whether it is linked or not.
     ///     - A link log can optionally be returned to the caller. The caller is
-    ///       responsible for destroying build log using ::zeModuleBuildLogDestroy.
+    ///       responsible for destroying build log using zeModuleBuildLogDestroy.
     ///     - See SPIR-V specification for linkage details.
     ///     - The application may call this function from simultaneous threads as
     ///       long as the import modules being linked are not the same.
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == phModules`
-    ///     - ::ZE_RESULT_ERROR_MODULE_LINK_FAILURE
+    ///     - ZE_RESULT_ERROR_MODULE_LINK_FAILURE
     ZE_APIEXPORT ze_result_t ZE_APICALL zeModuleDynamicLink(
         uint32_t numModules,                     ///< [in] number of modules to be linked pointed to by phModules.
         ze_module_handle_t * phModules,          ///< [in][range(0, numModules)] pointer to an array of modules to
@@ -4158,16 +4158,16 @@ extern "C"
     ///     - The application must **not** call this function from simultaneous
     ///       threads with the same build log handle.
     ///     - The implementation of this function should be lock-free.
-    ///     - This function can be called before or after ::zeModuleDestroy for the
+    ///     - This function can be called before or after zeModuleDestroy for the
     ///       associated module.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hModuleBuildLog`
-    ///     - ::ZE_RESULT_ERROR_HANDLE_OBJECT_IN_USE
+    ///     - ZE_RESULT_ERROR_HANDLE_OBJECT_IN_USE
     ZE_APIEXPORT ze_result_t ZE_APICALL zeModuleBuildLogDestroy(
         ze_module_build_log_handle_t hModuleBuildLog ///< [in][release] handle of the module build log object.
     );
@@ -4182,12 +4182,12 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hModuleBuildLog`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pSize`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeModuleBuildLogGetString(
         ze_module_build_log_handle_t hModuleBuildLog, ///< [in] handle of the module build log object.
@@ -4211,12 +4211,12 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hModule`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pSize`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeModuleGetNativeBinary(ze_module_handle_t hModule,   ///< [in] handle of the module
                                                                 size_t * pSize,               ///< [in,out] size of native binary in bytes.
@@ -4235,14 +4235,14 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hModule`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pGlobalName`
-    ///     - ::ZE_RESULT_ERROR_INVALID_GLOBAL_NAME
+    ///     - ZE_RESULT_ERROR_INVALID_GLOBAL_NAME
     ZE_APIEXPORT ze_result_t ZE_APICALL zeModuleGetGlobalPointer(ze_module_handle_t hModule, ///< [in] handle of the module
                                                                  const char * pGlobalName,   ///< [in] name of global variable in module
                                                                  size_t * pSize,             ///< [in,out][optional] size of global variable
@@ -4257,12 +4257,12 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hModule`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pCount`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeModuleGetKernelNames(
         ze_module_handle_t hModule, ///< [in] handle of the module
@@ -4281,7 +4281,7 @@ extern "C"
     typedef enum _ze_module_property_flag_t
     {
         ZE_MODULE_PROPERTY_FLAG_IMPORTS = ZE_BIT(0), ///< Module has imports (i.e. imported global variables and/or kernels).
-                                                     ///< See ::zeModuleDynamicLink.
+                                                     ///< See zeModuleDynamicLink.
         ZE_MODULE_PROPERTY_FLAG_FORCE_UINT32 = 0x7fffffff
     } ze_module_property_flag_t;
 
@@ -4291,7 +4291,7 @@ extern "C"
     {
         ze_structure_type_t stype;        ///< [in] type of this structure
         void * pNext;                     ///< [in,out][optional] pointer to extension-specific structure
-        ze_module_property_flags_t flags; ///< [out] 0 (none) or a valid combination of ::ze_module_property_flag_t
+        ze_module_property_flags_t flags; ///< [out] 0 (none) or a valid combination of ze_module_property_flag_t
     } ze_module_properties_t;
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -4302,12 +4302,12 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hModule`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pModuleProperties`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeModuleGetProperties(
         ze_module_handle_t hModule,                ///< [in] handle of the module
@@ -4332,7 +4332,7 @@ extern "C"
         ze_structure_type_t stype; ///< [in] type of this structure
         const void * pNext;        ///< [in][optional] pointer to extension-specific structure
         ze_kernel_flags_t flags;   ///< [in] creation flags.
-                                   ///< must be 0 (default) or a valid combination of ::ze_kernel_flag_t;
+                                   ///< must be 0 (default) or a valid combination of ze_kernel_flag_t;
                                    ///< default behavior may use driver-based residency.
         const char * pKernelName;  ///< [in] null-terminated name of kernel in module
     } ze_kernel_desc_t;
@@ -4342,24 +4342,24 @@ extern "C"
     ///
     /// @details
     ///     - Modules that have unresolved imports need to be dynamically linked
-    ///       before a kernel can be created from them. (See ::zeModuleDynamicLink)
+    ///       before a kernel can be created from them. (See zeModuleDynamicLink)
     ///     - The application may call this function from simultaneous threads.
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hModule`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == desc`
     ///         + `nullptr == desc->pKernelName`
     ///         + `nullptr == phKernel`
-    ///     - ::ZE_RESULT_ERROR_INVALID_ENUMERATION
+    ///     - ZE_RESULT_ERROR_INVALID_ENUMERATION
     ///         + `0x3 < desc->flags`
-    ///     - ::ZE_RESULT_ERROR_INVALID_KERNEL_NAME
-    ///     - ::ZE_RESULT_ERROR_INVALID_MODULE_UNLINKED
+    ///     - ZE_RESULT_ERROR_INVALID_KERNEL_NAME
+    ///     - ZE_RESULT_ERROR_INVALID_MODULE_UNLINKED
     ZE_APIEXPORT ze_result_t ZE_APICALL zeKernelCreate(ze_module_handle_t hModule,    ///< [in] handle of the module
                                                        const ze_kernel_desc_t * desc, ///< [in] pointer to kernel descriptor
                                                        ze_kernel_handle_t * phKernel  ///< [out] handle of the Function object
@@ -4378,12 +4378,12 @@ extern "C"
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hKernel`
-    ///     - ::ZE_RESULT_ERROR_HANDLE_OBJECT_IN_USE
+    ///     - ZE_RESULT_ERROR_HANDLE_OBJECT_IN_USE
     ZE_APIEXPORT ze_result_t ZE_APICALL zeKernelDestroy(ze_kernel_handle_t hKernel ///< [in][release] handle of the kernel object
     );
 
@@ -4398,15 +4398,15 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hModule`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pFunctionName`
     ///         + `nullptr == pfnFunction`
-    ///     - ::ZE_RESULT_ERROR_INVALID_FUNCTION_NAME
+    ///     - ZE_RESULT_ERROR_INVALID_FUNCTION_NAME
     ZE_APIEXPORT ze_result_t ZE_APICALL zeModuleGetFunctionPointer(
         ze_module_handle_t hModule, ///< [in] handle of the module
         const char * pFunctionName, ///< [in] Name of function to retrieve function pointer for.
@@ -4419,19 +4419,19 @@ extern "C"
     /// @details
     ///     - The implementation will maintain the group size in thread-local
     ///       storage.
-    ///     - The group size will be used when a ::zeCommandListAppendLaunchKernel
+    ///     - The group size will be used when a zeCommandListAppendLaunchKernel
     ///       variant is called on the same Host thread.
     ///     - The application may call this function from simultaneous threads with
     ///       the same kernel handle.
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hKernel`
-    ///     - ::ZE_RESULT_ERROR_INVALID_GROUP_SIZE_DIMENSION
+    ///     - ZE_RESULT_ERROR_INVALID_GROUP_SIZE_DIMENSION
     ZE_APIEXPORT ze_result_t ZE_APICALL zeKernelSetGroupSize(ze_kernel_handle_t hKernel, ///< [in] handle of the kernel object
                                                              uint32_t groupSizeX,        ///< [in] group size for X dimension to use for this kernel
                                                              uint32_t groupSizeY,        ///< [in] group size for Y dimension to use for this kernel
@@ -4444,21 +4444,21 @@ extern "C"
     ///
     /// @details
     ///     - This function ignores the group size that is set using
-    ///       ::zeKernelSetGroupSize.
+    ///       zeKernelSetGroupSize.
     ///     - The application may call this function from simultaneous threads.
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hKernel`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == groupSizeX`
     ///         + `nullptr == groupSizeY`
     ///         + `nullptr == groupSizeZ`
-    ///     - ::ZE_RESULT_ERROR_INVALID_GLOBAL_WIDTH_DIMENSION
+    ///     - ZE_RESULT_ERROR_INVALID_GLOBAL_WIDTH_DIMENSION
     ZE_APIEXPORT ze_result_t ZE_APICALL zeKernelSuggestGroupSize(ze_kernel_handle_t hKernel, ///< [in] handle of the kernel object
                                                                  uint32_t globalSizeX,       ///< [in] global width for X dimension
                                                                  uint32_t globalSizeY,       ///< [in] global width for Y dimension
@@ -4476,12 +4476,12 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hKernel`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == totalGroupCount`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeKernelSuggestMaxCooperativeGroupCount(ze_kernel_handle_t hKernel, ///< [in] handle of the kernel object
                                                                                 uint32_t * totalGroupCount  ///< [out] recommended total group count.
@@ -4494,20 +4494,20 @@ extern "C"
     ///     - The implementation will maintain the argument values in thread-local
     ///       storage.
     ///     - The argument values will be used when a
-    ///       ::zeCommandListAppendLaunchKernel variant is called on the same Host
+    ///       zeCommandListAppendLaunchKernel variant is called on the same Host
     ///       thread.
     ///     - The application may call this function from simultaneous threads with
     ///       the same kernel handle.
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hKernel`
-    ///     - ::ZE_RESULT_ERROR_INVALID_KERNEL_ARGUMENT_INDEX
-    ///     - ::ZE_RESULT_ERROR_INVALID_KERNEL_ARGUMENT_SIZE
+    ///     - ZE_RESULT_ERROR_INVALID_KERNEL_ARGUMENT_INDEX
+    ///     - ZE_RESULT_ERROR_INVALID_KERNEL_ARGUMENT_SIZE
     ZE_APIEXPORT ze_result_t ZE_APICALL zeKernelSetArgumentValue(
         ze_kernel_handle_t hKernel, ///< [in] handle of the kernel object
         uint32_t argIndex,          ///< [in] argument index in range [0, num args - 1]
@@ -4539,12 +4539,12 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hKernel`
-    ///     - ::ZE_RESULT_ERROR_INVALID_ENUMERATION
+    ///     - ZE_RESULT_ERROR_INVALID_ENUMERATION
     ///         + `0x7 < flags`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeKernelSetIndirectAccess(ze_kernel_handle_t hKernel,             ///< [in] handle of the kernel object
                                                                   ze_kernel_indirect_access_flags_t flags ///< [in] kernel indirect access flags
@@ -4559,12 +4559,12 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hKernel`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pFlags`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeKernelGetIndirectAccess(
         ze_kernel_handle_t hKernel,                ///< [in] handle of the kernel object
@@ -4581,12 +4581,12 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hKernel`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pSize`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeKernelGetSourceAttributes(
         ze_kernel_handle_t hKernel, ///< [in] handle of the kernel object
@@ -4617,25 +4617,25 @@ extern "C"
     ///     - The implementation will maintain the cache configuration in
     ///       thread-local storage.
     ///     - The cache configuration will be used when a
-    ///       ::zeCommandListAppendLaunchKernel variant is called on the same Host
+    ///       zeCommandListAppendLaunchKernel variant is called on the same Host
     ///       thread.
     ///     - The application may call this function from simultaneous threads with
     ///       the same kernel handle.
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hKernel`
-    ///     - ::ZE_RESULT_ERROR_INVALID_ENUMERATION
+    ///     - ZE_RESULT_ERROR_INVALID_ENUMERATION
     ///         + `0x3 < flags`
-    ///     - ::ZE_RESULT_ERROR_UNSUPPORTED_FEATURE
+    ///     - ZE_RESULT_ERROR_UNSUPPORTED_FEATURE
     ZE_APIEXPORT ze_result_t ZE_APICALL zeKernelSetCacheConfig(
         ze_kernel_handle_t hKernel,   ///< [in] handle of the kernel object
         ze_cache_config_flags_t flags ///< [in] cache configuration.
-                                      ///< must be 0 (default configuration) or a valid combination of ::ze_cache_config_flag_t.
+                                      ///< must be 0 (default configuration) or a valid combination of ze_cache_config_flag_t.
     );
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -4691,12 +4691,12 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hKernel`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pKernelProperties`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeKernelGetProperties(
         ze_kernel_handle_t hKernel,                ///< [in] handle of the kernel object
@@ -4714,12 +4714,12 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hKernel`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pSize`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeKernelGetName(ze_kernel_handle_t hKernel, ///< [in] handle of the kernel object
                                                         size_t * pSize, ///< [in,out] size of kernel name string, including null terminator, in
@@ -4751,16 +4751,16 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandList`
     ///         + `nullptr == hKernel`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pLaunchFuncArgs`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
-    ///     - ::ZE_RESULT_ERROR_INVALID_SIZE
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_ERROR_INVALID_SIZE
     ///         + `(nullptr == phWaitEvents) && (0 < numWaitEvents)`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandListAppendLaunchKernel(
         ze_command_list_handle_t hCommandList,    ///< [in] handle of the command list
@@ -4788,20 +4788,20 @@ extern "C"
     ///     - This function may **not** be called from simultaneous threads with the
     ///       same command list handle.
     ///     - The implementation of this function should be lock-free.
-    ///     - Use ::zeKernelSuggestMaxCooperativeGroupCount to recommend max group
+    ///     - Use zeKernelSuggestMaxCooperativeGroupCount to recommend max group
     ///       count for device for cooperative functions that device supports.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandList`
     ///         + `nullptr == hKernel`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pLaunchFuncArgs`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
-    ///     - ::ZE_RESULT_ERROR_INVALID_SIZE
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_ERROR_INVALID_SIZE
     ///         + `(nullptr == phWaitEvents) && (0 < numWaitEvents)`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandListAppendLaunchCooperativeKernel(
         ze_command_list_handle_t hCommandList,    ///< [in] handle of the command list
@@ -4834,16 +4834,16 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandList`
     ///         + `nullptr == hKernel`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pLaunchArgumentsBuffer`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
-    ///     - ::ZE_RESULT_ERROR_INVALID_SIZE
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_ERROR_INVALID_SIZE
     ///         + `(nullptr == phWaitEvents) && (0 < numWaitEvents)`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandListAppendLaunchKernelIndirect(
         ze_command_list_handle_t hCommandList,           ///< [in] handle of the command list
@@ -4879,17 +4879,17 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hCommandList`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == phKernels`
     ///         + `nullptr == pCountBuffer`
     ///         + `nullptr == pLaunchArgumentsBuffer`
-    ///     - ::ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
-    ///     - ::ZE_RESULT_ERROR_INVALID_SIZE
+    ///     - ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT
+    ///     - ZE_RESULT_ERROR_INVALID_SIZE
     ///         + `(nullptr == phWaitEvents) && (0 < numWaitEvents)`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeCommandListAppendLaunchMultipleKernelsIndirect(
         ze_command_list_handle_t hCommandList,           ///< [in] handle of the command list
@@ -4942,16 +4942,16 @@ extern "C"
     /// @brief Raytracing memory allocation descriptor
     ///
     /// @details
-    ///     - This structure must be passed to ::zeMemAllocShared or
-    ///       ::zeMemAllocDevice, via `pNext` member of
-    ///       ::ze_device_mem_alloc_desc_t, for any memory allocation that is to be
+    ///     - This structure must be passed to zeMemAllocShared or
+    ///       zeMemAllocDevice, via `pNext` member of
+    ///       ze_device_mem_alloc_desc_t, for any memory allocation that is to be
     ///       accessed by raytracing fixed-function of the device.
     typedef struct _ze_raytracing_mem_alloc_ext_desc_t
     {
         ze_structure_type_t stype;                 ///< [in] type of this structure
         const void * pNext;                        ///< [in][optional] pointer to extension-specific structure
         ze_raytracing_mem_alloc_ext_flags_t flags; ///< [in] flags specifying additional allocation controls.
-                                                   ///< must be 0 (default) or a valid combination of ::ze_raytracing_mem_alloc_ext_flag_t;
+                                                   ///< must be 0 (default) or a valid combination of ze_raytracing_mem_alloc_ext_flag_t;
                                                    ///< default behavior may use implicit driver-based heuristics.
     } ze_raytracing_mem_alloc_ext_desc_t;
 
@@ -4972,16 +4972,16 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
     ///         + `nullptr == hDevice`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == ptr`
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
     ZE_APIEXPORT ze_result_t ZE_APICALL zeContextMakeMemoryResident(ze_context_handle_t hContext, ///< [in] handle of context object
                                                                     ze_device_handle_t hDevice,   ///< [in] handle of the device
                                                                     void * ptr,                   ///< [in] pointer to memory to make resident
@@ -5000,16 +5000,16 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
     ///         + `nullptr == hDevice`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == ptr`
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
     ZE_APIEXPORT ze_result_t ZE_APICALL zeContextEvictMemory(ze_context_handle_t hContext, ///< [in] handle of context object
                                                              ze_device_handle_t hDevice,   ///< [in] handle of the device
                                                              void * ptr,                   ///< [in] pointer to memory to evict
@@ -5026,15 +5026,15 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
     ///         + `nullptr == hDevice`
     ///         + `nullptr == hImage`
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
     ZE_APIEXPORT ze_result_t ZE_APICALL zeContextMakeImageResident(ze_context_handle_t hContext, ///< [in] handle of context object
                                                                    ze_device_handle_t hDevice,   ///< [in] handle of the device
                                                                    ze_image_handle_t hImage      ///< [in] handle of image to make resident
@@ -5052,15 +5052,15 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
     ///         + `nullptr == hDevice`
     ///         + `nullptr == hImage`
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
     ZE_APIEXPORT ze_result_t ZE_APICALL zeContextEvictImage(ze_context_handle_t hContext, ///< [in] handle of context object
                                                             ze_device_handle_t hDevice,   ///< [in] handle of the device
                                                             ze_image_handle_t hImage      ///< [in] handle of image to make evict
@@ -5118,19 +5118,19 @@ extern "C"
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
     ///         + `nullptr == hDevice`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == desc`
     ///         + `nullptr == phSampler`
-    ///     - ::ZE_RESULT_ERROR_INVALID_ENUMERATION
-    ///         + `::ZE_SAMPLER_ADDRESS_MODE_MIRROR < desc->addressMode`
-    ///         + `::ZE_SAMPLER_FILTER_MODE_LINEAR < desc->filterMode`
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
+    ///     - ZE_RESULT_ERROR_INVALID_ENUMERATION
+    ///         + `ZE_SAMPLER_ADDRESS_MODE_MIRROR < desc->addressMode`
+    ///         + `ZE_SAMPLER_FILTER_MODE_LINEAR < desc->filterMode`
+    ///     - ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
     ZE_APIEXPORT ze_result_t ZE_APICALL zeSamplerCreate(ze_context_handle_t hContext,   ///< [in] handle of the context object
                                                         ze_device_handle_t hDevice,     ///< [in] handle of the device
                                                         const ze_sampler_desc_t * desc, ///< [in] pointer to sampler descriptor
@@ -5150,12 +5150,12 @@ extern "C"
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hSampler`
-    ///     - ::ZE_RESULT_ERROR_HANDLE_OBJECT_IN_USE
+    ///     - ZE_RESULT_ERROR_HANDLE_OBJECT_IN_USE
     ZE_APIEXPORT ze_result_t ZE_APICALL zeSamplerDestroy(ze_sampler_handle_t hSampler ///< [in][release] handle of the sampler
     );
 
@@ -5183,7 +5183,7 @@ extern "C"
     ///     - The application must only use the memory allocation on the context for
     ///       which it was created.
     ///     - The starting address and size must be page aligned. See
-    ///       ::zeVirtualMemQueryPageSize.
+    ///       zeVirtualMemQueryPageSize.
     ///     - If pStart is not null then implementation will attempt to reserve
     ///       starting from that address. If not available then will find another
     ///       suitable starting address.
@@ -5193,18 +5193,18 @@ extern "C"
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pStart`
     ///         + `nullptr == pptr`
-    ///     - ::ZE_RESULT_ERROR_UNSUPPORTED_SIZE
+    ///     - ZE_RESULT_ERROR_UNSUPPORTED_SIZE
     ///         + `0 == size`
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
     ZE_APIEXPORT ze_result_t ZE_APICALL zeVirtualMemReserve(ze_context_handle_t hContext, ///< [in] handle of the context object
                                                             const void * pStart, ///< [in] pointer to start of region to reserve. If nullptr then
                                                                                  ///< implementation will choose a start address.
@@ -5223,16 +5223,16 @@ extern "C"
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == ptr`
-    ///     - ::ZE_RESULT_ERROR_UNSUPPORTED_SIZE
+    ///     - ZE_RESULT_ERROR_UNSUPPORTED_SIZE
     ///         + `0 == size`
-    ///     - ::ZE_RESULT_ERROR_UNSUPPORTED_ALIGNMENT
+    ///     - ZE_RESULT_ERROR_UNSUPPORTED_ALIGNMENT
     ZE_APIEXPORT ze_result_t ZE_APICALL zeVirtualMemFree(ze_context_handle_t hContext, ///< [in] handle of the context object
                                                          const void * ptr,             ///< [in] pointer to start of region to free.
                                                          size_t size                   ///< [in] size in bytes to free; must be page aligned.
@@ -5247,15 +5247,15 @@ extern "C"
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
     ///         + `nullptr == hDevice`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == pagesize`
-    ///     - ::ZE_RESULT_ERROR_UNSUPPORTED_SIZE
+    ///     - ZE_RESULT_ERROR_UNSUPPORTED_SIZE
     ///         + `0 == size`
     ZE_APIEXPORT ze_result_t ZE_APICALL zeVirtualMemQueryPageSize(ze_context_handle_t hContext, ///< [in] handle of the context object
                                                                   ze_device_handle_t hDevice,   ///< [in] handle of the device object
@@ -5280,7 +5280,7 @@ extern "C"
         ze_structure_type_t stype;     ///< [in] type of this structure
         const void * pNext;            ///< [in][optional] pointer to extension-specific structure
         ze_physical_mem_flags_t flags; ///< [in] creation flags.
-                                       ///< must be 0 (default) or a valid combination of ::ze_physical_mem_flag_t.
+                                       ///< must be 0 (default) or a valid combination of ze_physical_mem_flag_t.
         size_t size;                   ///< [in] size in bytes to reserve; must be page aligned.
     } ze_physical_mem_desc_t;
 
@@ -5290,26 +5290,26 @@ extern "C"
     /// @details
     ///     - The application must only use the physical memory object on the
     ///       context for which it was created.
-    ///     - The size must be page aligned. See ::zeVirtualMemQueryPageSize.
+    ///     - The size must be page aligned. See zeVirtualMemQueryPageSize.
     ///     - The application may call this function from simultaneous threads.
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
     ///         + `nullptr == hDevice`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == desc`
     ///         + `nullptr == phPhysicalMemory`
-    ///     - ::ZE_RESULT_ERROR_INVALID_ENUMERATION
+    ///     - ZE_RESULT_ERROR_INVALID_ENUMERATION
     ///         + `0x1 < desc->flags`
-    ///     - ::ZE_RESULT_ERROR_UNSUPPORTED_SIZE
+    ///     - ZE_RESULT_ERROR_UNSUPPORTED_SIZE
     ///         + `0 == desc->size`
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
-    ///     - ::ZE_RESULT_ERROR_UNSUPPORTED_ALIGNMENT
+    ///     - ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
+    ///     - ZE_RESULT_ERROR_UNSUPPORTED_ALIGNMENT
     ZE_APIEXPORT ze_result_t ZE_APICALL zePhysicalMemCreate(
         ze_context_handle_t hContext,               ///< [in] handle of the context object
         ze_device_handle_t hDevice,                 ///< [in] handle of the device object
@@ -5328,13 +5328,13 @@ extern "C"
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
     ///         + `nullptr == hPhysicalMemory`
-    ///     - ::ZE_RESULT_ERROR_HANDLE_OBJECT_IN_USE
+    ///     - ZE_RESULT_ERROR_HANDLE_OBJECT_IN_USE
     ZE_APIEXPORT ze_result_t ZE_APICALL zePhysicalMemDestroy(
         ze_context_handle_t hContext,            ///< [in] handle of the context object
         ze_physical_mem_handle_t hPhysicalMemory ///< [in][release] handle of physical memory object to destroy
@@ -5346,32 +5346,32 @@ extern "C"
     ///
     /// @details
     ///     - The virtual address range must have been reserved using
-    ///       ::zeVirtualMemReserve.
+    ///       zeVirtualMemReserve.
     ///     - The application must only use the mapped memory allocation on the
     ///       context for which it was created.
     ///     - The virtual start address and size must be page aligned. See
-    ///       ::zeVirtualMemQueryPageSize.
+    ///       zeVirtualMemQueryPageSize.
     ///     - The application should use, for the starting address and size, the
     ///       same size alignment used for the physical allocation.
     ///     - The application may call this function from simultaneous threads.
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
     ///         + `nullptr == hPhysicalMemory`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == ptr`
-    ///     - ::ZE_RESULT_ERROR_INVALID_ENUMERATION
-    ///         + `::ZE_MEMORY_ACCESS_ATTRIBUTE_READONLY < access`
-    ///     - ::ZE_RESULT_ERROR_UNSUPPORTED_SIZE
+    ///     - ZE_RESULT_ERROR_INVALID_ENUMERATION
+    ///         + `ZE_MEMORY_ACCESS_ATTRIBUTE_READONLY < access`
+    ///     - ZE_RESULT_ERROR_UNSUPPORTED_SIZE
     ///         + `0 == size`
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
-    ///     - ::ZE_RESULT_ERROR_UNSUPPORTED_ALIGNMENT
+    ///     - ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
+    ///     - ZE_RESULT_ERROR_UNSUPPORTED_ALIGNMENT
     ZE_APIEXPORT ze_result_t ZE_APICALL zeVirtualMemMap(
         ze_context_handle_t hContext,             ///< [in] handle of the context object
         const void * ptr,                         ///< [in] pointer to start of virtual address range to map.
@@ -5395,17 +5395,17 @@ extern "C"
     ///     - The implementation of this function must be thread-safe.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == ptr`
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
-    ///     - ::ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
-    ///     - ::ZE_RESULT_ERROR_UNSUPPORTED_ALIGNMENT - "Address must be page aligned"
-    ///     - ::ZE_RESULT_ERROR_UNSUPPORTED_SIZE
+    ///     - ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY
+    ///     - ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY
+    ///     - ZE_RESULT_ERROR_UNSUPPORTED_ALIGNMENT - "Address must be page aligned"
+    ///     - ZE_RESULT_ERROR_UNSUPPORTED_SIZE
     ///         + `0 == size`
     ///         + Size must be page aligned
     ZE_APIEXPORT ze_result_t ZE_APICALL zeVirtualMemUnmap(ze_context_handle_t hContext, ///< [in] handle of the context object
@@ -5422,17 +5422,17 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == ptr`
-    ///     - ::ZE_RESULT_ERROR_INVALID_ENUMERATION
-    ///         + `::ZE_MEMORY_ACCESS_ATTRIBUTE_READONLY < access`
-    ///     - ::ZE_RESULT_ERROR_UNSUPPORTED_ALIGNMENT - "Address must be page aligned"
-    ///     - ::ZE_RESULT_ERROR_UNSUPPORTED_SIZE
+    ///     - ZE_RESULT_ERROR_INVALID_ENUMERATION
+    ///         + `ZE_MEMORY_ACCESS_ATTRIBUTE_READONLY < access`
+    ///     - ZE_RESULT_ERROR_UNSUPPORTED_ALIGNMENT - "Address must be page aligned"
+    ///     - ZE_RESULT_ERROR_UNSUPPORTED_SIZE
     ///         + `0 == size`
     ///         + Size must be page aligned
     ZE_APIEXPORT ze_result_t ZE_APICALL zeVirtualMemSetAccessAttribute(
@@ -5454,17 +5454,17 @@ extern "C"
     ///     - The implementation of this function should be lock-free.
     ///
     /// @returns
-    ///     - ::ZE_RESULT_SUCCESS
-    ///     - ::ZE_RESULT_ERROR_UNINITIALIZED
-    ///     - ::ZE_RESULT_ERROR_DEVICE_LOST
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_HANDLE
+    ///     - ZE_RESULT_SUCCESS
+    ///     - ZE_RESULT_ERROR_UNINITIALIZED
+    ///     - ZE_RESULT_ERROR_DEVICE_LOST
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_HANDLE
     ///         + `nullptr == hContext`
-    ///     - ::ZE_RESULT_ERROR_INVALID_NULL_POINTER
+    ///     - ZE_RESULT_ERROR_INVALID_NULL_POINTER
     ///         + `nullptr == ptr`
     ///         + `nullptr == access`
     ///         + `nullptr == outSize`
-    ///     - ::ZE_RESULT_ERROR_UNSUPPORTED_ALIGNMENT - "Address must be page aligned"
-    ///     - ::ZE_RESULT_ERROR_UNSUPPORTED_SIZE
+    ///     - ZE_RESULT_ERROR_UNSUPPORTED_ALIGNMENT - "Address must be page aligned"
+    ///     - ZE_RESULT_ERROR_UNSUPPORTED_SIZE
     ///         + `0 == size`
     ///         + Size must be page aligned
     ZE_APIEXPORT ze_result_t ZE_APICALL zeVirtualMemGetAccessAttribute(

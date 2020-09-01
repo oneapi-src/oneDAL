@@ -37,10 +37,10 @@ namespace oneapi::dal::preview {
 /// @tparam IndexType    Type of vertex indices
 /// @tparam Allocator    Type of the custom allocator (currently not supported)
 template <typename VertexValue = empty_value,
-          typename EdgeValue   = empty_value,
-          typename GraphValue  = empty_value,
-          typename IndexType   = std::int32_t,
-          typename Allocator   = std::allocator<char>>
+          typename EdgeValue = empty_value,
+          typename GraphValue = empty_value,
+          typename IndexType = std::int32_t,
+          typename Allocator = std::allocator<char>>
 class ONEAPI_DAL_EXPORT undirected_adjacency_array_graph {
 public:
     using graph_type =
@@ -48,24 +48,24 @@ public:
     using allocator_type = Allocator;
 
     // graph weight types
-    using graph_user_value_type       = GraphValue;
+    using graph_user_value_type = GraphValue;
     using const_graph_user_value_type = const graph_user_value_type;
 
     // vertex types
-    using vertex_type       = IndexType;
+    using vertex_type = IndexType;
     using const_vertex_type = const vertex_type;
     using vertex_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<vertex_type>;
-    using vertex_set            = detail::graph_container<vertex_type, vertex_allocator_type>;
-    using vertex_iterator       = typename vertex_set::iterator;
+    using vertex_set = detail::graph_container<vertex_type, vertex_allocator_type>;
+    using vertex_iterator = typename vertex_set::iterator;
     using const_vertex_iterator = typename vertex_set::const_iterator;
-    using vertex_size_type      = typename vertex_set::size_type;
+    using vertex_size_type = typename vertex_set::size_type;
 
-    using vertex_key_type       = vertex_type;
+    using vertex_key_type = vertex_type;
     using const_vertex_key_type = const vertex_key_type;
 
     // vertex weight types
-    using vertex_user_value_type       = VertexValue;
+    using vertex_user_value_type = VertexValue;
     using const_vertex_user_value_type = const vertex_user_value_type;
     using vertex_user_value_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<vertex_user_value_type>;
@@ -76,10 +76,10 @@ public:
     using edge_type = IndexType;
     using edge_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<edge_type>;
-    using edge_set            = detail::graph_container<edge_type, edge_allocator_type>;
-    using edge_iterator       = typename edge_set::iterator;
+    using edge_set = detail::graph_container<edge_type, edge_allocator_type>;
+    using edge_iterator = typename edge_set::iterator;
     using const_edge_iterator = typename edge_set::const_iterator;
-    using edge_size_type      = typename edge_set::size_type;
+    using edge_size_type = typename edge_set::size_type;
 
     // edge weight types
     using edge_user_value_type = EdgeValue;
@@ -88,12 +88,12 @@ public:
     using edge_user_value_set =
         detail::graph_container<edge_user_value_type, edge_user_value_allocator_type>;
 
-    using edge_key_type   = std::pair<vertex_key_type, vertex_key_type>;
+    using edge_key_type = std::pair<vertex_key_type, vertex_key_type>;
     using edge_value_type = std::pair<edge_key_type, edge_user_value_type>;
-    using edge_index      = IndexType;
+    using edge_index = IndexType;
 
     // ranges
-    using edge_range       = range<edge_iterator>;
+    using edge_range = range<edge_iterator>;
     using const_edge_range = range<const_edge_iterator>;
 
     static_assert(std::is_integral_v<vertex_type> && std::is_signed_v<vertex_type> &&

@@ -28,55 +28,55 @@ inline void check_domain_cond(bool value, const char* description) {
 template <>
 class detail::descriptor_impl<task::classification> : public base {
 public:
-    double observations_per_tree_fraction      = 1.0;
-    double impurity_threshold                  = 0.0;
-    double min_weight_fraction_in_leaf_node    = 0.0;
+    double observations_per_tree_fraction = 1.0;
+    double impurity_threshold = 0.0;
+    double min_weight_fraction_in_leaf_node = 0.0;
     double min_impurity_decrease_in_split_node = 0.0;
 
-    std::int64_t class_count                    = 2;
-    std::int64_t tree_count                     = 100;
-    std::int64_t features_per_node              = 0;
-    std::int64_t max_tree_depth                 = 0;
-    std::int64_t min_observations_in_leaf_node  = 1;
+    std::int64_t class_count = 2;
+    std::int64_t tree_count = 100;
+    std::int64_t features_per_node = 0;
+    std::int64_t max_tree_depth = 0;
+    std::int64_t min_observations_in_leaf_node = 1;
     std::int64_t min_observations_in_split_node = 2;
-    std::int64_t max_leaf_nodes                 = 0;
+    std::int64_t max_leaf_nodes = 0;
 
     error_metric_mode error_metric_mode_value = error_metric_mode::none;
-    infer_mode infer_mode_value               = infer_mode::class_labels;
+    infer_mode infer_mode_value = infer_mode::class_labels;
 
     bool memory_saving_mode = false;
-    bool bootstrap          = true;
+    bool bootstrap = true;
 
     variable_importance_mode variable_importance_mode_value = variable_importance_mode::none;
-    voting_mode voting_mode_value                           = voting_mode::weighted;
+    voting_mode voting_mode_value = voting_mode::weighted;
 };
 
 template <>
 class detail::descriptor_impl<task::regression> : public base {
 public:
-    double observations_per_tree_fraction      = 1.0;
-    double impurity_threshold                  = 0.0;
-    double min_weight_fraction_in_leaf_node    = 0.0;
+    double observations_per_tree_fraction = 1.0;
+    double impurity_threshold = 0.0;
+    double min_weight_fraction_in_leaf_node = 0.0;
     double min_impurity_decrease_in_split_node = 0.0;
 
-    std::int64_t class_count                    = 0;
-    std::int64_t tree_count                     = 100;
-    std::int64_t features_per_node              = 0;
-    std::int64_t max_tree_depth                 = 0;
-    std::int64_t min_observations_in_leaf_node  = 5;
+    std::int64_t class_count = 0;
+    std::int64_t tree_count = 100;
+    std::int64_t features_per_node = 0;
+    std::int64_t max_tree_depth = 0;
+    std::int64_t min_observations_in_leaf_node = 5;
     std::int64_t min_observations_in_split_node = 2;
-    std::int64_t max_leaf_nodes                 = 0;
+    std::int64_t max_leaf_nodes = 0;
 
     error_metric_mode error_metric_mode_value = error_metric_mode::none;
-    infer_mode infer_mode_value               = infer_mode::class_labels;
+    infer_mode infer_mode_value = infer_mode::class_labels;
 
     bool memory_saving_mode = false;
-    bool bootstrap          = true;
+    bool bootstrap = true;
 
     // engine field
 
     variable_importance_mode variable_importance_mode_value = variable_importance_mode::none;
-    voting_mode voting_mode_value                           = voting_mode::weighted;
+    voting_mode voting_mode_value = voting_mode::weighted;
 };
 
 using detail::descriptor_impl;

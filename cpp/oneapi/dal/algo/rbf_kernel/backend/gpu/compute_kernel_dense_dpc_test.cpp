@@ -28,9 +28,9 @@ using namespace oneapi::dal;
 using std::int32_t;
 
 TEST(rbf_kernel_dense_gpu_test, can_compute_unit_matrix) {
-    constexpr std::int64_t row_count    = 2;
+    constexpr std::int64_t row_count = 2;
     constexpr std::int64_t column_count = 2;
-    const float x_host[]                = {
+    const float x_host[] = {
         1.f,
         1.f,
         1.f,
@@ -44,7 +44,7 @@ TEST(rbf_kernel_dense_gpu_test, can_compute_unit_matrix) {
     };
 
     auto selector = sycl::gpu_selector();
-    auto queue    = sycl::queue(selector);
+    auto queue = sycl::queue(selector);
 
     auto x = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(x, x_host, sizeof(float) * row_count * column_count).wait();
@@ -55,7 +55,7 @@ TEST(rbf_kernel_dense_gpu_test, can_compute_unit_matrix) {
     const auto x_table = homogen_table::wrap(queue, x, row_count, column_count);
     const auto y_table = homogen_table::wrap(queue, y, row_count, column_count);
 
-    const auto kernel_desc  = rbf_kernel::descriptor{};
+    const auto kernel_desc = rbf_kernel::descriptor{};
     const auto values_table = compute(queue, kernel_desc, x_table, y_table).get_values();
     ASSERT_EQ(values_table.get_row_count(), row_count);
     ASSERT_EQ(values_table.get_column_count(), row_count);
@@ -70,9 +70,9 @@ TEST(rbf_kernel_dense_gpu_test, can_compute_unit_matrix) {
 }
 
 TEST(rbf_kernel_dense_gpu_test, can_compute_same_unit_matrix) {
-    constexpr std::int64_t row_count    = 2;
+    constexpr std::int64_t row_count = 2;
     constexpr std::int64_t column_count = 2;
-    const float x_host[]                = {
+    const float x_host[] = {
         1.f,
         1.f,
         1.f,
@@ -80,13 +80,13 @@ TEST(rbf_kernel_dense_gpu_test, can_compute_same_unit_matrix) {
     };
 
     auto selector = sycl::gpu_selector();
-    auto queue    = sycl::queue(selector);
+    auto queue = sycl::queue(selector);
 
     auto x = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(x, x_host, sizeof(float) * row_count * column_count).wait();
     const auto x_table = homogen_table::wrap(queue, x, row_count, column_count);
 
-    const auto kernel_desc  = rbf_kernel::descriptor{};
+    const auto kernel_desc = rbf_kernel::descriptor{};
     const auto values_table = compute(queue, kernel_desc, x_table, x_table).get_values();
     ASSERT_EQ(values_table.get_row_count(), row_count);
     ASSERT_EQ(values_table.get_column_count(), row_count);
@@ -100,9 +100,9 @@ TEST(rbf_kernel_dense_gpu_test, can_compute_same_unit_matrix) {
 }
 
 TEST(rbf_kernel_dense_gpu_test, can_compute_one_element) {
-    constexpr std::int64_t row_count    = 1;
+    constexpr std::int64_t row_count = 1;
     constexpr std::int64_t column_count = 1;
-    const float x_host[]                = {
+    const float x_host[] = {
         1.f,
     };
     const float y_host[] = {
@@ -110,7 +110,7 @@ TEST(rbf_kernel_dense_gpu_test, can_compute_one_element) {
     };
 
     auto selector = sycl::gpu_selector();
-    auto queue    = sycl::queue(selector);
+    auto queue = sycl::queue(selector);
 
     auto x = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(x, x_host, sizeof(float) * row_count * column_count).wait();
@@ -121,12 +121,12 @@ TEST(rbf_kernel_dense_gpu_test, can_compute_one_element) {
     const auto x_table = homogen_table::wrap(queue, x, row_count, column_count);
     const auto y_table = homogen_table::wrap(queue, y, row_count, column_count);
 
-    const auto kernel_desc  = rbf_kernel::descriptor{};
+    const auto kernel_desc = rbf_kernel::descriptor{};
     const auto values_table = compute(queue, kernel_desc, x_table, y_table).get_values();
     ASSERT_EQ(values_table.get_row_count(), row_count);
     ASSERT_EQ(values_table.get_column_count(), row_count);
 
-    const auto values      = row_accessor<const float>(values_table).pull(queue);
+    const auto values = row_accessor<const float>(values_table).pull(queue);
     const double ref_value = std::exp(-0.5 * (x_host[0] - y_host[0]) * (x_host[0] - y_host[0]));
     ASSERT_FLOAT_EQ(values[0], ref_value);
 
@@ -135,10 +135,10 @@ TEST(rbf_kernel_dense_gpu_test, can_compute_one_element) {
 }
 
 TEST(rbf_kernel_dense_gpu_test, can_compute_diff_matrix) {
-    constexpr std::int64_t row_count_x  = 2;
-    constexpr std::int64_t row_count_y  = 3;
+    constexpr std::int64_t row_count_x = 2;
+    constexpr std::int64_t row_count_y = 3;
     constexpr std::int64_t column_count = 1;
-    const float x_host[]                = {
+    const float x_host[] = {
         1.f,
         2.f,
     };
@@ -149,7 +149,7 @@ TEST(rbf_kernel_dense_gpu_test, can_compute_diff_matrix) {
     };
 
     auto selector = sycl::gpu_selector();
-    auto queue    = sycl::queue(selector);
+    auto queue = sycl::queue(selector);
 
     auto x = sycl::malloc_shared<float>(row_count_x * column_count, queue);
     queue.memcpy(x, x_host, sizeof(float) * row_count_x * column_count).wait();
@@ -160,7 +160,7 @@ TEST(rbf_kernel_dense_gpu_test, can_compute_diff_matrix) {
     const auto x_table = homogen_table::wrap(queue, x, row_count_x, column_count);
     const auto y_table = homogen_table::wrap(queue, y, row_count_y, column_count);
 
-    const auto kernel_desc  = rbf_kernel::descriptor{};
+    const auto kernel_desc = rbf_kernel::descriptor{};
     const auto values_table = compute(queue, kernel_desc, x_table, y_table).get_values();
     ASSERT_EQ(values_table.get_row_count(), row_count_x);
     ASSERT_EQ(values_table.get_column_count(), row_count_y);
@@ -180,10 +180,10 @@ TEST(rbf_kernel_dense_gpu_test, can_compute_diff_matrix) {
 }
 
 TEST(rbf_kernel_dense_gpu_test, can_compute_diff_matrix_not_default_params) {
-    constexpr std::int64_t row_count_x  = 2;
-    constexpr std::int64_t row_count_y  = 3;
+    constexpr std::int64_t row_count_x = 2;
+    constexpr std::int64_t row_count_y = 3;
     constexpr std::int64_t column_count = 1;
-    const float x_host[]                = {
+    const float x_host[] = {
         1.f,
         2.f,
     };
@@ -194,7 +194,7 @@ TEST(rbf_kernel_dense_gpu_test, can_compute_diff_matrix_not_default_params) {
     };
 
     auto selector = sycl::gpu_selector();
-    auto queue    = sycl::queue(selector);
+    auto queue = sycl::queue(selector);
 
     auto x = sycl::malloc_shared<float>(row_count_x * column_count, queue);
     queue.memcpy(x, x_host, sizeof(float) * row_count_x * column_count).wait();
@@ -205,8 +205,8 @@ TEST(rbf_kernel_dense_gpu_test, can_compute_diff_matrix_not_default_params) {
     const auto x_table = homogen_table::wrap(queue, x, row_count_x, column_count);
     const auto y_table = homogen_table::wrap(queue, y, row_count_y, column_count);
 
-    constexpr double sigma  = 0.9;
-    const auto kernel_desc  = rbf_kernel::descriptor{}.set_sigma(sigma);
+    constexpr double sigma = 0.9;
+    const auto kernel_desc = rbf_kernel::descriptor{}.set_sigma(sigma);
     const auto values_table = compute(queue, kernel_desc, x_table, y_table).get_values();
     ASSERT_EQ(values_table.get_row_count(), row_count_x);
     ASSERT_EQ(values_table.get_column_count(), row_count_y);

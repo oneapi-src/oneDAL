@@ -75,7 +75,7 @@ struct is_homogen_table_builder_impl {
         copy_data_dpc)
 
     static constexpr bool value_dpc = has_method_allocate_dpc_v<T> && has_method_copy_data_dpc_v<T>;
-    static constexpr bool value     = value_host && value_dpc;
+    static constexpr bool value = value_host && value_dpc;
 #else
     static constexpr bool value = value_host;
 #endif
@@ -91,7 +91,7 @@ class ONEAPI_DAL_EXPORT table_builder {
 public:
     template <typename Impl,
               typename ImplType = std::decay_t<Impl>,
-              typename          = std::enable_if_t<is_table_builder_impl_v<ImplType> &&
+              typename = std::enable_if_t<is_table_builder_impl_v<ImplType> &&
                                           !std::is_base_of_v<table_builder, ImplType>>>
     table_builder(Impl&& impl)
             : table_builder(new detail::table_builder_impl_wrapper(std::forward<Impl>(impl))) {}
@@ -113,7 +113,7 @@ public:
 
     template <typename Impl,
               typename ImplType = std::decay_t<Impl>,
-              typename          = std::enable_if_t<is_homogen_table_builder_impl_v<ImplType> &&
+              typename = std::enable_if_t<is_homogen_table_builder_impl_v<ImplType> &&
                                           !std::is_base_of_v<table_builder, ImplType>>>
     homogen_table_builder(Impl&& impl)
             : table_builder(

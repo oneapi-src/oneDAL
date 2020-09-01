@@ -23,7 +23,7 @@
 
 namespace oneapi::dal::svm::backend {
 
-namespace interop  = dal::backend::interop;
+namespace interop = dal::backend::interop;
 namespace daal_svm = daal::algorithms::svm;
 
 struct daal_model_builder : public daal::algorithms::svm::Model {
@@ -52,7 +52,7 @@ inline auto convert_from_daal_model(daal_svm::Model& model) {
         interop::convert_from_daal_homogen_table<T>(model.getSupportVectors());
     auto table_classification_coeffs =
         interop::convert_from_daal_homogen_table<T>(model.getClassificationCoefficients());
-    const double bias                       = model.getBias();
+    const double bias = model.getBias();
     const std::int64_t support_vector_count = table_support_vectors.get_row_count();
 
     return dal::svm::model()

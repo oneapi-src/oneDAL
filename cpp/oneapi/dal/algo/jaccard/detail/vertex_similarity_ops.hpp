@@ -33,18 +33,18 @@ struct ONEAPI_DAL_EXPORT vertex_similarity_ops_dispatcher {
 
 template <typename Descriptor, typename Graph>
 struct vertex_similarity_ops {
-    using float_t           = typename Descriptor::float_t;
-    using method_t          = typename Descriptor::method_t;
-    using input_t           = vertex_similarity_input<Graph>;
-    using result_t          = vertex_similarity_result;
+    using float_t = typename Descriptor::float_t;
+    using method_t = typename Descriptor::method_t;
+    using input_t = vertex_similarity_input<Graph>;
+    using result_t = vertex_similarity_result;
     using descriptor_base_t = descriptor_base;
 
     void check_preconditions(const Descriptor &param, vertex_similarity_input<Graph> &input) const {
-        const auto row_begin    = param.get_row_range_begin();
-        const auto row_end      = param.get_row_range_end();
+        const auto row_begin = param.get_row_range_begin();
+        const auto row_end = param.get_row_range_end();
         const auto column_begin = param.get_column_range_begin();
-        const auto column_end   = param.get_column_range_end();
-        auto vertex_count       = static_cast<int64_t>(
+        const auto column_end = param.get_column_range_end();
+        auto vertex_count = static_cast<int64_t>(
             oneapi::dal::preview::detail::get_impl(input.get_graph())->_vertex_count);
         if (row_begin < 0 || column_begin < 0) {
             throw oneapi::dal::invalid_argument("Negative interval");

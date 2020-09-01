@@ -14,6 +14,16 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _kmeans_computation_batch:
+
+Batch Processing
+****************
+
+.. contents::
+    :local:
+    :depth: 1
+
+
 Algorithm Input
 +++++++++++++++
 

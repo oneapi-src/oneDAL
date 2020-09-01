@@ -35,7 +35,7 @@ using std::int64_t;
 using dal::backend::context_gpu;
 
 namespace daal_kmeans_init = daal::algorithms::kmeans::init;
-namespace interop          = dal::backend::interop;
+namespace interop = dal::backend::interop;
 
 template <typename Float, typename Method>
 using daal_kmeans_init_kernel_t =
@@ -54,26 +54,26 @@ static compute_result call_daal_kernel(const context_gpu& ctx,
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
-    const int64_t column_count  = data.get_column_count();
+    const int64_t column_count = data.get_column_count();
     const int64_t cluster_count = params.get_cluster_count();
 
     daal_kmeans_init::Parameter par(cluster_count);
 
-    auto arr_data        = row_accessor<const Float>{ data }.pull(queue);
+    auto arr_data = row_accessor<const Float>{ data }.pull(queue);
     const auto daal_data = interop::convert_to_daal_sycl_homogen_table(queue,
                                                                        arr_data,
                                                                        data.get_row_count(),
                                                                        data.get_column_count());
 
     array<Float> arr_centroids = array<Float>::empty(queue, cluster_count * column_count);
-    const auto daal_centroids  = interop::convert_to_daal_sycl_homogen_table(queue,
+    const auto daal_centroids = interop::convert_to_daal_sycl_homogen_table(queue,
                                                                             arr_centroids,
                                                                             cluster_count,
                                                                             column_count);
 
-    const size_t len_daal_input                                       = 1;
-    daal::data_management::NumericTable* daal_input[len_daal_input]   = { daal_data.get() };
-    const size_t len_daal_output                                      = 1;
+    const size_t len_daal_input = 1;
+    daal::data_management::NumericTable* daal_input[len_daal_input] = { daal_data.get() };
+    const size_t len_daal_output = 1;
     daal::data_management::NumericTable* daal_output[len_daal_output] = { daal_centroids.get() };
 
     interop::status_to_exception(daal_kmeans_init_kernel_t<Float, Method>().compute(len_daal_input,
