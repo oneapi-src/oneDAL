@@ -39,6 +39,7 @@ There are numerous ways to define the measure of similarity and
 centroids. For K-Means, the centroid is defined as the mean of
 feature vectors within the cluster.
 
+.. _kmeans_details:
 
 Details
 *******
@@ -221,33 +222,30 @@ Initialization
 **************
 
 The K-Means clustering algorithm requires initialization of
-centroids as an explicit step. Initialization flow depends by the
+centroids as an explicit step. Initialization flow depends on the
 computation mode. Skip this step if you already calculated initial
 centroids.
 
-Batch Processing
-----------------
+For initialization, the following computation modes are available:
 
-.. include:: includes/initialization-batch.rst
-
-Distributed Processing
-----------------------
-
-.. include:: includes/initialization-distributed.rst
+.. toctree::
+   :maxdepth: 1
+   
+   initialization-batch.rst
+   initialization-distributed.rst
 
 Computation
 ***********
 
+The following computation modes are available:
 
-Batch Processing
-----------------
+.. toctree::
+   :maxdepth: 1
+   
+   computation-batch.rst
+   computation-distributed.rst
 
-.. include:: includes/computation-batch.rst
-
-Distributed Processing
-----------------------
-
-.. include:: includes/computation-distributed.rst
+.. note:: In DPC++, distributed processing for K-Means is only available as a `technical preview feature <https://github.com/oneapi-src/oneDAL#technical-preview-features>`_.
 
 Examples
 ********
