@@ -24,7 +24,6 @@
 #include "src/threading/threading.h"
 #include "services/daal_memory.h"
 #include "src/algorithms/service_sort.h"
-#include <iostream>
 
 #if defined(__DO_TBB_LAYER__)
     #define TBB_PREVIEW_GLOBAL_CONTROL 1
@@ -115,10 +114,8 @@ DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, 
 DAAL_EXPORT void _daal_parallel_sort(int * begin_ptr, int * end_ptr)
 {
 #if defined(__DO_TBB_LAYER__)
-    std::cout << "parallel sort of " << std::distance(begin_ptr, end_ptr) << " elements" << std::endl;
     tbb::parallel_sort(begin_ptr, end_ptr);
 #elif defined(__DO_SEQ_LAYER__)
-    std::cout << "seq sort of " << std::distance(begin_ptr, end_ptr) << " vs " << (end_ptr - begin_ptr) << " elements" << std::endl;
     daal::algorithms::internal::qSort<int, daal::sse2>(end_ptr - begin_ptr, begin_ptr);
 #endif
 }
