@@ -7,12 +7,9 @@ cc_library(
 )
 
 cc_library(
-    name = "tbb",
+    name = "tbb_binary",
     srcs = [
         "lib/intel64/gcc4.8/libtbb.so.12",
-    ],
-    deps = [
-        ":headers",
     ],
     linkopts = [
         "-lpthread",
@@ -20,11 +17,24 @@ cc_library(
 )
 
 cc_library(
-    name = "tbbmalloc",
+    name = "tbbmalloc_binary",
     srcs = [
         "lib/intel64/gcc4.8/libtbbmalloc.so.2",
     ],
+)
+
+cc_library(
+    name = "tbb",
     deps = [
         ":headers",
+        ":tbb_binary",
+    ],
+)
+
+cc_library(
+    name = "tbbmalloc",
+    deps = [
+        ":headers",
+        ":tbbmalloc_binary",
     ],
 )
