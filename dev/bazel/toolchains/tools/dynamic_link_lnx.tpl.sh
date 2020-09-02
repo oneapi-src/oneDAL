@@ -15,16 +15,20 @@
 # limitations under the License.
 #===============================================================================
 
-output=$1
-
-shift
-input=$*
-
-mri="CREATE ${output}\n"
-for lib in $input
+args_patched=()
+for arg in "$@"
 do
-    mri+="ADDLIB ${lib}\n"
+    if [[ $arg == *".def" ]]; then
+        def_file=${arg//@}
+    else
+        args_patched+=(${arg})
+    fi
 done
-mri+="SAVE\n"
 
-printf "${mri[@]}" | %{ar_path} -M
+if [[ ${def_file} ]]; then
+    export_symbols=$(grep -v -E '^(EXPORTS|;|$)' ${def_file} | sed -e 's/^/-u /')
+    echo ${export_symbols} > ${def_file}_patched
+    %{cc_path} "${args_patched[@]}" "@${def_file}_patched"
+else
+    %{cc_path} "$@"
+fi
