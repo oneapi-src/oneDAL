@@ -84,15 +84,29 @@ lto_index_actions = [
 ]
 
 def _impl(ctx):
-    gcc_tool = tool(
+    cc_tool = tool(
         path = ctx.attr.cc_path,
         with_features = [
             with_feature_set(not_features = ["dpc++"])
         ]
     )
 
-    dpc_tool = tool(
+    dpcc_tool = tool(
         path = ctx.attr.dpcc_path,
+        with_features = [
+            with_feature_set(features = ["dpc++"]),
+        ],
+    )
+
+    cc_link_tool = tool(
+        path = ctx.attr.cc_link_path,
+        with_features = [
+            with_feature_set(not_features = ["dpc++"])
+        ]
+    )
+
+    dpcc_link_tool = tool(
+        path = ctx.attr.dpcc_link_path,
         with_features = [
             with_feature_set(features = ["dpc++"]),
         ],
@@ -108,7 +122,7 @@ def _impl(ctx):
             "compiler_output_flags",
             "sysroot",
         ],
-        tools = [ gcc_tool, dpc_tool ],
+        tools = [ cc_tool, dpcc_tool ],
     )
 
     preprocess_assemble_action = action_config(
@@ -121,7 +135,7 @@ def _impl(ctx):
             "compiler_output_flags",
             "sysroot",
         ],
-        tools = [ gcc_tool, dpc_tool ],
+        tools = [ cc_tool, dpcc_tool ],
     )
 
     c_compile_action = action_config(
@@ -134,7 +148,7 @@ def _impl(ctx):
             "compiler_output_flags",
             "sysroot",
         ],
-        tools = [ gcc_tool, dpc_tool ],
+        tools = [ cc_tool, dpcc_tool ],
     )
 
     cpp_compile_action = action_config(
@@ -147,7 +161,7 @@ def _impl(ctx):
             "compiler_output_flags",
             "sysroot",
         ],
-        tools = [ gcc_tool, dpc_tool ],
+        tools = [ cc_tool, dpcc_tool ],
     )
 
     cpp_header_parsing_action = action_config(
@@ -160,7 +174,7 @@ def _impl(ctx):
             "compiler_output_flags",
             "sysroot",
         ],
-        tools = [ gcc_tool, dpc_tool ],
+        tools = [ cc_tool, dpcc_tool ],
     )
 
     cpp_link_executable_action = action_config(
@@ -176,8 +190,9 @@ def _impl(ctx):
             "force_pic_flags",
             "strip_debug_symbols",
             "sysroot",
+            "default_dynamic_libraries",
         ],
-        tools = [ gcc_tool, dpc_tool ],
+        tools = [ cc_link_tool, dpcc_link_tool ],
     )
 
     cpp_link_nodeps_dynamic_library_action = action_config(
@@ -193,7 +208,7 @@ def _impl(ctx):
             "strip_debug_symbols",
             "sysroot",
         ],
-        tools = [ gcc_tool, dpc_tool ],
+        tools = [ cc_link_tool, dpcc_link_tool ],
     )
 
     cpp_link_dynamic_library_action = action_config(
@@ -209,8 +224,9 @@ def _impl(ctx):
             "force_pic_flags",
             "strip_debug_symbols",
             "sysroot",
+            "default_dynamic_libraries",
         ],
-        tools = [ gcc_tool, dpc_tool ],
+        tools = [ cc_link_tool, dpcc_link_tool ],
     )
 
     cpp_link_static_library_action = action_config(
@@ -318,6 +334,11 @@ def _impl(ctx):
     supports_dynamic_linker_feature = feature(
         name = "supports_dynamic_linker",
         enabled = True
+    )
+
+    do_not_link_dynamic_dependencies_feature = feature(
+        name = "do_not_link_dynamic_dependencies",
+        enabled = False
     )
 
     compiler_input_flags_feature = feature(
@@ -477,7 +498,7 @@ def _impl(ctx):
                     flag_group(
                         flags = ctx.attr.compile_flags_pedantic_cc,
                     ),
-                ],
+                ] if ctx.attr.compile_flags_pedantic_cc else [],
                 with_features = [with_feature_set(features = ["pedantic"],
                                                   not_features = ["dpc++"])],
             ),
@@ -487,7 +508,7 @@ def _impl(ctx):
                     flag_group(
                         flags = ctx.attr.compile_flags_pedantic_dpcc,
                     ),
-                ],
+                ] if ctx.attr.compile_flags_pedantic_dpcc else [],
                 with_features = [with_feature_set(features = ["dpc++", "pedantic"])],
             ),
             flag_set(
@@ -589,7 +610,25 @@ def _impl(ctx):
                         iterate_over = "user_link_flags",
                         expand_if_available = "user_link_flags",
                     ),
-                ] + ([flag_group(flags = ctx.attr.link_libs)] if ctx.attr.link_libs else []),
+                ],
+            ),
+        ],
+    )
+
+    default_dynamic_libraries_feature = feature(
+        name = "default_dynamic_libraries",
+        flag_sets = [
+            flag_set(
+                actions = all_link_actions + lto_index_actions,
+                flag_groups = (
+                    [flag_group(flags = ctx.attr.dynamic_link_libs)]
+                    if ctx.attr.dynamic_link_libs else []
+                ),
+                with_features = [
+                    with_feature_set(
+                        not_features = ["do_not_link_dynamic_dependencies"],
+                    ),
+                ],
             ),
         ],
     )
@@ -897,28 +936,7 @@ def _impl(ctx):
                                 flags = ["%{libraries_to_link.name}"],
                                 expand_if_equal = variable_with_value(
                                     name = "libraries_to_link.type",
-                                    value = "interface_library",
-                                ),
-                            ),
-                            flag_group(
-                                flags = ["%{libraries_to_link.name}"],
-                                expand_if_equal = variable_with_value(
-                                    name = "libraries_to_link.type",
                                     value = "static_library",
-                                ),
-                            ),
-                            flag_group(
-                                flags = ["-l%{libraries_to_link.name}"],
-                                expand_if_equal = variable_with_value(
-                                    name = "libraries_to_link.type",
-                                    value = "dynamic_library",
-                                ),
-                            ),
-                            flag_group(
-                                flags = ["-l:%{libraries_to_link.name}"],
-                                expand_if_equal = variable_with_value(
-                                    name = "libraries_to_link.type",
-                                    value = "versioned_dynamic_library",
                                 ),
                             ),
                             flag_group(
@@ -935,6 +953,48 @@ def _impl(ctx):
                         ],
                         expand_if_available = "libraries_to_link",
                     ),
+                ],
+            ),
+            flag_set(
+                actions = all_link_actions + lto_index_actions,
+                flag_groups = [
+                    flag_group(
+                        iterate_over = "libraries_to_link",
+                        flag_groups = [
+                            flag_group(
+                                flags = ["%{libraries_to_link.name}"],
+                                expand_if_equal = variable_with_value(
+                                    name = "libraries_to_link.type",
+                                    value = "interface_library",
+                                ),
+                            ),
+                            flag_group(
+                                flags = ["-l%{libraries_to_link.name}"],
+                                expand_if_equal = variable_with_value(
+                                    name = "libraries_to_link.type",
+                                    value = "dynamic_library",
+                                ),
+                            ),
+                            flag_group(
+                                flags = ["-l:%{libraries_to_link.name}"],
+                                expand_if_equal = variable_with_value(
+                                    name = "libraries_to_link.type",
+                                    value = "versioned_dynamic_library",
+                                ),
+                            ),
+                        ],
+                        expand_if_available = "libraries_to_link",
+                    ),
+                ],
+                with_features = [
+                    with_feature_set(
+                        not_features = ["do_not_link_dynamic_dependencies"],
+                    ),
+                ],
+            ),
+            flag_set(
+                actions = all_link_actions + lto_index_actions,
+                flag_groups = [
                     flag_group(
                         flags = ["-Wl,@%{thinlto_param_file}"],
                         expand_if_true = "thinlto_param_file",
@@ -1043,6 +1103,7 @@ def _impl(ctx):
     features.append(opt_feature)
     features.append(supports_pic_feature)
     features.append(supports_dynamic_linker_feature)
+    features.append(do_not_link_dynamic_dependencies_feature)
     features.append(sysroot_feature)
 
     # Compilation
@@ -1080,6 +1141,7 @@ def _impl(ctx):
     features.append(runtime_library_search_directories_feature)
     features.append(libraries_to_link_feature)
     features.append(user_link_flags_feature)
+    features.append(default_dynamic_libraries_feature)
 
     # Static linking
     features.append(archiver_flags_feature)
@@ -1115,6 +1177,8 @@ cc_toolchain_config = rule(
         "abi_libc_version": attr.string(mandatory = True),
         "cc_path": attr.string(mandatory = True),
         "dpcc_path": attr.string(mandatory = True),
+        "cc_link_path": attr.string(mandatory = True),
+        "dpcc_link_path": attr.string(mandatory = True),
         "ar_path": attr.string(mandatory = True),
         "ar_merge_path": attr.string(mandatory = True),
         "strip_path": attr.string(mandatory = True),
@@ -1128,7 +1192,7 @@ cc_toolchain_config = rule(
         "cxx_flags": attr.string_list(),
         "link_flags_cc": attr.string_list(),
         "link_flags_dpcc": attr.string_list(),
-        "link_libs": attr.string_list(),
+        "dynamic_link_libs": attr.string_list(),
         "opt_link_flags": attr.string_list(),
         "no_canonical_system_headers_flags_cc": attr.string_list(),
         "no_canonical_system_headers_flags_dpcc": attr.string_list(),

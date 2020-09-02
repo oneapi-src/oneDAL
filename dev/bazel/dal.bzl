@@ -17,6 +17,7 @@
 load("@onedal//dev/bazel:cc.bzl",
     "cc_module",
     "cc_static_lib",
+    "cc_dynamic_lib",
     "cc_test",
 )
 load("@onedal//dev/bazel:release.bzl",
@@ -120,6 +121,23 @@ def dal_static_lib(name, lib_name, dal_deps=[], host_deps=[],
         **kwargs
     )
 
+def dal_dynamic_lib(name, lib_name, dal_deps=[], host_deps=[],
+                   dpc_deps=[], extra_deps=[], lib_tags=["dal"], **kwargs):
+    cc_dynamic_lib(
+        name = name,
+        lib_name = lib_name,
+        lib_tags = lib_tags,
+        deps = dal_deps + extra_deps + host_deps,
+        **kwargs
+    )
+    cc_dynamic_lib(
+        name = name + "_dpc",
+        lib_name = lib_name + "_dpc",
+        lib_tags = lib_tags,
+        deps = _get_dpc_deps(dal_deps) + extra_deps + dpc_deps,
+        **kwargs
+    )
+
 def dal_test(name, dal_deps=[], test_deps=[], data=[],
              gtest=True, tags=[], **kwargs):
     # TODO: Add support for DPC++
@@ -135,8 +153,9 @@ def dal_test(name, dal_deps=[], test_deps=[], data=[],
                 "@onedal//cpp/daal:threading_static",
             ],
             "@config//:dynamic_test_link_mode": [
-                # TODO
-                # ":threading_dynamic",
+                "@onedal//cpp/oneapi/dal:dynamic",
+                "@onedal//cpp/daal:core_dynamic",
+                "@onedal//cpp/daal:threading_dynamic",
             ],
             "@config//:release_static_test_link_mode": [
                 "@onedal_release//:onedal_static",
@@ -144,8 +163,9 @@ def dal_test(name, dal_deps=[], test_deps=[], data=[],
                 "@onedal//cpp/daal:threading_release_static",
             ],
             "@config//:release_dynamic_test_link_mode": [
-                # TODO
-                # ":threading_release_dynamic",
+                "@onedal_release//:onedal_dynamic",
+                "@onedal_release//:core_dynamic",
+                "@onedal//cpp/daal:threading_release_dynamic",
             ],
         }) + test_deps + ([
             "@gtest//:gtest_main",

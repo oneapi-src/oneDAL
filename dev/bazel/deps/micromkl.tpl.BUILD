@@ -33,6 +33,5 @@ cc_library(
     ],
     deps = [
         ":headers",
-        "@tbb//:tbb",
     ],
 )

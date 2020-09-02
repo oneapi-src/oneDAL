@@ -16,8 +16,8 @@
 
 load("@onedal//dev/bazel:cc.bzl",
     "cc_module",
-    "cc_depset",
     "cc_static_lib",
+    "cc_dynamic_lib",
 )
 load("@onedal//dev/bazel:utils.bzl",
     "sets",
@@ -61,11 +61,15 @@ def daal_module(name, features=[], lib_tag="daal",
         **kwargs,
     )
 
-def daal_depset(**kwargs):
-    cc_depset(**kwargs)
-
 def daal_static_lib(name, lib_tags=["daal"], **kwargs):
     cc_static_lib(
+        name = name,
+        lib_tags = lib_tags,
+        **kwargs,
+    )
+
+def daal_dynamic_lib(name, lib_tags=["daal"], **kwargs):
+    cc_dynamic_lib(
         name = name,
         lib_tags = lib_tags,
         **kwargs,
