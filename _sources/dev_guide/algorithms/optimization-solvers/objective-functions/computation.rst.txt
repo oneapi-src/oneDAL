@@ -30,7 +30,7 @@ For more details, see :ref:`algorithms`.
 
    * - Input ID
      - Input
-   * - argument
+   * - ``argument``
      - Numeric table of size :math:`p \times 1` with the input argument of the objective function.
 
 Parameters
@@ -45,8 +45,8 @@ The objective function has the following parameters:
    * - Parameter
      - Default value
      - Description
-   * - resultsToCompute
-     - gradient
+   * - ``resultsToCompute``
+     - ``gradient``
      - The 64-bit integer flag that specifies which characteristics of the objective function to compute.
 
        Provide one of the following values to request a single characteristic or use bitwise OR to request
@@ -88,27 +88,27 @@ For more details, see :ref:`algorithms`.
 
    * - Result ID
      - Result
-   * - valueIdx
+   * - ``valueIdx``
      - Numeric table of size :math:`1 \times 1` with the value of the objective function in the given argument.
-   * - nonSmoothTermValueIdx
+   * - ``nonSmoothTermValueIdx``
      - Numeric table of size :math:`1 \times 1` with the value of the non-smooth term of the 
        objective function in the given argument.
-   * - gradientIdx
+   * - ``gradientIdx``
      - Numeric table of size :math:`p \times 1` with the gradient of the smooth term of the 
        objective function in the given argument.
-   * - hessianIdx
+   * - ``hessianIdx``
      - Numeric table of size :math:`p \times p` with the Hessian of the smooth term of the 
        objective function in the given argument.
-   * - proximalProjectionIdx
+   * - ``proximalProjectionIdx``
      - Numeric table of size :math:`p \times 1` with the projection of proximal operator
        for non-smooth term of the objective function in the given argument.
-   * - lipschitzConstantIdx
+   * - ``lipschitzConstantIdx``
      - Numeric table of size :math:`1 \times 1` with Lipschitz constant of the smooth term of the objective function.
-   * - gradientOverCertainFeatureIdx
+   * - ``gradientOverCertainFeatureIdx``
      - Numeric table of size :math:`1 \times 1` with certain component of gradient vector.
-   * - hessianOverCertainFeatureIdx
+   * - ``hessianOverCertainFeatureIdx``
      - Numeric table of size :math:`1 \times 1` with certain component of hessian diagonal.
-   * - proximalProjectionOverCertainFeatureIdx
+   * - ``proximalProjectionOverCertainFeatureIdx``
      - Numeric table of size :math:`1 \times 1` with certain component of proximal projection.
 
 .. note::

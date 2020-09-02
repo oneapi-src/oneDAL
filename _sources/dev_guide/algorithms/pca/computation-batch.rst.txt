@@ -24,24 +24,28 @@ Batch Processing
 Algorithm Input
 ---------------
 The PCA algorithm accepts the input described below. Pass the
-Input ID as a parameter to the methods that provide input for your algorithm.
+``Input ID`` as a parameter to the methods that provide input for your algorithm.
+For more details, see :ref:`algorithms`.
 
 .. list-table::
-   :widths: 25 25
+   :widths: 10 60
    :header-rows: 1
    :align: left
 
    * - Input ID
      - Input
-   * - data
+   * - ``data``
      - Use when the input data is a normalized or non-normalized data set.
        Pointer to the :math:`n \times p` numeric table that contains the input data set.
-       This input can be an object of any class derived from NumericTable.
-   * - correlation
+       
+       .. note:: This input can be an object of any class derived from ``NumericTable``.
+   * - ``correlation``
      - Use when the input data is a correlation matrix. Pointer to the :math:`p \times p`
-       numeric table that contains the correlation matrix. This input can be an
-       object of any class derived from NumericTable except
-       PackedTriangularMatrix.
+       numeric table that contains the correlation matrix. 
+       
+       .. note::
+          This input can be an object of any class derived from ``NumericTable``
+          except ``PackedTriangularMatrix``.
 
 Algorithm Parameters
 --------------------
@@ -58,14 +62,14 @@ computation method parameter method:
      - method
      - Default Value
      - Description
-   * - algorithmFPType
-     - defaultDense or svdDense
-     - float
+   * - ``algorithmFPType``
+     - ``defaultDense`` or ``svdDense``
+     - ``float``
      - The floating-point type that the algorithm uses for intermediate
        computations. Can be float or double.
-   * - method
+   * - ``method``
      - Not applicable
-     - defaultDense
+     - ``defaultDense``
      - Available methods for PCA computation:
 
        For CPU:
@@ -78,28 +82,28 @@ computation method parameter method:
        - ``defaultDense`` - the correlation method
 
 
-   * - covariance
-     - defaultDense
+   * - ``covariance``
+     - ``defaultDense``
      - SharedPtr<covariance::Batch<algorithmFPType, covariance::defaultDense> >
      - The correlation and variance-covariance matrices algorithm to be used
        for PCA computations with the correlation method.
-   * - normalization
-     - svdDense
+   * - ``normalization``
+     - ``svdDense``
      - SharedPtr<normalization::zscore::Batch<algorithmFPType,
        normalization::zscore::defaultDense>>
      - The data normalization algorithm to be used for PCA computations with
        the SVD method. 
-   * - nComponents
-     - defaultDense, svdDense
-     - 0
+   * - ``nComponents``
+     - ``defaultDense``, ``svdDense``
+     - :math:`0`
      - Number of principal components :math:`p_r`. If it is zero, the algorithm
        will compute the result for :math:`p_r = p`.
-   * - isDeterministic
-     - defaultDense, svdDense
-     - false
+   * - ``isDeterministic``
+     - ``defaultDense``, ``svdDense``
+     - ``false``
      - If true, the algorithm applies the "sign flip" technique to the results.
-   * - resultsToCompute
-     - defaultDense, svdDense
+   * - ``resultsToCompute``
+     - ``defaultDense``, ``svdDense``
      - none
      - The 64-bit integer flag that specifies which optional result to compute.
 
@@ -114,39 +118,44 @@ Algorithm Output
 ----------------
 
 The PCA algorithm calculates the results described below. Pass the
-Result ID as a parameter to the methods that access the results of
+``Result ID`` as a parameter to the methods that access the results of
 your algorithm. 
 
 .. list-table::
-   :widths: 25 25
+   :widths: 10 60
    :header-rows: 1
    :align: left
 
    * - Result ID
      - Result
-   * - eigenvalues
+   * - ``eigenvalues``
      - Pointer to the :math:`1 \times p_r` numeric table that contains eigenvalues
-       in the descending order. By default, this result is an object of the
-       HomogenNumericTable class, but you can define the result as an object of
-       any class derived from NumericTable except PackedSymmetricMatrix,
-       PackedTriangularMatrix, and CSRNumericTable.
-   * - eigenvectors
+       in the descending order. 
+       
+       .. note::
+          By default, this result is an object of the ``HomogenNumericTable`` class,
+          but you can define the result as an object of any class derived from ``NumericTable``
+          except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
+   * - ``eigenvectors``
      - Pointer to the :math:`p_r \times p` numeric table that contains eigenvectors
-       in the row-major order. By default, this result is an object of the
-       HomogenNumericTable class, but you can define the result as an object of
-       any class derived from NumericTable except PackedSymmetricMatrix,
-       PackedTriangularMatrix, and CSRNumericTable.
-   * - means
+       in the row-major order.
+
+       .. note::
+          By default, this result is an object of the ``HomogenNumericTable`` class,
+          but you can define the result as an object of any class derived from ``NumericTable``
+          except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
+
+   * - ``means``
      - Pointer to the :math:`1 \times p_r` numeric table that contains mean values
        for each feature.
        Optional.
        If correlation is provided then the vector is filed with zeroes.
-   * - variances
+   * - ``variances``
      - Pointer to the :math:`1 \times p_r` numeric table that contains mean values
        for each feature.
        Optional.
        If correlation is provided then the vector is filed with zeroes.
-   * - dataForTransform
+   * - ``dataForTransform``
      - Pointer to key value data collection containing the aggregated data for
        normalization and whitening with the following key value pairs:
 
@@ -154,22 +163,22 @@ your algorithm.
        -  variance - variance
        -  eigenvalue - eigenvalue
 
-       If resultsToCompute does not contain mean, the dataForTransform means
-       table is NULL. If resultsToCompute does not contain variances, the
-       dataForTransform variances table is NULL. If resultsToCompute does not
-       contain eigenvalues, the dataForTransform eigenvalues table is NULL.
+       If ``resultsToCompute`` does not contain mean, the dataForTransform means
+       table is NULL. If ``resultsToCompute`` does not contain variances, the
+       ``dataForTransform`` variances table is NULL. If ``resultsToCompute`` does not
+       contain eigenvalues, the ``dataForTransform`` eigenvalues table is NULL.
 
 Please note the following:
 
 .. note::
 
    -  If the function result is not requested through the
-      resultsToCompute parameter, the respective element of the result
+      ``resultsToCompute`` parameter, the respective element of the result
       contains a NULL pointer.
    -  By default, each numeric table specified by the collection
-      elements is an object of the HomogenNumericTable class, but you
+      elements is an object of the ``HomogenNumericTable`` class, but you
       can define the result as an object of any class derived from
-      NumericTable, except for PackedSymmetricMatrix,
-      PackedTriangularMatrix, and CSRNumericTable.
-   -  For the svdDense method n should not be less than :math:`p`. If :math:`n > p`,
+      ``NumericTable``, except for ``PackedSymmetricMatrix``,
+      ``PackedTriangularMatrix``, and ``CSRNumericTable``.
+   -  For the ``svdDense`` method :math:`n` should not be less than :math:`p`. If :math:`n > p`,
       svdDense returns an error.

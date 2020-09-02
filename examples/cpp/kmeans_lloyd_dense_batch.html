@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,32 +11,34 @@
   
 
   
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
   
   
   
 
   
-  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="knn_cls_kd_tree_dense_batch.cpp" href="knn_cls_kd_tree_dense_batch.html" />
-    <link rel="prev" title="kmeans_init_default_dense.cpp" href="kmeans_init_default_dense.html" />
+    <link rel="prev" title="kmeans_init_dense.cpp" href="kmeans_init_dense.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -53,7 +54,7 @@
           
 
           
-            <a href="../../index.html" class="icon icon-home"> Intel&reg; oneAPI Data Analytics Library Documentation (Beta)
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Intel&reg; oneAPI Data Analytics Library Documentation (Beta)
           
 
           
@@ -76,6 +77,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -778,9 +780,11 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../../examples.html">oneAPI Examples</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../dpc.html">DPC++</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dpc/column_accessor_homogen.html">column_accessor_homogen.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../dpc/df_cls_dense_batch.html">df_cls_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../dpc/df_reg_dense_batch.html">df_reg_dense_batch.cpp</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../dpc/homogen_table_builder.html">homogen_table_builder.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dpc/kmeans_init_dense.html">kmeans_init_dense.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dpc/kmeans_lloyd_dense_batch.html">kmeans_lloyd_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../dpc/knn_cls_brute_force_dense_batch.html">knn_cls_brute_force_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../dpc/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../dpc/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
@@ -789,13 +793,17 @@
 </ul>
 </li>
 <li class="toctree-l2 current"><a class="reference internal" href="../cpp.html">C++</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="column_accessor_homogen.html">column_accessor_homogen.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="df_cls_dense_batch.html">df_cls_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="df_reg_dense_batch.html">df_reg_dense_batch.cpp</a></li>
-<li class="toctree-l3"><a class="reference internal" href="homogen_table_builder.html">homogen_table_builder.cpp</a></li>
-<li class="toctree-l3"><a class="reference internal" href="kmeans_init_default_dense.html">kmeans_init_default_dense.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_service_functions.html">graph_service_functions.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="jaccard_batch.html">jaccard_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="jaccard_batch_app.html">jaccard_batch_app.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kmeans_init_dense.html">kmeans_init_dense.cpp</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">kmeans_lloyd_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="knn_cls_kd_tree_dense_batch.html">knn_cls_kd_tree_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="load_graph.html">load_graph.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="svm_two_class_smo_dense_batch.html">svm_two_class_smo_dense_batch.cpp</a></li>
@@ -932,6 +940,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -970,7 +979,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../index.html">Docs</a> &raquo;</li>
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="../../examples.html">oneAPI Examples</a> &raquo;</li>
         
@@ -1015,54 +1024,43 @@
 
 <span class="cp">#include</span> <span class="cpf">&quot;example_util/utils.hpp&quot;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&quot;oneapi/dal/algo/kmeans.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&quot;oneapi/dal/io/csv.hpp&quot;</span><span class="cp"></span>
 
 <span class="k">using</span> <span class="k">namespace</span> <span class="n">oneapi</span><span class="p">;</span>
 
+
 <span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="k">const</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
-  <span class="k">constexpr</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">row_count</span> <span class="o">=</span> <span class="mi">8</span><span class="p">;</span>
-  <span class="k">constexpr</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">column_count</span> <span class="o">=</span> <span class="mi">7</span><span class="p">;</span>
+    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">train_data_file_name</span>        <span class="o">=</span> <span class="n">get_data_path</span><span class="p">(</span><span class="s">&quot;kmeans_dense_train_data.csv&quot;</span><span class="p">);</span>
+    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">initial_centroids_file_name</span> <span class="o">=</span> <span class="n">get_data_path</span><span class="p">(</span><span class="s">&quot;kmeans_dense_train_centroids.csv&quot;</span><span class="p">);</span>
+    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">test_data_file_name</span>         <span class="o">=</span> <span class="n">get_data_path</span><span class="p">(</span><span class="s">&quot;kmeans_dense_test_data.csv&quot;</span><span class="p">);</span>
+    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">test_label_file_name</span>        <span class="o">=</span> <span class="n">get_data_path</span><span class="p">(</span><span class="s">&quot;kmeans_dense_test_label.csv&quot;</span><span class="p">);</span>
 
-  <span class="k">const</span> <span class="kt">float</span> <span class="n">data</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="mf">1.f</span><span class="p">,</span> <span class="mf">2.f</span><span class="p">,</span>  <span class="mf">3.f</span><span class="p">,</span> <span class="mf">4.f</span><span class="p">,</span> <span class="mf">5.f</span><span class="p">,</span> <span class="mf">6.f</span><span class="p">,</span>  <span class="o">-</span><span class="mf">5.f</span><span class="p">,</span> <span class="mf">1.f</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.f</span><span class="p">,</span> <span class="mf">0.f</span><span class="p">,</span>
-                        <span class="mf">3.f</span><span class="p">,</span> <span class="mf">1.f</span><span class="p">,</span>  <span class="mf">2.f</span><span class="p">,</span> <span class="mf">3.f</span><span class="p">,</span> <span class="mf">4.f</span><span class="p">,</span> <span class="mf">5.f</span><span class="p">,</span>  <span class="mf">6.f</span><span class="p">,</span>  <span class="mf">1.f</span><span class="p">,</span> <span class="mf">0.f</span><span class="p">,</span>  <span class="mf">0.f</span><span class="p">,</span>
-                        <span class="mf">0.f</span><span class="p">,</span> <span class="mf">1.f</span><span class="p">,</span>  <span class="mf">2.f</span><span class="p">,</span> <span class="mf">5.f</span><span class="p">,</span> <span class="mf">2.f</span><span class="p">,</span> <span class="mf">9.f</span><span class="p">,</span>  <span class="mf">3.f</span><span class="p">,</span>  <span class="mf">2.f</span><span class="p">,</span> <span class="o">-</span><span class="mf">4.f</span><span class="p">,</span> <span class="mf">3.f</span><span class="p">,</span>
-                        <span class="mf">0.f</span><span class="p">,</span> <span class="mf">4.f</span><span class="p">,</span>  <span class="mf">2.f</span><span class="p">,</span> <span class="mf">7.f</span><span class="p">,</span> <span class="mf">5.f</span><span class="p">,</span> <span class="mf">4.f</span><span class="p">,</span>  <span class="mf">2.f</span><span class="p">,</span>  <span class="mf">0.f</span><span class="p">,</span> <span class="o">-</span><span class="mf">4.f</span><span class="p">,</span> <span class="mf">0.f</span><span class="p">,</span>
-                        <span class="mf">3.f</span><span class="p">,</span> <span class="o">-</span><span class="mf">8.f</span><span class="p">,</span> <span class="mf">2.f</span><span class="p">,</span> <span class="mf">5.f</span><span class="p">,</span> <span class="mf">5.f</span><span class="p">,</span> <span class="o">-</span><span class="mf">6.f</span><span class="p">,</span> <span class="mf">3.f</span><span class="p">,</span>  <span class="mf">0.f</span><span class="p">,</span> <span class="o">-</span><span class="mf">9.f</span><span class="p">,</span> <span class="mf">3.f</span><span class="p">,</span>
-                        <span class="mf">1.f</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.f</span><span class="p">,</span> <span class="mf">3.f</span><span class="p">,</span> <span class="mf">5.f</span><span class="p">,</span> <span class="mf">1.f</span><span class="p">,</span> <span class="mf">7.f</span><span class="p">};</span>
+    <span class="k">const</span> <span class="k">auto</span> <span class="n">x_train</span>           <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">read</span><span class="o">&lt;</span><span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="o">&gt;</span><span class="p">(</span><span class="n">dal</span><span class="o">::</span><span class="n">csv</span><span class="o">::</span><span class="n">data_source</span><span class="p">{</span><span class="n">train_data_file_name</span><span class="p">});</span>
+    <span class="k">const</span> <span class="k">auto</span> <span class="n">initial_centroids</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">read</span><span class="o">&lt;</span><span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="o">&gt;</span><span class="p">(</span><span class="n">dal</span><span class="o">::</span><span class="n">csv</span><span class="o">::</span><span class="n">data_source</span><span class="p">{</span><span class="n">initial_centroids_file_name</span><span class="p">});</span>
 
-  <span class="k">const</span> <span class="kt">float</span> <span class="n">initial_centroids</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="mf">1.f</span><span class="p">,</span> <span class="mf">2.f</span><span class="p">,</span> <span class="mf">3.f</span><span class="p">,</span> <span class="mf">4.f</span><span class="p">,</span> <span class="mf">5.f</span><span class="p">,</span> <span class="mf">6.f</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.f</span><span class="p">,</span>
-                                     <span class="mf">1.f</span><span class="p">,</span> <span class="mf">2.f</span><span class="p">,</span> <span class="mf">5.f</span><span class="p">,</span> <span class="mf">2.f</span><span class="p">,</span> <span class="mf">9.f</span><span class="p">,</span> <span class="mf">3.f</span><span class="p">,</span> <span class="mf">2.f</span><span class="p">};</span>
+    <span class="k">const</span> <span class="k">auto</span> <span class="n">x_test</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">read</span><span class="o">&lt;</span><span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="o">&gt;</span><span class="p">(</span><span class="n">dal</span><span class="o">::</span><span class="n">csv</span><span class="o">::</span><span class="n">data_source</span><span class="p">{</span><span class="n">test_data_file_name</span><span class="p">});</span>
+    <span class="k">const</span> <span class="k">auto</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">read</span><span class="o">&lt;</span><span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="o">&gt;</span><span class="p">(</span><span class="n">dal</span><span class="o">::</span><span class="n">csv</span><span class="o">::</span><span class="n">data_source</span><span class="p">{</span><span class="n">test_label_file_name</span><span class="p">});</span>
 
-  <span class="k">const</span> <span class="k">auto</span> <span class="n">data_table</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">homogen_table</span><span class="p">{</span><span class="n">row_count</span><span class="p">,</span> <span class="n">column_count</span><span class="p">,</span> <span class="n">data</span><span class="p">};</span>
-  <span class="k">const</span> <span class="k">auto</span> <span class="n">initial_centroids_table</span> <span class="o">=</span>
-      <span class="n">dal</span><span class="o">::</span><span class="n">homogen_table</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="n">column_count</span><span class="p">,</span> <span class="n">initial_centroids</span><span class="p">};</span>
+    <span class="k">const</span> <span class="k">auto</span> <span class="n">kmeans_desc</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">kmeans</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;&gt;</span><span class="p">()</span>
+                                 <span class="p">.</span><span class="n">set_cluster_count</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+                                 <span class="p">.</span><span class="n">set_max_iteration_count</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+                                 <span class="p">.</span><span class="n">set_accuracy_threshold</span><span class="p">(</span><span class="mf">0.001</span><span class="p">);</span>
 
-  <span class="k">const</span> <span class="k">auto</span> <span class="n">kmeans_desc</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">kmeans</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;&gt;</span><span class="p">()</span>
-                               <span class="p">.</span><span class="n">set_cluster_count</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-                               <span class="p">.</span><span class="n">set_max_iteration_count</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-                               <span class="p">.</span><span class="n">set_accuracy_threshold</span><span class="p">(</span><span class="mf">1.0</span><span class="p">);</span>
+    <span class="k">const</span> <span class="k">auto</span> <span class="n">result_train</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">train</span><span class="p">(</span><span class="n">kmeans_desc</span><span class="p">,</span> <span class="n">x_train</span><span class="p">,</span> <span class="n">initial_centroids</span><span class="p">);</span>
 
-  <span class="k">const</span> <span class="k">auto</span> <span class="n">result_train</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">train</span><span class="p">(</span><span class="n">kmeans_desc</span><span class="p">,</span> <span class="n">data_table</span><span class="p">);</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Iteration count: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">result_train</span><span class="p">.</span><span class="n">get_iteration_count</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Objective function value: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">result_train</span><span class="p">.</span><span class="n">get_objective_function_value</span><span class="p">()</span>
+              <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Lables:&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span> <span class="o">&lt;&lt;</span> <span class="n">result_train</span><span class="p">.</span><span class="n">get_labels</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Centroids:&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span> <span class="o">&lt;&lt;</span> <span class="n">result_train</span><span class="p">.</span><span class="n">get_model</span><span class="p">().</span><span class="n">get_centroids</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
 
-  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Iteration count: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">result_train</span><span class="p">.</span><span class="n">get_iteration_count</span><span class="p">()</span>
-            <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
-  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Objective function value: &quot;</span>
-            <span class="o">&lt;&lt;</span> <span class="n">result_train</span><span class="p">.</span><span class="n">get_objective_function_value</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
-  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Lables:&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span> <span class="o">&lt;&lt;</span> <span class="n">result_train</span><span class="p">.</span><span class="n">get_labels</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
-  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Centroids:&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span>
-            <span class="o">&lt;&lt;</span> <span class="n">result_train</span><span class="p">.</span><span class="n">get_model</span><span class="p">().</span><span class="n">get_centroids</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="k">const</span> <span class="k">auto</span> <span class="n">result_test</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">infer</span><span class="p">(</span><span class="n">kmeans_desc</span><span class="p">,</span> <span class="n">result_train</span><span class="p">.</span><span class="n">get_model</span><span class="p">(),</span> <span class="n">x_test</span><span class="p">);</span>
 
-  <span class="k">const</span> <span class="kt">float</span> <span class="n">data_test</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="mf">1.f</span><span class="p">,</span> <span class="mf">2.f</span><span class="p">,</span> <span class="mf">5.f</span><span class="p">,</span> <span class="mf">4.f</span><span class="p">,</span> <span class="mf">0.f</span><span class="p">,</span> <span class="mf">3.f</span><span class="p">,</span> <span class="mf">1.f</span><span class="p">,</span>
-                             <span class="mf">2.f</span><span class="p">,</span> <span class="mf">3.f</span><span class="p">,</span> <span class="mf">1.f</span><span class="p">,</span> <span class="mf">2.f</span><span class="p">,</span> <span class="mf">9.f</span><span class="p">,</span> <span class="mf">2.f</span><span class="p">,</span> <span class="mf">2.f</span><span class="p">};</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Infer result:&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span> <span class="o">&lt;&lt;</span> <span class="n">result_test</span><span class="p">.</span><span class="n">get_labels</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
 
-  <span class="k">const</span> <span class="k">auto</span> <span class="n">data_test_table</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">homogen_table</span><span class="p">{</span><span class="mi">2</span><span class="p">,</span> <span class="n">column_count</span><span class="p">,</span> <span class="n">data_test</span><span class="p">};</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Ground truth:&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span> <span class="o">&lt;&lt;</span> <span class="n">y_test</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
 
-  <span class="k">const</span> <span class="k">auto</span> <span class="n">result_test</span> <span class="o">=</span>
-      <span class="n">dal</span><span class="o">::</span><span class="n">infer</span><span class="p">(</span><span class="n">kmeans_desc</span><span class="p">,</span> <span class="n">result_train</span><span class="p">.</span><span class="n">get_model</span><span class="p">(),</span> <span class="n">data_test_table</span><span class="p">);</span>
-
-  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Infer result:&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span>
-            <span class="o">&lt;&lt;</span> <span class="n">result_test</span><span class="p">.</span><span class="n">get_labels</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
-
-  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -1079,7 +1077,7 @@
         <a href="knn_cls_kd_tree_dense_batch.html" class="btn btn-neutral float-right" title="knn_cls_kd_tree_dense_batch.cpp" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="kmeans_init_default_dense.html" class="btn btn-neutral float-left" title="kmeans_init_default_dense.cpp" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="kmeans_init_dense.html" class="btn btn-neutral float-left" title="kmeans_init_dense.cpp" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -1088,11 +1086,19 @@
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2014 - 2020, Intel Corporation
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -1103,7 +1109,6 @@
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

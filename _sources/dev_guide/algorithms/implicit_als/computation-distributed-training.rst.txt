@@ -30,6 +30,44 @@ Algorithm Parameters
 
 At the training stage, implicit ALS recommender in the distributed processing mode has the following parameters:
 
+.. list-table::
+   :widths: 10 20 30
+   :header-rows: 1
+   :align: left
+
+   * - Parameter
+     - Default Value
+     - Description
+   * - ``computeStep``
+     - Not applicable
+     - The parameter required to initialize the algorithm. Can be:
+       
+       - ``step1Local`` - the first step, performed on local nodes
+       - ``step2Master`` - the second step, performed on a master node
+       - ``step3Local`` - the third step, performed on local nodes
+       - ``step4Local`` - the fourth step, performed on local nodes
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``fastCSR``
+     - Performance-oriented computation method for CSR numeric tables, the only method supported by the algorithm.
+   * - ``nFactors``
+     - :math:`10`
+     - The total number of factors.
+   * - ``maxIterations``
+     - :math:`5`
+     - The number of iterations.
+   * - ``alpha``
+     - :math:`40`
+     - The rate of confidence.
+   * - ``lambda``
+     - :math:`0.01`
+     - The parameter of the regularization.
+   * - ``preferenceThreshold``
+     - :math:`0`
+     - Threshold used to define preference values. :math:`0` is the only threshold supported so far.
+
 .. _implicit_als_computation_parts:
 
 Computation Process
@@ -164,6 +202,10 @@ The Input Of Step 3 From Init is a key-value data collection that refers to the 
 .. image:: images/implicit-als-distributed-computation-training-step-3.png
     :width: 600
     :align: center
+
+In this step, implicit ALS recommender training accepts the input described below.
+Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
+For more details, see :ref:`algorithms`.
 
 .. list-table::
    :widths: 10 60
