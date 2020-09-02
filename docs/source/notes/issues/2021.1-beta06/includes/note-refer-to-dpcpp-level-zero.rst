@@ -14,7 +14,7 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. |dpcpp_level_zero| replace:: Intel\ |reg|\  oneAPI DPC++ Compiler Developer Guide and Reference
-.. _dpcpp_level_zero: https://software.intel.com/en-us/oneapi-dpcpp-compiler-dev-guide-and-reference-optimization-and-programming-guide
+.. |dpcpp_level_zero| replace:: Intel\ |reg|\  oneAPI DPC++/C++ Compiler Developer Guide and Reference
+.. _dpcpp_level_zero: https://software.intel.com/content/www/us/en/develop/documentation/oneapi-dpcpp-compiler-dev-guide-and-reference/top/optimization-and-programming-guide.html
 
 .. note:: For more information about Level Zero, refer to |dpcpp_level_zero|_.
