@@ -23,8 +23,6 @@
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
-#include "oneapi/dal/table/row_accessor.hpp"
-
 namespace oneapi::dal::kmeans::backend {
 
 using std::int64_t;
@@ -57,10 +55,7 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     daal_kmeans::Parameter par(cluster_count, max_iteration_count);
     par.accuracyThreshold = accuracy_threshold;
 
-    auto arr_data = row_accessor<const Float>{ data }.pull();
-    const auto daal_data = interop::convert_to_daal_homogen_table(arr_data,
-                                                                  data.get_row_count(),
-                                                                  data.get_column_count());
+    const auto daal_data = interop::convert_to_daal_table<Float>(data);
 
     auto new_initial_centroids = initial_centroids;
     if (!new_initial_centroids.has_data()) {
@@ -89,17 +84,12 @@ static train_result call_daal_kernel(const context_cpu& ctx,
         new_initial_centroids = interop::convert_from_daal_homogen_table<Float>(daal_centroids);
     }
 
-    auto arr_initial_centroids = row_accessor<const Float>{ new_initial_centroids }.pull();
-
     array<Float> arr_centroids = array<Float>::empty(cluster_count * column_count);
     array<int> arr_labels = array<int>::empty(row_count);
     array<Float> arr_objective_function_value = array<Float>::empty(1);
     array<int> arr_iteration_count = array<int>::empty(1);
 
-    const auto daal_initial_centroids =
-        interop::convert_to_daal_homogen_table(arr_initial_centroids,
-                                               new_initial_centroids.get_row_count(),
-                                               new_initial_centroids.get_column_count());
+    const auto daal_initial_centroids = interop::convert_to_daal_table<Float>(new_initial_centroids);
     const auto daal_centroids =
         interop::convert_to_daal_homogen_table(arr_centroids, cluster_count, column_count);
     const auto daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
