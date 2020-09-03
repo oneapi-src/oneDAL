@@ -24,6 +24,7 @@
 #include <daal/include/data_management/data/homogen_numeric_table.h>
 
 #include "oneapi/dal/table/detail/table_builder.hpp"
+#include "oneapi/dal/backend/interop/homogen_table_adapter.hpp"
 
 namespace oneapi::dal::backend::interop {
 
@@ -46,19 +47,32 @@ inline auto allocate_daal_homogen_table(std::int64_t row_count, std::int64_t col
         daal::data_management::NumericTable::doAllocate);
 }
 
-template <typename T>
-inline auto convert_to_daal_homogen_table(array<T>& data,
+template <typename Data>
+inline auto convert_to_daal_homogen_table(array<Data>& data,
                                           std::int64_t row_count,
                                           std::int64_t column_count) {
     if (!data.get_count())
-        return daal::services::SharedPtr<daal::data_management::HomogenNumericTable<T>>();
+        return daal::services::SharedPtr<daal::data_management::HomogenNumericTable<Data>>();
     data.need_mutable_data();
     const auto daal_data =
-        daal::services::SharedPtr<T>(data.get_mutable_data(), daal_array_owner<T>{ data });
+        daal::services::SharedPtr<Data>(data.get_mutable_data(), daal_array_owner<Data>{ data });
 
-    return daal::data_management::HomogenNumericTable<T>::create(daal_data,
+    return daal::data_management::HomogenNumericTable<Data>::create(daal_data,
                                                                  column_count,
                                                                  row_count);
+}
+
+template <typename AlgorithmFPType>
+inline daal::data_management::NumericTablePtr convert_to_daal_table(const table& table) {
+    auto meta = table.get_metadata();
+    if (table.get_kind() == homogen_table::kind()) {
+
+        const auto& homogen = static_cast<const homogen_table&>(table);
+        return homogen_table_adapter::create(homogen);
+    } else {
+        auto rows = row_accessor<const AlgorithmFPType> { table }.pull();
+        return convert_to_daal_homogen_table(rows, table.get_row_count(), table.get_column_count());
+    }
 }
 
 template <typename T>
