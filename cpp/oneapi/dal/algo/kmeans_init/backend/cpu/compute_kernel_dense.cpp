@@ -21,7 +21,6 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::kmeans_init::backend {
 
@@ -44,10 +43,7 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     daal_kmeans_init::Parameter par(cluster_count);
 
-    auto arr_data = row_accessor<const Float>{ data }.pull();
-    const auto daal_data = interop::convert_to_daal_homogen_table(arr_data,
-                                                                  data.get_row_count(),
-                                                                  data.get_column_count());
+    const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const size_t len_input = 1;
     daal::data_management::NumericTable* input[len_input] = { daal_data.get() };
 
