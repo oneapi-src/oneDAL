@@ -20,6 +20,7 @@
 #===============================================================================
 
 Java_example_list=( association_rules/AssocRulesAprioriBatch         \
+                    bf_knn_classification/BFKNNDenseBatch            \
                     boosting/adaboost/AdaBoostSammeTwoClassBatch     \
                     boosting/adaboost/AdaBoostSammeMultiClassBatch   \
                     boosting/adaboost/AdaBoostSammeRTwoClassBatch    \
