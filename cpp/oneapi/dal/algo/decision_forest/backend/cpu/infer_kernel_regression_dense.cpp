@@ -17,8 +17,6 @@
 #include <daal/src/algorithms/dtrees/forest/regression/df_regression_predict_dense_default_batch.h>
 #include <daal/src/services/service_algo_utils.h>
 
-#include "oneapi/dal/table/row_accessor.hpp"
-
 #include "oneapi/dal/algo/decision_forest/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
@@ -48,10 +46,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
     const int64_t row_count = data.get_row_count();
     const int64_t column_count = data.get_column_count();
 
-    auto arr_data = row_accessor<const Float>{ data }.pull();
-
-    const auto daal_data =
-        interop::convert_to_daal_homogen_table(arr_data, row_count, column_count);
+    const auto daal_data = interop::convert_to_daal_table<Float>(data);
 
     /* init param for daal kernel */
     auto daal_input = rgr::prediction::Input();
