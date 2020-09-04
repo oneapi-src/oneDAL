@@ -81,6 +81,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     auto &allocator       = layout->_allocator;
     layout->_vertex_count = n_vertex;
 
+    // ? should I use allocator_atomic_t
     void *degrees_vec_void =
         (void *)allocator.allocate(n_vertex * (sizeof(atomic_t) / sizeof(char)));
     atomic_t *degrees_vec = new (degrees_vec_void) atomic_t[n_vertex];
@@ -112,7 +113,6 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
 
     vertex_t total_sum_degrees = 0;
     rows_cv[0].set(total_sum_degrees);
-
     for (vertex_t i = 0; i < n_vertex; ++i) {
         total_sum_degrees += degrees_cv[i].get();
         rows_cv[i + 1].set(total_sum_degrees);
@@ -141,8 +141,8 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     allocator.deallocate((char *)rows_vec_void, (n_vertex + 1) * (sizeof(atomic_t) / sizeof(char)));
 
     //removing self-loops,  multiple edges from graph, and make neighbors in CSR sorted
-
-    layout->_degrees = std::move(vector_vertex_t(n_vertex));
+    layout->_degrees   = std::move(vector_vertex_t(n_vertex));
+    auto _degrees_data = layout->_degrees.data();
 
     threader_for(n_vertex, n_vertex, [&](vertex_t u) {
         auto start_p = _unf_vert_neighs_arr + _unf_edge_offset_arr[u];
@@ -152,23 +152,22 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
 
         auto neighs_u_new_end = std::unique(start_p, end_p);
         neighs_u_new_end      = std::remove(start_p, neighs_u_new_end, u);
-        layout->_degrees[u]   = (vertex_t)std::distance(start_p, neighs_u_new_end);
+        _degrees_data[u]      = (vertex_t)std::distance(start_p, neighs_u_new_end);
     });
 
     layout->_edge_offsets = std::move(vector_vertex_t(n_vertex + 1));
-    // layout->_edge_offsets.reserve(n_vertex + 1);
 
-    total_sum_degrees      = 0;
     auto &edge_offsets     = layout->_edge_offsets;
     auto degrees_data      = layout->_degrees.data();
     auto edge_offsets_data = layout->_edge_offsets.data();
-    edge_offsets_data[0]   = total_sum_degrees;
 
+    total_sum_degrees    = 0;
+    edge_offsets_data[0] = total_sum_degrees;
     for (vertex_size_t i = 0; i < n_vertex; ++i) {
         total_sum_degrees += degrees_data[i];
         edge_offsets_data[i + 1] = total_sum_degrees;
     }
-    layout->_edge_count = layout->_edge_offsets[n_vertex] / 2;
+    layout->_edge_count = total_sum_degrees / 2;
 
     layout->_vertex_neighbors = std::move(vector_vertex_t(layout->_edge_offsets[n_vertex]));
 
@@ -177,7 +176,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     threader_for(n_vertex, n_vertex, [&](vertex_t u) {
         auto u_neighs      = vert_neighs + edge_offs[u];
         auto _u_neighs_unf = _unf_vert_neighs_arr + _unf_edge_offset_arr[u];
-        for (vertex_t i = 0; i < layout->_degrees[u]; i++) {
+        for (vertex_t i = 0; i < _degrees_data[u]; i++) {
             u_neighs[i] = _u_neighs_unf[i];
         }
     });
