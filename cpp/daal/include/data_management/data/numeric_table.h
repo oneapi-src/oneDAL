@@ -166,6 +166,21 @@ public:
     }
 
     /**
+     *  Sets data pointer to use for in-place calculation
+     *  \param[in] ptr      Shared pointer to the buffer
+     *  \param[in] nColumns Number of columns
+     *  \param[in] nRows    Number of rows
+     */
+    inline void setSharedPtr(const services::SharedPtr<DataType>& ptr, size_t nColumns, size_t nRows)
+    {
+        _xBuffer.reset();
+        _hostSharedPtr.reset();
+        _ptr   = ptr;
+        _ncols = nColumns;
+        _nrows = nRows;
+    }
+
+    /**
      *  \param[in] pPtr Pointer to the shared pointer that handles the memory
      *  \param[in] rawPtr Pointer to the shifted memory
      *  \param[in] nColumns Number of columns

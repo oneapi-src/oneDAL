@@ -141,22 +141,16 @@ private:
             return status_t(daal::services::ErrorIncorrectIndex);
         }
 
-        if (dtype_ == detail::make_data_type<Data>()) {
-            auto ptr = const_cast<Data*>(original_table_.get_data<Data>()) + vector_idx;
-            block.setPtr(ptr, column_count, vector_num);
-        } else {
-            bool success = block.resizeBuffer(original_table_.get_column_count(), vector_num);
-            if (!success) {
-                return status_t(daal::services::ErrorMemoryAllocationFailed);
-            }
-            auto row_block = array<Data>::wrap(block.getBlockPtr(), column_count*vector_num);
+        try {
+            row_accessor<const Data> acc { original_table_ };
+            auto values = acc.pull({ vector_idx, vector_idx + vector_num });
 
-            try {
-                row_accessor<const Data> acc { original_table_ };
-                acc.pull(row_block, { vector_idx, vector_idx + vector_num });
-            } catch (const std::exception&) {
-                return status_t(daal::services::UnknownError);
-            }
+            auto data_ptr = const_cast<Data*>(values.get_data());
+            daal::services::SharedPtr<Data> daal_shared_ptr(data_ptr, [values](auto ptr) mutable { values.reset(); });
+
+            block.setSharedPtr(daal_shared_ptr, column_count, vector_num);
+        } catch (const std::exception&) {
+            return status_t(daal::services::UnknownError);
         }
 
         return status_t();
@@ -175,15 +169,14 @@ private:
             return status_t(daal::services::ErrorIncorrectIndex);
         }
 
-        bool success = block.resizeBuffer(1, value_num);
-        if (!success) {
-            return status_t(daal::services::ErrorMemoryAllocationFailed);
-        }
-        auto col_values_block = array<Data>::wrap(block.getBlockPtr(), value_num);
-
         try {
             column_accessor<const Data> acc { original_table_ };
-            acc.pull(col_values_block, feature_idx, { vector_idx, vector_idx + value_num });
+            auto values = acc.pull(feature_idx, { vector_idx, vector_idx + value_num });
+
+            auto data_ptr = const_cast<Data*>(values.get_data());
+            daal::services::SharedPtr<Data> daal_shared_ptr(data_ptr, [values](auto ptr) mutable { values.reset(); });
+
+            block.setSharedPtr(daal_shared_ptr, 1, value_num);
         } catch (const std::exception&) {
             return status_t(daal::services::UnknownError);
         }
@@ -208,6 +201,11 @@ private:
 
         auto meta = original_table_.get_metadata();
         dtype_ = meta.get_data_type(0);
+
+        this->_memStatus = original_table_.has_data() ?
+                            daal::data_management::NumericTableIface::userAllocated :
+                            daal::data_management::NumericTableIface::notAllocated;
+        this->_layout = daal::data_management::NumericTableIface::aos;
     }
 
 private:
