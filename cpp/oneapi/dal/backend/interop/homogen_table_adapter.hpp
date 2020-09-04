@@ -137,18 +137,22 @@ private:
         const std::int64_t row_count = original_table_.get_row_count();
         const std::int64_t column_count = original_table_.get_column_count();
 
-        if (vector_idx >= row_count || vector_idx+vector_num > row_count) {
+        const auto row_start_idx = static_cast<std::int64_t>(vector_idx); // TODO: check overflow
+        const auto row_block_count = static_cast<std::int64_t>(vector_num); // TODO: check overflow
+        const auto row_end_idx = row_start_idx + row_block_count; // TODO: check overflow
+
+        if (row_start_idx >= row_count || row_end_idx > row_count) {
             return status_t(daal::services::ErrorIncorrectIndex);
         }
 
         try {
             row_accessor<const Data> acc { original_table_ };
-            auto values = acc.pull({ vector_idx, vector_idx + vector_num });
+            auto values = acc.pull({ row_start_idx, row_end_idx });
 
             auto data_ptr = const_cast<Data*>(values.get_data());
             daal::services::SharedPtr<Data> daal_shared_ptr(data_ptr, [values](auto ptr) mutable { values.reset(); });
 
-            block.setSharedPtr(daal_shared_ptr, column_count, vector_num);
+            block.setSharedPtr(daal_shared_ptr, column_count, row_block_count);
         } catch (const std::exception&) {
             return status_t(daal::services::UnknownError);
         }
@@ -165,18 +169,23 @@ private:
         const std::int64_t row_count = original_table_.get_row_count();
         const std::int64_t column_count = original_table_.get_column_count();
 
-        if (feature_idx >= column_count || vector_idx >= row_count || vector_idx+value_num > row_count) {
+        const auto col_idx = static_cast<std::int64_t>(feature_idx);   // TODO: check overflow
+        const auto row_start_idx = static_cast<std::int64_t>(vector_idx); // TODO: check overflow
+        const auto row_block_count = static_cast<std::int64_t>(value_num); // TODO: check overflow
+        const auto row_end_idx = row_start_idx + row_block_count; // TODO: check overflow
+
+        if (col_idx >= column_count || row_start_idx >= row_count || row_end_idx > row_count) {
             return status_t(daal::services::ErrorIncorrectIndex);
         }
 
         try {
             column_accessor<const Data> acc { original_table_ };
-            auto values = acc.pull(feature_idx, { vector_idx, vector_idx + value_num });
+            auto values = acc.pull(col_idx, { row_start_idx, row_end_idx });
 
             auto data_ptr = const_cast<Data*>(values.get_data());
             daal::services::SharedPtr<Data> daal_shared_ptr(data_ptr, [values](auto ptr) mutable { values.reset(); });
 
-            block.setSharedPtr(daal_shared_ptr, 1, value_num);
+            block.setSharedPtr(daal_shared_ptr, 1, row_block_count);
         } catch (const std::exception&) {
             return status_t(daal::services::UnknownError);
         }
