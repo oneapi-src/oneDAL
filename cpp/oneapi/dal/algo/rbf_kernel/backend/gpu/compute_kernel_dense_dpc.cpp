@@ -31,7 +31,7 @@ namespace oneapi::dal::rbf_kernel::backend {
 using dal::backend::context_gpu;
 
 namespace daal_rbf_kernel = daal::algorithms::kernel_function::rbf;
-namespace interop         = dal::backend::interop;
+namespace interop = dal::backend::interop;
 
 template <typename Float>
 using daal_rbf_kernel_t =
@@ -45,8 +45,8 @@ static compute_result call_daal_kernel(const context_gpu& ctx,
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
-    const int64_t row_count_x  = x.get_row_count();
-    const int64_t row_count_y  = y.get_row_count();
+    const int64_t row_count_x = x.get_row_count();
+    const int64_t row_count_y = y.get_row_count();
     const int64_t column_count = x.get_column_count();
 
     auto arr_x = row_accessor<const Float>{ x }.pull(queue);

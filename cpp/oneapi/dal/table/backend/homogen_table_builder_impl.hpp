@@ -30,10 +30,10 @@ public:
 
     void reset(homogen_table&& t) {
         auto& t_impl = detail::get_impl<detail::homogen_table_impl_iface>(t);
-        auto& meta   = t_impl.get_metadata();
+        auto& meta = t_impl.get_metadata();
 
         layout_ = t.get_data_layout();
-        dtype_  = meta.get_data_type(0);
+        dtype_ = meta.get_data_type(0);
 
         std::int64_t data_size =
             detail::get_data_type_size(dtype_) * t_impl.get_row_count() * t_impl.get_column_count();
@@ -42,20 +42,20 @@ public:
         // now we are accepting const data pointer from table
         data_.reset(array<byte_t>(), reinterpret_cast<const byte_t*>(t_impl.get_data()), data_size);
         data_.need_mutable_data();
-        row_count_    = t_impl.get_row_count();
+        row_count_ = t_impl.get_row_count();
         column_count_ = t_impl.get_column_count();
     }
 
     void reset(const array<byte_t>& data, std::int64_t row_count, std::int64_t column_count) {
-        data_         = data;
-        row_count_    = row_count;
+        data_ = data;
+        row_count_ = row_count;
         column_count_ = column_count;
     }
 
     void set_data_type(data_type dt) {
         dtype_ = dt;
         data_.reset();
-        row_count_    = 0;
+        row_count_ = 0;
         column_count_ = 0;
     }
 
@@ -65,7 +65,7 @@ public:
 
     void allocate(std::int64_t row_count, std::int64_t column_count) {
         data_.reset(row_count * column_count * detail::get_data_type_size(dtype_));
-        row_count_    = row_count;
+        row_count_ = row_count;
         column_count_ = column_count;
     }
 
@@ -80,17 +80,17 @@ public:
                        data,
                        data_.get_size());
 
-        row_count_    = row_count;
+        row_count_ = row_count;
         column_count_ = column_count;
     }
 
     homogen_table build() {
         homogen_table new_table{ homogen_table_impl{ column_count_, data_, dtype_, layout_ } };
         data_.reset();
-        row_count_    = 0;
+        row_count_ = 0;
         column_count_ = 0;
-        layout_       = data_layout::row_major;
-        dtype_        = data_type::float32; // TODO: default data_type
+        layout_ = data_layout::row_major;
+        dtype_ = data_type::float32; // TODO: default data_type
 
         return new_table;
     }
@@ -101,7 +101,7 @@ public:
                   std::int64_t column_count,
                   sycl::usm::alloc kind) {
         data_.reset(queue, row_count * column_count * detail::get_data_type_size(dtype_), kind);
-        row_count_    = row_count;
+        row_count_ = row_count;
         column_count_ = column_count;
     }
 
@@ -114,7 +114,7 @@ public:
                     sycl::get_pointer_type(data_.get_data(), queue.get_context()));
         detail::memcpy(queue, data_.get_mutable_data(), data, data_.get_size());
 
-        row_count_    = row_count;
+        row_count_ = row_count;
         column_count_ = column_count;
     }
 #endif

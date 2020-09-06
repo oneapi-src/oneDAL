@@ -39,5 +39,10 @@ struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<data_parallel_policy, Float, Met
 
 INSTANTIATE(float, method::dense)
 INSTANTIATE(double, method::dense)
-
+INSTANTIATE(float, method::random_dense)
+INSTANTIATE(double, method::random_dense)
+INSTANTIATE(float, method::plus_plus_dense)
+INSTANTIATE(double, method::plus_plus_dense)
+INSTANTIATE(float, method::parallel_plus_dense)
+INSTANTIATE(double, method::parallel_plus_dense)
 } // namespace oneapi::dal::kmeans_init::detail

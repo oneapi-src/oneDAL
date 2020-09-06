@@ -43,14 +43,14 @@ undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, 
     const auto &layout = detail::get_impl(graph);
 
     impl_->_vertex_count = layout->_vertex_count;
-    impl_->_edge_count   = layout->_edge_count;
+    impl_->_edge_count = layout->_edge_count;
 
     impl_->_vertex_neighbors = layout->_vertex_neighbors;
-    impl_->_edge_offsets     = layout->_edge_offsets;
-    impl_->_degrees          = layout->_degrees;
+    impl_->_edge_offsets = layout->_edge_offsets;
+    impl_->_degrees = layout->_degrees;
 
     impl_->_vertex_value = layout->_vertex_value;
-    impl_->_edge_value   = layout->_edge_value;
+    impl_->_edge_value = layout->_edge_value;
 }
 
 template <typename VertexValue,
@@ -63,18 +63,18 @@ undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, 
         : undirected_adjacency_array_graph() {
     auto &layout = detail::get_impl(graph);
 
-    impl_->_vertex_count  = layout->_vertex_count;
+    impl_->_vertex_count = layout->_vertex_count;
     layout->_vertex_count = 0;
 
-    impl_->_edge_count  = layout->_edge_count;
+    impl_->_edge_count = layout->_edge_count;
     layout->_edge_count = 0;
 
     impl_->_vertex_neighbors = std::move(layout->_vertex_neighbors);
-    impl_->_edge_offsets     = std::move(layout->_edge_offsets);
-    impl_->_degrees          = std::move(layout->_degrees);
+    impl_->_edge_offsets = std::move(layout->_edge_offsets);
+    impl_->_degrees = std::move(layout->_degrees);
 
     impl_->_vertex_value = std::move(layout->_vertex_value);
-    impl_->_edge_value   = std::move(layout->_edge_value);
+    impl_->_edge_value = std::move(layout->_edge_value);
 }
 
 template <typename VertexValue,
@@ -89,14 +89,14 @@ undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, 
         const auto &layout = detail::get_impl(graph);
 
         impl_->_vertex_count = layout->_vertex_count;
-        impl_->_edge_count   = layout->_edge_count;
+        impl_->_edge_count = layout->_edge_count;
 
         impl_->_vertex_neighbors = layout->_vertex_neighbors;
-        impl_->_edge_offsets     = layout->_edge_offsets;
-        impl_->_degrees          = layout->_degrees;
+        impl_->_edge_offsets = layout->_edge_offsets;
+        impl_->_degrees = layout->_degrees;
 
         impl_->_vertex_value = layout->_vertex_value;
-        impl_->_edge_value   = layout->_edge_value;
+        impl_->_edge_value = layout->_edge_value;
     }
     return *this;
 }
@@ -112,18 +112,18 @@ undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, 
     if (&graph != this) {
         auto &layout = detail::get_impl(graph);
 
-        impl_->_vertex_count  = layout->_vertex_count;
+        impl_->_vertex_count = layout->_vertex_count;
         layout->_vertex_count = 0;
 
-        impl_->_edge_count  = layout->_edge_count;
+        impl_->_edge_count = layout->_edge_count;
         layout->_edge_count = 0;
 
         impl_->_vertex_neighbors = std::move(layout->_vertex_neighbors);
-        impl_->_edge_offsets     = std::move(layout->_edge_offsets);
-        impl_->_degrees          = std::move(layout->_degrees);
+        impl_->_edge_offsets = std::move(layout->_edge_offsets);
+        impl_->_degrees = std::move(layout->_degrees);
 
         impl_->_vertex_value = std::move(layout->_vertex_value);
-        impl_->_edge_value   = std::move(layout->_edge_value);
+        impl_->_edge_value = std::move(layout->_edge_value);
     }
     return *this;
 }

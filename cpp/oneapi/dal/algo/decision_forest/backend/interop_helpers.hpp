@@ -29,9 +29,9 @@
 namespace oneapi::dal::backend::interop::decision_forest {
 
 namespace daal_df = daal::algorithms::decision_forest;
-namespace cls     = daal::algorithms::decision_forest::classification;
+namespace cls = daal::algorithms::decision_forest::classification;
 
-namespace df         = dal::decision_forest;
+namespace df = dal::decision_forest;
 namespace df_interop = dal::backend::interop::decision_forest;
 
 inline auto convert_to_daal_voting_mode(df::voting_mode vm) {

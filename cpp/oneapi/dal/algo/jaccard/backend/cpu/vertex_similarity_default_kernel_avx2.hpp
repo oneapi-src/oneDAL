@@ -40,7 +40,7 @@ DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
 #else
 DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
     std::int32_t count = 0;
-    std::int32_t a     = x;
+    std::int32_t a = x;
     while (a != 0) {
         a = a & (a - 1);
         count++;
@@ -89,7 +89,7 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
         i_v = (maxu >= maxv) ? i_v + 8 : i_v;
         i_u = (maxu <= maxv) ? i_u + 8 : i_u;
 
-        __m256i match             = _mm256_cmpeq_epi32(v_u, v_v);
+        __m256i match = _mm256_cmpeq_epi32(v_u, v_v);
         unsigned int scalar_match = _mm256_movemask_ps(_mm256_castsi256_ps(match));
 
         if (scalar_match != 255) { // shortcut case where all neighbors match
@@ -131,7 +131,7 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
             unsigned int scalar_match5 = _mm256_movemask_ps(_mm256_castsi256_ps(tmp_match5));
             unsigned int scalar_match6 = _mm256_movemask_ps(_mm256_castsi256_ps(tmp_match6));
             unsigned int scalar_match7 = _mm256_movemask_ps(_mm256_castsi256_ps(tmp_match7));
-            unsigned int final_match   = scalar_match | scalar_match1 | scalar_match2 |
+            unsigned int final_match = scalar_match | scalar_match1 | scalar_match2 |
                                        scalar_match3 | scalar_match4 | scalar_match5 |
                                        scalar_match6 | scalar_match7;
 
@@ -149,9 +149,9 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
         for (; neigh_v[i_v] <= neighu_iu && i_v < n_v; i_v++) {
             __m256i tmp_v_v = _mm256_set1_epi32(neigh_v[i_v]);
 
-            __m256i match             = _mm256_cmpeq_epi32(v_u, tmp_v_v);
+            __m256i match = _mm256_cmpeq_epi32(v_u, tmp_v_v);
             unsigned int scalar_match = _mm256_movemask_ps(_mm256_castsi256_ps(match));
-            total                     = scalar_match != 0 ? total + 1 : total;
+            total = scalar_match != 0 ? total + 1 : total;
         }
     }
     for (; i_v <= n_v_8_end && i_u < n_u; i_v += 8) {
@@ -159,10 +159,10 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
             reinterpret_cast<const __m256i *>(neigh_v + i_v)); // load 8 neighbors of v
         const std::int32_t neighv_iv = neigh_v[i_v + 7];
         for (; neigh_u[i_u] <= neighv_iv && i_u < n_u; i_u++) {
-            __m256i tmp_v_u           = _mm256_set1_epi32(neigh_u[i_u]);
-            __m256i match             = _mm256_cmpeq_epi32(v_v, tmp_v_u);
+            __m256i tmp_v_u = _mm256_set1_epi32(neigh_u[i_u]);
+            __m256i match = _mm256_cmpeq_epi32(v_v, tmp_v_u);
             unsigned int scalar_match = _mm256_movemask_ps(_mm256_castsi256_ps(match));
-            total                     = scalar_match != 0 ? total + 1 : total;
+            total = scalar_match != 0 ? total + 1 : total;
         }
     }
 
@@ -200,7 +200,7 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
         i_v = (maxu >= maxv) ? i_v + 4 : i_v;
         i_u = (maxu <= maxv) ? i_u + 4 : i_u;
 
-        __m128i match             = _mm_cmpeq_epi32(v_u, v_v);
+        __m128i match = _mm_cmpeq_epi32(v_u, v_v);
         unsigned int scalar_match = _mm_movemask_ps(_mm_castsi128_ps(match));
 
         if (scalar_match != 155) { // shortcut case where all neighbors match
@@ -230,10 +230,10 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
             reinterpret_cast<const __m128i *>(neigh_u + i_u)); // load 8 neighbors of u
         const std::int32_t neighu_iu = neigh_u[i_u + 3];
         for (; neigh_v[i_v] <= neighu_iu && i_v < n_v; i_v++) {
-            __m128i tmp_v_v           = _mm_set1_epi32(neigh_v[i_v]);
-            __m128i match             = _mm_cmpeq_epi32(v_u, tmp_v_v);
+            __m128i tmp_v_v = _mm_set1_epi32(neigh_v[i_v]);
+            __m128i match = _mm_cmpeq_epi32(v_u, tmp_v_v);
             unsigned int scalar_match = _mm_movemask_ps(_mm_castsi128_ps(match));
-            total                     = scalar_match != 0 ? total + 1 : total;
+            total = scalar_match != 0 ? total + 1 : total;
         }
         i_u += 4;
     }
@@ -242,10 +242,10 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
             reinterpret_cast<const __m128i *>(neigh_v + i_v)); // load 8 neighbors of v
         const std::int32_t neighv_iv = neigh_v[i_v + 3];
         for (; neigh_u[i_u] <= neighv_iv && i_u < n_u; i_u++) {
-            __m128i tmp_v_u           = _mm_set1_epi32(neigh_u[i_u]);
-            __m128i match             = _mm_cmpeq_epi32(v_v, tmp_v_u);
+            __m128i tmp_v_u = _mm_set1_epi32(neigh_u[i_u]);
+            __m128i match = _mm_cmpeq_epi32(v_v, tmp_v_u);
             unsigned int scalar_match = _mm_movemask_ps(_mm_castsi128_ps(match));
-            total                     = scalar_match != 0 ? total + 1 : total;
+            total = scalar_match != 0 ? total + 1 : total;
         }
         i_v += 4;
     }
@@ -268,30 +268,30 @@ template <typename Cpu>
 vertex_similarity_result call_jaccard_default_kernel_avx2(
     const descriptor_base &desc,
     vertex_similarity_input<undirected_adjacency_array_graph<>> &input) {
-    const auto &my_graph                = input.get_graph();
-    const auto &g                       = oneapi::dal::preview::detail::get_impl(my_graph);
-    auto g_edge_offsets                 = g->_edge_offsets.data();
-    auto g_vertex_neighbors             = g->_vertex_neighbors.data();
-    auto g_degrees                      = g->_degrees.data();
-    const std::int32_t row_begin        = static_cast<std::int32_t>(desc.get_row_range_begin());
-    const auto row_end                  = static_cast<std::int32_t>(desc.get_row_range_end());
-    const auto column_begin             = static_cast<std::int32_t>(desc.get_column_range_begin());
-    const auto column_end               = static_cast<std::int32_t>(desc.get_column_range_end());
+    const auto &my_graph = input.get_graph();
+    const auto &g = oneapi::dal::preview::detail::get_impl(my_graph);
+    auto g_edge_offsets = g->_edge_offsets.data();
+    auto g_vertex_neighbors = g->_vertex_neighbors.data();
+    auto g_degrees = g->_degrees.data();
+    const std::int32_t row_begin = static_cast<std::int32_t>(desc.get_row_range_begin());
+    const auto row_end = static_cast<std::int32_t>(desc.get_row_range_end());
+    const auto column_begin = static_cast<std::int32_t>(desc.get_column_range_begin());
+    const auto column_end = static_cast<std::int32_t>(desc.get_column_range_end());
     const auto number_elements_in_block = (row_end - row_begin) * (column_end - column_begin);
     const size_t max_block_size =
         compute_max_block_size(row_begin, row_end, column_begin, column_end);
-    void *result_ptr     = input.get_caching_builder()(max_block_size);
-    int *first_vertices  = reinterpret_cast<int *>(result_ptr);
+    void *result_ptr = input.get_caching_builder()(max_block_size);
+    int *first_vertices = reinterpret_cast<int *>(result_ptr);
     int *second_vertices = first_vertices + number_elements_in_block;
-    float *jaccard       = reinterpret_cast<float *>(first_vertices + 2 * number_elements_in_block);
-    std::int64_t nnz     = 0;
+    float *jaccard = reinterpret_cast<float *>(first_vertices + 2 * number_elements_in_block);
+    std::int64_t nnz = 0;
     for (std::int32_t i = row_begin; i < row_end; ++i) {
         const auto i_neighbor_size = g_degrees[i];
-        const auto i_neigbhors     = g_vertex_neighbors + g_edge_offsets[i];
-        const auto diagonal        = min(i, column_end);
+        const auto i_neigbhors = g_vertex_neighbors + g_edge_offsets[i];
+        const auto diagonal = min(i, column_end);
         for (std::int32_t j = column_begin; j < diagonal; j++) {
             const auto j_neighbor_size = g_degrees[j];
-            const auto j_neigbhors     = g_vertex_neighbors + g_edge_offsets[j];
+            const auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
             if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&
                 !(j_neigbhors[0] > i_neigbhors[i_neighbor_size - 1])) {
                 auto intersection_value =
@@ -299,7 +299,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx2(
                 if (intersection_value) {
                     jaccard[nnz] = float(intersection_value) /
                                    float(i_neighbor_size + j_neighbor_size - intersection_value);
-                    first_vertices[nnz]  = i;
+                    first_vertices[nnz] = i;
                     second_vertices[nnz] = j;
                     nnz++;
                 }
@@ -307,15 +307,15 @@ vertex_similarity_result call_jaccard_default_kernel_avx2(
         }
 
         if (diagonal >= column_begin && diagonal < column_end) {
-            jaccard[nnz]         = 1.0;
-            first_vertices[nnz]  = i;
+            jaccard[nnz] = 1.0;
+            first_vertices[nnz] = i;
             second_vertices[nnz] = diagonal;
             nnz++;
         }
 
         for (std::int32_t j = max(column_begin, diagonal + 1); j < column_end; j++) {
             const auto j_neighbor_size = g_degrees[j];
-            const auto j_neigbhors     = g_vertex_neighbors + g_edge_offsets[j];
+            const auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
             if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&
                 !(j_neigbhors[0] > i_neigbhors[i_neighbor_size - 1])) {
                 auto intersection_value =
@@ -323,7 +323,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx2(
                 if (intersection_value) {
                     jaccard[nnz] = float(intersection_value) /
                                    float(i_neighbor_size + j_neighbor_size - intersection_value);
-                    first_vertices[nnz]  = i;
+                    first_vertices[nnz] = i;
                     second_vertices[nnz] = j;
                     nnz++;
                 }

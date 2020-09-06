@@ -21,7 +21,8 @@ load("@bazel_tools//tools/cpp:lib_cc_configure.bzl",
     "write_builtin_include_directory_paths",
 )
 load("@onedal//dev/bazel:utils.bzl",
-    "unique",
+    "utils",
+    "paths",
 )
 load("@onedal//dev/bazel/toolchains:common.bzl",
     "TEST_CPP_FILE",
@@ -86,7 +87,8 @@ def _find_tool(repo_ctx, tool_name, mandatory=False):
     if tool_name.startswith("/"):
         return tool_name
     tool_path = repo_ctx.which(tool_name)
-    if not tool_path:
+    is_found = tool_path != None
+    if not is_found:
         if mandatory:
             auto_configure_fail("Cannot find {}; try to correct your $PATH".format(tool_name))
         else:
@@ -96,7 +98,7 @@ def _find_tool(repo_ctx, tool_name, mandatory=False):
                 { "%{tool_name}": tool_name }
             )
             tool_path = repo_ctx.path("tool_not_found.sh")
-    return str(tool_path)
+    return str(tool_path), is_found
 
 def _create_ar_merge_tool(repo_ctx, ar_path):
     ar_merge_name = "merge_static_libs.sh"
@@ -108,21 +110,39 @@ def _create_ar_merge_tool(repo_ctx, ar_path):
     ar_merge_path = repo_ctx.path(ar_merge_name)
     return str(ar_merge_path)
 
+def _create_dynamic_link_wrapper(repo_ctx, prefix, cc_path):
+    wrapper_name = prefix + "_dynamic_link.sh"
+    repo_ctx.template(
+        wrapper_name,
+        Label("@onedal//dev/bazel/toolchains/tools:dynamic_link_lnx.tpl.sh"),
+        { "%{cc_path}": cc_path }
+    )
+    wrapper_path = repo_ctx.path(wrapper_name)
+    return str(wrapper_path)
+
 def _find_tools(repo_ctx, reqs):
     # TODO: Use full compiler path from reqs
-    ar = _find_tool(repo_ctx, "ar", mandatory=True)
-    ar_merge = _create_ar_merge_tool(repo_ctx, ar)
+    ar_path, _ = _find_tool(repo_ctx, "ar", mandatory=True)
+    cc_path, _ = _find_tool(repo_ctx, reqs.compiler_id, mandatory=True)
+    strip_path, _ = _find_tool(repo_ctx, "strip", mandatory=True)
+    dpcc_path, dpcpp_found = _find_tool(repo_ctx, reqs.dpc_compiler_id, mandatory=False)
+    cc_link_path = _create_dynamic_link_wrapper(repo_ctx, "cc", cc_path)
+    dpcc_link_path = _create_dynamic_link_wrapper(repo_ctx, "dpc", dpcc_path)
+    ar_merge_path = _create_ar_merge_tool(repo_ctx, ar_path)
     return struct(
-        cc       = _find_tool(repo_ctx, reqs.compiler_id, mandatory=True),
-        dpcc     = _find_tool(repo_ctx, reqs.dpc_compiler_id, mandatory=False),
-        strip    = _find_tool(repo_ctx, "strip", mandatory=True),
-        ar       = ar,
-        ar_merge = ar_merge,
+        cc           = cc_path,
+        dpcc         = dpcc_path,
+        cc_link      = cc_link_path,
+        dpcc_link    = dpcc_link_path,
+        strip        = strip_path,
+        ar           = ar_path,
+        ar_merge     = ar_merge_path,
+        is_dpc_found = dpcpp_found,
     )
 
 
 def _preapre_builtin_include_directory_paths(repo_ctx, tools):
-    builtin_include_directories = unique(
+    builtin_include_directories = utils.unique(
         get_cxx_inc_directories(repo_ctx, tools.cc, "-xc") +
         get_cxx_inc_directories(repo_ctx, tools.cc, "-xc++") +
         get_cxx_inc_directories(
@@ -192,7 +212,7 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
     # Default compilations/link options
     cxx_opts  = [ ]
     link_opts = [ ]
-    link_libs = [ "-lstdc++", "-lm", "-ldl" ]
+    dynamic_link_libs = [ "-lstdc++", "-lm", "-ldl" ]
 
     # Paths to tools/compiler includes
     tools = _find_tools(repo_ctx, reqs)
@@ -217,16 +237,25 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
             "%{target_system_name}":      reqs.os_id + "-" + reqs.target_arch_id,
 
             "%{supports_param_files}": "1",
-            "%{cc_compiler_deps}": get_starlark_list(
-                [":builtin_include_directory_paths"]
-            ),
+            "%{compiler_deps}": get_starlark_list([
+                ":builtin_include_directory_paths",
+            ]),
+            "%{ar_deps}": get_starlark_list([
+                ":" + paths.basename(tools.ar_merge),
+            ]),
+            "%{linker_deps}": get_starlark_list([
+                ":" + paths.basename(tools.cc_link),
+                ":" + paths.basename(tools.dpcc_link),
+            ]),
 
             # Tools
-            "%{cc_path}":       tools.cc,
-            "%{dpcc_path}":     tools.dpcc,
-            "%{ar_path}":       tools.ar,
-            "%{ar_merge_path}": tools.ar_merge,
-            "%{strip_path}":    tools.strip,
+            "%{cc_path}":        tools.cc,
+            "%{dpcc_path}":      tools.dpcc,
+            "%{cc_link_path}":   tools.cc_link,
+            "%{dpcc_link_path}": tools.dpcc_link,
+            "%{ar_path}":        tools.ar,
+            "%{ar_merge_path}":  tools.ar_merge,
+            "%{strip_path}":     tools.strip,
 
             "%{cxx_builtin_include_directories}": get_starlark_list(builtin_include_directories),
             "%{compile_flags_cc}": get_starlark_list(
@@ -255,9 +284,8 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                     is_dpcc = True,
                     category = "common",
                 )
-            ),
+            ) if tools.is_dpc_found else "",
             "%{compile_flags_pedantic_cc}": get_starlark_list(
-                _add_gcc_toolchain_if_needed(repo_ctx, tools.cc) +
                 get_default_compiler_options(
                     repo_ctx,
                     reqs,
@@ -267,7 +295,6 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                 )
             ),
             "%{compile_flags_pedantic_dpcc}": get_starlark_list(
-                _add_gcc_toolchain_if_needed(repo_ctx, tools.dpcc) +
                 get_default_compiler_options(
                     repo_ctx,
                     reqs,
@@ -275,7 +302,7 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                     is_dpcc = True,
                     category = "pedantic",
                 )
-            ),
+            ) if tools.is_dpc_found else "",
             "%{cxx_flags}": get_starlark_list(cxx_opts),
             "%{link_flags_cc}": get_starlark_list(
                 _add_gold_linker_path_if_available(repo_ctx, tools.cc) +
@@ -325,24 +352,22 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                     "-pass-exit-codes",
                 ) +
                 bin_search_flag_dpcc + link_opts
-            ),
-            "%{link_libs}": get_starlark_list(link_libs),
+            ) if tools.is_dpc_found else "",
+            "%{dynamic_link_libs}": get_starlark_list(dynamic_link_libs),
             "%{opt_compile_flags}": get_starlark_list(
                 [
                     # No debug symbols.
-                    # Maybe we should enable https://gcc.gnu.org/wiki/DebugFission for opt or
-                    # even generally? However, that can't happen here, as it requires special
-                    # handling in Bazel.
                     "-g0",
 
                     # Conservative choice for -O
-                    # -O3 can increase binary size and even slow down the resulting binaries.
-                    # Profile first and / or use FDO if you need better performance than this.
                     "-O2",
 
+                    # It turns out that some GCC builds set _FORTIFY_SOURCE internally,
+                    # so we need to undefine it first
+                    "-U_FORTIFY_SOURCE",
+
                     # Security hardening on by default.
-                    # Conservative choice; -D_FORTIFY_SOURCE=2 may be unsafe in some cases.
-                    "-D_FORTIFY_SOURCE=1",
+                    "-D_FORTIFY_SOURCE=2",
 
                     # Disable assertions
                     "-DNDEBUG",
@@ -369,7 +394,7 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
             ),
             "%{no_canonical_system_headers_flags_dpcc}": get_starlark_list(
                 get_no_canonical_prefixes_opt(repo_ctx, tools.dpcc)
-            ),
+            ) if tools.is_dpc_found else "",
             "%{deterministic_compile_flags}": get_starlark_list(
                 [
                     # Make C++ compilation deterministic. Use linkstamping instead of these

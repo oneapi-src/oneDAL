@@ -35,8 +35,8 @@ using by_default = kd_tree;
 
 class ONEAPI_DAL_EXPORT descriptor_base : public base {
 public:
-    using tag_t    = detail::tag;
-    using float_t  = float;
+    using tag_t = detail::tag;
+    using float_t = float;
     using method_t = method::by_default;
 
     descriptor_base();
@@ -56,8 +56,8 @@ protected:
 template <typename Float = descriptor_base::float_t, typename Method = descriptor_base::method_t>
 class descriptor : public descriptor_base {
 public:
-    using tag_t    = detail::tag;
-    using float_t  = Float;
+    using tag_t = detail::tag;
+    using float_t = Float;
     using method_t = Method;
 
     auto& set_class_count(std::int64_t value) {

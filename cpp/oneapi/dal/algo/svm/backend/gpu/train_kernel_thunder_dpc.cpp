@@ -36,9 +36,9 @@ namespace oneapi::dal::svm::backend {
 using std::int64_t;
 using dal::backend::context_gpu;
 
-namespace daal_svm             = daal::algorithms::svm;
+namespace daal_svm = daal::algorithms::svm;
 namespace daal_kernel_function = daal::algorithms::kernel_function;
-namespace interop              = dal::backend::interop;
+namespace interop = dal::backend::interop;
 
 template <typename Float>
 using daal_svm_thunder_kernel_t = daal_svm::training::internal::
@@ -52,11 +52,11 @@ static train_result call_daal_kernel(const context_gpu& ctx,
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
-    const int64_t row_count    = data.get_row_count();
+    const int64_t row_count = data.get_row_count();
     const int64_t column_count = data.get_column_count();
 
     // TODO: data is table, not a homogen_table. Think better about accessor - is it enough to have just a row_accessor?
-    auto arr_data  = row_accessor<const Float>{ data }.pull(queue);
+    auto arr_data = row_accessor<const Float>{ data }.pull(queue);
     auto arr_label = row_accessor<const Float>{ labels }.pull(queue);
 
     binary_label_t<Float> unique_label;
@@ -68,7 +68,7 @@ static train_result call_daal_kernel(const context_gpu& ctx,
     const auto daal_labels =
         interop::convert_to_daal_sycl_homogen_table(queue, arr_new_label, row_count, 1);
 
-    auto kernel_impl       = desc.get_kernel_impl()->get_impl();
+    auto kernel_impl = desc.get_kernel_impl()->get_impl();
     const auto daal_kernel = kernel_impl->get_daal_kernel_function();
     daal_svm::Parameter daal_parameter(
         daal_kernel,
