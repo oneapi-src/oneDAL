@@ -103,7 +103,6 @@ onedal_threading.sequential := $(onedal_sequential)
 onedal_threading := $(onedal_threading.$(threading))
 
 COPTS := -std=c++17 \
--g \
          -pedantic \
          -Wall \
          -Wextra \
@@ -161,6 +160,6 @@ $(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.
 	$(CC) $(COPTS) $< -o $@ $(LOPTS)
 
 $(RES_DIR)/%.res:  $(RES_DIR)/%.exe
-	# $< > $@
+	$< > $@
 
 %/.:; mkdir -p $*

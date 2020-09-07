@@ -25,7 +25,6 @@
 #include "oneapi/dal/graph/graph_common.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
 #include "oneapi/dal/io/detail/load_graph_service.hpp"
-#include "oneapi/dal/io/detail/meas.hpp"
 #include "oneapi/dal/io/graph_csv_data_source.hpp"
 #include "oneapi/dal/io/load_graph_descriptor.hpp"
 #include "services/daal_atomic_int.h"
@@ -81,7 +80,6 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     auto &allocator = layout->_allocator;
     layout->_vertex_count = n_vertex;
 
-    // ? should I use allocator_atomic_t
     void *degrees_vec_void =
         (void *)allocator.allocate(n_vertex * (sizeof(atomic_t) / sizeof(char)));
     atomic_t *degrees_vec = new (degrees_vec_void) atomic_t[n_vertex];
@@ -117,7 +115,6 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         total_sum_degrees += degrees_cv[i].get();
         rows_cv[i + 1].set(total_sum_degrees);
     }
-    // delete degrees_vec;
     allocator.deallocate((char *)degrees_vec_void, n_vertex * (sizeof(atomic_t) / sizeof(char)));
 
     void *_unf_vert_neighs_vec_void =
@@ -137,7 +134,6 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         _unf_vert_neighs_arr[rows_cv[edges[u].first].inc() - 1] = edges[u].second;
         _unf_vert_neighs_arr[rows_cv[edges[u].second].inc() - 1] = edges[u].first;
     });
-    // delete rows_vec;
     allocator.deallocate((char *)rows_vec_void, (n_vertex + 1) * (sizeof(atomic_t) / sizeof(char)));
 
     //removing self-loops,  multiple edges from graph, and make neighbors in CSR sorted
