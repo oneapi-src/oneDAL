@@ -298,15 +298,15 @@ private:
     }
 
     void update_data(const T* data, std::int64_t count) noexcept {
-        data_ptr_         = data;
+        data_ptr_ = data;
         mutable_data_ptr_ = nullptr;
-        count_            = count;
+        count_ = count;
     }
 
     void update_data(T* data, std::int64_t count) noexcept {
-        data_ptr_         = data;
+        data_ptr_ = data;
         mutable_data_ptr_ = data;
-        count_            = count;
+        count_ = count;
     }
 
 private:

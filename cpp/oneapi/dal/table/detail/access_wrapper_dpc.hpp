@@ -18,10 +18,10 @@
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
 
-    #include "oneapi/dal/table/detail/access_iface_type_traits.hpp"
-    #include "oneapi/dal/table/detail/access_iface_wrapper.hpp"
+#include "oneapi/dal/table/detail/access_iface_type_traits.hpp"
+#include "oneapi/dal/table/detail/access_iface_wrapper.hpp"
 
-    #include <stdexcept> // TODO: change by oneDAL exceptions
+#include <stdexcept> // TODO: change by oneDAL exceptions
 
 namespace oneapi::dal::detail {
 

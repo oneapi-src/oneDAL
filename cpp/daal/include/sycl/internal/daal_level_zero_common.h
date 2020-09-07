@@ -27,7 +27,8 @@
             #include "sycl/internal/daal_level_zero_types.h"
         #endif
 
-typedef ze_result_t (*zeModuleCreateFT)(ze_device_handle_t, const ze_module_desc_t *, ze_module_handle_t *, ze_module_build_log_handle_t *);
+typedef ze_result_t (*zeModuleCreateFT)(ze_context_handle_t, ze_device_handle_t, const ze_module_desc_t *, ze_module_handle_t *,
+                                        ze_module_build_log_handle_t *);
 
 typedef ze_result_t (*zeModuleDestroyFT)(ze_module_handle_t hModule);
 

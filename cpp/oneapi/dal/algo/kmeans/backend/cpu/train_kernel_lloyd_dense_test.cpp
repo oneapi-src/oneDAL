@@ -22,8 +22,8 @@
 using namespace oneapi::dal;
 
 TEST(kmeans_lloyd_dense_cpu, train_results) {
-    constexpr std::int64_t row_count     = 8;
-    constexpr std::int64_t column_count  = 2;
+    constexpr std::int64_t row_count = 8;
+    constexpr std::int64_t column_count = 2;
     constexpr std::int64_t cluster_count = 2;
 
     const float data[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
@@ -55,8 +55,8 @@ TEST(kmeans_lloyd_dense_cpu, train_results) {
 }
 
 TEST(kmeans_lloyd_dense_cpu, infer_results) {
-    constexpr std::int64_t row_count     = 8;
-    constexpr std::int64_t column_count  = 2;
+    constexpr std::int64_t row_count = 8;
+    constexpr std::int64_t column_count = 2;
     constexpr std::int64_t cluster_count = 2;
 
     const float data[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
@@ -72,7 +72,7 @@ TEST(kmeans_lloyd_dense_cpu, infer_results) {
     const auto result_train = train(kmeans_desc, data_table);
 
     constexpr std::int64_t infer_row_count = 9;
-    const float data_infer[]               = { 1.0, 1.0,  0.0, 1.0,  1.0,  0.0,  2.0, 2.0,  7.0,
+    const float data_infer[] = { 1.0, 1.0,  0.0, 1.0,  1.0,  0.0,  2.0, 2.0,  7.0,
                                  0.0, -1.0, 0.0, -5.0, -5.0, -5.0, 0.0, -2.0, 1.0 };
     const auto data_infer_table = homogen_table::wrap(data_infer, infer_row_count, column_count);
 

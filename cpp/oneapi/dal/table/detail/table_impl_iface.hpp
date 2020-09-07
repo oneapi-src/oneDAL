@@ -29,11 +29,11 @@ namespace oneapi::dal::detail {
 
 class table_impl_iface : public access_provider_iface {
 public:
-    virtual std::int64_t get_column_count() const      = 0;
-    virtual std::int64_t get_row_count() const         = 0;
+    virtual std::int64_t get_column_count() const = 0;
+    virtual std::int64_t get_row_count() const = 0;
     virtual const table_metadata& get_metadata() const = 0;
-    virtual std::int64_t get_kind() const              = 0;
-    virtual data_layout get_data_layout() const        = 0;
+    virtual std::int64_t get_kind() const = 0;
+    virtual data_layout get_data_layout() const = 0;
 };
 
 class homogen_table_impl_iface : public table_impl_iface {

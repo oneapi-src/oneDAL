@@ -53,7 +53,7 @@ rst_prolog = """
 .. |reg| unicode:: U+000AE
 .. |copy| unicode:: U+000A9
 .. |base_tk| replace:: Intel\ |reg|\  oneAPI Base Toolkit
-.. |dpcpp| replace:: Intel\ |reg|\  oneAPI DPC++ Compiler
+.. |dpcpp| replace:: Intel\ |reg|\  oneAPI DPC++/C++ Compiler
 """
 
 

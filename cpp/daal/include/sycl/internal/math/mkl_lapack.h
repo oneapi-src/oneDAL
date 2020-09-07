@@ -54,16 +54,16 @@ struct MKLPotrf
                                 cl::sycl::buffer<algorithmFPType, 1> & scratchpad)
     {
         services::Status status;
-        const fpk::uplo uplomkl                          = uplo == math::UpLo::Upper ? fpk::uplo::upper : fpk::uplo::lower;
+        const ::oneapi::fpk::uplo uplomkl                = uplo == math::UpLo::Upper ? ::oneapi::fpk::uplo::upper : ::oneapi::fpk::uplo::lower;
         cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a.toSycl();
 
         {
             using namespace daal::services;
-            const std::int64_t minimalScratchpadSize = fpk::lapack::potrf_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, lda);
+            const std::int64_t minimalScratchpadSize = ::oneapi::fpk::lapack::potrf_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, lda);
             if (scratchpad.get_count() < minimalScratchpadSize) return Status(ErrorID::ErrorMemoryAllocationFailed);
         }
 
-        fpk::lapack::potrf(_queue, uplomkl, n, a_sycl_buff, lda, scratchpad, scratchpad.get_count());
+        ::oneapi::fpk::lapack::potrf(_queue, uplomkl, n, a_sycl_buff, lda, scratchpad, scratchpad.get_count());
 
         _queue.wait();
         /** TODO: Check info buffer for containing errors. Now it is not supported.:
@@ -81,8 +81,8 @@ struct MKLPotrf
 
     services::Status operator()(const math::UpLo uplo, const size_t n, services::Buffer<algorithmFPType> & a, const size_t lda)
     {
-        const fpk::uplo uplomkl                  = uplo == math::UpLo::Upper ? fpk::uplo::upper : fpk::uplo::lower;
-        const std::int64_t minimalScratchpadSize = fpk::lapack::potrf_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, lda);
+        const ::oneapi::fpk::uplo uplomkl        = uplo == math::UpLo::Upper ? ::oneapi::fpk::uplo::upper : ::oneapi::fpk::uplo::lower;
+        const std::int64_t minimalScratchpadSize = ::oneapi::fpk::lapack::potrf_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, lda);
         return this->operator()(uplo, n, a, lda, minimalScratchpadSize);
     }
 
@@ -103,17 +103,18 @@ struct MKLPotrs
                                 services::Buffer<algorithmFPType> & b, const size_t ldb, cl::sycl::buffer<algorithmFPType, 1> & scratchpad)
     {
         services::Status status;
-        const fpk::uplo uplomkl                          = uplo == math::UpLo::Upper ? fpk::uplo::upper : fpk::uplo::lower;
+        const ::oneapi::fpk::uplo uplomkl                = uplo == math::UpLo::Upper ? ::oneapi::fpk::uplo::upper : ::oneapi::fpk::uplo::lower;
         cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a.toSycl();
         cl::sycl::buffer<algorithmFPType, 1> b_sycl_buff = b.toSycl();
 
         {
             using namespace daal::services;
-            const std::int64_t minimalScratchpadSize = fpk::lapack::potrs_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, ny, lda, ldb);
+            const std::int64_t minimalScratchpadSize =
+                ::oneapi::fpk::lapack::potrs_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, ny, lda, ldb);
             if (scratchpad.get_count() < minimalScratchpadSize) return Status(ErrorID::ErrorMemoryAllocationFailed);
         }
 
-        fpk::lapack::potrs(_queue, uplomkl, n, ny, a_sycl_buff, lda, b_sycl_buff, ldb, scratchpad, scratchpad.get_count());
+        ::oneapi::fpk::lapack::potrs(_queue, uplomkl, n, ny, a_sycl_buff, lda, b_sycl_buff, ldb, scratchpad, scratchpad.get_count());
 
         _queue.wait();
         /** TODO: Check info buffer for containing errors. Now it is not supported.:
@@ -132,8 +133,8 @@ struct MKLPotrs
     services::Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, services::Buffer<algorithmFPType> & a, const size_t lda,
                                 services::Buffer<algorithmFPType> & b, const size_t ldb)
     {
-        const fpk::uplo uplomkl                  = uplo == math::UpLo::Upper ? fpk::uplo::upper : fpk::uplo::lower;
-        const std::int64_t minimalScratchpadSize = fpk::lapack::potrs_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, ny, lda, ldb);
+        const ::oneapi::fpk::uplo uplomkl        = uplo == math::UpLo::Upper ? ::oneapi::fpk::uplo::upper : ::oneapi::fpk::uplo::lower;
+        const std::int64_t minimalScratchpadSize = ::oneapi::fpk::lapack::potrs_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, ny, lda, ldb);
         return this->operator()(uplo, n, ny, a, lda, b, ldb, minimalScratchpadSize);
     }
 

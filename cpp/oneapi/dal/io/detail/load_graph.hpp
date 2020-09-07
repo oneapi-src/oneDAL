@@ -53,23 +53,23 @@ edge_list<std::int32_t> load_edge_list(const std::string &name) {
 
 template <typename Graph>
 void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
-    auto layout           = oneapi::dal::preview::detail::get_impl(g);
-    using vertex_t        = typename Graph::vertex_type;
+    auto layout = oneapi::dal::preview::detail::get_impl(g);
+    using vertex_t = typename Graph::vertex_type;
     using vector_vertex_t = typename Graph::vertex_set;
-    using vector_edge_t   = typename Graph::edge_set;
-    using allocator_t     = typename Graph::allocator_type;
-    using vertex_size_t   = typename Graph::vertex_size_type;
+    using vector_edge_t = typename Graph::edge_set;
+    using allocator_t = typename Graph::allocator_type;
+    using vertex_size_t = typename Graph::vertex_size_type;
 
     if (edges.size() == 0) {
         layout->_vertex_count = 0;
-        layout->_edge_count   = 0;
+        layout->_edge_count = 0;
         throw invalid_argument("Empty edge list");
     }
 
     vertex_t max_node_id = edges[0].first;
     for (auto u : edges) {
         vertex_t max_id_in_edge = std::max(u.first, u.second);
-        max_node_id             = std::max(max_node_id, max_id_in_edge);
+        max_node_id = std::max(max_node_id, max_id_in_edge);
     }
 
     vertex_t _unf_vertex_count = max_node_id + 1;
@@ -128,7 +128,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     });
 
     threader_for(edges.size(), edges.size(), [&](vertex_t u) {
-        _unf_vert_neighs_arr[rows_cv[edges[u].first].inc() - 1]  = edges[u].second;
+        _unf_vert_neighs_arr[rows_cv[edges[u].first].inc() - 1] = edges[u].second;
         _unf_vert_neighs_arr[rows_cv[edges[u].second].inc() - 1] = edges[u].first;
     });
     delete rows_vec;
@@ -141,11 +141,11 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
 
     threader_for(_unf_vertex_count, _unf_vertex_count, [&](vertex_t u) {
         auto start_p = _unf_vert_neighs_vec.begin() + _unf_edge_offset_vec[u];
-        auto end_p   = _unf_vert_neighs_vec.begin() + _unf_edge_offset_vec[u + 1];
+        auto end_p = _unf_vert_neighs_vec.begin() + _unf_edge_offset_vec[u + 1];
         std::sort(start_p, end_p);
         auto neighs_u_new_end = std::unique(start_p, end_p);
-        neighs_u_new_end      = std::remove(start_p, neighs_u_new_end, u);
-        layout->_degrees[u]   = (vertex_t)std::distance(start_p, neighs_u_new_end);
+        neighs_u_new_end = std::remove(start_p, neighs_u_new_end, u);
+        layout->_degrees[u] = (vertex_t)std::distance(start_p, neighs_u_new_end);
     });
 
     layout->_edge_offsets.clear();
@@ -164,9 +164,9 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         std::move(vector_vertex_t(layout->_edge_offsets[layout->_vertex_count]));
 
     auto vert_neighs = layout->_vertex_neighbors.data();
-    auto edge_offs   = layout->_edge_offsets.data();
+    auto edge_offs = layout->_edge_offsets.data();
     threader_for(layout->_vertex_count, layout->_vertex_count, [&](vertex_t u) {
-        auto u_neighs      = vert_neighs + edge_offs[u];
+        auto u_neighs = vert_neighs + edge_offs[u];
         auto _u_neighs_unf = _unf_vert_neighs_arr + _unf_edge_offset_arr[u];
         for (vertex_t i = 0; i < layout->_degrees[u]; i++) {
             u_neighs[i] = _u_neighs_unf[i];

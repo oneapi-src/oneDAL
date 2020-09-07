@@ -50,10 +50,10 @@ DAAL_FORCEINLINE std::size_t compute_max_block_size(const std::int32_t &row_rang
         (row_range_end - row_range_begin) * (column_range_end - column_range_begin);
 
     // compute the size of the result element for the algorithm
-    auto vertex_pair_element_count   = 2; // 2 elements in the vertex pair
+    auto vertex_pair_element_count = 2; // 2 elements in the vertex pair
     auto jaccard_coeff_element_count = 1; // 1 Jaccard coeff for the vertex pair
 
-    auto vertex_pair_size   = vertex_pair_element_count * sizeof(std::int32_t); // size in bytes
+    auto vertex_pair_size = vertex_pair_element_count * sizeof(std::int32_t); // size in bytes
     auto jaccard_coeff_size = jaccard_coeff_element_count * sizeof(float); // size in bytes
 
     auto block_result_size = (vertex_pair_size + jaccard_coeff_size) * vertex_pairs_count;

@@ -76,14 +76,14 @@ public:
 
     template <typename Impl,
               typename ImplType = std::decay_t<Impl>,
-              typename          = std::enable_if_t<is_table_impl_v<ImplType> &&
+              typename = std::enable_if_t<is_table_impl_v<ImplType> &&
                                           !std::is_base_of_v<table, ImplType>>>
     table(Impl&& impl) {
         init_impl(new detail::table_impl_wrapper(std::forward<Impl>(impl)));
     }
 
     table& operator=(const table&) = default;
-    table& operator                =(table&&);
+    table& operator=(table&&);
 
     bool has_data() const noexcept;
     std::int64_t get_column_count() const;
