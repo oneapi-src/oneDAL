@@ -22,9 +22,9 @@ namespace oneapi::dal::knn {
 
 class detail::descriptor_impl : public base {
 public:
-    std::int64_t class_count    = 2;
+    std::int64_t class_count = 2;
     std::int64_t neighbor_count = 1;
-    bool data_use_in_model      = false;
+    bool data_use_in_model = false;
 };
 
 using detail::descriptor_impl;

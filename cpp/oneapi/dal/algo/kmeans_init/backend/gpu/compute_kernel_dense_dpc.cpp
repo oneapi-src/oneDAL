@@ -18,13 +18,15 @@
 #define DAAL_SYCL_INTERFACE_USM
 #define DAAL_SYCL_INTERFACE_REVERSED_RANGE
 
+#include <include/algorithms/kmeans/kmeans_init_types.h>
 #include <src/algorithms/kmeans/oneapi/kmeans_init_dense_batch_kernel_ucapi.h>
 
 #include "oneapi/dal/algo/kmeans_init/backend/gpu/compute_kernel.hpp"
+#include "oneapi/dal/algo/kmeans_init/backend/to_daal_method.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
-
+#include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::kmeans_init::backend {
@@ -33,62 +35,80 @@ using std::int64_t;
 using dal::backend::context_gpu;
 
 namespace daal_kmeans_init = daal::algorithms::kmeans::init;
-namespace interop          = dal::backend::interop;
+namespace interop = dal::backend::interop;
 
-template <typename Float>
-using daal_kmeans_init_dense_batch_ucapi_kernel_t =
-    daal_kmeans_init::internal::KMeansInitDenseBatchKernelUCAPI<daal_kmeans_init::defaultDense,
+template <typename Float, typename Method>
+using daal_kmeans_init_kernel_t =
+    daal_kmeans_init::internal::KMeansInitDenseBatchKernelUCAPI<to_daal_method<Method>::value,
                                                                 Float>;
 
-template <typename Float>
-struct compute_kernel_gpu<Float, method::dense> {
-    compute_result operator()(const dal::backend::context_gpu& ctx,
-                              const descriptor_base& params,
-                              const compute_input& input) const {
-        auto& queue = ctx.get_queue();
-        interop::execution_context_guard guard(queue);
+template <typename Float, typename Method>
+static compute_result call_daal_kernel(const context_gpu& ctx,
+                                       const descriptor_base& params,
+                                       const table& data) {
+    if constexpr (std::is_same_v<Method, method::plus_plus_dense>)
+        throw unimplemented_error("plus_plus_dense method is not implemented for GPU");
+    if constexpr (std::is_same_v<Method, method::parallel_plus_dense>)
+        throw unimplemented_error("parallel_plus_dense method is not implemented for GPU");
 
-        const auto data = input.get_data();
+    auto& queue = ctx.get_queue();
+    interop::execution_context_guard guard(queue);
 
-        const int64_t column_count  = data.get_column_count();
-        const int64_t cluster_count = params.get_cluster_count();
+    const int64_t column_count = data.get_column_count();
+    const int64_t cluster_count = params.get_cluster_count();
 
-        daal_kmeans_init::Parameter par(cluster_count);
+    daal_kmeans_init::Parameter par(cluster_count);
 
-        auto arr_data        = row_accessor<const Float>{ data }.pull(queue);
-        const auto daal_data = interop::convert_to_daal_sycl_homogen_table(queue,
-                                                                           arr_data,
-                                                                           data.get_row_count(),
-                                                                           data.get_column_count());
+    auto arr_data = row_accessor<const Float>{ data }.pull(queue);
+    const auto daal_data = interop::convert_to_daal_sycl_homogen_table(queue,
+                                                                       arr_data,
+                                                                       data.get_row_count(),
+                                                                       data.get_column_count());
 
-        array<Float> arr_centroids = array<Float>::empty(queue, cluster_count * column_count);
-        const auto daal_centroids  = interop::convert_to_daal_sycl_homogen_table(queue,
-                                                                                arr_centroids,
-                                                                                cluster_count,
-                                                                                column_count);
+    array<Float> arr_centroids = array<Float>::empty(queue, cluster_count * column_count);
+    const auto daal_centroids = interop::convert_to_daal_sycl_homogen_table(queue,
+                                                                            arr_centroids,
+                                                                            cluster_count,
+                                                                            column_count);
 
-        const size_t len_daal_input                                       = 1;
-        daal::data_management::NumericTable* daal_input[len_daal_input]   = { daal_data.get() };
-        const size_t len_daal_output                                      = 1;
-        daal::data_management::NumericTable* daal_output[len_daal_output] = {
-            daal_centroids.get()
-        };
+    const size_t len_daal_input = 1;
+    daal::data_management::NumericTable* daal_input[len_daal_input] = { daal_data.get() };
+    const size_t len_daal_output = 1;
+    daal::data_management::NumericTable* daal_output[len_daal_output] = { daal_centroids.get() };
 
-        interop::status_to_exception(
-            daal_kmeans_init_dense_batch_ucapi_kernel_t<Float>().compute(len_daal_input,
-                                                                         daal_input,
-                                                                         len_daal_output,
-                                                                         daal_output,
-                                                                         &par,
-                                                                         *(par.engine)));
+    interop::status_to_exception(daal_kmeans_init_kernel_t<Float, Method>().compute(len_daal_input,
+                                                                                    daal_input,
+                                                                                    len_daal_output,
+                                                                                    daal_output,
+                                                                                    &par,
+                                                                                    *(par.engine)));
 
-        return compute_result().set_centroids(dal::detail::homogen_table_builder{}
-                                                  .reset(arr_centroids, cluster_count, column_count)
-                                                  .build());
-    }
-};
+    return compute_result().set_centroids(dal::detail::homogen_table_builder{}
+                                              .reset(arr_centroids, cluster_count, column_count)
+                                              .build());
+}
+
+template <typename Float, typename Method>
+static compute_result compute(const context_gpu& ctx,
+                              const descriptor_base& desc,
+                              const compute_input& input) {
+    return call_daal_kernel<Float, Method>(ctx, desc, input.get_data());
+}
+
+template <typename Float, typename Method>
+compute_result compute_kernel_gpu<Float, Method>::operator()(const context_gpu& ctx,
+                                                             const descriptor_base& desc,
+                                                             const compute_input& input) const {
+    return compute<Float, Method>(ctx, desc, input);
+}
 
 template struct compute_kernel_gpu<float, method::dense>;
 template struct compute_kernel_gpu<double, method::dense>;
+template struct compute_kernel_gpu<float, method::random_dense>;
+template struct compute_kernel_gpu<double, method::random_dense>;
+template struct compute_kernel_gpu<float, method::plus_plus_dense>;
+template struct compute_kernel_gpu<double, method::plus_plus_dense>;
+template struct compute_kernel_gpu<float, method::parallel_plus_dense>;
+template struct compute_kernel_gpu<double, method::parallel_plus_dense>;
 
 } // namespace oneapi::dal::kmeans_init::backend

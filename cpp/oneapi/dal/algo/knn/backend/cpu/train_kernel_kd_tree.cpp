@@ -31,7 +31,7 @@ using daal::services::Status;
 using dal::backend::context_cpu;
 
 namespace daal_knn = daal::algorithms::kdtree_knn_classification;
-namespace interop  = dal::backend::interop;
+namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
 using daal_knn_kd_tree_kernel_t = daal_knn::training::internal::
@@ -43,10 +43,10 @@ static train_result call_daal_kernel(const context_cpu& ctx,
                                      const descriptor_base& desc,
                                      const table& data,
                                      const table& labels) {
-    const std::int64_t row_count    = data.get_row_count();
+    const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
 
-    auto arr_data   = row_accessor<const Float>{ data }.pull();
+    auto arr_data = row_accessor<const Float>{ data }.pull();
     auto arr_labels = row_accessor<const Float>{ labels }.pull();
 
     const auto daal_data =
@@ -76,7 +76,7 @@ static train_result call_daal_kernel(const context_cpu& ctx,
                                                                     knn_model,
                                                                     *daal_parameter.engine.get()));
 
-    auto interop          = new daal_interop_model_t(model_ptr);
+    auto interop = new daal_interop_model_t(model_ptr);
     const auto model_impl = std::make_shared<detail::model_impl>(interop);
     return train_result().set_model(dal::detail::pimpl_accessor::make<model>(model_impl));
 }

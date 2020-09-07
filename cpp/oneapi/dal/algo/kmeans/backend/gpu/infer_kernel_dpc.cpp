@@ -33,7 +33,7 @@ using std::int64_t;
 using dal::backend::context_gpu;
 
 namespace daal_kmeans = daal::algorithms::kmeans;
-namespace interop     = dal::backend::interop;
+namespace interop = dal::backend::interop;
 
 template <typename Float>
 using daal_kmeans_lloyd_dense_ucapi_kernel_t =
@@ -49,16 +49,16 @@ struct infer_kernel_gpu<Float, method::by_default> {
 
         const auto data = input.get_data();
 
-        const int64_t row_count    = data.get_row_count();
+        const int64_t row_count = data.get_row_count();
         const int64_t column_count = data.get_column_count();
 
-        const int64_t cluster_count       = params.get_cluster_count();
+        const int64_t cluster_count = params.get_cluster_count();
         const int64_t max_iteration_count = 0;
 
         daal_kmeans::Parameter par(cluster_count, max_iteration_count);
         par.resultsToEvaluate = daal_kmeans::computeAssignments;
 
-        auto arr_data        = row_accessor<const Float>{ data }.pull(queue);
+        auto arr_data = row_accessor<const Float>{ data }.pull(queue);
         const auto daal_data = interop::convert_to_daal_sycl_homogen_table(queue,
                                                                            arr_data,
                                                                            data.get_row_count(),
@@ -68,9 +68,9 @@ struct infer_kernel_gpu<Float, method::by_default> {
             row_accessor<const Float>{ input.get_model().get_centroids() }.pull(queue);
 
         array<int> arr_centroids = array<int>::empty(queue, cluster_count * column_count);
-        array<int> arr_labels    = array<int>::empty(queue, row_count);
+        array<int> arr_labels = array<int>::empty(queue, row_count);
         array<Float> arr_objective_function_value = array<Float>::empty(queue, 1);
-        array<int> arr_iteration_count            = array<int>::empty(queue, 1);
+        array<int> arr_iteration_count = array<int>::empty(queue, 1);
 
         const auto daal_initial_centroids =
             interop::convert_to_daal_sycl_homogen_table(queue,

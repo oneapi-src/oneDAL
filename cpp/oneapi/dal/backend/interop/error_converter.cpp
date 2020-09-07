@@ -26,7 +26,7 @@ void status_to_exception(const daal::services::Status& s) {
     using namespace daal::services;
     using namespace daal::services::internal;
 
-    const ErrorID error     = get_error_id(s);
+    const ErrorID error = get_error_id(s);
     const char* description = s.getDescription();
 
     switch (error) {
@@ -159,11 +159,9 @@ void status_to_exception(const daal::services::Status& s) {
         case ErrorID::ErrorIncorrectOffset:
         case ErrorID::ErrorIterativeSolverIncorrectMaxNumberOfIterations:
         case ErrorID::ErrorIncorrectNumberOfTerms:
-        case ErrorID::ErrorIncorrectNumberOfNodes:
-            throw domain_error(description);
+        case ErrorID::ErrorIncorrectNumberOfNodes: throw domain_error(description);
         case ErrorID::ErrorIncorrectDataRange:
-        case ErrorID::ErrorIncorrectIndex:
-            throw out_of_range(description);
+        case ErrorID::ErrorIncorrectIndex: throw out_of_range(description);
         case ErrorID::ErrorMethodNotSupported:
         case ErrorID::ErrorUnsupportedCSRIndexing:
         case ErrorID::ErrorDataTypeNotSupported:
@@ -178,8 +176,7 @@ void status_to_exception(const daal::services::Status& s) {
         case ErrorID::ErrorKDBTypeUnsupported:
         case ErrorID::ErrorObjectDoesNotSupportSerialization:
         case ErrorID::ErrorMethodNotImplemented:
-        case ErrorID::ErrorDeviceSupportNotImplemented:
-            throw unimplemented_error(description);
+        case ErrorID::ErrorDeviceSupportNotImplemented: throw unimplemented_error(description);
         case ErrorID::ErrorCpuNotSupported:
         case ErrorID::ErrorDictionaryAlreadyAvailable:
         case ErrorID::ErrorDictionaryNotAvailable:
@@ -191,11 +188,9 @@ void status_to_exception(const daal::services::Status& s) {
         case ErrorID::ErrorPrecomputedMaxNotAvailable:
         case ErrorID::ErrorSourceDataNotAvailable:
         case ErrorID::ErrorFeatureNamesNotAvailable:
-        case ErrorID::ErrorAccessUSMPointerOnOtherDevice:
-            throw unavailable_error(description);
+        case ErrorID::ErrorAccessUSMPointerOnOtherDevice: throw unavailable_error(description);
         case ErrorID::ErrorOnFileOpen:
-        case ErrorID::ErrorOnFileRead:
-            throw system_error(std::error_code(), description);
+        case ErrorID::ErrorOnFileRead: throw system_error(std::error_code(), description);
         case ErrorID::ErrorBufferSizeIntegerOverflow:
         case ErrorID::ErrorMemoryCopyFailedInternal:
         case ErrorID::ErrorServiceMicroTableInternal:
@@ -251,10 +246,8 @@ void status_to_exception(const daal::services::Status& s) {
             throw internal_error(description);
         case ErrorID::ErrorMemoryAllocationFailed:
         case ErrorID::ErrorZlibMemoryAllocationFailed:
-        case ErrorID::ErrorBzip2MemoryAllocationFailed:
-            throw bad_alloc();
-        default:
-            throw internal_error("Unknown status code");
+        case ErrorID::ErrorBzip2MemoryAllocationFailed: throw bad_alloc();
+        default: throw internal_error("Unknown status code");
     }
 }
 

@@ -26,15 +26,15 @@ using namespace oneapi::dal;
 
 TEST(kmeans_lloyd_dense_gpu, train_results) {
     auto selector = sycl::gpu_selector();
-    auto queue    = sycl::queue(selector);
+    auto queue = sycl::queue(selector);
 
-    constexpr std::int64_t row_count     = 8;
-    constexpr std::int64_t column_count  = 2;
+    constexpr std::int64_t row_count = 8;
+    constexpr std::int64_t column_count = 2;
     constexpr std::int64_t cluster_count = 2;
 
     const float data_host[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
                                 -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
-    auto data               = sycl::malloc_shared<float>(row_count * column_count, queue);
+    auto data = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(data, data_host, sizeof(float) * row_count * column_count).wait();
     const auto data_table = homogen_table::wrap(queue, data, row_count, column_count);
 
@@ -51,7 +51,7 @@ TEST(kmeans_lloyd_dense_gpu, train_results) {
                                                         column_count,
                                                         empty_delete<const float>() };
 
-    const int labels[]      = { 1, 1, 1, 1, 0, 0, 0, 0 };
+    const int labels[] = { 1, 1, 1, 1, 0, 0, 0, 0 };
     const float centroids[] = { -1.5, -1.5, 1.5, 1.5 };
 
     const auto kmeans_desc = kmeans::descriptor<>()
@@ -78,15 +78,15 @@ TEST(kmeans_lloyd_dense_gpu, train_results) {
 
 TEST(kmeans_lloyd_dense_gpu, infer_results) {
     auto selector = sycl::gpu_selector();
-    auto queue    = sycl::queue(selector);
+    auto queue = sycl::queue(selector);
 
-    constexpr std::int64_t row_count     = 8;
-    constexpr std::int64_t column_count  = 2;
+    constexpr std::int64_t row_count = 8;
+    constexpr std::int64_t column_count = 2;
     constexpr std::int64_t cluster_count = 2;
 
     const float data_host[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
                                 -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
-    auto data               = sycl::malloc_shared<float>(row_count * column_count, queue);
+    auto data = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(data, data_host, sizeof(float) * row_count * column_count).wait();
     const auto data_table = homogen_table::wrap(queue, data, row_count, column_count);
 
@@ -103,7 +103,7 @@ TEST(kmeans_lloyd_dense_gpu, infer_results) {
                                                         column_count,
                                                         empty_delete<const float>() };
 
-    const int labels[]      = { 1, 1, 1, 1, 0, 0, 0, 0 };
+    const int labels[] = { 1, 1, 1, 1, 0, 0, 0, 0 };
     const float centroids[] = { -1.5, -1.5, 1.5, 1.5 };
 
     const auto kmeans_desc = kmeans::descriptor<>()
@@ -113,7 +113,7 @@ TEST(kmeans_lloyd_dense_gpu, infer_results) {
 
     const auto result_train = train(queue, kmeans_desc, data_table, initial_centroids_table);
     constexpr std::int64_t infer_row_count = 9;
-    const float data_infer_host[]          = { 1.0, 1.0,  0.0, 1.0,  1.0,  0.0,  2.0, 2.0,  7.0,
+    const float data_infer_host[] = { 1.0, 1.0,  0.0, 1.0,  1.0,  0.0,  2.0, 2.0,  7.0,
                                       0.0, -1.0, 0.0, -5.0, -5.0, -5.0, 0.0, -2.0, 1.0 };
     auto data_infer = sycl::malloc_shared<float>(infer_row_count * column_count, queue);
     queue.memcpy(data_infer, data_infer_host, sizeof(float) * infer_row_count * column_count)

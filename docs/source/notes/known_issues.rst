@@ -14,8 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. |dpcpp_comp_release_notes| replace:: Release Notes for Intel\ |reg|\  oneAPI DPC++ Compiler
-.. _dpcpp_comp_release_notes: https://software.intel.com/en-us/articles/intel-oneapi-dpcpp-compiler-release-notes-beta
+.. |dpcpp_comp_release_notes| replace:: Release Notes for Intel\ |reg|\  oneAPI DPC++/C++ Compiler
+.. _dpcpp_comp_release_notes: https://software.intel.com/content/www/us/en/develop/articles/intel-oneapi-dpcpp-compiler-release-notes-beta.html
 
 .. _known_issues:
 

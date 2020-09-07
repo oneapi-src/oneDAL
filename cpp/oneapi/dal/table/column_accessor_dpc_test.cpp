@@ -26,7 +26,7 @@ using std::int32_t;
 TEST(column_accessor_test, can_get_first_column_from_homogen_table) {
     sycl::queue q;
     constexpr std::int64_t data_size = 8;
-    auto data                        = sycl::malloc_shared<float>(data_size, q);
+    auto data = sycl::malloc_shared<float>(data_size, q);
 
     auto event = q.submit([&](sycl::handler& cgh) {
         cgh.parallel_for(sycl::range<1>(data_size), [=](sycl::id<1> idx) {
@@ -49,7 +49,7 @@ TEST(column_accessor_test, can_get_first_column_from_homogen_table) {
 TEST(column_accessor_test, can_get_second_column_from_homogen_table_with_conversion) {
     sycl::queue q;
     constexpr std::int64_t data_size = 8;
-    auto data                        = sycl::malloc_shared<float>(data_size, q);
+    auto data = sycl::malloc_shared<float>(data_size, q);
 
     auto event = q.submit([&](sycl::handler& cgh) {
         cgh.parallel_for(sycl::range<1>(data_size), [=](sycl::id<1> idx) {
@@ -72,7 +72,7 @@ TEST(column_accessor_test, can_get_second_column_from_homogen_table_with_convers
 TEST(column_accessor_test, can_get_first_column_from_homogen_table_with_subset_of_rows) {
     sycl::queue q;
     constexpr std::int64_t data_size = 8;
-    auto data                        = sycl::malloc_shared<float>(data_size, q);
+    auto data = sycl::malloc_shared<float>(data_size, q);
 
     auto event = q.submit([&](sycl::handler& cgh) {
         cgh.parallel_for(sycl::range<1>(data_size), [=](sycl::id<1> idx) {

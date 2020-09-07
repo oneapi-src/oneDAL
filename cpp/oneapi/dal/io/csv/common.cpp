@@ -21,8 +21,8 @@ namespace oneapi::dal::csv {
 
 class detail::data_source_impl : public base {
 public:
-    char delimiter        = ',';
-    bool parse_header     = false;
+    char delimiter = ',';
+    bool parse_header = false;
     std::string file_name = "";
 };
 
