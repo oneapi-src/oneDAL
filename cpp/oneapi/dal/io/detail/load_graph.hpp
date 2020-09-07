@@ -82,11 +82,11 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         oneapi::dal::preview::detail::graph_container<atomic_t, allocator_atomic_t>(
             _unf_vertex_count);
     if (degrees_vec == nullptr) {
-        throw bad_alloc();
+        throw host_bad_alloc();
     }
     atomic_t *degrees_cv = degrees_vec->data();
     if (degrees_cv == nullptr) {
-        throw bad_alloc();
+        throw host_bad_alloc();
     }
 
     threader_for(_unf_vertex_count, _unf_vertex_count, [&](vertex_t u) {
@@ -102,11 +102,11 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         oneapi::dal::preview::detail::graph_container<atomic_t, allocator_atomic_t>(
             _unf_vertex_count + 1);
     if (rows_vec == nullptr) {
-        throw bad_alloc();
+        throw host_bad_alloc();
     }
     atomic_t *rows_cv = rows_vec->data();
     if (rows_cv == nullptr) {
-        throw bad_alloc();
+        throw host_bad_alloc();
     }
 
     vertex_t total_sum_degrees = 0;
