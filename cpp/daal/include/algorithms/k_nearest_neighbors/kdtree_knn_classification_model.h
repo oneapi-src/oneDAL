@@ -192,7 +192,9 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
           engine(engines::mcg59::Batch<>::create()),
           resultsToCompute(resToCompute),
           voteWeights(vote)
-    {}
+    {
+        this->resultsToEvaluate = resToEvaluate;
+    }
 
     /**
      * Checks a parameter of the KD-tree based kNN algorithm
