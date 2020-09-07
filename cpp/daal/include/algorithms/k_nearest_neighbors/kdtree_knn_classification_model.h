@@ -182,9 +182,11 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
      *  \param[in] randomSeed           Seed for random choosing elements from training dataset \DAAL_DEPRECATED_USE{ engine }
      *  \param[in] dataUse              The option to enable/disable an usage of the input dataset in kNN model
      *  \param[in] resToCompute         64 bit integer flag that indicates the results to compute
+     *  \param[in] resToEvaluate        64 bit integer flag that indicates the results to evaluate
+     *  \param[in] vote                 The option to select voting method
      */
-    Parameter(size_t nClasses = 2, size_t nNeighbors = 1, int randomSeed = 777, DataUseInModel dataUse = doNotUse, DAAL_UINT64 resToCompute = 0, DAAL_UINT64 resToEvaluate = 0,
-              VoteWeights vote = voteUniform)
+    Parameter(size_t nClasses = 2, size_t nNeighbors = 1, int randomSeed = 777, DataUseInModel dataUse = doNotUse, DAAL_UINT64 resToCompute = 0,
+              DAAL_UINT64 resToEvaluate = 0, VoteWeights vote = voteUniform)
         : daal::algorithms::classifier::Parameter(nClasses),
           k(nNeighbors),
           seed(randomSeed),
