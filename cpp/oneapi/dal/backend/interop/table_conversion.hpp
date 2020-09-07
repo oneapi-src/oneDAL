@@ -66,14 +66,32 @@ template <typename AlgorithmFPType>
 inline daal::data_management::NumericTablePtr convert_to_daal_table(const table& table) {
     auto meta = table.get_metadata();
     if (table.get_kind() == homogen_table::kind()) {
-
         const auto& homogen = static_cast<const homogen_table&>(table);
-        return homogen_table_adapter::create(homogen);
+        detail::default_host_policy policy;
+
+        return homogen_table_adapter<decltype(policy), AlgorithmFPType>::create(policy, homogen);
     } else {
         auto rows = row_accessor<const AlgorithmFPType> { table }.pull();
         return convert_to_daal_homogen_table(rows, table.get_row_count(), table.get_column_count());
     }
 }
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+template <typename AlgorithmFPType>
+inline daal::data_management::NumericTablePtr convert_to_daal_table(const detail::data_parallel_policy& policy, const table& table) {
+    auto meta = table.get_metadata();
+    if (table.get_kind() == homogen_table::kind()) {
+        const auto& homogen = static_cast<const homogen_table&>(table);
+        detail::default_host_policy policy;
+
+        return homogen_table_adapter<decltype(policy), AlgorithmFPType>::create(policy, homogen);
+    } else {
+        auto queue = policy.get_queue();
+        auto rows = row_accessor<const AlgorithmFPType> { table }.pull(queue);
+        return convert_to_daal_sycl_homogen_table(queue, rows, table.get_row_count(), table.get_column_count());
+    }
+}
+#endif
 
 template <typename T>
 inline table convert_from_daal_homogen_table(const daal::data_management::NumericTablePtr& nt) {
