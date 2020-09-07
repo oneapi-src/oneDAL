@@ -59,7 +59,10 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     ErrorCollection errors;
     errors.setCanThrow(false);
     DAAL_CHECK(checkNumericTable(m->impl()->getData().get(), dataStr()), ErrorModelNotFullInitialized);
-    DAAL_CHECK(checkNumericTable(m->impl()->getLabels().get(), labelsStr()), ErrorModelNotFullInitialized);
+    if ((algParameter->resultsToCompute & computeClassLabels) != 0)
+    {
+        DAAL_CHECK(checkNumericTable(m->impl()->getLabels().get(), labelsStr()), ErrorModelNotFullInitialized);
+    }
     return services::Status();
 }
 

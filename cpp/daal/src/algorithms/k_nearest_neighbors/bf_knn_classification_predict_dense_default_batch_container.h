@@ -53,6 +53,7 @@ BatchContainer<algorithmFpType, method, cpu>::~BatchContainer()
 template <typename algorithmFpType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 {
+    const daal::algorithms::Parameter * const par            = _par;
     const classifier::prediction::Input * const input        = static_cast<const classifier::prediction::Input *>(_in);
     bf_knn_classification::prediction::Result * const result = static_cast<bf_knn_classification::prediction::Result *>(_res);
     const data_management::NumericTableConstPtr a            = input->get(classifier::prediction::data);
@@ -60,7 +61,6 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
     const data_management::NumericTablePtr label             = result->get(bf_knn_classification::prediction::prediction);
     const data_management::NumericTablePtr indices           = result->get(bf_knn_classification::prediction::indices);
     const data_management::NumericTablePtr distances         = result->get(bf_knn_classification::prediction::distances);
-    const daal::algorithms::Parameter * const par            = _par;
     auto & context                                           = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo                                        = context.getInfoDevice();
 

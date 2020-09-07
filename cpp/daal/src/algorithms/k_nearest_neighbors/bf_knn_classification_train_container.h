@@ -63,21 +63,23 @@ template <typename algorithmFpType, training::Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 {
     services::Status status;
-    const classifier::training::Input * const input = static_cast<classifier::training::Input *>(_in);
-    Result * const result                           = static_cast<Result *>(_res);
+    const bf_knn_classification::Parameter * const par         = static_cast<bf_knn_classification::Parameter *>(_par);
+    const bf_knn_classification::training::Input * const input = static_cast<bf_knn_classification::training::Input *>(_in);
+    Result * const result                                      = static_cast<Result *>(_res);
 
     const NumericTablePtr x = input->get(classifier::training::data);
-    const NumericTablePtr y = input->get(classifier::training::labels);
 
     const bf_knn_classification::ModelPtr r = result->get(classifier::training::model);
-
-    const bf_knn_classification::Parameter * const par = static_cast<bf_knn_classification::Parameter *>(_par);
 
     daal::services::Environment::env & env = *_env;
 
     const bool copy = (par->dataUseInModel == doNotUse);
     status |= r->impl()->setData<algorithmFpType>(x, copy);
-    status |= r->impl()->setLabels<algorithmFpType>(y, copy);
+    if ((par->resultsToCompute & computeClassLabels) != 0)
+    {
+        const NumericTablePtr y = input->get(classifier::training::labels);
+        status |= r->impl()->setLabels<algorithmFpType>(y, copy);
+    }
     DAAL_CHECK_STATUS_VAR(status);
 
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
