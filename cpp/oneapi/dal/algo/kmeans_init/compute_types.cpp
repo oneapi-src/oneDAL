@@ -19,6 +19,7 @@
 
 namespace oneapi::dal::kmeans_init {
 
+template <typename Task>
 class detail::compute_input_impl : public base {
 public:
     compute_input_impl(const table& data) : data(data) {}
@@ -26,6 +27,7 @@ public:
     table data;
 };
 
+template <typename Task>
 class detail::compute_result_impl : public base {
 public:
     table centroids;
@@ -34,24 +36,34 @@ public:
 using detail::compute_input_impl;
 using detail::compute_result_impl;
 
-compute_input::compute_input(const table& data) : impl_(new compute_input_impl(data)) {}
+template <typename Task>
+compute_input<Task>::compute_input(const table& data) : impl_(new compute_input_impl(data)) {}
 
-table compute_input::get_data() const {
+template <typename Task>
+table compute_input<Task>::get_data() const {
     return impl_->data;
 }
 
-void compute_input::set_data_impl(const table& value) {
+template <typename Task>
+void compute_input<Task>::set_data_impl(const table& value) {
     impl_->data = value;
 }
 
-compute_result::compute_result() : impl_(new compute_result_impl{}) {}
+template class ONEAPI_DAL_EXPORT compute_input<task::init>;
 
-table compute_result::get_centroids() const {
+template <typename Task>
+compute_result<Task>::compute_result() : impl_(new compute_result_impl{}) {}
+
+template <typename Task>
+table compute_result<Task>::get_centroids() const {
     return impl_->centroids;
 }
 
-void compute_result::set_centroids_impl(const table& value) {
+template <typename Task>
+void compute_result<Task>::set_centroids_impl(const table& value) {
     impl_->centroids = value;
 }
+
+template class ONEAPI_DAL_EXPORT compute_result<task::init>;
 
 } // namespace oneapi::dal::kmeans_init
