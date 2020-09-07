@@ -68,8 +68,7 @@ SOANumericTable::SOANumericTable(NumericTableDictionaryPtr ddict, size_t nRows, 
 
     this->_status |= setNumberOfRowsImpl(nRows);
 
-    const size_t nColumns = _ddict->getNumberOfFeatures();
-    if (!resizePointersArray(nColumns))
+    if (!resizePointersArray(getNumberOfColumns()))
     {
         this->_status.add(services::ErrorMemoryAllocationFailed);
         return;
@@ -104,8 +103,7 @@ SOANumericTable::SOANumericTable(NumericTableDictionaryPtr ddict, size_t nRows, 
     _layout = soa;
     _index  = 0;
     st |= setNumberOfRowsImpl(nRows);
-    const size_t nColumns = _ddict->getNumberOfFeatures();
-    if (!resizePointersArray(nColumns))
+    if (!resizePointersArray(getNumberOfColumns()))
     {
         st.add(services::ErrorMemoryAllocationFailed);
         return;
@@ -118,20 +116,22 @@ SOANumericTable::SOANumericTable(NumericTableDictionaryPtr ddict, size_t nRows, 
 
 bool SOANumericTable::isHomogeneousFloatOrDouble() const
 {
-    return _ddict->getFeaturesEqual() == DictionaryIface::equal;
+    const size_t ncols                                      = getNumberOfColumns();
+    const NumericTableFeature & f0                          = (*_ddict)[0];
+    daal::data_management::features::IndexNumType indexType = f0.indexType;
+
+    for (size_t i = 1; i < ncols; ++i)
+    {
+        const NumericTableFeature & f1 = (*_ddict)[i];
+        if (f1.indexType != indexType) return false;
+    }
+
+    return indexType == daal::data_management::features::getIndexNumType<float>()
+           || indexType == daal::data_management::features::getIndexNumType<double>();
 }
 
 bool SOANumericTable::isAllCompleted() const
 {
-    // const size_t ncols = getNumberOfColumns();
-
-    // for (size_t i = 0; i < ncols; ++i)
-    // {
-    //     if (!_arrays[i].get()) return false;
-    // }
-
-    // return true;
-
     return _arraysInitialized == getNumberOfColumns();
 }
 
@@ -268,7 +268,7 @@ services::Status SOANumericTable::allocateDataMemoryImpl(daal::MemType /*type*/)
         _memStatus = internallyAllocated;
     }
 
-    DAAL_CHECK_STATUS_VAR(searchMinPointer());
+    DAAL_CHECK_STATUS_VAR(generatesOffsets());
 
     return services::Status();
 }
