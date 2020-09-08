@@ -60,3 +60,14 @@ Normal distribution algorithm has the following parameters in addition to the co
    * - ``sigma``
      - :math:`1`
      - The standard deviation :math:`\sigma`
+
+Examples
+********
+
+.. tabs::
+
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`distributions_normal_batch.py`

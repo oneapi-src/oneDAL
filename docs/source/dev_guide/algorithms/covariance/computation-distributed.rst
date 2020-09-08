@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _cor_cov_distributed:
+
 Distributed Processing
 ======================
 

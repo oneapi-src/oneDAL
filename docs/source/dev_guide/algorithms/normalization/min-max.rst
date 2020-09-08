@@ -120,15 +120,22 @@ Examples
 
 .. tabs::
 
-    .. tab:: C++
+  .. tab:: C++ (CPU)
 
-        Batch Processing:
+    Batch Processing:
 
-        - :cpp_example:`minmax_dense_batch.cpp <normalization/minmax_dense_batch.cpp>`
+    - :cpp_example:`minmax_dense_batch.cpp <normalization/minmax_dense_batch.cpp>`
 
-    .. tab:: Java*
+  .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
-        Batch Processing:
+    Batch Processing:
 
-        - :java_example:`MinMaxDenseBatch.java <normalization/MinMaxDenseBatch.java>`
+    - :java_example:`MinMaxDenseBatch.java <normalization/MinMaxDenseBatch.java>`
 
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`normalization_minmax_batch.py`

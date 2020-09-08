@@ -153,17 +153,35 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: oneAPI DPC++
+
+    Batch Processing:
+
+    - :ref:`dpc_df_reg_dense_batch.cpp`
+
+  .. tab:: oneAPI C++
+
+    Batch Processing:
+
+    - :ref:`cpp_df_reg_dense_batch.cpp`
+
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
     - :cpp_example:`df_reg_dense_batch.cpp <decision_forest/df_reg_dense_batch.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
 
     - :java_example:`DfRegDenseBatch.java <decision_forest/DfRegDenseBatch.java>`
 
-.. Python*: df_reg_dense_batch.py
+  .. tab:: Python*
 
+    Batch Processing:
+
+    - :daal4py_example:`decision_forest_regression_batch.py`
+    - :daal4py_example:`decision_forest_regression_traverse_batch.py`
