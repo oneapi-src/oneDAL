@@ -29,17 +29,6 @@
 namespace oneapi::dal::backend::interop {
 
 template <typename T>
-struct daal_array_owner {
-    explicit daal_array_owner(const array<T>& arr) : array_(arr) {}
-
-    void operator()(const void*) {
-        array_.reset();
-    }
-
-    array<T> array_;
-};
-
-template <typename T>
 inline auto allocate_daal_homogen_table(std::int64_t row_count, std::int64_t column_count) {
     return daal::data_management::HomogenNumericTable<T>::create(
         column_count,
@@ -55,7 +44,7 @@ inline auto convert_to_daal_homogen_table(array<Data>& data,
         return daal::services::SharedPtr<daal::data_management::HomogenNumericTable<Data>>();
     data.need_mutable_data();
     const auto daal_data =
-        daal::services::SharedPtr<Data>(data.get_mutable_data(), daal_array_owner<Data>{ data });
+        daal::services::SharedPtr<Data>(data.get_mutable_data(), daal_array_owner{ data });
 
     return daal::data_management::HomogenNumericTable<Data>::create(daal_data,
                                                                     column_count,

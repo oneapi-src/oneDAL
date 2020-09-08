@@ -16,15 +16,20 @@
 
 #pragma once
 
+#include <limits>
+
 #include <daal/include/data_management/data/homogen_numeric_table.h>
 
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/table/column_accessor.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
+#include "oneapi/dal/backend/interop/daal_array_owner.hpp"
 
 namespace oneapi::dal::backend::interop {
 
+// This class shall be used only to represent immutable data on DAAL side.
+// Any attempts to change the data inside objects of that class lead to undefined behavior.
 template <typename Policy, typename Data>
 class homogen_table_adapter : public daal::data_management::HomogenNumericTable<Data> {
     static constexpr bool is_host_only = std::is_same_v<Policy, detail::default_host_policy>;
@@ -32,9 +37,9 @@ class homogen_table_adapter : public daal::data_management::HomogenNumericTable<
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     static_assert(
         detail::is_one_of<Policy, detail::default_host_policy, detail::data_parallel_policy>::value,
-        "Adapter supports only host/dpc++ policies");
+        "Adapter supports only default_host_policy and data_parallel_policy");
 #else
-    static_assert(is_host_only, "Adapter supports only default host policy");
+    static_assert(is_host_only, "Adapter supports only default_host_policy");
 #endif
 
     using base = daal::data_management::HomogenNumericTable<Data>;
@@ -66,18 +71,23 @@ private:
                    size_t value_count,
                    size_t column_index)
                 : block_info(block, row_begin_index, value_count) {
-            this->column_index = static_cast<std::int64_t>(column_index); // TODO: check overflow
+            DAAL_ASSERT(column_index < std::numeric_limits<std::int64_t>::max());
+            this->column_index = static_cast<std::int64_t>(column_index);
         }
 
         template <typename BlockData>
         block_info(const block_desc_t<BlockData>& block, size_t row_begin_index, size_t row_count) {
+            DAAL_ASSERT(block.getNumberOfRows() < std::numeric_limits<std::int64_t>::max());
+            DAAL_ASSERT(block.getNumberOfColumns() < std::numeric_limits<std::int64_t>::max());
+            DAAL_ASSERT(row_begin_index < std::numeric_limits<std::int64_t>::max());
+            DAAL_ASSERT(row_count < std::numeric_limits<std::int64_t>::max());
+
             const auto block_desc_rows = static_cast<std::int64_t>(block.getNumberOfRows());
             const auto block_desc_cols = static_cast<std::int64_t>(block.getNumberOfColumns());
 
-            this->size = block_desc_rows * block_desc_cols;
-            this->row_begin_index =
-                static_cast<std::int64_t>(row_begin_index); // TODO: check overflow
-            this->row_count = static_cast<std::int64_t>(row_count); // TODO: check overflow
+            this->size = block_desc_rows * block_desc_cols; // TODO: check overflow
+            this->row_begin_index = static_cast<std::int64_t>(row_begin_index);
+            this->row_count = static_cast<std::int64_t>(row_count);
             this->row_end_index = this->row_begin_index + this->row_count; // TODO: check overflow
             this->column_index = -1;
         }
@@ -204,17 +214,17 @@ private:
         if (rwflag != daal::data_management::readOnly) {
             return status_t(daal::services::ErrorMethodNotSupported);
         }
-        const std::int64_t row_count = original_table_.get_row_count();
         const std::int64_t column_count = original_table_.get_column_count();
         const block_info info{ block, vector_idx, vector_num };
 
-        if (info.row_begin_index >= row_count || info.row_end_index > row_count) {
+        if (check_row_indexes_in_range(info) == false) {
             return status_t(daal::services::ErrorIncorrectIndex);
         }
 
         try {
             array<BlockData> values;
             auto block_ptr = block.getBlockPtr();
+            // TODO: check overflow below
             if (block_ptr != nullptr && info.size >= info.row_count * column_count) {
                 values.reset(block_ptr, info.size, dal::empty_delete<BlockData>());
             }
@@ -241,13 +251,11 @@ private:
         if (rwflag != daal::data_management::readOnly) {
             return status_t(daal::services::ErrorMethodNotSupported);
         }
-        const std::int64_t row_count = original_table_.get_row_count();
-        const std::int64_t column_count = original_table_.get_column_count();
 
         const block_info info{ block, vector_idx, value_num, feature_idx };
 
-        if (info.column_index >= column_count || info.row_begin_index >= row_count ||
-            info.row_end_index > row_count) {
+        if (check_row_indexes_in_range(info) == false ||
+            check_column_index_in_range(info) == false) {
             return status_t(daal::services::ErrorIncorrectIndex);
         }
 
@@ -273,6 +281,17 @@ private:
         return status_t();
     }
 
+    bool check_row_indexes_in_range(const block_info& info) {
+        const std::int64_t row_count = original_table_.get_row_count();
+        return info.row_begin_index >= 0 && info.row_begin_index < row_count &&
+               info.row_end_index > info.row_begin_index && info.row_end_index <= row_count;
+    }
+
+    bool check_column_index_in_range(const block_info& info) {
+        const std::int64_t column_count = original_table_.get_column_count();
+        return info.column_index >= 0 && info.column_index < column_count;
+    }
+
     template <typename BlockData>
     void setBlockData(array<BlockData>& data,
                       std::int64_t row_count,
@@ -281,9 +300,7 @@ private:
         auto raw_ptr = const_cast<BlockData*>(data.get_data());
         if constexpr (is_host_only) {
             auto data_shared =
-                daal::services::SharedPtr<BlockData>(raw_ptr, [data](auto ptr) mutable {
-                    data.reset();
-                });
+                daal::services::SharedPtr<BlockData>(raw_ptr, daal_array_owner(data));
             block.setSharedPtr(data_shared, column_count, row_count);
         }
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -321,20 +338,13 @@ private:
         }
 
         original_table_ = table;
-
-        auto meta = original_table_.get_metadata();
-        dtype_ = meta.get_data_type(0);
-
-        this->_memStatus = original_table_.has_data()
-                               ? daal::data_management::NumericTableIface::userAllocated
-                               : daal::data_management::NumericTableIface::notAllocated;
+        this->_memStatus = daal::data_management::NumericTableIface::userAllocated;
         this->_layout = daal::data_management::NumericTableIface::aos;
     }
 
 private:
     Policy policy_;
     homogen_table original_table_;
-    data_type dtype_;
 };
 
 } // namespace oneapi::dal::backend::interop
