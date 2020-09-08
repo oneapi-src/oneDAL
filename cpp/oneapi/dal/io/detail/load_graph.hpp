@@ -29,6 +29,7 @@
 #include "oneapi/dal/io/load_graph_descriptor.hpp"
 #include "services/daal_atomic_int.h"
 #include "services/daal_memory.h"
+#include "oneapi/dal/io/detail/meas.hpp"
 
 namespace oneapi::dal::preview::load_graph::detail {
 edge_list<std::int32_t> load_edge_list(const std::string &name) {
@@ -183,7 +184,15 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
 template <typename Descriptor, typename DataSource>
 output_type<Descriptor> load_impl(const Descriptor &desc, const DataSource &data_source) {
     output_type<Descriptor> graph;
-    convert_to_csr_impl(load_edge_list(data_source.get_filename()), graph);
+    CR_INIT()
+
+    CR_ST()
+    const auto el = load_edge_list(data_source.get_filename());
+    CR_END("edge_list_loading")
+
+    CR_ST()
+    convert_to_csr_impl(el, graph);
+    CR_END("graph_construction")
     return graph;
 }
 } // namespace oneapi::dal::preview::load_graph::detail

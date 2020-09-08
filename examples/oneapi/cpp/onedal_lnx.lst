@@ -22,7 +22,7 @@ ONEDAL = column_accessor_homogen           \
          df_cls_dense_batch                \
          df_reg_dense_batch                \
          kmeans_lloyd_dense_batch          \
-         kmeans_init_dense                 \
+         kmeans_init_default_dense         \
          knn_cls_kd_tree_dense_batch       \
          linear_kernel_dense_batch         \
          pca_cor_dense_batch               \
@@ -31,4 +31,6 @@ ONEDAL = column_accessor_homogen           \
          svm_two_class_smo_dense_batch     \
          jaccard_batch                     \
          load_graph                        \
+         verify                        \
+         measure                           \
          graph_service_functions
