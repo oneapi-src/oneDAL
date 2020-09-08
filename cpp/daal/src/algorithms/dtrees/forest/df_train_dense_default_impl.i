@@ -712,7 +712,8 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, DataHe
         const double impLeft = split.left.var;
 
         // check impurity decrease
-        if (imp * n - impLeft * nLeft - (n - nLeft) * (imp - impLeft) < _minImpurityDecrease)
+        if (imp * split.totalWeights - impLeft * split.leftWeights - (split.totalWeights - split.leftWeights) * (imp - impLeft)
+            < _minImpurityDecrease)
             return makeLeaf(_aSample.get() + iStart, n, curImpurity, nClasses);
         if (_par.varImportance == training::MDI) addImpurityDecrease(iFeature, n, curImpurity, split);
         typename DataHelper::NodeType::Base * left =
@@ -753,12 +754,11 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, DataHe
     }
     else if (findBestSplit(item.start, item.n, impurity, iFeature, split, item.totalWeights))
     {
-        const size_t nLeft   = split.nLeft;
         const double imp     = impurity.var;
         const double impLeft = split.left.var;
 
         // check impurity decrease
-        double improve = imp * item.n - impLeft * nLeft - (item.n - nLeft) * (imp - impLeft);
+        double improve = imp * item.totalWeights - impLeft * item.leftWeights - (item.totalWeights - item.leftWeights) * (imp - impLeft);
         if (improve < _minImpurityDecrease)
         {
             return makeLeaf(_aSample.get() + item.start, item.n, impurity, nClasses);

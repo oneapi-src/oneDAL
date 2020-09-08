@@ -310,6 +310,7 @@ void OrderedRespHelper<algorithmFPType, cpu>::finalizeBestSplit(const IndexType 
     size_t iRight                                     = 0;
     int iRowSplitVal                                  = -1;
     const auto aResponse                              = this->_aResponse.get();
+    const auto aWeights                               = this->_aWeights.get();
     const IndexedFeatures::IndexType * indexedFeature = this->indexedFeatures().data(iFeature);
     for (size_t i = 0; i < n; ++i)
     {
@@ -326,7 +327,8 @@ void OrderedRespHelper<algorithmFPType, cpu>::finalizeBestSplit(const IndexType 
             DAAL_ASSERT(iLeft < bestSplit.nLeft);
             bestSplitIdx[iLeft++]   = iSample;
             const algorithmFPType y = aResponse[iSample].val;
-            bestSplit.left.var += (y - bestSplit.left.mean) * (y - bestSplit.left.mean);
+            const algorithmFPType w = aWeights[iSample].val;
+            bestSplit.left.var += w * (y - bestSplit.left.mean) * (y - bestSplit.left.mean);
         }
     }
     DAAL_ASSERT(iRight == n - bestSplit.nLeft);
@@ -432,7 +434,7 @@ bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(const 
 #endif
 
     vBest = split.impurityDecrease < 0 ? daal::services::internal::MaxVal<algorithmFPType>::get() :
-                                         (curImpurity.var - split.impurityDecrease) * totalWeights * weights;
+                                         (curImpurity.var - split.impurityDecrease) * totalWeights;
     algorithmFPType leftWeights = 0.;
     for (size_t i = 1; i < (n - nMinSplitPart + 1); ++i)
     {

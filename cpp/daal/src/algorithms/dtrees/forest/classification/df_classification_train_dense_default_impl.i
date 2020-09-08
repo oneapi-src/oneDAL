@@ -63,7 +63,7 @@ public:
     typedef DataHelper<algorithmFPType, ClassIndexType, cpu> super;
     typedef typename dtrees::internal::TreeImpClassification<> TreeType;
     typedef typename TreeType::NodeType NodeType;
-    typedef typename dtrees::internal::TVector<float, cpu, dtrees::internal::ScalableAllocator<cpu> > Histogramm;
+    typedef typename dtrees::internal::TVector<algorithmFPType, cpu, dtrees::internal::ScalableAllocator<cpu> > Histogramm;
 
     struct ImpurityData
     {
@@ -191,23 +191,25 @@ private:
         if (!isPositive<algorithmFPType, cpu>(imp.var)) imp.var = 0; //roundoff error
     }
 
-    // TODO: check for weights
-    static void calcPrevImpurity(ImpurityData & imp, ClassIndexType x, algorithmFPType totalWeights, algorithmFPType l)
+    // Calculate impurity for right child
+    static void updateRightImpurity(ImpurityData & imp, ClassIndexType iClass, algorithmFPType totalWeights, algorithmFPType moveWeights)
     {
-        algorithmFPType delta = (2. * totalWeights - l) * imp.var + 2. * (algorithmFPType(imp.hist[x]) - totalWeights);
-        imp.var += l * delta / ((totalWeights - l) * (totalWeights - l));
-        imp.hist[x] -= l;
+        algorithmFPType delta = (2. * totalWeights - moveWeights) * imp.var + 2. * (imp.hist[iClass] - totalWeights);
+        imp.var += moveWeights * delta / ((totalWeights - moveWeights) * (totalWeights - moveWeights));
+        imp.hist[iClass] -= moveWeights;
     }
 
-    // TODO: check for weights
-    static void flush(ImpurityData & left, ImpurityData & right, ClassIndexType xi, algorithmFPType totalWeights, algorithmFPType k,
-                      algorithmFPType & ll)
+    // Calculate impurity for left and right childs
+    static void updateImpurity(ImpurityData & left, ImpurityData & right, ClassIndexType iClass, algorithmFPType totalWeights,
+                               algorithmFPType startWeights, algorithmFPType & moveWeights)
     {
-        algorithmFPType tmp = k * (2. * ll + left.var * k) - 2. * ll * algorithmFPType(left.hist[xi]);
-        left.hist[xi] += ll;
-        left.var = tmp / ((k + ll) * (k + ll));
-        calcPrevImpurity(right, xi, totalWeights - k, ll);
-        ll = 0.;
+        algorithmFPType tmp = startWeights * (2. * moveWeights + left.var * startWeights) - 2. * moveWeights * left.hist[iClass];
+        // Update impurity for left child
+        left.hist[iClass] += moveWeights;
+        left.var = tmp / ((startWeights + moveWeights) * (startWeights + moveWeights));
+        // Update impurity for right child
+        updateRightImpurity(right, iClass, totalWeights - startWeights, moveWeights);
+        moveWeights = 0.;
     }
 
     void computeRightHistogramm(const Histogramm & total, const Histogramm & left, Histogramm & right) const
@@ -299,14 +301,13 @@ void UnorderedRespHelper<algorithmFPType, cpu>::simpleSplit(const algorithmFPTyp
     split.totalWeights          = this->_aWeights[aIdx[0]].val + this->_aWeights[aIdx[1]].val;
 }
 
-// TODO: check for weights
 template <typename algorithmFPType, CpuType cpu>
 bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n,
                                                                             size_t nMinSplitPart, const algorithmFPType accuracy,
                                                                             const ImpurityData & curImpurity, TSplitData & split,
                                                                             const double minWeightLeaf, algorithmFPType totalWeights) const
 {
-    ClassIndexType xi = this->_aResponse[aIdx[0]].val;
+    ClassIndexType iClass = this->_aResponse[aIdx[0]].val;
     _impLeft.init(_nClasses);
     _impRight = curImpurity;
 
@@ -330,31 +331,31 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
         {
             //can't make a split
             //update impurity and continue
-            if (xi == this->_aResponse[aIdx[i]].val)
+            if (iClass == this->_aResponse[aIdx[i]].val)
             {
                 //prev response was the same
                 nEqualRespValues += weights;
             }
             else
             {
-                flush(_impLeft, _impRight, xi, totalWeights, iStartEqualRespValues, nEqualRespValues);
+                updateImpurity(_impLeft, _impRight, iClass, totalWeights, iStartEqualRespValues, nEqualRespValues);
 #ifdef DEBUG_CHECK_IMPURITY
                 checkImpurity(aIdx, leftWeights, _impLeft);
                 checkImpurity(aIdx + i, totalWeights - leftWeights, _impRight);
 #endif
-                xi                    = this->_aResponse[aIdx[i]].val;
+                iClass                = this->_aResponse[aIdx[i]].val;
                 nEqualRespValues      = weights;
                 iStartEqualRespValues = leftWeights;
             }
             continue;
         }
 
-        flush(_impLeft, _impRight, xi, totalWeights, iStartEqualRespValues, nEqualRespValues);
+        updateImpurity(_impLeft, _impRight, iClass, totalWeights, iStartEqualRespValues, nEqualRespValues);
 #ifdef DEBUG_CHECK_IMPURITY
         checkImpurity(aIdx, leftWeights, _impLeft);
         checkImpurity(aIdx + i, totalWeights - leftWeights, _impRight);
 #endif
-        xi                    = this->_aResponse[aIdx[i]].val;
+        iClass                = this->_aResponse[aIdx[i]].val;
         nEqualRespValues      = weights;
         iStartEqualRespValues = leftWeights;
         if (!isPositive<algorithmFPType, cpu>(_impLeft.var)) _impLeft.var = 0;
