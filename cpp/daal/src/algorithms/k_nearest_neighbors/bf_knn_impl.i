@@ -21,6 +21,7 @@
 #include "algorithms/engines/engine.h"
 #include "services/daal_defines.h"
 
+#include "algorithms/classifier/classifier_model.h"
 #include "algorithms/k_nearest_neighbors/bf_knn_classification_model.h"
 #include "src/algorithms/k_nearest_neighbors/bf_knn_classification_train_kernel.h"
 #include "src/algorithms/k_nearest_neighbors/bf_knn_classification_predict_kernel.h"
@@ -100,7 +101,7 @@ public:
         return services::Status();
     }
 
-    services::Status kClassification(const size_t k, const size_t nClasses, VoteWeights voteWeights, const DAAL_UINT64 resultsToCompute,
+    services::Status kClassification(const size_t k, const size_t nClasses, VoteWeights voteWeights, const DAAL_UINT64 resultsToEvaluate,
                                      const NumericTable * trainTable, const NumericTable * testTable, const NumericTable * trainLabelTable,
                                      NumericTable * testLabelTable, NumericTable * indicesTable, NumericTable * distancesTable)
     {
@@ -118,7 +119,7 @@ public:
 
         kNearest(k, neighborsIndices, neighborsDistances, trainTable, testTable);
 
-        if (resultsToCompute & computeClassLabels)
+        if (resultsToEvaluate & daal::algorithms::classifier::computeClassLabels)
         {
             daal::internal::ReadRows<int, cpu> trainLabelRows(const_cast<NumericTable *>(trainLabelTable), 0, nTrain);
             daal::internal::WriteRows<int, cpu> testLabelRows(testLabelTable, 0, nTest);

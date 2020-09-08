@@ -58,9 +58,8 @@ enum DataUseInModel
  */
 enum ResultToComputeId
 {
-    computeClassLabels         = 0x00000001ULL,
-    computeIndicesOfNeightbors = 0x00000002ULL,
-    computeDistances           = 0x00000004ULL
+    computeIndicesOfNeightbors = 0x00000001ULL,
+    computeDistances           = 0x00000002ULL
 };
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__BF_KNN_CLASSIFICATION__VOTEWEIGHTS"></a>
@@ -93,14 +92,17 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
      *  \param[in] dataUse              The option to enable/disable an usage of the input dataset in kNN model
      */
     Parameter(size_t nClasses = 2, size_t nNeighbors = 1, DataUseInModel dataUse = doNotUse,
-              DAAL_UINT64 resToCompute = computeClassLabels | computeIndicesOfNeightbors | computeDistances, VoteWeights vote = voteUniform)
+              DAAL_UINT64 resToCompute  = computeIndicesOfNeightbors | computeDistances,
+              DAAL_UINT64 resToEvaluate = daal::algorithms::classifier::computeClassLabels, VoteWeights vote = voteUniform)
         : daal::algorithms::classifier::Parameter(nClasses),
           k(nNeighbors),
           dataUseInModel(dataUse),
           engine(engines::mcg59::Batch<>::create()),
-          resultsToCompute(resToCompute),
-          voteWeights(vote)
-    {}
+          voteWeights(vote),
+          resultsToCompute(resToCompute)
+    {
+        this->resultsToEvaluate = resToEvaluate;
+    }
 
     /**
      *  Parameter copy constructor
@@ -111,9 +113,11 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
           k(other.k),
           dataUseInModel(other.dataUseInModel),
           engine(other.engine->clone()),
-          resultsToCompute(other.resultsToCompute),
-          voteWeights(other.voteWeights)
-    {}
+          voteWeights(other.voteWeights),
+          resultsToCompute(other.resultsToCompute)
+    {
+        this->resultsToEvaluate = other.resultsToEvaluate;
+    }
 
     /**
      *  Parameter copy constructor
@@ -127,8 +131,9 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
             k                                                = other.k;
             dataUseInModel                                   = other.dataUseInModel;
             engine                                           = other.engine->clone();
-            resultsToCompute                                 = other.resultsToCompute;
             voteWeights                                      = other.voteWeights;
+            resultsToCompute                                 = other.resultsToCompute;
+            this->resultsToEvaluate                          = other.resultsToEvaluate;
         }
         return *this;
     }

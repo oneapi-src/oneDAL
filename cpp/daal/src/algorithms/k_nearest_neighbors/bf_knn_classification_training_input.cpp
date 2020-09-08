@@ -22,6 +22,7 @@
 */
 
 #include "algorithms/k_nearest_neighbors/bf_knn_classification_training_types.h"
+#include "algorithms/classifier/classifier_model.h"
 #include "src/services/serialization_utils.h"
 #include "src/services/daal_strings.h"
 
@@ -65,7 +66,7 @@ services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter)
     {
         DAAL_CHECK_EX((par->nClasses > 1) && (par->nClasses < INT_MAX), services::ErrorIncorrectParameter, services::ParameterName, nClassesStr());
 
-        if ((par->resultsToCompute & computeClassLabels) != 0)
+        if ((par->resultsToEvaluate & daal::algorithms::classifier::computeClassLabels) != 0)
         {
             data_management::NumericTablePtr labelsTable = get(classifier::training::labels);
             DAAL_CHECK_STATUS(s, data_management::checkNumericTable(labelsTable.get(), labelsStr(), 0, 0, 1, nRows));

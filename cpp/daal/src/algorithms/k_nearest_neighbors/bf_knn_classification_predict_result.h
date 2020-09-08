@@ -24,6 +24,7 @@
 #ifndef __BF_KNN_CLASSIFICATION_TRAINING_RESULT_
 #define __BF_KNN_CLASSIFICATION_TRAINING_RESULT_
 
+#include "algorithms/classifier/classifier_model.h"
 #include "algorithms/k_nearest_neighbors/bf_knn_classification_predict_types.h"
 
 namespace daal
@@ -51,7 +52,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 
     const size_t nRows = (static_cast<const classifier::prediction::InputIface *>(input))->getNumberOfRows();
 
-    if (par->resultsToCompute & computeClassLabels)
+    if (par->resultsToEvaluate & daal::algorithms::classifier::computeClassLabels)
     {
         set(prediction, data_management::HomogenNumericTable<algorithmFPType>::create(1, nRows, data_management::NumericTableIface::doAllocate, &s));
     }

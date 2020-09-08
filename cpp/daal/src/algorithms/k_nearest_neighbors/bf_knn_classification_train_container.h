@@ -22,6 +22,7 @@
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "services/daal_shared_ptr.h"
+#include "algorithms/classifier/classifier_model.h"
 #include "algorithms/k_nearest_neighbors/bf_knn_classification_training_batch.h"
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_train_kernel_ucapi.h"
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
@@ -75,7 +76,7 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 
     const bool copy = (par->dataUseInModel == doNotUse);
     status |= r->impl()->setData<algorithmFpType>(x, copy);
-    if ((par->resultsToCompute & computeClassLabels) != 0)
+    if ((par->resultsToEvaluate & daal::algorithms::classifier::computeClassLabels) != 0)
     {
         const NumericTablePtr y = input->get(classifier::training::labels);
         status |= r->impl()->setLabels<algorithmFpType>(y, copy);
