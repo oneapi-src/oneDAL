@@ -119,20 +119,28 @@ Examples
 
 .. tabs::
 
-  .. tab:: DPC++
-
-    Batch Processing:
-
-    - :ref:`pca_transform_dense_batch.cpp`
-
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
     
     - :cpp_example:`pca_transform_dense_batch.cpp <pca_transform/pca_transform_dense_batch.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
 
     - :java_example:`PCATransformDenseBatch.java <pca_transform/PCATransformDenseBatch.java>`
+
+  .. tab:: Python* with DPC++ support
+
+    Batch Processing:
+
+    - :daal4py_sycl_example:`pca_transform_batch.py`
+
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`pca_transform_batch.py`

@@ -22,6 +22,8 @@
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
+#include "oneapi/dal/table/row_accessor.hpp"
+
 #include <daal/src/algorithms/kernel_function/oneapi/kernel_function_linear_dense_default_kernel_oneapi.h>
 
 namespace oneapi::dal::linear_kernel::backend {
@@ -29,7 +31,7 @@ namespace oneapi::dal::linear_kernel::backend {
 using dal::backend::context_gpu;
 
 namespace daal_linear_kernel = daal::algorithms::kernel_function::linear;
-namespace interop            = dal::backend::interop;
+namespace interop = dal::backend::interop;
 
 template <typename Float>
 using daal_linear_kernel_t =
@@ -43,8 +45,8 @@ static compute_result call_daal_kernel(const context_gpu& ctx,
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
-    const int64_t row_count_x  = x.get_row_count();
-    const int64_t row_count_y  = y.get_row_count();
+    const int64_t row_count_x = x.get_row_count();
+    const int64_t row_count_y = y.get_row_count();
     const int64_t column_count = x.get_column_count();
 
     auto arr_x = row_accessor<const Float>{ x }.pull(queue);
@@ -59,14 +61,14 @@ static compute_result call_daal_kernel(const context_gpu& ctx,
     const auto daal_values =
         interop::convert_to_daal_sycl_homogen_table(queue, arr_values, row_count_x, row_count_y);
 
-    daal_linear_kernel::Parameter daal_parameter(desc.get_k(), desc.get_b());
+    daal_linear_kernel::Parameter daal_parameter(desc.get_scale(), desc.get_shift());
     daal_linear_kernel_t<Float>().compute(daal_x.get(),
                                           daal_y.get(),
                                           daal_values.get(),
                                           &daal_parameter);
 
     return compute_result().set_values(
-        homogen_table_builder{}.reset(arr_values, row_count_x, row_count_y).build());
+        dal::detail::homogen_table_builder{}.reset(arr_values, row_count_x, row_count_y).build());
 }
 
 template <typename Float>

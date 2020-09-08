@@ -16,21 +16,24 @@
 
 #include <daal/src/algorithms/dtrees/forest/classification/df_classification_predict_dense_default_batch.h>
 
+#include "oneapi/dal/table/row_accessor.hpp"
+
 #include "oneapi/dal/algo/decision_forest/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 #include "oneapi/dal/algo/decision_forest/backend/interop_helpers.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
 using dal::backend::context_cpu;
 
-namespace df  = daal::algorithms::decision_forest;
+namespace df = daal::algorithms::decision_forest;
 namespace cls = daal::algorithms::decision_forest::classification;
 
-namespace interop    = dal::backend::interop;
+namespace interop = dal::backend::interop;
 namespace df_interop = dal::backend::interop::decision_forest;
 
 template <typename Float, daal::CpuType Cpu>
@@ -44,7 +47,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const descriptor_base<Task>& desc,
                                            const model<Task>& trained_model,
                                            const table& data) {
-    const int64_t row_count    = data.get_row_count();
+    const int64_t row_count = data.get_row_count();
     const int64_t column_count = data.get_column_count();
 
     auto arr_data = row_accessor<const Float>{ data }.pull();
@@ -58,8 +61,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     auto model_pimpl = dal::detail::pimpl_accessor().get_pimpl(trained_model);
     if (!model_pimpl->is_interop()) {
-        // throw exception
-        return infer_result<Task>();
+        throw dal::internal_error("Input model is inconsistent with kernel type");
     }
 
     auto pinterop_model =
@@ -67,20 +69,18 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     daal_input.set(daal::algorithms::classifier::prediction::model, pinterop_model->get_model());
 
-    auto daal_voting_method = df_interop::convert_to_daal_voting_method(desc.get_voting_method());
+    auto daal_voting_mode = df_interop::convert_to_daal_voting_mode(desc.get_voting_mode());
 
-    auto daal_parameter = cls::prediction::Parameter(desc.get_class_count(), daal_voting_method);
+    auto daal_parameter = cls::prediction::Parameter(desc.get_class_count(), daal_voting_mode);
 
     daal::data_management::NumericTablePtr daal_labels_res;
     daal::data_management::NumericTablePtr daal_labels_prob_res;
 
-    if (desc.get_infer_results_to_compute() &
-        static_cast<std::uint64_t>(infer_result_to_compute::compute_class_labels)) {
+    if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_labels)) {
         daal_labels_res = interop::allocate_daal_homogen_table<Float>(row_count, 1);
     }
 
-    if (desc.get_infer_results_to_compute() &
-        static_cast<std::uint64_t>(infer_result_to_compute::compute_class_probabilities)) {
+    if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_probabilities)) {
         daal_labels_prob_res =
             interop::allocate_daal_homogen_table<Float>(row_count, desc.get_class_count());
     }
@@ -95,18 +95,16 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
         daal_labels_res.get(),
         daal_labels_prob_res.get(),
         desc.get_class_count(),
-        daal_voting_method));
+        daal_voting_mode));
 
     infer_result<Task> res;
 
-    if (desc.get_infer_results_to_compute() &
-        static_cast<std::uint64_t>(infer_result_to_compute::compute_class_labels)) {
+    if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_labels)) {
         auto table_class_labels = interop::convert_from_daal_homogen_table<Float>(daal_labels_res);
         res.set_labels(table_class_labels);
     }
 
-    if (desc.get_infer_results_to_compute() &
-        static_cast<std::uint64_t>(infer_result_to_compute::compute_class_probabilities)) {
+    if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_probabilities)) {
         auto table_class_probs =
             interop::convert_from_daal_homogen_table<Float>(daal_labels_prob_res);
         res.set_probabilities(table_class_probs);

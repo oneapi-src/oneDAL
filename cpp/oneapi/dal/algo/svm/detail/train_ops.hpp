@@ -28,12 +28,12 @@ struct ONEAPI_DAL_EXPORT train_ops_dispatcher {
 
 template <typename Descriptor>
 struct train_ops {
-    using float_t           = typename Descriptor::float_t;
-    using task_t            = typename Descriptor::task_t;
-    using method_t          = typename Descriptor::method_t;
-    using kernel_t          = typename Descriptor::kernel_t;
-    using input_t           = train_input;
-    using result_t          = train_result;
+    using float_t = typename Descriptor::float_t;
+    using task_t = typename Descriptor::task_t;
+    using method_t = typename Descriptor::method_t;
+    using kernel_t = typename Descriptor::kernel_t;
+    using input_t = train_input;
+    using result_t = train_result;
     using descriptor_base_t = descriptor_base;
 
     void check_preconditions(const Descriptor& params, const train_input& input) const {
@@ -62,7 +62,7 @@ struct train_ops {
         if (result.get_support_vector_count() < 0 ||
             result.get_support_vector_count() > input.get_data().get_row_count()) {
             throw internal_error(
-                "Result support_vectors_count should be >= 0 and <= input data row_count");
+                "Result support_vector_count should be >= 0 and <= input data row_count");
         }
         if (!(result.get_support_vectors().has_data())) {
             throw internal_error("Result support_vectors should not be empty");
@@ -70,8 +70,8 @@ struct train_ops {
         if (!(result.get_support_indices().has_data())) {
             throw internal_error("Result support_indices should not be empty");
         }
-        if (!(result.get_coefficients().has_data())) {
-            throw internal_error("Result coefficients should not be empty");
+        if (!(result.get_coeffs().has_data())) {
+            throw internal_error("Result coeffs should not be empty");
         }
         if (result.get_support_vectors().get_column_count() !=
             input.get_data().get_column_count()) {
@@ -80,15 +80,15 @@ struct train_ops {
         }
         if (result.get_support_vectors().get_row_count() != result.get_support_vector_count()) {
             throw internal_error(
-                "Result support_vectors row_count should be equal to result support_vectors_count");
+                "Result support_vectors row_count should be equal to result support_vector_count");
         }
         if (result.get_support_indices().get_row_count() != result.get_support_vector_count()) {
             throw internal_error(
-                "Result support_indices row_count should be equal to result support_vectors_count");
+                "Result support_indices row_count should be equal to result support_vector_count");
         }
-        if (result.get_coefficients().get_row_count() != result.get_support_vector_count()) {
+        if (result.get_coeffs().get_row_count() != result.get_support_vector_count()) {
             throw internal_error(
-                "Result coefficients row_count should be equal to result support_vectors_count");
+                "Result coeffs row_count should be equal to result support_vector_count");
         }
     }
 

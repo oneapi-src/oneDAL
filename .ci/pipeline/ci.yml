@@ -4,7 +4,16 @@
 # https://docs.microsoft.com/azure/devops/pipelines/apps/c-cpp/gcc
 
 trigger:
-- master
+  branches:
+    include:
+    - master
+    - rls/*
+
+pr:
+  branches:
+    include:
+    - master
+    - rls/*
 
 jobs:
 - job: 'ClangFormat'
@@ -18,7 +27,7 @@ jobs:
         .ci/scripts/clang-format.sh
       displayName: 'clang-format check'
       failOnStderr: true
-- job: Linux
+- job: 'LinuxMake'
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_gnu'
@@ -29,8 +38,11 @@ jobs:
   - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib openjdk-8-jdk
     displayName: 'apt-get'
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type)
-    displayName: 'make'
+      .ci/scripts/build.sh --platform $(platform.type) --target daal
+    displayName: 'make daal'
+  - script: |
+      .ci/scripts/build.sh --platform $(platform.type) --target oneapi_c
+    displayName: 'make oneapi_c'
   - script: |
       cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
     displayName: 'Copy build'
@@ -41,8 +53,71 @@ jobs:
   - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type)
     displayName: 'examples'
+
+- job: 'LinuxBazel'
+  timeoutInMinutes: 0
+  pool:
+    vmImage: 'ubuntu-18.04'
+  steps:
+  - script: |
+      sudo apt-get update
+      sudo apt-get install gcc-multilib \
+                           g++-multilib \
+                           binutils \
+                           openjdk-11-jdk \
+                           bazel-3.4.1
+    displayName: 'apt-get'
+
+  - script: |
+      bazel build @config//:dump
+      cat bazel-bin/external/config/config.json
+    displayName: 'config-dump'
+
+  - script: |
+      bazel build :release
+    displayName: 'release'
+
+  - script: |
+      bazel test //examples/oneapi/cpp:all \
+                 --@config//:test_link_mode=dev \
+                 --@config//:test_thread_mode=par
+    displayName: 'cpp-examples-thread-dev'
+
+  - script: |
+      bazel test //examples/oneapi/cpp:all \
+                 --@config//:test_link_mode=static \
+                 --@config//:test_thread_mode=par
+    displayName: 'cpp-examples-thread-static'
+
+  - script: |
+      export DAALROOT=`pwd`/bazel-bin/release/daal/latest
+      bazel test //examples/oneapi/cpp:all \
+                 --@config//:test_link_mode=release_static \
+                 --@config//:test_thread_mode=par
+    displayName: 'cpp-examples-thread-release-static'
+
+  - script: |
+      bazel test //examples/oneapi/cpp:all \
+                 --@config//:test_link_mode=dynamic \
+                 --@config//:test_thread_mode=par
+    displayName: 'cpp-examples-thread-dynamic'
+
+  - script: |
+      export DAALROOT=`pwd`/bazel-bin/release/daal/latest
+      bazel test //examples/oneapi/cpp:all \
+                 --@config//:test_link_mode=release_dynamic \
+                 --@config//:test_thread_mode=par
+    displayName: 'cpp-examples-thread-release-dynamic'
+
+  - script: |
+      bazel test //cpp/oneapi/dal:tests \
+                 --@config//:test_link_mode=dev \
+                 --@config//:test_thread_mode=par \
+                 --test_tag_filters=-heavy
+    displayName: 'cpp-tests-thread-dev'
+
 - job: daal4py
-  dependsOn: Linux
+  dependsOn: LinuxMake
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_gnu'
@@ -89,10 +164,11 @@ jobs:
       artifactName: '$(platform.type) conformance tests report'
       targetPath: '$(Build.ArtifactStagingDirectory)/'
   - script: |
+      export TBBROOT=$(Pipeline.Workspace)/tbb/latest
       $(Pipeline.Workspace)/s/.ci/scripts/daal4py_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/oneapi --daal4py-dir $(Pipeline.Workspace)/s/daal4py
     timeoutInMinutes: 15
     displayName: daal4py test
-- job: macOS
+- job: 'macOSMake'
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_mac_clang'
@@ -101,8 +177,11 @@ jobs:
     vmImage:  'macOS-10.15'
   steps:
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type)
-    displayName: 'make'
+      .ci/scripts/build.sh --platform $(platform.type) --target daal
+    displayName: 'make daal'
+  - script: |
+      .ci/scripts/build.sh --platform $(platform.type) --target oneapi_c
+    displayName: 'make oneapi_c'
   - script: |
       cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
     displayName: 'Copy build'
@@ -123,5 +202,3 @@ jobs:
 #      call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
 #      call .\__deps\tbb\bin\tbbvars.bat intel64 14_uwp
 #     make daal COMPILER=vc PLAT="win32e"
-
-

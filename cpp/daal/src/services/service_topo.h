@@ -270,7 +270,6 @@ typedef struct
                                                               // for each cache entity of the specified cache level in the system
     unsigned __int32 threadPerEaCacheORD[MAX_CACHE_SUBLEAFS]; // a zero-based numbering scheme
                                                               // for each logical processor sharing the same cache of the specified cache level
-
 } idAffMskOrdMapping_t;
 
 // we are going to put an assortment of global variable, 1D and 2D arrays into

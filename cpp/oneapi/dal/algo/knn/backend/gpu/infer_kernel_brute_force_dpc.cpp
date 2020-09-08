@@ -26,12 +26,14 @@
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
+#include "oneapi/dal/table/row_accessor.hpp"
+
 namespace oneapi::dal::knn::backend {
 
 using dal::backend::context_gpu;
 
 namespace daal_knn = daal::algorithms::bf_knn_classification;
-namespace interop  = dal::backend::interop;
+namespace interop = dal::backend::interop;
 
 template <typename Float>
 using daal_knn_brute_force_kernel_t =
@@ -45,10 +47,10 @@ static infer_result call_daal_kernel(const context_gpu& ctx,
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
-    const std::int64_t row_count    = data.get_row_count();
+    const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
 
-    auto arr_data   = row_accessor<const Float>{ data }.pull(queue);
+    auto arr_data = row_accessor<const Float>{ data }.pull(queue);
     auto arr_labels = array<Float>::empty(queue, 1 * row_count);
 
     const auto daal_data =
@@ -68,7 +70,7 @@ static infer_result call_daal_kernel(const context_gpu& ctx,
         &daal_parameter));
 
     return infer_result().set_labels(
-        homogen_table_builder{}.reset(arr_labels, row_count, 1).build());
+        dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build());
 }
 
 template <typename Float>

@@ -19,40 +19,49 @@
 #include <cstring>
 
 #include "oneapi/dal/detail/common.hpp"
-#include "oneapi/dal/policy.hpp"
+#include "oneapi/dal/detail/policy.hpp"
 
 namespace oneapi::dal::detail {
 
-struct host_only_alloc {};
-
 template <typename T>
-inline T* malloc(const host_policy&, std::int64_t count, host_only_alloc) {
+inline T* malloc(const default_host_policy&, std::int64_t count) {
     return new T[count];
 }
 
 template <typename T>
-inline void free(const host_policy&, T* pointer) {
+inline void free(const default_host_policy&, T* pointer) {
     delete[] pointer;
 }
 
-inline void memset(const host_policy&, void* dest, std::int32_t value, std::int64_t size) {
+inline void memset(const default_host_policy&, void* dest, std::int32_t value, std::int64_t size) {
     // TODO: is not safe since std::memset accepts size as size_t
     // TODO: can be optimized in future
     std::memset(dest, value, size);
 }
 
-inline void memcpy(const host_policy&, void* dest, const void* src, std::int64_t size) {
+inline void memcpy(const default_host_policy&, void* dest, const void* src, std::int64_t size) {
     // TODO: is not safe since std::memset accepts size as size_t
     // TODO: can be optimized in future
     std::memcpy(dest, src, size);
 }
 
 template <typename T>
-inline void fill(const host_policy&, T* dest, std::int64_t count, const T& value) {
+inline void fill(const default_host_policy&, T* dest, std::int64_t count, const T& value) {
     // TODO: can be optimized in future
     for (std::int64_t i = 0; i < count; i++) {
         dest[i] = value;
     }
 }
+
+template <typename T>
+class host_allocator {
+public:
+    T* allocate(std::int64_t n) const {
+        return malloc<T>(default_host_policy{}, n);
+    }
+    void deallocate(T* p, std::int64_t n) const {
+        return free(default_host_policy{}, p);
+    }
+};
 
 } // namespace oneapi::dal::detail

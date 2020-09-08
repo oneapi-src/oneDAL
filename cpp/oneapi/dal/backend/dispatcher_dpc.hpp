@@ -17,7 +17,7 @@
 #pragma once
 
 #ifndef ONEAPI_DAL_DATA_PARALLEL
-    #error ONEAPI_DAL_DATA_PARALLEL must be defined to include this file
+#error ONEAPI_DAL_DATA_PARALLEL must be defined to include this file
 #endif
 
 #include <stdexcept> // TODO: change by onedal exceptions
@@ -27,7 +27,7 @@ namespace oneapi::dal::backend {
 
 class context_gpu : public base {
 public:
-    explicit context_gpu(const data_parallel_policy& policy) : queue_(policy.get_queue()) {}
+    explicit context_gpu(const detail::data_parallel_policy& policy) : queue_(policy.get_queue()) {}
 
     context_gpu(const context_gpu&) = delete;
     context_gpu& operator=(const context_gpu&) = delete;
@@ -43,10 +43,10 @@ private:
 template <typename CpuKernel, typename GpuKernel>
 struct kernel_dispatcher<CpuKernel, GpuKernel> {
     template <typename... Args>
-    auto operator()(const data_parallel_policy& policy, Args&&... args) const {
+    auto operator()(const detail::data_parallel_policy& policy, Args&&... args) const {
         const auto device = policy.get_queue().get_device();
         if (device.is_host() || device.is_cpu()) {
-            const auto cpu_policy = context_cpu{ host_policy{} };
+            const auto cpu_policy = context_cpu{ detail::host_policy{} };
             return CpuKernel()(cpu_policy, std::forward<Args>(args)...);
         }
         else if (device.is_gpu()) {

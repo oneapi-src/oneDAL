@@ -26,6 +26,9 @@ while [[ $# -gt 0 ]]; do
         --compiler)
         compiler="$2"
         ;;
+        --target)
+        target="$2"
+        ;;
         *)
         echo "Unknown option: $1"
         exit 1
@@ -40,7 +43,6 @@ ARCH=${platform:3:3}
 CPU_OPTIMIZATIONS="avx2"
 
 if [ "${OS}" == "lnx" ]; then
-    make_target="onedal_c"
     compiler=${compiler:-gnu}
     export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
     java_os_name="linux"
@@ -51,7 +53,6 @@ if [ "${OS}" == "lnx" ]; then
             with_gpu="false"
     fi
 elif [ "${OS}" == "mac" ]; then
-    make_target="daal"
     compiler=${compiler:-clang}
     export JAVA_HOME=$(/usr/libexec/java_home -v 12)
     java_os_name="darwin"
@@ -76,7 +77,7 @@ echo "Set Java PATH and CPATH"
 export PATH=$JAVA_HOME/bin:$PATH
 export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/${java_os_name}:$CPATH
 echo "Calling make"
-make ${make_target} ${make_op} \
+make ${target:-daal} ${make_op} \
     PLAT=${platform} \
     COMPILER=${compiler} \
     REQCPU="${CPU_OPTIMIZATIONS}"

@@ -44,28 +44,22 @@ struct to_daal_cpu_type<cpu_dispatch_avx2> : daal_cpu_value<daal::avx2> {};
 template <>
 struct to_daal_cpu_type<cpu_dispatch_avx512> : daal_cpu_value<daal::avx512> {};
 
-inline constexpr cpu_extension from_daal_cpu_type(daal::CpuType cpu) {
+inline constexpr detail::cpu_extension from_daal_cpu_type(daal::CpuType cpu) {
+    using detail::cpu_extension;
     switch (cpu) {
-        case daal::sse2:
-            return cpu_extension::sse2;
-        case daal::ssse3:
-            return cpu_extension::ssse3;
-        case daal::sse42:
-            return cpu_extension::sse42;
-        case daal::avx:
-            return cpu_extension::avx;
-        case daal::avx2:
-            return cpu_extension::avx2;
-        case daal::avx512:
-            return cpu_extension::avx512;
+        case daal::sse2: return cpu_extension::sse2;
+        case daal::ssse3: return cpu_extension::ssse3;
+        case daal::sse42: return cpu_extension::sse42;
+        case daal::avx: return cpu_extension::avx;
+        case daal::avx2: return cpu_extension::avx2;
+        case daal::avx512: return cpu_extension::avx512;
         case daal::avx512_mic:
-        case daal::avx512_mic_e1:
-            break;
+        case daal::avx512_mic_e1: break;
     }
     return cpu_extension::none;
 }
 
-inline cpu_extension detect_top_cpu_extension() {
+inline detail::cpu_extension detect_top_cpu_extension() {
     const auto daal_cpu = (daal::CpuType)__daal_serv_cpu_detect(0);
     return from_daal_cpu_type(daal_cpu);
 }

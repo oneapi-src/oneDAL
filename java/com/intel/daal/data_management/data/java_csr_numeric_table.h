@@ -248,7 +248,6 @@ protected:
         block.reset();
         return services::Status();
     }
-
 }; // class JavaCSRNumericTable
 
 } // namespace daal

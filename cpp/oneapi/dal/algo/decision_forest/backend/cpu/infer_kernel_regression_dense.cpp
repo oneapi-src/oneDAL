@@ -17,6 +17,8 @@
 #include <daal/src/algorithms/dtrees/forest/regression/df_regression_predict_dense_default_batch.h>
 #include <daal/src/services/service_algo_utils.h>
 
+#include "oneapi/dal/table/row_accessor.hpp"
+
 #include "oneapi/dal/algo/decision_forest/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
@@ -28,8 +30,8 @@ namespace oneapi::dal::decision_forest::backend {
 
 using dal::backend::context_cpu;
 
-namespace df      = daal::algorithms::decision_forest;
-namespace rgr     = daal::algorithms::decision_forest::regression;
+namespace df = daal::algorithms::decision_forest;
+namespace rgr = daal::algorithms::decision_forest::regression;
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
@@ -43,7 +45,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const descriptor_base<Task>& desc,
                                            const model<Task>& trained_model,
                                            const table& data) {
-    const int64_t row_count    = data.get_row_count();
+    const int64_t row_count = data.get_row_count();
     const int64_t column_count = data.get_column_count();
 
     auto arr_data = row_accessor<const Float>{ data }.pull();
@@ -57,8 +59,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     auto model_pimpl = dal::detail::pimpl_accessor().get_pimpl(trained_model);
     if (!model_pimpl->is_interop()) {
-        // throw exception
-        return infer_result<Task>();
+        throw dal::internal_error("Input model is inconsistent with kernel type");
     }
 
     auto pinterop_model =

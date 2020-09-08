@@ -39,6 +39,7 @@ There are numerous ways to define the measure of similarity and
 centroids. For K-Means, the centroid is defined as the mean of
 feature vectors within the cluster.
 
+.. _kmeans_details:
 
 Details
 *******
@@ -221,47 +222,44 @@ Initialization
 **************
 
 The K-Means clustering algorithm requires initialization of
-centroids as an explicit step. Initialization flow depends by the
+centroids as an explicit step. Initialization flow depends on the
 computation mode. Skip this step if you already calculated initial
 centroids.
 
-Batch Processing
-----------------
+For initialization, the following computation modes are available:
 
-.. include:: includes/initialization-batch.rst
-
-Distributed Processing
-----------------------
-
-.. include:: includes/initialization-distributed.rst
+.. toctree::
+   :maxdepth: 1
+   
+   initialization-batch.rst
+   initialization-distributed.rst
 
 Computation
 ***********
 
+The following computation modes are available:
 
-Batch Processing
-----------------
+.. toctree::
+   :maxdepth: 1
+   
+   computation-batch.rst
+   computation-distributed.rst
 
-.. include:: includes/computation-batch.rst
-
-Distributed Processing
-----------------------
-
-.. include:: includes/computation-distributed.rst
+.. note:: In DPC++, distributed processing for K-Means is only available as a `technical preview feature <https://github.com/oneapi-src/oneDAL#technical-preview-features>`_.
 
 Examples
 ********
 
 .. tabs::
 
-  .. tab:: DPC++
+  .. tab:: oneAPI C++
 
 	Batch Processing:
 
-	- :ref:`kmeans_dense_batch.cpp`
-	- :ref:`kmeans_init_dense_batch.cpp`
+	- :ref:`cpp_kmeans_lloyd_dense_batch.cpp`
+	- :ref:`cpp_kmeans_init_dense.cpp`
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
@@ -274,6 +272,8 @@ Examples
     - :cpp_example:`kmeans_csr_distr.cpp <kmeans/kmeans_csr_distr.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
 
@@ -284,6 +284,22 @@ Examples
 
     - :java_example:`KMeansDenseDistr.java <kmeans/KMeansDenseDistr.java>`
     - :java_example:`KMeansCSRDistr.java <kmeans/KMeansCSRDistr.java>`
+
+  .. tab:: Python* with DPC++ support
+
+    Batch Processing:
+
+    - :daal4py_sycl_example:`kmeans_batch.py`
+
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`kmeans_batch.py`
+
+    Distributed Processing
+
+    - :daal4py_example:`kmeans_spmd.py`
 
 Performance Considerations
 **************************

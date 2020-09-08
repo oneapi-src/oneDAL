@@ -1,0 +1,159 @@
+#===============================================================================
+# Copyright 2020 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#===============================================================================
+
+##  Content:
+##     oneAPI Data Analytics Library examples build and run
+##******************************************************************************
+
+help:
+	@echo "Usage: make {lib|dylib|libintel64|dylibintel64|help}"
+	@echo "lib is alias for libintel64, dylib is alias for dylibintel64"
+	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
+	@echo
+	@echo "name              - example name. Please see daal.lst file"
+	@echo
+	@echo "compiler_name     - can be intel or clang. Default value is intel."
+	@echo
+	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
+	@echo
+	@echo "mode_name         - can be build or run. Default is run"
+
+##------------------------------------------------------------------------------
+## examples of using:
+##
+## make lib example=pca_cor_dense_batch - build  by Intel(R) C++ Compiler (as default)
+##                                        and run pca_cor_dense_batch example, static
+##                                        linking
+##
+## make dylib compiler=clang          - build by Clang C++ compiler and run all examples,
+##                                      dynamic linking
+##
+## make libintel64 compiler=clang  - build by Clang C++ compiler and run all examples,
+##                                   static linking
+##
+## make dylibintel64                - build by Intel(R) C++ Compiler (as default)
+##                                    and run all examples, dynamic linking
+##
+## make dylibintel64 mode=build     - build only (not run) by Intel(R) C++ Compiler
+##                                    (as default) all examples, dynamic linking
+##
+## make help                     - show help
+##
+##------------------------------------------------------------------------------
+
+include onedal.lst
+
+ifndef example
+    example = $(ONEDAL)
+endif
+
+ifneq ($(compiler),clang)
+	override compiler = intel
+endif
+
+ifneq ($(mode),build)
+    override mode = run
+endif
+
+ifneq ($(threading),sequential)
+    override threading = parallel
+endif
+
+ifndef DAALROOT
+    DAALROOT = ./../../..
+endif
+DAAL_PATH = $(DAALROOT)/lib
+
+ifndef TBBROOT
+    TBBROOT = ./../../../../../tbb/latest
+endif
+TBB_PATH = $(TBBROOT)/lib
+
+onedal.dylib := -lonedal
+onedal_core.dylib := -lonedal_core
+onedal_thread.dylib := -lonedal_thread
+onedal_sequential.dylib := -lonedal_sequential
+
+onedal.a := "$(DAAL_PATH)/libonedal.a"
+onedal_core.a := "$(DAAL_PATH)/libonedal_core.a"
+onedal_thread.a := "$(DAAL_PATH)/libonedal_thread.a"
+onedal_sequential.a := "$(DAAL_PATH)/libonedal_sequential.a"
+
+onedal := $(onedal.$(RES_EXT))
+onedal_core := $(onedal_core.$(RES_EXT))
+onedal_thread := $(onedal_thread.$(RES_EXT))
+onedal_sequential := $(onedal_sequential.$(RES_EXT))
+
+onedal_threading.parallel := $(onedal_thread)
+onedal_threading.sequential := $(onedal_sequential)
+onedal_threading := $(onedal_threading.$(threading))
+
+COPTS := -std=c++17 \
+         -pedantic \
+         -Wall \
+         -Wextra \
+         -Werror \
+         -Werror=return-type \
+         -Werror=uninitialized \
+         -Werror=unknown-pragmas \
+         -Wno-unused-parameter \
+         -stdlib=libc++ \
+         -I./source \
+         -I"$(DAALROOT)/include"
+
+LIBS := $(onedal) \
+        $(onedal_core) \
+        $(onedal_threading) \
+        -ltbb \
+        -ltbbmalloc \
+        -ldl
+
+LOPTS := -L"$(DAAL_PATH)" \
+         -L"$(TBB_PATH)" \
+         $(LIBS)
+
+RES_DIR=_results/$(compiler)_intel64_$(threading)_$(RES_EXT)
+RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))
+
+ifeq ($(compiler),intel)
+    CC = icc
+endif
+
+ifeq ($(compiler),clang)
+    CC = clang++
+endif
+
+RPATH=-Wl,-rpath,$(DAAL_PATH) -Wl,-rpath,$(TBB_PATH)
+
+lib libintel64:
+	$(MAKE) _make_ex RES_EXT=a
+dylib dylibintel64:
+	$(MAKE) _make_ex RES_EXT=dylib
+
+
+_make_ex: $(RES)
+
+vpath
+vpath %.cpp $(addprefix ./source/,decision_forest kmeans kmeans_init knn linear_kernel pca rbf_kernel svm table jaccard graph)
+
+.SECONDARY:
+$(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.
+	$(CC) $(COPTS) $< -o $@ $(RPATH) $(LOPTS)
+
+$(RES_DIR)/%.res:  $(RES_DIR)/%.exe
+	$< > $@
+
+%/.:; mkdir -p $*

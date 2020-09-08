@@ -30,11 +30,11 @@ struct ONEAPI_DAL_EXPORT infer_ops_dispatcher {
 
 template <typename Descriptor>
 struct infer_ops {
-    using float_t           = typename Descriptor::float_t;
-    using task_t            = typename Descriptor::task_t;
-    using method_t          = typename Descriptor::method_t;
-    using input_t           = infer_input<task_t>;
-    using result_t          = infer_result<task_t>;
+    using float_t = typename Descriptor::float_t;
+    using task_t = typename Descriptor::task_t;
+    using method_t = typename Descriptor::method_t;
+    using input_t = infer_input<task_t>;
+    using result_t = infer_result<task_t>;
     using descriptor_base_t = descriptor_base<task_t>;
 
     void check_preconditions(const Descriptor& params, const input_t& input) const {

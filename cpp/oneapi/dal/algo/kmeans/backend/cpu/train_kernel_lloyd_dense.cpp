@@ -23,14 +23,16 @@
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
+#include "oneapi/dal/table/row_accessor.hpp"
+
 namespace oneapi::dal::kmeans::backend {
 
 using std::int64_t;
 using dal::backend::context_cpu;
 
-namespace daal_kmeans      = daal::algorithms::kmeans;
+namespace daal_kmeans = daal::algorithms::kmeans;
 namespace daal_kmeans_init = daal::algorithms::kmeans::init;
-namespace interop          = dal::backend::interop;
+namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
 using daal_kmeans_lloyd_dense_kernel_t =
@@ -45,17 +47,17 @@ static train_result call_daal_kernel(const context_cpu& ctx,
                                      const descriptor_base& desc,
                                      const table& data,
                                      const table& initial_centroids) {
-    const int64_t row_count    = data.get_row_count();
+    const int64_t row_count = data.get_row_count();
     const int64_t column_count = data.get_column_count();
 
-    const int64_t cluster_count       = desc.get_cluster_count();
+    const int64_t cluster_count = desc.get_cluster_count();
     const int64_t max_iteration_count = desc.get_max_iteration_count();
-    const double accuracy_threshold   = desc.get_accuracy_threshold();
+    const double accuracy_threshold = desc.get_accuracy_threshold();
 
     daal_kmeans::Parameter par(cluster_count, max_iteration_count);
     par.accuracyThreshold = accuracy_threshold;
 
-    auto arr_data        = row_accessor<const Float>{ data }.pull();
+    auto arr_data = row_accessor<const Float>{ data }.pull();
     const auto daal_data = interop::convert_to_daal_homogen_table(arr_data,
                                                                   data.get_row_count(),
                                                                   data.get_column_count());
@@ -64,12 +66,12 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     if (!new_initial_centroids.has_data()) {
         daal_kmeans_init::Parameter par(cluster_count);
 
-        const size_t init_len_input                                     = 1;
+        const size_t init_len_input = 1;
         daal::data_management::NumericTable* init_input[init_len_input] = { daal_data.get() };
 
         auto daal_centroids =
             interop::allocate_daal_homogen_table<Float>(cluster_count, column_count);
-        const size_t init_len_output                                      = 1;
+        const size_t init_len_output = 1;
         daal::data_management::NumericTable* init_output[init_len_output] = {
             daal_centroids.get()
         };
@@ -89,10 +91,10 @@ static train_result call_daal_kernel(const context_cpu& ctx,
 
     auto arr_initial_centroids = row_accessor<const Float>{ new_initial_centroids }.pull();
 
-    array<Float> arr_centroids                = array<Float>::empty(cluster_count * column_count);
-    array<int> arr_labels                     = array<int>::empty(row_count);
+    array<Float> arr_centroids = array<Float>::empty(cluster_count * column_count);
+    array<int> arr_labels = array<int>::empty(row_count);
     array<Float> arr_objective_function_value = array<Float>::empty(1);
-    array<int> arr_iteration_count            = array<int>::empty(1);
+    array<int> arr_iteration_count = array<int>::empty(1);
 
     const auto daal_initial_centroids =
         interop::convert_to_daal_homogen_table(arr_initial_centroids,
@@ -121,11 +123,12 @@ static train_result call_daal_kernel(const context_cpu& ctx,
                                                                            &par));
 
     return train_result()
-        .set_labels(homogen_table_builder{}.reset(arr_labels, row_count, 1).build())
+        .set_labels(dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build())
         .set_iteration_count(static_cast<std::int64_t>(arr_iteration_count[0]))
         .set_objective_function_value(static_cast<double>(arr_objective_function_value[0]))
-        .set_model(model().set_centroids(
-            homogen_table_builder{}.reset(arr_centroids, cluster_count, column_count).build()));
+        .set_model(model().set_centroids(dal::detail::homogen_table_builder{}
+                                             .reset(arr_centroids, cluster_count, column_count)
+                                             .build()));
 }
 
 template <typename Float>

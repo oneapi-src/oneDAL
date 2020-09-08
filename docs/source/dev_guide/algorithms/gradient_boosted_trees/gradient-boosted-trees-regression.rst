@@ -85,11 +85,13 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     - :cpp_example:`gbt_reg_traversed_model_builder.cpp <gradient_boosted_trees/gbt_reg_traversed_model_builder.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     - :java_example:`GbtRegTraversedModelBuilder.java <gbt/GbtRegTraversedModelBuilder.java>`
 
@@ -160,22 +162,29 @@ Examples
 
 .. tabs::
 
-  .. tab:: DPC++
-
-    Batch Processing:
-
-    - :ref:`gbt_reg_dense_batch.cpp`
-
-  .. tab:: C++
+  .. tab:: C++ (CPU)
   
     Batch Processing:
 
     - :cpp_example:`gbt_reg_dense_batch.cpp <gradient_boosted_trees/gbt_reg_dense_batch.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
 
     - :java_example:`GbtRegDenseBatch.java <gbt/GbtRegDenseBatch.java>`
 
-.. Python*: gbt_reg_dense_batch.py
+  .. tab:: Python* with DPC++ support
+
+    Batch Processing:
+
+    - :daal4py_sycl_example:`gradient_boosted_regression_batch.py`
+
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`gradient_boosted_regression_batch.py`
+    - :daal4py_example:`gradient_boosted_regression_traverse_batch.py`

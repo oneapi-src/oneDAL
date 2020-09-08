@@ -58,7 +58,13 @@ by minimizing the following cost function:
 
 where:
 
-- :math:`{p}_{ui}` indicates the preference of user u of item i: :math:`p_{ui} = \lbrace \begin{array}{c}1, & {r}_{ui}>\epsilon,\\ 0, & {r}_{ui}\le \epsilon\end{array}`
+- :math:`{p}_{ui}` indicates the preference of user u of item i:
+  
+  .. math::
+    p_{ui} = \begin{cases}
+      1, & {r}_{ui}> \epsilon \\
+      0, & {r}_{ui}\le \epsilon
+    \end{cases}
 
 - :math:`\epsilon` is the threshold used to define the preference values. :math:`\epsilon = 0` is the only threshold valu supported so far.
 - :math:`{c}_{ui}=1+\alpha r_{ui}`, :math:`c_{ui}` measures the confidence in observing :math:`p_{ui}`
@@ -81,170 +87,64 @@ system calculates the matrix of recommended ratings Res: :math:`{res}_{ui}=\sum 
 Initialization
 **************
 
-Batch Processing
-----------------
+For initialization, the following computation modes are available:
 
-Input
-+++++
-
-Initialization of item factors for the implicit ALS algorithm
-accepts the input described below. Pass the Input ID as a
-parameter to the methods that provide input for your algorithm.
-
-.. list-table::
-   :widths: 25 25
-   :header-rows: 1
-   :align: left
-
-   * - Input ID
-     - Input
-   * - data
-     - Pointer to the :math:`m \times n` numeric table with the mining data. The input can
-       be an object of any class derived from NumericTable except
-       PackedTriangularMatrix and PackedSymmetricMatrix.
-
-Parameters
-++++++++++
-
-Initialization of item factors for the implicit ALS algorithm has the
-following parameters:
-
-.. list-table::
-   :widths: 25 25 25
-   :header-rows: 1
-   :align: left
-
-   * - Parameter
-     - Default Value
-     - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
-     - Available computation methods:
-
-       + defaultDense - performance-oriented method
-       + fastCSR - performance-oriented method for CSR numeric tables
-
-   * - nFactors
-     - :math:`10`
-     - The total number of factors.
-   * - engine
-     - SharePtr< engines:: mt19937:: Batch>()
-     - Pointer to the random number generator engine that is used internally at the initialization step.
-
-Output
-++++++
-
-Initialization of item factors for the implicit ALS algorithm
-calculates the result described below. Pass the Result ID as a
-parameter to the methods that access the results of your algorithm.
-
-.. list-table::
-   :widths: 25 25
-   :header-rows: 1
-   :align: left
-
-   * - Result ID
-     - Result
-   * - model
-     - The model with initialized item factors. The result can only be an object of the Model class.
+.. toctree::
+  :maxdepth: 1
+  
+  initialization-batch.rst
+  initialization-distributed.rst
 
 Computation
 ***********
 
-Batch Processing
-----------------
+The following computation modes are available:
 
-Training
-++++++++
+- :ref:`implicit_als_batch_computation`
+- Distributed processing for :ref:`training <implicit_als_distributed_training>` and :ref:`prediction of ratings <implicit_als_distributed_prediction>`
 
-For a description of the input and output, refer to Usage Model: Training and Prediction.
+.. toctree::
+  :maxdepth: 1
+  :hidden:
 
-At the training stage, the implicit ALS recommender has the
-following parameters:
-
-.. list-table::
-   :widths: 25 25 25
-   :header-rows: 1
-   :align: left
-
-   * - Parameter
-     - Default Value
-     - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
-     - Available computation methods:
-
-       + defaultDense - performance-oriented method
-       + fastCSR - performance-oriented method for CSR numeric tables
-
-   * - nFactors
-     - :math:`10`
-     - The total number of factors.
-   * - maxIterations
-     - :math:`5`
-     - The number of iterations.
-   * - alpha
-     - :math:`40`
-     - The rate of confidence.
-   * - lambda
-     - :math:`0.01`
-     - The parameter of the regularization.
-   * - preferenceThreshold
-     - :math:`0`
-     - Threshold used to define preference values. :math:`0` is the only threshold supported so far.
-
-Prediction
-++++++++++
-
-For a description of the input and output, refer to Usage Model: Training and Prediction.
-
-At the prediction stage, the implicit ALS recommender has the
-following parameters:
-
-.. list-table::
-   :widths: 25 25 25
-   :header-rows: 1
-   :align: left
-
-   * - Parameter
-     - Default Value
-     - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
-     - Performance-oriented computation method, the only method supported by the algorithm.
+  computation-batch.rst
+  computation-distributed-training.rst
+  computation-distributed-prediction.rst
 
 Examples
-++++++++
+********
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
     - :cpp_example:`impl_als_dense_batch.cpp <implicit_als/impl_als_dense_batch.cpp>`
     - :cpp_example:`impl_als_csr_batch.cpp <implicit_als/impl_als_csr_batch.cpp>`
 
+    Distributed Processing:
+
+    - :cpp_example:`impl_als_csr_distr.cpp <implicit_als/impl_als_csr_distr.cpp>`
+
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
     
     - :java_example:`ImplAlsDenseBatch.java <implicit_als/ImplAlsDenseBatch.java>`
     - :java_example:`ImplAlsCSRBatch.java <implicit_als/ImplAlsCSRBatch.java>`
 
-.. Python*:
+    Distributed Processing:
 
-.. - impl_als_dense_batch.py
-.. - impl_als_csr_batch.py
+    - :java_example:`ImplAlsCSRDistr.java <implicit_als/ImplAlsCSRDistr.java>`
+
+  .. tab:: Python*
+
+    Batch Processing:
+    
+    - :daal4py_example:`implicit_als_batch.py`
 
 
 Performance Considerations
@@ -258,6 +158,3 @@ To get the best overall performance of the implicit ALS recommender:
 -  If input data is sparse, use CSR numeric tables.
 
 .. include:: ../../../opt-notice.rst
-
-
-

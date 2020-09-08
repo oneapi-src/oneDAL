@@ -28,11 +28,11 @@ struct ONEAPI_DAL_EXPORT infer_ops_dispatcher {
 
 template <typename Descriptor>
 struct infer_ops {
-    using float_t           = typename Descriptor::float_t;
-    using task_t            = typename Descriptor::task_t;
-    using method_t          = method::by_default;
-    using input_t           = infer_input;
-    using result_t          = infer_result;
+    using float_t = typename Descriptor::float_t;
+    using task_t = typename Descriptor::task_t;
+    using method_t = method::by_default;
+    using input_t = infer_input;
+    using result_t = infer_result;
     using descriptor_base_t = descriptor_base;
 
     void check_preconditions(const Descriptor& params, const infer_input& input) const {
@@ -40,13 +40,13 @@ struct infer_ops {
             throw domain_error("Input data should not be empty");
         }
         if (input.get_model().get_support_vector_count() < 0) {
-            throw invalid_argument("Input model support_vectors_count should be >= 0");
+            throw invalid_argument("Input model support_vector_count should be >= 0");
         }
         if (!(input.get_model().get_support_vectors().has_data())) {
             throw domain_error("Input model support_vectors should not be empty");
         }
-        if (!(input.get_model().get_coefficients().has_data())) {
-            throw domain_error("Input model coefficients should not be empty");
+        if (!(input.get_model().get_coeffs().has_data())) {
+            throw domain_error("Input model coeffs should not be empty");
         }
         if (input.get_model().get_support_vectors().get_column_count() !=
             input.get_data().get_column_count()) {
@@ -56,12 +56,12 @@ struct infer_ops {
         if (input.get_model().get_support_vectors().get_row_count() !=
             input.get_model().get_support_vector_count()) {
             throw invalid_argument(
-                "Input model support_vectors row_count should be equal to input model support_vectors_count");
+                "Input model support_vectors row_count should be equal to input model support_vector_count");
         }
-        if (input.get_model().get_coefficients().get_row_count() !=
+        if (input.get_model().get_coeffs().get_row_count() !=
             input.get_model().get_support_vector_count()) {
             throw invalid_argument(
-                "Input model coefficients row_count should be equal to input model support_vectors_count");
+                "Input model coeffs row_count should be equal to input model support_vector_count");
         }
         if (!(params.get_kernel_impl()->get_impl())) {
             throw domain_error("Input kernel should be not be empty");

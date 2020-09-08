@@ -107,17 +107,25 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
     - :cpp_example:`cor_dist_dense_batch.cpp <distance/cor_dist_dense_batch.cpp>`
+    
+  .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
+
+    Batch Processing:
+
+    - :java_example:`CorDistDenseBatch.java <distance/CorDistDenseBatch.java>`
+
+  .. tab:: Python*
 
     Batch Processing:
     
-  .. tab:: Java*
-
-    - :java_example:`CorDistDenseBatch.java <distance/CorDistDenseBatch.java>`
+    - :daal4py_example:`correlation_distance_batch.py`
 
 Performance Considerations
 **************************

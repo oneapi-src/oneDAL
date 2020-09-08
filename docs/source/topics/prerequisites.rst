@@ -14,8 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. |dpcpp_comp| replace:: Intel\ |reg|\  oneAPI DPC++ Compiler
-.. _dpcpp_comp: https://software.intel.com/en-us/oneapi/dpc-compiler
+.. |dpcpp_comp| replace:: Intel\ |reg|\  oneAPI DPC++/C++ Compiler
+.. _dpcpp_comp: https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/dpc-compiler.html
 
 .. _before_you_begin:
 

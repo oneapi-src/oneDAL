@@ -14,8 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. |dpcpp_gsg| replace:: Get Started with Intel\ |reg|\  oneAPI DPC++ Compiler
-.. _dpcpp_gsg: https://software.intel.com/en-us/get-started-with-dpcpp-compiler
+.. |dpcpp_gsg| replace:: Get Started with Intel\ |reg|\  oneAPI DPC++/C++ Compiler
+.. _dpcpp_gsg: https://software.intel.com/content/www/us/en/develop/documentation/get-started-with-dpcpp-compiler/top.html
 
 Build and Run Examples
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -104,7 +104,7 @@ basic usage scenarios of |short_name| with SYCL*. Go to
 
         # Navigate to DPC++ examples directory and build examples
         cd /examples/daal/cpp_sycl
-        make sointel64 example=cor_dense_batch # This will compile and run Correlation example using Intel(R) oneAPI DPC++ Compiler
+        make sointel64 example=cor_dense_batch # This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ Compiler
         make sointel64 mode=build			   # This will compile all DPC++ examples
 
     .. group-tab:: Windows
@@ -113,7 +113,7 @@ basic usage scenarios of |short_name| with SYCL*. Go to
 
         # Navigate to DPC++ examples directory and build examples
         cd /examples/daal/cpp_sycl
-        nmake libintel64 example=cor_dense_batch+ # This will compile and run Correlation example using Intel(R) oneAPI DPC++ compiler
+        nmake libintel64 example=cor_dense_batch+ # This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ compiler
         nmake libintel64 mode=build			     # This will compile all DPC++ examples
 
   To see all avaliable parameters of the build procedure, type ``make`` on Linux\* or ``nmake`` on Windows\*.

@@ -29,17 +29,17 @@
 namespace oneapi::dal::backend::interop::decision_forest {
 
 namespace daal_df = daal::algorithms::decision_forest;
-namespace cls     = daal::algorithms::decision_forest::classification;
+namespace cls = daal::algorithms::decision_forest::classification;
 
-namespace df         = dal::decision_forest;
+namespace df = dal::decision_forest;
 namespace df_interop = dal::backend::interop::decision_forest;
 
-static inline auto convert_to_daal_voting_method(df::voting_method vm) {
-    return df::voting_method::weighted == vm ? cls::prediction::weighted
-                                             : cls::prediction::unweighted;
+inline auto convert_to_daal_voting_mode(df::voting_mode vm) {
+    return df::voting_mode::weighted == vm ? cls::prediction::weighted
+                                           : cls::prediction::unweighted;
 }
 
-static inline auto convert_to_daal_variable_importance_mode(df::variable_importance_mode vimp) {
+inline auto convert_to_daal_variable_importance_mode(df::variable_importance_mode vimp) {
     return df::variable_importance_mode::mdi == vimp
                ? daal_df::training::MDI
                : df::variable_importance_mode::mda_raw == vimp
@@ -51,15 +51,14 @@ static inline auto convert_to_daal_variable_importance_mode(df::variable_importa
 
 /* oneDal -> daal model bridge */
 template <typename T>
-static inline
-    typename std::enable_if_t<std::is_same_v<T, std::decay_t<daal_df::classification::ModelPtr>>,
-                              std::int64_t>
-    get_number_of_classes(T model) {
+inline typename std::enable_if_t<std::is_same_v<T, std::decay_t<daal_df::classification::ModelPtr>>,
+                                 std::int64_t>
+get_number_of_classes(T model) {
     return model->getNumberOfClasses();
 }
 
 template <typename T>
-static inline
+inline
     typename std::enable_if_t<!std::is_same_v<T, std::decay_t<daal_df::classification::ModelPtr>>,
                               std::int64_t>
     get_number_of_classes(T model) {

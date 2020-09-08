@@ -23,7 +23,7 @@
 
 namespace oneapi::dal::svm::backend {
 
-namespace interop  = dal::backend::interop;
+namespace interop = dal::backend::interop;
 namespace daal_svm = daal::algorithms::svm;
 
 struct daal_model_builder : public daal::algorithms::svm::Model {
@@ -35,8 +35,8 @@ struct daal_model_builder : public daal::algorithms::svm::Model {
         return *this;
     }
 
-    auto& set_coefficients(daal::data_management::NumericTablePtr coefficients) {
-        _SVCoeff = coefficients;
+    auto& set_coeffs(daal::data_management::NumericTablePtr coeffs) {
+        _SVCoeff = coeffs;
         return *this;
     }
 
@@ -50,16 +50,16 @@ template <typename T>
 inline auto convert_from_daal_model(daal_svm::Model& model) {
     auto table_support_vectors =
         interop::convert_from_daal_homogen_table<T>(model.getSupportVectors());
-    auto table_classification_coefficients =
+    auto table_classification_coeffs =
         interop::convert_from_daal_homogen_table<T>(model.getClassificationCoefficients());
-    const double bias                        = model.getBias();
-    const std::int64_t support_vectors_count = table_support_vectors.get_row_count();
+    const double bias = model.getBias();
+    const std::int64_t support_vector_count = table_support_vectors.get_row_count();
 
     return dal::svm::model()
         .set_support_vectors(table_support_vectors)
-        .set_coefficients(table_classification_coefficients)
+        .set_coeffs(table_classification_coeffs)
         .set_bias(bias)
-        .set_support_vector_count(support_vectors_count);
+        .set_support_vector_count(support_vector_count);
 }
 
 } // namespace oneapi::dal::svm::backend

@@ -23,9 +23,10 @@ while [[ $# -gt 0 ]]; do
 done
 
 # set enviroment
+PYTHON_VERSION="3.7"
 source ${CONDA_DIR}/etc/profile.d/conda.sh
 export PATH=${CONDA_DIR}/bin:$PATH
-conda create -y -n conf python=3.7
+conda create -y -n conf python=${PYTHON_VERSION}
 source activate conf
 conda install -y -c intel mpich numpy pytest pandas
 conda remove -y daal4py --force
@@ -45,8 +46,11 @@ if ! [ -f "${dal_vars}" ]; then
     exit 1
 fi
 source ${dal_vars} intel64
+export TBBROOT=${BUILD_DIR}/tbb/latest/lib/intel64
+export LD_LIBRARY_PATH=${BUILD_DIR}/tbb/latest/lib/intel64:$LD_LIBRARY_PATH
 
 # testing
 cd .ci/scripts/conformance-scripts/ || exit 1
-python run_tests.py 0.23.1
+export IDP_SKLEARN_VERBOSE=INFO
+python run_tests.py ${PYTHON_VERSION}
 cd ../../..

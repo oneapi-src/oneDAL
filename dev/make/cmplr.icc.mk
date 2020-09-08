@@ -31,7 +31,7 @@ CORE.SERV.COMPILER.icc = generic
 COMPILER.lnx.icc  = $(if $(COVFILE),cov01 -1; covc -i )icc -Werror -qopenmp-simd -Wreturn-type
 COMPILER.lnx.icc += $(if $(COVFILE), $(if $(IA_is_ia32), $(-Q)m32, $(-Q)m64))
 COMPILER.win.icc = icl -nologo -WX -Qopenmp-simd
-COMPILER.mac.icc = icc -Werror -stdlib=libc++ -mmacosx-version-min=10.11 -Wreturn-type
+COMPILER.mac.icc = icc -Werror -stdlib=libc++ -mmacosx-version-min=10.14 -Wreturn-type
 
 # icc 16 does not support -qopenmp-simd option on macOS*
 ifeq ($(if $(OS_is_mac),$(shell icc --version | grep "icc (ICC) 16"),),)

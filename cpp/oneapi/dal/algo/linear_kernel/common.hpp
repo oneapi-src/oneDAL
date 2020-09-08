@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "oneapi/dal/data/table.hpp"
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/table/common.hpp"
 
 namespace oneapi::dal::linear_kernel {
 
@@ -35,18 +35,18 @@ using by_default = dense;
 
 class ONEAPI_DAL_EXPORT descriptor_base : public base {
 public:
-    using tag_t    = detail::tag;
-    using float_t  = float;
+    using tag_t = detail::tag;
+    using float_t = float;
     using method_t = method::by_default;
 
     descriptor_base();
 
-    double get_k() const;
-    double get_b() const;
+    double get_scale() const;
+    double get_shift() const;
 
 protected:
-    void set_k_impl(const double value);
-    void set_b_impl(const double value);
+    void set_scale_impl(double value);
+    void set_shift_impl(double value);
 
     dal::detail::pimpl<detail::descriptor_impl> impl_;
 };
@@ -54,16 +54,16 @@ protected:
 template <typename Float = descriptor_base::float_t, typename Method = descriptor_base::method_t>
 class descriptor : public descriptor_base {
 public:
-    using float_t  = Float;
+    using float_t = Float;
     using method_t = Method;
 
-    auto& set_k(const double value) {
-        set_k_impl(value);
+    auto& set_scale(double value) {
+        set_scale_impl(value);
         return *this;
     }
 
-    auto& set_b(const double value) {
-        set_b_impl(value);
+    auto& set_shift(double value) {
+        set_shift_impl(value);
         return *this;
     }
 };

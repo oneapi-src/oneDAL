@@ -17,15 +17,16 @@
 #pragma once
 
 #include <cstdint>
+#include <utility>
 
 #if defined(_WIN32) || defined(_WIN64)
-    #ifdef __ONEAPI_DAL_ENABLE_DLL_EXPORT__
-        #define ONEAPI_DAL_EXPORT __declspec(dllexport)
-    #else
-        #define ONEAPI_DAL_EXPORT
-    #endif
+#ifdef __ONEAPI_DAL_ENABLE_DLL_EXPORT__
+#define ONEAPI_DAL_EXPORT __declspec(dllexport)
 #else
-    #define ONEAPI_DAL_EXPORT
+#define ONEAPI_DAL_EXPORT
+#endif
+#else
+#define ONEAPI_DAL_EXPORT
 #endif
 
 namespace oneapi::dal {
@@ -66,3 +67,12 @@ public:
 };
 
 } // namespace oneapi::dal
+
+namespace oneapi::dal::preview {
+
+struct empty_value {};
+
+template <typename T>
+using range = std::pair<T, T>;
+
+} // namespace oneapi::dal::preview
