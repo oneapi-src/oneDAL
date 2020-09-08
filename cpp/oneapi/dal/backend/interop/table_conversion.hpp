@@ -99,10 +99,11 @@ template <typename AlgorithmFPType>
 inline daal::data_management::NumericTablePtr convert_to_daal_table(
     const detail::data_parallel_policy& policy,
     const table& table) {
+    using policy_t = std::decay_t<decltype(policy)>;
     auto meta = table.get_metadata();
     if (table.get_kind() == homogen_table::kind()) {
         const auto& homogen = static_cast<const homogen_table&>(table);
-        return homogen_table_adapter<decltype(policy), AlgorithmFPType>::create(policy, homogen);
+        return homogen_table_adapter<policy_t, AlgorithmFPType>::create(policy, homogen);
     }
     else {
         auto queue = policy.get_queue();
