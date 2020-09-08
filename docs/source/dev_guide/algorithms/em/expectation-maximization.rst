@@ -421,19 +421,25 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
     - :cpp_example:`em_gmm_dense_batch.cpp <em/em_gmm_dense_batch.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
 
     - :java_example:`EmGmmDenseBatch.java <em/EmGmmDenseBatch.java>`
 
-.. Python*:em_gmm_dense_batch.py
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`em_gmm_batch.py`
 
 Performance Considerations
 ==========================

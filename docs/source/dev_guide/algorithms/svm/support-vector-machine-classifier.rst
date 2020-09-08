@@ -117,17 +117,19 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
   
-   :cpp_example:`svm_two_class_model_builder.cpp <svm/svm_two_class_model_builder.cpp>`
+    - :cpp_example:`svm_two_class_model_builder.cpp <svm/svm_two_class_model_builder.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
-   :java_example:`SVMTwoClassModelBuilder.java <svm/SVMTwoClassModelBuilder.java>`
+    - :java_example:`SVMTwoClassModelBuilder.java <svm/SVMTwoClassModelBuilder.java>`
   
   .. tab:: Python*
 
-   :daal4py_example:`svm_two_class_model_builder.py`
+    - :daal4py_example:`svm_two_class_model_builder.py`
 
 Batch Processing
 ****************
@@ -230,36 +232,50 @@ Examples
 
 .. tabs::
 
-  .. tab:: DPC++
+  .. tab:: oneAPI DPC++
 
     Batch Processing:
     
-    -  :ref:`svm_two_class_thunder_dense_batch.cpp`
+    - :ref:`dpc_svm_two_class_thunder_dense_batch.cpp`
 
-  .. tab:: C++
+  .. tab:: oneAPI C++
+
+    Batch Processing:
+    
+    - :ref:`cpp_svm_two_class_smo_dense_batch.cpp`
+    - :ref:`cpp_svm_two_class_thunder_dense_batch.cpp`
+
+  .. tab:: C++ (CPU)
   
     Batch Processing:
 
-    -  :cpp_example:`svm_two_class_boser_dense_batch.cpp <svm/svm_two_class_boser_dense_batch.cpp>`
-    -  :cpp_example:`svm_two_class_boser_csr_batch.cpp <svm/svm_two_class_boser_csr_batch.cpp>`
-    -  :cpp_example:`svm_two_class_thunder_dense_batch.cpp <svm/svm_two_class_thunder_dense_batch.cpp>`
-    -  :cpp_example:`svm_two_class_thunder_csr_batch.cpp <svm/svm_two_class_thunder_csr_batch.cpp>`
+    - :cpp_example:`svm_two_class_boser_dense_batch.cpp <svm/svm_two_class_boser_dense_batch.cpp>`
+    - :cpp_example:`svm_two_class_boser_csr_batch.cpp <svm/svm_two_class_boser_csr_batch.cpp>`
+    - :cpp_example:`svm_two_class_thunder_dense_batch.cpp <svm/svm_two_class_thunder_dense_batch.cpp>`
+    - :cpp_example:`svm_two_class_thunder_csr_batch.cpp <svm/svm_two_class_thunder_csr_batch.cpp>`
 
   .. tab:: Java*
   
+    .. note:: There is no support for Java on GPU.
+  
     Batch Processing:
 
-    -  :java_example:`SVMTwoClassBoserDenseBatch.java <svm/SVMTwoClassBoserDenseBatch.java>`
-    -  :java_example:`SVMTwoClassBoserCSRBatch.java <svm/SVMTwoClassBoserCSRBatch.java>`
-    -  :java_example:`SVMTwoClassThunderDenseBatch.java <svm/SVMTwoClassThunderDenseBatch.java>`
-    -  :java_example:`SVMTwoClassThunderCSRBatch.java <svm/SVMTwoClassThunderCSRBatch.java>`
+    - :java_example:`SVMTwoClassBoserDenseBatch.java <svm/SVMTwoClassBoserDenseBatch.java>`
+    - :java_example:`SVMTwoClassBoserCSRBatch.java <svm/SVMTwoClassBoserCSRBatch.java>`
+    - :java_example:`SVMTwoClassThunderDenseBatch.java <svm/SVMTwoClassThunderDenseBatch.java>`
+    - :java_example:`SVMTwoClassThunderCSRBatch.java <svm/SVMTwoClassThunderCSRBatch.java>`
+
+  .. tab:: Python* with DPC++ support
+
+    Batch Processing:
+
+    - :daal4py_sycl_example:`svm_batch.py`
 
   .. tab:: Python*
 
     Batch Processing:
 
-    -  :daal4py_example:`svm_batch.py`
-    -  :daal4py_example:`sycl/svm_batch.py`
+    - :daal4py_example:`svm_batch.py`
 
 Performance Considerations
 **************************

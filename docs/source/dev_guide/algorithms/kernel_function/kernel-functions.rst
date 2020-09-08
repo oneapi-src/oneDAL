@@ -147,16 +147,30 @@ Examples
 
 .. tabs::
 
-  .. tab:: DPC++
-    
-    -  :ref:`kernel_func_lin_dense_batch.cpp`
+  .. tab:: oneAPI DPC++
 
-  .. tab:: C++
+    Batch Processing:
+    
+    - :ref:`dpc_linear_kernel_dense_batch.cpp`
+
+  .. tab:: oneAPI C++
+
+    Batch Processing:
+
+    - :ref:`cpp_linear_kernel_dense_batch.cpp`
+
+  .. tab:: C++ (CPU)
+
+    Batch Processing:
 
     - :cpp_example:`kernel_func_lin_dense_batch.cpp <kernel_function/kernel_func_lin_dense_batch.cpp>`
     - :cpp_example:`kernel_func_lin_csr_batch.cpp <kernel_function/kernel_func_lin_csr_batch.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
+
+    Batch Processing:
 
     - :java_example:`KernelFuncLinDenseBatch.java <kernel_function/KernelFuncLinDenseBatch.java>`
     - :java_example:`KernelFuncLinCSRBatch.java <kernel_function/KernelFuncLinCSRBatch.java>`
@@ -282,11 +296,19 @@ Examples
 
 .. tabs::
 
-  .. tab:: DPC++
-    
-    -  :ref:`kernel_func_rbf_dense_batch.cpp`
+  .. tab:: oneAPI DPC++
 
-  .. tab:: C++
+    Batch Processing:
+
+    - :ref:`dpc_rbf_kernel_dense_batch.cpp`
+
+  .. tab:: oneAPI C++
+
+    Batch Processing:
+
+    - :ref:`cpp_rbf_kernel_dense_batch.cpp`
+
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
@@ -294,6 +316,8 @@ Examples
     - :cpp_example:`kernel_func_rbf_csr_batch.cpp <kernel_function/kernel_func_rbf_csr_batch.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
 
