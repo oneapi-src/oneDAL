@@ -410,6 +410,7 @@ services::Status KernelImplRBF<defaultDense, double, avx512>::computeInternalMat
                     const __m512d sqrA2iVec          = _mm512_set1_pd(sqrA2i);
                     const __m512d coeffVec           = _mm512_set1_pd(coeff);
                     const __m512d expExpThresholdVec = _mm512_set1_pd(expExpThreshold);
+                    auto t10                         = _rdtsc();
                     size_t i                         = 0;
                     for (; i < nRowsInBlock1; i += 8)
                     {
@@ -429,10 +430,16 @@ services::Status KernelImplRBF<defaultDense, double, avx512>::computeInternalMat
                         mklBuffBlock[i]     = rbf;
                     }
 
+                    auto t11 = _rdtsc();
+
                     WriteOnlyColumns<algorithmFPType, avx512> mtRColumns(r, startRow2 + j, startRow1, nRowsInBlock1);
                     DAAL_CHECK_BLOCK_STATUS_THR(mtRColumns);
                     algorithmFPType * const dataR = mtRColumns.get();
+
+                    auto t12 = _rdtsc();
                     Math<algorithmFPType, avx512>::vExp(nRowsInBlock1, mklBuffBlock, dataR);
+                    auto t13 = _rdtsc();
+                    printf("LOOP: %lu EXP: %lu GET DATAR: %lu TOTAL: %lu\n", t11 - t10, t13 - t12, t12 - t11, t13 - t10);
                 }
             }
         });

@@ -469,6 +469,7 @@ protected:
     template <typename T>
     services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
     {
+        size_t t11  = _rdtsc();
         size_t nobs = getNumberOfRows();
         block.setDetails(feat_idx, idx, rwFlag);
 
@@ -483,9 +484,14 @@ protected:
         const NumericTableFeature & f = (*_ddict)[feat_idx];
         const int indexType           = f.indexType;
 
+        size_t t12 = _rdtsc();
+
         if (features::internal::getIndexNumType<T>() == f.indexType)
         {
             block.setPtr(&(_arrays[feat_idx]), _arrays[feat_idx].get() + idx * f.typeSize, 1, nrows);
+
+            size_t t13 = _rdtsc();
+            printf("getTFeature S: %lu block.setPtr: %lu\n", t12 - t11, t13 - t12);
         }
         else
         {
@@ -501,9 +507,13 @@ protected:
                 return services::Status(services::ErrorMemoryAllocationFailed);
             }
 
+            size_t t13 = _rdtsc();
+            printf("getTFeature S: %lu !!!: %lu\n", t12 - t11, t13 - t12);
+
             if (!(block.getRWFlag() & (int)readOnly)) return services::Status();
 
             internal::getVectorUpCast(indexType, internal::getConversionDataType<T>())(nrows, location, block.getBlockPtr());
+            printf("getVectorUpCast\n");
         }
         return services::Status();
     }
@@ -511,6 +521,8 @@ protected:
     template <typename T>
     services::Status releaseTFeature(BlockDescriptor<T> & block)
     {
+        size_t t11 = _rdtsc();
+
         if (block.getRWFlag() & (int)writeOnly)
         {
             size_t feat_idx = block.getColumnsOffset();
@@ -527,11 +539,15 @@ protected:
             if (features::internal::getIndexNumType<T>() != indexType)
             {
                 char * ptr = (char *)_arrays[feat_idx].get() + block.getRowsOffset() * f.typeSize;
+                printf("getVectorDownCast\n");
 
                 internal::getVectorDownCast(indexType, internal::getConversionDataType<T>())(block.getNumberOfRows(), block.getBlockPtr(), ptr);
             }
         }
+
         block.reset();
+        size_t t13 = _rdtsc();
+        printf("releaseTFeature S: %lu\n", t13 - t11);
         return services::Status();
     }
 };
