@@ -171,7 +171,7 @@ public:
      *  \param[in] nColumns Number of columns
      *  \param[in] nRows    Number of rows
      */
-    inline void setSharedPtr(const services::SharedPtr<DataType>& ptr, size_t nColumns, size_t nRows)
+    inline void setSharedPtr(const services::SharedPtr<DataType> & ptr, size_t nColumns, size_t nRows)
     {
         _xBuffer.reset();
         _hostSharedPtr.reset();
@@ -270,8 +270,9 @@ public:
     {
         _colsOffset = columnIdx;
         _rowsOffset = rowIdx;
-        if (_rwFlag != rwFlag) {
-            _rwFlag     = rwFlag;
+        if (_rwFlag != rwFlag)
+        {
+            _rwFlag = rwFlag;
             _hostSharedPtr.reset(); // need to reallocate cached pointer when rwFlag is changed
         }
     }
