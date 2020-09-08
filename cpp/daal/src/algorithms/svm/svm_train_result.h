@@ -203,7 +203,7 @@ protected:
         const algorithmFPType zero(0.0);
         /* Calculate row offsets for the table that stores support vectors */
         svRowOffsetsBuffer[0] = 1;
-        size_t iSV = 0;
+        size_t iSV            = 0;
         for (size_t i = 0; i < _nVectors; ++i)
         {
             if (_alpha[i] > zero)
@@ -226,7 +226,7 @@ protected:
         const size_t svDataSize = svRowOffsetsBuffer[nSV] - svRowOffsetsBuffer[0];
         /* If matrix is zeroes -> svDataSize will be equal 0.
            So for correct works we added 1 in this case. */
-        DAAL_CHECK_STATUS(s, svTable->allocateDataMemory(svDataSize ? svDataSize: svDataSize + 1));
+        DAAL_CHECK_STATUS(s, svTable->allocateDataMemory(svDataSize ? svDataSize : svDataSize + 1));
 
         /* Copy row offsets into the table */
         size_t * svRowOffsets = nullptr;
