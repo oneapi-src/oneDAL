@@ -53,7 +53,7 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, cpu>::compute(c
     const VoteWeights voteWeights       = parameter->voteWeights;
     const DAAL_UINT64 resultsToEvaluate = parameter->resultsToEvaluate;
 
-    daal::algorithms::bf_knn_classification::internal::BruteForceNearestNeighbors<algorithmFpType, cpu> bfnn('e');
+    daal::algorithms::bf_knn_classification::internal::BruteForceNearestNeighbors<algorithmFpType, cpu> bfnn;
     return bfnn.kClassification(k, nClasses, voteWeights, resultsToEvaluate, trainDataTable.get(), data, trainLabelTable.get(), label, indices,
                                 distances);
 }

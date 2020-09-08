@@ -20,13 +20,11 @@
 
 #include "algorithms/engines/engine.h"
 #include "services/daal_defines.h"
-
 #include "algorithms/classifier/classifier_model.h"
 #include "algorithms/k_nearest_neighbors/bf_knn_classification_model.h"
 #include "src/algorithms/k_nearest_neighbors/bf_knn_classification_train_kernel.h"
 #include "src/algorithms/k_nearest_neighbors/bf_knn_classification_predict_kernel.h"
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
-
 #include "data_management/data/numeric_table.h"
 #include "services/env_detect.h"
 #include "src/services/service_data_utils.h"
@@ -34,10 +32,8 @@
 #include "src/services/service_defines.h"
 #include "src/threading/threading.h"
 #include "src/data_management/service_numeric_table.h"
-
 #include "src/algorithms/service_kernel_math.h"
 #include "src/algorithms/service_sort.h"
-
 #include "src/externals/service_math.h"
 
 namespace daal
@@ -54,7 +50,7 @@ template <typename FPType, CpuType cpu>
 class BruteForceNearestNeighbors
 {
 public:
-    BruteForceNearestNeighbors(char metric) : _metric(metric) {}
+    BruteForceNearestNeighbors() {}
 
     ~BruteForceNearestNeighbors()
     {
@@ -298,7 +294,6 @@ protected:
     }
 
 private:
-    char _metric;
     FPType * _distances;
 };
 
