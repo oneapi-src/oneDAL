@@ -28,7 +28,7 @@ help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 create_rst_examples:
-	@echo "Creating rST files for SYCL* Examples..."
+	@echo "Creating rST files for oneAPI Examples..."
 	python3 rst_examples.py
 
 .PHONY: help Makefile create_rst_examples

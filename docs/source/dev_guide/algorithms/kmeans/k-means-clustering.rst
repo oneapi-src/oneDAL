@@ -252,14 +252,14 @@ Examples
 
 .. tabs::
 
-  .. tab:: DPC++
+  .. tab:: oneAPI C++
 
 	Batch Processing:
 
-	- :ref:`kmeans_dense_batch.cpp`
-	- :ref:`kmeans_init_dense_batch.cpp`
+	- :ref:`cpp_kmeans_lloyd_dense_batch.cpp`
+	- :ref:`cpp_kmeans_init_dense.cpp`
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
@@ -272,6 +272,8 @@ Examples
     - :cpp_example:`kmeans_csr_distr.cpp <kmeans/kmeans_csr_distr.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
 
@@ -282,6 +284,22 @@ Examples
 
     - :java_example:`KMeansDenseDistr.java <kmeans/KMeansDenseDistr.java>`
     - :java_example:`KMeansCSRDistr.java <kmeans/KMeansCSRDistr.java>`
+
+  .. tab:: Python* with DPC++ support
+
+    Batch Processing:
+
+    - :daal4py_sycl_example:`kmeans_batch.py`
+
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`kmeans_batch.py`
+
+    Distributed Processing
+
+    - :daal4py_example:`kmeans_spmd.py`
 
 Performance Considerations
 **************************
