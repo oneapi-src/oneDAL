@@ -58,8 +58,8 @@ inline auto convert_to_daal_homogen_table(array<Data>& data,
         daal::services::SharedPtr<Data>(data.get_mutable_data(), daal_array_owner<Data>{ data });
 
     return daal::data_management::HomogenNumericTable<Data>::create(daal_data,
-                                                                 column_count,
-                                                                 row_count);
+                                                                    column_count,
+                                                                    row_count);
 }
 
 template <typename AlgorithmFPType>
@@ -70,8 +70,9 @@ inline daal::data_management::NumericTablePtr convert_to_daal_table(const table&
         detail::default_host_policy policy;
 
         return homogen_table_adapter<decltype(policy), AlgorithmFPType>::create(policy, homogen);
-    } else {
-        auto rows = row_accessor<const AlgorithmFPType> { table }.pull();
+    }
+    else {
+        auto rows = row_accessor<const AlgorithmFPType>{ table }.pull();
         return convert_to_daal_homogen_table(rows, table.get_row_count(), table.get_column_count());
     }
 }
@@ -106,17 +107,23 @@ inline auto convert_to_daal_sycl_homogen_table(sycl::queue& queue,
 }
 
 template <typename AlgorithmFPType>
-inline daal::data_management::NumericTablePtr convert_to_daal_table(const detail::data_parallel_policy& policy, const table& table) {
+inline daal::data_management::NumericTablePtr convert_to_daal_table(
+    const detail::data_parallel_policy& policy,
+    const table& table) {
     auto meta = table.get_metadata();
     if (table.get_kind() == homogen_table::kind()) {
         const auto& homogen = static_cast<const homogen_table&>(table);
         detail::default_host_policy policy;
 
         return homogen_table_adapter<decltype(policy), AlgorithmFPType>::create(policy, homogen);
-    } else {
+    }
+    else {
         auto queue = policy.get_queue();
-        auto rows = row_accessor<const AlgorithmFPType> { table }.pull(queue);
-        return convert_to_daal_sycl_homogen_table(queue, rows, table.get_row_count(), table.get_column_count());
+        auto rows = row_accessor<const AlgorithmFPType>{ table }.pull(queue);
+        return convert_to_daal_sycl_homogen_table(queue,
+                                                  rows,
+                                                  table.get_row_count(),
+                                                  table.get_column_count());
     }
 }
 

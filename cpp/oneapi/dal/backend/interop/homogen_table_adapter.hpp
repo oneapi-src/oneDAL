@@ -27,15 +27,14 @@ namespace oneapi::dal::backend::interop {
 
 template <typename Policy, typename Data>
 class homogen_table_adapter : public daal::data_management::HomogenNumericTable<Data> {
-
     static constexpr bool is_host_only = std::is_same_v<Policy, detail::default_host_policy>;
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    static_assert(detail::is_one_of<Policy, detail::default_host_policy, detail::data_parallel_policy>::value,
-                  "Adapter supports only host/dpc++ policies");
+    static_assert(
+        detail::is_one_of<Policy, detail::default_host_policy, detail::data_parallel_policy>::value,
+        "Adapter supports only host/dpc++ policies");
 #else
-    static_assert(is_host_only,
-                  "Adapter supports only default host policy");
+    static_assert(is_host_only, "Adapter supports only default host policy");
 #endif
 
     using base = daal::data_management::HomogenNumericTable<Data>;
@@ -49,12 +48,14 @@ class homogen_table_adapter : public daal::data_management::HomogenNumericTable<
 public:
     static ptr_t create(const Policy& policy, const homogen_table& table) {
         status_t internal_stat;
-        auto result = ptr_t { new homogen_table_adapter(policy, table, internal_stat) };
+        auto result = ptr_t{ new homogen_table_adapter(policy, table, internal_stat) };
         status_to_exception(internal_stat);
         return result;
     }
 
-    ~homogen_table_adapter() { freeDataMemoryImpl(); }
+    ~homogen_table_adapter() {
+        freeDataMemoryImpl();
+    }
 
 private:
     class block_info {
@@ -64,19 +65,18 @@ private:
                    size_t row_begin_index,
                    size_t value_count,
                    size_t column_index)
-            : block_info(block, row_begin_index, value_count) {
-            this->column_index = static_cast<std::int64_t>(column_index);   // TODO: check overflow
+                : block_info(block, row_begin_index, value_count) {
+            this->column_index = static_cast<std::int64_t>(column_index); // TODO: check overflow
         }
 
         template <typename BlockData>
-        block_info(const block_desc_t<BlockData>& block,
-                   size_t row_begin_index,
-                   size_t row_count) {
+        block_info(const block_desc_t<BlockData>& block, size_t row_begin_index, size_t row_count) {
             const auto block_desc_rows = static_cast<std::int64_t>(block.getNumberOfRows());
             const auto block_desc_cols = static_cast<std::int64_t>(block.getNumberOfColumns());
 
-            this->size = block_desc_rows*block_desc_cols;
-            this->row_begin_index = static_cast<std::int64_t>(row_begin_index); // TODO: check overflow
+            this->size = block_desc_rows * block_desc_cols;
+            this->row_begin_index =
+                static_cast<std::int64_t>(row_begin_index); // TODO: check overflow
             this->row_count = static_cast<std::int64_t>(row_count); // TODO: check overflow
             this->row_end_index = this->row_begin_index + this->row_count; // TODO: check overflow
             this->column_index = -1;
@@ -91,52 +91,69 @@ private:
     };
 
 private:
-
-    status_t getBlockOfRows(size_t vector_idx, size_t vector_num, rw_mode_t rwflag, block_desc_t<double> & block) DAAL_C11_OVERRIDE {
+    status_t getBlockOfRows(size_t vector_idx,
+                            size_t vector_num,
+                            rw_mode_t rwflag,
+                            block_desc_t<double>& block) DAAL_C11_OVERRIDE {
         return readRows(vector_idx, vector_num, rwflag, block);
     }
-    status_t getBlockOfRows(size_t vector_idx, size_t vector_num, rw_mode_t rwflag, block_desc_t<float> & block) DAAL_C11_OVERRIDE {
+    status_t getBlockOfRows(size_t vector_idx,
+                            size_t vector_num,
+                            rw_mode_t rwflag,
+                            block_desc_t<float>& block) DAAL_C11_OVERRIDE {
         return readRows(vector_idx, vector_num, rwflag, block);
     }
-    status_t getBlockOfRows(size_t vector_idx, size_t vector_num, rw_mode_t rwflag, block_desc_t<int> & block) DAAL_C11_OVERRIDE {
+    status_t getBlockOfRows(size_t vector_idx,
+                            size_t vector_num,
+                            rw_mode_t rwflag,
+                            block_desc_t<int>& block) DAAL_C11_OVERRIDE {
         return readRows(vector_idx, vector_num, rwflag, block);
     }
 
-    status_t getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, rw_mode_t rwflag,
-                                    block_desc_t<double> & block) DAAL_C11_OVERRIDE {
+    status_t getBlockOfColumnValues(size_t feature_idx,
+                                    size_t vector_idx,
+                                    size_t value_num,
+                                    rw_mode_t rwflag,
+                                    block_desc_t<double>& block) DAAL_C11_OVERRIDE {
         return readColumnValues(feature_idx, vector_idx, value_num, rwflag, block);
     }
-    status_t getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, rw_mode_t rwflag,
-                                    block_desc_t<float> & block) DAAL_C11_OVERRIDE {
+    status_t getBlockOfColumnValues(size_t feature_idx,
+                                    size_t vector_idx,
+                                    size_t value_num,
+                                    rw_mode_t rwflag,
+                                    block_desc_t<float>& block) DAAL_C11_OVERRIDE {
         return readColumnValues(feature_idx, vector_idx, value_num, rwflag, block);
     }
-    status_t getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, rw_mode_t rwflag,
-                                    block_desc_t<int> & block) DAAL_C11_OVERRIDE {
+    status_t getBlockOfColumnValues(size_t feature_idx,
+                                    size_t vector_idx,
+                                    size_t value_num,
+                                    rw_mode_t rwflag,
+                                    block_desc_t<int>& block) DAAL_C11_OVERRIDE {
         return readColumnValues(feature_idx, vector_idx, value_num, rwflag, block);
     }
 
-    status_t releaseBlockOfRows(block_desc_t<double> & block) DAAL_C11_OVERRIDE {
+    status_t releaseBlockOfRows(block_desc_t<double>& block) DAAL_C11_OVERRIDE {
         block.reset();
         return status_t();
     }
-    status_t releaseBlockOfRows(block_desc_t<float> & block) DAAL_C11_OVERRIDE {
+    status_t releaseBlockOfRows(block_desc_t<float>& block) DAAL_C11_OVERRIDE {
         block.reset();
         return status_t();
     }
-    status_t releaseBlockOfRows(block_desc_t<int> & block) DAAL_C11_OVERRIDE {
+    status_t releaseBlockOfRows(block_desc_t<int>& block) DAAL_C11_OVERRIDE {
         block.reset();
         return status_t();
     }
 
-    status_t releaseBlockOfColumnValues(block_desc_t<double> & block) DAAL_C11_OVERRIDE {
+    status_t releaseBlockOfColumnValues(block_desc_t<double>& block) DAAL_C11_OVERRIDE {
         block.reset();
         return status_t();
     }
-    status_t releaseBlockOfColumnValues(block_desc_t<float> & block) DAAL_C11_OVERRIDE {
+    status_t releaseBlockOfColumnValues(block_desc_t<float>& block) DAAL_C11_OVERRIDE {
         block.reset();
         return status_t();
     }
-    status_t releaseBlockOfColumnValues(block_desc_t<int> & block) DAAL_C11_OVERRIDE {
+    status_t releaseBlockOfColumnValues(block_desc_t<int>& block) DAAL_C11_OVERRIDE {
         block.reset();
         return status_t();
     }
@@ -166,13 +183,12 @@ private:
         return -1;
     }
 
-    status_t serializeImpl(daal::data_management::InputDataArchive * arch) DAAL_C11_OVERRIDE
-    {
+    status_t serializeImpl(daal::data_management::InputDataArchive* arch) DAAL_C11_OVERRIDE {
         return status_t(daal::services::ErrorMethodNotSupported);
     }
 
-    status_t deserializeImpl(const daal::data_management::OutputDataArchive * arch) DAAL_C11_OVERRIDE
-    {
+    status_t deserializeImpl(const daal::data_management::OutputDataArchive* arch)
+        DAAL_C11_OVERRIDE {
         return status_t(daal::services::ErrorMethodNotSupported);
     }
 
@@ -181,13 +197,16 @@ private:
     }
 
     template <typename BlockData>
-    status_t readRows(size_t vector_idx, size_t vector_num, rw_mode_t rwflag, block_desc_t<BlockData>& block) {
+    status_t readRows(size_t vector_idx,
+                      size_t vector_num,
+                      rw_mode_t rwflag,
+                      block_desc_t<BlockData>& block) {
         if (rwflag != daal::data_management::readOnly) {
             return status_t(daal::services::ErrorMethodNotSupported);
         }
         const std::int64_t row_count = original_table_.get_row_count();
         const std::int64_t column_count = original_table_.get_column_count();
-        const block_info info { block, vector_idx, vector_num };
+        const block_info info{ block, vector_idx, vector_num };
 
         if (info.row_begin_index >= row_count || info.row_end_index > row_count) {
             return status_t(daal::services::ErrorIncorrectIndex);
@@ -200,11 +219,13 @@ private:
                 values.reset(block_ptr, info.size, dal::empty_delete<BlockData>());
             }
 
-            row_accessor<const BlockData> acc { original_table_ };
-            if(block_ptr != pull_values(acc, values, range{ info.row_begin_index, info.row_end_index })) {
+            row_accessor<const BlockData> acc{ original_table_ };
+            if (block_ptr !=
+                pull_values(acc, values, range{ info.row_begin_index, info.row_end_index })) {
                 setBlockData(values, info.row_count, column_count, block);
             }
-        } catch (const std::exception&) {
+        }
+        catch (const std::exception&) {
             return status_t(daal::services::UnknownError);
         }
 
@@ -212,17 +233,21 @@ private:
     }
 
     template <typename BlockData>
-    status_t readColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, rw_mode_t rwflag,
-                              block_desc_t<BlockData> & block) {
+    status_t readColumnValues(size_t feature_idx,
+                              size_t vector_idx,
+                              size_t value_num,
+                              rw_mode_t rwflag,
+                              block_desc_t<BlockData>& block) {
         if (rwflag != daal::data_management::readOnly) {
             return status_t(daal::services::ErrorMethodNotSupported);
         }
         const std::int64_t row_count = original_table_.get_row_count();
         const std::int64_t column_count = original_table_.get_column_count();
 
-        const block_info info { block, vector_idx, value_num, feature_idx };
+        const block_info info{ block, vector_idx, value_num, feature_idx };
 
-        if (info.column_index >= column_count || info.row_begin_index >= row_count || info.row_end_index > row_count) {
+        if (info.column_index >= column_count || info.row_begin_index >= row_count ||
+            info.row_end_index > row_count) {
             return status_t(daal::services::ErrorIncorrectIndex);
         }
 
@@ -233,11 +258,15 @@ private:
                 values.reset(block_ptr, info.size, dal::empty_delete<BlockData>());
             }
 
-            column_accessor<const BlockData> acc { original_table_ };
-            if(block_ptr != pull_values(acc, values, info.column_index, range{ info.row_begin_index, info.row_end_index })) {
+            column_accessor<const BlockData> acc{ original_table_ };
+            if (block_ptr != pull_values(acc,
+                                         values,
+                                         info.column_index,
+                                         range{ info.row_begin_index, info.row_end_index })) {
                 setBlockData(values, info.row_count, 1, block);
             }
-        } catch (const std::exception&) {
+        }
+        catch (const std::exception&) {
             return status_t(daal::services::UnknownError);
         }
 
@@ -245,19 +274,26 @@ private:
     }
 
     template <typename BlockData>
-    void setBlockData(array<BlockData>& data, std::int64_t row_count, std::int64_t column_count, block_desc_t<BlockData>& block) {
+    void setBlockData(array<BlockData>& data,
+                      std::int64_t row_count,
+                      std::int64_t column_count,
+                      block_desc_t<BlockData>& block) {
         auto raw_ptr = const_cast<BlockData*>(data.get_data());
         if constexpr (is_host_only) {
-            auto data_shared = daal::services::SharedPtr<BlockData>(raw_ptr,
-                    [data](auto ptr) mutable { data.reset(); });
+            auto data_shared =
+                daal::services::SharedPtr<BlockData>(raw_ptr, [data](auto ptr) mutable {
+                    data.reset();
+                });
             block.setSharedPtr(data_shared, column_count, row_count);
         }
-    #ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEAPI_DAL_DATA_PARALLEL
         else {
-            daal::services::Buffer<BlockData> buffer(raw_ptr, row_count*column_count, sycl::usm::alloc::shared);
+            daal::services::Buffer<BlockData> buffer(raw_ptr,
+                                                     row_count * column_count,
+                                                     sycl::usm::alloc::shared);
             block.setBuffer(buffer, column_count, row_count);
         }
-    #endif
+#endif
     }
 
     template <typename Accessor, typename... Args>
@@ -265,21 +301,21 @@ private:
         if constexpr (is_host_only) {
             return acc.pull(std::forward<Args>(args)...);
         }
-    #ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEAPI_DAL_DATA_PARALLEL
         else {
-            return acc.pull(policy_.get_queue(), std::forward<Args>(args)..., sycl::usm::alloc::shared);
+            return acc.pull(policy_.get_queue(),
+                            std::forward<Args>(args)...,
+                            sycl::usm::alloc::shared);
         }
-    #endif
+#endif
     }
 
     homogen_table_adapter(const Policy& policy, const homogen_table& table, status_t& stat)
-        : base(const_cast<Data*>(table.get_data<Data>()),
-               table.get_column_count(),
-               table.get_row_count()),
-          policy_(policy) {
-
-        if (table.has_data() == false ||
-            table.get_data_layout() != data_layout::row_major) {
+            : base(const_cast<Data*>(table.get_data<Data>()),
+                   table.get_column_count(),
+                   table.get_row_count()),
+              policy_(policy) {
+        if (table.has_data() == false || table.get_data_layout() != data_layout::row_major) {
             stat.add(daal::services::ErrorIncorrectParameter);
             return;
         }
@@ -289,9 +325,9 @@ private:
         auto meta = original_table_.get_metadata();
         dtype_ = meta.get_data_type(0);
 
-        this->_memStatus = original_table_.has_data() ?
-                            daal::data_management::NumericTableIface::userAllocated :
-                            daal::data_management::NumericTableIface::notAllocated;
+        this->_memStatus = original_table_.has_data()
+                               ? daal::data_management::NumericTableIface::userAllocated
+                               : daal::data_management::NumericTableIface::notAllocated;
         this->_layout = daal::data_management::NumericTableIface::aos;
     }
 

@@ -49,8 +49,7 @@ static train_result call_daal_kernel(const context_cpu& ctx,
 
     const auto daal_data =
         interop::convert_to_daal_homogen_table(arr_data, row_count, column_count);
-    const auto daal_labels =
-        interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
+    const auto daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
 
     const std::int64_t dummy_seed = 777;
     daal_knn::Parameter daal_parameter(

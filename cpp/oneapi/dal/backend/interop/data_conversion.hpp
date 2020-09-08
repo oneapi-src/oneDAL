@@ -20,13 +20,18 @@
 
 namespace oneapi::dal::backend::interop {
 
-void daal_convert(const void* src, void* dst,
-                  data_type src_type, data_type dst_type,
+void daal_convert(const void* src,
+                  void* dst,
+                  data_type src_type,
+                  data_type dst_type,
                   std::int64_t size);
 
-void daal_convert(const void* src, void* dst,
-                  data_type src_type, data_type dst_type,
-                  std::int64_t src_stride, std::int64_t dst_stride,
+void daal_convert(const void* src,
+                  void* dst,
+                  data_type src_type,
+                  data_type dst_type,
+                  std::int64_t src_stride,
+                  std::int64_t dst_stride,
                   std::int64_t size);
 
 } // namespace oneapi::dal::backend::interop

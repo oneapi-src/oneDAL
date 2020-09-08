@@ -45,7 +45,6 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     auto arr_means = array<Float>::empty(1 * component_count);
     auto arr_vars = array<Float>::empty(1 * component_count);
 
-
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const auto daal_eigenvectors =
         interop::convert_to_daal_homogen_table(arr_eigvec, column_count, component_count);

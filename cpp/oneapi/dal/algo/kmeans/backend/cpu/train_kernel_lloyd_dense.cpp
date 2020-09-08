@@ -89,7 +89,8 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     array<Float> arr_objective_function_value = array<Float>::empty(1);
     array<int> arr_iteration_count = array<int>::empty(1);
 
-    const auto daal_initial_centroids = interop::convert_to_daal_table<Float>(new_initial_centroids);
+    const auto daal_initial_centroids =
+        interop::convert_to_daal_table<Float>(new_initial_centroids);
     const auto daal_centroids =
         interop::convert_to_daal_homogen_table(arr_centroids, cluster_count, column_count);
     const auto daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
