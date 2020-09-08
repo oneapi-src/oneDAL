@@ -102,8 +102,6 @@ inline daal::data_management::NumericTablePtr convert_to_daal_table(
     auto meta = table.get_metadata();
     if (table.get_kind() == homogen_table::kind()) {
         const auto& homogen = static_cast<const homogen_table&>(table);
-        detail::default_host_policy policy;
-
         return homogen_table_adapter<decltype(policy), AlgorithmFPType>::create(policy, homogen);
     }
     else {
