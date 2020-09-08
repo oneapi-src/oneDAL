@@ -371,8 +371,7 @@ protected:
           _accuracy(daal::services::internal::EpsilonVal<algorithmFPType>::get()),
           _minSamplesSplit(2),
           _minWeightLeaf(0.),
-          _minImpurityDecrease(0. - daal::services::internal::EpsilonVal<algorithmFPType>::get() * x->getNumberOfRows()),
-          _remainingSplitNodes(0)
+          _minImpurityDecrease(0. - daal::services::internal::EpsilonVal<algorithmFPType>::get() * x->getNumberOfRows())
     {
         if (_impurityThreshold < _accuracy) _impurityThreshold = _accuracy;
 
@@ -385,7 +384,6 @@ protected:
             _minWeightLeaf       = par.minWeightFractionInLeafNode * x->getNumberOfRows(); // no sample_weight
             _minImpurityDecrease = par.minImpurityDecreaseInSplitNode * x->getNumberOfRows()
                                    - daal::services::internal::EpsilonVal<algorithmFPType>::get() * x->getNumberOfRows();
-            _remainingSplitNodes = par.maxLeafNodes;
         }
     }
 
@@ -410,9 +408,7 @@ protected:
         {
             // if maxLeafNodes is equal 0, it means unlimited leaf nodes
             // if maxLeafNodes > 1, before each split decrease remainingSplitNodes by 1 and compare with 0
-            const bool isLeaf = ((_par.maxLeafNodes > 1) && (--_remainingSplitNodes == 0)) ? true : false;
-
-            return (isLeaf || (nSamples < 2 * _par.minObservationsInLeafNode) || (nSamples < _minSamplesSplit) || (nSamples < 2 * _minWeightLeaf)
+            return ((nSamples < 2 * _par.minObservationsInLeafNode) || (nSamples < _minSamplesSplit) || (nSamples < 2 * _minWeightLeaf)
                     || _helper.terminateCriteria(imp, _impurityThreshold, nSamples) || ((_par.maxTreeDepth > 0) && (level >= _par.maxTreeDepth)));
         }
         else
