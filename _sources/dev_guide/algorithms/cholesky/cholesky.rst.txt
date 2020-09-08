@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2014-2020 Intel Corporation
+.. * Copyright 2020 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -27,14 +27,98 @@ It is also used in non-linear optimization problems, Monte Carlo simulation, and
 Details
 *******
 
-Given a symmetric positive-definite matrix :math:`X` of size :math:`p \times p`, the problem is to compute the Cholesky decomposition
+Given a symmetric positive-definite matrix :math:`X` of size :math:`p \times p`,
+the problem is to compute the Cholesky decomposition
 :math:`X = {LL}^T`, where :math:`L` is a lower triangular matrix.
 
 Batch Processing
 ****************
 
-At this moment, the description of batch processing for Cholesky decomposition is only available in
-`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-batch-processing-9>`_.
+Algorithm Input
+---------------
+
+Cholesky decomposition accepts the input described below. 
+Pass the Input ID as a parameter to the methods that provide input for your algorithm. 
+For more details, see :ref:`algorithms`.
+
+.. list-table::
+   :widths: 10 60
+   :header-rows: 1
+
+   * - Input ID
+     - Input
+   * - ``data``
+     - Pointer to the :math:`p \times p` numeric table that represents
+       the symmetric positive-definite matrix :math:`X` for which the Cholesky decomposition is computed.
+
+       The input can be an object of any class derived from ``NumericTable`` that can represent symmetric matrices.
+       For example, the ``PackedTriangularMatrix`` class cannot represent a symmetric matrix.
+
+Algorithm Parameters
+--------------------
+
+Cholesky decomposition has the following parameters:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 10 10 60  
+   :align: left
+
+   * - Parameter
+     - Default Value
+     - Description
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
+     - Performance-oriented computation method, the only method supported by the algorithm.
+
+Algorithm Output
+----------------
+
+Cholesky decomposition calculates the result described below. 
+Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm. 
+For more details, see :ref:`algorithms`.
+
+.. list-table::
+   :widths: 10 60
+   :header-rows: 1
+
+   * - Result ID
+     - Result
+   * - ``choleskyFactor``
+     - Pointer to the :math:`p \times p` numeric table that represents the lower triangular matrix :math:`L` (Cholesky factor).
+     
+       By default, the result is an object of the ``HomogenNumericTable`` class, but you can define the result as an object of any class
+       derived from ``NumericTable`` except the ``PackedSymmetricMatrix`` class, ``СSRNumericTable`` class, and ``PackedTriangularMatrix`` class
+       with the ``upperPackedTriangularMatrix`` layout.
+
+Examples
+********
+
+.. tabs::
+
+  .. tab:: C++ (CPU)
+
+    Batch Processing:
+
+    - :cpp_example:`cholesky_dense_batch.cpp <cholesky/cholesky_dense_batch.cpp>`
+
+  .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
+
+    Batch Processing:
+    
+    - :java_example:`CholeskyDenseBatch.java <cholesky/CholeskyDenseBatch.java>`
+
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`cholesky_batch.py`
+
 
 Performance Considerations
 **************************

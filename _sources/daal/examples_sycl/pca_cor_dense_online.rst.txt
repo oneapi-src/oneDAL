@@ -1,7 +1,0 @@
-.. _pca_cor_dense_online.cpp:
-
-pca_cor_dense_online.cpp
-########################
-
-.. literalinclude:: ../../../../examples/daal/cpp_sycl/source/pca/pca_cor_dense_online.cpp
-  :language: cpp

@@ -1,7 +1,0 @@
-.. _sgd_mini_log_loss_dense_batch.cpp:
-
-sgd_mini_log_loss_dense_batch.cpp
-#################################
-
-.. literalinclude:: ../../../../examples/daal/cpp_sycl/source/optimization_solvers/sgd_mini_log_loss_dense_batch.cpp
-  :language: cpp

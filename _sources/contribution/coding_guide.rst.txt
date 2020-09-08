@@ -1462,7 +1462,7 @@ Below we discuss conversion between integer types in different cases:
 
 .. note:: Conversion of floating point data types is not a security problem.
 
-.. important:: It is required to add error code into `error_handling.cpp <https://github.com/oneapi-src/oneDAL/blob/master/service/kernel/error_handling.cpp>`_.
+.. important:: It is required to add error code into `error_handling.cpp <https://github.com/oneapi-src/oneDAL/blob/master/cpp/daal/src/services/error_handling.cpp>`_.
 
 Code is performance-oriented
 ++++++++++++++++++++++++++++
