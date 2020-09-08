@@ -133,10 +133,10 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     });
     allocator.deallocate((char *)rows_vec_void, (n_vertex + 1) * (sizeof(atomic_t) / sizeof(char)));
 
-    //removing self-loops,  multiple edges from graph, and make neighbors in CSR sorted
     layout->_degrees = std::move(vector_vertex_t(n_vertex));
     auto _degrees_data = layout->_degrees.data();
 
+    //removing self-loops,  multiple edges from graph, and make neighbors in CSR sorted
     threader_for(n_vertex, n_vertex, [&](vertex_t u) {
         auto start_p = _unf_vert_neighs_arr + _unf_edge_offset_arr[u];
         auto end_p = _unf_vert_neighs_arr + _unf_edge_offset_arr[u + 1];
