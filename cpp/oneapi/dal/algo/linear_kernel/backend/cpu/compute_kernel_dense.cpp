@@ -38,7 +38,6 @@ static compute_result call_daal_kernel(const context_cpu& ctx,
                                        const table& y) {
     const int64_t row_count_x = x.get_row_count();
     const int64_t row_count_y = y.get_row_count();
-    const int64_t column_count = x.get_column_count();
 
     auto arr_values = array<Float>::empty(row_count_x * row_count_y);
 

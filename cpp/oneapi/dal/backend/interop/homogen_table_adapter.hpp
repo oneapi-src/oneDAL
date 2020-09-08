@@ -59,8 +59,8 @@ public:
 private:
     class block_info {
     public:
-        template <typename Data>
-        block_info(const block_desc_t<Data>& block,
+        template <typename BlockData>
+        block_info(const block_desc_t<BlockData>& block,
                    size_t row_begin_index,
                    size_t value_count,
                    size_t column_index)
@@ -68,8 +68,8 @@ private:
             this->column_index = static_cast<std::int64_t>(column_index);   // TODO: check overflow
         }
 
-        template <typename Data>
-        block_info(const block_desc_t<Data>& block,
+        template <typename BlockData>
+        block_info(const block_desc_t<BlockData>& block,
                    size_t row_begin_index,
                    size_t row_count) {
             const auto block_desc_rows = static_cast<std::int64_t>(block.getNumberOfRows());

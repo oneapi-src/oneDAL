@@ -27,7 +27,6 @@
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/exceptions.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::kmeans_init::backend {
 
@@ -59,11 +58,7 @@ static compute_result<Task> call_daal_kernel(const context_gpu& ctx,
 
     daal_kmeans_init::Parameter par(cluster_count);
 
-    auto arr_data = row_accessor<const Float>{ data }.pull(queue);
-    const auto daal_data = interop::convert_to_daal_sycl_homogen_table(queue,
-                                                                       arr_data,
-                                                                       data.get_row_count(),
-                                                                       data.get_column_count());
+    const auto daal_data = interop::convert_to_daal_table<Float>(queue, data);
 
     array<Float> arr_centroids = array<Float>::empty(queue, cluster_count * column_count);
     const auto daal_centroids = interop::convert_to_daal_sycl_homogen_table(queue,

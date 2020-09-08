@@ -25,8 +25,6 @@
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
-#include "oneapi/dal/table/row_accessor.hpp"
-
 namespace oneapi::dal::kmeans::backend {
 
 using std::int64_t;
@@ -58,14 +56,7 @@ struct infer_kernel_gpu<Float, method::by_default> {
         daal_kmeans::Parameter par(cluster_count, max_iteration_count);
         par.resultsToEvaluate = daal_kmeans::computeAssignments;
 
-        auto arr_data = row_accessor<const Float>{ data }.pull(queue);
-        const auto daal_data = interop::convert_to_daal_sycl_homogen_table(queue,
-                                                                           arr_data,
-                                                                           data.get_row_count(),
-                                                                           data.get_column_count());
-
-        auto arr_initial_centroids =
-            row_accessor<const Float>{ input.get_model().get_centroids() }.pull(queue);
+        const auto daal_data = interop::convert_to_daal_table<Float>(queue, data);
 
         array<int> arr_centroids = array<int>::empty(queue, cluster_count * column_count);
         array<int> arr_labels = array<int>::empty(queue, row_count);
@@ -73,10 +64,7 @@ struct infer_kernel_gpu<Float, method::by_default> {
         array<int> arr_iteration_count = array<int>::empty(queue, 1);
 
         const auto daal_initial_centroids =
-            interop::convert_to_daal_sycl_homogen_table(queue,
-                                                        arr_initial_centroids,
-                                                        cluster_count,
-                                                        column_count);
+            interop::convert_to_daal_table<Float>(queue, input.get_model().get_centroids());
         const auto daal_centroids = interop::convert_to_daal_sycl_homogen_table(queue,
                                                                                 arr_centroids,
                                                                                 cluster_count,
