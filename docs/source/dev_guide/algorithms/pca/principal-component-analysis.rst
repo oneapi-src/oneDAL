@@ -79,214 +79,92 @@ the library:
 
 -  Correlation matrix
 
-Batch Processing
-****************
+Computation
+***********
 
-Algorithm Input
----------------
-The PCA algorithm accepts the input described below. Pass the
-Input ID as a parameter to the methods that provide input for your algorithm.
+The following computation modes are available:
 
-.. list-table::
-   :widths: 25 25
-   :header-rows: 1
-   :align: left
-
-   * - Input ID
-     - Input
-   * - data
-     - Use when the input data is a normalized or non-normalized data set.
-       Pointer to the :math:`n \times p` numeric table that contains the input data set.
-       This input can be an object of any class derived from NumericTable.
-   * - correlation
-     - Use when the input data is a correlation matrix. Pointer to the :math:`p \times p`
-       numeric table that contains the correlation matrix. This input can be an
-       object of any class derived from NumericTable except
-       PackedTriangularMatrix.
-
-Algorithm Parameters
---------------------
-
-The PCA algorithm has the following parameters, depending on the
-computation method parameter method:
-
-.. list-table::
-   :widths: 10 10 15 25
-   :header-rows: 1
-   :align: left
-
-   * - Parameter
-     - method
-     - Default Value
-     - Description
-   * - algorithmFPType
-     - defaultDense or svdDense
-     - float
-     - The floating-point type that the algorithm uses for intermediate
-       computations. Can be float or double.
-   * - method
-     - Not applicable
-     - defaultDense
-     - Available methods for PCA computation:
-
-       For CPU:
-
-       - ``defaultDense`` - the correlation method
-       - ``svdDense`` - the SVD method
-
-       For GPU: 
-
-       - ``defaultDense`` - the correlation method
-
-
-   * - covariance
-     - defaultDense
-     - SharedPtr<covariance::Batch<algorithmFPType, covariance::defaultDense> >
-     - The correlation and variance-covariance matrices algorithm to be used
-       for PCA computations with the correlation method.
-   * - normalization
-     - svdDense
-     - SharedPtr<normalization::zscore::Batch<algorithmFPType,
-       normalization::zscore::defaultDense>>
-     - The data normalization algorithm to be used for PCA computations with
-       the SVD method. 
-   * - nComponents
-     - defaultDense, svdDense
-     - 0
-     - Number of principal components :math:`p_r`. If it is zero, the algorithm
-       will compute the result for :math:`p_r = p`.
-   * - isDeterministic
-     - defaultDense, svdDense
-     - false
-     - If true, the algorithm applies the "sign flip" technique to the results.
-   * - resultsToCompute
-     - defaultDense, svdDense
-     - none
-     - The 64-bit integer flag that specifies which optional result to compute.
-
-       Provide one of the following values to request a single characteristic
-       or use bitwise OR to request a combination of the characteristics:
-
-       -  mean
-       -  variance
-       -  eigenvalue
-
-Algorithm Output
-----------------
-
-The PCA algorithm calculates the results described below. Pass the
-Result ID as a parameter to the methods that access the results of
-your algorithm. 
-
-.. list-table::
-   :widths: 25 25
-   :header-rows: 1
-   :align: left
-
-   * - Result ID
-     - Result
-   * - eigenvalues
-     - Pointer to the :math:`1 \times p_r` numeric table that contains eigenvalues
-       in the descending order. By default, this result is an object of the
-       HomogenNumericTable class, but you can define the result as an object of
-       any class derived from NumericTable except PackedSymmetricMatrix,
-       PackedTriangularMatrix, and CSRNumericTable.
-   * - eigenvectors
-     - Pointer to the :math:`p_r \times p` numeric table that contains eigenvectors
-       in the row-major order. By default, this result is an object of the
-       HomogenNumericTable class, but you can define the result as an object of
-       any class derived from NumericTable except PackedSymmetricMatrix,
-       PackedTriangularMatrix, and CSRNumericTable.
-   * - means
-     - Pointer to the :math:`1 \times p_r` numeric table that contains mean values
-       for each feature.
-       Optional.
-       If correlation is provided then the vector is filed with zeroes.
-   * - variances
-     - Pointer to the :math:`1 \times p_r` numeric table that contains mean values
-       for each feature.
-       Optional.
-       If correlation is provided then the vector is filed with zeroes.
-   * - dataForTransform
-     - Pointer to key value data collection containing the aggregated data for
-       normalization and whitening with the following key value pairs:
-
-       -  mean - mean
-       -  variance - variance
-       -  eigenvalue - eigenvalue
-
-       If resultsToCompute does not contain mean, the dataForTransform means
-       table is NULL. If resultsToCompute does not contain variances, the
-       dataForTransform variances table is NULL. If resultsToCompute does not
-       contain eigenvalues, the dataForTransform eigenvalues table is NULL.
-
-Please note the following:
-
-.. note::
-
-   -  If the function result is not requested through the
-      resultsToCompute parameter, the respective element of the result
-      contains a NULL pointer.
-   -  By default, each numeric table specified by the collection
-      elements is an object of the HomogenNumericTable class, but you
-      can define the result as an object of any class derived from
-      NumericTable, except for PackedSymmetricMatrix,
-      PackedTriangularMatrix, and CSRNumericTable.
-   -  For the svdDense method n should not be less than :math:`p`. If :math:`n > p`,
-      svdDense returns an error.
-
-
-Online Processing
-*****************
-
-At this moment, the description of 
-`online processing for Principal Component Analysis <https://software.intel.com/en-us/daal-programming-guide-online-processing-2>`_
-is only available in Developer Guide for Intel(R) DAAL.
-
-.. note:: Online processing mode for Principal Component Analysis is not available on GPU.
-
-Distributed Processing
-**********************
-
-At this moment, the description of
-`distributed processing for Principal Component Analysis <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-4>`_
-is only available in Developer Guide for Intel(R) DAAL.
-
-.. note:: Distributed processing mode for Principal Component Analysis is not available on GPU.
+.. toctree::
+   :maxdepth: 1
+   
+   computation-batch.rst
+   computation-online.rst
+   computation-distributed.rst
 
 Examples
 ********
 
 .. tabs::
 
-  .. tab:: DPC++
+   .. tab:: oneAPI DPC++
 
-    Batch Processing:
+      Batch Processing:
 
-    - :ref:`pca_cor_dense_batch.cpp`
+      - :ref:`dpc_pca_cor_dense_batch.cpp`
 
-  .. tab:: C++
+   .. tab:: oneAPI C++
 
-    Batch Processing:
+      Batch Processing:
 
-    -  :cpp_example:`pca_cor_dense_batch.cpp <pca/pca_cor_dense_batch.cpp>`
-    -  :cpp_example:`pca_cor_csr_batch.cpp <pca/pca_cor_csr_batch.cpp>`
-    -  :cpp_example:`pca_svd_dense_batch.cpp <pca/pca_svd_dense_batch.cpp>`
+      - :ref:`cpp_pca_cor_dense_batch.cpp`
 
-  .. tab:: Java*
+   .. tab:: C++ (CPU)
 
-    Batch Processing:
+      Batch Processing:
 
-    -  :java_example:`PCACorDenseBatch.java <pca/PCACorDenseBatch.java>`
-    -  :java_example:`PCACorCSRBatch.java <pca/PCACorCSRBatch.java>`
-    -  :java_example:`PCASVDDenseBatch.java <pca/PCASVDDenseBatch.java>`
+      - :cpp_example:`pca_cor_dense_batch.cpp <pca/pca_cor_dense_batch.cpp>`
+      - :cpp_example:`pca_cor_csr_batch.cpp <pca/pca_cor_csr_batch.cpp>`
+      - :cpp_example:`pca_svd_dense_batch.cpp <pca/pca_svd_dense_batch.cpp>`
 
-.. Python*:
+      Online Processing:
 
-.. -  pca_cor_dense_batch.py
-.. -  pca_cor_csr_batch.py
-.. -  pca_svd_dense_batch.py
+      - :cpp_example:`pca_cor_dense_online.cpp <pca/pca_cor_dense_online.cpp>`
+      - :cpp_example:`pca_cor_csr_online.cpp <pca/pca_cor_csr_online.cpp>`
+      - :cpp_example:`pca_svd_dense_online.cpp <pca/pca_svd_dense_online.cpp>`
 
+      Distributed Processing:
+
+      - :cpp_example:`pca_cor_dense_distr.cpp <pca/pca_cor_dense_distr.cpp>`
+      - :cpp_example:`pca_cor_csr_distr.cpp <pca/pca_cor_csr_distr.cpp>`
+      - :cpp_example:`pca_svd_dense_distr.cpp <pca/pca_svd_dense_distr.cpp>`
+
+   .. tab:: Java*
+  
+      .. note:: There is no support for Java on GPU.
+
+      Batch Processing:
+
+      - :java_example:`PCACorDenseBatch.java <pca/PCACorDenseBatch.java>`
+      - :java_example:`PCACorCSRBatch.java <pca/PCACorCSRBatch.java>`
+      - :java_example:`PCASVDDenseBatch.java <pca/PCASVDDenseBatch.java>`
+
+      Online Processing:
+
+      - :java_example:`PCACorDenseOnline.java <pca/PCACorDenseOnline.java>`
+      - :java_example:`PCACorCSROnline.java <pca/PCACorCSROnline.java>`
+      - :java_example:`PCASVDDenseOnline.java <pca/PCASVDDenseOnline.java>`
+
+      Distributed Processing:
+
+      - :java_example:`PCACorDenseDistr.java <pca/PCACorDenseDistr.java>`    
+      - :java_example:`PCACorCSRDistr.java <pca/PCACorCSRDistr.java>`    
+      - :java_example:`PCASVDDenseDistr.java <pca/PCASVDDenseDistr.java>`    
+
+   .. tab:: Python* with DPC++ support
+
+      Batch Processing:
+
+      - :daal4py_sycl_example:`pca_batch.py`
+
+   .. tab:: Python*
+
+      Batch Processing:
+
+      - :daal4py_example:`pca_batch.py`
+
+      Distributed Processing:
+
+      - :daal4py_example:`pca_spmd.py`
 
 Performance Considerations
 **************************

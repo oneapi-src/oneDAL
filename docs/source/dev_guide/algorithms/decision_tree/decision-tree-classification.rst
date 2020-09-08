@@ -197,17 +197,23 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
     - :cpp_example:`dt_cls_dense_batch.cpp <decision_tree/dt_cls_dense_batch.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
 
     - :java_example:`DtClsDenseBatch.java <decision_tree/DtClsDenseBatch.java>`
 
-.. Python*: dt_cls_dense_batch.py
+  .. tab:: Python*
 
+    Batch Processing:
+
+    - :daal4py_example:`decision_tree_classification_batch.py`
+    - :daal4py_example:`decision_tree_classification_traverse_batch.py`
