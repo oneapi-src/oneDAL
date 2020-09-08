@@ -61,12 +61,9 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     using vertex_t = typename Graph::vertex_type;
     using edge_t = typename Graph::edge_type;
     using vector_vertex_t = typename Graph::vertex_set;
-    using vector_edge_t = typename Graph::edge_set;
     using allocator_t = typename Graph::allocator_type;
     using vertex_size_t = typename Graph::vertex_size_type;
     using atomic_t = typename daal::services::Atomic<vertex_t>;
-    using allocator_atomic_t =
-        typename std::allocator_traits<allocator_t>::template rebind_alloc<atomic_t>;
 
     vertex_t max_id = edges[0].first;
     for (auto u : edges) {
@@ -153,7 +150,6 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
 
     layout->_edge_offsets = std::move(vector_vertex_t(n_vertex + 1));
 
-    auto &edge_offsets = layout->_edge_offsets;
     auto degrees_data = layout->_degrees.data();
     auto edge_offsets_data = layout->_edge_offsets.data();
 
