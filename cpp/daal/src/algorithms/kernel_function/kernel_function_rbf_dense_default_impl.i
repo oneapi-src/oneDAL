@@ -290,6 +290,159 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
     return services::Status();
 }
 
+template <>
+services::Status KernelImplRBF<defaultDense, double, avx512>::computeInternalMatrixMatrix(const NumericTable * a1, const NumericTable * a2,
+                                                                                          NumericTable * r, const ParameterBase * par)
+{
+    using algorithmFPType = double;
+    DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.MatrixMatrixAVX512);
+
+    SafeStatus safeStat;
+
+    const size_t nVectors1   = a1->getNumberOfRows();
+    const size_t nVectors2   = a2->getNumberOfRows();
+    const size_t nFeatures   = a1->getNumberOfColumns();
+    const bool isEqualMatrix = a1 == a2;
+
+    const Parameter * rbfPar    = static_cast<const Parameter *>(par);
+    const algorithmFPType coeff = (algorithmFPType)(-0.5 / (rbfPar->sigma * rbfPar->sigma));
+
+    char trans = 'T', notrans = 'N';
+    DAAL_INT one         = 1;
+    algorithmFPType zero = 0.0, negTwo = -2.0;
+
+    const bool isSOARes = r->getDataLayout() & NumericTableIface::soa;
+
+    DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, nVectors1, nVectors2);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors1 + nVectors2, sizeof(algorithmFPType));
+
+    const size_t blockSize                = 256;
+    const size_t nBlocks1                 = nVectors1 / blockSize + !!(nVectors1 % blockSize);
+    const size_t nBlocks2                 = nVectors2 / blockSize + !!(nVectors2 % blockSize);
+    const algorithmFPType expExpThreshold = Math<algorithmFPType, avx512>::vExpThreshold();
+
+    daal::tls<KernelRBFTask<algorithmFPType, avx512> *> tslTask([=, &safeStat]() {
+        auto tlsData = KernelRBFTask<algorithmFPType, avx512>::create(blockSize, isEqualMatrix);
+        if (!tlsData)
+        {
+            safeStat.add(services::ErrorMemoryAllocationFailed);
+        }
+        return tlsData;
+    });
+
+    daal::threader_for(nBlocks1, nBlocks1, [&](const size_t iBlock1) {
+        DAAL_INT nRowsInBlock1 = (iBlock1 != nBlocks1 - 1) ? blockSize : nVectors1 - iBlock1 * blockSize;
+        DAAL_INT startRow1     = iBlock1 * blockSize;
+
+        ReadRows<algorithmFPType, avx512> mtA1(*const_cast<NumericTable *>(a1), startRow1, nRowsInBlock1);
+        DAAL_CHECK_BLOCK_STATUS_THR(mtA1);
+        const algorithmFPType * const dataA1 = const_cast<algorithmFPType *>(mtA1.get());
+
+        WriteOnlyRows<algorithmFPType, avx512> mtRRows;
+        if (!isSOARes)
+        {
+            mtRRows.set(r, startRow1, nRowsInBlock1);
+            DAAL_CHECK_MALLOC_THR(mtRRows.get());
+        }
+        daal::threader_for(nBlocks2, nBlocks2, [&, nVectors2, nBlocks2](const size_t iBlock2) {
+            DAAL_INT nRowsInBlock2 = (iBlock2 != nBlocks2 - 1) ? blockSize : nVectors2 - iBlock2 * blockSize;
+            DAAL_INT startRow2     = iBlock2 * blockSize;
+
+            KernelRBFTask<algorithmFPType, avx512> * const tlsLocal = tslTask.local();
+
+            algorithmFPType * const mklBuff   = tlsLocal->mklBuff;
+            algorithmFPType * const sqrDataA1 = tlsLocal->sqrDataA1;
+            algorithmFPType * const sqrDataA2 = tlsLocal->sqrDataA2;
+
+            if (!isEqualMatrix)
+            {
+                for (size_t i = 0; i < nRowsInBlock1; ++i)
+                {
+                    const algorithmFPType * dataA1i = dataA1 + i * nFeatures;
+                    sqrDataA1[i]                    = Blas<algorithmFPType, avx512>::xxdot((DAAL_INT *)&nFeatures, dataA1i, &one, dataA1i, &one);
+                }
+            }
+
+            ReadRows<algorithmFPType, avx512> mtA2(*const_cast<NumericTable *>(a2), startRow2, nRowsInBlock2);
+            DAAL_CHECK_BLOCK_STATUS_THR(mtA2);
+            const algorithmFPType * const dataA2 = const_cast<algorithmFPType *>(mtA2.get());
+
+            for (size_t i = 0; i < nRowsInBlock2; ++i)
+            {
+                const algorithmFPType * dataA2i = dataA2 + i * nFeatures;
+                sqrDataA2[i]                    = Blas<algorithmFPType, avx512>::xxdot((DAAL_INT *)&nFeatures, dataA2i, &one, dataA2i, &one);
+            }
+
+            DAAL_INT lda = nFeatures;
+            DAAL_INT ldb = nFeatures;
+            DAAL_INT ldc = blockSize;
+            if (!isSOARes)
+            {
+                Blas<algorithmFPType, avx512>::xxgemm(&trans, &notrans, &nRowsInBlock2, &nRowsInBlock1, (DAAL_INT *)&nFeatures, &negTwo, dataA2, &ldb,
+                                                      dataA1, &lda, &zero, mklBuff, &ldc);
+
+                algorithmFPType * const dataR = mtRRows.get();
+                for (size_t i = 0; i < nRowsInBlock1; ++i)
+                {
+                    const algorithmFPType sqrA1i         = sqrDataA1[i];
+                    algorithmFPType * const mklBuffBlock = &mklBuff[i * blockSize];
+
+                    for (size_t j = 0; j < nRowsInBlock2; ++j)
+                    {
+                        algorithmFPType rbf = (mklBuffBlock[j] + sqrA1i + sqrDataA2[j]) * coeff;
+                        rbf                 = rbf > expExpThreshold ? rbf : expExpThreshold;
+                        mklBuffBlock[j]     = rbf;
+                    }
+                    algorithmFPType * const dataRBlock = &dataR[i * nVectors2 + startRow2];
+                    Math<algorithmFPType, avx512>::vExp(nRowsInBlock2, mklBuffBlock, dataRBlock);
+                }
+            }
+            else
+            {
+                Blas<algorithmFPType, avx512>::xxgemm(&trans, &notrans, &nRowsInBlock1, &nRowsInBlock2, (DAAL_INT *)&nFeatures, &negTwo, dataA1, &lda,
+                                                      dataA2, &ldb, &zero, mklBuff, &ldc);
+
+                for (size_t j = 0; j < nRowsInBlock2; ++j)
+                {
+                    const algorithmFPType sqrA2i         = sqrDataA2[j];
+                    algorithmFPType * const mklBuffBlock = &mklBuff[j * blockSize];
+
+                    const __m512d sqrA2iVec          = _mm512_set1_pd(sqrA2i);
+                    const __m512d coeffVec           = _mm512_set1_pd(coeff);
+                    const __m512d expExpThresholdVec = _mm512_set1_pd(expExpThreshold);
+                    size_t i                         = 0;
+                    for (; i < nRowsInBlock1; i += 8)
+                    {
+                        const __m512d mklBuffVec   = _mm512_load_pd(&mklBuffBlock[i]);
+                        const __m512d sqrDataA1Vec = _mm512_load_pd(&sqrDataA1[i]);
+                        // const algorithmFPType rbf = (mklBuffBlock[i] + sqrA2i + sqrDataA1[i]) * coeff;
+                        __m512d sqrDataA1CoeffVec = _mm512_mul_pd(sqrDataA1Vec, coeffVec);
+                        __m512d rbfVec            = _mm512_add_pd(mklBuffVec, sqrA2iVec);
+                        rbfVec                    = _mm512_fmadd_pd(rbfVec, coeffVec, sqrDataA1CoeffVec);
+                        rbfVec                    = _mm512_max_pd(rbfVec, expExpThresholdVec);
+                        _mm512_storeu_pd(&mklBuffBlock[i], rbfVec);
+                    }
+                    for (; i < nRowsInBlock1; i++)
+                    {
+                        algorithmFPType rbf = (mklBuffBlock[i] + sqrA2i + sqrDataA1[i]) * coeff;
+                        rbf                 = rbf > expExpThreshold ? rbf : expExpThreshold;
+                        mklBuffBlock[i]     = rbf;
+                    }
+
+                    WriteOnlyColumns<algorithmFPType, avx512> mtRColumns(r, startRow2 + j, startRow1, nRowsInBlock1);
+                    DAAL_CHECK_BLOCK_STATUS_THR(mtRColumns);
+                    algorithmFPType * const dataR = mtRColumns.get();
+                    Math<algorithmFPType, avx512>::vExp(nRowsInBlock1, mklBuffBlock, dataR);
+                }
+            }
+        });
+    });
+
+    tslTask.reduce([](KernelRBFTask<algorithmFPType, avx512> * tlsLocal) { delete tlsLocal; });
+
+    return services::Status();
+}
+
 } // namespace internal
 } // namespace rbf
 } // namespace kernel_function

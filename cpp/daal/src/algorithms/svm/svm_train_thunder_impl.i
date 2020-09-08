@@ -171,8 +171,10 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors * sizeof(algorithmFPType), nVectors);
 
     size_t defaultCacheSize = services::internal::min<cpu, algorithmFPType>(nVectors, cacheSize / nVectors / sizeof(algorithmFPType));
-    defaultCacheSize        = services::internal::max<cpu, algorithmFPType>(nWS, defaultCacheSize);
-    auto cachePtr           = SVMCache<thunder, lruCache, algorithmFPType, cpu>::create(defaultCacheSize, nWS, nVectors, xTable, kernel, status);
+
+    printf("defaultCacheSize: %lu cacheSize: %lu\n", defaultCacheSize, cacheSize);
+    defaultCacheSize = services::internal::max<cpu, algorithmFPType>(nWS, defaultCacheSize);
+    auto cachePtr    = SVMCache<thunder, lruCache, algorithmFPType, cpu>::create(defaultCacheSize, nWS, nVectors, xTable, kernel, status);
 
     _blockSizeWS = services::internal::min<cpu, algorithmFPType>(nWS, 64);
     TArrayScalable<algorithmFPType, cpu> gradBuff((nWS / _blockSizeWS) * nVectors);
@@ -202,6 +204,9 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
         if (checkStopCondition(diff, diffPrev, eps, sameLocalDiff) && iter >= nNoChanges) break;
         diffPrev = diff;
     }
+
+    printf("n_iter: %lu; diff: %.5lf\n", iter, diff);
+
     SaveResultTask<algorithmFPType, cpu> saveResult(nVectors, y, alpha, grad, cachePtr.get());
     DAAL_CHECK_STATUS(status, saveResult.compute(*xTable, *static_cast<Model *>(r), cw));
 
@@ -330,6 +335,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
             const algorithmFPType KiBj = KBjBlock[i];
             gradLocal[i] += delta * (KiBi - KiBj);
         }
+
+        // printf("[INNER] n_iter: %lu; diff: %.5lf\n", iter, localDiff);
     }
 
     /* Compute diff and scatter to alpha vector */
