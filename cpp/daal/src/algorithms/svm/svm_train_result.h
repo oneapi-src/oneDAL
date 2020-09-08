@@ -224,7 +224,7 @@ protected:
         if (nSV == 0) return s;
 
         const size_t svDataSize = svRowOffsetsBuffer[nSV] - svRowOffsetsBuffer[0];
-        /* If matrix is zeroes -> svDataSize will be equal 0. 
+        /* If matrix is zeroes -> svDataSize will be equal 0.
            So for correct works we added 1 in this case. */
         DAAL_CHECK_STATUS(s, svTable->allocateDataMemory(svDataSize ? svDataSize: svDataSize + 1));
 

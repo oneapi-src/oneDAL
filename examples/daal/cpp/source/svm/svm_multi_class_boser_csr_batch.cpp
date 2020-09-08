@@ -132,7 +132,7 @@ void printResults()
     testLabelsDataSource.loadDataBlock();
     testGroundTruth = testLabelsDataSource.getNumericTable();
 
-    printNumericTables<int, int>(testGroundTruth, predictionResult->get(multi_class_classifier::prediction::prediction), "Ground truth", 
+    printNumericTables<int, int>(testGroundTruth, predictionResult->get(multi_class_classifier::prediction::prediction), "Ground truth",
                                  "Classification results", "Multi-class SVM classification sample program results (first 20 observations):", 20);
 
     printNumericTable(predictionResult->get(multi_class_classifier::prediction::decisionFunction),

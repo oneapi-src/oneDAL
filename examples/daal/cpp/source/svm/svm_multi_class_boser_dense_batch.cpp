@@ -132,7 +132,7 @@ void testModel()
 
 void printResults()
 {
-    printNumericTables<int, int>(testGroundTruth, predictionResult->get(multi_class_classifier::prediction::prediction), "Ground truth", 
+    printNumericTables<int, int>(testGroundTruth, predictionResult->get(multi_class_classifier::prediction::prediction), "Ground truth",
                                  "Classification results", "Multi-class SVM classification sample program results (first 20 observations):", 20);
     printNumericTable(predictionResult->get(multi_class_classifier::prediction::decisionFunction),
                       "Multi-class SVM classification decision function results (first 20 observations):", 20);

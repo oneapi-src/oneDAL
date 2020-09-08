@@ -1,4 +1,4 @@
-/* file: result.cpp */
+/* file: predict_result.cpp */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
