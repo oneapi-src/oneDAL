@@ -19,7 +19,7 @@ Batch Processing
 ****************
 
 Naïve Bayes classifier in the batch processing mode follows the general workflow described
-in `Usage Model: Training and Prediction <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction-1>`_.
+in :ref:`classification_usage_model`.
 
 Training
 --------

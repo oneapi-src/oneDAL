@@ -121,8 +121,7 @@ Examples
 Batch Processing
 ****************
 
-Multi-class classifier follows the general workflow described in
-`Usage Model: Training and Prediction <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction-1>`_.
+Multi-class classifier follows the general workflow described in :ref:`classification_usage_model`.
 
 Training
 --------
