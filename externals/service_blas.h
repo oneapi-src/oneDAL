@@ -164,7 +164,7 @@ struct Blas
             lastBlockSizeB = blockSizeB;
         }
 
-        const bool isSOARes = tc->getDataLayout() & NumericTableIface::soa;
+        const bool isSOARes = tc->getDataLayout() == NumericTableIface::soa;
         TlsMem<fpType, cpu> tlsMklBuff(blockSizeA * blockSizeB);
 
         /* Threaded loop by whole number of blocks */

@@ -171,7 +171,7 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
     DAAL_INT one         = 1;
     algorithmFPType zero = 0.0, negTwo = -2.0;
 
-    const bool isSOARes = r->getDataLayout() & NumericTableIface::soa;
+    const bool isSOARes = r->getDataLayout() == NumericTableIface::soa;
 
     DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, nVectors1, nVectors2);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors1 + nVectors2, sizeof(algorithmFPType));

@@ -114,8 +114,8 @@ void testModel()
     /* Create an algorithm object to predict multi-class SVM values */
     multi_class_classifier::prediction::Batch<float, multi_class_classifier::prediction::voteBased> algorithm(nClasses);
 
-    algorithm.parameter.training   = training;
-    algorithm.parameter.prediction = prediction;
+    algorithm.parameter.training          = training;
+    algorithm.parameter.prediction        = prediction;
     algorithm.parameter.resultsToEvaluate = multi_class_classifier::computeClassLabels | multi_class_classifier::computeDecisionFunction;
 
     /* Pass a testing data set and the trained model to the algorithm */
