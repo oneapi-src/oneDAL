@@ -169,10 +169,10 @@ public:
 protected:
     using classifier::prediction::Result::check;
 
-    /** \private */
+    /** \protected */
     services::Status checkImpl(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter) const;
 
-    /** \private */
+    /** \protected */
     template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)
     {

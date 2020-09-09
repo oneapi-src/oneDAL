@@ -73,7 +73,6 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
 services::Status Result::checkImpl(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter) const
 {
     services::Status s;
-    // services::Status s = classifier::prediction::Result::checkImpl(input, parameter);
     DAAL_CHECK_STATUS_VAR(s);
 
     const size_t nRows          = (static_cast<const classifier::prediction::InputIface *>(input))->getNumberOfRows();
@@ -93,7 +92,6 @@ services::Status Result::checkImpl(const daal::algorithms::Input * input, const 
 }
 
 } // namespace interface1
-
 } // namespace prediction
 } // namespace multi_class_classifier
 } // namespace algorithms
