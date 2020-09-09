@@ -29,7 +29,7 @@
 #include "algorithms/threading/threading.h"
 #include "algorithms/kernel/dtrees/dtrees_model_impl.h"
 #include "algorithms/kernel/engines/engine_types_internal.h"
-#include "algorithms/service_heap.h"
+#include "algorithms/kernel/service_heap.h"
 #include "service/kernel/service_defines.h"
 #include "algorithms/kernel/distributions/uniform/uniform_kernel.h"
 
