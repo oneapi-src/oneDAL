@@ -164,6 +164,9 @@ struct Blas
             lastBlockSizeB = blockSizeB;
         }
 
+        const bool isSOARes = tc->getDataLayout() & NumericTableIface::soa;
+        TlsMem<fpType, cpu> tlsMklBuff(blockSizeA * blockSizeB);
+
         /* Threaded loop by whole number of blocks */
         daal::threader_for(nBlocksB, nBlocksB, [&](SizeType iBlockB) {
             /* Current block size - can be less than general block size for last block */
@@ -174,10 +177,13 @@ struct Blas
             DAAL_CHECK_BLOCK_STATUS_THR(mtb);
             const fpType * const b = mtb.get();
 
-            /* Get pointer to write resulted rows */
-            WriteOnlyRows<fpType, cpu> mtc(tc, startRowB, nRowsInBlockB);
-            DAAL_CHECK_BLOCK_STATUS_THR(mtc);
-            fpType * const c = mtc.get();
+            WriteOnlyRows<fpType, cpu> mtcRows;
+            if (!isSOARes)
+            {
+                /* Get pointer to write resulted rows */
+                mtcRows.set(tc, startRowB, nRowsInBlockB);
+                DAAL_CHECK_MALLOC_THR(mtcRows.get());
+            }
 
             daal::threader_for(nBlocksA, nBlocksA, [&](SizeType iBlockA) {
                 /* Current block size - can be less than general block size for last block */
@@ -190,7 +196,26 @@ struct Blas
                 const fpType * const a = mta.get();
 
                 /* Call to sequential GEMM */
-                xxgemm(transa, transb, &nRowsInBlockA, &nRowsInBlockB, &nCols, alpha, a, lda, b, ldb, beta, c + startRowA, ldc);
+                if (!isSOARes)
+                {
+                    fpType * const c = mtcRows.get() + startRowA;
+                    xxgemm(transa, transb, &nRowsInBlockA, &nRowsInBlockB, &nCols, alpha, a, lda, b, ldb, beta, c, ldc);
+                }
+                else
+                {
+                    fpType * const c = tlsMklBuff.local();
+                    DAAL_CHECK_MALLOC_THR(c);
+                    DAAL_INT ldc2 = blockSizeB;
+
+                    xxgemm(transa, transb, &nRowsInBlockB, &nRowsInBlockA, &nCols, alpha, b, ldb, a, lda, beta, c, &ldc2);
+                    for (size_t i = 0; i < nRowsInBlockA; ++i)
+                    {
+                        WriteOnlyColumns<fpType, cpu> mtcColumns(tc, startRowA + i, startRowB, nRowsInBlockB);
+                        DAAL_CHECK_BLOCK_STATUS_THR(mtcColumns);
+                        services::internal::daal_memcpy_s(mtcColumns.get(), nRowsInBlockB * sizeof(fpType), c + i * ldc2,
+                                                          nRowsInBlockB * sizeof(fpType));
+                    }
+                }
             });
         });
 

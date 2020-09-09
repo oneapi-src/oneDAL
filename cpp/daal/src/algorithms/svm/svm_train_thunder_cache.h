@@ -190,12 +190,11 @@ protected:
         _cache = SOANumericTableCPU<cpu>::create(_cacheSize, _lineSize, DictionaryIface::FeaturesEqual::equal, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        for (int i = 0; i < _cacheSize; ++i)
+        for (size_t i = 0; i < _cacheSize; ++i)
         {
             auto cachei = &_cacheData[i * _lineSize];
             DAAL_CHECK_STATUS(status, _cache->template setArray<algorithmFPType>(cachei, i));
         }
-        DAAL_CHECK_STATUS_VAR(status);
 
         SubDataTaskBase<algorithmFPType, cpu> * task = nullptr;
         if (_xTable->getDataLayout() == NumericTableIface::csrArray)
