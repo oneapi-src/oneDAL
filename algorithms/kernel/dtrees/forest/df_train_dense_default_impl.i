@@ -29,7 +29,7 @@
 #include "algorithms/threading/threading.h"
 #include "algorithms/kernel/dtrees/dtrees_model_impl.h"
 #include "algorithms/kernel/engines/engine_types_internal.h"
-#include "src/algorithms/service_heap.h"
+#include "algorithms/service_heap.h"
 #include "service/kernel/service_defines.h"
 #include "algorithms/kernel/distributions/uniform/uniform_kernel.h"
 
@@ -633,7 +633,7 @@ services::Status TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::run(engin
 
     typename DataHelper::ImpurityData initialImpurity;
     _helper.calcImpurity(_aSample.get(), _nSamples, initialImpurity);
-    bool bUnorderedFeaturesUsed = false;
+    bool bUnorderedFeaturesUsed              = false;
     typename DataHelper::NodeType::Base * nd = _maxLeafNodes ?
                                                    buildBestFirst(s, 0, _nSamples, 0, initialImpurity, bUnorderedFeaturesUsed, _nClasses) :
                                                    buildDepthFirst(s, 0, _nSamples, 0, initialImpurity, bUnorderedFeaturesUsed, _nClasses);
