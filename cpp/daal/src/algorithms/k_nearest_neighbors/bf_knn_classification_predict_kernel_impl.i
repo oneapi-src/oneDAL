@@ -38,8 +38,8 @@ namespace prediction
 {
 namespace internal
 {
-template <typename algorithmFpType, CpuType cpu>
-services::Status KNNClassificationPredictKernel<algorithmFpType, cpu>::compute(const NumericTable * data, const classifier::Model * m,
+template <typename algorithmFPType, CpuType cpu>
+services::Status KNNClassificationPredictKernel<algorithmFPType, cpu>::compute(const NumericTable * data, const classifier::Model * m,
                                                                                NumericTable * label, NumericTable * indices, NumericTable * distances,
                                                                                const daal::algorithms::Parameter * par)
 {
@@ -53,9 +53,18 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, cpu>::compute(c
     const VoteWeights voteWeights       = parameter->voteWeights;
     const DAAL_UINT64 resultsToEvaluate = parameter->resultsToEvaluate;
 
-    daal::algorithms::bf_knn_classification::internal::BruteForceNearestNeighbors<algorithmFpType, cpu> bfnn;
-    return bfnn.kClassification(k, nClasses, voteWeights, resultsToEvaluate, trainDataTable.get(), data, trainLabelTable.get(), label, indices,
-                                distances);
+    const size_t nTest = data->getNumberOfRows();
+    daal::internal::WriteRows<algorithmFPType, cpu> distancesRows(distances, 0, nTest);
+    daal::internal::WriteRows<int, cpu> indicesRows(indices, 0, nTest);
+    algorithmFPType * neighborsDistances = distancesRows.get();
+    int * neighborsIndices               = indicesRows.get();
+    DAAL_CHECK_MALLOC(neighborsDistances);
+    DAAL_CHECK_MALLOC(neighborsIndices);
+
+    daal::algorithms::bf_knn_classification::internal::BruteForceNearestNeighbors<algorithmFPType, cpu> bfnn;
+    bfnn.kNeighbors(k, nClasses, voteWeights, 0, resultsToEvaluate, trainDataTable.get(), data, trainLabelTable.get(), label, neighborsIndices,
+                    neighborsDistances);
+    return services::Status();
 }
 
 } // namespace internal

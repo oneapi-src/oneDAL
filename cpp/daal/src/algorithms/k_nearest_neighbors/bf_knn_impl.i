@@ -52,95 +52,77 @@ class BruteForceNearestNeighbors
 public:
     BruteForceNearestNeighbors() {}
 
-    ~BruteForceNearestNeighbors()
-    {
-        if (_distances)
-        {
-            services::internal::service_free<FPType, cpu>(_distances);
-        }
-    }
+    ~BruteForceNearestNeighbors() {}
 
-    services::Status kNearest(const size_t k, int * neighborsIndices, FPType * neighborsDistances, const NumericTable * trainTable,
-                              const NumericTable * testTable)
+    services::Status kClassification(const size_t k, const size_t nClasses, VoteWeights voteWeights, DAAL_UINT64 resultsToCompute,
+                                     DAAL_UINT64 resultsToEvaluate, const NumericTable * trainTable, const NumericTable * testTable,
+                                     const NumericTable * trainLabelTable, NumericTable * testLabelTable, int * indices, FPType * distances)
     {
-        computeDistances(trainTable, testTable);
+        daal::SafeStatus s;
 
+        const size_t nDims  = trainTable->getNumberOfColumns();
         const size_t nTrain = trainTable->getNumberOfRows();
         const size_t nTest  = testTable->getNumberOfRows();
 
-        const size_t outerBlockSize = 32;
-        const size_t nOuterBlocks   = nTest / outerBlockSize + !!(nTest % outerBlockSize);
+        int * trainLabel = nullptr;
+        BlockDescriptor<int> trainLabelBlock;
+        NumericTable * newTrainLabelTable = const_cast<NumericTable *>(trainLabelTable);
+        if (resultsToEvaluate & daal::algorithms::classifier::computeClassLabels)
+        {
+            newTrainLabelTable->getBlockOfRows(0, nTrain, readWrite, trainLabelBlock);
+            trainLabel = trainLabelBlock.getBlockPtr();
+        }
 
+        daal::algorithms::internal::EuclideanDistances<FPType, cpu> euclDist(*testTable, *trainTable, false);
+        euclDist.init();
+
+        const size_t blockSize    = 128;
+        const size_t nOuterBlocks = nTest / blockSize + !!(nTest % blockSize);
         daal::threader_for(nOuterBlocks, nOuterBlocks, [&](size_t outerBlock) {
-            const size_t outerStart = outerBlock * outerBlockSize;
-            const size_t outerEnd   = outerBlock + 1 == nOuterBlocks ? nTest : outerStart + outerBlockSize;
+            const size_t outerStart = outerBlock * blockSize;
+            const size_t outerEnd   = outerBlock + 1 == nOuterBlocks ? nTest : outerStart + blockSize;
+            const size_t outerSize  = outerEnd - outerStart;
+
+            daal::services::internal::TArray<FPType, cpu> tmpDistancesArr(outerSize * nTrain);
+            FPType * tmpDistances = tmpDistancesArr.get();
+            s |= euclDist.computeBatch(outerStart, outerSize, 0, nTrain, tmpDistances);
 
             for (size_t i = outerStart; i < outerEnd; ++i)
             {
                 daal::services::internal::TArray<int, cpu> indicesArr(nTrain);
-                int * indices = indicesArr.get();
+                int * tmpIndices = indicesArr.get();
                 for (size_t j = 0; j < nTrain; ++j)
                 {
-                    indices[j] = j;
+                    tmpIndices[j] = j;
                 }
 
-                daal::algorithms::internal::qSort<FPType, int, cpu>(nTrain, _distances + i * nTrain, indices);
+                daal::algorithms::internal::qSort<FPType, int, cpu>(nTrain, tmpDistances + (i - outerStart) * nTrain, tmpIndices);
 
                 for (size_t j = 0; j < k; ++j)
                 {
-                    neighborsIndices[i * k + j]   = indices[j];
-                    neighborsDistances[i * k + j] = _distances[i * nTrain + j];
+                    indices[i * k + j]   = tmpIndices[j];
+                    distances[i * k + j] = tmpDistances[(i - outerStart) * nTrain + j];
+                }
+            }
+
+            if (resultsToEvaluate & daal::algorithms::classifier::computeClassLabels)
+            {
+                daal::internal::WriteRows<int, cpu> testLabelRows(testLabelTable, outerStart, outerSize);
+                int * testLabel = testLabelRows.get();
+                if (voteWeights == VoteWeights::voteUniform)
+                {
+                    s |= uniformWeightedVoting(nClasses, k, outerSize, indices + outerStart * k, trainLabel, testLabel);
+                }
+                else
+                {
+                    s |= distanceWeightedVoting(nClasses, k, outerSize, distances + outerStart * k, indices + outerStart * k, trainLabel, testLabel);
                 }
             }
         });
 
-        return services::Status();
-    }
-
-    services::Status kClassification(const size_t k, const size_t nClasses, VoteWeights voteWeights, const DAAL_UINT64 resultsToEvaluate,
-                                     const NumericTable * trainTable, const NumericTable * testTable, const NumericTable * trainLabelTable,
-                                     NumericTable * testLabelTable, NumericTable * indicesTable, NumericTable * distancesTable)
-    {
-        daal::SafeStatus s;
-
-        const size_t nTrain = trainTable->getNumberOfRows();
-        const size_t nTest  = testTable->getNumberOfRows();
-
-        daal::internal::WriteRows<FPType, cpu> distancesRows(distancesTable, 0, nTest);
-        daal::internal::WriteRows<int, cpu> indicesRows(indicesTable, 0, nTest);
-        FPType * neighborsDistances = distancesRows.get();
-        int * neighborsIndices      = indicesRows.get();
-        DAAL_CHECK_MALLOC(neighborsDistances);
-        DAAL_CHECK_MALLOC(neighborsIndices);
-
-        kNearest(k, neighborsIndices, neighborsDistances, trainTable, testTable);
-
         if (resultsToEvaluate & daal::algorithms::classifier::computeClassLabels)
         {
-            daal::internal::ReadRows<int, cpu> trainLabelRows(const_cast<NumericTable *>(trainLabelTable), 0, nTrain);
-            daal::internal::WriteRows<int, cpu> testLabelRows(testLabelTable, 0, nTest);
-
-            const int * trainLabel = trainLabelRows.get();
-            int * testLabel        = testLabelRows.get();
-            DAAL_CHECK_MALLOC(trainLabel);
-            DAAL_CHECK_MALLOC(testLabel);
-
-            const size_t blockSize = 128;
-            const size_t nBlocks   = nTest / blockSize + !!(nTest % blockSize);
-            daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
-                const size_t start = iBlock * blockSize;
-                const size_t end   = iBlock + 1 == nBlocks ? nTest : start + blockSize;
-
-                if (voteWeights == VoteWeights::voteUniform)
-                {
-                    s |= uniformWeightedVoting(nClasses, k, end - start, neighborsIndices + start * k, trainLabel, testLabel + start);
-                }
-                else
-                {
-                    s |= distanceWeightedVoting(nClasses, k, end - start, neighborsDistances + start * k, neighborsIndices + start * k, trainLabel,
-                                                testLabel + start);
-                }
-            });
+            newTrainLabelTable->releaseBlockOfRows(trainLabelBlock);
         }
 
         return s.detach();
@@ -231,70 +213,6 @@ protected:
         }
         return services::Status();
     }
-
-    services::Status computeDistances(const NumericTable * trainTable, const NumericTable * testTable)
-    {
-        daal::SafeStatus s;
-
-        const size_t nDims  = trainTable->getNumberOfColumns();
-        const size_t nTrain = trainTable->getNumberOfRows();
-        const size_t nTest  = testTable->getNumberOfRows();
-
-        _distances = static_cast<FPType *>(services::internal::service_malloc<FPType, cpu>(nTrain * nTest * sizeof(FPType)));
-
-        daal::algorithms::internal::EuclideanDistances<FPType, cpu> euclDist(*testTable, *trainTable);
-        euclDist.init();
-
-        const size_t blockSize    = 128;
-        const size_t nOuterBlocks = nTest / blockSize + !!(nTest % blockSize);
-        const size_t nInnerBlocks = nTrain / blockSize + !!(nTrain % blockSize);
-
-        daal::threader_for(nOuterBlocks, nOuterBlocks, [&](size_t outerBlock) {
-            const size_t outerStart = outerBlock * blockSize;
-            const size_t outerEnd   = outerBlock + 1 == nOuterBlocks ? nTest : outerStart + blockSize;
-            const size_t outerSize  = outerEnd - outerStart;
-
-            daal::threader_for(nInnerBlocks, nInnerBlocks, [&](size_t innerBlock) {
-                const size_t innerStart = innerBlock * blockSize;
-                const size_t innerEnd   = innerBlock + 1 == nInnerBlocks ? nTrain : innerStart + blockSize;
-                const size_t innerSize  = innerEnd - innerStart;
-
-                daal::services::internal::TArray<FPType, cpu> tmpArr(outerSize * innerSize);
-                FPType * tmp = tmpArr.get();
-
-                s |= euclDist.computeBatch(outerStart, outerSize, innerStart, innerSize, tmp);
-
-                PRAGMA_IVDEP
-                PRAGMA_VECTOR_ALWAYS
-                for (size_t i = outerStart; i < outerEnd; ++i)
-                {
-                    for (size_t j = innerStart; j < innerEnd; ++j)
-                    {
-                        _distances[i * nTrain + j] = tmp[(i - outerStart) * innerSize + j - innerStart];
-                    }
-                }
-            });
-        });
-
-        daal::internal::Math<FPType, cpu> math;
-        daal::threader_for(nOuterBlocks, nOuterBlocks, [&](size_t outerBlock) {
-            const size_t outerStart = outerBlock * blockSize;
-            const size_t outerEnd   = outerBlock + 1 == nOuterBlocks ? nTest : outerStart + blockSize;
-            const size_t outerSize  = outerEnd - outerStart;
-
-            daal::services::internal::TArray<FPType, cpu> tmpArr(outerSize * nTrain);
-            FPType * tmp = tmpArr.get();
-            math.vSqrt(outerSize * nTrain, _distances + outerStart * nTrain, tmp);
-
-            services::internal::daal_memcpy_s(_distances + outerStart * nTrain, outerSize * nTrain * sizeof(FPType), tmp,
-                                              outerSize * nTrain * sizeof(FPType));
-        });
-
-        return s.detach();
-    }
-
-private:
-    FPType * _distances;
 };
 
 } // namespace internal
