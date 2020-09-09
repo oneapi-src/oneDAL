@@ -498,13 +498,13 @@ protected:
         DAAL_ASSERT(iBuf < _nFeatureBufs);
         return _aFeatureIndexBuf[iBuf].get();
     }
-    bool terminateCriteria(size_t nSamples, size_t level, typename DataHelper::ImpurityData & imp) const
+    bool terminateCriteria(size_t nSamples, size_t level, typename DataHelper::ImpurityData & imp, algorithmFPType totalWeights) const
     {
         const daal::algorithms::decision_forest::training::interface2::Parameter * algParameter =
             dynamic_cast<const daal::algorithms::decision_forest::training::interface2::Parameter *>(&_par);
         if (algParameter != NULL)
         {
-            return ((nSamples < 2 * _par.minObservationsInLeafNode) || (nSamples < _minSamplesSplit) || (nSamples < 2 * _minWeightLeaf)
+            return ((nSamples < 2 * _par.minObservationsInLeafNode) || (nSamples < _minSamplesSplit) || (totalWeights < 2 * _minWeightLeaf)
                     || _helper.terminateCriteria(imp, _impurityThreshold, nSamples) || ((_par.maxTreeDepth > 0) && (level >= _par.maxTreeDepth)));
         }
         else
@@ -591,8 +591,8 @@ protected:
     size_t _nClasses;
     size_t * _numElems;
     size_t _minSamplesSplit;
-    double _minWeightLeaf;
-    double _minImpurityDecrease;
+    algorithmFPType _minWeightLeaf;
+    algorithmFPType _minImpurityDecrease;
     size_t _maxLeafNodes;
 };
 
@@ -618,7 +618,7 @@ services::Status TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::run(engin
     PRAGMA_VECTOR_ALWAYS
     for (size_t i = 0; i < _nFeatureBufs; ++i)
     {
-        _aFeatureBuf[i].reset(_nSamples);
+        _aFeatureBuf[i].reset(_data->getNumberOfRows());
         DAAL_CHECK_MALLOC(_aFeatureBuf[i].get());
         _aFeatureIndexBuf[i].reset(_nSamples);
         DAAL_CHECK_MALLOC(_aFeatureIndexBuf[i].get());
@@ -701,7 +701,7 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, DataHe
 {
     if (_hostApp.isCancelled(s, n)) return nullptr;
 
-    if (terminateCriteria(n, level, curImpurity)) return makeLeaf(_aSample.get() + iStart, n, curImpurity, nClasses);
+    if (terminateCriteria(n, level, curImpurity, totalWeights)) return makeLeaf(_aSample.get() + iStart, n, curImpurity, nClasses);
 
     typename DataHelper::TSplitData split;
     IndexType iFeature;
@@ -748,7 +748,7 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, DataHe
     typename DataHelper::TSplitData split;
     IndexType iFeature;
 
-    if (!remainingSplitNodes || terminateCriteria(item.n, item.level, impurity))
+    if (!remainingSplitNodes || terminateCriteria(item.n, item.level, impurity, item.totalWeights))
     {
         return makeLeaf(_aSample.get() + item.start, item.n, impurity, nClasses);
     }

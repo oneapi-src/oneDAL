@@ -51,12 +51,12 @@ using namespace dtrees::training::internal;
 //where mean, var are mean and mse for s,
 //where mean1, var1 are mean and mse for s1
 template <typename algorithmFPType, CpuType cpu>
-void subtractImpurity(algorithmFPType var, algorithmFPType mean, algorithmFPType var1, algorithmFPType mean1, algorithmFPType n1,
-                      algorithmFPType & var2, algorithmFPType & mean2, algorithmFPType n2)
+void subtractImpurity(algorithmFPType var, algorithmFPType mean, algorithmFPType var1, algorithmFPType mean1, algorithmFPType leftWeights,
+                      algorithmFPType & var2, algorithmFPType & mean2, algorithmFPType rightWeights)
 {
     //TODO: investigate reusing decision_tree::regression::training::internal::MSEDataStatistics here
-    mean2                   = mean + (n1 * (mean - mean1)) / n2;
-    const algorithmFPType b = n1 / n2;
+    mean2                   = mean + (leftWeights * (mean - mean1)) / rightWeights;
+    const algorithmFPType b = leftWeights / rightWeights;
     var2                    = var + (mean - mean2) * (mean + mean2) + (var - var1 + (mean - mean1) * (mean + mean1)) * b;
     if (var2 < 0) var2 = 0;
 }
@@ -110,10 +110,10 @@ public:
 
     void calcImpurity(const IndexType * aIdx, size_t n, ImpurityData & imp, algorithmFPType & totalweights) const;
     bool findBestSplitForFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
-                                 const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split, const double minWeightLeaf,
-                                 const algorithmFPType totalWeights) const;
+                                 const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
+                                 const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const;
     int findBestSplitForFeatureSorted(algorithmFPType * featureBuf, IndexType iFeature, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
-                                      const ImpurityData & curImpurity, TSplitData & split, const double minWeightLeaf,
+                                      const ImpurityData & curImpurity, TSplitData & split, const algorithmFPType minWeightLeaf,
                                       const algorithmFPType totalWeights) const;
     void finalizeBestSplit(const IndexType * aIdx, size_t n, IndexType iFeature, size_t idxFeatureValueBestSplit, TSplitData & bestSplit,
                            IndexType * bestSplitIdx) const;
@@ -170,11 +170,11 @@ private:
     algorithmFPType calcResponse(algorithmFPType & res, const IndexType * idx, size_t n) const;
 #endif
     bool findBestSplitOrderedFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
-                                     const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split, const double minWeightLeaf,
-                                     const algorithmFPType totalWeights) const;
+                                     const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
+                                     const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const;
     bool findBestSplitCategoricalFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
-                                         const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split, double minWeightLeaf,
-                                         const algorithmFPType totalWeights) const;
+                                         const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
+                                         const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const;
 
 private:
     //buffer for the computation using indexed features
@@ -266,7 +266,7 @@ template <typename algorithmFPType, CpuType cpu>
 void calcPrevImpurity(algorithmFPType var, algorithmFPType mean, algorithmFPType & varPrev, algorithmFPType & meanPrev, algorithmFPType x,
                       algorithmFPType totalWeights, algorithmFPType weights)
 {
-    algorithmFPType residual = (isPositive<algorithmFPType, cpu>(totalWeights - weights) ? (totalWeights - weights) : 1.0);
+    algorithmFPType residual = (isPositive<algorithmFPType, cpu>(totalWeights - weights) ? (totalWeights - weights) : 1.);
     algorithmFPType delta    = (x - mean) / residual;
     varPrev                  = var - delta * totalWeights * (x - mean) * weights;
     meanPrev                 = mean - delta * weights;
@@ -289,7 +289,7 @@ template <typename algorithmFPType, CpuType cpu>
 bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n,
                                                                       size_t nMinSplitPart, const algorithmFPType accuracy,
                                                                       const ImpurityData & curImpurity, TSplitData & split,
-                                                                      const double minWeightLeaf, const algorithmFPType totalWeights) const
+                                                                      const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const
 {
     return split.featureUnordered ?
                findBestSplitCategoricalFeature(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights) :
@@ -301,17 +301,17 @@ void OrderedRespHelper<algorithmFPType, cpu>::finalizeBestSplit(const IndexType 
                                                                 TSplitData & bestSplit, IndexType * bestSplitIdx) const
 {
     DAAL_ASSERT(bestSplit.nLeft > 0);
-    DAAL_ASSERT(bestSplit.leftWeights > 0.0);
+    DAAL_ASSERT(bestSplit.leftWeights > 0.);
     const algorithmFPType divL = algorithmFPType(1.) / bestSplit.leftWeights;
     bestSplit.left.mean *= divL;
-    bestSplit.left.var                                = 0;
-    IndexType * bestSplitIdxRight                     = bestSplitIdx + bestSplit.nLeft;
-    size_t iLeft                                      = 0;
-    size_t iRight                                     = 0;
-    int iRowSplitVal                                  = -1;
-    const auto aResponse                              = this->_aResponse.get();
-    const auto aWeights                               = this->_aWeights.get();
-    const IndexedFeatures::IndexType * indexedFeature = this->indexedFeatures().data(iFeature);
+    bestSplit.left.var                                      = 0;
+    IndexType * bestSplitIdxRight                           = bestSplitIdx + bestSplit.nLeft;
+    size_t iLeft                                            = 0;
+    size_t iRight                                           = 0;
+    int iRowSplitVal                                        = -1;
+    const auto aResponse                                    = this->_aResponse.get();
+    const auto aWeights                                     = this->_aWeights.get();
+    const IndexedFeatures::IndexType * const indexedFeature = this->indexedFeatures().data(iFeature);
     for (size_t i = 0; i < n; ++i)
     {
         const auto iSample = aIdx[i];
@@ -342,7 +342,7 @@ void OrderedRespHelper<algorithmFPType, cpu>::finalizeBestSplit(const IndexType 
 template <typename algorithmFPType, CpuType cpu>
 int OrderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(algorithmFPType * buf, IndexType iFeature, const IndexType * aIdx,
                                                                            size_t n, size_t nMinSplitPart, const ImpurityData & curImpurity,
-                                                                           TSplitData & split, const double minWeightLeaf,
+                                                                           TSplitData & split, const algorithmFPType minWeightLeaf,
                                                                            const algorithmFPType totalWeights) const
 {
     const auto nDiffFeatMax = this->indexedFeatures().numIndices(iFeature);
@@ -353,12 +353,12 @@ int OrderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(algor
     for (size_t i = 0; i < nDiffFeatMax; ++i) buf[i] = algorithmFPType(0);
 
     typedef double intermSummFPType;
-    auto nFeatIdx                                     = _idxFeatureBuf.get(); //number of indexed feature values, array
-    intermSummFPType sumTotal                         = 0;                    //total sum of responses in the set being split
-    auto featWeights                                  = _weightsFeatureBuf.get();
-    const IndexedFeatures::IndexType * indexedFeature = this->indexedFeatures().data(iFeature);
-    auto aResponse                                    = this->_aResponse.get();
-    auto aWeights                                     = this->_aWeights.get();
+    auto nFeatIdx                                           = _idxFeatureBuf.get(); //number of indexed feature values, array
+    intermSummFPType sumTotal                               = 0;                    //total sum of responses in the set being split
+    auto featWeights                                        = _weightsFeatureBuf.get();
+    const IndexedFeatures::IndexType * const indexedFeature = this->indexedFeatures().data(iFeature);
+    auto aResponse                                          = this->_aResponse.get();
+    auto aWeights                                           = this->_aWeights.get();
     {
         PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < n; ++i)
@@ -377,7 +377,7 @@ int OrderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(algor
     intermSummFPType bestImpDecreasePart =
         split.impurityDecrease < 0 ? -1 : (split.impurityDecrease + curImpurity.mean * curImpurity.mean) * totalWeights;
     size_t nLeft                = 0;
-    algorithmFPType leftWeights = 0.0;
+    algorithmFPType leftWeights = 0.;
     intermSummFPType sumLeft    = 0;
     int idxFeatureBestSplit     = -1; //index of best feature value in the array of sorted feature values
     for (size_t i = 0; i < nDiffFeatMax; ++i)
@@ -415,7 +415,8 @@ template <typename algorithmFPType, CpuType cpu>
 bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n,
                                                                           size_t nMinSplitPart, const algorithmFPType accuracy,
                                                                           const ImpurityData & curImpurity, TSplitData & split,
-                                                                          const double minWeightLeaf, const algorithmFPType totalWeights) const
+                                                                          const algorithmFPType minWeightLeaf,
+                                                                          const algorithmFPType totalWeights) const
 {
     ImpurityData left;
     ImpurityData right;
@@ -460,7 +461,7 @@ bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(const 
         //update impurity and continue
         xi                    = aResponse[aIdx[i]].val;
         algorithmFPType delta = xi - left.mean;
-        left.mean += weights * delta / (isPositive<algorithmFPType, cpu>(leftWeights + weights0) ? leftWeights + weights0 : 1.0);
+        left.mean += weights * delta / (isPositive<algorithmFPType, cpu>(leftWeights + weights0) ? leftWeights + weights0 : 1.);
         left.var += weights * delta * (xi - left.mean);
         if (left.var < 0) left.var = 0;
         calcPrevImpurity<algorithmFPType, cpu>(right.var, right.mean, right.var, right.mean, xi, totalWeights - leftWeights, weights);
@@ -474,7 +475,7 @@ bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(const 
     split.impurityDecrease = curImpurity.var - vBest / totalWeights;
     split.nLeft            = iBest;
     split.totalWeights     = totalWeights;
-    split.left.var /= (isPositive<algorithmFPType, cpu>(split.leftWeights) ? split.leftWeights : 1.0);
+    split.left.var /= (isPositive<algorithmFPType, cpu>(split.leftWeights) ? split.leftWeights : 1.);
     split.iStart       = 0;
     split.featureValue = featureVal[iBest - 1];
     return true;
@@ -484,7 +485,8 @@ template <typename algorithmFPType, CpuType cpu>
 bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitCategoricalFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n,
                                                                               size_t nMinSplitPart, const algorithmFPType accuracy,
                                                                               const ImpurityData & curImpurity, TSplitData & split,
-                                                                              const double minWeightLeaf, const algorithmFPType totalWeights) const
+                                                                              const algorithmFPType minWeightLeaf,
+                                                                              const algorithmFPType totalWeights) const
 {
     DAAL_ASSERT(n >= 2 * nMinSplitPart);
     ImpurityData left;
@@ -532,7 +534,7 @@ bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitCategoricalFeature(co
     }
     if (bFound)
     {
-        algorithmFPType impurityDecrease = curImpurity.var - vBest / isPositive<algorithmFPType, cpu>(totalWeights) ? totalWeights : 1.0;
+        const algorithmFPType impurityDecrease = curImpurity.var - vBest / isPositive<algorithmFPType, cpu>(totalWeights) ? totalWeights : 1.;
         if (split.impurityDecrease < 0 || split.impurityDecrease < impurityDecrease)
         {
             split.impurityDecrease = impurityDecrease;

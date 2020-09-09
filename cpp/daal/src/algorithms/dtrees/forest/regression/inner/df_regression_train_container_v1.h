@@ -91,9 +91,9 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     Input * input   = static_cast<Input *>(_in);
     Result * result = static_cast<Result *>(_res);
 
-    const NumericTable * x = input->get(data).get();
-    const NumericTable * y = input->get(dependentVariable).get();
-    const NumericTable * w = nullptr;
+    const NumericTable * const x = input->get(data).get();
+    const NumericTable * const y = input->get(dependentVariable).get();
+    const NumericTable * const w = nullptr;
 
     decision_forest::regression::Model * m = result->get(model).get();
 
