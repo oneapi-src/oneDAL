@@ -19,7 +19,8 @@
 
 namespace oneapi::dal::backend {
 
-void convert_vector(const void* src,
+void convert_vector(const detail::default_host_policy& policy,
+                    const void* src,
                     void* dst,
                     data_type src_type,
                     data_type dest_type,
@@ -27,7 +28,8 @@ void convert_vector(const void* src,
     interop::daal_convert(src, dst, src_type, dest_type, size);
 }
 
-void convert_vector(const void* src,
+void convert_vector(const detail::default_host_policy& policy,
+                    const void* src,
                     void* dst,
                     data_type src_type,
                     data_type dest_type,
@@ -36,5 +38,28 @@ void convert_vector(const void* src,
                     std::int64_t size) {
     interop::daal_convert(src, dst, src_type, dest_type, src_stride, dst_stride, size);
 }
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+
+void convert_vector(const detail::data_parallel_policy& policy,
+                    const void* src,
+                    void* dst,
+                    data_type src_type,
+                    data_type dest_type,
+                    std::int64_t size) {
+    convert_vector(detail::default_host_policy{}, src, dst, src_type, dest_type, size);
+}
+
+void convert_vector(const detail::data_parallel_policy& policy,
+                    const void* src,
+                    void* dst,
+                    data_type src_type,
+                    data_type dest_type,
+                    std::int64_t src_stride,
+                    std::int64_t dst_stride,
+                    std::int64_t size) {
+    convert_vector(detail::default_host_policy{}, src, dst, src_type, dest_type, src_stride, dst_stride, size);
+}
+#endif
 
 } // namespace oneapi::dal::backend
