@@ -54,9 +54,9 @@ public:
 
     ~BruteForceNearestNeighbors() {}
 
-    services::Status kClassification(const size_t k, const size_t nClasses, VoteWeights voteWeights, DAAL_UINT64 resultsToCompute,
-                                     DAAL_UINT64 resultsToEvaluate, const NumericTable * trainTable, const NumericTable * testTable,
-                                     const NumericTable * trainLabelTable, NumericTable * testLabelTable, int * indices, FPType * distances)
+    services::Status kNeighbors(const size_t k, const size_t nClasses, VoteWeights voteWeights, DAAL_UINT64 resultsToCompute,
+                                DAAL_UINT64 resultsToEvaluate, const NumericTable * trainTable, const NumericTable * testTable,
+                                const NumericTable * trainLabelTable, NumericTable * testLabelTable, int * indices, FPType * distances)
     {
         daal::SafeStatus s;
 
@@ -73,7 +73,7 @@ public:
             trainLabel = trainLabelBlock.getBlockPtr();
         }
 
-        daal::algorithms::internal::EuclideanDistances<FPType, cpu> euclDist(*testTable, *trainTable, false);
+        daal::algorithms::internal::EuclideanDistances<FPType, cpu> euclDist(*testTable, *trainTable, !(resultsToCompute & computeDistances));
         euclDist.init();
 
         const size_t blockSize    = 128;

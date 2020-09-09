@@ -52,6 +52,7 @@ services::Status KNNClassificationPredictKernel<algorithmFPType, cpu>::compute(c
     const uint32_t nClasses             = parameter->nClasses;
     const VoteWeights voteWeights       = parameter->voteWeights;
     const DAAL_UINT64 resultsToEvaluate = parameter->resultsToEvaluate;
+    const DAAL_UINT64 resultsToCompute  = parameter->resultsToCompute;
 
     const size_t nTest = data->getNumberOfRows();
     daal::internal::WriteRows<algorithmFPType, cpu> distancesRows(distances, 0, nTest);
@@ -62,8 +63,8 @@ services::Status KNNClassificationPredictKernel<algorithmFPType, cpu>::compute(c
     DAAL_CHECK_MALLOC(neighborsIndices);
 
     daal::algorithms::bf_knn_classification::internal::BruteForceNearestNeighbors<algorithmFPType, cpu> bfnn;
-    bfnn.kNeighbors(k, nClasses, voteWeights, 0, resultsToEvaluate, trainDataTable.get(), data, trainLabelTable.get(), label, neighborsIndices,
-                    neighborsDistances);
+    bfnn.kNeighbors(k, nClasses, voteWeights, resultsToCompute, resultsToEvaluate, trainDataTable.get(), data, trainLabelTable.get(), label,
+                    neighborsIndices, neighborsDistances);
     return services::Status();
 }
 
