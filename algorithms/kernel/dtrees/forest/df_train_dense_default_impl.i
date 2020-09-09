@@ -633,7 +633,7 @@ services::Status TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::run(engin
 
     typename DataHelper::ImpurityData initialImpurity;
     _helper.calcImpurity(_aSample.get(), _nSamples, initialImpurity);
-    bool bUnorderedFeaturesUsed              = false;
+    bool bUnorderedFeaturesUsed = false;
     services::Status s;
     typename DataHelper::NodeType::Base * nd = _maxLeafNodes ?
                                                    buildBestFirst(s, 0, _nSamples, 0, initialImpurity, bUnorderedFeaturesUsed, _nClasses) :
