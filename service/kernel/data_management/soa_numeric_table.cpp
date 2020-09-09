@@ -134,14 +134,7 @@ bool SOANumericTable::isHomogeneous() const
 
 bool SOANumericTable::isAllCompleted() const
 {
-    const size_t ncols = getNumberOfColumns();
-
-    for (size_t i = 0; i < ncols; ++i)
-    {
-        if (!_arrays[i].get()) return false;
-    }
-
-    return true;
+    return _arraysInitialized == getNumberOfColumns();
 }
 
 services::Status SOANumericTable::searchMinPointer()

@@ -56,7 +56,7 @@ Model::Model(size_t nFeatures, const multi_class_classifier::interface2::Paramet
     if (!_models) st.add(services::ErrorMemoryAllocationFailed);
 }
 
-Model::Model() : _modelsArray(nullptr), _models(new data_management::DataCollection()), _nFeatures(0) {}
+Model::Model() : _nFeatures(0), _models(new data_management::DataCollection()), _modelsArray(nullptr) {}
 
 ModelPtr Model::create(size_t nFeatures, const interface1::ParameterBase * par, services::Status * stat)
 {

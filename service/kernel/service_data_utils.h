@@ -57,6 +57,12 @@ struct MaxVal<double>
 };
 
 template <>
+struct MaxVal<uint32_t>
+{
+    DAAL_FORCEINLINE static uint32_t get() { return UINT32_MAX; }
+};
+
+template <>
 struct MaxVal<float>
 {
     DAAL_FORCEINLINE static float get() { return FLT_MAX; }

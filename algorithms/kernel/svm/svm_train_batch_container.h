@@ -42,7 +42,7 @@ namespace interface2
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::SVMTrainImpl, method, svm::interface1::Parameter, algorithmFPType);
+    __DAAL_INITIALIZE_KERNELS(internal::SVMTrainImpl, method, svm::interface2::Parameter, algorithmFPType);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>

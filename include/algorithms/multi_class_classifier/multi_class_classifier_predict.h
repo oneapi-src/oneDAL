@@ -259,8 +259,8 @@ public:
     typedef classifier::prediction::Batch super;
 
     typedef algorithms::multi_class_classifier::prediction::Input InputType;
-    typedef algorithms::multi_class_classifier::Parameter         ParameterType;
-    typedef typename super::ResultType                            ResultType;
+    typedef algorithms::multi_class_classifier::Parameter ParameterType;
+    typedef algorithms::multi_class_classifier::prediction::Result ResultType;
 
     InputType input;                /*!< Input objects of the algorithm */
     ParameterType parameter;        /*!< \ref interface1::Parameter "Parameters" of the algorithm */
@@ -307,7 +307,29 @@ public:
      * Returns method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)pmethod; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)pmethod; }
+
+    /**
+     * Returns the structure that contains computed prediction results
+     * \return Structure that contains computed prediction results
+     */
+    multi_class_classifier::prediction::ResultPtr getResult() { return Result::cast(_result); }
+
+    /**
+     * Registers user-allocated memory for storing the prediction results
+     * \param[in] result Structure for storing the prediction results
+     *
+     * \return Status of computation
+     */
+    services::Status setResult(const multi_class_classifier::prediction::ResultPtr & result)
+    {
+        DAAL_CHECK(result, services::ErrorNullResult)
+        _result = result;
+        _res    = _result.get();
+        return services::Status();
+    }
+
+    services::Status setResult(const classifier::prediction::ResultPtr & result) { return super::setResult(result); }
 
     /**
      * Returns a pointer to the newly allocated multi-class classifier prediction algorithm
@@ -326,18 +348,20 @@ protected:
         return new Batch<algorithmFPType, pmethod, tmethod>(*this);
     }
 
-    services::Status allocateResult() DAAL_C11_OVERRIDE
+    virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s  = _result->allocate<algorithmFPType>(&input, &parameter, (int) pmethod);
+        services::Status s = static_cast<ResultType *>(_result.get())
+                                 ->allocate<algorithmFPType>(&input, &parameter, static_cast<int>(pmethod), static_cast<int>(tmethod));
         _res = _result.get();
         return s;
     }
 
     void initialize()
     {
-        _in = &input;
-        _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, pmethod, tmethod)(&_env);
+        _in  = &input;
+        _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, pmethod, tmethod)(&_env);
         _par = &parameter;
+        _result.reset(new ResultType());
     }
 };
 /** @} */

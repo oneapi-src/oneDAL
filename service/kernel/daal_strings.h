@@ -153,6 +153,7 @@
     DECLARE_DAAL_STRING_CONST(groundTruth)                       \
     DECLARE_DAAL_STRING_CONST(supportVectors)                    \
     DECLARE_DAAL_STRING_CONST(classificationCoefficients)        \
+    DECLARE_DAAL_STRING_CONST(decisionFunction)                  \
     DECLARE_DAAL_STRING_CONST(beta)                              \
     DECLARE_DAAL_STRING_CONST(confusionMatrix)                   \
     DECLARE_DAAL_STRING_CONST(binaryMetrics)                     \

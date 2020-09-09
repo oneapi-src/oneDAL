@@ -48,7 +48,7 @@ services::SharedPtr<svm::training::Batch<float, svm::training::thunder> > traini
 services::SharedPtr<svm::prediction::Batch<> > prediction(new svm::prediction::Batch<>());
 
 multi_class_classifier::training::ResultPtr trainingResult;
-classifier::prediction::ResultPtr predictionResult;
+multi_class_classifier::prediction::ResultPtr predictionResult;
 kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<float, kernel_function::linear::fastCSR>());
 NumericTablePtr testGroundTruth;
 
@@ -130,6 +130,6 @@ void printResults()
     testLabelsDataSource.loadDataBlock();
     testGroundTruth = testLabelsDataSource.getNumericTable();
 
-    printNumericTables<int, int>(testGroundTruth, predictionResult->get(classifier::prediction::prediction), "Ground truth", "Classification results",
+    printNumericTables<int, int>(testGroundTruth, predictionResult->get(multi_class_classifier::prediction::prediction), "Ground truth", "Classification results",
                                  "Multi-class SVM classification sample program results (first 20 observations):", 20);
 }

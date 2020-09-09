@@ -45,6 +45,15 @@ namespace algorithms
  */
 namespace multi_class_classifier
 {
+/**
+ * <a name="DAAL-ENUM-ALGORITHMS__MULTI_CLASS_CLASSIFIER__RESULTTOCOMPUTEID"></a>
+ * Available identifiers to specify the result to compute
+ */
+enum ResultToComputeId
+{
+    computeClassLabels      = classifier::computeClassLabels, /*!< Numeric table of size n x 1 with the predicted labels >*/
+    computeDecisionFunction = 0x00000032ULL /*!< Numeric table of size n x (k*(k-1)/2) with the decision function for each observation >*/
+};
 
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
@@ -88,7 +97,7 @@ struct DAAL_EXPORT Parameter : public ParameterBase
     DAAL_DEPRECATED services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [interface1::Parameter source code] */
-}
+} // namespace interface1
 
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
@@ -132,7 +141,7 @@ struct DAAL_EXPORT Parameter : public ParameterBase
     services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [Parameter source code] */
-}
+} // namespace interface2
 using interface2::ParameterBase;
 using interface2::Parameter;
 
