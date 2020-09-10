@@ -26,9 +26,9 @@ using namespace oneapi;
 
 template <typename Method>
 void run_compute(dal::table x_train, const char *method_name) {
-    constexpr std::int64_t cluster_count       = 20;
+    constexpr std::int64_t cluster_count = 20;
     constexpr std::int64_t max_iteration_count = 1000;
-    constexpr double accuracy_threshold        = 0.01;
+    constexpr double accuracy_threshold = 0.01;
 
     const auto kmeans_init_desc =
         dal::kmeans_init::descriptor<float, Method>().set_cluster_count(cluster_count);
