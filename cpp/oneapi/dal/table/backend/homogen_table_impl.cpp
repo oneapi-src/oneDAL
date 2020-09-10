@@ -64,6 +64,30 @@ void reset_array(const Policy& policy, array<Data>& array, int64_t count, const 
 }
 
 template <typename Policy, typename Data, typename Alloc>
+bool has_array_data_kind(const Policy& policy, const array<Data>& array, const Alloc& kind) {
+    if (array.get_count() <= 0) {
+        return false;
+    }
+
+    if constexpr (std::is_same_v<Policy, detail::default_host_policy>) {
+        // We assume that no sycl::usm::alloc::device pointers used with host policies.
+        // It is responsibility of user to pass right pointers because we cannot check
+        // the right pointer type with the host policy.
+        return true;
+    }
+    #ifdef ONEAPI_DAL_DATA_PARALLEL
+    else if constexpr (std::is_same_v<Policy, detail::data_parallel_policy>) {
+        static_assert(std::is_same_v<Alloc, sycl::usm::alloc>);
+        auto array_data_kind = sycl::get_pointer_type(array.get_data(), policy.get_queue().get_context());
+        return array_data_kind == kind;
+    }
+    #endif
+    else {
+        static_assert("has_array_data_kind(): undefined policy type");
+    }
+}
+
+template <typename Policy, typename Data, typename Alloc>
 void homogen_table_impl::pull_rows_impl(const Policy& policy, array<Data>& block, const range& rows, const Alloc& kind) const {
     // TODO: check range correctness
     // TODO: check array size if non-zero
@@ -76,7 +100,7 @@ void homogen_table_impl::pull_rows_impl(const Policy& policy, array<Data>& block
     }
 
     const auto table_dtype = meta_.get_data_type(0);
-    if (block_dtype == table_dtype) {
+    if (block_dtype == table_dtype && has_array_data_kind(policy, data_, kind)) {
         if (data_.has_mutable_data()) {
             auto row_data = reinterpret_cast<Data*>(data_.get_mutable_data());
             auto row_start_pointer = row_data + rows.start_idx * col_count_;
@@ -88,7 +112,9 @@ void homogen_table_impl::pull_rows_impl(const Policy& policy, array<Data>& block
         }
     }
     else {
-        if (block.get_count() < range_size || block.has_mutable_data() == false) {
+        if (block.get_count() < range_size ||
+            block.has_mutable_data() == false ||
+            has_array_data_kind(policy, block, kind) == false) {
             reset_array(policy, block, range_size, kind);
         }
 
@@ -163,7 +189,9 @@ void homogen_table_impl::pull_column_impl(const Policy& policy,
     }
 
     const auto table_dtype = meta_.get_data_type(0);
-    if (block_dtype == table_dtype && column_count == 1) {
+    if (block_dtype == table_dtype &&
+        column_count == 1 &&
+        has_array_data_kind(policy, data_, kind)) {
         // TODO: assert column_index == 0
 
         if (data_.has_mutable_data()) {
@@ -175,7 +203,9 @@ void homogen_table_impl::pull_column_impl(const Policy& policy,
         }
     }
     else {
-        if (block.get_count() < range_count) {
+        if (block.get_count() < range_count ||
+            block.has_mutable_data() == false ||
+            has_array_data_kind(policy, block, kind) == false) {
             reset_array(policy, block, range_count, kind);
         }
 
