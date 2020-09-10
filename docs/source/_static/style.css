@@ -92,7 +92,7 @@ div.quotation {
 }
 
 .rst-content div[class^='highlight'] pre {
-   white-space: pre-line;
+   white-space: pre-wrap;
 }
 
 /*

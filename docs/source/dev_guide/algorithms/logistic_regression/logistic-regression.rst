@@ -75,7 +75,7 @@ For more details, see [Hastie2009]_, [Bishop2006]_.
 
 For the objective function minimization the library supports the
 iterative algorithms defined by the interface of
-|namespace|::algorithms::iterative_solver. See `Iterative Solver <https://software.intel.com/en-us/daal-programming-guide-iterative-solver>`_.
+|namespace|::algorithms::iterative_solver. See :ref:`iterative_solver`.
 
 Prediction Stage
 -----------------
@@ -114,11 +114,13 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     - :cpp_example:`log_reg_model_builder.cpp <logistic_regression/log_reg_model_builder.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     - :java_example:`LogRegModelBuilder.java <logistic_regression/LogRegModelBuilder.java>`
 
@@ -261,14 +263,7 @@ Examples
 
 .. tabs::
 
-  .. tab:: DPC++
-
-    Batch Processing:
-
-    - :ref:`log_reg_binary_dense_batch.cpp`
-    - :ref:`log_reg_dense_batch.cpp`
-
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
@@ -276,16 +271,24 @@ Examples
     -  :cpp_example:`log_reg_binary_dense_batch.cpp <logistic_regression/log_reg_binary_dense_batch.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
 
     -  :java_example:`LogRegDenseBatch.java <logistic_regression/LogRegDenseBatch.java>`
     -  :java_example:`LogRegBinaryDenseBatch.java <logistic_regression/LogRegBinaryDenseBatch.java>`
 
+  .. tab:: Python* with DPC++ support
+
+    Batch Processing:
+
+    - :daal4py_sycl_example:`log_reg_dense_batch.py`
+    - :daal4py_sycl_example:`log_reg_binary_dense_batch.py`
+
   .. tab:: Python*
 
     Batch Processing:
 
-    -  :daal4py_example:`log_reg_dense_batch.py`
-
-.. -  log_reg_binary_dense_batch.py
+    - :daal4py_example:`log_reg_dense_batch.py`
+    - :daal4py_example:`log_reg_binary_dense_batch.py` 

@@ -71,6 +71,17 @@ Bernoulli distribution algorithm has the following parameters in addition to the
      - Not applicable
      - Success probability of a trial, required parameter.   
 
+Examples
+********
+
+.. tabs::
+
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`distributions_bernoulli_batch.py`
+
 Performance Considerations
 **************************
 

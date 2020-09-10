@@ -129,14 +129,22 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
-    - :cpp_example:`pivoted_qr_dense_batch.cpp <qr/pivoted_qr_dense_batch.cpp>`
+    - :cpp_example:`pivoted_qr_dense_batch.cpp <pivoted_qr/pivoted_qr_dense_batch.cpp>`
 
-  .. tab:: Java
+  .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
 
-    - :java_example:`PivotedQRDenseBatch.java <qr/PivotedQRDenseBatch.java>`
+    - :java_example:`PivotedQRDenseBatch.java <pivoted_qr/PivotedQRDenseBatch.java>`
+
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`pivoted_qr_batch.py`

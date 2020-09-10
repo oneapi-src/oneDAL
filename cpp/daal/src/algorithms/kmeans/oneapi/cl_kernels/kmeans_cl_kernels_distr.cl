@@ -21,15 +21,15 @@
 //--
 */
 
-#ifndef __KMEANS_CL_KERNELS_CL__
-#define __KMEANS_CL_KERNELS_CL__
+#ifndef __KMEANS_CL_KERNELS_DISTR_CL__
+#define __KMEANS_CL_KERNELS_DISTR_CL__
 
 #include <string.h>
 
 #define DECLARE_SOURCE(name, src) static const char * name = #src;
 
 DECLARE_SOURCE(
-    kmeans_cl_kernels,
+    kmeans_cl_kernels_distr,
 
     void __sum_reduce(__local algorithmFPType * local_sum, uint local_id, uint local_size) {
         for (uint stride = local_size / 2; stride > 0; stride /= 2)

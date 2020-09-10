@@ -48,7 +48,7 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
@@ -63,6 +63,8 @@ Examples
     - :cpp_example:`qr_dense_distr.cpp <qr/qr_dense_distr.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
 
@@ -75,3 +77,17 @@ Examples
     Distributed Processing:
 
     - :java_example:`QRDenseDistr.java <qr/QRDenseDistr.java>`
+
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`qr_batch.py`
+
+    Online Processing:
+
+    - :daal4py_example:`qr_streaming.py`
+
+    Distributed Processing:
+
+    - :daal4py_example:`qr_spmd.py`

@@ -102,11 +102,13 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     - :cpp_example:`gbt_cls_traversed_model_builder.cpp <gradient_boosted_trees/gbt_cls_traversed_model_builder.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     - :java_example:`GbtClsTraversedModelBuilder.java <gbt/GbtClsTraversedModelBuilder.java>`
 
@@ -184,16 +186,23 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
     - :cpp_example:`gbt_cls_dense_batch.cpp <gradient_boosted_trees/gbt_cls_dense_batch.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
 
     - :java_example:`GbtClsDenseBatch.java <gbt/GbtClsDenseBatch.java>`
 
-.. Python*: gbt_cls_dense_batch.py
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`gradient_boosted_classification_batch.py`
+    - :daal4py_example:`gradient_boosted_classification_traverse_batch.py`

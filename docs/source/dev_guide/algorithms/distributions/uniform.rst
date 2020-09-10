@@ -70,3 +70,14 @@ Uniform distribution algorithm has the following parameters in addition to the c
    * - ``b``
      - :math:`1.0`
      - The right bound :math:`b`.
+
+Examples
+********
+
+.. tabs::
+
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`distributions_uniform_batch.py`

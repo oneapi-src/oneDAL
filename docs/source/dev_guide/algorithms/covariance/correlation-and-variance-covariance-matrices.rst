@@ -74,36 +74,45 @@ Examples
 
 .. tabs::
 
-  .. tab:: DPC++
-
-    Batch Processing:
-
-    - :ref:`cor_dense_batch.cpp`
-
-    Online Processing:
-
-    - :ref:`cor_dense_online.cpp`
-
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
     -  :cpp_example:`cov_dense_batch.cpp <covariance/cov_dense_batch.cpp>`
     -  :cpp_example:`cov_csr_batch.cpp <covariance/cov_csr_batch.cpp>`
 
-
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
 
     -  :java_example:`CovDenseBatch.java <covariance/CovDenseBatch.java>`
     -  :java_example:`CovCSRBatch.java <covariance/CovCSRBatch.java>`
 
-.. Python*:
+  .. tab:: Python* with DPC++ support
 
-.. -  cov_dense_batch.py
-.. -  cov_csr_batch.py
+    Batch Processing:
 
+    - :daal4py_sycl_example:`covariance_batch.py`
+
+    Online Processing:
+
+    - :daal4py_sycl_example:`covariance_streaming.py`
+
+  .. tab:: Python* 
+
+    Batch Processing:
+
+    - :daal4py_example:`covariance_batch.py`
+
+    Online Processing:
+
+    - :daal4py_example:`covariance_streaming.py`
+
+    Distributed Processing:
+
+    - :daal4py_example:`covariance_spmd.py`
 
 Performance Considerations
 **************************

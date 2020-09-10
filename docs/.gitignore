@@ -1,3 +1,4 @@
 build/
-source/examples_sycl/
+source/examples/cpp/*
+source/examples/dpc/*
 docbuild-log.txt

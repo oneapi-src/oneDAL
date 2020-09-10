@@ -19,24 +19,30 @@
 
 namespace oneapi::dal::kmeans_init {
 
-class detail::descriptor_impl : public base {
+template <>
+class detail::descriptor_impl<task::init> : public base {
 public:
     std::int64_t cluster_count = 2;
 };
 
 using detail::descriptor_impl;
 
-descriptor_base::descriptor_base() : impl_(new descriptor_impl{}) {}
+template <typename Task>
+descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl{}) {}
 
-std::int64_t descriptor_base::get_cluster_count() const {
+template <typename Task>
+std::int64_t descriptor_base<Task>::get_cluster_count() const {
     return impl_->cluster_count;
 }
 
-void descriptor_base::set_cluster_count_impl(std::int64_t value) {
+template <typename Task>
+void descriptor_base<Task>::set_cluster_count_impl(std::int64_t value) {
     if (value <= 0) {
         throw domain_error("cluster_count should be > 0");
     }
     impl_->cluster_count = value;
 }
+
+template class ONEAPI_DAL_EXPORT descriptor_base<task::init>;
 
 } // namespace oneapi::dal::kmeans_init

@@ -136,12 +136,18 @@ Examples
 
 .. tabs::
 
-    .. tab:: C++
+  .. tab:: C++ (CPU)
 
-        - :cpp_example:`adagrad_dense_batch.cpp <optimization_solvers/adagrad_dense_batch.cpp>`
-        - :cpp_example:`adagrad_opt_res_dense_batch.cpp <optimization_solvers/adagrad_opt_res_dense_batch.cpp>`
+    - :cpp_example:`adagrad_dense_batch.cpp <optimization_solvers/adagrad_dense_batch.cpp>`
+    - :cpp_example:`adagrad_opt_res_dense_batch.cpp <optimization_solvers/adagrad_opt_res_dense_batch.cpp>`
 
-    .. tab:: Java*
+  .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
-        - :java_example:`AdagradDenseBatch.java <optimization_solvers/AdagradDenseBatch.java>`
-        - :java_example:`AdagradOptResDenseBatch.java <optimization_solvers/AdagradOptResDenseBatch.java>`
+    - :java_example:`AdagradDenseBatch.java <optimization_solvers/AdagradDenseBatch.java>`
+    - :java_example:`AdagradOptResDenseBatch.java <optimization_solvers/AdagradOptResDenseBatch.java>`
+
+  .. tab:: Python*
+
+      - :daal4py_example:`adagrad_mse_batch.py`

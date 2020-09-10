@@ -18,10 +18,10 @@
 import os
 import shutil
 
-def create_rst(filedir, filename):
-    rst_content = '.. _' + filename + ':' + '\n\n' + filename + '\n' + '#' * len(filename) + '\n' + '\n' + \
-    '.. literalinclude:: ../../../../examples/daal/cpp_sycl/source/' + filedir + \
-    '/' + filename + '\n' + '  ' + ':language: cpp' + '\n'
+def create_rst(filedir, filename, lang):
+    rst_content = '.. _{}_{}:'.format(lang, filename) + '\n\n{}\n'.format(filename) + '#' * len(filename) + '\n\n' + \
+    '.. literalinclude:: ../../../../examples/oneapi/{}/source/{}/{}\n'.format(lang, filedir, filename) + \
+    '  :language: cpp\n'
 
     return(rst_content)
 
@@ -36,22 +36,23 @@ def list_examples(path):
 
     return(examples)
 
-def write_examples(files, path):
+def write_examples(files, path, lang):
     for file in files:
         with open(os.path.join(path, file[1].split('.')[0] + '.rst'), 'w') as rst_file:
-            rst_file.write(create_rst(file[0], file[1]))
+            rst_file.write(create_rst(file[0], file[1], lang))
 
-def run(script_dir):
-    example_path = os.path.join(script_dir, '..', 'examples', 'daal', 'cpp_sycl', 'source')
-    rst_path = os.path.join(script_dir, 'source', 'daal', 'examples_sycl')
+def run(script_dir, lang):
+    example_path = os.path.join(script_dir, '..', 'examples', 'oneapi', lang, 'source')
+    rst_path = os.path.join(script_dir, 'source', 'examples', lang)
 
     if os.path.exists(rst_path):
         shutil.rmtree(rst_path)
     os.makedirs(rst_path)
 
     files = list_examples(example_path)
-    write_examples(files, rst_path)
+    write_examples(files, rst_path, lang)
 
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    run(script_dir)
+    run(script_dir, "cpp")
+    run(script_dir, "dpc")

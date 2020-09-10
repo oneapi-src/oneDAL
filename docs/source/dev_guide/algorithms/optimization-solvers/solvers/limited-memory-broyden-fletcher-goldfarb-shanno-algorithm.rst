@@ -129,7 +129,7 @@ Computation
 ***********
 
 The limited-memory BFGS algorithm is a special case of an iterative
-solver. For parameters, input, and output of iterative solvers, see `Iterative Solver Computation <https://software.intel.com/en-us/daal-programming-guide-computation-6>`_.
+solver. For parameters, input, and output of iterative solvers, see :ref:`iterative_solver_computation`.
 
 Algorithm Input
 ---------------
@@ -280,17 +280,25 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
+
+    Batch Processing:
 
     - :cpp_example:`lbfgs_dense_batch.cpp <optimization_solvers/lbfgs_dense_batch.cpp>`
     - :cpp_example:`lbfgs_opt_res_dense_batch.cpp <optimization_solvers/lbfgs_opt_res_dense_batch.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
+
+    Batch Processing:
 
   - :java_example:`LBFGSDenseBatch.java <optimization_solvers/LBFGSDenseBatch.java>`
   - :java_example:`LBFGSOptResDenseBatch.java <optimization_solvers/LBFGSOptResDenseBatch.java>`
 
-.. Python*:
+  .. tab:: Python*
 
-.. -  lbfgs_dense_batch.py
-.. -  lbfgs_opt_res_dense_batch.py
+    Batch Processing:
+
+    - :daal4py_example:`lbfgs_cr_entr_loss_batch.py`
+    - :daal4py_example:`lbfgs_mse_batch.py`

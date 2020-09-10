@@ -217,13 +217,15 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
     - :cpp_example:`assoc_rules_apriori_batch.cpp <association_rules/assoc_rules_apriori_batch.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
 
@@ -234,7 +236,6 @@ Examples
     Batch Processing:
     
     - :daal4py_example:`association_rules_batch.py`
-
 
 Performance Considerations
 **************************
