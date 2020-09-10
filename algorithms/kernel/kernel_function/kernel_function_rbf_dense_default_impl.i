@@ -171,7 +171,7 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
     DAAL_INT one         = 1;
     algorithmFPType zero = 0.0, negTwo = -2.0;
 
-    const bool isSOARes = r->getDataLayout() == NumericTableIface::soa;
+    const bool isSOARes = r->getDataLayout() & NumericTableIface::soa;
 
     DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, nVectors1, nVectors2);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors1 + nVectors2, sizeof(algorithmFPType));
@@ -190,7 +190,7 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
         return tlsData;
     });
 
-    daal::threader_for(nBlocks1, nBlocks1, [&](const size_t iBlock1) {
+    daal::threader_for(nBlocks1, nBlocks1, [&, isSOARes](const size_t iBlock1) {
         DAAL_INT nRowsInBlock1 = (iBlock1 != nBlocks1 - 1) ? blockSize : nVectors1 - iBlock1 * blockSize;
         DAAL_INT startRow1     = iBlock1 * blockSize;
 

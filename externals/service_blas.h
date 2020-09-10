@@ -164,11 +164,11 @@ struct Blas
             lastBlockSizeB = blockSizeB;
         }
 
-        const bool isSOARes = tc->getDataLayout() == NumericTableIface::soa;
+        const bool isSOARes = tc->getDataLayout() & NumericTableIface::soa;
         TlsMem<fpType, cpu> tlsMklBuff(blockSizeA * blockSizeB);
 
         /* Threaded loop by whole number of blocks */
-        daal::threader_for(nBlocksB, nBlocksB, [&](SizeType iBlockB) {
+        daal::threader_for(nBlocksB, nBlocksB, [&, isSOARes](SizeType iBlockB) {
             /* Current block size - can be less than general block size for last block */
             SizeType nRowsInBlockB   = (iBlockB < (nBlocksB - 1)) ? blockSizeB : lastBlockSizeB;
             const SizeType startRowB = iBlockB * blockSizeB;
