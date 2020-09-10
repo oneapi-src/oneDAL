@@ -58,7 +58,14 @@ void convert_vector(const detail::data_parallel_policy& policy,
                     std::int64_t src_stride,
                     std::int64_t dst_stride,
                     std::int64_t size) {
-    convert_vector(detail::default_host_policy{}, src, dst, src_type, dest_type, src_stride, dst_stride, size);
+    convert_vector(detail::default_host_policy{},
+                   src,
+                   dst,
+                   src_type,
+                   dest_type,
+                   src_stride,
+                   dst_stride,
+                   size);
 }
 #endif
 

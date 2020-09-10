@@ -106,7 +106,8 @@ TEST(column_accessor_test, can_get_columns_from_homogen_table_builder) {
             auto col = acc.pull(q, col_idx);
 
             ASSERT_EQ(col.get_count(), 3);
-            ASSERT_EQ(sycl::get_pointer_type(col.get_data(), q.get_context()), sycl::usm::alloc::shared);
+            ASSERT_EQ(sycl::get_pointer_type(col.get_data(), q.get_context()),
+                      sycl::usm::alloc::shared);
 
             col.need_mutable_data(q);
             auto col_data = col.get_mutable_data();
@@ -126,7 +127,8 @@ TEST(column_accessor_test, can_get_columns_from_homogen_table_builder) {
             const auto col = acc.pull(q, col_idx);
 
             ASSERT_EQ(col.get_count(), 3);
-            ASSERT_EQ(sycl::get_pointer_type(col.get_data(), q.get_context()), sycl::usm::alloc::shared);
+            ASSERT_EQ(sycl::get_pointer_type(col.get_data(), q.get_context()),
+                      sycl::usm::alloc::shared);
 
             for (std::int64_t i = 0; i < col.get_count(); i++) {
                 ASSERT_FLOAT_EQ(col[i], col_idx + 1);

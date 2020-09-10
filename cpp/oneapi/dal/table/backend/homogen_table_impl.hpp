@@ -82,13 +82,16 @@ public:
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     template <typename Data>
-    void pull_rows(sycl::queue& queue, array<Data>& block, const range& rows, const sycl::usm::alloc& kind) const {
-        pull_rows_impl(detail::data_parallel_policy {queue}, block, rows, kind);
+    void pull_rows(sycl::queue& queue,
+                   array<Data>& block,
+                   const range& rows,
+                   const sycl::usm::alloc& kind) const {
+        pull_rows_impl(detail::data_parallel_policy{ queue }, block, rows, kind);
     }
 
     template <typename Data>
     void push_rows(sycl::queue& queue, const array<Data>& block, const range& rows) {
-        push_rows_impl(detail::data_parallel_policy {queue}, block, rows);
+        push_rows_impl(detail::data_parallel_policy{ queue }, block, rows);
     }
 
     template <typename Data>
@@ -101,27 +104,36 @@ public:
     }
 
     template <typename Data>
-    void push_column(sycl::queue& queue, const array<Data>& block, std::int64_t column_index, const range& rows) {
+    void push_column(sycl::queue& queue,
+                     const array<Data>& block,
+                     std::int64_t column_index,
+                     const range& rows) {
         push_column_impl(detail::data_parallel_policy{ queue }, block, column_index, rows);
     }
 #endif
 
 private:
     template <typename Policy, typename Data, typename Alloc>
-    void pull_rows_impl(const Policy& policy, array<Data>& block, const range& rows, const Alloc& kind) const;
+    void pull_rows_impl(const Policy& policy,
+                        array<Data>& block,
+                        const range& rows,
+                        const Alloc& kind) const;
 
     template <typename Policy, typename Data>
     void push_rows_impl(const Policy& policy, const array<Data>& block, const range& rows);
 
     template <typename Policy, typename Data, typename Alloc>
     void pull_column_impl(const Policy& policy,
-                     array<Data>& block,
-                     int64_t column_index,
-                     const range& rows,
-                     const Alloc& kind) const;
+                          array<Data>& block,
+                          int64_t column_index,
+                          const range& rows,
+                          const Alloc& kind) const;
 
     template <typename Policy, typename Data>
-    void push_column_impl(const Policy& policy, const array<Data>& block, int64_t column_index, const range& rows);
+    void push_column_impl(const Policy& policy,
+                          const array<Data>& block,
+                          int64_t column_index,
+                          const range& rows);
 
 private:
     table_metadata meta_;
