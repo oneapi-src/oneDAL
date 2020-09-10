@@ -58,17 +58,18 @@ enum DataUseInModel
  */
 enum ResultToComputeId
 {
-    computeIndicesOfNeightbors = 0x00000001ULL,
-    computeDistances           = 0x00000002ULL
+    computeIndicesOfNeightbors = 0x00000001ULL, /*!< The flag to compute indices of nearest neighbors */
+    computeDistances           = 0x00000002ULL  /*!< The flag to compute distances to nearest neighbors */
 };
 /**
- * <a name="DAAL-ENUM-ALGORITHMS__BF_KNN_CLASSIFICATION__VOTEWEIGHTS"></a>
+ * <a name="DAAL-ENUM-ALGORITHMS__BF_KNN_CLASSIFICATION__RESULTTOCOMPUTEID"></a>
  * \brief Weight function used in prediction voting
  */
 enum VoteWeights
 {
-    voteUniform  = 0,
-    voteDistance = 1
+    voteUniform  = 0, /*!< Uniform weights for neighbors for prediction voting. All neighbors are weighted equally */
+    voteDistance = 1  /*!< Weight neighbors by the inverse of their distance. Closer neighbors of a query point will have a greater influence
+                           than neighbors that are further away */
 };
 
 /**

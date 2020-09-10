@@ -56,7 +56,8 @@ public:
 
     services::Status kNeighbors(const size_t k, const size_t nClasses, VoteWeights voteWeights, DAAL_UINT64 resultsToCompute,
                                 DAAL_UINT64 resultsToEvaluate, const NumericTable * trainTable, const NumericTable * testTable,
-                                const NumericTable * trainLabelTable, NumericTable * testLabelTable, int * indices, FPType * distances)
+                                const NumericTable * trainLabelTable, NumericTable * testLabelTable,
+                                NumericTable * indicesTable, NumericTable * distancesTable)
     {
         daal::SafeStatus s;
 
@@ -65,12 +66,32 @@ public:
         const size_t nTest  = testTable->getNumberOfRows();
 
         int * trainLabel = nullptr;
+        int * indices = nullptr;
+        FPType * distances = nullptr;
         BlockDescriptor<int> trainLabelBlock;
+        BlockDescriptor<int> indicesBlock;
+        BlockDescriptor<FPType> distancesBlock;
+
+        if (resultsToCompute & computeIndicesOfNeightbors)
+        {
+            indicesTable->getBlockOfRows(0, nTest, readWrite, indicesBlock);
+            indices = indicesBlock.getBlockPtr();
+            DAAL_CHECK_MALLOC(indices);
+        }
+
+        if (resultsToCompute & computeDistances)
+        {
+            distancesTable->getBlockOfRows(0, nTest, readWrite, distancesBlock);
+            distances = distancesBlock.getBlockPtr();
+            DAAL_CHECK_MALLOC(distances);
+        }
+
         NumericTable * newTrainLabelTable = const_cast<NumericTable *>(trainLabelTable);
         if (resultsToEvaluate & daal::algorithms::classifier::computeClassLabels)
         {
             newTrainLabelTable->getBlockOfRows(0, nTrain, readWrite, trainLabelBlock);
             trainLabel = trainLabelBlock.getBlockPtr();
+            DAAL_CHECK_MALLOC(trainLabel);
         }
 
         daal::algorithms::internal::EuclideanDistances<FPType, cpu> euclDist(*testTable, *trainTable, !(resultsToCompute & computeDistances));
@@ -83,53 +104,90 @@ public:
             const size_t outerEnd   = outerBlock + 1 == nOuterBlocks ? nTest : outerStart + blockSize;
             const size_t outerSize  = outerEnd - outerStart;
 
-            daal::services::internal::TArray<FPType, cpu> tmpDistancesArr(outerSize * nTrain);
-            FPType * tmpDistances = tmpDistancesArr.get();
-            s |= euclDist.computeBatch(outerStart, outerSize, 0, nTrain, tmpDistances);
-
-            for (size_t i = outerStart; i < outerEnd; ++i)
-            {
-                daal::services::internal::TArray<int, cpu> indicesArr(nTrain);
-                int * tmpIndices = indicesArr.get();
-                for (size_t j = 0; j < nTrain; ++j)
-                {
-                    tmpIndices[j] = j;
-                }
-
-                daal::algorithms::internal::qSort<FPType, int, cpu>(nTrain, tmpDistances + (i - outerStart) * nTrain, tmpIndices);
-
-                for (size_t j = 0; j < k; ++j)
-                {
-                    indices[i * k + j]   = tmpIndices[j];
-                    distances[i * k + j] = tmpDistances[(i - outerStart) * nTrain + j];
-                }
-            }
-
-            if (resultsToEvaluate & daal::algorithms::classifier::computeClassLabels)
-            {
-                daal::internal::WriteRows<int, cpu> testLabelRows(testLabelTable, outerStart, outerSize);
-                int * testLabel = testLabelRows.get();
-                if (voteWeights == VoteWeights::voteUniform)
-                {
-                    s |= uniformWeightedVoting(nClasses, k, outerSize, indices + outerStart * k, trainLabel, testLabel);
-                }
-                else
-                {
-                    s |= distanceWeightedVoting(nClasses, k, outerSize, distances + outerStart * k, indices + outerStart * k, trainLabel, testLabel);
-                }
-            }
+            s |= computeKNearestBlock(&euclDist, outerSize, outerStart, nTrain, resultsToEvaluate, resultsToCompute, indices, distances,
+                nClasses, k, voteWeights, trainLabel, testLabelTable);
         });
 
         if (resultsToEvaluate & daal::algorithms::classifier::computeClassLabels)
         {
             newTrainLabelTable->releaseBlockOfRows(trainLabelBlock);
         }
+        if (resultsToCompute & computeIndicesOfNeightbors)
+        {
+            indicesTable->releaseBlockOfRows(indicesBlock);
+        }
+        if (resultsToCompute & computeDistances)
+        {
+            distancesTable->releaseBlockOfRows(distancesBlock);
+        }
 
         return s.detach();
     }
 
 protected:
-    services::Status uniformWeightedVoting(const size_t nClasses, const size_t k, const size_t n, int * indices, const int * trainLabel,
+    services::Status computeKNearestBlock(daal::algorithms::internal::EuclideanDistances<FPType, cpu> * distancesInstance,
+        const size_t blockSize, const size_t startTestIdx, const size_t nTrain, DAAL_UINT64 resultsToEvaluate, DAAL_UINT64 resultsToCompute,
+        int * indices, FPType * distances, const size_t nClasses, const size_t k, VoteWeights voteWeights,
+        int * trainLabel, NumericTable * testLabelTable)
+    {
+        services::Status s;
+
+        daal::services::internal::TArray<FPType, cpu> tmpDistancesArr(blockSize * nTrain);
+        daal::services::internal::TArray<int, cpu> tmpIndicesArr(blockSize * nTrain);
+        FPType * tmpDistances = tmpDistancesArr.get();
+        int * tmpIndices = tmpIndicesArr.get();
+        DAAL_CHECK_MALLOC(tmpDistances);
+        DAAL_CHECK_MALLOC(tmpIndices);
+        s |= distancesInstance->computeBatch(startTestIdx, blockSize, 0, nTrain, tmpDistances);
+
+        for (size_t i = 0; i < blockSize; ++i)
+        {
+            for (size_t j = 0; j < nTrain; ++j)
+            {
+                tmpIndices[i * nTrain + j] = j;
+            }
+
+            daal::algorithms::internal::qSort<FPType, int, cpu>(nTrain, tmpDistances + i * nTrain, tmpIndices + i * nTrain);
+        }
+
+        if (resultsToCompute & computeIndicesOfNeightbors)
+        {
+            for (size_t i = 0; i < blockSize; ++i)
+            {
+                for (size_t j = 0; j < k; ++j)
+                {
+                    indices[(i + startTestIdx) * k + j]   = tmpIndices[i * nTrain + j];
+                }
+            }
+        }
+        if (resultsToCompute & computeDistances)
+        {
+            for (size_t i = 0; i < blockSize; ++i)
+            {
+                for (size_t j = 0; j < k; ++j)
+                {
+                    distances[(i + startTestIdx) * k + j]   = tmpDistances[i * nTrain + j];
+                }
+            }
+        }
+
+        if (resultsToEvaluate & daal::algorithms::classifier::computeClassLabels)
+        {
+            daal::internal::WriteRows<int, cpu> testLabelRows(testLabelTable, startTestIdx, blockSize);
+            int * testLabel = testLabelRows.get();
+            if (voteWeights == VoteWeights::voteUniform)
+            {
+                s |= uniformWeightedVoting(nClasses, k, blockSize, nTrain, tmpIndices, trainLabel, testLabel);
+            }
+            else
+            {
+                s |= distanceWeightedVoting(nClasses, k, blockSize, nTrain, tmpDistances, tmpIndices, trainLabel, testLabel);
+            }
+        }
+        return s;
+    }
+
+    services::Status uniformWeightedVoting(const size_t nClasses, const size_t k, const size_t n, const size_t nTrain, int * indices, const int * trainLabel,
                                            int * testLabel)
     {
         daal::services::internal::TNArray<int, classBufSize, cpu> classWeightsArr(nClasses);
@@ -144,7 +202,7 @@ protected:
             }
             for (size_t j = 0; j < k; ++j)
             {
-                classWeights[trainLabel[indices[i * k + j]]] += 1;
+                classWeights[trainLabel[indices[i * nTrain + j]]] += 1;
             }
             size_t maxWeightClass = 0;
             size_t maxWeight      = 0;
@@ -161,7 +219,7 @@ protected:
         return services::Status();
     }
 
-    services::Status distanceWeightedVoting(const size_t nClasses, const size_t k, const size_t n, FPType * distances, int * indices,
+    services::Status distanceWeightedVoting(const size_t nClasses, const size_t k, const size_t n, const size_t nTrain, FPType * distances, int * indices,
                                             const int * trainLabel, int * testLabel)
     {
         daal::services::internal::TNArray<FPType, classBufSize, cpu> classWeightsArr(nClasses);
@@ -191,12 +249,12 @@ protected:
                 {
                     if (distances[i] < epsilon && distances[i] > -epsilon)
                     {
-                        classWeights[trainLabel[indices[i * k + j]]] += 1;
+                        classWeights[trainLabel[indices[i * nTrain + j]]] += 1;
                     }
                 }
                 else
                 {
-                    classWeights[trainLabel[indices[i * k + j]]] += 1 / distances[i * k + j];
+                    classWeights[trainLabel[indices[i * nTrain + j]]] += 1 / distances[i * nTrain + j];
                 }
             }
             size_t maxWeightClass = 0;
