@@ -25,7 +25,7 @@ Required Software:
 
         pacman -S msys/make
 
-For details, see [System Requirements for oneDAL](https://software.intel.com/en-us/articles/system-requirements-for-oneapi-data-analytics-library#).
+For details, see [System Requirements for oneDAL](https://software.intel.com/content/www/us/en/develop/articles/system-requirements-for-oneapi-data-analytics-library.html).
 
 ## Installation Steps
 1. Clone the sources from GitHub\* as follows:

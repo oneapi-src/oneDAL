@@ -104,7 +104,7 @@ algorithm.
 Prediction
 ----------
 
-For a description of the input and output, refer to `Usage Model: Training and Prediction <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction-1>`_.
+For a description of the input and output, refer to :ref:`regression_usage_model`.
 
 At the prediction stage, linear and ridge regressions have the following parameters:
 
