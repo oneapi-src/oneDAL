@@ -53,8 +53,8 @@ enum Method
 };
 
 /**
- * <a name="DAAL-ENUM-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__PREDICTION__RESULTID"></a>
- * \brief Available identifiers of the result for making KD-tree based kNN model-based prediction
+ * <a name="DAAL-ENUM-ALGORITHMS__MULTI_CLASS_CLASSIFIER__PREDICTION__RESULTID"></a>
+ * \brief Available identifiers of the result for the multi-class classifier prediction
  */
 enum ResultId
 {
@@ -120,8 +120,8 @@ public:
 };
 
 /**
-* <a name="DAAL-CLASS-ALGORITHMS__LOGISTIC_REGRESSION__PREDICTION__RESULT"></a>
-* \brief Provides interface for the result of model-based prediction   \DAAL_DEPRECATED
+* <a name="DAAL-CLASS-ALGORITHMS__MULTI_CLASS_CLASSIFIER__PREDICTION__RESULT"></a>
+* \brief Provides interface for the result of model-based prediction
 */
 class DAAL_EXPORT Result : public classifier::prediction::Result
 {
