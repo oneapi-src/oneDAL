@@ -80,12 +80,8 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
 
     void *degrees_vec_void =
         (void *)allocator.allocate(n_vertex * (sizeof(atomic_t) / sizeof(char)));
-    atomic_t *degrees_vec = new (degrees_vec_void) atomic_t[n_vertex];
+    atomic_t *degrees_cv = new (degrees_vec_void) atomic_t[n_vertex];
 
-    if (degrees_vec == nullptr) {
-        throw bad_alloc();
-    }
-    atomic_t *degrees_cv = degrees_vec;
     if (degrees_cv == nullptr) {
         throw bad_alloc();
     }
@@ -97,12 +93,8 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
 
     void *rows_vec_void =
         (void *)allocator.allocate((n_vertex + 1) * (sizeof(atomic_t) / sizeof(char)));
-    atomic_t *rows_vec = new (rows_vec_void) atomic_t[n_vertex + 1];
+    atomic_t *rows_cv = new (rows_vec_void) atomic_t[n_vertex + 1];
 
-    if (rows_vec == nullptr) {
-        throw bad_alloc();
-    }
-    atomic_t *rows_cv = rows_vec;
     if (rows_cv == nullptr) {
         throw bad_alloc();
     }
@@ -115,14 +107,11 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     }
     allocator.deallocate((char *)degrees_vec_void, n_vertex * (sizeof(atomic_t) / sizeof(char)));
 
-    void *_unf_vert_neighs_vec_void =
-        (void *)allocator.allocate((rows_cv[n_vertex].get()) * (sizeof(vertex_t) / sizeof(char)));
-    vertex_t *_unf_vert_neighs_arr =
-        new (_unf_vert_neighs_vec_void) vertex_t[rows_cv[n_vertex].get()];
+    vertex_t *_unf_vert_neighs_arr = (vertex_t *)allocator.allocate(
+        (rows_cv[n_vertex].get()) * (sizeof(vertex_t) / sizeof(char)));
 
-    void *_unf_edge_offset_arr_void =
-        (void *)allocator.allocate((n_vertex + 1) * (sizeof(edge_t) / sizeof(char)));
-    edge_t *_unf_edge_offset_arr = new (_unf_edge_offset_arr_void) edge_t[n_vertex + 1];
+    edge_t *_unf_edge_offset_arr =
+        (edge_t *)allocator.allocate((n_vertex + 1) * (sizeof(edge_t) / sizeof(char)));
 
     threader_for(n_vertex + 1, n_vertex + 1, [&](vertex_t n) {
         _unf_edge_offset_arr[n] = rows_cv[n].get();
@@ -174,9 +163,9 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         }
     });
 
-    allocator.deallocate((char *)_unf_vert_neighs_vec_void,
+    allocator.deallocate((char *)_unf_vert_neighs_arr,
                          (rows_cv[n_vertex].get()) * (sizeof(vertex_t) / sizeof(char)));
-    allocator.deallocate((char *)_unf_edge_offset_arr_void,
+    allocator.deallocate((char *)_unf_edge_offset_arr,
                          (n_vertex + 1) * (sizeof(edge_t) / sizeof(char)));
     return;
 } // namespace oneapi::dal::preview::load_graph::detail
