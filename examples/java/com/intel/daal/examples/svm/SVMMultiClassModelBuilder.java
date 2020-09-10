@@ -33,8 +33,6 @@ package com.intel.daal.examples.svm;
 
 import java.nio.FloatBuffer;
 import com.intel.daal.algorithms.classifier.training.InputId;
-import com.intel.daal.algorithms.classifier.prediction.PredictionResult;
-import com.intel.daal.algorithms.classifier.prediction.PredictionResultId;
 import com.intel.daal.algorithms.classifier.training.TrainingResultId;
 import com.intel.daal.algorithms.classifier.prediction.NumericTableInputId;
 import com.intel.daal.algorithms.classifier.prediction.ModelInputId;
@@ -69,7 +67,7 @@ class SVMMultiClassModelBuilder {
 
     private static DaalContext context = new DaalContext();
 
-    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException {
+    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException, IllegalAccessException {
 
         buildModelFromTraining();
         testModel();
@@ -77,7 +75,7 @@ class SVMMultiClassModelBuilder {
         context.dispose();
     }
 
-    public static void buildModelFromTraining() {
+    public static void buildModelFromTraining() throws IllegalAccessException {
 
         ModelBuilder multiBuilder = new ModelBuilder(context, TrainingMethod.oneAgainstOne, nFeatures, nClasses);
 

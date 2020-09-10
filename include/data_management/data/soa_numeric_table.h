@@ -292,9 +292,9 @@ protected:
 
     services::Status generatesOffsets()
     {
-        if (isHomogeneous())
+        if (isAllCompleted() && isHomogeneous())
         {
-            if (isAllCompleted()) DAAL_CHECK_STATUS_VAR(searchMinPointer());
+            DAAL_CHECK_STATUS_VAR(searchMinPointer());
         }
 
         return services::Status();
