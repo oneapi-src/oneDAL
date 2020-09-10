@@ -87,23 +87,49 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     DAAL_CHECK(m.get(), ErrorNullModel);
 
     services::Status s;
-    const daal::algorithms::decision_forest::training::Parameter * algParameter =
-        dynamic_cast<const daal::algorithms::decision_forest::training::Parameter *>(par);
-    DAAL_CHECK(algParameter, ErrorNullParameterNotSupported);
-    if (algParameter->resultsToCompute & decision_forest::training::computeOutOfBagError)
+    const daal::algorithms::decision_forest::training::interface1::Parameter * algParameter1 =
+        dynamic_cast<const daal::algorithms::decision_forest::training::interface1::Parameter *>(par);
+    const daal::algorithms::decision_forest::training::interface2::Parameter * algParameter2 =
+        dynamic_cast<const daal::algorithms::decision_forest::training::interface2::Parameter *>(par);
+    if (algParameter1 != NULL)
     {
-        DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(outOfBagError).get(), outOfBagErrorStr(), 0, 0, 1, 1));
+        if (algParameter1->resultsToCompute & decision_forest::training::computeOutOfBagError)
+        {
+            DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(outOfBagError).get(), outOfBagErrorStr(), 0, 0, 1, 1));
+        }
+        if (algParameter1->resultsToCompute & decision_forest::training::computeOutOfBagErrorPerObservation)
+        {
+            const auto nObs = algInput->get(classifier::training::data)->getNumberOfRows();
+            DAAL_CHECK_STATUS(
+                s, data_management::checkNumericTable(get(outOfBagErrorPerObservation).get(), outOfBagErrorPerObservationStr(), 0, 0, 1, nObs));
+        }
+        if (algParameter1->varImportance != decision_forest::training::none)
+        {
+            const auto nFeatures = algInput->get(classifier::training::data)->getNumberOfColumns();
+            DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(variableImportance).get(), variableImportanceStr(), 0, 0, nFeatures, 1));
+        }
     }
-    if (algParameter->resultsToCompute & decision_forest::training::computeOutOfBagErrorPerObservation)
+    else if (algParameter2 != NULL)
     {
-        const auto nObs = algInput->get(classifier::training::data)->getNumberOfRows();
-        DAAL_CHECK_STATUS(
-            s, data_management::checkNumericTable(get(outOfBagErrorPerObservation).get(), outOfBagErrorPerObservationStr(), 0, 0, 1, nObs));
+        if (algParameter2->resultsToCompute & decision_forest::training::computeOutOfBagError)
+        {
+            DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(outOfBagError).get(), outOfBagErrorStr(), 0, 0, 1, 1));
+        }
+        if (algParameter2->resultsToCompute & decision_forest::training::computeOutOfBagErrorPerObservation)
+        {
+            const auto nObs = algInput->get(classifier::training::data)->getNumberOfRows();
+            DAAL_CHECK_STATUS(
+                s, data_management::checkNumericTable(get(outOfBagErrorPerObservation).get(), outOfBagErrorPerObservationStr(), 0, 0, 1, nObs));
+        }
+        if (algParameter2->varImportance != decision_forest::training::none)
+        {
+            const auto nFeatures = algInput->get(classifier::training::data)->getNumberOfColumns();
+            DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(variableImportance).get(), variableImportanceStr(), 0, 0, nFeatures, 1));
+        }
     }
-    if (algParameter->varImportance != decision_forest::training::none)
+    else
     {
-        const auto nFeatures = algInput->get(classifier::training::data)->getNumberOfColumns();
-        DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(variableImportance).get(), variableImportanceStr(), 0, 0, nFeatures, 1));
+        s = s ? s : services::Status(services::ErrorNullParameterNotSupported);
     }
     return s;
 }
@@ -114,7 +140,7 @@ engines::EnginePtr Result::get(ResultEngineId id) const
 }
 } // namespace interface1
 
-namespace interface2
+namespace interface3
 {
 services::Status Parameter::check() const
 {
@@ -123,7 +149,7 @@ services::Status Parameter::check() const
     DAAL_CHECK_STATUS(s, decision_forest::training::checkImpl(*this));
     return s;
 }
-} // namespace interface2
+} // namespace interface3
 
 } // namespace training
 } // namespace classification
