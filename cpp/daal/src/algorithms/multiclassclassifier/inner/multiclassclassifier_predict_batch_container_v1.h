@@ -69,7 +69,7 @@ services::Status BatchContainer<algorithmFPType, pmethod, tmethod, cpu>::compute
     __DAAL_CALL_KERNEL(env, internal::MultiClassClassifierPredictKernel,
                        __DAAL_KERNEL_ARGUMENTS(pmethod, tmethod, algorithmFPType, classifier::prediction::interface1::Batch,
                                                multi_class_classifier::interface1::Parameter),
-                       compute, a, m, r[0], par);
+                       compute, a, m, r[0], nullptr, par);
 }
 
 } // namespace interface1
