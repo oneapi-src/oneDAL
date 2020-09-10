@@ -86,6 +86,7 @@ bool has_array_data_kind(const Policy& policy, const array<Data>& array, const A
 #endif
     else {
         static_assert("has_array_data_kind(): undefined policy type");
+        return false;
     }
 }
 
