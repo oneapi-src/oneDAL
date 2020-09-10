@@ -92,8 +92,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
      *  \param[in] nNeighbors           Number of neighbors
      *  \param[in] dataUse              The option to enable/disable an usage of the input dataset in kNN model
      */
-    Parameter(size_t nClasses = 2, size_t nNeighbors = 1, DataUseInModel dataUse = doNotUse,
-              DAAL_UINT64 resToCompute  = computeIndicesOfNeightbors | computeDistances,
+    Parameter(size_t nClasses = 2, size_t nNeighbors = 1, DataUseInModel dataUse = doNotUse, DAAL_UINT64 resToCompute = 0,
               DAAL_UINT64 resToEvaluate = daal::algorithms::classifier::computeClassLabels, VoteWeights vote = voteUniform)
         : daal::algorithms::classifier::Parameter(nClasses),
           k(nNeighbors),
