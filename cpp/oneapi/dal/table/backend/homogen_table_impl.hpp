@@ -62,22 +62,22 @@ public:
 
     template <typename Data>
     void pull_rows(array<Data>& block, const range& rows) const {
-        pull_rows_impl(detail::default_host_policy{}, block, rows, host_alloc_t{});
+        pull_impl(detail::default_host_policy{}, block, rows, {0, -1}, host_alloc_t{});
     }
 
     template <typename Data>
     void push_rows(const array<Data>& block, const range& rows) {
-        push_rows_impl(detail::default_host_policy{}, block, rows);
+        push_impl(detail::default_host_policy{}, block, rows, {0, -1});
     }
 
     template <typename Data>
     void pull_column(array<Data>& block, std::int64_t column_index, const range& rows) const {
-        pull_column_impl(detail::default_host_policy{}, block, column_index, rows, host_alloc_t{});
+        pull_impl(detail::default_host_policy{}, block, rows, {column_index, column_index + 1}, host_alloc_t{});
     }
 
     template <typename Data>
     void push_column(const array<Data>& block, std::int64_t column_index, const range& rows) {
-        push_column_impl(detail::default_host_policy{}, block, column_index, rows);
+        push_impl(detail::default_host_policy{}, block, rows, {column_index, column_index + 1});
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -86,12 +86,12 @@ public:
                    array<Data>& block,
                    const range& rows,
                    const sycl::usm::alloc& kind) const {
-        pull_rows_impl(detail::data_parallel_policy{ queue }, block, rows, kind);
+        pull_impl(detail::data_parallel_policy{ queue }, block, rows, {0, -1}, kind);
     }
 
     template <typename Data>
     void push_rows(sycl::queue& queue, const array<Data>& block, const range& rows) {
-        push_rows_impl(detail::data_parallel_policy{ queue }, block, rows);
+        push_impl(detail::data_parallel_policy{ queue }, block, rows, {0, -1});
     }
 
     template <typename Data>
@@ -100,7 +100,7 @@ public:
                      std::int64_t column_index,
                      const range& rows,
                      const sycl::usm::alloc& kind) const {
-        pull_column_impl(detail::data_parallel_policy{ queue }, block, column_index, rows, kind);
+        pull_impl(detail::data_parallel_policy{ queue }, block, rows, {column_index, column_index + 1}, kind);
     }
 
     template <typename Data>
@@ -108,32 +108,46 @@ public:
                      const array<Data>& block,
                      std::int64_t column_index,
                      const range& rows) {
-        push_column_impl(detail::data_parallel_policy{ queue }, block, column_index, rows);
+        push_impl(detail::data_parallel_policy{ queue }, block, rows, {column_index, column_index + 1});
     }
 #endif
 
 private:
     template <typename Policy, typename Data, typename Alloc>
-    void pull_rows_impl(const Policy& policy,
-                        array<Data>& block,
-                        const range& rows,
-                        const Alloc& kind) const;
+    void pull_impl(const Policy& policy,
+                            array<Data>& block,
+                            const range& rows,
+                            const range& cols,
+                            const Alloc& kind) const {
+        if (layout_ == data_layout::row_major) {
+            pull_rowmajor_impl(policy, block, rows, cols, kind);
+        } else if (layout_ == data_layout::column_major) {
+            pull_rowmajor_impl(policy, block, cols, rows, kind);
+        } else {
+            throw internal_error("homogen_table_impl: unsupported data layout");
+        }
+    }
 
     template <typename Policy, typename Data>
-    void push_rows_impl(const Policy& policy, const array<Data>& block, const range& rows);
+    void push_impl(const Policy& policy, const array<Data>& block, const range& rows, const range& cols) {
+        if (layout_ == data_layout::row_major) {
+            push_rowmajor_impl(policy, block, rows, cols);
+        } else if (layout_ == data_layout::column_major) {
+            push_rowmajor_impl(policy, block, cols, rows);
+        } else {
+            throw internal_error("homogen_table_impl: unsupported data layout");
+        }
+    }
 
     template <typename Policy, typename Data, typename Alloc>
-    void pull_column_impl(const Policy& policy,
-                          array<Data>& block,
-                          int64_t column_index,
-                          const range& rows,
-                          const Alloc& kind) const;
+    void pull_rowmajor_impl(const Policy& policy,
+                            array<Data>& block,
+                            const range& rows,
+                            const range& cols,
+                            const Alloc& kind) const;
 
     template <typename Policy, typename Data>
-    void push_column_impl(const Policy& policy,
-                          const array<Data>& block,
-                          int64_t column_index,
-                          const range& rows);
+    void push_rowmajor_impl(const Policy& policy, const array<Data>& block, const range& rows, const range& cols);
 
 private:
     table_metadata meta_;
