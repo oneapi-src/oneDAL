@@ -1,4 +1,4 @@
-/* file: df_classification_training_types_v1.cpp */
+/* file: df_classification_training_types_v2.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -38,28 +38,28 @@ namespace classification
 {
 namespace training
 {
-namespace interface1
+namespace interface2
 {
-DAAL_FORCEINLINE void convertParameter(const interface1::Parameter & par1, interface3::Parameter & par3)
+DAAL_FORCEINLINE void convertParameter(const interface2::Parameter & par2, interface3::Parameter & par3)
 {
-    par3.nTrees                      = par1.nTrees;
-    par3.observationsPerTreeFraction = par1.observationsPerTreeFraction;
-    par3.featuresPerNode             = par1.featuresPerNode;
-    par3.maxTreeDepth                = par1.maxTreeDepth;
-    par3.minObservationsInLeafNode   = par1.minObservationsInLeafNode;
-    par3.seed                        = par1.seed;
-    par3.engine                      = par1.engine;
-    par3.impurityThreshold           = par1.impurityThreshold;
-    par3.varImportance               = par1.varImportance;
-    par3.resultsToCompute            = par1.resultsToCompute;
-    par3.memorySavingMode            = par1.memorySavingMode;
-    par3.bootstrap                   = par1.bootstrap;
+    par3.nTrees                      = par2.nTrees;
+    par3.observationsPerTreeFraction = par2.observationsPerTreeFraction;
+    par3.featuresPerNode             = par2.featuresPerNode;
+    par3.maxTreeDepth                = par2.maxTreeDepth;
+    par3.minObservationsInLeafNode   = par2.minObservationsInLeafNode;
+    par3.seed                        = par2.seed;
+    par3.engine                      = par2.engine;
+    par3.impurityThreshold           = par2.impurityThreshold;
+    par3.varImportance               = par2.varImportance;
+    par3.resultsToCompute            = par2.resultsToCompute;
+    par3.memorySavingMode            = par2.memorySavingMode;
+    par3.bootstrap                   = par2.bootstrap;
 }
 
 services::Status Parameter::check() const
 {
     services::Status s;
-    DAAL_CHECK_STATUS(s, classifier::interface1::Parameter::check());
+    DAAL_CHECK_STATUS(s, classifier::Parameter::check());
 
     decision_forest::classification::training::interface3::Parameter par3(this->nClasses);
     convertParameter(*this, par3);
@@ -67,7 +67,7 @@ services::Status Parameter::check() const
     DAAL_CHECK_STATUS(s, decision_forest::training::checkImpl(par3));
     return s;
 }
-} // namespace interface1
+} // namespace interface2
 } // namespace training
 } // namespace classification
 } // namespace decision_forest
