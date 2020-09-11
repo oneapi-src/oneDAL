@@ -37,10 +37,10 @@ using namespace daal::data_management;
 
 /* Input data set parameters */
 string trainDatasetFileName = "../data/batch/k_nearest_neighbors_train.csv";
-string testDatasetFileName = "../data/batch/k_nearest_neighbors_test.csv";
+string testDatasetFileName  = "../data/batch/k_nearest_neighbors_test.csv";
 
 size_t nFeatures = 5;
-size_t nClasses = 5;
+size_t nClasses  = 5;
 
 bf_knn_classification::training::ResultPtr trainingResult;
 bf_knn_classification::prediction::ResultPtr predictionResult;
@@ -51,7 +51,8 @@ void trainModel();
 void testModel();
 void printResults();
 
-int main(int argc, char *argv[]) {
+int main(int argc, char * argv[])
+{
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
     trainModel();
@@ -61,20 +62,16 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-void trainModel() {
+void trainModel()
+{
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data
      * from a .csv file */
-    FileDataSource<CSVFeatureManager> trainDataSource(
-        trainDatasetFileName, DataSource::notAllocateNumericTable,
-        DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
-  /* Create Numeric Tables for training data and labels */
-    NumericTablePtr trainData(
-        new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
-    NumericTablePtr trainGroundTruth(
-        new HomogenNumericTable<>(1, 0, NumericTable::doNotAllocate));
-    NumericTablePtr mergedData(
-        new MergedNumericTable(trainData, trainGroundTruth));
+    /* Create Numeric Tables for training data and labels */
+    NumericTablePtr trainData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
+    NumericTablePtr trainGroundTruth(new HomogenNumericTable<>(1, 0, NumericTable::doNotAllocate));
+    NumericTablePtr mergedData(new MergedNumericTable(trainData, trainGroundTruth));
 
     /* Retrieve the data from the input file */
     trainDataSource.loadDataBlock(mergedData.get());
@@ -93,18 +90,15 @@ void trainModel() {
     trainingResult = algorithm.getResult();
 }
 
-void testModel() {
+void testModel()
+{
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from
      * a .csv file */
-    FileDataSource<CSVFeatureManager> testDataSource(
-        testDatasetFileName, DataSource::notAllocateNumericTable,
-        DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for testing data and labels */
-    testData = NumericTablePtr(
-        new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
-    testGroundTruth = NumericTablePtr(
-        new HomogenNumericTable<>(1, 0, NumericTable::doNotAllocate));
+    testData        = NumericTablePtr(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
+    testGroundTruth = NumericTablePtr(new HomogenNumericTable<>(1, 0, NumericTable::doNotAllocate));
     NumericTablePtr mergedData(new MergedNumericTable(testData, testGroundTruth));
 
     /* Retrieve the data from input file */
@@ -116,9 +110,8 @@ void testModel() {
 
     /* Pass the testing data set and trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);
-    algorithm.input.set(classifier::prediction::model,
-                        trainingResult->get(classifier::training::model));
-    algorithm.parameter().nClasses = nClasses;
+    algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
+    algorithm.parameter().nClasses         = nClasses;
     algorithm.parameter().resultsToCompute = bf_knn_classification::computeDistances | bf_knn_classification::computeIndicesOfNeightbors;
 
     /* Compute prediction results */
@@ -128,15 +121,11 @@ void testModel() {
     predictionResult = algorithm.getResult();
 }
 
-void printResults() {
-    printNumericTables<int, int>(
-        testGroundTruth,
-        predictionResult->get(bf_knn_classification::prediction::prediction),
-        "Ground truth", "Classification results",
-        "Brute force kNN classification results (first 20 observations):", 20);
-    printNumericTables<int, float>(
-        predictionResult->get(bf_knn_classification::prediction::indices),
-        predictionResult->get(bf_knn_classification::prediction::distances),
-        "Indices", "Distances",
-        "Brute force kNN classification results (first 20 observations):", 20);
+void printResults()
+{
+    printNumericTables<int, int>(testGroundTruth, predictionResult->get(bf_knn_classification::prediction::prediction), "Ground truth",
+                                 "Classification results", "Brute force kNN classification results (first 20 observations):", 20);
+    printNumericTables<int, float>(predictionResult->get(bf_knn_classification::prediction::indices),
+                                   predictionResult->get(bf_knn_classification::prediction::distances), "Indices", "Distances",
+                                   "Brute force kNN classification results (first 20 observations):", 20);
 }
