@@ -60,7 +60,7 @@ namespace training
  */
 enum Method
 {
-    defaultDense = 0  /*!< Bagging, random choice of features, variance-based impurity */
+    defaultDense = 0 /*!< Bagging, random choice of features, variance-based impurity */
 };
 
 /**
@@ -71,7 +71,8 @@ enum InputId
 {
     data              = algorithms::regression::training::data,               /*!< %Input data table */
     dependentVariable = algorithms::regression::training::dependentVariables, /*!< %Values of the dependent variable for the input data */
-    lastInputId       = dependentVariable
+    weights           = algorithms::regression::training::weights,            /*!< %Optional. Weights of the observations in the training data set */
+    lastInputId       = weights
 };
 
 /**
@@ -80,7 +81,7 @@ enum InputId
  */
 enum ResultId
 {
-    model = algorithms::regression::training::model,   /*!< decision forest model */
+    model        = algorithms::regression::training::model, /*!< decision forest model */
     lastResultId = model
 };
 
@@ -105,7 +106,7 @@ enum ResultNumericTableId
 */
 enum ResultEngineId
 {
-    updatedEngine = lastResultNumericTableId + 1,  /*!< %Engine updated after computations. */
+    updatedEngine      = lastResultNumericTableId + 1, /*!< %Engine updated after computations. */
     lastResultEngineId = updatedEngine
 };
 
@@ -164,7 +165,7 @@ public:
     Input();
 
     /** Copy constructor */
-    Input(const Input& other) : algorithms::regression::training::Input(other){}
+    Input(const Input & other) : algorithms::regression::training::Input(other) {}
 
     virtual ~Input() {};
 
@@ -180,7 +181,7 @@ public:
      * \param[in] id      Identifier of the input object
      * \param[in] value   Pointer to the object
      */
-    void set(InputId id, const data_management::NumericTablePtr &value);
+    void set(InputId id, const data_management::NumericTablePtr & value);
 
     /**
     * Checks an input object for the decision forest algorithm
@@ -188,7 +189,7 @@ public:
     * \param[in] method  Computation method
     * \return Status of checking
     */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -212,8 +213,7 @@ public:
      */
     template <typename algorithmFPType>
     DAAL_DEPRECATED DAAL_EXPORT services::Status allocate(
-        const daal::algorithms::Input * input,
-        const daal::algorithms::decision_forest::regression::training::interface1::Parameter * parameter,
+        const daal::algorithms::Input * input, const daal::algorithms::decision_forest::regression::training::interface1::Parameter * parameter,
         const int method);
 
     /**
@@ -224,9 +224,7 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input,
-                                          const daal::algorithms::Parameter * parameter,
-                                          const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Returns the result of decision forest model-based training
@@ -240,7 +238,7 @@ public:
      * \param[in] id      Identifier of the result
      * \param[in] value   Result
      */
-    void set(ResultId id, const ModelPtr &value);
+    void set(ResultId id, const ModelPtr & value);
 
     /**
      * Returns the result of decision forest model-based training
@@ -254,7 +252,7 @@ public:
      * \param[in] id      Identifier of the result
      * \param[in] value   Result
      */
-    void set(ResultNumericTableId id, const data_management::NumericTablePtr &value);
+    void set(ResultNumericTableId id, const data_management::NumericTablePtr & value);
 
     /**
      * Checks the result of decision forest model-based training
@@ -263,7 +261,7 @@ public:
      * \param[in] method  Computation method
      * \return Status of checking
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
     /**
      * Returns the engine updated after computations
@@ -274,8 +272,8 @@ public:
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -283,12 +281,12 @@ protected:
 public:
     class ResultImpl;
 
-    ResultImpl* impl() { return _impl; }
+    ResultImpl * impl() { return _impl; }
 
-    Result( const Result& other );
+    Result(const Result & other);
 
 private:
-    ResultImpl* _impl;
+    ResultImpl * _impl;
 };
 typedef services::SharedPtr<Result> ResultPtr;
 } // namespace interface1
@@ -301,7 +299,7 @@ using interface1::ResultPtr;
 } // namespace training
 /** @} */
 } // namespace regression
-}
-}
+} // namespace decision_forest
+} // namespace algorithms
 } // namespace daal
 #endif
