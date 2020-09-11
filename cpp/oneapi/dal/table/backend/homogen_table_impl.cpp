@@ -108,10 +108,10 @@ void refer_source_data(const array<DataSrc>& src,
 
 template <typename Policy, typename Data, typename Alloc>
 void homogen_table_impl::pull_rowmajor_impl(const Policy& policy,
-                                        array<Data>& block,
-                                        const range& rows,
-                                        const range& cols,
-                                        const Alloc& kind) const {
+                                            array<Data>& block,
+                                            const range& rows,
+                                            const range& cols,
+                                            const Alloc& kind) const {
     // TODO: check range correctness
     // TODO: check array size if non-zero
 
@@ -120,13 +120,15 @@ void homogen_table_impl::pull_rowmajor_impl(const Policy& policy,
     const int64_t range_size = range_row_count * range_column_count;
     const data_type block_dtype = detail::make_data_type<Data>();
     const auto table_dtype = meta_.get_data_type(0);
-    const bool contiguous_block_requested = range_column_count == col_count_ ||
-                                            range_row_count == 1;
+    const bool contiguous_block_requested =
+        range_column_count == col_count_ || range_row_count == 1;
 
-    if (block_dtype == table_dtype &&
-        contiguous_block_requested == true &&
+    if (block_dtype == table_dtype && contiguous_block_requested == true &&
         has_array_data_kind(policy, data_, kind)) {
-        refer_source_data(data_, (rows.start_idx * col_count_ + cols.start_idx) * sizeof(Data), range_size, block);
+        refer_source_data(data_,
+                          (rows.start_idx * col_count_ + cols.start_idx) * sizeof(Data),
+                          range_size,
+                          block);
     }
     else {
         if (block.get_count() < range_size || block.has_mutable_data() == false ||
@@ -136,7 +138,8 @@ void homogen_table_impl::pull_rowmajor_impl(const Policy& policy,
 
         const auto type_size = detail::get_data_type_size(table_dtype);
 
-        auto src_pointer = data_.get_data() + (rows.start_idx * col_count_ + cols.start_idx) * type_size;
+        auto src_pointer =
+            data_.get_data() + (rows.start_idx * col_count_ + cols.start_idx) * type_size;
         auto dst_pointer = block.get_mutable_data();
 
         // TODO: futher optimizations possible: choose optimal column count to switch
@@ -145,7 +148,7 @@ void homogen_table_impl::pull_rowmajor_impl(const Policy& policy,
             const int64_t blocks_count = contiguous_block_requested ? 1 : range_row_count;
             const int64_t block_size = contiguous_block_requested ? range_size : range_column_count;
 
-            for(int64_t block_idx = 0; block_idx < blocks_count; block_idx++) {
+            for (int64_t block_idx = 0; block_idx < blocks_count; block_idx++) {
                 backend::convert_vector(policy,
                                         src_pointer + block_idx * col_count_ * type_size,
                                         dst_pointer + block_idx * range_column_count,
@@ -153,7 +156,8 @@ void homogen_table_impl::pull_rowmajor_impl(const Policy& policy,
                                         block_dtype,
                                         block_size);
             }
-        } else {
+        }
+        else {
             backend::convert_vector(policy,
                                     src_pointer,
                                     dst_pointer,
@@ -168,9 +172,9 @@ void homogen_table_impl::pull_rowmajor_impl(const Policy& policy,
 
 template <typename Policy, typename Data>
 void homogen_table_impl::push_rowmajor_impl(const Policy& policy,
-                                        const array<Data>& block,
-                                        const range& rows,
-                                        const range& cols) {
+                                            const array<Data>& block,
+                                            const range& rows,
+                                            const range& cols) {
     // TODO: check range correctness
     // TODO: check array size if non-zero
 
@@ -179,8 +183,8 @@ void homogen_table_impl::push_rowmajor_impl(const Policy& policy,
     const int64_t range_size = range_row_count * range_column_count;
     const data_type block_dtype = detail::make_data_type<Data>();
     const auto table_dtype = meta_.get_data_type(0);
-    const bool contiguous_block_requested = range_column_count == col_count_ ||
-                                            range_row_count == 1;
+    const bool contiguous_block_requested =
+        range_column_count == col_count_ || range_row_count == 1;
 
     make_mutable_data(policy, data_);
 
@@ -199,7 +203,8 @@ void homogen_table_impl::push_rowmajor_impl(const Policy& policy,
         const auto type_size = detail::get_data_type_size(table_dtype);
 
         auto src_pointer = block.get_data();
-        auto dst_pointer = data_.get_mutable_data() + (rows.start_idx * col_count_ + cols.start_idx) * type_size;
+        auto dst_pointer =
+            data_.get_mutable_data() + (rows.start_idx * col_count_ + cols.start_idx) * type_size;
 
         // TODO: futher optimizations possible: choose optimal column count to switch
         // between strided and non-stirded convert, perform block convertions in parallel
@@ -207,7 +212,7 @@ void homogen_table_impl::push_rowmajor_impl(const Policy& policy,
             const int64_t blocks_count = contiguous_block_requested ? 1 : range_row_count;
             const int64_t block_size = contiguous_block_requested ? range_size : range_column_count;
 
-            for(int64_t block_idx = 0; block_idx < blocks_count; block_idx++) {
+            for (int64_t block_idx = 0; block_idx < blocks_count; block_idx++) {
                 backend::convert_vector(policy,
                                         src_pointer + block_idx * range_column_count,
                                         dst_pointer + block_idx * col_count_ * type_size,
@@ -215,7 +220,8 @@ void homogen_table_impl::push_rowmajor_impl(const Policy& policy,
                                         table_dtype,
                                         block_size);
             }
-        } else {
+        }
+        else {
             backend::convert_vector(policy,
                                     src_pointer,
                                     dst_pointer,
@@ -228,16 +234,16 @@ void homogen_table_impl::push_rowmajor_impl(const Policy& policy,
     }
 }
 
-#define INSTANTIATE_IMPL(Policy, Data, Alloc)                               \
-    template void homogen_table_impl::pull_rowmajor_impl(const Policy&,              \
-                                                array<Data>&,               \
-                                                const range&,               \
-                                                const range&,               \
-                                                const Alloc&) const;        \
-    template void homogen_table_impl::push_rowmajor_impl(const Policy&,              \
-                                                const array<Data>&,         \
-                                                const range&,               \
-                                                const range&);
+#define INSTANTIATE_IMPL(Policy, Data, Alloc)                                 \
+    template void homogen_table_impl::pull_rowmajor_impl(const Policy&,       \
+                                                         array<Data>&,        \
+                                                         const range&,        \
+                                                         const range&,        \
+                                                         const Alloc&) const; \
+    template void homogen_table_impl::push_rowmajor_impl(const Policy&,       \
+                                                         const array<Data>&,  \
+                                                         const range&,        \
+                                                         const range&);
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
 #define INSTANTIATE_IMPL_ALL_POLICIES(Data)                                               \
