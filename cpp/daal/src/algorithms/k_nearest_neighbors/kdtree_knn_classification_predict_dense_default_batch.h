@@ -65,7 +65,8 @@ template <typename algorithmFpType, CpuType cpu>
 class KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu> : public daal::algorithms::Kernel
 {
 public:
-    services::Status compute(const NumericTable * x, const classifier::Model * m, NumericTable * y, const daal::algorithms::Parameter * par);
+    services::Status compute(const NumericTable * x, const classifier::Model * m, NumericTable * y, NumericTable * indices, NumericTable * distances,
+                             const daal::algorithms::Parameter * par);
 
 protected:
     void findNearestNeighbors(const algorithmFpType * query, Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap,
@@ -73,8 +74,10 @@ protected:
                               const KDTreeTable & kdTreeTable, size_t rootTreeNodeIndex, const NumericTable & data, const bool isHomogenSOA,
                               services::internal::TArrayScalable<algorithmFpType *, cpu> & soa_arrays);
 
-    services::Status predict(algorithmFpType & predictedClass, const Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap,
-                             const NumericTable & labels, size_t k);
+    services::Status predict(algorithmFpType * predictedClass, const Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap,
+                             const NumericTable * labels, size_t k, VoteWeights voteWeights, const NumericTable * modelIndices,
+                             data_management::BlockDescriptor<algorithmFpType> & indices,
+                             data_management::BlockDescriptor<algorithmFpType> & distances, size_t index);
 };
 
 } // namespace internal

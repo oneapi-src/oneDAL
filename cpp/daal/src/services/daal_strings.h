@@ -269,6 +269,7 @@
     DECLARE_DAAL_STRING_CONST(retainRatio)                       \
     DECLARE_DAAL_STRING_CONST(k)                                 \
     DECLARE_DAAL_STRING_CONST(kdTreeTable)                       \
+    DECLARE_DAAL_STRING_CONST(distances)                         \
     DECLARE_DAAL_STRING_CONST(auxRetainMask)                     \
     DECLARE_DAAL_STRING_CONST(auxValue)                          \
     DECLARE_DAAL_STRING_CONST(auxSmBeta)                         \
