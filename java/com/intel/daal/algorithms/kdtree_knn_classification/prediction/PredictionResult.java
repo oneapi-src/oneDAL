@@ -31,7 +31,7 @@ import com.intel.daal.services.DaalContext;
  * <a name="DAAL-CLASS-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__PREDICTION__PREDICTIONRESULT"></a>
  * @brief Result object for kdtree knn model-based prediction
  */
-public final class PredictionResult extends com.intel.daal.algorithms.Result {
+public final class PredictionResult extends com.intel.daal.algorithms.classifier.prediction.PredictionResult {
     /** @private */
     static {
         LibUtils.loadLibrary();

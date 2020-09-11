@@ -52,8 +52,8 @@ public final class PredictionResultId {
     }
 
     @Native private static final int PredictionId = 0;
-    @Native private static final int IndicesId    = 1;
-    @Native private static final int DistancesId  = 2;
+    @Native private static final int IndicesId    = 3;
+    @Native private static final int DistancesId  = 4;
 
     public static final PredictionResultId prediction = new PredictionResultId(PredictionId);
         /** Prediction results */

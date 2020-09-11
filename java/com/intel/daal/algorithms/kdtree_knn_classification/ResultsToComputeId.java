@@ -27,35 +27,10 @@ import com.intel.daal.utils.*;
  * @brief Available identifiers to specify the result to compute
  */
 public final class ResultsToComputeId {
-    /** @private */
-    static {
-        LibUtils.loadLibrary();
-    }
 
-    private long _value;
-
-    /**
-     * Constructs the input data usage mode object identifier using the provided value
-     * @param value     Value corresponding to the input data usage mode object identifier
-     */
-    public ResultsToComputeId(long value) {
-        _value = value;
-    }
-
-    /**
-     * Returns the value corresponding to the input data usage mode object identifier
-     * @return Value corresponding to the input data usage mode object identifier
-     */
-    public long getValue() {
-        return _value;
-    }
-
-    public static final long computeIndicesOfNeightborsId = 0x0000000000000001L;
-    public static final long computeDistancesId           = 0x0000000000000002L;
-
-    public static final ResultsToComputeId computeIndicesOfNeightbors = new ResultsToComputeId(computeIndicesOfNeightborsId);
-        /*!< The flag to compute indices of nearest neighbors */
-    public static final ResultsToComputeId computeDistances           = new ResultsToComputeId(computeDistancesId);
-        /*!< The flag to compute distances to nearest neighbors */
+    public static final long computeIndicesOfNeightbors = 0x0000000000000001L;
+    /*!< The flag to compute indices of nearest neighbors */
+    public static final long computeDistances           = 0x0000000000000002L;
+    /*!< The flag to compute distances to nearest neighbors */
 }
 /** @} */

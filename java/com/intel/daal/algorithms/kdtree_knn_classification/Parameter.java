@@ -101,16 +101,16 @@ public class Parameter extends com.intel.daal.algorithms.classifier.Parameter {
      * Sets the flag that indicates the results to compute
      * @param flag   Flag that indicates the results to compute
      */
-    public void setResultsToCompute(ResultsToComputeId flag) {
-        cSetResultsToCompute(this.cObject, flag.getValue());
+    public void setResultsToCompute(long resultsToCompute) {
+        cSetResultsToCompute(this.cObject, resultsToCompute);
     }
 
     /**
      * Returns the flag that indicates the results to compute
      * @return Flag that indicates the results to compute
      */
-    public ResultsToComputeId getResultsToCompute() {
-        return new ResultsToComputeId(cGetResultsToCompute(this.cObject));
+    public long getResultsToCompute() {
+        return cGetResultsToCompute(this.cObject);
     }
 
     /**

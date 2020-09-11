@@ -27,6 +27,7 @@ package com.intel.daal.algorithms.kdtree_knn_classification.prediction;
 
 import com.intel.daal.utils.*;
 import com.intel.daal.algorithms.Precision;
+import com.intel.daal.algorithms.kdtree_knn_classification.prediction.PredictionResult;
 import com.intel.daal.algorithms.kdtree_knn_classification.Parameter;
 import com.intel.daal.services.DaalContext;
 
@@ -99,6 +100,18 @@ public class PredictionBatch extends com.intel.daal.algorithms.classifier.predic
 
         input = new PredictionInput(getContext(), cObject);
         parameter = new Parameter(getContext(), cInitParameter(this.cObject, prec.getValue(), method.getValue()));
+    }
+
+    /**
+     * Computes the result of KD-tree based k nearest neighbors prediction
+     * in the batch processing mode
+     * @return Result of KD-tree based k nearest neighbors prediction
+     */
+    @Override
+    public PredictionResult compute() {
+        super.compute();
+        PredictionResult result = new PredictionResult(getContext(), cObject);
+        return result;
     }
 
     /**
