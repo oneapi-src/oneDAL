@@ -1,4 +1,4 @@
-/* file: kdtree_knn_classification_train_dense_default_batch_fpt_cpu.cpp */
+/* file: kdtree_knn_classification_model_impl_v2.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -17,12 +17,16 @@
 
 /*
 //++
-//  Implementation of K-Nearest Neighbors training functions for the method of K-D Tree.
+//  Implementation of the class defining the K-Nearest Neighbors (kNN) model
 //--
 */
 
-#include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_train_container.h"
-#include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_train_dense_default_impl.i"
+#include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
+#include "src/services/serialization_utils.h"
+#include "src/services/daal_strings.h"
+
+using namespace daal::data_management;
+using namespace daal::services;
 
 namespace daal
 {
@@ -30,18 +34,17 @@ namespace algorithms
 {
 namespace kdtree_knn_classification
 {
-namespace training
+namespace interface2
 {
-namespace interface3
+services::Status Parameter::check() const
 {
-template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // namespace interface3
-namespace internal
-{
-template class DAAL_EXPORT KNNClassificationTrainBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
+    // Inherited.
+    services::Status s = daal::algorithms::classifier::Parameter::check();
 
-} // namespace internal
-} // namespace training
+    DAAL_CHECK_EX(k >= 1, services::ErrorIncorrectParameter, services::ParameterName, kStr());
+    return s;
+}
+} // namespace interface2
 } // namespace kdtree_knn_classification
 } // namespace algorithms
 } // namespace daal

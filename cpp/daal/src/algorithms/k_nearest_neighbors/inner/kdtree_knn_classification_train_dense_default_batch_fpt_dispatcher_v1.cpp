@@ -1,4 +1,4 @@
-/* file: kdtree_knn_classification_train_dense_default_batch_fpt_cpu.cpp */
+/* file: kdtree_knn_classification_train_dense_default_batch_fpt_dispatcher_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -17,31 +17,17 @@
 
 /*
 //++
-//  Implementation of K-Nearest Neighbors training functions for the method of K-D Tree.
+//  Implementation of K-Nearest Neighbors container.
 //--
 */
 
-#include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_train_container.h"
-#include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_train_dense_default_impl.i"
+#include "src/algorithms/k_nearest_neighbors/inner/kdtree_knn_classification_train_container_v1.h"
 
 namespace daal
 {
 namespace algorithms
 {
-namespace kdtree_knn_classification
-{
-namespace training
-{
-namespace interface3
-{
-template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // namespace interface3
-namespace internal
-{
-template class DAAL_EXPORT KNNClassificationTrainBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-
-} // namespace internal
-} // namespace training
-} // namespace kdtree_knn_classification
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kdtree_knn_classification::training::interface1::BatchContainer, batch, DAAL_FPTYPE,
+                                      kdtree_knn_classification::training::defaultDense)
 } // namespace algorithms
 } // namespace daal

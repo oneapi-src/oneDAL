@@ -1,4 +1,4 @@
-/* file: kdtree_knn_classification_predict_dense_default_batch_container_v1.h */
+/* file: kdtree_knn_classification_predict_dense_default_batch_container_v2.h */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -22,8 +22,8 @@
 //--
 */
 
-#ifndef __KDTREE_KNN_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_CONTAINER_V1_H__
-#define __KDTREE_KNN_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_CONTAINER_V1_H__
+#ifndef __KDTREE_KNN_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_CONTAINER_V2_H__
+#define __KDTREE_KNN_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_CONTAINER_V2_H__
 
 #include "algorithms/k_nearest_neighbors/kdtree_knn_classification_predict.h"
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_predict_dense_default_batch.h"
@@ -36,7 +36,7 @@ namespace kdtree_knn_classification
 {
 namespace prediction
 {
-namespace interface1
+namespace interface2
 {
 template <typename algorithmFpType, Method method, CpuType cpu>
 BatchContainer<algorithmFpType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
@@ -53,8 +53,8 @@ BatchContainer<algorithmFpType, method, cpu>::~BatchContainer()
 template <typename algorithmFpType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 {
-    const classifier::prediction::Input * const input         = static_cast<const classifier::prediction::Input *>(_in);
-    classifier::prediction::interface1::Result * const result = static_cast<classifier::prediction::interface1::Result *>(_res);
+    const classifier::prediction::Input * const input = static_cast<const classifier::prediction::Input *>(_in);
+    classifier::prediction::Result * const result     = static_cast<classifier::prediction::Result *>(_res);
 
     const data_management::NumericTableConstPtr a = input->get(classifier::prediction::data);
     const classifier::ModelConstPtr m             = input->get(classifier::prediction::model);
@@ -67,7 +67,7 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
                        r.get(), nullptr, nullptr, par);
 }
 
-} // namespace interface1
+} // namespace interface2
 } // namespace prediction
 } // namespace kdtree_knn_classification
 } // namespace algorithms

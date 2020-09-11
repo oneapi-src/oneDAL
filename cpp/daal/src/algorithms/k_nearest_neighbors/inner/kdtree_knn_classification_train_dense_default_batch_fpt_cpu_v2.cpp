@@ -1,4 +1,4 @@
-/* file: kdtree_knn_classification_train_dense_default_batch_fpt_cpu.cpp */
+/* file: kdtree_knn_classification_train_dense_default_batch_fpt_cpu_v2.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -21,7 +21,7 @@
 //--
 */
 
-#include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_train_container.h"
+#include "src/algorithms/k_nearest_neighbors/inner/kdtree_knn_classification_train_container_v2.h"
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_train_dense_default_impl.i"
 
 namespace daal
@@ -32,10 +32,11 @@ namespace kdtree_knn_classification
 {
 namespace training
 {
-namespace interface3
+namespace interface2
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // namespace interface3
+}
+
 namespace internal
 {
 template class DAAL_EXPORT KNNClassificationTrainBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
