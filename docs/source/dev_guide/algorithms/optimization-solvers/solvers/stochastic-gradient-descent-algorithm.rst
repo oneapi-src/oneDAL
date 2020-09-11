@@ -24,7 +24,7 @@ Stochastic Gradient Descent Algorithm
    :maxdepth: 4
 
 The stochastic gradient descent (SGD) algorithm is a special case of
-an iterative solver. See `Iterative Solver <https://software.intel.com/en-us/daal-programming-guide-iterative-solver>`_ for more details.
+an iterative solver. See :ref:`iterative_solver` for more details.
 
 Computation methods
 *******************
@@ -104,7 +104,7 @@ Computation
 
 The stochastic gradient descent algorithm is a special case of an
 iterative solver. For parameters, input, and output of iterative
-solvers, see `Iterative Solver Computation <https://software.intel.com/en-us/daal-programming-guide-computation-6>`_.
+solvers, see :ref:`iterative_solver_computation`.
 
 Algorithm Parameters
 ---------------------

@@ -144,7 +144,7 @@ Status KMeansOneCclDefaultBatchKernelUCAPI<algorithmFPType>::compute(const Numer
     }
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(compute.buildProgram);
-        kernel_factory.build(ExecutionTargetIds::device, cachekey.c_str(), kmeans_cl_kernels, build_options.c_str());
+        kernel_factory.build(ExecutionTargetIds::device, cachekey.c_str(), kmeans_cl_kernels_distr, build_options.c_str());
     }
 
     const uint32_t nPartialCentroids = 128;

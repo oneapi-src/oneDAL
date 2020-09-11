@@ -34,6 +34,7 @@ DAAL  = datastructures_soa                    \
         kernel_func_lin_dense_batch           \
         kernel_func_rbf_dense_batch           \
         kmeans_dense_batch                    \
+        kmeans_dense_distr                    \
         kmeans_init_dense_batch               \
         low_order_moms_dense_batch            \
         low_order_moms_dense_online           \
