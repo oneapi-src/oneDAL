@@ -1,6 +1,6 @@
-/* file: bf_knn_classification_training_result.cpp */
+/* file: bf_knn_classification_predict_result_fpt.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,11 +15,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "algorithms/k_nearest_neighbors/bf_knn_classification_training_types.h"
-#include "src/services/serialization_utils.h"
+/*
+//++
+//  Implementation of the class defining the K-Nearest Neighbors (kNN) model
+//--
+*/
 
-using namespace daal::data_management;
-using namespace daal::services;
+#include "src/algorithms/k_nearest_neighbors/bf_knn_classification_predict_result.h"
 
 namespace daal
 {
@@ -27,21 +29,11 @@ namespace algorithms
 {
 namespace bf_knn_classification
 {
-namespace training
+namespace prediction
 {
-namespace interface1
-{
-__DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_K_NEAREST_NEIGHBOR_BF_TRAINING_RESULT_ID);
-
-Result::Result() : classifier::training::Result() {}
-
-daal::algorithms::bf_knn_classification::ModelPtr Result::get(classifier::training::ResultId id) const
-{
-    return services::staticPointerCast<daal::algorithms::bf_knn_classification::Model, data_management::SerializationIface>(Argument::get(id));
-}
-
-} // namespace interface1
-} // namespace training
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, int method);
+} // namespace prediction
 } // namespace bf_knn_classification
 } // namespace algorithms
 } // namespace daal

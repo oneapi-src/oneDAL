@@ -101,7 +101,7 @@ template <typename FPType, CpuType cpu>
 class EuclideanDistances : public PairwiseDistances<FPType, cpu>
 {
 public:
-    EuclideanDistances(const NumericTable & a, const NumericTable & b) : _a(a), _b(b) {}
+    EuclideanDistances(const NumericTable & a, const NumericTable & b, bool squared = true) : _a(a), _b(b), _squared(squared) {}
 
     virtual ~EuclideanDistances() {}
 
@@ -147,6 +147,16 @@ public:
             {
                 res[i * nColsC + j] = aa[i] + bb[j] - 2 * res[i * nColsC + j];
             }
+        }
+
+        if (!_squared)
+        {
+            daal::internal::Math<FPType, cpu> math;
+            daal::services::internal::TArray<FPType, cpu> tmpArr(nRowsC * nColsC);
+            FPType * tmp = tmpArr.get();
+            math.vSqrt(nRowsC * nColsC, res, tmp);
+
+            services::internal::daal_memcpy_s(res, nRowsC * nColsC * sizeof(FPType), tmp, nRowsC * nColsC * sizeof(FPType));
         }
 
         return services::Status();
@@ -245,6 +255,7 @@ protected:
 
     const NumericTable & _a;
     const NumericTable & _b;
+    const bool _squared;
 
     TArray<FPType, cpu> normBufferA;
     TArray<FPType, cpu> normBufferB;

@@ -1,6 +1,6 @@
 /* file: bf_knn_classification_predict_types.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ namespace daal
 namespace algorithms
 {
 /**
- * \brief Contains classes of the BF kNN algorithm
+ * \brief Contains classes of the brute-force kNN algorithm
  */
 namespace bf_knn_classification
 {
@@ -45,13 +45,13 @@ namespace bf_knn_classification
  * @{
  */
 /**
- * \brief Contains a class for making BF kNN model-based prediction
+ * \brief Contains a class for making brute-force kNN model-based prediction
  */
 namespace prediction
 {
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__BF_KNN_CLASSIFICATION__PREDICTION__METHOD"></a>
- * \brief Available methods for making BF kNN model-based prediction
+ * \brief Available methods for making brute-force kNN model-based prediction
  */
 enum Method
 {
@@ -77,7 +77,7 @@ namespace interface1
 {
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__BF_KNN_CLASSIFICATION__PREDICTION__INPUT"></a>
- * \brief Provides an interface for input objects for making BF kNN model-based prediction
+ * \brief Provides an interface for input objects for making brute-force kNN model-based prediction
  */
 class DAAL_EXPORT Input : public classifier::prediction::Input
 {
@@ -91,7 +91,7 @@ public:
     using super::set;
 
     /**
-     * Returns the input Model object in the prediction stage of the BF kNN algorithm
+     * Returns the input Model object in the prediction stage of the brute-force kNN algorithm
      * \param[in] id    Identifier of the input Model object
      * \return          %Input object that corresponds to the given identifier
      */
@@ -105,7 +105,7 @@ public:
     void set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
-     * Sets the input Model object in the prediction stage of the BF kNN algorithm
+     * Sets the input Model object in the prediction stage of the brute-force kNN algorithm
      * \param[in] id      Identifier of the input object
      * \param[in] value   Input Model object
      */
@@ -120,7 +120,7 @@ public:
 };
 
 /**
- * <a name="DAAL-CLASS-ALGORITHMS__BF_KNN_CLASSIFICATION__PREDICTION__RESULT"></a>
+ * <a name="DAAL-CLASS-ALGORITHMS__RIDGE_REGRESSION__PREDICTION__RESULT"></a>
  * \brief Provides interface for the result of brute-force kNN model-based prediction
  */
 class DAAL_EXPORT Result : public classifier::prediction::Result

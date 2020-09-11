@@ -1,6 +1,6 @@
-/* file: bf_knn_classification_training_result.cpp */
+/* file: bf_knn_classification_train_kernel_impl.i */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,11 +15,15 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "algorithms/k_nearest_neighbors/bf_knn_classification_training_types.h"
-#include "src/services/serialization_utils.h"
+#ifndef __BF_KNN_CLASSIFICATION_TRAIN_KERNEL_IMPL_I__
+#define __BF_KNN_CLASSIFICATION_TRAIN_KERNEL_IMPL_I__
 
-using namespace daal::data_management;
-using namespace daal::services;
+#include "algorithms/engines/engine.h"
+#include "services/daal_defines.h"
+
+#include "src/algorithms/k_nearest_neighbors/bf_knn_classification_train_kernel.h"
+#include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
+#include "src/algorithms/k_nearest_neighbors/bf_knn_impl.i"
 
 namespace daal
 {
@@ -29,19 +33,19 @@ namespace bf_knn_classification
 {
 namespace training
 {
-namespace interface1
+namespace internal
 {
-__DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_K_NEAREST_NEIGHBOR_BF_TRAINING_RESULT_ID);
-
-Result::Result() : classifier::training::Result() {}
-
-daal::algorithms::bf_knn_classification::ModelPtr Result::get(classifier::training::ResultId id) const
+template <typename algorithmFpType, CpuType cpu>
+services::Status KNNClassificationTrainKernel<algorithmFpType, cpu>::compute(NumericTable * x, NumericTable * y, Model * r, const Parameter & par,
+                                                                             engines::BatchBase & engine)
 {
-    return services::staticPointerCast<daal::algorithms::bf_knn_classification::Model, data_management::SerializationIface>(Argument::get(id));
+    return services::Status();
 }
 
-} // namespace interface1
+} // namespace internal
 } // namespace training
 } // namespace bf_knn_classification
 } // namespace algorithms
 } // namespace daal
+
+#endif
