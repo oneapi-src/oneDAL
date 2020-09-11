@@ -1,6 +1,6 @@
 /* file: bf_knn_impl.i */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ namespace bf_knn_classification
 {
 namespace internal
 {
-const size_t classBufSize = 10;
+#define __BF_KNN_CLASS_BUFFER_SIZE 10
 
 template <typename FPType, CpuType cpu>
 class BruteForceNearestNeighbors
@@ -191,7 +191,7 @@ protected:
     services::Status uniformWeightedVoting(const size_t nClasses, const size_t k, const size_t n, const size_t nTrain, int * indices,
                                            const int * trainLabel, int * testLabel)
     {
-        daal::services::internal::TNArray<int, classBufSize, cpu> classWeightsArr(nClasses);
+        daal::services::internal::TNArray<int, __BF_KNN_CLASS_BUFFER_SIZE, cpu> classWeightsArr(nClasses);
         int * classWeights = classWeightsArr.get();
         DAAL_CHECK_MALLOC(classWeights);
 
@@ -223,7 +223,7 @@ protected:
     services::Status distanceWeightedVoting(const size_t nClasses, const size_t k, const size_t n, const size_t nTrain, FPType * distances,
                                             int * indices, const int * trainLabel, int * testLabel)
     {
-        daal::services::internal::TNArray<FPType, classBufSize, cpu> classWeightsArr(nClasses);
+        daal::services::internal::TNArray<FPType, __BF_KNN_CLASS_BUFFER_SIZE, cpu> classWeightsArr(nClasses);
         FPType * classWeights = classWeightsArr.get();
         DAAL_CHECK_MALLOC(classWeights);
 

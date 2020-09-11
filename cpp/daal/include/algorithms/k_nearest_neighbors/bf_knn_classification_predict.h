@@ -166,7 +166,7 @@ public:
 protected:
     virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
-    virtual services::Status allocateResult() DAAL_C11_OVERRIDE
+    services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = static_cast<ResultType *>(_result.get())->allocate<algorithmFPType>(&input, _par, (int)method);
         _res               = _result.get();

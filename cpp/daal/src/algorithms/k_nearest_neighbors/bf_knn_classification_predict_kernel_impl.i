@@ -1,6 +1,6 @@
 /* file: bf_knn_classification_predict_kernel_impl.i */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ services::Status KNNClassificationPredictKernel<algorithmFPType, cpu>::compute(c
                                                                                NumericTable * label, NumericTable * indices, NumericTable * distances,
                                                                                const daal::algorithms::Parameter * par)
 {
-    const Model * convModel              = static_cast<const Model *>(m);
+    const Model * const convModel        = static_cast<const Model *>(m);
     NumericTableConstPtr trainDataTable  = convModel->impl()->getData();
     NumericTableConstPtr trainLabelTable = convModel->impl()->getLabels();
 

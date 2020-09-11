@@ -29,11 +29,11 @@ namespace prediction
 namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
+} // namespace interface1
 namespace internal
 {
 template class KNNClassificationPredictKernel<DAAL_FPTYPE, DAAL_CPU>;
-}
+} // namespace internal
 } // namespace prediction
 } // namespace bf_knn_classification
 } // namespace algorithms
