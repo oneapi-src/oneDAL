@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef __KDTREE_KNN_CLASSIFICATION_TRAINING_RESULT_
-#define __KDTREE_KNN_CLASSIFICATION_TRAINING_RESULT_
+#ifndef __KDTREE_KNN_CLASSIFICATION_PREDICTION_RESULT_
+#define __KDTREE_KNN_CLASSIFICATION_PREDICTION_RESULT_
 
 #include "algorithms/k_nearest_neighbors/kdtree_knn_classification_predict_types.h"
 
