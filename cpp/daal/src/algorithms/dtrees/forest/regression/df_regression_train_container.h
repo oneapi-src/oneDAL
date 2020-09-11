@@ -76,8 +76,9 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     Input * input   = static_cast<Input *>(_in);
     Result * result = static_cast<Result *>(_res);
 
-    const NumericTable * x = input->get(data).get();
-    const NumericTable * y = input->get(dependentVariable).get();
+    const NumericTable * const x = input->get(data).get();
+    const NumericTable * const y = input->get(dependentVariable).get();
+    const NumericTable * const w = input->get(weights).get();
 
     decision_forest::regression::Model * m = result->get(model).get();
 
@@ -92,7 +93,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     else
     {
         __DAAL_CALL_KERNEL(env, internal::RegressionTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                           daal::services::internal::hostApp(*input), x, y, *m, *result, *par);
+                           daal::services::internal::hostApp(*input), x, y, w, *m, *result, *par);
     }
 }
 
