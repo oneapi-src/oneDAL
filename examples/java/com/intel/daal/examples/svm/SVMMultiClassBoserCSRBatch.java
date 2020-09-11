@@ -148,8 +148,8 @@ class SVMMultiClassBoserCSRBatch {
         NumericTable predictionResults = predictionResult.get(PredictionResultId.prediction);
         Service.printClassificationResult(testGroundTruth, predictionResults, "Ground truth", "Classification results",
                 "Multi-class SVM classification sample program results (first 20 observations):", 20);
+        System.out.println("");
         Service.printNumericTable("Multi-class SVM classification decision function results (first 20 observations):",
                  predictionResult.get(PredictionResultId.decisionFunction) , 20);
-        System.out.println("");
     }
 }
