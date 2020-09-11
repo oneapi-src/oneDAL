@@ -231,7 +231,7 @@ protected:
         bool isContainZero   = false;
         for (size_t i = 0; i < k * n; ++i)
         {
-            if (distances[i] < epsilon && distances[i] > -epsilon)
+            if (distances[i] < epsilon)
             {
                 isContainZero = true;
                 break;
@@ -248,7 +248,7 @@ protected:
             {
                 if (isContainZero)
                 {
-                    if (distances[i] < epsilon && distances[i] > -epsilon)
+                    if (distances[i] < epsilon)
                     {
                         classWeights[trainLabel[indices[i * nTrain + j]]] += 1;
                     }
