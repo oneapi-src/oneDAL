@@ -17,6 +17,8 @@
 
 #include "algorithms/k_nearest_neighbors/bf_knn_classification_predict.h"
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_predict_kernel_ucapi.h"
+#include "src/algorithms/k_nearest_neighbors/bf_knn_classification_predict_kernel.h"
+#include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
 
 namespace daal
 {
@@ -29,7 +31,17 @@ namespace prediction
 template <typename algorithmFpType, Method method, CpuType cpu>
 BatchContainer<algorithmFpType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
 {
-    __DAAL_INITIALIZE_KERNELS_SYCL(internal::KNNClassificationPredictKernelUCAPI, DAAL_FPTYPE);
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
+
+    if (deviceInfo.isCpu)
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::KNNClassificationPredictKernel, algorithmFpType);
+    }
+    else
+    {
+        __DAAL_INITIALIZE_KERNELS_SYCL(internal::KNNClassificationPredictKernelUCAPI, algorithmFpType);
+    }
 }
 
 template <typename algorithmFpType, Method method, CpuType cpu>
@@ -41,16 +53,27 @@ BatchContainer<algorithmFpType, method, cpu>::~BatchContainer()
 template <typename algorithmFpType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 {
-    const classifier::prediction::Input * const input = static_cast<const classifier::prediction::Input *>(_in);
-    classifier::prediction::Result * const result     = static_cast<classifier::prediction::Result *>(_res);
+    const daal::algorithms::Parameter * const par            = _par;
+    const classifier::prediction::Input * const input        = static_cast<const classifier::prediction::Input *>(_in);
+    bf_knn_classification::prediction::Result * const result = static_cast<bf_knn_classification::prediction::Result *>(_res);
+    const data_management::NumericTableConstPtr a            = input->get(classifier::prediction::data);
+    const classifier::ModelConstPtr m                        = input->get(classifier::prediction::model);
+    const data_management::NumericTablePtr label             = result->get(bf_knn_classification::prediction::prediction);
+    const data_management::NumericTablePtr indices           = result->get(bf_knn_classification::prediction::indices);
+    const data_management::NumericTablePtr distances         = result->get(bf_knn_classification::prediction::distances);
+    auto & context                                           = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo                                        = context.getInfoDevice();
 
-    const data_management::NumericTableConstPtr a = input->get(classifier::prediction::data);
-    const classifier::ModelConstPtr m             = input->get(classifier::prediction::model);
-    const data_management::NumericTablePtr r      = result->get(classifier::prediction::prediction);
-
-    const daal::algorithms::Parameter * const par = _par;
-    __DAAL_CALL_KERNEL_SYCL(env, internal::KNNClassificationPredictKernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFpType), compute, a.get(), m.get(),
-                            r.get(), par);
+    if (deviceInfo.isCpu)
+    {
+        __DAAL_CALL_KERNEL(env, internal::KNNClassificationPredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFpType), compute, a.get(), m.get(),
+                           label.get(), indices.get(), distances.get(), par);
+    }
+    else
+    {
+        __DAAL_CALL_KERNEL_SYCL(env, internal::KNNClassificationPredictKernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFpType), compute, a.get(),
+                                m.get(), label.get(), par);
+    }
 }
 
 } // namespace prediction
