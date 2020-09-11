@@ -37,7 +37,6 @@ namespace algorithms
  */
 namespace classifier
 {
-
 /**
 * <a name="DAAL-ENUM-ALGORITHMS__CLASSIFIER__RESULTOCOMPUTETID"></a>
 * Available identifiers of optional results of the classifier algorithm
@@ -45,9 +44,10 @@ namespace classifier
 */
 enum ResultToComputeId
 {
-    computeClassLabels             = 0x00000001ULL, /*!< Numeric table of size n x 1 with the predicted labels >*/
-    computeClassProbabilities      = 0x00000002ULL, /*!< Numeric table of size n x p with the predicted class probabilities for each observation >*/
-    computeClassLogProbabilities   = 0x00000004ULL, /*!< Numeric table of size n x p with the predicted class probabilities for each observation >*/
+    none                         = 0x00000000ULL,
+    computeClassLabels           = 0x00000001ULL, /*!< Numeric table of size n x 1 with the predicted labels >*/
+    computeClassProbabilities    = 0x00000002ULL, /*!< Numeric table of size n x p with the predicted class probabilities for each observation >*/
+    computeClassLogProbabilities = 0x00000004ULL, /*!< Numeric table of size n x p with the predicted class probabilities for each observation >*/
 };
 
 /**
@@ -70,12 +70,12 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 {
     Parameter(size_t nClasses = 2) : nClasses(nClasses) {}
 
-    size_t nClasses;        /*!< Number of classes */
+    size_t nClasses; /*!< Number of classes */
 
     services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [interface1::Parameter source code] */
-}
+} // namespace interface1
 /**
  * \brief Contains version 2.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -96,8 +96,8 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 {
     Parameter(size_t nClasses = 2);
 
-    size_t nClasses;        /*!< Number of classes */
-    DAAL_UINT64 resultsToEvaluate;  /*!< 64 bit integer flag that indicates the results to compute */
+    size_t nClasses;               /*!< Number of classes */
+    DAAL_UINT64 resultsToEvaluate; /*!< 64 bit integer flag that indicates the results to compute */
     services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [Parameter source code] */
@@ -153,7 +153,7 @@ using interface1::Model;
 using interface1::ModelPtr;
 using interface1::ModelConstPtr;
 
-}
-}
-}
+} // namespace classifier
+} // namespace algorithms
+} // namespace daal
 #endif
