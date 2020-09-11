@@ -440,7 +440,7 @@ bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(const 
     vBest = split.impurityDecrease < 0 ? daal::services::internal::MaxVal<algorithmFPType>::get() :
                                          (curImpurity.var - split.impurityDecrease) * totalWeights;
     algorithmFPType leftWeights = 0.;
-    const algorithmFPType last = featureVal[n - nMinSplitPart];
+    const algorithmFPType last  = featureVal[n - nMinSplitPart];
     for (size_t i = 1; i < (n - nMinSplitPart + 1); ++i)
     {
         weights = aWeights[aIdx[i]].val;
@@ -639,8 +639,8 @@ public:
 template <typename algorithmFPType, decision_forest::regression::training::Method method, CpuType cpu>
 services::Status RegressionTrainBatchKernel<algorithmFPType, method, cpu>::compute(HostAppIface * pHostApp, const NumericTable * x,
                                                                                    const NumericTable * y, const NumericTable * w,
-                                                                                   decision_forest::regression::Model & m,
-                                                                                   Result & res, const Parameter & par)
+                                                                                   decision_forest::regression::Model & m, Result & res,
+                                                                                   const Parameter & par)
 {
     ResultData rd(par, res.get(variableImportance).get(), res.get(outOfBagError).get(), res.get(outOfBagErrorPerObservation).get());
     services::Status s = computeImpl<algorithmFPType, cpu, daal::algorithms::decision_forest::regression::internal::ModelImpl,

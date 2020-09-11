@@ -624,8 +624,8 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(alg
             const auto & r                       = aResponse[aIdx[i]];
             const IndexedFeatures::IndexType idx = indexedFeature[r.idx];
             ++nFeatIdx[idx];
-            const auto weights                   = aWeights[iSample].val;
-            const ClassIndexType iClass          = r.val;
+            const auto weights          = aWeights[iSample].val;
+            const ClassIndexType iClass = r.val;
             featWeights[idx] += weights; //use for calculate leftWeights
             nSamplesPerClass[idx * _nClasses + iClass] += weights;
         }

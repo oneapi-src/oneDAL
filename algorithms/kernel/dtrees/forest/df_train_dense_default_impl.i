@@ -506,7 +506,7 @@ protected:
         {
             // if maxLeafNodes is equal 0, it means unlimited leaf nodes
             // if maxLeafNodes > 1, before each split decrease remainingSplitNodes by 1 and compare with 0
-             return ((nSamples < 2 * _par.minObservationsInLeafNode) || (nSamples < _minSamplesSplit) || (totalWeights < 2 * _minWeightLeaf)
+            return ((nSamples < 2 * _par.minObservationsInLeafNode) || (nSamples < _minSamplesSplit) || (totalWeights < 2 * _minWeightLeaf)
                     || _helper.terminateCriteria(imp, _impurityThreshold, nSamples) || ((_par.maxTreeDepth > 0) && (level >= _par.maxTreeDepth)));
         }
         else
@@ -716,7 +716,7 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, DataHe
         const double impLeft = split.left.var;
 
         // check impurity decrease
-         if (imp * split.totalWeights - impLeft * split.leftWeights - (split.totalWeights - split.leftWeights) * (imp - impLeft)
+        if (imp * split.totalWeights - impLeft * split.leftWeights - (split.totalWeights - split.leftWeights) * (imp - impLeft)
             < _minImpurityDecrease)
             return makeLeaf(_aSample.get() + iStart, n, curImpurity, nClasses);
         if (_par.varImportance == training::MDI) addImpurityDecrease(iFeature, n, curImpurity, split);
