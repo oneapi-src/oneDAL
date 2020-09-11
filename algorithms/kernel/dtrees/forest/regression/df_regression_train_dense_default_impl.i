@@ -57,7 +57,6 @@ void subtractImpurity(algorithmFPType var, algorithmFPType mean, algorithmFPType
     mean2                   = mean + (leftWeights * (mean - mean1)) / rightWeights;
     const algorithmFPType b = leftWeights / rightWeights;
     //const algorithmFPType a1 = (var1 + mean1*mean1);
-    const algorithmFPType b = algorithmFPType(n1) / algorithmFPType(n2);
     //var2 = a + (a - a1)*b - mean2*mean2;
     //var2 = var + mean*mean - mean2*mean2 + (var - var1 + mean*mean - mean1*mean1)*b;
     var2 = var + (mean - mean2) * (mean + mean2) + (var - var1 + (mean - mean1) * (mean + mean1)) * b;
