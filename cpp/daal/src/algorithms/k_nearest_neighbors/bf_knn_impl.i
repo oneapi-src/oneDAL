@@ -94,7 +94,8 @@ public:
             DAAL_CHECK_MALLOC(trainLabel);
         }
 
-        daal::algorithms::internal::EuclideanDistances<FPType, cpu> euclDist(*testTable, *trainTable, !(resultsToCompute & computeDistances));
+        daal::algorithms::internal::EuclideanDistances<FPType, cpu> euclDist(
+            *testTable, *trainTable, !(resultsToCompute & computeDistances) && !(voteWeights & VoteWeights::voteDistance));
         euclDist.init();
 
         const size_t blockSize    = 128;
