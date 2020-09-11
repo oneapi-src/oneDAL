@@ -146,6 +146,8 @@ jobs:
   - script: |
       export DPCPP_VAR=/opt/intel/oneapi/compiler/latest/env/vars.sh
       export DAALROOT=$(Pipeline.Workspace)/daal/latest
+      source /opt/intel/oneapi/tbb/latest/env/vars.sh
+      source $(Pipeline.Workspace)/daal/latest/env/vars.sh intel64
       . $HOME/miniconda/etc/profile.d/conda.sh
       conda activate CB
       cd daal4py
