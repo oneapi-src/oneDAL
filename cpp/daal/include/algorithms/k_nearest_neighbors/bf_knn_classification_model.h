@@ -97,9 +97,9 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
         : daal::algorithms::classifier::Parameter(nClasses),
           k(nNeighbors),
           dataUseInModel(dataUse),
-          engine(engines::mcg59::Batch<>::create()),
+          resultsToCompute(resToCompute),
           voteWeights(vote),
-          resultsToCompute(resToCompute)
+          engine(engines::mcg59::Batch<>::create())
     {
         this->resultsToEvaluate = resToEvaluate;
     }
@@ -112,9 +112,9 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
         : daal::algorithms::classifier::Parameter(other.nClasses),
           k(other.k),
           dataUseInModel(other.dataUseInModel),
-          engine(other.engine->clone()),
+          resultsToCompute(other.resultsToCompute),
           voteWeights(other.voteWeights),
-          resultsToCompute(other.resultsToCompute)
+          engine(other.engine->clone())
     {
         this->resultsToEvaluate = other.resultsToEvaluate;
     }
