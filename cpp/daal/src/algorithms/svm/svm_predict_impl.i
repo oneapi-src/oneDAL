@@ -192,9 +192,10 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         ReadColumns<algorithmFPType, cpu> mtSVCoeff(*svCoeffTable, 0, 0, nSV);
         DAAL_CHECK_BLOCK_STATUS(mtSVCoeff);
         const algorithmFPType * const svCoeff = mtSVCoeff.get();
+        const size_t nOptimalSizeBlock        = nSV > 2048lu ? 256lu : 2048lu;
 
         size_t nRowsPerBlock = 1;
-        DAAL_SAFE_CPU_CALL((nRowsPerBlock = 256), (nRowsPerBlock = nVectors));
+        DAAL_SAFE_CPU_CALL((nRowsPerBlock = nOptimalSizeBlock), (nRowsPerBlock = nVectors));
         const size_t nBlocks = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
 
         const NumericTablePtr svTable = model->getSupportVectors();

@@ -179,8 +179,17 @@ services::Status KernelImplRBF<defaultDense, double, avx512>::postGemmPart(doubl
     const __m512d sqrA2iVec          = _mm512_set1_pd(sqrA2i);
     const __m512d coeffVec           = _mm512_set1_pd(coeff);
     const __m512d expExpThresholdVec = _mm512_set1_pd(expExpThreshold);
-    size_t i                         = 0;
-    for (; i < n; i += 8)
+
+    const size_t align = ((64 - (reinterpret_cast<size_t>(dataRBlock) & 63)) & 63) >> 3;
+
+    size_t i = 0;
+    for (; i < align; i++)
+    {
+        const double rbf = (mklBuff[i] + sqrA2i + sqrA1i[i]) * coeff;
+        mklBuff[i]       = rbf > expExpThreshold ? rbf : expExpThreshold;
+    }
+
+    for (; (i + 8) < n; i += 8)
     {
         const __m512d sqrDataA1Vec = _mm512_load_pd(&sqrA1i[i]);
         __m512d sqrDataA1CoeffVec  = _mm512_mul_pd(sqrDataA1Vec, coeffVec);
@@ -188,6 +197,7 @@ services::Status KernelImplRBF<defaultDense, double, avx512>::postGemmPart(doubl
         __m512d rbfVec             = _mm512_add_pd(mklBuffVec, sqrA2iVec);
         rbfVec                     = _mm512_fmadd_pd(rbfVec, coeffVec, sqrDataA1CoeffVec);
         rbfVec                     = _mm512_max_pd(rbfVec, expExpThresholdVec);
+
         _mm512_store_pd(&mklBuff[i], rbfVec);
     }
     for (; i < n; i++)
@@ -199,7 +209,11 @@ services::Status KernelImplRBF<defaultDense, double, avx512>::postGemmPart(doubl
     Math<double, avx512>::vExp(n, mklBuff, mklBuff);
     i = 0;
 
-    for (; i < n; i += 8)
+    for (; i < align; i++)
+    {
+        dataRBlock[i] = mklBuff[i];
+    }
+    for (; (i + 8) < n; i += 8)
     {
         const __m512d mklBuffVec = _mm512_load_pd(&mklBuff[i]);
         _mm512_stream_pd(&dataRBlock[i], mklBuffVec);
@@ -219,8 +233,16 @@ services::Status KernelImplRBF<defaultDense, float, avx512>::postGemmPart(float 
     const __m512 sqrA2iVec          = _mm512_set1_ps(sqrA2i);
     const __m512 coeffVec           = _mm512_set1_ps(coeff);
     const __m512 expExpThresholdVec = _mm512_set1_ps(expExpThreshold);
-    size_t i                        = 0;
-    for (; i < n; i += 16)
+
+    const size_t align = ((64 - (reinterpret_cast<size_t>(dataRBlock) & 63)) & 63) >> 2;
+    size_t i           = 0;
+    for (; i < align; i++)
+    {
+        const float rbf = (mklBuff[i] + sqrA2i + sqrA1i[i]) * coeff;
+        mklBuff[i]      = rbf > expExpThreshold ? rbf : expExpThreshold;
+    }
+
+    for (; (i + 16) < n; i += 16)
     {
         const __m512 sqrDataA1Vec = _mm512_load_ps(&sqrA1i[i]);
         __m512 sqrDataA1CoeffVec  = _mm512_mul_ps(sqrDataA1Vec, coeffVec);
@@ -239,7 +261,11 @@ services::Status KernelImplRBF<defaultDense, float, avx512>::postGemmPart(float 
     Math<float, avx512>::vExp(n, mklBuff, mklBuff);
     i = 0;
 
-    for (; i < n; i += 16)
+    for (; i < align; i++)
+    {
+        dataRBlock[i] = mklBuff[i];
+    }
+    for (; (i + 16) < n; i += 16)
     {
         const __m512 mklBuffVec = _mm512_load_ps(&mklBuff[i]);
         _mm512_stream_ps(&dataRBlock[i], mklBuffVec);
@@ -349,12 +375,7 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
                     const algorithmFPType sqrA1i         = sqrDataA1[i];
                     algorithmFPType * const dataRBlock   = &dataR[i * nVectors2 + startRow2];
                     algorithmFPType * const mklBuffBlock = &mklBuff[i * blockSize];
-                    for (size_t i = 0; i < nRowsInBlock2; ++i)
-                    {
-                        const algorithmFPType rbf = (mklBuffBlock[i] + sqrA1i + sqrDataA2[i]) * coeff;
-                        mklBuffBlock[i]           = rbf > expExpThreshold ? rbf : expExpThreshold;
-                    }
-                    Math<algorithmFPType, cpu>::vExp(nRowsInBlock2, mklBuffBlock, dataRBlock);
+                    postGemmPart(mklBuffBlock, sqrDataA2, sqrA1i, coeff, expExpThreshold, nRowsInBlock2, dataRBlock);
                 }
             }
             else

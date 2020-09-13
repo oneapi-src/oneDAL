@@ -203,7 +203,7 @@ protected:
         _kernelOriginalIndex.reset(nSize);
         DAAL_CHECK_MALLOC(_kernelOriginalIndex.get());
 
-        size_t maxAlignedLisneSize = 64 - _lineSize % 64;
+        const size_t maxAlignedLisneSize = ((64 - (_cacheSize & 63)) & 63) >> getDegreeAlgorithmFPType();
         _cacheData.reset((_lineSize + maxAlignedLisneSize) * _cacheSize);
         DAAL_CHECK_MALLOC(_cacheData.get());
 
@@ -214,7 +214,7 @@ protected:
         {
             char * cachei             = reinterpret_cast<char *>(&_cacheData[i * (maxAlignedLisneSize + _lineSize)]);
             const size_t cacheiInt    = reinterpret_cast<size_t>(cachei);
-            const size_t alignedCahei = 64 - cacheiInt % 64;
+            const size_t alignedCahei = ((64 - (cacheiInt & 63)) & 63) >> getDegreeAlgorithmFPType();
             cachei                    = cachei + alignedCahei;
             _cache[i]                 = reinterpret_cast<algorithmFPType *>(cachei);
         }
@@ -233,6 +233,9 @@ protected:
         _blockTask = SubDataTaskBasePtr<algorithmFPType, cpu>(task);
         return status;
     }
+
+private:
+    constexpr size_t getDegreeAlgorithmFPType() const { return sizeof(algorithmFPType) == 8lu ? 3lu : sizeof(algorithmFPType) == 4lu ? 2lu : 0lu; }
 
 protected:
     LRUCache<cpu, uint32_t> _lruCache;
