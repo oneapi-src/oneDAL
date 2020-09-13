@@ -364,7 +364,6 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::upd
     DAAL_INT incX(1);
     DAAL_INT incY(1);
 
-    // daal::threader_for(nBlocksWS, nBlocksWS, [&](const size_t iBlock) {
     daal::threader_for(nBlocksWS, nBlocksWS, [&](const size_t iBlock) {
         const size_t startRowWS           = iBlock * _blockSizeWS;
         const algorithmFPType deltaalphai = deltaalpha[startRowWS];
@@ -391,7 +390,6 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::upd
             }
         });
     });
-    DAAL_ITTNOTIFY_SCOPED_TASK(updateGrad.reduce);
 
     algorithmFPType one = algorithmFPType(1);
     for (size_t i = 0; i < nBlocksWS; i++)

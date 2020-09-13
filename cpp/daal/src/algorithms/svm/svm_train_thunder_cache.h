@@ -212,9 +212,9 @@ protected:
 
         for (size_t i = 0; i < _cacheSize; ++i)
         {
-            const algorithmFPType * cachei = &_cacheData[i * (maxAlignedSize + _lineSize)];
-            const size_t alignedCahei      = ((64 - (reinterpret_cast<size_t>(cachei) & 63)) & 63) >> getDegreeAlgorithmFPType();
-            _cache[i]                      = cachei + alignedCahei;
+            algorithmFPType * const cachei = &_cacheData[i * (maxAlignedSize + _lineSize)];
+            const size_t align             = ((64 - (reinterpret_cast<size_t>(cachei) & 63)) & 63) >> getDegreeAlgorithmFPType();
+            _cache[i]                      = cachei + align;
         }
 
         SubDataTaskBase<algorithmFPType, cpu> * task = nullptr;
