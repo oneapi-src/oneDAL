@@ -235,8 +235,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
         SafeStatus safeStat;
 
         /* Gather data to local buffers */
-        size_t blockSizeWS   = 16;
-        const size_t nBlocks = nWS / blockSizeWS;
+        const size_t blockSizeWS = services::internal::min<cpu, algorithmFPType>(nWS, 16);
+        const size_t nBlocks     = nWS / blockSizeWS;
         daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
             const size_t startRow = iBlock * blockSizeWS;
 
