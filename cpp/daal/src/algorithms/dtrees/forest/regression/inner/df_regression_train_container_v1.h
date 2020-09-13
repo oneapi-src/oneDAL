@@ -91,8 +91,9 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     Input * input   = static_cast<Input *>(_in);
     Result * result = static_cast<Result *>(_res);
 
-    const NumericTable * x = input->get(data).get();
-    const NumericTable * y = input->get(dependentVariable).get();
+    const NumericTable * const x = input->get(data).get();
+    const NumericTable * const y = input->get(dependentVariable).get();
+    const NumericTable * const w = nullptr;
 
     decision_forest::regression::Model * m = result->get(model).get();
 
@@ -102,8 +103,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     convertParameter(*par, par2);
     daal::services::Environment::env & env = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::RegressionTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                       daal::services::internal::hostApp(*input), x, y, *m, *result, par2);
     if (method == hist && !deviceInfo.isCpu)
     {
         __DAAL_CALL_KERNEL_SYCL(env, internal::RegressionTrainBatchKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
@@ -112,7 +111,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     else
     {
         __DAAL_CALL_KERNEL(env, internal::RegressionTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                           daal::services::internal::hostApp(*input), x, y, *m, *result, par2);
+                           daal::services::internal::hostApp(*input), x, y, w, *m, *result, par2);
     }
 }
 

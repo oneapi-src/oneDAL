@@ -154,27 +154,22 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     r->impl()->setKDTreeTable(KDTreeTablePtr(new KDTreeTable(maxKDTreeNodeCount, status)));
     DAAL_CHECK_STATUS_VAR(status);
 
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, xRowCount, sizeof(size_t));
-
-    size_t * indexes = static_cast<size_t *>(service_malloc<size_t, cpu>(xRowCount * sizeof(size_t)));
-
-    DAAL_CHECK_MALLOC(indexes)
-    for (size_t i = 0; i < xRowCount; ++i)
-    {
-        indexes[i] = i;
-    }
+    status |= r->impl()->resetIndices(xRowCount);
+    DAAL_CHECK_STATUS_VAR(status);
+    size_t * const indexes = static_cast<data_management::HomogenNumericTable<size_t> *>(r->impl()->getIndices().get())->getArray();
 
     Queue<BuildNode, cpu> q;
     BBox * bboxQ = nullptr;
     DAAL_CHECK_STATUS(status, buildFirstPartOfKDTree(q, bboxQ, *x, *r, indexes, engine));
     DAAL_CHECK_STATUS(status, buildSecondPartOfKDTree(q, bboxQ, *x, *r, indexes, engine));
     DAAL_CHECK_STATUS(status, rearrangePoints(*x, indexes));
-    DAAL_CHECK_STATUS(status, rearrangePoints(*y, indexes));
+    if (y)
+    {
+        DAAL_CHECK_STATUS(status, rearrangePoints(*y, indexes));
+    }
 
     daal_free(bboxQ);
-    daal_free(indexes);
-    bboxQ   = nullptr;
-    indexes = nullptr;
+    bboxQ = nullptr;
     return status;
 }
 
@@ -899,7 +894,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
         x.releaseBlockOfColumnValues(columnWriteBD);
     }
 
-    daal_free(buffer);
+    service_free<algorithmFpType, cpu>(buffer);
     buffer = nullptr;
 
     return status;
