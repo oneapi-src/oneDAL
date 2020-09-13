@@ -172,7 +172,6 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
 
     size_t defaultCacheSize = services::internal::min<cpu, algorithmFPType>(nVectors, cacheSize / nVectors / sizeof(algorithmFPType));
 
-    printf("defaultCacheSize: %lu cacheSize: %lu\n", defaultCacheSize, cacheSize);
     defaultCacheSize = services::internal::max<cpu, algorithmFPType>(nWS, defaultCacheSize);
     auto cachePtr    = SVMCache<thunder, lruCache, algorithmFPType, cpu>::create(defaultCacheSize, nWS, nVectors, xTable, kernel, status);
 
@@ -205,9 +204,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
         diffPrev = diff;
     }
 
-    printf("n_iter: %lu; diff: %.5lf\n", iter, diff);
-    cachePtr->resetInternalMemory();
-
+    cachePtr->clear();
     SaveResultTask<algorithmFPType, cpu> saveResult(nVectors, y, alpha, grad, cachePtr.get());
     DAAL_CHECK_STATUS(status, saveResult.compute(*xTable, *static_cast<Model *>(r), cw));
 
@@ -247,11 +244,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
             PRAGMA_VECTOR_ALWAYS
             for (size_t i = startRow; i < startRow + blockSizeWS; ++i)
             {
-                const size_t wsIndex = wsIndices[i];
-
-                // ReadColumns<algorithmFPType, cpu> mtKernel(kernelWS.get(), i, 0, nVectors);
-                // DAAL_CHECK_BLOCK_STATUS_THR(mtKernel);
-                // const algorithmFPType * const kernelWSData = mtKernel.get();
+                const size_t wsIndex                       = wsIndices[i];
                 const algorithmFPType * const kernelWSData = kernelWS[i];
                 yLocal[i]                                  = y[wsIndex];
                 gradLocal[i]                               = grad[wsIndex];
@@ -341,8 +334,6 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
             const algorithmFPType KiBj = KBjBlock[i];
             gradLocal[i] += delta * (KiBi - KiBj);
         }
-
-        // printf("[INNER] n_iter: %lu; diff: %.5lf\n", iter, localDiff);
     }
 
     /* Compute diff and scatter to alpha vector */
@@ -384,10 +375,6 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::upd
             algorithmFPType * gradi       = &gradBuff[nVectors * iBlock + startRowGrad];
 
             const algorithmFPType * kernelBlockI = kernelWS[startRowWS] + startRowGrad;
-
-            // ReadColumns<algorithmFPType, cpu> mtKernel(kernelWS.get(), startRowWS, startRowGrad, nRowsInBlockGrad);
-            // DAAL_CHECK_BLOCK_STATUS_THR(mtKernel);
-            // const algorithmFPType * kernelBlockI = mtKernel.get();
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
@@ -398,10 +385,6 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::upd
             }
             for (size_t i = 1; i < _blockSizeWS; i++)
             {
-                // ReadColumns<algorithmFPType, cpu> mtKernel(kernelWS.get(), startRowWS + i, startRowGrad, nRowsInBlockGrad);
-                // DAAL_CHECK_BLOCK_STATUS_THR(mtKernel);
-                // algorithmFPType * kernelBlockI = (algorithmFPType *)mtKernel.get();
-
                 const algorithmFPType * kernelBlockI = kernelWS[startRowWS + i] + startRowGrad;
                 algorithmFPType deltaalphai          = deltaalpha[startRowWS + i];
                 Blas<algorithmFPType, cpu>::xxaxpy((DAAL_INT *)&nRowsInBlockGrad, &deltaalphai, kernelBlockI, &incX, gradi, &incY);

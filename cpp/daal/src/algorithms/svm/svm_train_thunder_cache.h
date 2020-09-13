@@ -57,7 +57,7 @@ public:
 
     virtual size_t getDataRowIndex(size_t rowIndex) const override { return rowIndex; }
 
-    virtual services::Status resetInternalMemory() = 0;
+    virtual services::Status clear() = 0;
 
 protected:
     SVMCacheIface(const size_t cacheSize, const size_t lineSize, const kernel_function::KernelIfacePtr & kernel)
@@ -106,11 +106,14 @@ public:
         return SVMCachePtr<thunder, algorithmFPType, cpu>(res);
     }
 
-    services::Status resetInternalMemory() override
+    services::Status clear() override
     {
+        _blockTask.reset();
+        _kernelOriginalIndex.reset();
+        _kernelIndex.reset();
         _cache.reset();
         _cacheData.reset();
-        _blockTask.reset();
+        _soaData.reset();
         return services::Status();
     }
 
