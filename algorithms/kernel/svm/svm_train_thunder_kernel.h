@@ -50,13 +50,13 @@ struct SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu> : public Kerne
                              data_management::NumericTable & yTable, daal::algorithms::Model * r, const ParameterType * par);
 
 private:
-    services::Status SMOBlockSolver(const algorithmFPType * y, const algorithmFPType * grad, const uint32_t * wsIndices,
-                                    const NumericTablePtr & kernelWS, const size_t nVectors, const size_t nWS, const algorithmFPType * cw,
-                                    const double eps, const double tau, algorithmFPType * buffer, char * I, algorithmFPType * alpha,
-                                    algorithmFPType * deltaAlpha, algorithmFPType & localDiff) const;
+    services::Status SMOBlockSolver(const algorithmFPType * y, const algorithmFPType * grad, const uint32_t * wsIndices, algorithmFPType ** kernelWS,
+                                    const size_t nVectors, const size_t nWS, const algorithmFPType * cw, const double eps, const double tau,
+                                    algorithmFPType * buffer, char * I, algorithmFPType * alpha, algorithmFPType * deltaAlpha,
+                                    algorithmFPType & localDiff) const;
 
-    services::Status updateGrad(const NumericTablePtr & kernelWS, const algorithmFPType * deltaalpha, algorithmFPType * tmpgrad,
-                                algorithmFPType * grad, const size_t nVectors, const size_t nWS);
+    services::Status updateGrad(algorithmFPType ** kernelWS, const algorithmFPType * deltaalpha, algorithmFPType * tmpgrad, algorithmFPType * grad,
+                                const size_t nVectors, const size_t nWS);
 
     bool checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev, const algorithmFPType eps, size_t & sameLocalDiff);
 
