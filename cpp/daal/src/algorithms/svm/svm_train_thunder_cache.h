@@ -53,9 +53,11 @@ class SVMCacheIface<thunder, algorithmFPType, cpu> : public SVMCacheCommonIface<
 public:
     virtual ~SVMCacheIface() {}
 
-    virtual services::Status getRowsBlock(const uint32_t * const indices, const size_t n, NumericTablePtr & block) = 0;
+    virtual services::Status getRowsBlock(const uint32_t * const indices, const size_t n, algorithmFPType **& soablock) = 0;
 
     virtual size_t getDataRowIndex(size_t rowIndex) const override { return rowIndex; }
+
+    virtual services::Status resetInternalMemory() = 0;
 
 protected:
     SVMCacheIface(const size_t cacheSize, const size_t lineSize, const kernel_function::KernelIfacePtr & kernel)
@@ -104,10 +106,23 @@ public:
         return SVMCachePtr<thunder, algorithmFPType, cpu>(res);
     }
 
-    services::Status getRowsBlock(const uint32_t * const indices, const size_t n, NumericTablePtr & block) override
+    services::Status resetInternalMemory() override
+    {
+        _cache.reset();
+        _cacheData.reset();
+        _blockTask.reset();
+        return services::Status();
+    }
+
+    services::Status getRowsBlock(const uint32_t * const indices, const size_t n, algorithmFPType **& soablock) override
     {
         services::Status status;
-        auto kernelResultTable   = SOANumericTableCPU<cpu>::create(n, _lineSize, DictionaryIface::FeaturesEqual::equal, &status);
+        if (_soaData.size() < n)
+        {
+            _soaData.reset(n);
+            DAAL_CHECK_MALLOC(_soaData.get());
+        }
+
         size_t nIndicesForKernel = 0;
         {
             for (int i = 0; i < n; ++i)
@@ -117,16 +132,16 @@ public:
                 {
                     // If index in cache
                     DAAL_ASSERT(cacheIndex < _cacheSize)
-                    auto cachei = services::reinterpretPointerCast<algorithmFPType, byte>(_cache->getArraySharedPtr(cacheIndex));
-                    DAAL_CHECK_STATUS(status, kernelResultTable->template setArray<algorithmFPType>(cachei, i));
+                    algorithmFPType * cachei = _cache[cacheIndex];
+                    _soaData[i]              = cachei;
                 }
                 else
                 {
                     _lruCache.put(indices[i]);
                     cacheIndex = _lruCache.getFreeIndex();
                     DAAL_ASSERT(cacheIndex < _cacheSize)
-                    auto cachei = services::reinterpretPointerCast<algorithmFPType, byte>(_cache->getArraySharedPtr(cacheIndex));
-                    DAAL_CHECK_STATUS(status, kernelResultTable->template setArray<algorithmFPType>(cachei, i));
+                    algorithmFPType * cachei                = _cache[cacheIndex];
+                    _soaData[i]                             = cachei;
                     _kernelIndex[nIndicesForKernel]         = cacheIndex;
                     _kernelOriginalIndex[nIndicesForKernel] = indices[i];
                     ++nIndicesForKernel;
@@ -137,7 +152,8 @@ public:
         {
             DAAL_CHECK_STATUS(status, computeKernel(nIndicesForKernel, _kernelOriginalIndex.get()));
         }
-        block = kernelResultTable;
+
+        soablock = _soaData.get();
         return status;
     }
 
@@ -155,7 +171,7 @@ protected:
         for (size_t i = 0; i < nWorkElements; ++i)
         {
             const size_t cacheIndex = _kernelIndex[i];
-            auto cachei             = services::reinterpretPointerCast<algorithmFPType, byte>(_cache->getArraySharedPtr(cacheIndex));
+            auto cachei             = _cache[cacheIndex];
             DAAL_CHECK_STATUS(status, kernelComputeTable->template setArray<algorithmFPType>(cachei, i));
         }
 
@@ -184,16 +200,26 @@ protected:
         _kernelOriginalIndex.reset(nSize);
         DAAL_CHECK_MALLOC(_kernelOriginalIndex.get());
 
-        _cacheData.reset(_lineSize * _cacheSize);
+        size_t alignedLisneSize = 64 - _lineSize % 64;
+        _cacheData.reset((_lineSize + alignedLisneSize) * _cacheSize);
         DAAL_CHECK_MALLOC(_cacheData.get());
 
-        _cache = SOANumericTableCPU<cpu>::create(_cacheSize, _lineSize, DictionaryIface::FeaturesEqual::equal, &status);
-        DAAL_CHECK_STATUS_VAR(status);
+        // _cache = SOANumericTableCPU<cpu>::create(_cacheSize, _lineSize, DictionaryIface::FeaturesEqual::equal, &status);
+        _cache.reset(_cacheSize);
+        DAAL_CHECK_MALLOC(_cache.get());
+        // DAAL_CHECK_STATUS_VAR(status);
 
         for (size_t i = 0; i < _cacheSize; ++i)
         {
-            auto cachei = &_cacheData[i * _lineSize];
-            DAAL_CHECK_STATUS(status, _cache->template setArray<algorithmFPType>(cachei, i));
+            // auto cachei = &_cacheData[i * _lineSize];
+            void * cachei       = &_cacheData[i * (alignedLisneSize + _lineSize)];
+            size_t p_cachei     = (size_t)cachei;
+            size_t alignedCahei = 64 - p_cachei % 64;
+            cachei              = cachei + alignedCahei;
+
+            // p_cachei = (size_t)cachei;
+            // printf("%p, %lu: %lu\n", cachei, p_cachei, p_cachei % 64lu);
+            _cache[i] = (algorithmFPType *)cachei;
         }
 
         SubDataTaskBase<algorithmFPType, cpu> * task = nullptr;
@@ -217,8 +243,9 @@ protected:
     SubDataTaskBasePtr<algorithmFPType, cpu> _blockTask;
     TArray<uint32_t, cpu> _kernelOriginalIndex;
     TArray<uint32_t, cpu> _kernelIndex;
-    services::SharedPtr<SOANumericTableCPU<cpu> > _cache;
+    TArrayScalable<algorithmFPType *, cpu> _cache;
     TArrayScalable<algorithmFPType, cpu> _cacheData;
+    TArrayScalable<algorithmFPType *, cpu> _soaData;
 };
 
 } // namespace internal

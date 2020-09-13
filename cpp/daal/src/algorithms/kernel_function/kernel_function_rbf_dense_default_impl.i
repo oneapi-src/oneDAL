@@ -410,8 +410,8 @@ services::Status KernelImplRBF<defaultDense, double, avx512>::computeInternalMat
                     const __m512d sqrA2iVec          = _mm512_set1_pd(sqrA2i);
                     const __m512d coeffVec           = _mm512_set1_pd(coeff);
                     const __m512d expExpThresholdVec = _mm512_set1_pd(expExpThreshold);
-                    auto t10                         = _rdtsc();
-                    size_t i                         = 0;
+                    // auto t10                         = _rdtsc();
+                    size_t i = 0;
                     for (; i < nRowsInBlock1; i += 8)
                     {
                         const __m512d mklBuffVec   = _mm512_load_pd(&mklBuffBlock[i]);
@@ -421,7 +421,7 @@ services::Status KernelImplRBF<defaultDense, double, avx512>::computeInternalMat
                         __m512d rbfVec            = _mm512_add_pd(mklBuffVec, sqrA2iVec);
                         rbfVec                    = _mm512_fmadd_pd(rbfVec, coeffVec, sqrDataA1CoeffVec);
                         rbfVec                    = _mm512_max_pd(rbfVec, expExpThresholdVec);
-                        _mm512_storeu_pd(&mklBuffBlock[i], rbfVec);
+                        _mm512_store_pd(&mklBuffBlock[i], rbfVec);
                     }
                     for (; i < nRowsInBlock1; i++)
                     {
@@ -429,17 +429,32 @@ services::Status KernelImplRBF<defaultDense, double, avx512>::computeInternalMat
                         rbf                 = rbf > expExpThreshold ? rbf : expExpThreshold;
                         mklBuffBlock[i]     = rbf;
                     }
+                    // _mm_prefetch((char *)(soa_arrays[startRow2 + j + 1] + startRow1), _MM_HINT_T1);
 
-                    auto t11 = _rdtsc();
-
+                    // auto t11 = _rdtsc();
+                    // algorithmFPType * dataR = soa_arrays[startRow2 + j] + startRow1;
                     WriteOnlyColumns<algorithmFPType, avx512> mtRColumns(r, startRow2 + j, startRow1, nRowsInBlock1);
-                    DAAL_CHECK_BLOCK_STATUS_THR(mtRColumns);
+                    // DAAL_CHECK_BLOCK_STATUS_THR(mtRColumns);
                     algorithmFPType * const dataR = mtRColumns.get();
 
-                    auto t12 = _rdtsc();
-                    Math<algorithmFPType, avx512>::vExp(nRowsInBlock1, mklBuffBlock, dataR);
-                    auto t13 = _rdtsc();
-                    printf("LOOP: %lu EXP: %lu GET DATAR: %lu TOTAL: %lu\n", t11 - t10, t13 - t12, t12 - t11, t13 - t10);
+                    // auto t12 = _rdtsc();
+                    Math<algorithmFPType, avx512>::vExp(nRowsInBlock1, mklBuffBlock, mklBuffBlock);
+                    i = 0;
+                    for (; i < nRowsInBlock1; i += 8)
+                    {
+                        const __m512d mklBuffVec = _mm512_load_pd(&mklBuffBlock[i]);
+                        // size_t p_dataR           = (size_t)dataR;
+                        // printf("_mm512_stream_pd: %p, %lu\n", dataR, p_dataR);
+                        _mm512_stream_pd(&dataR[i], mklBuffVec);
+                        // _mm512_storeu_pd(&dataR[i], mklBuffVec);
+                    }
+                    for (; i < nRowsInBlock1; i++)
+                    {
+                        dataR[i] = mklBuffBlock[i];
+                    }
+
+                    // auto t13 = _rdtsc();
+                    // printf("LOOP: %lu EXP: %lu GET DATAR: %lu TOTAL: %lu\n", t11 - t10, t13 - t12, t12 - t11, t13 - t10);
                 }
             }
         });
