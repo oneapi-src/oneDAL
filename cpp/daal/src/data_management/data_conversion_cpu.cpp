@@ -60,7 +60,6 @@ void vectorCopyInternal<float>(const size_t nrows, const size_t ncols, void * ds
 template <>
 void vectorCopyInternal<double>(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 const * arrOffsets)
 {
-    // printf("vectorCopyInternal 512 [double]\n");
     double * pd          = static_cast<double *>(dst);
     double const * pmin  = static_cast<double const *>(ptrMin);
     char const * ptrByte = static_cast<char const *>(ptrMin);

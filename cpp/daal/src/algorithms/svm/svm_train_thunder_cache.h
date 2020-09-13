@@ -203,26 +203,20 @@ protected:
         _kernelOriginalIndex.reset(nSize);
         DAAL_CHECK_MALLOC(_kernelOriginalIndex.get());
 
-        size_t alignedLisneSize = 64 - _lineSize % 64;
-        _cacheData.reset((_lineSize + alignedLisneSize) * _cacheSize);
+        size_t maxAlignedLisneSize = 64 - _lineSize % 64;
+        _cacheData.reset((_lineSize + maxAlignedLisneSize) * _cacheSize);
         DAAL_CHECK_MALLOC(_cacheData.get());
 
-        // _cache = SOANumericTableCPU<cpu>::create(_cacheSize, _lineSize, DictionaryIface::FeaturesEqual::equal, &status);
         _cache.reset(_cacheSize);
         DAAL_CHECK_MALLOC(_cache.get());
-        // DAAL_CHECK_STATUS_VAR(status);
 
         for (size_t i = 0; i < _cacheSize; ++i)
         {
-            // auto cachei = &_cacheData[i * _lineSize];
-            void * cachei       = &_cacheData[i * (alignedLisneSize + _lineSize)];
-            size_t p_cachei     = (size_t)cachei;
-            size_t alignedCahei = 64 - p_cachei % 64;
+            void * cachei       = &_cacheData[i * (maxAlignedLisneSize + _lineSize)];
+            size_t cacheiInt    = reinterpret_cast<size_t>(cachei);
+            size_t alignedCahei = 64 - cacheiInt % 64;
             cachei              = cachei + alignedCahei;
-
-            // p_cachei = (size_t)cachei;
-            // printf("%p, %lu: %lu\n", cachei, p_cachei, p_cachei % 64lu);
-            _cache[i] = (algorithmFPType *)cachei;
+            _cache[i]           = static_cast<algorithmFPType *>(cachei);
         }
 
         SubDataTaskBase<algorithmFPType, cpu> * task = nullptr;
