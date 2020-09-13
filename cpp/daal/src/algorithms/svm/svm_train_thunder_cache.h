@@ -212,11 +212,11 @@ protected:
 
         for (size_t i = 0; i < _cacheSize; ++i)
         {
-            void * cachei       = &_cacheData[i * (maxAlignedLisneSize + _lineSize)];
-            size_t cacheiInt    = reinterpret_cast<size_t>(cachei);
-            size_t alignedCahei = 64 - cacheiInt % 64;
-            cachei              = cachei + alignedCahei;
-            _cache[i]           = static_cast<algorithmFPType *>(cachei);
+            char * cachei             = reinterpret_cast<char *>(&_cacheData[i * (maxAlignedLisneSize + _lineSize)]);
+            const size_t cacheiInt    = reinterpret_cast<size_t>(cachei);
+            const size_t alignedCahei = 64 - cacheiInt % 64;
+            cachei                    = cachei + alignedCahei;
+            _cache[i]                 = reinterpret_cast<algorithmFPType *>(cachei);
         }
 
         SubDataTaskBase<algorithmFPType, cpu> * task = nullptr;
