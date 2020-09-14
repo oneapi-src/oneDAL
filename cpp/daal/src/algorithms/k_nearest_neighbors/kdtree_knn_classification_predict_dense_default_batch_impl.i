@@ -38,6 +38,7 @@
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_predict_dense_default_batch.h"
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_impl.i"
+#include <iostream> // Temporary
 
 namespace daal
 {
@@ -173,10 +174,31 @@ public:
 
     void push(const T & e, size_t k)
     {
+        std::cout << "[heap.push] e = " << e << "; k = " << k << "; _count = " << _count << std::endl; // Temporary
         _elements[_count++] = e;
+
+        { // Temporary
+            std::cout << "[heap.push] _elements = {";
+            for (size_t i = 0; i < _count; ++i)
+            {
+                std::cout << " " << _elements[i];
+            }
+            std::cout << " }" << std::endl;
+        }
+
         if (_count == k)
         {
+            std::cout << "[heap.push] Calling makeMaxHeap" << std::endl; // Temporary
             makeMaxHeap<cpu>(_elements, _elements + _count);
+
+            { // Temporary
+                std::cout << "[heap.push] _elements = {";
+                for (size_t i = 0; i < _count; ++i)
+                {
+                    std::cout << " " << _elements[i];
+                }
+                std::cout << " }" << std::endl;
+            }
         }
     }
 
