@@ -39,7 +39,7 @@ string trainDatasetFileName = "../data/batch/k_nearest_neighbors_train.csv";
 string testDatasetFileName  = "../data/batch/k_nearest_neighbors_test.csv";
 
 size_t nFeatures = 5;
-size_t nClasses  = 2;
+size_t nClasses  = 5;
 
 kdtree_knn_classification::training::ResultPtr trainingResult;
 kdtree_knn_classification::prediction::ResultPtr predictionResult;
@@ -104,10 +104,6 @@ void testModel()
     /* Create algorithm objects for KD-tree based kNN prediction with the default method */
     kdtree_knn_classification::prediction::Batch<> algorithm;
 
-    algorithm.parameter.nClasses = nClasses;
-    algorithm.parameter.resultsToCompute = 0x00000003ULL;
-    algorithm.parameter.k = 6;
-
     /* Pass the testing data set and trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);
     algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
@@ -122,8 +118,5 @@ void testModel()
 void printResults()
 {
     printNumericTables<int, int>(testGroundTruth, predictionResult->get(kdtree_knn_classification::prediction::prediction), "Ground truth",
-                                 "Classification results", "KD-tree based kNN classification results (first 10 observations):", 10);
-    printNumericTables<float, int>(predictionResult->get(kdtree_knn_classification::prediction::distances),
-                                   predictionResult->get(kdtree_knn_classification::prediction::indices), "Distances",
-                                   "Indices", "KD-tree based kNN classification results (first 10 observations):", 10);
+                                 "Classification results", "KD-tree based kNN classification results (first 20 observations):", 20);
 }

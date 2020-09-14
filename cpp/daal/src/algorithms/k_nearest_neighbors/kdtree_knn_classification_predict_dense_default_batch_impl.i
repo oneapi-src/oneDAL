@@ -38,7 +38,6 @@
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_predict_dense_default_batch.h"
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_impl.i"
-#include <iostream> // Temporary
 
 namespace daal
 {
@@ -174,61 +173,18 @@ public:
 
     void push(const T & e, size_t k)
     {
-        std::cout << "[heap.push] e = " << e << "; k = " << k << "; _count = " << _count << std::endl; // Temporary
         _elements[_count++] = e;
-
-        { // Temporary
-            std::cout << "[heap.push] _elements = {";
-            for (size_t i = 0; i < _count; ++i)
-            {
-                std::cout << " " << _elements[i];
-            }
-            std::cout << " }" << std::endl;
-        }
-
         if (_count == k)
         {
-            std::cout << "[heap.push] Calling makeMaxHeap" << std::endl; // Temporary
             makeMaxHeap<cpu>(_elements, _elements + _count);
-
-            { // Temporary
-                std::cout << "[heap.push] _elements = {";
-                for (size_t i = 0; i < _count; ++i)
-                {
-                    std::cout << " " << _elements[i];
-                }
-                std::cout << " }" << std::endl;
-            }
         }
     }
 
     void replaceMax(const T & e)
     {
-        std::cout << "[heap.replaceMax] e = " << e << "; _count = " << _count << std::endl; // Temporary
-        std::cout << "[heap.replaceMax] Calling popMaxHeap" << std::endl;                   // Temporary
         popMaxHeap<cpu>(_elements, _elements + _count);
         _elements[_count - 1] = e;
-
-        { // Temporary
-            std::cout << "[heap.replaceMax] _elements = {";
-            for (size_t i = 0; i < _count; ++i)
-            {
-                std::cout << " " << _elements[i];
-            }
-            std::cout << " }" << std::endl;
-        }
-        std::cout << "[heap.replaceMax] Calling pushMaxHeap" << std::endl; // Temporary
-
         pushMaxHeap<cpu>(_elements, _elements + _count);
-
-        { // Temporary
-            std::cout << "[heap.replaceMax] _elements = {";
-            for (size_t i = 0; i < _count; ++i)
-            {
-                std::cout << " " << _elements[i];
-            }
-            std::cout << " }" << std::endl;
-        }
     }
 
     size_t size() const { return _count; }
@@ -250,13 +206,6 @@ struct GlobalNeighbors
 
     inline bool operator<(const GlobalNeighbors & rhs) const { return (distance < rhs.distance); }
 };
-
-// Temporary
-template <typename algorithmFpType, CpuType cpu>
-inline std::ostream & operator<<(std::ostream & stream, const GlobalNeighbors<algorithmFpType, cpu> & rhs)
-{
-    return stream << "{ distance = " << rhs.distance << "; index = " << rhs.index << " }";
-}
 
 template <typename algorithmFpType>
 struct SearchNode
@@ -643,15 +592,6 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
                 break;
             }
         }
-    }
-
-    { // Temporary
-        std::cout << "[findNearestNeighbors] heap.size() = " << heap.size() << "; heap._elements = {" << std::endl;
-        for (size_t i = 0; i < heap.size(); ++i)
-        {
-            std::cout << " " << heap[i];
-        }
-        std::cout << " }" << std::endl;
     }
 }
 
