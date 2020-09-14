@@ -229,6 +229,13 @@ struct GlobalNeighbors
     inline bool operator<(const GlobalNeighbors & rhs) const { return (distance < rhs.distance); }
 };
 
+// Temporary
+template <typename algorithmFpType, CpuType cpu>
+inline std::ostream & operator<<(std::ostream & stream, const GlobalNeighbors<algorithmFpType, cpu> & rhs)
+{
+    return stream << "{ distance = " << rhs.distance << "; index = " << rhs.index << " }";
+}
+
 template <typename algorithmFpType>
 struct SearchNode
 {
