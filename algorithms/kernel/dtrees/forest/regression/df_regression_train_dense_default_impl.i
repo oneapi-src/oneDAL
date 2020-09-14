@@ -537,7 +537,7 @@ bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitCategoricalFeature(co
     }
     if (bFound)
     {
-        const algorithmFPType impurityDecrease = curImpurity.var - vBest / isPositive<algorithmFPType, cpu>(totalWeights) ? totalWeights : 1.;
+        const algorithmFPType impurityDecrease = curImpurity.var - vBest / (isPositive<algorithmFPType, cpu>(totalWeights) ? totalWeights : 1.);
         if (split.impurityDecrease < 0 || split.impurityDecrease < impurityDecrease)
         {
             split.impurityDecrease = impurityDecrease;
