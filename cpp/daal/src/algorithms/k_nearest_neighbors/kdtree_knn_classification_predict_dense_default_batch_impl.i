@@ -204,9 +204,19 @@ public:
 
     void replaceMax(const T & e)
     {
+        std::cout << "[heap.replaceMax] e = " << e << "; _count = " << _count << std::endl; // Temporary
         popMaxHeap<cpu>(_elements, _elements + _count);
         _elements[_count - 1] = e;
         pushMaxHeap<cpu>(_elements, _elements + _count);
+
+        { // Temporary
+            std::cout << "[heap.replaceMax] _elements = {";
+            for (size_t i = 0; i < _count; ++i)
+            {
+                std::cout << " " << _elements[i];
+            }
+            std::cout << " }" << std::endl;
+        }
     }
 
     size_t size() const { return _count; }
@@ -621,6 +631,15 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
                 break;
             }
         }
+    }
+
+    { // Temporary
+        std::cout << "[findNearestNeighbors] heap.size() = " << heap.size() << "; heap._elements = {" << std::endl;
+        for (size_t i = 0; i < heap.size(); ++i)
+        {
+            std::cout << " " << heap.[i];
+        }
+        std::cout << " }" << std::endl;
     }
 }
 
