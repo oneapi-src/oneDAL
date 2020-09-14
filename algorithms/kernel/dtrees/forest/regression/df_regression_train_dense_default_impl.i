@@ -123,9 +123,8 @@ public:
     void computeHistWithoutWeights(algorithmFPType * buf, IndexType iFeature, const IndexType * aIdx, size_t n, intermSummFPType & sumTotal) const;
 
     template <bool noWeights, bool featureUnordered>
-    int findBestSplitByHist(size_t nDiffFeatMax, intermSummFPType sumTotal, algorithmFPType * buf,
-                            size_t n, size_t nMinSplitPart, const ImpurityData & curImpurity,
-                            TSplitData & split, const algorithmFPType minWeightLeaf,
+    int findBestSplitByHist(size_t nDiffFeatMax, intermSummFPType sumTotal, algorithmFPType * buf, size_t n, size_t nMinSplitPart,
+                            const ImpurityData & curImpurity, TSplitData & split, const algorithmFPType minWeightLeaf,
                             const algorithmFPType totalWeights) const;
 
     void finalizeBestSplit(const IndexType * aIdx, size_t n, IndexType iFeature, size_t idxFeatureValueBestSplit, TSplitData & bestSplit,
@@ -400,13 +399,12 @@ void OrderedRespHelper<algorithmFPType, cpu>::computeHistWithWeights(algorithmFP
 
 template <typename algorithmFPType, CpuType cpu>
 template <bool noWeights, bool featureUnordered>
-int OrderedRespHelper<algorithmFPType, cpu>::findBestSplitByHist(size_t nDiffFeatMax, intermSummFPType sumTotal, algorithmFPType * buf,
-                                                                 size_t n, size_t nMinSplitPart, const ImpurityData & curImpurity,
-                                                                 TSplitData & split, const algorithmFPType minWeightLeaf,
-                                                                 const algorithmFPType totalWeights) const
+int OrderedRespHelper<algorithmFPType, cpu>::findBestSplitByHist(size_t nDiffFeatMax, intermSummFPType sumTotal, algorithmFPType * buf, size_t n,
+                                                                 size_t nMinSplitPart, const ImpurityData & curImpurity, TSplitData & split,
+                                                                 const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const
 {
-    auto featWeights          = _weightsFeatureBuf.get();
-    auto nFeatIdx             = _idxFeatureBuf.get(); //number of indexed feature values, array
+    auto featWeights = _weightsFeatureBuf.get();
+    auto nFeatIdx    = _idxFeatureBuf.get(); //number of indexed feature values, array
 
     intermSummFPType bestImpDecreasePart =
         split.impurityDecrease < 0 ? -1 : (split.impurityDecrease + curImpurity.mean * curImpurity.mean) * totalWeights;
