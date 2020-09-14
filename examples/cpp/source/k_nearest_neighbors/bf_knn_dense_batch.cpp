@@ -82,6 +82,7 @@ void trainModel()
     /* Pass the training data set and dependent values to the algorithm */
     algorithm.input.set(classifier::training::data, trainData);
     algorithm.input.set(classifier::training::labels, trainGroundTruth);
+    algorithm.parameter().nClasses = nClasses;
 
     /* Train the KD-tree based kNN model */
     algorithm.compute();
