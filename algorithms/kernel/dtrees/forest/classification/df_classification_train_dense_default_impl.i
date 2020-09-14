@@ -114,7 +114,7 @@ public:
     int findBestSplitbyHistDefault(int nDiffFeatMax, size_t n, size_t nMinSplitPart, const ImpurityData & curImpurity, TSplitData & split,
                                    const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const;
 
-    template <int nClasses, bool noWeights>
+    template <int K, bool noWeights>
     int findBestSplitFewClasses(int nDiffFeatMax, size_t n, size_t nMinSplitPart, const ImpurityData & curImpurity, TSplitData & split,
                                 const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const;
 
@@ -641,7 +641,7 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitbyHistDefault(int nD
 }
 
 template <typename algorithmFPType, CpuType cpu>
-template <int nClasses, bool noWeights>
+template <int K, bool noWeights>
 int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiffFeatMax, size_t n, size_t nMinSplitPart,
                                                                        const ImpurityData & curImpurity, TSplitData & split,
                                                                        const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const
@@ -663,9 +663,9 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
         algorithmFPType thisNFeatIdx = nFeatIdx[i];
         if (noWeights)
         {
-            for (size_t iClass = 0; iClass < nClasses; ++iClass)
+            for (size_t iClass = 0; iClass < K; ++iClass)
             {
-                thisNFeatIdx += nSamplesPerClass[i * nClasses + iClass];
+                thisNFeatIdx += nSamplesPerClass[i * K + iClass];
             }
         }
         if (!thisNFeatIdx) continue;
@@ -677,9 +677,9 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
         }
         else
         {
-            for (size_t iClass = 0; iClass < nClasses; ++iClass)
+            for (size_t iClass = 0; iClass < K; ++iClass)
             {
-                thisFeatWeights += nSamplesPerClass[i * nClasses + iClass];
+                thisFeatWeights += nSamplesPerClass[i * K + iClass];
             }
         }
 
@@ -691,13 +691,13 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
 
         if (!split.featureUnordered)
         {
-            for (size_t iClass = 0; iClass < nClasses; ++iClass) histLeft[iClass] += nSamplesPerClass[i * nClasses + iClass];
+            for (size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] += nSamplesPerClass[i * K + iClass];
         }
         if ((nLeft < nMinSplitPart) || leftWeights < minWeightLeaf) continue;
 
         if (split.featureUnordered)
         {
-            for (size_t iClass = 0; iClass < nClasses; ++iClass) histLeft[iClass] = nSamplesPerClass[i * nClasses + iClass];
+            for (size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] = nSamplesPerClass[i * K + iClass];
         }
 
         auto histTotal           = curImpurity.hist.get();
@@ -705,7 +705,7 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
         algorithmFPType sumRight = 0;
 
         //proximal impurity improvement
-        for (size_t iClass = 0; iClass < nClasses; ++iClass)
+        for (size_t iClass = 0; iClass < K; ++iClass)
         {
             sumLeft += histLeft[iClass] * histLeft[iClass];
             sumRight += (histTotal[iClass] - histLeft[iClass]) * (histTotal[iClass] - histLeft[iClass]);
