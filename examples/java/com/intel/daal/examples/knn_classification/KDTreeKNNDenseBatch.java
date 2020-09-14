@@ -1,4 +1,4 @@
-/* file: BFKNNDenseBatch.java */
+/* file: KDTreeKNNDenseBatch.java */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -17,20 +17,21 @@
 
 /*
  //  Content:
- //     Java example of brute-force k nearest neighbors algorithm in the batch processing mode.
+ //     Java example of k nearest neighbors algorithm in the batch processing mode.
  ////////////////////////////////////////////////////////////////////////////////
  */
 
 /**
- * <a name="DAAL-EXAMPLE-JAVA-BFKNNDENSEBATCH">
- * @example BFKNNDenseBatch.java
+ * <a name="DAAL-EXAMPLE-JAVA-KDTREEKNNDENSEBATCH">
+ * @example KDTreeKNNDenseBatch.java
  */
 
-package com.intel.daal.examples.bf_knn_classification;
+package com.intel.daal.examples.knn_classification;
 
-import com.intel.daal.algorithms.bf_knn_classification.*;
-import com.intel.daal.algorithms.bf_knn_classification.prediction.*;
-import com.intel.daal.algorithms.bf_knn_classification.training.*;
+import com.intel.daal.algorithms.kdtree_knn_classification.Model;
+import com.intel.daal.algorithms.kdtree_knn_classification.ResultsToComputeId;
+import com.intel.daal.algorithms.kdtree_knn_classification.prediction.*;
+import com.intel.daal.algorithms.kdtree_knn_classification.training.*;
 import com.intel.daal.algorithms.classifier.training.InputId;
 import com.intel.daal.algorithms.classifier.training.TrainingResultId;
 import com.intel.daal.algorithms.classifier.prediction.ModelInputId;
@@ -43,7 +44,7 @@ import com.intel.daal.data_management.data_source.FileDataSource;
 import com.intel.daal.examples.utils.Service;
 import com.intel.daal.services.DaalContext;
 
-class BFKNNDenseBatch {
+class KDTreeKNNDenseBatch {
     /* Input data set parameters */
     private static final String trainDatasetFileName = "../data/batch/k_nearest_neighbors_train.csv";
 
@@ -136,9 +137,9 @@ class BFKNNDenseBatch {
 
     private static void printResults() {
         NumericTable expected = testGroundTruth;
-        Service.printClassificationResult(expected,results,"Ground truth","Classification results","Brute force kNN classification results (first 20 observations):",20);
+        Service.printClassificationResult(expected,results,"Ground truth","Classification results","KD-tree based kNN classification results (first 20 observations):",20);
         System.out.println("");
-        Service.printNumericTables(distances,indices,"Distances","Indices","Brute force kNN classification results (first 20 observations):",20);
+        Service.printNumericTables(distances,indices,"Distances","Indices","KD-tree based kNN classification results (first 20 observations):",20);
         System.out.println("");
     }
 }
