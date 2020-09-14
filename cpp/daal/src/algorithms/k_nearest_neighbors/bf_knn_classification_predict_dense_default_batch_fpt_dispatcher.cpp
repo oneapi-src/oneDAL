@@ -39,7 +39,7 @@ Batch<algorithmFPType, method>::Batch() : classifier::prediction::Batch()
 }
 
 template <typename algorithmFPType, bf_knn_classification::prediction::Method method>
-Batch<algorithmFPType, method>::Batch(const Batch & other) : classifier::prediction::Batch(other)
+Batch<algorithmFPType, method>::Batch(const Batch & other) : classifier::prediction::Batch(other), input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();
