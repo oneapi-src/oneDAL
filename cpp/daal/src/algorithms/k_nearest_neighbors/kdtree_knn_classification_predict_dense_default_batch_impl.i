@@ -205,8 +205,20 @@ public:
     void replaceMax(const T & e)
     {
         std::cout << "[heap.replaceMax] e = " << e << "; _count = " << _count << std::endl; // Temporary
+        std::cout << "[heap.push] Calling popMaxHeap" << std::endl;                         // Temporary
         popMaxHeap<cpu>(_elements, _elements + _count);
         _elements[_count - 1] = e;
+
+        { // Temporary
+            std::cout << "[heap.replaceMax] _elements = {";
+            for (size_t i = 0; i < _count; ++i)
+            {
+                std::cout << " " << _elements[i];
+            }
+            std::cout << " }" << std::endl;
+        }
+        std::cout << "[heap.push] Calling pushMaxHeap" << std::endl; // Temporary
+
         pushMaxHeap<cpu>(_elements, _elements + _count);
 
         { // Temporary
