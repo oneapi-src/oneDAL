@@ -180,15 +180,7 @@ services::Status KernelImplRBF<defaultDense, double, avx512>::postGemmPart(doubl
     const __m512d coeffVec           = _mm512_set1_pd(coeff);
     const __m512d expExpThresholdVec = _mm512_set1_pd(expExpThreshold);
 
-    const size_t align = ((64 - (reinterpret_cast<size_t>(dataRBlock) & 63)) & 63) >> 3;
-
     size_t i = 0;
-    for (; i < align; i++)
-    {
-        const double rbf = (mklBuff[i] + sqrA2i + sqrA1i[i]) * coeff;
-        mklBuff[i]       = rbf > expExpThreshold ? rbf : expExpThreshold;
-    }
-
     for (; (i + 8) < n; i += 8)
     {
         const __m512d sqrDataA1Vec = _mm512_load_pd(&sqrA1i[i]);
@@ -209,13 +201,14 @@ services::Status KernelImplRBF<defaultDense, double, avx512>::postGemmPart(doubl
     Math<double, avx512>::vExp(n, mklBuff, mklBuff);
     i = 0;
 
+    const size_t align = ((64 - (reinterpret_cast<size_t>(dataRBlock) & 63)) & 63) >> 3;
     for (; i < align; i++)
     {
         dataRBlock[i] = mklBuff[i];
     }
     for (; (i + 8) < n; i += 8)
     {
-        const __m512d mklBuffVec = _mm512_load_pd(&mklBuff[i]);
+        const __m512d mklBuffVec = _mm512_loadu_pd(&mklBuff[i]);
         _mm512_stream_pd(&dataRBlock[i], mklBuffVec);
     }
     for (; i < n; i++)
@@ -234,13 +227,7 @@ services::Status KernelImplRBF<defaultDense, float, avx512>::postGemmPart(float 
     const __m512 coeffVec           = _mm512_set1_ps(coeff);
     const __m512 expExpThresholdVec = _mm512_set1_ps(expExpThreshold);
 
-    const size_t align = ((64 - (reinterpret_cast<size_t>(dataRBlock) & 63)) & 63) >> 2;
-    size_t i           = 0;
-    for (; i < align; i++)
-    {
-        const float rbf = (mklBuff[i] + sqrA2i + sqrA1i[i]) * coeff;
-        mklBuff[i]      = rbf > expExpThreshold ? rbf : expExpThreshold;
-    }
+    size_t i = 0;
 
     for (; (i + 16) < n; i += 16)
     {
@@ -261,13 +248,14 @@ services::Status KernelImplRBF<defaultDense, float, avx512>::postGemmPart(float 
     Math<float, avx512>::vExp(n, mklBuff, mklBuff);
     i = 0;
 
+    const size_t align = ((64 - (reinterpret_cast<size_t>(dataRBlock) & 63)) & 63) >> 2;
     for (; i < align; i++)
     {
         dataRBlock[i] = mklBuff[i];
     }
     for (; (i + 16) < n; i += 16)
     {
-        const __m512 mklBuffVec = _mm512_load_ps(&mklBuff[i]);
+        const __m512 mklBuffVec = _mm512_loadu_ps(&mklBuff[i]);
         _mm512_stream_ps(&dataRBlock[i], mklBuffVec);
     }
     for (; i < n; i++)
