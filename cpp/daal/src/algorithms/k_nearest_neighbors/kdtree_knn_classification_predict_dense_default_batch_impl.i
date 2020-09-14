@@ -637,7 +637,7 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
         std::cout << "[findNearestNeighbors] heap.size() = " << heap.size() << "; heap._elements = {" << std::endl;
         for (size_t i = 0; i < heap.size(); ++i)
         {
-            std::cout << " " << heap.[i];
+            std::cout << " " << heap[i];
         }
         std::cout << " }" << std::endl;
     }
