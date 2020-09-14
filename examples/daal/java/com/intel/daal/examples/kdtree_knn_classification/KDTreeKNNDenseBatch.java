@@ -29,14 +29,13 @@
 package com.intel.daal.examples.kdtree_knn_classification;
 
 import com.intel.daal.algorithms.kdtree_knn_classification.Model;
+import com.intel.daal.algorithms.kdtree_knn_classification.ResultsToComputeId;
 import com.intel.daal.algorithms.kdtree_knn_classification.prediction.*;
 import com.intel.daal.algorithms.kdtree_knn_classification.training.*;
 import com.intel.daal.algorithms.classifier.training.InputId;
 import com.intel.daal.algorithms.classifier.training.TrainingResultId;
 import com.intel.daal.algorithms.classifier.prediction.ModelInputId;
 import com.intel.daal.algorithms.classifier.prediction.NumericTableInputId;
-import com.intel.daal.algorithms.classifier.prediction.PredictionResultId;
-import com.intel.daal.algorithms.classifier.prediction.PredictionResult;
 import com.intel.daal.data_management.data.NumericTable;
 import com.intel.daal.data_management.data.HomogenNumericTable;
 import com.intel.daal.data_management.data.MergedNumericTable;
@@ -56,6 +55,8 @@ class KDTreeKNNDenseBatch {
 
     static Model        model;
     static NumericTable results;
+    static NumericTable distances;
+    static NumericTable indices;
     static NumericTable testGroundTruth;
 
     private static DaalContext context = new DaalContext();
@@ -123,16 +124,22 @@ class KDTreeKNNDenseBatch {
 
         kNearestNeighborsPredict.input.set(NumericTableInputId.data, testData);
         kNearestNeighborsPredict.input.set(ModelInputId.model, model);
+        kNearestNeighborsPredict.parameter.setNClasses(nClasses);
+        kNearestNeighborsPredict.parameter.setResultsToCompute(ResultsToComputeId.computeDistances | ResultsToComputeId.computeIndicesOfNeightbors);
 
         /* Compute prediction results */
         PredictionResult predictionResult = kNearestNeighborsPredict.compute();
 
         results = predictionResult.get(PredictionResultId.prediction);
+        distances = predictionResult.get(PredictionResultId.distances);
+        indices = predictionResult.get(PredictionResultId.indices);
     }
 
     private static void printResults() {
         NumericTable expected = testGroundTruth;
         Service.printClassificationResult(expected,results,"Ground truth","Classification results","KD-tree based kNN classification results (first 20 observations):",20);
+        System.out.println("");
+        Service.printNumericTables(distances,indices,"Distances","Indices","KD-tree based kNN classification results (first 20 observations):",20);
         System.out.println("");
     }
 }

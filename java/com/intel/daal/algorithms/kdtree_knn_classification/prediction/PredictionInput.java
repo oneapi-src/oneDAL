@@ -30,7 +30,7 @@ import com.intel.daal.services.DaalContext;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__PREDICTION__PREDICTIONINPUT"></a>
- * @brief  %Input objects for the k nearest neighbors algorithm
+ * @brief  %Input objects for the KD-tree based k nearest neighbors algorithm
  */
 public class PredictionInput extends com.intel.daal.algorithms.classifier.prediction.PredictionInput {
     /** @private */
@@ -43,7 +43,7 @@ public class PredictionInput extends com.intel.daal.algorithms.classifier.predic
     }
 
     /**
-     * Returns the Model input object for the k nearest neighbors model-based prediction algorithm
+     * Returns the Model input object for the KD-tree based k nearest neighbors model-based prediction algorithm
      * @param id Identifier of the input object
      * @return   Input object that corresponds to the given identifier
      */
