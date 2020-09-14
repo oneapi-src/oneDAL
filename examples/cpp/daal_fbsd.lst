@@ -74,6 +74,7 @@ DAAL  = assoc_rules_apriori_batch             \
         impl_als_csr_distr                    \
         impl_als_dense_batch                  \
         kdtree_knn_dense_batch                \
+        bf_knn_dense_batch                    \
         kernel_func_lin_dense_batch           \
         kernel_func_lin_csr_batch             \
         kernel_func_rbf_dense_batch           \
