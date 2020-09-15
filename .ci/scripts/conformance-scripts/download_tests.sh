@@ -44,6 +44,15 @@ case ${ALG_NAME} in
     "svm")
         wget -O test_svm.py ${SKLEARN_URL_ROOT}svm/tests/test_svm.py
     ;;
+    "svm_sparse")
+        wget -O test_svm_sparse.py ${SKLEARN_URL_ROOT}svm/tests/test_sparse.py
+    ;;
+    "forest")
+        wget -O test_forest.py ${SKLEARN_URL_ROOT}ensemble/tests/test_forest.py
+    ;;
+    "knn")
+        wget -O test_knn.py ${SKLEARN_URL_ROOT}neighbors/tests/test_neighbors.py
+    ;;
     *)
         echo "Unknown algorithm: ${ALG_NAME}"
         exit 1
