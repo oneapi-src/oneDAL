@@ -307,6 +307,7 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "neural_net_dense_distr", "vcproj\neural_net_dense_distr\neural_net_dense_distr.vcxproj", "{8E460210-47C5-4046-B4F3-D51080CEEAA3}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "kdtree_knn_dense_batch", "vcproj\kdtree_knn_dense_batch\kdtree_knn_dense_batch.vcxproj", "{8E460210-47C5-4046-B4F3-62060DFB5EDC}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bf_knn_dense_batch", "vcproj\bf_knn_dense_batch\bf_knn_dense_batch.vcxproj", "{0C39B9A6-196D-4295-BBF0-0D1704F9DC42}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "initializers_dense_batch", "vcproj\initializers_dense_batch\initializers_dense_batch.vcxproj", "{8E460210-47C5-4046-B4F3-08E17EE7C839}"
