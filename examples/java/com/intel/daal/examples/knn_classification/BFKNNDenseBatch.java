@@ -138,7 +138,7 @@ class BFKNNDenseBatch {
         NumericTable expected = testGroundTruth;
         Service.printClassificationResult(expected,results,"Ground truth","Classification results","Brute force kNN classification results (first 20 observations):",20);
         System.out.println("");
-        Service.printNumericTables(distances,indices,"Distances","Indices","Brute force kNN classification results (first 20 observations):",20);
+        Service.printNumericTables(indices,distances,"Indices","Distances","Brute force kNN classification results (first 20 observations):",20);
         System.out.println("");
     }
 }
