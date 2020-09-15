@@ -16,19 +16,19 @@
 *******************************************************************************/
 
 /**
- * @ingroup kdtree_knn_classification_training
+ * @ingroup bg_knn_classification_training
  * @{
  */
-package com.intel.daal.algorithms.kdtree_knn_classification.training;
+package com.intel.daal.algorithms.bf_knn_classification.training;
 
 import com.intel.daal.utils.*;
 import com.intel.daal.algorithms.classifier.training.TrainingResultId;
-import com.intel.daal.algorithms.kdtree_knn_classification.Model;
+import com.intel.daal.algorithms.bf_knn_classification.Model;
 import com.intel.daal.services.DaalContext;
 
 /**
- * <a name="DAAL-CLASS-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__TRAINING__TRAININGRESULT"></a>
- * @brief Provides methods to access the results obtained with the compute() method of kdtree_knn_classification.training.TrainingBatch algorithm
+ * <a name="DAAL-CLASS-ALGORITHMS__BF_KNN_CLASSIFICATION__TRAINING__TRAININGRESULT"></a>
+ * @brief Provides methods to access the results obtained with the compute() method of bf_knn_classification.training.TrainingBatch algorithm
  */
 public final class TrainingResult extends com.intel.daal.algorithms.classifier.training.TrainingResult {
     /** @private */
@@ -37,7 +37,7 @@ public final class TrainingResult extends com.intel.daal.algorithms.classifier.t
     }
 
     /**
-     * Constructs the KD-tree based k nearest neighbors model-based training result
+     * Constructs the brute-force k nearest neighbors model-based training result
      * @param context   Context to manage k nearest neighbors training result
      */
     public TrainingResult(DaalContext context) {
@@ -51,7 +51,7 @@ public final class TrainingResult extends com.intel.daal.algorithms.classifier.t
     }
 
     /**
-     * Returns result of the KD-tree based k nearest neighbors algorithm
+     * Returns result of the brute-force k nearest neighbors algorithm
      * @param  id  Identifier of the result, @ref classifier.training.TrainingResultId
      * @return Result that corresponds to the given identifier
      */
