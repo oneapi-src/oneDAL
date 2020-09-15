@@ -25,6 +25,7 @@
 #define __KDTREE_KNN_CLASSIFICATION_MODEL_IMPL_
 
 #include "algorithms/k_nearest_neighbors/kdtree_knn_classification_model.h"
+#include "service/kernel/service_data_utils.h"
 
 namespace daal
 {
@@ -64,7 +65,7 @@ public:
     /**
      * Empty constructor for deserialization
      */
-    ModelImpl(size_t nFeatures = 0) : _kdTreeTable(), _rootNodeIndex(0), _lastNodeIndex(0), _data(), _labels(), _nFeatures(nFeatures) {}
+    ModelImpl(size_t nFeatures = 0) : _nFeatures(nFeatures), _kdTreeTable(), _rootNodeIndex(0), _lastNodeIndex(0), _data(), _labels(), _indices() {}
 
     /**
      * Returns the KD-tree table
@@ -150,6 +151,7 @@ public:
         {
             data_management::SOANumericTablePtr tbl(
                 new data_management::SOANumericTable(value->getNumberOfColumns(), value->getNumberOfRows(), data_management::DictionaryIface::equal));
+            DAAL_CHECK_MALLOC(tbl.get())
             tbl->getDictionary()->setAllFeatures<algorithmFPType>(); // Just to set type of all features. Also, no way to use featuresEqual flag.
             tbl->resize(value->getNumberOfRows());
 
@@ -195,6 +197,7 @@ public:
         else
         {
             data_management::SOANumericTablePtr tbl(new data_management::SOANumericTable(value->getNumberOfColumns(), value->getNumberOfRows()));
+            DAAL_CHECK_MALLOC(tbl.get())
             tbl->setArray(static_cast<algorithmFPType *>(0), 0);                    // Just to create the dictionary.
             tbl->getDictionary()->setNumberOfFeatures(value->getNumberOfColumns()); // Sadly, setArray() hides number of features from the dictionary.
             data_management::NumericTableFeature temp;
@@ -220,6 +223,42 @@ public:
      */
     size_t getNumberOfFeatures() const { return _nFeatures; }
 
+    /**
+     * Returns training data original indices
+     * \return Training data original indices
+     */
+    data_management::NumericTableConstPtr getIndices() const { return _indices; }
+
+    /**
+     * Returns training data original indices
+     * \return Training data original indices
+     */
+    data_management::NumericTablePtr getIndices() { return _indices; }
+
+    /**
+     * Sets a training data original indices
+     * \param[in]  value  Training data
+     */
+    DAAL_FORCEINLINE services::Status resetIndices(size_t nIndices)
+    {
+        typedef data_management::HomogenNumericTable<size_t> IndicesNT;
+
+        services::Status status;
+
+        _indices = IndicesNT::create(1, nIndices, data_management::NumericTableIface::doAllocate, &status);
+
+        if (status.ok())
+        {
+            const auto ptr = static_cast<IndicesNT *>(_indices.get())->getArray();
+            for (size_t i = 0; i < nIndices; ++i)
+            {
+                ptr[i] = i;
+            }
+        }
+
+        return status;
+    }
+
 private:
     size_t _nFeatures;
     KDTreeTablePtr _kdTreeTable;
@@ -227,6 +266,7 @@ private:
     size_t _lastNodeIndex;
     data_management::NumericTablePtr _data;
     data_management::NumericTablePtr _labels;
+    data_management::NumericTablePtr _indices;
 };
 
 } // namespace interface1
