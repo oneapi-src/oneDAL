@@ -6,3 +6,5 @@ log_reg
 pca
 ridge_reg
 svm
+forest
+knn
