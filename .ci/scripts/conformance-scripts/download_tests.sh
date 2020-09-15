@@ -44,6 +44,9 @@ case ${ALG_NAME} in
     "svm")
         wget -O test_svm.py ${SKLEARN_URL_ROOT}svm/tests/test_svm.py
     ;;
+    "svm_sparse")
+        wget -O test_svm_sparse.py ${SKLEARN_URL_ROOT}svm/tests/test_sparse.py
+    ;;
     "forest")
         wget -O test_forest.py ${SKLEARN_URL_ROOT}ensemble/tests/test_forest.py
     ;;
