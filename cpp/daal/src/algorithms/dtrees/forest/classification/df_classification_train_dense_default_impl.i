@@ -545,8 +545,6 @@ void UnorderedRespHelper<algorithmFPType, cpu>::computeHistManyClasses(IndexType
     auto featWeights      = _weightsFeatureBuf.get();
     auto nSamplesPerClass = _samplesPerClassBuf.get();
 
-    algorithmFPType bestImpDecrease =
-        split.impurityDecrease < 0 ? split.impurityDecrease : totalWeights * (split.impurityDecrease + algorithmFPType(1.) - curImpurity.var);
     {
         for (size_t i = 0; i < n; ++i)
         {
@@ -571,6 +569,10 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitbyHistDefault(int nD
     auto nFeatIdx         = _idxFeatureBuf.get();
     auto featWeights      = _weightsFeatureBuf.get();
     auto nSamplesPerClass = _samplesPerClassBuf.get();
+
+    algorithmFPType bestImpDecrease =
+        split.impurityDecrease < 0 ? split.impurityDecrease : totalWeights * (split.impurityDecrease + algorithmFPType(1.) - curImpurity.var);
+
     //init histogram for the left part
     _histLeft.setAll(0);
     auto histLeft               = _histLeft.get();
