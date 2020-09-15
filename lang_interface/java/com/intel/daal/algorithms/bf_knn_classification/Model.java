@@ -16,19 +16,19 @@
 *******************************************************************************/
 
 /**
- * @defgroup kdtree_knn_classification k-Nearest Neighbors
+ * @defgroup bf_knn_classification k-Nearest Neighbors
  * @brief Contains classes for KD-tree based kNN algorithm
  * @ingroup classification
  * @{
  */
-package com.intel.daal.algorithms.kdtree_knn_classification;
+package com.intel.daal.algorithms.bf_knn_classification;
 
 import com.intel.daal.utils.*;
 import com.intel.daal.services.DaalContext;
 
 /**
- * <a name="DAAL-CLASS-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__MODEL"></a>
- * @brief %Base class for models trained by the KD-tree based k nearest neighbors training algorithm
+ * <a name="DAAL-CLASS-ALGORITHMS__BF_KNN_CLASSIFICATION__MODEL"></a>
+ * @brief %Base class for models trained by the brute-force k nearest neighbors training algorithm
  */
 public class Model extends com.intel.daal.algorithms.classifier.Model {
     /** @private */

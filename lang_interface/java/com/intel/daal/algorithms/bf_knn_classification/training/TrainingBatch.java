@@ -16,23 +16,22 @@
 *******************************************************************************/
 
 /**
- * @defgroup kdtree_knn_classification_batch Batch
- * @ingroup kdtree_knn_classification_training
+ * @defgroup bf_knn_classification_batch Batch
+ * @ingroup bf_knn_classification_training
  * @{
  */
-package com.intel.daal.algorithms.kdtree_knn_classification.training;
+package com.intel.daal.algorithms.bf_knn_classification.training;
 
 import com.intel.daal.utils.*;
-import com.intel.daal.algorithms.ComputeMode;
 import com.intel.daal.algorithms.Precision;
-import com.intel.daal.algorithms.kdtree_knn_classification.Parameter;
+import com.intel.daal.algorithms.bf_knn_classification.Parameter;
 import com.intel.daal.algorithms.classifier.training.TrainingInput;
 import com.intel.daal.services.DaalContext;
 
 /**
- * <a name="DAAL-CLASS-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__TRAINING__TRAININGBATCH"></a>
- * @brief Provides methods for KD-tree based k nearest neighbors model-based training in the batch processing mode
- * <!-- \n<a href="DAAL-REF-KNN-ALGORITHM">KD-tree based k nearest neighbors algorithm description and usage models</a> -->
+ * <a name="DAAL-CLASS-ALGORITHMS__BF_KNN_CLASSIFICATION__TRAINING__TRAININGBATCH"></a>
+ * @brief Provides methods for brute-force k nearest neighbors model-based training in the batch processing mode
+ * <!-- \n<a href="DAAL-REF-KNN-ALGORITHM">brute-force k nearest neighbors algorithm description and usage models</a> -->
  */
 public class TrainingBatch extends com.intel.daal.algorithms.classifier.training.TrainingBatch {
     public  Parameter      parameter; /*!< Parameters of the algorithm */
@@ -45,10 +44,10 @@ public class TrainingBatch extends com.intel.daal.algorithms.classifier.training
     }
 
     /**
-     * Constructs a KD-tree based k nearest neighbors training algorithm by copying input objects
-     * and parameters of another KD-tree based k nearest neighbors training algorithm
+     * Constructs a brute-force k nearest neighbors training algorithm by copying input objects
+     * and parameters of another brute-force k nearest neighbors training algorithm
      * in the batch processing mode
-     * @param context   Context to manage KD-tree based k nearest neighbors model-based training
+     * @param context   Context to manage brute-force k nearest neighbors model-based training
      * @param other     Algorithm to use as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
@@ -63,9 +62,9 @@ public class TrainingBatch extends com.intel.daal.algorithms.classifier.training
     }
 
     /**
-     * Constructs the KD-tree based k nearest neighbors training algorithm in the batch processing mode
-     * @param context   Context to manage KD-tree based k nearest neighbors model-based training
-     * @param cls       Data type to use in intermediate computations of KD-tree based k nearest neighbors,
+     * Constructs the brute-force k nearest neighbors training algorithm in the batch processing mode
+     * @param context   Context to manage brute-force k nearest neighbors model-based training
+     * @param cls       Data type to use in intermediate computations of k nearest neighbors,
      *                  Double.class or Float.class
      * @param method    Algorithm computation method, @ref TrainingMethod
      */
@@ -93,9 +92,9 @@ public class TrainingBatch extends com.intel.daal.algorithms.classifier.training
     }
 
     /**
-     * Computes the result of KD-tree based k nearest neighbors model-based training
+     * Computes the result of brute-force k nearest neighbors model-based training
      * in the batch processing mode
-     * @return Result of KD-tree based k nearest neighbors model-based training
+     * @return Result of brute-force k nearest neighbors model-based training
      */
     @Override
     public TrainingResult compute() {
@@ -105,10 +104,10 @@ public class TrainingBatch extends com.intel.daal.algorithms.classifier.training
     }
 
     /**
-     * Returns a newly allocated KD-tree based k nearest neighbors training algorithm
-     * with a copy of the input objects and parameters of this KD-tree based k nearest neighbors
+     * Returns a newly allocated brute-force k nearest neighbors training algorithm
+     * with a copy of the input objects and parameters of this k nearest neighbors
      * training algorithm in the batch processing mode
-     * @param context   Context to manage KD-tree based k nearest neighbors model-based training
+     * @param context   Context to manage brute-force k nearest neighbors model-based training
      *
      * @return Newly allocated algorithm
      */

@@ -1,4 +1,4 @@
-/* file: PredictionMethod.java */
+/* file: TrainingMethod.java */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -16,32 +16,40 @@
 *******************************************************************************/
 
 /**
- * @ingroup kdtree_knn_classification_prediction
+ * @defgroup bf_knn_classification_training Training
+ * @brief Contains a class for brute-force kNN model-based training
+ * @ingroup bf_knn_classification
  * @{
  */
-package com.intel.daal.algorithms.kdtree_knn_classification.prediction;
+package com.intel.daal.algorithms.bf_knn_classification.training;
 
 import java.lang.annotation.Native;
 
+import com.intel.daal.utils.*;
 /**
- * <a name="DAAL-CLASS-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__PREDICTION__PREDICTIONMETHOD"></a>
- * @brief Available methods for the KD-tree based k nearest neighbors prediction
+ * <a name="DAAL-CLASS-ALGORITHMS__BF_KNN_CLASSIFICATION__TRAINING__TRAININGMETHOD"></a>
+ * @brief Available methods for brute-force k nearest neighbors model-based training
  */
-public final class PredictionMethod {
+public final class TrainingMethod {
+
+    /** @private */
+    static {
+        LibUtils.loadLibrary();
+    }
 
     private int _value;
 
     /**
-     * Constructs the prediction method object using the provided value
-     * @param value     Value corresponding to the prediction method object
+     * Constructs the training method object using the provided value
+     * @param value     Value corresponding to the training method object
      */
-    public PredictionMethod(int value) {
+    public TrainingMethod(int value) {
         _value = value;
     }
 
     /**
-     * Returns the value corresponding to the prediction method object
-     * @return Value corresponding to the prediction method object
+     * Returns the value corresponding to the training method object
+     * @return Value corresponding to the training method object
      */
     public int getValue() {
         return _value;
@@ -49,6 +57,6 @@ public final class PredictionMethod {
 
     @Native private static final int defaultDenseValue = 0;
 
-    public static final PredictionMethod defaultDense = new PredictionMethod(defaultDenseValue); /*!< Default method */
+    public static final TrainingMethod defaultDense = new TrainingMethod(defaultDenseValue);   /*!< Default method */
 }
 /** @} */

@@ -16,16 +16,16 @@
 *******************************************************************************/
 
 /**
- * @ingroup kdtree_knn_classification_prediction
+ * @ingroup bf_knn_classification_prediction
  * @{
  */
-package com.intel.daal.algorithms.kdtree_knn_classification.prediction;
+package com.intel.daal.algorithms.bf_knn_classification.prediction;
 
 import java.lang.annotation.Native;
 
 /**
- * <a name="DAAL-CLASS-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__PREDICTION__PREDICTIONMETHOD"></a>
- * @brief Available methods for the KD-tree based k nearest neighbors prediction
+ * <a name="DAAL-CLASS-ALGORITHMS__BF_KNN_CLASSIFICATION__PREDICTION__PREDICTIONMETHOD"></a>
+ * @brief Available methods for the brute-force k nearest neighbors prediction
  */
 public final class PredictionMethod {
 
