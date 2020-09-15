@@ -139,6 +139,5 @@ class BFKNNDenseBatch {
         Service.printClassificationResult(expected,results,"Ground truth","Classification results","Brute force kNN classification results (first 20 observations):",20);
         System.out.println("");
         Service.printNumericTables(indices,distances,"Indices","Distances","Brute force kNN classification results (first 20 observations):",20);
-        System.out.println("");
     }
 }

@@ -55,8 +55,6 @@ class KDTreeKNNDenseBatch {
 
     static Model        model;
     static NumericTable results;
-    static NumericTable distances;
-    static NumericTable indices;
     static NumericTable testGroundTruth;
 
     private static DaalContext context = new DaalContext();
@@ -124,22 +122,16 @@ class KDTreeKNNDenseBatch {
 
         kNearestNeighborsPredict.input.set(NumericTableInputId.data, testData);
         kNearestNeighborsPredict.input.set(ModelInputId.model, model);
-        kNearestNeighborsPredict.parameter.setNClasses(nClasses);
-        kNearestNeighborsPredict.parameter.setResultsToCompute(ResultsToComputeId.computeDistances | ResultsToComputeId.computeIndicesOfNeightbors);
 
         /* Compute prediction results */
         PredictionResult predictionResult = kNearestNeighborsPredict.compute();
 
         results = predictionResult.get(PredictionResultId.prediction);
-        distances = predictionResult.get(PredictionResultId.distances);
-        indices = predictionResult.get(PredictionResultId.indices);
     }
 
     private static void printResults() {
         NumericTable expected = testGroundTruth;
         Service.printClassificationResult(expected,results,"Ground truth","Classification results","KD-tree based kNN classification results (first 20 observations):",20);
-        System.out.println("");
-        Service.printNumericTables(distances,indices,"Distances","Indices","KD-tree based kNN classification results (first 20 observations):",20);
         System.out.println("");
     }
 }
