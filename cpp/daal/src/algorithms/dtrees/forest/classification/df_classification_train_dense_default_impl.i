@@ -645,7 +645,6 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
     auto nSamplesPerClass = _samplesPerClassBuf.get();
     auto nFeatIdx         = _idxFeatureBuf.get();
 
-    
     algorithmFPType bestImpDecrease =
         split.impurityDecrease < 0 ? split.impurityDecrease : totalWeights * (split.impurityDecrease + algorithmFPType(1.) - curImpurity.var);
 
@@ -700,7 +699,7 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
         auto histTotal           = curImpurity.hist.get();
         algorithmFPType sumLeft  = 0;
         algorithmFPType sumRight = 0;
-        
+
         //proximal impurity improvement
         for (size_t iClass = 0; iClass < K; ++iClass)
         {
@@ -724,7 +723,7 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
         split.impurityDecrease = curImpurity.var + bestImpDecrease / totalWeights - algorithmFPType(1);
         split.totalWeights     = totalWeights;
     }
-    
+
     return idxFeatureBestSplit;
 }
 

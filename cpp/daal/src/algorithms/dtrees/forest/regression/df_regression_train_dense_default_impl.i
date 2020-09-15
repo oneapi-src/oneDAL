@@ -115,7 +115,7 @@ public:
     int findBestSplitForFeatureSorted(algorithmFPType * featureBuf, IndexType iFeature, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
                                       const ImpurityData & curImpurity, TSplitData & split, const algorithmFPType minWeightLeaf,
                                       const algorithmFPType totalWeights) const;
-    
+
     typedef double intermSummFPType;
     void computeHistWithWeights(algorithmFPType * buf, IndexType iFeature, const IndexType * aIdx, size_t n, intermSummFPType & sumTotal) const;
     void computeHistWithoutWeights(algorithmFPType * buf, IndexType iFeature, const IndexType * aIdx, size_t n, intermSummFPType & sumTotal) const;
@@ -348,7 +348,6 @@ template <typename algorithmFPType, CpuType cpu>
 void OrderedRespHelper<algorithmFPType, cpu>::computeHistWithoutWeights(algorithmFPType * buf, IndexType iFeature, const IndexType * aIdx, size_t n,
                                                                         intermSummFPType & sumTotal) const
 {
-    
     auto nFeatIdx                                           = _idxFeatureBuf.get(); //number of indexed feature values, array
     auto featWeights                                        = _weightsFeatureBuf.get();
     auto aResponse                                          = this->_aResponse.get();
@@ -429,7 +428,7 @@ int OrderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(algor
     for (size_t i = 0; i < nDiffFeatMax; ++i)
     {
         if (!nFeatIdx[i]) continue;
-        
+
         algorithmFPType thisFeatWeights = featWeights[i];
         if (noWeights)
         {
