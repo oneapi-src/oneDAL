@@ -122,6 +122,11 @@ public:
     void computeHistWithWeights(algorithmFPType * buf, IndexType iFeature, const IndexType * aIdx, size_t n, intermSummFPType & sumTotal) const;
     void computeHistWithoutWeights(algorithmFPType * buf, IndexType iFeature, const IndexType * aIdx, size_t n, intermSummFPType & sumTotal) const;
 
+    template <bool noWeights, bool featureUnordered>
+    int findBestSplitByHist(size_t nDiffFeatMax, intermSummFPType sumTotal, algorithmFPType * buf, size_t n, size_t nMinSplitPart,
+                            const ImpurityData & curImpurity, TSplitData & split, const algorithmFPType minWeightLeaf,
+                            const algorithmFPType totalWeights) const;
+
     void finalizeBestSplit(const IndexType * aIdx, size_t n, IndexType iFeature, size_t idxFeatureValueBestSplit, TSplitData & bestSplit,
                            IndexType * bestSplitIdx) const;
     void simpleSplit(const algorithmFPType * featureVal, const IndexType * aIdx, TSplitData & split) const;
@@ -351,7 +356,6 @@ void OrderedRespHelper<algorithmFPType, cpu>::computeHistWithoutWeights(algorith
                                                                         intermSummFPType & sumTotal) const
 {
     auto nFeatIdx                                           = _idxFeatureBuf.get(); //number of indexed feature values, array
-    auto featWeights                                        = _weightsFeatureBuf.get();
     auto aResponse                                          = this->_aResponse.get();
     const IndexedFeatures::IndexType * const indexedFeature = this->indexedFeatures().data(iFeature);
     sumTotal                                                = 0; //total sum of responses in the set being split
@@ -394,33 +398,14 @@ void OrderedRespHelper<algorithmFPType, cpu>::computeHistWithWeights(algorithmFP
 }
 
 template <typename algorithmFPType, CpuType cpu>
-int OrderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(algorithmFPType * buf, IndexType iFeature, const IndexType * aIdx,
-                                                                           size_t n, size_t nMinSplitPart, const ImpurityData & curImpurity,
-                                                                           TSplitData & split, const algorithmFPType minWeightLeaf,
-                                                                           const algorithmFPType totalWeights) const
+template <bool noWeights, bool featureUnordered>
+int OrderedRespHelper<algorithmFPType, cpu>::findBestSplitByHist(size_t nDiffFeatMax, intermSummFPType sumTotal, algorithmFPType * buf, size_t n,
+                                                                 size_t nMinSplitPart, const ImpurityData & curImpurity, TSplitData & split,
+                                                                 const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const
 {
-    const auto nDiffFeatMax = this->indexedFeatures().numIndices(iFeature);
-    _idxFeatureBuf.setValues(nDiffFeatMax, 0);
-    _weightsFeatureBuf.setValues(nDiffFeatMax, algorithmFPType(0));
+    auto featWeights = _weightsFeatureBuf.get();
+    auto nFeatIdx    = _idxFeatureBuf.get(); //number of indexed feature values, array
 
-    //the buffer keeps sums of responses for each of unique feature values
-    for (size_t i = 0; i < nDiffFeatMax; ++i) buf[i] = algorithmFPType(0);
-
-    auto nFeatIdx             = _idxFeatureBuf.get(); //number of indexed feature values, array
-    intermSummFPType sumTotal = 0;                    //total sum of responses in the set being split
-    auto featWeights          = _weightsFeatureBuf.get();
-    const bool noWeights      = !this->_weights;
-
-    if (noWeights)
-    {
-        computeHistWithoutWeights(buf, iFeature, aIdx, n, sumTotal);
-    }
-    else
-    {
-        computeHistWithWeights(buf, iFeature, aIdx, n, sumTotal);
-    }
-
-    //below we calculate only part of the impurity decrease dependent on split itself
     intermSummFPType bestImpDecreasePart =
         split.impurityDecrease < 0 ? -1 : (split.impurityDecrease + curImpurity.mean * curImpurity.mean) * totalWeights;
     size_t nLeft                = 0;
@@ -431,18 +416,14 @@ int OrderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(algor
     {
         if (!nFeatIdx[i]) continue;
 
-        algorithmFPType thisFeatWeights = featWeights[i];
-        if (noWeights)
-        {
-            thisFeatWeights = nFeatIdx[i];
-        }
+        algorithmFPType thisFeatWeights = noWeights ? nFeatIdx[i] : featWeights[i];
 
-        nLeft       = (split.featureUnordered ? nFeatIdx[i] : nLeft + nFeatIdx[i]);
-        leftWeights = (split.featureUnordered ? thisFeatWeights : leftWeights + thisFeatWeights);
+        nLeft       = (featureUnordered ? nFeatIdx[i] : nLeft + nFeatIdx[i]);
+        leftWeights = (featureUnordered ? thisFeatWeights : leftWeights + thisFeatWeights);
         if ((nLeft == n) //last split
             || ((n - nLeft) < nMinSplitPart) || ((totalWeights - leftWeights) < minWeightLeaf))
             break;
-        sumLeft = (split.featureUnordered ? buf[i] : sumLeft + buf[i]);
+        sumLeft = (featureUnordered ? buf[i] : sumLeft + buf[i]);
         if ((nLeft < nMinSplitPart) || (leftWeights < minWeightLeaf)) continue;
         intermSummFPType sumRight = sumTotal - sumLeft;
         //the part of the impurity decrease dependent on split itself
@@ -463,6 +444,50 @@ int OrderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(algor
         //note, left.mean and right.mean are not actually the means but the sums
     }
     return idxFeatureBestSplit;
+}
+
+template <typename algorithmFPType, CpuType cpu>
+int OrderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(algorithmFPType * buf, IndexType iFeature, const IndexType * aIdx,
+                                                                           size_t n, size_t nMinSplitPart, const ImpurityData & curImpurity,
+                                                                           TSplitData & split, const algorithmFPType minWeightLeaf,
+                                                                           const algorithmFPType totalWeights) const
+{
+    const auto nDiffFeatMax = this->indexedFeatures().numIndices(iFeature);
+    _idxFeatureBuf.setValues(nDiffFeatMax, 0);
+
+    //the buffer keeps sums of responses for each of unique feature values
+    for (size_t i = 0; i < nDiffFeatMax; ++i) buf[i] = algorithmFPType(0);
+
+    const bool noWeights      = !this->_weights;
+    intermSummFPType sumTotal = 0; //total sum of responses in the set being split
+
+    if (noWeights)
+    {
+        computeHistWithoutWeights(buf, iFeature, aIdx, n, sumTotal);
+
+        if (split.featureUnordered)
+        {
+            return findBestSplitByHist<true, true>(nDiffFeatMax, sumTotal, buf, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights);
+        }
+        else
+        {
+            return findBestSplitByHist<true, false>(nDiffFeatMax, sumTotal, buf, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights);
+        }
+    }
+    else
+    {
+        _weightsFeatureBuf.setValues(nDiffFeatMax, algorithmFPType(0));
+        computeHistWithWeights(buf, iFeature, aIdx, n, sumTotal);
+
+        if (split.featureUnordered)
+        {
+            return findBestSplitByHist<false, true>(nDiffFeatMax, sumTotal, buf, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights);
+        }
+        else
+        {
+            return findBestSplitByHist<false, false>(nDiffFeatMax, sumTotal, buf, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights);
+        }
+    }
 }
 
 template <typename algorithmFPType, CpuType cpu>
