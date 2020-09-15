@@ -675,7 +675,7 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
 
         if (!thisNFeatIdx) continue;
 
-        algorithmFPType thisFeatWeights;
+        algorithmFPType thisFeatWeights(0);
         if (noWeights)
         {
             thisFeatWeights = thisNFeatIdx;
