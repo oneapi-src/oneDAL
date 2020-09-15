@@ -45,10 +45,10 @@ case ${ALG_NAME} in
         wget -O test_svm.py ${SKLEARN_URL_ROOT}svm/tests/test_svm.py
     ;;
     "forest")
-        wget -O test_svm.py ${SKLEARN_URL_ROOT}ensemble/tests/test_forest.py
+        wget -O test_forest.py ${SKLEARN_URL_ROOT}ensemble/tests/test_forest.py
     ;;
     "knn")
-        wget -O test_svm.py ${SKLEARN_URL_ROOT}neighbors/tests/test_neighbors.py
+        wget -O test_knn.py ${SKLEARN_URL_ROOT}neighbors/tests/test_neighbors.py
     ;;
     *)
         echo "Unknown algorithm: ${ALG_NAME}"
