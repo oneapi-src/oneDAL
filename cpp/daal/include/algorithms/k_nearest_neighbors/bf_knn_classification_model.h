@@ -91,6 +91,9 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
      *  \param[in] nClasses             Number of classes
      *  \param[in] nNeighbors           Number of neighbors
      *  \param[in] dataUse              The option to enable/disable an usage of the input dataset in kNN model
+     *  \param[in] resToCompute         64 bit integer flag that indicates the results to compute
+     *  \param[in] resToEvaluate        64 bit integer flag that indicates the results to evaluate
+     *  \param[in] vote                 The option to select voting method
      */
     Parameter(size_t nClasses = 2, size_t nNeighbors = 1, DataUseInModel dataUse = doNotUse, DAAL_UINT64 resToCompute = 0,
               DAAL_UINT64 resToEvaluate = daal::algorithms::classifier::computeClassLabels, VoteWeights vote = voteUniform)
