@@ -67,7 +67,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{8E460210-47C5-4046-B4F3-62060DFB5EDA}</ProjectGuid>
+    <ProjectGuid>{0C39B9A6-196D-4295-BBF0-0D1704F9DC42}</ProjectGuid>
     <RootNamespace>bf_knn_dense_batch</RootNamespace>
     <ProjectName>bf_knn_dense_batch</ProjectName>
   </PropertyGroup>
