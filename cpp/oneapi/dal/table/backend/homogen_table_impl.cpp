@@ -17,8 +17,6 @@
 #include "oneapi/dal/table/backend/homogen_table_impl.hpp"
 #include "oneapi/dal/table/backend/convert.hpp"
 
-#include <cstring>
-
 namespace oneapi::dal::backend {
 
 using std::int32_t;
@@ -97,6 +95,8 @@ void refer_source_data(const array<DataSrc>& src,
                        std::int64_t dst_count,
                        array<DataDest>& dst) {
     if (src.has_mutable_data()) {
+        // TODO: in future, when table knows about mutability of its data this branch shall be
+        // available only for builders, not for tables.
         auto start_pointer = reinterpret_cast<DataDest*>(src.get_mutable_data() + src_start_index);
         dst.reset(src, start_pointer, dst_count);
     }
@@ -183,23 +183,23 @@ public:
         const auto block_dtype = detail::make_data_type<BlockData>();
         const int64_t origin_offset =
             block_start_row_idx_ + block_start_column_idx_ * origin_row_count_;
-        const auto type_size = detail::get_data_type_size(origin_dtype_);
+        const auto origin_dtype_size = detail::get_data_type_size(origin_dtype_);
 
         if (block.get_count() < block_size_ || block.has_mutable_data() == false ||
             has_array_data_kind(policy, block, kind) == false) {
             reset_array(policy, block, block_size_, kind);
         }
 
-        auto src_data = origin.get_data() + origin_offset * type_size;
+        auto src_data = origin.get_data() + origin_offset * origin_dtype_size;
         auto dst_data = block.get_mutable_data();
 
         for(int64_t row_idx = 0; row_idx < block_row_count_; row_idx++) {
             backend::convert_vector(policy,
-                                    src_data + row_idx * type_size,
+                                    src_data + row_idx * origin_dtype_size,
                                     dst_data + row_idx * block_column_count_,
                                     origin_dtype_,
                                     block_dtype,
-                                    type_size * origin_row_count_,
+                                    origin_dtype_size * origin_row_count_,
                                     sizeof(BlockData),
                                     block_column_count_);
         }
@@ -210,13 +210,14 @@ public:
                            array<byte_t>& origin,
                            const array<BlockData>& block) const {
         make_mutable_data(policy, origin);
-        const auto dst_dtype = detail::make_data_type<BlockData>();
+
+        const auto block_dtype = detail::make_data_type<BlockData>();
         const int64_t origin_offset =
             block_start_row_idx_ * origin_column_count_ + block_start_column_idx_;
         const bool contiguous_block_requested =
             block_column_count_ == origin_column_count_ || block_row_count_ == 1;
 
-        if (origin_dtype_ == dst_dtype && contiguous_block_requested == true) {
+        if (origin_dtype_ == block_dtype && contiguous_block_requested == true) {
             auto row_data = reinterpret_cast<BlockData*>(origin.get_mutable_data());
             auto row_start_pointer = row_data + origin_offset;
 
@@ -242,7 +243,7 @@ public:
                     backend::convert_vector(policy,
                                             src_data + block_idx * block_column_count_,
                                             dst_data + block_idx * origin_column_count_ * origin_dtype_size,
-                                            dst_dtype,
+                                            block_dtype,
                                             origin_dtype_,
                                             block_size);
                 }
@@ -251,7 +252,7 @@ public:
                 backend::convert_vector(policy,
                                         src_data,
                                         dst_data,
-                                        dst_dtype,
+                                        block_dtype,
                                         origin_dtype_,
                                         sizeof(BlockData),
                                         origin_dtype_size * origin_column_count_,
@@ -265,7 +266,7 @@ public:
                               array<byte_t>& origin,
                               const array<BlockData>& block) const {
         make_mutable_data(policy, origin);
-        const auto dst_dtype = detail::make_data_type<BlockData>();
+        const auto block_dtype = detail::make_data_type<BlockData>();
         const auto origin_dtype_size = detail::get_data_type_size(origin_dtype_);
         const int64_t origin_offset =
             block_start_row_idx_ + block_start_column_idx_ * origin_row_count_;
@@ -277,7 +278,7 @@ public:
             backend::convert_vector(policy,
                                     src_data + row_idx * block_column_count_,
                                     dst_data + row_idx * origin_dtype_size,
-                                    dst_dtype,
+                                    block_dtype,
                                     origin_dtype_,
                                     sizeof(BlockData),
                                     origin_dtype_size * origin_row_count_,
