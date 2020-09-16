@@ -127,16 +127,15 @@ protected:
     private:
         BruteForceTask(const size_t inBlockSize, const size_t outBlockSize, const size_t k)
         {
-
             size_t kDistancesSize = inBlockSize * k * sizeof(FPType);
             size_t maxsSize       = inBlockSize * sizeof(FPType);
             size_t kIndexesSize   = inBlockSize * k * sizeof(int);
 
             _buff.reset(kDistancesSize + maxsSize + kIndexesSize);
 
-            kDistances   = reinterpret_cast<FPType*>(&_buff[0]);
-            maxs         = reinterpret_cast<FPType*>(&_buff[kDistancesSize]);
-            kIndexes     = reinterpret_cast<int*>(&_buff[kDistancesSize + maxsSize]);
+            kDistances = reinterpret_cast<FPType *>(&_buff[0]);
+            maxs       = reinterpret_cast<FPType *>(&_buff[kDistancesSize]);
+            kIndexes   = reinterpret_cast<int *>(&_buff[kDistancesSize + maxsSize]);
 
             service_memset_seq<FPType, cpu>(maxs, MaxVal<FPType>::get(), outBlockSize);
             service_memset_seq<FPType, cpu>(kDistances, MaxVal<FPType>::get(), inBlockSize * k);
@@ -150,8 +149,8 @@ protected:
                                           DAAL_UINT64 resultsToCompute, const size_t nClasses, const size_t k, VoteWeights voteWeights,
                                           int * trainLabel, const NumericTable * trainTable, const NumericTable * testTable,
                                           NumericTable * testLabelTable, NumericTable * indicesTable, NumericTable * distancesTable,
-                                          TlsMem<FPType, cpu> & tlsDistances, TlsMem<int, cpu> & tlsIdx,
-                                          TlsMem<FPType, cpu> & tlsKDistances, TlsMem<int, cpu> & tlsKIndexes, TlsMem<int, cpu> & tlsVoting)
+                                          TlsMem<FPType, cpu> & tlsDistances, TlsMem<int, cpu> & tlsIdx, TlsMem<FPType, cpu> & tlsKDistances,
+                                          TlsMem<int, cpu> & tlsKIndexes, TlsMem<int, cpu> & tlsVoting)
     {
         const size_t inBlockSize = trainBlockSize;
         const size_t inRows      = nTrain;
@@ -167,7 +166,7 @@ protected:
 
         SafeStatus safeStat;
 
-        daal::tls<BruteForceTask*> tlsTask([=, &safeStat]() {
+        daal::tls<BruteForceTask *> tlsTask([=, &safeStat]() {
             auto tlsData = BruteForceTask::create(inBlockSize, blockSize, k);
             if (!tlsData)
             {
@@ -176,13 +175,12 @@ protected:
             return tlsData;
         });
 
-        daal::threader_for(nInBlocks, nInBlocks, [&](size_t inBlock)
-        {
+        daal::threader_for(nInBlocks, nInBlocks, [&](size_t inBlock) {
             size_t j1    = inBlock * inBlockSize;
             size_t j2    = (inBlock + 1 == nInBlocks ? inRows : j1 + inBlockSize);
             size_t jSize = j2 - j1;
 
-            BruteForceTask* tls = tlsTask.local();
+            BruteForceTask * tls = tlsTask.local();
             DAAL_CHECK_MALLOC_THR(tls);
 
             FPType * distancesBuff = tlsDistances.local();
@@ -191,9 +189,9 @@ protected:
             int * idx = tlsIdx.local();
             DAAL_CHECK_MALLOC_THR(idx);
 
-            FPType * maxs = tls->maxs;
+            FPType * maxs            = tls->maxs;
             FPType * kDistancesLocal = tls->kDistances;
-            int * kIndexesLocal = tls->kIndexes;
+            int * kIndexesLocal      = tls->kIndexes;
 
             ReadRows<FPType, cpu> outDataRows(const_cast<NumericTable *>(trainTable), j1, j2 - j1);
             DAAL_CHECK_BLOCK_STATUS_THR(outDataRows);
@@ -220,10 +218,9 @@ protected:
 
         service_memset_seq<FPType, cpu>(kDistances, MaxVal<FPType>::get(), blockSize * k);
 
-        tlsTask.reduce([&](BruteForceTask* tls)
-        {
+        tlsTask.reduce([&](BruteForceTask * tls) {
             FPType * kDistancesLocal = tls->kDistances;
-            int * kIndexesLocal = tls->kIndexes;
+            int * kIndexesLocal      = tls->kIndexes;
 
             for (size_t i = 0; i < iSize; i++)
             {
