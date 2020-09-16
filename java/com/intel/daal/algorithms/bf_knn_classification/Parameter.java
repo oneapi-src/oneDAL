@@ -99,7 +99,7 @@ public class Parameter extends com.intel.daal.algorithms.classifier.Parameter {
 
     /**
      * Sets the flag that indicates the results to compute
-     * @param flag   Flag that indicates the results to compute
+     * @param resultsToCompute   Flag that indicates the results to compute
      */
     public void setResultsToCompute(long resultsToCompute) {
         cSetResultsToCompute(this.cObject, resultsToCompute);
