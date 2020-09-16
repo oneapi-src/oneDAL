@@ -44,7 +44,6 @@ namespace bf_knn_classification
 {
 namespace internal
 {
-
 template <typename FPType, CpuType cpu>
 class BruteForceNearestNeighbors
 {
@@ -62,7 +61,7 @@ public:
         const size_t nTrain = trainTable->getNumberOfRows();
         const size_t nTest  = testTable->getNumberOfRows();
 
-        int * trainLabel   = nullptr;
+        int * trainLabel = nullptr;
         BlockDescriptor<int> trainLabelBlock;
 
         NumericTable * newTrainLabelTable = const_cast<NumericTable *>(trainLabelTable);
@@ -81,11 +80,11 @@ public:
         const size_t nOuterBlocks = nTest / outBlockSize + !!(nTest % outBlockSize);
 
         TlsMem<FPType, cpu> tlsDistances(inBlockSize * outBlockSize);
-        TlsMem<int,    cpu> tlsIdx(outBlockSize);
+        TlsMem<int, cpu> tlsIdx(outBlockSize);
         TlsMem<FPType, cpu> tlsMaxs(inBlockSize);
         TlsMem<FPType, cpu> tlsKDistances(inBlockSize * k);
-        TlsMem<int,    cpu> tlsKIndexes(inBlockSize * k);
-        TlsMem<int,    cpu> tlsVoting(nClasses);
+        TlsMem<int, cpu> tlsKIndexes(inBlockSize * k);
+        TlsMem<int, cpu> tlsVoting(nClasses);
 
         SafeStatus safeStat;
 
@@ -94,28 +93,9 @@ public:
             const size_t outerEnd   = outerBlock + 1 == nOuterBlocks ? nTest : outerStart + outBlockSize;
             const size_t outerSize  = outerEnd - outerStart;
 
-            DAAL_CHECK_STATUS_THR(computeKNearestBlock(&euclDist,
-                                                       outerSize,
-                                                       inBlockSize,
-                                                       outerStart,
-                                                       nTrain,
-                                                       resultsToEvaluate,
-                                                       resultsToCompute,
-                                                       nClasses,
-                                                       k,
-                                                       voteWeights,
-                                                       trainLabel,
-                                                       trainTable,
-                                                       testTable,
-                                                       testLabelTable,
-                                                       indicesTable,
-                                                       distancesTable,
-                                                       tlsDistances,
-                                                       tlsIdx,
-                                                       tlsMaxs,
-                                                       tlsKDistances,
-                                                       tlsKIndexes,
-                                                       tlsVoting));
+            DAAL_CHECK_STATUS_THR(computeKNearestBlock(&euclDist, outerSize, inBlockSize, outerStart, nTrain, resultsToEvaluate, resultsToCompute,
+                                                       nClasses, k, voteWeights, trainLabel, trainTable, testTable, testLabelTable, indicesTable,
+                                                       distancesTable, tlsDistances, tlsIdx, tlsMaxs, tlsKDistances, tlsKIndexes, tlsVoting));
         });
 
         if (resultsToEvaluate & daal::algorithms::classifier::computeClassLabels)
@@ -127,45 +107,30 @@ public:
     }
 
 protected:
-    services::Status computeKNearestBlock(daal::algorithms::internal::EuclideanDistances<FPType, cpu> * distancesInstance,
-                                          const size_t blockSize,
-                                          const size_t trainBlockSize,
-                                          const size_t startTestIdx,
-                                          const size_t nTrain,
-                                          DAAL_UINT64 resultsToEvaluate,
-                                          DAAL_UINT64 resultsToCompute,
-                                          const size_t nClasses,
-                                          const size_t k,
-                                          VoteWeights voteWeights,
-                                          int * trainLabel,
-                                          const NumericTable * trainTable,
-                                          const NumericTable * testTable,
-                                          NumericTable * testLabelTable,
-                                          NumericTable * indicesTable,
-                                          NumericTable * distancesTable,
-                                          TlsMem<FPType, cpu>& tlsDistances,
-                                          TlsMem<int, cpu>& tlsIdx,
-                                          TlsMem<FPType, cpu>& tlsMaxs,
-                                          TlsMem<FPType, cpu>& tlsKDistances,
-                                          TlsMem<int, cpu>&    tlsKIndexes,
-                                          TlsMem<int, cpu>&    tlsVoting)
+    services::Status computeKNearestBlock(daal::algorithms::internal::EuclideanDistances<FPType, cpu> * distancesInstance, const size_t blockSize,
+                                          const size_t trainBlockSize, const size_t startTestIdx, const size_t nTrain, DAAL_UINT64 resultsToEvaluate,
+                                          DAAL_UINT64 resultsToCompute, const size_t nClasses, const size_t k, VoteWeights voteWeights,
+                                          int * trainLabel, const NumericTable * trainTable, const NumericTable * testTable,
+                                          NumericTable * testLabelTable, NumericTable * indicesTable, NumericTable * distancesTable,
+                                          TlsMem<FPType, cpu> & tlsDistances, TlsMem<int, cpu> & tlsIdx, TlsMem<FPType, cpu> & tlsMaxs,
+                                          TlsMem<FPType, cpu> & tlsKDistances, TlsMem<int, cpu> & tlsKIndexes, TlsMem<int, cpu> & tlsVoting)
     {
-        FPType* distancesBuff =  tlsDistances.local();
+        FPType * distancesBuff = tlsDistances.local();
         DAAL_CHECK_MALLOC(distancesBuff);
 
-        int* idx = tlsIdx.local();
+        int * idx = tlsIdx.local();
         DAAL_CHECK_MALLOC(idx);
 
-        FPType* maxs = tlsMaxs.local();
+        FPType * maxs = tlsMaxs.local();
         DAAL_CHECK_MALLOC(maxs);
 
-        FPType* kDistances = tlsKDistances.local();
+        FPType * kDistances = tlsKDistances.local();
         DAAL_CHECK_MALLOC(kDistances);
 
-        int* kIndexes = tlsKIndexes.local();
+        int * kIndexes = tlsKIndexes.local();
         DAAL_CHECK_MALLOC(kIndexes);
 
-        int* voting = tlsVoting.local();
+        int * voting = tlsVoting.local();
         DAAL_CHECK_MALLOC(voting);
 
         service_memset_seq<FPType, cpu>(maxs, MaxVal<FPType>::get(), trainBlockSize);
@@ -180,7 +145,7 @@ protected:
         const FPType * const testData = inDataRows.get();
 
         const size_t outBlockSize = trainBlockSize;
-        const size_t outRows = nTrain;
+        const size_t outRows      = nTrain;
         const size_t nOutBlocks   = outRows / outBlockSize + (outRows % outBlockSize > 0);
 
         for (size_t outBlock = 0; outBlock < nOutBlocks; outBlock++)
@@ -201,8 +166,7 @@ protected:
 
                 if (indexes)
                 {
-                    updateLocalNeighbours(indexes, idx, jSize, i, k, kDistances, kIndexes,
-                                     maxs, distancesBuff, j1);
+                    updateLocalNeighbours(indexes, idx, jSize, i, k, kDistances, kIndexes, maxs, distancesBuff, j1);
                 }
             }
         }
@@ -255,11 +219,11 @@ protected:
         return services::Status();
     }
 
-    size_t getIndexesWithLessDistances(int* idx, FPType* array, size_t size, FPType cmp)
+    size_t getIndexesWithLessDistances(int * idx, FPType * array, size_t size, FPType cmp)
     {
         size_t count = 0;
 
-        for(size_t i = 0; i < size; ++i)
+        for (size_t i = 0; i < size; ++i)
         {
             if (array[i] < cmp)
             {
@@ -269,15 +233,15 @@ protected:
         return count;
     }
 
-    void updateLocalNeighbours(size_t indexes, int* idx, size_t jSize, size_t i, size_t k,
-        FPType* kDistances, int* kIndexes, FPType* maxs, FPType* distances, size_t j1)
+    void updateLocalNeighbours(size_t indexes, int * idx, size_t jSize, size_t i, size_t k, FPType * kDistances, int * kIndexes, FPType * maxs,
+                               FPType * distances, size_t j1)
     {
-        for(size_t j = 0; j < indexes; j++)
+        for (size_t j = 0; j < indexes; j++)
         {
             FPType d = distances[i * jSize + idx[j]];
 
             int min_idx = 0;
-            for(size_t kk = 0; kk < k; kk++)
+            for (size_t kk = 0; kk < k; kk++)
             {
                 if (d < kDistances[i * k + kk] && kDistances[i * k + kk] > kDistances[i * k + min_idx])
                 {
@@ -287,12 +251,12 @@ protected:
             if (kDistances[i * k + min_idx] > d)
             {
                 kDistances[i * k + min_idx] = d;
-                kIndexes[i * k + min_idx] = idx[j] + j1;
+                kIndexes[i * k + min_idx]   = idx[j] + j1;
             }
         }
 
         FPType max = kDistances[i * k + 0];
-        for(size_t kk = 1; kk < k; kk++)
+        for (size_t kk = 1; kk < k; kk++)
         {
             if (kDistances[i * k + kk] > max)
             {
@@ -300,11 +264,10 @@ protected:
             }
         }
         maxs[i] = max;
-
     }
 
     services::Status uniformWeightedVoting(const size_t nClasses, const size_t k, const size_t n, const size_t nTrain, int * indices,
-                                           const int * trainLabel, int * testLabel, int* classWeights)
+                                           const int * trainLabel, int * testLabel, int * classWeights)
     {
         for (size_t i = 0; i < n; ++i)
         {
@@ -332,7 +295,7 @@ protected:
     }
 
     services::Status distanceWeightedVoting(const size_t nClasses, const size_t k, const size_t n, const size_t nTrain, FPType * distances,
-                                            int * indices, const int * trainLabel, int * testLabel, int* classWeights)
+                                            int * indices, const int * trainLabel, int * testLabel, int * classWeights)
     {
         const FPType epsilon = daal::services::internal::EpsilonVal<FPType>::get();
         bool isContainZero   = false;
