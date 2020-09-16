@@ -94,7 +94,7 @@ public:
 
             DAAL_CHECK_STATUS_THR(computeKNearestBlock(&euclDist, outerSize, inBlockSize, outerStart, nTrain, resultsToEvaluate, resultsToCompute,
                                                        nClasses, k, voteWeights, trainLabel, trainTable, testTable, testLabelTable, indicesTable,
-                                                       distancesTable, tlsDistances, tlsIdx, tlsKDistances, tlsKIndexes, tlsVoting));
+                                                       distancesTable, tlsDistances, tlsIdx, tlsKDistances, tlsKIndexes, tlsVoting, nOuterBlocks));
         });
 
         if (resultsToEvaluate & daal::algorithms::classifier::computeClassLabels)
@@ -150,7 +150,7 @@ protected:
                                           FPType * trainLabel, const NumericTable * trainTable, const NumericTable * testTable,
                                           NumericTable * testLabelTable, NumericTable * indicesTable, NumericTable * distancesTable,
                                           TlsMem<FPType, cpu> & tlsDistances, TlsMem<int, cpu> & tlsIdx, TlsMem<FPType, cpu> & tlsKDistances,
-                                          TlsMem<int, cpu> & tlsKIndexes, TlsMem<int, cpu> & tlsVoting)
+                                          TlsMem<int, cpu> & tlsKIndexes, TlsMem<int, cpu> & tlsVoting, size_t nOuterBlocks)
     {
         const size_t inBlockSize = trainBlockSize;
         const size_t inRows      = nTrain;
@@ -175,7 +175,7 @@ protected:
             return tlsData;
         });
 
-        daal::threader_for(nInBlocks, nInBlocks, [&](size_t inBlock) {
+        daal::conditional_threader_for(nOuterBlocks > 3 * threader_get_max_threads_number(), nInBlocks, [&](size_t inBlock) {
             size_t j1    = inBlock * inBlockSize;
             size_t j2    = (inBlock + 1 == nInBlocks ? inRows : j1 + inBlockSize);
             size_t jSize = j2 - j1;
