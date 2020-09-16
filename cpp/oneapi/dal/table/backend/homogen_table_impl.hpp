@@ -72,11 +72,7 @@ public:
 
     template <typename Data>
     void pull_column(array<Data>& block, std::int64_t column_index, const range& rows) const {
-        pull_column_impl(detail::default_host_policy{},
-                  block,
-                  column_index,
-                  rows,
-                  host_alloc_t{});
+        pull_column_impl(detail::default_host_policy{}, block, column_index, rows, host_alloc_t{});
     }
 
     template <typename Data>
@@ -104,11 +100,7 @@ public:
                      std::int64_t column_index,
                      const range& rows,
                      const sycl::usm::alloc& kind) const {
-        pull_column_impl(detail::data_parallel_policy{ queue },
-                  block,
-                  column_index
-                  rows,
-                  kind);
+        pull_column_impl(detail::data_parallel_policy{ queue }, block, column_index rows, kind);
     }
 
     template <typename Data>
@@ -116,10 +108,7 @@ public:
                      const array<Data>& block,
                      std::int64_t column_index,
                      const range& rows) {
-        push_column_impl(detail::data_parallel_policy{ queue },
-                  block,
-                  column_index
-                  rows);
+        push_column_impl(detail::data_parallel_policy{ queue }, block, column_index rows);
     }
 #endif
 
@@ -138,9 +127,7 @@ private:
                           const Alloc& kind) const;
 
     template <typename Policy, typename Data>
-    void push_rows_impl(const Policy& policy,
-                        const array<Data>& block,
-                        const range& rows);
+    void push_rows_impl(const Policy& policy, const array<Data>& block, const range& rows);
 
     template <typename Policy, typename Data>
     void push_column_impl(const Policy& policy,

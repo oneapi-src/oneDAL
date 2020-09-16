@@ -73,7 +73,7 @@ TEST(homogen_table_test, can_read_rows_from_column_major_table) {
 
     auto t = homogen_table::wrap(data, 3, 2, data_layout::column_major);
 
-    auto rows_data = row_accessor<const float>(t).pull({1, -1});
+    auto rows_data = row_accessor<const float>(t).pull({ 1, -1 });
 
     ASSERT_EQ(rows_data.get_count(), 2 * t.get_column_count());
 
@@ -88,7 +88,7 @@ TEST(homogen_table_test, can_read_rows_from_column_major_table_with_conversion) 
 
     auto t = homogen_table::wrap(data, 3, 2, data_layout::column_major);
 
-    auto rows_data = row_accessor<const std::int32_t>(t).pull({1, 2});
+    auto rows_data = row_accessor<const std::int32_t>(t).pull({ 1, 2 });
 
     ASSERT_EQ(rows_data.get_count(), 1 * t.get_column_count());
 

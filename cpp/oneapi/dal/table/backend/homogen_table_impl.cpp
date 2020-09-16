@@ -113,15 +113,14 @@ public:
                           data_type origin_data_type,
                           const range& block_row_range,
                           const range& block_column_range)
-        : block_row_count_(block_row_range.get_element_count(origin_row_count)),
-          block_column_count_(block_column_range.get_element_count(origin_column_count)),
-          block_start_row_idx_(block_row_range.start_idx),
-          block_start_column_idx_(block_column_range.start_idx),
-          block_size_(block_row_count_ * block_column_count_),
-          origin_dtype_(origin_data_type),
-          origin_row_count_(origin_row_count),
-          origin_column_count_(origin_column_count)
-        {}
+            : block_row_count_(block_row_range.get_element_count(origin_row_count)),
+              block_column_count_(block_column_range.get_element_count(origin_column_count)),
+              block_start_row_idx_(block_row_range.start_idx),
+              block_start_column_idx_(block_column_range.start_idx),
+              block_size_(block_row_count_ * block_column_count_),
+              origin_dtype_(origin_data_type),
+              origin_row_count_(origin_row_count),
+              origin_column_count_(origin_column_count) {}
 
     template <typename Policy, typename BlockData, typename Alloc>
     void pull_by_row_major(const Policy& policy,
@@ -151,15 +150,17 @@ public:
 
             if (block_column_count_ > 1) {
                 const int64_t subblocks_count = contiguous_block_requested ? 1 : block_row_count_;
-                const int64_t subblock_size = contiguous_block_requested ? block_size_ : block_column_count_;
+                const int64_t subblock_size =
+                    contiguous_block_requested ? block_size_ : block_column_count_;
 
                 for (int64_t subblock_idx = 0; subblock_idx < subblocks_count; subblock_idx++) {
-                    backend::convert_vector(policy,
-                                            src_data + subblock_idx * origin_column_count_ * origin_dtype_size,
-                                            dst_data + subblock_idx * block_column_count_,
-                                            origin_dtype_,
-                                            block_dtype,
-                                            subblock_size);
+                    backend::convert_vector(
+                        policy,
+                        src_data + subblock_idx * origin_column_count_ * origin_dtype_size,
+                        dst_data + subblock_idx * block_column_count_,
+                        origin_dtype_,
+                        block_dtype,
+                        subblock_size);
                 }
             }
             else {
@@ -193,7 +194,7 @@ public:
         auto src_data = origin.get_data() + origin_offset * origin_dtype_size;
         auto dst_data = block.get_mutable_data();
 
-        for(int64_t row_idx = 0; row_idx < block_row_count_; row_idx++) {
+        for (int64_t row_idx = 0; row_idx < block_row_count_; row_idx++) {
             backend::convert_vector(policy,
                                     src_data + row_idx * origin_dtype_size,
                                     dst_data + row_idx * block_column_count_,
@@ -225,27 +226,31 @@ public:
                 return;
             }
             else {
-                detail::memcpy(policy, row_start_pointer, block.get_data(), block_size_ * sizeof(BlockData));
+                detail::memcpy(policy,
+                               row_start_pointer,
+                               block.get_data(),
+                               block_size_ * sizeof(BlockData));
             }
         }
         else {
             const auto origin_dtype_size = detail::get_data_type_size(origin_dtype_);
 
             auto src_data = block.get_data();
-            auto dst_data =
-                origin.get_mutable_data() + origin_offset * origin_dtype_size;
+            auto dst_data = origin.get_mutable_data() + origin_offset * origin_dtype_size;
 
             if (block_column_count_ > 1) {
                 const int64_t blocks_count = contiguous_block_requested ? 1 : block_row_count_;
-                const int64_t block_size = contiguous_block_requested ? block_size_ : block_column_count_;
+                const int64_t block_size =
+                    contiguous_block_requested ? block_size_ : block_column_count_;
 
                 for (int64_t block_idx = 0; block_idx < blocks_count; block_idx++) {
-                    backend::convert_vector(policy,
-                                            src_data + block_idx * block_column_count_,
-                                            dst_data + block_idx * origin_column_count_ * origin_dtype_size,
-                                            block_dtype,
-                                            origin_dtype_,
-                                            block_size);
+                    backend::convert_vector(
+                        policy,
+                        src_data + block_idx * block_column_count_,
+                        dst_data + block_idx * origin_column_count_ * origin_dtype_size,
+                        block_dtype,
+                        origin_dtype_,
+                        block_size);
                 }
             }
             else {
@@ -274,7 +279,7 @@ public:
         auto src_data = block.get_data();
         auto dst_data = origin.get_mutable_data() + origin_offset * origin_dtype_size;
 
-        for(int64_t row_idx = 0; row_idx < block_row_count_; row_idx++) {
+        for (int64_t row_idx = 0; row_idx < block_row_count_; row_idx++) {
             backend::convert_vector(policy,
                                     src_data + row_idx * block_column_count_,
                                     dst_data + row_idx * origin_dtype_size,
@@ -304,17 +309,18 @@ void homogen_table_impl::pull_rows_impl(const Policy& policy,
                                         const Alloc& kind) const {
     // TODO: check range correctness
     // TODO: check array size if non-zero
-    const block_access_provider provider { row_count_, col_count_, meta_.get_data_type(0), rows, {0, -1} };
+    const block_access_provider provider{ row_count_,
+                                          col_count_,
+                                          meta_.get_data_type(0),
+                                          rows,
+                                          { 0, -1 } };
 
-    switch(layout_) {
-        case data_layout::row_major:
-            provider.pull_by_row_major(policy, data_, block, kind);
-            break;
+    switch (layout_) {
+        case data_layout::row_major: provider.pull_by_row_major(policy, data_, block, kind); break;
         case data_layout::column_major:
             provider.pull_by_column_major(policy, data_, block, kind);
             break;
-        default:
-            throw internal_error("homogen_table_impl::pull_rows_impl: unsupported layout");
+        default: throw internal_error("homogen_table_impl::pull_rows_impl: unsupported layout");
     }
 }
 
@@ -326,17 +332,20 @@ void homogen_table_impl::pull_column_impl(const Policy& policy,
                                           const Alloc& kind) const {
     // TODO: check range correctness
     // TODO: check array size if non-zero
-    const block_access_provider provider { col_count_, row_count_, meta_.get_data_type(0), {column_index, column_index + 1}, rows };
+    const block_access_provider provider{ col_count_,
+                                          row_count_,
+                                          meta_.get_data_type(0),
+                                          { column_index, column_index + 1 },
+                                          rows };
 
-    switch(layout_) {
+    switch (layout_) {
         case data_layout::row_major:
             provider.pull_by_column_major(policy, data_, block, kind);
             break;
         case data_layout::column_major:
             provider.pull_by_row_major(policy, data_, block, kind);
             break;
-        default:
-            throw internal_error("homogen_table_impl::pull_column_impl: unsupported layout");
+        default: throw internal_error("homogen_table_impl::pull_column_impl: unsupported layout");
     }
 }
 
@@ -346,57 +355,55 @@ void homogen_table_impl::push_rows_impl(const Policy& policy,
                                         const range& rows) {
     // TODO: check range correctness
     // TODO: check array size if non-zero
-    const block_access_provider provider { row_count_, col_count_, meta_.get_data_type(0), rows, {0, -1} };
+    const block_access_provider provider{ row_count_,
+                                          col_count_,
+                                          meta_.get_data_type(0),
+                                          rows,
+                                          { 0, -1 } };
 
-    switch(layout_) {
-        case data_layout::row_major:
-            provider.push_by_row_major(policy, data_, block);
-            break;
-        case data_layout::column_major:
-            provider.push_by_column_major(policy, data_, block);
-            break;
-        default:
-            throw internal_error("homogen_table_impl::push_rows_impl: unsupported layout");
+    switch (layout_) {
+        case data_layout::row_major: provider.push_by_row_major(policy, data_, block); break;
+        case data_layout::column_major: provider.push_by_column_major(policy, data_, block); break;
+        default: throw internal_error("homogen_table_impl::push_rows_impl: unsupported layout");
     }
 }
 
 template <typename Policy, typename Data>
 void homogen_table_impl::push_column_impl(const Policy& policy,
-                        const array<Data>& block,
-                        std::int64_t column_index,
-                        const range& rows) {
+                                          const array<Data>& block,
+                                          std::int64_t column_index,
+                                          const range& rows) {
     // TODO: check range correctness
     // TODO: check array size if non-zero
-    const block_access_provider provider { col_count_, row_count_, meta_.get_data_type(0), {column_index, column_index + 1}, rows };
+    const block_access_provider provider{ col_count_,
+                                          row_count_,
+                                          meta_.get_data_type(0),
+                                          { column_index, column_index + 1 },
+                                          rows };
 
-    switch(layout_) {
-        case data_layout::row_major:
-            provider.push_by_column_major(policy, data_, block);
-            break;
-        case data_layout::column_major:
-            provider.push_by_row_major(policy, data_, block);
-            break;
-        default:
-            throw internal_error("homogen_table_impl::push_column_impl: unsupported layout");
+    switch (layout_) {
+        case data_layout::row_major: provider.push_by_column_major(policy, data_, block); break;
+        case data_layout::column_major: provider.push_by_row_major(policy, data_, block); break;
+        default: throw internal_error("homogen_table_impl::push_column_impl: unsupported layout");
     }
 }
 
-#define INSTANTIATE_IMPL(Policy, Data, Alloc)                                     \
-    template void homogen_table_impl::pull_rows_impl(const Policy& policy,        \
-                                                     array<Data>& block,          \
-                                                     const range& rows,           \
-                                                     const Alloc& kind) const;    \
-    template void homogen_table_impl::pull_column_impl(const Policy& policy,      \
-                                                       array<Data>& block,        \
-                                                       int64_t column_index,      \
-                                                       const range& rows,         \
-                                                       const Alloc& kind) const;  \
-    template void homogen_table_impl::push_rows_impl(const Policy& policy,        \
-                                                     const array<Data>& block,    \
-                                                     const range& rows);          \
-    template void homogen_table_impl::push_column_impl(const Policy& policy,      \
-                                                       const array<Data>& block,  \
-                                                       int64_t column_index,      \
+#define INSTANTIATE_IMPL(Policy, Data, Alloc)                                    \
+    template void homogen_table_impl::pull_rows_impl(const Policy& policy,       \
+                                                     array<Data>& block,         \
+                                                     const range& rows,          \
+                                                     const Alloc& kind) const;   \
+    template void homogen_table_impl::pull_column_impl(const Policy& policy,     \
+                                                       array<Data>& block,       \
+                                                       int64_t column_index,     \
+                                                       const range& rows,        \
+                                                       const Alloc& kind) const; \
+    template void homogen_table_impl::push_rows_impl(const Policy& policy,       \
+                                                     const array<Data>& block,   \
+                                                     const range& rows);         \
+    template void homogen_table_impl::push_column_impl(const Policy& policy,     \
+                                                       const array<Data>& block, \
+                                                       int64_t column_index,     \
                                                        const range& rows);
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
