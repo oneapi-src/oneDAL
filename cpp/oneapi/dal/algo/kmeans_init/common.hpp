@@ -45,7 +45,7 @@ template <typename Task = task::by_default>
 class ONEAPI_DAL_EXPORT descriptor_base : public base {
 public:
     using tag_t = detail::tag;
-    using task_t = task::by_default;
+    using task_t = Task;
     using float_t = float;
     using method_t = method::by_default;
 
