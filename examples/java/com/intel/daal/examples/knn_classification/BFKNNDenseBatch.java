@@ -1,4 +1,4 @@
-/* file: KDTreeKNNDenseBatch.java */
+/* file: BFKNNDenseBatch.java */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -17,26 +17,24 @@
 
 /*
  //  Content:
- //     Java example of k nearest neighbors algorithm in the batch processing mode.
+ //     Java example of brute-force k nearest neighbors algorithm in the batch processing mode.
  ////////////////////////////////////////////////////////////////////////////////
  */
 
 /**
- * <a name="DAAL-EXAMPLE-JAVA-KDTREEKNNDENSEBATCH">
- * @example KDTreeKNNDenseBatch.java
+ * <a name="DAAL-EXAMPLE-JAVA-BFKNNDENSEBATCH">
+ * @example BFKNNDenseBatch.java
  */
 
-package com.intel.daal.examples.kdtree_knn_classification;
+package com.intel.daal.examples.knn_classification;
 
-import com.intel.daal.algorithms.kdtree_knn_classification.Model;
-import com.intel.daal.algorithms.kdtree_knn_classification.prediction.*;
-import com.intel.daal.algorithms.kdtree_knn_classification.training.*;
+import com.intel.daal.algorithms.bf_knn_classification.*;
+import com.intel.daal.algorithms.bf_knn_classification.prediction.*;
+import com.intel.daal.algorithms.bf_knn_classification.training.*;
 import com.intel.daal.algorithms.classifier.training.InputId;
 import com.intel.daal.algorithms.classifier.training.TrainingResultId;
 import com.intel.daal.algorithms.classifier.prediction.ModelInputId;
 import com.intel.daal.algorithms.classifier.prediction.NumericTableInputId;
-import com.intel.daal.algorithms.classifier.prediction.PredictionResultId;
-import com.intel.daal.algorithms.classifier.prediction.PredictionResult;
 import com.intel.daal.data_management.data.NumericTable;
 import com.intel.daal.data_management.data.HomogenNumericTable;
 import com.intel.daal.data_management.data.MergedNumericTable;
@@ -45,7 +43,7 @@ import com.intel.daal.data_management.data_source.FileDataSource;
 import com.intel.daal.examples.utils.Service;
 import com.intel.daal.services.DaalContext;
 
-class KDTreeKNNDenseBatch {
+class BFKNNDenseBatch {
     /* Input data set parameters */
     private static final String trainDatasetFileName = "../data/batch/k_nearest_neighbors_train.csv";
 
@@ -56,6 +54,8 @@ class KDTreeKNNDenseBatch {
 
     static Model        model;
     static NumericTable results;
+    static NumericTable distances;
+    static NumericTable indices;
     static NumericTable testGroundTruth;
 
     private static DaalContext context = new DaalContext();
@@ -123,16 +123,21 @@ class KDTreeKNNDenseBatch {
 
         kNearestNeighborsPredict.input.set(NumericTableInputId.data, testData);
         kNearestNeighborsPredict.input.set(ModelInputId.model, model);
+        kNearestNeighborsPredict.parameter.setNClasses(nClasses);
+        kNearestNeighborsPredict.parameter.setResultsToCompute(ResultsToComputeId.computeDistances | ResultsToComputeId.computeIndicesOfNeightbors);
 
         /* Compute prediction results */
         PredictionResult predictionResult = kNearestNeighborsPredict.compute();
 
         results = predictionResult.get(PredictionResultId.prediction);
+        distances = predictionResult.get(PredictionResultId.distances);
+        indices = predictionResult.get(PredictionResultId.indices);
     }
 
     private static void printResults() {
         NumericTable expected = testGroundTruth;
-        Service.printClassificationResult(expected,results,"Ground truth","Classification results","KD-tree based kNN classification results (first 20 observations):",20);
+        Service.printClassificationResult(expected,results,"Ground truth","Classification results","Brute force kNN classification results (first 20 observations):",20);
         System.out.println("");
+        Service.printNumericTables(indices,distances,"Indices","Distances","Brute force kNN classification results (first 20 observations):",20);
     }
 }

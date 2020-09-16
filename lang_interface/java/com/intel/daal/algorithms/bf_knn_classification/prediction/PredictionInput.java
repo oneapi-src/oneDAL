@@ -16,21 +16,21 @@
 *******************************************************************************/
 
 /**
- * @defgroup kdtree_knn_classification_prediction Prediction
- * @brief Contains a class for making KD-tree based kNN model-based prediction
- * @ingroup kdtree_knn_classification
+ * @defgroup bf_knn_classification_prediction Prediction
+ * @brief Contains a class for making brute-force kNN model-based prediction
+ * @ingroup bf_knn_classification
  * @{
  */
-package com.intel.daal.algorithms.kdtree_knn_classification.prediction;
+package com.intel.daal.algorithms.bf_knn_classification.prediction;
 
 import com.intel.daal.utils.*;
-import com.intel.daal.algorithms.kdtree_knn_classification.Model;
+import com.intel.daal.algorithms.bf_knn_classification.Model;
 import com.intel.daal.algorithms.classifier.prediction.ModelInputId;
 import com.intel.daal.services.DaalContext;
 
 /**
- * <a name="DAAL-CLASS-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__PREDICTION__PREDICTIONINPUT"></a>
- * @brief  %Input objects for the KD-tree based k nearest neighbors algorithm
+ * <a name="DAAL-CLASS-ALGORITHMS__BF_KNN_CLASSIFICATION__PREDICTION__PREDICTIONINPUT"></a>
+ * @brief  %Input objects for the brute-force k nearest neighbors algorithm
  */
 public class PredictionInput extends com.intel.daal.algorithms.classifier.prediction.PredictionInput {
     /** @private */
@@ -43,7 +43,7 @@ public class PredictionInput extends com.intel.daal.algorithms.classifier.predic
     }
 
     /**
-     * Returns the Model input object for the KD-tree based k nearest neighbors model-based prediction algorithm
+     * Returns the Model input object for the brute-force k nearest neighbors model-based prediction algorithm
      * @param id Identifier of the input object
      * @return   Input object that corresponds to the given identifier
      */

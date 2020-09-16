@@ -74,7 +74,6 @@ gbt\GbtClsDenseBatch ^
 gbt\GbtClsTraversedModelBuilder ^
 gbt\GbtRegDenseBatch ^
 gbt\GbtRegTraversedModelBuilder ^
-kdtree_knn_classification\KDTreeKNNDenseBatch ^
 kmeans\KMeansDenseBatch ^
 kmeans\KMeansCSRBatch ^
 kmeans\KMeansDenseBatchAssign ^
@@ -84,6 +83,8 @@ kmeans\KMeansInitDenseDistr ^
 kmeans\KMeansInitCSRDistr ^
 kmeans\KMeansDenseDistr ^
 kmeans\KMeansCSRDistr ^
+knn_classification\BFKNNDenseBatch ^
+knn_classification\KDTreeKNNDenseBatch ^
 lasso_regression\LassoRegDenseBatch ^
 linear_regression\LinRegModelBuilder ^
 linear_regression\LinRegNormEqDenseBatch ^

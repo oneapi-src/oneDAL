@@ -660,7 +660,7 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
     int idxFeatureBestSplit     = -1; //index of best feature value in the array of sorted feature values
     for (size_t i = 0; i < nDiffFeatMax; ++i)
     {
-        algorithmFPType thisNFeatIdx = nFeatIdx[i];
+        algorithmFPType thisNFeatIdx(0);
         if (noWeights)
         {
             for (size_t iClass = 0; iClass < K; ++iClass)
@@ -668,9 +668,14 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
                 thisNFeatIdx += nSamplesPerClass[i * K + iClass];
             }
         }
+        else
+        {
+            thisNFeatIdx = nFeatIdx[i];
+        }
+
         if (!thisNFeatIdx) continue;
 
-        algorithmFPType thisFeatWeights;
+        algorithmFPType thisFeatWeights(0);
         if (noWeights)
         {
             thisFeatWeights = thisNFeatIdx;
@@ -759,8 +764,6 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(alg
                                                                              const algorithmFPType totalWeights) const
 {
     const auto nDiffFeatMax = this->indexedFeatures().numIndices(iFeature);
-    _idxFeatureBuf.setValues(nDiffFeatMax, algorithmFPType(0));
-    _weightsFeatureBuf.setValues(nDiffFeatMax, algorithmFPType(0));
     _samplesPerClassBuf.setValues(nClasses() * nDiffFeatMax, 0);
 
     int idxFeatureBestSplit = -1; //index of best feature value in the array of sorted feature values
@@ -777,6 +780,7 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(alg
         else
         {
             // nSamplesPerClass and nFeatIdx - computed, featWeights - no
+            _idxFeatureBuf.setValues(nDiffFeatMax, algorithmFPType(0));
             computeHistFewClassesWithWeights(iFeature, aIdx, n);
             idxFeatureBestSplit =
                 findBestSplitFewClassesDispatch<false>(nDiffFeatMax, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights);
@@ -785,6 +789,8 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(alg
     else
     {
         // nSamplesPerClass, nFeatIdx and featWeights - computed
+        _weightsFeatureBuf.setValues(nDiffFeatMax, algorithmFPType(0));
+        _idxFeatureBuf.setValues(nDiffFeatMax, algorithmFPType(0));
         computeHistManyClasses(iFeature, aIdx, n);
         idxFeatureBestSplit = findBestSplitbyHistDefault(nDiffFeatMax, n, nMinSplitPart, curImpurity, split, minWeightLeaf, totalWeights);
     }
