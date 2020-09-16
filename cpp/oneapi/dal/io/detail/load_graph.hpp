@@ -39,6 +39,7 @@ edge_list<std::int32_t> load_edge_list(const std::string &name) {
         throw invalid_argument("File not found");
     }
     edge_list<int_t> elist;
+    elist.reserve(1024);
 
     char source_vertex[32], destination_vertex[32];
     while (file >> source_vertex >> destination_vertex) {
@@ -53,77 +54,76 @@ edge_list<std::int32_t> load_edge_list(const std::string &name) {
 
 template <typename Graph>
 void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
-    auto layout = oneapi::dal::preview::detail::get_impl(g);
-    using vertex_t = typename Graph::vertex_type;
-    using vector_vertex_t = typename Graph::vertex_set;
-    using vector_edge_t = typename Graph::edge_set;
-    using allocator_t = typename Graph::allocator_type;
-    using vertex_size_t = typename Graph::vertex_size_type;
-
     if (edges.size() == 0) {
-        layout->_vertex_count = 0;
-        layout->_edge_count = 0;
         throw invalid_argument("Empty edge list");
     }
 
-    vertex_t max_node_id = edges[0].first;
+    using vertex_t = typename Graph::vertex_type;
+    using edge_t = typename Graph::edge_type;
+    using vector_vertex_t = typename Graph::vertex_set;
+    using allocator_t = typename Graph::allocator_type;
+    using vertex_size_t = typename Graph::vertex_size_type;
+    using atomic_t = typename daal::services::Atomic<vertex_t>;
+
+    vertex_t max_id = edges[0].first;
     for (auto u : edges) {
-        vertex_t max_id_in_edge = std::max(u.first, u.second);
-        max_node_id = std::max(max_node_id, max_id_in_edge);
+        vertex_t edge_max = std::max(u.first, u.second);
+        max_id = std::max(max_id, edge_max);
     }
 
-    vertex_t _unf_vertex_count = max_node_id + 1;
+    const vertex_t n_vertex = max_id + 1;
 
-    using atomic_t = typename daal::services::Atomic<vertex_t>;
-    using allocator_atomic_t =
-        typename std::allocator_traits<allocator_t>::template rebind_alloc<atomic_t>;
+    auto layout = oneapi::dal::preview::detail::get_impl(g);
+    auto &allocator = layout->_allocator;
+    layout->_vertex_count = n_vertex;
 
-    auto *degrees_vec = new (std::nothrow)
-        oneapi::dal::preview::detail::graph_container<atomic_t, allocator_atomic_t>(
-            _unf_vertex_count);
+    void *degrees_vec_void =
+        (void *)allocator.allocate(n_vertex * (sizeof(atomic_t) / sizeof(char)));
+    atomic_t *degrees_vec = new (degrees_vec_void) atomic_t[n_vertex];
+
     if (degrees_vec == nullptr) {
         throw bad_alloc();
     }
-    atomic_t *degrees_cv = degrees_vec->data();
+    atomic_t *degrees_cv = degrees_vec;
     if (degrees_cv == nullptr) {
         throw bad_alloc();
     }
-
-    threader_for(_unf_vertex_count, _unf_vertex_count, [&](vertex_t u) {
-        degrees_cv[u].set(0);
-    });
 
     threader_for(edges.size(), edges.size(), [&](vertex_t u) {
         degrees_cv[edges[u].first].inc();
         degrees_cv[edges[u].second].inc();
     });
 
-    auto *rows_vec = new (std::nothrow)
-        oneapi::dal::preview::detail::graph_container<atomic_t, allocator_atomic_t>(
-            _unf_vertex_count + 1);
+    void *rows_vec_void =
+        (void *)allocator.allocate((n_vertex + 1) * (sizeof(atomic_t) / sizeof(char)));
+    atomic_t *rows_vec = new (rows_vec_void) atomic_t[n_vertex + 1];
+
     if (rows_vec == nullptr) {
         throw bad_alloc();
     }
-    atomic_t *rows_cv = rows_vec->data();
+    atomic_t *rows_cv = rows_vec;
     if (rows_cv == nullptr) {
         throw bad_alloc();
     }
 
     vertex_t total_sum_degrees = 0;
     rows_cv[0].set(total_sum_degrees);
-
-    for (vertex_t i = 0; i < _unf_vertex_count; ++i) {
+    for (vertex_t i = 0; i < n_vertex; ++i) {
         total_sum_degrees += degrees_cv[i].get();
         rows_cv[i + 1].set(total_sum_degrees);
     }
-    delete degrees_vec;
+    allocator.deallocate((char *)degrees_vec_void, n_vertex * (sizeof(atomic_t) / sizeof(char)));
 
-    vector_vertex_t _unf_vert_neighs_vec(rows_cv[_unf_vertex_count].get());
-    vector_edge_t _unf_edge_offset_vec(_unf_vertex_count + 1);
-    auto _unf_edge_offset_arr = _unf_edge_offset_vec.data();
-    auto _unf_vert_neighs_arr = _unf_vert_neighs_vec.data();
+    void *_unf_vert_neighs_vec_void =
+        (void *)allocator.allocate((rows_cv[n_vertex].get()) * (sizeof(vertex_t) / sizeof(char)));
+    vertex_t *_unf_vert_neighs_arr =
+        new (_unf_vert_neighs_vec_void) vertex_t[rows_cv[n_vertex].get()];
 
-    threader_for(_unf_vertex_count + 1, _unf_vertex_count + 1, [&](vertex_t n) {
+    void *_unf_edge_offset_arr_void =
+        (void *)allocator.allocate((n_vertex + 1) * (sizeof(edge_t) / sizeof(char)));
+    edge_t *_unf_edge_offset_arr = new (_unf_edge_offset_arr_void) edge_t[n_vertex + 1];
+
+    threader_for(n_vertex + 1, n_vertex + 1, [&](vertex_t n) {
         _unf_edge_offset_arr[n] = rows_cv[n].get();
     });
 
@@ -131,48 +131,52 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         _unf_vert_neighs_arr[rows_cv[edges[u].first].inc() - 1] = edges[u].second;
         _unf_vert_neighs_arr[rows_cv[edges[u].second].inc() - 1] = edges[u].first;
     });
-    delete rows_vec;
+    allocator.deallocate((char *)rows_vec_void, (n_vertex + 1) * (sizeof(atomic_t) / sizeof(char)));
+
+    layout->_degrees = std::move(vector_vertex_t(n_vertex));
+    auto _degrees_data = layout->_degrees.data();
 
     //removing self-loops,  multiple edges from graph, and make neighbors in CSR sorted
+    threader_for(n_vertex, n_vertex, [&](vertex_t u) {
+        auto start_p = _unf_vert_neighs_arr + _unf_edge_offset_arr[u];
+        auto end_p = _unf_vert_neighs_arr + _unf_edge_offset_arr[u + 1];
 
-    layout->_vertex_count = _unf_vertex_count;
-
-    layout->_degrees = std::move(vector_vertex_t(layout->_vertex_count));
-
-    threader_for(_unf_vertex_count, _unf_vertex_count, [&](vertex_t u) {
-        auto start_p = _unf_vert_neighs_vec.begin() + _unf_edge_offset_vec[u];
-        auto end_p = _unf_vert_neighs_vec.begin() + _unf_edge_offset_vec[u + 1];
         std::sort(start_p, end_p);
+
         auto neighs_u_new_end = std::unique(start_p, end_p);
         neighs_u_new_end = std::remove(start_p, neighs_u_new_end, u);
-        layout->_degrees[u] = (vertex_t)std::distance(start_p, neighs_u_new_end);
+        _degrees_data[u] = (vertex_t)std::distance(start_p, neighs_u_new_end);
     });
 
-    layout->_edge_offsets.clear();
-    layout->_edge_offsets.reserve(layout->_vertex_count + 1);
+    layout->_edge_offsets = std::move(vector_vertex_t(n_vertex + 1));
+
+    auto degrees_data = layout->_degrees.data();
+    auto edge_offsets_data = layout->_edge_offsets.data();
 
     total_sum_degrees = 0;
-    layout->_edge_offsets.push_back(total_sum_degrees);
-
-    for (vertex_size_t i = 0; i < layout->_vertex_count; ++i) {
-        total_sum_degrees += layout->_degrees[i];
-        layout->_edge_offsets.push_back(total_sum_degrees);
+    edge_offsets_data[0] = total_sum_degrees;
+    for (vertex_size_t i = 0; i < n_vertex; ++i) {
+        total_sum_degrees += degrees_data[i];
+        edge_offsets_data[i + 1] = total_sum_degrees;
     }
-    layout->_edge_count = layout->_edge_offsets[layout->_vertex_count] / 2;
+    layout->_edge_count = total_sum_degrees / 2;
 
-    layout->_vertex_neighbors =
-        std::move(vector_vertex_t(layout->_edge_offsets[layout->_vertex_count]));
+    layout->_vertex_neighbors = std::move(vector_vertex_t(layout->_edge_offsets[n_vertex]));
 
     auto vert_neighs = layout->_vertex_neighbors.data();
     auto edge_offs = layout->_edge_offsets.data();
-    threader_for(layout->_vertex_count, layout->_vertex_count, [&](vertex_t u) {
+    threader_for(n_vertex, n_vertex, [&](vertex_t u) {
         auto u_neighs = vert_neighs + edge_offs[u];
         auto _u_neighs_unf = _unf_vert_neighs_arr + _unf_edge_offset_arr[u];
-        for (vertex_t i = 0; i < layout->_degrees[u]; i++) {
+        for (vertex_t i = 0; i < _degrees_data[u]; i++) {
             u_neighs[i] = _u_neighs_unf[i];
         }
     });
 
+    allocator.deallocate((char *)_unf_vert_neighs_vec_void,
+                         (rows_cv[n_vertex].get()) * (sizeof(vertex_t) / sizeof(char)));
+    allocator.deallocate((char *)_unf_edge_offset_arr_void,
+                         (n_vertex + 1) * (sizeof(edge_t) / sizeof(char)));
     return;
 } // namespace oneapi::dal::preview::load_graph::detail
 
