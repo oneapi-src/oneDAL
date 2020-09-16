@@ -658,7 +658,6 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitFewClasses(int nDiff
     int idxFeatureBestSplit     = -1; //index of best feature value in the array of sorted feature values
     for (size_t i = 0; i < nDiffFeatMax; ++i)
     {
-
         algorithmFPType thisNFeatIdx(0);
         if (noWeights)
         {
