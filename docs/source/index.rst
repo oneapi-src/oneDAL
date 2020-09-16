@@ -20,7 +20,7 @@
    contain the root `toctree` directive.
 
 .. |daal-docs| replace:: official Intel\ |reg|\  DAAL website
-.. _daal-docs: https://software.intel.com/en-us/intel-daal
+.. _daal-docs: https://software.intel.com/content/www/us/en/develop/tools/data-analytics-acceleration-library.html
 
 .. |github| replace:: |short_name| GitHub\* page
 .. _github: https://github.com/oneapi-src/oneDAL
@@ -60,10 +60,10 @@ list of features and documentation is available at |daal-docs|_.
    bibliography.rst
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Examples
 
-   sycl_examples.rst
+   examples.rst
 
 .. toctree::
    :maxdepth: 1

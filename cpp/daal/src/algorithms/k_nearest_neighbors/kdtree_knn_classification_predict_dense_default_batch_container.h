@@ -33,7 +33,7 @@ namespace kdtree_knn_classification
 {
 namespace prediction
 {
-namespace interface2
+namespace interface3
 {
 template <typename algorithmFpType, Method method, CpuType cpu>
 BatchContainer<algorithmFpType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
@@ -51,20 +51,32 @@ template <typename algorithmFpType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 {
     const classifier::prediction::Input * const input = static_cast<const classifier::prediction::Input *>(_in);
-    classifier::prediction::Result * const result     = static_cast<classifier::prediction::Result *>(_res);
+    Result * const result                             = static_cast<Result *>(_res);
 
     const data_management::NumericTableConstPtr a = input->get(classifier::prediction::data);
     const classifier::ModelConstPtr m             = input->get(classifier::prediction::model);
-    const data_management::NumericTablePtr r      = result->get(classifier::prediction::prediction);
+    const data_management::NumericTablePtr r      = result->get(prediction::prediction);
 
-    const daal::algorithms::Parameter * const par = _par;
-    daal::services::Environment::env & env        = *_env;
+    const Parameter * const par = static_cast<const Parameter *>(_par);
+
+    data_management::NumericTablePtr indices;
+    data_management::NumericTablePtr distances;
+    if (par->resultsToCompute & computeIndicesOfNeightbors)
+    {
+        indices = result->get(prediction::indices);
+    }
+    if (par->resultsToCompute & computeDistances)
+    {
+        distances = result->get(prediction::distances);
+    }
+
+    daal::services::Environment::env & env = *_env;
 
     __DAAL_CALL_KERNEL(env, internal::KNNClassificationPredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFpType, method), compute, a.get(), m.get(),
-                       r.get(), par);
+                       r.get(), indices.get(), distances.get(), par);
 }
 
-} // namespace interface2
+} // namespace interface3
 } // namespace prediction
 } // namespace kdtree_knn_classification
 } // namespace algorithms

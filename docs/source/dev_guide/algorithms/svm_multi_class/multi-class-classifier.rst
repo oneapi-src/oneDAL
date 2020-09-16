@@ -94,13 +94,25 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: oneAPI C++
 
-    :cpp_example:`svm_multi_class_model_builder.cpp <svm/svm_multi_class_model_builder.cpp>`
+    Batch Processing
+
+    - :ref:`cpp_svm_two_class_thunder_dense_batch.cpp`
+
+  .. tab:: C++ (CPU)
+
+    Batch Processing
+
+    - :cpp_example:`svm_multi_class_model_builder.cpp <svm/svm_multi_class_model_builder.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
-    :java_example:`SVMMultiClassModelBuilder.java <svm/SVMMultiClassModelBuilder.java>`
+    Batch Processing
+
+    - :java_example:`SVMMultiClassModelBuilder.java <svm/SVMMultiClassModelBuilder.java>`
 
   .. tab:: Python*
 
@@ -109,8 +121,7 @@ Examples
 Batch Processing
 ****************
 
-Multi-class classifier follows the general workflow described in
-`Usage Model: Training and Prediction <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction-1>`_.
+Multi-class classifier follows the general workflow described in :ref:`classification_usage_model`.
 
 Training
 --------
@@ -194,7 +205,7 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
@@ -205,6 +216,8 @@ Examples
 
   .. tab:: Java*
   
+    .. note:: There is no support for Java on GPU.
+
     Batch Processing:
 
     -  :java_example:`SVMMultiClassBoserCSRBatch.java <svm/SVMMultiClassBoserCSRBatch.java>`

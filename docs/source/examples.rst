@@ -14,11 +14,20 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-DPC++ Examples
-##############
+oneAPI Examples
+###############
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :glob:
    
-   daal/examples_sycl/*
+   DPC++ <examples/dpc.rst>
+   C++ <examples/cpp.rst>
+
+.. note::
+
+   You can find other examples on Github*:
+
+   - `C++ <https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source>`_ (CPU)
+   - `Java* <https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples>`_ (not supported on GPU)
+   - `Python* <https://github.com/IntelPython/daal4py/tree/master/examples>`_

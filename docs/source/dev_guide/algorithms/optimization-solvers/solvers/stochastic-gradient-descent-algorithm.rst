@@ -24,7 +24,7 @@ Stochastic Gradient Descent Algorithm
    :maxdepth: 4
 
 The stochastic gradient descent (SGD) algorithm is a special case of
-an iterative solver. See `Iterative Solver <https://software.intel.com/en-us/daal-programming-guide-iterative-solver>`_ for more details.
+an iterative solver. See :ref:`iterative_solver` for more details.
 
 Computation methods
 *******************
@@ -104,7 +104,7 @@ Computation
 
 The stochastic gradient descent algorithm is a special case of an
 iterative solver. For parameters, input, and output of iterative
-solvers, see `Iterative Solver Computation <https://software.intel.com/en-us/daal-programming-guide-computation-6>`_.
+solvers, see :ref:`iterative_solver_computation`.
 
 Algorithm Parameters
 ---------------------
@@ -210,23 +210,32 @@ Examples
 
 .. tabs::
 
-  .. tab:: DPC++
+  .. tab:: C++ (CPU)
 
-    - :ref:`sgd_mini_log_loss_dense_batch.cpp`
+    Batch Processing:
 
-  .. tab:: C++
-
-    -  :cpp_example:`sgd_dense_batch.cpp <optimization_solvers/sgd_dense_batch.cpp>`
-    -  :cpp_example:`sgd_mini_dense_batch.cpp <optimization_solvers/sgd_mini_dense_batch.cpp>`
-    -  :cpp_example:`sgd_moment_dense_batch.cpp <optimization_solvers/sgd_moment_dense_batch.cpp>`
-    -  :cpp_example:`sgd_moment_opt_res_dense_batch.cpp <optimization_solvers/sgd_moment_opt_res_dense_batch.cpp>`
+    - :cpp_example:`sgd_dense_batch.cpp <optimization_solvers/sgd_dense_batch.cpp>`
+    - :cpp_example:`sgd_mini_dense_batch.cpp <optimization_solvers/sgd_mini_dense_batch.cpp>`
+    - :cpp_example:`sgd_moment_dense_batch.cpp <optimization_solvers/sgd_moment_dense_batch.cpp>`
+    - :cpp_example:`sgd_moment_opt_res_dense_batch.cpp <optimization_solvers/sgd_moment_opt_res_dense_batch.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
-    -  :java_example:`SGDDenseBatch.java <optimization_solvers/SGDDenseBatch.java>`
-    -  :java_example:`SGDMiniDenseBatch.java <optimization_solvers/SGDMiniDenseBatch.java>`
-    -  :java_example:`SGDMomentDenseBatch.java <optimization_solvers/SGDMomentDenseBatch.java>`
-    -  :java_example:`SGDMomentOptResDenseBatch.java <optimization_solvers/SGDMomentOptResDenseBatch.java>`
+    Batch Processing:
+
+    - :java_example:`SGDDenseBatch.java <optimization_solvers/SGDDenseBatch.java>`
+    - :java_example:`SGDMiniDenseBatch.java <optimization_solvers/SGDMiniDenseBatch.java>`
+    - :java_example:`SGDMomentDenseBatch.java <optimization_solvers/SGDMomentDenseBatch.java>`
+    - :java_example:`SGDMomentOptResDenseBatch.java <optimization_solvers/SGDMomentOptResDenseBatch.java>`
+
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`sgd_logistic_loss_batch.py`
+    - :daal4py_example:`sgd_mse_batch.py`
 
 .. Python*:
 

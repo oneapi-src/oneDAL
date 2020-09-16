@@ -101,18 +101,25 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
     - :cpp_example:`cos_dist_dense_batch.cpp <distance/cos_dist_dense_batch.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
     
     - :java_example:`CosDistDenseBatch.java <distance/CosDistDenseBatch.java>`
 
+  .. tab:: Python*
+
+    Batch Processing:
+    
+    - :daal4py_example:`cosine_distance_batch.py`
 
 Performance Considerations
 **************************

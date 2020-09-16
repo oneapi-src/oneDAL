@@ -230,23 +230,40 @@ Examples
 
 .. tabs::
 
-  .. tab:: DPC++
+  .. tab:: oneAPI DPC++
 
     Batch Processing:
 
-    - :ref:`bf_knn_dense_batch.cpp`
+    - :ref:`dpc_knn_cls_brute_force_dense_batch.cpp`
   
-  .. tab:: C++
+  .. tab:: oneAPI C++
+
+    Batch Processing:
+
+    - :ref:`cpp_knn_cls_kd_tree_dense_batch.cpp`
+
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
     - :cpp_example:`kdtree_knn_dense_batch.cpp <k_nearest_neighbors/kdtree_knn_dense_batch.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
 
     - :java_example:`KDTreeKNNDenseBatch.java <kdtree_knn_classification/KDTreeKNNDenseBatch.java>`
 
+  .. tab:: Python* with DPC++ support
 
-.. Python*: kdtree_knn_dense_batch.py
+    Batch Processing:
+
+    - :daal4py_sycl_example:`bf_knn_classification_batch.py`
+
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`kdtree_knn_classification_batch.py`

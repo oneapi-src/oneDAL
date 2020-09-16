@@ -177,14 +177,22 @@ Examples
 
 .. tabs::
 
-    .. tab:: C++
+  .. tab:: C++ (CPU)
 
-        Batch Processing:
+    Batch Processing:
 
-        - :cpp_example:`logitboost_dense_batch.cpp <boosting/logitboost_dense_batch.cpp>`
+    - :cpp_example:`logitboost_dense_batch.cpp <boosting/logitboost_dense_batch.cpp>`
 
-    .. tab:: Java*
+  .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
-        Batch Processing:
+    Batch Processing:
 
-        - :java_example:`LogitBoostDenseBatch.java <boosting/logitboost/LogitBoostDenseBatch.java>`
+    - :java_example:`LogitBoostDenseBatch.java <boosting/logitboost/LogitBoostDenseBatch.java>`
+
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`logitboost_batch.py`

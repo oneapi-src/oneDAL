@@ -104,7 +104,7 @@ algorithm.
 Prediction
 ----------
 
-For a description of the input and output, refer to `Usage Model: Training and Prediction <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction-1>`_.
+For a description of the input and output, refer to :ref:`regression_usage_model`.
 
 At the prediction stage, linear and ridge regressions have the following parameters:
 
@@ -395,17 +395,7 @@ Examples
 
 .. tabs::
 
-  .. tab:: DPC++
-
-    Batch Processing:
-
-    - :ref:`lin_reg_norm_eq_dense_batch.cpp`
-
-    Online Processing:
-
-    - :ref:`lin_reg_norm_eq_dense_online.cpp`
-
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
@@ -429,6 +419,8 @@ Examples
 
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
 
@@ -447,3 +439,26 @@ Examples
     - :java_example:`LinRegNormEqDenseDistr.java <linear_regression/>`
     - :java_example:`LinRegQRDenseDistr.java <linear_regression/>`
     - :java_example:`RidgeRegNormEqDenseDistr.java <ridge_regression/>`
+
+  .. tab:: Python* with DPC++ support
+
+    Batch Processing:
+
+    - :daal4py_sycl_example:`linear_regression_batch.py`
+
+  .. tab:: Python* 
+
+    Batch Processing:
+
+    - :daal4py_example:`linear_regression_batch.py`
+    - :daal4py_example:`ridge_regression_batch.py`
+
+    Online Processing:
+
+    - :daal4py_example:`linear_regression_streaming.py`
+    - :daal4py_example:`ridge_regression_streaming.py`
+
+    Distributed Processing:
+
+    - :daal4py_example:`linear_regression_spmd.py`
+    - :daal4py_example:`ridge_regression_spmd.py`
