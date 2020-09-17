@@ -183,7 +183,7 @@ protected:
             const BruteForceTask * tls = tlsTask.local();
             DAAL_CHECK_MALLOC_THR(tls);
 
-            const FPType * distancesBuff = tlsDistances.local();
+            FPType * distancesBuff = tlsDistances.local();
             DAAL_CHECK_MALLOC_THR(distancesBuff);
 
             int * idx = tlsIdx.local();
@@ -219,7 +219,7 @@ protected:
         service_memset_seq<FPType, cpu>(kDistances, MaxVal<FPType>::get(), blockSize * k);
 
         tlsTask.reduce([&](BruteForceTask * tls) {
-            const FPType * kDistancesLocal = tls->kDistances;
+            FPType * kDistancesLocal = tls->kDistances;
             int * kIndexesLocal            = tls->kIndexes;
 
             for (size_t i = 0; i < iSize; i++)
@@ -265,7 +265,7 @@ protected:
             DAAL_CHECK_BLOCK_STATUS(testLabelRows);
             int * testLabel = testLabelRows.get();
 
-            const int * voting = tlsVoting.local();
+            int * voting = tlsVoting.local();
             DAAL_CHECK_MALLOC(voting);
 
             if (voteWeights == VoteWeights::voteUniform)
