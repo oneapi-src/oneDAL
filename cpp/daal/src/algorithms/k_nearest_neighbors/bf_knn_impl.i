@@ -125,11 +125,11 @@ protected:
         bool isValid() const { return _buff.get(); }
 
     private:
-        BruteForceTask(const size_t inBlockSize, const size_t outBlockSize, const size_t k)
+        BruteForceTask(size_t inBlockSize, size_t outBlockSize, size_t k)
         {
-            size_t kDistancesSize = inBlockSize * k * sizeof(FPType);
-            size_t maxsSize       = inBlockSize * sizeof(FPType);
-            size_t kIndexesSize   = inBlockSize * k * sizeof(int);
+            const size_t kDistancesSize = inBlockSize * k * sizeof(FPType);
+            const size_t maxsSize       = inBlockSize * sizeof(FPType);
+            const size_t kIndexesSize   = inBlockSize * k * sizeof(int);
 
             _buff.reset(kDistancesSize + maxsSize + kIndexesSize);
 
@@ -176,11 +176,11 @@ protected:
         });
 
         daal::conditional_threader_for(nOuterBlocks > 3 * threader_get_max_threads_number(), nInBlocks, [&](size_t inBlock) {
-            size_t j1    = inBlock * inBlockSize;
-            size_t j2    = (inBlock + 1 == nInBlocks ? inRows : j1 + inBlockSize);
-            size_t jSize = j2 - j1;
+            const size_t j1    = inBlock * inBlockSize;
+            const size_t j2    = (inBlock + 1 == nInBlocks ? inRows : j1 + inBlockSize);
+            const size_t jSize = j2 - j1;
 
-            BruteForceTask * tls = tlsTask.local();
+            const BruteForceTask * tls = tlsTask.local();
             DAAL_CHECK_MALLOC_THR(tls);
 
             FPType * distancesBuff = tlsDistances.local();
@@ -226,14 +226,14 @@ protected:
             {
                 mergeNeighbours(i, k, kIndexesLocal, kDistancesLocal, kIndexes, kDistances);
             }
-        delete tls;
+            
+            delete tls;
         });
 
         // Euclidean Distances are computed without Sqrt, fixing it here
         Math<FPType, cpu>::vSqrt(blockSize * k, kDistances, kDistances);
 
         // sort by distances
-
         for (size_t i = 0; i < blockSize; ++i)
         {
             daal::algorithms::internal::qSort<FPType, int, cpu>(k, kDistances + i * k, kIndexes + i * k);
@@ -298,27 +298,27 @@ protected:
     void updateLocalNeighbours(size_t indexes, int * idx, size_t jSize, size_t i, size_t k, FPType * kDistances, int * kIndexes, FPType * maxs,
                                FPType * distances, size_t j1)
     {
-        for (size_t j = 0; j < indexes; j++)
+        for (size_t j = 0; j < indexes; ++j)
         {
             FPType d = distances[i * jSize + idx[j]];
 
-            int max_idx = 0;
-            for (size_t kk = 0; kk < k; kk++)
+            int maxIdx = 0;
+            for (size_t kk = 0; kk < k; ++kk)
             {
-                if (d < kDistances[i * k + kk] && kDistances[i * k + kk] > kDistances[i * k + max_idx])
+                if (d < kDistances[i * k + kk] && kDistances[i * k + kk] > kDistances[i * k + maxIdx])
                 {
-                    max_idx = kk;
+                    maxIdx = kk;
                 }
             }
-            if (kDistances[i * k + max_idx] > d)
+            if (kDistances[i * k + maxIdx] > d)
             {
-                kDistances[i * k + max_idx] = d;
-                kIndexes[i * k + max_idx]   = idx[j] + j1;
+                kDistances[i * k + maxIdx] = d;
+                kIndexes[i * k + maxIdx]   = idx[j] + j1;
             }
         }
         
         FPType max = kDistances[i * k + 0];
-        for (size_t kk = 1; kk < k; kk++)
+        for (size_t kk = 1; kk < k; ++kk)
         {
             if (kDistances[i * k + kk] > max)
             {
@@ -330,22 +330,22 @@ protected:
 
     void mergeNeighbours(size_t i, size_t k, int * idxLocal, FPType * distancesLocal, int * kIndexes, FPType * kDistances)
     {
-        for (size_t j = 0; j < k; j++)
+        for (size_t j = 0; j < k; ++j)
         {
             FPType d = distancesLocal[i * k + j];
 
-            int max_idx = 0;
-            for (size_t kk = 0; kk < k; kk++)
+            int maxIdx = 0;
+            for (size_t kk = 0; kk < k; ++kk)
             {
-                if (d < kDistances[i * k + kk] && kDistances[i * k + kk] > kDistances[i * k + max_idx])
+                if (d < kDistances[i * k + kk] && kDistances[i * k + kk] > kDistances[i * k + maxIdx])
                 {
-                    max_idx = kk;
+                    maxIdx = kk;
                 }
             }
-            if (kDistances[i * k + max_idx] > d)
+            if (kDistances[i * k + maxIdx] > d)
             {
-                kDistances[i * k + max_idx] = d;
-                kIndexes[i * k + max_idx]   = idxLocal[i * k + j];
+                kDistances[i * k + maxIdx] = d;
+                kIndexes[i * k + maxIdx]   = idxLocal[i * k + j];
             }
         }
     }
