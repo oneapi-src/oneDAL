@@ -186,7 +186,7 @@ protected:
             const FPType * distancesBuff = tlsDistances.local();
             DAAL_CHECK_MALLOC_THR(distancesBuff);
 
-            const int * idx = tlsIdx.local();
+            int * idx = tlsIdx.local();
             DAAL_CHECK_MALLOC_THR(idx);
 
             const FPType * maxs            = tls->maxs;
@@ -210,17 +210,17 @@ protected:
             }
         });
 
-        const int * kIndexes = tlsKIndexes.local();
+        int * kIndexes = tlsKIndexes.local();
         DAAL_CHECK_MALLOC(kIndexes);
 
-        const FPType * kDistances = tlsKDistances.local();
+        FPType * kDistances = tlsKDistances.local();
         DAAL_CHECK_MALLOC(kDistances);
 
         service_memset_seq<FPType, cpu>(kDistances, MaxVal<FPType>::get(), blockSize * k);
 
         tlsTask.reduce([&](BruteForceTask * tls) {
             const FPType * kDistancesLocal = tls->kDistances;
-            const int * kIndexesLocal      = tls->kIndexes;
+            int * kIndexesLocal      = tls->kIndexes;
 
             for (size_t i = 0; i < iSize; i++)
             {
