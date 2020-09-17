@@ -702,23 +702,23 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
 
             for (size_t i = 0; i < heapSize; ++i)
             {
-                if (heap[i].distance < epsilon)
+                if (heap[i].distance <= epsilon)
                 {
                     isContainZero = true;
                     break;
                 }
             }
 
-            for (size_t i = 0; i < heapSize; ++i)
+            if (isContainZero)
             {
-                if (isContainZero)
+                for (size_t i = 0; i < heapSize; ++i)
                 {
-                    if (heap[i].distance < epsilon)
-                    {
-                        classWeights[(size_t)(classes[i])] += 1;
-                    }
+                    classWeights[(size_t)(classes[i])] += 1;
                 }
-                else
+            }
+            else
+            {
+                for (size_t i = 0; i < heapSize; ++i)
                 {
                     classWeights[(size_t)(classes[i])] += Math::sSqrt(1 / heap[i].distance);
                 }
