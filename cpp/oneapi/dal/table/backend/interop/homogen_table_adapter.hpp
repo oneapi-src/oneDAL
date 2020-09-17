@@ -188,7 +188,7 @@ private:
         return status_t(daal::services::ErrorMethodNotImplemented);
     }
 
-    virtual int getSerializationTag() const override {
+    int getSerializationTag() const override {
         DAAL_ASSERT(!"homogen_table_adapter: getSerializationTag() is not implemented");
         return -1;
     }
