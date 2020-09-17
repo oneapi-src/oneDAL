@@ -57,7 +57,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
         set(prediction, data_management::HomogenNumericTable<algorithmFPType>::create(1, nRows, data_management::NumericTableIface::doAllocate, &s));
     }
 
-    if (s.ok() && (par->resultsToCompute & computeIndicesOfNeightbors))
+    if (s.ok() && (par->resultsToCompute & computeIndicesOfNeighbors))
     {
         set(indices, data_management::HomogenNumericTable<int>::create(par->k, nRows, data_management::NumericTableIface::doAllocate, &s));
     }
