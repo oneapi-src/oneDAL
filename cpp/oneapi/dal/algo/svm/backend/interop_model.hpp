@@ -17,7 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/backend/interop/common.hpp"
-#include "oneapi/dal/table/backend/interop/table_conversion.hpp"
+#include "oneapi/dal/table/backend/interop/conversion.hpp"
 
 #include <daal/include/algorithms/svm/svm_model.h>
 

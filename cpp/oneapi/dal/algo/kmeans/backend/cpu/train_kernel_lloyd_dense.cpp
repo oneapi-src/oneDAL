@@ -20,7 +20,7 @@
 #include "oneapi/dal/algo/kmeans/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
-#include "oneapi/dal/table/backend/interop/table_conversion.hpp"
+#include "oneapi/dal/table/backend/interop/conversion.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/exceptions.hpp"
 

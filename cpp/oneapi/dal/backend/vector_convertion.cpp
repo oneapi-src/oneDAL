@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/table/backend/convert.hpp"
+#include "oneapi/dal/backend/vector_conversion.hpp"
 #include "oneapi/dal/backend/interop/data_conversion.hpp"
 
 namespace oneapi::dal::backend {

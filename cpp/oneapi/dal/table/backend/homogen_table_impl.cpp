@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/table/backend/homogen_table_impl.hpp"
-#include "oneapi/dal/table/backend/convert.hpp"
+#include "oneapi/dal/backend/vector_conversion.hpp"
 
 #include <cstring>
 

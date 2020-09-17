@@ -29,7 +29,7 @@
 #include "oneapi/dal/algo/decision_forest/backend/interop_helpers.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
-#include "oneapi/dal/table/backend/interop/table_conversion.hpp"
+#include "oneapi/dal/table/backend/interop/conversion.hpp"
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
