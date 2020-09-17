@@ -189,7 +189,7 @@ protected:
             int * idx = tlsIdx.local();
             DAAL_CHECK_MALLOC_THR(idx);
 
-            const FPType * maxs      = tls->maxs;
+            FPType * maxs            = tls->maxs;
             FPType * kDistancesLocal = tls->kDistances;
             int * kIndexesLocal      = tls->kIndexes;
 
