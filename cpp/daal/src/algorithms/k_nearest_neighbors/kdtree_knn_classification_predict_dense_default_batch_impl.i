@@ -81,12 +81,12 @@ void pushMaxHeap(RandomAccessIterator first, RandomAccessIterator last)
         {
             const auto newItem = *last; // It can be moved instead.
             auto prev          = i;
-            for (i = heapParentIndex<cpu>(i); i && (*(first + i) < newItem); i = heapParentIndex<cpu>(i))
+            for (i = heapParentIndex<cpu>(i); prev && (*(first + i) < newItem); i = heapParentIndex<cpu>(i))
             {
                 *(first + prev) = *(first + i); // It can be moved instead.
                 prev            = i;
             }
-            *(first + i) = newItem; // It can be moved instead.
+            *(first + prev) = newItem; // It can be moved instead.
         }
     }
 }
