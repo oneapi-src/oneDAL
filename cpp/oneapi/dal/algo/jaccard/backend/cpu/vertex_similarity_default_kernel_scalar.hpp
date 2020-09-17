@@ -21,7 +21,7 @@
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
+#include "oneapi/dal/table/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/graph/detail/graph_service_functions_impl.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_array_graph_impl.hpp"

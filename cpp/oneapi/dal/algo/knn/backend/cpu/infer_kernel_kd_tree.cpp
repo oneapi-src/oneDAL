@@ -20,7 +20,8 @@
 #include "oneapi/dal/algo/knn/backend/model_interop.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
+#include "oneapi/dal/table/backend/interop/table_conversion.hpp"
+#include "oneapi/dal/table/detail/table_builder.hpp"
 
 namespace oneapi::dal::knn::backend {
 

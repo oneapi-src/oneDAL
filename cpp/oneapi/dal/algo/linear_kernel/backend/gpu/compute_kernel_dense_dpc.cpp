@@ -20,7 +20,8 @@
 #include "oneapi/dal/algo/linear_kernel/backend/gpu/compute_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
+#include "oneapi/dal/table/backend/interop/table_conversion.hpp"
+#include "oneapi/dal/table/detail/table_builder.hpp"
 
 #include <daal/src/algorithms/kernel_function/oneapi/kernel_function_linear_dense_default_kernel_oneapi.h>
 

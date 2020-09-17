@@ -23,7 +23,8 @@
 #include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
+#include "oneapi/dal/table/backend/interop/table_conversion.hpp"
+#include "oneapi/dal/table/detail/table_builder.hpp"
 
 #include <daal/src/algorithms/svm/oneapi/svm_predict_kernel_oneapi.h>
 

@@ -14,31 +14,31 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/interop/data_conversion.hpp"
+#include "oneapi/dal/table/backend/interop/data_conversion.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
-using namespace daal::data_management;
+namespace daal_dm = daal::data_management;
 
 namespace oneapi::dal::backend::interop {
 
-features::IndexNumType getIndexNumType(data_type t) {
+daal_dm::features::IndexNumType get_daal_index_num_type(data_type t) {
     switch (t) {
-        case data_type::int32: return features::DAAL_INT32_S;
-        case data_type::int64: return features::DAAL_INT64_S;
-        case data_type::uint32: return features::DAAL_INT32_U;
-        case data_type::uint64: return features::DAAL_INT64_U;
-        case data_type::float32: return features::DAAL_FLOAT32;
-        case data_type::float64: return features::DAAL_FLOAT64;
-        default: return features::DAAL_OTHER_T;
+        case data_type::int32: return daal_dm::features::DAAL_INT32_S;
+        case data_type::int64: return daal_dm::features::DAAL_INT64_S;
+        case data_type::uint32: return daal_dm::features::DAAL_INT32_U;
+        case data_type::uint64: return daal_dm::features::DAAL_INT64_U;
+        case data_type::float32: return daal_dm::features::DAAL_FLOAT32;
+        case data_type::float64: return daal_dm::features::DAAL_FLOAT64;
+        default: return daal_dm::features::DAAL_OTHER_T;
     }
 }
 
-internal::ConversionDataType getConversionDataType(data_type t) {
+daal_dm::internal::ConversionDataType get_daal_conversion_data_type(data_type t) {
     switch (t) {
-        case data_type::int32: return internal::DAAL_INT32;
-        case data_type::float32: return internal::DAAL_SINGLE;
-        case data_type::float64: return internal::DAAL_DOUBLE;
-        default: return internal::DAAL_OTHER;
+        case data_type::int32: return daal_dm::internal::DAAL_INT32;
+        case data_type::float32: return daal_dm::internal::DAAL_SINGLE;
+        case data_type::float64: return daal_dm::internal::DAAL_DOUBLE;
+        default: return daal_dm::internal::DAAL_OTHER;
     }
 }
 
@@ -48,19 +48,19 @@ void daal_convert_dispatcher(data_type src_type,
                              DownCast&& dcast,
                              UpCast&& ucast,
                              Args&&... args) {
-    auto from_type = getIndexNumType(src_type);
-    auto to_type = getConversionDataType(dest_type);
+    auto from_type = get_daal_index_num_type(src_type);
+    auto to_type = get_daal_conversion_data_type(dest_type);
 
     auto check_types = [](auto from_type, auto to_type) {
-        if (from_type == features::DAAL_OTHER_T || to_type == internal::DAAL_OTHER) {
+        if (from_type == daal_dm::features::DAAL_OTHER_T || to_type == daal_dm::internal::DAAL_OTHER) {
             throw internal_error("unsupported conversion types");
         }
     };
 
-    if (getConversionDataType(dest_type) == internal::DAAL_OTHER &&
-        getConversionDataType(src_type) != internal::DAAL_OTHER) {
-        from_type = getIndexNumType(dest_type);
-        to_type = getConversionDataType(src_type);
+    if (get_daal_conversion_data_type(dest_type) == daal_dm::internal::DAAL_OTHER &&
+        get_daal_conversion_data_type(src_type) != daal_dm::internal::DAAL_OTHER) {
+        from_type = get_daal_index_num_type(dest_type);
+        to_type = get_daal_conversion_data_type(src_type);
 
         check_types(from_type, to_type);
         dcast(from_type, to_type)(std::forward<Args>(args)...);
@@ -78,8 +78,8 @@ void daal_convert(const void* src,
                   std::int64_t size) {
     daal_convert_dispatcher(src_type,
                             dst_type,
-                            internal::getVectorDownCast,
-                            internal::getVectorUpCast,
+                            daal_dm::internal::getVectorDownCast,
+                            daal_dm::internal::getVectorUpCast,
                             size,
                             src,
                             dst);
@@ -94,8 +94,8 @@ void daal_convert(const void* src,
                   std::int64_t size) {
     daal_convert_dispatcher(src_type,
                             dst_type,
-                            internal::getVectorStrideDownCast,
-                            internal::getVectorStrideUpCast,
+                            daal_dm::internal::getVectorStrideDownCast,
+                            daal_dm::internal::getVectorStrideUpCast,
                             size,
                             src,
                             src_stride,

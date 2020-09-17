@@ -30,7 +30,8 @@
 #include "oneapi/dal/algo/decision_forest/backend/interop_helpers.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
+#include "oneapi/dal/table/backend/interop/table_conversion.hpp"
+#include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
