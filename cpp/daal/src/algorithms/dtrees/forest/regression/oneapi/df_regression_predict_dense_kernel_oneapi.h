@@ -37,13 +37,6 @@ using namespace daal::data_management;
 using namespace daal::services;
 using namespace daal::oneapi::internal;
 using namespace daal::algorithms::dtrees::internal;
-#define _P(...)              \
-    do                       \
-    {                        \
-        printf(__VA_ARGS__); \
-        printf("\n");        \
-        fflush(0);           \
-    } while (0)
 
 namespace daal
 {
