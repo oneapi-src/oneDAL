@@ -327,8 +327,8 @@ private:
 #endif
     }
 
-    template <typename Accessor, typename Data, typename... Args>
-    auto pull_values(const Accessor& acc, array<Data>& values, Args&&... args) {
+    template <typename Accessor, typename BlockData, typename... Args>
+    auto pull_values(const Accessor& acc, array<BlockData>& values, Args&&... args) {
         if constexpr (is_host_only) {
             return acc.pull(values, std::forward<Args>(args)...);
         }

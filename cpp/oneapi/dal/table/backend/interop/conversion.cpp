@@ -17,8 +17,6 @@
 #include "oneapi/dal/table/backend/interop/conversion.hpp"
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-#define DAAL_SYCL_INTERFACE
-#define DAAL_SYCL_INTERFACE_USM
 #include <daal/include/data_management/data/numeric_table_sycl_homogen.h>
 #endif
 #include <daal/include/data_management/data/homogen_numeric_table.h>
@@ -54,7 +52,6 @@ NumericTablePtr convert_to_daal_homogen_table(array<Data>& data,
 
 template <typename AlgorithmFPType>
 NumericTablePtr convert_to_daal_table(const table& table) {
-    const auto& meta = table.get_metadata();
     if (table.get_kind() == homogen_table::kind()) {
         const auto& homogen = static_cast<const homogen_table&>(table);
         detail::default_host_policy policy;
@@ -101,7 +98,7 @@ template <typename AlgorithmFPType>
 NumericTablePtr convert_to_daal_table(const detail::data_parallel_policy& policy,
                                       const table& table) {
     using policy_t = std::decay_t<decltype(policy)>;
-    const auto& meta = table.get_metadata();
+
     if (table.get_kind() == homogen_table::kind()) {
         const auto& homogen = static_cast<const homogen_table&>(table);
         return homogen_table_adapter<policy_t, AlgorithmFPType>::create(policy, homogen);
@@ -141,7 +138,7 @@ NumericTablePtr convert_to_daal_table(const detail::data_parallel_policy& policy
 
 INSTANTIATE_ALL_METHODS(float)
 INSTANTIATE_ALL_METHODS(double)
-INSTANTIATE_ALL_METHODS(std::int32_t);
+INSTANTIATE_ALL_METHODS(std::int32_t)
 
 #undef INSTANTIATE_ALL_HOST_METHODS
 #undef INSTANTIATE_ALL_METHODS

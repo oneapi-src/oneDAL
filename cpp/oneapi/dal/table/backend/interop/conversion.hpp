@@ -16,6 +16,11 @@
 
 #pragma once
 
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+#define DAAL_SYCL_INTERFACE
+#define DAAL_SYCL_INTERFACE_USM
+#endif
+
 #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/table/common.hpp"
 #include <daal/include/data_management/data/numeric_table.h>
