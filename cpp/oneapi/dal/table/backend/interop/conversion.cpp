@@ -50,13 +50,37 @@ NumericTablePtr convert_to_daal_homogen_table(array<Data>& data,
     return HomogenNumericTable<Data>::create(daal_data, column_count, row_count);
 }
 
+template <typename Data, typename Policy = detail::default_host_policy>
+NumericTablePtr create_homogen_adapter(const Policy& policy, const homogen_table& origin) {
+    return homogen_table_adapter<Policy, Data>::create(policy, origin);
+}
+
+template <typename Policy>
+NumericTablePtr wrap_by_homogen_adapter(const Policy& policy, const homogen_table& table) {
+    const auto& dtype = table.get_metadata().get_data_type(0);
+
+    switch (dtype) {
+        case data_type::float32: return create_homogen_adapter<float>(policy, table);
+        case data_type::float64: return create_homogen_adapter<double>(policy, table);
+        case data_type::int32: return create_homogen_adapter<std::int32_t>(policy, table);
+        default: return NumericTablePtr();
+    }
+}
+
 template <typename AlgorithmFPType>
 NumericTablePtr convert_to_daal_table(const table& table) {
     if (table.get_kind() == homogen_table::kind()) {
         const auto& homogen = static_cast<const homogen_table&>(table);
-        detail::default_host_policy policy;
-
-        return homogen_table_adapter<decltype(policy), AlgorithmFPType>::create(policy, homogen);
+        auto wrapper = wrap_by_homogen_adapter(detail::default_host_policy{}, homogen);
+        if (!wrapper) {
+            auto rows = row_accessor<const AlgorithmFPType>{ homogen }.pull();
+            return convert_to_daal_homogen_table(rows,
+                                                 homogen.get_row_count(),
+                                                 homogen.get_column_count());
+        }
+        else {
+            return wrapper;
+        }
     }
     else {
         auto rows = row_accessor<const AlgorithmFPType>{ table }.pull();
@@ -101,7 +125,18 @@ NumericTablePtr convert_to_daal_table(const detail::data_parallel_policy& policy
 
     if (table.get_kind() == homogen_table::kind()) {
         const auto& homogen = static_cast<const homogen_table&>(table);
-        return homogen_table_adapter<policy_t, AlgorithmFPType>::create(policy, homogen);
+        auto wrapper = wrap_by_homogen_adapter(policy, homogen);
+        if (!wrapper) {
+            auto& queue = policy.get_queue();
+            auto rows = row_accessor<const AlgorithmFPType>{ homogen }.pull(queue);
+            return convert_to_daal_sycl_homogen_table(queue,
+                                                      rows,
+                                                      homogen.get_row_count(),
+                                                      homogen.get_column_count());
+        }
+        else {
+            return wrapper;
+        }
     }
     else {
         auto& queue = policy.get_queue();
