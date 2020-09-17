@@ -14,18 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/io/detail/load_graph_service.hpp"
-#include "oneapi/dal/detail/common.hpp"
-#include "src/externals/service_service.h"
+#include "oneapi/dal/detail/threader.hpp"
 #include "src/threading/threading.h"
-
-using namespace std;
-namespace oneapi::dal::preview::load_graph::detail {
-
-ONEAPI_DAL_EXPORT int daal_string_to_int(const char* nptr, char** endptr) {
-    return daal::internal::Service<>::serv_string_to_int(nptr, endptr);
-}
-} // namespace oneapi::dal::preview::load_graph::detail
 
 ONEAPI_DAL_EXPORT void _daal_threader_for_oneapi(int n,
                                                  int threads_request,
