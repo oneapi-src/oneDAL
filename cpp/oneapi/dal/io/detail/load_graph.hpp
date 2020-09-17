@@ -61,8 +61,6 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     using vertex_t = typename Graph::vertex_type;
     using edge_t = typename Graph::edge_type;
     using vector_vertex_t = typename Graph::vertex_set;
-    using allocator_t = typename Graph::allocator_type;
-    using vertex_size_t = typename Graph::vertex_size_type;
     using atomic_t = typename daal::services::Atomic<vertex_t>;
 
     vertex_t max_id = edges[0].first;
@@ -155,7 +153,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
 
     total_sum_degrees = 0;
     edge_offsets_data[0] = total_sum_degrees;
-    for (vertex_size_t i = 0; i < n_vertex; ++i) {
+    for (vertex_t i = 0; i < n_vertex; ++i) {
         total_sum_degrees += degrees_data[i];
         edge_offsets_data[i + 1] = total_sum_degrees;
     }
