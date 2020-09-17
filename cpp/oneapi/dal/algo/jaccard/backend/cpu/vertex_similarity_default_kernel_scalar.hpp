@@ -116,10 +116,11 @@ vertex_similarity_result call_jaccard_default_kernel_scalar(
             }
         }
     }
-    vertex_similarity_result res(homogen_table::wrap(first_vertices, 2, number_elements_in_block),
-                                 homogen_table::wrap(jaccard, 1, number_elements_in_block),
-                                 nnz);
-    return res;
+
+    return vertex_similarity_result()
+        .set_vertex_pairs(homogen_table::wrap(first_vertices, 2, number_elements_in_block))
+        .set_coeffs(homogen_table::wrap(jaccard, 1, number_elements_in_block))
+        .set_nonzero_coeff_count(nnz);
 }
 } // namespace detail
 } // namespace jaccard

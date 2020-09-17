@@ -61,7 +61,7 @@ private:
 class ONEAPI_DAL_EXPORT vertex_similarity_result {
 public:
     /// Constructs the empty result
-    vertex_similarity_result(){};
+    vertex_similarity_result();
 
     /// Constructs the algorithm result initialized with the table of vertex pairs,
     /// the table of the corresponding computed Jaccard similarity coefficients, and
@@ -78,6 +78,21 @@ public:
                              const table& coeffs,
                              std::int64_t nonzero_coeff_count);
 
+    auto& set_vertex_pairs(const table& value) {
+        set_vertex_pairs_impl(value);
+        return *this;
+    }
+
+    auto& set_coeffs(const table& value) {
+        set_coeffs_impl(value);
+        return *this;
+    }
+
+    auto& set_nonzero_coeff_count(std::int64_t value) {
+        set_nonzero_coeff_count_impl(value);
+        return *this;
+    }
+
     /// Returns the table of size 1*nonzero_coeff_count with non-zero Jaccard
     /// similarity coefficients
     table get_coeffs() const;
@@ -90,6 +105,10 @@ public:
     std::int64_t get_nonzero_coeff_count() const;
 
 private:
+    void set_vertex_pairs_impl(const table&);
+    void set_coeffs_impl(const table&);
+    void set_nonzero_coeff_count_impl(std::int64_t);
+
     dal::detail::pimpl<detail::vertex_similarity_result_impl> impl_;
 };
 } // namespace jaccard
