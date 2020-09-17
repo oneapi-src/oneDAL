@@ -220,7 +220,7 @@ protected:
 
         tlsTask.reduce([&](BruteForceTask * tls) {
             const FPType * kDistancesLocal = tls->kDistances;
-            int * kIndexesLocal      = tls->kIndexes;
+            int * kIndexesLocal            = tls->kIndexes;
 
             for (size_t i = 0; i < iSize; i++)
             {
