@@ -245,6 +245,8 @@ The following computation modes are available:
    computation-batch.rst
    computation-distributed.rst
 
+.. note:: For oneAPI, only batch computation mode is available.
+
 Examples
 ********
 
