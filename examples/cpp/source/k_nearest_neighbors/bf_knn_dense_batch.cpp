@@ -113,7 +113,7 @@ void testModel()
     algorithm.input.set(classifier::prediction::data, testData);
     algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
     algorithm.parameter().nClasses         = nClasses;
-    algorithm.parameter().resultsToCompute = bf_knn_classification::computeDistances | bf_knn_classification::computeIndicesOfNeightbors;
+    algorithm.parameter().resultsToCompute = bf_knn_classification::computeDistances | bf_knn_classification::computeIndicesOfNeighbors;
 
     /* Compute prediction results */
     algorithm.compute();

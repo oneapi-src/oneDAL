@@ -124,7 +124,7 @@ class BFKNNDenseBatch {
         kNearestNeighborsPredict.input.set(NumericTableInputId.data, testData);
         kNearestNeighborsPredict.input.set(ModelInputId.model, model);
         kNearestNeighborsPredict.parameter.setNClasses(nClasses);
-        kNearestNeighborsPredict.parameter.setResultsToCompute(ResultsToComputeId.computeDistances | ResultsToComputeId.computeIndicesOfNeightbors);
+        kNearestNeighborsPredict.parameter.setResultsToCompute(ResultsToComputeId.computeDistances | ResultsToComputeId.computeIndicesOfNeighbors);
 
         /* Compute prediction results */
         PredictionResult predictionResult = kNearestNeighborsPredict.compute();

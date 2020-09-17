@@ -61,7 +61,7 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 
     data_management::NumericTablePtr indices;
     data_management::NumericTablePtr distances;
-    if (par->resultsToCompute & computeIndicesOfNeightbors)
+    if (par->resultsToCompute & computeIndicesOfNeighbors)
     {
         indices = result->get(prediction::indices);
     }

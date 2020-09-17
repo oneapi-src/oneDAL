@@ -28,9 +28,9 @@ import com.intel.daal.utils.*;
  */
 public final class ResultsToComputeId {
 
-    public static final long computeIndicesOfNeightbors = 0x0000000000000001L;
+    public static final long computeIndicesOfNeighbors = 0x0000000000000001L;
         /*!< The flag to compute indices of nearest neighbors */
-    public static final long computeDistances           = 0x0000000000000002L;
+    public static final long computeDistances          = 0x0000000000000002L;
         /*!< The flag to compute distances to nearest neighbors */
 }
 /** @} */
