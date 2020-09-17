@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/detail/threader.hpp"
+#include "oneapi/dal/detail/threading.hpp"
 #include "src/threading/threading.h"
 
 ONEAPI_DAL_EXPORT void _daal_threader_for_oneapi(int n,

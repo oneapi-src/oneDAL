@@ -25,7 +25,7 @@
 #include "oneapi/dal/graph/graph_common.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
 #include "oneapi/dal/io/detail/load_graph_service.hpp"
-#include "oneapi/dal/detail/threader.hpp"
+#include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/io/graph_csv_data_source.hpp"
 #include "oneapi/dal/io/load_graph_descriptor.hpp"
 #include "services/daal_atomic_int.h"
