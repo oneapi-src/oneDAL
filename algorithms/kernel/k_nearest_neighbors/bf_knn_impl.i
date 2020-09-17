@@ -189,9 +189,9 @@ protected:
             int * idx = tlsIdx.local();
             DAAL_CHECK_MALLOC_THR(idx);
 
-            const FPType * maxs            = tls->maxs;
-            FPType * kDistancesLocal = tls->kDistances;
-            const int * kIndexesLocal      = tls->kIndexes;
+            const FPType * maxs       = tls->maxs;
+            FPType * kDistancesLocal  = tls->kDistances;
+            const int * kIndexesLocal = tls->kIndexes;
 
             ReadRows<FPType, cpu> outDataRows(const_cast<NumericTable *>(trainTable), j1, j2 - j1);
             DAAL_CHECK_BLOCK_STATUS_THR(outDataRows);
