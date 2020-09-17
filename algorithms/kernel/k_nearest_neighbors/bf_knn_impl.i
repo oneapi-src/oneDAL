@@ -190,7 +190,7 @@ protected:
             DAAL_CHECK_MALLOC_THR(idx);
 
             const FPType * maxs            = tls->maxs;
-            const FPType * kDistancesLocal = tls->kDistances;
+            FPType * kDistancesLocal = tls->kDistances;
             const int * kIndexesLocal      = tls->kIndexes;
 
             ReadRows<FPType, cpu> outDataRows(const_cast<NumericTable *>(trainTable), j1, j2 - j1);
