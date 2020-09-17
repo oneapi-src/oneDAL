@@ -209,7 +209,6 @@ Samples is an examples of how oneDAL can be used in different applications.
 - [KDB](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/kdb)
 - [MPI](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/mpi)
 - [MySQL](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/mysql)
-- [oneCCL](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/oneccl)
 - [Hadoop](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/java/hadoop)
 - [Java Spark](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/java/spark)
 - [Scala Spark](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/scala/spark)
@@ -219,7 +218,6 @@ Samples is an examples of how oneDAL can be used in different applications.
 Technical preview features are introduced to gain early feedback from developers. A technical preview feature is subject to change in the future releases. Using a technical preview feature in a production code base is therefore strongly discouraged.
 In C++ APIs, technical preview features are located in `daal::preview` and `onedal::preview` namespaces. In Java APIs, technical preview features are located in packages that have the `com.intel.daal.preview` name prefix.
 The preview features list:
-- `MultiNodeBatch` for K-Means, a stepless distributed algorithm based on oneCCL
 - Graph Analytics: 
 	- Undirected graph without edge and vertex weights (undirected_adjacency_array_graph) - 32bit vertex index only
 	- Jaccard Similarity Coefficients for all vertex pairs, a batch algorithm which processes the graph by blocks
