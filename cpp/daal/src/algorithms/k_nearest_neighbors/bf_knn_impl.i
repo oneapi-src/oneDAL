@@ -101,7 +101,7 @@ public:
         {
             newTrainLabelTable->releaseBlockOfRows(trainLabelBlock);
         }
-        
+
         return safeStat.detach();
     }
 
@@ -121,7 +121,7 @@ protected:
             delete object;
             return nullptr;
         }
-        
+
         bool isValid() const { return _buff.get(); }
 
     private:
@@ -226,7 +226,7 @@ protected:
             {
                 mergeNeighbours(i, k, kIndexesLocal, kDistancesLocal, kIndexes, kDistances);
             }
-            
+
             delete tls;
         });
 
@@ -290,9 +290,9 @@ protected:
             if (array[i] < cmp)
             {
                 idx[count++] = i;
-            }    
+            }
         }
-         return count;
+        return count;
     }
 
     void updateLocalNeighbours(size_t indexes, int * idx, size_t jSize, size_t i, size_t k, FPType * kDistances, int * kIndexes, FPType * maxs,
@@ -316,7 +316,7 @@ protected:
                 kIndexes[i * k + maxIdx]   = idx[j] + j1;
             }
         }
-        
+
         FPType max = kDistances[i * k + 0];
         for (size_t kk = 1; kk < k; ++kk)
         {
