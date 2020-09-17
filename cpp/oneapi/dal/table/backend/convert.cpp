@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/table/backend/convert.hpp"
-#include "oneapi/dal/table/backend/interop/data_conversion.hpp"
+#include "oneapi/dal/backend/interop/data_conversion.hpp"
 
 namespace oneapi::dal::backend {
 

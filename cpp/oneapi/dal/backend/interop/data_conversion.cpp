@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/table/backend/interop/data_conversion.hpp"
+#include "oneapi/dal/backend/interop/data_conversion.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
 namespace daal_dm = daal::data_management;
