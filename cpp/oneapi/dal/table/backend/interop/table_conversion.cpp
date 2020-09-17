@@ -35,16 +35,13 @@ template <typename Data>
 NumericTablePtr allocate_daal_homogen_table(int64_t row_count, int64_t column_count) {
     using namespace daal::data_management;
 
-    return HomogenNumericTable<Data>::create(
-        column_count,
-        row_count,
-        NumericTable::doAllocate);
+    return HomogenNumericTable<Data>::create(column_count, row_count, NumericTable::doAllocate);
 }
 
 template <typename Data>
 NumericTablePtr convert_to_daal_homogen_table(array<Data>& data,
-                                          int64_t row_count,
-                                          int64_t column_count) {
+                                              int64_t row_count,
+                                              int64_t column_count) {
     using namespace daal::data_management;
     if (!data.get_count())
         return daal::services::SharedPtr<HomogenNumericTable<Data>>();
@@ -52,9 +49,7 @@ NumericTablePtr convert_to_daal_homogen_table(array<Data>& data,
     const auto daal_data =
         daal::services::SharedPtr<Data>(data.get_mutable_data(), daal_array_owner{ data });
 
-    return HomogenNumericTable<Data>::create(daal_data,
-                                                                    column_count,
-                                                                    row_count);
+    return HomogenNumericTable<Data>::create(daal_data, column_count, row_count);
 }
 
 template <typename AlgorithmFPType>
@@ -89,22 +84,22 @@ table convert_from_daal_homogen_table(const NumericTablePtr& nt) {
 #ifdef ONEAPI_DAL_DATA_PARALLEL
 template <typename Data>
 NumericTablePtr convert_to_daal_sycl_homogen_table(sycl::queue& queue,
-                                               array<Data>& data,
-                                               int64_t row_count,
-                                               int64_t column_count) {
+                                                   array<Data>& data,
+                                                   int64_t row_count,
+                                                   int64_t column_count) {
     data.need_mutable_data(queue);
     const auto daal_data =
         daal::services::SharedPtr<Data>(data.get_mutable_data(), daal_array_owner<Data>{ data });
-    return daal::data_management::SyclHomogenNumericTable<Data>::create(daal_data,
-                                                                     column_count,
-                                                                     row_count,
-                                                                     cl::sycl::usm::alloc::shared);
+    return daal::data_management::SyclHomogenNumericTable<Data>::create(
+        daal_data,
+        column_count,
+        row_count,
+        cl::sycl::usm::alloc::shared);
 }
 
 template <typename AlgorithmFPType>
-NumericTablePtr convert_to_daal_table(
-    const detail::data_parallel_policy& policy,
-    const table& table) {
+NumericTablePtr convert_to_daal_table(const detail::data_parallel_policy& policy,
+                                      const table& table) {
     using policy_t = std::decay_t<decltype(policy)>;
     auto meta = table.get_metadata();
     if (table.get_kind() == homogen_table::kind()) {
@@ -123,22 +118,25 @@ NumericTablePtr convert_to_daal_table(
 
 #endif
 
-#define INSTANTIATE_ALL_HOST_METHODS(Data)  \
-    template NumericTablePtr allocate_daal_homogen_table<Data>(int64_t, int64_t); \
+#define INSTANTIATE_ALL_HOST_METHODS(Data)                                                  \
+    template NumericTablePtr allocate_daal_homogen_table<Data>(int64_t, int64_t);           \
     template NumericTablePtr convert_to_daal_homogen_table(array<Data>&, int64_t, int64_t); \
-    template NumericTablePtr convert_to_daal_table<Data>(const table& table); \
+    template NumericTablePtr convert_to_daal_table<Data>(const table& table);               \
     template table convert_from_daal_homogen_table<Data>(const NumericTablePtr& nt);
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
 
-#define INSTANTIATE_ALL_METHODS(Data) \
-    INSTANTIATE_ALL_HOST_METHODS(Data) \
-    template NumericTablePtr convert_to_daal_sycl_homogen_table(sycl::queue&, array<Data>&, int64_t, int64_t); \
-    template NumericTablePtr convert_to_daal_table<Data>(const detail::data_parallel_policy&, const table&);
+#define INSTANTIATE_ALL_METHODS(Data)                                                         \
+    INSTANTIATE_ALL_HOST_METHODS(Data)                                                        \
+    template NumericTablePtr convert_to_daal_sycl_homogen_table(sycl::queue&,                 \
+                                                                array<Data>&,                 \
+                                                                int64_t,                      \
+                                                                int64_t);                     \
+    template NumericTablePtr convert_to_daal_table<Data>(const detail::data_parallel_policy&, \
+                                                         const table&);
 #else
 
-#define INSTANTIATE_ALL_METHODS(Data) \
-    INSTANTIATE_ALL_HOST_METHODS(Data)
+#define INSTANTIATE_ALL_METHODS(Data) INSTANTIATE_ALL_HOST_METHODS(Data)
 #endif
 
 INSTANTIATE_ALL_METHODS(float)

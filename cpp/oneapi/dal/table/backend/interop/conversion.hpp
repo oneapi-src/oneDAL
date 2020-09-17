@@ -23,12 +23,13 @@
 namespace oneapi::dal::backend::interop {
 
 template <typename Data>
-daal::data_management::NumericTablePtr allocate_daal_homogen_table(std::int64_t row_count, std::int64_t column_count);
+daal::data_management::NumericTablePtr allocate_daal_homogen_table(std::int64_t row_count,
+                                                                   std::int64_t column_count);
 
 template <typename Data>
 daal::data_management::NumericTablePtr convert_to_daal_homogen_table(array<Data>& data,
-                                          std::int64_t row_count,
-                                          std::int64_t column_count);
+                                                                     std::int64_t row_count,
+                                                                     std::int64_t column_count);
 
 template <typename AlgorithmFPType>
 daal::data_management::NumericTablePtr convert_to_daal_table(const table& table);
@@ -38,10 +39,11 @@ table convert_from_daal_homogen_table(const daal::data_management::NumericTableP
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
 template <typename Data>
-daal::data_management::NumericTablePtr convert_to_daal_sycl_homogen_table(sycl::queue& queue,
-                                               array<Data>& data,
-                                               std::int64_t row_count,
-                                               std::int64_t column_count);
+daal::data_management::NumericTablePtr convert_to_daal_sycl_homogen_table(
+    sycl::queue& queue,
+    array<Data>& data,
+    std::int64_t row_count,
+    std::int64_t column_count);
 
 template <typename AlgorithmFPType>
 daal::data_management::NumericTablePtr convert_to_daal_table(

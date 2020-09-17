@@ -44,6 +44,7 @@ class homogen_table_adapter : public daal::data_management::HomogenNumericTable<
 
     using base = daal::data_management::HomogenNumericTable<Data>;
     using ptr_t = daal::services::SharedPtr<homogen_table_adapter>;
+    using ptr_data_t = daal::services::SharedPtr<Data>;
     using status_t = daal::services::Status;
     using rw_mode_t = daal::data_management::ReadWriteMode;
 
@@ -72,14 +73,17 @@ private:
         }
 
         template <typename BlockData>
-        block_info(const block_desc_t<BlockData>& block, std::size_t row_begin_index, std::size_t row_count) {
+        block_info(const block_desc_t<BlockData>& block,
+                   std::size_t row_begin_index,
+                   std::size_t row_count) {
             DAAL_ASSERT(block.getNumberOfRows() < std::numeric_limits<std::int64_t>::max());
             DAAL_ASSERT(block.getNumberOfColumns() < std::numeric_limits<std::int64_t>::max());
             DAAL_ASSERT(row_begin_index < std::numeric_limits<std::int64_t>::max());
             DAAL_ASSERT(row_count < std::numeric_limits<std::int64_t>::max());
 
             const auto block_desc_row_count = static_cast<std::int64_t>(block.getNumberOfRows());
-            const auto block_desc_column_count = static_cast<std::int64_t>(block.getNumberOfColumns());
+            const auto block_desc_column_count =
+                static_cast<std::int64_t>(block.getNumberOfColumns());
 
             this->size = block_desc_row_count * block_desc_column_count; // TODO: check overflow
             this->row_begin_index = static_cast<std::int64_t>(row_begin_index);
@@ -204,9 +208,9 @@ private:
 
     template <typename BlockData>
     status_t read_rows_impl(std::size_t vector_idx,
-                      std::size_t vector_num,
-                      rw_mode_t rwflag,
-                      block_desc_t<BlockData>& block) {
+                            std::size_t vector_num,
+                            rw_mode_t rwflag,
+                            block_desc_t<BlockData>& block) {
         if (rwflag != daal::data_management::readOnly) {
             return status_t(daal::services::ErrorMethodNotImplemented);
         }
@@ -231,6 +235,12 @@ private:
                 set_block_data(values, info.row_count, column_count, block);
             }
         }
+        catch (const bad_alloc&) {
+            return status_t(daal::services::ErrorMemoryAllocationFailed);
+        }
+        catch (const out_of_range&) {
+            return status_t(daal::services::ErrorIncorrectDataRange);
+        }
         catch (const std::exception&) {
             return status_t(daal::services::UnknownError);
         }
@@ -240,10 +250,10 @@ private:
 
     template <typename BlockData>
     status_t read_column_values_impl(std::size_t feature_idx,
-                              std::size_t vector_idx,
-                              std::size_t value_num,
-                              rw_mode_t rwflag,
-                              block_desc_t<BlockData>& block) {
+                                     std::size_t vector_idx,
+                                     std::size_t value_num,
+                                     rw_mode_t rwflag,
+                                     block_desc_t<BlockData>& block) {
         if (rwflag != daal::data_management::readOnly) {
             return status_t(daal::services::ErrorMethodNotImplemented);
         }
@@ -270,6 +280,12 @@ private:
                 set_block_data(values, info.row_count, 1, block);
             }
         }
+        catch (const bad_alloc&) {
+            return status_t(daal::services::ErrorMemoryAllocationFailed);
+        }
+        catch (const out_of_range&) {
+            return status_t(daal::services::ErrorIncorrectDataRange);
+        }
         catch (const std::exception&) {
             return status_t(daal::services::UnknownError);
         }
@@ -290,9 +306,11 @@ private:
 
     template <typename BlockData>
     void set_block_data(array<BlockData>& data,
-                      std::int64_t row_count,
-                      std::int64_t column_count,
-                      block_desc_t<BlockData>& block) {
+                        std::int64_t row_count,
+                        std::int64_t column_count,
+                        block_desc_t<BlockData>& block) {
+        // The following const_cast is safe only when this class is used for read-only
+        // operations. Use on write leads to undefined behaviour.
         auto raw_ptr = const_cast<BlockData*>(data.get_data());
         if constexpr (is_host_only) {
             auto data_shared =
@@ -309,31 +327,60 @@ private:
 #endif
     }
 
-    template <typename Accessor, typename... Args>
-    auto pull_values(const Accessor& acc, Args&&... args) {
+    template <typename Accessor, typename Data, typename... Args>
+    auto pull_values(const Accessor& acc, array<Data>& values, Args&&... args) {
         if constexpr (is_host_only) {
-            return acc.pull(std::forward<Args>(args)...);
+            return acc.pull(values, std::forward<Args>(args)...);
         }
 #ifdef ONEAPI_DAL_DATA_PARALLEL
         else {
+            auto values_data_kind =
+                values.get_count() > 0
+                    ? sycl::get_pointer_type(values.get_data(), policy_.get_queue().get_context())
+                    : data_kind_;
             return acc.pull(policy_.get_queue(),
+                            values,
                             std::forward<Args>(args)...,
-                            sycl::usm::alloc::shared);
+                            values_data_kind);
+        }
+#endif
+    }
+
+    void setup_data_kind(const homogen_table& table) {
+        if constexpr (is_host_only) {
+            return;
+        }
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+        else {
+            auto data = table.get_data();
+            data_kind_ = sycl::get_pointer_type(data, policy_.get_queue().get_context());
         }
 #endif
     }
 
     homogen_table_adapter(const Policy& policy, const homogen_table& table, status_t& stat)
-            : base(const_cast<Data*>(table.get_data<Data>()),
+            // The following const_cast is safe only when this class is used for read-only
+            // operations. Use on write leads to undefined behaviour.
+            : base(daal::data_management::DictionaryIface::equal,
+                   ptr_data_t{ const_cast<Data*>(table.get_data<Data>()),
+                               [data_owner = homogen_table{ table }](auto ptr) mutable {
+                                   data_owner = homogen_table{};
+                               } },
                    table.get_column_count(),
-                   table.get_row_count()),
+                   table.get_row_count(),
+                   stat),
               policy_(policy) {
-        if (table.has_data() == false || table.get_data_layout() != data_layout::row_major) {
+        if (stat.ok() == false) {
+            return;
+        }
+        else if (table.has_data() == false || table.get_data_layout() != data_layout::row_major) {
             stat.add(daal::services::ErrorIncorrectParameter);
             return;
         }
 
         original_table_ = table;
+        setup_data_kind(original_table_);
+
         this->_memStatus = daal::data_management::NumericTableIface::userAllocated;
         this->_layout = daal::data_management::NumericTableIface::aos;
     }
@@ -341,6 +388,10 @@ private:
 private:
     Policy policy_;
     homogen_table original_table_;
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    sycl::usm::alloc data_kind_;
+#endif
 };
 
 } // namespace oneapi::dal::backend::interop

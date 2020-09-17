@@ -52,7 +52,8 @@ void daal_convert_dispatcher(data_type src_type,
     auto to_type = get_daal_conversion_data_type(dest_type);
 
     auto check_types = [](auto from_type, auto to_type) {
-        if (from_type == daal_dm::features::DAAL_OTHER_T || to_type == daal_dm::internal::DAAL_OTHER) {
+        if (from_type == daal_dm::features::DAAL_OTHER_T ||
+            to_type == daal_dm::internal::DAAL_OTHER) {
             throw internal_error("unsupported conversion types");
         }
     };
