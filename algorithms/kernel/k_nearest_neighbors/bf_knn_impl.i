@@ -180,10 +180,10 @@ protected:
             const size_t j2    = (inBlock + 1 == nInBlocks ? inRows : j1 + inBlockSize);
             const size_t jSize = j2 - j1;
 
-            const BruteForceTask * tls = tlsTask.local();
+            const BruteForceTask * const tls = tlsTask.local();
             DAAL_CHECK_MALLOC_THR(tls);
 
-            FPType * distancesBuff = tlsDistances.local();
+            FPType * const distancesBuff = tlsDistances.local();
             DAAL_CHECK_MALLOC_THR(distancesBuff);
 
             int * idx = tlsIdx.local();
