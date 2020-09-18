@@ -61,10 +61,9 @@ static train_result call_daal_kernel(const context_gpu& ctx,
         interop::convert_to_daal_sycl_homogen_table(queue, arr_labels, row_count, 1);
 
     const auto data_use_in_model = daal_knn::doNotUse;
-    daal_knn::Parameter daal_parameter(
-        desc.get_class_count(),
-        desc.get_neighbor_count(),
-        data_use_in_model);
+    daal_knn::Parameter daal_parameter(desc.get_class_count(),
+                                       desc.get_neighbor_count(),
+                                       data_use_in_model);
 
     daal::algorithms::classifier::ModelPtr model_ptr(new daal_knn::Model(column_count));
     if (!model_ptr) {

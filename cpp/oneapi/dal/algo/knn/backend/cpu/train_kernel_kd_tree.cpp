@@ -55,11 +55,10 @@ static train_result call_daal_kernel(const context_cpu& ctx,
 
     const std::int64_t dummy_seed = 777;
     const auto data_use_in_model = daal_knn::doNotUse;
-    daal_knn::Parameter daal_parameter(
-        desc.get_class_count(),
-        desc.get_neighbor_count(),
-        dummy_seed,
-        data_use_in_model);
+    daal_knn::Parameter daal_parameter(desc.get_class_count(),
+                                       desc.get_neighbor_count(),
+                                       dummy_seed,
+                                       data_use_in_model);
 
     Status status;
     const daal::algorithms::classifier::ModelPtr model_ptr =

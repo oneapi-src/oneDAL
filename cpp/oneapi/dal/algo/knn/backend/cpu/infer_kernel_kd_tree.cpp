@@ -52,11 +52,10 @@ static infer_result call_daal_kernel(const context_cpu &ctx,
 
     const std::int64_t dummy_seed = 777;
     const auto data_use_in_model = daal_knn::doNotUse;
-    daal_knn::Parameter daal_parameter(
-        desc.get_class_count(),
-        desc.get_neighbor_count(),
-        dummy_seed,
-        data_use_in_model);
+    daal_knn::Parameter daal_parameter(desc.get_class_count(),
+                                       desc.get_neighbor_count(),
+                                       dummy_seed,
+                                       data_use_in_model);
 
     interop::status_to_exception(interop::call_daal_kernel<Float, daal_knn_kd_tree_kernel_t>(
         ctx,
