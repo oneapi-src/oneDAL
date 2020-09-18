@@ -16,17 +16,17 @@
 *******************************************************************************/
 
 /**
- * @ingroup kdtree_knn_classification
+ * @ingroup bf_knn_classification
  * @{
  */
-package com.intel.daal.algorithms.kdtree_knn_classification;
+package com.intel.daal.algorithms.bf_knn_classification;
 
 import com.intel.daal.utils.*;
 import com.intel.daal.services.DaalContext;
 
 /**
- * <a name="DAAL-CLASS-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__PARAMETER"></a>
- * @brief k nearest neighbors algorithm parameters
+ * <a name="DAAL-CLASS-ALGORITHMS__BF_KNN_CLASSIFICATION__PARAMETER"></a>
+ * @brief brute-force k nearest neighbors algorithm parameters
  */
 public class Parameter extends com.intel.daal.algorithms.classifier.Parameter {
     /** @private */
@@ -57,20 +57,20 @@ public class Parameter extends com.intel.daal.algorithms.classifier.Parameter {
 
     /**
      * @DAAL_DEPRECATED
-     * Sets the seed for random choosing elements from training dataset
-     * @param seed   Seed for random choosing elements from training dataset
+     * Sets the weight function used in prediction voting
+     * @param voteWeights   Weight function used in prediction voting
      */
-    public void setSeed(int seed) {
-        cSetSeed(this.cObject, seed);
+    public void setVoteWeights(VoteWeightsId voteWeights) {
+        cSetVoteWeights(this.cObject, voteWeights.getValue());
     }
 
     /**
      * @DAAL_DEPRECATED
-     * Returns the seed for random choosing elements from training dataset
-     * @return Seed for random choosing elements from training dataset
+     * Returns the weight function used in prediction voting
+     * @return Weight function used in prediction voting
      */
-    public int getSeed() {
-        return cGetSeed(this.cObject);
+    public VoteWeightsId getVoteWeights() {
+        return new VoteWeightsId(cGetVoteWeights(this.cObject));
     }
 
     /**
@@ -113,35 +113,15 @@ public class Parameter extends com.intel.daal.algorithms.classifier.Parameter {
         return cGetResultsToCompute(this.cObject);
     }
 
-    /**
-     * @DAAL_DEPRECATED
-     * Sets the weight function used in prediction voting
-     * @param voteWeights   Weight function used in prediction voting
-     */
-    public void setVoteWeights(VoteWeightsId voteWeights) {
-        cSetVoteWeights(this.cObject, voteWeights.getValue());
-    }
-
-    /**
-     * @DAAL_DEPRECATED
-     * Returns the weight function used in prediction voting
-     * @return Weight function used in prediction voting
-     */
-    public VoteWeightsId getVoteWeights() {
-        return new VoteWeightsId(cGetVoteWeights(this.cObject));
-    }
-
     private native void cSetK(long algAddr, long k);
-    private native void cSetSeed(long algAddr, int seed);
+    private native void cSetVoteWeights(long algAddr, int flag);
     private native void cSetEngine(long cObject, long cEngineObject);
     private native void cSetDataUseInModel(long algAddr, int flag);
     private native void cSetResultsToCompute(long algAddr, long flag);
-    private native void cSetVoteWeights(long algAddr, int flag);
 
     private native long cGetK(long algAddr);
-    private native int cGetSeed(long algAddr);
+    private native int cGetVoteWeights(long algAddr);
     private native int cGetDataUseInModel(long algAddr);
     private native long cGetResultsToCompute(long algAddr);
-    private native int cGetVoteWeights(long algAddr);
 }
 /** @} */
