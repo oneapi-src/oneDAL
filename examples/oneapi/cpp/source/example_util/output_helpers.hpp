@@ -55,8 +55,8 @@ std::ostream &operator<<(std::ostream &stream,
   return stream;
 }
 
-void print_vertex_similarity_result(const oneapi::dal::table &table, const int64_t& nnz_count) {
-  auto arr = oneapi::dal::row_accessor<const float>(table).pull();
+void print_vertex_similarity_result(const oneapi::dal::table &table, int64_t nnz_count) {
+  const auto arr = oneapi::dal::row_accessor<const float>(table).pull();
   const auto x = arr.get_data();
 
   if (table.get_row_count() <= 10) {

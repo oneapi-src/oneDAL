@@ -28,9 +28,9 @@ using namespace oneapi::dal::preview;
 int main(int argc, char **argv) {
     const std::string filename = get_data_path("graph.csv");
 
-    graph_csv_data_source ds(filename);
-    load_graph::descriptor<> d;
-    auto my_graph = load_graph::load(d, ds);
+    const graph_csv_data_source ds(filename);
+    const load_graph::descriptor<> d;
+    const auto my_graph = load_graph::load(d, ds);
 
     std::cout << "Graph is read from file: " << filename << std::endl;
     std::cout << "Number of vertices: " << get_vertex_count(my_graph) << std::endl;
