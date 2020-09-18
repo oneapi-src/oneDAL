@@ -19,6 +19,10 @@
 #include "tbb/global_control.h"
 #include "tbb/parallel_for.h"
 
+#include <chrono> 
+using namespace std;
+using namespace std::chrono;
+
 #include "example_util/utils.hpp"
 #include "oneapi/dal/algo/jaccard.hpp"
 #include "oneapi/dal/graph/graph_service_functions.hpp"
@@ -44,17 +48,17 @@ void vertex_similarity_block_processing(const Graph &g,
 
 int main(int argc, char **argv) {
   // load the graph
-  std::string filename = get_data_path("graph.csv");
+  std::string filename = argv[1];//get_data_path("graph.csv");
   graph_csv_data_source ds(filename);
   load_graph::descriptor<> d;
   auto graph = load_graph::load(d, ds);
 
   // set the block sizes for Jaccard similarity block processing
-  int32_t block_row_count = 2;
-  int32_t block_column_count = 5;
+  int32_t block_row_count = 1;
+  int32_t block_column_count = 1024;
 
   // set the number of threads
-  int32_t tbb_threads_number = 4;
+  int32_t tbb_threads_number = 24;
   tbb::global_control c(tbb::global_control::max_allowed_parallelism,
                         tbb_threads_number);
 
@@ -72,6 +76,7 @@ void vertex_similarity_block_processing(const Graph &g,
   std::vector<jaccard::caching_builder> processing_blocks(
       tbb::this_task_arena::max_concurrency());
 
+  auto start = high_resolution_clock::now();
   // compute the number of vertices in graph
   int32_t vertex_count = get_vertex_count(g);
 
@@ -127,4 +132,6 @@ void vertex_similarity_block_processing(const Graph &g,
         }
       },
       tbb::simple_partitioner{});
+  auto stop = high_resolution_clock::now();
+  cout << std::chrono::duration_cast<std::chrono::duration<double>>(stop - start).count() << endl;
 }
