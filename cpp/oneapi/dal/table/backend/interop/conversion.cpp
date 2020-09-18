@@ -121,8 +121,6 @@ NumericTablePtr convert_to_daal_sycl_homogen_table(sycl::queue& queue,
 template <typename AlgorithmFPType>
 NumericTablePtr convert_to_daal_table(const detail::data_parallel_policy& policy,
                                       const table& table) {
-    using policy_t = std::decay_t<decltype(policy)>;
-
     if (table.get_kind() == homogen_table::kind()) {
         const auto& homogen = static_cast<const homogen_table&>(table);
         auto wrapper = wrap_by_homogen_adapter(policy, homogen);
