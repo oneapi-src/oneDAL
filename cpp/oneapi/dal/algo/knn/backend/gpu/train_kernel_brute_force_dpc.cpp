@@ -67,7 +67,7 @@ static train_result call_daal_kernel(const context_gpu& ctx,
 
     daal::algorithms::classifier::ModelPtr model_ptr(new daal_knn::Model(column_count));
     if (!model_ptr) {
-        throw bad_alloc();
+        throw host_bad_alloc();
     }
 
     auto knn_model = static_cast<daal_knn::Model*>(model_ptr.get());

@@ -82,9 +82,17 @@ public:
     const char* what() const noexcept override;
 };
 
-class ONEAPI_DAL_EXPORT bad_alloc : public exception, public std::bad_alloc {
+class ONEAPI_DAL_EXPORT bad_alloc : public exception, public std::bad_alloc {};
+
+class ONEAPI_DAL_EXPORT host_bad_alloc : public bad_alloc {
 public:
-    bad_alloc() noexcept = default;
+    host_bad_alloc() noexcept = default;
+    const char* what() const noexcept override;
+};
+
+class ONEAPI_DAL_EXPORT device_bad_alloc : public bad_alloc {
+public:
+    device_bad_alloc() noexcept = default;
     const char* what() const noexcept override;
 };
 
