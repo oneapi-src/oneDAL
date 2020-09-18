@@ -84,7 +84,7 @@ public:
         TlsMem<FPType, cpu> tlsMaxs(inBlockSize);
         TlsMem<FPType, cpu> tlsKDistances(inBlockSize * k);
         TlsMem<int, cpu> tlsKIndexes(inBlockSize * k);
-        TlsMem<int, cpu> tlsVoting(nClasses);
+        TlsMem<FPType, cpu> tlsVoting(nClasses);
 
         SafeStatus safeStat;
 
@@ -113,7 +113,7 @@ protected:
                                           int * trainLabel, const NumericTable * trainTable, const NumericTable * testTable,
                                           NumericTable * testLabelTable, NumericTable * indicesTable, NumericTable * distancesTable,
                                           TlsMem<FPType, cpu> & tlsDistances, TlsMem<int, cpu> & tlsIdx, TlsMem<FPType, cpu> & tlsMaxs,
-                                          TlsMem<FPType, cpu> & tlsKDistances, TlsMem<int, cpu> & tlsKIndexes, TlsMem<int, cpu> & tlsVoting)
+                                          TlsMem<FPType, cpu> & tlsKDistances, TlsMem<int, cpu> & tlsKIndexes, TlsMem<FPType, cpu> & tlsVoting)
     {
         FPType * distancesBuff = tlsDistances.local();
         DAAL_CHECK_MALLOC(distancesBuff);
@@ -130,7 +130,7 @@ protected:
         int * kIndexes = tlsKIndexes.local();
         DAAL_CHECK_MALLOC(kIndexes);
 
-        int * voting = tlsVoting.local();
+        FPType * voting = tlsVoting.local();
         DAAL_CHECK_MALLOC(voting);
 
         service_memset_seq<FPType, cpu>(maxs, MaxVal<FPType>::get(), trainBlockSize);
@@ -267,7 +267,7 @@ protected:
     }
 
     services::Status uniformWeightedVoting(const size_t nClasses, const size_t k, const size_t n, const size_t nTrain, int * indices,
-                                           const int * trainLabel, int * testLabel, int * classWeights)
+                                           const int * trainLabel, int * testLabel, FPType * classWeights)
     {
         for (size_t i = 0; i < n; ++i)
         {
@@ -280,7 +280,7 @@ protected:
                 classWeights[trainLabel[indices[i * k + j]]] += 1;
             }
             size_t maxWeightClass = 0;
-            size_t maxWeight      = 0;
+            FPType maxWeight      = 0;
             for (size_t j = 0; j < nClasses; ++j)
             {
                 if (classWeights[j] > maxWeight)
@@ -295,35 +295,41 @@ protected:
     }
 
     services::Status distanceWeightedVoting(const size_t nClasses, const size_t k, const size_t n, const size_t nTrain, FPType * distances,
-                                            int * indices, const int * trainLabel, int * testLabel, int * classWeights)
+                                            int * indices, const int * trainLabel, int * testLabel, FPType * classWeights)
     {
+        typedef daal::internal::Math<FPType, cpu> Math;
+
         const FPType epsilon = daal::services::internal::EpsilonVal<FPType>::get();
-        bool isContainZero   = false;
-        for (size_t i = 0; i < k * n; ++i)
-        {
-            if (distances[i] < epsilon)
-            {
-                isContainZero = true;
-                break;
-            }
-        }
 
         for (size_t i = 0; i < n; ++i)
         {
+            bool isContainZero = false;
+            for (size_t j = 0; j < k * n; ++j)
+            {
+                if (distances[j] <= epsilon)
+                {
+                    isContainZero = true;
+                    break;
+                }
+            }
+
             for (size_t j = 0; j < nClasses; ++j)
             {
                 classWeights[j] = 0;
             }
-            for (size_t j = 0; j < k; ++j)
+            if (isContainZero)
             {
-                if (isContainZero)
+                for (size_t j = 0; j < k; ++j)
                 {
-                    if (distances[i] < epsilon)
+                    if (distances[i] <= epsilon)
                     {
                         classWeights[trainLabel[indices[i * k + j]]] += 1;
                     }
                 }
-                else
+            }
+            else
+            {
+                for (size_t j = 0; j < k; ++j)
                 {
                     classWeights[trainLabel[indices[i * k + j]]] += 1 / distances[i * k + j];
                 }

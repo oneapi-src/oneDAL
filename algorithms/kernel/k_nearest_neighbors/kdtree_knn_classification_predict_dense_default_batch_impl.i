@@ -713,7 +713,10 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
             {
                 for (size_t i = 0; i < heapSize; ++i)
                 {
-                    classWeights[(size_t)(classes[i])] += 1;
+                    if (heap[i].distance <= epsilon)
+                    {
+                        classWeights[(size_t)(classes[i])] += 1;
+                    }
                 }
             }
             else
