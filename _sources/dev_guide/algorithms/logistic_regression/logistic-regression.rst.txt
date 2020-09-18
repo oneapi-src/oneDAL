@@ -75,7 +75,7 @@ For more details, see [Hastie2009]_, [Bishop2006]_.
 
 For the objective function minimization the library supports the
 iterative algorithms defined by the interface of
-|namespace|::algorithms::iterative_solver. See `Iterative Solver <https://software.intel.com/en-us/daal-programming-guide-iterative-solver>`_.
+|namespace|::algorithms::iterative_solver. See :ref:`iterative_solver`.
 
 Prediction Stage
 -----------------

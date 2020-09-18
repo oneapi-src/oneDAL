@@ -816,6 +816,14 @@
 <p class="caption"><span class="caption-text">Notes</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../notes/known_issues.html">Known Issues</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../notes/issues/2021.1-beta09/oneapi-examples-segfault.html">oneAPI examples failing with segfault</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../notes/issues/2021.1-beta09/oneapi-examples-segfault.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../notes/issues/2021.1-beta09/pca-examples-on-gpu.html">PCA examples failing on GPU devices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../notes/issues/2021.1-beta09/pca-examples-on-gpu.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../notes/issues/2021.1-beta08/windows-static-debug-config.html">Static debug configuration not working</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../notes/issues/2021.1-beta08/windows-static-debug-config.html#how-to-fix">How to Fix</a></li>
 </ul>
@@ -1036,9 +1044,9 @@
 
 <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">Method</span><span class="o">&gt;</span>
 <span class="kt">void</span> <span class="n">run_compute</span><span class="p">(</span><span class="n">sycl</span><span class="o">::</span><span class="n">queue</span> <span class="o">&amp;</span><span class="n">queue</span><span class="p">,</span> <span class="n">dal</span><span class="o">::</span><span class="n">table</span> <span class="n">x_train</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">method_name</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">constexpr</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">cluster_count</span>       <span class="o">=</span> <span class="mi">20</span><span class="p">;</span>
+    <span class="k">constexpr</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">cluster_count</span> <span class="o">=</span> <span class="mi">20</span><span class="p">;</span>
     <span class="k">constexpr</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">max_iteration_count</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">;</span>
-    <span class="k">constexpr</span> <span class="kt">double</span> <span class="n">accuracy_threshold</span>        <span class="o">=</span> <span class="mf">0.01</span><span class="p">;</span>
+    <span class="k">constexpr</span> <span class="kt">double</span> <span class="n">accuracy_threshold</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">;</span>
 
     <span class="k">const</span> <span class="k">auto</span> <span class="n">kmeans_init_desc</span> <span class="o">=</span>
         <span class="n">dal</span><span class="o">::</span><span class="n">kmeans_init</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;</span><span class="kt">float</span><span class="p">,</span> <span class="n">Method</span><span class="o">&gt;</span><span class="p">().</span><span class="n">set_cluster_count</span><span class="p">(</span><span class="n">cluster_count</span><span class="p">);</span>

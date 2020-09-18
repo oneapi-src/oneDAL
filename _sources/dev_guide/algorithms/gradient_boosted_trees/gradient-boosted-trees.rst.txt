@@ -145,7 +145,7 @@ Batch Processing
 ****************
 
 Gradient boosted trees classification and regression follows the
-general workflow described in `Usage Model: Training and Prediction <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction-1>`_.
+general workflow described in :ref:`classification_usage_model` and :ref:`regression_usage_model`.
 
 .. rubric:: Training
 
