@@ -43,12 +43,10 @@ public:
 
     auto get_class_count() const -> std::int64_t;
     auto get_neighbor_count() const -> std::int64_t;
-    auto get_data_use_in_model() const -> bool;
 
 protected:
     void set_class_count_impl(std::int64_t value);
     void set_neighbor_count_impl(std::int64_t value);
-    void set_data_use_in_model_impl(bool value);
 
     dal::detail::pimpl<detail::descriptor_impl> impl_;
 };
@@ -67,11 +65,6 @@ public:
 
     auto& set_neighbor_count(std::int64_t value) {
         set_neighbor_count_impl(value);
-        return *this;
-    }
-
-    auto& set_data_use_in_model(bool value) {
-        set_data_use_in_model_impl(value);
         return *this;
     }
 };

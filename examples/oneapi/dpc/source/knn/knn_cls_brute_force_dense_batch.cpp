@@ -35,8 +35,7 @@ void run(sycl::queue& queue) {
     const auto knn_desc =
         dal::knn::descriptor<float, oneapi::dal::knn::method::brute_force>()
             .set_class_count(5)
-            .set_neighbor_count(1)
-            .set_data_use_in_model(false);
+            .set_neighbor_count(1);
 
     const auto x_test = dal::read<dal::table>(queue, dal::csv::data_source{test_data_file_name});
     const auto y_test = dal::read<dal::table>(queue, dal::csv::data_source{test_label_file_name});
