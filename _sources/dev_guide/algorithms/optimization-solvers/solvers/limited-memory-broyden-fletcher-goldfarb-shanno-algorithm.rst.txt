@@ -129,7 +129,7 @@ Computation
 ***********
 
 The limited-memory BFGS algorithm is a special case of an iterative
-solver. For parameters, input, and output of iterative solvers, see `Iterative Solver Computation <https://software.intel.com/en-us/daal-programming-guide-computation-6>`_.
+solver. For parameters, input, and output of iterative solvers, see :ref:`iterative_solver_computation`.
 
 Algorithm Input
 ---------------
