@@ -29,10 +29,12 @@
 #include "src/threading/threading.h"
 #include "src/algorithms/dtrees/dtrees_model_impl.h"
 #include "src/algorithms/engines/engine_types_internal.h"
+#include "src/algorithms/service_heap.h"
 #include "src/services/service_defines.h"
 #include "src/algorithms/distributions/uniform/uniform_kernel.h"
 
 using namespace daal::algorithms::dtrees::training::internal;
+using namespace daal::algorithms::internal;
 
 namespace daal
 {
@@ -44,6 +46,74 @@ namespace training
 {
 namespace internal
 {
+//////////////////////////////////////////////////////////////////////////////////////////
+// Service class, it uses to keep information about nodes
+//////////////////////////////////////////////////////////////////////////////////////////
+template <typename WorkItem, CpuType cpu>
+class BinaryHeap
+{
+public:
+    BinaryHeap(services::Status & s)
+        : _capacity(1024),
+          _count(0),
+          _data(new WorkItem[_capacity]) { DAAL_CHECK_COND_ERROR(_data, s, services::ErrorMemoryAllocationFailed) }
+
+          BinaryHeap(const BinaryHeap &) = delete;
+
+    ~BinaryHeap()
+    {
+        delete[] _data;
+        _data = nullptr;
+    }
+
+    bool empty() const { return (_count == 0); }
+
+    WorkItem & pop()
+    {
+        DAAL_ASSERT(!empty());
+
+        popMaxHeap<cpu>(_data, _data + _count, [](const WorkItem & v1, const WorkItem & v2) -> bool { return v1.improvement < v2.improvement; });
+        --_count;
+        return _data[_count];
+    }
+
+    services::Status push(WorkItem & value)
+    {
+        if (_count == _capacity)
+        {
+            services::Status status = grow();
+            DAAL_CHECK_STATUS_VAR(status)
+        }
+        DAAL_ASSERT(_count < _capacity);
+
+        _data[_count++] = value;
+        makeMaxHeap<cpu>(_data, _data + _count, [](const WorkItem & v1, const WorkItem & v2) -> bool { return v1.improvement < v2.improvement; });
+        return services::Status();
+    }
+
+private:
+    services::Status grow()
+    {
+        const size_t newCapacity = _capacity * 2;
+        DAAL_ASSERT(_count < newCapacity);
+        WorkItem * const newData = new WorkItem[newCapacity];
+        DAAL_CHECK_MALLOC(newData)
+        for (size_t i = 0; i < _count; ++i)
+        {
+            newData[i] = _data[i];
+        }
+        delete[] _data;
+        _data     = newData;
+        _capacity = newCapacity;
+
+        return services::Status();
+    }
+
+    size_t _capacity; // capacity of the heap
+    size_t _count;    // counter of heap elements, the heap grows from left to right
+    WorkItem * _data; // array of heap elements, max element is on the left
+};
+
 //////////////////////////////////////////////////////////////////////////////////////////
 // Service structure, contains numeric tables to be calculated as result
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -372,7 +442,8 @@ protected:
           _accuracy(daal::services::internal::EpsilonVal<algorithmFPType>::get()),
           _minSamplesSplit(2),
           _minWeightLeaf(0.),
-          _minImpurityDecrease(0. - daal::services::internal::EpsilonVal<algorithmFPType>::get() * x->getNumberOfRows())
+          _minImpurityDecrease(-daal::services::internal::EpsilonVal<algorithmFPType>::get() * x->getNumberOfRows()),
+          _maxLeafNodes(0)
     {
         if (_impurityThreshold < _accuracy) _impurityThreshold = _accuracy;
 
@@ -402,6 +473,7 @@ protected:
             }
             _minImpurityDecrease = par.minImpurityDecreaseInSplitNode * x->getNumberOfRows()
                                    - daal::services::internal::EpsilonVal<algorithmFPType>::get() * x->getNumberOfRows();
+            _maxLeafNodes = par.maxLeafNodes;
         }
     }
 
