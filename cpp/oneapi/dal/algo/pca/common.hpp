@@ -21,9 +21,18 @@
 
 namespace oneapi::dal::pca {
 
+namespace task {
+struct dim_reduction {};
+using by_default = dim_reduction;
+} // namespace task
+
 namespace detail {
 struct tag {};
+
+template <typename Task = task::by_default>
 class descriptor_impl;
+
+template <typename Task = task::by_default>
 class model_impl;
 } // namespace detail
 
@@ -33,9 +42,11 @@ struct svd {};
 using by_default = cov;
 } // namespace method
 
+template <typename Task = task::by_default>
 class ONEAPI_DAL_EXPORT descriptor_base : public base {
 public:
     using tag_t = detail::tag;
+    using task_t = Task;
     using float_t = float;
     using method_t = method::by_default;
 
@@ -48,30 +59,34 @@ protected:
     void set_component_count_impl(std::int64_t value);
     void set_is_deterministic_impl(bool value);
 
-    dal::detail::pimpl<detail::descriptor_impl> impl_;
+    dal::detail::pimpl<detail::descriptor_impl<task_t>> impl_;
 };
 
-template <typename Float = descriptor_base::float_t, typename Method = descriptor_base::method_t>
-class descriptor : public descriptor_base {
+template <typename Float = descriptor_base<task::by_default>::float_t,
+          typename Method = descriptor_base<task::by_default>::method_t,
+          typename Task = task::by_default>
+class descriptor : public descriptor_base<Task> {
 public:
     using float_t = Float;
     using method_t = Method;
 
     auto& set_component_count(int64_t value) {
-        set_component_count_impl(value);
+        descriptor_base<Task>::set_component_count_impl(value);
         return *this;
     }
 
     auto& set_is_deterministic(bool value) {
-        set_is_deterministic_impl(value);
+        descriptor_base<Task>::set_is_deterministic_impl(value);
         return *this;
     }
 };
 
+template <typename Task = task::by_default>
 class ONEAPI_DAL_EXPORT model : public base {
     friend dal::detail::pimpl_accessor;
 
 public:
+    using task_t = Task;
     model();
 
     table get_eigenvectors() const;
@@ -84,7 +99,7 @@ public:
 private:
     void set_eigenvectors_impl(const table&);
 
-    dal::detail::pimpl<detail::model_impl> impl_;
+    dal::detail::pimpl<detail::model_impl<task_t>> impl_;
 };
 
 } // namespace oneapi::dal::pca
