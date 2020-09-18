@@ -155,58 +155,58 @@ At the training stage, the gradient boosted trees batch algorithm
 has the following parameters:
 
 .. list-table::
-   :widths: 25 25 25
+   :widths: 10 20 30
    :header-rows: 1
    :align: left
 
    * - Parameter
      - Default Value
      - Description
-   * - splitMethod
-     - inexact
+   * - ``splitMethod``
+     - ``inexact``
      - Split computation mode.
 
        Possible values:
 
-        + inexact - continuous features are bucketed into discrete bins and the buckets borders are examined only
-        + exact - all possible splits for a given feature are examined
+        + ``inexact`` - continuous features are bucketed into discrete bins and the buckets borders are examined only
+        + ``exact`` - all possible splits for a given feature are examined
 
-   * - maxIterations
+   * - ``maxIterations``
      - :math:`50`
      - Maximal number of iterations when training the model, defines maximal number of trees in the model.
-   * - maxTreeDepth
+   * - ``maxTreeDepth``
      - :math:`6`
      - Maximal tree depth. If the parameter is set to :math:`0` then the depth is unlimited.
-   * - shrinkage
+   * - ``shrinkage``
      - :math:`0.3`
      - Learning rate of the boosting procedure. Scales the contribution of each tree by a factor :math:`(0, 1]`
-   * - minSplitLoss
+   * - ``minSplitLoss``
      - :math:`0`
      - Loss regularization parameter. Minimal loss reduction required to make a further partition on a leaf node of the tree. Range: :math:`[0, \infty)`
-   * - lambda
+   * - ``lambda``
      - :math:`1`
      - L2 regularization parameter on weights. Range: :math:`[0, \infty)`
-   * - observationsPerTreeFraction
+   * - ``observationsPerTreeFraction``
      - :math:`1`
-     - Fraction of the training set S used for a single tree training, :math:`0 < observationsPerTreeFraction \leq 1`. The observations are sampled randomly without replacement.
+     - Fraction of the training set S used for a single tree training, :math:`0 < \mathrm{observationsPerTreeFraction} \leq 1`. The observations are sampled randomly without replacement.
    * - featuresPerNode
      - :math:`0`
-     - Number of features tried as the possible splits per node. If the parameter is set to :math:`0`, all features are used.
-   * - minObservationsInLeafNode
+     - The number of features tried as the possible splits per node. If the parameter is set to :math:`0`, all features are used.
+   * - ``minObservationsInLeafNode``
      - :math:`5`
      - Minimal number of observations in the leaf node.
-   * - memorySavingMode
-     - false
+   * - ``memorySavingMode``
+     - ``false``
      - If true then use memory saving (but slower) mode.
-   * - engine
-     - SharePtr< engines:: mt19937:: Batch>()
+   * - ``engine``
+     - `SharePtr< engines:: mt19937:: Batch>()`
      - Pointer to the random number generator.
-   * - maxBins
+   * - ``maxBins``
      - :math:`256`
      - Used with inexact split method only. Maximal number of discrete bins to
        bucket continuous features. Increasing the number results in higher
        computation costs
-   * - minBinSize
+   * - ``minBinSize``
      - :math:`5`
      - Used with inexact split method only. Minimal number of observations in a bin.
 

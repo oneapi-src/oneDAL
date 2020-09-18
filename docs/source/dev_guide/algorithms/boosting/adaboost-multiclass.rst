@@ -138,7 +138,7 @@ At the training stage, an AdaBoost classifier has the following parameters:
      - Description
    * - ``algorithmFPType``
      - ``float``
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
    * - ``method``
      - ``defaultDense``
      - Available methods for computation of the AdaBoost algorithm:
@@ -184,7 +184,7 @@ For more details, see :ref:`algorithms`.
    * - Result ID
      - Result
    * - ``weakLearnersErrors``
-     - Numeric table :math:`1 x \mathrm{maxIterations}` containing weak learner's classification errors
+     - A numeric table :math:`1 \times \mathrm{maxIterations}` containing weak learner's classification errors
        computed when the ``computeWeakLearnersErrors`` option is on.
        
        .. note::
@@ -207,7 +207,7 @@ At the prediction stage, an AdaBoost classifier has the following parameters:
      - Description
    * - ``algorithmFPType``
      - ``float``
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
    * - ``method``
      - ``defaultDense``
      - Performance-oriented computation method, the only method supported by the AdaBoost classifier at the prediction stage.

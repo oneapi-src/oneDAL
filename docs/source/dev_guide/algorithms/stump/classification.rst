@@ -58,7 +58,7 @@ At the training stage, a classification decision stump has the following paramet
        See :ref:`dt_classification` chapter for details.
 
    * - ``varImportance``
-     - none
+     - ``none``
      - .. note:: Variable importance computation is not supported for current version of the library.
    * - ``nClasses``
      - :math:`2`
