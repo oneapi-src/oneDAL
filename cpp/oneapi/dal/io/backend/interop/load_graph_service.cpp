@@ -14,10 +14,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
-
-#include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/io/detail/load_graph_service.hpp"
+#include "src/externals/service_service.h"
 
 namespace oneapi::dal::preview::load_graph::detail {
-ONEAPI_DAL_EXPORT int daal_string_to_int(const char *nptr, char **endptr);
+
+ONEAPI_DAL_EXPORT int daal_string_to_int(const char* nptr, char** endptr) {
+    return daal::internal::Service<>::serv_string_to_int(nptr, endptr);
+}
 } // namespace oneapi::dal::preview::load_graph::detail
