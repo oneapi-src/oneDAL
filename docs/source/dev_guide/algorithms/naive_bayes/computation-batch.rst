@@ -61,19 +61,19 @@ Prediction
 At the prediction stage, Naïve Bayes classifier has the following parameters:
 
 .. list-table::
-   :widths: 25 25 50
+   :widths: 10 20 30
    :header-rows: 1
    :align: left
 
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
      - Performance-oriented computation method, the only method supported by the algorithm.
-   * - nClasses
+   * - ``nClasses``
      - Not applicable
      - The number of classes. A required parameter.

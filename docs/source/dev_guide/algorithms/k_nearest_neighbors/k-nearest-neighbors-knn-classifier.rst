@@ -159,7 +159,7 @@ At the training stage, both Brute Force and K-D tree based kNN classifier have t
 following parameters:
 
 .. list-table::
-   :widths: 25 25 25
+   :widths: 10 20 30
    :header-rows: 1
    :align: left
 
@@ -191,7 +191,7 @@ following parameters:
        If the value is ``doUse``, do not deallocate the memory for input data and labels.
 
    * - ``engine``
-     - SharePtr< engines:: mt19937:: Batch>()
+     - `SharePtr< engines:: mt19937:: Batch>()`
      - Pointer to the random number generator engine that is used internally to
        perform sampling needed to choose dimensions and cut-points for the K-D tree.
 
@@ -204,7 +204,7 @@ At the prediction stage, both Brute Force and K-D tree based kNN classifier have
 following parameters:
 
 .. list-table::
-   :widths: 25 25 25
+   :widths: 10 10 60
    :header-rows: 1
    :align: left
 
@@ -224,6 +224,49 @@ following parameters:
    * - :math:`k`
      - :math:`1`
      - The number of neighbors.
+   * - ``resultsToCompute``
+     - :math:`0`
+     - The 64-bit integer flag that specifies which extra characteristics of the kNN algorithm to compute.
+       Provide one of the following values to request a single characteristic or use bitwise OR to request a combination of the characteristics:
+
+       - ``computeIndicesOfNeighbors``
+       - ``computeDistances``
+
+   * - ``voteWeights``
+     - ``voteUniform``
+     - The voting method for prediction:
+
+       - ``voteUniform`` – Uniform weighting is used. All neighbors weight equally.
+       - ``voteDistance`` – Inverse-distance weighting is used.
+         The closer to the query point the neighbor is, the more it weights.
+
+Output
+------
+
+In addition to classifier output, kNN calculates the results described below.
+Pass the ``Result ID`` as a parameter to the methods that access the result of your algorithm.
+
+.. list-table::
+   :widths: 10 60
+   :header-rows: 1
+   :align: left
+
+   * - Result ID
+     - Result
+   * - ``indices`` 
+     - A numeric table :math:`k \times n` containing indices of rows from training dataset that are nearest neighbors computed when the ``computeIndicesOfNeigtbors`` option is on.
+     
+       .. note::
+       
+          By default, this result is an object of the ``HomogenNumericTable`` class,
+          but you can define the result as an object of any class derived from ``NumericTable``.
+   * - ``distances``
+     - A numeric table :math:`k \times n` containing distances to nearest neighbors computed when the ``computeDistances`` option is on.
+     
+       .. note::
+          
+          By default, this result is an object of the ``HomogenNumericTable`` class,
+          but you can define the result as an object of any class derived from ``NumericTable``.
 
 Examples
 ========

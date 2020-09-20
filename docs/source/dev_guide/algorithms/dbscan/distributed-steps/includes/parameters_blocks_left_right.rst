@@ -32,7 +32,7 @@
 
    * - ``leftBlocks``
      - Not applicable
-     - Number of blocks that will process observations with value of selected split feature smaller than selected split value.
+     - The number of blocks that will process observations with value of selected split feature smaller than selected split value.
    * - ``rightBlocks``
      - Not applicable
-     - Number of blocks that will process observations with value of selected split feature greater than selected split value.
+     - The number of blocks that will process observations with value of selected split feature greater than selected split value.

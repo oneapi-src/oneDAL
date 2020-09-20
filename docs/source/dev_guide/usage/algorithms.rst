@@ -35,7 +35,7 @@ ensure that the structure of the input data, that is, the number of features, th
 The following methods are available to provide input to an algorithm:
 
 .. list-table::
-   :widths: 25 75
+   :widths: 10 60
    :align: left
 
    * - ``input.set(Input ID, InputData)``
