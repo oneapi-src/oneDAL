@@ -22,21 +22,22 @@ Algorithm Input
 ***************
 
 The correlation and variance-covariance matrices algorithm accepts
-the input described below. Pass the Input ID as a parameter to the
+the input described below. Pass the ``Input ID`` as a parameter to the
 methods that provide input for your algorithm.
 
 .. list-table::
    :header-rows: 1
    :align: left
+   :widths: 10 60
 
    * - Input ID
      - Input
-   * - data
+   * - ``data``
      - Pointer to the :math:`n \times p` numeric table for which the variance-covariance or
-       correlation matrix :math:`C` is computed. While the input for defaultDense,
-       singlePassDense, or sumDense method can be an object of any class
-       derived from NumericTable, the input for fastCSR, singlePassCSR, or
-       sumCSR method can only be an object of the CSRNumericTable class.
+       correlation matrix :math:`C` is computed. While the input for ``defaultDense``,
+       ``singlePassDense``, or ``sumDense`` method can be an object of any class
+       derived from ``NumericTable``, the input for ``fastCSR``, ``singlePassCSR``, or
+       ``sumCSR`` method can only be an object of the ``CSRNumericTable`` class.
 
 Algorithm Parameters
 ********************
@@ -47,13 +48,14 @@ following parameters:
 .. list-table::
    :header-rows: 1
    :align: left
+   :widths: 10 20 30
 
    * - Parameter
      - Default Value
      - Description
    * - ``algorithmFPType``
      - ``float``
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
    * - ``method``
      - ``defaultDense``
      - Available methods for computation of correlation and variance-covariance matrices:
@@ -87,32 +89,41 @@ Algorithm Output
 ****************
 
 The correlation and variance-covariance matrices algorithm calculates
-the result described below. Pass the Result ID as a parameter to the
+the result described below. Pass the ``Result ID`` as a parameter to the
 methods that access the results of your algorithm.
 
 .. list-table::
    :header-rows: 1
    :align: left
-
+   :widths: 10 60
 
    * - Result ID
      - Result
    * - ``covariance``
      - Use when outputMatrixType=covarianceMatrix. Pointer to the numeric table
-       with the :math:`p \times p` variance-covariance matrix. By default, this result is an
-       object of the HomogenNumericTable class, but you can define the result
-       as an object of any class derived from NumericTable except
-       PackedTriangularMatrix and CSRNumericTable.
+       with the :math:`p \times p` variance-covariance matrix.
+       
+       .. note::
+       
+          By default, this result is an object of the ``HomogenNumericTable`` class,
+          but you can define the result as an object of any class derived from ``NumericTable``
+          except ``PackedTriangularMatrix`` and ``CSRNumericTable``.
    * - ``correlation``
      - Use when outputMatrixType=correlationMatrix. Pointer to the numeric
-       table with the :math:`p \times p` correlation matrix. By default, this result is an
-       object of the HomogenNumericTable class, but you can define the result
-       as an object of any class derived from NumericTable except
-       PackedTriangularMatrix and CSRNumericTable.
+       table with the :math:`p \times p` correlation matrix.
+
+       .. note::
+       
+          By default, this result is an object of the ``HomogenNumericTable`` class,
+          but you can define the result as an object of any class derived from ``NumericTable``
+          except ``PackedTriangularMatrix`` and ``CSRNumericTable``.
    * - ``mean``
-     - Pointer to the :math:`1 \times p` numeric table with means. By default, this result
-       is an object of the HomogenNumericTable class, but you can define the
-       result as an object of any class derived from NumericTable except
-       PackedTriangularMatrix, PackedSymmetricMatrix, and CSRNumericTable.
+     - Pointer to the :math:`1 \times p` numeric table with means.
+     
+       .. note::
+       
+          By default, this result is an object of the ``HomogenNumericTable`` class,
+          but you can define the result as an object of any class derived from ``NumericTable``
+          except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
 
 .. include:: ../../../opt-notice.rst

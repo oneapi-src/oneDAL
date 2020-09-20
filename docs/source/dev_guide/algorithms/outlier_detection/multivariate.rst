@@ -81,7 +81,7 @@ For more details, see :ref:`algorithms`.
         * - ``location``
           - A set of :math:`0.0`
         * - ``scatter``
-          - Numeric table with diagonal elements equal to :math:`1.0` and non-diagonal elements equal to :math:`0.0`
+          - A numeric table with diagonal elements equal to :math:`1.0` and non-diagonal elements equal to :math:`0.0`
         * - ``threshold``
           - :math:`3.0`
 

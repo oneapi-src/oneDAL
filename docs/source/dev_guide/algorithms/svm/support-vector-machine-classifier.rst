@@ -147,7 +147,7 @@ At the training stage, SVM classifier has the following parameters:
 
 .. list-table::
    :header-rows: 1
-   :widths: 10 10 60
+   :widths: 20 30 60
    :align: left
 
    * - Parameter
@@ -155,7 +155,7 @@ At the training stage, SVM classifier has the following parameters:
      - Description
    * - ``algorithmFPType``
      - ``float``
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
    * - ``method``
      - ``defaultDense``
      - The computation method used by the SVM classifier. Available methods for the training stage:
@@ -208,7 +208,7 @@ At the prediction stage, SVM classifier has the following parameters:
 
 .. list-table::
    :header-rows: 1
-   :widths: 10 10 60
+   :widths: 20 30 60
    :align: left
 
    * - Parameter
@@ -216,7 +216,7 @@ At the prediction stage, SVM classifier has the following parameters:
      - Description
    * - ``algorithmFPType``
      - ``float``
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
    * - ``method``
      - ``defaultDense``
      - Performance-oriented computation method, the only prediction method supported by the algorithm.

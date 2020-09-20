@@ -157,18 +157,18 @@ following parameters:
 
 
 .. list-table::
-   :widths: 25 25 25
+   :widths: 10 10 60
    :header-rows: 1
    :align: left
 
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
      - The computation method used by the decision forest classification.
      
        For CPU:
@@ -179,11 +179,11 @@ following parameters:
 
        - ``hist`` - :ref:`inexact histogram computation method <df_inexact_hist_method>`
 
-   * - nClasses
-     - Not applicable.
+   * - ``nClasses``
+     - Not applicable
      - The number of classes. A required parameter.
-   * - votingMethod
-     - weighted
+   * - ``votingMethod``
+     - ``weighted``
      - A flag that specifies which method is used to compute probabilities and class labels:
 
        weighted
@@ -210,22 +210,22 @@ In addition to the parameters of a classifier, decision forest
 classification has the following parameters at the prediction stage:
 
 .. list-table::
-   :widths: 25 25 25
+   :widths: 10 10 60
    :header-rows: 1
    :align: left
 
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
      - The computation method used by the decision forest classification. The
        only prediction method supported so far is the default dense method.
-   * - nClasses
-     - Not applicable.
+   * - ``nClasses``
+     - Not applicable
      - The number of classes. A required parameter.
 
 Examples
