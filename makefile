@@ -177,7 +177,7 @@ CPPDIR.daal:=$(CPPDIR)/daal
 CPPDIR.onedal:=$(CPPDIR)/oneapi/dal
 WORKDIR    ?= $(DIR)/__work$(CMPLRDIRSUFF.$(COMPILER))/$(PLAT)
 RELEASEDIR ?= $(DIR)/__release_$(_OS)$(CMPLRDIRSUFF.$(COMPILER))
-RELEASEDIR.daal        := $(RELEASEDIR)/daal/latest
+RELEASEDIR.daal        := $(RELEASEDIR)/dal/latest
 RELEASEDIR.lib         := $(RELEASEDIR.daal)/lib
 RELEASEDIR.env         := $(RELEASEDIR.daal)/env
 RELEASEDIR.modulefiles := $(RELEASEDIR.daal)/modulefiles
@@ -188,7 +188,7 @@ RELEASEDIR.jardir      := $(RELEASEDIR.daal)/lib
 RELEASEDIR.libia       := $(RELEASEDIR.daal)/lib$(if $(OS_is_mac),,/$(_IA))
 RELEASEDIR.include     := $(RELEASEDIR.daal)/include
 RELEASEDIR.soia        := $(if $(OS_is_win),$(RELEASEDIR.daal)/redist/$(_IA),$(RELEASEDIR.libia))
-WORKDIR.lib := $(WORKDIR)/daal/lib
+WORKDIR.lib := $(WORKDIR)/dal/lib
 
 COVFILE   := $(subst BullseyeStub,$(RELEASEDIR.daal)/Bullseye_$(_IA).cov,$(COVFILE))
 COV.libia := $(if $(BULLSEYEROOT),$(BULLSEYEROOT)/lib)
@@ -1024,6 +1024,17 @@ endef
 
 ifeq ($(OS_is_win),yes)
 $(foreach a,$(filter %_dll.$a,$(release.LIBS_A)),$(eval $(call .release.add_compat_copy,$a,$(RELEASEDIR.libia),_release_c)))
+endif
+
+# Adds symlink to the old library directory
+# Note: The `ln` command does not support `-r` on MacOS, so we
+#       `cd`to the lib directory first and then create symlink.
+ifeq ($(if $(or $(OS_is_lnx),$(OS_is_mac)),yes,),yes)
+_release_c: cd $(RELEASEDIR) && ln -sf daal dal
+endef
+
+ifeq ($(OS_is_win),yes)
+_release_c: cd $(RELEASEDIR) && mklink /D daal dal
 endif
 
 #----- releasing jar files
