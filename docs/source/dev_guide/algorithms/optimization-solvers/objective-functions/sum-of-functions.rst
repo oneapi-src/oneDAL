@@ -50,7 +50,7 @@ For more details, see :ref:`algorithms`.
    * - Input ID
      - Input
    * - ``argument``
-     - Numeric table of size :math:`p \times 1` with the input argument of the objective function.
+     - A numeric table of size :math:`p \times 1` with the input argument of the objective function.
 
 Algorithm Parameters
 --------------------

@@ -31,7 +31,7 @@ Algorithm Parameters
 At the training stage, implicit ALS recommender in the distributed processing mode has the following parameters:
 
 .. list-table::
-   :widths: 10 20 30
+   :widths: 10 10 60
    :header-rows: 1
    :align: left
 
@@ -216,7 +216,7 @@ For more details, see :ref:`algorithms`.
    * - ``partialModel``
      - Partial model computed on the local node.
    * - ``offset``
-     - Numeric table of size :math:`1 \times 1` that holds the global index of the starting row of the input partial model.
+     - A numeric table of size :math:`1 \times 1` that holds the global index of the starting row of the input partial model.
        A part of the key-value data collection ``offsets`` computed at the initialization stage of the algorithm.
 
 In this step, implicit ALS recommender training calculates the result described below.
