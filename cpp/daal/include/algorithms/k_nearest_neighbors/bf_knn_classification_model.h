@@ -59,7 +59,7 @@ enum DataUseInModel
 enum ResultToComputeId
 {
     computeIndicesOfNeighbors = 0x00000001ULL, /*!< The flag to compute indices of nearest neighbors */
-    computeDistances           = 0x00000002ULL  /*!< The flag to compute distances to nearest neighbors */
+    computeDistances          = 0x00000002ULL  /*!< The flag to compute distances to nearest neighbors */
 };
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__BF_KNN_CLASSIFICATION__RESULTTOCOMPUTEID"></a>
