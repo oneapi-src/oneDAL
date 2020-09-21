@@ -191,9 +191,7 @@ public:
         return _value.get<T>();
     }
 
-    const services::internal::Any & getRaw() const {
-        return _value;
-    }
+    const services::internal::Any & getRaw() const { return _value; }
 
 private:
     TypeId _dataType;

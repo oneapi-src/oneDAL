@@ -381,10 +381,7 @@ private:
 class BufferStorage
 {
 public:
-    void add(const services::internal::Any & buffer)
-    {
-        _buffers.push_back(buffer);
-    }
+    void add(const services::internal::Any & buffer) { _buffers.push_back(buffer); }
 
 private:
     std::vector<services::internal::Any> _buffers;

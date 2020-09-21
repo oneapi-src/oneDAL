@@ -503,12 +503,14 @@ public:
         if (!s) return s;
 
         NumericTablePtr nt;
-        if (isCpuContext()) {
+        if (isCpuContext())
+        {
             services::SharedPtr<numericTableType> cpuNt;
             s |= allocateNumericTableImpl(cpuNt);
             nt = cpuNt;
         }
-        else {
+        else
+        {
             services::SharedPtr<SyclHomogenNumericTable<DAAL_DATA_TYPE> > syclNt;
             s |= allocateNumericTableImpl(syclNt);
             nt = syclNt;
