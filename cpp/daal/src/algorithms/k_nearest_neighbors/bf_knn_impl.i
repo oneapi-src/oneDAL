@@ -239,7 +239,7 @@ protected:
             daal::algorithms::internal::qSort<FPType, int, cpu>(k, kDistances + i * k, kIndexes + i * k);
         }
 
-        if (resultsToCompute & computeIndicesOfNeightbors)
+        if (resultsToCompute & computeIndicesOfNeighbors)
         {
             daal::internal::WriteOnlyRows<int, cpu> indexesBlock(indicesTable, startTestIdx, blockSize);
             DAAL_CHECK_BLOCK_STATUS(indexesBlock);
