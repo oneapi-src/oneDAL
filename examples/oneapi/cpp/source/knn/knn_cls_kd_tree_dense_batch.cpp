@@ -36,8 +36,7 @@ int main(int argc, char const *argv[]) {
   const auto knn_desc =
       dal::knn::descriptor<float, oneapi::dal::knn::method::kd_tree>()
           .set_class_count(5)
-          .set_neighbor_count(1)
-          .set_data_use_in_model(false);
+          .set_neighbor_count(1);
 
   const auto train_result = dal::train(knn_desc, x_train, y_train);
 
