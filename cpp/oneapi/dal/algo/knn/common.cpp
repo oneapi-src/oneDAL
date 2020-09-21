@@ -24,7 +24,6 @@ class detail::descriptor_impl : public base {
 public:
     std::int64_t class_count = 2;
     std::int64_t neighbor_count = 1;
-    bool data_use_in_model = false;
 };
 
 using detail::descriptor_impl;
@@ -40,10 +39,6 @@ std::int64_t descriptor_base::get_neighbor_count() const {
     return impl_->neighbor_count;
 }
 
-bool descriptor_base::get_data_use_in_model() const {
-    return impl_->data_use_in_model;
-}
-
 void descriptor_base::set_class_count_impl(std::int64_t value) {
     if (value < 2) {
         throw domain_error("class_count should be > 1");
@@ -56,10 +51,6 @@ void descriptor_base::set_neighbor_count_impl(std::int64_t value) {
         throw domain_error("neighbor_count should be > 0");
     }
     impl_->neighbor_count = value;
-}
-
-void descriptor_base::set_data_use_in_model_impl(bool value) {
-    impl_->data_use_in_model = value;
 }
 
 class empty_model_impl : public detail::model_impl {};
