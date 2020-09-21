@@ -39,7 +39,7 @@ void make_mutable_data(const Policy& policy, array<Data>& array) {
     }
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     else if constexpr (std::is_same_v<Policy, detail::data_parallel_policy>) {
-        auto queue = policy.get_queue();
+        auto& queue = policy.get_queue();
         auto kind = sycl::get_pointer_type(array.get_data(), queue.get_context());
         array.need_mutable_data(queue, kind);
     }
