@@ -22,12 +22,36 @@
 
 namespace oneapi::dal::detail {
 
+#ifdef ONEAPI_DAL_DEBUG
+#include <cassert>
+#define oneapi_dal_assert(cond) assert(cond)
+#else
+#define oneapi_dal_assert(cond)
+#endif
+
 template <typename Data>
 inline void throw_if_sum_overflow(const Data& first, const Data& second) {
+    static_assert(std::is_integral_v<Data>,
+                  "Check requires integral operands");
+
     volatile Data tmp = first + second;
-    tmp -= second;
+    tmp -= first;
     if (tmp != second) {
         throw range_error("overflow found in sum of two values");
+    }
+}
+
+template <typename Data>
+inline void throw_if_mul_overflow(const Data& first, const Data& second) {
+    static_assert(std::is_integral_v<Data>,
+                  "Check requires integral operands");
+
+    if (first != 0 && second != 0) {
+        volatile Data tmp = first * second;
+        tmp /= first;
+        if (tmp != second) {
+            throw range_error("overflow found in multiplication of two values");
+        }
     }
 }
 
