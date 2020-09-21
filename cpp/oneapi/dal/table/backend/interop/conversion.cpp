@@ -67,13 +67,13 @@ NumericTablePtr wrap_by_homogen_adapter(const Policy& policy, const homogen_tabl
     }
 }
 
-template <typename AlgorithmFPType>
+template <typename Float>
 NumericTablePtr convert_to_daal_table(const table& table) {
     if (table.get_kind() == homogen_table::kind()) {
         const auto& homogen = static_cast<const homogen_table&>(table);
         auto wrapper = wrap_by_homogen_adapter(detail::default_host_policy{}, homogen);
         if (!wrapper) {
-            auto rows = row_accessor<const AlgorithmFPType>{ homogen }.pull();
+            auto rows = row_accessor<const Float>{ homogen }.pull();
             return convert_to_daal_homogen_table(rows,
                                                  homogen.get_row_count(),
                                                  homogen.get_column_count());
@@ -83,7 +83,7 @@ NumericTablePtr convert_to_daal_table(const table& table) {
         }
     }
     else {
-        auto rows = row_accessor<const AlgorithmFPType>{ table }.pull();
+        auto rows = row_accessor<const Float>{ table }.pull();
         return convert_to_daal_homogen_table(rows, table.get_row_count(), table.get_column_count());
     }
 }
@@ -118,7 +118,7 @@ NumericTablePtr convert_to_daal_sycl_homogen_table(sycl::queue& queue,
         cl::sycl::usm::alloc::shared);
 }
 
-template <typename AlgorithmFPType>
+template <typename Float>
 NumericTablePtr convert_to_daal_table(const detail::data_parallel_policy& policy,
                                       const table& table) {
     if (table.get_kind() == homogen_table::kind()) {
@@ -126,7 +126,7 @@ NumericTablePtr convert_to_daal_table(const detail::data_parallel_policy& policy
         auto wrapper = wrap_by_homogen_adapter(policy, homogen);
         if (!wrapper) {
             auto& queue = policy.get_queue();
-            auto rows = row_accessor<const AlgorithmFPType>{ homogen }.pull(queue);
+            auto rows = row_accessor<const Float>{ homogen }.pull(queue);
             return convert_to_daal_sycl_homogen_table(queue,
                                                       rows,
                                                       homogen.get_row_count(),
@@ -138,7 +138,7 @@ NumericTablePtr convert_to_daal_table(const detail::data_parallel_policy& policy
     }
     else {
         auto& queue = policy.get_queue();
-        auto rows = row_accessor<const AlgorithmFPType>{ table }.pull(queue);
+        auto rows = row_accessor<const Float>{ table }.pull(queue);
         return convert_to_daal_sycl_homogen_table(queue,
                                                   rows,
                                                   table.get_row_count(),

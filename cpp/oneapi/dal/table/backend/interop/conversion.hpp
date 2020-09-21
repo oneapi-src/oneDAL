@@ -36,7 +36,7 @@ daal::data_management::NumericTablePtr convert_to_daal_homogen_table(array<Data>
                                                                      std::int64_t row_count,
                                                                      std::int64_t column_count);
 
-template <typename AlgorithmFPType>
+template <typename Float>
 daal::data_management::NumericTablePtr convert_to_daal_table(const table& table);
 
 template <typename Data>
@@ -50,7 +50,7 @@ daal::data_management::NumericTablePtr convert_to_daal_sycl_homogen_table(
     std::int64_t row_count,
     std::int64_t column_count);
 
-template <typename AlgorithmFPType>
+template <typename Float>
 daal::data_management::NumericTablePtr convert_to_daal_table(
     const detail::data_parallel_policy& policy,
     const table& table);
