@@ -108,7 +108,10 @@ void testModel()
     algorithm.input.set(classifier::prediction::data, testData);
     algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
     algorithm.parameter.nClasses = nClasses;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 1ee79bb64... kNN class voting and examples fix (#981)
 
     /* Compute prediction results */
     algorithm.compute();

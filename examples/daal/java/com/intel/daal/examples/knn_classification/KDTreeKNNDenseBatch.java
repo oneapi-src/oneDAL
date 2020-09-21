@@ -125,7 +125,10 @@ class KDTreeKNNDenseBatch {
         kNearestNeighborsPredict.input.set(NumericTableInputId.data, testData);
         kNearestNeighborsPredict.input.set(ModelInputId.model, model);
         kNearestNeighborsPredict.parameter.setNClasses(nClasses);
+<<<<<<< HEAD
         kNearestNeighborsPredict.parameter.setResultsToCompute(ResultsToComputeId.computeDistances | ResultsToComputeId.computeIndicesOfNeighbors);
+=======
+>>>>>>> 1ee79bb64... kNN class voting and examples fix (#981)
 
         /* Compute prediction results */
         PredictionResult predictionResult = kNearestNeighborsPredict.compute();
