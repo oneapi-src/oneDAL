@@ -297,7 +297,7 @@ Examples
 
     Batch Processing:
 
-    - :java_example:`KDTreeKNNDenseBatch.java <kdtree_knn_classification/KDTreeKNNDenseBatch.java>`
+    - :java_example:`KDTreeKNNDenseBatch.java <knn_classification/KDTreeKNNDenseBatch.java>`
 
   .. tab:: Python* with DPC++ support
 
