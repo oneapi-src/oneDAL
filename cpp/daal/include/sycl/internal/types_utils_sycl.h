@@ -1,4 +1,4 @@
-/* file: types_utils_cxx11.h */
+/* file: types_utils_sycl.h */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -16,12 +16,12 @@
 *******************************************************************************/
 
 #ifdef DAAL_SYCL_INTERFACE
-#ifndef __DAAL_ONEAPI_INTERNAL_TYPES_UTILS_CXX11_H__
-#define __DAAL_ONEAPI_INTERNAL_TYPES_UTILS_CXX11_H__
+    #ifndef __DAAL_ONEAPI_INTERNAL_TYPES_UTILS_CXX11_H__
+        #define __DAAL_ONEAPI_INTERNAL_TYPES_UTILS_CXX11_H__
 
-#include <CL/sycl.hpp>
+        #include <CL/sycl.hpp>
 
-#include "sycl/internal/types_utils.h"
+        #include "sycl/internal/types_utils.h"
 
 namespace daal
 {
@@ -42,16 +42,13 @@ namespace interface1
 class BufferAllocator
 {
 private:
-    struct UsmDeleter {
+    struct UsmDeleter
+    {
         cl::sycl::queue queue;
 
-        explicit UsmDeleter(const cl::sycl::queue & q)
-            : queue(q) {}
+        explicit UsmDeleter(const cl::sycl::queue & q) : queue(q) {}
 
-        void operator()(const void * ptr) const {
-
-            cl::sycl::free(const_cast<void *>(ptr), queue);
-        }
+        void operator()(const void * ptr) const { cl::sycl::free(const_cast<void *>(ptr), queue); }
     };
 
     struct Allocate
@@ -60,16 +57,14 @@ private:
         size_t bufferSize;
         UniversalBuffer buffer;
 
-        explicit Allocate(cl::sycl::queue & q, size_t size) :
-            queue(q),
-            bufferSize(size) {}
+        explicit Allocate(cl::sycl::queue & q, size_t size) : queue(q), bufferSize(size) {}
 
         template <typename T>
         void operator()(Typelist<T>)
         {
             // buffer = services::Buffer<T>(cl::sycl::buffer<T, 1>(bufferSize));
             T * usmPtr = static_cast<T *>(cl::sycl::malloc_shared(sizeof(T) * bufferSize, queue));
-            services::SharedPtr<T> usmSharedPtr(usmPtr, UsmDeleter{queue});
+            services::SharedPtr<T> usmSharedPtr(usmPtr, UsmDeleter { queue });
             buffer = services::Buffer<T>(usmSharedPtr, bufferSize, cl::sycl::usm::alloc::shared);
         }
     };
@@ -212,5 +207,5 @@ using interface1::BufferFiller;
 } // namespace oneapi
 } // namespace daal
 
-#endif
+    #endif
 #endif // DAAL_SYCL_INTERFACE
