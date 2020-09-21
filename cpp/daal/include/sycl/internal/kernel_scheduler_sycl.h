@@ -33,7 +33,7 @@
 
         #include "sycl/internal/error_handling.h"
         #include "sycl/internal/execution_context.h"
-        #include "sycl/internal/types_utils_cxx11.h"
+        #include "sycl/internal/types_utils_sycl.h"
         #include "services/daal_string.h"
 
 namespace daal

@@ -15,8 +15,11 @@
 * limitations under the License.
 *******************************************************************************/
 
+#ifdef DAAL_SYCL_INTERFACE
 #ifndef __DAAL_ONEAPI_INTERNAL_TYPES_UTILS_CXX11_H__
 #define __DAAL_ONEAPI_INTERNAL_TYPES_UTILS_CXX11_H__
+
+#include <CL/sycl.hpp>
 
 #include "sycl/internal/types_utils.h"
 
@@ -39,24 +42,42 @@ namespace interface1
 class BufferAllocator
 {
 private:
+    struct UsmDeleter {
+        cl::sycl::queue queue;
+
+        explicit UsmDeleter(const cl::sycl::queue & q)
+            : queue(q) {}
+
+        void operator()(const void * ptr) const {
+
+            cl::sycl::free(const_cast<void *>(ptr), queue);
+        }
+    };
+
     struct Allocate
     {
-        UniversalBuffer buffer;
+        cl::sycl::queue & queue;
         size_t bufferSize;
+        UniversalBuffer buffer;
 
-        explicit Allocate(size_t size) : bufferSize(size) {}
+        explicit Allocate(cl::sycl::queue & q, size_t size) :
+            queue(q),
+            bufferSize(size) {}
 
         template <typename T>
         void operator()(Typelist<T>)
         {
-            buffer = services::Buffer<T>(cl::sycl::buffer<T, 1>(bufferSize));
+            // buffer = services::Buffer<T>(cl::sycl::buffer<T, 1>(bufferSize));
+            T * usmPtr = static_cast<T *>(cl::sycl::malloc_shared(sizeof(T) * bufferSize, queue));
+            services::SharedPtr<T> usmSharedPtr(usmPtr, UsmDeleter{queue});
+            buffer = services::Buffer<T>(usmSharedPtr, bufferSize, cl::sycl::usm::alloc::shared);
         }
     };
 
 public:
-    static UniversalBuffer allocate(TypeId type, size_t bufferSize)
+    static UniversalBuffer allocate(cl::sycl::queue & queue, TypeId type, size_t bufferSize)
     {
-        Allocate allocateOp(bufferSize);
+        Allocate allocateOp(queue, bufferSize);
         TypeDispatcher::dispatch(type, allocateOp);
         return allocateOp.buffer;
     }
@@ -192,3 +213,4 @@ using interface1::BufferFiller;
 } // namespace daal
 
 #endif
+#endif // DAAL_SYCL_INTERFACE
