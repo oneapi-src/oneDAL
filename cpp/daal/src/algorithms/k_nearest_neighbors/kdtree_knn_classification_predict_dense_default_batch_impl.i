@@ -672,7 +672,7 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
         algorithmFpType * classWeights = static_cast<algorithmFpType *>(daal::services::internal::service_malloc<algorithmFpType, cpu>(nClasses));
         DAAL_CHECK_MALLOC(classWeights);
         DAAL_CHECK_MALLOC(classes);
-        
+
         for (size_t i = 0; i < nClasses; ++i)
         {
             classWeights[i] = 0;
