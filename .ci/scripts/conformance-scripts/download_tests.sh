@@ -46,13 +46,13 @@ case ${ALG_NAME} in
     ;;
     
     "svm_sparse")
-        cp ${SKLEARN_PATH}svm/tests/test_sparse.py test_svm_sparse.py
+        wget -O test_svm_sparse.py ${SKLEARN_URL_ROOT}svm/tests/test_sparse.py
     ;;
     "forest")
-        cp ${SKLEARN_PATH}ensemble/tests/test_forest.py
+        wget -O test_forest.py ${SKLEARN_URL_ROOT}ensemble/tests/test_forest.py
     ;;
     "knn")
-        cp ${SKLEARN_PATH}neighbors/tests/test_neighbors.py
+        wget -O test_knn.py ${SKLEARN_URL_ROOT}neighbors/tests/test_neighbors.py
     ;;
     *)
         echo "Unknown algorithm: ${ALG_NAME}"
