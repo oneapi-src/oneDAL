@@ -91,7 +91,7 @@ For more details, see :ref:`algorithms`.
 .. note:: These tables can be objects of any class derived from ``NumericTable``.
 
 In this step, Naïve Bayes classifier training calculates the result described below.
-Pass the Result ID as a parameter to the methods that access the results of your algorithm.
+Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
 .. list-table::

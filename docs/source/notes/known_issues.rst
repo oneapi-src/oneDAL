@@ -26,6 +26,13 @@ For more details, refer to |dpcpp_comp_release_notes|_.
 
 .. toctree::
   :maxdepth: 1
+  :caption: 2021.1-beta09
+
+  issues/2021.1-beta09/oneapi-examples-segfault.rst
+  issues/2021.1-beta09/pca-examples-on-gpu.rst
+
+.. toctree::
+  :maxdepth: 1
   :caption: 2021.1-beta08
 
   issues/2021.1-beta08/windows-static-debug-config.rst

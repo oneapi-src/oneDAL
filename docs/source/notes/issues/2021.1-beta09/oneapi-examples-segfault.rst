@@ -14,25 +14,17 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. list-table::
-   :widths: 10 10 60
-   :header-rows: 1
+oneAPI examples failing with segfault
+*************************************
 
-   * - Parameter
-     - Default Valude
-     - Description
-   * - ``algorithmFPType``
-     - ``float``
-     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
-   * - ``method``
-     - ``defaultDense``
-     - Available methods for computation of DBSCAN algorithm:
+oneAPI examples located in the ``examples/oneapi`` directory are failing with a segmentation fault (segfault).
+This happens because the directory that contains data is skipped during installation.
 
-       - ``defaultDense`` – uses brute-force for neighborhood computation
+How to Fix
+----------
 
-   * - ``blockIndex``
-     - Not applicable
-     - Unique identifier of block initially passed for computation on the local node.
-   * - ``nBlocks``
-     - Not applicable
-     - The number of blocks initially passed for computation on all nodes.
+The workaround is to copy the missing directory from the source repository:
+
+#. Copy the `missing data directory <https://github.com/oneapi-src/oneDAL/tree/rls/onedal-beta09-rls/examples/oneapi/data>`_ from |short_name| repository.
+
+#. Place the ``data`` directory within the ``examples/oneapi`` directory on your machine.

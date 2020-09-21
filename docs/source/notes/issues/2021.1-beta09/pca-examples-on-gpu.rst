@@ -14,25 +14,20 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. list-table::
-   :widths: 10 10 60
-   :header-rows: 1
+PCA examples failing on GPU devices
+***********************************
 
-   * - Parameter
-     - Default Valude
-     - Description
-   * - ``algorithmFPType``
-     - ``float``
-     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
-   * - ``method``
-     - ``defaultDense``
-     - Available methods for computation of DBSCAN algorithm:
+Prinical Component Analysis (PCA) examples are failing on GPU devices but work on CPU-only systems.
 
-       - ``defaultDense`` – uses brute-force for neighborhood computation
+.. code-block:: text
 
-   * - ``blockIndex``
-     - Not applicable
-     - Unique identifier of block initially passed for computation on the local node.
-   * - ``nBlocks``
-     - Not applicable
-     - The number of blocks initially passed for computation on all nodes.
+    terminate called after throwing an instance of 'oneapi::dal::internal_error'
+    what():  Result eigenvalues should not be empty
+
+How to Fix
+----------
+
+There is no workaround available.
+
+You can evaluate examples located in the ``examples/daal/cpp_sycl`` directory.
+They provide oneAPI support and work on both CPU and GPU devices.

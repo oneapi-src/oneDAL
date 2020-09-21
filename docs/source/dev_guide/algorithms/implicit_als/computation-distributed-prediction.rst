@@ -32,7 +32,7 @@ Algorithm Parameters
 At the prediction stage, implicit ALS recommender in the distributed processing mode has the following parameters:
 
 .. list-table::
-   :widths: 10 20 30
+   :widths: 10 10 60
    :header-rows: 1
    :align: left
 

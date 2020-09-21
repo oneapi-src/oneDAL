@@ -1,4 +1,3 @@
-/* file: kmeans_dense_lloyd_multinode_batch_fpt_dispatcher.cpp */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -15,20 +14,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of K-means algorithm container -- a class that contains
-//  Lloyd K-means kernels for supported architectures.
-//--
-*/
+#include "oneapi/dal/detail/threading.hpp"
+#include "src/threading/threading.h"
 
-#include "src/algorithms/kmeans/kmeans_multinode_batch_container.h"
-
-namespace daal
-{
-namespace algorithms
-{
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(preview::kmeans::interface1::MultiNodeBatchContainer, batch, DAAL_FPTYPE,
-                                           preview::kmeans::interface1::defaultDense)
-} // namespace algorithms
-} // namespace daal
+ONEAPI_DAL_EXPORT void _daal_threader_for_oneapi(int n,
+                                                 int threads_request,
+                                                 const void* a,
+                                                 oneapi::dal::preview::functype func) {
+    _daal_threader_for(n, threads_request, a, static_cast<daal::functype>(func));
+}
