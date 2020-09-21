@@ -39,39 +39,39 @@ using detail::model_impl;
 template <typename Task>
 descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl{}) {}
 
-template <typename Task>
-std::int64_t descriptor_base<Task>::get_cluster_count() const {
+template <>
+std::int64_t descriptor_base<task::clustering>::get_cluster_count() const {
     return impl_->cluster_count;
 }
 
-template <typename Task>
-std::int64_t descriptor_base<Task>::get_max_iteration_count() const {
+template <>
+std::int64_t descriptor_base<task::clustering>::get_max_iteration_count() const {
     return impl_->max_iteration_count;
 }
 
-template <typename Task>
-double descriptor_base<Task>::get_accuracy_threshold() const {
+template <>
+double descriptor_base<task::clustering>::get_accuracy_threshold() const {
     return impl_->accuracy_threshold;
 }
 
-template <typename Task>
-void descriptor_base<Task>::set_cluster_count_impl(std::int64_t value) {
+template <>
+void descriptor_base<task::clustering>::set_cluster_count_impl(std::int64_t value) {
     if (value <= 0) {
         throw domain_error("cluster_count should be > 0");
     }
     impl_->cluster_count = value;
 }
 
-template <typename Task>
-void descriptor_base<Task>::set_max_iteration_count_impl(std::int64_t value) {
+template <>
+void descriptor_base<task::clustering>::set_max_iteration_count_impl(std::int64_t value) {
     if (value < 0) {
         throw domain_error("max_iteration_count should be >= 0");
     }
     impl_->max_iteration_count = value;
 }
 
-template <typename Task>
-void descriptor_base<Task>::set_accuracy_threshold_impl(double value) {
+template <>
+void descriptor_base<task::clustering>::set_accuracy_threshold_impl(double value) {
     if (value < 0.0) {
         throw domain_error("accuracy_threshold should be >= 0.0");
     }
@@ -81,18 +81,18 @@ void descriptor_base<Task>::set_accuracy_threshold_impl(double value) {
 template <typename Task>
 model<Task>::model() : impl_(new model_impl{}) {}
 
-template <typename Task>
-table model<Task>::get_centroids() const {
+template <>
+table model<task::clustering>::get_centroids() const {
     return impl_->centroids;
 }
 
-template <typename Task>
-std::int64_t model<Task>::get_cluster_count() const {
+template <>
+std::int64_t model<task::clustering>::get_cluster_count() const {
     return impl_->centroids.get_row_count();
 }
 
-template <typename Task>
-void model<Task>::set_centroids_impl(const table& value) {
+template <>
+void model<task::clustering>::set_centroids_impl(const table& value) {
     impl_->centroids = value;
 }
 
