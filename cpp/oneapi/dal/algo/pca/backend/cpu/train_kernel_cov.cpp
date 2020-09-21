@@ -35,10 +35,10 @@ namespace interop = dal::backend::interop;
 template <typename Float, daal::CpuType Cpu>
 using daal_pca_cor_kernel_t = daal_pca::internal::PCACorrelationKernel<daal::batch, Float, Cpu>;
 
-template <typename Float>
-static train_result call_daal_kernel(const context_cpu& ctx,
-                                     const descriptor_base& desc,
-                                     const table& data) {
+template <typename Float, typename Task>
+static train_result<Task> call_daal_kernel(const context_cpu& ctx,
+                                           const descriptor_base<Task>& desc,
+                                           const table& data) {
     const int64_t row_count = data.get_row_count();
     const int64_t column_count = data.get_column_count();
     const int64_t component_count = desc.get_component_count();
@@ -82,31 +82,33 @@ static train_result call_daal_kernel(const context_cpu& ctx,
                                                                 *daal_means,
                                                                 *daal_variances));
 
-    return train_result()
-        .set_model(model().set_eigenvectors(dal::detail::homogen_table_builder{}
-                                                .reset(arr_eigvec, column_count, component_count)
-                                                .build()))
+    return train_result<Task>()
+        .set_model(
+            model<Task>().set_eigenvectors(dal::detail::homogen_table_builder{}
+                                               .reset(arr_eigvec, column_count, component_count)
+                                               .build()))
         .set_eigenvalues(
             dal::detail::homogen_table_builder{}.reset(arr_eigval, 1, component_count).build());
 }
 
-template <typename Float>
-static train_result train(const context_cpu& ctx,
-                          const descriptor_base& desc,
-                          const train_input& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data());
+template <typename Float, typename Task>
+static train_result<Task> train(const context_cpu& ctx,
+                                const descriptor_base<Task>& desc,
+                                const train_input<Task>& input) {
+    return call_daal_kernel<Float, Task>(ctx, desc, input.get_data());
 }
 
 template <typename Float>
-struct train_kernel_cpu<Float, method::cov> {
-    train_result operator()(const context_cpu& ctx,
-                            const descriptor_base& desc,
-                            const train_input& input) const {
-        return train<Float>(ctx, desc, input);
+struct train_kernel_cpu<Float, method::cov, task::dim_reduction> {
+    train_result<task::dim_reduction> operator()(
+        const context_cpu& ctx,
+        const descriptor_base<task::dim_reduction>& desc,
+        const train_input<task::dim_reduction>& input) const {
+        return train<Float, task::dim_reduction>(ctx, desc, input);
     }
 };
 
-template struct train_kernel_cpu<float, method::cov>;
-template struct train_kernel_cpu<double, method::cov>;
+template struct train_kernel_cpu<float, method::cov, task::dim_reduction>;
+template struct train_kernel_cpu<double, method::cov, task::dim_reduction>;
 
 } // namespace oneapi::dal::pca::backend
