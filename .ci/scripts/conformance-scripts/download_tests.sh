@@ -21,30 +21,29 @@ SKLEARN_PATH="$CONDA_PREFIX/lib/python${PYTHON_VERSION}/site-packages/sklearn/"
 
 case ${ALG_NAME} in
     "dbscan")
-        cp ${SKLEARN_PATH}cluster/tests/test_dbscan.py test_dbscan.py
+        wget -O test_dbscan.py ${SKLEARN_URL_ROOT}cluster/tests/test_dbscan.py
     ;;
     "elastic_net")
-        cp ${SKLEARN_PATH}linear_model/tests/test_coordinate_descent.py test_elastic_net.py
+        wget -O test_elastic_net.py ${SKLEARN_URL_ROOT}linear_model/tests/test_coordinate_descent.py
     ;;
     "kmeans")
-        cp ${SKLEARN_PATH}cluster/tests/test_k_means.py test_kmeans.py
+        wget -O test_kmeans.py ${SKLEARN_URL_ROOT}cluster/tests/test_k_means.py
     ;;
     "lin_reg")
-        cp ${SKLEARN_PATH}linear_model/tests/test_base.py test_lin_reg.py
+        wget -O test_lin_reg.py ${SKLEARN_URL_ROOT}linear_model/tests/test_base.py
     ;;
     "log_reg")
-        cp ${SKLEARN_PATH}linear_model/tests/test_logistic.py test_log_reg.py
+        wget -O test_log_reg.py ${SKLEARN_URL_ROOT}linear_model/tests/test_logistic.py
     ;;
     "pca")
-        cp ${SKLEARN_PATH}decomposition/tests/test_pca.py test_pca.py
+        wget -O test_pca.py ${SKLEARN_URL_ROOT}decomposition/tests/test_pca.py
     ;;
     "ridge_reg")
-        cp ${SKLEARN_PATH}linear_model/tests/test_ridge.py test_ridge_reg.py
+        wget -O test_ridge_reg.py ${SKLEARN_URL_ROOT}linear_model/tests/test_ridge.py
     ;;
     "svm")
-        cp ${SKLEARN_PATH}svm/tests/test_svm.py test_svm.py
+        wget -O test_svm.py ${SKLEARN_URL_ROOT}svm/tests/test_svm.py
     ;;
-    
     "svm_sparse")
         wget -O test_svm_sparse.py ${SKLEARN_URL_ROOT}svm/tests/test_sparse.py
     ;;
