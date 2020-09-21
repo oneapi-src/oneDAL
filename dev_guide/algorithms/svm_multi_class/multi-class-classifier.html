@@ -629,6 +629,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#output">Output</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#examples">Examples</a></li>
@@ -1140,8 +1141,8 @@ that describe the problems API encountered (in case of API runtime failure).</p>
 parameters:</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 25%" />
-<col style="width: 25%" />
+<col style="width: 17%" />
+<col style="width: 33%" />
 <col style="width: 50%" />
 </colgroup>
 <thead>
@@ -1151,21 +1152,21 @@ parameters:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>algorithmFPType</p></td>
-<td><p>float</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
 <td><p>The floating-point type that the algorithm uses for intermediate
-computations. Can be float or double.</p></td>
+computations. Can be <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p>method</p></td>
-<td><p>defaultDense</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
 <td><p>The computation method used by the multi-class classifier. The only
 training method supported so far is One-Against-One.</p></td>
 </tr>
-<tr class="row-even"><td><p>training</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">training</span></code></p></td>
 <td><p>Pointer to an object of the SVM training class</p></td>
 <td><p>Pointer to the training algorithm of the two-class classifier. By default, the SVM two-class classifier is used.</p></td>
 </tr>
-<tr class="row-odd"><td><p>nClasses</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nClasses</span></code></p></td>
 <td><p>Not applicable</p></td>
 <td><p>The number of classes. A required parameter.</p></td>
 </tr>
@@ -1177,10 +1178,10 @@ training method supported so far is One-Against-One.</p></td>
 <p>At the prediction stage, a multi-class classifier has the following parameters:</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
+<col style="width: 12%" />
+<col style="width: 24%" />
+<col style="width: 35%" />
+<col style="width: 29%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Parameter</p></th>
@@ -1190,44 +1191,44 @@ training method supported so far is One-Against-One.</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>algorithmFPType</p></td>
-<td><p>defaultDense or voteBased</p></td>
-<td><p>float</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code> or <code class="docutils literal notranslate"><span class="pre">voteBased</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
 <td><p>The floating-point type that the algorithm uses for intermediate
-computations. Can be float or double.</p></td>
+computations. Can be <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p>pmethod</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pmethod</span></code></p></td>
 <td><p>Not applicable</p></td>
-<td><p>defaultDense</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
 <td><p>Available methods for multi-class classifier prediction stage:</p>
 <ul class="simple">
-<li><p>defaultDense - the method described in <a class="reference internal" href="../../../bibliography.html#wu04" id="id3"><span>[Wu04]</span></a></p></li>
-<li><p>voteBasedthe method based on the votes obtained from two-class classifiers.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code> - the method described in <a class="reference internal" href="../../../bibliography.html#wu04" id="id3"><span>[Wu04]</span></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">voteBasedthe</span></code> method based on the votes obtained from two-class classifiers.</p></li>
 </ul>
 </td>
 </tr>
-<tr class="row-even"><td><p>tmethod</p></td>
-<td><p>defaultDense or voteBased</p></td>
-<td><p>training::oneAgainstOne</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tmethod</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code> or <code class="docutils literal notranslate"><span class="pre">voteBased</span></code></p></td>
+<td><p><cite>training::oneAgainstOne</cite></p></td>
 <td><p>The computation method that was used to train the multi-class classifier model.</p></td>
 </tr>
-<tr class="row-odd"><td><p>prediction</p></td>
-<td><p>defaultDense or voteBased</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">prediction</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code> or <code class="docutils literal notranslate"><span class="pre">voteBased</span></code></p></td>
 <td><p>Pointer to an object of the SVM prediction class</p></td>
 <td><p>Pointer to the prediction algorithm of the two-class classifier. By default, the SVM two-class classifier is used.</p></td>
 </tr>
-<tr class="row-even"><td><p>nClasses</p></td>
-<td><p>defaultDense or voteBased</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nClasses</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code> or <code class="docutils literal notranslate"><span class="pre">voteBased</span></code></p></td>
 <td><p>Not applicable</p></td>
 <td><p>The number of classes. A required parameter.</p></td>
 </tr>
-<tr class="row-odd"><td><p>maxIterations</p></td>
-<td><p>defaultDense</p></td>
-<td><p>100</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">maxIterations</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(100\)</span></p></td>
 <td><p>The maximal number of iterations for the algorithm.</p></td>
 </tr>
-<tr class="row-even"><td><p>accuracyThreshold</p></td>
-<td><p>defaultDense</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">accuracyThreshold</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
 <td><p>1.0e-12</p></td>
 <td><p>The prediction accuracy.</p></td>
 </tr>

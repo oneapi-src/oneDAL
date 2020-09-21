@@ -623,6 +623,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#output">Output</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#examples">Examples</a></li>
@@ -1023,8 +1024,8 @@ Pass the <code class="docutils literal notranslate"><span class="pre">Input</spa
 For more details, see Algorithms.</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
+<col style="width: 14%" />
+<col style="width: 86%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Input ID</p></th>
@@ -1033,7 +1034,7 @@ For more details, see Algorithms.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">inputArgument</span></code></p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(p \times 1\)</span> with the value of start argument <span class="math notranslate nohighlight">\(\theta_0\)</span>.</p></td>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(p \times 1\)</span> with the value of start argument <span class="math notranslate nohighlight">\(\theta_0\)</span>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">optionalArgument</span></code></p></td>
 <td><p>Object of the <code class="docutils literal notranslate"><span class="pre">OptionalArgument</span></code> class that contains a set of algorithm-specific intrinsic parameters.
@@ -1047,9 +1048,9 @@ For a detailed definition of the set, see the problem statement above and the de
 <p>The iterative solver algorithm has the following parameters:</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 75%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Parameter</p></th>
@@ -1084,8 +1085,8 @@ Pass the <code class="docutils literal notranslate"><span class="pre">Result</sp
 For more details, see Algorithms.</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
+<col style="width: 14%" />
+<col style="width: 86%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Result ID</p></th>
@@ -1094,12 +1095,12 @@ For more details, see Algorithms.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">minimum</span></code></p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(p \times 1\)</span> with argument <span class="math notranslate nohighlight">\(\theta_{*}\)</span>.
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(p \times 1\)</span> with argument <span class="math notranslate nohighlight">\(\theta_{*}\)</span>.
 By default, the result is an object of the HomogenNumericTable class, but you can define the result as an object of any class
 derived from NumericTable, except for PackedTriangularMatrix and PackedSymmetricMatrix.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nIterations</span></code></p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> with a 32-bit integer number of iterations done by the algorithm.
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> with a 32-bit integer number of iterations done by the algorithm.
 By default, the result is an object of the HomogenNumericTable class, but you can define the result as an object of any class
 derived from NumericTable, except for PackedTriangularMatrix, PackedSymmetricMatrix, and CSRNumericTable.</p></td>
 </tr>

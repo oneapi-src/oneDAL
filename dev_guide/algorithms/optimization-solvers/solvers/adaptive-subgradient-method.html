@@ -629,6 +629,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#output">Output</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#examples">Examples</a></li>
@@ -1059,7 +1060,7 @@ the AdaGrad method accepts the following optional input:</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">gradientSquareSum</span></code></p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(p \times 1\)</span> with the values of <span class="math notranslate nohighlight">\(G_t\)</span>.
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(p \times 1\)</span> with the values of <span class="math notranslate nohighlight">\(G_t\)</span>.
 Each value is an accumulated sum of squares of coordinate values of a corresponding gradient.</p></td>
 </tr>
 </tbody>
@@ -1084,7 +1085,7 @@ the AdaGrad method has the following parameters:</p>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
-<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be float or double.</p></td>
+<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
@@ -1092,7 +1093,7 @@ the AdaGrad method has the following parameters:</p>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">batchIndices</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">NULL</span></code></p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(\text{nIterations} \times \text{batchSize}\)</span> for the <code class="docutils literal notranslate"><span class="pre">defaultDense</span></code> method
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(\text{nIterations} \times \text{batchSize}\)</span> for the <code class="docutils literal notranslate"><span class="pre">defaultDense</span></code> method
 that represents 32-bit integer indices of terms in the objective function.
 If no indices are provided, the algorithm generates random indices.</p></td>
 </tr>
@@ -1105,8 +1106,8 @@ and all terms are used to calculate the gradient.</p>
 </td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">learningRate</span></code></p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> that contains the default step length equal to <span class="math notranslate nohighlight">\(0.01\)</span>.</p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> that contains the value of learning rate <span class="math notranslate nohighlight">\(\eta\)</span>.</p>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> that contains the default step length equal to <span class="math notranslate nohighlight">\(0.01\)</span>.</p></td>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> that contains the value of learning rate <span class="math notranslate nohighlight">\(\eta\)</span>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This parameter can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>,
@@ -1141,7 +1142,7 @@ the AdaGrad method calculates the following optional result:</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">gradientSquareSum</span></code></p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(p \times 1\)</span> with the values of <span class="math notranslate nohighlight">\(G_t\)</span>.
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(p \times 1\)</span> with the values of <span class="math notranslate nohighlight">\(G_t\)</span>.
 Each value is an accumulated sum of squares of coordinate values of a corresponding gradient.</p></td>
 </tr>
 </tbody>

@@ -623,6 +623,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#output">Output</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#examples">Examples</a></li>
@@ -1023,15 +1024,15 @@ Pass the <code class="docutils literal notranslate"><span class="pre">Input</spa
 For more details, see <a class="reference internal" href="../../../usage/algorithms.html#algorithms"><span class="std std-ref">Algorithms</span></a>.</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 25%" />
-<col style="width: 75%" />
+<col style="width: 14%" />
+<col style="width: 86%" />
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p>Input ID</p></td>
 <td><p>Input</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">argument</span></code></p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(p \times 1\)</span> with the input argument of the objective function.</p></td>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(p \times 1\)</span> with the input argument of the objective function.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1087,47 +1088,47 @@ a combination of the characteristics:</p>
 <div class="section" id="output">
 <span id="objective-function-output"></span><h2>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h2>
 <p>The objective function calculates the result described below.
-Pass the Result ID as a parameter to the methods that access the results of your algorithm.
+Pass the <code class="docutils literal notranslate"><span class="pre">Result</span> <span class="pre">ID</span></code> as a parameter to the methods that access the results of your algorithm.
 For more details, see <a class="reference internal" href="../../../usage/algorithms.html#algorithms"><span class="std std-ref">Algorithms</span></a>.</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 25%" />
-<col style="width: 75%" />
+<col style="width: 14%" />
+<col style="width: 86%" />
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p>Result ID</p></td>
 <td><p>Result</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">valueIdx</span></code></p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> with the value of the objective function in the given argument.</p></td>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> with the value of the objective function in the given argument.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nonSmoothTermValueIdx</span></code></p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> with the value of the non-smooth term of the
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> with the value of the non-smooth term of the
 objective function in the given argument.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">gradientIdx</span></code></p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(p \times 1\)</span> with the gradient of the smooth term of the
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(p \times 1\)</span> with the gradient of the smooth term of the
 objective function in the given argument.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hessianIdx</span></code></p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(p \times p\)</span> with the Hessian of the smooth term of the
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(p \times p\)</span> with the Hessian of the smooth term of the
 objective function in the given argument.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">proximalProjectionIdx</span></code></p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(p \times 1\)</span> with the projection of proximal operator
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(p \times 1\)</span> with the projection of proximal operator
 for non-smooth term of the objective function in the given argument.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lipschitzConstantIdx</span></code></p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> with Lipschitz constant of the smooth term of the objective function.</p></td>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> with Lipschitz constant of the smooth term of the objective function.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">gradientOverCertainFeatureIdx</span></code></p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> with certain component of gradient vector.</p></td>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> with certain component of gradient vector.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hessianOverCertainFeatureIdx</span></code></p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> with certain component of hessian diagonal.</p></td>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> with certain component of hessian diagonal.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">proximalProjectionOverCertainFeatureIdx</span></code></p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> with certain component of proximal projection.</p></td>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> with certain component of proximal projection.</p></td>
 </tr>
 </tbody>
 </table>

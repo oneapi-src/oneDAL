@@ -629,6 +629,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#output">Output</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#examples">Examples</a></li>
@@ -1132,7 +1133,7 @@ For more details, see <a class="reference internal" href="../../../usage/algorit
 <td><p>Input</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">argument</span></code></p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\((p + 1) \times \mathrm{nClasses}\)</span> with the input argument <span class="math notranslate nohighlight">\(\theta\)</span> of the objective function.</p>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\((p + 1) \times \mathrm{nClasses}\)</span> with the input argument <span class="math notranslate nohighlight">\(\theta\)</span> of the objective function.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The sizes of the argument, gradient, and hessian numeric tables do not depend on <code class="docutils literal notranslate"><span class="pre">interceptFlag</span></code>.
@@ -1142,7 +1143,7 @@ but the sizes of the tables should remain the same.</p>
 </td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">data</span></code></p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(n \times p\)</span> with the data <span class="math notranslate nohighlight">\(x_ij\)</span>.</p>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(n \times p\)</span> with the data <span class="math notranslate nohighlight">\(x_ij\)</span>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This parameter can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p>
@@ -1150,7 +1151,7 @@ but the sizes of the tables should remain the same.</p>
 </td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dependentVariables</span></code></p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(n \times 1\)</span> with dependent variables <span class="math notranslate nohighlight">\(y_i\)</span>.</p>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(n \times 1\)</span> with dependent variables <span class="math notranslate nohighlight">\(y_i\)</span>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This parameter can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>,
@@ -1241,7 +1242,7 @@ to request a combination of the characteristics:</p>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nClasses</span></code></p></td>
 <td><p>Not applicable</p></td>
-<td><p>Number of classes (different values of dependent variable)</p></td>
+<td><p>The number of classes (different values of dependent variable)</p></td>
 </tr>
 </tbody>
 </table>

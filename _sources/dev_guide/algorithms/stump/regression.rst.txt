@@ -49,7 +49,7 @@ At the training stage, a regression decision stump has the following parameters:
      - ``defaultDense``
      - Performance-oriented computation method, the only method supported by the algorithm.
    * - ``varImportance``
-     - none
+     - ``none``
      - .. note:: Variable importance computation is not supported for current version of the library.
 
 Prediction

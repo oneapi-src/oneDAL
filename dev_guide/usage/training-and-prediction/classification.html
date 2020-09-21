@@ -623,6 +623,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#output">Output</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#examples">Examples</a></li>
@@ -1113,19 +1114,27 @@ For more details, see <a class="reference internal" href="../algorithms.html#alg
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">prediction</span></code></p></td>
 <td><p>Pointer to the <span class="math notranslate nohighlight">\(n \times 1\)</span> numeric table with classification results (class labels or confidence levels).</p>
-<p>By default, this table is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class, but you can define it as an object of any class
-derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code> and <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this table is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
+but you can define it as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code> and <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>.</p>
+</div>
 </td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">probabilities</span></code></p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(n \times \text{nClasses}\)</span>, containing probabilities of classes computed when the
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(n \times \text{nClasses}\)</span>, containing probabilities of classes computed when the
 <code class="docutils literal notranslate"><span class="pre">computeClassProbabilities</span></code> option is enabled. This result table is available for selected algorithms, see corresponding algorithm documentation for details.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">logProbabilities</span></code></p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(n \times \text{nClasses}\)</span>, containing logarithms of classes’ probabilities computed when the <code class="docutils literal notranslate"><span class="pre">computeClassLogProbabilities</span></code> option is enabled.
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(n \times \text{nClasses}\)</span>, containing logarithms of classes’ probabilities computed when the <code class="docutils literal notranslate"><span class="pre">computeClassLogProbabilities</span></code> option is enabled.
 This result table is available for selected algorithms, see corresponding algorithm documentation for details.</p>
-<p>By default, this table is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class, but you can define it as an object of any class
-derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this table is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
+but you can define it as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
 </td>
 </tr>
 </tbody>

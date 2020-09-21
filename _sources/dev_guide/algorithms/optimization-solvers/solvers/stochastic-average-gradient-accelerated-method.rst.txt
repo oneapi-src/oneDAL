@@ -98,7 +98,7 @@ the SAGA optimization solver has the following optional input:
      - Description
    * - ``gradientTable``
      - Not applicable
-     - Numeric table of size :math:`n \times p` which represents :math:`G_0` matrix that contains gradients of
+     - A numeric table of size :math:`n \times p` which represents :math:`G_0` matrix that contains gradients of
        :math:`F_i(\theta)`, :math:`1, \ldots, n` at the initial point :math:`\theta_0 \in R^p`.
 
        This input is optional: if the user does not provide the table of gradients for :math:`F_i(\theta)`, :math:`1, \ldots, n`,
@@ -129,7 +129,7 @@ In addition to parameters of the iterative solver, the SAGA optimization solver 
      - Performance-oriented method.
    * - ``batchIndices``
      - :math:`1`
-     - Numeric table of size :math:`\mathrm{nIterations} \times 1` with 32-bit integer indices of terms in the objective function.
+     - A numeric table of size :math:`\mathrm{nIterations} \times 1` with 32-bit integer indices of terms in the objective function.
        If no indices are provided, the implementation generates random index on each iteration.
 
        .. note::
@@ -165,7 +165,7 @@ the SAGA optimization solver calculates the following optional result:
      - Description
    * - ``gradientTable``
      - Not applicable
-     - Numeric table of size :math:`n \times p` that represents matrix :math:`G_t` updated after all iterations.
+     - A numeric table of size :math:`n \times p` that represents matrix :math:`G_t` updated after all iterations.
 
        This parameter can be an object of any class derived from ``NumericTable``,
        except for ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.

@@ -623,6 +623,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#output">Output</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#examples">Examples</a></li>
@@ -1051,8 +1052,7 @@
     <span class="k">const</span> <span class="k">auto</span> <span class="n">knn_desc</span> <span class="o">=</span>
         <span class="n">dal</span><span class="o">::</span><span class="n">knn</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;</span><span class="kt">float</span><span class="p">,</span> <span class="n">oneapi</span><span class="o">::</span><span class="n">dal</span><span class="o">::</span><span class="n">knn</span><span class="o">::</span><span class="n">method</span><span class="o">::</span><span class="n">brute_force</span><span class="o">&gt;</span><span class="p">()</span>
             <span class="p">.</span><span class="n">set_class_count</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-            <span class="p">.</span><span class="n">set_neighbor_count</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-            <span class="p">.</span><span class="n">set_data_use_in_model</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+            <span class="p">.</span><span class="n">set_neighbor_count</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
 
     <span class="k">const</span> <span class="k">auto</span> <span class="n">x_test</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">read</span><span class="o">&lt;</span><span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="o">&gt;</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">dal</span><span class="o">::</span><span class="n">csv</span><span class="o">::</span><span class="n">data_source</span><span class="p">{</span><span class="n">test_data_file_name</span><span class="p">});</span>
     <span class="k">const</span> <span class="k">auto</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">read</span><span class="o">&lt;</span><span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="o">&gt;</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">dal</span><span class="o">::</span><span class="n">csv</span><span class="o">::</span><span class="n">data_source</span><span class="p">{</span><span class="n">test_label_file_name</span><span class="p">});</span>

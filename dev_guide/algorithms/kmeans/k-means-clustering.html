@@ -629,6 +629,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#output">Output</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#examples">Examples</a></li>
@@ -1180,6 +1181,10 @@ centroids.</p>
 <li class="toctree-l1"><a class="reference internal" href="computation-distributed.html">Distributed Processing</a></li>
 </ul>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Distributed mode is not available for oneAPI interfaces and for Python* with DPC++ support.</p>
+</div>
 </div>
 <div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
@@ -1187,25 +1192,30 @@ centroids.</p>
 <div class="ui top attached tabular menu sphinx-menu docutils container">
 <div class="active item sphinx-data-tab-0-0 docutils container">
 <div class="docutils container">
-<p>oneAPI C++</p>
+<p>oneAPI DPC++</p>
 </div>
 </div>
 <div class="item sphinx-data-tab-0-1 docutils container">
 <div class="docutils container">
-<p>C++ (CPU)</p>
+<p>oneAPI C++</p>
 </div>
 </div>
 <div class="item sphinx-data-tab-0-2 docutils container">
 <div class="docutils container">
-<p>Java*</p>
+<p>C++ (CPU)</p>
 </div>
 </div>
 <div class="item sphinx-data-tab-0-3 docutils container">
 <div class="docutils container">
-<p>Python* with DPC++ support</p>
+<p>Java*</p>
 </div>
 </div>
 <div class="item sphinx-data-tab-0-4 docutils container">
+<div class="docutils container">
+<p>Python* with DPC++ support</p>
+</div>
+</div>
+<div class="item sphinx-data-tab-0-5 docutils container">
 <div class="docutils container">
 <p>Python*</p>
 </div>
@@ -1214,11 +1224,18 @@ centroids.</p>
 <div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-0 active docutils container">
 <p>Batch Processing:</p>
 <ul class="simple">
+<li><p><a class="reference internal" href="../../../examples/dpc/kmeans_init_dense.html#dpc-kmeans-init-dense-cpp"><span class="std std-ref">kmeans_init_dense.cpp</span></a></p></li>
+<li><p><a class="reference internal" href="../../../examples/dpc/kmeans_lloyd_dense_batch.html#dpc-kmeans-lloyd-dense-batch-cpp"><span class="std std-ref">kmeans_lloyd_dense_batch.cpp</span></a></p></li>
+</ul>
+</div>
+<div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-1 docutils container">
+<p>Batch Processing:</p>
+<ul class="simple">
 <li><p><a class="reference internal" href="../../../examples/cpp/kmeans_lloyd_dense_batch.html#cpp-kmeans-lloyd-dense-batch-cpp"><span class="std std-ref">kmeans_lloyd_dense_batch.cpp</span></a></p></li>
 <li><p><a class="reference internal" href="../../../examples/cpp/kmeans_init_dense.html#cpp-kmeans-init-dense-cpp"><span class="std std-ref">kmeans_init_dense.cpp</span></a></p></li>
 </ul>
 </div>
-<div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-1 docutils container">
+<div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-2 docutils container">
 <p>Batch Processing:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/kmeans/kmeans_dense_batch.cpp">kmeans_dense_batch.cpp</a></p></li>
@@ -1230,7 +1247,7 @@ centroids.</p>
 <li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/kmeans/kmeans_csr_distr.cpp">kmeans_csr_distr.cpp</a></p></li>
 </ul>
 </div>
-<div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-2 docutils container">
+<div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-3 docutils container">
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>There is no support for Java on GPU.</p>
@@ -1246,13 +1263,13 @@ centroids.</p>
 <li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/kmeans/KMeansCSRDistr.java">KMeansCSRDistr.java</a></p></li>
 </ul>
 </div>
-<div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-3 docutils container">
+<div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-4 docutils container">
 <p>Batch Processing:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/IntelPython/daal4py/tree/master/examples/sycl/kmeans_batch.py">kmeans_batch.py</a></p></li>
 </ul>
 </div>
-<div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-4 docutils container">
+<div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-5 docutils container">
 <p>Batch Processing:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/IntelPython/daal4py/tree/master/examples/kmeans_batch.py">kmeans_batch.py</a></p></li>

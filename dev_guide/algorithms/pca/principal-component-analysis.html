@@ -629,6 +629,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#output">Output</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#examples">Examples</a></li>
@@ -1232,7 +1233,7 @@ compute() method for the current block.</p>
 <div class="section" id="distributed-processing">
 <h3>Distributed Processing<a class="headerlink" href="#distributed-processing" title="Permalink to this headline">¶</a></h3>
 <p>PCA with the SVD method (svdDense) in the distributed processing
-mode requires gathering local-node p x p numeric tables on the
+mode requires gathering local-node <span class="math notranslate nohighlight">\(p \times p\)</span> numeric tables on the
 master node. When the amount of local-node work is small, that is,
 when the local-node data set is small, the network data transfer
 may become a bottleneck. To avoid this situation, ensure that

@@ -629,6 +629,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#output">Output</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#examples">Examples</a></li>
@@ -1031,8 +1032,8 @@
 Both LASSO and Elastic Net algorithms have the following input parameters in addition to the common input parameters:</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 25%" />
-<col style="width: 75%" />
+<col style="width: 14%" />
+<col style="width: 86%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Input ID</p></th>
@@ -1040,7 +1041,7 @@ Both LASSO and Elastic Net algorithms have the following input parameters in add
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>weights</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">weights</span></code></p></td>
 <td><p>Optional input.</p>
 <p>Pointer to the <span class="math notranslate nohighlight">\(1 \times n\)</span> numeric table with weights of samples.
 The input can be an object of any class derived from NumericTable except for PackedTriangularMatrix,
@@ -1048,7 +1049,7 @@ PackedSymmetricMatrix, and CSRNumericTable.</p>
 <p>By default, all weights are equal to 1.</p>
 </td>
 </tr>
-<tr class="row-odd"><td><p>gramMatrix</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">gramMatrix</span></code></p></td>
 <td><p>Optional input.</p>
 <p>Pointer to the <span class="math notranslate nohighlight">\(p \times p\)</span> numeric table with pre-computed Gram Matrix.
 The input can be an object of any class derived from NumericTable except for CSRNumericTable.</p>
@@ -1075,9 +1076,9 @@ It is used only when the number of features is less than the number of observati
 <div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-TEFTU08= active docutils container">
 <table class="colwidths-given docutils align-left">
 <colgroup>
+<col style="width: 17%" />
 <col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
+<col style="width: 50%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Parameter</p></th>
@@ -1086,20 +1087,20 @@ It is used only when the number of features is less than the number of observati
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>algorithmFPType</p></td>
-<td><p>float</p></td>
-<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be float or double.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p>method</p></td>
-<td><p>defaultDense</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
 <td><p>The computation method used by the LASSO regression. The only training method supported so far is the default dense method.</p></td>
 </tr>
-<tr class="row-even"><td><p>interceptFlag</p></td>
-<td><p>True</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">interceptFlag</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
 <td><p>A flag that indicates whether or not to compute</p></td>
 </tr>
-<tr class="row-odd"><td><p>lassoParameters</p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> that contains the default LASSO parameter equal to <span class="math notranslate nohighlight">\(0.1\)</span>.</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lassoParameters</span></code></p></td>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> that contains the default LASSO parameter equal to <span class="math notranslate nohighlight">\(0.1\)</span>.</p></td>
 <td><p><span class="math notranslate nohighlight">\(L_1\)</span> coefficients: <span class="math notranslate nohighlight">\(\lambda_i\)</span></p>
 <p>A numeric table of size <span class="math notranslate nohighlight">\(1 \times k\)</span> (where <span class="math notranslate nohighlight">\(k\)</span> is the number of dependent variables) or <span class="math notranslate nohighlight">\(1 \times 1\)</span>.
 The contents of the table depend on its size:</p>
@@ -1111,12 +1112,12 @@ The contents of the table depend on its size:</p>
 PackedSymmetricMatrix, and CSRNumericTable.</p>
 </td>
 </tr>
-<tr class="row-even"><td><p>optimizationSolver</p></td>
-<td><p>Coordinate Descent solver</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">optimizationSolver</span></code></p></td>
+<td><p><a class="reference internal" href="../optimization-solvers/solvers/coordinate-descent.html#cda-solver"><span class="std std-ref">Coordinate Descent solver</span></a></p></td>
 <td><p>Optimization procedure used at the training stage.</p></td>
 </tr>
-<tr class="row-odd"><td><p>optResultToCompute</p></td>
-<td><p>0</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">optResultToCompute</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(0\)</span></p></td>
 <td><p>The 64-bit integer flag that specifies which extra characteristics of the LASSO regression to compute.</p>
 <p>Provide the following value to request a characteristic:</p>
 <ul class="simple">
@@ -1124,8 +1125,8 @@ PackedSymmetricMatrix, and CSRNumericTable.</p>
 </ul>
 </td>
 </tr>
-<tr class="row-even"><td><p>dataUseInComputation</p></td>
-<td><p>doNotUse</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dataUseInComputation</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">doNotUse</span></code></p></td>
 <td><p>A flag that indicates a permission to overwrite input data.
 Provide the following value to restrict or allow modification of input data:</p>
 <ul class="simple">
@@ -1140,9 +1141,9 @@ Provide the following value to restrict or allow modification of input data:</p>
 <div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-RWxhc3RpYyBOZXQ= docutils container">
 <table class="colwidths-given docutils align-left">
 <colgroup>
+<col style="width: 17%" />
 <col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
+<col style="width: 50%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Parameter</p></th>
@@ -1151,20 +1152,20 @@ Provide the following value to restrict or allow modification of input data:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>algorithmFPType</p></td>
-<td><p>float</p></td>
-<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be float or double.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p>method</p></td>
-<td><p>defaultDense</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
 <td><p>The computation method used by the Elastic Net regression. The only training method supported so far is the default dense method.</p></td>
 </tr>
-<tr class="row-even"><td><p>interceptFlag</p></td>
-<td><p>True</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">interceptFlag</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
 <td><p>A flag that indicates whether or not to compute</p></td>
 </tr>
-<tr class="row-odd"><td><p>penaltyL1</p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> that contains the default Elastic Net parameter equal to <span class="math notranslate nohighlight">\(0.5\)</span>.</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">penaltyL1</span></code></p></td>
+<td><p>A umeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> that contains the default Elastic Net parameter equal to <span class="math notranslate nohighlight">\(0.5\)</span>.</p></td>
 <td><p>L1 regularization coefficient (penaltyL1 is <span class="math notranslate nohighlight">\(\lambda_1\)</span> as described in <a class="reference internal" href="elastic-net.html#elastic-net"><span class="std std-ref">Elastic Net</span></a>).</p>
 <p>The numeric table of size <span class="math notranslate nohighlight">\(1 \times k\)</span> (where <span class="math notranslate nohighlight">\(k\)</span> is the number of dependent variables) or <span class="math notranslate nohighlight">\(1 \times 1\)</span>.
 The contents of the table depend on its size:</p>
@@ -1176,8 +1177,8 @@ The contents of the table depend on its size:</p>
 except for PackedTriangularMatrix, PackedSymmetricMatrix, and CSRNumericTable.</p>
 </td>
 </tr>
-<tr class="row-even"><td><p>penaltyL2</p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> that contains the default Elastic Net parameter equal to <span class="math notranslate nohighlight">\(0.5\)</span>.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">penaltyL2</span></code></p></td>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> that contains the default Elastic Net parameter equal to <span class="math notranslate nohighlight">\(0.5\)</span>.</p></td>
 <td><p>L2 regularization coefficient (penaltyL2 is <span class="math notranslate nohighlight">\(\lambda_2\)</span> as described in <a class="reference internal" href="elastic-net.html#elastic-net"><span class="std std-ref">Elastic Net</span></a>).</p>
 <p>The numeric table of size <span class="math notranslate nohighlight">\(1 \times k\)</span> (where <span class="math notranslate nohighlight">\(k\)</span> is the number of dependent variables) or <span class="math notranslate nohighlight">\(1 \times 1\)</span>.
 The contents of the table depend on its size:</p>
@@ -1189,12 +1190,12 @@ The contents of the table depend on its size:</p>
 except for PackedTriangularMatrix, PackedSymmetricMatrix, and CSRNumericTable.</p>
 </td>
 </tr>
-<tr class="row-odd"><td><p>optimizationSolver</p></td>
-<td><p>Coordinate Descent solver</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">optimizationSolver</span></code></p></td>
+<td><p><a class="reference internal" href="../optimization-solvers/solvers/coordinate-descent.html#cda-solver"><span class="std std-ref">Coordinate Descent solver</span></a></p></td>
 <td><p>Optimization procedure used at the training stage.</p></td>
 </tr>
-<tr class="row-even"><td><p>optResultToCompute</p></td>
-<td><p>0</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">optResultToCompute</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(0\)</span></p></td>
 <td><p>The 64-bit integer flag that specifies which extra characteristics of the Elastic Net regression to compute.</p>
 <p>Provide the following value to request a characteristic:</p>
 <ul class="simple">
@@ -1202,8 +1203,8 @@ except for PackedTriangularMatrix, PackedSymmetricMatrix, and CSRNumericTable.</
 </ul>
 </td>
 </tr>
-<tr class="row-odd"><td><p>dataUseInComputation</p></td>
-<td><p>doNotUse</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dataUseInComputation</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">doNotUse</span></code></p></td>
 <td><p>A flag that indicates a permission to overwrite input data.
 Provide the following value to restrict or allow modification of input data:</p>
 <ul class="simple">
@@ -1233,8 +1234,8 @@ Provide the following value to restrict or allow modification of input data:</p>
 <p>In addition, both LASSO and Elastic Net algorithms have the following optional results:</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 25%" />
-<col style="width: 75%" />
+<col style="width: 14%" />
+<col style="width: 86%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Result ID</p></th>
@@ -1242,7 +1243,7 @@ Provide the following value to restrict or allow modification of input data:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>gramMatrix</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">gramMatrix</span></code></p></td>
 <td><p>Pointer to the computed Gram Matrix with size <span class="math notranslate nohighlight">\(p \times p\)</span></p></td>
 </tr>
 </tbody>
@@ -1255,9 +1256,9 @@ Provide the following value to restrict or allow modification of input data:</p>
 <p>At the prediction stage, LASSO and Elastic Net algorithms have the following parameters:</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 50%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 75%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Parameter</p></th>
@@ -1266,12 +1267,12 @@ Provide the following value to restrict or allow modification of input data:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>algorithmFPType</p></td>
-<td><p>float</p></td>
-<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be float or double.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p>method</p></td>
-<td><p>defaultDense</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
 <td><p>Default performance-oriented computation method, the only method supported by the regression-based prediction.</p></td>
 </tr>
 </tbody>

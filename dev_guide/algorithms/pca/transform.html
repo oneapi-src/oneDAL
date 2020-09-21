@@ -629,6 +629,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#output">Output</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#examples">Examples</a></li>
@@ -1023,7 +1024,7 @@
 <h2>Details<a class="headerlink" href="#details" title="Permalink to this headline">¶</a></h2>
 <p>Given a transformation matrix <span class="math notranslate nohighlight">\(T\)</span> computed by <a class="reference internal" href="principal-component-analysis.html#pca"><span class="std std-ref">PCA</span></a> (eigenvectors in row-major order)
 and data set <span class="math notranslate nohighlight">\(X\)</span> as input, the PCA Transform algorithm transforms input data set <span class="math notranslate nohighlight">\(X\)</span>
-of size <span class="math notranslate nohighlight">\(n \times p\)</span> to the data set <span class="math notranslate nohighlight">\(Y\)</span> of size <span class="math notranslate nohighlight">\(n x p_r\)</span>, <span class="math notranslate nohighlight">\(pr \leq p\)</span>.</p>
+of size <span class="math notranslate nohighlight">\(n \times p\)</span> to the data set <span class="math notranslate nohighlight">\(Y\)</span> of size <span class="math notranslate nohighlight">\(n \times p_r\)</span>, <span class="math notranslate nohighlight">\(pr \leq p\)</span>.</p>
 </div>
 <div class="section" id="batch-processing">
 <h2>Batch Processing<a class="headerlink" href="#batch-processing" title="Permalink to this headline">¶</a></h2>
@@ -1106,7 +1107,7 @@ except for <code class="docutils literal notranslate"><span class="pre">PackedSy
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nComponents</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
 <td><p><span class="math notranslate nohighlight">\(0\)</span></p></td>
-<td><p>Number of principal components <span class="math notranslate nohighlight">\((p_r \leq p)\)</span>. If zero, the algorithm will compute the result for <span class="math notranslate nohighlight">\(\text{nComponents} = p_r\)</span>.</p></td>
+<td><p>The number of principal components <span class="math notranslate nohighlight">\((p_r \leq p)\)</span>. If zero, the algorithm will compute the result for <span class="math notranslate nohighlight">\(\text{nComponents} = p_r\)</span>.</p></td>
 </tr>
 </tbody>
 </table>
