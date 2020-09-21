@@ -60,10 +60,10 @@ static train_result call_daal_kernel(const context_gpu& ctx,
     const auto daal_labels =
         interop::convert_to_daal_sycl_homogen_table(queue, arr_labels, row_count, 1);
 
-    daal_knn::Parameter daal_parameter(
-        desc.get_class_count(),
-        desc.get_neighbor_count(),
-        desc.get_data_use_in_model() ? daal_knn::doUse : daal_knn::doNotUse);
+    const auto data_use_in_model = daal_knn::doNotUse;
+    daal_knn::Parameter daal_parameter(desc.get_class_count(),
+                                       desc.get_neighbor_count(),
+                                       data_use_in_model);
 
     daal::algorithms::classifier::ModelPtr model_ptr(new daal_knn::Model(column_count));
     if (!model_ptr) {
@@ -71,9 +71,9 @@ static train_result call_daal_kernel(const context_gpu& ctx,
     }
 
     auto knn_model = static_cast<daal_knn::Model*>(model_ptr.get());
-
-    knn_model->impl()->setData<Float>(daal_data, desc.get_data_use_in_model());
-    knn_model->impl()->setLabels<Float>(daal_labels, desc.get_data_use_in_model());
+    const bool copy_data_labels = true;
+    knn_model->impl()->setData<Float>(daal_data, copy_data_labels);
+    knn_model->impl()->setLabels<Float>(daal_labels, copy_data_labels);
 
     interop::status_to_exception(
         daal_knn_brute_force_kernel_t<Float>().compute(daal_data.get(),
