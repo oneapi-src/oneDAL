@@ -245,6 +245,8 @@ The following computation modes are available:
    computation-batch.rst
    computation-distributed.rst
 
+.. note:: Distributed mode is not available for oneAPI interfaces and for Python* with DPC++ support.
+
 Examples
 ********
 

@@ -45,7 +45,7 @@ The K-Means clustering algorithm in the distributed processing mode has the foll
 
    * - ``algorithmFPType``
      - ``float``
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
    * - ``method``
      - ``defaultDense``
      - Available computation methods for K-Means clustering:

@@ -246,7 +246,7 @@ void status_to_exception(const daal::services::Status& s) {
             throw internal_error(description);
         case ErrorID::ErrorMemoryAllocationFailed:
         case ErrorID::ErrorZlibMemoryAllocationFailed:
-        case ErrorID::ErrorBzip2MemoryAllocationFailed: throw bad_alloc();
+        case ErrorID::ErrorBzip2MemoryAllocationFailed: throw host_bad_alloc();
         default: throw internal_error("Unknown status code");
     }
 }

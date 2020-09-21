@@ -54,6 +54,7 @@ The sorting algorithm has the following parameters:
 .. list-table::
    :header-rows: 1
    :align: left
+   :widths: 10 10 60
 
    * - Parameter
      - Default Value

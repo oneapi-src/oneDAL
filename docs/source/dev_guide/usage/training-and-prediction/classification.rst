@@ -104,15 +104,21 @@ For more details, see :ref:`algorithms`.
    * - ``prediction``
      - Pointer to the :math:`n \times 1` numeric table with classification results (class labels or confidence levels).
        
-       By default, this table is an object of the ``HomogenNumericTable`` class, but you can define it as an object of any class
-       derived from ``NumericTable`` except ``PackedSymmetricMatrix`` and ``PackedTriangularMatrix``.
+       .. note::
+       
+          By default, this table is an object of the ``HomogenNumericTable`` class,
+          but you can define it as an object of any class derived from ``NumericTable``
+          except ``PackedSymmetricMatrix`` and ``PackedTriangularMatrix``.
    
    * - ``probabilities``
-     - Numeric table of size :math:`n \times \text{nClasses}`, containing probabilities of classes computed when the
+     - A numeric table of size :math:`n \times \text{nClasses}`, containing probabilities of classes computed when the
        ``computeClassProbabilities`` option is enabled. This result table is available for selected algorithms, see corresponding algorithm documentation for details.
    * - ``logProbabilities``
-     - Numeric table of size :math:`n \times \text{nClasses}`, containing logarithms of classes' probabilities computed when the ``computeClassLogProbabilities`` option is enabled.
+     - A numeric table of size :math:`n \times \text{nClasses}`, containing logarithms of classes' probabilities computed when the ``computeClassLogProbabilities`` option is enabled.
        This result table is available for selected algorithms, see corresponding algorithm documentation for details.
 
-       By default, this table is an object of the ``HomogenNumericTable`` class, but you can define it as an object of any class
-       derived from ``NumericTable`` except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, ``CSRNumericTable``.
+       .. note::
+
+          By default, this table is an object of the ``HomogenNumericTable`` class,
+          but you can define it as an object of any class derived from ``NumericTable``
+          except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, ``CSRNumericTable``.

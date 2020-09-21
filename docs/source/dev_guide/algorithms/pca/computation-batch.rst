@@ -66,7 +66,7 @@ computation method parameter method:
      - ``defaultDense`` or ``svdDense``
      - ``float``
      - The floating-point type that the algorithm uses for intermediate
-       computations. Can be float or double.
+       computations. Can be ``float`` or ``double``.
    * - ``method``
      - Not applicable
      - ``defaultDense``
@@ -84,19 +84,18 @@ computation method parameter method:
 
    * - ``covariance``
      - ``defaultDense``
-     - SharedPtr<covariance::Batch<algorithmFPType, covariance::defaultDense> >
+     - `SharedPtr<covariance::Batch<algorithmFPType, covariance::defaultDense> >`
      - The correlation and variance-covariance matrices algorithm to be used
        for PCA computations with the correlation method.
    * - ``normalization``
      - ``svdDense``
-     - SharedPtr<normalization::zscore::Batch<algorithmFPType,
-       normalization::zscore::defaultDense>>
+     - `SharedPtr<normalization::zscore::Batch<algorithmFPType, normalization::zscore::defaultDense>>`
      - The data normalization algorithm to be used for PCA computations with
        the SVD method. 
    * - ``nComponents``
      - ``defaultDense``, ``svdDense``
      - :math:`0`
-     - Number of principal components :math:`p_r`. If it is zero, the algorithm
+     - The number of principal components :math:`p_r`. If it is zero, the algorithm
        will compute the result for :math:`p_r = p`.
    * - ``isDeterministic``
      - ``defaultDense``, ``svdDense``
@@ -104,15 +103,15 @@ computation method parameter method:
      - If true, the algorithm applies the "sign flip" technique to the results.
    * - ``resultsToCompute``
      - ``defaultDense``, ``svdDense``
-     - none
+     - ``none``
      - The 64-bit integer flag that specifies which optional result to compute.
 
        Provide one of the following values to request a single characteristic
        or use bitwise OR to request a combination of the characteristics:
 
-       -  mean
-       -  variance
-       -  eigenvalue
+       -  ``mean``
+       -  ``variance``
+       -  ``eigenvalue``
 
 Algorithm Output
 ----------------

@@ -1,6 +1,5 @@
-/* file: ResultsToComputeId.java */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,22 +14,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-/**
- * @ingroup bf_knn_classification
- * @{
- */
-package com.intel.daal.algorithms.bf_knn_classification;
+#include "oneapi/dal/io/detail/load_graph_service.hpp"
+#include "src/externals/service_service.h"
 
-import com.intel.daal.utils.*;
-/**
- * <a name="DAAL-CLASS-ALGORITHMS__BF_KNN_CLASSIFICATION__RESULTSTOCOMPUTEID"></a>
- * @brief Available identifiers to specify the result to compute
- */
-public final class ResultsToComputeId {
+namespace oneapi::dal::preview::load_graph::detail {
 
-    public static final long computeIndicesOfNeighbors = 0x0000000000000001L;
-        /*!< The flag to compute indices of nearest neighbors */
-    public static final long computeDistances          = 0x0000000000000002L;
-        /*!< The flag to compute distances to nearest neighbors */
+ONEAPI_DAL_EXPORT int daal_string_to_int(const char* nptr, char** endptr) {
+    return daal::internal::Service<>::serv_string_to_int(nptr, endptr);
 }
-/** @} */
+} // namespace oneapi::dal::preview::load_graph::detail
