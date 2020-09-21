@@ -83,7 +83,7 @@ public:
         TlsMem<int, cpu> tlsIdx(outBlockSize);
         TlsMem<FPType, cpu> tlsKDistances(inBlockSize * k);
         TlsMem<int, cpu> tlsKIndexes(inBlockSize * k);
-        TlsMem<int, cpu> tlsVoting(nClasses);
+        TlsMem<FPType, cpu> tlsVoting(nClasses);
 
         SafeStatus safeStat;
 
@@ -150,7 +150,7 @@ protected:
                                           FPType * trainLabel, const NumericTable * trainTable, const NumericTable * testTable,
                                           NumericTable * testLabelTable, NumericTable * indicesTable, NumericTable * distancesTable,
                                           TlsMem<FPType, cpu> & tlsDistances, TlsMem<int, cpu> & tlsIdx, TlsMem<FPType, cpu> & tlsKDistances,
-                                          TlsMem<int, cpu> & tlsKIndexes, TlsMem<int, cpu> & tlsVoting, size_t nOuterBlocks)
+                                          TlsMem<int, cpu> & tlsKIndexes, TlsMem<FPType, cpu> & tlsVoting, size_t nOuterBlocks)
     {
         const size_t inBlockSize = trainBlockSize;
         const size_t inRows      = nTrain;
@@ -265,7 +265,7 @@ protected:
             DAAL_CHECK_BLOCK_STATUS(testLabelRows);
             int * testLabel = testLabelRows.get();
 
-            int * voting = tlsVoting.local();
+            FPType * voting = tlsVoting.local();
             DAAL_CHECK_MALLOC(voting);
 
             if (voteWeights == VoteWeights::voteUniform)
@@ -351,7 +351,7 @@ protected:
     }
 
     services::Status uniformWeightedVoting(const size_t nClasses, const size_t k, const size_t n, const size_t nTrain, int * indices,
-                                           const FPType * trainLabel, int * testLabel, int * classWeights)
+                                           const FPType * trainLabel, int * testLabel, FPType * classWeights)
     {
         for (size_t i = 0; i < n; ++i)
         {
@@ -380,28 +380,28 @@ protected:
     }
 
     services::Status distanceWeightedVoting(const size_t nClasses, const size_t k, const size_t n, const size_t nTrain, FPType * distances,
-                                            int * indices, const FPType * trainLabel, int * testLabel, int * classWeights)
+                                            int * indices, const FPType * trainLabel, int * testLabel, FPType * classWeights)
     {
         const FPType epsilon = daal::services::internal::EpsilonVal<FPType>::get();
-        bool isContainZero   = false;
-        for (size_t i = 0; i < k * n; ++i)
-        {
-            if (distances[i] < epsilon)
-            {
-                isContainZero = true;
-                break;
-            }
-        }
 
         for (size_t i = 0; i < n; ++i)
         {
+            bool isContainZero = false;
+            for (size_t j = 0; j < k * n; ++j)
+            {
+                if (distances[j] < epsilon)
+                {
+                    isContainZero = true;
+                    break;
+                }
+            }
             for (size_t j = 0; j < nClasses; ++j)
             {
                 classWeights[j] = 0;
             }
-            for (size_t j = 0; j < k; ++j)
+            if (isContainZero)
             {
-                if (isContainZero)
+                for (size_t j = 0; j < k; ++j)
                 {
                     if (distances[i] < epsilon)
                     {
@@ -409,7 +409,10 @@ protected:
                         classWeights[label] += 1;
                     }
                 }
-                else
+            }
+            else
+            {
+                for (size_t j = 0; j < k; ++j)
                 {
                     const int label = static_cast<int>(trainLabel[indices[i * k + j]]);
                     classWeights[label] += 1 / distances[i * k + j];

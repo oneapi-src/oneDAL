@@ -282,18 +282,24 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     typedef daal::internal::Math<algorithmFpType, cpu> Math;
 
     size_t k;
+    size_t nClasses;
     VoteWeights voteWeights       = voteUniform;
     DAAL_UINT64 resultsToEvaluate = classifier::computeClassLabels;
 
     {
         auto par1 = dynamic_cast<const kdtree_knn_classification::interface1::Parameter *>(par);
-        if (par1) k = par1->k;
+        if (par1)
+        {
+            k        = par1->k;
+            nClasses = par1->nClasses;
+        }
 
         auto par2 = dynamic_cast<const kdtree_knn_classification::interface2::Parameter *>(par);
         if (par2)
         {
             k                 = par2->k;
             resultsToEvaluate = par2->resultsToEvaluate;
+            nClasses          = par2->nClasses;
         }
 
         const auto par3 = dynamic_cast<const kdtree_knn_classification::interface3::Parameter *>(par);
@@ -302,6 +308,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
             k                 = par3->k;
             voteWeights       = par3->voteWeights;
             resultsToEvaluate = par3->resultsToEvaluate;
+            nClasses          = par3->nClasses;
         }
 
         if (par1 == NULL && par2 == NULL && par3 == NULL) return Status(ErrorNullParameterNotSupported);
@@ -408,7 +415,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
                 {
                     findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data,
                                          isHomogenSOA, soa_arrays);
-                    s = predict(&(dy[i * yColumnCount]), local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i);
+                    s = predict(&(dy[i * yColumnCount]), local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses);
                     DAAL_CHECK_STATUS_THR(s)
                 }
 
@@ -421,7 +428,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
                 {
                     findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data,
                                          isHomogenSOA, soa_arrays);
-                    s = predict(nullptr, local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i);
+                    s = predict(nullptr, local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses);
                     DAAL_CHECK_STATUS_THR(s)
                 }
             }
@@ -599,7 +606,7 @@ template <typename algorithmFpType, CpuType cpu>
 services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::predict(
     algorithmFpType * predictedClass, const Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap, const NumericTable * labels, size_t k,
     VoteWeights voteWeights, const NumericTable * modelIndices, data_management::BlockDescriptor<algorithmFpType> & indices,
-    data_management::BlockDescriptor<algorithmFpType> & distances, size_t index)
+    data_management::BlockDescriptor<algorithmFpType> & distances, size_t index, const size_t nClasses)
 {
     typedef daal::internal::Math<algorithmFpType, cpu> Math;
 
@@ -661,39 +668,29 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
         DAAL_ASSERT(predictedClass);
 
         data_management::BlockDescriptor<algorithmFpType> labelBD;
-        algorithmFpType * classes = static_cast<algorithmFpType *>(daal::services::internal::service_malloc<algorithmFpType, cpu>(heapSize));
+        algorithmFpType * classes      = static_cast<algorithmFpType *>(daal::services::internal::service_malloc<algorithmFpType, cpu>(heapSize));
+        algorithmFpType * classWeights = static_cast<algorithmFpType *>(daal::services::internal::service_malloc<algorithmFpType, cpu>(nClasses));
+        DAAL_CHECK_MALLOC(classWeights);
         DAAL_CHECK_MALLOC(classes);
+        
+        for (size_t i = 0; i < nClasses; ++i)
+        {
+            classWeights[i] = 0;
+        }
+
         for (size_t i = 0; i < heapSize; ++i)
         {
             const_cast<NumericTable *>(labels)->getBlockOfColumnValues(0, heap[i].index, 1, readOnly, labelBD);
             classes[i] = *(labelBD.getBlockPtr());
             const_cast<NumericTable *>(labels)->releaseBlockOfColumnValues(labelBD);
         }
-        daal::algorithms::internal::qSort<algorithmFpType, cpu>(heapSize, classes);
-        algorithmFpType currentClass = classes[0];
-        algorithmFpType winnerClass  = currentClass;
 
         if (voteWeights == voteUniform)
         {
-            size_t currentWeight = 1;
-            size_t winnerWeight  = currentWeight;
-            for (size_t i = 1; i < heapSize; ++i)
+            for (size_t i = 0; i < heapSize; ++i)
             {
-                if (classes[i] == currentClass)
-                {
-                    if ((++currentWeight) > winnerWeight)
-                    {
-                        winnerWeight = currentWeight;
-                        winnerClass  = currentClass;
-                    }
-                }
-                else
-                {
-                    currentWeight = 1;
-                    currentClass  = classes[i];
-                }
+                classWeights[(size_t)(classes[i])] += 1;
             }
-            *predictedClass = winnerClass;
         }
         else
         {
@@ -714,55 +711,37 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
 
             if (isContainZero)
             {
-                size_t currentWeight = (heap[0].distance <= epsilon);
-                size_t winnerWeight  = currentWeight;
-                for (size_t i = 1; i < heapSize; ++i)
+                for (size_t i = 0; i < heapSize; ++i)
                 {
-                    if (classes[i] == currentClass)
+                    if (heap[i].distance <= epsilon)
                     {
-                        currentWeight += (heap[i].distance <= epsilon);
-                    }
-                    else
-                    {
-                        currentWeight = (heap[i].distance <= epsilon);
-                        currentClass  = classes[i];
-                    }
-
-                    if (currentWeight > winnerWeight)
-                    {
-                        winnerWeight = currentWeight;
-                        winnerClass  = currentClass;
+                        classWeights[(size_t)(classes[i])] += 1;
                     }
                 }
-                *predictedClass = winnerClass;
             }
             else
             {
-                algorithmFpType currentWeight = Math::sSqrt(1.0 / heap[0].distance);
-                algorithmFpType winnerWeight  = currentWeight;
-                for (size_t i = 1; i < heapSize; ++i)
+                for (size_t i = 0; i < heapSize; ++i)
                 {
-                    if (classes[i] == currentClass)
-                    {
-                        currentWeight += Math::sSqrt(1.0 / heap[i].distance);
-                    }
-                    else
-                    {
-                        currentWeight = Math::sSqrt(1.0 / heap[i].distance);
-                        currentClass  = classes[i];
-                    }
-
-                    if (currentWeight > winnerWeight)
-                    {
-                        winnerWeight = currentWeight;
-                        winnerClass  = currentClass;
-                    }
+                    classWeights[(size_t)(classes[i])] += Math::sSqrt(1 / heap[i].distance);
                 }
-                *predictedClass = winnerClass;
             }
         }
 
+        algorithmFpType maxWeightClass = 0;
+        algorithmFpType maxWeight      = 0;
+        for (size_t i = 0; i < nClasses; ++i)
+        {
+            if (classWeights[i] > maxWeight)
+            {
+                maxWeight      = classWeights[i];
+                maxWeightClass = i;
+            }
+        }
+        *predictedClass = maxWeightClass;
+
         service_free<algorithmFpType, cpu>(classes);
+        service_free<algorithmFpType, cpu>(classWeights);
         classes = nullptr;
     }
 
