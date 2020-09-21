@@ -29,6 +29,7 @@
 #include "data_management/data/homogen_numeric_table.h"
 #include "data_management/data/aos_numeric_table.h"
 #include "data_management/data/soa_numeric_table.h"
+#include "data_management/data/numeric_table_sycl_homogen.h"
 
 #include "data_management/data_source/data_source_utils.h"
 
@@ -386,6 +387,18 @@ protected:
     template <typename FPType>
     services::Status allocateNumericTableImpl(services::SharedPtr<HomogenNumericTable<FPType> > & nt);
 
+    /**
+     *  Allocates a homogeneous SYCL Numeric Table that corresponds to the template type
+     *
+     *  \tparam FPType - Type of the homogeneous SYCL Numeric Table
+     *
+     *  \param   nt      - Pointer to the allocated SYCL Numeric Table
+     *
+     *  \return          - Allocation status: True if the table is allocated, false otherwise.
+     */
+    template <typename FPType>
+    services::Status allocateNumericTableImpl(services::SharedPtr<SyclHomogenNumericTable<FPType> > & nt);
+
     size_t getStructureSize()
     {
         size_t structureSize = 0;
@@ -450,6 +463,17 @@ inline services::Status DataSource::allocateNumericTableImpl(services::SharedPtr
     return s;
 }
 
+template <typename FPType>
+inline services::Status DataSource::allocateNumericTableImpl(services::SharedPtr<SyclHomogenNumericTable<FPType> > & nt)
+{
+    size_t nFeatures = getNumericTableNumberOfColumns();
+    services::Status s;
+    nt = SyclHomogenNumericTable<FPType>::create(nFeatures, 0, NumericTableIface::doNotAllocate, &s);
+    if (!s) return s;
+    s |= setNumericTableDictionary(nt);
+    return s;
+}
+
 /**
  *  <a name="DAAL-CLASS-DATA_MANAGEMENT__DATASOURCETEMPLATE"></a>
  *  \brief Implements the abstract DataSourceIface interface
@@ -478,9 +502,18 @@ public:
         services::Status s = checkDictionary();
         if (!s) return s;
 
-        services::SharedPtr<numericTableType> nt;
+        NumericTablePtr nt;
+        if (isCpuContext()) {
+            services::SharedPtr<numericTableType> cpuNt;
+            s |= allocateNumericTableImpl(cpuNt);
+            nt = cpuNt;
+        }
+        else {
+            services::SharedPtr<SyclHomogenNumericTable<DAAL_DATA_TYPE> > syclNt;
+            s |= allocateNumericTableImpl(syclNt);
+            nt = syclNt;
+        }
 
-        s |= allocateNumericTableImpl(nt);
         _spnt = nt;
 
         services::SharedPtr<HomogenNumericTable<_summaryStatisticsType> > ssNt;
@@ -727,6 +760,9 @@ protected:
         s.add(combineSingleStatistics(ntSrc, ntDst, wasEmpty, NumericTable::sumSquares));
         return s;
     }
+
+private:
+    static bool isCpuContext() { return oneapi::internal::getDefaultContext().getInfoDevice().isCpu; }
 };
 
 /** @} */

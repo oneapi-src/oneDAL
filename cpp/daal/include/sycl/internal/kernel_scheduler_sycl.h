@@ -378,13 +378,12 @@ private:
 };
         #endif // DAAL_DISABLE_LEVEL_ZERO
 
-class SyclBufferStorage
+class BufferStorage
 {
 public:
-    template <typename T>
-    void add(const cl::sycl::buffer<T, 1> & buffer)
+    void add(const services::internal::Any & buffer)
     {
-        _buffers.push_back(services::internal::Any(buffer));
+        _buffers.push_back(buffer);
     }
 
 private:
@@ -394,7 +393,7 @@ private:
 class SyclKernelSchedulerArgHandler
 {
 public:
-    SyclKernelSchedulerArgHandler(cl::sycl::handler & handler, SyclBufferStorage & storage, size_t argumentIndex, const KernelArgument & arg)
+    SyclKernelSchedulerArgHandler(cl::sycl::handler & handler, BufferStorage & storage, size_t argumentIndex, const KernelArgument & arg)
         : _handler(handler), _storage(storage), _argumentIndex(argumentIndex), _argument(arg)
     {}
 
@@ -415,29 +414,13 @@ private:
     template <typename T>
     void handlePublicBuffer()
     {
-        auto buffer = _argument.get<services::Buffer<T> >().toSycl();
-
+        const auto & anyBuffer = _argument.getRaw();
         // Note: we need this storage to keep all sycl buffers alive
         // while the kernel is running
-        _storage.add(buffer);
+        _storage.add(anyBuffer);
 
-        switch (_argument.accessMode())
-        {
-        case AccessModeIds::read: return handlePublicBuffer<cl::sycl::access::mode::read>(buffer);
-
-        case AccessModeIds::write: return handlePublicBuffer<cl::sycl::access::mode::write>(buffer);
-
-        case AccessModeIds::readwrite: return handlePublicBuffer<cl::sycl::access::mode::read_write>(buffer);
-        }
-
-        DAAL_ASSERT(!"Unexpected buffer access mode");
-    }
-
-    template <cl::sycl::access::mode mode, typename Buffer>
-    void handlePublicBuffer(Buffer & buffer)
-    {
-        auto accessor = buffer.template get_access<mode>(_handler);
-        _handler.set_arg((int)_argumentIndex, accessor);
+        services::SharedPtr<T> usmSharedPtr = anyBuffer.get<services::Buffer<T> >().toUSM();
+        _handler.set_arg((int)_argumentIndex, usmSharedPtr.get());
     }
 
     template <typename T>
@@ -456,7 +439,7 @@ private:
     }
 
     cl::sycl::handler & _handler;
-    SyclBufferStorage & _storage;
+    BufferStorage & _storage;
     size_t _argumentIndex;
     const KernelArgument & _argument;
     services::Status _status;
@@ -586,7 +569,7 @@ private:
     template <typename Range>
     void scheduleSycl(const Range & range, const OpenClKernel & kernel, const KernelArguments & args, services::Status * status = nullptr)
     {
-        SyclBufferStorage bufferStorage;
+        BufferStorage bufferStorage;
 
         cl::sycl::kernel syclKernel = kernel.toSycl(_queue.get_context());
 
@@ -598,7 +581,7 @@ private:
         event.wait_and_throw();
     }
 
-    void passArguments(cl::sycl::handler & cgh, SyclBufferStorage & storage, const KernelArguments & args) const
+    void passArguments(cl::sycl::handler & cgh, BufferStorage & storage, const KernelArguments & args) const
     {
         for (size_t i = 0; i < args.size(); i++)
         {

@@ -26,12 +26,15 @@
 
 #include "services/buffer.h"
 #include "data_management/data/numeric_table.h"
+#include "data_management/data/numeric_table_sycl_homogen.h"
 #include "services/env_detect.h"
 #include "services/error_indexes.h"
 #include "src/algorithms/low_order_moments/oneapi/cl_kernels/low_order_moments_kernels_all.h"
 #include "src/algorithms/low_order_moments/oneapi/low_order_moments_kernel_batch_oneapi.h"
 #include "src/externals/service_ittnotify.h"
 #include "sycl/internal/utils.h"
+
+#include <iostream>
 
 using namespace daal::services::internal;
 using namespace daal::oneapi::internal;
@@ -204,6 +207,29 @@ LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::LowOrderMomentsBatchTask
     workItemsPerGroup = (maxWorkItemsPerGroup < nFeatures) ? maxWorkItemsPerGroup : nFeatures;
 
     CHECK_AND_RET_IF_FAIL(*status, dataTable->getBlockOfRows(0, nVectors, readOnly, dataBD));
+
+    // /* DEBUG */ {
+    //     auto syclTablePtr = dynamic_cast<SyclHomogenNumericTable<algorithmFPType> *>(dataTable);
+    //     if (syclTablePtr) {
+    //         std::cout << "Table type: SYCL" << std::endl;
+    //     }
+    //     else {
+    //         std::cout << "Table type: HOST" << std::endl;
+    //     }
+
+    //     const algorithmFPType * dataPtr = dataBD.getBlockPtr();
+
+    //     std::cout << "First row of data:" << std::endl;
+    //     for (size_t i = 0; i < dataBD.getNumberOfColumns(); i++)
+    //     { std::cout << dataPtr[i] << " "; }
+    //     std::cout << std::endl;
+
+    //     std::cout << "Last row of data:" << std::endl;
+    //     const size_t offset = dataBD.getNumberOfColumns() * (dataBD.getNumberOfRows() - 1);
+    //     for (size_t i = 0; i < dataBD.getNumberOfColumns(); i++)
+    //     { std::cout << dataPtr[offset + i] << " "; }
+    //     std::cout << std::endl;
+    // }
 
     for (unsigned int i = 0; i < TaskInfoBatch<algorithmFPType, scope>::nResults; i++)
     {
