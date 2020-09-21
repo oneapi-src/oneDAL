@@ -629,6 +629,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#output">Output</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#examples">Examples</a></li>
@@ -1108,11 +1109,11 @@ method parameter method:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>algorithmFPType</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code>, <code class="docutils literal notranslate"><span class="pre">miniBatch</span></code>, <code class="docutils literal notranslate"><span class="pre">momentum</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
 <td><p>The floating-point type that the algorithm uses for intermediate
-computations. Can be float or double.</p></td>
+computations. Can be <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
 <td><p>Not applicable</p></td>
@@ -1132,7 +1133,7 @@ computations. Can be float or double.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">batchIndices</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code>, <code class="docutils literal notranslate"><span class="pre">miniBatch</span></code>, <code class="docutils literal notranslate"><span class="pre">momentum</span></code></p></td>
-<td><p>Not applicable.</p></td>
+<td><p>Not applicable</p></td>
 <td><p>The numeric table with 32-bit integer indices of terms in the objective
 function. The method parameter determines the size of the numeric table:</p>
 <ul class="simple">
@@ -1145,7 +1146,7 @@ function. The method parameter determines the size of the numeric table:</p>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">batchSize</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">miniBatch</span></code>,``momentum``</p></td>
 <td><p><span class="math notranslate nohighlight">\(128\)</span></p></td>
-<td><p>Number of batch indices to compute the stochastic gradient.</p>
+<td><p>The number of batch indices to compute the stochastic gradient.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">batchSize</span></code> equals the number of terms in the objective function, no random sampling
 is performed, and all terms are used to calculate the gradient.</p>
 <p>The algorithm ignores this parameter if the batchIndices parameter is
@@ -1156,7 +1157,7 @@ gradient on each iteration.</p>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">conservativeSequence</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">miniBatch</span></code></p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> that contains the default conservative coefficient equal to 1.</p></td>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> that contains the default conservative coefficient equal to 1.</p></td>
 <td><p>The numeric table of size <span class="math notranslate nohighlight">\(1 \times \text{nIterations}\)</span> or <span class="math notranslate nohighlight">\(1 \times 1\)</span>. The contents of the
 table depend on its size:</p>
 <blockquote>
@@ -1174,7 +1175,7 @@ table depend on its size:</p>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">learningRateSequence</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code>, <code class="docutils literal notranslate"><span class="pre">miniBatch</span></code>, <code class="docutils literal notranslate"><span class="pre">momentum</span></code></p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> that contains the default step length equal to 1.</p></td>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> that contains the default step length equal to 1.</p></td>
 <td><p>The numeric table of size <span class="math notranslate nohighlight">\(1 \times \text{nIterations}\)</span> or <span class="math notranslate nohighlight">\(1 \times 1\)</span>. The contents of the
 table depend on its size:</p>
 <blockquote>
@@ -1192,7 +1193,7 @@ table depend on its size:</p>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">engine</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code>, <code class="docutils literal notranslate"><span class="pre">miniBatch</span></code>, <code class="docutils literal notranslate"><span class="pre">momentum</span></code></p></td>
-<td><p>SharePtr&lt; engines:: mt19937:: Batch&gt;()</p></td>
+<td><p><cite>SharePtr&lt; engines:: mt19937:: Batch&gt;()</cite></p></td>
 <td><p>Pointer to the random number generator engine that is used internally
 for generation of 32-bit integer indices of terms in the objective function.</p></td>
 </tr>

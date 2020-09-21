@@ -629,6 +629,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#output">Output</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#examples">Examples</a></li>
@@ -1136,17 +1137,14 @@ the initial model will be automatically updated with the new <span class="math n
 in <a class="reference internal" href="../../usage/training-and-prediction/classification.html#classification-usage-model"><span class="std std-ref">Classification Usage Model</span></a>.</p>
 <div class="section" id="training">
 <h3>Training<a class="headerlink" href="#training" title="Permalink to this headline">¶</a></h3>
-<p>For a description of the input and output, refer to Usage Model:
-Training and Prediction</p>
-<p>In addition to the parameters of classifier described in
-<a class="reference internal" href="../../usage/training-and-prediction/classification.html#classification-usage-model"><span class="std std-ref">Classification Usage Model</span></a>,
-the logistic regression batch training algorithm has the following
-parameters:</p>
+<p>For a description of the input and output, refer to <a class="reference internal" href="../../usage/training-and-prediction/classification.html#classification-usage-model"><span class="std std-ref">Classification Usage Model</span></a>.</p>
+<p>In addition to the parameters of classifier described in <a class="reference internal" href="../../usage/training-and-prediction/classification.html#classification-usage-model"><span class="std std-ref">Classification Usage Model</span></a>,
+the logistic regression batch training algorithm has the following parameters:</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 75%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Parameter</p></th>
@@ -1155,24 +1153,24 @@ parameters:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>algorithmFPType</p></td>
-<td><p>float</p></td>
-<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be float or double.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p>method</p></td>
-<td><p>defaultDense</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
 <td><p>The computation method used by the logistic regression. The only
 training method supported so far is the default dense method.</p></td>
 </tr>
-<tr class="row-even"><td><p>nClasses</p></td>
-<td><p>Not applicable.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nClasses</span></code></p></td>
+<td><p>Not applicable</p></td>
 <td><p>The number of classes. A required parameter.</p></td>
 </tr>
-<tr class="row-odd"><td><p>interceptFlag</p></td>
-<td><p>True</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">interceptFlag</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
 <td><p>A flag that indicates a need to compute <span class="math notranslate nohighlight">\(\theta_j\)</span></p></td>
 </tr>
-<tr class="row-even"><td><p>penaltyL1</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">penaltyL1</span></code></p></td>
 <td><p><span class="math notranslate nohighlight">\(0\)</span></p></td>
 <td><p>L1 regularization coefficient</p>
 <div class="admonition note">
@@ -1181,12 +1179,12 @@ training method supported so far is the default dense method.</p></td>
 </div>
 </td>
 </tr>
-<tr class="row-odd"><td><p>penaltyL2</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">penaltyL2</span></code></p></td>
 <td><p><span class="math notranslate nohighlight">\(0\)</span></p></td>
 <td><p>L2 regularization coefficient</p></td>
 </tr>
-<tr class="row-even"><td><p>optimizationSolver</p></td>
-<td><p>SGD solver</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">optimizationSolver</span></code></p></td>
+<td><p><a class="reference internal" href="../optimization-solvers/solvers/stochastic-gradient-descent-algorithm.html#sgd-solver"><span class="std std-ref">SGD solver</span></a></p></td>
 <td><p>All iterative solvers are available as optimization procedures to use at the training stage:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="../optimization-solvers/solvers/stochastic-gradient-descent-algorithm.html#sgd-solver"><span class="std std-ref">SGD (Stochastic Gradient Descent Algorithm)</span></a></p></li>
@@ -1201,14 +1199,13 @@ training method supported so far is the default dense method.</p></td>
 </div>
 <div class="section" id="prediction">
 <h3>Prediction<a class="headerlink" href="#prediction" title="Permalink to this headline">¶</a></h3>
-<p>For a description of the input, refer to Usage Model: Training and Prediction</p>
-<p>At the prediction stage logistic regression batch algorithm has the
-following parameters:</p>
+<p>For a description of the input, refer to <a class="reference internal" href="../../usage/training-and-prediction/classification.html#classification-usage-model"><span class="std std-ref">Classification Usage Model</span></a>.</p>
+<p>At the prediction stage logistic regression batch algorithm has the following parameters:</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 75%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Parameter</p></th>
@@ -1217,30 +1214,30 @@ following parameters:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>algorithmFPType</p></td>
-<td><p>float</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
 <td><p>The floating-point type that the algorithm uses for intermediate
-computations. Can be float or double.</p></td>
+computations. Can be <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p>method</p></td>
-<td><p>defaultDense</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
 <td><p>The computation method used by logistic regression. The only prediction
 method supported so far is the default dense method.</p></td>
 </tr>
-<tr class="row-even"><td><p>nClasses</p></td>
-<td><p>Not applicable.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nClasses</span></code></p></td>
+<td><p>Not applicable</p></td>
 <td><p>The number of classes. A required parameter.</p></td>
 </tr>
-<tr class="row-odd"><td><p>resultsToCompute</p></td>
-<td><p>computeClassesLabels</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">resultsToCompute</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">computeClassesLabels</span></code></p></td>
 <td><p>The 64-bit integer flag that specifies which extra characteristics of
 the logistic regression to compute.</p>
 <p>Provide one of the following values to request a single characteristic
 or use bitwise OR to request a combination of the characteristics:</p>
 <ul class="simple">
-<li><p>computeClassesLabels for prediction</p></li>
-<li><p>computeClassesProbabilities for probabilities</p></li>
-<li><p>computeClassesLogProbabilities for logProbabilities</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">computeClassesLabels</span></code> for prediction</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">computeClassesProbabilities</span></code> for probabilities</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">computeClassesLogProbabilities</span></code> for logProbabilities</p></li>
 </ul>
 </td>
 </tr>
@@ -1249,13 +1246,12 @@ or use bitwise OR to request a combination of the characteristics:</p>
 </div>
 <div class="section" id="output">
 <h3>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h3>
-<p>In addition to classifier output, logistic regression prediction
-calculates the result described below. Pass the Result ID as a
-parameter to the methods that access the results of your algorithm.</p>
+<p>In addition to classifier output, logistic regression prediction calculates the result described below.
+Pass the <code class="docutils literal notranslate"><span class="pre">Result</span> <span class="pre">ID</span></code> as a parameter to the methods that access the results of your algorithm.</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
+<col style="width: 14%" />
+<col style="width: 86%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Result ID</p></th>
@@ -1263,11 +1259,11 @@ parameter to the methods that access the results of your algorithm.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>probabilities</p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(n \times nClasses\)</span> containing probabilities of classes computed when computeClassesProbabilities option is enabled.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">probabilities</span></code></p></td>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(n \times nClasses\)</span> containing probabilities of classes computed when computeClassesProbabilities option is enabled.</p></td>
 </tr>
-<tr class="row-odd"><td><p>logProbabilities</p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(n \times nClasses\)</span> containing logarithms of classes’ probabilities computed when computeClassesLogProbabilities option is enabled.</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">logProbabilities</span></code></p></td>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(n \times nClasses\)</span> containing logarithms of classes’ probabilities computed when computeClassesLogProbabilities option is enabled.</p></td>
 </tr>
 </tbody>
 </table>

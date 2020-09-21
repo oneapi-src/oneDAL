@@ -130,25 +130,25 @@ At the training stage, a multi-class classifier has the following
 parameters:
 
 .. list-table::
-   :widths: 25 25 50
+   :widths: 10 20 30
    :header-rows: 1
    :align: left
 
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
+   * - ``algorithmFPType``
+     - ``float``
      - The floating-point type that the algorithm uses for intermediate
-       computations. Can be float or double.
-   * - method
-     - defaultDense
+       computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
      - The computation method used by the multi-class classifier. The only
        training method supported so far is One-Against-One.
-   * - training
+   * - ``training``
      - Pointer to an object of the SVM training class
      - Pointer to the training algorithm of the two-class classifier. By default, the SVM two-class classifier is used.
-   * - nClasses
+   * - ``nClasses``
      - Not applicable
      - The number of classes. A required parameter.
 
@@ -158,7 +158,7 @@ Prediction
 At the prediction stage, a multi-class classifier has the following parameters:
 
 .. list-table::
-   :widths: 25 25 25 25
+   :widths: 10 20 30 25
    :header-rows: 1
    :align: left
 
@@ -166,37 +166,37 @@ At the prediction stage, a multi-class classifier has the following parameters:
      - Method
      - Default Value
      - Description
-   * - algorithmFPType
-     - defaultDense or voteBased
-     - float
+   * - ``algorithmFPType``
+     - ``defaultDense`` or ``voteBased``
+     - ``float``
      - The floating-point type that the algorithm uses for intermediate
-       computations. Can be float or double.
-   * - pmethod
+       computations. Can be ``float`` or ``double``.
+   * - ``pmethod``
      - Not applicable
-     - defaultDense
+     - ``defaultDense``
      - Available methods for multi-class classifier prediction stage:
 
-       -  defaultDense - the method described in [Wu04]_
-       -  voteBasedthe method based on the votes obtained from two-class classifiers.
+       -  ``defaultDense`` - the method described in [Wu04]_
+       -  ``voteBasedthe`` method based on the votes obtained from two-class classifiers.
 
-   * - tmethod
-     - defaultDense or voteBased
-     - training::oneAgainstOne
+   * - ``tmethod``
+     - ``defaultDense`` or ``voteBased``
+     - `training::oneAgainstOne`
      - The computation method that was used to train the multi-class classifier model.
-   * - prediction
-     - defaultDense or voteBased
+   * - ``prediction``
+     - ``defaultDense`` or ``voteBased``
      - Pointer to an object of the SVM prediction class
      - Pointer to the prediction algorithm of the two-class classifier. By default, the SVM two-class classifier is used.
-   * - nClasses
-     - defaultDense or voteBased
+   * - ``nClasses``
+     - ``defaultDense`` or ``voteBased``
      - Not applicable
      - The number of classes. A required parameter.
-   * - maxIterations
-     - defaultDense
-     - 100
+   * - ``maxIterations``
+     - ``defaultDense``
+     - :math:`100`
      - The maximal number of iterations for the algorithm.
-   * - accuracyThreshold
-     - defaultDense
+   * - ``accuracyThreshold``
+     - ``defaultDense``
      - 1.0e-12
      - The prediction accuracy.
 

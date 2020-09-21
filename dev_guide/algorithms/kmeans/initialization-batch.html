@@ -623,6 +623,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#output">Output</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#examples">Examples</a></li>
@@ -1024,7 +1025,7 @@
 <div class="section" id="input">
 <h2><a class="toc-backref" href="#id5">Input</a><a class="headerlink" href="#input" title="Permalink to this headline">¶</a></h2>
 <p>Centroid initialization for K-Means clustering accepts the input
-described below. Pass the Input ID as a parameter to the methods
+described below. Pass the <code class="docutils literal notranslate"><span class="pre">Input</span> <span class="pre">ID</span></code> as a parameter to the methods
 that provide input for your algorithm.</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
@@ -1070,7 +1071,7 @@ parameter method.</p>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
 <td><p>any</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
-<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be float or double.</p></td>
+<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
 <td><p>Not applicable</p></td>
@@ -1128,7 +1129,7 @@ parameter method.</p>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">engine</span></code></p></td>
 <td><p>any</p></td>
-<td><p>SharePtr&lt; engines:: mt19937:: Batch&gt;()</p></td>
+<td><p><cite>SharePtr&lt; engines:: mt19937:: Batch&gt;()</cite></p></td>
 <td><p>Pointer to the random number generator engine that is used internally for random numbers generation.</p></td>
 </tr>
 </tbody>
@@ -1137,7 +1138,7 @@ parameter method.</p>
 <div class="section" id="output">
 <h2><a class="toc-backref" href="#id7">Output</a><a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h2>
 <p>Centroid initialization for K-Means clustering calculates the
-result described below. Pass the Result ID as a parameter to the
+result described below. Pass the <code class="docutils literal notranslate"><span class="pre">Result</span> <span class="pre">ID</span></code> as a parameter to the
 methods that access the results of your algorithm.</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>

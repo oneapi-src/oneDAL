@@ -629,6 +629,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#output">Output</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#examples">Examples</a></li>
@@ -1098,7 +1099,7 @@ the SAGA optimization solver has the following optional input:</p>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">gradientTable</span></code></p></td>
 <td><p>Not applicable</p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(n \times p\)</span> which represents <span class="math notranslate nohighlight">\(G_0\)</span> matrix that contains gradients of
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(n \times p\)</span> which represents <span class="math notranslate nohighlight">\(G_0\)</span> matrix that contains gradients of
 <span class="math notranslate nohighlight">\(F_i(\theta)\)</span>, <span class="math notranslate nohighlight">\(1, \ldots, n\)</span> at the initial point <span class="math notranslate nohighlight">\(\theta_0 \in R^p\)</span>.</p>
 <p>This input is optional: if the user does not provide the table of gradients for <span class="math notranslate nohighlight">\(F_i(\theta)\)</span>, <span class="math notranslate nohighlight">\(1, \ldots, n\)</span>,
 the library will compute it inside the SAGA algorithm.</p>
@@ -1138,7 +1139,7 @@ except for <code class="docutils literal notranslate"><span class="pre">PackedTr
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">batchIndices</span></code></p></td>
 <td><p><span class="math notranslate nohighlight">\(1\)</span></p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(\mathrm{nIterations} \times 1\)</span> with 32-bit integer indices of terms in the objective function.
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(\mathrm{nIterations} \times 1\)</span> with 32-bit integer indices of terms in the objective function.
 If no indices are provided, the implementation generates random index on each iteration.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1184,7 +1185,7 @@ the SAGA optimization solver calculates the following optional result:</p>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">gradientTable</span></code></p></td>
 <td><p>Not applicable</p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(n \times p\)</span> that represents matrix <span class="math notranslate nohighlight">\(G_t\)</span> updated after all iterations.</p>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(n \times p\)</span> that represents matrix <span class="math notranslate nohighlight">\(G_t\)</span> updated after all iterations.</p>
 <p>This parameter can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>,
 except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </td>

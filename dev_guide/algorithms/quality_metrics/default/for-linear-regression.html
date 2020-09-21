@@ -629,6 +629,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#output">Output</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#examples">Examples</a></li>
@@ -1115,7 +1116,7 @@ for testing insignificance of beta coefficients and one of the following values 
 </tr>
 <tr class="row-even"><td><p>F-statistics used in testing insignificance of a group of betas <span class="math notranslate nohighlight">\(F = (F_1, \ldots, F_k)\)</span></p></td>
 <td><p><span class="math notranslate nohighlight">\(F_j = \frac {(\text{ResSS}_{0j} - \text{ResSS}_j)/(p - p_0)}
-{\text{ResSS}_j}/(n - p - 1)}\)</span>, <span class="math notranslate nohighlight">\(j = 1, \ldots, k\)</span>,
+{{\text{ResSS}_j}/(n - p - 1)}\)</span>, <span class="math notranslate nohighlight">\(j = 1, \ldots, k\)</span>,
 where <span class="math notranslate nohighlight">\(\text{ResSS}_j\)</span> are computed for a model with <span class="math notranslate nohighlight">\(p + 1\)</span> betas and
 <span class="math notranslate nohighlight">\(\text{ResSS}_{0j}\)</span> are computed for a reduced model with <span class="math notranslate nohighlight">\(p_0 + 1\)</span> betas (<span class="math notranslate nohighlight">\(p - p_0\)</span> betas are set to zero)</p></td>
 </tr>
@@ -1274,7 +1275,7 @@ of the linear regression algorithm; otherwise, <span class="math notranslate noh
 <span id="id3"></span><h3>Testing Insignificance of a Group of Betas<a class="headerlink" href="#qm-lin-reg-group-of-betas-batch" title="Permalink to this headline">¶</a></h3>
 <p class="rubric">Algorithm Input</p>
 <p>The quality metric algorithm for linear regression accepts the input described below.
-Pass the Input ID as a parameter to the methods that provide input for your algorithm.
+Pass the <code class="docutils literal notranslate"><span class="pre">Input</span> <span class="pre">ID</span></code> as a parameter to the methods that provide input for your algorithm.
 For more details, see <a class="reference internal" href="../../../usage/algorithms.html#algorithms"><span class="std std-ref">Algorithms</span></a>.</p>
 <table class="colwidths-given docutils align-default">
 <colgroup>

@@ -629,6 +629,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#output">Output</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#examples">Examples</a></li>
@@ -1085,7 +1086,7 @@ is the “amount” of the feature vectors that are assigned
 to the <span class="math notranslate nohighlight">\(r\)</span>-th mixture component</p></li>
 <li><p>Mean estimates <span class="math notranslate nohighlight">\({m}_{r}^{\left(j+1\right)}=\frac{1}{{n}_{r}}\sum _{i=1}^{n}{w}_{ir}{x}_{i}\)</span></p></li>
 <li><p>Covariance estimate <span class="math notranslate nohighlight">\(\sum _{r}^{(j+1)}=({\sigma }_{r,hg}^{(j+1)})\)</span>
-of size p x p with <span class="math notranslate nohighlight">\(\sigma_{r,hg}^{(j+1)}=\frac{1}{n_r}\sum_{l=1}^{n}{w}_{lr}(x_{lh}-m_{r,h}^{(j+1)})(x_{lg}-m_{r,g}^{(j+1)})\)</span></p></li>
+of size <span class="math notranslate nohighlight">\(p \times p\)</span> with <span class="math notranslate nohighlight">\(\sigma_{r,hg}^{(j+1)}=\frac{1}{n_r}\sum_{l=1}^{n}{w}_{lr}(x_{lh}-m_{r,h}^{(j+1)})(x_{lg}-m_{r,g}^{(j+1)})\)</span></p></li>
 </ol>
 </div></blockquote>
 </li>
@@ -1136,12 +1137,12 @@ covariance matrices.</p>
 <div class="section" id="algorithm-input">
 <h4>Algorithm Input<a class="headerlink" href="#algorithm-input" title="Permalink to this headline">¶</a></h4>
 <p>The EM for GMM initialization algorithm accepts the input
-described below. Pass the Input ID as a parameter to the methods
+described below. Pass the <code class="docutils literal notranslate"><span class="pre">Input</span> <span class="pre">ID</span></code> as a parameter to the methods
 that provide input for your algorithm.</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
+<col style="width: 14%" />
+<col style="width: 86%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Input ID</p></th>
@@ -1162,9 +1163,9 @@ class derived from NumericTable.</p></td>
 <p>The EM for GMM initialization algorithm has the following parameters:</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
+<col style="width: 17%" />
 <col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
+<col style="width: 50%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Parameter</p></th>
@@ -1173,44 +1174,44 @@ class derived from NumericTable.</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>algorithmFPType</p></td>
-<td><p>float</p></td>
-<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be float or double.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p>method</p></td>
-<td><p>defaultDense</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
 <td><p>Performance-oriented computation method, the only method supported by the algorithm.</p></td>
 </tr>
-<tr class="row-even"><td><p>nComponents</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nComponents</span></code></p></td>
 <td><p>Not applicable</p></td>
 <td><p>The number of components in the Gaussian Mixture Model, a required parameter.</p></td>
 </tr>
-<tr class="row-odd"><td><p>nTrials</p></td>
-<td><p>20</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nTrials</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(20\)</span></p></td>
 <td><p>The number of starts of the EM algorithm.</p></td>
 </tr>
-<tr class="row-even"><td><p>nIterations</p></td>
-<td><p>10</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nIterations</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(10\)</span></p></td>
 <td><p>The maximal number of iterations in each start of the EM algorithm.</p></td>
 </tr>
-<tr class="row-odd"><td><p>accuracyThreshold</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">accuracyThreshold</span></code></p></td>
 <td><p>1.0e-04</p></td>
 <td><p>The threshold for termination of the algorithm.</p></td>
 </tr>
-<tr class="row-even"><td><p>covarianceStorage</p></td>
-<td><p>full</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">covarianceStorage</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">full</span></code></p></td>
 <td><p>Covariance matrix storage scheme in the Gaussian Mixture Model:</p>
 <ul class="simple">
-<li><p>full - covariance matrices are stored as numeric tables of size <span class="math notranslate nohighlight">\(p \times p\)</span>.
+<li><p><code class="docutils literal notranslate"><span class="pre">full</span></code> - covariance matrices are stored as numeric tables of size <span class="math notranslate nohighlight">\(p \times p\)</span>.
 All elements of the matrix are updated during the processing.</p></li>
-<li><p>diagonal - covariance matrices are stored as numeric tables of size <span class="math notranslate nohighlight">\(1 \times p\)</span>.
+<li><p><code class="docutils literal notranslate"><span class="pre">diagonal</span></code> - covariance matrices are stored as numeric tables of size <span class="math notranslate nohighlight">\(1 \times p\)</span>.
 Only diagonal elements of the matrix are updated during the
 processing, and the rest are assumed to be zero.</p></li>
 </ul>
 </td>
 </tr>
-<tr class="row-odd"><td><p>engine</p></td>
-<td><p>SharePtr&lt; engines:: mt19937:: Batch&gt;()</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">engine</span></code></p></td>
+<td><p><cite>SharePtr&lt; engines:: mt19937:: Batch&gt;()</cite></p></td>
 <td><p>Pointer to the random number generator engine that is used internally to get the initial means in each EM start.</p></td>
 </tr>
 </tbody>
@@ -1218,13 +1219,12 @@ processing, and the rest are assumed to be zero.</p></li>
 </div>
 <div class="section" id="algorithm-output">
 <h4>Algorithm Output<a class="headerlink" href="#algorithm-output" title="Permalink to this headline">¶</a></h4>
-<p>The EM for GMM initialization algorithm calculates the results
-described below. Pass the Result ID as a parameter to the methods
-that access the results of your algorithm.</p>
+<p>The EM for GMM initialization algorithm calculates the results described below.
+Pass the <code class="docutils literal notranslate"><span class="pre">Result</span> <span class="pre">ID</span></code> as a parameter to the methods that access the results of your algorithm.</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
+<col style="width: 14%" />
+<col style="width: 86%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Result ID</p></th>
@@ -1232,23 +1232,30 @@ that access the results of your algorithm.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>weights</p></td>
-<td><p>Pointer to the <span class="math notranslate nohighlight">\(1 \times k\)</span> numeric table with mixture weights. By default,
-this result is an object of the HomogenNumericTable class, but you can
-define the result as an object of any class derived from NumericTable
-except PackedTriangularMatrix, PackedSymmetricMatrix, and CSRNumericTable.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">weights</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(1 \times k\)</span> numeric table with mixture weights.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
+</td>
 </tr>
-<tr class="row-odd"><td><p>means</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">means</span></code></p></td>
 <td><p>Pointer to the <span class="math notranslate nohighlight">\(k \times p\)</span> numeric table with each row containing the estimate
-of the means for the i-th mixture component, where <span class="math notranslate nohighlight">\(i=0, 1, \ldots, k-1\)</span>. By
-default, this result is an object of the HomogenNumericTable class, but
-you can define the result as an object of any class derived from
-NumericTable except PackedTriangularMatrix, PackedSymmetricMatrix, and
-CSRNumericTable.</p></td>
+of the means for the <span class="math notranslate nohighlight">\(i\)</span>-th mixture component, where <span class="math notranslate nohighlight">\(i=0, 1, \ldots, k-1\)</span>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
+</td>
 </tr>
-<tr class="row-even"><td><p>covariances</p></td>
-<td><p>Pointer to the DataCollection object that contains k numeric tables,
-each with the p x p variance-covariance matrix for the i-th mixture
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">covariances</span></code></p></td>
+<td><p>Pointer to the <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code> object that contains <span class="math notranslate nohighlight">\(k\)</span> numeric tables,
+each with the <span class="math notranslate nohighlight">\(p \times p\)</span> variance-covariance matrix for the <span class="math notranslate nohighlight">\(i\)</span>-th mixture
 component of size:</p>
 <blockquote>
 <div><ul class="simple">
@@ -1256,9 +1263,12 @@ component of size:</p>
 <li><p><span class="math notranslate nohighlight">\(1 \times p\)</span> - for the diagonal covariance matrix storage scheme</p></li>
 </ul>
 </div></blockquote>
-<p>By default, the collection contains objects of the HomogenNumericTable
-class, but you can define them as objects of any class derived from
-NumericTable except PackedTriangularMatrix and CSRNumericTable.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, the collection contains objects of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
+but you can define them as objects of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code> and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
 </td>
 </tr>
 </tbody>
@@ -1272,13 +1282,12 @@ NumericTable except PackedTriangularMatrix and CSRNumericTable.</p>
 <h3>Batch Processing<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="id6">
 <h4>Algorithm Input<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h4>
-<p>The EM for GMM algorithm accepts the input described below. Pass
-the Input ID as a parameter to the methods that provide input for
-your algorithm.</p>
+<p>The EM for GMM algorithm accepts the input described below.
+Pass the <code class="docutils literal notranslate"><span class="pre">Input</span> <span class="pre">ID</span></code> as a parameter to the methods that provide input for your algorithm.</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
+<col style="width: 14%" />
+<col style="width: 86%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Input ID</p></th>
@@ -1286,21 +1295,21 @@ your algorithm.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>data</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">data</span></code></p></td>
 <td><p>Pointer to the <span class="math notranslate nohighlight">\(n \times p\)</span> numeric table with the data to which the EM
 algorithm is applied. The input can be an object of any class derived
-from NumericTable.</p></td>
+from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p>inputWeights</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">inputWeights</span></code></p></td>
 <td><p>Pointer to the <span class="math notranslate nohighlight">\(1 \times k\)</span> numeric table with initial mixture weights. This input can be an object of any class derived from NumericTable.</p></td>
 </tr>
-<tr class="row-even"><td><p>inputMeans</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">inputMeans</span></code></p></td>
 <td><p>Pointer to a <span class="math notranslate nohighlight">\(k \times p\)</span> numeric table. Each row in this table contains the
 initial value of the means for the <span class="math notranslate nohighlight">\(i\)</span>-th mixture component, where <span class="math notranslate nohighlight">\(i = 0, 1, \ldots, k-1\)</span>.
-This input can be an object of any class derived from NumericTable.</p></td>
+This input can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p>inputCovariances</p></td>
-<td><p>Pointer to the DataCollection object that contains k numeric tables,
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">inputCovariances</span></code></p></td>
+<td><p>Pointer to the <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code> object that contains <span class="math notranslate nohighlight">\(k\)</span> numeric tables,
 each with the <span class="math notranslate nohighlight">\(p \times p\)</span> variance-covariance matrix for the <span class="math notranslate nohighlight">\(i\)</span>-th mixture component of size:</p>
 <blockquote>
 <div><ul class="simple">
@@ -1311,7 +1320,7 @@ each with the <span class="math notranslate nohighlight">\(p \times p\)</span> v
 <p>The collection can contain objects of any class derived from NumericTable.</p>
 </td>
 </tr>
-<tr class="row-even"><td><p>inputValues</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">inputValues</span></code></p></td>
 <td><p>Pointer to the result of the EM for GMM initialization algorithm. The
 result of initialization contains weights, means, and a collection of
 covariances. You can use this input to set the initial values for the EM
@@ -1326,9 +1335,9 @@ and covariance collection.</p></td>
 <p>The EM for GMM algorithm has the following parameters:</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
+<col style="width: 17%" />
 <col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
+<col style="width: 50%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Parameter</p></th>
@@ -1337,44 +1346,48 @@ and covariance collection.</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>algorithmFPType</p></td>
-<td><p>float</p></td>
-<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be float or double.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p>method</p></td>
-<td><p>defaultDense</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
 <td><p>Performance-oriented computation method, the only method supported by the algorithm.</p></td>
 </tr>
-<tr class="row-even"><td><p>nComponents</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nComponents</span></code></p></td>
 <td><p>Not applicable</p></td>
 <td><p>The number of components in the Gaussian Mixture Model, a required parameter.</p></td>
 </tr>
-<tr class="row-odd"><td><p>maxIterations</p></td>
-<td><p>10</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">maxIterations</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(10\)</span></p></td>
 <td><p>The maximal number of iterations in the algorithm.</p></td>
 </tr>
-<tr class="row-even"><td><p>accuracyThreshold</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">accuracyThreshold</span></code></p></td>
 <td><p>1.0e-04</p></td>
 <td><p>The threshold for termination of the algorithm.</p></td>
 </tr>
-<tr class="row-odd"><td><p>covariance</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">covariance</span></code></p></td>
 <td><p>Pointer to an object of the BatchIface class</p></td>
-<td><p>Pointer to the algorithm that computes the covariance matrix. By
-default, the respective oneDAL algorithm is used, implemented in the
-class derived from BatchIface.</p></td>
+<td><p>Pointer to the algorithm that computes the covariance matrix.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, the respective oneDAL algorithm is used,
+implemented in the class derived from <code class="docutils literal notranslate"><span class="pre">BatchIface</span></code>.</p>
+</div>
+</td>
 </tr>
-<tr class="row-even"><td><p>regularizationFactor</p></td>
-<td><p>0.01</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">regularizationFactor</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.01\)</span></p></td>
 <td><p>Factor for covariance regularization in the case of ill-conditional data.</p></td>
 </tr>
-<tr class="row-odd"><td><p>covarianceStorage</p></td>
-<td><p>full</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">covarianceStorage</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">full</span></code></p></td>
 <td><p>Covariance matrix storage scheme in the Gaussian Mixture Model:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>full - covariance matrices are stored as numeric tables of size <span class="math notranslate nohighlight">\(p \times p\)</span>.
+<li><p><code class="docutils literal notranslate"><span class="pre">full</span></code> - covariance matrices are stored as numeric tables of size <span class="math notranslate nohighlight">\(p \times p\)</span>.
 All elements of the matrix are updated during the processing.</p></li>
-<li><p>diagonal - covariance matrices are stored as numeric tables of size <span class="math notranslate nohighlight">\(1 \times p\)</span>.
+<li><p><code class="docutils literal notranslate"><span class="pre">diagonal</span></code> - covariance matrices are stored as numeric tables of size <span class="math notranslate nohighlight">\(1 \times p\)</span>.
 Only diagonal elements of the matrix are updated during the processing, and the rest are assumed to be zero.</p></li>
 </ul>
 </div></blockquote>
@@ -1386,12 +1399,12 @@ Only diagonal elements of the matrix are updated during the processing, and the 
 <div class="section" id="id8">
 <h4>Algorithm Output<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h4>
 <p>The EM for GMM algorithm calculates the results described below. Pass
-the Result ID as a parameter to the methods that access the results
+the <code class="docutils literal notranslate"><span class="pre">Result</span> <span class="pre">ID</span></code> as a parameter to the methods that access the results
 of your algorithm.</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
+<col style="width: 14%" />
+<col style="width: 86%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Result ID</p></th>
@@ -1399,42 +1412,61 @@ of your algorithm.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>weights</p></td>
-<td><p>Pointer to the <span class="math notranslate nohighlight">\(1 \times k\)</span> numeric table with mixture weights. By default,
-this result is an object of the HomogenNumericTable class, but you can
-define the result as an object of any class derived from NumericTable
-except PackedTriangularMatrix, PackedSymmetricMatrix, and CSRNumericTable.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">weights</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(1 \times k\)</span> numeric table with mixture weights.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
+</td>
 </tr>
-<tr class="row-odd"><td><p>means</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">means</span></code></p></td>
 <td><p>Pointer to the <span class="math notranslate nohighlight">\(k \times p\)</span> numeric table with each row containing the estimate
-of the means for the i-th mixture component, where <span class="math notranslate nohighlight">\(i=0, 1, \ldots, k-1\)</span>. By
-default, this result is an object of the HomogenNumericTable class, but
-you can define the result as an object of any class derived from
-NumericTable except PackedTriangularMatrix, PackedSymmetricMatrix, and CSRNumericTable.</p></td>
+of the means for the <span class="math notranslate nohighlight">\(i\)</span>-th mixture component, where <span class="math notranslate nohighlight">\(i=0, 1, \ldots, k-1\)</span>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
+</td>
 </tr>
-<tr class="row-even"><td><p>covariances</p></td>
-<td><p>Pointer to the DataCollection object that contains k numeric tables,
-each with the p x p variance-covariance matrix for the i-th mixture component of size:</p>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">covariances</span></code></p></td>
+<td><p>Pointer to the DataCollection object that contains <span class="math notranslate nohighlight">\(k\)</span> numeric tables,
+each with the <span class="math notranslate nohighlight">\(p \times p\)</span> variance-covariance matrix for the <span class="math notranslate nohighlight">\(i\)</span>-th mixture component of size:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p><span class="math notranslate nohighlight">\(p \times p\)</span> - for the full covariance matrix storage scheme</p></li>
 <li><p><span class="math notranslate nohighlight">\(1 \times p\)</span> - for the diagonal covariance matrix storage scheme</p></li>
 </ul>
 </div></blockquote>
-<p>By default, the collection contains objects of the HomogenNumericTable
-class, but you can define them as objects of any class derived from
-NumericTable except PackedTriangularMatrix and CSRNumericTable.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, the collection contains objects of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
+but you can define them as objects of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code> and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
 </td>
 </tr>
-<tr class="row-odd"><td><p>goalFunction</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">goalFunction</span></code></p></td>
 <td><p>Pointer to the <span class="math notranslate nohighlight">\(1 \times 1\)</span> numeric table with the value of the logarithm of
-the likelihood function after the last iteration. By default, this
-result is an object of the HomogenNumericTable class.</p></td>
+the likelihood function after the last iteration.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class.</p>
+</div>
+</td>
 </tr>
-<tr class="row-even"><td><p>nIterations</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nIterations</span></code></p></td>
 <td><p>Pointer to the <span class="math notranslate nohighlight">\(1 \times 1\)</span> numeric table with the number of iterations
-computed after completion of the algorithm. By default, this result is
-an object of the HomogenNumericTable class.</p></td>
+computed after completion of the algorithm.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class.</p>
+</div>
+</td>
 </tr>
 </tbody>
 </table>

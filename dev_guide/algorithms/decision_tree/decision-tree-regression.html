@@ -629,6 +629,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#output">Output</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#examples">Examples</a></li>
@@ -1070,9 +1071,9 @@ in <a class="reference internal" href="../../usage/training-and-prediction/regre
 parameters:</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
+<col style="width: 17%" />
 <col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
+<col style="width: 50%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Parameter</p></th>
@@ -1081,42 +1082,42 @@ parameters:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>algorithmFPType</p></td>
-<td><p>float</p></td>
-<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be float or double.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p>method</p></td>
-<td><p>defaultDense</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
 <td><p>The computation method used by the decision tree regression. The only
 training method supported so far is the default dense method.</p></td>
 </tr>
-<tr class="row-even"><td><p>pruning</p></td>
-<td><p>reducedErrorPruning</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pruning</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reducedErrorPruning</span></code></p></td>
 <td><p>Method to perform post-pruning. Available options for the pruning parameter:</p>
 <ul class="simple">
-<li><p>reducedErrorPruning - reduced error pruning. Provide dataForPruning and dependentVariablesForPruning inputs, if you use pruning.</p></li>
-<li><p>none - do not prune.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reducedErrorPruning</span></code> - reduced error pruning. Provide dataForPruning and dependentVariablesForPruning inputs, if you use pruning.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">none</span></code> - do not prune.</p></li>
 </ul>
 </td>
 </tr>
-<tr class="row-odd"><td><p>maxTreeDepth</p></td>
-<td><p>0</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">maxTreeDepth</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(0\)</span></p></td>
 <td><p>Maximum tree depth. Zero value means unlimited depth. Can be any non-negative number.</p></td>
 </tr>
-<tr class="row-even"><td><p>minObservationsInLeafNodes</p></td>
-<td><p>5</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">minObservationsInLeafNodes</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(5\)</span></p></td>
 <td><p>Minimum number of observations in the leaf node. Can be any positive number.</p></td>
 </tr>
-<tr class="row-odd"><td><p>pruningFraction</p></td>
-<td><p>0.2</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pruningFraction</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.2\)</span></p></td>
 <td><p>Fraction of observations from training dataset to be used as
 observations for post-pruning via random sampling. The rest observations
 (with fraction <span class="math notranslate nohighlight">\(1 - pruningFraction\)</span> to be used to build a decision tree).
 Can be any number in the interval (0, 1). If pruning is not used, all
 observations are used to build the decision tree regardless of this parameter value.</p></td>
 </tr>
-<tr class="row-even"><td><p>engine</p></td>
-<td><p>SharedPtr&lt;engines::mt19937::Batch&lt;&gt; &gt;()</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">engine</span></code></p></td>
+<td><p><cite>SharedPtr&lt;engines::mt19937::Batch&lt;&gt; &gt;()</cite></p></td>
 <td><p>Pointer to the random number engine to be used for random sampling for reduced error post-pruning.</p></td>
 </tr>
 </tbody>
@@ -1128,9 +1129,9 @@ observations are used to build the decision tree regardless of this parameter va
 parameters:</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 75%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Parameter</p></th>
@@ -1139,12 +1140,12 @@ parameters:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>algorithmFPType</p></td>
-<td><p>float</p></td>
-<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be float or double.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p>method</p></td>
-<td><p>defaultDense</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
 <td><p>The computation method used by the decision tree regression. The only
 training method supported so far is the default dense method.</p></td>
 </tr>

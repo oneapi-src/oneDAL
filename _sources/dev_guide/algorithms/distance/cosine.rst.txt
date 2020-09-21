@@ -43,7 +43,7 @@ Algorithm Input
 ---------------
 
 The cosine distance matrix algorithm accepts the input described below. 
-Pass the Input ID as a parameter to the methods that provide input for your algorithm. 
+Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm. 
 For more details, see :ref:`algorithms`.
 
 .. list-table::

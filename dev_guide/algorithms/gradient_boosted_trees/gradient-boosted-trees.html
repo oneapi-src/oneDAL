@@ -623,6 +623,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#output">Output</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#examples">Examples</a></li>
@@ -1129,9 +1130,9 @@ general workflow described in <a class="reference internal" href="../../usage/tr
 has the following parameters:</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
+<col style="width: 17%" />
 <col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
+<col style="width: 50%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Parameter</p></th>
@@ -1140,65 +1141,65 @@ has the following parameters:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>splitMethod</p></td>
-<td><p>inexact</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">splitMethod</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">inexact</span></code></p></td>
 <td><p>Split computation mode.</p>
 <p>Possible values:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>inexact - continuous features are bucketed into discrete bins and the buckets borders are examined only</p></li>
-<li><p>exact - all possible splits for a given feature are examined</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inexact</span></code> - continuous features are bucketed into discrete bins and the buckets borders are examined only</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">exact</span></code> - all possible splits for a given feature are examined</p></li>
 </ul>
 </div></blockquote>
 </td>
 </tr>
-<tr class="row-odd"><td><p>maxIterations</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">maxIterations</span></code></p></td>
 <td><p><span class="math notranslate nohighlight">\(50\)</span></p></td>
 <td><p>Maximal number of iterations when training the model, defines maximal number of trees in the model.</p></td>
 </tr>
-<tr class="row-even"><td><p>maxTreeDepth</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">maxTreeDepth</span></code></p></td>
 <td><p><span class="math notranslate nohighlight">\(6\)</span></p></td>
 <td><p>Maximal tree depth. If the parameter is set to <span class="math notranslate nohighlight">\(0\)</span> then the depth is unlimited.</p></td>
 </tr>
-<tr class="row-odd"><td><p>shrinkage</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">shrinkage</span></code></p></td>
 <td><p><span class="math notranslate nohighlight">\(0.3\)</span></p></td>
 <td><p>Learning rate of the boosting procedure. Scales the contribution of each tree by a factor <span class="math notranslate nohighlight">\((0, 1]\)</span></p></td>
 </tr>
-<tr class="row-even"><td><p>minSplitLoss</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">minSplitLoss</span></code></p></td>
 <td><p><span class="math notranslate nohighlight">\(0\)</span></p></td>
 <td><p>Loss regularization parameter. Minimal loss reduction required to make a further partition on a leaf node of the tree. Range: <span class="math notranslate nohighlight">\([0, \infty)\)</span></p></td>
 </tr>
-<tr class="row-odd"><td><p>lambda</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lambda</span></code></p></td>
 <td><p><span class="math notranslate nohighlight">\(1\)</span></p></td>
 <td><p>L2 regularization parameter on weights. Range: <span class="math notranslate nohighlight">\([0, \infty)\)</span></p></td>
 </tr>
-<tr class="row-even"><td><p>observationsPerTreeFraction</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">observationsPerTreeFraction</span></code></p></td>
 <td><p><span class="math notranslate nohighlight">\(1\)</span></p></td>
-<td><p>Fraction of the training set S used for a single tree training, <span class="math notranslate nohighlight">\(0 &lt; observationsPerTreeFraction \leq 1\)</span>. The observations are sampled randomly without replacement.</p></td>
+<td><p>Fraction of the training set S used for a single tree training, <span class="math notranslate nohighlight">\(0 &lt; \mathrm{observationsPerTreeFraction} \leq 1\)</span>. The observations are sampled randomly without replacement.</p></td>
 </tr>
 <tr class="row-odd"><td><p>featuresPerNode</p></td>
 <td><p><span class="math notranslate nohighlight">\(0\)</span></p></td>
-<td><p>Number of features tried as the possible splits per node. If the parameter is set to <span class="math notranslate nohighlight">\(0\)</span>, all features are used.</p></td>
+<td><p>The number of features tried as the possible splits per node. If the parameter is set to <span class="math notranslate nohighlight">\(0\)</span>, all features are used.</p></td>
 </tr>
-<tr class="row-even"><td><p>minObservationsInLeafNode</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">minObservationsInLeafNode</span></code></p></td>
 <td><p><span class="math notranslate nohighlight">\(5\)</span></p></td>
 <td><p>Minimal number of observations in the leaf node.</p></td>
 </tr>
-<tr class="row-odd"><td><p>memorySavingMode</p></td>
-<td><p>false</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">memorySavingMode</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p>If true then use memory saving (but slower) mode.</p></td>
 </tr>
-<tr class="row-even"><td><p>engine</p></td>
-<td><p>SharePtr&lt; engines:: mt19937:: Batch&gt;()</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">engine</span></code></p></td>
+<td><p><cite>SharePtr&lt; engines:: mt19937:: Batch&gt;()</cite></p></td>
 <td><p>Pointer to the random number generator.</p></td>
 </tr>
-<tr class="row-odd"><td><p>maxBins</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">maxBins</span></code></p></td>
 <td><p><span class="math notranslate nohighlight">\(256\)</span></p></td>
 <td><p>Used with inexact split method only. Maximal number of discrete bins to
 bucket continuous features. Increasing the number results in higher
 computation costs</p></td>
 </tr>
-<tr class="row-even"><td><p>minBinSize</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">minBinSize</span></code></p></td>
 <td><p><span class="math notranslate nohighlight">\(5\)</span></p></td>
 <td><p>Used with inexact split method only. Minimal number of observations in a bin.</p></td>
 </tr>

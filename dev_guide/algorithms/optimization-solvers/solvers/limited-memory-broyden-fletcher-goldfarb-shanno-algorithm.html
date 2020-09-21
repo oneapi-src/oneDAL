@@ -629,6 +629,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#output">Output</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#examples">Examples</a></li>
@@ -1111,13 +1112,12 @@ matrix from the set of correction pairs
 solver. For parameters, input, and output of iterative solvers, see <a class="reference internal" href="computation.html#iterative-solver-computation"><span class="std std-ref">Computation</span></a>.</p>
 <div class="section" id="algorithm-input">
 <h3>Algorithm Input<a class="headerlink" href="#algorithm-input" title="Permalink to this headline">¶</a></h3>
-<p>In addition to the input of the iterative solver, the
-limited-memory BFGS algorithm accepts the following optional
-input:</p>
+<p>In addition to the input of the iterative solver,
+the limited-memory BFGS algorithm accepts the following optional input:</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 33%" />
-<col style="width: 67%" />
+<col style="width: 14%" />
+<col style="width: 86%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>OptionalDataID</p></th>
@@ -1125,19 +1125,19 @@ input:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>correctionPairs</p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(2m \times p\)</span> where the rows represent correction pairs <span class="math notranslate nohighlight">\(s\)</span>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">correctionPairs</span></code></p></td>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(2m \times p\)</span> where the rows represent correction pairs <span class="math notranslate nohighlight">\(s\)</span>
 and <span class="math notranslate nohighlight">\(y\)</span>. The row correctionPairs[j], <span class="math notranslate nohighlight">\(0 \leq j &lt; m\)</span>, is a correction vector
 <span class="math notranslate nohighlight">\(s_j\)</span>, and the row correctionPairs[j], <span class="math notranslate nohighlight">\(m \leq j &lt; 2m\)</span>, is a correction
 vector <span class="math notranslate nohighlight">\(y_j\)</span>.</p></td>
 </tr>
-<tr class="row-odd"><td><p>correctionIndices</p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(1 \times 2\)</span> with 32-bit integer indexes. The first value
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">correctionIndices</span></code></p></td>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(1 \times 2\)</span> with 32-bit integer indexes. The first value
 is the index of correction pair <span class="math notranslate nohighlight">\(t\)</span>, the second value is the index of last
 iteration <span class="math notranslate nohighlight">\(k\)</span> from the previous run.</p></td>
 </tr>
-<tr class="row-even"><td><p>averageArgumentLIterations</p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(2 \times p\)</span>, where row 0 represents average arguments
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">averageArgumentLIterations</span></code></p></td>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(2 \times p\)</span>, where row 0 represents average arguments
 for previous <span class="math notranslate nohighlight">\(L\)</span> iterations, and row 1 represents average arguments for
 last <span class="math notranslate nohighlight">\(L\)</span> iterations. These values are required to compute <span class="math notranslate nohighlight">\(s\)</span> correction
 vectors in the next step.</p></td>
@@ -1147,13 +1147,13 @@ vectors in the next step.</p></td>
 </div>
 <div class="section" id="algorithm-parameters">
 <h3>Algorithm Parameters<a class="headerlink" href="#algorithm-parameters" title="Permalink to this headline">¶</a></h3>
-<p>In addition to parameters of the iterative solver, the limited-memory
-BFGS algorithm has the following parameters:</p>
+<p>In addition to parameters of the iterative solver,
+the limited-memory BFGS algorithm has the following parameters:</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 20%" />
-<col style="width: 40%" />
-<col style="width: 40%" />
+<col style="width: 17%" />
+<col style="width: 33%" />
+<col style="width: 50%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Parameter</p></th>
@@ -1162,26 +1162,28 @@ BFGS algorithm has the following parameters:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>algorithmFPType</p></td>
-<td><p>float</p></td>
-<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be float or double.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p>method</p></td>
-<td><p>defaultDense</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
 <td><p>Performance-oriented computation method</p></td>
 </tr>
-<tr class="row-even"><td><p>batchIndices</p></td>
-<td><p>NULL</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">batchIndices</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">NULL</span></code></p></td>
 <td><p>The numeric table of size <span class="math notranslate nohighlight">\(nIterations \times batchSize\)</span> with 32-bit integer
 indices of terms in the objective function to be used in step
 2 of the limited-memory BFGS algorithm. If no indices are provided, the
 implementation generates random indices.</p>
-<p>This parameter can be an object of any class derived fromNumericTable,
-except for PackedTriangularMatrix, PackedSymmetricMatrix, and
-CSRNumericTable.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This parameter can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>,
+except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
 </td>
 </tr>
-<tr class="row-odd"><td><p>batchSize</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">batchSize</span></code></p></td>
 <td><p><span class="math notranslate nohighlight">\(10\)</span></p></td>
 <td><p>The number of observations to compute the stochastic gradient. The
 implementation of the algorithm ignores this parameter if the
@@ -1191,28 +1193,32 @@ random sampling is performed and all terms are used to calculate the
 gradient.</p>
 </td>
 </tr>
-<tr class="row-even"><td><p>correctionPairBatchSize</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">correctionPairBatchSize</span></code></p></td>
 <td><p><span class="math notranslate nohighlight">\(100\)</span></p></td>
 <td><p>The number of observations to compute the sub-sampled Hessian for
 correction pairs computation. The implementation of the
 algorithm ignores this parameter if the correctionPairIndices numeric
 table is provided.</p>
-<p>If correctionPairBatchSize equals the number of terms in the objective
+<p>If <code class="docutils literal notranslate"><span class="pre">correctionPairBatchSize</span></code> equals the number of terms in the objective
 function, no random sampling is performed and all terms are used to
 calculate the Hessian matrix.</p>
 </td>
 </tr>
-<tr class="row-odd"><td><p>correctionPairIndices</p></td>
-<td><p>NULL</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">correctionPairIndices</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">NULL</span></code></p></td>
 <td><p>The numeric table of size <span class="math notranslate nohighlight">\((nIterations/L) \times correctionPairBatchSize\)</span> with
 32-bit integer indices to be used instead of random values. If no indices are provided, the
 implementation generates random indices.</p>
-<p>This parameter can be an object of any class derived fromNumericTable,
-except for PackedTriangularMatrix, PackedSymmetricMatrix, and
-CSRNumericTable.</p>
-<p><strong>NOTE</strong>: If the algorithm runs with no optional input data, <span class="math notranslate nohighlight">\((nIterations / L -
-1)\)</span> rows of the table are used. Otherwise, it can use one more row,
-<span class="math notranslate nohighlight">\((nIterations / L)\)</span> in total.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This parameter can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>,
+except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If the algorithm runs with no optional input data, <span class="math notranslate nohighlight">\((nIterations / L - 1)\)</span> rows
+of the table are used. Otherwise, it can use one more row, <span class="math notranslate nohighlight">\((nIterations / L)\)</span> in total.</p>
+</div>
 </td>
 </tr>
 <tr class="row-even"><td><p><span class="math notranslate nohighlight">\(m\)</span></p></td>
@@ -1224,22 +1230,25 @@ the approximation of the Hessian matrix.</p></td>
 <td><p><span class="math notranslate nohighlight">\(10\)</span></p></td>
 <td><p>The number of iterations between calculations of the curvature estimates.</p></td>
 </tr>
-<tr class="row-even"><td><p>stepLengthSequence</p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> that contains the default step length equal to <span class="math notranslate nohighlight">\(1\)</span>.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">stepLengthSequence</span></code></p></td>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> that contains the default step length equal to <span class="math notranslate nohighlight">\(1\)</span>.</p></td>
 <td><p>The numeric table of size <span class="math notranslate nohighlight">\(1 \times nIterations\)</span> or <span class="math notranslate nohighlight">\(1 \times 1\)</span>. The contents of the table depend on its size:</p>
 <ul class="simple">
 <li><p><span class="math notranslate nohighlight">\(size = 1 \times nIterations\)</span>: values of the step-length sequence <span class="math notranslate nohighlight">\(\alpha^k\)</span> for <span class="math notranslate nohighlight">\(k = 1, \ldots, nIterations\)</span>.</p></li>
 <li><p><span class="math notranslate nohighlight">\(size = 1 \times 1\)</span>: the value of step length at each iteration <span class="math notranslate nohighlight">\(\alpha^1 = \ldots = \alpha^{nIterations}\)</span></p></li>
 </ul>
-<p>This parameter can be an object of any class derived fromNumericTable,
-except for PackedTriangularMatrix, PackedSymmetricMatrix, and CSRNumericTable.
-The recommended data type for storing the step-length sequence is the
+<p>..note:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>This parameter can be an object of any class derived from ``NumericTable``,
+except for ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
+</pre></div>
+</div>
+<p>The recommended data type for storing the step-length sequence is the
 floating-point type, either float or double, that the algorithm uses in
 intermediate computations.</p>
 </td>
 </tr>
-<tr class="row-odd"><td><p>engine</p></td>
-<td><p>SharePtr&lt; engines:: mt19937:: Batch&gt;()</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">engine</span></code></p></td>
+<td><p><cite>SharePtr&lt; engines:: mt19937:: Batch&gt;()</cite></p></td>
 <td><p>Pointer to the random number generator engine that is used internally
 for random choosing terms from the objective function.</p></td>
 </tr>
@@ -1252,8 +1261,8 @@ for random choosing terms from the objective function.</p></td>
 BFGS algorithm calculates the following optional results:</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 33%" />
-<col style="width: 67%" />
+<col style="width: 14%" />
+<col style="width: 86%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>OptionalDataID</p></th>
@@ -1261,19 +1270,19 @@ BFGS algorithm calculates the following optional results:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>correctionPairs</p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(2m \times p\)</span> where the rows represent correction pairs <span class="math notranslate nohighlight">\(s\)</span>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">correctionPairs</span></code></p></td>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(2m \times p\)</span> where the rows represent correction pairs <span class="math notranslate nohighlight">\(s\)</span>
 and <span class="math notranslate nohighlight">\(y\)</span>. The row correctionPairs[j], <span class="math notranslate nohighlight">\(0 \leq j &lt; m\)</span>, is a correction vector
 <span class="math notranslate nohighlight">\(s_j\)</span>, and the row correctionPairs[j], <span class="math notranslate nohighlight">\(m \leq j &lt; 2m\)</span>, is a correction
 vector <span class="math notranslate nohighlight">\(y_j\)</span>.</p></td>
 </tr>
-<tr class="row-odd"><td><p>correctionIndices</p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(1 \times 2\)</span> with 32-bit integer indexes. The first value
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">correctionIndices</span></code></p></td>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(1 \times 2\)</span> with 32-bit integer indexes. The first value
 is the index of correction pair <span class="math notranslate nohighlight">\(t\)</span>, the second value is the index of last
 iteration <span class="math notranslate nohighlight">\(k\)</span> from the previous run.</p></td>
 </tr>
-<tr class="row-even"><td><p>averageArgumentLIterations</p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(2 \times p\)</span>, where row 0 represents average arguments
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">averageArgumentLIterations</span></code></p></td>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(2 \times p\)</span>, where row 0 represents average arguments
 for previous <span class="math notranslate nohighlight">\(L\)</span> iterations, and row 1 represents average arguments for
 last <span class="math notranslate nohighlight">\(L\)</span> iterations. These values are required to compute <span class="math notranslate nohighlight">\(s\)</span> correction
 vectors in the next step.</p></td>

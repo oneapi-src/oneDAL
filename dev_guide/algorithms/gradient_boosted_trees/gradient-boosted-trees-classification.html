@@ -629,6 +629,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#output">Output</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#examples">Examples</a></li>
@@ -1140,9 +1141,9 @@ in <a class="reference internal" href="gradient-boosted-trees.html#gb-trees-batc
 the following parameters:</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 75%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Parameter</p></th>
@@ -1151,21 +1152,21 @@ the following parameters:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>algorithmFPType</p></td>
-<td><p>float</p></td>
-<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be float or double.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p>method</p></td>
-<td><p>defaultDense</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
 <td><p>The computation method used by the gradient boosted trees regression.
 The only training method supported so far is the default dense method.</p></td>
 </tr>
-<tr class="row-even"><td><p>nClasses</p></td>
-<td><p>Not applicable.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nClasses</span></code></p></td>
+<td><p>Not applicable</p></td>
 <td><p>The number of classes. A required parameter.</p></td>
 </tr>
-<tr class="row-odd"><td><p>loss</p></td>
-<td><p>crossEntropy</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">loss</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">crossEntropy</span></code></p></td>
 <td><p>Loss function type.</p></td>
 </tr>
 </tbody>
@@ -1177,9 +1178,9 @@ The only training method supported so far is the default dense method.</p></td>
 trees classifier has the following parameters at the prediction stage:</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 75%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Parameter</p></th>
@@ -1188,23 +1189,23 @@ trees classifier has the following parameters at the prediction stage:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>algorithmFPType</p></td>
-<td><p>float</p></td>
-<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be float or double.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p>method</p></td>
-<td><p>defaultDense</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
 <td><p>The computation method used by the gradient boosted trees regression.
 The only training method supported so far is the default dense method.</p></td>
 </tr>
-<tr class="row-even"><td><p>nClasses</p></td>
-<td><p>Not applicable.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nClasses</span></code></p></td>
+<td><p>Not applicable</p></td>
 <td><p>The number of classes. A required parameter.</p></td>
 </tr>
-<tr class="row-odd"><td><p>numIterations</p></td>
-<td><p>0</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">numIterations</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(0\)</span></p></td>
 <td><p>An integer parameter that indicates how many trained iterations of the
-model should be used in prediction. The default value 0 denotes no
+model should be used in prediction. The default value <span class="math notranslate nohighlight">\(0\)</span> denotes no
 limit. All the trained trees should be used.</p></td>
 </tr>
 </tbody>

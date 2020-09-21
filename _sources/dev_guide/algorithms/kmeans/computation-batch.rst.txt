@@ -28,7 +28,7 @@ Algorithm Input
 +++++++++++++++
 
 The K-Means clustering algorithm accepts the input described
-below. Pass the Input ID as a parameter to the methods that
+below. Pass the ``Input ID`` as a parameter to the methods that
 provide input for your algorithm.
 
 
@@ -61,7 +61,7 @@ The K-Means clustering algorithm has the following parameters:
      - Description
    * - ``algorithmFPType``
      - ``float``
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
    * - ``method``
      - ``defaultDense``
      - Available computation methods for K-Means clustering:
@@ -98,7 +98,7 @@ The K-Means clustering algorithm has the following parameters:
      - A flag that enables computation of assignments, that is, assigning cluster indices to respective observations.
    * - ``resultsToEvaluate``
      - ``computeCentroids`` | ``computeAssignments`` | ``computeExactObjectiveFunction``
-     - The 64-bit integer flag that specifies which extra characteristics of the K-Means to compute.
+     - The 64-bit integer flag that specifies which extra characteristics of the K-Means algorithm to compute.
      
        Provide one of the following values to request a single characteristic or use bitwise OR to request a combination of the characteristics:
        
@@ -111,7 +111,7 @@ Algorithm Output
 ++++++++++++++++
 
 The K-Means clustering algorithm calculates the result described
-below. Pass the Result ID as a parameter to the methods that access
+below. Pass the ``Result ID`` as a parameter to the methods that access
 the results of your algorithm.
 
 .. list-table::

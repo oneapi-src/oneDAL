@@ -623,6 +623,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#output">Output</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#examples">Examples</a></li>
@@ -1122,20 +1123,32 @@ For more details, see <a class="reference internal" href="../../usage/algorithms
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nObservations</span></code></p></td>
 <td><p>Pointer to the <span class="math notranslate nohighlight">\(1 \times 1\)</span> numeric table that contains the number of observations processed so far on the local node.</p>
-<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class, but you can define the result as an object of any class
-derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
 </td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">crossProduct</span></code></p></td>
 <td><p>Pointer to <span class="math notranslate nohighlight">\(p \times p\)</span> numeric table with the cross-product matrix computed so far on the local node.</p>
-<p>By default, this table is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class, but you can define the result as an object of any class
-derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this table is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
 </td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sum</span></code></p></td>
 <td><p>Pointer to <span class="math notranslate nohighlight">\(1 \times p\)</span> numeric table with partial sums computed so far on the local node.</p>
-<p>By default, this table is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class, but you can define the result as an object of any class
-derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this table is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
 </td>
 </tr>
 </tbody>
@@ -1159,8 +1172,11 @@ For more details, see <a class="reference internal" href="../../usage/algorithms
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">partialResults</span></code></p></td>
 <td><p>A collection that contains results computed in <a class="reference internal" href="#cor-cov-step-1"><span class="std std-ref">Step 1</span></a> on local nodes (<code class="docutils literal notranslate"><span class="pre">nObservations</span></code>, <code class="docutils literal notranslate"><span class="pre">crossProduct</span></code>, and <code class="docutils literal notranslate"><span class="pre">sum</span></code>).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>The collection can contain objects of any class derived from the <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> class
 except <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code> and <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>.</p>
+</div>
 </td>
 </tr>
 </tbody>
@@ -1181,20 +1197,32 @@ For more details, see <a class="reference internal" href="../../usage/algorithms
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">covariance</span></code></p></td>
 <td><p>Use when <code class="docutils literal notranslate"><span class="pre">outputMatrixType``=``covarianceMatrix</span></code>. Pointer to the numeric table with the <span class="math notranslate nohighlight">\(p \times p\)</span> variance-covariance matrix.</p>
-<p>By default, this result is an object of the HomogenNumericTable class, but you can define the result as an object of any class
-derived from NumericTable except PackedTriangularMatrix and CSRNumericTable.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code> and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
 </td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">correlation</span></code></p></td>
 <td><p>Use when <code class="docutils literal notranslate"><span class="pre">outputMatrixType``=``correlationMatrix</span></code>. Pointer to the numeric table with the <span class="math notranslate nohighlight">\(p \times p\)</span> correlation matrix.</p>
-<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class, but you can define the result as an object of any class
-derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code> and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code> and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
 </td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mean</span></code></p></td>
 <td><p>Pointer to the <span class="math notranslate nohighlight">\(1 \times p\)</span> numeric table with means.</p>
-<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class, but you can define the result as an object of any class
-derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
 </td>
 </tr>
 </tbody>

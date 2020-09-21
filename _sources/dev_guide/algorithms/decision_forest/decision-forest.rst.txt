@@ -218,101 +218,110 @@ parameters:
 
 
 .. list-table::
-   :widths: 25 25 25
+   :widths: 10 20 30
    :header-rows: 1
    :align: left
 
    * - Parameter
      - Default Value
      - Description
-   * - seed
-     - 777
+   * - ``seed``
+     - :math:`777`
      - The seed for random number generator, which is used to choose the
        bootstrap set, split features in every split node in a tree, and
-       generate permutation required in computations of MDA variable importance.
-   * - nTrees
-     - 100
+       generate permutation required in computations of ``MDA`` variable importance.
+   * - ``nTrees``
+     - :math:`100`
      - The number of trees in the forest.
-   * - observationsPerTree Fraction
-     - 1
+   * - ``observationsPerTreeFraction``
+     - :math:`1`
      - Fraction of the training set S used to form the bootstrap set for a
-       single tree training, :math:`0 < observationsPerTreeFraction <= 1`. The
+       single tree training, :math:`0 < \mathrm{observationsPerTreeFraction} \leq 1`. The
        observations are sampled randomly with replacement.
-   * - featuresPerNode
-     - 0
+   * - ``featuresPerNode``
+     - :math:`0`
      - The number of features tried as possible splits per node. If the
-       parameter is set to 0, the library uses the square root of the number of
-       features for classification and (the number of features)/3 for regression.
-   * - maxTreeDepth
-     - 0
-     - Maximal tree depth. Default is 0 (unlimited).
-   * - minObservationsInLeafNode
-     - 1 for classification, 5 for regression
+       parameter is set to :math:`0`, the library uses the square root of the number of
+       features for classification and :math:`\fraq{\mathrm{the number of features}}{3}` for regression.
+   * - ``maxTreeDepth``
+     - :math:`0`
+     - Maximal tree depth. Default is :math:`0` (unlimited).
+   * - ``minObservationsInLeafNode``
+     - :math:`1` for classification, :math:`5` for regression
      - Minimum number of observations in the leaf node.
-   * - impurityThreshold
-     - 0
+   * - ``impurityThreshold``
+     - :math:`0`
      - The threshold value used as stopping criteria: if the impurity value in
        the node is smaller than the threshold, the node is not split anymore.
-   * - varImportance
-     - none
+   * - ``varImportance``
+     - ``none``
      - The variable importance computation mode.
 
        Possible values:
 
-       + none – variable importance is not calculated
-       + MDI - Mean Decrease of Impurity, also known as the Gini importance or Mean Decrease Gini
-       + MDA_Raw - Mean Decrease of Accuracy (permutation importance)
-       + MDA_Scaled - the MDA_Raw value scaled by its standard deviation
+       + ``none`` – variable importance is not calculated
+       + ``MDI`` - Mean Decrease of Impurity, also known as the Gini importance or Mean Decrease Gini
+       + ``MDA_Raw`` - Mean Decrease of Accuracy (permutation importance)
+       + ``MDA_Scaled`` - the MDA_Raw value scaled by its standard deviation
 
-   * - resultsToCompute
-     - 0
+   * - ``resultsToCompute``
+     - :math:`0`
      - The 64-bit integer flag that specifies which extra characteristics of
        the decision forest to compute. Provide one of the following values to
        request a single characteristic or use bitwise OR to request a
        combination of the characteristics:
 
-        + computeOutOfBagError
-        + computeOutOfBagErrorPerObservation
+        + ``computeOutOfBagError``
+        + ``computeOutOfBagErrorPerObservation``
 
-   * - engine
-     - SharePtr< engines:: mt2203:: Batch>()
+   * - ``engine``
+     - `SharePtr< engines:: mt2203:: Batch>()`
      - Pointer to the random number generator engine.
 
 Output
 ------
 
 In addition to regression or classifier output, decision forest
-calculates the result described below. Pass the Result ID as a
+calculates the result described below. Pass the ``Result ID`` as a
 parameter to the methods that access the result of your algorithm.
 
 .. list-table::
-   :widths: 25 25
+   :widths: 10 60
    :header-rows: 1
    :align: left
 
    * - Result ID
      - Result
-   * - outOfBagError
-     - Numeric table :math:`1 \times 1` containing out-of-bag error computed when the
-       computeOutOfBagErroroption is on. By default, this result is an object
-       of the HomogenNumericTable class, but you can define the result as an
-       object of any class derived from NumericTable.
-   * - variableImportance
-     - Numeric table :math:`1 \times p` that contains variable importance values for each
-       feature. If you set the varImportance parameter to none, the library
-       returns a null pointer to the table. By default, this result is an
-       object of the HomogenNumericTable class, but you can define the result
-       as an object of any class derived from NumericTable except
-       PackedTriangularMatrix and PackedSymmetricMatrix.
-   * - outOfBagErrorPerObservation
-     - Numeric table of size :math:`1 \times n` that contains the computed out-of-bag error
-       when the computeOutOfBagErrorPerObservation option is enabled. The value
-       -1 in the table indicates that no OOB value was computed because this
+   * - ``outOfBagError``
+     - A numeric table :math:`1 \times 1` containing out-of-bag error computed when the
+       ``computeOutOfBagErroroption`` option is on.
+       
+       .. note::
+          
+          By default, this result is an object of the ``HomogenNumericTable`` class,
+          but you can define the result as an object of any class derived from ``NumericTable``.
+   * - ``variableImportance``
+     - A numeric table :math:`1 \times p` that contains variable importance values for each
+       feature. If you set the ``varImportance`` parameter to none, the library
+       returns a null pointer to the table.
+       
+       .. note::
+       
+          By default, this result is an object of the ``HomogenNumericTable`` class,
+          but you can define the result as an object of any class derived from ``NumericTable``
+          except ``PackedTriangularMatrix`` and ``PackedSymmetricMatrix``.
+   * - ``outOfBagErrorPerObservation``
+     - A numeric table of size :math:`1 \times n` that contains the computed out-of-bag error
+       when the ``computeOutOfBagErrorPerObservation`` option is enabled. The value
+       :math:`-1` in the table indicates that no OOB value was computed because this
        observation was not in OOB set for any of the trees in the model (never
-       left out during the bootstrap). By default, this result is an object of
-       the HomogenNumericTable class, but you can define the result as an
-       object of any class derived from NumericTable.
-   * - updatedEngine
+       left out during the bootstrap).
+       
+       .. note::
+       
+          By default, this result is an object of the ``HomogenNumericTable`` class,
+          but you can define the result as an object of any class derived from ``NumericTable``.
+   * - ``updatedEngine``
      - Engine instance with state updated after computations.
 
 

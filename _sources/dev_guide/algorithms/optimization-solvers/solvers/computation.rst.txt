@@ -29,14 +29,14 @@ Pass the ``Input ID`` as a parameter to the methods that provide input for your 
 For more details, see Algorithms.
 
 .. list-table::
-   :widths: 50 50
+   :widths: 10 60
    :header-rows: 1
    :align: left
 
    * - Input ID
      - Input
    * - ``inputArgument``
-     - Numeric table of size :math:`p \times 1` with the value of start argument :math:`\theta_0`.
+     - A numeric table of size :math:`p \times 1` with the value of start argument :math:`\theta_0`.
    * - ``optionalArgument``
      - Object of the ``OptionalArgument`` class that contains a set of algorithm-specific intrinsic parameters. 
        For a detailed definition of the set, see the problem statement above and the description of a specific algorithm.
@@ -49,7 +49,7 @@ Algorithm Parameters
 The iterative solver algorithm has the following parameters:
 
 .. list-table::
-   :widths: 25 25 25
+   :widths: 10 10 60
    :header-rows: 1
    :align: left
 
@@ -79,19 +79,19 @@ Pass the ``Result ID`` as a parameter to the methods that access the results of 
 For more details, see Algorithms.
 
 .. list-table::
-   :widths: 50 50
+   :widths: 10 60
    :header-rows: 1
    :align: left
 
    * - Result ID
      - Result
    * - ``minimum``
-     - Numeric table of size :math:`p \times 1` with argument :math:`\theta_{*}`. 
+     - A numeric table of size :math:`p \times 1` with argument :math:`\theta_{*}`. 
        By default, the result is an object of the HomogenNumericTable class, but you can define the result as an object of any class
        derived from NumericTable, except for PackedTriangularMatrix and PackedSymmetricMatrix.
 
    * - ``nIterations``
-     - Numeric table of size :math:`1 \times 1` with a 32-bit integer number of iterations done by the algorithm.
+     - A numeric table of size :math:`1 \times 1` with a 32-bit integer number of iterations done by the algorithm.
        By default, the result is an object of the HomogenNumericTable class, but you can define the result as an object of any class
        derived from NumericTable, except for PackedTriangularMatrix, PackedSymmetricMatrix, and CSRNumericTable.
 

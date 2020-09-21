@@ -629,6 +629,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#output">Output</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
@@ -1135,9 +1136,9 @@ updated during the tree traverse.</p>
 following parameters:</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
+<col style="width: 17%" />
 <col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
+<col style="width: 50%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Parameter</p></th>
@@ -1176,7 +1177,7 @@ input data set or its copy to improve performance at the prediction stage.</p>
 </td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">engine</span></code></p></td>
-<td><p>SharePtr&lt; engines:: mt19937:: Batch&gt;()</p></td>
+<td><p><cite>SharePtr&lt; engines:: mt19937:: Batch&gt;()</cite></p></td>
 <td><p>Pointer to the random number generator engine that is used internally to
 perform sampling needed to choose dimensions and cut-points for the K-D tree.</p></td>
 </tr>
@@ -1190,9 +1191,9 @@ perform sampling needed to choose dimensions and cut-points for the K-D tree.</p
 following parameters:</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 75%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Parameter</p></th>
@@ -1217,6 +1218,62 @@ The only prediction method supported so far is the default dense method.</p></td
 <tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(k\)</span></p></td>
 <td><p><span class="math notranslate nohighlight">\(1\)</span></p></td>
 <td><p>The number of neighbors.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">resultsToCompute</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(0\)</span></p></td>
+<td><p>The 64-bit integer flag that specifies which extra characteristics of the kNN algorithm to compute.
+Provide one of the following values to request a single characteristic or use bitwise OR to request a combination of the characteristics:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">computeIndicesOfNeighbors</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">computeDistances</span></code></p></li>
+</ul>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">voteWeights</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">voteUniform</span></code></p></td>
+<td><p>The voting method for prediction:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">voteUniform</span></code> – Uniform weighting is used. All neighbors weight equally.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">voteDistance</span></code> – Inverse-distance weighting is used.
+The closer to the query point the neighbor is, the more it weights.</p></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="output">
+<h3>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h3>
+<p>In addition to classifier output, kNN calculates the results described below.
+Pass the <code class="docutils literal notranslate"><span class="pre">Result</span> <span class="pre">ID</span></code> as a parameter to the methods that access the result of your algorithm.</p>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 86%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Result ID</p></th>
+<th class="head"><p>Result</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">indices</span></code></p></td>
+<td><p>A numeric table <span class="math notranslate nohighlight">\(k \times n\)</span> containing indices of rows from training dataset that are nearest neighbors computed when the <code class="docutils literal notranslate"><span class="pre">computeIndicesOfNeigtbors</span></code> option is on.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">distances</span></code></p></td>
+<td><p>A numeric table <span class="math notranslate nohighlight">\(k \times n\)</span> containing distances to nearest neighbors computed when the <code class="docutils literal notranslate"><span class="pre">computeDistances</span></code> option is on.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p>
+</div>
+</td>
 </tr>
 </tbody>
 </table>
@@ -1282,7 +1339,7 @@ The only prediction method supported so far is the default dense method.</p></td
 </div>
 <p>Batch Processing:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/kdtree_knn_classification/KDTreeKNNDenseBatch.java">KDTreeKNNDenseBatch.java</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/knn_classification/KDTreeKNNDenseBatch.java">KDTreeKNNDenseBatch.java</a></p></li>
 </ul>
 </div>
 <div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-4 docutils container">
