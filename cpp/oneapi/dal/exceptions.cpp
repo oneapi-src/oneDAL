@@ -54,7 +54,11 @@ const char* internal_error::what() const noexcept {
     return std::runtime_error::what();
 }
 
-const char* bad_alloc::what() const noexcept {
+const char* host_bad_alloc::what() const noexcept {
+    return std::bad_alloc::what();
+}
+
+const char* device_bad_alloc::what() const noexcept {
     return std::bad_alloc::what();
 }
 
