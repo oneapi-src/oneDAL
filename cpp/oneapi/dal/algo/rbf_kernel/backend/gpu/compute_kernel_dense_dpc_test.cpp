@@ -60,7 +60,7 @@ TEST(rbf_kernel_dense_gpu_test, can_compute_unit_matrix) {
     ASSERT_EQ(values_table.get_column_count(), row_count);
 
     const auto values = row_accessor<const float>(values_table).pull(queue);
-    for (size_t i = 0; i < values.get_count(); i++) {
+    for (std::int64_t i = 0; i < values.get_count(); i++) {
         ASSERT_FLOAT_EQ(values[i], 1.f);
     }
 
@@ -91,7 +91,7 @@ TEST(rbf_kernel_dense_gpu_test, can_compute_same_unit_matrix) {
     ASSERT_EQ(values_table.get_column_count(), row_count);
 
     const auto values = row_accessor<const float>(values_table).pull(queue);
-    for (size_t i = 0; i < values.get_count(); i++) {
+    for (std::int64_t i = 0; i < values.get_count(); i++) {
         ASSERT_FLOAT_EQ(values[i], 1.f);
     }
 

@@ -16,17 +16,22 @@ dal_generate_cpu_dispatcher(
 )
 
 dal_module(
-    name = "common",
-    auto = True,
+    name = "include_root",
     includes = [ ".", "../.." ],
     system_includes = [
         "../../daal",
         "../../daal/include",
     ],
+)
+
+dal_module(
+    name = "common",
+    auto = True,
     hdrs = [
         ":cpu_dispatcher",
     ],
     extra_deps = [
+        ":include_root",
         "@onedal//cpp/daal:services",
         "@onedal//cpp/daal:data_management",
     ],

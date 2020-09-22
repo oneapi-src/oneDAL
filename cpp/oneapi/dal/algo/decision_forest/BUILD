@@ -16,6 +16,12 @@ dal_module(
     ]
 )
 
+dal_module(
+    name = "test_utils",
+    dpc = False,
+    hdrs = glob(["test/*.hpp"]),
+)
+
 dal_test_suite(
     name = "common_tests",
     srcs = glob([
@@ -23,6 +29,9 @@ dal_test_suite(
     ]),
     dal_deps = [
         ":decision_forest",
+    ],
+    extra_deps = [
+        ":test_utils",
     ],
 )
 
@@ -34,6 +43,9 @@ dal_test_suite(
     dal_deps = [
         ":decision_forest",
     ],
+    extra_deps = [
+        ":test_utils",
+    ],
 )
 
 dal_test_suite(
@@ -44,6 +56,9 @@ dal_test_suite(
     ]),
     dal_deps = [
         ":decision_forest",
+    ],
+    extra_deps = [
+        ":test_utils",
     ],
     tags = ["gpu"],
 )

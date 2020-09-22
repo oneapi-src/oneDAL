@@ -17,7 +17,6 @@
 #include <CL/sycl.hpp>
 
 #include "gtest/gtest.h"
-#define ONEAPI_DAL_DATA_PARALLEL
 #include "oneapi/dal/algo/decision_forest/train.hpp"
 #include "oneapi/dal/algo/decision_forest/infer.hpp"
 #include "oneapi/dal/algo/decision_forest/test/utils.hpp"

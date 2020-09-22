@@ -41,7 +41,7 @@ def dal_module(name, hdrs=[], srcs=[],
         hpp_filt = ["**/*.hpp"]
         cpp_filt = ["**/*.cpp"]
         dpc_filt = ["**/*_dpc.cpp"]
-        test_filt = ["**/*_test*"]
+        test_filt = ["**/*_test*", "**/test/**"]
         hdrs_all = native.glob(hpp_filt, exclude=test_filt)
         dpc_auto_hdrs = hdrs_all
         dpc_auto_srcs = native.glob(cpp_filt, exclude=test_filt)
@@ -169,7 +169,6 @@ def dal_test(name, hdrs=[], srcs=[],
             "@config//:release_dynamic_test_link_mode": [
                 "@onedal_release//:onedal_dynamic",
             ],
-            "//conditions:default": [],
         }),
         extra_deps = _select({
             "@config//:dev_test_link_mode": [
@@ -191,9 +190,12 @@ def dal_test(name, hdrs=[], srcs=[],
                 "@onedal_release//:core_dynamic",
                 "@onedal//cpp/daal:threading_release_dynamic",
             ],
-        }) + extra_deps + ([
+        }) + [
+            "@onedal//cpp/oneapi/dal:include_root"
+        ] + ([
             "@gtest//:gtest_main",
-        ] if gtest else []),
+        ] if gtest else []) +
+        extra_deps,
         **kwargs,
     )
     if host:
