@@ -356,7 +356,9 @@ private:
                                                 std::forward<Args>(args)...,
                                                 values_data_kind)) {
                 auto raw_ptr = const_cast<BlockData*>(values.get_data());
-                daal::services::Buffer<BlockData> buffer(raw_ptr,
+                auto data_shared =
+                    daal::services::SharedPtr<BlockData>(raw_ptr, daal_array_owner(values));
+                daal::services::Buffer<BlockData> buffer(data_shared,
                                                          row_count * column_count,
                                                          values_data_kind);
                 block.setBuffer(buffer, column_count, row_count);
