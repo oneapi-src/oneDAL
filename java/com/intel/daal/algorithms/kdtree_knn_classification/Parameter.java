@@ -140,7 +140,8 @@ public class Parameter extends com.intel.daal.algorithms.classifier.Parameter {
 
     private native long cGetK(long algAddr);
     private native int cGetSeed(long algAddr);
-    private native int cGetDataUseInModel(long algAddr);private native long cGetResultsToCompute(long algAddr);
+    private native int cGetDataUseInModel(long algAddr);
+    private native long cGetResultsToCompute(long algAddr);
     private native int cGetVoteWeights(long algAddr);
 }
 /** @} */
