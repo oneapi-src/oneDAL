@@ -214,6 +214,7 @@ private:
         if (rwflag != daal::data_management::readOnly) {
             return status_t(daal::services::ErrorMethodNotImplemented);
         }
+
         const std::int64_t column_count = original_table_.get_column_count();
         const block_info info{ block, vector_idx, vector_num };
 
@@ -221,28 +222,44 @@ private:
             return status_t(daal::services::ErrorIncorrectIndex);
         }
 
-        try {
-            array<BlockData> values;
-            auto block_ptr = block.getBlockPtr();
-            // TODO: check overflow below
-            if (block_ptr != nullptr && info.size >= info.row_count * column_count) {
-                values.reset(block_ptr, info.size, dal::empty_delete<BlockData>());
-            }
+        if constexpr (std::is_same_v<BlockData, Data>)
+        {
+            auto raw_data_ptr =  this->_ptr.get() + column_count * vector_idx * sizeof(Data);
 
-            row_accessor<const BlockData> acc{ original_table_ };
-            if (block_ptr !=
-                pull_values(acc, values, range{ info.row_begin_index, info.row_end_index })) {
-                set_block_data(values, info.row_count, column_count, block);
+            if constexpr (is_host_only) {
+                block.setPtr(&this->_ptr, raw_data_ptr, column_count, info.row_count);
             }
+            #ifdef ONEAPI_DAL_DATA_PARALLEL
+            else {
+                daal::services::SharedPtr<BlockData> usm_data {this->_ptr, raw_data_ptr, raw_data_ptr};
+                daal::services::Buffer<BlockData> buffer(usm_data,
+                                                         info.row_count * column_count,
+                                                         data_kind_);
+                block.setBuffer(buffer, column_count, info.row_count);
+            }
+            #endif
         }
-        catch (const bad_alloc&) {
-            return status_t(daal::services::ErrorMemoryAllocationFailed);
-        }
-        catch (const out_of_range&) {
-            return status_t(daal::services::ErrorIncorrectDataRange);
-        }
-        catch (const std::exception&) {
-            return status_t(daal::services::UnknownError);
+        else {
+            try {
+                array<BlockData> values;
+                auto block_ptr = block.getBlockPtr();
+                // TODO: check overflow below
+                if (block_ptr != nullptr && info.size >= info.row_count * column_count) {
+                    values.reset(block_ptr, info.size, dal::empty_delete<BlockData>());
+                }
+
+                const row_accessor<const BlockData> acc{ original_table_ };
+                pull_values(block, info.row_count, column_count, acc, values, range{ info.row_begin_index, info.row_end_index });
+            }
+            catch (const bad_alloc&) {
+                return status_t(daal::services::ErrorMemoryAllocationFailed);
+            }
+            catch (const out_of_range&) {
+                return status_t(daal::services::ErrorIncorrectDataRange);
+            }
+            catch (const std::exception&) {
+                return status_t(daal::services::UnknownError);
+            }
         }
 
         return status_t();
@@ -272,13 +289,12 @@ private:
                 values.reset(block_ptr, info.size, dal::empty_delete<BlockData>());
             }
 
-            column_accessor<const BlockData> acc{ original_table_ };
-            if (block_ptr != pull_values(acc,
-                                         values,
-                                         info.column_index,
-                                         range{ info.row_begin_index, info.row_end_index })) {
-                set_block_data(values, info.row_count, 1, block);
-            }
+            const column_accessor<const BlockData> acc{ original_table_ };
+            pull_values(block, info.row_count, 1,
+                        acc,
+                        values,
+                        info.column_index,
+                        range{ info.row_begin_index, info.row_end_index });
         }
         catch (const bad_alloc&) {
             return status_t(daal::services::ErrorMemoryAllocationFailed);
@@ -293,44 +309,34 @@ private:
         return status_t();
     }
 
-    bool check_row_indexes_in_range(const block_info& info) {
+    bool check_row_indexes_in_range(const block_info& info) const {
         const std::int64_t row_count = original_table_.get_row_count();
         return info.row_begin_index >= 0 && info.row_begin_index < row_count &&
                info.row_end_index > info.row_begin_index && info.row_end_index <= row_count;
     }
 
-    bool check_column_index_in_range(const block_info& info) {
+    bool check_column_index_in_range(const block_info& info) const {
         const std::int64_t column_count = original_table_.get_column_count();
         return info.column_index >= 0 && info.column_index < column_count;
     }
 
-    template <typename BlockData>
-    void set_block_data(array<BlockData>& data,
-                        std::int64_t row_count,
-                        std::int64_t column_count,
-                        block_desc_t<BlockData>& block) {
-        // The following const_cast is safe only when this class is used for read-only
-        // operations. Use on write leads to undefined behaviour.
-        auto raw_ptr = const_cast<BlockData*>(data.get_data());
-        if constexpr (is_host_only) {
-            auto data_shared =
-                daal::services::SharedPtr<BlockData>(raw_ptr, daal_array_owner(data));
-            block.setSharedPtr(data_shared, column_count, row_count);
-        }
-#ifdef ONEAPI_DAL_DATA_PARALLEL
-        else {
-            daal::services::Buffer<BlockData> buffer(raw_ptr,
-                                                     row_count * column_count,
-                                                     sycl::usm::alloc::shared);
-            block.setBuffer(buffer, column_count, row_count);
-        }
-#endif
-    }
-
     template <typename Accessor, typename BlockData, typename... Args>
-    auto pull_values(const Accessor& acc, array<BlockData>& values, Args&&... args) {
+    void pull_values(block_desc_t<BlockData>& block,
+                     std::int64_t row_count,
+                     std::int64_t column_count,
+                     const Accessor& acc,
+                     array<BlockData>& values,
+                     Args&&... args) const {
+        // The following const_cast operations are safe only when this class is used for read-only
+        // operations. Use on write leads to undefined behaviour.
+
         if constexpr (is_host_only) {
-            return acc.pull(values, std::forward<Args>(args)...);
+            if(block.getBlockPtr() != acc.pull(values, std::forward<Args>(args)...)) {
+                auto raw_ptr = const_cast<BlockData*>(values.get_data());
+                auto data_shared =
+                    daal::services::SharedPtr<BlockData>(raw_ptr, daal_array_owner(values));
+                block.setSharedPtr(data_shared, column_count, row_count);
+            }
         }
 #ifdef ONEAPI_DAL_DATA_PARALLEL
         else {
@@ -338,10 +344,16 @@ private:
                 values.get_count() > 0
                     ? sycl::get_pointer_type(values.get_data(), policy_.get_queue().get_context())
                     : data_kind_;
-            return acc.pull(policy_.get_queue(),
-                            values,
-                            std::forward<Args>(args)...,
-                            values_data_kind);
+            if(block.getBlockPtr() != acc.pull(policy_.get_queue()
+                                               values,
+                                               std::forward<Args>(args)...,
+                                               values_data_kind)) {
+                auto raw_ptr = const_cast<BlockData*>(values.get_data());
+                daal::services::Buffer<BlockData> buffer(raw_ptr,
+                                                         row_count * column_count,
+                                                         values_data_kind);
+                block.setBuffer(buffer, column_count, row_count);
+            }
         }
 #endif
     }
