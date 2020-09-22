@@ -44,7 +44,6 @@ struct infer_kernel_gpu<Float, method::by_default, task::clustering> {
     infer_result<task::clustering> operator()(const dal::backend::context_gpu& ctx,
                                               const descriptor_base<task::clustering>& params,
                                               const infer_input<task::clustering>& input) const {
-        using Task = task::clustering;
         auto& queue = ctx.get_queue();
         interop::execution_context_guard guard(queue);
 

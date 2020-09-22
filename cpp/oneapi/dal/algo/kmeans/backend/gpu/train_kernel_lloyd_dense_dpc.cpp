@@ -45,7 +45,6 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
     train_result<task::clustering> operator()(const dal::backend::context_gpu& ctx,
                                               const descriptor_base<task::clustering>& params,
                                               const train_input<task::clustering>& input) const {
-        using Task = task::clustering;
         if (!(input.get_initial_centroids().has_data())) {
             throw domain_error("Input initial_centroids should not be empty");
         }
