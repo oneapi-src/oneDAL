@@ -24,7 +24,7 @@ void daal_convert(const void* src,
                   void* dst,
                   data_type src_type,
                   data_type dst_type,
-                  std::int64_t size);
+                  std::int64_t element_count);
 
 void daal_convert(const void* src,
                   void* dst,
@@ -32,6 +32,6 @@ void daal_convert(const void* src,
                   data_type dst_type,
                   std::int64_t src_stride,
                   std::int64_t dst_stride,
-                  std::int64_t size);
+                  std::int64_t element_count);
 
 } // namespace oneapi::dal::backend::interop
