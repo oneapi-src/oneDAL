@@ -230,12 +230,11 @@ private:
             }
 #ifdef ONEAPI_DAL_DATA_PARALLEL
             else {
-                daal::services::SharedPtr<BlockData> usm_data{ this->_ptr,
-                                                               raw_data_ptr,
-                                                               raw_data_ptr };
-                daal::services::Buffer<BlockData> buffer(usm_data,
+                daal::services::Buffer<BlockData> buffer(reinterpret_cast<BlockData*>(raw_data_ptr),
                                                          info.row_count * column_count,
                                                          data_kind_);
+                // this operation is safe only when the table does not leave the scope
+                // before the block. Otherwise block contains dangling pointer.
                 block.setBuffer(buffer, column_count, info.row_count);
             }
 #endif
