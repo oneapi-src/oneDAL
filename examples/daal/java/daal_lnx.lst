@@ -45,7 +45,6 @@ Java_example_list=( association_rules/AssocRulesAprioriBatch         \
                     covariance/CovDenseOnline                        \
                     datasource/DataSourceFeatureExtraction           \
                     datasource/DataStructuresHomogen                 \
-                    datasource/DataStructuresHomogenTensor           \
                     datasource/DataStructuresAOS                     \
                     datasource/DataStructuresSOA                     \
                     datasource/DataStructuresCSR                     \
