@@ -42,11 +42,11 @@ template <typename Float, daal::CpuType Cpu>
 using daal_kmeans_init_plus_plus_dense_kernel_t =
     daal_kmeans_init::internal::KMeansInitKernel<daal_kmeans_init::plusPlusDense, Float, Cpu>;
 
-template <typename Float>
-static train_result call_daal_kernel(const context_cpu& ctx,
-                                     const descriptor_base& desc,
-                                     const table& data,
-                                     const table& initial_centroids) {
+template <typename Float, typename Task>
+static train_result<Task> call_daal_kernel(const context_cpu& ctx,
+                                           const descriptor_base<Task>& desc,
+                                           const table& data,
+                                           const table& initial_centroids) {
     const int64_t row_count = data.get_row_count();
     const int64_t column_count = data.get_column_count();
 
@@ -122,32 +122,36 @@ static train_result call_daal_kernel(const context_cpu& ctx,
                                                                            output,
                                                                            &par));
 
-    return train_result()
+    return train_result<Task>()
         .set_labels(dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build())
         .set_iteration_count(static_cast<std::int64_t>(arr_iteration_count[0]))
         .set_objective_function_value(static_cast<double>(arr_objective_function_value[0]))
-        .set_model(model().set_centroids(dal::detail::homogen_table_builder{}
-                                             .reset(arr_centroids, cluster_count, column_count)
-                                             .build()));
+        .set_model(
+            model<Task>().set_centroids(dal::detail::homogen_table_builder{}
+                                            .reset(arr_centroids, cluster_count, column_count)
+                                            .build()));
+}
+
+template <typename Float, typename Task>
+static train_result<Task> train(const context_cpu& ctx,
+                                const descriptor_base<Task>& desc,
+                                const train_input<Task>& input) {
+    return call_daal_kernel<Float, Task>(ctx,
+                                         desc,
+                                         input.get_data(),
+                                         input.get_initial_centroids());
 }
 
 template <typename Float>
-static train_result train(const context_cpu& ctx,
-                          const descriptor_base& desc,
-                          const train_input& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_initial_centroids());
-}
-
-template <typename Float>
-struct train_kernel_cpu<Float, method::lloyd_dense> {
-    train_result operator()(const context_cpu& ctx,
-                            const descriptor_base& desc,
-                            const train_input& input) const {
-        return train<Float>(ctx, desc, input);
+struct train_kernel_cpu<Float, method::lloyd_dense, task::clustering> {
+    train_result<task::clustering> operator()(const context_cpu& ctx,
+                                              const descriptor_base<task::clustering>& desc,
+                                              const train_input<task::clustering>& input) const {
+        return train<Float, task::clustering>(ctx, desc, input);
     }
 };
 
-template struct train_kernel_cpu<float, method::lloyd_dense>;
-template struct train_kernel_cpu<double, method::lloyd_dense>;
+template struct train_kernel_cpu<float, method::lloyd_dense, task::clustering>;
+template struct train_kernel_cpu<double, method::lloyd_dense, task::clustering>;
 
 } // namespace oneapi::dal::kmeans::backend
