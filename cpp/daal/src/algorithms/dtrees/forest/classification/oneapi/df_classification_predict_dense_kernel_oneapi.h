@@ -33,11 +33,6 @@
 #include "src/algorithms/dtrees/forest/classification/df_classification_model_impl.h"
 #include "algorithms/decision_forest/decision_forest_classification_model.h"
 
-using namespace daal::data_management;
-using namespace daal::services;
-using namespace daal::oneapi::internal;
-using namespace daal::algorithms::dtrees::internal;
-
 namespace daal
 {
 namespace algorithms
@@ -51,7 +46,7 @@ namespace prediction
 namespace internal
 {
 template <typename algorithmFPType, prediction::Method method>
-class PredictKernelOneAPI : public daal::algorithms::Kernel
+class PredictKernelOneAPI : public algorithms::Kernel
 {
 public:
     PredictKernelOneAPI() {};
@@ -59,28 +54,51 @@ public:
     PredictKernelOneAPI & operator=(const PredictKernelOneAPI &) = delete;
     ~PredictKernelOneAPI() {};
 
-    services::Status buildProgram(ClKernelFactoryIface & factory, const char * programName, const char * programSrc, const char * buildOptions);
-    services::Status compute(services::HostAppIface * const pHostApp, const NumericTable * a, const decision_forest::classification::Model * const m,
-                             NumericTable * const r, NumericTable * const prob, const size_t nClasses, const VotingMethod votingMethod);
+    services::Status buildProgram(oneapi::internal::ClKernelFactoryIface & factory, const char * programName, const char * programSrc,
+                                  const char * buildOptions);
+    services::Status compute(services::HostAppIface * const pHostApp, const data_management::NumericTable * a,
+                             const decision_forest::classification::Model * const m, data_management::NumericTable * const r,
+                             data_management::NumericTable * const prob, const size_t nClasses, const VotingMethod votingMethod);
     services::Status predictByAllTrees(const services::Buffer<algorithmFPType> & srcBuffer, const decision_forest::classification::Model * const m,
-                                       UniversalBuffer & classHist, size_t nRows, size_t nCols);
+                                       oneapi::internal::UniversalBuffer & classHist, size_t nRows, size_t nCols);
 
-    services::Status predictByTreesWeighted(const services::Buffer<algorithmFPType> & srcBuffer, const UniversalBuffer & featureIndexList,
-                                            const UniversalBuffer & leftOrClassTypeList, const UniversalBuffer & featureValueList,
-                                            const UniversalBuffer & classProba, UniversalBuffer & obsClassHist, algorithmFPType scale, size_t nRows,
-                                            size_t nCols, size_t nTrees, size_t maxTreeSize);
-    services::Status predictByTreesUnweighted(const services::Buffer<algorithmFPType> & srcBuffer, const UniversalBuffer & featureIndexList,
-                                              const UniversalBuffer & leftOrClassTypeList, const UniversalBuffer & featureValueList,
-                                              UniversalBuffer & obsClassHist, algorithmFPType scale, size_t nRows, size_t nCols, size_t nTrees,
-                                              size_t maxTreeSize);
+    services::Status predictByTreesWeighted(const services::Buffer<algorithmFPType> & srcBuffer,
+                                            const oneapi::internal::UniversalBuffer & featureIndexList,
+                                            const oneapi::internal::UniversalBuffer & leftOrClassTypeList,
+                                            const oneapi::internal::UniversalBuffer & featureValueList,
+                                            const oneapi::internal::UniversalBuffer & classProba, oneapi::internal::UniversalBuffer & obsClassHist,
+                                            algorithmFPType scale, size_t nRows, size_t nCols, size_t nTrees, size_t maxTreeSize);
+    services::Status predictByTreesUnweighted(const services::Buffer<algorithmFPType> & srcBuffer,
+                                              const oneapi::internal::UniversalBuffer & featureIndexList,
+                                              const oneapi::internal::UniversalBuffer & leftOrClassTypeList,
+                                              const oneapi::internal::UniversalBuffer & featureValueList,
+                                              oneapi::internal::UniversalBuffer & obsClassHist, algorithmFPType scale, size_t nRows, size_t nCols,
+                                              size_t nTrees, size_t maxTreeSize);
 
-    services::Status reduceClassHist(const UniversalBuffer & obsClassHist, UniversalBuffer & classHist, size_t nRows, size_t nTrees);
-    services::Status determineWinners(const UniversalBuffer & classHist, services::Buffer<algorithmFPType> & resBuffer, size_t nRows);
+    services::Status reduceClassHist(const oneapi::internal::UniversalBuffer & obsClassHist, oneapi::internal::UniversalBuffer & classHist,
+                                     size_t nRows, size_t nTrees);
+    services::Status determineWinners(const oneapi::internal::UniversalBuffer & classHist, services::Buffer<algorithmFPType> & resBuffer,
+                                      size_t nRows);
 
 private:
-    const uint32_t _preferableSubGroup = 16; // preferable maximal sub-group size
-    const uint32_t _maxLocalSize       = 128;
-    const uint32_t _maxGroupsNum       = 256;
+    const size_t _preferableSubGroup = 16; // preferable maximal sub-group size
+    const size_t _maxLocalSize       = 128;
+    const size_t _maxGroupsNum       = 256;
+
+    const size_t _nRowsLarge  = 500000;
+    const size_t _nRowsMedium = 100000;
+
+    const size_t _nRowsBlocksForLarge  = 16;
+    const size_t _nRowsBlocksForMedium = 8;
+
+    const size_t _nTreesLarge  = 192;
+    const size_t _nTreesMedium = 48;
+    const size_t _nTreesSmall  = 12;
+
+    const size_t _nTreeGroupsForLarge  = 128;
+    const size_t _nTreeGroupsForMedium = 32;
+    const size_t _nTreeGroupsForSmall  = 16;
+    const size_t _nTreeGroupsMin       = 8;
 
     size_t _nClasses;
     size_t _nTreeGroups;

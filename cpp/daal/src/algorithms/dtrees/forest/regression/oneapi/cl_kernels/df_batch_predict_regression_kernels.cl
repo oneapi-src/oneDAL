@@ -32,7 +32,7 @@ DECLARE_SOURCE(
     df_batch_predict_regression_kernels,
     __kernel void predictByTreesGroup(const __global algorithmFPType * data, const __global int * ftrIdx,
                                       const __global int * classLabelsOrNextNodeIdx, const __global algorithmFPType * ftrValueOrResponse,
-                                      __global algorithmFPType * obsResponses, int nRows, int nCols, int nTrees, uint maxTreeSize, int treeOffset) {
+                                      __global algorithmFPType * obsResponses, int nRows, int nCols, int nTrees, int maxTreeSize, int treeOffset) {
         const int local_id      = get_local_id(0);
         const int local_size    = get_local_size(0);
         const int n_groups      = get_num_groups(0);
@@ -40,6 +40,7 @@ DECLARE_SOURCE(
         const int n_tree_groups = get_num_groups(1);
         const int tree_group_id = get_group_id(1);
         const int tree_id       = treeOffset + tree_group_id;
+        const int leafMark      = -1;
 
         const int nElementsForGroup = nRows / n_groups + !!(nRows % n_groups);
 
@@ -54,7 +55,7 @@ DECLARE_SOURCE(
             const __global int * classLabelsOrNextNodeIdxForTree       = classLabelsOrNextNodeIdx + tree_id * maxTreeSize;
             const __global algorithmFPType * ftrValueOrResponseForTree = ftrValueOrResponse + tree_id * maxTreeSize;
 
-            uint treeRootIsSplit = (uint)(-1 != ftrIdxForTree[0]);
+            uint treeRootIsSplit = (uint)(leafMark != ftrIdxForTree[0]);
 
             for (int i = iStart + local_id; i < iEnd; i += local_size)
             {
@@ -65,7 +66,7 @@ DECLARE_SOURCE(
                     uint idx = obsSplitMarkForTree * ftrIdxForTree[obsCurrNodeForTree];
                     uint sn  = (uint)(data[i * nCols + idx] > ftrValueOrResponseForTree[obsCurrNodeForTree]);
                     obsCurrNodeForTree -= obsSplitMarkForTree * (obsCurrNodeForTree - (uint)classLabelsOrNextNodeIdxForTree[obsCurrNodeForTree] - sn);
-                    obsSplitMarkForTree = (uint)(ftrIdxForTree[obsCurrNodeForTree] != -1);
+                    obsSplitMarkForTree = (uint)(ftrIdxForTree[obsCurrNodeForTree] != leafMark);
                 }
                 obsResponses[i * n_tree_groups + tree_group_id] += ftrValueOrResponseForTree[obsCurrNodeForTree];
             }

@@ -40,10 +40,14 @@
 #include "src/services/service_algo_utils.h"
 #include "src/services/service_arrays.h"
 #include "src/services/service_utils.h"
+#include "src/services/daal_strings.h"
 #include "sycl/internal/types.h"
 
+using namespace daal::services;
 using namespace daal::services::internal;
 using namespace daal::internal;
+using namespace daal::oneapi::internal;
+using namespace daal::algorithms::dtrees::internal;
 
 namespace daal
 {
@@ -57,32 +61,11 @@ namespace prediction
 {
 namespace internal
 {
-inline char * utoa(uint32_t value, char * buffer, size_t buffer_size)
-{
-    size_t i = 0;
-    while (value && i < buffer_size - 1)
-    {
-        size_t rem  = value % 10;
-        buffer[i++] = 48 + rem;
-        value /= 10;
-    }
-
-    for (size_t j = 0; j < i - j - 1; j++)
-    {
-        char tmp          = buffer[j];
-        buffer[j]         = buffer[i - j - 1];
-        buffer[i - j - 1] = tmp;
-    }
-    buffer[i] = 0;
-    return buffer;
-}
-
 static services::String getBuildOptions(size_t nClasses)
 {
-    const uint32_t valBufSize = 16;
-    static char valBuffer[valBufSize];
-
-    services::String nClassesStr(utoa(static_cast<uint32_t>(nClasses), valBuffer, valBufSize));
+    char buffer[DAAL_MAX_STRING_SIZE] = { 0 };
+    const auto written                = daal::services::daal_int_to_string(buffer, DAAL_MAX_STRING_SIZE, static_cast<int32_t>(nClasses));
+    services::String nClassesStr(buffer, written);
     services::String buildOptions = " -D NUM_OF_CLASSES=";
     buildOptions.add(nClassesStr);
 
@@ -129,11 +112,30 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::compute(services:
 
     _nClasses     = nClasses;
     _votingMethod = votingMethod;
+
+    const size_t nRows = x->getNumberOfRows();
+    const size_t nCols = x->getNumberOfColumns();
+
     const daal::algorithms::decision_forest::classification::internal::ModelImpl * const pModel =
         static_cast<const daal::algorithms::decision_forest::classification::internal::ModelImpl * const>(m);
+    const auto nTrees = pModel->size();
+
+    DAAL_CHECK_EX((nClasses < static_cast<size_t>(MaxVal<int32_t>::get())), ErrorIncorrectParameter, ParameterName, nClassesStr());
+
+    if (nRows > static_cast<size_t>(MaxVal<int32_t>::get()))
+    {
+        return services::Status(services::ErrorIncorrectNumberOfRowsInInputNumericTable);
+    }
+    if (nCols > static_cast<size_t>(MaxVal<int32_t>::get()))
+    {
+        return services::Status(services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
+    }
+    if (nTrees > static_cast<size_t>(MaxVal<int32_t>::get()))
+    {
+        return services::Status(services::ErrorIncorrectSizeOfModel);
+    }
 
     services::String buildOptions = getBuildOptions(_nClasses);
-    //DAAL_CHECK_STATUS_VAR(_treeLevelBuildHelper.init(buildOptions.c_str()));
 
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
@@ -145,9 +147,6 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::compute(services:
     kernelReduceClassHist          = kernel_factory.getKernel("reduceClassHist", &status);
     kernelDetermineWinners         = kernel_factory.getKernel("determineWinners", &status);
     DAAL_CHECK_STATUS_VAR(status);
-
-    const size_t nRows = x->getNumberOfRows();
-    const size_t nCols = x->getNumberOfColumns();
 
     BlockDescriptor<algorithmFPType> dataBlock;
     DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(x)->getBlockOfRows(0, nRows, readOnly, dataBlock));
@@ -168,6 +167,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::compute(services:
     }
     else
     {
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, _nClasses, nRows);
         classHist = context.allocate(TypeIds::id<algorithmFPType>(), _nClasses * nRows, &status);
         DAAL_CHECK_STATUS_VAR(status);
     }
@@ -203,15 +203,19 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees
     _aTree.reset(nTrees);
     DAAL_CHECK_MALLOC(_aTree.get());
 
-    _nTreeGroups = 8;
+    _nTreeGroups = _nTreeGroupsMin;
 
-    if (nTrees > 48)
+    if (nTrees > _nTreesLarge)
     {
-        _nTreeGroups = 32;
+        _nTreeGroups = _nTreeGroupsForLarge;
     }
-    else if (nTrees > 12)
+    else if (nTrees > _nTreesMedium)
     {
-        _nTreeGroups = 16;
+        _nTreeGroups = _nTreeGroupsForMedium;
+    }
+    else if (nTrees > _nTreesSmall)
+    {
+        _nTreeGroups = _nTreeGroupsForSmall;
     }
 
     size_t maxTreeSize = 0;
@@ -221,6 +225,11 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees
         maxTreeSize = maxTreeSize < _aTree[i]->getNumberOfRows() ? _aTree[i]->getNumberOfRows() : maxTreeSize;
     }
 
+    if (maxTreeSize > static_cast<size_t>(MaxVal<int32_t>::get()))
+    {
+        return services::Status(services::ErrorIncorrectSizeOfModel);
+    }
+
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, maxTreeSize, nTrees);
     const size_t treeBlockSize = maxTreeSize * nTrees;
 
@@ -228,17 +237,22 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees
     TArray<int32_t, sse2> tLC(treeBlockSize);
     TArray<algorithmFPType, sse2> tFV(treeBlockSize);
 
-    bool weighted                = false;
-    auto ftrIdxArr               = context.allocate(TypeIds::id<int>(), treeBlockSize, &status);
+    bool weighted  = false;
+    auto ftrIdxArr = context.allocate(TypeIds::id<int>(), treeBlockSize, &status);
+    DAAL_CHECK_STATUS_VAR(status);
     auto leftNodeIdxOrClassIdArr = context.allocate(TypeIds::id<int>(), treeBlockSize, &status);
-    auto ftrValueArr             = context.allocate(TypeIds::id<algorithmFPType>(), treeBlockSize, &status);
+    DAAL_CHECK_STATUS_VAR(status);
+    auto ftrValueArr = context.allocate(TypeIds::id<algorithmFPType>(), treeBlockSize, &status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     size_t mulClassesTreeGroups = _nClasses * _nTreeGroups;
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, mulClassesTreeGroups);
     auto obsClassHist = context.allocate(TypeIds::id<algorithmFPType>(), nRows * mulClassesTreeGroups, &status);
     DAAL_CHECK_STATUS_VAR(status);
     context.fill(obsClassHist, (algorithmFPType)0, &status);
+    DAAL_CHECK_STATUS_VAR(status);
     context.fill(classHist, (algorithmFPType)0, &status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     UniversalBuffer probasArr;
 
@@ -278,7 +292,9 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees
     algorithmFPType probasScale = (algorithmFPType)1 / nTrees;
 
     context.copy(ftrIdxArr, 0, (void *)tFI.get(), 0, treeBlockSize, &status);
+    DAAL_CHECK_STATUS_VAR(status);
     context.copy(leftNodeIdxOrClassIdArr, 0, (void *)tLC.get(), 0, treeBlockSize, &status);
+    DAAL_CHECK_STATUS_VAR(status);
     context.copy(ftrValueArr, 0, (void *)tFV.get(), 0, treeBlockSize, &status);
     DAAL_CHECK_STATUS_VAR(status);
 
@@ -315,9 +331,13 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesWei
 
     size_t localSize   = _maxLocalSize;
     size_t nRowsBlocks = 1;
-    if (nRows > 100000)
+    if (nRows > _nRowsLarge)
     {
-        nRowsBlocks = 8;
+        nRowsBlocks = _nRowsBlocksForLarge;
+    }
+    else if (nRows > _nRowsMedium)
+    {
+        nRowsBlocks = _nRowsBlocksForMedium;
     }
     {
         KernelRange local_range(localSize, 1);
@@ -329,6 +349,11 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesWei
         range.global(global_range, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
+        DAAL_ASSERT(nRows < static_cast<size_t>(MaxVal<int32_t>::get()));
+        DAAL_ASSERT(nCols < static_cast<size_t>(MaxVal<int32_t>::get()));
+        DAAL_ASSERT(nTrees < static_cast<size_t>(MaxVal<int32_t>::get()));
+        DAAL_ASSERT(maxTreeSize < static_cast<size_t>(MaxVal<int32_t>::get()));
+
         for (size_t procTrees = 0; procTrees < nTrees; procTrees += _nTreeGroups)
         {
             KernelArguments args(12);
@@ -339,11 +364,11 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesWei
             args.set(4, classProba, AccessModeIds::read);
             args.set(5, obsClassHist, AccessModeIds::readwrite);
             args.set(6, scale);
-            args.set(7, nRows);
-            args.set(8, nCols);
-            args.set(9, nTrees);
-            args.set(10, maxTreeSize);
-            args.set(11, procTrees);
+            args.set(7, static_cast<int32_t>(nRows));
+            args.set(8, static_cast<int32_t>(nCols));
+            args.set(9, static_cast<int32_t>(nTrees));
+            args.set(10, static_cast<int32_t>(maxTreeSize));
+            args.set(11, static_cast<int32_t>(procTrees));
 
             context.run(range, kernel, args, &status);
 
@@ -374,9 +399,13 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesUnw
 
     size_t localSize   = _maxLocalSize;
     size_t nRowsBlocks = 1;
-    if (nRows > 100000)
+    if (nRows > _nRowsLarge)
     {
-        nRowsBlocks = 8;
+        nRowsBlocks = _nRowsBlocksForLarge;
+    }
+    else if (nRows > _nRowsMedium)
+    {
+        nRowsBlocks = _nRowsBlocksForMedium;
     }
     {
         KernelRange local_range(localSize, 1);
@@ -388,6 +417,11 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesUnw
         range.global(global_range, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
+        DAAL_ASSERT(nRows < static_cast<size_t>(MaxVal<int32_t>::get()));
+        DAAL_ASSERT(nCols < static_cast<size_t>(MaxVal<int32_t>::get()));
+        DAAL_ASSERT(nTrees < static_cast<size_t>(MaxVal<int32_t>::get()));
+        DAAL_ASSERT(maxTreeSize < static_cast<size_t>(MaxVal<int32_t>::get()));
+
         for (size_t procTrees = 0; procTrees < nTrees; procTrees += _nTreeGroups)
         {
             KernelArguments args(11);
@@ -397,11 +431,11 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesUnw
             args.set(3, featureValueList, AccessModeIds::read);
             args.set(4, obsClassHist, AccessModeIds::readwrite);
             args.set(5, scale);
-            args.set(6, nRows);
-            args.set(7, nCols);
-            args.set(8, nTrees);
-            args.set(9, maxTreeSize);
-            args.set(10, procTrees);
+            args.set(6, static_cast<int32_t>(nRows));
+            args.set(7, static_cast<int32_t>(nCols));
+            args.set(8, static_cast<int32_t>(nTrees));
+            args.set(9, static_cast<int32_t>(maxTreeSize));
+            args.set(10, static_cast<int32_t>(procTrees));
 
             context.run(range, kernel, args, &status);
 
@@ -426,11 +460,14 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::reduceClassHist(c
     size_t localSize = _preferableSubGroup;
     size_t nGroups   = _maxGroupsNum;
     {
+        DAAL_ASSERT(nRows < static_cast<size_t>(MaxVal<int32_t>::get()));
+        DAAL_ASSERT(nTrees < static_cast<size_t>(MaxVal<int32_t>::get()));
+
         KernelArguments args(4);
         args.set(0, obsClassHist, AccessModeIds::read);
         args.set(1, classHist, AccessModeIds::readwrite);
-        args.set(2, nRows);
-        args.set(3, nTrees);
+        args.set(2, static_cast<int32_t>(nRows));
+        args.set(3, static_cast<int32_t>(nTrees));
 
         KernelRange local_range(localSize);
         KernelRange global_range(nGroups * localSize);
@@ -464,10 +501,12 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::determineWinners(
     size_t nGroups   = _maxGroupsNum;
 
     {
+        DAAL_ASSERT(nRows < static_cast<size_t>(MaxVal<int32_t>::get()));
+
         KernelArguments args(3);
         args.set(0, classHist, AccessModeIds::read);
         args.set(1, resBuffer, AccessModeIds::write);
-        args.set(2, nRows);
+        args.set(2, static_cast<int32_t>(nRows));
 
         KernelRange local_range(localSize);
         KernelRange global_range(nGroups * localSize);

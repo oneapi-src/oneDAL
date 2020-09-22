@@ -33,7 +33,7 @@ DECLARE_SOURCE(
     __kernel void predictByTreesWeighted(const __global algorithmFPType * data, const __global int * ftrIdx,
                                          const __global int * classLabelsOrNextNodeIdx, const __global algorithmFPType * ftrValue,
                                          const __global double * classProba, __global algorithmFPType * obsClassHist, algorithmFPType scale,
-                                         int nRows, int nCols, int nTrees, uint maxTreeSize, int treeOffset) {
+                                         int nRows, int nCols, int nTrees, int maxTreeSize, int treeOffset) {
         const int nClasses      = NUM_OF_CLASSES;
         const int local_id      = get_local_id(0);
         const int local_size    = get_local_size(0);
@@ -42,6 +42,7 @@ DECLARE_SOURCE(
         const int n_tree_groups = get_num_groups(1);
         const int tree_group_id = get_group_id(1);
         const int tree_id       = treeOffset + tree_group_id;
+        const int leafMark      = -1;
 
         const int nElementsForGroup = nRows / n_groups + !!(nRows % n_groups);
 
@@ -57,7 +58,7 @@ DECLARE_SOURCE(
             const __global algorithmFPType * ftrValueForTree     = ftrValue + tree_id * maxTreeSize;
             const __global double * classProbaForTree            = classProba + tree_id * maxTreeSize * nClasses;
 
-            uint treeRootIsSplit = (uint)(-1 != ftrIdxForTree[0]);
+            uint treeRootIsSplit = (uint)(leafMark != ftrIdxForTree[0]);
 
             for (int i = iStart + local_id; i < iEnd; i += local_size)
             {
@@ -68,7 +69,7 @@ DECLARE_SOURCE(
                     uint idx = obsSplitMarkForTree * ftrIdxForTree[obsCurrNodeForTree];
                     uint sn  = (uint)(data[i * nCols + idx] > ftrValueForTree[obsCurrNodeForTree]);
                     obsCurrNodeForTree -= obsSplitMarkForTree * (obsCurrNodeForTree - (uint)classLabelsOrNextNodeIdxForTree[obsCurrNodeForTree] - sn);
-                    obsSplitMarkForTree = (uint)(ftrIdxForTree[obsCurrNodeForTree] != -1);
+                    obsSplitMarkForTree = (uint)(ftrIdxForTree[obsCurrNodeForTree] != leafMark);
                 }
                 for (int clIdx = 0; clIdx < nClasses; clIdx++)
                 {
@@ -82,7 +83,7 @@ DECLARE_SOURCE(
     __kernel void predictByTreesUnweighted(const __global algorithmFPType * data, const __global int * ftrIdx,
                                            const __global int * classLabelsOrNextNodeIdx, const __global algorithmFPType * ftrValue,
                                            __global algorithmFPType * obsClassHist, algorithmFPType scale, int nRows, int nCols, int nTrees,
-                                           uint maxTreeSize, int treeOffset) {
+                                           int maxTreeSize, int treeOffset) {
         const int nClasses      = NUM_OF_CLASSES;
         const int local_id      = get_local_id(0);
         const int local_size    = get_local_size(0);
@@ -91,6 +92,7 @@ DECLARE_SOURCE(
         const int n_tree_groups = get_num_groups(1);
         const int tree_group_id = get_group_id(1);
         const int tree_id       = treeOffset + tree_group_id;
+        const int leafMark      = -1;
 
         const int nElementsForGroup = nRows / n_groups + !!(nRows % n_groups);
 
@@ -105,7 +107,7 @@ DECLARE_SOURCE(
             const __global int * classLabelsOrNextNodeIdxForTree = classLabelsOrNextNodeIdx + tree_id * maxTreeSize;
             const __global algorithmFPType * ftrValueForTree     = ftrValue + tree_id * maxTreeSize;
 
-            uint treeRootIsSplit = (uint)(-1 != ftrIdxForTree[0]);
+            uint treeRootIsSplit = (uint)(leafMark != ftrIdxForTree[0]);
 
             for (int i = iStart + local_id; i < iEnd; i += local_size)
             {
@@ -116,7 +118,7 @@ DECLARE_SOURCE(
                     uint idx = obsSplitMarkForTree * ftrIdxForTree[obsCurrNodeForTree];
                     uint sn  = (uint)(data[i * nCols + idx] > ftrValueForTree[obsCurrNodeForTree]);
                     obsCurrNodeForTree -= obsSplitMarkForTree * (obsCurrNodeForTree - (uint)classLabelsOrNextNodeIdxForTree[obsCurrNodeForTree] - sn);
-                    obsSplitMarkForTree = (uint)(ftrIdxForTree[obsCurrNodeForTree] != -1);
+                    obsSplitMarkForTree = (uint)(ftrIdxForTree[obsCurrNodeForTree] != leafMark);
                 }
                 int clIdx = classLabelsOrNextNodeIdxForTree[obsCurrNodeForTree];
                 obsClassHist[i * n_tree_groups * nClasses + clIdx * n_tree_groups + tree_group_id] += scale;
