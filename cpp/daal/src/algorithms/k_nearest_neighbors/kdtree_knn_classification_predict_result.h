@@ -59,7 +59,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 
     if (s.ok() && (par->resultsToCompute & computeIndicesOfNeighbors))
     {
-        set(indices, data_management::HomogenNumericTable<size_t>::create(par->k, nRows, data_management::NumericTableIface::doAllocate, 0, &s));
+        set(indices, data_management::HomogenNumericTable<int>::create(par->k, nRows, data_management::NumericTableIface::doAllocate, 0, &s));
     }
 
     if (s.ok() && (par->resultsToCompute & computeDistances))
