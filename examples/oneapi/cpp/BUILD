@@ -25,7 +25,7 @@ dal_example_suite(
         "@onedal//cpp/oneapi/dal/graph",
     ],
     data = _DATA_DEPS,
-    test_deps = _TEST_DEPS,
+    extra_deps = _TEST_DEPS,
 )
 
 dal_example_suite(
@@ -35,7 +35,7 @@ dal_example_suite(
         "@onedal//cpp/oneapi/dal/table",
     ],
     data = _DATA_DEPS,
-    test_deps = _TEST_DEPS,
+    extra_deps = _TEST_DEPS,
 )
 
 dal_example_suite(
@@ -46,7 +46,7 @@ dal_example_suite(
         "@onedal//cpp/oneapi/dal/algo:kmeans_init",
     ],
     data = _DATA_DEPS,
-    test_deps = _TEST_DEPS,
+    extra_deps = _TEST_DEPS,
 )
 
 dal_example_suite(
@@ -56,7 +56,7 @@ dal_example_suite(
         "@onedal//cpp/oneapi/dal/algo:jaccard",
     ],
     data = _DATA_DEPS,
-    test_deps = _TEST_DEPS + [
+    extra_deps = _TEST_DEPS + [
         "@tbb//:tbb",
     ],
 )
@@ -72,5 +72,5 @@ dal_algo_example_suite(
         "svm",
     ],
     data = _DATA_DEPS,
-    test_deps = _TEST_DEPS,
+    extra_deps = _TEST_DEPS,
 )
