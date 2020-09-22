@@ -44,8 +44,8 @@ DECLARE_SOURCE(
 
         const int nElementsForGroup = nRows / n_groups + !!(nRows % n_groups);
 
-        int iStart = group_id * nElementsForGroup;
-        int iEnd   = (group_id + 1) * nElementsForGroup;
+        const int iStart = group_id * nElementsForGroup;
+        int iEnd         = (group_id + 1) * nElementsForGroup;
 
         iEnd = (iEnd > nRows) ? nRows : iEnd;
 
@@ -82,8 +82,8 @@ DECLARE_SOURCE(
 
         const int nElementsForGroup = nRows / n_groups + !!(nRows % n_groups);
 
-        int iStart = group_id * nElementsForGroup;
-        int iEnd   = (group_id + 1) * nElementsForGroup;
+        const int iStart = group_id * nElementsForGroup;
+        int iEnd         = (group_id + 1) * nElementsForGroup;
 
         iEnd = (iEnd > nRows) ? nRows : iEnd;
 
