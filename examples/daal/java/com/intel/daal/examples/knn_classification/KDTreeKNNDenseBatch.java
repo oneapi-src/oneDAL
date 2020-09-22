@@ -26,7 +26,7 @@
  * @example KDTreeKNNDenseBatch.java
  */
 
-package com.intel.daal.examples.kdtree_knn_classification;
+package com.intel.daal.examples.knn_classification;
 
 import com.intel.daal.algorithms.kdtree_knn_classification.Model;
 import com.intel.daal.algorithms.kdtree_knn_classification.ResultsToComputeId;

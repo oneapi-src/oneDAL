@@ -16,21 +16,21 @@
 *******************************************************************************/
 
 /**
- * @ingroup kdtree_knn_classification
+ * @ingroup bf_knn_classification
  * @{
  */
-package com.intel.daal.algorithms.kdtree_knn_classification;
+package com.intel.daal.algorithms.bf_knn_classification;
 
 import com.intel.daal.utils.*;
 /**
- * <a name="DAAL-CLASS-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__RESULTSTOCOMPUTEID"></a>
+ * <a name="DAAL-CLASS-ALGORITHMS__BF_KNN_CLASSIFICATION__RESULTSTOCOMPUTEID"></a>
  * @brief Available identifiers to specify the result to compute
  */
 public final class ResultsToComputeId {
 
-    public static final long computeIndicesOfNeighbors = 0x0000000000000001L;
-    /*!< The flag to compute indices of nearest neighbors */
-    public static final long computeDistances          = 0x0000000000000002L;
-    /*!< The flag to compute distances to nearest neighbors */
+    public static final long computeIndicesOfNeightbors = 0x0000000000000001L;
+        /*!< The flag to compute indices of nearest neighbors */
+    public static final long computeDistances           = 0x0000000000000002L;
+        /*!< The flag to compute distances to nearest neighbors */
 }
 /** @} */

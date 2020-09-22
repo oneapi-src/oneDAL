@@ -1,4 +1,4 @@
-/* file: ResultsToComputeId.java */
+/* file: Model.java */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -16,21 +16,28 @@
 *******************************************************************************/
 
 /**
- * @ingroup kdtree_knn_classification
+ * @defgroup bf_knn_classification k-Nearest Neighbors
+ * @brief Contains classes for KD-tree based kNN algorithm
+ * @ingroup classification
  * @{
  */
-package com.intel.daal.algorithms.kdtree_knn_classification;
+package com.intel.daal.algorithms.bf_knn_classification;
 
 import com.intel.daal.utils.*;
-/**
- * <a name="DAAL-CLASS-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__RESULTSTOCOMPUTEID"></a>
- * @brief Available identifiers to specify the result to compute
- */
-public final class ResultsToComputeId {
+import com.intel.daal.services.DaalContext;
 
-    public static final long computeIndicesOfNeighbors = 0x0000000000000001L;
-    /*!< The flag to compute indices of nearest neighbors */
-    public static final long computeDistances          = 0x0000000000000002L;
-    /*!< The flag to compute distances to nearest neighbors */
+/**
+ * <a name="DAAL-CLASS-ALGORITHMS__BF_KNN_CLASSIFICATION__MODEL"></a>
+ * @brief %Base class for models trained by the brute-force k nearest neighbors training algorithm
+ */
+public class Model extends com.intel.daal.algorithms.classifier.Model {
+    /** @private */
+    static {
+        LibUtils.loadLibrary();
+    }
+
+    public Model(DaalContext context, long cModel) {
+        super(context, cModel);
+    }
 }
 /** @} */

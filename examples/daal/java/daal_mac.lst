@@ -45,6 +45,7 @@ Java_example_list=( association_rules/AssocRulesAprioriBatch         \
                     covariance/CovDenseOnline                        \
                     datasource/DataSourceFeatureExtraction           \
                     datasource/DataStructuresHomogen                 \
+                    datasource/DataStructuresHomogenTensor           \
                     datasource/DataStructuresAOS                     \
                     datasource/DataStructuresSOA                     \
                     datasource/DataStructuresCSR                     \
@@ -73,7 +74,6 @@ Java_example_list=( association_rules/AssocRulesAprioriBatch         \
                     gbt/GbtClsTraversedModelBuilder                  \
                     gbt/GbtRegDenseBatch                             \
                     gbt/GbtRegTraversedModelBuilder                  \
-                    kdtree_knn_classification/KDTreeKNNDenseBatch    \
                     kmeans/KMeansDenseBatch                          \
                     kmeans/KMeansCSRBatch                            \
                     kmeans/KMeansDenseBatchAssign                    \
@@ -83,6 +83,8 @@ Java_example_list=( association_rules/AssocRulesAprioriBatch         \
                     kmeans/KMeansCSRDistr                            \
                     kmeans/KMeansInitDenseDistr                      \
                     kmeans/KMeansInitCSRDistr                        \
+                    knn_classification/BFKNNDenseBatch               \
+                    knn_classification/KDTreeKNNDenseBatch           \
                     lasso_regression/LassoRegDenseBatch              \
                     linear_regression/LinRegModelBuilder             \
                     linear_regression/LinRegNormEqDenseBatch         \
