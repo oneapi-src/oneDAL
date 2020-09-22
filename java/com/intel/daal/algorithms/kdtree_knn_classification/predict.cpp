@@ -17,60 +17,60 @@
 
 #include <jni.h>
 
-#include "com_intel_daal_algorithms_bf_knn_classification_prediction_PredictionBatch.h"
+#include "com_intel_daal_algorithms_kdtree_knn_classification_prediction_PredictionBatch.h"
 
-#include "lang_service/java/com/intel/daal/include/common_helpers.h"
+#include "com/intel/daal/common_helpers.h"
 
-#include "com_intel_daal_algorithms_bf_knn_classification_prediction_PredictionMethod.h"
-#define defaultDense com_intel_daal_algorithms_bf_knn_classification_prediction_PredictionMethod_defaultDenseValue
+#include "com_intel_daal_algorithms_kdtree_knn_classification_prediction_PredictionMethod.h"
+#define defaultDense com_intel_daal_algorithms_kdtree_knn_classification_prediction_PredictionMethod_defaultDenseValue
 
 USING_COMMON_NAMESPACES();
-using namespace daal::algorithms::bf_knn_classification::prediction;
+using namespace daal::algorithms::kdtree_knn_classification::prediction;
 
 /*
- * Class:     com_intel_daal_algorithms_bf_knn_classification_prediction_PredictionBatch
+ * Class:     com_intel_daal_algorithms_kdtree_knn_classification_prediction_PredictionBatch
  * Method:    cInit
  * Signature:(II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_bf_1knn_1classification_prediction_PredictionBatch_cInit(JNIEnv * env, jobject thisObj,
-                                                                                                                jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kdtree_1knn_1classification_prediction_PredictionBatch_cInit(JNIEnv * env, jobject thisObj,
+                                                                                                                    jint prec, jint method)
 {
-    return jniBatch<bf_knn_classification::prediction::Method, Batch, defaultDense>::newObj(prec, method);
+    return jniBatch<kdtree_knn_classification::prediction::Method, Batch, defaultDense>::newObj(prec, method);
 }
 
 /*
- * Class:     com_intel_daal_algorithms_bf_knn_classification_prediction_PredictionBatch
+ * Class:     com_intel_daal_algorithms_kdtree_knn_classification_prediction_PredictionBatch
  * Method:    cInitParameter
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_bf_1knn_1classification_prediction_PredictionBatch_cInitParameter(JNIEnv * env,
-                                                                                                                         jobject thisObj,
-                                                                                                                         jlong algAddr, jint prec,
-                                                                                                                         jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kdtree_1knn_1classification_prediction_PredictionBatch_cInitParameter(JNIEnv * env,
+                                                                                                                             jobject thisObj,
+                                                                                                                             jlong algAddr, jint prec,
+                                                                                                                             jint method)
 {
-    return jniBatch<bf_knn_classification::prediction::Method, Batch, defaultDense>::getParameter(prec, method, algAddr);
+    return jniBatch<kdtree_knn_classification::prediction::Method, Batch, defaultDense>::getParameter(prec, method, algAddr);
 }
 
 /*
- * Class:     com_intel_daal_algorithms_bf_knn_classification_prediction_PredictionBatch
+ * Class:     com_intel_daal_algorithms_kdtree_knn_classification_prediction_PredictionBatch
  * Method:    cGetInput
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_bf_1knn_1classification_prediction_PredictionBatch_cGetInput(JNIEnv * env, jobject thisObj,
-                                                                                                                    jlong algAddr, jint prec,
-                                                                                                                    jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kdtree_1knn_1classification_prediction_PredictionBatch_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                                        jlong algAddr, jint prec,
+                                                                                                                        jint method)
 {
-    return jniBatch<bf_knn_classification::prediction::Method, Batch, defaultDense>::getInput(prec, method, algAddr);
+    return jniBatch<kdtree_knn_classification::prediction::Method, Batch, defaultDense>::getInput(prec, method, algAddr);
 }
 
 /*
- * Class:     com_intel_daal_algorithms_bf_knn_classification_prediction_PredictionBatch
+ * Class:     com_intel_daal_algorithms_kdtree_knn_classification_prediction_PredictionBatch
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_bf_1knn_1classification_prediction_PredictionBatch_cClone(JNIEnv * env, jobject thisObj,
-                                                                                                                 jlong algAddr, jint prec,
-                                                                                                                 jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kdtree_1knn_1classification_prediction_PredictionBatch_cClone(JNIEnv * env, jobject thisObj,
+                                                                                                                     jlong algAddr, jint prec,
+                                                                                                                     jint method)
 {
-    return jniBatch<bf_knn_classification::prediction::Method, Batch, defaultDense>::getClone(prec, method, algAddr);
+    return jniBatch<kdtree_knn_classification::prediction::Method, Batch, defaultDense>::getClone(prec, method, algAddr);
 }

@@ -18,7 +18,7 @@
 #include <jni.h>
 #include "daal.h"
 #include "com_intel_daal_algorithms_kdtree_knn_classification_Parameter.h"
-#include "lang_service/java/com/intel/daal/include/common_helpers.h"
+#include "com/intel/daal/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 
