@@ -76,12 +76,12 @@ void daal_convert(const void* src,
                   void* dst,
                   data_type src_type,
                   data_type dst_type,
-                  std::int64_t size) {
+                  std::int64_t element_count) {
     daal_convert_dispatcher(src_type,
                             dst_type,
                             daal_dm::internal::getVectorDownCast,
                             daal_dm::internal::getVectorUpCast,
-                            size,
+                            element_count,
                             src,
                             dst);
 }
@@ -92,12 +92,12 @@ void daal_convert(const void* src,
                   data_type dst_type,
                   std::int64_t src_stride,
                   std::int64_t dst_stride,
-                  std::int64_t size) {
+                  std::int64_t element_count) {
     daal_convert_dispatcher(src_type,
                             dst_type,
                             daal_dm::internal::getVectorStrideDownCast,
                             daal_dm::internal::getVectorStrideUpCast,
-                            size,
+                            element_count,
                             src,
                             src_stride,
                             dst,

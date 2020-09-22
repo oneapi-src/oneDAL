@@ -222,22 +222,23 @@ private:
             return status_t(daal::services::ErrorIncorrectIndex);
         }
 
-        if constexpr (std::is_same_v<BlockData, Data>)
-        {
-            auto raw_data_ptr =  this->_ptr.get() + column_count * vector_idx * sizeof(Data);
+        if constexpr (std::is_same_v<BlockData, Data>) {
+            auto raw_data_ptr = this->_ptr.get() + column_count * vector_idx * sizeof(Data);
 
             if constexpr (is_host_only) {
                 block.setPtr(&this->_ptr, raw_data_ptr, column_count, info.row_count);
             }
-            #ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEAPI_DAL_DATA_PARALLEL
             else {
-                daal::services::SharedPtr<BlockData> usm_data {this->_ptr, raw_data_ptr, raw_data_ptr};
+                daal::services::SharedPtr<BlockData> usm_data{ this->_ptr,
+                                                               raw_data_ptr,
+                                                               raw_data_ptr };
                 daal::services::Buffer<BlockData> buffer(usm_data,
                                                          info.row_count * column_count,
                                                          data_kind_);
                 block.setBuffer(buffer, column_count, info.row_count);
             }
-            #endif
+#endif
         }
         else {
             try {
@@ -249,7 +250,12 @@ private:
                 }
 
                 const row_accessor<const BlockData> acc{ original_table_ };
-                pull_values(block, info.row_count, column_count, acc, values, range{ info.row_begin_index, info.row_end_index });
+                pull_values(block,
+                            info.row_count,
+                            column_count,
+                            acc,
+                            values,
+                            range{ info.row_begin_index, info.row_end_index });
             }
             catch (const bad_alloc&) {
                 return status_t(daal::services::ErrorMemoryAllocationFailed);
@@ -290,7 +296,9 @@ private:
             }
 
             const column_accessor<const BlockData> acc{ original_table_ };
-            pull_values(block, info.row_count, 1,
+            pull_values(block,
+                        info.row_count,
+                        1,
                         acc,
                         values,
                         info.column_index,
@@ -331,7 +339,7 @@ private:
         // operations. Use on write leads to undefined behaviour.
 
         if constexpr (is_host_only) {
-            if(block.getBlockPtr() != acc.pull(values, std::forward<Args>(args)...)) {
+            if (block.getBlockPtr() != acc.pull(values, std::forward<Args>(args)...)) {
                 auto raw_ptr = const_cast<BlockData*>(values.get_data());
                 auto data_shared =
                     daal::services::SharedPtr<BlockData>(raw_ptr, daal_array_owner(values));
@@ -344,10 +352,10 @@ private:
                 values.get_count() > 0
                     ? sycl::get_pointer_type(values.get_data(), policy_.get_queue().get_context())
                     : data_kind_;
-            if(block.getBlockPtr() != acc.pull(policy_.get_queue()
-                                               values,
-                                               std::forward<Args>(args)...,
-                                               values_data_kind)) {
+            if (block.getBlockPtr() != acc.pull(policy_.get_queue(),
+                                                values,
+                                                std::forward<Args>(args)...,
+                                                values_data_kind)) {
                 auto raw_ptr = const_cast<BlockData*>(values.get_data());
                 daal::services::Buffer<BlockData> buffer(raw_ptr,
                                                          row_count * column_count,
