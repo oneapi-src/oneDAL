@@ -21,37 +21,37 @@ SKLEARN_PATH="$CONDA_PREFIX/lib/python${PYTHON_VERSION}/site-packages/sklearn/"
 
 case ${ALG_NAME} in
     "dbscan")
-        wget -O test_dbscan.py ${SKLEARN_URL_ROOT}cluster/tests/test_dbscan.py
+        cp ${SKLEARN_PATH}cluster/tests/test_dbscan.py test_dbscan.py
     ;;
     "elastic_net")
-        wget -O test_elastic_net.py ${SKLEARN_URL_ROOT}linear_model/tests/test_coordinate_descent.py
+        cp ${SKLEARN_PATH}linear_model/tests/test_coordinate_descent.py test_elastic_net.py
     ;;
     "kmeans")
-        wget -O test_kmeans.py ${SKLEARN_URL_ROOT}cluster/tests/test_k_means.py
+        cp ${SKLEARN_PATH}cluster/tests/test_k_means.py test_kmeans.py
     ;;
     "lin_reg")
-        wget -O test_lin_reg.py ${SKLEARN_URL_ROOT}linear_model/tests/test_base.py
+        cp ${SKLEARN_PATH}linear_model/tests/test_base.py test_lin_reg.py
     ;;
     "log_reg")
-        wget -O test_log_reg.py ${SKLEARN_URL_ROOT}linear_model/tests/test_logistic.py
+        cp ${SKLEARN_PATH}linear_model/tests/test_logistic.py test_log_reg.py
     ;;
     "pca")
-        wget -O test_pca.py ${SKLEARN_URL_ROOT}decomposition/tests/test_pca.py
+        cp ${SKLEARN_PATH}decomposition/tests/test_pca.py test_pca.py
     ;;
     "ridge_reg")
-        wget -O test_ridge_reg.py ${SKLEARN_URL_ROOT}linear_model/tests/test_ridge.py
+        cp ${SKLEARN_PATH}linear_model/tests/test_ridge.py test_ridge_reg.py
     ;;
     "svm")
-        wget -O test_svm.py ${SKLEARN_URL_ROOT}svm/tests/test_svm.py
+        cp ${SKLEARN_PATH}svm/tests/test_svm.py test_svm.py
     ;;
     "svm_sparse")
-        wget -O test_svm_sparse.py ${SKLEARN_URL_ROOT}svm/tests/test_sparse.py
+        cp ${SKLEARN_PATH}svm/tests/test_sparse.py test_svm_sparse.py
     ;;
     "forest")
-        wget -O test_forest.py ${SKLEARN_URL_ROOT}ensemble/tests/test_forest.py
+        cp ${SKLEARN_PATH}ensemble/tests/test_forest.py test_forest.py
     ;;
     "knn")
-        wget -O test_knn.py ${SKLEARN_URL_ROOT}neighbors/tests/test_neighbors.py
+        cp ${SKLEARN_PATH}neighbors/tests/test_neighbors.py test_knn.py
     ;;
     *)
         echo "Unknown algorithm: ${ALG_NAME}"
