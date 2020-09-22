@@ -17,17 +17,30 @@ dal_module(
 
 dal_test_suite(
     name = "cpu_tests",
-    srcs = [
-        "backend/cpu/compute_kernel_test.cpp",
-    ],
+    srcs = glob([
+        "backend/cpu/*_test.cpp",
+    ]),
     dal_deps = [
         ":linear_kernel",
     ],
 )
 
 dal_test_suite(
+    name = "gpu_tests",
+    host = False,
+    srcs = glob([
+        "backend/gpu/*_test.cpp",
+    ]),
+    dal_deps = [
+        ":linear_kernel",
+    ],
+    tags = ["gpu", "exclusive"],
+)
+
+dal_test_suite(
     name = "tests",
     tests = [
         ":cpu_tests",
+        ":gpu_tests",
     ],
 )

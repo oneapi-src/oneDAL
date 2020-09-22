@@ -214,6 +214,8 @@ cc_dynamic_lib = rule(
 
 
 def _cc_test_impl(ctx):
+    if not ctx.attr.deps:
+        return
     toolchain, feature_config = _init_cc_rule(ctx)
     tagged_linking_contexts = onedal_cc_common.collect_tagged_linking_contexts(ctx.attr.deps)
     linking_contexts = onedal_cc_common.filter_tagged_linking_contexts(
@@ -239,7 +241,7 @@ cc_test = rule(
     implementation = _cc_test_impl,
     attrs = {
         "lib_tags": attr.string_list(),
-        "deps": attr.label_list(mandatory=True),
+        "deps": attr.label_list(),
         "data": attr.label_list(allow_files=True),
     },
     toolchains = ["@bazel_tools//tools/cpp:toolchain_type"],

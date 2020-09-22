@@ -17,8 +17,7 @@
 #include <CL/sycl.hpp>
 
 #include "gtest/gtest.h"
-#define ONEAPI_DAL_DATA_PARALLEL
-#include "oneapi/dal/algo/rbf_kernel.hpp"
+#include "oneapi/dal/algo/rbf_kernel/compute.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 

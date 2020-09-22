@@ -150,8 +150,9 @@ def get_default_compiler_options(repo_ctx, reqs, cc, is_dpcc=False, category="co
     options = _get_unfiltered_default_compiler_options(reqs, is_dpcc, category)
     return _filter_out_unsupported_compiler_options(repo_ctx, cc, options)
 
-def get_cpu_specific_options(reqs):
-    return get_cpu_flags(reqs.target_arch_id, reqs.os_id, reqs.compiler_id)
+def get_cpu_specific_options(reqs, is_dpcc=False):
+    compiler_id = reqs.dpc_compiler_id if is_dpcc else reqs.compiler_id
+    return get_cpu_flags(reqs.target_arch_id, reqs.os_id, compiler_id)
 
 def _get_unfiltered_default_compiler_options(reqs, is_dpcc, category):
     compiler_id = reqs.dpc_compiler_id if is_dpcc else reqs.compiler_id

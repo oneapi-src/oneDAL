@@ -18,13 +18,32 @@
 
 namespace oneapi::dal::pca::backend {
 
+using dal::backend::context_gpu;
+
+using input_t = train_input<task::dim_reduction>;
+using result_t = train_result<task::dim_reduction>;
+using descriptor_t = descriptor_base<task::dim_reduction>;
+
+template <typename Float>
+static result_t call_daal_kernel(const context_gpu& ctx,
+                                 const descriptor_t& desc,
+                                 const table& data) {
+    return result_t{};
+}
+
+template <typename Float>
+static result_t train(const context_gpu& ctx,
+                      const descriptor_t& desc,
+                      const input_t& input) {
+    return call_daal_kernel<Float>(ctx, desc, input.get_data());
+}
+
 template <typename Float>
 struct train_kernel_gpu<Float, method::cov, task::dim_reduction> {
-    train_result<task::dim_reduction> operator()(
-        const dal::backend::context_gpu& ctx,
-        const descriptor_base<task::dim_reduction>& params,
-        const train_input<task::dim_reduction>& input) const {
-        return train_result<task::dim_reduction>();
+    result_t operator()(const context_gpu& ctx,
+                        const descriptor_t& desc,
+                        const input_t& input) const {
+        return train<Float>(ctx, desc, input);
     }
 };
 

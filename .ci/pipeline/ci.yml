@@ -109,11 +109,13 @@ jobs:
                  --@config//:test_thread_mode=par
     displayName: 'cpp-examples-thread-release-dynamic'
 
+  # To disable DPC++ tests, set option:
+  #   --test_tag_filters=-dpc
   - script: |
       bazel test //cpp/oneapi/dal:tests \
                  --@config//:test_link_mode=dev \
                  --@config//:test_thread_mode=par \
-                 --test_tag_filters=-heavy
+                 --test_tag_filters=-heavy,-dpc
     displayName: 'cpp-tests-thread-dev'
 
 - job: daal4py
