@@ -17,7 +17,7 @@
 
 #include <jni.h>
 
-#include "com_intel_daal_algorithms_kdtree_knn_classification_training_TrainingResult.h"
+#include "com_intel_daal_algorithms_bf_knn_classification_training_TrainingResult.h"
 
 #include "com/intel/daal/common_helpers.h"
 
@@ -27,27 +27,27 @@
 USING_COMMON_NAMESPACES();
 
 /*
- * Class:     com_intel_daal_algorithms_kdtree_knn_classification_training_TrainingResult
+ * Class:     com_intel_daal_algorithms_bf_knn_classification_training_TrainingResult
  * Method:    cNewResult
  * Signature: ()J
  */
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kdtree_1knn_1classification_training_TrainingResult_cNewResult(JNIEnv * env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_bf_1knn_1classification_training_TrainingResult_cNewResult(JNIEnv * env, jobject thisObj)
 {
-    return jniArgument<kdtree_knn_classification::training::Result>::newObj();
+    return jniArgument<bf_knn_classification::training::Result>::newObj();
 }
 
 /*
- * Class:     com_intel_daal_algorithms_kdtree_knn_classification_training_TrainingResult
+ * Class:     com_intel_daal_algorithms_bf_knn_classification_training_TrainingResult
  * Method:    cGetModel
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kdtree_1knn_1classification_training_TrainingResult_cGetModel(JNIEnv * env, jobject thisObj,
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_bf_1knn_1classification_training_TrainingResult_cGetModel(JNIEnv * env, jobject thisObj,
                                                                                                                      jlong resAddr, jint id)
 {
     if (id == ModelId)
     {
-        return jniArgument<kdtree_knn_classification::training::Result>::get<classifier::training::ResultId, kdtree_knn_classification::Model>(
+        return jniArgument<bf_knn_classification::training::Result>::get<classifier::training::ResultId, bf_knn_classification::Model>(
             resAddr, id);
     }
 

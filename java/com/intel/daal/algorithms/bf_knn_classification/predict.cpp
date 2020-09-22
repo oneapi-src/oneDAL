@@ -19,7 +19,7 @@
 
 #include "com_intel_daal_algorithms_bf_knn_classification_prediction_PredictionBatch.h"
 
-#include "lang_service/java/com/intel/daal/include/common_helpers.h"
+#include "com/intel/daal/common_helpers.h"
 
 #include "com_intel_daal_algorithms_bf_knn_classification_prediction_PredictionMethod.h"
 #define defaultDense com_intel_daal_algorithms_bf_knn_classification_prediction_PredictionMethod_defaultDenseValue
