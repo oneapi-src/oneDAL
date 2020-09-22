@@ -21,11 +21,11 @@
 
 namespace oneapi::dal::kmeans::backend {
 
-template <typename Float, typename Method>
+template <typename Float, typename Method, typename Task>
 struct infer_kernel_cpu {
-    infer_result operator()(const dal::backend::context_cpu& ctx,
-                            const descriptor_base& params,
-                            const infer_input& input) const;
+    infer_result<Task> operator()(const dal::backend::context_cpu& ctx,
+                                  const descriptor_base<Task>& params,
+                                  const infer_input<Task>& input) const;
 };
 
 } // namespace oneapi::dal::kmeans::backend
