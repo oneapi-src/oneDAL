@@ -157,17 +157,18 @@ private:
 
     decision_forest::internal::TreeLevelBuildHelperOneAPI<algorithmFPType> _treeLevelBuildHelper;
 
-    const uint32_t _maxWorkItemsPerGroup = 256; // should be a power of two for interal needs
-    const uint32_t _preferableSubGroup   = 16;  // preferable maximal sub-group size
-    const uint32_t _maxLocalSize         = 128;
-    const uint32_t _maxLocalSums         = 256;
-    const uint32_t _maxLocalHistograms   = 256;
-    const uint32_t _preferableGroupSize  = 256;
-    const uint32_t _minRowsBlock         = 256;
-    const uint32_t _maxBins              = 256;
+    const size_t _maxWorkItemsPerGroup = 256; // should be a power of two for interal needs
+    const size_t _preferableSubGroup   = 16;  // preferable maximal sub-group size
+    const size_t _maxLocalSize         = 128;
+    const size_t _maxLocalSums         = 256;
+    const size_t _maxLocalHistograms   = 256;
+    const size_t _preferableGroupSize  = 256;
+    const size_t _minRowsBlock         = 256;
+    const size_t _maxBins              = 256;
+    const size_t _int32max             = static_cast<size_t>(services::internal::MaxVal<int32_t>::get());
 
-    const uint32_t _nNodesGroups   = 3; // all nodes are split on groups (big, medium, small)
-    const uint32_t _nodeGroupProps = 2; // each nodes Group contains props: numOfNodes, maxNumOfBlocks
+    const size_t _nNodesGroups   = 3; // all nodes are split on groups (big, medium, small)
+    const size_t _nodeGroupProps = 2; // each nodes Group contains props: numOfNodes, maxNumOfBlocks
 
     size_t _nClasses;
     size_t _nMaxBinsAmongFtrs;

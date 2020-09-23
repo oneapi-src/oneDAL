@@ -137,11 +137,11 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
     auto & kernel = kernelComputeBestSplitByHistogram;
 
     {
-        DAAL_ASSERT(nSelectedFeatures < static_cast<size_t>(MaxVal<int32_t>::get()));
-        DAAL_ASSERT(nodeIndicesOffset < static_cast<size_t>(MaxVal<int32_t>::get()));
-        DAAL_ASSERT(updateImpDecreaseRequired < static_cast<size_t>(MaxVal<int32_t>::get()));
-        DAAL_ASSERT(nMaxBinsAmongFtrs < static_cast<size_t>(MaxVal<int32_t>::get()));
-        DAAL_ASSERT(minObservationsInLeafNode < static_cast<size_t>(MaxVal<int32_t>::get()));
+        DAAL_ASSERT(nSelectedFeatures <= _int32max);
+        DAAL_ASSERT(nodeIndicesOffset <= _int32max);
+        DAAL_ASSERT(updateImpDecreaseRequired <= _int32max);
+        DAAL_ASSERT(nMaxBinsAmongFtrs <= _int32max);
+        DAAL_ASSERT(minObservationsInLeafNode <= _int32max);
 
         KernelArguments args(13);
         args.set(0, nodeHistogramList, AccessModeIds::read);
@@ -193,11 +193,11 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
     auto & kernel = kernelComputeBestSplitSinglePass;
 
     {
-        DAAL_ASSERT(nSelectedFeatures < static_cast<size_t>(MaxVal<int32_t>::get()));
-        DAAL_ASSERT(nodeIndicesOffset < static_cast<size_t>(MaxVal<int32_t>::get()));
-        DAAL_ASSERT(updateImpDecreaseRequired < static_cast<size_t>(MaxVal<int32_t>::get()));
-        DAAL_ASSERT(nFeatures < static_cast<size_t>(MaxVal<int32_t>::get()));
-        DAAL_ASSERT(minObservationsInLeafNode < static_cast<size_t>(MaxVal<int32_t>::get()));
+        DAAL_ASSERT(nSelectedFeatures <= _int32max);
+        DAAL_ASSERT(nodeIndicesOffset <= _int32max);
+        DAAL_ASSERT(updateImpDecreaseRequired <= _int32max);
+        DAAL_ASSERT(nFeatures <= _int32max);
+        DAAL_ASSERT(minObservationsInLeafNode <= _int32max);
 
         KernelArguments args(15);
         args.set(0, data, AccessModeIds::read);
@@ -325,10 +325,10 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
     auto & kernel = kernelComputePartialHistograms;
 
     {
-        DAAL_ASSERT(nSelectedFeatures < static_cast<size_t>(MaxVal<int32_t>::get()));
-        DAAL_ASSERT(nodeIndicesOffset < static_cast<size_t>(MaxVal<int32_t>::get()));
-        DAAL_ASSERT(nMaxBinsAmongFtrs < static_cast<size_t>(MaxVal<int32_t>::get()));
-        DAAL_ASSERT(nFeatures < static_cast<size_t>(MaxVal<int32_t>::get()));
+        DAAL_ASSERT(nSelectedFeatures <= _int32max);
+        DAAL_ASSERT(nodeIndicesOffset <= _int32max);
+        DAAL_ASSERT(nMaxBinsAmongFtrs <= _int32max);
+        DAAL_ASSERT(nFeatures <= _int32max);
 
         KernelArguments args(11);
         args.set(0, data, AccessModeIds::read);
@@ -375,9 +375,9 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::re
     auto & kernel = kernelReducePartialHistograms;
 
     {
-        DAAL_ASSERT(nPartialHistograms < static_cast<size_t>(MaxVal<int32_t>::get()));
-        DAAL_ASSERT(nSelectedFeatures < static_cast<size_t>(MaxVal<int32_t>::get()));
-        DAAL_ASSERT(nMaxBinsAmongFtrs < static_cast<size_t>(MaxVal<int32_t>::get()));
+        DAAL_ASSERT(nPartialHistograms <= _int32max);
+        DAAL_ASSERT(nSelectedFeatures <= _int32max);
+        DAAL_ASSERT(nMaxBinsAmongFtrs <= _int32max);
 
         KernelArguments args(5);
         args.set(0, partialHistograms, AccessModeIds::read);
@@ -636,16 +636,15 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
     const size_t nRows     = x->getNumberOfRows();
     const size_t nFeatures = x->getNumberOfColumns();
 
-    DAAL_CHECK_EX((par.nClasses < static_cast<size_t>(MaxVal<int32_t>::get())), ErrorIncorrectParameter, ParameterName, nClassesStr());
-    DAAL_CHECK_EX((par.minObservationsInLeafNode < static_cast<size_t>(MaxVal<int32_t>::get())), ErrorIncorrectParameter, ParameterName,
-                  minObservationsInLeafNodeStr());
-    DAAL_CHECK_EX((par.featuresPerNode < static_cast<size_t>(MaxVal<int32_t>::get())), ErrorIncorrectParameter, ParameterName, featuresPerNodeStr());
+    DAAL_CHECK_EX((par.nClasses <= _int32max), ErrorIncorrectParameter, ParameterName, nClassesStr());
+    DAAL_CHECK_EX((par.minObservationsInLeafNode <= _int32max), ErrorIncorrectParameter, ParameterName, minObservationsInLeafNodeStr());
+    DAAL_CHECK_EX((par.featuresPerNode <= _int32max), ErrorIncorrectParameter, ParameterName, featuresPerNodeStr());
 
-    if (nRows > static_cast<size_t>(MaxVal<int32_t>::get()))
+    if (nRows > _int32max)
     {
         return services::Status(services::ErrorIncorrectNumberOfRowsInInputNumericTable);
     }
-    if (nFeatures > static_cast<size_t>(MaxVal<int32_t>::get()))
+    if (nFeatures > _int32max)
     {
         return services::Status(services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
     }

@@ -343,11 +343,11 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::init(NumericTable & nt,
     const size_t nRsz = nt.getNumberOfRows();
     const size_t nCsz = nt.getNumberOfColumns();
 
-    if (nRsz > static_cast<size_t>(MaxVal<int32_t>::get()))
+    if (nRsz > _int32max)
     {
         return services::Status(services::ErrorIncorrectNumberOfRowsInInputNumericTable);
     }
-    if (nCsz > static_cast<size_t>(MaxVal<int32_t>::get()))
+    if (nCsz > _int32max)
     {
         return services::Status(services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
     }

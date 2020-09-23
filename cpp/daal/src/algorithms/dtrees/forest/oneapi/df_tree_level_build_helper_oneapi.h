@@ -115,6 +115,8 @@ private:
     const size_t _preferableGroupSize  = 256;
     const size_t _maxWorkItemsPerGroup = 256; // should be a power of two for interal needs
     const size_t _preferableSubGroup   = 16;  // preferable maximal sub-group size
+
+    const size_t _int32max = static_cast<size_t>(services::internal::MaxVal<int32_t>::get());
 };
 
 } /* namespace internal */

@@ -131,6 +131,8 @@ protected:
     oneapi::internal::UniversalBuffer _indices;
     oneapi::internal::UniversalBuffer _indices_buf;
 
+    const size_t _int32max = static_cast<size_t>(services::internal::MaxVal<int32_t>::get());
+
     const int32_t _preferableSubGroup = 16; // preferable maximal sub-group size
 };
 
