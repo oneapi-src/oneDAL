@@ -25,7 +25,6 @@
 #define __KMEANS_LLOYD_DISTR_STEP2_KERNEL_UCAPI_H__
 
 #include "src/algorithms/kmeans/oneapi/kmeans_dense_lloyd_kernel_base_ucapi.h"
-#include "src/algorithms/kmeans/oneapi/cl_kernels/kmeans_cl_kernels_distr.cl"
 
 using namespace daal::data_management;
 

@@ -14,22 +14,32 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/io/detail/load_graph_service.hpp"
+#pragma once
+
 #include "oneapi/dal/detail/common.hpp"
-#include "src/externals/service_service.h"
-#include "src/threading/threading.h"
 
-using namespace std;
-namespace oneapi::dal::preview::load_graph::detail {
-
-ONEAPI_DAL_EXPORT int daal_string_to_int(const char* nptr, char** endptr) {
-    return daal::internal::Service<>::serv_string_to_int(nptr, endptr);
+namespace oneapi::dal::preview {
+typedef void (*functype)(int i, const void *a);
 }
-} // namespace oneapi::dal::preview::load_graph::detail
 
+extern "C" {
 ONEAPI_DAL_EXPORT void _daal_threader_for_oneapi(int n,
                                                  int threads_request,
-                                                 const void* a,
-                                                 oneapi::dal::preview::functype func) {
-    _daal_threader_for(n, threads_request, a, static_cast<daal::functype>(func));
+                                                 const void *a,
+                                                 oneapi::dal::preview::functype func);
 }
+
+namespace oneapi::dal::preview::load_graph::detail {
+template <typename F>
+inline void threader_func(int i, const void *a) {
+    const F &lambda = *static_cast<const F *>(a);
+    lambda(i);
+}
+
+template <typename F>
+inline ONEAPI_DAL_EXPORT void threader_for(size_t n, size_t threads_request, const F &lambda) {
+    const void *a = static_cast<const void *>(&lambda);
+
+    _daal_threader_for_oneapi((int)n, (int)threads_request, a, threader_func<F>);
+}
+} // namespace oneapi::dal::preview::load_graph::detail

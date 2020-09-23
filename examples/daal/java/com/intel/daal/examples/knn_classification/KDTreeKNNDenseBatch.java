@@ -123,6 +123,7 @@ class KDTreeKNNDenseBatch {
 
         kNearestNeighborsPredict.input.set(NumericTableInputId.data, testData);
         kNearestNeighborsPredict.input.set(ModelInputId.model, model);
+        kNearestNeighborsPredict.parameter.setNClasses(nClasses);
 
         /* Compute prediction results */
         PredictionResult predictionResult = kNearestNeighborsPredict.compute();

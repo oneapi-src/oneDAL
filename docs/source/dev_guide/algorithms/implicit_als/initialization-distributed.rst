@@ -50,7 +50,7 @@ In the distributed processing mode, initialization of item factors for the impli
      - The total number of users :math:`m`.
    * - ``partition``
      - Not applicable
-     - Numeric table of size either :math:`1 \times 1` that provides the number of input data parts or :math:`(\mathrm{nblocks} + 1) \times 1`,
+     - A numeric table of size either :math:`1 \times 1` that provides the number of input data parts or :math:`(\mathrm{nblocks} + 1) \times 1`,
        where ``nblocks`` is the number of input data parts, and the :math:`i`-th element contains the offset
        of the transposed :math:`i`-th data part to be computed by the initialization algorithm.
    * - ``engine``

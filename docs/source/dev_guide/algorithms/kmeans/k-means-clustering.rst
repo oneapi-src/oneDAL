@@ -245,19 +245,26 @@ The following computation modes are available:
    computation-batch.rst
    computation-distributed.rst
 
-.. note:: In DPC++, distributed processing for K-Means is only available as a `technical preview feature <https://github.com/oneapi-src/oneDAL#technical-preview-features>`_.
+.. note:: Distributed mode is not available for oneAPI interfaces and for Python* with DPC++ support.
 
 Examples
 ********
 
 .. tabs::
 
+  .. tab:: oneAPI DPC++
+
+    Batch Processing:
+
+    - :ref:`dpc_kmeans_init_dense.cpp`
+    - :ref:`dpc_kmeans_lloyd_dense_batch.cpp`
+
   .. tab:: oneAPI C++
 
-	Batch Processing:
+    Batch Processing:
 
-	- :ref:`cpp_kmeans_lloyd_dense_batch.cpp`
-	- :ref:`cpp_kmeans_init_dense.cpp`
+    - :ref:`cpp_kmeans_lloyd_dense_batch.cpp`
+    - :ref:`cpp_kmeans_init_dense.cpp`
 
   .. tab:: C++ (CPU)
 

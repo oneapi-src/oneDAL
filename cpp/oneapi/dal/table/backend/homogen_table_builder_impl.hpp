@@ -153,13 +153,13 @@ public:
                    const range& r,
                    const sycl::usm::alloc& kind) const {
         homogen_table_impl impl{ column_count_, data_, dtype_, layout_ };
-        impl.pull_rows(a, r);
+        impl.pull_rows(q, a, r, kind);
     }
 
     template <typename T>
     void push_rows(sycl::queue& q, const array<T>& a, const range& r) {
         homogen_table_impl impl{ column_count_, data_, dtype_, layout_ };
-        impl.push_rows(a, r);
+        impl.push_rows(q, a, r);
     }
 
     template <typename T>
@@ -169,13 +169,13 @@ public:
                      const range& r,
                      const sycl::usm::alloc& kind) const {
         homogen_table_impl impl{ column_count_, data_, dtype_, layout_ };
-        impl.pull_column(a, idx, r);
+        impl.pull_column(q, a, idx, r, kind);
     }
 
     template <typename T>
     void push_column(sycl::queue& q, const array<T>& a, std::int64_t idx, const range& r) {
         homogen_table_impl impl{ column_count_, data_, dtype_, layout_ };
-        impl.push_column(a, idx, r);
+        impl.push_column(q, a, idx, r);
     }
 #endif
 

@@ -1,4 +1,3 @@
-/* file: kmeans_dense_lloyd_multinode_batch_kernel_ucapi_fpt.cpp */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -15,28 +14,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of K-means Batch Kernel for GPU.
-//--
-*/
+#include "oneapi/dal/io/detail/load_graph_service.hpp"
+#include "src/externals/service_service.h"
 
-#include "src/algorithms/kmeans/oneapi/kmeans_oneccl_dense_lloyd_batch_kernel_ucapi.h"
-#include "src/algorithms/kmeans/oneapi/kmeans_oneccl_dense_lloyd_batch_kernel_ucapi_impl.i"
+namespace oneapi::dal::preview::load_graph::detail {
 
-namespace daal
-{
-namespace algorithms
-{
-namespace preview
-{
-namespace kmeans
-{
-namespace internal
-{
-template class KMeansOneCclDefaultBatchKernelUCAPI<DAAL_FPTYPE>;
-} // namespace internal
-} // namespace kmeans
-} // namespace preview
-} // namespace algorithms
-} // namespace daal
+ONEAPI_DAL_EXPORT int daal_string_to_int(const char* nptr, char** endptr) {
+    return daal::internal::Service<>::serv_string_to_int(nptr, endptr);
+}
+} // namespace oneapi::dal::preview::load_graph::detail
