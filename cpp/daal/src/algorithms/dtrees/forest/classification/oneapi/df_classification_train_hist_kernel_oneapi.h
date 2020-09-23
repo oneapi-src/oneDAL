@@ -35,9 +35,6 @@
 #include "src/algorithms/dtrees/forest/oneapi/df_feature_type_helper_oneapi.h"
 #include "src/algorithms/dtrees/forest/oneapi/df_tree_level_build_helper_oneapi.h"
 
-using namespace daal::data_management;
-using namespace daal::services;
-
 namespace daal
 {
 namespace algorithms
@@ -55,14 +52,15 @@ class ClassificationTrainBatchKernelOneAPI : public daal::algorithms::Kernel
 {
 public:
     ClassificationTrainBatchKernelOneAPI() {}
-    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::classification::Model & m,
-                             Result & res, const Parameter & par)
+    services::Status compute(services::HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y,
+                             decision_forest::classification::Model & m, Result & res, const Parameter & par)
     {
         return services::ErrorMethodNotImplemented;
     }
 
-    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::classification::Model & m,
-                             Result & res, const decision_forest::classification::training::interface1::Parameter & par)
+    services::Status compute(services::HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y,
+                             decision_forest::classification::Model & m, Result & res,
+                             const decision_forest::classification::training::interface1::Parameter & par)
     {
         return services::ErrorMethodNotImplemented;
     }
@@ -73,8 +71,9 @@ class ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist> : public daal:
 {
 public:
     ClassificationTrainBatchKernelOneAPI() {}
-    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::classification::Model & m,
-                             Result & res, const decision_forest::classification::training::interface1::Parameter & par)
+    services::Status compute(services::HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y,
+                             decision_forest::classification::Model & m, Result & res,
+                             const decision_forest::classification::training::interface1::Parameter & par)
     {
         Parameter tmpPar(par.nClasses);
         tmpPar.nTrees                      = par.nTrees;
@@ -91,8 +90,8 @@ public:
         tmpPar.bootstrap                   = par.bootstrap;
         return compute(pHostApp, x, y, m, res, tmpPar);
     }
-    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::classification::Model & m,
-                             Result & res, const Parameter & par);
+    services::Status compute(services::HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y,
+                             decision_forest::classification::Model & m, Result & res, const Parameter & par);
 
 private:
     services::Status buildProgram(oneapi::internal::ClKernelFactoryIface & factory, const char * programName, const char * programSrc,

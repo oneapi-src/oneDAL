@@ -35,9 +35,6 @@
 #include "src/algorithms/dtrees/forest/oneapi/df_feature_type_helper_oneapi.h"
 #include "src/algorithms/dtrees/forest/oneapi/df_tree_level_build_helper_oneapi.h"
 
-using namespace daal::data_management;
-using namespace daal::services;
-
 namespace daal
 {
 namespace algorithms
@@ -55,8 +52,8 @@ class RegressionTrainBatchKernelOneAPI : public daal::algorithms::Kernel
 {
 public:
     RegressionTrainBatchKernelOneAPI() {}
-    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::regression::Model & m,
-                             Result & res, const Parameter & par)
+    services::Status compute(services::HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y,
+                             decision_forest::regression::Model & m, Result & res, const Parameter & par)
     {
         return services::ErrorMethodNotImplemented;
     }
@@ -67,8 +64,8 @@ class RegressionTrainBatchKernelOneAPI<algorithmFPType, hist> : public daal::alg
 {
 public:
     RegressionTrainBatchKernelOneAPI() {}
-    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::regression::Model & m,
-                             Result & res, const Parameter & par);
+    services::Status compute(services::HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y,
+                             decision_forest::regression::Model & m, Result & res, const Parameter & par);
 
 private:
     services::Status buildProgram(oneapi::internal::ClKernelFactoryIface & factory, const char * programName, const char * programSrc,

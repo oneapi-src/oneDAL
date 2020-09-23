@@ -26,9 +26,8 @@
 #include "src/services/service_data_utils.h"
 #include "src/externals/service_ittnotify.h"
 
-//DAAL_ITTNOTIFY_DOMAIN(df.common.oneapi);
-
 using namespace daal::oneapi::internal;
+using namespace daal::services;
 using namespace daal::services::internal;
 
 namespace daal
