@@ -32,6 +32,7 @@
 #include "algorithms/decision_forest/decision_forest_regression_predict.h"
 #include "src/algorithms/dtrees/forest/regression/df_regression_model_impl.h"
 #include "algorithms/decision_forest/decision_forest_regression_model.h"
+#include "src/services/service_data_utils.h"
 
 namespace daal
 {
@@ -86,6 +87,8 @@ private:
     const size_t _nTreeGroupsForMedium = 32;
     const size_t _nTreeGroupsForSmall  = 16;
     const size_t _nTreeGroupsMin       = 8;
+
+    const size_t _int32max = static_cast<size_t>(services::internal::MaxVal<int32_t>::get());
 
     size_t _nTreeGroups;
 

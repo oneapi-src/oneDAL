@@ -101,15 +101,15 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::compute(services:
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
 
-    if (nRows > static_cast<size_t>(MaxVal<int32_t>::get()))
+    if (nRows > _int32max)
     {
         return services::Status(services::ErrorIncorrectNumberOfRowsInInputNumericTable);
     }
-    if (nCols > static_cast<size_t>(MaxVal<int32_t>::get()))
+    if (nCols > _int32max)
     {
         return services::Status(services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
     }
-    if (nTrees > static_cast<size_t>(MaxVal<int32_t>::get()))
+    if (nTrees > _int32max)
     {
         return services::Status(services::ErrorIncorrectSizeOfModel);
     }
@@ -177,7 +177,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees
         _aTree[i]   = pModel->at(i);
         maxTreeSize = maxTreeSize < _aTree[i]->getNumberOfRows() ? _aTree[i]->getNumberOfRows() : maxTreeSize;
     }
-    if (maxTreeSize > static_cast<size_t>(MaxVal<int32_t>::get()))
+    if (maxTreeSize > _int32max)
     {
         return services::Status(services::ErrorIncorrectSizeOfModel);
     }
@@ -272,10 +272,10 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesGro
         range.global(global_range, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        DAAL_ASSERT(nRows < static_cast<size_t>(MaxVal<int32_t>::get()));
-        DAAL_ASSERT(nCols < static_cast<size_t>(MaxVal<int32_t>::get()));
-        DAAL_ASSERT(nTrees < static_cast<size_t>(MaxVal<int32_t>::get()));
-        DAAL_ASSERT(maxTreeSize < static_cast<size_t>(MaxVal<int32_t>::get()));
+        DAAL_ASSERT(nRows <= _int32max);
+        DAAL_ASSERT(nCols <= _int32max);
+        DAAL_ASSERT(nTrees <= _int32max);
+        DAAL_ASSERT(maxTreeSize <= _int32max);
 
         for (size_t procTrees = 0; procTrees < nTrees; procTrees += _nTreeGroups)
         {
@@ -315,8 +315,8 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::reduceResponse(co
     size_t localSize = _preferableSubGroup;
     size_t nGroups   = _maxGroupsNum;
     {
-        DAAL_ASSERT(nRows < static_cast<size_t>(MaxVal<int32_t>::get()));
-        DAAL_ASSERT(nTrees < static_cast<size_t>(MaxVal<int32_t>::get()));
+        DAAL_ASSERT(nRows <= _int32max);
+        DAAL_ASSERT(nTrees <= _int32max);
 
         KernelArguments args(5);
         args.set(0, obsResponses, AccessModeIds::read);
