@@ -7,8 +7,6 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug.dynamic.sequential|x64 = Debug.dynamic.sequential|x64
 		Debug.dynamic.threaded|x64 = Debug.dynamic.threaded|x64
-		Debug.static.sequential|x64 = Debug.static.sequential|x64
-		Debug.static.threaded|x64 = Debug.static.threaded|x64
 		Release.dynamic.sequential|x64 = Release.dynamic.sequential|x64
 		Release.dynamic.threaded|x64 = Release.dynamic.threaded|x64
 		Release.static.sequential|x64 = Release.static.sequential|x64

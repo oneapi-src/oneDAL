@@ -107,6 +107,7 @@ void testModel()
     /* Pass the testing data set and trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);
     algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
+    algorithm.parameter.nClasses = nClasses;
 
     /* Compute prediction results */
     algorithm.compute();

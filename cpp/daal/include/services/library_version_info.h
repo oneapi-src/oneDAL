@@ -29,6 +29,7 @@
 #define __INTEL_DAAL__        2199
 #define __INTEL_DAAL_MINOR__  9
 #define __INTEL_DAAL_UPDATE__ 9
+#define __INTEL_DAAL_STATUS__ 'A'
 
 #define INTEL_DAAL_VERSION (__INTEL_DAAL__ * 10000 + __INTEL_DAAL_MINOR__ * 100 + __INTEL_DAAL_UPDATE__)
 
