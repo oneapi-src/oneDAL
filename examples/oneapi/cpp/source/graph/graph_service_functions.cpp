@@ -29,16 +29,17 @@ int main(int argc, char **argv) {
     const std::string filename = get_data_path("graph.csv");
 
     const graph_csv_data_source ds(filename);
-    const load_graph::descriptor<> d;
-    const auto my_graph = load_graph::load(d, ds);
+    using my_graph_type = undirected_adjacency_array_graph<>;
+    const load_graph::descriptor<edge_list<int32_t>, my_graph_type> desc;
+    const auto my_graph = load_graph::load(desc, ds);
     std::cout << "Number of vertices: " << get_vertex_count(my_graph) << std::endl;
     std::cout << "Number of edges: " << get_edge_count(my_graph) << std::endl;
 
-    std::int32_t node_id = 0;
-    std::cout << "Degree of " << node_id << ": " << get_vertex_degree(my_graph, node_id)
+    vertex_type<my_graph_type> vertex_id = 0;
+    std::cout << "Degree of " << vertex_id << ": " << get_vertex_degree(my_graph, vertex_id)
               << std::endl;
 
-    for (std::uint64_t j = 0; j < get_vertex_count(my_graph); ++j) {
+    for (vertex_size_type<my_graph_type> j = 0; j < get_vertex_count(my_graph); ++j) {
         std::cout << "Neighbors of " << j << ": ";
         const auto neigh = get_vertex_neighbors(my_graph, j);
         for (auto i = neigh.first; i != neigh.second; ++i) {
