@@ -903,7 +903,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
         typename DFTreeConverterType::TreeHelperType mTreeHelper;
 
         DFTreeConverterType converter;
-        converter.convertToDFDecisionTree(DFTreeRecords, binValues.data(), mTreeHelper);
+        DAAL_CHECK_STATUS_VAR(converter.convertToDFDecisionTree(DFTreeRecords, binValues.data(), mTreeHelper));
 
         mdImpl.add(mTreeHelper._tree, 0 /*nClasses*/);
 
