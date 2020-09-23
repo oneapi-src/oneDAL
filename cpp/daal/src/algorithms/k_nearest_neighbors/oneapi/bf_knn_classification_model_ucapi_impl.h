@@ -44,6 +44,7 @@ public:
     template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)
     {
+        arch->set(_nFeatures);
         arch->setSharedPtrObj(_data);
         arch->setSharedPtrObj(_labels);
 
