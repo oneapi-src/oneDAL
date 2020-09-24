@@ -35,7 +35,6 @@
 #include "src/algorithms/dtrees/forest/oneapi/df_feature_type_helper_oneapi.h"
 #include "src/algorithms/dtrees/forest/oneapi/df_tree_level_build_helper_oneapi.h"
 
-//using namespace daal::data_management;
 using namespace daal::services;
 
 namespace daal

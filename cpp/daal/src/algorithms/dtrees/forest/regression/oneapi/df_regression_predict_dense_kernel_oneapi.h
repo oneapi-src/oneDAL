@@ -73,6 +73,7 @@ private:
     const uint32_t _maxLocalSize       = 128;
     const uint32_t _maxGroupsNum       = 256;
 
+    // following constants showed best performance on benchmark's datasets
     const size_t _nRowsLarge  = 500000;
     const size_t _nRowsMedium = 100000;
 
