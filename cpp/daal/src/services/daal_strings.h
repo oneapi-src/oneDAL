@@ -77,6 +77,7 @@
     DECLARE_DAAL_STRING_CONST(minObservationsInSplitNode)        \
     DECLARE_DAAL_STRING_CONST(minWeightFractionInLeafNode)       \
     DECLARE_DAAL_STRING_CONST(minImpurityDecreaseInSplitNode)    \
+    DECLARE_DAAL_STRING_CONST(maxLeafNodes)                      \
     DECLARE_DAAL_STRING_CONST(sum)                               \
     DECLARE_DAAL_STRING_CONST(penaltyL1)                         \
     DECLARE_DAAL_STRING_CONST(penaltyL2)                         \
@@ -156,6 +157,7 @@
     DECLARE_DAAL_STRING_CONST(groundTruth)                       \
     DECLARE_DAAL_STRING_CONST(supportVectors)                    \
     DECLARE_DAAL_STRING_CONST(classificationCoefficients)        \
+    DECLARE_DAAL_STRING_CONST(decisionFunction)                  \
     DECLARE_DAAL_STRING_CONST(beta)                              \
     DECLARE_DAAL_STRING_CONST(confusionMatrix)                   \
     DECLARE_DAAL_STRING_CONST(binaryMetrics)                     \
@@ -267,6 +269,7 @@
     DECLARE_DAAL_STRING_CONST(retainRatio)                       \
     DECLARE_DAAL_STRING_CONST(k)                                 \
     DECLARE_DAAL_STRING_CONST(kdTreeTable)                       \
+    DECLARE_DAAL_STRING_CONST(distances)                         \
     DECLARE_DAAL_STRING_CONST(auxRetainMask)                     \
     DECLARE_DAAL_STRING_CONST(auxValue)                          \
     DECLARE_DAAL_STRING_CONST(auxSmBeta)                         \

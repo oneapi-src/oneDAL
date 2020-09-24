@@ -41,7 +41,7 @@ namespace training
 {
 using namespace daal::data_management;
 
-namespace interface2
+namespace interface3
 {
 /**
  *  \brief Initialize list of K-Nearest Neighbors kernels with implementations for supported architectures
@@ -68,7 +68,6 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
     Result * const result                           = static_cast<Result *>(_res);
 
     const NumericTablePtr x = input->get(classifier::training::data);
-    const NumericTablePtr y = input->get(classifier::training::labels);
 
     const kdtree_knn_classification::ModelPtr r = result->get(classifier::training::model);
 
@@ -78,12 +77,19 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 
     const bool copy = (par->dataUseInModel == doNotUse);
     r->impl()->setData<algorithmFpType>(x, copy);
-    r->impl()->setLabels<algorithmFpType>(y, copy);
+
+    NumericTable * labelsPtr = nullptr;
+    if (par->resultsToEvaluate != 0)
+    {
+        const NumericTablePtr y = input->get(classifier::training::labels);
+        r->impl()->setLabels<algorithmFpType>(y, copy);
+        labelsPtr = r->impl()->getLabels().get();
+    }
 
     __DAAL_CALL_KERNEL(env, internal::KNNClassificationTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFpType, method), compute,
-                       r->impl()->getData().get(), r->impl()->getLabels().get(), r.get(), *par->engine);
+                       r->impl()->getData().get(), labelsPtr, r.get(), *par->engine);
 }
-} // namespace interface2
+} // namespace interface3
 } // namespace training
 } // namespace kdtree_knn_classification
 } // namespace algorithms

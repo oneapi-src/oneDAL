@@ -76,8 +76,9 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     classifier::training::Input * input = static_cast<classifier::training::Input *>(_in);
     Result * result                     = static_cast<Result *>(_res);
 
-    NumericTable * x = input->get(classifier::training::data).get();
-    NumericTable * y = input->get(classifier::training::labels).get();
+    const NumericTable * const x = input->get(classifier::training::data).get();
+    const NumericTable * const y = input->get(classifier::training::labels).get();
+    const NumericTable * const w = input->get(classifier::training::weights).get();
 
     decision_forest::classification::Model * m = result->get(classifier::training::model).get();
 
@@ -94,7 +95,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     else
     {
         __DAAL_CALL_KERNEL(env, internal::ClassificationTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                           daal::services::internal::hostApp(*input), x, y, *m, *result, *par);
+                           daal::services::internal::hostApp(*input), x, y, w, *m, *result, *par);
     }
 }
 

@@ -62,6 +62,8 @@ static infer_result call_daal_kernel(const context_cpu &ctx,
         daal_data.get(),
         dal::detail::get_impl<detail::model_impl>(m).get_interop()->get_daal_model().get(),
         daal_labels.get(),
+        nullptr,
+        nullptr,
         &daal_parameter));
     return infer_result().set_labels(
         dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build());
