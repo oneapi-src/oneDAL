@@ -1029,15 +1029,14 @@ endif
 # Adds symlink to the old library directory
 # Note: The `ln` command does not support `-r` on MacOS, so we
 #       `cd`to the lib directory first and then create symlink.
-ifeq ($(if $(or $(OS_is_lnx),$(OS_is_mac)),yes,),yes)
 $(RELEASEDIR)\dal:
+	ifeq ($(if $(or $(OS_is_lnx),$(OS_is_mac)),yes,),yes)
 	cd $(RELEASEDIR) && ln -sf daal dal
-endef
-
-ifeq ($(OS_is_win),yes)
-$(RELEASEDIR)\dal:
+	endef
+	
+	ifeq ($(OS_is_win),yes)
 	cd  $(RELEASEDIR) && mklink /D daal dal
-endef
+	endef
 
 #----- releasing jar files
 _release_jj: $(addprefix $(RELEASEDIR.jardir)/,$(release.JARS))
