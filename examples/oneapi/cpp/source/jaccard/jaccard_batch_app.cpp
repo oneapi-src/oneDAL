@@ -43,7 +43,7 @@ void vertex_similarity_block_processing(const Graph &g,
 int main(int argc, char **argv) {
   // load the graph
   const std::string filename = get_data_path("graph.csv");
-  
+
   const preview::graph_csv_data_source ds(filename);
   const preview::load_graph::descriptor<> d;
   const auto graph = preview::load_graph::load(d, ds);
