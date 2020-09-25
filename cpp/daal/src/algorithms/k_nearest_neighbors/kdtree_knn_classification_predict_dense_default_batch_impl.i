@@ -517,19 +517,16 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
     heap.reset();
     stack.reset();
     GlobalNeighbors<algorithmFpType, cpu> curNeighbor;
-    size_t i, j;
+    size_t i;
     SearchNode<algorithmFpType> cur, toPush;
     const KDTreeNode * node;
     cur.nodeIndex   = rootTreeNodeIndex;
     cur.minDistance = 0;
 
-    const size_t xColumnCount = data.getNumberOfColumns();
-
     DAAL_ALIGNAS(256) algorithmFpType distance[__KDTREE_LEAF_BUCKET_SIZE + 1];
     size_t start, end;
 
     data_management::BlockDescriptor<algorithmFpType> xBD[2];
-    size_t curBDIdx, nextBDIdx;
     for (;;)
     {
         node = static_cast<const KDTreeNode *>(kdTreeTable.getArray()) + cur.nodeIndex;
