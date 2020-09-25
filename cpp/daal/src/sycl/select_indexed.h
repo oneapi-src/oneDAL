@@ -69,6 +69,7 @@ public:
         selectIndices(distances, nK, nVectors, vectorSize, vectorSize, vectorOffset, result, status);
         DAAL_CHECK_STATUS_PTR(status);
         convertIndicesToLabels(result.indices, dataLabels, nVectors, nK, labelOffset, status);
+        DAAL_CHECK_STATUS_PTR(status);
     }
 };
 
