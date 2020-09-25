@@ -44,10 +44,18 @@ void vertex_similarity_block_processing(const Graph &g,
 
 int main(int argc, char **argv) {
   // load the graph
+<<<<<<< HEAD
   std::string filename = get_data_path("graph.csv");
   graph_csv_data_source ds(filename);
   load_graph::descriptor<> d;
   auto graph = load_graph::load(d, ds);
+=======
+  const std::string filename = get_data_path("graph.csv");
+
+  const preview::graph_csv_data_source ds(filename);
+  const preview::load_graph::descriptor<> d;
+  const auto graph = preview::load_graph::load(d, ds);
+>>>>>>> 3976b07f0... fixed clear code (#1006)
 
   // set the block sizes for Jaccard similarity block processing
   int32_t block_row_count = 2;
