@@ -7,11 +7,11 @@
          
       white-space: normal !important;
    }
+}
 /*
    .wy-table-responsive {
       overflow: visible !important;
    }
-}
 */
 
 /* make the page width fill the window */
@@ -57,22 +57,24 @@ img.with-border {
    border:1px solid #021a40;
 }
 
-div.leftside {
- width: 49%;
- padding: 0px 3px 0px 0px;
- float: left;
-}
-
-div.rightside {
- margin-left: 50%;
-}
+div.column {
+   float: left;
+   width: 50%;
+   padding: 10px;
+ }
 
 /* Clear floats after the columns */
-.rightside:after {
+.column:after {
  content: "";
  display: table;
  clear: both;
 } 
+
+.comparison:after {
+   content: "";
+   display: table;
+   clear: both;
+  } 
 
 div.admonition-container {
  width: 49%;
