@@ -1030,14 +1030,14 @@ endif
 # Note: The `ln` command does not support `-r` on MacOS, so we
 #       `cd`to the lib directory first and then create symlink.
 ifeq ($(if $(or $(OS_is_lnx),$(OS_is_mac)),yes,),yes)
-_release_c: 
-  cd $(RELEASEDIR) && ln -sf daal dal
+$(RELEASEDIR)\dal:
+	cd $(RELEASEDIR) && ln -sf daal dal
 endef
 
 ifeq ($(OS_is_win),yes)
-_release_c: 
-  cd $(RELEASEDIR) && mklink /D daal dal
-endif
+$(RELEASEDIR)\dal:
+	cd  $(RELEASEDIR) && mklink /D daal dal
+endef
 
 #----- releasing jar files
 _release_jj: $(addprefix $(RELEASEDIR.jardir)/,$(release.JARS))
