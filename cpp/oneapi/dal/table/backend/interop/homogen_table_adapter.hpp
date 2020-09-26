@@ -222,7 +222,7 @@ private:
             return status_t(daal::services::ErrorIncorrectIndex);
         }
 
-        block.setDetails(0, vector_idx, rwFlag);
+        block.setDetails(0, vector_idx, rwflag);
 
         if constexpr (std::is_same_v<BlockData, Data>) {
             auto raw_data_ptr = this->_ptr.get() + column_count * vector_idx * sizeof(Data);
@@ -289,7 +289,7 @@ private:
             return status_t(daal::services::ErrorIncorrectIndex);
         }
 
-        block.setDetails(feature_idx, vector_idx, rwFlag);
+        block.setDetails(feature_idx, vector_idx, rwflag);
 
         try {
             array<BlockData> values;
