@@ -1031,11 +1031,11 @@ endif
 #       `cd`to the lib directory first and then create symlink.
 $(RELEASEDIR)\dal:
 	ifeq ($(if $(or $(OS_is_lnx),$(OS_is_mac)),yes,),yes)
-	cd $(RELEASEDIR) && ln -sf daal dal
+	cd $(RELEASEDIR) && ln -sf dal daal
 	endef
 	
 	ifeq ($(OS_is_win),yes)
-	cd  $(RELEASEDIR) && mklink /D daal dal
+	cd  $(RELEASEDIR) && mklink /J daal dal
 	endef
 
 #----- releasing jar files
