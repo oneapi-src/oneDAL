@@ -76,8 +76,8 @@ protected:
 
     services::Status predict(algorithmFpType * predictedClass, const Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap,
                              const NumericTable * labels, size_t k, VoteWeights voteWeights, const NumericTable * modelIndices,
-                             data_management::BlockDescriptor<algorithmFpType> & indices,
-                             data_management::BlockDescriptor<algorithmFpType> & distances, size_t index, const size_t nClasses);
+                             data_management::BlockDescriptor<int> & indices, data_management::BlockDescriptor<algorithmFpType> & distances,
+                             size_t index, const size_t nClasses);
 };
 
 } // namespace internal
