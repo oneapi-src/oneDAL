@@ -155,6 +155,6 @@ class SVMMultiClassBoserDenseBatch {
         System.out.println("");
         NumericTable decisionFunctionResults = predictionResult.get(PredictionResultId.decisionFunction);
         Service.printNumericTable("Multi-class SVM classification decision function results (first 20 observations):",
-                 predictionResult.get(PredictionResultId.decisionFunction) , 20);
+                decisionFunctionResults, 20);
     }
 }
