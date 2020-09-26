@@ -1029,7 +1029,7 @@ endif
 # Adds symlink to the old library directory
 # Note: The `ln` command does not support `-r` on MacOS, so we
 #       `cd`to the lib directory first and then create symlink.
-$(RELEASEDIR)\dal:
+_release_c:
 	ifeq ($(if $(or $(OS_is_lnx),$(OS_is_mac)),yes,),yes)
 	cd $(RELEASEDIR) && ln -sf dal daal
 	endef
