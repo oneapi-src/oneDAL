@@ -65,13 +65,13 @@ struct TaskWorkingSet
         _nWS       = utils::internal::min(utils::internal::maxpow2(_nVectors), utils::internal::maxpow2(maxWS));
         _nSelected = 0;
 
-        _valuesSort     = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);
+        _valuesSort = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
         _valuesSortBuff = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        _buffIndices    = context.allocate(TypeIds::id<uint32_t>(), _nVectors, &status);
+        _buffIndices = context.allocate(TypeIds::id<uint32_t>(), _nVectors, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
         _wsIndices = context.allocate(TypeIds::id<uint32_t>(), _nWS, &status);

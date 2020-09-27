@@ -82,13 +82,11 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     auto & deviceInfo = context.getInfoDevice();
     if (method == thunder && !deviceInfo.isCpu)
     {
-        __DAAL_CALL_KERNEL_SYCL(env, internal::SVMTrainOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                                x, *y, r, par);
+        __DAAL_CALL_KERNEL_SYCL(env, internal::SVMTrainOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, x, *y, r, par);
     }
     else
     {
-        __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, x,
-                           weights, *y, r, par);
+        __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, x, weights, *y, r, par);
     }
 }
 } // namespace interface2

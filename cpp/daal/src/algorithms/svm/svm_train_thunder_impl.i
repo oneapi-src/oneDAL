@@ -71,8 +71,8 @@ namespace internal
 {
 template <typename algorithmFPType, CpuType cpu>
 services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const NumericTablePtr & xTable, const NumericTablePtr & wTable,
-                                                                                     NumericTable & yTable, daal::algorithms::Model * r,
-                                                                                     const svm::Parameter * svmPar)
+                                                                      NumericTable & yTable, daal::algorithms::Model * r,
+                                                                      const svm::Parameter * svmPar)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(COMPUTE);
 
@@ -170,8 +170,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors * sizeof(algorithmFPType), nVectors);
 
     size_t defaultCacheSize = services::internal::min<cpu, size_t>(nVectors, cacheSize / nVectors / sizeof(algorithmFPType));
-    defaultCacheSize = services::internal::max<cpu, size_t>(nWS, defaultCacheSize);
-    auto cachePtr    = SVMCache<thunder, lruCache, algorithmFPType, cpu>::create(defaultCacheSize, nWS, nVectors, xTable, kernel, status);
+    defaultCacheSize        = services::internal::max<cpu, size_t>(nWS, defaultCacheSize);
+    auto cachePtr           = SVMCache<thunder, lruCache, algorithmFPType, cpu>::create(defaultCacheSize, nWS, nVectors, xTable, kernel, status);
 
     _blockSizeWS = services::internal::min<cpu, algorithmFPType>(nWS, 256);
     TArrayScalable<algorithmFPType, cpu> gradBuff((nWS / _blockSizeWS) * nVectors);
@@ -187,7 +187,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
 
         DAAL_CHECK_STATUS(status, workSet.select(y, alpha, grad, cw));
         const uint32_t * const wsIndices = workSet.getIndices();
-        algorithmFPType ** kernelSOARes = nullptr;
+        algorithmFPType ** kernelSOARes  = nullptr;
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(getRowsBlock);
 
@@ -210,10 +210,12 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::SMOBlockSolver(
-    const algorithmFPType * y, const algorithmFPType * grad, const uint32_t * wsIndices, algorithmFPType ** kernelWS, const size_t nVectors,
-    const size_t nWS, const algorithmFPType * cw, const double eps, const double tau, algorithmFPType * buffer, char * I, algorithmFPType * alpha,
-    algorithmFPType * deltaAlpha, algorithmFPType & localDiff) const
+services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::SMOBlockSolver(const algorithmFPType * y, const algorithmFPType * grad,
+                                                                             const uint32_t * wsIndices, algorithmFPType ** kernelWS,
+                                                                             const size_t nVectors, const size_t nWS, const algorithmFPType * cw,
+                                                                             const double eps, const double tau, algorithmFPType * buffer, char * I,
+                                                                             algorithmFPType * alpha, algorithmFPType * deltaAlpha,
+                                                                             algorithmFPType & localDiff) const
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(SMOBlockSolver);
     services::Status status;
@@ -346,15 +348,14 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::SMOBlockSolver(
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::updateGrad(algorithmFPType ** kernelWS,
-                                                                                        const algorithmFPType * deltaalpha,
-                                                                                        algorithmFPType * gradBuff, algorithmFPType * grad,
-                                                                                        const size_t nVectors, const size_t nWS)
+services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::updateGrad(algorithmFPType ** kernelWS, const algorithmFPType * deltaalpha,
+                                                                         algorithmFPType * gradBuff, algorithmFPType * grad, const size_t nVectors,
+                                                                         const size_t nWS)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(updateGrad);
 
     SafeStatus safeStat;
-    const size_t nBlocksWS = nWS / _blockSizeWS;
+    const size_t nBlocksWS   = nWS / _blockSizeWS;
     const size_t blockSize   = 128;
     const size_t nBlocksGrad = (nVectors / blockSize) + !!(nVectors % blockSize);
 
@@ -399,7 +400,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::updateGrad(algorit
 
 template <typename algorithmFPType, CpuType cpu>
 bool SVMTrainImpl<thunder, algorithmFPType, cpu>::checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev,
-                                                                                    const algorithmFPType eps, size_t & sameLocalDiff)
+                                                                     const algorithmFPType eps, size_t & sameLocalDiff)
 {
     sameLocalDiff = internal::Math<algorithmFPType, cpu>::sFabs(diff - diffPrev) < eps * 1e-3 ? sameLocalDiff + 1 : 0;
     if (sameLocalDiff > nNoChanges || diff < eps)

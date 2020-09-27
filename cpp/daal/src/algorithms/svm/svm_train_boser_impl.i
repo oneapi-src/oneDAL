@@ -64,8 +64,7 @@ using namespace daal::services::internal;
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status SVMTrainImpl<boser, algorithmFPType, cpu>::compute(const NumericTablePtr & xTable, const NumericTablePtr & wTable,
-                                                                                   NumericTable & yTable, daal::algorithms::Model * r,
-                                                                                   const svm::Parameter * svmPar)
+                                                                    NumericTable & yTable, daal::algorithms::Model * r, const svm::Parameter * svmPar)
 {
     SVMTrainTask<algorithmFPType, cpu> task(xTable->getNumberOfRows());
     services::Status s = task.setup(*svmPar, xTable);
@@ -164,8 +163,8 @@ services::Status SVMTrainTask<algorithmFPType, cpu>::compute(const svm::Paramete
  *              M(alpha) = min(-y[i]*grad[i]): i belongs to I_low(alpha)
  */
 template <typename algorithmFPType, CpuType cpu>
-services::Status SVMTrainTask<algorithmFPType, cpu>::WSSj(size_t nActiveVectors, algorithmFPType tau, int Bi, algorithmFPType GMin,
-                                                                         int & Bj, algorithmFPType & delta, algorithmFPType & res) const
+services::Status SVMTrainTask<algorithmFPType, cpu>::WSSj(size_t nActiveVectors, algorithmFPType tau, int Bi, algorithmFPType GMin, int & Bj,
+                                                          algorithmFPType & delta, algorithmFPType & res) const
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair.WSSj);
 
@@ -217,8 +216,8 @@ services::Status SVMTrainTask<algorithmFPType, cpu>::WSSj(size_t nActiveVectors,
 
 template <typename algorithmFPType, CpuType cpu>
 bool SVMTrainTask<algorithmFPType, cpu>::findMaximumViolatingPair(size_t nActiveVectors, algorithmFPType tau, int & Bi, int & Bj,
-                                                                                 algorithmFPType & delta, algorithmFPType & ma, algorithmFPType & Ma,
-                                                                                 algorithmFPType & curEps, services::Status & s) const
+                                                                  algorithmFPType & delta, algorithmFPType & ma, algorithmFPType & Ma,
+                                                                  algorithmFPType & curEps, services::Status & s) const
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair);
 
@@ -289,7 +288,7 @@ services::Status SVMTrainTask<algorithmFPType, cpu>::update(size_t nActiveVector
  */
 template <typename algorithmFPType, CpuType cpu>
 inline void SVMTrainTask<algorithmFPType, cpu>::updateAlpha(int Bi, int Bj, algorithmFPType delta, algorithmFPType & newDeltai,
-                                                                           algorithmFPType & newDeltaj)
+                                                            algorithmFPType & newDeltaj)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(updateAlpha);
     const algorithmFPType * cw = _cw.get();

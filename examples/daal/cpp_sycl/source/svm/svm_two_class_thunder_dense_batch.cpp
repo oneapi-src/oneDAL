@@ -90,9 +90,9 @@ void trainModel()
     svm::training::Batch<float, svm::training::thunder> algorithm;
     algorithm.parameter.kernel            = kernel;
     algorithm.parameter.C                 = 1.0;
-    algorithm.parameter.accuracyThreshold = 0.01;
+    algorithm.parameter.accuracyThreshold = 0.001;
     algorithm.parameter.tau               = 1e-6;
-    algorithm.parameter.maxIterations     = 50;
+    algorithm.parameter.maxIterations     = 100;
 
     algorithm.input.set(classifier::training::data, trainData);
     algorithm.input.set(classifier::training::labels, trainGroundTruth);

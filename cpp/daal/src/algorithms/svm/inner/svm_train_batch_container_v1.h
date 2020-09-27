@@ -82,8 +82,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     par2.cacheSize         = par1->cacheSize;
 
     services::Environment::env & env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, x, weights,
-                       *y, r, &par2);
+    __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, x, weights, *y, r, &par2);
 }
 } // namespace interface1
 } // namespace training

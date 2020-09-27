@@ -74,9 +74,9 @@ using namespace daal::oneapi::internal;
 
 template <typename algorithmFPType>
 services::Status SVMTrainOneAPI<algorithmFPType, thunder>::updateGrad(const services::Buffer<algorithmFPType> & kernelWS,
-                                                                                     const services::Buffer<algorithmFPType> & deltaalpha,
-                                                                                     services::Buffer<algorithmFPType> & grad, const size_t nVectors,
-                                                                                     const size_t nWS)
+                                                                      const services::Buffer<algorithmFPType> & deltaalpha,
+                                                                      services::Buffer<algorithmFPType> & grad, const size_t nVectors,
+                                                                      const size_t nWS)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(updateGrad);
     return BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::Trans, math::Transpose::NoTrans, nVectors, 1, nWS,
@@ -143,7 +143,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, thunder>::smoKernel(
 
 template <typename algorithmFPType>
 bool SVMTrainOneAPI<algorithmFPType, thunder>::checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev,
-                                                                                 const algorithmFPType eps, size_t & sameLocalDiff)
+                                                                  const algorithmFPType eps, size_t & sameLocalDiff)
 {
     sameLocalDiff = utils::internal::abs(diff - diffPrev) < eps * 1e-2 ? sameLocalDiff + 1 : 0;
 
@@ -155,8 +155,8 @@ bool SVMTrainOneAPI<algorithmFPType, thunder>::checkStopCondition(const algorith
 }
 
 template <typename algorithmFPType>
-services::Status SVMTrainOneAPI<algorithmFPType, thunder>::compute(const NumericTablePtr & xTable, NumericTable & yTable,
-                                                                                  daal::algorithms::Model * r, const svm::Parameter * svmPar)
+services::Status SVMTrainOneAPI<algorithmFPType, thunder>::compute(const NumericTablePtr & xTable, NumericTable & yTable, daal::algorithms::Model * r,
+                                                                   const svm::Parameter * svmPar)
 {
     services::Status status;
 
@@ -236,7 +236,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, thunder>::compute(const Numeric
                                             deltaalphaBuff, resinfoBuff, nWS));
 
         {
-            auto resinfoHostPtr        = resinfoBuff.toHost(ReadWriteMode::readOnly, &status);
+            auto resinfoHostPtr = resinfoBuff.toHost(ReadWriteMode::readOnly, &status);
             DAAL_CHECK_STATUS_VAR(status);
             auto resinfoHost           = resinfoHostPtr.get();
             size_t localInnerIteration = size_t(resinfoHost[0]);
