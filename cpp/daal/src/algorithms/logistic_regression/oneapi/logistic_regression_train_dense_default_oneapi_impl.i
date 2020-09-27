@@ -97,6 +97,7 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
     DAAL_CHECK_STATUS_VAR(status);
 
     ctx.fill(argumentU, 0.0, &status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     //initialization
     if (nClasses == 2)
@@ -126,6 +127,8 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
         const int * pnIterations = nIterationsBlock.getBlockPtr();
 
         NumericTablePtr nIterationsOut = data_management::HomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, pnIterations[0], &status);
+        DAAL_CHECK_STATUS_VAR(status);
+
         par.optimizationSolver->getResult()->set(optimization_solver::iterative_solver::nIterations, nIterationsOut);
         DAAL_CHECK_STATUS(status, nIterationsNT->releaseBlockOfRows(nIterationsBlock));
     }
@@ -144,6 +147,7 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
 
         services::Buffer<algorithmFPType> betaBuff = dataRows.getBuffer();
         ctx.copy(betaBuff, 0, minimumBuff, 0, nBetaTotal, &status);
+        DAAL_CHECK_STATUS_VAR(status);
 
         if (!par.interceptFlag)
         {

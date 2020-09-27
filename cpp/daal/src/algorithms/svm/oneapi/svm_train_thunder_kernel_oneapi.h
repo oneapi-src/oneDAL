@@ -41,23 +41,23 @@ namespace internal
 using namespace daal::data_management;
 using namespace daal::services;
 
-template <typename algorithmFPType, typename ParameterType, Method method>
+template <typename algorithmFPType, Method method>
 class SVMTrainOneAPI : public Kernel
 {
 public:
-    services::Status compute(const NumericTablePtr & xTable, NumericTable & yTable, daal::algorithms::Model * r, const ParameterType * par)
+    services::Status compute(const NumericTablePtr & xTable, NumericTable & yTable, daal::algorithms::Model * r, const svm::Parameter * par)
     {
         return services::ErrorMethodNotImplemented;
     }
 };
 
-template <typename algorithmFPType, typename ParameterType>
-class SVMTrainOneAPI<algorithmFPType, ParameterType, thunder> : public Kernel
+template <typename algorithmFPType>
+class SVMTrainOneAPI<algorithmFPType, thunder> : public Kernel
 {
     using Helper = utils::internal::HelperSVM<algorithmFPType>;
 
 public:
-    services::Status compute(const NumericTablePtr & xTable, NumericTable & yTable, daal::algorithms::Model * r, const ParameterType * par);
+    services::Status compute(const NumericTablePtr & xTable, NumericTable & yTable, daal::algorithms::Model * r, const svm::Parameter * par);
 
 protected:
     services::Status updateGrad(const services::Buffer<algorithmFPType> & kernelWS, const services::Buffer<algorithmFPType> & deltaalpha,

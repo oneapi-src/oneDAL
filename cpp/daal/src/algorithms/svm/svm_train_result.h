@@ -135,7 +135,7 @@ protected:
         {
             if (_alpha[i] != zero)
             {
-                DAAL_ASSERT(_cache->getDataRowIndex(i) <= services::internal::MaxVal<int>::get())
+                DAAL_ASSERT(_cache->getDataRowIndex(i) < _nVectors)
                 svIndices[iSV] = (int)_cache->getDataRowIndex(i);
                 ++iSV;
             }

@@ -106,8 +106,6 @@ struct HelperSVM
         KernelRange range(n);
 
         context.run(range, kernel, args, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-
         return status;
     }
 
@@ -129,8 +127,6 @@ struct HelperSVM
         KernelRange range(n);
 
         context.run(range, kernel, args, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-
         return status;
     }
 
@@ -141,10 +137,9 @@ struct HelperSVM
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
         context.copy(values, 0, f, 0, n, &status);
+        DAAL_CHECK_STATUS_VAR(status);
         DAAL_CHECK_STATUS(status, makeRange(indecesSort, n));
-
         DAAL_CHECK_STATUS(status, sort::RadixSort::sortIndices(values, indecesSort, valuesBuf, indecesBuf, n));
-
         return status;
     }
 
@@ -171,7 +166,6 @@ struct HelperSVM
         oneapi::internal::KernelRange range(p, nWS);
 
         ctx.run(range, kernel, args, &status);
-
         return status;
     }
 
@@ -198,7 +192,6 @@ struct HelperSVM
         oneapi::internal::KernelRange range(p, nWS);
 
         ctx.run(range, kernel, args, &status);
-
         return status;
     }
 
@@ -224,8 +217,6 @@ struct HelperSVM
         KernelRange range(n);
 
         context.run(range, kernel, args, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-
         return status;
     }
 
@@ -251,8 +242,6 @@ struct HelperSVM
         KernelRange range(n);
 
         context.run(range, kernel, args, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-
         return status;
     }
 
@@ -277,8 +266,6 @@ struct HelperSVM
         KernelRange range(n);
 
         context.run(range, kernel, args, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-
         return status;
     }
 
@@ -301,8 +288,6 @@ struct HelperSVM
         KernelRange range(n);
 
         context.run(range, kernel, args, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-
         return status;
     }
 
@@ -325,8 +310,6 @@ struct HelperSVM
         KernelRange range(n);
 
         context.run(range, kernel, args, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-
         return status;
     }
 };

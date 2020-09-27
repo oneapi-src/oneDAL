@@ -83,6 +83,8 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
     const size_t nBlocks       = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
 
     auto kernelResU    = context.allocate(TypeIds::id<algorithmFPType>(), nRowsPerBlock * nSV, &status);
+    DAAL_CHECK_STATUS_VAR(status);
+
     auto kernelResBuff = kernelResU.template get<algorithmFPType>();
 
     kernel_function::ResultPtr shRes(new kernel_function::Result());
