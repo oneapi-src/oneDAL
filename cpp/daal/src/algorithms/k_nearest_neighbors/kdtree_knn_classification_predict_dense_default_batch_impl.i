@@ -371,8 +371,10 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
 
     const auto maxThreads     = threader_get_threads_number();
     const size_t xColumnCount = x->getNumberOfColumns();
-    const auto rowsPerBlock   = (xRowCount + maxThreads - 1) / maxThreads;
-    const auto blockCount     = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
+    // const auto rowsPerBlock   = (xRowCount + maxThreads - 1) / maxThreads;
+    // const auto blockCount     = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
+    const auto rowsPerBlock = 256;
+    const auto blockCount   = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
     SafeStatus safeStat;
 
     services::internal::TArrayScalable<algorithmFpType *, cpu> soa_arrays;
