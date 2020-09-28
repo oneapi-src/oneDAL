@@ -165,10 +165,11 @@ private:
     const size_t _preferableGroupSize  = 256;
     const size_t _minRowsBlock         = 256;
     const size_t _maxBins              = 256;
-    const size_t _int32max             = static_cast<size_t>(services::internal::MaxVal<int32_t>::get());
 
     const size_t _nNodesGroups   = 3; // all nodes are split on groups (big, medium, small)
     const size_t _nodeGroupProps = 2; // each nodes Group contains props: numOfNodes, maxNumOfBlocks
+
+    constexpr size_t _int32max = static_cast<size_t>(services::internal::MaxVal<int32_t>::get());
 
     size_t _nClasses;
     size_t _nMaxBinsAmongFtrs;
