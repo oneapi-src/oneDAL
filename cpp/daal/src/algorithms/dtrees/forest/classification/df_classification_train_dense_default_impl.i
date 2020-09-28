@@ -195,7 +195,7 @@ private:
     size_t nClasses() const { return _nClasses; }
     void calcGini(algorithmFPType totalWeights, ImpurityData & imp) const
     {
-        const algorithmFPType cDiv(1. / (totalWeights * totalWeights));
+        const algorithmFPType cDiv = isZero<algorithmFPType, cpu>(totalWeights * totalWeights) ? 1. : (1. / (totalWeights * totalWeights));
         algorithmFPType var(1.);
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
@@ -208,7 +208,9 @@ private:
     static void updateRightImpurity(ImpurityData & imp, ClassIndexType iClass, algorithmFPType totalWeights, algorithmFPType moveWeights)
     {
         algorithmFPType delta = (2. * totalWeights - moveWeights) * imp.var + 2. * (imp.hist[iClass] - totalWeights);
-        imp.var += moveWeights * delta / ((totalWeights - moveWeights) * (totalWeights - moveWeights));
+        imp.var               = isZero<algorithmFPType, cpu>((totalWeights - moveWeights) * (totalWeights - moveWeights)) ?
+                      1. :
+                      (imp.var + moveWeights * delta / ((totalWeights - moveWeights) * (totalWeights - moveWeights)));
         imp.hist[iClass] -= moveWeights;
     }
 
@@ -219,7 +221,9 @@ private:
         algorithmFPType tmp = startWeights * (2. * moveWeights + left.var * startWeights) - 2. * moveWeights * left.hist[iClass];
         // Update impurity for left child
         left.hist[iClass] += moveWeights;
-        left.var = tmp / ((startWeights + moveWeights) * (startWeights + moveWeights));
+        left.var = isZero<algorithmFPType, cpu>((startWeights + moveWeights) * (startWeights + moveWeights)) ?
+                       1. :
+                       (tmp / ((startWeights + moveWeights) * (startWeights + moveWeights)));
         // Update impurity for right child
         updateRightImpurity(right, iClass, totalWeights - startWeights, moveWeights);
         moveWeights = 0.;
@@ -262,7 +266,7 @@ void UnorderedRespHelper<algorithmFPType, cpu>::checkImpurity(const IndexType * 
 {
     Histogramm hist;
     hist.resize(_nClasses, 0);
-    const algorithmFPType cDiv(1. / (totalWeights * totalWeights));
+    const algorithmFPType cDiv = isZero<algorithmFPType, cpu>(totalWeights * totalWeights) ? 1. : (1. / (totalWeights * totalWeights));
     algorithmFPType var(1.);
     for (size_t i = 0; i < _nClasses; ++i) var -= cDiv * algorithmFPType(hist[i]) * algorithmFPType(hist[i]);
     for (size_t i = 0; i < _nClasses; ++i) DAAL_ASSERT(hist[i] == expected.hist[i]);
@@ -804,7 +808,8 @@ void UnorderedRespHelper<algorithmFPType, cpu>::finalizeBestSplit(const IndexTyp
 {
     DAAL_ASSERT(bestSplit.nLeft > 0);
     DAAL_ASSERT(bestSplit.leftWeights > 0.);
-    const algorithmFPType divL                              = algorithmFPType(1.) / bestSplit.leftWeights;
+    const algorithmFPType divL =
+        isZero<algorithmFPType, cpu>(bestSplit.leftWeights) ? algorithmFPType(1.) : (algorithmFPType(1.) / bestSplit.leftWeights);
     bestSplit.left.var                                      = 1. - bestSplit.left.var * divL * divL; // Gini node impurity
     IndexType * bestSplitIdxRight                           = bestSplitIdx + bestSplit.nLeft;
     size_t iLeft                                            = 0;

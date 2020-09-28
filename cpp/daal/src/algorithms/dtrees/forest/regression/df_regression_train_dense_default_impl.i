@@ -233,16 +233,19 @@ void OrderedRespHelper<algorithmFPType, cpu>::calcImpurity(const IndexType * aId
     imp.var      = 0;
     imp.mean     = this->_aResponse[aIdx[0]].val;
     totalWeights = this->_aWeights[aIdx[0]].val;
-    PRAGMA_VECTOR_ALWAYS
-    for (size_t i = 1; i < n; ++i)
+    if (!isZero<algorithmFPType, cpu>(totalWeights))
     {
-        const algorithmFPType weights = this->_aWeights[aIdx[i]].val;
-        const algorithmFPType delta   = this->_aResponse[aIdx[i]].val - imp.mean; //x[i] - mean
-        totalWeights += weights;
-        imp.mean += weights * delta / totalWeights;
-        imp.var += weights * delta * (this->_aResponse[aIdx[i]].val - imp.mean);
+        PRAGMA_VECTOR_ALWAYS
+        for (size_t i = 1; i < n; ++i)
+        {
+            const algorithmFPType weights = this->_aWeights[aIdx[i]].val;
+            const algorithmFPType delta   = this->_aResponse[aIdx[i]].val - imp.mean; //x[i] - mean
+            totalWeights += weights;
+            imp.mean += weights * delta / totalWeights;
+            imp.var += weights * delta * (this->_aResponse[aIdx[i]].val - imp.mean);
+        }
+        imp.var /= totalWeights; //impurity is MSE
     }
-    imp.var /= totalWeights; //impurity is MSE
 
 #ifdef DEBUG_CHECK_IMPURITY
     if (!this->_weights)
@@ -312,7 +315,8 @@ void OrderedRespHelper<algorithmFPType, cpu>::finalizeBestSplit(const IndexType 
 {
     DAAL_ASSERT(bestSplit.nLeft > 0);
     DAAL_ASSERT(bestSplit.leftWeights > 0.);
-    const algorithmFPType divL = algorithmFPType(1.) / bestSplit.leftWeights;
+    const algorithmFPType divL =
+        isZero<algorithmFPType, cpu>(bestSplit.leftWeights) ? algorithmFPType(1.) : (algorithmFPType(1.) / bestSplit.leftWeights);
     bestSplit.left.mean *= divL;
     bestSplit.left.var                                      = 0;
     IndexType * bestSplitIdxRight                           = bestSplitIdx + bestSplit.nLeft;
