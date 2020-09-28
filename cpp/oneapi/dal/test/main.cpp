@@ -14,13 +14,5 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
-
-#include <type_traits>
-
-#include "oneapi/dal/detail/common.hpp"
-
-namespace oneapi::dal::detail {
-
-
-} // namespace oneapi::dal::detail
+#define CATCH_CONFIG_MAIN
+#include "catch2/catch.hpp"

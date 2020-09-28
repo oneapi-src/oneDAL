@@ -16,6 +16,7 @@
 
 #pragma once
 
+#define DAAL_SYCL_INTERFACE
 #include <daal/include/services/env_detect.h>
 #include <daal/src/services/service_defines.h>
 

@@ -16,11 +16,5 @@
 
 #pragma once
 
-#include <type_traits>
-
-#include "oneapi/dal/detail/common.hpp"
-
-namespace oneapi::dal::detail {
-
-
-} // namespace oneapi::dal::detail
+#include "oneapi/dal/backend/linalg/matrix.hpp"
+#include "oneapi/dal/backend/linalg/dot.hpp"

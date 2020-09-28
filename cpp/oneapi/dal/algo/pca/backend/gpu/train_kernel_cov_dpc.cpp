@@ -16,9 +16,16 @@
 
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel.hpp"
 
+#include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/backend/interop/common_dpc.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
+#include "oneapi/dal/backend/interop/table_conversion.hpp"
+
 namespace oneapi::dal::pca::backend {
 
 using dal::backend::context_gpu;
+
+namespace interop = dal::backend::interop;
 
 using input_t = train_input<task::dim_reduction>;
 using result_t = train_result<task::dim_reduction>;
@@ -28,6 +35,19 @@ template <typename Float>
 static result_t call_daal_kernel(const context_gpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data) {
+    auto& queue = ctx.get_queue();
+    interop::execution_context_guard guard(queue);
+
+    const std::int64_t row_count = data.get_row_count();
+    const std::int64_t column_count = data.get_column_count();
+    const std::int64_t component_count = desc.get_component_count();
+
+    auto arr_data = row_accessor<const Float>{ data }.pull(queue);
+    auto arr_eigvec = array<Float>::empty(queue, column_count * component_count);
+    auto arr_eigval = array<Float>::empty(queue, 1 * component_count);
+    auto arr_means = array<Float>::empty(queue, 1 * component_count);
+    auto arr_vars = array<Float>::empty(queue, 1 * component_count);
+
     return result_t{};
 }
 

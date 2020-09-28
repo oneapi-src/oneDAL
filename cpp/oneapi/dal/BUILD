@@ -121,6 +121,7 @@ dal_collect_tests(
         "io",
         "table",
         "util",
+        "backend/linalg",
     ],
     tests = [
         ":common_tests",

@@ -18,16 +18,19 @@ load("@onedal//dev/bazel:repos.bzl", "repos")
 load("@onedal//dev/bazel:utils.bzl", "paths")
 
 def _get_dpcpp_compiler_root(repo_ctx):
-    return str(repo_ctx.which("dpcpp").dirname.dirname.realpath)
+    dpcpp_path = repo_ctx.which("dpcpp")
+    return dpcpp_path and str(dpcpp_path.dirname.dirname.realpath)
 
 def _opencl_repo_impl(repo_ctx):
-    lib_dir = paths.join(_get_dpcpp_compiler_root(repo_ctx), "lib")
-    libs = [
-        "libOpenCL.so",
-        "libOpenCL.so.1",
-        "libOpenCL.so.1.2",
-    ]
-    repos.create_symlinks(repo_ctx, lib_dir, libs)
+    dpcpp_root = _get_dpcpp_compiler_root(repo_ctx)
+    if dpcpp_root:
+        lib_dir = paths.join(dpcpp_root, "lib")
+        libs = [
+            "libOpenCL.so",
+            "libOpenCL.so.1",
+            "libOpenCL.so.1.2",
+        ]
+        repos.create_symlinks(repo_ctx, lib_dir, libs)
     repo_ctx.template(
         "BUILD",
         Label("@onedal//dev/bazel/deps:opencl.tpl.BUILD"),

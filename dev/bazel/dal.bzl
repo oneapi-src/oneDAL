@@ -141,7 +141,7 @@ def dal_test(name, hdrs=[], srcs=[],
              dal_deps=[], extra_deps=[],
              host_hdrs=[], host_srcs=[], host_deps=[],
              dpc_hdrs=[], dpc_srcs=[], dpc_deps=[],
-             host=True, dpc=True, gtest=True,
+             host=True, dpc=True, gtest=True, catch2=False,
              data=[], tags=[], **kwargs):
     dal_module(
         name = "_" + name,
@@ -169,7 +169,9 @@ def dal_test(name, hdrs=[], srcs=[],
             "@config//:release_dynamic_test_link_mode": [
                 "@onedal_release//:onedal_dynamic",
             ],
-        }),
+        }) + ([
+            "@onedal//cpp/oneapi/dal/test:common",
+        ] if catch2 else []),
         extra_deps = _select({
             "@config//:dev_test_link_mode": [
                 "@onedal//cpp/daal:threading_static",
@@ -194,7 +196,9 @@ def dal_test(name, hdrs=[], srcs=[],
             "@onedal//cpp/oneapi/dal:include_root"
         ] + ([
             "@gtest//:gtest_main",
-        ] if gtest else []) +
+        ] if gtest else []) + ([
+            "@onedal//cpp/oneapi/dal/test:catch2_main",
+        ] if catch2 else []) +
         extra_deps,
         **kwargs,
     )
@@ -219,20 +223,33 @@ def dal_test(name, hdrs=[], srcs=[],
         )
 
 
-def dal_test_suite(name, srcs=[], tests=[], **kwargs):
+def dal_test_suite(name, srcs=[], tests=[], host=True, dpc=True, **kwargs):
     targets = []
+    targets_dpc = []
     for test_file in srcs:
         target = test_file.replace(".cpp", "").replace("/", "_")
         dal_test(
             name = target,
             srcs = [test_file],
+            host = host,
+            dpc = dpc,
             **kwargs,
         )
-        targets.append(":" + target)
-    native.test_suite(
-        name = name,
-        tests = tests + targets,
-    )
+        if host:
+            targets.append(":" + target)
+        if dpc:
+            targets_dpc.append(":" + target + "_dpc")
+    if host:
+        native.test_suite(
+            name = name,
+            tests = tests + targets,
+        )
+    if dpc:
+        native.test_suite(
+            name = name + "_dpc",
+            tests = _get_dpc_deps(tests) + targets_dpc,
+        )
+
 
 def dal_collect_tests(name, root, modules, tests=[], **kwargs):
     test_deps = []
@@ -321,12 +338,12 @@ def _dal_module(name, lib_tag="dal", is_dpc=False, features=[],
         ),
         disable_mic = True,
         cpu_defines = {
-            "sse2":   [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_default" ],
-            "ssse3":  [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_ssse3"   ],
-            "sse42":  [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_sse42"   ],
-            "avx":    [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx"     ],
-            "avx2":   [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx2"    ],
-            "avx512": [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx512"  ],
+            "sse2":   [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_sse2"   ],
+            "ssse3":  [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_ssse3"  ],
+            "sse42":  [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_sse42"  ],
+            "avx":    [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx"    ],
+            "avx2":   [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx2"   ],
+            "avx512": [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx512" ],
         },
         local_defines = local_defines + (
             ["ONEAPI_DAL_DATA_PARALLEL"] if is_dpc else []

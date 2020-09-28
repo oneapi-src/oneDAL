@@ -64,10 +64,10 @@ struct train_ops {
                     "Result explained variance column_count should be equal to descriptor component_count");
             }
 
-            auto arr_examplained_variance =
+            auto arr_explained_variance =
                 row_accessor<const float_t>{ result.get_explained_variance() }.pull();
             for (std::int64_t i = 0; i < result.get_explained_variance().get_column_count(); ++i) {
-                if (arr_examplained_variance[i] < 0) {
+                if (arr_explained_variance[i] < 0) {
                     throw internal_error("Result explained variance should be >= 0");
                 }
             }
@@ -80,19 +80,19 @@ struct train_ops {
         }
         if (result.get_eigenvalues().get_column_count() != params.get_component_count()) {
             throw internal_error(
-                "Result eigenvalues row_count should be equal to descriptor compunent_count");
+                "Result eigenvalues row_count should be equal to descriptor component_count");
         }
 
         if (!(result.get_eigenvectors().has_data())) {
             throw internal_error("Result eigenvectors should not be empty");
         }
+        if (result.get_eigenvectors().get_column_count() != input.get_data().get_column_count()) {
+            throw internal_error(
+                "Result eigenvectors row_count should be equal to input data column_count");
+        }
         if (result.get_eigenvectors().get_row_count() != params.get_component_count()) {
             throw internal_error(
-                "Result eigenvectors row_count should be equal to descriptor compunent_count");
-        }
-        if (result.get_eigenvectors().get_column_count() != params.get_component_count()) {
-            throw internal_error(
-                "Result eigenvectors row_count should be equal to descriptor compunent_count");
+                "Result eigenvectors row_count should be equal to descriptor component_count");
         }
     }
 
