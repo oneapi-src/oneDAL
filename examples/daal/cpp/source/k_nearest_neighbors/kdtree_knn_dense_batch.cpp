@@ -29,6 +29,14 @@
 #include "service.h"
 #include <cstdio>
 
+#define TIME_MEASUREMENT
+// #define BINARY_DATASET
+
+#ifdef TIME_MEASUREMENT
+    #include "tbb/tick_count.h"
+    #include <iostream>
+#endif
+
 using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
@@ -62,6 +70,10 @@ int main(int argc, char * argv[])
 
 void trainModel()
 {
+#ifdef TIME_MEASUREMENT
+    const auto t0 = tbb::tick_count::now();
+#endif
+
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
     FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
@@ -72,6 +84,11 @@ void trainModel()
 
     /* Retrieve the data from the input file */
     trainDataSource.loadDataBlock(mergedData.get());
+
+#ifdef TIME_MEASUREMENT
+    const auto t1 = tbb::tick_count::now();
+    std::cout << "Training dataset loading finished in " << (t1 - t0).seconds() << " seconds" << std::endl;
+#endif
 
     /* Create an algorithm object to train the KD-tree based kNN model */
     kdtree_knn_classification::training::Batch<> algorithm;
