@@ -98,15 +98,34 @@ void trainModel()
     algorithm.input.set(classifier::training::labels, trainGroundTruth);
     algorithm.parameter.nClasses = nClasses;
 
+#ifdef TIME_MEASUREMENT
+    const auto t2 = tbb::tick_count::now();
+    std::cout << "Training parameters setting finished in " << (t2 - t1).seconds() << " seconds" << std::endl;
+#endif
+
     /* Train the KD-tree based kNN model */
     algorithm.compute();
 
+#ifdef TIME_MEASUREMENT
+    const auto t3 = tbb::tick_count::now();
+    std::cout << "Training finished in " << (t3 - t2).seconds() << " seconds" << std::endl;
+#endif
+
     /* Retrieve the results of the training algorithm  */
     trainingResult = algorithm.getResult();
+
+#ifdef TIME_MEASUREMENT
+    const auto t4 = tbb::tick_count::now();
+    std::cout << "Training results getting in " << (t4 - t3).seconds() << " seconds" << std::endl;
+#endif
 }
 
 void testModel()
 {
+#ifdef TIME_MEASUREMENT
+    const auto t0 = tbb::tick_count::now();
+#endif
+
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
     FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
@@ -118,6 +137,11 @@ void testModel()
     /* Retrieve the data from input file */
     testDataSource.loadDataBlock(mergedData.get());
 
+#ifdef TIME_MEASUREMENT
+    const auto t1 = tbb::tick_count::now();
+    std::cout << "Testing dataset loading finished in " << (t1 - t0).seconds() << " seconds" << std::endl;
+#endif
+
     /* Create algorithm objects for KD-tree based kNN prediction with the default method */
     kdtree_knn_classification::prediction::Batch<> algorithm;
 
@@ -126,11 +150,26 @@ void testModel()
     algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
     algorithm.parameter.nClasses = nClasses;
 
+#ifdef TIME_MEASUREMENT
+    const auto t2 = tbb::tick_count::now();
+    std::cout << "Testing parameters setting finished in " << (t2 - t1).seconds() << " seconds" << std::endl;
+#endif
+
     /* Compute prediction results */
     algorithm.compute();
 
+#ifdef TIME_MEASUREMENT
+    const auto t3 = tbb::tick_count::now();
+    std::cout << "Testing finished in " << (t3 - t2).seconds() << " seconds" << std::endl;
+#endif
+
     /* Retrieve algorithm results */
     predictionResult = algorithm.getResult();
+
+#ifdef TIME_MEASUREMENT
+    const auto t4 = tbb::tick_count::now();
+    std::cout << "Testing results getting in " << (t4 - t3).seconds() << " seconds" << std::endl;
+#endif
 }
 
 void printResults()
