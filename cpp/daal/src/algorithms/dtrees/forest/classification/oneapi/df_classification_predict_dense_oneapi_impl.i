@@ -63,6 +63,7 @@ namespace internal
 {
 static services::String getBuildOptions(size_t nClasses)
 {
+    DAAL_ASSERT(nClasses <= _int32max);
     char buffer[DAAL_MAX_STRING_SIZE] = { 0 };
     const auto written                = daal::services::daal_int_to_string(buffer, DAAL_MAX_STRING_SIZE, static_cast<int32_t>(nClasses));
     services::String nClassesStr(buffer, written);
