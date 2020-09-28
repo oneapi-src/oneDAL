@@ -371,10 +371,8 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
 
     const auto maxThreads     = threader_get_threads_number();
     const size_t xColumnCount = x->getNumberOfColumns();
-    // const auto rowsPerBlock   = (xRowCount + maxThreads - 1) / maxThreads;
-    // const auto blockCount     = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
-    const auto rowsPerBlock = 256;
-    const auto blockCount   = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
+    const auto rowsPerBlock   = 256;
+    const auto blockCount     = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
     SafeStatus safeStat;
 
     services::internal::TArrayScalable<algorithmFpType *, cpu> soa_arrays;
@@ -481,6 +479,10 @@ DAAL_FORCEINLINE void computeDistance(size_t start, size_t end, algorithmFpType 
 
     const algorithmFpType * nx = nullptr;
     const algorithmFpType * dx = getNtData(isHomogenSOA, 0, start, end - start, data, xBD[curBDIdx], soa_arrays);
+    DAAL_PREFETCH_READ_T0(dx);
+    DAAL_PREFETCH_READ_T0(dx + 16);
+    DAAL_PREFETCH_READ_T0(dx + 32);
+    DAAL_PREFETCH_READ_T0(dx + 48);
 
     size_t j;
     for (j = 1; j < xColumnCount; ++j)
