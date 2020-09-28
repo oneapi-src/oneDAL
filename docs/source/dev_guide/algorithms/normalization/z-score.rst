@@ -49,7 +49,7 @@ The mode may include:
 .. note::
 
     Some algorithms require normalization parameters (mean and variance) as an input. 
-    The implementation of Z-score algorithm in Intel DAAL does not return these values by default. 
+    The implementation of Z-score algorithm in |short_name| does not return these values by default. 
     Enable this option by setting the resultsToCompute flag. 
     For details, see `Algorithm Parameters`_.
 
