@@ -35,61 +35,61 @@ namespace internal
 template <typename T>
 struct MaxVal
 {
-    DAAL_FORCEINLINE static T get() { return 0; }
+    DAAL_FORCEINLINE static constexpr T get() { return 0; }
 };
 
 template <>
 struct MaxVal<int>
 {
-    DAAL_FORCEINLINE static int get() { return INT_MAX; }
+    DAAL_FORCEINLINE static constexpr int get() { return INT_MAX; }
 };
 
 template <>
 struct MaxVal<long long>
 {
-    DAAL_FORCEINLINE static long long get() { return LLONG_MAX; }
+    DAAL_FORCEINLINE static constexpr long long get() { return LLONG_MAX; }
 };
 
 template <>
 struct MaxVal<double>
 {
-    DAAL_FORCEINLINE static double get() { return DBL_MAX; }
+    DAAL_FORCEINLINE static constexpr double get() { return DBL_MAX; }
 };
 
 template <>
 struct MaxVal<uint32_t>
 {
-    DAAL_FORCEINLINE static uint32_t get() { return UINT32_MAX; }
+    DAAL_FORCEINLINE static constexpr uint32_t get() { return UINT32_MAX; }
 };
 
 template <>
 struct MaxVal<float>
 {
-    DAAL_FORCEINLINE static float get() { return FLT_MAX; }
+    DAAL_FORCEINLINE static constexpr float get() { return FLT_MAX; }
 };
 
 template <typename T>
 struct MinVal
 {
-    DAAL_FORCEINLINE static T get() { return 0; }
+    DAAL_FORCEINLINE static constexpr T get() { return 0; }
 };
 
 template <>
 struct MinVal<int>
 {
-    DAAL_FORCEINLINE static int get() { return INT_MIN; }
+    DAAL_FORCEINLINE static constexpr int get() { return INT_MIN; }
 };
 
 template <>
 struct MinVal<double>
 {
-    DAAL_FORCEINLINE static double get() { return DBL_MIN; }
+    DAAL_FORCEINLINE static constexpr double get() { return DBL_MIN; }
 };
 
 template <>
 struct MinVal<float>
 {
-    DAAL_FORCEINLINE static float get() { return FLT_MIN; }
+    DAAL_FORCEINLINE static constexpr float get() { return FLT_MIN; }
 };
 
 template <typename T>
