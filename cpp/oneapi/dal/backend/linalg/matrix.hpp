@@ -33,10 +33,6 @@ enum class layout {
     column_major,
 };
 
-inline layout transpose_layout(layout l) {
-    return (l == layout::row_major) ? layout::column_major : layout::row_major;
-}
-
 class shape {
 public:
     shape(std::int64_t row_count = 0, std::int64_t column_count = 0) {
@@ -145,7 +141,7 @@ public:
 
     static matrix wrap(const table& t, layout l = layout::row_major) {
         if (l != layout::row_major) {
-            // TODO: Figure out hoe to use column-major layout
+            // TODO: Figure out how to use column-major layout
             throw unimplemented_error{ "Only row-major is supported" };
         }
         const auto t_flat = row_accessor<const Float>{ t }.pull();
@@ -263,9 +259,9 @@ public:
 
     template <typename Op>
     auto& mutable_enumerate_linear(Op&& op) {
-        Float* data = get_mutable_data();
+        Float* mutable_data = get_mutable_data();
         for (std::int64_t i = 0; i < get_count(); i++) {
-            op(i, data[i]);
+            op(i, mutable_data[i]);
         }
         return *this;
     }
@@ -353,7 +349,7 @@ public:
 
     template <typename Op>
     auto& fill(Op&& op) {
-        return mutable_for_row([&](std::int64_t i, std::int64_t j, Float& x) {
+        return mutable_enumerate([&](std::int64_t i, std::int64_t j, Float& x) {
             x = op(i, j);
         });
     }
@@ -406,8 +402,8 @@ private:
             : matrix_base(s, l, stride),
               x_(x) {
         ONEDAL_ASSERT(s.count() <= x.get_count(),
-                      "Number of elements in matrix in matrix do not match "
-                      "number of elements in provided array");
+                      "Element count in matrix does not match "
+                      "element count in the provided array");
     }
 
     std::int64_t get_linear_index(std::int64_t i, std::int64_t j) const {
@@ -425,13 +421,20 @@ private:
         return (l == layout::row_major) ? s.columns() : s.rows();
     }
 
+    static layout transpose_layout(layout l) {
+        return (l == layout::row_major) ? layout::column_major : layout::row_major;
+    }
+
     array<Float> x_;
 };
 
 template <typename Float>
 std::ostream& operator<<(std::ostream& stream, const matrix<Float>& m) {
     m.enumerate_row_first([&](std::int64_t i, std::int64_t j, Float x) {
-        stream << std::setw(10) << std::setiosflags(std::ios::fixed) << std::setprecision(3) << x;
+        stream << std::setw(10);
+        stream << std::setiosflags(std::ios::fixed);
+        stream << std::setprecision(3);
+        stream << x;
         if (j + 1 == m.get_column_count()) {
             stream << std::endl;
         }
