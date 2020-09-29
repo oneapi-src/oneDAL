@@ -96,6 +96,7 @@ services::Status generateShuffledIndicesImpl(const NumericTablePtr & idxTable, c
     const size_t n         = idxTable->getNumberOfRows();
     const size_t stateSize = rngStateTable->getNumberOfRows();
     // number of generated uints: 1.5x of n for reserve
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n / 2, 3);
     const size_t nRandomUInts = n * 3 / 2;
 
     daal::internal::WriteColumns<IdxType, cpu> idxBlock(*idxTable, 0, 0, n);
@@ -292,6 +293,7 @@ services::Status trainTestSplitImpl(const NumericTablePtr & inputTable, const Nu
     const size_t nColumns   = trainTable->getNumberOfColumns();
     const size_t nTrainRows = trainTable->getNumberOfRows();
     const size_t nTestRows  = testTable->getNumberOfRows();
+    DAAL_CHECK(nColumns != testTable->getNumberOfColumns(), ErrorIncorrectNumberOfFeatures);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nTrainRows + nTestRows, nColumns);
 
     NumericTableDictionaryPtr tableFeaturesDict = inputTable->getDictionarySharedPtr();
