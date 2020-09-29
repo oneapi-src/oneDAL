@@ -164,6 +164,11 @@ protected:
         DAAL_CHECK_BLOCK_STATUS(inDataRows);
         const FPType * const testData = inDataRows.get();
 
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, blockSize, k);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, inBlockSize, k);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, inBlockSize * sizeof(int), k);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, inBlockSize * sizeof(FPType), k);
+
         SafeStatus safeStat;
 
         daal::tls<BruteForceTask *> tlsTask([=, &safeStat]() {
@@ -246,6 +251,7 @@ protected:
             int * indices = indexesBlock.get();
 
             const size_t size = blockSize * k * sizeof(*indices);
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, blockSize * sizeof(*indices), k);
             daal::services::internal::daal_memcpy_s(indices, size, kIndexes, size);
         }
 
@@ -256,6 +262,7 @@ protected:
             FPType * distances = distancesBlock.get();
 
             const size_t size = blockSize * k * sizeof(FPType);
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, blockSize * sizeof(FPType), k);
             daal::services::internal::daal_memcpy_s(distances, size, kDistances, size);
         }
 

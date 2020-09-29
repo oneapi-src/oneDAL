@@ -64,7 +64,8 @@ size_t Model::getNumberOfFeatures() const
 
 services::Status Parameter::check() const
 {
-    DAAL_CHECK_EX(this->nClasses > 0, services::ErrorIncorrectParameter, services::ParameterName, nClassesStr());
+    DAAL_CHECK_EX(this->nClasses > 1, services::ErrorIncorrectParameter, services::ParameterName, nClassesStr());
+    DAAL_CHECK_EX(this->k > 0, services::ErrorIncorrectParameter, services::ParameterName, kStr());
     return services::Status();
 }
 
