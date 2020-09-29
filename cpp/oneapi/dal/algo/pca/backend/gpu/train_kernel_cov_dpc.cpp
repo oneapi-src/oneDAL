@@ -100,7 +100,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     covariance_alg.input.set(daal_cov::data, daal_data);
 
     constexpr bool is_correlation = false;
-    constexpr uint64_t results_to_compute =
+    constexpr std::uint64_t results_to_compute =
         std::uint64_t(daal_pca::mean | daal_pca::variance | daal_pca::eigenvalue);
     const bool is_deterministic = desc.get_deterministic();
 

@@ -14,29 +14,22 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/pca.hpp"
-#include "oneapi/dal/io/csv.hpp"
+#include "oneapi/dal/algo/pca/backend/gpu/infer_kernel.hpp"
+#include "oneapi/dal/algo/pca/backend/gpu/call_daal_pca_transform_dpc.hpp"
 
-#include "example_util/utils.hpp"
+namespace oneapi::dal::pca::backend {
 
-using namespace oneapi;
+template <typename Float>
+struct infer_kernel_gpu<Float, method::svd, task::dim_reduction> {
+    infer_result<task::dim_reduction> operator()(
+        const dal::backend::context_gpu& ctx,
+        const descriptor_base<task::dim_reduction>& desc,
+        const infer_input<task::dim_reduction>& input) const {
+        return infer<Float>(ctx, desc, input);
+    }
+};
 
-int main(int argc, char const *argv[]) {
-    const std::string data_file_name = get_data_path("pca_normalized.csv");
+template struct infer_kernel_gpu<float, method::svd, task::dim_reduction>;
+template struct infer_kernel_gpu<double, method::svd, task::dim_reduction>;
 
-    const auto data = dal::read<dal::table>(dal::csv::data_source{data_file_name});
-
-    const auto pca_desc = dal::pca::descriptor<>()
-        .set_component_count(5)
-        .set_deterministic(true);
-
-    const auto result = dal::train(pca_desc, data);
-
-    std::cout << "Eigenvectors:" << std::endl
-              << result.get_eigenvectors() << std::endl;
-
-    std::cout << "Eigenvalues:" << std::endl
-              << result.get_eigenvalues() << std::endl;
-
-    return 0;
-}
+} // namespace oneapi::dal::pca::backend

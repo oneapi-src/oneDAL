@@ -14,7 +14,22 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "oneapi/dal/algo/pca/backend/cpu/infer_kernel.hpp"
+#include "oneapi/dal/algo/pca/backend/cpu/call_daal_pca_transform.hpp"
 
-#include "oneapi/dal/algo/pca/train.hpp"
-#include "oneapi/dal/algo/pca/infer.hpp"
+namespace oneapi::dal::pca::backend {
+
+template <typename Float>
+struct infer_kernel_cpu<Float, method::svd, task::dim_reduction> {
+    infer_result<task::dim_reduction> operator()(
+        const dal::backend::context_cpu& ctx,
+        const descriptor_base<task::dim_reduction>& desc,
+        const infer_input<task::dim_reduction>& input) const {
+        return infer<Float>(ctx, desc, input);
+    }
+};
+
+template struct infer_kernel_cpu<float, method::svd, task::dim_reduction>;
+template struct infer_kernel_cpu<double, method::svd, task::dim_reduction>;
+
+} // namespace oneapi::dal::pca::backend

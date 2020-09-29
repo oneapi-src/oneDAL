@@ -39,7 +39,7 @@ template class BatchContainer<DAAL_FPTYPE, transform::defaultDense, DAAL_CPU>;
 }
 namespace internal
 {
-template class TransformKernel<DAAL_FPTYPE, transform::defaultDense, DAAL_CPU>;
+template class DAAL_EXPORT TransformKernel<DAAL_FPTYPE, transform::defaultDense, DAAL_CPU>;
 }
 } // namespace transform
 } // namespace pca

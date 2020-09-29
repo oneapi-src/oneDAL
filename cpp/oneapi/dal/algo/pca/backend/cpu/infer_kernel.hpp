@@ -16,5 +16,16 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/pca/train.hpp"
-#include "oneapi/dal/algo/pca/infer.hpp"
+#include "oneapi/dal/algo/pca/infer_types.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
+
+namespace oneapi::dal::pca::backend {
+
+template <typename Float, typename Method, typename Task>
+struct infer_kernel_cpu {
+    infer_result<Task> operator()(const dal::backend::context_cpu& ctx,
+                                  const descriptor_base<Task>& params,
+                                  const infer_input<Task>& input) const;
+};
+
+} // namespace oneapi::dal::pca::backend

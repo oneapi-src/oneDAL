@@ -16,5 +16,13 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/pca/train.hpp"
-#include "oneapi/dal/algo/pca/infer.hpp"
+#include "oneapi/dal/algo/pca/detail/infer_ops.hpp"
+#include "oneapi/dal/algo/pca/infer_types.hpp"
+#include "oneapi/dal/infer.hpp"
+
+namespace oneapi::dal::detail {
+
+template <typename Descriptor>
+struct infer_ops<Descriptor, dal::pca::detail::tag> : dal::pca::detail::infer_ops<Descriptor> {};
+
+} // namespace oneapi::dal::detail
