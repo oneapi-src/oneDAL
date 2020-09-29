@@ -247,6 +247,8 @@ double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite)
     daal::threader_for_break(nCols, nCols, [&](size_t i, bool & needBreak) {
         double * localSum     = tlsSum.local();
         bool * localNotFinite = tlsNotFinite.local();
+        DAAL_CHECK_MALLOC_THR(localSum);
+        DAAL_CHECK_MALLOC_THR(localNotFinite);
 
         switch ((*tableFeaturesDict)[i].getIndexType())
         {
@@ -449,6 +451,7 @@ bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN)
 
     daal::threader_for_break(nCols, nCols, [&](size_t i, bool & needBreak) {
         bool * localNotFinite = tlsNotFinite.local();
+        DAAL_CHECK_MALLOC_THR(localNotFinite);
 
         switch ((*tableFeaturesDict)[i].getIndexType())
         {
