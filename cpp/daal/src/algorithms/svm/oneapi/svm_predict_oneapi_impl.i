@@ -82,6 +82,7 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
     const size_t nRowsPerBlock = 1024;
     const size_t nBlocks       = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRowsPerBlock, nSV);
     auto kernelResU = context.allocate(TypeIds::id<algorithmFPType>(), nRowsPerBlock * nSV, &status);
     DAAL_CHECK_STATUS_VAR(status);
 

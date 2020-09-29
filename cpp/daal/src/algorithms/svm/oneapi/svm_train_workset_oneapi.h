@@ -75,8 +75,6 @@ struct TaskWorkingSet
         DAAL_CHECK_STATUS_VAR(status);
 
         _wsIndices = context.allocate(TypeIds::id<uint32_t>(), _nWS, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-
         return status;
     }
 

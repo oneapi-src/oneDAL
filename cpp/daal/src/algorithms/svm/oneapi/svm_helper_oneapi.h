@@ -23,6 +23,7 @@
 #include "src/sycl/partition.h"
 #include "src/externals/service_ittnotify.h"
 #include "src/algorithms/svm/oneapi/cl_kernels/svm_kernels.cl"
+#include "src/services/service_data_utils.h"
 
 namespace daal
 {
@@ -144,7 +145,7 @@ struct HelperSVM
     }
 
     static services::Status copyDataByIndices(const services::Buffer<algorithmFPType> & x, const services::Buffer<uint32_t> & indX,
-                                              services::Buffer<algorithmFPType> & newX, const size_t nWS, const uint32_t p)
+                                              services::Buffer<algorithmFPType> & newX, const size_t nWS, const size_t p)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(copyDataByIndices);
         services::Status status;
@@ -160,7 +161,8 @@ struct HelperSVM
         oneapi::internal::KernelArguments args(4);
         args.set(0, x, oneapi::internal::AccessModeIds::read);
         args.set(1, indX, oneapi::internal::AccessModeIds::read);
-        args.set(2, p);
+        DAAL_ASSERT(p <= uint32max);
+        args.set(2, static_cast<uint32_t>(p));
         args.set(3, newX, oneapi::internal::AccessModeIds::write);
 
         oneapi::internal::KernelRange range(p, nWS);
@@ -170,7 +172,7 @@ struct HelperSVM
     }
 
     static services::Status copyDataByIndices(const services::Buffer<algorithmFPType> & x, const services::Buffer<int> & indX,
-                                              services::Buffer<algorithmFPType> & newX, const size_t nWS, const uint32_t p)
+                                              services::Buffer<algorithmFPType> & newX, const size_t nWS, const size_t p)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(copyDataByIndices);
         services::Status status;
@@ -186,9 +188,9 @@ struct HelperSVM
         oneapi::internal::KernelArguments args(4);
         args.set(0, x, oneapi::internal::AccessModeIds::read);
         args.set(1, indX, oneapi::internal::AccessModeIds::read);
-        args.set(2, p);
+        DAAL_ASSERT(p <= uint32max);
+        args.set(2, static_cast<int32_t>(p));
         args.set(3, newX, oneapi::internal::AccessModeIds::write);
-
         oneapi::internal::KernelRange range(p, nWS);
 
         ctx.run(range, kernel, args, &status);
@@ -312,6 +314,9 @@ struct HelperSVM
         context.run(range, kernel, args, &status);
         return status;
     }
+
+private:
+    static constexpr size_t uint32max = static_cast<size_t>(services::internal::MaxVal<uint32_t>::get());
 };
 
 } // namespace internal
