@@ -16,6 +16,10 @@
 
 #pragma once
 
+// Disable clang-format as it dramatically
+// affects redability of macro definitions
+// clang-format off
+
 #define _TS_STRINGIFY(x) #x
 #define _TS_EXPAND(...)  __VA_ARGS__
 #define _TS_UNPACK(x)    _TS_EXPAND x
@@ -25,7 +29,6 @@
 #define _TS_CONCAT_4(_1, _2, _3, _4) _1##_2##_3##_4
 
 #define _TS_NARGS_GET(_1, _2, _3, _4, _5, N, ...) N
-
 #define _TS_NARGS(...) _TS_NARGS_GET(__VA_ARGS__, 5, 4, 3, 2, 1, 0)
 
 #define _TS_FOR_EACH_0(ctx, a)
@@ -39,7 +42,8 @@
 #define _TS_FOR_EACH_8(ctx, a, x, ...) a(ctx, x) _TS_FOR_EACH_7(ctx, a, __VA_ARGS__)
 #define _TS_FOR_EACH_9(ctx, a, x, ...) a(ctx, x) _TS_FOR_EACH_8(ctx, a, __VA_ARGS__)
 
-#define _TS_FOR_EACH_(N, ctx, action, ...) _TS_CONCAT_2(_TS_FOR_EACH_, N)(ctx, action, __VA_ARGS__)
+#define _TS_FOR_EACH_(N, ctx, action, ...) \
+    _TS_CONCAT_2(_TS_FOR_EACH_, N)(ctx, action, __VA_ARGS__)
 
 #define _TS_FOR_EACH(ctx, action, ...) \
     _TS_FOR_EACH_(_TS_NARGS(__VA_ARGS__), ctx, action, __VA_ARGS__)
@@ -77,35 +81,34 @@
 #define _TS_COMB_12(x, y) _TS_PAIR_00(x, y), _TS_PAIR_01(x, y)
 #define _TS_COMB_13(x, y) _TS_PAIR_00(x, y), _TS_PAIR_01(x, y), _TS_PAIR_02(x, y)
 
-// clang-format off
 #define _TS_COMB_21(x, y) \
-    _TS_PAIR_00(x, y), \
+    _TS_PAIR_00(x, y),    \
     _TS_PAIR_10(x, y)
 
-#define _TS_COMB_22(x, y) \
+#define _TS_COMB_22(x, y)                 \
     _TS_PAIR_00(x, y), _TS_PAIR_01(x, y), \
     _TS_PAIR_10(x, y), _TS_PAIR_11(x, y)
 
-#define _TS_COMB_23(x, y) \
+#define _TS_COMB_23(x, y)                                    \
     _TS_PAIR_00(x, y), _TS_PAIR_01(x, y), _TS_PAIR_02(x, y), \
     _TS_PAIR_10(x, y), _TS_PAIR_11(x, y), _TS_PAIR_12(x, y)
 
 #define _TS_COMB_31(x, y) \
-    _TS_PAIR_00(x, y), \
-    _TS_PAIR_10(x, y), \
+    _TS_PAIR_00(x, y),    \
+    _TS_PAIR_10(x, y),    \
     _TS_PAIR_20(x, y)
 
-#define _TS_COMB_32(x, y) \
+#define _TS_COMB_32(x, y)                 \
     _TS_PAIR_00(x, y), _TS_PAIR_01(x, y), \
     _TS_PAIR_10(x, y), _TS_PAIR_11(x, y), \
     _TS_PAIR_20(x, y), _TS_PAIR_21(x, y)
 
-#define _TS_COMB_33(x, y) \
+#define _TS_COMB_33(x, y)                                    \
     _TS_PAIR_00(x, y), _TS_PAIR_01(x, y), _TS_PAIR_02(x, y), \
     _TS_PAIR_10(x, y), _TS_PAIR_11(x, y), _TS_PAIR_12(x, y), \
     _TS_PAIR_20(x, y), _TS_PAIR_21(x, y), _TS_PAIR_22(x, y)
-// clang-format on
 
 #define _TS_COMB_(N, M, x, y) _TS_CONCAT_3(_TS_COMB_, N, M)(x, y)
 
-#define _TS_COMB(x, y) _TS_COMB_(_TS_NARGS(_TS_UNPACK(x)), _TS_NARGS(_TS_UNPACK(y)), x, y)
+#define _TS_COMB(x, y) \
+    _TS_COMB_(_TS_NARGS(_TS_UNPACK(x)), _TS_NARGS(_TS_UNPACK(y)), x, y)

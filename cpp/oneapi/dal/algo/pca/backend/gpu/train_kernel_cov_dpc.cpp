@@ -38,15 +38,15 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
-    const std::int64_t row_count = data.get_row_count();
-    const std::int64_t column_count = data.get_column_count();
-    const std::int64_t component_count = desc.get_component_count();
+    // const std::int64_t row_count = data.get_row_count();
+    // const std::int64_t column_count = data.get_column_count();
+    // const std::int64_t component_count = desc.get_component_count();
 
-    auto arr_data = row_accessor<const Float>{ data }.pull(queue);
-    auto arr_eigvec = array<Float>::empty(queue, column_count * component_count);
-    auto arr_eigval = array<Float>::empty(queue, 1 * component_count);
-    auto arr_means = array<Float>::empty(queue, 1 * component_count);
-    auto arr_vars = array<Float>::empty(queue, 1 * component_count);
+    // auto arr_data = row_accessor<const Float>{ data }.pull(queue);
+    // auto arr_eigvec = array<Float>::empty(queue, column_count * component_count);
+    // auto arr_eigval = array<Float>::empty(queue, 1 * component_count);
+    // auto arr_means = array<Float>::empty(queue, 1 * component_count);
+    // auto arr_vars = array<Float>::empty(queue, 1 * component_count);
 
     return result_t{};
 }

@@ -25,16 +25,14 @@ namespace la = backend::linalg;
 ALGO_TEST_CASE("PCA", (float, double), (method::cov)) {
     DECLARE_TEST_POLICY(policy);
 
-    const dal::test::dataset x_ds =
+    const dal::test::dataset data =
         GENERATE_DATASET(dal::test::random_dataset(1000, 100).uniform(-2, 5),
                          dal::test::random_dataset(100, 10).uniform(-0.2, 1.5));
     const std::string table_type = GENERATE("homogen");
     const std::int64_t component_count = GENERATE(2, 3, 5);
 
-    std::cout << "component_count = " << component_count << std::endl;
-
     SECTION("training") {
-        const table x = x_ds.get_table<Float>(policy, table_type);
+        const table x = data.get_table<Float>(policy, table_type);
 
         const auto pca_desc = descriptor<Float, Method>{}
                                   .set_component_count(component_count)
