@@ -137,7 +137,7 @@ template <typename Graph>
 using graph_allocator = typename graph_traits<Graph>::allocator_type;
 
 /// Type of graph representation as an edge list
-/// @tparam typename IndexType Type of the graph vertex indicies
+/// @tparam IndexType Type of the graph vertex indicies
 template <typename IndexType = std::int32_t>
 using edge_list = detail::graph_container<std::pair<IndexType, IndexType>>;
 
