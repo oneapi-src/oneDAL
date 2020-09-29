@@ -28,7 +28,7 @@ int main(int argc, char const *argv[]) {
 
     const auto pca_desc = dal::pca::descriptor<>()
         .set_component_count(data.get_column_count())
-        .set_is_deterministic(true);
+        .set_deterministic(true);
 
     const auto result = dal::train(pca_desc, data);
 
