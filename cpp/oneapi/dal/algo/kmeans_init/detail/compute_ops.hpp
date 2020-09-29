@@ -44,8 +44,9 @@ struct compute_ops {
         if (!(input.get_data().has_data())) {
             throw domain_error("Input data should not be empty");
         }
-        if (input.get_data().get_row_count() < params.get_cluster_count()) {
-            throw invalid_argument("Input data row_count should be >= descriptor cluster_count");
+        if (input.get_data().get_row_count() == params.get_cluster_count()) {
+            throw invalid_argument(
+                "Input data row_count should be equal to descriptor cluster_count");
         }
     }
 
