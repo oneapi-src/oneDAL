@@ -293,7 +293,9 @@ services::Status trainTestSplitImpl(const NumericTablePtr & inputTable, const Nu
     const size_t nColumns   = trainTable->getNumberOfColumns();
     const size_t nTrainRows = trainTable->getNumberOfRows();
     const size_t nTestRows  = testTable->getNumberOfRows();
-    DAAL_CHECK(nColumns != testTable->getNumberOfColumns(), ErrorIncorrectNumberOfFeatures);
+    DAAL_CHECK(nColumns == testTable->getNumberOfColumns(), ErrorInconsistentNumberOfColumns);
+    DAAL_CHECK(nColumns == inputTable->getNumberOfColumns(), ErrorInconsistentNumberOfColumns);
+    DAAL_CHECK(nTrainRows + nTestRows == inputTable->getNumberOfRows(), ErrorInconsistentNumberOfRows);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nTrainRows + nTestRows, nColumns);
 
     NumericTableDictionaryPtr tableFeaturesDict = inputTable->getDictionarySharedPtr();
