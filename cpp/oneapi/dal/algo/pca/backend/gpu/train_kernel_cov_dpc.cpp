@@ -52,9 +52,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
 }
 
 template <typename Float>
-static result_t train(const context_gpu& ctx,
-                      const descriptor_t& desc,
-                      const input_t& input) {
+static result_t train(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_data());
 }
 

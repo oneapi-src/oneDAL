@@ -39,15 +39,16 @@ inline layout transpose_layout(layout l) {
 
 class shape {
 public:
-    shape(std::int64_t row_count = 0,
-          std::int64_t column_count = 0) {
+    shape(std::int64_t row_count = 0, std::int64_t column_count = 0) {
         ONEDAL_ASSERT(row_count >= 0, "Row count must be non-negative");
         ONEDAL_ASSERT(column_count >= 0, "Column count must be non-negative");
         if (row_count == 0 || column_count == 0) {
-            ONEDAL_ASSERT(row_count == 0, "Both row count and column count must be zeros, "
-                                          "but got non-zero row count");
-            ONEDAL_ASSERT(column_count == 0, "Both row count and column count must be zeros, "
-                                             "but got non-zero column count");
+            ONEDAL_ASSERT(row_count == 0,
+                          "Both row count and column count must be zeros, "
+                          "but got non-zero row count");
+            ONEDAL_ASSERT(column_count == 0,
+                          "Both row count and column count must be zeros, "
+                          "but got non-zero column count");
         }
         shape_[0] = row_count;
         shape_[1] = column_count;
@@ -71,12 +72,11 @@ public:
     }
 
     shape T() const {
-        return shape {shape_[1], shape_[0]};
+        return shape{ shape_[1], shape_[0] };
     }
 
     bool operator==(const shape& other) const {
-        return shape_[0] == other.shape_[0] &&
-               shape_[1] == other.shape_[1];
+        return shape_[0] == other.shape_[0] && shape_[1] == other.shape_[1];
     }
 
     bool operator!=(const shape& other) const {
@@ -114,16 +114,19 @@ public:
     }
 
 protected:
-    explicit matrix_base(const shape& s, layout l,
-                         std::int64_t stride)
-        : s_(s), l_(l), stride_(stride) {
+    explicit matrix_base(const shape& s, layout l, std::int64_t stride)
+            : s_(s),
+              l_(l),
+              stride_(stride) {
         if (l == layout::row_major) {
-            ONEDAL_ASSERT(stride >= s.columns(), "Stride must be greater than "
-                                                 "column count in row-major layout");
+            ONEDAL_ASSERT(stride >= s.columns(),
+                          "Stride must be greater than "
+                          "column count in row-major layout");
         }
         else if (l == layout::column_major) {
-            ONEDAL_ASSERT(stride >= s.rows(), "Stride must be greater than "
-                                              "row count in column-major layout");
+            ONEDAL_ASSERT(stride >= s.rows(),
+                          "Stride must be greater than "
+                          "row count in column-major layout");
         }
     }
 
@@ -136,17 +139,16 @@ private:
 template <typename Float>
 class matrix : public matrix_base {
 public:
-    static matrix wrap(const array<Float>& x,
-                       const shape& s, layout l = layout::row_major) {
-        return matrix { x, s, l, get_default_stride(s, l) };
+    static matrix wrap(const array<Float>& x, const shape& s, layout l = layout::row_major) {
+        return matrix{ x, s, l, get_default_stride(s, l) };
     }
 
     static matrix wrap(const table& t, layout l = layout::row_major) {
         if (l != layout::row_major) {
             // TODO: Figure out hoe to use column-major layout
-            throw unimplemented_error{"Only row-major is supported"};
+            throw unimplemented_error{ "Only row-major is supported" };
         }
-        const auto t_flat = row_accessor<const Float>{t}.pull();
+        const auto t_flat = row_accessor<const Float>{ t }.pull();
         return wrap(t_flat, { t.get_row_count(), t.get_column_count() });
     }
 
@@ -176,7 +178,7 @@ public:
         return m;
     }
 
-    matrix() : matrix_base({0, 0}, layout::row_major, 0) {}
+    matrix() : matrix_base({ 0, 0 }, layout::row_major, 0) {}
 
     const array<Float>& get_array() const {
         return x_;
@@ -206,7 +208,7 @@ public:
     matrix T() const {
         const shape t_s = get_shape().T();
         const layout t_l = transpose_layout(get_layout());
-        return matrix<Float> { x_, t_s, t_l, get_stride() };
+        return matrix<Float>{ x_, t_s, t_l, get_stride() };
     }
 
     template <typename U, typename Op>
@@ -268,21 +270,21 @@ public:
         return *this;
     }
 
-#define ENUMERATE_LOOP_IJ() \
+#define ENUMERATE_LOOP_IJ()                            \
     for (std::int64_t i = 0; i < get_row_count(); i++) \
-        for (std::int64_t j = 0; j < get_column_count(); j++) \
+        for (std::int64_t j = 0; j < get_column_count(); j++)
 
-#define ENUMERATE_LOOP_JI() \
+#define ENUMERATE_LOOP_JI()                               \
     for (std::int64_t j = 0; j < get_column_count(); j++) \
         for (std::int64_t i = 0; i < get_row_count(); i++)
 
 #define ENUMERATE_IMPL(ptr, ROW_MAJOR_LOOP, COLUMN_MAJOR_LOOP) \
-    const std::int64_t stride = get_stride(); \
-    if (get_layout() == layout::row_major) { \
-        ROW_MAJOR_LOOP() op(i, j, ptr[i * stride + j]); \
-    } \
-    else { \
-        COLUMN_MAJOR_LOOP() op(i, j, ptr[j * stride + i]); \
+    const std::int64_t stride = get_stride();                  \
+    if (get_layout() == layout::row_major) {                   \
+        ROW_MAJOR_LOOP() op(i, j, ptr[i * stride + j]);        \
+    }                                                          \
+    else {                                                     \
+        COLUMN_MAJOR_LOOP() op(i, j, ptr[j * stride + i]);     \
     }
 
     template <typename Op>
@@ -341,7 +343,7 @@ public:
     }
 
     template <typename Op>
-    auto& mutable_for_each(Op&& op)  {
+    auto& mutable_for_each(Op&& op) {
         Float* mutable_data = get_mutable_data();
         for (std::int64_t i = 0; i < get_count(); i++) {
             op(mutable_data[i]);
@@ -400,13 +402,12 @@ public:
     }
 
 private:
-    explicit matrix(const array<Float>& x,
-                    const shape& s, layout l,
-                    std::int64_t stride)
-        : matrix_base(s, l, stride), x_(x) {
+    explicit matrix(const array<Float>& x, const shape& s, layout l, std::int64_t stride)
+            : matrix_base(s, l, stride),
+              x_(x) {
         ONEDAL_ASSERT(s.count() <= x.get_count(),
-            "Number of elements in matrix in matrix do not match "
-            "number of elements in provided array");
+                      "Number of elements in matrix in matrix do not match "
+                      "number of elements in provided array");
     }
 
     std::int64_t get_linear_index(std::int64_t i, std::int64_t j) const {
@@ -430,10 +431,7 @@ private:
 template <typename Float>
 std::ostream& operator<<(std::ostream& stream, const matrix<Float>& m) {
     m.enumerate_row_first([&](std::int64_t i, std::int64_t j, Float x) {
-        stream << std::setw(10)
-               << std::setiosflags(std::ios::fixed)
-               << std::setprecision(3)
-               << x;
+        stream << std::setw(10) << std::setiosflags(std::ios::fixed) << std::setprecision(3) << x;
         if (j + 1 == m.get_column_count()) {
             stream << std::endl;
         }

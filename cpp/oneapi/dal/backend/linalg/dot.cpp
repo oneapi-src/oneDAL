@@ -19,23 +19,15 @@
 
 extern "C" {
 
-#define GEMM_ARGS(Float) \
-    const char *transa, const char *transb, \
-    const std::int64_t *m, const std::int64_t *n, const std::int64_t *k, \
-    const Float *alpha, \
-    const Float *a, const std::int64_t *lda, \
-    const Float *b, const std::int64_t *ldb, \
-    const Float *beta, \
-    const Float *c, const std::int64_t *ldc
+#define GEMM_ARGS(Float)                                                                    \
+    const char *transa, const char *transb, const std::int64_t *m, const std::int64_t *n,   \
+        const std::int64_t *k, const Float *alpha, const Float *a, const std::int64_t *lda, \
+        const Float *b, const std::int64_t *ldb, const Float *beta, const Float *c,         \
+        const std::int64_t *ldc
 
-#define GEMM_ARGS_PASS \
-    transa, transb, m, n, k, alpha, \
-    a, lda, \
-    b, ldb, \
-    beta, \
-    c, ldc
+#define GEMM_ARGS_PASS transa, transb, m, n, k, alpha, a, lda, b, ldb, beta, c, ldc
 
-#define DECLARE_FORTRAN_GEMM(isa) \
+#define DECLARE_FORTRAN_GEMM(isa)                         \
     extern void fpk_blas_##isa##_sgemm(GEMM_ARGS(float)); \
     extern void fpk_blas_##isa##_dgemm(GEMM_ARGS(double));
 
@@ -55,14 +47,14 @@ namespace oneapi::dal::backend::linalg {
 template <typename Float, typename Cpu>
 inline void gemm_cpu(GEMM_ARGS(Float));
 
-#define DECLARE_C_GEMM(isa) \
-    template <> \
-    inline void gemm_cpu<float, cpu_dispatch_##isa>(GEMM_ARGS(float)) { \
-        fpk_blas_##isa##_sgemm(GEMM_ARGS_PASS); \
-    } \
-    template <> \
+#define DECLARE_C_GEMM(isa)                                               \
+    template <>                                                           \
+    inline void gemm_cpu<float, cpu_dispatch_##isa>(GEMM_ARGS(float)) {   \
+        fpk_blas_##isa##_sgemm(GEMM_ARGS_PASS);                           \
+    }                                                                     \
+    template <>                                                           \
     inline void gemm_cpu<double, cpu_dispatch_##isa>(GEMM_ARGS(double)) { \
-        fpk_blas_##isa##_dgemm(GEMM_ARGS_PASS); \
+        fpk_blas_##isa##_dgemm(GEMM_ARGS_PASS);                           \
     }
 
 DECLARE_C_GEMM(sse2)
@@ -75,56 +67,75 @@ DECLARE_C_GEMM(avx512)
 #undef DECLARE_C_GEMM
 
 template <typename Float>
-inline void gemm(const context_cpu& ctx, GEMM_ARGS(Float)) {
+inline void gemm(const context_cpu &ctx, GEMM_ARGS(Float)) {
     dispatch_by_cpu(ctx, [=](auto cpu) {
         gemm_cpu<Float, decltype(cpu)>(GEMM_ARGS_PASS);
     });
 }
 
 template <typename Float>
-inline void c_gemm(
-        const context_cpu& ctx,
-        bool transa, bool transb,
-        std::int64_t m, std::int64_t n, std::int64_t k,
-        Float alpha,
-        const Float *a, std::int64_t lda,
-        const Float *b, std::int64_t ldb,
-        Float beta,
-        Float *c, std::int64_t ldc) {
+inline void c_gemm(const context_cpu &ctx,
+                   bool transa,
+                   bool transb,
+                   std::int64_t m,
+                   std::int64_t n,
+                   std::int64_t k,
+                   Float alpha,
+                   const Float *a,
+                   std::int64_t lda,
+                   const Float *b,
+                   std::int64_t ldb,
+                   Float beta,
+                   Float *c,
+                   std::int64_t ldc) {
     const char ta = transa ? 'T' : 'N';
     const char tb = transb ? 'T' : 'N';
-    gemm<Float>(ctx, &ta, &tb, &m, &n, &k, &alpha,
-                a, &lda, b, &ldb, &beta, c, &ldc);
+    gemm<Float>(ctx, &ta, &tb, &m, &n, &k, &alpha, a, &lda, b, &ldb, &beta, c, &ldc);
 }
 
 template <typename Float>
-void dot_op<Float>::operator()(const context_cpu& ctx,
-                               const matrix<Float>& a,
-                               const matrix<Float>& b,
-                               matrix<Float>& c,
-                               Float alpha, Float beta) const {
+void dot_op<Float>::operator()(const context_cpu &ctx,
+                               const matrix<Float> &a,
+                               const matrix<Float> &b,
+                               matrix<Float> &c,
+                               Float alpha,
+                               Float beta) const {
     const bool is_c_trans = (c.get_layout() == layout::row_major);
     if (is_c_trans) {
         const bool is_a_trans = (a.get_layout() == layout::column_major);
         const bool is_b_trans = (b.get_layout() == layout::column_major);
-        c_gemm<Float>(ctx, is_b_trans, is_a_trans,
-                      c.get_column_count(), c.get_row_count(), a.get_column_count(),
+        c_gemm<Float>(ctx,
+                      is_b_trans,
+                      is_a_trans,
+                      c.get_column_count(),
+                      c.get_row_count(),
+                      a.get_column_count(),
                       alpha,
-                      b.get_data(), b.get_stride(),
-                      a.get_data(), a.get_stride(),
+                      b.get_data(),
+                      b.get_stride(),
+                      a.get_data(),
+                      a.get_stride(),
                       beta,
-                      c.get_mutable_data(), c.get_stride());
+                      c.get_mutable_data(),
+                      c.get_stride());
     }
     else {
         const bool is_a_trans = (a.get_layout() == layout::row_major);
         const bool is_b_trans = (b.get_layout() == layout::row_major);
-        c_gemm<Float>(ctx, is_a_trans, is_b_trans,
-                      c.get_row_count(), c.get_column_count(), a.get_column_count(),
+        c_gemm<Float>(ctx,
+                      is_a_trans,
+                      is_b_trans,
+                      c.get_row_count(),
+                      c.get_column_count(),
+                      a.get_column_count(),
                       alpha,
-                      a.get_data(), a.get_stride(),
-                      b.get_data(), b.get_stride(),
+                      a.get_data(),
+                      a.get_stride(),
+                      b.get_data(),
+                      b.get_stride(),
                       beta,
-                      c.get_mutable_data(), c.get_stride());
+                      c.get_mutable_data(),
+                      c.get_stride());
     }
 }
 

@@ -21,9 +21,8 @@
 
 namespace oneapi::dal::backend::linalg::test {
 
-void check_ones_matrix_dot(std::int64_t m, std::int64_t n, std::int64_t k,
-                           const matrix<float>& c) {
-    REQUIRE(c.get_shape() == shape { m, n });
+void check_ones_matrix_dot(std::int64_t m, std::int64_t n, std::int64_t k, const matrix<float>& c) {
+    REQUIRE(c.get_shape() == shape{ m, n });
     c.for_each([&](float x) {
         REQUIRE(std::int64_t(x) == k);
     });
@@ -33,12 +32,10 @@ TEST_CASE("matrix dot simple", "[linalg][host]") {
     const std::int64_t m = GENERATE(3, 6);
     const std::int64_t n = GENERATE(4, 7);
     const std::int64_t k = GENERATE(5, 8);
-    const layout l = GENERATE(layout::row_major,
-                              layout::column_major);
+    const layout l = GENERATE(layout::row_major, layout::column_major);
 
     const auto stringify_params = [&]() {
-        return fmt::format("m = {}, n = {}, k = {}, l = {}",
-                            m, n, k, l);
+        return fmt::format("m = {}, n = {}, k = {}, l = {}", m, n, k, l);
     };
 
     SECTION("A x B, " + stringify_params()) {
@@ -74,16 +71,18 @@ TEST_CASE("matrix dot in-place", "[linalg][host]") {
     const std::int64_t m = GENERATE(3, 6);
     const std::int64_t n = GENERATE(4, 7);
     const std::int64_t k = GENERATE(5, 8);
-    const layout a_l = GENERATE(layout::row_major,
-                                layout::column_major);
-    const layout b_l = GENERATE(layout::row_major,
-                                layout::column_major);
-    const layout c_l = GENERATE(layout::row_major,
-                                layout::column_major);
+    const layout a_l = GENERATE(layout::row_major, layout::column_major);
+    const layout b_l = GENERATE(layout::row_major, layout::column_major);
+    const layout c_l = GENERATE(layout::row_major, layout::column_major);
 
     const auto stringify_params = [&]() {
         return fmt::format("m = {}, n = {}, k = {}, a_l = {}, b_l = {}, c_l = {}",
-                            m, n, k, a_l, b_l, c_l);
+                           m,
+                           n,
+                           k,
+                           a_l,
+                           b_l,
+                           c_l);
     };
 
     SECTION("A x B, " + stringify_params()) {

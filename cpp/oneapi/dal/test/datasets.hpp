@@ -26,21 +26,19 @@ namespace oneapi::dal::test {
 #define GENERATE_DATASET(...) \
     GENERATE(as<oneapi::dal::test::dataset_builder>{}, __VA_ARGS__).build()
 
-#define ITERATE_OVER_TABLE_TYPES(var_name, ...) \
+#define ITERATE_OVER_TABLE_TYPES(var_name, ...)                            \
     const std::string var_name = GENERATE(as<std::string>{}, __VA_ARGS__); \
     SECTION("iterate over table types: " + var_name)
 
 class dataset {
 public:
-    explicit dataset(const array<float>& data,
-                     std::int64_t row_count,
-                     std::int64_t column_count);
+    explicit dataset(const array<float>& data, std::int64_t row_count, std::int64_t column_count);
 
     template <typename Float>
     table get_table(const std::string& table_type) const;
 
     template <typename Float>
-    table get_table(host_test_policy &policy, const std::string& table_type) const {
+    table get_table(host_test_policy& policy, const std::string& table_type) const {
         return get_table<Float>(table_type);
     }
 
@@ -61,11 +59,7 @@ private:
     dal::detail::pimpl<impl> impl_;
 };
 
-enum class distribution_type {
-    constant,
-    uniform,
-    normal
-};
+enum class distribution_type { constant, uniform, normal };
 
 class dataset_generator {
 public:
@@ -76,10 +70,9 @@ public:
     double uniform_a_ = 0.0;
     double uniform_b_ = 1.0;
 
-    dataset_generator(std::int64_t row_count,
-                      std::int64_t column_count)
-        : row_count_(row_count),
-          column_count_(column_count) {}
+    dataset_generator(std::int64_t row_count, std::int64_t column_count)
+            : row_count_(row_count),
+              column_count_(column_count) {}
 
     dataset generate() const;
 };
@@ -97,9 +90,7 @@ protected:
         virtual dataset build() = 0;
     };
 
-    explicit dataset_builder(impl* i)
-        : impl_(i) {}
-
+    explicit dataset_builder(impl* i) : impl_(i) {}
 
     template <typename T>
     T& get() {
@@ -117,9 +108,8 @@ private:
 
 class random_dataset : public dataset_builder {
 public:
-    explicit random_dataset(std::int64_t row_count,
-                            std::int64_t column_count)
-        : dataset_builder(new impl{row_count, column_count}) {}
+    explicit random_dataset(std::int64_t row_count, std::int64_t column_count)
+            : dataset_builder(new impl{ row_count, column_count }) {}
 
     auto& uniform(double a, double b) {
         get<impl>().distribution_ = distribution_type::uniform;
@@ -134,12 +124,10 @@ public:
     }
 
 protected:
-    class impl : public dataset_builder::impl,
-                 public dataset_generator {
+    class impl : public dataset_builder::impl, public dataset_generator {
     public:
-        impl(std::int64_t row_count,
-             std::int64_t column_count)
-            : dataset_generator(row_count, column_count) {}
+        impl(std::int64_t row_count, std::int64_t column_count)
+                : dataset_generator(row_count, column_count) {}
 
         dataset build() override {
             return dataset_generator::generate();

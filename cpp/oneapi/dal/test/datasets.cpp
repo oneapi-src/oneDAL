@@ -30,12 +30,10 @@ namespace oneapi::dal::test {
 
 class dataset::impl {
 public:
-    explicit impl(const array<float>& data,
-                  std::int64_t row_count,
-                  std::int64_t column_count)
-        : data_(data),
-            row_count_(row_count),
-            column_count_(column_count) {}
+    explicit impl(const array<float>& data, std::int64_t row_count, std::int64_t column_count)
+            : data_(data),
+              row_count_(row_count),
+              column_count_(column_count) {}
 
     const array<float>& get_data() const {
         return data_;
@@ -55,10 +53,8 @@ private:
     std::int64_t column_count_;
 };
 
-dataset::dataset(const array<float>& data,
-                 std::int64_t row_count,
-                 std::int64_t column_count)
-    : dataset(new impl{data, row_count, column_count}) {}
+dataset::dataset(const array<float>& data, std::int64_t row_count, std::int64_t column_count)
+        : dataset(new impl{ data, row_count, column_count }) {}
 
 static std::mt19937& get_random_engine() {
     static std::mt19937 engine(77777);
@@ -78,18 +74,16 @@ dataset dataset_generator::generate() const {
     const std::int64_t element_count = row_count_ * column_count_;
     auto data = array<float>::empty(element_count);
     switch (distribution_) {
-        case distribution_type::uniform:
-            generate_uniform(data, uniform_a_, uniform_b_);
-            break;
+        case distribution_type::uniform: generate_uniform(data, uniform_a_, uniform_b_); break;
         default:
             throw unimplemented_error{
-                "Only uniform distribution is implemented now in dataset generator"};
+                "Only uniform distribution is implemented now in dataset generator"
+            };
     }
     return dataset{ data, row_count_, column_count_ };
 }
 
-dataset::dataset(impl* i)
-    : impl_(i) {}
+dataset::dataset(impl* i) : impl_(i) {}
 
 template <typename Float>
 table dataset::get_table(const std::string& table_type) const {
@@ -97,13 +91,10 @@ table dataset::get_table(const std::string& table_type) const {
     const std::int64_t row_count = get().get_row_count();
     const std::int64_t column_count = get().get_column_count();
     if (table_type == "homogen") {
-        return dal::detail::homogen_table_builder{}
-            .reset(data, row_count, column_count)
-            .build();
+        return dal::detail::homogen_table_builder{}.reset(data, row_count, column_count).build();
     }
     else {
-        throw unimplemented_error{
-            "Only homogen table is supported"};
+        throw unimplemented_error{ "Only homogen table is supported" };
     }
 }
 
@@ -120,19 +111,17 @@ table dataset::get_table(device_test_policy& policy, const std::string& table_ty
             .build();
     }
     else {
-        throw unimplemented_error{
-            "Only homogen table is supported"};
+        throw unimplemented_error{ "Only homogen table is supported" };
     }
 }
 #endif
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-#define INSTANTIATE(F) \
+#define INSTANTIATE(F)                                              \
     template table dataset::get_table<F>(const std::string&) const; \
     template table dataset::get_table<F>(device_test_policy&, const std::string&) const;
 #else
-#define INSTANTIATE(F) \
-    template table dataset::get_table<F>(const std::string&) const;
+#define INSTANTIATE(F) template table dataset::get_table<F>(const std::string&) const;
 #endif
 
 INSTANTIATE(float)

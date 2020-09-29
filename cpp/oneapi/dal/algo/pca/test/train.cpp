@@ -25,9 +25,9 @@ namespace la = backend::linalg;
 ALGO_TEST_CASE("PCA", (float, double), (method::cov)) {
     DECLARE_TEST_POLICY(policy);
 
-    const dal::test::dataset x_ds = GENERATE_DATASET(
-        dal::test::random_dataset(1000, 100).uniform(-2, 5),
-        dal::test::random_dataset(100, 10).uniform(-0.2, 1.5));
+    const dal::test::dataset x_ds =
+        GENERATE_DATASET(dal::test::random_dataset(1000, 100).uniform(-2, 5),
+                         dal::test::random_dataset(100, 10).uniform(-0.2, 1.5));
     const std::string table_type = GENERATE("homogen");
     const std::int64_t component_count = GENERATE(2, 3, 5);
 
@@ -37,8 +37,8 @@ ALGO_TEST_CASE("PCA", (float, double), (method::cov)) {
         const table x = x_ds.get_table<Float>(policy, table_type);
 
         const auto pca_desc = descriptor<Float, Method>{}
-            .set_component_count(component_count)
-            .set_deterministic(false);
+                                  .set_component_count(component_count)
+                                  .set_deterministic(false);
 
         const auto result = dal::test::train(policy, pca_desc, x);
         const auto eigenvalues = result.get_eigenvalues();
@@ -54,9 +54,7 @@ ALGO_TEST_CASE("PCA", (float, double), (method::cov)) {
             CHECK(eigenvectors.get_column_count() == x.get_column_count());
         }
 
-        SECTION("there is no NaN in eigenvalues") {
-
-        }
+        SECTION("there is no NaN in eigenvalues") {}
 
         SECTION("eigenvectors order is descending") {
             const auto W = la::matrix<double>::wrap(eigenvalues);
@@ -77,4 +75,4 @@ ALGO_TEST_CASE("PCA", (float, double), (method::cov)) {
     }
 }
 
-} // namespace oneapi::dal::pca::backend::test
+} // namespace oneapi::dal::pca::test

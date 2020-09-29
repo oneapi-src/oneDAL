@@ -32,11 +32,8 @@ struct dot_op {
 };
 
 template <typename Float>
-inline matrix<Float> dot(const matrix<Float>& a,
-                         const matrix<Float>& b,
-                         Float alpha = Float(1)) {
-    auto c = matrix<Float>::empty({ a.get_row_count(),
-                                    b.get_column_count() });
+inline matrix<Float> dot(const matrix<Float>& a, const matrix<Float>& b, Float alpha = Float(1)) {
+    auto c = matrix<Float>::empty({ a.get_row_count(), b.get_column_count() });
     dot(a, b, c, alpha);
     return c;
 }

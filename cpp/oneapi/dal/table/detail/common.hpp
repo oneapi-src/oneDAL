@@ -20,7 +20,4 @@
 
 #include "oneapi/dal/detail/common.hpp"
 
-namespace oneapi::dal::detail {
-
-
-} // namespace oneapi::dal::detail
+namespace oneapi::dal::detail {} // namespace oneapi::dal::detail
