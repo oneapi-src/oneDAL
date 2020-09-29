@@ -88,6 +88,8 @@ struct TreeLevelRecord
     services::Status init(oneapi::internal::UniversalBuffer & nodeList, oneapi::internal::UniversalBuffer & impInfo, size_t nNodes)
     {
         _nNodes = nNodes;
+        DAAL_ASSERT(nNodes * _nNodeSplitProps == nodeList.template get<int>().size());
+        DAAL_ASSERT(nNodes * _nNodeImpProps == impInfo.template get<algorithmFPType>().size());
 
         auto nodeListHost = nodeList.template get<int>().toHost(ReadWriteMode::readOnly);
         _nodeList         = nodeListHost.get();
@@ -121,9 +123,10 @@ struct DFTreeConverter
 {
     typedef RegressionTreeHelperOneAPI<algorithmFPType, cpu> TreeHelperType;
 
-    void convertToDFDecisionTree(Collection<TreeLevelRecord<algorithmFPType> > & treeLevelsList, algorithmFPType ** binValues,
-                                 TreeHelperType & treeBuilder)
+    services::Status convertToDFDecisionTree(Collection<TreeLevelRecord<algorithmFPType> > & treeLevelsList, algorithmFPType ** binValues,
+                                             TreeHelperType & treeBuilder)
     {
+        services::Status status;
         typedef TArray<typename TreeHelperType::NodeType::Base *, cpu> DFTreeNodesArr;
         typedef SharedPtr<DFTreeNodesArr> DFTreeNodesArrPtr;
 
@@ -134,11 +137,15 @@ struct DFTreeConverter
         TreeLevelRecord<algorithmFPType> & r0 = treeLevelsList[0];
 
         size_t level = treeLevelsList.size();
+        DAAL_ASSERT(level);
+
         do
         {
             level--;
             TreeLevelRecord<algorithmFPType> & record = treeLevelsList[level];
             DFTreeNodesArrPtr dfTreeLevelNodes(new DFTreeNodesArr(record.getNodesNum()));
+            DAAL_CHECK_MALLOC(dfTreeLevelNodes.get());
+            DAAL_CHECK_MALLOC(dfTreeLevelNodes->get());
 
             size_t nSplits = 0;
             // nSplits is used to calculate index of child nodes on next level
@@ -152,6 +159,7 @@ struct DFTreeConverter
                 }
                 else
                 {
+                    DAAL_ASSERT(dfTreeLevelNodesPrev->get());
                     //split node
                     dfTreeLevelNodes->get()[nodeIdx] =
                         treeBuilder.makeSplit(record.getFtrIdx(nodeIdx), binValues[record.getFtrIdx(nodeIdx)][record.getFtrVal(nodeIdx)],
@@ -165,6 +173,7 @@ struct DFTreeConverter
         } while (level > 0);
 
         treeBuilder._tree.reset(dfTreeLevelNodesPrev->get()[0], unorderedFeaturesUsed);
+        return status;
     }
 };
 
