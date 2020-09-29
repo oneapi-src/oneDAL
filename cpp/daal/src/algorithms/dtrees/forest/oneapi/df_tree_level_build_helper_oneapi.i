@@ -26,9 +26,8 @@
 #include "src/services/service_data_utils.h"
 #include "src/externals/service_ittnotify.h"
 
-//DAAL_ITTNOTIFY_DOMAIN(df.common.oneapi);
-
 using namespace daal::oneapi::internal;
+using namespace daal::services;
 using namespace daal::services::internal;
 
 namespace daal
@@ -98,11 +97,13 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::markPresentRows(co
     auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
     {
+        DAAL_ASSERT(nRows <= _int32max);
+
         auto & kernel = kernelMarkPresentRows;
         KernelArguments args(3);
         args.set(0, rowsList, AccessModeIds::read);
         args.set(1, rowsBuffer, AccessModeIds::write);
-        args.set(2, (int32_t)nRows);
+        args.set(2, static_cast<int32_t>(nRows));
 
         KernelRange local_range(localSize);
         KernelRange global_range(localSize * nSubgroupSums);
@@ -131,11 +132,13 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::countAbsentRowsFor
     auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
     {
+        DAAL_ASSERT(nRows <= _int32max);
+
         auto & kernel = kernelCountAbsentRowsForBlocks;
         KernelArguments args(3);
         args.set(0, rowsBuffer, AccessModeIds::read);
         args.set(1, partialSums, AccessModeIds::write);
-        args.set(2, (int32_t)nRows);
+        args.set(2, static_cast<int32_t>(nRows));
 
         KernelRange local_range(localSize);
         KernelRange global_range(localSize * nSubgroupSums);
@@ -164,12 +167,14 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::countAbsentRowsTot
     auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
     {
+        DAAL_ASSERT(nSubgroupSums <= _int32max);
+
         auto & kernel = kernelCountAbsentRowsTotal;
         KernelArguments args(4);
         args.set(0, partialSums, AccessModeIds::read);
         args.set(1, partialPrefixSums, AccessModeIds::write);
         args.set(2, totalSum, AccessModeIds::write);
-        args.set(3, (int32_t)nSubgroupSums);
+        args.set(3, static_cast<int32_t>(nSubgroupSums));
 
         KernelRange local_range(localSize);
         KernelRange global_range(localSize);
@@ -199,12 +204,14 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::fillOOBRowsListByB
     auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
     {
+        DAAL_ASSERT(nRows <= _int32max);
+
         auto & kernel = kernelFillOOBRowsListByBlocks;
         KernelArguments args(4);
         args.set(0, rowsBuffer, AccessModeIds::read);
         args.set(1, partialPrefixSums, AccessModeIds::read);
         args.set(2, oobRowsList, AccessModeIds::write);
-        args.set(3, (int32_t)nRows);
+        args.set(3, static_cast<int32_t>(nRows));
 
         KernelRange local_range(localSize);
         KernelRange global_range(localSize * nSubgroupSums);
@@ -229,14 +236,17 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::getOOBRows(const U
 
     auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
-    const int absentMark    = -1;
-    const int localSize     = _preferableSubGroup;
-    const int nSubgroupSums = _maxLocalSums * localSize < nRows ? _maxLocalSums : (nRows / localSize + !(nRows / localSize));
+    const int absentMark       = -1;
+    const size_t localSize     = _preferableSubGroup;
+    const size_t nSubgroupSums = _maxLocalSums * localSize < nRows ? _maxLocalSums : (nRows / localSize + !(nRows / localSize));
 
-    auto rowsBuffer        = context.allocate(TypeIds::id<int>(), nRows, &status); // it is filled with marks Present/Absent for each rows
-    auto partialSums       = context.allocate(TypeIds::id<int>(), nSubgroupSums, &status);
+    auto rowsBuffer = context.allocate(TypeIds::id<int>(), nRows, &status); // it is filled with marks Present/Absent for each rows
+    DAAL_CHECK_STATUS_VAR(status);
+    auto partialSums = context.allocate(TypeIds::id<int>(), nSubgroupSums, &status);
+    DAAL_CHECK_STATUS_VAR(status);
     auto partialPrefixSums = context.allocate(TypeIds::id<int>(), nSubgroupSums, &status);
-    auto totalSum          = context.allocate(TypeIds::id<int>(), 1, &status);
+    DAAL_CHECK_STATUS_VAR(status);
+    auto totalSum = context.allocate(TypeIds::id<int>(), 1, &status);
     DAAL_CHECK_STATUS_VAR(status);
 
     context.fill(rowsBuffer, absentMark, &status);
@@ -249,7 +259,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::getOOBRows(const U
     auto nOOBRowsHost = totalSum.template get<int>().toHost(ReadWriteMode::readOnly);
     DAAL_CHECK_MALLOC(nOOBRowsHost.get());
 
-    nOOBRows = (size_t)nOOBRowsHost.get()[0];
+    nOOBRows = static_cast<size_t>(nOOBRowsHost.get()[0]);
 
     if (nOOBRows > 0)
     {
@@ -279,9 +289,11 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::getNumOfSplitNodes
     DAAL_CHECK_STATUS_VAR(status);
 
     {
+        DAAL_ASSERT(nNodes <= _int32max);
+
         KernelArguments args(3);
         args.set(0, nodeList, AccessModeIds::read);
-        args.set(1, (int32_t)nNodes);
+        args.set(1, static_cast<int32_t>(nNodes));
         args.set(2, bufNSplitNodes, AccessModeIds::write);
 
         size_t localSize = _preferableSubGroup;
@@ -346,9 +358,11 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::doNodesSplit(const
     auto & kernel = kernelDoNodesSplit;
 
     {
+        DAAL_ASSERT(nNodes <= _int32max);
+
         KernelArguments args(3);
         args.set(0, nodeList, AccessModeIds::read);
-        args.set(1, (int32_t)nNodes);
+        args.set(1, static_cast<int32_t>(nNodes));
         args.set(2, nodeListNew, AccessModeIds::write);
 
         size_t localSize = _preferableSubGroup;
@@ -384,12 +398,15 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::splitNodeListOnGro
     auto & kernel = kernelSplitNodeListOnGroupsBySize;
 
     {
+        DAAL_ASSERT(nNodes <= _int32max);
+        DAAL_ASSERT(_minRowsBlock <= _int32max);
+
         KernelArguments args(5);
         args.set(0, nodeList, AccessModeIds::read);
-        args.set(1, (int32_t)nNodes);
+        args.set(1, static_cast<int32_t>(nNodes));
         args.set(2, nodesGroups, AccessModeIds::write);
         args.set(3, nodeIndices, AccessModeIds::write);
-        args.set(4, _minRowsBlock);
+        args.set(4, static_cast<int32_t>(_minRowsBlock));
 
         size_t localSize = _preferableSubGroup;
 
@@ -423,12 +440,14 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::doLevelPartition(c
     auto & kernel = kernelDoLevelPartition;
 
     {
+        DAAL_ASSERT(nFeatures <= _int32max);
+
         KernelArguments args(5);
         args.set(0, data, AccessModeIds::read);
         args.set(1, nodeList, AccessModeIds::read);
         args.set(2, treeOrder, AccessModeIds::read);
         args.set(3, treeOrderBuf, AccessModeIds::write);
-        args.set(4, (int32_t)nFeatures);
+        args.set(4, static_cast<int32_t>(nFeatures));
 
         size_t localSize = _preferableSubGroup;
 
@@ -463,10 +482,12 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::partitionCopy(Univ
     auto & kernel = kernelPartitionCopy;
 
     {
+        DAAL_ASSERT(iStart <= _int32max);
+
         KernelArguments args(3);
         args.set(0, treeOrderBuf, AccessModeIds::read);
         args.set(1, treeOrder, AccessModeIds::write);
-        args.set(2, (int32_t)iStart);
+        args.set(2, static_cast<int32_t>(iStart));
 
         KernelRange global_range(nRows);
 
@@ -491,10 +512,12 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::updateMDIVarImport
     auto & kernel = kernelUpdateMDIVarImportance;
 
     {
+        DAAL_ASSERT(nNodes <= _int32max);
+
         KernelArguments args(4);
         args.set(0, nodeList, AccessModeIds::read);
         args.set(1, nodeImpDecreaseList, AccessModeIds::read);
-        args.set(2, (int32_t)nNodes);
+        args.set(2, static_cast<int32_t>(nNodes));
         args.set(3, varImp, AccessModeIds::write);
 
         int localSize = _preferableGroupSize;
