@@ -102,7 +102,7 @@ private:
     const size_t _nTreeGroupsForSmall  = 16;
     const size_t _nTreeGroupsMin       = 8;
 
-    const size_t _int32max = static_cast<size_t>(services::internal::MaxVal<int32_t>::get());
+    static constexpr size_t _int32max = static_cast<size_t>(services::internal::MaxVal<int32_t>::get());
 
     size_t _nClasses;
     size_t _nTreeGroups;
