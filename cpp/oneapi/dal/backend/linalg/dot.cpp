@@ -39,12 +39,12 @@ extern "C" {
     extern void fpk_blas_##isa##_sgemm(GEMM_ARGS(float)); \
     extern void fpk_blas_##isa##_dgemm(GEMM_ARGS(double));
 
-DECLARE_FORTRAN_GEMM(sse2);
-DECLARE_FORTRAN_GEMM(ssse3);
-DECLARE_FORTRAN_GEMM(sse42);
-DECLARE_FORTRAN_GEMM(avx);
-DECLARE_FORTRAN_GEMM(avx2);
-DECLARE_FORTRAN_GEMM(avx512);
+DECLARE_FORTRAN_GEMM(sse2)
+DECLARE_FORTRAN_GEMM(ssse3)
+DECLARE_FORTRAN_GEMM(sse42)
+DECLARE_FORTRAN_GEMM(avx)
+DECLARE_FORTRAN_GEMM(avx2)
+DECLARE_FORTRAN_GEMM(avx512)
 
 #undef DECLARE_FORTRAN_GEMM
 
@@ -65,12 +65,12 @@ inline void gemm_cpu(GEMM_ARGS(Float));
         fpk_blas_##isa##_dgemm(GEMM_ARGS_PASS); \
     }
 
-DECLARE_C_GEMM(sse2);
-DECLARE_C_GEMM(ssse3);
-DECLARE_C_GEMM(sse42);
-DECLARE_C_GEMM(avx);
-DECLARE_C_GEMM(avx2);
-DECLARE_C_GEMM(avx512);
+DECLARE_C_GEMM(sse2)
+DECLARE_C_GEMM(ssse3)
+DECLARE_C_GEMM(sse42)
+DECLARE_C_GEMM(avx)
+DECLARE_C_GEMM(avx2)
+DECLARE_C_GEMM(avx512)
 
 #undef DECLARE_C_GEMM
 
