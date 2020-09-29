@@ -32,6 +32,11 @@ template <typename Input = edge_list<int32_t>, typename Output = undirected_adja
 struct descriptor {
     using input_type = Input;
     using output_type = Output;
+    static_assert(std::is_same_v<Input, edge_list<int32_t>>,
+                  "edge_list<int32_t> the only available input for load descriptor");
+    static_assert(
+        std::is_same_v<Output, undirected_adjacency_array_graph<>>,
+        "undirected_adjacency_array_graph<> the only available output for load descriptor");
 };
 
 /// Type of the descriptor output format

@@ -45,59 +45,14 @@ class ONEAPI_DAL_EXPORT undirected_adjacency_array_graph {
 public:
     using graph_type =
         undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>;
+    using vertex_value = VertexValue;
+    using edge_value = EdgeValue;
+    using graph_value = GraphValue;
+    using index_type = IndexType;
     using allocator_type = Allocator;
 
-    // graph weight types
-    using graph_user_value_type = GraphValue;
-    using const_graph_user_value_type = const graph_user_value_type;
-
-    // vertex types
-    using vertex_type = IndexType;
-    using const_vertex_type = const vertex_type;
-    using vertex_allocator_type =
-        typename std::allocator_traits<Allocator>::template rebind_alloc<vertex_type>;
-    using vertex_set = detail::graph_container<vertex_type, vertex_allocator_type>;
-    using vertex_iterator = typename vertex_set::iterator;
-    using const_vertex_iterator = typename vertex_set::const_iterator;
-    using vertex_size_type = typename vertex_set::size_type;
-
-    using vertex_key_type = vertex_type;
-    using const_vertex_key_type = const vertex_key_type;
-
-    // vertex weight types
-    using vertex_user_value_type = VertexValue;
-    using const_vertex_user_value_type = const vertex_user_value_type;
-    using vertex_user_value_allocator_type =
-        typename std::allocator_traits<Allocator>::template rebind_alloc<vertex_user_value_type>;
-    using vertex_user_value_set =
-        detail::graph_container<vertex_user_value_type, vertex_user_value_allocator_type>;
-
-    // edge types
-    using edge_type = IndexType;
-    using edge_allocator_type =
-        typename std::allocator_traits<Allocator>::template rebind_alloc<edge_type>;
-    using edge_set = detail::graph_container<edge_type, edge_allocator_type>;
-    using edge_iterator = typename edge_set::iterator;
-    using const_edge_iterator = typename edge_set::const_iterator;
-    using edge_size_type = typename edge_set::size_type;
-
-    // edge weight types
-    using edge_user_value_type = EdgeValue;
-    using edge_user_value_allocator_type =
-        typename std::allocator_traits<Allocator>::template rebind_alloc<edge_user_value_type>;
-    using edge_user_value_set =
-        detail::graph_container<edge_user_value_type, edge_user_value_allocator_type>;
-
-    using edge_key_type = std::pair<vertex_key_type, vertex_key_type>;
-    using edge_value_type = std::pair<edge_key_type, edge_user_value_type>;
-    using edge_index = IndexType;
-
-    // ranges
-    using edge_range = range<edge_iterator>;
-    using const_edge_range = range<const_edge_iterator>;
-
-    static_assert(std::is_integral_v<vertex_type> && std::is_signed_v<vertex_type> &&
-                      sizeof(vertex_type) == 4,
+    static_assert(std::is_integral_v<index_type> && std::is_signed_v<index_type> &&
+                      sizeof(index_type) == 4,
                   "Use 32 bit signed integer for vertex index type");
 
     /// Constructs an empty undirected_adjacency_array_graph
@@ -114,12 +69,12 @@ public:
 
     /// Constructs an empty undirected_adjacency_array_graph with specified graph properties
     /// and allocator
-    undirected_adjacency_array_graph(const graph_user_value_type &graph_user_value,
+    undirected_adjacency_array_graph(const graph_user_value_type<graph_type> &graph_user_value,
                                      allocator_type allocator = allocator_type()){};
 
     /// Constructs an empty undirected_adjacency_array_graph with move graph properties and
     /// allocator
-    undirected_adjacency_array_graph(graph_user_value_type &&graph_user_value,
+    undirected_adjacency_array_graph(graph_user_value_type<graph_type> &&graph_user_value,
                                      allocator_type allocator = allocator_type()){};
 
     /// Copy operator for undirected_adjacency_array_graph
