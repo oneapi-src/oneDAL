@@ -63,10 +63,10 @@ TEST(infer_and_train_reg_kernels_test, can_process_simple_case_default_params) {
     const auto y_train_table =
         dal::homogen_table{ queue, y_train, row_count_train, 1, dal::empty_delete<const float>() };
 
-    const auto x_test_table = dal::homogen_table{ x_test_host,
-                                                  row_count_test,
-                                                  column_count,
-                                                  dal::empty_delete<const float>() };
+    auto x_test = sycl::malloc_shared<float>(row_count_test * column_count, queue);
+    queue.memcpy(x_test, x_test_host, sizeof(float) * row_count_test * column_count).wait();
+    const auto x_test_table =
+        dal::homogen_table{ queue, x_test, row_count_test, column_count, dal::empty_delete<const float>() };
 
     const auto df_train_desc = df::descriptor<float, df::task::regression, df::method::hist>{};
     const auto df_infer_desc = df::descriptor<float, df::task::regression, df::method::dense>{};
@@ -77,7 +77,7 @@ TEST(infer_and_train_reg_kernels_test, can_process_simple_case_default_params) {
     ASSERT_EQ(!(result_train.get_oob_err_per_observation().has_data()), true);
 
     // infer on CPU for now
-    const auto result_infer = dal::infer(df_infer_desc, result_train.get_model(), x_test_table);
+    const auto result_infer = dal::infer(queue, df_infer_desc, result_train.get_model(), x_test_table);
 
     auto labels_table = result_infer.get_labels();
     ASSERT_EQ(labels_table.has_data(), true);
@@ -127,10 +127,10 @@ TEST(infer_and_train_reg_kernels_test, can_process_simple_case_non_default_param
     const auto y_train_table =
         dal::homogen_table{ queue, y_train, row_count_train, 1, dal::empty_delete<const float>() };
 
-    const auto x_test_table = dal::homogen_table{ x_test_host,
-                                                  row_count_test,
-                                                  column_count,
-                                                  dal::empty_delete<const float>() };
+    auto x_test = sycl::malloc_shared<float>(row_count_test * column_count, queue);
+    queue.memcpy(x_test, x_test_host, sizeof(float) * row_count_test * column_count).wait();
+    const auto x_test_table =
+        dal::homogen_table{ queue, x_test, row_count_test, column_count, dal::empty_delete<const float>() };
 
     const auto df_train_desc =
         df::descriptor<float, df::task::regression, df::method::hist>{}
@@ -160,7 +160,7 @@ TEST(infer_and_train_reg_kernels_test, can_process_simple_case_non_default_param
                                               result_train.get_oob_err_per_observation(),
                                               mse_threshold);
     // infer on CPU for now
-    const auto result_infer = dal::infer(df_infer_desc, result_train.get_model(), x_test_table);
+    const auto result_infer = dal::infer(queue, df_infer_desc, result_train.get_model(), x_test_table);
 
     auto labels_table = result_infer.get_labels();
     ASSERT_EQ(labels_table.has_data(), true);
