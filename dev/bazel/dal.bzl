@@ -37,6 +37,7 @@ def dal_module(name, hdrs=[], srcs=[],
                host_hdrs=[], host_srcs=[], host_deps=[],
                dpc_hdrs=[], dpc_srcs=[], dpc_deps=[],
                auto=False, host=True, dpc=True, **kwargs):
+    _check_target_name(name, host, dpc)
     if auto:
         hpp_filt = ["**/*.hpp"]
         cpp_filt = ["**/*.cpp"]
@@ -52,24 +53,23 @@ def dal_module(name, hdrs=[], srcs=[],
         host_auto_srcs = []
         dpc_auto_hdrs = []
         dpc_auto_srcs = []
-    if host:
-        _dal_module(
-            name = name,
-            hdrs = hdrs + host_auto_hdrs + host_hdrs,
-            srcs = srcs + host_auto_srcs + host_srcs,
-            deps = dal_deps + host_deps + extra_deps,
-            **kwargs,
-        )
-    if dpc:
-        suffix = "_dpc" if host else ""
-        _dal_module(
-            name = name + suffix,
-            hdrs = hdrs + dpc_auto_hdrs + dpc_hdrs,
-            srcs = srcs + dpc_auto_srcs + dpc_srcs,
-            deps = _get_dpc_deps(dal_deps) + dpc_deps + extra_deps,
-            is_dpc = True,
-            **kwargs,
-        )
+    _add_module_if_condition(
+        condition = host,
+        name = _remove_dpc_suffix(name),
+        hdrs = hdrs + host_auto_hdrs + host_hdrs,
+        srcs = srcs + host_auto_srcs + host_srcs,
+        deps = dal_deps + host_deps + extra_deps,
+        **kwargs,
+    )
+    _add_module_if_condition(
+        condition = dpc,
+        name = _get_dpc_target_name(name, host, dpc),
+        hdrs = hdrs + dpc_auto_hdrs + dpc_hdrs,
+        srcs = srcs + dpc_auto_srcs + dpc_srcs,
+        deps = _get_dpc_deps(dal_deps) + dpc_deps + extra_deps,
+        is_dpc = True,
+        **kwargs,
+    )
 
 def dal_collect_modules(name, root, modules, dal_deps=[], **kwargs):
     module_deps = []
@@ -112,8 +112,8 @@ def dal_static_lib(name, lib_name, dal_deps=[], host_deps=[],
         **kwargs
     )
     cc_static_lib(
-        name = name + "_dpc",
-        lib_name = lib_name + "_dpc",
+        name = _get_dpc_target_name(name, True, True),
+        lib_name = _get_dpc_target_name(lib_name, True, True),
         lib_tags = lib_tags,
         deps = _get_dpc_deps(dal_deps) + extra_deps + dpc_deps,
         **kwargs
@@ -130,8 +130,8 @@ def dal_dynamic_lib(name, lib_name, dal_deps=[], host_deps=[],
         **kwargs
     )
     cc_dynamic_lib(
-        name = name + "_dpc",
-        lib_name = lib_name + "_dpc",
+        name = _get_dpc_target_name(name, True, True),
+        lib_name = _get_dpc_target_name(lib_name, True, True),
         lib_tags = lib_tags,
         deps = _get_dpc_deps(dal_deps) + extra_deps + dpc_deps,
         **kwargs
@@ -141,10 +141,18 @@ def dal_test(name, hdrs=[], srcs=[],
              dal_deps=[], extra_deps=[],
              host_hdrs=[], host_srcs=[], host_deps=[],
              dpc_hdrs=[], dpc_srcs=[], dpc_deps=[],
-             host=True, dpc=True, gtest=True, catch2=False,
+             host=True, dpc=True, framework="gtest",
              data=[], tags=[], **kwargs):
+    # TODO: Refactor this rule once decision on the tests structure is made
+    if not framework in ["gtest", "catch2", "none"]:
+        fail("Unknown test framework '{}' in test rule '{}'".format(framework, name))
+    gtest = (framework == "gtest")
+    catch2 = (framework == "catch2")
+    module_name = "__" + name
+    if not host and dpc:
+        module_name = _remove_dpc_suffix(module_name) + "_dpc"
     dal_module(
-        name = "_" + name,
+        name = module_name,
         hdrs = hdrs,
         srcs = srcs,
         host_hdrs = host_hdrs,
@@ -205,25 +213,25 @@ def dal_test(name, hdrs=[], srcs=[],
     if host:
         cc_test(
             name = name,
-            deps = [ ":_" + name ],
+            deps = [ ":" + module_name ],
             data = data,
             tags = tags + ["host"],
         )
     if dpc:
-        suffix = "_dpc" if host else ""
         cc_test(
-            name = name + suffix,
+            name = _get_dpc_target_name(name, host, dpc),
             features = [ "dpc++" ],
             deps = [
-                ":_" + name + suffix,
+                ":" + _get_dpc_target_name(module_name, host, dpc),
                 "@opencl//:opencl_binary",
             ],
             data = data,
             tags = tags + ["dpc"],
         )
 
-
-def dal_test_suite(name, srcs=[], tests=[], host=True, dpc=True, **kwargs):
+def dal_test_suite(name, srcs=[], tests=[], host_tests=[], dpc_tests=[],
+                   host=True, dpc=True, **kwargs):
+    _check_target_name(name, host, dpc)
     targets = []
     targets_dpc = []
     for test_file in srcs:
@@ -238,20 +246,19 @@ def dal_test_suite(name, srcs=[], tests=[], host=True, dpc=True, **kwargs):
         if host:
             targets.append(":" + target)
         if dpc:
-            targets_dpc.append(":" + target + "_dpc")
-    if host:
-        native.test_suite(
-            name = name,
-            tests = tests + targets,
-        )
-    if dpc:
-        native.test_suite(
-            name = name + "_dpc",
-            tests = _get_dpc_deps(tests) + targets_dpc,
-        )
+            targets_dpc.append(":" + _get_dpc_target_name(target, host, dpc))
+    _add_test_suite_if_condition(
+        condition = host,
+        name = _remove_dpc_suffix(name),
+        tests = tests + host_tests + targets,
+    )
+    _add_test_suite_if_condition(
+        condition = dpc,
+        name = _get_dpc_target_name(name, host, dpc),
+        tests = _get_dpc_deps(tests) + dpc_tests + targets_dpc,
+    )
 
-
-def dal_collect_tests(name, root, modules, tests=[], **kwargs):
+def dal_collect_test_suites(name, root, modules, tests=[], **kwargs):
     test_deps = []
     for module_name in modules:
         test_label = "{0}/{1}:tests".format(root, module_name)
@@ -269,7 +276,7 @@ def dal_example(name, dal_deps=[], **kwargs):
             "@onedal//cpp/oneapi/dal:core",
             "@onedal//cpp/oneapi/dal/io",
         ] + dal_deps,
-        gtest = False,
+        framework = "none",
         **kwargs,
     )
 
@@ -352,6 +359,18 @@ def _dal_module(name, lib_tag="dal", is_dpc=False, features=[],
         **kwargs,
     )
 
+def _add_module_if_condition(condition, name, is_dpc=False, **kwargs):
+    if condition:
+        _dal_module(name=name, is_dpc=is_dpc, **kwargs)
+    else:
+        _dal_module(name=name, is_dpc=is_dpc)
+
+def _add_test_suite_if_condition(condition, name, **kwargs):
+    if condition:
+        native.test_suite(name=name, **kwargs)
+    else:
+        native.test_suite(name=name, tests = [])
+
 def _select(x):
     return [x]
 
@@ -389,3 +408,30 @@ def _expand_select(deps):
         else:
             expanded += [dep]
     return expanded
+
+def _check_target_name(name, host, dpc, suffix="_dpc"):
+    if not (host or dpc):
+        fail("Target must specify at leat one of " +
+             "`host = True` or `dpc = True`")
+    if not host and dpc and not name.endswith(suffix):
+        fail("Target names that defined with `host = False` " +
+             "and `dpc = True` must end with `{}` suffix".format(suffix))
+
+def _get_dpc_target_name(name, host, dpc, suffix="_dpc"):
+    return name + (suffix if host else "")
+
+def _remove_dpc_suffix(name, suffix="_dpc"):
+    index = name.rfind(suffix)
+    if index > 0:
+        return name[:index + 1]
+    else:
+        return name
+
+def _check_test_target_name(name, host, dpc, suffix="_dpc_test"):
+    _check_target_name(name, host, dpc, suffix)
+
+def _get_dpc_test_target_name(name, host, dpc, suffix="_dpc_test"):
+    return _get_dpc_target_name(name, host, dpc, suffix)
+
+def _remove_dpc_test_suffix(name, suffix="_dpc_test"):
+    return _remove_dpc_suffix(name, suffix)

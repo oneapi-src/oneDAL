@@ -123,15 +123,16 @@ def cc_module(name, hdrs=[], deps=[], **kwargs):
     # Workaround restriction on possible extensions for cc_common.compile:
     # > The list of possible extensions for 'public_hdrs' is:
     #   .h,.hh,.hpp,.ipp,.hxx,.h++,.inc,.inl,.tlh,.tli,.H,.tcc
-    native.cc_library(
-        name = "__{}_headers__".format(name),
-        hdrs = hdrs,
-    )
+    if hdrs:
+        native.cc_library(
+            name = "__{}_headers__".format(name),
+            hdrs = hdrs,
+        )
     _cc_module(
         name = name,
-        deps = [
+        deps = deps + ([
             ":__{}_headers__".format(name),
-        ] + deps,
+        ] if hdrs else []),
         **kwargs,
     )
 

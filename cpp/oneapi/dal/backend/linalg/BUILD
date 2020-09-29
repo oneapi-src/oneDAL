@@ -14,19 +14,11 @@ dal_module(
 )
 
 dal_test_suite(
-    name = "cpu_test",
+    name = "tests",
     dpc = False,
-    gtest = False,
-    catch2 = True,
+    framework = "catch2",
     srcs = glob(["test/*.cpp"]),
     dal_deps = [
         ":linalg",
-    ],
-)
-
-dal_test_suite(
-    name = "tests",
-    tests = [
-        "cpu_test",
     ],
 )

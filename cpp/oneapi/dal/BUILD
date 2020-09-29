@@ -6,7 +6,7 @@ load("@onedal//dev/bazel:dal.bzl",
     "dal_static_lib",
     "dal_dynamic_lib",
     "dal_test_suite",
-    "dal_collect_tests",
+    "dal_collect_test_suites",
     "dal_generate_cpu_dispatcher",
 )
 
@@ -112,7 +112,7 @@ dal_test_suite(
     dal_deps = [ ":common" ],
 )
 
-dal_collect_tests(
+dal_collect_test_suites(
     name = "tests",
     root = "@onedal//cpp/oneapi/dal",
     modules = [

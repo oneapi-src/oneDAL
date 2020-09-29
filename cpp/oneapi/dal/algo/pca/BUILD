@@ -17,8 +17,7 @@ dal_module(
 
 dal_test_suite(
     name = "tests",
-    gtest = False,
-    catch2 = True,
+    framework = "catch2",
     srcs = glob([
         "test/train.cpp",
     ]),
