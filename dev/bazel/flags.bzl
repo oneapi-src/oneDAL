@@ -31,7 +31,6 @@ lnx_cc_pedantic_flags = [
     "-Werror=unknown-pragmas",
     "-Werror=return-type",
     "-Wno-unused-parameter",
-    "-Wno-unused-command-line-argument",
 ]
 
 lnx_cc_flags = {
@@ -49,6 +48,8 @@ def get_default_flags(arch_id, os_id, compiler_id, category="common"):
                 "-mGLOB_freestanding=TRUE",
                 "-mCG_no_libirc=TRUE",
             ]
+        if compiler_id == "dpcpp" and category == "pedantic":
+            flags = flags + ["-Wno-unused-command-line-argument"]
         return flags
     fail("Unsupported OS")
 
