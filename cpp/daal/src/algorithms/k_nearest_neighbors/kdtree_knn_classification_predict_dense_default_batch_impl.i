@@ -254,6 +254,7 @@ DAAL_FORCEINLINE const algorithmFpType * getNtData(const bool isHomogenSOA, size
     }
     else
     {
+        assert(false); // Temporary
         const_cast<NumericTable &>(data).getBlockOfColumnValues(feat_idx, irow, nrows, readOnly, xBD);
         return xBD.getBlockPtr();
     }
@@ -371,7 +372,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
 
     const auto maxThreads     = threader_get_threads_number();
     const size_t xColumnCount = x->getNumberOfColumns();
-    const auto rowsPerBlock   = 256;
+    const size_t rowsPerBlock = 256;
     const auto blockCount     = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
     SafeStatus safeStat;
 
@@ -467,6 +468,18 @@ DAAL_FORCEINLINE void computeDistance(size_t start, size_t end, algorithmFpType 
                                       const NumericTable & data, data_management::BlockDescriptor<algorithmFpType> xBD[2],
                                       services::internal::TArrayScalable<algorithmFpType *, cpu> & soa_arrays)
 {
+    const size_t xColumnCount = data.getNumberOfColumns();
+
+    for (size_t i = 0; i < xColumnCount; ++i)
+    {
+        const auto p = getNtData(isHomogenSOA, i, start, end - start, data, xBD[0], soa_arrays);
+        DAAL_PREFETCH_READ_T1(p);
+        DAAL_PREFETCH_READ_T1(p + 16);
+        DAAL_PREFETCH_READ_T1(p + 32);
+        DAAL_PREFETCH_READ_T1(p + 48);
+        releaseNtData<algorithmFpType, cpu>(isHomogenSOA, data, xBD[0]);
+    }
+
     for (size_t i = start; i < end; ++i)
     {
         distance[i - start] = 0;
@@ -474,8 +487,6 @@ DAAL_FORCEINLINE void computeDistance(size_t start, size_t end, algorithmFpType 
 
     size_t curBDIdx  = 0;
     size_t nextBDIdx = 1;
-
-    const size_t xColumnCount = data.getNumberOfColumns();
 
     const algorithmFpType * nx = nullptr;
     const algorithmFpType * dx = getNtData(isHomogenSOA, 0, start, end - start, data, xBD[curBDIdx], soa_arrays);
