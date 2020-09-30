@@ -34,6 +34,8 @@ namespace daal
 {
 namespace services
 {
+namespace internal
+{
 namespace interface1
 {
 /**
@@ -118,7 +120,7 @@ public:
      *  \param[out] status  Status of operation
      *  \return host-allocated shared pointer to the data
      */
-    inline SharedPtr<T> toHost(const data_management::ReadWriteMode & rwFlag, Status * status = NULL) const
+    SharedPtr<T> toHost(const data_management::ReadWriteMode & rwFlag, Status * status = NULL) const
     {
         if (!_impl)
         {
@@ -134,7 +136,7 @@ public:
      *  Converts buffer to the SYCL* buffer
      *  \return one-dimensional SYCL* buffer
      */
-    inline cl::sycl::buffer<T, 1> toSycl(Status * status = NULL) const
+    cl::sycl::buffer<T, 1> toSycl(Status * status = NULL) const
     {
         if (!_impl)
         {
@@ -151,7 +153,7 @@ public:
      *  \param[out] status Status of operation
      *  \return USM shared pointer
      */
-    inline SharedPtr<T> toUSM(Status * status = NULL) const
+    SharedPtr<T> toUSM(Status * status = NULL) const
     {
         if (!_impl)
         {
@@ -166,7 +168,7 @@ public:
     /**
      *   Returns the total number of elements in the buffer
      */
-    inline size_t size() const
+    size_t size() const
     {
         if (!_impl)
         {
@@ -178,7 +180,7 @@ public:
     /**
      *   Drops underlying reference to the data from the buffer and makes it empty
      */
-    inline void reset() { _impl.reset(); }
+    void reset() { _impl.reset(); }
 
     /**
      *  Creates Buffer object that points to the same memory as a parent but with offset
@@ -187,7 +189,7 @@ public:
      *  \param[out] status  Status of operation
      *  \return Buffer that contains only a part of the original buffer
      */
-    inline Buffer<T> getSubBuffer(size_t offset, size_t size, Status * status = NULL) const
+    Buffer<T> getSubBuffer(size_t offset, size_t size, Status * status = NULL) const
     {
         if (!_impl)
         {
@@ -209,6 +211,7 @@ private:
 
 using interface1::Buffer;
 
+} // namespace internal
 } // namespace services
 } // namespace daal
 

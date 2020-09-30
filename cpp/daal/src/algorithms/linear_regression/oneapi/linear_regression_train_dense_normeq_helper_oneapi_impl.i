@@ -42,15 +42,15 @@ namespace internal
 using namespace daal::services::internal::sycl;
 
 template <typename algorithmFPType>
-services::Status KernelHelperOneAPI<algorithmFPType>::computeBetasImpl(const size_t p, services::Buffer<algorithmFPType> & a, const size_t ny,
-                                                                       services::Buffer<algorithmFPType> & b, const bool inteceptFlag) const
+services::Status KernelHelperOneAPI<algorithmFPType>::computeBetasImpl(const size_t p, services::internal::Buffer<algorithmFPType> & a, const size_t ny,
+                                                                       services::internal::Buffer<algorithmFPType> & b, const bool inteceptFlag) const
 {
     return linear_model::normal_equations::training::internal::FinalizeKernelOneAPI<algorithmFPType>::solveSystem(p, a, ny, b);
 }
 
 template <typename algorithmFPType>
-services::Status KernelHelperOneAPI<algorithmFPType>::copyBetaToResult(const services::Buffer<algorithmFPType> & betaTmp,
-                                                                       services::Buffer<algorithmFPType> & betaRes, const size_t nBetas,
+services::Status KernelHelperOneAPI<algorithmFPType>::copyBetaToResult(const services::internal::Buffer<algorithmFPType> & betaTmp,
+                                                                       services::internal::Buffer<algorithmFPType> & betaRes, const size_t nBetas,
                                                                        const size_t nResponses, const bool interceptFlag) const
 {
     services::Status status;

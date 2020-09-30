@@ -63,8 +63,8 @@ struct HelperObjectiveFunction
     }
 
     // sigma = (y - sigma)
-    static services::Status subVectors(const services::Buffer<algorithmFPType> & x, const services::Buffer<algorithmFPType> & y,
-                                       services::Buffer<algorithmFPType> & result, const uint32_t n)
+    static services::Status subVectors(const services::internal::Buffer<algorithmFPType> & x, const services::internal::Buffer<algorithmFPType> & y,
+                                       services::internal::Buffer<algorithmFPType> & result, const uint32_t n)
     {
         services::Status status;
 
@@ -88,7 +88,7 @@ struct HelperObjectiveFunction
         return status;
     }
 
-    static services::Status setElem(const uint32_t index, const algorithmFPType element, services::Buffer<algorithmFPType> & buffer)
+    static services::Status setElem(const uint32_t index, const algorithmFPType element, services::internal::Buffer<algorithmFPType> & buffer)
     {
         services::Status status;
 
@@ -112,7 +112,7 @@ struct HelperObjectiveFunction
         return status;
     }
 
-    static services::Status setColElem(const uint32_t icol, const algorithmFPType element, services::Buffer<algorithmFPType> & buffer,
+    static services::Status setColElem(const uint32_t icol, const algorithmFPType element, services::internal::Buffer<algorithmFPType> & buffer,
                                        const uint32_t n, const uint32_t m)
     {
         services::Status status;
@@ -137,7 +137,7 @@ struct HelperObjectiveFunction
         return status;
     }
 
-    static services::Status transpose(const services::Buffer<algorithmFPType> & x, services::Buffer<algorithmFPType> & xt, const uint32_t n,
+    static services::Status transpose(const services::internal::Buffer<algorithmFPType> & x, services::internal::Buffer<algorithmFPType> & xt, const uint32_t n,
                                       const uint32_t p)
     {
         services::Status status;
@@ -163,7 +163,7 @@ struct HelperObjectiveFunction
         return services::Status();
     }
 
-    static services::Status sumReduction(const services::Buffer<algorithmFPType> & reductionBuffer, const size_t nWorkGroups,
+    static services::Status sumReduction(const services::internal::Buffer<algorithmFPType> & reductionBuffer, const size_t nWorkGroups,
                                          algorithmFPType & result)
     {
         auto sumReductionArrayPtr      = reductionBuffer.toHost(data_management::readOnly);
@@ -179,7 +179,7 @@ struct HelperObjectiveFunction
     }
 
     // l1*||beta|| + l2*||beta||**2
-    static services::Status regularization(const services::Buffer<algorithmFPType> & beta, const uint32_t nBeta, const uint32_t nClasses,
+    static services::Status regularization(const services::internal::Buffer<algorithmFPType> & beta, const uint32_t nBeta, const uint32_t nClasses,
                                            algorithmFPType & reg, const algorithmFPType l1, const algorithmFPType l2)
     {
         services::Status status;
@@ -217,7 +217,7 @@ struct HelperObjectiveFunction
         DAAL_CHECK_STATUS_VAR(status);
 
         services::internal::sycl::UniversalBuffer buffer          = ctx.allocate(idType, nWorkGroups, &status);
-        services::Buffer<algorithmFPType> reductionBuffer = buffer.get<algorithmFPType>();
+        services::internal::Buffer<algorithmFPType> reductionBuffer = buffer.get<algorithmFPType>();
 
         services::internal::sycl::KernelArguments args(6 /*7*/);
         args.set(0, beta, services::internal::sycl::AccessModeIds::read);
@@ -236,7 +236,7 @@ struct HelperObjectiveFunction
     }
 
     // s1 + s2 + .. + sn
-    static services::Status sum(const services::Buffer<algorithmFPType> & x, algorithmFPType & result, const uint32_t n)
+    static services::Status sum(const services::internal::Buffer<algorithmFPType> & x, algorithmFPType & result, const uint32_t n)
     {
         services::Status status;
         const services::internal::sycl::TypeIds::Id idType = services::internal::sycl::TypeIds::id<algorithmFPType>();
@@ -271,7 +271,7 @@ struct HelperObjectiveFunction
         DAAL_CHECK_STATUS_VAR(status);
 
         services::internal::sycl::UniversalBuffer buffer          = ctx.allocate(idType, nWorkGroups, &status);
-        services::Buffer<algorithmFPType> reductionBuffer = buffer.get<algorithmFPType>();
+        services::internal::Buffer<algorithmFPType> reductionBuffer = buffer.get<algorithmFPType>();
 
         services::internal::sycl::KernelArguments args(3 /*4*/);
         args.set(0, x, services::internal::sycl::AccessModeIds::read);
@@ -289,7 +289,7 @@ struct HelperObjectiveFunction
 
     // x = x + alpha
     // Where x - vector; alpha - scalar
-    static services::Status addVectorScalar(services::Buffer<algorithmFPType> & x, const algorithmFPType alpha, const uint32_t n)
+    static services::Status addVectorScalar(services::internal::Buffer<algorithmFPType> & x, const algorithmFPType alpha, const uint32_t n)
     {
         services::Status status;
 
@@ -314,7 +314,7 @@ struct HelperObjectiveFunction
 
     // x = x + y[id]
     // Where x - vector; y - vector, id - index
-    static services::Status addVectorScalar(services::Buffer<algorithmFPType> & x, const services::Buffer<algorithmFPType> & y, const uint32_t id,
+    static services::Status addVectorScalar(services::internal::Buffer<algorithmFPType> & x, const services::internal::Buffer<algorithmFPType> & y, const uint32_t id,
                                             const uint32_t n)
     {
         services::Status status;
@@ -339,8 +339,8 @@ struct HelperObjectiveFunction
         return status;
     }
 
-    static services::Status getXY(const services::Buffer<algorithmFPType> & xBuff, const services::Buffer<algorithmFPType> & yBuff,
-                                  const services::Buffer<int> & indBuff, services::Buffer<algorithmFPType> aX, services::Buffer<algorithmFPType> aY,
+    static services::Status getXY(const services::internal::Buffer<algorithmFPType> & xBuff, const services::internal::Buffer<algorithmFPType> & yBuff,
+                                  const services::internal::Buffer<int> & indBuff, services::internal::Buffer<algorithmFPType> aX, services::internal::Buffer<algorithmFPType> aY,
                                   uint32_t nBatch, uint32_t p, bool interceptFlag)
     {
         services::Status status;

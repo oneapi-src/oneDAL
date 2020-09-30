@@ -95,7 +95,7 @@ public:
 protected:
     services::Status alloc(size_t nCols, size_t nRows);
 
-    services::Status extractColumn(const services::Buffer<algorithmFPType> & data, services::internal::sycl::UniversalBuffer & values,
+    services::Status extractColumn(const services::internal::Buffer<algorithmFPType> & data, services::internal::sycl::UniversalBuffer & values,
                                    services::internal::sycl::UniversalBuffer & indices, int featureId, int nFeatures, int nRows);
 
     services::Status radixScan(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & partialHists, int nRows, int bitOffset,
@@ -122,7 +122,7 @@ protected:
                                  services::internal::sycl::UniversalBuffer & bins, FeatureEntry & entry, int nRows,
                                  const dtrees::internal::BinParams * pBinPrm);
 
-    services::Status makeIndex(const services::Buffer<algorithmFPType> & data, int featureId, int nFeatures, int nRows,
+    services::Status makeIndex(const services::internal::Buffer<algorithmFPType> & data, int featureId, int nFeatures, int nRows,
                                const dtrees::internal::BinParams * pBinPrm, services::internal::sycl::UniversalBuffer & bins, FeatureEntry & entry);
 
     services::Status storeColumn(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & fullData, int featureId,

@@ -58,14 +58,14 @@ public:
     services::Status buildProgram(services::internal::sycl::ClKernelFactoryIface & factory, const char * programName, const char * programSrc);
     services::Status compute(services::HostAppIface * const pHostApp, const data_management::NumericTable * a,
                              const decision_forest::regression::Model * const m, data_management::NumericTable * const r);
-    services::Status predictByAllTrees(const services::Buffer<algorithmFPType> & srcBuffer, const decision_forest::regression::Model * const m,
-                                       services::Buffer<algorithmFPType> & resObsResponse, size_t nRows, size_t nCols);
-    services::Status predictByTreesGroup(const services::Buffer<algorithmFPType> & srcBuffer,
+    services::Status predictByAllTrees(const services::internal::Buffer<algorithmFPType> & srcBuffer, const decision_forest::regression::Model * const m,
+                                       services::internal::Buffer<algorithmFPType> & resObsResponse, size_t nRows, size_t nCols);
+    services::Status predictByTreesGroup(const services::internal::Buffer<algorithmFPType> & srcBuffer,
                                          const services::internal::sycl::UniversalBuffer & featureIndexList,
                                          const services::internal::sycl::UniversalBuffer & leftOrClassTypeList,
                                          const services::internal::sycl::UniversalBuffer & featureValueList, services::internal::sycl::UniversalBuffer & obsResponses,
                                          size_t nRows, size_t nCols, size_t nTrees, size_t maxTreeSize);
-    services::Status reduceResponse(const services::internal::sycl::UniversalBuffer & obsResponses, services::Buffer<algorithmFPType> & resObsResponse,
+    services::Status reduceResponse(const services::internal::sycl::UniversalBuffer & obsResponses, services::internal::Buffer<algorithmFPType> & resObsResponse,
                                     size_t nRows, size_t nTrees, algorithmFPType scale);
 
 private:

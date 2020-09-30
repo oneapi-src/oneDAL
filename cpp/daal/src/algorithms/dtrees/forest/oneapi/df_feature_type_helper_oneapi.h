@@ -97,7 +97,7 @@ public:
 protected:
     services::Status alloc(size_t nCols, size_t nRows);
 
-    services::Status extractColumn(const services::Buffer<algorithmFPType> & data, services::internal::sycl::UniversalBuffer & values,
+    services::Status extractColumn(const services::internal::Buffer<algorithmFPType> & data, services::internal::sycl::UniversalBuffer & values,
                                    services::internal::sycl::UniversalBuffer & indices, int32_t featureId, int32_t nFeatures, int32_t nRows);
 
     services::Status collectBinBorders(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & binOffsets,
@@ -111,7 +111,7 @@ protected:
                                  services::internal::sycl::UniversalBuffer & bins, FeatureEntry & entry, int32_t nRows,
                                  const dtrees::internal::BinParams * pBinPrm);
 
-    services::Status makeIndex(const services::Buffer<algorithmFPType> & data, int32_t featureId, int32_t nFeatures, int32_t nRows,
+    services::Status makeIndex(const services::internal::Buffer<algorithmFPType> & data, int32_t featureId, int32_t nFeatures, int32_t nRows,
                                const dtrees::internal::BinParams * pBinPrm, services::internal::sycl::UniversalBuffer & bins, FeatureEntry & entry);
 
     services::Status storeColumn(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & fullData, int32_t featureId,

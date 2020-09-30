@@ -172,7 +172,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
 template <typename algorithmFPType>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::computeBestSplitSinglePass(
     const UniversalBuffer & data, UniversalBuffer & treeOrder, UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
-    const services::Buffer<algorithmFPType> & response, UniversalBuffer & binOffsets, UniversalBuffer & nodeList, UniversalBuffer & nodeIndices,
+    const services::internal::Buffer<algorithmFPType> & response, UniversalBuffer & binOffsets, UniversalBuffer & nodeList, UniversalBuffer & nodeIndices,
     size_t nodeIndicesOffset, UniversalBuffer & impList, UniversalBuffer & nodeImpDecreaseList, bool updateImpDecreaseRequired, size_t nFeatures,
     size_t nNodes, size_t minObservationsInLeafNode, algorithmFPType impurityThreshold)
 {
@@ -230,7 +230,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
 template <typename algorithmFPType>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::computeBestSplit(
     const UniversalBuffer & data, UniversalBuffer & treeOrder, UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
-    const services::Buffer<algorithmFPType> & response, UniversalBuffer & nodeList, UniversalBuffer & binOffsets, UniversalBuffer & impList,
+    const services::internal::Buffer<algorithmFPType> & response, UniversalBuffer & nodeList, UniversalBuffer & binOffsets, UniversalBuffer & impList,
     UniversalBuffer & nodeImpDecreaseList, bool updateImpDecreaseRequired, size_t nFeatures, size_t nNodes, size_t minObservationsInLeafNode,
     algorithmFPType impurityThreshold)
 {
@@ -303,7 +303,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
 template <typename algorithmFPType>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::computePartialHistograms(
     const UniversalBuffer & data, UniversalBuffer & treeOrder, UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
-    const services::Buffer<algorithmFPType> & response, UniversalBuffer & nodeList, UniversalBuffer & nodeIndices, size_t nodeIndicesOffset,
+    const services::internal::Buffer<algorithmFPType> & response, UniversalBuffer & nodeList, UniversalBuffer & nodeIndices, size_t nodeIndicesOffset,
     UniversalBuffer & binOffsets, size_t nMaxBinsAmongFtrs, size_t nFeatures, size_t nNodes, UniversalBuffer & partialHistograms,
     size_t nPartialHistograms)
 {

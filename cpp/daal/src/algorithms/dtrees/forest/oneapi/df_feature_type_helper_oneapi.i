@@ -136,7 +136,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::alloc(size_t nC, size_t
 }
 
 template <typename algorithmFPType>
-services::Status IndexedFeaturesOneAPI<algorithmFPType>::extractColumn(const services::Buffer<algorithmFPType> & data, UniversalBuffer & values,
+services::Status IndexedFeaturesOneAPI<algorithmFPType>::extractColumn(const services::internal::Buffer<algorithmFPType> & data, UniversalBuffer & values,
                                                                        UniversalBuffer & indices, int32_t featureId, int32_t nFeatures, int32_t nRows)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(indexedFeatures.extractColumn);
@@ -288,7 +288,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
 }
 
 template <typename algorithmFPType>
-services::Status IndexedFeaturesOneAPI<algorithmFPType>::makeIndex(const services::Buffer<algorithmFPType> & data, int32_t featureId,
+services::Status IndexedFeaturesOneAPI<algorithmFPType>::makeIndex(const services::internal::Buffer<algorithmFPType> & data, int32_t featureId,
                                                                    int32_t nFeatures, int32_t nRows, const dtrees::internal::BinParams * pBinPrm,
                                                                    UniversalBuffer & bins, FeatureEntry & entry)
 {

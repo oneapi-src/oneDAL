@@ -417,7 +417,7 @@ private:
     template <typename T>
     void handlePublicBuffer()
     {
-        auto buffer = _argument.get<services::Buffer<T> >().toSycl();
+        auto buffer = _argument.get<services::internal::Buffer<T> >().toSycl();
 
         // Note: we need this storage to keep all sycl buffers alive
         // while the kernel is running

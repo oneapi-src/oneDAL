@@ -254,8 +254,8 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::scatterSumOfSquares
 }
 
 template <typename algorithmFpType>
-Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeDistances(ExecutionContextIface & context, const Buffer<algorithmFpType> & data,
-                                                                              const Buffer<algorithmFpType> & query, UniversalBuffer & distances,
+Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeDistances(ExecutionContextIface & context, const services::internal::Buffer<algorithmFpType> & data,
+                                                                              const services::internal::Buffer<algorithmFpType> & query, UniversalBuffer & distances,
                                                                               uint32_t dataBlockRowCount, uint32_t queryBlockRowCount,
                                                                               uint32_t nFeatures)
 {

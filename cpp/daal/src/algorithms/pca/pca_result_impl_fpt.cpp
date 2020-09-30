@@ -22,7 +22,7 @@
 */
 
 #include "src/algorithms/pca/pca_result_impl.h"
-#include "data_management/data/numeric_table_sycl_homogen.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 
 namespace daal
 {
@@ -83,7 +83,7 @@ services::Status ResultImpl::allocate(size_t nFeatures, size_t nComponents, DAAL
     }
     else
     {
-        return __allocate__impl<algorithmFPType, data_management::SyclHomogenNumericTable<algorithmFPType> >(nFeatures, nComponents,
+        return __allocate__impl<algorithmFPType, data_management::internal::SyclHomogenNumericTable<algorithmFPType> >(nFeatures, nComponents,
                                                                                                              resultsToCompute);
     }
     return services::Status();

@@ -73,7 +73,7 @@ static void __buildProgram(ClKernelFactoryIface & factory)
 }
 
 template <typename algorithmFPType, gbt::regression::training::Method method>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::scan(const services::Buffer<algorithmFPType> & values,
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::scan(const services::internal::Buffer<algorithmFPType> & values,
                                                                                  UniversalBuffer & partialSums, int nRows, int localSize,
                                                                                  int nLocalSums)
 {

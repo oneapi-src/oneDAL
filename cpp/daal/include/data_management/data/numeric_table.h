@@ -104,15 +104,16 @@ public:
         }
     }
 
+#ifdef DAAL_INTERNAL_INTERFACE
     /**
      *  Gets a Buffer object to the data block
      *  \return Buffer to the block
      */
-    inline daal::services::Buffer<DataType> getBuffer() const
+    inline daal::services::internal::Buffer<DataType> getBuffer() const
     {
         if (_rawPtr)
         {
-            return daal::services::Buffer<DataType>((DataType *)_rawPtr, _ncols * _nrows);
+            return daal::services::internal::Buffer<DataType>((DataType *)_rawPtr, _ncols * _nrows);
         }
         else if (_xBuffer)
         {
@@ -120,9 +121,10 @@ public:
         }
         else
         {
-            return daal::services::Buffer<DataType>(_ptr, _ncols * _nrows);
+            return daal::services::internal::Buffer<DataType>(_ptr, _ncols * _nrows);
         }
     }
+#endif
 
     /**
      *  Returns the number of columns in the block
@@ -181,13 +183,14 @@ public:
         _nrows  = nRows;
     }
 
+#ifdef DAAL_INTERNAL_INTERFACE
     /**
      *  Sets data buffer to the table
      *  \param[in] buffer Buffer object that contains the memory
      *  \param[in] nColumns Number of columns
      *  \param[in] nRows Number of rows
      */
-    inline void setBuffer(const daal::services::Buffer<DataType> & buffer, size_t nColumns, size_t nRows)
+    inline void setBuffer(const daal::services::internal::Buffer<DataType> & buffer, size_t nColumns, size_t nRows)
     {
         _xBuffer = buffer;
         _hostSharedPtr.reset();
@@ -196,6 +199,7 @@ public:
         _ncols  = nColumns;
         _nrows  = nRows;
     }
+#endif
 
     /**
      *  Allocates memory of (\p nColumns * \p nRows + \p auxMemorySize) size
@@ -329,7 +333,7 @@ private:
     services::SharedPtr<byte> * _pPtr;
     byte * _rawPtr;
 
-    daal::services::Buffer<DataType> _xBuffer;
+    daal::services::internal::Buffer<DataType> _xBuffer;
     mutable services::SharedPtr<DataType> _hostSharedPtr; // owns pointer returned from getBlockPtr() method
 };
 

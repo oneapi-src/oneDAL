@@ -35,10 +35,10 @@ namespace interface1
 template <typename algorithmFPType>
 services::Status ReferenceGemm<algorithmFPType>::operator()(const Transpose transa, const Transpose transb, const size_t m, const size_t n,
                                                             const size_t k, const algorithmFPType alpha,
-                                                            const services::Buffer<algorithmFPType> & a_buffer, const size_t lda,
-                                                            const size_t offsetA, const services::Buffer<algorithmFPType> & b_buffer,
+                                                            const services::internal::Buffer<algorithmFPType> & a_buffer, const size_t lda,
+                                                            const size_t offsetA, const services::internal::Buffer<algorithmFPType> & b_buffer,
                                                             const size_t ldb, const size_t offsetB, const algorithmFPType beta,
-                                                            services::Buffer<algorithmFPType> & c_buffer, const size_t ldc, const size_t offsetC)
+                                                            services::internal::Buffer<algorithmFPType> & c_buffer, const size_t ldc, const size_t offsetC)
 {
     services::Status status;
 
@@ -110,8 +110,8 @@ template class ReferenceGemm<float>;
 template class ReferenceGemm<double>;
 
 template <typename algorithmFPType>
-services::Status ReferenceAxpy<algorithmFPType>::operator()(const int n, const algorithmFPType a, const services::Buffer<algorithmFPType> & x_buffer,
-                                                            const int incx, services::Buffer<algorithmFPType> & y_buffer, const int incy)
+services::Status ReferenceAxpy<algorithmFPType>::operator()(const int n, const algorithmFPType a, const services::internal::Buffer<algorithmFPType> & x_buffer,
+                                                            const int incx, services::internal::Buffer<algorithmFPType> & y_buffer, const int incy)
 {
     services::Status status;
 

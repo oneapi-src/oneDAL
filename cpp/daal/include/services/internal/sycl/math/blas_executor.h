@@ -221,7 +221,7 @@ class AxpyExecutor
 {
 private:
     template <typename algorithmFPType>
-    static bool checkSize(const int n, const services::Buffer<algorithmFPType> & buffer, const int inc)
+    static bool checkSize(const int n, const services::internal::Buffer<algorithmFPType> & buffer, const int inc)
     {
         if ((n - 1) * inc >= static_cast<int>(buffer.size())) return true;
         return false;

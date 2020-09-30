@@ -60,16 +60,16 @@ public:
     services::Status compute(services::HostAppIface * const pHostApp, const data_management::NumericTable * a,
                              const decision_forest::classification::Model * const m, data_management::NumericTable * const r,
                              data_management::NumericTable * const prob, const size_t nClasses, const VotingMethod votingMethod);
-    services::Status predictByAllTrees(const services::Buffer<algorithmFPType> & srcBuffer, const decision_forest::classification::Model * const m,
+    services::Status predictByAllTrees(const services::internal::Buffer<algorithmFPType> & srcBuffer, const decision_forest::classification::Model * const m,
                                        services::internal::sycl::UniversalBuffer & classHist, size_t nRows, size_t nCols);
 
-    services::Status predictByTreesWeighted(const services::Buffer<algorithmFPType> & srcBuffer,
+    services::Status predictByTreesWeighted(const services::internal::Buffer<algorithmFPType> & srcBuffer,
                                             const services::internal::sycl::UniversalBuffer & featureIndexList,
                                             const services::internal::sycl::UniversalBuffer & leftOrClassTypeList,
                                             const services::internal::sycl::UniversalBuffer & featureValueList,
                                             const services::internal::sycl::UniversalBuffer & classProba, services::internal::sycl::UniversalBuffer & obsClassHist,
                                             algorithmFPType scale, size_t nRows, size_t nCols, size_t nTrees, size_t maxTreeSize);
-    services::Status predictByTreesUnweighted(const services::Buffer<algorithmFPType> & srcBuffer,
+    services::Status predictByTreesUnweighted(const services::internal::Buffer<algorithmFPType> & srcBuffer,
                                               const services::internal::sycl::UniversalBuffer & featureIndexList,
                                               const services::internal::sycl::UniversalBuffer & leftOrClassTypeList,
                                               const services::internal::sycl::UniversalBuffer & featureValueList,
@@ -78,7 +78,7 @@ public:
 
     services::Status reduceClassHist(const services::internal::sycl::UniversalBuffer & obsClassHist, services::internal::sycl::UniversalBuffer & classHist,
                                      size_t nRows, size_t nTrees);
-    services::Status determineWinners(const services::internal::sycl::UniversalBuffer & classHist, services::Buffer<algorithmFPType> & resBuffer,
+    services::Status determineWinners(const services::internal::sycl::UniversalBuffer & classHist, services::internal::Buffer<algorithmFPType> & resBuffer,
                                       size_t nRows);
 
 private:

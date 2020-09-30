@@ -211,10 +211,10 @@ Status KMeansDistributedStep2KernelUCAPI<algorithmFPType>::finalizeCompute(size_
 }
 
 template <typename algorithmFPType>
-void KMeansDistributedStep2KernelUCAPI<algorithmFPType>::updateClusters(bool init, const Buffer<int> & partialCentroidsCounters,
-                                                                        const Buffer<algorithmFPType> & partialCentroids,
-                                                                        const Buffer<int> & centroidCounters,
-                                                                        const Buffer<algorithmFPType> & centroids, uint32_t nClusters,
+void KMeansDistributedStep2KernelUCAPI<algorithmFPType>::updateClusters(bool init, const services::internal::Buffer<int> & partialCentroidsCounters,
+                                                                        const services::internal::Buffer<algorithmFPType> & partialCentroids,
+                                                                        const services::internal::Buffer<int> & centroidCounters,
+                                                                        const services::internal::Buffer<algorithmFPType> & centroids, uint32_t nClusters,
                                                                         uint32_t nFeatures, Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.mergeReduceCentroids);
@@ -247,9 +247,9 @@ void KMeansDistributedStep2KernelUCAPI<algorithmFPType>::updateClusters(bool ini
 }
 
 template <typename algorithmFPType>
-void KMeansDistributedStep2KernelUCAPI<algorithmFPType>::updateCandidates(bool init, const Buffer<int> & partialCandidates,
-                                                                          const Buffer<algorithmFPType> & partialCValues,
-                                                                          const Buffer<int> & candidates, const Buffer<algorithmFPType> & cValues,
+void KMeansDistributedStep2KernelUCAPI<algorithmFPType>::updateCandidates(bool init, const services::internal::Buffer<int> & partialCandidates,
+                                                                          const services::internal::Buffer<algorithmFPType> & partialCValues,
+                                                                          const services::internal::Buffer<int> & candidates, const services::internal::Buffer<algorithmFPType> & cValues,
                                                                           uint32_t nClusters, Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.mergeReduceCentroids);

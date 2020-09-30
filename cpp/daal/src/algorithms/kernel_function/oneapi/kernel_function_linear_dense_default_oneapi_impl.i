@@ -90,10 +90,10 @@ services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeI
 
         DAAL_CHECK_STATUS(status, result->getBlockOfRows(0, nMatLeft, ReadWriteMode::writeOnly, resultBlock));
 
-        const services::Buffer<algorithmFPType> matLeftBuff  = matLeftBlock.getBuffer();
-        const services::Buffer<algorithmFPType> matRightBuff = matRightBlock.getBuffer();
+        const services::internal::Buffer<algorithmFPType> matLeftBuff  = matLeftBlock.getBuffer();
+        const services::internal::Buffer<algorithmFPType> matRightBuff = matRightBlock.getBuffer();
 
-        services::Buffer<algorithmFPType> resultBuff = resultBlock.getBuffer();
+        services::internal::Buffer<algorithmFPType> resultBuff = resultBlock.getBuffer();
 
         if (beta != 0.0)
         {

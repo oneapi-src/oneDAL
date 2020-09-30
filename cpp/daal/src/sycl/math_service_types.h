@@ -43,7 +43,7 @@ static algorithmFPType expThreshold()
 }
 
 template <typename algorithmFPType>
-static services::Status vLog(const services::Buffer<algorithmFPType> & x, services::Buffer<algorithmFPType> & result, const uint32_t n)
+static services::Status vLog(const services::internal::Buffer<algorithmFPType> & x, services::internal::Buffer<algorithmFPType> & result, const uint32_t n)
 {
     services::Status status;
 

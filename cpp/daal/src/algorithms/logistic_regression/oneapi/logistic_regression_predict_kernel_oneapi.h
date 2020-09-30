@@ -56,9 +56,9 @@ public:
     services::Status compute(services::HostAppIface * pHost, NumericTable * x, const logistic_regression::Model * m, size_t nClasses,
                              NumericTable * pRes, NumericTable * pProbab, NumericTable * pLogProbab);
 
-    static services::Status heaviside(const services::Buffer<algorithmFPType> & x, services::Buffer<algorithmFPType> & result, const uint32_t n);
+    static services::Status heaviside(const services::internal::Buffer<algorithmFPType> & x, services::internal::Buffer<algorithmFPType> & result, const uint32_t n);
 
-    static services::Status argMax(const services::Buffer<algorithmFPType> & x, services::Buffer<algorithmFPType> & result, const uint32_t n,
+    static services::Status argMax(const services::internal::Buffer<algorithmFPType> & x, services::internal::Buffer<algorithmFPType> & result, const uint32_t n,
                                    const uint32_t p);
 
 private:

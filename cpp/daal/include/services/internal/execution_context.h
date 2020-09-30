@@ -25,6 +25,8 @@ namespace daal
 {
 namespace services
 {
+namespace internal
+{
 namespace interface1
 {
 /**
@@ -76,6 +78,7 @@ public:
 using interface1::ExecutionContext;
 using interface1::CpuExecutionContext;
 
+} // namespace internal
 } // namespace services
 } // namespace daal
 
@@ -85,6 +88,8 @@ using interface1::CpuExecutionContext;
 namespace daal
 {
 namespace services
+{
+namespace internal
 {
 namespace interface1
 {
@@ -131,6 +136,7 @@ private:
 
 using interface1::SyclExecutionContext;
 
+} // namespace internal
 } // namespace services
 } // namespace daal
 #endif // DAAL_SYCL_INTERFACE

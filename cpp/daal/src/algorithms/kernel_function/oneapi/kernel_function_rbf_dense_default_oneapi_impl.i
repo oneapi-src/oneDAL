@@ -77,7 +77,7 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::lazyAllocat
 template <typename algorithmFPType>
 services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeRBF(const UniversalBuffer & sqrMatLeft,
                                                                                 const UniversalBuffer & sqrMatRight, const uint32_t ld,
-                                                                                const algorithmFPType coeff, services::Buffer<algorithmFPType> & rbf,
+                                                                                const algorithmFPType coeff, services::internal::Buffer<algorithmFPType> & rbf,
                                                                                 const size_t n, const size_t m)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.computeRBF);
@@ -149,10 +149,10 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInte
 
     DAAL_CHECK_STATUS(status, result->getBlockOfRows(0, nMatLeft, ReadWriteMode::writeOnly, resultBlock));
 
-    const services::Buffer<algorithmFPType> matLeftBuf  = matLeftBlock.getBuffer();
-    const services::Buffer<algorithmFPType> matRightBuf = matRightBlock.getBuffer();
+    const services::internal::Buffer<algorithmFPType> matLeftBuf  = matLeftBlock.getBuffer();
+    const services::internal::Buffer<algorithmFPType> matRightBuf = matRightBlock.getBuffer();
 
-    services::Buffer<algorithmFPType> rBuf = resultBlock.getBuffer();
+    services::internal::Buffer<algorithmFPType> rBuf = resultBlock.getBuffer();
 
     DAAL_CHECK_STATUS(status, lazyAllocate(_sqrMatLeft, nMatLeft));
     DAAL_CHECK_STATUS(status, lazyAllocate(_sqrMatRight, nMatRight));

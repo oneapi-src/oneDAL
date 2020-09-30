@@ -54,10 +54,10 @@ public:
 private:
     services::Status calculateVariances(services::internal::sycl::ExecutionContextIface & context,
                                         const services::internal::sycl::KernelPtr & calculateVariancesKernel, data_management::NumericTable & covariance,
-                                        const services::Buffer<algorithmFPType> & variances);
+                                        const services::internal::Buffer<algorithmFPType> & variances);
 
     services::Status correlationFromCovarianceTable(uint32_t nObservations, data_management::NumericTable & covariance,
-                                                    const services::Buffer<algorithmFPType> & variances);
+                                                    const services::internal::Buffer<algorithmFPType> & variances);
 
 private:
     PCACorrelationBaseIfacePtr _host_impl;

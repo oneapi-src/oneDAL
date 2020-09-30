@@ -93,7 +93,7 @@ class BufferConverterTo
 public:
     BufferConverterTo(const UniversalBuffer & src, size_t offset, size_t size) : _src(src), _offset(offset), _size(size) {}
 
-    services::Buffer<DataType> getResult(services::Status & st)
+    services::internal::Buffer<DataType> getResult(services::Status & st)
     {
         st = _st;
         return _dest;
@@ -144,7 +144,7 @@ private:
     size_t _offset;
     size_t _size;
 
-    services::Buffer<DataType> _dest;
+    services::internal::Buffer<DataType> _dest;
 };
 
 /**

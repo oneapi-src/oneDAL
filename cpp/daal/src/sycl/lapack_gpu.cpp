@@ -36,7 +36,7 @@ namespace interface1
 using namespace daal::internal;
 
 template <typename algorithmFPType>
-services::Status ReferencePotrf<algorithmFPType>::operator()(const math::UpLo uplo, const size_t n, services::Buffer<algorithmFPType> & a_buffer,
+services::Status ReferencePotrf<algorithmFPType>::operator()(const math::UpLo uplo, const size_t n, services::internal::Buffer<algorithmFPType> & a_buffer,
                                                              const size_t lda)
 {
     services::Status status;
@@ -58,8 +58,8 @@ services::Status ReferencePotrf<algorithmFPType>::operator()(const math::UpLo up
 
 template <typename algorithmFPType>
 services::Status ReferencePotrs<algorithmFPType>::operator()(const math::UpLo uplo, const size_t n, const size_t ny,
-                                                             services::Buffer<algorithmFPType> & a_buffer, const size_t lda,
-                                                             services::Buffer<algorithmFPType> & b_buffer, const size_t ldb)
+                                                             services::internal::Buffer<algorithmFPType> & a_buffer, const size_t lda,
+                                                             services::internal::Buffer<algorithmFPType> & b_buffer, const size_t ldb)
 {
     services::Status status;
 

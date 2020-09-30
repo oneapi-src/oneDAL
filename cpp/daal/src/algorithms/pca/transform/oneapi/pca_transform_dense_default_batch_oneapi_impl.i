@@ -50,8 +50,8 @@ using namespace daal::services::internal::sycl;
 template <typename algorithmFPType, transform::Method method>
 void TransformKernelOneAPI<algorithmFPType, method>::computeTransformedBlock(const uint32_t numRows, const uint32_t numFeatures,
                                                                              const uint32_t numComponents, UniversalBuffer & dataBlock,
-                                                                             const services::Buffer<algorithmFPType> & eigenvectors,
-                                                                             const services::Buffer<algorithmFPType> & resultBlock)
+                                                                             const services::internal::Buffer<algorithmFPType> & eigenvectors,
+                                                                             const services::internal::Buffer<algorithmFPType> & resultBlock)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(pca.transform.compute.gemm);
     BlasGpu<algorithmFPType>::xgemm(math::Layout::ColMajor, math::Transpose::Trans, math::Transpose::NoTrans, numComponents, numRows, numFeatures,
@@ -60,7 +60,7 @@ void TransformKernelOneAPI<algorithmFPType, method>::computeTransformedBlock(con
 
 template <typename algorithmFPType, transform::Method method>
 services::Status TransformKernelOneAPI<algorithmFPType, method>::computeInvSigmas(ExecutionContextIface & ctx, NumericTable * variances,
-                                                                                  const services::Buffer<algorithmFPType> & invSigmas,
+                                                                                  const services::internal::Buffer<algorithmFPType> & invSigmas,
                                                                                   const uint32_t numFeatures)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(pca.transform.compute.computeInvSigmas);
@@ -122,7 +122,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::normalize(Execu
 
 template <typename algorithmFPType, transform::Method method>
 services::Status TransformKernelOneAPI<algorithmFPType, method>::whitening(ExecutionContextIface & ctx,
-                                                                           const services::Buffer<algorithmFPType> & transformedBlock,
+                                                                           const services::internal::Buffer<algorithmFPType> & transformedBlock,
                                                                            UniversalBuffer & invEigenvalues, const uint32_t numComponents,
                                                                            const uint32_t numVectors)
 {

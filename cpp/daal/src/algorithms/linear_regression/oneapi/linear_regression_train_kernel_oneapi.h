@@ -49,9 +49,9 @@ template <typename algorithmFPType>
 class KernelHelperOneAPI : public linear_model::normal_equations::training::internal::KernelHelperOneAPIIface<algorithmFPType>
 {
 public:
-    services::Status computeBetasImpl(const size_t p, services::Buffer<algorithmFPType> & a, const size_t ny, services::Buffer<algorithmFPType> & b,
+    services::Status computeBetasImpl(const size_t p, services::internal::Buffer<algorithmFPType> & a, const size_t ny, services::internal::Buffer<algorithmFPType> & b,
                                       const bool inteceptFlag) const;
-    services::Status copyBetaToResult(const services::Buffer<algorithmFPType> & betaTmp, services::Buffer<algorithmFPType> & betaRes,
+    services::Status copyBetaToResult(const services::internal::Buffer<algorithmFPType> & betaTmp, services::internal::Buffer<algorithmFPType> & betaRes,
                                       const size_t nBetas, const size_t nResponses, const bool interceptFlag) const;
 };
 

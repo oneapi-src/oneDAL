@@ -501,7 +501,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::partitionCopy(Univ
 template <typename algorithmFPType>
 services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::updateMDIVarImportance(const UniversalBuffer & nodeList,
                                                                                      const UniversalBuffer & nodeImpDecreaseList, size_t nNodes,
-                                                                                     services::Buffer<algorithmFPType> & varImp, size_t nFeatures)
+                                                                                     services::internal::Buffer<algorithmFPType> & varImp, size_t nFeatures)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateMDIVarImportance);
 

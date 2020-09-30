@@ -51,7 +51,7 @@ private:
         template <typename T>
         void operator()(Typelist<T>)
         {
-            buffer = services::Buffer<T>(cl::sycl::buffer<T, 1>(bufferSize));
+            buffer = services::internal::Buffer<T>(cl::sycl::buffer<T, 1>(bufferSize));
         }
     };
 

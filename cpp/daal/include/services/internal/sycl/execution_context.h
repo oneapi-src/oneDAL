@@ -157,7 +157,7 @@ public:
     }
 
     template <typename T>
-    void set(const daal::services::Buffer<T> & buffer, AccessModeId accessMode = AccessModeIds::read)
+    void set(const daal::services::internal::Buffer<T> & buffer, AccessModeId accessMode = AccessModeIds::read)
     {
         _dataType   = TypeIds::id<T>();
         _value      = buffer;
@@ -221,7 +221,7 @@ public:
     }
 
     template <typename T>
-    void set(size_t index, const services::Buffer<T> & buffer, AccessModeId accessMode = AccessModeIds::read)
+    void set(size_t index, const services::internal::Buffer<T> & buffer, AccessModeId accessMode = AccessModeIds::read)
     {
         DAAL_ASSERT(index < _size);
         _args[index].set(buffer, accessMode);

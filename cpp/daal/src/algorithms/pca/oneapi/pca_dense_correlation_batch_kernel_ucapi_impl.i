@@ -29,7 +29,7 @@ DAAL_ITTNOTIFY_DOMAIN(pca.dense.correlation.batch.oneapi);
 
 #include "services/env_detect.h"
 #include "src/algorithms/pca/oneapi/cl_kernels/pca_cl_kernels.cl"
-#include "data_management/data/numeric_table_sycl_homogen.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 #include "src/sycl/blas_gpu.h"
 #include "src/sycl/reducer.h"
 #include "src/algorithms/covariance/oneapi/covariance_oneapi_impl.i"
@@ -185,7 +185,7 @@ Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::compute(bool isCorrelati
 
 template <typename algorithmFPType>
 services::Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::correlationFromCovarianceTable(uint32_t nObservations, NumericTable & covariance,
-                                                                                                 const services::Buffer<algorithmFPType> & variances)
+                                                                                                 const services::internal::Buffer<algorithmFPType> & variances)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlationFromCovarianceTable);
     services::Status status;
@@ -211,7 +211,7 @@ template <typename algorithmFPType>
 services::Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::calculateVariances(ExecutionContextIface & context,
                                                                                      const KernelPtr & calculateVariancesKernel,
                                                                                      NumericTable & covariance,
-                                                                                     const services::Buffer<algorithmFPType> & variances)
+                                                                                     const services::internal::Buffer<algorithmFPType> & variances)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.calculateVariances);
     services::Status status;

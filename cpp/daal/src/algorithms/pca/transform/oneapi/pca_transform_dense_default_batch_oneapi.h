@@ -50,7 +50,7 @@ public:
                              data_management::NumericTable * pEigenvalues, data_management::NumericTable & transformedData);
 
     void computeTransformedBlock(uint32_t numRows, uint32_t numFeatures, uint32_t numComponents, daal::services::internal::sycl::UniversalBuffer & dataBlock,
-                                 const services::Buffer<algorithmFPType> & eigenvectors, const services::Buffer<algorithmFPType> & resultBlock);
+                                 const services::internal::Buffer<algorithmFPType> & eigenvectors, const services::internal::Buffer<algorithmFPType> & resultBlock);
 
 private:
     services::Status allocateBuffer(daal::services::internal::sycl::ExecutionContextIface & context, daal::services::internal::sycl::UniversalBuffer & returnBuffer,
@@ -64,13 +64,13 @@ private:
     services::Status checkVariances(data_management::NumericTable & pVariances, uint32_t numRows);
 
     services::Status computeInvSigmas(daal::services::internal::sycl::ExecutionContextIface & context, data_management::NumericTable * variances,
-                                      const services::Buffer<algorithmFPType> & invSigmas, const uint32_t numFeatures);
+                                      const services::internal::Buffer<algorithmFPType> & invSigmas, const uint32_t numFeatures);
 
     services::Status normalize(daal::services::internal::sycl::ExecutionContextIface & context, daal::services::internal::sycl::UniversalBuffer & copyBlock,
                                daal::services::internal::sycl::UniversalBuffer & rawMeans, daal::services::internal::sycl::UniversalBuffer & invSigmas, bool hasMeans,
                                bool hasInvSigmas, const uint32_t numFeatures, const uint32_t numVectors);
 
-    services::Status whitening(daal::services::internal::sycl::ExecutionContextIface & context, const services::Buffer<algorithmFPType> & transformedBlock,
+    services::Status whitening(daal::services::internal::sycl::ExecutionContextIface & context, const services::internal::Buffer<algorithmFPType> & transformedBlock,
                                daal::services::internal::sycl::UniversalBuffer & invEigenvalues, const uint32_t numComponents, const uint32_t numVectors);
 
     services::Status initBuffers(daal::services::internal::sycl::ExecutionContextIface & ctx, data_management::NumericTable & data,

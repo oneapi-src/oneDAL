@@ -187,7 +187,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::compute(services:
 }
 
 template <typename algorithmFPType, prediction::Method method>
-services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees(const services::Buffer<algorithmFPType> & srcBuffer,
+services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees(const services::internal::Buffer<algorithmFPType> & srcBuffer,
                                                                                  const decision_forest::classification::Model * const m,
                                                                                  UniversalBuffer & classHist, size_t nRows, size_t nCols)
 {
@@ -316,7 +316,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees
 
 template <typename algorithmFPType, prediction::Method method>
 services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesWeighted(
-    const services::Buffer<algorithmFPType> & srcBuffer, const UniversalBuffer & featureIndexList, const UniversalBuffer & leftOrClassTypeList,
+    const services::internal::Buffer<algorithmFPType> & srcBuffer, const UniversalBuffer & featureIndexList, const UniversalBuffer & leftOrClassTypeList,
     const UniversalBuffer & featureValueList, const UniversalBuffer & classProba, UniversalBuffer & obsClassHist, algorithmFPType scale, size_t nRows,
     size_t nCols, size_t nTrees, size_t maxTreeSize)
 {
@@ -381,7 +381,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesWei
 }
 
 template <typename algorithmFPType, prediction::Method method>
-services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesUnweighted(const services::Buffer<algorithmFPType> & srcBuffer,
+services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesUnweighted(const services::internal::Buffer<algorithmFPType> & srcBuffer,
                                                                                         const UniversalBuffer & featureIndexList,
                                                                                         const UniversalBuffer & leftOrClassTypeList,
                                                                                         const UniversalBuffer & featureValueList,
@@ -488,7 +488,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::reduceClassHist(c
 
 template <typename algorithmFPType, prediction::Method method>
 services::Status PredictKernelOneAPI<algorithmFPType, method>::determineWinners(const UniversalBuffer & classHist,
-                                                                                services::Buffer<algorithmFPType> & resBuffer, size_t nRows)
+                                                                                services::internal::Buffer<algorithmFPType> & resBuffer, size_t nRows)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.determineWinners);
 

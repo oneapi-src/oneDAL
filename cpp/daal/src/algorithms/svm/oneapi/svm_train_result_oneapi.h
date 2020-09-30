@@ -46,8 +46,8 @@ class SaveResultModel
     using Helper = utils::internal::HelperSVM<algorithmFPType>;
 
 public:
-    SaveResultModel(services::Buffer<algorithmFPType> & alphaBuff, const services::Buffer<algorithmFPType> & fBuff,
-                    const services::Buffer<algorithmFPType> & yBuff, const algorithmFPType C, const size_t nVectors)
+    SaveResultModel(services::internal::Buffer<algorithmFPType> & alphaBuff, const services::internal::Buffer<algorithmFPType> & fBuff,
+                    const services::internal::Buffer<algorithmFPType> & yBuff, const algorithmFPType C, const size_t nVectors)
         : _yBuff(yBuff), _coeffBuff(alphaBuff), _fBuff(fBuff), _C(C), _nVectors(nVectors)
     {}
 
@@ -225,9 +225,9 @@ protected:
     }
 
 private:
-    services::Buffer<algorithmFPType> _yBuff;
-    services::Buffer<algorithmFPType> _fBuff;
-    services::Buffer<algorithmFPType> _coeffBuff;
+    services::internal::Buffer<algorithmFPType> _yBuff;
+    services::internal::Buffer<algorithmFPType> _fBuff;
+    services::internal::Buffer<algorithmFPType> _coeffBuff;
     UniversalBuffer _tmpValues;
     UniversalBuffer _mask;
     const algorithmFPType _C;

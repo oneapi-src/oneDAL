@@ -61,7 +61,7 @@ public:
         if (!res)
         {
         #ifndef DAAL_DISABLE_LEVEL_ZERO
-            const bool isOpenCLBackendAvailable = !_deviceQueue.get_device().template get_info<sycl::info::device::opencl_c_version>().empty();
+            const bool isOpenCLBackendAvailable = !_deviceQueue.get_device().template get_info<cl::sycl::info::device::opencl_c_version>().empty();
             if (isOpenCLBackendAvailable)
             {
         #endif // DAAL_DISABLE_LEVEL_ZERO \
@@ -158,7 +158,7 @@ public:
         {
             KernelPtr kernel;
         #ifndef DAAL_DISABLE_LEVEL_ZERO
-            const bool isOpenCLBackendAvailable = !_deviceQueue.get_device().template get_info<sycl::info::device::opencl_c_version>().empty();
+            const bool isOpenCLBackendAvailable = !_deviceQueue.get_device().template get_info<cl::sycl::info::device::opencl_c_version>().empty();
             if (isOpenCLBackendAvailable)
             {
         #endif // DAAL_DISABLE_LEVEL_ZERO \

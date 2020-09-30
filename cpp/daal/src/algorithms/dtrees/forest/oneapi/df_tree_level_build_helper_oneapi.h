@@ -89,7 +89,7 @@ public:
 
     services::Status updateMDIVarImportance(const services::internal::sycl::UniversalBuffer & nodeList,
                                             const services::internal::sycl::UniversalBuffer & nodeImpDecreaseList, size_t nNodes,
-                                            services::Buffer<algorithmFPType> & varImp, size_t nFeatures);
+                                            services::internal::Buffer<algorithmFPType> & varImp, size_t nFeatures);
 
 private:
     services::Status buildProgram(services::internal::sycl::ClKernelFactoryIface & factory, const char * buildOptions = nullptr);

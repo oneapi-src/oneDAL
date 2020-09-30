@@ -23,7 +23,7 @@
 
 #include "algorithms/logistic_regression/logistic_regression_training_types.h"
 #include "src/algorithms/logistic_regression/logistic_regression_model_impl.h"
-#include "data_management/data/numeric_table_sycl_homogen.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 
 namespace daal
 {
@@ -33,6 +33,9 @@ namespace logistic_regression
 {
 namespace internal
 {
+
+using daal::data_management::internal::SyclHomogenNumericTable;
+
 template <typename modelFPType>
 ModelImpl::ModelImpl(size_t nFeatures, bool interceptFlag, size_t nClasses, modelFPType dummy, services::Status * st)
     : ClassificationImplType(nFeatures), _interceptFlag(interceptFlag)
@@ -49,7 +52,7 @@ ModelImpl::ModelImpl(size_t nFeatures, bool interceptFlag, size_t nClasses, mode
     }
     else
     {
-        _beta = data_management::SyclHomogenNumericTable<modelFPType>::create(nCols, nRows, data_management::NumericTable::doAllocate, 0, st);
+        _beta = SyclHomogenNumericTable<modelFPType>::create(nCols, nRows, data_management::NumericTable::doAllocate, 0, st);
     }
 }
 

@@ -19,7 +19,7 @@
 #define __BF_KNN_CLASSIFICATION_MODEL_UCAPI_IMPL_H__
 
 #include "algorithms/k_nearest_neighbors/bf_knn_classification_model.h"
-#include "data_management/data/numeric_table_sycl_homogen.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 #include "data_management/data/homogen_numeric_table.h"
 #include "services/internal/sycl/execution_context.h"
 #include "services/daal_defines.h"
@@ -102,8 +102,8 @@ protected:
             else
             {
                 services::Status status;
-                dest = data_management::SyclHomogenNumericTable<algorithmFPType>::create(value->getNumberOfColumns(), value->getNumberOfRows(),
-                                                                                         data_management::NumericTable::doAllocate, &status);
+                dest = data_management::internal::SyclHomogenNumericTable<algorithmFPType>::create(value->getNumberOfColumns(), value->getNumberOfRows(),
+                            data_management::NumericTable::doAllocate, &status);
                 DAAL_CHECK_STATUS_VAR(status);
                 data_management::BlockDescriptor<algorithmFPType> destBD, srcBD;
                 DAAL_CHECK_STATUS_VAR(dest->getBlockOfRows(0, dest->getNumberOfRows(), data_management::writeOnly, destBD));

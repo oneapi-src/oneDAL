@@ -31,6 +31,8 @@ namespace daal
 {
 namespace data_management
 {
+namespace internal
+{
 namespace interface1
 {
 /**
@@ -62,7 +64,7 @@ public:
      *  \param[out] stat           Status of the numeric table construction
      *  \return     Numeric table with user-allocated memory
      */
-    static services::SharedPtr<SyclHomogenNumericTable<DataType> > create(const services::Buffer<DataType> & buffer, size_t nColumns = 0,
+    static services::SharedPtr<SyclHomogenNumericTable<DataType> > create(const services::internal::Buffer<DataType> & buffer, size_t nColumns = 0,
                                                                           size_t nRows = 0, services::Status * stat = NULL)
     {
         DAAL_DEFAULT_CREATE_TEMPLATE_IMPL_EX(SyclHomogenNumericTable, DataType, DictionaryIface::notEqual, buffer, nColumns, nRows);
@@ -74,7 +76,7 @@ public:
                                                                           services::Status * stat = NULL)
     {
         const size_t bufferSize = nColumns * nRows;
-        return create(services::Buffer<DataType>(usmData, bufferSize, usmAllocType), nColumns, nRows, stat);
+        return create(services::internal::Buffer<DataType>(usmData, bufferSize, usmAllocType), nColumns, nRows, stat);
     }
 #endif
 
@@ -83,7 +85,7 @@ public:
                                                                           const cl::sycl::usm::alloc & usmAllocType, services::Status * stat = NULL)
     {
         const size_t bufferSize = nColumns * nRows;
-        return create(services::Buffer<DataType>(usmData, bufferSize, usmAllocType), nColumns, nRows, stat);
+        return create(services::internal::Buffer<DataType>(usmData, bufferSize, usmAllocType), nColumns, nRows, stat);
     }
 #endif
 
@@ -183,7 +185,7 @@ protected:
         st |= _ddict->setAllFeatures(df);
     }
 
-    SyclHomogenNumericTable(DictionaryIface::FeaturesEqual featuresEqual, const services::Buffer<DataType> & buffer, size_t nColumns, size_t nRows,
+    SyclHomogenNumericTable(DictionaryIface::FeaturesEqual featuresEqual, const services::internal::Buffer<DataType> & buffer, size_t nColumns, size_t nRows,
                             services::Status & st)
         : SyclHomogenNumericTable(featuresEqual, nColumns, nRows, st)
     {
@@ -332,7 +334,7 @@ private:
     template <typename T, typename U>
     struct BufferIO
     {
-        static services::Status read(const services::Buffer<U> & buffer, BlockDescriptor<T> & block, size_t nRows, size_t nCols)
+        static services::Status read(const services::internal::Buffer<U> & buffer, BlockDescriptor<T> & block, size_t nRows, size_t nCols)
         {
             DAAL_ASSERT(buffer.size() == nRows * nCols);
 
@@ -350,7 +352,7 @@ private:
             return services::Status();
         }
 
-        static services::Status write(services::Buffer<U> buffer, const BlockDescriptor<T> & block, size_t nRows, size_t nCols)
+        static services::Status write(services::internal::Buffer<U> buffer, const BlockDescriptor<T> & block, size_t nRows, size_t nCols)
         {
             DAAL_ASSERT(block.getNumberOfRows() == nRows);
             DAAL_ASSERT(block.getNumberOfColumns() == nCols);
@@ -367,7 +369,7 @@ private:
     template <typename T>
     struct BufferIO<T, T>
     {
-        static services::Status read(const services::Buffer<T> & buffer, BlockDescriptor<T> & block, size_t nRows, size_t nCols)
+        static services::Status read(const services::internal::Buffer<T> & buffer, BlockDescriptor<T> & block, size_t nRows, size_t nCols)
         {
             DAAL_ASSERT(buffer.size() == nRows * nCols);
 
@@ -375,7 +377,7 @@ private:
             return services::Status();
         }
 
-        static services::Status write(services::Buffer<T> buffer, const BlockDescriptor<T> & block, size_t nRows, size_t nCols)
+        static services::Status write(services::internal::Buffer<T> buffer, const BlockDescriptor<T> & block, size_t nRows, size_t nCols)
         {
             // TODO: Support case when block.getBuffer() != buffer
             // It means that user calls block.setBuffer on their side
@@ -383,7 +385,7 @@ private:
         }
     };
 
-    services::Buffer<DataType> getSubBuffer(size_t rowOffset, size_t nRows)
+    services::internal::Buffer<DataType> getSubBuffer(size_t rowOffset, size_t nRows)
     {
         const size_t nCols  = getNumberOfColumns();
         const size_t offset = rowOffset * nCols;
@@ -478,7 +480,7 @@ private:
 
     static bool isCpuContext() { return services::internal::sycl::getDefaultContext().getInfoDevice().isCpu; }
 
-    services::Buffer<DataType> _buffer;
+    services::internal::Buffer<DataType> _buffer;
     services::SharedPtr<HomogenNumericTable<DataType> > _cpuTable;
 };
 /** @} */
@@ -487,6 +489,7 @@ private:
 
 using interface1::SyclHomogenNumericTable;
 
+} // namespace internal
 } // namespace data_management
 } // namespace daal
 

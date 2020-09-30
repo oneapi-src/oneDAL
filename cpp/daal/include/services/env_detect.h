@@ -166,19 +166,21 @@ public:
      */
     int setMemoryLimit(MemType type, size_t limit);
 
+#ifdef DAAL_INTERNAL_INTERFACE
     /**
      *  Sets execution context globally for all algorithms.
      *  After this method is called, all computations inside algorithms are performed
      *  using device information from execution context.
      *  \param[in] ctx Execution context with information on how to perform computations inside the library
      */
-    void setDefaultExecutionContext(const ExecutionContext & ctx)
+    void setDefaultExecutionContext(const internal::ExecutionContext & ctx)
     {
         _executionContext = internal::ImplAccessor::getImplPtr<services::internal::sycl::ExecutionContextIface>(ctx);
     }
 
     // TODO: remove internal from public API
     services::internal::sycl::ExecutionContextIface & getDefaultExecutionContext() { return *_executionContext; }
+#endif
 
 private:
     Environment();

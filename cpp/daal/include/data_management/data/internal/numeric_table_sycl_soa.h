@@ -26,6 +26,8 @@ namespace daal
 {
 namespace data_management
 {
+namespace internal
+{
 namespace interface1
 {
 /**
@@ -75,7 +77,7 @@ public:
      *  \param[in]  idx Feature index
      */
     template <typename T>
-    services::Status setArray(const services::Buffer<T> & bf, size_t idx)
+    services::Status setArray(const services::internal::Buffer<T> & bf, size_t idx)
     {
         if (_partialMemStatus != notAllocated && _partialMemStatus != userAllocated)
         {
@@ -669,6 +671,7 @@ typedef services::SharedPtr<SyclSOANumericTable> SyclSOANumericTablePtr;
 using interface1::SyclSOANumericTable;
 using interface1::SyclSOANumericTablePtr;
 
+} // namespace internal
 } // namespace data_management
 } // namespace daal
 

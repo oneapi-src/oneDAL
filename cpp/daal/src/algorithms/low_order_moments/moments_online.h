@@ -25,11 +25,12 @@
 
 #include "algorithms/moments/low_order_moments_types.h"
 #include "src/data_management/service_numeric_table.h"
-#include "data_management/data/numeric_table_sycl_homogen.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 #include "services/internal/sycl/utils.h"
 
 using namespace daal::internal;
 using namespace daal::data_management;
+using daal::data_management::internal::SyclHomogenNumericTable;
 
 namespace daal
 {

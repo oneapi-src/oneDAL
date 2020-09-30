@@ -56,7 +56,7 @@ public:
                              const Parameter & par, engines::internal::BatchBaseImpl & engine);
 
 private:
-    services::Status scan(const services::Buffer<algorithmFPType> & values, services::internal::sycl::UniversalBuffer & partialSums, int nRows, int localSize,
+    services::Status scan(const services::internal::Buffer<algorithmFPType> & values, services::internal::sycl::UniversalBuffer & partialSums, int nRows, int localSize,
                           int nLocalSums);
 
     services::Status reduce(services::internal::sycl::UniversalBuffer & partialSums, services::internal::sycl::UniversalBuffer & totalSum, int localSize,

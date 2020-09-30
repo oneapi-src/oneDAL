@@ -55,6 +55,7 @@ daal_module(
     defines = [
         "DAAL_NOTHROW_EXCEPTIONS",
         "DAAL_HIDE_DEPRECATED",
+        "DAAL_INTERNAL_INTERFACE",
     ],
     deps = [
         ":public_includes",
@@ -223,7 +224,7 @@ daal_algorithms(
         # "outlierdetection_univariate",
         "pca",
         # "pca/metrics",
-        # "pca/transform",
+        "pca/transform",
         # "pivoted_qr",
         "qr",
         # "quantiles",

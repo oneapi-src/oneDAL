@@ -73,14 +73,14 @@ private:
 
     services::Status computeBestSplit(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & treeOrder,
                                       services::internal::sycl::UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
-                                      const services::Buffer<algorithmFPType> & response, services::internal::sycl::UniversalBuffer & nodeOffsets,
+                                      const services::internal::Buffer<algorithmFPType> & response, services::internal::sycl::UniversalBuffer & nodeOffsets,
                                       services::internal::sycl::UniversalBuffer & binOffsets, services::internal::sycl::UniversalBuffer & splitInfo,
                                       services::internal::sycl::UniversalBuffer & nodeImpDecreaseList, bool updateImpDecreaseRequired, size_t nFeatures,
                                       size_t nNodes, size_t minObservationsInLeafNode, algorithmFPType impurityThreshold);
 
     services::Status computeBestSplitSinglePass(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & treeOrder,
                                                 services::internal::sycl::UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
-                                                const services::Buffer<algorithmFPType> & response, services::internal::sycl::UniversalBuffer & binOffsets,
+                                                const services::internal::Buffer<algorithmFPType> & response, services::internal::sycl::UniversalBuffer & binOffsets,
                                                 services::internal::sycl::UniversalBuffer & nodeList, services::internal::sycl::UniversalBuffer & nodeIndices,
                                                 size_t nodeIndicesOffset, services::internal::sycl::UniversalBuffer & impList,
                                                 services::internal::sycl::UniversalBuffer & nodeImpDecreaseList, bool updateImpDecreaseRequired,
@@ -97,7 +97,7 @@ private:
 
     services::Status computePartialHistograms(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & treeOrder,
                                               services::internal::sycl::UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
-                                              const services::Buffer<algorithmFPType> & response, services::internal::sycl::UniversalBuffer & nodeList,
+                                              const services::internal::Buffer<algorithmFPType> & response, services::internal::sycl::UniversalBuffer & nodeList,
                                               services::internal::sycl::UniversalBuffer & nodeIndices, size_t nodeIndicesOffset,
                                               services::internal::sycl::UniversalBuffer & binOffsets, size_t nMaxBinsAmongFtrs, size_t nFeatures,
                                               size_t nNodes, services::internal::sycl::UniversalBuffer & partialHistograms, size_t nPartialHistograms);

@@ -163,7 +163,7 @@ const char * KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::getComputeSquares
 }
 
 template <typename algorithmFPType>
-void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computeSquares(const Buffer<algorithmFPType> & data, UniversalBuffer & dataSq, uint32_t nRows,
+void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computeSquares(const services::internal::Buffer<algorithmFPType> & data, UniversalBuffer & dataSq, uint32_t nRows,
                                                                       uint32_t nFeatures, Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeSquares);
@@ -219,8 +219,8 @@ void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::getNumEmptyClusters(uint3
 }
 
 template <typename algorithmFPType>
-void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computeDistances(const Buffer<algorithmFPType> & data,
-                                                                        const Buffer<algorithmFPType> & centroids, uint32_t blockSize,
+void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computeDistances(const services::internal::Buffer<algorithmFPType> & data,
+                                                                        const services::internal::Buffer<algorithmFPType> & centroids, uint32_t blockSize,
                                                                         uint32_t nClusters, uint32_t nFeatures, Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeDistances);
@@ -341,7 +341,7 @@ void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::mergePartialCandidates(ui
 }
 
 template <typename algorithmFPType>
-void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::partialReduceCentroids(const Buffer<algorithmFPType> & data,
+void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::partialReduceCentroids(const services::internal::Buffer<algorithmFPType> & data,
                                                                               const UniversalBuffer & assignments, uint32_t blockSize,
                                                                               uint32_t nClusters, uint32_t nFeatures, uint32_t doReset, Status * st)
 {
@@ -368,7 +368,7 @@ void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::partialReduceCentroids(co
 }
 
 template <typename algorithmFPType>
-void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::mergeReduceCentroids(const Buffer<algorithmFPType> & centroids, uint32_t nClusters,
+void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::mergeReduceCentroids(const services::internal::Buffer<algorithmFPType> & centroids, uint32_t nClusters,
                                                                             uint32_t nFeatures, Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.mergeReduceCentroids);
@@ -398,7 +398,7 @@ void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::mergeReduceCentroids(cons
 }
 
 template <typename algorithmFPType>
-void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::updateObjectiveFunction(const Buffer<algorithmFPType> & objFunction, uint32_t blockSize,
+void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::updateObjectiveFunction(const services::internal::Buffer<algorithmFPType> & objFunction, uint32_t blockSize,
                                                                                uint32_t nClusters, uint32_t doReset, Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateObjectiveFunction);
@@ -486,7 +486,7 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::getBlockSize(uint32_t n
 
 template <typename algorithmFPType>
 Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::setEmptyClusters(NumericTable * const ntData, uint32_t nRows, uint32_t nClusters,
-                                                                          uint32_t nFeatures, Buffer<algorithmFPType> & outCentroids,
+                                                                          uint32_t nFeatures,services::internal::Buffer<algorithmFPType> & outCentroids,
                                                                           algorithmFPType & objFuncCorrection)
 {
     auto counters        = _partialCentroidsCounters.template get<int>().toHost(ReadWriteMode::readOnly);

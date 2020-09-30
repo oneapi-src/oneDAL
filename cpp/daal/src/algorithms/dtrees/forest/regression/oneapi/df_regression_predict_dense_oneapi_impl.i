@@ -138,9 +138,9 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::compute(services:
 }
 
 template <typename algorithmFPType, prediction::Method method>
-services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees(const services::Buffer<algorithmFPType> & srcBuffer,
+services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees(const services::internal::Buffer<algorithmFPType> & srcBuffer,
                                                                                  const decision_forest::regression::Model * const m,
-                                                                                 services::Buffer<algorithmFPType> & resObsResponse, size_t nRows,
+                                                                                 services::internal::Buffer<algorithmFPType> & resObsResponse, size_t nRows,
                                                                                  size_t nCols)
 {
     services::Status status;
@@ -239,7 +239,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees
 
 template <typename algorithmFPType, prediction::Method method>
 services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesGroup(
-    const services::Buffer<algorithmFPType> & srcBuffer, const UniversalBuffer & featureIndexList, const UniversalBuffer & leftOrClassTypeList,
+    const services::internal::Buffer<algorithmFPType> & srcBuffer, const UniversalBuffer & featureIndexList, const UniversalBuffer & leftOrClassTypeList,
     const UniversalBuffer & featureValueList, UniversalBuffer & obsResponses, size_t nRows, size_t nCols, size_t nTrees, size_t maxTreeSize)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.predictByTreesGroup);
@@ -302,7 +302,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesGro
 
 template <typename algorithmFPType, prediction::Method method>
 services::Status PredictKernelOneAPI<algorithmFPType, method>::reduceResponse(const UniversalBuffer & obsResponses,
-                                                                              services::Buffer<algorithmFPType> & resObsResponse, size_t nRows,
+                                                                              services::internal::Buffer<algorithmFPType> & resObsResponse, size_t nRows,
                                                                               size_t nTrees, algorithmFPType scale)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.reduceResponse);

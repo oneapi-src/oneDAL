@@ -52,7 +52,7 @@ struct MKLPotrf
 {
     MKLPotrf(cl::sycl::queue & queue) : _queue(queue) {}
 
-    services::Status operator()(const math::UpLo uplo, const size_t n, services::Buffer<algorithmFPType> & a, const size_t lda,
+    services::Status operator()(const math::UpLo uplo, const size_t n, services::internal::Buffer<algorithmFPType> & a, const size_t lda,
                                 cl::sycl::buffer<algorithmFPType, 1> & scratchpad)
     {
         services::Status status;
@@ -74,14 +74,14 @@ struct MKLPotrf
         return status;
     }
 
-    services::Status operator()(const math::UpLo uplo, const size_t n, services::Buffer<algorithmFPType> & a, const size_t lda,
+    services::Status operator()(const math::UpLo uplo, const size_t n, services::internal::Buffer<algorithmFPType> & a, const size_t lda,
                                 const std::int64_t scratchpadSize)
     {
         cl::sycl::buffer<algorithmFPType, 1> scratchpad_buffer { cl::sycl::range<1>(scratchpadSize) };
         return this->operator()(uplo, n, a, lda, scratchpad_buffer);
     }
 
-    services::Status operator()(const math::UpLo uplo, const size_t n, services::Buffer<algorithmFPType> & a, const size_t lda)
+    services::Status operator()(const math::UpLo uplo, const size_t n, services::internal::Buffer<algorithmFPType> & a, const size_t lda)
     {
         const ::oneapi::fpk::uplo uplomkl        = uplo == math::UpLo::Upper ? ::oneapi::fpk::uplo::upper : ::oneapi::fpk::uplo::lower;
         const std::int64_t minimalScratchpadSize = ::oneapi::fpk::lapack::potrf_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, lda);
@@ -101,8 +101,8 @@ struct MKLPotrs
 {
     MKLPotrs(cl::sycl::queue & queue) : _queue(queue) {}
 
-    services::Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, services::Buffer<algorithmFPType> & a, const size_t lda,
-                                services::Buffer<algorithmFPType> & b, const size_t ldb, cl::sycl::buffer<algorithmFPType, 1> & scratchpad)
+    services::Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, services::internal::Buffer<algorithmFPType> & a, const size_t lda,
+                                services::internal::Buffer<algorithmFPType> & b, const size_t ldb, cl::sycl::buffer<algorithmFPType, 1> & scratchpad)
     {
         services::Status status;
         const ::oneapi::fpk::uplo uplomkl                = uplo == math::UpLo::Upper ? ::oneapi::fpk::uplo::upper : ::oneapi::fpk::uplo::lower;
@@ -125,15 +125,15 @@ struct MKLPotrs
         return status;
     }
 
-    services::Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, services::Buffer<algorithmFPType> & a, const size_t lda,
-                                services::Buffer<algorithmFPType> & b, const size_t ldb, const std::int64_t scratchpadSize)
+    services::Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, services::internal::Buffer<algorithmFPType> & a, const size_t lda,
+                                services::internal::Buffer<algorithmFPType> & b, const size_t ldb, const std::int64_t scratchpadSize)
     {
         cl::sycl::buffer<algorithmFPType, 1> scratchpad_buffer { cl::sycl::range<1>(scratchpadSize) };
         return this->operator()(uplo, n, ny, a, lda, b, ldb, scratchpad_buffer);
     }
 
-    services::Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, services::Buffer<algorithmFPType> & a, const size_t lda,
-                                services::Buffer<algorithmFPType> & b, const size_t ldb)
+    services::Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, services::internal::Buffer<algorithmFPType> & a, const size_t lda,
+                                services::internal::Buffer<algorithmFPType> & b, const size_t ldb)
     {
         const ::oneapi::fpk::uplo uplomkl        = uplo == math::UpLo::Upper ? ::oneapi::fpk::uplo::upper : ::oneapi::fpk::uplo::lower;
         const std::int64_t minimalScratchpadSize = ::oneapi::fpk::lapack::potrs_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, ny, lda, ldb);

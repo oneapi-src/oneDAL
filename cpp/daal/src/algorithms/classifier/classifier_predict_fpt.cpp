@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/classifier/classifier_predict_types.h"
-#include "data_management/data/numeric_table_sycl_homogen.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 
 namespace daal
 {
@@ -62,7 +62,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
         if (deviceInfo.isCpu)
             nt = HomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTableIface::doAllocate, 0, &st);
         else
-            nt = SyclHomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTableIface::doAllocate, 0, &st);
+            nt = internal::SyclHomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTableIface::doAllocate, 0, &st);
 
         set(prediction, nt);
     }
@@ -72,7 +72,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
         if (deviceInfo.isCpu)
             nt = HomogenNumericTable<algorithmFPType>::create(nClasses, nRows, NumericTableIface::doAllocate, 0, &st);
         else
-            nt = SyclHomogenNumericTable<algorithmFPType>::create(nClasses, nRows, NumericTableIface::doAllocate, 0, &st);
+            nt = internal::SyclHomogenNumericTable<algorithmFPType>::create(nClasses, nRows, NumericTableIface::doAllocate, 0, &st);
 
         set(probabilities, nt);
     }
@@ -82,7 +82,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
         if (deviceInfo.isCpu)
             nt = HomogenNumericTable<algorithmFPType>::create(nClasses, nRows, NumericTableIface::doAllocate, 0, &st);
         else
-            nt = SyclHomogenNumericTable<algorithmFPType>::create(nClasses, nRows, NumericTableIface::doAllocate, 0, &st);
+            nt = internal::SyclHomogenNumericTable<algorithmFPType>::create(nClasses, nRows, NumericTableIface::doAllocate, 0, &st);
 
         set(logProbabilities, nt);
     }

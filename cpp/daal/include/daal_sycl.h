@@ -22,7 +22,8 @@
 #define DAAL_SYCL_INTERFACE
 #include "daal.h"
 
-#include "data_management/data/numeric_table_sycl_homogen.h"
-#include "data_management/data/numeric_table_sycl_soa.h"
+#include "services/internal/execution_context.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
+#include "data_management/data/internal/numeric_table_sycl_soa.h"
 
 #endif
