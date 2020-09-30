@@ -22,8 +22,8 @@
 */
 
 #include "services/env_detect.h"
-#include "sycl/internal/execution_context.h"
-#include "sycl/internal/types.h"
+#include "services/internal/sycl/execution_context.h"
+#include "services/internal/sycl/types.h"
 #include "src/sycl/blas_gpu.h"
 #include "src/algorithms/kmeans/oneapi/kmeans_lloyd_distr_step2_kernel_ucapi.h"
 #include "src/algorithms/kmeans/oneapi/cl_kernels/kmeans_cl_kernels_distr_steps.cl"
@@ -37,7 +37,7 @@ DAAL_ITTNOTIFY_DOMAIN(kmeans.dense.lloyd.distr.step2.oneapi);
 using namespace daal::internal;
 using namespace daal::services::internal;
 using namespace daal::services;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 using namespace daal::data_management;
 
 namespace daal
@@ -284,7 +284,7 @@ void KMeansDistributedStep2KernelUCAPI<algorithmFPType>::updateCandidates(bool i
 template <typename algorithmFPType>
 void KMeansDistributedStep2KernelUCAPI<algorithmFPType>::buildProgram(ClKernelFactoryIface & kernelFactory, Status * st)
 {
-    auto fptype_name   = oneapi::internal::getKeyFPType<algorithmFPType>();
+    auto fptype_name   = services::internal::sycl::getKeyFPType<algorithmFPType>();
     auto build_options = fptype_name;
     services::String cachekey("__daal_algorithms_kmeans_lloyd_dense_distr_step2_");
     cachekey.add(fptype_name);

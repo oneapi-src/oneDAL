@@ -25,17 +25,19 @@
 #define __SERVICE_ONEAPI_BLAS_GPU_H__
 
 #include "services/env_detect.h"
-#include "sycl/internal/execution_context.h"
-#include "sycl/internal/types_utils.h"
+#include "services/internal/sycl/execution_context.h"
+#include "services/internal/sycl/types_utils.h"
 #include "src/sycl/math_service_types.h"
 #include "services/buffer.h"
-#include "sycl/internal/math/types.h"
+#include "services/internal/sycl/math/types.h"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 template <typename algorithmFPType>
 struct BlasGpu
@@ -95,8 +97,9 @@ struct BlasGpu
     }
 };
 
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
 
 #endif

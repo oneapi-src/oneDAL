@@ -25,7 +25,7 @@
 #include "data_management/data/numeric_table_sycl.h"
 #include "data_management/data/internal/conversion.h"
 #include "data_management/data/homogen_numeric_table.h"
-#include "sycl/internal/utils.h"
+#include "services/internal/sycl/utils.h"
 
 namespace daal
 {
@@ -240,7 +240,7 @@ protected:
             {
                 const size_t size = getNumberOfColumns() * getNumberOfRows();
 
-                const auto universalBuffer = oneapi::internal::getDefaultContext().allocate(oneapi::internal::TypeIds::id<DataType>(), size, &status);
+                const auto universalBuffer = services::internal::sycl::getDefaultContext().allocate(services::internal::sycl::TypeIds::id<DataType>(), size, &status);
 
                 services::throwIfPossible(status);
                 DAAL_CHECK_STATUS_VAR(status);
@@ -322,7 +322,7 @@ protected:
             return _cpuTable->assign(value);
         }
 
-        oneapi::internal::getDefaultContext().fill(_buffer, (double)value, &status);
+        services::internal::sycl::getDefaultContext().fill(_buffer, (double)value, &status);
         services::throwIfPossible(status);
 
         return status;
@@ -476,7 +476,7 @@ private:
 
     inline bool isCpuTable() const { return (bool)_cpuTable; }
 
-    static bool isCpuContext() { return oneapi::internal::getDefaultContext().getInfoDevice().isCpu; }
+    static bool isCpuContext() { return services::internal::sycl::getDefaultContext().getInfoDevice().isCpu; }
 
     services::Buffer<DataType> _buffer;
     services::SharedPtr<HomogenNumericTable<DataType> > _cpuTable;

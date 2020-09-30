@@ -68,7 +68,7 @@ private:
 
     static services::Status vectorNorm(const services::Buffer<algorithmFPType> & x, const uint32_t n, algorithmFPType & norm);
 
-    static void buildProgram(oneapi::internal::ClKernelFactoryIface & factory);
+    static void buildProgram(services::internal::sycl::ClKernelFactoryIface & factory);
 
     enum IndicesStatus
     {

@@ -44,8 +44,8 @@ namespace rbf
 {
 namespace internal
 {
-using namespace daal::oneapi::internal;
-using namespace daal::oneapi::internal::math;
+using namespace daal::services::internal::sycl;
+using namespace daal::services::internal::sycl::math;
 
 template <typename algorithmFPType>
 services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::buildProgram(ClKernelFactoryIface & factory)

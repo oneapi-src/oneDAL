@@ -21,9 +21,11 @@
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace math
 {
@@ -172,6 +174,7 @@ SumReducer::Result SumReducer::sum(Layout vectorsLayout, const UniversalBuffer &
 }
 
 } // namespace math
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal

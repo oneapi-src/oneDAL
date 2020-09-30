@@ -26,8 +26,8 @@
 
 #include "services/env_detect.h"
 #include "src/algorithms/kmeans/oneapi/cl_kernels/kmeans_cl_kernels.cl"
-#include "sycl/internal/execution_context.h"
-#include "sycl/internal/types.h"
+#include "services/internal/sycl/execution_context.h"
+#include "services/internal/sycl/types.h"
 #include "src/sycl/blas_gpu.h"
 
 #include "src/externals/service_ittnotify.h"
@@ -35,7 +35,7 @@
 DAAL_ITTNOTIFY_DOMAIN(kmeans.dense.lloyd.batch.oneapi);
 
 using namespace daal::services;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 using namespace daal::data_management;
 
 namespace daal
@@ -443,7 +443,7 @@ void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::updateObjectiveFunction(c
 template <typename algorithmFPType>
 void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::buildProgram(ClKernelFactoryIface & kernelFactory, uint32_t nClusters, Status * st)
 {
-    auto fptype_name   = oneapi::internal::getKeyFPType<algorithmFPType>();
+    auto fptype_name   = services::internal::sycl::getKeyFPType<algorithmFPType>();
     auto build_options = fptype_name;
     build_options.add(getBuildOptions(nClusters));
     services::String cachekey("__daal_algorithms_kmeans_lloyd_dense_batch_");

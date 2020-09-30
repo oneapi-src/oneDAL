@@ -22,15 +22,15 @@
 */
 
 #ifdef DAAL_SYCL_INTERFACE
-    #ifndef __DAAL_ONEAPI_INTERNAL_DAAL_ZE_MODULE_HELPER_H__
-        #define __DAAL_ONEAPI_INTERNAL_DAAL_ZE_MODULE_HELPER_H__
+    #ifndef __DAAL_SERVICES_INTERNAL_SYCL_DAAL_ZE_MODULE_HELPER_H__
+        #define __DAAL_SERVICES_INTERNAL_SYCL_DAAL_ZE_MODULE_HELPER_H__
 
-        #include "sycl/internal/daal_level_zero_common.h"
+        #include "services/internal/sycl/daal_level_zero_common.h"
 
         #ifndef DAAL_DISABLE_LEVEL_ZERO
 
             #include <CL/sycl.hpp>
-            #include "sycl/internal/error_handling.h"
+            #include "services/internal/sycl/error_handling.h"
             #include "services/daal_shared_ptr.h"
             #include "services/internal/dynamic_lib_helper.h"
 
@@ -42,9 +42,11 @@
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace interface1
 {
@@ -121,11 +123,12 @@ private:
 typedef services::SharedPtr<ZeModuleHelper> ZeModuleHelperPtr;
 
 } // namespace interface1
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
 
         #endif // DAAL_DISABLE_LEVEL_ZERO
 
-    #endif // __DAAL_ONEAPI_INTERNAL_DAAL_ZE_MODULE_HELPER_H__
+    #endif // __DAAL_SERVICES_INTERNAL_SYCL_DAAL_ZE_MODULE_HELPER_H__
 #endif     // DAAL_SYCL_INTERFACE

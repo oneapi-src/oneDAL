@@ -70,7 +70,7 @@ namespace internal
 {
 using namespace daal::internal;
 using namespace daal::services::internal;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 template <typename algorithmFPType>
 services::Status SVMTrainOneAPI<algorithmFPType, thunder>::updateGrad(const services::Buffer<algorithmFPType> & kernelWS,

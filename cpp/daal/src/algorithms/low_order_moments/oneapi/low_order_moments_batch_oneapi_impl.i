@@ -31,10 +31,10 @@
 #include "src/algorithms/low_order_moments/oneapi/cl_kernels/low_order_moments_kernels_all.h"
 #include "src/algorithms/low_order_moments/oneapi/low_order_moments_kernel_batch_oneapi.h"
 #include "src/externals/service_ittnotify.h"
-#include "sycl/internal/utils.h"
+#include "services/internal/sycl/utils.h"
 
 using namespace daal::services::internal;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 namespace daal
 {
@@ -122,7 +122,7 @@ services::Status LowOrderMomentsBatchKernelOneAPI<algorithmFPType, method>::comp
 {
     services::Status status;
 
-    auto & context = daal::oneapi::internal::getDefaultContext();
+    auto & context = daal::services::internal::sycl::getDefaultContext();
 
     if (method == defaultDense)
     {
@@ -254,7 +254,7 @@ services::Status LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::compute
 
     services::Status status;
 
-    auto & context = daal::oneapi::internal::getDefaultContext();
+    auto & context = daal::services::internal::sycl::getDefaultContext();
     auto & factory = context.getClKernelFactory();
 
     status = buildProgram<algorithmFPType, scope>(factory);

@@ -22,9 +22,11 @@
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 DAAL_ITTNOTIFY_DOMAIN(daal.oneapi.internal.partition);
 
@@ -274,6 +276,7 @@ services::Status Partition::flaggedIndex(UniversalBuffer mask, UniversalBuffer d
     return status;
 }
 
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal

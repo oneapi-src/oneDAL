@@ -24,16 +24,18 @@
 #ifndef __ONEAPI_INTERNAL_MATH_REFERENCE_LAPACK_H__
 #define __ONEAPI_INTERNAL_MATH_REFERENCE_LAPACK_H__
 
-#include "sycl/internal/math/types.h"
-#include "sycl/internal/types_utils.h"
+#include "services/internal/sycl/math/types.h"
+#include "services/internal/sycl/types_utils.h"
 #include "services/buffer.h"
 #include "services/env_detect.h"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace math
 {
@@ -75,8 +77,9 @@ using interface1::ReferencePotrf;
 using interface1::ReferencePotrs;
 
 } // namespace math
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
 
 #endif

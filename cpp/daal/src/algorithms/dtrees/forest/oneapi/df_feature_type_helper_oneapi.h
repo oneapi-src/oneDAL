@@ -37,8 +37,8 @@
 
 #include "src/algorithms/dtrees/forest/oneapi/cl_kernels/df_common_kernels.cl"
 
-#include "sycl/internal/execution_context.h"
-#include "sycl/internal/types.h"
+#include "services/internal/sycl/execution_context.h"
+#include "services/internal/sycl/types.h"
 
 namespace daal
 {
@@ -64,7 +64,7 @@ public:
         DAAL_NEW_DELETE();
         IndexType numIndices = 0; //number of indices or bins
         IndexType offset     = 0;
-        oneapi::internal::UniversalBuffer binBorders; //right bin borders
+        services::internal::sycl::UniversalBuffer binBorders; //right bin borders
 
         services::Status allocBorders();
         ~FeatureEntry();
@@ -82,14 +82,14 @@ public:
 
     IndexType totalBins() const { return _totalBins; }
 
-    oneapi::internal::UniversalBuffer & binBorders(size_t iCol) { return _entries[iCol].binBorders; }
+    services::internal::sycl::UniversalBuffer & binBorders(size_t iCol) { return _entries[iCol].binBorders; }
 
-    oneapi::internal::UniversalBuffer & binOffsets() { return _binOffsets; }
+    services::internal::sycl::UniversalBuffer & binOffsets() { return _binOffsets; }
 
-    oneapi::internal::UniversalBuffer & getFullData() { return _fullData; }
+    services::internal::sycl::UniversalBuffer & getFullData() { return _fullData; }
 
     //for low-level optimization
-    const oneapi::internal::UniversalBuffer & getFeature(size_t iFeature) const { return _data[iFeature]; }
+    const services::internal::sycl::UniversalBuffer & getFeature(size_t iFeature) const { return _data[iFeature]; }
 
     size_t nRows() const { return _nRows; }
     size_t nCols() const { return _nCols; }
@@ -97,39 +97,39 @@ public:
 protected:
     services::Status alloc(size_t nCols, size_t nRows);
 
-    services::Status extractColumn(const services::Buffer<algorithmFPType> & data, oneapi::internal::UniversalBuffer & values,
-                                   oneapi::internal::UniversalBuffer & indices, int32_t featureId, int32_t nFeatures, int32_t nRows);
+    services::Status extractColumn(const services::Buffer<algorithmFPType> & data, services::internal::sycl::UniversalBuffer & values,
+                                   services::internal::sycl::UniversalBuffer & indices, int32_t featureId, int32_t nFeatures, int32_t nRows);
 
-    services::Status collectBinBorders(oneapi::internal::UniversalBuffer & values, oneapi::internal::UniversalBuffer & binOffsets,
-                                       oneapi::internal::UniversalBuffer & binBorders, int32_t nRows, int32_t maxBins);
+    services::Status collectBinBorders(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & binOffsets,
+                                       services::internal::sycl::UniversalBuffer & binBorders, int32_t nRows, int32_t maxBins);
 
-    services::Status computeBins(oneapi::internal::UniversalBuffer & values, oneapi::internal::UniversalBuffer & indices,
-                                 oneapi::internal::UniversalBuffer & binBorders, oneapi::internal::UniversalBuffer & bins, int32_t nRows,
+    services::Status computeBins(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & indices,
+                                 services::internal::sycl::UniversalBuffer & binBorders, services::internal::sycl::UniversalBuffer & bins, int32_t nRows,
                                  int32_t nBins, int32_t localSize, int32_t nLocalBlocks);
 
-    services::Status computeBins(oneapi::internal::UniversalBuffer & values, oneapi::internal::UniversalBuffer & indices,
-                                 oneapi::internal::UniversalBuffer & bins, FeatureEntry & entry, int32_t nRows,
+    services::Status computeBins(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & indices,
+                                 services::internal::sycl::UniversalBuffer & bins, FeatureEntry & entry, int32_t nRows,
                                  const dtrees::internal::BinParams * pBinPrm);
 
     services::Status makeIndex(const services::Buffer<algorithmFPType> & data, int32_t featureId, int32_t nFeatures, int32_t nRows,
-                               const dtrees::internal::BinParams * pBinPrm, oneapi::internal::UniversalBuffer & bins, FeatureEntry & entry);
+                               const dtrees::internal::BinParams * pBinPrm, services::internal::sycl::UniversalBuffer & bins, FeatureEntry & entry);
 
-    services::Status storeColumn(const oneapi::internal::UniversalBuffer & data, oneapi::internal::UniversalBuffer & fullData, int32_t featureId,
+    services::Status storeColumn(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & fullData, int32_t featureId,
                                  int32_t nFeatures, int32_t nRows);
 
 protected:
-    services::Collection<oneapi::internal::UniversalBuffer> _data;
-    oneapi::internal::UniversalBuffer _fullData;
-    oneapi::internal::UniversalBuffer _binOffsets;
+    services::Collection<services::internal::sycl::UniversalBuffer> _data;
+    services::internal::sycl::UniversalBuffer _fullData;
+    services::internal::sycl::UniversalBuffer _binOffsets;
     daal::internal::TArray<FeatureEntry, sse2> _entries;
     size_t _nRows;
     size_t _nCols;
     IndexType _totalBins;
 
-    oneapi::internal::UniversalBuffer _values;
-    oneapi::internal::UniversalBuffer _values_buf;
-    oneapi::internal::UniversalBuffer _indices;
-    oneapi::internal::UniversalBuffer _indices_buf;
+    services::internal::sycl::UniversalBuffer _values;
+    services::internal::sycl::UniversalBuffer _values_buf;
+    services::internal::sycl::UniversalBuffer _indices;
+    services::internal::sycl::UniversalBuffer _indices_buf;
 
     static constexpr size_t _int32max = static_cast<size_t>(services::internal::MaxVal<int32_t>::get());
 

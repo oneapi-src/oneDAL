@@ -28,7 +28,7 @@
 #include "algorithms/pca/pca_batch.h"
 #include "src/algorithms/pca/pca_dense_correlation_batch_kernel.h"
 #include "src/algorithms/pca/oneapi/pca_dense_correlation_batch_kernel_ucapi.h"
-#include "sycl/internal/execution_context.h"
+#include "services/internal/sycl/execution_context.h"
 
 using namespace daal::services::internal;
 

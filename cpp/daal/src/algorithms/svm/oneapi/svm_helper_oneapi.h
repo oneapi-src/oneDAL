@@ -36,7 +36,7 @@ namespace utils
 namespace internal
 {
 using namespace daal::services::internal;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 template <typename T>
 inline const T min(const T a, const T b)
@@ -150,22 +150,22 @@ struct HelperSVM
         DAAL_ITTNOTIFY_SCOPED_TASK(copyDataByIndices);
         services::Status status;
 
-        oneapi::internal::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
-        oneapi::internal::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
+        services::internal::sycl::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+        services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
         buildProgram(factory);
 
         const char * const kernelName      = "copyDataByIndices";
-        oneapi::internal::KernelPtr kernel = factory.getKernel(kernelName);
+        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
 
-        oneapi::internal::KernelArguments args(4);
-        args.set(0, x, oneapi::internal::AccessModeIds::read);
-        args.set(1, indX, oneapi::internal::AccessModeIds::read);
+        services::internal::sycl::KernelArguments args(4);
+        args.set(0, x, services::internal::sycl::AccessModeIds::read);
+        args.set(1, indX, services::internal::sycl::AccessModeIds::read);
         DAAL_ASSERT(p <= uint32max);
         args.set(2, static_cast<uint32_t>(p));
-        args.set(3, newX, oneapi::internal::AccessModeIds::write);
+        args.set(3, newX, services::internal::sycl::AccessModeIds::write);
 
-        oneapi::internal::KernelRange range(p, nWS);
+        services::internal::sycl::KernelRange range(p, nWS);
 
         ctx.run(range, kernel, args, &status);
         return status;
@@ -177,21 +177,21 @@ struct HelperSVM
         DAAL_ITTNOTIFY_SCOPED_TASK(copyDataByIndices);
         services::Status status;
 
-        oneapi::internal::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
-        oneapi::internal::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
+        services::internal::sycl::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+        services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
         buildProgram(factory);
 
         const char * const kernelName      = "copyDataByIndicesInt";
-        oneapi::internal::KernelPtr kernel = factory.getKernel(kernelName);
+        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
 
-        oneapi::internal::KernelArguments args(4);
-        args.set(0, x, oneapi::internal::AccessModeIds::read);
-        args.set(1, indX, oneapi::internal::AccessModeIds::read);
+        services::internal::sycl::KernelArguments args(4);
+        args.set(0, x, services::internal::sycl::AccessModeIds::read);
+        args.set(1, indX, services::internal::sycl::AccessModeIds::read);
         DAAL_ASSERT(p <= uint32max);
         args.set(2, static_cast<int32_t>(p));
-        args.set(3, newX, oneapi::internal::AccessModeIds::write);
-        oneapi::internal::KernelRange range(p, nWS);
+        args.set(3, newX, services::internal::sycl::AccessModeIds::write);
+        services::internal::sycl::KernelRange range(p, nWS);
 
         ctx.run(range, kernel, args, &status);
         return status;

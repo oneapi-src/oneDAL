@@ -42,7 +42,7 @@ namespace training
 namespace internal
 {
 using namespace daal::data_management;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 /**
  * Types of caches for kernel function values

@@ -27,9 +27,11 @@
 #include "services/buffer.h"
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace math
 {
@@ -58,8 +60,9 @@ struct DAAL_EXPORT ReferenceAxpy
 using interface1::ReferenceAxpy;
 
 } // namespace math
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
 
 #endif

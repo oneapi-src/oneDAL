@@ -38,7 +38,7 @@ namespace cross_entropy_loss
 {
 namespace internal
 {
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 using namespace daal::internal;
 
 // Calculate X^T*beta

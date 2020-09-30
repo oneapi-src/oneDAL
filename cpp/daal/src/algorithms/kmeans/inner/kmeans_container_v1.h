@@ -30,7 +30,7 @@
 #include "src/algorithms/kmeans/inner/kmeans_batch_v1.h"
 #include "src/algorithms/kmeans/inner/kmeans_distributed_v1.h"
 #include "src/algorithms/kmeans/inner/kmeans_types_v1.h"
-#include "sycl/internal/execution_context.h"
+#include "services/internal/sycl/execution_context.h"
 #include "src/data_management/service_numeric_table.h"
 
 namespace daal

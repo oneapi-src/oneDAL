@@ -15,16 +15,18 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __DAAL_ONEAPI_INTERNAL_UTILS_H__
-#define __DAAL_ONEAPI_INTERNAL_UTILS_H__
+#ifndef __DAAL_SERVICES_INTERNAL_SYCL_UTILS_H__
+#define __DAAL_SERVICES_INTERNAL_SYCL_UTILS_H__
 
 #include "services/env_detect.h"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace interface1
 {
@@ -37,8 +39,9 @@ inline ExecutionContextIface & getDefaultContext()
 
 using interface1::getDefaultContext;
 
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
 
 #endif

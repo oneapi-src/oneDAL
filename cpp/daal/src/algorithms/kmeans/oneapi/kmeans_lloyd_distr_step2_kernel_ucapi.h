@@ -49,7 +49,7 @@ public:
     void updateCandidates(bool init, const services::Buffer<int> & partialCandidates, const services::Buffer<algorithmFPType> & partialCValues,
                           const services::Buffer<int> & candidates, const services::Buffer<algorithmFPType> & cValues, uint32_t nClusters,
                           services::Status * st);
-    void buildProgram(oneapi::internal::ClKernelFactoryIface & kernelFactory, services::Status * st);
+    void buildProgram(services::internal::sycl::ClKernelFactoryIface & kernelFactory, services::Status * st);
     uint32_t _maxWGSize = 256;
 };
 

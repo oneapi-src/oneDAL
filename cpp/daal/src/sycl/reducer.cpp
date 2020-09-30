@@ -22,9 +22,11 @@
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace math
 {
@@ -196,6 +198,7 @@ Reducer::Result Reducer::reduce(const BinaryOp op, Layout vectorsLayout, const U
 }
 
 } // namespace math
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal

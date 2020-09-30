@@ -30,7 +30,7 @@ DAAL_ITTNOTIFY_DOMAIN(pca.transform.batch.oneapi);
 #include "src/algorithms/pca/transform/oneapi/cl_kernels/pca_transform_cl_kernels.cl"
 
 using namespace daal::services;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 using namespace daal::data_management;
 
 namespace daal
@@ -45,7 +45,7 @@ namespace oneapi
 {
 namespace internal
 {
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 template <typename algorithmFPType, transform::Method method>
 void TransformKernelOneAPI<algorithmFPType, method>::computeTransformedBlock(const uint32_t numRows, const uint32_t numFeatures,
@@ -214,7 +214,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::buildKernel(Exe
     DAAL_ITTNOTIFY_SCOPED_TASK(pca.transform.compute.buildKernel);
     services::Status status;
 
-    auto fptype_name   = oneapi::internal::getKeyFPType<algorithmFPType>();
+    auto fptype_name   = services::internal::sycl::getKeyFPType<algorithmFPType>();
     auto build_options = fptype_name;
 
     const services::String options = getKeyFPType<algorithmFPType>();

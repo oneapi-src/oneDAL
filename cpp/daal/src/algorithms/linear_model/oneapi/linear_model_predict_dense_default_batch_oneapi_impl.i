@@ -27,7 +27,7 @@
 #include "src/algorithms/linear_model/oneapi/linear_model_predict_kernel_oneapi.h"
 #include "src/data_management/service_numeric_table.h"
 #include "src/sycl/blas_gpu.h"
-#include "sycl/internal/utils.h"
+#include "services/internal/sycl/utils.h"
 #include "src/algorithms/linear_model/oneapi/cl_kernel/linear_model_prediction.cl"
 
 namespace daal
@@ -40,7 +40,7 @@ namespace prediction
 {
 namespace internal
 {
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 template <typename algorithmFPType>
 services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::addBetaIntercept(const services::Buffer<algorithmFPType> & betaTable,

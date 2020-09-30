@@ -16,14 +16,16 @@
 *******************************************************************************/
 
 #include "src/sycl/sorter.h"
-#include "sycl/internal/utils.h"
+#include "services/internal/sycl/utils.h"
 #include "src/externals/service_ittnotify.h"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace sort
 {
@@ -85,7 +87,7 @@ void RadixSort::sort(const UniversalBuffer & input, const UniversalBuffer & outp
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(RadixSort.sort);
 
-    auto & context       = oneapi::internal::getDefaultContext();
+    auto & context       = services::internal::sycl::getDefaultContext();
     auto & kernelFactory = context.getClKernelFactory();
 
     buildProgram(kernelFactory, input.type());
@@ -99,7 +101,7 @@ services::Status RadixSort::sortIndices(UniversalBuffer & values, UniversalBuffe
     DAAL_ITTNOTIFY_SCOPED_TASK(RadixSort.sortIndices);
     services::Status status;
 
-    auto & context       = oneapi::internal::getDefaultContext();
+    auto & context       = services::internal::sycl::getDefaultContext();
     auto & kernelFactory = context.getClKernelFactory();
 
     buildProgram(kernelFactory, values.type());
@@ -251,6 +253,7 @@ services::Status RadixSort::radixReorder(UniversalBuffer & valuesSrc, UniversalB
 }
 
 } // namespace sort
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal

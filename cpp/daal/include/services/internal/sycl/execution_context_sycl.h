@@ -16,22 +16,24 @@
 *******************************************************************************/
 
 #ifdef DAAL_SYCL_INTERFACE
-    #ifndef __DAAL_ONEAPI_INTERNAL_EXECUTION_CONTEXT_SYCL_H__
-        #define __DAAL_ONEAPI_INTERNAL_EXECUTION_CONTEXT_SYCL_H__
+    #ifndef __DAAL_SERVICES_INTERNAL_SYCL_EXECUTION_CONTEXT_SYCL_H__
+        #define __DAAL_SERVICES_INTERNAL_SYCL_EXECUTION_CONTEXT_SYCL_H__
 
         #include "services/daal_string.h"
         #include "services/internal/hash_table.h"
-        #include "sycl/internal/execution_context.h"
-        #include "sycl/internal/kernel_scheduler_sycl.h"
-        #include "sycl/internal/math/blas_executor.h"
-        #include "sycl/internal/math/lapack_executor.h"
-        #include "sycl/internal/error_handling.h"
+        #include "services/internal/sycl/execution_context.h"
+        #include "services/internal/sycl/kernel_scheduler_sycl.h"
+        #include "services/internal/sycl/math/blas_executor.h"
+        #include "services/internal/sycl/math/lapack_executor.h"
+        #include "services/internal/sycl/error_handling.h"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace interface1
 {
@@ -352,8 +354,9 @@ private:
 
 using interface1::SyclExecutionContextImpl;
 
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
 
     #endif

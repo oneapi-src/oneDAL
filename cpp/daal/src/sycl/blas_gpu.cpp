@@ -15,16 +15,18 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "sycl/internal/math/reference_gemm.h"
-#include "sycl/internal/math/reference_axpy.h"
+#include "services/internal/sycl/math/reference_gemm.h"
+#include "services/internal/sycl/math/reference_axpy.h"
 #include "src/sycl/blas_gpu.h"
 #include "src/sycl/cl_kernels/kernel_blas.cl"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace math
 {
@@ -144,6 +146,7 @@ template class ReferenceAxpy<double>;
 
 } // namespace interface1
 } // namespace math
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal

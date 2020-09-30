@@ -28,7 +28,7 @@
 
 DAAL_ITTNOTIFY_DOMAIN(df.common.oneapi);
 
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 using namespace daal::services::internal;
 
 namespace daal

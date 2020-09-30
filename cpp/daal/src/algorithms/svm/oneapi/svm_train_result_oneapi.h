@@ -38,7 +38,7 @@ namespace training
 {
 namespace internal
 {
-using namespace daal::oneapi::internal::math;
+using namespace daal::services::internal::sycl::math;
 
 template <typename algorithmFPType>
 class SaveResultModel

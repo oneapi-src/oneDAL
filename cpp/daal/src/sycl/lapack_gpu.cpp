@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "sycl/internal/math/reference_lapack.h"
+#include "services/internal/sycl/math/reference_lapack.h"
 #include "src/externals/service_lapack.h"
 #include "services/error_handling.h"
 #include "src/sycl/blas_gpu.h"
@@ -23,9 +23,11 @@
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace math
 {
@@ -87,6 +89,7 @@ template class ReferencePotrs<double>;
 
 } // namespace interface1
 } // namespace math
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal

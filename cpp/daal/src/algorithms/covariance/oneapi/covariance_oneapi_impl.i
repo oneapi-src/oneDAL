@@ -35,7 +35,7 @@
 #include "src/services/service_data_utils.h"
 
 using namespace daal::services::internal;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 namespace daal
 {

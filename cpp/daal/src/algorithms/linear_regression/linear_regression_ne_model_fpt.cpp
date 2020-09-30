@@ -24,7 +24,7 @@
 #include "src/algorithms/linear_regression/linear_regression_ne_model_impl.h"
 #include "data_management/data/homogen_numeric_table.h"
 #include "data_management/data/numeric_table_sycl_homogen.h"
-#include "sycl/internal/utils.h"
+#include "services/internal/sycl/utils.h"
 
 namespace daal
 {
@@ -53,7 +53,7 @@ ModelNormEqInternal::ModelNormEqInternal(size_t featnum, size_t nrhs, const line
         dimWithoutBeta--;
     }
 
-    auto & context    = oneapi::internal::getDefaultContext();
+    auto & context    = services::internal::sycl::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)

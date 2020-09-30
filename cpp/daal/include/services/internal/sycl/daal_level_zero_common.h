@@ -1,6 +1,6 @@
-/* file: types.h */
+/* file: daal_level_zero_common.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,46 +15,23 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __ONEAPI_INTERNAL_MATH_TYPES_H__
-#define __ONEAPI_INTERNAL_MATH_TYPES_H__
+#ifndef _DAAL_LEVEL_ZERO_COMMON
 
-namespace daal
-{
-namespace oneapi
-{
-namespace internal
-{
-namespace math
-{
-namespace interface1
-{
-enum Layout
-{
-    ColMajor,
-    RowMajor
-};
+    #if !(defined(__linux__) || defined(_WIN64))
+        #define DAAL_DISABLE_LEVEL_ZERO
+    #endif
 
-enum Transpose
-{
-    NoTrans,
-    Trans
-};
+    #ifndef DAAL_DISABLE_LEVEL_ZERO
 
-enum UpLo
-{
-    Upper,
-    Lower
-};
+        #ifndef _ZE_API_H
+            #include "services/internal/sycl/daal_level_zero_types.h"
+        #endif
 
-} // namespace interface1
+typedef ze_result_t (*zeModuleCreateFT)(ze_context_handle_t, ze_device_handle_t, const ze_module_desc_t *, ze_module_handle_t *,
+                                        ze_module_build_log_handle_t *);
 
-using interface1::Layout;
-using interface1::Transpose;
-using interface1::UpLo;
+typedef ze_result_t (*zeModuleDestroyFT)(ze_module_handle_t hModule);
 
-} // namespace math
-} // namespace internal
-} // namespace oneapi
-} // namespace daal
+    #endif // DAAL_DISABLE_LEVEL_ZERO
 
-#endif
+#endif // _DAAL_LEVEL_ZERO_COMMON

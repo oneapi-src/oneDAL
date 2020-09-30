@@ -23,7 +23,7 @@
 
 #include "src/algorithms/linear_model/oneapi/linear_model_train_normeq_kernel_oneapi.h"
 #include "src/sycl/blas_gpu.h"
-#include "sycl/internal/utils.h"
+#include "services/internal/sycl/utils.h"
 #include "src/externals/service_ittnotify.h"
 #include "src/algorithms/linear_model/oneapi/cl_kernel/reduce_results.cl"
 
@@ -39,7 +39,7 @@ namespace training
 {
 namespace internal
 {
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 template <typename algorithmFPType>
 services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTable, NumericTable & yTable, NumericTable & xtx, NumericTable & xty,

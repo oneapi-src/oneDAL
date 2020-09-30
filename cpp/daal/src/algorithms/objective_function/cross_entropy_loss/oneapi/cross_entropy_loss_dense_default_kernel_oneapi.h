@@ -90,14 +90,14 @@ private:
                                NumericTable * lipschitzConstantNT, const algorithmFPType l1reg, const algorithmFPType l2reg, const bool interceptFlag,
                                const bool isSourceData);
 
-    static void buildProgram(oneapi::internal::ClKernelFactoryIface & factory);
+    static void buildProgram(services::internal::sycl::ClKernelFactoryIface & factory);
 
-    oneapi::internal::UniversalBuffer _uX;
-    oneapi::internal::UniversalBuffer _uY;
-    oneapi::internal::UniversalBuffer _fUniversal;
-    oneapi::internal::UniversalBuffer _softmaxUniversal;
-    oneapi::internal::UniversalBuffer _oneVector;
-    oneapi::internal::UniversalBuffer _crossEntropyUniversal;
+    services::internal::sycl::UniversalBuffer _uX;
+    services::internal::sycl::UniversalBuffer _uY;
+    services::internal::sycl::UniversalBuffer _fUniversal;
+    services::internal::sycl::UniversalBuffer _softmaxUniversal;
+    services::internal::sycl::UniversalBuffer _oneVector;
+    services::internal::sycl::UniversalBuffer _crossEntropyUniversal;
 };
 
 } // namespace internal

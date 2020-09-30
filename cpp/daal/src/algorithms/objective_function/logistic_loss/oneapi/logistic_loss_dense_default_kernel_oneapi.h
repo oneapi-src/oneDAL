@@ -86,13 +86,13 @@ private:
                                              const uint32_t n, const uint32_t p, services::Buffer<algorithmFPType> & h, const uint32_t nBeta,
                                              const algorithmFPType alpha);
 
-    static void buildProgram(oneapi::internal::ClKernelFactoryIface & factory);
+    static void buildProgram(services::internal::sycl::ClKernelFactoryIface & factory);
 
-    oneapi::internal::UniversalBuffer _uX;
-    oneapi::internal::UniversalBuffer _uY;
-    oneapi::internal::UniversalBuffer _fUniversal;
-    oneapi::internal::UniversalBuffer _sigmoidUniversal;
-    oneapi::internal::UniversalBuffer _subSigmoidYUniversal;
+    services::internal::sycl::UniversalBuffer _uX;
+    services::internal::sycl::UniversalBuffer _uY;
+    services::internal::sycl::UniversalBuffer _fUniversal;
+    services::internal::sycl::UniversalBuffer _sigmoidUniversal;
+    services::internal::sycl::UniversalBuffer _subSigmoidYUniversal;
 };
 
 } // namespace internal

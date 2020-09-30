@@ -41,12 +41,12 @@
 #include "src/services/service_arrays.h"
 #include "src/services/service_utils.h"
 #include "src/services/daal_strings.h"
-#include "sycl/internal/types.h"
+#include "services/internal/sycl/types.h"
 
 using namespace daal::services;
 using namespace daal::services::internal;
 using namespace daal::internal;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 using namespace daal::algorithms::dtrees::internal;
 
 namespace daal

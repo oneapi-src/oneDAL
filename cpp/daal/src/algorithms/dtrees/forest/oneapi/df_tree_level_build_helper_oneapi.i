@@ -26,7 +26,7 @@
 #include "src/services/service_data_utils.h"
 #include "src/externals/service_ittnotify.h"
 
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 using namespace daal::services;
 using namespace daal::services::internal;
 

@@ -27,7 +27,7 @@
 
 DAAL_ITTNOTIFY_DOMAIN(gbt.common.oneapi);
 
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 namespace daal
 {

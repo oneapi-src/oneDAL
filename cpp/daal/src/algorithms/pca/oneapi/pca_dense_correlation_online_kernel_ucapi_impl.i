@@ -33,7 +33,7 @@ DAAL_ITTNOTIFY_DOMAIN(pca.dense.correlation.online.oneapi);
 
 using namespace daal::services;
 using namespace daal::internal;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 using namespace daal::data_management;
 
 namespace daal

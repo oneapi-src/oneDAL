@@ -26,7 +26,7 @@
 #define __LINEAR_REGRESSION_TRAIN_DENSE_NORMEQ_HELPER_ONEAPI_IMPL_I__
 
 #include "src/algorithms/linear_regression/oneapi/linear_regression_train_kernel_oneapi.h"
-#include "sycl/internal/utils.h"
+#include "services/internal/sycl/utils.h"
 #include "src/algorithms/linear_regression/oneapi/cl_kernel/helper_beta_copy.cl"
 
 namespace daal
@@ -39,7 +39,7 @@ namespace training
 {
 namespace internal
 {
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 template <typename algorithmFPType>
 services::Status KernelHelperOneAPI<algorithmFPType>::computeBetasImpl(const size_t p, services::Buffer<algorithmFPType> & a, const size_t ny,

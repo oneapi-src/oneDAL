@@ -21,14 +21,16 @@
 #include "src/sycl/math_service_types.h"
 #include "services/buffer.h"
 #include "src/sycl/cl_kernels/sum_reducer.cl"
-#include "sycl/internal/types_utils.h"
-#include "sycl/internal/execution_context.h"
+#include "services/internal/sycl/types_utils.h"
+#include "services/internal/sycl/execution_context.h"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace math
 {
@@ -98,8 +100,9 @@ private:
 };
 
 } // namespace math
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
 
 #endif

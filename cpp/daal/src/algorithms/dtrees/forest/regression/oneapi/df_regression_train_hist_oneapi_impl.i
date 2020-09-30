@@ -46,7 +46,7 @@
 #include "src/services/service_utils.h"
 #include "src/services/daal_strings.h"
 #include "src/algorithms/engines/engine_types_internal.h"
-#include "sycl/internal/types.h"
+#include "services/internal/sycl/types.h"
 
 using namespace daal::algorithms::decision_forest::internal;
 using namespace daal::algorithms::decision_forest::regression::internal;

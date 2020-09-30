@@ -62,8 +62,8 @@ public:
                                    const uint32_t p);
 
 private:
-    oneapi::internal::UniversalBuffer _fUniversal;
-    oneapi::internal::UniversalBuffer _oneVector;
+    services::internal::sycl::UniversalBuffer _fUniversal;
+    services::internal::sycl::UniversalBuffer _oneVector;
 };
 
 } // namespace internal

@@ -15,18 +15,20 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __DAAL_ONEAPI_INTERNAL_BUFFER_UTILS_H__
-#define __DAAL_ONEAPI_INTERNAL_BUFFER_UTILS_H__
+#ifndef __DAAL_SERVICES_INTERNAL_SYCL_BUFFER_UTILS_H__
+#define __DAAL_SERVICES_INTERNAL_SYCL_BUFFER_UTILS_H__
 
-#include "sycl/internal/utils.h"
-#include "sycl/internal/types_utils.h"
+#include "services/internal/sycl/utils.h"
+#include "services/internal/sycl/types_utils.h"
 #include "data_management/data/internal/conversion.h"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace interface1
 {
@@ -188,8 +190,9 @@ using interface1::BufferConverterFrom;
 using interface1::BufferConverterTo;
 using interface1::BufferHostReinterpreter;
 
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
 
 #endif

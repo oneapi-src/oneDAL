@@ -15,25 +15,38 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __DAAL_ONEAPI_INTERNAL_TYPES_H__
-#define __DAAL_ONEAPI_INTERNAL_TYPES_H__
+#ifndef __DAAL_SERVICES_INTERNAL_SYCL_TYPES_H__
+#define __DAAL_SERVICES_INTERNAL_SYCL_TYPES_H__
 
 #include <cstddef>
+#include <stdint.h>
 
 #include "services/buffer.h"
 #include "services/internal/any.h"
 #include "services/daal_string.h"
-#include "services/internal/base_types.h"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 /** @ingroup oneapi_internal
  * @{
  */
+
+typedef ::int8_t int8_t;
+typedef ::int16_t int16_t;
+typedef ::int32_t int32_t;
+typedef ::int64_t int64_t;
+typedef ::uint8_t uint8_t;
+typedef ::uint16_t uint16_t;
+typedef ::uint32_t uint32_t;
+typedef ::uint64_t uint64_t;
+typedef float float32_t;
+typedef double float64_t;
 
 template <typename algorithmFPType>
 inline services::String getKeyFPType()
@@ -106,7 +119,7 @@ inline TypeId getTypeId()
 
 #define DAAL_DECLARE_TYPE_ID_MAP(id_)                          \
     template <>                                                \
-    inline TypeId getTypeId<daal::oneapi::internal::id_##_t>() \
+    inline TypeId getTypeId<daal::services::internal::sycl::id_##_t>() \
     {                                                          \
         return TypeIds::id_;                                   \
     }
@@ -238,8 +251,9 @@ using interface1::UniversalBuffer;
 using interface1::LocalBuffer;
 
 /** @} */
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
 
 #endif

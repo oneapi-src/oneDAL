@@ -42,7 +42,7 @@ namespace prediction
 {
 namespace internal
 {
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 using namespace services;
 using sort::RadixSort;
 using selection::QuickSelectIndexed;
@@ -300,7 +300,7 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeWinners(Exec
 template <typename algorithmFpType>
 Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::buildProgram(ClKernelFactoryIface & kernel_factory)
 {
-    auto fptype_name   = oneapi::internal::getKeyFPType<algorithmFpType>();
+    auto fptype_name   = services::internal::sycl::getKeyFPType<algorithmFpType>();
     auto build_options = fptype_name;
     build_options.add(" -D sortedType=int -D NumParts=16 ");
 

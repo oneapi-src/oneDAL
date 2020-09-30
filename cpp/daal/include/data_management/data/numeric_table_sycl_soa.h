@@ -20,7 +20,7 @@
 
 #include "data_management/data/numeric_table_sycl.h"
 #include "data_management/data/soa_numeric_table.h"
-#include "sycl/internal/buffer_utils.h"
+#include "services/internal/sycl/buffer_utils.h"
 
 namespace daal
 {
@@ -95,7 +95,7 @@ public:
                 _arraysInitialized--;
             }
 
-            _arrays[idx] = oneapi::internal::UniversalBuffer(bf);
+            _arrays[idx] = services::internal::sycl::UniversalBuffer(bf);
 
             if (isCpuTable())
             {
@@ -280,10 +280,10 @@ protected:
     services::Status allocateArray(size_t idx, const NumericTableFeature & feature)
     {
         using namespace services;
-        using namespace oneapi::internal;
+        using namespace services::internal::sycl;
 
         Status st;
-        auto & context = oneapi::internal::getDefaultContext();
+        auto & context = services::internal::sycl::getDefaultContext();
         size_t nrows   = getNumberOfRows();
 
         switch (feature.indexType)
@@ -449,7 +449,7 @@ protected:
     template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)
     {
-        using namespace oneapi::internal;
+        using namespace services::internal::sycl;
 
         NumericTable::serialImpl<Archive, onDeserialize>(arch);
 
@@ -496,7 +496,7 @@ private:
     template <typename T>
     services::Status getTBlock(size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T> & block)
     {
-        using namespace oneapi::internal;
+        using namespace services::internal::sycl;
 
         size_t ncols = getNumberOfColumns();
         size_t nobs  = getNumberOfRows();
@@ -549,7 +549,7 @@ private:
     template <typename T>
     services::Status releaseTBlock(BlockDescriptor<T> & block)
     {
-        using namespace oneapi::internal;
+        using namespace services::internal::sycl;
 
         if (block.getRWFlag() & (int)writeOnly)
         {
@@ -594,7 +594,7 @@ private:
     template <typename T>
     services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
     {
-        using namespace oneapi::internal;
+        using namespace services::internal::sycl;
 
         const size_t nobs = getNumberOfRows();
         block.setDetails(feat_idx, idx, rwFlag);
@@ -627,7 +627,7 @@ private:
     template <typename T>
     services::Status releaseTFeature(BlockDescriptor<T> & block)
     {
-        using namespace oneapi::internal;
+        using namespace services::internal::sycl;
 
         if (block.getRWFlag() & (int)writeOnly)
         {
@@ -652,10 +652,10 @@ private:
 
     inline bool isCpuTable() const { return (bool)_cpuTable; }
 
-    static bool isCpuContext() { return oneapi::internal::getDefaultContext().getInfoDevice().isCpu; }
+    static bool isCpuContext() { return services::internal::sycl::getDefaultContext().getInfoDevice().isCpu; }
 
 private:
-    services::Collection<oneapi::internal::UniversalBuffer> _arrays;
+    services::Collection<services::internal::sycl::UniversalBuffer> _arrays;
     size_t _arraysInitialized;
     MemoryStatus _partialMemStatus;
 

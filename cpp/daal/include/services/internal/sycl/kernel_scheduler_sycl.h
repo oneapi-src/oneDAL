@@ -16,31 +16,33 @@
 *******************************************************************************/
 
 #ifdef DAAL_SYCL_INTERFACE
-    #ifndef __DAAL_ONEAPI_INTERNAL_KERNEL_SCHEDULER_SYCL_H__
-        #define __DAAL_ONEAPI_INTERNAL_KERNEL_SCHEDULER_SYCL_H__
+    #ifndef __DAAL_SERVICES_INTERNAL_SYCL_KERNEL_SCHEDULER_SYCL_H__
+        #define __DAAL_SERVICES_INTERNAL_SYCL_KERNEL_SCHEDULER_SYCL_H__
 
         #include <CL/cl.h>
         #include <CL/sycl.hpp>
 
-        #include "sycl/internal/daal_level_zero_common.h"
+        #include "services/internal/sycl/daal_level_zero_common.h"
 
         #ifndef DAAL_DISABLE_LEVEL_ZERO
-            #include "sycl/internal/daal_ze_module_helper.h"
+            #include "services/internal/sycl/daal_ze_module_helper.h"
         #endif // DAAL_DISABLE_LEVEL_ZERO
 
         #include <cstring>
         #include <vector>
 
-        #include "sycl/internal/error_handling.h"
-        #include "sycl/internal/execution_context.h"
-        #include "sycl/internal/types_utils_cxx11.h"
+        #include "services/internal/sycl/error_handling.h"
+        #include "services/internal/sycl/execution_context.h"
+        #include "services/internal/sycl/types_utils_cxx11.h"
         #include "services/daal_string.h"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace interface1
 {
@@ -613,8 +615,9 @@ private:
 };
 
 } // namespace interface1
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
 
     #endif
