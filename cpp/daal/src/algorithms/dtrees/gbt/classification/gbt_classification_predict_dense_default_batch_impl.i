@@ -79,11 +79,11 @@ public:
         //compute raw boosted values
         if (this->_res && _prob)
         {
-            WriteOnlyRows<algorithmFPType, cpu> resBD(this->_res, 0, 1);
+            WriteOnlyRows<algorithmFPType, cpu> resBD(this->_res, 0, nRows);
             DAAL_CHECK_BLOCK_STATUS(resBD);
             const algorithmFPType label[2] = { algorithmFPType(1.), algorithmFPType(0.) };
             algorithmFPType * res          = resBD.get();
-            WriteOnlyRows<algorithmFPType, cpu> probBD(_prob, 0, 1);
+            WriteOnlyRows<algorithmFPType, cpu> probBD(_prob, 0, nRows);
             DAAL_CHECK_BLOCK_STATUS(probBD);
             algorithmFPType * prob_pred = probBD.get();
             TArray<algorithmFPType, cpu> expValPtr(nRows);
@@ -114,7 +114,7 @@ public:
 
         else if ((!this->_res) && _prob)
         {
-            WriteOnlyRows<algorithmFPType, cpu> probBD(_prob, 0, 1);
+            WriteOnlyRows<algorithmFPType, cpu> probBD(_prob, 0, nRows);
             DAAL_CHECK_BLOCK_STATUS(probBD);
             algorithmFPType * prob_pred = probBD.get();
             TArray<algorithmFPType, cpu> expValPtr(nRows);
@@ -140,7 +140,7 @@ public:
         }
         else if (this->_res && (!_prob))
         {
-            WriteOnlyRows<algorithmFPType, cpu> resBD(this->_res, 0, 1);
+            WriteOnlyRows<algorithmFPType, cpu> resBD(this->_res, 0, nRows);
             DAAL_CHECK_BLOCK_STATUS(resBD);
             const algorithmFPType label[2] = { algorithmFPType(1.), algorithmFPType(0.) };
             algorithmFPType * res          = resBD.get();
@@ -259,7 +259,7 @@ void PredictMulticlassTask<algorithmFPType, cpu>::predictByTreesVector(algorithm
 template <typename algorithmFPType, CpuType cpu>
 services::Status PredictMulticlassTask<algorithmFPType, cpu>::predictByAllTrees(size_t nTreesTotal, size_t nClasses, const DimType & dim)
 {
-    WriteOnlyRows<algorithmFPType, cpu> resBD(_res, 0, 1);
+    WriteOnlyRows<algorithmFPType, cpu> resBD(_res, 0, dim.nRowsTotal);
     DAAL_CHECK_BLOCK_STATUS(resBD);
 
     const size_t nCols(_data->getNumberOfColumns());
@@ -267,7 +267,7 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::predictByAllTrees(
     daal::SafeStatus safeStat;
     if (_prob)
     {
-        WriteOnlyRows<algorithmFPType, cpu> probBD(_prob, 0, 1);
+        WriteOnlyRows<algorithmFPType, cpu> probBD(_prob, 0, dim.nRowsTotal);
         DAAL_CHECK_BLOCK_STATUS(probBD);
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, nClasses);
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows * nClasses, sizeof(algorithmFPType));
