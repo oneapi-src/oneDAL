@@ -319,7 +319,8 @@ services::Status checkFinitenessInBlocks(const float ** dataPtrs, bool inParalle
         __m512i frac512Mask = _mm512_set1_epi32(floatFracMask);
         __m512i zero512     = _mm512_setzero_si512();
 
-        __mmask16 notAllowNaNMask = allowNaN ? _cvtu32_mask16(0) : _cvtu32_mask16(services::internal::MaxVal<int>::get() * 2 + 1);
+        __mmask16 notAllowNaNMask =
+            allowNaN ? _cvtu32_mask16(0) : _cvtu32_mask16(static_cast<unsigned int>(services::internal::MaxVal<int>::get()) * 2 + 1);
 
         __m512i * ptr512i = (__m512i *)(dataPtrs[ptrIdx] + start);
 
@@ -374,7 +375,8 @@ services::Status checkFinitenessInBlocks(const double ** dataPtrs, bool inParall
         __m512i frac512Mask = _mm512_set1_epi64(doubleFracMask);
         __m512i zero512     = _mm512_setzero_si512();
 
-        __mmask8 notAllowNaNMask = allowNaN ? _cvtu32_mask8(0) : _cvtu32_mask8(services::internal::MaxVal<int>::get() * 2 + 1);
+        __mmask8 notAllowNaNMask =
+            allowNaN ? _cvtu32_mask8(0) : _cvtu32_mask8(static_cast<unsigned int>(services::internal::MaxVal<int>::get()) * 2 + 1);
 
         __m512i * ptr512i = (__m512i *)(dataPtrs[ptrIdx] + start);
 

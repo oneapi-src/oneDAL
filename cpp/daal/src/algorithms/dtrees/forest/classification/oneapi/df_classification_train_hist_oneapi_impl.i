@@ -44,6 +44,7 @@
 #include "src/services/service_algo_utils.h"
 #include "src/services/service_arrays.h"
 #include "src/services/service_utils.h"
+#include "src/services/daal_strings.h"
 #include "src/algorithms/engines/engine_types_internal.h"
 #include "sycl/internal/types.h"
 
@@ -76,32 +77,13 @@ static services::String getFPTypeAccuracy()
     return services::String();
 }
 
-inline char * utoa(uint32_t value, char * buffer, size_t buffer_size)
-{
-    size_t i = 0;
-    while (value && i < buffer_size - 1)
-    {
-        size_t rem  = value % 10;
-        buffer[i++] = 48 + rem;
-        value /= 10;
-    }
-
-    for (size_t j = 0; j < i - j - 1; j++)
-    {
-        char tmp          = buffer[j];
-        buffer[j]         = buffer[i - j - 1];
-        buffer[i - j - 1] = tmp;
-    }
-    buffer[i] = 0;
-    return buffer;
-}
-
 static services::String getBuildOptions(size_t nClasses)
 {
-    const uint32_t valBufSize = 16;
-    static char valBuffer[valBufSize];
+    DAAL_ASSERT(nClasses <= _int32max);
+    char buffer[DAAL_MAX_STRING_SIZE] = { 0 };
+    const auto written                = daal::services::daal_int_to_string(buffer, DAAL_MAX_STRING_SIZE, static_cast<int32_t>(nClasses));
+    services::String nClassesStr(buffer, written);
 
-    services::String nClassesStr(utoa(static_cast<uint32_t>(nClasses), valBuffer, valBufSize));
     services::String buildOptions = " -D NODE_PROPS=6 -D IMPURITY_PROPS=1 -D HIST_PROPS=";
     buildOptions.add(nClassesStr);
     buildOptions.add(" -D NUM_OF_CLASSES=");
@@ -156,19 +138,25 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
     auto & kernel = kernelComputeBestSplitByHistogram;
 
     {
+        DAAL_ASSERT(nSelectedFeatures <= _int32max);
+        DAAL_ASSERT(nodeIndicesOffset <= _int32max);
+        DAAL_ASSERT(updateImpDecreaseRequired <= _int32max);
+        DAAL_ASSERT(nMaxBinsAmongFtrs <= _int32max);
+        DAAL_ASSERT(minObservationsInLeafNode <= _int32max);
+
         KernelArguments args(13);
         args.set(0, nodeHistogramList, AccessModeIds::read);
         args.set(1, selectedFeatures, AccessModeIds::read);
-        args.set(2, (int32_t)nSelectedFeatures);
+        args.set(2, static_cast<int32_t>(nSelectedFeatures));
         args.set(3, binOffsets, AccessModeIds::read);
         args.set(4, nodeList, AccessModeIds::readwrite); // nodeList will be updated with split attributes
         args.set(5, nodeIndices, AccessModeIds::read);
-        args.set(6, nodeIndicesOffset);
+        args.set(6, static_cast<int32_t>(nodeIndicesOffset));
         args.set(7, impList, AccessModeIds::write);
         args.set(8, nodeImpDecreaseList, AccessModeIds::write);
-        args.set(9, (int32_t)updateImpDecreaseRequired);
-        args.set(10, (int32_t)nMaxBinsAmongFtrs);
-        args.set(11, (int32_t)minObservationsInLeafNode);
+        args.set(9, static_cast<int32_t>(updateImpDecreaseRequired));
+        args.set(10, static_cast<int32_t>(nMaxBinsAmongFtrs));
+        args.set(11, static_cast<int32_t>(minObservationsInLeafNode));
         args.set(12, impurityThreshold);
 
         const size_t numOfSubGroupsPerNode = 4; //add logic for adjusting it in accordance with nNodes
@@ -206,21 +194,27 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
     auto & kernel = kernelComputeBestSplitSinglePass;
 
     {
+        DAAL_ASSERT(nSelectedFeatures <= _int32max);
+        DAAL_ASSERT(nodeIndicesOffset <= _int32max);
+        DAAL_ASSERT(updateImpDecreaseRequired <= _int32max);
+        DAAL_ASSERT(nFeatures <= _int32max);
+        DAAL_ASSERT(minObservationsInLeafNode <= _int32max);
+
         KernelArguments args(15);
         args.set(0, data, AccessModeIds::read);
         args.set(1, treeOrder, AccessModeIds::read);
         args.set(2, selectedFeatures, AccessModeIds::read);
-        args.set(3, (int32_t)nSelectedFeatures);
+        args.set(3, static_cast<int32_t>(nSelectedFeatures));
         args.set(4, response, AccessModeIds::read);
         args.set(5, binOffsets, AccessModeIds::read);
         args.set(6, nodeList, AccessModeIds::readwrite); // nodeList will be updated with split attributes
         args.set(7, nodeIndices, AccessModeIds::read);
-        args.set(8, (int32_t)nodeIndicesOffset);
+        args.set(8, static_cast<int32_t>(nodeIndicesOffset));
         args.set(9, impList, AccessModeIds::write);
         args.set(10, nodeImpDecreaseList, AccessModeIds::write);
-        args.set(11, (int32_t)updateImpDecreaseRequired);
-        args.set(12, (int32_t)nFeatures);
-        args.set(13, (int32_t)minObservationsInLeafNode);
+        args.set(11, static_cast<int32_t>(updateImpDecreaseRequired));
+        args.set(12, static_cast<int32_t>(nFeatures));
+        args.set(13, static_cast<int32_t>(minObservationsInLeafNode));
         args.set(14, impurityThreshold);
 
         const size_t numOfSubGroupsPerNode = 4; //add logic for adjusting it in accordance with nNodes
@@ -253,13 +247,15 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
 
     auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
-    auto nodesGroups = context.allocate(TypeIds::id<int>(), _nNodesGroups * _nodeGroupProps, &status);
-    auto nodeIndices = context.allocate(TypeIds::id<int>(), nNodes, &status);
+    // no overflow check is required because of _nNodesGroups and _nodeGroupProps are small constants
+    auto nodesGroups = context.allocate(TypeIds::id<int32_t>(), _nNodesGroups * _nodeGroupProps, &status);
+    DAAL_CHECK_STATUS_VAR(status);
+    auto nodeIndices = context.allocate(TypeIds::id<int32_t>(), nNodes, &status);
     DAAL_CHECK_STATUS_VAR(status);
 
     DAAL_CHECK_STATUS_VAR(_treeLevelBuildHelper.splitNodeListOnGroupsBySize(nodeList, nNodes, nodesGroups, nodeIndices));
 
-    auto nodesGroupsHost = nodesGroups.template get<int>().toHost(ReadWriteMode::readOnly);
+    auto nodesGroupsHost = nodesGroups.template get<int32_t>().toHost(ReadWriteMode::readOnly);
     DAAL_CHECK_MALLOC(nodesGroupsHost.get());
 
     size_t nGroupNodes    = 0;
@@ -280,11 +276,16 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
             //_maxLocalHistograms/2 (128) showed better performance than _maxLocalHistograms need to investigate
             int reduceLocalSize = 16; // add logic for its adjustment
 
+            // mul overflow for nSelectedFeatures * _nMaxBinsAmongFtrs and for nHistBins * _nClasses were checked before kernel call in compute
             size_t nHistBins    = nSelectedFeatures * _nMaxBinsAmongFtrs;
             size_t partHistSize = nHistBins * _nClasses;
 
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nGroupNodes, partHistSize);
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nGroupNodes * partHistSize, nPartialHistograms);
+
             auto partialHistograms = context.allocate(TypeIds::id<algorithmFPType>(), nGroupNodes * nPartialHistograms * partHistSize, &status);
-            auto nodesHistograms   = context.allocate(TypeIds::id<algorithmFPType>(), nGroupNodes * partHistSize, &status);
+            DAAL_CHECK_STATUS_VAR(status);
+            auto nodesHistograms = context.allocate(TypeIds::id<algorithmFPType>(), nGroupNodes * partHistSize, &status);
             DAAL_CHECK_STATUS_VAR(status);
 
             DAAL_CHECK_STATUS_VAR(computePartialHistograms(data, treeOrder, selectedFeatures, nSelectedFeatures, response, nodeList, nodeIndices,
@@ -325,17 +326,22 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
     auto & kernel = kernelComputePartialHistograms;
 
     {
+        DAAL_ASSERT(nSelectedFeatures <= _int32max);
+        DAAL_ASSERT(nodeIndicesOffset <= _int32max);
+        DAAL_ASSERT(nMaxBinsAmongFtrs <= _int32max);
+        DAAL_ASSERT(nFeatures <= _int32max);
+
         KernelArguments args(11);
         args.set(0, data, AccessModeIds::read);
         args.set(1, treeOrder, AccessModeIds::read);
         args.set(2, nodeList, AccessModeIds::read);
         args.set(3, nodeIndices, AccessModeIds::read);
-        args.set(4, (int32_t)nodeIndicesOffset);
+        args.set(4, static_cast<int32_t>(nodeIndicesOffset));
         args.set(5, selectedFeatures, AccessModeIds::read);
         args.set(6, response, AccessModeIds::read);
         args.set(7, binOffsets, AccessModeIds::read);
-        args.set(8, (int32_t)nMaxBinsAmongFtrs); // max num of bins among all ftrs
-        args.set(9, (int32_t)nFeatures);
+        args.set(8, static_cast<int32_t>(nMaxBinsAmongFtrs)); // max num of bins among all ftrs
+        args.set(9, static_cast<int32_t>(nFeatures));
         args.set(10, partialHistograms, AccessModeIds::write);
 
         size_t localSize = nSelectedFeatures < _maxLocalSize ? nSelectedFeatures : _maxLocalSize;
@@ -370,14 +376,19 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::re
     auto & kernel = kernelReducePartialHistograms;
 
     {
+        DAAL_ASSERT(nPartialHistograms <= _int32max);
+        DAAL_ASSERT(nSelectedFeatures <= _int32max);
+        DAAL_ASSERT(nMaxBinsAmongFtrs <= _int32max);
+
         KernelArguments args(5);
         args.set(0, partialHistograms, AccessModeIds::read);
         args.set(1, histograms, AccessModeIds::write);
-        args.set(2, (int32_t)nPartialHistograms);
-        args.set(3, (int32_t)nSelectedFeatures);
-        args.set(4, (int32_t)nMaxBinsAmongFtrs); // max num of bins among all ftrs
+        args.set(2, static_cast<int32_t>(nPartialHistograms));
+        args.set(3, static_cast<int32_t>(nSelectedFeatures));
+        args.set(4, static_cast<int32_t>(nMaxBinsAmongFtrs)); // max num of bins among all ftrs
 
         KernelRange local_range(1, reduceLocalSize, 1);
+        // overflow for nMaxBinsAmongFtrs * nSelectedFeatures should be checked in compute
         KernelRange global_range(nMaxBinsAmongFtrs * nSelectedFeatures, reduceLocalSize, nNodes);
 
         KernelNDRange range(3);
@@ -485,7 +496,7 @@ algorithmFPType ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::com
     typedef DFTreeConverter<algorithmFPType, sse2> DFTreeConverterType;
     typename DFTreeConverterType::TreeHelperType mTreeHelper;
 
-    auto rowsIndHost = indices.template get<int>().toHost(ReadWriteMode::readOnly);
+    auto rowsIndHost = indices.template get<int32_t>().toHost(ReadWriteMode::readOnly);
     DAAL_CHECK_MALLOC(rowsIndHost.get());
     auto oobBufHost = oobBuf.template get<uint32_t>().toHost(ReadWriteMode::readWrite);
     DAAL_CHECK_MALLOC(oobBufHost.get());
@@ -514,7 +525,7 @@ algorithmFPType ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::com
     typedef DFTreeConverter<algorithmFPType, sse2> DFTreeConverterType;
     typename DFTreeConverterType::TreeHelperType mTreeHelper;
 
-    auto rowsIndHost = indices.template get<int>().toHost(ReadWriteMode::readOnly);
+    auto rowsIndHost = indices.template get<int32_t>().toHost(ReadWriteMode::readOnly);
     DAAL_CHECK_MALLOC(rowsIndHost.get());
     TArray<algorithmFPType, sse2> buf(nFeatures);
     DAAL_CHECK_MALLOC(buf.get());
@@ -623,8 +634,22 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
 
     _nClasses = par.nClasses;
 
-    const size_t nRows             = x->getNumberOfRows();
-    const size_t nFeatures         = x->getNumberOfColumns();
+    const size_t nRows     = x->getNumberOfRows();
+    const size_t nFeatures = x->getNumberOfColumns();
+
+    DAAL_CHECK_EX((par.nClasses <= _int32max), ErrorIncorrectParameter, ParameterName, nClassesStr());
+    DAAL_CHECK_EX((par.minObservationsInLeafNode <= _int32max), ErrorIncorrectParameter, ParameterName, minObservationsInLeafNodeStr());
+    DAAL_CHECK_EX((par.featuresPerNode <= _int32max), ErrorIncorrectParameter, ParameterName, featuresPerNodeStr());
+
+    if (nRows > _int32max)
+    {
+        return services::Status(services::ErrorIncorrectNumberOfRowsInInputNumericTable);
+    }
+    if (nFeatures > _int32max)
+    {
+        return services::Status(services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
+    }
+
     const size_t nSelectedFeatures = par.featuresPerNode ? par.featuresPerNode : daal::internal::Math<algorithmFPType, sse2>::sSqrt(nFeatures);
 
     const bool mdaRequired(par.varImportance == decision_forest::training::MDA_Raw || par.varImportance == decision_forest::training::MDA_Scaled);
@@ -660,7 +685,7 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
     _totalBins = indexedFeatures.totalBins();
     /* calculating the maximal number of bins for feature among all features */
     {
-        auto binOffsetsHost = indexedFeatures.binOffsets().template get<int>().toHost(ReadWriteMode::readOnly);
+        auto binOffsetsHost = indexedFeatures.binOffsets().template get<int32_t>().toHost(ReadWriteMode::readOnly);
         DAAL_CHECK_MALLOC(binOffsetsHost.get());
         _nMaxBinsAmongFtrs = 0;
         for (size_t i = 0; i < nFeatures; i++)
@@ -669,13 +694,22 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
             _nMaxBinsAmongFtrs = (_nMaxBinsAmongFtrs < nFtrBins) ? nFtrBins : _nMaxBinsAmongFtrs;
         }
     }
+    // no need to check for _nMaxBinsAmongFtrs < INT32_MAX because it will not be bigger than nRows and nRows was already checked
+    // check mul overflow for _nMaxBinsAmongFtrs * nSelectedFeatures
+    // and _nMaxBinsAmongFtrs * nSelectedFeatures * _nClasses because they are used further in kernels
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, _nMaxBinsAmongFtrs, nSelectedFeatures);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, _nMaxBinsAmongFtrs * nSelectedFeatures, _nClasses);
 
     const size_t nSelectedRows = par.observationsPerTreeFraction * nRows;
+    DAAL_CHECK_EX((nSelectedRows > 0), ErrorIncorrectParameter, ParameterName, observationsPerTreeFractionStr());
+
     daal::services::internal::TArray<int, sse2> selectedRowsHost(nSelectedRows);
     DAAL_CHECK_MALLOC(selectedRowsHost.get());
 
-    auto treeOrderLev    = context.allocate(TypeIds::id<int>(), nSelectedRows, &status);
-    auto treeOrderLevBuf = context.allocate(TypeIds::id<int>(), nSelectedRows, &status);
+    auto treeOrderLev = context.allocate(TypeIds::id<int32_t>(), nSelectedRows, &status);
+    DAAL_CHECK_STATUS_VAR(status);
+    auto treeOrderLevBuf = context.allocate(TypeIds::id<int32_t>(), nSelectedRows, &status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     BlockDescriptor<algorithmFPType> dataBlock;
     DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(x)->getBlockOfRows(0, nRows, readOnly, dataBlock));
@@ -683,6 +717,7 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
     /* blocks for varImp MDI calculation */
     bool mdiRequired         = (par.varImportance == decision_forest::training::MDI);
     auto nodeImpDecreaseList = context.allocate(TypeIds::id<algorithmFPType>(), 1, &status); // holder will be reallocated in loop
+    DAAL_CHECK_STATUS_VAR(status);
     BlockDescriptor<algorithmFPType> varImpBlock;
     NumericTablePtr varImpResPtr = res.get(variableImportance);
 
@@ -698,7 +733,9 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
     if (oobRequired)
     {
         // oobBufferPerObs contains nClassed counters for all out of bag observations for all trees
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, _nClasses);
         oobBufferPerObs = context.allocate(TypeIds::id<uint32_t>(), nRows * _nClasses, &status);
+        DAAL_CHECK_STATUS_VAR(status);
         context.fill(oobBufferPerObs, 0, &status);
         DAAL_CHECK_STATUS_VAR(status);
     }
@@ -715,9 +752,12 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
     engines::internal::ParallelizationTechnique technique = engines::internal::family;
     selectParallelizationTechnique<sse2>(par, technique);
     engines::internal::Params<sse2> params(par.nTrees);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, par.nTrees - 1, par.nTrees);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, (par.nTrees - 1) * par.nTrees, nRows);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, (par.nTrees - 1) * par.nTrees * nRows, (par.featuresPerNode + 1));
     for (size_t i = 0; i < par.nTrees; i++)
     {
-        params.nSkip[i] = i * par.nTrees * x->getNumberOfRows() * (par.featuresPerNode + 1);
+        params.nSkip[i] = i * par.nTrees * nRows * (par.featuresPerNode + 1);
     }
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, par.nTrees, sizeof(engines::EnginePtr));
     daal::services::internal::TArray<engines::EnginePtr, sse2> engines(par.nTrees);
@@ -742,12 +782,14 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
         Collection<UniversalBuffer> levelNodeImpLists; // list of nodes fptype props (impurity, mean)
         UniversalBuffer oobRows;
 
-        levelNodeLists.push_back(context.allocate(TypeIds::id<int>(), nNodes * TreeLevel::_nNodeSplitProps, &status));
+        // no check for overflow required because nNodes = 1, splitProps and impProps are small constants
+        levelNodeLists.push_back(context.allocate(TypeIds::id<int32_t>(), nNodes * TreeLevel::_nNodeSplitProps, &status));
+        DAAL_CHECK_STATUS_VAR(status);
         levelNodeImpLists.push_back(context.allocate(TypeIds::id<algorithmFPType>(), nNodes * (TreeLevel::_nNodeImpProps + _nClasses), &status));
         DAAL_CHECK_STATUS_VAR(status);
 
         {
-            auto rootNode = levelNodeLists[0].template get<int>().toHost(ReadWriteMode::writeOnly);
+            auto rootNode = levelNodeLists[0].template get<int32_t>().toHost(ReadWriteMode::writeOnly);
             DAAL_CHECK_MALLOC(rootNode.get());
             rootNode.get()[0] = 0;             // rows offset
             rootNode.get()[1] = nSelectedRows; // num of rows
@@ -778,11 +820,12 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
             auto nodeList = levelNodeLists[level];
             auto impList  = levelNodeImpLists[level];
 
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, (nNodes + 1), nSelectedFeatures);
             daal::services::internal::TArray<int, sse2> selectedFeaturesHost(
                 (nNodes + 1) * nSelectedFeatures); // first part is used features indices, +1 - part for generator
             DAAL_CHECK_MALLOC(selectedFeaturesHost.get());
 
-            auto selectedFeaturesCom = context.allocate(TypeIds::id<int>(), nNodes * nSelectedFeatures, &status);
+            auto selectedFeaturesCom = context.allocate(TypeIds::id<int32_t>(), nNodes * nSelectedFeatures, &status);
             DAAL_CHECK_STATUS_VAR(status);
 
             if (nSelectedFeatures != nFeatures)
@@ -811,6 +854,7 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
             if (mdiRequired)
             {
                 nodeImpDecreaseList = context.allocate(TypeIds::id<algorithmFPType>(), nNodes, &status);
+                DAAL_CHECK_STATUS_VAR(status);
             }
 
             DAAL_CHECK_STATUS_VAR(computeBestSplit(indexedFeatures.getFullData(), treeOrderLev, selectedFeaturesCom, nSelectedFeatures,
@@ -845,7 +889,10 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
                 /*there are split nodes -> next level is required*/
                 nNodesNewLevel *= 2;
 
-                auto nodeListNewLevel = context.allocate(TypeIds::id<int>(), nNodesNewLevel * TreeLevel::_nNodeSplitProps, &status);
+                DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nNodesNewLevel, TreeLevel::_nNodeSplitProps);
+                DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nNodesNewLevel, (TreeLevel::_nNodeImpProps + _nClasses));
+                auto nodeListNewLevel = context.allocate(TypeIds::id<int32_t>(), nNodesNewLevel * TreeLevel::_nNodeSplitProps, &status);
+                DAAL_CHECK_STATUS_VAR(status);
                 auto impListNewLevel =
                     context.allocate(TypeIds::id<algorithmFPType>(), nNodesNewLevel * (TreeLevel::_nNodeImpProps + _nClasses), &status);
                 DAAL_CHECK_STATUS_VAR(status);
@@ -877,7 +924,7 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
         typename DFTreeConverterType::TreeHelperType mTreeHelper;
 
         DFTreeConverterType converter;
-        converter.convertToDFDecisionTree(DFTreeRecords, binValues.data(), mTreeHelper, _nClasses);
+        DAAL_CHECK_STATUS_VAR(converter.convertToDFDecisionTree(DFTreeRecords, binValues.data(), mTreeHelper, _nClasses));
 
         mdImpl.add(mTreeHelper._tree, _nClasses);
 

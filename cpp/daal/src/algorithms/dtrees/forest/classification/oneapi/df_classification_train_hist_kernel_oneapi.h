@@ -35,9 +35,6 @@
 #include "src/algorithms/dtrees/forest/oneapi/df_feature_type_helper_oneapi.h"
 #include "src/algorithms/dtrees/forest/oneapi/df_tree_level_build_helper_oneapi.h"
 
-using namespace daal::data_management;
-using namespace daal::services;
-
 namespace daal
 {
 namespace algorithms
@@ -55,14 +52,15 @@ class ClassificationTrainBatchKernelOneAPI : public daal::algorithms::Kernel
 {
 public:
     ClassificationTrainBatchKernelOneAPI() {}
-    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::classification::Model & m,
-                             Result & res, const Parameter & par)
+    services::Status compute(services::HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y,
+                             decision_forest::classification::Model & m, Result & res, const Parameter & par)
     {
         return services::ErrorMethodNotImplemented;
     }
 
-    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::classification::Model & m,
-                             Result & res, const decision_forest::classification::training::interface1::Parameter & par)
+    services::Status compute(services::HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y,
+                             decision_forest::classification::Model & m, Result & res,
+                             const decision_forest::classification::training::interface1::Parameter & par)
     {
         return services::ErrorMethodNotImplemented;
     }
@@ -73,8 +71,9 @@ class ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist> : public daal:
 {
 public:
     ClassificationTrainBatchKernelOneAPI() {}
-    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::classification::Model & m,
-                             Result & res, const decision_forest::classification::training::interface1::Parameter & par)
+    services::Status compute(services::HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y,
+                             decision_forest::classification::Model & m, Result & res,
+                             const decision_forest::classification::training::interface1::Parameter & par)
     {
         Parameter tmpPar(par.nClasses);
         tmpPar.nTrees                      = par.nTrees;
@@ -91,8 +90,8 @@ public:
         tmpPar.bootstrap                   = par.bootstrap;
         return compute(pHostApp, x, y, m, res, tmpPar);
     }
-    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::classification::Model & m,
-                             Result & res, const Parameter & par);
+    services::Status compute(services::HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y,
+                             decision_forest::classification::Model & m, Result & res, const Parameter & par);
 
 private:
     services::Status buildProgram(oneapi::internal::ClKernelFactoryIface & factory, const char * programName, const char * programSrc,
@@ -158,17 +157,19 @@ private:
 
     decision_forest::internal::TreeLevelBuildHelperOneAPI<algorithmFPType> _treeLevelBuildHelper;
 
-    const uint32_t _maxWorkItemsPerGroup = 256; // should be a power of two for interal needs
-    const uint32_t _preferableSubGroup   = 16;  // preferable maximal sub-group size
-    const uint32_t _maxLocalSize         = 128;
-    const uint32_t _maxLocalSums         = 256;
-    const uint32_t _maxLocalHistograms   = 256;
-    const uint32_t _preferableGroupSize  = 256;
-    const uint32_t _minRowsBlock         = 256;
-    const uint32_t _maxBins              = 256;
+    const size_t _maxWorkItemsPerGroup = 256; // should be a power of two for interal needs
+    const size_t _preferableSubGroup   = 16;  // preferable maximal sub-group size
+    const size_t _maxLocalSize         = 128;
+    const size_t _maxLocalSums         = 256;
+    const size_t _maxLocalHistograms   = 256;
+    const size_t _preferableGroupSize  = 256;
+    const size_t _minRowsBlock         = 256;
+    const size_t _maxBins              = 256;
 
-    const uint32_t _nNodesGroups   = 3; // all nodes are split on groups (big, medium, small)
-    const uint32_t _nodeGroupProps = 2; // each nodes Group contains props: numOfNodes, maxNumOfBlocks
+    const size_t _nNodesGroups   = 3; // all nodes are split on groups (big, medium, small)
+    const size_t _nodeGroupProps = 2; // each nodes Group contains props: numOfNodes, maxNumOfBlocks
+
+    static constexpr size_t _int32max = static_cast<size_t>(services::internal::MaxVal<int32_t>::get());
 
     size_t _nClasses;
     size_t _nMaxBinsAmongFtrs;

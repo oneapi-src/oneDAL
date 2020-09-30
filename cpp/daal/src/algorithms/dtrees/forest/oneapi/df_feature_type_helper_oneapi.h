@@ -57,7 +57,7 @@ template <typename algorithmFPType>
 class IndexedFeaturesOneAPI
 {
 public:
-    typedef uint32_t IndexType;
+    typedef size_t IndexType;
 
     struct FeatureEntry
     {
@@ -71,7 +71,8 @@ public:
     };
 
 public:
-    IndexedFeaturesOneAPI() : _data(), _sizeOfIndex(sizeof(IndexType)), _nCols(0), _nRows(0), _capacity(0), _maxNumIndices(0) {}
+    //IndexedFeaturesOneAPI() : _data(), _sizeOfIndex(sizeof(IndexType)), _nCols(0), _nRows(0) {}
+    IndexedFeaturesOneAPI() : _data(), _nCols(0), _nRows(0) {}
     ~IndexedFeaturesOneAPI();
 
     services::Status init(NumericTable & nt, const dtrees::internal::FeatureTypes * featureTypes, const dtrees::internal::BinParams * pBinPrm);
@@ -97,35 +98,32 @@ protected:
     services::Status alloc(size_t nCols, size_t nRows);
 
     services::Status extractColumn(const services::Buffer<algorithmFPType> & data, oneapi::internal::UniversalBuffer & values,
-                                   oneapi::internal::UniversalBuffer & indices, int featureId, int nFeatures, int nRows);
+                                   oneapi::internal::UniversalBuffer & indices, int32_t featureId, int32_t nFeatures, int32_t nRows);
 
     services::Status collectBinBorders(oneapi::internal::UniversalBuffer & values, oneapi::internal::UniversalBuffer & binOffsets,
-                                       oneapi::internal::UniversalBuffer & binBorders, int nRows, int maxBins);
+                                       oneapi::internal::UniversalBuffer & binBorders, int32_t nRows, int32_t maxBins);
 
     services::Status computeBins(oneapi::internal::UniversalBuffer & values, oneapi::internal::UniversalBuffer & indices,
-                                 oneapi::internal::UniversalBuffer & binBorders, oneapi::internal::UniversalBuffer & bins, int nRows, int nBins,
-                                 int localSize, int nLocalBlocks);
+                                 oneapi::internal::UniversalBuffer & binBorders, oneapi::internal::UniversalBuffer & bins, int32_t nRows,
+                                 int32_t nBins, int32_t localSize, int32_t nLocalBlocks);
 
     services::Status computeBins(oneapi::internal::UniversalBuffer & values, oneapi::internal::UniversalBuffer & indices,
-                                 oneapi::internal::UniversalBuffer & bins, FeatureEntry & entry, int nRows,
+                                 oneapi::internal::UniversalBuffer & bins, FeatureEntry & entry, int32_t nRows,
                                  const dtrees::internal::BinParams * pBinPrm);
 
-    services::Status makeIndex(const services::Buffer<algorithmFPType> & data, int featureId, int nFeatures, int nRows,
+    services::Status makeIndex(const services::Buffer<algorithmFPType> & data, int32_t featureId, int32_t nFeatures, int32_t nRows,
                                const dtrees::internal::BinParams * pBinPrm, oneapi::internal::UniversalBuffer & bins, FeatureEntry & entry);
 
-    services::Status storeColumn(const oneapi::internal::UniversalBuffer & data, oneapi::internal::UniversalBuffer & fullData, int featureId,
-                                 int nFeatures, int nRows);
+    services::Status storeColumn(const oneapi::internal::UniversalBuffer & data, oneapi::internal::UniversalBuffer & fullData, int32_t featureId,
+                                 int32_t nFeatures, int32_t nRows);
 
 protected:
     services::Collection<oneapi::internal::UniversalBuffer> _data;
     oneapi::internal::UniversalBuffer _fullData;
     oneapi::internal::UniversalBuffer _binOffsets;
     daal::internal::TArray<FeatureEntry, sse2> _entries;
-    size_t _sizeOfIndex;
     size_t _nRows;
     size_t _nCols;
-    size_t _capacity;
-    size_t _maxNumIndices;
     IndexType _totalBins;
 
     oneapi::internal::UniversalBuffer _values;
@@ -133,25 +131,9 @@ protected:
     oneapi::internal::UniversalBuffer _indices;
     oneapi::internal::UniversalBuffer _indices_buf;
 
-    const uint32_t _maxWorkItemsPerGroup = 128;   // should be a power of two for interal needs
-    const uint32_t _maxLocalBuffer       = 30000; // should be less than a half of local memory (two buffers)
-    const uint32_t _preferableSubGroup   = 16;    // preferable maximal sub-group size
-};
+    static constexpr size_t _int32max = static_cast<size_t>(services::internal::MaxVal<int32_t>::get());
 
-class TreeNodeStorage
-{
-public:
-    TreeNodeStorage() {}
-
-    oneapi::internal::UniversalBuffer & getHistograms() { return _histogramsForFeatures; }
-
-    void clear() { _histogramsForFeatures = oneapi::internal::UniversalBuffer(); }
-
-    template <typename algorithmFPType>
-    services::Status allocate(const decision_forest::internal::IndexedFeaturesOneAPI<algorithmFPType> & indexedFeatures);
-
-private:
-    oneapi::internal::UniversalBuffer _histogramsForFeatures;
+    const int32_t _preferableSubGroup = 16; // preferable maximal sub-group size
 };
 
 } /* namespace internal */
