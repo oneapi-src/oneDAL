@@ -26,7 +26,7 @@
 
 #include "services/internal/sycl/math/types.h"
 #include "services/internal/sycl/types_utils.h"
-#include "services/buffer.h"
+#include "services/internal/buffer.h"
 #include "services/env_detect.h"
 
 namespace daal

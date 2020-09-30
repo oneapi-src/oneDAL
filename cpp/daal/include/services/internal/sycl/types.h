@@ -21,7 +21,7 @@
 #include <cstddef>
 #include <stdint.h>
 
-#include "services/buffer.h"
+#include "services/internal/buffer.h"
 #include "services/internal/any.h"
 #include "services/daal_string.h"
 

@@ -25,7 +25,7 @@
 #define __NUMERIC_TABLE_H__
 
 #include "services/base.h"
-#include "services/buffer.h"
+#include "services/internal/buffer.h"
 #include "services/daal_defines.h"
 #include "services/daal_memory.h"
 #include "services/error_handling.h"

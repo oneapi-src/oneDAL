@@ -19,7 +19,7 @@
 #define __SELECT_INDEXED_H__
 
 #include "algorithms/engines/engine.h"
-#include "services/buffer.h"
+#include "services/internal/buffer.h"
 #include "services/daal_defines.h"
 #include "services/internal/error_handling_helpers.h"
 #include "services/internal/sycl/types_utils.h"

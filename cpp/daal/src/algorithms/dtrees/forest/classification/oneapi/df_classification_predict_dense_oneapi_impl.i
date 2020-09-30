@@ -31,7 +31,7 @@
 #include "src/algorithms/dtrees/forest/classification/df_classification_model_impl.h"
 
 #include "src/externals/service_ittnotify.h"
-#include "services/buffer.h"
+#include "services/internal/buffer.h"
 #include "data_management/data/numeric_table.h"
 #include "src/data_management/service_numeric_table.h"
 #include "services/env_detect.h"

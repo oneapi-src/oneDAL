@@ -24,7 +24,7 @@
 #ifndef __ONEAPI_INTERNAL_MATH_REFERENCE_AXPY_H__
 #define __ONEAPI_INTERNAL_MATH_REFERENCE_AXPY_H__
 
-#include "services/buffer.h"
+#include "services/internal/buffer.h"
 namespace daal
 {
 namespace services

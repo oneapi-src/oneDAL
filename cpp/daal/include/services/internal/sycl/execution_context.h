@@ -18,7 +18,7 @@
 #ifndef __DAAL_SERVICES_INTERNAL_SYCL_EXECUTION_CONTEXT_H__
 #define __DAAL_SERVICES_INTERNAL_SYCL_EXECUTION_CONTEXT_H__
 
-#include "services/buffer.h"
+#include "services/internal/buffer.h"
 #include "services/error_handling.h"
 #include "services/internal/error_handling_helpers.h"
 #include "services/internal/any.h"

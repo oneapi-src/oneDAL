@@ -24,7 +24,7 @@
 #ifndef __LOW_ORDER_MOMENTS_BATCH_ONEAPI_IMPL_I__
 #define __LOW_ORDER_MOMENTS_BATCH_ONEAPI_IMPL_I__
 
-#include "services/buffer.h"
+#include "services/internal/buffer.h"
 #include "data_management/data/numeric_table.h"
 #include "services/env_detect.h"
 #include "services/error_indexes.h"

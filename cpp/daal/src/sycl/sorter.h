@@ -19,7 +19,7 @@
 #define __SORTER_H__
 
 #include "src/sycl/math_service_types.h"
-#include "services/buffer.h"
+#include "services/internal/buffer.h"
 #include "src/sycl/cl_kernels/radix_sort.cl"
 #include "services/internal/sycl/types_utils.h"
 #include "services/internal/sycl/execution_context.h"

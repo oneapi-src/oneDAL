@@ -33,7 +33,7 @@
 #include "src/algorithms/dtrees/gbt/gbt_model_impl.h"
 
 #include "src/externals/service_ittnotify.h"
-#include "services/buffer.h"
+#include "services/internal/buffer.h"
 #include "data_management/data/numeric_table.h"
 #include "services/env_detect.h"
 #include "services/error_indexes.h"

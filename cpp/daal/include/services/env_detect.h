@@ -26,7 +26,7 @@
 
 #include "services/base.h"
 #include "services/daal_defines.h"
-#include "services/execution_context.h"
+#include "services/internal/execution_context.h"
 
 namespace daal
 {

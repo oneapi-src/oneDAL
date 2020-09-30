@@ -36,7 +36,7 @@
 #include "src/externals/service_ittnotify.h"
 #include "src/externals/service_rng.h"
 #include "src/externals/service_math.h" //will remove after migrating finalize MDA to GPU
-#include "services/buffer.h"
+#include "services/internal/buffer.h"
 #include "data_management/data/numeric_table.h"
 #include "services/env_detect.h"
 #include "services/error_indexes.h"

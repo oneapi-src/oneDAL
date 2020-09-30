@@ -22,7 +22,7 @@
 #include "services/internal/sycl/types.h"
 #include "services/internal/sycl/execution_context.h"
 #include "services/env_detect.h"
-#include "services/buffer.h"
+#include "services/internal/buffer.h"
 #include "services/error_handling.h"
 #include "src/sycl/cl_kernels/math.cl"
 

@@ -19,7 +19,7 @@
 #define __PARTITION_H__
 
 #include "src/sycl/math_service_types.h"
-#include "services/buffer.h"
+#include "services/internal/buffer.h"
 #include "services/internal/sycl/types_utils.h"
 #include "services/internal/sycl/execution_context.h"
 

@@ -24,7 +24,7 @@
 #ifndef __ONEAPI_INTERNAL_MKL_LAPACK_H__
 #define __ONEAPI_INTERNAL_MKL_LAPACK_H__
 
-#include "services/buffer.h"
+#include "services/internal/buffer.h"
 #include "mkl_dal_sycl.hpp"
 
 namespace daal
