@@ -195,8 +195,10 @@ private:
     size_t nClasses() const { return _nClasses; }
     void calcGini(algorithmFPType totalWeights, ImpurityData & imp) const
     {
-        const algorithmFPType cDiv = isZero<algorithmFPType, cpu>(totalWeights * totalWeights) ? 1. : (1. / (totalWeights * totalWeights));
-        algorithmFPType var(1.);
+        const algorithmFPType sqWeights = totalWeights * totalWeights;
+        const algorithmFPType one       = algorithmFPType(1.);
+        const algorithmFPType cDiv      = isZero<algorithmFPType, cpu>(sqWeights) ? one : (one / sqWeights);
+        algorithmFPType var             = one;
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < _nClasses; ++i) var -= cDiv * algorithmFPType(imp.hist[i]) * algorithmFPType(imp.hist[i]);

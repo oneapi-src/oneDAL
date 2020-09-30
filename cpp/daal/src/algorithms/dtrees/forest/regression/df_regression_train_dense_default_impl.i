@@ -233,19 +233,17 @@ void OrderedRespHelper<algorithmFPType, cpu>::calcImpurity(const IndexType * aId
     imp.var      = 0;
     imp.mean     = this->_aResponse[aIdx[0]].val;
     totalWeights = this->_aWeights[aIdx[0]].val;
-    if (!isZero<algorithmFPType, cpu>(totalWeights))
+    PRAGMA_VECTOR_ALWAYS
+    for (size_t i = 1; i < n; ++i)
     {
-        PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 1; i < n; ++i)
-        {
-            const algorithmFPType weights = this->_aWeights[aIdx[i]].val;
-            const algorithmFPType delta   = this->_aResponse[aIdx[i]].val - imp.mean; //x[i] - mean
-            totalWeights += weights;
-            imp.mean += weights * delta / totalWeights;
-            imp.var += weights * delta * (this->_aResponse[aIdx[i]].val - imp.mean);
-        }
-        imp.var /= totalWeights; //impurity is MSE
+        const algorithmFPType weights = this->_aWeights[aIdx[i]].val;
+        const algorithmFPType delta   = this->_aResponse[aIdx[i]].val - imp.mean; //x[i] - mean
+        totalWeights += weights;
+        DAAL_ASSERT(!(isZero<algorithmFPType, cpu>(totalWeights)));
+        imp.mean += weights * delta / totalWeights;
+        imp.var += weights * delta * (this->_aResponse[aIdx[i]].val - imp.mean);
     }
+    imp.var /= totalWeights; //impurity is MSE
 
 #ifdef DEBUG_CHECK_IMPURITY
     if (!this->_weights)
