@@ -1,6 +1,6 @@
 /* file: covariance_dense_distr_step2_oneapi_impl.i */
 /*******************************************************************************
-* Copyright 2019-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -39,10 +39,10 @@ namespace oneapi
 {
 namespace internal
 {
-
 template <typename algorithmFPType, Method method>
-services::Status CovarianceDenseDistrStep2KernelOneAPI<algorithmFPType, method>::compute(DataCollection * partialResultsCollection, NumericTable * nObsTable, NumericTable * crossProductTable,
-                             NumericTable * sumTable, const Parameter * parameter)
+services::Status CovarianceDenseDistrStep2KernelOneAPI<algorithmFPType, method>::compute(DataCollection * partialResultsCollection,
+                                                                                         NumericTable * nObsTable, NumericTable * crossProductTable,
+                                                                                         NumericTable * sumTable, const Parameter * parameter)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(computeDistr);
 
@@ -65,9 +65,12 @@ services::Status CovarianceDenseDistrStep2KernelOneAPI<algorithmFPType, method>:
     DAAL_CHECK_STATUS_VAR(status);
 
     const algorithmFPType zero = 0.0;
-    context.fill(sumBlock.getBuffer(), zero, &status); DAAL_CHECK_STATUS_VAR(status);
-    context.fill(crossProductBlock.getBuffer(), zero, &status); DAAL_CHECK_STATUS_VAR(status);
-    context.fill(nObservationsBlock.getBuffer(), zero, &status); DAAL_CHECK_STATUS_VAR(status);
+    context.fill(sumBlock.getBuffer(), zero, &status);
+    DAAL_CHECK_STATUS_VAR(status);
+    context.fill(crossProductBlock.getBuffer(), zero, &status);
+    DAAL_CHECK_STATUS_VAR(status);
+    context.fill(nObservationsBlock.getBuffer(), zero, &status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     for (size_t i = 0; i < collectionSize; i++)
     {
@@ -89,14 +92,17 @@ services::Status CovarianceDenseDistrStep2KernelOneAPI<algorithmFPType, method>:
 
         if (i == 0)
         {
-            context.copy(crossProductBlock.getBuffer(), 0, partialCrossProductBlock.getBuffer(), 0, nFeatures * nFeatures, &status); DAAL_CHECK_STATUS_VAR(status);
-            context.copy(sumBlock.getBuffer(), 0, partialSumsBlock.getBuffer(), 0, nFeatures, &status); DAAL_CHECK_STATUS_VAR(status);
+            context.copy(crossProductBlock.getBuffer(), 0, partialCrossProductBlock.getBuffer(), 0, nFeatures * nFeatures, &status);
+            DAAL_CHECK_STATUS_VAR(status);
+            context.copy(sumBlock.getBuffer(), 0, partialSumsBlock.getBuffer(), 0, nFeatures, &status);
+            DAAL_CHECK_STATUS_VAR(status);
         }
         else
         {
-            status |= mergeCrossProduct<algorithmFPType>(nFeatures, partialCrossProductBlock.getBuffer(),
-                                                        partialSumsBlock.getBuffer(), *(partialNObservationsBlock.getBuffer().toHost(data_management::readOnly).get()),
-                                                        crossProductBlock.getBuffer(), sumBlock.getBuffer(), *(nObservationsBlock.getBuffer().toHost(data_management::readOnly).get()));
+            status |= mergeCrossProduct<algorithmFPType>(nFeatures, partialCrossProductBlock.getBuffer(), partialSumsBlock.getBuffer(),
+                                                         *(partialNObservationsBlock.getBuffer().toHost(data_management::readOnly).get()),
+                                                         crossProductBlock.getBuffer(), sumBlock.getBuffer(),
+                                                         *(nObservationsBlock.getBuffer().toHost(data_management::readOnly).get()));
             DAAL_CHECK_STATUS_VAR(status);
 
             status |= mergeSums<algorithmFPType, method>(nFeatures, partialSumsBlock.getBuffer(), sumBlock.getBuffer());
@@ -125,15 +131,16 @@ services::Status CovarianceDenseDistrStep2KernelOneAPI<algorithmFPType, method>:
 
 template <typename algorithmFPType, Method method>
 services::Status CovarianceDenseDistrStep2KernelOneAPI<algorithmFPType, method>::finalizeCompute(NumericTable * nObservationsTable,
-                                                                                             NumericTable * crossProductTable,
-                                                                                             NumericTable * sumTable, NumericTable * covTable,
-                                                                                             NumericTable * meanTable, const Parameter * parameter)
+                                                                                                 NumericTable * crossProductTable,
+                                                                                                 NumericTable * sumTable, NumericTable * covTable,
+                                                                                                 NumericTable * meanTable,
+                                                                                                 const Parameter * parameter)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(finalizeComputeDistr);
 
     services::Status status;
 
-    const size_t nFeatures      = crossProductTable->getNumberOfColumns();
+    const size_t nFeatures = crossProductTable->getNumberOfColumns();
 
     BlockDescriptor<algorithmFPType> sumBlock;
     BlockDescriptor<algorithmFPType> covBlock;
@@ -152,8 +159,9 @@ services::Status CovarianceDenseDistrStep2KernelOneAPI<algorithmFPType, method>:
     status |= nObservationsTable->getBlockOfRows(0, nObservationsTable->getNumberOfRows(), readWrite, nObservationsBlock);
     DAAL_CHECK_STATUS_VAR(status);
 
-    status |= finalizeCovariance<algorithmFPType, method>(nFeatures, *(nObservationsBlock.getBuffer().toHost(data_management::readOnly).get()), crossProductBlock.getBuffer(), sumBlock.getBuffer(),
-                                                          covBlock.getBuffer(), meanBlock.getBuffer(), parameter);
+    status |= finalizeCovariance<algorithmFPType, method>(nFeatures, *(nObservationsBlock.getBuffer().toHost(data_management::readOnly).get()),
+                                                          crossProductBlock.getBuffer(), sumBlock.getBuffer(), covBlock.getBuffer(),
+                                                          meanBlock.getBuffer(), parameter);
     DAAL_CHECK_STATUS_VAR(status);
 
     status |= sumTable->releaseBlockOfRows(sumBlock);

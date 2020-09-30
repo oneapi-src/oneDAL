@@ -261,143 +261,145 @@
     }
 
 #undef __DAAL_COVARIANCE_DISTR_CONTAINER_CONSTRUCTOR
-#define __DAAL_COVARIANCE_DISTR_CONTAINER_CONSTRUCTOR(ComputeMethod)                                                                                \
-    template <typename algorithmFPType, CpuType cpu>                                                                                                \
-    DistributedContainer<step2Master, algorithmFPType, ComputeMethod, cpu>::DistributedContainer(daal::services::Environment::env * daalEnv)        \
-    {                                                                                                                                               \
-        __DAAL_INITIALIZE_KERNELS(internal::CovarianceDistributedKernel, algorithmFPType, ComputeMethod);                                           \
+#define __DAAL_COVARIANCE_DISTR_CONTAINER_CONSTRUCTOR(ComputeMethod)                                                                         \
+    template <typename algorithmFPType, CpuType cpu>                                                                                         \
+    DistributedContainer<step2Master, algorithmFPType, ComputeMethod, cpu>::DistributedContainer(daal::services::Environment::env * daalEnv) \
+    {                                                                                                                                        \
+        __DAAL_INITIALIZE_KERNELS(internal::CovarianceDistributedKernel, algorithmFPType, ComputeMethod);                                    \
     }
 
 #undef __DAAL_COVARIANCE_DISTR_CONTAINER_CONSTRUCTOR_ONEAPI
-#define __DAAL_COVARIANCE_DISTR_CONTAINER_CONSTRUCTOR_ONEAPI(ComputeMethod)                                                                     \
+#define __DAAL_COVARIANCE_DISTR_CONTAINER_CONSTRUCTOR_ONEAPI(ComputeMethod)                                                                  \
+    template <typename algorithmFPType, CpuType cpu>                                                                                         \
+    DistributedContainer<step2Master, algorithmFPType, ComputeMethod, cpu>::DistributedContainer(daal::services::Environment::env * daalEnv) \
+    {                                                                                                                                        \
+        auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();                                              \
+        auto & deviceInfo = context.getInfoDevice();                                                                                         \
+                                                                                                                                             \
+        if (deviceInfo.isCpu)                                                                                                                \
+        {                                                                                                                                    \
+            __DAAL_INITIALIZE_KERNELS(internal::CovarianceDistributedKernel, algorithmFPType, ComputeMethod);                                \
+        }                                                                                                                                    \
+        else                                                                                                                                 \
+        {                                                                                                                                    \
+            __DAAL_INITIALIZE_KERNELS_SYCL(oneapi::internal::CovarianceDenseDistrStep2KernelOneAPI, algorithmFPType, ComputeMethod)          \
+        }                                                                                                                                    \
+    }
+
+#undef __DAAL_COVARIANCE_DISTR_CONTAINER_DESTRUCTOR
+#define __DAAL_COVARIANCE_DISTR_CONTAINER_DESTRUCTOR(ComputeMethod)                                 \
+    template <typename algorithmFPType, CpuType cpu>                                                \
+    DistributedContainer<step2Master, algorithmFPType, ComputeMethod, cpu>::~DistributedContainer() \
+    {                                                                                               \
+        __DAAL_DEINITIALIZE_KERNELS();                                                              \
+    }
+
+#undef __DAAL_COVARIANCE_DISTR_CONTAINER_COMPUTE
+#define __DAAL_COVARIANCE_DISTR_CONTAINER_COMPUTE(ComputeMethod)                                                                                     \
+    template <typename algorithmFPType, CpuType cpu>                                                                                                 \
+    services::Status DistributedContainer<step2Master, algorithmFPType, ComputeMethod, cpu>::compute()                                               \
+    {                                                                                                                                                \
+        PartialResult * partialResult          = static_cast<PartialResult *>(_pres);                                                                \
+        DistributedInput<step2Master> * input  = static_cast<DistributedInput<step2Master> *>(_in);                                                  \
+        DataCollection * collection            = input->get(partialResults).get();                                                                   \
+        NumericTable * nObsTable               = partialResult->get(nObservations).get();                                                            \
+        NumericTable * crossProductTable       = partialResult->get(crossProduct).get();                                                             \
+        NumericTable * sumTable                = partialResult->get(sum).get();                                                                      \
+        Parameter * parameter                  = static_cast<Parameter *>(_par);                                                                     \
+        daal::services::Environment::env & env = *_env;                                                                                              \
+                                                                                                                                                     \
+        __DAAL_CALL_KERNEL(env, internal::CovarianceDistributedKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), compute, collection, \
+                           nObsTable, crossProductTable, sumTable, parameter);                                                                       \
+                                                                                                                                                     \
+        collection->clear();                                                                                                                         \
+    }
+
+#undef __DAAL_COVARIANCE_DISTR_CONTAINER_COMPUTE_ONEAPI
+#define __DAAL_COVARIANCE_DISTR_CONTAINER_COMPUTE_ONEAPI(ComputeMethod)                                                                         \
     template <typename algorithmFPType, CpuType cpu>                                                                                            \
-    DistributedContainer<step2Master, algorithmFPType, ComputeMethod, cpu>::DistributedContainer(daal::services::Environment::env * daalEnv)    \
+    services::Status DistributedContainer<step2Master, algorithmFPType, ComputeMethod, cpu>::compute()                                          \
     {                                                                                                                                           \
+        PartialResult * partialResult = static_cast<PartialResult *>(_pres);                                                                    \
+                                                                                                                                                \
+        DistributedInput<step2Master> * input = static_cast<DistributedInput<step2Master> *>(_in);                                              \
+        DataCollection * collection           = input->get(partialResults).get();                                                               \
+                                                                                                                                                \
+        NumericTable * nObsTable         = partialResult->get(nObservations).get();                                                             \
+        NumericTable * crossProductTable = partialResult->get(crossProduct).get();                                                              \
+        NumericTable * sumTable          = partialResult->get(sum).get();                                                                       \
+                                                                                                                                                \
+        Parameter * parameter                  = static_cast<Parameter *>(_par);                                                                \
+        daal::services::Environment::env & env = *_env;                                                                                         \
+                                                                                                                                                \
         auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();                                                 \
         auto & deviceInfo = context.getInfoDevice();                                                                                            \
                                                                                                                                                 \
         if (deviceInfo.isCpu)                                                                                                                   \
         {                                                                                                                                       \
-            __DAAL_INITIALIZE_KERNELS(internal::CovarianceDistributedKernel, algorithmFPType, ComputeMethod);                                   \
+            __DAAL_CALL_KERNEL(env, internal::CovarianceDistributedKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), compute,    \
+                               collection, nObsTable, crossProductTable, sumTable, parameter);                                                  \
         }                                                                                                                                       \
         else                                                                                                                                    \
         {                                                                                                                                       \
-            __DAAL_INITIALIZE_KERNELS_SYCL(oneapi::internal::CovarianceDenseDistrStep2KernelOneAPI, algorithmFPType, ComputeMethod)             \
+            __DAAL_CALL_KERNEL_SYCL(env, oneapi::internal::CovarianceDenseDistrStep2KernelOneAPI,                                               \
+                                    __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), compute, collection, nObsTable, crossProductTable, \
+                                    sumTable, parameter);                                                                                       \
         }                                                                                                                                       \
-    }
-
-#undef __DAAL_COVARIANCE_DISTR_CONTAINER_DESTRUCTOR
-#define __DAAL_COVARIANCE_DISTR_CONTAINER_DESTRUCTOR(ComputeMethod)                                     \
-    template <typename algorithmFPType, CpuType cpu>                                                    \
-    DistributedContainer<step2Master, algorithmFPType, ComputeMethod, cpu>::~DistributedContainer()     \
-    {                                                                                                   \
-        __DAAL_DEINITIALIZE_KERNELS();                                                                  \
-    }
-
-#undef __DAAL_COVARIANCE_DISTR_CONTAINER_COMPUTE
-#define __DAAL_COVARIANCE_DISTR_CONTAINER_COMPUTE(ComputeMethod)                                        \
-    template <typename algorithmFPType, CpuType cpu>                                                    \
-    services::Status DistributedContainer<step2Master, algorithmFPType, ComputeMethod, cpu>::compute()  \
-    {                                                                                                   \
-        PartialResult * partialResult = static_cast<PartialResult *>(_pres);                            \
-        DistributedInput<step2Master> * input = static_cast<DistributedInput<step2Master> *>(_in);      \
-        DataCollection * collection           = input->get(partialResults).get();                       \
-        NumericTable * nObsTable         = partialResult->get(nObservations).get();                     \
-        NumericTable * crossProductTable = partialResult->get(crossProduct).get();                      \
-        NumericTable * sumTable          = partialResult->get(sum).get();                               \
-        Parameter * parameter                  = static_cast<Parameter *>(_par);                        \
-        daal::services::Environment::env & env = *_env;                                                 \
-                                                                                                        \
-        __DAAL_CALL_KERNEL(env, internal::CovarianceDistributedKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), compute, collection, nObsTable,     \
-                        crossProductTable, sumTable, parameter);                                                                                                    \
-                                \
-        collection->clear();    \
-    }
-
-#undef __DAAL_COVARIANCE_DISTR_CONTAINER_COMPUTE_ONEAPI
-#define __DAAL_COVARIANCE_DISTR_CONTAINER_COMPUTE_ONEAPI(ComputeMethod)                                                 \
-    template <typename algorithmFPType, CpuType cpu>                                                                    \
-    services::Status DistributedContainer<step2Master, algorithmFPType, ComputeMethod, cpu>::compute()                  \
-    {                                                                                                                   \
-        PartialResult * partialResult = static_cast<PartialResult *>(_pres);                                            \
-                                                                                                                        \
-        DistributedInput<step2Master> * input = static_cast<DistributedInput<step2Master> *>(_in);                      \
-        DataCollection * collection           = input->get(partialResults).get();                                       \
-                                                                                                                        \
-        NumericTable * nObsTable         = partialResult->get(nObservations).get();                                     \
-        NumericTable * crossProductTable = partialResult->get(crossProduct).get();                                      \
-        NumericTable * sumTable          = partialResult->get(sum).get();                                               \
-                                                                                                                        \
-        Parameter * parameter                  = static_cast<Parameter *>(_par);                                        \
-        daal::services::Environment::env & env = *_env;                                                                 \
-                                                                                                                        \
-        auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();                         \
-        auto & deviceInfo = context.getInfoDevice();                                                                    \
-                                                                                                                        \
-        if (deviceInfo.isCpu)                                                                                                                                                           \
-        {                                                                                                                                                                               \
-            __DAAL_CALL_KERNEL(env, internal::CovarianceDistributedKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), compute, collection, nObsTable,                            \
-                            crossProductTable, sumTable, parameter);                                                                                                                    \
-        }                                                                                                                                                                               \
-        else                                                                                                                                                                            \
-        {                                                                                                                                                                               \
-            __DAAL_CALL_KERNEL_SYCL(env, oneapi::internal::CovarianceDenseDistrStep2KernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), compute, collection, nObsTable,     \
-                            crossProductTable, sumTable, parameter);                                                                                                                    \
-        }                                                                                                                                                                               \
-                                                    \
-        collection->clear();                        \
+                                                                                                                                                \
+        collection->clear();                                                                                                                    \
     }
 
 #undef __DAAL_COVARIANCE_DISTR_CONTAINER_FINALIZECOMPUTE
-#define __DAAL_COVARIANCE_DISTR_CONTAINER_FINALIZECOMPUTE(ComputeMethod)                                        \
-    template <typename algorithmFPType, CpuType cpu>                                                            \
-    services::Status DistributedContainer<step2Master, algorithmFPType, ComputeMethod, cpu>::finalizeCompute()  \
-    {                                                                                                           \
-        Result * result               = static_cast<Result *>(_res);                                            \
-        PartialResult * partialResult = static_cast<PartialResult *>(_pres);                                    \
-        NumericTable * nObsTable         = partialResult->get(nObservations).get();                             \
-        NumericTable * crossProductTable = partialResult->get(crossProduct).get();                              \
-        NumericTable * sumTable          = partialResult->get(sum).get();                                       \
-        NumericTable * covTable  = result->get(covariance).get();                                               \
-        NumericTable * meanTable = result->get(mean).get();                                                     \
-        Parameter * parameter                  = static_cast<Parameter *>(_par);                                \
-        daal::services::Environment::env & env = *_env;                                                         \
-                                                                                                                \
-        __DAAL_CALL_KERNEL(env, internal::CovarianceDistributedKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), finalizeCompute, nObsTable,     \
-                        crossProductTable, sumTable, covTable, meanTable, parameter);                                                                           \
+#define __DAAL_COVARIANCE_DISTR_CONTAINER_FINALIZECOMPUTE(ComputeMethod)                                                                         \
+    template <typename algorithmFPType, CpuType cpu>                                                                                             \
+    services::Status DistributedContainer<step2Master, algorithmFPType, ComputeMethod, cpu>::finalizeCompute()                                   \
+    {                                                                                                                                            \
+        Result * result                        = static_cast<Result *>(_res);                                                                    \
+        PartialResult * partialResult          = static_cast<PartialResult *>(_pres);                                                            \
+        NumericTable * nObsTable               = partialResult->get(nObservations).get();                                                        \
+        NumericTable * crossProductTable       = partialResult->get(crossProduct).get();                                                         \
+        NumericTable * sumTable                = partialResult->get(sum).get();                                                                  \
+        NumericTable * covTable                = result->get(covariance).get();                                                                  \
+        NumericTable * meanTable               = result->get(mean).get();                                                                        \
+        Parameter * parameter                  = static_cast<Parameter *>(_par);                                                                 \
+        daal::services::Environment::env & env = *_env;                                                                                          \
+                                                                                                                                                 \
+        __DAAL_CALL_KERNEL(env, internal::CovarianceDistributedKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), finalizeCompute, \
+                           nObsTable, crossProductTable, sumTable, covTable, meanTable, parameter);                                              \
     }
 
 #undef __DAAL_COVARIANCE_DISTR_CONTAINER_FINALIZECOMPUTE_ONEAPI
-#define __DAAL_COVARIANCE_DISTR_CONTAINER_FINALIZECOMPUTE_ONEAPI(ComputeMethod)                                 \
-    template <typename algorithmFPType, CpuType cpu>                                                            \
-    services::Status DistributedContainer<step2Master, algorithmFPType, ComputeMethod, cpu>::finalizeCompute()  \
-    {                                                                                                           \
-        Result * result               = static_cast<Result *>(_res);                                            \
-        PartialResult * partialResult = static_cast<PartialResult *>(_pres);                                    \
-                                                                                                                \
-        NumericTable * nObsTable         = partialResult->get(nObservations).get();                             \
-        NumericTable * crossProductTable = partialResult->get(crossProduct).get();                              \
-        NumericTable * sumTable          = partialResult->get(sum).get();                                       \
-                                                                                                                \
-        NumericTable * covTable  = result->get(covariance).get();                                               \
-        NumericTable * meanTable = result->get(mean).get();                                                     \
-                                                                                                                \
-        Parameter * parameter                  = static_cast<Parameter *>(_par);                                \
-        daal::services::Environment::env & env = *_env;                                                         \
-                                                                                                                \
-        auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();                 \
-        auto & deviceInfo = context.getInfoDevice();                                                            \
-                                                                                                                \
-        if (deviceInfo.isCpu)                                                                                                                                                           \
-        {                                                                                                                                                                               \
-            __DAAL_CALL_KERNEL(env, internal::CovarianceDistributedKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), finalizeCompute, nObsTable,                         \
-                            crossProductTable, sumTable, covTable, meanTable, parameter);                                                                                               \
-        }                                                                                                                                                                               \
-        else                                                                                                                                                                            \
-        {                                                                                                                                                                               \
-            __DAAL_CALL_KERNEL_SYCL(env, oneapi::internal::CovarianceDenseDistrStep2KernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), finalizeCompute, nObsTable,  \
-                            crossProductTable, sumTable, covTable, meanTable, parameter);                                                                                               \
-        }                                                                                                                                                                               \
+#define __DAAL_COVARIANCE_DISTR_CONTAINER_FINALIZECOMPUTE_ONEAPI(ComputeMethod)                                                                      \
+    template <typename algorithmFPType, CpuType cpu>                                                                                                 \
+    services::Status DistributedContainer<step2Master, algorithmFPType, ComputeMethod, cpu>::finalizeCompute()                                       \
+    {                                                                                                                                                \
+        Result * result               = static_cast<Result *>(_res);                                                                                 \
+        PartialResult * partialResult = static_cast<PartialResult *>(_pres);                                                                         \
+                                                                                                                                                     \
+        NumericTable * nObsTable         = partialResult->get(nObservations).get();                                                                  \
+        NumericTable * crossProductTable = partialResult->get(crossProduct).get();                                                                   \
+        NumericTable * sumTable          = partialResult->get(sum).get();                                                                            \
+                                                                                                                                                     \
+        NumericTable * covTable  = result->get(covariance).get();                                                                                    \
+        NumericTable * meanTable = result->get(mean).get();                                                                                          \
+                                                                                                                                                     \
+        Parameter * parameter                  = static_cast<Parameter *>(_par);                                                                     \
+        daal::services::Environment::env & env = *_env;                                                                                              \
+                                                                                                                                                     \
+        auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();                                                      \
+        auto & deviceInfo = context.getInfoDevice();                                                                                                 \
+                                                                                                                                                     \
+        if (deviceInfo.isCpu)                                                                                                                        \
+        {                                                                                                                                            \
+            __DAAL_CALL_KERNEL(env, internal::CovarianceDistributedKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), finalizeCompute, \
+                               nObsTable, crossProductTable, sumTable, covTable, meanTable, parameter);                                              \
+        }                                                                                                                                            \
+        else                                                                                                                                         \
+        {                                                                                                                                            \
+            __DAAL_CALL_KERNEL_SYCL(env, oneapi::internal::CovarianceDenseDistrStep2KernelOneAPI,                                                    \
+                                    __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), finalizeCompute, nObsTable, crossProductTable,          \
+                                    sumTable, covTable, meanTable, parameter);                                                                       \
+        }                                                                                                                                            \
     }
 
 namespace daal

@@ -17,11 +17,12 @@
 
 /*
 !  Content:
-!    C++ example of dense K-Means clustering in the distributed processing mode
+!    C++ example of dense correlation matrix computation in the
+!    distributed processing mode
 !******************************************************************************/
 
 /**
- * <a name="DAAL-EXAMPLE-CPP-KMEANS_DENSE_DISTRIBUTED"></a>
+ * <a name="DAAL-EXAMPLE-CPP-CORRELATION_DENSE_DISTRIBUTED"></a>
  * \example cor_dense_distr.cpp
  */
 
