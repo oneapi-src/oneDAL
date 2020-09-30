@@ -72,22 +72,22 @@ using namespace daal::internal;
 using namespace daal::services::internal;
 using namespace daal::oneapi::internal;
 
-template <typename algorithmFPType, typename ParameterType>
-services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::updateGrad(const services::Buffer<algorithmFPType> & kernelWS,
-                                                                                     const services::Buffer<algorithmFPType> & deltaalpha,
-                                                                                     services::Buffer<algorithmFPType> & grad, const size_t nVectors,
-                                                                                     const size_t nWS)
+template <typename algorithmFPType>
+services::Status SVMTrainOneAPI<algorithmFPType, thunder>::updateGrad(const services::Buffer<algorithmFPType> & kernelWS,
+                                                                      const services::Buffer<algorithmFPType> & deltaalpha,
+                                                                      services::Buffer<algorithmFPType> & grad, const size_t nVectors,
+                                                                      const size_t nWS)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(updateGrad);
     return BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::Trans, math::Transpose::NoTrans, nVectors, 1, nWS,
                                            algorithmFPType(1), kernelWS, nVectors, 0, deltaalpha, 1, 0, algorithmFPType(1), grad, 1, 0);
 }
 
-template <typename algorithmFPType, typename ParameterType>
-services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::smoKernel(
+template <typename algorithmFPType>
+services::Status SVMTrainOneAPI<algorithmFPType, thunder>::smoKernel(
     const services::Buffer<algorithmFPType> & y, const services::Buffer<algorithmFPType> & kernelWsRows, const services::Buffer<uint32_t> & wsIndices,
-    const uint32_t ldK, const services::Buffer<algorithmFPType> & f, const algorithmFPType C, const algorithmFPType eps, const algorithmFPType tau,
-    const uint32_t maxInnerIteration, services::Buffer<algorithmFPType> & alpha, services::Buffer<algorithmFPType> & deltaalpha,
+    const size_t ldK, const services::Buffer<algorithmFPType> & f, const algorithmFPType C, const algorithmFPType eps, const algorithmFPType tau,
+    const size_t maxInnerIteration, services::Buffer<algorithmFPType> & alpha, services::Buffer<algorithmFPType> & deltaalpha,
     services::Buffer<algorithmFPType> & resinfo, const size_t nWS)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(smoKernel);
@@ -100,7 +100,8 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::smoKer
     services::String cachekey("__daal_algorithms_svm_smo_block_");
     build_options.add(" -D WS_SIZE=");
     char bufferString[DAAL_MAX_STRING_SIZE] = { 0 };
-    services::daal_int_to_string(bufferString, DAAL_MAX_STRING_SIZE, int(nWS));
+    DAAL_ASSERT(nWS <= static_cast<size_t>(services::internal::MaxVal<int>::get()));
+    services::daal_int_to_string(bufferString, DAAL_MAX_STRING_SIZE, static_cast<int>(nWS));
     build_options.add(bufferString);
     build_options.add(" -D SIMD_WIDTH=64 ");
     cachekey.add(build_options);
@@ -116,12 +117,14 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::smoKer
     args.set(0, y, AccessModeIds::read);
     args.set(1, kernelWsRows, AccessModeIds::read);
     args.set(2, wsIndices, AccessModeIds::read);
-    args.set(3, ldK);
+    DAAL_ASSERT(ldK <= uint32max);
+    args.set(3, static_cast<uint32_t>(ldK));
     args.set(4, f, AccessModeIds::read);
     args.set(5, C);
     args.set(6, eps);
     args.set(7, tau);
-    args.set(8, maxInnerIteration);
+    DAAL_ASSERT(maxInnerIteration <= uint32max);
+    args.set(8, static_cast<uint32_t>(maxInnerIteration));
     args.set(9, alpha, AccessModeIds::readwrite);
     args.set(10, deltaalpha, AccessModeIds::readwrite);
     args.set(11, resinfo, AccessModeIds::readwrite);
@@ -141,9 +144,9 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::smoKer
     return status;
 }
 
-template <typename algorithmFPType, typename ParameterType>
-bool SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev,
-                                                                                 const algorithmFPType eps, size_t & sameLocalDiff)
+template <typename algorithmFPType>
+bool SVMTrainOneAPI<algorithmFPType, thunder>::checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev,
+                                                                  const algorithmFPType eps, size_t & sameLocalDiff)
 {
     sameLocalDiff = utils::internal::abs(diff - diffPrev) < eps * 1e-2 ? sameLocalDiff + 1 : 0;
 
@@ -154,9 +157,9 @@ bool SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::checkStopCondition
     return false;
 }
 
-template <typename algorithmFPType, typename ParameterType>
-services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::compute(const NumericTablePtr & xTable, NumericTable & yTable,
-                                                                                  daal::algorithms::Model * r, const ParameterType * svmPar)
+template <typename algorithmFPType>
+services::Status SVMTrainOneAPI<algorithmFPType, thunder>::compute(const NumericTablePtr & xTable, NumericTable & yTable, daal::algorithms::Model * r,
+                                                                   const svm::Parameter * svmPar)
 {
     services::Status status;
 
@@ -208,20 +211,11 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
     algorithmFPType diff     = algorithmFPType(0);
     algorithmFPType diffPrev = algorithmFPType(0);
 
-    size_t innerIteration = 0;
-    size_t sameLocalDiff  = 0;
-
+    size_t sameLocalDiff = 0;
     SVMCacheOneAPIPtr<algorithmFPType> cachePtr;
 
-    if (cacheSize >= nVectors * nVectors * sizeof(algorithmFPType))
-    {
-        // TODO: support the simple cache for thunder method
-        cachePtr = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, nWS, nVectors, xTable, kernel, status);
-    }
-    else
-    {
-        cachePtr = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, nWS, nVectors, xTable, kernel, status);
-    }
+    // TODO: support caching for thunder method
+    cachePtr = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, nWS, nVectors, xTable, kernel, status);
 
     size_t iter = 0;
     for (; iter < maxIterations; iter++)
@@ -243,11 +237,10 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
                                             deltaalphaBuff, resinfoBuff, nWS));
 
         {
-            auto resinfoHostPtr        = resinfoBuff.toHost(ReadWriteMode::readOnly, &status);
-            auto resinfoHost           = resinfoHostPtr.get();
-            size_t localInnerIteration = size_t(resinfoHost[0]);
-            diff                       = resinfoHost[1];
-            innerIteration += localInnerIteration;
+            auto resinfoHostPtr = resinfoBuff.toHost(ReadWriteMode::readOnly, &status);
+            DAAL_CHECK_STATUS_VAR(status);
+            auto resinfoHost = resinfoHostPtr.get();
+            diff             = resinfoHost[1];
         }
 
         DAAL_CHECK_STATUS(status, updateGrad(kernelWS, deltaalphaBuff, gradBuff, nVectors, nWS));
