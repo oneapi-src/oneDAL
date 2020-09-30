@@ -65,9 +65,14 @@ struct TaskWorkingSet
         _nWS       = utils::internal::min(utils::internal::maxpow2(_nVectors), utils::internal::maxpow2(maxWS));
         _nSelected = 0;
 
-        _valuesSort     = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);
+        _valuesSort = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+
         _valuesSortBuff = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);
-        _buffIndices    = context.allocate(TypeIds::id<uint32_t>(), _nVectors, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        _buffIndices = context.allocate(TypeIds::id<uint32_t>(), _nVectors, &status);
+        DAAL_CHECK_STATUS_VAR(status);
 
         _wsIndices = context.allocate(TypeIds::id<uint32_t>(), _nWS, &status);
         return status;
@@ -97,8 +102,6 @@ struct TaskWorkingSet
 
         DAAL_CHECK_STATUS(status, Helper::argSort(fBuff, _valuesSort, _valuesSortBuff, _sortedFIndices, _buffIndices, _nVectors));
 
-        DAAL_CHECK_STATUS_VAR(status);
-
         {
             const size_t nNeedSelect = (_nWS - _nSelected) / 2;
 
@@ -116,6 +119,8 @@ struct TaskWorkingSet
             const size_t nCopy = utils::internal::min(nUpperSelect, nNeedSelect);
 
             context.copy(_wsIndices, _nSelected, _buffIndices, 0, nCopy, &status);
+            DAAL_CHECK_STATUS_VAR(status);
+
             _nSelected += nCopy;
         }
 
@@ -137,6 +142,7 @@ struct TaskWorkingSet
 
             /* Copy latest nCopy elements */
             context.copy(_wsIndices, _nSelected, _buffIndices, nLowerSelect - nCopy, nCopy, &status);
+            DAAL_CHECK_STATUS_VAR(status);
             _nSelected += nCopy;
         }
 
@@ -158,6 +164,7 @@ struct TaskWorkingSet
             const size_t nCopy = utils::internal::min(nUpperSelect, nNeedSelect);
 
             context.copy(_wsIndices, _nSelected, _buffIndices, 0, nCopy, &status);
+            DAAL_CHECK_STATUS_VAR(status);
             _nSelected += nCopy;
         }
 
@@ -188,8 +195,6 @@ struct TaskWorkingSet
         KernelRange range(n);
 
         context.run(range, kernel, args, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-
         return status;
     }
 

@@ -52,7 +52,8 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::heaviside(co
     const services::String options = getKeyFPType<algorithmFPType>();
     services::String cachekey("__daal_algorithms_logistic_regression_prediction_");
     cachekey.add(options);
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelLogisticResgression, options.c_str());
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelLogisticResgression, options.c_str(), &status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "heaviside";
     KernelPtr kernel              = factory.getKernel(kernelName);
@@ -82,7 +83,8 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::argMax(const
     const services::String options = getKeyFPType<algorithmFPType>();
     services::String cachekey("__daal_algorithms_logistic_regression_prediction_");
     cachekey.add(options);
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelLogisticResgression, options.c_str());
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelLogisticResgression, options.c_str(), &status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "argMax";
     KernelPtr kernel              = factory.getKernel(kernelName);

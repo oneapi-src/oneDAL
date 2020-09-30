@@ -95,8 +95,8 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
             DAAL_CHECK_BLOCK_STATUS(xBD);
             daal::internal::WriteRows<algorithmFPType, cpu> yBD(y.get(), 0, nRows);
             DAAL_CHECK_BLOCK_STATUS(yBD);
-            algorithmFPType * xPtr = xBD.get();
-            algorithmFPType * yPtr = yBD.get();
+            algorithmFPType * const xPtr = xBD.get();
+            algorithmFPType * const yPtr = yBD.get();
             result |= daal::services::internal::daal_memcpy_s(xTrainPtr, nFeatures * nRows * sizeof(algorithmFPType), xPtr,
                                                               nFeatures * nRows * sizeof(algorithmFPType));
             result |= daal::services::internal::daal_memcpy_s(yTrainPtr, nDependentVariables * nRows * sizeof(algorithmFPType), yPtr,
