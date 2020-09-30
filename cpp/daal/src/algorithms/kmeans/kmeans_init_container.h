@@ -44,7 +44,7 @@ namespace init
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::sycl::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu || (method != deterministicDense && method != randomDense))
@@ -66,7 +66,7 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::sycl::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     Input * input   = static_cast<Input *>(_in);

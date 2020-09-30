@@ -93,7 +93,7 @@ struct HelperSVM
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(makeInversion);
 
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::internal::sycl::getDefaultContext();
         auto & factory = context.getClKernelFactory();
 
         services::Status status = buildProgram(factory);
@@ -115,7 +115,7 @@ struct HelperSVM
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(makeRange);
 
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::internal::sycl::getDefaultContext();
         auto & factory = context.getClKernelFactory();
 
         services::Status status = buildProgram(factory);
@@ -136,7 +136,7 @@ struct HelperSVM
                                     UniversalBuffer & indecesBuf, const size_t n)
     {
         services::Status status;
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::internal::sycl::getDefaultContext();
 
         context.copy(values, 0, f, 0, n, &status);
         DAAL_CHECK_STATUS_VAR(status);
@@ -152,7 +152,7 @@ struct HelperSVM
         DAAL_ITTNOTIFY_SCOPED_TASK(copyDataByIndices);
         services::Status status;
 
-        services::internal::sycl::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+        services::internal::sycl::ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
         services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
         buildProgram(factory);
@@ -179,7 +179,7 @@ struct HelperSVM
         DAAL_ITTNOTIFY_SCOPED_TASK(copyDataByIndices);
         services::Status status;
 
-        services::internal::sycl::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+        services::internal::sycl::ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
         services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
         buildProgram(factory);
@@ -205,7 +205,7 @@ struct HelperSVM
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(checkUpper);
 
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::internal::sycl::getDefaultContext();
         auto & factory = context.getClKernelFactory();
 
         services::Status status = buildProgram(factory);
@@ -231,7 +231,7 @@ struct HelperSVM
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(checkLower);
 
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::internal::sycl::getDefaultContext();
         auto & factory = context.getClKernelFactory();
 
         services::Status status = buildProgram(factory);
@@ -256,7 +256,7 @@ struct HelperSVM
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(checkBorder);
 
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::internal::sycl::getDefaultContext();
         auto & factory = context.getClKernelFactory();
 
         services::Status status = buildProgram(factory);
@@ -280,7 +280,7 @@ struct HelperSVM
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(checkNonZeroBinary);
 
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::internal::sycl::getDefaultContext();
         auto & factory = context.getClKernelFactory();
 
         services::Status status = buildProgram(factory);
@@ -303,7 +303,7 @@ struct HelperSVM
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(computeDualCoeffs);
 
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::internal::sycl::getDefaultContext();
         auto & factory = context.getClKernelFactory();
 
         services::Status status = buildProgram(factory);

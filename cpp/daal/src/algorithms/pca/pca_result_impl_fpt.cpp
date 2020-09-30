@@ -74,7 +74,7 @@ services::Status ResultImpl::allocate(const daal::algorithms::PartialResult * pa
 template <typename algorithmFPType>
 services::Status ResultImpl::allocate(size_t nFeatures, size_t nComponents, DAAL_UINT64 resultsToCompute)
 {
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::sycl::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)

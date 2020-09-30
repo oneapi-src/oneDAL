@@ -47,7 +47,7 @@
     template <typename algorithmFPType, CpuType cpu>                                                                \
     BatchContainer<algorithmFPType, ComputeMethod, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) \
     {                                                                                                               \
-        auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();                     \
+        auto & context    = services::internal::sycl::getDefaultContext();                     \
         auto & deviceInfo = context.getInfoDevice();                                                                \
                                                                                                                     \
         if (deviceInfo.isCpu)                                                                                       \
@@ -102,7 +102,7 @@
         Parameter * parameter                  = static_cast<Parameter *>(_par);                                                                   \
         daal::services::Environment::env & env = *_env;                                                                                            \
                                                                                                                                                    \
-        auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();                                                    \
+        auto & context    = services::internal::sycl::getDefaultContext();                                                    \
         auto & deviceInfo = context.getInfoDevice();                                                                                               \
                                                                                                                                                    \
         if (deviceInfo.isCpu)                                                                                                                      \
@@ -130,7 +130,7 @@
     template <typename algorithmFPType, CpuType cpu>                                                                    \
     OnlineContainer<algorithmFPType, ComputeMethod, cpu>::OnlineContainer(daal::services::Environment::env * daalEnv)   \
     {                                                                                                                   \
-        auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();                         \
+        auto & context    = services::internal::sycl::getDefaultContext();                         \
         auto & deviceInfo = context.getInfoDevice();                                                                    \
                                                                                                                         \
         if (deviceInfo.isCpu)                                                                                           \
@@ -189,7 +189,7 @@
         Parameter * parameter                  = static_cast<Parameter *>(_par);                                                              \
         daal::services::Environment::env & env = *_env;                                                                                       \
                                                                                                                                               \
-        auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();                                               \
+        auto & context    = services::internal::sycl::getDefaultContext();                                               \
         auto & deviceInfo = context.getInfoDevice();                                                                                          \
                                                                                                                                               \
         if (deviceInfo.isCpu)                                                                                                                 \
@@ -244,7 +244,7 @@
         Parameter * parameter                  = static_cast<Parameter *>(_par);                                                              \
         daal::services::Environment::env & env = *_env;                                                                                       \
                                                                                                                                               \
-        auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();                                               \
+        auto & context    = services::internal::sycl::getDefaultContext();                                               \
         auto & deviceInfo = context.getInfoDevice();                                                                                          \
                                                                                                                                               \
         if (deviceInfo.isCpu)                                                                                                                 \

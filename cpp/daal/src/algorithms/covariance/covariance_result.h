@@ -47,7 +47,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     size_t nColumns        = algInput->getNumberOfFeatures();
     services::Status status;
 
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::sycl::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)
@@ -84,7 +84,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialRes
     size_t nColumns            = pres->getNumberOfFeatures();
     services::Status status;
 
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::sycl::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)

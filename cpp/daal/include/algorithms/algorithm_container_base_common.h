@@ -27,6 +27,7 @@
 #include "algorithms/algorithm_container_base.h"
 #include "services/error_handling.h"
 #include "services/internal/gpu_support_checker.h"
+#include "services/internal/sycl/utils.h"
 
 namespace daal
 {
@@ -72,7 +73,7 @@ public:
 
     virtual services::Status compute() DAAL_C11_OVERRIDE
     {
-        services::internal::sycl::ExecutionContextIface & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        services::internal::sycl::ExecutionContextIface & context = services::internal::sycl::getDefaultContext();
         services::internal::sycl::InfoDevice & deviceInfo         = context.getInfoDevice();
         if (!daal::services::internal::isImplementedForDevice(deviceInfo, _cntr)) return services::Status(services::ErrorDeviceSupportNotImplemented);
         _cntr->setArguments(this->_in, this->_pres, this->_par);

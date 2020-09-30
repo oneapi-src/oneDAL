@@ -56,7 +56,7 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const
 
     services::Status status;
 
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::sycl::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     NumericTablePtr transformedDataNT;

@@ -43,7 +43,7 @@ namespace interface3
 template <typename algorithmFPType, CpuType cpu>
 BatchContainer<algorithmFPType, correlationDense, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::sycl::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)
@@ -66,7 +66,7 @@ BatchContainer<algorithmFPType, correlationDense, cpu>::~BatchContainer()
 template <typename algorithmFPType, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, correlationDense, cpu>::compute()
 {
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::sycl::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     Input * input   = static_cast<Input *>(_in);

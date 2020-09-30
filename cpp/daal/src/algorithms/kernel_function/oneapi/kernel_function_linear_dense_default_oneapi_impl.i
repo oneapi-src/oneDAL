@@ -65,7 +65,7 @@ services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeI
 {
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
 
     const size_t nMatLeft  = matLeft->getNumberOfRows();
     const size_t nMatRight = matRight->getNumberOfRows();

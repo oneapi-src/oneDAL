@@ -16,7 +16,7 @@
 *******************************************************************************/
 
 #include "src/sycl/reducer.h"
-#include "services/env_detect.h"
+#include "services/internal/sycl/utils.h"
 #include "src/externals/service_ittnotify.h"
 #include "src/sycl/cl_kernels/op_reducer.cl"
 
@@ -140,7 +140,7 @@ void Reducer::runFinalStepRowmajor(ExecutionContextIface & context, ClKernelFact
 Reducer::Result Reducer::reduce(const BinaryOp op, Layout vectorsLayout, const UniversalBuffer & vectors, uint32_t nVectors, uint32_t vectorSize,
                                 services::Status * status)
 {
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
     Result result(context, nVectors, vectors.type(), status);
     return Reducer::reduce(op, vectorsLayout, vectors, result.reduceRes, nVectors, vectorSize, status);
 }
@@ -149,7 +149,7 @@ Reducer::Result Reducer::reduce(const BinaryOp op, Layout vectorsLayout, const U
                                 uint32_t nVectors, uint32_t vectorSize, services::Status * status)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(Reducer);
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
 
     Result result(context, resReduce, nVectors, vectors.type(), status);
 

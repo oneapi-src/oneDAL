@@ -67,7 +67,7 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::compute(NumericTable & x
         }
     }
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
 
     {
         BlockDescriptor<algorithmFPType> xtxBlock;
@@ -134,7 +134,7 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::copyDataToFinalTable(Num
     const services::internal::Buffer<algorithmFPType> srcBuf = srcBlock.getBuffer();
     services::internal::Buffer<algorithmFPType> dstBuf       = dstBlock.getBuffer();
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
     context.copy(dstBuf, 0, srcBuf, 0, nCols * nRows, &status);
     DAAL_CHECK_STATUS_VAR(status);
 

@@ -54,7 +54,7 @@ public:
     services::Status init()
     {
         services::Status status;
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::internal::sycl::getDefaultContext();
         _tmpValues     = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);
         DAAL_CHECK_STATUS_VAR(status);
         _mask = context.allocate(TypeIds::id<uint32_t>(), _nVectors, &status);
@@ -90,7 +90,7 @@ protected:
     {
         services::Status status;
 
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::internal::sycl::getDefaultContext();
 
         auto tmpValuesBuff = _tmpValues.get<algorithmFPType>();
         auto maskBuff      = _mask.get<uint32_t>();
@@ -114,7 +114,7 @@ protected:
 
     services::Status setSVIndices(size_t nSV, Model & model) const
     {
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::internal::sycl::getDefaultContext();
 
         NumericTablePtr svIndicesTable = model.getSupportIndices();
         services::Status status;

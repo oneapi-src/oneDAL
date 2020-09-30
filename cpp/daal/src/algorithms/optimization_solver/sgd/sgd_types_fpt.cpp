@@ -78,7 +78,7 @@ services::Status Result::allocate(const daal::algorithms::Input * input, const d
         DAAL_ASSERT(miniBatch <= services::internal::MaxVal<int>::get())
         if (method == (int)miniBatch)
         {
-            auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+            auto & context    = services::internal::sycl::getDefaultContext();
             auto & deviceInfo = context.getInfoDevice();
 
             if (!pOpt->get(pastWorkValue))

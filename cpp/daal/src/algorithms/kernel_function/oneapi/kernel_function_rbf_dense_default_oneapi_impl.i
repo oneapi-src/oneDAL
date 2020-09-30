@@ -64,7 +64,7 @@ template <typename algorithmFPType>
 services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::lazyAllocate(UniversalBuffer & x, const size_t n)
 {
     services::Status status;
-    ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
+    ExecutionContextIface & ctx = services::internal::sycl::getDefaultContext();
     const TypeIds::Id idType    = TypeIds::id<algorithmFPType>();
     if (x.empty() || x.get<algorithmFPType>().size() < n)
     {
@@ -83,7 +83,7 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeRBF(
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.computeRBF);
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
     auto & factory = context.getClKernelFactory();
 
     services::Status status = buildProgram(factory);
@@ -129,7 +129,7 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInte
 {
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
 
     const size_t nMatLeft  = matLeft->getNumberOfRows();
     const size_t nMatRight = matRight->getNumberOfRows();

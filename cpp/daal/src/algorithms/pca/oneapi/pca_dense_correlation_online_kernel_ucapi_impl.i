@@ -100,7 +100,7 @@ services::Status PCACorrelationKernelOnlineUCAPI<algorithmFPType>::copyIfNeeded(
     const size_t nCols         = dst->getNumberOfColumns();
     const size_t nDataElements = nRows * nCols;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
     services::Status status;
     context.copy(dstBlock.getBuffer(), 0, srcBlock.getBuffer(), 0, nDataElements, &status);
     DAAL_CHECK_STATUS_VAR(status);

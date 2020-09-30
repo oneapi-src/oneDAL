@@ -49,7 +49,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 
     services::Status status;
 
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::sycl::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (!get(minimum))

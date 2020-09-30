@@ -50,7 +50,7 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
                                                                               const svm::Parameter * par)
 {
     services::Status status;
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
 
     const size_t nVectors  = xTable->getNumberOfRows();
     const size_t nFeatures = xTable->getNumberOfColumns();

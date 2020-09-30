@@ -148,7 +148,7 @@ services::Status RadixSort::radixScan(UniversalBuffer & values, UniversalBuffer 
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
     auto & factory = context.getClKernelFactory();
     buildProgram(factory, values.type());
 
@@ -184,7 +184,7 @@ services::Status RadixSort::radixHistScan(UniversalBuffer & values, UniversalBuf
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
     auto & factory = context.getClKernelFactory();
 
     buildProgram(factory, values.type());
@@ -220,7 +220,7 @@ services::Status RadixSort::radixReorder(UniversalBuffer & valuesSrc, UniversalB
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
     auto & factory = context.getClKernelFactory();
 
     buildProgram(factory, valuesSrc.type());

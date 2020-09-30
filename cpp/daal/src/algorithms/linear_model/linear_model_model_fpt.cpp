@@ -35,7 +35,7 @@ ModelInternal::ModelInternal(size_t nFeatures, size_t nResponses, const Paramete
 {
     services::Status st;
 
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::sycl::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)

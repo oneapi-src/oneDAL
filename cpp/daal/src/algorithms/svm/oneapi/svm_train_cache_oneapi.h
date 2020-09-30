@@ -165,7 +165,7 @@ public:
         _ifComputeSubKernel = true;
         services::Status status;
 
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::internal::sycl::getDefaultContext();
         context.copy(_cache, 0, _cache, _nSelectRows * _lineSize, _nSelectRows * _lineSize, &status);
         return status;
     }
@@ -178,7 +178,7 @@ protected:
     services::Status init(const size_t cacheSize, const NumericTablePtr & xTable)
     {
         services::Status status;
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::internal::sycl::getDefaultContext();
 
         _cache = context.allocate(TypeIds::id<algorithmFPType>(), _lineSize * _blockSize, &status);
         DAAL_CHECK_STATUS_VAR(status);

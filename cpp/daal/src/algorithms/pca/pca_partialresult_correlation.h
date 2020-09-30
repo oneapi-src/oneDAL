@@ -47,7 +47,7 @@ DAAL_EXPORT services::Status PartialResult<correlationDense>::allocate(const daa
 {
     services::Status s;
 
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::sycl::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)

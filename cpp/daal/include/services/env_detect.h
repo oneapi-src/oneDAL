@@ -178,7 +178,6 @@ public:
         _executionContext = internal::ImplAccessor::getImplPtr<services::internal::sycl::ExecutionContextIface>(ctx);
     }
 
-    // TODO: remove internal from public API
     services::internal::sycl::ExecutionContextIface & getDefaultExecutionContext() { return *_executionContext; }
 #endif
 

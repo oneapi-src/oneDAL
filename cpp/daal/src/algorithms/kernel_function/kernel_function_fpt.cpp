@@ -47,7 +47,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     const size_t nVectors2 = algInput->get(Y)->getNumberOfRows();
 
     services::Status status;
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::sycl::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (method == 0 && !deviceInfo.isCpu)

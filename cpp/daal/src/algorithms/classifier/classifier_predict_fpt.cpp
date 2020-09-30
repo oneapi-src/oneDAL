@@ -50,7 +50,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     const Parameter * par = static_cast<const Parameter *>(parameter);
     DAAL_CHECK(par, services::ErrorNullParameterNotSupported);
 
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::sycl::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     const size_t nRows    = (static_cast<const InputIface *>(input))->getNumberOfRows();

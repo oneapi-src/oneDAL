@@ -39,7 +39,7 @@ struct HelperObjectiveFunction
     static services::Status lazyAllocate(services::internal::sycl::UniversalBuffer & x, const uint32_t n)
     {
         services::Status status;
-        services::internal::sycl::ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
+        services::internal::sycl::ExecutionContextIface & ctx = services::internal::sycl::getDefaultContext();
         const services::internal::sycl::TypeIds::Id idType    = services::internal::sycl::TypeIds::id<algorithmFPType>();
 
         if (x.empty() || x.get<algorithmFPType>().size() < n)
@@ -68,7 +68,7 @@ struct HelperObjectiveFunction
     {
         services::Status status;
 
-        services::internal::sycl::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+        services::internal::sycl::ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
         services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
         buildProgram(factory);
@@ -92,7 +92,7 @@ struct HelperObjectiveFunction
     {
         services::Status status;
 
-        services::internal::sycl::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+        services::internal::sycl::ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
         services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
         buildProgram(factory);
@@ -116,7 +116,7 @@ struct HelperObjectiveFunction
                                        const uint32_t n, const uint32_t m)
     {
         services::Status status;
-        services::internal::sycl::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+        services::internal::sycl::ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
         services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
         buildProgram(factory);
@@ -142,7 +142,7 @@ struct HelperObjectiveFunction
     {
         services::Status status;
 
-        services::internal::sycl::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+        services::internal::sycl::ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
         services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
         buildProgram(factory);
@@ -187,7 +187,7 @@ struct HelperObjectiveFunction
 
         const services::internal::sycl::TypeIds::Id idType = services::internal::sycl::TypeIds::id<algorithmFPType>();
 
-        services::internal::sycl::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+        services::internal::sycl::ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
         services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
         buildProgram(factory);
@@ -241,7 +241,7 @@ struct HelperObjectiveFunction
         services::Status status;
         const services::internal::sycl::TypeIds::Id idType = services::internal::sycl::TypeIds::id<algorithmFPType>();
 
-        services::internal::sycl::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+        services::internal::sycl::ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
         services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
         buildProgram(factory);
@@ -293,7 +293,7 @@ struct HelperObjectiveFunction
     {
         services::Status status;
 
-        services::internal::sycl::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+        services::internal::sycl::ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
         services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
         buildProgram(factory);
@@ -319,7 +319,7 @@ struct HelperObjectiveFunction
     {
         services::Status status;
 
-        services::internal::sycl::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+        services::internal::sycl::ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
         services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
         buildProgram(factory);
@@ -346,7 +346,7 @@ struct HelperObjectiveFunction
     {
         services::Status status;
 
-        services::internal::sycl::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+        services::internal::sycl::ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
         services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
         buildProgram(factory);

@@ -90,7 +90,7 @@ services::Status prepareSums(NumericTable * dataTable, const services::internal:
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.prepareSums);
 
     const size_t nFeatures = dataTable->getNumberOfColumns();
-    auto & context         = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context         = services::internal::sycl::getDefaultContext();
     services::Status status;
 
     if (method == sumDense || method == sumCSR)
@@ -120,7 +120,7 @@ services::Status prepareCrossProduct(size_t nFeatures, const services::internal:
 
     const algorithmFPType zero = 0.0;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
     services::Status status;
 
     context.fill(crossProductBuffer, zero, &status);
@@ -134,7 +134,7 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
                                                 const services::internal::Buffer<algorithmFPType> & sums)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateCrossProductAndSums);
-    auto & context              = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context              = services::internal::sycl::getDefaultContext();
     bool nonNormalizedFastDense = ((!isNormalized) && (method == defaultDense || method == sumDense));
 
     if (isNormalized || nonNormalizedFastDense)
@@ -194,7 +194,7 @@ services::Status mergeCrossProduct(size_t nFeatures, const services::internal::B
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
     auto & factory = context.getClKernelFactory();
     __buildProgram<algorithmFPType>(factory);
 
@@ -255,7 +255,7 @@ services::Status prepareMeansAndCrossProductDiag(size_t nFeatures, algorithmFPTy
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
     auto & factory = context.getClKernelFactory();
     __buildProgram<algorithmFPType>(factory);
 
@@ -291,7 +291,7 @@ services::Status finalize(size_t nFeatures, algorithmFPType nObservations, const
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
     auto & factory = context.getClKernelFactory();
     __buildProgram<algorithmFPType>(factory);
 
@@ -356,7 +356,7 @@ services::Status finalizeCovariance(size_t nFeatures, algorithmFPType nObservati
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.finalizeCovariance);
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
 
     auto diagCrossProduct = context.allocate(TypeIds::id<algorithmFPType>(), nFeatures, &status);
     DAAL_CHECK_STATUS_VAR(status);

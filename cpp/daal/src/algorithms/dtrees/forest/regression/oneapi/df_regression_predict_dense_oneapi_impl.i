@@ -147,7 +147,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees
     const daal::algorithms::decision_forest::regression::internal::ModelImpl * const pModel =
         static_cast<const daal::algorithms::decision_forest::regression::internal::ModelImpl * const>(m);
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
 
     const auto nTrees = pModel->size();
 
@@ -249,7 +249,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesGro
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
 
     auto & kernel = kernelPredictByTreesGroup;
 
@@ -312,7 +312,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::reduceResponse(co
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
     auto & kernel  = kernelReduceResponse;
 
     size_t localSize = _preferableSubGroup;

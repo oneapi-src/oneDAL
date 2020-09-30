@@ -81,7 +81,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::scan
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
 
     auto & kernel = kernelScan;
 
@@ -115,7 +115,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::redu
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
 
     auto & kernel = kernelReduce;
 
@@ -150,7 +150,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::getI
 
     const size_t nRows = y.getNumberOfRows();
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
 
     const int subSize       = _preferableSubGroup;
     const int localSize     = _preferableSubGroup;
@@ -187,7 +187,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
 
     auto & kernel = kernelComputeOptCoeffs;
 
@@ -221,7 +221,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::init
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
 
     auto & kernel = kernelInitializeTreeOrder;
 
@@ -247,7 +247,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
 
     auto & kernel = kernelComputePartialHistograms;
 
@@ -290,7 +290,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::redu
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
 
     auto & kernel = kernelReducePartialHistograms;
 
@@ -352,7 +352,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
 
     auto & kernel = kernelComputeHistogramDiff;
 
@@ -381,7 +381,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
 
     auto & kernel = kernelComputeTotalOptCoeffs;
 
@@ -410,7 +410,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
 
     auto & kernel = kernelComputeBestSplitForFeatures;
 
@@ -451,7 +451,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 
     services::Status status;
 
-    auto & context      = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context      = services::internal::sycl::getDefaultContext();
     auto totalOptCoeffs = context.allocate(TypeIds::id<algorithmFPType>(), 2, &status);
     auto splitInfo      = context.allocate(TypeIds::id<algorithmFPType>(), nFeatures * 5, &status);
     auto splitValue     = context.allocate(TypeIds::id<int>(), nFeatures * 1, &status);
@@ -505,7 +505,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
 
     auto & kernel = kernelPartitionScan;
 
@@ -544,7 +544,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
 
     auto & kernel = kernelPartitionSumScan;
 
@@ -580,7 +580,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
 
     auto & kernel = kernelPartitionReorder;
 
@@ -618,7 +618,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
 
     auto & kernel = kernelPartitionCopy;
 
@@ -646,7 +646,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::doPa
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
 
     const int subSize       = _preferableSubGroup;
     const int localSize     = _preferableSubGroup;
@@ -685,7 +685,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::upda
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
 
     auto & kernel = kernelUpdateResponse;
 
