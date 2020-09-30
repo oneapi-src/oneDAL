@@ -415,22 +415,35 @@ private:
     template <typename T>
     void handlePublicBuffer()
     {
-        auto buffer = _argument.get<services::Buffer<T> >().toSycl();
+        auto service_buffer = _argument.get<services::Buffer<T> >();
 
-        // Note: we need this storage to keep all sycl buffers alive
-        // while the kernel is running
-        _storage.add(buffer);
-
-        switch (_argument.accessMode())
+        if (service_buffer.isUSMBacked())
         {
-        case AccessModeIds::read: return handlePublicBuffer<cl::sycl::access::mode::read>(buffer);
-
-        case AccessModeIds::write: return handlePublicBuffer<cl::sycl::access::mode::write>(buffer);
-
-        case AccessModeIds::readwrite: return handlePublicBuffer<cl::sycl::access::mode::read_write>(buffer);
+            DAAL_ASSERT((_argument.accessMode() == AccessModeIds::read ||
+                         _argument.accessMode() == AccessModeIds::write ||
+                         _argument.accessMode() == AccessModeIds::readwrite));
+            auto shared_pointer = service_buffer.toUSM();
+            _handler.set_arg((int)_argumentIndex, shared_pointer.get());
         }
+        else
+        {
+            auto buffer = service_buffer.toSycl();
 
-        DAAL_ASSERT(!"Unexpected buffer access mode");
+            // Note: we need this storage to keep all sycl buffers alive
+            // while the kernel is running
+            _storage.add(buffer);
+
+            switch (_argument.accessMode())
+            {
+            case AccessModeIds::read: return handlePublicBuffer<cl::sycl::access::mode::read>(buffer);
+
+            case AccessModeIds::write: return handlePublicBuffer<cl::sycl::access::mode::write>(buffer);
+
+            case AccessModeIds::readwrite: return handlePublicBuffer<cl::sycl::access::mode::read_write>(buffer);
+            }
+
+            DAAL_ASSERT(!"Unexpected buffer access mode");
+        }
     }
 
     template <cl::sycl::access::mode mode, typename Buffer>
