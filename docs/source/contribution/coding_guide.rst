@@ -96,7 +96,7 @@ Rules that apply for a name of any entity:
 
 .. container:: comparison
 
-    .. container:: leftside
+    .. container:: column
 
       .. admonition:: Not recommended
         :class: error
@@ -110,7 +110,7 @@ Rules that apply for a name of any entity:
           int pcReader; // Ambiguous ("pc" can mean different things)
           int cstmrId; // Missing letters
 
-    .. container:: rightside
+    .. container:: column
 
       .. admonition:: Good
         :class: hint
@@ -343,7 +343,7 @@ Statements
 
   .. container:: comparison
 
-      .. container:: leftside
+      .. container:: column
 
         .. admonition:: Not recommended
           :class: error
@@ -353,7 +353,7 @@ Statements
             // Not recommended
             a++; b++;
 
-      .. container:: rightside
+      .. container:: column
 
         .. admonition:: Good
           :class: hint
@@ -367,7 +367,7 @@ Statements
 
   .. container:: comparison
 
-      .. container:: leftside
+      .. container:: column
 
         .. admonition:: Not recommended
           :class: error
@@ -377,7 +377,7 @@ Statements
             // Not recommended
             if (condition) statement;
 
-      .. container:: rightside
+      .. container:: column
 
         .. admonition:: Good
           :class: hint
@@ -559,7 +559,7 @@ To make it easier for the reader to find the declaration, see what type the vari
 
   .. container:: comparison
 
-      .. container:: leftside
+      .. container:: column
 
         .. admonition:: Not recommended
           :class: error
@@ -569,7 +569,7 @@ To make it easier for the reader to find the declaration, see what type the vari
             int i;
             i = f();
 
-      .. container:: rightside
+      .. container:: column
 
         .. admonition:: Good
           :class: hint
@@ -582,7 +582,7 @@ To make it easier for the reader to find the declaration, see what type the vari
 
   .. container:: comparison
 
-      .. container:: leftside
+      .. container:: column
 
         .. admonition:: Not recommended
           :class: error
@@ -593,7 +593,7 @@ To make it easier for the reader to find the declaration, see what type the vari
             v.push_back(1); // Prefer initializing using brace initialization.
             v.push_back(2);
 
-      .. container:: rightside
+      .. container:: column
 
         .. admonition:: Good
           :class: hint
@@ -620,7 +620,7 @@ When you work with variables needed for ``if``, ``while``, and ``for`` stat
 
   .. container:: comparison
 
-      .. container:: leftside
+      .. container:: column
 
         .. admonition:: Not recommended
           :class: error
@@ -634,7 +634,7 @@ When you work with variables needed for ``if``, ``while``, and ``for`` stat
                 f.DoSomething(i);
             }
 
-      .. container:: rightside
+      .. container:: column
 
         .. admonition:: Good
           :class: hint
@@ -655,7 +655,7 @@ Constants
 
   .. container:: comparison
 
-      .. container:: leftside
+      .. container:: column
 
         .. admonition:: Not recommended
           :class: error
@@ -666,7 +666,7 @@ Constants
             // ...
             bar("Hard coded string");
 
-      .. container:: rightside
+      .. container:: column
 
         .. admonition:: Good
           :class: hint
@@ -722,7 +722,7 @@ does not happen when the program is terminating.
 
 .. container:: comparison
 
-    .. container:: leftside
+    .. container:: column
 
       .. admonition:: Not recommended
         :class: error
@@ -732,7 +732,7 @@ does not happen when the program is terminating.
           static SingletonClass inst; // Bad – initialization order is undefined.
 
 
-    .. container:: rightside
+    .. container:: column
 
       .. admonition:: Good
         :class: hint
@@ -894,7 +894,7 @@ Holding a resource is tied to the object's lifetime:
 
   .. container:: comparison
 
-      .. container:: leftside
+      .. container:: column
 
         .. admonition:: Not recommended
           :class: error
@@ -908,7 +908,7 @@ Holding a resource is tied to the object's lifetime:
             foo(std::shared_ptr<Foo>(new Foo()), priority());
             // if priority() throws exception then the memory allocated by new can be lost
 
-      .. container:: rightside
+      .. container:: column
 
         .. admonition:: Good
           :class: hint
@@ -1099,7 +1099,7 @@ Directly specify evaluation order instead.
 
 .. container:: comparison
 
-    .. container:: leftside
+    .. container:: column
 
       .. admonition:: Not recommended
         :class: error
@@ -1115,7 +1115,7 @@ Directly specify evaluation order instead.
           int inc(int &val) { return ++val; }
           foo(inc(count), inc(count)); // Error: arguments evaluation order is undefined
 
-    .. container:: rightside
+    .. container:: column
 
       .. admonition:: Good
         :class: hint
@@ -1145,7 +1145,7 @@ pre-increment?
 
 .. container:: comparison
 
-    .. container:: leftside
+    .. container:: column
 
       .. admonition:: Not recommended
         :class: error
@@ -1154,7 +1154,7 @@ pre-increment?
 
           for(size_t i = 0; i < n; i++) // Not recommended
 
-    .. container:: rightside
+    .. container:: column
 
       .. admonition:: Good
         :class: hint
@@ -1206,7 +1206,7 @@ Use initializers list instead of assignment in constructors:
 
 .. container:: comparison
 
-    .. container:: leftside
+    .. container:: column
 
       .. admonition:: Not recommended
         :class: error
@@ -1224,7 +1224,7 @@ Use initializers list instead of assignment in constructors:
             // _Foo(): string() { _string = "AAA"; }
           };
 
-    .. container:: rightside
+    .. container:: column
 
       .. admonition:: Good
         :class: hint
