@@ -51,15 +51,18 @@ TEST(infer_and_train_reg_kernels_test, can_process_simple_case_default_params) {
     auto queue = sycl::queue(selector);
 
     auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
+    ASSERT_NE(x_train, nullptr);
     std::memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count);
     const auto x_train_table =
         dal::homogen_table::wrap(queue, x_train, row_count_train, column_count);
 
     auto y_train = sycl::malloc_shared<float>(row_count_train, queue);
+    ASSERT_NE(y_train, nullptr);
     std::memcpy(y_train, y_train_host, sizeof(float) * row_count_train);
     const auto y_train_table = dal::homogen_table::wrap(queue, y_train, row_count_train, 1);
 
     auto x_test = sycl::malloc_shared<float>(row_count_test * column_count, queue);
+    ASSERT_NE(x_test, nullptr);
     std::memcpy(x_test, x_test_host, sizeof(float) * row_count_test * column_count);
     const auto x_test_table = dal::homogen_table::wrap(queue, x_test, row_count_test, column_count);
 
@@ -111,15 +114,18 @@ TEST(infer_and_train_reg_kernels_test, can_process_simple_case_non_default_param
     auto queue = sycl::queue(selector);
 
     auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
+    ASSERT_NE(x_train, nullptr);
     std::memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count);
     const auto x_train_table =
         dal::homogen_table::wrap(queue, x_train, row_count_train, column_count);
 
     auto y_train = sycl::malloc_shared<float>(row_count_train, queue);
+    ASSERT_NE(y_train, nullptr);
     std::memcpy(y_train, y_train_host, sizeof(float) * row_count_train);
     const auto y_train_table = dal::homogen_table::wrap(queue, y_train, row_count_train, 1);
 
     auto x_test = sycl::malloc_shared<float>(row_count_test * column_count, queue);
+    ASSERT_NE(x_test, nullptr);
     std::memcpy(x_test, x_test_host, sizeof(float) * row_count_test * column_count);
     const auto x_test_table = dal::homogen_table::wrap(queue, x_test, row_count_test, column_count);
 
