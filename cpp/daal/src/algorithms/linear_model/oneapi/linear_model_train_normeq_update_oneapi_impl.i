@@ -60,7 +60,7 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
     DAAL_CHECK_STATUS(status, xtx.getBlockOfRows(0, nBetasIntercept, ReadWriteMode::readWrite, xtxBlock));
     DAAL_CHECK_STATUS(status, xty.getBlockOfRows(0, nResponses, ReadWriteMode::readWrite, xtyBlock));
 
-    auto & context                            = getDefaultContext();
+    auto & context                                      = getDefaultContext();
     services::internal::Buffer<algorithmFPType> xtxBuff = xtxBlock.getBuffer();
     services::internal::Buffer<algorithmFPType> xtyBuff = xtyBlock.getBuffer();
 
@@ -179,9 +179,9 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
 }
 
 template <typename algorithmFPType>
-services::Status UpdateKernelOneAPI<algorithmFPType>::reduceResults(services::internal::Buffer<algorithmFPType> & dst, size_t dstOffset, size_t dstStride,
-                                                                    const services::internal::Buffer<algorithmFPType> & src, size_t srcOffset, size_t srcStride,
-                                                                    size_t count)
+services::Status UpdateKernelOneAPI<algorithmFPType>::reduceResults(services::internal::Buffer<algorithmFPType> & dst, size_t dstOffset,
+                                                                    size_t dstStride, const services::internal::Buffer<algorithmFPType> & src,
+                                                                    size_t srcOffset, size_t srcStride, size_t count)
 {
     services::Status status;
 

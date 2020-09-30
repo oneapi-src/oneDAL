@@ -44,7 +44,8 @@ using namespace daal::services::internal::sycl;
 
 template <typename algorithmFPType>
 services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::addBetaIntercept(const services::internal::Buffer<algorithmFPType> & betaTable,
-                                                                                      const size_t nBetas, services::internal::Buffer<algorithmFPType> & yTable,
+                                                                                      const size_t nBetas,
+                                                                                      services::internal::Buffer<algorithmFPType> & yTable,
                                                                                       const size_t yNRows, const size_t yNCols)
 {
     services::Status status;

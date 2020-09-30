@@ -104,8 +104,8 @@ protected:
                                        services::internal::sycl::UniversalBuffer & binBorders, int32_t nRows, int32_t maxBins);
 
     services::Status computeBins(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & indices,
-                                 services::internal::sycl::UniversalBuffer & binBorders, services::internal::sycl::UniversalBuffer & bins, int32_t nRows,
-                                 int32_t nBins, int32_t localSize, int32_t nLocalBlocks);
+                                 services::internal::sycl::UniversalBuffer & binBorders, services::internal::sycl::UniversalBuffer & bins,
+                                 int32_t nRows, int32_t nBins, int32_t localSize, int32_t nLocalBlocks);
 
     services::Status computeBins(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & indices,
                                  services::internal::sycl::UniversalBuffer & bins, FeatureEntry & entry, int32_t nRows,
@@ -114,8 +114,8 @@ protected:
     services::Status makeIndex(const services::internal::Buffer<algorithmFPType> & data, int32_t featureId, int32_t nFeatures, int32_t nRows,
                                const dtrees::internal::BinParams * pBinPrm, services::internal::sycl::UniversalBuffer & bins, FeatureEntry & entry);
 
-    services::Status storeColumn(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & fullData, int32_t featureId,
-                                 int32_t nFeatures, int32_t nRows);
+    services::Status storeColumn(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & fullData,
+                                 int32_t featureId, int32_t nFeatures, int32_t nRows);
 
 protected:
     services::Collection<services::internal::sycl::UniversalBuffer> _data;

@@ -38,9 +38,10 @@ template <typename...>
 struct Typelist
 {};
 
-typedef Typelist<daal::services::internal::sycl::int8_t, daal::services::internal::sycl::int16_t, daal::services::internal::sycl::int32_t, daal::services::internal::sycl::int64_t,
-                 daal::services::internal::sycl::uint8_t, daal::services::internal::sycl::uint16_t, daal::services::internal::sycl::uint32_t,
-                 daal::services::internal::sycl::uint64_t, daal::services::internal::sycl::float32_t, daal::services::internal::sycl::float64_t>
+typedef Typelist<daal::services::internal::sycl::int8_t, daal::services::internal::sycl::int16_t, daal::services::internal::sycl::int32_t,
+                 daal::services::internal::sycl::int64_t, daal::services::internal::sycl::uint8_t, daal::services::internal::sycl::uint16_t,
+                 daal::services::internal::sycl::uint32_t, daal::services::internal::sycl::uint64_t, daal::services::internal::sycl::float32_t,
+                 daal::services::internal::sycl::float64_t>
     PrimitiveTypes;
 
 typedef Typelist<daal::services::internal::sycl::float32_t, daal::services::internal::sycl::float64_t> FloatTypes;

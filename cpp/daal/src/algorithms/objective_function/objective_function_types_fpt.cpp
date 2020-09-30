@@ -34,7 +34,6 @@ namespace objective_function
 {
 namespace interface1
 {
-
 using daal::data_management::internal::SyclHomogenNumericTable;
 
 /**

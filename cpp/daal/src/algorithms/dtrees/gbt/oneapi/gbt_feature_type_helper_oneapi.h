@@ -98,25 +98,27 @@ protected:
     services::Status extractColumn(const services::internal::Buffer<algorithmFPType> & data, services::internal::sycl::UniversalBuffer & values,
                                    services::internal::sycl::UniversalBuffer & indices, int featureId, int nFeatures, int nRows);
 
-    services::Status radixScan(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & partialHists, int nRows, int bitOffset,
-                               int localSize, int nLocalSums);
+    services::Status radixScan(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & partialHists,
+                               int nRows, int bitOffset, int localSize, int nLocalSums);
 
-    services::Status radixHistScan(services::internal::sycl::UniversalBuffer & partialHists, services::internal::sycl::UniversalBuffer & partialPrefixHists,
-                                   int nSubgroupSums, int localSize);
+    services::Status radixHistScan(services::internal::sycl::UniversalBuffer & partialHists,
+                                   services::internal::sycl::UniversalBuffer & partialPrefixHists, int nSubgroupSums, int localSize);
 
     services::Status radixReorder(services::internal::sycl::UniversalBuffer & valuesSrc, services::internal::sycl::UniversalBuffer & indicesSrc,
-                                  services::internal::sycl::UniversalBuffer & partialPrefixHist, services::internal::sycl::UniversalBuffer & valuesDst,
-                                  services::internal::sycl::UniversalBuffer & indicesDst, int nRows, int bitOffset, int localSize, int nLocalHists);
+                                  services::internal::sycl::UniversalBuffer & partialPrefixHist,
+                                  services::internal::sycl::UniversalBuffer & valuesDst, services::internal::sycl::UniversalBuffer & indicesDst,
+                                  int nRows, int bitOffset, int localSize, int nLocalHists);
 
     services::Status radixSort(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & indices,
-                               services::internal::sycl::UniversalBuffer & values_buf, services::internal::sycl::UniversalBuffer & indices_buf, int nRows);
+                               services::internal::sycl::UniversalBuffer & values_buf, services::internal::sycl::UniversalBuffer & indices_buf,
+                               int nRows);
 
     services::Status collectBinBorders(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & binOffsets,
                                        services::internal::sycl::UniversalBuffer & binBorders, int nRows, int maxBins);
 
     services::Status computeBins(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & indices,
-                                 services::internal::sycl::UniversalBuffer & binBorders, services::internal::sycl::UniversalBuffer & bins, int nRows, int nBins,
-                                 int localSize, int nLocalBlocks);
+                                 services::internal::sycl::UniversalBuffer & binBorders, services::internal::sycl::UniversalBuffer & bins, int nRows,
+                                 int nBins, int localSize, int nLocalBlocks);
 
     services::Status computeBins(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & indices,
                                  services::internal::sycl::UniversalBuffer & bins, FeatureEntry & entry, int nRows,
@@ -125,8 +127,8 @@ protected:
     services::Status makeIndex(const services::internal::Buffer<algorithmFPType> & data, int featureId, int nFeatures, int nRows,
                                const dtrees::internal::BinParams * pBinPrm, services::internal::sycl::UniversalBuffer & bins, FeatureEntry & entry);
 
-    services::Status storeColumn(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & fullData, int featureId,
-                                 int nFeatures, int nRows);
+    services::Status storeColumn(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & fullData,
+                                 int featureId, int nFeatures, int nRows);
 
 protected:
     services::Collection<services::internal::sycl::UniversalBuffer> _data;

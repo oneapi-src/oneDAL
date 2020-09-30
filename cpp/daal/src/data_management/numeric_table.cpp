@@ -298,15 +298,17 @@ void MergedNumericTable::freeDataMemoryImpl()
 } // namespace data_management
 } // namespace daal
 
-namespace daal {
-namespace data_management {
-namespace internal {
-namespace interface1 {
-
+namespace daal
+{
+namespace data_management
+{
+namespace internal
+{
+namespace interface1
+{
 IMPLEMENT_SERIALIZABLE_TAG(SyclSOANumericTable, SERIALIZATION_SYCL_SOA_NT_ID)
 
-#define DAAL_INSTANTIATE_SER_TAG_SYCL(T) \
-    IMPLEMENT_SERIALIZABLE_TAG1T(SyclHomogenNumericTable, T, SERIALIZATION_SYCL_HOMOGEN_NT_ID)
+#define DAAL_INSTANTIATE_SER_TAG_SYCL(T) IMPLEMENT_SERIALIZABLE_TAG1T(SyclHomogenNumericTable, T, SERIALIZATION_SYCL_HOMOGEN_NT_ID)
 
 DAAL_INSTANTIATE_SER_TAG_SYCL(float)
 DAAL_INSTANTIATE_SER_TAG_SYCL(double)

@@ -134,8 +134,9 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::alloc(size_t nC, size_t
 }
 
 template <typename algorithmFPType>
-services::Status IndexedFeaturesOneAPI<algorithmFPType>::extractColumn(const services::internal::Buffer<algorithmFPType> & data, UniversalBuffer & values,
-                                                                       UniversalBuffer & indices, int featureId, int nFeatures, int nRows)
+services::Status IndexedFeaturesOneAPI<algorithmFPType>::extractColumn(const services::internal::Buffer<algorithmFPType> & data,
+                                                                       UniversalBuffer & values, UniversalBuffer & indices, int featureId,
+                                                                       int nFeatures, int nRows)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(indexedFeatures.extractColumn);
 
@@ -443,9 +444,9 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
 }
 
 template <typename algorithmFPType>
-services::Status IndexedFeaturesOneAPI<algorithmFPType>::makeIndex(const services::internal::Buffer<algorithmFPType> & data, int featureId, int nFeatures,
-                                                                   int nRows, const dtrees::internal::BinParams * pBinPrm, UniversalBuffer & bins,
-                                                                   FeatureEntry & entry)
+services::Status IndexedFeaturesOneAPI<algorithmFPType>::makeIndex(const services::internal::Buffer<algorithmFPType> & data, int featureId,
+                                                                   int nFeatures, int nRows, const dtrees::internal::BinParams * pBinPrm,
+                                                                   UniversalBuffer & bins, FeatureEntry & entry)
 {
     DAAL_CHECK_STATUS_VAR(extractColumn(data, _values, _indices, featureId, nFeatures, nRows));
     DAAL_CHECK_STATUS_VAR(radixSort(_values, _indices, _values_buf, _indices_buf, nRows));

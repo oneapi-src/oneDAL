@@ -90,7 +90,8 @@ struct TaskWorkingSet
         return status;
     }
 
-    services::Status selectWS(const services::internal::Buffer<algorithmFPType> & yBuff, const services::internal::Buffer<algorithmFPType> & alphaBuff,
+    services::Status selectWS(const services::internal::Buffer<algorithmFPType> & yBuff,
+                              const services::internal::Buffer<algorithmFPType> & alphaBuff,
                               const services::internal::Buffer<algorithmFPType> & fBuff, const algorithmFPType C)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(selectWS);
@@ -176,7 +177,8 @@ struct TaskWorkingSet
 
     const services::internal::Buffer<uint32_t> & getWSIndeces() const { return _wsIndices.get<uint32_t>(); }
 
-    services::Status resetIndicatorWithZeros(const services::internal::Buffer<uint32_t> & idx, services::internal::Buffer<uint32_t> & indicator, const size_t n)
+    services::Status resetIndicatorWithZeros(const services::internal::Buffer<uint32_t> & idx, services::internal::Buffer<uint32_t> & indicator,
+                                             const size_t n)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(resetIndicatorWithZeros);
 

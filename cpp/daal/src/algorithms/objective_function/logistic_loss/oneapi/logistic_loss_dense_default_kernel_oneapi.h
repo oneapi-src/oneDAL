@@ -55,36 +55,40 @@ public:
     static services::Status applyBeta(const services::internal::Buffer<algorithmFPType> & x, const services::internal::Buffer<algorithmFPType> & beta,
                                       services::internal::Buffer<algorithmFPType> & xb, const uint32_t n, const uint32_t p, const uint32_t offset);
 
-    static services::Status applyGradient(const services::internal::Buffer<algorithmFPType> & x, const services::internal::Buffer<algorithmFPType> & sub,
+    static services::Status applyGradient(const services::internal::Buffer<algorithmFPType> & x,
+                                          const services::internal::Buffer<algorithmFPType> & sub,
                                           services::internal::Buffer<algorithmFPType> & gradient, const algorithmFPType alpha, const uint32_t n,
                                           const uint32_t p, const algorithmFPType beta, const uint32_t offset);
 
-    static services::Status applyHessian(const services::internal::Buffer<algorithmFPType> & x, const services::internal::Buffer<algorithmFPType> & sigma,
-                                         const uint32_t n, const uint32_t p, services::internal::Buffer<algorithmFPType> & h, const uint32_t nBeta,
-                                         const uint32_t offset, const algorithmFPType alpha);
+    static services::Status applyHessian(const services::internal::Buffer<algorithmFPType> & x,
+                                         const services::internal::Buffer<algorithmFPType> & sigma, const uint32_t n, const uint32_t p,
+                                         services::internal::Buffer<algorithmFPType> & h, const uint32_t nBeta, const uint32_t offset,
+                                         const algorithmFPType alpha);
 
     // TODO: move in common services
     static services::Status logLoss(const services::internal::Buffer<algorithmFPType> & y, const services::internal::Buffer<algorithmFPType> & sigma,
                                     services::internal::Buffer<algorithmFPType> & result, const uint32_t n);
 
     // TODO: move in common services
-    static services::Status sigmoids(const services::internal::Buffer<algorithmFPType> & x, services::internal::Buffer<algorithmFPType> & result, const uint32_t n,
-                                     bool calculateInverse = false);
+    static services::Status sigmoids(const services::internal::Buffer<algorithmFPType> & x, services::internal::Buffer<algorithmFPType> & result,
+                                     const uint32_t n, bool calculateInverse = false);
 
-    static services::Status betaIntercept(const services::internal::Buffer<algorithmFPType> & arg, services::internal::Buffer<algorithmFPType> & x, const uint32_t n);
+    static services::Status betaIntercept(const services::internal::Buffer<algorithmFPType> & arg, services::internal::Buffer<algorithmFPType> & x,
+                                          const uint32_t n);
 
 private:
     services::Status doCompute(const uint32_t nBatch, const uint32_t nFeatures, const daal::services::internal::Buffer<algorithmFPType> & xBuff,
-                               const daal::services::internal::Buffer<algorithmFPType> & yBuff, const daal::services::internal::Buffer<algorithmFPType> & argBuff,
-                               NumericTable * valueNT, NumericTable * gradientNT, NumericTable * hessianNT, NumericTable * nonSmoothTermValueNT,
-                               NumericTable * proximalProjectionNT, NumericTable * lipschitzConstantNT, const algorithmFPType l1reg,
-                               const algorithmFPType l2reg, const bool interceptFlag, const bool isSourceData);
+                               const daal::services::internal::Buffer<algorithmFPType> & yBuff,
+                               const daal::services::internal::Buffer<algorithmFPType> & argBuff, NumericTable * valueNT, NumericTable * gradientNT,
+                               NumericTable * hessianNT, NumericTable * nonSmoothTermValueNT, NumericTable * proximalProjectionNT,
+                               NumericTable * lipschitzConstantNT, const algorithmFPType l1reg, const algorithmFPType l2reg, const bool interceptFlag,
+                               const bool isSourceData);
 
     static services::Status hessianRegulization(services::internal::Buffer<algorithmFPType> & h, const uint32_t nBeta, const algorithmFPType l2);
 
-    static services::Status hessianIntercept(const services::internal::Buffer<algorithmFPType> & x, const services::internal::Buffer<algorithmFPType> & sigma,
-                                             const uint32_t n, const uint32_t p, services::internal::Buffer<algorithmFPType> & h, const uint32_t nBeta,
-                                             const algorithmFPType alpha);
+    static services::Status hessianIntercept(const services::internal::Buffer<algorithmFPType> & x,
+                                             const services::internal::Buffer<algorithmFPType> & sigma, const uint32_t n, const uint32_t p,
+                                             services::internal::Buffer<algorithmFPType> & h, const uint32_t nBeta, const algorithmFPType alpha);
 
     static void buildProgram(services::internal::sycl::ClKernelFactoryIface & factory);
 

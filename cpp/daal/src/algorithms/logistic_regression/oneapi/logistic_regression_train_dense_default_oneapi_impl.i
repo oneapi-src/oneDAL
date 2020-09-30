@@ -90,7 +90,7 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
     const size_t nBetaRows  = m.getBeta()->getNumberOfRows();
     const size_t nBetaTotal = nBeta * nBetaRows;
 
-    UniversalBuffer argumentU                      = ctx.allocate(idType, nBetaTotal, &status);
+    UniversalBuffer argumentU                                = ctx.allocate(idType, nBetaTotal, &status);
     services::internal::Buffer<algorithmFPType> argumentBuff = argumentU.get<algorithmFPType>();
 
     auto argumentSNT = data_management::internal::SyclHomogenNumericTable<algorithmFPType>::create(argumentBuff, 1, nBetaTotal, &status);

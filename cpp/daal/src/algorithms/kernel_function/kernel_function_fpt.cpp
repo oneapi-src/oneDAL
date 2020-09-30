@@ -52,8 +52,8 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 
     if (method == 0 && !deviceInfo.isCpu)
     {
-        set(values, data_management::internal::SyclHomogenNumericTable<algorithmFPType>::create(nVectors2, nVectors1, data_management::NumericTable::doAllocate,
-                                                                                      &status));
+        set(values, data_management::internal::SyclHomogenNumericTable<algorithmFPType>::create(nVectors2, nVectors1,
+                                                                                                data_management::NumericTable::doAllocate, &status));
     }
     else
     {

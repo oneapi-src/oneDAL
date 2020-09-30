@@ -316,9 +316,9 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees
 
 template <typename algorithmFPType, prediction::Method method>
 services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesWeighted(
-    const services::internal::Buffer<algorithmFPType> & srcBuffer, const UniversalBuffer & featureIndexList, const UniversalBuffer & leftOrClassTypeList,
-    const UniversalBuffer & featureValueList, const UniversalBuffer & classProba, UniversalBuffer & obsClassHist, algorithmFPType scale, size_t nRows,
-    size_t nCols, size_t nTrees, size_t maxTreeSize)
+    const services::internal::Buffer<algorithmFPType> & srcBuffer, const UniversalBuffer & featureIndexList,
+    const UniversalBuffer & leftOrClassTypeList, const UniversalBuffer & featureValueList, const UniversalBuffer & classProba,
+    UniversalBuffer & obsClassHist, algorithmFPType scale, size_t nRows, size_t nCols, size_t nTrees, size_t maxTreeSize)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.predictByTreesWeighted);
 

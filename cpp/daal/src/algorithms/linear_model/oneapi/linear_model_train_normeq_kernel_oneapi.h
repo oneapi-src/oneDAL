@@ -58,11 +58,12 @@ public:
      * \param[in] interceptFlag Flag. If true, then it is required to compute an intercept term
      * \return Status of the computations
      */
-    virtual services::Status computeBetasImpl(size_t p, services::internal::Buffer<algorithmFPType> & a, size_t ny, services::internal::Buffer<algorithmFPType> & b,
-                                              bool inteceptFlag) const = 0;
+    virtual services::Status computeBetasImpl(size_t p, services::internal::Buffer<algorithmFPType> & a, size_t ny,
+                                              services::internal::Buffer<algorithmFPType> & b, bool inteceptFlag) const = 0;
 
-    virtual services::Status copyBetaToResult(const services::internal::Buffer<algorithmFPType> & betaTmp, services::internal::Buffer<algorithmFPType> & betaRes,
-                                              const size_t nBetas, const size_t nResponses, const bool interceptFlag) const = 0;
+    virtual services::Status copyBetaToResult(const services::internal::Buffer<algorithmFPType> & betaTmp,
+                                              services::internal::Buffer<algorithmFPType> & betaRes, const size_t nBetas, const size_t nResponses,
+                                              const bool interceptFlag) const = 0;
 };
 
 /**

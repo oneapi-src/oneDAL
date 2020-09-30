@@ -136,8 +136,9 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::alloc(size_t nC, size_t
 }
 
 template <typename algorithmFPType>
-services::Status IndexedFeaturesOneAPI<algorithmFPType>::extractColumn(const services::internal::Buffer<algorithmFPType> & data, UniversalBuffer & values,
-                                                                       UniversalBuffer & indices, int32_t featureId, int32_t nFeatures, int32_t nRows)
+services::Status IndexedFeaturesOneAPI<algorithmFPType>::extractColumn(const services::internal::Buffer<algorithmFPType> & data,
+                                                                       UniversalBuffer & values, UniversalBuffer & indices, int32_t featureId,
+                                                                       int32_t nFeatures, int32_t nRows)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(indexedFeatures.extractColumn);
 

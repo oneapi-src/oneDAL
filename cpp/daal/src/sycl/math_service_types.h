@@ -43,7 +43,8 @@ static algorithmFPType expThreshold()
 }
 
 template <typename algorithmFPType>
-static services::Status vLog(const services::internal::Buffer<algorithmFPType> & x, services::internal::Buffer<algorithmFPType> & result, const uint32_t n)
+static services::Status vLog(const services::internal::Buffer<algorithmFPType> & x, services::internal::Buffer<algorithmFPType> & result,
+                             const uint32_t n)
 {
     services::Status status;
 
@@ -55,7 +56,7 @@ static services::Status vLog(const services::internal::Buffer<algorithmFPType> &
     cachekey.add(options);
     factory.build(services::internal::sycl::ExecutionTargetIds::device, cachekey.c_str(), clKernelMath, options.c_str());
 
-    const char * const kernelName      = "vLog";
+    const char * const kernelName              = "vLog";
     services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
 
     services::internal::sycl::KernelArguments args(2);

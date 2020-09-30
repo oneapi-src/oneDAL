@@ -56,8 +56,9 @@ struct DAAL_EXPORT ReferenceGemm
 
     services::Status operator()(const math::Transpose transa, const math::Transpose transb, const size_t m, const size_t n, const size_t k,
                                 const algorithmFPType alpha, const services::internal::Buffer<algorithmFPType> & a_buffer, const size_t lda,
-                                const size_t offsetA, const services::internal::Buffer<algorithmFPType> & b_buffer, const size_t ldb, const size_t offsetB,
-                                const algorithmFPType beta, services::internal::Buffer<algorithmFPType> & c_buffer, const size_t ldc, const size_t offsetC);
+                                const size_t offsetA, const services::internal::Buffer<algorithmFPType> & b_buffer, const size_t ldb,
+                                const size_t offsetB, const algorithmFPType beta, services::internal::Buffer<algorithmFPType> & c_buffer,
+                                const size_t ldc, const size_t offsetC);
 };
 
 /** @} */

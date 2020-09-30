@@ -173,8 +173,9 @@ uint32_t KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::getWorkgroups
 template <Method method, typename algorithmFPType>
 void KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::gatherRandom(ExecutionContextIface & context, const KernelPtr & kernel_gather_random,
                                                                             const services::internal::Buffer<algorithmFPType> & data,
-                                                                            const services::internal::Buffer<algorithmFPType> & clusters, UniversalBuffer & indices,
-                                                                            uint32_t nRows, uint32_t nClusters, uint32_t nFeatures, Status * st)
+                                                                            const services::internal::Buffer<algorithmFPType> & clusters,
+                                                                            UniversalBuffer & indices, uint32_t nRows, uint32_t nClusters,
+                                                                            uint32_t nFeatures, Status * st)
 {
     KernelArguments args(6);
     args.set(0, data, AccessModeIds::read);

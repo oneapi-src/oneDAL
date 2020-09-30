@@ -77,8 +77,9 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::lazyAllocat
 template <typename algorithmFPType>
 services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeRBF(const UniversalBuffer & sqrMatLeft,
                                                                                 const UniversalBuffer & sqrMatRight, const uint32_t ld,
-                                                                                const algorithmFPType coeff, services::internal::Buffer<algorithmFPType> & rbf,
-                                                                                const size_t n, const size_t m)
+                                                                                const algorithmFPType coeff,
+                                                                                services::internal::Buffer<algorithmFPType> & rbf, const size_t n,
+                                                                                const size_t m)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.computeRBF);
 

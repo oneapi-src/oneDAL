@@ -68,7 +68,7 @@ public:
     virtual services::Status compute(const NumericTablePtr & xTable, const services::internal::Buffer<uint32_t> & wsIndices, const size_t p) = 0;
 
     virtual const services::internal::Buffer<algorithmFPType> & getRowsBlock() const = 0;
-    virtual services::Status copyLastToFirst()                             = 0;
+    virtual services::Status copyLastToFirst()                                       = 0;
 
 protected:
     SVMCacheOneAPIIface(const size_t blockSize, const size_t lineSize, const kernel_function::KernelIfacePtr & kernel)
@@ -138,7 +138,7 @@ public:
         DAAL_CHECK_STATUS(status, xTable->getBlockOfRows(0, xTable->getNumberOfRows(), ReadWriteMode::readOnly, xBlock));
         const services::internal::Buffer<algorithmFPType> & xBuff = xBlock.getBuffer();
 
-        size_t blockSize                         = _blockSize;
+        size_t blockSize                                   = _blockSize;
         services::internal::Buffer<uint32_t> wsIndicesReal = wsIndices;
         if (_ifComputeSubKernel)
         {

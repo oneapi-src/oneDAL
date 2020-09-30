@@ -184,8 +184,8 @@ Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::compute(bool isCorrelati
 }
 
 template <typename algorithmFPType>
-services::Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::correlationFromCovarianceTable(uint32_t nObservations, NumericTable & covariance,
-                                                                                                 const services::internal::Buffer<algorithmFPType> & variances)
+services::Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::correlationFromCovarianceTable(
+    uint32_t nObservations, NumericTable & covariance, const services::internal::Buffer<algorithmFPType> & variances)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlationFromCovarianceTable);
     services::Status status;

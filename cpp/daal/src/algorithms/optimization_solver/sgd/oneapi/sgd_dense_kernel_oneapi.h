@@ -63,8 +63,9 @@ public:
 
 private:
     static services::Status makeStep(const uint32_t argumentSize, const services::internal::Buffer<algorithmFPType> & prevWorkValueBuff,
-                                     const services::internal::Buffer<algorithmFPType> & gradientBuff, services::internal::Buffer<algorithmFPType> & workValueBuff,
-                                     const algorithmFPType learningRate, const algorithmFPType consCoeff);
+                                     const services::internal::Buffer<algorithmFPType> & gradientBuff,
+                                     services::internal::Buffer<algorithmFPType> & workValueBuff, const algorithmFPType learningRate,
+                                     const algorithmFPType consCoeff);
 
     static services::Status vectorNorm(const services::internal::Buffer<algorithmFPType> & x, const uint32_t n, algorithmFPType & norm);
 

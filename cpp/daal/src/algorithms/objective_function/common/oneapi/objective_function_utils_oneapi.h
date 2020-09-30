@@ -73,7 +73,7 @@ struct HelperObjectiveFunction
 
         buildProgram(factory);
 
-        const char * const kernelName      = "subVectors";
+        const char * const kernelName              = "subVectors";
         services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
 
         services::internal::sycl::KernelArguments args(3);
@@ -97,7 +97,7 @@ struct HelperObjectiveFunction
 
         buildProgram(factory);
 
-        const char * const kernelName      = "setElem";
+        const char * const kernelName              = "setElem";
         services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
 
         services::internal::sycl::KernelArguments args(3);
@@ -121,7 +121,7 @@ struct HelperObjectiveFunction
 
         buildProgram(factory);
 
-        const char * const kernelName      = "setColElem";
+        const char * const kernelName              = "setColElem";
         services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
 
         services::internal::sycl::KernelArguments args(4);
@@ -137,8 +137,8 @@ struct HelperObjectiveFunction
         return status;
     }
 
-    static services::Status transpose(const services::internal::Buffer<algorithmFPType> & x, services::internal::Buffer<algorithmFPType> & xt, const uint32_t n,
-                                      const uint32_t p)
+    static services::Status transpose(const services::internal::Buffer<algorithmFPType> & x, services::internal::Buffer<algorithmFPType> & xt,
+                                      const uint32_t n, const uint32_t p)
     {
         services::Status status;
 
@@ -147,7 +147,7 @@ struct HelperObjectiveFunction
 
         buildProgram(factory);
 
-        const char * const kernelName      = "transpose";
+        const char * const kernelName              = "transpose";
         services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
 
         services::internal::sycl::KernelArguments args(4);
@@ -192,7 +192,7 @@ struct HelperObjectiveFunction
 
         buildProgram(factory);
 
-        const char * const kernelName      = "regularization";
+        const char * const kernelName              = "regularization";
         services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
 
         services::internal::sycl::KernelNDRange range(1);
@@ -216,7 +216,7 @@ struct HelperObjectiveFunction
         range.global(globalRange, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        services::internal::sycl::UniversalBuffer buffer          = ctx.allocate(idType, nWorkGroups, &status);
+        services::internal::sycl::UniversalBuffer buffer            = ctx.allocate(idType, nWorkGroups, &status);
         services::internal::Buffer<algorithmFPType> reductionBuffer = buffer.get<algorithmFPType>();
 
         services::internal::sycl::KernelArguments args(6 /*7*/);
@@ -246,7 +246,7 @@ struct HelperObjectiveFunction
 
         buildProgram(factory);
 
-        const char * const kernelName      = "sumReduction";
+        const char * const kernelName              = "sumReduction";
         services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
 
         services::internal::sycl::KernelNDRange range(1);
@@ -270,7 +270,7 @@ struct HelperObjectiveFunction
         range.global(globalRange, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        services::internal::sycl::UniversalBuffer buffer          = ctx.allocate(idType, nWorkGroups, &status);
+        services::internal::sycl::UniversalBuffer buffer            = ctx.allocate(idType, nWorkGroups, &status);
         services::internal::Buffer<algorithmFPType> reductionBuffer = buffer.get<algorithmFPType>();
 
         services::internal::sycl::KernelArguments args(3 /*4*/);
@@ -298,7 +298,7 @@ struct HelperObjectiveFunction
 
         buildProgram(factory);
 
-        const char * const kernelName      = "addVectorScalar";
+        const char * const kernelName              = "addVectorScalar";
         services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
 
         services::internal::sycl::KernelArguments args(2);
@@ -314,8 +314,8 @@ struct HelperObjectiveFunction
 
     // x = x + y[id]
     // Where x - vector; y - vector, id - index
-    static services::Status addVectorScalar(services::internal::Buffer<algorithmFPType> & x, const services::internal::Buffer<algorithmFPType> & y, const uint32_t id,
-                                            const uint32_t n)
+    static services::Status addVectorScalar(services::internal::Buffer<algorithmFPType> & x, const services::internal::Buffer<algorithmFPType> & y,
+                                            const uint32_t id, const uint32_t n)
     {
         services::Status status;
 
@@ -324,7 +324,7 @@ struct HelperObjectiveFunction
 
         buildProgram(factory);
 
-        const char * const kernelName      = "addVectorScalar2";
+        const char * const kernelName              = "addVectorScalar2";
         services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
 
         services::internal::sycl::KernelArguments args(3);
@@ -339,9 +339,10 @@ struct HelperObjectiveFunction
         return status;
     }
 
-    static services::Status getXY(const services::internal::Buffer<algorithmFPType> & xBuff, const services::internal::Buffer<algorithmFPType> & yBuff,
-                                  const services::internal::Buffer<int> & indBuff, services::internal::Buffer<algorithmFPType> aX, services::internal::Buffer<algorithmFPType> aY,
-                                  uint32_t nBatch, uint32_t p, bool interceptFlag)
+    static services::Status getXY(const services::internal::Buffer<algorithmFPType> & xBuff,
+                                  const services::internal::Buffer<algorithmFPType> & yBuff, const services::internal::Buffer<int> & indBuff,
+                                  services::internal::Buffer<algorithmFPType> aX, services::internal::Buffer<algorithmFPType> aY, uint32_t nBatch,
+                                  uint32_t p, bool interceptFlag)
     {
         services::Status status;
 
@@ -352,7 +353,7 @@ struct HelperObjectiveFunction
 
         const algorithmFPType interceptValue = interceptFlag ? algorithmFPType(1) : algorithmFPType(0);
 
-        const char * const kernelName      = "getXY";
+        const char * const kernelName              = "getXY";
         services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
 
         services::internal::sycl::KernelArguments args(7);

@@ -84,7 +84,7 @@ services::Status ResultImpl::allocate(size_t nFeatures, size_t nComponents, DAAL
     else
     {
         return __allocate__impl<algorithmFPType, data_management::internal::SyclHomogenNumericTable<algorithmFPType> >(nFeatures, nComponents,
-                                                                                                             resultsToCompute);
+                                                                                                                       resultsToCompute);
     }
     return services::Status();
 }

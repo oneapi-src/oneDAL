@@ -33,7 +33,6 @@ namespace algorithms
 {
 namespace pca
 {
-
 using daal::data_management::internal::SyclHomogenNumericTable;
 
 /**
@@ -64,14 +63,12 @@ DAAL_EXPORT services::Status PartialResult<correlationDense>::allocate(const daa
     }
     else
     {
-        set(nObservationsCorrelation,
-            SyclHomogenNumericTable<algorithmFPType>::create(1, 1, data_management::NumericTableIface::doAllocate, 0, &s));
-        set(sumCorrelation, SyclHomogenNumericTable<algorithmFPType>::create(
-                                (static_cast<const InputIface *>(input))->getNFeatures(), 1, data_management::NumericTableIface::doAllocate, 0, &s));
-        set(crossProductCorrelation,
-            SyclHomogenNumericTable<algorithmFPType>::create((static_cast<const InputIface *>(input))->getNFeatures(),
-                                                                              (static_cast<const InputIface *>(input))->getNFeatures(),
-                                                                              data_management::NumericTableIface::doAllocate, 0, &s));
+        set(nObservationsCorrelation, SyclHomogenNumericTable<algorithmFPType>::create(1, 1, data_management::NumericTableIface::doAllocate, 0, &s));
+        set(sumCorrelation, SyclHomogenNumericTable<algorithmFPType>::create((static_cast<const InputIface *>(input))->getNFeatures(), 1,
+                                                                             data_management::NumericTableIface::doAllocate, 0, &s));
+        set(crossProductCorrelation, SyclHomogenNumericTable<algorithmFPType>::create((static_cast<const InputIface *>(input))->getNFeatures(),
+                                                                                      (static_cast<const InputIface *>(input))->getNFeatures(),
+                                                                                      data_management::NumericTableIface::doAllocate, 0, &s));
     }
 
     return s;

@@ -117,11 +117,11 @@ inline TypeId getTypeId()
     return TypeIds::custom;
 }
 
-#define DAAL_DECLARE_TYPE_ID_MAP(id_)                          \
-    template <>                                                \
+#define DAAL_DECLARE_TYPE_ID_MAP(id_)                                  \
+    template <>                                                        \
     inline TypeId getTypeId<daal::services::internal::sycl::id_##_t>() \
-    {                                                          \
-        return TypeIds::id_;                                   \
+    {                                                                  \
+        return TypeIds::id_;                                           \
     }
 
 DAAL_DECLARE_TYPE_ID_MAP(int8)

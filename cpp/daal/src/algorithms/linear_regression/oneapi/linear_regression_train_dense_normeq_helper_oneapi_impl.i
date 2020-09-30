@@ -42,8 +42,9 @@ namespace internal
 using namespace daal::services::internal::sycl;
 
 template <typename algorithmFPType>
-services::Status KernelHelperOneAPI<algorithmFPType>::computeBetasImpl(const size_t p, services::internal::Buffer<algorithmFPType> & a, const size_t ny,
-                                                                       services::internal::Buffer<algorithmFPType> & b, const bool inteceptFlag) const
+services::Status KernelHelperOneAPI<algorithmFPType>::computeBetasImpl(const size_t p, services::internal::Buffer<algorithmFPType> & a,
+                                                                       const size_t ny, services::internal::Buffer<algorithmFPType> & b,
+                                                                       const bool inteceptFlag) const
 {
     return linear_model::normal_equations::training::internal::FinalizeKernelOneAPI<algorithmFPType>::solveSystem(p, a, ny, b);
 }

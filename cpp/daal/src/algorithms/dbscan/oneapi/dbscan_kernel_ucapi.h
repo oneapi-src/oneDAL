@@ -49,17 +49,17 @@ private:
     services::Status processResultsToCompute(DAAL_UINT64 resultsToCompute, daal::data_management::NumericTable * ntData,
                                              daal::data_management::NumericTable * ntCoreIndices,
                                              daal::data_management::NumericTable * ntCoreObservations);
-    services::Status pushNeighborsToQueue(const services::internal::sycl::UniversalBuffer & distances, const services::internal::sycl::UniversalBuffer & chunkOffests,
-                                          uint32_t rowId, uint32_t clusterId, uint32_t chunkOffset, uint32_t nRows, uint32_t qEnd,
-                                          algorithmFPType eps, services::internal::sycl::UniversalBuffer & assignments,
-                                          services::internal::sycl::UniversalBuffer & queue);
+    services::Status pushNeighborsToQueue(const services::internal::sycl::UniversalBuffer & distances,
+                                          const services::internal::sycl::UniversalBuffer & chunkOffests, uint32_t rowId, uint32_t clusterId,
+                                          uint32_t chunkOffset, uint32_t nRows, uint32_t qEnd, algorithmFPType eps,
+                                          services::internal::sycl::UniversalBuffer & assignments, services::internal::sycl::UniversalBuffer & queue);
 
     services::Status countOffsets(const services::internal::sycl::UniversalBuffer & counters, services::internal::sycl::UniversalBuffer & offsets);
 
     services::Status setBufferValue(services::internal::sycl::UniversalBuffer & buffer, uint32_t index, int value);
 
-    services::Status setBufferValueByQueueIndex(services::internal::sycl::UniversalBuffer & buffer, const services::internal::sycl::UniversalBuffer & queue,
-                                                uint32_t posInQueue, int value);
+    services::Status setBufferValueByQueueIndex(services::internal::sycl::UniversalBuffer & buffer,
+                                                const services::internal::sycl::UniversalBuffer & queue, uint32_t posInQueue, int value);
 
     services::Status getPointDistances(const services::internal::sycl::UniversalBuffer & data, uint32_t nRows, uint32_t rowId, uint32_t dim,
                                        uint32_t minkowskiPower, services::internal::sycl::UniversalBuffer & pointDistances);
@@ -69,9 +69,10 @@ private:
                                             uint32_t dim, uint32_t minkowskiPower, services::internal::sycl::UniversalBuffer & queueBlockDistances);
 
     services::Status countPointNeighbors(const services::internal::sycl::UniversalBuffer & assignments,
-                                         const services::internal::sycl::UniversalBuffer & pointDistances, uint32_t rowId, int chunkOffset, uint32_t nRows,
-                                         algorithmFPType epsP, const services::internal::sycl::UniversalBuffer & queue,
-                                         services::internal::sycl::UniversalBuffer & countersTotal, services::internal::sycl::UniversalBuffer & countersNewNeighbors);
+                                         const services::internal::sycl::UniversalBuffer & pointDistances, uint32_t rowId, int chunkOffset,
+                                         uint32_t nRows, algorithmFPType epsP, const services::internal::sycl::UniversalBuffer & queue,
+                                         services::internal::sycl::UniversalBuffer & countersTotal,
+                                         services::internal::sycl::UniversalBuffer & countersNewNeighbors);
 
     uint32_t sumCounters(const services::internal::sycl::UniversalBuffer & counters);
 

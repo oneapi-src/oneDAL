@@ -185,8 +185,8 @@ protected:
         st |= _ddict->setAllFeatures(df);
     }
 
-    SyclHomogenNumericTable(DictionaryIface::FeaturesEqual featuresEqual, const services::internal::Buffer<DataType> & buffer, size_t nColumns, size_t nRows,
-                            services::Status & st)
+    SyclHomogenNumericTable(DictionaryIface::FeaturesEqual featuresEqual, const services::internal::Buffer<DataType> & buffer, size_t nColumns,
+                            size_t nRows, services::Status & st)
         : SyclHomogenNumericTable(featuresEqual, nColumns, nRows, st)
     {
         if (nColumns * nRows > buffer.size())
@@ -242,7 +242,8 @@ protected:
             {
                 const size_t size = getNumberOfColumns() * getNumberOfRows();
 
-                const auto universalBuffer = services::internal::sycl::getDefaultContext().allocate(services::internal::sycl::TypeIds::id<DataType>(), size, &status);
+                const auto universalBuffer =
+                    services::internal::sycl::getDefaultContext().allocate(services::internal::sycl::TypeIds::id<DataType>(), size, &status);
 
                 services::throwIfPossible(status);
                 DAAL_CHECK_STATUS_VAR(status);

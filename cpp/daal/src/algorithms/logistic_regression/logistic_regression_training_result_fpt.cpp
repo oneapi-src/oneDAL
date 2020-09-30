@@ -33,7 +33,6 @@ namespace logistic_regression
 {
 namespace internal
 {
-
 using daal::data_management::internal::SyclHomogenNumericTable;
 
 template <typename modelFPType>

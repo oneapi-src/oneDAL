@@ -80,8 +80,8 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     }
     else
     {
-        Argument::set(centroids, SyclHomogenNumericTable<algorithmFPType>::create(
-                                     nFeatures, kmPar->nClusters, data_management::NumericTable::doAllocate, &status));
+        Argument::set(centroids, SyclHomogenNumericTable<algorithmFPType>::create(nFeatures, kmPar->nClusters,
+                                                                                  data_management::NumericTable::doAllocate, &status));
     }
     return status;
 }

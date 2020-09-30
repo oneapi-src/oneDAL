@@ -254,10 +254,11 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::scatterSumOfSquares
 }
 
 template <typename algorithmFpType>
-Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeDistances(ExecutionContextIface & context, const services::internal::Buffer<algorithmFpType> & data,
-                                                                              const services::internal::Buffer<algorithmFpType> & query, UniversalBuffer & distances,
-                                                                              uint32_t dataBlockRowCount, uint32_t queryBlockRowCount,
-                                                                              uint32_t nFeatures)
+Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeDistances(ExecutionContextIface & context,
+                                                                              const services::internal::Buffer<algorithmFpType> & data,
+                                                                              const services::internal::Buffer<algorithmFpType> & query,
+                                                                              UniversalBuffer & distances, uint32_t dataBlockRowCount,
+                                                                              uint32_t queryBlockRowCount, uint32_t nFeatures)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.GEMM);
     return BlasGpu<algorithmFpType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::Trans, queryBlockRowCount,

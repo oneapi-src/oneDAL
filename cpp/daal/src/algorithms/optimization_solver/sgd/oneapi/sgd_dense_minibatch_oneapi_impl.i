@@ -59,11 +59,10 @@ static uint32_t getWorkgroupsCount(const uint32_t n, const uint32_t localWorkSiz
 }
 
 template <typename algorithmFPType>
-services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::makeStep(const uint32_t argumentSize,
-                                                                       const Buffer<algorithmFPType> & prevWorkValueBuff,
+services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::makeStep(const uint32_t argumentSize, const Buffer<algorithmFPType> & prevWorkValueBuff,
                                                                        const Buffer<algorithmFPType> & gradientBuff,
-                                                                       Buffer<algorithmFPType> & workValueBuff,
-                                                                       const algorithmFPType learningRate, const algorithmFPType consCoeff)
+                                                                       Buffer<algorithmFPType> & workValueBuff, const algorithmFPType learningRate,
+                                                                       const algorithmFPType consCoeff)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(makeStep);
     services::Status status;
@@ -104,8 +103,7 @@ static services::Status sumReduction(const Buffer<algorithmFPType> & reductionBu
 }
 
 template <typename algorithmFPType>
-services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::vectorNorm(const Buffer<algorithmFPType> & x, const uint32_t n,
-                                                                         algorithmFPType & norm)
+services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::vectorNorm(const Buffer<algorithmFPType> & x, const uint32_t n, algorithmFPType & norm)
 {
     services::Status status;
 
@@ -135,7 +133,7 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::vectorNorm(const B
     range.global(globalRange, &status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    UniversalBuffer buffer                            = ctx.allocate(idType, nWorkGroups, &status);
+    UniversalBuffer buffer                  = ctx.allocate(idType, nWorkGroups, &status);
     Buffer<algorithmFPType> reductionBuffer = buffer.get<algorithmFPType>();
 
     KernelArguments args(3 /*4*/);
@@ -242,8 +240,8 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::compute(HostAppIfa
     NumericTablePtr previousBatchIndices            = function->sumOfFunctionsParameter->batchIndices;
     function->sumOfFunctionsParameter->batchIndices = ntBatchIndices;
 
-    const TypeIds::Id idType                            = TypeIds::id<algorithmFPType>();
-    UniversalBuffer prevWorkValueU                      = ctx.allocate(idType, argumentSize, &status);
+    const TypeIds::Id idType                  = TypeIds::id<algorithmFPType>();
+    UniversalBuffer prevWorkValueU            = ctx.allocate(idType, argumentSize, &status);
     Buffer<algorithmFPType> prevWorkValueBuff = prevWorkValueU.get<algorithmFPType>();
 
     size_t startIteration = 0, nProceededIters = 0;
@@ -284,7 +282,7 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::compute(HostAppIfa
     algorithmFPType learningRate = learningRateArray[0];
     algorithmFPType consCoeff    = consCoeffsArray[0];
 
-    UniversalBuffer gradientU                      = ctx.allocate(idType, argumentSize, &status);
+    UniversalBuffer gradientU            = ctx.allocate(idType, argumentSize, &status);
     Buffer<algorithmFPType> gradientBuff = gradientU.get<algorithmFPType>();
 
     auto gradientSNT = SyclHomogenNumericTable<algorithmFPType>::create(gradientBuff, 1, argumentSize);

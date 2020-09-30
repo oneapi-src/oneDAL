@@ -56,39 +56,49 @@ public:
                              const Parameter & par, engines::internal::BatchBaseImpl & engine);
 
 private:
-    services::Status scan(const services::internal::Buffer<algorithmFPType> & values, services::internal::sycl::UniversalBuffer & partialSums, int nRows, int localSize,
-                          int nLocalSums);
+    services::Status scan(const services::internal::Buffer<algorithmFPType> & values, services::internal::sycl::UniversalBuffer & partialSums,
+                          int nRows, int localSize, int nLocalSums);
 
-    services::Status reduce(services::internal::sycl::UniversalBuffer & partialSums, services::internal::sycl::UniversalBuffer & totalSum, int localSize,
-                            int nSubgroupSums);
+    services::Status reduce(services::internal::sycl::UniversalBuffer & partialSums, services::internal::sycl::UniversalBuffer & totalSum,
+                            int localSize, int nSubgroupSums);
 
     services::Status getInitialResponse(NumericTable & y, algorithmFPType * response);
 
-    services::Status computeOptCoeffs(NumericTable & y, services::internal::sycl::UniversalBuffer & response, services::internal::sycl::UniversalBuffer & optCoeffs);
+    services::Status computeOptCoeffs(NumericTable & y, services::internal::sycl::UniversalBuffer & response,
+                                      services::internal::sycl::UniversalBuffer & optCoeffs);
 
     services::Status initializeTreeOrder(size_t nRows, services::internal::sycl::UniversalBuffer & treeOrder);
 
-    services::Status computePartialHistograms(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & treeOrder,
-                                              services::internal::sycl::UniversalBuffer & optCoeffs, services::internal::sycl::UniversalBuffer & partialHistograms,
-                                              size_t iStart, size_t nRows, services::internal::sycl::UniversalBuffer & binOffsets, size_t nTotalBins,
-                                              size_t nFeatures, size_t localSize, size_t nPartialHistograms);
+    services::Status computePartialHistograms(const services::internal::sycl::UniversalBuffer & data,
+                                              services::internal::sycl::UniversalBuffer & treeOrder,
+                                              services::internal::sycl::UniversalBuffer & optCoeffs,
+                                              services::internal::sycl::UniversalBuffer & partialHistograms, size_t iStart, size_t nRows,
+                                              services::internal::sycl::UniversalBuffer & binOffsets, size_t nTotalBins, size_t nFeatures,
+                                              size_t localSize, size_t nPartialHistograms);
 
-    services::Status reducePartialHistograms(services::internal::sycl::UniversalBuffer & partialHistograms, services::internal::sycl::UniversalBuffer & histograms,
-                                             size_t nTotalBins, size_t reduceLocalSize, size_t nPartialHistograms);
+    services::Status reducePartialHistograms(services::internal::sycl::UniversalBuffer & partialHistograms,
+                                             services::internal::sycl::UniversalBuffer & histograms, size_t nTotalBins, size_t reduceLocalSize,
+                                             size_t nPartialHistograms);
 
     services::Status computeHistogram(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & treeOrder,
-                                      services::internal::sycl::UniversalBuffer & optCoeffs, services::internal::sycl::UniversalBuffer & partialHistograms,
+                                      services::internal::sycl::UniversalBuffer & optCoeffs,
+                                      services::internal::sycl::UniversalBuffer & partialHistograms,
                                       services::internal::sycl::UniversalBuffer & histograms, size_t iStart, size_t nRows,
                                       services::internal::sycl::UniversalBuffer & binOffsets, size_t nTotalBins, size_t nFeatures);
 
-    services::Status computeHistogramDiff(services::internal::sycl::UniversalBuffer & histogramSrc, services::internal::sycl::UniversalBuffer & histogramTotal,
+    services::Status computeHistogramDiff(services::internal::sycl::UniversalBuffer & histogramSrc,
+                                          services::internal::sycl::UniversalBuffer & histogramTotal,
                                           services::internal::sycl::UniversalBuffer & histogramDst, size_t nBins);
 
-    services::Status computeTotalOptCoeffs(services::internal::sycl::UniversalBuffer & histograms, services::internal::sycl::UniversalBuffer & totalOptCoeffs,
-                                           services::internal::sycl::UniversalBuffer & binOffsets, size_t nTotalBins, size_t nFeatures, size_t localSize);
+    services::Status computeTotalOptCoeffs(services::internal::sycl::UniversalBuffer & histograms,
+                                           services::internal::sycl::UniversalBuffer & totalOptCoeffs,
+                                           services::internal::sycl::UniversalBuffer & binOffsets, size_t nTotalBins, size_t nFeatures,
+                                           size_t localSize);
 
-    services::Status computeBestSplitForFeatures(services::internal::sycl::UniversalBuffer & histograms, services::internal::sycl::UniversalBuffer & totalOptCoeffs,
-                                                 services::internal::sycl::UniversalBuffer & splitInfo, services::internal::sycl::UniversalBuffer & splitValue,
+    services::Status computeBestSplitForFeatures(services::internal::sycl::UniversalBuffer & histograms,
+                                                 services::internal::sycl::UniversalBuffer & totalOptCoeffs,
+                                                 services::internal::sycl::UniversalBuffer & splitInfo,
+                                                 services::internal::sycl::UniversalBuffer & splitValue,
                                                  services::internal::sycl::UniversalBuffer & binOffsets, size_t nTotalBins, size_t nFeatures,
                                                  algorithmFPType lambda, size_t localSize);
 
@@ -98,25 +108,27 @@ private:
                                       algorithmFPType * hTotal = nullptr);
 
     services::Status partitionScan(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & treeOrder,
-                                   services::internal::sycl::UniversalBuffer & partialSums, int splitValue, size_t iStart, size_t nRows, size_t localSize,
-                                   size_t nLocalSums);
+                                   services::internal::sycl::UniversalBuffer & partialSums, int splitValue, size_t iStart, size_t nRows,
+                                   size_t localSize, size_t nLocalSums);
 
-    services::Status partitionSumScan(services::internal::sycl::UniversalBuffer & partialSums, services::internal::sycl::UniversalBuffer & partialPrefixSums,
+    services::Status partitionSumScan(services::internal::sycl::UniversalBuffer & partialSums,
+                                      services::internal::sycl::UniversalBuffer & partialPrefixSums,
                                       services::internal::sycl::UniversalBuffer & totalSum, size_t localSize, size_t nSubgroupSums);
 
     services::Status partitionReorder(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & treeOrder,
-                                      services::internal::sycl::UniversalBuffer & treeOrderBuf, services::internal::sycl::UniversalBuffer & partialPrefixSums,
-                                      int spliteValue, size_t iStart, size_t nRows, size_t localSize, size_t nLocalSums);
+                                      services::internal::sycl::UniversalBuffer & treeOrderBuf,
+                                      services::internal::sycl::UniversalBuffer & partialPrefixSums, int spliteValue, size_t iStart, size_t nRows,
+                                      size_t localSize, size_t nLocalSums);
 
-    services::Status partitionCopy(services::internal::sycl::UniversalBuffer & treeOrderBuf, services::internal::sycl::UniversalBuffer & treeOrder, size_t iStart,
-                                   size_t nRows);
+    services::Status partitionCopy(services::internal::sycl::UniversalBuffer & treeOrderBuf, services::internal::sycl::UniversalBuffer & treeOrder,
+                                   size_t iStart, size_t nRows);
 
     services::Status doPartition(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & treeOrder,
-                                 services::internal::sycl::UniversalBuffer & treeOrderBuf, int splitValue, size_t iStart, size_t nRows, size_t & nLeft,
-                                 size_t & nRight);
+                                 services::internal::sycl::UniversalBuffer & treeOrderBuf, int splitValue, size_t iStart, size_t nRows,
+                                 size_t & nLeft, size_t & nRight);
 
-    services::Status updateResponse(services::internal::sycl::UniversalBuffer & treeOrder, services::internal::sycl::UniversalBuffer & response, size_t iStart,
-                                    size_t nRows, algorithmFPType inc);
+    services::Status updateResponse(services::internal::sycl::UniversalBuffer & treeOrder, services::internal::sycl::UniversalBuffer & response,
+                                    size_t iStart, size_t nRows, algorithmFPType inc);
 
     services::internal::sycl::KernelPtr kernelScan;
     services::internal::sycl::KernelPtr kernelReduce;

@@ -59,13 +59,13 @@ public:
 
     services::Status convertSplitToLeaf(services::internal::sycl::UniversalBuffer & nodeList, size_t nNodes);
 
-    services::Status markPresentRows(const services::internal::sycl::UniversalBuffer & rowsList, services::internal::sycl::UniversalBuffer & rowsBuffer, size_t nRows,
-                                     size_t localSize, size_t nSubgroupSums);
+    services::Status markPresentRows(const services::internal::sycl::UniversalBuffer & rowsList,
+                                     services::internal::sycl::UniversalBuffer & rowsBuffer, size_t nRows, size_t localSize, size_t nSubgroupSums);
     services::Status countAbsentRowsForBlocks(const services::internal::sycl::UniversalBuffer & rowsBuffer, size_t nRows,
                                               services::internal::sycl::UniversalBuffer & partialSums, size_t localSize, size_t nSubgroupSums);
     services::Status countAbsentRowsTotal(const services::internal::sycl::UniversalBuffer & partialSums,
-                                          services::internal::sycl::UniversalBuffer & partialPrefixSums, services::internal::sycl::UniversalBuffer & totalSum,
-                                          size_t localSize, size_t nSubgroupSums);
+                                          services::internal::sycl::UniversalBuffer & partialPrefixSums,
+                                          services::internal::sycl::UniversalBuffer & totalSum, size_t localSize, size_t nSubgroupSums);
     services::Status fillOOBRowsListByBlocks(const services::internal::sycl::UniversalBuffer & rowsBuffer, size_t nRows,
                                              const services::internal::sycl::UniversalBuffer & partialPrefixSums,
                                              services::internal::sycl::UniversalBuffer & oobRowsList, size_t localSize, size_t nSubgroupSums);
@@ -75,17 +75,19 @@ public:
 
     services::Status getNumOfSplitNodes(const services::internal::sycl::UniversalBuffer & nodeList, size_t nNodes, size_t & nSplitNodes);
 
-    services::Status doNodesSplit(const services::internal::sycl::UniversalBuffer & nodeList, size_t nNodes, services::internal::sycl::UniversalBuffer & nodeListNew);
+    services::Status doNodesSplit(const services::internal::sycl::UniversalBuffer & nodeList, size_t nNodes,
+                                  services::internal::sycl::UniversalBuffer & nodeListNew);
 
     services::Status splitNodeListOnGroupsBySize(const services::internal::sycl::UniversalBuffer & nodeList, size_t nNodes,
-                                                 services::internal::sycl::UniversalBuffer & bigNodesGroups, services::internal::sycl::UniversalBuffer & nodeIndeces);
+                                                 services::internal::sycl::UniversalBuffer & bigNodesGroups,
+                                                 services::internal::sycl::UniversalBuffer & nodeIndeces);
 
-    services::Status doLevelPartition(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & nodeList, size_t nNodes,
-                                      services::internal::sycl::UniversalBuffer & treeOrder, services::internal::sycl::UniversalBuffer & treeOrderBuf, size_t nRows,
-                                      size_t nFeatures);
+    services::Status doLevelPartition(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & nodeList,
+                                      size_t nNodes, services::internal::sycl::UniversalBuffer & treeOrder,
+                                      services::internal::sycl::UniversalBuffer & treeOrderBuf, size_t nRows, size_t nFeatures);
 
-    services::Status partitionCopy(services::internal::sycl::UniversalBuffer & treeOrderBuf, services::internal::sycl::UniversalBuffer & treeOrder, size_t iStart,
-                                   size_t nRows);
+    services::Status partitionCopy(services::internal::sycl::UniversalBuffer & treeOrderBuf, services::internal::sycl::UniversalBuffer & treeOrder,
+                                   size_t iStart, size_t nRows);
 
     services::Status updateMDIVarImportance(const services::internal::sycl::UniversalBuffer & nodeList,
                                             const services::internal::sycl::UniversalBuffer & nodeImpDecreaseList, size_t nNodes,

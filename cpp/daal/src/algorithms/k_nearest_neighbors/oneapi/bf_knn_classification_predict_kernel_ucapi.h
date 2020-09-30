@@ -53,12 +53,15 @@ private:
                                          const services::internal::sycl::UniversalBuffer & dataSumOfSquares, uint32_t dataBlockRowCount,
                                          uint32_t queryBlockRowCount, services::internal::sycl::UniversalBuffer & distances);
 
-    services::Status computeDistances(services::internal::sycl::ExecutionContextIface & context, const services::internal::Buffer<algorithmFpType> & data,
-                                      const services::internal::Buffer<algorithmFpType> & query, services::internal::sycl::UniversalBuffer & distances,
-                                      uint32_t dataBlockRowCount, uint32_t queryBlockRowCount, uint32_t nFeatures);
+    services::Status computeDistances(services::internal::sycl::ExecutionContextIface & context,
+                                      const services::internal::Buffer<algorithmFpType> & data,
+                                      const services::internal::Buffer<algorithmFpType> & query,
+                                      services::internal::sycl::UniversalBuffer & distances, uint32_t dataBlockRowCount, uint32_t queryBlockRowCount,
+                                      uint32_t nFeatures);
 
-    services::Status computeWinners(services::internal::sycl::ExecutionContextIface & context, const services::internal::sycl::UniversalBuffer & labels,
-                                    uint32_t queryBlockRowCount, uint32_t k, services::internal::sycl::UniversalBuffer labelsOut);
+    services::Status computeWinners(services::internal::sycl::ExecutionContextIface & context,
+                                    const services::internal::sycl::UniversalBuffer & labels, uint32_t queryBlockRowCount, uint32_t k,
+                                    services::internal::sycl::UniversalBuffer labelsOut);
 
     services::Status buildProgram(services::internal::sycl::ClKernelFactoryIface & kernel_factory);
 };

@@ -90,7 +90,8 @@ template <typename algorithmFPType>
 struct TreeLevelRecord
 {
     TreeLevelRecord() : _nodeList(nullptr), _impInfo(nullptr), _nNodes(0), _nClasses(0) {}
-    services::Status init(services::internal::sycl::UniversalBuffer & nodeList, services::internal::sycl::UniversalBuffer & impInfo, size_t nNodes, size_t nClasses)
+    services::Status init(services::internal::sycl::UniversalBuffer & nodeList, services::internal::sycl::UniversalBuffer & impInfo, size_t nNodes,
+                          size_t nClasses)
     {
         _nNodes   = nNodes;
         _nClasses = nClasses;

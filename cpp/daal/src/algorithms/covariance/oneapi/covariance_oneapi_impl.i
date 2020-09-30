@@ -182,8 +182,8 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
 template <typename algorithmFPType>
 services::Status mergeCrossProduct(size_t nFeatures, const services::internal::Buffer<algorithmFPType> & partialCrossProduct,
                                    const services::internal::Buffer<algorithmFPType> & partialSums, algorithmFPType partialNObservations,
-                                   const services::internal::Buffer<algorithmFPType> & crossProduct, const services::internal::Buffer<algorithmFPType> & sums,
-                                   algorithmFPType nObservations)
+                                   const services::internal::Buffer<algorithmFPType> & crossProduct,
+                                   const services::internal::Buffer<algorithmFPType> & sums, algorithmFPType nObservations)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.mergeCrossProduct);
 
@@ -226,7 +226,8 @@ services::Status mergeCrossProduct(size_t nFeatures, const services::internal::B
 }
 
 template <typename algorithmFPType, Method method>
-services::Status mergeSums(size_t nFeatures, const services::internal::Buffer<algorithmFPType> & partialSums, const services::internal::Buffer<algorithmFPType> & sums)
+services::Status mergeSums(size_t nFeatures, const services::internal::Buffer<algorithmFPType> & partialSums,
+                           const services::internal::Buffer<algorithmFPType> & sums)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.mergeSums);
     services::Status status;
@@ -242,7 +243,8 @@ template <typename algorithmFPType>
 services::Status prepareMeansAndCrossProductDiag(size_t nFeatures, algorithmFPType nObservations,
                                                  const services::internal::Buffer<algorithmFPType> & crossProduct,
                                                  const services::internal::Buffer<algorithmFPType> & diagCrossProduct,
-                                                 const services::internal::Buffer<algorithmFPType> & sums, const services::internal::Buffer<algorithmFPType> & mean)
+                                                 const services::internal::Buffer<algorithmFPType> & sums,
+                                                 const services::internal::Buffer<algorithmFPType> & mean)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.prepareMeansAndCrossProductDiag);
 
@@ -277,8 +279,8 @@ services::Status prepareMeansAndCrossProductDiag(size_t nFeatures, algorithmFPTy
 
 template <typename algorithmFPType>
 services::Status finalize(size_t nFeatures, algorithmFPType nObservations, const services::internal::Buffer<algorithmFPType> & crossProduct,
-                          const services::internal::Buffer<algorithmFPType> & cov, const services::internal::Buffer<algorithmFPType> & diagCrossProduct,
-                          const Parameter * parameter)
+                          const services::internal::Buffer<algorithmFPType> & cov,
+                          const services::internal::Buffer<algorithmFPType> & diagCrossProduct, const Parameter * parameter)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.finalize);
 
