@@ -41,25 +41,17 @@ TEST(infer_and_train_cls_kernels_test, can_process_simple_case_default_params) {
     auto queue = sycl::queue(selector);
 
     auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
-    queue.memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count).wait();
-    const auto x_train_table = dal::homogen_table{ queue,
-                                                   x_train,
-                                                   row_count_train,
-                                                   column_count,
-                                                   dal::empty_delete<const float>() };
+    std::memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count);
+    const auto x_train_table =
+        dal::homogen_table::wrap(queue, x_train, row_count_train, column_count);
 
     auto y_train = sycl::malloc_shared<float>(row_count_train, queue);
-    queue.memcpy(y_train, y_train_host, sizeof(float) * row_count_train).wait();
-    const auto y_train_table =
-        dal::homogen_table{ queue, y_train, row_count_train, 1, dal::empty_delete<const float>() };
+    std::memcpy(y_train, y_train_host, sizeof(float) * row_count_train);
+    const auto y_train_table = dal::homogen_table::wrap(queue, y_train, row_count_train, 1);
 
     auto x_test = sycl::malloc_shared<float>(row_count_test * column_count, queue);
-    queue.memcpy(x_test, x_test_host, sizeof(float) * row_count_test * column_count).wait();
-    const auto x_test_table = dal::homogen_table{ queue,
-                                                  x_test,
-                                                  row_count_test,
-                                                  column_count,
-                                                  dal::empty_delete<const float>() };
+    std::memcpy(x_test, x_test_host, sizeof(float) * row_count_test * column_count);
+    const auto x_test_table = dal::homogen_table::wrap(queue, x_test, row_count_test, column_count);
 
     const auto df_train_desc = df::descriptor<float, df::task::classification, df::method::hist>{};
     const auto df_infer_desc = df::descriptor<float, df::task::classification, df::method::dense>{};
@@ -100,25 +92,17 @@ TEST(infer_and_train_cls_kernels_test, can_process_simple_case_non_default_param
     auto queue = sycl::queue(selector);
 
     auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
-    queue.memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count).wait();
-    const auto x_train_table = dal::homogen_table{ queue,
-                                                   x_train,
-                                                   row_count_train,
-                                                   column_count,
-                                                   dal::empty_delete<const float>() };
+    std::memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count);
+    const auto x_train_table =
+        dal::homogen_table::wrap(queue, x_train, row_count_train, column_count);
 
     auto y_train = sycl::malloc_shared<float>(row_count_train, queue);
-    queue.memcpy(y_train, y_train_host, sizeof(float) * row_count_train).wait();
-    const auto y_train_table =
-        dal::homogen_table{ queue, y_train, row_count_train, 1, dal::empty_delete<const float>() };
+    std::memcpy(y_train, y_train_host, sizeof(float) * row_count_train);
+    const auto y_train_table = dal::homogen_table::wrap(queue, y_train, row_count_train, 1);
 
     auto x_test = sycl::malloc_shared<float>(row_count_test * column_count, queue);
-    queue.memcpy(x_test, x_test_host, sizeof(float) * row_count_test * column_count).wait();
-    const auto x_test_table = dal::homogen_table{ queue,
-                                                  x_test,
-                                                  row_count_test,
-                                                  column_count,
-                                                  dal::empty_delete<const float>() };
+    std::memcpy(x_test, x_test_host, sizeof(float) * row_count_test * column_count);
+    const auto x_test_table = dal::homogen_table::wrap(queue, x_test, row_count_test, column_count);
 
     const auto df_train_desc =
         df::descriptor<float, df::task::classification, df::method::hist>{}
@@ -182,25 +166,17 @@ TEST(infer_and_train_cls_kernels_test, can_process_corner_case) {
     auto queue = sycl::queue(selector);
 
     auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
-    queue.memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count).wait();
-    const auto x_train_table = dal::homogen_table{ queue,
-                                                   x_train,
-                                                   row_count_train,
-                                                   column_count,
-                                                   dal::empty_delete<const float>() };
+    std::memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count);
+    const auto x_train_table =
+        dal::homogen_table::wrap(queue, x_train, row_count_train, column_count);
 
     auto y_train = sycl::malloc_shared<float>(row_count_train, queue);
-    queue.memcpy(y_train, y_train_host, sizeof(float) * row_count_train).wait();
-    const auto y_train_table =
-        dal::homogen_table{ queue, y_train, row_count_train, 1, dal::empty_delete<const float>() };
+    std::memcpy(y_train, y_train_host, sizeof(float) * row_count_train);
+    const auto y_train_table = dal::homogen_table::wrap(queue, y_train, row_count_train, 1);
 
     auto x_test = sycl::malloc_shared<float>(row_count_test * column_count, queue);
-    queue.memcpy(x_test, x_test_host, sizeof(float) * row_count_test * column_count).wait();
-    const auto x_test_table = dal::homogen_table{ queue,
-                                                  x_test,
-                                                  row_count_test,
-                                                  column_count,
-                                                  dal::empty_delete<const float>() };
+    std::memcpy(x_test, x_test_host, sizeof(float) * row_count_test * column_count);
+    const auto x_test_table = dal::homogen_table::wrap(queue, x_test, row_count_test, column_count);
 
     const auto df_train_desc = df::descriptor<float, df::task::classification, df::method::hist>{}
                                    .set_class_count(2)

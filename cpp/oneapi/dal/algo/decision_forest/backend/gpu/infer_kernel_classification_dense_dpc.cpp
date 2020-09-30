@@ -80,7 +80,6 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
 
     auto daal_parameter = cls::prediction::Parameter(desc.get_class_count(), daal_voting_mode);
 
-    //daal::data_management::SyclHomogenNumericTable<T>
     daal::data_management::NumericTablePtr daal_labels;
     daal::data_management::NumericTablePtr daal_labels_prob;
     array<Float> arr_labels;
