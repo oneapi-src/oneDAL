@@ -99,7 +99,7 @@ class DistributedContainer
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__COVARIANCE__DISTRIBUTEDCONTAINER"></a>
- * \brief Provides methods to run implementations of the correlation or variance-covariance matrix algorithm using default computation method.
+ * \brief Provides methods to run implementations of the correlation or variance-covariance matrix algorithm using default computation method in the distributed processing mode on master node.
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of correlation or variance-covariance matrix, double or float
  */
@@ -129,7 +129,7 @@ public:
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__COVARIANCE__DISTRIBUTEDCONTAINER"></a>
- * \brief Provides methods to run implementations of the correlation or variance-covariance matrix algorithm using single-pass computation method.
+ * \brief Provides methods to run implementations of the correlation or variance-covariance matrix algorithm using single-pass computation method in the distributed processing mode on master node.
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of correlation or variance-covariance matrix, double or float
  */
@@ -159,7 +159,7 @@ public:
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__COVARIANCE__DISTRIBUTEDCONTAINER"></a>
- * \brief Provides methods to run implementations of the correlation or variance-covariance matrix algorithm using sum computation method.
+ * \brief Provides methods to run implementations of the correlation or variance-covariance matrix algorithm using sum computation method in the distributed processing mode on master node.
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of correlation or variance-covariance matrix, double or float
  */
@@ -190,7 +190,7 @@ public:
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__COVARIANCE__DISTRIBUTEDCONTAINER"></a>
  * \brief Provides methods to run implementations of the correlation or variance-covariance matrix algorithm
- *        using fast computation method that works with Compressed Sparse Rows (CSR) numeric tables.
+ *        using fast computation method that works with Compressed Sparse Rows (CSR) numeric tables in the distributed processing mode on master node.
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of correlation or variance-covariance matrix, double or float
  */
@@ -221,7 +221,7 @@ public:
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__COVARIANCE__DISTRIBUTEDCONTAINER"></a>
  * \brief Provides methods to run implementations of the correlation or variance-covariance matrix algorithm
- *        using single-pass computation method that works with Compressed Sparse Rows (CSR) numeric tables.
+ *        using single-pass computation method that works with Compressed Sparse Rows (CSR) numeric tables in the distributed processing mode on master node.
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of correlation or variance-covariance matrix, double or float
  */
@@ -252,7 +252,7 @@ public:
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__COVARIANCE__DISTRIBUTEDCONTAINER"></a>
  * \brief Provides methods to run implementations of the correlation or variance-covariance matrix algorithm
- *        using precomputed sum computation method that works with Compressed Sparse Rows (CSR) numeric tables.
+ *        using precomputed sum computation method that works with Compressed Sparse Rows (CSR) numeric tables in the distributed processing mode on master node.
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of correlation or variance-covariance matrix, double or float
  */
