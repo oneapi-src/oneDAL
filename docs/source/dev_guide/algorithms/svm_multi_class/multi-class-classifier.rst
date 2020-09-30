@@ -54,7 +54,7 @@ The model is trained with the One-Against-One method that uses the
 binary classification described in
 [Hsu02]_ as follows:
 For each pair of classes :math:`(i, j)`, train a binary classifier, such
-as SVM. The total number of such binary classifiers is :math:`K(K-1)/2`.
+as SVM. The total number of such binary classifiers is :math:`\frac{K(K-1)}{2}`.
 
 Prediction Stage
 ----------------
