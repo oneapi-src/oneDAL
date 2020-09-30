@@ -158,7 +158,7 @@ Prediction
 At the prediction stage, a multi-class classifier has the following parameters:
 
 .. list-table::
-   :widths: 10 20 30 25
+   :widths: 10 10 10 30
    :header-rows: 1
    :align: left
 
@@ -199,6 +199,43 @@ At the prediction stage, a multi-class classifier has the following parameters:
      - ``defaultDense``
      - 1.0e-12
      - The prediction accuracy.
+   * - ``resultsToEvaluate``
+     - ``voteBased``
+     - ``computeClassLabels``
+     - The 64-bit integer flag that specifies which extra characteristics of the decision function to compute.
+       
+       Provide one of the following values to request a single characteristic 
+       or use bitwise OR to request a combination of the characteristics:
+
+       - ``computeClassLabels`` for `prediction`
+       - ``computeDecisionFunction`` for `decisionFunction`
+
+Output
+------
+
+In addition to classifier output, multiclass classifier calculates the result described below.
+Pass the ``Result ID`` as a parameter to the methods that access the result of your algorithm.
+For more details, see :ref:`algorithms`.
+
+.. list-table::
+   :widths: 10 60
+   :header-rows: 1
+   :align: left
+
+   * - Result ID
+     - Result
+   * - ``decisionFunction``
+     - A numeric table of size :math:`n \times \frac{K(K-1)}{2}` containing the results of the decision function
+       computed for all binary models when the ``computeDecisionFunction`` option is enabled.
+
+.. note::
+
+  If `resultsToEvaluate` does not contain `computeDecisionFunction`, the result of `decisionFunction` table is `NULL`.
+
+  By default, each numeric table of this result is an object of the ``HomogenNumericTable`` class,
+  but you can define the result as an object of any class derived from ``NumericTable``
+  except for ``PackedSymmetricMatrix`` and ``PackedTriangularMatrix``.
+
 
 Examples
 --------
