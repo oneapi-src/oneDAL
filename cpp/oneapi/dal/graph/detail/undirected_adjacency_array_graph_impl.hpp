@@ -45,12 +45,16 @@ public:
     using vertex_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<vertex_type>;
     using vertex_set = detail::graph_container<vertex_type, vertex_allocator_type>;
+    using vertex_iterator = typename vertex_set::iterator;
+    using const_vertex_iterator = typename vertex_set::const_iterator;
     using vertex_size_type = typename vertex_set::size_type;
 
     using edge_type = IndexType;
     using edge_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<edge_type>;
     using edge_set = detail::graph_container<edge_type, edge_allocator_type>;
+    using edge_iterator = typename edge_set::iterator;
+    using const_edge_iterator = typename edge_set::const_iterator;
     using edge_size_type = typename edge_set::size_type;
 
     using vertex_user_value_type = VertexValue;

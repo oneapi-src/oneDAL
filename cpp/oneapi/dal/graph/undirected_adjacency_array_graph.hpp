@@ -51,6 +51,22 @@ public:
     using index_type = IndexType;
     using allocator_type = Allocator;
 
+    using impl_type = detail::undirected_adjacency_array_graph_impl<VertexValue,
+                                                                    EdgeValue,
+                                                                    GraphValue,
+                                                                    IndexType,
+                                                                    Allocator>;
+
+    // vertex types
+    using vertex_iterator = typename impl_type::vertex_iterator;
+    using const_vertex_iterator = typename impl_type::const_vertex_iterator;
+    using vertex_size_type = typename impl_type::vertex_size_type;
+
+    // edge types
+    using edge_iterator = typename impl_type::edge_iterator;
+    using const_edge_iterator = typename impl_type::const_edge_iterator;
+    using edge_size_type = typename impl_type::edge_size_type;
+
     static_assert(std::is_integral_v<index_type> && std::is_signed_v<index_type> &&
                       sizeof(index_type) == 4,
                   "Use 32 bit signed integer for vertex index type");
@@ -82,12 +98,7 @@ public:
 
     /// Move operator for undirected_adjacency_array_graph
     undirected_adjacency_array_graph &operator=(undirected_adjacency_array_graph &&graph);
-    using pimpl =
-        oneapi::dal::detail::pimpl<detail::undirected_adjacency_array_graph_impl<VertexValue,
-                                                                                 EdgeValue,
-                                                                                 GraphValue,
-                                                                                 IndexType,
-                                                                                 Allocator>>;
+    using pimpl = oneapi::dal::detail::pimpl<impl_type>;
 
 private:
     pimpl impl_;

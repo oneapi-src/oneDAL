@@ -38,12 +38,9 @@ struct graph_traits {
     // vertex types
     using vertex_type = typename Graph::index_type;
     using const_vertex_type = const vertex_type;
-    using vertex_allocator_type =
-        typename std::allocator_traits<allocator_type>::template rebind_alloc<vertex_type>;
-    using vertex_set = detail::graph_container<vertex_type, vertex_allocator_type>;
-    using vertex_iterator = typename vertex_set::iterator;
-    using const_vertex_iterator = typename vertex_set::const_iterator;
-    using vertex_size_type = typename vertex_set::size_type;
+    using vertex_iterator = typename Graph::vertex_iterator;
+    using const_vertex_iterator = typename Graph::const_vertex_iterator;
+    using vertex_size_type = typename Graph::vertex_size_type;
 
     using vertex_key_type = vertex_type;
     using const_vertex_key_type = const vertex_key_type;
@@ -51,26 +48,15 @@ struct graph_traits {
     // vertex weight types
     using vertex_user_value_type = typename Graph::vertex_value;
     using const_vertex_user_value_type = const vertex_user_value_type;
-    using vertex_user_value_allocator_type = typename std::allocator_traits<
-        allocator_type>::template rebind_alloc<vertex_user_value_type>;
-    using vertex_user_value_set =
-        detail::graph_container<vertex_user_value_type, vertex_user_value_allocator_type>;
 
     // edge types
     using edge_type = typename Graph::index_type;
-    using edge_allocator_type =
-        typename std::allocator_traits<allocator_type>::template rebind_alloc<edge_type>;
-    using edge_set = detail::graph_container<edge_type, edge_allocator_type>;
-    using edge_iterator = typename edge_set::iterator;
-    using const_edge_iterator = typename edge_set::const_iterator;
-    using edge_size_type = typename edge_set::size_type;
+    using edge_iterator = typename Graph::edge_iterator;
+    using const_edge_iterator = typename Graph::const_edge_iterator;
+    using edge_size_type = typename Graph::edge_size_type;
 
     // edge weight types
     using edge_user_value_type = typename Graph::edge_value;
-    using edge_user_value_allocator_type =
-        typename std::allocator_traits<allocator_type>::template rebind_alloc<edge_user_value_type>;
-    using edge_user_value_set =
-        detail::graph_container<edge_user_value_type, edge_user_value_allocator_type>;
 
     using edge_key_type = std::pair<vertex_key_type, vertex_key_type>;
     using edge_value_type = std::pair<edge_key_type, edge_user_value_type>;
