@@ -84,7 +84,7 @@ DataType computeSum(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** 
 }
 
 template <daal::CpuType cpu>
-double computeSumSOA(NumericTable & table, bool & sumIsFinite)
+double computeSumSOA(NumericTable & table, bool & sumIsFinite, services::Status & st)
 {
     double sum                                  = 0;
     const size_t nRows                          = table.getNumberOfRows();
@@ -232,7 +232,7 @@ double computeSum<double, avx512>(size_t nDataPtrs, size_t nElementsPerPtr, cons
     return computeSumAVX512Impl<double>(nDataPtrs, nElementsPerPtr, dataPtrs);
 }
 
-double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite)
+double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite, services::Status & st)
 {
     SafeStatus safeStat;
     double sum                                  = 0;
@@ -290,13 +290,15 @@ double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite)
         tlsNotFinite.reduce([&](bool * localNotFinite) { sumIsFinite &= !*localNotFinite; });
     }
 
+    st |= safeStat.detach();
+
     return sum;
 }
 
 template <>
-double computeSumSOA<avx512>(NumericTable & table, bool & sumIsFinite)
+double computeSumSOA<avx512>(NumericTable & table, bool & sumIsFinite, services::Status & st)
 {
-    return computeSumSOAAVX512Impl(table, sumIsFinite);
+    return computeSumSOAAVX512Impl(table, sumIsFinite, st);
 }
 
 services::Status checkFinitenessInBlocks(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
@@ -517,7 +519,7 @@ services::Status allValuesAreFiniteImpl(NumericTable & table, bool allowNaN, boo
 
     if (layout == NTLayout::soa)
     {
-        sum = computeSumSOA<cpu>(table, sumIsFinite);
+        sum = computeSumSOA<cpu>(table, sumIsFinite, s);
     }
     else
     {

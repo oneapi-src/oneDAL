@@ -53,7 +53,6 @@ void Input::set(classifier::prediction::ModelInputId id, const bf_knn_classifica
 services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     const Parameter * const algParameter = static_cast<const Parameter *>(parameter);
-    DAAL_CHECK_EX(algParameter->k > 0, services::ErrorIncorrectParameter, services::ParameterName, kStr());
     DAAL_CHECK_STATUS_VAR(classifier::prediction::Input::check(parameter, method));
 
     const bf_knn_classification::ModelPtr m = get(classifier::prediction::model);

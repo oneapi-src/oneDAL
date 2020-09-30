@@ -210,6 +210,8 @@ protected:
 
                 if (indexes)
                 {
+                    DAAL_ASSERT(inRows + j1 <= static_cast<size_t>(services::internal::MaxVal<int>::get()));
+                    DAAL_ASSERT(inRows + i * jSize <= static_cast<size_t>(services::internal::MaxVal<int>::get()));
                     updateLocalNeighbours(indexes, idx, jSize, i, k, kDistancesLocal, kIndexesLocal, maxs, distancesBuff, j1);
                 }
             }
@@ -250,9 +252,9 @@ protected:
             DAAL_CHECK_BLOCK_STATUS(indexesBlock);
             int * indices = indexesBlock.get();
 
-            const size_t size = blockSize * k * sizeof(*indices);
             DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, blockSize * sizeof(*indices), k);
-            daal::services::internal::daal_memcpy_s(indices, size, kIndexes, size);
+            const size_t size = blockSize * k * sizeof(*indices);
+            DAAL_CHECK(daal::services::internal::daal_memcpy_s(indices, size, kIndexes, size), daal::services::ErrorMemoryCopyFailedInternal);
         }
 
         if (resultsToCompute & computeDistances)
@@ -261,9 +263,9 @@ protected:
             DAAL_CHECK_BLOCK_STATUS(distancesBlock);
             FPType * distances = distancesBlock.get();
 
-            const size_t size = blockSize * k * sizeof(FPType);
             DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, blockSize * sizeof(FPType), k);
-            daal::services::internal::daal_memcpy_s(distances, size, kDistances, size);
+            const size_t size = blockSize * k * sizeof(FPType);
+            DAAL_CHECK(daal::services::internal::daal_memcpy_s(distances, size, kDistances, size), daal::services::ErrorMemoryCopyFailedInternal);
         }
 
         if (resultsToEvaluate & daal::algorithms::classifier::computeClassLabels)

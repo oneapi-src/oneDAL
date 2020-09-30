@@ -64,8 +64,6 @@ services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter)
 
     if (par != NULL)
     {
-        DAAL_CHECK_EX((par->nClasses > 1) && (par->nClasses < INT_MAX), services::ErrorIncorrectParameter, services::ParameterName, nClassesStr());
-
         if ((par->resultsToEvaluate & daal::algorithms::classifier::computeClassLabels) != 0)
         {
             data_management::NumericTablePtr labelsTable = get(classifier::training::labels);
