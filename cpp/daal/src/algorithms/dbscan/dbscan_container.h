@@ -95,10 +95,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     }
     else
     {
-        if (par->memorySavingMode == false)
-        {
-            return services::Status(services::ErrorMethodNotImplemented);
-        }
         __DAAL_CALL_KERNEL_SYCL(env, internal::DBSCANBatchKernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType), compute, ntData.get(),
                                 ntWeights.get(), ntAssignments.get(), ntNClusters.get(), ntCoreIndices.get(), ntCoreObservations.get(), par);
     }
