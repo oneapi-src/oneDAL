@@ -146,7 +146,7 @@ jobs:
       conda create -q -y -n CB python=3.7 conda-build conda-verify
     displayName: Create Anaconda environment
   - script: |
-      export DPCPPROOT=/opt/intel/oneapi/compiler/latest
+      export DPCPPROOT=/opt/intel/oneapi/compiler/latest 
       export DAALROOT=$(Pipeline.Workspace)/daal/latest
       export TBBROOT=$(Pipeline.Workspace)/tbb/latest
       . $HOME/miniconda/etc/profile.d/conda.sh
