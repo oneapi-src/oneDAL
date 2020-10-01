@@ -259,9 +259,9 @@ void testModel()
     services::SharedPtr<SOANumericTable> testData(new SOANumericTable(featureCount, observationCount, DictionaryIface::equal));
     testData->getDictionarySharedPtr()->setAllFeatures<float>();
     testData->resize(testData->getNumberOfRows()); // Just to allocate memory.
-    services::SharedPtr<SOANumericTable> testGroundTruth1(new SOANumericTable(1, observationCount));
-    testGroundTruth1->getDictionarySharedPtr()->setAllFeatures<int>();
-    testGroundTruth1->resize(testGroundTruth1->getNumberOfRows()); // Just to allocate memory.
+    services::SharedPtr<SOANumericTable> testGroundTruth(new SOANumericTable(1, observationCount));
+    testGroundTruth->getDictionarySharedPtr()->setAllFeatures<int>();
+    testGroundTruth->resize(testGroundTruth->getNumberOfRows()); // Just to allocate memory.
 
     for (size_t d = 0; d < featureCount; ++d)
     {
@@ -303,7 +303,7 @@ void testModel()
         if (observationCount != observationCount2) { std::cout << "Testing data and labels must have equal number of rows!" << std::endl; }
         if (featureCount2 != 1) { std::cout << "Testing labels file must contain exactly one column!" << std::endl; }
 
-        int * const ptr = static_cast<int *>(testGroundTruth1->getArray(0));
+        int * const ptr = static_cast<int *>(testGroundTruth->getArray(0));
         vector<float> tempLabels(observationCount2);
         float * const tempLabelsPtr = &tempLabels[0];
         const size_t readCount      = fread(tempLabelsPtr, sizeof(float), observationCount2, f);
@@ -318,8 +318,6 @@ void testModel()
         fclose(f);
         f = 0;
     }
-
-    testGroundTruth = testGroundTruth1;
 #else
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
     FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
