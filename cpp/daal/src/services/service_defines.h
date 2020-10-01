@@ -308,10 +308,8 @@ typedef union
 #if defined(_MSC_VER) || defined(__INTEL_COMPILER)
     #include <immintrin.h>
     #define DAAL_PREFETCH_READ_T0(addr) _mm_prefetch((char *)addr, _MM_HINT_T0)
-    #define DAAL_PREFETCH_READ_T1(addr) _mm_prefetch((char *)addr, _MM_HINT_T1)
 #else
     #define DAAL_PREFETCH_READ_T0(addr) __builtin_prefetch((char *)addr, 0, 3)
-    #define DAAL_PREFETCH_READ_T1(addr) __builtin_prefetch((char *)addr, 0, 2)
 #endif
 
 #if defined(_MSC_VER)
