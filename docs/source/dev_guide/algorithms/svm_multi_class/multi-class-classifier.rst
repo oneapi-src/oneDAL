@@ -177,7 +177,7 @@ At the prediction stage, a multi-class classifier has the following parameters:
      - Available methods for multi-class classifier prediction stage:
 
        -  ``defaultDense`` - the method described in [Wu04]_
-       -  ``voteBasedthe`` method based on the votes obtained from two-class classifiers.
+       -  ``voteBased`` - the method based on the votes obtained from two-class classifiers.
 
    * - ``tmethod``
      - ``defaultDense`` or ``voteBased``
