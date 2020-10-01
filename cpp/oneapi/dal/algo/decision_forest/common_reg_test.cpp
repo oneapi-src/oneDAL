@@ -134,6 +134,30 @@ TEST(df_bad_arg_tests, set_max_leaf_nodes) {
         (df::descriptor<float, df::task::regression, df::method::hist>{}.set_max_leaf_nodes(5)));
 }
 
+TEST(df_bad_arg_tests, set_max_bins) {
+    ASSERT_THROW((df::descriptor<float, df::task::regression, df::method::hist>{}.set_max_bins(-1)),
+                 dal::domain_error);
+    ASSERT_THROW((df::descriptor<float, df::task::regression, df::method::hist>{}.set_max_bins(1)),
+                 dal::domain_error);
+    ASSERT_NO_THROW(
+        (df::descriptor<float, df::task::regression, df::method::hist>{}.set_max_bins(2)));
+    ASSERT_NO_THROW(
+        (df::descriptor<float, df::task::regression, df::method::hist>{}.set_max_bins(64)));
+}
+
+TEST(df_bad_arg_tests, set_min_bin_size) {
+    ASSERT_THROW(
+        (df::descriptor<float, df::task::regression, df::method::hist>{}.set_min_bin_size(-1)),
+        dal::domain_error);
+    ASSERT_THROW(
+        (df::descriptor<float, df::task::regression, df::method::hist>{}.set_min_bin_size(0)),
+        dal::domain_error);
+    ASSERT_NO_THROW(
+        (df::descriptor<float, df::task::regression, df::method::hist>{}.set_min_bin_size(1)));
+    ASSERT_NO_THROW(
+        (df::descriptor<float, df::task::regression, df::method::hist>{}.set_min_bin_size(8)));
+}
+
 TEST(df_bad_arg_tests, set_train_data) {
     constexpr std::int64_t row_count_train = 6;
 

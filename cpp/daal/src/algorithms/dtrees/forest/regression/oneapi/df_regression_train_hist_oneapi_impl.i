@@ -620,6 +620,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
     const size_t nFeatures = x->getNumberOfColumns();
     DAAL_CHECK_EX((par.minObservationsInLeafNode <= _int32max), ErrorIncorrectParameter, ParameterName, minObservationsInLeafNodeStr());
     DAAL_CHECK_EX((par.featuresPerNode <= _int32max), ErrorIncorrectParameter, ParameterName, featuresPerNodeStr());
+    DAAL_CHECK_EX((par.maxBins <= _int32max), ErrorIncorrectParameter, ParameterName, maxBinsStr());
+    DAAL_CHECK_EX((par.minBinSize <= _int32max), ErrorIncorrectParameter, ParameterName, minBinSizeStr());
 
     if (nRows > _int32max)
     {
@@ -656,7 +658,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
     kernelReducePartialHistograms     = kernel_factory.getKernel("reducePartialHistograms", &status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    dtrees::internal::BinParams prm(_maxBins, par.minObservationsInLeafNode);
+    dtrees::internal::BinParams prm(par.maxBins, par.minBinSize);
     decision_forest::internal::IndexedFeaturesOneAPI<algorithmFPType> indexedFeatures;
     dtrees::internal::FeatureTypes featTypes;
     DAAL_CHECK_MALLOC(featTypes.init(*x));
