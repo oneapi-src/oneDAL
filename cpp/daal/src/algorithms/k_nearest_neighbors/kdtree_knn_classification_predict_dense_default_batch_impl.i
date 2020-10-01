@@ -470,7 +470,7 @@ DAAL_FORCEINLINE void computeDistance(size_t start, size_t end, algorithmFpType 
 {
     const size_t xColumnCount = data.getNumberOfColumns();
 
-    for (size_t i = 0, cnt = min<cpu>(xColumnCount, static_cast<size_t>(8)); i < cnt; ++i)
+    for (size_t i = 0, cnt = min<cpu>(xColumnCount, static_cast<size_t>(16)); i < cnt; ++i)
     {
         const auto p = getNtData(isHomogenSOA, i, start, end - start, data, xBD[0], soa_arrays);
         DAAL_PREFETCH_READ_T1(p);
