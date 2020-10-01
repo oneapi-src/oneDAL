@@ -171,7 +171,6 @@ void trainModel()
             std::cout << "ERROR: Only " << readCount << " of " << observationCount2 << " read of class labels" << std::endl;
             return;
         }
-        std::cout << "Max label: " << *(std::max_element(tempLabels.begin(), tempLabels.end())) << std::endl;
         for (size_t i = 0, cnt = observationCount2; i != cnt; ++i) { ptr[i] = tempLabelsPtr[i]; }
 
         fclose(f);
@@ -312,7 +311,6 @@ void testModel()
             std::cout << "ERROR: Only " << readCount << " of " << observationCount2 << " read of class labels" << std::endl;
             return;
         }
-        std::cout << "Max label: " << *(std::max_element(tempLabels.begin(), tempLabels.end())) << std::endl;
         for (size_t i = 0, cnt = observationCount2; i != cnt; ++i) { ptr[i] = tempLabelsPtr[i]; }
 
         fclose(f);
