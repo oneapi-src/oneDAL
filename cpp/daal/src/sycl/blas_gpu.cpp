@@ -43,7 +43,7 @@ services::Status ReferenceGemm<algorithmFPType>::operator()(const Transpose tran
 {
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
     services::String options       = getKeyFPType<algorithmFPType>();
     services::String cacheKey      = "__daal_gemm_";
@@ -117,7 +117,7 @@ services::Status ReferenceAxpy<algorithmFPType>::operator()(const int n, const a
 {
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
     services::String options       = getKeyFPType<algorithmFPType>();
     services::String cacheKey      = "__daal_axpy_";

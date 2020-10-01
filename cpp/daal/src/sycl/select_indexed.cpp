@@ -18,7 +18,7 @@
 #include "services/daal_defines.h"
 #include "src/sycl/select_indexed.h"
 #include "src/sycl/cl_kernels/select_indexed.cl"
-#include "services/internal/sycl/utils.h"
+#include "services/internal/execution_context.h"
 #include "src/externals/service_rng.h"
 #include "src/algorithms/engines/engine_batch_impl.h"
 #include "services/daal_string.h"
@@ -160,7 +160,7 @@ SelectIndexed::Result & QuickSelectIndexed::selectIndices(const UniversalBuffer 
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(QuickSelectIndexed.select);
 
-    auto & context       = services::internal::sycl::getDefaultContext();
+    auto & context       = services::internal::getDefaultContext();
     auto & kernelFactory = context.getClKernelFactory();
 
     buildProgram(kernelFactory, dataVectors.type(), status);
@@ -255,7 +255,7 @@ SelectIndexed::Result & DirectSelectIndexed::selectIndices(const UniversalBuffer
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(QuickSelectIndexed.select);
 
-    auto & context       = services::internal::sycl::getDefaultContext();
+    auto & context       = services::internal::getDefaultContext();
     auto & kernelFactory = context.getClKernelFactory();
 
     buildProgram(kernelFactory, dataVectors.type(), nK, status);

@@ -124,7 +124,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
 
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelComputeBestSplitByHistogram;
 
@@ -180,7 +180,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
 
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelComputeBestSplitSinglePass;
 
@@ -236,7 +236,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
 {
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     // no overflow check is required because of _nNodesGroups and _nodeGroupProps are small constants
     auto nodesGroups = context.allocate(TypeIds::id<int32_t>(), _nNodesGroups * _nodeGroupProps, &status);
@@ -311,7 +311,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
 
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelComputePartialHistograms;
 
@@ -363,7 +363,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::reduce
 
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelReducePartialHistograms;
 

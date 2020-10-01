@@ -16,7 +16,7 @@
 *******************************************************************************/
 
 #include "src/sycl/sorter.h"
-#include "services/internal/sycl/utils.h"
+#include "services/internal/execution_context.h"
 #include "src/externals/service_ittnotify.h"
 
 namespace daal
@@ -87,7 +87,7 @@ void RadixSort::sort(const UniversalBuffer & input, const UniversalBuffer & outp
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(RadixSort.sort);
 
-    auto & context       = services::internal::sycl::getDefaultContext();
+    auto & context       = services::internal::getDefaultContext();
     auto & kernelFactory = context.getClKernelFactory();
 
     buildProgram(kernelFactory, input.type());
@@ -101,7 +101,7 @@ services::Status RadixSort::sortIndices(UniversalBuffer & values, UniversalBuffe
     DAAL_ITTNOTIFY_SCOPED_TASK(RadixSort.sortIndices);
     services::Status status;
 
-    auto & context       = services::internal::sycl::getDefaultContext();
+    auto & context       = services::internal::getDefaultContext();
     auto & kernelFactory = context.getClKernelFactory();
 
     buildProgram(kernelFactory, values.type());
@@ -148,7 +148,7 @@ services::Status RadixSort::radixScan(UniversalBuffer & values, UniversalBuffer 
 
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
     buildProgram(factory, values.type());
 
@@ -184,7 +184,7 @@ services::Status RadixSort::radixHistScan(UniversalBuffer & values, UniversalBuf
 
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
 
     buildProgram(factory, values.type());
@@ -220,7 +220,7 @@ services::Status RadixSort::radixReorder(UniversalBuffer & valuesSrc, UniversalB
 
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
 
     buildProgram(factory, valuesSrc.type());

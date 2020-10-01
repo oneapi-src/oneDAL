@@ -76,7 +76,7 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::applyHessia
     DAAL_ITTNOTIFY_SCOPED_TASK(applyHessian);
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     buildProgram(factory);
@@ -110,7 +110,7 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::logLoss(con
     DAAL_ITTNOTIFY_SCOPED_TASK(logLoss);
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     buildProgram(factory);
@@ -138,7 +138,7 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::sigmoids(co
     DAAL_ITTNOTIFY_SCOPED_TASK(sigmoids);
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     buildProgram(factory);
@@ -182,7 +182,7 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::hessianInte
                                                                                       const uint32_t nBeta, const algorithmFPType alpha)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(hessianIntercept);
-    ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     buildProgram(factory);
@@ -258,7 +258,7 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::hessianRegu
     DAAL_ITTNOTIFY_SCOPED_TASK(hessianRegulization);
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     buildProgram(factory);
@@ -304,7 +304,7 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::doCompute(
 {
     services::Status status;
 
-    ExecutionContextIface & ctx = services::internal::sycl::getDefaultContext();
+    ExecutionContextIface & ctx = services::internal::getDefaultContext();
 
     const uint32_t nBeta   = nFeatures + 1;
     const uint32_t ldX     = isSourceData ? nFeatures : nBeta;

@@ -26,7 +26,7 @@
 #define __LINEAR_REGRESSION_TRAIN_DENSE_NORMEQ_HELPER_ONEAPI_IMPL_I__
 
 #include "src/algorithms/linear_regression/oneapi/linear_regression_train_kernel_oneapi.h"
-#include "services/internal/sycl/utils.h"
+#include "services/internal/execution_context.h"
 #include "src/algorithms/linear_regression/oneapi/cl_kernel/helper_beta_copy.cl"
 
 namespace daal
@@ -58,7 +58,7 @@ services::Status KernelHelperOneAPI<algorithmFPType>::copyBetaToResult(const ser
     const size_t nBetasIntercept = interceptFlag ? nBetas : (nBetas - 1);
     const size_t intercept       = interceptFlag ? 1 : 0;
 
-    ExecutionContextIface & ctx    = getDefaultContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     const services::String options = getKeyFPType<algorithmFPType>();

@@ -26,7 +26,7 @@
 #include "algorithms/moments/low_order_moments_types.h"
 #include "src/data_management/service_numeric_table.h"
 #include "data_management/data/internal/numeric_table_sycl_homogen.h"
-#include "services/internal/sycl/utils.h"
+#include "services/internal/execution_context.h"
 
 using namespace daal::internal;
 using namespace daal::data_management;
@@ -52,7 +52,7 @@ DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Inp
     size_t nFeatures = 0;
     DAAL_CHECK_STATUS(s, static_cast<const InputIface *>(input)->getNumberOfColumns(nFeatures));
 
-    auto & context    = services::internal::sycl::getDefaultContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (method != defaultDense || deviceInfo.isCpu)
@@ -82,7 +82,7 @@ DAAL_EXPORT services::Status PartialResult::initialize(const daal::algorithms::I
 
     services::Status s;
 
-    auto & context    = services::internal::sycl::getDefaultContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     DAAL_CHECK_STATUS(s, get(nObservations)->assign((algorithmFPType)0.0))

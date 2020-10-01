@@ -67,7 +67,7 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::makeStep(const uin
     DAAL_ITTNOTIFY_SCOPED_TASK(makeStep);
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     buildProgram(factory);
@@ -109,7 +109,7 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::vectorNorm(const B
 
     const TypeIds::Id idType = TypeIds::id<algorithmFPType>();
 
-    ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     buildProgram(factory);
@@ -176,7 +176,7 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::compute(HostAppIfa
 {
     services::Status status;
 
-    ExecutionContextIface & ctx = services::internal::sycl::getDefaultContext();
+    ExecutionContextIface & ctx = services::internal::getDefaultContext();
 
     const size_t argumentSize = inputArgument->getNumberOfRows();
     const size_t nIter        = parameter->nIterations;

@@ -98,7 +98,7 @@ IndexedFeaturesOneAPI<algorithmFPType>::FeatureEntry::~FeatureEntry()
 template <typename algorithmFPType>
 services::Status IndexedFeaturesOneAPI<algorithmFPType>::FeatureEntry::allocBorders()
 {
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
     services::Status status;
 
     binBorders = context.allocate(TypeIds::id<algorithmFPType>(), numIndices, &status);
@@ -108,7 +108,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::FeatureEntry::allocBord
 template <typename algorithmFPType>
 services::Status IndexedFeaturesOneAPI<algorithmFPType>::alloc(size_t nC, size_t nR)
 {
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
     services::Status status;
 
     _data.resize(nC);
@@ -142,7 +142,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::extractColumn(const ser
 
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
     __buildProgram<algorithmFPType>(factory);
 
@@ -173,7 +173,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::radixScan(UniversalBuff
 
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
     __buildProgram<algorithmFPType>(factory);
 
@@ -210,7 +210,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::radixHistScan(Universal
 
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
     __buildProgram<algorithmFPType>(factory);
 
@@ -248,7 +248,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::radixReorder(UniversalB
 
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
     __buildProgram<algorithmFPType>(factory);
 
@@ -286,7 +286,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::radixSort(UniversalBuff
 {
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     const int radixBits      = 4;
     const int subSize        = _preferableSubGroup;
@@ -332,7 +332,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::collectBinBorders(Unive
 
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
     __buildProgram<algorithmFPType>(factory);
 
@@ -362,7 +362,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
 
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
     __buildProgram<algorithmFPType>(factory);
 
@@ -399,7 +399,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
 {
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     const int maxBins      = pBinPrm->maxBins < nRows ? pBinPrm->maxBins : nRows;
     const int localSize    = _preferableSubGroup;
@@ -462,7 +462,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::storeColumn(const Unive
 
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
     __buildProgram<algorithmFPType>(factory);
 
@@ -503,7 +503,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::init(NumericTable & nt,
     services::Status status = alloc(nC, nR);
     if (!status) return status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     _values     = context.allocate(TypeIds::id<algorithmFPType>(), nR, &status);
     _values_buf = context.allocate(TypeIds::id<algorithmFPType>(), nR, &status);
@@ -555,7 +555,7 @@ template <typename algorithmFPType>
 services::Status TreeNodeStorage::allocate(const gbt::internal::IndexedFeaturesOneAPI<algorithmFPType> & indexedFeatures)
 {
     services::Status status;
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     _histogramsForFeatures = context.allocate(TypeIds::id<algorithmFPType>(), indexedFeatures.totalBins() * 2, &status);
 

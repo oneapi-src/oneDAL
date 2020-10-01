@@ -45,7 +45,7 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const
     size_t nDependentVariables = in->get(model)->getNumberOfResponses();
     Status st;
 
-    auto & context    = services::internal::sycl::getDefaultContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)

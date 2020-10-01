@@ -23,7 +23,7 @@
 
 #include "src/algorithms/linear_model/oneapi/linear_model_train_normeq_kernel_oneapi.h"
 #include "src/sycl/blas_gpu.h"
-#include "services/internal/sycl/utils.h"
+#include "services/internal/execution_context.h"
 #include "src/externals/service_ittnotify.h"
 #include "src/algorithms/linear_model/oneapi/cl_kernel/reduce_results.cl"
 
@@ -60,7 +60,7 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
     DAAL_CHECK_STATUS(status, xtx.getBlockOfRows(0, nBetasIntercept, ReadWriteMode::readWrite, xtxBlock));
     DAAL_CHECK_STATUS(status, xty.getBlockOfRows(0, nResponses, ReadWriteMode::readWrite, xtyBlock));
 
-    auto & context                                      = getDefaultContext();
+    auto & context                                      = services::internal::getDefaultContext();
     services::internal::Buffer<algorithmFPType> xtxBuff = xtxBlock.getBuffer();
     services::internal::Buffer<algorithmFPType> xtyBuff = xtyBlock.getBuffer();
 
@@ -185,7 +185,7 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::reduceResults(services::in
 {
     services::Status status;
 
-    ExecutionContextIface & ctx    = getDefaultContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     const services::String options = getKeyFPType<algorithmFPType>();

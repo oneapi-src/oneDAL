@@ -18,7 +18,7 @@
 #ifndef __DAAL_SERVICES_INTERNAL_SYCL_BUFFER_UTILS_H__
 #define __DAAL_SERVICES_INTERNAL_SYCL_BUFFER_UTILS_H__
 
-#include "services/internal/sycl/utils.h"
+#include "services/internal/execution_context.h"
 #include "services/internal/sycl/types_utils.h"
 #include "data_management/data/internal/conversion.h"
 

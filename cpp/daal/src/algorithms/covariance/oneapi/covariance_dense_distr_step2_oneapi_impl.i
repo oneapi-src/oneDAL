@@ -46,7 +46,7 @@ services::Status CovarianceDenseDistrStep2KernelOneAPI<algorithmFPType, method>:
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(computeDistr);
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     services::Status status;
 

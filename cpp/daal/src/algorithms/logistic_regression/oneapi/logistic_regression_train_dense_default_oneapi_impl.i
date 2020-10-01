@@ -61,7 +61,7 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
     const size_t nClasses    = par.nClasses;
     const TypeIds::Id idType = TypeIds::id<algorithmFPType>();
 
-    auto & ctx = services::internal::sycl::getDefaultContext();
+    auto & ctx = services::internal::getDefaultContext();
 
     services::SharedPtr<optimization_solver::iterative_solver::Batch> pSolver = par.optimizationSolver->clone();
     pSolver->setHostApp(pHost);

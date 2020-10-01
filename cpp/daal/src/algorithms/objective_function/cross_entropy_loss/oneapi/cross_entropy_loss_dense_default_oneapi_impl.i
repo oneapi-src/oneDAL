@@ -93,7 +93,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::ap
     DAAL_ITTNOTIFY_SCOPED_TASK(applyHessian);
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     buildProgram(factory);
@@ -126,7 +126,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::so
     DAAL_ITTNOTIFY_SCOPED_TASK(softmax);
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     buildProgram(factory);
@@ -157,7 +157,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::so
     DAAL_ITTNOTIFY_SCOPED_TASK(softmaxAndUpdateProba);
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     buildProgram(factory);
@@ -191,7 +191,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::cr
     DAAL_ITTNOTIFY_SCOPED_TASK(crossEntropy);
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     buildProgram(factory);
@@ -222,7 +222,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::up
     DAAL_ITTNOTIFY_SCOPED_TASK(updateProba);
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     buildProgram(factory);
@@ -264,7 +264,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::do
 {
     services::Status status;
 
-    ExecutionContextIface & ctx = services::internal::sycl::getDefaultContext();
+    ExecutionContextIface & ctx = services::internal::getDefaultContext();
 
     const uint32_t nBeta   = nFeatures + 1;
     const uint32_t ldX     = isSourceData || interceptFlag ? nFeatures : nBeta;

@@ -48,7 +48,7 @@ namespace kmeans
 template <typename algorithmFPType>
 DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    auto & context    = services::internal::sycl::getDefaultContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     const interface2::Parameter * kmPar2 = dynamic_cast<const interface2::Parameter *>(parameter);

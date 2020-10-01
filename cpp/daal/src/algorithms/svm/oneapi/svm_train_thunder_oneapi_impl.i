@@ -93,7 +93,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, thunder>::smoKernel(
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(smoKernel);
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
 
     services::String build_options = getKeyFPType<algorithmFPType>();
@@ -164,7 +164,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, thunder>::compute(const Numeric
 {
     services::Status status;
 
-    auto & context    = services::internal::sycl::getDefaultContext();
+    auto & context    = services::internal::getDefaultContext();
     const auto idType = TypeIds::id<algorithmFPType>();
 
     const algorithmFPType C(svmPar->C);

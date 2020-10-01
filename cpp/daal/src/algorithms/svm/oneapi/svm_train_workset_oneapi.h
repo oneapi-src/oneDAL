@@ -49,7 +49,7 @@ struct TaskWorkingSet
     services::Status init()
     {
         services::Status status;
-        auto & context = services::internal::sycl::getDefaultContext();
+        auto & context = services::internal::getDefaultContext();
 
         _sortedFIndices = context.allocate(TypeIds::id<uint32_t>(), _nVectors, &status);
         DAAL_CHECK_STATUS_VAR(status);
@@ -84,7 +84,7 @@ struct TaskWorkingSet
     {
         const size_t q = _nWS / 2;
         services::Status status;
-        auto & context = services::internal::sycl::getDefaultContext();
+        auto & context = services::internal::getDefaultContext();
         context.copy(_wsIndices, 0, _wsIndices, q, _nWS - q, &status);
         _nSelected = q;
         return status;
@@ -96,7 +96,7 @@ struct TaskWorkingSet
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(selectWS);
         services::Status status;
-        auto & context = services::internal::sycl::getDefaultContext();
+        auto & context = services::internal::getDefaultContext();
 
         auto wsIndicesBuff = _wsIndices.get<uint32_t>();
         auto indicatorBuff = _indicator.get<uint32_t>();
@@ -182,7 +182,7 @@ struct TaskWorkingSet
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(resetIndicatorWithZeros);
 
-        auto & context = services::internal::sycl::getDefaultContext();
+        auto & context = services::internal::getDefaultContext();
         auto & factory = context.getClKernelFactory();
 
         services::Status status = Helper::buildProgram(factory);

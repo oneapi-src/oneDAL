@@ -28,7 +28,7 @@
 #include "services/internal/sycl/types_utils.h"
 #include "src/sycl/math_service_types.h"
 #include "services/internal/buffer.h"
-#include "services/internal/sycl/utils.h"
+#include "services/internal/execution_context.h"
 #include "services/internal/sycl/math/types.h"
 
 namespace daal
@@ -49,7 +49,7 @@ struct BlasGpu
     {
         services::Status status;
 
-        ExecutionContextIface & ctx = services::internal::sycl::getDefaultContext();
+        ExecutionContextIface & ctx = services::internal::getDefaultContext();
 
         if (layout == math::Layout::ColMajor)
         {
@@ -70,7 +70,7 @@ struct BlasGpu
     {
         services::Status status;
 
-        ExecutionContextIface & ctx = services::internal::sycl::getDefaultContext();
+        ExecutionContextIface & ctx = services::internal::getDefaultContext();
 
         if (layout == math::Layout::ColMajor)
         {
@@ -89,7 +89,7 @@ struct BlasGpu
     {
         services::Status status;
 
-        ExecutionContextIface & ctx = services::internal::sycl::getDefaultContext();
+        ExecutionContextIface & ctx = services::internal::getDefaultContext();
 
         ctx.axpy(n, a, x_buffer, incx, y_buffer, incy, &status);
 

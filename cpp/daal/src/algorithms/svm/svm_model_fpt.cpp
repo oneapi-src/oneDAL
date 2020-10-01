@@ -43,7 +43,7 @@ Model::Model(modelFPType dummy, size_t nColumns, data_management::NumericTableIf
 {
     using namespace data_management;
 
-    auto & context    = services::internal::sycl::getDefaultContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (!deviceInfo.isCpu)

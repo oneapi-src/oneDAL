@@ -28,7 +28,7 @@
 #include "services/internal/sycl/types_utils.h"
 #include "src/sycl/math_service_types.h"
 #include "services/internal/buffer.h"
-#include "services/internal/sycl/utils.h"
+#include "services/internal/execution_context.h"
 #include "services/internal/sycl/math/types.h"
 
 namespace daal
@@ -46,7 +46,7 @@ struct LapackGpu
     {
         services::Status status;
 
-        ExecutionContextIface & ctx = services::internal::sycl::getDefaultContext();
+        ExecutionContextIface & ctx = services::internal::getDefaultContext();
 
         ctx.potrf(uplo, n, a_buffer, lda, &status);
 
@@ -58,7 +58,7 @@ struct LapackGpu
     {
         services::Status status;
 
-        ExecutionContextIface & ctx = services::internal::sycl::getDefaultContext();
+        ExecutionContextIface & ctx = services::internal::getDefaultContext();
 
         ctx.potrs(uplo, n, ny, a_buffer, lda, b_buffer, ldb, &status);
 

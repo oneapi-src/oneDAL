@@ -16,7 +16,7 @@
 *******************************************************************************/
 
 #include "src/sycl/reducer.h"
-#include "services/internal/sycl/utils.h"
+#include "services/internal/execution_context.h"
 #include "src/externals/service_ittnotify.h"
 
 namespace daal
@@ -125,7 +125,7 @@ SumReducer::Result SumReducer::sum(Layout vectorsLayout, const UniversalBuffer &
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(SumReducer.sum);
 
-    auto & context       = services::internal::sycl::getDefaultContext();
+    auto & context       = services::internal::getDefaultContext();
     auto & kernelFactory = context.getClKernelFactory();
 
     buildProgram(kernelFactory, vectors.type());

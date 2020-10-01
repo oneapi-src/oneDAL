@@ -195,7 +195,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees
     const daal::algorithms::decision_forest::classification::internal::ModelImpl * const pModel =
         static_cast<const daal::algorithms::decision_forest::classification::internal::ModelImpl * const>(m);
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     TArray<const dtrees::internal::DecisionTreeTable *, sse2> _aTree;
 
@@ -324,7 +324,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesWei
 
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelPredictByTreesWeighted;
 
@@ -392,7 +392,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesUnw
 
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelPredictByTreesUnweighted;
 
@@ -455,7 +455,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::reduceClassHist(c
 
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
     auto & kernel  = kernelReduceClassHist;
 
     size_t localSize = _preferableSubGroup;
@@ -494,7 +494,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::determineWinners(
 
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelDetermineWinners;
 

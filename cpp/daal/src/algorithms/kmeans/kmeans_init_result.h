@@ -68,7 +68,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     else
         nFeatures = (static_cast<const Input *>(input))->get(data)->getNumberOfColumns();
 
-    auto & context    = services::internal::sycl::getDefaultContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     services::Status status;

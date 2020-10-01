@@ -1,4 +1,4 @@
-/* file: utils.h */
+/* file: utils.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -15,10 +15,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __DAAL_SERVICES_INTERNAL_SYCL_UTILS_H__
-#define __DAAL_SERVICES_INTERNAL_SYCL_UTILS_H__
-
-#include "services/internal/sycl/execution_context.h"
+#include "services/internal/execution_context.h"
+#include "services/env_detect.h"
 
 namespace daal
 {
@@ -26,19 +24,14 @@ namespace services
 {
 namespace internal
 {
-namespace sycl
-{
 namespace interface1
 {
-ExecutionContextIface & getDefaultContext();
+sycl::ExecutionContextIface & getDefaultContext()
+{
+    return services::Environment::getInstance()->getDefaultExecutionContext();
+}
 
 } // namespace interface1
-
-using interface1::getDefaultContext;
-
-} // namespace sycl
 } // namespace internal
 } // namespace services
 } // namespace daal
-
-#endif

@@ -18,7 +18,7 @@
 #ifndef __SYCL_SOA_NUMERIC_TABLE_H__
 #define __SYCL_SOA_NUMERIC_TABLE_H__
 
-#include "data_management/data/numeric_table_sycl.h"
+#include "data_management/data/internal/numeric_table_sycl.h"
 #include "data_management/data/soa_numeric_table.h"
 #include "services/internal/sycl/buffer_utils.h"
 
@@ -285,7 +285,7 @@ protected:
         using namespace services::internal::sycl;
 
         Status st;
-        auto & context = services::internal::sycl::getDefaultContext();
+        auto & context = services::internal::getDefaultContext();
         size_t nrows   = getNumberOfRows();
 
         switch (feature.indexType)
@@ -564,7 +564,7 @@ private:
             DAAL_CHECK_STATUS_VAR(st);
             T * blockPtr = blockSharedPtr.get();
 
-            auto & context  = getDefaultContext();
+            auto & context  = services::internal::getDefaultContext();
             auto tempColumn = context.allocate(TypeIds::id<T>(), nrows, &st);
             DAAL_CHECK_STATUS_VAR(st);
 
@@ -654,7 +654,7 @@ private:
 
     inline bool isCpuTable() const { return (bool)_cpuTable; }
 
-    static bool isCpuContext() { return services::internal::sycl::getDefaultContext().getInfoDevice().isCpu; }
+    static bool isCpuContext() { return services::internal::getDefaultContext().getInfoDevice().isCpu; }
 
 private:
     services::Collection<services::internal::sycl::UniversalBuffer> _arrays;

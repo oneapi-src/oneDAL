@@ -19,7 +19,7 @@
 #define __MATH_SERVICE_TYPES_H__
 
 #include "services/internal/sycl/types.h"
-#include "services/internal/sycl/utils.h"
+#include "services/internal/execution_context.h"
 #include "services/internal/sycl/math/types.h"
 #include "services/internal/sycl/execution_context.h"
 #include "services/internal/buffer.h"
@@ -48,7 +48,7 @@ static services::Status vLog(const services::internal::Buffer<algorithmFPType> &
 {
     services::Status status;
 
-    services::internal::sycl::ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
+    services::internal::sycl::ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     const services::String options = services::internal::sycl::getKeyFPType<algorithmFPType>();

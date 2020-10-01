@@ -46,7 +46,7 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::heaviside(co
 {
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     const services::String options = getKeyFPType<algorithmFPType>();
@@ -77,7 +77,7 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::argMax(const
 {
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::internal::sycl::getDefaultContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     const services::String options = getKeyFPType<algorithmFPType>();
@@ -108,7 +108,7 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::compute(serv
 {
     services::Status status;
 
-    auto & ctx = services::internal::sycl::getDefaultContext();
+    auto & ctx = services::internal::getDefaultContext();
 
     const daal::algorithms::logistic_regression::internal::ModelImpl * pModel =
         static_cast<const daal::algorithms::logistic_regression::internal::ModelImpl *>(m);

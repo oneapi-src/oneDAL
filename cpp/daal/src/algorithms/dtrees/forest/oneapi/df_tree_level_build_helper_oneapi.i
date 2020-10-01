@@ -70,7 +70,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::initializeTreeOrde
 
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelInitializeTreeOrder;
 
@@ -94,7 +94,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::markPresentRows(co
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.markPresentRows);
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     {
         DAAL_ASSERT(nRows <= _int32max);
@@ -129,7 +129,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::countAbsentRowsFor
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.countAbsentRowsForBlocks);
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     {
         DAAL_ASSERT(nRows <= _int32max);
@@ -164,7 +164,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::countAbsentRowsTot
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.countAbsentRowsTotal);
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     {
         DAAL_ASSERT(nSubgroupSums <= _int32max);
@@ -201,7 +201,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::fillOOBRowsListByB
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.fillOOBRowsListByBlocks);
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     {
         DAAL_ASSERT(nRows <= _int32max);
@@ -234,7 +234,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::getOOBRows(const U
 {
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     const int absentMark       = -1;
     const size_t localSize     = _preferableSubGroup;
@@ -281,7 +281,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::getNumOfSplitNodes
 
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelGetNumOfSplitNodes;
 
@@ -326,7 +326,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::convertSplitToLeaf
 
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelConvertSplitToLeaf;
 
@@ -353,7 +353,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::doNodesSplit(const
 
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelDoNodesSplit;
 
@@ -393,7 +393,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::splitNodeListOnGro
 
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelSplitNodeListOnGroupsBySize;
 
@@ -435,7 +435,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::doLevelPartition(c
 
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelDoLevelPartition;
 
@@ -477,7 +477,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::partitionCopy(Univ
 
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelPartitionCopy;
 
@@ -508,7 +508,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::updateMDIVarImport
 
     services::Status status;
 
-    auto & context = services::internal::sycl::getDefaultContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelUpdateMDIVarImportance;
 

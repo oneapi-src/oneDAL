@@ -79,7 +79,7 @@ protected:
         }
         else
         {
-            auto & context    = services::internal::sycl::getDefaultContext();
+            auto & context    = services::internal::getDefaultContext();
             auto & deviceInfo = context.getInfoDevice();
 
             if (deviceInfo.isCpu)
@@ -110,7 +110,7 @@ protected:
                 DAAL_CHECK_STATUS_VAR(value->getBlockOfRows(0, value->getNumberOfRows(), data_management::readOnly, srcBD));
                 auto source      = srcBD.getBuffer();
                 auto destination = destBD.getBuffer();
-                auto & context   = services::internal::sycl::getDefaultContext();
+                auto & context   = services::internal::getDefaultContext();
                 context.copy(destination, 0, source, 0, source.size(), &status);
                 DAAL_CHECK_STATUS_VAR(status);
                 DAAL_CHECK_STATUS_VAR(dest->releaseBlockOfRows(destBD));

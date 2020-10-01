@@ -42,7 +42,7 @@ ModelImpl::ModelImpl(size_t nFeatures, bool interceptFlag, size_t nClasses, mode
     const size_t nRows = nClasses == 2 ? 1 : nClasses;
     const size_t nCols = nFeatures + 1;
 
-    auto & context    = services::internal::sycl::getDefaultContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)

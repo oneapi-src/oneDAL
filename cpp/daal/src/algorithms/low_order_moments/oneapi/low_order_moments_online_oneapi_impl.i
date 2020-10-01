@@ -31,7 +31,7 @@
 #include "src/algorithms/low_order_moments/oneapi/cl_kernels/low_order_moments_kernels_all.h"
 #include "src/algorithms/low_order_moments/oneapi/low_order_moments_kernel_online_oneapi.h"
 #include "src/externals/service_ittnotify.h"
-#include "services/internal/sycl/utils.h"
+#include "services/internal/execution_context.h"
 
 using namespace daal::services::internal;
 using namespace daal::services::internal::sycl;
@@ -130,7 +130,7 @@ services::Status LowOrderMomentsOnlineKernelOneAPI<algorithmFPType, method>::com
 {
     services::Status status;
 
-    auto & context = daal::services::internal::sycl::getDefaultContext();
+    auto & context = daal::services::internal::getDefaultContext();
 
     if (method == defaultDense)
     {
@@ -164,7 +164,7 @@ services::Status LowOrderMomentsOnlineKernelOneAPI<algorithmFPType, method>::fin
 {
     services::Status status;
 
-    auto & context = daal::services::internal::sycl::getDefaultContext();
+    auto & context = daal::services::internal::getDefaultContext();
 
     if (method == defaultDense)
     {
@@ -303,7 +303,7 @@ services::Status LowOrderMomentsOnlineTaskOneAPI<algorithmFPType, scope>::comput
 
     services::Status status;
 
-    auto & context = daal::services::internal::sycl::getDefaultContext();
+    auto & context = daal::services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
 
     status = buildProgram<algorithmFPType, scope>(factory);
@@ -476,7 +476,7 @@ services::Status LowOrderMomentsOnlineFinalizeTaskOneAPI<algorithmFPType, scope>
 
     services::Status status;
 
-    auto & context = daal::services::internal::sycl::getDefaultContext();
+    auto & context = daal::services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
 
     status = buildProgram<algorithmFPType, scope>(factory);

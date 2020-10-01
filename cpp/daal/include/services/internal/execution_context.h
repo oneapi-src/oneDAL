@@ -141,4 +141,22 @@ using interface1::SyclExecutionContext;
 } // namespace daal
 #endif // DAAL_SYCL_INTERFACE
 
+namespace daal
+{
+namespace services
+{
+namespace internal
+{
+namespace interface1
+{
+sycl::ExecutionContextIface & getDefaultContext();
+
+} // namespace interface1
+
+using interface1::getDefaultContext;
+
+} // namespace internal
+} // namespace services
+} // namespace daal
+
 #endif

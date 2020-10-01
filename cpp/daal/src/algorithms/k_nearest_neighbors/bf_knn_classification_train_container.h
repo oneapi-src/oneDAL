@@ -41,7 +41,7 @@ using namespace daal::data_management;
 template <typename algorithmFpType, training::Method method, CpuType cpu>
 BatchContainer<algorithmFpType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = services::internal::sycl::getDefaultContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)
@@ -83,7 +83,7 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
     }
     DAAL_CHECK_STATUS_VAR(status);
 
-    auto & context    = services::internal::sycl::getDefaultContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)

@@ -27,7 +27,7 @@
 #include "src/algorithms/linear_model/oneapi/linear_model_predict_kernel_oneapi.h"
 #include "src/data_management/service_numeric_table.h"
 #include "src/sycl/blas_gpu.h"
-#include "services/internal/sycl/utils.h"
+#include "services/internal/execution_context.h"
 #include "src/algorithms/linear_model/oneapi/cl_kernel/linear_model_prediction.cl"
 
 namespace daal
@@ -50,7 +50,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::addBetaInte
 {
     services::Status status;
 
-    ExecutionContextIface & ctx    = getDefaultContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     const services::String options = getKeyFPType<algorithmFPType>();

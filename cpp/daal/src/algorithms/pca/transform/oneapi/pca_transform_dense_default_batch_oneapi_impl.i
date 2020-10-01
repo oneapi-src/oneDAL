@@ -248,7 +248,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(pca.transform.compute);
     services::Status status;
-    ExecutionContextIface & ctx = services::internal::sycl::getDefaultContext();
+    ExecutionContextIface & ctx = services::internal::getDefaultContext();
 
     const uint32_t numVectors    = data.getNumberOfRows();
     const uint32_t numFeatures   = data.getNumberOfColumns();
