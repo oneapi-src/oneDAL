@@ -30,7 +30,7 @@ namespace interface1
 {
 ExecutionContextIface & getDefaultContext()
 {
-    return services::internal::sycl::getDefaultContext();
+    return services::Environment::getInstance()->getDefaultExecutionContext();
 }
 
 } // namespace interface1
