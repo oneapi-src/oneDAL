@@ -146,7 +146,7 @@ jobs:
       conda create -q -y -n CB python=3.7 conda-build conda-verify
     displayName: Create Anaconda environment
   - script: |
-      export DPCPPROOT=/opt/intel/oneapi/compiler/latest
+      export DPCPPROOT=/opt/intel/oneapi/compiler/latest
       export DAALROOT=$(Pipeline.Workspace)/daal/latest
       export TBBROOT=$(Pipeline.Workspace)/tbb/latest
       . $HOME/miniconda/etc/profile.d/conda.sh
@@ -155,6 +155,8 @@ jobs:
       conda build --override-channels -c conda-forge -c intel --numpy=1.17 conda-recipe
     displayName: conda build
   - script: |
+      export DPCPPROOT=/opt/intel/oneapi/compiler/latest
+      source ${DPCPPROOT}/env/vars.sh
       $(Pipeline.Workspace)/s/.ci/scripts/conformance_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/oneapi
     timeoutInMinutes: 15
     displayName: conformance

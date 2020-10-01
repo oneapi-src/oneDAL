@@ -15,3 +15,4 @@ sudo apt-get install              \
     intel-oneapi-libdpstd-devel   \
     cmake
 sudo bash -c 'echo libintelocl.so > /etc/OpenCL/vendors/intel-cpu.icd'
+sudo mv -f /opt/intel/oneapi/compiler/latest/linux/lib/oclfpga /opt/intel/oneapi/compiler/latest/linux/lib/oclfpga_
