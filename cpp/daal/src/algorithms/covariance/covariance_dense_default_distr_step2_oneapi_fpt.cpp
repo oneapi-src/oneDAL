@@ -1,6 +1,6 @@
-/* file: covariance_dense_default_distr_step2_fpt_dispatcher.cpp */
+/* file: covariance_dense_default_distr_step2_oneapi_fpt.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,16 +17,27 @@
 
 /*
 //++
-//  Instantiation of distributed covariance calculation algorithm container.
+//  Implementation of Covariance kernel.
 //--
 */
 
 #include "src/algorithms/covariance/covariance_container.h"
+#include "src/algorithms/covariance/oneapi/covariance_dense_distr_step2_oneapi.h"
+#include "src/algorithms/covariance/oneapi/covariance_dense_distr_step2_oneapi_impl.i"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(covariance::DistributedContainer, distributed, step2Master, DAAL_FPTYPE, covariance::defaultDense)
+namespace covariance
+{
+namespace oneapi
+{
+namespace internal
+{
+template class CovarianceDenseDistrStep2KernelOneAPI<DAAL_FPTYPE, defaultDense>;
 }
+} // namespace oneapi
+} // namespace covariance
+} // namespace algorithms
 } // namespace daal
