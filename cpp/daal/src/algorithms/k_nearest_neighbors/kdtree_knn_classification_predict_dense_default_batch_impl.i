@@ -487,8 +487,6 @@ DAAL_FORCEINLINE void computeDistance(size_t start, size_t end, algorithmFpType 
 
         DAAL_PREFETCH_READ_T0(nx);
         DAAL_PREFETCH_READ_T0(nx + 16);
-        DAAL_PREFETCH_READ_T0(nx + 32);
-        DAAL_PREFETCH_READ_T0(nx + 48);
 
         for (size_t i = 0; i < end - start; ++i)
         {
