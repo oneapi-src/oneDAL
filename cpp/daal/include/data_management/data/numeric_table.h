@@ -104,7 +104,6 @@ public:
         }
     }
 
-#ifdef DAAL_INTERNAL_INTERFACE
     /**
      *  Gets a Buffer object to the data block
      *  \return Buffer to the block
@@ -124,7 +123,6 @@ public:
             return daal::services::internal::Buffer<DataType>(_ptr, _ncols * _nrows);
         }
     }
-#endif
 
     /**
      *  Returns the number of columns in the block
@@ -183,7 +181,6 @@ public:
         _nrows  = nRows;
     }
 
-#ifdef DAAL_INTERNAL_INTERFACE
     /**
      *  Sets data buffer to the table
      *  \param[in] buffer Buffer object that contains the memory
@@ -199,7 +196,6 @@ public:
         _ncols  = nColumns;
         _nrows  = nRows;
     }
-#endif
 
     /**
      *  Allocates memory of (\p nColumns * \p nRows + \p auxMemorySize) size

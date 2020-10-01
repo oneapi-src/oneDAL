@@ -55,7 +55,6 @@ daal_module(
     defines = [
         "DAAL_NOTHROW_EXCEPTIONS",
         "DAAL_HIDE_DEPRECATED",
-        "DAAL_INTERNAL_INTERFACE",
     ],
     deps = [
         ":public_includes",

@@ -166,7 +166,6 @@ public:
      */
     int setMemoryLimit(MemType type, size_t limit);
 
-#ifdef DAAL_INTERNAL_INTERFACE
     /**
      *  Sets execution context globally for all algorithms.
      *  After this method is called, all computations inside algorithms are performed
@@ -179,7 +178,6 @@ public:
     }
 
     services::internal::sycl::ExecutionContextIface & getDefaultExecutionContext() { return *_executionContext; }
-#endif
 
 private:
     Environment();
