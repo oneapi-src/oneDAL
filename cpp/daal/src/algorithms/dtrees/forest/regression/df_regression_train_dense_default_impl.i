@@ -239,6 +239,7 @@ void OrderedRespHelper<algorithmFPType, cpu>::calcImpurity(const IndexType * aId
         const algorithmFPType weights = this->_aWeights[aIdx[i]].val;
         const algorithmFPType delta   = this->_aResponse[aIdx[i]].val - imp.mean; //x[i] - mean
         totalWeights += weights;
+        DAAL_ASSERT(!(isZero<algorithmFPType, cpu>(totalWeights)));
         imp.mean += weights * delta / totalWeights;
         imp.var += weights * delta * (this->_aResponse[aIdx[i]].val - imp.mean);
     }
@@ -312,7 +313,8 @@ void OrderedRespHelper<algorithmFPType, cpu>::finalizeBestSplit(const IndexType 
 {
     DAAL_ASSERT(bestSplit.nLeft > 0);
     DAAL_ASSERT(bestSplit.leftWeights > 0.);
-    const algorithmFPType divL = algorithmFPType(1.) / bestSplit.leftWeights;
+    const algorithmFPType divL =
+        isZero<algorithmFPType, cpu>(bestSplit.leftWeights) ? algorithmFPType(1.) : (algorithmFPType(1.) / bestSplit.leftWeights);
     bestSplit.left.mean *= divL;
     bestSplit.left.var                                      = 0;
     IndexType * bestSplitIdxRight                           = bestSplitIdx + bestSplit.nLeft;

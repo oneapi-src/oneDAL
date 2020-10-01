@@ -22,6 +22,7 @@ DAAL  = datastructures_soa                    \
         datastructures_usm                    \
         dbscan_dense_batch                    \
         cor_dense_batch                       \
+        cor_dense_distr                       \
         cor_dense_online                      \
         lin_reg_norm_eq_dense_batch           \
         lin_reg_norm_eq_dense_online          \
