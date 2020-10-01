@@ -30,7 +30,7 @@
 #include <cstdio>
 
 #define TIME_MEASUREMENT
-#define BINARY_DATASET
+// #define BINARY_DATASET
 
 #ifdef TIME_MEASUREMENT
     #include "tbb/tick_count.h"
@@ -42,24 +42,12 @@ using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
-#ifdef BINARY_DATASET
-/* Input data set parameters */
-string trainDatasetFileName            = "../data/batch/fTrainData_SUSY.bin";
-string trainDatasetGroundTruthFileName = "../data/batch/fTrainLabel_SUSY.bin";
-string testDatasetFileName             = "../data/batch/fPredictData_SUSY.bin";
-string testDatasetLabelsFileName       = "../data/batch/fPredictLabel_SUSY.bin";
-#else
 /* Input data set parameters */
 string trainDatasetFileName = "../data/batch/k_nearest_neighbors_train.csv";
 string testDatasetFileName  = "../data/batch/k_nearest_neighbors_test.csv";
-#endif
 
-#ifdef BINARY_DATASET
-const size_t nClasses = 2;
-#else
-size_t nFeatures            = 5;
-size_t nClasses             = 5;
-#endif
+size_t nFeatures = 5;
+size_t nClasses  = 5;
 
 kdtree_knn_classification::training::ResultPtr trainingResult;
 kdtree_knn_classification::prediction::ResultPtr predictionResult;
@@ -71,11 +59,7 @@ void printResults();
 
 int main(int argc, char * argv[])
 {
-#ifdef BINARY_DATASET
-    checkArguments(argc, argv, 4, &trainDatasetFileName, &trainDatasetGroundTruthFileName, &testDatasetFileName, &testDatasetLabelsFileName);
-#else
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
-#endif
 
     trainModel();
     testModel();
@@ -90,93 +74,6 @@ void trainModel()
     const auto t0 = tbb::tick_count::now();
 #endif
 
-#ifdef BINARY_DATASET
-    DAAL_INT64 observationCount;
-    DAAL_INT64 featureCount;
-
-    FILE * f = fopen(trainDatasetFileName, "rb");
-    if (!f)
-    {
-        std::cout << "Training file opening failed!" << std::endl;
-        return;
-    }
-    const size_t readCount1 = fread(&observationCount, sizeof(observationCount), 1, f);
-    if (readCount1 != 1)
-    {
-        std::cout << "Reading number of observations from training file opening failed!" << std::endl;
-        return;
-    }
-    const size_t readCount2 = fread(&featureCount, sizeof(featureCount), 1, f);
-    if (readCount2 != 1)
-    {
-        std::cout << "Reading number of features from training file opening failed!" << std::endl;
-        return;
-    }
-
-    std::cout << "Training data: " << observationCount << " x " << featureCount << std::endl;
-
-    services::SharedPtr<SOANumericTable> trainData(new SOANumericTable(featureCount, observationCount, DictionaryIface::equal));
-    trainData->getDictionarySharedPtr()->setAllFeatures<float>();
-    trainData->resize(trainData->getNumberOfRows()); // Just to allocate memory.
-    services::SharedPtr<SOANumericTable> trainGroundTruth(new SOANumericTable(1, observationCount));
-    trainGroundTruth->getDictionarySharedPtr()->setAllFeatures<int>();
-    trainGroundTruth->resize(trainGroundTruth->getNumberOfRows()); // Just to allocate memory.
-
-    for (size_t d = 0; d < featureCount; ++d)
-    {
-        float * const ptr      = static_cast<float *>(trainData->getArray(d));
-        const size_t readCount = fread(ptr, sizeof(float), observationCount, f);
-        if (readCount != observationCount)
-        {
-            std::cout << "ERROR: Only " << readCount << " of " << observationCount << " read for feature " << d << std::endl;
-            return;
-        }
-    }
-
-    fclose(f);
-    f = 0;
-
-    {
-        DAAL_INT64 observationCount2;
-        DAAL_INT64 featureCount2;
-        f = fopen(trainDatasetGroundTruthFileName, "rb");
-        if (!f)
-        {
-            std::cout << "Training file with labels opening failed!" << std::endl;
-            return;
-        }
-        const size_t readCount1 = fread(&observationCount2, sizeof(observationCount2), 1, f);
-        if (readCount1 != 1)
-        {
-            std::cout << "Reading number of observations from training file with labels opening failed!" << std::endl;
-            return;
-        }
-
-        const size_t readCount2 = fread(&featureCount2, sizeof(featureCount2), 1, f);
-        if (readCount2 != 1)
-        {
-            std::cout << "Reading number of features from training file with labels opening failed!" << std::endl;
-            return;
-        }
-
-        if (observationCount != observationCount2) { std::cout << "Training data and labels must have equal number of rows!" << std::endl; }
-        if (featureCount2 != 1) { std::cout << "Training labels file must contain exactly one column!" << std::endl; }
-
-        int * const ptr = static_cast<int *>(trainGroundTruth->getArray(0));
-        vector<float> tempLabels(observationCount2);
-        float * const tempLabelsPtr = &tempLabels[0];
-        const size_t readCount      = fread(tempLabelsPtr, sizeof(float), observationCount2, f);
-        if (readCount != observationCount2)
-        {
-            std::cout << "ERROR: Only " << readCount << " of " << observationCount2 << " read of class labels" << std::endl;
-            return;
-        }
-        for (size_t i = 0, cnt = observationCount2; i != cnt; ++i) { ptr[i] = tempLabelsPtr[i]; }
-
-        fclose(f);
-        f = 0;
-    }
-#else
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
     FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
@@ -187,7 +84,6 @@ void trainModel()
 
     /* Retrieve the data from the input file */
     trainDataSource.loadDataBlock(mergedData.get());
-#endif
 
 #ifdef TIME_MEASUREMENT
     const auto t1 = tbb::tick_count::now();
@@ -230,93 +126,6 @@ void testModel()
     const auto t0 = tbb::tick_count::now();
 #endif
 
-#ifdef BINARY_DATASET
-    DAAL_INT64 observationCount;
-    DAAL_INT64 featureCount;
-
-    FILE * f = fopen(testDatasetFileName, "rb");
-    if (!f)
-    {
-        std::cout << "Testing file opening failed!" << std::endl;
-        return;
-    }
-    const size_t readCount1 = fread(&observationCount, sizeof(observationCount), 1, f);
-    if (readCount1 != 1)
-    {
-        std::cout << "Reading number of observations from testing file opening failed!" << std::endl;
-        return;
-    }
-    const size_t readCount2 = fread(&featureCount, sizeof(featureCount), 1, f);
-    if (readCount2 != 1)
-    {
-        std::cout << "Reading number of features from testing file opening failed!" << std::endl;
-        return;
-    }
-
-    std::cout << "Testing data: " << observationCount << " x " << featureCount << std::endl;
-
-    services::SharedPtr<SOANumericTable> testData(new SOANumericTable(featureCount, observationCount, DictionaryIface::equal));
-    testData->getDictionarySharedPtr()->setAllFeatures<float>();
-    testData->resize(testData->getNumberOfRows()); // Just to allocate memory.
-    services::SharedPtr<SOANumericTable> testGroundTruth(new SOANumericTable(1, observationCount));
-    testGroundTruth->getDictionarySharedPtr()->setAllFeatures<int>();
-    testGroundTruth->resize(testGroundTruth->getNumberOfRows()); // Just to allocate memory.
-
-    for (size_t d = 0; d < featureCount; ++d)
-    {
-        float * const ptr      = static_cast<float *>(testData->getArray(d));
-        const size_t readCount = fread(ptr, sizeof(float), observationCount, f);
-        if (readCount != observationCount)
-        {
-            std::cout << "ERROR: Only " << readCount << " of " << observationCount << " read for feature " << d << std::endl;
-            return;
-        }
-    }
-
-    fclose(f);
-    f = 0;
-
-    {
-        DAAL_INT64 observationCount2;
-        DAAL_INT64 featureCount2;
-        f = fopen(testDatasetGroundTruthFileName, "rb");
-        if (!f)
-        {
-            std::cout << "Testing file with labels opening failed!" << std::endl;
-            return;
-        }
-        const size_t readCount1 = fread(&observationCount2, sizeof(observationCount2), 1, f);
-        if (readCount1 != 1)
-        {
-            std::cout << "Reading number of observations from testing file with labels opening failed!" << std::endl;
-            return;
-        }
-
-        const size_t readCount2 = fread(&featureCount2, sizeof(featureCount2), 1, f);
-        if (readCount2 != 1)
-        {
-            std::cout << "Reading number of features from testing file with labels opening failed!" << std::endl;
-            return;
-        }
-
-        if (observationCount != observationCount2) { std::cout << "Testing data and labels must have equal number of rows!" << std::endl; }
-        if (featureCount2 != 1) { std::cout << "Testing labels file must contain exactly one column!" << std::endl; }
-
-        int * const ptr = static_cast<int *>(testGroundTruth->getArray(0));
-        vector<float> tempLabels(observationCount2);
-        float * const tempLabelsPtr = &tempLabels[0];
-        const size_t readCount      = fread(tempLabelsPtr, sizeof(float), observationCount2, f);
-        if (readCount != observationCount2)
-        {
-            std::cout << "ERROR: Only " << readCount << " of " << observationCount2 << " read of class labels" << std::endl;
-            return;
-        }
-        for (size_t i = 0, cnt = observationCount2; i != cnt; ++i) { ptr[i] = tempLabelsPtr[i]; }
-
-        fclose(f);
-        f = 0;
-    }
-#else
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
     FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
@@ -327,7 +136,6 @@ void testModel()
 
     /* Retrieve the data from input file */
     testDataSource.loadDataBlock(mergedData.get());
-#endif
 
 #ifdef TIME_MEASUREMENT
     const auto t1 = tbb::tick_count::now();
