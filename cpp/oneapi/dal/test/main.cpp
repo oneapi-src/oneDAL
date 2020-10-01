@@ -14,5 +14,14 @@
 * limitations under the License.
 *******************************************************************************/
 
-#define CATCH_CONFIG_MAIN
-#include "catch2/catch.hpp"
+#define CATCH_CONFIG_RUNNER
+#include <catch2/catch.hpp>
+
+#include "oneapi/dal/test/config.hpp"
+
+int main(int argc, char* argv[]) {
+    oneapi::dal::test::global_setup();
+    int result = Catch::Session().run(argc, argv);
+    oneapi::dal::test::global_cleanup();
+    return result;
+}

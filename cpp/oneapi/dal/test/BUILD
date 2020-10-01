@@ -9,17 +9,31 @@ dal_module(
     srcs = [
         "main.cpp"
     ],
+    hdrs = [
+        "config.hpp",
+    ],
     extra_deps = [
         "@catch2//:catch2"
     ],
+    dal_deps = [
+        "@onedal//cpp/oneapi/dal:include_root",
+    ],
+    testonly = True,
 )
 
 dal_module(
     name = "common",
-    hdrs = glob([
+    hdrs = [
         "common.hpp",
-        "macro.hpp"
-    ]),
+        "macro.hpp",
+        "config.hpp",
+    ],
+    srcs = [
+        "config.cpp",
+    ],
+    dpc_srcs = [
+        "common_dpc.cpp",
+    ],
     dal_deps = [
         "@onedal//cpp/oneapi/dal:common",
     ],
@@ -27,6 +41,7 @@ dal_module(
         "@catch2//:catch2",
         "@fmt//:fmt",
     ],
+    testonly = True,
 )
 
 dal_module(
@@ -37,4 +52,5 @@ dal_module(
         ":common",
         "@onedal//cpp/oneapi/dal:table",
     ],
+    testonly = True,
 )

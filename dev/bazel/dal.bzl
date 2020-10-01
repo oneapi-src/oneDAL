@@ -200,14 +200,13 @@ def dal_test(name, hdrs=[], srcs=[],
                 "@onedal_release//:core_dynamic",
                 "@onedal//cpp/daal:threading_release_dynamic",
             ],
-        }) + [
-            "@onedal//cpp/oneapi/dal:include_root"
-        ] + ([
+        }) + ([
             "@gtest//:gtest_main",
         ] if gtest else []) + ([
             "@onedal//cpp/oneapi/dal/test:catch2_main",
         ] if catch2 else []) +
         extra_deps,
+        testonly = True,
         **kwargs,
     )
     if host:
@@ -247,6 +246,9 @@ def dal_test_suite(name, srcs=[], tests=[], host_tests=[], dpc_tests=[],
             targets.append(":" + target)
         if dpc:
             targets_dpc.append(":" + _get_dpc_target_name(target, host, dpc))
+    # TODO: Empty test_suites (where the field tests = []) run all
+    # tests in package (not sure bug or feature of Bazel). Probably,
+    # need to create test suite with one fake test to workaround it.
     _add_test_suite_if_condition(
         condition = host,
         name = _remove_dpc_suffix(name),
@@ -352,9 +354,10 @@ def _dal_module(name, lib_tag="dal", is_dpc=False, features=[],
             "avx2":   [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx2"   ],
             "avx512": [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx512" ],
         },
-        local_defines = local_defines + (
-            ["ONEAPI_DAL_DATA_PARALLEL"] if is_dpc else []
-        ),
+        local_defines = local_defines + ([
+            "DAAL_SYCL_INTERFACE",
+            "ONEAPI_DAL_DATA_PARALLEL"
+        ] if is_dpc else []),
         deps = _expand_select(deps),
         **kwargs,
     )
@@ -369,7 +372,7 @@ def _add_test_suite_if_condition(condition, name, **kwargs):
     if condition:
         native.test_suite(name=name, **kwargs)
     else:
-        native.test_suite(name=name, tests = [])
+        native.test_suite(name=name)
 
 def _select(x):
     return [x]

@@ -14,29 +14,34 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "oneapi/dal/test/config.hpp"
 
-#include "oneapi/dal/backend/interop/common.hpp"
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+#include "oneapi/dal/test/common.hpp"
+#include "oneapi/dal/backend/interop/common_dpc.hpp"
+#endif
+
+namespace oneapi::dal::test {
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
 
-#include <daal/include/services/env_detect.h>
-#include <daal/src/services/service_defines.h>
+static sycl::queue get_default_queue() {
+    return sycl::gpu_selector{};
+}
 
-namespace oneapi::dal::backend::interop {
+void global_setup() {
+    dal::backend::interop::enable_daal_sycl_execution_context_cache();
+    test_queue_provider::get_instance().init(get_default_queue());
+}
 
-struct execution_context_guard {
-    explicit execution_context_guard(const sycl::queue &queue);
+void global_cleanup() {
+    dal::backend::interop::cleanup_daal_sycl_execution_context_cache();
+    test_queue_provider::get_instance().reset();
+}
 
-    ~execution_context_guard();
-
-    execution_context_guard(const execution_context_guard&) = delete;
-};
-
-void enable_daal_sycl_execution_context_cache();
-
-void cleanup_daal_sycl_execution_context_cache();
-
-} // namespace oneapi::dal::backend::interop
-
+#else
+void global_setup() {}
+void global_cleanup() {}
 #endif
+
+} //namespace oneapi::dal::test

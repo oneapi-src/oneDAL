@@ -16,27 +16,10 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/interop/common.hpp"
+namespace oneapi::dal::test {
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+void global_setup();
 
-#include <daal/include/services/env_detect.h>
-#include <daal/src/services/service_defines.h>
+void global_cleanup();
 
-namespace oneapi::dal::backend::interop {
-
-struct execution_context_guard {
-    explicit execution_context_guard(const sycl::queue &queue);
-
-    ~execution_context_guard();
-
-    execution_context_guard(const execution_context_guard&) = delete;
-};
-
-void enable_daal_sycl_execution_context_cache();
-
-void cleanup_daal_sycl_execution_context_cache();
-
-} // namespace oneapi::dal::backend::interop
-
-#endif
+} //namespace oneapi::dal::test

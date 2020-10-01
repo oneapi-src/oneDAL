@@ -161,6 +161,10 @@ public:
 
         return internal::SyclBufferConverter<T>().toUSM(*_impl);
     }
+
+    bool isUSMBacked() const {
+        return dynamic_cast<internal::UsmBuffer<T> *>(_impl.get()) != nullptr;
+    }
 #endif
 
     /**
@@ -196,6 +200,7 @@ public:
         }
         return Buffer<T>(_impl->getSubBuffer(offset, size));
     }
+
 
 private:
     explicit Buffer(internal::BufferIface<T> * impl) : _impl(impl) {}

@@ -17,6 +17,7 @@
 #pragma once
 
 #include <tuple>
+#include <memory>
 #include <iostream>
 #include <type_traits>
 
@@ -26,10 +27,12 @@
 #include "oneapi/dal/train.hpp"
 #include "oneapi/dal/infer.hpp"
 #include "oneapi/dal/compute.hpp"
+#include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/test/macro.hpp"
 
 // Disable clang-format as it dramatically
 // affects redability of macro definitions
+
 // clang-format off
 
 // Workaround DPC++ Compiler's warning on unused
@@ -122,11 +125,40 @@ inline auto compute(host_test_policy& policy, Args&&... args) {
 }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
+class test_queue_provider {
+public:
+    static test_queue_provider& get_instance();
+
+    const sycl::queue& get_global_queue() const {
+        if (!queue_) {
+            throw internal_error{"Test queue provider is not initialized"};
+        }
+        return *queue_;
+    }
+
+    void init(const sycl::queue& queue) {
+        queue_.reset(new sycl::queue{queue});
+    }
+
+    void reset() {
+        queue_.reset();
+    }
+
+private:
+    test_queue_provider() = default;
+
+    std::unique_ptr<sycl::queue> queue_;
+};
+
+inline const sycl::queue& get_global_queue() {
+    return test_queue_provider::get_instance().get_global_queue();
+}
+
 class device_test_policy {
 public:
     device_test_policy(const sycl::queue& queue) : queue_(queue) {}
 
-    device_test_policy() : queue_(sycl::gpu_selector{}) {}
+    device_test_policy() : queue_(get_global_queue()) {}
 
     sycl::queue& get_queue() {
         return queue_;
