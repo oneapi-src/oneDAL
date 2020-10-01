@@ -55,7 +55,7 @@ string testDatasetFileName  = "../data/batch/k_nearest_neighbors_test.csv";
 #endif
 
 #ifdef BINARY_DATASET
-const size_t nClasses = 3;
+const size_t nClasses = 2;
 #else
 size_t nFeatures            = 5;
 size_t nClasses             = 5;
