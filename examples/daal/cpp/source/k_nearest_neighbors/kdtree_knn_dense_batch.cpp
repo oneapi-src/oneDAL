@@ -47,7 +47,7 @@ using namespace daal::data_management;
 string trainDatasetFileName            = "../data/batch/fTrainData_SUSY.bin";
 string trainDatasetGroundTruthFileName = "../data/batch/fTrainLabel_SUSY.bin";
 string testDatasetFileName             = "../data/batch/fPredictData_SUSY.bin";
-string testDatasetGroundTruthFileName  = "../data/batch/fPredictLabel_SUSY.bin";
+string testDatasetLabelsFileName       = "../data/batch/fPredictLabel_SUSY.bin";
 #else
 /* Input data set parameters */
 string trainDatasetFileName = "../data/batch/k_nearest_neighbors_train.csv";
@@ -72,7 +72,7 @@ void printResults();
 int main(int argc, char * argv[])
 {
 #ifdef BINARY_DATASET
-    checkArguments(argc, argv, 4, &trainDatasetFileName, &trainDatasetGroundTruthFileName, &testDatasetFileName, &testDatasetGroundTruthFileName);
+    checkArguments(argc, argv, 4, &trainDatasetFileName, &trainDatasetGroundTruthFileName, &testDatasetFileName, &testDatasetLabelsFileName);
 #else
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 #endif
@@ -94,7 +94,7 @@ void trainModel()
     DAAL_INT64 observationCount;
     DAAL_INT64 featureCount;
 
-    FILE * f = fopen(trainDatasetFileName.c_str(), "rb");
+    FILE * f = fopen(trainDatasetFileName, "rb");
     if (!f)
     {
         std::cout << "Training file opening failed!" << std::endl;
@@ -139,7 +139,7 @@ void trainModel()
     {
         DAAL_INT64 observationCount2;
         DAAL_INT64 featureCount2;
-        f = fopen(trainDatasetGroundTruthFileName.c_str(), "rb");
+        f = fopen(trainDatasetGroundTruthFileName, "rb");
         if (!f)
         {
             std::cout << "Training file with labels opening failed!" << std::endl;
@@ -234,7 +234,7 @@ void testModel()
     DAAL_INT64 observationCount;
     DAAL_INT64 featureCount;
 
-    FILE * f = fopen(testDatasetFileName.c_str(), "rb");
+    FILE * f = fopen(testDatasetFileName, "rb");
     if (!f)
     {
         std::cout << "Testing file opening failed!" << std::endl;
@@ -279,7 +279,7 @@ void testModel()
     {
         DAAL_INT64 observationCount2;
         DAAL_INT64 featureCount2;
-        f = fopen(testDatasetGroundTruthFileName.c_str(), "rb");
+        f = fopen(testDatasetGroundTruthFileName, "rb");
         if (!f)
         {
             std::cout << "Testing file with labels opening failed!" << std::endl;
