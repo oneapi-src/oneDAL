@@ -27,7 +27,7 @@
 #include "src/algorithms/covariance/oneapi/covariance_dense_distr_step2_oneapi.h"
 #include "src/algorithms/covariance/oneapi/covariance_oneapi_impl.i"
 
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 namespace daal
 {
@@ -46,7 +46,7 @@ services::Status CovarianceDenseDistrStep2KernelOneAPI<algorithmFPType, method>:
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(computeDistr);
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::sycl::getDefaultContext();
 
     services::Status status;
 

@@ -26,4 +26,24 @@
 #include "data_management/data/internal/numeric_table_sycl_homogen.h"
 #include "data_management/data/internal/numeric_table_sycl_soa.h"
 
+namespace daal {
+namespace services {
+
+using services::internal::Buffer;
+using services::internal::ExecutionContext;
+using services::internal::SyclExecutionContext;
+using services::internal::CpuExecutionContext;
+
+} // namespace services
+} // namespace daal
+
+namespace daal {
+namespace data_management {
+
+using data_management::internal::SyclHomogenNumericTable;
+using data_management::internal::SyclSOANumericTable;
+
+} // namespace data_management
+} // namespace daal
+
 #endif
