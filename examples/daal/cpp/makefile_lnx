@@ -103,8 +103,7 @@ COPTS := -pedantic -Wall -Wextra -Werror \
          -Werror=unknown-pragmas \
          -Wno-deprecated-declarations \
          -Wno-unused-parameter \
-         -I./source/utils \
-         -std=c++11
+         -I./source/utils
 
 LOPTS := -Wl,--start-group $(DAAL_LIB) $(EXT_LIB) -Wl,--end-group
 
