@@ -470,13 +470,13 @@ DAAL_FORCEINLINE void computeDistance(size_t start, size_t end, algorithmFpType 
 {
     const size_t xColumnCount = data.getNumberOfColumns();
 
-    for (size_t i = 0, cnt = min<cpu>(xColumnCount, static_cast<size_t>(16)); i < cnt; ++i)
+    for (size_t i = 2, cnt = min<cpu>(xColumnCount, static_cast<size_t>(10)); i < cnt; ++i)
     {
         const auto p = getNtData(isHomogenSOA, i, start, end - start, data, xBD[0], soa_arrays);
         DAAL_PREFETCH_READ_T1(p);
         DAAL_PREFETCH_READ_T1(p + 16);
-        // DAAL_PREFETCH_READ_T1(p + 32);
-        // DAAL_PREFETCH_READ_T1(p + 48);
+        DAAL_PREFETCH_READ_T1(p + 32);
+        DAAL_PREFETCH_READ_T1(p + 48);
         releaseNtData<algorithmFpType, cpu>(isHomogenSOA, data, xBD[0]);
     }
 
@@ -492,25 +492,22 @@ DAAL_FORCEINLINE void computeDistance(size_t start, size_t end, algorithmFpType 
     const algorithmFpType * dx = getNtData(isHomogenSOA, 0, start, end - start, data, xBD[curBDIdx], soa_arrays);
     DAAL_PREFETCH_READ_T0(dx);
     DAAL_PREFETCH_READ_T0(dx + 16);
-    // DAAL_PREFETCH_READ_T0(dx + 32);
-    // DAAL_PREFETCH_READ_T0(dx + 48);
+    DAAL_PREFETCH_READ_T0(dx + 32);
+    DAAL_PREFETCH_READ_T0(dx + 48);
 
     size_t j;
-    const size_t cnt = end - start;
     for (j = 1; j < xColumnCount; ++j)
     {
         nx = getNtData(isHomogenSOA, j, start, end - start, data, xBD[nextBDIdx], soa_arrays);
 
         DAAL_PREFETCH_READ_T0(nx);
         DAAL_PREFETCH_READ_T0(nx + 16);
-        // DAAL_PREFETCH_READ_T0(nx + 32);
-        // DAAL_PREFETCH_READ_T0(nx + 48);
+        DAAL_PREFETCH_READ_T0(nx + 32);
+        DAAL_PREFETCH_READ_T0(nx + 48);
 
-        PRAGMA_IVDEP
-        for (size_t i = 0; i < cnt; ++i)
+        for (size_t i = 0; i < end - start; ++i)
         {
-            const algorithmFpType t = (query[j - 1] - dx[i]);
-            distance[i] += t * t;
+            distance[i] += (query[j - 1] - dx[i]) * (query[j - 1] - dx[i]);
         }
 
         releaseNtData<algorithmFpType, cpu>(isHomogenSOA, data, xBD[curBDIdx]);
@@ -519,11 +516,9 @@ DAAL_FORCEINLINE void computeDistance(size_t start, size_t end, algorithmFpType 
         services::internal::swap<cpu, const algorithmFpType *>(dx, nx);
     }
     {
-        PRAGMA_IVDEP
-        for (size_t i = 0; i < cnt; ++i)
+        for (size_t i = 0; i < end - start; ++i)
         {
-            const algorithmFpType t = (query[j - 1] - dx[i]);
-            distance[i] += t * t;
+            distance[i] += (query[j - 1] - dx[i]) * (query[j - 1] - dx[i]);
         }
 
         releaseNtData<algorithmFpType, cpu>(isHomogenSOA, data, xBD[curBDIdx]);
