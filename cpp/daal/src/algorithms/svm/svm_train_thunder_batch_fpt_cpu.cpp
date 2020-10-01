@@ -39,7 +39,7 @@ template class BatchContainer<DAAL_FPTYPE, thunder, DAAL_CPU>;
 }
 namespace internal
 {
-template struct DAAL_EXPORT SVMTrainImpl<thunder, DAAL_FPTYPE, svm::interface2::Parameter, DAAL_CPU>;
+template struct DAAL_EXPORT SVMTrainImpl<thunder, DAAL_FPTYPE, DAAL_CPU>;
 
 } // namespace internal
 } // namespace training

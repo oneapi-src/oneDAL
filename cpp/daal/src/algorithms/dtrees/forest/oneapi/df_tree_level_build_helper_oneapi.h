@@ -109,12 +109,14 @@ private:
     oneapi::internal::KernelPtr kernelUpdateMDIVarImportance;
     oneapi::internal::KernelPtr kernelPartitionCopy;
 
-    const uint32_t _maxLocalSums = 256;
-    const uint32_t _minRowsBlock = 256;
+    const size_t _maxLocalSums = 256;
+    const size_t _minRowsBlock = 256;
 
-    const uint32_t _preferableGroupSize  = 256;
-    const uint32_t _maxWorkItemsPerGroup = 256; // should be a power of two for interal needs
-    const uint32_t _preferableSubGroup   = 16;  // preferable maximal sub-group size
+    const size_t _preferableGroupSize  = 256;
+    const size_t _maxWorkItemsPerGroup = 256; // should be a power of two for interal needs
+    const size_t _preferableSubGroup   = 16;  // preferable maximal sub-group size
+
+    const size_t _int32max = static_cast<size_t>(services::internal::MaxVal<int32_t>::get());
 };
 
 } /* namespace internal */

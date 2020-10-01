@@ -35,8 +35,6 @@
 #include "src/algorithms/dtrees/forest/oneapi/df_feature_type_helper_oneapi.h"
 #include "src/algorithms/dtrees/forest/oneapi/df_tree_level_build_helper_oneapi.h"
 
-using namespace daal::services;
-
 namespace daal
 {
 namespace algorithms
@@ -54,8 +52,8 @@ class RegressionTrainBatchKernelOneAPI : public daal::algorithms::Kernel
 {
 public:
     RegressionTrainBatchKernelOneAPI() {}
-    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::regression::Model & m,
-                             Result & res, const Parameter & par)
+    services::Status compute(services::HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y,
+                             decision_forest::regression::Model & m, Result & res, const Parameter & par)
     {
         return services::ErrorMethodNotImplemented;
     }
@@ -66,8 +64,8 @@ class RegressionTrainBatchKernelOneAPI<algorithmFPType, hist> : public daal::alg
 {
 public:
     RegressionTrainBatchKernelOneAPI() {}
-    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::regression::Model & m,
-                             Result & res, const Parameter & par);
+    services::Status compute(services::HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y,
+                             decision_forest::regression::Model & m, Result & res, const Parameter & par);
 
 private:
     services::Status buildProgram(oneapi::internal::ClKernelFactoryIface & factory, const char * programName, const char * programSrc,
@@ -133,19 +131,21 @@ private:
 
     decision_forest::internal::TreeLevelBuildHelperOneAPI<algorithmFPType> _treeLevelBuildHelper;
 
-    const uint32_t _maxWorkItemsPerGroup = 256;   // should be a power of two for interal needs
-    const uint32_t _maxLocalBuffer       = 30000; // should be less than a half of local memory (two buffers)
-    const uint32_t _preferableSubGroup   = 16;    // preferable maximal sub-group size
-    const uint32_t _maxLocalSize         = 128;
-    const uint32_t _maxLocalSums         = 256;
-    const uint32_t _maxLocalHistograms   = 256;
-    const uint32_t _preferableGroupSize  = 256;
-    const uint32_t _minRowsBlock         = 256;
-    const uint32_t _maxBins              = 256;
+    const size_t _maxWorkItemsPerGroup = 256;   // should be a power of two for interal needs
+    const size_t _maxLocalBuffer       = 30000; // should be less than a half of local memory (two buffers)
+    const size_t _preferableSubGroup   = 16;    // preferable maximal sub-group size
+    const size_t _maxLocalSize         = 128;
+    const size_t _maxLocalSums         = 256;
+    const size_t _maxLocalHistograms   = 256;
+    const size_t _preferableGroupSize  = 256;
+    const size_t _minRowsBlock         = 256;
+    const size_t _maxBins              = 256;
 
-    const uint32_t _nHistProps     = 3; // number of properties in bins histogram (i.e. n, mean and var)
-    const uint32_t _nNodesGroups   = 3; // all nodes are split on groups (big, medium, small)
-    const uint32_t _nodeGroupProps = 2; // each nodes Group contains props: numOfNodes, maxNumOfBlocks
+    const size_t _nHistProps     = 3; // number of properties in bins histogram (i.e. n, mean and var)
+    const size_t _nNodesGroups   = 3; // all nodes are split on groups (big, medium, small)
+    const size_t _nodeGroupProps = 2; // each nodes Group contains props: numOfNodes, maxNumOfBlocks
+
+    static constexpr size_t _int32max = static_cast<size_t>(services::internal::MaxVal<int32_t>::get());
 
     size_t _nMaxBinsAmongFtrs;
     size_t _totalBins;

@@ -44,17 +44,10 @@ TEST(infer_and_train_reg_kernels_test, can_process_simple_case_default_params) {
     const float y_test[] = {
         0.0269f, 0.0767f, 0.1519f, 0.2527f, 0.3340f,
     };
-    const auto x_train_table = dal::homogen_table{ x_train,
-                                                   row_count_train,
-                                                   column_count,
-                                                   dal::empty_delete<const float>() };
-    const auto y_train_table =
-        dal::homogen_table{ y_train, row_count_train, 1, dal::empty_delete<const float>() };
+    const auto x_train_table = dal::homogen_table::wrap(x_train, row_count_train, column_count);
+    const auto y_train_table = dal::homogen_table::wrap(y_train, row_count_train, 1);
 
-    const auto x_test_table = dal::homogen_table{ x_test,
-                                                  row_count_test,
-                                                  column_count,
-                                                  dal::empty_delete<const float>() };
+    const auto x_test_table = dal::homogen_table::wrap(x_test, row_count_test, column_count);
 
     const auto df_desc = df::descriptor<float, df::task::regression, df::method::dense>{};
     const auto result_train = dal::train(df_desc, x_train_table, y_train_table);
@@ -95,17 +88,10 @@ TEST(infer_and_train_reg_kernels_test, can_process_simple_case_non_default_param
     const float y_test[] = {
         0.0269f, 0.0767f, 0.1519f, 0.2527f, 0.3340f,
     };
-    const auto x_train_table = dal::homogen_table{ x_train,
-                                                   row_count_train,
-                                                   column_count,
-                                                   dal::empty_delete<const float>() };
-    const auto y_train_table =
-        dal::homogen_table{ y_train, row_count_train, 1, dal::empty_delete<const float>() };
+    const auto x_train_table = dal::homogen_table::wrap(x_train, row_count_train, column_count);
+    const auto y_train_table = dal::homogen_table::wrap(y_train, row_count_train, 1);
 
-    const auto x_test_table = dal::homogen_table{ x_test,
-                                                  row_count_test,
-                                                  column_count,
-                                                  dal::empty_delete<const float>() };
+    const auto x_test_table = dal::homogen_table::wrap(x_test, row_count_test, column_count);
 
     const auto df_desc =
         df::descriptor<float, df::task::regression, df::method::dense>{}
