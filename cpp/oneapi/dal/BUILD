@@ -35,6 +35,9 @@ dal_module(
         "@onedal//cpp/daal:services",
         "@onedal//cpp/daal:data_management",
     ],
+    dpc_deps = [
+        "@micromkl_dpc//:mkl_dpc",
+    ],
 )
 
 dal_collect_modules(
@@ -47,9 +50,6 @@ dal_collect_modules(
     ],
     dal_deps = [
         ":common",
-    ],
-    dpc_deps = [
-        "@micromkl_dpc//:mkl_dpc",
     ],
 )
 

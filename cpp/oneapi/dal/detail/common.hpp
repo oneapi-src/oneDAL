@@ -19,6 +19,7 @@
 #include <memory>
 
 #include "oneapi/dal/common.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::detail {
 
@@ -91,7 +92,7 @@ constexpr std::int64_t get_data_type_size(data_type t) {
     else if (t == data_type::uint64) {
         return sizeof(uint64_t);
     }
-    return 0;
+    throw unimplemented{ "Data type is not supported" };
 }
 
 template <typename T>

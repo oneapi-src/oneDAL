@@ -76,7 +76,7 @@ dataset dataset_generator::generate() const {
     switch (distribution_) {
         case distribution_type::uniform: generate_uniform(data, uniform_a_, uniform_b_); break;
         default:
-            throw unimplemented_error{
+            throw unimplemented{
                 "Only uniform distribution is implemented now in dataset generator"
             };
     }
@@ -94,7 +94,7 @@ table dataset::get_table(const std::string& table_type) const {
         return dal::detail::homogen_table_builder{}.reset(data, row_count, column_count).build();
     }
     else {
-        throw unimplemented_error{ "Only homogen table is supported" };
+        throw unimplemented{ "Only homogen table is supported" };
     }
 }
 
@@ -111,7 +111,7 @@ table dataset::get_table(device_test_policy& policy, const std::string& table_ty
             .build();
     }
     else {
-        throw unimplemented_error{ "Only homogen table is supported" };
+        throw unimplemented{ "Only homogen table is supported" };
     }
 }
 #endif
