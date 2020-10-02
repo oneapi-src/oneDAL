@@ -63,19 +63,27 @@ struct train_ops {
         if (!(result.get_labels().has_data())) {
             throw internal_error("Result labels should not be empty");
         }
-        if (result.get_labels().get_row_count() != input.get_data().get_row_count()) {
-            throw internal_error("Result labels row_count should be equal to data row_count");
-        }
-        if (!(result.get_model().get_centroids().has_data())) {
-            throw internal_error("Result model centroids should not be empty");
-        }
-        if (result.get_model().get_cluster_count() != params.get_cluster_count()) {
-            throw internal_error(
-                "Result model cluster_count should be equal to descriptor cluster_count");
+        if (result.get_labels().get_column_count() != 1) {
+            throw internal_error("Result labels column_count should be equal to 1");
         }
         if (result.get_iteration_count() > params.get_max_iteration_count()) {
             throw internal_error(
                 "Result iteration_count should not exceed descriptor max_iteration_count");
+        }
+        if (!(result.get_model().get_centroids().has_data())) {
+            throw internal_error("Result model centroids should not be empty");
+        }
+        if (result.get_model().get_centroids().get_row_count() != params.get_cluster_count()) {
+            throw internal_error(
+                "Result model centroids row_count should be equal to descriptor cluster_count");
+        }
+        if (result.get_model().get_centroids().get_column_count() !=
+            input.get_data().get_column_count()) {
+            throw internal_error(
+                "Result model centroids column_count should be equal to input data column_count");
+        }
+        if (result.get_labels().get_row_count() != input.get_data().get_row_count()) {
+            throw internal_error("Result labels row_count should be equal to data row_count");
         }
     }
 
