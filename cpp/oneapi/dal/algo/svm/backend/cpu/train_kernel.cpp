@@ -38,12 +38,12 @@ namespace daal_kernel_function = daal::algorithms::kernel_function;
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
-using daal_svm_thunder_kernel_t = daal_svm::training::internal::
-    SVMTrainImpl<daal_svm::training::thunder, Float, daal_svm::Parameter, Cpu>;
+using daal_svm_thunder_kernel_t =
+    daal_svm::training::internal::SVMTrainImpl<daal_svm::training::thunder, Float, Cpu>;
 
 template <typename Float, daal::CpuType Cpu>
-using daal_svm_smo_kernel_t = daal_svm::training::internal::
-    SVMTrainImpl<daal_svm::training::boser, Float, daal_svm::Parameter, Cpu>;
+using daal_svm_smo_kernel_t =
+    daal_svm::training::internal::SVMTrainImpl<daal_svm::training::boser, Float, Cpu>;
 
 template <typename Float, typename Method>
 static train_result call_daal_kernel(const context_cpu& ctx,

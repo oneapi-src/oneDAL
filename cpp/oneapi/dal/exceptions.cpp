@@ -30,11 +30,11 @@ const char* out_of_range::what() const noexcept {
     return std::out_of_range::what();
 }
 
-const char* unimplemented_error::what() const noexcept {
+const char* unimplemented::what() const noexcept {
     return std::logic_error::what();
 }
 
-const char* unavailable_error::what() const noexcept {
+const char* unsupported_device::what() const noexcept {
     return std::logic_error::what();
 }
 

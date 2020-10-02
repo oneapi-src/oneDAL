@@ -102,6 +102,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::FeatureEntry::allocBord
     services::Status status;
 
     binBorders = context.allocate(TypeIds::id<algorithmFPType>(), numIndices, &status);
+    DAAL_CHECK_STATUS_VAR(status);
     return status;
 }
 
@@ -111,7 +112,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::alloc(size_t nC, size_t
     auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
     services::Status status;
 
-    _data.resize(nC);
+    DAAL_CHECK_MALLOC(_data.resize(nC));
 
     for (size_t i = 0; i < nC; i++)
     {
@@ -130,12 +131,13 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::alloc(size_t nC, size_t
     _nCols     = nC;
     _nRows     = nR;
     _totalBins = 0;
-    return services::Status();
+
+    return status;
 }
 
 template <typename algorithmFPType>
 services::Status IndexedFeaturesOneAPI<algorithmFPType>::extractColumn(const services::Buffer<algorithmFPType> & data, UniversalBuffer & values,
-                                                                       UniversalBuffer & indices, int featureId, int nFeatures, int nRows)
+                                                                       UniversalBuffer & indices, int32_t featureId, int32_t nFeatures, int32_t nRows)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(indexedFeatures.extractColumn);
 
@@ -166,7 +168,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::extractColumn(const ser
 
 template <typename algorithmFPType>
 services::Status IndexedFeaturesOneAPI<algorithmFPType>::collectBinBorders(UniversalBuffer & values, UniversalBuffer & binOffsets,
-                                                                           UniversalBuffer & binBorders, int nRows, int maxBins)
+                                                                           UniversalBuffer & binBorders, int32_t nRows, int32_t maxBins)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(indexedFeatures.collectBinBorders);
 
@@ -195,8 +197,8 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::collectBinBorders(Unive
 
 template <typename algorithmFPType>
 services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBuffer & values, UniversalBuffer & indices,
-                                                                     UniversalBuffer & binBorders, UniversalBuffer & bins, int nRows, int nBins,
-                                                                     int localSize, int nLocalBlocks)
+                                                                     UniversalBuffer & binBorders, UniversalBuffer & bins, int32_t nRows,
+                                                                     int32_t nBins, int32_t localSize, int32_t nLocalBlocks)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(indexedFeatures.computeBins);
 
@@ -235,25 +237,26 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
 
 template <typename algorithmFPType>
 services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBuffer & values, UniversalBuffer & indices, UniversalBuffer & bins,
-                                                                     FeatureEntry & entry, int nRows, const dtrees::internal::BinParams * pBinPrm)
+                                                                     FeatureEntry & entry, int32_t nRows, const dtrees::internal::BinParams * pBinPrm)
 {
     services::Status status;
 
     auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
-    const int maxBins      = pBinPrm->maxBins < nRows ? pBinPrm->maxBins : nRows;
-    const int localSize    = _preferableSubGroup;
-    const int nLocalBlocks = 1024 * localSize < nRows ? 1024 : (nRows / localSize) + !!(nRows % localSize);
+    const int32_t maxBins      = pBinPrm->maxBins < nRows ? pBinPrm->maxBins : nRows;
+    const int32_t localSize    = _preferableSubGroup;
+    const int32_t nLocalBlocks = 1024 * localSize < nRows ? 1024 : (nRows / localSize) + !!(nRows % localSize);
 
-    auto binOffsets = context.allocate(TypeIds::id<int>(), maxBins, &status);
+    auto binOffsets = context.allocate(TypeIds::id<int32_t>(), maxBins, &status);
+    DAAL_CHECK_STATUS_VAR(status);
     auto binBorders = context.allocate(TypeIds::id<algorithmFPType>(), maxBins, &status);
-
     DAAL_CHECK_STATUS_VAR(status);
 
     {
-        auto binOffsetsHost = binOffsets.template get<int>().toHost(ReadWriteMode::writeOnly);
-        int offset          = 0;
-        for (int i = 0; i < maxBins; i++)
+        auto binOffsetsHost = binOffsets.template get<int32_t>().toHost(ReadWriteMode::writeOnly);
+        DAAL_CHECK_MALLOC(binOffsetsHost.get());
+        int32_t offset = 0;
+        for (int32_t i = 0; i < maxBins; i++)
         {
             offset += (nRows + i) / maxBins;
             binOffsetsHost.get()[i] = offset - 1;
@@ -262,10 +265,11 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
 
     DAAL_CHECK_STATUS_VAR(collectBinBorders(values, binOffsets, binBorders, nRows, maxBins));
 
-    int nBins = 0;
+    int32_t nBins = 0;
     {
         auto binBordersHost = binBorders.template get<algorithmFPType>().toHost(ReadWriteMode::readWrite);
-        for (int i = 0; i < maxBins; i++)
+        DAAL_CHECK_MALLOC(binBordersHost.get());
+        for (int32_t i = 0; i < maxBins; i++)
         {
             if (nBins == 0 || binBordersHost.get()[i] != binBordersHost.get()[nBins - 1])
             {
@@ -284,9 +288,9 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
 }
 
 template <typename algorithmFPType>
-services::Status IndexedFeaturesOneAPI<algorithmFPType>::makeIndex(const services::Buffer<algorithmFPType> & data, int featureId, int nFeatures,
-                                                                   int nRows, const dtrees::internal::BinParams * pBinPrm, UniversalBuffer & bins,
-                                                                   FeatureEntry & entry)
+services::Status IndexedFeaturesOneAPI<algorithmFPType>::makeIndex(const services::Buffer<algorithmFPType> & data, int32_t featureId,
+                                                                   int32_t nFeatures, int32_t nRows, const dtrees::internal::BinParams * pBinPrm,
+                                                                   UniversalBuffer & bins, FeatureEntry & entry)
 {
     DAAL_CHECK_STATUS_VAR(extractColumn(data, _values, _indices, featureId, nFeatures, nRows));
     DAAL_CHECK_STATUS_VAR(sort::RadixSort::sortIndices(_values, _indices, _values_buf, _indices_buf, nRows));
@@ -295,8 +299,8 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::makeIndex(const service
 }
 
 template <typename algorithmFPType>
-services::Status IndexedFeaturesOneAPI<algorithmFPType>::storeColumn(const UniversalBuffer & data, UniversalBuffer & fullData, int featureId,
-                                                                     int nFeatures, int nRows)
+services::Status IndexedFeaturesOneAPI<algorithmFPType>::storeColumn(const UniversalBuffer & data, UniversalBuffer & fullData, int32_t featureId,
+                                                                     int32_t nFeatures, int32_t nRows)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(indexedFeatures.storeColumn);
 
@@ -336,26 +340,41 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::init(NumericTable & nt,
         featureTypes = &autoFT;
     }
 
-    const size_t nC = nt.getNumberOfColumns();
-    const size_t nR = nt.getNumberOfRows();
+    const size_t nRsz = nt.getNumberOfRows();
+    const size_t nCsz = nt.getNumberOfColumns();
 
-    _maxNumIndices          = 0;
-    services::Status status = alloc(nC, nR);
-    if (!status) return status;
+    if (nRsz > _int32max)
+    {
+        return services::Status(services::ErrorIncorrectNumberOfRowsInInputNumericTable);
+    }
+    if (nCsz > _int32max)
+    {
+        return services::Status(services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
+    }
+
+    services::Status status = alloc(nCsz, nRsz);
+    DAAL_CHECK_STATUS_VAR(status);
+
+    const int32_t nC = static_cast<int32_t>(nCsz);
+    const int32_t nR = static_cast<int32_t>(nRsz);
 
     auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
-    _values     = context.allocate(TypeIds::id<algorithmFPType>(), nR, &status);
+    _values = context.allocate(TypeIds::id<algorithmFPType>(), nR, &status);
+    DAAL_CHECK_STATUS_VAR(status);
     _values_buf = context.allocate(TypeIds::id<algorithmFPType>(), nR, &status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    _indices     = context.allocate(TypeIds::id<int>(), nR, &status);
-    _indices_buf = context.allocate(TypeIds::id<int>(), nR, &status);
+    _indices = context.allocate(TypeIds::id<int32_t>(), nR, &status);
+    DAAL_CHECK_STATUS_VAR(status);
+    _indices_buf = context.allocate(TypeIds::id<int32_t>(), nR, &status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     BlockDescriptor<algorithmFPType> dataBlock;
 
     if (nt.getDataLayout() == NumericTableIface::soa)
     {
-        for (size_t i = 0; i < nC; i++)
+        for (int32_t i = 0; i < nC; i++)
         {
             nt.getBlockOfColumnValues(i, 0, nR, readOnly, dataBlock);
             auto dataBuffer = dataBlock.getBuffer();
@@ -367,7 +386,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::init(NumericTable & nt,
     {
         nt.getBlockOfRows(0, nR, readOnly, dataBlock);
         auto dataBuffer = dataBlock.getBuffer();
-        for (size_t i = 0; i < nC; i++)
+        for (int32_t i = 0; i < nC; i++)
         {
             DAAL_CHECK_STATUS_VAR(makeIndex(dataBuffer, i, nC, nR, pBinPrm, _data[i], _entries[i]));
         }
@@ -375,9 +394,10 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::init(NumericTable & nt,
     }
 
     {
-        auto binOffsetsHost = _binOffsets.template get<int>().toHost(ReadWriteMode::writeOnly);
-        size_t total        = 0;
-        for (size_t i = 0; i < nC; i++)
+        auto binOffsetsHost = _binOffsets.template get<int32_t>().toHost(ReadWriteMode::writeOnly);
+        DAAL_CHECK_MALLOC(binOffsetsHost.get());
+        size_t total = 0;
+        for (int32_t i = 0; i < nC; i++)
         {
             DAAL_CHECK_STATUS_VAR(storeColumn(_data[i], _fullData, i, nC, nR));
             binOffsetsHost.get()[i] = total;
@@ -387,17 +407,6 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::init(NumericTable & nt,
         binOffsetsHost.get()[nC] = total;
         _totalBins               = total;
     }
-
-    return status;
-}
-
-template <typename algorithmFPType>
-services::Status TreeNodeStorage::allocate(const decision_forest::internal::IndexedFeaturesOneAPI<algorithmFPType> & indexedFeatures)
-{
-    services::Status status;
-
-    auto & context         = services::Environment::getInstance()->getDefaultExecutionContext();
-    _histogramsForFeatures = context.allocate(TypeIds::id<algorithmFPType>(), indexedFeatures.totalBins() * 2, &status);
 
     return status;
 }

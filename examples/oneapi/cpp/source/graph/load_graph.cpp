@@ -23,17 +23,16 @@
 #include "oneapi/dal/io/load_graph.hpp"
 
 using namespace oneapi::dal;
-using namespace oneapi::dal::preview;
 
 int main(int argc, char **argv) {
     const std::string filename = get_data_path("graph.csv");
 
-    graph_csv_data_source ds(filename);
-    load_graph::descriptor<> d;
-    auto my_graph = load_graph::load(d, ds);
+    const preview::graph_csv_data_source ds(filename);
+    const preview::load_graph::descriptor<> d;
+    const auto my_graph = preview::load_graph::load(d, ds);
 
     std::cout << "Graph is read from file: " << filename << std::endl;
-    std::cout << "Number of vertices: " << get_vertex_count(my_graph) << std::endl;
-    std::cout << "Number of edges: " << get_edge_count(my_graph) << std::endl;
+    std::cout << "Number of vertices: " << preview::get_vertex_count(my_graph) << std::endl;
+    std::cout << "Number of edges: " << preview::get_edge_count(my_graph) << std::endl;
     return 0;
 }

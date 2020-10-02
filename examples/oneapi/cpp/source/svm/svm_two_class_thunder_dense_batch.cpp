@@ -36,8 +36,8 @@ int main(int argc, char const *argv[]) {
     const auto svm_desc = dal::svm::descriptor{ kernel_desc }
                               .set_c(1.0)
                               .set_accuracy_threshold(0.001)
-                              .set_max_iteration_count(1000)
-                              .set_cache_size(8)
+                              .set_max_iteration_count(100)
+                              .set_cache_size(200.0)
                               .set_tau(1e-6);
 
     const auto result_train =
