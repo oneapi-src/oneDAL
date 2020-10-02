@@ -127,11 +127,6 @@ static result_t call_daal_kernel(const context_gpu& ctx,
                 .reset(arr_eigval, 1, component_count)
                 .build()
         )
-        .set_eigenvalues(
-            dal::detail::homogen_table_builder{}
-                .reset(arr_eigval, 1, component_count)
-                .build()
-        )
         .set_variances(
             dal::detail::homogen_table_builder{}
                 .reset(arr_vars, 1, column_count)
