@@ -91,14 +91,21 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
     const Parameter * const parameter = static_cast<const Parameter *>(par);
     const uint32_t k                  = parameter->k;
 
-    DAAL_CHECK(ntData->getNumberOfRows() <= maxInt32SizeT && labels->getNumberOfRows() <= maxInt32SizeT,
-               services::ErrorIncorrectNumberOfRowsInInputNumericTable);
-    DAAL_CHECK(points->getNumberOfColumns() <= maxInt32SizeT, services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
+    const size_t nQueryRowsSizeT     = ntData->getNumberOfRows();
+    const size_t nQueryFeaturesSizeT = ntData->getNumberOfColumns();
+    const size_t nLabelRowsSizeT     = labels->getNumberOfRows();
+    const size_t nDataRowsSizeT      = points->getNumberOfRows();
+    const size_t nTrainFeaturesSizeT = points->getNumberOfColumns();
 
-    const uint32_t nQueryRows = ntData->getNumberOfRows();
-    const uint32_t nLabelRows = labels->getNumberOfRows();
-    const uint32_t nDataRows  = points->getNumberOfRows() < nLabelRows ? points->getNumberOfRows() : nLabelRows;
-    const uint32_t nFeatures  = points->getNumberOfColumns();
+    DAAL_CHECK(nQueryRowsSizeT <= maxInt32SizeT && nLabelRowsSizeT <= maxInt32SizeT && nDataRowsSizeT <= maxInt32SizeT,
+               services::ErrorIncorrectNumberOfRowsInInputNumericTable);
+    DAAL_CHECK(nTrainFeaturesSizeT <= maxInt32SizeT && nTrainFeaturesSizeT == nQueryFeaturesSizeT,
+               services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
+
+    const uint32_t nQueryRows = static_cast<uint32_t>(nQueryRowsSizeT);
+    const uint32_t nLabelRows = static_cast<uint32_t>(nLabelRowsSizeT);
+    const uint32_t nDataRows  = static_cast<uint32_t>(nDataRowsSizeT < nLabelRowsSizeT ? nDataRowsSizeT : nLabelRowsSizeT);
+    const uint32_t nFeatures  = static_cast<uint32_t>(nTrainFeaturesSizeT);
 
     // Block dimensions below are optimal for GEN9
     // Number of doubles is to 2X less against floats
