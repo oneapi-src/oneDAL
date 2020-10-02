@@ -92,7 +92,9 @@ constexpr std::int64_t get_data_type_size(data_type t) {
     else if (t == data_type::uint64) {
         return sizeof(uint64_t);
     }
-    throw unimplemented{ "Data type is not supported" };
+    else {
+        throw unimplemented{ "Data type is not supported" };
+    }
 }
 
 template <typename T>
