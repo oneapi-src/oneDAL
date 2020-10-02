@@ -1036,7 +1036,7 @@ endif
 
 ifeq ($(OS_is_win),yes)
 _release_c:
-	cd  $(RELEASEDIR) && mklink /J daal dal
+	cd  $(RELEASEDIR) &&  cmd "/c mklink /J daal dal"
 endif
 
 #----- releasing jar files
