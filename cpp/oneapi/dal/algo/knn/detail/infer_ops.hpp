@@ -26,7 +26,9 @@ template <typename Context,
           typename Method = method::by_default,
           typename Task = task::by_default>
 struct ONEAPI_DAL_EXPORT infer_ops_dispatcher {
-    infer_result<Task> operator()(const Context&, const descriptor_base<Task>&, const infer_input<Task>&) const;
+    infer_result<Task> operator()(const Context&,
+                                  const descriptor_base<Task>&,
+                                  const infer_input<Task>&) const;
 };
 
 template <typename Descriptor>
@@ -58,7 +60,8 @@ struct infer_ops {
     template <typename Context>
     auto operator()(const Context& ctx, const Descriptor& desc, const input_t& input) const {
         check_preconditions(desc, input);
-        const auto result = infer_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, input);
+        const auto result =
+            infer_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, input);
         check_postconditions(desc, input, result);
         return result;
     }

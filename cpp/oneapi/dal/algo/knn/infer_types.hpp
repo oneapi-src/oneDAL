@@ -28,7 +28,7 @@ template <typename Task = task::by_default>
 class infer_result_impl;
 } // namespace detail
 
-template<typename Task>
+template <typename Task>
 class ONEAPI_DAL_EXPORT infer_input : public base {
 public:
     infer_input(const table& data, const model<Task>& model);
@@ -53,7 +53,7 @@ private:
     dal::detail::pimpl<detail::infer_input_impl<Task>> impl_;
 };
 
-template<typename Task>
+template <typename Task>
 class ONEAPI_DAL_EXPORT infer_result {
 public:
     infer_result();

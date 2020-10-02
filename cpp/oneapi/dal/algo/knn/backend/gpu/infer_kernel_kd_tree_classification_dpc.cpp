@@ -31,8 +31,8 @@ using dal::backend::context_gpu;
 template <typename Float, typename Task>
 struct infer_kernel_gpu<Float, method::kd_tree, Task> {
     infer_result<Task> operator()(const context_gpu& ctx,
-                            const descriptor_base<Task>& desc,
-                            const infer_input<Task>& input) const {
+                                  const descriptor_base<Task>& desc,
+                                  const infer_input<Task>& input) const {
         throw unimplemented("k-NN k-d tree method is not implemented for GPU");
         return infer_result<Task>();
     }

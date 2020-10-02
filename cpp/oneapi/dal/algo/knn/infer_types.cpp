@@ -20,7 +20,7 @@
 namespace oneapi::dal::knn {
 
 namespace detail {
-template<typename Task>
+template <typename Task>
 class infer_input_impl : public base {
 public:
     infer_input_impl(const table& data, const model<Task>& m) : data(data), trained_model(m) {}
@@ -29,7 +29,7 @@ public:
     model<Task> trained_model;
 };
 
-template<typename Task>
+template <typename Task>
 class infer_result_impl : public base {
 public:
     table labels;
@@ -41,7 +41,7 @@ using detail::infer_result_impl;
 
 template <typename Task>
 infer_input<Task>::infer_input(const table& data, const model<Task>& m)
-        : impl_(new infer_input_impl(data, m)) {}
+        : impl_(new infer_input_impl<Task>(data, m)) {}
 
 template <typename Task>
 table infer_input<Task>::get_data() const {

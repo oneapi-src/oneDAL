@@ -24,8 +24,8 @@ namespace oneapi::dal::knn::backend {
 template <typename Float, typename Method, typename Task>
 struct infer_kernel_gpu {
     infer_result<Task> operator()(const dal::backend::context_gpu& ctx,
-                            const descriptor_base<Task>& params,
-                            const infer_input<Task>& input) const;
+                                  const descriptor_base<Task>& params,
+                                  const infer_input<Task>& input) const;
 };
 
 } // namespace oneapi::dal::knn::backend

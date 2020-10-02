@@ -24,8 +24,8 @@ using oneapi::dal::detail::data_parallel_policy;
 template <typename Float, typename Method, typename Task>
 struct ONEAPI_DAL_EXPORT infer_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
     infer_result<Task> operator()(const data_parallel_policy& ctx,
-                            const descriptor_base<Task>& params,
-                            const infer_input<Task>& input) const {
+                                  const descriptor_base<Task>& params,
+                                  const infer_input<Task>& input) const {
         using kernel_dispatcher_t =
             dal::backend::kernel_dispatcher<backend::infer_kernel_cpu<Float, Method, Task>,
                                             backend::infer_kernel_gpu<Float, Method, Task>>;

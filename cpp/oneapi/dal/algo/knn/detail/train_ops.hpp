@@ -26,7 +26,9 @@ template <typename Context,
           typename Method = method::by_default,
           typename Task = task::by_default>
 struct ONEAPI_DAL_EXPORT train_ops_dispatcher {
-    train_result<Task> operator()(const Context&, const descriptor_base<Task>&, const train_input<Task>&) const;
+    train_result<Task> operator()(const Context&,
+                                  const descriptor_base<Task>&,
+                                  const train_input<Task>&) const;
 };
 
 template <typename Descriptor>
@@ -60,7 +62,8 @@ struct train_ops {
     template <typename Context>
     auto operator()(const Context& ctx, const Descriptor& desc, const input_t& input) const {
         check_preconditions(desc, input);
-        const auto result = train_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, input);
+        const auto result =
+            train_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, input);
         check_postconditions(desc, input, result);
         return result;
     }

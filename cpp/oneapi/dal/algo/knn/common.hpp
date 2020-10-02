@@ -71,12 +71,10 @@ public:
     using float_t = Float;
     using method_t = Method;
 
-    explicit descriptor(std::int64_t class_count,
-                       std::int64_t neighbor_count) {
+    explicit descriptor(std::int64_t class_count, std::int64_t neighbor_count) {
         set_class_count(class_count);
         set_neighbor_count(neighbor_count);
     }
-    
 
     auto& set_class_count(std::int64_t value) {
         descriptor_base<Task>::set_class_count_impl(value);

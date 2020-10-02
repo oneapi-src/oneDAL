@@ -20,7 +20,7 @@
 
 namespace oneapi::dal::knn::detail {
 
-template<typename Task>
+template <typename Task>
 class model_impl : public base {
 public:
     class interop_model;

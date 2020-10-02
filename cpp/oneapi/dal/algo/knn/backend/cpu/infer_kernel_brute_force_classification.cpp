@@ -26,8 +26,8 @@ using dal::backend::context_cpu;
 template <typename Float, typename Task>
 struct infer_kernel_cpu<Float, method::brute_force, Task> {
     infer_result<Task> operator()(const context_cpu &ctx,
-                            const descriptor_base<Task> &desc,
-                            const infer_input<Task> &input) const {
+                                  const descriptor_base<Task> &desc,
+                                  const infer_input<Task> &input) const {
         throw unimplemented("k-NN brute force method is not implemented for CPU");
         return infer_result<Task>();
     }
