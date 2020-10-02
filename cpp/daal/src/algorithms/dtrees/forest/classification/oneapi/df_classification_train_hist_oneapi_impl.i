@@ -79,7 +79,7 @@ static services::String getFPTypeAccuracy()
 
 static services::String getBuildOptions(size_t nClasses)
 {
-    DAAL_ASSERT(nClasses <= _int32max);
+    DAAL_ASSERT(nClasses <= static_cast<size_t>(services::internal::MaxVal<int32_t>::get()));
     char buffer[DAAL_MAX_STRING_SIZE] = { 0 };
     const auto written                = daal::services::daal_int_to_string(buffer, DAAL_MAX_STRING_SIZE, static_cast<int32_t>(nClasses));
     services::String nClassesStr(buffer, written);
@@ -640,6 +640,8 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
     DAAL_CHECK_EX((par.nClasses <= _int32max), ErrorIncorrectParameter, ParameterName, nClassesStr());
     DAAL_CHECK_EX((par.minObservationsInLeafNode <= _int32max), ErrorIncorrectParameter, ParameterName, minObservationsInLeafNodeStr());
     DAAL_CHECK_EX((par.featuresPerNode <= _int32max), ErrorIncorrectParameter, ParameterName, featuresPerNodeStr());
+    DAAL_CHECK_EX((par.maxBins <= _int32max), ErrorIncorrectParameter, ParameterName, maxBinsStr());
+    DAAL_CHECK_EX((par.minBinSize <= _int32max), ErrorIncorrectParameter, ParameterName, minBinSizeStr());
 
     if (nRows > _int32max)
     {
@@ -676,7 +678,7 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
     kernelReducePartialHistograms     = kernel_factory.getKernel("reducePartialHistograms", &status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    dtrees::internal::BinParams prm(_maxBins, par.minObservationsInLeafNode);
+    dtrees::internal::BinParams prm(par.maxBins, par.minBinSize);
     decision_forest::internal::IndexedFeaturesOneAPI<algorithmFPType> indexedFeatures;
     dtrees::internal::FeatureTypes featTypes;
     DAAL_CHECK_MALLOC(featTypes.init(*x));

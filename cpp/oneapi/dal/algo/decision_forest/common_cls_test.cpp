@@ -148,14 +148,39 @@ TEST(df_bad_arg_tests, set_max_leaf_nodes) {
         df::descriptor<float, df::task::classification, df::method::hist>{}.set_max_leaf_nodes(5)));
 }
 
+TEST(df_bad_arg_tests, set_max_bins) {
+    ASSERT_THROW(
+        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_max_bins(-1)),
+        dal::domain_error);
+    ASSERT_THROW(
+        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_max_bins(1)),
+        dal::domain_error);
+    ASSERT_NO_THROW(
+        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_max_bins(2)));
+    ASSERT_NO_THROW(
+        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_max_bins(64)));
+}
+
+TEST(df_bad_arg_tests, set_min_bin_size) {
+    ASSERT_THROW(
+        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_min_bin_size(-1)),
+        dal::domain_error);
+    ASSERT_THROW(
+        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_min_bin_size(0)),
+        dal::domain_error);
+    ASSERT_NO_THROW(
+        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_min_bin_size(1)));
+    ASSERT_NO_THROW(
+        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_min_bin_size(8)));
+}
+
 TEST(df_bad_arg_tests, set_train_data) {
     constexpr std::int64_t row_count_train = 6;
 
     const float y_train[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f };
 
     dal::homogen_table x_train_table;
-    const auto y_train_table =
-        dal::homogen_table{ y_train, row_count_train, 1, dal::empty_delete<const float>() };
+    const auto y_train_table = dal::homogen_table::wrap(y_train, row_count_train, 1);
 
     const auto df_desc = df::descriptor<float, df::task::classification, df::method::dense>{};
 
@@ -170,10 +195,7 @@ TEST(df_bad_arg_tests, set_train_labels) {
         -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f, +1.f, +2.f, +2.f, +1.f
     };
 
-    const auto x_train_table = dal::homogen_table{ x_train,
-                                                   row_count_train,
-                                                   column_count,
-                                                   dal::empty_delete<const float>() };
+    const auto x_train_table = dal::homogen_table::wrap(x_train, row_count_train, column_count);
     dal::homogen_table y_train_table;
 
     const auto df_desc = df::descriptor<float, df::task::classification, df::method::dense>{};
@@ -190,12 +212,8 @@ TEST(df_bad_arg_tests, set_bootstrap) {
     };
     const float y_train[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f };
 
-    const auto x_train_table = dal::homogen_table{ x_train,
-                                                   row_count_train,
-                                                   column_count,
-                                                   dal::empty_delete<const float>() };
-    const auto y_train_table =
-        dal::homogen_table{ y_train, row_count_train, 1, dal::empty_delete<const float>() };
+    const auto x_train_table = dal::homogen_table::wrap(x_train, row_count_train, column_count);
+    const auto y_train_table = dal::homogen_table::wrap(y_train, row_count_train, 1);
 
     // check bootstrap(false) and mda_raw
     {
@@ -246,12 +264,8 @@ TEST(df_bad_arg_tests, data_rows_matches_labels_rows) {
     };
     const float y_train[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f };
 
-    const auto x_train_table = dal::homogen_table{ x_train,
-                                                   row_count_train,
-                                                   column_count,
-                                                   dal::empty_delete<const float>() };
-    const auto y_train_table =
-        dal::homogen_table{ y_train, row_count_train_invalid, 1, dal::empty_delete<const float>() };
+    const auto x_train_table = dal::homogen_table::wrap(x_train, row_count_train, column_count);
+    const auto y_train_table = dal::homogen_table::wrap(y_train, row_count_train_invalid, 1);
 
     const auto df_desc = df::descriptor<float, df::task::classification, df::method::dense>{};
     ASSERT_THROW(dal::train(df_desc, x_train_table, y_train_table), dal::invalid_argument);
@@ -266,12 +280,8 @@ TEST(df_bad_arg_tests, set_infer_data) {
     };
     const float y_train[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f };
 
-    const auto x_train_table = dal::homogen_table{ x_train,
-                                                   row_count_train,
-                                                   column_count,
-                                                   dal::empty_delete<const float>() };
-    const auto y_train_table =
-        dal::homogen_table{ y_train, row_count_train, 1, dal::empty_delete<const float>() };
+    const auto x_train_table = dal::homogen_table::wrap(x_train, row_count_train, column_count);
+    const auto y_train_table = dal::homogen_table::wrap(y_train, row_count_train, 1);
     dal::homogen_table x_test_table;
 
     const auto df_desc = df::descriptor<float, df::task::classification, df::method::dense>{};

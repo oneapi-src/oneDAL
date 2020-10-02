@@ -1,4 +1,4 @@
-/* file: svm_train_thunder_batch_oneapi_fpt.cpp */
+/* file: covariance_dense_default_distr_step2_oneapi_fpt.cpp */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -17,27 +17,27 @@
 
 /*
 //++
-//  Implementation of SVM thunder training algorithm.
+//  Implementation of Covariance kernel.
 //--
 */
 
-#include "src/algorithms/svm/oneapi/svm_train_thunder_kernel_oneapi.h"
-#include "src/algorithms/svm/oneapi/svm_train_thunder_oneapi_impl.i"
+#include "src/algorithms/covariance/covariance_container.h"
+#include "src/algorithms/covariance/oneapi/covariance_dense_distr_step2_oneapi.h"
+#include "src/algorithms/covariance/oneapi/covariance_dense_distr_step2_oneapi_impl.i"
 
 namespace daal
 {
 namespace algorithms
 {
-namespace svm
+namespace covariance
 {
-namespace training
+namespace oneapi
 {
 namespace internal
 {
-template struct SVMTrainOneAPI<DAAL_FPTYPE, thunder>;
-
-} // namespace internal
-} // namespace training
-} // namespace svm
+template class CovarianceDenseDistrStep2KernelOneAPI<DAAL_FPTYPE, defaultDense>;
+}
+} // namespace oneapi
+} // namespace covariance
 } // namespace algorithms
 } // namespace daal
