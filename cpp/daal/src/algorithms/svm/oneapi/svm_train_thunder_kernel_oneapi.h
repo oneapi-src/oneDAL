@@ -60,6 +60,7 @@ public:
     services::Status compute(const NumericTablePtr & xTable, NumericTable & yTable, daal::algorithms::Model * r, const ParameterType * par);
 
 protected:
+<<<<<<< HEAD
     services::Status updateGrad(const services::Buffer<algorithmFPType> & kernelWS, const services::Buffer<algorithmFPType> & deltaalpha,
                                 services::Buffer<algorithmFPType> & grad, const size_t nVectors, const size_t nWS);
     services::Status smoKernel(const services::Buffer<algorithmFPType> & y, const services::Buffer<algorithmFPType> & kernelWsRows,
@@ -67,6 +68,18 @@ protected:
                                const algorithmFPType C, const algorithmFPType eps, const algorithmFPType tau, const uint32_t maxInnerIteration,
                                services::Buffer<algorithmFPType> & alpha, services::Buffer<algorithmFPType> & deltaalpha,
                                services::Buffer<algorithmFPType> & resinfo, const size_t nWS);
+=======
+    services::Status updateGrad(const services::internal::Buffer<algorithmFPType> & kernelWS,
+                                const services::internal::Buffer<algorithmFPType> & deltaalpha, services::internal::Buffer<algorithmFPType> & grad,
+                                const size_t nVectors, const size_t nWS);
+    services::Status smoKernel(const services::internal::Buffer<algorithmFPType> & y,
+                               const services::internal::Buffer<algorithmFPType> & kernelWsRows,
+                               const services::internal::Buffer<uint32_t> & wsIndices, const size_t ldK,
+                               const services::internal::Buffer<algorithmFPType> & f, const algorithmFPType C, const algorithmFPType eps,
+                               const algorithmFPType tau, const size_t maxInnerIteration, services::internal::Buffer<algorithmFPType> & alpha,
+                               services::internal::Buffer<algorithmFPType> & deltaalpha, services::internal::Buffer<algorithmFPType> & resinfo,
+                               const size_t nWS);
+>>>>>>> 9e658f481... Move SYCL-related functionality to internal (#1028)
 
     bool checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev, const algorithmFPType eps, size_t & sameLocalDiff);
 

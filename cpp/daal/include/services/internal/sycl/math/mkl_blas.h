@@ -24,14 +24,16 @@
 #ifndef __ONEAPI_INTERNAL_MKL_BLAS_H__
 #define __ONEAPI_INTERNAL_MKL_BLAS_H__
 
-#include "services/buffer.h"
+#include "services/internal/buffer.h"
 #include "mkl_dal_sycl.hpp"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace math
 {
@@ -51,9 +53,10 @@ struct MKLGemm
     MKLGemm(cl::sycl::queue & queue) : _queue(queue) {}
 
     services::Status operator()(const math::Transpose transa, const math::Transpose transb, const size_t m, const size_t n, const size_t k,
-                                const algorithmFPType alpha, const services::Buffer<algorithmFPType> & a_buffer, const size_t lda,
-                                const size_t offsetA, const services::Buffer<algorithmFPType> & b_buffer, const size_t ldb, const size_t offsetB,
-                                const algorithmFPType beta, services::Buffer<algorithmFPType> & c_buffer, const size_t ldc, const size_t offsetC)
+                                const algorithmFPType alpha, const services::internal::Buffer<algorithmFPType> & a_buffer, const size_t lda,
+                                const size_t offsetA, const services::internal::Buffer<algorithmFPType> & b_buffer, const size_t ldb,
+                                const size_t offsetB, const algorithmFPType beta, services::internal::Buffer<algorithmFPType> & c_buffer,
+                                const size_t ldc, const size_t offsetC)
     {
         services::Status status;
 
@@ -105,9 +108,9 @@ struct MKLSyrk
     MKLSyrk(cl::sycl::queue & queue) : _queue(queue) {}
 
     services::Status operator()(const math::UpLo upper_lower, const math::Transpose trans, const size_t n, const size_t k,
-                                const algorithmFPType alpha, const services::Buffer<algorithmFPType> & a_buffer, const size_t lda,
-                                const size_t offsetA, const algorithmFPType beta, services::Buffer<algorithmFPType> & c_buffer, const size_t ldc,
-                                const size_t offsetC)
+                                const algorithmFPType alpha, const services::internal::Buffer<algorithmFPType> & a_buffer, const size_t lda,
+                                const size_t offsetA, const algorithmFPType beta, services::internal::Buffer<algorithmFPType> & c_buffer,
+                                const size_t ldc, const size_t offsetC)
     {
         services::Status status;
 
@@ -154,8 +157,8 @@ struct MKLAxpy
 {
     MKLAxpy(cl::sycl::queue & queue) : _queue(queue) {}
 
-    services::Status operator()(const int n, const algorithmFPType a, const services::Buffer<algorithmFPType> & x_buffer, const int incx,
-                                services::Buffer<algorithmFPType> & y_buffer, const int incy)
+    services::Status operator()(const int n, const algorithmFPType a, const services::internal::Buffer<algorithmFPType> & x_buffer, const int incx,
+                                services::internal::Buffer<algorithmFPType> & y_buffer, const int incy)
     {
         cl::sycl::buffer<algorithmFPType, 1> x_sycl_buff = x_buffer.toSycl();
         cl::sycl::buffer<algorithmFPType, 1> y_sycl_buff = y_buffer.toSycl();
@@ -177,8 +180,9 @@ using interface1::MKLGemm;
 using interface1::MKLSyrk;
 
 } // namespace math
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
 
 #endif

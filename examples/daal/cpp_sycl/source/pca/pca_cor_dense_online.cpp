@@ -35,6 +35,9 @@ using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 
+using daal::services::internal::SyclExecutionContext;
+using daal::data_management::internal::SyclHomogenNumericTable;
+
 /* Input data set parameters */
 const size_t nVectorsInBlock = 250;
 const string dataFileName    = "../data/batch/pca_normalized.csv";
@@ -50,7 +53,7 @@ int main(int argc, char * argv[])
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
-        daal::services::SyclExecutionContext ctx(queue);
+        SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
         /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */

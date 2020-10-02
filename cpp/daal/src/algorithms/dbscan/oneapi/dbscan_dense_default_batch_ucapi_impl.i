@@ -27,7 +27,7 @@
 #include "src/externals/service_ittnotify.h"
 
 using namespace daal::services;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 using namespace daal::data_management;
 
 namespace daal
@@ -501,7 +501,7 @@ template <typename algorithmFPType>
 Status DBSCANBatchKernelUCAPI<algorithmFPType>::buildProgram(ClKernelFactoryIface & kernel_factory)
 {
     Status st;
-    auto fptype_name   = oneapi::internal::getKeyFPType<algorithmFPType>();
+    auto fptype_name   = services::internal::sycl::getKeyFPType<algorithmFPType>();
     auto build_options = fptype_name;
     build_options.add(" -D_NOISE_=-1 -D_UNDEFINED_=-2 ");
 

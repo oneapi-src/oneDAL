@@ -19,9 +19,9 @@
 #define __BF_KNN_CLASSIFICATION_MODEL_UCAPI_IMPL_H__
 
 #include "algorithms/k_nearest_neighbors/bf_knn_classification_model.h"
-#include "data_management/data/numeric_table_sycl_homogen.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 #include "data_management/data/homogen_numeric_table.h"
-#include "sycl/internal/execution_context.h"
+#include "services/internal/sycl/execution_context.h"
 #include "services/daal_defines.h"
 
 namespace daal
@@ -79,7 +79,7 @@ protected:
         }
         else
         {
-            auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+            auto & context    = services::internal::getDefaultContext();
             auto & deviceInfo = context.getInfoDevice();
 
             if (deviceInfo.isCpu)
@@ -102,15 +102,15 @@ protected:
             else
             {
                 services::Status status;
-                dest = data_management::SyclHomogenNumericTable<algorithmFPType>::create(value->getNumberOfColumns(), value->getNumberOfRows(),
-                                                                                         data_management::NumericTable::doAllocate, &status);
+                dest = data_management::internal::SyclHomogenNumericTable<algorithmFPType>::create(
+                    value->getNumberOfColumns(), value->getNumberOfRows(), data_management::NumericTable::doAllocate, &status);
                 DAAL_CHECK_STATUS_VAR(status);
                 data_management::BlockDescriptor<algorithmFPType> destBD, srcBD;
                 DAAL_CHECK_STATUS_VAR(dest->getBlockOfRows(0, dest->getNumberOfRows(), data_management::writeOnly, destBD));
                 DAAL_CHECK_STATUS_VAR(value->getBlockOfRows(0, value->getNumberOfRows(), data_management::readOnly, srcBD));
                 auto source      = srcBD.getBuffer();
                 auto destination = destBD.getBuffer();
-                auto & context   = services::Environment::getInstance()->getDefaultExecutionContext();
+                auto & context   = services::internal::getDefaultContext();
                 context.copy(destination, 0, source, 0, source.size(), &status);
                 DAAL_CHECK_STATUS_VAR(status);
                 DAAL_CHECK_STATUS_VAR(dest->releaseBlockOfRows(destBD));

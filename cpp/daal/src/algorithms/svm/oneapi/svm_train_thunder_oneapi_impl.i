@@ -70,29 +70,47 @@ namespace internal
 {
 using namespace daal::internal;
 using namespace daal::services::internal;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
+<<<<<<< HEAD
 template <typename algorithmFPType, typename ParameterType>
 services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::updateGrad(const services::Buffer<algorithmFPType> & kernelWS,
                                                                                      const services::Buffer<algorithmFPType> & deltaalpha,
                                                                                      services::Buffer<algorithmFPType> & grad, const size_t nVectors,
                                                                                      const size_t nWS)
+=======
+template <typename algorithmFPType>
+services::Status SVMTrainOneAPI<algorithmFPType, thunder>::updateGrad(const services::internal::Buffer<algorithmFPType> & kernelWS,
+                                                                      const services::internal::Buffer<algorithmFPType> & deltaalpha,
+                                                                      services::internal::Buffer<algorithmFPType> & grad, const size_t nVectors,
+                                                                      const size_t nWS)
+>>>>>>> 9e658f481... Move SYCL-related functionality to internal (#1028)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(updateGrad);
     return BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::Trans, math::Transpose::NoTrans, nVectors, 1, nWS,
                                            algorithmFPType(1), kernelWS, nVectors, 0, deltaalpha, 1, 0, algorithmFPType(1), grad, 1, 0);
 }
 
+<<<<<<< HEAD
 template <typename algorithmFPType, typename ParameterType>
 services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::smoKernel(
     const services::Buffer<algorithmFPType> & y, const services::Buffer<algorithmFPType> & kernelWsRows, const services::Buffer<uint32_t> & wsIndices,
     const uint32_t ldK, const services::Buffer<algorithmFPType> & f, const algorithmFPType C, const algorithmFPType eps, const algorithmFPType tau,
     const uint32_t maxInnerIteration, services::Buffer<algorithmFPType> & alpha, services::Buffer<algorithmFPType> & deltaalpha,
     services::Buffer<algorithmFPType> & resinfo, const size_t nWS)
+=======
+template <typename algorithmFPType>
+services::Status SVMTrainOneAPI<algorithmFPType, thunder>::smoKernel(
+    const services::internal::Buffer<algorithmFPType> & y, const services::internal::Buffer<algorithmFPType> & kernelWsRows,
+    const services::internal::Buffer<uint32_t> & wsIndices, const size_t ldK, const services::internal::Buffer<algorithmFPType> & f,
+    const algorithmFPType C, const algorithmFPType eps, const algorithmFPType tau, const size_t maxInnerIteration,
+    services::internal::Buffer<algorithmFPType> & alpha, services::internal::Buffer<algorithmFPType> & deltaalpha,
+    services::internal::Buffer<algorithmFPType> & resinfo, const size_t nWS)
+>>>>>>> 9e658f481... Move SYCL-related functionality to internal (#1028)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(smoKernel);
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
 
     services::String build_options = getKeyFPType<algorithmFPType>();
@@ -160,7 +178,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
 {
     services::Status status;
 
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     const auto idType = TypeIds::id<algorithmFPType>();
 
     const algorithmFPType C(svmPar->C);
@@ -234,10 +252,10 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
 
         DAAL_CHECK_STATUS(status, workSet.selectWS(yBuff, alphaBuff, gradBuff, C));
 
-        const services::Buffer<uint32_t> & wsIndices = workSet.getWSIndeces();
+        const services::internal::Buffer<uint32_t> & wsIndices = workSet.getWSIndeces();
         DAAL_CHECK_STATUS(status, cachePtr->compute(xTable, wsIndices, nFeatures));
 
-        const services::Buffer<algorithmFPType> & kernelWS = cachePtr->getRowsBlock();
+        const services::internal::Buffer<algorithmFPType> & kernelWS = cachePtr->getRowsBlock();
 
         DAAL_CHECK_STATUS(status, smoKernel(yBuff, kernelWS, wsIndices, nVectors, gradBuff, C, eps, tau, innerMaxIterations, alphaBuff,
                                             deltaalphaBuff, resinfoBuff, nWS));

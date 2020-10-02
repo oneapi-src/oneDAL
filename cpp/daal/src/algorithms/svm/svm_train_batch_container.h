@@ -45,7 +45,7 @@ using namespace daal::data_management;
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
     if (method == thunder && !deviceInfo.isCpu)
     {
@@ -78,7 +78,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     svm::interface2::Parameter * par       = static_cast<svm::interface2::Parameter *>(_par);
     daal::services::Environment::env & env = *_env;
 
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
     if (method == thunder && !deviceInfo.isCpu)
     {

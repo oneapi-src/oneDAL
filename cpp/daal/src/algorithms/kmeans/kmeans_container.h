@@ -30,7 +30,13 @@
 #include "algorithms/kmeans/kmeans_distributed.h"
 #include "src/algorithms/kmeans/kmeans_lloyd_kernel.h"
 #include "src/algorithms/kmeans/oneapi/kmeans_dense_lloyd_batch_kernel_ucapi.h"
+<<<<<<< HEAD
 #include "sycl/internal/execution_context.h"
+=======
+#include "src/algorithms/kmeans/oneapi/kmeans_lloyd_distr_step1_kernel_ucapi.h"
+#include "src/algorithms/kmeans/oneapi/kmeans_lloyd_distr_step2_kernel_ucapi.h"
+#include "services/internal/sycl/execution_context.h"
+>>>>>>> 9e658f481... Move SYCL-related functionality to internal (#1028)
 
 #include "src/data_management/service_numeric_table.h"
 
@@ -45,7 +51,7 @@ namespace interface2
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)
@@ -67,7 +73,7 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     Input * input   = static_cast<Input *>(_in);
@@ -94,7 +100,21 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 template <typename algorithmFPType, Method method, CpuType cpu>
 DistributedContainer<step1Local, algorithmFPType, method, cpu>::DistributedContainer(daal::services::Environment::env * daalEnv)
 {
+<<<<<<< HEAD
     __DAAL_INITIALIZE_KERNELS(internal::KMeansDistributedStep1Kernel, method, algorithmFPType);
+=======
+    auto & context    = services::internal::getDefaultContext();
+    auto & deviceInfo = context.getInfoDevice();
+
+    if (deviceInfo.isCpu)
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::KMeansDistributedStep1Kernel, method, algorithmFPType);
+    }
+    else
+    {
+        __DAAL_INITIALIZE_KERNELS_SYCL(internal::KMeansDistributedStep1KernelUCAPI, algorithmFPType);
+    }
+>>>>>>> 9e658f481... Move SYCL-related functionality to internal (#1028)
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -128,6 +148,12 @@ services::Status DistributedContainer<step1Local, algorithmFPType, method, cpu>:
         r[5] = static_cast<NumericTable *>(pres->get(partialAssignments).get());
     }
 
+<<<<<<< HEAD
+=======
+    auto & context    = services::internal::getDefaultContext();
+    auto & deviceInfo = context.getInfoDevice();
+
+>>>>>>> 9e658f481... Move SYCL-related functionality to internal (#1028)
     daal::services::Environment::env & env = *_env;
 
     __DAAL_CALL_KERNEL(env, internal::KMeansDistributedStep1Kernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, na, a, nr, r, par);
@@ -149,6 +175,11 @@ services::Status DistributedContainer<step1Local, algorithmFPType, method, cpu>:
     r[0] = static_cast<NumericTable *>(res->get(assignments).get());
 
     daal::services::Environment::env & env = *_env;
+<<<<<<< HEAD
+=======
+    auto & context                         = services::internal::getDefaultContext();
+    auto & deviceInfo                      = context.getInfoDevice();
+>>>>>>> 9e658f481... Move SYCL-related functionality to internal (#1028)
 
     __DAAL_CALL_KERNEL(env, internal::KMeansDistributedStep1Kernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), finalizeCompute, na, a, nr, r,
                        par);
@@ -157,7 +188,21 @@ services::Status DistributedContainer<step1Local, algorithmFPType, method, cpu>:
 template <typename algorithmFPType, Method method, CpuType cpu>
 DistributedContainer<step2Master, algorithmFPType, method, cpu>::DistributedContainer(daal::services::Environment::env * daalEnv)
 {
+<<<<<<< HEAD
     __DAAL_INITIALIZE_KERNELS(internal::KMeansDistributedStep2Kernel, method, algorithmFPType);
+=======
+    auto & context    = services::internal::getDefaultContext();
+    auto & deviceInfo = context.getInfoDevice();
+
+    if (deviceInfo.isCpu)
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::KMeansDistributedStep2Kernel, method, algorithmFPType);
+    }
+    else
+    {
+        _kernel = new internal::KMeansDistributedStep2KernelUCAPI<algorithmFPType>();
+    }
+>>>>>>> 9e658f481... Move SYCL-related functionality to internal (#1028)
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -199,6 +244,11 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
 
     Parameter * par                        = static_cast<Parameter *>(_par);
     daal::services::Environment::env & env = *_env;
+<<<<<<< HEAD
+=======
+    auto & context                         = services::internal::getDefaultContext();
+    auto & deviceInfo                      = context.getInfoDevice();
+>>>>>>> 9e658f481... Move SYCL-related functionality to internal (#1028)
 
     services::Status s = __DAAL_CALL_KERNEL_STATUS(env, internal::KMeansDistributedStep2Kernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType),
                                                    compute, na, a, nr, r, par);
@@ -228,6 +278,11 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
 
     Parameter * par                        = static_cast<Parameter *>(_par);
     daal::services::Environment::env & env = *_env;
+<<<<<<< HEAD
+=======
+    auto & context                         = services::internal::getDefaultContext();
+    auto & deviceInfo                      = context.getInfoDevice();
+>>>>>>> 9e658f481... Move SYCL-related functionality to internal (#1028)
 
     __DAAL_CALL_KERNEL(env, internal::KMeansDistributedStep2Kernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), finalizeCompute, na, a, nr, r,
                        par);

@@ -31,7 +31,7 @@ namespace prediction
 template <typename algorithmFpType, Method method, CpuType cpu>
 BatchContainer<algorithmFpType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
 {
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)
@@ -61,7 +61,7 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
     const data_management::NumericTablePtr label             = result->get(bf_knn_classification::prediction::prediction);
     const data_management::NumericTablePtr indices           = result->get(bf_knn_classification::prediction::indices);
     const data_management::NumericTablePtr distances         = result->get(bf_knn_classification::prediction::distances);
-    auto & context                                           = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context                                           = services::internal::getDefaultContext();
     auto & deviceInfo                                        = context.getInfoDevice();
 
     if (deviceInfo.isCpu)

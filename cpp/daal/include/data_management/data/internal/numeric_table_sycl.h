@@ -24,6 +24,8 @@ namespace daal
 {
 namespace data_management
 {
+namespace internal
+{
 namespace interface1
 {
 /**
@@ -65,6 +67,7 @@ using interface1::SyclNumericTable;
 using interface1::SyclNumericTablePtr;
 using interface1::SyclNumericTableConstPtr;
 
+} // namespace internal
 } // namespace data_management
 } // namespace daal
 

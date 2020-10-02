@@ -15,8 +15,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __DAAL_ONEAPI_INTERNAL_ERROR_HANDLING_H__
-#define __DAAL_ONEAPI_INTERNAL_ERROR_HANDLING_H__
+#ifndef __DAAL_SERVICES_INTERNAL_SYCL_ERROR_HANDLING_H__
+#define __DAAL_SERVICES_INTERNAL_SYCL_ERROR_HANDLING_H__
 
 #include <CL/cl.h>
 #include <CL/sycl.hpp>
@@ -24,7 +24,7 @@
 #include "services/internal/error_handling_helpers.h"
 #include "services/error_indexes.h"
 #include "services/daal_string.h"
-#include "sycl/internal/daal_level_zero_common.h"
+#include "services/internal/sycl/daal_level_zero_common.h"
 
 #define DAAL_CHECK_OPENCL(cl_error, statusPtr, ...)                     \
     {                                                                   \
@@ -54,9 +54,11 @@
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace interface1
 {
@@ -191,8 +193,9 @@ inline void convertSyclExceptionToStatus(cl::sycl::exception const & e, services
 using interface1::convertOpenClErrorToErrorPtr;
 using interface1::convertSyclExceptionToStatus;
 
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
 
 #endif
