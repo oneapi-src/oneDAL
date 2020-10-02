@@ -21,12 +21,11 @@
 #include <daal/src/algorithms/dtrees/forest/regression/oneapi/df_regression_predict_dense_kernel_oneapi.h>
 #include <daal/src/services/service_algo_utils.h>
 
-#include "oneapi/dal/table/row_accessor.hpp"
-
 #include "oneapi/dal/algo/decision_forest/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/table/backend/interop/conversion.hpp"
+#include "oneapi/dal/table/detail/table_builder.hpp"
 
 #include "oneapi/dal/algo/decision_forest/backend/interop_helpers.hpp"
 
