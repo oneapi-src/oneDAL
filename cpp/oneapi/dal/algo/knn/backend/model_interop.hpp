@@ -24,7 +24,8 @@ namespace oneapi::dal::knn::detail {
 
 namespace daal_cls = daal::algorithms::classifier;
 
-class model_impl::interop_model {
+template<>
+class model_impl<task::classification>::interop_model {
 public:
     interop_model(const daal_cls::ModelPtr& daal_model) : daal_model(daal_model) {}
     void set_daal_model(const daal_cls::ModelPtr& model) {

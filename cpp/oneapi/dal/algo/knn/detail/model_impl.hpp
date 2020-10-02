@@ -18,9 +18,10 @@
 
 #include "oneapi/dal/algo/knn/common.hpp"
 
-namespace oneapi::dal::knn {
+namespace oneapi::dal::knn::detail {
 
-class detail::model_impl : public base {
+template<typename Task>
+class model_impl : public base {
 public:
     class interop_model;
     model_impl() : interop_(nullptr) {}
@@ -33,4 +34,4 @@ private:
     interop_model* interop_;
 };
 
-} // namespace oneapi::dal::knn
+} // namespace oneapi::dal::knn::detail

@@ -20,7 +20,8 @@
 
 namespace oneapi::dal::knn {
 
-class detail::descriptor_impl : public base {
+template<>
+class detail::descriptor_impl<task::classification> : public base {
 public:
     std::int64_t class_count = 2;
     std::int64_t neighbor_count = 1;
@@ -29,32 +30,42 @@ public:
 using detail::descriptor_impl;
 using detail::model_impl;
 
-descriptor_base::descriptor_base() : impl_(new descriptor_impl{}) {}
+template<typename Task>
+descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
 
-std::int64_t descriptor_base::get_class_count() const {
+template<>
+std::int64_t descriptor_base<task::classification>::get_class_count() const {
     return impl_->class_count;
 }
 
-std::int64_t descriptor_base::get_neighbor_count() const {
+template<>
+std::int64_t descriptor_base<task::classification>::get_neighbor_count() const {
     return impl_->neighbor_count;
 }
 
-void descriptor_base::set_class_count_impl(std::int64_t value) {
+template<>
+void descriptor_base<task::classification>::set_class_count_impl(std::int64_t value) {
     if (value < 2) {
         throw domain_error("class_count should be > 1");
     }
     impl_->class_count = value;
 }
 
-void descriptor_base::set_neighbor_count_impl(std::int64_t value) {
+template<>
+void descriptor_base<task::classification>::set_neighbor_count_impl(std::int64_t value) {
     if (value < 1) {
         throw domain_error("neighbor_count should be > 0");
     }
     impl_->neighbor_count = value;
 }
 
-class empty_model_impl : public detail::model_impl {};
-model::model() : impl_(new empty_model_impl{}) {}
-model::model(const std::shared_ptr<detail::model_impl>& impl) : impl_(impl) {}
+template<typename Task>
+class empty_model_impl : public detail::model_impl<Task> {};
+
+template<typename Task>
+model<Task>::model() : impl_(new empty_model_impl<Task>{}) {}
+
+template<typename Task>
+model<Task>::model(const std::shared_ptr<detail::model_impl<Task>>& impl) : impl_(impl) {}
 
 } // namespace oneapi::dal::knn

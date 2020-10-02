@@ -21,9 +21,18 @@
 
 namespace oneapi::dal::knn {
 
+namespace task {
+struct classification {};
+using by_default = classification;
+} // namespace task
+
 namespace detail {
 struct tag {};
+
+template <typename Task = task::by_default>
 class descriptor_impl;
+
+template <typename Task = task::by_default>
 class model_impl;
 } // namespace detail
 
@@ -33,9 +42,11 @@ struct brute_force {};
 using by_default = kd_tree;
 } // namespace method
 
+template <typename Task = task::by_default>
 class ONEAPI_DAL_EXPORT descriptor_base : public base {
 public:
     using tag_t = detail::tag;
+    using task_t = Task;
     using float_t = float;
     using method_t = method::by_default;
 
@@ -48,27 +59,37 @@ protected:
     void set_class_count_impl(std::int64_t value);
     void set_neighbor_count_impl(std::int64_t value);
 
-    dal::detail::pimpl<detail::descriptor_impl> impl_;
+    dal::detail::pimpl<detail::descriptor_impl<Task>> impl_;
 };
 
-template <typename Float = descriptor_base::float_t, typename Method = descriptor_base::method_t>
-class descriptor : public descriptor_base {
+template <typename Float = descriptor_base<task::by_default>::float_t,
+          typename Method = descriptor_base<task::by_default>::method_t,
+          typename Task = task::by_default>
+class descriptor : public descriptor_base<Task> {
 public:
     using tag_t = detail::tag;
     using float_t = Float;
     using method_t = Method;
 
+    explicit descriptor(std::int64_t class_count,
+                       std::int64_t neighbor_count) {
+        set_class_count(class_count);
+        set_neighbor_count(neighbor_count);
+    }
+    
+
     auto& set_class_count(std::int64_t value) {
-        set_class_count_impl(value);
+        descriptor_base<Task>::set_class_count_impl(value);
         return *this;
     }
 
     auto& set_neighbor_count(std::int64_t value) {
-        set_neighbor_count_impl(value);
+        descriptor_base<Task>::set_neighbor_count_impl(value);
         return *this;
     }
 };
 
+template <typename Task>
 class ONEAPI_DAL_EXPORT model : public base {
     friend dal::detail::pimpl_accessor;
 
@@ -76,8 +97,8 @@ public:
     model();
 
 private:
-    explicit model(const std::shared_ptr<detail::model_impl>& impl);
-    dal::detail::pimpl<detail::model_impl> impl_;
+    explicit model(const std::shared_ptr<detail::model_impl<Task>>& impl);
+    dal::detail::pimpl<detail::model_impl<Task>> impl_;
 };
 
 } // namespace oneapi::dal::knn
