@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/optimization_solver/iterative_solver/iterative_solver_types.h"
-#include "data_management/data/numeric_table_sycl_homogen.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 
 namespace daal
 {
@@ -49,7 +49,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 
     services::Status status;
 
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (!get(minimum))
@@ -61,7 +61,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
         }
         else
         {
-            nt = SyclHomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTable::doAllocate, &status);
+            nt = internal::SyclHomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTable::doAllocate, &status);
         }
         set(minimum, nt);
     }

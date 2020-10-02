@@ -19,11 +19,13 @@
 #define __DAAL_SERVICES_EXECUTION_CONTEXT_H__
 
 #include "services/internal/utilities.h"
-#include "sycl/internal/execution_context.h"
+#include "services/internal/sycl/execution_context.h"
 
 namespace daal
 {
 namespace services
+{
+namespace internal
 {
 namespace interface1
 {
@@ -44,7 +46,7 @@ class ExecutionContext : public Base
     friend class daal::services::internal::ImplAccessor;
 
 private:
-    typedef daal::oneapi::internal::ExecutionContextIface ImplType;
+    typedef daal::services::internal::sycl::ExecutionContextIface ImplType;
 
 public:
     ExecutionContext() {}
@@ -65,7 +67,7 @@ private:
 class CpuExecutionContext : public ExecutionContext
 {
 private:
-    typedef oneapi::internal::CpuExecutionContextImpl ImplType;
+    typedef services::internal::sycl::CpuExecutionContextImpl ImplType;
 
 public:
     CpuExecutionContext() : ExecutionContext(new ImplType()) {}
@@ -76,15 +78,18 @@ public:
 using interface1::ExecutionContext;
 using interface1::CpuExecutionContext;
 
+} // namespace internal
 } // namespace services
 } // namespace daal
 
 #ifdef DAAL_SYCL_INTERFACE
-    #include "sycl/internal/execution_context_sycl.h"
+    #include "services/internal/sycl/execution_context_sycl.h"
 
 namespace daal
 {
 namespace services
+{
+namespace internal
 {
 namespace interface1
 {
@@ -108,7 +113,7 @@ public:
     SyclExecutionContext(const cl::sycl::queue & deviceQueue) : ExecutionContext(createContext(deviceQueue)) {}
 
 private:
-    static daal::oneapi::internal::ExecutionContextIface * createContext(const cl::sycl::queue & queue)
+    static daal::services::internal::sycl::ExecutionContextIface * createContext(const cl::sycl::queue & queue)
     {
         /* XXX: Workaround to fix performance on CPU: SYCL* runtime loads one
                 thread with active spin-lock that waits for submissions in a queue.
@@ -118,11 +123,11 @@ private:
                 algorithm is running. */
         if (queue.get_device().is_cpu())
         {
-            return new daal::oneapi::internal::CpuExecutionContextImpl();
+            return new daal::services::internal::sycl::CpuExecutionContextImpl();
         }
         else
         {
-            return new daal::oneapi::internal::SyclExecutionContextImpl(queue);
+            return new daal::services::internal::sycl::SyclExecutionContextImpl(queue);
         }
     }
 };
@@ -131,8 +136,27 @@ private:
 
 using interface1::SyclExecutionContext;
 
+} // namespace internal
 } // namespace services
 } // namespace daal
 #endif // DAAL_SYCL_INTERFACE
+
+namespace daal
+{
+namespace services
+{
+namespace internal
+{
+namespace interface1
+{
+DAAL_EXPORT sycl::ExecutionContextIface & getDefaultContext();
+
+} // namespace interface1
+
+using interface1::getDefaultContext;
+
+} // namespace internal
+} // namespace services
+} // namespace daal
 
 #endif

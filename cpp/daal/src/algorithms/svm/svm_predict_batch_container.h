@@ -42,7 +42,7 @@ namespace interface2
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
     if (deviceInfo.isCpu)
     {
@@ -73,7 +73,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     services::Environment::env & env = *_env;
 
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
     if (deviceInfo.isCpu)
     {
