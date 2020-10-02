@@ -88,7 +88,8 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status makeInversion(const services::internal::Buffer<algorithmFPType> & x, services::internal::Buffer<algorithmFPType> & res, const size_t n)
+    static services::Status makeInversion(const services::internal::Buffer<algorithmFPType> & x, services::internal::Buffer<algorithmFPType> & res,
+                                          const size_t n)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(makeInversion);
 
@@ -144,8 +145,9 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status copyDataByIndices(const services::internal::Buffer<algorithmFPType> & x, const services::internal::Buffer<uint32_t> & indX,
-                                              services::internal::Buffer<algorithmFPType> & newX, const size_t nWS, const size_t p)
+    static services::Status copyDataByIndices(const services::internal::Buffer<algorithmFPType> & x,
+                                              const services::internal::Buffer<uint32_t> & indX, services::internal::Buffer<algorithmFPType> & newX,
+                                              const size_t nWS, const size_t p)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(copyDataByIndices);
         services::Status status;
@@ -155,7 +157,7 @@ struct HelperSVM
 
         buildProgram(factory);
 
-        const char * const kernelName      = "copyDataByIndices";
+        const char * const kernelName              = "copyDataByIndices";
         services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
 
         services::internal::sycl::KernelArguments args(4);
@@ -182,7 +184,7 @@ struct HelperSVM
 
         buildProgram(factory);
 
-        const char * const kernelName      = "copyDataByIndicesInt";
+        const char * const kernelName              = "copyDataByIndicesInt";
         services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
 
         services::internal::sycl::KernelArguments args(4);
@@ -197,8 +199,9 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status checkUpper(const services::internal::Buffer<algorithmFPType> & y, const services::internal::Buffer<algorithmFPType> & alpha,
-                                       services::internal::Buffer<uint32_t> & indicator, const algorithmFPType C, const size_t n)
+    static services::Status checkUpper(const services::internal::Buffer<algorithmFPType> & y,
+                                       const services::internal::Buffer<algorithmFPType> & alpha, services::internal::Buffer<uint32_t> & indicator,
+                                       const algorithmFPType C, const size_t n)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(checkUpper);
 
@@ -222,8 +225,9 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status checkLower(const services::internal::Buffer<algorithmFPType> & y, const services::internal::Buffer<algorithmFPType> & alpha,
-                                       services::internal::Buffer<uint32_t> & indicator, const algorithmFPType C, const size_t n)
+    static services::Status checkLower(const services::internal::Buffer<algorithmFPType> & y,
+                                       const services::internal::Buffer<algorithmFPType> & alpha, services::internal::Buffer<uint32_t> & indicator,
+                                       const algorithmFPType C, const size_t n)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(checkLower);
 
@@ -247,8 +251,8 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status checkBorder(const services::internal::Buffer<algorithmFPType> & alpha, services::internal::Buffer<uint32_t> & mask, const algorithmFPType C,
-                                        const size_t n)
+    static services::Status checkBorder(const services::internal::Buffer<algorithmFPType> & alpha, services::internal::Buffer<uint32_t> & mask,
+                                        const algorithmFPType C, const size_t n)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(checkBorder);
 
@@ -271,7 +275,8 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status checkNonZeroBinary(const services::internal::Buffer<algorithmFPType> & alpha, services::internal::Buffer<uint32_t> & mask, const size_t n)
+    static services::Status checkNonZeroBinary(const services::internal::Buffer<algorithmFPType> & alpha, services::internal::Buffer<uint32_t> & mask,
+                                               const size_t n)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(checkNonZeroBinary);
 
@@ -293,7 +298,8 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status computeDualCoeffs(const services::internal::Buffer<algorithmFPType> & y, services::internal::Buffer<algorithmFPType> & alpha, const size_t n)
+    static services::Status computeDualCoeffs(const services::internal::Buffer<algorithmFPType> & y,
+                                              services::internal::Buffer<algorithmFPType> & alpha, const size_t n)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(computeDualCoeffs);
 
