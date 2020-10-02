@@ -129,7 +129,7 @@ bool checkFiniteness(const size_t nElements, size_t nDataPtrs, size_t nElementsP
 }
 
 template <daal::CpuType cpu>
-bool checkFinitenessSOA(NumericTable & table, bool allowNaN)
+bool checkFinitenessSOA(NumericTable & table, bool allowNaN, services::Status & st)
 {
     bool valuesAreFinite                        = true;
     const size_t nRows                          = table.getNumberOfRows();
@@ -279,6 +279,12 @@ double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite, service
         }
     });
 
+    st |= safeStat.detach();
+    if (!st)
+    {
+        return 0;
+    }
+
     if (breakFlag)
     {
         sum         = getInf<double>();
@@ -289,8 +295,6 @@ double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite, service
         tlsSum.reduce([&](double * localSum) { sum += *localSum; });
         tlsNotFinite.reduce([&](bool * localNotFinite) { sumIsFinite &= !*localNotFinite; });
     }
-
-    st |= safeStat.detach();
 
     return sum;
 }
@@ -440,7 +444,7 @@ bool checkFiniteness<double, avx512>(const size_t nElements, size_t nDataPtrs, s
     return checkFinitenessAVX512Impl<double>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
 }
 
-bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN)
+bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN, services::Status & st)
 {
     SafeStatus safeStat;
     bool valuesAreFinite                        = true;
@@ -483,6 +487,12 @@ bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN)
         }
     });
 
+    st |= safeStat.detach();
+    if (!st)
+    {
+        return false;
+    }
+
     if (breakFlag)
     {
         valuesAreFinite = false;
@@ -496,9 +506,9 @@ bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN)
 }
 
 template <>
-bool checkFinitenessSOA<avx512>(NumericTable & table, bool allowNaN)
+bool checkFinitenessSOA<avx512>(NumericTable & table, bool allowNaN, services::Status & st)
 {
-    return checkFinitenessSOAAVX512Impl(table, allowNaN);
+    return checkFinitenessSOAAVX512Impl(table, allowNaN, st);
 }
 
 #endif
@@ -542,7 +552,7 @@ services::Status allValuesAreFiniteImpl(NumericTable & table, bool allowNaN, boo
     bool valuesAreFinite = true;
     if (layout == NTLayout::soa)
     {
-        valuesAreFinite = checkFinitenessSOA<cpu>(table, allowNaN);
+        valuesAreFinite = checkFinitenessSOA<cpu>(table, allowNaN, s);
     }
     else
     {
