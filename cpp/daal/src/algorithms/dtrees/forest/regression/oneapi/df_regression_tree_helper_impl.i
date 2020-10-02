@@ -85,7 +85,7 @@ template <typename algorithmFPType>
 struct TreeLevelRecord
 {
     TreeLevelRecord() : _nodeList(nullptr), _impInfo(nullptr), _nNodes(0) {}
-    services::Status init(oneapi::internal::UniversalBuffer & nodeList, oneapi::internal::UniversalBuffer & impInfo, size_t nNodes)
+    services::Status init(services::internal::sycl::UniversalBuffer & nodeList, services::internal::sycl::UniversalBuffer & impInfo, size_t nNodes)
     {
         _nNodes = nNodes;
         DAAL_ASSERT(nNodes * _nNodeSplitProps == nodeList.template get<int>().size());

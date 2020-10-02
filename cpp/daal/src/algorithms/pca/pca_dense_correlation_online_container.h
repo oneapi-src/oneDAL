@@ -38,7 +38,7 @@ namespace pca
 template <typename algorithmFPType, CpuType cpu>
 OnlineContainer<algorithmFPType, correlationDense, cpu>::OnlineContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)
@@ -68,7 +68,7 @@ services::Status OnlineContainer<algorithmFPType, correlationDense, cpu>::comput
 
     data_management::NumericTablePtr data = input->get(pca::data);
 
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)
@@ -93,7 +93,7 @@ services::Status OnlineContainer<algorithmFPType, correlationDense, cpu>::finali
     data_management::NumericTablePtr eigenvalues  = result->get(pca::eigenvalues);
     data_management::NumericTablePtr eigenvectors = result->get(pca::eigenvectors);
 
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)

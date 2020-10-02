@@ -19,7 +19,7 @@
 
 namespace oneapi::dal::backend::interop {
 
-using daal_sycl_ex_ctx_t = daal::services::SyclExecutionContext;
+using daal_sycl_ex_ctx_t = daal::services::internal::SyclExecutionContext;
 
 class execution_context_cache {
 public:
@@ -68,7 +68,7 @@ execution_context_guard::execution_context_guard(const sycl::queue& queue) {
 
 execution_context_guard::~execution_context_guard() {
     daal::services::Environment::getInstance()->setDefaultExecutionContext(
-        daal::services::CpuExecutionContext());
+        daal::services::internal::CpuExecutionContext());
 }
 
 void enable_daal_sycl_execution_context_cache() {

@@ -25,21 +25,23 @@
 */
 
 #if (!defined(ONEAPI_DAAL_NO_MKL_GPU_FUNC) && defined(__SYCL_COMPILER_VERSION))
-    #include "sycl/internal/math/mkl_lapack.h"
+    #include "services/internal/sycl/math/mkl_lapack.h"
 #endif
 
-#include "sycl/internal/types_utils.h"
+#include "services/internal/sycl/types_utils.h"
 #include "services/internal/error_handling_helpers.h"
-#include "sycl/internal/math/reference_lapack.h"
-#include "sycl/internal/math/types.h"
+#include "services/internal/sycl/math/reference_lapack.h"
+#include "services/internal/sycl/math/types.h"
 
 #include <CL/sycl.hpp>
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace math
 {
@@ -150,8 +152,9 @@ using interface1::PotrfExecutor;
 using interface1::PotrsExecutor;
 
 } // namespace math
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
 
 #endif

@@ -24,8 +24,8 @@
 #ifndef __KMEANS_DENSE_LLOYD_KERNEL_BASE_UCAPI_H__
 #define __KMEANS_DENSE_LLOYD_KERNEL_BASE_UCAPI_H__
 
-#include "sycl/internal/types.h"
-#include "sycl/internal/execution_context.h"
+#include "services/internal/sycl/types.h"
+#include "services/internal/sycl/execution_context.h"
 #include "algorithms/kmeans/kmeans_types.h"
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
@@ -62,30 +62,33 @@ template <typename algorithmFPType>
 class KMeansDenseLloydKernelBaseUCAPI : public Kernel
 {
 protected:
-    void computeSquares(const services::Buffer<algorithmFPType> & data, oneapi::internal::UniversalBuffer & dataSq, uint32_t nRows,
+    void computeSquares(const services::internal::Buffer<algorithmFPType> & data, services::internal::sycl::UniversalBuffer & dataSq, uint32_t nRows,
                         uint32_t nFeatures, services::Status * st);
 
-    void computeDistances(const services::Buffer<algorithmFPType> & data, const services::Buffer<algorithmFPType> & centroids, uint32_t blockSize,
-                          uint32_t nClusters, uint32_t nFeatures, services::Status * st);
+    void computeDistances(const services::internal::Buffer<algorithmFPType> & data, const services::internal::Buffer<algorithmFPType> & centroids,
+                          uint32_t blockSize, uint32_t nClusters, uint32_t nFeatures, services::Status * st);
 
-    void computeAssignments(const oneapi::internal::UniversalBuffer & assignments, uint32_t blockSize, uint32_t nClusters, services::Status * st);
+    void computeAssignments(const services::internal::sycl::UniversalBuffer & assignments, uint32_t blockSize, uint32_t nClusters,
+                            services::Status * st);
 
-    void computePartialCandidates(const oneapi::internal::UniversalBuffer & assignments, uint32_t blockSize, uint32_t nClusters, uint32_t reset,
-                                  services::Status * st);
+    void computePartialCandidates(const services::internal::sycl::UniversalBuffer & assignments, uint32_t blockSize, uint32_t nClusters,
+                                  uint32_t reset, services::Status * st);
 
     void mergePartialCandidates(uint32_t nClusters, services::Status * st);
 
-    void partialReduceCentroids(const services::Buffer<algorithmFPType> & data, const oneapi::internal::UniversalBuffer & assignments,
-                                uint32_t blockSize, uint32_t nClusters, uint32_t nFeatures, uint32_t doReset, services::Status * st);
+    void partialReduceCentroids(const services::internal::Buffer<algorithmFPType> & data,
+                                const services::internal::sycl::UniversalBuffer & assignments, uint32_t blockSize, uint32_t nClusters,
+                                uint32_t nFeatures, uint32_t doReset, services::Status * st);
 
-    void mergeReduceCentroids(const services::Buffer<algorithmFPType> & centroids, uint32_t nClusters, uint32_t nFeatures, services::Status * st);
+    void mergeReduceCentroids(const services::internal::Buffer<algorithmFPType> & centroids, uint32_t nClusters, uint32_t nFeatures,
+                              services::Status * st);
 
-    void updateObjectiveFunction(const services::Buffer<algorithmFPType> & objFunction, uint32_t blockSize, uint32_t nClusters, uint32_t doReset,
-                                 services::Status * st);
+    void updateObjectiveFunction(const services::internal::Buffer<algorithmFPType> & objFunction, uint32_t blockSize, uint32_t nClusters,
+                                 uint32_t doReset, services::Status * st);
     void getNumEmptyClusters(uint32_t nClusters, services::Status * st);
-    void buildProgram(oneapi::internal::ClKernelFactoryIface & kernelFactory, uint32_t nClusters, daal::services::Status * st);
+    void buildProgram(services::internal::sycl::ClKernelFactoryIface & kernelFactory, uint32_t nClusters, daal::services::Status * st);
     services::Status setEmptyClusters(NumericTable * const ntData, uint32_t nRows, uint32_t nClusters, uint32_t nFeatures,
-                                      services::Buffer<algorithmFPType> & outCentroids, algorithmFPType & objFuncCorrection);
+                                      services::internal::Buffer<algorithmFPType> & outCentroids, algorithmFPType & objFuncCorrection);
     services::Status initializeBuffers(uint32_t nClusters, uint32_t nFeatures, uint32_t blockSize);
     services::Status getBlockSize(uint32_t nRows, uint32_t nClusters, uint32_t nFeatures, uint32_t & blockSize);
     uint32_t getCandidatePartNum(uint32_t nClusters);
@@ -94,17 +97,17 @@ protected:
     const char * getComputeSquaresKernelName(uint32_t nFeatures);
     services::String getBuildOptions(uint32_t nClusters);
 
-    oneapi::internal::UniversalBuffer _dataSq;
-    oneapi::internal::UniversalBuffer _centroidsSq;
-    oneapi::internal::UniversalBuffer _distances;
-    oneapi::internal::UniversalBuffer _mindistances;
-    oneapi::internal::UniversalBuffer _candidates;
-    oneapi::internal::UniversalBuffer _candidateDistances;
-    oneapi::internal::UniversalBuffer _partialCandidates;
-    oneapi::internal::UniversalBuffer _partialCandidateDistances;
-    oneapi::internal::UniversalBuffer _partialCentroids;
-    oneapi::internal::UniversalBuffer _partialCentroidsCounters;
-    oneapi::internal::UniversalBuffer _numEmptyClusters;
+    services::internal::sycl::UniversalBuffer _dataSq;
+    services::internal::sycl::UniversalBuffer _centroidsSq;
+    services::internal::sycl::UniversalBuffer _distances;
+    services::internal::sycl::UniversalBuffer _mindistances;
+    services::internal::sycl::UniversalBuffer _candidates;
+    services::internal::sycl::UniversalBuffer _candidateDistances;
+    services::internal::sycl::UniversalBuffer _partialCandidates;
+    services::internal::sycl::UniversalBuffer _partialCandidateDistances;
+    services::internal::sycl::UniversalBuffer _partialCentroids;
+    services::internal::sycl::UniversalBuffer _partialCentroidsCounters;
+    services::internal::sycl::UniversalBuffer _numEmptyClusters;
 
     const uint32_t _maxWorkItemsPerGroup = 128;                                          // should be a power of two for interal needs
     const uint32_t _maxLocalBuffer       = 30000;                                        // should be less than a half of local memory (two buffers)
