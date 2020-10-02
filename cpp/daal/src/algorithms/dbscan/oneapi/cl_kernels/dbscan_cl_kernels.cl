@@ -29,17 +29,15 @@
 DECLARE_SOURCE(
     dbscanClKernels,
 
-    __kernel void computeCores(int numPoints, int numFeatures, algorithmFPType numNbrs, algorithmFPType eps, int useWeights, 
-                               const __global algorithmFPType * points,  const __global algorithmFPType * weights,
-                                __global int * cores) 
-    {
+    __kernel void computeCores(int numPoints, int numFeatures, algorithmFPType numNbrs, algorithmFPType eps, int useWeights,
+                               const __global algorithmFPType * points, const __global algorithmFPType * weights, __global int * cores) {
         const int globalId = get_global_id(0);
         if (get_sub_group_id() > 0) return;
 
         const int subgroupSize = get_sub_group_size();
         const int localId      = get_sub_group_local_id();
-        algorithmFPType count = 0;
-        for(int j = 0; j < numPoints; j++) 
+        algorithmFPType count  = 0;
+        for (int j = 0; j < numPoints; j++)
         {
             algorithmFPType sum = 0.0;
             for (int i = localId; i < numFeatures; i += subgroupSize)
@@ -49,7 +47,7 @@ DECLARE_SOURCE(
                 sum += val;
             }
             algorithmFPType distance = sub_group_reduce_add(sum);
-            algorithmFPType incr = (distance <= eps) ? 1.0 : 0.0;
+            algorithmFPType incr     = (distance <= eps) ? 1.0 : 0.0;
             incr *= useWeights ? weights[globalId] : 1.0;
             count += incr;
         }
@@ -59,49 +57,44 @@ DECLARE_SOURCE(
         }
     }
 
-    __kernel void startNextCluster(int clusterId, int numPoints, int queueEnd, const __global int * cores, 
-                                   __global int * clusters, __global int * lastClusterStart, __global int * queue) 
-    {
+    __kernel void startNextCluster(int clusterId, int numPoints, int queueEnd, const __global int * cores, __global int * clusters,
+                                   __global int * lastClusterStart, __global int * queue) {
         // The kernel should be run on a single subgroup
-        if(get_sub_group_id() > 0 || get_global_id(0) > 0)
-            return;
+        if (get_sub_group_id() > 0 || get_global_id(0) > 0) return;
 
         const int subgroupSize = get_sub_group_size();
         const int localId      = get_sub_group_local_id();
-        int start = lastClusterStart[0];
-        for(int i = start + localId; i < numPoints; i++)
+        int start              = lastClusterStart[0];
+        for (int i = start + localId; i < numPoints; i++)
         {
-            bool found = cores[i] == 1 && clusters[i] == _UNDEFINED_;
-            int index = sub_group_reduce_min(found ? i : numPoints);
-            if(index < numPoints) 
+            bool found = cores[i] == 1 && clusters[i] < 0;
+            int index  = sub_group_reduce_min(found ? i : numPoints);
+            if (index < numPoints)
             {
-                if (localId == 0) 
+                if (localId == 0)
                 {
-                    clusters[index] = clusterId;
+                    clusters[index]     = clusterId;
                     lastClusterStart[0] = index + 1;
-                    queue[queueEnd] = index;
+                    queue[queueEnd]     = index;
                 }
                 break;
             }
         }
     }
 
-    __kernel void updateQueue(int clusterId, int numPoints, int numFeatures, algorithmFPType eps, int queueStart,
-                                int queueEnd,
-                                const __global algorithmFPType * points, __global int * cores, 
-                                __global int * clusters, __global int * queue, 
-                                __global int * queueFront) 
-    {
+    __kernel void updateQueue(int clusterId, int numPoints, int numFeatures, algorithmFPType eps, int queueStart, int queueEnd,
+                              const __global algorithmFPType * points, __global int * cores, __global int * clusters, __global int * queue,
+                              __global int * queueFront) {
         if (get_sub_group_id() > 0) return;
         const int subgroupIndex = get_global_id(0);
-        if(clusters[subgroupIndex] > -1) return;
-        const int localId      = get_sub_group_local_id();
-        const int subgroupSize = get_sub_group_size();
-        volatile __global int* counterPtr = queueFront;
+        if (clusters[subgroupIndex] > -1) return;
+        const int localId                  = get_sub_group_local_id();
+        const int subgroupSize             = get_sub_group_size();
+        volatile __global int * counterPtr = queueFront;
 
-        for(int j = queueStart; j < queueEnd; j++) 
+        for (int j = queueStart; j < queueEnd; j++)
         {
-            int index = queue[j];
+            int index           = queue[j];
             algorithmFPType sum = 0.0;
             for (int i = localId; i < numFeatures; i += subgroupSize)
             {
@@ -109,21 +102,20 @@ DECLARE_SOURCE(
                 sum += val * val;
             }
             algorithmFPType distance = sub_group_reduce_add(sum);
-            if(distance > eps) continue;
-            if(localId == 0) 
+            if (distance > eps) continue;
+            if (localId == 0)
             {
                 clusters[subgroupIndex] = clusterId;
             }
-            if(cores[subgroupIndex] == 0) continue;
-            if(localId == 0) 
+            if (cores[subgroupIndex] == 0) continue;
+            if (localId == 0)
             {
-                int newIndex = atomic_inc(counterPtr);
+                int newIndex    = atomic_inc(counterPtr);
                 queue[newIndex] = subgroupIndex;
             }
             break;
         }
     }
-
 
 );
 
