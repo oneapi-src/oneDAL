@@ -16,9 +16,4 @@ dal_module(
 dal_test_suite(
     name = "tests",
     dpc = False,
-    framework = "catch2",
-    srcs = glob(["test/dot.cpp"]),
-    dal_deps = [
-        ":linalg",
-    ],
 )

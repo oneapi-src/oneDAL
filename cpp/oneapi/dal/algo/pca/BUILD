@@ -17,13 +17,4 @@ dal_module(
 
 dal_test_suite(
     name = "tests",
-    framework = "catch2",
-    srcs = glob([
-        "test/train.cpp",
-    ]),
-    dal_deps = [
-        ":pca",
-        "@onedal//cpp/oneapi/dal/test:datasets",
-        "@onedal//cpp/oneapi/dal/backend/linalg",
-    ],
 )

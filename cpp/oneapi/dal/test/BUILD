@@ -4,24 +4,6 @@ load("@onedal//dev/bazel:dal.bzl",
 )
 
 dal_module(
-    name = "catch2_main",
-    dpc = False,
-    srcs = [
-        "main.cpp"
-    ],
-    hdrs = [
-        "config.hpp",
-    ],
-    extra_deps = [
-        "@catch2//:catch2"
-    ],
-    dal_deps = [
-        "@onedal//cpp/oneapi/dal:include_root",
-    ],
-    testonly = True,
-)
-
-dal_module(
     name = "common",
     hdrs = [
         "common.hpp",
@@ -36,10 +18,6 @@ dal_module(
     ],
     dal_deps = [
         "@onedal//cpp/oneapi/dal:common",
-    ],
-    extra_deps = [
-        "@catch2//:catch2",
-        "@fmt//:fmt",
     ],
     testonly = True,
 )
