@@ -149,7 +149,7 @@ namespace internal
 {
 namespace interface1
 {
-sycl::ExecutionContextIface & getDefaultContext();
+DAAL_EXPORT sycl::ExecutionContextIface & getDefaultContext();
 
 } // namespace interface1
 

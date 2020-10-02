@@ -26,7 +26,7 @@ namespace internal
 {
 namespace interface1
 {
-DAAL_EXPORT sycl::ExecutionContextIface & getDefaultContext()
+sycl::ExecutionContextIface & getDefaultContext()
 {
     return services::Environment::getInstance()->getDefaultExecutionContext();
 }
