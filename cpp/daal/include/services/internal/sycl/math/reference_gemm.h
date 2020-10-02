@@ -24,16 +24,18 @@
 #ifndef __ONEAPI_INTERNAL_MATH_REFERENCE_GEMM_H__
 #define __ONEAPI_INTERNAL_MATH_REFERENCE_GEMM_H__
 
-#include "sycl/internal/math/types.h"
-#include "sycl/internal/types_utils.h"
-#include "services/buffer.h"
+#include "services/internal/sycl/math/types.h"
+#include "services/internal/sycl/types_utils.h"
+#include "services/internal/buffer.h"
 #include "services/env_detect.h"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace math
 {
@@ -53,9 +55,10 @@ struct DAAL_EXPORT ReferenceGemm
     ReferenceGemm() {}
 
     services::Status operator()(const math::Transpose transa, const math::Transpose transb, const size_t m, const size_t n, const size_t k,
-                                const algorithmFPType alpha, const services::Buffer<algorithmFPType> & a_buffer, const size_t lda,
-                                const size_t offsetA, const services::Buffer<algorithmFPType> & b_buffer, const size_t ldb, const size_t offsetB,
-                                const algorithmFPType beta, services::Buffer<algorithmFPType> & c_buffer, const size_t ldc, const size_t offsetC);
+                                const algorithmFPType alpha, const services::internal::Buffer<algorithmFPType> & a_buffer, const size_t lda,
+                                const size_t offsetA, const services::internal::Buffer<algorithmFPType> & b_buffer, const size_t ldb,
+                                const size_t offsetB, const algorithmFPType beta, services::internal::Buffer<algorithmFPType> & c_buffer,
+                                const size_t ldc, const size_t offsetC);
 };
 
 /** @} */
@@ -64,8 +67,9 @@ struct DAAL_EXPORT ReferenceGemm
 using interface1::ReferenceGemm;
 
 } // namespace math
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
 
 #endif

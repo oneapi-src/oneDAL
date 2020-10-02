@@ -18,13 +18,15 @@
 #ifndef __SYCL_SOA_NUMERIC_TABLE_H__
 #define __SYCL_SOA_NUMERIC_TABLE_H__
 
-#include "data_management/data/numeric_table_sycl.h"
+#include "data_management/data/internal/numeric_table_sycl.h"
 #include "data_management/data/soa_numeric_table.h"
-#include "sycl/internal/buffer_utils.h"
+#include "services/internal/sycl/buffer_utils.h"
 
 namespace daal
 {
 namespace data_management
+{
+namespace internal
 {
 namespace interface1
 {
@@ -75,7 +77,7 @@ public:
      *  \param[in]  idx Feature index
      */
     template <typename T>
-    services::Status setArray(const services::Buffer<T> & bf, size_t idx)
+    services::Status setArray(const services::internal::Buffer<T> & bf, size_t idx)
     {
         if (_partialMemStatus != notAllocated && _partialMemStatus != userAllocated)
         {
@@ -95,7 +97,7 @@ public:
                 _arraysInitialized--;
             }
 
-            _arrays[idx] = oneapi::internal::UniversalBuffer(bf);
+            _arrays[idx] = services::internal::sycl::UniversalBuffer(bf);
 
             if (isCpuTable())
             {
@@ -280,10 +282,10 @@ protected:
     services::Status allocateArray(size_t idx, const NumericTableFeature & feature)
     {
         using namespace services;
-        using namespace oneapi::internal;
+        using namespace services::internal::sycl;
 
         Status st;
-        auto & context = oneapi::internal::getDefaultContext();
+        auto & context = services::internal::getDefaultContext();
         size_t nrows   = getNumberOfRows();
 
         switch (feature.indexType)
@@ -449,7 +451,7 @@ protected:
     template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)
     {
-        using namespace oneapi::internal;
+        using namespace services::internal::sycl;
 
         NumericTable::serialImpl<Archive, onDeserialize>(arch);
 
@@ -496,7 +498,7 @@ private:
     template <typename T>
     services::Status getTBlock(size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T> & block)
     {
-        using namespace oneapi::internal;
+        using namespace services::internal::sycl;
 
         size_t ncols = getNumberOfColumns();
         size_t nobs  = getNumberOfRows();
@@ -549,7 +551,7 @@ private:
     template <typename T>
     services::Status releaseTBlock(BlockDescriptor<T> & block)
     {
-        using namespace oneapi::internal;
+        using namespace services::internal::sycl;
 
         if (block.getRWFlag() & (int)writeOnly)
         {
@@ -562,7 +564,7 @@ private:
             DAAL_CHECK_STATUS_VAR(st);
             T * blockPtr = blockSharedPtr.get();
 
-            auto & context  = getDefaultContext();
+            auto & context  = services::internal::getDefaultContext();
             auto tempColumn = context.allocate(TypeIds::id<T>(), nrows, &st);
             DAAL_CHECK_STATUS_VAR(st);
 
@@ -594,7 +596,7 @@ private:
     template <typename T>
     services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
     {
-        using namespace oneapi::internal;
+        using namespace services::internal::sycl;
 
         const size_t nobs = getNumberOfRows();
         block.setDetails(feat_idx, idx, rwFlag);
@@ -627,7 +629,7 @@ private:
     template <typename T>
     services::Status releaseTFeature(BlockDescriptor<T> & block)
     {
-        using namespace oneapi::internal;
+        using namespace services::internal::sycl;
 
         if (block.getRWFlag() & (int)writeOnly)
         {
@@ -652,10 +654,10 @@ private:
 
     inline bool isCpuTable() const { return (bool)_cpuTable; }
 
-    static bool isCpuContext() { return oneapi::internal::getDefaultContext().getInfoDevice().isCpu; }
+    static bool isCpuContext() { return services::internal::getDefaultContext().getInfoDevice().isCpu; }
 
 private:
-    services::Collection<oneapi::internal::UniversalBuffer> _arrays;
+    services::Collection<services::internal::sycl::UniversalBuffer> _arrays;
     size_t _arraysInitialized;
     MemoryStatus _partialMemStatus;
 
@@ -669,6 +671,7 @@ typedef services::SharedPtr<SyclSOANumericTable> SyclSOANumericTablePtr;
 using interface1::SyclSOANumericTable;
 using interface1::SyclSOANumericTablePtr;
 
+} // namespace internal
 } // namespace data_management
 } // namespace daal
 

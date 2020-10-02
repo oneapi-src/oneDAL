@@ -18,19 +18,21 @@
 #ifndef __MATH_SERVICE_TYPES_H__
 #define __MATH_SERVICE_TYPES_H__
 
-#include "sycl/internal/math/types.h"
-#include "sycl/internal/types.h"
-#include "sycl/internal/execution_context.h"
-#include "services/env_detect.h"
-#include "services/buffer.h"
+#include "services/internal/sycl/types.h"
+#include "services/internal/execution_context.h"
+#include "services/internal/sycl/math/types.h"
+#include "services/internal/sycl/execution_context.h"
+#include "services/internal/buffer.h"
 #include "services/error_handling.h"
 #include "src/sycl/cl_kernels/math.cl"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace math
 {
@@ -41,26 +43,27 @@ static algorithmFPType expThreshold()
 }
 
 template <typename algorithmFPType>
-static services::Status vLog(const services::Buffer<algorithmFPType> & x, services::Buffer<algorithmFPType> & result, const uint32_t n)
+static services::Status vLog(const services::internal::Buffer<algorithmFPType> & x, services::internal::Buffer<algorithmFPType> & result,
+                             const uint32_t n)
 {
     services::Status status;
 
-    oneapi::internal::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
-    oneapi::internal::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
+    services::internal::sycl::ExecutionContextIface & ctx    = services::internal::getDefaultContext();
+    services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-    const services::String options = oneapi::internal::getKeyFPType<algorithmFPType>();
+    const services::String options = services::internal::sycl::getKeyFPType<algorithmFPType>();
     services::String cachekey("__daal_algorithms_math_");
     cachekey.add(options);
-    factory.build(oneapi::internal::ExecutionTargetIds::device, cachekey.c_str(), clKernelMath, options.c_str());
+    factory.build(services::internal::sycl::ExecutionTargetIds::device, cachekey.c_str(), clKernelMath, options.c_str());
 
-    const char * const kernelName      = "vLog";
-    oneapi::internal::KernelPtr kernel = factory.getKernel(kernelName);
+    const char * const kernelName              = "vLog";
+    services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
 
-    oneapi::internal::KernelArguments args(2);
-    args.set(0, x, oneapi::internal::AccessModeIds::read);
-    args.set(1, result, oneapi::internal::AccessModeIds::write);
+    services::internal::sycl::KernelArguments args(2);
+    args.set(0, x, services::internal::sycl::AccessModeIds::read);
+    args.set(1, result, services::internal::sycl::AccessModeIds::write);
 
-    oneapi::internal::KernelRange range(n);
+    services::internal::sycl::KernelRange range(n);
 
     ctx.run(range, kernel, args, &status);
 
@@ -68,8 +71,9 @@ static services::Status vLog(const services::Buffer<algorithmFPType> & x, servic
 }
 
 } // namespace math
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
 
 #endif

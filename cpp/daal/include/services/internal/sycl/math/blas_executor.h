@@ -25,22 +25,24 @@
 */
 
 #if (!defined(ONEAPI_DAAL_NO_MKL_GPU_FUNC) && defined(__SYCL_COMPILER_VERSION))
-    #include "sycl/internal/math/mkl_blas.h"
+    #include "services/internal/sycl/math/mkl_blas.h"
 #endif
 
-#include "sycl/internal/math/types.h"
-#include "sycl/internal/types_utils.h"
+#include "services/internal/sycl/math/types.h"
+#include "services/internal/sycl/types_utils.h"
 #include "services/internal/error_handling_helpers.h"
-#include "sycl/internal/math/reference_gemm.h"
-#include "sycl/internal/math/reference_axpy.h"
+#include "services/internal/sycl/math/reference_gemm.h"
+#include "services/internal/sycl/math/reference_axpy.h"
 
 #include <CL/sycl.hpp>
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace math
 {
@@ -219,7 +221,7 @@ class AxpyExecutor
 {
 private:
     template <typename algorithmFPType>
-    static bool checkSize(const int n, const services::Buffer<algorithmFPType> & buffer, const int inc)
+    static bool checkSize(const int n, const services::internal::Buffer<algorithmFPType> & buffer, const int inc)
     {
         if ((n - 1) * inc >= static_cast<int>(buffer.size())) return true;
         return false;
@@ -282,8 +284,9 @@ using interface1::SyrkExecutor;
 using interface1::AxpyExecutor;
 
 } // namespace math
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
 
 #endif

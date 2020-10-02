@@ -31,7 +31,7 @@
 #include "src/algorithms/dtrees/forest/regression/df_regression_model_impl.h"
 
 #include "src/externals/service_ittnotify.h"
-#include "services/buffer.h"
+#include "services/internal/buffer.h"
 #include "data_management/data/numeric_table.h"
 #include "src/data_management/service_numeric_table.h"
 #include "services/env_detect.h"
@@ -40,12 +40,12 @@
 #include "src/services/service_algo_utils.h"
 #include "src/services/service_arrays.h"
 #include "src/services/service_utils.h"
-#include "sycl/internal/types.h"
+#include "services/internal/sycl/types.h"
 
 using namespace daal::services;
 using namespace daal::services::internal;
 using namespace daal::internal;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 using namespace daal::algorithms::dtrees::internal;
 
 namespace daal
@@ -138,16 +138,16 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::compute(services:
 }
 
 template <typename algorithmFPType, prediction::Method method>
-services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees(const services::Buffer<algorithmFPType> & srcBuffer,
+services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees(const services::internal::Buffer<algorithmFPType> & srcBuffer,
                                                                                  const decision_forest::regression::Model * const m,
-                                                                                 services::Buffer<algorithmFPType> & resObsResponse, size_t nRows,
-                                                                                 size_t nCols)
+                                                                                 services::internal::Buffer<algorithmFPType> & resObsResponse,
+                                                                                 size_t nRows, size_t nCols)
 {
     services::Status status;
     const daal::algorithms::decision_forest::regression::internal::ModelImpl * const pModel =
         static_cast<const daal::algorithms::decision_forest::regression::internal::ModelImpl * const>(m);
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     const auto nTrees = pModel->size();
 
@@ -238,15 +238,18 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees
 }
 
 template <typename algorithmFPType, prediction::Method method>
-services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesGroup(
-    const services::Buffer<algorithmFPType> & srcBuffer, const UniversalBuffer & featureIndexList, const UniversalBuffer & leftOrClassTypeList,
-    const UniversalBuffer & featureValueList, UniversalBuffer & obsResponses, size_t nRows, size_t nCols, size_t nTrees, size_t maxTreeSize)
+services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesGroup(const services::internal::Buffer<algorithmFPType> & srcBuffer,
+                                                                                   const UniversalBuffer & featureIndexList,
+                                                                                   const UniversalBuffer & leftOrClassTypeList,
+                                                                                   const UniversalBuffer & featureValueList,
+                                                                                   UniversalBuffer & obsResponses, size_t nRows, size_t nCols,
+                                                                                   size_t nTrees, size_t maxTreeSize)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.predictByTreesGroup);
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelPredictByTreesGroup;
 
@@ -302,14 +305,14 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesGro
 
 template <typename algorithmFPType, prediction::Method method>
 services::Status PredictKernelOneAPI<algorithmFPType, method>::reduceResponse(const UniversalBuffer & obsResponses,
-                                                                              services::Buffer<algorithmFPType> & resObsResponse, size_t nRows,
-                                                                              size_t nTrees, algorithmFPType scale)
+                                                                              services::internal::Buffer<algorithmFPType> & resObsResponse,
+                                                                              size_t nRows, size_t nTrees, algorithmFPType scale)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.reduceResponse);
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
     auto & kernel  = kernelReduceResponse;
 
     size_t localSize = _preferableSubGroup;

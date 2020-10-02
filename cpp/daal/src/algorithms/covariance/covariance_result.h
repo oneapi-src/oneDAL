@@ -25,7 +25,7 @@
 #define __COVARIANCE_RESULT_
 
 #include "algorithms/covariance/covariance_types.h"
-#include "data_management/data/numeric_table_sycl_homogen.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 
 using namespace daal::data_management;
 namespace daal
@@ -47,7 +47,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     size_t nColumns        = algInput->getNumberOfFeatures();
     services::Status status;
 
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)
@@ -60,10 +60,10 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     }
     else
     {
-        set(covariance, SyclHomogenNumericTable<algorithmFPType>::create(nColumns, nColumns, NumericTable::doAllocate, &status));
+        set(covariance, internal::SyclHomogenNumericTable<algorithmFPType>::create(nColumns, nColumns, NumericTable::doAllocate, &status));
         DAAL_CHECK_STATUS_VAR(status);
 
-        set(mean, SyclHomogenNumericTable<algorithmFPType>::create(nColumns, 1, NumericTable::doAllocate, &status));
+        set(mean, internal::SyclHomogenNumericTable<algorithmFPType>::create(nColumns, 1, NumericTable::doAllocate, &status));
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -84,7 +84,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialRes
     size_t nColumns            = pres->getNumberOfFeatures();
     services::Status status;
 
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)
@@ -94,8 +94,8 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialRes
     }
     else
     {
-        set(covariance, SyclHomogenNumericTable<algorithmFPType>::create(nColumns, nColumns, NumericTable::doAllocate, &status));
-        set(mean, SyclHomogenNumericTable<algorithmFPType>::create(nColumns, 1, NumericTable::doAllocate, &status));
+        set(covariance, internal::SyclHomogenNumericTable<algorithmFPType>::create(nColumns, nColumns, NumericTable::doAllocate, &status));
+        set(mean, internal::SyclHomogenNumericTable<algorithmFPType>::create(nColumns, 1, NumericTable::doAllocate, &status));
     }
 
     return status;
