@@ -254,7 +254,7 @@ protected:
 
             DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, blockSize * sizeof(*indices), k);
             const size_t size = blockSize * k * sizeof(*indices);
-            DAAL_CHECK(daal::services::internal::daal_memcpy_s(indices, size, kIndexes, size), daal::services::ErrorMemoryCopyFailedInternal);
+            DAAL_CHECK(!daal::services::internal::daal_memcpy_s(indices, size, kIndexes, size), daal::services::ErrorMemoryCopyFailedInternal);
         }
 
         if (resultsToCompute & computeDistances)
@@ -265,7 +265,7 @@ protected:
 
             DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, blockSize * sizeof(FPType), k);
             const size_t size = blockSize * k * sizeof(FPType);
-            DAAL_CHECK(daal::services::internal::daal_memcpy_s(distances, size, kDistances, size), daal::services::ErrorMemoryCopyFailedInternal);
+            DAAL_CHECK(!daal::services::internal::daal_memcpy_s(distances, size, kDistances, size), daal::services::ErrorMemoryCopyFailedInternal);
         }
 
         if (resultsToEvaluate & daal::algorithms::classifier::computeClassLabels)
