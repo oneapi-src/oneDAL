@@ -22,8 +22,8 @@
 */
 
 #include "src/algorithms/kmeans/oneapi/cl_kernels/kmeans_init_cl_kernels.cl"
-#include "sycl/internal/execution_context.h"
-#include "sycl/internal/types.h"
+#include "services/internal/sycl/execution_context.h"
+#include "services/internal/sycl/types.h"
 
 #include "data_management/data/numeric_table.h"
 #include "services/daal_defines.h"
@@ -44,7 +44,7 @@ namespace internal
 {
 using namespace daal::internal;
 using namespace daal::services::internal;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 using namespace daal::data_management;
 using namespace daal::algorithms::distributions::uniform::internal;
 
@@ -58,7 +58,7 @@ Status KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::init(size_t p, 
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
 
-    auto fptype_name   = oneapi::internal::getKeyFPType<algorithmFPType>();
+    auto fptype_name   = services::internal::sycl::getKeyFPType<algorithmFPType>();
     auto build_options = fptype_name;
     build_options.add("-cl-std=CL1.2 -D LOCAL_SUM_SIZE=256"); // should be equal to _maxWorkitemsPerGroup
 
@@ -172,9 +172,10 @@ uint32_t KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::getWorkgroups
 
 template <Method method, typename algorithmFPType>
 void KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::gatherRandom(ExecutionContextIface & context, const KernelPtr & kernel_gather_random,
-                                                                            const Buffer<algorithmFPType> & data,
-                                                                            const Buffer<algorithmFPType> & clusters, UniversalBuffer & indices,
-                                                                            uint32_t nRows, uint32_t nClusters, uint32_t nFeatures, Status * st)
+                                                                            const services::internal::Buffer<algorithmFPType> & data,
+                                                                            const services::internal::Buffer<algorithmFPType> & clusters,
+                                                                            UniversalBuffer & indices, uint32_t nRows, uint32_t nClusters,
+                                                                            uint32_t nFeatures, Status * st)
 {
     KernelArguments args(6);
     args.set(0, data, AccessModeIds::read);

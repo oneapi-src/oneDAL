@@ -26,8 +26,8 @@
 
 #include "services/env_detect.h"
 #include "src/algorithms/kmeans/oneapi/cl_kernels/kmeans_cl_kernels.cl"
-#include "sycl/internal/execution_context.h"
-#include "sycl/internal/types.h"
+#include "services/internal/sycl/execution_context.h"
+#include "services/internal/sycl/types.h"
 #include "src/sycl/blas_gpu.h"
 
 #include "src/externals/service_ittnotify.h"
@@ -35,7 +35,7 @@
 DAAL_ITTNOTIFY_DOMAIN(kmeans.dense.lloyd.batch.oneapi);
 
 using namespace daal::services;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 using namespace daal::data_management;
 
 namespace daal
@@ -377,7 +377,7 @@ const char * KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::getComputeSquare
 }
 
 template <typename algorithmFPType>
-void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::computeSquares(const Buffer<algorithmFPType> & data, UniversalBuffer & dataSq, uint32_t nRows,
+void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::computeSquares(const services::internal::Buffer<algorithmFPType> & data, UniversalBuffer & dataSq, uint32_t nRows,
                                                                        uint32_t nFeatures, Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeSquares);
@@ -433,8 +433,8 @@ void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::getNumEmptyClusters(uint
 }
 
 template <typename algorithmFPType>
-void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::computeDistances(const Buffer<algorithmFPType> & data,
-                                                                         const Buffer<algorithmFPType> & centroids, uint32_t blockSize,
+void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::computeDistances(const services::internal::Buffer<algorithmFPType> & data,
+                                                                         const services::internal::Buffer<algorithmFPType> & centroids, uint32_t blockSize,
                                                                          uint32_t nClusters, uint32_t nFeatures, Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeDistances);
@@ -450,7 +450,7 @@ void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::computeDistances(const B
 }
 
 template <typename algorithmFPType>
-void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::computeAssignments(const Buffer<int> & assignments, uint32_t blockSize, uint32_t nClusters,
+void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::computeAssignments(const services::internal::Buffer<int> & assignments, uint32_t blockSize, uint32_t nClusters,
                                                                            Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeAssignments);
@@ -488,7 +488,7 @@ void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::computeAssignments(const
 }
 
 template <typename algorithmFPType>
-void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::computePartialCandidates(const Buffer<int> & assignments, uint32_t blockSize,
+void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::computePartialCandidates(const services::internal::Buffer<int> & assignments, uint32_t blockSize,
                                                                                  uint32_t nClusters, uint32_t reset, Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computePartialCandidates);
@@ -555,7 +555,7 @@ void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::mergePartialCandidates(u
 }
 
 template <typename algorithmFPType>
-void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::partialReduceCentroids(const Buffer<algorithmFPType> & data, const Buffer<int> & assignments,
+void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::partialReduceCentroids(const services::internal::Buffer<algorithmFPType> & data, const services::internal::Buffer<int> & assignments,
                                                                                uint32_t blockSize, uint32_t nClusters, uint32_t nFeatures,
                                                                                uint32_t doReset, Status * st)
 {
@@ -582,7 +582,7 @@ void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::partialReduceCentroids(c
 }
 
 template <typename algorithmFPType>
-void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::mergeReduceCentroids(const Buffer<algorithmFPType> & centroids, uint32_t nClusters,
+void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::mergeReduceCentroids(const services::internal::Buffer<algorithmFPType> & centroids, uint32_t nClusters,
                                                                              uint32_t nFeatures, Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.mergeReduceCentroids);
@@ -612,7 +612,7 @@ void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::mergeReduceCentroids(con
 }
 
 template <typename algorithmFPType>
-void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::updateObjectiveFunction(const Buffer<algorithmFPType> & objFunction, uint32_t blockSize,
+void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::updateObjectiveFunction(const services::internal::Buffer<algorithmFPType> & objFunction, uint32_t blockSize,
                                                                                 uint32_t nClusters, uint32_t doReset, Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateObjectiveFunction);
@@ -657,7 +657,7 @@ void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::updateObjectiveFunction(
 template <typename algorithmFPType>
 void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::buildProgram(ClKernelFactoryIface & kernelFactory, uint32_t nClusters, Status * st)
 {
-    auto fptype_name   = oneapi::internal::getKeyFPType<algorithmFPType>();
+    auto fptype_name   = services::internal::sycl::getKeyFPType<algorithmFPType>();
     auto build_options = fptype_name;
     build_options.add(getBuildOptions(nClusters));
     services::String cachekey("__daal_algorithms_kmeans_lloyd_dense_batch_");
@@ -700,7 +700,7 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::getBlockSize(uint32_t 
 
 template <typename algorithmFPType>
 Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::setEmptyClusters(NumericTable * const ntData, uint32_t nRows, uint32_t nClusters,
-                                                                           uint32_t nFeatures, Buffer<algorithmFPType> & outCentroids,
+                                                                           uint32_t nFeatures, services::internal::Buffer<algorithmFPType> & outCentroids,
                                                                            algorithmFPType & objFuncCorrection)
 {
     auto counters        = _partialCentroidsCounters.template get<int>().toHost(ReadWriteMode::readOnly);

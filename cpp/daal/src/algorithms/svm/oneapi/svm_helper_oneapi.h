@@ -36,7 +36,7 @@ namespace utils
 namespace internal
 {
 using namespace daal::services::internal;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 template <typename T>
 inline const T min(const T a, const T b)
@@ -88,11 +88,11 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status makeInversion(const services::Buffer<algorithmFPType> & x, services::Buffer<algorithmFPType> & res, const size_t n)
+    static services::Status makeInversion(const services::internal::Buffer<algorithmFPType> & x, services::internal::Buffer<algorithmFPType> & res, const size_t n)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(makeInversion);
 
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::internal::getDefaultContext();
         auto & factory = context.getClKernelFactory();
 
         services::Status status = buildProgram(factory);
@@ -114,7 +114,7 @@ struct HelperSVM
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(makeRange);
 
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::internal::getDefaultContext();
         auto & factory = context.getClKernelFactory();
 
         services::Status status = buildProgram(factory);
@@ -135,7 +135,7 @@ struct HelperSVM
                                     UniversalBuffer & indecesBuf, const size_t n)
     {
         services::Status status;
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::internal::getDefaultContext();
 
         context.copy(values, 0, f, 0, n, &status);
         DAAL_CHECK_STATUS_VAR(status);
@@ -144,65 +144,65 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status copyDataByIndices(const services::Buffer<algorithmFPType> & x, const services::Buffer<uint32_t> & indX,
-                                              services::Buffer<algorithmFPType> & newX, const size_t nWS, const size_t p)
+    static services::Status copyDataByIndices(const services::internal::Buffer<algorithmFPType> & x, const services::internal::Buffer<uint32_t> & indX,
+                                              services::internal::Buffer<algorithmFPType> & newX, const size_t nWS, const size_t p)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(copyDataByIndices);
         services::Status status;
 
-        oneapi::internal::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
-        oneapi::internal::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
+        services::internal::sycl::ExecutionContextIface & ctx    = services::internal::getDefaultContext();
+        services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
         buildProgram(factory);
 
         const char * const kernelName      = "copyDataByIndices";
-        oneapi::internal::KernelPtr kernel = factory.getKernel(kernelName);
+        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
 
-        oneapi::internal::KernelArguments args(4);
-        args.set(0, x, oneapi::internal::AccessModeIds::read);
-        args.set(1, indX, oneapi::internal::AccessModeIds::read);
+        services::internal::sycl::KernelArguments args(4);
+        args.set(0, x, services::internal::sycl::AccessModeIds::read);
+        args.set(1, indX, services::internal::sycl::AccessModeIds::read);
         DAAL_ASSERT(p <= uint32max);
         args.set(2, static_cast<uint32_t>(p));
-        args.set(3, newX, oneapi::internal::AccessModeIds::write);
+        args.set(3, newX, services::internal::sycl::AccessModeIds::write);
 
-        oneapi::internal::KernelRange range(p, nWS);
+        services::internal::sycl::KernelRange range(p, nWS);
 
         ctx.run(range, kernel, args, &status);
         return status;
     }
 
-    static services::Status copyDataByIndices(const services::Buffer<algorithmFPType> & x, const services::Buffer<int> & indX,
-                                              services::Buffer<algorithmFPType> & newX, const size_t nWS, const size_t p)
+    static services::Status copyDataByIndices(const services::internal::Buffer<algorithmFPType> & x, const services::internal::Buffer<int> & indX,
+                                              services::internal::Buffer<algorithmFPType> & newX, const size_t nWS, const size_t p)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(copyDataByIndices);
         services::Status status;
 
-        oneapi::internal::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
-        oneapi::internal::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
+        services::internal::sycl::ExecutionContextIface & ctx    = services::internal::getDefaultContext();
+        services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
         buildProgram(factory);
 
         const char * const kernelName      = "copyDataByIndicesInt";
-        oneapi::internal::KernelPtr kernel = factory.getKernel(kernelName);
+        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
 
-        oneapi::internal::KernelArguments args(4);
-        args.set(0, x, oneapi::internal::AccessModeIds::read);
-        args.set(1, indX, oneapi::internal::AccessModeIds::read);
+        services::internal::sycl::KernelArguments args(4);
+        args.set(0, x, services::internal::sycl::AccessModeIds::read);
+        args.set(1, indX, services::internal::sycl::AccessModeIds::read);
         DAAL_ASSERT(p <= uint32max);
         args.set(2, static_cast<int32_t>(p));
-        args.set(3, newX, oneapi::internal::AccessModeIds::write);
-        oneapi::internal::KernelRange range(p, nWS);
+        args.set(3, newX, services::internal::sycl::AccessModeIds::write);
+        services::internal::sycl::KernelRange range(p, nWS);
 
         ctx.run(range, kernel, args, &status);
         return status;
     }
 
-    static services::Status checkUpper(const services::Buffer<algorithmFPType> & y, const services::Buffer<algorithmFPType> & alpha,
-                                       services::Buffer<uint32_t> & indicator, const algorithmFPType C, const size_t n)
+    static services::Status checkUpper(const services::internal::Buffer<algorithmFPType> & y, const services::internal::Buffer<algorithmFPType> & alpha,
+                                       services::internal::Buffer<uint32_t> & indicator, const algorithmFPType C, const size_t n)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(checkUpper);
 
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::internal::getDefaultContext();
         auto & factory = context.getClKernelFactory();
 
         services::Status status = buildProgram(factory);
@@ -222,12 +222,12 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status checkLower(const services::Buffer<algorithmFPType> & y, const services::Buffer<algorithmFPType> & alpha,
-                                       services::Buffer<uint32_t> & indicator, const algorithmFPType C, const size_t n)
+    static services::Status checkLower(const services::internal::Buffer<algorithmFPType> & y, const services::internal::Buffer<algorithmFPType> & alpha,
+                                       services::internal::Buffer<uint32_t> & indicator, const algorithmFPType C, const size_t n)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(checkLower);
 
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::internal::getDefaultContext();
         auto & factory = context.getClKernelFactory();
 
         services::Status status = buildProgram(factory);
@@ -247,12 +247,12 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status checkBorder(const services::Buffer<algorithmFPType> & alpha, services::Buffer<uint32_t> & mask, const algorithmFPType C,
+    static services::Status checkBorder(const services::internal::Buffer<algorithmFPType> & alpha, services::internal::Buffer<uint32_t> & mask, const algorithmFPType C,
                                         const size_t n)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(checkBorder);
 
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::internal::getDefaultContext();
         auto & factory = context.getClKernelFactory();
 
         services::Status status = buildProgram(factory);
@@ -271,11 +271,11 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status checkNonZeroBinary(const services::Buffer<algorithmFPType> & alpha, services::Buffer<uint32_t> & mask, const size_t n)
+    static services::Status checkNonZeroBinary(const services::internal::Buffer<algorithmFPType> & alpha, services::internal::Buffer<uint32_t> & mask, const size_t n)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(checkNonZeroBinary);
 
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::internal::getDefaultContext();
         auto & factory = context.getClKernelFactory();
 
         services::Status status = buildProgram(factory);
@@ -293,11 +293,11 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status computeDualCoeffs(const services::Buffer<algorithmFPType> & y, services::Buffer<algorithmFPType> & alpha, const size_t n)
+    static services::Status computeDualCoeffs(const services::internal::Buffer<algorithmFPType> & y, services::internal::Buffer<algorithmFPType> & alpha, const size_t n)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(computeDualCoeffs);
 
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::internal::getDefaultContext();
         auto & factory = context.getClKernelFactory();
 
         services::Status status = buildProgram(factory);

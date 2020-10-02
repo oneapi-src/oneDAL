@@ -26,7 +26,7 @@
 
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
-#include "sycl/internal/execution_context.h"
+#include "services/internal/sycl/execution_context.h"
 
 namespace daal
 {
@@ -49,33 +49,34 @@ private:
     services::Status processResultsToCompute(DAAL_UINT64 resultsToCompute, daal::data_management::NumericTable * ntData,
                                              daal::data_management::NumericTable * ntCoreIndices,
                                              daal::data_management::NumericTable * ntCoreObservations);
-    services::Status pushNeighborsToQueue(const oneapi::internal::UniversalBuffer & distances, const oneapi::internal::UniversalBuffer & chunkOffests,
-                                          uint32_t rowId, uint32_t clusterId, uint32_t chunkOffset, uint32_t nRows, uint32_t qEnd,
-                                          algorithmFPType eps, oneapi::internal::UniversalBuffer & assignments,
-                                          oneapi::internal::UniversalBuffer & queue);
+    services::Status pushNeighborsToQueue(const services::internal::sycl::UniversalBuffer & distances,
+                                          const services::internal::sycl::UniversalBuffer & chunkOffests, uint32_t rowId, uint32_t clusterId,
+                                          uint32_t chunkOffset, uint32_t nRows, uint32_t qEnd, algorithmFPType eps,
+                                          services::internal::sycl::UniversalBuffer & assignments, services::internal::sycl::UniversalBuffer & queue);
 
-    services::Status countOffsets(const oneapi::internal::UniversalBuffer & counters, oneapi::internal::UniversalBuffer & offsets);
+    services::Status countOffsets(const services::internal::sycl::UniversalBuffer & counters, services::internal::sycl::UniversalBuffer & offsets);
 
-    services::Status setBufferValue(oneapi::internal::UniversalBuffer & buffer, uint32_t index, int value);
+    services::Status setBufferValue(services::internal::sycl::UniversalBuffer & buffer, uint32_t index, int value);
 
-    services::Status setBufferValueByQueueIndex(oneapi::internal::UniversalBuffer & buffer, const oneapi::internal::UniversalBuffer & queue,
-                                                uint32_t posInQueue, int value);
+    services::Status setBufferValueByQueueIndex(services::internal::sycl::UniversalBuffer & buffer,
+                                                const services::internal::sycl::UniversalBuffer & queue, uint32_t posInQueue, int value);
 
-    services::Status getPointDistances(const oneapi::internal::UniversalBuffer & data, uint32_t nRows, uint32_t rowId, uint32_t dim,
-                                       uint32_t minkowskiPower, oneapi::internal::UniversalBuffer & pointDistances);
+    services::Status getPointDistances(const services::internal::sycl::UniversalBuffer & data, uint32_t nRows, uint32_t rowId, uint32_t dim,
+                                       uint32_t minkowskiPower, services::internal::sycl::UniversalBuffer & pointDistances);
 
-    services::Status getQueueBlockDistances(const oneapi::internal::UniversalBuffer & data, uint32_t nRows,
-                                            const oneapi::internal::UniversalBuffer & queue, uint32_t queueBegin, uint32_t queueBlockSize,
-                                            uint32_t dim, uint32_t minkowskiPower, oneapi::internal::UniversalBuffer & queueBlockDistances);
+    services::Status getQueueBlockDistances(const services::internal::sycl::UniversalBuffer & data, uint32_t nRows,
+                                            const services::internal::sycl::UniversalBuffer & queue, uint32_t queueBegin, uint32_t queueBlockSize,
+                                            uint32_t dim, uint32_t minkowskiPower, services::internal::sycl::UniversalBuffer & queueBlockDistances);
 
-    services::Status countPointNeighbors(const oneapi::internal::UniversalBuffer & assignments,
-                                         const oneapi::internal::UniversalBuffer & pointDistances, uint32_t rowId, int chunkOffset, uint32_t nRows,
-                                         algorithmFPType epsP, const oneapi::internal::UniversalBuffer & queue,
-                                         oneapi::internal::UniversalBuffer & countersTotal, oneapi::internal::UniversalBuffer & countersNewNeighbors);
+    services::Status countPointNeighbors(const services::internal::sycl::UniversalBuffer & assignments,
+                                         const services::internal::sycl::UniversalBuffer & pointDistances, uint32_t rowId, int chunkOffset,
+                                         uint32_t nRows, algorithmFPType epsP, const services::internal::sycl::UniversalBuffer & queue,
+                                         services::internal::sycl::UniversalBuffer & countersTotal,
+                                         services::internal::sycl::UniversalBuffer & countersNewNeighbors);
 
-    uint32_t sumCounters(const oneapi::internal::UniversalBuffer & counters);
+    uint32_t sumCounters(const services::internal::sycl::UniversalBuffer & counters);
 
-    bool canQueryRow(const oneapi::internal::UniversalBuffer & assignments, uint32_t rowIndex, services::Status * s);
+    bool canQueryRow(const services::internal::sycl::UniversalBuffer & assignments, uint32_t rowIndex, services::Status * s);
 
     uint32_t computeQueueBlockSize(uint32_t queueBegin, uint32_t queueEnd);
 
@@ -83,7 +84,7 @@ private:
 
     services::Status initializeBuffers(uint32_t nRows);
 
-    services::Status buildProgram(oneapi::internal::ClKernelFactoryIface & kernel_factory);
+    services::Status buildProgram(services::internal::sycl::ClKernelFactoryIface & kernel_factory);
 
     void calculateChunks(uint32_t nRows);
 
@@ -96,13 +97,13 @@ private:
     uint32_t _chunkNumber                               = _minRecommendedNumberOfChunks;
     uint32_t _chunkSize                                 = _recommendedChunkSize;
 
-    oneapi::internal::UniversalBuffer _queueBlockDistances;
-    oneapi::internal::UniversalBuffer _singlePointDistances;
-    oneapi::internal::UniversalBuffer _queue;
-    oneapi::internal::UniversalBuffer _isCore;
-    oneapi::internal::UniversalBuffer _countersTotal;
-    oneapi::internal::UniversalBuffer _countersNewNeighbors;
-    oneapi::internal::UniversalBuffer _chunkOffsets;
+    services::internal::sycl::UniversalBuffer _queueBlockDistances;
+    services::internal::sycl::UniversalBuffer _singlePointDistances;
+    services::internal::sycl::UniversalBuffer _queue;
+    services::internal::sycl::UniversalBuffer _isCore;
+    services::internal::sycl::UniversalBuffer _countersTotal;
+    services::internal::sycl::UniversalBuffer _countersNewNeighbors;
+    services::internal::sycl::UniversalBuffer _chunkOffsets;
 };
 
 } // namespace internal

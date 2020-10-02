@@ -15,16 +15,18 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __DAAL_ONEAPI_INTERNAL_TYPES_UTILS_CXX11_H__
-#define __DAAL_ONEAPI_INTERNAL_TYPES_UTILS_CXX11_H__
+#ifndef __DAAL_SERVICES_INTERNAL_SYCL_TYPES_UTILS_CXX11_H__
+#define __DAAL_SERVICES_INTERNAL_SYCL_TYPES_UTILS_CXX11_H__
 
-#include "sycl/internal/types_utils.h"
+#include "services/internal/sycl/types_utils.h"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace interface1
 {
@@ -49,7 +51,7 @@ private:
         template <typename T>
         void operator()(Typelist<T>)
         {
-            buffer = services::Buffer<T>(cl::sycl::buffer<T, 1>(bufferSize));
+            buffer = services::internal::Buffer<T>(cl::sycl::buffer<T, 1>(bufferSize));
         }
     };
 
@@ -187,8 +189,9 @@ using interface1::BufferAllocator;
 using interface1::BufferCopier;
 using interface1::BufferFiller;
 
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
 
 #endif

@@ -18,8 +18,8 @@
 #include "algorithms/algorithm_types.h"
 #include "data_management/data/numeric_table.h"
 
-#include "data_management/data/numeric_table_sycl_homogen.h"
-#include "data_management/data/numeric_table_sycl_soa.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
+#include "data_management/data/internal/numeric_table_sycl_soa.h"
 
 #include "data_management/data/homogen_numeric_table.h"
 #include "data_management/data/merged_numeric_table.h"
@@ -208,7 +208,6 @@ DAAL_INSTANTIATE_SLOW(unsigned long)
 DAAL_INSTANTIATE_SLOW(long)
 
 IMPLEMENT_SERIALIZABLE_TAG(SOANumericTable, SERIALIZATION_SOA_NT_ID)
-IMPLEMENT_SERIALIZABLE_TAG(SyclSOANumericTable, SERIALIZATION_SYCL_SOA_NT_ID)
 IMPLEMENT_SERIALIZABLE_TAG(BaseArrowImmutableNumericTable, SERIALIZATION_ARROW_IMMUTABLE_NT_ID)
 IMPLEMENT_SERIALIZABLE_TAG(CSRNumericTable, SERIALIZATION_CSR_NT_ID)
 IMPLEMENT_SERIALIZABLE_TAG(AOSNumericTable, SERIALIZATION_AOS_NT_ID)
@@ -224,7 +223,6 @@ IMPLEMENT_SERIALIZABLE_TAG1T_SPECIALIZATION(SerializableKeyValueCollection, Seri
 #define DAAL_INSTANTIATE_SER_TAG(T)                                                                                                                 \
     IMPLEMENT_SERIALIZABLE_TAG1T(HomogenNumericTable, T, SERIALIZATION_HOMOGEN_NT_ID)                                                               \
     IMPLEMENT_SERIALIZABLE_TAG1T(Matrix, T, SERIALIZATION_MATRIX_NT_ID)                                                                             \
-    IMPLEMENT_SERIALIZABLE_TAG1T(SyclHomogenNumericTable, T, SERIALIZATION_SYCL_HOMOGEN_NT_ID)                                                      \
     IMPLEMENT_SERIALIZABLE_TAG2T(PackedSymmetricMatrix, NumericTableIface::upperPackedSymmetricMatrix, T, SERIALIZATION_PACKEDSYMMETRIC_NT_ID)      \
     IMPLEMENT_SERIALIZABLE_TAG2T(PackedSymmetricMatrix, NumericTableIface::lowerPackedSymmetricMatrix, T, SERIALIZATION_PACKEDSYMMETRIC_NT_ID + 20) \
     IMPLEMENT_SERIALIZABLE_TAG2T(PackedTriangularMatrix, NumericTableIface::upperPackedTriangularMatrix, T, SERIALIZATION_PACKEDTRIANGULAR_NT_ID)   \
@@ -297,7 +295,36 @@ void MergedNumericTable::freeDataMemoryImpl()
 }
 
 } // namespace interface1
+} // namespace data_management
+} // namespace daal
 
+namespace daal
+{
+namespace data_management
+{
+namespace internal
+{
+namespace interface1
+{
+IMPLEMENT_SERIALIZABLE_TAG(SyclSOANumericTable, SERIALIZATION_SYCL_SOA_NT_ID)
+
+#define DAAL_INSTANTIATE_SER_TAG_SYCL(T) IMPLEMENT_SERIALIZABLE_TAG1T(SyclHomogenNumericTable, T, SERIALIZATION_SYCL_HOMOGEN_NT_ID)
+
+DAAL_INSTANTIATE_SER_TAG_SYCL(float)
+DAAL_INSTANTIATE_SER_TAG_SYCL(double)
+DAAL_INSTANTIATE_SER_TAG_SYCL(int)
+DAAL_INSTANTIATE_SER_TAG_SYCL(unsigned int)
+DAAL_INSTANTIATE_SER_TAG_SYCL(DAAL_INT64)
+DAAL_INSTANTIATE_SER_TAG_SYCL(DAAL_UINT64)
+DAAL_INSTANTIATE_SER_TAG_SYCL(char)
+DAAL_INSTANTIATE_SER_TAG_SYCL(unsigned char)
+DAAL_INSTANTIATE_SER_TAG_SYCL(short)
+DAAL_INSTANTIATE_SER_TAG_SYCL(unsigned short)
+DAAL_INSTANTIATE_SER_TAG_SYCL(unsigned long)
+DAAL_INSTANTIATE_SER_TAG_SYCL(long)
+
+} // namespace interface1
+} // namespace internal
 } // namespace data_management
 } // namespace daal
 

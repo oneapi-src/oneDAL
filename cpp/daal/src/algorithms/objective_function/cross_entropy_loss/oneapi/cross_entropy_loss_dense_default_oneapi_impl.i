@@ -38,15 +38,15 @@ namespace cross_entropy_loss
 {
 namespace internal
 {
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 using namespace daal::internal;
 
 // Calculate X^T*beta
 template <typename algorithmFPType>
-services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::applyBeta(const services::Buffer<algorithmFPType> & x,
-                                                                                        const services::Buffer<algorithmFPType> & beta,
-                                                                                        services::Buffer<algorithmFPType> & xb, const uint32_t n,
-                                                                                        const uint32_t nClasses, const uint32_t ldX,
+services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::applyBeta(const services::internal::Buffer<algorithmFPType> & x,
+                                                                                        const services::internal::Buffer<algorithmFPType> & beta,
+                                                                                        services::internal::Buffer<algorithmFPType> & xb,
+                                                                                        const uint32_t n, const uint32_t nClasses, const uint32_t ldX,
                                                                                         const uint32_t nBeta, const uint32_t offset)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(applyBeta);
@@ -55,10 +55,11 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::ap
 }
 
 template <typename algorithmFPType>
-services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::betaIntercept(const services::Buffer<algorithmFPType> & one,
-                                                                                            const services::Buffer<algorithmFPType> & arg,
-                                                                                            services::Buffer<algorithmFPType> & f, const uint32_t n,
-                                                                                            const uint32_t nClasses, const uint32_t nBeta)
+services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::betaIntercept(const services::internal::Buffer<algorithmFPType> & one,
+                                                                                            const services::internal::Buffer<algorithmFPType> & arg,
+                                                                                            services::internal::Buffer<algorithmFPType> & f,
+                                                                                            const uint32_t n, const uint32_t nClasses,
+                                                                                            const uint32_t nBeta)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(betaIntercept);
 
@@ -68,9 +69,9 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::be
 
 // Calculate (y - sigma)^T*X + 2*L2*beta
 template <typename algorithmFPType>
-services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::applyGradient(const services::Buffer<algorithmFPType> & x,
-                                                                                            const services::Buffer<algorithmFPType> & g,
-                                                                                            services::Buffer<algorithmFPType> & gradient,
+services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::applyGradient(const services::internal::Buffer<algorithmFPType> & x,
+                                                                                            const services::internal::Buffer<algorithmFPType> & g,
+                                                                                            services::internal::Buffer<algorithmFPType> & gradient,
                                                                                             const algorithmFPType alpha, const uint32_t n,
                                                                                             const uint32_t p, const uint32_t nBeta, uint32_t nClasses,
                                                                                             const algorithmFPType beta, const uint32_t offset)
@@ -82,14 +83,17 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::ap
 }
 
 template <typename algorithmFPType>
-services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::applyHessian(
-    const services::Buffer<algorithmFPType> & x, const services::Buffer<algorithmFPType> & prob, const uint32_t n, const uint32_t p,
-    services::Buffer<algorithmFPType> & h, const uint32_t nBeta, const uint32_t nClasses, const uint32_t offset, const algorithmFPType alpha)
+services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::applyHessian(const services::internal::Buffer<algorithmFPType> & x,
+                                                                                           const services::internal::Buffer<algorithmFPType> & prob,
+                                                                                           const uint32_t n, const uint32_t p,
+                                                                                           services::internal::Buffer<algorithmFPType> & h,
+                                                                                           const uint32_t nBeta, const uint32_t nClasses,
+                                                                                           const uint32_t offset, const algorithmFPType alpha)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(applyHessian);
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     buildProgram(factory);
@@ -115,14 +119,14 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::ap
 }
 
 template <typename algorithmFPType>
-services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::softmax(const services::Buffer<algorithmFPType> & x,
-                                                                                      services::Buffer<algorithmFPType> & result, const uint32_t n,
-                                                                                      const uint32_t nClasses)
+services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::softmax(const services::internal::Buffer<algorithmFPType> & x,
+                                                                                      services::internal::Buffer<algorithmFPType> & result,
+                                                                                      const uint32_t n, const uint32_t nClasses)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(softmax);
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     buildProgram(factory);
@@ -146,15 +150,14 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::so
 }
 
 template <typename algorithmFPType>
-services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::softmaxAndUpdateProba(const services::Buffer<algorithmFPType> & x,
-                                                                                                    const services::Buffer<algorithmFPType> & y,
-                                                                                                    services::Buffer<algorithmFPType> & result,
-                                                                                                    const uint32_t n, const uint32_t nClasses)
+services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::softmaxAndUpdateProba(
+    const services::internal::Buffer<algorithmFPType> & x, const services::internal::Buffer<algorithmFPType> & y,
+    services::internal::Buffer<algorithmFPType> & result, const uint32_t n, const uint32_t nClasses)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(softmaxAndUpdateProba);
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     buildProgram(factory);
@@ -180,15 +183,15 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::so
 
 // resulti = [yi=K]*log(sigmai)
 template <typename algorithmFPType>
-services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::crossEntropy(const services::Buffer<algorithmFPType> & y,
-                                                                                           const services::Buffer<algorithmFPType> & sigma,
-                                                                                           services::Buffer<algorithmFPType> & result,
+services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::crossEntropy(const services::internal::Buffer<algorithmFPType> & y,
+                                                                                           const services::internal::Buffer<algorithmFPType> & sigma,
+                                                                                           services::internal::Buffer<algorithmFPType> & result,
                                                                                            const uint32_t n, const uint32_t nClasses)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(crossEntropy);
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     buildProgram(factory);
@@ -211,14 +214,15 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::cr
 
 // resulti = [yi=K]*log(sigmai)
 template <typename algorithmFPType>
-services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::updateProba(const services::Buffer<algorithmFPType> & y,
-                                                                                          services::Buffer<algorithmFPType> & sigma, const uint32_t n,
-                                                                                          const uint32_t nClasses, const algorithmFPType value)
+services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::updateProba(const services::internal::Buffer<algorithmFPType> & y,
+                                                                                          services::internal::Buffer<algorithmFPType> & sigma,
+                                                                                          const uint32_t n, const uint32_t nClasses,
+                                                                                          const algorithmFPType value)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(updateProba);
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     buildProgram(factory);
@@ -252,14 +256,15 @@ void CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::buildProgram(C
 
 template <typename algorithmFPType>
 services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::doCompute(
-    const uint32_t nBatch, const uint32_t nFeatures, const uint32_t nClasses, const daal::services::Buffer<algorithmFPType> & xBuff,
-    const daal::services::Buffer<algorithmFPType> & yBuff, const daal::services::Buffer<algorithmFPType> & argBuff, NumericTable * valueNT,
-    NumericTable * gradientNT, NumericTable * hessianNT, NumericTable * nonSmoothTermValueNT, NumericTable * proximalProjectionNT,
-    NumericTable * lipschitzConstantNT, const algorithmFPType l1reg, const algorithmFPType l2reg, const bool interceptFlag, const bool isSourceData)
+    const uint32_t nBatch, const uint32_t nFeatures, const uint32_t nClasses, const daal::services::internal::Buffer<algorithmFPType> & xBuff,
+    const daal::services::internal::Buffer<algorithmFPType> & yBuff, const daal::services::internal::Buffer<algorithmFPType> & argBuff,
+    NumericTable * valueNT, NumericTable * gradientNT, NumericTable * hessianNT, NumericTable * nonSmoothTermValueNT,
+    NumericTable * proximalProjectionNT, NumericTable * lipschitzConstantNT, const algorithmFPType l1reg, const algorithmFPType l2reg,
+    const bool interceptFlag, const bool isSourceData)
 {
     services::Status status;
 
-    ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
+    ExecutionContextIface & ctx = services::internal::getDefaultContext();
 
     const uint32_t nBeta   = nFeatures + 1;
     const uint32_t ldX     = isSourceData || interceptFlag ? nFeatures : nBeta;
@@ -274,7 +279,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::do
     }
 
     DAAL_CHECK_STATUS(status, HelperObjectiveFunction::lazyAllocate(_fUniversal, n * nClasses));
-    services::Buffer<algorithmFPType> fBuf = _fUniversal.get<algorithmFPType>();
+    services::internal::Buffer<algorithmFPType> fBuf = _fUniversal.get<algorithmFPType>();
 
     //f = X*W + W0
     DAAL_CHECK_STATUS(status, applyBeta(xBuff, argBuff, fBuf, n, nClasses, ldX, nBeta, offsetX));
@@ -282,7 +287,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::do
     if (interceptFlag)
     {
         DAAL_CHECK_STATUS(status, HelperObjectiveFunction::lazyAllocate(_oneVector, n));
-        services::Buffer<algorithmFPType> oneVectorBuf = _oneVector.get<algorithmFPType>();
+        services::internal::Buffer<algorithmFPType> oneVectorBuf = _oneVector.get<algorithmFPType>();
 
         ctx.fill(_oneVector, 1.0, &status);
         DAAL_CHECK_STATUS(status, betaIntercept(oneVectorBuf, argBuff, fBuf, n, nClasses, nBeta));
@@ -290,7 +295,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::do
 
     const bool isNotOnlyGrad = valueNT || hessianNT;
 
-    services::Buffer<algorithmFPType> softmaxBuf;
+    services::internal::Buffer<algorithmFPType> softmaxBuf;
     if (isNotOnlyGrad)
     {
         DAAL_CHECK_STATUS(status, HelperObjectiveFunction::lazyAllocate(_softmaxUniversal, n * nClasses));
@@ -310,7 +315,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::do
         algorithmFPType & value = *vr.getBlockPtr();
 
         DAAL_CHECK_STATUS(status, HelperObjectiveFunction::lazyAllocate(_crossEntropyUniversal, n));
-        services::Buffer<algorithmFPType> crossEntropyBuff = _crossEntropyUniversal.get<algorithmFPType>();
+        services::internal::Buffer<algorithmFPType> crossEntropyBuff = _crossEntropyUniversal.get<algorithmFPType>();
 
         DAAL_CHECK_STATUS(status, crossEntropy(yBuff, softmaxBuf, crossEntropyBuff, n, nClasses));
 
@@ -334,7 +339,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::do
 
         BlockDescriptor<algorithmFPType> gr;
         DAAL_CHECK_STATUS(status, gradientNT->getBlockOfRows(0, nClasses * nBeta, ReadWriteMode::readWrite, gr));
-        daal::services::Buffer<algorithmFPType> gradientBuff = gr.getBuffer();
+        daal::services::internal::Buffer<algorithmFPType> gradientBuff = gr.getBuffer();
 
         const algorithmFPType zero = algorithmFPType(0);
 
@@ -401,7 +406,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::co
     BlockDescriptor<algorithmFPType> agrBlock;
     DAAL_CHECK_STATUS(status, argument->getBlockOfRows(0, nClasses * nBeta, ReadWriteMode::readOnly, agrBlock));
 
-    services::Buffer<algorithmFPType> argBuff = agrBlock.getBuffer();
+    services::internal::Buffer<algorithmFPType> argBuff = agrBlock.getBuffer();
 
     NumericTable * ntInd        = parameter->batchIndices.get();
     const algorithmFPType l1reg = parameter->penaltyL1;
@@ -415,8 +420,8 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::co
         DAAL_CHECK_STATUS(status, data->getBlockOfRows(0, nRows, ReadWriteMode::readOnly, xBlock));
         DAAL_CHECK_STATUS(status, dependentVariables->getBlockOfRows(0, nRows, ReadWriteMode::readOnly, yBlock));
 
-        const services::Buffer<algorithmFPType> xBuff = xBlock.getBuffer();
-        const services::Buffer<algorithmFPType> yBuff = yBlock.getBuffer();
+        const services::internal::Buffer<algorithmFPType> xBuff = xBlock.getBuffer();
+        const services::internal::Buffer<algorithmFPType> yBuff = yBlock.getBuffer();
 
         const size_t nBatch      = nRows;
         const bool isSourceData  = true;
@@ -435,15 +440,15 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::co
         DAAL_CHECK_STATUS(status, HelperObjectiveFunction::lazyAllocate(_uX, nBatch * nBeta));
         DAAL_CHECK_STATUS(status, HelperObjectiveFunction::lazyAllocate(_uY, nBatch));
 
-        services::Buffer<algorithmFPType> xBuff = _uX.get<algorithmFPType>();
-        services::Buffer<algorithmFPType> yBuff = _uY.get<algorithmFPType>();
+        services::internal::Buffer<algorithmFPType> xBuff = _uX.get<algorithmFPType>();
+        services::internal::Buffer<algorithmFPType> yBuff = _uY.get<algorithmFPType>();
 
         const bool isSourceData  = false;
         const bool interceptFlag = false;
 
         BlockDescriptor<int> rInd;
         DAAL_CHECK_STATUS(status, ntInd->getBlockOfRows(0, 1, ReadWriteMode::readOnly, rInd));
-        services::Buffer<int> indBuff = rInd.getBuffer();
+        services::internal::Buffer<int> indBuff = rInd.getBuffer();
 
         BlockDescriptor<algorithmFPType> xBlock;
         BlockDescriptor<algorithmFPType> yBlock;
