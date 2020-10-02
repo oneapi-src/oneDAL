@@ -357,9 +357,14 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::upd
 
     SafeStatus safeStat;
     const size_t nBlocksWS = nWS / _blockSizeWS;
+<<<<<<< HEAD
 
     size_t blockSize   = 128;
     size_t nBlocksGrad = (nVectors / blockSize) + !!(nVectors % blockSize);
+=======
+    const size_t blockSize = 128;
+    size_t nBlocksGrad     = (nVectors / blockSize) + !!(nVectors % blockSize);
+>>>>>>> 9ca5d8481... Fix failed SVM build on gnu510  (#1042)
 
     DAAL_INT incX(1);
     DAAL_INT incY(1);
