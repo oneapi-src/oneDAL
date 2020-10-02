@@ -1032,14 +1032,12 @@ endif
 ifeq ($(if $(or $(OS_is_lnx),$(OS_is_mac)),yes,),yes)
 _release_c:
 	cd $(RELEASEDIR) && ln -sf dal daal
-
-endef
+endif
 
 ifeq ($(OS_is_win),yes)
 _release_c:
 	cd  $(RELEASEDIR) && mklink /J daal dal
-
-endef
+endif
 
 #----- releasing jar files
 _release_jj: $(addprefix $(RELEASEDIR.jardir)/,$(release.JARS))
