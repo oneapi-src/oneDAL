@@ -61,7 +61,7 @@ void run(sycl::queue &queue) {
               << result_infer.get_labels() << std::endl;
 
     std::cout << "Ground truth:" << std::endl << y_test << std::endl;
-  } catch (oneapi::dal::unimplemented_error &e) {
+  } catch (oneapi::dal::unimplemented &e) {
     std::cout << "  " << e.what() << std::endl;
     return;
   }
