@@ -50,18 +50,18 @@ using daal_pca_cor_gpu_kernel_t = daal_pca::internal::PCACorrelationKernelBatchU
 template <typename Float, typename Cpu>
 daal_pca_cor_cpu_kernel_iface_ptr<Float> make_daal_cpu_kernel(Cpu cpu) {
     using Kernel = daal_pca_cor_cpu_kernel_t<Float, interop::to_daal_cpu_type<Cpu>::value>;
-    return daal::services::SharedPtr<Kernel>{new Kernel{}};
+    return daal::services::SharedPtr<Kernel>{ new Kernel{} };
 }
 
 template <typename Float, typename... Args>
-static void call_daal_gpu_kernel(Args&& ...args) {
+static void call_daal_gpu_kernel(Args&&... args) {
     // GPU kernel depends on CPU ISA-specific kernel, so create this kernels
     // first using CPU dispatching mechanism and then pass to GPU one
     const auto daal_cpu_kernel = dal::backend::dispatch_by_cpu(context_cpu{}, [&](auto cpu) {
         return make_daal_cpu_kernel<Float>(cpu);
     });
 
-    daal_pca_cor_gpu_kernel_t<Float> daal_gpu_kernel{daal_cpu_kernel};
+    daal_pca_cor_gpu_kernel_t<Float> daal_gpu_kernel{ daal_cpu_kernel };
     const auto status = daal_gpu_kernel.compute(std::forward<Args>(args)...);
     interop::status_to_exception(status);
 }
@@ -85,8 +85,10 @@ static result_t call_daal_kernel(const context_gpu& ctx,
 
     const auto daal_data =
         interop::convert_to_daal_sycl_homogen_table(queue, arr_data, row_count, column_count);
-    const auto daal_eigvec =
-        interop::convert_to_daal_sycl_homogen_table(queue, arr_eigvec, component_count, column_count);
+    const auto daal_eigvec = interop::convert_to_daal_sycl_homogen_table(queue,
+                                                                         arr_eigvec,
+                                                                         component_count,
+                                                                         column_count);
     const auto daal_eigval =
         interop::convert_to_daal_sycl_homogen_table(queue, arr_eigval, 1, component_count);
     const auto daal_means =

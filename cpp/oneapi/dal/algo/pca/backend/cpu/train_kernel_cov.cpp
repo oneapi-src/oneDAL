@@ -60,8 +60,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     const auto daal_eigenvalues =
         interop::convert_to_daal_homogen_table(arr_eigval, 1, component_count);
     const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, column_count);
-    const auto daal_variances =
-        interop::convert_to_daal_homogen_table(arr_vars, 1, column_count);
+    const auto daal_variances = interop::convert_to_daal_homogen_table(arr_vars, 1, column_count);
 
     daal_cov::Batch<Float, daal_cov::defaultDense> covariance_alg;
     covariance_alg.input.set(daal_cov::data, daal_data);

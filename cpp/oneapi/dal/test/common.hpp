@@ -131,13 +131,13 @@ public:
 
     const sycl::queue& get_global_queue() const {
         if (!queue_) {
-            throw internal_error{"Test queue provider is not initialized"};
+            throw internal_error{ "Test queue provider is not initialized" };
         }
         return *queue_;
     }
 
     void init(const sycl::queue& queue) {
-        queue_.reset(new sycl::queue{queue});
+        queue_.reset(new sycl::queue{ queue });
     }
 
     void reset() {

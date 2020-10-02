@@ -30,12 +30,12 @@ public:
 
     daal_sycl_ex_ctx_t lookup(const sycl::queue& queue) {
         if (!is_enabled()) {
-            return daal_sycl_ex_ctx_t{queue};
+            return daal_sycl_ex_ctx_t{ queue };
         }
 
         const auto it = map_.find(queue);
         if (it == map_.end()) {
-            const auto ctx = daal_sycl_ex_ctx_t{queue};
+            const auto ctx = daal_sycl_ex_ctx_t{ queue };
             map_.emplace(queue, ctx);
             return ctx;
         }
@@ -61,7 +61,7 @@ private:
     std::unordered_map<sycl::queue, daal_sycl_ex_ctx_t> map_;
 };
 
-execution_context_guard::execution_context_guard(const sycl::queue &queue) {
+execution_context_guard::execution_context_guard(const sycl::queue& queue) {
     auto ctx = execution_context_cache::get_instance().lookup(queue);
     daal::services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 }

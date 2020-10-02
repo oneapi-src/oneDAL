@@ -30,7 +30,7 @@ struct execution_context_guard {
 
     ~execution_context_guard();
 
-    execution_context_guard(const execution_context_guard&) = delete;
+    execution_context_guard(const execution_context_guard &) = delete;
 };
 
 void enable_daal_sycl_execution_context_cache();
