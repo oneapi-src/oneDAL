@@ -32,7 +32,7 @@ void run(sycl::queue& queue) {
     const auto data = dal::read<dal::table>(queue, dal::csv::data_source{data_file_name});
 
     const auto pca_desc = dal::pca::descriptor<>()
-        .set_component_count(data.get_column_count())
+        .set_component_count(5)
         .set_is_deterministic(true);
 
     const auto result = dal::train(queue, pca_desc, data);
