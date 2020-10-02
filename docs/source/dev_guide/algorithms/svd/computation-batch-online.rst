@@ -29,6 +29,7 @@ Pass the ``Input ID`` as a parameter to the methods that provide input for your 
 .. list-table::
    :header-rows: 1
    :align: left
+   :widths: 10 60
 
    * - Input ID
      - Input
@@ -50,6 +51,7 @@ The SVD algorithm has the following parameters:
 .. list-table::
    :header-rows: 1
    :align: left
+   :widths: 10 20 30
 
    * - Parameter
      - Default Value
@@ -83,6 +85,7 @@ Pass the ``Result ID`` as a parameter to the methods that access the results of 
 .. list-table::
    :header-rows: 1
    :align: left
+   :widths: 10 60
 
    * - Result ID
      - Result

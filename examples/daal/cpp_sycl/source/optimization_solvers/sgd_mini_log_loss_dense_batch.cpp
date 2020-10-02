@@ -36,6 +36,9 @@ using namespace daal::algorithms;
 using namespace daal::algorithms::optimization_solver;
 using namespace daal::data_management;
 
+using daal::services::internal::SyclExecutionContext;
+using daal::data_management::internal::SyclHomogenNumericTable;
+
 string datasetFileName = "../data/batch/custom.csv";
 
 const size_t nIterations       = 1000;
@@ -58,7 +61,7 @@ int main(int argc, char * argv[])
         const auto & device     = deviceSelector.second;
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
-        services::SyclExecutionContext ctx(queue);
+        SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
         /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */

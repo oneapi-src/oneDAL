@@ -176,6 +176,11 @@ public:
     double minImpurityDecreaseInSplitNode; /*!< A node will be split if this split induces a decrease of the impurity
                                                   greater than or equal to the value, non-negative. Default is 0.0 */
     size_t maxLeafNodes;                   /*!< Maximum number of leaf node. Default is 0 (unlimited) */
+    size_t maxBins;                        /*!< Used with 'hist' split finding method only.
+                                                 Maximal number of discrete bins to bucket continuous features.
+                                                 Default is 256. Increasing the number results in higher computation costs */
+    size_t minBinSize;                     /*!< Used with 'hist' split finding method only.
+                                                 Minimal number of observations in a bin. Default is 5 */
 };
 /* [Parameter source code] */
 } // namespace interface2

@@ -176,14 +176,22 @@ Examples
 
 .. tabs::
 
-    .. tab:: C++
+  .. tab:: C++ (CPU)
 
-        Batch Processing:
+    Batch Processing:
 
-        - :cpp_example:`brownboost_dense_batch.cpp <boosting/brownboost_dense_batch.cpp>`
+    - :cpp_example:`brownboost_dense_batch.cpp <boosting/brownboost_dense_batch.cpp>`
 
-    .. tab:: Java*
+  .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
-        Batch Processing:
+    Batch Processing:
 
-        - :java_example:`BrownBoostDenseBatch.java <boosting/brownboost/BrownBoostDenseBatch.java>`
+    - :java_example:`BrownBoostDenseBatch.java <boosting/brownboost/BrownBoostDenseBatch.java>`
+
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`brownboost_batch.py`

@@ -83,45 +83,55 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+   .. tab:: C++ (CPU)
 
-    Batch Processing:
+      Batch Processing:
 
-    -  :cpp_example:`mn_naive_bayes_dense_batch.cpp <naive_bayes/mn_naive_bayes_dense_batch.cpp>`
-    -  :cpp_example:`mn_naive_bayes_csr_batch.cpp <naive_bayes/mn_naive_bayes_csr_batch.cpp>`
+      -  :cpp_example:`mn_naive_bayes_dense_batch.cpp <naive_bayes/mn_naive_bayes_dense_batch.cpp>`
+      -  :cpp_example:`mn_naive_bayes_csr_batch.cpp <naive_bayes/mn_naive_bayes_csr_batch.cpp>`
 
-    Online Processing:  
+      Online Processing:  
 
-    - :cpp_example:`mn_naive_bayes_dense_online.cpp <naive_bayes/mn_naive_bayes_dense_online.cpp>`
-    - :cpp_example:`mn_naive_bayes_csr_online.cpp <naive_bayes/mn_naive_bayes_csr_online.cpp>`
+      - :cpp_example:`mn_naive_bayes_dense_online.cpp <naive_bayes/mn_naive_bayes_dense_online.cpp>`
+      - :cpp_example:`mn_naive_bayes_csr_online.cpp <naive_bayes/mn_naive_bayes_csr_online.cpp>`
 
-    Distributed Processing:
+      Distributed Processing:
 
-    - :cpp_example:`mn_naive_bayes_dense_distr.cpp <naive_bayes/mn_naive_bayes_dense_distr.cpp>`
-    - :cpp_example:`mn_naive_bayes_csr_distr.cpp <naive_bayes/mn_naive_bayes_csr_distr.cpp>`
+      - :cpp_example:`mn_naive_bayes_dense_distr.cpp <naive_bayes/mn_naive_bayes_dense_distr.cpp>`
+      - :cpp_example:`mn_naive_bayes_csr_distr.cpp <naive_bayes/mn_naive_bayes_csr_distr.cpp>`
 
-  .. tab:: Java*
+   .. tab:: Java*
+  
+      .. note:: There is no support for Java on GPU.
 
-    Batch Processing:
+      Batch Processing:
     
-    -  :java_example:`MnNaiveBayesDenseBatch.java <naive_bayes/MnNaiveBayesDenseBatch.java>`
-    -  :java_example:`MnNaiveBayesCSRBatch.java <naive_bayes/MnNaiveBayesCSRBatch.java>`
+      -  :java_example:`MnNaiveBayesDenseBatch.java <naive_bayes/MnNaiveBayesDenseBatch.java>`
+      -  :java_example:`MnNaiveBayesCSRBatch.java <naive_bayes/MnNaiveBayesCSRBatch.java>`
     
-    Online Processing:
+      Online Processing:
 
-    - :java_example:`MnlNaiveBayesDenseOnline.java <naive_bayes/MnlNaiveBayesDenseOnline.java>`
-    - :java_example:`MnNaiveBayesCSROnline.java <naive_bayes/MnNaiveBayesCSROnline.java>`
+      - :java_example:`MnNaiveBayesDenseOnline.java <naive_bayes/MnNaiveBayesDenseOnline.java>`
+      - :java_example:`MnNaiveBayesCSROnline.java <naive_bayes/MnNaiveBayesCSROnline.java>`
 
-    Distributed Processing:
+      Distributed Processing:
 
-    - :java_example:`MnNaiveBayesDenseDistr.java <naive_bayes/MnNaiveBayesDenseDistr.java>`
-    - :java_example:`MnNaiveBayesCSRDistr.java <naive_bayes/MnNaiveBayesCSRDistr.java>`
+      - :java_example:`MnNaiveBayesDenseDistr.java <naive_bayes/MnNaiveBayesDenseDistr.java>`
+      - :java_example:`MnNaiveBayesCSRDistr.java <naive_bayes/MnNaiveBayesCSRDistr.java>`
 
-.. Python*:
+   .. tab:: Python*
 
-.. -  mn_naive_bayes_dense_batch.py
-.. -  mn_naive_bayes_csr_batch.py
+      Batch Processing:
 
+      - :daal4py_example:`naive_bayes_batch.py`
+
+      Online Processing:
+
+      - :daal4py_example:`naive_bayes_streaming.py`
+
+      Distributed Processing:
+
+      - :daal4py_example:`naive_bayes_spmd.py`
 
 Performance Considerations
 **************************

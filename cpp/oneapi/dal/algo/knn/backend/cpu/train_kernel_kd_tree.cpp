@@ -54,11 +54,11 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     const auto daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
 
     const std::int64_t dummy_seed = 777;
-    daal_knn::Parameter daal_parameter(
-        desc.get_class_count(),
-        desc.get_neighbor_count(),
-        dummy_seed,
-        desc.get_data_use_in_model() ? daal_knn::doUse : daal_knn::doNotUse);
+    const auto data_use_in_model = daal_knn::doNotUse;
+    daal_knn::Parameter daal_parameter(desc.get_class_count(),
+                                       desc.get_neighbor_count(),
+                                       dummy_seed,
+                                       data_use_in_model);
 
     Status status;
     const daal::algorithms::classifier::ModelPtr model_ptr =
@@ -66,8 +66,9 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     interop::status_to_exception(status);
 
     auto knn_model = static_cast<daal_knn::Model*>(model_ptr.get());
-    knn_model->impl()->setData<Float>(daal_data, desc.get_data_use_in_model());
-    knn_model->impl()->setLabels<Float>(daal_labels, desc.get_data_use_in_model());
+    const bool copy_data_labels = true;
+    knn_model->impl()->setData<Float>(daal_data, copy_data_labels);
+    knn_model->impl()->setLabels<Float>(daal_labels, copy_data_labels);
 
     interop::status_to_exception(
         interop::call_daal_kernel<Float, daal_knn_kd_tree_kernel_t>(ctx,

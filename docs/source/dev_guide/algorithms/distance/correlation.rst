@@ -49,7 +49,7 @@ Algorithm Input
 ---------------
 
 The correlation distance matrix algorithm accepts the input described below. 
-Pass the Input ID as a parameter to the methods that provide input for your algorithm. 
+Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm. 
 For more details, see :ref:`algorithms`.
 
 .. list-table::
@@ -107,17 +107,25 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
     - :cpp_example:`cor_dist_dense_batch.cpp <distance/cor_dist_dense_batch.cpp>`
+    
+  .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
+
+    Batch Processing:
+
+    - :java_example:`CorDistDenseBatch.java <distance/CorDistDenseBatch.java>`
+
+  .. tab:: Python*
 
     Batch Processing:
     
-  .. tab:: Java*
-
-    - :java_example:`CorDistDenseBatch.java <distance/CorDistDenseBatch.java>`
+    - :daal4py_example:`correlation_distance_batch.py`
 
 Performance Considerations
 **************************

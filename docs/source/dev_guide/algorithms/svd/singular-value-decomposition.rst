@@ -59,33 +59,49 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+   .. tab:: C++ (CPU)
 
-    Batch Processing:
+      Batch Processing:
 
-    - :cpp_example:`svd_dense_batch.cpp <svd/svd_dense_batch.cpp>`
+      - :cpp_example:`svd_dense_batch.cpp <svd/svd_dense_batch.cpp>`
 
-    Online Processing:
+      Online Processing:
 
-    - :cpp_example:`svd_dense_online.cpp <svd/svd_dense_online.cpp>`
+      - :cpp_example:`svd_dense_online.cpp <svd/svd_dense_online.cpp>`
 
-    Distributed Processing:
+      Distributed Processing:
 
-    - :cpp_example:`svd_dense_distr.cpp <svd/svd_dense_distr.cpp>`
+      - :cpp_example:`svd_dense_distr.cpp <svd/svd_dense_distr.cpp>`
 
-  .. tab:: Java*
+   .. tab:: Java*
+  
+      .. note:: There is no support for Java on GPU.
 
-    Batch Processing:
+      Batch Processing:
 
-    - :java_example:`SVDDenseBatch.java <svd/SVDDenseBatch.java>`
+      - :java_example:`SVDDenseBatch.java <svd/SVDDenseBatch.java>`
 
-    Online Processing:
+      Online Processing:
     
-    - :java_example:`SVDDenseOnline.java <svd/SVDDenseOnline.java>`
+      - :java_example:`SVDDenseOnline.java <svd/SVDDenseOnline.java>`
 
-    Distributed Processing:
+      Distributed Processing:
 
-    - :java_example:`SVDDenseDistr.java <svd/SVDDenseDistr.java>`
+      - :java_example:`SVDDenseDistr.java <svd/SVDDenseDistr.java>`
+
+   .. tab:: Python*
+
+      Batch Processing:
+
+      - :daal4py_example:`svd_batch.py`
+
+      Online Processing:
+
+      - :daal4py_example:`svd_streaming.py`
+
+      Distributed Processing:
+
+      - :daal4py_example:`svd_spmd.py`
 
 Performance Considerations
 **************************

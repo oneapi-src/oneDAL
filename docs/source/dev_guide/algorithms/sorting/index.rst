@@ -54,6 +54,7 @@ The sorting algorithm has the following parameters:
 .. list-table::
    :header-rows: 1
    :align: left
+   :widths: 10 10 60
 
    * - Parameter
      - Default Value
@@ -92,14 +93,22 @@ Examples
 
 .. tabs::
 
-    .. tab:: C++
+  .. tab:: C++ (CPU)
 
-        Batch Processing:
+    Batch Processing:
 
-        - :cpp_example:`sorting_dense_batch.cpp <sorting/sorting_dense_batch.cpp>`
+    - :cpp_example:`sorting_dense_batch.cpp <sorting/sorting_dense_batch.cpp>`
 
-    .. tab:: Java*
+  .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
-        Batch Processing:
+    Batch Processing:
 
-        - :java_example:`SortingDenseBatch.java <sorting/SortingDenseBatch.java>`
+    - :java_example:`SortingDenseBatch.java <sorting/SortingDenseBatch.java>`
+
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`sorting_batch.py`

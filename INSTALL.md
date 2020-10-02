@@ -25,7 +25,7 @@ Required Software:
 
         pacman -S msys/make
 
-For details, see [System Requirements for oneDAL](https://software.intel.com/en-us/articles/system-requirements-for-oneapi-data-analytics-library#).
+For details, see [System Requirements for oneDAL](https://software.intel.com/content/www/us/en/develop/articles/system-requirements-for-oneapi-data-analytics-library.html).
 
 ## Installation Steps
 1. Clone the sources from GitHub\* as follows:
@@ -51,7 +51,7 @@ For details, see [System Requirements for oneDAL](https://software.intel.com/en-
 
             source /opt/intel/compilers_and_libraries/linux/bin/compilervars.sh intel64
 
-    - **Intel(R) oneAPI DPC++ Compiler 2021.1 (Windows\*)**:
+    - **Intel(R) oneAPI DPC++/C++ Compiler 2021.1 (Windows\*)**:
 
             call "C:\Program Files (x86)\inteloneapi\compiler\latest\env\vars.bat" intel64
 

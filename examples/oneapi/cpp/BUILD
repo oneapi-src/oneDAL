@@ -49,10 +49,21 @@ dal_example_suite(
     test_deps = _TEST_DEPS,
 )
 
+dal_example_suite(
+    name = "jaccard",
+    srcs = glob(["source/jaccard/*.cpp"]),
+    dal_deps = [
+        "@onedal//cpp/oneapi/dal/algo:jaccard",
+    ],
+    data = _DATA_DEPS,
+    test_deps = _TEST_DEPS + [
+        "@tbb//:tbb",
+    ],
+)
+
 dal_algo_example_suite(
     algos = [
         "decision_forest",
-        "jaccard",
         "kmeans",
         "knn",
         "linear_kernel",

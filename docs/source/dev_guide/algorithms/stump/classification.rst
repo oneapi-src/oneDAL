@@ -58,7 +58,7 @@ At the training stage, a classification decision stump has the following paramet
        See :ref:`dt_classification` chapter for details.
 
    * - ``varImportance``
-     - none
+     - ``none``
      - .. note:: Variable importance computation is not supported for current version of the library.
    * - ``nClasses``
      - :math:`2`
@@ -103,7 +103,7 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
@@ -111,8 +111,16 @@ Examples
     - :cpp_example:`stump_cls_infogain_dense_batch.cpp <stump/stump_cls_infogain_dense_batch.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
     
     - :java_example:`StumpClsGiniDenseBatch.java <stump/StumpClsGiniDenseBatch.java>`
     - :java_example:`StumpClsInfogainDenseBatch.java <stump/StumpClsInfogainDenseBatch.java>`
+
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`stump_classification_batch.py`

@@ -176,19 +176,9 @@ void status_to_exception(const daal::services::Status& s) {
         case ErrorID::ErrorKDBTypeUnsupported:
         case ErrorID::ErrorObjectDoesNotSupportSerialization:
         case ErrorID::ErrorMethodNotImplemented:
-        case ErrorID::ErrorDeviceSupportNotImplemented: throw unimplemented_error(description);
+        case ErrorID::ErrorDeviceSupportNotImplemented: throw unimplemented(description);
         case ErrorID::ErrorCpuNotSupported:
-        case ErrorID::ErrorDictionaryAlreadyAvailable:
-        case ErrorID::ErrorDictionaryNotAvailable:
-        case ErrorID::ErrorNumericTableNotAvailable:
-        case ErrorID::ErrorNumericTableAlreadyAllocated:
-        case ErrorID::ErrorNumericTableNotAllocated:
-        case ErrorID::ErrorPrecomputedSumNotAvailable:
-        case ErrorID::ErrorPrecomputedMinNotAvailable:
-        case ErrorID::ErrorPrecomputedMaxNotAvailable:
-        case ErrorID::ErrorSourceDataNotAvailable:
-        case ErrorID::ErrorFeatureNamesNotAvailable:
-        case ErrorID::ErrorAccessUSMPointerOnOtherDevice: throw unavailable_error(description);
+        case ErrorID::ErrorAccessUSMPointerOnOtherDevice: throw unsupported_device(description);
         case ErrorID::ErrorOnFileOpen:
         case ErrorID::ErrorOnFileRead: throw system_error(std::error_code(), description);
         case ErrorID::ErrorBufferSizeIntegerOverflow:
@@ -243,10 +233,19 @@ void status_to_exception(const daal::services::Status& s) {
         case ErrorID::ErrorCouldntDetachCurrentThreadFromJavaVM:
         case ErrorID::ErrorExecutionContext:
         case ErrorID::ErrorPCAFailedToComputeCorrelationEigenvalues:
-            throw internal_error(description);
+        case ErrorID::ErrorDictionaryAlreadyAvailable:
+        case ErrorID::ErrorDictionaryNotAvailable:
+        case ErrorID::ErrorNumericTableNotAvailable:
+        case ErrorID::ErrorNumericTableAlreadyAllocated:
+        case ErrorID::ErrorNumericTableNotAllocated:
+        case ErrorID::ErrorPrecomputedSumNotAvailable:
+        case ErrorID::ErrorPrecomputedMinNotAvailable:
+        case ErrorID::ErrorPrecomputedMaxNotAvailable:
+        case ErrorID::ErrorSourceDataNotAvailable:
+        case ErrorID::ErrorFeatureNamesNotAvailable: throw internal_error(description);
         case ErrorID::ErrorMemoryAllocationFailed:
         case ErrorID::ErrorZlibMemoryAllocationFailed:
-        case ErrorID::ErrorBzip2MemoryAllocationFailed: throw bad_alloc();
+        case ErrorID::ErrorBzip2MemoryAllocationFailed: throw host_bad_alloc();
         default: throw internal_error("Unknown status code");
     }
 }

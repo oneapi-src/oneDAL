@@ -86,8 +86,12 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     errors.setCanThrow(false);
     s |= checkNumericTable(m->impl()->getData().get(), dataStr());
     DAAL_CHECK(s, ErrorModelNotFullInitialized);
-    s |= checkNumericTable(m->impl()->getLabels().get(), labelsStr());
-    DAAL_CHECK(s, ErrorModelNotFullInitialized);
+    const auto par = dynamic_cast<const kdtree_knn_classification::interface3::Parameter *>(parameter);
+    if ((par == nullptr) || (par->resultsToEvaluate != 0))
+    {
+        s |= checkNumericTable(m->impl()->getLabels().get(), labelsStr());
+        DAAL_CHECK(s, ErrorModelNotFullInitialized);
+    }
     s |= checkNumericTable(m->impl()->getKDTreeTable().get(), kdTreeTableStr(), 0, NumericTableIface::aos, 4);
     DAAL_CHECK(s, ErrorModelNotFullInitialized);
 
