@@ -33,7 +33,7 @@ void run(sycl::queue& queue) {
 
     const auto pca_desc = dal::pca::descriptor<>()
         .set_component_count(5)
-        .set_is_deterministic(true);
+        .set_deterministic(true);
 
     const auto result = dal::train(queue, pca_desc, data);
 
