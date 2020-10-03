@@ -552,7 +552,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::init(const char * 
 {
     services::Status status;
 
-    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context        = services::internal::getDefaultContext();
     auto & kernel_factory = context.getClKernelFactory();
 
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory, buildOptions));

@@ -55,7 +55,7 @@ Status KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::init(size_t p, 
 {
     Status st;
 
-    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context        = services::internal::getDefaultContext();
     auto & kernel_factory = context.getClKernelFactory();
 
     auto fptype_name   = services::internal::sycl::getKeyFPType<algorithmFPType>();

@@ -77,7 +77,7 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(const Numer
 
     Status st;
 
-    auto & context = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     const Model * model = static_cast<const Model *>(m);
 
