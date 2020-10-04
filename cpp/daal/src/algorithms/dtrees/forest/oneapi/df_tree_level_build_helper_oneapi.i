@@ -26,7 +26,7 @@
 #include "src/services/service_data_utils.h"
 #include "src/externals/service_ittnotify.h"
 
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 using namespace daal::services;
 using namespace daal::services::internal;
 
@@ -70,7 +70,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::initializeTreeOrde
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelInitializeTreeOrder;
 
@@ -94,7 +94,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::markPresentRows(co
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.markPresentRows);
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     {
         DAAL_ASSERT(nRows <= _int32max);
@@ -129,7 +129,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::countAbsentRowsFor
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.countAbsentRowsForBlocks);
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     {
         DAAL_ASSERT(nRows <= _int32max);
@@ -164,7 +164,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::countAbsentRowsTot
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.countAbsentRowsTotal);
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     {
         DAAL_ASSERT(nSubgroupSums <= _int32max);
@@ -201,7 +201,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::fillOOBRowsListByB
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.fillOOBRowsListByBlocks);
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     {
         DAAL_ASSERT(nRows <= _int32max);
@@ -234,7 +234,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::getOOBRows(const U
 {
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     const int absentMark       = -1;
     const size_t localSize     = _preferableSubGroup;
@@ -281,7 +281,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::getNumOfSplitNodes
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelGetNumOfSplitNodes;
 
@@ -326,7 +326,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::convertSplitToLeaf
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelConvertSplitToLeaf;
 
@@ -353,7 +353,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::doNodesSplit(const
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelDoNodesSplit;
 
@@ -393,7 +393,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::splitNodeListOnGro
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelSplitNodeListOnGroupsBySize;
 
@@ -435,7 +435,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::doLevelPartition(c
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelDoLevelPartition;
 
@@ -477,7 +477,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::partitionCopy(Univ
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelPartitionCopy;
 
@@ -501,13 +501,14 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::partitionCopy(Univ
 template <typename algorithmFPType>
 services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::updateMDIVarImportance(const UniversalBuffer & nodeList,
                                                                                      const UniversalBuffer & nodeImpDecreaseList, size_t nNodes,
-                                                                                     services::Buffer<algorithmFPType> & varImp, size_t nFeatures)
+                                                                                     services::internal::Buffer<algorithmFPType> & varImp,
+                                                                                     size_t nFeatures)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateMDIVarImportance);
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelUpdateMDIVarImportance;
 
@@ -551,7 +552,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::init(const char * 
 {
     services::Status status;
 
-    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context        = services::internal::getDefaultContext();
     auto & kernel_factory = context.getClKernelFactory();
 
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory, buildOptions));

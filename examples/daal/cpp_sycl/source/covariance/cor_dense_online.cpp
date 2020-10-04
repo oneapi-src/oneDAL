@@ -31,6 +31,9 @@
 #include "service.h"
 #include "service_sycl.h"
 
+using daal::services::internal::SyclExecutionContext;
+using daal::data_management::internal::SyclHomogenNumericTable;
+
 using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
@@ -50,7 +53,7 @@ int main(int argc, char * argv[])
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
-        daal::services::SyclExecutionContext ctx(queue);
+        SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
         auto data = SyclHomogenNumericTable<>::create(10, 0, NumericTable::notAllocate);

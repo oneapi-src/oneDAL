@@ -19,15 +19,17 @@
 #define __PARTITION_H__
 
 #include "src/sycl/math_service_types.h"
-#include "services/buffer.h"
-#include "sycl/internal/types_utils.h"
-#include "sycl/internal/execution_context.h"
+#include "services/internal/buffer.h"
+#include "services/internal/sycl/types_utils.h"
+#include "services/internal/sycl/execution_context.h"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 class Partition
 {
@@ -62,8 +64,9 @@ private:
     static const uint32_t _maxLocalSums       = 256;
 };
 
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
 
 #endif

@@ -27,7 +27,7 @@
 #include "src/externals/service_ittnotify.h"
 
 using namespace daal::services;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 using namespace daal::data_management;
 
 namespace daal
@@ -43,7 +43,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::initializeBuffers(uint
 {
     calculateChunks(nRows);
     Status s;
-    auto & context = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, _queueBlockSize, nRows);
     _queueBlockDistances = context.allocate(TypeIds::id<algorithmFPType>(), _queueBlockSize * nRows, &s);
     DAAL_CHECK_STATUS_VAR(s);
@@ -179,7 +179,7 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
                                                         const Parameter * par)
 {
     Status s;
-    auto & context                = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context                = services::internal::getDefaultContext();
     const uint32_t minkowskiPower = 2;
     algorithmFPType epsP          = 1.0;
     for (uint32_t i = 0; i < minkowskiPower; i++) epsP *= par->epsilon;
@@ -277,7 +277,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::pushNeighborsToQueue(c
 {
     services::Status st;
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.pushNeighborsToQueue);
-    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context        = services::internal::getDefaultContext();
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
     auto kernel = kernel_factory.getKernel("push_points_to_queue", &st);
@@ -314,7 +314,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::countOffsets(const Uni
 {
     services::Status st;
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.countOffsets);
-    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context        = services::internal::getDefaultContext();
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
     auto kernel = kernel_factory.getKernel("compute_chunk_offsets", &st);
@@ -335,7 +335,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::setBufferValue(Univers
 {
     services::Status st;
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.setBufferValue);
-    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context        = services::internal::getDefaultContext();
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
     auto kernel = kernel_factory.getKernel("set_buffer_value", &st);
@@ -357,7 +357,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::setBufferValueByQueueI
 {
     services::Status st;
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.setBufferValueByIndirectIndex);
-    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context        = services::internal::getDefaultContext();
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
     auto kernel = kernel_factory.getKernel("set_buffer_value_by_queue_index", &st);
@@ -381,7 +381,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::getPointDistances(cons
 {
     services::Status st;
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.getPointDistances);
-    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context        = services::internal::getDefaultContext();
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
     auto kernel = kernel_factory.getKernel("compute_point_distances", &st);
@@ -415,7 +415,7 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::getQueueBlockDistances(const Uni
 {
     services::Status st;
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.getQueueBlockDistances);
-    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context        = services::internal::getDefaultContext();
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
     auto kernel = kernel_factory.getKernel("compute_queue_block_distances", &st);
@@ -452,7 +452,7 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::countPointNeighbors(const Univer
 {
     services::Status st;
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.countPointNeighbors);
-    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context        = services::internal::getDefaultContext();
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
     auto kernel = kernel_factory.getKernel("count_neighbors_by_type", &st);
@@ -501,7 +501,7 @@ template <typename algorithmFPType>
 Status DBSCANBatchKernelUCAPI<algorithmFPType>::buildProgram(ClKernelFactoryIface & kernel_factory)
 {
     Status st;
-    auto fptype_name   = oneapi::internal::getKeyFPType<algorithmFPType>();
+    auto fptype_name   = services::internal::sycl::getKeyFPType<algorithmFPType>();
     auto build_options = fptype_name;
     build_options.add(" -D_NOISE_=-1 -D_UNDEFINED_=-2 ");
 

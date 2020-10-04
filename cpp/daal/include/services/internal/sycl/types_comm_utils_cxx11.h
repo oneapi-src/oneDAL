@@ -15,11 +15,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __DAAL_ONEAPI_INTERNAL_TYPES_COMM_UTILS_CXX11_H__
-#define __DAAL_ONEAPI_INTERNAL_TYPES_COMM_UTILS_CXX11_H__
+#ifndef __DAAL_SERVICES_INTERNAL_SYCL_TYPES_COMM_UTILS_CXX11_H__
+#define __DAAL_SERVICES_INTERNAL_SYCL_TYPES_COMM_UTILS_CXX11_H__
 
-#include "sycl/internal/types.h"
-#include "sycl/internal/types_utils.h"
+#include "services/internal/sycl/types.h"
+#include "services/internal/sycl/types_utils.h"
 #include "ccl.h"
 #include "ccl_types.h"
 
@@ -62,17 +62,17 @@ private:
     {
         cl::sycl::queue & queue;
         ccl_stream_t & stream;
-        oneapi::internal::UniversalBuffer & dstUnivers;
-        oneapi::internal::UniversalBuffer & srcUnivers;
+        services::internal::sycl::UniversalBuffer & dstUnivers;
+        services::internal::sycl::UniversalBuffer & srcUnivers;
         size_t count;
 
-        explicit Execute(cl::sycl::queue & queue, ccl_stream_t & stream, oneapi::internal::UniversalBuffer & dst,
-                         oneapi::internal::UniversalBuffer & src, size_t count)
+        explicit Execute(cl::sycl::queue & queue, ccl_stream_t & stream, services::internal::sycl::UniversalBuffer & dst,
+                         services::internal::sycl::UniversalBuffer & src, size_t count)
             : queue(queue), stream(stream), dstUnivers(dst), srcUnivers(src), count(count)
         {}
 
         template <typename T>
-        void operator()(oneapi::internal::Typelist<T>)
+        void operator()(services::internal::sycl::Typelist<T>)
         {
             auto src = srcUnivers.get<T>().toSycl();
             auto dst = dstUnivers.get<T>().toSycl();
@@ -83,11 +83,11 @@ private:
     };
 
 public:
-    static void allReduceSum(cl::sycl::queue & queue, ccl_stream_t & stream, oneapi::internal::UniversalBuffer & dst,
-                             oneapi::internal::UniversalBuffer & src, size_t count)
+    static void allReduceSum(cl::sycl::queue & queue, ccl_stream_t & stream, services::internal::sycl::UniversalBuffer & dst,
+                             services::internal::sycl::UniversalBuffer & src, size_t count)
     {
         Execute op(queue, stream, dst, src, count);
-        oneapi::internal::TypeDispatcher::dispatch(dst.type(), op);
+        services::internal::sycl::TypeDispatcher::dispatch(dst.type(), op);
     }
 };
 
@@ -102,18 +102,18 @@ private:
     {
         cl::sycl::queue & queue;
         ccl_stream_t & stream;
-        oneapi::internal::UniversalBuffer & dstUnivers;
-        oneapi::internal::UniversalBuffer & srcUnivers;
+        services::internal::sycl::UniversalBuffer & dstUnivers;
+        services::internal::sycl::UniversalBuffer & srcUnivers;
         size_t srcCount;
         size_t * recvCount;
 
-        explicit Execute(cl::sycl::queue & queue, ccl_stream_t & stream, oneapi::internal::UniversalBuffer & dst, size_t * recvCount,
-                         oneapi::internal::UniversalBuffer & src, size_t srcCount)
+        explicit Execute(cl::sycl::queue & queue, ccl_stream_t & stream, services::internal::sycl::UniversalBuffer & dst, size_t * recvCount,
+                         services::internal::sycl::UniversalBuffer & src, size_t srcCount)
             : queue(queue), stream(stream), dstUnivers(dst), srcUnivers(src), recvCount(recvCount), srcCount(srcCount)
         {}
 
         template <typename T>
-        void operator()(oneapi::internal::Typelist<T>)
+        void operator()(services::internal::sycl::Typelist<T>)
         {
             auto src = srcUnivers.get<T>().toSycl();
             auto dst = dstUnivers.get<T>().toSycl();
@@ -124,11 +124,11 @@ private:
     };
 
 public:
-    static void allGatherV(cl::sycl::queue & queue, ccl_stream_t & stream, oneapi::internal::UniversalBuffer & dst, size_t * recvCount,
-                           oneapi::internal::UniversalBuffer & src, size_t srcCount)
+    static void allGatherV(cl::sycl::queue & queue, ccl_stream_t & stream, services::internal::sycl::UniversalBuffer & dst, size_t * recvCount,
+                           services::internal::sycl::UniversalBuffer & src, size_t srcCount)
     {
         Execute op(queue, stream, dst, recvCount, src, srcCount);
-        oneapi::internal::TypeDispatcher::dispatch(dst.type(), op);
+        services::internal::sycl::TypeDispatcher::dispatch(dst.type(), op);
     }
 };
 

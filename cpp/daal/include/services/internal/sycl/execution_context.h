@@ -15,21 +15,23 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __DAAL_ONEAPI_INTERNAL_EXECUTION_CONTEXT_H__
-#define __DAAL_ONEAPI_INTERNAL_EXECUTION_CONTEXT_H__
+#ifndef __DAAL_SERVICES_INTERNAL_SYCL_EXECUTION_CONTEXT_H__
+#define __DAAL_SERVICES_INTERNAL_SYCL_EXECUTION_CONTEXT_H__
 
-#include "services/buffer.h"
+#include "services/internal/buffer.h"
 #include "services/error_handling.h"
 #include "services/internal/error_handling_helpers.h"
 #include "services/internal/any.h"
-#include "sycl/internal/types.h"
-#include "sycl/internal/math/types.h"
+#include "services/internal/sycl/types.h"
+#include "services/internal/sycl/math/types.h"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace interface1
 {
@@ -155,7 +157,7 @@ public:
     }
 
     template <typename T>
-    void set(const daal::services::Buffer<T> & buffer, AccessModeId accessMode = AccessModeIds::read)
+    void set(const daal::services::internal::Buffer<T> & buffer, AccessModeId accessMode = AccessModeIds::read)
     {
         _dataType   = TypeIds::id<T>();
         _value      = buffer;
@@ -219,7 +221,7 @@ public:
     }
 
     template <typename T>
-    void set(size_t index, const services::Buffer<T> & buffer, AccessModeId accessMode = AccessModeIds::read)
+    void set(size_t index, const services::internal::Buffer<T> & buffer, AccessModeId accessMode = AccessModeIds::read)
     {
         DAAL_ASSERT(index < _size);
         _args[index].set(buffer, accessMode);
@@ -479,8 +481,9 @@ using interface1::ExecutionContextIface;
 using interface1::CpuKernelFactory;
 using interface1::CpuExecutionContextImpl;
 
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
 
 #endif

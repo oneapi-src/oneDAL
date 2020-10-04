@@ -1,4 +1,4 @@
-/* file: utils.h */
+/* file: execution_context.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -15,30 +15,23 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __DAAL_ONEAPI_INTERNAL_UTILS_H__
-#define __DAAL_ONEAPI_INTERNAL_UTILS_H__
-
+#include "services/internal/execution_context.h"
 #include "services/env_detect.h"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
 {
 namespace interface1
 {
-inline ExecutionContextIface & getDefaultContext()
+sycl::ExecutionContextIface & getDefaultContext()
 {
-    return services::Environment::getInstance()->getDefaultExecutionContext();
+    return Environment::getInstance()->getDefaultExecutionContext();
 }
 
 } // namespace interface1
-
-using interface1::getDefaultContext;
-
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
-
-#endif
