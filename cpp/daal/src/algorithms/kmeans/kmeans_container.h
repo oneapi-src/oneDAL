@@ -36,6 +36,8 @@
 
 #include "src/data_management/service_numeric_table.h"
 
+#include "oneapi/dal/network/network.hpp"
+
 namespace daal
 {
 namespace algorithms
@@ -83,9 +85,11 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     Parameter * par                        = static_cast<Parameter *>(_par);
     daal::services::Environment::env & env = *_env;
 
+    oneapi::dal::network::empty_network net;
+
     if (deviceInfo.isCpu || method != lloydDense)
     {
-        __DAAL_CALL_KERNEL(env, internal::KMeansBatchKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, r, par);
+        __DAAL_CALL_KERNEL(env, internal::KMeansBatchKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, r, par, net);
     }
     else
     {

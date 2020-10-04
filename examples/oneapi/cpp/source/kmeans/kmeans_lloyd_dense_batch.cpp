@@ -17,12 +17,34 @@
 #include "example_util/utils.hpp"
 #include "oneapi/dal/algo/kmeans.hpp"
 #include "oneapi/dal/io/csv.hpp"
+#include "oneapi/dal/network/mpi.hpp"
 
 using namespace oneapi;
 
+#define MPI
 
-int main(int argc, char const *argv[]) {
-    const std::string train_data_file_name        = get_data_path("kmeans_dense_train_data.csv");
+int main(int argc, char* argv[]) {
+
+    int myRank = 0;
+    #ifdef MPI
+        MPI_Init(&argc, &argv);
+        MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
+    #endif
+
+    #ifdef MPI
+        std::string train_data_file_name;
+        if (myRank == 0)
+        {
+            train_data_file_name = get_data_path("kmeans_dense_train_data_1.csv");
+        }
+        else
+        {
+            train_data_file_name = get_data_path("kmeans_dense_train_data_2.csv");
+        }
+    #else
+        std::string train_data_file_name = get_data_path("kmeans_dense_train_data.csv");
+    #endif
+
     const std::string initial_centroids_file_name = get_data_path("kmeans_dense_train_centroids.csv");
     const std::string test_data_file_name         = get_data_path("kmeans_dense_test_data.csv");
     const std::string test_label_file_name        = get_data_path("kmeans_dense_test_label.csv");
@@ -38,19 +60,28 @@ int main(int argc, char const *argv[]) {
                                  .set_max_iteration_count(5)
                                  .set_accuracy_threshold(0.001);
 
-    const auto result_train = dal::train(kmeans_desc, x_train, initial_centroids);
+    #ifdef MPI                                 
+        oneapi::dal::network::mpi::network net;
+    #else
+        oneapi::dal::network::empty_network net;
+    #endif
 
-    std::cout << "Iteration count: " << result_train.get_iteration_count() << std::endl;
-    std::cout << "Objective function value: " << result_train.get_objective_function_value()
+    const auto result_train = dal::train(kmeans_desc, x_train, initial_centroids, net);
+
+    std::cout << "[" << myRank << "]" << "Iteration count: " << result_train.get_iteration_count() << std::endl;
+    std::cout << "[" << myRank << "]" << "Objective function value: " << result_train.get_objective_function_value()
               << std::endl;
-    std::cout << "Lables:" << std::endl << result_train.get_labels() << std::endl;
-    std::cout << "Centroids:" << std::endl << result_train.get_model().get_centroids() << std::endl;
+    // std::cout << "Lables:" << std::endl << result_train.get_labels() << std::endl;
+    std::cout << "[" << myRank << "]" << "Centroids:" << std::endl << result_train.get_model().get_centroids() << std::endl;
 
     const auto result_test = dal::infer(kmeans_desc, result_train.get_model(), x_test);
 
-    std::cout << "Infer result:" << std::endl << result_test.get_labels() << std::endl;
+    // std::cout << "Infer result:" << std::endl << result_test.get_labels() << std::endl;
 
-    std::cout << "Ground truth:" << std::endl << y_test << std::endl;
+    // std::cout << "Ground truth:" << std::endl << y_test << std::endl;
+    #ifdef MPI
+        MPI_Finalize();
+    #endif
 
     return 0;
 }

@@ -130,11 +130,11 @@ RES_DIR=_results/$(compiler)_intel64_$(threading)_$(RES_EXT)
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))
 
 ifeq ($(compiler),intel)
-    CC = icc -diag-disable=remark
+    CC = mpicc -diag-disable=remark -lstdc++
 endif
 
 ifeq ($(compiler),gnu)
-    CC = g++
+    CC = mpicc -lstdc++
 endif
 
 ifeq ($(compiler),clang)

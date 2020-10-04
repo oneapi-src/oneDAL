@@ -25,6 +25,9 @@
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
+#include "oneapi/dal/network/network.hpp"
+
+
 namespace oneapi::dal::kmeans::backend {
 
 using std::int64_t;
@@ -46,7 +49,10 @@ template <typename Float, typename Task>
 static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const descriptor_base<Task>& desc,
                                            const table& data,
-                                           const table& initial_centroids) {
+                                           const table& initial_centroids,
+                                           const oneapi::dal::network::network& network) {
+    auto comm = network.get_communicator();
+
     const int64_t row_count = data.get_row_count();
     const int64_t column_count = data.get_column_count();
 
@@ -84,7 +90,8 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                 init_len_output,
                 init_output,
                 &par,
-                *(par.engine)));
+                *(par.engine)
+                ));
 
         new_initial_centroids = interop::convert_from_daal_homogen_table<Float>(daal_centroids);
     }
@@ -120,7 +127,8 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
         interop::call_daal_kernel<Float, daal_kmeans_lloyd_dense_kernel_t>(ctx,
                                                                            input,
                                                                            output,
-                                                                           &par));
+                                                                           &par,
+                                                                           network));
 
     return train_result<Task>()
         .set_labels(dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build())
@@ -139,7 +147,8 @@ static train_result<Task> train(const context_cpu& ctx,
     return call_daal_kernel<Float, Task>(ctx,
                                          desc,
                                          input.get_data(),
-                                         input.get_initial_centroids());
+                                         input.get_initial_centroids(),
+                                         input.get_network());
 }
 
 template <typename Float>

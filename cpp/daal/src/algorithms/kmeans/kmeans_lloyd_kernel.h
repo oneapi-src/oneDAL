@@ -28,6 +28,8 @@
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "services/daal_defines.h"
+#include "oneapi/dal/network/network.hpp"
+
 
 namespace daal
 {
@@ -43,7 +45,7 @@ template <Method method, typename algorithmFPType, CpuType cpu>
 class KMeansBatchKernel : public Kernel
 {
 public:
-    services::Status compute(const NumericTable * const * a, const NumericTable * const * r, const Parameter * par);
+    services::Status compute(const NumericTable * const * a, const NumericTable * const * r, const Parameter * par, const oneapi::dal::network::network& network);
 };
 
 template <Method method, typename algorithmFPType, CpuType cpu>

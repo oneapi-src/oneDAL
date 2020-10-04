@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/kmeans/common.hpp"
+#include "oneapi/dal/network/network.hpp"
 
 namespace oneapi::dal::kmeans {
 
@@ -34,9 +35,12 @@ public:
     using task_t = Task;
     train_input(const table& data);
     train_input(const table& data, const table& initial_centroids);
+    train_input(const table& data, const table& initial_centroids, const oneapi::dal::network::network& network);
 
     table get_data() const;
     table get_initial_centroids() const;
+
+    const oneapi::dal::network::network& get_network() const;
 
     auto& set_data(const table& data) {
         set_data_impl(data);

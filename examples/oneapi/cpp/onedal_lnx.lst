@@ -18,17 +18,4 @@
 ##     oneAPI Data Analytics Library examples list
 ##******************************************************************************
 
-ONEDAL = column_accessor_homogen           \
-         df_cls_dense_batch                \
-         df_reg_dense_batch                \
-         kmeans_lloyd_dense_batch          \
-         kmeans_init_dense                 \
-         knn_cls_kd_tree_dense_batch       \
-         linear_kernel_dense_batch         \
-         pca_cor_dense_batch               \
-         rbf_kernel_dense_batch            \
-         svm_two_class_thunder_dense_batch \
-         svm_two_class_smo_dense_batch     \
-         jaccard_batch                     \
-         load_graph                        \
-         graph_service_functions
+ONEDAL = kmeans_lloyd_dense_batch

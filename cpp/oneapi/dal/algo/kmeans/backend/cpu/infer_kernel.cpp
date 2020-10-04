@@ -76,11 +76,13 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                        daal_objective_function_value.get(),
                                                        daal_iteration_count.get() };
 
+    oneapi::dal::network::empty_network net;
+
     interop::status_to_exception(
         interop::call_daal_kernel<Float, daal_kmeans_lloyd_dense_kernel_t>(ctx,
                                                                            input,
                                                                            output,
-                                                                           &par));
+                                                                           &par, net));
 
     return infer_result<Task>()
         .set_labels(dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build())

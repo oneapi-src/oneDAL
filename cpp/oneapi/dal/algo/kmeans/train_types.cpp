@@ -17,19 +17,26 @@
 #include "oneapi/dal/algo/kmeans/train_types.hpp"
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
+#include "oneapi/dal/network/network.hpp"
 
 namespace oneapi::dal::kmeans {
 
 template <typename Task>
 class detail::train_input_impl : public base {
 public:
-    train_input_impl(const table& data) : data(data) {}
+    train_input_impl(const table& data) : data(data), network(net) {}
     train_input_impl(const table& data, const table& initial_centroids)
             : data(data),
-              initial_centroids(initial_centroids) {}
+              initial_centroids(initial_centroids), network(net) {}
+
+    train_input_impl(const table& data, const table& initial_centroids, const oneapi::dal::network::network& network)
+            : data(data),
+              initial_centroids(initial_centroids), network(network) {}
 
     table data;
     table initial_centroids;
+    oneapi::dal::network::empty_network net;
+    const oneapi::dal::network::network& network;
 };
 
 template <typename Task>
@@ -52,6 +59,10 @@ train_input<Task>::train_input(const table& data, const table& initial_centroids
         : impl_(new train_input_impl<Task>(data, initial_centroids)) {}
 
 template <typename Task>
+train_input<Task>::train_input(const table& data, const table& initial_centroids, const oneapi::dal::network::network& network)
+        : impl_(new train_input_impl<Task>(data, initial_centroids, network)) {}
+
+template <typename Task>
 table train_input<Task>::get_data() const {
     return impl_->data;
 }
@@ -59,6 +70,11 @@ table train_input<Task>::get_data() const {
 template <typename Task>
 table train_input<Task>::get_initial_centroids() const {
     return impl_->initial_centroids;
+}
+
+template <typename Task>
+const oneapi::dal::network::network& train_input<Task>::get_network() const {
+    return impl_->network;
 }
 
 template <typename Task>

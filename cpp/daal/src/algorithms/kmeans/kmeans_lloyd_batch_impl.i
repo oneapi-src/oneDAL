@@ -34,6 +34,8 @@
 
 #include "src/externals/service_ittnotify.h"
 
+#include "oneapi/dal/network/network.hpp"
+
 DAAL_ITTNOTIFY_DOMAIN(kmeans.dense.lloyd.batch);
 
 using namespace daal::internal;
@@ -48,8 +50,12 @@ namespace kmeans
 namespace internal
 {
 template <Method method, typename algorithmFPType, CpuType cpu>
-Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTable * const * a, const NumericTable * const * r, const Parameter * par)
+Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTable * const * a, const NumericTable * const * r, const Parameter * par,
+                const oneapi::dal::network::network& network)
 {
+
+    auto comm = network.get_communicator();
+
     Status s;
     NumericTable * ntData  = const_cast<NumericTable *>(a[0]);
     const size_t nIter     = par->maxIterations;
@@ -172,6 +178,11 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
         algorithmFPType newCentersGoalFunc = (algorithmFPType)0.0;
 
         {
+            comm->allreduce(clusterS0.get(), nClusters);
+            comm->allreduce(clusterS1.get(), nClusters * p);
+        }
+
+        {
             DAAL_ITTNOTIFY_SCOPED_TASK(kmeansMergeReduceCentroids);
 
             for (size_t i = 0; i < nClusters; i++)
@@ -187,7 +198,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
                         clusters[i * p + j] = clusterS1[i * p + j] * coeff;
                     }
                 }
-                else
+                else // TODO: non supported in distr
                 {
                     DAAL_CHECK(cPos < cNum, services::ErrorKMeansNumberOfClustersIsTooLarge);
                     newCentersGoalFunc += cValues[cPos];
@@ -208,6 +219,9 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
 
                 task->kmeansClearClusters(&newTargetFunc);
                 newTargetFunc -= newCentersGoalFunc;
+                {
+                    comm->allreduce(&newTargetFunc, 1);
+                }
 
                 if (internal::Math<algorithmFPType, cpu>::sFabs(oldTargetFunc - newTargetFunc) < par->accuracyThreshold)
                 {
@@ -244,6 +258,10 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
         algorithmFPType exactTargetFunc = algorithmFPType(0);
         PostProcessing<method, algorithmFPType, cpu>::computeExactObjectiveFunction(p, nClusters, clusters, ntData, catCoef.get(), assignmetsNT,
                                                                                     exactTargetFunc, blockSize);
+
+        {
+            comm->allreduce(&exactTargetFunc, 1);
+        }
 
         *mtTarget.get() = exactTargetFunc;
     }
