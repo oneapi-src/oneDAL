@@ -46,12 +46,12 @@ public:
                              const Parameter * par);
 
 private:
-    services::Status getCores(const oneapi::internal::UniversalBuffer & data, uint32_t nRows, uint32_t nFeatures, algorithmFPType nNbrs,
+    services::Status getCores(const services::internal::sycl::UniversalBuffer & data, uint32_t nRows, uint32_t nFeatures, algorithmFPType nNbrs,
                               algorithmFPType eps);
     services::Status updateQueue(uint32_t clusterId, uint32_t nRows, uint32_t nFeatures, algorithmFPType eps, uint32_t queueBegin, uint32_t queueEnd,
-                                 const oneapi::internal::UniversalBuffer & data, oneapi::internal::UniversalBuffer & clusters);
+                                 const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & clusters);
 
-    services::Status startNextCluster(uint32_t clusterId, uint32_t nRows, uint32_t queueEnd, oneapi::internal::UniversalBuffer & clusters,
+    services::Status startNextCluster(uint32_t clusterId, uint32_t nRows, uint32_t queueEnd, services::internal::sycl::UniversalBuffer & clusters,
                                       bool & found);
     services::Status processResultsToCompute(DAAL_UINT64 resultsToCompute, daal::data_management::NumericTable * ntData,
                                              daal::data_management::NumericTable * ntCoreIndices,
@@ -63,12 +63,12 @@ private:
 
     static constexpr uint32_t _maxSubgroupSize = 32;
     bool _useWeights;
-    
-    oneapi::internal::UniversalBuffer _weights;
-    oneapi::internal::UniversalBuffer _queue;
-    oneapi::internal::UniversalBuffer _isCore;
-    oneapi::internal::UniversalBuffer _lastPoint;
-    oneapi::internal::UniversalBuffer _queueFront;
+
+    services::internal::sycl::UniversalBuffer _weights;
+    services::internal::sycl::UniversalBuffer _queue;
+    services::internal::sycl::UniversalBuffer _isCore;
+    services::internal::sycl::UniversalBuffer _lastPoint;
+    services::internal::sycl::UniversalBuffer _queueFront;
 };
 
 } // namespace internal
