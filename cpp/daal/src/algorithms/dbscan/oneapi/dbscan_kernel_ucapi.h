@@ -57,13 +57,13 @@ private:
                                              daal::data_management::NumericTable * ntCoreIndices,
                                              daal::data_management::NumericTable * ntCoreObservations);
     services::Status initializeBuffers(uint32_t nRows, daal::data_management::NumericTable * weights);
-    services::Status buildProgram(oneapi::internal::ClKernelFactoryIface & kernel_factory);
+    services::Status buildProgram(services::internal::sycl::ClKernelFactoryIface & kernel_factory);
     services::Status setQueueFront(uint32_t queueEnd);
     services::Status getQueueFront(uint32_t & queueEnd);
 
     static constexpr uint32_t _maxSubgroupSize = 32;
     bool _useWeights;
-
+    
     services::internal::sycl::UniversalBuffer _weights;
     services::internal::sycl::UniversalBuffer _queue;
     services::internal::sycl::UniversalBuffer _isCore;
