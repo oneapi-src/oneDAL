@@ -62,7 +62,7 @@ private:
     services::Status setQueueFront(uint32_t queueEnd);
     services::Status getQueueFront(uint32_t & queueEnd);
 
-    static const uint32_t _maxSubgroupSize = 32;
+    const uint32_t _maxSubgroupSize = 32;
 
     bool _useWeights;
 

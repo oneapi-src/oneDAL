@@ -63,11 +63,11 @@ DECLARE_SOURCE(
 
         const int subgroupSize = get_sub_group_size();
         const int localId      = get_sub_group_local_id();
-        const int start          = lastClusterStart[0];
+        const int start        = lastClusterStart[0];
         for (int i = start + localId; i < numPoints; i++)
         {
             const bool found = cores[i] == 1 && clusters[i] < 0;
-            const int index     = sub_group_reduce_min(found ? i : numPoints);
+            const int index  = sub_group_reduce_min(found ? i : numPoints);
             if (index < numPoints)
             {
                 if (localId == 0)

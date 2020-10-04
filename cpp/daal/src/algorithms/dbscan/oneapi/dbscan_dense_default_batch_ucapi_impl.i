@@ -171,8 +171,8 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
     algorithmFPType epsP          = 1.0;
     for (uint32_t i = 0; i < minkowskiPower; i++) epsP *= par->epsilon;
 
-    NumericTable * ntData = const_cast<NumericTable *>(x);
-    NumericTable * ntW    = const_cast<NumericTable *>(ntWeights);
+    NumericTable * const ntData = const_cast<NumericTable *>(x);
+    NumericTable * const ntW    = const_cast<NumericTable *>(ntWeights);
 
     const size_t nDataRowsSizeT    = ntData->getNumberOfRows();
     const size_t nDataColumnsSizeT = ntData->getNumberOfColumns();
@@ -222,8 +222,8 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
     DAAL_CHECK_STATUS_VAR(startNextCluster(nClusters, nRows, queueEnd, assignments, foundCluster));
     while (foundCluster)
     {
-        nClusters++;
-        queueEnd++;
+        ++nClusters;
+        ++queueEnd;
         DAAL_CHECK_STATUS_VAR(setQueueFront(queueEnd));
         while (queueBegin < queueEnd)
         {
@@ -263,7 +263,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::startNextCluster(uint3
 
     int last;
     {
-        auto lastPointHostBuffer = _lastPoint.template get<int>().toHost(ReadWriteMode::readOnly);
+        const auto lastPointHostBuffer = _lastPoint.template get<int>().toHost(ReadWriteMode::readOnly);
         if (!lastPointHostBuffer)
         {
             return Status(ErrorNullPtr);
@@ -293,7 +293,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::startNextCluster(uint3
     DAAL_CHECK_STATUS_VAR(st);
     int new_last;
     {
-        auto lastPointHostBuffer = _lastPoint.template get<int>().toHost(ReadWriteMode::readOnly);
+        const auto lastPointHostBuffer = _lastPoint.template get<int>().toHost(ReadWriteMode::readOnly);
         if (!lastPointHostBuffer)
         {
             return Status(ErrorNullPtr);
@@ -386,8 +386,8 @@ template <typename algorithmFPType>
 Status DBSCANBatchKernelUCAPI<algorithmFPType>::buildProgram(ClKernelFactoryIface & kernel_factory)
 {
     Status st;
-    auto fptypeName   = oneapi::internal::getKeyFPType<algorithmFPType>();
-    auto buildOptions = fptypeName;
+    const auto fptypeName   = oneapi::internal::getKeyFPType<algorithmFPType>();
+    const auto buildOptions = fptypeName;
 
     services::String cachekey("__daal_algorithms_dbscan_block_");
     cachekey.add(fptypeName);
