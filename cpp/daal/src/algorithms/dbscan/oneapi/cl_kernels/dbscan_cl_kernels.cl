@@ -43,8 +43,7 @@ DECLARE_SOURCE(
             for (int i = localId; i < numFeatures; i += subgroupSize)
             {
                 algorithmFPType val = points[globalId * numFeatures + i] - points[j * numFeatures + i];
-                val *= val;
-                sum += val;
+                sum += val * val;
             }
             algorithmFPType distance = sub_group_reduce_add(sum);
             algorithmFPType incr     = (distance <= eps) ? 1.0 : 0.0;
@@ -64,11 +63,11 @@ DECLARE_SOURCE(
 
         const int subgroupSize = get_sub_group_size();
         const int localId      = get_sub_group_local_id();
-        int start              = lastClusterStart[0];
+        const int start          = lastClusterStart[0];
         for (int i = start + localId; i < numPoints; i++)
         {
-            bool found = cores[i] == 1 && clusters[i] < 0;
-            int index  = sub_group_reduce_min(found ? i : numPoints);
+            const bool found = cores[i] == 1 && clusters[i] < 0;
+            const int index     = sub_group_reduce_min(found ? i : numPoints);
             if (index < numPoints)
             {
                 if (localId == 0)
