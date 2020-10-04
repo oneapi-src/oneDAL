@@ -54,10 +54,14 @@ public:
                                   bool bIntercept);
     static void sigmoid(const algorithmFPType * f, algorithmFPType * s, size_t n);
 
+
+
 protected:
     services::Status doCompute(const algorithmFPType * x, const algorithmFPType * y, size_t n, size_t p, NumericTable * betaNT,
                                NumericTable * valueNT, NumericTable * hessianNT, NumericTable * gradientNT, NumericTable * nonSmoothTermValue,
                                NumericTable * proximalProjection, NumericTable * lipschitzConstant, Parameter * parameter);
+
+    services::Status computeFastValue(algorithmFPType * fPtr, algorithmFPType * sgPtr, const algorithmFPType * x, const algorithmFPType * y, size_t n, size_t p, const algorithmFPType * b, size_t nBeta, Parameter * parameter, NumericTable * valueNT, algorithmFPType nonSmoothTerm, NumericTable * nonSmoothTermValue, NumericTable * gradientNT);
 };
 
 } // namespace internal
