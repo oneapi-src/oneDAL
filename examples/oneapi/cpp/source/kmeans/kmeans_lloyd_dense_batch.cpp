@@ -24,7 +24,6 @@ using namespace oneapi;
 #define MPI
 
 int main(int argc, char* argv[]) {
-
     int myRank = 0;
     #ifdef MPI
         MPI_Init(&argc, &argv);
@@ -71,14 +70,10 @@ int main(int argc, char* argv[]) {
     std::cout << "[" << myRank << "]" << "Iteration count: " << result_train.get_iteration_count() << std::endl;
     std::cout << "[" << myRank << "]" << "Objective function value: " << result_train.get_objective_function_value()
               << std::endl;
-    // std::cout << "Lables:" << std::endl << result_train.get_labels() << std::endl;
     std::cout << "[" << myRank << "]" << "Centroids:" << std::endl << result_train.get_model().get_centroids() << std::endl;
 
     const auto result_test = dal::infer(kmeans_desc, result_train.get_model(), x_test);
 
-    // std::cout << "Infer result:" << std::endl << result_test.get_labels() << std::endl;
-
-    // std::cout << "Ground truth:" << std::endl << y_test << std::endl;
     #ifdef MPI
         MPI_Finalize();
     #endif

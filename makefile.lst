@@ -235,15 +235,8 @@ ONEAPI.ALGOS.svm           := CORE.svm
 
 # List of algorithms in oneAPI part
 ONEAPI.ALGOS :=     \
-    decision_forest \
     kmeans          \
-    kmeans_init     \
-    knn             \
-    linear_kernel   \
-    pca             \
-    rbf_kernel      \
-    svm             \
-    jaccard
+    kmeans_init
 
 ONEAPI.IO :=     \
     csv
