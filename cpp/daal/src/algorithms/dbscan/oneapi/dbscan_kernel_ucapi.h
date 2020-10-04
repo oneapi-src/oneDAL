@@ -26,7 +26,7 @@
 
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
-#include "sycl/internal/execution_context.h"
+#include "services/internal/sycl/execution_context.h"
 
 namespace daal
 {
@@ -57,14 +57,13 @@ private:
                                              daal::data_management::NumericTable * ntCoreIndices,
                                              daal::data_management::NumericTable * ntCoreObservations);
     services::Status initializeBuffers(uint32_t nRows, daal::data_management::NumericTable * weights);
-
     services::Status buildProgram(oneapi::internal::ClKernelFactoryIface & kernel_factory);
     services::Status setQueueFront(uint32_t queueEnd);
     services::Status getQueueFront(uint32_t & queueEnd);
 
     static constexpr uint32_t _maxSubgroupSize = 32;
     bool _useWeights;
-
+    
     oneapi::internal::UniversalBuffer _weights;
     oneapi::internal::UniversalBuffer _queue;
     oneapi::internal::UniversalBuffer _isCore;

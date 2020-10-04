@@ -42,7 +42,7 @@ namespace prediction
 {
 namespace internal
 {
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 using namespace services;
 using sort::RadixSort;
 using selection::QuickSelectIndexed;
@@ -254,10 +254,11 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::scatterSumOfSquares
 }
 
 template <typename algorithmFpType>
-Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeDistances(ExecutionContextIface & context, const Buffer<algorithmFpType> & data,
-                                                                              const Buffer<algorithmFpType> & query, UniversalBuffer & distances,
-                                                                              uint32_t dataBlockRowCount, uint32_t queryBlockRowCount,
-                                                                              uint32_t nFeatures)
+Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeDistances(ExecutionContextIface & context,
+                                                                              const services::internal::Buffer<algorithmFpType> & data,
+                                                                              const services::internal::Buffer<algorithmFpType> & query,
+                                                                              UniversalBuffer & distances, uint32_t dataBlockRowCount,
+                                                                              uint32_t queryBlockRowCount, uint32_t nFeatures)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.GEMM);
     return BlasGpu<algorithmFpType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::Trans, queryBlockRowCount,
@@ -300,7 +301,7 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeWinners(Exec
 template <typename algorithmFpType>
 Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::buildProgram(ClKernelFactoryIface & kernel_factory)
 {
-    auto fptype_name   = oneapi::internal::getKeyFPType<algorithmFpType>();
+    auto fptype_name   = services::internal::sycl::getKeyFPType<algorithmFpType>();
     auto build_options = fptype_name;
     build_options.add(" -D sortedType=int -D NumParts=16 ");
 

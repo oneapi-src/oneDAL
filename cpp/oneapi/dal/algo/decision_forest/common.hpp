@@ -100,6 +100,9 @@ public:
     std::int64_t get_min_observations_in_split_node() const;
     std::int64_t get_max_leaf_nodes() const;
 
+    std::int64_t get_max_bins() const;
+    std::int64_t get_min_bin_size() const;
+
     bool get_memory_saving_mode() const;
     bool get_bootstrap() const;
 
@@ -135,6 +138,9 @@ protected:
     void set_min_observations_in_leaf_node_impl(std::int64_t value);
     void set_min_observations_in_split_node_impl(std::int64_t value);
     void set_max_leaf_nodes_impl(std::int64_t value);
+
+    void set_max_bins_impl(std::int64_t value);
+    void set_min_bin_size_impl(std::int64_t value);
 
     void set_error_metric_mode_impl(error_metric_mode value);
     void set_infer_mode_impl(infer_mode value);
@@ -210,6 +216,14 @@ public:
     }
     auto& set_max_leaf_nodes(std::int64_t value) {
         parent::set_max_leaf_nodes_impl(value);
+        return *this;
+    }
+    auto& set_max_bins(std::int64_t value) {
+        parent::set_max_bins_impl(value);
+        return *this;
+    }
+    auto& set_min_bin_size(std::int64_t value) {
+        parent::set_min_bin_size_impl(value);
         return *this;
     }
 

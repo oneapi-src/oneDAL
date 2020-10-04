@@ -15,16 +15,18 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "sycl/internal/math/reference_gemm.h"
-#include "sycl/internal/math/reference_axpy.h"
+#include "services/internal/sycl/math/reference_gemm.h"
+#include "services/internal/sycl/math/reference_axpy.h"
 #include "src/sycl/blas_gpu.h"
 #include "src/sycl/cl_kernels/kernel_blas.cl"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace math
 {
@@ -33,14 +35,15 @@ namespace interface1
 template <typename algorithmFPType>
 services::Status ReferenceGemm<algorithmFPType>::operator()(const Transpose transa, const Transpose transb, const size_t m, const size_t n,
                                                             const size_t k, const algorithmFPType alpha,
-                                                            const services::Buffer<algorithmFPType> & a_buffer, const size_t lda,
-                                                            const size_t offsetA, const services::Buffer<algorithmFPType> & b_buffer,
+                                                            const services::internal::Buffer<algorithmFPType> & a_buffer, const size_t lda,
+                                                            const size_t offsetA, const services::internal::Buffer<algorithmFPType> & b_buffer,
                                                             const size_t ldb, const size_t offsetB, const algorithmFPType beta,
-                                                            services::Buffer<algorithmFPType> & c_buffer, const size_t ldc, const size_t offsetC)
+                                                            services::internal::Buffer<algorithmFPType> & c_buffer, const size_t ldc,
+                                                            const size_t offsetC)
 {
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
     services::String options       = getKeyFPType<algorithmFPType>();
     services::String cacheKey      = "__daal_gemm_";
@@ -108,12 +111,13 @@ template class ReferenceGemm<float>;
 template class ReferenceGemm<double>;
 
 template <typename algorithmFPType>
-services::Status ReferenceAxpy<algorithmFPType>::operator()(const int n, const algorithmFPType a, const services::Buffer<algorithmFPType> & x_buffer,
-                                                            const int incx, services::Buffer<algorithmFPType> & y_buffer, const int incy)
+services::Status ReferenceAxpy<algorithmFPType>::operator()(const int n, const algorithmFPType a,
+                                                            const services::internal::Buffer<algorithmFPType> & x_buffer, const int incx,
+                                                            services::internal::Buffer<algorithmFPType> & y_buffer, const int incy)
 {
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
     services::String options       = getKeyFPType<algorithmFPType>();
     services::String cacheKey      = "__daal_axpy_";
@@ -144,6 +148,7 @@ template class ReferenceAxpy<double>;
 
 } // namespace interface1
 } // namespace math
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal

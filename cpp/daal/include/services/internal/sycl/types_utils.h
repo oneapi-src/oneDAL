@@ -15,16 +15,18 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __DAAL_ONEAPI_INTERNAL_TYPES_UTILS_H__
-#define __DAAL_ONEAPI_INTERNAL_TYPES_UTILS_H__
+#ifndef __DAAL_SERVICES_INTERNAL_SYCL_TYPES_UTILS_H__
+#define __DAAL_SERVICES_INTERNAL_SYCL_TYPES_UTILS_H__
 
-#include "sycl/internal/types.h"
+#include "services/internal/sycl/types.h"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace interface1
 {
@@ -36,12 +38,13 @@ template <typename...>
 struct Typelist
 {};
 
-typedef Typelist<daal::oneapi::internal::int8_t, daal::oneapi::internal::int16_t, daal::oneapi::internal::int32_t, daal::oneapi::internal::int64_t,
-                 daal::oneapi::internal::uint8_t, daal::oneapi::internal::uint16_t, daal::oneapi::internal::uint32_t,
-                 daal::oneapi::internal::uint64_t, daal::oneapi::internal::float32_t, daal::oneapi::internal::float64_t>
+typedef Typelist<daal::services::internal::sycl::int8_t, daal::services::internal::sycl::int16_t, daal::services::internal::sycl::int32_t,
+                 daal::services::internal::sycl::int64_t, daal::services::internal::sycl::uint8_t, daal::services::internal::sycl::uint16_t,
+                 daal::services::internal::sycl::uint32_t, daal::services::internal::sycl::uint64_t, daal::services::internal::sycl::float32_t,
+                 daal::services::internal::sycl::float64_t>
     PrimitiveTypes;
 
-typedef Typelist<daal::oneapi::internal::float32_t, daal::oneapi::internal::float64_t> FloatTypes;
+typedef Typelist<daal::services::internal::sycl::float32_t, daal::services::internal::sycl::float64_t> FloatTypes;
 
 /**
  *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__TYPEDISPATCHER"></a>
@@ -94,7 +97,7 @@ struct TypeToStringConverter
     template <typename T>
     void operator()(Typelist<T>)
     {
-        result = daal::oneapi::internal::getKeyFPType<T>();
+        result = daal::services::internal::sycl::getKeyFPType<T>();
     }
 };
 
@@ -108,8 +111,9 @@ using interface1::Typelist;
 using interface1::TypeDispatcher;
 using interface1::getKeyFPType;
 
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
 
 #endif
