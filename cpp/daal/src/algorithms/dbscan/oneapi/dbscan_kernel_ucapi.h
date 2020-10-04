@@ -62,8 +62,7 @@ private:
     services::Status setQueueFront(uint32_t queueEnd);
     services::Status getQueueFront(uint32_t & queueEnd);
 
-    const uint32_t _maxSubgroupSize = 32;
-
+    static constexpr uint32_t _maxSubgroupSize = 32;
     bool _useWeights;
 
     oneapi::internal::UniversalBuffer _weights;
