@@ -15,18 +15,20 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __DAAL_ONEAPI_INTERNAL_BUFFER_UTILS_H__
-#define __DAAL_ONEAPI_INTERNAL_BUFFER_UTILS_H__
+#ifndef __DAAL_SERVICES_INTERNAL_SYCL_BUFFER_UTILS_H__
+#define __DAAL_SERVICES_INTERNAL_SYCL_BUFFER_UTILS_H__
 
-#include "sycl/internal/utils.h"
-#include "sycl/internal/types_utils.h"
+#include "services/internal/execution_context.h"
+#include "services/internal/sycl/types_utils.h"
 #include "data_management/data/internal/conversion.h"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace interface1
 {
@@ -91,7 +93,7 @@ class BufferConverterTo
 public:
     BufferConverterTo(const UniversalBuffer & src, size_t offset, size_t size) : _src(src), _offset(offset), _size(size) {}
 
-    services::Buffer<DataType> getResult(services::Status & st)
+    services::internal::Buffer<DataType> getResult(services::Status & st)
     {
         st = _st;
         return _dest;
@@ -142,7 +144,7 @@ private:
     size_t _offset;
     size_t _size;
 
-    services::Buffer<DataType> _dest;
+    services::internal::Buffer<DataType> _dest;
 };
 
 /**
@@ -188,8 +190,9 @@ using interface1::BufferConverterFrom;
 using interface1::BufferConverterTo;
 using interface1::BufferHostReinterpreter;
 
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
 
 #endif

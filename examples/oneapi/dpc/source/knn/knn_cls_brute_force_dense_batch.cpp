@@ -50,7 +50,7 @@ void run(sycl::queue& queue) {
                 << test_result.get_labels() << std::endl;
         std::cout << "True labels:" << std::endl << y_test << std::endl;
     }
-    catch(oneapi::dal::unimplemented_error& e) {
+    catch(oneapi::dal::unimplemented& e) {
         std::cout << "  " << e.what() << std::endl;
         return;
     }

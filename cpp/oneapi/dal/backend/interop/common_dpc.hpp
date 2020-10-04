@@ -25,13 +25,13 @@ namespace oneapi::dal::backend::interop {
 
 struct execution_context_guard {
     explicit execution_context_guard(const sycl::queue &queue) {
-        daal::services::SyclExecutionContext ctx(queue);
+        daal::services::internal::SyclExecutionContext ctx(queue);
         daal::services::Environment::getInstance()->setDefaultExecutionContext(ctx);
     }
 
     ~execution_context_guard() {
         daal::services::Environment::getInstance()->setDefaultExecutionContext(
-            daal::services::CpuExecutionContext());
+            daal::services::internal::CpuExecutionContext());
     }
 };
 

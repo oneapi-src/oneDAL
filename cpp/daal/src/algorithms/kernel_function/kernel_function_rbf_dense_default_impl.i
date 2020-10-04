@@ -281,7 +281,7 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
     const bool isEqualMatrix = a1 == a2;
 
     const Parameter * rbfPar    = static_cast<const Parameter *>(par);
-    const algorithmFPType coeff = (algorithmFPType)(-0.5 / (rbfPar->sigma * rbfPar->sigma));
+    const algorithmFPType coeff = static_cast<algorithmFPType>(-0.5 / (rbfPar->sigma * rbfPar->sigma));
 
     char trans = 'T', notrans = 'N';
     DAAL_INT one         = 1;
@@ -306,7 +306,7 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
         return tlsData;
     });
 
-    daal::threader_for(nBlocks1, nBlocks1, [&](const size_t iBlock1) {
+    daal::threader_for(nBlocks1, nBlocks1, [&, isSOARes](const size_t iBlock1) {
         DAAL_INT nRowsInBlock1 = (iBlock1 != nBlocks1 - 1) ? blockSize : nVectors1 - iBlock1 * blockSize;
         DAAL_INT startRow1     = iBlock1 * blockSize;
 

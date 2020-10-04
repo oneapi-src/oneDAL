@@ -25,8 +25,8 @@
 #ifndef __DF_REGRESSION_PREDICT_DENSE_KERNEL_ONEAPI_H__
 #define __DF_REGRESSION_PREDICT_DENSE_KERNEL_ONEAPI_H__
 
-#include "sycl/internal/types.h"
-#include "sycl/internal/execution_context.h"
+#include "services/internal/sycl/types.h"
+#include "services/internal/sycl/execution_context.h"
 #include "data_management/data/numeric_table.h"
 #include "algorithms/algorithm_base_common.h"
 #include "algorithms/decision_forest/decision_forest_regression_predict.h"
@@ -55,18 +55,20 @@ public:
     PredictKernelOneAPI & operator=(const PredictKernelOneAPI &) = delete;
     ~PredictKernelOneAPI() {};
 
-    services::Status buildProgram(oneapi::internal::ClKernelFactoryIface & factory, const char * programName, const char * programSrc);
+    services::Status buildProgram(services::internal::sycl::ClKernelFactoryIface & factory, const char * programName, const char * programSrc);
     services::Status compute(services::HostAppIface * const pHostApp, const data_management::NumericTable * a,
                              const decision_forest::regression::Model * const m, data_management::NumericTable * const r);
-    services::Status predictByAllTrees(const services::Buffer<algorithmFPType> & srcBuffer, const decision_forest::regression::Model * const m,
-                                       services::Buffer<algorithmFPType> & resObsResponse, size_t nRows, size_t nCols);
-    services::Status predictByTreesGroup(const services::Buffer<algorithmFPType> & srcBuffer,
-                                         const oneapi::internal::UniversalBuffer & featureIndexList,
-                                         const oneapi::internal::UniversalBuffer & leftOrClassTypeList,
-                                         const oneapi::internal::UniversalBuffer & featureValueList, oneapi::internal::UniversalBuffer & obsResponses,
-                                         size_t nRows, size_t nCols, size_t nTrees, size_t maxTreeSize);
-    services::Status reduceResponse(const oneapi::internal::UniversalBuffer & obsResponses, services::Buffer<algorithmFPType> & resObsResponse,
-                                    size_t nRows, size_t nTrees, algorithmFPType scale);
+    services::Status predictByAllTrees(const services::internal::Buffer<algorithmFPType> & srcBuffer,
+                                       const decision_forest::regression::Model * const m,
+                                       services::internal::Buffer<algorithmFPType> & resObsResponse, size_t nRows, size_t nCols);
+    services::Status predictByTreesGroup(const services::internal::Buffer<algorithmFPType> & srcBuffer,
+                                         const services::internal::sycl::UniversalBuffer & featureIndexList,
+                                         const services::internal::sycl::UniversalBuffer & leftOrClassTypeList,
+                                         const services::internal::sycl::UniversalBuffer & featureValueList,
+                                         services::internal::sycl::UniversalBuffer & obsResponses, size_t nRows, size_t nCols, size_t nTrees,
+                                         size_t maxTreeSize);
+    services::Status reduceResponse(const services::internal::sycl::UniversalBuffer & obsResponses,
+                                    services::internal::Buffer<algorithmFPType> & resObsResponse, size_t nRows, size_t nTrees, algorithmFPType scale);
 
 private:
     const uint32_t _preferableSubGroup = 16; // preferable maximal sub-group size
@@ -89,12 +91,12 @@ private:
     const size_t _nTreeGroupsForSmall  = 16;
     const size_t _nTreeGroupsMin       = 8;
 
-    const size_t _int32max = static_cast<size_t>(services::internal::MaxVal<int32_t>::get());
+    static constexpr size_t _int32max = static_cast<size_t>(services::internal::MaxVal<int32_t>::get());
 
     size_t _nTreeGroups;
 
-    oneapi::internal::KernelPtr kernelPredictByTreesGroup;
-    oneapi::internal::KernelPtr kernelReduceResponse;
+    services::internal::sycl::KernelPtr kernelPredictByTreesGroup;
+    services::internal::sycl::KernelPtr kernelReduceResponse;
 };
 
 } // namespace internal

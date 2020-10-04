@@ -47,9 +47,9 @@ static compute_result<Task> call_daal_kernel(const context_gpu& ctx,
                                              const descriptor_base<Task>& params,
                                              const table& data) {
     if constexpr (std::is_same_v<Method, method::plus_plus_dense>)
-        throw unimplemented_error("plus_plus_dense method is not implemented for GPU");
+        throw unimplemented("plus_plus_dense method is not implemented for GPU");
     if constexpr (std::is_same_v<Method, method::parallel_plus_dense>)
-        throw unimplemented_error("parallel_plus_dense method is not implemented for GPU");
+        throw unimplemented("parallel_plus_dense method is not implemented for GPU");
 
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);

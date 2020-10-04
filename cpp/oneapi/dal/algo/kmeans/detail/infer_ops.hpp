@@ -67,6 +67,9 @@ struct infer_ops {
         if (result.get_labels().get_row_count() != input.get_data().get_row_count()) {
             throw internal_error("Result labels row_count should be equal to data row_count");
         }
+        if (result.get_labels().get_column_count() != 1) {
+            throw internal_error("Result labels column_count should be equal to 1");
+        }
     }
 
     template <typename Context>

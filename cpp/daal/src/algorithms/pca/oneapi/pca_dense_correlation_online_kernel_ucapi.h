@@ -25,8 +25,8 @@
 #define __PCA_DENSE_CORRELATION_ONLINE_KERNEL_UCAPI_H__
 
 #include "src/algorithms/pca/pca_dense_correlation_base_iface.h"
-#include "sycl/internal/types.h"
-#include "sycl/internal/execution_context.h"
+#include "services/internal/sycl/types.h"
+#include "services/internal/sycl/execution_context.h"
 #include "algorithms/pca/pca_types.h"
 
 namespace daal

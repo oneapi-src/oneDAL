@@ -25,7 +25,7 @@
 #define __PCA_PARTIALRESULT_CORRELATION_
 
 #include "algorithms/pca/pca_types.h"
-#include "data_management/data/numeric_table_sycl_homogen.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 
 namespace daal
 {
@@ -33,6 +33,8 @@ namespace algorithms
 {
 namespace pca
 {
+using daal::data_management::internal::SyclHomogenNumericTable;
+
 /**
  * Allocates memory to store partial results of the PCA  SVD algorithm
  * \param[in] input     Pointer to an object containing input data
@@ -45,7 +47,7 @@ DAAL_EXPORT services::Status PartialResult<correlationDense>::allocate(const daa
 {
     services::Status s;
 
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)
@@ -61,14 +63,12 @@ DAAL_EXPORT services::Status PartialResult<correlationDense>::allocate(const daa
     }
     else
     {
-        set(nObservationsCorrelation,
-            data_management::SyclHomogenNumericTable<algorithmFPType>::create(1, 1, data_management::NumericTableIface::doAllocate, 0, &s));
-        set(sumCorrelation, data_management::SyclHomogenNumericTable<algorithmFPType>::create(
-                                (static_cast<const InputIface *>(input))->getNFeatures(), 1, data_management::NumericTableIface::doAllocate, 0, &s));
-        set(crossProductCorrelation,
-            data_management::SyclHomogenNumericTable<algorithmFPType>::create((static_cast<const InputIface *>(input))->getNFeatures(),
-                                                                              (static_cast<const InputIface *>(input))->getNFeatures(),
-                                                                              data_management::NumericTableIface::doAllocate, 0, &s));
+        set(nObservationsCorrelation, SyclHomogenNumericTable<algorithmFPType>::create(1, 1, data_management::NumericTableIface::doAllocate, 0, &s));
+        set(sumCorrelation, SyclHomogenNumericTable<algorithmFPType>::create((static_cast<const InputIface *>(input))->getNFeatures(), 1,
+                                                                             data_management::NumericTableIface::doAllocate, 0, &s));
+        set(crossProductCorrelation, SyclHomogenNumericTable<algorithmFPType>::create((static_cast<const InputIface *>(input))->getNFeatures(),
+                                                                                      (static_cast<const InputIface *>(input))->getNFeatures(),
+                                                                                      data_management::NumericTableIface::doAllocate, 0, &s));
     }
 
     return s;

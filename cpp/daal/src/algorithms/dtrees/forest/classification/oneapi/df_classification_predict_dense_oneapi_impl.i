@@ -31,7 +31,7 @@
 #include "src/algorithms/dtrees/forest/classification/df_classification_model_impl.h"
 
 #include "src/externals/service_ittnotify.h"
-#include "services/buffer.h"
+#include "services/internal/buffer.h"
 #include "data_management/data/numeric_table.h"
 #include "src/data_management/service_numeric_table.h"
 #include "services/env_detect.h"
@@ -41,12 +41,12 @@
 #include "src/services/service_arrays.h"
 #include "src/services/service_utils.h"
 #include "src/services/daal_strings.h"
-#include "sycl/internal/types.h"
+#include "services/internal/sycl/types.h"
 
 using namespace daal::services;
 using namespace daal::services::internal;
 using namespace daal::internal;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 using namespace daal::algorithms::dtrees::internal;
 
 namespace daal
@@ -63,6 +63,7 @@ namespace internal
 {
 static services::String getBuildOptions(size_t nClasses)
 {
+    DAAL_ASSERT(nClasses <= static_cast<size_t>(services::internal::MaxVal<int32_t>::get()));
     char buffer[DAAL_MAX_STRING_SIZE] = { 0 };
     const auto written                = daal::services::daal_int_to_string(buffer, DAAL_MAX_STRING_SIZE, static_cast<int32_t>(nClasses));
     services::String nClassesStr(buffer, written);
@@ -186,7 +187,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::compute(services:
 }
 
 template <typename algorithmFPType, prediction::Method method>
-services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees(const services::Buffer<algorithmFPType> & srcBuffer,
+services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees(const services::internal::Buffer<algorithmFPType> & srcBuffer,
                                                                                  const decision_forest::classification::Model * const m,
                                                                                  UniversalBuffer & classHist, size_t nRows, size_t nCols)
 {
@@ -194,7 +195,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees
     const daal::algorithms::decision_forest::classification::internal::ModelImpl * const pModel =
         static_cast<const daal::algorithms::decision_forest::classification::internal::ModelImpl * const>(m);
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     TArray<const dtrees::internal::DecisionTreeTable *, sse2> _aTree;
 
@@ -315,15 +316,15 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees
 
 template <typename algorithmFPType, prediction::Method method>
 services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesWeighted(
-    const services::Buffer<algorithmFPType> & srcBuffer, const UniversalBuffer & featureIndexList, const UniversalBuffer & leftOrClassTypeList,
-    const UniversalBuffer & featureValueList, const UniversalBuffer & classProba, UniversalBuffer & obsClassHist, algorithmFPType scale, size_t nRows,
-    size_t nCols, size_t nTrees, size_t maxTreeSize)
+    const services::internal::Buffer<algorithmFPType> & srcBuffer, const UniversalBuffer & featureIndexList,
+    const UniversalBuffer & leftOrClassTypeList, const UniversalBuffer & featureValueList, const UniversalBuffer & classProba,
+    UniversalBuffer & obsClassHist, algorithmFPType scale, size_t nRows, size_t nCols, size_t nTrees, size_t maxTreeSize)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.predictByTreesWeighted);
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelPredictByTreesWeighted;
 
@@ -380,7 +381,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesWei
 }
 
 template <typename algorithmFPType, prediction::Method method>
-services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesUnweighted(const services::Buffer<algorithmFPType> & srcBuffer,
+services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesUnweighted(const services::internal::Buffer<algorithmFPType> & srcBuffer,
                                                                                         const UniversalBuffer & featureIndexList,
                                                                                         const UniversalBuffer & leftOrClassTypeList,
                                                                                         const UniversalBuffer & featureValueList,
@@ -391,7 +392,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesUnw
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelPredictByTreesUnweighted;
 
@@ -454,7 +455,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::reduceClassHist(c
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
     auto & kernel  = kernelReduceClassHist;
 
     size_t localSize = _preferableSubGroup;
@@ -487,13 +488,13 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::reduceClassHist(c
 
 template <typename algorithmFPType, prediction::Method method>
 services::Status PredictKernelOneAPI<algorithmFPType, method>::determineWinners(const UniversalBuffer & classHist,
-                                                                                services::Buffer<algorithmFPType> & resBuffer, size_t nRows)
+                                                                                services::internal::Buffer<algorithmFPType> & resBuffer, size_t nRows)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.determineWinners);
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelDetermineWinners;
 

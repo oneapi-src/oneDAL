@@ -44,7 +44,7 @@ namespace interface2
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu || method == defaultDense || method == momentum)
@@ -81,7 +81,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     NumericTable * learningRateSequence = parameter->learningRateSequence.get();
     NumericTable * batchIndices         = parameter->batchIndices.get();
 
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu || method == defaultDense || method == momentum)
