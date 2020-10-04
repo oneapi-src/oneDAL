@@ -24,12 +24,14 @@
 #ifndef __ONEAPI_INTERNAL_MATH_REFERENCE_AXPY_H__
 #define __ONEAPI_INTERNAL_MATH_REFERENCE_AXPY_H__
 
-#include "services/buffer.h"
+#include "services/internal/buffer.h"
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace math
 {
@@ -48,8 +50,8 @@ struct DAAL_EXPORT ReferenceAxpy
 {
     ReferenceAxpy() {}
 
-    services::Status operator()(const int n, const algorithmFPType a, const services::Buffer<algorithmFPType> & x_buffer, const int incx,
-                                services::Buffer<algorithmFPType> & y_buffer, const int incy);
+    services::Status operator()(const int n, const algorithmFPType a, const services::internal::Buffer<algorithmFPType> & x_buffer, const int incx,
+                                services::internal::Buffer<algorithmFPType> & y_buffer, const int incy);
 };
 
 /** @} */
@@ -58,8 +60,9 @@ struct DAAL_EXPORT ReferenceAxpy
 using interface1::ReferenceAxpy;
 
 } // namespace math
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
 
 #endif

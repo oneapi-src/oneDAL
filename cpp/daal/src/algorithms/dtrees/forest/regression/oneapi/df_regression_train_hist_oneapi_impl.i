@@ -36,7 +36,7 @@
 #include "src/externals/service_ittnotify.h"
 #include "src/externals/service_rng.h"
 #include "src/externals/service_math.h" //will remove after migrating finalize MDA to GPU
-#include "services/buffer.h"
+#include "services/internal/buffer.h"
 #include "data_management/data/numeric_table.h"
 #include "services/env_detect.h"
 #include "services/error_indexes.h"
@@ -46,7 +46,7 @@
 #include "src/services/service_utils.h"
 #include "src/services/daal_strings.h"
 #include "src/algorithms/engines/engine_types_internal.h"
-#include "sycl/internal/types.h"
+#include "services/internal/sycl/types.h"
 
 using namespace daal::algorithms::decision_forest::internal;
 using namespace daal::algorithms::decision_forest::regression::internal;
@@ -124,7 +124,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelComputeBestSplitByHistogram;
 
@@ -172,15 +172,15 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
 template <typename algorithmFPType>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::computeBestSplitSinglePass(
     const UniversalBuffer & data, UniversalBuffer & treeOrder, UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
-    const services::Buffer<algorithmFPType> & response, UniversalBuffer & binOffsets, UniversalBuffer & nodeList, UniversalBuffer & nodeIndices,
-    size_t nodeIndicesOffset, UniversalBuffer & impList, UniversalBuffer & nodeImpDecreaseList, bool updateImpDecreaseRequired, size_t nFeatures,
-    size_t nNodes, size_t minObservationsInLeafNode, algorithmFPType impurityThreshold)
+    const services::internal::Buffer<algorithmFPType> & response, UniversalBuffer & binOffsets, UniversalBuffer & nodeList,
+    UniversalBuffer & nodeIndices, size_t nodeIndicesOffset, UniversalBuffer & impList, UniversalBuffer & nodeImpDecreaseList,
+    bool updateImpDecreaseRequired, size_t nFeatures, size_t nNodes, size_t minObservationsInLeafNode, algorithmFPType impurityThreshold)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeBestSplitSinglePass);
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelComputeBestSplitSinglePass;
 
@@ -230,13 +230,13 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
 template <typename algorithmFPType>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::computeBestSplit(
     const UniversalBuffer & data, UniversalBuffer & treeOrder, UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
-    const services::Buffer<algorithmFPType> & response, UniversalBuffer & nodeList, UniversalBuffer & binOffsets, UniversalBuffer & impList,
+    const services::internal::Buffer<algorithmFPType> & response, UniversalBuffer & nodeList, UniversalBuffer & binOffsets, UniversalBuffer & impList,
     UniversalBuffer & nodeImpDecreaseList, bool updateImpDecreaseRequired, size_t nFeatures, size_t nNodes, size_t minObservationsInLeafNode,
     algorithmFPType impurityThreshold)
 {
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     // no overflow check is required because of _nNodesGroups and _nodeGroupProps are small constants
     auto nodesGroups = context.allocate(TypeIds::id<int32_t>(), _nNodesGroups * _nodeGroupProps, &status);
@@ -303,7 +303,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
 template <typename algorithmFPType>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::computePartialHistograms(
     const UniversalBuffer & data, UniversalBuffer & treeOrder, UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
-    const services::Buffer<algorithmFPType> & response, UniversalBuffer & nodeList, UniversalBuffer & nodeIndices, size_t nodeIndicesOffset,
+    const services::internal::Buffer<algorithmFPType> & response, UniversalBuffer & nodeList, UniversalBuffer & nodeIndices, size_t nodeIndicesOffset,
     UniversalBuffer & binOffsets, size_t nMaxBinsAmongFtrs, size_t nFeatures, size_t nNodes, UniversalBuffer & partialHistograms,
     size_t nPartialHistograms)
 {
@@ -311,7 +311,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelComputePartialHistograms;
 
@@ -363,7 +363,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::reduce
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelReducePartialHistograms;
 
@@ -620,6 +620,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
     const size_t nFeatures = x->getNumberOfColumns();
     DAAL_CHECK_EX((par.minObservationsInLeafNode <= _int32max), ErrorIncorrectParameter, ParameterName, minObservationsInLeafNodeStr());
     DAAL_CHECK_EX((par.featuresPerNode <= _int32max), ErrorIncorrectParameter, ParameterName, featuresPerNodeStr());
+    DAAL_CHECK_EX((par.maxBins <= _int32max), ErrorIncorrectParameter, ParameterName, maxBinsStr());
+    DAAL_CHECK_EX((par.minBinSize <= _int32max), ErrorIncorrectParameter, ParameterName, minBinSizeStr());
 
     if (nRows > _int32max)
     {
@@ -656,7 +658,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
     kernelReducePartialHistograms     = kernel_factory.getKernel("reducePartialHistograms", &status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    dtrees::internal::BinParams prm(_maxBins, par.minObservationsInLeafNode);
+    dtrees::internal::BinParams prm(par.maxBins, par.minBinSize);
     decision_forest::internal::IndexedFeaturesOneAPI<algorithmFPType> indexedFeatures;
     dtrees::internal::FeatureTypes featTypes;
     DAAL_CHECK_MALLOC(featTypes.init(*x));

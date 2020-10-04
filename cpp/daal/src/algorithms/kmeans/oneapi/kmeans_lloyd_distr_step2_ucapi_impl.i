@@ -22,8 +22,8 @@
 */
 
 #include "services/env_detect.h"
-#include "sycl/internal/execution_context.h"
-#include "sycl/internal/types.h"
+#include "services/internal/sycl/execution_context.h"
+#include "services/internal/sycl/types.h"
 #include "src/sycl/blas_gpu.h"
 #include "src/algorithms/kmeans/oneapi/kmeans_lloyd_distr_step2_kernel_ucapi.h"
 #include "src/algorithms/kmeans/oneapi/cl_kernels/kmeans_cl_kernels_distr_steps.cl"
@@ -37,7 +37,7 @@ DAAL_ITTNOTIFY_DOMAIN(kmeans.dense.lloyd.distr.step2.oneapi);
 using namespace daal::internal;
 using namespace daal::services::internal;
 using namespace daal::services;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 using namespace daal::data_management;
 
 namespace daal
@@ -211,11 +211,11 @@ Status KMeansDistributedStep2KernelUCAPI<algorithmFPType>::finalizeCompute(size_
 }
 
 template <typename algorithmFPType>
-void KMeansDistributedStep2KernelUCAPI<algorithmFPType>::updateClusters(bool init, const Buffer<int> & partialCentroidsCounters,
-                                                                        const Buffer<algorithmFPType> & partialCentroids,
-                                                                        const Buffer<int> & centroidCounters,
-                                                                        const Buffer<algorithmFPType> & centroids, uint32_t nClusters,
-                                                                        uint32_t nFeatures, Status * st)
+void KMeansDistributedStep2KernelUCAPI<algorithmFPType>::updateClusters(bool init, const services::internal::Buffer<int> & partialCentroidsCounters,
+                                                                        const services::internal::Buffer<algorithmFPType> & partialCentroids,
+                                                                        const services::internal::Buffer<int> & centroidCounters,
+                                                                        const services::internal::Buffer<algorithmFPType> & centroids,
+                                                                        uint32_t nClusters, uint32_t nFeatures, Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.mergeReduceCentroids);
 
@@ -247,9 +247,10 @@ void KMeansDistributedStep2KernelUCAPI<algorithmFPType>::updateClusters(bool ini
 }
 
 template <typename algorithmFPType>
-void KMeansDistributedStep2KernelUCAPI<algorithmFPType>::updateCandidates(bool init, const Buffer<int> & partialCandidates,
-                                                                          const Buffer<algorithmFPType> & partialCValues,
-                                                                          const Buffer<int> & candidates, const Buffer<algorithmFPType> & cValues,
+void KMeansDistributedStep2KernelUCAPI<algorithmFPType>::updateCandidates(bool init, const services::internal::Buffer<int> & partialCandidates,
+                                                                          const services::internal::Buffer<algorithmFPType> & partialCValues,
+                                                                          const services::internal::Buffer<int> & candidates,
+                                                                          const services::internal::Buffer<algorithmFPType> & cValues,
                                                                           uint32_t nClusters, Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.mergeReduceCentroids);
@@ -284,7 +285,7 @@ void KMeansDistributedStep2KernelUCAPI<algorithmFPType>::updateCandidates(bool i
 template <typename algorithmFPType>
 void KMeansDistributedStep2KernelUCAPI<algorithmFPType>::buildProgram(ClKernelFactoryIface & kernelFactory, Status * st)
 {
-    auto fptype_name   = oneapi::internal::getKeyFPType<algorithmFPType>();
+    auto fptype_name   = services::internal::sycl::getKeyFPType<algorithmFPType>();
     auto build_options = fptype_name;
     services::String cachekey("__daal_algorithms_kmeans_lloyd_dense_distr_step2_");
     cachekey.add(fptype_name);

@@ -24,8 +24,8 @@
 #ifndef __KMEANS_DENSE_LLOYD_BATCH_KERNEL_UCAPI_H__
 #define __KMEANS_DENSE_LLOYD_BATCH_KERNEL_UCAPI_H__
 
-#include "sycl/internal/types.h"
-#include "sycl/internal/execution_context.h"
+#include "services/internal/sycl/types.h"
+#include "services/internal/sycl/execution_context.h"
 #include "algorithms/kmeans/kmeans_types.h"
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"

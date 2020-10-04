@@ -1,6 +1,6 @@
-/* file: types.h */
+/* file: covariance_dense_default_distr_step2_oneapi_fpt.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,46 +15,29 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __ONEAPI_INTERNAL_MATH_TYPES_H__
-#define __ONEAPI_INTERNAL_MATH_TYPES_H__
+/*
+//++
+//  Implementation of Covariance kernel.
+//--
+*/
+
+#include "src/algorithms/covariance/covariance_container.h"
+#include "src/algorithms/covariance/oneapi/covariance_dense_distr_step2_oneapi.h"
+#include "src/algorithms/covariance/oneapi/covariance_dense_distr_step2_oneapi_impl.i"
 
 namespace daal
+{
+namespace algorithms
+{
+namespace covariance
 {
 namespace oneapi
 {
 namespace internal
 {
-namespace math
-{
-namespace interface1
-{
-enum Layout
-{
-    ColMajor,
-    RowMajor
-};
-
-enum Transpose
-{
-    NoTrans,
-    Trans
-};
-
-enum UpLo
-{
-    Upper,
-    Lower
-};
-
-} // namespace interface1
-
-using interface1::Layout;
-using interface1::Transpose;
-using interface1::UpLo;
-
-} // namespace math
-} // namespace internal
+template class CovarianceDenseDistrStep2KernelOneAPI<DAAL_FPTYPE, defaultDense>;
+}
 } // namespace oneapi
+} // namespace covariance
+} // namespace algorithms
 } // namespace daal
-
-#endif

@@ -28,7 +28,7 @@
 
 DAAL_ITTNOTIFY_DOMAIN(df.common.oneapi);
 
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 using namespace daal::services::internal;
 
 namespace daal
@@ -98,7 +98,7 @@ IndexedFeaturesOneAPI<algorithmFPType>::FeatureEntry::~FeatureEntry()
 template <typename algorithmFPType>
 services::Status IndexedFeaturesOneAPI<algorithmFPType>::FeatureEntry::allocBorders()
 {
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
     services::Status status;
 
     binBorders = context.allocate(TypeIds::id<algorithmFPType>(), numIndices, &status);
@@ -109,7 +109,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::FeatureEntry::allocBord
 template <typename algorithmFPType>
 services::Status IndexedFeaturesOneAPI<algorithmFPType>::alloc(size_t nC, size_t nR)
 {
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
     services::Status status;
 
     DAAL_CHECK_MALLOC(_data.resize(nC));
@@ -136,14 +136,15 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::alloc(size_t nC, size_t
 }
 
 template <typename algorithmFPType>
-services::Status IndexedFeaturesOneAPI<algorithmFPType>::extractColumn(const services::Buffer<algorithmFPType> & data, UniversalBuffer & values,
-                                                                       UniversalBuffer & indices, int32_t featureId, int32_t nFeatures, int32_t nRows)
+services::Status IndexedFeaturesOneAPI<algorithmFPType>::extractColumn(const services::internal::Buffer<algorithmFPType> & data,
+                                                                       UniversalBuffer & values, UniversalBuffer & indices, int32_t featureId,
+                                                                       int32_t nFeatures, int32_t nRows)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(indexedFeatures.extractColumn);
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
     buildProgram<algorithmFPType>(factory);
 
@@ -174,7 +175,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::collectBinBorders(Unive
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
     buildProgram<algorithmFPType>(factory);
 
@@ -204,7 +205,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
     buildProgram<algorithmFPType>(factory);
 
@@ -241,7 +242,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
 {
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     const int32_t maxBins      = pBinPrm->maxBins < nRows ? pBinPrm->maxBins : nRows;
     const int32_t localSize    = _preferableSubGroup;
@@ -288,7 +289,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
 }
 
 template <typename algorithmFPType>
-services::Status IndexedFeaturesOneAPI<algorithmFPType>::makeIndex(const services::Buffer<algorithmFPType> & data, int32_t featureId,
+services::Status IndexedFeaturesOneAPI<algorithmFPType>::makeIndex(const services::internal::Buffer<algorithmFPType> & data, int32_t featureId,
                                                                    int32_t nFeatures, int32_t nRows, const dtrees::internal::BinParams * pBinPrm,
                                                                    UniversalBuffer & bins, FeatureEntry & entry)
 {
@@ -306,7 +307,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::storeColumn(const Unive
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
     buildProgram<algorithmFPType>(factory);
 
@@ -358,7 +359,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::init(NumericTable & nt,
     const int32_t nC = static_cast<int32_t>(nCsz);
     const int32_t nR = static_cast<int32_t>(nRsz);
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     _values = context.allocate(TypeIds::id<algorithmFPType>(), nR, &status);
     DAAL_CHECK_STATUS_VAR(status);

@@ -24,16 +24,18 @@
 #ifndef __ONEAPI_INTERNAL_MATH_REFERENCE_LAPACK_H__
 #define __ONEAPI_INTERNAL_MATH_REFERENCE_LAPACK_H__
 
-#include "sycl/internal/math/types.h"
-#include "sycl/internal/types_utils.h"
-#include "services/buffer.h"
+#include "services/internal/sycl/math/types.h"
+#include "services/internal/sycl/types_utils.h"
+#include "services/internal/buffer.h"
 #include "services/env_detect.h"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace math
 {
@@ -52,7 +54,7 @@ struct DAAL_EXPORT ReferencePotrf
 {
     ReferencePotrf() {}
 
-    services::Status operator()(const math::UpLo uplo, const size_t n, services::Buffer<algorithmFPType> & a_buffer, const size_t lda);
+    services::Status operator()(const math::UpLo uplo, const size_t n, services::internal::Buffer<algorithmFPType> & a_buffer, const size_t lda);
 };
 
 /**
@@ -64,8 +66,8 @@ struct DAAL_EXPORT ReferencePotrs
 {
     ReferencePotrs() {}
 
-    services::Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, services::Buffer<algorithmFPType> & a_buffer,
-                                const size_t lda, services::Buffer<algorithmFPType> & b_buffer, const size_t ldb);
+    services::Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, services::internal::Buffer<algorithmFPType> & a_buffer,
+                                const size_t lda, services::internal::Buffer<algorithmFPType> & b_buffer, const size_t ldb);
 };
 
 /** @} */
@@ -75,8 +77,9 @@ using interface1::ReferencePotrf;
 using interface1::ReferencePotrs;
 
 } // namespace math
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
 
 #endif
