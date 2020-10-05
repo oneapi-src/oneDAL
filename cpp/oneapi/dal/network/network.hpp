@@ -32,9 +32,7 @@ public:
 class empty_communicator: public communicator_base {
 public:
     void allreduce(float* ptr, size_t n) override { }
-
     void allreduce(double* ptr, size_t n) override { }
-
     void allreduce(int* ptr, size_t n) override { }
 };
 
