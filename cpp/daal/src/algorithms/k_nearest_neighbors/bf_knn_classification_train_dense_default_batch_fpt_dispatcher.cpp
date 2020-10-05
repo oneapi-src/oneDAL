@@ -37,12 +37,7 @@ Batch<algorithmFPType, method>::Batch() : classifier::training::Batch()
 }
 
 template <typename algorithmFPType, bf_knn_classification::training::Method method>
-<<<<<<< HEAD
 Batch<algorithmFPType, method>::Batch(const Batch & other) : classifier::training::Batch(other), input(other.input)
-=======
-Batch<algorithmFPType, method>::Batch(const Batch & other)
-    : classifier::training::Batch(other), input(other.input)
->>>>>>> fix bug with null numeric table in input
 {
     _par = new ParameterType(other.parameter());
     initialize();
