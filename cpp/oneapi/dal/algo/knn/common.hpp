@@ -32,7 +32,6 @@ struct tag {};
 template <typename Task = task::by_default>
 class descriptor_impl;
 
-template <typename Task = task::by_default>
 class model_impl;
 } // namespace detail
 
@@ -46,9 +45,9 @@ template <typename Task = task::by_default>
 class ONEAPI_DAL_EXPORT descriptor_base : public base {
 public:
     using tag_t = detail::tag;
-    using task_t = Task;
     using float_t = float;
     using method_t = method::by_default;
+    using task_t = Task;
 
     descriptor_base();
 
@@ -59,7 +58,7 @@ protected:
     void set_class_count_impl(std::int64_t value);
     void set_neighbor_count_impl(std::int64_t value);
 
-    dal::detail::pimpl<detail::descriptor_impl<Task>> impl_;
+    dal::detail::pimpl<detail::descriptor_impl<task_t>> impl_;
 };
 
 template <typename Float = descriptor_base<task::by_default>::float_t,
@@ -70,6 +69,7 @@ public:
     using tag_t = detail::tag;
     using float_t = Float;
     using method_t = Method;
+    using task_t = Task;
 
     explicit descriptor(std::int64_t class_count, std::int64_t neighbor_count) {
         set_class_count(class_count);
@@ -77,17 +77,16 @@ public:
     }
 
     auto& set_class_count(std::int64_t value) {
-        descriptor_base<Task>::set_class_count_impl(value);
+        descriptor_base<task_t>::set_class_count_impl(value);
         return *this;
     }
 
     auto& set_neighbor_count(std::int64_t value) {
-        descriptor_base<Task>::set_neighbor_count_impl(value);
+        descriptor_base<task_t>::set_neighbor_count_impl(value);
         return *this;
     }
 };
 
-template <typename Task>
 class ONEAPI_DAL_EXPORT model : public base {
     friend dal::detail::pimpl_accessor;
 
@@ -95,8 +94,8 @@ public:
     model();
 
 private:
-    explicit model(const std::shared_ptr<detail::model_impl<Task>>& impl);
-    dal::detail::pimpl<detail::model_impl<Task>> impl_;
+    explicit model(const std::shared_ptr<detail::model_impl>& impl);
+    dal::detail::pimpl<detail::model_impl> impl_;
 };
 
 } // namespace oneapi::dal::knn

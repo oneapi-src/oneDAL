@@ -59,16 +59,10 @@ void descriptor_base<task::classification>::set_neighbor_count_impl(std::int64_t
     impl_->neighbor_count = value;
 }
 
-template <typename Task>
-class empty_model_impl : public detail::model_impl<Task> {};
+class empty_model_impl : public detail::model_impl {};
 
-template <typename Task>
-model<Task>::model() : impl_(new empty_model_impl<Task>{}) {}
+model::model() : impl_(new empty_model_impl{}) {}
 
-template <typename Task>
-model<Task>::model(const std::shared_ptr<detail::model_impl<Task>>& impl) : impl_(impl) {}
-
-template class ONEAPI_DAL_EXPORT descriptor_base<task::classification>;
-template class ONEAPI_DAL_EXPORT model<task::classification>;
+model::model(const std::shared_ptr<detail::model_impl>& impl) : impl_(impl) {}
 
 } // namespace oneapi::dal::knn

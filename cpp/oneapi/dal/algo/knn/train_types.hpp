@@ -58,15 +58,15 @@ class ONEAPI_DAL_EXPORT train_result {
 public:
     train_result();
 
-    model<Task> get_model() const;
+    model get_model() const;
 
-    auto& set_model(const model<Task>& value) {
+    auto& set_model(const model& value) {
         set_model_impl(value);
         return *this;
     }
 
 private:
-    void set_model_impl(const model<Task>&);
+    void set_model_impl(const model&);
     dal::detail::pimpl<detail::train_result_impl<Task>> impl_;
 };
 

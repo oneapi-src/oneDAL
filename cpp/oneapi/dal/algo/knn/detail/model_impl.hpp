@@ -20,18 +20,21 @@
 
 namespace oneapi::dal::knn::detail {
 
-template <typename Task>
+namespace backend {
+    class interop_model;
+} // backend
+
 class model_impl : public base {
 public:
-    class interop_model;
     model_impl() : interop_(nullptr) {}
-    model_impl(interop_model* interop) : interop_(interop) {}
-    interop_model* get_interop() {
+    model_impl(backend::interop_model* interop) : interop_(interop) {}
+    ~model_impl();
+    backend::interop_model* get_interop() {
         return interop_;
     }
 
 private:
-    interop_model* interop_;
+    backend::interop_model* interop_;
 };
 
 } // namespace oneapi::dal::knn::detail

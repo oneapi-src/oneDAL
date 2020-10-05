@@ -32,7 +32,7 @@ public:
 template <typename Task>
 class train_result_impl : public base {
 public:
-    model<Task> trained_model;
+    model trained_model;
 };
 } // namespace detail
 
@@ -67,12 +67,12 @@ template <typename Task>
 train_result<Task>::train_result() : impl_(new train_result_impl{}) {}
 
 template <typename Task>
-model<Task> train_result<Task>::get_model() const {
+model train_result<Task>::get_model() const {
     return impl_->trained_model;
 }
 
 template <typename Task>
-void train_result<Task>::set_model_impl(const model<Task>& value) {
+void train_result<Task>::set_model_impl(const model& value) {
     impl_->trained_model = value;
 }
 

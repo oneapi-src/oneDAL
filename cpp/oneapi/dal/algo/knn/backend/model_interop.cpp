@@ -14,30 +14,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
-
-#include "algorithms/classifier/classifier_model.h"
-#include "oneapi/dal/algo/knn/common.hpp"
-#include "oneapi/dal/algo/knn/detail/model_impl.hpp"
-
+#include "oneapi/dal/algo/knn/backend/model_interop.hpp"
 namespace oneapi::dal::knn::detail {
-namespace backend {
-
-namespace daal_cls = daal::algorithms::classifier;
-
-class interop_model {
-public:
-    interop_model(const daal_cls::ModelPtr& daal_model) : daal_model(daal_model) {}
-    void set_daal_model(const daal_cls::ModelPtr& model) {
-        daal_model = model;
+model_impl::~model_impl() {
+    if(interop_ != nullptr) {
+        delete interop_;
+        interop_ = nullptr;
     }
-    daal_cls::ModelPtr get_daal_model() {
-        return daal_model;
-    }
-
-private:
-    daal_cls::ModelPtr daal_model;
-};
-} // namespace backend
+}
 
 } // namespace oneapi::dal::knn::detail

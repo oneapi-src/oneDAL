@@ -40,7 +40,7 @@ static infer_result<task::classification> call_daal_kernel(
     const context_gpu& ctx,
     const descriptor_base<task::classification>& desc,
     const table& data,
-    const model<task::classification>& m) {
+    const model& m) {
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
@@ -62,7 +62,7 @@ static infer_result<task::classification> call_daal_kernel(
 
     interop::status_to_exception(daal_knn_brute_force_kernel_t<Float>().compute(
         daal_data.get(),
-        dal::detail::get_impl<detail::model_impl<task::classification>>(m)
+        dal::detail::get_impl<detail::model_impl>(m)
             .get_interop()
             ->get_daal_model()
             .get(),

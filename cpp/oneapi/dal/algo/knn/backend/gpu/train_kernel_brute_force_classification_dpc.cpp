@@ -42,7 +42,7 @@ static train_result<task::classification> call_daal_kernel(
     const descriptor_base<task::classification>& desc,
     const table& data,
     const table& labels) {
-    using daal_interop_model_t = detail::model_impl<task::classification>::interop_model;
+    using daal_interop_model_t = detail::backend::interop_model;
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
@@ -80,9 +80,9 @@ static train_result<task::classification> call_daal_kernel(
                                                        *daal_parameter.engine.get()));
 
     auto interop = new daal_interop_model_t(model_ptr);
-    const auto model_impl = std::make_shared<detail::model_impl<task::classification>>(interop);
+    const auto model_impl = std::make_shared<detail::model_impl>(interop);
     return train_result<task::classification>().set_model(
-        dal::detail::pimpl_accessor::make<model<task::classification>>(model_impl));
+        dal::detail::pimpl_accessor::make<model>(model_impl));
 }
 
 template <typename Float>

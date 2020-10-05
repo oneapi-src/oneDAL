@@ -40,7 +40,7 @@ static infer_result<task::classification> call_daal_kernel(
     const context_cpu &ctx,
     const descriptor_base<task::classification> &desc,
     const table &data,
-    model<task::classification> m) {
+    model m) {
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
 
@@ -61,7 +61,7 @@ static infer_result<task::classification> call_daal_kernel(
     interop::status_to_exception(interop::call_daal_kernel<Float, daal_knn_kd_tree_kernel_t>(
         ctx,
         daal_data.get(),
-        dal::detail::get_impl<detail::model_impl<task::classification>>(m)
+        dal::detail::get_impl<detail::model_impl>(m)
             .get_interop()
             ->get_daal_model()
             .get(),
