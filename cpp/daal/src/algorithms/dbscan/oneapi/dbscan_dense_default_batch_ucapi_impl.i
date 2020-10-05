@@ -268,7 +268,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::startNextCluster(uint3
         {
             return Status(ErrorNullPtr);
         }
-        last = lastPointHostBuffer.get()[0];
+        last = *lastPointHostBuffer.get();
     }
 
     KernelArguments args(7);
@@ -298,7 +298,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::startNextCluster(uint3
         {
             return Status(ErrorNullPtr);
         }
-        new_last = lastPointHostBuffer.get()[0];
+        new_last = *lastPointHostBuffer.get();
         found    = new_last > last;
     }
     return st;
@@ -386,7 +386,7 @@ template <typename algorithmFPType>
 Status DBSCANBatchKernelUCAPI<algorithmFPType>::buildProgram(ClKernelFactoryIface & kernel_factory)
 {
     Status st;
-    const auto fptypeName   = oneapi::internal::getKeyFPType<algorithmFPType>();
+    const auto fptypeName   = services::internal::sycl::getKeyFPType<algorithmFPType>();
     const auto buildOptions = fptypeName;
 
     services::String cachekey("__daal_algorithms_dbscan_block_");
@@ -407,7 +407,7 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::setQueueFront(uint32_t queueEnd)
     {
         return Status(ErrorNullPtr);
     }
-    val.get()[0] = queueEnd;
+    *val.get() = queueEnd;
     return Status();
 }
 
@@ -420,7 +420,7 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::getQueueFront(uint32_t & queueEn
         return Status(ErrorNullPtr);
     }
 
-    queueEnd = val.get()[0];
+    queueEnd = *val.get();
     return Status();
 }
 

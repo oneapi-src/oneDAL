@@ -63,7 +63,7 @@ private:
 
     static constexpr uint32_t _maxSubgroupSize = 32;
     bool _useWeights;
-    
+
     services::internal::sycl::UniversalBuffer _weights;
     services::internal::sycl::UniversalBuffer _queue;
     services::internal::sycl::UniversalBuffer _isCore;
