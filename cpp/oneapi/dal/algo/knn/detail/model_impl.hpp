@@ -21,8 +21,8 @@
 namespace oneapi::dal::knn::detail {
 
 namespace backend {
-    class interop_model;
-} // backend
+class interop_model;
+} // namespace backend
 
 class model_impl : public base {
 public:
