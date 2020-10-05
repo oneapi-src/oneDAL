@@ -31,7 +31,7 @@ using namespace daal::services;
 using namespace daal::services::internal::sycl;
 using namespace daal::data_management;
 
-const size_t maxInt32SizeT = static_cast<size_t>(daal::services::internal::MaxVal<int32_t>::get());
+const size_t maxInt32AsSizeT = static_cast<size_t>(daal::services::internal::MaxVal<int32_t>::get());
 
 namespace daal
 {
@@ -177,8 +177,8 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
     const size_t nDataRowsSizeT    = ntData->getNumberOfRows();
     const size_t nDataColumnsSizeT = ntData->getNumberOfColumns();
 
-    DAAL_CHECK(nDataRowsSizeT <= maxInt32SizeT, services::ErrorIncorrectNumberOfRowsInInputNumericTable);
-    DAAL_CHECK(nDataColumnsSizeT <= maxInt32SizeT, services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
+    DAAL_CHECK(nDataRowsSizeT <= maxInt32AsSizeT, services::ErrorIncorrectNumberOfRowsInInputNumericTable);
+    DAAL_CHECK(nDataColumnsSizeT <= maxInt32AsSizeT, services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
 
     if (ntW)
     {
@@ -280,13 +280,13 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::startNextCluster(uint3
     args.set(5, _lastPoint, AccessModeIds::write);
     args.set(6, _queue, AccessModeIds::write);
 
-    KernelRange local_range(1, _maxSubgroupSize);
-    KernelRange global_range(1, _maxSubgroupSize);
+    KernelRange localRange(1, _maxSubgroupSize);
+    KernelRange globalRange(1, _maxSubgroupSize);
 
     KernelNDRange range(2);
-    range.global(global_range, &st);
+    range.global(globalRange, &st);
     DAAL_CHECK_STATUS_VAR(st);
-    range.local(local_range, &st);
+    range.local(localRange, &st);
     DAAL_CHECK_STATUS_VAR(st);
 
     context.run(range, kernel, args, &st);
@@ -327,13 +327,13 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::getCores(const Univers
     args.set(7, _isCore, AccessModeIds::write);
 
     uint32_t rangeWidth = nFeatures < _maxSubgroupSize ? nFeatures : _maxSubgroupSize;
-    KernelRange local_range(1, rangeWidth);
-    KernelRange global_range(nRows, rangeWidth);
+    KernelRange localRange(1, rangeWidth);
+    KernelRange globalRange(nRows, rangeWidth);
 
     KernelNDRange range(2);
-    range.global(global_range, &st);
+    range.global(globalRange, &st);
     DAAL_CHECK_STATUS_VAR(st);
-    range.local(local_range, &st);
+    range.local(localRange, &st);
     DAAL_CHECK_STATUS_VAR(st);
 
     context.run(range, kernel, args, &st);
@@ -368,13 +368,13 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::updateQueue(uint32_t c
     args.set(10, _queueFront, AccessModeIds::write);
 
     uint32_t rangeWidth = nFeatures < _maxSubgroupSize ? nFeatures : _maxSubgroupSize;
-    KernelRange local_range(1, rangeWidth);
-    KernelRange global_range(nRows, rangeWidth);
+    KernelRange localRange(1, rangeWidth);
+    KernelRange globalRange(nRows, rangeWidth);
 
     KernelNDRange range(2);
-    range.global(global_range, &st);
+    range.global(globalRange, &st);
     DAAL_CHECK_STATUS_VAR(st);
-    range.local(local_range, &st);
+    range.local(localRange, &st);
     DAAL_CHECK_STATUS_VAR(st);
 
     context.run(range, kernel, args, &st);
