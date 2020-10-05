@@ -16,14 +16,17 @@
 
 #pragma once
 
+#include "oneapi/dal/backend/interop/common.hpp"
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+
 #include <daal/include/services/env_detect.h>
 #include <daal/src/services/service_defines.h>
 
 namespace oneapi::dal::backend::interop {
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
-
 struct execution_context_guard {
+<<<<<<< HEAD
     explicit execution_context_guard(const sycl::queue &queue) {
         daal::services::SyclExecutionContext ctx(queue);
         daal::services::Environment::getInstance()->setDefaultExecutionContext(ctx);
@@ -33,8 +36,19 @@ struct execution_context_guard {
         daal::services::Environment::getInstance()->setDefaultExecutionContext(
             daal::services::CpuExecutionContext());
     }
+=======
+    explicit execution_context_guard(const sycl::queue &queue);
+
+    ~execution_context_guard();
+
+    execution_context_guard(const execution_context_guard &) = delete;
+>>>>>>> 3a03c3188... Add PCA GPU backend in oneAPI interfaces (#990)
 };
 
-#endif
+void enable_daal_sycl_execution_context_cache();
+
+void cleanup_daal_sycl_execution_context_cache();
 
 } // namespace oneapi::dal::backend::interop
+
+#endif

@@ -30,7 +30,8 @@ class detail::train_result_impl : public base {
 public:
     model trained_model;
     table eigenvalues;
-    table explained_variance;
+    table variances;
+    table means;
 };
 
 using detail::train_input_impl;
@@ -60,8 +61,19 @@ table train_result::get_eigenvectors() const {
     return impl_->trained_model.get_eigenvectors();
 }
 
+<<<<<<< HEAD
 table train_result::get_explained_variance() const {
     return impl_->explained_variance;
+=======
+template <typename Task>
+table train_result<Task>::get_variances() const {
+    return impl_->variances;
+}
+
+template <typename Task>
+table train_result<Task>::get_means() const {
+    return impl_->means;
+>>>>>>> 3a03c3188... Add PCA GPU backend in oneAPI interfaces (#990)
 }
 
 void train_result::set_model_impl(const model& value) {
@@ -72,8 +84,19 @@ void train_result::set_eigenvalues_impl(const table& value) {
     impl_->eigenvalues = value;
 }
 
+<<<<<<< HEAD
 void train_result::set_explained_variance_impl(const table& value) {
     impl_->explained_variance = value;
+=======
+template <typename Task>
+void train_result<Task>::set_variances_impl(const table& value) {
+    impl_->variances = value;
+}
+
+template <typename Task>
+void train_result<Task>::set_means_impl(const table& value) {
+    impl_->means = value;
+>>>>>>> 3a03c3188... Add PCA GPU backend in oneAPI interfaces (#990)
 }
 
 } // namespace oneapi::dal::pca

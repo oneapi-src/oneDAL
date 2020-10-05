@@ -580,15 +580,16 @@ def cc_module(name, hdrs=[], deps=[], **kwargs):
     # Workaround restriction on possible extensions for cc_common.compile:
     # > The list of possible extensions for 'public_hdrs' is:
     #   .h,.hh,.hpp,.ipp,.hxx,.h++,.inc,.inl,.tlh,.tli,.H,.tcc
-    native.cc_library(
-        name = "__{}_headers__".format(name),
-        hdrs = hdrs,
-    )
+    if hdrs:
+        native.cc_library(
+            name = "__{}_headers__".format(name),
+            hdrs = hdrs,
+        )
     _cc_module(
         name = name,
-        deps = [
+        deps = deps + ([
             ":__{}_headers__".format(name),
-        ] + deps,
+        ] if hdrs else []),
         **kwargs,
     )
 
@@ -659,8 +660,27 @@ cc_static_lib = rule(
     fragments = ["cpp"],
 )
 
+<<<<<<< HEAD
 def _cc_executable_impl(ctx):
     executable = _link_executable(ctx)
+=======
+
+def _cc_test_impl(ctx):
+    if not ctx.attr.deps:
+        return
+    toolchain, feature_config = _init_cc_rule(ctx)
+    tagged_linking_contexts = onedal_cc_common.collect_tagged_linking_contexts(ctx.attr.deps)
+    linking_contexts = onedal_cc_common.filter_tagged_linking_contexts(
+        tagged_linking_contexts, ctx.attr.lib_tags)
+    executable = onedal_cc_link.executable(
+        owner = ctx.label,
+        name = ctx.label.name,
+        actions = ctx.actions,
+        cc_toolchain = toolchain,
+        feature_configuration = feature_config,
+        linking_contexts = linking_contexts,
+    )
+>>>>>>> 3a03c3188... Add PCA GPU backend in oneAPI interfaces (#990)
     default_info = DefaultInfo(
         files = depset([ executable ]),
         runfiles = ctx.runfiles(
@@ -674,7 +694,7 @@ cc_test = rule(
     implementation = _cc_executable_impl,
     attrs = {
         "lib_tags": attr.string_list(),
-        "deps": attr.label_list(mandatory=True),
+        "deps": attr.label_list(),
         "data": attr.label_list(allow_files=True),
     },
     toolchains = ["@bazel_tools//tools/cpp:toolchain_type"],

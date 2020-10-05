@@ -16,12 +16,17 @@
 
 #pragma once
 
+#include <daal/include/data_management/data/homogen_numeric_table.h>
+
 #ifdef ONEAPI_DAL_DATA_PARALLEL
+<<<<<<< HEAD
 #define DAAL_SYCL_INTERFACE
 #define DAAL_SYCL_INTERFACE_USM
 #include <daal/include/data_management/data/numeric_table_sycl_homogen.h>
+=======
+#include <daal/include/data_management/data/internal/numeric_table_sycl_homogen.h>
+>>>>>>> 3a03c3188... Add PCA GPU backend in oneAPI interfaces (#990)
 #endif
-#include <daal/include/data_management/data/homogen_numeric_table.h>
 
 #include "oneapi/dal/table/detail/table_builder.hpp"
 

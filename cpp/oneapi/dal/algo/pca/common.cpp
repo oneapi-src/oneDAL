@@ -22,7 +22,7 @@ namespace oneapi::dal::pca {
 class detail::descriptor_impl : public base {
 public:
     std::int64_t component_count = -1;
-    bool is_deterministic = false;
+    bool deterministic = false;
 };
 
 class detail::model_impl : public base {
@@ -39,8 +39,14 @@ std::int64_t descriptor_base::get_component_count() const {
     return impl_->component_count;
 }
 
+<<<<<<< HEAD
 bool descriptor_base::get_is_deterministic() const {
     return impl_->is_deterministic;
+=======
+template <>
+bool descriptor_base<task::dim_reduction>::get_deterministic() const {
+    return impl_->deterministic;
+>>>>>>> 3a03c3188... Add PCA GPU backend in oneAPI interfaces (#990)
 }
 
 void descriptor_base::set_component_count_impl(std::int64_t value) {
@@ -50,8 +56,14 @@ void descriptor_base::set_component_count_impl(std::int64_t value) {
     impl_->component_count = value;
 }
 
+<<<<<<< HEAD
 void descriptor_base::set_is_deterministic_impl(bool value) {
     impl_->is_deterministic = value;
+=======
+template <>
+void descriptor_base<task::dim_reduction>::set_deterministic_impl(bool value) {
+    impl_->deterministic = value;
+>>>>>>> 3a03c3188... Add PCA GPU backend in oneAPI interfaces (#990)
 }
 
 model::model() : impl_(new model_impl{}) {}

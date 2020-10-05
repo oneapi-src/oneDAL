@@ -21,18 +21,24 @@
 
 namespace oneapi::dal::backend {
 
-struct cpu_dispatch_default {};
+detail::cpu_extension detect_top_cpu_extension();
+
+struct cpu_dispatch_sse2 {};
 struct cpu_dispatch_ssse3 {};
 struct cpu_dispatch_sse42 {};
 struct cpu_dispatch_avx {};
 struct cpu_dispatch_avx2 {};
 struct cpu_dispatch_avx512 {};
 
+using cpu_dispatch_default = cpu_dispatch_sse2;
+
 template <typename... Kernels>
 struct kernel_dispatcher {};
 
 class context_cpu {
 public:
+    context_cpu() : cpu_extensions_(detect_top_cpu_extension()) {}
+
     explicit context_cpu(const detail::host_policy& ctx)
             : cpu_extensions_(ctx.get_enabled_cpu_extensions()) {}
 
