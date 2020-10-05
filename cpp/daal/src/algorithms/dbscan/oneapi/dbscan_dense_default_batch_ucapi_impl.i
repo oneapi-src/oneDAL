@@ -291,15 +291,15 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::startNextCluster(uint3
 
     context.run(range, kernel, args, &st);
     DAAL_CHECK_STATUS_VAR(st);
-    int new_last;
+    int newLast;
     {
         const auto lastPointHostBuffer = _lastPoint.template get<int>().toHost(ReadWriteMode::readOnly);
         if (!lastPointHostBuffer)
         {
             return Status(ErrorNullPtr);
         }
-        new_last = *lastPointHostBuffer.get();
-        found    = new_last > last;
+        newLast = *lastPointHostBuffer.get();
+        found    = newLast > last;
     }
     return st;
 }
