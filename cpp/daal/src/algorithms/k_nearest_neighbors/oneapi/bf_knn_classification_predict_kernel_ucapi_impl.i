@@ -33,8 +33,8 @@
 
 #include "src/externals/service_ittnotify.h"
 
-const size_t maxInt32SizeT = static_cast<size_t>(daal::services::internal::MaxVal<int32_t>::get());
-const uint32_t maxInt32Uint32    = static_cast<uint32_t>(daal::services::internal::MaxVal<int32_t>::get());
+const size_t maxInt32AsSizeT = static_cast<size_t>(daal::services::internal::MaxVal<int32_t>::get());
+const uint32_t maxInt32AsUint32T    = static_cast<uint32_t>(daal::services::internal::MaxVal<int32_t>::get());
 
 namespace daal
 {
@@ -97,9 +97,9 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
     const size_t nDataRowsSizeT      = points->getNumberOfRows();
     const size_t nTrainFeaturesSizeT = points->getNumberOfColumns();
 
-    DAAL_CHECK(nQueryRowsSizeT <= maxInt32SizeT && nLabelRowsSizeT <= maxInt32SizeT && nDataRowsSizeT <= maxInt32SizeT,
+    DAAL_CHECK(nQueryRowsSizeT <= maxInt32AsSizeT && nLabelRowsSizeT <= maxInt32AsSizeT && nDataRowsSizeT <= maxInt32AsSizeT,
                services::ErrorIncorrectNumberOfRowsInInputNumericTable);
-    DAAL_CHECK(nTrainFeaturesSizeT <= maxInt32SizeT && nTrainFeaturesSizeT == nQueryFeaturesSizeT,
+    DAAL_CHECK(nTrainFeaturesSizeT <= maxInt32AsSizeT && nTrainFeaturesSizeT == nQueryFeaturesSizeT,
                services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
 
     const uint32_t nQueryRows = static_cast<uint32_t>(nQueryRowsSizeT);
@@ -210,7 +210,7 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::copyParti
     UniversalBuffer & partialLabels, uint32_t queryBlockRows, uint32_t k, uint32_t nChunk, uint32_t totalNumberOfChunks)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.copyPartialSelections);
-    DAAL_CHECK(totalNumberOfChunks <= maxInt32Uint32 && nChunk <= maxInt32Uint32, services::ErrorBufferSizeIntegerOverflow);
+    DAAL_CHECK(totalNumberOfChunks <= maxInt32AsUint32T && nChunk <= maxInt32AsUint32T, services::ErrorBufferSizeIntegerOverflow);
 
     services::Status st;
     auto & kernel_factory = context.getClKernelFactory();
@@ -247,7 +247,7 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::scatterSu
                                                                                            UniversalBuffer & distances)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.scatterSumOfSquares);
-    DAAL_CHECK(dataBlockRowCount <= maxInt32Uint32, services::ErrorBufferSizeIntegerOverflow);
+    DAAL_CHECK(dataBlockRowCount <= maxInt32AsUint32T, services::ErrorBufferSizeIntegerOverflow);
 
     services::Status st;
     auto & kernel_factory = context.getClKernelFactory();
