@@ -17,5 +17,4 @@ dal_module(
 
 dal_test_suite(
     name = "tests",
-    tests = [],
 )
