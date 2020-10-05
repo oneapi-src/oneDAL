@@ -46,8 +46,8 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     auto arr_data = row_accessor<const Float>{ data }.pull();
     auto arr_eigvec = array<Float>::empty(column_count * component_count);
     auto arr_eigval = array<Float>::empty(1 * component_count);
-    auto arr_means = array<Float>::empty(1 * component_count);
-    auto arr_vars = array<Float>::empty(1 * component_count);
+    auto arr_means = array<Float>::empty(1 * column_count);
+    auto arr_vars = array<Float>::empty(1 * column_count);
 
     // TODO: read-only access performed with deep copy of data since daal numeric tables are mutable.
     // Need to create special immutable homogen table on daal interop side
@@ -56,12 +56,11 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     const auto daal_data =
         interop::convert_to_daal_homogen_table(arr_data, row_count, column_count);
     const auto daal_eigenvectors =
-        interop::convert_to_daal_homogen_table(arr_eigvec, column_count, component_count);
+        interop::convert_to_daal_homogen_table(arr_eigvec, component_count, column_count);
     const auto daal_eigenvalues =
         interop::convert_to_daal_homogen_table(arr_eigval, 1, component_count);
-    const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, component_count);
-    const auto daal_variances =
-        interop::convert_to_daal_homogen_table(arr_vars, 1, component_count);
+    const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, column_count);
+    const auto daal_variances = interop::convert_to_daal_homogen_table(arr_vars, 1, column_count);
 
     daal_cov::Batch<Float, daal_cov::defaultDense> covariance_alg;
     covariance_alg.input.set(daal_cov::data, daal_data);
@@ -73,7 +72,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     interop::status_to_exception(
         interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(ctx,
                                                                 is_correlation,
-                                                                desc.get_is_deterministic(),
+                                                                desc.get_deterministic(),
                                                                 *daal_data,
                                                                 &covariance_alg,
                                                                 results_to_compute,
@@ -82,13 +81,32 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                 *daal_means,
                                                                 *daal_variances));
 
+    // clang-format off
+    const auto mdl = model<Task>{}
+        .set_eigenvectors(
+            dal::detail::homogen_table_builder{}
+                .reset(arr_eigvec, component_count, column_count)
+                .build()
+        );
+
     return train_result<Task>()
-        .set_model(
-            model<Task>().set_eigenvectors(dal::detail::homogen_table_builder{}
-                                               .reset(arr_eigvec, column_count, component_count)
-                                               .build()))
+        .set_model(mdl)
         .set_eigenvalues(
-            dal::detail::homogen_table_builder{}.reset(arr_eigval, 1, component_count).build());
+            dal::detail::homogen_table_builder{}
+                .reset(arr_eigval, 1, component_count)
+                .build()
+        )
+        .set_variances(
+            dal::detail::homogen_table_builder{}
+                .reset(arr_vars, 1, column_count)
+                .build()
+        )
+        .set_means(
+            dal::detail::homogen_table_builder{}
+                .reset(arr_means, 1, column_count)
+                .build()
+        );
+    // clang-format on
 }
 
 template <typename Float, typename Task>

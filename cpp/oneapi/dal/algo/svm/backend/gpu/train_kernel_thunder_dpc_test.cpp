@@ -17,8 +17,9 @@
 #include <CL/sycl.hpp>
 
 #include "gtest/gtest.h"
-#define ONEAPI_DAL_DATA_PARALLEL
-#include "oneapi/dal/algo/svm.hpp"
+
+#include "oneapi/dal/algo/svm/train.hpp"
+#include "oneapi/dal/algo/svm/infer.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
@@ -143,17 +144,17 @@ TEST(svm_thunder_dense_gpu_test, can_classify_linear_separable_surface_with_big_
 
     auto support_indices_table = result_train.get_support_indices();
     const auto support_indices = row_accessor<const float>(support_indices_table).pull(queue);
-    for (size_t i = 0; i < support_indices.get_count(); i++)
+    for (std::int64_t i = 0; i < support_indices.get_count(); i++)
         ASSERT_EQ(support_indices[i], i);
 
     const auto result_infer = infer(queue, svm_desc, result_train.get_model(), x_train_table);
 
     auto labels_table = result_infer.get_labels();
     const auto labels = row_accessor<const float>(labels_table).pull(queue);
-    for (size_t i = 0; i < row_count_train / 2; i++) {
+    for (std::int64_t i = 0; i < row_count_train / 2; i++) {
         ASSERT_FLOAT_EQ(labels[i], -1.f);
     }
-    for (size_t i = row_count_train / 2; i < row_count_train; i++) {
+    for (std::int64_t i = row_count_train / 2; i < row_count_train; i++) {
         ASSERT_FLOAT_EQ(labels[i], +1.f);
     }
 
@@ -186,10 +187,10 @@ TEST(svm_thunder_dense_gpu_test, can_classify_linear_separable_surface_with_big_
     const auto result_infer = infer(queue, svm_desc, result_train.get_model(), x_train_table);
     auto labels_table       = result_infer.get_labels();
     const auto labels       = row_accessor<const float>(labels_table).pull(queue);
-    for (size_t i = 0; i < 3; i++) {
+    for (std::int64_t i = 0; i < 3; i++) {
         ASSERT_FLOAT_EQ(labels[i], -1.f);
     }
-    for (size_t i = 3; i < 6; i++) {
+    for (std::int64_t i = 3; i < 6; i++) {
         ASSERT_FLOAT_EQ(labels[i], +1.f);
     }
 
@@ -229,10 +230,10 @@ TEST(svm_thunder_dense_gpu_test, can_classify_quadric_separable_surface_with_rbf
 
     auto labels_table = result_infer.get_labels();
     const auto labels = row_accessor<const float>(labels_table).pull(queue);
-    for (size_t i = 0; i < row_count_train / 2; i++) {
+    for (std::int64_t i = 0; i < row_count_train / 2; i++) {
         ASSERT_FLOAT_EQ(labels[i], -1.f);
     }
-    for (size_t i = row_count_train / 2; i < row_count_train; i++) {
+    for (std::int64_t i = row_count_train / 2; i < row_count_train; i++) {
         ASSERT_FLOAT_EQ(labels[i], +1.f);
     }
 
@@ -312,7 +313,7 @@ TEST(svm_thunder_dense_gpu_test, can_classify_any_two_labels) {
 
         auto support_indices_table = result_train.get_support_indices();
         const auto support_indices = row_accessor<const float>(support_indices_table).pull();
-        for (size_t i = 0; i < support_indices.get_count(); i++) {
+        for (std::int64_t i = 0; i < support_indices.get_count(); i++) {
             ASSERT_EQ(support_indices[i], i);
         }
 

@@ -17,17 +17,33 @@ dal_module(
 
 dal_test_suite(
     name = "cpu_tests",
-    srcs = [
-        "backend/cpu/compute_kernel_dense_test.cpp",
-    ],
+    dpc = False,
+    srcs = glob([
+        "backend/cpu/*_test.cpp",
+    ]),
     dal_deps = [
         ":kmeans_init",
     ],
 )
 
 dal_test_suite(
+    name = "gpu_tests_dpc",
+    host = False,
+    srcs = glob([
+        "backend/gpu/*_test.cpp",
+    ]),
+    dal_deps = [
+        ":kmeans_init",
+    ],
+    tags = ["gpu", "exclusive"],
+)
+
+dal_test_suite(
     name = "tests",
-    tests = [
+    host_tests = [
         ":cpu_tests",
+    ],
+    dpc_tests = [
+        ":gpu_tests_dpc",
     ],
 )
