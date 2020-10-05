@@ -33,8 +33,8 @@
 
 #include "src/externals/service_ittnotify.h"
 
-const size_t maxInt32AsSizeT = static_cast<size_t>(daal::services::internal::MaxVal<int32_t>::get());
-const uint32_t maxInt32AsUint32T    = static_cast<uint32_t>(daal::services::internal::MaxVal<int32_t>::get());
+const size_t maxInt32AsSizeT     = static_cast<size_t>(daal::services::internal::MaxVal<int32_t>::get());
+const uint32_t maxInt32AsUint32T = static_cast<uint32_t>(daal::services::internal::MaxVal<int32_t>::get());
 
 namespace daal
 {
@@ -46,12 +46,13 @@ namespace prediction
 {
 namespace internal
 {
-using namespace daal::oneapi::internal;
-using services::Buffer;
-using oneapi::internal::sort::RadixSort;
-using oneapi::internal::selection::SelectIndexed;
-using oneapi::internal::selection::SelectIndexedFactory;
-
+using namespace daal::services::internal::sycl;
+using namespace services;
+using sort::RadixSort;
+using selection::QuickSelectIndexed;
+using selection::SelectIndexed;
+using selection::SelectIndexedFactory;
+;
 
 class Range
 {
@@ -268,11 +269,10 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::scatterSu
 }
 
 template <typename algorithmFpType>
-services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeDistances(ExecutionContextIface & context,
-                                                                                        const Buffer<algorithmFpType> & data,
-                                                                                        const Buffer<algorithmFpType> & query,
-                                                                                        UniversalBuffer & distances, uint32_t dataBlockRowCount,
-                                                                                        uint32_t queryBlockRowCount, uint32_t nFeatures)
+services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeDistances(
+    ExecutionContextIface & context, const const services::internal::Buffer<algorithmFpType> & data,
+    const const services::internal::Buffer<algorithmFpType> & query, UniversalBuffer & distances, uint32_t dataBlockRowCount,
+    uint32_t queryBlockRowCount, uint32_t nFeatures)
 
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.GEMM);
