@@ -33,7 +33,7 @@
 #include "data_management/data/data_collection.h"
 #include "src/services/serialization_utils.h"
 
-#include "data_management/data/numeric_table_sycl_homogen.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 
 #include "data_management/data/memory_block.h"
 
@@ -139,7 +139,7 @@ Factory::Factory() : _impl(nullptr)
     __DAAL_REGISTER_TEMPLATED_OBJECT(Creator, HomogenNumericTable, );
     __DAAL_REGISTER_TEMPLATED_OBJECT(Creator, Matrix, );
 
-    __DAAL_REGISTER_TEMPLATED_OBJECT(Creator, SyclHomogenNumericTable, );
+    __DAAL_REGISTER_TEMPLATED_OBJECT(Creator, internal::SyclHomogenNumericTable, );
 
     __DAAL_REGISTER_TEMPLATED_OBJECT(Creator, PackedSymmetricMatrix, NumericTableIface::upperPackedSymmetricMatrix, );
     __DAAL_REGISTER_TEMPLATED_OBJECT(Creator, PackedSymmetricMatrix, NumericTableIface::lowerPackedSymmetricMatrix, );

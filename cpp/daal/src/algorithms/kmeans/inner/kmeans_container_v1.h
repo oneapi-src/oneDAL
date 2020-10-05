@@ -30,7 +30,7 @@
 #include "src/algorithms/kmeans/inner/kmeans_batch_v1.h"
 #include "src/algorithms/kmeans/inner/kmeans_distributed_v1.h"
 #include "src/algorithms/kmeans/inner/kmeans_types_v1.h"
-#include "sycl/internal/execution_context.h"
+#include "services/internal/sycl/execution_context.h"
 #include "src/data_management/service_numeric_table.h"
 
 namespace daal
@@ -59,7 +59,7 @@ DAAL_FORCEINLINE void convertParameter(interface1::Parameter & par1, interface2:
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)
@@ -81,7 +81,7 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     Input * input   = static_cast<Input *>(_in);

@@ -18,7 +18,7 @@
 #include "services/daal_defines.h"
 #include "src/sycl/select_indexed.h"
 #include "src/sycl/cl_kernels/select_indexed.cl"
-#include "sycl/internal/utils.h"
+#include "services/internal/execution_context.h"
 #include "src/externals/service_rng.h"
 #include "src/algorithms/engines/engine_batch_impl.h"
 #include "services/daal_string.h"
@@ -32,9 +32,11 @@ const uint32_t maxInt32 = static_cast<uint32_t>(daal::services::internal::MaxVal
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace selection
 {
@@ -178,7 +180,7 @@ SelectIndexed::Result & QuickSelectIndexed::selectIndices(const UniversalBuffer 
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(QuickSelectIndexed.select);
 
-    auto & context       = oneapi::internal::getDefaultContext();
+    auto & context       = services::internal::getDefaultContext();
     auto & kernelFactory = context.getClKernelFactory();
 
     buildProgram(kernelFactory, dataVectors.type(), status);
@@ -270,7 +272,7 @@ SelectIndexed::Result & DirectSelectIndexed::selectIndices(const UniversalBuffer
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(QuickSelectIndexed.select);
 
-    auto & context       = oneapi::internal::getDefaultContext();
+    auto & context       = services::internal::getDefaultContext();
     auto & kernelFactory = context.getClKernelFactory();
 
     buildProgram(kernelFactory, dataVectors.type(), nK, status);
@@ -310,6 +312,7 @@ SelectIndexed * SelectIndexedFactory::create(int nK, SelectIndexed::Params & par
 }
 
 } // namespace selection
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal

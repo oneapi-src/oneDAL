@@ -25,8 +25,8 @@
 #define __PCA_DENSE_CORRELATION_BATCH_KERNEL_UCAPI_H__
 
 #include "src/algorithms/pca/pca_dense_correlation_base_iface.h"
-#include "sycl/internal/types.h"
-#include "sycl/internal/execution_context.h"
+#include "services/internal/sycl/types.h"
+#include "services/internal/sycl/execution_context.h"
 #include "algorithms/pca/pca_types.h"
 
 namespace daal
@@ -52,12 +52,12 @@ public:
                              data_management::NumericTable & variances);
 
 private:
-    services::Status calculateVariances(oneapi::internal::ExecutionContextIface & context,
-                                        const oneapi::internal::KernelPtr & calculateVariancesKernel, data_management::NumericTable & covariance,
-                                        const services::Buffer<algorithmFPType> & variances);
+    services::Status calculateVariances(services::internal::sycl::ExecutionContextIface & context,
+                                        const services::internal::sycl::KernelPtr & calculateVariancesKernel,
+                                        data_management::NumericTable & covariance, const services::internal::Buffer<algorithmFPType> & variances);
 
     services::Status correlationFromCovarianceTable(uint32_t nObservations, data_management::NumericTable & covariance,
-                                                    const services::Buffer<algorithmFPType> & variances);
+                                                    const services::internal::Buffer<algorithmFPType> & variances);
 
 private:
     PCACorrelationBaseIfacePtr _host_impl;

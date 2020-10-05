@@ -19,7 +19,8 @@
 CPU and GPU Support
 ===================
 
-Differences in CPU and GPU support affect the algorithms
+Not all computation modes, methods, and parameters are supported on both CPU and GPU.
+Differences in CPU and GPU support are listed below.
 
 Computation modes
 *****************
@@ -89,7 +90,7 @@ Parameters
    * - Algortihm
      - Notes
    * - :ref:`svm`
-     - ``doShrinking`` is only supported for ``defaultDense`` method
+     - ``doShrinking`` is only supported for ``defaultDense`` method.
    * - :ref:`dbscan`
      - 
        - On GPU, the ``memorySavingMode`` flag can only be set to ``true``.

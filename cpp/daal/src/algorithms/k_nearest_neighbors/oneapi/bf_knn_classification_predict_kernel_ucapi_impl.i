@@ -52,6 +52,7 @@ using oneapi::internal::sort::RadixSort;
 using oneapi::internal::selection::SelectIndexed;
 using oneapi::internal::selection::SelectIndexedFactory;
 
+
 class Range
 {
 public:
@@ -272,6 +273,7 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeDi
                                                                                         const Buffer<algorithmFpType> & query,
                                                                                         UniversalBuffer & distances, uint32_t dataBlockRowCount,
                                                                                         uint32_t queryBlockRowCount, uint32_t nFeatures)
+
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.GEMM);
     return BlasGpu<algorithmFpType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::Trans, queryBlockRowCount,
@@ -313,7 +315,7 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeWi
 template <typename algorithmFpType>
 services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::buildProgram(ClKernelFactoryIface & kernel_factory)
 {
-    auto fptype_name   = oneapi::internal::getKeyFPType<algorithmFpType>();
+    auto fptype_name   = services::internal::sycl::getKeyFPType<algorithmFpType>();
     auto build_options = fptype_name;
     build_options.add(" -D sortedType=int -D NumParts=16 ");
 

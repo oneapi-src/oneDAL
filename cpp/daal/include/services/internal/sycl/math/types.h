@@ -1,4 +1,4 @@
-/* file: utils.h */
+/* file: types.h */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -15,30 +15,49 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __DAAL_ONEAPI_INTERNAL_UTILS_H__
-#define __DAAL_ONEAPI_INTERNAL_UTILS_H__
-
-#include "services/env_detect.h"
+#ifndef __ONEAPI_INTERNAL_MATH_TYPES_H__
+#define __ONEAPI_INTERNAL_MATH_TYPES_H__
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
 {
+namespace sycl
+{
+namespace math
+{
 namespace interface1
 {
-inline ExecutionContextIface & getDefaultContext()
+enum Layout
 {
-    return services::Environment::getInstance()->getDefaultExecutionContext();
-}
+    ColMajor,
+    RowMajor
+};
+
+enum Transpose
+{
+    NoTrans,
+    Trans
+};
+
+enum UpLo
+{
+    Upper,
+    Lower
+};
 
 } // namespace interface1
 
-using interface1::getDefaultContext;
+using interface1::Layout;
+using interface1::Transpose;
+using interface1::UpLo;
 
+} // namespace math
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
 
 #endif
