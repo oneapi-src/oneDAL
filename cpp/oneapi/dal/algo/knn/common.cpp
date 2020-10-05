@@ -65,4 +65,6 @@ model::model() : impl_(new empty_model_impl{}) {}
 
 model::model(const std::shared_ptr<detail::model_impl>& impl) : impl_(impl) {}
 
+template class ONEAPI_DAL_EXPORT descriptor_base<task::classification>;
+
 } // namespace oneapi::dal::knn
