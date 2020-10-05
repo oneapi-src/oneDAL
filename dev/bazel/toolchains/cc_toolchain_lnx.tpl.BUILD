@@ -56,7 +56,8 @@ cc_toolchain_config(
     deterministic_compile_flags = [%{deterministic_compile_flags}],
     supports_start_end_lib = %{supports_start_end_lib},
     supports_random_seed = %{supports_random_seed},
-    cpu_flags = {%{cpu_flags}},
+    cpu_flags_cc = {%{cpu_flags_cc}},
+    cpu_flags_dpcc = {%{cpu_flags_dpcc}},
 )
 
 cc_toolchain(

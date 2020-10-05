@@ -25,13 +25,13 @@
 #define __KMEANS_RESULT_
 
 #include "algorithms/kmeans/kmeans_types.h"
-#include "sycl/internal/execution_context.h"
-#include "sycl/internal/types.h"
-#include "data_management/data/numeric_table_sycl_homogen.h"
+#include "services/internal/sycl/execution_context.h"
+#include "services/internal/sycl/types.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 #include "src/algorithms/kmeans/inner/kmeans_types_v1.h"
 
 using namespace daal::data_management;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 namespace daal
 {
@@ -48,7 +48,7 @@ namespace kmeans
 template <typename algorithmFPType>
 DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     const interface2::Parameter * kmPar2 = dynamic_cast<const interface2::Parameter *>(parameter);
@@ -80,10 +80,10 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
         }
         else
         {
-            set(centroids, SyclHomogenNumericTable<algorithmFPType>::create(nFeatures, nClusters, NumericTable::doAllocate, &status));
+            set(centroids, internal::SyclHomogenNumericTable<algorithmFPType>::create(nFeatures, nClusters, NumericTable::doAllocate, &status));
             set(objectiveFunction, HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, &status));
             set(nIterations, HomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, &status));
-            set(assignments, SyclHomogenNumericTable<int>::create(1, nRows, NumericTable::doAllocate, &status));
+            set(assignments, internal::SyclHomogenNumericTable<int>::create(1, nRows, NumericTable::doAllocate, &status));
         }
     }
     else
@@ -103,10 +103,10 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
         }
         else
         {
-            set(centroids, SyclHomogenNumericTable<algorithmFPType>::create(nFeatures, nClusters, NumericTable::doAllocate, &status));
+            set(centroids, internal::SyclHomogenNumericTable<algorithmFPType>::create(nFeatures, nClusters, NumericTable::doAllocate, &status));
             set(objectiveFunction, HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, &status));
             set(nIterations, HomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, &status));
-            set(assignments, SyclHomogenNumericTable<int>::create(1, nRows, NumericTable::doAllocate, &status));
+            set(assignments, internal::SyclHomogenNumericTable<int>::create(1, nRows, NumericTable::doAllocate, &status));
         }
     }
 

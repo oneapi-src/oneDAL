@@ -38,7 +38,7 @@ namespace training
 {
 namespace internal
 {
-using namespace daal::oneapi::internal::math;
+using namespace daal::services::internal::sycl::math;
 
 template <typename algorithmFPType>
 class SaveResultModel
@@ -46,15 +46,15 @@ class SaveResultModel
     using Helper = utils::internal::HelperSVM<algorithmFPType>;
 
 public:
-    SaveResultModel(services::Buffer<algorithmFPType> & alphaBuff, const services::Buffer<algorithmFPType> & fBuff,
-                    const services::Buffer<algorithmFPType> & yBuff, const algorithmFPType C, const size_t nVectors)
+    SaveResultModel(services::internal::Buffer<algorithmFPType> & alphaBuff, const services::internal::Buffer<algorithmFPType> & fBuff,
+                    const services::internal::Buffer<algorithmFPType> & yBuff, const algorithmFPType C, const size_t nVectors)
         : _yBuff(yBuff), _coeffBuff(alphaBuff), _fBuff(fBuff), _C(C), _nVectors(nVectors)
     {}
 
     services::Status init()
     {
         services::Status status;
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::internal::getDefaultContext();
         _tmpValues     = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);
         DAAL_CHECK_STATUS_VAR(status);
         _mask = context.allocate(TypeIds::id<uint32_t>(), _nVectors, &status);
@@ -90,7 +90,7 @@ protected:
     {
         services::Status status;
 
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::internal::getDefaultContext();
 
         auto tmpValuesBuff = _tmpValues.get<algorithmFPType>();
         auto maskBuff      = _mask.get<uint32_t>();
@@ -114,7 +114,7 @@ protected:
 
     services::Status setSVIndices(size_t nSV, Model & model) const
     {
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::internal::getDefaultContext();
 
         NumericTablePtr svIndicesTable = model.getSupportIndices();
         services::Status status;
@@ -225,9 +225,9 @@ protected:
     }
 
 private:
-    services::Buffer<algorithmFPType> _yBuff;
-    services::Buffer<algorithmFPType> _fBuff;
-    services::Buffer<algorithmFPType> _coeffBuff;
+    services::internal::Buffer<algorithmFPType> _yBuff;
+    services::internal::Buffer<algorithmFPType> _fBuff;
+    services::internal::Buffer<algorithmFPType> _coeffBuff;
     UniversalBuffer _tmpValues;
     UniversalBuffer _mask;
     const algorithmFPType _C;
