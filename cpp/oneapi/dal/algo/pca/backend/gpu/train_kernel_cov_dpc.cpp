@@ -19,10 +19,10 @@
 #include <daal/src/algorithms/pca/pca_dense_correlation_batch_kernel.h>
 #include <daal/src/algorithms/pca/oneapi/pca_dense_correlation_batch_kernel_ucapi.h>
 
-#include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
+#include "oneapi/dal/table/backend/interop/conversion.hpp"
+#include "oneapi/dal/table/detail/table_builder.hpp"
 
 namespace oneapi::dal::pca::backend {
 
@@ -73,18 +73,15 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
-    const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
     const std::int64_t component_count = desc.get_component_count();
 
-    auto arr_data = row_accessor<const Float>{ data }.pull(queue);
     auto arr_eigvec = array<Float>::empty(queue, column_count * component_count);
     auto arr_eigval = array<Float>::empty(queue, 1 * component_count);
     auto arr_means = array<Float>::empty(queue, 1 * column_count);
     auto arr_vars = array<Float>::empty(queue, 1 * column_count);
 
-    const auto daal_data =
-        interop::convert_to_daal_sycl_homogen_table(queue, arr_data, row_count, column_count);
+    const auto daal_data = interop::convert_to_daal_table<Float>(queue, data);
     const auto daal_eigvec = interop::convert_to_daal_sycl_homogen_table(queue,
                                                                          arr_eigvec,
                                                                          component_count,
