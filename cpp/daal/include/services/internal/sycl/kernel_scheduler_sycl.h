@@ -417,7 +417,7 @@ private:
     template <typename T>
     void handlePublicBuffer()
     {
-        auto service_buffer = _argument.get<services::Buffer<T> >();
+        auto service_buffer = _argument.get<services::internal::Buffer<T> >();
 
         if (service_buffer.isUSMBacked())
         {
