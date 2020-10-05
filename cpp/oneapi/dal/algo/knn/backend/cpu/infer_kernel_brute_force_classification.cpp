@@ -18,8 +18,6 @@
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
-#define DAAL_SYCL_INTERFACE
-
 namespace oneapi::dal::knn::backend {
 
 using dal::backend::context_cpu;
