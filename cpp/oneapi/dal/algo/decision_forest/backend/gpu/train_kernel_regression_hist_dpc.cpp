@@ -14,10 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#define DAAL_SYCL_INTERFACE
-#define DAAL_SYCL_INTERFACE_USM
-#define DAAL_SYCL_INTERFACE_REVERSED_RANGE
-
 #include <daal/src/algorithms/dtrees/forest/regression/df_regression_model_impl.h>
 #include <daal/src/services/service_algo_utils.h>
 
