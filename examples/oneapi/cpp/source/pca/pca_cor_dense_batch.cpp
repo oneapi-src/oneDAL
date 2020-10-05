@@ -27,8 +27,8 @@ int main(int argc, char const *argv[]) {
     const auto data = dal::read<dal::table>(dal::csv::data_source{data_file_name});
 
     const auto pca_desc = dal::pca::descriptor<>()
-        .set_component_count(data.get_column_count())
-        .set_is_deterministic(true);
+        .set_component_count(5)
+        .set_deterministic(true);
 
     const auto result = dal::train(pca_desc, data);
 

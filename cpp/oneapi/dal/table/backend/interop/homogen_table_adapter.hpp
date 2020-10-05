@@ -232,7 +232,7 @@ private:
             }
 #ifdef ONEAPI_DAL_DATA_PARALLEL
             else {
-                daal::services::Buffer<BlockData> buffer(reinterpret_cast<BlockData*>(raw_data_ptr),
+                daal::services::internal::Buffer<BlockData> buffer(reinterpret_cast<BlockData*>(raw_data_ptr),
                                                          info.row_count * column_count,
                                                          data_kind_);
                 // this operation is safe only when the table does not leave the scope
@@ -362,7 +362,7 @@ private:
                 auto raw_ptr = const_cast<BlockData*>(values.get_data());
                 auto data_shared =
                     daal::services::SharedPtr<BlockData>(raw_ptr, daal_array_owner(values));
-                daal::services::Buffer<BlockData> buffer(data_shared,
+                daal::services::internal::Buffer<BlockData> buffer(data_shared,
                                                          row_count * column_count,
                                                          values_data_kind);
                 block.setBuffer(buffer, column_count, row_count);

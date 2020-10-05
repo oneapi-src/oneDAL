@@ -84,7 +84,7 @@ DataType computeSum(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** 
 }
 
 template <daal::CpuType cpu>
-double computeSumSOA(NumericTable & table, bool & sumIsFinite)
+double computeSumSOA(NumericTable & table, bool & sumIsFinite, services::Status & st)
 {
     double sum                                  = 0;
     const size_t nRows                          = table.getNumberOfRows();
@@ -129,7 +129,7 @@ bool checkFiniteness(const size_t nElements, size_t nDataPtrs, size_t nElementsP
 }
 
 template <daal::CpuType cpu>
-bool checkFinitenessSOA(NumericTable & table, bool allowNaN)
+bool checkFinitenessSOA(NumericTable & table, bool allowNaN, services::Status & st)
 {
     bool valuesAreFinite                        = true;
     const size_t nRows                          = table.getNumberOfRows();
@@ -232,7 +232,7 @@ double computeSum<double, avx512>(size_t nDataPtrs, size_t nElementsPerPtr, cons
     return computeSumAVX512Impl<double>(nDataPtrs, nElementsPerPtr, dataPtrs);
 }
 
-double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite)
+double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite, services::Status & st)
 {
     SafeStatus safeStat;
     double sum                                  = 0;
@@ -247,6 +247,8 @@ double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite)
     daal::threader_for_break(nCols, nCols, [&](size_t i, bool & needBreak) {
         double * localSum     = tlsSum.local();
         bool * localNotFinite = tlsNotFinite.local();
+        DAAL_CHECK_MALLOC_THR(localSum);
+        DAAL_CHECK_MALLOC_THR(localNotFinite);
 
         switch ((*tableFeaturesDict)[i].getIndexType())
         {
@@ -277,6 +279,12 @@ double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite)
         }
     });
 
+    st |= safeStat.detach();
+    if (!st)
+    {
+        return 0;
+    }
+
     if (breakFlag)
     {
         sum         = getInf<double>();
@@ -292,9 +300,9 @@ double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite)
 }
 
 template <>
-double computeSumSOA<avx512>(NumericTable & table, bool & sumIsFinite)
+double computeSumSOA<avx512>(NumericTable & table, bool & sumIsFinite, services::Status & st)
 {
-    return computeSumSOAAVX512Impl(table, sumIsFinite);
+    return computeSumSOAAVX512Impl(table, sumIsFinite, st);
 }
 
 services::Status checkFinitenessInBlocks(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
@@ -436,7 +444,7 @@ bool checkFiniteness<double, avx512>(const size_t nElements, size_t nDataPtrs, s
     return checkFinitenessAVX512Impl<double>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
 }
 
-bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN)
+bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN, services::Status & st)
 {
     SafeStatus safeStat;
     bool valuesAreFinite                        = true;
@@ -449,6 +457,7 @@ bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN)
 
     daal::threader_for_break(nCols, nCols, [&](size_t i, bool & needBreak) {
         bool * localNotFinite = tlsNotFinite.local();
+        DAAL_CHECK_MALLOC_THR(localNotFinite);
 
         switch ((*tableFeaturesDict)[i].getIndexType())
         {
@@ -478,6 +487,12 @@ bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN)
         }
     });
 
+    st |= safeStat.detach();
+    if (!st)
+    {
+        return false;
+    }
+
     if (breakFlag)
     {
         valuesAreFinite = false;
@@ -491,9 +506,9 @@ bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN)
 }
 
 template <>
-bool checkFinitenessSOA<avx512>(NumericTable & table, bool allowNaN)
+bool checkFinitenessSOA<avx512>(NumericTable & table, bool allowNaN, services::Status & st)
 {
-    return checkFinitenessSOAAVX512Impl(table, allowNaN);
+    return checkFinitenessSOAAVX512Impl(table, allowNaN, st);
 }
 
 #endif
@@ -514,7 +529,7 @@ services::Status allValuesAreFiniteImpl(NumericTable & table, bool allowNaN, boo
 
     if (layout == NTLayout::soa)
     {
-        sum = computeSumSOA<cpu>(table, sumIsFinite);
+        sum = computeSumSOA<cpu>(table, sumIsFinite, s);
     }
     else
     {
@@ -537,7 +552,7 @@ services::Status allValuesAreFiniteImpl(NumericTable & table, bool allowNaN, boo
     bool valuesAreFinite = true;
     if (layout == NTLayout::soa)
     {
-        valuesAreFinite = checkFinitenessSOA<cpu>(table, allowNaN);
+        valuesAreFinite = checkFinitenessSOA<cpu>(table, allowNaN, s);
     }
     else
     {

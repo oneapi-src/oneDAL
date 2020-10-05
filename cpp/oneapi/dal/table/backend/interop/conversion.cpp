@@ -17,7 +17,7 @@
 #include "oneapi/dal/table/backend/interop/conversion.hpp"
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-#include <daal/include/data_management/data/numeric_table_sycl_homogen.h>
+#include <daal/include/data_management/data/internal/numeric_table_sycl_homogen.h>
 #endif
 #include <daal/include/data_management/data/homogen_numeric_table.h>
 
@@ -111,7 +111,7 @@ NumericTablePtr convert_to_daal_sycl_homogen_table(sycl::queue& queue,
     data.need_mutable_data(queue);
     const auto daal_data =
         daal::services::SharedPtr<Data>(data.get_mutable_data(), daal_array_owner<Data>{ data });
-    return daal::data_management::SyclHomogenNumericTable<Data>::create(
+    return daal::data_management::internal::SyclHomogenNumericTable<Data>::create(
         daal_data,
         column_count,
         row_count,

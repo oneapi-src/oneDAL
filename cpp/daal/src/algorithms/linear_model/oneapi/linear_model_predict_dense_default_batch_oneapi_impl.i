@@ -27,7 +27,7 @@
 #include "src/algorithms/linear_model/oneapi/linear_model_predict_kernel_oneapi.h"
 #include "src/data_management/service_numeric_table.h"
 #include "src/sycl/blas_gpu.h"
-#include "sycl/internal/utils.h"
+#include "services/internal/execution_context.h"
 #include "src/algorithms/linear_model/oneapi/cl_kernel/linear_model_prediction.cl"
 
 namespace daal
@@ -40,16 +40,17 @@ namespace prediction
 {
 namespace internal
 {
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 template <typename algorithmFPType>
-services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::addBetaIntercept(const services::Buffer<algorithmFPType> & betaTable,
-                                                                                      const size_t nBetas, services::Buffer<algorithmFPType> & yTable,
+services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::addBetaIntercept(const services::internal::Buffer<algorithmFPType> & betaTable,
+                                                                                      const size_t nBetas,
+                                                                                      services::internal::Buffer<algorithmFPType> & yTable,
                                                                                       const size_t yNRows, const size_t yNCols)
 {
     services::Status status;
 
-    ExecutionContextIface & ctx    = getDefaultContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     const services::String options = getKeyFPType<algorithmFPType>();
@@ -98,7 +99,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute(con
 
     BlockDescriptor<algorithmFPType> betaBlock;
     DAAL_CHECK_STATUS(status, betaTable->getBlockOfRows(0, nResponses, ReadWriteMode::readOnly, betaBlock));
-    const services::Buffer<algorithmFPType> betaBuf = betaBlock.getBuffer();
+    const services::internal::Buffer<algorithmFPType> betaBuf = betaBlock.getBuffer();
 
     for (size_t blockIdx = 0; blockIdx < nBlocks; ++blockIdx)
     {
@@ -115,8 +116,8 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute(con
         DAAL_CHECK_STATUS(status, xTable->getBlockOfRows(startRow, endRow - startRow, ReadWriteMode::readOnly, xBlock));
         DAAL_CHECK_STATUS(status, yTable->getBlockOfRows(startRow, endRow - startRow, ReadWriteMode::readWrite, yBlock));
 
-        const services::Buffer<algorithmFPType> xBuf = xBlock.getBuffer();
-        services::Buffer<algorithmFPType> yBuf       = yBlock.getBuffer();
+        const services::internal::Buffer<algorithmFPType> xBuf = xBlock.getBuffer();
+        services::internal::Buffer<algorithmFPType> yBuf       = yBlock.getBuffer();
 
         const size_t xNRows = endRow - startRow;
         const size_t xNCols = nBetas - 1;

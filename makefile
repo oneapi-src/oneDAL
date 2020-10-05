@@ -252,7 +252,7 @@ releasetbb.LIBS_Y := $(TBBDIR.soia)/$(plib)tbb.$(y) $(TBBDIR.soia)/$(plib)tbbmal
                                        $(if $(wildcard $(TBBDIR.soia)/libtbbmalloc.2.dylib),$(wildcard $(TBBDIR.soia)/libtbbmalloc.2.dylib)))
 
 
-RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/sycl/internal/math
+RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/services/internal/sycl/math
 
 MKLGPUFPKDIR:= $(if $(wildcard $(DIR)/__deps/mklgpufpk/$(_OS)/*),$(DIR)/__deps/mklgpufpk/$(_OS),$(subst \,/,$(MKLGPUFPKROOT)))
 MKLGPUFPKDIR.include := $(MKLGPUFPKDIR)/include
@@ -495,7 +495,8 @@ $(WORKDIR.lib)/$(core_y):                   $(daaldep.ipp) $(daaldep.vml) $(daal
 
 $(CORE.objs_a): $(CORE.tmpdir_a)/inc_a_folders.txt
 $(CORE.objs_a): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC)
-$(CORE.objs_a): COPT += -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0
+$(CORE.objs_a): COPT += -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS \
+                        -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0
 $(CORE.objs_a): COPT += @$(CORE.tmpdir_a)/inc_a_folders.txt
 $(filter %threading.$o, $(CORE.objs_a)): COPT += -D__DO_TBB_LAYER__
 $(call containing,_nrh, $(CORE.objs_a)): COPT += $(p4_OPT)   -DDAAL_CPU=sse2
@@ -510,7 +511,10 @@ $(call containing,_dbl, $(CORE.objs_a)): COPT += -DDAAL_FPTYPE=double
 
 $(CORE.objs_y): $(CORE.tmpdir_y)/inc_y_folders.txt
 $(CORE.objs_y): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC)
-$(CORE.objs_y): COPT += -D__DAAL_IMPLEMENTATION -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG) -DTBB_USE_ASSERT=0
+$(CORE.objs_y): COPT += -D__DAAL_IMPLEMENTATION \
+                        -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS \
+                        -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0 \
+                        $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG)
 $(CORE.objs_y): COPT += @$(CORE.tmpdir_y)/inc_y_folders.txt
 $(filter %threading.$o, $(CORE.objs_y)): COPT += -D__DO_TBB_LAYER__
 $(call containing,_nrh, $(CORE.objs_y)): COPT += $(p4_OPT)   -DDAAL_CPU=sse2
@@ -589,13 +593,13 @@ ONEAPI.srcdirs.detail := $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -max
 ONEAPI.srcdirs.backend := $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type d -name backend))
 ONEAPI.srcdirs := $(ONEAPI.srcdirs.base) $(ONEAPI.srcdirs.detail) $(ONEAPI.srcdirs.backend)
 
-ONEAPI.srcs.all := $(wildcard $(ONEAPI.srcdirs.base:%=%/*.cpp)) \
-                   $(foreach x,$(ONEAPI.srcdirs.detail),$(shell find $x -type f -name "*.cpp")) \
-                   $(foreach x,$(ONEAPI.srcdirs.backend),$(shell find $x -type f -name "*.cpp"))
+ONEAPI.srcs.all.exclude := ! -path "*_test.*" ! -path "*/test/*"
+ONEAPI.srcs.all := $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type f -name "*.cpp" $(ONEAPI.srcs.all.exclude))) \
+                   $(foreach x,$(ONEAPI.srcdirs.detail),$(shell find $x -type f -name "*.cpp" $(ONEAPI.srcs.all.exclude))) \
+                   $(foreach x,$(ONEAPI.srcdirs.backend),$(shell find $x -type f -name "*.cpp" $(ONEAPI.srcs.all.exclude)))
 ONEAPI.srcs.all	:= $(ONEAPI.srcs.all:./%=%)
 ONEAPI.srcs.dpc := $(filter %_dpc.cpp,$(ONEAPI.srcs.all))
 ONEAPI.srcs     := $(filter-out %_dpc.cpp,$(ONEAPI.srcs.all))
-ONEAPI.srcs     := $(filter-out %_test.cpp,$(ONEAPI.srcs))
 ONEAPI.srcs.dpc := $(ONEAPI.srcs) $(ONEAPI.srcs.dpc)
 
 ONEAPI.srcs.mangled     := $(subst /,-,$(ONEAPI.srcs))
@@ -705,7 +709,8 @@ $(ONEAPI.objs_a.dpc): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_a.dpc)/inc_a_fold
 $(ONEAPI.objs_a.dpc): COPT += $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.opts) \
                               -DDAAL_NOTHROW_EXCEPTIONS \
                               -DDAAL_HIDE_DEPRECATED \
-							  -DONEAPI_DAL_DATA_PARALLEL \
+                              -DDAAL_SYCL_INTERFACE \
+                              -DONEAPI_DAL_DATA_PARALLEL \
                               -D__TBB_NO_IMPLICIT_LINKAGE \
                               -DTBB_USE_ASSERT=0 \
                                @$(ONEAPI.tmpdir_a.dpc)/inc_a_folders.txt
@@ -739,7 +744,8 @@ $(ONEAPI.objs_y.dpc): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_y.dpc)/inc_y_fold
 $(ONEAPI.objs_y.dpc): COPT += $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.opts) \
                               -DDAAL_NOTHROW_EXCEPTIONS \
                               -DDAAL_HIDE_DEPRECATED \
-							  -DONEAPI_DAL_DATA_PARALLEL \
+                              -DDAAL_SYCL_INTERFACE \
+                              -DONEAPI_DAL_DATA_PARALLEL \
                               $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG) \
                               -D__ONEAPI_DAL_ENABLE_DLL_EXPORT__ \
                               -D__TBB_NO_IMPLICIT_LINKAGE \

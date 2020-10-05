@@ -14,8 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#define DAAL_SYCL_INTERFACE
-
 #include "oneapi/dal/algo/knn/backend/gpu/train_kernel.hpp"
 #include "oneapi/dal/backend/dispatcher_dpc.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"

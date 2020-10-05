@@ -104,6 +104,7 @@
 #endif
 
 #ifdef DAAL_SYCL_INTERFACE
+    #include <CL/sycl.hpp>
     #if (defined(__SYCL_COMPILER_VERSION) && (__SYCL_COMPILER_VERSION >= 20191001))
         #define DAAL_SYCL_INTERFACE_USM
     #endif

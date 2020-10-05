@@ -14,10 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#define DAAL_SYCL_INTERFACE
-#define DAAL_SYCL_INTERFACE_USM
-#define DAAL_SYCL_INTERFACE_REVERSED_RANGE
-
 #include <src/algorithms/kmeans/oneapi/kmeans_dense_lloyd_batch_kernel_ucapi.h>
 
 #include "oneapi/dal/algo/kmeans/backend/gpu/infer_kernel.hpp"
