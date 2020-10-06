@@ -269,10 +269,11 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::scatterSu
 }
 
 template <typename algorithmFpType>
-services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeDistances(
-    ExecutionContextIface & context, const const services::internal::Buffer<algorithmFpType> & data,
-    const const services::internal::Buffer<algorithmFpType> & query, UniversalBuffer & distances, uint32_t dataBlockRowCount,
-    uint32_t queryBlockRowCount, uint32_t nFeatures)
+services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeDistances(ExecutionContextIface & context,
+                                                                                        const services::internal::Buffer<algorithmFpType> & data,
+                                                                                        const services::internal::Buffer<algorithmFpType> & query,
+                                                                                        UniversalBuffer & distances, uint32_t dataBlockRowCount,
+                                                                                        uint32_t queryBlockRowCount, uint32_t nFeatures)
 
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.GEMM);
