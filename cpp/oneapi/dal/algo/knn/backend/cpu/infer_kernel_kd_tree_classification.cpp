@@ -40,7 +40,7 @@ static infer_result<task::classification> call_daal_kernel(
     const context_cpu &ctx,
     const descriptor_base<task::classification> &desc,
     const table &data,
-    model m) {
+    model<task::classification> m) {
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
 

@@ -40,7 +40,7 @@ static infer_result<task::classification> call_daal_kernel(
     const context_gpu& ctx,
     const descriptor_base<task::classification>& desc,
     const table& data,
-    const model& m) {
+    const model<task::classification> m) {
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 

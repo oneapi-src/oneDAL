@@ -17,10 +17,8 @@
 #include "oneapi/dal/algo/knn/backend/model_interop.hpp"
 namespace oneapi::dal::knn::detail {
 model_impl::~model_impl() {
-    if (interop_ != nullptr) {
-        delete interop_;
-        interop_ = nullptr;
-    }
+    delete interop_;
+    interop_ = nullptr;
 }
 
 } // namespace oneapi::dal::knn::detail

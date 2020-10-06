@@ -23,10 +23,10 @@ namespace detail {
 template <typename Task>
 class infer_input_impl : public base {
 public:
-    infer_input_impl(const table& data, const model& m) : data(data), trained_model(m) {}
+    infer_input_impl(const table& data, const model<Task>& m) : data(data), trained_model(m) {}
 
     table data;
-    model trained_model;
+    model<Task> trained_model;
 };
 
 template <typename Task>
@@ -40,7 +40,7 @@ using detail::infer_input_impl;
 using detail::infer_result_impl;
 
 template <typename Task>
-infer_input<Task>::infer_input(const table& data, const model& m)
+infer_input<Task>::infer_input(const table& data, const model<Task>& m)
         : impl_(new infer_input_impl<Task>(data, m)) {}
 
 template <typename Task>
@@ -49,7 +49,7 @@ table infer_input<Task>::get_data() const {
 }
 
 template <typename Task>
-model infer_input<Task>::get_model() const {
+model<Task> infer_input<Task>::get_model() const {
     return impl_->trained_model;
 }
 
@@ -59,7 +59,7 @@ void infer_input<Task>::set_data_impl(const table& value) {
 }
 
 template <typename Task>
-void infer_input<Task>::set_model_impl(const model& value) {
+void infer_input<Task>::set_model_impl(const model<Task>& value) {
     impl_->trained_model = value;
 }
 
