@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/knn/common.hpp"
-#include "oneapi/dal/algo/knn/detail/model_impl.hpp"
+#include "oneapi/dal/algo/knn/backend/model_impl.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::knn {

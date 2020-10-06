@@ -18,7 +18,7 @@
 #include <src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h>
 
 #include "oneapi/dal/algo/knn/backend/cpu/train_kernel.hpp"
-#include "oneapi/dal/algo/knn/backend/model_interop.hpp"
+#include "oneapi/dal/algo/knn/backend/model_impl.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -43,7 +43,7 @@ static train_result<task::classification> call_daal_kernel(
     const descriptor_base<task::classification>& desc,
     const table& data,
     const table& labels) {
-    using daal_interop_model_t = detail::backend::interop_model;
+    using daal_model_interop_t = model_interop;
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
 
@@ -78,7 +78,7 @@ static train_result<task::classification> call_daal_kernel(
                                                                     knn_model,
                                                                     *daal_parameter.engine.get()));
 
-    auto interop = new daal_interop_model_t(model_ptr);
+    auto interop = new daal_model_interop_t(model_ptr);
     const auto model_impl = std::make_shared<detail::model_impl>(interop);
     return train_result<task::classification>().set_model(
         dal::detail::pimpl_accessor::make<model<task::classification>>(model_impl));

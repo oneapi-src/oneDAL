@@ -14,8 +14,10 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/knn/backend/model_interop.hpp"
+#include "oneapi/dal/algo/knn/backend/model_impl.hpp"
+
 namespace oneapi::dal::knn::detail {
+
 model_impl::~model_impl() {
     delete interop_;
     interop_ = nullptr;

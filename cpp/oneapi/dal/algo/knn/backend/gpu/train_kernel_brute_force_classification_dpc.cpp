@@ -18,7 +18,7 @@
 #include <src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_train_kernel_ucapi.h>
 
 #include "oneapi/dal/algo/knn/backend/gpu/train_kernel.hpp"
-#include "oneapi/dal/algo/knn/backend/model_interop.hpp"
+#include "oneapi/dal/algo/knn/backend/model_impl.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -42,7 +42,7 @@ static train_result<task::classification> call_daal_kernel(
     const descriptor_base<task::classification>& desc,
     const table& data,
     const table& labels) {
-    using daal_interop_model_t = detail::backend::interop_model;
+    using daal_model_interop_t = detail::backend::model_interop;
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
@@ -79,7 +79,7 @@ static train_result<task::classification> call_daal_kernel(
                                                        daal_parameter,
                                                        *daal_parameter.engine.get()));
 
-    auto interop = new daal_interop_model_t(model_ptr);
+    auto interop = new daal_model_interop_t(model_ptr);
     const auto model_impl = std::make_shared<detail::model_impl>(interop);
     return train_result<task::classification>().set_model(
         dal::detail::pimpl_accessor::make<model<task::classification>>(model_impl));
