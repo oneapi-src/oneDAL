@@ -299,7 +299,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::startNextCluster(uint3
             return Status(ErrorNullPtr);
         }
         newLast = *lastPointHostBuffer.get();
-        found    = newLast > last;
+        found   = newLast > last;
     }
     return st;
 }
