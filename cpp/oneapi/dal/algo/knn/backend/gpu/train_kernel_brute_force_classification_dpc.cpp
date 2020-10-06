@@ -42,7 +42,7 @@ static train_result<task::classification> call_daal_kernel(
     const descriptor_base<task::classification>& desc,
     const table& data,
     const table& labels) {
-    using daal_model_interop_t = detail::backend::model_interop;
+    using daal_model_interop_t = backend::model_interop;
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
