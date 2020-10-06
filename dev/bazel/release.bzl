@@ -127,8 +127,8 @@ headers_filter = rule(
     },
 )
 
-def release_include(hdrs, skip_prefix="", prefix=""):
-    return (hdrs, prefix, skip_prefix)
+def release_include(hdrs, skip_prefix="", add_prefix=""):
+    return (hdrs, add_prefix, skip_prefix)
 
 def release(name, include, lib):
     rule_include = []
