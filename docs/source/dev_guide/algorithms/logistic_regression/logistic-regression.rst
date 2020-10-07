@@ -215,9 +215,9 @@ At the prediction stage logistic regression batch algorithm has the following pa
        Provide one of the following values to request a single characteristic
        or use bitwise OR to request a combination of the characteristics:
 
-       - ``computeClassesLabels`` for prediction
-       - ``computeClassesProbabilities`` for probabilities
-       - ``computeClassesLogProbabilities`` for logProbabilities
+       - ``computeClassesLabels`` for `prediction`
+       - ``computeClassesProbabilities`` for `probabilities`
+       - ``computeClassesLogProbabilities`` for `logProbabilities`
 
 Output
 ------
@@ -233,10 +233,10 @@ Pass the ``Result ID`` as a parameter to the methods that access the results of 
    * - Result ID
      - Result
    * - ``probabilities``
-     - A numeric table of size :math:`n \times nClasses` containing probabilities of classes computed when computeClassesProbabilities option is enabled.
+     - A numeric table of size :math:`n \times nClasses` containing probabilities of classes computed when ``computeClassesProbabilities`` option is enabled.
 
    * - ``logProbabilities``
-     - A numeric table of size :math:`n \times nClasses` containing logarithms of classes' probabilities computed when computeClassesLogProbabilities option is enabled.
+     - A numeric table of size :math:`n \times nClasses` containing logarithms of classes' probabilities computed when ``computeClassesLogProbabilities`` option is enabled.
 
 
 
@@ -244,16 +244,16 @@ Pass the ``Result ID`` as a parameter to the methods that access the results of 
 
    Note that:
 
-   - If resultsToCompute does not contain computeClassesLabels, the prediction table is NULL.
+   - If `resultsToCompute` does not contain `computeClassesLabels`, the `prediction` table is `NULL`.
 
-   - If resultsToCompute does not contain computeClassesProbabilities, the probabilities table is NULL.
+   - If `resultsToCompute` does not contain `computeClassesProbabilities`, the `probabilities` table is `NULL`.
 
-   - If resultsToCompute does not contain computeClassesLogProbabilities, the logProbabilities table is NULL.
+   - If `resultsToCompute` does not contain `computeClassesLogProbabilities`, the `logProbabilities` table is `NULL`.
 
    -  By default, each numeric table of this result is an object of
-      the HomogenNumericTable class, but you can define the result as
-      an object of any class derived from NumericTable except for
-      PackedSymmetricMatrix and PackedTriangularMatrix.
+      the ``HomogenNumericTable`` class, but you can define the result as
+      an object of any class derived from ``NumericTable`` except for
+      ``PackedSymmetricMatrix`` and ``PackedTriangularMatrix``.
 
 Examples
 ********
