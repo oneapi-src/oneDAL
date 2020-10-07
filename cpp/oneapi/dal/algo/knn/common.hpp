@@ -87,7 +87,7 @@ public:
     }
 };
 
-template <typename Task>
+template <typename Task = task::by_default>
 class ONEAPI_DAL_EXPORT model : public base {
     friend dal::detail::pimpl_accessor;
 
