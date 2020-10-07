@@ -33,8 +33,8 @@
 
 #include "src/externals/service_ittnotify.h"
 
-const size_t maxInt32AsSizeT     = static_cast<size_t>(daal::services::internal::MaxVal<int32_t>::get());
-const uint32_t maxInt32AsUint32T = static_cast<uint32_t>(daal::services::internal::MaxVal<int32_t>::get());
+constexpr size_t maxInt32AsSizeT     = static_cast<size_t>(daal::services::internal::MaxVal<int32_t>::get());
+constexpr uint32_t maxInt32AsUint32T = static_cast<uint32_t>(daal::services::internal::MaxVal<int32_t>::get());
 
 namespace daal
 {
@@ -142,12 +142,12 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
     const uint32_t nDataBlockCount      = nDataRows / maxDataBlockRowCount + uint32_t(nDataRows % maxDataBlockRowCount != 0);
     const uint32_t nQueryBlockCount     = nQueryRows / maxQueryBlockRowCount + uint32_t(nQueryRows % maxQueryBlockRowCount != 0);
     const uint32_t nSelectionBlockCount = nDataBlockCount / selectionMaxNumberOfChunks + uint32_t(nDataBlockCount % selectionMaxNumberOfChunks != 0);
-    SelectIndexed::Result selectResult(context, k, maxQueryBlockRowCount, distances.type(), &st);
+    SelectIndexed::Result selectResult(context, k, maxQueryBlockRowCount, distances.type(), st);
     DAAL_CHECK_STATUS_VAR(st);
 
     SelectIndexed::Params params(k, TypeIds::id<algorithmFpType>(), maxDataBlockRowCount, parameter->engine);
     SelectIndexedFactory factory;
-    services::SharedPtr<SelectIndexed> selector(factory.create(k, params, &st));
+    services::SharedPtr<SelectIndexed> selector(factory.create(k, params, st));
     DAAL_CHECK_STATUS_VAR(st);
 
     for (uint32_t qblock = 0; qblock < nQueryBlockCount; qblock++)
@@ -177,8 +177,8 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
                 DAAL_CHECK_STATUS_VAR(
                     computeDistances(context, dataRows.getBuffer(), curQuery, distances, curDataRange.count, curQueryRange.count, nFeatures));
                 // Select k smallest distances and their labels from every row of the [curQueryRange.count]x[curDataRange.count] block
-                selector->selectNearestDistancesAndLabels(distances, labelRows.getBuffer(), k, curQueryRange.count, curDataRange.count,
-                                                          curDataRange.count, 0, selectResult, &st);
+                DAAL_CHECK_STATUS_VAR(selector->selectNearestDistancesAndLabels(distances, labelRows.getBuffer(), k, curQueryRange.count,
+                                                                                curDataRange.count, curDataRange.count, 0, selectResult));
                 DAAL_CHECK_STATUS_VAR(st);
                 // copy block results to buffer in order to get merged with the same selection algorithm (up to selectionMaxNumberOfChunks of partial results)
                 // and keep the first part containing previously merged result if exists
@@ -190,8 +190,9 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
                 selectionChunkCount++;
             }
             // merge partial data by one more K-selection
-            selector->selectNearestDistancesAndLabels(partialDistances, partialLabels, k, curQueryRange.count, k * curDataBlockRange.count,
-                                                      k * selectionMaxNumberOfChunks, k * selectionMaxNumberOfChunks, selectResult, &st);
+            DAAL_CHECK_STATUS_VAR(selector->selectNearestDistancesAndLabels(partialDistances, partialLabels, k, curQueryRange.count,
+                                                                            k * curDataBlockRange.count, k * selectionMaxNumberOfChunks,
+                                                                            k * selectionMaxNumberOfChunks, selectResult));
         }
         DAAL_CHECK_STATUS_VAR(st);
         // sort labels of closest neighbors
