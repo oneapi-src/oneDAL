@@ -31,7 +31,7 @@ using namespace daal::services;
 using namespace daal::services::internal::sycl;
 using namespace daal::data_management;
 
-const size_t maxInt32AsSizeT = static_cast<size_t>(daal::services::internal::MaxVal<int32_t>::get());
+constexpr size_t maxInt32AsSizeT = static_cast<size_t>(daal::services::internal::MaxVal<int32_t>::get());
 
 namespace daal
 {
@@ -78,8 +78,10 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::processResultsToCompute(DAAL_UIN
                                                                         NumericTable * ntCoreIndices, NumericTable * ntCoreObservations)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.processResultsToCompute);
-    auto isCoreHost = _isCore.template get<int>().toHost(ReadWriteMode::readOnly);
-    auto isCore     = isCoreHost.get();
+    Status st;
+    auto isCoreHost = _isCore.template get<int>().toHost(ReadWriteMode::readOnly, &st);
+    DAAL_CHECK_STATUS_VAR(st);
+    auto isCore = isCoreHost.get();
     if (!isCore)
     {
         return Status(ErrorNullPtr);
@@ -133,12 +135,14 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::processResultsToCompute(DAAL_UIN
         BlockDescriptor<algorithmFPType> coreObservationsRows;
         DAAL_CHECK_STATUS_VAR(ntCoreObservations->getBlockOfRows(0, nCoreObservations, writeOnly, coreObservationsRows));
         auto coreObservations    = coreObservationsRows.getBuffer();
-        auto coreObservationsPtr = coreObservations.toHost(ReadWriteMode::writeOnly);
+        auto coreObservationsPtr = coreObservations.toHost(ReadWriteMode::writeOnly, &st);
+        DAAL_CHECK_STATUS_VAR(st);
         BlockDescriptor<algorithmFPType> dataRows;
         DAAL_CHECK_STATUS_VAR(ntData->getBlockOfRows(0, nRows, readOnly, dataRows));
         auto data    = dataRows.getBuffer();
-        auto dataPtr = data.toHost(ReadWriteMode::readOnly);
-        if (!dataPtr.get() || !coreObservationsPtr)
+        auto dataPtr = data.toHost(ReadWriteMode::readOnly, &st);
+        DAAL_CHECK_STATUS_VAR(st);
+        if (!dataPtr || !coreObservationsPtr)
         {
             return Status(ErrorNullPtr);
         }
@@ -236,12 +240,13 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
     DAAL_CHECK_STATUS_VAR(ntData->releaseBlockOfRows(dataRows));
     BlockDescriptor<int> nClustersRows;
     DAAL_CHECK_STATUS_VAR(ntNClusters->getBlockOfRows(0, 1, writeOnly, nClustersRows));
-    auto nClusterHostBuffer = nClustersRows.getBuffer().toHost(ReadWriteMode::writeOnly);
+    auto nClusterHostBuffer = nClustersRows.getBuffer().toHost(ReadWriteMode::writeOnly, &s);
+    DAAL_CHECK_STATUS_VAR(s);
     if (!nClusterHostBuffer)
     {
         return Status(ErrorNullPtr);
     }
-    nClusterHostBuffer.get()[0] = nClusters;
+    *nClusterHostBuffer.get() = nClusters;
     if (par->resultsToCompute & (computeCoreIndices | computeCoreObservations))
     {
         DAAL_CHECK_STATUS_VAR(processResultsToCompute(par->resultsToCompute, ntData, ntCoreIndices, ntCoreObservations));
@@ -263,7 +268,8 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::startNextCluster(uint3
 
     int last;
     {
-        const auto lastPointHostBuffer = _lastPoint.template get<int>().toHost(ReadWriteMode::readOnly);
+        const auto lastPointHostBuffer = _lastPoint.template get<int>().toHost(ReadWriteMode::readOnly, &st);
+        DAAL_CHECK_STATUS_VAR(st);
         if (!lastPointHostBuffer)
         {
             return Status(ErrorNullPtr);
@@ -293,7 +299,8 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::startNextCluster(uint3
     DAAL_CHECK_STATUS_VAR(st);
     int newLast;
     {
-        const auto lastPointHostBuffer = _lastPoint.template get<int>().toHost(ReadWriteMode::readOnly);
+        const auto lastPointHostBuffer = _lastPoint.template get<int>().toHost(ReadWriteMode::readOnly, &st);
+        DAAL_CHECK_STATUS_VAR(st);
         if (!lastPointHostBuffer)
         {
             return Status(ErrorNullPtr);
@@ -402,26 +409,30 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::buildProgram(ClKernelFactoryIfac
 template <typename algorithmFPType>
 Status DBSCANBatchKernelUCAPI<algorithmFPType>::setQueueFront(uint32_t queueEnd)
 {
-    auto val = _queueFront.template get<int>().toHost(ReadWriteMode::writeOnly);
+    Status st;
+    auto val = _queueFront.template get<int>().toHost(ReadWriteMode::writeOnly, &st);
+    DAAL_CHECK_STATUS_VAR(st);
     if (!val)
     {
         return Status(ErrorNullPtr);
     }
     *val.get() = queueEnd;
-    return Status();
+    return st;
 }
 
 template <typename algorithmFPType>
 Status DBSCANBatchKernelUCAPI<algorithmFPType>::getQueueFront(uint32_t & queueEnd)
 {
-    auto val = _queueFront.template get<int>().toHost(ReadWriteMode::readOnly);
+    Status st;
+    auto val = _queueFront.template get<int>().toHost(ReadWriteMode::readOnly, &st);
+    DAAL_CHECK_STATUS_VAR(st);
     if (!val)
     {
         return Status(ErrorNullPtr);
     }
 
     queueEnd = *val.get();
-    return Status();
+    return st;
 }
 
 } // namespace internal
