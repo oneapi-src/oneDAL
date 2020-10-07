@@ -40,6 +40,7 @@ public:
 
 class network {
 public:
+    // TODO: make it private for users and public for DAAL: friend fucntion/private in public class and public in base class
     virtual std::shared_ptr<detail::communicator_base> get_communicator() const = 0;
 };
 

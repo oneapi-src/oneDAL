@@ -59,7 +59,8 @@ int main(int argc, char* argv[]) {
                                  .set_max_iteration_count(5)
                                  .set_accuracy_threshold(0.001);
 
-    #ifdef MPI                                 
+    #ifdef MPI
+        // TODO: think on better name 
         oneapi::dal::network::mpi::network net;
     #else
         oneapi::dal::network::empty_network net;

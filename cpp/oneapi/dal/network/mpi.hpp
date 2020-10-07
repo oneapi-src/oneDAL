@@ -29,6 +29,7 @@ namespace detail {
 class communicator: public oneapi::dal::network::detail::communicator_base {
 public:
     void allreduce(float* ptr, size_t n) override {
+        // TODO: ISA specific things?
         std::vector<float> v(n);
         std::copy(ptr, ptr + n, v.begin());
         MPI_Allreduce(v.data(), ptr, n, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
