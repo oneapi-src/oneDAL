@@ -33,8 +33,8 @@ class ONEAPI_DAL_EXPORT train_input : public base {
 public:
     train_input(const table& data, const table& labels);
 
-    table get_data() const;
-    table get_labels() const;
+    const table& get_data() const;
+    const table& get_labels() const;
 
     auto& set_data(const table& data) {
         set_data_impl(data);
@@ -58,7 +58,7 @@ class ONEAPI_DAL_EXPORT train_result {
 public:
     train_result();
 
-    model<Task> get_model() const;
+    const model<Task>& get_model() const;
 
     auto& set_model(const model<Task>& value) {
         set_model_impl(value);

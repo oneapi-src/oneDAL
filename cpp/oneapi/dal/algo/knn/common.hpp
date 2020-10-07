@@ -38,7 +38,7 @@ class model_impl;
 namespace method {
 struct kd_tree {};
 struct brute_force {};
-using by_default = kd_tree;
+using by_default = brute_force;
 } // namespace method
 
 template <typename Task = task::by_default>
@@ -51,8 +51,8 @@ public:
 
     descriptor_base();
 
-    auto get_class_count() const -> std::int64_t;
-    auto get_neighbor_count() const -> std::int64_t;
+    std::int64_t get_class_count() const;
+    std::int64_t get_neighbor_count() const;
 
 protected:
     void set_class_count_impl(std::int64_t value);
