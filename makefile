@@ -207,7 +207,7 @@ frompf1 = $(shell echo $1 | sed 's/111/\\ /g' | sed 's/222/(/g' | sed 's/333/)/g
 #============================= TBB folders =====================================
 TBBDIR := $(if $(wildcard $(DIR)/__deps/tbb/$(_OS)/*),$(DIR)/__deps/tbb/$(_OS)$(if $(OS_is_win),/tbb))
 TBBDIR.2 := $(if $(TBBDIR),$(TBBDIR),$(call topf,$$TBBROOT))
-TBBDIR.2 := $(if $(TBBDIR.2),$(TBBDIR.2),$(error Can`t find TBB neither in $(DIR)/__deps/tbb nor in $$TBBROOT))
+TBBDIR.2 := $(if $(TBBDIR.2),$(TBBDIR.2),$(error Can`t find TBB neither in $(DIR)/__deps/tbb not in $$TBBROOT))
 
 TBBDIR.include := $(if $(TBBDIR),$(TBBDIR)/include/tbb $(TBBDIR)/include)
 
@@ -233,7 +233,9 @@ TBBDIR.libia.fbsd := $(if $(OS_is_fbsd),$(TBBDIR.libia.prefix))
 TBBDIR.libia := $(TBBDIR.libia.$(_OS))
 
 TBBDIR.soia.prefix := $(TBBDIR.2)/
-TBBDIR.soia.win  := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc22),$(TBBDIR.libia.win.vc2),$(if $(wildcard $(call frompf1,$(TBBDIR.soia.prefix))redist/$(_IA)/vc_mt/*),$(TBBDIR.soia.prefix)redist/$(_IA)/vc_mt,$(if $(wildcard $(call frompf1,$(TBBDIR.soia.prefix))redist/$(_IA)/vc14/*),$(TBBDIR.soia.prefix)redist/$(_IA)/vc14,$(error Can`t find TBB runtimes nether in $(TBBDIR.soia.prefix)redist/$(_IA)/vc_mt not in $(firstword $(filter $(TBBROOT)%,$(subst ;,$(space),$(LIB)))).)))))
+TBBDIR.soia.prefix.1 := $(if $(OS_is_win),$(if $(wildcard $(call frompf1,$(TBBDIR.soia.prefix))redist/$(_IA)/vc_mt/*),$(TBBDIR.soia.prefix),$(TBBDIR.2)/../))
+
+TBBDIR.soia.win  := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc22),$(TBBDIR.libia.win.vc2),$(if $(wildcard $(call frompf1,$(TBBDIR.soia.prefix.1))redist/$(_IA)/vc_mt/*),$(TBBDIR.soia.prefix.1)redist/$(_IA)/vc_mt,$(if $(wildcard $(call frompf1,$(TBBDIR.soia.prefix.1))redist/$(_IA)/vc14/*),$(TBBDIR.soia.prefix.1)redist/$(_IA)/vc14,$(error Can`t find TBB runtimes nether in $(TBBDIR.soia.prefix.1)redist/$(_IA)/vc_mt not in $(firstword $(filter $(TBBROOT)%,$(subst ;,$(space),$(LIB)))).)))))
 TBBDIR.soia.lnx  := $(if $(OS_is_lnx),$(TBBDIR.libia.lnx))
 TBBDIR.soia.mac  := $(if $(OS_is_mac),$(TBBDIR.libia.mac))
 TBBDIR.soia.fbsd := $(if $(OS_is_fbsd),$(TBBDIR.soia.prefix)/lib)
