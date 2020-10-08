@@ -16,6 +16,10 @@
 
 #pragma once
 
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+#define DAAL_SYCL_INTERFACE_USM
+#endif
+
 #include <limits>
 
 #include <daal/include/data_management/data/homogen_numeric_table.h>
@@ -232,9 +236,10 @@ private:
             }
 #ifdef ONEAPI_DAL_DATA_PARALLEL
             else {
-                daal::services::internal::Buffer<BlockData> buffer(reinterpret_cast<BlockData*>(raw_data_ptr),
-                                                         info.row_count * column_count,
-                                                         data_kind_);
+                daal::services::internal::Buffer<BlockData> buffer(
+                    reinterpret_cast<BlockData*>(raw_data_ptr),
+                    info.row_count * column_count,
+                    data_kind_);
                 // this operation is safe only when the table does not leave the scope
                 // before the block. Otherwise block contains dangling pointer.
                 block.setBuffer(buffer, column_count, info.row_count);
@@ -363,8 +368,8 @@ private:
                 auto data_shared =
                     daal::services::SharedPtr<BlockData>(raw_ptr, daal_array_owner(values));
                 daal::services::internal::Buffer<BlockData> buffer(data_shared,
-                                                         row_count * column_count,
-                                                         values_data_kind);
+                                                                   row_count * column_count,
+                                                                   values_data_kind);
                 block.setBuffer(buffer, column_count, row_count);
             }
         }

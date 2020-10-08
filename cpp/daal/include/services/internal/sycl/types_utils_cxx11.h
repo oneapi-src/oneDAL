@@ -87,14 +87,28 @@ private:
         template <typename T>
         void operator()(Typelist<T>)
         {
-            auto src              = srcUnivers.get<T>().toSycl();
-            auto dst              = dstUnivers.get<T>().toSycl();
-            cl::sycl::event event = queue.submit([&](cl::sycl::handler & cgh) {
-                auto src_acc = src.template get_access<cl::sycl::access::mode::read>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(srcOffset));
-                auto dst_acc = dst.template get_access<cl::sycl::access::mode::write>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(dstOffset));
-                cgh.copy(src_acc, dst_acc);
-            });
-            event.wait();
+            const auto & src_buffer = srcUnivers.get<T>();
+            if (src_buffer.isUSMBacked())
+            {
+                auto src   = src_buffer.toUSM();
+                auto dst   = dstUnivers.get<T>().toSycl();
+                auto event = queue.submit([&](cl::sycl::handler & cgh) {
+                    auto dst_acc = dst.template get_access<cl::sycl::access::mode::write>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(dstOffset));
+                    cgh.copy(src.get() + srcOffset, dst_acc);
+                });
+                event.wait();
+            }
+            else
+            {
+                auto src   = src_buffer.toSycl();
+                auto dst   = dstUnivers.get<T>().toSycl();
+                auto event = queue.submit([&](cl::sycl::handler & cgh) {
+                    auto src_acc = src.template get_access<cl::sycl::access::mode::read>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(srcOffset));
+                    auto dst_acc = dst.template get_access<cl::sycl::access::mode::write>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(dstOffset));
+                    cgh.copy(src_acc, dst_acc);
+                });
+                event.wait();
+            }
         }
     };
 

@@ -421,9 +421,8 @@ private:
 
         if (service_buffer.isUSMBacked())
         {
-            DAAL_ASSERT((_argument.accessMode() == AccessModeIds::read ||
-                         _argument.accessMode() == AccessModeIds::write ||
-                         _argument.accessMode() == AccessModeIds::readwrite));
+            DAAL_ASSERT((_argument.accessMode() == AccessModeIds::read || _argument.accessMode() == AccessModeIds::write
+                         || _argument.accessMode() == AccessModeIds::readwrite));
             auto shared_pointer = service_buffer.toUSM();
             _handler.set_arg((int)_argumentIndex, shared_pointer.get());
         }

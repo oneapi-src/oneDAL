@@ -164,9 +164,7 @@ public:
         return internal::SyclBufferConverter<T>().toUSM(*_impl);
     }
 
-    inline bool isUSMBacked() const {
-        return dynamic_cast<internal::UsmBuffer<T>*>(_impl.get()) != nullptr;
-    }
+    inline bool isUSMBacked() const { return dynamic_cast<internal::UsmBuffer<T> *>(_impl.get()) != nullptr; }
 #endif
 
     /**
