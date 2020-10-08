@@ -39,26 +39,24 @@ int main(int argc, char **argv) {
   const std::int64_t column_range_end = 3;
 
   // set algorithm parameters
-  const auto jaccard_desc = preview::jaccard::descriptor<>().set_block(
-      {row_range_begin, row_range_end}, {column_range_begin, column_range_end});
+    const auto jaccard_desc =
+        preview::jaccard::descriptor<>().set_block({ row_range_begin, row_range_end },
+                                                   { column_range_begin, column_range_end });
 
   // create caching builder for jaccard result
   preview::jaccard::caching_builder builder;
 
   // compute Jaccard similarity coefficients
-  const auto result_vertex_similarity = preview::vertex_similarity(jaccard_desc, my_graph, builder);
+    const auto result_vertex_similarity =
+        preview::vertex_similarity(jaccard_desc, my_graph, builder);
 
   // extract the result
   const auto jaccard_coeffs = result_vertex_similarity.get_coeffs();
   const auto vertex_pairs = result_vertex_similarity.get_vertex_pairs();
   const std::int64_t nonzero_coeff_count = result_vertex_similarity.get_nonzero_coeff_count();
 
-  std::cout << "The number of nonzero Jaccard coeffs in the block: "
-            << nonzero_coeff_count << std::endl;
+    std::cout << "The number of nonzero Jaccard coeffs in the block: " << nonzero_coeff_count
+              << std::endl;
 
-  std::cout << "Vertex pairs: " << std::endl;
-  print_vertex_similarity_result(vertex_pairs, nonzero_coeff_count);
-
-  std::cout << "Jaccard values: " << std::endl;
-  print_vertex_similarity_result(jaccard_coeffs, nonzero_coeff_count);
+    print_vertex_similarity_result(result_vertex_similarity);
 }
