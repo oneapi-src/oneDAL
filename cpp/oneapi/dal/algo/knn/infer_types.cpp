@@ -44,12 +44,12 @@ infer_input<Task>::infer_input(const table& data, const model<Task>& m)
         : impl_(new infer_input_impl<Task>(data, m)) {}
 
 template <typename Task>
-table infer_input<Task>::get_data() const {
+const table& infer_input<Task>::get_data() const {
     return impl_->data;
 }
 
 template <typename Task>
-model<Task> infer_input<Task>::get_model() const {
+const model<Task>& infer_input<Task>::get_model() const {
     return impl_->trained_model;
 }
 
