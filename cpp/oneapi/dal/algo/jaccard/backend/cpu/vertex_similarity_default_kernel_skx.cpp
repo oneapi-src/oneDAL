@@ -17,7 +17,6 @@
 #include <immintrin.h>
 
 #include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
-#include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel_avx512.hpp"
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
@@ -85,22 +84,7 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
 
         __mmask16 match = _mm512_cmpeq_epi32_mask(v_u, v_v);
         if (_mm512_mask2int(match) != 0xffff) { // shortcut case where all neighbors match
-            __m512i circ1 = _mm512_set_epi32(0,
-                                             15,
-                                             14,
-                                             13,
-                                             12,
-                                             11,
-                                             10,
-                                             9,
-                                             8,
-                                             7,
-                                             6,
-                                             5,
-                                             4,
-                                             3,
-                                             2,
-                                             1); // all possible circular shifts for 16 elements
+            __m512i circ1 = _mm512_set_epi32(0, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1);
             __m512i circ2 = _mm512_set_epi32(1, 0, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2);
             __m512i circ3 = _mm512_set_epi32(2, 1, 0, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3);
             __m512i circ4 = _mm512_set_epi32(3, 2, 1, 0, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4);
@@ -213,14 +197,7 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
 
         __mmask8 match = _mm256_cmpeq_epi32_mask(v_u, v_v);
         if (_cvtmask8_u32(match) != 0xff) { // shortcut case where all neighbors match
-            __m256i circ1 = _mm256_set_epi32(0,
-                                             7,
-                                             6,
-                                             5,
-                                             4,
-                                             3,
-                                             2,
-                                             1); // all possible circular shifts for 16 elements
+            __m256i circ1 = _mm256_set_epi32(0, 7, 6, 5, 4, 3, 2, 1);
             __m256i circ2 = _mm256_set_epi32(1, 0, 7, 6, 5, 4, 3, 2);
             __m256i circ3 = _mm256_set_epi32(2, 1, 0, 7, 6, 5, 4, 3);
             __m256i circ4 = _mm256_set_epi32(3, 2, 1, 0, 7, 6, 5, 4);
@@ -356,33 +333,32 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
     return total;
 }
 
-template vertex_similarity_result
-call_jaccard_default_kernel_avx512<oneapi::dal::backend::cpu_dispatch_avx512>(
-    const descriptor_base &desc,
-    vertex_similarity_input<undirected_adjacency_array_graph<>> &input);
-
 template <>
 vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_graph<>,
                                                      oneapi::dal::backend::cpu_dispatch_avx512>(
     const descriptor_base &desc,
     vertex_similarity_input<undirected_adjacency_array_graph<>> &input) {
-    std::cout << "AAAAAAAAAAAAAAAAA AAAAAAAAAA";
     const auto &my_graph = input.get_graph();
     const auto &g = oneapi::dal::preview::detail::get_impl(my_graph);
+
     auto g_edge_offsets = g->_edge_offsets.data();
     auto g_vertex_neighbors = g->_vertex_neighbors.data();
     auto g_degrees = g->_degrees.data();
-    const std::int32_t row_begin = static_cast<std::int32_t>(desc.get_row_range_begin());
+
+    const auto row_begin = static_cast<std::int32_t>(desc.get_row_range_begin());
     const auto row_end = static_cast<std::int32_t>(desc.get_row_range_end());
     const auto column_begin = static_cast<std::int32_t>(desc.get_column_range_begin());
     const auto column_end = static_cast<std::int32_t>(desc.get_column_range_end());
+
     const auto number_elements_in_block = (row_end - row_begin) * (column_end - column_begin);
     const size_t max_block_size =
         compute_max_block_size(row_begin, row_end, column_begin, column_end);
+
     void *result_ptr = input.get_caching_builder()(max_block_size);
     std::int32_t *first_vertices = reinterpret_cast<std::int32_t *>(result_ptr);
     std::int32_t *second_vertices = first_vertices + number_elements_in_block;
     float *jaccard = reinterpret_cast<float *>(first_vertices + 2 * number_elements_in_block);
+
     std::int64_t nnz = 0;
     std::int32_t j = column_begin;
 
@@ -400,16 +376,25 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
 
     __m512i j_vertices = _mm512_set1_epi32(0);
     __m512i j_vertices_tmp2 = _mm512_set1_epi32(0);
+
     int intersection_size = 0;
+
     __mmask16 cmpgt1;
     __mmask16 cmpgt2;
     __mmask16 worth_intersection;
-    __declspec(align(64)) NodeID_t stack16_j_vertex[16] = { 0 };
+
+    __declspec(align(64)) std::int32_t stack16_j_vertex[16] = { 0 };
+
     unsigned int ones_num = 0;
+
     for (std::int32_t i = row_begin; i < row_end; ++i) {
         const auto i_neighbor_size = g_degrees[i];
         const auto i_neigbhors = g_vertex_neighbors + g_edge_offsets[i];
         const auto diagonal = min(i, column_end);
+
+        __m512i n_i_start_v = _mm512_set1_epi32(i_neigbhors[0]);
+        __m512i n_i_end_v = _mm512_set1_epi32(i_neigbhors[i_neighbor_size - 1]);
+        __m512i i_vertex = _mm512_set1_epi32(i);
 
         if (j < column_begin + ((diagonal - column_begin) / 16) * 16) {
             //load_data(0)
@@ -455,14 +440,16 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                         const auto j_neighbor_size = g_degrees[stack16_j_vertex[s]];
                         const auto j_neigbhors =
                             g_vertex_neighbors + g_edge_offsets[stack16_j_vertex[s]];
-                        stack16_intersections[s] = intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size));
+                        stack16_intersections[s] = intersection(i_neigbhors,
+                                                                j_neigbhors,
+                                                                i_neighbor_size,
+                                                                j_neighbor_size);
                     }
                     __m512i intersections_v = _mm512_load_epi32(stack16_intersections);
                     j_vertices = _mm512_load_epi32(stack16_j_vertex);
 
-                    __mmask16 non_zero_coefficients = _mm512_test_epi32_mask(
-                        intersections_v,
-                        intersections_v); //_mm512_knot(_mm512_cmpeq_ps_mask(intersections_v, _mm512_set1_ps(0.0)));
+                    __mmask16 non_zero_coefficients =
+                        _mm512_test_epi32_mask(intersections_v, intersections_v);
                     _mm512_mask_compressstoreu_epi32((first_vertices + nnz),
                                                      non_zero_coefficients,
                                                      i_vertex);
@@ -471,8 +458,6 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                                                      j_vertices);
                     __m512 tmp_v = _mm512_cvtepi32_ps(intersections_v);
                     _mm512_mask_compressstoreu_ps((jaccard + nnz), non_zero_coefficients, tmp_v);
-                    //cout << i << " " << j << endl;
-                    //Log512<float>(tmp_v); cout << endl;
 
                     nnz += _popcnt32(_cvtmask16_u32(non_zero_coefficients));
                 }
@@ -504,13 +489,13 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                     const auto j_neighbor_size = g_degrees[stack16_j_vertex[s]];
                     const auto j_neigbhors =
                         g_vertex_neighbors + g_edge_offsets[stack16_j_vertex[s]];
-                        stack16_intersections[s] = intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size));
+                    stack16_intersections[s] =
+                        intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
                 }
                 __m512i intersections_v = _mm512_load_epi32(stack16_intersections);
                 j_vertices = _mm512_load_epi32(stack16_j_vertex);
-                __mmask16 non_zero_coefficients = _mm512_test_epi32_mask(
-                    intersections_v,
-                    intersections_v); //_mm512_knot(_mm512_cmpeq_ps_mask(intersections_v, _mm512_set1_ps(0.0)));
+                __mmask16 non_zero_coefficients =
+                    _mm512_test_epi32_mask(intersections_v, intersections_v);
                 _mm512_mask_compressstoreu_epi32((first_vertices + nnz),
                                                  non_zero_coefficients,
                                                  i_vertex);
@@ -525,8 +510,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
 
             j += 16;
 
-            for (std::int32_t j = column_begin + ((diagonal - column_begin) / 16); j < diagonal;
-                 j++) {
+            for (j = column_begin + ((diagonal - column_begin) / 16); j < diagonal; j++) {
                 const auto j_neighbor_size = g_degrees[j];
                 const auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
                 if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&
@@ -534,7 +518,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                     auto intersection_value =
                         intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
                     if (intersection_value) {
-                        jaccard[nnz] = float(intersection_value);
+                        jaccard[nnz] = static_cast<float>(intersection_value);
                         first_vertices[nnz] = i;
                         second_vertices[nnz] = j;
                         nnz++;
@@ -543,7 +527,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
             }
         }
         else {
-            for (std::int32_t j = column_begin; j < diagonal; j++) {
+            for (j = column_begin; j < diagonal; j++) {
                 const auto j_neighbor_size = g_degrees[j];
                 const auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
                 if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&
@@ -551,7 +535,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                     auto intersection_value =
                         intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
                     if (intersection_value) {
-                        jaccard[nnz] = float(intersection_value);
+                        jaccard[nnz] = static_cast<float>(intersection_value);
                         first_vertices[nnz] = i;
                         second_vertices[nnz] = j;
                         nnz++;
@@ -561,13 +545,14 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
         }
 
         std::int32_t tmp_idx = column_begin;
-        if (diagonal >= column_begin && diagonal < column_end) {
+        if (diagonal >= column_begin) {
             jaccard[nnz] = 1.0;
             first_vertices[nnz] = i;
             second_vertices[nnz] = diagonal;
             nnz++;
-            tmp_idx = max(column_begin, diagonal + 1);
+            tmp_idx = diagonal + 1;
         }
+        j = tmp_idx;
 
         if (j < tmp_idx + ((column_end - tmp_idx) / 16) * 16) {
             //load_data(0)
@@ -613,14 +598,16 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                         const auto j_neighbor_size = g_degrees[stack16_j_vertex[s]];
                         const auto j_neigbhors =
                             g_vertex_neighbors + g_edge_offsets[stack16_j_vertex[s]];
-                        stack16_intersections[s] = intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size));
+                        stack16_intersections[s] = intersection(i_neigbhors,
+                                                                j_neigbhors,
+                                                                i_neighbor_size,
+                                                                j_neighbor_size);
                     }
                     __m512i intersections_v = _mm512_load_epi32(stack16_intersections);
                     j_vertices = _mm512_load_epi32(stack16_j_vertex);
 
-                    __mmask16 non_zero_coefficients = _mm512_test_epi32_mask(
-                        intersections_v,
-                        intersections_v); //_mm512_knot(_mm512_cmpeq_ps_mask(intersections_v, _mm512_set1_ps(0.0)));
+                    __mmask16 non_zero_coefficients =
+                        _mm512_test_epi32_mask(intersections_v, intersections_v);
                     _mm512_mask_compressstoreu_epi32((first_vertices + nnz),
                                                      non_zero_coefficients,
                                                      i_vertex);
@@ -629,8 +616,6 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                                                      j_vertices);
                     __m512 tmp_v = _mm512_cvtepi32_ps(intersections_v);
                     _mm512_mask_compressstoreu_ps((jaccard + nnz), non_zero_coefficients, tmp_v);
-                    //cout << i << " " << j << endl;
-                    //Log512<float>(tmp_v); cout << endl;
 
                     nnz += _popcnt32(_cvtmask16_u32(non_zero_coefficients));
                 }
@@ -662,13 +647,13 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                     const auto j_neighbor_size = g_degrees[stack16_j_vertex[s]];
                     const auto j_neigbhors =
                         g_vertex_neighbors + g_edge_offsets[stack16_j_vertex[s]];
-                        stack16_intersections[s] = intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size));
+                    stack16_intersections[s] =
+                        intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
                 }
                 __m512i intersections_v = _mm512_load_epi32(stack16_intersections);
                 j_vertices = _mm512_load_epi32(stack16_j_vertex);
-                __mmask16 non_zero_coefficients = _mm512_test_epi32_mask(
-                    intersections_v,
-                    intersections_v); //_mm512_knot(_mm512_cmpeq_ps_mask(intersections_v, _mm512_set1_ps(0.0)));
+                __mmask16 non_zero_coefficients =
+                    _mm512_test_epi32_mask(intersections_v, intersections_v);
                 _mm512_mask_compressstoreu_epi32((first_vertices + nnz),
                                                  non_zero_coefficients,
                                                  i_vertex);
@@ -683,8 +668,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
 
             j += 16;
 
-            for (std::int32_t j = tmp_idx + ((column_end - tmp_idx) / 16) * 16; j < column_end;
-                 j++) {
+            for (j = tmp_idx + ((column_end - tmp_idx) / 16) * 16; j < column_end; j++) {
                 const auto j_neighbor_size = g_degrees[j];
                 const auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
                 if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&
@@ -692,7 +676,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                     auto intersection_value =
                         intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
                     if (intersection_value) {
-                        jaccard[nnz] = float(intersection_value);
+                        jaccard[nnz] = static_cast<float>(intersection_value);
                         first_vertices[nnz] = i;
                         second_vertices[nnz] = j;
                         nnz++;
@@ -701,7 +685,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
             }
         }
         else {
-            for (std::int32_t j = tmp_idx; j < column_end; j++) {
+            for (j = tmp_idx; j < column_end; j++) {
                 const auto j_neighbor_size = g_degrees[j];
                 const auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
                 if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&
@@ -709,7 +693,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                     auto intersection_value =
                         intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
                     if (intersection_value) {
-                        jaccard[nnz] = float(intersection_value);
+                        jaccard[nnz] = static_cast<float>(intersection_value);
                         first_vertices[nnz] = i;
                         second_vertices[nnz] = j;
                         nnz++;
@@ -721,8 +705,10 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
 
 #pragma vector always
     for (int i = 0; i < nnz; i++) {
-        jaccard[i] = jaccard[i] / static_cast<float>(g_degrees[vertices_first[i]] +
-                                                     g_degrees[vertices_second[i]] - jaccard[i]);
+        if (first_vertices[i] != second_vertices[i])
+            jaccard[i] =
+                jaccard[i] / static_cast<float>(g_degrees[first_vertices[i]] +
+                                                g_degrees[second_vertices[i]] - jaccard[i]);
     }
     vertex_similarity_result res(homogen_table::wrap(first_vertices, 2, number_elements_in_block),
                                  homogen_table::wrap(jaccard, 1, number_elements_in_block),
