@@ -43,6 +43,7 @@ template <typename algorithmFPType, CpuType cpu>
 Status BatchKernel<algorithmFPType, training::normEqDense, cpu>::compute(const NumericTable & x, const NumericTable & y, NumericTable & xtx,
                                                                          NumericTable & xty, NumericTable & beta, bool interceptFlag) const
 {
+    assert(0);
     Status st = UpdateKernelType::compute(x, y, xtx, xty, true, interceptFlag);
     if (st) st = FinalizeKernelType::compute(xtx, xty, xtx, xty, beta, interceptFlag, KernelHelper<algorithmFPType, cpu>());
     return st;
@@ -52,6 +53,7 @@ template <typename algorithmFPType, CpuType cpu>
 Status OnlineKernel<algorithmFPType, training::normEqDense, cpu>::compute(const NumericTable & x, const NumericTable & y, NumericTable & xtx,
                                                                           NumericTable & xty, bool interceptFlag) const
 {
+    assert(0);
     return UpdateKernelType::compute(x, y, xtx, xty, false, interceptFlag);
 }
 
@@ -60,6 +62,7 @@ Status OnlineKernel<algorithmFPType, training::normEqDense, cpu>::finalizeComput
                                                                                   NumericTable & xtxFinal, NumericTable & xtyFinal,
                                                                                   NumericTable & beta, bool interceptFlag) const
 {
+    assert(0);
     return FinalizeKernelType::compute(xtx, xty, xtxFinal, xtyFinal, beta, interceptFlag, KernelHelper<algorithmFPType, cpu>());
 }
 
