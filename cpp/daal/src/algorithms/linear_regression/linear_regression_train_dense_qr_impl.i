@@ -25,6 +25,7 @@
 #define __LINEAR_REGRESSION_TRAIN_DENSE_QR_IMPL_I__
 
 #include "src/algorithms/linear_regression/linear_regression_train_kernel.h"
+#include <cassert>
 
 namespace daal
 {
