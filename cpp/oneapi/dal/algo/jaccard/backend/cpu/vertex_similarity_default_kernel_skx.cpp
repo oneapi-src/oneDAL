@@ -381,10 +381,6 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
 
     int intersection_size = 0;
 
-    __mmask16 cmpgt1;
-    __mmask16 cmpgt2;
-    __mmask16 worth_intersection;
-
     GRAPH_STACK_ALING(64) std::int32_t stack16_j_vertex[16] = { 0 };
 
     unsigned int ones_num = 0;
@@ -423,10 +419,10 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                     j_vertices_tmp1,
                     _mm512_i32gather_epi32(end_indices_j_v, g_vertex_neighbors, 4));
 
-                cmpgt1 = _mm512_cmpgt_epi32_mask(n_i_start_v, n_j_end_v);
-                cmpgt2 = _mm512_cmpgt_epi32_mask(n_j_start_v, n_i_end_v);
+                __mmask16 cmpgt1 = _mm512_cmpgt_epi32_mask(n_i_start_v, n_j_end_v);
+                __mmask16 cmpgt2 = _mm512_cmpgt_epi32_mask(n_j_start_v, n_i_end_v);
 
-                worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
+                __mmask16 worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
                 ones_num = _popcnt32(_cvtmask16_u32(worth_intersection));
 
                 if (ones_num != 0) {
@@ -472,10 +468,10 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
 
             //process n data
 
-            cmpgt1 = _mm512_cmpgt_epi32_mask(n_i_start_v, n_j_end_v);
-            cmpgt2 = _mm512_cmpgt_epi32_mask(n_j_start_v, n_i_end_v);
+            __mmask16 cmpgt1 = _mm512_cmpgt_epi32_mask(n_i_start_v, n_j_end_v);
+            __mmask16 cmpgt2 = _mm512_cmpgt_epi32_mask(n_j_start_v, n_i_end_v);
 
-            worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
+            __mmask16 worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
             ones_num = _popcnt32(_cvtmask16_u32(worth_intersection));
 
             if (ones_num != 0) {
@@ -581,10 +577,10 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                     j_vertices_tmp1,
                     _mm512_i32gather_epi32(end_indices_j_v, g_vertex_neighbors, 4));
 
-                cmpgt1 = _mm512_cmpgt_epi32_mask(n_i_start_v, n_j_end_v);
-                cmpgt2 = _mm512_cmpgt_epi32_mask(n_j_start_v, n_i_end_v);
+                __mmask16 cmpgt1 = _mm512_cmpgt_epi32_mask(n_i_start_v, n_j_end_v);
+                __mmask16 cmpgt2 = _mm512_cmpgt_epi32_mask(n_j_start_v, n_i_end_v);
 
-                worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
+                __mmask16 worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
                 ones_num = _popcnt32(_cvtmask16_u32(worth_intersection));
 
                 if (ones_num != 0) {
@@ -630,10 +626,10 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
 
             //process n data
 
-            cmpgt1 = _mm512_cmpgt_epi32_mask(n_i_start_v, n_j_end_v);
-            cmpgt2 = _mm512_cmpgt_epi32_mask(n_j_start_v, n_i_end_v);
+            __mmask16 cmpgt1 = _mm512_cmpgt_epi32_mask(n_i_start_v, n_j_end_v);
+            __mmask16 cmpgt2 = _mm512_cmpgt_epi32_mask(n_j_start_v, n_i_end_v);
 
-            worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
+            __mmask16 worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
             ones_num = _popcnt32(_cvtmask16_u32(worth_intersection));
 
             if (ones_num != 0) {
