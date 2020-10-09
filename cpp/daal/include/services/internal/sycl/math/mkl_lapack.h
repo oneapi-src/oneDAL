@@ -70,7 +70,7 @@ private:
 
         if (a.isUSMBacked())
         {
-            auto a_ptr = a.toUSM().get();
+            auto a_ptr      = a.toUSM().get();
             auto scratchpad = cl::sycl::malloc<algorithmFPType>(scratchpadSize, _queue, cl::sycl::usm::alloc::shared);
 
             if (scratchpad == nullptr) return Status(ErrorID::ErrorMemoryAllocationFailed);
@@ -116,7 +116,6 @@ struct MKLPotrs
     }
 
 private:
-
     services::Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, services::internal::Buffer<algorithmFPType> & a,
                                 const size_t lda, services::internal::Buffer<algorithmFPType> & b, const size_t ldb,
                                 const std::int64_t scratchpadSize)
@@ -128,8 +127,8 @@ private:
 
         if (a.isUSMBacked())
         {
-            auto a_ptr = a.toUSM().get();
-            auto b_ptr = b.toUSM().get();
+            auto a_ptr      = a.toUSM().get();
+            auto b_ptr      = b.toUSM().get();
             auto scratchpad = cl::sycl::malloc<algorithmFPType>(scratchpadSize, _queue, cl::sycl::usm::alloc::shared);
 
             if (scratchpad == nullptr) return Status(ErrorID::ErrorMemoryAllocationFailed);

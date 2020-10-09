@@ -39,18 +39,18 @@ namespace math
 {
 namespace interface1
 {
-
 namespace
 {
-inline auto to_fpk_transpose(const math::Transpose& trans) {
-    return trans == math::Transpose::Trans ? ::oneapi::fpk::transpose::trans
-                                           : ::oneapi::fpk::transpose::nontrans;
+inline auto to_fpk_transpose(const math::Transpose & trans)
+{
+    return trans == math::Transpose::Trans ? ::oneapi::fpk::transpose::trans : ::oneapi::fpk::transpose::nontrans;
 }
 
-inline auto to_fpk_uplo(const math::UpLo& uplo) {
+inline auto to_fpk_uplo(const math::UpLo & uplo)
+{
     return uplo == math::UpLo::Upper ? ::oneapi::fpk::uplo::upper : ::oneapi::fpk::uplo::lower;
 }
-}
+} // namespace
 
 /** @ingroup oneapi_internal
  * @{
@@ -143,7 +143,7 @@ struct MKLSyrk
         if (a_buffer.isUSMBacked() && c_buffer.isUSMBacked())
         {
             const auto transmkl = to_fpk_transpose(trans);
-            const auto uplomkl = to_fpk_uplo(upper_lower);
+            const auto uplomkl  = to_fpk_uplo(upper_lower);
 
             auto a_ptr = a_buffer.toUSM().get() + offsetA;
             auto c_ptr = c_buffer.toUSM().get() + offsetC;

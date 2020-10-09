@@ -16,13 +16,13 @@
 *******************************************************************************/
 
 #ifdef DAAL_SYCL_INTERFACE
-#ifndef __DAAL_SERVICES_INTERNAL_SYCL_TYPES_UTILS_CXX11_H__
-#define __DAAL_SERVICES_INTERNAL_SYCL_TYPES_UTILS_CXX11_H__
+    #ifndef __DAAL_SERVICES_INTERNAL_SYCL_TYPES_UTILS_CXX11_H__
+        #define __DAAL_SERVICES_INTERNAL_SYCL_TYPES_UTILS_CXX11_H__
 
-#include <CL/sycl.hpp>
+        #include <CL/sycl.hpp>
 
-#include "services/internal/sycl/types_utils.h"
-#include "services/daal_memory.h"
+        #include "services/internal/sycl/types_utils.h"
+        #include "services/daal_memory.h"
 
 namespace daal
 {
@@ -45,16 +45,13 @@ namespace interface1
 class BufferAllocator
 {
 private:
-    struct UsmDeleter {
+    struct UsmDeleter
+    {
         cl::sycl::queue queue;
 
-        explicit UsmDeleter(const cl::sycl::queue & q)
-            : queue(q) {}
+        explicit UsmDeleter(const cl::sycl::queue & q) : queue(q) {}
 
-        void operator()(const void * ptr) const {
-
-            cl::sycl::free(const_cast<void *>(ptr), queue);
-        }
+        void operator()(const void * ptr) const { cl::sycl::free(const_cast<void *>(ptr), queue); }
     };
 
     struct AllocateVanilla
@@ -73,18 +70,18 @@ private:
 
     struct AllocateUSMBacked
     {
-        const cl::sycl::queue& queue;
+        const cl::sycl::queue & queue;
         size_t bufferSize;
         UniversalBuffer buffer;
 
-        explicit AllocateUSMBacked(const cl::sycl::queue& q, size_t size) : queue(q), bufferSize(size) {}
+        explicit AllocateUSMBacked(const cl::sycl::queue & q, size_t size) : queue(q), bufferSize(size) {}
 
         template <typename T>
         void operator()(Typelist<T>)
         {
             const auto usmKind = cl::sycl::usm::alloc::shared;
-            T * usmPtr = cl::sycl::malloc<T>(bufferSize, queue, usmKind); //TODO: handle memory allocation error
-            services::SharedPtr<T> usmSharedPtr(usmPtr, UsmDeleter{queue});
+            T * usmPtr         = cl::sycl::malloc<T>(bufferSize, queue, usmKind); //TODO: handle memory allocation error
+            services::SharedPtr<T> usmSharedPtr(usmPtr, UsmDeleter { queue });
             buffer = services::internal::Buffer<T>(usmSharedPtr, bufferSize, usmKind);
         }
     };
@@ -97,7 +94,7 @@ public:
         return allocateOp.buffer;
     }
 
-    static UniversalBuffer allocateUSMBacked(const cl::sycl::queue& q, TypeId type, size_t bufferSize)
+    static UniversalBuffer allocateUSMBacked(const cl::sycl::queue & q, TypeId type, size_t bufferSize)
     {
         AllocateUSMBacked allocateOp(q, bufferSize);
         TypeDispatcher::dispatch(type, allocateOp);
@@ -128,13 +125,13 @@ private:
         template <typename T>
         void operator()(Typelist<T>)
         {
-            const auto & src_buffer   = srcUnivers.get<T>();
-            const auto & dst_buffer   = dstUnivers.get<T>();
+            const auto & src_buffer = srcUnivers.get<T>();
+            const auto & dst_buffer = dstUnivers.get<T>();
 
             if (src_buffer.isUSMBacked() && dst_buffer.isUSMBacked())
             {
-                auto src   = src_buffer.toUSM();
-                auto dst   = dst_buffer.toUSM();
+                auto src = src_buffer.toUSM();
+                auto dst = dst_buffer.toUSM();
 
                 auto src_raw = src.get() + srcOffset;
                 auto dst_raw = dst.get() + dstOffset;
@@ -203,10 +200,10 @@ private:
 
             if (dst_buffer.isUSMBacked())
             {
-                auto dst = dst_buffer.toUSM();
+                auto dst     = dst_buffer.toUSM();
                 auto dst_raw = dst.get() + dstOffset;
-                DAAL_ASSERT( ((cl::sycl::get_pointer_type(dst_raw, queue.get_context()) == cl::sycl::usm::alloc::shared) ||
-                             (cl::sycl::get_pointer_type(dst_raw, queue.get_context()) == cl::sycl::usm::alloc::host)) );
+                DAAL_ASSERT(((cl::sycl::get_pointer_type(dst_raw, queue.get_context()) == cl::sycl::usm::alloc::shared)
+                             || (cl::sycl::get_pointer_type(dst_raw, queue.get_context()) == cl::sycl::usm::alloc::host)));
 
                 const size_t size = sizeof(T) * count;
                 daal_memcpy_s(dst_raw, size, src + srcOffset, size); // TODO: check return status!
@@ -249,7 +246,7 @@ private:
         template <typename T>
         void operator()(Typelist<T>)
         {
-            const auto& dstBuffer = dstUnivers.get<T>();
+            const auto & dstBuffer = dstUnivers.get<T>();
 
             if (dstBuffer.isUSMBacked())
             {
@@ -288,5 +285,5 @@ using interface1::BufferFiller;
 } // namespace services
 } // namespace daal
 
-#endif
+    #endif
 #endif // DAAL_SYCL_INTERFACE
