@@ -286,7 +286,7 @@ public:
         // TODO: Thread safe?
         try
         {
-            auto buffer = BufferAllocator::allocate(type, bufferSize);
+            auto buffer = BufferAllocator::allocateUSMBacked(_deviceQueue, type, bufferSize);
             return buffer;
         }
         catch (cl::sycl::exception const & e)

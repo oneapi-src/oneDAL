@@ -15,10 +15,14 @@
 * limitations under the License.
 *******************************************************************************/
 
+#ifdef DAAL_SYCL_INTERFACE
 #ifndef __DAAL_SERVICES_INTERNAL_SYCL_TYPES_UTILS_CXX11_H__
 #define __DAAL_SERVICES_INTERNAL_SYCL_TYPES_UTILS_CXX11_H__
 
+#include <CL/sycl.hpp>
+
 #include "services/internal/sycl/types_utils.h"
+#include "services/daal_memory.h"
 
 namespace daal
 {
@@ -41,12 +45,24 @@ namespace interface1
 class BufferAllocator
 {
 private:
-    struct Allocate
+    struct UsmDeleter {
+        cl::sycl::queue queue;
+
+        explicit UsmDeleter(const cl::sycl::queue & q)
+            : queue(q) {}
+
+        void operator()(const void * ptr) const {
+
+            cl::sycl::free(const_cast<void *>(ptr), queue);
+        }
+    };
+
+    struct AllocateVanilla
     {
         UniversalBuffer buffer;
         size_t bufferSize;
 
-        explicit Allocate(size_t size) : bufferSize(size) {}
+        explicit AllocateVanilla(size_t size) : bufferSize(size) {}
 
         template <typename T>
         void operator()(Typelist<T>)
@@ -55,10 +71,35 @@ private:
         }
     };
 
-public:
-    static UniversalBuffer allocate(TypeId type, size_t bufferSize)
+    struct AllocateUSMBacked
     {
-        Allocate allocateOp(bufferSize);
+        const cl::sycl::queue& queue;
+        size_t bufferSize;
+        UniversalBuffer buffer;
+
+        explicit AllocateUSMBacked(const cl::sycl::queue& q, size_t size) : queue(q), bufferSize(size) {}
+
+        template <typename T>
+        void operator()(Typelist<T>)
+        {
+            const auto usmKind = cl::sycl::usm::alloc::shared;
+            T * usmPtr = cl::sycl::malloc<T>(bufferSize, queue, usmKind); //TODO: handle memory allocation error
+            services::SharedPtr<T> usmSharedPtr(usmPtr, UsmDeleter{queue});
+            buffer = services::internal::Buffer<T>(usmSharedPtr, bufferSize, usmKind);
+        }
+    };
+
+public:
+    static UniversalBuffer allocateVanilla(TypeId type, size_t bufferSize)
+    {
+        AllocateVanilla allocateOp(bufferSize);
+        TypeDispatcher::dispatch(type, allocateOp);
+        return allocateOp.buffer;
+    }
+
+    static UniversalBuffer allocateUSMBacked(const cl::sycl::queue& q, TypeId type, size_t bufferSize)
+    {
+        AllocateUSMBacked allocateOp(q, bufferSize);
         TypeDispatcher::dispatch(type, allocateOp);
         return allocateOp.buffer;
     }
@@ -87,11 +128,25 @@ private:
         template <typename T>
         void operator()(Typelist<T>)
         {
-            const auto & src_buffer = srcUnivers.get<T>();
-            if (src_buffer.isUSMBacked())
+            const auto & src_buffer   = srcUnivers.get<T>();
+            const auto & dst_buffer   = dstUnivers.get<T>();
+
+            if (src_buffer.isUSMBacked() && dst_buffer.isUSMBacked())
             {
                 auto src   = src_buffer.toUSM();
-                auto dst   = dstUnivers.get<T>().toSycl();
+                auto dst   = dst_buffer.toUSM();
+
+                auto src_raw = src.get() + srcOffset;
+                auto dst_raw = dst.get() + dstOffset;
+
+                queue.memcpy(dst_raw, src_raw, sizeof(T) * count).wait();
+            }
+            else if (src_buffer.isUSMBacked())
+            {
+                // this branch is a workaround on the SYCL RT bug
+                // on copy operation from usm-backed buffer to the vanilla buffer
+                auto src   = src_buffer.toUSM();
+                auto dst   = dst_buffer.toSycl();
                 auto event = queue.submit([&](cl::sycl::handler & cgh) {
                     auto dst_acc = dst.template get_access<cl::sycl::access::mode::write>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(dstOffset));
                     cgh.copy(src.get() + srcOffset, dst_acc);
@@ -101,7 +156,7 @@ private:
             else
             {
                 auto src   = src_buffer.toSycl();
-                auto dst   = dstUnivers.get<T>().toSycl();
+                auto dst   = dst_buffer.toSycl();
                 auto event = queue.submit([&](cl::sycl::handler & cgh) {
                     auto src_acc = src.template get_access<cl::sycl::access::mode::read>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(srcOffset));
                     auto dst_acc = dst.template get_access<cl::sycl::access::mode::write>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(dstOffset));
@@ -143,13 +198,28 @@ private:
         template <typename T>
         void operator()(Typelist<T>)
         {
-            auto src              = (T *)srcArray;
-            auto dst              = dstUnivers.get<T>().toSycl();
-            cl::sycl::event event = queue.submit([&](cl::sycl::handler & cgh) {
-                auto dst_acc = dst.template get_access<cl::sycl::access::mode::write>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(dstOffset));
-                cgh.copy(src, dst_acc);
-            });
-            event.wait();
+            auto src                = (T *)srcArray;
+            const auto & dst_buffer = dstUnivers.get<T>();
+
+            if (dst_buffer.isUSMBacked())
+            {
+                auto dst = dst_buffer.toUSM();
+                auto dst_raw = dst.get() + dstOffset;
+                DAAL_ASSERT( ((cl::sycl::get_pointer_type(dst_raw, queue.get_context()) == cl::sycl::usm::alloc::shared) ||
+                             (cl::sycl::get_pointer_type(dst_raw, queue.get_context()) == cl::sycl::usm::alloc::host)) );
+
+                const size_t size = sizeof(T) * count;
+                daal_memcpy_s(dst_raw, size, src + srcOffset, size); // TODO: check return status!
+            }
+            else
+            {
+                auto dst              = dst_buffer.toSycl();
+                cl::sycl::event event = queue.submit([&](cl::sycl::handler & cgh) {
+                    auto dst_acc = dst.template get_access<cl::sycl::access::mode::write>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(dstOffset));
+                    cgh.copy(src + srcOffset, dst_acc);
+                });
+                event.wait();
+            }
         }
     };
 
@@ -179,12 +249,22 @@ private:
         template <typename T>
         void operator()(Typelist<T>)
         {
-            auto dst              = dstUnivers.get<T>().toSycl();
-            cl::sycl::event event = queue.submit([&](cl::sycl::handler & cgh) {
-                auto acc = dst.template get_access<cl::sycl::access::mode::write>(cgh);
-                cgh.fill(acc, static_cast<T>(value));
-            });
-            event.wait();
+            const auto& dstBuffer = dstUnivers.get<T>();
+
+            if (dstBuffer.isUSMBacked())
+            {
+                auto dstPtr = dstBuffer.toUSM();
+                queue.fill(dstPtr.get(), static_cast<T>(value), dstBuffer.size()).wait();
+            }
+            else
+            {
+                auto dst              = dstBuffer.toSycl();
+                cl::sycl::event event = queue.submit([&](cl::sycl::handler & cgh) {
+                    auto acc = dst.template get_access<cl::sycl::access::mode::write>(cgh);
+                    cgh.fill(acc, static_cast<T>(value));
+                });
+                event.wait();
+            }
         }
     };
 
@@ -209,3 +289,4 @@ using interface1::BufferFiller;
 } // namespace daal
 
 #endif
+#endif // DAAL_SYCL_INTERFACE
