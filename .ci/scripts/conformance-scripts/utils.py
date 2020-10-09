@@ -52,7 +52,7 @@ def make_report(algs_filename, report_filename):
         for line in reversed(lines):
             if '=====' in line:
                 if 'test session starts' in line:
-                    raise SystemExit(1)
+                    assert False, 'assert'
                 result_str = line
                 break
         
