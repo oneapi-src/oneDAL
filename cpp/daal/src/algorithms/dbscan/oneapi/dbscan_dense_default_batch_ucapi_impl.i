@@ -238,6 +238,7 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
         DAAL_CHECK_STATUS_VAR(startNextCluster(nClusters, nRows, queueEnd, assignments, foundCluster));
     }
     DAAL_CHECK_STATUS_VAR(ntData->releaseBlockOfRows(dataRows));
+
     BlockDescriptor<int> nClustersRows;
     DAAL_CHECK_STATUS_VAR(ntNClusters->getBlockOfRows(0, 1, writeOnly, nClustersRows));
     auto nClusterHostBuffer = nClustersRows.getBuffer().toHost(ReadWriteMode::writeOnly, &s);
@@ -247,6 +248,7 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
         return Status(ErrorNullPtr);
     }
     *nClusterHostBuffer.get() = nClusters;
+
     if (par->resultsToCompute & (computeCoreIndices | computeCoreObservations))
     {
         DAAL_CHECK_STATUS_VAR(processResultsToCompute(par->resultsToCompute, ntData, ntCoreIndices, ntCoreObservations));
@@ -268,7 +270,9 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::startNextCluster(uint3
 
     int last;
     {
-        const auto lastPointHostBuffer = _lastPoint.template get<int>().toHost(ReadWriteMode::readOnly, &st);
+        const auto lastPointBuffer = _lastPoint.template get<int>();
+        DAAL_CHECK(lastPointBuffer.size() >= 1, services::ErrorBufferSizeIntegerOverflow);
+        const auto lastPointHostBuffer = lastPointBuffer.toHost(ReadWriteMode::readOnly, &st);
         DAAL_CHECK_STATUS_VAR(st);
         if (!lastPointHostBuffer)
         {
@@ -299,7 +303,9 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::startNextCluster(uint3
     DAAL_CHECK_STATUS_VAR(st);
     int newLast;
     {
-        const auto lastPointHostBuffer = _lastPoint.template get<int>().toHost(ReadWriteMode::readOnly, &st);
+        const auto lastPointBuffer = _lastPoint.template get<int>();
+        DAAL_CHECK(lastPointBuffer.size() >= 1, services::ErrorBufferSizeIntegerOverflow);
+        const auto lastPointHostBuffer = lastPointBuffer.toHost(ReadWriteMode::readOnly, &st);
         DAAL_CHECK_STATUS_VAR(st);
         if (!lastPointHostBuffer)
         {
