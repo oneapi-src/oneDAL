@@ -410,7 +410,9 @@ template <typename algorithmFPType>
 Status DBSCANBatchKernelUCAPI<algorithmFPType>::setQueueFront(uint32_t queueEnd)
 {
     Status st;
-    auto val = _queueFront.template get<int>().toHost(ReadWriteMode::writeOnly, &st);
+    const auto valBuffer = _queueFront.template get<int>();
+    DAAL_CHECK(valBuffer.size() >= 1, services::ErrorBufferSizeIntegerOverflow);
+    const auto val = valBuffer.toHost(ReadWriteMode::readOnly, &st);
     DAAL_CHECK_STATUS_VAR(st);
     if (!val)
     {
@@ -424,13 +426,14 @@ template <typename algorithmFPType>
 Status DBSCANBatchKernelUCAPI<algorithmFPType>::getQueueFront(uint32_t & queueEnd)
 {
     Status st;
-    auto val = _queueFront.template get<int>().toHost(ReadWriteMode::readOnly, &st);
+    const auto valBuffer = _queueFront.template get<int>();
+    DAAL_CHECK(valBuffer.size() >= 1, services::ErrorBufferSizeIntegerOverflow);
+    const auto val = valBuffer.toHost(ReadWriteMode::readOnly, &st);
     DAAL_CHECK_STATUS_VAR(st);
     if (!val)
     {
         return Status(ErrorNullPtr);
     }
-
     queueEnd = *val.get();
     return st;
 }
