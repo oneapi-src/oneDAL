@@ -26,34 +26,35 @@
 using namespace oneapi::dal;
 
 int main(int argc, char **argv) {
-  const std::string filename = get_data_path("graph.csv");
-  // read the graph
-  const preview::graph_csv_data_source ds(filename);
-  const preview::load_graph::descriptor<> d;
-  const auto my_graph = preview::load_graph::load(d, ds);
+    const std::string filename = get_data_path("graph.csv");
 
-  // set blocks ranges
-  const std::int64_t row_range_begin = 0;
-  const std::int64_t row_range_end = 2;
-  const std::int64_t column_range_begin = 0;
-  const std::int64_t column_range_end = 3;
+    // read the graph
+    const preview::graph_csv_data_source ds(filename);
+    const preview::load_graph::descriptor<> d;
+    const auto my_graph = preview::load_graph::load(d, ds);
 
-  // set algorithm parameters
+    // set blocks ranges
+    const std::int64_t row_range_begin = 0;
+    const std::int64_t row_range_end = 2;
+    const std::int64_t column_range_begin = 0;
+    const std::int64_t column_range_end = 3;
+
+    // set algorithm parameters
     const auto jaccard_desc =
         preview::jaccard::descriptor<>().set_block({ row_range_begin, row_range_end },
                                                    { column_range_begin, column_range_end });
 
-  // create caching builder for jaccard result
-  preview::jaccard::caching_builder builder;
+    // create caching builder for jaccard result
+    preview::jaccard::caching_builder builder;
 
-  // compute Jaccard similarity coefficients
+    // compute Jaccard similarity coefficients
     const auto result_vertex_similarity =
         preview::vertex_similarity(jaccard_desc, my_graph, builder);
 
-  // extract the result
-  const auto jaccard_coeffs = result_vertex_similarity.get_coeffs();
-  const auto vertex_pairs = result_vertex_similarity.get_vertex_pairs();
-  const std::int64_t nonzero_coeff_count = result_vertex_similarity.get_nonzero_coeff_count();
+    // extract the result
+    const auto jaccard_coeffs = result_vertex_similarity.get_coeffs();
+    const auto vertex_pairs = result_vertex_similarity.get_vertex_pairs();
+    const std::int64_t nonzero_coeff_count = result_vertex_similarity.get_nonzero_coeff_count();
 
     std::cout << "The number of nonzero Jaccard coeffs in the block: " << nonzero_coeff_count
               << std::endl;
