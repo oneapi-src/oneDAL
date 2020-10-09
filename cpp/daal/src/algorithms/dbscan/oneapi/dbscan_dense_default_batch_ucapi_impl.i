@@ -65,11 +65,6 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::initializeBuffers(uint
         DAAL_CHECK_STATUS_VAR(weights->getBlockOfRows(0, nRows, readOnly, weightRows));
         _weights = UniversalBuffer(weightRows.getBuffer());
     }
-    else
-    {
-        _weights = context.allocate(TypeIds::id<algorithmFPType>(), 1, &s);
-        DAAL_CHECK_STATUS_VAR(s);
-    }
     return s;
 }
 
@@ -79,16 +74,19 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::processResultsToCompute(DAAL_UIN
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.processResultsToCompute);
     Status st;
-    auto isCoreHost = _isCore.template get<int>().toHost(ReadWriteMode::readOnly, &st);
+
+    const uint32_t nRows     = ntData->getNumberOfRows();
+    const uint32_t nFeatures = ntData->getNumberOfColumns();
+
+    auto isCoreBuffer = _isCore.template get<int>();
+    DAAL_CHECK(isCoreBuffer.size() >= nRows, services::ErrorBufferSizeIntegerOverflow);
+    auto isCoreHost = isCoreBuffer.toHost(ReadWriteMode::readOnly, &st);
     DAAL_CHECK_STATUS_VAR(st);
     auto isCore = isCoreHost.get();
     if (!isCore)
     {
         return Status(ErrorNullPtr);
     }
-
-    const uint32_t nRows     = ntData->getNumberOfRows();
-    const uint32_t nFeatures = ntData->getNumberOfColumns();
 
     uint32_t nCoreObservations = 0;
 

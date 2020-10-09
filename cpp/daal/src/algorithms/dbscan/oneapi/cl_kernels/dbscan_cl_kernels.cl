@@ -93,7 +93,7 @@ DECLARE_SOURCE(
 
         for (int j = queueStart; j < queueEnd; j++)
         {
-            int index           = queue[j];
+            const int index           = queue[j];
             algorithmFPType sum = 0.0;
             for (int i = localId; i < numFeatures; i += subgroupSize)
             {
@@ -109,7 +109,7 @@ DECLARE_SOURCE(
             if (cores[subgroupIndex] == 0) continue;
             if (localId == 0)
             {
-                int newIndex    = atomic_inc(counterPtr);
+                const int newIndex    = atomic_inc(counterPtr);
                 queue[newIndex] = subgroupIndex;
             }
             break;
