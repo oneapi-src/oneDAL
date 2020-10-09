@@ -176,22 +176,24 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
     NumericTable * const ntData = const_cast<NumericTable *>(x);
     NumericTable * const ntW    = const_cast<NumericTable *>(ntWeights);
 
-    const size_t nDataRowsSizeT    = ntData->getNumberOfRows();
-    const size_t nDataColumnsSizeT = ntData->getNumberOfColumns();
+    const size_t nDataRowsAsSizeT    = ntData->getNumberOfRows();
+    const size_t nDataColumnsAsSizeT = ntData->getNumberOfColumns();
 
-    DAAL_CHECK(nDataRowsSizeT <= maxInt32AsSizeT, services::ErrorIncorrectNumberOfRowsInInputNumericTable);
-    DAAL_CHECK(nDataColumnsSizeT <= maxInt32AsSizeT, services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
+//    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, nDataRowsAsSizeT, nDataColumnsAsSizeT);
+
+    DAAL_CHECK(nDataRowsAsSizeT <= maxInt32AsSizeT, services::ErrorIncorrectNumberOfRowsInInputNumericTable);
+    DAAL_CHECK(nDataColumnsAsSizeT <= maxInt32AsSizeT, services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
 
     if (ntW)
     {
-        const size_t nWeightRowsSizeT    = ntW->getNumberOfRows();
-        const size_t nWeightColumnsSizeT = ntW->getNumberOfColumns();
-        DAAL_CHECK(nWeightRowsSizeT == nDataRowsSizeT, services::ErrorIncorrectNumberOfRowsInInputNumericTable);
-        DAAL_CHECK(nWeightColumnsSizeT == 1, services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
+        const size_t nWeightRowsAsSizeT    = ntW->getNumberOfRows();
+        const size_t nWeightColumnsAsSizeT = ntW->getNumberOfColumns();
+        DAAL_CHECK(nWeightRowsAsSizeT == nDataRowsAsSizeT, services::ErrorIncorrectNumberOfRowsInInputNumericTable);
+        DAAL_CHECK(nWeightColumnsAsSizeT == 1, services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
     }
 
-    const uint32_t nRows     = static_cast<uint32_t>(nDataRowsSizeT);
-    const uint32_t nFeatures = static_cast<uint32_t>(nDataColumnsSizeT);
+    const uint32_t nRows     = static_cast<uint32_t>(nDataRowsAsSizeT);
+    const uint32_t nFeatures = static_cast<uint32_t>(nDataColumnsAsSizeT);
 
     BlockDescriptor<algorithmFPType> dataRows;
     DAAL_CHECK_STATUS_VAR(ntData->getBlockOfRows(0, nRows, readOnly, dataRows));
