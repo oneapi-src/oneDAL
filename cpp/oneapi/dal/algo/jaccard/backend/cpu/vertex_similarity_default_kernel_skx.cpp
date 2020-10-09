@@ -411,7 +411,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                 j_vertices_tmp1,
                 _mm512_i32gather_epi32(end_indices_j_v, g_vertex_neighbors, 4));
 
-            for (j; j + 16 < column_begin + ((diagonal - column_begin) / 16) * 16;) {
+            for (; j + 16 < column_begin + ((diagonal - column_begin) / 16) * 16;) {
                 start_indices_j_v = _mm512_load_epi32(g_edge_offsets + j + 16);
                 end_indices_j_v_tmp = _mm512_load_epi32(g_edge_offsets + j + 17);
                 end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
@@ -569,7 +569,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                 j_vertices_tmp1,
                 _mm512_i32gather_epi32(end_indices_j_v, g_vertex_neighbors, 4));
 
-            for (j; j + 16 < tmp_idx + ((column_end - tmp_idx) / 16) * 16;) {
+            for (; j + 16 < tmp_idx + ((column_end - tmp_idx) / 16) * 16;) {
                 start_indices_j_v = _mm512_load_epi32(g_edge_offsets + j + 16);
                 end_indices_j_v_tmp = _mm512_load_epi32(g_edge_offsets + j + 17);
                 end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
