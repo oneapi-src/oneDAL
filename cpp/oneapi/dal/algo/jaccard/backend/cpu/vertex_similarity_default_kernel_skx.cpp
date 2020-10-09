@@ -45,7 +45,7 @@ DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
     }
     return count;
 }
-#define GRAPH_STACK_ALING(x)
+#define GRAPH_STACK_ALING(x) {}
 #endif
 
 DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
