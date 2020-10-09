@@ -39,6 +39,19 @@ namespace math
 {
 namespace interface1
 {
+
+namespace
+{
+inline auto to_fpk_transpose(const math::Transpose& trans) {
+    return trans == math::Transpose::Trans ? ::oneapi::fpk::transpose::trans
+                                           : ::oneapi::fpk::transpose::nontrans;
+}
+
+inline auto to_fpk_uplo(const math::UpLo& uplo) {
+    return uplo == math::UpLo::Upper ? ::oneapi::fpk::uplo::upper : ::oneapi::fpk::uplo::lower;
+}
+}
+
 /** @ingroup oneapi_internal
  * @{
  */
@@ -60,15 +73,28 @@ struct MKLGemm
     {
         services::Status status;
 
-        const MKL_TRANSPOSE transamkl = transa == math::Transpose::Trans ? MKL_TRANS : MKL_NOTRANS;
-        const MKL_TRANSPOSE transbmkl = transb == math::Transpose::Trans ? MKL_TRANS : MKL_NOTRANS;
+        if (a_buffer.isUSMBacked() && b_buffer.isUSMBacked() && c_buffer.isUSMBacked())
+        {
+            const auto transamkl = to_fpk_transpose(transa);
+            const auto transbmkl = to_fpk_transpose(transb);
 
-        cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a_buffer.toSycl();
-        cl::sycl::buffer<algorithmFPType, 1> b_sycl_buff = b_buffer.toSycl();
-        cl::sycl::buffer<algorithmFPType, 1> c_sycl_buff = c_buffer.toSycl();
+            auto a_ptr = a_buffer.toUSM().get() + offsetA;
+            auto b_ptr = b_buffer.toUSM().get() + offsetB;
+            auto c_ptr = c_buffer.toUSM().get() + offsetC;
 
-        innerGemm(transamkl, transbmkl, m, n, k, alpha, a_sycl_buff, lda, b_sycl_buff, ldb, beta, c_sycl_buff, ldc, offsetA, offsetB, offsetC);
+            ::oneapi::fpk::blas::gemm(_queue, transamkl, transbmkl, m, n, k, alpha, a_ptr, lda, b_ptr, ldb, beta, c_ptr, ldc);
+        }
+        else
+        {
+            const MKL_TRANSPOSE transamkl = transa == math::Transpose::Trans ? MKL_TRANS : MKL_NOTRANS;
+            const MKL_TRANSPOSE transbmkl = transb == math::Transpose::Trans ? MKL_TRANS : MKL_NOTRANS;
 
+            auto a_sycl_buff = a_buffer.toSycl();
+            auto b_sycl_buff = b_buffer.toSycl();
+            auto c_sycl_buff = c_buffer.toSycl();
+
+            innerGemm(transamkl, transbmkl, m, n, k, alpha, a_sycl_buff, lda, b_sycl_buff, ldb, beta, c_sycl_buff, ldc, offsetA, offsetB, offsetC);
+        }
         _queue.wait();
         return status;
     }
@@ -114,13 +140,26 @@ struct MKLSyrk
     {
         services::Status status;
 
-        const MKL_TRANSPOSE transmkl = trans == math::Transpose::Trans ? MKL_TRANS : MKL_NOTRANS;
-        const MKL_UPLO uplomkl       = upper_lower == math::UpLo::Upper ? MKL_UPPER : MKL_LOWER;
+        if (a_buffer.isUSMBacked() && c_buffer.isUSMBacked())
+        {
+            const auto transmkl = to_fpk_transpose(trans);
+            const auto uplomkl = to_fpk_uplo(upper_lower);
 
-        cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a_buffer.toSycl();
-        cl::sycl::buffer<algorithmFPType, 1> c_sycl_buff = c_buffer.toSycl();
+            auto a_ptr = a_buffer.toUSM().get() + offsetA;
+            auto c_ptr = c_buffer.toUSM().get() + offsetC;
 
-        innerSyrk(uplomkl, transmkl, n, k, alpha, a_sycl_buff, lda, beta, c_sycl_buff, ldc, offsetA, offsetC);
+            ::oneapi::fpk::blas::syrk(_queue, uplomkl, transmkl, n, k, alpha, a_ptr, lda, beta, c_ptr, ldc);
+        }
+        else
+        {
+            const MKL_TRANSPOSE transmkl = trans == math::Transpose::Trans ? MKL_TRANS : MKL_NOTRANS;
+            const MKL_UPLO uplomkl       = upper_lower == math::UpLo::Upper ? MKL_UPPER : MKL_LOWER;
+
+            cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a_buffer.toSycl();
+            cl::sycl::buffer<algorithmFPType, 1> c_sycl_buff = c_buffer.toSycl();
+
+            innerSyrk(uplomkl, transmkl, n, k, alpha, a_sycl_buff, lda, beta, c_sycl_buff, ldc, offsetA, offsetC);
+        }
 
         _queue.wait();
         return status;
@@ -160,10 +199,20 @@ struct MKLAxpy
     services::Status operator()(const int n, const algorithmFPType a, const services::internal::Buffer<algorithmFPType> & x_buffer, const int incx,
                                 services::internal::Buffer<algorithmFPType> & y_buffer, const int incy)
     {
-        cl::sycl::buffer<algorithmFPType, 1> x_sycl_buff = x_buffer.toSycl();
-        cl::sycl::buffer<algorithmFPType, 1> y_sycl_buff = y_buffer.toSycl();
+        if (x_buffer.isUSMBacked() && y_buffer.isUSMBacked())
+        {
+            auto x_ptr = x_buffer.toUSM().get();
+            auto y_ptr = y_buffer.toUSM().get();
 
-        ::oneapi::fpk::blas::axpy(_queue, n, a, x_sycl_buff, incx, y_sycl_buff, incy);
+            ::oneapi::fpk::blas::axpy(_queue, n, a, x_ptr, incx, y_ptr, incy);
+        }
+        else
+        {
+            auto x_sycl_buff = x_buffer.toSycl();
+            auto y_sycl_buff = y_buffer.toSycl();
+
+            ::oneapi::fpk::blas::axpy(_queue, n, a, x_sycl_buff, incx, y_sycl_buff, incy);
+        }
 
         _queue.wait();
         return services::Status();
