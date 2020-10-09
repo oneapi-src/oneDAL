@@ -34,6 +34,7 @@ namespace detail {
 DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
     return _popcnt32(x);
 }
+#define GRAPH_STACK_ALING(x) __declspec(align(x))
 #else
 DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
     std::int32_t count = 0;
@@ -44,6 +45,7 @@ DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
     }
     return count;
 }
+#define GRAPH_STACK_ALING(x)
 #endif
 
 DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
@@ -383,7 +385,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
     __mmask16 cmpgt2;
     __mmask16 worth_intersection;
 
-    __declspec(align(64)) std::int32_t stack16_j_vertex[16] = { 0 };
+    GRAPH_STACK_ALING(64) std::int32_t stack16_j_vertex[16] = { 0 };
 
     unsigned int ones_num = 0;
 
@@ -435,7 +437,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                                                      worth_intersection,
                                                      j_vertices);
 
-                    __declspec(align(64)) int stack16_intersections[16] = { 0.0 };
+                    GRAPH_STACK_ALING(64) std::int32_t stack16_intersections[16] = { 0 };
                     for (int s = 0; s < ones_num; s++) {
                         const auto j_neighbor_size = g_degrees[stack16_j_vertex[s]];
                         const auto j_neigbhors =
@@ -484,7 +486,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                                                  worth_intersection,
                                                  j_vertices);
 
-                __declspec(align(64)) int stack16_intersections[16] = { 0.0 };
+                GRAPH_STACK_ALING(64) std::int32_t stack16_intersections[16] = { 0 };
                 for (int s = 0; s < ones_num; s++) {
                     const auto j_neighbor_size = g_degrees[stack16_j_vertex[s]];
                     const auto j_neigbhors =
@@ -593,7 +595,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                                                      worth_intersection,
                                                      j_vertices);
 
-                    __declspec(align(64)) int stack16_intersections[16] = { 0.0 };
+                    GRAPH_STACK_ALING(64) std::int32_t stack16_intersections[16] = { 0 };
                     for (int s = 0; s < ones_num; s++) {
                         const auto j_neighbor_size = g_degrees[stack16_j_vertex[s]];
                         const auto j_neigbhors =
@@ -642,7 +644,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                                                  worth_intersection,
                                                  j_vertices);
 
-                __declspec(align(64)) int stack16_intersections[16] = { 0.0 };
+                GRAPH_STACK_ALING(64) std::int32_t stack16_intersections[16] = { 0 };
                 for (int s = 0; s < ones_num; s++) {
                     const auto j_neighbor_size = g_degrees[stack16_j_vertex[s]];
                     const auto j_neigbhors =
