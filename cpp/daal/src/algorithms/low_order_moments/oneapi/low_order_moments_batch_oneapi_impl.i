@@ -24,17 +24,17 @@
 #ifndef __LOW_ORDER_MOMENTS_BATCH_ONEAPI_IMPL_I__
 #define __LOW_ORDER_MOMENTS_BATCH_ONEAPI_IMPL_I__
 
-#include "services/buffer.h"
+#include "services/internal/buffer.h"
 #include "data_management/data/numeric_table.h"
 #include "services/env_detect.h"
 #include "services/error_indexes.h"
 #include "src/algorithms/low_order_moments/oneapi/cl_kernels/low_order_moments_kernels_all.h"
 #include "src/algorithms/low_order_moments/oneapi/low_order_moments_kernel_batch_oneapi.h"
 #include "src/externals/service_ittnotify.h"
-#include "sycl/internal/utils.h"
+#include "services/internal/execution_context.h"
 
 using namespace daal::services::internal;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 namespace daal
 {
@@ -122,7 +122,7 @@ services::Status LowOrderMomentsBatchKernelOneAPI<algorithmFPType, method>::comp
 {
     services::Status status;
 
-    auto & context = daal::oneapi::internal::getDefaultContext();
+    auto & context = daal::services::internal::getDefaultContext();
 
     if (method == defaultDense)
     {
@@ -254,7 +254,7 @@ services::Status LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::compute
 
     services::Status status;
 
-    auto & context = daal::oneapi::internal::getDefaultContext();
+    auto & context = daal::services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
 
     status = buildProgram<algorithmFPType, scope>(factory);

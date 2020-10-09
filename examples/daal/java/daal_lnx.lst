@@ -73,7 +73,6 @@ Java_example_list=( association_rules/AssocRulesAprioriBatch         \
                     gbt/GbtClsTraversedModelBuilder                  \
                     gbt/GbtRegDenseBatch                             \
                     gbt/GbtRegTraversedModelBuilder                  \
-                    kdtree_knn_classification/KDTreeKNNDenseBatch    \
                     kmeans/KMeansDenseBatch                          \
                     kmeans/KMeansCSRBatch                            \
                     kmeans/KMeansDenseBatchAssign                    \
@@ -83,7 +82,9 @@ Java_example_list=( association_rules/AssocRulesAprioriBatch         \
                     kmeans/KMeansCSRDistr                            \
                     kmeans/KMeansInitDenseDistr                      \
                     kmeans/KMeansInitCSRDistr                        \
-                    lasso_regression/LassoRegDenseBatch             \
+                    knn_classification/KDTreeKNNDenseBatch           \
+                    knn_classification/BFKNNDenseBatch               \
+                    lasso_regression/LassoRegDenseBatch              \
                     linear_regression/LinRegModelBuilder             \
                     linear_regression/LinRegNormEqDenseBatch         \
                     linear_regression/LinRegNormEqDenseDistr         \

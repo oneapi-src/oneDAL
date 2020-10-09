@@ -36,53 +36,6 @@ load("@onedal//dev/bazel/toolchains:common.bzl",
     "get_cpu_specific_options",
 )
 
-def _find_gold_linker_path(repo_ctx, cc):
-    """Checks if `gold` is supported by the C compiler.
-    Args:
-      repo_ctx: repo_ctx.
-      cc: path to the C compiler.
-    Returns:
-      String to put as value to -fuse-ld= flag, or None if gold couldn't be found.
-    """
-    result = repo_ctx.execute([
-        cc,
-        str(repo_ctx.path(TEST_CPP_FILE)),
-        "-o",
-        "/dev/null",
-        # Some macos clang versions don't fail when setting -fuse-ld=gold, adding
-        # these lines to force it to. This also means that we will not detect
-        # gold when only a very old (year 2010 and older) is present.
-        "-Wl,--start-lib",
-        "-Wl,--end-lib",
-        "-fuse-ld=gold",
-        "-v",
-    ])
-    if result.return_code != 0:
-        return None
-
-    for line in result.stderr.splitlines():
-        if line.find("gold") == -1:
-            continue
-        for flag in line.split(" "):
-            if flag.find("gold") == -1:
-                continue
-            if flag.find("--enable-gold") > -1 or flag.find("--with-plugin-ld") > -1:
-                # skip build configuration options of gcc itself
-                continue
-
-            # flag is '-fuse-ld=gold' for GCC or "/usr/lib/ld.gold" for Clang
-            # strip space, single quote, and double quotes
-            flag = flag.strip(" \"'")
-
-            # remove -fuse-ld= from GCC output so we have only the flag value part
-            flag = flag.replace("-fuse-ld=", "")
-            return flag
-    auto_configure_warning(
-        "CC with -fuse-ld=gold returned 0, but its -v output " +
-        "didn't contain 'gold', falling back to the default linker.",
-    )
-    return None
-
 def _find_tool(repo_ctx, tool_name, mandatory=False):
     if tool_name.startswith("/"):
         return tool_name
@@ -195,13 +148,6 @@ def _add_gcc_toolchain_if_needed(repo_ctx, cc):
     else:
         return []
 
-def _add_gold_linker_path_if_available(repo_ctx, cc):
-    gold_linker_path = _find_gold_linker_path(repo_ctx, cc)
-    if gold_linker_path:
-        return [ "-fuse-ld=" + gold_linker_path ]
-    else:
-        return []
-
 def configure_cc_toolchain_lnx(repo_ctx, reqs):
     if reqs.os_id != "lnx":
         auto_configure_fail("Cannot configure Linux toolchain for '{}'".format(reqs.os_id))
@@ -305,7 +251,6 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
             ) if tools.is_dpc_found else "",
             "%{cxx_flags}": get_starlark_list(cxx_opts),
             "%{link_flags_cc}": get_starlark_list(
-                _add_gold_linker_path_if_available(repo_ctx, tools.cc) +
                 _add_gcc_toolchain_if_needed(repo_ctx, tools.cc) +
                 add_linker_option_if_supported(
                     repo_ctx,
@@ -331,7 +276,6 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                 bin_search_flag_cc + link_opts
             ),
             "%{link_flags_dpcc}": get_starlark_list(
-                _add_gold_linker_path_if_available(repo_ctx, tools.dpcc) +
                 _add_gcc_toolchain_if_needed(repo_ctx, tools.dpcc) +
                 add_linker_option_if_supported(
                     repo_ctx,
@@ -416,8 +360,11 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
             ),
             "%{supports_start_end_lib}": "False" if reqs.compiler_id == "icc" else "True",
             "%{supports_random_seed}": "False" if reqs.compiler_id == "icc" else "True",
-            "%{cpu_flags}": get_starlark_list_dict(
-                get_cpu_specific_options(reqs)
+            "%{cpu_flags_cc}": get_starlark_list_dict(
+                get_cpu_specific_options(reqs),
+            ),
+            "%{cpu_flags_dpcc}": get_starlark_list_dict(
+                get_cpu_specific_options(reqs, is_dpcc=True),
             )
         },
     )

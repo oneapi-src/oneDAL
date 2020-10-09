@@ -126,12 +126,14 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     - :cpp_example:`df_cls_dense_batch_model_builder.cpp <decision_forest/df_cls_dense_batch_model_builder.cpp>`
     - :cpp_example:`df_cls_traversed_model_builder.cpp <decision_forest/df_cls_traversed_model_builder.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     - :java_example:`DfClsDenseBatchModelBuilder.java <decision_forest/DfClsDenseBatchModelBuilder.java>`
     - :java_example:`DfClsTraversedModelBuilder.java <decision_forest/DfClsTraversedModelBuilder.java>`
@@ -155,18 +157,18 @@ following parameters:
 
 
 .. list-table::
-   :widths: 25 25 25
+   :widths: 10 10 60
    :header-rows: 1
    :align: left
 
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
      - The computation method used by the decision forest classification.
      
        For CPU:
@@ -177,11 +179,11 @@ following parameters:
 
        - ``hist`` - :ref:`inexact histogram computation method <df_inexact_hist_method>`
 
-   * - nClasses
-     - Not applicable.
+   * - ``nClasses``
+     - Not applicable
      - The number of classes. A required parameter.
-   * - votingMethod
-     - weighted
+   * - ``votingMethod``
+     - ``weighted``
      - A flag that specifies which method is used to compute probabilities and class labels:
 
        weighted
@@ -208,22 +210,22 @@ In addition to the parameters of a classifier, decision forest
 classification has the following parameters at the prediction stage:
 
 .. list-table::
-   :widths: 25 25 25
+   :widths: 10 10 60
    :header-rows: 1
    :align: left
 
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
      - The computation method used by the decision forest classification. The
        only prediction method supported so far is the default dense method.
-   * - nClasses
-     - Not applicable.
+   * - ``nClasses``
+     - Not applicable
      - The number of classes. A required parameter.
 
 Examples
@@ -231,17 +233,36 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: oneAPI DPC++
+
+    Batch Processing:
+
+    - :ref:`dpc_df_cls_dense_batch.cpp`
+
+  .. tab:: oneAPI C++
+
+    Batch Processing:
+
+    - :ref:`cpp_df_cls_dense_batch.cpp`
+
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
     - :cpp_example:`df_cls_dense_batch.cpp <decision_forest/df_cls_dense_batch.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
     
     - :java_example:`DfClsDenseBatch.java <decision_forest/DfClsDenseBatch.java>`
 
-.. Python*: df_cls_dense_batch.py
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`decision_forest_classification_batch.py`
+    - :daal4py_example:`decision_forest_classification_traverse_batch.py`
 

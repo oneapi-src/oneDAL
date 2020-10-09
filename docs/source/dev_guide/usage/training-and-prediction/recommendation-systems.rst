@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _recommendation_system_usage_model:
+
 Recommendation Systems Usage Model
 ==================================
 
@@ -62,7 +64,7 @@ For more details, see :ref:`algorithms`.
    * - ``model``
      - Model with initialized item factors. 
      
-       .. note:: The result can only be an object of the Model class.
+       .. note:: The result can only be an object of the ``Model`` class.
 
 Prediction Stage
 ****************

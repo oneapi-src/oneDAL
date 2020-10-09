@@ -347,7 +347,7 @@ protected:
 
     services::Status generatesOffsets()
     {
-        if (isHomogeneousFloatOrDouble() && isAllCompleted())
+        if (isAllCompleted() && isHomogeneousFloatOrDouble())
         {
             DAAL_CHECK_STATUS_VAR(searchMinPointer());
         }
@@ -389,7 +389,6 @@ protected:
         if (_wrapOffsets.get())
         {
             NumericTableFeature & f = (*_ddict)[0];
-
             if (daal::data_management::features::getIndexNumType<T>() == f.indexType)
             {
                 T const * ptrMin = (T *)(_arrays[_index].get()) + idx;

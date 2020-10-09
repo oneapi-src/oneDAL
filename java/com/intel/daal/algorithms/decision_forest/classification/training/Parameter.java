@@ -193,6 +193,70 @@ public class Parameter extends com.intel.daal.algorithms.classifier.Parameter {
         return cGetResultsToCompute(this.cObject);
     }
 
+    /**
+     * Returns minimal number of samples required to split an internal node, non-negative. Default is 2
+     * @return Minimal number of samples required to split an internal node
+     */
+    public long getMinObservationsInSplitNode() {
+        return cGetMinObservationsInSplitNode(this.cObject);
+    }
+
+    /**
+     * Sets minimal number of samples required to split an internal node, non-negative. Default is 2
+     * @param value Minimal number of samples required to split an internal node
+     */
+    public void setMinObservationsInSplitNode(long value) {
+        cSetMinObservationsInSplitNode(this.cObject, value);
+    }
+
+    /**
+     * Returns minimal weighted fraction of the sum total of weights of all the input observations required to be at a leaf node. Default is 0.0
+     * @return Minimal weighted fraction of the sum total of weights of all the input observations required to be at a leaf node
+     */
+    public double getMinWeightFractionInLeafNode() {
+        return cGetMinWeightFractionInLeafNode(this.cObject);
+    }
+
+    /**
+     * Sets minimal weighted fraction of the sum total of weights of all the input observations required to be at a leaf node. Default is 0.0
+     * @param value Minimal weighted fraction of the sum total of weights of all the input observations required to be at a leaf node
+     */
+    public void setMinWeightFractionInLeafNode(double value) {
+        cSetMinWeightFractionInLeafNode(this.cObject, value);
+    }
+
+    /**
+     * Returns minimal amount of impurity decrease required to split a node. Default is 0.0
+     * @return Minimal amount of impurity decrease required to split a node
+     */
+    public double getMinImpurityDecreaseInSplitNode() {
+        return cGetMinImpurityDecreaseInSplitNode(this.cObject);
+    }
+
+    /**
+     * Sets minimal amount of impurity decrease required to split a node. Default is 0.0
+     * @param value minimal amount of impurity decrease required to split a node
+     */
+    public void setMinImpurityDecreaseInSplitNode(double value) {
+        cSetMinImpurityDecreaseInSplitNode(this.cObject, value);
+    }
+
+    /**
+     * Returns the strategy of tree building. Depth-first if parameter is zero and Best-first otherwise. Default is 0
+     * @return Strategy of tree building
+     */
+    public long getMaxLeafNodes() {
+        return cGetMaxLeafNodes(this.cObject);
+    }
+
+    /**
+     * Sets the strategy of tree building. Depth-first if parameter is zero and Best-first otherwise. Default is 0
+     * @param value Strategy of tree building
+     */
+    public void setMaxLeafNodes(long value) {
+        cSetMaxLeafNodes(this.cObject, value);
+    }
+
     private native long cGetNTrees(long parAddr);
     private native void cSetNTrees(long parAddr, long value);
 
@@ -220,6 +284,18 @@ public class Parameter extends com.intel.daal.algorithms.classifier.Parameter {
 
     private native int cGetVariableImportanceMode(long parAddr);
     private native void cSetVariableImportanceMode(long parAddr, int value);
+
+    private native long cGetMinObservationsInSplitNode(long parAddr);
+    private native void cSetMinObservationsInSplitNode(long parAddr, long value);
+
+    private native double cGetMinWeightFractionInLeafNode(long parAddr);
+    private native void cSetMinWeightFractionInLeafNode(long parAddr, double value);
+
+    private native double cGetMinImpurityDecreaseInSplitNode(long parAddr);
+    private native void cSetMinImpurityDecreaseInSplitNode(long parAddr, double value);
+
+    private native long cGetMaxLeafNodes(long parAddr);
+    private native void cSetMaxLeafNodes(long parAddr, long value);
 
 }
 /** @} */

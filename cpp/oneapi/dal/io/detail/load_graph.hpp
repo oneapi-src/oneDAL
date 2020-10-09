@@ -25,6 +25,7 @@
 #include "oneapi/dal/graph/graph_common.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
 #include "oneapi/dal/io/detail/load_graph_service.hpp"
+#include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/io/graph_csv_data_source.hpp"
 #include "oneapi/dal/io/load_graph_descriptor.hpp"
 #include "services/daal_atomic_int.h"
@@ -103,7 +104,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     rows_cv[0].set(total_sum_degrees);
     for (vertex_t i = 0; i < n_vertex; ++i) {
         total_sum_degrees += degrees_cv[i].get();
-        rows_cv[i + 1].set(total_sum_degrees);
+        rows_vec_atomic[i + 1].set(total_sum_degrees);
     }
     allocator.deallocate((char *)degrees_vec_void, n_vertex * (sizeof(atomic_t) / sizeof(char)));
 
@@ -118,8 +119,8 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     });
 
     threader_for(edges.size(), edges.size(), [&](vertex_t u) {
-        _unf_vert_neighs_arr[rows_cv[edges[u].first].inc() - 1] = edges[u].second;
-        _unf_vert_neighs_arr[rows_cv[edges[u].second].inc() - 1] = edges[u].first;
+        unfiltered_neighs[rows_vec_atomic[edges[u].first].inc() - 1] = edges[u].second;
+        unfiltered_neighs[rows_vec_atomic[edges[u].second].inc() - 1] = edges[u].first;
     });
     allocator.deallocate((char *)rows_vec_void, (n_vertex + 1) * (sizeof(atomic_t) / sizeof(char)));
 

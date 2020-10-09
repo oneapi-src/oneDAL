@@ -7,6 +7,7 @@ pull_request_rules:
       backport:
         branches:
           - rls/2021-gold-mnt
+        ignore_conflicts: true
   - name: backport patches to 2020 branch
     conditions:
       - base=master
@@ -15,3 +16,18 @@ pull_request_rules:
       backport:
         branches:
           - rls/daal-2020-mnt
+        ignore_conflicts: true
+  - name: delete head branch after merge
+    conditions:
+      - head~=^renovate/
+      - merged
+    actions:
+      delete_head_branch: {}
+  - name: Review assigment for renovate requests
+    conditions:
+      - author=renovate[bot]
+      - -closed
+    actions:
+      request_reviews:
+        users:
+          - napetrov

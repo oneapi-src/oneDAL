@@ -144,12 +144,13 @@ jobs:
       conda create -q -y -n CB python=3.7 conda-build conda-verify
     displayName: Create Anaconda environment
   - script: |
-      export DPCPP_VAR=/opt/intel/oneapi/compiler/latest/env/vars.sh
+      export DPCPPROOT=/opt/intel/oneapi/compiler/latest
       export DAALROOT=$(Pipeline.Workspace)/daal/latest
+      export TBBROOT=$(Pipeline.Workspace)/tbb/latest
       . $HOME/miniconda/etc/profile.d/conda.sh
       conda activate CB
       cd daal4py
-      conda build --override-channels -c conda-forge -c intel --no-test conda-recipe
+      conda build --override-channels -c conda-forge -c intel conda-recipe
     displayName: conda build
   - script: |
       $(Pipeline.Workspace)/s/.ci/scripts/conformance_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/oneapi
@@ -163,11 +164,7 @@ jobs:
     inputs:
       artifactName: '$(platform.type) conformance tests report'
       targetPath: '$(Build.ArtifactStagingDirectory)/'
-  - script: |
-      export TBBROOT=$(Pipeline.Workspace)/tbb/latest
-      $(Pipeline.Workspace)/s/.ci/scripts/daal4py_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/oneapi --daal4py-dir $(Pipeline.Workspace)/s/daal4py
-    timeoutInMinutes: 15
-    displayName: daal4py test
+
 - job: 'macOSMake'
   timeoutInMinutes: 0
   variables:

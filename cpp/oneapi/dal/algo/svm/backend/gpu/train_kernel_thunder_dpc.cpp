@@ -14,10 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#define DAAL_SYCL_INTERFACE
-#define DAAL_SYCL_INTERFACE_USM
-#define DAAL_SYCL_INTERFACE_REVERSED_RANGE
-
 #include "oneapi/dal/algo/svm/backend/gpu/train_kernel.hpp"
 #include "oneapi/dal/algo/svm/backend/interop_model.hpp"
 #include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
@@ -41,8 +37,8 @@ namespace daal_kernel_function = daal::algorithms::kernel_function;
 namespace interop = dal::backend::interop;
 
 template <typename Float>
-using daal_svm_thunder_kernel_t = daal_svm::training::internal::
-    SVMTrainOneAPI<Float, daal_svm::Parameter, daal_svm::training::thunder>;
+using daal_svm_thunder_kernel_t =
+    daal_svm::training::internal::SVMTrainOneAPI<Float, daal_svm::training::thunder>;
 
 template <typename Float>
 static train_result call_daal_kernel(const context_gpu& ctx,
@@ -76,7 +72,7 @@ static train_result call_daal_kernel(const context_gpu& ctx,
         desc.get_accuracy_threshold(),
         desc.get_tau(),
         desc.get_max_iteration_count(),
-        int64_t(desc.get_cache_size() * 1024 * 1024), // DAAL get in bytes
+        int64_t(desc.get_cache_size() * 1024.0 * 1024.0), // DAAL get in bytes
         desc.get_shrinking());
 
     auto daal_model = daal_svm::Model::create<Float>(column_count);

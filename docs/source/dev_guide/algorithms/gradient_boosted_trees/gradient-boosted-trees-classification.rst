@@ -102,11 +102,13 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     - :cpp_example:`gbt_cls_traversed_model_builder.cpp <gradient_boosted_trees/gbt_cls_traversed_model_builder.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     - :java_example:`GbtClsTraversedModelBuilder.java <gbt/GbtClsTraversedModelBuilder.java>`
 
@@ -128,25 +130,25 @@ in :ref:`gb_trees_batch`, the gradient boosted trees classification training alg
 the following parameters:
 
 .. list-table::
-   :widths: 25 25 25
+   :widths: 10 10 60
    :header-rows: 1
    :align: left
 
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
      - The computation method used by the gradient boosted trees regression.
        The only training method supported so far is the default dense method.
-   * - nClasses
-     - Not applicable.
+   * - ``nClasses``
+     - Not applicable
      - The number of classes. A required parameter.
-   * - loss
-     - crossEntropy
+   * - ``loss``
+     - ``crossEntropy``
      - Loss function type.
 
 Prediction
@@ -156,27 +158,27 @@ In addition to the parameters of a classifier, the gradient boosted
 trees classifier has the following parameters at the prediction stage:
 
 .. list-table::
-   :widths: 25 25 25
+   :widths: 10 10 60
    :header-rows: 1
    :align: left
 
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
      - The computation method used by the gradient boosted trees regression.
        The only training method supported so far is the default dense method.
-   * - nClasses
-     - Not applicable.
+   * - ``nClasses``
+     - Not applicable
      - The number of classes. A required parameter.
-   * - numIterations
-     - 0
+   * - ``numIterations``
+     - :math:`0`
      - An integer parameter that indicates how many trained iterations of the
-       model should be used in prediction. The default value 0 denotes no
+       model should be used in prediction. The default value :math:`0` denotes no
        limit. All the trained trees should be used.
 
 Examples
@@ -184,16 +186,23 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
     - :cpp_example:`gbt_cls_dense_batch.cpp <gradient_boosted_trees/gbt_cls_dense_batch.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
 
     - :java_example:`GbtClsDenseBatch.java <gbt/GbtClsDenseBatch.java>`
 
-.. Python*: gbt_cls_dense_batch.py
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`gradient_boosted_classification_batch.py`
+    - :daal4py_example:`gradient_boosted_classification_traverse_batch.py`

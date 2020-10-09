@@ -21,6 +21,9 @@ Bibliography
 
 For more information about algorithms implemented in |short_name|, refer to the following publications:
 
+.. [Adams2003]
+   Adams, Robert A., and John JF Fournier. Sobolev spaces. Vol. 140. Elsevier, 2003
+
 .. [Agrawal94] 
    Rakesh Agrawal, Ramakrishnan Srikant. *Fast Algorithms for Mining
    Association Rules*. Proceedings of the 20th VLDB Conference
@@ -85,6 +88,11 @@ For more information about algorithms implemented in |short_name|, refer to the 
    T. Chen, C. Guestrin. *XGBoost: A Scalable Tree Boosting System*,
    KDD '16 Proceedings of the 22nd ACM SIGKDD International
    Conference on Knowledge Discovery and Data Mining.
+
+.. [Defazio2014]
+   Defazio, Aaron, Francis Bach, and Simon Lacoste-Julien.
+   SAGA: A fast incremental gradient method with support for non-strongly convex composite objectives.
+   Advances in neural information processing systems. 2014.
 
 .. [Dempster77] 
    A.P.Dempster, N.M. Laird, and D.B. Rubin. *Maximum-likelihood from

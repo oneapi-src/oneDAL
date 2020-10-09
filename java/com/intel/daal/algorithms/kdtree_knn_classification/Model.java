@@ -28,7 +28,7 @@ import com.intel.daal.services.DaalContext;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__MODEL"></a>
- * @brief %Base class for models trained by the k nearest neighbors training algorithm
+ * @brief %Base class for models trained by the KD-tree based k nearest neighbors training algorithm
  */
 public class Model extends com.intel.daal.algorithms.classifier.Model {
     /** @private */

@@ -38,7 +38,7 @@ namespace internal
  * @{
  */
 
-DAAL_EXPORT bool isImplementedForDevice(const oneapi::internal::InfoDevice & deviceInfo, algorithms::AlgorithmContainerIface *);
+DAAL_EXPORT bool isImplementedForDevice(const services::internal::sycl::InfoDevice & deviceInfo, algorithms::AlgorithmContainerIface *);
 
 /**
  *  <a name="DAAL-CLASS-SERVICES-INTERNAL__TYPEREGISTRATIONCHECKERIFACE"></a>

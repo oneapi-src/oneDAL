@@ -33,15 +33,14 @@ namespace kdtree_knn_classification
 {
 namespace prediction
 {
-namespace interface2
+namespace interface3
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
+} // namespace interface3
 
 namespace internal
 {
 template class DAAL_EXPORT KNNClassificationPredictKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-
 } // namespace internal
 } // namespace prediction
 } // namespace kdtree_knn_classification

@@ -26,7 +26,7 @@ Input
 +++++
 
 Centroid initialization for K-Means clustering accepts the input
-described below. Pass the Input ID as a parameter to the methods
+described below. Pass the ``Input ID`` as a parameter to the methods
 that provide input for your algorithm.
 
 .. list-table::
@@ -62,7 +62,7 @@ parameter method.
    * - ``algorithmFPType``
      - any
      - ``float``
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
    * - ``method``
      - Not applicable
      - ``defaultDense``
@@ -114,7 +114,7 @@ parameter method.
      - The number of rounds for parallel K-Means++. (L*nRounds) must be greater than nClusters. For details, see [Bahmani2012]_, section 3.3.
    * - ``engine``
      - any
-     - SharePtr< engines:: mt19937:: Batch>()
+     - `SharePtr< engines:: mt19937:: Batch>()`
      - Pointer to the random number generator engine that is used internally for random numbers generation.
 
 
@@ -122,7 +122,7 @@ Output
 ++++++
 
 Centroid initialization for K-Means clustering calculates the
-result described below. Pass the Result ID as a parameter to the
+result described below. Pass the ``Result ID`` as a parameter to the
 methods that access the results of your algorithm.
 
 .. list-table::

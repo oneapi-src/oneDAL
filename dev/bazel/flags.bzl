@@ -31,7 +31,6 @@ lnx_cc_pedantic_flags = [
     "-Werror=unknown-pragmas",
     "-Werror=return-type",
     "-Wno-unused-parameter",
-    "-Wno-unused-command-line-argument",
 ]
 
 lnx_cc_flags = {
@@ -49,6 +48,8 @@ def get_default_flags(arch_id, os_id, compiler_id, category="common"):
                 "-mGLOB_freestanding=TRUE",
                 "-mCG_no_libirc=TRUE",
             ]
+        if compiler_id == "dpcpp" and category == "pedantic":
+            flags = flags + ["-Wno-unused-command-line-argument"]
         return flags
     fail("Unsupported OS")
 
@@ -76,6 +77,14 @@ def get_cpu_flags(arch_id, os_id, compiler_id):
         avx2       = ["-xCORE-AVX2"]
         avx512_mic = ["-xMIC-AVX512"]
         avx512     = ["-xCORE-AVX512", "-qopt-zmm-usage=high"]
+    elif compiler_id == "dpcpp":
+        sse2       = ["-march=nocona"]
+        ssse3      = ["-march=core2"]
+        sse42      = ["-march=nehalem"]
+        avx        = ["-march=sandybridge"]
+        avx2       = ["-march=haswell"]
+        avx512_mic = ["-march=knl"]
+        avx512     = ["-march=skx"]
     return {
         "sse2":       sse2,
         "ssse3":      ssse3,

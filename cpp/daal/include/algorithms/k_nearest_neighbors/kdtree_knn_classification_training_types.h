@@ -64,6 +64,29 @@ enum Method
 namespace interface1
 {
 /**
+ * <a name="DAAL-CLASS-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__TRAINING__INPUT"></a>
+ * \brief %Input objects for KD-tree based kNN model-based training
+ */
+class DAAL_EXPORT Input : public classifier::training::Input
+{
+public:
+    Input() : classifier::training::Input() {}
+    Input(const Input & other) : classifier::training::Input(other) {}
+
+    /**
+     * Checks the correctness of the input object
+     * \param[in] parameter Pointer to the structure of the algorithm parameters
+     * \param[in] method    Computation method
+     */
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+
+protected:
+    services::Status checkImpl(const daal::algorithms::Parameter * parameter) const;
+};
+typedef services::SharedPtr<Input> InputPtr;
+typedef services::SharedPtr<const Input> InputConstPtr;
+
+/**
  * <a name="DAAL-CLASS-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__TRAINING__RESULT"></a>
  * \brief Provides methods to access the result obtained with the compute() method of KD-tree based kNN model-based training
  */
@@ -96,6 +119,16 @@ public:
      * \param[in] method Computation method for the algorithm
      */
     template <typename algorithmFPType>
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const kdtree_knn_classification::interface2::Parameter * parameter,
+                                          int method);
+
+    /**
+     * Allocates memory to store the result of KD-tree based kNN model-based training
+     * \param[in] input Pointer to an object containing the input data
+     * \param[in] parameter %Parameter of KD-tree based kNN model-based training
+     * \param[in] method Computation method for the algorithm
+     */
+    template <typename algorithmFPType>
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const kdtree_knn_classification::interface1::Parameter * parameter,
                                           int method);
 
@@ -110,6 +143,9 @@ protected:
 typedef services::SharedPtr<Result> ResultPtr;
 } // namespace interface1
 
+using interface1::Input;
+using interface1::InputPtr;
+using interface1::InputConstPtr;
 using interface1::Result;
 using interface1::ResultPtr;
 

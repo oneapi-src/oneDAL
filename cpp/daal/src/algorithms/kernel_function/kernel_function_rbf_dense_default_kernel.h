@@ -46,6 +46,11 @@ struct KernelImplRBF<defaultDense, algorithmFPType, cpu> : public daal::algorith
                                                          const ParameterBase * par);
     virtual services::Status computeInternalMatrixMatrix(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
                                                          const ParameterBase * par);
+
+private:
+    services::Status postGemmPart(algorithmFPType * const mklBuff, const algorithmFPType * const sqrA1i, const algorithmFPType sqrA2i,
+                                  const algorithmFPType coeff, const algorithmFPType expExpThreshold, const size_t n,
+                                  algorithmFPType * const dataRBlock);
 };
 
 } // namespace internal

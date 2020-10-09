@@ -16,6 +16,7 @@
 *******************************************************************************/
 
 #include "src/algorithms/k_nearest_neighbors/bf_knn_classification_predict_dense_default_batch_container.h"
+#include "src/algorithms/k_nearest_neighbors/bf_knn_classification_predict_kernel_impl.i"
 
 namespace daal
 {
@@ -28,8 +29,11 @@ namespace prediction
 namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-
 } // namespace interface1
+namespace internal
+{
+template class KNNClassificationPredictKernel<DAAL_FPTYPE, DAAL_CPU>;
+} // namespace internal
 } // namespace prediction
 } // namespace bf_knn_classification
 } // namespace algorithms

@@ -138,14 +138,22 @@ Examples
 
 .. tabs::
 
-    .. tab:: C++
+  .. tab:: C++ (CPU)
 
-        Batch Processing:
+    Batch Processing:
 
-        - :cpp_example:`out_detect_uni_dense_batch.cpp <outlier_detection/out_detect_uni_dense_batch.cpp>`
+    - :cpp_example:`out_detect_uni_dense_batch.cpp <outlier_detection/out_detect_uni_dense_batch.cpp>`
 
-    .. tab:: Java*
+  .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
-        Batch Processing:
+    Batch Processing:
 
-        - :java_example:`OutDetectUniDenseBatch.java <outlier_detection/OutDetectUniDenseBatch.java>`
+    - :java_example:`OutDetectUniDenseBatch.java <outlier_detection/OutDetectUniDenseBatch.java>`
+
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`univariate_outlier_batch.py`

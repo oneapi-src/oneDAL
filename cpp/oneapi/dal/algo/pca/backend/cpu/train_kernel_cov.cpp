@@ -35,10 +35,10 @@ namespace interop = dal::backend::interop;
 template <typename Float, daal::CpuType Cpu>
 using daal_pca_cor_kernel_t = daal_pca::internal::PCACorrelationKernel<daal::batch, Float, Cpu>;
 
-template <typename Float>
-static train_result call_daal_kernel(const context_cpu& ctx,
-                                     const descriptor_base& desc,
-                                     const table& data) {
+template <typename Float, typename Task>
+static train_result<Task> call_daal_kernel(const context_cpu& ctx,
+                                           const descriptor_base<Task>& desc,
+                                           const table& data) {
     const int64_t row_count = data.get_row_count();
     const int64_t column_count = data.get_column_count();
     const int64_t component_count = desc.get_component_count();
@@ -46,8 +46,8 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     auto arr_data = row_accessor<const Float>{ data }.pull();
     auto arr_eigvec = array<Float>::empty(column_count * component_count);
     auto arr_eigval = array<Float>::empty(1 * component_count);
-    auto arr_means = array<Float>::empty(1 * component_count);
-    auto arr_vars = array<Float>::empty(1 * component_count);
+    auto arr_means = array<Float>::empty(1 * column_count);
+    auto arr_vars = array<Float>::empty(1 * column_count);
 
     // TODO: read-only access performed with deep copy of data since daal numeric tables are mutable.
     // Need to create special immutable homogen table on daal interop side
@@ -56,12 +56,11 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     const auto daal_data =
         interop::convert_to_daal_homogen_table(arr_data, row_count, column_count);
     const auto daal_eigenvectors =
-        interop::convert_to_daal_homogen_table(arr_eigvec, column_count, component_count);
+        interop::convert_to_daal_homogen_table(arr_eigvec, component_count, column_count);
     const auto daal_eigenvalues =
         interop::convert_to_daal_homogen_table(arr_eigval, 1, component_count);
-    const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, component_count);
-    const auto daal_variances =
-        interop::convert_to_daal_homogen_table(arr_vars, 1, component_count);
+    const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, column_count);
+    const auto daal_variances = interop::convert_to_daal_homogen_table(arr_vars, 1, column_count);
 
     daal_cov::Batch<Float, daal_cov::defaultDense> covariance_alg;
     covariance_alg.input.set(daal_cov::data, daal_data);
@@ -73,7 +72,7 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     interop::status_to_exception(
         interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(ctx,
                                                                 is_correlation,
-                                                                desc.get_is_deterministic(),
+                                                                desc.get_deterministic(),
                                                                 *daal_data,
                                                                 &covariance_alg,
                                                                 results_to_compute,
@@ -82,31 +81,52 @@ static train_result call_daal_kernel(const context_cpu& ctx,
                                                                 *daal_means,
                                                                 *daal_variances));
 
-    return train_result()
-        .set_model(model().set_eigenvectors(dal::detail::homogen_table_builder{}
-                                                .reset(arr_eigvec, column_count, component_count)
-                                                .build()))
+    // clang-format off
+    const auto mdl = model<Task>{}
+        .set_eigenvectors(
+            dal::detail::homogen_table_builder{}
+                .reset(arr_eigvec, component_count, column_count)
+                .build()
+        );
+
+    return train_result<Task>()
+        .set_model(mdl)
         .set_eigenvalues(
-            dal::detail::homogen_table_builder{}.reset(arr_eigval, 1, component_count).build());
+            dal::detail::homogen_table_builder{}
+                .reset(arr_eigval, 1, component_count)
+                .build()
+        )
+        .set_variances(
+            dal::detail::homogen_table_builder{}
+                .reset(arr_vars, 1, column_count)
+                .build()
+        )
+        .set_means(
+            dal::detail::homogen_table_builder{}
+                .reset(arr_means, 1, column_count)
+                .build()
+        );
+    // clang-format on
+}
+
+template <typename Float, typename Task>
+static train_result<Task> train(const context_cpu& ctx,
+                                const descriptor_base<Task>& desc,
+                                const train_input<Task>& input) {
+    return call_daal_kernel<Float, Task>(ctx, desc, input.get_data());
 }
 
 template <typename Float>
-static train_result train(const context_cpu& ctx,
-                          const descriptor_base& desc,
-                          const train_input& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data());
-}
-
-template <typename Float>
-struct train_kernel_cpu<Float, method::cov> {
-    train_result operator()(const context_cpu& ctx,
-                            const descriptor_base& desc,
-                            const train_input& input) const {
-        return train<Float>(ctx, desc, input);
+struct train_kernel_cpu<Float, method::cov, task::dim_reduction> {
+    train_result<task::dim_reduction> operator()(
+        const context_cpu& ctx,
+        const descriptor_base<task::dim_reduction>& desc,
+        const train_input<task::dim_reduction>& input) const {
+        return train<Float, task::dim_reduction>(ctx, desc, input);
     }
 };
 
-template struct train_kernel_cpu<float, method::cov>;
-template struct train_kernel_cpu<double, method::cov>;
+template struct train_kernel_cpu<float, method::cov, task::dim_reduction>;
+template struct train_kernel_cpu<double, method::cov, task::dim_reduction>;
 
 } // namespace oneapi::dal::pca::backend
