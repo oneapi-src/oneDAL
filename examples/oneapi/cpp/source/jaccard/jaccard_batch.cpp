@@ -16,6 +16,7 @@
 
 #include <iostream>
 
+#include "example_util/output_helpers_graph.hpp"
 #include "example_util/utils.hpp"
 #include "oneapi/dal/algo/jaccard.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
