@@ -16,6 +16,8 @@
 
 #include <immintrin.h>
 
+#include <daal/src/services/service_defines.h>
+
 #include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
@@ -190,8 +192,10 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
             i_u += 8;
             continue;
         }
-        __m256i v_u = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(neigh_u + i_u)); // load 8 neighbors of u
-        __m256i v_v = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(neigh_v + i_v)); // load 8 neighbors of v
+        __m256i v_u = _mm256_loadu_si256(
+            reinterpret_cast<const __m256i *>(neigh_u + i_u)); // load 8 neighbors of u
+        __m256i v_v = _mm256_loadu_si256(
+            reinterpret_cast<const __m256i *>(neigh_v + i_v)); // load 8 neighbors of v
 
         if (maxu >= maxv)
             i_v += 8;
@@ -702,7 +706,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
         }
     }
 
-#pragma vector always
+    PRAGMA_VECTOR_ALWAYS
     for (int i = 0; i < nnz; i++) {
         if (first_vertices[i] != second_vertices[i])
             jaccard[i] =
