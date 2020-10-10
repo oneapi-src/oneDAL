@@ -52,7 +52,7 @@ def make_report(algs_filename, report_filename):
         for line in reversed(lines):
             if '=====' in line:
                 if 'test session starts' in line:
-                    assert False, 'assert'
+                    raise Exception('Found an error while testing %s' % (alg_name))
                 result_str = line
                 break
         
