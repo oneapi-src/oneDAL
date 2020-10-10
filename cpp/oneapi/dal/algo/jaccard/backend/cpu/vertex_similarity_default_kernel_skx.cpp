@@ -371,20 +371,8 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
     std::int64_t nnz = 0;
     std::int32_t j = column_begin;
 
-    __m512i n_j_start_v = _mm512_set1_epi32(0);
-    __m512i n_j_end_v = _mm512_set1_epi32(0);
-    __m512i n_j_start_v1 = _mm512_set1_epi32(0);
-    __m512i n_j_end_v1 = _mm512_set1_epi32(0);
-
-    __m512i start_indices_j_v = _mm512_set1_epi32(0);
-    __m512i end_indices_j_v_tmp = _mm512_set1_epi32(0);
-    __m512i end_indices_j_v = _mm512_set1_epi32(0);
-
     __m512i j_vertices_tmp1 =
         _mm512_set_epi32(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
-
-    __m512i j_vertices = _mm512_set1_epi32(0);
-    __m512i j_vertices_tmp2 = _mm512_set1_epi32(0);
 
     GRAPH_STACK_ALING(64) std::int32_t stack16_j_vertex[16] = { 0 };
 
@@ -401,26 +389,26 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
 
         if (j < column_begin + ((diagonal - column_begin) / 16) * 16) {
             //load_data(0)
-            start_indices_j_v = _mm512_load_epi32(g_edge_offsets + j);
-            end_indices_j_v_tmp = _mm512_load_epi32(g_edge_offsets + j + 1);
-            end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
+            __m512i start_indices_j_v = _mm512_load_epi32(g_edge_offsets + j);
+            __m512i end_indices_j_v_tmp = _mm512_load_epi32(g_edge_offsets + j + 1);
+            __m512i end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
 
-            n_j_start_v = _mm512_permutexvar_epi32(
+            __m512i n_j_start_v = _mm512_permutexvar_epi32(
                 j_vertices_tmp1,
                 _mm512_i32gather_epi32(start_indices_j_v, g_vertex_neighbors, 4));
-            n_j_end_v = _mm512_permutexvar_epi32(
+            __m512i n_j_end_v = _mm512_permutexvar_epi32(
                 j_vertices_tmp1,
                 _mm512_i32gather_epi32(end_indices_j_v, g_vertex_neighbors, 4));
 
             for (; j + 16 < column_begin + ((diagonal - column_begin) / 16) * 16;) {
-                start_indices_j_v = _mm512_load_epi32(g_edge_offsets + j + 16);
-                end_indices_j_v_tmp = _mm512_load_epi32(g_edge_offsets + j + 17);
-                end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
+                __m512i start_indices_j_v = _mm512_load_epi32(g_edge_offsets + j + 16);
+                __m512i end_indices_j_v_tmp = _mm512_load_epi32(g_edge_offsets + j + 17);
+                __m512i end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
 
-                n_j_start_v1 = _mm512_permutexvar_epi32(
+                __m512i n_j_start_v1 = _mm512_permutexvar_epi32(
                     j_vertices_tmp1,
                     _mm512_i32gather_epi32(start_indices_j_v, g_vertex_neighbors, 4));
-                n_j_end_v1 = _mm512_permutexvar_epi32(
+                __m512i n_j_end_v1 = _mm512_permutexvar_epi32(
                     j_vertices_tmp1,
                     _mm512_i32gather_epi32(end_indices_j_v, g_vertex_neighbors, 4));
 
@@ -431,8 +419,8 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                 ones_num = _popcnt32_redef(_cvtmask16_u32(worth_intersection));
 
                 if (ones_num != 0) {
-                    j_vertices_tmp2 = _mm512_set1_epi32(j);
-                    j_vertices = _mm512_add_epi32(j_vertices_tmp1, j_vertices_tmp2);
+                    __m512i j_vertices_tmp2 = _mm512_set1_epi32(j);
+                    __m512i j_vertices = _mm512_add_epi32(j_vertices_tmp1, j_vertices_tmp2);
 
                     _mm512_mask_compressstoreu_epi32((stack16_j_vertex),
                                                      worth_intersection,
@@ -480,8 +468,8 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
             ones_num = _popcnt32_redef(_cvtmask16_u32(worth_intersection));
 
             if (ones_num != 0) {
-                j_vertices_tmp2 = _mm512_set1_epi32(j);
-                j_vertices = _mm512_add_epi32(j_vertices_tmp1, j_vertices_tmp2);
+                __m512i j_vertices_tmp2 = _mm512_set1_epi32(j);
+                __m512i j_vertices = _mm512_add_epi32(j_vertices_tmp1, j_vertices_tmp2);
 
                 _mm512_mask_compressstoreu_epi32((stack16_j_vertex),
                                                  worth_intersection,
@@ -559,26 +547,26 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
 
         if (j < tmp_idx + ((column_end - tmp_idx) / 16) * 16) {
             //load_data(0)
-            start_indices_j_v = _mm512_load_epi32(g_edge_offsets + j);
-            end_indices_j_v_tmp = _mm512_load_epi32(g_edge_offsets + j + 1);
-            end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
+            __m512i start_indices_j_v = _mm512_load_epi32(g_edge_offsets + j);
+            __m512i end_indices_j_v_tmp = _mm512_load_epi32(g_edge_offsets + j + 1);
+            __m512i end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
 
-            n_j_start_v = _mm512_permutexvar_epi32(
+            __m512i n_j_start_v = _mm512_permutexvar_epi32(
                 j_vertices_tmp1,
                 _mm512_i32gather_epi32(start_indices_j_v, g_vertex_neighbors, 4));
-            n_j_end_v = _mm512_permutexvar_epi32(
+            __m512i n_j_end_v = _mm512_permutexvar_epi32(
                 j_vertices_tmp1,
                 _mm512_i32gather_epi32(end_indices_j_v, g_vertex_neighbors, 4));
 
             for (; j + 16 < tmp_idx + ((column_end - tmp_idx) / 16) * 16;) {
-                start_indices_j_v = _mm512_load_epi32(g_edge_offsets + j + 16);
-                end_indices_j_v_tmp = _mm512_load_epi32(g_edge_offsets + j + 17);
-                end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
+                __m512i start_indices_j_v = _mm512_load_epi32(g_edge_offsets + j + 16);
+                __m512i end_indices_j_v_tmp = _mm512_load_epi32(g_edge_offsets + j + 17);
+                __m512i end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
 
-                n_j_start_v1 = _mm512_permutexvar_epi32(
+                __m512i n_j_start_v1 = _mm512_permutexvar_epi32(
                     j_vertices_tmp1,
                     _mm512_i32gather_epi32(start_indices_j_v, g_vertex_neighbors, 4));
-                n_j_end_v1 = _mm512_permutexvar_epi32(
+                __m512i n_j_end_v1 = _mm512_permutexvar_epi32(
                     j_vertices_tmp1,
                     _mm512_i32gather_epi32(end_indices_j_v, g_vertex_neighbors, 4));
 
@@ -589,8 +577,8 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                 ones_num = _popcnt32_redef(_cvtmask16_u32(worth_intersection));
 
                 if (ones_num != 0) {
-                    j_vertices_tmp2 = _mm512_set1_epi32(j);
-                    j_vertices = _mm512_add_epi32(j_vertices_tmp1, j_vertices_tmp2);
+                    __m512i j_vertices_tmp2 = _mm512_set1_epi32(j);
+                    __m512i j_vertices = _mm512_add_epi32(j_vertices_tmp1, j_vertices_tmp2);
 
                     _mm512_mask_compressstoreu_epi32((stack16_j_vertex),
                                                      worth_intersection,
@@ -638,8 +626,8 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
             ones_num = _popcnt32_redef(_cvtmask16_u32(worth_intersection));
 
             if (ones_num != 0) {
-                j_vertices_tmp2 = _mm512_set1_epi32(j);
-                j_vertices = _mm512_add_epi32(j_vertices_tmp1, j_vertices_tmp2);
+                __m512i j_vertices_tmp2 = _mm512_set1_epi32(j);
+                __m512i j_vertices = _mm512_add_epi32(j_vertices_tmp1, j_vertices_tmp2);
 
                 _mm512_mask_compressstoreu_epi32((stack16_j_vertex),
                                                  worth_intersection,
