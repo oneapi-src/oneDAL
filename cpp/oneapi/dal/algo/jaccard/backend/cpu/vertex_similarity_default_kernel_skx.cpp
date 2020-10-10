@@ -306,7 +306,7 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
         total += _popcnt32_redef(_cvtmask8_u32(match)); //count number of matches
     }
     if (i_u <= (n_u - 4) && i_v < n_v) {
-        __m128i v_u = _mm_loadu_epi32((void *)(neigh_u + i_u));
+        __m128i v_u = _mm_loadu_si128(reinterpret_cast<const __m128i *>(neigh_u + i_u));
         while (neigh_v[i_v] <= neigh_u[i_u + 3] && i_v < n_v) {
             __m128i tmp_v_v = _mm_set1_epi32(neigh_v[i_v]);
             __mmask8 match = _mm_cmpeq_epi32_mask(v_u, tmp_v_v);
@@ -317,7 +317,7 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
         i_u += 4;
     }
     if (i_v <= (n_v - 4) && i_u < n_u) {
-        __m128i v_v = _mm_loadu_epi32((void *)(neigh_v + i_v));
+        __m128i v_v = _mm_loadu_si128(reinterpret_cast<const __m128i *>(neigh_v + i_v));
         while (neigh_u[i_u] <= neigh_v[i_v + 3] && i_u < n_u) {
             __m128i tmp_v_u = _mm_set1_epi32(neigh_u[i_u]);
             __mmask8 match = _mm_cmpeq_epi32_mask(v_v, tmp_v_u);
