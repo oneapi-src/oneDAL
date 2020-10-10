@@ -143,7 +143,7 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
                     _mm512_kor(_mm512_kor(tmp_match12, tmp_match13),
                                _mm512_kor(tmp_match14, tmp_match15)))); // combine all matches
         }
-        total += _popcnt32(_mm512_mask2int(match)); //count number of matches
+        total += _popcnt32_redef(_mm512_mask2int(match)); //count number of matches
     }
 
     while (i_u < (n_u / 16) * 16 && i_v < n_v) {
@@ -190,8 +190,8 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
             i_u += 8;
             continue;
         }
-        __m256i v_u = _mm256_loadu_epi32((void *)(neigh_u + i_u)); // load 8 neighbors of u
-        __m256i v_v = _mm256_loadu_epi32((void *)(neigh_v + i_v)); // load 8 neighbors of v
+        __m256i v_u = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(neigh_u + i_u)); // load 8 neighbors of u
+        __m256i v_v = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(neigh_v + i_v)); // load 8 neighbors of v
 
         if (maxu >= maxv)
             i_v += 8;
@@ -229,10 +229,10 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
                 _kor_mask8(_kor_mask8(tmp_match4, tmp_match5),
                            _kor_mask8(tmp_match6, tmp_match7))); // combine all matches
         }
-        total += _popcnt32(_cvtmask8_u32(match)); //count number of matches
+        total += _popcnt32_redef(_cvtmask8_u32(match)); //count number of matches
     }
     if (i_u <= (n_u - 8) && i_v < n_v) {
-        __m256i v_u = _mm256_loadu_epi32((void *)(neigh_u + i_u));
+        __m256i v_u = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(neigh_u + i_u));
         while (neigh_v[i_v] <= neigh_u[i_u + 7] && i_v < n_v) {
             __m256i tmp_v_v = _mm256_set1_epi32(neigh_v[i_v]);
             __mmask8 match = _mm256_cmpeq_epi32_mask(v_u, tmp_v_v);
@@ -243,7 +243,7 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
         i_u += 8;
     }
     if (i_v <= (n_v - 8) && i_u < n_u) {
-        __m256i v_v = _mm256_loadu_epi32((void *)(neigh_v + i_v));
+        __m256i v_v = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(neigh_v + i_v));
         while (neigh_u[i_u] <= neigh_v[i_v + 7] && i_u < n_u) {
             __m256i tmp_v_u = _mm256_set1_epi32(neigh_u[i_u]);
             __mmask8 match = _mm256_cmpeq_epi32_mask(v_v, tmp_v_u);
@@ -276,8 +276,10 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
             i_u += 4;
             continue;
         }
-        __m128i v_u = _mm_load_epi32((void *)(neigh_u + i_u)); // load 8 neighbors of u
-        __m128i v_v = _mm_load_epi32((void *)(neigh_v + i_v)); // load 8 neighbors of v
+        __m128i v_u = _mm_loadu_si128(
+            reinterpret_cast<const __m128i *>(neigh_u + i_u)); // load 8 neighbors of u
+        __m128i v_v = _mm_loadu_si128(
+            reinterpret_cast<const __m128i *>(neigh_v + i_v)); // load 8 neighbors of v
 
         if (maxu >= maxv)
             i_v += 4;
@@ -297,7 +299,7 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
             match = _kor_mask8(_kor_mask8(match, tmp_match1),
                                _kor_mask8(tmp_match2, tmp_match3)); // combine all matches
         }
-        total += _popcnt32(_cvtmask8_u32(match)); //count number of matches
+        total += _popcnt32_redef(_cvtmask8_u32(match)); //count number of matches
     }
     if (i_u <= (n_u - 4) && i_v < n_v) {
         __m128i v_u = _mm_loadu_epi32((void *)(neigh_u + i_u));
@@ -380,11 +382,9 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
     __m512i j_vertices = _mm512_set1_epi32(0);
     __m512i j_vertices_tmp2 = _mm512_set1_epi32(0);
 
-    int intersection_size = 0;
-
     GRAPH_STACK_ALING(64) std::int32_t stack16_j_vertex[16] = { 0 };
 
-    unsigned int ones_num = 0;
+    std::int32_t ones_num = 0;
 
     for (std::int32_t i = row_begin; i < row_end; ++i) {
         const auto i_neighbor_size = g_degrees[i];
@@ -401,10 +401,10 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
             end_indices_j_v_tmp = _mm512_load_epi32(g_edge_offsets + j + 1);
             end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
 
-            n_j_start_v = _mm512_permutevar_epi32(
+            n_j_start_v = _mm512_permutexvar_epi32(
                 j_vertices_tmp1,
                 _mm512_i32gather_epi32(start_indices_j_v, g_vertex_neighbors, 4));
-            n_j_end_v = _mm512_permutevar_epi32(
+            n_j_end_v = _mm512_permutexvar_epi32(
                 j_vertices_tmp1,
                 _mm512_i32gather_epi32(end_indices_j_v, g_vertex_neighbors, 4));
 
@@ -413,10 +413,10 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                 end_indices_j_v_tmp = _mm512_load_epi32(g_edge_offsets + j + 17);
                 end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
 
-                n_j_start_v1 = _mm512_permutevar_epi32(
+                n_j_start_v1 = _mm512_permutexvar_epi32(
                     j_vertices_tmp1,
                     _mm512_i32gather_epi32(start_indices_j_v, g_vertex_neighbors, 4));
-                n_j_end_v1 = _mm512_permutevar_epi32(
+                n_j_end_v1 = _mm512_permutexvar_epi32(
                     j_vertices_tmp1,
                     _mm512_i32gather_epi32(end_indices_j_v, g_vertex_neighbors, 4));
 
@@ -424,7 +424,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                 __mmask16 cmpgt2 = _mm512_cmpgt_epi32_mask(n_j_start_v, n_i_end_v);
 
                 __mmask16 worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
-                ones_num = _popcnt32(_cvtmask16_u32(worth_intersection));
+                ones_num = _popcnt32_redef(_cvtmask16_u32(worth_intersection));
 
                 if (ones_num != 0) {
                     j_vertices_tmp2 = _mm512_set1_epi32(j);
@@ -435,7 +435,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                                                      j_vertices);
 
                     GRAPH_STACK_ALING(64) std::int32_t stack16_intersections[16] = { 0 };
-                    for (int s = 0; s < ones_num; s++) {
+                    for (std::int32_t s = 0; s < ones_num; s++) {
                         const auto j_neighbor_size = g_degrees[stack16_j_vertex[s]];
                         const auto j_neigbhors =
                             g_vertex_neighbors + g_edge_offsets[stack16_j_vertex[s]];
@@ -458,7 +458,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                     __m512 tmp_v = _mm512_cvtepi32_ps(intersections_v);
                     _mm512_mask_compressstoreu_ps((jaccard + nnz), non_zero_coefficients, tmp_v);
 
-                    nnz += _popcnt32(_cvtmask16_u32(non_zero_coefficients));
+                    nnz += _popcnt32_redef(_cvtmask16_u32(non_zero_coefficients));
                 }
 
                 j += 16;
@@ -473,7 +473,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
             __mmask16 cmpgt2 = _mm512_cmpgt_epi32_mask(n_j_start_v, n_i_end_v);
 
             __mmask16 worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
-            ones_num = _popcnt32(_cvtmask16_u32(worth_intersection));
+            ones_num = _popcnt32_redef(_cvtmask16_u32(worth_intersection));
 
             if (ones_num != 0) {
                 j_vertices_tmp2 = _mm512_set1_epi32(j);
@@ -484,7 +484,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                                                  j_vertices);
 
                 GRAPH_STACK_ALING(64) std::int32_t stack16_intersections[16] = { 0 };
-                for (int s = 0; s < ones_num; s++) {
+                for (std::int32_t s = 0; s < ones_num; s++) {
                     const auto j_neighbor_size = g_degrees[stack16_j_vertex[s]];
                     const auto j_neigbhors =
                         g_vertex_neighbors + g_edge_offsets[stack16_j_vertex[s]];
@@ -504,7 +504,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                 __m512 tmp_v = _mm512_cvtepi32_ps(intersections_v);
                 _mm512_mask_compressstoreu_ps((jaccard + nnz), non_zero_coefficients, tmp_v);
 
-                nnz += _popcnt32(_cvtmask16_u32(non_zero_coefficients));
+                nnz += _popcnt32_redef(_cvtmask16_u32(non_zero_coefficients));
             }
 
             j += 16;
@@ -559,10 +559,10 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
             end_indices_j_v_tmp = _mm512_load_epi32(g_edge_offsets + j + 1);
             end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
 
-            n_j_start_v = _mm512_permutevar_epi32(
+            n_j_start_v = _mm512_permutexvar_epi32(
                 j_vertices_tmp1,
                 _mm512_i32gather_epi32(start_indices_j_v, g_vertex_neighbors, 4));
-            n_j_end_v = _mm512_permutevar_epi32(
+            n_j_end_v = _mm512_permutexvar_epi32(
                 j_vertices_tmp1,
                 _mm512_i32gather_epi32(end_indices_j_v, g_vertex_neighbors, 4));
 
@@ -571,10 +571,10 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                 end_indices_j_v_tmp = _mm512_load_epi32(g_edge_offsets + j + 17);
                 end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
 
-                n_j_start_v1 = _mm512_permutevar_epi32(
+                n_j_start_v1 = _mm512_permutexvar_epi32(
                     j_vertices_tmp1,
                     _mm512_i32gather_epi32(start_indices_j_v, g_vertex_neighbors, 4));
-                n_j_end_v1 = _mm512_permutevar_epi32(
+                n_j_end_v1 = _mm512_permutexvar_epi32(
                     j_vertices_tmp1,
                     _mm512_i32gather_epi32(end_indices_j_v, g_vertex_neighbors, 4));
 
@@ -582,7 +582,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                 __mmask16 cmpgt2 = _mm512_cmpgt_epi32_mask(n_j_start_v, n_i_end_v);
 
                 __mmask16 worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
-                ones_num = _popcnt32(_cvtmask16_u32(worth_intersection));
+                ones_num = _popcnt32_redef(_cvtmask16_u32(worth_intersection));
 
                 if (ones_num != 0) {
                     j_vertices_tmp2 = _mm512_set1_epi32(j);
@@ -593,7 +593,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                                                      j_vertices);
 
                     GRAPH_STACK_ALING(64) std::int32_t stack16_intersections[16] = { 0 };
-                    for (int s = 0; s < ones_num; s++) {
+                    for (std::int32_t s = 0; s < ones_num; s++) {
                         const auto j_neighbor_size = g_degrees[stack16_j_vertex[s]];
                         const auto j_neigbhors =
                             g_vertex_neighbors + g_edge_offsets[stack16_j_vertex[s]];
@@ -616,7 +616,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                     __m512 tmp_v = _mm512_cvtepi32_ps(intersections_v);
                     _mm512_mask_compressstoreu_ps((jaccard + nnz), non_zero_coefficients, tmp_v);
 
-                    nnz += _popcnt32(_cvtmask16_u32(non_zero_coefficients));
+                    nnz += _popcnt32_redef(_cvtmask16_u32(non_zero_coefficients));
                 }
 
                 j += 16;
@@ -631,7 +631,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
             __mmask16 cmpgt2 = _mm512_cmpgt_epi32_mask(n_j_start_v, n_i_end_v);
 
             __mmask16 worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
-            ones_num = _popcnt32(_cvtmask16_u32(worth_intersection));
+            ones_num = _popcnt32_redef(_cvtmask16_u32(worth_intersection));
 
             if (ones_num != 0) {
                 j_vertices_tmp2 = _mm512_set1_epi32(j);
@@ -642,7 +642,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                                                  j_vertices);
 
                 GRAPH_STACK_ALING(64) std::int32_t stack16_intersections[16] = { 0 };
-                for (int s = 0; s < ones_num; s++) {
+                for (std::int32_t s = 0; s < ones_num; s++) {
                     const auto j_neighbor_size = g_degrees[stack16_j_vertex[s]];
                     const auto j_neigbhors =
                         g_vertex_neighbors + g_edge_offsets[stack16_j_vertex[s]];
@@ -662,7 +662,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                 __m512 tmp_v = _mm512_cvtepi32_ps(intersections_v);
                 _mm512_mask_compressstoreu_ps((jaccard + nnz), non_zero_coefficients, tmp_v);
 
-                nnz += _popcnt32(_cvtmask16_u32(non_zero_coefficients));
+                nnz += _popcnt32_redef(_cvtmask16_u32(non_zero_coefficients));
             }
 
             j += 16;
