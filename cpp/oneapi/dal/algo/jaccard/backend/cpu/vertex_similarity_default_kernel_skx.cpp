@@ -403,7 +403,8 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
             for (; j + 16 < column_begin + ((diagonal - column_begin) / 16) * 16;) {
                 __m512i start_indices_j_v = _mm512_load_epi32(g_edge_offsets + j + 16);
                 __m512i end_indices_j_v_tmp = _mm512_load_epi32(g_edge_offsets + j + 17);
-                __m512i end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
+                __m512i end_indices_j_v =
+                    _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
 
                 __m512i n_j_start_v1 = _mm512_permutexvar_epi32(
                     j_vertices_tmp1,
@@ -561,7 +562,8 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
             for (; j + 16 < tmp_idx + ((column_end - tmp_idx) / 16) * 16;) {
                 __m512i start_indices_j_v = _mm512_load_epi32(g_edge_offsets + j + 16);
                 __m512i end_indices_j_v_tmp = _mm512_load_epi32(g_edge_offsets + j + 17);
-                __m512i end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
+                __m512i end_indices_j_v =
+                    _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
 
                 __m512i n_j_start_v1 = _mm512_permutexvar_epi32(
                     j_vertices_tmp1,
@@ -701,9 +703,11 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                 jaccard[i] / static_cast<float>(g_degrees[first_vertices[i]] +
                                                 g_degrees[second_vertices[i]] - jaccard[i]);
     }
-    vertex_similarity_result res(homogen_table::wrap(first_vertices, 2, number_elements_in_block),
-                                 homogen_table::wrap(jaccard, 1, number_elements_in_block),
-                                 nnz);
+
+    vertex_similarity_result res(
+        homogen_table::wrap(first_vertices, number_elements_in_block, 2, data_layout::column_major),
+        homogen_table::wrap(jaccard, number_elements_in_block, 1, data_layout::column_major),
+        nnz);
     return res;
 }
 } // namespace detail
