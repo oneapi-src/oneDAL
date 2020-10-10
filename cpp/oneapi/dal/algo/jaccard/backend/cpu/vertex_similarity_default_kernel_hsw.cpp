@@ -167,7 +167,6 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
     const std::int32_t n_v_4_end = n_v - 4;
 
     while (i_u <= n_u_4_end && i_v <= n_v_4_end) { // not in last n%8 elements
-
         // assumes neighbor list is ordered
         std::int32_t minu = neigh_u[i_u];
         std::int32_t maxv = neigh_v[i_v + 3];
