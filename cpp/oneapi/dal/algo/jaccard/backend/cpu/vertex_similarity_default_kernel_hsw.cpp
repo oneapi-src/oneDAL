@@ -34,6 +34,14 @@ namespace detail {
 DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
     return _popcnt32(x);
 }
+#elif defined(_MSC_VER)
+DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
+    return __popcnt(x);
+}
+#elif (defined(__GNUC__) || defined(__clang__)) && ((defined(__has_builtin) && __has_builtin(__builtin_popcnt)) || defined(__builtin_popcnt))
+DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
+    return __builtin_popcount(x);
+}
 #else
 DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
     std::int32_t count = 0;
