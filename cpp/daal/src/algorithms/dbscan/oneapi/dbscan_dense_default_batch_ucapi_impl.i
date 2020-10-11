@@ -79,7 +79,6 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::processResultsToCompute(DAAL_UIN
     const uint32_t nRows     = ntData->getNumberOfRows();
     const uint32_t nFeatures = ntData->getNumberOfColumns();
 
-
     DAAL_ASSERT_UNIVERSAL_BUFFER(_isCore, int, nRows);
     auto isCoreHost = _isCore.template get<int>().toHost(ReadWriteMode::readOnly, &st);
     DAAL_CHECK_STATUS_VAR(st);
