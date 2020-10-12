@@ -25,7 +25,6 @@
 #define __LINEAR_REGRESSION_TRAIN_DENSE_QR_IMPL_I__
 
 #include "src/algorithms/linear_regression/linear_regression_train_kernel.h"
-#include <cassert>
 
 namespace daal
 {
@@ -43,7 +42,6 @@ template <typename algorithmFPType, CpuType cpu>
 Status BatchKernel<algorithmFPType, training::qrDense, cpu>::compute(const NumericTable & x, const NumericTable & y, NumericTable & r,
                                                                      NumericTable & qty, NumericTable & beta, bool interceptFlag) const
 {
-    assert(0);
     Status st = UpdateKernelType::compute(x, y, r, qty, true, interceptFlag);
     if (st) st = FinalizeKernelType::compute(r, qty, r, qty, beta, interceptFlag);
     return st;
@@ -53,7 +51,6 @@ template <typename algorithmFPType, CpuType cpu>
 Status OnlineKernel<algorithmFPType, training::qrDense, cpu>::compute(const NumericTable & x, const NumericTable & y, NumericTable & r,
                                                                       NumericTable & qty, bool interceptFlag) const
 {
-    assert(0);
     return UpdateKernelType::compute(x, y, r, qty, false, interceptFlag);
 }
 
@@ -61,7 +58,6 @@ template <typename algorithmFPType, CpuType cpu>
 Status OnlineKernel<algorithmFPType, training::qrDense, cpu>::finalizeCompute(const NumericTable & r, const NumericTable & qty, NumericTable & rFinal,
                                                                               NumericTable & qtyFinal, NumericTable & beta, bool interceptFlag) const
 {
-    assert(0);
     return FinalizeKernelType::compute(r, qty, rFinal, qtyFinal, beta, interceptFlag);
 }
 
