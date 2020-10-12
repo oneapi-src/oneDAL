@@ -79,6 +79,7 @@ def make_report(algs_filename, report_filename):
         print('Number of daal4py calls: %d' % countDaalCallsLocal)
         print('Number of daal4py fail calls: %d' % countDaalFailCallsLocal)
         print('Percent of using daal4py: %d %%' % int(percentDaalCallsLocal))
+        print(result_str)
         
     report_file.write("<br><h1>Summary</h1>")
 
