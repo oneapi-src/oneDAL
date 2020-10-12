@@ -307,7 +307,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::getCores(const Univers
     DAAL_CHECK_STATUS_VAR(st);
 
     DAAL_ASSERT_UNIVERSAL_BUFFER(data, algorithmFPType, nRows * nFeatures);
-    DAAL_ASSERT_UNIVERSAL_BUFFER(_weights, algorithmFPType, nRows);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(_weights, algorithmFPType, _useWeights ? nRows : 1);
     DAAL_ASSERT_UNIVERSAL_BUFFER(_isCore, int, nRows);
 
     KernelArguments args(8);
