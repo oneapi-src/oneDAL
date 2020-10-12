@@ -19,6 +19,7 @@
 #include <iomanip>
 #include <iostream>
 #include <numeric>
+#include <vector>
 
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
