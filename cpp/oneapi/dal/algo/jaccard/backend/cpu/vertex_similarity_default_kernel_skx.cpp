@@ -51,13 +51,13 @@ DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
     {}
 #endif
 
-#if defined(__INTEL_COMPILER)
 DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
                                           std::int32_t *neigh_v,
                                           std::int32_t n_u,
                                           std::int32_t n_v) {
     size_t total = 0;
     std::int32_t i_u = 0, i_v = 0;
+#if defined(__INTEL_COMPILER)
     while (i_u < (n_u / 16) * 16 && i_v < (n_v / 16) * 16) { // not in last n%16 elements
         // assumes neighbor list is ordered
         std::int32_t minu = neigh_u[i_u];
@@ -326,7 +326,7 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
         }
         i_v += 4;
     }
-
+#endif
     while (i_u < n_u && i_v < n_v) {
         if ((neigh_u[i_u] > neigh_v[n_v - 1]) || (neigh_v[i_v] > neigh_u[n_u - 1])) {
             return total;
@@ -369,10 +369,10 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
 
     std::int64_t nnz = 0;
     std::int32_t j = column_begin;
-
+#if defined(__INTEL_COMPILER)
     __m512i j_vertices_tmp1 =
         _mm512_set_epi32(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
-
+#endif
     GRAPH_STACK_ALING(64) std::int32_t stack16_j_vertex[16] = { 0 };
 
     std::int32_t ones_num = 0;
@@ -382,6 +382,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
         const auto i_neigbhors = g_vertex_neighbors + g_edge_offsets[i];
         const auto diagonal = min(i, column_end);
 
+#if defined(__INTEL_COMPILER)
         __m512i n_i_start_v = _mm512_set1_epi32(i_neigbhors[0]);
         __m512i n_i_end_v = _mm512_set1_epi32(i_neigbhors[i_neighbor_size - 1]);
         __m512i i_vertex = _mm512_set1_epi32(i);
@@ -518,6 +519,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
             }
         }
         else {
+#endif
             for (j = column_begin; j < diagonal; j++) {
                 const auto j_neighbor_size = g_degrees[j];
                 const auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
@@ -533,7 +535,9 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                     }
                 }
             }
+#if defined(__INTEL_COMPILER)
         }
+#endif
 
         std::int32_t tmp_idx = column_begin;
         if (diagonal >= column_begin) {
@@ -545,6 +549,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
         }
         j = tmp_idx;
 
+#if defined(__INTEL_COMPILER)
         if (j < tmp_idx + ((column_end - tmp_idx) / 16) * 16) {
             //load_data(0)
             __m512i start_indices_j_v = _mm512_load_epi32(g_edge_offsets + j);
@@ -677,6 +682,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
             }
         }
         else {
+#endif
             for (j = tmp_idx; j < column_end; j++) {
                 const auto j_neighbor_size = g_degrees[j];
                 const auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
@@ -692,7 +698,9 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                     }
                 }
             }
+#if defined(__INTEL_COMPILER)
         }
+#endif
     }
 
     PRAGMA_VECTOR_ALWAYS
@@ -709,7 +717,6 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
         nnz);
     return res;
 }
-#endif
 } // namespace detail
 } // namespace jaccard
 } // namespace oneapi::dal::preview
