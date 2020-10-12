@@ -51,6 +51,7 @@ DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
     {}
 #endif
 
+#if defined(__INTEL_COMPILER)
 DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
                                           std::int32_t *neigh_v,
                                           std::int32_t n_u,
@@ -708,6 +709,7 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
         nnz);
     return res;
 }
+#endif
 } // namespace detail
 } // namespace jaccard
 } // namespace oneapi::dal::preview
