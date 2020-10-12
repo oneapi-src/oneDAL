@@ -60,6 +60,9 @@ def make_report(algs_filename, report_filename):
         countSklearnCalls += countSklearnCallsLocal
         countDaalFailCalls += countDaalFailCallsLocal
 
+        if countDaalCalls == 0 and countSklearnCalls == 0 and countDaalFailCalls == 0:
+            raise Exception('Algorithm %s has never been called' % (alg_name))
+
         countAllCallsLocal = countSklearnCallsLocal + countDaalCallsLocal
         percentDaalCallsLocal = float(countDaalCallsLocal - countDaalFailCallsLocal) / (countAllCallsLocal) * 100 if countAllCallsLocal else 0
 
@@ -68,9 +71,15 @@ def make_report(algs_filename, report_filename):
         reportAlgText += "Number of daal4py fail calls: %d <br>" % countDaalFailCallsLocal
         reportAlgText += "Percent of using daal4py: %d %% <br>" % int(percentDaalCallsLocal)
         reportAlgText += result_str + "<br>"
-
         report_file.write(reportAlgText)
 
+        print('*********************************************')
+        print('Algorithm: %s' % alg_name)
+        print('Number of Scikit-learn calls: %d' % countSklearnCallsLocal)
+        print('Number of daal4py calls: %d' % countDaalCallsLocal)
+        print('Number of daal4py fail calls: %d' % countDaalFailCallsLocal)
+        print('Percent of using daal4py: %d %%' % int(percentDaalCallsLocal))
+        
     report_file.write("<br><h1>Summary</h1>")
 
     countAllCalls = countSklearnCalls + countDaalCalls
@@ -81,6 +90,13 @@ def make_report(algs_filename, report_filename):
     summaryText += "Number of daal4py fail calls: %d <br>" % countDaalFailCalls
     summaryText += "Percent of using daal4py: %d %% <br>" % int(percentDaalCalls)
     report_file.write(summaryText)
+
+    print('*********************************************')
+    print('Summary')
+    print('Number of Scikit-learn calls: %d' % countSklearnCalls)
+    print('Number of daal4py calls: %d' % countDaalCalls)
+    print('Number of daal4py fail calls: %d' % countDaalFailCalls)
+    print('Percent of using daal4py: %d %%' % int(percentDaalCalls))
 
     textHTML = """<br>
     Finishing testing in """+str(datetime.now())+"""<br></p>
