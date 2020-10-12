@@ -21,54 +21,73 @@
 
 namespace oneapi::dal::knn {
 
+namespace task {
+struct classification {};
+using by_default = classification;
+} // namespace task
+
 namespace detail {
 struct tag {};
+
+template <typename Task = task::by_default>
 class descriptor_impl;
+
 class model_impl;
 } // namespace detail
 
 namespace method {
 struct kd_tree {};
 struct brute_force {};
-using by_default = kd_tree;
+using by_default = brute_force;
 } // namespace method
 
+template <typename Task = task::by_default>
 class ONEAPI_DAL_EXPORT descriptor_base : public base {
 public:
     using tag_t = detail::tag;
     using float_t = float;
     using method_t = method::by_default;
+    using task_t = Task;
 
     descriptor_base();
 
-    auto get_class_count() const -> std::int64_t;
-    auto get_neighbor_count() const -> std::int64_t;
+    std::int64_t get_class_count() const;
+    std::int64_t get_neighbor_count() const;
 
 protected:
     void set_class_count_impl(std::int64_t value);
     void set_neighbor_count_impl(std::int64_t value);
 
-    dal::detail::pimpl<detail::descriptor_impl> impl_;
+    dal::detail::pimpl<detail::descriptor_impl<task_t>> impl_;
 };
 
-template <typename Float = descriptor_base::float_t, typename Method = descriptor_base::method_t>
-class descriptor : public descriptor_base {
+template <typename Float = descriptor_base<task::by_default>::float_t,
+          typename Method = descriptor_base<task::by_default>::method_t,
+          typename Task = task::by_default>
+class descriptor : public descriptor_base<Task> {
 public:
     using tag_t = detail::tag;
     using float_t = Float;
     using method_t = Method;
+    using task_t = Task;
+
+    explicit descriptor(std::int64_t class_count, std::int64_t neighbor_count) {
+        set_class_count(class_count);
+        set_neighbor_count(neighbor_count);
+    }
 
     auto& set_class_count(std::int64_t value) {
-        set_class_count_impl(value);
+        descriptor_base<task_t>::set_class_count_impl(value);
         return *this;
     }
 
     auto& set_neighbor_count(std::int64_t value) {
-        set_neighbor_count_impl(value);
+        descriptor_base<task_t>::set_neighbor_count_impl(value);
         return *this;
     }
 };
 
+template <typename Task = task::by_default>
 class ONEAPI_DAL_EXPORT model : public base {
     friend dal::detail::pimpl_accessor;
 

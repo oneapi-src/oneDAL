@@ -14,10 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#define DAAL_SYCL_INTERFACE
-#define DAAL_SYCL_INTERFACE_USM
-#define DAAL_SYCL_INTERFACE_REVERSED_RANGE
-
 #include <daal/src/algorithms/dtrees/forest/classification/oneapi/df_classification_predict_dense_kernel_oneapi.h>
 
 #include "oneapi/dal/table/row_accessor.hpp"

@@ -24,10 +24,14 @@ ConfigFlagInfo = provider(
 )
 
 def _config_flag_impl(ctx):
-    # TODO: Check for allowed values
+    flag = ctx.build_setting_value
+    allowed = ctx.attr.allowed_build_setting_values
+    if not flag in allowed:
+        fail("Got unexpected value '{}' for {} flag, allowed values are {}".format(
+             flag, ctx.attr.name, allowed))
     return ConfigFlagInfo(
-        flag = ctx.build_setting_value,
-        allowed = ctx.attr.allowed_build_setting_values,
+        flag = flag,
+        allowed = allowed,
     )
 
 config_flag = rule(
@@ -36,6 +40,17 @@ config_flag = rule(
     attrs = {
         "allowed_build_setting_values": attr.string_list(),
     },
+)
+
+def _config_bool_flag_impl(ctx):
+    return ConfigFlagInfo(
+        flag = ctx.build_setting_value,
+        allowed = [True, False],
+    )
+
+config_bool_flag = rule(
+    implementation = _config_bool_flag_impl,
+    build_setting = config.bool(flag = True),
 )
 
 CpuInfo = provider(

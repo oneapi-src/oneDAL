@@ -33,9 +33,7 @@ void run(sycl::queue& queue) {
     const auto y_train = dal::read<dal::table>(queue, dal::csv::data_source{train_label_file_name});
 
     const auto knn_desc =
-        dal::knn::descriptor<float, oneapi::dal::knn::method::brute_force>()
-            .set_class_count(5)
-            .set_neighbor_count(1);
+        dal::knn::descriptor<float, oneapi::dal::knn::method::brute_force, oneapi::dal::knn::task::classification>(5, 1);
 
     const auto x_test = dal::read<dal::table>(queue, dal::csv::data_source{test_data_file_name});
     const auto y_test = dal::read<dal::table>(queue, dal::csv::data_source{test_label_file_name});
