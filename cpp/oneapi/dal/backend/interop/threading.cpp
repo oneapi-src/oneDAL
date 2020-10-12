@@ -16,14 +16,17 @@
 
 #include "oneapi/dal/detail/threading.hpp"
 #include "src/threading/threading.h"
+#include "oneapi/dal/io/detail/load_graph_service.hpp"
 
 ONEAPI_DAL_EXPORT void _daal_threader_for_oneapi(int n,
                                                  int threads_request,
-                                                 const void* a,
+                                                 const void *a,
                                                  oneapi::dal::preview::functype func) {
     _daal_threader_for(n, threads_request, a, static_cast<daal::functype>(func));
 }
 
-ONEAPI_DAL_EXPORT void _daal_parallel_sort_oneapi(int* begin_ptr, int* end_ptr) {
+extern "C" {
+ONEAPI_DAL_EXPORT void _daal_parallel_sort_oneapi(int *begin_ptr, int *end_ptr) {
     _daal_parallel_sort(begin_ptr, end_ptr);
+}
 }

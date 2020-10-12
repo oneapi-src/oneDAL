@@ -22,10 +22,6 @@
 #include "oneapi/dal/graph/graph_common.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
-namespace oneapi::dal::preview {
-typedef void (*functype)(int i, const void *a);
-}
-
 extern "C" {
 ONEAPI_DAL_EXPORT void _daal_parallel_sort_oneapi(int *begin_ptr, int *end_ptr);
 }
