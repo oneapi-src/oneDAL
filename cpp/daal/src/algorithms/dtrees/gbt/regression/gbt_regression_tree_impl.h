@@ -312,11 +312,20 @@ public:
 
     template <CpuType cpu>
     void convertToGbtDecisionTree(algorithmFPType ** binValues, const size_t nNodes, const size_t maxLevel, gbt::internal::GbtDecisionTree * tree,
-                                  double * impVals, int * nNodeSamplesVals, const algorithmFPType initialF, const training::Parameter & par)
+                                  double * impVals, int * nNodeSamplesVals, const algorithmFPType initialF, const training::Parameter & par, services::Status * status)
     {
+        services::Status localStatus;
         services::Collection<TableRecordType *> sonsArr(nNodes + 1);
         services::Collection<TableRecordType *> parentsArr(nNodes + 1);
-
+        if (!sonsArr.data() || !parentsArr.data())
+        {
+            if (status)
+            {
+                *status |= services::throwIfPossible(services::ErrorMemoryAllocationFailed);
+            }
+            return;
+        }
+        
         TableRecordType ** sons    = sonsArr.data();
         TableRecordType ** parents = parentsArr.data();
 

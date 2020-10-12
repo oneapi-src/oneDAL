@@ -89,6 +89,7 @@ template <typename algorithmFPType>
 IndexedFeaturesOneAPI<algorithmFPType>::~IndexedFeaturesOneAPI()
 {
     delete[] _entries;
+    _entries = nullptr;
 }
 
 template <typename algorithmFPType>
@@ -111,7 +112,10 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::alloc(size_t nC, size_t
     auto & context = services::internal::getDefaultContext();
     services::Status status;
 
-    _data.resize(nC);
+    if (!_data.resize(nC))
+    {
+        return services::throwIfPossible(services::ErrorMemoryAllocationFailed);        
+    }
 
     for (size_t i = 0; i < nC; i++)
     {
@@ -295,8 +299,8 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::radixSort(UniversalBuff
     const int nSubgroupHists = nLocalHists * (localSize / subSize);
 
     auto partialHists       = context.allocate(TypeIds::id<int>(), (nSubgroupHists + 1) << _radixBits, &status);
+    DAAL_CHECK_STATUS_VAR(status);
     auto partialPrefixHists = context.allocate(TypeIds::id<int>(), (nSubgroupHists + 1) << _radixBits, &status);
-
     DAAL_CHECK_STATUS_VAR(status);
 
     size_t rev = 0;
@@ -406,12 +410,13 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
     const int nLocalBlocks = 1024 * localSize < nRows ? 1024 : (nRows / localSize) + !!(nRows % localSize);
 
     auto binOffsets = context.allocate(TypeIds::id<int>(), maxBins, &status);
+    DAAL_CHECK_STATUS_VAR(status);
     auto binBorders = context.allocate(TypeIds::id<algorithmFPType>(), maxBins, &status);
-
     DAAL_CHECK_STATUS_VAR(status);
 
     {
-        auto binOffsetsHost = binOffsets.template get<int>().toHost(ReadWriteMode::writeOnly);
+        auto binOffsetsHost = binOffsets.template get<int>().toHost(ReadWriteMode::writeOnly, &status);
+        DAAL_CHECK_STATUS_VAR(status);
         int offset          = 0;
         for (int i = 0; i < maxBins; i++)
         {
@@ -424,7 +429,8 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
 
     int nBins = 0;
     {
-        auto binBordersHost = binBorders.template get<algorithmFPType>().toHost(ReadWriteMode::readWrite);
+        auto binBordersHost = binBorders.template get<algorithmFPType>().toHost(ReadWriteMode::readWrite, &status);
+        DAAL_CHECK_STATUS_VAR(status);
         for (int i = 0; i < maxBins; i++)
         {
             if (nBins == 0 || binBordersHost.get()[i] != binBordersHost.get()[nBins - 1])
@@ -501,15 +507,19 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::init(NumericTable & nt,
 
     _maxNumIndices          = 0;
     services::Status status = alloc(nC, nR);
-    if (!status) return status;
+    DAAL_CHECK_STATUS_VAR(status);
 
     auto & context = services::internal::getDefaultContext();
 
     _values     = context.allocate(TypeIds::id<algorithmFPType>(), nR, &status);
+    DAAL_CHECK_STATUS_VAR(status);
     _values_buf = context.allocate(TypeIds::id<algorithmFPType>(), nR, &status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     _indices     = context.allocate(TypeIds::id<int>(), nR, &status);
+    DAAL_CHECK_STATUS_VAR(status);
     _indices_buf = context.allocate(TypeIds::id<int>(), nR, &status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     BlockDescriptor<algorithmFPType> dataBlock;
 
@@ -517,25 +527,26 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::init(NumericTable & nt,
     {
         for (size_t i = 0; i < nC; i++)
         {
-            nt.getBlockOfColumnValues(i, 0, nR, readOnly, dataBlock);
+            DAAL_CHECK_STATUS_VAR(nt.getBlockOfColumnValues(i, 0, nR, readOnly, dataBlock));
             auto dataBuffer = dataBlock.getBuffer();
             DAAL_CHECK_STATUS_VAR(makeIndex(dataBuffer, 0, 1, nR, pBinPrm, _data[i], _entries[i]));
-            nt.releaseBlockOfColumnValues(dataBlock);
+            DAAL_CHECK_STATUS_VAR(nt.releaseBlockOfColumnValues(dataBlock));
         }
     }
     else
     {
-        nt.getBlockOfRows(0, nR, readOnly, dataBlock);
+        DAAL_CHECK_STATUS_VAR(nt.getBlockOfRows(0, nR, readOnly, dataBlock));
         auto dataBuffer = dataBlock.getBuffer();
         for (size_t i = 0; i < nC; i++)
         {
             DAAL_CHECK_STATUS_VAR(makeIndex(dataBuffer, i, nC, nR, pBinPrm, _data[i], _entries[i]));
         }
-        nt.releaseBlockOfRows(dataBlock);
+        DAAL_CHECK_STATUS_VAR(nt.releaseBlockOfRows(dataBlock));
     }
 
     {
-        auto binOffsetsHost = _binOffsets.template get<int>().toHost(ReadWriteMode::writeOnly);
+        auto binOffsetsHost = _binOffsets.template get<int>().toHost(ReadWriteMode::writeOnly, &status);
+        DAAL_CHECK_STATUS_VAR(status);
         size_t total        = 0;
         for (size_t i = 0; i < nC; i++)
         {

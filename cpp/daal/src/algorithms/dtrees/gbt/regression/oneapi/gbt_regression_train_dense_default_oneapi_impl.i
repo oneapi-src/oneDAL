@@ -158,23 +158,24 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::getI
     const int nSubgroupSums = nLocalSums * (localSize / subSize);
 
     auto partialSums = context.allocate(TypeIds::id<algorithmFPType>(), nSubgroupSums, &status);
+    DAAL_CHECK_STATUS_VAR(status);
     auto totalSum    = context.allocate(TypeIds::id<algorithmFPType>(), 1, &status);
-
     DAAL_CHECK_STATUS_VAR(status);
 
     BlockDescriptor<algorithmFPType> yBlock;
-    y.getBlockOfRows(0, nRows, readOnly, yBlock);
+    DAAL_CHECK_STATUS_VAR(y.getBlockOfRows(0, nRows, readOnly, yBlock));
     auto yBuffer = yBlock.getBuffer();
 
     DAAL_CHECK_STATUS_VAR(scan(yBuffer, partialSums, nRows, localSize, nLocalSums));
     DAAL_CHECK_STATUS_VAR(reduce(partialSums, totalSum, localSize, nLocalSums));
 
     {
-        auto totalSumHost = totalSum.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly);
+        auto totalSumHost = totalSum.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, &status);
+        DAAL_CHECK_STATUS_VAR(status);
         *response         = totalSumHost.get()[0] / nRows;
     }
 
-    y.releaseBlockOfRows(yBlock);
+    DAAL_CHECK_STATUS_VAR(y.releaseBlockOfRows(yBlock));
 
     return status;
 }
@@ -194,7 +195,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     const size_t nRows = y.getNumberOfRows();
 
     BlockDescriptor<algorithmFPType> yBlock;
-    y.getBlockOfRows(0, nRows, readOnly, yBlock);
+    DAAL_CHECK_STATUS_VAR(y.getBlockOfRows(0, nRows, readOnly, yBlock));
     auto yBuffer = yBlock.getBuffer();
 
     {
@@ -209,7 +210,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         DAAL_CHECK_STATUS_VAR(status);
     }
 
-    y.releaseBlockOfRows(yBlock);
+    DAAL_CHECK_STATUS_VAR(y.releaseBlockOfRows(yBlock));
 
     return status;
 }
@@ -464,13 +465,16 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 
     if (gTotal && hTotal)
     {
-        auto totalOptCoeffsHost = totalOptCoeffs.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly);
+        auto totalOptCoeffsHost = totalOptCoeffs.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, &status);
+        DAAL_CHECK_STATUS_VAR(status);
         *gTotal                 = totalOptCoeffsHost.get()[0];
         *hTotal                 = totalOptCoeffsHost.get()[1];
     }
     {
-        auto splitInfoHost  = splitInfo.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly);
-        auto splitValueHost = splitValue.template get<int>().toHost(ReadWriteMode::readOnly);
+        auto splitInfoHost  = splitInfo.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+        auto splitValueHost = splitValue.template get<int>().toHost(ReadWriteMode::readOnly, &status);
+        DAAL_CHECK_STATUS_VAR(status);
         for (size_t featId = 0; featId < nFeatures; featId++)
         {
             algorithmFPType impurityDecrease = splitInfoHost.get()[featId * 5 + 0];
@@ -654,9 +658,10 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::doPa
     const int nSubgroupSums = nLocalSums * (localSize / subSize);
 
     auto partialSums       = context.allocate(TypeIds::id<int>(), nSubgroupSums + 1, &status);
+    DAAL_CHECK_STATUS_VAR(status);
     auto partialPrefixSums = context.allocate(TypeIds::id<int>(), nSubgroupSums + 1, &status);
+    DAAL_CHECK_STATUS_VAR(status);
     auto totalSum          = context.allocate(TypeIds::id<int>(), 1, &status);
-
     DAAL_CHECK_STATUS_VAR(status);
 
     DAAL_CHECK_STATUS_VAR(partitionScan(data, treeOrder, partialSums, splitValue, iStart, nRows, localSize, nLocalSums));
@@ -665,7 +670,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::doPa
     DAAL_CHECK_STATUS_VAR(partitionCopy(treeOrderBuf, treeOrder, iStart, nRows));
 
     {
-        auto totalSumHost = totalSum.template get<int>().toHost(ReadWriteMode::readOnly);
+        auto totalSumHost = totalSum.template get<int>().toHost(ReadWriteMode::readOnly, &status);
+        DAAL_CHECK_STATUS_VAR(status);
         nRight            = totalSumHost.get()[0];
         nLeft             = nRows - totalSumHost.get()[0];
         if (nLeft == 0 || nRight == 0)
@@ -759,11 +765,14 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     DAAL_CHECK_STATUS(status, (indexedFeatures.init(*const_cast<NumericTable *>(x), &featTypes, &prm)));
 
     auto response          = context.allocate(TypeIds::id<algorithmFPType>(), nRows, &status);
+    DAAL_CHECK_STATUS_VAR(status);
     auto optCoeffs         = context.allocate(TypeIds::id<algorithmFPType>(), nRows * 2, &status);
+    DAAL_CHECK_STATUS_VAR(status);
     auto treeOrder         = context.allocate(TypeIds::id<int>(), nRows, &status);
+    DAAL_CHECK_STATUS_VAR(status);
     auto treeOrderBuf      = context.allocate(TypeIds::id<int>(), nRows, &status);
+    DAAL_CHECK_STATUS_VAR(status);
     auto partialHistograms = context.allocate(TypeIds::id<algorithmFPType>(), _maxLocalHistograms * indexedFeatures.totalBins() * 2, &status);
-
     DAAL_CHECK_STATUS_VAR(status);
 
     algorithmFPType initResp = 0.0;
@@ -989,7 +998,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 
         for (size_t i = 0; i < nFeatures; i++)
         {
-            binValuesHost[i] = indexedFeatures.binBorders(i).template get<algorithmFPType>().toHost(ReadWriteMode::readOnly);
+            binValuesHost[i] = indexedFeatures.binBorders(i).template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, &status);
+            DAAL_CHECK_STATUS_VAR(status);
             binValues[i]     = binValuesHost[i].get();
         }
 
@@ -999,12 +1009,16 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         const size_t nNodesPresent = connector.getNNodes(0);
 
         gbt::internal::GbtDecisionTree * pTbl = new gbt::internal::GbtDecisionTree(nNodes, maxLevel, nNodesPresent);
+        DAAL_CHECK_MALLOC(pTbl);
 
         HomogenNumericTable<double> * pTblImp  = new HomogenNumericTable<double>(1, nNodes, NumericTable::doAllocate);
+        DAAL_CHECK_MALLOC(pTblImp);
         HomogenNumericTable<int> * pTblSmplCnt = new HomogenNumericTable<int>(1, nNodes, NumericTable::doAllocate);
+        DAAL_CHECK_MALLOC(pTblSmplCnt);
 
         connector.template convertToGbtDecisionTree<sse2>(binValues.data(), nNodes, maxLevel, pTbl, pTblImp->getArray(), pTblSmplCnt->getArray(),
-                                                          initResp, par);
+                                                          initResp, par, &status);
+        DAAL_CHECK_STATUS_VAR(status);
         modelImpl.add(pTbl, pTblImp, pTblSmplCnt);
 
         initResp = 0.0;
