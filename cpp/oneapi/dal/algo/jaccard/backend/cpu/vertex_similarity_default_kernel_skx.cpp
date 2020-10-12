@@ -372,10 +372,10 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
 #if defined(__INTEL_COMPILER)
     __m512i j_vertices_tmp1 =
         _mm512_set_epi32(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
-#endif
     GRAPH_STACK_ALING(64) std::int32_t stack16_j_vertex[16] = { 0 };
 
     std::int32_t ones_num = 0;
+#endif
 
     for (std::int32_t i = row_begin; i < row_end; ++i) {
         const auto i_neighbor_size = g_degrees[i];
