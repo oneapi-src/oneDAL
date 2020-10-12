@@ -66,6 +66,12 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::initializeBuffers(uint
         DAAL_CHECK_STATUS_VAR(weights->getBlockOfRows(0, nRows, readOnly, weightRows));
         _weights = UniversalBuffer(weightRows.getBuffer());
     }
+    else
+    {
+        // OpenCL needs it
+        _weights = context.allocate(TypeIds::id<algorithmFPType>(), 1, &s);
+        DAAL_CHECK_STATUS_VAR(s);
+    }
     return s;
 }
 
