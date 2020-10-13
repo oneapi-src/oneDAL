@@ -45,15 +45,15 @@ public:
     static services::Status sortIndices(UniversalBuffer & values, UniversalBuffer & indices, UniversalBuffer & valuesOut,
                                         UniversalBuffer & indicesOut, uint32_t nRows);
 
-    static services::Status radixScan(UniversalBuffer & values, UniversalBuffer & partialHists, uint32_t nRows, uint32_t bitOffset, uint32_t localSize,
-                                      uint32_t nLocalHists);
+    static services::Status radixScan(UniversalBuffer & values, UniversalBuffer & partialHists, uint32_t nRows, uint32_t bitOffset,
+                                      uint32_t localSize, uint32_t nLocalHists);
 
     static services::Status radixHistScan(UniversalBuffer & values, UniversalBuffer & partialHists, UniversalBuffer & partialPrefixHists,
                                           uint32_t localSize, uint32_t nSubgroupHists);
 
     static services::Status radixReorder(UniversalBuffer & valuesSrc, UniversalBuffer & indicesSrc, UniversalBuffer & partialPrefixHists,
-                                         UniversalBuffer & valuesDst, UniversalBuffer & indicesDst, uint32_t nRows, uint32_t bitOffset, uint32_t localSize,
-                                         uint32_t nLocalHists);
+                                         UniversalBuffer & valuesDst, UniversalBuffer & indicesDst, uint32_t nRows, uint32_t bitOffset,
+                                         uint32_t localSize, uint32_t nLocalHists);
 
 private:
     static const uint32_t _preferableSubGroup = 16; // preferable maximal sub-group size

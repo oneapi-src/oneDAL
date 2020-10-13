@@ -62,7 +62,8 @@ services::Status buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId
 }
 
 services::Status runRadixSortSimd(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, const UniversalBuffer & input,
-                                  const UniversalBuffer & output, const UniversalBuffer & buffer, uint32_t nVectors, uint32_t vectorSize, uint32_t vectorOffset)
+                                  const UniversalBuffer & output, const UniversalBuffer & buffer, uint32_t nVectors, uint32_t vectorSize,
+                                  uint32_t vectorOffset)
 {
     services::Status status;
 
@@ -132,7 +133,7 @@ services::Status RadixSort::sortIndices(UniversalBuffer & values, UniversalBuffe
     const uint32_t nLocalHists    = 1024 * localSize < nRows ? 1024 : (nRows / localSize) + !!(nRows % localSize);
     const uint32_t nSubgroupHists = nLocalHists * (localSize / subSize);
 
-    auto partialHists       = context.allocate(TypeIds::id<int>(), (nSubgroupHists + 1) << _radixBits, &status);
+    auto partialHists = context.allocate(TypeIds::id<int>(), (nSubgroupHists + 1) << _radixBits, &status);
     DAAL_CHECK_STATUS_VAR(status);
     auto partialPrefixHists = context.allocate(TypeIds::id<int>(), (nSubgroupHists + 1) << _radixBits, &status);
     DAAL_CHECK_STATUS_VAR(status);
@@ -159,8 +160,8 @@ services::Status RadixSort::sortIndices(UniversalBuffer & values, UniversalBuffe
     return status;
 }
 
-services::Status RadixSort::radixScan(UniversalBuffer & values, UniversalBuffer & partialHists, uint32_t nRows, uint32_t bitOffset, uint32_t localSize,
-                                      uint32_t nLocalHists)
+services::Status RadixSort::radixScan(UniversalBuffer & values, UniversalBuffer & partialHists, uint32_t nRows, uint32_t bitOffset,
+                                      uint32_t localSize, uint32_t nLocalHists)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(RadixSort.radixScan);
 
@@ -236,8 +237,8 @@ services::Status RadixSort::radixHistScan(UniversalBuffer & values, UniversalBuf
 }
 
 services::Status RadixSort::radixReorder(UniversalBuffer & valuesSrc, UniversalBuffer & indicesSrc, UniversalBuffer & partialPrefixHists,
-                                         UniversalBuffer & valuesDst, UniversalBuffer & indicesDst, uint32_t nRows, uint32_t bitOffset, uint32_t localSize,
-                                         uint32_t nLocalHists)
+                                         UniversalBuffer & valuesDst, UniversalBuffer & indicesDst, uint32_t nRows, uint32_t bitOffset,
+                                         uint32_t localSize, uint32_t nLocalHists)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(RadixSort.radixReorder);
 

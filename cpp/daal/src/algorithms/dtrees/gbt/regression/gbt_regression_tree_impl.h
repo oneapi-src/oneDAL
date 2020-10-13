@@ -94,11 +94,12 @@ public:
 
     static services::SharedPtr<AOSNumericTable> createGBTree(size_t maxTreeDepth, services::Status & status)
     {
-        if (maxTreeDepth + 1 > 63) {
-            status |= services::throwIfPossible(services::ErrorMemoryAllocationFailed);        
+        if (maxTreeDepth + 1 > 63)
+        {
+            status |= services::throwIfPossible(services::ErrorMemoryAllocationFailed);
             return services::SharedPtr<AOSNumericTable>();
         }
-        
+
         size_t nNodes = ((size_t)1 << (maxTreeDepth + 1)) - 1;
 
         services::SharedPtr<AOSNumericTable> table = AOSNumericTable::create(sizeof(TableRecordType), 13, nNodes, &status);
@@ -124,7 +125,8 @@ public:
 
         status |= table->allocateDataMemory();
 
-        if (!status) {
+        if (!status)
+        {
             return services::SharedPtr<AOSNumericTable>();
         }
 
@@ -320,8 +322,9 @@ public:
     }
 
     template <CpuType cpu>
-    services::Status convertToGbtDecisionTree(algorithmFPType ** binValues, const size_t nNodes, const size_t maxLevel, gbt::internal::GbtDecisionTree * tree,
-                                  double * impVals, int * nNodeSamplesVals, const algorithmFPType initialF, const training::Parameter & par)
+    services::Status convertToGbtDecisionTree(algorithmFPType ** binValues, const size_t nNodes, const size_t maxLevel,
+                                              gbt::internal::GbtDecisionTree * tree, double * impVals, int * nNodeSamplesVals,
+                                              const algorithmFPType initialF, const training::Parameter & par)
     {
         services::Collection<TableRecordType *> sonsArr(nNodes + 1);
         services::Collection<TableRecordType *> parentsArr(nNodes + 1);
@@ -330,7 +333,7 @@ public:
         {
             return services::throwIfPossible(services::ErrorMemoryAllocationFailed);
         }
-        
+
         TableRecordType ** sons    = sonsArr.data();
         TableRecordType ** parents = parentsArr.data();
 
