@@ -58,6 +58,7 @@ list of features and documentation is available at |daal-docs|_.
    dev_guide/training-prediction.rst
    dev_guide/services/services.rst
    bibliography.rst
+   array.rst
 
 .. toctree::
    :maxdepth: 2
