@@ -21,11 +21,11 @@
 
 namespace oneapi::dal::kmeans_init::backend {
 
-template <typename Float, typename Method>
+template <typename Float, typename Method, typename Task>
 struct compute_kernel_gpu {
-    compute_result operator()(const dal::backend::context_gpu& ctx,
-                              const descriptor_base& params,
-                              const compute_input& input) const;
+    compute_result<Task> operator()(const dal::backend::context_gpu& ctx,
+                                    const descriptor_base<Task>& params,
+                                    const compute_input<Task>& input) const;
 };
 
 } // namespace oneapi::dal::kmeans_init::backend

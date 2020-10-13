@@ -34,10 +34,7 @@ int main(int argc, char const *argv[]) {
   const auto y_train = dal::read<dal::table>(dal::csv::data_source{train_label_file_name});
 
   const auto knn_desc =
-      dal::knn::descriptor<float, oneapi::dal::knn::method::kd_tree>()
-          .set_class_count(5)
-          .set_neighbor_count(1)
-          .set_data_use_in_model(false);
+      dal::knn::descriptor<float, oneapi::dal::knn::method::kd_tree, oneapi::dal::knn::task::classification>(5, 1);
 
   const auto train_result = dal::train(knn_desc, x_train, y_train);
 

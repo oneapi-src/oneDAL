@@ -18,7 +18,7 @@
 #include "services/daal_defines.h"
 #include "src/sycl/select_indexed.h"
 #include "src/sycl/cl_kernels/select_indexed.cl"
-#include "sycl/internal/utils.h"
+#include "services/internal/execution_context.h"
 #include "src/externals/service_rng.h"
 #include "src/algorithms/engines/engine_batch_impl.h"
 #include "services/daal_string.h"
@@ -29,9 +29,11 @@ using namespace daal::services::internal;
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace selection
 {
@@ -158,7 +160,7 @@ SelectIndexed::Result & QuickSelectIndexed::selectIndices(const UniversalBuffer 
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(QuickSelectIndexed.select);
 
-    auto & context       = oneapi::internal::getDefaultContext();
+    auto & context       = services::internal::getDefaultContext();
     auto & kernelFactory = context.getClKernelFactory();
 
     buildProgram(kernelFactory, dataVectors.type(), status);
@@ -176,7 +178,7 @@ Status QuickSelectIndexed::adjustIndexBuffer(uint32_t number, uint32_t size)
     Status st;
     if (_indexSize < newSize)
     {
-        auto & context = Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::internal::getDefaultContext();
         _indices       = context.allocate(TypeIds::id<int>(), newSize, &st);
         _indexSize     = newSize;
     }
@@ -201,7 +203,7 @@ Status QuickSelectIndexed::init(Params & par)
     {
         values[i] = static_cast<float>(numbers[i]) / (_nRndSeq - 1);
     }
-    auto & context = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
     _rndSeq        = context.allocate(par.type, _nRndSeq, &st);
     DAAL_CHECK_STATUS_VAR(st);
     context.copy(_rndSeq, 0, (void *)&values[0], 0, _nRndSeq, &st);
@@ -253,7 +255,7 @@ SelectIndexed::Result & DirectSelectIndexed::selectIndices(const UniversalBuffer
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(QuickSelectIndexed.select);
 
-    auto & context       = oneapi::internal::getDefaultContext();
+    auto & context       = services::internal::getDefaultContext();
     auto & kernelFactory = context.getClKernelFactory();
 
     buildProgram(kernelFactory, dataVectors.type(), nK, status);
@@ -295,6 +297,7 @@ SelectIndexed * SelectIndexedFactory::create(int nK, SelectIndexed::Params & par
 }
 
 } // namespace selection
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal

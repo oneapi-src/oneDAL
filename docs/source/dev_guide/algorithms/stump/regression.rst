@@ -49,7 +49,7 @@ At the training stage, a regression decision stump has the following parameters:
      - ``defaultDense``
      - Performance-oriented computation method, the only method supported by the algorithm.
    * - ``varImportance``
-     - none
+     - ``none``
      - .. note:: Variable importance computation is not supported for current version of the library.
 
 Prediction
@@ -78,14 +78,22 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
     :cpp_example:`stump_reg_mse_dense_batch.cpp <stump/stump_reg_mse_dense_batch.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
     
     :java_example:`StumpRegMseDenseBatch.java <stump/StumpRegMseDenseBatch.java>`
+
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`stump_regression_batch.py`

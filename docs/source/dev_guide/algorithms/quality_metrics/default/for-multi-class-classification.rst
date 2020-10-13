@@ -187,7 +187,7 @@ The quality metric algorithm has the following parameters:
 Algorithm Output
 ----------------
 
-The quality metric algorithm calculates the result described below. Pass the Result ID as a parameter to the methods that access the results of your algorithm. For more details, see Algorithms.
+The quality metric algorithm calculates the result described below. Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm. For more details, see Algorithms.
 
 .. list-table::
    :widths: 10 60
@@ -222,13 +222,15 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
     - :cpp_example:`svm_multi_class_metrics_dense_batch.cpp <quality_metrics/svm_multi_class_metrics_dense_batch.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
 

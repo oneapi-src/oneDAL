@@ -64,7 +64,7 @@ the AdaGrad method accepts the following optional input:
    * - OptionalDataID
      - Input
    * - ``gradientSquareSum``
-     - Numeric table of size :math:`p \times 1` with the values of :math:`G_t`.
+     - A numeric table of size :math:`p \times 1` with the values of :math:`G_t`.
        Each value is an accumulated sum of squares of coordinate values of a corresponding gradient.
 
 Algorithm Parameters
@@ -83,13 +83,13 @@ the AdaGrad method has the following parameters:
      - Description
    * - ``algorithmFPType``
      - ``float``
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
    * - ``method``
      - ``defaultDense``
      - Default performance-oriented computation method.
    * - ``batchIndices``
      - ``NULL``
-     - Numeric table of size :math:`\text{nIterations} \times \text{batchSize}` for the ``defaultDense`` method
+     - A numeric table of size :math:`\text{nIterations} \times \text{batchSize}` for the ``defaultDense`` method
        that represents 32-bit integer indices of terms in the objective function. 
        If no indices are provided, the algorithm generates random indices.
    * - ``batchSize``
@@ -101,8 +101,8 @@ the AdaGrad method has the following parameters:
 
        The algorithm ignores this parameter if the ``batchIndices`` parameter is provided.
    * - ``learningRate``
-     - Numeric table of size :math:`1 \times 1` that contains the default step length equal to :math:`0.01`.
-     - Numeric table of size :math:`1 \times 1` that contains the value of learning rate :math:`\eta`.
+     - A numeric table of size :math:`1 \times 1` that contains the default step length equal to :math:`0.01`.
+     - A numeric table of size :math:`1 \times 1` that contains the value of learning rate :math:`\eta`.
 
        .. note::
             This parameter can be an object of any class derived from ``NumericTable``,
@@ -128,7 +128,7 @@ the AdaGrad method calculates the following optional result:
    * - OptionalDataID
      - Output
    * - ``gradientSquareSum``
-     - Numeric table of size :math:`p \times 1` with the values of :math:`G_t`.
+     - A numeric table of size :math:`p \times 1` with the values of :math:`G_t`.
        Each value is an accumulated sum of squares of coordinate values of a corresponding gradient.
 
 Examples
@@ -136,12 +136,18 @@ Examples
 
 .. tabs::
 
-    .. tab:: C++
+  .. tab:: C++ (CPU)
 
-        - :cpp_example:`adagrad_dense_batch.cpp <optimization_solvers/adagrad_dense_batch.cpp>`
-        - :cpp_example:`adagrad_opt_res_dense_batch.cpp <optimization_solvers/adagrad_opt_res_dense_batch.cpp>`
+    - :cpp_example:`adagrad_dense_batch.cpp <optimization_solvers/adagrad_dense_batch.cpp>`
+    - :cpp_example:`adagrad_opt_res_dense_batch.cpp <optimization_solvers/adagrad_opt_res_dense_batch.cpp>`
 
-    .. tab:: Java*
+  .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
-        - :java_example:`AdagradDenseBatch.java <optimization_solvers/AdagradDenseBatch.java>`
-        - :java_example:`AdagradOptResDenseBatch.java <optimization_solvers/AdagradOptResDenseBatch.java>`
+    - :java_example:`AdagradDenseBatch.java <optimization_solvers/AdagradDenseBatch.java>`
+    - :java_example:`AdagradOptResDenseBatch.java <optimization_solvers/AdagradOptResDenseBatch.java>`
+
+  .. tab:: Python*
+
+      - :daal4py_example:`adagrad_mse_batch.py`

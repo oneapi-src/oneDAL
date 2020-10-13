@@ -19,7 +19,9 @@
 
 namespace oneapi::dal::knn {
 
-class detail::train_input_impl : public base {
+namespace detail {
+template <typename Task>
+class train_input_impl : public base {
 public:
     train_input_impl(const table& data, const table& labels) : data(data), labels(labels) {}
 
@@ -27,41 +29,54 @@ public:
     table labels;
 };
 
-class detail::train_result_impl : public base {
+template <typename Task>
+class train_result_impl : public base {
 public:
-    model trained_model;
+    model<Task> trained_model;
 };
+} // namespace detail
 
 using detail::train_input_impl;
 using detail::train_result_impl;
 
-train_input::train_input(const table& data, const table& labels)
-        : impl_(new train_input_impl(data, labels)) {}
+template <typename Task>
+train_input<Task>::train_input(const table& data, const table& labels)
+        : impl_(new train_input_impl<Task>(data, labels)) {}
 
-table train_input::get_data() const {
+template <typename Task>
+const table& train_input<Task>::get_data() const {
     return impl_->data;
 }
 
-table train_input::get_labels() const {
+template <typename Task>
+const table& train_input<Task>::get_labels() const {
     return impl_->labels;
 }
 
-void train_input::set_data_impl(const table& value) {
+template <typename Task>
+void train_input<Task>::set_data_impl(const table& value) {
     impl_->data = value;
 }
 
-void train_input::set_labels_impl(const table& value) {
+template <typename Task>
+void train_input<Task>::set_labels_impl(const table& value) {
     impl_->labels = value;
 }
 
-train_result::train_result() : impl_(new train_result_impl{}) {}
+template <typename Task>
+train_result<Task>::train_result() : impl_(new train_result_impl{}) {}
 
-model train_result::get_model() const {
+template <typename Task>
+const model<Task>& train_result<Task>::get_model() const {
     return impl_->trained_model;
 }
 
-void train_result::set_model_impl(const model& value) {
+template <typename Task>
+void train_result<Task>::set_model_impl(const model<Task>& value) {
     impl_->trained_model = value;
 }
+
+template class ONEAPI_DAL_EXPORT train_input<task::classification>;
+template class ONEAPI_DAL_EXPORT train_result<task::classification>;
 
 } // namespace oneapi::dal::knn

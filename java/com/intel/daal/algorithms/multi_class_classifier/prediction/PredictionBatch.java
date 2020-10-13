@@ -120,6 +120,17 @@ public class PredictionBatch extends com.intel.daal.algorithms.classifier.predic
     }
 
     /**
+     * Computes prediction results based on the model of the multi-class classifier prediction algorithm
+     * @return %Prediction results
+     */
+    @Override
+    public PredictionResult compute() {
+        super.compute();
+        PredictionResult result = new PredictionResult(getContext(), cObject);
+        return result;
+    }
+
+    /**
      * Returns the newly allocated multi-class classifier prediction algorithm
      * with a copy of input objects and parameters of this multi-class classifier prediction algorithm
      * @param context   Context to manage the multi-class classifier prediction algorithm

@@ -102,11 +102,13 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     - :cpp_example:`lin_reg_model_builder.cpp <linear_regression/lin_reg_model_builder.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     - :java_example:`LinRegModelBuilder.java <linear_regression/LinRegModelBuilder.java>`
 

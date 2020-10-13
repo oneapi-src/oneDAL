@@ -14,10 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#define DAAL_SYCL_INTERFACE
-#define DAAL_SYCL_INTERFACE_USM
-#define DAAL_SYCL_INTERFACE_REVERSED_RANGE
-
 #include "oneapi/dal/algo/rbf_kernel/backend/gpu/compute_kernel.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -91,5 +87,3 @@ template struct compute_kernel_gpu<float, method::dense>;
 template struct compute_kernel_gpu<double, method::dense>;
 
 } // namespace oneapi::dal::rbf_kernel::backend
-
-#undef DAAL_SYCL_INTERFACE

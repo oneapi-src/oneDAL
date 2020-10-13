@@ -4,8 +4,9 @@ load("@onedal//dev/bazel:dal.bzl",
     "dal_collect_modules",
     "dal_public_includes",
     "dal_static_lib",
+    "dal_dynamic_lib",
     "dal_test_suite",
-    "dal_collect_tests",
+    "dal_collect_test_suites",
     "dal_generate_cpu_dispatcher",
 )
 
@@ -15,19 +16,27 @@ dal_generate_cpu_dispatcher(
 )
 
 dal_module(
-    name = "common",
-    auto = True,
+    name = "include_root",
     includes = [ ".", "../.." ],
     system_includes = [
         "../../daal",
         "../../daal/include",
     ],
+)
+
+dal_module(
+    name = "common",
+    auto = True,
     hdrs = [
         ":cpu_dispatcher",
     ],
     extra_deps = [
+        ":include_root",
         "@onedal//cpp/daal:services",
         "@onedal//cpp/daal:data_management",
+    ],
+    dpc_deps = [
+        "@micromkl_dpc//:mkl_dpc",
     ],
 )
 
@@ -41,9 +50,6 @@ dal_collect_modules(
     ],
     dal_deps = [
         ":common",
-    ],
-    dpc_deps = [
-        "@micromkl_dpc//:mkl_dpc",
     ],
 )
 
@@ -71,8 +77,14 @@ dal_static_lib(
         ":core",
         ":optional",
     ],
-    extra_deps = [
-        "@micromkl//:mkl_seq",
+)
+
+dal_dynamic_lib(
+    name = "dynamic",
+    lib_name = "onedal",
+    dal_deps = [
+        ":core",
+        ":optional",
     ],
 )
 
@@ -84,6 +96,14 @@ filegroup(
     ],
 )
 
+filegroup(
+    name = "all_dynamic",
+    srcs = [
+        ":dynamic",
+        ":dynamic_dpc",
+    ],
+)
+
 dal_test_suite(
     name = "common_tests",
     srcs = [
@@ -92,7 +112,7 @@ dal_test_suite(
     dal_deps = [ ":common" ],
 )
 
-dal_collect_tests(
+dal_collect_test_suites(
     name = "tests",
     root = "@onedal//cpp/oneapi/dal",
     modules = [
@@ -101,6 +121,7 @@ dal_collect_tests(
         "io",
         "table",
         "util",
+        "backend/linalg",
     ],
     tests = [
         ":common_tests",

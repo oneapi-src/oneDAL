@@ -46,7 +46,7 @@ services::SharedPtr<svm::training::Batch<float, svm::training::boser> > training
 services::SharedPtr<svm::prediction::Batch<> > prediction(new svm::prediction::Batch<>());
 
 multi_class_classifier::training::ResultPtr trainingResult;
-classifier::prediction::ResultPtr predictionResult;
+multi_class_classifier::prediction::ResultPtr predictionResult;
 kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<>());
 NumericTablePtr testGroundTruth;
 
@@ -113,10 +113,11 @@ void testModel()
     testDataSource.loadDataBlock(mergedData.get());
 
     /* Create an algorithm object to predict multi-class SVM values */
-    multi_class_classifier::prediction::Batch<> algorithm(nClasses);
+    multi_class_classifier::prediction::Batch<float, multi_class_classifier::prediction::voteBased> algorithm(nClasses);
 
     algorithm.parameter.training   = training;
     algorithm.parameter.prediction = prediction;
+    algorithm.parameter.resultsToEvaluate = multi_class_classifier::computeClassLabels | multi_class_classifier::computeDecisionFunction;
 
     /* Pass a testing data set and the trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);
@@ -131,6 +132,8 @@ void testModel()
 
 void printResults()
 {
-    printNumericTables<int, int>(testGroundTruth, predictionResult->get(classifier::prediction::prediction), "Ground truth", "Classification results",
-                                 "Multi-class SVM classification sample program results (first 20 observations):", 20);
+    printNumericTables<int, int>(testGroundTruth, predictionResult->get(multi_class_classifier::prediction::prediction), "Ground truth",
+                                 "Classification results", "Multi-class SVM classification sample program results (first 20 observations):", 20);
+    printNumericTable(predictionResult->get(multi_class_classifier::prediction::decisionFunction),
+                      "Multi-class SVM classification decision function results (first 20 observations):", 20);
 }

@@ -23,10 +23,6 @@ def _match_file_name(file, entries):
             return True
     return False
 
-def _get_unique_files(files):
-    files_dict = {f.path: f for f in files }
-    return files_dict.values()
-
 def _collect_headers(dep):
     headers = []
     if ModuleInfo in dep:
@@ -35,14 +31,14 @@ def _collect_headers(dep):
         headers += dep[CcInfo].compilation_context.headers.to_list()
     elif DefaultInfo in dep:
         headers += dep[DefaultInfo].files.to_list()
-    return _get_unique_files(headers)
+    return utils.unique_files(headers)
 
 def _collect_default_files(deps):
     files = []
     for dep in deps:
         if DefaultInfo in dep:
             files += dep[DefaultInfo].files.to_list()
-    return _get_unique_files(files)
+    return utils.unique_files(files)
 
 def _copy(ctx, src_file, dst_path):
     # TODO: Use extra toolchain
@@ -111,7 +107,7 @@ def _headers_filter_impl(ctx):
     all_headers = []
     for dep in ctx.attr.deps:
         all_headers += _collect_headers(dep)
-    all_headers = _get_unique_files(all_headers)
+    all_headers = utils.unique_files(all_headers)
     filtered_headers = []
     for header in all_headers:
         if (_match_file_name(header, ctx.attr.include) and
@@ -131,8 +127,8 @@ headers_filter = rule(
     },
 )
 
-def release_include(hdrs, skip_prefix="", prefix=""):
-    return (hdrs, prefix, skip_prefix)
+def release_include(hdrs, skip_prefix="", add_prefix=""):
+    return (hdrs, add_prefix, skip_prefix)
 
 def release(name, include, lib):
     rule_include = []

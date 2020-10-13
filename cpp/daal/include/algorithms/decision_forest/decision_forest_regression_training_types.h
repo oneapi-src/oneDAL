@@ -72,7 +72,8 @@ enum InputId
 {
     data              = algorithms::regression::training::data,               /*!< %Input data table */
     dependentVariable = algorithms::regression::training::dependentVariables, /*!< %Values of the dependent variable for the input data */
-    lastInputId       = dependentVariable
+    weights           = algorithms::regression::training::weights,            /*!< %Optional. Weights of the observations in the training data set */
+    lastInputId       = weights
 };
 
 /**

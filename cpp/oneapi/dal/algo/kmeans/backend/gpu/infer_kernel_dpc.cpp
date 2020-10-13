@@ -14,10 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#define DAAL_SYCL_INTERFACE
-#define DAAL_SYCL_INTERFACE_USM
-#define DAAL_SYCL_INTERFACE_REVERSED_RANGE
-
 #include <src/algorithms/kmeans/oneapi/kmeans_dense_lloyd_batch_kernel_ucapi.h>
 
 #include "oneapi/dal/algo/kmeans/backend/gpu/infer_kernel.hpp"
@@ -40,10 +36,10 @@ using daal_kmeans_lloyd_dense_ucapi_kernel_t =
     daal_kmeans::internal::KMeansDenseLloydBatchKernelUCAPI<Float>;
 
 template <typename Float>
-struct infer_kernel_gpu<Float, method::by_default> {
-    infer_result operator()(const dal::backend::context_gpu& ctx,
-                            const descriptor_base& params,
-                            const infer_input& input) const {
+struct infer_kernel_gpu<Float, method::by_default, task::clustering> {
+    infer_result<task::clustering> operator()(const dal::backend::context_gpu& ctx,
+                                              const descriptor_base<task::clustering>& params,
+                                              const infer_input<task::clustering>& input) const {
         auto& queue = ctx.get_queue();
         interop::execution_context_guard guard(queue);
 
@@ -99,14 +95,14 @@ struct infer_kernel_gpu<Float, method::by_default> {
         interop::status_to_exception(
             daal_kmeans_lloyd_dense_ucapi_kernel_t<Float>().compute(daal_input, daal_output, &par));
 
-        return infer_result()
+        return infer_result<task::clustering>()
             .set_labels(
                 dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build())
             .set_objective_function_value(static_cast<double>(arr_objective_function_value[0]));
     }
 };
 
-template struct infer_kernel_gpu<float, method::by_default>;
-template struct infer_kernel_gpu<double, method::by_default>;
+template struct infer_kernel_gpu<float, method::by_default, task::clustering>;
+template struct infer_kernel_gpu<double, method::by_default, task::clustering>;
 
 } // namespace oneapi::dal::kmeans::backend

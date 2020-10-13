@@ -19,7 +19,7 @@
 ##******************************************************************************
 
 help:
-	@echo "Usage: nmake {{libintel64|dllintel64|help}}"
+	@echo "Usage: nmake {{dllintel64|help}}"
 	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
 	@echo
 	@echo "name              - example name."
@@ -34,9 +34,9 @@ help:
 ##------------------------------------------------------------------------------
 ## examples of using:
 ##
-## nmake libintel64 example=kmeans_dense_batch+ - build by Intel(R) oneAPI Compiler (as default)
+## nmake dllintel64 example=kmeans_dense_batch+ - build by Intel(R) oneAPI Compiler (as default)
 ##                                 				  and run kmeans_dense_batch example for 64-bit
-##                                 				  applications, static linking
+##                                 				  applications, dynamic linking
 ##
 ## nmake dllintel64 compiler=clang 				- build by Intel(R) oneAPI Compiler (as default)
 ##                                 				  and run all examples of Intel(R) DAAL for
@@ -116,8 +116,6 @@ COPTS = -Isource\utils $(COPTS) $(OUT_OPTS)
 LOPTS = $(DAAL_LIB) $(EXT_LIB) $(RT_LIB)
 RES_DIR  =_results\$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
 
-libintel64:
-	nmake comm_func $(RES) EXT=.lib _IA=intel64 RES_EXT=lib compiler=$(compiler) threading=$(threading)
 dllintel64:
 	nmake comm_func $(RES) EXT=_dll.lib _IA=intel64 RES_EXT=dll compiler=$(compiler) threading=$(threading)
 

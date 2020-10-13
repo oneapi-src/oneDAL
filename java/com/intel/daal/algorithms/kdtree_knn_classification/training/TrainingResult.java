@@ -22,6 +22,8 @@
 package com.intel.daal.algorithms.kdtree_knn_classification.training;
 
 import com.intel.daal.utils.*;
+import com.intel.daal.algorithms.ComputeMode;
+import com.intel.daal.algorithms.Precision;
 import com.intel.daal.algorithms.classifier.training.TrainingResultId;
 import com.intel.daal.algorithms.kdtree_knn_classification.Model;
 import com.intel.daal.services.DaalContext;
@@ -37,7 +39,7 @@ public final class TrainingResult extends com.intel.daal.algorithms.classifier.t
     }
 
     /**
-     * Constructs the k nearest neighbors model-based training result
+     * Constructs the KD-tree based k nearest neighbors model-based training result
      * @param context   Context to manage k nearest neighbors training result
      */
     public TrainingResult(DaalContext context) {
@@ -51,7 +53,7 @@ public final class TrainingResult extends com.intel.daal.algorithms.classifier.t
     }
 
     /**
-     * Returns result of the k nearest neighbors algorithm
+     * Returns result of the KD-tree based k nearest neighbors algorithm
      * @param  id  Identifier of the result, @ref classifier.training.TrainingResultId
      * @return Result that corresponds to the given identifier
      */

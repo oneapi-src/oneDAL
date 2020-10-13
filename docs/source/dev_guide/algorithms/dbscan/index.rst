@@ -78,13 +78,7 @@ Examples
 
 .. tabs::
 
-  .. tab:: DPC++
-
-   Batch Processing:
-
-   - :ref:`dbscan_dense_batch.cpp`
-
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
    Batch Processing:
 
@@ -96,6 +90,8 @@ Examples
 
   .. tab:: Java*
 
+   .. note:: There is no support for Java on GPU.
+
    Batch Processing:
 
    - :java_example:`DBSCANDenseBatch.java <dbscan/DBSCANDenseBatch.java>`
@@ -103,6 +99,12 @@ Examples
    Distributed Processing:
 
    - :java_example:`DBSCANDenseDistr.java <dbscan/DBSCANDenseDistr.java>`
+
+  .. tab:: Python* with DPC++ support
+
+    Batch Processing:
+
+    - :daal4py_sycl_example:`dbscan_batch.py`
 
   .. tab:: Python*
 

@@ -49,7 +49,7 @@ The mode may include:
 .. note::
 
     Some algorithms require normalization parameters (mean and variance) as an input. 
-    The implementation of Z-score algorithm in Intel DAAL does not return these values by default. 
+    The implementation of Z-score algorithm in |short_name| does not return these values by default. 
     Enable this option by setting the resultsToCompute flag. 
     For details, see `Algorithm Parameters`_.
 
@@ -173,14 +173,22 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
     - :cpp_example:`zscore_dense_batch.cpp <normalization/zscore_dense_batch.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
 
     - :java_example:`ZScoreDenseBatch.java <normalization/ZScoreDenseBatch.java>`
+
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`normalization_zscore_batch.py`

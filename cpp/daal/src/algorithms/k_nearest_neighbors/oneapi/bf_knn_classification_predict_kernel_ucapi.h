@@ -22,7 +22,7 @@
 #include "data_management/data/numeric_table.h"
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
 #include "algorithms/k_nearest_neighbors/bf_knn_classification_predict_types.h"
-#include "sycl/internal/execution_context.h"
+#include "services/internal/sycl/execution_context.h"
 
 namespace daal
 {
@@ -43,24 +43,27 @@ public:
     services::Status compute(const NumericTable * x, const classifier::Model * m, NumericTable * y, const daal::algorithms::Parameter * par);
 
 private:
-    services::Status copyPartialDistancesAndLabels(oneapi::internal::ExecutionContextIface & context,
-                                                   const oneapi::internal::UniversalBuffer & distances,
-                                                   const oneapi::internal::UniversalBuffer & labels,
-                                                   oneapi::internal::UniversalBuffer & partialDistances,
-                                                   oneapi::internal::UniversalBuffer & partialLabels, uint32_t curQueryBlockRows, uint32_t k,
+    services::Status copyPartialDistancesAndLabels(services::internal::sycl::ExecutionContextIface & context,
+                                                   const services::internal::sycl::UniversalBuffer & distances,
+                                                   const services::internal::sycl::UniversalBuffer & labels,
+                                                   services::internal::sycl::UniversalBuffer & partialDistances,
+                                                   services::internal::sycl::UniversalBuffer & partialLabels, uint32_t curQueryBlockRows, uint32_t k,
                                                    uint32_t nChunk, uint32_t totalNumberOfChunks);
-    services::Status scatterSumOfSquares(oneapi::internal::ExecutionContextIface & context,
-                                         const oneapi::internal::UniversalBuffer & dataSumOfSquares, uint32_t dataBlockRowCount,
-                                         uint32_t queryBlockRowCount, oneapi::internal::UniversalBuffer & distances);
+    services::Status scatterSumOfSquares(services::internal::sycl::ExecutionContextIface & context,
+                                         const services::internal::sycl::UniversalBuffer & dataSumOfSquares, uint32_t dataBlockRowCount,
+                                         uint32_t queryBlockRowCount, services::internal::sycl::UniversalBuffer & distances);
 
-    services::Status computeDistances(oneapi::internal::ExecutionContextIface & context, const services::Buffer<algorithmFpType> & data,
-                                      const services::Buffer<algorithmFpType> & query, oneapi::internal::UniversalBuffer & distances,
-                                      uint32_t dataBlockRowCount, uint32_t queryBlockRowCount, uint32_t nFeatures);
+    services::Status computeDistances(services::internal::sycl::ExecutionContextIface & context,
+                                      const services::internal::Buffer<algorithmFpType> & data,
+                                      const services::internal::Buffer<algorithmFpType> & query,
+                                      services::internal::sycl::UniversalBuffer & distances, uint32_t dataBlockRowCount, uint32_t queryBlockRowCount,
+                                      uint32_t nFeatures);
 
-    services::Status computeWinners(oneapi::internal::ExecutionContextIface & context, const oneapi::internal::UniversalBuffer & labels,
-                                    uint32_t queryBlockRowCount, uint32_t k, oneapi::internal::UniversalBuffer labelsOut);
+    services::Status computeWinners(services::internal::sycl::ExecutionContextIface & context,
+                                    const services::internal::sycl::UniversalBuffer & labels, uint32_t queryBlockRowCount, uint32_t k,
+                                    services::internal::sycl::UniversalBuffer labelsOut);
 
-    services::Status buildProgram(oneapi::internal::ClKernelFactoryIface & kernel_factory);
+    services::Status buildProgram(services::internal::sycl::ClKernelFactoryIface & kernel_factory);
 };
 
 } // namespace internal

@@ -94,18 +94,18 @@ In addition to the decision forest parameters described in :ref:`df_batch`,
 the training algorithm for decision forest regression has the following parameters:
 
 .. list-table::
-   :widths: 25 25 25
+   :widths: 10 10 60
    :header-rows: 1
    :align: left
 
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
      - The computation method used by the decision forest regression.
 
        For CPU:
@@ -133,18 +133,18 @@ In addition to the parameters of regression, decision forest
 regression has the following parameters at the prediction stage:
 
 .. list-table::
-   :widths: 25 25 25
+   :widths: 10 10 60
    :header-rows: 1
    :align: left
 
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
      - The computation method used by the decision forest regression. The
        only prediction method supported so far is the default dense method.
 
@@ -153,17 +153,35 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: oneAPI DPC++
+
+    Batch Processing:
+
+    - :ref:`dpc_df_reg_dense_batch.cpp`
+
+  .. tab:: oneAPI C++
+
+    Batch Processing:
+
+    - :ref:`cpp_df_reg_dense_batch.cpp`
+
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
     - :cpp_example:`df_reg_dense_batch.cpp <decision_forest/df_reg_dense_batch.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
 
     - :java_example:`DfRegDenseBatch.java <decision_forest/DfRegDenseBatch.java>`
 
-.. Python*: df_reg_dense_batch.py
+  .. tab:: Python*
 
+    Batch Processing:
+
+    - :daal4py_example:`decision_forest_regression_batch.py`
+    - :daal4py_example:`decision_forest_regression_traverse_batch.py`

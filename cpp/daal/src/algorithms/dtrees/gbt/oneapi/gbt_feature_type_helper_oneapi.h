@@ -36,8 +36,8 @@
 
 #include "src/algorithms/dtrees/gbt/oneapi/cl_kernels/gbt_common_kernels.cl"
 
-#include "sycl/internal/execution_context.h"
-#include "sycl/internal/types.h"
+#include "services/internal/sycl/execution_context.h"
+#include "services/internal/sycl/types.h"
 
 namespace daal
 {
@@ -63,7 +63,7 @@ public:
         DAAL_NEW_DELETE();
         IndexType numIndices = 0; //number of indices or bins
         IndexType offset     = 0;
-        oneapi::internal::UniversalBuffer binBorders; //right bin borders
+        services::internal::sycl::UniversalBuffer binBorders; //right bin borders
 
         services::Status allocBorders();
         ~FeatureEntry();
@@ -80,14 +80,14 @@ public:
 
     IndexType totalBins() const { return _totalBins; }
 
-    oneapi::internal::UniversalBuffer & binBorders(size_t iCol) const { return _entries[iCol].binBorders; }
+    services::internal::sycl::UniversalBuffer & binBorders(size_t iCol) const { return _entries[iCol].binBorders; }
 
-    oneapi::internal::UniversalBuffer & binOffsets() { return _binOffsets; }
+    services::internal::sycl::UniversalBuffer & binOffsets() { return _binOffsets; }
 
-    oneapi::internal::UniversalBuffer & getFullData() { return _fullData; }
+    services::internal::sycl::UniversalBuffer & getFullData() { return _fullData; }
 
     //for low-level optimization
-    const oneapi::internal::UniversalBuffer & getFeature(size_t iFeature) const { return _data[iFeature]; }
+    const services::internal::sycl::UniversalBuffer & getFeature(size_t iFeature) const { return _data[iFeature]; }
 
     size_t nRows() const { return _nRows; }
     size_t nCols() const { return _nCols; }
@@ -95,43 +95,45 @@ public:
 protected:
     services::Status alloc(size_t nCols, size_t nRows);
 
-    services::Status extractColumn(const services::Buffer<algorithmFPType> & data, oneapi::internal::UniversalBuffer & values,
-                                   oneapi::internal::UniversalBuffer & indices, int featureId, int nFeatures, int nRows);
+    services::Status extractColumn(const services::internal::Buffer<algorithmFPType> & data, services::internal::sycl::UniversalBuffer & values,
+                                   services::internal::sycl::UniversalBuffer & indices, int featureId, int nFeatures, int nRows);
 
-    services::Status radixScan(oneapi::internal::UniversalBuffer & values, oneapi::internal::UniversalBuffer & partialHists, int nRows, int bitOffset,
-                               int localSize, int nLocalSums);
+    services::Status radixScan(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & partialHists,
+                               int nRows, int bitOffset, int localSize, int nLocalSums);
 
-    services::Status radixHistScan(oneapi::internal::UniversalBuffer & partialHists, oneapi::internal::UniversalBuffer & partialPrefixHists,
-                                   int nSubgroupSums, int localSize);
+    services::Status radixHistScan(services::internal::sycl::UniversalBuffer & partialHists,
+                                   services::internal::sycl::UniversalBuffer & partialPrefixHists, int nSubgroupSums, int localSize);
 
-    services::Status radixReorder(oneapi::internal::UniversalBuffer & valuesSrc, oneapi::internal::UniversalBuffer & indicesSrc,
-                                  oneapi::internal::UniversalBuffer & partialPrefixHist, oneapi::internal::UniversalBuffer & valuesDst,
-                                  oneapi::internal::UniversalBuffer & indicesDst, int nRows, int bitOffset, int localSize, int nLocalHists);
+    services::Status radixReorder(services::internal::sycl::UniversalBuffer & valuesSrc, services::internal::sycl::UniversalBuffer & indicesSrc,
+                                  services::internal::sycl::UniversalBuffer & partialPrefixHist,
+                                  services::internal::sycl::UniversalBuffer & valuesDst, services::internal::sycl::UniversalBuffer & indicesDst,
+                                  int nRows, int bitOffset, int localSize, int nLocalHists);
 
-    services::Status radixSort(oneapi::internal::UniversalBuffer & values, oneapi::internal::UniversalBuffer & indices,
-                               oneapi::internal::UniversalBuffer & values_buf, oneapi::internal::UniversalBuffer & indices_buf, int nRows);
+    services::Status radixSort(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & indices,
+                               services::internal::sycl::UniversalBuffer & values_buf, services::internal::sycl::UniversalBuffer & indices_buf,
+                               int nRows);
 
-    services::Status collectBinBorders(oneapi::internal::UniversalBuffer & values, oneapi::internal::UniversalBuffer & binOffsets,
-                                       oneapi::internal::UniversalBuffer & binBorders, int nRows, int maxBins);
+    services::Status collectBinBorders(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & binOffsets,
+                                       services::internal::sycl::UniversalBuffer & binBorders, int nRows, int maxBins);
 
-    services::Status computeBins(oneapi::internal::UniversalBuffer & values, oneapi::internal::UniversalBuffer & indices,
-                                 oneapi::internal::UniversalBuffer & binBorders, oneapi::internal::UniversalBuffer & bins, int nRows, int nBins,
-                                 int localSize, int nLocalBlocks);
+    services::Status computeBins(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & indices,
+                                 services::internal::sycl::UniversalBuffer & binBorders, services::internal::sycl::UniversalBuffer & bins, int nRows,
+                                 int nBins, int localSize, int nLocalBlocks);
 
-    services::Status computeBins(oneapi::internal::UniversalBuffer & values, oneapi::internal::UniversalBuffer & indices,
-                                 oneapi::internal::UniversalBuffer & bins, FeatureEntry & entry, int nRows,
+    services::Status computeBins(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & indices,
+                                 services::internal::sycl::UniversalBuffer & bins, FeatureEntry & entry, int nRows,
                                  const dtrees::internal::BinParams * pBinPrm);
 
-    services::Status makeIndex(const services::Buffer<algorithmFPType> & data, int featureId, int nFeatures, int nRows,
-                               const dtrees::internal::BinParams * pBinPrm, oneapi::internal::UniversalBuffer & bins, FeatureEntry & entry);
+    services::Status makeIndex(const services::internal::Buffer<algorithmFPType> & data, int featureId, int nFeatures, int nRows,
+                               const dtrees::internal::BinParams * pBinPrm, services::internal::sycl::UniversalBuffer & bins, FeatureEntry & entry);
 
-    services::Status storeColumn(const oneapi::internal::UniversalBuffer & data, oneapi::internal::UniversalBuffer & fullData, int featureId,
-                                 int nFeatures, int nRows);
+    services::Status storeColumn(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & fullData,
+                                 int featureId, int nFeatures, int nRows);
 
 protected:
-    services::Collection<oneapi::internal::UniversalBuffer> _data;
-    oneapi::internal::UniversalBuffer _fullData;
-    oneapi::internal::UniversalBuffer _binOffsets;
+    services::Collection<services::internal::sycl::UniversalBuffer> _data;
+    services::internal::sycl::UniversalBuffer _fullData;
+    services::internal::sycl::UniversalBuffer _binOffsets;
     FeatureEntry * _entries;
     size_t _sizeOfIndex;
     size_t _nRows;
@@ -140,10 +142,10 @@ protected:
     size_t _maxNumIndices;
     IndexType _totalBins;
 
-    oneapi::internal::UniversalBuffer _values;
-    oneapi::internal::UniversalBuffer _values_buf;
-    oneapi::internal::UniversalBuffer _indices;
-    oneapi::internal::UniversalBuffer _indices_buf;
+    services::internal::sycl::UniversalBuffer _values;
+    services::internal::sycl::UniversalBuffer _values_buf;
+    services::internal::sycl::UniversalBuffer _indices;
+    services::internal::sycl::UniversalBuffer _indices_buf;
 
     const uint32_t _maxWorkItemsPerGroup = 128;   // should be a power of two for interal needs
     const uint32_t _maxLocalBuffer       = 30000; // should be less than a half of local memory (two buffers)
@@ -156,15 +158,15 @@ class TreeNodeStorage
 public:
     TreeNodeStorage() {}
 
-    oneapi::internal::UniversalBuffer & getHistograms() { return _histogramsForFeatures; }
+    services::internal::sycl::UniversalBuffer & getHistograms() { return _histogramsForFeatures; }
 
-    void clear() { _histogramsForFeatures = oneapi::internal::UniversalBuffer(); }
+    void clear() { _histogramsForFeatures = services::internal::sycl::UniversalBuffer(); }
 
     template <typename algorithmFPType>
     services::Status allocate(const gbt::internal::IndexedFeaturesOneAPI<algorithmFPType> & indexedFeatures);
 
 private:
-    oneapi::internal::UniversalBuffer _histogramsForFeatures;
+    services::internal::sycl::UniversalBuffer _histogramsForFeatures;
 };
 
 template <typename algorithmFPType>

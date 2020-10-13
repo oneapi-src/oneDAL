@@ -97,7 +97,7 @@ Status KMeansOneCclDefaultBatchKernelUCAPI<algorithmFPType>::compute(const Numer
     DAAL_ITTNOTIFY_SCOPED_TASK(compute);
 
     Status st;
-    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context        = services::internal::getDefaultContext();
     auto & kernel_factory = context.getClKernelFactory();
 
     auto & comm       = daal::preview::services::CommManager::getInstance()->getDefaultCommunicator();

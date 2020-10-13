@@ -123,11 +123,11 @@ method parameter method:
      - method
      - Default Value
      - Description
-   * - algorithmFPType
+   * - ``algorithmFPType``
      - ``defaultDense``, ``miniBatch``, ``momentum``
      - ``float``
      - The floating-point type that the algorithm uses for intermediate
-       computations. Can be float or double.
+       computations. Can be ``float`` or ``double``.
    * - ``method``
      - Not applicable
      - ``defaultDense``
@@ -145,7 +145,7 @@ method parameter method:
 
    * - ``batchIndices``
      - ``defaultDense``, ``miniBatch``, ``momentum``
-     - Not applicable.
+     - Not applicable
      - The numeric table with 32-bit integer indices of terms in the objective
        function. The method parameter determines the size of the numeric table:
 
@@ -159,7 +159,7 @@ method parameter method:
    * - ``batchSize``
      - ``miniBatch``,``momentum``
      - :math:`128`
-     - Number of batch indices to compute the stochastic gradient.
+     - The number of batch indices to compute the stochastic gradient.
      
        If ``batchSize`` equals the number of terms in the objective function, no random sampling
        is performed, and all terms are used to calculate the gradient.
@@ -171,7 +171,7 @@ method parameter method:
        gradient on each iteration.
    * - ``conservativeSequence``
      - ``miniBatch``
-     - Numeric table of size :math:`1 \times 1` that contains the default conservative coefficient equal to 1.
+     - A numeric table of size :math:`1 \times 1` that contains the default conservative coefficient equal to 1.
      - The numeric table of size :math:`1 \times \text{nIterations}` or :math:`1 \times 1`. The contents of the
        table depend on its size:
 
@@ -186,7 +186,7 @@ method parameter method:
      - The number of inner iterations for the miniBatch method.
    * - ``learningRateSequence``
      - ``defaultDense``, ``miniBatch``, ``momentum``
-     - Numeric table of size :math:`1 \times 1` that contains the default step length equal to 1.
+     - A numeric table of size :math:`1 \times 1` that contains the default step length equal to 1.
      - The numeric table of size :math:`1 \times \text{nIterations}` or :math:`1 \times 1`. The contents of the
        table depend on its size:
 
@@ -201,7 +201,7 @@ method parameter method:
      - The momentum value.
    * - ``engine``
      - ``defaultDense``, ``miniBatch``, ``momentum``
-     - SharePtr< engines:: mt19937:: Batch>()
+     - `SharePtr< engines:: mt19937:: Batch>()`
      - Pointer to the random number generator engine that is used internally
        for generation of 32-bit integer indices of terms in the objective function.
 
@@ -210,23 +210,32 @@ Examples
 
 .. tabs::
 
-  .. tab:: DPC++
+  .. tab:: C++ (CPU)
 
-    - :ref:`sgd_mini_log_loss_dense_batch.cpp`
+    Batch Processing:
 
-  .. tab:: C++
-
-    -  :cpp_example:`sgd_dense_batch.cpp <optimization_solvers/sgd_dense_batch.cpp>`
-    -  :cpp_example:`sgd_mini_dense_batch.cpp <optimization_solvers/sgd_mini_dense_batch.cpp>`
-    -  :cpp_example:`sgd_moment_dense_batch.cpp <optimization_solvers/sgd_moment_dense_batch.cpp>`
-    -  :cpp_example:`sgd_moment_opt_res_dense_batch.cpp <optimization_solvers/sgd_moment_opt_res_dense_batch.cpp>`
+    - :cpp_example:`sgd_dense_batch.cpp <optimization_solvers/sgd_dense_batch.cpp>`
+    - :cpp_example:`sgd_mini_dense_batch.cpp <optimization_solvers/sgd_mini_dense_batch.cpp>`
+    - :cpp_example:`sgd_moment_dense_batch.cpp <optimization_solvers/sgd_moment_dense_batch.cpp>`
+    - :cpp_example:`sgd_moment_opt_res_dense_batch.cpp <optimization_solvers/sgd_moment_opt_res_dense_batch.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
-    -  :java_example:`SGDDenseBatch.java <optimization_solvers/SGDDenseBatch.java>`
-    -  :java_example:`SGDMiniDenseBatch.java <optimization_solvers/SGDMiniDenseBatch.java>`
-    -  :java_example:`SGDMomentDenseBatch.java <optimization_solvers/SGDMomentDenseBatch.java>`
-    -  :java_example:`SGDMomentOptResDenseBatch.java <optimization_solvers/SGDMomentOptResDenseBatch.java>`
+    Batch Processing:
+
+    - :java_example:`SGDDenseBatch.java <optimization_solvers/SGDDenseBatch.java>`
+    - :java_example:`SGDMiniDenseBatch.java <optimization_solvers/SGDMiniDenseBatch.java>`
+    - :java_example:`SGDMomentDenseBatch.java <optimization_solvers/SGDMomentDenseBatch.java>`
+    - :java_example:`SGDMomentOptResDenseBatch.java <optimization_solvers/SGDMomentOptResDenseBatch.java>`
+
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`sgd_logistic_loss_batch.py`
+    - :daal4py_example:`sgd_mse_batch.py`
 
 .. Python*:
 

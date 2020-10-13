@@ -64,8 +64,8 @@ size_t Model::getNumberOfFeatures() const
 
 services::Status Parameter::check() const
 {
-    // Inherited.
-    return daal::algorithms::classifier::Parameter::check();
+    DAAL_CHECK_EX(this->nClasses > 0, services::ErrorIncorrectParameter, services::ParameterName, nClassesStr());
+    return services::Status();
 }
 
 } // namespace interface1

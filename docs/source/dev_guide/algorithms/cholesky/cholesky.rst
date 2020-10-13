@@ -38,7 +38,7 @@ Algorithm Input
 ---------------
 
 Cholesky decomposition accepts the input described below. 
-Pass the Input ID as a parameter to the methods that provide input for your algorithm. 
+Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm. 
 For more details, see :ref:`algorithms`.
 
 .. list-table::
@@ -99,17 +99,26 @@ Examples
 
 .. tabs::
 
-  .. tab:: C++
+  .. tab:: C++ (CPU)
 
     Batch Processing:
 
     - :cpp_example:`cholesky_dense_batch.cpp <cholesky/cholesky_dense_batch.cpp>`
 
   .. tab:: Java*
+  
+    .. note:: There is no support for Java on GPU.
 
     Batch Processing:
     
     - :java_example:`CholeskyDenseBatch.java <cholesky/CholeskyDenseBatch.java>`
+
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`cholesky_batch.py`
+
 
 Performance Considerations
 **************************

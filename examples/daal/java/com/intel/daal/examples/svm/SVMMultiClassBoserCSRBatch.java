@@ -34,13 +34,12 @@ package com.intel.daal.examples.svm;
 
 import com.intel.daal.algorithms.classifier.prediction.ModelInputId;
 import com.intel.daal.algorithms.classifier.prediction.NumericTableInputId;
-import com.intel.daal.algorithms.classifier.prediction.PredictionResult;
-import com.intel.daal.algorithms.classifier.prediction.PredictionResultId;
 import com.intel.daal.algorithms.classifier.training.InputId;
 import com.intel.daal.algorithms.classifier.training.TrainingResultId;
 import com.intel.daal.algorithms.multi_class_classifier.Model;
 import com.intel.daal.algorithms.multi_class_classifier.prediction.*;
 import com.intel.daal.algorithms.multi_class_classifier.training.*;
+import com.intel.daal.algorithms.multi_class_classifier.ResultsToComputeId;
 import com.intel.daal.data_management.data.NumericTable;
 import com.intel.daal.data_management.data.HomogenNumericTable;
 import com.intel.daal.data_management.data.MergedNumericTable;
@@ -122,10 +121,11 @@ class SVMMultiClassBoserCSRBatch {
         NumericTable testData = Service.createSparseTable(context, testDatasetFileName);
 
         /* Create a numeric table to store the prediction results */
-        PredictionBatch algorithm = new PredictionBatch(context, Float.class, PredictionMethod.multiClassClassifierWu, nClasses);
+        PredictionBatch algorithm = new PredictionBatch(context, Float.class, PredictionMethod.voteBased, nClasses);
 
         algorithm.parameter.setTraining(twoClassTraining);
         algorithm.parameter.setPrediction(twoClassPrediction);
+        algorithm.parameter.setResultsToEvaluate(ResultsToComputeId.computeClassLabels | ResultsToComputeId.computeDecisionFunction);
 
         Model model = trainingResult.get(TrainingResultId.model);
 
@@ -149,5 +149,7 @@ class SVMMultiClassBoserCSRBatch {
         Service.printClassificationResult(testGroundTruth, predictionResults, "Ground truth", "Classification results",
                 "Multi-class SVM classification sample program results (first 20 observations):", 20);
         System.out.println("");
+        Service.printNumericTable("Multi-class SVM classification decision function results (first 20 observations):",
+                 predictionResult.get(PredictionResultId.decisionFunction) , 20);
     }
 }

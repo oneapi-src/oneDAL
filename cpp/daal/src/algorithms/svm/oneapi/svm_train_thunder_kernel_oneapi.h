@@ -27,6 +27,7 @@
 #include "algorithms/svm/svm_train_types.h"
 #include "src/algorithms/kernel.h"
 #include "src/algorithms/svm/oneapi/svm_helper_oneapi.h"
+#include "src/services/service_data_utils.h"
 
 namespace daal
 {
@@ -41,40 +42,45 @@ namespace internal
 using namespace daal::data_management;
 using namespace daal::services;
 
-template <typename algorithmFPType, typename ParameterType, Method method>
+template <typename algorithmFPType, Method method>
 class SVMTrainOneAPI : public Kernel
 {
 public:
-    services::Status compute(const NumericTablePtr & xTable, NumericTable & yTable, daal::algorithms::Model * r, const ParameterType * par)
+    services::Status compute(const NumericTablePtr & xTable, NumericTable & yTable, daal::algorithms::Model * r, const svm::Parameter * par)
     {
         return services::ErrorMethodNotImplemented;
     }
 };
 
-template <typename algorithmFPType, typename ParameterType>
-class SVMTrainOneAPI<algorithmFPType, ParameterType, thunder> : public Kernel
+template <typename algorithmFPType>
+class SVMTrainOneAPI<algorithmFPType, thunder> : public Kernel
 {
     using Helper = utils::internal::HelperSVM<algorithmFPType>;
 
 public:
-    services::Status compute(const NumericTablePtr & xTable, NumericTable & yTable, daal::algorithms::Model * r, const ParameterType * par);
+    services::Status compute(const NumericTablePtr & xTable, NumericTable & yTable, daal::algorithms::Model * r, const svm::Parameter * par);
 
 protected:
-    services::Status updateGrad(const services::Buffer<algorithmFPType> & kernelWS, const services::Buffer<algorithmFPType> & deltaalpha,
-                                services::Buffer<algorithmFPType> & grad, const size_t nVectors, const size_t nWS);
-    services::Status smoKernel(const services::Buffer<algorithmFPType> & y, const services::Buffer<algorithmFPType> & kernelWsRows,
-                               const services::Buffer<uint32_t> & wsIndices, const uint32_t ldK, const services::Buffer<algorithmFPType> & f,
-                               const algorithmFPType C, const algorithmFPType eps, const algorithmFPType tau, const uint32_t maxInnerIteration,
-                               services::Buffer<algorithmFPType> & alpha, services::Buffer<algorithmFPType> & deltaalpha,
-                               services::Buffer<algorithmFPType> & resinfo, const size_t nWS);
+    services::Status updateGrad(const services::internal::Buffer<algorithmFPType> & kernelWS,
+                                const services::internal::Buffer<algorithmFPType> & deltaalpha, services::internal::Buffer<algorithmFPType> & grad,
+                                const size_t nVectors, const size_t nWS);
+    services::Status smoKernel(const services::internal::Buffer<algorithmFPType> & y,
+                               const services::internal::Buffer<algorithmFPType> & kernelWsRows,
+                               const services::internal::Buffer<uint32_t> & wsIndices, const size_t ldK,
+                               const services::internal::Buffer<algorithmFPType> & f, const algorithmFPType C, const algorithmFPType eps,
+                               const algorithmFPType tau, const size_t maxInnerIteration, services::internal::Buffer<algorithmFPType> & alpha,
+                               services::internal::Buffer<algorithmFPType> & deltaalpha, services::internal::Buffer<algorithmFPType> & resinfo,
+                               const size_t nWS);
 
     bool checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev, const algorithmFPType eps, size_t & sameLocalDiff);
 
 private:
     // One of the conditions for stopping is diff stays unchanged. nNoChanges - number of repetitions
-    static const size_t nNoChanges = 5;
+    static constexpr size_t nNoChanges = 5;
     // The maximum numbers of iteration of the subtask is number of observation in WS x cInnerIterations. It's enough to find minimum for subtask.
-    static const size_t cInnerIterations = 1000;
+    static constexpr size_t cInnerIterations = 1000;
+
+    static constexpr size_t uint32max = static_cast<size_t>(services::internal::MaxVal<uint32_t>::get());
 };
 
 } // namespace internal

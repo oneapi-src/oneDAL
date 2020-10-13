@@ -23,24 +23,24 @@
 #include "oneapi/dal/io/load_graph.hpp"
 
 using namespace oneapi::dal;
-using namespace oneapi::dal::preview;
 
 int main(int argc, char **argv) {
     const std::string filename = get_data_path("graph.csv");
 
-    graph_csv_data_source ds(filename);
-    load_graph::descriptor<> d;
-    auto my_graph = load_graph::load(d, ds);
-    std::cout << "Number of vertices: " << get_vertex_count(my_graph) << std::endl;
-    std::cout << "Number of edges: " << get_edge_count(my_graph) << std::endl;
+    const preview::graph_csv_data_source ds(filename);
+    using my_graph_type = preview::undirected_adjacency_array_graph<>;
+    const preview::load_graph::descriptor<preview::edge_list<int32_t>, my_graph_type> desc;
+    const auto my_graph = preview::load_graph::load(desc, ds);
+    std::cout << "Number of vertices: " << preview::get_vertex_count(my_graph) << std::endl;
+    std::cout << "Number of edges: " << preview::get_edge_count(my_graph) << std::endl;
 
-    auto node_id = 0;
-    std::cout << "Degree of " << node_id << ": " << get_vertex_degree(my_graph, node_id)
+    preview::vertex_type<my_graph_type> vertex_id = 0;
+    std::cout << "Degree of " << vertex_id << ": " << preview::get_vertex_degree(my_graph, vertex_id)
               << std::endl;
 
-    for (unsigned int j = 0; j < get_vertex_count(my_graph); ++j) {
+    for (preview::vertex_size_type<my_graph_type> j = 0; j < preview::get_vertex_count(my_graph); ++j) {
         std::cout << "Neighbors of " << j << ": ";
-        auto neigh = get_vertex_neighbors(my_graph, j);
+        const auto neigh = preview::get_vertex_neighbors(my_graph, j);
         for (auto i = neigh.first; i != neigh.second; ++i) {
             std::cout << *i << " ";
         }

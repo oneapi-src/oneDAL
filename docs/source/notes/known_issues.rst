@@ -14,8 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. |dpcpp_comp_release_notes| replace:: Release Notes for Intel\ |reg|\  oneAPI DPC++ Compiler
-.. _dpcpp_comp_release_notes: https://software.intel.com/en-us/articles/intel-oneapi-dpcpp-compiler-release-notes-beta
+.. |dpcpp_comp_release_notes| replace:: Release Notes for Intel\ |reg|\  oneAPI DPC++/C++ Compiler
+.. _dpcpp_comp_release_notes: https://software.intel.com/content/www/us/en/develop/articles/intel-oneapi-dpcpp-compiler-release-notes-beta.html
 
 .. _known_issues:
 
@@ -23,6 +23,13 @@ Known Issues
 ============
 
 For more details, refer to |dpcpp_comp_release_notes|_.
+
+.. toctree::
+  :maxdepth: 1
+  :caption: 2021.1-beta09
+
+  issues/2021.1-beta09/oneapi-examples-segfault.rst
+  issues/2021.1-beta09/pca-examples-on-gpu.rst
 
 .. toctree::
   :maxdepth: 1
