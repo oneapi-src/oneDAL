@@ -30,10 +30,9 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
-
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../'))
 
 # -- Project information -----------------------------------------------------
 
@@ -68,7 +67,10 @@ substitutions = [
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx-prompt', 'sphinx_substitution_extensions', 'sphinx.ext.extlinks', 'sphinx_tabs.tabs']
+
+# sys.path.insert(0, path_relative_to_repo_root('source/elements/oneDAL'))
+
+extensions = ['sphinx-prompt', 'sphinx_substitution_extensions', 'sphinx.ext.extlinks', 'sphinx_tabs.tabs', 'dalapi']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -133,3 +135,6 @@ html_theme_options = {
     # 'display_version': True,  # Display the docs version
     'navigation_depth': 4  # Depth of the headers shown in the navigation bar
 }
+
+# oneDAL project directory is needed for `dalapi` extension
+onedal_project_dir = '../'
