@@ -419,7 +419,8 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::getQueueFront(uint32_t & queueEn
     DAAL_ASSERT_UNIVERSAL_BUFFER(_queueFront, int, 1);
     const auto val = _queueFront.template get<int>().toHost(ReadWriteMode::readOnly, &st);
     DAAL_CHECK_STATUS_VAR(st);
-    queueEnd = *val.get();
+    DAAL_ASSERT(*val.get() >= 0);
+    queueEnd = static_cast<uint32_t>(*val.get());
     return st;
 }
 
