@@ -116,7 +116,6 @@ vertex_similarity_result call_jaccard_default_kernel_scalar(
             }
         }
     }
-
     vertex_similarity_result res(
         homogen_table::wrap(first_vertices, number_elements_in_block, 2, data_layout::column_major),
         homogen_table::wrap(jaccard, number_elements_in_block, 1, data_layout::column_major),
