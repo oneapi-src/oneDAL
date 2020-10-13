@@ -102,8 +102,8 @@ protected:
                                        services::internal::sycl::UniversalBuffer & binBorders, uint32_t nRows, uint32_t maxBins);
 
     services::Status computeBins(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & indices,
-                                 services::internal::sycl::UniversalBuffer & binBorders, services::internal::sycl::UniversalBuffer & bins, uint32_t nRows,
-                                 uint32_t nBins, uint32_t maxBins, uint32_t localSize, uint32_t nLocalBlocks);
+                                 services::internal::sycl::UniversalBuffer & binBorders, services::internal::sycl::UniversalBuffer & bins,
+                                 uint32_t nRows, uint32_t nBins, uint32_t maxBins, uint32_t localSize, uint32_t nLocalBlocks);
 
     services::Status computeBins(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & indices,
                                  services::internal::sycl::UniversalBuffer & bins, FeatureEntry & entry, uint32_t nRows,

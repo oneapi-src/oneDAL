@@ -85,7 +85,8 @@ private:
                                       services::internal::sycl::UniversalBuffer & optCoeffs,
                                       services::internal::sycl::UniversalBuffer & partialHistograms,
                                       services::internal::sycl::UniversalBuffer & histograms, uint32_t iStart, uint32_t nRows,
-                                      services::internal::sycl::UniversalBuffer & binOffsets, uint32_t nTotalBins, uint32_t totalRows, uint32_t nFeatures);
+                                      services::internal::sycl::UniversalBuffer & binOffsets, uint32_t nTotalBins, uint32_t totalRows,
+                                      uint32_t nFeatures);
 
     services::Status computeHistogramDiff(services::internal::sycl::UniversalBuffer & histogramSrc,
                                           services::internal::sycl::UniversalBuffer & histogramTotal,

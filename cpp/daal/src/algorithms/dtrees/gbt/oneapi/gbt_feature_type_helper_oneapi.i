@@ -84,7 +84,7 @@ static services::Status __buildProgram(ClKernelFactoryIface & factory)
     cachekey.add(fptype_name);
     cachekey.add(radixtype_name);
     factory.build(ExecutionTargetIds::device, cachekey.c_str(), gbt_common_kernels, build_options.c_str(), &status);
-    
+
     return status;
 }
 
@@ -117,7 +117,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::alloc(uint32_t nC, uint
 
     if (!_data.resize(nC))
     {
-        return services::throwIfPossible(services::ErrorMemoryAllocationFailed);        
+        return services::throwIfPossible(services::ErrorMemoryAllocationFailed);
     }
 
     for (uint32_t i = 0; i < nC; i++)
@@ -179,7 +179,6 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::extractColumn(const ser
     return status;
 }
 
-
 template <typename algorithmFPType>
 services::Status IndexedFeaturesOneAPI<algorithmFPType>::collectBinBorders(UniversalBuffer & values, UniversalBuffer & binOffsets,
                                                                            UniversalBuffer & binBorders, uint32_t nRows, uint32_t maxBins)
@@ -216,8 +215,8 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::collectBinBorders(Unive
 
 template <typename algorithmFPType>
 services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBuffer & values, UniversalBuffer & indices,
-                                                                     UniversalBuffer & binBorders, UniversalBuffer & bins, uint32_t nRows, uint32_t nBins,
-                                                                     uint32_t maxBins, uint32_t localSize, uint32_t nLocalBlocks)
+                                                                     UniversalBuffer & binBorders, UniversalBuffer & bins, uint32_t nRows,
+                                                                     uint32_t nBins, uint32_t maxBins, uint32_t localSize, uint32_t nLocalBlocks)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(indexedFeatures.computeBins);
 
@@ -262,7 +261,8 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
 
 template <typename algorithmFPType>
 services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBuffer & values, UniversalBuffer & indices, UniversalBuffer & bins,
-                                                                     FeatureEntry & entry, uint32_t nRows, const dtrees::internal::BinParams * pBinPrm)
+                                                                     FeatureEntry & entry, uint32_t nRows,
+                                                                     const dtrees::internal::BinParams * pBinPrm)
 {
     services::Status status;
 

@@ -92,7 +92,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::scan
     {
         DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(values), algorithmFPType, nRows);
         DAAL_ASSERT_UNIVERSAL_BUFFER(partialSums, algorithmFPType, nLocalSums);
-        
+
         KernelArguments args(3);
         args.set(0, values, AccessModeIds::read);
         args.set(1, partialSums, AccessModeIds::write);
@@ -169,7 +169,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::getI
 
     auto partialSums = context.allocate(TypeIds::id<algorithmFPType>(), nSubgroupSums, &status);
     DAAL_CHECK_STATUS_VAR(status);
-    auto totalSum    = context.allocate(TypeIds::id<algorithmFPType>(), 1, &status);
+    auto totalSum = context.allocate(TypeIds::id<algorithmFPType>(), 1, &status);
     DAAL_CHECK_STATUS_VAR(status);
 
     BlockDescriptor<algorithmFPType> yBlock;
@@ -183,7 +183,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::getI
         DAAL_ASSERT_UNIVERSAL_BUFFER(totalSum, algorithmFPType, 1);
         auto totalSumHost = totalSum.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, &status);
         DAAL_CHECK_STATUS_VAR(status);
-        *response         = totalSumHost.get()[0] / nRows;
+        *response = totalSumHost.get()[0] / nRows;
     }
 
     DAAL_CHECK_STATUS_VAR(y.releaseBlockOfRows(yBlock));
@@ -259,7 +259,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::init
 template <typename algorithmFPType, gbt::regression::training::Method method>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::computePartialHistograms(
     const UniversalBuffer & data, UniversalBuffer & treeOrder, UniversalBuffer & optCoeffs, UniversalBuffer & partialHistograms, uint32_t iStart,
-    uint32_t nRows, UniversalBuffer & binOffsets, uint32_t nTotalBins, uint32_t nFeatures, uint32_t localSize, uint32_t nPartialHistograms, uint32_t totalRows)
+    uint32_t nRows, UniversalBuffer & binOffsets, uint32_t nTotalBins, uint32_t nFeatures, uint32_t localSize, uint32_t nPartialHistograms,
+    uint32_t totalRows)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computePartialHistograms);
 
@@ -308,7 +309,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 template <typename algorithmFPType, gbt::regression::training::Method method>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::reducePartialHistograms(UniversalBuffer & partialHistograms,
                                                                                                     UniversalBuffer & histograms, uint32_t nTotalBins,
-                                                                                                    uint32_t reduceLocalSize, uint32_t nPartialHistograms)
+                                                                                                    uint32_t reduceLocalSize,
+                                                                                                    uint32_t nPartialHistograms)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.reducePartialHistograms);
 
@@ -347,7 +349,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::redu
 template <typename algorithmFPType, gbt::regression::training::Method method>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::computeHistogram(
     const UniversalBuffer & data, UniversalBuffer & treeOrder, UniversalBuffer & optCoeffs, UniversalBuffer & partialHistograms,
-    UniversalBuffer & histograms, uint32_t iStart, uint32_t nRows, UniversalBuffer & binOffsets, uint32_t nTotalBins, uint32_t totalRows, uint32_t nFeatures)
+    UniversalBuffer & histograms, uint32_t iStart, uint32_t nRows, UniversalBuffer & binOffsets, uint32_t nTotalBins, uint32_t totalRows,
+    uint32_t nFeatures)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeHistogram);
 
@@ -495,8 +498,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     auto & context      = services::internal::getDefaultContext();
     auto totalOptCoeffs = context.allocate(TypeIds::id<algorithmFPType>(), 2, &status);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, nFeatures, 5);
-    auto splitInfo      = context.allocate(TypeIds::id<algorithmFPType>(), nFeatures * 5, &status);
-    auto splitValue     = context.allocate(TypeIds::id<int>(), nFeatures, &status);
+    auto splitInfo  = context.allocate(TypeIds::id<algorithmFPType>(), nFeatures * 5, &status);
+    auto splitValue = context.allocate(TypeIds::id<int>(), nFeatures, &status);
 
     const uint32_t localSize = _preferableSubGroup;
 
@@ -509,13 +512,13 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         DAAL_ASSERT_UNIVERSAL_BUFFER(totalOptCoeffs, algorithmFPType, 2);
         auto totalOptCoeffsHost = totalOptCoeffs.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, &status);
         DAAL_CHECK_STATUS_VAR(status);
-        *gTotal                 = totalOptCoeffsHost.get()[0];
-        *hTotal                 = totalOptCoeffsHost.get()[1];
+        *gTotal = totalOptCoeffsHost.get()[0];
+        *hTotal = totalOptCoeffsHost.get()[1];
     }
     {
         DAAL_ASSERT_UNIVERSAL_BUFFER(splitInfo, algorithmFPType, nFeatures * 5);
         DAAL_ASSERT_UNIVERSAL_BUFFER(splitValue, int, nFeatures);
-        auto splitInfoHost  = splitInfo.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, &status);
+        auto splitInfoHost = splitInfo.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, &status);
         DAAL_CHECK_STATUS_VAR(status);
         auto splitValueHost = splitValue.template get<int>().toHost(ReadWriteMode::readOnly, &status);
         DAAL_CHECK_STATUS_VAR(status);
@@ -703,8 +706,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
 
 template <typename algorithmFPType, gbt::regression::training::Method method>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::doPartition(const UniversalBuffer & data, UniversalBuffer & treeOrder,
-                                                                                        UniversalBuffer & treeOrderBuf, int splitValue, uint32_t iStart,
-                                                                                        uint32_t nRows, uint32_t & nLeft, uint32_t & nRight, uint32_t totalRows)
+                                                                                        UniversalBuffer & treeOrderBuf, int splitValue,
+                                                                                        uint32_t iStart, uint32_t nRows, uint32_t & nLeft,
+                                                                                        uint32_t & nRight, uint32_t totalRows)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.doPartition);
 
@@ -718,24 +722,25 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::doPa
     const int nSubgroupSums = nLocalSums * (localSize / subSize);
 
     DAAL_OVERFLOW_CHECK_BY_ADDING(uint32_t, nSubgroupSums, 1);
-    auto partialSums       = context.allocate(TypeIds::id<int>(), nSubgroupSums + 1, &status);
+    auto partialSums = context.allocate(TypeIds::id<int>(), nSubgroupSums + 1, &status);
     DAAL_CHECK_STATUS_VAR(status);
     auto partialPrefixSums = context.allocate(TypeIds::id<int>(), nSubgroupSums + 1, &status);
     DAAL_CHECK_STATUS_VAR(status);
-    auto totalSum          = context.allocate(TypeIds::id<int>(), 1, &status);
+    auto totalSum = context.allocate(TypeIds::id<int>(), 1, &status);
     DAAL_CHECK_STATUS_VAR(status);
 
     DAAL_CHECK_STATUS_VAR(partitionScan(data, treeOrder, partialSums, splitValue, iStart, nRows, localSize, nLocalSums, totalRows));
     DAAL_CHECK_STATUS_VAR(partitionSumScan(partialSums, partialPrefixSums, totalSum, localSize, nSubgroupSums));
-    DAAL_CHECK_STATUS_VAR(partitionReorder(data, treeOrder, treeOrderBuf, partialPrefixSums, splitValue, iStart, nRows, localSize, nLocalSums, totalRows));
+    DAAL_CHECK_STATUS_VAR(
+        partitionReorder(data, treeOrder, treeOrderBuf, partialPrefixSums, splitValue, iStart, nRows, localSize, nLocalSums, totalRows));
     DAAL_CHECK_STATUS_VAR(partitionCopy(treeOrderBuf, treeOrder, iStart, nRows, totalRows));
 
     {
         DAAL_ASSERT_UNIVERSAL_BUFFER(totalSum, int, 1);
         auto totalSumHost = totalSum.template get<int>().toHost(ReadWriteMode::readOnly, &status);
         DAAL_CHECK_STATUS_VAR(status);
-        nRight            = totalSumHost.get()[0];
-        nLeft             = nRows - totalSumHost.get()[0];
+        nRight = totalSumHost.get()[0];
+        nLeft  = nRows - totalSumHost.get()[0];
         if (nLeft == 0 || nRight == 0)
         {
             return status;
@@ -747,7 +752,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::doPa
 
 template <typename algorithmFPType, gbt::regression::training::Method method>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::updateResponse(UniversalBuffer & treeOrder, UniversalBuffer & response,
-                                                                                           uint32_t iStart, uint32_t nRows, algorithmFPType inc, uint32_t totalRows)
+                                                                                           uint32_t iStart, uint32_t nRows, algorithmFPType inc,
+                                                                                           uint32_t totalRows)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateResponse);
 
@@ -834,14 +840,14 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     BinParams prm(par.maxBins, par.minBinSize);
     DAAL_CHECK_STATUS(status, (indexedFeatures.init(*const_cast<NumericTable *>(x), &featTypes, &prm)));
 
-    auto response          = context.allocate(TypeIds::id<algorithmFPType>(), nRows, &status);
+    auto response = context.allocate(TypeIds::id<algorithmFPType>(), nRows, &status);
     DAAL_CHECK_STATUS_VAR(status);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, nRows, 2);
-    auto optCoeffs         = context.allocate(TypeIds::id<algorithmFPType>(), nRows * 2, &status);
+    auto optCoeffs = context.allocate(TypeIds::id<algorithmFPType>(), nRows * 2, &status);
     DAAL_CHECK_STATUS_VAR(status);
-    auto treeOrder         = context.allocate(TypeIds::id<int>(), nRows, &status);
+    auto treeOrder = context.allocate(TypeIds::id<int>(), nRows, &status);
     DAAL_CHECK_STATUS_VAR(status);
-    auto treeOrderBuf      = context.allocate(TypeIds::id<int>(), nRows, &status);
+    auto treeOrderBuf = context.allocate(TypeIds::id<int>(), nRows, &status);
     DAAL_CHECK_STATUS_VAR(status);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, _maxLocalHistograms, indexedFeatures.totalBins());
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, _maxLocalHistograms * indexedFeatures.totalBins(), 2);
@@ -1090,13 +1096,13 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         gbt::internal::GbtDecisionTree * pTbl = new gbt::internal::GbtDecisionTree(nNodes, maxLevel, nNodesPresent);
         DAAL_CHECK_MALLOC(pTbl);
 
-        HomogenNumericTable<double> * pTblImp  = new HomogenNumericTable<double>(1, nNodes, NumericTable::doAllocate);
+        HomogenNumericTable<double> * pTblImp = new HomogenNumericTable<double>(1, nNodes, NumericTable::doAllocate);
         DAAL_CHECK_MALLOC(pTblImp);
         HomogenNumericTable<int> * pTblSmplCnt = new HomogenNumericTable<int>(1, nNodes, NumericTable::doAllocate);
         DAAL_CHECK_MALLOC(pTblSmplCnt);
 
-        DAAL_CHECK_STATUS_VAR(connector.template convertToGbtDecisionTree<sse2>(binValues.data(), nNodes, maxLevel, pTbl, pTblImp->getArray(), pTblSmplCnt->getArray(),
-                                                          initResp, par));
+        DAAL_CHECK_STATUS_VAR(connector.template convertToGbtDecisionTree<sse2>(binValues.data(), nNodes, maxLevel, pTbl, pTblImp->getArray(),
+                                                                                pTblSmplCnt->getArray(), initResp, par));
         modelImpl.add(pTbl, pTblImp, pTblSmplCnt);
 
         initResp = 0.0;
