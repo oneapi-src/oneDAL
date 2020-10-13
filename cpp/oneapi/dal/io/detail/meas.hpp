@@ -17,6 +17,26 @@
 #pragma once
 
 #include <chrono>
+#include <type_traits>
+
+template <typename Function, typename... Arguments>
+inline double measure(Function func, Arguments&... args) {
+    const auto start_time = std::chrono::high_resolution_clock::now();
+    func(std::forward<Arguments>(args)...);
+    const auto end_time = std::chrono::high_resolution_clock::now();
+    return std::chrono::duration<double>(end_time - start_time).count();
+}
+template <typename Function, typename... Arguments>
+inline std::pair<double, typename std::result_of<Function(Arguments...)>::type> measure_with_result(
+    Function func,
+    Arguments&... args) {
+    const auto start_time = std::chrono::high_resolution_clock::now();
+    auto function_result = func(std::forward<Arguments>(args)...);
+    const auto end_time = std::chrono::high_resolution_clock::now();
+    const auto time_delta = std::chrono::duration<double>(end_time - start_time).count();
+    return std::pair(time_delta, function_result);
+}
+
 // #ifndef CR_INIT()
 #define CR_INIT()                                        \
     auto t0 = std::chrono::high_resolution_clock::now(); \

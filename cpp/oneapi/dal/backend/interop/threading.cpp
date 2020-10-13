@@ -16,7 +16,6 @@
 
 #include "oneapi/dal/detail/threading.hpp"
 #include "src/threading/threading.h"
-#include "oneapi/dal/io/detail/load_graph_service.hpp"
 
 ONEAPI_DAL_EXPORT void _daal_threader_for_oneapi(int n,
                                                  int threads_request,
