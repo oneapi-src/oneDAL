@@ -64,7 +64,7 @@ Training procedure is an iterative algorithm which minimizes
 objective function
 
 .. math::
-		 L\left(\beta \right)=-\frac{1}{n}\sum _{i=1}^{n}\mathrm{log}{p}_{{y}_{i}}\left({x}_{i},\mathrm{ }\mathrm{\beta }\right)+\mathrm{ }{\lambda }_{1}\sum _{k=0}^{K-1}{‖{\beta }_{k}‖}_{L1}+ {\lambda }_{2}\sum _{k=0}^{K-1}{‖{\beta }_{k}‖}_{L2}
+		 L\left(\beta \right)=-\frac{1}{n}\sum _{i=1}^{n}\mathrm{log}{p}_{{y}_{i}}\left({x}_{i},\mathrm{ }\mathrm{\beta }\right)+\mathrm{ }{\lambda }_{1}\sum _{k=0}^{K-1}{\|{\beta }_{k}\|}_{L1}+ {\lambda }_{2}\sum _{k=0}^{K-1}{\|{\beta }_{k}\|}_{L2}
 
 where the first term is the negative log-likelihood of conditional
 :math:`Y` given :math:`X`, and the latter terms are regularization ones that

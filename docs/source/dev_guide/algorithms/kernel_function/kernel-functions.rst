@@ -200,7 +200,7 @@ feature vectors :math:`y_1 = (y_{11}, \ldots, y_{1p}), \ldots, y_m = (y_{m1}, \l
 the problem is to compute the RBF kernel function :math:`K(x_i,, y_i)` for any pair of input vectors:
 
 .. math::
-   K\left({x}_{i},{y}_{j}\right)=exp\left(-\frac{{\left(‖{x}_{i}-{y}_{j}‖\right)}^{2}}{2{\sigma }^{2}}\right)
+   K\left({x}_{i},{y}_{j}\right)=exp\left(-\frac{{\left(\|{x}_{i}-{y}_{j}\|\right)}^{2}}{2{\sigma }^{2}}\right)
 
 Batch Processing
 ****************
