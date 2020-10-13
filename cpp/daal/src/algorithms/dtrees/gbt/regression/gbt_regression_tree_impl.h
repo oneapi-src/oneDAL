@@ -92,15 +92,18 @@ public:
         badSplit
     };
 
-    static services::SharedPtr<AOSNumericTable> createGBTree(size_t maxTreeDepth, services::Status * status = NULL)
+    static services::SharedPtr<AOSNumericTable> createGBTree(size_t maxTreeDepth, services::Status & status)
     {
-        DAAL_ASSERT(maxTreeDepth >= 0);
+        if ((sizeof(size_t) == 4 && maxTreeDepth > 31) || (sizeof(size_t) == 8 && maxTreeDepth > 63)) {
+            status |= services::throwIfPossible(services::ErrorMemoryAllocationFailed);        
+            return services::SharedPtr<AOSNumericTable>();
+        }
+        
+        size_t nNodes = ((size_t)1 << (maxTreeDepth + 1)) - 1;
 
-        size_t nNodes = (1 << (maxTreeDepth + 1)) - 1;
+        services::SharedPtr<AOSNumericTable> table = AOSNumericTable::create(sizeof(TableRecordType), 13, nNodes, &status);
 
-        services::SharedPtr<AOSNumericTable> table = AOSNumericTable::create(sizeof(TableRecordType), 13, nNodes, status);
-
-        if (status && !(*status))
+        if (!status)
         {
             return services::SharedPtr<AOSNumericTable>();
         }
@@ -119,7 +122,11 @@ public:
         table->template setFeature<algorithmFPType>(11, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, hTotal));
         table->template setFeature<size_t>(12, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, nTotal));
 
-        table->allocateDataMemory();
+        status |= table->allocateDataMemory();
+
+        if (!status) {
+            return services::SharedPtr<AOSNumericTable>();
+        }
 
         services::internal::service_memset<char, sse2>((char *)table->getArray(), (char)0, sizeof(TableRecordType) * nNodes);
 
@@ -197,6 +204,7 @@ public:
         {
             if (record.nodeState == badSplit)
             {
+                DAAL_ASSERT(_splitLevel > 0);
                 if (record.level == _splitLevel - 1 && addEmpty)
                 {
                     nodesForSplit << SplitRecordType();
@@ -207,6 +215,7 @@ public:
                 TableRecordType & leftChild  = _records[2 * nid + 1];
                 TableRecordType & rightChild = _records[2 * nid + 2];
 
+                DAAL_ASSERT(_splitLevel > 0);
                 if (record.level == _splitLevel - 1)
                 {
                     SplitRecordType splitRecord;
@@ -311,19 +320,15 @@ public:
     }
 
     template <CpuType cpu>
-    void convertToGbtDecisionTree(algorithmFPType ** binValues, const size_t nNodes, const size_t maxLevel, gbt::internal::GbtDecisionTree * tree,
-                                  double * impVals, int * nNodeSamplesVals, const algorithmFPType initialF, const training::Parameter & par, services::Status * status)
+    services::Status convertToGbtDecisionTree(algorithmFPType ** binValues, const size_t nNodes, const size_t maxLevel, gbt::internal::GbtDecisionTree * tree,
+                                  double * impVals, int * nNodeSamplesVals, const algorithmFPType initialF, const training::Parameter & par)
     {
-        services::Status localStatus;
         services::Collection<TableRecordType *> sonsArr(nNodes + 1);
         services::Collection<TableRecordType *> parentsArr(nNodes + 1);
+
         if (!sonsArr.data() || !parentsArr.data())
         {
-            if (status)
-            {
-                *status |= services::throwIfPossible(services::ErrorMemoryAllocationFailed);
-            }
-            return;
+            return services::throwIfPossible(services::ErrorMemoryAllocationFailed);
         }
         
         TableRecordType ** sons    = sonsArr.data();
@@ -380,6 +385,8 @@ public:
                 nParents = nSons;
             }
         }
+
+        return services::Status();
     }
 
     void initialize();

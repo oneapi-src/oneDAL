@@ -76,8 +76,8 @@ void runRadixSortSimd(ExecutionContextIface & context, ClKernelFactoryIface & ke
     args.set(0, input, AccessModeIds::read);
     args.set(1, output, AccessModeIds::write);
     args.set(2, buffer, AccessModeIds::read);
-    args.set(3, vectorSize);
-    args.set(4, vectorOffset);
+    args.set(3, static_cast<int32_t>(vectorSize));
+    args.set(4, static_cast<int32_t>(vectorOffset));
 
     context.run(range, sum_kernel, args, status);
 }
@@ -96,7 +96,7 @@ void RadixSort::sort(const UniversalBuffer & input, const UniversalBuffer & outp
 }
 
 services::Status RadixSort::sortIndices(UniversalBuffer & values, UniversalBuffer & indices, UniversalBuffer & valuesOut,
-                                        UniversalBuffer & indicesOut, int nRows)
+                                        UniversalBuffer & indicesOut, uint32_t nRows)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(RadixSort.sortIndices);
     services::Status status;
@@ -106,22 +106,22 @@ services::Status RadixSort::sortIndices(UniversalBuffer & values, UniversalBuffe
 
     buildProgram(kernelFactory, values.type());
 
-    const size_t sizeFPtype = values.type() == TypeIds::Id::float32 ? 4 : values.type() == TypeIds::Id::float64 ? 8 : 0;
+    const uint32_t sizeFPtype = values.type() == TypeIds::Id::float32 ? 4 : values.type() == TypeIds::Id::float64 ? 8 : 0;
 
-    const int radixBits      = 4;
-    const int subSize        = _preferableSubGroup;
-    const int localSize      = _preferableSubGroup;
-    const int nLocalHists    = 1024 * localSize < nRows ? 1024 : (nRows / localSize) + !!(nRows % localSize);
-    const int nSubgroupHists = nLocalHists * (localSize / subSize);
+    const uint32_t radixBits      = 4;
+    const uint32_t subSize        = _preferableSubGroup;
+    const uint32_t localSize      = _preferableSubGroup;
+    const uint32_t nLocalHists    = 1024 * localSize < nRows ? 1024 : (nRows / localSize) + !!(nRows % localSize);
+    const uint32_t nSubgroupHists = nLocalHists * (localSize / subSize);
 
     auto partialHists       = context.allocate(TypeIds::id<int>(), (nSubgroupHists + 1) << _radixBits, &status);
     auto partialPrefixHists = context.allocate(TypeIds::id<int>(), (nSubgroupHists + 1) << _radixBits, &status);
 
     DAAL_CHECK_STATUS_VAR(status);
 
-    size_t rev = 0;
+    uint32_t rev = 0;
 
-    for (size_t bitOffset = 0; bitOffset < 8 * sizeFPtype; bitOffset += radixBits, rev ^= 1)
+    for (uint32_t bitOffset = 0; bitOffset < 8 * sizeFPtype; bitOffset += radixBits, rev ^= 1)
     {
         if (!rev)
         {
@@ -141,8 +141,8 @@ services::Status RadixSort::sortIndices(UniversalBuffer & values, UniversalBuffe
     return status;
 }
 
-services::Status RadixSort::radixScan(UniversalBuffer & values, UniversalBuffer & partialHists, int nRows, int bitOffset, int localSize,
-                                      int nLocalHists)
+services::Status RadixSort::radixScan(UniversalBuffer & values, UniversalBuffer & partialHists, uint32_t nRows, uint32_t bitOffset, uint32_t localSize,
+                                      uint32_t nLocalHists)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(RadixSort.radixScan);
 
@@ -158,8 +158,8 @@ services::Status RadixSort::radixScan(UniversalBuffer & values, UniversalBuffer 
         KernelArguments args(4);
         args.set(0, values, AccessModeIds::read);
         args.set(1, partialHists, AccessModeIds::write);
-        args.set(2, nRows);
-        args.set(3, bitOffset);
+        args.set(2, static_cast<int32_t>(nRows));
+        args.set(3, static_cast<int32_t>(bitOffset));
 
         KernelRange local_range(localSize);
         KernelRange global_range(localSize * nLocalHists);
@@ -178,7 +178,7 @@ services::Status RadixSort::radixScan(UniversalBuffer & values, UniversalBuffer 
 }
 
 services::Status RadixSort::radixHistScan(UniversalBuffer & values, UniversalBuffer & partialHists, UniversalBuffer & partialPrefixHists,
-                                          int localSize, int nSubgroupHists)
+                                          uint32_t localSize, uint32_t nSubgroupHists)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(RadixSort.radixHistScan);
 
@@ -194,7 +194,7 @@ services::Status RadixSort::radixHistScan(UniversalBuffer & values, UniversalBuf
         KernelArguments args(3);
         args.set(0, partialHists, AccessModeIds::read);
         args.set(1, partialPrefixHists, AccessModeIds::write);
-        args.set(2, nSubgroupHists);
+        args.set(2, static_cast<int32_t>(nSubgroupHists));
 
         KernelRange local_range(localSize);
         KernelRange global_range(localSize);
@@ -213,8 +213,8 @@ services::Status RadixSort::radixHistScan(UniversalBuffer & values, UniversalBuf
 }
 
 services::Status RadixSort::radixReorder(UniversalBuffer & valuesSrc, UniversalBuffer & indicesSrc, UniversalBuffer & partialPrefixHists,
-                                         UniversalBuffer & valuesDst, UniversalBuffer & indicesDst, int nRows, int bitOffset, int localSize,
-                                         int nLocalHists)
+                                         UniversalBuffer & valuesDst, UniversalBuffer & indicesDst, uint32_t nRows, uint32_t bitOffset, uint32_t localSize,
+                                         uint32_t nLocalHists)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(RadixSort.radixReorder);
 
@@ -233,8 +233,8 @@ services::Status RadixSort::radixReorder(UniversalBuffer & valuesSrc, UniversalB
         args.set(2, partialPrefixHists, AccessModeIds::read);
         args.set(3, valuesDst, AccessModeIds::write);
         args.set(4, indicesDst, AccessModeIds::write);
-        args.set(5, nRows);
-        args.set(6, bitOffset);
+        args.set(5, static_cast<int32_t>(nRows));
+        args.set(6, static_cast<int32_t>(bitOffset));
 
         KernelRange local_range(localSize);
         KernelRange global_range(localSize * nLocalHists);
