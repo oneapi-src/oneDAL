@@ -40,6 +40,7 @@
 #include "src/services/service_data_utils.h"
 #include "src/services/service_algo_utils.h"
 #include "services/internal/sycl/types.h"
+#include "services/internal/sycl/daal_defines_sycl.h"
 
 using namespace daal::algorithms::dtrees::training::internal;
 using namespace daal::algorithms::gbt::internal;
@@ -89,6 +90,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::scan
     auto & kernel = kernelScan;
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(values), algorithmFPType, nRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(partialSums, algorithmFPType, nLocalSums);
+        
         KernelArguments args(3);
         args.set(0, values, AccessModeIds::read);
         args.set(1, partialSums, AccessModeIds::write);
@@ -123,6 +127,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::redu
     auto & kernel = kernelReduce;
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(partialSums, algorithmFPType, nSubgroupSums);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(totalSum, algorithmFPType, 1);
+
         KernelArguments args(3);
         args.set(0, partialSums, AccessModeIds::read);
         args.set(1, totalSum, AccessModeIds::write);
@@ -173,6 +180,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::getI
     DAAL_CHECK_STATUS_VAR(reduce(partialSums, totalSum, localSize, nLocalSums));
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(totalSum, algorithmFPType, 1);
         auto totalSumHost = totalSum.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, &status);
         DAAL_CHECK_STATUS_VAR(status);
         *response         = totalSumHost.get()[0] / nRows;
@@ -202,6 +210,10 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     auto yBuffer = yBlock.getBuffer();
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(yBuffer), algorithmFPType, nRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(response, algorithmFPType, nRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(optCoeffs, algorithmFPType, nRows * 2);
+
         KernelArguments args(3);
         args.set(0, yBuffer, AccessModeIds::read);
         args.set(1, response, AccessModeIds::read);
@@ -230,6 +242,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::init
     auto & kernel = kernelInitializeTreeOrder;
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(treeOrder, int, nRows);
+
         KernelArguments args(1);
         args.set(0, treeOrder, AccessModeIds::write);
 
@@ -245,7 +259,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::init
 template <typename algorithmFPType, gbt::regression::training::Method method>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::computePartialHistograms(
     const UniversalBuffer & data, UniversalBuffer & treeOrder, UniversalBuffer & optCoeffs, UniversalBuffer & partialHistograms, uint32_t iStart,
-    uint32_t nRows, UniversalBuffer & binOffsets, uint32_t nTotalBins, uint32_t nFeatures, uint32_t localSize, uint32_t nPartialHistograms)
+    uint32_t nRows, UniversalBuffer & binOffsets, uint32_t nTotalBins, uint32_t nFeatures, uint32_t localSize, uint32_t nPartialHistograms, uint32_t totalRows)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computePartialHistograms);
 
@@ -256,6 +270,12 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     auto & kernel = kernelComputePartialHistograms;
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(data, uint32_t, totalRows * nFeatures);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(treeOrder, int, totalRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(optCoeffs, algorithmFPType, totalRows * 2);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(partialHistograms, algorithmFPType, _maxLocalHistograms * nTotalBins * 2);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(binOffsets, uint32_t, nFeatures + 1);
+
         KernelArguments args(9);
         args.set(0, data, AccessModeIds::read);
         args.set(1, treeOrder, AccessModeIds::read);
@@ -299,6 +319,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::redu
     auto & kernel = kernelReducePartialHistograms;
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(partialHistograms, algorithmFPType, _maxLocalHistograms * nTotalBins * 2);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(histograms, algorithmFPType, nTotalBins * 2);
+
         KernelArguments args(4);
         args.set(0, partialHistograms, AccessModeIds::read);
         args.set(1, histograms, AccessModeIds::write);
@@ -324,7 +347,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::redu
 template <typename algorithmFPType, gbt::regression::training::Method method>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::computeHistogram(
     const UniversalBuffer & data, UniversalBuffer & treeOrder, UniversalBuffer & optCoeffs, UniversalBuffer & partialHistograms,
-    UniversalBuffer & histograms, uint32_t iStart, uint32_t nRows, UniversalBuffer & binOffsets, uint32_t nTotalBins, uint32_t nFeatures)
+    UniversalBuffer & histograms, uint32_t iStart, uint32_t nRows, UniversalBuffer & binOffsets, uint32_t nTotalBins, uint32_t totalRows, uint32_t nFeatures)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeHistogram);
 
@@ -341,7 +364,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     }
 
     DAAL_CHECK_STATUS_VAR(computePartialHistograms(data, treeOrder, optCoeffs, partialHistograms, iStart, nRows, binOffsets, nTotalBins, nFeatures,
-                                                   localSize, nPartialHistograms));
+                                                   localSize, nPartialHistograms, totalRows));
     DAAL_CHECK_STATUS_VAR(reducePartialHistograms(partialHistograms, histograms, nTotalBins, reduceLocalSize, nPartialHistograms));
 
     return status;
@@ -361,6 +384,10 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     auto & kernel = kernelComputeHistogramDiff;
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(histogramSrc, algorithmFPType, nTotalBins * 2);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(histogramTotal, algorithmFPType, nTotalBins * 2);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(histogramDst, algorithmFPType, nTotalBins * 2);
+
         KernelArguments args(3);
         args.set(0, histogramSrc, AccessModeIds::read);
         args.set(1, histogramTotal, AccessModeIds::read);
@@ -376,7 +403,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 }
 
 template <typename algorithmFPType, gbt::regression::training::Method method>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::computeTotalOptCoeffs(UniversalBuffer & histogram,
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::computeTotalOptCoeffs(UniversalBuffer & histograms,
                                                                                                   UniversalBuffer & totalOptCoeffs,
                                                                                                   UniversalBuffer & binOffsets, uint32_t nTotalBins,
                                                                                                   uint32_t nFeatures, uint32_t localSize)
@@ -390,8 +417,12 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     auto & kernel = kernelComputeTotalOptCoeffs;
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(histograms, algorithmFPType, nTotalBins * 2);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(totalOptCoeffs, algorithmFPType, 2);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(binOffsets, uint32_t, nFeatures + 1);
+
         KernelArguments args(4);
-        args.set(0, histogram, AccessModeIds::read);
+        args.set(0, histograms, AccessModeIds::read);
         args.set(1, totalOptCoeffs, AccessModeIds::write);
         args.set(2, binOffsets, AccessModeIds::read);
         args.set(3, static_cast<int32_t>(nTotalBins));
@@ -407,7 +438,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 
 template <typename algorithmFPType, gbt::regression::training::Method method>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::computeBestSplitForFeatures(
-    UniversalBuffer & histogram, UniversalBuffer & totalOptCoeffs, UniversalBuffer & splitInfo, UniversalBuffer & splitValue,
+    UniversalBuffer & histograms, UniversalBuffer & totalOptCoeffs, UniversalBuffer & splitInfo, UniversalBuffer & splitValue,
     UniversalBuffer & binOffsets, uint32_t nTotalBins, uint32_t nFeatures, algorithmFPType lambda, uint32_t localSize)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeBestSplitForFeatures);
@@ -419,8 +450,14 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     auto & kernel = kernelComputeBestSplitForFeatures;
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(histograms, algorithmFPType, nTotalBins * 2);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(totalOptCoeffs, algorithmFPType, 2);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(splitInfo, algorithmFPType, nFeatures * 5);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(splitValue, int, nFeatures);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(binOffsets, uint32_t, nFeatures + 1);
+
         KernelArguments args(7);
-        args.set(0, histogram, AccessModeIds::read);
+        args.set(0, histograms, AccessModeIds::read);
         args.set(1, totalOptCoeffs, AccessModeIds::read);
         args.set(2, splitInfo, AccessModeIds::write);
         args.set(3, splitValue, AccessModeIds::write);
@@ -469,12 +506,15 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 
     if (gTotal && hTotal)
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(totalOptCoeffs, algorithmFPType, 2);
         auto totalOptCoeffsHost = totalOptCoeffs.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, &status);
         DAAL_CHECK_STATUS_VAR(status);
         *gTotal                 = totalOptCoeffsHost.get()[0];
         *hTotal                 = totalOptCoeffsHost.get()[1];
     }
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(splitInfo, algorithmFPType, nFeatures * 5);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(splitValue, int, nFeatures);
         auto splitInfoHost  = splitInfo.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, &status);
         DAAL_CHECK_STATUS_VAR(status);
         auto splitValueHost = splitValue.template get<int>().toHost(ReadWriteMode::readOnly, &status);
@@ -507,7 +547,7 @@ template <typename algorithmFPType, gbt::regression::training::Method method>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::partitionScan(const UniversalBuffer & data, UniversalBuffer & treeOrder,
                                                                                           UniversalBuffer & partialSums, int splitValue,
                                                                                           uint32_t iStart, uint32_t nRows, uint32_t localSize,
-                                                                                          uint32_t nLocalSums)
+                                                                                          uint32_t nLocalSums, uint32_t totalRows)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.partitionScan);
 
@@ -518,6 +558,10 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
     auto & kernel = kernelPartitionScan;
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(data, uint32_t, totalRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(treeOrder, int, totalRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(partialSums, int, nLocalSums + 1);
+
         KernelArguments args(6);
         args.set(0, data, AccessModeIds::read);
         args.set(1, treeOrder, AccessModeIds::read);
@@ -557,6 +601,10 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
     auto & kernel = kernelPartitionSumScan;
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(partialSums, int, nSubgroupSums + 1);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(partialPrefixSums, int, nSubgroupSums + 1);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(totalSum, int, 1);
+
         KernelArguments args(4);
         args.set(0, partialSums, AccessModeIds::read);
         args.set(1, partialPrefixSums, AccessModeIds::write);
@@ -582,7 +630,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
 template <typename algorithmFPType, gbt::regression::training::Method method>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::partitionReorder(
     const UniversalBuffer & data, UniversalBuffer & treeOrder, UniversalBuffer & treeOrderBuf, UniversalBuffer & partialPrefixSums, int splitValue,
-    uint32_t iStart, uint32_t nRows, uint32_t localSize, uint32_t nLocalSums)
+    uint32_t iStart, uint32_t nRows, uint32_t localSize, uint32_t nLocalSums, uint32_t totalRows)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.partitionReorder);
 
@@ -593,6 +641,11 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
     auto & kernel = kernelPartitionReorder;
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(data, uint32_t, totalRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(treeOrder, int, totalRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(treeOrderBuf, int, totalRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(partialPrefixSums, int, nLocalSums + 1);
+
         KernelArguments args(7);
         args.set(0, data, AccessModeIds::read);
         args.set(1, treeOrder, AccessModeIds::read);
@@ -620,7 +673,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
 
 template <typename algorithmFPType, gbt::regression::training::Method method>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::partitionCopy(UniversalBuffer & treeOrderBuf, UniversalBuffer & treeOrder,
-                                                                                          uint32_t iStart, uint32_t nRows)
+                                                                                          uint32_t iStart, uint32_t nRows, uint32_t totalRows)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.partitionCopy);
 
@@ -631,6 +684,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
     auto & kernel = kernelPartitionCopy;
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(treeOrder, int, totalRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(treeOrderBuf, int, totalRows);
+
         KernelArguments args(3);
         args.set(0, treeOrderBuf, AccessModeIds::read);
         args.set(1, treeOrder, AccessModeIds::write);
@@ -648,7 +704,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
 template <typename algorithmFPType, gbt::regression::training::Method method>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::doPartition(const UniversalBuffer & data, UniversalBuffer & treeOrder,
                                                                                         UniversalBuffer & treeOrderBuf, int splitValue, uint32_t iStart,
-                                                                                        uint32_t nRows, uint32_t & nLeft, uint32_t & nRight)
+                                                                                        uint32_t nRows, uint32_t & nLeft, uint32_t & nRight, uint32_t totalRows)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.doPartition);
 
@@ -669,12 +725,13 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::doPa
     auto totalSum          = context.allocate(TypeIds::id<int>(), 1, &status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    DAAL_CHECK_STATUS_VAR(partitionScan(data, treeOrder, partialSums, splitValue, iStart, nRows, localSize, nLocalSums));
+    DAAL_CHECK_STATUS_VAR(partitionScan(data, treeOrder, partialSums, splitValue, iStart, nRows, localSize, nLocalSums, totalRows));
     DAAL_CHECK_STATUS_VAR(partitionSumScan(partialSums, partialPrefixSums, totalSum, localSize, nSubgroupSums));
-    DAAL_CHECK_STATUS_VAR(partitionReorder(data, treeOrder, treeOrderBuf, partialPrefixSums, splitValue, iStart, nRows, localSize, nLocalSums));
-    DAAL_CHECK_STATUS_VAR(partitionCopy(treeOrderBuf, treeOrder, iStart, nRows));
+    DAAL_CHECK_STATUS_VAR(partitionReorder(data, treeOrder, treeOrderBuf, partialPrefixSums, splitValue, iStart, nRows, localSize, nLocalSums, totalRows));
+    DAAL_CHECK_STATUS_VAR(partitionCopy(treeOrderBuf, treeOrder, iStart, nRows, totalRows));
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(totalSum, int, 1);
         auto totalSumHost = totalSum.template get<int>().toHost(ReadWriteMode::readOnly, &status);
         DAAL_CHECK_STATUS_VAR(status);
         nRight            = totalSumHost.get()[0];
@@ -690,7 +747,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::doPa
 
 template <typename algorithmFPType, gbt::regression::training::Method method>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::updateResponse(UniversalBuffer & treeOrder, UniversalBuffer & response,
-                                                                                           uint32_t iStart, uint32_t nRows, algorithmFPType inc)
+                                                                                           uint32_t iStart, uint32_t nRows, algorithmFPType inc, uint32_t totalRows)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateResponse);
 
@@ -701,6 +758,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::upda
     auto & kernel = kernelUpdateResponse;
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(treeOrder, int, totalRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(response, algorithmFPType, totalRows);
+
         KernelArguments args(5);
         args.set(0, treeOrder, AccessModeIds::read);
         args.set(1, response, AccessModeIds::write);
@@ -840,7 +900,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
                 {
                     DAAL_CHECK_STATUS_VAR(computeHistogram(indexedFeatures.getFullData(), treeOrder, optCoeffs, partialHistograms,
                                                            treeNodeStorages[leftRecord->nid].getHistograms(), leftRecord->iStart, leftRecord->n,
-                                                           indexedFeatures.binOffsets(), indexedFeatures.totalBins(), nFeatures));
+                                                           indexedFeatures.binOffsets(), indexedFeatures.totalBins(), nRows, nFeatures));
                     DAAL_CHECK_STATUS_VAR(computeHistogramDiff(treeNodeStorages[leftRecord->nid].getHistograms(),
                                                                treeNodeStorages[parentId].getHistograms(),
                                                                treeNodeStorages[rightRecord->nid].getHistograms(), indexedFeatures.totalBins()));
@@ -849,7 +909,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
                 {
                     DAAL_CHECK_STATUS_VAR(computeHistogram(indexedFeatures.getFullData(), treeOrder, optCoeffs, partialHistograms,
                                                            treeNodeStorages[rightRecord->nid].getHistograms(), rightRecord->iStart, rightRecord->n,
-                                                           indexedFeatures.binOffsets(), indexedFeatures.totalBins(), nFeatures));
+                                                           indexedFeatures.binOffsets(), indexedFeatures.totalBins(), nRows, nFeatures));
                     DAAL_CHECK_STATUS_VAR(computeHistogramDiff(treeNodeStorages[rightRecord->nid].getHistograms(),
                                                                treeNodeStorages[parentId].getHistograms(),
                                                                treeNodeStorages[leftRecord->nid].getHistograms(), indexedFeatures.totalBins()));
@@ -871,7 +931,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
                     uint32_t nLeft  = 0;
                     uint32_t nRight = 0;
                     DAAL_CHECK_STATUS_VAR(doPartition(indexedFeatures.getFeature(bestSplitLeft._featureIndex), treeOrder, treeOrderBuf,
-                                                      bestSplitLeft._featureValue, leftRecord->iStart, leftRecord->n, nLeft, nRight));
+                                                      bestSplitLeft._featureValue, leftRecord->iStart, leftRecord->n, nLeft, nRight, nRows));
                     if (nLeft == 0 || nRight == 0)
                     {
                         leftRecord->isFinalized = true;
@@ -902,7 +962,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
                     uint32_t nLeft  = 0;
                     uint32_t nRight = 0;
                     DAAL_CHECK_STATUS_VAR(doPartition(indexedFeatures.getFeature(bestSplitRight._featureIndex), treeOrder, treeOrderBuf,
-                                                      bestSplitRight._featureValue, rightRecord->iStart, rightRecord->n, nLeft, nRight));
+                                                      bestSplitRight._featureValue, rightRecord->iStart, rightRecord->n, nLeft, nRight, nRows));
                     if (nLeft == 0 || nRight == 0)
                     {
                         rightRecord->isFinalized = true;
@@ -933,7 +993,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
                 algorithmFPType hTotal = 0.0;
                 DAAL_CHECK_STATUS_VAR(computeHistogram(indexedFeatures.getFullData(), treeOrder, optCoeffs, partialHistograms,
                                                        treeNodeStorages[record->nid].getHistograms(), record->iStart, record->n,
-                                                       indexedFeatures.binOffsets(), indexedFeatures.totalBins(), nFeatures));
+                                                       indexedFeatures.binOffsets(), indexedFeatures.totalBins(), nRows, nFeatures));
                 DAAL_CHECK_STATUS_VAR(computeBestSplit(treeNodeStorages[record->nid].getHistograms(), indexedFeatures.binOffsets(),
                                                        indexedFeatures.totalBins(), nFeatures, par.lambda, bestSplit, &gTotal, &hTotal));
                 if (record->nid == 0)
@@ -953,7 +1013,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
                     uint32_t nLeft  = 0;
                     uint32_t nRight = 0;
                     DAAL_CHECK_STATUS_VAR(doPartition(indexedFeatures.getFeature(bestSplit._featureIndex), treeOrder, treeOrderBuf,
-                                                      bestSplit._featureValue, record->iStart, record->n, nLeft, nRight));
+                                                      bestSplit._featureValue, record->iStart, record->n, nLeft, nRight, nRows));
                     if (nLeft == 0 || nRight == 0)
                     {
                         record->isFinalized = true;
@@ -1000,7 +1060,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 
                 resp = inc;
 
-                DAAL_CHECK_STATUS_VAR(updateResponse(treeOrder, response, node->iStart, node->n, inc));
+                DAAL_CHECK_STATUS_VAR(updateResponse(treeOrder, response, node->iStart, node->n, inc, nRows));
             }
 
             node->response    = resp;
@@ -1014,6 +1074,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 
         for (uint32_t i = 0; i < nFeatures; i++)
         {
+            DAAL_ASSERT_UNIVERSAL_BUFFER(indexedFeatures.binBorders(i), algorithmFPType, par.maxBins);
             binValuesHost[i] = indexedFeatures.binBorders(i).template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, &status);
             DAAL_CHECK_STATUS_VAR(status);
             binValues[i] = binValuesHost[i].get();

@@ -32,6 +32,7 @@
 #include "algorithms/gradient_boosted_trees/gbt_regression_training_types.h"
 #include "src/algorithms/engines/engine_batch_impl.h"
 #include "src/algorithms/dtrees/gbt/oneapi/gbt_feature_type_helper_oneapi.h"
+#include "services/internal/sycl/daal_defines_sycl.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -74,7 +75,7 @@ private:
                                               services::internal::sycl::UniversalBuffer & optCoeffs,
                                               services::internal::sycl::UniversalBuffer & partialHistograms, uint32_t iStart, uint32_t nRows,
                                               services::internal::sycl::UniversalBuffer & binOffsets, uint32_t nTotalBins, uint32_t nFeatures,
-                                              uint32_t localSize, uint32_t nPartialHistograms);
+                                              uint32_t localSize, uint32_t nPartialHistograms, uint32_t totalRows);
 
     services::Status reducePartialHistograms(services::internal::sycl::UniversalBuffer & partialHistograms,
                                              services::internal::sycl::UniversalBuffer & histograms, uint32_t nTotalBins, uint32_t reduceLocalSize,
@@ -84,7 +85,7 @@ private:
                                       services::internal::sycl::UniversalBuffer & optCoeffs,
                                       services::internal::sycl::UniversalBuffer & partialHistograms,
                                       services::internal::sycl::UniversalBuffer & histograms, uint32_t iStart, uint32_t nRows,
-                                      services::internal::sycl::UniversalBuffer & binOffsets, uint32_t nTotalBins, uint32_t nFeatures);
+                                      services::internal::sycl::UniversalBuffer & binOffsets, uint32_t nTotalBins, uint32_t totalRows, uint32_t nFeatures);
 
     services::Status computeHistogramDiff(services::internal::sycl::UniversalBuffer & histogramSrc,
                                           services::internal::sycl::UniversalBuffer & histogramTotal,
@@ -109,7 +110,7 @@ private:
 
     services::Status partitionScan(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & treeOrder,
                                    services::internal::sycl::UniversalBuffer & partialSums, int splitValue, uint32_t iStart, uint32_t nRows,
-                                   uint32_t localSize, uint32_t nLocalSums);
+                                   uint32_t localSize, uint32_t nLocalSums, uint32_t totalRows);
 
     services::Status partitionSumScan(services::internal::sycl::UniversalBuffer & partialSums,
                                       services::internal::sycl::UniversalBuffer & partialPrefixSums,
@@ -118,17 +119,17 @@ private:
     services::Status partitionReorder(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & treeOrder,
                                       services::internal::sycl::UniversalBuffer & treeOrderBuf,
                                       services::internal::sycl::UniversalBuffer & partialPrefixSums, int spliteValue, uint32_t iStart, uint32_t nRows,
-                                      uint32_t localSize, uint32_t nLocalSums);
+                                      uint32_t localSize, uint32_t nLocalSums, uint32_t totalRows);
 
     services::Status partitionCopy(services::internal::sycl::UniversalBuffer & treeOrderBuf, services::internal::sycl::UniversalBuffer & treeOrder,
-                                   uint32_t iStart, uint32_t nRows);
+                                   uint32_t iStart, uint32_t nRows, uint32_t totalRows);
 
     services::Status doPartition(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & treeOrder,
                                  services::internal::sycl::UniversalBuffer & treeOrderBuf, int splitValue, uint32_t iStart, uint32_t nRows,
-                                 uint32_t & nLeft, uint32_t & nRight);
+                                 uint32_t & nLeft, uint32_t & nRight, uint32_t totalRows);
 
     services::Status updateResponse(services::internal::sycl::UniversalBuffer & treeOrder, services::internal::sycl::UniversalBuffer & response,
-                                    uint32_t iStart, uint32_t nRows, algorithmFPType inc);
+                                    uint32_t iStart, uint32_t nRows, algorithmFPType inc, uint32_t totalRows);
 
     services::internal::sycl::KernelPtr kernelScan;
     services::internal::sycl::KernelPtr kernelReduce;

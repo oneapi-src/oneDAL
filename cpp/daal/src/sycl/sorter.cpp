@@ -18,6 +18,7 @@
 #include "src/sycl/sorter.h"
 #include "services/internal/execution_context.h"
 #include "src/externals/service_ittnotify.h"
+#include "services/internal/sycl/daal_defines_sycl.h"
 
 namespace daal
 {
@@ -43,8 +44,10 @@ services::String GetIntegerTypeForFPType(const TypeId & vectorTypeId)
 
 DAAL_ITTNOTIFY_DOMAIN(daal.oneapi.internal.select.select_indexed);
 
-void buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId & vectorTypeId)
+services::Status buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId & vectorTypeId)
 {
+    services::Status status;
+
     services::String fptype_name = getKeyFPType(vectorTypeId);
     // add type from name at the end
     auto radixtype_name = GetIntegerTypeForFPType(vectorTypeId);
@@ -53,24 +56,32 @@ void buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId & vectorTyp
 
     services::String cachekey("__daal_oneapi_internal_sort_radix_sort__");
     cachekey.add(build_options);
-    kernelFactory.build(ExecutionTargetIds::device, cachekey.c_str(), radix_sort_simd, build_options.c_str());
+    kernelFactory.build(ExecutionTargetIds::device, cachekey.c_str(), radix_sort_simd, build_options.c_str(), &status);
+
+    return status;
 }
 
-void runRadixSortSimd(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, const UniversalBuffer & input,
-                      const UniversalBuffer & output, const UniversalBuffer & buffer, uint32_t nVectors, uint32_t vectorSize, uint32_t vectorOffset,
-                      services::Status * status)
+services::Status runRadixSortSimd(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, const UniversalBuffer & input,
+                                  const UniversalBuffer & output, const UniversalBuffer & buffer, uint32_t nVectors, uint32_t vectorSize, uint32_t vectorOffset)
 {
-    auto sum_kernel = kernelFactory.getKernel("radix_sort_group");
+    services::Status status;
+
+    auto sum_kernel = kernelFactory.getKernel("radix_sort_group", &status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const uint32_t maxWorkItemsPerGroup = 32;
     KernelRange localRange(1, maxWorkItemsPerGroup);
     KernelRange globalRange(nVectors, maxWorkItemsPerGroup);
 
     KernelNDRange range(2);
-    range.global(globalRange, status);
-    DAAL_CHECK_STATUS_PTR(status);
-    range.local(localRange, status);
-    DAAL_CHECK_STATUS_PTR(status);
+    range.global(globalRange, &status);
+    DAAL_CHECK_STATUS_VAR(status);
+    range.local(localRange, &status);
+    DAAL_CHECK_STATUS_VAR(status);
+
+    DAAL_ASSERT_UNIVERSAL_BUFFER(input, int, nVectors);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(output, int, nVectors);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(buffer, int, nVectors);
 
     KernelArguments args(5);
     args.set(0, input, AccessModeIds::read);
@@ -79,20 +90,27 @@ void runRadixSortSimd(ExecutionContextIface & context, ClKernelFactoryIface & ke
     args.set(3, static_cast<int32_t>(vectorSize));
     args.set(4, static_cast<int32_t>(vectorOffset));
 
-    context.run(range, sum_kernel, args, status);
+    context.run(range, sum_kernel, args, &status);
+
+    return status;
 }
 
 void RadixSort::sort(const UniversalBuffer & input, const UniversalBuffer & output, const UniversalBuffer & buffer, uint32_t nVectors,
-                     uint32_t vectorSize, uint32_t vectorOffset, services::Status * status)
+                     uint32_t vectorSize, uint32_t vectorOffset, services::Status & status)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(RadixSort.sort);
 
     auto & context       = services::internal::getDefaultContext();
     auto & kernelFactory = context.getClKernelFactory();
 
-    buildProgram(kernelFactory, input.type());
+    status |= buildProgram(kernelFactory, input.type());
 
-    runRadixSortSimd(context, kernelFactory, input, output, buffer, nVectors, vectorSize, vectorOffset, status);
+    if (!status)
+    {
+        return;
+    }
+
+    status |= runRadixSortSimd(context, kernelFactory, input, output, buffer, nVectors, vectorSize, vectorOffset);
 }
 
 services::Status RadixSort::sortIndices(UniversalBuffer & values, UniversalBuffer & indices, UniversalBuffer & valuesOut,
@@ -104,7 +122,7 @@ services::Status RadixSort::sortIndices(UniversalBuffer & values, UniversalBuffe
     auto & context       = services::internal::getDefaultContext();
     auto & kernelFactory = context.getClKernelFactory();
 
-    buildProgram(kernelFactory, values.type());
+    DAAL_CHECK_STATUS_VAR(buildProgram(kernelFactory, values.type()));
 
     const uint32_t sizeFPtype = values.type() == TypeIds::Id::float32 ? 4 : values.type() == TypeIds::Id::float64 ? 8 : 0;
 
@@ -115,8 +133,8 @@ services::Status RadixSort::sortIndices(UniversalBuffer & values, UniversalBuffe
     const uint32_t nSubgroupHists = nLocalHists * (localSize / subSize);
 
     auto partialHists       = context.allocate(TypeIds::id<int>(), (nSubgroupHists + 1) << _radixBits, &status);
+    DAAL_CHECK_STATUS_VAR(status);
     auto partialPrefixHists = context.allocate(TypeIds::id<int>(), (nSubgroupHists + 1) << _radixBits, &status);
-
     DAAL_CHECK_STATUS_VAR(status);
 
     uint32_t rev = 0;
@@ -150,11 +168,13 @@ services::Status RadixSort::radixScan(UniversalBuffer & values, UniversalBuffer 
 
     auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
-    buildProgram(factory, values.type());
+    DAAL_CHECK_STATUS_VAR(buildProgram(factory, values.type()));
 
     auto kernel = factory.getKernel("radixScan");
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(partialHists, int, (nLocalHists + 1) << _radixBits);
+
         KernelArguments args(4);
         args.set(0, values, AccessModeIds::read);
         args.set(1, partialHists, AccessModeIds::write);
@@ -187,10 +207,13 @@ services::Status RadixSort::radixHistScan(UniversalBuffer & values, UniversalBuf
     auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
 
-    buildProgram(factory, values.type());
+    DAAL_CHECK_STATUS_VAR(buildProgram(factory, values.type()));
     auto kernel = factory.getKernel("radixHistScan");
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(partialHists, int, (nSubgroupHists + 1) << _radixBits);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(partialPrefixHists, int, (nSubgroupHists + 1) << _radixBits);
+
         KernelArguments args(3);
         args.set(0, partialHists, AccessModeIds::read);
         args.set(1, partialPrefixHists, AccessModeIds::write);
@@ -223,10 +246,14 @@ services::Status RadixSort::radixReorder(UniversalBuffer & valuesSrc, UniversalB
     auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
 
-    buildProgram(factory, valuesSrc.type());
+    DAAL_CHECK_STATUS_VAR(buildProgram(factory, valuesSrc.type()));
     auto kernel = factory.getKernel("radixReorder");
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(indicesSrc, int, nRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(partialPrefixHists, int, (nLocalHists + 1) << _radixBits);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(indicesDst, int, nRows);
+
         KernelArguments args(7);
         args.set(0, valuesSrc, AccessModeIds::read);
         args.set(1, indicesSrc, AccessModeIds::read);

@@ -159,6 +159,10 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::extractColumn(const ser
     DAAL_CHECK_STATUS_VAR(status);
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(data), algorithmFPType, nRows * nFeatures);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(values, algorithmFPType, nRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(indices, int, nRows);
+
         KernelArguments args(6);
         args.set(0, data, AccessModeIds::read);
         args.set(1, values, AccessModeIds::write);
@@ -192,6 +196,10 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::collectBinBorders(Unive
     DAAL_CHECK_STATUS_VAR(status);
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(values, algorithmFPType, nRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(binOffsets, int, maxBins);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(binBorders, algorithmFPType, maxBins);
+
         KernelArguments args(3);
         args.set(0, values, AccessModeIds::read);
         args.set(1, binOffsets, AccessModeIds::read);
@@ -209,7 +217,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::collectBinBorders(Unive
 template <typename algorithmFPType>
 services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBuffer & values, UniversalBuffer & indices,
                                                                      UniversalBuffer & binBorders, UniversalBuffer & bins, uint32_t nRows, uint32_t nBins,
-                                                                     uint32_t localSize, uint32_t nLocalBlocks)
+                                                                     uint32_t maxBins, uint32_t localSize, uint32_t nLocalBlocks)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(indexedFeatures.computeBins);
 
@@ -223,6 +231,11 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
     DAAL_CHECK_STATUS_VAR(status);
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(values, algorithmFPType, nRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(indices, int, nRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(binBorders, algorithmFPType, maxBins);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(bins, uint32_t, nRows);
+
         KernelArguments args(6);
         args.set(0, values, AccessModeIds::read);
         args.set(1, indices, AccessModeIds::read);
@@ -265,6 +278,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
     DAAL_CHECK_STATUS_VAR(status);
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(binOffsets, int, maxBins);
         auto binOffsetsHost = binOffsets.template get<int>().toHost(ReadWriteMode::writeOnly, &status);
         DAAL_CHECK_STATUS_VAR(status);
         int offset = 0;
@@ -279,6 +293,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
 
     uint32_t nBins = 0;
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(binBorders, algorithmFPType, maxBins);
         auto binBordersHost = binBorders.template get<algorithmFPType>().toHost(ReadWriteMode::readWrite, &status);
         DAAL_CHECK_STATUS_VAR(status);
         for (uint32_t i = 0; i < maxBins; i++)
@@ -291,7 +306,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
         }
     }
 
-    DAAL_CHECK_STATUS_VAR(computeBins(values, indices, binBorders, bins, nRows, nBins, localSize, nLocalBlocks));
+    DAAL_CHECK_STATUS_VAR(computeBins(values, indices, binBorders, bins, nRows, nBins, maxBins, localSize, nLocalBlocks));
 
     entry.numIndices = nBins;
     entry.binBorders = binBorders;
@@ -326,6 +341,9 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::storeColumn(const Unive
     DAAL_CHECK_STATUS_VAR(status);
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(data, uint32_t, nRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(fullData, uint32_t, nRows * nFeatures);
+
         KernelArguments args(5);
         args.set(0, data, AccessModeIds::read);
         args.set(1, fullData, AccessModeIds::write);
@@ -396,6 +414,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::init(NumericTable & nt,
     }
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(_binOffsets, uint32_t, nC + 1);
         auto binOffsetsHost = _binOffsets.template get<int>().toHost(ReadWriteMode::writeOnly, &status);
         DAAL_CHECK_STATUS_VAR(status);
         int total = 0;

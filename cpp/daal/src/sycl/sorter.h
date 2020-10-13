@@ -40,7 +40,7 @@ public:
     RadixSort() = delete;
 
     static void sort(const UniversalBuffer & input, const UniversalBuffer & output, const UniversalBuffer & buffer, uint32_t nVectors,
-                     uint32_t vectorSize, uint32_t vectorOffset, services::Status * status);
+                     uint32_t vectorSize, uint32_t vectorOffset, services::Status & status);
 
     static services::Status sortIndices(UniversalBuffer & values, UniversalBuffer & indices, UniversalBuffer & valuesOut,
                                         UniversalBuffer & indicesOut, uint32_t nRows);
