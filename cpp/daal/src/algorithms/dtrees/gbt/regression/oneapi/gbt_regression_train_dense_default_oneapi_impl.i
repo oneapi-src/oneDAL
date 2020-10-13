@@ -823,10 +823,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         SplitRecord<algorithmFPType> splitRecord(record);
         splits.push_back(splitRecord);
 
-        DAAL_ASSERT(splits.size() < static_cast<size_t>(UINT_MAX));
-        uint32_t nSplits = static_cast<uint32_t>(splits.size());
-
-        for (uint32_t splitId = 0; splitId < nSplits; splitId++)
+        for (size_t splitId = 0; splitId < splits.size(); splitId++)
         {
             SplitRecord<algorithmFPType> & split = splits[splitId];
             if (split.first && split.second)
