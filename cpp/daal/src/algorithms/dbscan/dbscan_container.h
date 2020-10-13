@@ -95,6 +95,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     }
     else
     {
+        // memorySavingMode flag is not applicable for DBSCAN on GPU
         __DAAL_CALL_KERNEL_SYCL(env, internal::DBSCANBatchKernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType), compute, ntData.get(),
                                 ntWeights.get(), ntAssignments.get(), ntNClusters.get(), ntCoreIndices.get(), ntCoreObservations.get(), par);
     }

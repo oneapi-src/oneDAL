@@ -32,6 +32,4 @@
     DAAL_ASSERT(buffer.type() == TypeIds<bufferType>::id());         \
     DAAL_ASSERT(buffer.template get<bufferType>().size() == bufferSize);
 
-#define DAAL_ASSERT_BUFFER(buffer, bufferSize) DAAL_ASSERT(buffer.size() == bufferSize);
-
 #endif

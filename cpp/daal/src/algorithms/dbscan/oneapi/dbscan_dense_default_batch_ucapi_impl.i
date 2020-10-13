@@ -32,7 +32,8 @@ using namespace daal::services;
 using namespace daal::services::internal::sycl;
 using namespace daal::data_management;
 
-constexpr size_t maxInt32AsSizeT = static_cast<size_t>(daal::services::internal::MaxVal<int32_t>::get());
+constexpr size_t maxInt32AsSizeT   = static_cast<size_t>(daal::services::internal::MaxVal<int32_t>::get());
+constexpr size_t maxInt32AsUint32T = static_cast<uint32_t>(daal::services::internal::MaxVal<int32_t>::get());
 
 namespace daal
 {
@@ -406,7 +407,8 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::setQueueFront(uint32_t queueEnd)
     DAAL_ASSERT_UNIVERSAL_BUFFER(_queueFront, int, 1);
     const auto val = _queueFront.template get<int>().toHost(ReadWriteMode::readWrite, &st);
     DAAL_CHECK_STATUS_VAR(st);
-    *val.get() = queueEnd;
+    DAAL_ASSERT(queueEnd <= maxInt32AsUint32T);
+    *val.get() = static_cast<int>(queueEnd);
     return st;
 }
 
