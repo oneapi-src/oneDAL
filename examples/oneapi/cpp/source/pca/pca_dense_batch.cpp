@@ -22,14 +22,14 @@
 using namespace oneapi;
 
 template <typename Method>
-void run_compute(dal::table x_train, const char *method_name) {
+void run(const dal::table& x_train, const std::string& method_name) {
     const auto pca_desc = dal::pca::descriptor<float, Method>()
         .set_component_count(5)
         .set_deterministic(true);
 
     const auto result_train = dal::train(pca_desc, x_train);
 
-    std::cout << method_name << '\n' << std::endl;
+    std::cout << method_name << std::endl << std::endl;
 
     std::cout << "Eigenvectors:" << std::endl
               << result_train.get_eigenvectors() << std::endl;
@@ -48,8 +48,8 @@ int main(int argc, char const *argv[]) {
 
     const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
 
-    run_compute<dal::pca::method::cov>(x_train, "Training method: Covariance");
-    run_compute<dal::pca::method::svd>(x_train, "Training method: SVD");
+    run<dal::pca::method::cov>(x_train, "Training method: Covariance");
+    run<dal::pca::method::svd>(x_train, "Training method: SVD");
 
     return 0;
 }

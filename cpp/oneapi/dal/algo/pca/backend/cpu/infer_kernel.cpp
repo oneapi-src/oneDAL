@@ -20,7 +20,6 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
-#include "oneapi/dal/algo/pca/infer_types.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::pca::backend {
@@ -83,10 +82,9 @@ static result_t infer(const context_cpu& ctx, const descriptor_t& desc, const in
 
 template <typename Float>
 struct infer_kernel_cpu<Float, task::dim_reduction> {
-    infer_result<task::dim_reduction> operator()(
-        const dal::backend::context_cpu& ctx,
-        const descriptor_base<task::dim_reduction>& desc,
-        const infer_input<task::dim_reduction>& input) const {
+    result_t operator()(const context_cpu& ctx,
+                        const descriptor_t& desc,
+                        const input_t& input) const {
         return infer<Float>(ctx, desc, input);
     }
 };

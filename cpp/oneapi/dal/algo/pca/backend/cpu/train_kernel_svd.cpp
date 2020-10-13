@@ -75,18 +75,15 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     algParameter->resultsToCompute |= daal::algorithms::normalization::zscore::mean;
     algParameter->resultsToCompute |= daal::algorithms::normalization::zscore::variance;
 
-    interop::status_to_exception(dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-        return daal_pca_svd_kernel_t<
-                   Float,
-                   oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value>()
-            .compute(dtype,
-                     *daal_data.get(),
-                     &parameter,
-                     *daal_eigenvalues.get(),
-                     *daal_eigenvectors.get(),
-                     *daal_means.get(),
-                     *daal_variances.get());
-    }));
+    interop::status_to_exception(
+        interop::call_daal_kernel<Float, daal_pca_svd_kernel_t>(ctx,
+                                                                dtype,
+                                                                *daal_data.get(),
+                                                                &parameter,
+                                                                *daal_eigenvalues.get(),
+                                                                *daal_eigenvectors.get(),
+                                                                *daal_means.get(),
+                                                                *daal_variances.get()));
 
     // clang-format off
     const auto mdl = model_t{}
