@@ -1024,7 +1024,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 
         size_t maxLevel = 0;
         connector.getMaxLevel(0, maxLevel);
-        DAAL_ASSERT(maxLevel <= 63);
+        DAAL_ASSERT(maxLevel + 1 <= 63);
         DAAL_ASSERT(((size_t)1 << (maxLevel + 1)) > 0 && ((size_t)1 << (maxLevel + 1)) < static_cast<size_t>(UINT_MAX));
         const uint32_t nNodes        = ((size_t)1 << (maxLevel + 1)) - 1;
         const uint32_t nNodesPresent = connector.getNNodes(0);

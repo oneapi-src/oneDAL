@@ -94,7 +94,7 @@ public:
 
     static services::SharedPtr<AOSNumericTable> createGBTree(size_t maxTreeDepth, services::Status & status)
     {
-        if ((sizeof(size_t) == 4 && maxTreeDepth > 31) || (sizeof(size_t) == 8 && maxTreeDepth > 63)) {
+        if (maxTreeDepth + 1 > 63) {
             status |= services::throwIfPossible(services::ErrorMemoryAllocationFailed);        
             return services::SharedPtr<AOSNumericTable>();
         }
