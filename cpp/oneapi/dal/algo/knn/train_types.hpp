@@ -28,13 +28,13 @@ template <typename Task = task::by_default>
 class train_result_impl;
 } // namespace detail
 
-template <typename Task>
+template <typename Task = task::by_default>
 class ONEAPI_DAL_EXPORT train_input : public base {
 public:
     train_input(const table& data, const table& labels);
 
-    table get_data() const;
-    table get_labels() const;
+    const table& get_data() const;
+    const table& get_labels() const;
 
     auto& set_data(const table& data) {
         set_data_impl(data);
@@ -53,12 +53,12 @@ private:
     dal::detail::pimpl<detail::train_input_impl<Task>> impl_;
 };
 
-template <typename Task>
+template <typename Task = task::by_default>
 class ONEAPI_DAL_EXPORT train_result {
 public:
     train_result();
 
-    model<Task> get_model() const;
+    const model<Task>& get_model() const;
 
     auto& set_model(const model<Task>& value) {
         set_model_impl(value);

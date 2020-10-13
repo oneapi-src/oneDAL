@@ -130,6 +130,7 @@ public:
         arch->setSharedPtrObj(_kdTreeTable);
         arch->setSharedPtrObj(_data);
         arch->setSharedPtrObj(_labels);
+        arch->setSharedPtrObj(_indices);
 
         return services::Status();
     }

@@ -44,12 +44,12 @@ train_input<Task>::train_input(const table& data, const table& labels)
         : impl_(new train_input_impl<Task>(data, labels)) {}
 
 template <typename Task>
-table train_input<Task>::get_data() const {
+const table& train_input<Task>::get_data() const {
     return impl_->data;
 }
 
 template <typename Task>
-table train_input<Task>::get_labels() const {
+const table& train_input<Task>::get_labels() const {
     return impl_->labels;
 }
 
@@ -67,7 +67,7 @@ template <typename Task>
 train_result<Task>::train_result() : impl_(new train_result_impl{}) {}
 
 template <typename Task>
-model<Task> train_result<Task>::get_model() const {
+const model<Task>& train_result<Task>::get_model() const {
     return impl_->trained_model;
 }
 
