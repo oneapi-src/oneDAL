@@ -22,14 +22,6 @@
 #include "oneapi/dal/graph/graph_common.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
-extern "C" {
-ONEAPI_DAL_EXPORT void _daal_parallel_sort_oneapi(int *begin_ptr, int *end_ptr);
-}
-
 namespace oneapi::dal::preview::load_graph::detail {
 ONEAPI_DAL_EXPORT int daal_string_to_int(const char *nptr, char **endptr);
-
-inline ONEAPI_DAL_EXPORT void parallel_sort(int *begin_ptr, int *end_ptr) {
-    _daal_parallel_sort_oneapi(begin_ptr, end_ptr);
-}
 } // namespace oneapi::dal::preview::load_graph::detail
