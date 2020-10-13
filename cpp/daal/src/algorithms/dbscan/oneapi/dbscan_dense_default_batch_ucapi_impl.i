@@ -47,18 +47,8 @@ template <typename algorithmFPType>
 services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::initializeBuffers(uint32_t nRows, NumericTable * weights)
 {
     Status s;
-<<<<<<< HEAD
-    auto & context = services::internal::getDefaultContext();
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, _queueBlockSize, nRows);
-    _queueBlockDistances = context.allocate(TypeIds::id<algorithmFPType>(), _queueBlockSize * nRows, &s);
-    DAAL_CHECK_STATUS_VAR(s);
-    _singlePointDistances = context.allocate(TypeIds::id<algorithmFPType>(), nRows, &s);
-    DAAL_CHECK_STATUS_VAR(s);
-    _queue = context.allocate(TypeIds::id<int>(), nRows, &s);
-=======
     auto & context = Environment::getInstance()->getDefaultExecutionContext();
     _queue         = context.allocate(TypeIds::id<int>(), nRows, &s);
->>>>>>> d6c759861... Modified DBSCAN algorithm for GPU (#1035)
     DAAL_CHECK_STATUS_VAR(s);
     _isCore = context.allocate(TypeIds::id<int>(), nRows, &s);
     DAAL_CHECK_STATUS_VAR(s);
@@ -256,81 +246,13 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::startNextCluster(uint3
                                                                            UniversalBuffer & clusters, bool & found)
 {
     services::Status st;
-<<<<<<< HEAD
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute.pushNeighborsToQueue);
-    auto & context        = services::internal::getDefaultContext();
-=======
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.startNextCluster);
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
->>>>>>> d6c759861... Modified DBSCAN algorithm for GPU (#1035)
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
     auto kernel = kernel_factory.getKernel("startNextCluster", &st);
     DAAL_CHECK_STATUS_VAR(st);
 
-<<<<<<< HEAD
-    KernelArguments args(11);
-    args.set(0, distances, AccessModeIds::read);
-    args.set(1, chunkOffests, AccessModeIds::read);
-    args.set(2, queueEnd);
-    args.set(3, rowId);
-    args.set(4, clusterId);
-    args.set(5, chunkOffset);
-    args.set(6, _chunkSize);
-    args.set(7, epsP);
-    args.set(8, nRows);
-    args.set(9, assignments, AccessModeIds::readwrite);
-    args.set(10, queue, AccessModeIds::readwrite);
-
-    KernelRange local_range(1, _maxWorkgroupSize);
-    KernelRange global_range(getWorkgroupNumber(_chunkNumber), _maxWorkgroupSize);
-
-    KernelNDRange range(2);
-    range.global(global_range, &st);
-    DAAL_CHECK_STATUS_VAR(st);
-    range.local(local_range, &st);
-    DAAL_CHECK_STATUS_VAR(st);
-
-    context.run(range, kernel, args, &st);
-    return st;
-}
-
-template <typename algorithmFPType>
-services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::countOffsets(const UniversalBuffer & counters, UniversalBuffer & chunkOffests)
-{
-    services::Status st;
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute.countOffsets);
-    auto & context        = services::internal::getDefaultContext();
-    auto & kernel_factory = context.getClKernelFactory();
-    DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
-    auto kernel = kernel_factory.getKernel("compute_chunk_offsets", &st);
-    DAAL_CHECK_STATUS_VAR(st);
-
-    KernelArguments args(3);
-    args.set(0, counters, AccessModeIds::read);
-    args.set(1, _chunkNumber);
-    args.set(2, chunkOffests, AccessModeIds::write);
-
-    KernelRange local_range(_minSubgroupSize);
-    context.run(local_range, kernel, args, &st);
-    return st;
-}
-
-template <typename algorithmFPType>
-services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::setBufferValue(UniversalBuffer & buffer, uint32_t index, int value)
-{
-    services::Status st;
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute.setBufferValue);
-    auto & context        = services::internal::getDefaultContext();
-    auto & kernel_factory = context.getClKernelFactory();
-    DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
-    auto kernel = kernel_factory.getKernel("set_buffer_value", &st);
-    DAAL_CHECK_STATUS_VAR(st);
-    KernelArguments args(3);
-    args.set(0, index);
-    args.set(1, value);
-    args.set(2, buffer, AccessModeIds::readwrite);
-=======
     int last;
     {
         DAAL_ASSERT_UNIVERSAL_BUFFER(_lastPoint, int, 1);
@@ -342,7 +264,6 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::setBufferValue(Univers
     DAAL_ASSERT_UNIVERSAL_BUFFER(_isCore, int, nRows);
     DAAL_ASSERT_UNIVERSAL_BUFFER(clusters, int, nRows);
     DAAL_ASSERT_UNIVERSAL_BUFFER(_queue, int, nRows);
->>>>>>> d6c759861... Modified DBSCAN algorithm for GPU (#1035)
 
     KernelArguments args(7);
     args.set(0, static_cast<int32_t>(clusterId));
@@ -353,60 +274,8 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::setBufferValue(Univers
     args.set(5, _lastPoint, AccessModeIds::write);
     args.set(6, _queue, AccessModeIds::write);
 
-<<<<<<< HEAD
-    return st;
-}
-
-template <typename algorithmFPType>
-services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::setBufferValueByQueueIndex(UniversalBuffer & buffer, const UniversalBuffer & queue,
-                                                                                     uint32_t posInQueue, int value)
-{
-    services::Status st;
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute.setBufferValueByIndirectIndex);
-    auto & context        = services::internal::getDefaultContext();
-    auto & kernel_factory = context.getClKernelFactory();
-    DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
-    auto kernel = kernel_factory.getKernel("set_buffer_value_by_queue_index", &st);
-    DAAL_CHECK_STATUS_VAR(st);
-
-    KernelArguments args(4);
-    args.set(0, queue, AccessModeIds::read);
-    args.set(1, posInQueue);
-    args.set(2, value);
-    args.set(3, buffer, AccessModeIds::readwrite);
-
-    KernelRange global_range(1);
-    context.run(global_range, kernel, args, &st);
-    return st;
-}
-
-template <typename algorithmFPType>
-services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::getPointDistances(const UniversalBuffer & data, uint32_t nRows, uint32_t rowId,
-                                                                            uint32_t nFeatures, uint32_t minkowskiPower,
-                                                                            UniversalBuffer & pointDistances)
-{
-    services::Status st;
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute.getPointDistances);
-    auto & context        = services::internal::getDefaultContext();
-    auto & kernel_factory = context.getClKernelFactory();
-    DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
-    auto kernel = kernel_factory.getKernel("compute_point_distances", &st);
-    DAAL_CHECK_STATUS_VAR(st);
-
-    KernelArguments args(6);
-    args.set(0, data, AccessModeIds::read);
-    args.set(1, rowId);
-    args.set(2, minkowskiPower);
-    args.set(3, nFeatures);
-    args.set(4, nRows);
-    args.set(5, pointDistances, AccessModeIds::write);
-
-    KernelRange local_range(1, _maxWorkgroupSize);
-    KernelRange global_range(nRows / _minSubgroupSize + 1, _maxWorkgroupSize);
-=======
     KernelRange localRange(1, _maxSubgroupSize);
     KernelRange globalRange(1, _maxSubgroupSize);
->>>>>>> d6c759861... Modified DBSCAN algorithm for GPU (#1035)
 
     KernelNDRange range(2);
     range.global(globalRange, &st);
@@ -431,13 +300,8 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::getCores(const Univers
                                                                    algorithmFPType nNbrs, algorithmFPType eps)
 {
     services::Status st;
-<<<<<<< HEAD
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute.getQueueBlockDistances);
-    auto & context        = services::internal::getDefaultContext();
-=======
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.getCores);
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
->>>>>>> d6c759861... Modified DBSCAN algorithm for GPU (#1035)
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
     auto kernel = kernel_factory.getKernel("computeCores", &st);
@@ -478,13 +342,8 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::updateQueue(uint32_t c
                                                                       UniversalBuffer & clusters)
 {
     services::Status st;
-<<<<<<< HEAD
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute.countPointNeighbors);
-    auto & context        = services::internal::getDefaultContext();
-=======
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateQueue);
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
->>>>>>> d6c759861... Modified DBSCAN algorithm for GPU (#1035)
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
     auto kernel = kernel_factory.getKernel("updateQueue", &st);
