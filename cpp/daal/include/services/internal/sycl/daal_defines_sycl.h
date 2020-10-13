@@ -1,6 +1,6 @@
 /* file: daal_defines_sycl.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,8 +28,10 @@
 
 #include "services/daal_defines.h"
 
-#define DAAL_ASSERT_UNIVERSAL_BUFFER(buffer, bufferType, bufferSize) \
-    DAAL_ASSERT(buffer.type() == TypeIds<bufferType>::id());         \
-    DAAL_ASSERT(buffer.template get<bufferType>().size() == bufferSize);
+#define DAAL_ASSERT_UNIVERSAL_BUFFER(buffer, bufferType, bufferSize)               \
+    {                                                                              \
+        DAAL_ASSERT((buffer).type() == TypeIds<(bufferType)>::id());               \
+        DAAL_ASSERT((buffer).template get<(bufferType)>().size() == (bufferSize)); \
+    }
 
 #endif
