@@ -123,7 +123,7 @@ static result_t train(const context_cpu& ctx, const descriptor_t& desc, const in
 
 template <typename Float>
 struct train_kernel_cpu<Float, method::svd, task::dim_reduction> {
-    result_t operator()(const dal::backend::context_cpu& ctx,
+    result_t operator()(const context_cpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
         return train<Float>(ctx, desc, input);

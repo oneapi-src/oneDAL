@@ -25,7 +25,6 @@ struct train_kernel_gpu<Float, method::svd, task::dim_reduction> {
         const descriptor_base<task::dim_reduction>& params,
         const train_input<task::dim_reduction>& input) const {
         throw unimplemented("PCA SVD-based method is not implemented for GPU");
-        return train_result<task::dim_reduction>();
     }
 };
 

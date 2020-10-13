@@ -27,7 +27,7 @@ struct ONEAPI_DAL_EXPORT infer_ops_dispatcher<host_policy, Float, Method, Task> 
                                   const descriptor_base<Task>& desc,
                                   const infer_input<Task>& input) const {
         using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::infer_kernel_cpu<Float, Method, Task>>;
+            dal::backend::kernel_dispatcher<backend::infer_kernel_cpu<Float, Task>>;
         return kernel_dispatcher_t()(ctx, desc, input);
     }
 };
