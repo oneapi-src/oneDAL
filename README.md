@@ -80,7 +80,16 @@ Data Examples for different computation modes:
 - [Distributed](https://github.com/oneapi-src/oneDAL/tree/master/examples/data/distributed)
 - [Online](https://github.com/oneapi-src/oneDAL/tree/master/examples/data/online)
 
+<<<<<<< HEAD
 ## Documentation
+=======
+Technical preview features are introduced to gain early feedback from developers. A technical preview feature is subject to change in the future releases. Using a technical preview feature in a production code base is therefore strongly discouraged.
+In C++ APIs, technical preview features are located in `daal::preview` and `oneapi::dal::preview` namespaces. In Java APIs, technical preview features are located in packages that have the `com.intel.daal.preview` name prefix.
+The preview features list:
+- Graph Analytics: 
+	- Undirected graph without edge and vertex weights (undirected_adjacency_array_graph) - 32bit vertex index only
+	- Jaccard Similarity Coefficients for all vertex pairs, a batch algorithm which processes the graph by blocks
+>>>>>>> e1cfc6172... Fixed mistype in "tech preview" section of the README.md (#1080)
 
 - [Get Started](http://oneapi-src.github.io/oneDAL/getstarted.html)
 - [System Requirements](https://software.intel.com/en-us/articles/system-requirements-for-oneapi-data-analytics-library#)
