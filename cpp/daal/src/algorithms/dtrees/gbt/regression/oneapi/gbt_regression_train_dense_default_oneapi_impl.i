@@ -1057,6 +1057,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         for (uint32_t leafId = 0; leafId < nLeaves; leafId++)
         {
             TableRecord<algorithmFPType> * node = leaves[leafId];
+            DAAL_ASSERT(node);
 
             algorithmFPType resp = 0;
 
