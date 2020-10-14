@@ -156,7 +156,8 @@ services::Status RadixSort::sortIndices(UniversalBuffer & values, UniversalBuffe
         }
     }
 
-    DAAL_ASSERT(rev == 0); // if not, we need to swap values/indices and valuesOut/indices_bufus);
+    DAAL_ASSERT(rev == 0); // if not, we need to swap values/indices and
+                           // valuesOut/indices_bufus);
     return status;
 }
 
@@ -171,7 +172,8 @@ services::Status RadixSort::radixScan(UniversalBuffer & values, UniversalBuffer 
     auto & factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(factory, values.type()));
 
-    auto kernel = factory.getKernel("radixScan");
+    auto kernel = factory.getKernel("radixScan", &status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     {
         DAAL_ASSERT_UNIVERSAL_BUFFER(partialHists, int, (nLocalHists + 1) << _radixBits);
@@ -209,7 +211,8 @@ services::Status RadixSort::radixHistScan(UniversalBuffer & values, UniversalBuf
     auto & factory = context.getClKernelFactory();
 
     DAAL_CHECK_STATUS_VAR(buildProgram(factory, values.type()));
-    auto kernel = factory.getKernel("radixHistScan");
+    auto kernel = factory.getKernel("radixHistScan", &status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     {
         DAAL_ASSERT_UNIVERSAL_BUFFER(partialHists, int, (nSubgroupHists + 1) << _radixBits);
@@ -248,7 +251,8 @@ services::Status RadixSort::radixReorder(UniversalBuffer & valuesSrc, UniversalB
     auto & factory = context.getClKernelFactory();
 
     DAAL_CHECK_STATUS_VAR(buildProgram(factory, valuesSrc.type()));
-    auto kernel = factory.getKernel("radixReorder");
+    auto kernel = factory.getKernel("radixReorder", &status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     {
         DAAL_ASSERT_UNIVERSAL_BUFFER(indicesSrc, int, nRows);

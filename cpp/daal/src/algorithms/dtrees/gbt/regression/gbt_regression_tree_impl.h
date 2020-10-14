@@ -176,6 +176,7 @@ public:
             }
             else
             {
+                DAAL_ASSERT(2 * nid + 2 < _table->getNumberOfRows());
                 TableRecordType & leftChild  = _records[2 * nid + 1];
                 TableRecordType & rightChild = _records[2 * nid + 2];
 
@@ -214,6 +215,7 @@ public:
             }
             else
             {
+                DAAL_ASSERT(2 * nid + 2 < _table->getNumberOfRows());
                 TableRecordType & leftChild  = _records[2 * nid + 1];
                 TableRecordType & rightChild = _records[2 * nid + 2];
 
@@ -265,7 +267,11 @@ public:
         }
     }
 
-    TableRecordType * get(size_t nid) { return &(_records[nid]); }
+    TableRecordType * get(size_t nid)
+    {
+        DAAL_ASSERT(nid < _table->getNumberOfRows());
+        return &(_records[nid]);
+    }
 
     void createNode(size_t level, size_t nid, size_t n, size_t iStart, algorithmFPType gTotal, algorithmFPType hTotal, size_t nTotal,
                     const training::Parameter & par)
@@ -295,6 +301,7 @@ public:
 
     void getMaxLevel(size_t nid, size_t & maxLevel)
     {
+        DAAL_ASSERT(nid < _table->getNumberOfRows());
         const TableRecordType & record = _records[nid];
 
         if (record.level > maxLevel)
@@ -311,6 +318,7 @@ public:
 
     size_t getNNodes(size_t nid)
     {
+        DAAL_ASSERT(nid < _table->getNumberOfRows());
         const TableRecordType & record = _records[nid];
 
         if (record.nodeState == split)

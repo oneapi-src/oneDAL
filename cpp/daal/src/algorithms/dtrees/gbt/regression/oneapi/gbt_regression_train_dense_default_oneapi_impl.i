@@ -183,6 +183,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::getI
         DAAL_ASSERT_UNIVERSAL_BUFFER(totalSum, algorithmFPType, 1);
         auto totalSumHost = totalSum.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, &status);
         DAAL_CHECK_STATUS_VAR(status);
+        DAAL_ASSERT(response);
         *response = totalSumHost.get()[0] / nRows;
     }
 
@@ -500,6 +501,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, nFeatures, 5);
     auto splitInfo  = context.allocate(TypeIds::id<algorithmFPType>(), nFeatures * 5, &status);
     auto splitValue = context.allocate(TypeIds::id<int>(), nFeatures, &status);
+
+    DAAL_CHECK_STATUS_VAR(status);
 
     const uint32_t localSize = _preferableSubGroup;
 
@@ -830,7 +833,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     kernelPartitionReorder            = kernel_factory.getKernel("partitionReorder", &status);
     kernelPartitionCopy               = kernel_factory.getKernel("partitionCopy", &status);
     kernelUpdateResponse              = kernel_factory.getKernel("updateResponse", &status);
-
     DAAL_CHECK_STATUS_VAR(status);
 
     gbt::internal::IndexedFeaturesOneAPI<algorithmFPType> indexedFeatures;
