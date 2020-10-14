@@ -88,8 +88,8 @@ services::Status runRadixSortSimd(ExecutionContextIface & context, ClKernelFacto
     args.set(0, input, AccessModeIds::read);
     args.set(1, output, AccessModeIds::write);
     args.set(2, buffer, AccessModeIds::read);
-    args.set(3, static_cast<int32_t>(vectorSize));
-    args.set(4, static_cast<int32_t>(vectorOffset));
+    args.set(3, vectorSize);
+    args.set(4, vectorOffset);
 
     context.run(range, sum_kernel, args, &status);
 
@@ -179,8 +179,8 @@ services::Status RadixSort::radixScan(UniversalBuffer & values, UniversalBuffer 
         KernelArguments args(4);
         args.set(0, values, AccessModeIds::read);
         args.set(1, partialHists, AccessModeIds::write);
-        args.set(2, static_cast<int32_t>(nRows));
-        args.set(3, static_cast<int32_t>(bitOffset));
+        args.set(2, nRows);
+        args.set(3, bitOffset);
 
         KernelRange local_range(localSize);
         KernelRange global_range(localSize * nLocalHists);
@@ -218,7 +218,7 @@ services::Status RadixSort::radixHistScan(UniversalBuffer & values, UniversalBuf
         KernelArguments args(3);
         args.set(0, partialHists, AccessModeIds::read);
         args.set(1, partialPrefixHists, AccessModeIds::write);
-        args.set(2, static_cast<int32_t>(nSubgroupHists));
+        args.set(2, nSubgroupHists);
 
         KernelRange local_range(localSize);
         KernelRange global_range(localSize);
@@ -261,8 +261,8 @@ services::Status RadixSort::radixReorder(UniversalBuffer & valuesSrc, UniversalB
         args.set(2, partialPrefixHists, AccessModeIds::read);
         args.set(3, valuesDst, AccessModeIds::write);
         args.set(4, indicesDst, AccessModeIds::write);
-        args.set(5, static_cast<int32_t>(nRows));
-        args.set(6, static_cast<int32_t>(bitOffset));
+        args.set(5, nRows);
+        args.set(6, bitOffset);
 
         KernelRange local_range(localSize);
         KernelRange global_range(localSize * nLocalHists);

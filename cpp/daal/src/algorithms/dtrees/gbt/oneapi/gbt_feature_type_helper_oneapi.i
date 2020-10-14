@@ -167,9 +167,9 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::extractColumn(const ser
         args.set(0, data, AccessModeIds::read);
         args.set(1, values, AccessModeIds::write);
         args.set(2, indices, AccessModeIds::write);
-        args.set(3, static_cast<int32_t>(featureId));
-        args.set(4, static_cast<int32_t>(nFeatures));
-        args.set(5, static_cast<int32_t>(nRows));
+        args.set(3, featureId);
+        args.set(4, nFeatures);
+        args.set(5, nRows);
 
         KernelRange global_range(nRows);
 
@@ -240,8 +240,8 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
         args.set(1, indices, AccessModeIds::read);
         args.set(2, binBorders, AccessModeIds::read);
         args.set(3, bins, AccessModeIds::write);
-        args.set(4, static_cast<int32_t>(nRows));
-        args.set(5, static_cast<int32_t>(nBins));
+        args.set(4, nRows);
+        args.set(5, nBins);
 
         KernelRange local_range(localSize);
         KernelRange global_range(localSize * nLocalBlocks);
@@ -347,9 +347,9 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::storeColumn(const Unive
         KernelArguments args(5);
         args.set(0, data, AccessModeIds::read);
         args.set(1, fullData, AccessModeIds::write);
-        args.set(2, static_cast<int32_t>(featureId));
-        args.set(3, static_cast<int32_t>(nFeatures));
-        args.set(4, static_cast<int32_t>(nRows));
+        args.set(2, featureId);
+        args.set(3, nFeatures);
+        args.set(4, nRows);
 
         KernelRange global_range(nRows);
 

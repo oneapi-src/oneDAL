@@ -96,7 +96,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::scan
         KernelArguments args(3);
         args.set(0, values, AccessModeIds::read);
         args.set(1, partialSums, AccessModeIds::write);
-        args.set(2, static_cast<int32_t>(nRows));
+        args.set(2, nRows);
 
         KernelRange local_range(localSize);
         KernelRange global_range(localSize * nLocalSums);
@@ -133,7 +133,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::redu
         KernelArguments args(3);
         args.set(0, partialSums, AccessModeIds::read);
         args.set(1, totalSum, AccessModeIds::write);
-        args.set(2, static_cast<int32_t>(nSubgroupSums));
+        args.set(2, nSubgroupSums);
 
         KernelRange local_range(localSize);
         KernelRange global_range(localSize);
@@ -282,11 +282,11 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         args.set(1, treeOrder, AccessModeIds::read);
         args.set(2, optCoeffs, AccessModeIds::read);
         args.set(3, partialHistograms, AccessModeIds::write);
-        args.set(4, static_cast<int32_t>(iStart));
-        args.set(5, static_cast<int32_t>(nRows));
+        args.set(4, iStart);
+        args.set(5, nRows);
         args.set(6, binOffsets, AccessModeIds::read);
-        args.set(7, static_cast<int32_t>(nTotalBins));
-        args.set(8, static_cast<int32_t>(nFeatures));
+        args.set(7, nTotalBins);
+        args.set(8, nFeatures);
 
         uint32_t localSize = nFeatures < _maxLocalSize ? nFeatures : _maxLocalSize;
 
@@ -327,8 +327,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::redu
         KernelArguments args(4);
         args.set(0, partialHistograms, AccessModeIds::read);
         args.set(1, histograms, AccessModeIds::write);
-        args.set(2, static_cast<int32_t>(nPartialHistograms));
-        args.set(3, static_cast<int32_t>(nTotalBins));
+        args.set(2, nPartialHistograms);
+        args.set(3, nTotalBins);
 
         KernelRange local_range(1, reduceLocalSize);
         KernelRange global_range(nTotalBins, reduceLocalSize);
@@ -428,7 +428,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         args.set(0, histograms, AccessModeIds::read);
         args.set(1, totalOptCoeffs, AccessModeIds::write);
         args.set(2, binOffsets, AccessModeIds::read);
-        args.set(3, static_cast<int32_t>(nTotalBins));
+        args.set(3, nTotalBins);
 
         KernelRange global_range(localSize, nFeatures);
 
@@ -465,7 +465,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         args.set(2, splitInfo, AccessModeIds::write);
         args.set(3, splitValue, AccessModeIds::write);
         args.set(4, binOffsets, AccessModeIds::read);
-        args.set(5, static_cast<int32_t>(nTotalBins));
+        args.set(5, nTotalBins);
         args.set(6, lambda);
 
         KernelRange local_range(localSize, 1);
@@ -570,8 +570,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
         args.set(1, treeOrder, AccessModeIds::read);
         args.set(2, partialSums, AccessModeIds::write);
         args.set(3, splitValue);
-        args.set(4, static_cast<int32_t>(iStart));
-        args.set(5, static_cast<int32_t>(nRows));
+        args.set(4, iStart);
+        args.set(5, nRows);
 
         KernelRange local_range(localSize);
         KernelRange global_range(localSize * nLocalSums);
@@ -612,7 +612,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
         args.set(0, partialSums, AccessModeIds::read);
         args.set(1, partialPrefixSums, AccessModeIds::write);
         args.set(2, totalSum, AccessModeIds::write);
-        args.set(3, static_cast<int32_t>(nSubgroupSums));
+        args.set(3, nSubgroupSums);
 
         KernelRange local_range(localSize);
         KernelRange global_range(localSize);
@@ -655,8 +655,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
         args.set(2, treeOrderBuf, AccessModeIds::write);
         args.set(3, partialPrefixSums, AccessModeIds::read);
         args.set(4, splitValue);
-        args.set(5, static_cast<int32_t>(iStart));
-        args.set(6, static_cast<int32_t>(nRows));
+        args.set(5, iStart);
+        args.set(6, nRows);
 
         KernelRange local_range(localSize);
         KernelRange global_range(localSize * nLocalSums);
@@ -693,7 +693,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
         KernelArguments args(3);
         args.set(0, treeOrderBuf, AccessModeIds::read);
         args.set(1, treeOrder, AccessModeIds::write);
-        args.set(2, static_cast<int32_t>(iStart));
+        args.set(2, iStart);
 
         KernelRange global_range(nRows);
 
@@ -770,8 +770,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::upda
         KernelArguments args(5);
         args.set(0, treeOrder, AccessModeIds::read);
         args.set(1, response, AccessModeIds::write);
-        args.set(2, static_cast<int32_t>(iStart));
-        args.set(3, static_cast<int32_t>(nRows));
+        args.set(2, iStart);
+        args.set(3, nRows);
         args.set(4, inc);
 
         KernelRange global_range(nRows);
