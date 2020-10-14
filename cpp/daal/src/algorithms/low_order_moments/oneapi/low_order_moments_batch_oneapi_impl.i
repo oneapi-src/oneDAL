@@ -128,20 +128,20 @@ services::Status LowOrderMomentsBatchKernelOneAPI<algorithmFPType, method>::comp
     {
         if (parameter->estimatesToCompute == estimatesMinMax)
         {
-            LowOrderMomentsBatchTaskOneAPI<algorithmFPType, estimatesMinMax> task(context, dataTable, result, &status);
+            LowOrderMomentsBatchTaskOneAPI<algorithmFPType, estimatesMinMax> task(context, dataTable, result, status);
             DAAL_CHECK_STATUS_VAR(status);
             return task.compute();
         }
         else if (parameter->estimatesToCompute == estimatesMeanVariance)
         {
-            LowOrderMomentsBatchTaskOneAPI<algorithmFPType, estimatesMeanVariance> task(context, dataTable, result, &status);
+            LowOrderMomentsBatchTaskOneAPI<algorithmFPType, estimatesMeanVariance> task(context, dataTable, result, status);
             DAAL_CHECK_STATUS_VAR(status);
             return task.compute();
         }
         else
         {
             /* estimatesAll */
-            LowOrderMomentsBatchTaskOneAPI<algorithmFPType, estimatesAll> task(context, dataTable, result, &status);
+            LowOrderMomentsBatchTaskOneAPI<algorithmFPType, estimatesAll> task(context, dataTable, result, status);
             DAAL_CHECK_STATUS_VAR(status);
             return task.compute();
         }
@@ -171,7 +171,7 @@ static inline services::Status buildProgram(ClKernelFactoryIface & factory, cons
     services::String cachekey(TaskInfoBatch<algorithmFPType, scope>::kCacheKey);
     cachekey.add(fptype_name);
 
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), low_order_moments_kernels_all_cl, build_options.c_str(), &status);
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), low_order_moments_kernels_all_cl, build_options.c_str(), status);
 
     return status;
 }
@@ -181,7 +181,7 @@ static inline services::Status buildProgram(ClKernelFactoryIface & factory, cons
 */
 template <typename algorithmFPType, EstimatesToCompute scope>
 LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::LowOrderMomentsBatchTaskOneAPI(ExecutionContextIface & context, NumericTable * dataTable,
-                                                                                       Result * result, services::Status * status)
+                                                                                       Result * result, services::Status & status)
     : dataTable(dataTable)
 {
     nVectors  = dataTable->getNumberOfRows();
@@ -203,12 +203,12 @@ LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::LowOrderMomentsBatchTask
 
     workItemsPerGroup = (maxWorkItemsPerGroup < nFeatures) ? maxWorkItemsPerGroup : nFeatures;
 
-    CHECK_AND_RET_IF_FAIL(*status, dataTable->getBlockOfRows(0, nVectors, readOnly, dataBD));
+    CHECK_AND_RET_IF_FAIL(status, dataTable->getBlockOfRows(0, nVectors, readOnly, dataBD));
 
     for (unsigned int i = 0; i < TaskInfoBatch<algorithmFPType, scope>::nResults; i++)
     {
         resultTable[i] = result->get((ResultId)TaskInfoBatch<algorithmFPType, scope>::resIds[i]);
-        CHECK_AND_RET_IF_FAIL(*status, resultTable[i]->getBlockOfRows(0, 1, writeOnly, resultBD[i]));
+        CHECK_AND_RET_IF_FAIL(status, resultTable[i]->getBlockOfRows(0, 1, writeOnly, resultBD[i]));
     }
 
     if (TaskInfoBatch<algorithmFPType, scope>::isRowsInBlockInfoRequired)
@@ -216,7 +216,7 @@ LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::LowOrderMomentsBatchTask
         if (nRowsBlocks > 1)
         {
             bNVec = context.allocate(TypeIds::uint32, nFeatures * nRowsBlocks, status);
-            RET_IF_FAIL(*status);
+            DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
         }
     }
 
@@ -225,7 +225,7 @@ LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::LowOrderMomentsBatchTask
         for (unsigned int i = 0; i < TaskInfoBatch<algorithmFPType, scope>::nBuffers; i++)
         {
             bAuxBuffers[i] = context.allocate(TypeIds::id<algorithmFPType>(), nFeatures * nRowsBlocks, status);
-            RET_IF_FAIL(*status);
+            DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
         }
     }
 }
@@ -263,15 +263,16 @@ services::Status LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::compute
     if (nRowsBlocks > 1)
     {
         /* process rows by blocks first */
-        auto kProcessBlocks = factory.getKernel(TaskInfoBatch<algorithmFPType, scope>::kProcessBlocksName);
+        auto kProcessBlocks = factory.getKernel(TaskInfoBatch<algorithmFPType, scope>::kProcessBlocksName, status);
+        DAAL_CHECK_STATUS_VAR(status);
         {
             KernelRange localRange(workItemsPerGroup);
             KernelRange globalRange(nRowsBlocks * nColsBlocks * workItemsPerGroup);
 
             KernelNDRange range(1);
-            range.global(globalRange, &status);
+            range.global(globalRange, status);
             DAAL_CHECK_STATUS_VAR(status);
-            range.local(localRange, &status);
+            range.local(localRange, status);
             DAAL_CHECK_STATUS_VAR(status);
 
             KernelArguments args(3 + TaskInfoBatch<algorithmFPType, scope>::nBuffers
@@ -294,21 +295,22 @@ services::Status LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::compute
 
             {
                 DAAL_ITTNOTIFY_SCOPED_TASK(LowOrderMomentsBatchTaskOneAPI.ProcessBlocks);
-                context.run(range, kProcessBlocks, args, &status);
+                context.run(range, kProcessBlocks, args, status);
             }
             DAAL_CHECK_STATUS_VAR(status);
         }
 
         /* merge blocks */
-        auto kMergeBlocks = factory.getKernel(TaskInfoBatch<algorithmFPType, scope>::kMergeBlocksName);
+        auto kMergeBlocks = factory.getKernel(TaskInfoBatch<algorithmFPType, scope>::kMergeBlocksName, status);
+        DAAL_CHECK_STATUS_VAR(status);
         {
             KernelRange localRange(maxWorkItemsPerGroupToMerge);
             KernelRange globalRange(maxWorkItemsPerGroupToMerge * nFeatures);
 
             KernelNDRange range(1);
-            range.global(globalRange, &status);
+            range.global(globalRange, status);
             DAAL_CHECK_STATUS_VAR(status);
-            range.local(localRange, &status);
+            range.local(localRange, status);
             DAAL_CHECK_STATUS_VAR(status);
 
             KernelArguments args(1 + TaskInfoBatch<algorithmFPType, scope>::nResults + TaskInfoBatch<algorithmFPType, scope>::nBuffers
@@ -333,22 +335,23 @@ services::Status LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::compute
 
             {
                 DAAL_ITTNOTIFY_SCOPED_TASK(LowOrderMomentsBatchTaskOneAPI.MergeBlocks);
-                context.run(range, kMergeBlocks, args, &status);
+                context.run(range, kMergeBlocks, args, status);
             }
             DAAL_CHECK_STATUS_VAR(status);
         }
     }
     else
     {
-        auto kSinglePass = factory.getKernel(TaskInfoBatch<algorithmFPType, scope>::kSinglePassName);
+        auto kSinglePass = factory.getKernel(TaskInfoBatch<algorithmFPType, scope>::kSinglePassName, status);
+        DAAL_CHECK_STATUS_VAR(status);
         {
             KernelRange localRange(workItemsPerGroup);
             KernelRange globalRange(nColsBlocks * workItemsPerGroup);
 
             KernelNDRange range(1);
-            range.global(globalRange, &status);
+            range.global(globalRange, status);
             DAAL_CHECK_STATUS_VAR(status);
-            range.local(localRange, &status);
+            range.local(localRange, status);
             DAAL_CHECK_STATUS_VAR(status);
 
             KernelArguments args(3 + TaskInfoBatch<algorithmFPType, scope>::nResults);
@@ -362,7 +365,7 @@ services::Status LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::compute
                 args.set(argsI++, resultBD[i].getBuffer(), AccessModeIds::readwrite);
             }
 
-            context.run(range, kSinglePass, args, &status);
+            context.run(range, kSinglePass, args, status);
             DAAL_CHECK_STATUS_VAR(status);
         }
     }

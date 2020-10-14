@@ -57,7 +57,8 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::buildProgram(ClKer
         services::String cachekey("__daal_algorithms_df_tree_level_build_helper_");
         cachekey.add(build_options);
 
-        factory.build(ExecutionTargetIds::device, cachekey.c_str(), df_tree_level_build_helper_kernels, build_options.c_str());
+        factory.build(ExecutionTargetIds::device, cachekey.c_str(), df_tree_level_build_helper_kernels, build_options.c_str(), status);
+        DAAL_CHECK_STATUS_VAR(status);
     }
 
     return status;
@@ -80,7 +81,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::initializeTreeOrde
 
         KernelRange global_range(nRows);
 
-        context.run(global_range, kernel, args, &status);
+        context.run(global_range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -109,12 +110,12 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::markPresentRows(co
         KernelRange global_range(localSize * nSubgroupSums);
 
         KernelNDRange range(1);
-        range.local(local_range, &status);
+        range.local(local_range, status);
         DAAL_CHECK_STATUS_VAR(status);
-        range.global(global_range, &status);
+        range.global(global_range, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        context.run(range, kernel, args, &status);
+        context.run(range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -144,12 +145,12 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::countAbsentRowsFor
         KernelRange global_range(localSize * nSubgroupSums);
 
         KernelNDRange range(1);
-        range.local(local_range, &status);
+        range.local(local_range, status);
         DAAL_CHECK_STATUS_VAR(status);
-        range.global(global_range, &status);
+        range.global(global_range, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        context.run(range, kernel, args, &status);
+        context.run(range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -180,12 +181,12 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::countAbsentRowsTot
         KernelRange global_range(localSize);
 
         KernelNDRange range(1);
-        range.local(local_range, &status);
+        range.local(local_range, status);
         DAAL_CHECK_STATUS_VAR(status);
-        range.global(global_range, &status);
+        range.global(global_range, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        context.run(range, kernel, args, &status);
+        context.run(range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -217,12 +218,12 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::fillOOBRowsListByB
         KernelRange global_range(localSize * nSubgroupSums);
 
         KernelNDRange range(1);
-        range.local(local_range, &status);
+        range.local(local_range, status);
         DAAL_CHECK_STATUS_VAR(status);
-        range.global(global_range, &status);
+        range.global(global_range, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        context.run(range, kernel, args, &status);
+        context.run(range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -240,31 +241,31 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::getOOBRows(const U
     const size_t localSize     = _preferableSubGroup;
     const size_t nSubgroupSums = _maxLocalSums * localSize < nRows ? _maxLocalSums : (nRows / localSize + !(nRows / localSize));
 
-    auto rowsBuffer = context.allocate(TypeIds::id<int>(), nRows, &status); // it is filled with marks Present/Absent for each rows
+    auto rowsBuffer = context.allocate(TypeIds::id<int>(), nRows, status); // it is filled with marks Present/Absent for each rows
     DAAL_CHECK_STATUS_VAR(status);
-    auto partialSums = context.allocate(TypeIds::id<int>(), nSubgroupSums, &status);
+    auto partialSums = context.allocate(TypeIds::id<int>(), nSubgroupSums, status);
     DAAL_CHECK_STATUS_VAR(status);
-    auto partialPrefixSums = context.allocate(TypeIds::id<int>(), nSubgroupSums, &status);
+    auto partialPrefixSums = context.allocate(TypeIds::id<int>(), nSubgroupSums, status);
     DAAL_CHECK_STATUS_VAR(status);
-    auto totalSum = context.allocate(TypeIds::id<int>(), 1, &status);
+    auto totalSum = context.allocate(TypeIds::id<int>(), 1, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    context.fill(rowsBuffer, absentMark, &status);
+    context.fill(rowsBuffer, absentMark, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     DAAL_CHECK_STATUS_VAR(markPresentRows(rowsList, rowsBuffer, nRows, localSize, nSubgroupSums));
     DAAL_CHECK_STATUS_VAR(countAbsentRowsForBlocks(rowsBuffer, nRows, partialSums, localSize, nSubgroupSums));
     DAAL_CHECK_STATUS_VAR(countAbsentRowsTotal(partialSums, partialPrefixSums, totalSum, localSize, nSubgroupSums));
 
-    auto nOOBRowsHost = totalSum.template get<int>().toHost(ReadWriteMode::readOnly);
-    DAAL_CHECK_MALLOC(nOOBRowsHost.get());
+    auto nOOBRowsHost = totalSum.template get<int>().toHost(ReadWriteMode::readOnly, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     nOOBRows = static_cast<size_t>(nOOBRowsHost.get()[0]);
 
     if (nOOBRows > 0)
     {
         // assign buffer of required size to the input oobRowsList buffer
-        oobRowsList = context.allocate(TypeIds::id<int>(), nOOBRows, &status);
+        oobRowsList = context.allocate(TypeIds::id<int>(), nOOBRows, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         DAAL_CHECK_STATUS_VAR(fillOOBRowsListByBlocks(rowsBuffer, nRows, partialPrefixSums, oobRowsList, localSize, nSubgroupSums));
@@ -285,7 +286,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::getNumOfSplitNodes
 
     auto & kernel = kernelGetNumOfSplitNodes;
 
-    auto bufNSplitNodes = context.allocate(TypeIds::id<int>(), 1, &status);
+    auto bufNSplitNodes = context.allocate(TypeIds::id<int>(), 1, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     {
@@ -303,17 +304,17 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::getNumOfSplitNodes
         KernelRange global_range(localSize);
 
         KernelNDRange range(1);
-        range.local(local_range, &status);
+        range.local(local_range, status);
         DAAL_CHECK_STATUS_VAR(status);
-        range.global(global_range, &status);
+        range.global(global_range, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        context.run(range, kernel, args, &status);
+        context.run(range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
-    auto bufNsplitNodesHost = bufNSplitNodes.template get<int>().toHost(ReadWriteMode::readOnly);
-    DAAL_CHECK_MALLOC(bufNsplitNodesHost.get());
+    auto bufNsplitNodesHost = bufNSplitNodes.template get<int>().toHost(ReadWriteMode::readOnly, status);
+    DAAL_CHECK_STATUS_VAR(status);
     nSplitNodes = bufNsplitNodesHost.get()[0];
 
     return status;
@@ -336,7 +337,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::convertSplitToLeaf
 
         KernelRange global_range(nNodes);
 
-        context.run(global_range, kernel, args, &status);
+        context.run(global_range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -372,12 +373,12 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::doNodesSplit(const
         KernelRange global_range(localSize);
 
         KernelNDRange range(1);
-        range.local(local_range, &status);
+        range.local(local_range, status);
         DAAL_CHECK_STATUS_VAR(status);
-        range.global(global_range, &status);
+        range.global(global_range, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        context.run(range, kernel, args, &status);
+        context.run(range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -414,12 +415,12 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::splitNodeListOnGro
         KernelRange global_range(localSize);
 
         KernelNDRange range(1);
-        range.local(local_range, &status);
+        range.local(local_range, status);
         DAAL_CHECK_STATUS_VAR(status);
-        range.global(global_range, &status);
+        range.global(global_range, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        context.run(range, kernel, args, &status);
+        context.run(range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -455,12 +456,12 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::doLevelPartition(c
         KernelRange global_range(localSize, nNodes);
 
         KernelNDRange range(2);
-        range.global(global_range, &status);
+        range.global(global_range, status);
         DAAL_CHECK_STATUS_VAR(status);
-        range.local(local_range, &status);
+        range.local(local_range, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        context.run(range, kernel, args, &status);
+        context.run(range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -491,7 +492,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::partitionCopy(Univ
 
         KernelRange global_range(nRows);
 
-        context.run(global_range, kernel, args, &status);
+        context.run(global_range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -532,12 +533,12 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::updateMDIVarImport
         KernelRange global_range(localSize, nFeatures);
 
         KernelNDRange range(2);
-        range.local(local_range, &status);
+        range.local(local_range, status);
         DAAL_CHECK_STATUS_VAR(status);
-        range.global(global_range, &status);
+        range.global(global_range, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        context.run(range, kernel, args, &status);
+        context.run(range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -557,20 +558,20 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::init(const char * 
 
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory, buildOptions));
 
-    kernelInitializeTreeOrder = kernel_factory.getKernel("initializeTreeOrder", &status);
-    kernelPartitionCopy       = kernel_factory.getKernel("partitionCopy", &status);
+    kernelInitializeTreeOrder = kernel_factory.getKernel("initializeTreeOrder", status);
+    kernelPartitionCopy       = kernel_factory.getKernel("partitionCopy", status);
 
-    kernelConvertSplitToLeaf          = kernel_factory.getKernel("convertSplitToLeaf", &status);
-    kernelGetNumOfSplitNodes          = kernel_factory.getKernel("getNumOfSplitNodes", &status);
-    kernelDoNodesSplit                = kernel_factory.getKernel("doNodesSplit", &status);
-    kernelDoLevelPartition            = kernel_factory.getKernel("doLevelPartition", &status);
-    kernelSplitNodeListOnGroupsBySize = kernel_factory.getKernel("splitNodeListOnGroupsBySize", &status);
+    kernelConvertSplitToLeaf          = kernel_factory.getKernel("convertSplitToLeaf", status);
+    kernelGetNumOfSplitNodes          = kernel_factory.getKernel("getNumOfSplitNodes", status);
+    kernelDoNodesSplit                = kernel_factory.getKernel("doNodesSplit", status);
+    kernelDoLevelPartition            = kernel_factory.getKernel("doLevelPartition", status);
+    kernelSplitNodeListOnGroupsBySize = kernel_factory.getKernel("splitNodeListOnGroupsBySize", status);
 
-    kernelMarkPresentRows          = kernel_factory.getKernel("markPresentRows", &status);
-    kernelCountAbsentRowsForBlocks = kernel_factory.getKernel("countAbsentRowsForBlocks", &status);
-    kernelCountAbsentRowsTotal     = kernel_factory.getKernel("countAbsentRowsTotal", &status);
-    kernelFillOOBRowsListByBlocks  = kernel_factory.getKernel("fillOOBRowsListByBlocks", &status);
-    kernelUpdateMDIVarImportance   = kernel_factory.getKernel("updateMDIVarImportance", &status);
+    kernelMarkPresentRows          = kernel_factory.getKernel("markPresentRows", status);
+    kernelCountAbsentRowsForBlocks = kernel_factory.getKernel("countAbsentRowsForBlocks", status);
+    kernelCountAbsentRowsTotal     = kernel_factory.getKernel("countAbsentRowsTotal", status);
+    kernelFillOOBRowsListByBlocks  = kernel_factory.getKernel("fillOOBRowsListByBlocks", status);
+    kernelUpdateMDIVarImportance   = kernel_factory.getKernel("updateMDIVarImportance", status);
 
     DAAL_CHECK_STATUS_VAR(status);
 

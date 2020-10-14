@@ -45,33 +45,34 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::initializeBuffers(uint
     Status s;
     auto & context = Environment::getInstance()->getDefaultExecutionContext();
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, _queueBlockSize, nRows);
-    _queueBlockDistances = context.allocate(TypeIds::id<algorithmFPType>(), _queueBlockSize * nRows, &s);
+    _queueBlockDistances = context.allocate(TypeIds::id<algorithmFPType>(), _queueBlockSize * nRows, s);
     DAAL_CHECK_STATUS_VAR(s);
-    _singlePointDistances = context.allocate(TypeIds::id<algorithmFPType>(), nRows, &s);
+    _singlePointDistances = context.allocate(TypeIds::id<algorithmFPType>(), nRows, s);
     DAAL_CHECK_STATUS_VAR(s);
-    _queue = context.allocate(TypeIds::id<int>(), nRows, &s);
+    _queue = context.allocate(TypeIds::id<int>(), nRows, s);
     DAAL_CHECK_STATUS_VAR(s);
-    _isCore = context.allocate(TypeIds::id<int>(), nRows, &s);
+    _isCore = context.allocate(TypeIds::id<int>(), nRows, s);
     DAAL_CHECK_STATUS_VAR(s);
-    _countersTotal = context.allocate(TypeIds::id<int>(), _chunkNumber, &s);
+    _countersTotal = context.allocate(TypeIds::id<int>(), _chunkNumber, s);
     DAAL_CHECK_STATUS_VAR(s);
-    _countersNewNeighbors = context.allocate(TypeIds::id<int>(), _chunkNumber, &s);
+    _countersNewNeighbors = context.allocate(TypeIds::id<int>(), _chunkNumber, s);
     DAAL_CHECK_STATUS_VAR(s);
-    _chunkOffsets = context.allocate(TypeIds::id<int>(), _chunkNumber, &s);
+    _chunkOffsets = context.allocate(TypeIds::id<int>(), _chunkNumber, s);
     DAAL_CHECK_STATUS_VAR(s);
-    context.fill(_isCore, 0, &s);
+    context.fill(_isCore, 0, s);
     DAAL_CHECK_STATUS_VAR(s);
     return s;
 }
 
 template <typename algorithmFPType>
-bool DBSCANBatchKernelUCAPI<algorithmFPType>::canQueryRow(const UniversalBuffer & assignments, uint32_t rowIndex, Status * s)
+bool DBSCANBatchKernelUCAPI<algorithmFPType>::canQueryRow(const UniversalBuffer & assignments, uint32_t rowIndex, Status & s)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.canQueryRow);
     auto pointAssignment = assignments.template get<int>().getSubBuffer(rowIndex, 1, s);
     DAAL_CHECK_STATUS_RETURN_IF_FAIL(s, false);
 
-    auto assignPtr = pointAssignment.toHost(ReadWriteMode::readOnly);
+    auto assignPtr = pointAssignment.toHost(ReadWriteMode::readOnly, s);
+    DAAL_CHECK_STATUS_RETURN_IF_FAIL(s, false);
     if (!assignPtr.get())
     {
         return Status(ErrorNullPtr);
@@ -95,12 +96,13 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::processResultsToCompute(DAAL_UIN
                                                                         NumericTable * ntCoreIndices, NumericTable * ntCoreObservations)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.processResultsToCompute);
-    auto isCoreHost = _isCore.template get<int>().toHost(ReadWriteMode::readOnly);
-    auto isCore     = isCoreHost.get();
-    if (!isCore)
-    {
-        return Status(ErrorNullPtr);
-    }
+
+    services::Status status;
+
+    auto isCoreHost = _isCore.template get<int>().toHost(ReadWriteMode::readOnly, status);
+    DAAL_CHECK_STATUS_VAR(status);
+
+    auto isCore = isCoreHost.get();
 
     const uint32_t nRows     = ntData->getNumberOfRows();
     const uint32_t nFeatures = ntData->getNumberOfColumns();
@@ -150,11 +152,13 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::processResultsToCompute(DAAL_UIN
         BlockDescriptor<algorithmFPType> coreObservationsRows;
         DAAL_CHECK_STATUS_VAR(ntCoreObservations->getBlockOfRows(0, nCoreObservations, writeOnly, coreObservationsRows));
         auto coreObservations    = coreObservationsRows.getBuffer();
-        auto coreObservationsPtr = coreObservations.toHost(ReadWriteMode::writeOnly);
+        auto coreObservationsPtr = coreObservations.toHost(ReadWriteMode::writeOnly, status);
+        DAAL_CHECK_STATUS_VAR(status);
         BlockDescriptor<algorithmFPType> dataRows;
         DAAL_CHECK_STATUS_VAR(ntData->getBlockOfRows(0, nRows, readOnly, dataRows));
         auto data    = dataRows.getBuffer();
-        auto dataPtr = data.toHost(ReadWriteMode::readOnly);
+        auto dataPtr = data.toHost(ReadWriteMode::readOnly, status);
+        DAAL_CHECK_STATUS_VAR(status);
 
         uint32_t pos = 0;
         for (uint32_t i = 0; i < nRows; i++)
@@ -170,7 +174,7 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::processResultsToCompute(DAAL_UIN
         DAAL_CHECK_STATUS_VAR(ntData->releaseBlockOfRows(dataRows));
     }
 
-    return Status();
+    return status;
 }
 
 template <typename algorithmFPType>
@@ -199,7 +203,7 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
     BlockDescriptor<int> assignRows;
     DAAL_CHECK_STATUS_VAR(ntAssignments->getBlockOfRows(0, nRows, writeOnly, assignRows));
     UniversalBuffer assignments = assignRows.getBuffer();
-    context.fill(assignments, undefined, &s);
+    context.fill(assignments, undefined, s);
     DAAL_CHECK_STATUS_VAR(s);
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, _queueBlockSize, nRows);
@@ -211,7 +215,7 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
 
     for (uint32_t i = 0; i < nRows; i++)
     {
-        bool canQuery = canQueryRow(assignments, i, &s);
+        bool canQuery = canQueryRow(assignments, i, s);
         DAAL_CHECK_STATUS_VAR(s);
         if (!canQuery)
         {
@@ -220,8 +224,9 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
         DAAL_CHECK_STATUS_VAR(getPointDistances(data, nRows, i, nFeatures, minkowskiPower, _singlePointDistances));
         DAAL_CHECK_STATUS_VAR(
             countPointNeighbors(assignments, _singlePointDistances, i, -1, nRows, epsP, _queue, _countersTotal, _countersNewNeighbors));
-        uint32_t numTotalNeighbors = sumCounters(_countersTotal);
-        uint32_t numNewNeighbors   = sumCounters(_countersNewNeighbors);
+        uint32_t numTotalNeighbors = sumCounters(_countersTotal, s);
+        uint32_t numNewNeighbors   = sumCounters(_countersNewNeighbors, s);
+        DAAL_CHECK_STATUS_VAR(s);
         if (numTotalNeighbors < par->minObservations)
         {
             DAAL_CHECK_STATUS_VAR(setBufferValue(assignments, i, noise));
@@ -241,8 +246,9 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
             {
                 countPointNeighbors(assignments, _queueBlockDistances, queueBegin + j, nRows * j, nRows, epsP, _queue, _countersTotal,
                                     _countersNewNeighbors);
-                uint32_t curTotalNeighbors = sumCounters(_countersTotal);
-                uint32_t curNewNeighbors   = sumCounters(_countersNewNeighbors);
+                uint32_t curTotalNeighbors = sumCounters(_countersTotal, s);
+                uint32_t curNewNeighbors   = sumCounters(_countersNewNeighbors, s);
+                DAAL_CHECK_STATUS_VAR(s);
                 setBufferValueByQueueIndex(assignments, _queue, queueBegin + j, nClusters - 1);
                 if (curTotalNeighbors < par->minObservations)
                 {
@@ -260,7 +266,11 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
     ntData->releaseBlockOfRows(dataRows);
     BlockDescriptor<int> nClustersRows;
     DAAL_CHECK_STATUS_VAR(ntNClusters->getBlockOfRows(0, 1, writeOnly, nClustersRows));
-    nClustersRows.getBuffer().toHost(ReadWriteMode::writeOnly).get()[0] = nClusters;
+
+    const auto nClustersRowsHost = nClustersRows.getBuffer().toHost(ReadWriteMode::writeOnly, s);
+    DAAL_CHECK_STATUS_VAR(s);
+    nClustersRowsHost.get()[0] = nClusters;
+
     if (par->resultsToCompute & (computeCoreIndices | computeCoreObservations))
     {
         DAAL_CHECK_STATUS_VAR(processResultsToCompute(par->resultsToCompute, ntData, ntCoreIndices, ntCoreObservations));
@@ -280,7 +290,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::pushNeighborsToQueue(c
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
-    auto kernel = kernel_factory.getKernel("push_points_to_queue", &st);
+    auto kernel = kernel_factory.getKernel("push_points_to_queue", st);
     DAAL_CHECK_STATUS_VAR(st);
 
     KernelArguments args(11);
@@ -300,12 +310,12 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::pushNeighborsToQueue(c
     KernelRange global_range(getWorkgroupNumber(_chunkNumber), _maxWorkgroupSize);
 
     KernelNDRange range(2);
-    range.global(global_range, &st);
+    range.global(global_range, st);
     DAAL_CHECK_STATUS_VAR(st);
-    range.local(local_range, &st);
+    range.local(local_range, st);
     DAAL_CHECK_STATUS_VAR(st);
 
-    context.run(range, kernel, args, &st);
+    context.run(range, kernel, args, st);
     return st;
 }
 
@@ -317,7 +327,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::countOffsets(const Uni
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
-    auto kernel = kernel_factory.getKernel("compute_chunk_offsets", &st);
+    auto kernel = kernel_factory.getKernel("compute_chunk_offsets", st);
     DAAL_CHECK_STATUS_VAR(st);
 
     KernelArguments args(3);
@@ -326,7 +336,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::countOffsets(const Uni
     args.set(2, chunkOffests, AccessModeIds::write);
 
     KernelRange local_range(_minSubgroupSize);
-    context.run(local_range, kernel, args, &st);
+    context.run(local_range, kernel, args, st);
     return st;
 }
 
@@ -338,7 +348,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::setBufferValue(Univers
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
-    auto kernel = kernel_factory.getKernel("set_buffer_value", &st);
+    auto kernel = kernel_factory.getKernel("set_buffer_value", st);
     DAAL_CHECK_STATUS_VAR(st);
     KernelArguments args(3);
     args.set(0, index);
@@ -346,7 +356,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::setBufferValue(Univers
     args.set(2, buffer, AccessModeIds::readwrite);
 
     KernelRange global_range(1);
-    context.run(global_range, kernel, args, &st);
+    context.run(global_range, kernel, args, st);
 
     return st;
 }
@@ -360,7 +370,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::setBufferValueByQueueI
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
-    auto kernel = kernel_factory.getKernel("set_buffer_value_by_queue_index", &st);
+    auto kernel = kernel_factory.getKernel("set_buffer_value_by_queue_index", st);
     DAAL_CHECK_STATUS_VAR(st);
 
     KernelArguments args(4);
@@ -370,7 +380,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::setBufferValueByQueueI
     args.set(3, buffer, AccessModeIds::readwrite);
 
     KernelRange global_range(1);
-    context.run(global_range, kernel, args, &st);
+    context.run(global_range, kernel, args, st);
     return st;
 }
 
@@ -384,7 +394,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::getPointDistances(cons
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
-    auto kernel = kernel_factory.getKernel("compute_point_distances", &st);
+    auto kernel = kernel_factory.getKernel("compute_point_distances", st);
     DAAL_CHECK_STATUS_VAR(st);
 
     KernelArguments args(6);
@@ -399,12 +409,12 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::getPointDistances(cons
     KernelRange global_range(nRows / _minSubgroupSize + 1, _maxWorkgroupSize);
 
     KernelNDRange range(2);
-    range.global(global_range, &st);
+    range.global(global_range, st);
     DAAL_CHECK_STATUS_VAR(st);
-    range.local(local_range, &st);
+    range.local(local_range, st);
     DAAL_CHECK_STATUS_VAR(st);
 
-    context.run(range, kernel, args, &st);
+    context.run(range, kernel, args, st);
     return st;
 }
 
@@ -418,7 +428,7 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::getQueueBlockDistances(const Uni
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
-    auto kernel = kernel_factory.getKernel("compute_queue_block_distances", &st);
+    auto kernel = kernel_factory.getKernel("compute_queue_block_distances", st);
     DAAL_CHECK_STATUS_VAR(st);
 
     KernelArguments args(8);
@@ -435,12 +445,12 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::getQueueBlockDistances(const Uni
     KernelRange global_range(queueBlockSize, _maxWorkgroupSize);
 
     KernelNDRange range(2);
-    range.global(global_range, &st);
+    range.global(global_range, st);
     DAAL_CHECK_STATUS_VAR(st);
-    range.local(local_range, &st);
+    range.local(local_range, st);
     DAAL_CHECK_STATUS_VAR(st);
 
-    context.run(range, kernel, args, &st);
+    context.run(range, kernel, args, st);
     return st;
 }
 
@@ -455,7 +465,7 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::countPointNeighbors(const Univer
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
-    auto kernel = kernel_factory.getKernel("count_neighbors_by_type", &st);
+    auto kernel = kernel_factory.getKernel("count_neighbors_by_type", st);
     DAAL_CHECK_STATUS_VAR(st);
 
     KernelArguments args(10);
@@ -474,21 +484,24 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::countPointNeighbors(const Univer
     KernelRange global_range(getWorkgroupNumber(_chunkNumber), _maxWorkgroupSize);
 
     KernelNDRange range(2);
-    range.global(global_range, &st);
+    range.global(global_range, st);
     DAAL_CHECK_STATUS_VAR(st);
-    range.local(local_range, &st);
+    range.local(local_range, st);
     DAAL_CHECK_STATUS_VAR(st);
 
-    context.run(range, kernel, args, &st);
+    context.run(range, kernel, args, st);
     return st;
 }
 
 template <typename algorithmFPType>
-uint32_t DBSCANBatchKernelUCAPI<algorithmFPType>::sumCounters(const UniversalBuffer & counters)
+uint32_t DBSCANBatchKernelUCAPI<algorithmFPType>::sumCounters(const UniversalBuffer & counters, services::Status & status)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.sumCounters);
-    auto countersHost      = counters.template get<int>().toHost(ReadWriteMode::writeOnly);
-    auto countersPtr       = countersHost.get();
+
+    auto countersHost = counters.template get<int>().toHost(ReadWriteMode::writeOnly, status);
+    DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, uint32_t(0));
+
+    auto countersPtr = countersHost.get();
     uint32_t sumOfCounters = 0;
     for (uint32_t i = 0; i < _chunkNumber; i++)
     {
@@ -509,7 +522,8 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::buildProgram(ClKernelFactoryIfac
     cachekey.add(fptype_name);
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(compute.buildProgram);
-        kernel_factory.build(ExecutionTargetIds::device, cachekey.c_str(), dbscan_cl_kernels, build_options.c_str(), &st);
+        kernel_factory.build(ExecutionTargetIds::device, cachekey.c_str(), dbscan_cl_kernels, build_options.c_str(), st);
+        DAAL_CHECK_STATUS_VAR(st);
     }
     return st;
 }

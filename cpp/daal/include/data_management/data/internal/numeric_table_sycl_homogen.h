@@ -243,7 +243,7 @@ protected:
                 const size_t size = getNumberOfColumns() * getNumberOfRows();
 
                 const auto universalBuffer =
-                    services::internal::getDefaultContext().allocate(services::internal::sycl::TypeIds::id<DataType>(), size, &status);
+                    services::internal::getDefaultContext().allocate(services::internal::sycl::TypeIds::id<DataType>(), size, status);
 
                 services::throwIfPossible(status);
                 DAAL_CHECK_STATUS_VAR(status);
@@ -302,7 +302,12 @@ protected:
         }
         else
         {
-            archive->set(_buffer.toHost(data_management::readOnly).get(), size);
+            services::Status status;
+            services::SharedPtr<DataType> hostData = _buffer.toHost(data_management::readOnly, status);
+            services::throwIfPossible(status);
+            DAAL_CHECK_STATUS_VAR(status);
+
+            archive->set(hostData.get(), size);
         }
 
         return services::Status();
@@ -325,7 +330,7 @@ protected:
             return _cpuTable->assign(value);
         }
 
-        services::internal::getDefaultContext().fill(_buffer, (double)value, &status);
+        services::internal::getDefaultContext().fill(_buffer, (double)value, status);
         services::throwIfPossible(status);
 
         return status;
@@ -338,6 +343,7 @@ private:
         static services::Status read(const services::internal::Buffer<U> & buffer, BlockDescriptor<T> & block, size_t nRows, size_t nCols)
         {
             DAAL_ASSERT(buffer.size() == nRows * nCols);
+            services::Status status;
 
             if (!block.resizeBuffer(nCols, nRows))
             {
@@ -346,24 +352,30 @@ private:
                 return status;
             }
 
-            // TODO: Figure out how to convert the data without fallback to host
-            auto hostPtr = buffer.toHost(data_management::readOnly);
+            auto hostPtr = buffer.toHost(data_management::readOnly, status);
+            services::throwIfPossible(status);
+            DAAL_CHECK_STATUS_VAR(status);
+
             internal::VectorUpCast<U, T>()(nRows * nCols, hostPtr.get(), block.getBlockPtr());
 
-            return services::Status();
+            return status;
         }
 
         static services::Status write(services::internal::Buffer<U> buffer, const BlockDescriptor<T> & block, size_t nRows, size_t nCols)
         {
+            services::Status status;
+
             DAAL_ASSERT(block.getNumberOfRows() == nRows);
             DAAL_ASSERT(block.getNumberOfColumns() == nCols);
             DAAL_ASSERT(buffer.size() == nRows * nCols);
 
-            // TODO: Figure out how to convert the data without fallback to host
-            auto hostPtr = buffer.toHost(data_management::writeOnly);
+            auto hostPtr = buffer.toHost(data_management::writeOnly, status);
+            services::throwIfPossible(status);
+            DAAL_CHECK_STATUS_VAR(status);
+
             internal::VectorDownCast<T, U>()(nRows * nCols, block.getBlockPtr(), hostPtr.get());
 
-            return services::Status();
+            return status;
         }
     };
 
@@ -386,7 +398,7 @@ private:
         }
     };
 
-    services::internal::Buffer<DataType> getSubBuffer(size_t rowOffset, size_t nRows)
+    services::internal::Buffer<DataType> getSubBuffer(size_t rowOffset, size_t nRows, services::Status & status)
     {
         const size_t nCols  = getNumberOfColumns();
         const size_t offset = rowOffset * nCols;
@@ -395,7 +407,11 @@ private:
         {
             return _buffer;
         }
-        return _buffer.getSubBuffer(offset, size);
+        services::internal::Buffer<DataType> subBuffer = _buffer.getSubBuffer(offset, size, status);
+        services::throwIfPossible(status);
+        DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, subBuffer);
+
+        return subBuffer;
     }
 
     template <typename T>
@@ -405,6 +421,8 @@ private:
         {
             return _cpuTable->getBlockOfRows(rowOffset, nRowsBlockDesired, rwFlag, block);
         }
+
+        services::Status status;
 
         const size_t nRows = getNumberOfRows();
         const size_t nCols = getNumberOfColumns();
@@ -417,8 +435,10 @@ private:
         }
 
         const size_t nRowsBlock = (rowOffset + nRowsBlockDesired < nRows) ? nRowsBlockDesired : nRows - rowOffset;
+        const services::internal::Buffer<DataType> subBuffer = getSubBuffer(rowOffset, nRowsBlock, status);
+        DAAL_CHECK_STATUS_VAR(status);
 
-        return BufferIO<T, DataType>::read(getSubBuffer(rowOffset, nRowsBlock), block, nRowsBlock, nCols);
+        return BufferIO<T, DataType>::read(subBuffer, block, nRowsBlock, nCols);
     }
 
     template <typename T>
@@ -437,7 +457,10 @@ private:
             const size_t nRows     = block.getNumberOfRows();
             const size_t rowOffset = block.getRowsOffset();
 
-            status |= BufferIO<T, DataType>::write(getSubBuffer(rowOffset, nRows), block, nRows, nCols);
+            const services::internal::Buffer<DataType> subBuffer = getSubBuffer(rowOffset, nRows, status);
+            DAAL_CHECK_STATUS_VAR(status);
+
+            status |= BufferIO<T, DataType>::write(subBuffer, block, nRows, nCols);
         }
 
         block.reset();

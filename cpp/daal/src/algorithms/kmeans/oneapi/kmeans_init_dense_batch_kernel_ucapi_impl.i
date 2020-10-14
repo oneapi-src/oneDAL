@@ -65,7 +65,8 @@ Status KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::init(size_t p, 
     services::String cachekey("__daal_algorithms_kmeans_init_dense_batch_");
     cachekey.add(fptype_name);
 
-    kernel_factory.build(ExecutionTargetIds::device, cachekey.c_str(), kmeans_init_cl_kernels, build_options.c_str());
+    kernel_factory.build(ExecutionTargetIds::device, cachekey.c_str(), kmeans_init_cl_kernels, build_options.c_str(), st);
+    DAAL_CHECK_STATUS_VAR(st);
 
     if (method == deterministicDense)
     {
@@ -77,7 +78,7 @@ Status KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::init(size_t p, 
         ntClusters->getBlockOfRows(0, nClusters, writeOnly, clustersRows);
         auto clusters = clustersRows.getBuffer();
 
-        context.copy(clusters, 0, data, 0, nClusters * p, &st);
+        context.copy(clusters, 0, data, 0, nClusters * p, st);
         DAAL_CHECK_STATUS_VAR(st);
 
         ntData->releaseBlockOfRows(dataRows);
@@ -90,13 +91,14 @@ Status KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::init(size_t p, 
 
     if (method == randomDense)
     {
-        auto gather_random = kernel_factory.getKernel("gather_random");
+        auto gather_random = kernel_factory.getKernel("gather_random", st);
 
-        auto indices = context.allocate(TypeIds::id<int>(), nClusters, &st);
+        auto indices = context.allocate(TypeIds::id<int>(), nClusters, st);
         DAAL_CHECK_STATUS_VAR(st);
 
         {
-            auto indicesHostPtr = indices.get<int>().toHost(data_management::readWrite);
+            auto indicesHostPtr = indices.get<int>().toHost(data_management::readWrite, st);
+            DAAL_CHECK_STATUS_VAR(st);
             auto * indicesHost  = indicesHostPtr.get();
 
             size_t k = 0;
@@ -129,7 +131,7 @@ Status KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::init(size_t p, 
         ntClusters->getBlockOfRows(0, clustersFound, writeOnly, clustersRows);
         auto clusters = clustersRows.getBuffer();
 
-        gatherRandom(context, gather_random, data, clusters, indices, nRowsTotal, clustersFound, p, &st);
+        gatherRandom(context, gather_random, data, clusters, indices, nRowsTotal, clustersFound, p, st);
         DAAL_CHECK_STATUS_VAR(st);
 
         ntData->releaseBlockOfRows(dataRows);
@@ -175,7 +177,7 @@ void KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::gatherRandom(Exec
                                                                             const services::internal::Buffer<algorithmFPType> & data,
                                                                             const services::internal::Buffer<algorithmFPType> & clusters,
                                                                             UniversalBuffer & indices, uint32_t nRows, uint32_t nClusters,
-                                                                            uint32_t nFeatures, Status * st)
+                                                                            uint32_t nFeatures, Status & st)
 {
     KernelArguments args(6);
     args.set(0, data, AccessModeIds::read);
@@ -190,9 +192,9 @@ void KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::gatherRandom(Exec
 
     KernelNDRange range(2);
     range.global(global_range, st);
-    DAAL_CHECK_STATUS_PTR(st);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
     range.local(local_range, st);
-    DAAL_CHECK_STATUS_PTR(st);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
 
     {
         context.run(range, kernel_gather_random, args, st);

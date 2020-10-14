@@ -65,11 +65,11 @@ services::Status CovarianceDenseDistrStep2KernelOneAPI<algorithmFPType, method>:
     DAAL_CHECK_STATUS_VAR(status);
 
     const algorithmFPType zero = 0.0;
-    context.fill(sumBlock.getBuffer(), zero, &status);
+    context.fill(sumBlock.getBuffer(), zero, status);
     DAAL_CHECK_STATUS_VAR(status);
-    context.fill(crossProductBlock.getBuffer(), zero, &status);
+    context.fill(crossProductBlock.getBuffer(), zero, status);
     DAAL_CHECK_STATUS_VAR(status);
-    context.fill(nObservationsBlock.getBuffer(), zero, &status);
+    context.fill(nObservationsBlock.getBuffer(), zero, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     for (size_t i = 0; i < collectionSize; i++)
@@ -92,17 +92,23 @@ services::Status CovarianceDenseDistrStep2KernelOneAPI<algorithmFPType, method>:
 
         if (i == 0)
         {
-            context.copy(crossProductBlock.getBuffer(), 0, partialCrossProductBlock.getBuffer(), 0, nFeatures * nFeatures, &status);
+            context.copy(crossProductBlock.getBuffer(), 0, partialCrossProductBlock.getBuffer(), 0, nFeatures * nFeatures, status);
             DAAL_CHECK_STATUS_VAR(status);
-            context.copy(sumBlock.getBuffer(), 0, partialSumsBlock.getBuffer(), 0, nFeatures, &status);
+            context.copy(sumBlock.getBuffer(), 0, partialSumsBlock.getBuffer(), 0, nFeatures, status);
             DAAL_CHECK_STATUS_VAR(status);
         }
         else
         {
+            const auto partialNObservationsBlockHost = partialNObservationsBlock.getBuffer().toHost(data_management::readOnly, status);
+            DAAL_CHECK_STATUS_VAR(status);
+
+            const auto nObservationsBlockHost = nObservationsBlock.getBuffer().toHost(data_management::readOnly, status);
+            DAAL_CHECK_STATUS_VAR(status);
+
             status |= mergeCrossProduct<algorithmFPType>(nFeatures, partialCrossProductBlock.getBuffer(), partialSumsBlock.getBuffer(),
-                                                         *(partialNObservationsBlock.getBuffer().toHost(data_management::readOnly).get()),
+                                                         *partialNObservationsBlockHost,
                                                          crossProductBlock.getBuffer(), sumBlock.getBuffer(),
-                                                         *(nObservationsBlock.getBuffer().toHost(data_management::readOnly).get()));
+                                                         *nObservationsBlockHost);
             DAAL_CHECK_STATUS_VAR(status);
 
             status |= mergeSums<algorithmFPType, method>(nFeatures, partialSumsBlock.getBuffer(), sumBlock.getBuffer());
@@ -159,7 +165,10 @@ services::Status CovarianceDenseDistrStep2KernelOneAPI<algorithmFPType, method>:
     status |= nObservationsTable->getBlockOfRows(0, nObservationsTable->getNumberOfRows(), readWrite, nObservationsBlock);
     DAAL_CHECK_STATUS_VAR(status);
 
-    status |= finalizeCovariance<algorithmFPType, method>(nFeatures, *(nObservationsBlock.getBuffer().toHost(data_management::readOnly).get()),
+    const auto nObservationsBlockHost = nObservationsBlock.getBuffer().toHost(data_management::readOnly, status);
+    DAAL_CHECK_STATUS_VAR(status);
+
+    status |= finalizeCovariance<algorithmFPType, method>(nFeatures, *nObservationsBlockHost,
                                                           crossProductBlock.getBuffer(), sumBlock.getBuffer(), covBlock.getBuffer(),
                                                           meanBlock.getBuffer(), parameter);
     DAAL_CHECK_STATUS_VAR(status);

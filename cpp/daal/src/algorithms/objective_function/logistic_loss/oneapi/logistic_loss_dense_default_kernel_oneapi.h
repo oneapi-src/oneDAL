@@ -90,7 +90,7 @@ private:
                                              const services::internal::Buffer<algorithmFPType> & sigma, const uint32_t n, const uint32_t p,
                                              services::internal::Buffer<algorithmFPType> & h, const uint32_t nBeta, const algorithmFPType alpha);
 
-    static void buildProgram(services::internal::sycl::ClKernelFactoryIface & factory);
+    static services::Status buildProgram(services::internal::sycl::ClKernelFactoryIface & factory);
 
     services::internal::sycl::UniversalBuffer _uX;
     services::internal::sycl::UniversalBuffer _uY;

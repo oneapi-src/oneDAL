@@ -74,9 +74,9 @@ private:
                                          services::internal::sycl::UniversalBuffer & countersTotal,
                                          services::internal::sycl::UniversalBuffer & countersNewNeighbors);
 
-    uint32_t sumCounters(const services::internal::sycl::UniversalBuffer & counters);
+    uint32_t sumCounters(const services::internal::sycl::UniversalBuffer & counters, services::Status & s);
 
-    bool canQueryRow(const services::internal::sycl::UniversalBuffer & assignments, uint32_t rowIndex, services::Status * s);
+    bool canQueryRow(const services::internal::sycl::UniversalBuffer & assignments, uint32_t rowIndex, services::Status & s);
 
     uint32_t computeQueueBlockSize(uint32_t queueBegin, uint32_t queueEnd);
 

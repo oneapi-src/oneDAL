@@ -102,7 +102,7 @@ services::Status PCACorrelationKernelOnlineUCAPI<algorithmFPType>::copyIfNeeded(
 
     auto & context = services::internal::getDefaultContext();
     services::Status status;
-    context.copy(dstBlock.getBuffer(), 0, srcBlock.getBuffer(), 0, nDataElements, &status);
+    context.copy(dstBlock.getBuffer(), 0, srcBlock.getBuffer(), 0, nDataElements, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(src)->releaseBlockOfRows(srcBlock));
