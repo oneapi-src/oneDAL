@@ -168,7 +168,7 @@ struct HelperObjectiveFunction
 
         ctx.run(range, kernel, args, status);
 
-        return services::Status();
+        return status;
     }
 
     static services::Status sumReduction(const services::internal::Buffer<algorithmFPType> & reductionBuffer, const size_t nWorkGroups,
