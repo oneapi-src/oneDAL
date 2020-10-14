@@ -14,29 +14,18 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/pca.hpp"
-#include "oneapi/dal/io/csv.hpp"
+#pragma once
 
-#include "example_util/utils.hpp"
+#include "oneapi/dal/algo/pca/infer_types.hpp"
+#include "oneapi/dal/backend/dispatcher_dpc.hpp"
 
-using namespace oneapi;
+namespace oneapi::dal::pca::backend {
 
-int main(int argc, char const *argv[]) {
-    const std::string data_file_name = get_data_path("pca_normalized.csv");
+template <typename Float, typename Task>
+struct infer_kernel_gpu {
+    infer_result<Task> operator()(const dal::backend::context_gpu& ctx,
+                                  const descriptor_base<Task>& params,
+                                  const infer_input<Task>& input) const;
+};
 
-    const auto data = dal::read<dal::table>(dal::csv::data_source{data_file_name});
-
-    const auto pca_desc = dal::pca::descriptor<>()
-        .set_component_count(5)
-        .set_deterministic(true);
-
-    const auto result = dal::train(pca_desc, data);
-
-    std::cout << "Eigenvectors:" << std::endl
-              << result.get_eigenvectors() << std::endl;
-
-    std::cout << "Eigenvalues:" << std::endl
-              << result.get_eigenvalues() << std::endl;
-
-    return 0;
-}
+} // namespace oneapi::dal::pca::backend

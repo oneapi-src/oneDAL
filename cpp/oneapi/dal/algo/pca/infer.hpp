@@ -14,21 +14,15 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/pca/backend/gpu/train_kernel.hpp"
+#pragma once
 
-namespace oneapi::dal::pca::backend {
+#include "oneapi/dal/algo/pca/detail/infer_ops.hpp"
+#include "oneapi/dal/algo/pca/infer_types.hpp"
+#include "oneapi/dal/infer.hpp"
 
-template <typename Float>
-struct train_kernel_gpu<Float, method::svd, task::dim_reduction> {
-    train_result<task::dim_reduction> operator()(
-        const dal::backend::context_gpu& ctx,
-        const descriptor_base<task::dim_reduction>& params,
-        const train_input<task::dim_reduction>& input) const {
-        throw unimplemented("PCA SVD-based method is not implemented for GPU");
-    }
-};
+namespace oneapi::dal::detail {
 
-template struct train_kernel_gpu<float, method::svd, task::dim_reduction>;
-template struct train_kernel_gpu<double, method::svd, task::dim_reduction>;
+template <typename Descriptor>
+struct infer_ops<Descriptor, dal::pca::detail::tag> : dal::pca::detail::infer_ops<Descriptor> {};
 
-} // namespace oneapi::dal::pca::backend
+} // namespace oneapi::dal::detail

@@ -27,6 +27,7 @@
 #include "services/internal/sycl/types.h"
 #include "services/internal/sycl/execution_context.h"
 #include "algorithms/pca/pca_types.h"
+#include "algorithms/pca/transform/pca_transform_types.h"
 #include "src/sycl/blas_gpu.h"
 
 namespace daal
