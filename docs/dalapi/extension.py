@@ -132,13 +132,12 @@ class RstDescriptionTransformer(doxypy.TransformerPass):
 
 class PathResolver(object):
     def __init__(self, app,
-                 relative_project_dir,
-                 relative_doxygen_dir,
-                 relative_include_dir):
+                 relative_doxyfile_dir,
+                 relative_sources_dir):
         self.base_dir = app.confdir
-        self.project_dir = self.absjoin(self.base_dir, relative_project_dir)
-        self.doxygen_dir = self.absjoin(self.project_dir, relative_doxygen_dir)
-        self.include_dir = self.absjoin(self.project_dir, relative_include_dir)
+        self.doxyfile_dir = self.absjoin(self.base_dir, relative_doxyfile_dir)
+        self.sources_dir = self.absjoin(self.base_dir, relative_sources_dir)
+        self.doxygen_xml = self.absjoin(self.doxyfile_dir, 'doxygen', 'xml')
 
     def __call__(self, relative_name):
         return self.absjoin(self.base_dir, relative_name)
@@ -152,11 +151,11 @@ class ProjectWatcher(object):
         self.ctx = ctx
         self._path_resolver = path_resolver
         self._xml_timer = utils.FileModificationTimer(
-            path_resolver.doxygen_dir, '*.xml')
+            path_resolver.doxygen_xml, '*.xml')
         self._hpp_timer = utils.FileModificationTimer(
-            path_resolver.include_dir, '*.hpp')
+            path_resolver.sources_dir, '*.hpp')
         self._doxygen = utils.ProcessHandle(
-            'doxygen', path_resolver.project_dir)
+            'doxygen', path_resolver.doxyfile_dir)
 
     def link_docname(self, docname):
         full_path = self._path_resolver(f'{docname}.rst')
@@ -218,12 +217,11 @@ class Context(object):
         self._path_resolver = None
         self._read_env()
 
-    def configure(self, project_dir):
+    def configure(self, relative_doxyfile_dir, relative_sources_dir):
         self._path_resolver = PathResolver(
             self.app,
-            project_dir,
-            'doxygen/xml',
-            'include/oneapi/dal'
+            relative_doxyfile_dir,
+            relative_sources_dir
         )
 
     @property
@@ -233,7 +231,7 @@ class Context(object):
     @property
     def index(self) -> doxypy.Index:
         if self._index is None:
-            self._index = doxypy.index(self._paths.doxygen_dir, [
+            self._index = doxypy.index(self.path_resolver.doxygen_xml, [
                 PropertyTransformer(),
                 RstDescriptionTransformer(),
             ])
@@ -242,13 +240,13 @@ class Context(object):
     @property
     def watcher(self) -> ProjectWatcher:
         if self._watcher is None:
-            self._watcher = ProjectWatcher(self, self._paths)
+            self._watcher = ProjectWatcher(self, self.path_resolver)
         return self._watcher
 
     @property
     def listing(self) -> doxypy.ListingReader:
         if self._listing is None:
-            self._listing = doxypy.ListingReader(self._paths.project_dir)
+            self._listing = doxypy.ListingReader(self.path_resolver.sources_dir)
         return self._listing
 
     def log(self, *args):
@@ -256,7 +254,7 @@ class Context(object):
             print('[dalapi]:', *args)
 
     @property
-    def _paths(self):
+    def path_resolver(self):
         if not self._path_resolver:
             raise Exception('Context is not configured')
         return self._path_resolver
@@ -277,7 +275,8 @@ class EventHandler(object):
         return self.ctx.watcher.get_outdated_docnames(added | changed | removed)
 
     def get_config_values(self, app):
-        self.ctx.configure(app.config.onedal_project_dir)
+        self.ctx.configure(relative_doxyfile_dir=app.config.onedal_relative_doxyfile_dir,
+                           relative_sources_dir=app.config.onedal_relative_sources_dir)
 
 
 def setup(app):
@@ -292,7 +291,8 @@ def setup(app):
     app.add_directive('onedal_tags_namespace', directives.TagsNamespaceDirective(ctx))
     app.add_directive('onedal_enumclass', directives.EnumClassDirective(ctx))
 
-    app.add_config_value('onedal_project_dir', '.', 'env')
+    app.add_config_value('onedal_relative_doxyfile_dir', '.', 'env')
+    app.add_config_value('onedal_relative_sources_dir', '.', 'env')
 
     handler = EventHandler(ctx)
     app.connect("builder-inited", handler.get_config_values)

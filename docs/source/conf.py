@@ -137,4 +137,5 @@ html_theme_options = {
 }
 
 # oneDAL project directory is needed for `dalapi` extension
-onedal_project_dir = '../'
+onedal_relative_doxyfile_dir = '../doxygen/oneapi'
+onedal_relative_sources_dir = '../../cpp/oneapi/dal'
