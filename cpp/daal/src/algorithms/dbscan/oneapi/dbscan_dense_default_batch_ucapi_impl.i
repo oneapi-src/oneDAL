@@ -296,8 +296,8 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::startNextCluster(uint3
 }
 
 template <typename algorithmFPType>
-services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::getCores(const UniversalBuffer & data, uint32_t nRows, uint32_t nFeatures,
-                                                                   int nNbrs, algorithmFPType eps)
+services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::getCores(const UniversalBuffer & data, uint32_t nRows, uint32_t nFeatures, int nNbrs,
+                                                                   algorithmFPType eps)
 {
     services::Status st;
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.getCores);
@@ -336,7 +336,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::getCores(const Univers
 
 template <typename algorithmFPType>
 services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::getCoresWithWeights(const UniversalBuffer & data, uint32_t nRows, uint32_t nFeatures,
-                                                                   algorithmFPType nNbrs, algorithmFPType eps)
+                                                                              algorithmFPType nNbrs, algorithmFPType eps)
 {
     services::Status st;
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.getCores);

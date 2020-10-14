@@ -29,14 +29,14 @@
 DECLARE_SOURCE(
     dbscanClKernels,
 
-    __kernel void computeCores(int numPoints, int numFeatures, int numNbrs, algorithmFPType eps,
-                               const __global algorithmFPType * points, __global int * cores) {
+    __kernel void computeCores(int numPoints, int numFeatures, int numNbrs, algorithmFPType eps, const __global algorithmFPType * points,
+                               __global int * cores) {
         const int globalId = get_global_id(0);
         if (get_sub_group_id() > 0) return;
 
         const int subgroupSize = get_sub_group_size();
         const int localId      = get_sub_group_local_id();
-        int count  = 0;
+        int count              = 0;
         for (int j = 0; j < numPoints; j++)
         {
             algorithmFPType sum = 0.0;
@@ -55,7 +55,7 @@ DECLARE_SOURCE(
     }
 
     __kernel void computeCoresWithWeights(int numPoints, int numFeatures, algorithmFPType numNbrs, algorithmFPType eps, int useWeights,
-                               const __global algorithmFPType * points, const __global algorithmFPType * weights, __global int * cores) {
+                                          const __global algorithmFPType * points, const __global algorithmFPType * weights, __global int * cores) {
         const int globalId = get_global_id(0);
         if (get_sub_group_id() > 0) return;
 
@@ -80,7 +80,6 @@ DECLARE_SOURCE(
             cores[globalId] = (int)(count >= numNbrs);
         }
     }
-
 
     __kernel void startNextCluster(int clusterId, int numPoints, int queueEnd, const __global int * cores, __global int * clusters,
                                    __global int * lastClusterStart, __global int * queue) {
