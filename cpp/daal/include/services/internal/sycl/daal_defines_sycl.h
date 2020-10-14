@@ -27,6 +27,7 @@
 /** \file daal_defines_sycl.h */
 
 #include "services/daal_defines.h"
+#include "services/internal/sycl/types.h"
 
 #define DAAL_ASSERT_UNIVERSAL_BUFFER(buffer, bufferType, bufferSize)             \
     {                                                                            \
