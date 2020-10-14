@@ -113,7 +113,8 @@ class ClassDirective(DoxyDirective):
 
     def rst(self, x: RstBuilder):
         class_ = self.ctx.index.find(self.arguments[0])
-        self.add_listing(class_, x)
+        if self.ctx.listing_enabled:
+            self.add_listing(class_, x)
         sphinx_class_decl = (f'{class_.template_declaration} {class_.name}'
                              if class_.template_declaration else class_.name)
         x.add_class(class_.kind, sphinx_class_decl,
@@ -189,8 +190,8 @@ class FunctionDirective(DoxyDirective):
 
     def rst(self, x: RstBuilder):
         func = self.ctx.index.find(self.arguments[0])
-        # TODO: Add option to include listing
-        # self.add_listing(func, x)
+        if self.ctx.listing_enabled:
+            self.add_listing(func, x)
         self.add_function_base(func, x, is_free=True)
 
 @directive
@@ -203,7 +204,8 @@ class EnumClassDirective(DoxyDirective):
         enum = self.ctx.index.find(self.arguments[0])
         namespace = enum.parent_fully_qualified_name
 
-        self.add_listing(enum, x)
+        if self.ctx.listing_enabled:
+            self.add_listing(enum, x)
         x.add_blank_line()
         x.add_enumclass(enum.name, namespace)
 
@@ -235,7 +237,8 @@ class TagsNamespaceDirective(DoxyDirective):
     def rst(self, x: RstBuilder):
         methods_namespace = self.arguments[0]
         method_ns = self.ctx.index.find(methods_namespace)
-        self.add_listing(method_ns, x, remove_empty_lines=True)
+        if self.ctx.listing_enabled:
+            self.add_listing(method_ns, x, remove_empty_lines=True)
         self._add_classes(method_ns, x)
         self._add_typedefs(method_ns, x)
 

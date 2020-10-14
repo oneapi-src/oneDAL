@@ -3,132 +3,13 @@
 # SPDX-License-Identifier: MIT
 
 import os
-import re
 import time
 from typing import (Dict, Tuple, Text)
-from collections import OrderedDict, namedtuple
-from . import directives
-from . import roles
 from . import doxypy
 from . import utils
-
-@doxypy.model.model_object
-class Property(object):
-    doc: doxypy.model.Doc = None
-    name: Text = None
-    type: Text = None
-    getter: doxypy.model.Function = None
-    setter: doxypy.model.Function = None
-    default: Text = None
-    declaration: Text = None
-    fully_qualified_name: Text = None
-    parent_fully_qualified_name: Text = None
-
-class PropertyTransformer(doxypy.TransformerPass):
-    _accessor_re = re.compile(r'(get|set)_(\w+)')
-    _default_re = re.compile(r'default *= *(.+)')
-
-    def enter(self, node):
-        return (isinstance(node, doxypy.model.Namespace) or
-                isinstance(node, doxypy.model.Class))
-
-    def transform(self, node):
-        if isinstance(node, doxypy.model.Class):
-            properties = []
-            for name, info in self._get_properties_info(node):
-                prop = self._build_property(name, info)
-                prop.getter.doc = None
-                node.functions.remove(prop.getter)
-                if prop.setter:
-                    node.functions.remove(prop.setter)
-                properties.append(prop)
-            node.properties = properties
-
-    @classmethod
-    def _build_property(cls, name, info):
-        parent_fqn = f'{info.getter.parent_fully_qualified_name}::{name}'
-        default = cls._find_default(info)
-        decl = f'{info.getter.return_type} {name}'
-        if default:
-            decl += f' = {default}'
-        return Property(
-            doc = info.getter.doc,
-            name = name,
-            type = info.getter.return_type,
-            getter = info.getter,
-            setter = info.setter,
-            default = default,
-            declaration = decl,
-            fully_qualified_name = parent_fqn,
-            parent_fully_qualified_name = info.getter.parent_fully_qualified_name,
-        )
-
-    @classmethod
-    def _find_default(cls, info):
-        if info.getter.doc:
-            for remark in info.getter.doc.remarks:
-                if len(remark.runs) == 1 and remark.runs[0].kind == 'text':
-                    match = cls._default_re.match(remark.runs[0].content)
-                    if match:
-                        return match.group(1)
-
-    @classmethod
-    def _get_properties_info(cls, node):
-        getters = OrderedDict(cls._get_access_methods(node, 'get'))
-        setters = OrderedDict(cls._get_access_methods(node, 'set'))
-        PropertyInfo = namedtuple('PropertyInfo', ['getter', 'setter'])
-        for name in getters.keys():
-            yield name, PropertyInfo(getters[name], setters.get(name, None))
-
-    @classmethod
-    def _get_access_methods(cls, node, direction):
-        for func in node.functions:
-            match = cls._accessor_re.match(func.name)
-            if match and match.group(1) == direction:
-                yield match.group(2), func
-
-
-class RstDescriptionTransformer(doxypy.TransformerPass):
-    _sphinx_directive_re = re.compile(r':([\w:]+):$')
-
-    def enter(self, node):
-        return True
-
-    def transform(self, node):
-        if isinstance(node, doxypy.model.Description):
-            self._transform_runs(node)
-
-    @classmethod
-    def _transform_runs(cls, desc: doxypy.model.Description):
-        for i in range(1, len(desc.runs)):
-            pre_run = desc.runs[i - 1]
-            cur_run = desc.runs[i]
-            if pre_run.kind == 'text' and cur_run.kind == 'code':
-                new_content, directive = cls._try_remove_sphinx_directive(pre_run.content)
-                if directive:
-                    pre_run.content = new_content
-                    cur_run.directive = cls._map_directive(directive)
-
-    @classmethod
-    def _try_remove_sphinx_directive(cls, text):
-        match = None
-        def rep_f(m):
-            nonlocal match
-            match = m
-            return ''
-        new_text = cls._sphinx_directive_re.sub(rep_f, text)
-        return new_text, match.group(1) if match else None
-
-    @classmethod
-    def _map_directive(cls, directive):
-        cpp_directives = { 'expr', 'texpr', 'any', 'class',
-                           'struct', 'func', 'member', 'var',
-                           'type', 'concept', 'enum', 'enumerator' }
-        if directive in cpp_directives:
-            return f':cpp:{directive}:'
-        else:
-            return f':{directive}:'
-
+from . import roles
+from . import directives
+from . import transformers
 
 class PathResolver(object):
     def __init__(self, app,
@@ -215,14 +96,16 @@ class Context(object):
         self._doxygen = None
         self._listing = None
         self._path_resolver = None
+        self._is_listing_enabled = False
         self._read_env()
 
-    def configure(self, relative_doxyfile_dir, relative_sources_dir):
+    def configure(self, relative_doxyfile_dir, relative_sources_dir, is_listing_enabled):
         self._path_resolver = PathResolver(
             self.app,
             relative_doxyfile_dir,
             relative_sources_dir
         )
+        self._is_listing_enabled = is_listing_enabled
 
     @property
     def current_docname(self):
@@ -232,8 +115,8 @@ class Context(object):
     def index(self) -> doxypy.Index:
         if self._index is None:
             self._index = doxypy.index(self.path_resolver.doxygen_xml, [
-                PropertyTransformer(),
-                RstDescriptionTransformer(),
+                transformers.PropertyTransformer(),
+                transformers.RstDescriptionTransformer(),
             ])
         return self._index
 
@@ -249,15 +132,19 @@ class Context(object):
             self._listing = doxypy.ListingReader(self.path_resolver.sources_dir)
         return self._listing
 
-    def log(self, *args):
-        if self.debug:
-            print('[dalapi]:', *args)
+    @property
+    def listing_enabled(self) -> bool:
+        return self._is_listing_enabled
 
     @property
     def path_resolver(self):
         if not self._path_resolver:
             raise Exception('Context is not configured')
         return self._path_resolver
+
+    def log(self, *args):
+        if self.debug:
+            print('[dalapi]:', *args)
 
     def _read_env(self):
         def get_env_flag(env_var):
@@ -275,9 +162,11 @@ class EventHandler(object):
         return self.ctx.watcher.get_outdated_docnames(added | changed | removed)
 
     def get_config_values(self, app):
-        self.ctx.configure(relative_doxyfile_dir=app.config.onedal_relative_doxyfile_dir,
-                           relative_sources_dir=app.config.onedal_relative_sources_dir)
-
+        self.ctx.configure(
+            relative_doxyfile_dir=app.config.onedal_relative_doxyfile_dir,
+            relative_sources_dir=app.config.onedal_relative_sources_dir,
+            is_listing_enabled=app.config.onedal_enable_listing
+        )
 
 def setup(app):
     ctx = Context(app)
@@ -293,6 +182,7 @@ def setup(app):
 
     app.add_config_value('onedal_relative_doxyfile_dir', '.', 'env')
     app.add_config_value('onedal_relative_sources_dir', '.', 'env')
+    app.add_config_value('onedal_enable_listing', True, 'env')
 
     handler = EventHandler(ctx)
     app.connect("builder-inited", handler.get_config_values)
