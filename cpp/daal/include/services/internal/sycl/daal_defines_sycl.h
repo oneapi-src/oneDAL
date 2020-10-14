@@ -28,10 +28,10 @@
 
 #include "services/daal_defines.h"
 
-#define DAAL_ASSERT_UNIVERSAL_BUFFER(buffer, bufferType, bufferSize)               \
-    {                                                                              \
-        DAAL_ASSERT((buffer).type() == TypeIds<(bufferType)>::id());               \
-        DAAL_ASSERT((buffer).template get<(bufferType)>().size() == (bufferSize)); \
+#define DAAL_ASSERT_UNIVERSAL_BUFFER(buffer, bufferType, bufferSize)             \
+    {                                                                            \
+        DAAL_ASSERT((buffer).type() == TypeIds::id<bufferType>());               \
+        DAAL_ASSERT((buffer).template get<bufferType>().size() == (bufferSize)); \
     }
 
 #endif
