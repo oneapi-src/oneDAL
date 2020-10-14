@@ -20,7 +20,7 @@ powershell.exe -command "if ($PSVersionTable.PSVersion.Major -ge 3) {exit 1} els
 
 set MKLURLROOT=https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/
 set MKLVERSION=2021.1-beta08
-set MKLGPUVERSION=20200414
+set MKLGPUVERSION=20201003
 
 set MKLPACKAGE=mklfpk_win_%MKLVERSION%
 set MKLGPUPACKAGE=mklgpufpk_win_%MKLGPUVERSION%

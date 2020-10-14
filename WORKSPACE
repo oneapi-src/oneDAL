@@ -41,7 +41,7 @@ micromkl_repo(
 micromkl_dpc_repo(
     name = "micromkl_dpc",
     root_env_var = "MKLGPUFPKROOT",
-    url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklgpufpk_lnx_20200414.tgz",
+    url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklgpufpk_lnx_20201003.tgz",
     sha256 = "24ba3bb79693d691632da505378d975f903e830568fe2b6ce671156f4c9d568f",
 )
 
