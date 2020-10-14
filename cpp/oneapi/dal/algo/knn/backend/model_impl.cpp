@@ -14,23 +14,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "oneapi/dal/algo/knn/backend/model_impl.hpp"
 
-#include "oneapi/dal/algo/knn/common.hpp"
+namespace oneapi::dal::knn::detail {
 
-namespace oneapi::dal::knn {
+model_impl::~model_impl() {
+    delete interop_;
+    interop_ = nullptr;
+}
 
-class detail::model_impl : public base {
-public:
-    class interop_model;
-    model_impl() : interop_(nullptr) {}
-    model_impl(interop_model* interop) : interop_(interop) {}
-    interop_model* get_interop() {
-        return interop_;
-    }
-
-private:
-    interop_model* interop_;
-};
-
-} // namespace oneapi::dal::knn
+} // namespace oneapi::dal::knn::detail

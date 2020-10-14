@@ -17,7 +17,7 @@
 #include <daal/src/algorithms/k_nearest_neighbors/kdtree_knn_classification_predict_dense_default_batch.h>
 
 #include "oneapi/dal/algo/knn/backend/cpu/infer_kernel.hpp"
-#include "oneapi/dal/algo/knn/backend/model_interop.hpp"
+#include "oneapi/dal/algo/knn/backend/model_impl.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -36,10 +36,11 @@ using daal_knn_kd_tree_kernel_t = daal_knn::prediction::internal::
     KNNClassificationPredictKernel<Float, daal_knn::prediction::defaultDense, Cpu>;
 
 template <typename Float>
-static infer_result call_daal_kernel(const context_cpu &ctx,
-                                     const descriptor_base &desc,
-                                     const table &data,
-                                     model m) {
+static infer_result<task::classification> call_daal_kernel(
+    const context_cpu &ctx,
+    const descriptor_base<task::classification> &desc,
+    const table &data,
+    model<task::classification> m) {
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
 
@@ -65,27 +66,28 @@ static infer_result call_daal_kernel(const context_cpu &ctx,
         nullptr,
         nullptr,
         &daal_parameter));
-    return infer_result().set_labels(
+    return infer_result<task::classification>().set_labels(
         dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build());
 }
 
 template <typename Float>
-static infer_result infer(const context_cpu &ctx,
-                          const descriptor_base &desc,
-                          const infer_input &input) {
+static infer_result<task::classification> infer(const context_cpu &ctx,
+                                                const descriptor_base<task::classification> &desc,
+                                                const infer_input<task::classification> &input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_model());
 }
 
 template <typename Float>
-struct infer_kernel_cpu<Float, method::kd_tree> {
-    infer_result operator()(const context_cpu &ctx,
-                            const descriptor_base &desc,
-                            const infer_input &input) const {
+struct infer_kernel_cpu<Float, method::kd_tree, task::classification> {
+    infer_result<task::classification> operator()(
+        const context_cpu &ctx,
+        const descriptor_base<task::classification> &desc,
+        const infer_input<task::classification> &input) const {
         return infer<Float>(ctx, desc, input);
     }
 };
 
-template struct infer_kernel_cpu<float, method::kd_tree>;
-template struct infer_kernel_cpu<double, method::kd_tree>;
+template struct infer_kernel_cpu<float, method::kd_tree, task::classification>;
+template struct infer_kernel_cpu<double, method::kd_tree, task::classification>;
 
 } // namespace oneapi::dal::knn::backend

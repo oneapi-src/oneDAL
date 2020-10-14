@@ -9,8 +9,6 @@ Global
 		Debug.dynamic.threaded|x64 = Debug.dynamic.threaded|x64
 		Release.dynamic.sequential|x64 = Release.dynamic.sequential|x64
 		Release.dynamic.threaded|x64 = Release.dynamic.threaded|x64
-		Release.static.sequential|x64 = Release.static.sequential|x64
-		Release.static.threaded|x64 = Release.static.threaded|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 {platform_decl}

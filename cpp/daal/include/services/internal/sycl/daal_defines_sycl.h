@@ -1,5 +1,6 @@
+/* file: daal_defines_sycl.h */
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,27 +15,21 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+/*
+//++
+//  Common definitions.
+//--
+*/
 
-#include "algorithms/classifier/classifier_model.h"
-#include "oneapi/dal/algo/knn/common.hpp"
+#ifndef __DAAL_DEFINES_SYCL_H__
+#define __DAAL_DEFINES_SYCL_H__
 
-namespace oneapi::dal::knn::backend {
+/** \file daal_defines_sycl.h */
 
-namespace daal_cls = daal::algorithms::classifier;
+#include "services/daal_defines.h"
 
-class model_interop {
-public:
-    model_interop(const daal_cls::ModelPtr& daal_model) : daal_model(daal_model) {}
-    void set_daal_model(const daal_cls::ModelPtr& model) {
-        daal_model = model;
-    }
-    daal_cls::ModelPtr get_daal_model() {
-        return daal_model;
-    }
+#define DAAL_ASSERT_UNIVERSAL_BUFFER(buffer, bufferType, bufferSize) \
+    DAAL_ASSERT(buffer.type() == TypeIds<bufferType>::id());         \
+    DAAL_ASSERT(buffer.template get<bufferType>().size() == bufferSize);
 
-private:
-    daal_cls::ModelPtr daal_model;
-};
-
-} // namespace oneapi::dal::knn::backend
+#endif

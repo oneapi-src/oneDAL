@@ -87,5 +87,3 @@ template struct compute_kernel_gpu<float, method::dense>;
 template struct compute_kernel_gpu<double, method::dense>;
 
 } // namespace oneapi::dal::rbf_kernel::backend
-
-#undef DAAL_SYCL_INTERFACE
