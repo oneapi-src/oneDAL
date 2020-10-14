@@ -3,4 +3,5 @@ source/examples/cpp/*
 source/examples/dpc/*
 docbuild-log.txt
 __pycache__
-*/doxygen/xml
+doxygen/oneapi/doxygen/xml
+.vs*
