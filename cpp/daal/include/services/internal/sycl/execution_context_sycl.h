@@ -46,8 +46,7 @@ public:
 
     ~OpenClKernelFactory() DAAL_C11_OVERRIDE {}
 
-    void build(ExecutionTargetId target, const char * name, const char * program, const char * options,
-               services::Status & status) DAAL_C11_OVERRIDE
+    void build(ExecutionTargetId target, const char * name, const char * program, const char * options, services::Status & status) DAAL_C11_OVERRIDE
     {
         services::String key = name;
         const bool res       = programHashTable.contain(key, status);
@@ -80,9 +79,9 @@ public:
                     DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
                 }
 
-                auto programPtr = services::SharedPtr<OpenClProgramRef>(new OpenClProgramRef(
-                    _levelZeroOpenClInteropContext.getOpenClContextRef().get(), _levelZeroOpenClInteropContext.getOpenClDeviceRef().get(),
-                    _deviceQueue, name, program, options, status));
+                auto programPtr = services::SharedPtr<OpenClProgramRef>(
+                    new OpenClProgramRef(_levelZeroOpenClInteropContext.getOpenClContextRef().get(),
+                                         _levelZeroOpenClInteropContext.getOpenClDeviceRef().get(), _deviceQueue, name, program, options, status));
                 DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
                 programHashTable.add(key, programPtr, status);
@@ -189,8 +188,7 @@ public:
         kernel->schedule(_kernelScheduler, range, args, status);
     }
 
-    void run(const KernelNDRange & range, const KernelPtr & kernel, const KernelArguments & args,
-             services::Status & status) DAAL_C11_OVERRIDE
+    void run(const KernelNDRange & range, const KernelPtr & kernel, const KernelArguments & args, services::Status & status) DAAL_C11_OVERRIDE
     {
         // TODO: Thread safe?
         // TODO: Check for input arguments
@@ -212,8 +210,7 @@ public:
     }
 
     void syrk(math::UpLo upper_lower, math::Transpose trans, size_t n, size_t k, double alpha, const UniversalBuffer & a_buffer, size_t lda,
-              size_t offsetA, double beta, UniversalBuffer & c_buffer, size_t ldc, size_t offsetC,
-              services::Status & status) DAAL_C11_OVERRIDE
+              size_t offsetA, double beta, UniversalBuffer & c_buffer, size_t ldc, size_t offsetC, services::Status & status) DAAL_C11_OVERRIDE
     {
         DAAL_ASSERT(a_buffer.type() == c_buffer.type());
 
@@ -287,8 +284,7 @@ public:
 
     InfoDevice & getInfoDevice() DAAL_C11_OVERRIDE { return _infoDevice; }
 
-    void copy(UniversalBuffer dest, size_t desOffset, void * src, size_t srcOffset, size_t count,
-              services::Status & status) DAAL_C11_OVERRIDE
+    void copy(UniversalBuffer dest, size_t desOffset, void * src, size_t srcOffset, size_t count, services::Status & status) DAAL_C11_OVERRIDE
     {
         // TODO: Thread safe?
         try

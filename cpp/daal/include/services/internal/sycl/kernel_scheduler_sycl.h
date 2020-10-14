@@ -387,7 +387,8 @@ private:
 class SyclKernelSchedulerArgHandler
 {
 public:
-    SyclKernelSchedulerArgHandler(cl::sycl::handler & handler, SyclBufferStorage & storage, size_t argumentIndex, const KernelArgument & arg, services::Status & status)
+    SyclKernelSchedulerArgHandler(cl::sycl::handler & handler, SyclBufferStorage & storage, size_t argumentIndex, const KernelArgument & arg,
+                                  services::Status & status)
         : _handler(handler), _storage(storage), _argumentIndex(argumentIndex), _argument(arg), _status(status)
     {}
 
@@ -525,14 +526,12 @@ class SyclKernelScheduler : public Base, public KernelSchedulerIface
 public:
     explicit SyclKernelScheduler(cl::sycl::queue & deviceQueue) : _queue(deviceQueue) {}
 
-    void schedule(const OpenClKernel & kernel, const KernelRange & range, const KernelArguments & args,
-                  services::Status & status) DAAL_C11_OVERRIDE
+    void schedule(const OpenClKernel & kernel, const KernelRange & range, const KernelArguments & args, services::Status & status) DAAL_C11_OVERRIDE
     {
         scheduleImplSafe(range, kernel, args, status);
     }
 
-    void schedule(const OpenClKernel & kernel, const KernelNDRange & range, const KernelArguments & args,
-                  services::Status & status) DAAL_C11_OVERRIDE
+    void schedule(const OpenClKernel & kernel, const KernelNDRange & range, const KernelArguments & args, services::Status & status) DAAL_C11_OVERRIDE
     {
         scheduleImplSafe(range, kernel, args, status);
     }
@@ -558,9 +557,7 @@ private:
         {
         case ExecutionTargetIds::device: return scheduleOnDevice(range, kernel, args, status);
 
-        case ExecutionTargetIds::host:
-            status |= services::ErrorMethodNotImplemented;
-            return;
+        case ExecutionTargetIds::host: status |= services::ErrorMethodNotImplemented; return;
         }
 
         DAAL_ASSERT(!"Unexpected execution target");

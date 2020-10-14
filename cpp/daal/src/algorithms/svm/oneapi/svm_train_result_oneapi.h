@@ -194,7 +194,7 @@ protected:
             UniversalBuffer sumU = reduceRes.reduceRes;
             auto sumHost         = sumU.get<algorithmFPType>().toHost(data_management::readOnly, status);
             DAAL_CHECK_STATUS_VAR(status);
-            bias                 = -*sumHost / algorithmFPType(nFree);
+            bias = -*sumHost / algorithmFPType(nFree);
         }
         else
         {
@@ -209,7 +209,7 @@ protected:
                 UniversalBuffer minBuff = resultOp.reduceRes;
                 auto minHost            = minBuff.get<algorithmFPType>().toHost(data_management::readOnly, status);
                 DAAL_CHECK_STATUS_VAR(status);
-                ub                      = *minHost;
+                ub = *minHost;
             }
             {
                 DAAL_CHECK_STATUS(status, Helper::checkLower(_yBuff, _coeffBuff, maskBuff, C, _nVectors));
@@ -220,7 +220,7 @@ protected:
                 UniversalBuffer maxBuff = resultOp.reduceRes;
                 auto maxHost            = maxBuff.get<algorithmFPType>().toHost(data_management::readOnly, status);
                 DAAL_CHECK_STATUS_VAR(status);
-                lb                      = *maxHost;
+                lb = *maxHost;
             }
 
             bias = -0.5 * (ub + lb);

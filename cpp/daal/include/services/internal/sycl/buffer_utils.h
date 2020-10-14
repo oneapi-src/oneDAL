@@ -111,9 +111,9 @@ public:
 
         _st = services::Status();
 
-        auto buffer      = _src.template get<T>();
+        auto buffer = _src.template get<T>();
 
-        auto subbuffer   = buffer.getSubBuffer(_offset, _size, _st);
+        auto subbuffer = buffer.getSubBuffer(_offset, _size, _st);
         DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(_st);
 
         auto memoryBlock = subbuffer.toHost(readOnly, _st);

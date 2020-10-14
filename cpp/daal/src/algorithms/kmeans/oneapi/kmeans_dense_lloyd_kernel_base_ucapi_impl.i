@@ -225,9 +225,9 @@ void KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computeDistances(const se
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeDistances);
 
-    st |= BlasGpu<algorithmFPType>::xgemm(math::Layout::ColMajor, math::Transpose::Trans, math::Transpose::NoTrans, blockSize, nClusters,
-                                          nFeatures, algorithmFPType(-1.0), data, nFeatures, 0, centroids, nFeatures, 0,
-                                          algorithmFPType(0.0), _distances.get<algorithmFPType>(), blockSize, 0);
+    st |= BlasGpu<algorithmFPType>::xgemm(math::Layout::ColMajor, math::Transpose::Trans, math::Transpose::NoTrans, blockSize, nClusters, nFeatures,
+                                          algorithmFPType(-1.0), data, nFeatures, 0, centroids, nFeatures, 0, algorithmFPType(0.0),
+                                          _distances.get<algorithmFPType>(), blockSize, 0);
 }
 
 template <typename algorithmFPType>

@@ -228,7 +228,6 @@ services::Status Partition::flagged(UniversalBuffer mask, UniversalBuffer data, 
     DAAL_CHECK_STATUS_VAR(sumScan(factory, partialSums, partialPrefixSums, totalSum, localSize, nSubgroupSums));
     DAAL_CHECK_STATUS_VAR(reorder(factory, mask, data, outData, partialPrefixSums, nElems, localSize, nLocalSums));
 
-
     {
         auto totalSumHost = totalSum.template get<int>().toHost(data_management::ReadWriteMode::readOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
@@ -266,7 +265,6 @@ services::Status Partition::flaggedIndex(UniversalBuffer mask, UniversalBuffer d
     DAAL_CHECK_STATUS_VAR(scanIndex(factory, mask, data, partialSums, nElems, localSize, nLocalSums));
     DAAL_CHECK_STATUS_VAR(sumScan(factory, partialSums, partialPrefixSums, totalSum, localSize, nSubgroupSums));
     DAAL_CHECK_STATUS_VAR(reorderIndex(factory, mask, data, outData, partialPrefixSums, nElems, localSize, nLocalSums));
-
 
     {
         auto totalSumHost = totalSum.template get<int>().toHost(data_management::ReadWriteMode::readOnly, status);

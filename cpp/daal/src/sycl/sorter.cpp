@@ -60,7 +60,8 @@ services::Status buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId
 }
 
 static services::Status runRadixSortSimd(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, const UniversalBuffer & input,
-                                         const UniversalBuffer & output, const UniversalBuffer & buffer, uint32_t nVectors, uint32_t vectorSize, uint32_t vectorOffset)
+                                         const UniversalBuffer & output, const UniversalBuffer & buffer, uint32_t nVectors, uint32_t vectorSize,
+                                         uint32_t vectorOffset)
 {
     services::Status status;
     auto sum_kernel = kernelFactory.getKernel("radix_sort_group", status);
@@ -90,7 +91,7 @@ static services::Status runRadixSortSimd(ExecutionContextIface & context, ClKern
 }
 
 services::Status RadixSort::sort(const UniversalBuffer & input, const UniversalBuffer & output, const UniversalBuffer & buffer, uint32_t nVectors,
-                                uint32_t vectorSize, uint32_t vectorOffset)
+                                 uint32_t vectorSize, uint32_t vectorOffset)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(RadixSort.sort);
 

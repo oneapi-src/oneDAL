@@ -72,9 +72,9 @@ void run_quick_select_simd(ExecutionContextIface & context, ClKernelFactoryIface
     context.run(range, func_kernel, args, status);
 }
 
-static void run_direct_select_simd(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, const UniversalBuffer & dataVectors, uint32_t nK,
-                            uint32_t nVectors, uint32_t vectorSize, uint32_t lastVectorSize, uint32_t vectorOffset,
-                            QuickSelectIndexed::Result & result, services::Status & status)
+static void run_direct_select_simd(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, const UniversalBuffer & dataVectors,
+                                   uint32_t nK, uint32_t nVectors, uint32_t vectorSize, uint32_t lastVectorSize, uint32_t vectorOffset,
+                                   QuickSelectIndexed::Result & result, services::Status & status)
 {
     auto func_kernel = kernelFactory.getKernel("direct_select_group", status);
     DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
@@ -129,7 +129,8 @@ void SelectIndexed::convertIndicesToLabels(const UniversalBuffer & indices, cons
         return;
     }
 
-    for (size_t vec = 0; vec < nVectors; vec++) {
+    for (size_t vec = 0; vec < nVectors; vec++)
+    {
         for (size_t k = 0; k < vectorSize; k++)
         {
             int index                         = outIndexPtr[vec * vectorSize + k];
@@ -177,7 +178,7 @@ Status QuickSelectIndexed::adjustIndexBuffer(uint32_t number, uint32_t size)
         auto & context = Environment::getInstance()->getDefaultExecutionContext();
         _indices       = context.allocate(TypeIds::id<int>(), newSize, st);
         DAAL_CHECK_STATUS_VAR(st);
-        _indexSize     = newSize;
+        _indexSize = newSize;
     }
     return st;
 }

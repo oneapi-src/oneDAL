@@ -247,8 +247,7 @@ LowOrderMomentsOnlineTaskOneAPI<algorithmFPType, scope>::LowOrderMomentsOnlineTa
     DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
     nObservationsTable = partialResult->get((PartialResultId)nObservations);
-    status |= nObservationsTable ? nObservationsTable->getBlockOfRows(0, 1, readWrite, nObservationsBD) :
-                                                        services::Status(ErrorNullPartialResult);
+    status |= nObservationsTable ? nObservationsTable->getBlockOfRows(0, 1, readWrite, nObservationsBD) : services::Status(ErrorNullPartialResult);
     DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
     pNObservations = nObservationsBD.getBlockPtr();
 
@@ -456,8 +455,7 @@ LowOrderMomentsOnlineFinalizeTaskOneAPI<algorithmFPType, scope>::LowOrderMoments
     nFeatures = resultTable[0]->getNumberOfColumns();
 
     nObservationsTable = partialResult->get((PartialResultId)nObservations);
-    status |= nObservationsTable ? nObservationsTable->getBlockOfRows(0, 1, readWrite, nObservationsBD) :
-                                                        services::Status(ErrorNullPartialResult);
+    status |= nObservationsTable ? nObservationsTable->getBlockOfRows(0, 1, readWrite, nObservationsBD) : services::Status(ErrorNullPartialResult);
     DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
     pNObservations = nObservationsBD.getBlockPtr();
 }

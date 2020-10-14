@@ -431,7 +431,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
         auto binOffsetsHost = binOffsets.template get<int>().toHost(ReadWriteMode::writeOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        int offset          = 0;
+        int offset = 0;
         for (int i = 0; i < maxBins; i++)
         {
             offset += (nRows + i) / maxBins;
@@ -560,7 +560,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::init(NumericTable & nt,
         auto binOffsetsHost = _binOffsets.template get<int>().toHost(ReadWriteMode::writeOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        size_t total        = 0;
+        size_t total = 0;
         for (size_t i = 0; i < nC; i++)
         {
             DAAL_CHECK_STATUS_VAR(storeColumn(_data[i], _fullData, i, nC, nR));

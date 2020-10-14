@@ -102,7 +102,7 @@ struct TreeLevelRecord
         DAAL_ASSERT(nNodes * (_nNodeImpProps + _nClasses) == impInfo.template get<algorithmFPType>().size());
 
         auto nodeListHost = nodeList.template get<int>().toHost(ReadWriteMode::readOnly, status);
-        auto impInfoHost = impInfo.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, status);
+        auto impInfoHost  = impInfo.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         _nodeList = nodeListHost.get();

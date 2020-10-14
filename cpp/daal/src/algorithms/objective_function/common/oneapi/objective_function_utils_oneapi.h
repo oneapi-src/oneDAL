@@ -176,7 +176,7 @@ struct HelperObjectiveFunction
     {
         services::Status status;
 
-        auto sumReductionArrayPtr      = reductionBuffer.toHost(data_management::readOnly, status);
+        auto sumReductionArrayPtr = reductionBuffer.toHost(data_management::readOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         const auto * sumReductionArray = sumReductionArrayPtr.get();

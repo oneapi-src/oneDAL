@@ -434,7 +434,7 @@ private:
             return services::Status();
         }
 
-        const size_t nRowsBlock = (rowOffset + nRowsBlockDesired < nRows) ? nRowsBlockDesired : nRows - rowOffset;
+        const size_t nRowsBlock                              = (rowOffset + nRowsBlockDesired < nRows) ? nRowsBlockDesired : nRows - rowOffset;
         const services::internal::Buffer<DataType> subBuffer = getSubBuffer(rowOffset, nRowsBlock, status);
         DAAL_CHECK_STATUS_VAR(status);
 

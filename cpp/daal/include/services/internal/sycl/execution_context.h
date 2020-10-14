@@ -169,9 +169,9 @@ public:
 
     void set(const LocalBuffer & buffer)
     {
-        _dataType = buffer.type();
-        _value = buffer;
-        _argType  = KernelArgumentTypes::privateBuffer;
+        _dataType   = buffer.type();
+        _value      = buffer;
+        _argType    = KernelArgumentTypes::privateBuffer;
         _accessMode = AccessModeIds::readwrite;
     }
 
@@ -266,8 +266,7 @@ public:
 
     virtual void schedule(const OpenClKernel & kernel, const KernelRange & range, const KernelArguments & args, services::Status & st) = 0;
 
-    virtual void schedule(const OpenClKernel & kernel, const KernelNDRange & range, const KernelArguments & args,
-                          services::Status & st) = 0;
+    virtual void schedule(const OpenClKernel & kernel, const KernelNDRange & range, const KernelArguments & args, services::Status & st) = 0;
 };
 
 /**
@@ -279,8 +278,7 @@ class KernelIface
 public:
     virtual ~KernelIface() {}
 
-    virtual void schedule(KernelSchedulerIface & scheduler, const KernelRange & range, const KernelArguments & args,
-                          services::Status & st) const = 0;
+    virtual void schedule(KernelSchedulerIface & scheduler, const KernelRange & range, const KernelArguments & args, services::Status & st) const = 0;
 
     virtual void schedule(KernelSchedulerIface & scheduler, const KernelNDRange & range, const KernelArguments & args,
                           services::Status & st) const = 0;
@@ -295,9 +293,8 @@ class ClKernelFactoryIface
 {
 public:
     virtual ~ClKernelFactoryIface() {}
-    virtual void build(ExecutionTargetId target, const char * key, const char * program, const char * options,
-                       services::Status & st)                                                          = 0;
-    virtual services::SharedPtr<KernelIface> getKernel(const char * kernelName, services::Status & st) = 0;
+    virtual void build(ExecutionTargetId target, const char * key, const char * program, const char * options, services::Status & st) = 0;
+    virtual services::SharedPtr<KernelIface> getKernel(const char * kernelName, services::Status & st)                                = 0;
 };
 
 /**
@@ -380,14 +377,12 @@ public:
         _infoDevice.maxWorkGroupSize = 0;
     }
 
-    void run(const KernelRange & /*range*/, const KernelPtr & /*kernel*/, const KernelArguments & /*args*/,
-             services::Status & st) DAAL_C11_OVERRIDE
+    void run(const KernelRange & /*range*/, const KernelPtr & /*kernel*/, const KernelArguments & /*args*/, services::Status & st) DAAL_C11_OVERRIDE
     {
         st |= services::ErrorMethodNotImplemented;
     }
 
-    void run(const KernelNDRange & /*range*/, const KernelPtr & /*kernel*/, const KernelArguments & /*args*/,
-             services::Status & st) DAAL_C11_OVERRIDE
+    void run(const KernelNDRange & /*range*/, const KernelPtr & /*kernel*/, const KernelArguments & /*args*/, services::Status & st) DAAL_C11_OVERRIDE
     {
         st |= services::ErrorMethodNotImplemented;
     }
@@ -430,10 +425,7 @@ public:
         st |= services::ErrorMethodNotImplemented;
     }
 
-    void fill(UniversalBuffer /*dest*/, double /*value*/, services::Status & st) DAAL_C11_OVERRIDE
-    {
-        st |= services::ErrorMethodNotImplemented;
-    }
+    void fill(UniversalBuffer /*dest*/, double /*value*/, services::Status & st) DAAL_C11_OVERRIDE { st |= services::ErrorMethodNotImplemented; }
 
     UniversalBuffer allocate(TypeId /*type*/, size_t /*bufferSize*/, services::Status & st) DAAL_C11_OVERRIDE
     {

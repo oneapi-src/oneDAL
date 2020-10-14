@@ -470,8 +470,7 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
             for (size_t ftr = 0; ftr < nFeatures; ftr++)
             {
                 shuffle<sse2>(engineImpl->getState(), nOOB, permutation.get());
-                const algorithmFPType permOOBError =
-                    computeOOBErrorPerm(t, x, y, nRows, nFeatures, oobIndices, permutation.get(), ftr, nOOB, status);
+                const algorithmFPType permOOBError = computeOOBErrorPerm(t, x, y, nRows, nFeatures, oobIndices, permutation.get(), ftr, nOOB, status);
 
                 const algorithmFPType diff  = (permOOBError - oobError);
                 const algorithmFPType delta = diff - varImp[ftr];
@@ -498,7 +497,7 @@ algorithmFPType ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::com
     typename DFTreeConverterType::TreeHelperType mTreeHelper;
 
     auto rowsIndHost = indices.template get<int32_t>().toHost(ReadWriteMode::readOnly, status);
-    auto oobBufHost = oobBuf.template get<uint32_t>().toHost(ReadWriteMode::readWrite, status);
+    auto oobBufHost  = oobBuf.template get<uint32_t>().toHost(ReadWriteMode::readWrite, status);
     DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, algorithmFPType(0));
 
     //compute prediction error on each OOB row and get its mean online formulae (Welford)

@@ -99,7 +99,7 @@ Status KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::init(size_t p, 
         {
             auto indicesHostPtr = indices.get<int>().toHost(data_management::readWrite, st);
             DAAL_CHECK_STATUS_VAR(st);
-            auto * indicesHost  = indicesHostPtr.get();
+            auto * indicesHost = indicesHostPtr.get();
 
             size_t k = 0;
             Status s;

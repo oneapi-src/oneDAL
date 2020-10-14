@@ -119,7 +119,8 @@ private:
             MKLGemm<T> functor(queue);
 #endif
 
-            status |= functor(transa, transb, m, n, k, (T)alpha, a_buffer_t, lda, offsetA, b_buffer_t, ldb, offsetB, (T)beta, c_buffer_t, ldc, offsetC);
+            status |=
+                functor(transa, transb, m, n, k, (T)alpha, a_buffer_t, lda, offsetA, b_buffer_t, ldb, offsetB, (T)beta, c_buffer_t, ldc, offsetC);
         }
     };
 

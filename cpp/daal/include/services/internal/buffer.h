@@ -161,7 +161,7 @@ public:
         return internal::SyclBufferConverter<T>().toSycl(*_impl);
     }
 
-#ifndef DAAL_NOTHROW_EXCEPTIONS
+    #ifndef DAAL_NOTHROW_EXCEPTIONS
     /**
      *  Converts buffer to the SYCL* buffer, throws exception if conversion fails
      *  \return one-dimensional SYCL* buffer
@@ -173,8 +173,8 @@ public:
         services::throwIfPossible(status);
         return buffer;
     }
-#endif // DAAL_NOTHROW_EXCEPTIONS
-#endif // DAAL_SYCL_INTERFACE
+    #endif // DAAL_NOTHROW_EXCEPTIONS
+#endif     // DAAL_SYCL_INTERFACE
 
 #ifdef DAAL_SYCL_INTERFACE_USM
     /**
@@ -193,7 +193,7 @@ public:
         return internal::SyclBufferConverter<T>().toUSM(*_impl);
     }
 
-#ifndef DAAL_NOTHROW_EXCEPTIONS
+    #ifndef DAAL_NOTHROW_EXCEPTIONS
     /**
      *  Converts buffer to the USM shared pointer, throws exception if conversion fails
      *  \return USM shared pointer
@@ -205,8 +205,8 @@ public:
         services::throwIfPossible(status);
         return ptr;
     }
-#endif // DAAL_NOTHROW_EXCEPTIONS
-#endif // DAAL_SYCL_INTERFACE_USM
+    #endif // DAAL_NOTHROW_EXCEPTIONS
+#endif     // DAAL_SYCL_INTERFACE_USM
 
     /**
      *   Returns the total number of elements in the buffer

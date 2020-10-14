@@ -177,7 +177,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::getI
     {
         auto totalSumHost = totalSum.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
-        *response         = totalSumHost.get()[0] / nRows;
+        *response = totalSumHost.get()[0] / nRows;
     }
 
     y.releaseBlockOfRows(yBlock);
@@ -473,8 +473,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         auto totalOptCoeffsHost = totalOptCoeffs.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        *gTotal                 = totalOptCoeffsHost.get()[0];
-        *hTotal                 = totalOptCoeffsHost.get()[1];
+        *gTotal = totalOptCoeffsHost.get()[0];
+        *hTotal = totalOptCoeffsHost.get()[1];
     }
     {
         auto splitInfoHost  = splitInfo.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, status);
@@ -677,8 +677,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::doPa
         auto totalSumHost = totalSum.template get<int>().toHost(ReadWriteMode::readOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        nRight            = totalSumHost.get()[0];
-        nLeft             = nRows - totalSumHost.get()[0];
+        nRight = totalSumHost.get()[0];
+        nLeft  = nRows - totalSumHost.get()[0];
         if (nLeft == 0 || nRight == 0)
         {
             return status;
@@ -1003,7 +1003,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         {
             binValuesHost[i] = indexedFeatures.binBorders(i).template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, status);
             DAAL_CHECK_STATUS_VAR(status);
-            binValues[i]     = binValuesHost[i].get();
+            binValues[i] = binValuesHost[i].get();
         }
 
         size_t maxLevel = 0;

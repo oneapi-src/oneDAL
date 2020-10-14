@@ -81,7 +81,8 @@ private:
         size_t count;
         services::Status & status;
 
-        explicit Execute(cl::sycl::queue & queue, UniversalBuffer & dst, size_t desOffset, UniversalBuffer & src, size_t srcOffset, size_t count, services::Status & status)
+        explicit Execute(cl::sycl::queue & queue, UniversalBuffer & dst, size_t desOffset, UniversalBuffer & src, size_t srcOffset, size_t count,
+                         services::Status & status)
             : queue(queue), dstUnivers(dst), dstOffset(desOffset), srcUnivers(src), srcOffset(srcOffset), count(count), status(status)
         {}
 
@@ -102,7 +103,8 @@ private:
     };
 
 public:
-    static void copy(cl::sycl::queue & queue, UniversalBuffer & dest, size_t dstOffset, UniversalBuffer & src, size_t srcOffset, size_t count, services::Status & status)
+    static void copy(cl::sycl::queue & queue, UniversalBuffer & dest, size_t dstOffset, UniversalBuffer & src, size_t srcOffset, size_t count,
+                     services::Status & status)
     {
         Execute op(queue, dest, dstOffset, src, srcOffset, count, status);
         TypeDispatcher::dispatch(dest.type(), op);
@@ -126,15 +128,16 @@ private:
         size_t count;
         services::Status & status;
 
-        explicit Execute(cl::sycl::queue & queue, UniversalBuffer & dst, size_t desOffset, void * src, size_t srcOffset, size_t count, services::Status & status)
+        explicit Execute(cl::sycl::queue & queue, UniversalBuffer & dst, size_t desOffset, void * src, size_t srcOffset, size_t count,
+                         services::Status & status)
             : queue(queue), dstUnivers(dst), dstOffset(desOffset), srcArray(src), srcOffset(srcOffset), count(count), status(status)
         {}
 
         template <typename T>
         void operator()(Typelist<T>)
         {
-            auto src              = (T *)srcArray;
-            auto dst              = dstUnivers.get<T>().toSycl(status);
+            auto src = (T *)srcArray;
+            auto dst = dstUnivers.get<T>().toSycl(status);
             DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
             cl::sycl::event event = queue.submit([&](cl::sycl::handler & cgh) {
@@ -146,7 +149,8 @@ private:
     };
 
 public:
-    static void copy(cl::sycl::queue & queue, UniversalBuffer & dest, size_t dstOffset, void * src, size_t srcOffset, size_t count, services::Status & status)
+    static void copy(cl::sycl::queue & queue, UniversalBuffer & dest, size_t dstOffset, void * src, size_t srcOffset, size_t count,
+                     services::Status & status)
     {
         Execute op(queue, dest, dstOffset, src, srcOffset, count, status);
         TypeDispatcher::dispatch(dest.type(), op);
@@ -167,7 +171,9 @@ private:
         double value;
         services::Status & status;
 
-        explicit Execute(cl::sycl::queue & queue, UniversalBuffer & dest, double value, services::Status & status) : queue(queue), dstUnivers(dest), value(value), status(status) {}
+        explicit Execute(cl::sycl::queue & queue, UniversalBuffer & dest, double value, services::Status & status)
+            : queue(queue), dstUnivers(dest), value(value), status(status)
+        {}
 
         template <typename T>
         void operator()(Typelist<T>)
