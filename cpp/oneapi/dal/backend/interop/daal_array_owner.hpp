@@ -21,13 +21,15 @@
 namespace oneapi::dal::backend::interop {
 
 template <typename T>
-struct daal_array_owner {
+class daal_array_owner {
+public:
     explicit daal_array_owner(const array<T>& arr) : array_(arr) {}
 
     void operator()(const void*) {
         array_.reset();
     }
 
+private:
     array<T> array_;
 };
 
