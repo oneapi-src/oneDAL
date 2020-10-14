@@ -67,22 +67,21 @@ public:
     /// the table of the corresponding computed Jaccard similarity coefficients, and
     /// the number of non-zero Jaccard similarity coefficients in the block.
     ///
-    /// @param [in]   vertex_pairs  The table of size 2*nonzero_coeff_count with
-    ///                             vertex pairs which have non-zero Jaccard
-    ///                             similarity coefficients
-    /// @param [in]   coeffs        The table of size 1*nonzero_coeff_count with
-    ///                             non-zero Jaccard similarity coefficients
-    ///
-    /// @param [in] nonzero_coeff_count The number of non-zero Jaccard coefficients
+    /// @param [in]   vertex_pairs        The table of size [nonzero_coeff_count x 2] with
+    ///                                   vertex pairs which have non-zero Jaccard
+    ///                                   similarity coefficients
+    /// @param [in]   coeffs              The table of size [nonzero_coeff_count x 1] with
+    ///                                   non-zero Jaccard similarity coefficients
+    /// @param [in]   nonzero_coeff_count The number of non-zero Jaccard coefficients
     vertex_similarity_result(const table& vertex_pairs,
                              const table& coeffs,
                              std::int64_t nonzero_coeff_count);
 
-    /// Returns the table of size 1*nonzero_coeff_count with non-zero Jaccard
+    /// Returns the table of size [nonzero_coeff_count x 1] with non-zero Jaccard
     /// similarity coefficients
     table get_coeffs() const;
 
-    /// Returns the table of size 2*nonzero_coeff_count with vertex pairs which have
+    /// Returns the table of size [nonzero_coeff_count x 2] with vertex pairs which have
     /// non-zero Jaccard similarity coefficients
     table get_vertex_pairs() const;
 

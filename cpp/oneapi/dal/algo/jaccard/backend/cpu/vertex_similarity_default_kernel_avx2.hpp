@@ -330,9 +330,10 @@ vertex_similarity_result call_jaccard_default_kernel_avx2(
             }
         }
     }
-    vertex_similarity_result res(homogen_table::wrap(first_vertices, 2, number_elements_in_block),
-                                 homogen_table::wrap(jaccard, 1, number_elements_in_block),
-                                 nnz);
+    vertex_similarity_result res(
+        homogen_table::wrap(first_vertices, number_elements_in_block, 2, data_layout::column_major),
+        homogen_table::wrap(jaccard, number_elements_in_block, 1, data_layout::column_major),
+        nnz);
     return res;
 }
 } // namespace detail
