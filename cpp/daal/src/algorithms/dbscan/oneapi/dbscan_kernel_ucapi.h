@@ -46,64 +46,29 @@ public:
                              const Parameter * par);
 
 private:
+    services::Status getCores(const services::internal::sycl::UniversalBuffer & data, uint32_t nRows, uint32_t nFeatures, algorithmFPType nNbrs,
+                              algorithmFPType eps);
+    services::Status updateQueue(uint32_t clusterId, uint32_t nRows, uint32_t nFeatures, algorithmFPType eps, uint32_t queueBegin, uint32_t queueEnd,
+                                 const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & clusters);
+
+    services::Status startNextCluster(uint32_t clusterId, uint32_t nRows, uint32_t queueEnd, services::internal::sycl::UniversalBuffer & clusters,
+                                      bool & found);
     services::Status processResultsToCompute(DAAL_UINT64 resultsToCompute, daal::data_management::NumericTable * ntData,
                                              daal::data_management::NumericTable * ntCoreIndices,
                                              daal::data_management::NumericTable * ntCoreObservations);
-    services::Status pushNeighborsToQueue(const services::internal::sycl::UniversalBuffer & distances,
-                                          const services::internal::sycl::UniversalBuffer & chunkOffests, uint32_t rowId, uint32_t clusterId,
-                                          uint32_t chunkOffset, uint32_t nRows, uint32_t qEnd, algorithmFPType eps,
-                                          services::internal::sycl::UniversalBuffer & assignments, services::internal::sycl::UniversalBuffer & queue);
-
-    services::Status countOffsets(const services::internal::sycl::UniversalBuffer & counters, services::internal::sycl::UniversalBuffer & offsets);
-
-    services::Status setBufferValue(services::internal::sycl::UniversalBuffer & buffer, uint32_t index, int value);
-
-    services::Status setBufferValueByQueueIndex(services::internal::sycl::UniversalBuffer & buffer,
-                                                const services::internal::sycl::UniversalBuffer & queue, uint32_t posInQueue, int value);
-
-    services::Status getPointDistances(const services::internal::sycl::UniversalBuffer & data, uint32_t nRows, uint32_t rowId, uint32_t dim,
-                                       uint32_t minkowskiPower, services::internal::sycl::UniversalBuffer & pointDistances);
-
-    services::Status getQueueBlockDistances(const services::internal::sycl::UniversalBuffer & data, uint32_t nRows,
-                                            const services::internal::sycl::UniversalBuffer & queue, uint32_t queueBegin, uint32_t queueBlockSize,
-                                            uint32_t dim, uint32_t minkowskiPower, services::internal::sycl::UniversalBuffer & queueBlockDistances);
-
-    services::Status countPointNeighbors(const services::internal::sycl::UniversalBuffer & assignments,
-                                         const services::internal::sycl::UniversalBuffer & pointDistances, uint32_t rowId, int chunkOffset,
-                                         uint32_t nRows, algorithmFPType epsP, const services::internal::sycl::UniversalBuffer & queue,
-                                         services::internal::sycl::UniversalBuffer & countersTotal,
-                                         services::internal::sycl::UniversalBuffer & countersNewNeighbors);
-
-    uint32_t sumCounters(const services::internal::sycl::UniversalBuffer & counters, services::Status & s);
-
-    bool canQueryRow(const services::internal::sycl::UniversalBuffer & assignments, uint32_t rowIndex, services::Status & s);
-
-    uint32_t computeQueueBlockSize(uint32_t queueBegin, uint32_t queueEnd);
-
-    uint32_t getWorkgroupNumber(uint32_t numberOfChunks) { return numberOfChunks * _minSubgroupSize / _maxWorkgroupSize + 1; }
-
-    services::Status initializeBuffers(uint32_t nRows);
-
+    services::Status initializeBuffers(uint32_t nRows, daal::data_management::NumericTable * weights);
     services::Status buildProgram(services::internal::sycl::ClKernelFactoryIface & kernel_factory);
+    services::Status setQueueFront(uint32_t queueEnd);
+    services::Status getQueueFront(uint32_t & queueEnd);
 
-    void calculateChunks(uint32_t nRows);
+    static constexpr uint32_t _maxSubgroupSize = 32;
+    bool _useWeights;
 
-    static const uint32_t _minSubgroupSize              = 16;
-    static const uint32_t _maxWorkgroupSize             = 256;
-    static const uint32_t _minRecommendedNumberOfChunks = 64;
-    static const uint32_t _recommendedChunkSize         = 256;
-    static const uint32_t _minChunkSize                 = 16;
-    static const uint32_t _queueBlockSize               = 64;
-    uint32_t _chunkNumber                               = _minRecommendedNumberOfChunks;
-    uint32_t _chunkSize                                 = _recommendedChunkSize;
-
-    services::internal::sycl::UniversalBuffer _queueBlockDistances;
-    services::internal::sycl::UniversalBuffer _singlePointDistances;
+    services::internal::sycl::UniversalBuffer _weights;
     services::internal::sycl::UniversalBuffer _queue;
     services::internal::sycl::UniversalBuffer _isCore;
-    services::internal::sycl::UniversalBuffer _countersTotal;
-    services::internal::sycl::UniversalBuffer _countersNewNeighbors;
-    services::internal::sycl::UniversalBuffer _chunkOffsets;
+    services::internal::sycl::UniversalBuffer _lastPoint;
+    services::internal::sycl::UniversalBuffer _queueFront;
 };
 
 } // namespace internal
