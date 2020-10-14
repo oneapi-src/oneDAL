@@ -27,7 +27,7 @@
 using namespace oneapi;
 
 template <typename Method>
-void run(sycl::queue &queue, dal::table x_train, const char *method_name) {
+void run(sycl::queue &queue, const dal::table& x_train, const std::string& method_name) {
     constexpr std::int64_t cluster_count = 20;
     constexpr std::int64_t max_iteration_count = 1000;
     constexpr double accuracy_threshold = 0.01;
