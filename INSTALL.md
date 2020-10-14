@@ -99,7 +99,7 @@ For details, see [System Requirements for oneDAL](https://software.intel.com/con
 
 7. Download and install Python 3.7 (Windows\* only).
 
-8. Build oneDAL via command-line interface. Choose the appropriate commands based on the platform and the compiler you use:
+8. Build oneDAL via command-line interface. Choose the appropriate commands based on the interface, platform and the compiler you use:
 
     - DAAL interfaces on **Linux\*** using **Intel(R) C++ Compiler**:
 
