@@ -371,6 +371,11 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::init(NumericTable & nt,
         featureTypes = &autoFT;
     }
 
+    if (nt.getNumberOfRows() > static_cast<size_t>(UINT_MAX) || nt.getNumberOfColumns() > static_cast<size_t>(UINT_MAX))
+    {
+        return Status(ErrorBufferSizeIntegerOverflow);
+    }
+
     const uint32_t nC = static_cast<uint32_t>(nt.getNumberOfColumns());
     const uint32_t nR = static_cast<uint32_t>(nt.getNumberOfRows());
 
