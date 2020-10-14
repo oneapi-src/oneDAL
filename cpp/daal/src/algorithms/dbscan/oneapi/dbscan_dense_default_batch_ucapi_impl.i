@@ -297,7 +297,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::startNextCluster(uint3
 
 template <typename algorithmFPType>
 services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::getCores(const UniversalBuffer & data, uint32_t nRows, uint32_t nFeatures,
-                                                                   algorithmFPType nNbrs, algorithmFPType eps)
+                                                                   int nNbrs, algorithmFPType eps)
 {
     services::Status st;
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.getCores);
@@ -305,6 +305,45 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::getCores(const Univers
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
     auto kernel = kernel_factory.getKernel("computeCores", &st);
+    DAAL_CHECK_STATUS_VAR(st);
+
+    DAAL_ASSERT_UNIVERSAL_BUFFER(data, algorithmFPType, nRows * nFeatures);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(_weights, algorithmFPType, _useWeights ? nRows : 1);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(_isCore, int, nRows);
+
+    KernelArguments args(6);
+    args.set(0, static_cast<int32_t>(nRows));
+    args.set(1, static_cast<int32_t>(nFeatures));
+    args.set(2, nNbrs);
+    args.set(3, eps);
+    args.set(4, data, AccessModeIds::read);
+    args.set(5, _isCore, AccessModeIds::write);
+
+    uint32_t rangeWidth = nFeatures < _maxSubgroupSize ? nFeatures : _maxSubgroupSize;
+    KernelRange localRange(1, rangeWidth);
+    KernelRange globalRange(nRows, rangeWidth);
+
+    KernelNDRange range(2);
+    range.global(globalRange, &st);
+    DAAL_CHECK_STATUS_VAR(st);
+    range.local(localRange, &st);
+    DAAL_CHECK_STATUS_VAR(st);
+
+    context.run(range, kernel, args, &st);
+    DAAL_CHECK_STATUS_VAR(st);
+    return st;
+}
+
+template <typename algorithmFPType>
+services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::getCoresWithWeights(const UniversalBuffer & data, uint32_t nRows, uint32_t nFeatures,
+                                                                   algorithmFPType nNbrs, algorithmFPType eps)
+{
+    services::Status st;
+    DAAL_ITTNOTIFY_SCOPED_TASK(compute.getCores);
+    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
+    auto & kernel_factory = context.getClKernelFactory();
+    DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
+    auto kernel = kernel_factory.getKernel("computeCoresWithWeights", &st);
     DAAL_CHECK_STATUS_VAR(st);
 
     DAAL_ASSERT_UNIVERSAL_BUFFER(data, algorithmFPType, nRows * nFeatures);
