@@ -17,6 +17,7 @@
 #include "oneapi/dal/detail/threading.hpp"
 #include "src/threading/threading.h"
 
+extern "C" {
 ONEAPI_DAL_EXPORT void _daal_threader_for_oneapi(int n,
                                                  int threads_request,
                                                  const void *a,
@@ -24,7 +25,6 @@ ONEAPI_DAL_EXPORT void _daal_threader_for_oneapi(int n,
     _daal_threader_for(n, threads_request, a, static_cast<daal::functype>(func));
 }
 
-extern "C" {
 ONEAPI_DAL_EXPORT void _daal_parallel_sort_oneapi(int *begin_ptr, int *end_ptr) {
     _daal_parallel_sort(begin_ptr, end_ptr);
 }
