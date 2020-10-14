@@ -41,6 +41,15 @@ endif
 link.dynamic.lnx.icc = icc -no-cilk
 link.dynamic.mac.icc = icc
 
+pedantic.opts.lnx.icc = -pedantic \
+                        -Wall \
+                        -Wextra \
+                        -Werror \
+                        -Werror=return-type \
+                        -Werror=uninitialized \
+                        -Werror=unknown-pragmas \
+                        -Wno-unused-parameter
+
 daaldep.lnx32e.rt.icc = -static-intel
 daaldep.lnx32.rt.icc  = -static-intel
 
