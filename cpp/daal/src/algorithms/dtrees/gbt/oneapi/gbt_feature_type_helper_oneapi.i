@@ -23,6 +23,7 @@
 #include "src/algorithms/dtrees/dtrees_feature_type_helper.h"
 
 #include "src/services/service_data_utils.h"
+#include "src/sycl/sorter.h"
 #include "src/externals/service_ittnotify.h"
 
 DAAL_ITTNOTIFY_DOMAIN(gbt.common.oneapi);
@@ -74,18 +75,15 @@ static services::Status buildProgram(ClKernelFactoryIface & factory)
 
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.buildProgram);
 
-    {
-        auto fptype_name    = getKeyFPType<algorithmFPType>();
-        auto radixtype_name = getOpenCLKeyType<typename GetIntegerTypeForFPType<algorithmFPType>::Type>("radixIntType");
-        auto build_options  = fptype_name + radixtype_name;
-        build_options.add("-cl-std=CL1.2");
+    auto fptype_name    = getKeyFPType<algorithmFPType>();
+    auto radixtype_name = getOpenCLKeyType<typename GetIntegerTypeForFPType<algorithmFPType>::Type>("radixIntType");
+    auto build_options  = fptype_name + radixtype_name;
+    build_options.add("-cl-std=CL1.2");
 
-        services::String cachekey("__daal_algorithms_gbt_common_");
-        cachekey.add(fptype_name);
-        cachekey.add(radixtype_name);
-        factory.build(ExecutionTargetIds::device, cachekey.c_str(), gbt_common_kernels, build_options.c_str(), status);
-        DAAL_CHECK_STATUS_VAR(status);
-    }
+    services::String cachekey("__daal_algorithms_gbt_common_");
+    cachekey.add(fptype_name);
+    cachekey.add(radixtype_name);
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), gbt_common_kernels, build_options.c_str(), status);
 
     return status;
 }
@@ -94,6 +92,7 @@ template <typename algorithmFPType>
 IndexedFeaturesOneAPI<algorithmFPType>::~IndexedFeaturesOneAPI()
 {
     delete[] _entries;
+    _entries = nullptr;
 }
 
 template <typename algorithmFPType>
@@ -111,22 +110,27 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::FeatureEntry::allocBord
 }
 
 template <typename algorithmFPType>
-services::Status IndexedFeaturesOneAPI<algorithmFPType>::alloc(size_t nC, size_t nR)
+services::Status IndexedFeaturesOneAPI<algorithmFPType>::alloc(uint32_t nC, uint32_t nR)
 {
     auto & context = services::internal::getDefaultContext();
     services::Status status;
 
-    _data.resize(nC);
+    if (!_data.resize(nC))
+    {
+        return services::throwIfPossible(services::ErrorMemoryAllocationFailed);
+    }
 
-    for (size_t i = 0; i < nC; i++)
+    for (uint32_t i = 0; i < nC; i++)
     {
         _data[i] = context.allocate(TypeId::uint32, nR, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, nR, nC);
     _fullData = context.allocate(TypeId::uint32, nR * nC, status);
     DAAL_CHECK_STATUS_VAR(status);
 
+    DAAL_OVERFLOW_CHECK_BY_ADDING(uint32_t, nC, 1);
     _binOffsets = context.allocate(TypeId::uint32, nC + 1, status);
     DAAL_CHECK_STATUS_VAR(status);
 
@@ -140,8 +144,8 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::alloc(size_t nC, size_t
 
 template <typename algorithmFPType>
 services::Status IndexedFeaturesOneAPI<algorithmFPType>::extractColumn(const services::internal::Buffer<algorithmFPType> & data,
-                                                                       UniversalBuffer & values, UniversalBuffer & indices, int featureId,
-                                                                       int nFeatures, int nRows)
+                                                                       UniversalBuffer & values, UniversalBuffer & indices, uint32_t featureId,
+                                                                       uint32_t nFeatures, uint32_t nRows)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(indexedFeatures.extractColumn);
 
@@ -149,13 +153,16 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::extractColumn(const ser
 
     auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
-    status |= buildProgram<algorithmFPType>(factory);
-    DAAL_CHECK_STATUS_VAR(status);
+    DAAL_CHECK_STATUS_VAR(buildProgram<algorithmFPType>(factory));
 
     auto kernel = factory.getKernel("extractColumn", status);
     DAAL_CHECK_STATUS_VAR(status);
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(data), algorithmFPType, nRows * nFeatures);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(values, algorithmFPType, nRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(indices, int, nRows);
+
         KernelArguments args(6);
         args.set(0, data, AccessModeIds::read);
         args.set(1, values, AccessModeIds::write);
@@ -173,173 +180,8 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::extractColumn(const ser
 }
 
 template <typename algorithmFPType>
-services::Status IndexedFeaturesOneAPI<algorithmFPType>::radixScan(UniversalBuffer & values, UniversalBuffer & partialHists, int nRows, int bitOffset,
-                                                                   int localSize, int nLocalHists)
-{
-    DAAL_ITTNOTIFY_SCOPED_TASK(indexedFeatures.radixScan);
-
-    services::Status status;
-
-    auto & context = services::internal::getDefaultContext();
-    auto & factory = context.getClKernelFactory();
-    status |= buildProgram<algorithmFPType>(factory);
-    DAAL_CHECK_STATUS_VAR(status);
-
-    auto kernel = factory.getKernel("radixScan", status);
-    DAAL_CHECK_STATUS_VAR(status);
-
-    {
-        KernelArguments args(4);
-        args.set(0, values, AccessModeIds::read);
-        args.set(1, partialHists, AccessModeIds::write);
-        args.set(2, nRows);
-        args.set(3, bitOffset);
-
-        KernelRange local_range(localSize);
-        KernelRange global_range(localSize * nLocalHists);
-
-        KernelNDRange range(1);
-        range.global(global_range, status);
-        DAAL_CHECK_STATUS_VAR(status);
-        range.local(local_range, status);
-        DAAL_CHECK_STATUS_VAR(status);
-
-        context.run(range, kernel, args, status);
-        DAAL_CHECK_STATUS_VAR(status);
-    }
-
-    return status;
-}
-
-template <typename algorithmFPType>
-services::Status IndexedFeaturesOneAPI<algorithmFPType>::radixHistScan(UniversalBuffer & partialHists, UniversalBuffer & partialPrefixHists,
-                                                                       int localSize, int nSubgroupHists)
-{
-    DAAL_ITTNOTIFY_SCOPED_TASK(indexedFeatures.radixHistScan);
-
-    services::Status status;
-
-    auto & context = services::internal::getDefaultContext();
-    auto & factory = context.getClKernelFactory();
-    status |= buildProgram<algorithmFPType>(factory);
-    DAAL_CHECK_STATUS_VAR(status);
-
-    auto kernel = factory.getKernel("radixHistScan", status);
-    DAAL_CHECK_STATUS_VAR(status);
-
-    {
-        KernelArguments args(3);
-        args.set(0, partialHists, AccessModeIds::read);
-        args.set(1, partialPrefixHists, AccessModeIds::write);
-        args.set(2, nSubgroupHists);
-
-        KernelRange local_range(localSize);
-        KernelRange global_range(localSize);
-
-        KernelNDRange range(1);
-        range.global(global_range, status);
-        DAAL_CHECK_STATUS_VAR(status);
-        range.local(local_range, status);
-        DAAL_CHECK_STATUS_VAR(status);
-
-        context.run(range, kernel, args, status);
-        DAAL_CHECK_STATUS_VAR(status);
-    }
-
-    return status;
-}
-
-template <typename algorithmFPType>
-services::Status IndexedFeaturesOneAPI<algorithmFPType>::radixReorder(UniversalBuffer & valuesSrc, UniversalBuffer & indicesSrc,
-                                                                      UniversalBuffer & partialPrefixHists, UniversalBuffer & valuesDst,
-                                                                      UniversalBuffer & indicesDst, int nRows, int bitOffset, int localSize,
-                                                                      int nLocalHists)
-{
-    DAAL_ITTNOTIFY_SCOPED_TASK(indexedFeatures.radixReorder);
-
-    services::Status status;
-
-    auto & context = services::internal::getDefaultContext();
-    auto & factory = context.getClKernelFactory();
-    status |= buildProgram<algorithmFPType>(factory);
-    DAAL_CHECK_STATUS_VAR(status);
-
-    auto kernel = factory.getKernel("radixReorder", status);
-    DAAL_CHECK_STATUS_VAR(status);
-
-    {
-        KernelArguments args(7);
-        args.set(0, valuesSrc, AccessModeIds::read);
-        args.set(1, indicesSrc, AccessModeIds::read);
-        args.set(2, partialPrefixHists, AccessModeIds::read);
-        args.set(3, valuesDst, AccessModeIds::write);
-        args.set(4, indicesDst, AccessModeIds::write);
-        args.set(5, nRows);
-        args.set(6, bitOffset);
-
-        KernelRange local_range(localSize);
-        KernelRange global_range(localSize * nLocalHists);
-
-        KernelNDRange range(1);
-        range.global(global_range, status);
-        DAAL_CHECK_STATUS_VAR(status);
-        range.local(local_range, status);
-        DAAL_CHECK_STATUS_VAR(status);
-
-        context.run(range, kernel, args, status);
-        DAAL_CHECK_STATUS_VAR(status);
-    }
-
-    return status;
-}
-
-template <typename algorithmFPType>
-services::Status IndexedFeaturesOneAPI<algorithmFPType>::radixSort(UniversalBuffer & values, UniversalBuffer & indices, UniversalBuffer & values_buf,
-                                                                   UniversalBuffer & indices_buf, int nRows)
-{
-    services::Status status;
-
-    auto & context = services::internal::getDefaultContext();
-
-    const int radixBits      = 4;
-    const int subSize        = _preferableSubGroup;
-    const int localSize      = _preferableSubGroup;
-    const int nLocalHists    = 1024 * localSize < nRows ? 1024 : (nRows / localSize) + !!(nRows % localSize);
-    const int nSubgroupHists = nLocalHists * (localSize / subSize);
-
-    auto partialHists       = context.allocate(TypeIds::id<int>(), (nSubgroupHists + 1) << _radixBits, status);
-    auto partialPrefixHists = context.allocate(TypeIds::id<int>(), (nSubgroupHists + 1) << _radixBits, status);
-
-    DAAL_CHECK_STATUS_VAR(status);
-
-    size_t rev = 0;
-
-    for (size_t bitOffset = 0; bitOffset < 8 * sizeof(algorithmFPType); bitOffset += radixBits, rev ^= 1)
-    {
-        if (!rev)
-        {
-            DAAL_CHECK_STATUS_VAR(radixScan(values, partialHists, nRows, bitOffset, localSize, nLocalHists));
-            DAAL_CHECK_STATUS_VAR(radixHistScan(partialHists, partialPrefixHists, localSize, nSubgroupHists));
-            DAAL_CHECK_STATUS_VAR(
-                radixReorder(values, indices, partialPrefixHists, values_buf, indices_buf, nRows, bitOffset, localSize, nLocalHists));
-        }
-        else
-        {
-            DAAL_CHECK_STATUS_VAR(radixScan(values_buf, partialHists, nRows, bitOffset, localSize, nLocalHists));
-            DAAL_CHECK_STATUS_VAR(radixHistScan(partialHists, partialPrefixHists, localSize, nSubgroupHists));
-            DAAL_CHECK_STATUS_VAR(
-                radixReorder(values_buf, indices_buf, partialPrefixHists, values, indices, nRows, bitOffset, localSize, nLocalHists));
-        }
-    }
-
-    DAAL_ASSERT(rev == 0); // if not, we need to swap values/indices and values_buf/indices_buf
-
-    return status;
-}
-
-template <typename algorithmFPType>
 services::Status IndexedFeaturesOneAPI<algorithmFPType>::collectBinBorders(UniversalBuffer & values, UniversalBuffer & binOffsets,
-                                                                           UniversalBuffer & binBorders, int nRows, int maxBins)
+                                                                           UniversalBuffer & binBorders, uint32_t nRows, uint32_t maxBins)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(indexedFeatures.collectBinBorders);
 
@@ -354,6 +196,10 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::collectBinBorders(Unive
     DAAL_CHECK_STATUS_VAR(status);
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(values, algorithmFPType, nRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(binOffsets, int, maxBins);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(binBorders, algorithmFPType, maxBins);
+
         KernelArguments args(3);
         args.set(0, values, AccessModeIds::read);
         args.set(1, binOffsets, AccessModeIds::read);
@@ -370,8 +216,8 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::collectBinBorders(Unive
 
 template <typename algorithmFPType>
 services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBuffer & values, UniversalBuffer & indices,
-                                                                     UniversalBuffer & binBorders, UniversalBuffer & bins, int nRows, int nBins,
-                                                                     int localSize, int nLocalBlocks)
+                                                                     UniversalBuffer & binBorders, UniversalBuffer & bins, uint32_t nRows,
+                                                                     uint32_t nBins, uint32_t maxBins, uint32_t localSize, uint32_t nLocalBlocks)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(indexedFeatures.computeBins);
 
@@ -386,6 +232,11 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
     DAAL_CHECK_STATUS_VAR(status);
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(values, algorithmFPType, nRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(indices, int, nRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(binBorders, algorithmFPType, maxBins);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(bins, uint32_t, nRows);
+
         KernelArguments args(6);
         args.set(0, values, AccessModeIds::read);
         args.set(1, indices, AccessModeIds::read);
@@ -412,25 +263,26 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
 
 template <typename algorithmFPType>
 services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBuffer & values, UniversalBuffer & indices, UniversalBuffer & bins,
-                                                                     FeatureEntry & entry, int nRows, const dtrees::internal::BinParams * pBinPrm)
+                                                                     FeatureEntry & entry, uint32_t nRows,
+                                                                     const dtrees::internal::BinParams * pBinPrm)
 {
     services::Status status;
 
     auto & context = services::internal::getDefaultContext();
 
-    const int maxBins      = pBinPrm->maxBins < nRows ? pBinPrm->maxBins : nRows;
-    const int localSize    = _preferableSubGroup;
-    const int nLocalBlocks = 1024 * localSize < nRows ? 1024 : (nRows / localSize) + !!(nRows % localSize);
+    const uint32_t maxBins      = pBinPrm->maxBins < nRows ? pBinPrm->maxBins : nRows;
+    const uint32_t localSize    = _preferableSubGroup;
+    const uint32_t nLocalBlocks = 1024 * localSize < nRows ? 1024 : (nRows / localSize) + !!(nRows % localSize);
 
     auto binOffsets = context.allocate(TypeIds::id<int>(), maxBins, status);
+    DAAL_CHECK_STATUS_VAR(status);
     auto binBorders = context.allocate(TypeIds::id<algorithmFPType>(), maxBins, status);
-
     DAAL_CHECK_STATUS_VAR(status);
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(binOffsets, int, maxBins);
         auto binOffsetsHost = binOffsets.template get<int>().toHost(ReadWriteMode::writeOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
-
         int offset = 0;
         for (int i = 0; i < maxBins; i++)
         {
@@ -441,13 +293,14 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
 
     DAAL_CHECK_STATUS_VAR(collectBinBorders(values, binOffsets, binBorders, nRows, maxBins));
 
-    int nBins = 0;
+    uint32_t nBins = 0;
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(binBorders, algorithmFPType, maxBins);
         auto binBordersHost = binBorders.template get<algorithmFPType>().toHost(ReadWriteMode::readWrite, status);
         DAAL_CHECK_STATUS_VAR(status);
-        for (int i = 0; i < maxBins; i++)
+        for (uint32_t i = 0; i < maxBins; i++)
         {
-            if (nBins == 0 || binBordersHost.get()[i] != binBordersHost.get()[nBins - 1])
+            if (nBins == 0 || (nBins > 0 && binBordersHost.get()[i] != binBordersHost.get()[nBins - 1]))
             {
                 binBordersHost.get()[nBins] = binBordersHost.get()[i];
                 nBins++;
@@ -455,7 +308,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
         }
     }
 
-    DAAL_CHECK_STATUS_VAR(computeBins(values, indices, binBorders, bins, nRows, nBins, localSize, nLocalBlocks));
+    DAAL_CHECK_STATUS_VAR(computeBins(values, indices, binBorders, bins, nRows, nBins, maxBins, localSize, nLocalBlocks));
 
     entry.numIndices = nBins;
     entry.binBorders = binBorders;
@@ -464,19 +317,19 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
 }
 
 template <typename algorithmFPType>
-services::Status IndexedFeaturesOneAPI<algorithmFPType>::makeIndex(const services::internal::Buffer<algorithmFPType> & data, int featureId,
-                                                                   int nFeatures, int nRows, const dtrees::internal::BinParams * pBinPrm,
+services::Status IndexedFeaturesOneAPI<algorithmFPType>::makeIndex(const services::internal::Buffer<algorithmFPType> & data, uint32_t featureId,
+                                                                   uint32_t nFeatures, uint32_t nRows, const dtrees::internal::BinParams * pBinPrm,
                                                                    UniversalBuffer & bins, FeatureEntry & entry)
 {
     DAAL_CHECK_STATUS_VAR(extractColumn(data, _values, _indices, featureId, nFeatures, nRows));
-    DAAL_CHECK_STATUS_VAR(radixSort(_values, _indices, _values_buf, _indices_buf, nRows));
+    DAAL_CHECK_STATUS_VAR(sort::RadixSort::sortIndices(_values, _indices, _values_buf, _indices_buf, nRows));
     DAAL_CHECK_STATUS_VAR(computeBins(_values, _indices, bins, entry, nRows, pBinPrm));
     return services::Status();
 }
 
 template <typename algorithmFPType>
-services::Status IndexedFeaturesOneAPI<algorithmFPType>::storeColumn(const UniversalBuffer & data, UniversalBuffer & fullData, int featureId,
-                                                                     int nFeatures, int nRows)
+services::Status IndexedFeaturesOneAPI<algorithmFPType>::storeColumn(const UniversalBuffer & data, UniversalBuffer & fullData, uint32_t featureId,
+                                                                     uint32_t nFeatures, uint32_t nRows)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(indexedFeatures.storeColumn);
 
@@ -491,6 +344,9 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::storeColumn(const Unive
     DAAL_CHECK_STATUS_VAR(status);
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(data, uint32_t, nRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(fullData, uint32_t, nRows * nFeatures);
+
         KernelArguments args(5);
         args.set(0, data, AccessModeIds::read);
         args.set(1, fullData, AccessModeIds::write);
@@ -518,50 +374,59 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::init(NumericTable & nt,
         featureTypes = &autoFT;
     }
 
-    const size_t nC = nt.getNumberOfColumns();
-    const size_t nR = nt.getNumberOfRows();
+    if (nt.getNumberOfRows() > static_cast<size_t>(UINT_MAX) || nt.getNumberOfColumns() > static_cast<size_t>(UINT_MAX))
+    {
+        return Status(ErrorBufferSizeIntegerOverflow);
+    }
+
+    const uint32_t nC = static_cast<uint32_t>(nt.getNumberOfColumns());
+    const uint32_t nR = static_cast<uint32_t>(nt.getNumberOfRows());
 
     _maxNumIndices          = 0;
     services::Status status = alloc(nC, nR);
-    if (!status) return status;
+    DAAL_CHECK_STATUS_VAR(status);
 
     auto & context = services::internal::getDefaultContext();
 
-    _values     = context.allocate(TypeIds::id<algorithmFPType>(), nR, status);
+    _values = context.allocate(TypeIds::id<algorithmFPType>(), nR, status);
+    DAAL_CHECK_STATUS_VAR(status);
     _values_buf = context.allocate(TypeIds::id<algorithmFPType>(), nR, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    _indices     = context.allocate(TypeIds::id<int>(), nR, status);
+    _indices = context.allocate(TypeIds::id<int>(), nR, status);
+    DAAL_CHECK_STATUS_VAR(status);
     _indices_buf = context.allocate(TypeIds::id<int>(), nR, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     BlockDescriptor<algorithmFPType> dataBlock;
 
     if (nt.getDataLayout() == NumericTableIface::soa)
     {
-        for (size_t i = 0; i < nC; i++)
+        for (uint32_t i = 0; i < nC; i++)
         {
-            nt.getBlockOfColumnValues(i, 0, nR, readOnly, dataBlock);
+            DAAL_CHECK_STATUS_VAR(nt.getBlockOfColumnValues(i, 0, nR, readOnly, dataBlock));
             auto dataBuffer = dataBlock.getBuffer();
             DAAL_CHECK_STATUS_VAR(makeIndex(dataBuffer, 0, 1, nR, pBinPrm, _data[i], _entries[i]));
-            nt.releaseBlockOfColumnValues(dataBlock);
+            DAAL_CHECK_STATUS_VAR(nt.releaseBlockOfColumnValues(dataBlock));
         }
     }
     else
     {
-        nt.getBlockOfRows(0, nR, readOnly, dataBlock);
+        DAAL_CHECK_STATUS_VAR(nt.getBlockOfRows(0, nR, readOnly, dataBlock));
         auto dataBuffer = dataBlock.getBuffer();
-        for (size_t i = 0; i < nC; i++)
+        for (uint32_t i = 0; i < nC; i++)
         {
             DAAL_CHECK_STATUS_VAR(makeIndex(dataBuffer, i, nC, nR, pBinPrm, _data[i], _entries[i]));
         }
-        nt.releaseBlockOfRows(dataBlock);
+        DAAL_CHECK_STATUS_VAR(nt.releaseBlockOfRows(dataBlock));
     }
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(_binOffsets, uint32_t, nC + 1);
         auto binOffsetsHost = _binOffsets.template get<int>().toHost(ReadWriteMode::writeOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
-
-        size_t total = 0;
-        for (size_t i = 0; i < nC; i++)
+        int total = 0;
+        for (uint32_t i = 0; i < nC; i++)
         {
             DAAL_CHECK_STATUS_VAR(storeColumn(_data[i], _fullData, i, nC, nR));
             binOffsetsHost.get()[i] = total;
@@ -581,6 +446,7 @@ services::Status TreeNodeStorage::allocate(const gbt::internal::IndexedFeaturesO
     services::Status status;
     auto & context = services::internal::getDefaultContext();
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, indexedFeatures.totalBins(), 2);
     _histogramsForFeatures = context.allocate(TypeIds::id<algorithmFPType>(), indexedFeatures.totalBins() * 2, status);
 
     return status;
