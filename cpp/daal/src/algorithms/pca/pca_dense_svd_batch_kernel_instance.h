@@ -33,9 +33,9 @@ namespace pca
 {
 namespace internal
 {
-template class PCASVDBatchKernel<DAAL_FPTYPE, interface2::BatchParameter<DAAL_FPTYPE, pca::svdDense>, DAAL_CPU>;
+template class DAAL_EXPORT PCASVDBatchKernel<DAAL_FPTYPE, interface2::BatchParameter<DAAL_FPTYPE, pca::svdDense>, DAAL_CPU>;
 
-template class PCASVDBatchKernel<DAAL_FPTYPE, interface3::BatchParameter<DAAL_FPTYPE, pca::svdDense>, DAAL_CPU>;
+template class DAAL_EXPORT PCASVDBatchKernel<DAAL_FPTYPE, interface3::BatchParameter<DAAL_FPTYPE, pca::svdDense>, DAAL_CPU>;
 
 } // namespace internal
 } // namespace pca
