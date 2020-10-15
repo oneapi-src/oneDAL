@@ -19,6 +19,7 @@
 
 Required Software:
 * C/C++ Compiler
+* DPC++ Compiler
 * Java\* JDK
 * Microsoft Visual Studio\* (Windows\* only)
 * [MSYS2 installer](http://msys2.github.io) with the msys/make package (Windows\* only); install the package as follows:
@@ -53,7 +54,7 @@ For details, see [System Requirements for oneDAL](https://software.intel.com/con
 
     - **Intel(R) oneAPI DPC++/C++ Compiler 2021.1 (Windows\*)**:
 
-            call "C:\Program Files (x86)\inteloneapi\compiler\latest\env\vars.bat" intel64
+            call "C:\Program Files (x86)\Intel\oneAPI\compiler\latest\env\vars.bat" intel64
 
 4. Set the environment variables for one of the supported Java\* compilers. For example:
 
@@ -77,7 +78,7 @@ For details, see [System Requirements for oneDAL](https://software.intel.com/con
 
     - **Linux\***:
 
-            ./dev/download/download_micromkl.sh
+            ./dev/download_micromkl.sh
 
 6. Download and install Intel(R) Threading Building Blocks (Intel(R) TBB):
 
@@ -86,11 +87,11 @@ For details, see [System Requirements for oneDAL](https://software.intel.com/con
 
     - oneTBB (Windows\*):
 
-            call "C:\Program Files (x86)\inteloneapi\tbb\latest\env\vars.bat" intel64
+            call "C:\Program Files (x86)\Intel\oneAPI\tbb\latest\env\vars.bat" intel64
 
-    - Intel(R) TBB 2020 (Linux\*):
+    - oneTBB (Linux\*):
 
-            source /opt/intel/compilers_and_libraries_2020.0.166/linux/tbb/bin/tbbvars.sh intel64
+            source /opt/intel/oneapi/tbb/latest/env/vars.sh intel64
 
     Alternatively, you can use scripts to do this for you (Linux\*):
 
@@ -98,23 +99,23 @@ For details, see [System Requirements for oneDAL](https://software.intel.com/con
 
 7. Download and install Python 3.7 (Windows\* only).
 
-8. Build oneDAL via command-line interface. Choose the appropriate commands based on the platform and the compiler you use:
+8. Build oneDAL via command-line interface. Choose the appropriate commands based on the interface, platform and the compiler you use:
 
-    - on **Linux\*** using **Intel(R) C++ Compiler**:
+    - DAAL interfaces on **Linux\*** using **Intel(R) C++ Compiler**:
 
             make -f makefile daal PLAT=lnx32e
 
-    - on **Linux\*** using **GNU Compiler Collection\***:
+    - DAAL interfaces on **Linux\*** using **GNU Compiler Collection\***:
 
             make -f makefile daal PLAT=lnx32e COMPILER=gnu
 
-    - on **Windows\*** using **Intel(R) C++ Compiler**:
+    - oneAPI C++/DPC++ interfaces on **Windows\*** using **Intel(R) DPC++ compiler**:
 
-            make -f makefile daal PLAT=win32e
+            make -f makefile oneapi PLAT=win32e
 
-    - on **Windows\*** using **Microsoft Visual\* C++ Compiler**:
+    - oneAPI C++ interfaces on **Windows\*** using **Microsoft Visual\* C++ Compiler**:
 
-            make -f makefile daal PLAT=win32e COMPILER=vc
+            make -f makefile oneapi_c PLAT=win32e COMPILER=vc
 
 It is possible to build oneDAL libraries with selected set of algorithms and/or CPU optimizations. `CORE.ALGORITHMS.CUSTOM` and `REQCPUS` makefile defines are used for it.
 

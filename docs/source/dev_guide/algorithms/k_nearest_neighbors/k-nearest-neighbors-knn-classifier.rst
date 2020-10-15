@@ -47,15 +47,15 @@ Given a positive integer parameter :math:`k` and a test observation
 
 #. Identifies the set :math:`N_0` of the k feature vectors in the
    training data that are closest to :math:`x_0` according to the
-   Euclidian distance
+   distance metric
 #. Estimates the conditional probability for the class :math:`j` as the
    fraction of vectors in :math:`N_0` whose labels y are equal to :math:`j`
 #. Assigns the class with the largest probability to the test
    observation :math:`x_0`
 
-kNN classification on CPU and GPU are based on different approaches. 
-On CPU, kNN classification uses `K-D tree`_, a space-partitioning data structure, to find nearest neighbors,
-while on GPU the `Brute Force`_ search is used.
+On CPU, kNN classification might use `K-D tree`_, a space-partitioning data structure,
+or `Brute Force`_ search to find nearest neighbors,
+while on GPU only `Brute Force`_ search is available.
 
 K-D tree
 --------
@@ -144,6 +144,18 @@ respective part of the feature space is not less than the distance
 from the :math:`k^{th}` neighbor. This distance is progressively
 updated during the tree traverse.
 
+Prediction using Brute Force
+++++++++++++++++++++++++++++
+
+To solve the problem, the algorithm computes distances between vectors from training and testing sets:
+:math:`d_{ij}=\mathrm{distance\_metric}(x_i^\mathrm{test}, x_j^\mathrm{train})`.
+For example, if Euclidean distance is used, :math:`d_{ij}` would be the following:
+
+.. math::
+  d_{ij} = \sum_{k=1}^p (x_{ik}^{\mathrm{test}} - x_{jk}^{\mathrm{train}})^2
+
+K training vectors with minimal distance to the testing vector are the nearest neighbors the algorithms searches for.
+
 Batch Processing
 ================
 
@@ -185,7 +197,7 @@ following parameters:
           in the trained kNN model but creates a copy of the input data set.
         + ``doUse`` - the algorithm includes the input data and labels in the trained kNN model.
 
-       The algorithm reorders feature vectors and corresponding labels in the
+       K-D tree based kNN reorders feature vectors and corresponding labels in the
        input data set or its copy to improve performance at the prediction stage.
 
        If the value is ``doUse``, do not deallocate the memory for input data and labels.
@@ -254,14 +266,14 @@ Pass the ``Result ID`` as a parameter to the methods that access the result of y
    * - Result ID
      - Result
    * - ``indices`` 
-     - A numeric table :math:`k \times n` containing indices of rows from training dataset that are nearest neighbors computed when the ``computeIndicesOfNeigtbors`` option is on.
+     - A numeric table :math:`n \times k` containing indices of rows from training dataset that are nearest neighbors computed when the ``computeIndicesOfNeigtbors`` option is on.
      
        .. note::
        
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``.
    * - ``distances``
-     - A numeric table :math:`k \times n` containing distances to nearest neighbors computed when the ``computeDistances`` option is on.
+     - A numeric table :math:`n \times k` containing distances to nearest neighbors computed when the ``computeDistances`` option is on.
      
        .. note::
           
@@ -290,6 +302,7 @@ Examples
     Batch Processing:
 
     - :cpp_example:`kdtree_knn_dense_batch.cpp <k_nearest_neighbors/kdtree_knn_dense_batch.cpp>`
+    - :cpp_example:`bf_knn_dense_batch.cpp <k_nearest_neighbors/bf_knn_dense_batch.cpp>`
 
   .. tab:: Java*
   
@@ -298,6 +311,7 @@ Examples
     Batch Processing:
 
     - :java_example:`KDTreeKNNDenseBatch.java <knn_classification/KDTreeKNNDenseBatch.java>`
+    - :java_example:`BFKNNDenseBatch.java <knn_classification/BFKNNDenseBatch.java>`
 
   .. tab:: Python* with DPC++ support
 
@@ -310,3 +324,4 @@ Examples
     Batch Processing:
 
     - :daal4py_example:`kdtree_knn_classification_batch.py`
+    - :daal4py_example:`bf_knn_classification_batch.py`

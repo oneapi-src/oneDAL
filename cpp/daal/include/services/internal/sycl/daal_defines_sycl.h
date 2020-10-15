@@ -1,3 +1,4 @@
+/* file: daal_defines_sycl.h */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -14,21 +15,24 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/pca/backend/gpu/train_kernel.hpp"
+/*
+//++
+//  Common definitions.
+//--
+*/
 
-namespace oneapi::dal::pca::backend {
+#ifndef __DAAL_DEFINES_SYCL_H__
+#define __DAAL_DEFINES_SYCL_H__
 
-template <typename Float>
-struct train_kernel_gpu<Float, method::svd, task::dim_reduction> {
-    train_result<task::dim_reduction> operator()(
-        const dal::backend::context_gpu& ctx,
-        const descriptor_base<task::dim_reduction>& params,
-        const train_input<task::dim_reduction>& input) const {
-        throw unimplemented("PCA SVD-based method is not implemented for GPU");
+/** \file daal_defines_sycl.h */
+
+#include "services/daal_defines.h"
+#include "services/internal/sycl/types.h"
+
+#define DAAL_ASSERT_UNIVERSAL_BUFFER(buffer, bufferType, bufferSize)             \
+    {                                                                            \
+        DAAL_ASSERT((buffer).type() == TypeIds::id<bufferType>());               \
+        DAAL_ASSERT((buffer).template get<bufferType>().size() == (bufferSize)); \
     }
-};
 
-template struct train_kernel_gpu<float, method::svd, task::dim_reduction>;
-template struct train_kernel_gpu<double, method::svd, task::dim_reduction>;
-
-} // namespace oneapi::dal::pca::backend
+#endif
