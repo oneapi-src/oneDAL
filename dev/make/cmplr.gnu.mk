@@ -18,7 +18,7 @@
 #  g++ defenitions for makefile
 #--
 
-PLATs.gnu = lnx32e lnx32
+PLATs.gnu = lnx32e
 
 CMPLRDIRSUFF.gnu = _gnu
 

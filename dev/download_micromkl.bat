@@ -28,11 +28,11 @@ set MKLGPUPACKAGE=mklgpufpk_win_%MKLGPUVERSION%
 set MKLURL=%MKLURLROOT%%MKLPACKAGE%.zip
 set MKLGPUURL=%MKLURLROOT%%MKLGPUPACKAGE%.zip
 if /i "%1"=="" (
-	set CPUCOND=%~dp0..\__deps\mklfpk
-	set GPUCOND=%~dp0..\__deps\mklgpufpk
+    set CPUCOND=%~dp0..\__deps\mklfpk
+    set GPUCOND=%~dp0..\__deps\mklgpufpk
 ) else (
-	set CPUCOND=%1\..\__deps\mklfpk
-	set GPUCOND=%1\..\__deps\mklgpufpk
+    set CPUCOND=%1\..\__deps\mklfpk
+    set GPUCOND=%1\..\__deps\mklgpufpk
 )
 
 set CPUDST=%CPUCOND%
@@ -54,23 +54,24 @@ if not exist %DST% mkdir %DST%
 
 
 if not exist "%CONDITION%\win\lib" (
-	powershell.exe -command "if (Get-Command Invoke-WebRequest -errorAction SilentlyContinue){[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest %SRC% -OutFile %DST%\%FILENAME%.zip} else {exit 1}" && goto Unpack || goto Error_load
+
+    powershell.exe -command "(New-Object System.Net.WebClient).DownloadFile('%SRC%', '%DST%\%FILENAME%.zip')" && goto Unpack || goto Error_load
 
 :Unpack
-	powershell.exe -command "if (Get-Command Add-Type -errorAction SilentlyContinue) {Add-Type -Assembly \"System.IO.Compression.FileSystem\"; try { [IO.Compression.zipfile]::ExtractToDirectory(\"%DST%\%FILENAME%.zip\", \"%DST%\")}catch{$_.exception ; exit 1}} else {exit 1}" && goto Exit || goto Error_unpack
+    powershell.exe -command "if (Get-Command Add-Type -errorAction SilentlyContinue) {Add-Type -Assembly \"System.IO.Compression.FileSystem\"; try { [IO.Compression.zipfile]::ExtractToDirectory(\"%DST%\%FILENAME%.zip\", \"%DST%\")}catch{$_.exception ; exit 1}} else {exit 1}" && goto Exit || goto Error_unpack
 
 :Error_load
-	echo download_mklfpk.bat : Error: Failed to load %SRC% to %DST%, try to load it manually
-	exit /B 1
+    echo download_mklfpk.bat : Error: Failed to load %SRC% to %DST%, try to load it manually
+    exit /B 1
 
 :Error_unpack
-	echo download_mklfpk.bat : Error: Failed to unpack %DST%\%FILENAME%.zip to %DST%, try unpack the archive manually
-	exit /B 1
+    echo download_mklfpk.bat : Error: Failed to unpack %DST%\%FILENAME%.zip to %DST%, try unpack the archive manually
+    exit /B 1
 
 :Exit
-	echo Downloaded and unpacked Intel^(R^) MKL small libraries to %DST%
-	exit /B 0
+    echo Downloaded and unpacked Intel^(R^) MKL small libraries to %DST%
+    exit /B 0
 ) else (
-	echo Intel^(R^) MKL small libraries are already installed in %DST%
-	exit /B 0
+    echo Intel^(R^) MKL small libraries are already installed in %DST%
+    exit /B 0
 )
