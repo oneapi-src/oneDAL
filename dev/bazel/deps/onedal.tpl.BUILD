@@ -55,6 +55,16 @@ cc_library(
 )
 
 cc_library(
+    name = "onedal_static_dpc",
+    srcs = [
+        "lib/intel64/libonedal_dpc.a",
+    ],
+    deps = [
+        ":headers",
+    ],
+)
+
+cc_library(
     name = "core_dynamic",
     srcs = [
         "lib/intel64/libonedal_core.so",
@@ -93,6 +103,16 @@ cc_library(
     name = "onedal_dynamic",
     srcs = [
         "lib/intel64/libonedal.so",
+    ],
+    deps = [
+        ":headers",
+    ],
+)
+
+cc_library(
+    name = "onedal_dynamic_dpc",
+    srcs = [
+        "lib/intel64/libonedal_dpc.so",
     ],
     deps = [
         ":headers",

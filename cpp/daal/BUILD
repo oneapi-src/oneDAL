@@ -223,7 +223,7 @@ daal_algorithms(
         # "outlierdetection_univariate",
         "pca",
         # "pca/metrics",
-        # "pca/transform",
+        "pca/transform",
         # "pivoted_qr",
         "qr",
         # "quantiles",

@@ -51,13 +51,13 @@ public:
     const char* what() const noexcept override;
 };
 
-class ONEAPI_DAL_EXPORT unimplemented_error : public logic_error, public std::logic_error {
+class ONEAPI_DAL_EXPORT unimplemented : public logic_error, public std::logic_error {
 public:
     using std::logic_error::logic_error;
     const char* what() const noexcept override;
 };
 
-class ONEAPI_DAL_EXPORT unavailable_error : public logic_error, public std::logic_error {
+class ONEAPI_DAL_EXPORT unsupported_device : public logic_error, public std::logic_error {
 public:
     using std::logic_error::logic_error;
     const char* what() const noexcept override;

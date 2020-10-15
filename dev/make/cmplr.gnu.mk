@@ -18,7 +18,7 @@
 #  g++ defenitions for makefile
 #--
 
-PLATs.gnu = lnx32e lnx32
+PLATs.gnu = lnx32e
 
 CMPLRDIRSUFF.gnu = _gnu
 
@@ -27,7 +27,7 @@ CORE.SERV.COMPILER.gnu = generic
 -Zl.gnu =
 -DEBC.gnu = -g
 
-COMPILER.lnx.gnu =  ${CXX} $(if $(IA_is_ia32),-m32,-m64) -fwrapv -fno-strict-overflow -fno-delete-null-pointer-checks
+COMPILER.lnx.gnu =  ${CXX} $(if $(IA_is_ia32),-m32,-m64) -fwrapv -Werror -fno-strict-overflow -fno-delete-null-pointer-checks
 
 link.dynamic.lnx.gnu = ${CXX} $(if $(IA_is_ia32),-m32,-m64)
 

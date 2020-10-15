@@ -32,7 +32,7 @@
 #include "algorithms/linear_regression/linear_regression_ne_model.h"
 #include "algorithms/linear_regression/linear_regression_qr_model.h"
 #include "src/data_management/service_numeric_table.h"
-#include "sycl/internal/utils.h"
+#include "services/internal/execution_context.h"
 
 #include "src/algorithms/linear_regression/oneapi/linear_regression_train_kernel_oneapi.h"
 
@@ -55,7 +55,7 @@ using namespace daal::internal;
 template <typename algorithmFPType, training::Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(Environment::env * daalEnv)
 {
-    auto & context    = oneapi::internal::getDefaultContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if ((method == training::normEqDense) && (!deviceInfo.isCpu))
@@ -91,7 +91,7 @@ Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     Environment::env & env = *_env;
 
-    auto & context    = oneapi::internal::getDefaultContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (method == training::normEqDense)
@@ -127,7 +127,7 @@ Status BatchContainer<algorithmFPType, method, cpu>::compute()
 template <typename algorithmFPType, training::Method method, CpuType cpu>
 OnlineContainer<algorithmFPType, method, cpu>::OnlineContainer(Environment::env * daalEnv)
 {
-    auto & context    = oneapi::internal::getDefaultContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if ((method == training::normEqDense) && (!deviceInfo.isCpu))
@@ -163,7 +163,7 @@ Status OnlineContainer<algorithmFPType, method, cpu>::compute()
 
     Environment::env & env = *_env;
 
-    auto & context    = oneapi::internal::getDefaultContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (method == training::normEqDense)
@@ -207,7 +207,7 @@ Status OnlineContainer<algorithmFPType, method, cpu>::finalizeCompute()
     Parameter * par               = static_cast<Parameter *>(_par);
     Environment::env & env        = *_env;
 
-    auto & context    = oneapi::internal::getDefaultContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (method == training::normEqDense)

@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/svm/svm_model.h"
-#include "data_management/data/numeric_table_sycl_homogen.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 
 namespace daal
 {
@@ -43,12 +43,12 @@ Model::Model(modelFPType dummy, size_t nColumns, data_management::NumericTableIf
 {
     using namespace data_management;
 
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (!deviceInfo.isCpu)
     {
-        _SV = SyclHomogenNumericTable<modelFPType>::create(nColumns, 0, NumericTable::doNotAllocate, &st);
+        _SV = internal::SyclHomogenNumericTable<modelFPType>::create(nColumns, 0, NumericTable::doNotAllocate, &st);
     }
     else
     {
@@ -66,9 +66,9 @@ Model::Model(modelFPType dummy, size_t nColumns, data_management::NumericTableIf
 
     if (!deviceInfo.isCpu)
     {
-        _SVCoeff = SyclHomogenNumericTable<modelFPType>::create(1, 0, NumericTable::doNotAllocate, &st);
+        _SVCoeff = internal::SyclHomogenNumericTable<modelFPType>::create(1, 0, NumericTable::doNotAllocate, &st);
         if (!st) return;
-        _SVIndices = SyclHomogenNumericTable<int>::create(1, 0, NumericTable::doNotAllocate, &st);
+        _SVIndices = internal::SyclHomogenNumericTable<int>::create(1, 0, NumericTable::doNotAllocate, &st);
     }
     else
     {

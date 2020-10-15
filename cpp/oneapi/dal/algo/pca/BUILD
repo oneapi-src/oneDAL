@@ -12,10 +12,10 @@ dal_module(
     ],
     extra_deps = [
         "@onedal//cpp/daal/src/algorithms/pca:kernel",
+        "@onedal//cpp/daal/src/algorithms/pca/transform:kernel",
     ]
 )
 
 dal_test_suite(
     name = "tests",
-    tests = [],
 )

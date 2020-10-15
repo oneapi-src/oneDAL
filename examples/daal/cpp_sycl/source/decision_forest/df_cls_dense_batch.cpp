@@ -38,6 +38,9 @@ using namespace daal::algorithms;
 using namespace daal::data_management;
 using namespace daal::algorithms::decision_forest::classification;
 
+using daal::services::internal::SyclExecutionContext;
+using daal::data_management::internal::SyclHomogenNumericTable;
+
 /* Input data set parameters */
 const string trainDatasetFileName         = "../data/batch/df_classification_train.csv";
 const string testDatasetFileName          = "../data/batch/df_classification_test.csv";
@@ -66,7 +69,7 @@ int main(int argc, char * argv[])
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
-        daal::services::SyclExecutionContext ctx(queue);
+        SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
         /* Create an algorithm object to train the decision forest classification model */

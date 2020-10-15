@@ -41,7 +41,7 @@ In the batch processing mode, the only compute method of a particular algorithm 
 Online processing
 *****************
 
-Some Intel DAAL algorithms enable processing of data sets in blocks.
+Some |short_name| algorithms enable processing of data sets in blocks.
 In the online processing mode, the ``compute()``, and ``finalizeCompute()`` methods of a particular algorithm class are used.
 This computation mode assumes that the data arrives in blocks :math:`i = 1, 2, 3, \ldots \text{nblocks}`.
 Call the ``compute()`` method each time a new input becomes available.

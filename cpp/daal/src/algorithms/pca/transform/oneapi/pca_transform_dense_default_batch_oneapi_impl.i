@@ -30,7 +30,7 @@ DAAL_ITTNOTIFY_DOMAIN(pca.transform.batch.oneapi);
 #include "src/algorithms/pca/transform/oneapi/cl_kernels/pca_transform_cl_kernels.cl"
 
 using namespace daal::services;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 using namespace daal::data_management;
 
 namespace daal
@@ -45,13 +45,13 @@ namespace oneapi
 {
 namespace internal
 {
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 template <typename algorithmFPType, transform::Method method>
 void TransformKernelOneAPI<algorithmFPType, method>::computeTransformedBlock(const uint32_t numRows, const uint32_t numFeatures,
                                                                              const uint32_t numComponents, UniversalBuffer & dataBlock,
-                                                                             const services::Buffer<algorithmFPType> & eigenvectors,
-                                                                             const services::Buffer<algorithmFPType> & resultBlock)
+                                                                             const services::internal::Buffer<algorithmFPType> & eigenvectors,
+                                                                             const services::internal::Buffer<algorithmFPType> & resultBlock)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(pca.transform.compute.gemm);
     BlasGpu<algorithmFPType>::xgemm(math::Layout::ColMajor, math::Transpose::Trans, math::Transpose::NoTrans, numComponents, numRows, numFeatures,
@@ -60,7 +60,7 @@ void TransformKernelOneAPI<algorithmFPType, method>::computeTransformedBlock(con
 
 template <typename algorithmFPType, transform::Method method>
 services::Status TransformKernelOneAPI<algorithmFPType, method>::computeInvSigmas(ExecutionContextIface & ctx, NumericTable * variances,
-                                                                                  const services::Buffer<algorithmFPType> & invSigmas,
+                                                                                  const services::internal::Buffer<algorithmFPType> & invSigmas,
                                                                                   const uint32_t numFeatures)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(pca.transform.compute.computeInvSigmas);
@@ -122,7 +122,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::normalize(Execu
 
 template <typename algorithmFPType, transform::Method method>
 services::Status TransformKernelOneAPI<algorithmFPType, method>::whitening(ExecutionContextIface & ctx,
-                                                                           const services::Buffer<algorithmFPType> & transformedBlock,
+                                                                           const services::internal::Buffer<algorithmFPType> & transformedBlock,
                                                                            UniversalBuffer & invEigenvalues, const uint32_t numComponents,
                                                                            const uint32_t numVectors)
 {
@@ -214,7 +214,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::buildKernel(Exe
     DAAL_ITTNOTIFY_SCOPED_TASK(pca.transform.compute.buildKernel);
     services::Status status;
 
-    auto fptype_name   = oneapi::internal::getKeyFPType<algorithmFPType>();
+    auto fptype_name   = services::internal::sycl::getKeyFPType<algorithmFPType>();
     auto build_options = fptype_name;
 
     const services::String options = getKeyFPType<algorithmFPType>();
@@ -248,7 +248,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(pca.transform.compute);
     services::Status status;
-    ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
+    ExecutionContextIface & ctx = services::internal::getDefaultContext();
 
     const uint32_t numVectors    = data.getNumberOfRows();
     const uint32_t numFeatures   = data.getNumberOfColumns();

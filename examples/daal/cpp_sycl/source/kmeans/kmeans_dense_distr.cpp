@@ -34,6 +34,9 @@ using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
+using daal::services::internal::SyclExecutionContext;
+using daal::data_management::internal::SyclHomogenNumericTable;
+
 typedef float algorithmFPType; /* Algorithm floating-point type */
 
 /* K-Means algorithm parameters */
@@ -55,7 +58,7 @@ int main(int argc, char * argv[])
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
-        daal::services::SyclExecutionContext ctx(queue);
+        SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
         kmeans::Distributed<step2Master> masterAlgorithm(nClusters);

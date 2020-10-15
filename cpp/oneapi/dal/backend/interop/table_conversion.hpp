@@ -16,12 +16,11 @@
 
 #pragma once
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
-#define DAAL_SYCL_INTERFACE
-#define DAAL_SYCL_INTERFACE_USM
-#include <daal/include/data_management/data/numeric_table_sycl_homogen.h>
-#endif
 #include <daal/include/data_management/data/homogen_numeric_table.h>
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+#include <daal/include/data_management/data/internal/numeric_table_sycl_homogen.h>
+#endif
 
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
@@ -84,10 +83,12 @@ inline auto convert_to_daal_sycl_homogen_table(sycl::queue& queue,
     data.need_mutable_data(queue);
     const auto daal_data =
         daal::services::SharedPtr<T>(data.get_mutable_data(), daal_array_owner<T>{ data });
-    return daal::data_management::SyclHomogenNumericTable<T>::create(daal_data,
-                                                                     column_count,
-                                                                     row_count,
-                                                                     cl::sycl::usm::alloc::shared);
+
+    using daal::data_management::internal::SyclHomogenNumericTable;
+    return SyclHomogenNumericTable<T>::create(daal_data,
+                                              column_count,
+                                              row_count,
+                                              cl::sycl::usm::alloc::shared);
 }
 
 #endif

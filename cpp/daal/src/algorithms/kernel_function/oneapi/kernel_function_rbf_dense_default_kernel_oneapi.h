@@ -40,7 +40,7 @@ namespace internal
 {
 using namespace daal::data_management;
 using namespace daal::services;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 template <Method method, typename algorithmFPType>
 class KernelImplRBFOneAPI : public Kernel
@@ -74,7 +74,8 @@ protected:
     static services::Status lazyAllocate(UniversalBuffer & x, const size_t n);
 
     static services::Status computeRBF(const UniversalBuffer & sqrMatLeft, const UniversalBuffer & sqrMatRight, const uint32_t ld,
-                                       const algorithmFPType coeff, services::Buffer<algorithmFPType> & rbf, const size_t n, const size_t m);
+                                       const algorithmFPType coeff, services::internal::Buffer<algorithmFPType> & rbf, const size_t n,
+                                       const size_t m);
 
     services::Status computeInternalVectorVector(NumericTable * vecLeft, NumericTable * vecRight, NumericTable * result, const ParameterBase * par);
     services::Status computeInternalMatrixVector(NumericTable * matLeft, NumericTable * vecRight, NumericTable * result, const ParameterBase * par);

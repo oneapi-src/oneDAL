@@ -19,49 +19,64 @@
 
 namespace oneapi::dal::knn {
 
-class detail::infer_input_impl : public base {
+namespace detail {
+template <typename Task>
+class infer_input_impl : public base {
 public:
-    infer_input_impl(const table& data, const model& m) : data(data), trained_model(m) {}
+    infer_input_impl(const table& data, const model<Task>& m) : data(data), trained_model(m) {}
 
     table data;
-    model trained_model;
+    model<Task> trained_model;
 };
 
-class detail::infer_result_impl : public base {
+template <typename Task>
+class infer_result_impl : public base {
 public:
     table labels;
 };
+} // namespace detail
 
 using detail::infer_input_impl;
 using detail::infer_result_impl;
 
-infer_input::infer_input(const table& data, const model& m)
-        : impl_(new infer_input_impl(data, m)) {}
+template <typename Task>
+infer_input<Task>::infer_input(const table& data, const model<Task>& m)
+        : impl_(new infer_input_impl<Task>(data, m)) {}
 
-table infer_input::get_data() const {
+template <typename Task>
+const table& infer_input<Task>::get_data() const {
     return impl_->data;
 }
 
-model infer_input::get_model() const {
+template <typename Task>
+const model<Task>& infer_input<Task>::get_model() const {
     return impl_->trained_model;
 }
 
-void infer_input::set_data_impl(const table& value) {
+template <typename Task>
+void infer_input<Task>::set_data_impl(const table& value) {
     impl_->data = value;
 }
 
-void infer_input::set_model_impl(const model& value) {
+template <typename Task>
+void infer_input<Task>::set_model_impl(const model<Task>& value) {
     impl_->trained_model = value;
 }
 
-infer_result::infer_result() : impl_(new infer_result_impl{}) {}
+template <typename Task>
+infer_result<Task>::infer_result() : impl_(new infer_result_impl{}) {}
 
-const table& infer_result::get_labels() const {
+template <typename Task>
+const table& infer_result<Task>::get_labels() const {
     return impl_->labels;
 }
 
-void infer_result::set_labels_impl(const table& value) {
+template <typename Task>
+void infer_result<Task>::set_labels_impl(const table& value) {
     impl_->labels = value;
 }
+
+template class ONEAPI_DAL_EXPORT infer_input<task::classification>;
+template class ONEAPI_DAL_EXPORT infer_result<task::classification>;
 
 } // namespace oneapi::dal::knn

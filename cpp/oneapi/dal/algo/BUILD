@@ -1,7 +1,7 @@
 package(default_visibility = ["//visibility:public"])
 load("@onedal//dev/bazel:dal.bzl",
     "dal_collect_modules",
-    "dal_collect_tests",
+    "dal_collect_test_suites",
 )
 
 ALGOS = [
@@ -22,7 +22,7 @@ dal_collect_modules(
     modules = ALGOS,
 )
 
-dal_collect_tests(
+dal_collect_test_suites(
     name = "tests",
     root = "@onedal//cpp/oneapi/dal/algo",
     modules = ALGOS,

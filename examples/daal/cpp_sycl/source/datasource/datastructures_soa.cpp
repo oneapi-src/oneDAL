@@ -31,6 +31,10 @@
 
 using namespace daal;
 
+using daal::services::internal::SyclExecutionContext;
+using daal::data_management::internal::SyclSOANumericTable;
+using daal::data_management::internal::SyclSOANumericTablePtr;
+
 const char * toString(data_feature_utils::FeatureType v);
 const char * toString(data_feature_utils::InternalNumType v);
 
@@ -53,7 +57,7 @@ int main()
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
-        daal::services::SyclExecutionContext ctx(queue);
+        SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
         const size_t firstReadRow = 0;

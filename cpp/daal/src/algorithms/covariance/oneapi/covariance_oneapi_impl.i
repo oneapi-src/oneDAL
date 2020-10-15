@@ -24,7 +24,7 @@
 #ifndef __COVARIANCE_ONEAPI_IMPL_I__
 #define __COVARIANCE_ONEAPI_IMPL_I__
 
-#include "services/buffer.h"
+#include "services/internal/buffer.h"
 #include "data_management/data/numeric_table.h"
 #include "services/env_detect.h"
 #include "services/error_indexes.h"
@@ -35,7 +35,7 @@
 #include "src/services/service_data_utils.h"
 
 using namespace daal::services::internal;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 namespace daal
 {
@@ -85,12 +85,12 @@ static KernelNDRange getKernelNDRange(size_t localRangeSize, size_t globalRangeS
 }
 
 template <typename algorithmFPType, Method method>
-services::Status prepareSums(NumericTable * dataTable, const services::Buffer<algorithmFPType> & sumsBuffer)
+services::Status prepareSums(NumericTable * dataTable, const services::internal::Buffer<algorithmFPType> & sumsBuffer)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.prepareSums);
 
     const size_t nFeatures = dataTable->getNumberOfColumns();
-    auto & context         = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context         = services::internal::getDefaultContext();
     services::Status status;
 
     if (method == sumDense || method == sumCSR)
@@ -114,13 +114,13 @@ services::Status prepareSums(NumericTable * dataTable, const services::Buffer<al
 }
 
 template <typename algorithmFPType>
-services::Status prepareCrossProduct(size_t nFeatures, const services::Buffer<algorithmFPType> & crossProductBuffer)
+services::Status prepareCrossProduct(size_t nFeatures, const services::internal::Buffer<algorithmFPType> & crossProductBuffer)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.prepareCrossProduct);
 
     const algorithmFPType zero = 0.0;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
     services::Status status;
 
     context.fill(crossProductBuffer, zero, &status);
@@ -129,12 +129,12 @@ services::Status prepareCrossProduct(size_t nFeatures, const services::Buffer<al
 
 template <typename algorithmFPType, Method method>
 services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatures, size_t nVectors,
-                                                const services::Buffer<algorithmFPType> & dataBlock,
-                                                const services::Buffer<algorithmFPType> & crossProduct,
-                                                const services::Buffer<algorithmFPType> & sums)
+                                                const services::internal::Buffer<algorithmFPType> & dataBlock,
+                                                const services::internal::Buffer<algorithmFPType> & crossProduct,
+                                                const services::internal::Buffer<algorithmFPType> & sums)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateCrossProductAndSums);
-    auto & context              = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context              = services::internal::getDefaultContext();
     bool nonNormalizedFastDense = ((!isNormalized) && (method == defaultDense || method == sumDense));
 
     if (isNormalized || nonNormalizedFastDense)
@@ -180,10 +180,10 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
 }
 
 template <typename algorithmFPType>
-services::Status mergeCrossProduct(size_t nFeatures, const services::Buffer<algorithmFPType> & partialCrossProduct,
-                                   const services::Buffer<algorithmFPType> & partialSums, algorithmFPType partialNObservations,
-                                   const services::Buffer<algorithmFPType> & crossProduct, const services::Buffer<algorithmFPType> & sums,
-                                   algorithmFPType nObservations)
+services::Status mergeCrossProduct(size_t nFeatures, const services::internal::Buffer<algorithmFPType> & partialCrossProduct,
+                                   const services::internal::Buffer<algorithmFPType> & partialSums, algorithmFPType partialNObservations,
+                                   const services::internal::Buffer<algorithmFPType> & crossProduct,
+                                   const services::internal::Buffer<algorithmFPType> & sums, algorithmFPType nObservations)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.mergeCrossProduct);
 
@@ -194,7 +194,7 @@ services::Status mergeCrossProduct(size_t nFeatures, const services::Buffer<algo
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
     __buildProgram<algorithmFPType>(factory);
 
@@ -226,7 +226,8 @@ services::Status mergeCrossProduct(size_t nFeatures, const services::Buffer<algo
 }
 
 template <typename algorithmFPType, Method method>
-services::Status mergeSums(size_t nFeatures, const services::Buffer<algorithmFPType> & partialSums, const services::Buffer<algorithmFPType> & sums)
+services::Status mergeSums(size_t nFeatures, const services::internal::Buffer<algorithmFPType> & partialSums,
+                           const services::internal::Buffer<algorithmFPType> & sums)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.mergeSums);
     services::Status status;
@@ -240,9 +241,10 @@ services::Status mergeSums(size_t nFeatures, const services::Buffer<algorithmFPT
 
 template <typename algorithmFPType>
 services::Status prepareMeansAndCrossProductDiag(size_t nFeatures, algorithmFPType nObservations,
-                                                 const services::Buffer<algorithmFPType> & crossProduct,
-                                                 const services::Buffer<algorithmFPType> & diagCrossProduct,
-                                                 const services::Buffer<algorithmFPType> & sums, const services::Buffer<algorithmFPType> & mean)
+                                                 const services::internal::Buffer<algorithmFPType> & crossProduct,
+                                                 const services::internal::Buffer<algorithmFPType> & diagCrossProduct,
+                                                 const services::internal::Buffer<algorithmFPType> & sums,
+                                                 const services::internal::Buffer<algorithmFPType> & mean)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.prepareMeansAndCrossProductDiag);
 
@@ -253,7 +255,7 @@ services::Status prepareMeansAndCrossProductDiag(size_t nFeatures, algorithmFPTy
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
     __buildProgram<algorithmFPType>(factory);
 
@@ -276,9 +278,9 @@ services::Status prepareMeansAndCrossProductDiag(size_t nFeatures, algorithmFPTy
 }
 
 template <typename algorithmFPType>
-services::Status finalize(size_t nFeatures, algorithmFPType nObservations, const services::Buffer<algorithmFPType> & crossProduct,
-                          const services::Buffer<algorithmFPType> & cov, const services::Buffer<algorithmFPType> & diagCrossProduct,
-                          const Parameter * parameter)
+services::Status finalize(size_t nFeatures, algorithmFPType nObservations, const services::internal::Buffer<algorithmFPType> & crossProduct,
+                          const services::internal::Buffer<algorithmFPType> & cov,
+                          const services::internal::Buffer<algorithmFPType> & diagCrossProduct, const Parameter * parameter)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.finalize);
 
@@ -289,7 +291,7 @@ services::Status finalize(size_t nFeatures, algorithmFPType nObservations, const
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
     __buildProgram<algorithmFPType>(factory);
 
@@ -317,8 +319,8 @@ services::Status finalize(size_t nFeatures, algorithmFPType nObservations, const
 }
 
 template <typename algorithmFPType, Method method>
-services::Status calculateCrossProductAndSums(NumericTable * dataTable, const services::Buffer<algorithmFPType> & crossProduct,
-                                              const services::Buffer<algorithmFPType> & sums)
+services::Status calculateCrossProductAndSums(NumericTable * dataTable, const services::internal::Buffer<algorithmFPType> & crossProduct,
+                                              const services::internal::Buffer<algorithmFPType> & sums)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.calculateCrossProductAndSums);
     services::Status status;
@@ -347,14 +349,14 @@ services::Status calculateCrossProductAndSums(NumericTable * dataTable, const se
 }
 
 template <typename algorithmFPType, Method method>
-services::Status finalizeCovariance(size_t nFeatures, algorithmFPType nObservations, const services::Buffer<algorithmFPType> & crossProduct,
-                                    const services::Buffer<algorithmFPType> & sums, const services::Buffer<algorithmFPType> & cov,
-                                    const services::Buffer<algorithmFPType> & mean, const Parameter * parameter)
+services::Status finalizeCovariance(size_t nFeatures, algorithmFPType nObservations, const services::internal::Buffer<algorithmFPType> & crossProduct,
+                                    const services::internal::Buffer<algorithmFPType> & sums, const services::internal::Buffer<algorithmFPType> & cov,
+                                    const services::internal::Buffer<algorithmFPType> & mean, const Parameter * parameter)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.finalizeCovariance);
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     auto diagCrossProduct = context.allocate(TypeIds::id<algorithmFPType>(), nFeatures, &status);
     DAAL_CHECK_STATUS_VAR(status);

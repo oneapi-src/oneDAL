@@ -22,8 +22,8 @@
 */
 
 #include "services/env_detect.h"
-#include "sycl/internal/execution_context.h"
-#include "sycl/internal/types.h"
+#include "services/internal/sycl/execution_context.h"
+#include "services/internal/sycl/types.h"
 #include "src/sycl/blas_gpu.h"
 #include "src/algorithms/kmeans/oneapi/kmeans_lloyd_distr_step1_kernel_ucapi.h"
 
@@ -34,7 +34,7 @@ DAAL_ITTNOTIFY_DOMAIN(kmeans.dense.lloyd.distr.step1.oneapi);
 using namespace daal::internal;
 using namespace daal::services::internal;
 using namespace daal::services;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 using namespace daal::data_management;
 
 namespace daal

@@ -106,7 +106,7 @@ Examples
 
       Batch Processing:
 
-      - :ref:`cpp_pca_cor_dense_batch.cpp`
+      - :ref:`cpp_pca_dense_batch.cpp`
 
    .. tab:: C++ (CPU)
 

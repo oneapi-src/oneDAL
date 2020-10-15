@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "data_management/data/numeric_table_sycl_homogen.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 #include "src/algorithms/linear_model/linear_model_model_impl.h"
 #include "data_management/data/homogen_numeric_table.h"
 
@@ -28,13 +28,14 @@ namespace linear_model
 namespace internal
 {
 using namespace daal::data_management;
+using daal::data_management::internal::SyclHomogenNumericTable;
 
 template <typename modelFPType>
 ModelInternal::ModelInternal(size_t nFeatures, size_t nResponses, const Parameter & par, modelFPType dummy) : _interceptFlag(par.interceptFlag)
 {
     services::Status st;
 
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)

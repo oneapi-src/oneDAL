@@ -37,22 +37,23 @@ namespace prediction
 {
 namespace internal
 {
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 // Heaviside step function
 template <typename algorithmFPType, prediction::Method method>
-services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::heaviside(const services::Buffer<algorithmFPType> & x,
-                                                                              services::Buffer<algorithmFPType> & result, const uint32_t n)
+services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::heaviside(const services::internal::Buffer<algorithmFPType> & x,
+                                                                              services::internal::Buffer<algorithmFPType> & result, const uint32_t n)
 {
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     const services::String options = getKeyFPType<algorithmFPType>();
     services::String cachekey("__daal_algorithms_logistic_regression_prediction_");
     cachekey.add(options);
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelLogisticResgression, options.c_str());
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelLogisticResgression, options.c_str(), &status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "heaviside";
     KernelPtr kernel              = factory.getKernel(kernelName);
@@ -70,19 +71,20 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::heaviside(co
 
 // Index max elements for each row
 template <typename algorithmFPType, prediction::Method method>
-services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::argMax(const services::Buffer<algorithmFPType> & x,
-                                                                           services::Buffer<algorithmFPType> & result, const uint32_t n,
+services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::argMax(const services::internal::Buffer<algorithmFPType> & x,
+                                                                           services::internal::Buffer<algorithmFPType> & result, const uint32_t n,
                                                                            const uint32_t p)
 {
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     const services::String options = getKeyFPType<algorithmFPType>();
     services::String cachekey("__daal_algorithms_logistic_regression_prediction_");
     cachekey.add(options);
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelLogisticResgression, options.c_str());
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelLogisticResgression, options.c_str(), &status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "argMax";
     KernelPtr kernel              = factory.getKernel(kernelName);
@@ -106,7 +108,7 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::compute(serv
 {
     services::Status status;
 
-    auto & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & ctx = services::internal::getDefaultContext();
 
     const daal::algorithms::logistic_regression::internal::ModelImpl * pModel =
         static_cast<const daal::algorithms::logistic_regression::internal::ModelImpl *>(m);
@@ -121,7 +123,7 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::compute(serv
     // X
     BlockDescriptor<algorithmFPType> xBlock;
     DAAL_CHECK_STATUS(status, x->getBlockOfRows(0, n, ReadWriteMode::readOnly, xBlock));
-    const services::Buffer<algorithmFPType> xBuff = xBlock.getBuffer();
+    const services::internal::Buffer<algorithmFPType> xBuff = xBlock.getBuffer();
 
     // Beta
     DAAL_ASSERT(beta->getNumberOfRows() == nClasses);
@@ -129,11 +131,11 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::compute(serv
 
     BlockDescriptor<algorithmFPType> betaBlock;
     DAAL_CHECK_STATUS(status, beta->getBlockOfRows(0, p, ReadWriteMode::readOnly, betaBlock));
-    const services::Buffer<algorithmFPType> betaBuff = betaBlock.getBuffer();
+    const services::internal::Buffer<algorithmFPType> betaBuff = betaBlock.getBuffer();
 
     //compute
     DAAL_CHECK_STATUS(status, HelperObjectiveFunction::lazyAllocate(_fUniversal, n * p));
-    services::Buffer<algorithmFPType> fBuf = _fUniversal.get<algorithmFPType>();
+    services::internal::Buffer<algorithmFPType> fBuf = _fUniversal.get<algorithmFPType>();
 
     const uint32_t offset = uint32_t(1);
 
@@ -146,7 +148,7 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::compute(serv
     {
         DAAL_CHECK_STATUS(status, CrossEntropyLoss::applyBeta(xBuff, betaBuff, fBuf, n, nClasses, p, p + 1, offset));
         DAAL_CHECK_STATUS(status, HelperObjectiveFunction::lazyAllocate(_oneVector, n));
-        services::Buffer<algorithmFPType> oneVectorBuf = _oneVector.get<algorithmFPType>();
+        services::internal::Buffer<algorithmFPType> oneVectorBuf = _oneVector.get<algorithmFPType>();
         ctx.fill(_oneVector, 1.0, &status);
 
         DAAL_CHECK_STATUS(status, CrossEntropyLoss::betaIntercept(oneVectorBuf, betaBuff, fBuf, n, nClasses, p + 1));
@@ -163,7 +165,7 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::compute(serv
 
         BlockDescriptor<algorithmFPType> rawBlock;
         DAAL_CHECK_STATUS(status, pRaw->getBlockOfRows(0, n, ReadWriteMode::writeOnly, rawBlock));
-        services::Buffer<algorithmFPType> aRawBuff = rawBlock.getBuffer();
+        services::internal::Buffer<algorithmFPType> aRawBuff = rawBlock.getBuffer();
 
         if (isBinary)
         {
@@ -184,7 +186,7 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::compute(serv
 
                 BlockDescriptor<algorithmFPType> logProbBlock;
                 DAAL_CHECK_STATUS(status, pLogProb->getBlockOfRows(0, n, ReadWriteMode::writeOnly, logProbBlock));
-                services::Buffer<algorithmFPType> logProbBuff = logProbBlock.getBuffer();
+                services::internal::Buffer<algorithmFPType> logProbBuff = logProbBlock.getBuffer();
 
                 DAAL_CHECK_STATUS(status, math::vLog(aRawBuff, logProbBuff, n * nClasses));
 
@@ -205,7 +207,7 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::compute(serv
 
         BlockDescriptor<algorithmFPType> yBlock;
         DAAL_CHECK_STATUS(status, pRes->getBlockOfRows(0, n, ReadWriteMode::readWrite, yBlock));
-        services::Buffer<algorithmFPType> yBuff = yBlock.getBuffer();
+        services::internal::Buffer<algorithmFPType> yBuff = yBlock.getBuffer();
 
         if (isBinary)
         {

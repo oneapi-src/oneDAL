@@ -54,7 +54,7 @@ The model is trained with the One-Against-One method that uses the
 binary classification described in
 [Hsu02]_ as follows:
 For each pair of classes :math:`(i, j)`, train a binary classifier, such
-as SVM. The total number of such binary classifiers is :math:`K(K-1)/2`.
+as SVM. The total number of such binary classifiers is :math:`\frac{K(K-1)}{2}`.
 
 Prediction Stage
 ----------------
@@ -158,7 +158,7 @@ Prediction
 At the prediction stage, a multi-class classifier has the following parameters:
 
 .. list-table::
-   :widths: 10 20 30 25
+   :widths: 10 10 10 30
    :header-rows: 1
    :align: left
 
@@ -177,7 +177,7 @@ At the prediction stage, a multi-class classifier has the following parameters:
      - Available methods for multi-class classifier prediction stage:
 
        -  ``defaultDense`` - the method described in [Wu04]_
-       -  ``voteBasedthe`` method based on the votes obtained from two-class classifiers.
+       -  ``voteBased`` - the method based on the votes obtained from two-class classifiers.
 
    * - ``tmethod``
      - ``defaultDense`` or ``voteBased``
@@ -199,6 +199,43 @@ At the prediction stage, a multi-class classifier has the following parameters:
      - ``defaultDense``
      - 1.0e-12
      - The prediction accuracy.
+   * - ``resultsToEvaluate``
+     - ``voteBased``
+     - ``computeClassLabels``
+     - The 64-bit integer flag that specifies which extra characteristics of the decision function to compute.
+       
+       Provide one of the following values to request a single characteristic 
+       or use bitwise OR to request a combination of the characteristics:
+
+       - ``computeClassLabels`` for `prediction`
+       - ``computeDecisionFunction`` for `decisionFunction`
+
+Output
+------
+
+In addition to classifier output, multiclass classifier calculates the result described below.
+Pass the ``Result ID`` as a parameter to the methods that access the result of your algorithm.
+For more details, see :ref:`algorithms`.
+
+.. list-table::
+   :widths: 10 60
+   :header-rows: 1
+   :align: left
+
+   * - Result ID
+     - Result
+   * - ``decisionFunction``
+     - A numeric table of size :math:`n \times \frac{K(K-1)}{2}` containing the results of the decision function
+       computed for all binary models when the ``computeDecisionFunction`` option is enabled.
+
+.. note::
+
+  If `resultsToEvaluate` does not contain `computeDecisionFunction`, the result of `decisionFunction` table is `NULL`.
+
+  By default, each numeric table of this result is an object of the ``HomogenNumericTable`` class,
+  but you can define the result as an object of any class derived from ``NumericTable``
+  except for ``PackedSymmetricMatrix`` and ``PackedTriangularMatrix``.
+
 
 Examples
 --------

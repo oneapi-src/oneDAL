@@ -15,11 +15,20 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __SERVICES_INTERNAL_BUFFER_H__
-#define __SERVICES_INTERNAL_BUFFER_H__
+/*
+//++
+// Declaration and implementation of the shared pointer class.
+//--
+*/
 
-#include "services/base.h"
-#include "services/buffer_view.h"
+#ifndef __DAAL_SERVICES_BUFFER_H__
+#define __DAAL_SERVICES_BUFFER_H__
+
+#include "services/internal/buffer_impl.h"
+
+#ifdef DAAL_SYCL_INTERFACE
+    #include "services/internal/buffer_impl_sycl.h"
+#endif
 
 namespace daal
 {
@@ -27,103 +36,180 @@ namespace services
 {
 namespace internal
 {
+namespace interface1
+{
 /**
- * @ingroup memory
+ * @ingroup sycl
  * @{
  */
 
 /**
- * <a name="DAAL-CLASS-SERVICES__INTERNAL__BUFFER"></a>
- * \brief  Class that provides simple memory management routines for handling blocks
- *         of continues memory, also provides automatic memory deallocation. Note this
- *         class doesn't provide functionality for objects constructions and simply allocates
- *         and deallocates memory. In case of objects consider Collection or ObjectPtrCollection
- * \tparam T Type of elements which are stored in the buffer
+ *  <a name="DAAL-CLASS-SERVICES__BUFFER"></a>
+ *  \brief Wrapper for a SYCL* buffer
+ *  Can hold data on the host side using shared pointer,
+ *  or on host/device sides using SYCL* buffer
  */
 template <typename T>
 class Buffer : public Base
 {
 public:
-    Buffer() : _buffer(NULL), _size(0) {}
+    /**
+     *   Creates empty Buffer object
+     */
+    Buffer() {}
 
-    explicit Buffer(size_t size, services::Status * status = NULL)
+#ifdef DAAL_SYCL_INTERFACE
+    /**
+     *  Creates a Buffer object referencing a SYCL* buffer
+     *  Does not copy the data from the SYCL* buffer
+     */
+    Buffer(const cl::sycl::buffer<T, 1> & buffer) : _impl(new internal::SyclBuffer<T>(buffer)) {}
+#endif
+
+#ifdef DAAL_SYCL_INTERFACE_USM
+    /**
+     *  Creates a Buffer object referencing a USM pointer
+     *  Does not copy the data from the USM pointer
+     *  \param[in] usmData    Pointer to the USM-allocated data
+     *  \param[in] size       Number of elements of type T stored in USM memory block
+     *  \param[in] allocType  USM allocation type
+     */
+    Buffer(T * usmData, size_t size, cl::sycl::usm::alloc allocType) : _impl(new internal::UsmBuffer<T>(usmData, size, allocType)) {}
+#endif
+
+#ifdef DAAL_SYCL_INTERFACE_USM
+    /**
+     *  Creates a Buffer object referencing a USM pointer
+     *  Does not copy the data from the USM pointer
+     *  \param[in] usmData    Shared pointer to the USM-allocated data
+     *  \param[in] size       Number of elements of type T stored in USM block
+     *  \param[in] allocType  USM allocation type
+     */
+    Buffer(const SharedPtr<T> & usmData, size_t size, cl::sycl::usm::alloc allocType) : _impl(new internal::UsmBuffer<T>(usmData, size, allocType)) {}
+#endif
+
+    /**
+     *   Creates a Buffer object from host-allocated raw pointer
+     *   Buffer does not own this pointer
+     */
+    Buffer(T * data, size_t size) : _impl(new internal::HostBuffer<T>(data, size)) {}
+
+    /**
+     *   Creates a Buffer object referencing the shared pointer to the host-allocated data
+     */
+    Buffer(const SharedPtr<T> & data, size_t size) : _impl(new internal::HostBuffer<T>(data, size)) {}
+
+    /**
+     *  Returns true if Buffer points to any data
+     */
+    operator bool() const { return _impl; }
+
+    /**
+     *  Returns true if Buffer is equal to \p other
+     */
+    bool operator==(const Buffer & other) const { return _impl.get() == other._impl.get(); }
+
+    /**
+     *  Returns true if Buffer is not equal to \p other
+     */
+    bool operator!=(const Buffer & other) const { return _impl.get() != other._impl.get(); }
+
+    /**
+     *  Converts data inside the buffer to the host side
+     *  \param[in]  rwFlag  Access flag to the data
+     *  \param[out] status  Status of operation
+     *  \return host-allocated shared pointer to the data
+     */
+    SharedPtr<T> toHost(const data_management::ReadWriteMode & rwFlag, Status * status = NULL) const
     {
-        services::Status localStatus = reallocate(size);
-        services::internal::tryAssignStatusAndThrow(status, localStatus);
-    }
-
-    virtual ~Buffer() { destroy(); }
-
-    void destroy()
-    {
-        services::daal_free((void *)_buffer);
-        _buffer = NULL;
-        _size   = 0;
-    }
-
-    services::Status reallocate(size_t size, bool copy = false)
-    {
-        if (_size == size)
+        if (!_impl)
         {
-            return services::Status();
+            internal::tryAssignStatusAndThrow(status, ErrorEmptyBuffer);
+            return SharedPtr<T>();
         }
 
-        T * buffer = (T *)services::daal_calloc(sizeof(T) * size);
-        if (!buffer)
+        return internal::HostBufferConverter<T>().toHost(*_impl, rwFlag, status);
+    }
+
+#ifdef DAAL_SYCL_INTERFACE
+    /**
+     *  Converts buffer to the SYCL* buffer
+     *  \return one-dimensional SYCL* buffer
+     */
+    cl::sycl::buffer<T, 1> toSycl(Status * status = NULL) const
+    {
+        if (!_impl)
         {
-            return services::throwIfPossible(services::ErrorMemoryAllocationFailed);
+            internal::tryAssignStatusAndThrow(status, ErrorEmptyBuffer);
+            return cl::sycl::buffer<T, 1>(cl::sycl::range<1>(1));
+        }
+        return internal::SyclBufferConverter<T>().toSycl(*_impl);
+    }
+#endif
+
+#ifdef DAAL_SYCL_INTERFACE_USM
+    /**
+     *  Converts buffer to the USM shared pointer
+     *  \param[out] status Status of operation
+     *  \return USM shared pointer
+     */
+    SharedPtr<T> toUSM(Status * status = NULL) const
+    {
+        if (!_impl)
+        {
+            internal::tryAssignStatusAndThrow(status, ErrorEmptyBuffer);
+            return SharedPtr<T>();
         }
 
-        if (copy)
+        return internal::SyclBufferConverter<T>().toUSM(*_impl);
+    }
+#endif
+
+    /**
+     *   Returns the total number of elements in the buffer
+     */
+    size_t size() const
+    {
+        if (!_impl)
         {
-            for (size_t i = 0; i < _size; i++)
-            {
-                _buffer[i] = buffer[i];
-            }
+            return 0;
         }
-
-        destroy();
-
-        _size   = size;
-        _buffer = buffer;
-        return services::Status();
+        return _impl->size();
     }
 
-    services::Status enlarge(size_t factor = 2, bool copy = false) { return reallocate(_size * factor, copy); }
+    /**
+     *   Drops underlying reference to the data from the buffer and makes it empty
+     */
+    void reset() { _impl.reset(); }
 
-    size_t size() const { return _size; }
-
-    T * data() const { return _buffer; }
-
-    T * offset(size_t elementsOffset) const
+    /**
+     *  Creates Buffer object that points to the same memory as a parent but with offset
+     *  \param[in]  offset  Offset in elements from start of the parent buffer
+     *  \param[in]  size    Number of elements in the sub-buffer
+     *  \param[out] status  Status of operation
+     *  \return Buffer that contains only a part of the original buffer
+     */
+    Buffer<T> getSubBuffer(size_t offset, size_t size, Status * status = NULL) const
     {
-        DAAL_ASSERT(elementsOffset <= _size);
-        return _buffer + elementsOffset;
+        if (!_impl)
+        {
+            internal::tryAssignStatusAndThrow(status, ErrorEmptyBuffer);
+            return Buffer<T>();
+        }
+        return Buffer<T>(_impl->getSubBuffer(offset, size));
     }
-
-    T & operator[](size_t index)
-    {
-        DAAL_ASSERT(index < _size);
-        return _buffer[index];
-    }
-
-    const T & operator[](size_t index) const
-    {
-        DAAL_ASSERT(index < _size);
-        return _buffer[index];
-    }
-
-    services::BufferView<T> view() const { return services::BufferView<T>(_buffer, _size); }
 
 private:
-    Buffer(const Buffer &);
-    Buffer & operator=(const Buffer &);
+    explicit Buffer(internal::BufferIface<T> * impl) : _impl(impl) {}
+    explicit Buffer(const SharedPtr<internal::BufferIface<T> > & impl) : _impl(impl) {}
 
-private:
-    T * _buffer;
-    size_t _size;
+    SharedPtr<internal::BufferIface<T> > _impl;
 };
+
 /** @} */
+} // namespace interface1
+
+using interface1::Buffer;
 
 } // namespace internal
 } // namespace services

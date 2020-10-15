@@ -37,6 +37,9 @@ using namespace std;
 using namespace daal;
 using namespace daal::algorithms::gbt::regression;
 
+using daal::services::internal::SyclExecutionContext;
+using daal::data_management::internal::SyclHomogenNumericTable;
+
 /* Input data set parameters */
 const string trainDatasetFileName         = "../data/batch/df_regression_train.csv";
 const string testDatasetFileName          = "../data/batch/df_regression_test.csv";
@@ -61,7 +64,7 @@ int main(int argc, char * argv[])
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
-        daal::services::SyclExecutionContext ctx(queue);
+        SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
         training::ResultPtr trainingResult = trainModel();

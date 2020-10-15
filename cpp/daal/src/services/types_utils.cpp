@@ -15,13 +15,15 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "sycl/internal/types_utils.h"
+#include "services/internal/sycl/types_utils.h"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace interface1
 {
@@ -34,6 +36,7 @@ services::String getKeyFPType(TypeId typeId)
 }
 
 } // namespace interface1
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal

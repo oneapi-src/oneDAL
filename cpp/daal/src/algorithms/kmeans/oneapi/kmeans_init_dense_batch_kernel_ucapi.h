@@ -24,8 +24,8 @@
 #ifndef _KMEANS_INIT_DENSE_BATCH_KERNEL_UCAPI_H
 #define _KMEANS_INIT_DENSE_BATCH_KERNEL_UCAPI_H
 
-#include "sycl/internal/types.h"
-#include "sycl/internal/execution_context.h"
+#include "services/internal/sycl/types.h"
+#include "services/internal/sycl/execution_context.h"
 #include "algorithms/kmeans/kmeans_init_types.h"
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
@@ -54,9 +54,10 @@ private:
     services::Status init(size_t p, size_t n, size_t nRowsTotal, size_t nClusters, NumericTable * ntClusters, NumericTable * ntData,
                           unsigned int seed, engines::BatchBase & engine, size_t & clustersFound);
 
-    void gatherRandom(oneapi::internal::ExecutionContextIface & context, const oneapi::internal::KernelPtr & kernel_gather_random,
-                      const services::Buffer<algorithmFPType> & data, const services::Buffer<algorithmFPType> & clusters,
-                      oneapi::internal::UniversalBuffer & indices, uint32_t nRows, uint32_t nClusters, uint32_t nFeatures, services::Status * st);
+    void gatherRandom(services::internal::sycl::ExecutionContextIface & context, const services::internal::sycl::KernelPtr & kernel_gather_random,
+                      const services::internal::Buffer<algorithmFPType> & data, const services::internal::Buffer<algorithmFPType> & clusters,
+                      services::internal::sycl::UniversalBuffer & indices, uint32_t nRows, uint32_t nClusters, uint32_t nFeatures,
+                      services::Status * st);
 
     uint32_t getWorkgroupsCount(uint32_t rows);
 

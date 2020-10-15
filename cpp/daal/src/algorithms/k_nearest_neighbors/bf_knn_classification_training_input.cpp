@@ -64,8 +64,6 @@ services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter)
 
     if (par != NULL)
     {
-        DAAL_CHECK_EX((par->nClasses > 1) && (par->nClasses < INT_MAX), services::ErrorIncorrectParameter, services::ParameterName, nClassesStr());
-
         if ((par->resultsToEvaluate & daal::algorithms::classifier::computeClassLabels) != 0)
         {
             data_management::NumericTablePtr labelsTable = get(classifier::training::labels);
@@ -76,6 +74,7 @@ services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter)
             data_management::BlockDescriptor<int> yBD;
             const_cast<data_management::NumericTable *>(labelsTable.get())->getBlockOfRows(0, nRows, data_management::readOnly, yBD);
             const int * const dy = yBD.getBlockPtr();
+            DAAL_CHECK_MALLOC(dy);
             for (size_t i = 0; i < nRows; ++i)
             {
                 flag |= (dy[i] >= nClasses);

@@ -38,6 +38,9 @@ using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::algorithms::logistic_regression;
 
+using daal::services::internal::SyclExecutionContext;
+using daal::data_management::internal::SyclHomogenNumericTable;
+
 /* Input data set parameters */
 const string trainDatasetFileName = "../data/batch/logreg_train.csv";
 const string testDatasetFileName  = "../data/batch/logreg_test.csv";
@@ -59,7 +62,7 @@ int main(int argc, char * argv[])
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
-        services::SyclExecutionContext ctx(queue);
+        SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
         /* Create Numeric Tables for training data and dependent variables */

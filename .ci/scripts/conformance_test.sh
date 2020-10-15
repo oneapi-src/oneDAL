@@ -52,5 +52,5 @@ export LD_LIBRARY_PATH=${BUILD_DIR}/tbb/latest/lib/intel64:$LD_LIBRARY_PATH
 # testing
 cd .ci/scripts/conformance-scripts/ || exit 1
 export IDP_SKLEARN_VERBOSE=INFO
-python run_tests.py ${PYTHON_VERSION}
+python run_tests.py ${PYTHON_VERSION} || exit 1
 cd ../../..
