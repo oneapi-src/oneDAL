@@ -92,6 +92,55 @@ struct MinVal<float>
     DAAL_FORCEINLINE static constexpr float get() { return FLT_MIN; }
 };
 
+template<typename TypeToConvert, typename TypeFromConvert>
+DAAL_FORCEINLINE services::Status check_conversion_overflow(TypeFromConvert var)
+{
+    return (var < services::internal::MaxVal<TypeToConvert>::get()) ? 
+        services::Status() : sevices::Status(services::ErrorID::ErrorConversionOverFlow);
+}
+
+#define DAAL_CHECK_OVERFLOW(var, type, status)          \
+{                                                       \
+    (status) |= check_conversion_overflow<type>((var)); \
+}
+
+#define DAAL_ASSERT_OVERFLOW(var, type)                 \
+{                                                       \
+    auto st = check_conversion_overflow<type>((var));   \
+    if(!st.ok()) return st;
+}
+
+template<typename TypeToConvert, typename TypeFromConvert>
+DAAL_FORCEINLINE services::Status check_conversion_underflow(TypeFromConvert var)
+{
+    return (services::internal::MinVal<TypeToConvert>::get() < var) ? 
+        services::Status() : sevices::Status(services::ErrorID::ErrorConversionUnderFlow);
+}
+
+#define DAAL_CHECK_UNDERFLOW(var, type, status) \
+(status) |= check_conversion_underflow<type>((var));
+
+#define DAAL_ASSERT_UNDERFLOW(var, type)                \
+{                                                       \
+    auto st = check_conversion_underflow<type>((var));  \
+    if(!st.ok()) return st;
+}
+
+template<typename TypeToConvert, typename TypeFromConvert>
+DAAL_FORCEINLINE services::Status check_conversion_xflow(TypeFromConvert var)
+{
+    return check_conversion_overflow<TypeToConvert>(var) | check_conversion_underflow<TypeToConvert>(var);
+}
+
+#define DAAL_CHECK_XFLOW(var, type, status) \
+(status) |= check_conversion_xflow<type>((var));
+
+#define DAAL_ASSERT_XFLOW(var, type)                \
+{                                                       \
+    auto st = check_conversion_xflow<type>((var));  \
+    if(!st.ok()) return st;
+}
+
 template <typename T>
 struct EpsilonVal
 {

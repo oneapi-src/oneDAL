@@ -28,6 +28,8 @@
 #include "src/algorithms/linear_regression/oneapi/linear_regression_train_kernel_oneapi.h"
 #include "services/internal/execution_context.h"
 #include "src/algorithms/linear_regression/oneapi/cl_kernel/helper_beta_copy.cl"
+#include "services/internal/sycl/daal_defines_sycl.h"
+#include "src/services/service_data_utils.h"
 
 namespace daal
 {
@@ -55,6 +57,7 @@ services::Status KernelHelperOneAPI<algorithmFPType>::copyBetaToResult(const ser
                                                                        const size_t nResponses, const bool interceptFlag) const
 {
     services::Status status;
+
     const size_t nBetasIntercept = interceptFlag ? nBetas : (nBetas - 1);
     const size_t intercept       = interceptFlag ? 1 : 0;
 
