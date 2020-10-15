@@ -178,7 +178,7 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(const Numer
         }
         DAAL_CHECK_STATUS_VAR(st);
         // sort labels of closest neighbors
-        RadixSort::sort(selectResult.indices, sortedLabels, radixBuffer, curQueryRange.count, k, k, &st);
+        RadixSort::sort(selectResult.indices, sortedLabels, radixBuffer, curQueryRange.count, k, k, st);
         DAAL_CHECK_STATUS_VAR(st);
         BlockDescriptor<algorithmFpType> labelsBlock;
         DAAL_CHECK_STATUS_VAR(y->getBlockOfRows(curQueryRange.startIndex, curQueryRange.count, writeOnly, labelsBlock));
