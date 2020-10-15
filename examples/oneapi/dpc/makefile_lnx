@@ -25,7 +25,7 @@ help:
 	@echo
 	@echo "name              - example name. Please see daal.lst file"
 	@echo
-	@echo "compiler_name     - currently can be dpc++ only that stands
+	@echo "compiler_name     - currently can be dpcpp only that stands
 	@echo "                    for oneAPI DPC++ Compiler."
 	@echo
 	@echo "threading_name    - can be parallel or sequential in case CPU"

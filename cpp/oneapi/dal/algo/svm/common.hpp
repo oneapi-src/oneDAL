@@ -56,7 +56,7 @@ private:
 };
 
 template <typename Float, typename Method>
-class ONEAPI_DAL_EXPORT kernel_function<linear_kernel::descriptor<Float, Method>>
+class kernel_function<linear_kernel::descriptor<Float, Method>>
         : public base, public kernel_function_iface {
 public:
     using kernel_t = linear_kernel::descriptor<Float, Method>;
@@ -69,7 +69,7 @@ private:
 };
 
 template <typename Float, typename Method>
-class ONEAPI_DAL_EXPORT kernel_function<rbf_kernel::descriptor<Float, Method>>
+class kernel_function<rbf_kernel::descriptor<Float, Method>>
         : public base, public kernel_function_iface {
 public:
     using kernel_t = rbf_kernel::descriptor<Float, Method>;

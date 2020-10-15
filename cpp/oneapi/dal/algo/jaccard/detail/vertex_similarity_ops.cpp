@@ -24,7 +24,7 @@ namespace jaccard {
 namespace detail {
 
 template <typename Policy, typename Float, class Method, typename Graph>
-ONEAPI_DAL_EXPORT vertex_similarity_result
+vertex_similarity_result
 vertex_similarity_ops_dispatcher<Policy, Float, Method, Graph>::operator()(
     const Policy &policy,
     const descriptor_base &desc,

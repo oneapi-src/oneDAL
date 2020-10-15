@@ -67,10 +67,10 @@ C.COMPILE.gcc_toolchain := $(GCC_TOOLCHAIN_PATH)
 endif
 
 DPC.COMPILE.gcc_toolchain := $(GCC_TOOLCHAIN_PATH)
-include dev/make/cmplr.dpcpp.mk
 endif
 
 include dev/make/cmplr.$(COMPILER).mk
+include dev/make/cmplr.dpcpp.mk
 
 $(if $(filter $(PLATs.$(COMPILER)),$(PLAT)),,$(error PLAT for $(COMPILER) must be defined to one of $(PLATs.$(COMPILER))))
 
@@ -791,15 +791,21 @@ $(WORKDIR.lib)/$(oneapi_y.dpc): \
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(daaldep.rt.dpc)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.dll=%_dll.lib),)
-$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y.dpc:%.dll=%_dll.lib))
+$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.dll=%_dll.lib))
+$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),sycl.lib OpenCL.lib)
+$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),$(mklgpufpk.LIBS_A))
 ifdef OS_is_win
 $(WORKDIR.lib)/$(oneapi_y.dpc:%.dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y.dpc)
 endif
 
 $(ONEAPI.tmpdir_y)/dll.res: $(VERSION_DATA_FILE)
-$(ONEAPI.tmpdir_y)/dll.res: RCOPT += $(addprefix -I, $(CORE.incdirs.common))
-$(ONEAPI.tmpdir_y)/%.res: %.rc | $(ONEAPI.tmpdir_y)/. ; $(RC.COMPILE)
+$(ONEAPI.tmpdir_y)/dll.res: RCOPT += $(addprefix -I, $(WORKDIR) $(CORE.SERV.srcdir))
+$(ONEAPI.tmpdir_y)/dll.res: $(CPPDIR.onedal)/dll.rc | $(ONEAPI.tmpdir_y)/. ; $(RC.COMPILE)
 
+$(ONEAPI.tmpdir_y.dpc)/dll.res: $(VERSION_DATA_FILE)
+$(ONEAPI.tmpdir_y.dpc)/dll.res: RCOPT += $(addprefix -I, $(WORKDIR) $(CORE.SERV.srcdir)) \
+                                         -DONEDAL_DLL_RC_DATA_PARALLEL
+$(ONEAPI.tmpdir_y.dpc)/dll.res: $(CPPDIR.onedal)/dll.rc | $(ONEAPI.tmpdir_y)/. ; $(RC.COMPILE)
 
 #===============================================================================
 # Threading parts

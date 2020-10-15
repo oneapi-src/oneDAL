@@ -32,7 +32,7 @@ namespace pca
 {
 namespace internal
 {
-template class PCACorrelationKernelBatchUCAPI<DAAL_FPTYPE>;
+template class DAAL_EXPORT PCACorrelationKernelBatchUCAPI<DAAL_FPTYPE>;
 } // namespace internal
 } // namespace pca
 } // namespace algorithms

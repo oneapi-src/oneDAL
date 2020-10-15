@@ -66,7 +66,7 @@ kernel_function_impl *kernel_function<linear_kernel_t<F, M>>::get_impl() const {
     return impl_.get();
 }
 
-#define INSTANTIATE_LINEAR(F, M) template class kernel_function<linear_kernel_t<F, M>>;
+#define INSTANTIATE_LINEAR(F, M) template class ONEAPI_DAL_EXPORT kernel_function<linear_kernel_t<F, M>>;
 
 INSTANTIATE_LINEAR(float, linear_kernel::method::dense)
 INSTANTIATE_LINEAR(float, linear_kernel::method::csr)
