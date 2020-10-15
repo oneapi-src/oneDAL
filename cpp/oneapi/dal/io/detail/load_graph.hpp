@@ -62,7 +62,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     using vertex_t = typename graph_traits<Graph>::vertex_type;
     using edge_t = typename graph_traits<Graph>::edge_type;
     using atomic_t = typename daal::services::Atomic<vertex_t>;
-    using vector_vertex_t = typename Graph::impl_type::vertex_set;
+    using vector_vertex_t = typename graph_traits<Graph>::vertex_set;
 
     vertex_t max_id = edges[0].first;
     for (auto u : edges) {
