@@ -29,10 +29,9 @@ CORE.SERV.COMPILER.dpcpp = generic
 -DEBC.dpcpp = -g
 
 COMPILER.lnx.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64) -stdlib=libstdc++ -fgnu-runtime -fwrapv
-COMPILER.win.dpcpp = clang-cl -fsycl -fms-extensions -nologo -EHsc -WX -Wno-deprecated-declarations
+COMPILER.win.dpcpp = dpcpp -nologo -WX -Wno-deprecated-declarations
 
 link.dynamic.lnx.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64)
-link.dynamic.lnx.dpcpp = clang-cl -fsycl -fms-extensions
 
 p4_OPT.dpcpp   = -march=nocona
 mc_OPT.dpcpp   = -march=core2
