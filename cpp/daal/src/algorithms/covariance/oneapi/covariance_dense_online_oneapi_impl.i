@@ -26,7 +26,6 @@
 
 #include "src/algorithms/covariance/oneapi/covariance_kernel_oneapi.h"
 #include "src/algorithms/covariance/oneapi/covariance_oneapi_impl.i"
-#include <iostream>
 
 using namespace daal::services::internal::sycl;
 
