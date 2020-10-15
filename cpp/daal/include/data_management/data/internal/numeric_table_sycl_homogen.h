@@ -364,7 +364,6 @@ protected:
     }
 
 private:
-
     static services::Status checkSizeOverflow(size_t nRows, size_t nCols)
     {
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, nCols);
@@ -444,7 +443,7 @@ private:
         }
     };
 
-    services::internal::Buffer<DataType> getSubBuffer(size_t rowOffset, size_t nRows, services::Status& st)
+    services::internal::Buffer<DataType> getSubBuffer(size_t rowOffset, size_t nRows, services::Status & st)
     {
         DAAL_ASSERT(rowOffset < getNumberOfRows());
         DAAL_ASSERT(nRows <= getNumberOfRows());
@@ -504,10 +503,10 @@ private:
 
         if (block.getRWFlag() & (int)writeOnly)
         {
-            const size_t nCols     = getNumberOfColumns();
-            const size_t nRows     = getNumberOfRows();
-            const size_t nRowsBlock     = block.getNumberOfRows();
-            const size_t rowOffset = block.getRowsOffset();
+            const size_t nCols      = getNumberOfColumns();
+            const size_t nRows      = getNumberOfRows();
+            const size_t nRowsBlock = block.getNumberOfRows();
+            const size_t rowOffset  = block.getRowsOffset();
 
             status |= checkOffsetOverflow(nRowsBlock, rowOffset);
             DAAL_CHECK_STATUS_VAR(status);
