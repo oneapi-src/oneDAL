@@ -1107,7 +1107,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         DAAL_CHECK_STATUS_VAR(connector.template convertToGbtDecisionTree<sse2>(binValues.data(), nNodes, maxLevel, pTbl, pTblImp->getArray(),
                                                                                 pTblSmplCnt->getArray(), initResp, par));
         modelImpl.add(pTbl, pTblImp, pTblSmplCnt);
-
         initResp = 0.0;
     }
 
