@@ -25,6 +25,8 @@
 #define __SERVICE_DATA_UTILS_H__
 
 #include "src/services/service_defines.h"
+#include "services/error_handling.h"
+#include "services/error_indexes.h"
 
 namespace daal
 {
@@ -99,17 +101,6 @@ DAAL_FORCEINLINE services::Status check_conversion_overflow(TypeFromConvert var)
         services::Status() : sevices::Status(services::ErrorID::ErrorConversionOverFlow);
 }
 
-#define DAAL_CHECK_OVERFLOW(var, type, status)          \
-{                                                       \
-    (status) |= check_conversion_overflow<type>((var)); \
-}
-
-#define DAAL_ASSERT_OVERFLOW(var, type)                 \
-{                                                       \
-    auto st = check_conversion_overflow<type>((var));   \
-    if(!st.ok()) return st;
-}
-
 template<typename TypeToConvert, typename TypeFromConvert>
 DAAL_FORCEINLINE services::Status check_conversion_underflow(TypeFromConvert var)
 {
@@ -117,28 +108,10 @@ DAAL_FORCEINLINE services::Status check_conversion_underflow(TypeFromConvert var
         services::Status() : sevices::Status(services::ErrorID::ErrorConversionUnderFlow);
 }
 
-#define DAAL_CHECK_UNDERFLOW(var, type, status) \
-(status) |= check_conversion_underflow<type>((var));
-
-#define DAAL_ASSERT_UNDERFLOW(var, type)                \
-{                                                       \
-    auto st = check_conversion_underflow<type>((var));  \
-    if(!st.ok()) return st;
-}
-
 template<typename TypeToConvert, typename TypeFromConvert>
 DAAL_FORCEINLINE services::Status check_conversion_xflow(TypeFromConvert var)
 {
     return check_conversion_overflow<TypeToConvert>(var) | check_conversion_underflow<TypeToConvert>(var);
-}
-
-#define DAAL_CHECK_XFLOW(var, type, status) \
-(status) |= check_conversion_xflow<type>((var));
-
-#define DAAL_ASSERT_XFLOW(var, type)                \
-{                                                       \
-    auto st = check_conversion_xflow<type>((var));  \
-    if(!st.ok()) return st;
 }
 
 template <typename T>
@@ -183,5 +156,32 @@ void vectorStrideConvertFuncCpu(size_t n, void * src, size_t srcByteStride, void
 } // namespace internal
 } // namespace services
 } // namespace daal
+
+#define DAAL_CHECK_CONVERSION_OVERFLOW(var, type, status)                       \
+(status) |= daal::services::internal::check_conversion_overflow<type>((var));   \
+
+#define DAAL_ASSERT_CONVERSION_OVERFLOW(var, type)                              \
+{                                                                               \
+    auto st = daal::services::internal::check_conversion_overflow<type>((var)); \
+    if(!st.ok()) return st;                                                     \
+}
+
+#define DAAL_CHECK_CONVERSION_UNDERFLOW(var, type, status)                      \
+(status) |= daal::services::internal::check_conversion_underflow<type>((var));
+
+#define DAAL_ASSERT_CONVERSION_UNDERFLOW(var, type)                             \
+{                                                                               \
+    auto st = daal::services::internal::check_conversion_underflow<type>((var));\
+    if(!st.ok()) return st;                                                     \
+}
+
+#define DAAL_CHECK_CONVERSION_XFLOW(var, type, status)                          \
+(status) |= daal::services::internal::check_conversion_xflow<type>((var));
+
+#define DAAL_ASSERT_CONVERSION_XFLOW(var, type)                                 \
+{                                                                               \
+    auto st = daal::services::internal::check_conversion_xflow<type>((var));    \
+    if(!st.ok()) return st;                                                     \
+}
 
 #endif

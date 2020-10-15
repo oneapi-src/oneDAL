@@ -48,6 +48,7 @@ services::Status KernelHelperOneAPI<algorithmFPType>::computeBetasImpl(const siz
                                                                        const size_t ny, services::internal::Buffer<algorithmFPType> & b,
                                                                        const bool inteceptFlag) const
 {
+    DAAL
     return linear_model::normal_equations::training::internal::FinalizeKernelOneAPI<algorithmFPType>::solveSystem(p, a, ny, b);
 }
 
@@ -74,10 +75,13 @@ services::Status KernelHelperOneAPI<algorithmFPType>::copyBetaToResult(const ser
 
     KernelArguments args(5);
     args.set(0, betaTmp, AccessModeIds::read);
-    args.set(1, nBetas);
-    args.set(2, nBetasIntercept);
+    DAAL_ASSERT_CONVERSION_XFLOW(nBetas, uint32_t);
+    args.set(1, /*uint nCols = */static_cast<uint32_t>(nBetas));
+    DAAL_ASSERT_CONVERSION_XFLOW(nBetasIntercept, uint32_t);
+    args.set(2, /*uint nColsSrcs = */static_cast<uint32_t>(nBetasIntercept));
     args.set(3, betaRes, AccessModeIds::write);
-    args.set(4, intercept);
+    DAAL_ASSERT_CONVERSION_XFLOW(intercept, uint32_t);
+    args.set(4, /*uint intercept = */static_cast<uint32_t>(intercept));
 
     KernelRange range(nResponses, nBetas);
 
