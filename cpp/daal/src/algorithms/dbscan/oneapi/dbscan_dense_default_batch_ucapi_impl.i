@@ -326,7 +326,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::getCores(const Univers
     args.set(4, data, AccessModeIds::read);
     args.set(5, _isCore, AccessModeIds::write);
 
-    uint32_t rangeWidth = nFeatures < _maxSubgroupSize ? nFeatures : _maxSubgroupSize;
+    const uint32_t rangeWidth = (nFeatures < _maxSubgroupSize) ? nFeatures : _maxSubgroupSize;
     KernelRange localRange(1, rangeWidth);
     KernelRange globalRange(nRows, rangeWidth);
 
