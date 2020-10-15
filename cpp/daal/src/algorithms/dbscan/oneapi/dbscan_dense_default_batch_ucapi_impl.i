@@ -209,7 +209,14 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
     uint32_t queueBegin = 0;
     uint32_t queueEnd   = 0;
 
-    DAAL_CHECK_STATUS_VAR(getCores(data, nRows, nFeatures, par->minObservations, epsP));
+    if(_useWeights)
+    {
+        DAAL_CHECK_STATUS_VAR(getCoresWithWeights(data, nRows, nFeatures, par->minObservations, epsP));
+    }
+    else 
+    {
+        DAAL_CHECK_STATUS_VAR(getCores(data, nRows, nFeatures, par->minObservations, epsP));
+    }
 
     bool foundCluster = false;
     DAAL_CHECK_STATUS_VAR(startNextCluster(nClusters, nRows, queueEnd, assignments, foundCluster));
