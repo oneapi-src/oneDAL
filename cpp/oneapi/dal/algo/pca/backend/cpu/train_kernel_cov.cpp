@@ -20,13 +20,15 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
-
 #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::pca::backend {
 
-using std::int64_t;
 using dal::backend::context_cpu;
+using model_t = model<task::dim_reduction>;
+using input_t = train_input<task::dim_reduction>;
+using result_t = train_result<task::dim_reduction>;
+using descriptor_t = descriptor_base<task::dim_reduction>;
 
 namespace daal_pca = daal::algorithms::pca;
 namespace daal_cov = daal::algorithms::covariance;
@@ -35,13 +37,13 @@ namespace interop = dal::backend::interop;
 template <typename Float, daal::CpuType Cpu>
 using daal_pca_cor_kernel_t = daal_pca::internal::PCACorrelationKernel<daal::batch, Float, Cpu>;
 
-template <typename Float, typename Task>
-static train_result<Task> call_daal_kernel(const context_cpu& ctx,
-                                           const descriptor_base<Task>& desc,
-                                           const table& data) {
-    const int64_t row_count = data.get_row_count();
-    const int64_t column_count = data.get_column_count();
-    const int64_t component_count = desc.get_component_count();
+template <typename Float>
+static result_t call_daal_kernel(const context_cpu& ctx,
+                                 const descriptor_t& desc,
+                                 const table& data) {
+    const std::int64_t row_count = data.get_row_count();
+    const std::int64_t column_count = data.get_column_count();
+    const std::int64_t component_count = desc.get_component_count();
 
     auto arr_data = row_accessor<const Float>{ data }.pull();
     auto arr_eigvec = array<Float>::empty(column_count * component_count);
@@ -66,8 +68,8 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     covariance_alg.input.set(daal_cov::data, daal_data);
 
     constexpr bool is_correlation = false;
-    constexpr uint64_t results_to_compute =
-        int64_t(daal_pca::mean | daal_pca::variance | daal_pca::eigenvalue);
+    constexpr std::uint64_t results_to_compute =
+        std::uint64_t(daal_pca::mean | daal_pca::variance | daal_pca::eigenvalue);
 
     interop::status_to_exception(
         interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(ctx,
@@ -82,14 +84,14 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                 *daal_variances));
 
     // clang-format off
-    const auto mdl = model<Task>{}
+    const auto mdl = model_t{}
         .set_eigenvectors(
             dal::detail::homogen_table_builder{}
                 .reset(arr_eigvec, component_count, column_count)
                 .build()
         );
 
-    return train_result<Task>()
+    return result_t{}
         .set_model(mdl)
         .set_eigenvalues(
             dal::detail::homogen_table_builder{}
@@ -109,20 +111,17 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     // clang-format on
 }
 
-template <typename Float, typename Task>
-static train_result<Task> train(const context_cpu& ctx,
-                                const descriptor_base<Task>& desc,
-                                const train_input<Task>& input) {
-    return call_daal_kernel<Float, Task>(ctx, desc, input.get_data());
+template <typename Float>
+static result_t train(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
+    return call_daal_kernel<Float>(ctx, desc, input.get_data());
 }
 
 template <typename Float>
 struct train_kernel_cpu<Float, method::cov, task::dim_reduction> {
-    train_result<task::dim_reduction> operator()(
-        const context_cpu& ctx,
-        const descriptor_base<task::dim_reduction>& desc,
-        const train_input<task::dim_reduction>& input) const {
-        return train<Float, task::dim_reduction>(ctx, desc, input);
+    result_t operator()(const context_cpu& ctx,
+                        const descriptor_t& desc,
+                        const input_t& input) const {
+        return train<Float>(ctx, desc, input);
     }
 };
 
