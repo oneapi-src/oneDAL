@@ -69,6 +69,52 @@ public:
     ModelBuilder(size_t nFeatures, size_t nClasses);
 
     /**
+     *  Method to set betas to model via NumericTablePtr, size of NumericTable have to be equal to (_nFeatures)*_nClasses
+     *  in case when intercept flag is suppose to be false and (_nFeatures + 1)*_nClasses when intercept flag is true
+     *  \param[in] beta       NumericTablePtr represent support vectors
+     */
+    void setBeta(const data_management::NumericTablePtr & beta)
+    {
+        data_management::BlockDescriptor<modelFPType> pBlock, pBlockBeta;
+        const size_t nVectorsBeta = _nClasses == 2 ? 1 : _nClasses;
+        _modelPtr->getBeta()->getBlockOfRows(0, nVectorsBeta, data_management::writeOnly, pBlock);
+        beta->getBlockOfRows(0, nVectorsBeta, data_management::readOnly, pBlockBeta);
+        modelFPType * sp      = pBlock.getBlockPtr();
+        modelFPType * spBeta  = pBlockBeta.getBlockPtr();
+        const size_t betaSize = beta->getNumberOfRows() * beta->getNumberOfColumns();
+        if (betaSize == _nFeatures * nVectorsBeta)
+        {
+            setInterceptFlag(false);
+            for (size_t i = 0, j = 0; j < betaSize; ++j, ++i)
+            {
+                if (i % (_nFeatures + 1) == 0)
+                {
+                    sp[i] = 0;
+                    ++i;
+                }
+                sp[i] = spBeta[j];
+            }
+        }
+        else if (betaSize == (_nFeatures + 1) * nVectorsBeta)
+        {
+            setInterceptFlag(true);
+            for (size_t i = 0; i < betaSize; ++i)
+            {
+                sp[i] = spBeta[i];
+            }
+        }
+        else
+        {
+            _s = services::Status(services::ErrorIncorrectParameter);
+            _modelPtr->getBeta()->releaseBlockOfRows(pBlock);
+            services::throwIfPossible(_s);
+            return;
+        }
+        _modelPtr->getBeta()->releaseBlockOfRows(pBlock);
+        beta->releaseBlockOfRows(pBlockBeta);
+    }
+
+    /**
      *  Method to set betas to model via random access iterator, last - first value have to be equal to (_nFeatures)*_nClasses
      *  in case when intercept flag is suppose to be false and (_nFeatures + 1)*_nClasses when intercept flag is true
      * \tparam RandomIterator Random access iterator type for access to values of suport vectors
