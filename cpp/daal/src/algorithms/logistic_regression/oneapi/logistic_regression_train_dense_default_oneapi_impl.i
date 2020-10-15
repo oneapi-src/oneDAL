@@ -27,7 +27,7 @@
 
 #include "algorithms/optimization_solver/objective_function/logistic_loss_batch.h"
 #include "algorithms/optimization_solver/objective_function/cross_entropy_loss_batch.h"
-#include "data_management/data/numeric_table_sycl_homogen.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 
 #include "src/externals/service_ittnotify.h"
 DAAL_ITTNOTIFY_DOMAIN(logistic_regression.training.batch.oneapi);
@@ -45,7 +45,7 @@ namespace internal
 using namespace daal::algorithms::logistic_regression::training::internal;
 using namespace daal::algorithms::optimization_solver;
 using namespace daal::data_management;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 template <typename algorithmFPType, Method method>
 services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const services::HostAppIfacePtr & pHost, const NumericTablePtr & x,
@@ -61,7 +61,7 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
     const size_t nClasses    = par.nClasses;
     const TypeIds::Id idType = TypeIds::id<algorithmFPType>();
 
-    auto & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & ctx = services::internal::getDefaultContext();
 
     services::SharedPtr<optimization_solver::iterative_solver::Batch> pSolver = par.optimizationSolver->clone();
     pSolver->setHostApp(pHost);
@@ -90,13 +90,14 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
     const size_t nBetaRows  = m.getBeta()->getNumberOfRows();
     const size_t nBetaTotal = nBeta * nBetaRows;
 
-    UniversalBuffer argumentU                      = ctx.allocate(idType, nBetaTotal, &status);
-    services::Buffer<algorithmFPType> argumentBuff = argumentU.get<algorithmFPType>();
+    UniversalBuffer argumentU                                = ctx.allocate(idType, nBetaTotal, &status);
+    services::internal::Buffer<algorithmFPType> argumentBuff = argumentU.get<algorithmFPType>();
 
-    auto argumentSNT = data_management::SyclHomogenNumericTable<algorithmFPType>::create(argumentBuff, 1, nBetaTotal, &status);
+    auto argumentSNT = data_management::internal::SyclHomogenNumericTable<algorithmFPType>::create(argumentBuff, 1, nBetaTotal, &status);
     DAAL_CHECK_STATUS_VAR(status);
 
     ctx.fill(argumentU, 0.0, &status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     //initialization
     if (nClasses == 2)
@@ -126,6 +127,8 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
         const int * pnIterations = nIterationsBlock.getBlockPtr();
 
         NumericTablePtr nIterationsOut = data_management::HomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, pnIterations[0], &status);
+        DAAL_CHECK_STATUS_VAR(status);
+
         par.optimizationSolver->getResult()->set(optimization_solver::iterative_solver::nIterations, nIterationsOut);
         DAAL_CHECK_STATUS(status, nIterationsNT->releaseBlockOfRows(nIterationsBlock));
     }
@@ -134,7 +137,7 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
     BlockDescriptor<algorithmFPType> minimumBlock;
     DAAL_CHECK_STATUS(status, minimumSNT->getBlockOfRows(0, nBetaTotal, ReadWriteMode::readOnly, minimumBlock));
 
-    services::Buffer<algorithmFPType> minimumBuff = minimumBlock.getBuffer();
+    services::internal::Buffer<algorithmFPType> minimumBuff = minimumBlock.getBuffer();
 
     data_management::NumericTablePtr betaNT = m.getBeta();
     {
@@ -142,8 +145,9 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
 
         DAAL_CHECK_STATUS(status, betaNT->getBlockOfRows(0, nBetaRows, ReadWriteMode::writeOnly, dataRows));
 
-        services::Buffer<algorithmFPType> betaBuff = dataRows.getBuffer();
+        services::internal::Buffer<algorithmFPType> betaBuff = dataRows.getBuffer();
         ctx.copy(betaBuff, 0, minimumBuff, 0, nBetaTotal, &status);
+        DAAL_CHECK_STATUS_VAR(status);
 
         if (!par.interceptFlag)
         {

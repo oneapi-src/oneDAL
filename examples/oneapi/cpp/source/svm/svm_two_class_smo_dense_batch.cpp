@@ -40,7 +40,7 @@ int main(int argc, char const *argv[]) {
             .set_c(1.0)
             .set_accuracy_threshold(0.001)
             .set_max_iteration_count(1000)
-            .set_cache_size(8)
+            .set_cache_size(200.0)
             .set_shrinking(true)
             .set_tau(1e-6);
 

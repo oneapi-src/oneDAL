@@ -33,6 +33,9 @@ using namespace daal;
 using namespace daal::services;
 using namespace daal::data_management;
 
+using daal::services::internal::SyclExecutionContext;
+using daal::data_management::internal::SyclHomogenNumericTable;
+
 #define IS_USM_SUPPORTED (defined(__SYCL_COMPILER_VERSION)) && (__SYCL_COMPILER_VERSION >= 20191001)
 
 uint32_t generateMinStd(uint32_t x)

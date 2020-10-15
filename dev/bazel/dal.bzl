@@ -32,17 +32,17 @@ load("@onedal//dev/bazel/config:config.bzl",
     "CpuInfo",
 )
 
-def dal_module(name, features=[], hdrs=[], srcs=[],
+def dal_module(name, hdrs=[], srcs=[],
                dal_deps=[], extra_deps=[],
                host_hdrs=[], host_srcs=[], host_deps=[],
                dpc_hdrs=[], dpc_srcs=[], dpc_deps=[],
-               auto=False, host=True, dpc=True,
-               local_defines=[], **kwargs):
+               auto=False, host=True, dpc=True, **kwargs):
+    _check_target_name(name, host, dpc)
     if auto:
         hpp_filt = ["**/*.hpp"]
         cpp_filt = ["**/*.cpp"]
         dpc_filt = ["**/*_dpc.cpp"]
-        test_filt = ["**/*_test*"]
+        test_filt = ["**/*_test*", "**/test/**"]
         hdrs_all = native.glob(hpp_filt, exclude=test_filt)
         dpc_auto_hdrs = hdrs_all
         dpc_auto_srcs = native.glob(cpp_filt, exclude=test_filt)
@@ -53,26 +53,23 @@ def dal_module(name, features=[], hdrs=[], srcs=[],
         host_auto_srcs = []
         dpc_auto_hdrs = []
         dpc_auto_srcs = []
-    if host:
-        _dal_module(
-            name = name,
-            features = features,
-            hdrs = hdrs + host_auto_hdrs + host_hdrs,
-            srcs = srcs + host_auto_srcs + host_srcs,
-            deps = dal_deps + host_deps + extra_deps,
-            local_defines = local_defines,
-            **kwargs,
-        )
-    if dpc:
-        _dal_module(
-            name = name + "_dpc",
-            features = ["dpc++"] + features,
-            hdrs = hdrs + dpc_auto_hdrs + dpc_hdrs,
-            srcs = srcs + dpc_auto_srcs + dpc_srcs,
-            deps = _get_dpc_deps(dal_deps) + dpc_deps + extra_deps,
-            local_defines = local_defines + [ "ONEAPI_DAL_DATA_PARALLEL" ],
-            **kwargs,
-        )
+    _add_module_if_condition(
+        condition = host,
+        name = _remove_dpc_suffix(name),
+        hdrs = hdrs + host_auto_hdrs + host_hdrs,
+        srcs = srcs + host_auto_srcs + host_srcs,
+        deps = dal_deps + host_deps + extra_deps,
+        **kwargs,
+    )
+    _add_module_if_condition(
+        condition = dpc,
+        name = _get_dpc_target_name(name, host, dpc),
+        hdrs = hdrs + dpc_auto_hdrs + dpc_hdrs,
+        srcs = srcs + dpc_auto_srcs + dpc_srcs,
+        deps = _get_dpc_deps(dal_deps) + dpc_deps + extra_deps,
+        is_dpc = True,
+        **kwargs,
+    )
 
 def dal_collect_modules(name, root, modules, dal_deps=[], **kwargs):
     module_deps = []
@@ -105,7 +102,8 @@ def dal_public_includes(name, dal_deps=[], **kwargs):
     )
 
 def dal_static_lib(name, lib_name, dal_deps=[], host_deps=[],
-                   dpc_deps=[], extra_deps=[], lib_tags=["dal"], **kwargs):
+                   dpc_deps=[], extra_deps=[], lib_tags=["dal"],
+                   **kwargs):
     cc_static_lib(
         name = name,
         lib_name = lib_name,
@@ -114,15 +112,16 @@ def dal_static_lib(name, lib_name, dal_deps=[], host_deps=[],
         **kwargs
     )
     cc_static_lib(
-        name = name + "_dpc",
-        lib_name = lib_name + "_dpc",
+        name = _get_dpc_target_name(name, True, True),
+        lib_name = _get_dpc_target_name(lib_name, True, True),
         lib_tags = lib_tags,
         deps = _get_dpc_deps(dal_deps) + extra_deps + dpc_deps,
         **kwargs
     )
 
 def dal_dynamic_lib(name, lib_name, dal_deps=[], host_deps=[],
-                   dpc_deps=[], extra_deps=[], lib_tags=["dal"], **kwargs):
+                    dpc_deps=[], extra_deps=[], lib_tags=["dal"],
+                    **kwargs):
     cc_dynamic_lib(
         name = name,
         lib_name = lib_name,
@@ -131,70 +130,137 @@ def dal_dynamic_lib(name, lib_name, dal_deps=[], host_deps=[],
         **kwargs
     )
     cc_dynamic_lib(
-        name = name + "_dpc",
-        lib_name = lib_name + "_dpc",
+        name = _get_dpc_target_name(name, True, True),
+        lib_name = _get_dpc_target_name(lib_name, True, True),
         lib_tags = lib_tags,
         deps = _get_dpc_deps(dal_deps) + extra_deps + dpc_deps,
         **kwargs
     )
 
-def dal_test(name, dal_deps=[], test_deps=[], data=[],
-             gtest=True, tags=[], **kwargs):
-    # TODO: Add support for DPC++
-    _dal_module(
-        name = "_" + name,
-        deps = select({
-            "@config//:dev_test_link_mode": [
-                "@onedal//cpp/daal:threading_static",
-            ] + dal_deps,
+def dal_test(name, hdrs=[], srcs=[],
+             dal_deps=[], extra_deps=[],
+             host_hdrs=[], host_srcs=[], host_deps=[],
+             dpc_hdrs=[], dpc_srcs=[], dpc_deps=[],
+             host=True, dpc=True, framework="gtest",
+             data=[], tags=[], **kwargs):
+    # TODO: Refactor this rule once decision on the tests structure is made
+    if not framework in ["gtest", "catch2", "none"]:
+        fail("Unknown test framework '{}' in test rule '{}'".format(framework, name))
+    gtest = (framework == "gtest")
+    catch2 = (framework == "catch2")
+    module_name = "__" + name
+    if not host and dpc:
+        module_name = _remove_dpc_suffix(module_name) + "_dpc"
+    dal_module(
+        name = module_name,
+        hdrs = hdrs,
+        srcs = srcs,
+        host_hdrs = host_hdrs,
+        host_srcs = host_srcs,
+        host_deps = host_deps,
+        dpc_hdrs = dpc_hdrs,
+        dpc_srcs = dpc_srcs,
+        dpc_deps = dpc_deps,
+        host = host,
+        dpc = dpc,
+        dal_deps = _select({
+            "@config//:dev_test_link_mode": dal_deps,
             "@config//:static_test_link_mode": [
                 "@onedal//cpp/oneapi/dal:static",
+            ],
+            "@config//:dynamic_test_link_mode": [
+                "@onedal//cpp/oneapi/dal:dynamic",
+            ],
+            "@config//:release_static_test_link_mode": [
+                "@onedal_release//:onedal_static",
+            ],
+            "@config//:release_dynamic_test_link_mode": [
+                "@onedal_release//:onedal_dynamic",
+            ],
+        }) + ([
+            "@onedal//cpp/oneapi/dal/test:common",
+        ] if catch2 else []),
+        extra_deps = _select({
+            "@config//:dev_test_link_mode": [
+                "@onedal//cpp/daal:threading_static",
+            ],
+            "@config//:static_test_link_mode": [
                 "@onedal//cpp/daal:core_static",
                 "@onedal//cpp/daal:threading_static",
             ],
             "@config//:dynamic_test_link_mode": [
-                "@onedal//cpp/oneapi/dal:dynamic",
                 "@onedal//cpp/daal:core_dynamic",
                 "@onedal//cpp/daal:threading_dynamic",
             ],
             "@config//:release_static_test_link_mode": [
-                "@onedal_release//:onedal_static",
                 "@onedal_release//:core_static",
                 "@onedal//cpp/daal:threading_release_static",
             ],
             "@config//:release_dynamic_test_link_mode": [
-                "@onedal_release//:onedal_dynamic",
                 "@onedal_release//:core_dynamic",
                 "@onedal//cpp/daal:threading_release_dynamic",
             ],
-        }) + test_deps + ([
+        }) + ([
             "@gtest//:gtest_main",
-        ] if gtest else []),
+        ] if gtest else []) + ([
+            "@onedal//cpp/oneapi/dal/test:catch2_main",
+        ] if catch2 else []) +
+        extra_deps,
+        testonly = True,
         **kwargs,
     )
-    cc_test(
-        name = name,
-        deps = [ ":_" + name ],
-        data = data,
-        tags = tags,
-    )
+    if host:
+        cc_test(
+            name = name,
+            deps = [ ":" + module_name ],
+            data = data,
+            tags = tags + ["host"],
+        )
+    if dpc:
+        cc_test(
+            name = _get_dpc_target_name(name, host, dpc),
+            features = [ "dpc++" ],
+            deps = [
+                ":" + _get_dpc_target_name(module_name, host, dpc),
+                "@opencl//:opencl_binary",
+            ],
+            data = data,
+            tags = tags + ["dpc"],
+        )
 
-def dal_test_suite(name, srcs=[], tests=[], **kwargs):
+def dal_test_suite(name, srcs=[], tests=[], host_tests=[], dpc_tests=[],
+                   host=True, dpc=True, **kwargs):
+    _check_target_name(name, host, dpc)
     targets = []
+    targets_dpc = []
     for test_file in srcs:
         target = test_file.replace(".cpp", "").replace("/", "_")
         dal_test(
             name = target,
             srcs = [test_file],
+            host = host,
+            dpc = dpc,
             **kwargs,
         )
-        targets.append(":" + target)
-    native.test_suite(
-        name = name,
-        tests = tests + targets,
+        if host:
+            targets.append(":" + target)
+        if dpc:
+            targets_dpc.append(":" + _get_dpc_target_name(target, host, dpc))
+    # TODO: Empty test_suites (where the field tests = []) run all
+    # tests in package (not sure bug or feature of Bazel). Probably,
+    # need to create test suite with one fake test to workaround it.
+    _add_test_suite_if_condition(
+        condition = host,
+        name = _remove_dpc_suffix(name),
+        tests = tests + host_tests + targets,
+    )
+    _add_test_suite_if_condition(
+        condition = dpc,
+        name = _get_dpc_target_name(name, host, dpc),
+        tests = _get_dpc_deps(tests) + dpc_tests + targets_dpc,
     )
 
-def dal_collect_tests(name, root, modules, tests=[], **kwargs):
+def dal_collect_test_suites(name, root, modules, tests=[], **kwargs):
     test_deps = []
     for module_name in modules:
         test_label = "{0}/{1}:tests".format(root, module_name)
@@ -212,7 +278,7 @@ def dal_example(name, dal_deps=[], **kwargs):
             "@onedal//cpp/oneapi/dal:core",
             "@onedal//cpp/oneapi/dal/io",
         ] + dal_deps,
-        gtest = False,
+        framework = "none",
         **kwargs,
     )
 
@@ -271,22 +337,45 @@ dal_generate_cpu_dispatcher = rule(
     },
 )
 
-def _dal_module(name, lib_tag="dal", features=[], **kwargs):
+def _dal_module(name, lib_tag="dal", is_dpc=False, features=[],
+                local_defines=[], deps=[], **kwargs):
     cc_module(
         name = name,
         lib_tag = lib_tag,
-        features = [ "pedantic", "c++17" ] + features,
+        features = [ "pedantic", "c++17" ] + features + (
+            ["dpc++"] if is_dpc else []
+        ),
         disable_mic = True,
         cpu_defines = {
-            "sse2":   [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_default" ],
-            "ssse3":  [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_ssse3"   ],
-            "sse42":  [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_sse42"   ],
-            "avx":    [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx"     ],
-            "avx2":   [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx2"    ],
-            "avx512": [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx512"  ],
+            "sse2":   [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_sse2"   ],
+            "ssse3":  [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_ssse3"  ],
+            "sse42":  [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_sse42"  ],
+            "avx":    [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx"    ],
+            "avx2":   [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx2"   ],
+            "avx512": [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx512" ],
         },
+        local_defines = local_defines + ([
+            "DAAL_SYCL_INTERFACE",
+            "ONEAPI_DAL_DATA_PARALLEL"
+        ] if is_dpc else []),
+        deps = _expand_select(deps),
         **kwargs,
     )
+
+def _add_module_if_condition(condition, name, is_dpc=False, **kwargs):
+    if condition:
+        _dal_module(name=name, is_dpc=is_dpc, **kwargs)
+    else:
+        _dal_module(name=name, is_dpc=is_dpc)
+
+def _add_test_suite_if_condition(condition, name, **kwargs):
+    if condition:
+        native.test_suite(name=name, **kwargs)
+    else:
+        native.test_suite(name=name)
+
+def _select(x):
+    return [x]
 
 def _normalize_dep(dep):
     if dep.rfind(":") > 0:
@@ -297,9 +386,55 @@ def _normalize_dep(dep):
     package_name = dep[last_slash_index + 1:].rstrip()
     return dep + ":" + package_name
 
-def _normalize_deps(deps):
-    return [_normalize_dep(x) for x in deps]
+def _get_dpc_dep_name(name):
+    return _normalize_dep(name) + "_dpc"
 
 def _get_dpc_deps(deps):
-    normalized_deps = _normalize_deps(deps)
-    return [x + "_dpc" for x in normalized_deps]
+    normalized = []
+    for dep in deps:
+        if type(dep) == "dict":
+            normalized_dep = {}
+            for key, value in dep.items():
+                normalized_dep[key] = [
+                    _get_dpc_dep_name(x) for x in value
+                ]
+            normalized.append(normalized_dep)
+        else:
+            normalized.append(_get_dpc_dep_name(dep))
+    return normalized
+
+def _expand_select(deps):
+    expanded = []
+    for dep in deps:
+        if type(dep) == 'dict':
+            expanded += select(dep)
+        else:
+            expanded += [dep]
+    return expanded
+
+def _check_target_name(name, host, dpc, suffix="_dpc"):
+    if not (host or dpc):
+        fail("Target must specify at leat one of " +
+             "`host = True` or `dpc = True`")
+    if not host and dpc and not name.endswith(suffix):
+        fail("Target names that defined with `host = False` " +
+             "and `dpc = True` must end with `{}` suffix".format(suffix))
+
+def _get_dpc_target_name(name, host, dpc, suffix="_dpc"):
+    return name + (suffix if host else "")
+
+def _remove_dpc_suffix(name, suffix="_dpc"):
+    index = name.rfind(suffix)
+    if index > 0:
+        return name[:index + 1]
+    else:
+        return name
+
+def _check_test_target_name(name, host, dpc, suffix="_dpc_test"):
+    _check_target_name(name, host, dpc, suffix)
+
+def _get_dpc_test_target_name(name, host, dpc, suffix="_dpc_test"):
+    return _get_dpc_target_name(name, host, dpc, suffix)
+
+def _remove_dpc_test_suffix(name, suffix="_dpc_test"):
+    return _remove_dpc_suffix(name, suffix)

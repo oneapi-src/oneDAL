@@ -25,7 +25,7 @@
 #define __NUMERIC_TABLE_H__
 
 #include "services/base.h"
-#include "services/buffer.h"
+#include "services/internal/buffer.h"
 #include "services/daal_defines.h"
 #include "services/daal_memory.h"
 #include "services/error_handling.h"
@@ -108,11 +108,11 @@ public:
      *  Gets a Buffer object to the data block
      *  \return Buffer to the block
      */
-    inline daal::services::Buffer<DataType> getBuffer() const
+    inline daal::services::internal::Buffer<DataType> getBuffer() const
     {
         if (_rawPtr)
         {
-            return daal::services::Buffer<DataType>((DataType *)_rawPtr, _ncols * _nrows);
+            return daal::services::internal::Buffer<DataType>((DataType *)_rawPtr, _ncols * _nrows);
         }
         else if (_xBuffer)
         {
@@ -120,7 +120,7 @@ public:
         }
         else
         {
-            return daal::services::Buffer<DataType>(_ptr, _ncols * _nrows);
+            return daal::services::internal::Buffer<DataType>(_ptr, _ncols * _nrows);
         }
     }
 
@@ -187,7 +187,7 @@ public:
      *  \param[in] nColumns Number of columns
      *  \param[in] nRows Number of rows
      */
-    inline void setBuffer(const daal::services::Buffer<DataType> & buffer, size_t nColumns, size_t nRows)
+    inline void setBuffer(const daal::services::internal::Buffer<DataType> & buffer, size_t nColumns, size_t nRows)
     {
         _xBuffer = buffer;
         _hostSharedPtr.reset();
@@ -329,7 +329,7 @@ private:
     services::SharedPtr<byte> * _pPtr;
     byte * _rawPtr;
 
-    daal::services::Buffer<DataType> _xBuffer;
+    daal::services::internal::Buffer<DataType> _xBuffer;
     mutable services::SharedPtr<DataType> _hostSharedPtr; // owns pointer returned from getBlockPtr() method
 };
 

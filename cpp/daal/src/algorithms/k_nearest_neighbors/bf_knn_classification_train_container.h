@@ -18,7 +18,7 @@
 #ifndef __BF_KNN_CLASSIFICATION_TRAIN_CONTAINER_H__
 #define __BF_KNN_CLASSIFICATION_TRAIN_CONTAINER_H__
 
-#include "sycl/internal/execution_context.h"
+#include "services/internal/sycl/execution_context.h"
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "services/daal_shared_ptr.h"
@@ -41,7 +41,7 @@ using namespace daal::data_management;
 template <typename algorithmFpType, training::Method method, CpuType cpu>
 BatchContainer<algorithmFpType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)
@@ -83,7 +83,7 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
     }
     DAAL_CHECK_STATUS_VAR(status);
 
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)

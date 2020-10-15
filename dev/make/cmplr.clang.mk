@@ -19,7 +19,7 @@
 #  Clang defenitions for makefile
 #--
 
-PLATs.clang = lnx32e lnx32 mac32e fbsd32e fbsd32
+PLATs.clang = lnx32e mac32e fbsd32e
 
 CMPLRDIRSUFF.clang = _clang
 

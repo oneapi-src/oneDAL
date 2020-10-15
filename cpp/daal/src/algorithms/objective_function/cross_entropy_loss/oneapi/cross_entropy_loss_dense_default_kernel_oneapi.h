@@ -52,52 +52,58 @@ public:
                              NumericTable * hessian, NumericTable * gradient, NumericTable * nonSmoothTermValue, NumericTable * proximalProjection,
                              NumericTable * lipschitzConstant, Parameter * parameter);
 
-    static services::Status applyBeta(const services::Buffer<algorithmFPType> & x, const services::Buffer<algorithmFPType> & beta,
-                                      services::Buffer<algorithmFPType> & xb, const uint32_t n, const uint32_t nClasses, const uint32_t ldX,
+    static services::Status applyBeta(const services::internal::Buffer<algorithmFPType> & x, const services::internal::Buffer<algorithmFPType> & beta,
+                                      services::internal::Buffer<algorithmFPType> & xb, const uint32_t n, const uint32_t nClasses, const uint32_t ldX,
                                       const uint32_t nBeta, const uint32_t offset);
 
-    static services::Status applyGradient(const services::Buffer<algorithmFPType> & x, const services::Buffer<algorithmFPType> & g,
-                                          services::Buffer<algorithmFPType> & gradient, const algorithmFPType alpha, const uint32_t n,
+    static services::Status applyGradient(const services::internal::Buffer<algorithmFPType> & x,
+                                          const services::internal::Buffer<algorithmFPType> & g,
+                                          services::internal::Buffer<algorithmFPType> & gradient, const algorithmFPType alpha, const uint32_t n,
                                           const uint32_t p, const uint32_t nBeta, uint32_t nClasses, const algorithmFPType beta,
                                           const uint32_t offset);
 
-    static services::Status applyHessian(const services::Buffer<algorithmFPType> & x, const services::Buffer<algorithmFPType> & prob,
-                                         const uint32_t n, const uint32_t p, services::Buffer<algorithmFPType> & h, const uint32_t nBeta,
-                                         const uint32_t nClasses, const uint32_t offset, const algorithmFPType alpha);
+    static services::Status applyHessian(const services::internal::Buffer<algorithmFPType> & x,
+                                         const services::internal::Buffer<algorithmFPType> & prob, const uint32_t n, const uint32_t p,
+                                         services::internal::Buffer<algorithmFPType> & h, const uint32_t nBeta, const uint32_t nClasses,
+                                         const uint32_t offset, const algorithmFPType alpha);
 
-    static services::Status betaIntercept(const services::Buffer<algorithmFPType> & one, const services::Buffer<algorithmFPType> & arg,
-                                          services::Buffer<algorithmFPType> & f, const uint32_t n, const uint32_t nClasses, const uint32_t nBeta);
-
-    // TODO: move in common services
-    static services::Status softmax(const services::Buffer<algorithmFPType> & x, services::Buffer<algorithmFPType> & result, const uint32_t n,
-                                    const uint32_t nClasses);
-
-    static services::Status softmaxAndUpdateProba(const services::Buffer<algorithmFPType> & x, const services::Buffer<algorithmFPType> & y,
-                                                  services::Buffer<algorithmFPType> & result, const uint32_t n, const uint32_t nClasses);
+    static services::Status betaIntercept(const services::internal::Buffer<algorithmFPType> & one,
+                                          const services::internal::Buffer<algorithmFPType> & arg, services::internal::Buffer<algorithmFPType> & f,
+                                          const uint32_t n, const uint32_t nClasses, const uint32_t nBeta);
 
     // TODO: move in common services
-    static services::Status crossEntropy(const services::Buffer<algorithmFPType> & y, const services::Buffer<algorithmFPType> & sigma,
-                                         services::Buffer<algorithmFPType> & result, const uint32_t n, const uint32_t nClasses);
+    static services::Status softmax(const services::internal::Buffer<algorithmFPType> & x, services::internal::Buffer<algorithmFPType> & result,
+                                    const uint32_t n, const uint32_t nClasses);
 
-    static services::Status updateProba(const services::Buffer<algorithmFPType> & y, services::Buffer<algorithmFPType> & sigma, const uint32_t n,
-                                        const uint32_t nClasses, const algorithmFPType value);
+    static services::Status softmaxAndUpdateProba(const services::internal::Buffer<algorithmFPType> & x,
+                                                  const services::internal::Buffer<algorithmFPType> & y,
+                                                  services::internal::Buffer<algorithmFPType> & result, const uint32_t n, const uint32_t nClasses);
+
+    // TODO: move in common services
+    static services::Status crossEntropy(const services::internal::Buffer<algorithmFPType> & y,
+                                         const services::internal::Buffer<algorithmFPType> & sigma,
+                                         services::internal::Buffer<algorithmFPType> & result, const uint32_t n, const uint32_t nClasses);
+
+    static services::Status updateProba(const services::internal::Buffer<algorithmFPType> & y, services::internal::Buffer<algorithmFPType> & sigma,
+                                        const uint32_t n, const uint32_t nClasses, const algorithmFPType value);
 
 private:
     services::Status doCompute(const uint32_t nBatch, const uint32_t nFeatures, const uint32_t nClasses,
-                               const daal::services::Buffer<algorithmFPType> & xBuff, const daal::services::Buffer<algorithmFPType> & yBuff,
-                               const daal::services::Buffer<algorithmFPType> & argBuff, NumericTable * valueNT, NumericTable * gradientNT,
+                               const daal::services::internal::Buffer<algorithmFPType> & xBuff,
+                               const daal::services::internal::Buffer<algorithmFPType> & yBuff,
+                               const daal::services::internal::Buffer<algorithmFPType> & argBuff, NumericTable * valueNT, NumericTable * gradientNT,
                                NumericTable * hessianNT, NumericTable * nonSmoothTermValueNT, NumericTable * proximalProjectionNT,
                                NumericTable * lipschitzConstantNT, const algorithmFPType l1reg, const algorithmFPType l2reg, const bool interceptFlag,
                                const bool isSourceData);
 
-    static void buildProgram(oneapi::internal::ClKernelFactoryIface & factory);
+    static void buildProgram(services::internal::sycl::ClKernelFactoryIface & factory);
 
-    oneapi::internal::UniversalBuffer _uX;
-    oneapi::internal::UniversalBuffer _uY;
-    oneapi::internal::UniversalBuffer _fUniversal;
-    oneapi::internal::UniversalBuffer _softmaxUniversal;
-    oneapi::internal::UniversalBuffer _oneVector;
-    oneapi::internal::UniversalBuffer _crossEntropyUniversal;
+    services::internal::sycl::UniversalBuffer _uX;
+    services::internal::sycl::UniversalBuffer _uY;
+    services::internal::sycl::UniversalBuffer _fUniversal;
+    services::internal::sycl::UniversalBuffer _softmaxUniversal;
+    services::internal::sycl::UniversalBuffer _oneVector;
+    services::internal::sycl::UniversalBuffer _crossEntropyUniversal;
 };
 
 } // namespace internal

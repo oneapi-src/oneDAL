@@ -19,17 +19,19 @@
 #define __SELECT_INDEXED_H__
 
 #include "algorithms/engines/engine.h"
-#include "services/buffer.h"
+#include "services/internal/buffer.h"
 #include "services/daal_defines.h"
 #include "services/internal/error_handling_helpers.h"
-#include "sycl/internal/types_utils.h"
-#include "sycl/internal/execution_context.h"
+#include "services/internal/sycl/types_utils.h"
+#include "services/internal/sycl/execution_context.h"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace selection
 {
@@ -152,8 +154,9 @@ private:
 };
 
 } // namespace selection
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
 
 #endif

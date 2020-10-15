@@ -24,7 +24,7 @@ help:
 	@echo
 	@echo "name              - example name."
 	@echo
-	@echo "compiler_name     - can be intel, msvs or clang. Default value is intel."
+	@echo "compiler_name     - can be intel, msvs, clang or icx. Default value is intel."
 	@echo "                    Intel(R) C++ Compiler as default."
 	@echo
 	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
@@ -115,13 +115,18 @@ CC=clang-cl
 COPTS=$(COMMON_COPTS) -Qstd:c++17 $(ARCH_OPT)
 !ENDIF
 
+!IF ("$(compiler)"=="icx")
+CC=icx
+COPTS=$(COMMON_COPTS) -Qstd:c++17 $(ARCH_OPT)
+!ENDIF
+
 !IF ("$(threading)"=="sequential")
 DAAL_LIB_T = $(DAAL_PATH)\onedal_sequential.lib
 !ELSE
 threading = parallel
 DAAL_LIB_T = $(DAAL_PATH)\onedal_thread.lib
 
-!IF ("$(compiler)"!="clang")
+!IF ("$(compiler)"!="clang"&&"$(compiler)"!="icx")
 EXT_LIB = tbb.lib tbbmalloc.lib
 !ELSE
 EXT_LIB = /link /DEFAULTLIB:tbb.lib /DEFAULTLIB:tbbmalloc.lib

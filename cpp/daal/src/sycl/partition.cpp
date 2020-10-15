@@ -16,15 +16,17 @@
 *******************************************************************************/
 
 #include "src/sycl/partition.h"
-#include "services/env_detect.h"
+#include "services/internal/execution_context.h"
 #include "src/externals/service_ittnotify.h"
 #include "src/sycl/cl_kernels/partition.cl"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 DAAL_ITTNOTIFY_DOMAIN(daal.oneapi.internal.partition);
 
@@ -47,7 +49,7 @@ services::Status Partition::scan(ClKernelFactoryIface & factory, UniversalBuffer
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
     auto kernel    = factory.getKernel("scan");
 
     KernelArguments args(3);
@@ -77,7 +79,7 @@ services::Status Partition::scanIndex(ClKernelFactoryIface & factory, UniversalB
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
     auto kernel    = factory.getKernel("scanIndex");
 
     KernelArguments args(4);
@@ -107,7 +109,7 @@ services::Status Partition::sumScan(ClKernelFactoryIface & factory, UniversalBuf
     DAAL_ITTNOTIFY_SCOPED_TASK(partition.sumScan);
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
     auto kernel    = factory.getKernel("sumScan");
 
     KernelArguments args(4);
@@ -138,7 +140,7 @@ services::Status Partition::reorder(ClKernelFactoryIface & factory, UniversalBuf
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
     auto kernel    = factory.getKernel("reorder");
 
     KernelArguments args(5);
@@ -170,7 +172,7 @@ services::Status Partition::reorderIndex(ClKernelFactoryIface & factory, Univers
 
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
     auto kernel    = factory.getKernel("reorderIndex");
 
     KernelArguments args(5);
@@ -200,7 +202,7 @@ services::Status Partition::flagged(UniversalBuffer mask, UniversalBuffer data, 
     DAAL_ITTNOTIFY_SCOPED_TASK(flagged);
 
     services::Status status;
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
 
     buildProgram(factory, data.type());
@@ -239,7 +241,7 @@ services::Status Partition::flaggedIndex(UniversalBuffer mask, UniversalBuffer d
     DAAL_ITTNOTIFY_SCOPED_TASK(flaggedIndex);
 
     services::Status status;
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
 
     buildProgram(factory, data.type());
@@ -274,6 +276,7 @@ services::Status Partition::flaggedIndex(UniversalBuffer mask, UniversalBuffer d
     return status;
 }
 
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal

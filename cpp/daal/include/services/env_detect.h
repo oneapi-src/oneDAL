@@ -26,7 +26,7 @@
 
 #include "services/base.h"
 #include "services/daal_defines.h"
-#include "services/execution_context.h"
+#include "services/internal/execution_context.h"
 
 namespace daal
 {
@@ -172,13 +172,12 @@ public:
      *  using device information from execution context.
      *  \param[in] ctx Execution context with information on how to perform computations inside the library
      */
-    void setDefaultExecutionContext(const ExecutionContext & ctx)
+    void setDefaultExecutionContext(const internal::ExecutionContext & ctx)
     {
-        _executionContext = internal::ImplAccessor::getImplPtr<oneapi::internal::ExecutionContextIface>(ctx);
+        _executionContext = internal::ImplAccessor::getImplPtr<services::internal::sycl::ExecutionContextIface>(ctx);
     }
 
-    // TODO: remove internal from public API
-    oneapi::internal::ExecutionContextIface & getDefaultExecutionContext() { return *_executionContext; }
+    services::internal::sycl::ExecutionContextIface & getDefaultExecutionContext() { return *_executionContext; }
 
 private:
     Environment();
@@ -191,7 +190,7 @@ private:
 
     env _env;
     void * _globalControl;
-    SharedPtr<oneapi::internal::ExecutionContextIface> _executionContext;
+    SharedPtr<services::internal::sycl::ExecutionContextIface> _executionContext;
 };
 } // namespace interface1
 

@@ -34,6 +34,9 @@ using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 
+using daal::services::internal::SyclExecutionContext;
+using daal::data_management::internal::SyclHomogenNumericTable;
+
 /* Input data set parameters */
 const string trainDatasetFileName = "../data/batch/k_nearest_neighbors_train.csv";
 const string testDatasetFileName  = "../data/batch/k_nearest_neighbors_test.csv";
@@ -58,7 +61,7 @@ int main(int argc, char * argv[])
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
-        daal::services::SyclExecutionContext ctx(queue);
+        SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
         bf_knn_classification::training::ResultPtr trainingResult;

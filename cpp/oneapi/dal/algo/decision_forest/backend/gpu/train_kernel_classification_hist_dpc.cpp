@@ -14,10 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#define DAAL_SYCL_INTERFACE
-#define DAAL_SYCL_INTERFACE_USM
-#define DAAL_SYCL_INTERFACE_REVERSED_RANGE
-
 #include <daal/src/algorithms/dtrees/forest/classification/df_classification_model_impl.h>
 #include <daal/src/services/service_algo_utils.h>
 
@@ -90,6 +86,8 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
     daal_parameter.minWeightFractionInLeafNode = desc.get_min_weight_fraction_in_leaf_node();
     daal_parameter.minImpurityDecreaseInSplitNode = desc.get_min_impurity_decrease_in_split_node();
     daal_parameter.maxLeafNodes = desc.get_max_leaf_nodes();
+    daal_parameter.maxBins = desc.get_max_bins();
+    daal_parameter.minBinSize = desc.get_min_bin_size();
 
     daal_parameter.resultsToCompute = static_cast<std::uint64_t>(desc.get_error_metric_mode());
 

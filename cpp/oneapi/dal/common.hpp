@@ -29,6 +29,27 @@
 #define ONEAPI_DAL_EXPORT
 #endif
 
+#ifdef NDEBUG
+#define ONEDAL_ASSERT(...)
+#else
+#include <cassert>
+#include <iostream>
+#define __ONEDAL_ASSERT_NO_MESSAGE__(condition) assert(condition);
+
+#define __ONEDAL_ASSERT_MESSAGE__(condition, message) \
+    if (!(condition)) {                               \
+        std::cerr << message << std::endl;            \
+        std::cerr.flush();                            \
+        assert(condition);                            \
+    }
+
+#define __ONEDAL_ASSERT_GET__(_1, _2, F, ...) F
+
+#define ONEDAL_ASSERT(...)                                                                         \
+    __ONEDAL_ASSERT_GET__(__VA_ARGS__, __ONEDAL_ASSERT_MESSAGE__, __ONEDAL_ASSERT_NO_MESSAGE__, 0) \
+    (__VA_ARGS__)
+#endif
+
 namespace oneapi::dal {
 
 using byte_t = std::uint8_t;

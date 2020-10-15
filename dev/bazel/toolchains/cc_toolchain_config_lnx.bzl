@@ -1110,13 +1110,19 @@ def _impl(ctx):
     features.append(default_compile_flags_feature)
     features.append(force_pic_flags_feature)
     features.append(pic_feature)
-    for cpu_id, flag_list in ctx.attr.cpu_flags.items():
+    for cpu_id, flag_list in ctx.attr.cpu_flags_cc.items():
         cpu_opt_feature = feature(
             name = "{}_flags".format(cpu_id),
             flag_sets = [
                 flag_set(
                     actions = all_compile_actions,
                     flag_groups = [ flag_group(flags = flag_list) ],
+                    with_features = [with_feature_set(not_features = ["dpc++"])],
+                ),
+                flag_set(
+                    actions = all_compile_actions,
+                    flag_groups = [ flag_group(flags = ctx.attr.cpu_flags_dpcc[cpu_id]) ],
+                    with_features = [with_feature_set(features = ["dpc++"])],
                 ),
             ],
         )
@@ -1199,7 +1205,8 @@ cc_toolchain_config = rule(
         "deterministic_compile_flags": attr.string_list(),
         "supports_start_end_lib": attr.bool(),
         "supports_random_seed": attr.bool(),
-        "cpu_flags": attr.string_list_dict(),
+        "cpu_flags_cc": attr.string_list_dict(),
+        "cpu_flags_dpcc": attr.string_list_dict(),
     },
     provides = [CcToolchainConfigInfo],
 )

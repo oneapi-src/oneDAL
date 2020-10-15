@@ -27,7 +27,7 @@
 using namespace oneapi;
 
 template <typename Method>
-void run_compute(sycl::queue &queue, dal::table x_train, const char *method_name) {
+void run(sycl::queue &queue, const dal::table& x_train, const std::string& method_name) {
     constexpr std::int64_t cluster_count = 20;
     constexpr std::int64_t max_iteration_count = 1000;
     constexpr double accuracy_threshold = 0.01;
@@ -64,8 +64,8 @@ int main(int argc, char const *argv[]) {
         const auto x_train =
             dal::read<dal::table>(queue, dal::csv::data_source{ train_data_file_name });
 
-        run_compute<dal::kmeans_init::method::dense>(queue, x_train, "dense");
-        run_compute<dal::kmeans_init::method::random_dense>(queue, x_train, "random_dense");
+        run<dal::kmeans_init::method::dense>(queue, x_train, "dense");
+        run<dal::kmeans_init::method::random_dense>(queue, x_train, "random_dense");
     }
     return 0;
 }

@@ -60,21 +60,21 @@ static HMODULE WINAPI _daal_LoadLibrary(LPTSTR filename)
     rv1 = SetDllDirectoryA("");
     if (0 == rv1)
     {
-        printf("Intel DAAL FATAL ERROR: Cannot exclude current directory from serch path.\n");
+        printf("Intel oneDAL FATAL ERROR: Cannot exclude current directory from serch path.\n");
         return NULL;
     }
 
     rv2 = LoadLibraryExA(filename, NULL, DONT_RESOLVE_DLL_REFERENCES);
     if (NULL == rv2)
     {
-        printf("Intel DAAL FATAL ERROR: Cannot find/load library %s.\n", filename);
+        printf("Intel oneDAL FATAL ERROR: Cannot find/load library %s.\n", filename);
         return NULL;
     }
 
     rv = GetModuleFileNameA(rv2, PathBuf, MAX_PATH);
     if (0 == rv)
     {
-        printf("Intel DAAL FATAL ERROR: Cannot find module %s in memory.\n", filename);
+        printf("Intel oneDAL FATAL ERROR: Cannot find module %s in memory.\n", filename);
         return NULL;
     }
 
@@ -121,27 +121,27 @@ static HMODULE WINAPI _daal_LoadLibrary(LPTSTR filename)
         lerr = GetLastError();
         if (TRUST_E_NOSIGNATURE == lerr || TRUST_E_SUBJECT_FORM_UNKNOWN == lerr || TRUST_E_PROVIDER_UNKNOWN == lerr)
         {
-            printf("Intel DAAL FATAL ERROR: %s is not signed.\n", filename);
+            printf("Intel oneDAL FATAL ERROR: %s is not signed.\n", filename);
         }
         else
         {
-            printf("Intel DAAL FATAL ERROR: An unknown error occurred trying toverify the signature of the %s.\n", filename);
+            printf("Intel oneDAL FATAL ERROR: An unknown error occurred trying to verify the signature of the %s.\n", filename);
         }
         break;
 
-    case TRUST_E_EXPLICIT_DISTRUST: printf("Intel DAAL FATAL ERROR: The signature/publisher of %s is disallowed.\n", filename); break;
+    case TRUST_E_EXPLICIT_DISTRUST: printf("Intel oneDAL FATAL ERROR: The signature/publisher of %s is disallowed.\n", filename); break;
 
     case ERROR_SUCCESS: break;
 
-    case TRUST_E_SUBJECT_NOT_TRUSTED: printf("Intel DAAL FATAL ERROR: The signature of %s in not trusted.\n", filename); break;
+    case TRUST_E_SUBJECT_NOT_TRUSTED: printf("Intel oneDAL FATAL ERROR: The signature of %s in not trusted.\n", filename); break;
 
     case CRYPT_E_SECURITY_SETTINGS:
-        printf("Intel DAAL FATAL ERROR: %s. The subject hash or publisher was not explicitly trusted and user trust was not allowed "
+        printf("Intel oneDAL FATAL ERROR: %s. The subject hash or publisher was not explicitly trusted and user trust was not allowed "
                "(CRYPT_E_SECURITY_SETTINGS).\n",
                filename);
         break;
 
-    default: printf("Intel DAAL FATAL ERROR: %s. Error code is 0x%x.\n", filename, (unsigned int)sverif); break;
+    default: printf("Intel oneDAL FATAL ERROR: %s. Error code is 0x%x.\n", filename, (unsigned int)sverif); break;
     }
 
     pWVTData.dwStateAction = WTD_STATEACTION_CLOSE;
@@ -155,12 +155,22 @@ static HMODULE WINAPI _daal_LoadLibrary(LPTSTR filename)
 
     rv2 = LoadLibraryA(PathBuf);
 
-    // Restore current directory from the serch path
+    // Restore current directory from the search path
     SetDllDirectory(NULL);
 
     return rv2;
 }
 #endif
+
+DAAL_EXPORT HMODULE load_onedal_thread_dll()
+{
+    return DAAL_LOAD_DLL("onedal_thread.dll");
+}
+
+DAAL_EXPORT HMODULE load_onedal_sequential_dll()
+{
+    return DAAL_LOAD_DLL("onedal_sequential.dll");
+}
 
 static void load_daal_thr_dll(void)
 {
@@ -173,45 +183,39 @@ static void load_daal_thr_dll(void)
     {
     case daal::services::Environment::MultiThreaded:
     {
-        daal_thr_dll_handle = DAAL_LOAD_DLL("onedal_thread.dll");
-        if (daal_thr_dll_handle != NULL)
+        daal_thr_dll_handle = load_onedal_thread_dll();
+        if (daal_thr_dll_handle == NULL)
         {
-            return;
+            printf("Intel oneDAL FATAL ERROR: Cannot load onedal_thread.dll.\n");
+            exit(1);
         }
-
-        printf("Intel DAAL FATAL ERROR: Cannot load onedal_thread.dll.\n");
-        exit(1);
-
         break;
     }
     case daal::services::Environment::SingleThreaded:
     {
-        daal_thr_dll_handle = DAAL_LOAD_DLL("onedal_sequential.dll");
-        if (daal_thr_dll_handle != NULL)
+        daal_thr_dll_handle = load_onedal_sequential_dll();
+        if (daal_thr_dll_handle == NULL)
         {
-            return;
+            printf("Intel oneDAL FATAL ERROR: Cannot load onedal_sequential.dll.\n");
+            exit(1);
         }
-
-        printf("Intel DAAL FATAL ERROR: Cannot load onedal_sequential.dll.\n");
-        exit(1);
-
         break;
     }
     default:
     {
-        daal_thr_dll_handle = DAAL_LOAD_DLL("onedal_thread.dll");
+        daal_thr_dll_handle = load_onedal_thread_dll();
         if (daal_thr_dll_handle != NULL)
         {
             return;
         }
 
-        daal_thr_dll_handle = DAAL_LOAD_DLL("onedal_sequential.dll");
+        daal_thr_dll_handle = load_onedal_sequential_dll();
         if (daal_thr_dll_handle != NULL)
         {
             return;
         }
 
-        printf("Intel DAAL FATAL ERROR: Cannot load neither onedal_thread.dll nor onedal_sequential.dll.\n");
+        printf("Intel oneDAL FATAL ERROR: Cannot load neither onedal_thread.dll nor onedal_sequential.dll.\n");
         exit(1);
     }
     }
@@ -223,7 +227,7 @@ FARPROC load_daal_thr_func(char * ordinal)
 
     if (daal_thr_dll_handle == NULL)
     {
-        printf("Intel DAAL FATAL ERROR: Cannot load \"%s\" function because threaded layer DLL isn`t loaded.\n", ordinal);
+        printf("Intel oneDAL FATAL ERROR: Cannot load \"%s\" function because threaded layer DLL isn`t loaded.\n", ordinal);
         exit(1);
     }
 
@@ -231,7 +235,7 @@ FARPROC load_daal_thr_func(char * ordinal)
     if (FuncAddress == NULL)
     {
         printf("GetLastError error code is %lx\n", GetLastError());
-        printf("Intel DAAL FATAL ERROR: Cannot load \"%s\" function.\n", ordinal);
+        printf("Intel oneDAL FATAL ERROR: Cannot load \"%s\" function.\n", ordinal);
         exit(1);
     }
 
@@ -789,7 +793,7 @@ DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void (*read_topo)(int &,
     #define CALL_RET_FUNC_FROM_DLL_CPU_MIC(ret_type, fn_dpref, fn_cpu, fn_name, argdecl, argcall)
 #endif
 
-/* Used directly in Intel DAAL */
+/* Used directly in Intel oneDAL */
 CALL_VOID_FUNC_FROM_DLL(fpk_blas_, dsyrk,
                         (const char * uplo, const char * trans, const DAAL_INT * n, const DAAL_INT * k, const double * alpha, const double * a,
                          const DAAL_INT * lda, const double * beta, double * c, const DAAL_INT * ldc),
@@ -1036,7 +1040,7 @@ CALL_VOID_FUNC_FROM_DLL(fpk_spblas_, mkl_scsrmm, (CSRMM_ARGS(float)),
 CALL_VOID_FUNC_FROM_DLL(fpk_spblas_, mkl_dcsrmm, (CSRMM_ARGS(double)),
                         (transa, m, n, k, alpha, matdescra, val, indx, pntrb, pntre, b, ldb, beta, c, ldc));
 
-/* Used in Intel DAAL via SS */
+/* Used in Intel oneDAL via SS */
 CALL_RET_FUNC_FROM_DLL(IppStatus, fpk_dft_, ippsSortRadixAscend_64f_I, (Ipp64f * pSrcDst, Ipp64f * pTmp, Ipp32s len), (pSrcDst, pTmp, len));
 CALL_RET_FUNC_FROM_DLL(IppStatus, fpk_dft_, ippsSortRadixAscend_32f_I, (Ipp32f * pSrcDst, Ipp32f * pTmp, Ipp32s len), (pSrcDst, pTmp, len));
 

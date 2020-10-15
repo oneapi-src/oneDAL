@@ -16,14 +16,16 @@
 *******************************************************************************/
 
 #include "src/sycl/reducer.h"
-#include "services/env_detect.h"
+#include "services/internal/execution_context.h"
 #include "src/externals/service_ittnotify.h"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace math
 {
@@ -123,7 +125,7 @@ SumReducer::Result SumReducer::sum(Layout vectorsLayout, const UniversalBuffer &
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(SumReducer.sum);
 
-    auto & context       = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context       = services::internal::getDefaultContext();
     auto & kernelFactory = context.getClKernelFactory();
 
     buildProgram(kernelFactory, vectors.type());
@@ -172,6 +174,7 @@ SumReducer::Result SumReducer::sum(Layout vectorsLayout, const UniversalBuffer &
 }
 
 } // namespace math
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
