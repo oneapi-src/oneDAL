@@ -94,7 +94,7 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
     const Parameter * const parameter = static_cast<const Parameter *>(par);
     const size_t kAsSizeT             = parameter->k;
     DAAL_CHECK(kAsSizeT <= maxInt32AsSizeT, services::ErrorIncorrectParameter);
-    const uint32_t k                  = static_cast<uint32_t>(kAsSizeT);
+    const uint32_t k = static_cast<uint32_t>(kAsSizeT);
 
     const size_t nQueryRowsSizeT     = ntData->getNumberOfRows();
     const size_t nQueryFeaturesSizeT = ntData->getNumberOfColumns();
@@ -103,7 +103,7 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
     const size_t nTrainFeaturesSizeT = points->getNumberOfColumns();
 
     DAAL_CHECK(nQueryRowsSizeT <= maxInt32AsSizeT, services::ErrorIncorrectNumberOfRowsInInputNumericTable);
-    DAAL_CHECK(nLabelRowsSizeT <= maxInt32AsSizeT, services::ErrorIncorrectNumberOfRowsInInputNumericTable); 
+    DAAL_CHECK(nLabelRowsSizeT <= maxInt32AsSizeT, services::ErrorIncorrectNumberOfRowsInInputNumericTable);
     DAAL_CHECK(nDataRowsSizeT <= maxInt32AsSizeT, services::ErrorIncorrectNumberOfRowsInInputNumericTable)
     DAAL_CHECK(nTrainFeaturesSizeT <= maxInt32AsSizeT, services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
     DAAL_CHECK(nTrainFeaturesSizeT == nQueryFeaturesSizeT, services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
@@ -224,9 +224,9 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::copyParti
     auto kernel = kernelFactory.getKernel("copy_partial_selection", &st);
     DAAL_CHECK_STATUS_VAR(st);
 
-    DAAL_ASSERT_UNIVERSAL_BUFFER(distances, algorithmFPType, queryBlockRows * k);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(distances, algorithmFpType, queryBlockRows * k);
     DAAL_ASSERT_UNIVERSAL_BUFFER(labels, int, queryBlockRows * k);
-    DAAL_ASSERT_UNIVERSAL_BUFFER(partialDistances, algorithmFPType, queryBlockRows * k * totalNumberOfChunks);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(partialDistances, algorithmFpType, queryBlockRows * k * totalNumberOfChunks);
     DAAL_ASSERT_UNIVERSAL_BUFFER(partialLabels, int, queryBlockRows * k * totalNumberOfChunks);
 
     KernelArguments args(7);
@@ -266,8 +266,8 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::scatterSu
     auto kernel = kernelFactory.getKernel("scatter_row", &st);
     DAAL_CHECK_STATUS_VAR(st);
 
-    DAAL_ASSERT_UNIVERSAL_BUFFER(dataSumOfSquares, algorithmFPType, dataBlockRowCount);
-    DAAL_ASSERT_UNIVERSAL_BUFFER(distances, algorithmFPType, dataBlockRowCount * queryBlockRowCount);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(dataSumOfSquares, algorithmFpType, dataBlockRowCount);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(distances, algorithmFpType, dataBlockRowCount * queryBlockRowCount);
 
     KernelArguments args(3);
     args.set(0, dataSumOfSquares, AccessModeIds::read);
@@ -308,7 +308,7 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeWi
     DAAL_CHECK_STATUS_VAR(st);
 
     DAAL_ASSERT_UNIVERSAL_BUFFER(labels, int, queryBlockRowCount * k);
-    DAAL_ASSERT_UNIVERSAL_BUFFER(labelsOut, int, queryBlockRowCount);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(labelsOut, algorithmFpType, queryBlockRowCount);
 
     KernelArguments args(3);
     args.set(0, labels, AccessModeIds::read);
