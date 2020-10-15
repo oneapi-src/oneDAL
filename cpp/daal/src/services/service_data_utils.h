@@ -97,14 +97,14 @@ struct MinVal<float>
 template<typename TypeToConvert, typename TypeFromConvert>
 DAAL_FORCEINLINE services::Status check_conversion_overflow(TypeFromConvert var)
 {
-    return (var < services::internal::MaxVal<TypeToConvert>::get()) ? 
+    return (var <= services::internal::MaxVal<TypeToConvert>::get()) ? 
         services::Status() : sevices::Status(services::ErrorID::ErrorConversionOverFlow);
 }
 
 template<typename TypeToConvert, typename TypeFromConvert>
 DAAL_FORCEINLINE services::Status check_conversion_underflow(TypeFromConvert var)
 {
-    return (services::internal::MinVal<TypeToConvert>::get() < var) ? 
+    return (services::internal::MinVal<TypeToConvert>::get() <= var) ? 
         services::Status() : sevices::Status(services::ErrorID::ErrorConversionUnderFlow);
 }
 

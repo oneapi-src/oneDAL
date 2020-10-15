@@ -429,7 +429,7 @@ enum ErrorID
 
     // Group of Conversion related errors
     ErrorConversionOverFlow = -1000011, /*!< Value is too high to be converted into proposed type */
-    ErrorConversionOverFlow = -1000012  /*!< Value is too low to be converted into proposed type */
+    ErrorConversionUnderFlow = -1000012  /*!< Value is too low to be converted into proposed type */
 };
 /** @} */
 } // namespace services
