@@ -93,53 +93,38 @@ public:
     size_t nCols() const { return _nCols; }
 
 protected:
-    services::Status alloc(size_t nCols, size_t nRows);
+    services::Status alloc(uint32_t nCols, uint32_t nRows);
 
     services::Status extractColumn(const services::internal::Buffer<algorithmFPType> & data, services::internal::sycl::UniversalBuffer & values,
-                                   services::internal::sycl::UniversalBuffer & indices, int featureId, int nFeatures, int nRows);
-
-    services::Status radixScan(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & partialHists,
-                               int nRows, int bitOffset, int localSize, int nLocalSums);
-
-    services::Status radixHistScan(services::internal::sycl::UniversalBuffer & partialHists,
-                                   services::internal::sycl::UniversalBuffer & partialPrefixHists, int nSubgroupSums, int localSize);
-
-    services::Status radixReorder(services::internal::sycl::UniversalBuffer & valuesSrc, services::internal::sycl::UniversalBuffer & indicesSrc,
-                                  services::internal::sycl::UniversalBuffer & partialPrefixHist,
-                                  services::internal::sycl::UniversalBuffer & valuesDst, services::internal::sycl::UniversalBuffer & indicesDst,
-                                  int nRows, int bitOffset, int localSize, int nLocalHists);
-
-    services::Status radixSort(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & indices,
-                               services::internal::sycl::UniversalBuffer & values_buf, services::internal::sycl::UniversalBuffer & indices_buf,
-                               int nRows);
+                                   services::internal::sycl::UniversalBuffer & indices, uint32_t featureId, uint32_t nFeatures, uint32_t nRows);
 
     services::Status collectBinBorders(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & binOffsets,
-                                       services::internal::sycl::UniversalBuffer & binBorders, int nRows, int maxBins);
+                                       services::internal::sycl::UniversalBuffer & binBorders, uint32_t nRows, uint32_t maxBins);
 
     services::Status computeBins(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & indices,
-                                 services::internal::sycl::UniversalBuffer & binBorders, services::internal::sycl::UniversalBuffer & bins, int nRows,
-                                 int nBins, int localSize, int nLocalBlocks);
+                                 services::internal::sycl::UniversalBuffer & binBorders, services::internal::sycl::UniversalBuffer & bins,
+                                 uint32_t nRows, uint32_t nBins, uint32_t maxBins, uint32_t localSize, uint32_t nLocalBlocks);
 
     services::Status computeBins(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & indices,
-                                 services::internal::sycl::UniversalBuffer & bins, FeatureEntry & entry, int nRows,
+                                 services::internal::sycl::UniversalBuffer & bins, FeatureEntry & entry, uint32_t nRows,
                                  const dtrees::internal::BinParams * pBinPrm);
 
-    services::Status makeIndex(const services::internal::Buffer<algorithmFPType> & data, int featureId, int nFeatures, int nRows,
+    services::Status makeIndex(const services::internal::Buffer<algorithmFPType> & data, uint32_t featureId, uint32_t nFeatures, uint32_t nRows,
                                const dtrees::internal::BinParams * pBinPrm, services::internal::sycl::UniversalBuffer & bins, FeatureEntry & entry);
 
     services::Status storeColumn(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & fullData,
-                                 int featureId, int nFeatures, int nRows);
+                                 uint32_t featureId, uint32_t nFeatures, uint32_t nRows);
 
 protected:
     services::Collection<services::internal::sycl::UniversalBuffer> _data;
     services::internal::sycl::UniversalBuffer _fullData;
     services::internal::sycl::UniversalBuffer _binOffsets;
     FeatureEntry * _entries;
-    size_t _sizeOfIndex;
-    size_t _nRows;
-    size_t _nCols;
-    size_t _capacity;
-    size_t _maxNumIndices;
+    uint32_t _sizeOfIndex;
+    uint32_t _nRows;
+    uint32_t _nCols;
+    uint32_t _capacity;
+    uint32_t _maxNumIndices;
     IndexType _totalBins;
 
     services::internal::sycl::UniversalBuffer _values;
@@ -175,8 +160,8 @@ struct BestSplitOneAPI
     BestSplitOneAPI();
 
     algorithmFPType _impurityDecrease;
-    int _featureIndex;
-    int _featureValue;
+    int32_t _featureIndex;
+    int32_t _featureValue;
     algorithmFPType _leftGTotal;
     algorithmFPType _leftHTotal;
     algorithmFPType _rightGTotal;

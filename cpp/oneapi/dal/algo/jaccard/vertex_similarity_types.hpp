@@ -61,7 +61,7 @@ private:
 class ONEAPI_DAL_EXPORT vertex_similarity_result {
 public:
     /// Constructs the empty result
-    vertex_similarity_result(){};
+    vertex_similarity_result();
 
     /// Constructs the algorithm result initialized with the table of vertex pairs,
     /// the table of the corresponding computed Jaccard similarity coefficients, and
