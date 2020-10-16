@@ -33,7 +33,7 @@ ONEAPI_DAL_EXPORT void _daal_parallel_sort_oneapi(void *begin_ptr, void *end_ptr
 
 namespace oneapi::dal::preview::load_graph::detail {
 inline ONEAPI_DAL_EXPORT void parallel_sort(int *begin_ptr, int *end_ptr) {
-    _daal_parallel_sort_oneapi((void*)begin_ptr, (void*)end_ptr);
+    _daal_parallel_sort_oneapi((void *)begin_ptr, (void *)end_ptr);
 }
 
 template <typename F>
