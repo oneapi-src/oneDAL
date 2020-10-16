@@ -127,7 +127,11 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
 
     auto & context        = services::internal::getDefaultContext();
     auto & kernel_factory = context.getClKernelFactory();
+<<<<<<< HEAD
     buildProgram(kernel_factory, nClusters, &st);
+=======
+    this->buildProgram(kernel_factory, nClusters, st);
+>>>>>>> 76c741e77... Replace status pointer by reference in SYCL abstraction layer (#1083)
     DAAL_CHECK_STATUS_VAR(st);
 
     uint32_t blockSize = 0;
@@ -173,6 +177,7 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
                 return Status(ErrorNullPtr);
             }
 
+<<<<<<< HEAD
             computeSquares(inCentroids, _centroidsSq, nClusters, nFeatures, &st);
             DAAL_CHECK_STATUS_VAR(st);
             computeDistances(data, inCentroids, range.count, nClusters, nFeatures, &st);
@@ -194,26 +199,60 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
                     {
                         return Status(ErrorNullPtr);
                     }
+=======
+            this->computeSquares(inCentroids, this->_centroidsSq, nClusters, nFeatures, st);
+            DAAL_CHECK_STATUS_VAR(st);
+            this->computeDistances(data, inCentroids, range.count, nClusters, nFeatures, st);
+            DAAL_CHECK_STATUS_VAR(st);
+            this->computeAssignments(assignments, range.count, nClusters, st);
+            DAAL_CHECK_STATUS_VAR(st);
+            this->computeSquares(data, this->_dataSq, range.count, nFeatures, st);
+            DAAL_CHECK_STATUS_VAR(st);
+            this->partialReduceCentroids(data, assignments, range.count, nClusters, nFeatures, int(block == 0), st);
+            DAAL_CHECK_STATUS_VAR(st);
+            if (needCandidates)
+            {
+                this->getNumEmptyClusters(nClusters, st);
+                DAAL_CHECK_STATUS_VAR(st);
+                int numEmpty = 0;
+                {
+                    auto num = this->_numEmptyClusters.template get<int>().toHost(ReadWriteMode::readOnly, st);
+                    DAAL_CHECK_STATUS_VAR(st);
+>>>>>>> 76c741e77... Replace status pointer by reference in SYCL abstraction layer (#1083)
 
                     numEmpty = num.get()[0];
                 }
                 bool hasEmptyClusters = numEmpty > 0;
                 if (hasEmptyClusters)
                 {
+<<<<<<< HEAD
                     computePartialCandidates(assignments, range.count, nClusters, int(block == 0), &st);
                     DAAL_CHECK_STATUS_VAR(st);
                     mergePartialCandidates(nClusters, &st);
+=======
+                    this->computePartialCandidates(assignments, range.count, nClusters, int(block == 0), st);
+                    DAAL_CHECK_STATUS_VAR(st);
+                    this->mergePartialCandidates(nClusters, st);
+>>>>>>> 76c741e77... Replace status pointer by reference in SYCL abstraction layer (#1083)
                     DAAL_CHECK_STATUS_VAR(st);
                 }
                 needCandidates = hasEmptyClusters;
             }
+<<<<<<< HEAD
             updateObjectiveFunction(objFunction, range.count, nClusters, int(block == 0), &st);
+=======
+            this->updateObjectiveFunction(objFunction, range.count, nClusters, int(block == 0), st);
+>>>>>>> 76c741e77... Replace status pointer by reference in SYCL abstraction layer (#1083)
             DAAL_CHECK_STATUS_VAR(st);
             DAAL_CHECK_STATUS_VAR(ntData->releaseBlockOfRows(dataRows));
             DAAL_CHECK_STATUS_VAR(ntAssignments->releaseBlockOfRows(assignmentsRows));
         }
 
+<<<<<<< HEAD
         mergeReduceCentroids(outCentroids, nClusters, nFeatures, &st);
+=======
+        this->mergeReduceCentroids(outCentroids, nClusters, nFeatures, st);
+>>>>>>> 76c741e77... Replace status pointer by reference in SYCL abstraction layer (#1083)
         DAAL_CHECK_STATUS_VAR(st);
         algorithmFPType objFuncCorrection = 0.0;
         if (needCandidates)
@@ -222,11 +261,8 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
         }
         algorithmFPType curObjFunction = (algorithmFPType)0.0;
         {
-            auto hostPtr = objFunction.toHost(data_management::readOnly);
-            if (!hostPtr)
-            {
-                return Status(ErrorNullPtr);
-            }
+            auto hostPtr = objFunction.toHost(data_management::readOnly, st);
+            DAAL_CHECK_STATUS_VAR(st);
 
             curObjFunction = *hostPtr;
             curObjFunction -= objFuncCorrection;
@@ -262,6 +298,7 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
             return Status(ErrorNullPtr);
         }
 
+<<<<<<< HEAD
         computeSquares(inCentroids, _centroidsSq, nClusters, nFeatures, &st);
         DAAL_CHECK_STATUS_VAR(st);
         computeDistances(data, inCentroids, range.count, nClusters, nFeatures, &st);
@@ -271,6 +308,17 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
         computeSquares(data, _dataSq, range.count, nFeatures, &st);
         DAAL_CHECK_STATUS_VAR(st);
         updateObjectiveFunction(objFunction, range.count, nClusters, int(block == 0), &st);
+=======
+        this->computeSquares(inCentroids, this->_centroidsSq, nClusters, nFeatures, st);
+        DAAL_CHECK_STATUS_VAR(st);
+        this->computeDistances(data, inCentroids, range.count, nClusters, nFeatures, st);
+        DAAL_CHECK_STATUS_VAR(st);
+        this->computeAssignments(assignments, range.count, nClusters, st);
+        DAAL_CHECK_STATUS_VAR(st);
+        this->computeSquares(data, this->_dataSq, range.count, nFeatures, st);
+        DAAL_CHECK_STATUS_VAR(st);
+        this->updateObjectiveFunction(objFunction, range.count, nClusters, int(block == 0), st);
+>>>>>>> 76c741e77... Replace status pointer by reference in SYCL abstraction layer (#1083)
         DAAL_CHECK_STATUS_VAR(st);
         DAAL_CHECK_STATUS_VAR(ntData->releaseBlockOfRows(dataRows));
         DAAL_CHECK_STATUS_VAR(ntAssignments->releaseBlockOfRows(assignmentsRows));

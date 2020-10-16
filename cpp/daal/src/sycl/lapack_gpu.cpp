@@ -48,7 +48,8 @@ services::Status ReferencePotrf<algorithmFPType>::operator()(const math::UpLo up
     DAAL_INT nInt   = static_cast<DAAL_INT>(n);
     DAAL_INT ldaInt = static_cast<DAAL_INT>(lda);
 
-    services::SharedPtr<algorithmFPType> aPtr = a_buffer.toHost(data_management::ReadWriteMode::readWrite);
+    services::SharedPtr<algorithmFPType> aPtr = a_buffer.toHost(data_management::ReadWriteMode::readWrite, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     LapackAutoDispatch<algorithmFPType>::xpotrf(&up, &nInt, aPtr.get(), &ldaInt, &info);
 
@@ -72,8 +73,11 @@ services::Status ReferencePotrs<algorithmFPType>::operator()(const math::UpLo up
     DAAL_INT ldaInt = static_cast<DAAL_INT>(lda);
     DAAL_INT ldbInt = static_cast<DAAL_INT>(ldb);
 
-    services::SharedPtr<algorithmFPType> aPtr = a_buffer.toHost(data_management::ReadWriteMode::readWrite);
-    services::SharedPtr<algorithmFPType> bPtr = b_buffer.toHost(data_management::ReadWriteMode::readWrite);
+    services::SharedPtr<algorithmFPType> aPtr = a_buffer.toHost(data_management::ReadWriteMode::readWrite, status);
+    DAAL_CHECK_STATUS_VAR(status);
+
+    services::SharedPtr<algorithmFPType> bPtr = b_buffer.toHost(data_management::ReadWriteMode::readWrite, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     LapackAutoDispatch<algorithmFPType>::xpotrs(&up, &nInt, &nyInt, aPtr.get(), &ldaInt, bPtr.get(), &ldbInt, &info);
 
