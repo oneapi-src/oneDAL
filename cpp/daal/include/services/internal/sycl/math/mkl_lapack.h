@@ -57,7 +57,8 @@ struct MKLPotrf
     {
         services::Status status;
         const ::oneapi::fpk::uplo uplomkl                = uplo == math::UpLo::Upper ? ::oneapi::fpk::uplo::upper : ::oneapi::fpk::uplo::lower;
-        cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a.toSycl();
+        cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a.toSycl(status);
+        DAAL_CHECK_STATUS_VAR(status);
 
         {
             using namespace daal::services;
@@ -107,8 +108,9 @@ struct MKLPotrs
     {
         services::Status status;
         const ::oneapi::fpk::uplo uplomkl                = uplo == math::UpLo::Upper ? ::oneapi::fpk::uplo::upper : ::oneapi::fpk::uplo::lower;
-        cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a.toSycl();
-        cl::sycl::buffer<algorithmFPType, 1> b_sycl_buff = b.toSycl();
+        cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a.toSycl(status);
+        cl::sycl::buffer<algorithmFPType, 1> b_sycl_buff = b.toSycl(status);
+        DAAL_CHECK_STATUS_VAR(status);
 
         {
             using namespace daal::services;

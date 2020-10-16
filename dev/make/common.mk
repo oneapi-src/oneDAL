@@ -95,6 +95,7 @@ DPC.COMPILE = $(if $(COMPILER.$(_OS).dpcpp),$(COMPILER.$(_OS).dpcpp),$(error COM
 
 # Enable additional options to follow ISO C++ standards
 pedantic.opts = $(pedantic.opts.$(_OS).$(COMPILER))
+pedantic.opts.dpcpp = $(pedantic.opts.$(_OS).dpcpp)
 
 # Write target's dependencies to target file
 # Args:

@@ -202,17 +202,8 @@ public:
         return _anyBuffer.get<services::internal::Buffer<T> >();
     }
 
-    template <typename T>
-    UniversalBuffer & operator=(const services::internal::Buffer<T> & buffer)
-    {
-        _type      = TypeIds::id<T>();
-        _anyBuffer = buffer;
-        return *this;
-    }
-
     TypeId type() const { return _type; }
 
-    /* TODO: Consider removing */
     const services::internal::Any & any() const { return _anyBuffer; }
 
     bool empty() const { return _anyBuffer.empty(); }
