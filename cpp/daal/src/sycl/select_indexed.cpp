@@ -223,7 +223,7 @@ SelectIndexed::Result & QuickSelectIndexed::selectIndices(const UniversalBuffer 
         return result;
     }
     status |= runQuickSelectSimd(context, kernelFactory, dataVectors, tempIndices, rndSeq, nRndSeq, nK, nVectors, vectorSize, lastVectorSize,
-                                  vectorOffset, result);
+                                 vectorOffset, result);
     return result;
 }
 
