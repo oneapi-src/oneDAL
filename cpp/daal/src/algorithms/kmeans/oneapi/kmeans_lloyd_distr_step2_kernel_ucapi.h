@@ -45,12 +45,12 @@ public:
     void updateClusters(bool init, const services::internal::Buffer<int> & partialCentroidsCounters,
                         const services::internal::Buffer<algorithmFPType> & partialCentroids,
                         const services::internal::Buffer<int> & centroidCounters, const services::internal::Buffer<algorithmFPType> & centroids,
-                        uint32_t nClusters, uint32_t nFeatures, services::Status * st);
+                        uint32_t nClusters, uint32_t nFeatures, services::Status & st);
 
     void updateCandidates(bool init, const services::internal::Buffer<int> & partialCandidates,
                           const services::internal::Buffer<algorithmFPType> & partialCValues, const services::internal::Buffer<int> & candidates,
-                          const services::internal::Buffer<algorithmFPType> & cValues, uint32_t nClusters, services::Status * st);
-    void buildProgram(services::internal::sycl::ClKernelFactoryIface & kernelFactory, services::Status * st);
+                          const services::internal::Buffer<algorithmFPType> & cValues, uint32_t nClusters, services::Status & st);
+    void buildProgram(services::internal::sycl::ClKernelFactoryIface & kernelFactory, services::Status & st);
     uint32_t _maxWGSize = 256;
 };
 

@@ -269,7 +269,7 @@ protected:
 
                 const size_t size = getNumberOfColumns() * getNumberOfRows();
                 const auto universalBuffer =
-                    services::internal::getDefaultContext().allocate(services::internal::sycl::TypeIds::id<DataType>(), size, &status);
+                    services::internal::getDefaultContext().allocate(services::internal::sycl::TypeIds::id<DataType>(), size, status);
 
                 if (!status) return services::throwIfPossible(status);
 
@@ -336,10 +336,10 @@ protected:
         }
         else
         {
-            const auto host_ptr = _buffer.toHost(data_management::readOnly, &st);
+            const auto hostData = _buffer.toHost(data_management::readOnly, st);
             if (!st) return services::throwIfPossible(st);
 
-            archive->set(host_ptr.get(), size);
+            archive->set(hostData.get(), size);
         }
 
         return st;
@@ -361,7 +361,7 @@ protected:
             return _cpuTable->assign(value);
         }
 
-        services::internal::getDefaultContext().fill(_buffer, (double)value, &status);
+        services::internal::getDefaultContext().fill(_buffer, (double)value, status);
         return services::throwIfPossible(status);
     }
 
@@ -384,14 +384,14 @@ private:
         static services::Status read(const services::internal::Buffer<U> & buffer, BlockDescriptor<T> & block, size_t nRows, size_t nCols)
         {
             DAAL_ASSERT(buffer.size() == nRows * nCols);
+            services::Status status;
 
             if (!block.resizeBuffer(nCols, nRows))
             {
                 return services::throwIfPossible(services::ErrorMemoryAllocationFailed);
             }
 
-            services::Status status;
-            auto hostPtr = buffer.toHost(data_management::readOnly, &status);
+            auto hostPtr = buffer.toHost(data_management::readOnly, status);
             if (!status) return services::throwIfPossible(status);
 
             internal::VectorUpCast<U, T>()(nRows * nCols, hostPtr.get(), block.getBlockPtr());
@@ -401,12 +401,13 @@ private:
 
         static services::Status write(services::internal::Buffer<U> buffer, const BlockDescriptor<T> & block, size_t nRows, size_t nCols)
         {
+            services::Status status;
+
             DAAL_ASSERT(block.getNumberOfRows() == nRows);
             DAAL_ASSERT(block.getNumberOfColumns() == nCols);
             DAAL_ASSERT(buffer.size() == nRows * nCols);
 
-            services::Status status;
-            auto hostPtr = buffer.toHost(data_management::writeOnly, &status);
+            auto hostPtr = buffer.toHost(data_management::writeOnly, status);
             if (!status) return services::throwIfPossible(status);
 
             if (!block.getBlockPtr())
@@ -416,7 +417,7 @@ private:
 
             internal::VectorDownCast<T, U>()(nRows * nCols, block.getBlockPtr(), hostPtr.get());
 
-            return services::Status();
+            return status;
         }
     };
 
@@ -456,7 +457,10 @@ private:
         {
             return _buffer;
         }
-        return _buffer.getSubBuffer(offset, size, &st);
+        services::internal::Buffer<DataType> subBuffer = _buffer.getSubBuffer(offset, size, st);
+        services::throwIfPossible(status);
+
+        return subBuffer;
     }
 
     template <typename T>
@@ -466,6 +470,8 @@ private:
         {
             return _cpuTable->getBlockOfRows(rowOffset, nRowsBlockDesired, rwFlag, block);
         }
+
+        services::Status status;
 
         const size_t nRows = getNumberOfRows();
         const size_t nCols = getNumberOfColumns();
@@ -483,7 +489,7 @@ private:
         const size_t nRowsBlock = (rowOffset + nRowsBlockDesired < nRows) ? nRowsBlockDesired : nRows - rowOffset;
 
         auto subbuffer = getSubBuffer(rowOffset, nRowsBlock, st);
-        if (!st) return services::throwIfPossible(st);
+        DAAL_CHECK_STATUS_VAR(st);
 
         st |= BufferIO<T, DataType>::read(subbuffer, block, nRowsBlock, nCols);
         return st;
@@ -514,7 +520,7 @@ private:
                 return services::throwIfPossible(services::ErrorIncorrectParameter);
             }
             auto subbuffer = getSubBuffer(rowOffset, nRowsBlock, status);
-            if (!status) return throwIfPossible(status);
+            DAAL_CHECK_STATUS_VAR(status);
 
             status |= BufferIO<T, DataType>::write(subbuffer, block, nRowsBlock, nCols);
         }

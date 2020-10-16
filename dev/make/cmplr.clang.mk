@@ -19,7 +19,7 @@
 #  Clang defenitions for makefile
 #--
 
-PLATs.clang = lnx32e lnx32 mac32e fbsd32e fbsd32
+PLATs.clang = lnx32e mac32e fbsd32e
 
 CMPLRDIRSUFF.clang = _clang
 
@@ -28,13 +28,25 @@ CORE.SERV.COMPILER.clang = generic
 -Zl.clang =
 -DEBC.clang = -g
 
-COMPILER.mac.clang = clang++ -m64 -fgnu-runtime -stdlib=libc++ -mmacosx-version-min=10.14 -fwrapv
-COMPILER.fbsd.clang = clang++ $(if $(IA_is_ia32),-m32,-m64) -fgnu-runtime -Wno-inconsistent-missing-override -nostdinc++ -I/usr/include/c++/v1 -I/usr/local/include
-COMPILER.lnx.clang = clang++ $(if $(IA_is_ia32),-m32,-m64)
+COMPILER.mac.clang = clang++ -m64 -fgnu-runtime -stdlib=libc++ -mmacosx-version-min=10.14 -fwrapv \
+                     -Werror -Wreturn-type
+COMPILER.fbsd.clang = clang++ $(if $(IA_is_ia32),-m32,-m64) -fgnu-runtime -Wno-inconsistent-missing-override -nostdinc++ \
+                      -I/usr/include/c++/v1 -I/usr/local/include \
+                      -Werror -Wreturn-type
+COMPILER.lnx.clang = clang++ $(if $(IA_is_ia32),-m32,-m64) \
+                     -Werror -Wreturn-type
 
 link.dynamic.mac.clang = clang++ -m64
 link.dynamic.fbsd.clang = clang++ $(if $(IA_is_ia32),-m32,-m64)
 link.dynamic.lnx.clang = clang++ $(if $(IA_is_ia32),-m32,-m64)
+
+pedantic.opts.clang = -pedantic \
+                      -Wall \
+                      -Wextra \
+                      -Wno-unused-parameter
+
+pedantic.opts.mac.clang = $(pedantic.opts.clang)
+pedantic.opts.lnx.clang = $(pedantic.opts.clang)
 
 p4_OPT.clang   = $(-Q)march=nocona
 mc_OPT.clang   = $(-Q)march=core2

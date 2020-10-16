@@ -97,7 +97,7 @@ services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeI
 
         if (beta != 0.0)
         {
-            context.fill(resultBuff, 1.0, &status);
+            context.fill(resultBuff, 1.0, status);
             DAAL_CHECK_STATUS_VAR(status);
         }
 

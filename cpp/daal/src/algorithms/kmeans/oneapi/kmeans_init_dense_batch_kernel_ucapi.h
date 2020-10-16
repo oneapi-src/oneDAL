@@ -57,7 +57,7 @@ private:
     void gatherRandom(services::internal::sycl::ExecutionContextIface & context, const services::internal::sycl::KernelPtr & kernel_gather_random,
                       const services::internal::Buffer<algorithmFPType> & data, const services::internal::Buffer<algorithmFPType> & clusters,
                       services::internal::sycl::UniversalBuffer & indices, uint32_t nRows, uint32_t nClusters, uint32_t nFeatures,
-                      services::Status * st);
+                      services::Status & st);
 
     uint32_t getWorkgroupsCount(uint32_t rows);
 

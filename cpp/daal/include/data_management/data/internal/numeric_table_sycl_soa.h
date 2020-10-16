@@ -101,7 +101,11 @@ public:
 
             if (isCpuTable())
             {
-                return _cpuTable->setArray(bf.toHost(readOnly), idx);
+                services::Status st;
+                const services::SharedPtr<T> bfHost = bf.toHost(readOnly, st);
+                services::throwIfPossible(st);
+                DAAL_CHECK_STATUS_VAR(st);
+                return _cpuTable->setArray(bfHost, idx);
             }
         }
         else
@@ -276,6 +280,7 @@ protected:
         if (memoryAllocationFlag == doAllocate)
         {
             st |= allocateDataMemoryImpl();
+            services::throwIfPossible(st);
         }
     }
 
@@ -292,60 +297,61 @@ protected:
         {
         case features::DAAL_INT8_U:
         {
-            _arrays[idx] = context.allocate(TypeId::uint8, nrows, &st);
+            _arrays[idx] = context.allocate(TypeId::uint8, nrows, st);
             break;
         }
         case features::DAAL_INT16_U:
         {
-            _arrays[idx] = context.allocate(TypeId::uint16, nrows, &st);
+            _arrays[idx] = context.allocate(TypeId::uint16, nrows, st);
             break;
         }
         case features::DAAL_INT32_U:
         {
-            _arrays[idx] = context.allocate(TypeId::uint32, nrows, &st);
+            _arrays[idx] = context.allocate(TypeId::uint32, nrows, st);
             break;
         }
         case features::DAAL_INT64_U:
         {
-            _arrays[idx] = context.allocate(TypeId::uint64, nrows, &st);
+            _arrays[idx] = context.allocate(TypeId::uint64, nrows, st);
             break;
         }
 
         case features::DAAL_INT8_S:
         {
-            _arrays[idx] = context.allocate(TypeId::int8, nrows, &st);
+            _arrays[idx] = context.allocate(TypeId::int8, nrows, st);
             break;
         }
         case features::DAAL_INT16_S:
         {
-            _arrays[idx] = context.allocate(TypeId::int16, nrows, &st);
+            _arrays[idx] = context.allocate(TypeId::int16, nrows, st);
             break;
         }
         case features::DAAL_INT32_S:
         {
-            _arrays[idx] = context.allocate(TypeId::int32, nrows, &st);
+            _arrays[idx] = context.allocate(TypeId::int32, nrows, st);
             break;
         }
         case features::DAAL_INT64_S:
         {
-            _arrays[idx] = context.allocate(TypeId::int64, nrows, &st);
+            _arrays[idx] = context.allocate(TypeId::int64, nrows, st);
             break;
         }
 
         case features::DAAL_FLOAT32:
         {
-            _arrays[idx] = context.allocate(TypeId::float32, nrows, &st);
+            _arrays[idx] = context.allocate(TypeId::float32, nrows, st);
             break;
         }
         case features::DAAL_FLOAT64:
         {
-            _arrays[idx] = context.allocate(TypeId::float64, nrows, &st);
+            _arrays[idx] = context.allocate(TypeId::float64, nrows, st);
             break;
         }
 
         default: st = Status(ErrorIncorrectParameter); break;
         }
 
+        services::throwIfPossible(st);
         return st;
     }
 
@@ -452,6 +458,7 @@ protected:
     services::Status serialImpl(Archive * arch)
     {
         using namespace services::internal::sycl;
+        services::Status st;
 
         NumericTable::serialImpl<Archive, onDeserialize>(arch);
 
@@ -460,7 +467,8 @@ protected:
         if (onDeserialize)
         {
             rwMode = readWrite;
-            allocateDataMemoryImpl();
+            st |= allocateDataMemoryImpl();
+            services::throwIfPossible(st);
         }
 
         size_t ncol  = _ddict->getNumberOfFeatures();
@@ -483,15 +491,15 @@ protected:
                 BufferHostReinterpreter<char> reinterpreter(_arrays[i], rwMode, nrows);
                 TypeDispatcher::dispatch(_arrays[i].type(), reinterpreter);
 
-                services::Status st;
                 auto charPtr = reinterpreter.getResult(st);
+                services::throwIfPossible(st);
                 DAAL_CHECK_STATUS_VAR(st);
 
                 arch->set(charPtr.get(), nrows * f.typeSize);
             }
         }
 
-        return services::Status();
+        return st;
     }
 
 private:
@@ -533,9 +541,11 @@ private:
 
             services::Status st;
             auto buffer = converter.getResult(st);
+            services::throwIfPossible(st);
             DAAL_CHECK_STATUS_VAR(st);
 
-            auto colSharedPtr = buffer.toHost(readOnly, &st);
+            auto colSharedPtr = buffer.toHost(readOnly, st);
+            services::throwIfPossible(st);
             DAAL_CHECK_STATUS_VAR(st);
             T * colPtr = colSharedPtr.get();
 
@@ -560,18 +570,20 @@ private:
             services::Status st;
 
             auto blockBuffer    = block.getBuffer();
-            auto blockSharedPtr = blockBuffer.toHost(readOnly, &st);
+            auto blockSharedPtr = blockBuffer.toHost(readOnly, st);
+            services::throwIfPossible(st);
             DAAL_CHECK_STATUS_VAR(st);
             T * blockPtr = blockSharedPtr.get();
 
             auto & context  = services::internal::getDefaultContext();
-            auto tempColumn = context.allocate(TypeIds::id<T>(), nrows, &st);
+            auto tempColumn = context.allocate(TypeIds::id<T>(), nrows, st);
             DAAL_CHECK_STATUS_VAR(st);
 
             for (size_t j = 0; j < ncols; j++)
             {
                 {
-                    auto tempColumnSharedPtr = tempColumn.template get<T>().toHost(readWrite, &st);
+                    auto tempColumnSharedPtr = tempColumn.template get<T>().toHost(readWrite, st);
+                    services::throwIfPossible(st);
                     DAAL_CHECK_STATUS_VAR(st);
                     T * tempColumnPtr = tempColumnSharedPtr.get();
 

@@ -59,23 +59,24 @@ services::Status Reducer::buildProgram(ClKernelFactoryIface & kernelFactory, con
     cachekey.add(build_options);
 
     services::Status status;
-    kernelFactory.build(ExecutionTargetIds::device, cachekey.c_str(), op_reduce, build_options.c_str(), &status);
+    kernelFactory.build(ExecutionTargetIds::device, cachekey.c_str(), op_reduce, build_options.c_str(), status);
     return status;
 }
 
 void Reducer::singlepass(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, Layout vectorsLayout, const UniversalBuffer & vectors,
-                         uint32_t nVectors, uint32_t vectorSize, uint32_t workItemsPerGroup, UniversalBuffer & reduceRes, services::Status * status)
+                         uint32_t nVectors, uint32_t vectorSize, uint32_t workItemsPerGroup, UniversalBuffer & reduceRes, services::Status & status)
 {
-    auto reduce_kernel = kernelFactory.getKernel("reduceSinglepass");
+    auto reduce_kernel = kernelFactory.getKernel("reduceSinglepass", status);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
     KernelRange localRange(workItemsPerGroup, 1);
     KernelRange globalRange(workItemsPerGroup, nVectors);
 
     KernelNDRange range(2);
     range.global(globalRange, status);
-    DAAL_CHECK_STATUS_PTR(status);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
     range.local(localRange, status);
-    DAAL_CHECK_STATUS_PTR(status);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
     KernelArguments args(5);
     uint32_t vectorsAreRows = vectorsLayout == Layout::RowMajor ? 1 : 0;
@@ -90,18 +91,19 @@ void Reducer::singlepass(ExecutionContextIface & context, ClKernelFactoryIface &
 
 void Reducer::runStepColmajor(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, const UniversalBuffer & vectors,
                               uint32_t nVectors, uint32_t vectorSize, uint32_t numWorkItems, uint32_t numWorkGroups, Reducer::Result & stepResult,
-                              services::Status * status)
+                              services::Status & status)
 {
-    auto reduce_kernel = kernelFactory.getKernel("reduceStepColmajor");
+    auto reduce_kernel = kernelFactory.getKernel("reduceStepColmajor", status);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
     KernelRange localRange(numWorkItems);
     KernelRange globalRange(numWorkGroups * numWorkItems);
 
     KernelNDRange range(1);
     range.global(globalRange, status);
-    DAAL_CHECK_STATUS_PTR(status);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
     range.local(localRange, status);
-    DAAL_CHECK_STATUS_PTR(status);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
     KernelArguments args(4);
 
@@ -115,18 +117,20 @@ void Reducer::runStepColmajor(ExecutionContextIface & context, ClKernelFactoryIf
 
 void Reducer::runFinalStepRowmajor(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, Reducer::Result & stepResult,
                                    uint32_t nVectors, uint32_t vectorSize, uint32_t workItemsPerGroup, Reducer::Result & result,
-                                   services::Status * status)
+                                   services::Status & status)
 {
-    auto reduce_kernel = kernelFactory.getKernel("reduceFinalStepRowmajor");
+    auto reduce_kernel = kernelFactory.getKernel("reduceFinalStepRowmajor", status);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
     KernelRange localRange(workItemsPerGroup);
     KernelRange globalRange(workItemsPerGroup * nVectors);
 
     KernelNDRange range(1);
     range.global(globalRange, status);
-    DAAL_CHECK_STATUS_PTR(status);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+
     range.local(localRange, status);
-    DAAL_CHECK_STATUS_PTR(status);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
     KernelArguments args(4);
     args.set(0, stepResult.reduceRes, AccessModeIds::read);
@@ -138,7 +142,7 @@ void Reducer::runFinalStepRowmajor(ExecutionContextIface & context, ClKernelFact
 }
 
 Reducer::Result Reducer::reduce(const BinaryOp op, Layout vectorsLayout, const UniversalBuffer & vectors, uint32_t nVectors, uint32_t vectorSize,
-                                services::Status * status)
+                                services::Status & status)
 {
     auto & context = services::internal::getDefaultContext();
     Result result(context, nVectors, vectors.type(), status);
@@ -146,16 +150,18 @@ Reducer::Result Reducer::reduce(const BinaryOp op, Layout vectorsLayout, const U
 }
 
 Reducer::Result Reducer::reduce(const BinaryOp op, Layout vectorsLayout, const UniversalBuffer & vectors, UniversalBuffer & resReduce,
-                                uint32_t nVectors, uint32_t vectorSize, services::Status * status)
+                                uint32_t nVectors, uint32_t vectorSize, services::Status & status)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(Reducer);
     auto & context = services::internal::getDefaultContext();
 
     Result result(context, resReduce, nVectors, vectors.type(), status);
+    DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, Reducer::Result());
 
     auto & kernelFactory = context.getClKernelFactory();
 
-    buildProgram(kernelFactory, op, vectors.type());
+    status |= buildProgram(kernelFactory, op, vectors.type());
+    DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, result);
 
     const uint32_t maxWorkItemsPerGroup = 256;
     const uint32_t maxNumSubSlices      = 9;
@@ -180,7 +186,7 @@ Reducer::Result Reducer::reduce(const BinaryOp op, Layout vectorsLayout, const U
         if (numDivisionsByRow > 1)
         {
             Result stepResult(context, numDivisionsByRow * nVectors, vectors.type(), status);
-            DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, stepResult);
+            DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, result);
 
             runStepColmajor(context, kernelFactory, vectors, nVectors, vectorSize, workItemsPerGroup, numDivisionsByCol * numDivisionsByRow,
                             stepResult, status);
