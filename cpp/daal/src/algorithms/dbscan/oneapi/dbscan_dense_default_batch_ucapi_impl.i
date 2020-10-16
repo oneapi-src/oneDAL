@@ -331,12 +331,12 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::getCores(const Univers
     KernelRange globalRange(nRows, rangeWidth);
 
     KernelNDRange range(2);
-    range.global(globalRange, &st);
+    range.global(globalRange, st);
     DAAL_CHECK_STATUS_VAR(st);
-    range.local(localRange, &st);
+    range.local(localRange, st);
     DAAL_CHECK_STATUS_VAR(st);
 
-    context.run(range, kernel, args, &st);
+    context.run(range, kernel, args, st);
     DAAL_CHECK_STATUS_VAR(st);
     return st;
 }
@@ -350,7 +350,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::getCoresWithWeights(co
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
-    auto kernel = kernel_factory.getKernel("computeCoresWithWeights", &st);
+    auto kernel = kernel_factory.getKernel("computeCoresWithWeights", st);
     DAAL_CHECK_STATUS_VAR(st);
 
     DAAL_ASSERT_UNIVERSAL_BUFFER(data, algorithmFPType, nRows * nFeatures);
