@@ -458,7 +458,7 @@ private:
             return _buffer;
         }
         services::internal::Buffer<DataType> subBuffer = _buffer.getSubBuffer(offset, size, st);
-        services::throwIfPossible(status);
+        services::throwIfPossible(st);
 
         return subBuffer;
     }
