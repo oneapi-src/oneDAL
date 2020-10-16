@@ -20,14 +20,12 @@
 
 help:
 	@echo "Usage: nmake {{dllintel64|help}}"
-	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
+	@echo "[example=name] [compiler=compiler_name] [mode=mode_name]"
 	@echo
 	@echo "name              - example name."
 	@echo
 	@echo "compiler_name     - the only supported compiler is clang (default value)"
 	@echo "                    Intel(R) oneAPI DPC++ compiler"
-	@echo
-	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
 	@echo
 	@echo "mode_name         - can be build or run. Default is run."
 
@@ -102,7 +100,7 @@ COPTS=-m64 $(COPTS)
 
 !IF ("$(RES_EXT)"=="lib")
 !IF ("$(threading)"=="sequential")
-DAAL_LIB_T = "$(DAAL_PATH)\onedal_sequential.lib"
+$(error Sequential version is not supported)
 !ELSE
 threading = parallel
 DAAL_LIB_T = "$(DAAL_PATH)\onedal_thread.lib"
