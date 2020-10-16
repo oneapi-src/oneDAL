@@ -65,10 +65,10 @@ private:
         const size_t n;
         UniversalBuffer & a_buffer;
         const size_t lda;
-        services::Status * status;
+        services::Status & status;
 
         explicit Execute(cl::sycl::queue & queue, const math::UpLo uplo, const size_t n, UniversalBuffer & a_buffer, const size_t lda,
-                         services::Status * status)
+                         services::Status & status)
             : queue(queue), uplo(uplo), n(n), a_buffer(a_buffer), lda(lda), status(status)
         {}
 
@@ -82,14 +82,13 @@ private:
 #else
             MKLPotrf<T> functor(queue);
 #endif
-
-            services::internal::tryAssignStatus(status, functor(uplo, n, a_buffer_t, lda));
+            status |= functor(uplo, n, a_buffer_t, lda);
         }
     };
 
 public:
     static void run(cl::sycl::queue & queue, const math::UpLo uplo, const size_t n, UniversalBuffer & a_buffer, const size_t lda,
-                    services::Status * status)
+                    services::Status & status)
     {
         Execute op(queue, uplo, n, a_buffer, lda, status);
         TypeDispatcher::floatDispatch(a_buffer.type(), op);
@@ -113,10 +112,10 @@ private:
         const size_t lda;
         UniversalBuffer & b_buffer;
         const size_t ldb;
-        services::Status * status;
+        services::Status & status;
 
         explicit Execute(cl::sycl::queue & queue, const math::UpLo uplo, const size_t n, const size_t ny, UniversalBuffer & a_buffer,
-                         const size_t lda, UniversalBuffer & b_buffer, const size_t ldb, services::Status * status)
+                         const size_t lda, UniversalBuffer & b_buffer, const size_t ldb, services::Status & status)
             : queue(queue), uplo(uplo), n(n), ny(ny), a_buffer(a_buffer), lda(lda), b_buffer(b_buffer), ldb(ldb), status(status)
         {}
 
@@ -132,13 +131,13 @@ private:
             MKLPotrs<T> functor(queue);
 #endif
 
-            services::internal::tryAssignStatus(status, functor(uplo, n, ny, a_buffer_t, lda, b_buffer_t, ldb));
+            status |= functor(uplo, n, ny, a_buffer_t, lda, b_buffer_t, ldb);
         }
     };
 
 public:
     static void run(cl::sycl::queue & queue, const math::UpLo uplo, const size_t n, const size_t ny, UniversalBuffer & a_buffer, const size_t lda,
-                    UniversalBuffer & b_buffer, const size_t ldb, services::Status * status)
+                    UniversalBuffer & b_buffer, const size_t ldb, services::Status & status)
     {
         Execute op(queue, uplo, n, ny, a_buffer, lda, b_buffer, ldb, status);
         TypeDispatcher::floatDispatch(a_buffer.type(), op);

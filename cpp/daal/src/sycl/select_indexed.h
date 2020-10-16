@@ -44,7 +44,7 @@ public:
         UniversalBuffer indices;
 
         Result() {}
-        Result(ExecutionContextIface & context, uint32_t nK, uint32_t nVectors, TypeId valueType, services::Status * status)
+        Result(ExecutionContextIface & context, uint32_t nK, uint32_t nVectors, TypeId valueType, services::Status & status)
             : values(context.allocate(valueType, nVectors * nK, status)), indices(context.allocate(TypeIds::id<int>(), nVectors * nK, status))
         {}
     };
@@ -62,14 +62,14 @@ public:
 public:
     virtual ~SelectIndexed() {}
     virtual Result & selectIndices(const UniversalBuffer & dataVectors, uint32_t nK, uint32_t nVectors, uint32_t vectorSize, uint32_t lastVectorSize,
-                                   uint32_t vectorOffset, Result & result, services::Status * status) = 0;
+                                   uint32_t vectorOffset, Result & result, services::Status & status) = 0;
     static void convertIndicesToLabels(const UniversalBuffer & indices, const UniversalBuffer & labels, uint32_t nVectors, uint32_t vectorSize,
-                                       uint32_t vectorOffset, services::Status * status);
+                                       uint32_t vectorOffset, services::Status & status);
     void selectNearestDistancesAndLabels(const UniversalBuffer & distances, const UniversalBuffer & dataLabels, uint32_t nK, uint32_t nVectors,
-                                         uint32_t vectorSize, uint32_t vectorOffset, uint32_t labelOffset, Result & result, services::Status * status)
+                                         uint32_t vectorSize, uint32_t vectorOffset, uint32_t labelOffset, Result & result, services::Status & status)
     {
         selectIndices(distances, nK, nVectors, vectorSize, vectorSize, vectorOffset, result, status);
-        DAAL_CHECK_STATUS_PTR(status);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
         convertIndicesToLabels(result.indices, dataLabels, nVectors, nK, labelOffset, status);
     }
 };
@@ -78,10 +78,10 @@ class SelectIndexedFactory
 {
 public:
     SelectIndexedFactory();
-    SelectIndexed * create(int nK, SelectIndexed::Params & par, daal::services::Status * st);
+    SelectIndexed * create(int nK, SelectIndexed::Params & par, daal::services::Status & st);
 
 private:
-    typedef SelectIndexed * (*CreateFuncType)(SelectIndexed::Params & par, daal::services::Status * st);
+    typedef SelectIndexed * (*CreateFuncType)(SelectIndexed::Params & par, daal::services::Status & st);
     struct Entry
     {
         int minK;
@@ -106,16 +106,12 @@ class QuickSelectIndexed : public SelectIndexed
 public:
     static const int minK = 33;
     static const int maxK = INT_MAX;
-    static SelectIndexed * create(Params & par, daal::services::Status * st);
+    static SelectIndexed * create(Params & par, daal::services::Status & st);
     virtual Result & selectIndices(const UniversalBuffer & dataVectors, uint32_t nK, uint32_t nVectors, uint32_t vectorSize, uint32_t lastVectorSize,
-                                   uint32_t vectorOffset, Result & result, services::Status * status)
+                                   uint32_t vectorOffset, Result & result, services::Status & status)
     {
-        services::Status st = adjustIndexBuffer(nVectors, vectorSize);
-        services::internal::tryAssignStatus(status, st);
-        if (!st.ok())
-        {
-            return result;
-        }
+        status |= adjustIndexBuffer(nVectors, vectorSize);
+        DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, result);
         return selectIndices(dataVectors, _indices, _rndSeq, _nRndSeq, nK, nVectors, vectorSize, lastVectorSize, vectorOffset, result, status);
     }
 
@@ -124,9 +120,9 @@ private:
     services::Status adjustIndexBuffer(uint32_t number, uint32_t size);
     static Result & selectIndices(const UniversalBuffer & dataVectors, const UniversalBuffer & tempIndices, const UniversalBuffer & rndSeq,
                                   uint32_t nRndSeq, uint32_t nK, uint32_t nVectors, uint32_t vectorSize, uint32_t lastVectorSize,
-                                  uint32_t vectorOffset, Result & result, services::Status * status);
+                                  uint32_t vectorOffset, Result & result, services::Status & status);
     daal::services::Status init(Params & par);
-    static void buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId & vectorTypeId, services::Status * status);
+    static void buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId & vectorTypeId, services::Status & status);
 
 private:
     static const uint32_t _maxSeqLength = 1024;
@@ -141,12 +137,12 @@ class DirectSelectIndexed : public SelectIndexed
 public:
     static const int minK = 1;
     static const int maxK = 32;
-    static SelectIndexed * create(Params & par, daal::services::Status * st);
+    static SelectIndexed * create(Params & par, daal::services::Status & st);
     virtual Result & selectIndices(const UniversalBuffer & dataVectors, uint32_t nK, uint32_t nVectors, uint32_t vectorSize, uint32_t lastVectorSize,
-                                   uint32_t vectorOffset, Result & result, services::Status * status);
+                                   uint32_t vectorOffset, Result & result, services::Status & status);
 
 private:
-    static void buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId & vectorTypeId, uint32_t nK, services::Status * status);
+    static void buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId & vectorTypeId, uint32_t nK, services::Status & status);
 
 private:
     DirectSelectIndexed(uint32_t nK) : _nK(nK) {}

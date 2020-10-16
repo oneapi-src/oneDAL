@@ -66,7 +66,7 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
 
     if (nSV == 0)
     {
-        context.fill(distanceBuff, 0.0, &status);
+        context.fill(distanceBuff, 0.0, status);
         return status;
     }
 
@@ -75,7 +75,7 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
     auto svCoeffBuff = svCoeffBlock.getBuffer();
 
     const algorithmFPType bias(model->getBias());
-    context.fill(distanceBuff, double(bias), &status);
+    context.fill(distanceBuff, double(bias), status);
     DAAL_CHECK_STATUS_VAR(status);
 
     auto svTable = model->getSupportVectors();
@@ -84,7 +84,7 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
     const size_t nBlocks       = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRowsPerBlock, nSV);
-    auto kernelResU = context.allocate(TypeIds::id<algorithmFPType>(), nRowsPerBlock * nSV, &status);
+    auto kernelResU = context.allocate(TypeIds::id<algorithmFPType>(), nRowsPerBlock * nSV, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     auto kernelResBuff = kernelResU.template get<algorithmFPType>();

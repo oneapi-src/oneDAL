@@ -28,10 +28,16 @@ CORE.SERV.COMPILER.dpcpp = generic
 -Zl.dpcpp =
 -DEBC.dpcpp = -g
 
-COMPILER.lnx.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64) -stdlib=libstdc++ -fgnu-runtime -fwrapv
+COMPILER.lnx.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64) -stdlib=libstdc++ -fgnu-runtime -fwrapv \
+                     -Werror -Wreturn-type
 COMPILER.win.dpcpp = dpcpp -nologo -WX -Wno-deprecated-declarations
 
 link.dynamic.lnx.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64)
+
+pedantic.opts.lnx.dpcpp = -pedantic \
+                          -Wall \
+                          -Wextra \
+                          -Wno-unused-parameter
 
 p4_OPT.dpcpp   = -march=nocona
 mc_OPT.dpcpp   = -march=core2

@@ -70,10 +70,12 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::makeStep(const uin
     ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-    buildProgram(factory);
+    status |= buildProgram(factory);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "makeStep";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     KernelArguments args(5);
     args.set(0, gradientBuff, AccessModeIds::read);
@@ -83,7 +85,7 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::makeStep(const uin
     args.set(4, consCoeff);
 
     KernelRange range(argumentSize);
-    ctx.run(range, kernel, args, &status);
+    ctx.run(range, kernel, args, status);
 
     return status;
 }
@@ -91,7 +93,11 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::makeStep(const uin
 template <typename algorithmFPType>
 static services::Status sumReduction(const Buffer<algorithmFPType> & reductionBuffer, const size_t nWorkGroups, algorithmFPType & result)
 {
-    auto sumReductionArrayPtr      = reductionBuffer.toHost(data_management::readOnly);
+    services::Status status;
+
+    auto sumReductionArrayPtr = reductionBuffer.toHost(data_management::readOnly, status);
+    DAAL_CHECK_STATUS_VAR(status);
+
     const auto * sumReductionArray = sumReductionArrayPtr.get();
 
     // Final summation with CPU
@@ -99,7 +105,7 @@ static services::Status sumReduction(const Buffer<algorithmFPType> & reductionBu
     {
         result += sumReductionArray[i];
     }
-    return services::Status();
+    return status;
 }
 
 template <typename algorithmFPType>
@@ -112,10 +118,12 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::vectorNorm(const B
     ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-    buildProgram(factory);
+    status |= buildProgram(factory);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "sumSq";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     // InfoDevice& info = ctx.getInfoDevice();
     // const size_t maxWorkItemSizes1d = info.max_work_item_sizes_1d;
@@ -129,11 +137,11 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::vectorNorm(const B
 
     KernelNDRange range(1);
 
-    range.local(localRange, &status);
-    range.global(globalRange, &status);
+    range.local(localRange, status);
+    range.global(globalRange, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    UniversalBuffer buffer                  = ctx.allocate(idType, nWorkGroups, &status);
+    UniversalBuffer buffer                  = ctx.allocate(idType, nWorkGroups, status);
     Buffer<algorithmFPType> reductionBuffer = buffer.get<algorithmFPType>();
 
     KernelArguments args(3 /*4*/);
@@ -144,7 +152,7 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::vectorNorm(const B
 
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(vectorNorm.run);
-        ctx.run(range, kernel, args, &status);
+        ctx.run(range, kernel, args, status);
     }
 
     status = sumReduction<algorithmFPType>(reductionBuffer, nWorkGroups, norm);
@@ -155,16 +163,20 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::vectorNorm(const B
 }
 
 template <typename algorithmFPType>
-void SGDKernelOneAPI<algorithmFPType, miniBatch>::buildProgram(ClKernelFactoryIface & factory)
+services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::buildProgram(ClKernelFactoryIface & factory)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(buildProgram);
+    services::Status status;
     services::String options = getKeyFPType<algorithmFPType>();
 
     services::String cachekey("__daal_algorithms_optimization_solver_sgd_");
     cachekey.add(options);
     options.add(" -D LOCAL_SUM_SIZE=256 ");
 
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelSGDMiniBatch, options.c_str());
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelSGDMiniBatch, options.c_str(), status);
+    DAAL_CHECK_STATUS_VAR(status);
+
+    return status;
 }
 
 template <typename algorithmFPType>
@@ -241,7 +253,7 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::compute(HostAppIfa
     function->sumOfFunctionsParameter->batchIndices = ntBatchIndices;
 
     const TypeIds::Id idType                  = TypeIds::id<algorithmFPType>();
-    UniversalBuffer prevWorkValueU            = ctx.allocate(idType, argumentSize, &status);
+    UniversalBuffer prevWorkValueU            = ctx.allocate(idType, argumentSize, status);
     Buffer<algorithmFPType> prevWorkValueBuff = prevWorkValueU.get<algorithmFPType>();
 
     size_t startIteration = 0, nProceededIters = 0;
@@ -259,19 +271,19 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::compute(HostAppIfa
 
         const Buffer<algorithmFPType> pastWorkValueInputBuff = pastWorkValueInputBD.getBuffer();
 
-        ctx.copy(prevWorkValueBuff, 0, pastWorkValueInputBuff, 0, argumentSize, &status);
+        ctx.copy(prevWorkValueBuff, 0, pastWorkValueInputBuff, 0, argumentSize, status);
         pastWorkValueInput->releaseBlockOfRows(pastWorkValueInputBD);
     }
     else
     {
-        ctx.fill(prevWorkValueU, 0.0, &status);
+        ctx.fill(prevWorkValueU, 0.0, status);
     }
 
     // // init workValue
     BlockDescriptor<algorithmFPType> startValueBD;
     DAAL_CHECK_STATUS(status, inputArgument->getBlockOfRows(0, argumentSize, ReadWriteMode::readOnly, startValueBD));
     const Buffer<algorithmFPType> startValueBuff = startValueBD.getBuffer();
-    ctx.copy(workValueBuff, 0, startValueBuff, 0, argumentSize, &status);
+    ctx.copy(workValueBuff, 0, startValueBuff, 0, argumentSize, status);
 
     DAAL_CHECK_STATUS(status, inputArgument->releaseBlockOfRows(startValueBD));
 
@@ -282,7 +294,7 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::compute(HostAppIfa
     algorithmFPType learningRate = learningRateArray[0];
     algorithmFPType consCoeff    = consCoeffsArray[0];
 
-    UniversalBuffer gradientU            = ctx.allocate(idType, argumentSize, &status);
+    UniversalBuffer gradientU            = ctx.allocate(idType, argumentSize, status);
     Buffer<algorithmFPType> gradientBuff = gradientU.get<algorithmFPType>();
 
     auto gradientSNT = SyclHomogenNumericTable<algorithmFPType>::create(gradientBuff, 1, argumentSize);
@@ -329,7 +341,7 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::compute(HostAppIfa
                 }
             }
 
-            ctx.copy(prevWorkValueBuff, 0, workValueBuff, 0, argumentSize, &status);
+            ctx.copy(prevWorkValueBuff, 0, workValueBuff, 0, argumentSize, status);
         }
         DAAL_CHECK_STATUS(status, makeStep(argumentSize, prevWorkValueBuff, gradientBuff, workValueBuff, learningRate, consCoeff));
         nProceededIters++;
@@ -349,7 +361,7 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::compute(HostAppIfa
 
         Buffer<algorithmFPType> pastWorkValueResultBuffer = pastWorkValueResultBD.getBuffer();
 
-        ctx.copy(pastWorkValueResultBuffer, 0, prevWorkValueBuff, 0, argumentSize, &status);
+        ctx.copy(pastWorkValueResultBuffer, 0, prevWorkValueBuff, 0, argumentSize, status);
         pastWorkValueResult->releaseBlockOfRows(pastWorkValueResultBD);
     }
 
