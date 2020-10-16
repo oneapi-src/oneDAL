@@ -27,9 +27,15 @@ ONEAPI_DAL_EXPORT void _daal_threader_for_oneapi(int n,
                                                  int threads_request,
                                                  const void *a,
                                                  oneapi::dal::preview::functype func);
+
+ONEAPI_DAL_EXPORT void _daal_parallel_sort_oneapi(void *begin_ptr, void *end_ptr);
 }
 
 namespace oneapi::dal::preview::load_graph::detail {
+inline ONEAPI_DAL_EXPORT void parallel_sort(int *begin_ptr, int *end_ptr) {
+    _daal_parallel_sort_oneapi((void*)begin_ptr, (void*)end_ptr);
+}
+
 template <typename F>
 inline void threader_func(int i, const void *a) {
     const F &lambda = *static_cast<const F *>(a);

@@ -43,6 +43,7 @@
 using namespace daal::services;
 #else
     #include "src/externals/service_service.h"
+    #include "src/algorithms/service_qsort.h"
 #endif
 
 DAAL_EXPORT void * _threaded_scalable_malloc(const size_t size, const size_t alignment)
@@ -107,6 +108,17 @@ DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, 
     {
         func(i, a);
     }
+#endif
+}
+
+DAAL_EXPORT void _daal_parallel_sort(void ** begin_ptr, void * end_ptr)
+{
+    int * begin_p = (int *)begin_ptr;
+    int * end_p   = (int *)end_ptr;
+#if defined(__DO_TBB_LAYER__)
+    tbb::parallel_sort(begin_p, end_p);
+#elif defined(__DO_SEQ_LAYER__)
+    daal::algorithms::internal::services::qSort<int>(end_p - begin_p, begin_p);
 #endif
 }
 
