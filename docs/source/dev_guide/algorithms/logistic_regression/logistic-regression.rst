@@ -93,7 +93,7 @@ complete the following steps:
 
 - Create a Logistic Regression model builder using a constructor with the required number of responses and features.
 - Use the ``setBeta`` method to add the set of pre-calculated coefficients to the model.
-  Specify random access iterators to the first and the last element of the set of coefficients [ISO/IEC 14882:2011 §24.2.7].
+  Specify random access iterators to the first and the last element of the set of coefficients [ISO/IEC 14882:2011 §24.2.7]_.
 
   .. note:: 
   
