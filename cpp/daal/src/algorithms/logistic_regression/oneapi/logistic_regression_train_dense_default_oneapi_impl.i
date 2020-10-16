@@ -90,13 +90,13 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
     const size_t nBetaRows  = m.getBeta()->getNumberOfRows();
     const size_t nBetaTotal = nBeta * nBetaRows;
 
-    UniversalBuffer argumentU                                = ctx.allocate(idType, nBetaTotal, &status);
+    UniversalBuffer argumentU                                = ctx.allocate(idType, nBetaTotal, status);
     services::internal::Buffer<algorithmFPType> argumentBuff = argumentU.get<algorithmFPType>();
 
     auto argumentSNT = data_management::internal::SyclHomogenNumericTable<algorithmFPType>::create(argumentBuff, 1, nBetaTotal, &status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    ctx.fill(argumentU, 0.0, &status);
+    ctx.fill(argumentU, 0.0, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     //initialization
@@ -146,7 +146,7 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
         DAAL_CHECK_STATUS(status, betaNT->getBlockOfRows(0, nBetaRows, ReadWriteMode::writeOnly, dataRows));
 
         services::internal::Buffer<algorithmFPType> betaBuff = dataRows.getBuffer();
-        ctx.copy(betaBuff, 0, minimumBuff, 0, nBetaTotal, &status);
+        ctx.copy(betaBuff, 0, minimumBuff, 0, nBetaTotal, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         if (!par.interceptFlag)

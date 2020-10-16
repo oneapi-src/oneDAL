@@ -51,11 +51,11 @@ struct TaskWorkingSet
         services::Status status;
         auto & context = services::internal::getDefaultContext();
 
-        _sortedFIndices = context.allocate(TypeIds::id<uint32_t>(), _nVectors, &status);
+        _sortedFIndices = context.allocate(TypeIds::id<uint32_t>(), _nVectors, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        _indicator = context.allocate(TypeIds::id<uint32_t>(), _nVectors, &status);
-        context.fill(_indicator, 0, &status);
+        _indicator = context.allocate(TypeIds::id<uint32_t>(), _nVectors, status);
+        context.fill(_indicator, 0, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         auto & deviceInfo = context.getInfoDevice();
@@ -65,16 +65,16 @@ struct TaskWorkingSet
         _nWS       = utils::internal::min(utils::internal::maxpow2(_nVectors), utils::internal::maxpow2(maxWS));
         _nSelected = 0;
 
-        _valuesSort = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);
+        _valuesSort = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        _valuesSortBuff = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);
+        _valuesSortBuff = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        _buffIndices = context.allocate(TypeIds::id<uint32_t>(), _nVectors, &status);
+        _buffIndices = context.allocate(TypeIds::id<uint32_t>(), _nVectors, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        _wsIndices = context.allocate(TypeIds::id<uint32_t>(), _nWS, &status);
+        _wsIndices = context.allocate(TypeIds::id<uint32_t>(), _nWS, status);
         return status;
     }
 
@@ -85,7 +85,7 @@ struct TaskWorkingSet
         const size_t q = _nWS / 2;
         services::Status status;
         auto & context = services::internal::getDefaultContext();
-        context.copy(_wsIndices, 0, _wsIndices, q, _nWS - q, &status);
+        context.copy(_wsIndices, 0, _wsIndices, q, _nWS - q, status);
         _nSelected = q;
         return status;
     }
@@ -119,7 +119,7 @@ struct TaskWorkingSet
 
             const size_t nCopy = utils::internal::min(nUpperSelect, nNeedSelect);
 
-            context.copy(_wsIndices, _nSelected, _buffIndices, 0, nCopy, &status);
+            context.copy(_wsIndices, _nSelected, _buffIndices, 0, nCopy, status);
             DAAL_CHECK_STATUS_VAR(status);
 
             _nSelected += nCopy;
@@ -142,7 +142,7 @@ struct TaskWorkingSet
             const size_t nCopy = utils::internal::min(nLowerSelect, nNeedSelect);
 
             /* Copy latest nCopy elements */
-            context.copy(_wsIndices, _nSelected, _buffIndices, nLowerSelect - nCopy, nCopy, &status);
+            context.copy(_wsIndices, _nSelected, _buffIndices, nLowerSelect - nCopy, nCopy, status);
             DAAL_CHECK_STATUS_VAR(status);
             _nSelected += nCopy;
         }
@@ -164,7 +164,7 @@ struct TaskWorkingSet
 
             const size_t nCopy = utils::internal::min(nUpperSelect, nNeedSelect);
 
-            context.copy(_wsIndices, _nSelected, _buffIndices, 0, nCopy, &status);
+            context.copy(_wsIndices, _nSelected, _buffIndices, 0, nCopy, status);
             DAAL_CHECK_STATUS_VAR(status);
             _nSelected += nCopy;
         }
@@ -188,7 +188,8 @@ struct TaskWorkingSet
         services::Status status = Helper::buildProgram(factory);
         DAAL_CHECK_STATUS_VAR(status);
 
-        auto kernel = factory.getKernel("resetIndicatorWithZeros");
+        auto kernel = factory.getKernel("resetIndicatorWithZeros", status);
+        DAAL_CHECK_STATUS_VAR(status);
 
         KernelArguments args(2);
         args.set(0, idx, AccessModeIds::read);
@@ -196,7 +197,7 @@ struct TaskWorkingSet
 
         KernelRange range(n);
 
-        context.run(range, kernel, args, &status);
+        context.run(range, kernel, args, status);
         return status;
     }
 

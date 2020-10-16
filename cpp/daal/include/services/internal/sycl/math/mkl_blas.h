@@ -63,9 +63,10 @@ struct MKLGemm
         const MKL_TRANSPOSE transamkl = transa == math::Transpose::Trans ? MKL_TRANS : MKL_NOTRANS;
         const MKL_TRANSPOSE transbmkl = transb == math::Transpose::Trans ? MKL_TRANS : MKL_NOTRANS;
 
-        cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a_buffer.toSycl();
-        cl::sycl::buffer<algorithmFPType, 1> b_sycl_buff = b_buffer.toSycl();
-        cl::sycl::buffer<algorithmFPType, 1> c_sycl_buff = c_buffer.toSycl();
+        cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a_buffer.toSycl(status);
+        cl::sycl::buffer<algorithmFPType, 1> b_sycl_buff = b_buffer.toSycl(status);
+        cl::sycl::buffer<algorithmFPType, 1> c_sycl_buff = c_buffer.toSycl(status);
+        DAAL_CHECK_STATUS_VAR(status);
 
         innerGemm(transamkl, transbmkl, m, n, k, alpha, a_sycl_buff, lda, b_sycl_buff, ldb, beta, c_sycl_buff, ldc, offsetA, offsetB, offsetC);
 
@@ -117,8 +118,9 @@ struct MKLSyrk
         const MKL_TRANSPOSE transmkl = trans == math::Transpose::Trans ? MKL_TRANS : MKL_NOTRANS;
         const MKL_UPLO uplomkl       = upper_lower == math::UpLo::Upper ? MKL_UPPER : MKL_LOWER;
 
-        cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a_buffer.toSycl();
-        cl::sycl::buffer<algorithmFPType, 1> c_sycl_buff = c_buffer.toSycl();
+        cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a_buffer.toSycl(status);
+        cl::sycl::buffer<algorithmFPType, 1> c_sycl_buff = c_buffer.toSycl(status);
+        DAAL_CHECK_STATUS_VAR(status);
 
         innerSyrk(uplomkl, transmkl, n, k, alpha, a_sycl_buff, lda, beta, c_sycl_buff, ldc, offsetA, offsetC);
 
@@ -160,13 +162,16 @@ struct MKLAxpy
     services::Status operator()(const int n, const algorithmFPType a, const services::internal::Buffer<algorithmFPType> & x_buffer, const int incx,
                                 services::internal::Buffer<algorithmFPType> & y_buffer, const int incy)
     {
-        cl::sycl::buffer<algorithmFPType, 1> x_sycl_buff = x_buffer.toSycl();
-        cl::sycl::buffer<algorithmFPType, 1> y_sycl_buff = y_buffer.toSycl();
+        services::Status status;
+
+        cl::sycl::buffer<algorithmFPType, 1> x_sycl_buff = x_buffer.toSycl(status);
+        cl::sycl::buffer<algorithmFPType, 1> y_sycl_buff = y_buffer.toSycl(status);
+        DAAL_CHECK_STATUS_VAR(status);
 
         ::oneapi::fpk::blas::axpy(_queue, n, a, x_sycl_buff, incx, y_sycl_buff, incy);
 
         _queue.wait();
-        return services::Status();
+        return status;
     }
 
 private:
