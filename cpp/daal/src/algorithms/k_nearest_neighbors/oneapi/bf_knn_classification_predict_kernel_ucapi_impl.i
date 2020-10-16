@@ -53,7 +53,6 @@ using sort::RadixSort;
 using selection::QuickSelectIndexed;
 using selection::SelectIndexed;
 using selection::SelectIndexedFactory;
-;
 
 class Range
 {
