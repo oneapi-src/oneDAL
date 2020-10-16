@@ -21,15 +21,12 @@
 help:
 	@echo "Usage: make {lib|so|libintel64|sointel64|help}"
 	@echo "lib is alias for libintel64, so is alias for sointel64"
-	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
+	@echo "[example=name] [compiler=compiler_name] [mode=mode_name]"
 	@echo
 	@echo "name              - example name. Please see daal.lst file"
 	@echo
 	@echo "compiler_name     - currently can be dpc++ only that stands
 	@echo "                    for oneAPI DPC++ Compiler."
-	@echo
-	@echo "threading_name    - can be parallel or sequential in case CPU"
-	@echo "                    selector is used. Default value is parallel."
 	@echo
 	@echo "mode_name         - can be build or run. Default is run"
 
@@ -86,7 +83,7 @@ else
 endif
 
 ifeq ($(threading),sequential)
-    THREADING_LIB := onedal_sequential
+    $(error Sequential version is not supported)
 else
     override threading = parallel
     THREADING_LIB := onedal_thread
