@@ -27,21 +27,26 @@
 using namespace oneapi;
 
 void run(sycl::queue& queue) {
-    const std::string data_file_name = get_data_path("pca_normalized.csv");
+    const std::string train_data_file_name = get_data_path("pca_normalized.csv");
 
-    const auto data = dal::read<dal::table>(queue, dal::csv::data_source{data_file_name});
+    const auto x_train = dal::read<dal::table>(queue, dal::csv::data_source{ train_data_file_name });
 
     const auto pca_desc = dal::pca::descriptor<>()
         .set_component_count(5)
         .set_deterministic(true);
 
-    const auto result = dal::train(queue, pca_desc, data);
+    const auto result_train = dal::train(queue, pca_desc, x_train);
 
     std::cout << "Eigenvectors:" << std::endl
-              << result.get_eigenvectors() << std::endl;
+              << result_train.get_eigenvectors() << std::endl;
 
     std::cout << "Eigenvalues:" << std::endl
-              << result.get_eigenvalues() << std::endl;
+              << result_train.get_eigenvalues() << std::endl;
+
+    const auto result_infer = dal::infer(queue, pca_desc, result_train.get_model(), x_train);
+
+    std::cout << "Transformed data:" << std::endl
+              << result_infer.get_transformed_data() << std::endl;
 }
 
 int main(int argc, char const *argv[]) {

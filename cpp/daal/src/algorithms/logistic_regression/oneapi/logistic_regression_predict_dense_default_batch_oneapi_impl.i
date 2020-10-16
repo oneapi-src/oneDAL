@@ -52,11 +52,12 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::heaviside(co
     const services::String options = getKeyFPType<algorithmFPType>();
     services::String cachekey("__daal_algorithms_logistic_regression_prediction_");
     cachekey.add(options);
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelLogisticResgression, options.c_str(), &status);
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelLogisticResgression, options.c_str(), status);
     DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "heaviside";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     KernelArguments args(2);
     args.set(0, x, AccessModeIds::read);
@@ -64,7 +65,7 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::heaviside(co
 
     KernelRange range(n);
 
-    ctx.run(range, kernel, args, &status);
+    ctx.run(range, kernel, args, status);
 
     return status;
 }
@@ -83,11 +84,12 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::argMax(const
     const services::String options = getKeyFPType<algorithmFPType>();
     services::String cachekey("__daal_algorithms_logistic_regression_prediction_");
     cachekey.add(options);
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelLogisticResgression, options.c_str(), &status);
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelLogisticResgression, options.c_str(), status);
     DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "argMax";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     KernelArguments args(3);
     args.set(0, x, AccessModeIds::read);
@@ -96,7 +98,7 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::argMax(const
 
     KernelRange range(n);
 
-    ctx.run(range, kernel, args, &status);
+    ctx.run(range, kernel, args, status);
 
     return status;
 }
@@ -149,7 +151,7 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::compute(serv
         DAAL_CHECK_STATUS(status, CrossEntropyLoss::applyBeta(xBuff, betaBuff, fBuf, n, nClasses, p, p + 1, offset));
         DAAL_CHECK_STATUS(status, HelperObjectiveFunction::lazyAllocate(_oneVector, n));
         services::internal::Buffer<algorithmFPType> oneVectorBuf = _oneVector.get<algorithmFPType>();
-        ctx.fill(_oneVector, 1.0, &status);
+        ctx.fill(_oneVector, 1.0, status);
 
         DAAL_CHECK_STATUS(status, CrossEntropyLoss::betaIntercept(oneVectorBuf, betaBuff, fBuf, n, nClasses, p + 1));
     }

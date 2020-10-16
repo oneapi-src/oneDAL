@@ -166,7 +166,7 @@ public:
         services::Status status;
 
         auto & context = services::internal::getDefaultContext();
-        context.copy(_cache, 0, _cache, _nSelectRows * _lineSize, _nSelectRows * _lineSize, &status);
+        context.copy(_cache, 0, _cache, _nSelectRows * _lineSize, _nSelectRows * _lineSize, status);
         return status;
     }
 
@@ -180,14 +180,14 @@ protected:
         services::Status status;
         auto & context = services::internal::getDefaultContext();
 
-        _cache = context.allocate(TypeIds::id<algorithmFPType>(), _lineSize * _blockSize, &status);
+        _cache = context.allocate(TypeIds::id<algorithmFPType>(), _lineSize * _blockSize, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         _cacheBuff      = _cache.get<algorithmFPType>();
         auto cacheTable = SyclHomogenNumericTable<algorithmFPType>::create(_cacheBuff, _lineSize, _blockSize, &status);
 
         const size_t p = xTable->getNumberOfColumns();
-        _xBlock        = context.allocate(TypeIds::id<algorithmFPType>(), _blockSize * p, &status);
+        _xBlock        = context.allocate(TypeIds::id<algorithmFPType>(), _blockSize * p, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         _xBlockBuff                    = _xBlock.get<algorithmFPType>();

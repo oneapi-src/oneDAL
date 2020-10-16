@@ -76,9 +76,9 @@ class ConvertableToHostIface
 {
 public:
     virtual ~ConvertableToHostIface() {}
-    virtual SharedPtr<T> getHostRead(Status * status = NULL) const      = 0;
-    virtual SharedPtr<T> getHostWrite(Status * status = NULL) const     = 0;
-    virtual SharedPtr<T> getHostReadWrite(Status * status = NULL) const = 0;
+    virtual SharedPtr<T> getHostRead(Status & status) const      = 0;
+    virtual SharedPtr<T> getHostWrite(Status & status) const     = 0;
+    virtual SharedPtr<T> getHostReadWrite(Status & status) const = 0;
 };
 
 /**
@@ -156,9 +156,9 @@ private:
         using namespace daal::data_management;
         switch (_rwFlag)
         {
-        case readOnly: return buffer.getHostRead(&_status);
-        case writeOnly: return buffer.getHostWrite(&_status);
-        case readWrite: return buffer.getHostReadWrite(&_status);
+        case readOnly: return buffer.getHostRead(_status);
+        case writeOnly: return buffer.getHostWrite(_status);
+        case readWrite: return buffer.getHostReadWrite(_status);
         }
         DAAL_ASSERT(!"Unexpected read/write flag");
         return SharedPtr<T>();
@@ -177,11 +177,11 @@ template <typename T>
 class HostBufferConverter
 {
 public:
-    SharedPtr<T> toHost(const internal::BufferIface<T> & buffer, const data_management::ReadWriteMode & rwMode, Status * status = NULL)
+    SharedPtr<T> toHost(const internal::BufferIface<T> & buffer, const data_management::ReadWriteMode & rwMode, Status & status)
     {
         ConvertToHost<T> action(rwMode);
         buffer.apply(action);
-        tryAssignStatusAndThrow(status, action.getStatus());
+        status = action.getStatus();
         return action.get();
     }
 };

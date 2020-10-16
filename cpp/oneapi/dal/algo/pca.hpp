@@ -17,3 +17,4 @@
 #pragma once
 
 #include "oneapi/dal/algo/pca/train.hpp"
+#include "oneapi/dal/algo/pca/infer.hpp"

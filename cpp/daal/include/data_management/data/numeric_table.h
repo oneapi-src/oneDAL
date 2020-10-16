@@ -96,7 +96,12 @@ public:
         }
         else if (_xBuffer)
         {
-            return _xBuffer.toHost((data_management::ReadWriteMode)_rwFlag);
+            // If status is in erroneous state `toHost` returns empty shared
+            // pointer which the user is expected to check.
+            services::Status status;
+            services::SharedPtr<DataType> ptr = _xBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
+            services::throwIfPossible(status);
+            return ptr;
         }
         else
         {
@@ -307,7 +312,11 @@ protected:
     {
         if (!_hostSharedPtr)
         {
-            _hostSharedPtr = _xBuffer.toHost((data_management::ReadWriteMode)_rwFlag);
+            // If status is in erroneous state `toHost` returns empty shared
+            // pointer which the user is expected to check.
+            services::Status status;
+            _hostSharedPtr = _xBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
+            services::throwIfPossible(status);
         }
         return _hostSharedPtr;
     }
