@@ -18,7 +18,6 @@
 #include "src/sycl/sorter.h"
 #include "services/internal/execution_context.h"
 #include "src/externals/service_ittnotify.h"
-#include "services/internal/sycl/daal_defines_sycl.h"
 
 namespace daal
 {

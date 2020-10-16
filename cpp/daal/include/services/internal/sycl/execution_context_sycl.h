@@ -23,9 +23,9 @@
         #include "services/internal/hash_table.h"
         #include "services/internal/sycl/execution_context.h"
         #include "services/internal/sycl/kernel_scheduler_sycl.h"
+        #include "services/internal/sycl/error_handling_sycl.h"
         #include "services/internal/sycl/math/blas_executor.h"
         #include "services/internal/sycl/math/lapack_executor.h"
-        #include "services/internal/sycl/error_handling.h"
 
 namespace daal
 {

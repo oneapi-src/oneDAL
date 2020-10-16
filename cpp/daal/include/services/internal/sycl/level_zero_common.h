@@ -24,7 +24,7 @@
     #ifndef DAAL_DISABLE_LEVEL_ZERO
 
         #ifndef _ZE_API_H
-            #include "services/internal/sycl/daal_level_zero_types.h"
+            #include "services/internal/sycl/level_zero_types.h"
         #endif
 
 typedef ze_result_t (*zeModuleCreateFT)(ze_context_handle_t, ze_device_handle_t, const ze_module_desc_t *, ze_module_handle_t *,

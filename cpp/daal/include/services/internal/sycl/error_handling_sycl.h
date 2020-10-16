@@ -21,28 +21,26 @@
 #include <CL/cl.h>
 #include <CL/sycl.hpp>
 
-#include "services/internal/error_handling_helpers.h"
-#include "services/error_indexes.h"
-#include "services/daal_string.h"
-#include "services/internal/sycl/daal_level_zero_common.h"
+#include "services/error_handling.h"
+#include "services/internal/sycl/level_zero_common.h"
 
-#define DAAL_CHECK_OPENCL(cl_error, status, ...)                \
-    {                                                           \
-        if (cl_error != CL_SUCCESS)                             \
-        {                                                       \
-            status.add(convertOpenClErrorToErrorPtr(cl_error)); \
-            return __VA_ARGS__;                                 \
-        }                                                       \
+#define DAAL_CHECK_OPENCL(cl_error, status, ...)              \
+    {                                                         \
+        if (cl_error != CL_SUCCESS)                           \
+        {                                                     \
+            status |= convertOpenClErrorToErrorPtr(cl_error); \
+            return __VA_ARGS__;                               \
+        }                                                     \
     }
 
 #ifndef DAAL_DISABLE_LEVEL_ZERO
-    #define DAAL_CHECK_LEVEL_ZERO(ze_error, status, ...)               \
-        {                                                              \
-            if (ze_error != ZE_RESULT_SUCCESS)                         \
-            {                                                          \
-                status.add(convertLevelZeroErrorToErrorPtr(ze_error)); \
-                return __VA_ARGS__;                                    \
-            }                                                          \
+    #define DAAL_CHECK_LEVEL_ZERO(ze_error, status, ...)             \
+        {                                                            \
+            if (ze_error != ZE_RESULT_SUCCESS)                       \
+            {                                                        \
+                status |= convertLevelZeroErrorToErrorPtr(ze_error); \
+                return __VA_ARGS__;                                  \
+            }                                                        \
         }
 #endif // DAAL_DISABLE_LEVEL_ZERO
 

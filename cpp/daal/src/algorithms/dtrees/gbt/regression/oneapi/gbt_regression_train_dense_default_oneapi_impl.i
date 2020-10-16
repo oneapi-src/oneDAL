@@ -40,7 +40,6 @@
 #include "src/services/service_data_utils.h"
 #include "src/services/service_algo_utils.h"
 #include "services/internal/sycl/types.h"
-#include "services/internal/sycl/daal_defines_sycl.h"
 
 using namespace daal::algorithms::dtrees::training::internal;
 using namespace daal::algorithms::gbt::internal;

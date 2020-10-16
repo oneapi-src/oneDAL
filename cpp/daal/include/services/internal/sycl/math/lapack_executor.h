@@ -29,7 +29,6 @@
 #endif
 
 #include "services/internal/error_handling_helpers.h"
-#include "services/internal/sycl/daal_defines_sycl.h"
 #include "services/internal/sycl/types_utils.h"
 #include "services/internal/sycl/math/reference_lapack.h"
 #include "services/internal/sycl/math/types.h"

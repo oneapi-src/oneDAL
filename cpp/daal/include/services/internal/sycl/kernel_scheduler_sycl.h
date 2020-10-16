@@ -22,19 +22,17 @@
         #include <CL/cl.h>
         #include <CL/sycl.hpp>
 
-        #include "services/internal/sycl/daal_level_zero_common.h"
+        #include "services/internal/sycl/level_zero_common.h"
 
         #ifndef DAAL_DISABLE_LEVEL_ZERO
-            #include "services/internal/sycl/daal_ze_module_helper.h"
+            #include "services/internal/sycl/level_zero_module_helper.h"
         #endif // DAAL_DISABLE_LEVEL_ZERO
 
         #include <cstring>
-        #include <vector>
 
-        #include "services/internal/sycl/error_handling.h"
+        #include "services/internal/sycl/error_handling_sycl.h"
         #include "services/internal/sycl/execution_context.h"
-        #include "services/internal/sycl/types_utils_cxx11.h"
-        #include "services/daal_string.h"
+        #include "services/internal/sycl/buffer_utils_sycl.h"
 
 namespace daal
 {

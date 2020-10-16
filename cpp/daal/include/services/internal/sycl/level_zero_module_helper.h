@@ -25,14 +25,15 @@
     #ifndef __DAAL_SERVICES_INTERNAL_SYCL_DAAL_ZE_MODULE_HELPER_H__
         #define __DAAL_SERVICES_INTERNAL_SYCL_DAAL_ZE_MODULE_HELPER_H__
 
-        #include "services/internal/sycl/daal_level_zero_common.h"
+        #include "services/internal/sycl/level_zero_common.h"
 
         #ifndef DAAL_DISABLE_LEVEL_ZERO
 
             #include <CL/sycl.hpp>
-            #include "services/internal/sycl/error_handling.h"
+
             #include "services/daal_shared_ptr.h"
             #include "services/internal/dynamic_lib_helper.h"
+            #include "services/internal/sycl/error_handling_sycl.h"
 
             #if (defined(__SYCL_COMPILER_VERSION) && (__SYCL_COMPILER_VERSION >= 20200701))
                 #include <CL/sycl/backend/level_zero.hpp>

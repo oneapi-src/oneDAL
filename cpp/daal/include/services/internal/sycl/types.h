@@ -21,9 +21,18 @@
 #include <cstddef>
 #include <stdint.h>
 
-#include "services/internal/buffer.h"
-#include "services/internal/any.h"
 #include "services/daal_string.h"
+#include "services/internal/any.h"
+#include "services/internal/buffer.h"
+
+#define DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(buffer, BufferType)  \
+    DAAL_ASSERT((buffer).type() == TypeIds::id<BufferType>());
+
+#define DAAL_ASSERT_UNIVERSAL_BUFFER(buffer, BufferType, bufferSize)             \
+    {                                                                            \
+        DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(buffer, BufferType)                    \
+        DAAL_ASSERT((buffer).template get<BufferTYpe>().size() == (bufferSize)); \
+    }
 
 namespace daal
 {

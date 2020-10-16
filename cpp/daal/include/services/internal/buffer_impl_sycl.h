@@ -21,7 +21,7 @@
 #include <CL/sycl.hpp>
 #include "services/internal/any.h"
 #include "services/internal/buffer_impl.h"
-#include "services/internal/sycl/error_handling.h"
+#include "services/internal/sycl/error_handling_sycl.h"
 
 namespace daal
 {
