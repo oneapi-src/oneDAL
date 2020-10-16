@@ -77,7 +77,7 @@ public:
     {
         data_management::BlockDescriptor<modelFPType> resBeta, inBeta;
         const size_t nVectorsBeta = _nClasses == 2 ? 1 : _nClasses;
-        
+
         if (beta->getNumberOfColumns() == _nFeatures)
         {
             setInterceptFlag(false);
@@ -85,9 +85,9 @@ public:
             {
                 _modelPtr->getBeta()->getBlockOfRows(i, 1, data_management::writeOnly, resBeta);
                 beta->getBlockOfRows(i, 1, data_management::readOnly, inBeta);
-                modelFPType * const resBetaData         = resBeta.getBlockPtr();
-                const modelFPType * const  inBetaData   = inBeta.getBlockPtr();
-                resBetaData[0] = modelFPType(0);
+                modelFPType * const resBetaData      = resBeta.getBlockPtr();
+                const modelFPType * const inBetaData = inBeta.getBlockPtr();
+                resBetaData[0]                       = modelFPType(0);
                 for (size_t j = 0; j < _nFeatures; ++j)
                 {
                     resBetaData[j + 1] = inBetaData[j];
@@ -103,7 +103,7 @@ public:
             beta->getBlockOfRows(0, nVectorsBeta, data_management::readOnly, inBeta);
             modelFPType * const resBetaData      = resBeta.getBlockPtr();
             const modelFPType * const inBetaData = inBeta.getBlockPtr();
-            const size_t betaSize = beta->getNumberOfColumns() * beta->getNumberOfRows();
+            const size_t betaSize                = beta->getNumberOfColumns() * beta->getNumberOfRows();
             for (size_t i = 0; i < betaSize; ++i)
             {
                 resBetaData[i] = inBetaData[i];
@@ -115,7 +115,7 @@ public:
         {
             _s = services::Status(services::ErrorIncorrectParameter);
             services::throwIfPossible(_s);
-        }    
+        }
     }
 
     /**
