@@ -287,6 +287,9 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeDi
 
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.GEMM);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(distances, algorithmFpType, queryBlockRowCount * dataBlockRowCount);
+    DAAL_ASSERT(data.size() >= dataBlockRowCount * nFeatures);
+    DAAL_ASSERT(query.size() >= queryBlockRowCount * nFeatures);
     return BlasGpu<algorithmFpType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::Trans, queryBlockRowCount,
                                            dataBlockRowCount, nFeatures, algorithmFpType(-2.0), query, nFeatures, 0, data, nFeatures, 0,
                                            algorithmFpType(1.0), distances.get<algorithmFpType>(), dataBlockRowCount, 0);
