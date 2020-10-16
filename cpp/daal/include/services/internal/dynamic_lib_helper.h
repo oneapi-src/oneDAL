@@ -57,7 +57,7 @@ class DynamicLibHelper final
 public:
     DynamicLibHelper()                         = delete;
     DynamicLibHelper(const DynamicLibHelper &) = delete;
-    DynamicLibHelper(const char * libName, int flag, services::Status * status = NULL)
+    DynamicLibHelper(const char * libName, int flag, services::Status & status)
     {
         services::Status localStatus;
     #ifdef __linux__
@@ -67,7 +67,7 @@ public:
     #endif
         if (!_handle)
         {
-            services::internal::tryAssignStatusAndThrow(status, services::ErrorCanNotLoadDynamicLibrary);
+            status |= services::ErrorCanNotLoadDynamicLibrary;
             return;
         }
     }
@@ -82,7 +82,7 @@ public:
     };
 
     template <typename T>
-    T getSymbol(const char * symName, services::Status * status = NULL)
+    T getSymbol(const char * symName, services::Status & status)
     {
     #ifdef __linux__
         void * sym   = dlsym(_handle, symName);
@@ -90,7 +90,7 @@ public:
 
         if (NULL != error)
         {
-            services::internal::tryAssignStatusAndThrow(status, services::ErrorCanNotLoadDynamicLibrarySymbol);
+            status |= services::ErrorCanNotLoadDynamicLibrarySymbol;
             return NULL;
         }
     #elif defined(_WIN32) || defined(_WIN64)
@@ -98,7 +98,7 @@ public:
 
         if (NULL == sym)
         {
-            services::internal::tryAssignStatusAndThrow(status, services::ErrorCanNotLoadDynamicLibrarySymbol);
+            status |= services::ErrorCanNotLoadDynamicLibrarySymbol;
             return NULL;
         }
     #endif

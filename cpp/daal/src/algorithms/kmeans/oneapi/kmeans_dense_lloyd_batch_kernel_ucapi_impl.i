@@ -73,7 +73,7 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
 
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
-    this->buildProgram(kernel_factory, nClusters, &st);
+    this->buildProgram(kernel_factory, nClusters, st);
     DAAL_CHECK_STATUS_VAR(st);
 
     uint32_t blockSize = 0;
@@ -119,47 +119,44 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
                 return Status(ErrorNullPtr);
             }
 
-            this->computeSquares(inCentroids, this->_centroidsSq, nClusters, nFeatures, &st);
+            this->computeSquares(inCentroids, this->_centroidsSq, nClusters, nFeatures, st);
             DAAL_CHECK_STATUS_VAR(st);
-            this->computeDistances(data, inCentroids, range.count, nClusters, nFeatures, &st);
+            this->computeDistances(data, inCentroids, range.count, nClusters, nFeatures, st);
             DAAL_CHECK_STATUS_VAR(st);
-            this->computeAssignments(assignments, range.count, nClusters, &st);
+            this->computeAssignments(assignments, range.count, nClusters, st);
             DAAL_CHECK_STATUS_VAR(st);
-            this->computeSquares(data, this->_dataSq, range.count, nFeatures, &st);
+            this->computeSquares(data, this->_dataSq, range.count, nFeatures, st);
             DAAL_CHECK_STATUS_VAR(st);
-            this->partialReduceCentroids(data, assignments, range.count, nClusters, nFeatures, int(block == 0), &st);
+            this->partialReduceCentroids(data, assignments, range.count, nClusters, nFeatures, int(block == 0), st);
             DAAL_CHECK_STATUS_VAR(st);
             if (needCandidates)
             {
-                this->getNumEmptyClusters(nClusters, &st);
+                this->getNumEmptyClusters(nClusters, st);
                 DAAL_CHECK_STATUS_VAR(st);
                 int numEmpty = 0;
                 {
-                    auto num = this->_numEmptyClusters.template get<int>().toHost(ReadWriteMode::readOnly);
-                    if (!num.get())
-                    {
-                        return Status(ErrorNullPtr);
-                    }
+                    auto num = this->_numEmptyClusters.template get<int>().toHost(ReadWriteMode::readOnly, st);
+                    DAAL_CHECK_STATUS_VAR(st);
 
                     numEmpty = num.get()[0];
                 }
                 bool hasEmptyClusters = numEmpty > 0;
                 if (hasEmptyClusters)
                 {
-                    this->computePartialCandidates(assignments, range.count, nClusters, int(block == 0), &st);
+                    this->computePartialCandidates(assignments, range.count, nClusters, int(block == 0), st);
                     DAAL_CHECK_STATUS_VAR(st);
-                    this->mergePartialCandidates(nClusters, &st);
+                    this->mergePartialCandidates(nClusters, st);
                     DAAL_CHECK_STATUS_VAR(st);
                 }
                 needCandidates = hasEmptyClusters;
             }
-            this->updateObjectiveFunction(objFunction, range.count, nClusters, int(block == 0), &st);
+            this->updateObjectiveFunction(objFunction, range.count, nClusters, int(block == 0), st);
             DAAL_CHECK_STATUS_VAR(st);
             DAAL_CHECK_STATUS_VAR(ntData->releaseBlockOfRows(dataRows));
             DAAL_CHECK_STATUS_VAR(ntAssignments->releaseBlockOfRows(assignmentsRows));
         }
 
-        this->mergeReduceCentroids(outCentroids, nClusters, nFeatures, &st);
+        this->mergeReduceCentroids(outCentroids, nClusters, nFeatures, st);
         DAAL_CHECK_STATUS_VAR(st);
         algorithmFPType objFuncCorrection = 0.0;
         if (needCandidates)
@@ -168,11 +165,8 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
         }
         algorithmFPType curObjFunction = (algorithmFPType)0.0;
         {
-            auto hostPtr = objFunction.toHost(data_management::readOnly);
-            if (!hostPtr)
-            {
-                return Status(ErrorNullPtr);
-            }
+            auto hostPtr = objFunction.toHost(data_management::readOnly, st);
+            DAAL_CHECK_STATUS_VAR(st);
 
             curObjFunction = *hostPtr;
             curObjFunction -= objFuncCorrection;
@@ -208,15 +202,15 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
             return Status(ErrorNullPtr);
         }
 
-        this->computeSquares(inCentroids, this->_centroidsSq, nClusters, nFeatures, &st);
+        this->computeSquares(inCentroids, this->_centroidsSq, nClusters, nFeatures, st);
         DAAL_CHECK_STATUS_VAR(st);
-        this->computeDistances(data, inCentroids, range.count, nClusters, nFeatures, &st);
+        this->computeDistances(data, inCentroids, range.count, nClusters, nFeatures, st);
         DAAL_CHECK_STATUS_VAR(st);
-        this->computeAssignments(assignments, range.count, nClusters, &st);
+        this->computeAssignments(assignments, range.count, nClusters, st);
         DAAL_CHECK_STATUS_VAR(st);
-        this->computeSquares(data, this->_dataSq, range.count, nFeatures, &st);
+        this->computeSquares(data, this->_dataSq, range.count, nFeatures, st);
         DAAL_CHECK_STATUS_VAR(st);
-        this->updateObjectiveFunction(objFunction, range.count, nClusters, int(block == 0), &st);
+        this->updateObjectiveFunction(objFunction, range.count, nClusters, int(block == 0), st);
         DAAL_CHECK_STATUS_VAR(st);
         DAAL_CHECK_STATUS_VAR(ntData->releaseBlockOfRows(dataRows));
         DAAL_CHECK_STATUS_VAR(ntAssignments->releaseBlockOfRows(assignmentsRows));

@@ -45,7 +45,7 @@ public:
 
         Result() {}
         Result(ExecutionContextIface & context, uint32_t nK, uint32_t nVectors, TypeId valueType, services::Status & status)
-            : values(context.allocate(valueType, nVectors * nK, &status)), indices(context.allocate(TypeIds::id<int>(), nVectors * nK, &status))
+            : values(context.allocate(valueType, nVectors * nK, status)), indices(context.allocate(TypeIds::id<int>(), nVectors * nK, status))
         {}
     };
     struct Params
@@ -113,11 +113,8 @@ public:
     virtual Result & selectIndices(const UniversalBuffer & dataVectors, uint32_t nK, uint32_t nVectors, uint32_t vectorSize, uint32_t lastVectorSize,
                                    uint32_t vectorOffset, Result & result, services::Status & status)
     {
-        status.add(adjustIndexBuffer(nVectors, vectorSize));
-        if (!status.ok())
-        {
-            return result;
-        }
+        status |= adjustIndexBuffer(nVectors, vectorSize);
+        DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, result);
         return selectIndices(dataVectors, _indices, _rndSeq, _nRndSeq, nK, nVectors, vectorSize, lastVectorSize, vectorOffset, result, status);
     }
 

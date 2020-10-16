@@ -129,18 +129,18 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, maxQueryBlockRowCount * k, selectionMaxNumberOfChunks);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, maxQueryBlockRowCount, histogramSize);
 
-    auto dataSumOfSquares = context.allocate(TypeIds::id<algorithmFpType>(), maxDataBlockRowCount, &st);
+    auto dataSumOfSquares = context.allocate(TypeIds::id<algorithmFpType>(), maxDataBlockRowCount, st);
     DAAL_CHECK_STATUS_VAR(st);
-    auto distances = context.allocate(TypeIds::id<algorithmFpType>(), maxDataBlockRowCount * maxQueryBlockRowCount, &st);
+    auto distances = context.allocate(TypeIds::id<algorithmFpType>(), maxDataBlockRowCount * maxQueryBlockRowCount, st);
     DAAL_CHECK_STATUS_VAR(st);
-    auto partialDistances = context.allocate(TypeIds::id<algorithmFpType>(), maxQueryBlockRowCount * k * selectionMaxNumberOfChunks, &st);
+    auto partialDistances = context.allocate(TypeIds::id<algorithmFpType>(), maxQueryBlockRowCount * k * selectionMaxNumberOfChunks, st);
     DAAL_CHECK_STATUS_VAR(st);
-    auto partialLabels = context.allocate(TypeIds::id<int>(), maxQueryBlockRowCount * k * selectionMaxNumberOfChunks, &st);
+    auto partialLabels = context.allocate(TypeIds::id<int>(), maxQueryBlockRowCount * k * selectionMaxNumberOfChunks, st);
     DAAL_CHECK_STATUS_VAR(st);
-    auto sortedLabels = context.allocate(TypeIds::id<int>(), maxQueryBlockRowCount * k, &st);
+    auto sortedLabels = context.allocate(TypeIds::id<int>(), maxQueryBlockRowCount * k, st);
     DAAL_CHECK_STATUS_VAR(st);
     // temporary buffer for RADIX sort
-    auto radixBuffer = context.allocate(TypeIds::id<int>(), maxQueryBlockRowCount * histogramSize, &st);
+    auto radixBuffer = context.allocate(TypeIds::id<int>(), maxQueryBlockRowCount * histogramSize, st);
     DAAL_CHECK_STATUS_VAR(st);
 
     const uint32_t nDataBlockCount      = nDataRows / maxDataBlockRowCount + uint32_t(nDataRows % maxDataBlockRowCount != 0);
@@ -151,7 +151,7 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
 
     SelectIndexed::Params params(k, TypeIds::id<algorithmFpType>(), maxDataBlockRowCount, parameter->engine);
     SelectIndexedFactory factory;
-    services::SharedPtr<SelectIndexed> selector(factory.create(k, params, st));
+    SharedPtr<SelectIndexed> selector(factory.create(k, params, st));
     DAAL_CHECK_STATUS_VAR(st);
 
     for (uint32_t qblock = 0; qblock < nQueryBlockCount; qblock++)
@@ -173,7 +173,7 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
                 BlockDescriptor<algorithmFpType> dataRows;
                 DAAL_CHECK_STATUS_VAR(points->getBlockOfRows(curDataRange.startIndex, curDataRange.count, readOnly, dataRows));
                 // Collect sums of squares from train data
-                auto sumResult = math::SumReducer::sum(math::Layout::RowMajor, dataRows.getBuffer(), curDataRange.count, nFeatures, &st);
+                auto sumResult = math::SumReducer::sum(math::Layout::RowMajor, dataRows.getBuffer(), curDataRange.count, nFeatures, st);
                 DAAL_CHECK_STATUS_VAR(st);
                 // Initialize GEMM distances
                 DAAL_CHECK_STATUS_VAR(scatterSumOfSquares(context, sumResult.sumOfSquares, curDataRange.count, curQueryRange.count, distances));
@@ -198,9 +198,8 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
                                                                             k * curDataBlockRange.count, k * selectionMaxNumberOfChunks,
                                                                             k * selectionMaxNumberOfChunks, selectResult));
         }
-        DAAL_CHECK_STATUS_VAR(st);
         // sort labels of closest neighbors
-        RadixSort::sort(selectResult.indices, sortedLabels, radixBuffer, curQueryRange.count, k, k, st);
+        st |= RadixSort::sort(selectResult.indices, sortedLabels, radixBuffer, curQueryRange.count, k, k);
         DAAL_CHECK_STATUS_VAR(st);
         BlockDescriptor<algorithmFpType> labelsBlock;
         DAAL_CHECK_STATUS_VAR(y->getBlockOfRows(curQueryRange.startIndex, curQueryRange.count, writeOnly, labelsBlock));
@@ -221,7 +220,7 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::copyParti
     services::Status st;
     auto & kernelFactory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernelFactory));
-    auto kernel = kernelFactory.getKernel("copy_partial_selection", &st);
+    auto kernel = kernelFactory.getKernel("copy_partial_selection", st);
     DAAL_CHECK_STATUS_VAR(st);
 
     DAAL_ASSERT_UNIVERSAL_BUFFER(distances, algorithmFpType, queryBlockRows * k);
@@ -242,11 +241,11 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::copyParti
     KernelRange globalRange(queryBlockRows, k);
 
     KernelNDRange range(2);
-    range.global(globalRange, &st);
+    range.global(globalRange, st);
     DAAL_CHECK_STATUS_VAR(st);
-    range.local(localRange, &st);
+    range.local(localRange, st);
     DAAL_CHECK_STATUS_VAR(st);
-    context.run(range, kernel, args, &st);
+    context.run(range, kernel, args, st);
     DAAL_CHECK_STATUS_VAR(st);
     return st;
 }
@@ -263,7 +262,7 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::scatterSu
     services::Status st;
     auto & kernelFactory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernelFactory));
-    auto kernel = kernelFactory.getKernel("scatter_row", &st);
+    auto kernel = kernelFactory.getKernel("scatter_row", st);
     DAAL_CHECK_STATUS_VAR(st);
 
     DAAL_ASSERT_UNIVERSAL_BUFFER(dataSumOfSquares, algorithmFpType, dataBlockRowCount);
@@ -275,7 +274,7 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::scatterSu
     args.set(2, static_cast<int32_t>(dataBlockRowCount));
 
     KernelRange globalRange(dataBlockRowCount, queryBlockRowCount);
-    context.run(globalRange, kernel, args, &st);
+    context.run(globalRange, kernel, args, st);
     DAAL_CHECK_STATUS_VAR(st);
     return st;
 }
@@ -304,7 +303,7 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeWi
     services::Status st;
     auto & kernelFactory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernelFactory));
-    auto kernel = kernelFactory.getKernel("find_max_occurance", &st);
+    auto kernel = kernelFactory.getKernel("find_max_occurance", st);
     DAAL_CHECK_STATUS_VAR(st);
 
     DAAL_ASSERT_UNIVERSAL_BUFFER(labels, int, queryBlockRowCount * k);
@@ -319,11 +318,11 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeWi
     KernelRange globalRange(queryBlockRowCount);
 
     KernelNDRange range(1);
-    range.global(globalRange, &st);
+    range.global(globalRange, st);
     DAAL_CHECK_STATUS_VAR(st);
-    range.local(localRange, &st);
+    range.local(localRange, st);
     DAAL_CHECK_STATUS_VAR(st);
-    context.run(range, kernel, args, &st);
+    context.run(range, kernel, args, st);
     DAAL_CHECK_STATUS_VAR(st);
     return st;
 }
@@ -331,17 +330,18 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeWi
 template <typename algorithmFpType>
 services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::buildProgram(ClKernelFactoryIface & kernelFactory)
 {
-    auto fptype_name   = services::internal::sycl::getKeyFPType<algorithmFpType>();
-    auto build_options = fptype_name;
-    build_options.add(" -D sortedType=int -D NumParts=16 ");
+    auto fptypeName   = services::internal::sycl::getKeyFPType<algorithmFpType>();
+    auto buildOptions = fptypeName;
+    buildOptions.add(" -D sortedType=int -D NumParts=16 ");
 
     services::String cachekey("__daal_algorithms_bf_knn_block_");
-    cachekey.add(fptype_name);
+    cachekey.add(fptypeName);
+    cachekey.add(buildOptions);
 
     services::Status st;
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(compute.buildProgram);
-        kernelFactory.build(ExecutionTargetIds::device, cachekey.c_str(), bf_knn_cl_kernels, build_options.c_str(), &st);
+        kernelFactory.build(ExecutionTargetIds::device, cachekey.c_str(), bf_knn_cl_kernels, buildOptions.c_str(), st);
         DAAL_CHECK_STATUS_VAR(st);
     }
     return st;

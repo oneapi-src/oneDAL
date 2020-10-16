@@ -55,18 +55,18 @@ public:
         return new UsmBuffer<T>(SharedPtr<T>(_data, _data.get() + offset), size, _allocType);
     }
 
-    SharedPtr<T> getHostRead(Status * status = nullptr) const DAAL_C11_OVERRIDE { return getHostPtr(status); }
+    SharedPtr<T> getHostRead(Status & status) const DAAL_C11_OVERRIDE { return getHostPtr(status); }
 
-    SharedPtr<T> getHostWrite(Status * status = nullptr) const DAAL_C11_OVERRIDE { return getHostPtr(status); }
+    SharedPtr<T> getHostWrite(Status & status) const DAAL_C11_OVERRIDE { return getHostPtr(status); }
 
-    SharedPtr<T> getHostReadWrite(Status * status = nullptr) const DAAL_C11_OVERRIDE { return getHostPtr(status); }
+    SharedPtr<T> getHostReadWrite(Status & status) const DAAL_C11_OVERRIDE { return getHostPtr(status); }
 
     const SharedPtr<T> & get() const DAAL_C11_OVERRIDE { return _data; }
 
     cl::sycl::usm::alloc getAllocType() const { return _allocType; }
 
 private:
-    SharedPtr<T> getHostPtr(Status * status) const
+    SharedPtr<T> getHostPtr(Status & status) const
     {
         using namespace cl::sycl::usm;
         if (_allocType == alloc::host || _allocType == alloc::shared)
@@ -77,8 +77,7 @@ private:
         /* Note: `cl::sycl::get_pointer_info` is not implemented right now. With
          * the `get_pointer_info` logic shall be the following: If device is
          * host or CPU, return `_data`, otherwise throw exception. */
-        const auto error = Error::create(ErrorAccessUSMPointerOnOtherDevice, Sycl, "Cannot access device pointer on host");
-        tryAssignStatusAndThrow(status, error);
+        status |= Error::create(ErrorAccessUSMPointerOnOtherDevice, Sycl, "Cannot access device pointer on host");
 
         return SharedPtr<T>();
     }
@@ -153,11 +152,11 @@ public:
         return new SyclBuffer<T>(BufferType(buffer, offset, size));
     }
 
-    SharedPtr<T> getHostRead(Status * status = nullptr) const DAAL_C11_OVERRIDE { return getHostPtr<cl::sycl::access::mode::read>(); }
+    SharedPtr<T> getHostRead(Status & status) const DAAL_C11_OVERRIDE { return getHostPtr<cl::sycl::access::mode::read>(); }
 
-    SharedPtr<T> getHostWrite(Status * status = nullptr) const DAAL_C11_OVERRIDE { return getHostPtr<cl::sycl::access::mode::write>(); }
+    SharedPtr<T> getHostWrite(Status & status) const DAAL_C11_OVERRIDE { return getHostPtr<cl::sycl::access::mode::write>(); }
 
-    SharedPtr<T> getHostReadWrite(Status * status = nullptr) const DAAL_C11_OVERRIDE { return getHostPtr<cl::sycl::access::mode::read_write>(); }
+    SharedPtr<T> getHostReadWrite(Status & status) const DAAL_C11_OVERRIDE { return getHostPtr<cl::sycl::access::mode::read_write>(); }
 
     const BufferType & get() const { return _syclBuffer; }
 

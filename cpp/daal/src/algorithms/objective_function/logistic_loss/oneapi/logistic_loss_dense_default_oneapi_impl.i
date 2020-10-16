@@ -79,10 +79,12 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::applyHessia
     ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-    buildProgram(factory);
+    status |= buildProgram(factory);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "hessian";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     KernelArguments args(8);
     args.set(0, x, AccessModeIds::read);
@@ -96,7 +98,7 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::applyHessia
 
     KernelRange range(p, p);
 
-    ctx.run(range, kernel, args, &status);
+    ctx.run(range, kernel, args, status);
 
     return services::Status();
 }
@@ -113,10 +115,12 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::logLoss(con
     ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-    buildProgram(factory);
+    status |= buildProgram(factory);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "logLoss";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     KernelArguments args(3);
     args.set(0, y, AccessModeIds::read);
@@ -124,7 +128,7 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::logLoss(con
     args.set(2, result, AccessModeIds::write);
 
     KernelRange range(n);
-    ctx.run(range, kernel, args, &status);
+    ctx.run(range, kernel, args, status);
     return status;
 }
 
@@ -141,10 +145,12 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::sigmoids(co
     ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-    buildProgram(factory);
+    status |= buildProgram(factory);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "sigmoid";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const algorithmFPType expThreshold = math::expThreshold<algorithmFPType>();
 
@@ -155,7 +161,7 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::sigmoids(co
     args.set(3, result, AccessModeIds::write);
 
     KernelRange range(n);
-    ctx.run(range, kernel, args, &status);
+    ctx.run(range, kernel, args, status);
     return status;
 }
 
@@ -182,17 +188,20 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::hessianInte
                                                                                       const uint32_t nBeta, const algorithmFPType alpha)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(hessianIntercept);
+    services::Status status;
+
     ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-    buildProgram(factory);
+    status |= buildProgram(factory);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const TypeIds::Id idType = TypeIds::id<algorithmFPType>();
 
-    services::Status status;
     {
         const char * const kernelName = "hessianIntercept";
-        KernelPtr kernel              = factory.getKernel(kernelName);
+        KernelPtr kernel              = factory.getKernel(kernelName, status);
+        DAAL_CHECK_STATUS_VAR(status);
 
         KernelArguments args(7);
         args.set(0, x, AccessModeIds::read);
@@ -205,14 +214,15 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::hessianInte
 
         KernelRange range(nBeta);
 
-        ctx.run(range, kernel, args, &status);
+        ctx.run(range, kernel, args, status);
     }
     {
         // h[0][0] = alpha*sigma[i]*(1-sima[i])
         algorithmFPType h00           = algorithmFPType(0);
         const char * const kernelName = "hessianInterceptH0";
 
-        KernelPtr kernel = factory.getKernel(kernelName);
+        KernelPtr kernel = factory.getKernel(kernelName, status);
+        DAAL_CHECK_STATUS_VAR(status);
 
         KernelNDRange range(1);
 
@@ -227,11 +237,11 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::hessianInte
         KernelRange localRange(workItemsPerGroup);
         KernelRange globalRange(nWorkGroups * workItemsPerGroup);
 
-        range.local(localRange, &status);
-        range.global(globalRange, &status);
+        range.local(localRange, status);
+        range.global(globalRange, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        UniversalBuffer buffer                                      = ctx.allocate(idType, nWorkGroups, &status);
+        UniversalBuffer buffer                                      = ctx.allocate(idType, nWorkGroups, status);
         services::internal::Buffer<algorithmFPType> reductionBuffer = buffer.get<algorithmFPType>();
 
         KernelArguments args(3 /*4*/);
@@ -240,7 +250,7 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::hessianInte
         args.set(2, reductionBuffer, AccessModeIds::write);
         //args.set(3, LocalBuffer(idType, workItemsPerGroup));
 
-        ctx.run(range, kernel, args, &status);
+        ctx.run(range, kernel, args, status);
 
         DAAL_CHECK_STATUS(status, HelperObjectiveFunction::sumReduction(reductionBuffer, nWorkGroups, h00));
 
@@ -261,10 +271,12 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::hessianRegu
     ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-    buildProgram(factory);
+    status |= buildProgram(factory);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "hessianRegulization";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const algorithmFPType beta = l2 * algorithmFPType(2);
 
@@ -275,15 +287,17 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::hessianRegu
 
     KernelRange range(nBeta - 1);
 
-    ctx.run(range, kernel, args, &status);
+    ctx.run(range, kernel, args, status);
 
     return status;
 }
 
 template <typename algorithmFPType>
-void LogLossKernelOneAPI<algorithmFPType, defaultDense>::buildProgram(ClKernelFactoryIface & factory)
+services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::buildProgram(ClKernelFactoryIface & factory)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(buildProgram);
+
+    services::Status status;
     services::String options = getKeyFPType<algorithmFPType>();
 
     services::String cachekey("__daal_algorithms_optimization_solver_logistic_loss_");
@@ -291,7 +305,8 @@ void LogLossKernelOneAPI<algorithmFPType, defaultDense>::buildProgram(ClKernelFa
 
     options.add(" -D LOCAL_SUM_SIZE=256 ");
 
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelLogLoss, options.c_str());
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelLogLoss, options.c_str(), status);
+    return status;
 }
 
 template <typename algorithmFPType>
@@ -345,7 +360,7 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::doCompute(
         DAAL_CHECK_STATUS(status, valueNT->getBlockOfRows(0, 1, ReadWriteMode::readWrite, vr));
         algorithmFPType & value = *vr.getBlockPtr();
 
-        UniversalBuffer logLosUniversal                         = ctx.allocate(idType, n, &status);
+        UniversalBuffer logLosUniversal                         = ctx.allocate(idType, n, status);
         services::internal::Buffer<algorithmFPType> logLossBuff = logLosUniversal.get<algorithmFPType>();
 
         value = algorithmFPType(0);
@@ -387,7 +402,7 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::doCompute(
         const algorithmFPType coeffBeta = algorithmFPType(2) * l2reg;
         if (l2reg > 0)
         {
-            ctx.copy(gradientBuff, 1, argBuff, 1, nBeta - 1, &status);
+            ctx.copy(gradientBuff, 1, argBuff, 1, nBeta - 1, status);
             const algorithmFPType zero = algorithmFPType(0);
             DAAL_CHECK_STATUS(status, HelperObjectiveFunction::setElem(0, zero, gradientBuff));
         }

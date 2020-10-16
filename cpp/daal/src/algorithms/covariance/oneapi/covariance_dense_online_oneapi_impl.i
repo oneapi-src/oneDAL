@@ -26,7 +26,6 @@
 
 #include "src/algorithms/covariance/oneapi/covariance_kernel_oneapi.h"
 #include "src/algorithms/covariance/oneapi/covariance_oneapi_impl.i"
-#include <iostream>
 
 using namespace daal::services::internal::sycl;
 
@@ -90,10 +89,10 @@ services::Status CovarianceDenseOnlineKernelOneAPI<algorithmFPType, method>::com
     }
     else
     {
-        auto partialCrossProductBlock = context.allocate(TypeIds::id<algorithmFPType>(), nFeatures * nFeatures, &status);
+        auto partialCrossProductBlock = context.allocate(TypeIds::id<algorithmFPType>(), nFeatures * nFeatures, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        auto partialSumBlock = context.allocate(TypeIds::id<algorithmFPType>(), nFeatures, &status);
+        auto partialSumBlock = context.allocate(TypeIds::id<algorithmFPType>(), nFeatures, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         status |= calculateCrossProductAndSums<algorithmFPType, method>(dataTable, partialCrossProductBlock.template get<algorithmFPType>(),
