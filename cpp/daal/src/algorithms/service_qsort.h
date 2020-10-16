@@ -1,4 +1,4 @@
-/* file: service_sort.h */
+/* file: service_qsort.h */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
