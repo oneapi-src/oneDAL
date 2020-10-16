@@ -29,10 +29,13 @@
 #include "services/daal_defines.h"
 #include "services/internal/sycl/types.h"
 
-#define DAAL_ASSERT_UNIVERSAL_BUFFER(buffer, bufferType, bufferSize)             \
+#define DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(buffer, BufferType)  \
+    DAAL_ASSERT((buffer).type() == TypeIds::id<BufferType>());
+
+#define DAAL_ASSERT_UNIVERSAL_BUFFER(buffer, BufferType, bufferSize)             \
     {                                                                            \
-        DAAL_ASSERT((buffer).type() == TypeIds::id<bufferType>());               \
-        DAAL_ASSERT((buffer).template get<bufferType>().size() == (bufferSize)); \
+        DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(buffer, BufferType)                    \
+        DAAL_ASSERT((buffer).template get<BufferTYpe>().size() == (bufferSize)); \
     }
 
 #endif

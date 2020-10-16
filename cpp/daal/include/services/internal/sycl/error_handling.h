@@ -175,14 +175,54 @@ inline services::ErrorPtr convertLevelZeroErrorToErrorPtr(ze_result_t zeError)
 }
 #endif // DAAL_DISABLE_LEVEL_ZERO
 
-inline void convertSyclExceptionToStatus(cl::sycl::exception const & e, services::Status & status)
+inline Status convertSyclExceptionToStatus(const std::exception & ex)
 {
-    status |= services::Error::create(services::ErrorID::ErrorExecutionContext, services::ErrorDetailID::Sycl, services::String(e.what()));
+    return services::Error::create(services::ErrorID::ErrorExecutionContext, services::ErrorDetailID::Sycl, services::String(ex.what()));
 }
+
+template <typename TryBody, typename CatchBody>
+DAAL_FORCEINLINE auto catchSyclExceptions(Status & status, TryBody&& tryBody, CatchBody&& catchBody) -> decltype(tryBody())
+{
+    try
+    {
+        return tryBody();
+    }
+    catch (const std::bad_alloc &)
+    {
+        status |= ErrorMemoryAllocationFailed;
+        return catchBody();
+    }
+    catch (const std::exception & ex)
+    {
+        status |= convertSyclExceptionToStatus(ex);
+        return catchBody();
+    }
+    catch (...)
+    {
+        status |= UnknownError;
+        return catchBody();
+    }
+}
+
+template <typename Body>
+DAAL_FORCEINLINE Status catchSyclExceptions(Body&& body)
+{
+    Status status;
+    return catchSyclExceptions(status,
+        [&]() {
+            body();
+            return status;
+        },
+        [&]() {
+            return status;
+        });
+}
+
 } // namespace interface1
 
 using interface1::convertOpenClErrorToErrorPtr;
 using interface1::convertSyclExceptionToStatus;
+using interface1::catchSyclExceptions;
 
 } // namespace sycl
 } // namespace internal

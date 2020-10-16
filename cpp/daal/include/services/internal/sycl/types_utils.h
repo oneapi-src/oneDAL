@@ -54,50 +54,35 @@ class TypeDispatcher
 {
 public:
     template <typename Operation>
-    static void dispatch(TypeId type, Operation && op)
+    static void dispatch(TypeId type, Operation && op, Status & status)
     {
-        dispatchInternal(type, op, PrimitiveTypes());
+        dispatchInternal(status, type, op, PrimitiveTypes());
     }
 
     template <typename Operation>
-    static void floatDispatch(TypeId type, Operation && op)
+    static void floatDispatch(TypeId type, Operation && op, Status & status)
     {
-        dispatchInternal(type, op, FloatTypes());
+        dispatchInternal(status, type, op, FloatTypes());
     }
 
 private:
     template <typename Operation, typename Head, typename... Rest>
-    static void dispatchInternal(TypeId type, Operation && op, Typelist<Head, Rest...>)
+    static void dispatchInternal(Status & status, TypeId type, Operation && op, Typelist<Head, Rest...>)
     {
         if (type == TypeIds::id<Head>())
         {
-            op(Typelist<Head>());
+            op(Typelist<Head>(), status);
         }
         else
         {
-            dispatchInternal(type, op, Typelist<Rest...>());
+            dispatchInternal(status, type, op, Typelist<Rest...>());
         }
     }
 
     template <typename Operation>
-    static void dispatchInternal(TypeId type, Operation && op, Typelist<>)
+    static void dispatchInternal(Status & status, TypeId type, Operation && op, Typelist<>)
     {
         DAAL_ASSERT(!"Unknown type");
-    }
-};
-
-/**
- *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__TYPETOSTRINGCONVERTER"></a>
- *  \brief Converts type to string representation
- */
-struct TypeToStringConverter
-{
-    services::String result;
-
-    template <typename T>
-    void operator()(Typelist<T>)
-    {
-        result = daal::services::internal::sycl::getKeyFPType<T>();
     }
 };
 

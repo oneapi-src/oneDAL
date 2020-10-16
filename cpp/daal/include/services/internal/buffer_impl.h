@@ -47,9 +47,9 @@ template <typename T>
 class BufferVisitor : public Base
 {
 public:
-    virtual void operator()(const HostBuffer<T> & /*buffer*/) {}
-    virtual void operator()(const UsmBufferIface<T> & /*buffer*/) {}
-    virtual void operator()(const SyclBufferIface<T> & /*buffer*/) {}
+    virtual services::Status operator()(const HostBuffer<T> &) { return Status(); }
+    virtual services::Status operator()(const UsmBufferIface<T> &) { return Status(); }
+    virtual services::Status operator()(const SyclBufferIface<T> &) { return Status(); }
 };
 
 /**
@@ -61,9 +61,9 @@ class BufferIface
 {
 public:
     virtual ~BufferIface() {}
-    virtual size_t size() const                                             = 0;
-    virtual void apply(BufferVisitor<T> & visitor) const                    = 0;
-    virtual BufferIface<T> * getSubBuffer(size_t offset, size_t size) const = 0;
+    virtual size_t size() const                                                              = 0;
+    virtual Status apply(BufferVisitor<T> & visitor) const                                   = 0;
+    virtual BufferIface<T> * getSubBuffer(size_t offset, size_t size, Status & status) const = 0;
 };
 
 /**
@@ -108,23 +108,37 @@ template <typename T>
 class HostBuffer : public Base, public BufferIface<T>
 {
 public:
-    explicit HostBuffer(const SharedPtr<T> & data, size_t size) : _data(data), _size(size) {}
+    static HostBuffer<T> * create(const SharedPtr<T> & data, size_t size, Status & status)
+    {
+        if (!data && size != size_t(0)) {
+            status |= ErrorNullPtr;
+            return nullptr;
+        }
+        const auto newBuffer = new HostBuffer<T>(data, size);
+        DAAL_CHECK_COND_ERROR(newBuffer, status, ErrorMemoryAllocationFailed);
+        return newBuffer;
+    }
 
-    explicit HostBuffer(T * data, size_t size) : _data(data, services::EmptyDeleter()), _size(size) {}
+    static HostBuffer<T> * create(T * data, size_t size, Status & status)
+    {
+        return create(SharedPtr<T>{data, services::EmptyDeleter()}, size, status);
+    }
 
     size_t size() const DAAL_C11_OVERRIDE { return _size; }
 
-    void apply(BufferVisitor<T> & visitor) const DAAL_C11_OVERRIDE { visitor(*this); }
+    Status apply(BufferVisitor<T> & visitor) const DAAL_C11_OVERRIDE { return visitor(*this); }
 
-    HostBuffer<T> * getSubBuffer(size_t offset, size_t size) const DAAL_C11_OVERRIDE
+    HostBuffer<T> * getSubBuffer(size_t offset, size_t size, Status & status) const DAAL_C11_OVERRIDE
     {
         DAAL_ASSERT(offset + size <= _size);
-        return new HostBuffer<T>(SharedPtr<T>(_data, _data.get() + offset), size);
+        return create(SharedPtr<T>(_data, _data.get() + offset), size, status);
     }
 
     const SharedPtr<T> & get() const { return _data; }
 
 private:
+    explicit HostBuffer(const SharedPtr<T> & data, size_t size) : _data(data), _size(size) {}
+
     SharedPtr<T> _data;
     size_t _size;
 };
@@ -139,32 +153,43 @@ class ConvertToHost : public BufferVisitor<T>
 public:
     explicit ConvertToHost(const data_management::ReadWriteMode & rwFlag) : _rwFlag(rwFlag) {}
 
-    void operator()(const HostBuffer<T> & buffer) DAAL_C11_OVERRIDE { _hostSharedPtr = buffer.get(); }
+    Status operator()(const HostBuffer<T> & buffer) DAAL_C11_OVERRIDE
+    {
+        _hostSharedPtr = buffer.get();
+        return Status();
+    }
 
-    void operator()(const UsmBufferIface<T> & buffer) DAAL_C11_OVERRIDE { _hostSharedPtr = convertToHost(buffer); }
+    Status operator()(const UsmBufferIface<T> & buffer) DAAL_C11_OVERRIDE
+    {
+        Status status;
+        _hostSharedPtr = convertToHost(buffer, status);
+        return status;
+    }
 
-    void operator()(const SyclBufferIface<T> & buffer) DAAL_C11_OVERRIDE { _hostSharedPtr = convertToHost(buffer); }
+    Status operator()(const SyclBufferIface<T> & buffer) DAAL_C11_OVERRIDE
+    {
+        Status status;
+        _hostSharedPtr = convertToHost(buffer, status);
+        return status;
+    }
 
     const SharedPtr<T> & get() const { return _hostSharedPtr; }
 
-    Status getStatus() const { return _status; }
-
 private:
     template <typename Buffer>
-    SharedPtr<T> convertToHost(const Buffer & buffer)
+    SharedPtr<T> convertToHost(const Buffer & buffer, Status & status)
     {
         using namespace daal::data_management;
         switch (_rwFlag)
         {
-        case readOnly: return buffer.getHostRead(_status);
-        case writeOnly: return buffer.getHostWrite(_status);
-        case readWrite: return buffer.getHostReadWrite(_status);
+        case readOnly: return buffer.getHostRead(status);
+        case writeOnly: return buffer.getHostWrite(status);
+        case readWrite: return buffer.getHostReadWrite(status);
         }
         DAAL_ASSERT(!"Unexpected read/write flag");
         return SharedPtr<T>();
     }
 
-    Status _status;
     SharedPtr<T> _hostSharedPtr;
     data_management::ReadWriteMode _rwFlag;
 };
@@ -180,8 +205,8 @@ public:
     SharedPtr<T> toHost(const internal::BufferIface<T> & buffer, const data_management::ReadWriteMode & rwMode, Status & status)
     {
         ConvertToHost<T> action(rwMode);
-        buffer.apply(action);
-        status = action.getStatus();
+        status |= buffer.apply(action);
+        DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, SharedPtr<T>());
         return action.get();
     }
 };

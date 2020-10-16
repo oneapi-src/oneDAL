@@ -125,7 +125,7 @@ class OpenClContextRef : public OpenClResourceRef<cl_context, OpenClRetainContex
 public:
     OpenClContextRef() = default;
 
-    explicit OpenClContextRef(cl_device_id clDevice, services::Status & status) : _clDeviceRef(clDevice)
+    explicit OpenClContextRef(cl_device_id clDevice, Status & status) : _clDeviceRef(clDevice)
     {
         cl_int err = 0;
         reset(clCreateContext(nullptr, 1, &clDevice, nullptr, nullptr, &err));
@@ -146,9 +146,9 @@ public:
 
     LevelZeroOpenClInteropContext(const LevelZeroOpenClInteropContext &) = delete;
 
-    explicit LevelZeroOpenClInteropContext(cl::sycl::queue & deviceQueue, services::Status & status) { reset(deviceQueue, status); }
+    explicit LevelZeroOpenClInteropContext(cl::sycl::queue & deviceQueue, Status & status) { reset(deviceQueue, status); }
 
-    void reset(cl::sycl::queue & deviceQueue, services::Status & status)
+    void reset(cl::sycl::queue & deviceQueue, Status & status)
     {
         cl_device_id clDevice;
         findDevice(&clDevice, deviceQueue.get_device().get_info<cl::sycl::info::device::vendor_id>(),
@@ -162,7 +162,7 @@ public:
         DAAL_CHECK_OPENCL(err, status)
     }
 
-    void findDevice(cl_device_id * pClDevice, unsigned int vendor_id, unsigned int frq, services::Status & status)
+    void findDevice(cl_device_id * pClDevice, unsigned int vendor_id, unsigned int frq, Status & status)
     {
         constexpr auto maxPlatforms = 16;
         cl_platform_id platIds[maxPlatforms];
@@ -205,13 +205,13 @@ public:
     OpenClProgramRef() {}
 
     explicit OpenClProgramRef(cl_context clContext, cl_device_id clDevice, const char * programName, const char * programSrc, const char * options,
-                              services::Status & status)
+                              Status & status)
     {
         initOpenClProgramRef(clContext, clDevice, programName, programSrc, options, status);
     }
         #ifndef DAAL_DISABLE_LEVEL_ZERO
     explicit OpenClProgramRef(cl_context clContext, cl_device_id clDevice, cl::sycl::queue & deviceQueue, const char * programName,
-                              const char * programSrc, const char * options, services::Status & status)
+                              const char * programSrc, const char * options, Status & status)
     {
         initOpenClProgramRef(clContext, clDevice, programName, programSrc, options, status);
         DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
@@ -225,7 +225,7 @@ public:
 
 private:
     void initOpenClProgramRef(cl_context clContext, cl_device_id clDevice, const char * programName, const char * programSrc, const char * options,
-                              services::Status & status)
+                              Status & status)
     {
         _programName           = programName;
         cl_int err             = 0;
@@ -257,7 +257,7 @@ private:
     }
 
         #ifndef DAAL_DISABLE_LEVEL_ZERO
-    void initModuleLevelZero(cl::sycl::queue & deviceQueue, services::Status & status)
+    void initModuleLevelZero(cl::sycl::queue & deviceQueue, Status & status)
     {
         size_t binarySize = 0;
         DAAL_CHECK_OPENCL(clGetProgramInfo(get(), CL_PROGRAM_BINARY_SIZES, sizeof(size_t), &binarySize, NULL), status);
@@ -287,7 +287,7 @@ class OpenClKernelRef : public OpenClResourceRef<cl_kernel, OpenClRetainKernel, 
 public:
     OpenClKernelRef() = default;
 
-    explicit OpenClKernelRef(cl_program clProgram, const char * kernelName, services::Status & status)
+    explicit OpenClKernelRef(cl_program clProgram, const char * kernelName, Status & status)
     {
         cl_int err = 0;
         reset(clCreateKernel(clProgram, kernelName, &err));
@@ -301,7 +301,7 @@ class OpenClKernelLevelZeroRef : public Base
 public:
     OpenClKernelLevelZeroRef() = default;
 
-    explicit OpenClKernelLevelZeroRef(const char * kernelName, services::Status & status) : _kernelName(kernelName) {}
+    explicit OpenClKernelLevelZeroRef(const char * kernelName, Status & status) : _kernelName(kernelName) {}
 
     const char * getName() const { return _kernelName.c_str(); }
 
@@ -318,13 +318,13 @@ public:
     {}
 
     void schedule(KernelSchedulerIface & scheduler, const KernelRange & range, const KernelArguments & args,
-                  services::Status & status) const DAAL_C11_OVERRIDE
+                  Status & status) const DAAL_C11_OVERRIDE
     {
         scheduler.schedule(*this, range, args, status);
     }
 
     void schedule(KernelSchedulerIface & scheduler, const KernelNDRange & range, const KernelArguments & args,
-                  services::Status & status) const DAAL_C11_OVERRIDE
+                  Status & status) const DAAL_C11_OVERRIDE
     {
         scheduler.schedule(*this, range, args, status);
     }
@@ -374,32 +374,35 @@ private:
 class SyclBufferStorage
 {
 public:
+    SyclBufferStorage() = default;
+    SyclBufferStorage(const SyclBufferStorage &) = delete;
+    SyclBufferStorage & operator=(const SyclBufferStorage &) = delete;
+
     template <typename T>
-    void add(const cl::sycl::buffer<T, 1> & buffer)
+    bool add(const cl::sycl::buffer<T, 1> & buffer)
     {
-        _buffers.push_back(services::internal::Any(buffer));
+        return _buffers.safe_push_back(Any(buffer));
     }
 
 private:
-    std::vector<services::internal::Any> _buffers;
+    Collection<Any> _buffers;
 };
 
 class SyclKernelSchedulerArgHandler
 {
 public:
-    SyclKernelSchedulerArgHandler(cl::sycl::handler & handler, SyclBufferStorage & storage, size_t argumentIndex, const KernelArgument & arg,
-                                  services::Status & status)
-        : _handler(handler), _storage(storage), _argumentIndex(argumentIndex), _argument(arg), _status(status)
+    SyclKernelSchedulerArgHandler(cl::sycl::handler & handler, SyclBufferStorage & storage, size_t argumentIndex, const KernelArgument & arg)
+        : _handler(handler), _storage(storage), _argumentIndex(argumentIndex), _argument(arg)
     {}
 
     template <typename T>
-    void operator()(Typelist<T>)
+    void operator()(Typelist<T>, Status & status)
     {
         switch (_argument.argType())
         {
-        case KernelArgumentTypes::publicBuffer: return handlePublicBuffer<T>();
-        case KernelArgumentTypes::privateBuffer: return handlePrivateBuffer<T>();
-        case KernelArgumentTypes::publicConstant: return handlePublicConstant<T>();
+        case KernelArgumentTypes::publicBuffer: return handlePublicBuffer<T>(status);
+        case KernelArgumentTypes::privateBuffer: return handlePrivateBuffer<T>(status);
+        case KernelArgumentTypes::publicConstant: return handlePublicConstant<T>(status);
         }
 
         DAAL_ASSERT(!"Unexpected kernel argument type");
@@ -407,14 +410,17 @@ public:
 
 private:
     template <typename T>
-    void handlePublicBuffer()
+    void handlePublicBuffer(Status & status)
     {
-        auto buffer = _argument.get<services::internal::Buffer<T> >().toSycl(_status);
-        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(_status);
+        auto buffer = _argument.get<services::internal::Buffer<T> >().toSycl(status);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
         // Note: we need this storage to keep all sycl buffers alive
         // while the kernel is running
-        _storage.add(buffer);
+        if (!_storage.add(buffer)) {
+            status |= ErrorMemoryAllocationFailed;
+            return;
+        }
 
         switch (_argument.accessMode())
         {
@@ -436,16 +442,14 @@ private:
     }
 
     template <typename T>
-    void handlePrivateBuffer()
+    void handlePrivateBuffer(Status & status)
     {
         DAAL_ASSERT(!"Local buffers are not supported");
     }
 
     template <typename T>
-    void handlePublicConstant()
+    void handlePublicConstant(Status & status)
     {
-        // XXX: Expression _cgh.set_arg(_idx, _arg.get<T>()) does not compile due
-        // to bug in Intel SYCL implementation
         T value = _argument.get<T>();
         _handler.set_arg((int)_argumentIndex, value);
     }
@@ -454,7 +458,6 @@ private:
     SyclBufferStorage & _storage;
     size_t _argumentIndex;
     const KernelArgument & _argument;
-    services::Status & _status;
 };
 
 template <int dim>
@@ -526,32 +529,20 @@ class SyclKernelScheduler : public Base, public KernelSchedulerIface
 public:
     explicit SyclKernelScheduler(cl::sycl::queue & deviceQueue) : _queue(deviceQueue) {}
 
-    void schedule(const OpenClKernel & kernel, const KernelRange & range, const KernelArguments & args, services::Status & status) DAAL_C11_OVERRIDE
+    void schedule(const OpenClKernel & kernel, const KernelRange & range, const KernelArguments & args, Status & status) DAAL_C11_OVERRIDE
     {
-        scheduleImplSafe(range, kernel, args, status);
+        scheduleImpl(range, kernel, args, status);
     }
 
-    void schedule(const OpenClKernel & kernel, const KernelNDRange & range, const KernelArguments & args, services::Status & status) DAAL_C11_OVERRIDE
+    void schedule(const OpenClKernel & kernel, const KernelNDRange & range, const KernelArguments & args, Status & status) DAAL_C11_OVERRIDE
     {
-        scheduleImplSafe(range, kernel, args, status);
+        scheduleImpl(range, kernel, args, status);
     }
 
 private:
-    template <typename Range>
-    void scheduleImplSafe(const Range & range, const OpenClKernel & kernel, const KernelArguments & args, services::Status & status)
-    {
-        try
-        {
-            scheduleImpl(range, kernel, args, status);
-        }
-        catch (const cl::sycl::exception & e)
-        {
-            convertSyclExceptionToStatus(e, status);
-        }
-    }
 
     template <typename Range>
-    void scheduleImpl(const Range & range, const OpenClKernel & kernel, const KernelArguments & args, services::Status & status)
+    void scheduleImpl(const Range & range, const OpenClKernel & kernel, const KernelArguments & args, Status & status)
     {
         switch (kernel.getTarget())
         {
@@ -564,7 +555,7 @@ private:
     }
 
     template <typename Range>
-    void scheduleOnDevice(const Range & range, const OpenClKernel & kernel, const KernelArguments & args, services::Status & status)
+    void scheduleOnDevice(const Range & range, const OpenClKernel & kernel, const KernelArguments & args, Status & status)
     {
         switch (range.dimensions())
         {
@@ -577,28 +568,29 @@ private:
     }
 
     template <typename Range>
-    void scheduleSycl(const Range & range, const OpenClKernel & kernel, const KernelArguments & args, services::Status & status)
+    void scheduleSycl(const Range & range, const OpenClKernel & kernel, const KernelArguments & args, Status & status)
     {
         SyclBufferStorage bufferStorage;
 
-        cl::sycl::kernel syclKernel = kernel.toSycl(_queue.get_context());
+        status |= catchSyclExceptions([&]() mutable {
+            cl::sycl::kernel syclKernel = kernel.toSycl(_queue.get_context());
 
-        auto event = _queue.submit([&](cl::sycl::handler & cgh) {
-            passArguments(cgh, bufferStorage, args, status);
-            DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
-            cgh.parallel_for(range, syclKernel);
+            auto event = _queue.submit([&](cl::sycl::handler & cgh) {
+                passArguments(cgh, bufferStorage, args, status);
+                DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+                cgh.parallel_for(range, syclKernel);
+            });
+            event.wait_and_throw();
         });
-
-        event.wait_and_throw();
     }
 
-    void passArguments(cl::sycl::handler & cgh, SyclBufferStorage & storage, const KernelArguments & args, services::Status & status) const
+    void passArguments(cl::sycl::handler & cgh, SyclBufferStorage & storage, const KernelArguments & args, Status & status) const
     {
         for (size_t i = 0; i < args.size(); i++)
         {
             const auto & arg = args.get(i);
-            SyclKernelSchedulerArgHandler argHandler(cgh, storage, i, arg, status);
-            TypeDispatcher::dispatch(arg.dataType(), argHandler);
+            SyclKernelSchedulerArgHandler argHandler(cgh, storage, i, arg);
+            TypeDispatcher::dispatch(arg.dataType(), argHandler, status);
         }
     }
 

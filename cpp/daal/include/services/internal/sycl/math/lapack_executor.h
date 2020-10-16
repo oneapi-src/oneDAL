@@ -28,8 +28,9 @@
     #include "services/internal/sycl/math/mkl_lapack.h"
 #endif
 
-#include "services/internal/sycl/types_utils.h"
 #include "services/internal/error_handling_helpers.h"
+#include "services/internal/sycl/daal_defines_sycl.h"
+#include "services/internal/sycl/types_utils.h"
 #include "services/internal/sycl/math/reference_lapack.h"
 #include "services/internal/sycl/math/types.h"
 
@@ -65,16 +66,15 @@ private:
         const size_t n;
         UniversalBuffer & a_buffer;
         const size_t lda;
-        services::Status & status;
-
-        explicit Execute(cl::sycl::queue & queue, const math::UpLo uplo, const size_t n, UniversalBuffer & a_buffer, const size_t lda,
-                         services::Status & status)
-            : queue(queue), uplo(uplo), n(n), a_buffer(a_buffer), lda(lda), status(status)
+        explicit Execute(cl::sycl::queue & queue, const math::UpLo uplo, const size_t n, UniversalBuffer & a_buffer, const size_t lda)
+            : queue(queue), uplo(uplo), n(n), a_buffer(a_buffer), lda(lda)
         {}
 
         template <typename T>
-        void operator()(Typelist<T>)
+        void operator()(Typelist<T>, Status & status)
         {
+            DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(a_buffer, T);
+
             auto a_buffer_t = a_buffer.template get<T>();
 
 #ifdef ONEAPI_DAAL_NO_MKL_GPU_FUNC
@@ -90,8 +90,8 @@ public:
     static void run(cl::sycl::queue & queue, const math::UpLo uplo, const size_t n, UniversalBuffer & a_buffer, const size_t lda,
                     services::Status & status)
     {
-        Execute op(queue, uplo, n, a_buffer, lda, status);
-        TypeDispatcher::floatDispatch(a_buffer.type(), op);
+        Execute op(queue, uplo, n, a_buffer, lda);
+        TypeDispatcher::floatDispatch(a_buffer.type(), op, status);
     }
 };
 
@@ -112,16 +112,18 @@ private:
         const size_t lda;
         UniversalBuffer & b_buffer;
         const size_t ldb;
-        services::Status & status;
 
         explicit Execute(cl::sycl::queue & queue, const math::UpLo uplo, const size_t n, const size_t ny, UniversalBuffer & a_buffer,
-                         const size_t lda, UniversalBuffer & b_buffer, const size_t ldb, services::Status & status)
-            : queue(queue), uplo(uplo), n(n), ny(ny), a_buffer(a_buffer), lda(lda), b_buffer(b_buffer), ldb(ldb), status(status)
+                         const size_t lda, UniversalBuffer & b_buffer, const size_t ldb)
+            : queue(queue), uplo(uplo), n(n), ny(ny), a_buffer(a_buffer), lda(lda), b_buffer(b_buffer), ldb(ldb)
         {}
 
         template <typename T>
-        void operator()(Typelist<T>)
+        void operator()(Typelist<T>, Status & status)
         {
+            DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(a_buffer, T);
+            DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(b_buffer, T);
+
             auto a_buffer_t = a_buffer.template get<T>();
             auto b_buffer_t = b_buffer.template get<T>();
 
@@ -139,8 +141,8 @@ public:
     static void run(cl::sycl::queue & queue, const math::UpLo uplo, const size_t n, const size_t ny, UniversalBuffer & a_buffer, const size_t lda,
                     UniversalBuffer & b_buffer, const size_t ldb, services::Status & status)
     {
-        Execute op(queue, uplo, n, ny, a_buffer, lda, b_buffer, ldb, status);
-        TypeDispatcher::floatDispatch(a_buffer.type(), op);
+        Execute op(queue, uplo, n, ny, a_buffer, lda, b_buffer, ldb);
+        TypeDispatcher::floatDispatch(a_buffer.type(), op, status);
     }
 };
 

@@ -27,10 +27,24 @@ namespace sycl
 {
 namespace interface1
 {
+
+struct TypeToStringConverter
+{
+    services::String result;
+
+    template <typename T>
+    void operator()(Typelist<T>, Status & status)
+    {
+        result = daal::services::internal::sycl::getKeyFPType<T>();
+    }
+};
+
 services::String getKeyFPType(TypeId typeId)
 {
-    interface1::TypeToStringConverter converter;
-    TypeDispatcher::dispatch(typeId, converter);
+    Status status;
+
+    TypeToStringConverter converter;
+    TypeDispatcher::dispatch(typeId, converter, status);
 
     return converter.result;
 }

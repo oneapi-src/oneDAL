@@ -239,45 +239,19 @@ public:
 
     UniversalBuffer allocate(TypeId type, size_t bufferSize, services::Status & status) DAAL_C11_OVERRIDE
     {
-        // TODO: Thread safe?
-        try
-        {
-            auto buffer = BufferAllocator::allocate(type, bufferSize);
-            return buffer;
-        }
-        catch (cl::sycl::exception const & e)
-        {
-            convertSyclExceptionToStatus(e, status);
-            return UniversalBuffer();
-        }
+        return BufferAllocator::allocate(type, bufferSize, status);
     }
 
     void copy(UniversalBuffer dest, size_t desOffset, UniversalBuffer src, size_t srcOffset, size_t count,
               services::Status & status) DAAL_C11_OVERRIDE
     {
         DAAL_ASSERT(dest.type() == src.type());
-        // TODO: Thread safe?
-        try
-        {
-            BufferCopier::copy(_deviceQueue, dest, desOffset, src, srcOffset, count, status);
-        }
-        catch (cl::sycl::exception const & e)
-        {
-            convertSyclExceptionToStatus(e, status);
-        }
+        BufferCopier::copy(_deviceQueue, dest, desOffset, src, srcOffset, count, status);
     }
 
     void fill(UniversalBuffer dest, double value, services::Status & status) DAAL_C11_OVERRIDE
     {
-        // TODO: Thread safe?
-        try
-        {
-            BufferFiller::fill(_deviceQueue, dest, value, status);
-        }
-        catch (cl::sycl::exception const & e)
-        {
-            convertSyclExceptionToStatus(e, status);
-        }
+        BufferFiller::fill(_deviceQueue, dest, value, status);
     }
 
     ClKernelFactoryIface & getClKernelFactory() DAAL_C11_OVERRIDE { return _kernelFactory; }
@@ -286,15 +260,7 @@ public:
 
     void copy(UniversalBuffer dest, size_t desOffset, void * src, size_t srcOffset, size_t count, services::Status & status) DAAL_C11_OVERRIDE
     {
-        // TODO: Thread safe?
-        try
-        {
-            ArrayCopier::copy(_deviceQueue, dest, desOffset, src, srcOffset, count, status);
-        }
-        catch (cl::sycl::exception const & e)
-        {
-            convertSyclExceptionToStatus(e, status);
-        }
+        ArrayCopier::copy(_deviceQueue, dest, desOffset, src, srcOffset, count, status);
     }
 
 private:

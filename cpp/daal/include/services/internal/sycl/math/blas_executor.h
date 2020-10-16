@@ -28,9 +28,10 @@
     #include "services/internal/sycl/math/mkl_blas.h"
 #endif
 
+#include "services/internal/error_handling_helpers.h"
+#include "services/internal/sycl/daal_defines_sycl.h"
 #include "services/internal/sycl/math/types.h"
 #include "services/internal/sycl/types_utils.h"
-#include "services/internal/error_handling_helpers.h"
 #include "services/internal/sycl/math/reference_gemm.h"
 #include "services/internal/sycl/math/reference_axpy.h"
 
@@ -80,12 +81,11 @@ private:
         UniversalBuffer & c_buffer;
         const size_t ldc;
         const size_t offsetC;
-        services::Status & status;
 
         explicit Execute(cl::sycl::queue & queue, const math::Transpose transa, const math::Transpose transb, const size_t m, const size_t n,
                          const size_t k, const double alpha, const UniversalBuffer & a_buffer, const size_t lda, const size_t offsetA,
                          const UniversalBuffer & b_buffer, const size_t ldb, const size_t offsetB, const double beta, UniversalBuffer & c_buffer,
-                         const size_t ldc, const size_t offsetC, services::Status & status)
+                         const size_t ldc, const size_t offsetC)
             : queue(queue),
               transa(transa),
               transb(transb),
@@ -102,13 +102,16 @@ private:
               beta(beta),
               c_buffer(c_buffer),
               ldc(ldc),
-              offsetC(offsetC),
-              status(status)
+              offsetC(offsetC)
         {}
 
         template <typename T>
-        void operator()(Typelist<T>)
+        void operator()(Typelist<T>, Status & status)
         {
+            DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(a_buffer, T);
+            DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(b_buffer, T);
+            DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(c_buffer, T);
+
             auto a_buffer_t = a_buffer.template get<T>();
             auto b_buffer_t = b_buffer.template get<T>();
             auto c_buffer_t = c_buffer.template get<T>();
@@ -130,8 +133,8 @@ public:
                     const UniversalBuffer & b_buffer, const size_t ldb, const size_t offsetB, const double beta, UniversalBuffer & c_buffer,
                     const size_t ldc, const size_t offsetC, services::Status & status)
     {
-        Execute op(queue, transa, transb, m, n, k, alpha, a_buffer, lda, offsetA, b_buffer, ldb, offsetB, beta, c_buffer, ldc, offsetC, status);
-        TypeDispatcher::floatDispatch(a_buffer.type(), op);
+        Execute op(queue, transa, transb, m, n, k, alpha, a_buffer, lda, offsetA, b_buffer, ldb, offsetB, beta, c_buffer, ldc, offsetC);
+        TypeDispatcher::floatDispatch(a_buffer.type(), op, status);
     }
 };
 
@@ -157,11 +160,10 @@ private:
         UniversalBuffer & c_buffer;
         const size_t ldc;
         const size_t offsetC;
-        services::Status & status;
 
         explicit Execute(cl::sycl::queue & queue, const math::UpLo upper_lower, const math::Transpose trans, const size_t n, const size_t k,
                          const double alpha, const UniversalBuffer & a_buffer, const size_t lda, const size_t offsetA, const double beta,
-                         UniversalBuffer & c_buffer, const size_t ldc, const size_t offsetC, services::Status & status)
+                         UniversalBuffer & c_buffer, const size_t ldc, const size_t offsetC)
             : queue(queue),
               upper_lower(upper_lower),
               trans(trans),
@@ -174,13 +176,15 @@ private:
               beta(beta),
               c_buffer(c_buffer),
               ldc(ldc),
-              offsetC(offsetC),
-              status(status)
+              offsetC(offsetC)
         {}
 
         template <typename T>
-        void operator()(Typelist<T>)
+        void operator()(Typelist<T>, Status & status)
         {
+            DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(a_buffer, T);
+            DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(c_buffer, T);
+
             auto a_buffer_t = a_buffer.template get<T>();
             auto c_buffer_t = c_buffer.template get<T>();
 
@@ -202,8 +206,8 @@ public:
                     const double alpha, const UniversalBuffer & a_buffer, const size_t lda, const size_t offsetA, const double beta,
                     UniversalBuffer & c_buffer, const size_t ldc, const size_t offsetC, services::Status & status)
     {
-        Execute op(queue, upper_lower, trans, n, k, alpha, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC, status);
-        TypeDispatcher::floatDispatch(a_buffer.type(), op);
+        Execute op(queue, upper_lower, trans, n, k, alpha, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC);
+        TypeDispatcher::floatDispatch(a_buffer.type(), op, status);
     }
 };
 
@@ -215,10 +219,12 @@ class AxpyExecutor
 {
 private:
     template <typename algorithmFPType>
-    static bool checkSize(const int n, const services::internal::Buffer<algorithmFPType> & buffer, const int inc)
+    static Status checkSize(const int n, const Buffer<algorithmFPType> & buffer, const int inc)
     {
-        if ((n - 1) * inc >= static_cast<int>(buffer.size())) return true;
-        return false;
+        DAAL_CHECK(n > 0, ErrorIncorrectSizeOfArray);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(int, (n - 1), inc);
+        DAAL_CHECK(size_t((n - 1) * inc) >= buffer.size(), ErrorIncorrectSizeOfArray);
+        return Status();
     }
 
     struct Execute
@@ -230,24 +236,26 @@ private:
         const int incx;
         UniversalBuffer & y_buffer;
         const int incy;
-        services::Status & status;
 
         explicit Execute(cl::sycl::queue & queue, const uint32_t n, const double a, const UniversalBuffer & x_buffer, const int incx,
-                         UniversalBuffer & y_buffer, const int incy, services::Status & status)
-            : queue(queue), n(n), a(a), x_buffer(x_buffer), incx(incx), y_buffer(y_buffer), incy(incy), status(status)
+                         UniversalBuffer & y_buffer, const int incy)
+            : queue(queue), n(n), a(a), x_buffer(x_buffer), incx(incx), y_buffer(y_buffer), incy(incy)
         {}
 
         template <typename algorithmFPType>
-        void operator()(Typelist<algorithmFPType>)
+        void operator()(Typelist<algorithmFPType>, Status & status)
         {
+            DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(x_buffer, algorithmFPType);
+            DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(y_buffer, algorithmFPType);
+
             auto x_buffer_t = x_buffer.template get<algorithmFPType>();
             auto y_buffer_t = y_buffer.template get<algorithmFPType>();
 
-            if (checkSize(n, x_buffer_t, incx) || checkSize(n, y_buffer_t, incy))
-            {
-                status |= services::ErrorIncorrectIndex;
-                return;
-            }
+            status |= checkSize(n, x_buffer_t, incx);
+            DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+
+            status |= checkSize(n, y_buffer_t, incy);
+            DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
 #ifdef ONEAPI_DAAL_NO_MKL_GPU_FUNC
             ReferenceAxpy<algorithmFPType> functor;
@@ -262,8 +270,8 @@ public:
     static void run(cl::sycl::queue & queue, const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx,
                     UniversalBuffer y_buffer, const int incy, services::Status & status)
     {
-        Execute op(queue, n, a, x_buffer, incx, y_buffer, incy, status);
-        TypeDispatcher::floatDispatch(x_buffer.type(), op);
+        Execute op(queue, n, a, x_buffer, incx, y_buffer, incy);
+        TypeDispatcher::floatDispatch(x_buffer.type(), op, status);
     }
 };
 
