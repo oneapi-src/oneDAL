@@ -26,12 +26,12 @@
     #pragma comment(lib, "onedal_sequential.lib")
 #elif defined(_DAAL_PAR_DYNAMIC)
     #pragma comment(lib, "onedal_core_dll.lib")
-    #pragma comment(lib, "tbb.lib")
+    #pragma comment(lib, "tbb12.lib")
     #pragma comment(lib, "tbbmalloc.lib")
 #elif defined(_DAAL_PAR_STATIC)
     #pragma comment(lib, "onedal_core.lib")
     #pragma comment(lib, "onedal_thread.lib")
-    #pragma comment(lib, "tbb.lib")
+    #pragma comment(lib, "tbb12.lib")
     #pragma comment(lib, "tbbmalloc.lib")
 #endif
 
