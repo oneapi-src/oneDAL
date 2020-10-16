@@ -75,43 +75,47 @@ public:
      */
     void setBeta(const data_management::NumericTablePtr & beta)
     {
-        data_management::BlockDescriptor<modelFPType> pBlock, pBlockBeta;
+        data_management::BlockDescriptor<modelFPType> resBeta, inBeta;
         const size_t nVectorsBeta = _nClasses == 2 ? 1 : _nClasses;
-        _modelPtr->getBeta()->getBlockOfRows(0, nVectorsBeta, data_management::writeOnly, pBlock);
-        beta->getBlockOfRows(0, nVectorsBeta, data_management::readOnly, pBlockBeta);
-        modelFPType * sp      = pBlock.getBlockPtr();
-        modelFPType * spBeta  = pBlockBeta.getBlockPtr();
-        const size_t betaSize = beta->getNumberOfRows() * beta->getNumberOfColumns();
-        if (betaSize == _nFeatures * nVectorsBeta)
+        
+        if (beta->getNumberOfColumns() == _nFeatures)
         {
             setInterceptFlag(false);
-            for (size_t i = 0, j = 0; j < betaSize; ++j, ++i)
+            for (size_t i = 0; i < nVectorsBeta; ++i)
             {
-                if (i % (_nFeatures + 1) == 0)
+                _modelPtr->getBeta()->getBlockOfRows(i, 1, data_management::writeOnly, resBeta);
+                beta->getBlockOfRows(i, 1, data_management::readOnly, inBeta);
+                modelFPType * const resBetaData         = resBeta.getBlockPtr();
+                const modelFPType * const  inBetaData   = inBeta.getBlockPtr();
+                resBetaData[0] = modelFPType(0);
+                for (size_t j = 0; j < _nFeatures; ++j)
                 {
-                    sp[i] = 0;
-                    ++i;
+                    resBetaData[j + 1] = inBetaData[j];
                 }
-                sp[i] = spBeta[j];
+                _modelPtr->getBeta()->releaseBlockOfRows(resBeta);
+                beta->releaseBlockOfRows(inBeta);
             }
         }
-        else if (betaSize == (_nFeatures + 1) * nVectorsBeta)
+        else if (beta->getNumberOfColumns() == (_nFeatures + 1))
         {
             setInterceptFlag(true);
+            _modelPtr->getBeta()->getBlockOfRows(0, nVectorsBeta, data_management::writeOnly, resBeta);
+            beta->getBlockOfRows(0, nVectorsBeta, data_management::readOnly, inBeta);
+            modelFPType * const resBetaData      = resBeta.getBlockPtr();
+            const modelFPType * const inBetaData = inBeta.getBlockPtr();
+            const size_t betaSize = beta->getNumberOfColumns() * beta->getNumberOfRows();
             for (size_t i = 0; i < betaSize; ++i)
             {
-                sp[i] = spBeta[i];
+                resBetaData[i] = inBetaData[i];
             }
+            _modelPtr->getBeta()->releaseBlockOfRows(resBeta);
+            beta->releaseBlockOfRows(inBeta);
         }
         else
         {
             _s = services::Status(services::ErrorIncorrectParameter);
-            _modelPtr->getBeta()->releaseBlockOfRows(pBlock);
             services::throwIfPossible(_s);
-            return;
-        }
-        _modelPtr->getBeta()->releaseBlockOfRows(pBlock);
-        beta->releaseBlockOfRows(pBlockBeta);
+        }    
     }
 
     /**
