@@ -79,7 +79,7 @@ class KernelNDRange : public Base
 public:
     explicit KernelNDRange(size_t dimensions) : _dimensions(dimensions) {}
 
-    void global(const KernelRange & range, services::Status & st)
+    void global(const KernelRange & range, Status & st)
     {
         if (_dimensions != range.dimensions())
         {
@@ -89,7 +89,7 @@ public:
         _globalRange = range;
     }
 
-    void local(const KernelRange & range, services::Status & st)
+    void local(const KernelRange & range, Status & st)
     {
         if (_dimensions != range.dimensions())
         {
@@ -151,7 +151,7 @@ public:
     }
 
     template <typename T>
-    void set(const daal::services::internal::Buffer<T> & buffer, AccessModeId accessMode = AccessModeIds::read)
+    void set(const Buffer<T> & buffer, AccessModeId accessMode = AccessModeIds::read)
     {
         _dataType   = TypeIds::id<T>();
         _value      = buffer;
@@ -191,7 +191,7 @@ private:
     TypeId _dataType;
     KernelArgumentType _argType;
     AccessModeId _accessMode;
-    services::internal::Any _value;
+    Any _value;
 };
 
 /**
@@ -215,7 +215,7 @@ public:
     }
 
     template <typename T>
-    void set(size_t index, const services::internal::Buffer<T> & buffer, AccessModeId accessMode = AccessModeIds::read)
+    void set(size_t index, const Buffer<T> & buffer, AccessModeId accessMode = AccessModeIds::read)
     {
         DAAL_ASSERT(index < _size);
         _args[index].set(buffer, accessMode);
@@ -264,9 +264,9 @@ class KernelSchedulerIface
 public:
     virtual ~KernelSchedulerIface() {}
 
-    virtual void schedule(const OpenClKernel & kernel, const KernelRange & range, const KernelArguments & args, services::Status & st) = 0;
+    virtual void schedule(const OpenClKernel & kernel, const KernelRange & range, const KernelArguments & args, Status & st) = 0;
 
-    virtual void schedule(const OpenClKernel & kernel, const KernelNDRange & range, const KernelArguments & args, services::Status & st) = 0;
+    virtual void schedule(const OpenClKernel & kernel, const KernelNDRange & range, const KernelArguments & args, Status & st) = 0;
 };
 
 /**
@@ -278,10 +278,10 @@ class KernelIface
 public:
     virtual ~KernelIface() {}
 
-    virtual void schedule(KernelSchedulerIface & scheduler, const KernelRange & range, const KernelArguments & args, services::Status & st) const = 0;
+    virtual void schedule(KernelSchedulerIface & scheduler, const KernelRange & range, const KernelArguments & args, Status & st) const = 0;
 
     virtual void schedule(KernelSchedulerIface & scheduler, const KernelNDRange & range, const KernelArguments & args,
-                          services::Status & st) const = 0;
+                          Status & st) const = 0;
 };
 typedef services::SharedPtr<KernelIface> KernelPtr;
 
@@ -293,8 +293,8 @@ class ClKernelFactoryIface
 {
 public:
     virtual ~ClKernelFactoryIface() {}
-    virtual void build(ExecutionTargetId target, const char * key, const char * program, const char * options, services::Status & st) = 0;
-    virtual services::SharedPtr<KernelIface> getKernel(const char * kernelName, services::Status & st)                                = 0;
+    virtual void build(ExecutionTargetId target, const char * key, const char * program, const char * options, Status & st) = 0;
+    virtual services::SharedPtr<KernelIface> getKernel(const char * kernelName, Status & st)                                = 0;
 };
 
 /**
@@ -316,36 +316,36 @@ class ExecutionContextIface
 public:
     virtual ~ExecutionContextIface() {}
 
-    virtual void run(const KernelRange & range, const KernelPtr & kernel, const KernelArguments & args, services::Status & st) = 0;
+    virtual void run(const KernelRange & range, const KernelPtr & kernel, const KernelArguments & args, Status & st) = 0;
 
-    virtual void run(const KernelNDRange & range, const KernelPtr & kernel, const KernelArguments & args, services::Status & st) = 0;
+    virtual void run(const KernelNDRange & range, const KernelPtr & kernel, const KernelArguments & args, Status & st) = 0;
 
     virtual void gemm(math::Transpose transa, math::Transpose transb, size_t m, size_t n, size_t k, double alpha, const UniversalBuffer & a_buffer,
                       size_t lda, size_t offsetA, const UniversalBuffer & b_buffer, size_t ldb, size_t offsetB, double beta,
-                      UniversalBuffer & c_buffer, size_t ldc, size_t offsetC, services::Status & st) = 0;
+                      UniversalBuffer & c_buffer, size_t ldc, size_t offsetC, Status & st) = 0;
 
     virtual void syrk(math::UpLo upper_lower, math::Transpose trans, size_t n, size_t k, double alpha, const UniversalBuffer & a_buffer, size_t lda,
-                      size_t offsetA, double beta, UniversalBuffer & c_buffer, size_t ldc, size_t offsetC, services::Status & st) = 0;
+                      size_t offsetA, double beta, UniversalBuffer & c_buffer, size_t ldc, size_t offsetC, Status & st) = 0;
 
     virtual void axpy(const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx, const UniversalBuffer y_buffer,
-                      const int incy, services::Status & st) = 0;
+                      const int incy, Status & st) = 0;
 
-    virtual void potrf(math::UpLo uplo, size_t n, UniversalBuffer & a_buffer, size_t lda, services::Status & st) = 0;
+    virtual void potrf(math::UpLo uplo, size_t n, UniversalBuffer & a_buffer, size_t lda, Status & st) = 0;
 
     virtual void potrs(math::UpLo uplo, size_t n, size_t ny, UniversalBuffer & a_buffer, size_t lda, UniversalBuffer & b_buffer, size_t ldb,
-                       services::Status & st) = 0;
+                       Status & st) = 0;
 
-    virtual void copy(UniversalBuffer dest, size_t desOffset, UniversalBuffer src, size_t srcOffset, size_t count, services::Status & st) = 0;
+    virtual void copy(UniversalBuffer dest, size_t desOffset, UniversalBuffer src, size_t srcOffset, size_t count, Status & st) = 0;
 
-    virtual void fill(UniversalBuffer dest, double value, services::Status & st) = 0;
+    virtual void fill(UniversalBuffer dest, double value, Status & st) = 0;
 
-    virtual UniversalBuffer allocate(TypeId type, size_t bufferSize, services::Status & st) = 0;
+    virtual UniversalBuffer allocate(TypeId type, size_t bufferSize, Status & st) = 0;
 
     virtual ClKernelFactoryIface & getClKernelFactory() = 0;
 
     virtual InfoDevice & getInfoDevice() = 0;
 
-    virtual void copy(UniversalBuffer dest, size_t desOffset, void * src, size_t srcOffset, size_t count, services::Status & st) = 0;
+    virtual void copy(UniversalBuffer dest, size_t desOffset, void * src, size_t srcOffset, size_t count, Status & st) = 0;
 };
 
 /**
@@ -356,9 +356,9 @@ class CpuKernelFactory : public Base, public ClKernelFactoryIface
 {
 public:
     virtual void build(ExecutionTargetId /*target*/, const char * /*key*/, const char * /*program*/, const char * /*options = ""*/,
-                       services::Status & /*status*/) DAAL_C11_OVERRIDE
+                       Status & /*status*/) DAAL_C11_OVERRIDE
     {}
-    virtual services::SharedPtr<KernelIface> getKernel(const char * /*kernelName*/, services::Status & /*status*/) DAAL_C11_OVERRIDE
+    virtual services::SharedPtr<KernelIface> getKernel(const char * /*kernelName*/, Status & /*status*/) DAAL_C11_OVERRIDE
     {
         return services::SharedPtr<KernelIface>();
     }
@@ -377,12 +377,12 @@ public:
         _infoDevice.maxWorkGroupSize = 0;
     }
 
-    void run(const KernelRange & /*range*/, const KernelPtr & /*kernel*/, const KernelArguments & /*args*/, services::Status & st) DAAL_C11_OVERRIDE
+    void run(const KernelRange & /*range*/, const KernelPtr & /*kernel*/, const KernelArguments & /*args*/, Status & st) DAAL_C11_OVERRIDE
     {
         st |= services::ErrorMethodNotImplemented;
     }
 
-    void run(const KernelNDRange & /*range*/, const KernelPtr & /*kernel*/, const KernelArguments & /*args*/, services::Status & st) DAAL_C11_OVERRIDE
+    void run(const KernelNDRange & /*range*/, const KernelPtr & /*kernel*/, const KernelArguments & /*args*/, Status & st) DAAL_C11_OVERRIDE
     {
         st |= services::ErrorMethodNotImplemented;
     }
@@ -390,44 +390,44 @@ public:
     void gemm(math::Transpose /*transa*/, math::Transpose /*transb*/, size_t /*m*/, size_t /*n*/, size_t /*k*/, double /*alpha*/,
               const UniversalBuffer & /*a_buffer*/, size_t /*lda*/, size_t /*offsetA*/, const UniversalBuffer & /*b_buffer*/, size_t /*ldb*/,
               size_t /*offsetB*/, double /*beta*/, UniversalBuffer & /*c_buffer*/, size_t /*ldc*/, size_t /*offsetC*/,
-              services::Status & st) DAAL_C11_OVERRIDE
+              Status & st) DAAL_C11_OVERRIDE
     {
         st |= services::ErrorMethodNotImplemented;
     }
 
     void syrk(math::UpLo /*upper_lower*/, math::Transpose /*trans*/, size_t /*n*/, size_t /*k*/, double /*alpha*/,
               const UniversalBuffer & /*a_buffer*/, size_t /*lda*/, size_t /*offsetA*/, double /*beta*/, UniversalBuffer & /*c_buffer*/,
-              size_t /*ldc*/, size_t /*offsetC*/, services::Status & st) DAAL_C11_OVERRIDE
+              size_t /*ldc*/, size_t /*offsetC*/, Status & st) DAAL_C11_OVERRIDE
     {
         st |= services::ErrorMethodNotImplemented;
     }
 
     void axpy(const uint32_t /*n*/, const double /*a*/, const UniversalBuffer /*x_buffer*/, const int /*incx*/, const UniversalBuffer /*y_buffer*/,
-              const int /*incy*/, services::Status & st) DAAL_C11_OVERRIDE
+              const int /*incy*/, Status & st) DAAL_C11_OVERRIDE
     {
         st |= services::ErrorMethodNotImplemented;
     }
 
-    void potrf(math::UpLo /*uplo*/, size_t /*n*/, UniversalBuffer & /*a_buffer*/, size_t /*lda*/, services::Status & st) DAAL_C11_OVERRIDE
+    void potrf(math::UpLo /*uplo*/, size_t /*n*/, UniversalBuffer & /*a_buffer*/, size_t /*lda*/, Status & st) DAAL_C11_OVERRIDE
     {
         st |= services::ErrorMethodNotImplemented;
     }
 
     void potrs(math::UpLo /*uplo*/, size_t /*n*/, size_t /*ny*/, UniversalBuffer & /*a_buffer*/, size_t /*lda*/, UniversalBuffer & /*b_buffer*/,
-               size_t /*ldb*/, services::Status & st) DAAL_C11_OVERRIDE
+               size_t /*ldb*/, Status & st) DAAL_C11_OVERRIDE
     {
         st |= services::ErrorMethodNotImplemented;
     }
 
     void copy(UniversalBuffer /*dest*/, size_t /*desOffset*/, UniversalBuffer /*src*/, size_t /*srcOffset*/, size_t /*count*/,
-              services::Status & st) DAAL_C11_OVERRIDE
+              Status & st) DAAL_C11_OVERRIDE
     {
         st |= services::ErrorMethodNotImplemented;
     }
 
-    void fill(UniversalBuffer /*dest*/, double /*value*/, services::Status & st) DAAL_C11_OVERRIDE { st |= services::ErrorMethodNotImplemented; }
+    void fill(UniversalBuffer /*dest*/, double /*value*/, Status & st) DAAL_C11_OVERRIDE { st |= services::ErrorMethodNotImplemented; }
 
-    UniversalBuffer allocate(TypeId /*type*/, size_t /*bufferSize*/, services::Status & st) DAAL_C11_OVERRIDE
+    UniversalBuffer allocate(TypeId /*type*/, size_t /*bufferSize*/, Status & st) DAAL_C11_OVERRIDE
     {
         st |= services::ErrorMethodNotImplemented;
         return UniversalBuffer();
@@ -438,7 +438,7 @@ public:
     InfoDevice & getInfoDevice() DAAL_C11_OVERRIDE { return _infoDevice; }
 
     void copy(UniversalBuffer /*dest*/, size_t /*desOffset*/, void * /*src*/, size_t /*srcOffset*/, size_t /*count*/,
-              services::Status & st) DAAL_C11_OVERRIDE
+              Status & st) DAAL_C11_OVERRIDE
     {
         st |= services::ErrorMethodNotImplemented;
     }

@@ -169,7 +169,7 @@ public:
     /**
      *   Creates a Buffer object referencing the shared pointer to the host-allocated data
      */
-    Buffer(const SharedPtr<T> & data, size_t size, Status & status)
+    Buffer(const SharedPtr<T> & data, size_t size)
     {
         Status status;
         _impl.reset(internal::HostBuffer<T>::create(data, size, status));

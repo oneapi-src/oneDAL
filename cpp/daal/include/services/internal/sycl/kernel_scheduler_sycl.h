@@ -412,7 +412,7 @@ private:
     template <typename T>
     void handlePublicBuffer(Status & status)
     {
-        auto buffer = _argument.get<services::internal::Buffer<T> >().toSycl(status);
+        auto buffer = _argument.get<Buffer<T> >().toSycl(status);
         DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
         // Note: we need this storage to keep all sycl buffers alive

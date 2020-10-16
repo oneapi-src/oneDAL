@@ -169,7 +169,9 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
         DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.copyResults);
 
         algorithmFPType nrowsVal = static_cast<algorithmFPType>(nRows);
-        const services::internal::Buffer<algorithmFPType> nrowsBuf(&nrowsVal, 1);
+        const services::internal::Buffer<algorithmFPType> nrowsBuf(&nrowsVal, 1, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
         DAAL_CHECK_STATUS(status, reduceResults(sumXBuf, nCols, 1, nrowsBuf, 0, 1, 1));
 
         DAAL_CHECK_STATUS(status, reduceResults(xtyBuff, nCols, nBetasIntercept, sumYBuf, 0, 1, nResponses));

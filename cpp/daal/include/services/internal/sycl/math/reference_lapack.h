@@ -54,7 +54,7 @@ struct DAAL_EXPORT ReferencePotrf
 {
     ReferencePotrf() {}
 
-    services::Status operator()(const math::UpLo uplo, const size_t n, services::internal::Buffer<algorithmFPType> & a_buffer, const size_t lda);
+    Status operator()(const math::UpLo uplo, const size_t n, Buffer<algorithmFPType> & a_buffer, const size_t lda);
 };
 
 /**
@@ -66,8 +66,8 @@ struct DAAL_EXPORT ReferencePotrs
 {
     ReferencePotrs() {}
 
-    services::Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, services::internal::Buffer<algorithmFPType> & a_buffer,
-                                const size_t lda, services::internal::Buffer<algorithmFPType> & b_buffer, const size_t ldb);
+    Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, Buffer<algorithmFPType> & a_buffer,
+                                const size_t lda, Buffer<algorithmFPType> & b_buffer, const size_t ldb);
 };
 
 /** @} */

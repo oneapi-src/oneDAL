@@ -88,7 +88,7 @@ private:
 
 public:
     static void run(cl::sycl::queue & queue, const math::UpLo uplo, const size_t n, UniversalBuffer & a_buffer, const size_t lda,
-                    services::Status & status)
+                    Status & status)
     {
         Execute op(queue, uplo, n, a_buffer, lda);
         TypeDispatcher::floatDispatch(a_buffer.type(), op, status);
@@ -139,7 +139,7 @@ private:
 
 public:
     static void run(cl::sycl::queue & queue, const math::UpLo uplo, const size_t n, const size_t ny, UniversalBuffer & a_buffer, const size_t lda,
-                    UniversalBuffer & b_buffer, const size_t ldb, services::Status & status)
+                    UniversalBuffer & b_buffer, const size_t ldb, Status & status)
     {
         Execute op(queue, uplo, n, ny, a_buffer, lda, b_buffer, ldb);
         TypeDispatcher::floatDispatch(a_buffer.type(), op, status);

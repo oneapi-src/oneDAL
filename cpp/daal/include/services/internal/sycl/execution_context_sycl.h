@@ -46,7 +46,7 @@ public:
 
     ~OpenClKernelFactory() DAAL_C11_OVERRIDE {}
 
-    void build(ExecutionTargetId target, const char * name, const char * program, const char * options, services::Status & status) DAAL_C11_OVERRIDE
+    void build(ExecutionTargetId target, const char * name, const char * program, const char * options, Status & status) DAAL_C11_OVERRIDE
     {
         services::String key = name;
         const bool res       = programHashTable.contain(key, status);
@@ -100,7 +100,7 @@ public:
         _executionTarget = target;
     }
 
-    KernelPtr getKernel(const char * kernelName, services::Status & status) DAAL_C11_OVERRIDE
+    KernelPtr getKernel(const char * kernelName, Status & status) DAAL_C11_OVERRIDE
     {
         if (_currentProgramRef == nullptr)
         {
@@ -156,8 +156,8 @@ public:
 private:
     static const size_t SIZE_HASHTABLE_PROGRAM = 1024;
     static const size_t SIZE_HASHTABLE_KERNEL  = 4096;
-    services::internal::HashTable<OpenClProgramRef, SIZE_HASHTABLE_PROGRAM> programHashTable;
-    services::internal::HashTable<KernelIface, SIZE_HASHTABLE_KERNEL> kernelHashTable;
+    HashTable<OpenClProgramRef, SIZE_HASHTABLE_PROGRAM> programHashTable;
+    HashTable<KernelIface, SIZE_HASHTABLE_KERNEL> kernelHashTable;
 
     OpenClProgramRef * _currentProgramRef;
         #ifndef DAAL_DISABLE_LEVEL_ZERO
@@ -179,7 +179,7 @@ public:
         _infoDevice.maxWorkGroupSize = device.get_info<cl::sycl::info::device::max_work_group_size>();
     }
 
-    void run(const KernelRange & range, const KernelPtr & kernel, const KernelArguments & args, services::Status & status) DAAL_C11_OVERRIDE
+    void run(const KernelRange & range, const KernelPtr & kernel, const KernelArguments & args, Status & status) DAAL_C11_OVERRIDE
     {
         // TODO: Thread safe?
         // TODO: Check for input arguments
@@ -188,7 +188,7 @@ public:
         kernel->schedule(_kernelScheduler, range, args, status);
     }
 
-    void run(const KernelNDRange & range, const KernelPtr & kernel, const KernelArguments & args, services::Status & status) DAAL_C11_OVERRIDE
+    void run(const KernelNDRange & range, const KernelPtr & kernel, const KernelArguments & args, Status & status) DAAL_C11_OVERRIDE
     {
         // TODO: Thread safe?
         // TODO: Check for input arguments
@@ -199,7 +199,7 @@ public:
 
     void gemm(math::Transpose transa, math::Transpose transb, size_t m, size_t n, size_t k, double alpha, const UniversalBuffer & a_buffer,
               size_t lda, size_t offsetA, const UniversalBuffer & b_buffer, size_t ldb, size_t offsetB, double beta, UniversalBuffer & c_buffer,
-              size_t ldc, size_t offsetC, services::Status & status) DAAL_C11_OVERRIDE
+              size_t ldc, size_t offsetC, Status & status) DAAL_C11_OVERRIDE
     {
         DAAL_ASSERT(a_buffer.type() == b_buffer.type());
         DAAL_ASSERT(b_buffer.type() == c_buffer.type());
@@ -210,7 +210,7 @@ public:
     }
 
     void syrk(math::UpLo upper_lower, math::Transpose trans, size_t n, size_t k, double alpha, const UniversalBuffer & a_buffer, size_t lda,
-              size_t offsetA, double beta, UniversalBuffer & c_buffer, size_t ldc, size_t offsetC, services::Status & status) DAAL_C11_OVERRIDE
+              size_t offsetA, double beta, UniversalBuffer & c_buffer, size_t ldc, size_t offsetC, Status & status) DAAL_C11_OVERRIDE
     {
         DAAL_ASSERT(a_buffer.type() == c_buffer.type());
 
@@ -218,38 +218,38 @@ public:
     }
 
     void axpy(const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx, const UniversalBuffer y_buffer, const int incy,
-              services::Status & status) DAAL_C11_OVERRIDE
+              Status & status) DAAL_C11_OVERRIDE
     {
         DAAL_ASSERT(x_buffer.type() == y_buffer.type());
 
         math::AxpyExecutor::run(_deviceQueue, n, a, x_buffer, incx, y_buffer, incy, status);
     }
 
-    void potrf(math::UpLo uplo, size_t n, UniversalBuffer & a_buffer, size_t lda, services::Status & status) DAAL_C11_OVERRIDE
+    void potrf(math::UpLo uplo, size_t n, UniversalBuffer & a_buffer, size_t lda, Status & status) DAAL_C11_OVERRIDE
     {
         math::PotrfExecutor::run(_deviceQueue, uplo, n, a_buffer, lda, status);
     }
 
     void potrs(math::UpLo uplo, size_t n, size_t ny, UniversalBuffer & a_buffer, size_t lda, UniversalBuffer & b_buffer, size_t ldb,
-               services::Status & status) DAAL_C11_OVERRIDE
+               Status & status) DAAL_C11_OVERRIDE
     {
         DAAL_ASSERT(a_buffer.type() == b_buffer.type());
         math::PotrsExecutor::run(_deviceQueue, uplo, n, ny, a_buffer, lda, b_buffer, ldb, status);
     }
 
-    UniversalBuffer allocate(TypeId type, size_t bufferSize, services::Status & status) DAAL_C11_OVERRIDE
+    UniversalBuffer allocate(TypeId type, size_t bufferSize, Status & status) DAAL_C11_OVERRIDE
     {
         return BufferAllocator::allocate(type, bufferSize, status);
     }
 
     void copy(UniversalBuffer dest, size_t desOffset, UniversalBuffer src, size_t srcOffset, size_t count,
-              services::Status & status) DAAL_C11_OVERRIDE
+              Status & status) DAAL_C11_OVERRIDE
     {
         DAAL_ASSERT(dest.type() == src.type());
         BufferCopier::copy(_deviceQueue, dest, desOffset, src, srcOffset, count, status);
     }
 
-    void fill(UniversalBuffer dest, double value, services::Status & status) DAAL_C11_OVERRIDE
+    void fill(UniversalBuffer dest, double value, Status & status) DAAL_C11_OVERRIDE
     {
         BufferFiller::fill(_deviceQueue, dest, value, status);
     }
@@ -258,7 +258,7 @@ public:
 
     InfoDevice & getInfoDevice() DAAL_C11_OVERRIDE { return _infoDevice; }
 
-    void copy(UniversalBuffer dest, size_t desOffset, void * src, size_t srcOffset, size_t count, services::Status & status) DAAL_C11_OVERRIDE
+    void copy(UniversalBuffer dest, size_t desOffset, void * src, size_t srcOffset, size_t count, Status & status) DAAL_C11_OVERRIDE
     {
         ArrayCopier::copy(_deviceQueue, dest, desOffset, src, srcOffset, count, status);
     }

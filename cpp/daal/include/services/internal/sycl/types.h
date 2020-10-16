@@ -193,24 +193,32 @@ public:
     UniversalBuffer() : _type(TypeIds::id<void>()) {}
 
     template <typename T>
-    UniversalBuffer(const services::internal::Buffer<T> & buffer) : _type(TypeIds::id<T>()), _anyBuffer(buffer)
+    UniversalBuffer(const Buffer<T> & buffer) : _type(TypeIds::id<T>()), _anyBuffer(buffer)
     {}
 
     template <typename T>
-    const services::internal::Buffer<T> & get() const
+    const Buffer<T> & get() const
     {
-        return _anyBuffer.get<services::internal::Buffer<T> >();
+        return _anyBuffer.get<Buffer<T> >();
+    }
+
+    template <typename T>
+    UniversalBuffer & operator=(const Buffer<T> & buffer)
+    {
+        _type      = TypeIds::id<T>();
+        _anyBuffer = buffer;
+        return *this;
     }
 
     TypeId type() const { return _type; }
 
-    const services::internal::Any & any() const { return _anyBuffer; }
+    const Any & any() const { return _anyBuffer; }
 
     bool empty() const { return _anyBuffer.empty(); }
 
 private:
     TypeId _type;
-    services::internal::Any _anyBuffer;
+    Any _anyBuffer;
 };
 
 /**

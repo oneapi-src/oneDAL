@@ -131,7 +131,7 @@ public:
     static void run(cl::sycl::queue & queue, const math::Transpose transa, const math::Transpose transb, const size_t m, const size_t n,
                     const size_t k, const double alpha, const UniversalBuffer & a_buffer, const size_t lda, const size_t offsetA,
                     const UniversalBuffer & b_buffer, const size_t ldb, const size_t offsetB, const double beta, UniversalBuffer & c_buffer,
-                    const size_t ldc, const size_t offsetC, services::Status & status)
+                    const size_t ldc, const size_t offsetC, Status & status)
     {
         Execute op(queue, transa, transb, m, n, k, alpha, a_buffer, lda, offsetA, b_buffer, ldb, offsetB, beta, c_buffer, ldc, offsetC);
         TypeDispatcher::floatDispatch(a_buffer.type(), op, status);
@@ -204,7 +204,7 @@ private:
 public:
     static void run(cl::sycl::queue & queue, const math::UpLo upper_lower, const math::Transpose trans, const size_t n, const size_t k,
                     const double alpha, const UniversalBuffer & a_buffer, const size_t lda, const size_t offsetA, const double beta,
-                    UniversalBuffer & c_buffer, const size_t ldc, const size_t offsetC, services::Status & status)
+                    UniversalBuffer & c_buffer, const size_t ldc, const size_t offsetC, Status & status)
     {
         Execute op(queue, upper_lower, trans, n, k, alpha, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC);
         TypeDispatcher::floatDispatch(a_buffer.type(), op, status);
@@ -268,7 +268,7 @@ private:
 
 public:
     static void run(cl::sycl::queue & queue, const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx,
-                    UniversalBuffer y_buffer, const int incy, services::Status & status)
+                    UniversalBuffer y_buffer, const int incy, Status & status)
     {
         Execute op(queue, n, a, x_buffer, incx, y_buffer, incy);
         TypeDispatcher::floatDispatch(x_buffer.type(), op, status);

@@ -52,13 +52,13 @@ struct MKLGemm
 {
     MKLGemm(cl::sycl::queue & queue) : _queue(queue) {}
 
-    services::Status operator()(const math::Transpose transa, const math::Transpose transb, const size_t m, const size_t n, const size_t k,
-                                const algorithmFPType alpha, const services::internal::Buffer<algorithmFPType> & a_buffer, const size_t lda,
-                                const size_t offsetA, const services::internal::Buffer<algorithmFPType> & b_buffer, const size_t ldb,
-                                const size_t offsetB, const algorithmFPType beta, services::internal::Buffer<algorithmFPType> & c_buffer,
+    Status operator()(const math::Transpose transa, const math::Transpose transb, const size_t m, const size_t n, const size_t k,
+                                const algorithmFPType alpha, const Buffer<algorithmFPType> & a_buffer, const size_t lda,
+                                const size_t offsetA, const Buffer<algorithmFPType> & b_buffer, const size_t ldb,
+                                const size_t offsetB, const algorithmFPType beta, Buffer<algorithmFPType> & c_buffer,
                                 const size_t ldc, const size_t offsetC)
     {
-        services::Status status;
+        Status status;
 
         const MKL_TRANSPOSE transamkl = transa == math::Transpose::Trans ? MKL_TRANS : MKL_NOTRANS;
         const MKL_TRANSPOSE transbmkl = transb == math::Transpose::Trans ? MKL_TRANS : MKL_NOTRANS;
@@ -108,12 +108,12 @@ struct MKLSyrk
 {
     MKLSyrk(cl::sycl::queue & queue) : _queue(queue) {}
 
-    services::Status operator()(const math::UpLo upper_lower, const math::Transpose trans, const size_t n, const size_t k,
-                                const algorithmFPType alpha, const services::internal::Buffer<algorithmFPType> & a_buffer, const size_t lda,
-                                const size_t offsetA, const algorithmFPType beta, services::internal::Buffer<algorithmFPType> & c_buffer,
+    Status operator()(const math::UpLo upper_lower, const math::Transpose trans, const size_t n, const size_t k,
+                                const algorithmFPType alpha, const Buffer<algorithmFPType> & a_buffer, const size_t lda,
+                                const size_t offsetA, const algorithmFPType beta, Buffer<algorithmFPType> & c_buffer,
                                 const size_t ldc, const size_t offsetC)
     {
-        services::Status status;
+        Status status;
 
         const MKL_TRANSPOSE transmkl = trans == math::Transpose::Trans ? MKL_TRANS : MKL_NOTRANS;
         const MKL_UPLO uplomkl       = upper_lower == math::UpLo::Upper ? MKL_UPPER : MKL_LOWER;
@@ -159,10 +159,10 @@ struct MKLAxpy
 {
     MKLAxpy(cl::sycl::queue & queue) : _queue(queue) {}
 
-    services::Status operator()(const int n, const algorithmFPType a, const services::internal::Buffer<algorithmFPType> & x_buffer, const int incx,
-                                services::internal::Buffer<algorithmFPType> & y_buffer, const int incy)
+    Status operator()(const int n, const algorithmFPType a, const Buffer<algorithmFPType> & x_buffer, const int incx,
+                                Buffer<algorithmFPType> & y_buffer, const int incy)
     {
-        services::Status status;
+        Status status;
 
         cl::sycl::buffer<algorithmFPType, 1> x_sycl_buff = x_buffer.toSycl(status);
         cl::sycl::buffer<algorithmFPType, 1> y_sycl_buff = y_buffer.toSycl(status);

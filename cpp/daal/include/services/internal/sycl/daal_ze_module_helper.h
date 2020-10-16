@@ -73,10 +73,10 @@ class ZeModuleHelper : public Base
 public:
     ZeModuleHelper()                       = delete;
     ZeModuleHelper(const ZeModuleHelper &) = delete;
-    ZeModuleHelper(cl::sycl::queue & deviceQueue, size_t binarySize, const uint8_t * pBinary, services::Status & status)
+    ZeModuleHelper(cl::sycl::queue & deviceQueue, size_t binarySize, const uint8_t * pBinary, Status & status)
         : _program(deviceQueue.get_context())
     {
-        static services::internal::DynamicLibHelper zeLib(zeLoaderName, libLoadFlags, status);
+        static DynamicLibHelper zeLib(zeLoaderName, libLoadFlags, status);
         DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
         static zeModuleCreateFT stZeModuleCreateF = zeLib.getSymbol<zeModuleCreateFT>(zeModuleCreateFuncName, status);

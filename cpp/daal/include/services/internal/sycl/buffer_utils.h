@@ -55,7 +55,7 @@ public:
     }
 
     template <typename T>
-    void operator()(Typelist<T>, services::Status & st)
+    void operator()(Typelist<T>, Status & st)
     {
         using namespace daal::data_management;
         using namespace daal::data_management::internal;
@@ -92,13 +92,13 @@ class BufferConverterTo
 public:
     BufferConverterTo(const UniversalBuffer & src, size_t offset, size_t size) : _src(src), _offset(offset), _size(size) {}
 
-    services::internal::Buffer<DataType> getResult()
+    Buffer<DataType> getResult()
     {
         return _dest;
     }
 
     template <typename T>
-    void operator()(Typelist<T>, services::Status & st)
+    void operator()(Typelist<T>, Status & st)
     {
         using namespace daal::data_management;
         using namespace daal::data_management::internal;
@@ -124,7 +124,7 @@ public:
         _dest = bufferBlock;
     }
 
-    void operator()(Typelist<DataType>, services::Status & st)
+    void operator()(Typelist<DataType>, Status & st)
     {
         auto buffer    = _src.template get<DataType>();
         auto subbuffer = buffer.getSubBuffer(_offset, _size, st);
@@ -138,7 +138,7 @@ private:
     size_t _offset;
     size_t _size;
 
-    services::internal::Buffer<DataType> _dest;
+    Buffer<DataType> _dest;
 };
 
 /**

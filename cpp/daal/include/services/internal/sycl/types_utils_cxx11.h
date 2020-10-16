@@ -52,7 +52,7 @@ private:
         void operator()(Typelist<T>, Status & status)
         {
             status |= catchSyclExceptions([&]() mutable {
-                buffer = services::internal::Buffer<T>(cl::sycl::buffer<T, 1>(bufferSize), status);
+                buffer = Buffer<T>(cl::sycl::buffer<T, 1>(bufferSize), status);
             });
         }
     };
@@ -91,10 +91,10 @@ private:
         void operator()(Typelist<T>, Status & status)
         {
             auto src = srcUnivers.get<T>().toSycl(status);
-            DAAL_CHECK_STATUS_VAR(status);
+            DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
             auto dst = dstUnivers.get<T>().toSycl(status);
-            DAAL_CHECK_STATUS_VAR(status);
+            DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
             status |= catchSyclExceptions([&]() mutable {
                 cl::sycl::event event = queue.submit([&](cl::sycl::handler & cgh) {
@@ -109,7 +109,7 @@ private:
 
 public:
     static void copy(cl::sycl::queue & queue, UniversalBuffer & dest, size_t dstOffset, UniversalBuffer & src, size_t srcOffset, size_t count,
-                     services::Status & status)
+                     Status & status)
     {
         Execute op(queue, dest, dstOffset, src, srcOffset, count);
         TypeDispatcher::dispatch(dest.type(), op, status);
@@ -155,7 +155,7 @@ private:
 
 public:
     static void copy(cl::sycl::queue & queue, UniversalBuffer & dest, size_t dstOffset, void * src, size_t srcOffset, size_t count,
-                     services::Status & status)
+                     Status & status)
     {
         Execute op(queue, dest, dstOffset, src, srcOffset, count);
         TypeDispatcher::dispatch(dest.type(), op, status);
@@ -196,7 +196,7 @@ private:
     };
 
 public:
-    static void fill(cl::sycl::queue & queue, UniversalBuffer & dest, double value, services::Status & status)
+    static void fill(cl::sycl::queue & queue, UniversalBuffer & dest, double value, Status & status)
     {
         Execute op(queue, dest, value);
         TypeDispatcher::dispatch(dest.type(), op, status);
