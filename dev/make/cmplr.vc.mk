@@ -18,7 +18,7 @@
 #  Visual Studio definitions for makefile
 #--
 
-PLATs.vc = win32e win32
+PLATs.vc = win32e
 
 CMPLRDIRSUFF.vc = _vc
 

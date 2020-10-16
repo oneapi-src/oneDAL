@@ -14,11 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <iomanip>
-#include <iostream>
-#include <CL/sycl.hpp>
-
-#define ONEAPI_DAL_DATA_PARALLEL
 #include "oneapi/dal/algo/pca.hpp"
 #include "oneapi/dal/io/csv.hpp"
 
@@ -26,16 +21,15 @@
 
 using namespace oneapi;
 
-void run(sycl::queue& queue) {
-    const std::string train_data_file_name = get_data_path("pca_normalized.csv");
-
-    const auto x_train = dal::read<dal::table>(queue, dal::csv::data_source{ train_data_file_name });
-
-    const auto pca_desc = dal::pca::descriptor<>()
+template <typename Method>
+void run(const dal::table& x_train, const std::string& method_name) {
+    const auto pca_desc = dal::pca::descriptor<float, Method>()
         .set_component_count(5)
         .set_deterministic(true);
 
-    const auto result_train = dal::train(queue, pca_desc, x_train);
+    const auto result_train = dal::train(pca_desc, x_train);
+
+    std::cout << method_name << std::endl << std::endl;
 
     std::cout << "Eigenvectors:" << std::endl
               << result_train.get_eigenvectors() << std::endl;
@@ -43,19 +37,19 @@ void run(sycl::queue& queue) {
     std::cout << "Eigenvalues:" << std::endl
               << result_train.get_eigenvalues() << std::endl;
 
-    const auto result_infer = dal::infer(queue, pca_desc, result_train.get_model(), x_train);
+    const auto result_infer = dal::infer(pca_desc, result_train.get_model(), x_train);
 
     std::cout << "Transformed data:" << std::endl
               << result_infer.get_transformed_data() << std::endl;
 }
 
 int main(int argc, char const *argv[]) {
-    for (auto device : list_devices()) {
-        std::cout << "Running on "
-                  << device.get_info<sycl::info::device::name>()
-                  << std::endl << std::endl;
-        auto queue = sycl::queue{device};
-        run(queue);
-    }
+    const std::string train_data_file_name = get_data_path("pca_normalized.csv");
+
+    const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
+
+    run<dal::pca::method::cov>(x_train, "Training method: Covariance");
+    run<dal::pca::method::svd>(x_train, "Training method: SVD");
+
     return 0;
 }
