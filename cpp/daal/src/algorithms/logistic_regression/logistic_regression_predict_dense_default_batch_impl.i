@@ -90,7 +90,7 @@ public:
             }
             const size_t iStartRow      = iBlock * nRowsInBlock;
             const size_t nRowsToProcess = (iBlock == nDataBlocks - 1) ? nRowsTotal - iBlock * nRowsInBlock : nRowsInBlock;
-            algorithmFPType * buff = bufferTls.local();
+            algorithmFPType * buff      = bufferTls.local();
             DAAL_CHECK_MALLOC_THR(buff);
 
             DAAL_CHECK_STATUS_THR(applyBetaImpl(_data, betaBD.get(), buff, nRowsToProcess, nCols, iStartRow, true));
@@ -145,7 +145,7 @@ public:
     }
 
 protected:
-    services::Status gemvSoa(const NumericTable * x, const algorithmFPType * b, algorithmFPType * res, size_t nRows, size_t nCols,size_t xOffset)
+    services::Status gemvSoa(const NumericTable * x, const algorithmFPType * b, algorithmFPType * res, size_t nRows, size_t nCols, size_t xOffset)
     {
         const DAAL_INT incX(1);
         const DAAL_INT incY(1);
@@ -157,19 +157,20 @@ protected:
         {
             ReadColumns<algorithmFPType, cpu> xBlock(const_cast<NumericTable *>(x), i, xOffset, nRows);
             DAAL_CHECK_BLOCK_STATUS(xBlock);
-            const algorithmFPType* xData = xBlock.get();
-            const algorithmFPType value = b[i];
+            const algorithmFPType * xData = xBlock.get();
+            const algorithmFPType value   = b[i];
 
             Blas<algorithmFPType, cpu>::xxaxpy(&size, &value, xData, &incX, res, &incY);
         }
         return services::Status();
     }
 
-    services::Status applyBetaImpl(const NumericTable * x, const algorithmFPType * beta, algorithmFPType * xb, size_t nRows, size_t nCols, size_t xOffset, bool bIntercept)
+    services::Status applyBetaImpl(const NumericTable * x, const algorithmFPType * beta, algorithmFPType * xb, size_t nRows, size_t nCols,
+                                   size_t xOffset, bool bIntercept)
     {
         services::Status s;
 
-        if (dynamic_cast<SOANumericTable*>(const_cast<NumericTable *>(_data)))
+        if (dynamic_cast<SOANumericTable *>(const_cast<NumericTable *>(_data)))
         {
             s |= gemvSoa(x, beta + 1, xb, nRows, nCols, xOffset);
             if (bIntercept)
@@ -297,7 +298,7 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::run(const NumericT
         const size_t iStartRow      = iBlock * nRowsInBlock;
         const size_t nRowsToProcess = (iBlock == nDataBlocks - 1) ? nRowsTotal - iBlock * nRowsInBlock : nRowsInBlock;
 
-        TlsDataCpu * pLocal         = tlsData.local();
+        TlsDataCpu * pLocal = tlsData.local();
         DAAL_CHECK_MALLOC_THR(pLocal);
         algorithmFPType * pRawValues = pLocal->raw;
 
@@ -361,7 +362,6 @@ services::Status PredictKernel<algorithmFPType, method, cpu>::compute(services::
                                                                       const logistic_regression::Model * m, size_t nClasses, NumericTable * pRes,
                                                                       NumericTable * pProbab, NumericTable * pLogProbab)
 {
-
     const daal::algorithms::logistic_regression::internal::ModelImpl * pModel =
         static_cast<const daal::algorithms::logistic_regression::internal::ModelImpl *>(m);
     if (nClasses == 2)
