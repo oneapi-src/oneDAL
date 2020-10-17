@@ -516,7 +516,7 @@ private:
             if(!status) return services::throwIfPossible(status);
             DAAL_ASSERT(buffer.size() == nrows);
 
-            auto colSharedPtr = buffer.toHost(readOnly, &status);
+            auto colSharedPtr = buffer.toHost(readOnly, status);
             if(!status) return services::throwIfPossible(status);
 
             T * colPtr = colSharedPtr.get();

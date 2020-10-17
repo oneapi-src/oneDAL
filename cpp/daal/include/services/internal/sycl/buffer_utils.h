@@ -20,6 +20,7 @@
 
 #include "services/internal/execution_context.h"
 #include "services/internal/sycl/types_utils.h"
+#include "services/internal/sycl/daal_defines_sycl.h"
 #include "data_management/data/internal/conversion.h"
 
 namespace daal
@@ -60,6 +61,9 @@ public:
     {
         using namespace daal::data_management;
         using namespace daal::data_management::internal;
+
+        DAAL_ASSERT_UNIVERSAL_BUFFER(_src, DataType, _size);
+        DAAL_ASSERT(_dest.type() == TypeIds::id<T>());
 
         _st = services::Status();
 
@@ -111,6 +115,8 @@ public:
 
         _st = services::Status();
 
+        DAAL_ASSERT(_src.type() == TypeIds::id<T>());
+
         auto buffer = _src.template get<T>();
 
         auto subbuffer = buffer.getSubBuffer(_offset, _size, _st);
@@ -135,6 +141,8 @@ public:
     void operator()(Typelist<DataType>)
     {
         _st = services::Status();
+
+        DAAL_ASSERT(_src.type() == TypeIds::id<DataType>());
 
         auto buffer    = _src.template get<DataType>();
         auto subbuffer = buffer.getSubBuffer(_offset, _size, _st);
@@ -174,6 +182,8 @@ public:
     template <typename T>
     void operator()(Typelist<T>)
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(_src, T, _size);
+
         auto buffer = _src.template get<T>();
         auto ptr    = buffer.toHost(_mode, _st);
         DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(_st);
