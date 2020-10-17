@@ -68,58 +68,134 @@ public:
     {}
     services::Status run(const NumericTable & beta, services::HostAppIface * pHostApp)
     {
-        NumericTable * pRaw   = _prob ? _prob : (_logProb ? _logProb : _res);
-        const auto nRowsTotal = pRaw->getNumberOfRows();
-        WriteOnlyRows<algorithmFPType, cpu> rawBD(pRaw, 0, nRowsTotal);
-        DAAL_CHECK_BLOCK_STATUS(rawBD);
-        algorithmFPType * aRaw = rawBD.get();
-        //compute raw values
-        auto s = predictRaw(pHostApp, beta, aRaw);
-        if (!s) return s;
-        if (_prob || _logProb)
-        {
-            //before transforming raw values to sigmoid and logarithm, predict labels
+        const size_t nCols        = _data->getNumberOfColumns();
+        const size_t nRowsTotal   = _data->getNumberOfRows();
+        const size_t nRowsInBlock = 512;
+        const size_t nDataBlocks  = nRowsTotal / nRowsInBlock + !!(nRowsTotal % nRowsInBlock);
+
+        ReadRows<algorithmFPType, cpu> betaBD(const_cast<NumericTable &>(beta), 0, 1);
+        DAAL_CHECK_BLOCK_STATUS(betaBD);
+
+        SafeStatus safeStat;
+        HostAppHelper host(pHostApp, 1000);
+
+        TlsMem<algorithmFPType, cpu> bufferTls(nRowsInBlock);
+
+        daal::threader_for(nDataBlocks, nDataBlocks, [&](size_t iBlock) {
+            services::Status s;
+            if (host.isCancelled(s, 1))
+            {
+                safeStat.add(s);
+                return;
+            }
+            const size_t iStartRow      = iBlock * nRowsInBlock;
+            const size_t nRowsToProcess = (iBlock == nDataBlocks - 1) ? nRowsTotal - iBlock * nRowsInBlock : nRowsInBlock;
+            algorithmFPType * buff = bufferTls.local();
+            DAAL_CHECK_MALLOC_THR(buff);
+
+            DAAL_CHECK_STATUS_THR(applyBetaImpl(_data, betaBD.get(), buff, nRowsToProcess, nCols, iStartRow, true));
+
             if (_res)
             {
-                WriteOnlyRows<algorithmFPType, cpu> resBD(_res, 0, nRowsTotal);
-                DAAL_CHECK_BLOCK_STATUS(resBD);
-                predictLabels(aRaw, resBD.get(), nRowsTotal);
+                WriteOnlyRows<algorithmFPType, cpu> resBD(_res, iStartRow, nRowsToProcess);
+                DAAL_CHECK_BLOCK_STATUS_THR(resBD);
+                predictLabels(buff, resBD.get(), nRowsToProcess);
             }
-            ll::internal::LogLossKernel<algorithmFPType, ll::defaultDense, cpu>::sigmoid(aRaw, aRaw, nRowsTotal);
-            if (pRaw->getNumberOfColumns() == 2)
+
+            if (_prob || _logProb)
             {
-                stretchProbaOnTwoColumns(aRaw, nRowsTotal);
+                ll::internal::LogLossKernel<algorithmFPType, ll::defaultDense, cpu>::sigmoid(buff, buff, nRowsToProcess);
             }
-            if (_logProb)
+
+            if (_prob || _logProb)
             {
-                if (_prob)
+                auto ntForProb = _prob ? _prob : _logProb;
+                WriteOnlyRows<algorithmFPType, cpu> probBD(ntForProb, iStartRow, nRowsToProcess);
+                DAAL_CHECK_BLOCK_STATUS_THR(probBD);
+
+                algorithmFPType * prob = probBD.get();
+
+                if (ntForProb->getNumberOfColumns() == 2)
                 {
-                    WriteOnlyRows<algorithmFPType, cpu> logBD(_logProb, 0, nRowsTotal);
-                    DAAL_CHECK_BLOCK_STATUS(logBD);
-                    daal::internal::Math<algorithmFPType, cpu>::vLog(_logProb->getNumberOfRows() * _logProb->getNumberOfColumns(), aRaw, logBD.get());
+                    for (size_t i = 0; i < nRowsToProcess; ++i)
+                    {
+                        prob[i * 2 + 0] = algorithmFPType(1.0) - buff[i];
+                        prob[i * 2 + 1] = buff[i];
+                    }
                 }
-                else
+                else // for backward compatibility with old interfaces
                 {
-                    daal::internal::Math<algorithmFPType, cpu>::vLog(_logProb->getNumberOfRows() * _logProb->getNumberOfColumns(), aRaw, aRaw);
+                    services::internal::tmemcpy<algorithmFPType, cpu>(prob, buff, nRowsToProcess);
+                }
+
+                if (_prob && _logProb)
+                {
+                    WriteOnlyRows<algorithmFPType, cpu> logBD(_logProb, iStartRow, nRowsToProcess);
+                    DAAL_CHECK_BLOCK_STATUS_THR(logBD);
+                    daal::internal::Math<algorithmFPType, cpu>::vLog(nRowsToProcess * _logProb->getNumberOfColumns(), prob, logBD.get());
+                }
+                else if (!_prob && _logProb)
+                {
+                    daal::internal::Math<algorithmFPType, cpu>::vLog(nRowsToProcess * _logProb->getNumberOfColumns(), prob, prob);
                 }
             }
-            return s;
-        }
-        //only labels are required
-        DAAL_ASSERT(pRaw == _res);
-        predictLabels(aRaw, aRaw, nRowsTotal);
-        return s;
+        });
+
+        return safeStat.detach();
     }
 
 protected:
-    services::Status predictRaw(services::HostAppIface * pHostApp, const NumericTable & beta, algorithmFPType * pRes);
+    services::Status gemvSoa(const NumericTable * x, const algorithmFPType * b, algorithmFPType * res, size_t nRows, size_t nCols,size_t xOffset)
+    {
+        const DAAL_INT incX(1);
+        const DAAL_INT incY(1);
+        const DAAL_INT size(nRows);
+
+        services::internal::service_memset_seq<algorithmFPType, cpu>(res, nRows, algorithmFPType(0.0));
+
+        for (size_t i = 0; i < nCols; ++i)
+        {
+            ReadColumns<algorithmFPType, cpu> xBlock(const_cast<NumericTable *>(x), i, xOffset, nRows);
+            DAAL_CHECK_BLOCK_STATUS(xBlock);
+            const algorithmFPType* xData = xBlock.get();
+            const algorithmFPType value = b[i];
+
+            Blas<algorithmFPType, cpu>::xxaxpy(&size, &value, xData, &incX, res, &incY);
+        }
+        return services::Status();
+    }
+
+    services::Status applyBetaImpl(const NumericTable * x, const algorithmFPType * beta, algorithmFPType * xb, size_t nRows, size_t nCols, size_t xOffset, bool bIntercept)
+    {
+        services::Status s;
+
+        if (dynamic_cast<SOANumericTable*>(const_cast<NumericTable *>(_data)))
+        {
+            s |= gemvSoa(x, beta + 1, xb, nRows, nCols, xOffset);
+            if (bIntercept)
+            {
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for (size_t i = 0; i < nRows; ++i) xb[i] += beta[0];
+            }
+        }
+        else
+        {
+            ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), xOffset, nRows);
+            DAAL_CHECK_BLOCK_STATUS(xBD);
+            ll::internal::LogLossKernel<algorithmFPType, ll::defaultDense, cpu>::applyBeta(xBD.get(), beta, xb, nRows, nCols, bIntercept);
+        }
+
+        return s;
+    }
+
     void predictLabels(const algorithmFPType * pRaw, algorithmFPType * pRes, size_t nRows)
     {
         const algorithmFPType label[2] = { algorithmFPType(1.), algorithmFPType(0.) };
         //pRaw contains raw values of sigmoid argument
         for (size_t iRow = 0; iRow < nRows; ++iRow)
         {
-            //probablity is a sigmoid(f) hence sign(f) can be checked
+            //probability is a sigmoid(f) hence sign(f) can be checked
             pRes[iRow] = label[services::internal::SignBit<algorithmFPType, cpu>::get(pRaw[iRow])];
         }
     }
@@ -140,41 +216,6 @@ protected:
     NumericTable * _prob;
     NumericTable * _logProb;
 };
-
-template <typename algorithmFPType, CpuType cpu>
-services::Status PredictBinaryClassificationTask<algorithmFPType, cpu>::predictRaw(services::HostAppIface * pHostApp, const NumericTable & beta,
-                                                                                   algorithmFPType * pRes)
-{
-    const size_t nRowsTotal          = _data->getNumberOfRows();
-    const size_t nCols               = _data->getNumberOfColumns();
-    const size_t nYPerRow            = 1;
-    const size_t nRowsInBlockDefault = 500;
-
-    const size_t nRowsInBlock = services::internal::getNumElementsFitInMemory(services::internal::getL1CacheSize() * 0.8,
-                                                                              (nCols + nYPerRow) * sizeof(algorithmFPType), nRowsInBlockDefault);
-    const size_t nDataBlocks  = nRowsTotal / nRowsInBlock + !!(nRowsTotal % nRowsInBlock);
-
-    ReadRows<algorithmFPType, cpu> betaBD(const_cast<NumericTable &>(beta), 0, 1);
-    DAAL_CHECK_BLOCK_STATUS(betaBD);
-
-    SafeStatus safeStat;
-    HostAppHelper host(pHostApp, 1000);
-    daal::threader_for(nDataBlocks, nDataBlocks, [&](size_t iBlock) {
-        services::Status s;
-        if (host.isCancelled(s, 1))
-        {
-            safeStat.add(s);
-            return;
-        }
-        const size_t iStartRow      = iBlock * nRowsInBlock;
-        const size_t nRowsToProcess = (iBlock == nDataBlocks - 1) ? nRowsTotal - iBlock * nRowsInBlock : nRowsInBlock;
-        ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), iStartRow, nRowsToProcess);
-        DAAL_CHECK_BLOCK_STATUS_THR(xBD);
-        algorithmFPType * res = pRes + iStartRow;
-        ll::internal::LogLossKernel<algorithmFPType, ll::defaultDense, cpu>::applyBeta(xBD.get(), betaBD.get(), res, nRowsToProcess, nCols, true);
-    });
-    return safeStat.detach();
-}
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // PredictMulticlassTask
@@ -245,6 +286,7 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::run(const NumericT
 
     SafeStatus safeStat;
     HostAppHelper host(pHostApp, 1000);
+
     daal::threader_for(nDataBlocks, nDataBlocks, [&](size_t iBlock) {
         services::Status s;
         if (host.isCancelled(s, 1))
@@ -254,12 +296,15 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::run(const NumericT
         }
         const size_t iStartRow      = iBlock * nRowsInBlock;
         const size_t nRowsToProcess = (iBlock == nDataBlocks - 1) ? nRowsTotal - iBlock * nRowsInBlock : nRowsInBlock;
+
         TlsDataCpu * pLocal         = tlsData.local();
         DAAL_CHECK_MALLOC_THR(pLocal);
-        const algorithmFPType * pXBlock = pLocal->x.next(iStartRow, nRowsToProcess);
-        DAAL_CHECK_BLOCK_STATUS_THR(pLocal->x);
         algorithmFPType * pRawValues = pLocal->raw;
-        predictRaw(pXBlock, betaBD.get(), pRawValues, nRowsToProcess, nClasses, nCols);
+
+        ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), iStartRow, nRowsToProcess);
+        DAAL_CHECK_BLOCK_STATUS_THR(xBD);
+        predictRaw(xBD.get(), betaBD.get(), pRawValues, nRowsToProcess, nClasses, nCols);
+
         if (_res)
         {
             algorithmFPType * res = resBD.get() + iStartRow;
@@ -296,6 +341,7 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::run(const NumericT
         }
     });
     tlsData.reduce([](TlsDataCpu * ptr) { delete ptr; });
+
     return safeStat.detach();
 }
 
@@ -315,6 +361,7 @@ services::Status PredictKernel<algorithmFPType, method, cpu>::compute(services::
                                                                       const logistic_regression::Model * m, size_t nClasses, NumericTable * pRes,
                                                                       NumericTable * pProbab, NumericTable * pLogProbab)
 {
+
     const daal::algorithms::logistic_regression::internal::ModelImpl * pModel =
         static_cast<const daal::algorithms::logistic_regression::internal::ModelImpl *>(m);
     if (nClasses == 2)
