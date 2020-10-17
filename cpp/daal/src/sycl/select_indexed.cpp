@@ -65,13 +65,16 @@ services::Status runQuickSelectSimd(ExecutionContextIface & context, ClKernelFac
         DAAL_ASSERT_UNIVERSAL_BUFFER(dataVectors, float, vectorOffset *(nVectors - 1) + lastVectorSize);
         DAAL_ASSERT_UNIVERSAL_BUFFER(result.values, float, nVectors * nK);
     }
-    else
+    else if (dataVectors.type() == TypeIds::float64)
     {
         DAAL_ASSERT_UNIVERSAL_BUFFER(dataVectors, double, vectorOffset *(nVectors - 1) + lastVectorSize);
         DAAL_ASSERT_UNIVERSAL_BUFFER(result.values, double, nVectors * nK);
     }
+    else
+    {
+        return services::Status(ErrorDataTypeNotSupported);
+    }
     DAAL_ASSERT_UNIVERSAL_BUFFER(indexVectors, int, vectorOffset *(nVectors - 1) + lastVectorSize);
-
     DAAL_ASSERT_UNIVERSAL_BUFFER(result.indices, int, nVectors * nK);
 
     auto func_kernel = kernelFactory.getKernel("quick_select_group", status);
@@ -123,10 +126,14 @@ services::Status runDirectSelectSimd(ExecutionContextIface & context, ClKernelFa
         DAAL_ASSERT_UNIVERSAL_BUFFER(dataVectors, float, vectorOffset *(nVectors - 1) + lastVectorSize);
         DAAL_ASSERT_UNIVERSAL_BUFFER(result.values, float, nVectors * nK);
     }
-    else
+    else if (dataVectors.type() == TypeIds::float64)
     {
         DAAL_ASSERT_UNIVERSAL_BUFFER(dataVectors, double, vectorOffset *(nVectors - 1) + lastVectorSize);
         DAAL_ASSERT_UNIVERSAL_BUFFER(result.values, double, nVectors * nK);
+    }
+    else
+    {
+        return services::Status(ErrorDataTypeNotSupported);
     }
     DAAL_ASSERT_UNIVERSAL_BUFFER(result.indices, int, nVectors * nK);
 
