@@ -81,38 +81,34 @@ public:
     {
         if (_partialMemStatus != notAllocated && _partialMemStatus != userAllocated)
         {
-            return services::Status(services::ErrorIncorrectNumberOfFeatures);
+            return services::throwIfPossible(services::ErrorIncorrectNumberOfFeatures);
         }
 
-        if (idx < getNumberOfColumns() && idx < _arrays.size())
+        if (idx >= getNumberOfColumns() || idx >= _arrays.size())
         {
-            _ddict->setFeature<T>(idx);
-
-            if (_arrays[idx].empty() && bf)
-            {
-                _arraysInitialized++;
-            }
-            else if (!_arrays[idx].empty() && !bf)
-            {
-                _arraysInitialized--;
-            }
-
-            _arrays[idx] = services::internal::sycl::UniversalBuffer(bf);
-
-            if (isCpuTable())
-            {
-                services::Status st;
-                const services::SharedPtr<T> bfHost = bf.toHost(readOnly, st);
-                services::throwIfPossible(st);
-                DAAL_CHECK_STATUS_VAR(st);
-                return _cpuTable->setArray(bfHost, idx);
-            }
+            return services::throwIfPossible(services::ErrorIncorrectNumberOfFeatures);
         }
-        else
+
+        _ddict->setFeature<T>(idx);
+
+        if (_arrays[idx].empty() && bf)
         {
-            return services::Status(services::ErrorIncorrectNumberOfFeatures);
+            _arraysInitialized++;
+        }
+        else if (!_arrays[idx].empty() && !bf)
+        {
+            _arraysInitialized--;
         }
 
+        _arrays[idx] = services::internal::sycl::UniversalBuffer(bf);
+
+        if (isCpuTable())
+        {
+            services::Status status;
+            auto hostPtr = bf.toHost(readOnly, status);
+            DAAL_CHECK_STATUS_VAR(status);
+            return _cpuTable->setArray(hostPtr, idx);
+        }
         _partialMemStatus = userAllocated;
 
         if (_arraysInitialized == getNumberOfColumns())
@@ -124,116 +120,56 @@ public:
 
     services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
     {
-        if (isCpuTable())
-        {
-            return _cpuTable->getBlockOfRows(vector_idx, vector_num, rwflag, block);
-        }
-
         return getTBlock<double>(vector_idx, vector_num, rwflag, block);
     }
     services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<float> & block) DAAL_C11_OVERRIDE
     {
-        if (isCpuTable())
-        {
-            return _cpuTable->getBlockOfRows(vector_idx, vector_num, rwflag, block);
-        }
-
         return getTBlock<float>(vector_idx, vector_num, rwflag, block);
     }
     services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<int> & block) DAAL_C11_OVERRIDE
     {
-        if (isCpuTable())
-        {
-            return _cpuTable->getBlockOfRows(vector_idx, vector_num, rwflag, block);
-        }
-
         return getTBlock<int>(vector_idx, vector_num, rwflag, block);
     }
 
     services::Status releaseBlockOfRows(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
     {
-        if (isCpuTable())
-        {
-            return _cpuTable->releaseBlockOfRows(block);
-        }
-
         return releaseTBlock<double>(block);
     }
     services::Status releaseBlockOfRows(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE
     {
-        if (isCpuTable())
-        {
-            return _cpuTable->releaseBlockOfRows(block);
-        }
-
         return releaseTBlock<float>(block);
     }
     services::Status releaseBlockOfRows(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE
     {
-        if (isCpuTable())
-        {
-            return _cpuTable->releaseBlockOfRows(block);
-        }
-
         return releaseTBlock<int>(block);
     }
 
     services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, ReadWriteMode rwflag,
                                             BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
     {
-        if (isCpuTable())
-        {
-            return _cpuTable->getBlockOfColumnValues(feature_idx, vector_idx, value_num, rwflag, block);
-        }
-
         return getTFeature<double>(feature_idx, vector_idx, value_num, rwflag, block);
     }
     services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, ReadWriteMode rwflag,
                                             BlockDescriptor<float> & block) DAAL_C11_OVERRIDE
     {
-        if (isCpuTable())
-        {
-            return _cpuTable->getBlockOfColumnValues(feature_idx, vector_idx, value_num, rwflag, block);
-        }
-
         return getTFeature<float>(feature_idx, vector_idx, value_num, rwflag, block);
     }
     services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, ReadWriteMode rwflag,
                                             BlockDescriptor<int> & block) DAAL_C11_OVERRIDE
     {
-        if (isCpuTable())
-        {
-            return _cpuTable->getBlockOfColumnValues(feature_idx, vector_idx, value_num, rwflag, block);
-        }
-
         return getTFeature<int>(feature_idx, vector_idx, value_num, rwflag, block);
     }
 
     services::Status releaseBlockOfColumnValues(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
     {
-        if (isCpuTable())
-        {
-            return _cpuTable->releaseBlockOfColumnValues(block);
-        }
-
         return releaseTFeature<double>(block);
     }
     services::Status releaseBlockOfColumnValues(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE
     {
-        if (isCpuTable())
-        {
-            return _cpuTable->releaseBlockOfColumnValues(block);
-        }
-
         return releaseTFeature<float>(block);
     }
     services::Status releaseBlockOfColumnValues(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE
     {
-        if (isCpuTable())
-        {
-            return _cpuTable->releaseBlockOfColumnValues(block);
-        }
-
         return releaseTFeature<int>(block);
     }
 
@@ -243,7 +179,7 @@ public:
         {
             return _cpuTable->getDataMemoryStatus();
         }
-        return NumericTable::getDataMemoryStatus();
+        return _memStatus;
     }
 
 protected:
@@ -261,6 +197,7 @@ protected:
             if (!resizePointersArray(nColumns))
             {
                 st.add(services::ErrorMemoryAllocationFailed);
+                services::throwIfPossible(st);
                 return;
             }
         }
@@ -275,12 +212,13 @@ protected:
         if (!resizePointersArray(getNumberOfColumns()))
         {
             st.add(services::ErrorMemoryAllocationFailed);
+            services::throwIfPossible(st);
             return;
         }
         if (memoryAllocationFlag == doAllocate)
         {
             st |= allocateDataMemoryImpl();
-            services::throwIfPossible(st);
+            return;
         }
     }
 
@@ -291,7 +229,12 @@ protected:
 
         Status st;
         auto & context = services::internal::getDefaultContext();
-        size_t nrows   = getNumberOfRows();
+        const size_t nrows   = getNumberOfRows();
+
+        if (idx >= _arrays.size())
+        {
+            return throwIfPossible(services::ErrorIncorrectNumberOfFeatures);
+        }
 
         switch (feature.indexType)
         {
@@ -351,16 +294,17 @@ protected:
         default: st = Status(ErrorIncorrectParameter); break;
         }
 
-        services::throwIfPossible(st);
-        return st;
+        return services::throwIfPossible(st);
     }
 
     services::Status allocateDataMemoryImpl(daal::MemType type = daal::dram) DAAL_C11_OVERRIDE
     {
+        DAAL_ASSERT(type == daal::dram);
+
         freeDataMemoryImpl();
 
-        size_t ncol  = _ddict->getNumberOfFeatures();
-        size_t nrows = getNumberOfRows();
+        const size_t ncol  = _ddict->getNumberOfFeatures();
+        const size_t nrows = getNumberOfRows();
 
         if (isCpuContext())
         {
@@ -370,15 +314,18 @@ protected:
         }
         else
         {
+            auto status = checkSizeOverflow(nrows, ncol);
+            if (!status) return services::throwIfPossible(status);
+
             if (ncol * nrows == 0)
             {
                 if (nrows == 0)
                 {
-                    return services::Status(services::ErrorIncorrectNumberOfObservations);
+                    return services::throwIfPossible(services::ErrorIncorrectNumberOfObservations);
                 }
                 else
                 {
-                    return services::Status(services::ErrorIncorrectNumberOfFeatures);
+                    return services::throwIfPossible(services::ErrorIncorrectNumberOfFeatures);
                 }
             }
 
@@ -387,13 +334,15 @@ protected:
                 NumericTableFeature f = (*_ddict)[i];
                 if (f.typeSize != 0)
                 {
-                    DAAL_CHECK_STATUS_VAR(allocateArray(i, f));
+                    status |= allocateArray(i, f);
+                    DAAL_CHECK_STATUS_VAR(status);
                     _arraysInitialized++;
                 }
                 if (_arrays[i].empty())
                 {
                     freeDataMemoryImpl();
-                    return services::Status(services::ErrorMemoryAllocationFailed);
+                    status.add(services::ErrorMemoryAllocationFailed);
+                    return services::throwIfPossible(status);
                 }
             }
 
@@ -458,21 +407,21 @@ protected:
     services::Status serialImpl(Archive * arch)
     {
         using namespace services::internal::sycl;
-        services::Status st;
 
-        NumericTable::serialImpl<Archive, onDeserialize>(arch);
+        auto status = NumericTable::serialImpl<Archive, onDeserialize>(arch);
+        DAAL_CHECK_STATUS_VAR(status);
 
         ReadWriteMode rwMode = readOnly;
 
         if (onDeserialize)
         {
             rwMode = readWrite;
-            st |= allocateDataMemoryImpl();
-            services::throwIfPossible(st);
+            status |= allocateDataMemoryImpl();
+            DAAL_CHECK_STATUS_VAR(status);
         }
 
-        size_t ncol  = _ddict->getNumberOfFeatures();
-        size_t nrows = getNumberOfRows();
+        const size_t ncol  = _ddict->getNumberOfFeatures();
+        const size_t nrows = getNumberOfRows();
 
         if (isCpuTable())
         {
@@ -491,38 +440,60 @@ protected:
                 BufferHostReinterpreter<char> reinterpreter(_arrays[i], rwMode, nrows);
                 TypeDispatcher::dispatch(_arrays[i].type(), reinterpreter);
 
-                auto charPtr = reinterpreter.getResult(st);
-                services::throwIfPossible(st);
-                DAAL_CHECK_STATUS_VAR(st);
+                auto charPtr = reinterpreter.getResult(status);
+                if (!status) return services::throwIfPossible(status);
 
                 arch->set(charPtr.get(), nrows * f.typeSize);
             }
         }
 
-        return st;
+        return services::Status();
     }
 
 private:
+    static services::Status checkSizeOverflow(size_t nRows, size_t nCols)
+    {
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, nCols);
+        return services::Status();
+    }
+
+    static services::Status checkOffsetOverflow(size_t size, size_t offset)
+    {
+        DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, size, offset);
+        return services::Status();
+    }
+
     template <typename T>
     services::Status getTBlock(size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T> & block)
     {
         using namespace services::internal::sycl;
 
-        size_t ncols = getNumberOfColumns();
-        size_t nobs  = getNumberOfRows();
+        if (isCpuTable())
+        {
+            return _cpuTable->getBlockOfRows(idx, nrows, rwFlag, block);
+        }
+
+        const size_t ncols = getNumberOfColumns();
+        const size_t nobs  = getNumberOfRows();
         block.setDetails(0, idx, rwFlag);
 
         if (idx >= nobs)
         {
-            block.resizeBuffer(ncols, 0);
+            if (!block.resizeBuffer(ncols, 0))
+            {
+                return services::throwIfPossible(services::ErrorMethodNotSupported);
+            }
             return services::Status();
         }
+
+        auto status = checkOffsetOverflow(nrows, idx);
+        if (!status) return services::throwIfPossible(status);
 
         nrows = (idx + nrows < nobs) ? nrows : nobs - idx;
 
         if (!block.resizeBuffer(ncols, nrows))
         {
-            return services::Status(services::ErrorMemoryAllocationFailed);
+            return services::throwIfPossible(services::ErrorMemoryAllocationFailed);
         }
 
         if (!(block.getRWFlag() & (int)readOnly))
@@ -533,20 +504,21 @@ private:
         auto blockSharedPtr = block.getBlockSharedPtr();
         T * blockPtr        = blockSharedPtr.get();
 
+        DAAL_ASSERT(_arrays.size() == ncols);
+
         for (size_t j = 0; j < ncols; j++)
         {
             auto featureUniBuffer = _arrays[j];
             BufferConverterTo<T> converter(featureUniBuffer, idx, nrows);
             TypeDispatcher::dispatch(featureUniBuffer.type(), converter);
 
-            services::Status st;
-            auto buffer = converter.getResult(st);
-            services::throwIfPossible(st);
-            DAAL_CHECK_STATUS_VAR(st);
+            auto buffer = converter.getResult(status);
+            if(!status) return services::throwIfPossible(status);
+            DAAL_ASSERT(buffer.size() == nrows);
 
-            auto colSharedPtr = buffer.toHost(readOnly, st);
-            services::throwIfPossible(st);
-            DAAL_CHECK_STATUS_VAR(st);
+            auto colSharedPtr = buffer.toHost(readOnly, &status);
+            if(!status) return services::throwIfPossible(status);
+
             T * colPtr = colSharedPtr.get();
 
             for (size_t i = 0; i < nrows; i++)
@@ -563,28 +535,39 @@ private:
     {
         using namespace services::internal::sycl;
 
+        if (isCpuTable())
+        {
+            return _cpuTable->releaseBlockOfRows(block);
+        }
+
         if (block.getRWFlag() & (int)writeOnly)
         {
             const size_t ncols = getNumberOfColumns();
             const size_t nrows = block.getNumberOfRows();
             services::Status st;
 
+            if (block.getNumberOfColumns() != ncols)
+            {
+                st.add(services::ErrorIncorrectParameter);
+                return throwIfPossible(st);
+            }
+
             auto blockBuffer    = block.getBuffer();
             auto blockSharedPtr = blockBuffer.toHost(readOnly, st);
-            services::throwIfPossible(st);
-            DAAL_CHECK_STATUS_VAR(st);
+            if(!st) return services::throwIfPossible(st);
+
             T * blockPtr = blockSharedPtr.get();
 
             auto & context  = services::internal::getDefaultContext();
             auto tempColumn = context.allocate(TypeIds::id<T>(), nrows, st);
-            DAAL_CHECK_STATUS_VAR(st);
+            if(!st) return services::throwIfPossible(st);
 
             for (size_t j = 0; j < ncols; j++)
             {
                 {
                     auto tempColumnSharedPtr = tempColumn.template get<T>().toHost(readWrite, st);
-                    services::throwIfPossible(st);
-                    DAAL_CHECK_STATUS_VAR(st);
+                    if(!st) return services::throwIfPossible(st);
+
                     T * tempColumnPtr = tempColumnSharedPtr.get();
 
                     for (size_t i = 0; i < nrows; i++)
@@ -598,7 +581,7 @@ private:
                 TypeDispatcher::dispatch(uniBuffer.type(), converter);
 
                 _arrays[j] = converter.getResult(st);
-                DAAL_CHECK_STATUS_VAR(st);
+                if(!st) return services::throwIfPossible(st);
             }
         }
         block.reset();
@@ -610,29 +593,50 @@ private:
     {
         using namespace services::internal::sycl;
 
+        if (isCpuTable())
+        {
+            return _cpuTable->getBlockOfColumnValues(feat_idx, idx, nrows, rwFlag, block);
+        }
+
         const size_t nobs = getNumberOfRows();
+        const size_t ncols = getNumberOfColumns();
+
+        if (feat_idx >= ncols)
+        {
+            return services::throwIfPossible(services::ErrorIncorrectIndex);
+        }
+
         block.setDetails(feat_idx, idx, rwFlag);
 
         if (idx >= nobs)
         {
-            block.resizeBuffer(1, 0);
-            return services::Status(services::ErrorIncorrectIndex);
+            if (!block.resizeBuffer(1, 0))
+            {
+                return services::throwIfPossible(services::ErrorMethodNotSupported);
+            }
+            return services::Status();
         }
 
-        if (!(block.getRWFlag() & (int)readOnly))
-        {
-            return services::Status(services::ErrorIncorrectParameter);
-        }
+        auto st = checkOffsetOverflow(nrows, idx);
+        if (!st) return services::throwIfPossible(st);
 
         nrows = (idx + nrows < nobs) ? nrows : nobs - idx;
+        if (!(block.getRWFlag() & (int)readOnly))
+        {
+            if (!block.resizeBuffer(1, nrows))
+            {
+                return services::throwIfPossible(services::ErrorMemoryAllocationFailed);
+            }
+            return services::Status();
+        }
 
         auto uniBuffer = _arrays[feat_idx];
         BufferConverterTo<T> converter(uniBuffer, idx, nrows);
         TypeDispatcher::dispatch(uniBuffer.type(), converter);
-        services::Status st;
 
         auto buffer = converter.getResult(st);
-        DAAL_CHECK_STATUS_VAR(st);
+        if (!st) return services::throwIfPossible(st);
+
         block.setBuffer(buffer, 1, nrows);
 
         return services::Status();
@@ -643,21 +647,32 @@ private:
     {
         using namespace services::internal::sycl;
 
+        if (isCpuTable())
+        {
+            return _cpuTable->releaseBlockOfColumnValues(block);
+        }
+
         if (block.getRWFlag() & (int)writeOnly)
         {
-            size_t feat_idx = block.getColumnsOffset();
+            const size_t feat_idx = block.getColumnsOffset();
+
+            if (feat_idx >= getNumberOfColumns())
+            {
+                return services::throwIfPossible(services::ErrorIncorrectIndex);
+            }
 
             NumericTableFeature & f = (*_ddict)[feat_idx];
 
-            if (features::internal::getIndexNumType<T>() != f.indexType)
+            auto uniBuffer = _arrays[feat_idx];
+            auto blockBuffer = block.getBuffer();
+            if ((features::internal::getIndexNumType<T>() != f.indexType) || (uniBuffer.get<T>() != blockBuffer))
             {
-                auto uniBuffer = _arrays[feat_idx];
-                BufferConverterFrom<T> converter(block.getBuffer(), uniBuffer, block.getRowsOffset(), block.getNumberOfRows());
+                BufferConverterFrom<T> converter(blockBuffer, uniBuffer, block.getRowsOffset(), block.getNumberOfRows());
                 TypeDispatcher::dispatch(uniBuffer.type(), converter);
 
                 services::Status st;
                 _arrays[feat_idx] = converter.getResult(st);
-                DAAL_CHECK_STATUS_VAR(st);
+                if (!st) return services::throwIfPossible(st);
             }
         }
         block.reset();
