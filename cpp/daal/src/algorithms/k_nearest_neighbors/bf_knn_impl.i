@@ -54,7 +54,7 @@ public:
     ~BruteForceNearestNeighbors() {}
 
     typedef GlobalNeighbors<FPType, cpu> Neighbors;
-    typedef MinHeap<Neighbors, cpu> HeapType;
+    typedef Heap<Neighbors, cpu> HeapType;
 
     services::Status kNeighbors(const size_t k, const size_t nClasses, VoteWeights voteWeights, DAAL_UINT64 resultsToCompute,
                                 DAAL_UINT64 resultsToEvaluate, const NumericTable * trainTable, const NumericTable * testTable,
@@ -89,8 +89,6 @@ public:
         TlsMem<int, cpu> tlsKIndexes(inBlockSize * k);
         TlsMem<FPType, cpu> tlsVoting(nClasses);
 
-        TlsMem<HeapType, cpu> tlsHeap(outBlockSize);
-
         SafeStatus safeStat;
 
         daal::threader_for(nOuterBlocks, nOuterBlocks, [&](size_t outerBlock) {
@@ -100,68 +98,12 @@ public:
 
             DAAL_CHECK_STATUS_THR(computeKNearestBlock(&euclDist, outerSize, inBlockSize, outerStart, nTrain, resultsToEvaluate, resultsToCompute,
                                                        nClasses, k, voteWeights, trainLabel, trainTable, testTable, testLabelTable, indicesTable,
-                                                       distancesTable, tlsDistances, tlsIdx, tlsKDistances, tlsKIndexes, tlsVoting, tlsHeap, nOuterBlocks));
+                                                       distancesTable, tlsDistances, tlsIdx, tlsKDistances, tlsKIndexes, tlsVoting, nOuterBlocks));
         });
 
         if (resultsToEvaluate & daal::algorithms::classifier::computeClassLabels)
         {
             newTrainLabelTable->releaseBlockOfRows(trainLabelBlock);
-        }
-
-        printf("\nLabels:\n");
-        if (resultsToEvaluate & daal::algorithms::classifier::computeClassLabels)
-        {
-            daal::internal::ReadRows<int, cpu> testLabelRows(testLabelTable, 0, nTest);
-
-            printf("%d ", testLabelRows.get()[0]);
-            printf("\n");
-            printf("%d ", testLabelRows.get()[nTest / 2]);
-            printf("\n");
-            printf("%d ", testLabelRows.get()[(nTest - 1) ]);
-            printf("\n");
-        }
-
-        printf("Distance:\n");
-        if (resultsToCompute & computeDistances)
-        {
-            daal::internal::ReadRows<FPType, cpu> distancesBlock(distancesTable, 0, nTest);
-
-            for (size_t i = 0; i < k; ++i)
-            {
-                printf("%f ", distancesBlock.get()[0 * k + i]);
-            }
-            printf("\n");
-            for (size_t i = 0; i < k; ++i)
-            {
-                printf("%f ", distancesBlock.get()[nTest / 2 * k + i]);
-            }
-            printf("\n");
-            for (size_t i = 0; i < k; ++i)
-            {
-                printf("%f ", distancesBlock.get()[(nTest - 1) * k + i]);
-            }
-            printf("\n");
-        }
-        printf("Indexes:\n");
-        if (resultsToCompute & computeIndicesOfNeighbors)
-        {
-            daal::internal::ReadRows<int, cpu> indexesBlock(indicesTable, 0, nTest);
-
-            for (size_t i = 0; i < k; ++i)
-            {
-                printf("%d ", indexesBlock.get()[0 * k + i]);
-            }
-            printf("\n");
-            for (size_t i = 0; i < k; ++i)
-            {
-                printf("%d ", indexesBlock.get()[nTest / 2 * k + i]);
-            }
-            printf("\n");
-            for (size_t i = 0; i < k; ++i)
-            {
-                printf("%d ", indexesBlock.get()[(nTest - 1) * k + i]);
-            }
-            printf("\n");
         }
 
         return safeStat.detach();
@@ -173,7 +115,7 @@ protected:
     public:
         DAAL_NEW_DELETE();
         FPType * maxs;
-        HeapType* heapsData;
+        HeapType * heapsData;
 
         static BruteForceTask * create(const size_t inBlockSize, const size_t outBlockSize, const size_t k)
         {
@@ -189,7 +131,7 @@ protected:
         BruteForceTask(size_t inBlockSize, size_t outBlockSize, size_t k)
         {
             _buff.reset(outBlockSize);
-            maxs       = _buff.get();
+            maxs = _buff.get();
             service_memset_seq<FPType, cpu>(maxs, MaxVal<FPType>::get(), outBlockSize);
 
             _heaps.reset(outBlockSize);
@@ -211,8 +153,7 @@ protected:
                                           FPType * trainLabel, const NumericTable * trainTable, const NumericTable * testTable,
                                           NumericTable * testLabelTable, NumericTable * indicesTable, NumericTable * distancesTable,
                                           TlsMem<FPType, cpu> & tlsDistances, TlsMem<int, cpu> & tlsIdx, TlsMem<FPType, cpu> & tlsKDistances,
-                                          TlsMem<int, cpu> & tlsKIndexes, TlsMem<FPType, cpu> & tlsVoting,
-                                          TlsMem<HeapType, cpu> & tlsHeap, size_t nOuterBlocks)
+                                          TlsMem<int, cpu> & tlsKIndexes, TlsMem<FPType, cpu> & tlsVoting, size_t nOuterBlocks)
     {
         const size_t inBlockSize = trainBlockSize;
         const size_t inRows      = nTrain;
@@ -238,8 +179,7 @@ protected:
         });
 
         const size_t nThreads = _daal_threader_get_max_threads();
-        daal::conditional_threader_for(nOuterBlocks < 2 * nThreads, nInBlocks, [&](size_t inBlock)
-        {
+        daal::conditional_threader_for(nOuterBlocks < 2 * nThreads, nInBlocks, [&](size_t inBlock) {
             const size_t j1    = inBlock * inBlockSize;
             const size_t j2    = (inBlock + 1 == nInBlocks ? inRows : j1 + inBlockSize);
             const size_t jSize = j2 - j1;
@@ -253,8 +193,8 @@ protected:
             int * idx = tlsIdx.local();
             DAAL_CHECK_MALLOC_THR(idx);
 
-            FPType * maxs            = tls->maxs;
-            HeapType* heapsLocal      = tls->heapsData;
+            FPType * maxs         = tls->maxs;
+            HeapType * heapsLocal = tls->heapsData;
 
             ReadRows<FPType, cpu> outDataRows(const_cast<NumericTable *>(trainTable), j1, j2 - j1);
             DAAL_CHECK_BLOCK_STATUS_THR(outDataRows);
@@ -279,10 +219,6 @@ protected:
         FPType * kDistances = tlsKDistances.local();
         DAAL_CHECK_MALLOC(kDistances);
 
-        // TODO
-        // HeapType* heaps = tlsHeap.local();
-        // DAAL_CHECK_MALLOC(heaps);
-
         TArrayScalable<HeapType, cpu> heaps(iSize);
 
         for (size_t i = 0; i < iSize; ++i)
@@ -291,7 +227,7 @@ protected:
         }
 
         tlsTask.reduce([&](BruteForceTask * tls) {
-            HeapType* heapsLocal = tls->heapsData;
+            HeapType * heapsLocal = tls->heapsData;
             for (size_t i = 0; i < iSize; i++)
             {
                 const size_t size = heapsLocal[i].size();
@@ -379,8 +315,8 @@ protected:
         return count;
     }
 
-    void updateLocalNeighbours(size_t indexes, int * idx, size_t jSize, size_t i, size_t k, FPType * maxs,
-                               FPType * distances, size_t j1, HeapType& heap)
+    void updateLocalNeighbours(size_t indexes, int * idx, size_t jSize, size_t i, size_t k, FPType * maxs, FPType * distances, size_t j1,
+                               HeapType & heap)
     {
         for (size_t j = 0; j < indexes; ++j)
         {

@@ -15,18 +15,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-
 #ifndef __KNN_HEAP_H__
 #define __KNN_HEAP_H__
-
-#include <algorithm>
-#include <functional>
 
 namespace daal
 {
 namespace internal
 {
-
 using namespace daal::services::internal;
 using namespace daal::services;
 using namespace daal::internal;
@@ -59,27 +54,6 @@ void pushMaxHeap(RandomAccessIterator first, RandomAccessIterator last)
             const auto newItem = *last; // It can be moved instead.
             auto prev          = i;
             for (i = heapParentIndex<cpu>(i); prev && (*(first + i) < newItem); i = heapParentIndex<cpu>(i))
-            {
-                *(first + prev) = *(first + i); // It can be moved instead.
-                prev            = i;
-            }
-            *(first + prev) = newItem; // It can be moved instead.
-        }
-    }
-}
-
-template <CpuType cpu, typename RandomAccessIterator>
-void pushMinHeap(RandomAccessIterator first, RandomAccessIterator last)
-{
-    if (first != last)
-    {
-        --last;
-        auto i = last - first;
-        if (i > 0)
-        {
-            const auto newItem = *last; // It can be moved instead.
-            auto prev          = i;
-            for (i = heapParentIndex<cpu>(i); prev && (*(first + i) > newItem); i = heapParentIndex<cpu>(i))
             {
                 *(first + prev) = *(first + i); // It can be moved instead.
                 prev            = i;
@@ -194,7 +168,7 @@ public:
         if (_count < k)
         {
             _elements[_count++] = e;
-            makeMaxHeap<cpu>(_elements, _elements + _count);
+            pushMaxHeap<cpu>(_elements, _elements + _count);
         }
         else
         {
@@ -216,62 +190,6 @@ private:
     size_t _count;
 };
 
-template <typename T, CpuType cpu>
-class MinHeap
-{
-public:
-    MinHeap() : _elements(nullptr), _count(0) {}
-
-    ~MinHeap()
-    {
-        service_scalable_free<T, cpu>(_elements);
-        _elements = nullptr;
-    }
-
-    bool init(size_t size)
-    {
-        _count = 0;
-        if (!_elements)
-        {
-            _elements = static_cast<T *>(service_scalable_malloc<T, cpu>(size));
-        }
-
-        return _elements;
-    }
-
-    void replaceMaxIfNeeded(const T e, size_t k)
-    {
-        if (_count < k)
-        {
-            _elements[_count] = e;
-            _count++;
-
-            pushMinHeap<cpu>(_elements, _elements + _count);
-        }
-        else
-        {
-            if (e.distance < getMax()->distance)
-            {
-                *getMax() = e;
-                pushMinHeap<cpu>(_elements, _elements + _count);
-            }
-        }
-    }
-
-    size_t size() const { return _count; }
-
-    T * getMax() { return &_elements[_count - 1]; }
-
-    const T operator[](size_t index) const
-    {
-        return *(_elements + index);
-    }
-
-private:
-    T * _elements;
-    size_t _count;
-};
-
 template <typename algorithmFpType, CpuType cpu>
 struct GlobalNeighbors
 {
@@ -279,9 +197,7 @@ struct GlobalNeighbors
     size_t index;
 
     inline bool operator<(const GlobalNeighbors & rhs) const { return (distance < rhs.distance); }
-    inline bool operator>(const GlobalNeighbors & rhs) const { return (distance > rhs.distance); }
 };
-
 
 } // namespace internal
 } // namespace daal
