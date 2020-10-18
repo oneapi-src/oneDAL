@@ -113,9 +113,9 @@ public:
         if (!data && size != size_t(0))
         {
             status |= ErrorNullPtr;
-            return nullptr;
+            return NULL;
         }
-        const auto newBuffer = new HostBuffer<T>(data, size);
+        HostBuffer<T> * newBuffer = new HostBuffer<T>(data, size);
         DAAL_CHECK_COND_ERROR(newBuffer, status, ErrorMemoryAllocationFailed);
         return newBuffer;
     }
