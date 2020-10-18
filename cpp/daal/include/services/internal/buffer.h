@@ -131,7 +131,6 @@ public:
      *  \param[in] usmData    Shared pointer to the USM-allocated data
      *  \param[in] size       Number of elements of type T stored in USM block
      *  \param[in] allocType  USM allocation type
-     *  \param[out] status    Status of operation
      */
     Buffer(const SharedPtr<T> & usmData, size_t size, cl::sycl::usm::alloc allocType)
     {

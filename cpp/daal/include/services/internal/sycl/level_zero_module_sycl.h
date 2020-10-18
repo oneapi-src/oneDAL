@@ -15,8 +15,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __DAAL_SERVICES_INTERNAL_SYCL_DAAL_ZE_MODULE_HELPER_H__
-#define __DAAL_SERVICES_INTERNAL_SYCL_DAAL_ZE_MODULE_HELPER_H__
+#ifndef __DAAL_SERVICES_INTERNAL_SYCL_DAAL_ZE_MODULE_SYCL_H__
+#define __DAAL_SERVICES_INTERNAL_SYCL_DAAL_ZE_MODULE_SYCL_H__
 
 #ifndef DAAL_SYCL_INTERFACE
     #error "DAAL_SYCL_INTERFACE must be defined to include this file"
@@ -62,10 +62,23 @@ static const int libLoadFlags    = 0;
 static const char * zeModuleCreateFuncName  = "zeModuleCreate";
 static const char * zeModuleDestroyFuncName = "zeModuleDestroy";
 
-class ZeModuleHelper : public Base
+class ZeModule : public Base
 {
 public:
-    ZeModuleHelper(cl::sycl::queue & deviceQueue, size_t binarySize, const uint8_t * pBinary, Status & status) : _program(deviceQueue.get_context())
+    static SharedPtr<ZeModule> create(cl::sycl::queue & deviceQueue, size_t binarySize, const uint8_t * pBinary, Status & status)
+    {
+        auto ptr = new ZeModule(deviceQueue, binarySize, pBinary, status);
+        if (!ptr) status |= ErrorMemoryAllocationFailed;
+        return SharedPtr<ZeModule>(ptr);
+    }
+
+    ZeModule(const ZeModule &) = delete;
+    ZeModule & operator=(const ZeModule &) = delete;
+
+    cl::sycl::program getZeProgram() { return _program; }
+
+private:
+    ZeModule(cl::sycl::queue & deviceQueue, size_t binarySize, const uint8_t * pBinary, Status & status) : _program(deviceQueue.get_context())
     {
         static DynamicLibHelper zeLib(zeLoaderName, libLoadFlags, status);
         DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
@@ -89,20 +102,15 @@ public:
                              deviceQueue.get_device().get_native<cl::sycl::backend::level_zero>(), &desc, &_moduleLevelZero, nullptr),
             status);
 
-        _program = cl::sycl::level_zero::make<cl::sycl::program>(deviceQueue.get_context(), _moduleLevelZero);
+        status |= catchSyclExceptions(
+            [&]() mutable { _program = cl::sycl::level_zero::make<cl::sycl::program>(deviceQueue.get_context(), _moduleLevelZero); });
     }
 
-    cl::sycl::program getZeProgram() { return _program; }
-
-    ZeModuleHelper(const ZeModuleHelper &)             = delete;
-    ZeModuleHelper & operator=(const ZeModuleHelper &) = delete;
-
-private:
     cl::sycl::program _program;
     zeModuleCreateFT _zeModuleCreateF;
 };
 
-typedef SharedPtr<ZeModuleHelper> ZeModuleHelperPtr;
+typedef SharedPtr<ZeModule> ZeModulePtr;
 
 } // namespace interface1
 } // namespace sycl

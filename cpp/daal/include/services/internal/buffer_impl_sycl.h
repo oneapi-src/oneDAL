@@ -18,7 +18,12 @@
 #ifndef __DAAL_SERVICES_INTERNAL_BUFFER_SYCL_H__
 #define __DAAL_SERVICES_INTERNAL_BUFFER_SYCL_H__
 
+#ifndef DAAL_SYCL_INTERFACE
+    #error "DAAL_SYCL_INTERFACE must be defined to include this file"
+#endif
+
 #include <CL/sycl.hpp>
+
 #include "services/internal/any.h"
 #include "services/internal/buffer_impl.h"
 #include "services/internal/sycl/error_handling_sycl.h"
@@ -273,7 +278,7 @@ private:
             [&]() { return createEmptySyclBuffer<T>(); });
     }
 
-    services::internal::Any _nativeBuffer;
+    Any _nativeBuffer;
 };
 
 #ifdef DAAL_SYCL_INTERFACE_USM

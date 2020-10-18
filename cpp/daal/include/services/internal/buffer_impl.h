@@ -47,9 +47,9 @@ template <typename T>
 class BufferVisitor : public Base
 {
 public:
-    virtual services::Status operator()(const HostBuffer<T> &) { return Status(); }
-    virtual services::Status operator()(const UsmBufferIface<T> &) { return Status(); }
-    virtual services::Status operator()(const SyclBufferIface<T> &) { return Status(); }
+    virtual Status operator()(const HostBuffer<T> &) { return Status(); }
+    virtual Status operator()(const UsmBufferIface<T> &) { return Status(); }
+    virtual Status operator()(const SyclBufferIface<T> &) { return Status(); }
 };
 
 /**
@@ -120,10 +120,7 @@ public:
         return newBuffer;
     }
 
-    static HostBuffer<T> * create(T * data, size_t size, Status & status)
-    {
-        return create(SharedPtr<T> { data, services::EmptyDeleter() }, size, status);
-    }
+    static HostBuffer<T> * create(T * data, size_t size, Status & status) { return create(SharedPtr<T> { data, EmptyDeleter() }, size, status); }
 
     size_t size() const DAAL_C11_OVERRIDE { return _size; }
 

@@ -32,7 +32,7 @@
 #include "services/internal/sycl/buffer_utils_sycl.h"
 
 #ifndef DAAL_DISABLE_LEVEL_ZERO
-    #include "services/internal/sycl/level_zero_module_helper.h"
+    #include "services/internal/sycl/level_zero_module_sycl.h"
 #endif
 
 namespace daal
@@ -282,7 +282,9 @@ private:
 
         byte * binary = binaryCollection.data();
         DAAL_CHECK_OPENCL(clGetProgramInfo(get(), CL_PROGRAM_BINARIES, sizeof(binary), &binary, nullptr), status);
-        _moduleLevelZeroPtr.reset(new ZeModuleHelper(deviceQueue, binarySize, binary, status));
+
+        _moduleLevelZeroPtr = ZeModule::create(deviceQueue, binarySize, binary, status);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
     }
 #endif // DAAL_DISABLE_LEVEL_ZERO
 
@@ -290,7 +292,7 @@ private:
     String _programName;
 
 #ifndef DAAL_DISABLE_LEVEL_ZERO
-    ZeModuleHelperPtr _moduleLevelZeroPtr;
+    ZeModulePtr _moduleLevelZeroPtr;
 #endif
 };
 
