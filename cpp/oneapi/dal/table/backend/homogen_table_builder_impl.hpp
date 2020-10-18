@@ -26,7 +26,8 @@ public:
     homogen_table_builder_impl()
             : row_count_(0),
               column_count_(0),
-              layout_(data_layout::row_major) {}
+              layout_(data_layout::row_major),
+              dtype_(data_type::float32) {}
 
     void reset(homogen_table&& t) {
         auto& t_impl = detail::get_impl<detail::homogen_table_impl_iface>(t);

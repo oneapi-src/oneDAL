@@ -53,11 +53,11 @@ public:
     descriptor_base();
 
     auto get_component_count() const -> std::int64_t;
-    auto get_is_deterministic() const -> bool;
+    auto get_deterministic() const -> bool;
 
 protected:
     void set_component_count_impl(std::int64_t value);
-    void set_is_deterministic_impl(bool value);
+    void set_deterministic_impl(bool value);
 
     dal::detail::pimpl<detail::descriptor_impl<task_t>> impl_;
 };
@@ -75,8 +75,8 @@ public:
         return *this;
     }
 
-    auto& set_is_deterministic(bool value) {
-        descriptor_base<Task>::set_is_deterministic_impl(value);
+    auto& set_deterministic(bool value) {
+        descriptor_base<Task>::set_deterministic_impl(value);
         return *this;
     }
 };

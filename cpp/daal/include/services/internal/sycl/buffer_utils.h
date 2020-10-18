@@ -64,11 +64,15 @@ public:
         _st = services::Status();
 
         auto srcBuffer  = _src.template get<DataType>();
-        auto srcHostPtr = srcBuffer.toHost(readOnly);
+        auto srcHostPtr = srcBuffer.toHost(readOnly, _st);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(_st);
 
         auto destBuffer    = _dest.template get<T>();
-        auto destSubBuffer = destBuffer.getSubBuffer(_offset, _size);
-        auto destHostPtr   = destSubBuffer.toHost(readWrite);
+        auto destSubBuffer = destBuffer.getSubBuffer(_offset, _size, _st);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(_st);
+
+        auto destHostPtr = destSubBuffer.toHost(readWrite, _st);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(_st);
 
         VectorDownCast<DataType, T>()(_size, srcHostPtr.get(), destHostPtr.get());
     }
@@ -107,21 +111,22 @@ public:
 
         _st = services::Status();
 
-        auto buffer      = _src.template get<T>();
-        auto subbuffer   = buffer.getSubBuffer(_offset, _size);
-        auto memoryBlock = subbuffer.toHost(readOnly);
+        auto buffer = _src.template get<T>();
+
+        auto subbuffer = buffer.getSubBuffer(_offset, _size, _st);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(_st);
+
+        auto memoryBlock = subbuffer.toHost(readOnly, _st);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(_st);
 
         auto & context      = getDefaultContext();
-        auto uniBufferBlock = context.allocate(TypeIds::id<DataType>(), _size, &_st);
-
-        if (!_st)
-        {
-            return;
-        }
+        auto uniBufferBlock = context.allocate(TypeIds::id<DataType>(), _size, _st);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(_st);
 
         auto bufferBlock = uniBufferBlock.template get<DataType>();
         {
-            auto bufferHostPtr = bufferBlock.toHost(readWrite);
+            auto bufferHostPtr = bufferBlock.toHost(readWrite, _st);
+            DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(_st);
             VectorUpCast<T, DataType>()(_size, memoryBlock.get(), bufferHostPtr.get());
         }
         _dest = bufferBlock;
@@ -132,7 +137,8 @@ public:
         _st = services::Status();
 
         auto buffer    = _src.template get<DataType>();
-        auto subbuffer = buffer.getSubBuffer(_offset, _size);
+        auto subbuffer = buffer.getSubBuffer(_offset, _size, _st);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(_st);
 
         _dest = subbuffer;
     }
@@ -169,7 +175,8 @@ public:
     void operator()(Typelist<T>)
     {
         auto buffer = _src.template get<T>();
-        auto ptr    = buffer.toHost(_mode);
+        auto ptr    = buffer.toHost(_mode, _st);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(_st);
 
         _reinterpretedPtr = services::reinterpretPointerCast<DataType, T>(ptr);
     }

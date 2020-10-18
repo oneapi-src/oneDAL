@@ -16,12 +16,11 @@
 
 #pragma once
 
+#include <daal/include/data_management/data/homogen_numeric_table.h>
+
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-#define DAAL_SYCL_INTERFACE
-#define DAAL_SYCL_INTERFACE_USM
 #include <daal/include/data_management/data/internal/numeric_table_sycl_homogen.h>
 #endif
-#include <daal/include/data_management/data/homogen_numeric_table.h>
 
 #include "oneapi/dal/table/detail/table_builder.hpp"
 

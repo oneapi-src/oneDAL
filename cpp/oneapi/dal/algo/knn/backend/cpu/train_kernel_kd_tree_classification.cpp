@@ -18,7 +18,7 @@
 #include <src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h>
 
 #include "oneapi/dal/algo/knn/backend/cpu/train_kernel.hpp"
-#include "oneapi/dal/algo/knn/backend/model_interop.hpp"
+#include "oneapi/dal/algo/knn/backend/model_impl.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -36,13 +36,14 @@ namespace interop = dal::backend::interop;
 template <typename Float, daal::CpuType Cpu>
 using daal_knn_kd_tree_kernel_t = daal_knn::training::internal::
     KNNClassificationTrainBatchKernel<Float, daal_knn::training::defaultDense, Cpu>;
-using daal_interop_model_t = detail::model_impl::interop_model;
 
 template <typename Float>
-static train_result call_daal_kernel(const context_cpu& ctx,
-                                     const descriptor_base& desc,
-                                     const table& data,
-                                     const table& labels) {
+static train_result<task::classification> call_daal_kernel(
+    const context_cpu& ctx,
+    const descriptor_base<task::classification>& desc,
+    const table& data,
+    const table& labels) {
+    using daal_model_interop_t = model_interop;
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
 
@@ -77,28 +78,30 @@ static train_result call_daal_kernel(const context_cpu& ctx,
                                                                     knn_model,
                                                                     *daal_parameter.engine.get()));
 
-    auto interop = new daal_interop_model_t(model_ptr);
+    auto interop = new daal_model_interop_t(model_ptr);
     const auto model_impl = std::make_shared<detail::model_impl>(interop);
-    return train_result().set_model(dal::detail::pimpl_accessor::make<model>(model_impl));
+    return train_result<task::classification>().set_model(
+        dal::detail::pimpl_accessor::make<model<task::classification>>(model_impl));
 }
 
 template <typename Float>
-static train_result train(const context_cpu& ctx,
-                          const descriptor_base& desc,
-                          const train_input& input) {
+static train_result<task::classification> train(const context_cpu& ctx,
+                                                const descriptor_base<task::classification>& desc,
+                                                const train_input<task::classification>& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_labels());
 }
 
 template <typename Float>
-struct train_kernel_cpu<Float, method::kd_tree> {
-    train_result operator()(const context_cpu& ctx,
-                            const descriptor_base& desc,
-                            const train_input& input) const {
+struct train_kernel_cpu<Float, method::kd_tree, task::classification> {
+    train_result<task::classification> operator()(
+        const context_cpu& ctx,
+        const descriptor_base<task::classification>& desc,
+        const train_input<task::classification>& input) const {
         return train<Float>(ctx, desc, input);
     }
 };
 
-template struct train_kernel_cpu<float, method::kd_tree>;
-template struct train_kernel_cpu<double, method::kd_tree>;
+template struct train_kernel_cpu<float, method::kd_tree, task::classification>;
+template struct train_kernel_cpu<double, method::kd_tree, task::classification>;
 
 } // namespace oneapi::dal::knn::backend

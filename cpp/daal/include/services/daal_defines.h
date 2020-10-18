@@ -104,6 +104,7 @@
 #endif
 
 #ifdef DAAL_SYCL_INTERFACE
+    #include <CL/sycl.hpp>
     #if (defined(__SYCL_COMPILER_VERSION) && (__SYCL_COMPILER_VERSION >= 20191001))
         #define DAAL_SYCL_INTERFACE_USM
     #endif
@@ -470,19 +471,14 @@ const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP13_ID = 121310;
         if (!(r == (op2))) return services::Status(services::ErrorBufferSizeIntegerOverflow); \
     }
 
-#define DAAL_CHECK_STATUS_PTR(statusPtr)              \
-    {                                                 \
-        if (statusPtr != nullptr && !statusPtr->ok()) \
-        {                                             \
-            return;                                   \
-        }                                             \
+#define DAAL_CHECK_STATUS_RETURN_IF_FAIL(statVal, returnObj) \
+    {                                                        \
+        if (!(statVal)) return returnObj;                    \
     }
-#define DAAL_CHECK_STATUS_RETURN_IF_FAIL(statusPtr, return_obj) \
-    {                                                           \
-        if (statusPtr != nullptr && !statusPtr->ok())           \
-        {                                                       \
-            return return_obj;                                  \
-        }                                                       \
+
+#define DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(statVal) \
+    {                                                  \
+        if (!(statVal)) return;                        \
     }
 
 #define DAAL_CHECK(cond, error) \

@@ -15,13 +15,13 @@
 *******************************************************************************/
 
 #include "oneapi/dal/detail/policy.hpp"
-#include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::detail {
 
 class host_policy_impl : public base {
 public:
-    cpu_extension cpu_extensions_mask = backend::interop::detect_top_cpu_extension();
+    cpu_extension cpu_extensions_mask = backend::detect_top_cpu_extension();
 };
 
 host_policy::host_policy() : impl_(new host_policy_impl()) {}

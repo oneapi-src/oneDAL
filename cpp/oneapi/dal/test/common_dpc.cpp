@@ -14,23 +14,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "oneapi/dal/test/common.hpp"
 
-#include "oneapi/dal/algo/knn/common.hpp"
+namespace oneapi::dal::test {
 
-namespace oneapi::dal::knn {
+test_queue_provider& test_queue_provider::get_instance() {
+    static test_queue_provider provider;
+    return provider;
+}
 
-class detail::model_impl : public base {
-public:
-    class interop_model;
-    model_impl() : interop_(nullptr) {}
-    model_impl(interop_model* interop) : interop_(interop) {}
-    interop_model* get_interop() {
-        return interop_;
-    }
-
-private:
-    interop_model* interop_;
-};
-
-} // namespace oneapi::dal::knn
+} // namespace oneapi::dal::test

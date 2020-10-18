@@ -14,25 +14,26 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/knn/backend/cpu/train_kernel.hpp"
-#include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/algo/knn/backend/gpu/train_kernel.hpp"
+#include "oneapi/dal/backend/dispatcher_dpc.hpp"
+#include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 
 namespace oneapi::dal::knn::backend {
 
-using dal::backend::context_cpu;
+using dal::backend::context_gpu;
 
-template <typename Float>
-struct train_kernel_cpu<Float, method::brute_force> {
-    train_result operator()(const context_cpu& ctx,
-                            const descriptor_base& desc,
-                            const train_input& input) const {
-        throw unimplemented("k-NN brute force method is not implemented for CPU");
-        return train_result();
+template <typename Float, typename Task>
+struct train_kernel_gpu<Float, method::kd_tree, Task> {
+    train_result<Task> operator()(const context_gpu& ctx,
+                                  const descriptor_base<Task>& desc,
+                                  const train_input<Task>& input) const {
+        throw unimplemented("k-NN k-d tree method is not implemented for GPU");
+        return train_result<Task>();
     }
 };
 
-template struct train_kernel_cpu<float, method::brute_force>;
-template struct train_kernel_cpu<double, method::brute_force>;
+template struct train_kernel_gpu<float, method::kd_tree, task::classification>;
+template struct train_kernel_gpu<double, method::kd_tree, task::classification>;
 
 } // namespace oneapi::dal::knn::backend

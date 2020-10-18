@@ -167,6 +167,11 @@ protected:
         DAAL_CHECK_BLOCK_STATUS(inDataRows);
         const FPType * const testData = inDataRows.get();
 
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, blockSize, k);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, inBlockSize, k);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, inBlockSize * sizeof(int), k);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, inBlockSize * sizeof(FPType), k);
+
         SafeStatus safeStat;
 
         daal::tls<BruteForceTask *> tlsTask([=, &safeStat]() {
@@ -208,6 +213,8 @@ protected:
 
                 if (indexes)
                 {
+                    DAAL_ASSERT(inRows + j1 <= static_cast<size_t>(services::internal::MaxVal<int>::get()));
+                    DAAL_ASSERT(inRows + i * jSize <= static_cast<size_t>(services::internal::MaxVal<int>::get()));
                     updateLocalNeighbours(indexes, idx, jSize, i, k, maxs, distancesBuff, j1, heapsLocal[i]);
                 }
             }
@@ -265,8 +272,9 @@ protected:
             DAAL_CHECK_BLOCK_STATUS(indexesBlock);
             int * indices = indexesBlock.get();
 
-            const size_t size = iSize * k * sizeof(*indices);
-            daal::services::internal::daal_memcpy_s(indices, size, kIndexes, size);
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, blockSize * sizeof(*indices), k);
+            const size_t size = blockSize * k * sizeof(*indices);
+            DAAL_CHECK(!daal::services::internal::daal_memcpy_s(indices, size, kIndexes, size), daal::services::ErrorMemoryCopyFailedInternal);
         }
 
         if (resultsToCompute & computeDistances)
@@ -275,8 +283,9 @@ protected:
             DAAL_CHECK_BLOCK_STATUS(distancesBlock);
             FPType * distances = distancesBlock.get();
 
-            const size_t size = iSize * k * sizeof(FPType);
-            daal::services::internal::daal_memcpy_s(distances, size, kDistances, size);
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, blockSize * sizeof(FPType), k);
+            const size_t size = blockSize * k * sizeof(FPType);
+            DAAL_CHECK(!daal::services::internal::daal_memcpy_s(distances, size, kDistances, size), daal::services::ErrorMemoryCopyFailedInternal);
         }
 
         if (resultsToEvaluate & daal::algorithms::classifier::computeClassLabels)

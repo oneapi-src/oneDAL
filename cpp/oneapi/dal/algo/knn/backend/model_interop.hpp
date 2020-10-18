@@ -18,15 +18,14 @@
 
 #include "algorithms/classifier/classifier_model.h"
 #include "oneapi/dal/algo/knn/common.hpp"
-#include "oneapi/dal/algo/knn/detail/model_impl.hpp"
 
-namespace oneapi::dal::knn::detail {
+namespace oneapi::dal::knn::backend {
 
 namespace daal_cls = daal::algorithms::classifier;
 
-class model_impl::interop_model {
+class model_interop {
 public:
-    interop_model(const daal_cls::ModelPtr& daal_model) : daal_model(daal_model) {}
+    model_interop(const daal_cls::ModelPtr& daal_model) : daal_model(daal_model) {}
     void set_daal_model(const daal_cls::ModelPtr& model) {
         daal_model = model;
     }
@@ -38,4 +37,4 @@ private:
     daal_cls::ModelPtr daal_model;
 };
 
-} // namespace oneapi::dal::knn::detail
+} // namespace oneapi::dal::knn::backend

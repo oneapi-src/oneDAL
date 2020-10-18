@@ -21,22 +21,23 @@
 namespace oneapi::dal::knn::detail {
 using oneapi::dal::detail::host_policy;
 
-template <typename Float, typename Method>
-struct infer_ops_dispatcher<host_policy, Float, Method> {
-    infer_result operator()(const host_policy& ctx,
-                            const descriptor_base& desc,
-                            const infer_input& input) const {
+template <typename Float, typename Method, typename Task>
+struct infer_ops_dispatcher<host_policy, Float, Method, Task> {
+    infer_result<Task> operator()(const host_policy& ctx,
+                                  const descriptor_base<Task>& desc,
+                                  const infer_input<Task>& input) const {
         using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::infer_kernel_cpu<Float, Method>>;
+            dal::backend::kernel_dispatcher<backend::infer_kernel_cpu<Float, Method, Task>>;
         return kernel_dispatcher_t()(ctx, desc, input);
     }
 };
 
-#define INSTANTIATE(F, M) template struct ONEAPI_DAL_EXPORT infer_ops_dispatcher<host_policy, F, M>;
+#define INSTANTIATE(F, M, T) \
+    template struct ONEAPI_DAL_EXPORT infer_ops_dispatcher<host_policy, F, M, T>;
 
-INSTANTIATE(float, method::kd_tree)
-INSTANTIATE(double, method::kd_tree)
-INSTANTIATE(float, method::brute_force)
-INSTANTIATE(double, method::brute_force)
+INSTANTIATE(float, method::kd_tree, task::classification)
+INSTANTIATE(double, method::kd_tree, task::classification)
+INSTANTIATE(float, method::brute_force, task::classification)
+INSTANTIATE(double, method::brute_force, task::classification)
 
 } // namespace oneapi::dal::knn::detail

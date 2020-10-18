@@ -14,26 +14,25 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/knn/backend/cpu/infer_kernel.hpp"
+#include "oneapi/dal/algo/knn/backend/cpu/train_kernel.hpp"
+#include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
-#include "oneapi/dal/detail/common.hpp"
-
-#define DAAL_SYCL_INTERFACE
 
 namespace oneapi::dal::knn::backend {
 
 using dal::backend::context_cpu;
-template <typename Float>
-struct infer_kernel_cpu<Float, method::brute_force> {
-    infer_result operator()(const context_cpu &ctx,
-                            const descriptor_base &desc,
-                            const infer_input &input) const {
+
+template <typename Float, typename Task>
+struct train_kernel_cpu<Float, method::brute_force, Task> {
+    train_result<Task> operator()(const context_cpu& ctx,
+                                  const descriptor_base<Task>& desc,
+                                  const train_input<Task>& input) const {
         throw unimplemented("k-NN brute force method is not implemented for CPU");
-        return infer_result();
+        return train_result<Task>();
     }
 };
 
-template struct infer_kernel_cpu<float, method::brute_force>;
-template struct infer_kernel_cpu<double, method::brute_force>;
+template struct train_kernel_cpu<float, method::brute_force, task::classification>;
+template struct train_kernel_cpu<double, method::brute_force, task::classification>;
 
 } // namespace oneapi::dal::knn::backend

@@ -360,8 +360,11 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
             ),
             "%{supports_start_end_lib}": "False" if reqs.compiler_id == "icc" else "True",
             "%{supports_random_seed}": "False" if reqs.compiler_id == "icc" else "True",
-            "%{cpu_flags}": get_starlark_list_dict(
-                get_cpu_specific_options(reqs)
+            "%{cpu_flags_cc}": get_starlark_list_dict(
+                get_cpu_specific_options(reqs),
+            ),
+            "%{cpu_flags_dpcc}": get_starlark_list_dict(
+                get_cpu_specific_options(reqs, is_dpcc=True),
             )
         },
     )

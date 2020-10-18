@@ -136,7 +136,7 @@ class LowOrderMomentsOnlineTaskOneAPI : public TaskInfoOnline<algorithmFPType, s
 {
 public:
     LowOrderMomentsOnlineTaskOneAPI(ExecutionContextIface & context, NumericTable * dataTable, PartialResult * partialResult,
-                                    services::Status * status);
+                                    services::Status & status);
     LowOrderMomentsOnlineTaskOneAPI(const LowOrderMomentsOnlineTaskOneAPI &) = delete;
     LowOrderMomentsOnlineTaskOneAPI & operator=(const LowOrderMomentsOnlineTaskOneAPI &) = delete;
     virtual ~LowOrderMomentsOnlineTaskOneAPI();
@@ -174,7 +174,7 @@ class LowOrderMomentsOnlineFinalizeTaskOneAPI : public TaskInfoOnline<algorithmF
 {
 public:
     LowOrderMomentsOnlineFinalizeTaskOneAPI(ExecutionContextIface & context, PartialResult * partialResult, Result * result,
-                                            services::Status * status);
+                                            services::Status & status);
     LowOrderMomentsOnlineFinalizeTaskOneAPI(const LowOrderMomentsOnlineFinalizeTaskOneAPI &) = delete;
     LowOrderMomentsOnlineFinalizeTaskOneAPI & operator=(const LowOrderMomentsOnlineFinalizeTaskOneAPI &) = delete;
     virtual ~LowOrderMomentsOnlineFinalizeTaskOneAPI();

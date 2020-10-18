@@ -14,15 +14,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-#define DAAL_SYCL_INTERFACE
-#define DAAL_SYCL_INTERFACE_USM
-#define DAAL_SYCL_INTERFACE_REVERSED_RANGE
-
 #include <src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h>
 #include <src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_train_kernel_ucapi.h>
 
 #include "oneapi/dal/algo/knn/backend/gpu/train_kernel.hpp"
-#include "oneapi/dal/algo/knn/backend/model_interop.hpp"
+#include "oneapi/dal/algo/knn/backend/model_impl.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -39,13 +35,14 @@ namespace interop = dal::backend::interop;
 template <typename Float>
 using daal_knn_brute_force_kernel_t =
     daal_knn::training::internal::KNNClassificationTrainKernelUCAPI<Float>;
-using daal_interop_model_t = detail::model_impl::interop_model;
 
 template <typename Float>
-static train_result call_daal_kernel(const context_gpu& ctx,
-                                     const descriptor_base& desc,
-                                     const table& data,
-                                     const table& labels) {
+static train_result<task::classification> call_daal_kernel(
+    const context_gpu& ctx,
+    const descriptor_base<task::classification>& desc,
+    const table& data,
+    const table& labels) {
+    using daal_model_interop_t = backend::model_interop;
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
@@ -82,28 +79,30 @@ static train_result call_daal_kernel(const context_gpu& ctx,
                                                        daal_parameter,
                                                        *daal_parameter.engine.get()));
 
-    auto interop = new daal_interop_model_t(model_ptr);
+    auto interop = new daal_model_interop_t(model_ptr);
     const auto model_impl = std::make_shared<detail::model_impl>(interop);
-    return train_result().set_model(dal::detail::pimpl_accessor::make<model>(model_impl));
+    return train_result<task::classification>().set_model(
+        dal::detail::pimpl_accessor::make<model<task::classification>>(model_impl));
 }
 
 template <typename Float>
-static train_result train(const context_gpu& ctx,
-                          const descriptor_base& desc,
-                          const train_input& input) {
+static train_result<task::classification> train(const context_gpu& ctx,
+                                                const descriptor_base<task::classification>& desc,
+                                                const train_input<task::classification>& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_labels());
 }
 
 template <typename Float>
-struct train_kernel_gpu<Float, method::brute_force> {
-    train_result operator()(const context_gpu& ctx,
-                            const descriptor_base& desc,
-                            const train_input& input) const {
+struct train_kernel_gpu<Float, method::brute_force, task::classification> {
+    train_result<task::classification> operator()(
+        const context_gpu& ctx,
+        const descriptor_base<task::classification>& desc,
+        const train_input<task::classification>& input) const {
         return train<Float>(ctx, desc, input);
     }
 };
 
-template struct train_kernel_gpu<float, method::brute_force>;
-template struct train_kernel_gpu<double, method::brute_force>;
+template struct train_kernel_gpu<float, method::brute_force, task::classification>;
+template struct train_kernel_gpu<double, method::brute_force, task::classification>;
 
 } // namespace oneapi::dal::knn::backend

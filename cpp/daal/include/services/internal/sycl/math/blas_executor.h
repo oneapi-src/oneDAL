@@ -80,12 +80,12 @@ private:
         UniversalBuffer & c_buffer;
         const size_t ldc;
         const size_t offsetC;
-        services::Status * status;
+        services::Status & status;
 
         explicit Execute(cl::sycl::queue & queue, const math::Transpose transa, const math::Transpose transb, const size_t m, const size_t n,
                          const size_t k, const double alpha, const UniversalBuffer & a_buffer, const size_t lda, const size_t offsetA,
                          const UniversalBuffer & b_buffer, const size_t ldb, const size_t offsetB, const double beta, UniversalBuffer & c_buffer,
-                         const size_t ldc, const size_t offsetC, services::Status * status)
+                         const size_t ldc, const size_t offsetC, services::Status & status)
             : queue(queue),
               transa(transa),
               transb(transb),
@@ -119,10 +119,8 @@ private:
             MKLGemm<T> functor(queue);
 #endif
 
-            services::Status statusGemm =
+            status |=
                 functor(transa, transb, m, n, k, (T)alpha, a_buffer_t, lda, offsetA, b_buffer_t, ldb, offsetB, (T)beta, c_buffer_t, ldc, offsetC);
-
-            services::internal::tryAssignStatus(status, statusGemm);
         }
     };
 
@@ -130,7 +128,7 @@ public:
     static void run(cl::sycl::queue & queue, const math::Transpose transa, const math::Transpose transb, const size_t m, const size_t n,
                     const size_t k, const double alpha, const UniversalBuffer & a_buffer, const size_t lda, const size_t offsetA,
                     const UniversalBuffer & b_buffer, const size_t ldb, const size_t offsetB, const double beta, UniversalBuffer & c_buffer,
-                    const size_t ldc, const size_t offsetC, services::Status * status)
+                    const size_t ldc, const size_t offsetC, services::Status & status)
     {
         Execute op(queue, transa, transb, m, n, k, alpha, a_buffer, lda, offsetA, b_buffer, ldb, offsetB, beta, c_buffer, ldc, offsetC, status);
         TypeDispatcher::floatDispatch(a_buffer.type(), op);
@@ -159,11 +157,11 @@ private:
         UniversalBuffer & c_buffer;
         const size_t ldc;
         const size_t offsetC;
-        services::Status * status;
+        services::Status & status;
 
         explicit Execute(cl::sycl::queue & queue, const math::UpLo upper_lower, const math::Transpose trans, const size_t n, const size_t k,
                          const double alpha, const UniversalBuffer & a_buffer, const size_t lda, const size_t offsetA, const double beta,
-                         UniversalBuffer & c_buffer, const size_t ldc, const size_t offsetC, services::Status * status)
+                         UniversalBuffer & c_buffer, const size_t ldc, const size_t offsetC, services::Status & status)
             : queue(queue),
               upper_lower(upper_lower),
               trans(trans),
@@ -188,25 +186,21 @@ private:
 
             const math::Transpose transInv = trans == math::Transpose::NoTrans ? math::Transpose::Trans : math::Transpose::NoTrans;
 
-            services::Status statusSyrk;
-
 #ifdef ONEAPI_DAAL_NO_MKL_GPU_FUNC
             ReferenceGemm<T> functor;
-            statusSyrk =
+            status |=
                 functor(transInv, trans, k, k, n, (T)alpha, a_buffer_t, lda, offsetA, a_buffer_t, lda, offsetA, (T)beta, c_buffer_t, ldc, offsetC);
 #else
             MKLSyrk<T> functor(queue);
-            statusSyrk = functor(upper_lower, transInv, k, n, (T)alpha, a_buffer_t, lda, offsetA, (T)beta, c_buffer_t, ldc, offsetC);
+            status |= functor(upper_lower, transInv, k, n, (T)alpha, a_buffer_t, lda, offsetA, (T)beta, c_buffer_t, ldc, offsetC);
 #endif
-
-            services::internal::tryAssignStatus(status, statusSyrk);
         }
     };
 
 public:
     static void run(cl::sycl::queue & queue, const math::UpLo upper_lower, const math::Transpose trans, const size_t n, const size_t k,
                     const double alpha, const UniversalBuffer & a_buffer, const size_t lda, const size_t offsetA, const double beta,
-                    UniversalBuffer & c_buffer, const size_t ldc, const size_t offsetC, services::Status * status)
+                    UniversalBuffer & c_buffer, const size_t ldc, const size_t offsetC, services::Status & status)
     {
         Execute op(queue, upper_lower, trans, n, k, alpha, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC, status);
         TypeDispatcher::floatDispatch(a_buffer.type(), op);
@@ -236,10 +230,10 @@ private:
         const int incx;
         UniversalBuffer & y_buffer;
         const int incy;
-        services::Status * status;
+        services::Status & status;
 
         explicit Execute(cl::sycl::queue & queue, const uint32_t n, const double a, const UniversalBuffer & x_buffer, const int incx,
-                         UniversalBuffer & y_buffer, const int incy, services::Status * status = NULL)
+                         UniversalBuffer & y_buffer, const int incy, services::Status & status)
             : queue(queue), n(n), a(a), x_buffer(x_buffer), incx(incx), y_buffer(y_buffer), incy(incy), status(status)
         {}
 
@@ -251,24 +245,22 @@ private:
 
             if (checkSize(n, x_buffer_t, incx) || checkSize(n, y_buffer_t, incy))
             {
-                if (status) status->add(services::ErrorIncorrectIndex);
+                status |= services::ErrorIncorrectIndex;
                 return;
             }
 
-            services::Status statusAxpy;
 #ifdef ONEAPI_DAAL_NO_MKL_GPU_FUNC
             ReferenceAxpy<algorithmFPType> functor;
 #else
             MKLAxpy<algorithmFPType> functor(queue);
 #endif
-            statusAxpy = functor(n, (algorithmFPType)a, x_buffer_t, incx, y_buffer_t, incy);
-            services::internal::tryAssignStatus(status, statusAxpy);
+            status |= functor(n, (algorithmFPType)a, x_buffer_t, incx, y_buffer_t, incy);
         }
     };
 
 public:
     static void run(cl::sycl::queue & queue, const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx,
-                    UniversalBuffer y_buffer, const int incy, services::Status * status = NULL)
+                    UniversalBuffer y_buffer, const int incy, services::Status & status)
     {
         Execute op(queue, n, a, x_buffer, incx, y_buffer, incy, status);
         TypeDispatcher::floatDispatch(x_buffer.type(), op);

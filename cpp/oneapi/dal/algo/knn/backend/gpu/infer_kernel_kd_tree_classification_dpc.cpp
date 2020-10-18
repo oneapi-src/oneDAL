@@ -14,28 +14,29 @@
 * limitations under the License.
 *******************************************************************************/
 
-#define DAAL_SYCL_INTERFACE
-
-#include "oneapi/dal/algo/knn/backend/gpu/train_kernel.hpp"
-#include "oneapi/dal/backend/dispatcher_dpc.hpp"
+#include "oneapi/dal/algo/knn/backend/gpu/infer_kernel.hpp"
+#include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
+#include "oneapi/dal/detail/common.hpp"
+
+#include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::knn::backend {
 
 using dal::backend::context_gpu;
 
-template <typename Float>
-struct train_kernel_gpu<Float, method::kd_tree> {
-    train_result operator()(const context_gpu& ctx,
-                            const descriptor_base& desc,
-                            const train_input& input) const {
+template <typename Float, typename Task>
+struct infer_kernel_gpu<Float, method::kd_tree, Task> {
+    infer_result<Task> operator()(const context_gpu& ctx,
+                                  const descriptor_base<Task>& desc,
+                                  const infer_input<Task>& input) const {
         throw unimplemented("k-NN k-d tree method is not implemented for GPU");
-        return train_result();
+        return infer_result<Task>();
     }
 };
 
-template struct train_kernel_gpu<float, method::kd_tree>;
-template struct train_kernel_gpu<double, method::kd_tree>;
+template struct infer_kernel_gpu<float, method::kd_tree, task::classification>;
+template struct infer_kernel_gpu<double, method::kd_tree, task::classification>;
 
 } // namespace oneapi::dal::knn::backend
