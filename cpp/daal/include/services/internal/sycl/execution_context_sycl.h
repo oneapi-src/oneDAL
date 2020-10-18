@@ -48,7 +48,13 @@ public:
 
     void build(ExecutionTargetId target, const char * name, const char * program, const char * options, Status & status) DAAL_C11_OVERRIDE
     {
-        String key     = name;
+        DAAL_ASSERT(name);
+        DAAL_ASSERT(program);
+
+        String key = name;
+        DAAL_CHECK_COND_ERROR(key.c_str(), status, ErrorMemoryAllocationFailed);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+
         const bool res = programHashTable.contain(key, status);
         DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
@@ -102,14 +108,19 @@ public:
 
     KernelPtr getKernel(const char * kernelName, Status & status) DAAL_C11_OVERRIDE
     {
-        if (_currentProgramRef == nullptr)
+        if (!_currentProgramRef)
         {
             status |= ErrorExecutionContext;
             return KernelPtr();
         }
 
         String key = _currentProgramRef->getName();
+        DAAL_CHECK_COND_ERROR(key.c_str(), status, ErrorMemoryAllocationFailed);
+        DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, KernelPtr());
+
         key.add(kernelName);
+        DAAL_CHECK_COND_ERROR(key.c_str(), status, ErrorMemoryAllocationFailed);
+        DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, KernelPtr());
 
         bool res = kernelHashTable.contain(key, status);
         DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, KernelPtr());
