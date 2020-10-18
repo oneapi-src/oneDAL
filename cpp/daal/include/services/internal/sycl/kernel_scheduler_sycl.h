@@ -630,6 +630,7 @@ private:
             const auto & arg = args.get(i);
             SyclKernelSchedulerArgHandler argHandler(cgh, storage, i, arg);
             TypeDispatcher::dispatch(arg.dataType(), argHandler, status);
+            DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
         }
     }
 

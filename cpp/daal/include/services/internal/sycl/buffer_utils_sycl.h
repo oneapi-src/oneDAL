@@ -1,4 +1,4 @@
-/* file: types_utils_cxx11.h */
+/* file: buffer_utils_sycl.h */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -15,8 +15,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __DAAL_SERVICES_INTERNAL_SYCL_TYPES_UTILS_CXX11_H__
-#define __DAAL_SERVICES_INTERNAL_SYCL_TYPES_UTILS_CXX11_H__
+#ifndef __DAAL_SERVICES_INTERNAL_SYCL_BUFFER_UTILS_SYCL_H__
+#define __DAAL_SERVICES_INTERNAL_SYCL_BUFFER_UTILS_SYCL_H__
 
 #ifndef DAAL_SYCL_INTERFACE
     #error "DAAL_SYCL_INTERFACE must be defined to include this file"

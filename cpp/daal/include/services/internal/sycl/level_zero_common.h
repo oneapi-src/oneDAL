@@ -1,4 +1,4 @@
-/* file: daal_level_zero_common.h */
+/* file: level_zero_common.h */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -15,23 +15,20 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef _DAAL_LEVEL_ZERO_COMMON
+#ifndef __DAAL_SERVICES_INTERNAL_SYCL_LEVEL_ZERO_COMMON_H__
+#define __DAAL_SERVICES_INTERNAL_SYCL_LEVEL_ZERO_COMMON_H__
 
-    #if !(defined(__linux__) || defined(_WIN64))
-        #define DAAL_DISABLE_LEVEL_ZERO
-    #endif
+#ifdef DAAL_DISABLE_LEVEL_ZERO
+    #error "DAAL_DISABLE_LEVEL_ZERO must be undefined to include this file"
+#endif
 
-    #ifndef DAAL_DISABLE_LEVEL_ZERO
-
-        #ifndef _ZE_API_H
-            #include "services/internal/sycl/level_zero_types.h"
-        #endif
+#ifndef _ZE_API_H
+    #include "services/internal/sycl/level_zero_types.h"
+#endif
 
 typedef ze_result_t (*zeModuleCreateFT)(ze_context_handle_t, ze_device_handle_t, const ze_module_desc_t *, ze_module_handle_t *,
                                         ze_module_build_log_handle_t *);
 
 typedef ze_result_t (*zeModuleDestroyFT)(ze_module_handle_t hModule);
 
-    #endif // DAAL_DISABLE_LEVEL_ZERO
-
-#endif // _DAAL_LEVEL_ZERO_COMMON
+#endif

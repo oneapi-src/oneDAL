@@ -1,4 +1,4 @@
-/* file: daal_ze_module_helper.h */
+/* file: level_zero_module_sycl.h */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *

@@ -120,7 +120,7 @@ public:
         return newBuffer;
     }
 
-    static HostBuffer<T> * create(T * data, size_t size, Status & status) { return create(SharedPtr<T> { data, EmptyDeleter() }, size, status); }
+    static HostBuffer<T> * create(T * data, size_t size, Status & status) { return create(SharedPtr<T>(data, EmptyDeleter()), size, status); }
 
     size_t size() const DAAL_C11_OVERRIDE { return _size; }
 
