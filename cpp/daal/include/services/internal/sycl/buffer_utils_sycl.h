@@ -18,6 +18,10 @@
 #ifndef __DAAL_SERVICES_INTERNAL_SYCL_TYPES_UTILS_CXX11_H__
 #define __DAAL_SERVICES_INTERNAL_SYCL_TYPES_UTILS_CXX11_H__
 
+#ifndef DAAL_SYCL_INTERFACE
+    #error "DAAL_SYCL_INTERFACE must be defined to include this file"
+#endif
+
 #include "services/internal/sycl/types_utils.h"
 
 namespace daal

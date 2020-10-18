@@ -18,6 +18,10 @@
 #ifndef __DAAL_SERVICES_INTERNAL_SYCL_ERROR_HANDLING_H__
 #define __DAAL_SERVICES_INTERNAL_SYCL_ERROR_HANDLING_H__
 
+#ifndef DAAL_SYCL_INTERFACE
+    #error "DAAL_SYCL_INTERFACE must be defined to include this file"
+#endif
+
 #include <CL/cl.h>
 #include <CL/sycl.hpp>
 

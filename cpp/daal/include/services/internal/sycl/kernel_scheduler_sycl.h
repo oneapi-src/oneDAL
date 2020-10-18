@@ -15,24 +15,25 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifdef DAAL_SYCL_INTERFACE
-    #ifndef __DAAL_SERVICES_INTERNAL_SYCL_KERNEL_SCHEDULER_SYCL_H__
-        #define __DAAL_SERVICES_INTERNAL_SYCL_KERNEL_SCHEDULER_SYCL_H__
+#ifndef __DAAL_SERVICES_INTERNAL_SYCL_KERNEL_SCHEDULER_SYCL_H__
+#define __DAAL_SERVICES_INTERNAL_SYCL_KERNEL_SCHEDULER_SYCL_H__
 
-        #include <CL/cl.h>
-        #include <CL/sycl.hpp>
+#ifndef DAAL_SYCL_INTERFACE
+    #error "DAAL_SYCL_INTERFACE must be defined to include this file"
+#endif
 
-        #include "services/internal/sycl/level_zero_common.h"
+#include <cstring>
 
-        #ifndef DAAL_DISABLE_LEVEL_ZERO
-            #include "services/internal/sycl/level_zero_module_helper.h"
-        #endif // DAAL_DISABLE_LEVEL_ZERO
+#include <CL/cl.h>
+#include <CL/sycl.hpp>
 
-        #include <cstring>
+#include "services/internal/sycl/error_handling_sycl.h"
+#include "services/internal/sycl/execution_context.h"
+#include "services/internal/sycl/buffer_utils_sycl.h"
 
-        #include "services/internal/sycl/error_handling_sycl.h"
-        #include "services/internal/sycl/execution_context.h"
-        #include "services/internal/sycl/buffer_utils_sycl.h"
+#ifndef DAAL_DISABLE_LEVEL_ZERO
+    #include "services/internal/sycl/level_zero_module_helper.h"
+#endif
 
 namespace daal
 {
@@ -99,11 +100,11 @@ private:
     OpenClType _resource;
 };
 
-        #define DAAL_DECLARE_OPENCL_OPERATOR(type_, name_) \
-            struct OpenCl##name_                           \
-            {                                              \
-                void operator()(type_ p) { cl##name_(p); } \
-            }
+#define DAAL_DECLARE_OPENCL_OPERATOR(type_, name_) \
+    struct OpenCl##name_                           \
+    {                                              \
+        void operator()(type_ p) { cl##name_(p); } \
+    }
 
 DAAL_DECLARE_OPENCL_OPERATOR(cl_program, RetainProgram);
 DAAL_DECLARE_OPENCL_OPERATOR(cl_program, ReleaseProgram);
@@ -114,7 +115,7 @@ DAAL_DECLARE_OPENCL_OPERATOR(cl_context, ReleaseContext);
 DAAL_DECLARE_OPENCL_OPERATOR(cl_device_id, RetainDevice);
 DAAL_DECLARE_OPENCL_OPERATOR(cl_device_id, ReleaseDevice);
 
-        #undef DAAL_DECLARE_OPENCL_OPERATOR
+#undef DAAL_DECLARE_OPENCL_OPERATOR
 
 typedef OpenClResourceRef<cl_device_id, OpenClRetainDevice, OpenClReleaseDevice> OpenClDeviceRef;
 
@@ -136,7 +137,7 @@ private:
     OpenClDeviceRef _clDeviceRef;
 };
 
-        #ifndef DAAL_DISABLE_LEVEL_ZERO
+#ifndef DAAL_DISABLE_LEVEL_ZERO
 class LevelZeroOpenClInteropContext : public Base
 {
 public:
@@ -175,10 +176,10 @@ public:
                 if (ndev > 0)
                 {
                     cl_uint dVid = 0;
-                    clGetDeviceInfo(*pClDevice, CL_DEVICE_VENDOR_ID, sizeof(cl_uint), &dVid, NULL);
+                    clGetDeviceInfo(*pClDevice, CL_DEVICE_VENDOR_ID, sizeof(cl_uint), &dVid, nullptr);
 
                     cl_uint dFrq = 0;
-                    clGetDeviceInfo(*pClDevice, CL_DEVICE_MAX_CLOCK_FREQUENCY, sizeof(cl_uint), &dFrq, NULL);
+                    clGetDeviceInfo(*pClDevice, CL_DEVICE_MAX_CLOCK_FREQUENCY, sizeof(cl_uint), &dFrq, nullptr);
 
                     if (dVid == vendor_id && dFrq == frq) return;
                 }
@@ -195,37 +196,58 @@ private:
     OpenClContextRef _clContextRef;
     OpenClDeviceRef _clDeviceRef;
 };
-        #endif // DAAL_DISABLE_LEVEL_ZERO
+#endif // DAAL_DISABLE_LEVEL_ZERO
 
 class OpenClProgramRef : public OpenClResourceRef<cl_program, OpenClRetainProgram, OpenClReleaseProgram>
 {
 public:
-    OpenClProgramRef() {}
-
-    explicit OpenClProgramRef(cl_context clContext, cl_device_id clDevice, const char * programName, const char * programSrc, const char * options,
-                              Status & status)
+    static SharedPtr<OpenClProgramRef> create(cl_context clContext, cl_device_id clDevice, const char * programName, const char * programSrc,
+                                              const char * options, Status & status)
     {
-        initOpenClProgramRef(clContext, clDevice, programName, programSrc, options, status);
-    }
-        #ifndef DAAL_DISABLE_LEVEL_ZERO
-    explicit OpenClProgramRef(cl_context clContext, cl_device_id clDevice, cl::sycl::queue & deviceQueue, const char * programName,
-                              const char * programSrc, const char * options, Status & status)
-    {
-        initOpenClProgramRef(clContext, clDevice, programName, programSrc, options, status);
-        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
-        initModuleLevelZero(deviceQueue, status);
+        auto ptr = new OpenClProgramRef();
+        if (!ptr)
+        {
+            status |= ErrorMemoryAllocationFailed;
+            return SharedPtr<OpenClProgramRef>();
+        }
+        ptr->initOpenClProgramRef(clContext, clDevice, programName, programSrc, options, status);
+        return SharedPtr<OpenClProgramRef>(ptr);
     }
 
+#ifndef DAAL_DISABLE_LEVEL_ZERO
+    static SharedPtr<OpenClProgramRef> create(cl_context clContext, cl_device_id clDevice, cl::sycl::queue & deviceQueue, const char * programName,
+                                              const char * programSrc, const char * options, Status & status)
+    {
+        auto ptr = new OpenClProgramRef();
+        if (!ptr)
+        {
+            status |= ErrorMemoryAllocationFailed;
+            return SharedPtr<OpenClProgramRef>();
+        }
+        ptr->initOpenClProgramRef(clContext, clDevice, programName, programSrc, options, status);
+        DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, SharedPtr<OpenClProgramRef>());
+
+        ptr->initModuleLevelZero(deviceQueue, status);
+        return SharedPtr<OpenClProgramRef>(ptr);
+    }
+#endif // DAAL_DISABLE_LEVEL_ZERO
+
+#ifndef DAAL_DISABLE_LEVEL_ZERO
     cl::sycl::program getProgramLevelZero() const { return _moduleLevelZeroPtr->getZeProgram(); }
-        #endif // DAAL_DISABLE_LEVEL_ZERO
+#endif // DAAL_DISABLE_LEVEL_ZERO
 
-    const char * getName() const { return _programName.c_str(); }
+    const String & getName() const { return _programName; }
 
 private:
+    OpenClProgramRef() = default;
+
     void initOpenClProgramRef(cl_context clContext, cl_device_id clDevice, const char * programName, const char * programSrc, const char * options,
                               Status & status)
     {
-        _programName           = programName;
+        _programName = programName;
+        DAAL_CHECK_COND_ERROR(_programName.c_str(), status, ErrorMemoryAllocationFailed);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+
         cl_int err             = 0;
         const char * sources[] = { programSrc };
         const size_t lengths[] = { std::strlen(programSrc) };
@@ -248,30 +270,28 @@ private:
         DAAL_CHECK_OPENCL(err, status)
     }
 
-        #ifndef DAAL_DISABLE_LEVEL_ZERO
+#ifndef DAAL_DISABLE_LEVEL_ZERO
     void initModuleLevelZero(cl::sycl::queue & deviceQueue, Status & status)
     {
         size_t binarySize = 0;
-        DAAL_CHECK_OPENCL(clGetProgramInfo(get(), CL_PROGRAM_BINARY_SIZES, sizeof(size_t), &binarySize, NULL), status);
+        DAAL_CHECK_OPENCL(clGetProgramInfo(get(), CL_PROGRAM_BINARY_SIZES, sizeof(size_t), &binarySize, nullptr), status);
 
-        auto binary = (unsigned char *)daal_malloc(binarySize);
-        if (binary == nullptr)
-        {
-            status |= ErrorMemoryAllocationFailed;
-            return;
-        }
+        Collection<byte> binaryCollection(binarySize);
+        DAAL_CHECK_COND_ERROR(binaryCollection.data(), status, ErrorMemoryAllocationFailed);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
-        DAAL_CHECK_OPENCL(clGetProgramInfo(get(), CL_PROGRAM_BINARIES, sizeof(binary), &binary, NULL), status);
+        byte * binary = binaryCollection.data();
+        DAAL_CHECK_OPENCL(clGetProgramInfo(get(), CL_PROGRAM_BINARIES, sizeof(binary), &binary, nullptr), status);
         _moduleLevelZeroPtr.reset(new ZeModuleHelper(deviceQueue, binarySize, binary, status));
-        daal_free(binary);
     }
-        #endif // DAAL_DISABLE_LEVEL_ZERO
+#endif // DAAL_DISABLE_LEVEL_ZERO
 
 private:
     String _programName;
-        #ifndef DAAL_DISABLE_LEVEL_ZERO
+
+#ifndef DAAL_DISABLE_LEVEL_ZERO
     ZeModuleHelperPtr _moduleLevelZeroPtr;
-        #endif // DAAL_DISABLE_LEVEL_ZERO
+#endif
 };
 
 class OpenClKernelRef : public OpenClResourceRef<cl_kernel, OpenClRetainKernel, OpenClReleaseKernel>
@@ -279,28 +299,35 @@ class OpenClKernelRef : public OpenClResourceRef<cl_kernel, OpenClRetainKernel, 
 public:
     OpenClKernelRef() = default;
 
-    explicit OpenClKernelRef(cl_program clProgram, const char * kernelName, Status & status)
+    explicit OpenClKernelRef(cl_program clProgram, const String & kernelName, Status & status)
     {
         cl_int err = 0;
-        reset(clCreateKernel(clProgram, kernelName, &err));
+        reset(clCreateKernel(clProgram, kernelName.c_str(), &err));
         DAAL_CHECK_OPENCL(err, status)
     }
 };
 
-        #ifndef DAAL_DISABLE_LEVEL_ZERO
+#ifndef DAAL_DISABLE_LEVEL_ZERO
 class OpenClKernelLevelZeroRef : public Base
 {
 public:
     OpenClKernelLevelZeroRef() = default;
 
-    explicit OpenClKernelLevelZeroRef(const char * kernelName, Status & status) : _kernelName(kernelName) {}
+    explicit OpenClKernelLevelZeroRef(const String & kernelName, Status & status) : _kernelName(kernelName)
+    {
+        if (!_kernelName.c_str())
+        {
+            status |= ErrorMemoryAllocationFailed;
+            return;
+        }
+    }
 
-    const char * getName() const { return _kernelName.c_str(); }
+    const String & getName() const { return _kernelName; }
 
 private:
     String _kernelName;
 };
-        #endif // DAAL_DISABLE_LEVEL_ZERO
+#endif // DAAL_DISABLE_LEVEL_ZERO
 
 class OpenClKernel : public Base, public KernelIface
 {
@@ -334,33 +361,52 @@ private:
 class OpenClKernelNative : public OpenClKernel
 {
 public:
+    static SharedPtr<OpenClKernelNative> create(ExecutionTargetId executionTarget, const OpenClProgramRef & programRef,
+                                                const OpenClKernelRef & kernelRef, Status & status)
+    {
+        auto * ptr = new OpenClKernelNative(executionTarget, programRef, kernelRef);
+        if (!ptr) status |= ErrorMemoryAllocationFailed;
+        return SharedPtr<OpenClKernelNative>(ptr);
+    }
+
+    cl::sycl::kernel toSycl(const cl::sycl::context & ctx) const DAAL_C11_OVERRIDE { return cl::sycl::kernel(_clKernelRef.get(), ctx); }
+
+private:
     explicit OpenClKernelNative(ExecutionTargetId executionTarget, const OpenClProgramRef & programRef, const OpenClKernelRef & kernelRef)
         : OpenClKernel(executionTarget, programRef), _clKernelRef(kernelRef)
     {}
 
-    cl::sycl::kernel toSycl(const cl::sycl::context & ctx) const { return cl::sycl::kernel(_clKernelRef.get(), ctx); }
-
-private:
     OpenClKernelRef _clKernelRef;
 };
 
-        #ifndef DAAL_DISABLE_LEVEL_ZERO
+#ifndef DAAL_DISABLE_LEVEL_ZERO
 class OpenClKernelLevelZero : public OpenClKernel
 {
 public:
-    explicit OpenClKernelLevelZero(ExecutionTargetId executionTarget, const OpenClProgramRef & programRef, const OpenClKernelLevelZeroRef & kernelRef)
-        : OpenClKernel(executionTarget, programRef),
-          _clKernelRef(kernelRef),
-          syclKernel(getProgramRef().getProgramLevelZero().get_kernel(_clKernelRef.getName()))
-    {}
+    static SharedPtr<OpenClKernelLevelZero> create(ExecutionTargetId executionTarget, const OpenClProgramRef & programRef,
+                                                   const OpenClKernelLevelZeroRef & kernelRef, Status & status)
+    {
+        OpenClKernelLevelZero * ptr = nullptr;
+        status |= catchSyclExceptions([&]() mutable { ptr = new OpenClKernelLevelZero(executionTarget, programRef, kernelRef); });
+        DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, SharedPtr<OpenClKernelLevelZero>());
 
-    cl::sycl::kernel toSycl(const cl::sycl::context & ctx) const { return syclKernel; }
+        if (!ptr) status |= ErrorMemoryAllocationFailed;
+        return SharedPtr<OpenClKernelLevelZero>(ptr);
+    }
+
+    cl::sycl::kernel toSycl(const cl::sycl::context & ctx) const DAAL_C11_OVERRIDE { return _syclKernel; }
 
 private:
+    OpenClKernelLevelZero(ExecutionTargetId executionTarget, const OpenClProgramRef & programRef, const OpenClKernelLevelZeroRef & kernelRef)
+        : OpenClKernel(executionTarget, programRef),
+          _clKernelRef(kernelRef),
+          _syclKernel(getProgramRef().getProgramLevelZero().get_kernel(_clKernelRef.getName().c_str()))
+    {}
+
     OpenClKernelLevelZeroRef _clKernelRef;
-    cl::sycl::kernel syclKernel;
+    cl::sycl::kernel _syclKernel;
 };
-        #endif // DAAL_DISABLE_LEVEL_ZERO
+#endif // DAAL_DISABLE_LEVEL_ZERO
 
 class SyclBufferStorage
 {
@@ -464,21 +510,21 @@ inline cl::sycl::range<1> convertToSyclRange<1>(const KernelRange & r)
 template <>
 inline cl::sycl::range<2> convertToSyclRange<2>(const KernelRange & r)
 {
-        #ifdef DAAL_SYCL_INTERFACE_REVERSED_RANGE
+#ifdef DAAL_SYCL_INTERFACE_REVERSED_RANGE
     return cl::sycl::range<2>(r.upper2(), r.upper1());
-        #else
+#else
     return cl::sycl::range<2>(r.upper1(), r.upper2());
-        #endif
+#endif
 }
 
 template <>
 inline cl::sycl::range<3> convertToSyclRange<3>(const KernelRange & r)
 {
-        #ifdef DAAL_SYCL_INTERFACE_REVERSED_RANGE
+#ifdef DAAL_SYCL_INTERFACE_REVERSED_RANGE
     return cl::sycl::range<3>(r.upper3(), r.upper2(), r.upper1());
-        #else
+#else
     return cl::sycl::range<3>(r.upper1(), r.upper2(), r.upper3());
-        #endif
+#endif
 }
 
 template <int dim>
@@ -494,11 +540,11 @@ template <>
 inline cl::sycl::nd_range<2> convertToSyclRange<2>(const KernelNDRange & r)
 {
     return cl::sycl::nd_range<2>(
-        #ifdef DAAL_SYCL_INTERFACE_REVERSED_RANGE
+#ifdef DAAL_SYCL_INTERFACE_REVERSED_RANGE
         cl::sycl::range<2>(r.global().upper2(), r.global().upper1()), cl::sycl::range<2>(r.local().upper2(), r.local().upper1())
-        #else
+#else
         cl::sycl::range<2>(r.global().upper1(), r.global().upper2()), cl::sycl::range<2>(r.local().upper1(), r.local().upper2())
-        #endif
+#endif
     );
 }
 
@@ -506,13 +552,13 @@ template <>
 inline cl::sycl::nd_range<3> convertToSyclRange<3>(const KernelNDRange & r)
 {
     return cl::sycl::nd_range<3>(
-        #ifdef DAAL_SYCL_INTERFACE_REVERSED_RANGE
+#ifdef DAAL_SYCL_INTERFACE_REVERSED_RANGE
         cl::sycl::range<3>(r.global().upper3(), r.global().upper2(), r.global().upper1()),
         cl::sycl::range<3>(r.local().upper3(), r.local().upper2(), r.local().upper1())
-        #else
+#else
         cl::sycl::range<3>(r.global().upper1(), r.global().upper2(), r.global().upper3()),
         cl::sycl::range<3>(r.local().upper1(), r.local().upper2(), r.local().upper3())
-        #endif
+#endif
     );
 }
 
@@ -595,5 +641,4 @@ private:
 } // namespace services
 } // namespace daal
 
-    #endif
-#endif // DAAL_SYCL_INTERFACE
+#endif

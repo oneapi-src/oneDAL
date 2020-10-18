@@ -15,31 +15,29 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-// Helper for ze_module management
-//--
-*/
+#ifndef __DAAL_SERVICES_INTERNAL_SYCL_DAAL_ZE_MODULE_HELPER_H__
+#define __DAAL_SERVICES_INTERNAL_SYCL_DAAL_ZE_MODULE_HELPER_H__
 
-#ifdef DAAL_SYCL_INTERFACE
-    #ifndef __DAAL_SERVICES_INTERNAL_SYCL_DAAL_ZE_MODULE_HELPER_H__
-        #define __DAAL_SERVICES_INTERNAL_SYCL_DAAL_ZE_MODULE_HELPER_H__
+#ifndef DAAL_SYCL_INTERFACE
+    #error "DAAL_SYCL_INTERFACE must be defined to include this file"
+#endif
 
-        #include "services/internal/sycl/level_zero_common.h"
+#ifdef DAAL_DISABLE_LEVEL_ZERO
+    #error "DAAL_DISABLE_LEVEL_ZERO must be undefined to include this file"
+#endif
 
-        #ifndef DAAL_DISABLE_LEVEL_ZERO
+#include <CL/sycl.hpp>
 
-            #include <CL/sycl.hpp>
+#include "services/daal_shared_ptr.h"
+#include "services/internal/dynamic_lib_helper.h"
+#include "services/internal/sycl/error_handling_sycl.h"
+#include "services/internal/sycl/level_zero_common.h"
 
-            #include "services/daal_shared_ptr.h"
-            #include "services/internal/dynamic_lib_helper.h"
-            #include "services/internal/sycl/error_handling_sycl.h"
-
-            #if (defined(__SYCL_COMPILER_VERSION) && (__SYCL_COMPILER_VERSION >= 20200701))
-                #include <CL/sycl/backend/level_zero.hpp>
-            #else
-                #include <CL/sycl/backend/Intel_level0.hpp>
-            #endif
+#if (defined(__SYCL_COMPILER_VERSION) && (__SYCL_COMPILER_VERSION >= 20200701))
+    #include <CL/sycl/backend/level_zero.hpp>
+#else
+    #include <CL/sycl/backend/Intel_level0.hpp>
+#endif
 
 namespace daal
 {
@@ -51,29 +49,22 @@ namespace sycl
 {
 namespace interface1
 {
-            #ifdef __linux__
-
+#ifdef __linux__
 static const char * zeLoaderName = "libze_loader.so";
 static const int libLoadFlags    = RTLD_NOLOAD | RTLD_NOW | RTLD_LOCAL;
-
-            #elif defined(_WIN64)
-
+#elif defined(_WIN64)
 static const char * zeLoaderName = "ze_loader.dll";
 static const int libLoadFlags    = 0;
+#else
+    #error "Level Zero support is unavailable for this platform"
+#endif
 
-            #else
-
-                #error "Level Zero support is unavailable for this platform"
-
-            #endif
 static const char * zeModuleCreateFuncName  = "zeModuleCreate";
 static const char * zeModuleDestroyFuncName = "zeModuleDestroy";
 
 class ZeModuleHelper : public Base
 {
 public:
-    ZeModuleHelper()                       = delete;
-    ZeModuleHelper(const ZeModuleHelper &) = delete;
     ZeModuleHelper(cl::sycl::queue & deviceQueue, size_t binarySize, const uint8_t * pBinary, Status & status) : _program(deviceQueue.get_context())
     {
         static DynamicLibHelper zeLib(zeLoaderName, libLoadFlags, status);
@@ -101,9 +92,10 @@ public:
         _program = cl::sycl::level_zero::make<cl::sycl::program>(deviceQueue.get_context(), _moduleLevelZero);
     }
 
-    ~ZeModuleHelper() = default;
-
     cl::sycl::program getZeProgram() { return _program; }
+
+    ZeModuleHelper(const ZeModuleHelper &)             = delete;
+    ZeModuleHelper & operator=(const ZeModuleHelper &) = delete;
 
 private:
     cl::sycl::program _program;
@@ -118,7 +110,4 @@ typedef SharedPtr<ZeModuleHelper> ZeModuleHelperPtr;
 } // namespace services
 } // namespace daal
 
-        #endif // DAAL_DISABLE_LEVEL_ZERO
-
-    #endif // __DAAL_SERVICES_INTERNAL_SYCL_DAAL_ZE_MODULE_HELPER_H__
-#endif     // DAAL_SYCL_INTERFACE
+#endif
