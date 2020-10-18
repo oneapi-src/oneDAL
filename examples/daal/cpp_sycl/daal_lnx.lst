@@ -20,6 +20,7 @@
 
 DAAL  = datastructures_soa                    \
         datastructures_usm                    \
+        datastructures_csr                    \
         dbscan_dense_batch                    \
         cor_dense_batch                       \
         cor_dense_distr                       \
@@ -33,6 +34,7 @@ DAAL  = datastructures_soa                    \
         pca_cor_dense_online                  \
         pca_transform_dense_batch             \
         kernel_func_lin_dense_batch           \
+        kernel_func_lin_csr_batch             \
         kernel_func_rbf_dense_batch           \
         kmeans_dense_batch                    \
         kmeans_dense_distr                    \
