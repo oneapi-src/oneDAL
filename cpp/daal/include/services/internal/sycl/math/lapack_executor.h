@@ -24,16 +24,15 @@
 //--
 */
 
+#include <CL/sycl.hpp>
+
 #if (!defined(ONEAPI_DAAL_NO_MKL_GPU_FUNC) && defined(__SYCL_COMPILER_VERSION))
     #include "services/internal/sycl/math/mkl_lapack.h"
 #endif
 
-#include "services/internal/error_handling_helpers.h"
 #include "services/internal/sycl/types_utils.h"
-#include "services/internal/sycl/math/reference_lapack.h"
 #include "services/internal/sycl/math/types.h"
-
-#include <CL/sycl.hpp>
+#include "services/internal/sycl/math/reference_lapack.h"
 
 namespace daal
 {
@@ -143,7 +142,6 @@ public:
     {
         DAAL_ASSERT(!a_buffer.empty());
         DAAL_ASSERT(!b_buffer.empty());
-
         DAAL_ASSERT(a_buffer.type() == b_buffer.type());
 
         Execute op(queue, uplo, n, ny, a_buffer, lda, b_buffer, ldb);

@@ -24,17 +24,16 @@
 //--
 */
 
+#include <CL/sycl.hpp>
+
 #if (!defined(ONEAPI_DAAL_NO_MKL_GPU_FUNC) && defined(__SYCL_COMPILER_VERSION))
     #include "services/internal/sycl/math/mkl_blas.h"
 #endif
 
-#include "services/internal/error_handling_helpers.h"
-#include "services/internal/sycl/math/types.h"
 #include "services/internal/sycl/types_utils.h"
+#include "services/internal/sycl/math/types.h"
 #include "services/internal/sycl/math/reference_gemm.h"
 #include "services/internal/sycl/math/reference_axpy.h"
-
-#include <CL/sycl.hpp>
 
 namespace daal
 {
@@ -135,7 +134,6 @@ public:
         DAAL_ASSERT(!a_buffer.empty());
         DAAL_ASSERT(!b_buffer.empty());
         DAAL_ASSERT(!c_buffer.empty());
-
         DAAL_ASSERT(a_buffer.type() == b_buffer.type());
         DAAL_ASSERT(b_buffer.type() == c_buffer.type());
 
@@ -214,7 +212,6 @@ public:
     {
         DAAL_ASSERT(!a_buffer.empty());
         DAAL_ASSERT(!c_buffer.empty());
-
         DAAL_ASSERT(a_buffer.type() == c_buffer.type());
 
         Execute op(queue, upper_lower, trans, n, k, alpha, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC);
@@ -232,9 +229,6 @@ private:
     template <typename algorithmFPType>
     static Status checkSize(const int n, const Buffer<algorithmFPType> & buffer, const int inc)
     {
-        DAAL_CHECK(n > 0, ErrorIncorrectSizeOfArray);
-        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(int, (n - 1), inc);
-        DAAL_CHECK(size_t((n - 1) * inc) >= buffer.size(), ErrorIncorrectSizeOfArray);
         return Status();
     }
 
@@ -262,11 +256,9 @@ private:
             auto x_buffer_t = x_buffer.template get<algorithmFPType>();
             auto y_buffer_t = y_buffer.template get<algorithmFPType>();
 
-            status |= checkSize(n, x_buffer_t, incx);
-            DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
-
-            status |= checkSize(n, y_buffer_t, incy);
-            DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+            DAAL_ASSERT(n > 0);
+            DAAL_ASSERT(size_t((n - 1) * incx) >= x_buffer_t.size());
+            DAAL_ASSERT(size_t((n - 1) * incy) >= y_buffer_t.size());
 
 #ifdef ONEAPI_DAAL_NO_MKL_GPU_FUNC
             ReferenceAxpy<algorithmFPType> functor;
@@ -283,7 +275,6 @@ public:
     {
         DAAL_ASSERT(!x_buffer.empty());
         DAAL_ASSERT(!y_buffer.empty());
-
         DAAL_ASSERT(x_buffer.type() == y_buffer.type());
 
         Execute op(queue, n, a, x_buffer, incx, y_buffer, incy);
