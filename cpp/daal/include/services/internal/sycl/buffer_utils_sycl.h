@@ -60,7 +60,6 @@ public:
     {
         Allocate allocateOp(bufferSize);
         TypeDispatcher::dispatch(type, allocateOp, status);
-        DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, UniversalBuffer());
         return allocateOp.buffer;
     }
 };
@@ -115,6 +114,10 @@ public:
     static void copy(cl::sycl::queue & queue, UniversalBuffer & dest, size_t dstOffset, UniversalBuffer & src, size_t srcOffset, size_t count,
                      Status & status)
     {
+        DAAL_ASSERT(!src.empty());
+        DAAL_ASSERT(!dest.empty());
+        DAAL_ASSERT(src.type() == dest.type());
+
         Execute op(queue, dest, dstOffset, src, srcOffset, count);
         TypeDispatcher::dispatch(dest.type(), op, status);
     }
@@ -169,6 +172,8 @@ public:
     static void copy(cl::sycl::queue & queue, UniversalBuffer & dest, size_t dstOffset, void * src, size_t srcCount, size_t srcOffset, size_t count,
                      Status & status)
     {
+        DAAL_ASSERT(!dest.empty());
+
         Execute op(queue, dest, dstOffset, src, srcCount, srcOffset, count);
         TypeDispatcher::dispatch(dest.type(), op, status);
     }
@@ -210,6 +215,8 @@ private:
 public:
     static void fill(cl::sycl::queue & queue, UniversalBuffer & dest, double value, Status & status)
     {
+        DAAL_ASSERT(!dest.empty());
+
         Execute op(queue, dest, value);
         TypeDispatcher::dispatch(dest.type(), op, status);
     }
