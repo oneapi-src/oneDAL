@@ -131,18 +131,9 @@ public:
         return getTBlock<int>(vector_idx, vector_num, rwflag, block);
     }
 
-    services::Status releaseBlockOfRows(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
-    {
-        return releaseTBlock<double>(block);
-    }
-    services::Status releaseBlockOfRows(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE
-    {
-        return releaseTBlock<float>(block);
-    }
-    services::Status releaseBlockOfRows(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE
-    {
-        return releaseTBlock<int>(block);
-    }
+    services::Status releaseBlockOfRows(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE { return releaseTBlock<double>(block); }
+    services::Status releaseBlockOfRows(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE { return releaseTBlock<float>(block); }
+    services::Status releaseBlockOfRows(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE { return releaseTBlock<int>(block); }
 
     services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, ReadWriteMode rwflag,
                                             BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
@@ -160,18 +151,9 @@ public:
         return getTFeature<int>(feature_idx, vector_idx, value_num, rwflag, block);
     }
 
-    services::Status releaseBlockOfColumnValues(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
-    {
-        return releaseTFeature<double>(block);
-    }
-    services::Status releaseBlockOfColumnValues(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE
-    {
-        return releaseTFeature<float>(block);
-    }
-    services::Status releaseBlockOfColumnValues(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE
-    {
-        return releaseTFeature<int>(block);
-    }
+    services::Status releaseBlockOfColumnValues(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE { return releaseTFeature<double>(block); }
+    services::Status releaseBlockOfColumnValues(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE { return releaseTFeature<float>(block); }
+    services::Status releaseBlockOfColumnValues(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE { return releaseTFeature<int>(block); }
 
     virtual MemoryStatus getDataMemoryStatus() const DAAL_C11_OVERRIDE
     {
@@ -228,8 +210,8 @@ protected:
         using namespace services::internal::sycl;
 
         Status st;
-        auto & context = services::internal::getDefaultContext();
-        const size_t nrows   = getNumberOfRows();
+        auto & context     = services::internal::getDefaultContext();
+        const size_t nrows = getNumberOfRows();
 
         if (idx >= _arrays.size())
         {
@@ -513,11 +495,11 @@ private:
             TypeDispatcher::dispatch(featureUniBuffer.type(), converter);
 
             auto buffer = converter.getResult(status);
-            if(!status) return services::throwIfPossible(status);
+            if (!status) return services::throwIfPossible(status);
             DAAL_ASSERT(buffer.size() == nrows);
 
             auto colSharedPtr = buffer.toHost(readOnly, status);
-            if(!status) return services::throwIfPossible(status);
+            if (!status) return services::throwIfPossible(status);
 
             T * colPtr = colSharedPtr.get();
 
@@ -554,19 +536,19 @@ private:
 
             auto blockBuffer    = block.getBuffer();
             auto blockSharedPtr = blockBuffer.toHost(readOnly, st);
-            if(!st) return services::throwIfPossible(st);
+            if (!st) return services::throwIfPossible(st);
 
             T * blockPtr = blockSharedPtr.get();
 
             auto & context  = services::internal::getDefaultContext();
             auto tempColumn = context.allocate(TypeIds::id<T>(), nrows, st);
-            if(!st) return services::throwIfPossible(st);
+            if (!st) return services::throwIfPossible(st);
 
             for (size_t j = 0; j < ncols; j++)
             {
                 {
                     auto tempColumnSharedPtr = tempColumn.template get<T>().toHost(readWrite, st);
-                    if(!st) return services::throwIfPossible(st);
+                    if (!st) return services::throwIfPossible(st);
 
                     T * tempColumnPtr = tempColumnSharedPtr.get();
 
@@ -581,7 +563,7 @@ private:
                 TypeDispatcher::dispatch(uniBuffer.type(), converter);
 
                 _arrays[j] = converter.getResult(st);
-                if(!st) return services::throwIfPossible(st);
+                if (!st) return services::throwIfPossible(st);
             }
         }
         block.reset();
@@ -589,7 +571,7 @@ private:
     }
 
     template <typename T>
-    services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
+    services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T> & block)
     {
         using namespace services::internal::sycl;
 
@@ -598,7 +580,7 @@ private:
             return _cpuTable->getBlockOfColumnValues(feat_idx, idx, nrows, rwFlag, block);
         }
 
-        const size_t nobs = getNumberOfRows();
+        const size_t nobs  = getNumberOfRows();
         const size_t ncols = getNumberOfColumns();
 
         if (feat_idx >= ncols)
@@ -663,7 +645,7 @@ private:
 
             NumericTableFeature & f = (*_ddict)[feat_idx];
 
-            auto uniBuffer = _arrays[feat_idx];
+            auto uniBuffer   = _arrays[feat_idx];
             auto blockBuffer = block.getBuffer();
             if ((features::internal::getIndexNumType<T>() != f.indexType) || (uniBuffer.get<T>() != blockBuffer))
             {
