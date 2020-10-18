@@ -57,7 +57,8 @@ void run_quick_select_simd(ExecutionContextIface & context, ClKernelFactoryIface
     range.local(localRange, status);
     DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
-    KernelArguments args(10);
+    KernelArguments args(10, status);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
     args.set(0, dataVectors, AccessModeIds::read);
     args.set(1, indexVectors, AccessModeIds::read);
     args.set(2, result.values, AccessModeIds::write);
@@ -89,7 +90,8 @@ static void run_direct_select_simd(ExecutionContextIface & context, ClKernelFact
     range.local(localRange, status);
     DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
-    KernelArguments args(7);
+    KernelArguments args(7, status);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
     args.set(0, dataVectors, AccessModeIds::read);
     args.set(1, result.values, AccessModeIds::write);
     args.set(2, result.indices, AccessModeIds::write);
@@ -204,7 +206,7 @@ Status QuickSelectIndexed::init(Params & par)
     auto & context = Environment::getInstance()->getDefaultExecutionContext();
     _rndSeq        = context.allocate(par.type, _nRndSeq, st);
     DAAL_CHECK_STATUS_VAR(st);
-    context.copy(_rndSeq, 0, (void *)&values[0], 0, _nRndSeq, st);
+    context.copy(_rndSeq, 0, (void *)&values[0], _nRndSeq, 0, _nRndSeq, st);
     DAAL_CHECK_STATUS_VAR(st);
     return st;
 }

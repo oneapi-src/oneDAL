@@ -136,7 +136,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
         DAAL_ASSERT(nMaxBinsAmongFtrs <= _int32max);
         DAAL_ASSERT(minObservationsInLeafNode <= _int32max);
 
-        KernelArguments args(13);
+        KernelArguments args(13, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, nodeHistogramList, AccessModeIds::read);
         args.set(1, selectedFeatures, AccessModeIds::read);
         args.set(2, static_cast<int32_t>(nSelectedFeatures));
@@ -192,7 +193,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
         DAAL_ASSERT(nFeatures <= _int32max);
         DAAL_ASSERT(minObservationsInLeafNode <= _int32max);
 
-        KernelArguments args(15);
+        KernelArguments args(15, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, data, AccessModeIds::read);
         args.set(1, treeOrder, AccessModeIds::read);
         args.set(2, selectedFeatures, AccessModeIds::read);
@@ -322,7 +324,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
         DAAL_ASSERT(nMaxBinsAmongFtrs <= _int32max);
         DAAL_ASSERT(nFeatures <= _int32max);
 
-        KernelArguments args(11);
+        KernelArguments args(11, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, data, AccessModeIds::read);
         args.set(1, treeOrder, AccessModeIds::read);
         args.set(2, nodeList, AccessModeIds::read);
@@ -373,7 +376,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::reduce
         DAAL_ASSERT(nSelectedFeatures <= _int32max);
         DAAL_ASSERT(nMaxBinsAmongFtrs <= _int32max);
 
-        KernelArguments args(5);
+        KernelArguments args(5, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, partialHistograms, AccessModeIds::read);
         args.set(1, histograms, AccessModeIds::write);
         args.set(2, static_cast<int32_t>(nPartialHistograms));
@@ -791,7 +795,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
             rng.uniform(nSelectedRows, selectedRowsHost.get(), engineImpl->getState(), 0, nRows);
             daal::algorithms::internal::qSort<int, sse2>(nSelectedRows, selectedRowsHost.get());
 
-            context.copy(treeOrderLev, 0, (void *)selectedRowsHost.get(), 0, nSelectedRows, status);
+            context.copy(treeOrderLev, 0, (void *)selectedRowsHost.get(), nSelectedRows, 0, nSelectedRows, status);
             DAAL_CHECK_STATUS_VAR(status);
         }
 
@@ -833,7 +837,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
                 }
             }
 
-            context.copy(selectedFeaturesCom, 0, (void *)selectedFeaturesHost.get(), 0, nSelectedFeatures * nNodes, status);
+            context.copy(selectedFeaturesCom, 0, (void *)selectedFeaturesHost.get(), nSelectedFeatures * nNodes, 0, nSelectedFeatures * nNodes,
+                         status);
             DAAL_CHECK_STATUS_VAR(status);
 
             if (mdiRequired)

@@ -55,10 +55,9 @@ struct DAAL_EXPORT ReferenceGemm
     ReferenceGemm() {}
 
     Status operator()(const math::Transpose transa, const math::Transpose transb, const size_t m, const size_t n, const size_t k,
-                                const algorithmFPType alpha, const Buffer<algorithmFPType> & a_buffer, const size_t lda,
-                                const size_t offsetA, const Buffer<algorithmFPType> & b_buffer, const size_t ldb,
-                                const size_t offsetB, const algorithmFPType beta, Buffer<algorithmFPType> & c_buffer,
-                                const size_t ldc, const size_t offsetC);
+                      const algorithmFPType alpha, const Buffer<algorithmFPType> & a_buffer, const size_t lda, const size_t offsetA,
+                      const Buffer<algorithmFPType> & b_buffer, const size_t ldb, const size_t offsetB, const algorithmFPType beta,
+                      Buffer<algorithmFPType> & c_buffer, const size_t ldc, const size_t offsetC);
 };
 
 /** @} */

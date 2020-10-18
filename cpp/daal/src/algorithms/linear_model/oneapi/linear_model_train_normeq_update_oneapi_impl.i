@@ -200,7 +200,8 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::reduceResults(services::in
     KernelPtr kernel              = factory.getKernel(kernelName, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(6);
+    KernelArguments args(6, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, dst, AccessModeIds::write);
     args.set(1, dstOffset);
     args.set(2, dstStride);

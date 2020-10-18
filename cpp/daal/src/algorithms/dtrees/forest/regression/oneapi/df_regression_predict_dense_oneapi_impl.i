@@ -224,11 +224,11 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees
 
     algorithmFPType probasScale = (algorithmFPType)1 / nTrees;
 
-    context.copy(ftrIdxArr, 0, (void *)tFI.get(), 0, treeBlockSize, status);
+    context.copy(ftrIdxArr, 0, (void *)tFI.get(), treeBlockSize, 0, treeBlockSize, status);
     DAAL_CHECK_STATUS_VAR(status);
-    context.copy(leftNodeIdxOrClassIdArr, 0, (void *)tLC.get(), 0, treeBlockSize, status);
+    context.copy(leftNodeIdxOrClassIdArr, 0, (void *)tLC.get(), treeBlockSize, 0, treeBlockSize, status);
     DAAL_CHECK_STATUS_VAR(status);
-    context.copy(ftrValueOrResponseArr, 0, (void *)tFV.get(), 0, treeBlockSize, status);
+    context.copy(ftrValueOrResponseArr, 0, (void *)tFV.get(), treeBlockSize, 0, treeBlockSize, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     DAAL_CHECK_STATUS_VAR(
@@ -283,7 +283,8 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesGro
 
         for (size_t procTrees = 0; procTrees < nTrees; procTrees += _nTreeGroups)
         {
-            KernelArguments args(10);
+            KernelArguments args(10, status);
+            DAAL_CHECK_STATUS_VAR(status);
             args.set(0, srcBuffer, AccessModeIds::read);
             args.set(1, featureIndexList, AccessModeIds::read);
             args.set(2, leftOrClassTypeList, AccessModeIds::read);
@@ -322,7 +323,8 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::reduceResponse(co
         DAAL_ASSERT(nRows <= _int32max);
         DAAL_ASSERT(nTrees <= _int32max);
 
-        KernelArguments args(5);
+        KernelArguments args(5, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, obsResponses, AccessModeIds::read);
         args.set(1, resObsResponse, AccessModeIds::readwrite);
         args.set(2, static_cast<int32_t>(nRows));

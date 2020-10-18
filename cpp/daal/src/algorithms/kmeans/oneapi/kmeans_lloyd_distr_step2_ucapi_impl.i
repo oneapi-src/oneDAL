@@ -229,7 +229,8 @@ void KMeansDistributedStep2KernelUCAPI<algorithmFPType>::updateClusters(bool ini
     auto kernelUpdateClusters = init ? kernelFactory.getKernel("init_clusters", st) : kernelFactory.getKernel("update_clusters", st);
     DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
 
-    KernelArguments args(5);
+    KernelArguments args(5, st);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
     args.set(0, partialCentroidsCounters, AccessModeIds::read);
     args.set(1, partialCentroids, AccessModeIds::read);
     args.set(2, centroidCounters, AccessModeIds::readwrite);
@@ -264,7 +265,8 @@ void KMeansDistributedStep2KernelUCAPI<algorithmFPType>::updateCandidates(bool i
     auto kernelUpdateCandidates = init ? kernelFactory.getKernel("init_candidates", st) : kernelFactory.getKernel("update_candidates", st);
     DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
 
-    KernelArguments args(5);
+    KernelArguments args(5, st);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
     args.set(0, partialCandidates, AccessModeIds::read);
     args.set(1, partialCValues, AccessModeIds::read);
     args.set(2, candidates, AccessModeIds::readwrite);

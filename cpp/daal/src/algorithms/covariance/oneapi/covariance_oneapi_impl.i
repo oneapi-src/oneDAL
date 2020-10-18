@@ -215,7 +215,8 @@ services::Status mergeCrossProduct(size_t nFeatures, const services::internal::B
         const algorithmFPType invNObs        = (algorithmFPType)(1.0) / nObservations;
         const algorithmFPType invNewNObs     = (algorithmFPType)(1.0) / (nObservations + partialNObservations);
 
-        KernelArguments args(8);
+        KernelArguments args(8, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, static_cast<uint32_t>(nFeatures));
         args.set(1, partialCrossProduct, AccessModeIds::read);
         args.set(2, partialSums, AccessModeIds::read);
@@ -273,7 +274,8 @@ services::Status prepareMeansAndCrossProductDiag(size_t nFeatures, algorithmFPTy
     auto kernel = factory.getKernel("prepareMeansAndCrossProductDiag", status);
     DAAL_CHECK_STATUS_VAR(status);
     {
-        KernelArguments args(6);
+        KernelArguments args(6, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, static_cast<uint32_t>(nFeatures));
         args.set(1, nObservations);
         args.set(2, crossProduct, AccessModeIds::read);
@@ -314,7 +316,8 @@ services::Status finalize(size_t nFeatures, algorithmFPType nObservations, const
     {
         uint32_t isOutputCorrelationMatrix = parameter->outputMatrixType == covariance::correlationMatrix;
 
-        KernelArguments args(6);
+        KernelArguments args(6, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, static_cast<uint32_t>(nFeatures));
         args.set(1, nObservations);
         args.set(2, crossProduct, AccessModeIds::read);

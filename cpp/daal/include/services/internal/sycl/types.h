@@ -25,13 +25,12 @@
 #include "services/internal/any.h"
 #include "services/internal/buffer.h"
 
-#define DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(buffer, BufferType)  \
-    DAAL_ASSERT((buffer).type() == TypeIds::id<BufferType>());
+#define DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(buffer, BufferType) DAAL_ASSERT((buffer).type() == TypeIds::id<BufferType>());
 
 #define DAAL_ASSERT_UNIVERSAL_BUFFER(buffer, BufferType, bufferSize)             \
     {                                                                            \
         DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(buffer, BufferType)                    \
-        DAAL_ASSERT((buffer).template get<BufferTYpe>().size() == (bufferSize)); \
+        DAAL_ASSERT((buffer).template get<BufferType>().size() == (bufferSize)); \
     }
 
 namespace daal
@@ -58,25 +57,25 @@ typedef float float32_t;
 typedef double float64_t;
 
 template <typename algorithmFPType>
-inline services::String getKeyFPType()
+inline String getKeyFPType()
 {
     if (IsSameType<algorithmFPType, float>::value)
     {
-        return services::String(" -D algorithmFPType=float -D algorithmFPType2=float2 -D algorithmFPType4=float4 ");
+        return String(" -D algorithmFPType=float -D algorithmFPType2=float2 -D algorithmFPType4=float4 ");
     }
     if (IsSameType<algorithmFPType, double>::value)
     {
-        return services::String(" -D algorithmFPType=double -D algorithmFPType2=double2  -D algorithmFPType4=double4 ");
+        return String(" -D algorithmFPType=double -D algorithmFPType2=double2  -D algorithmFPType4=double4 ");
     }
     if (IsSameType<algorithmFPType, int32_t>::value)
     {
-        return services::String(" -D algorithmFPType=int -D algorithmFPType2=int2  -D algorithmFPType4=int4 ");
+        return String(" -D algorithmFPType=int -D algorithmFPType2=int2  -D algorithmFPType4=int4 ");
     }
     if (IsSameType<algorithmFPType, uint32_t>::value)
     {
-        return services::String(" -D algorithmFPType=uint -D algorithmFPType2=uint2  -D algorithmFPType4=uint4 ");
+        return String(" -D algorithmFPType=uint -D algorithmFPType2=uint2  -D algorithmFPType4=uint4 ");
     }
-    return services::String();
+    return String();
 }
 
 namespace interface1
@@ -194,7 +193,7 @@ typedef AccessModeIds::Id AccessModeId;
 
 /**
  *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__UNIVERSALBUFFER"></a>
- *  \brief Non-templated wrapper for services::Buffer object
+ *  \brief Non-templated wrapper for Buffer object
  */
 class UniversalBuffer : public Base
 {

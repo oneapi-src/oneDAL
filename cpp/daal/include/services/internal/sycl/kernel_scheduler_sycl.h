@@ -185,7 +185,7 @@ public:
             }
         }
 
-        status |= services::ErrorDeviceSupportNotImplemented;
+        status |= ErrorDeviceSupportNotImplemented;
     }
 
     OpenClDeviceRef & getOpenClDeviceRef() { return _clDeviceRef; }
@@ -234,23 +234,17 @@ private:
 
         err = clBuildProgram(get(), 1, &clDevice, options, nullptr, nullptr);
 
-        #ifdef DAAL_EXECUTION_CONTEXT_VERBOSE
-        if (err == CL_BUILD_PROGRAM_FAILURE)
-        {
+        DAAL_ASSERT_DECL(if (err == CL_BUILD_PROGRAM_FAILURE) {
             size_t logLen = 0;
             clGetProgramBuildInfo(get(), clDevice, CL_PROGRAM_BUILD_LOG, 0, nullptr, &logLen);
-            services::Collection<char> buildLogCollection(logLen);
-            char * buildLog = buildLogCollection.data();
-            if (buildLog == nullptr)
+            String buildLog(logLen);
+            if (buildLog.c_str())
             {
-                printf("common_ocl.ocdBuildProgramFromFile() - Heap Overflow! Cannot "
-                       "allocate space for buildLog.");
-                DAAL_CHECK_OPENCL(err, status)
+                clGetProgramBuildInfo(get(), clDevice, CL_PROGRAM_BUILD_LOG, logLen, (void *)(buildLog.c_str()), nullptr);
+                fprintf(stderr, "Failed to build OpenCL program (%d):\n%s", err, buildLog.c_str());
             }
-            clGetProgramBuildInfo(get(), clDevice, CL_PROGRAM_BUILD_LOG, logLen, (void *)buildLog, nullptr);
-            printf("CL Error %d: Failed to build program! Log:\n%s", err, buildLog);
-        }
-        #endif
+        })
+
         DAAL_CHECK_OPENCL(err, status)
     }
 
@@ -260,21 +254,21 @@ private:
         size_t binarySize = 0;
         DAAL_CHECK_OPENCL(clGetProgramInfo(get(), CL_PROGRAM_BINARY_SIZES, sizeof(size_t), &binarySize, NULL), status);
 
-        auto binary = (unsigned char *)daal::services::daal_malloc(binarySize);
+        auto binary = (unsigned char *)daal_malloc(binarySize);
         if (binary == nullptr)
         {
-            status |= services::ErrorMemoryAllocationFailed;
+            status |= ErrorMemoryAllocationFailed;
             return;
         }
 
         DAAL_CHECK_OPENCL(clGetProgramInfo(get(), CL_PROGRAM_BINARIES, sizeof(binary), &binary, NULL), status);
         _moduleLevelZeroPtr.reset(new ZeModuleHelper(deviceQueue, binarySize, binary, status));
-        daal::services::daal_free(binary);
+        daal_free(binary);
     }
         #endif // DAAL_DISABLE_LEVEL_ZERO
 
 private:
-    services::String _programName;
+    String _programName;
         #ifndef DAAL_DISABLE_LEVEL_ZERO
     ZeModuleHelperPtr _moduleLevelZeroPtr;
         #endif // DAAL_DISABLE_LEVEL_ZERO
@@ -304,7 +298,7 @@ public:
     const char * getName() const { return _kernelName.c_str(); }
 
 private:
-    services::String _kernelName;
+    String _kernelName;
 };
         #endif // DAAL_DISABLE_LEVEL_ZERO
 
@@ -315,8 +309,7 @@ public:
         : _executionTarget(executionTarget), _clProgramRef(programRef)
     {}
 
-    void schedule(KernelSchedulerIface & scheduler, const KernelRange & range, const KernelArguments & args,
-                  Status & status) const DAAL_C11_OVERRIDE
+    void schedule(KernelSchedulerIface & scheduler, const KernelRange & range, const KernelArguments & args, Status & status) const DAAL_C11_OVERRIDE
     {
         scheduler.schedule(*this, range, args, status);
     }
@@ -372,7 +365,7 @@ private:
 class SyclBufferStorage
 {
 public:
-    SyclBufferStorage() = default;
+    SyclBufferStorage()                          = default;
     SyclBufferStorage(const SyclBufferStorage &) = delete;
     SyclBufferStorage & operator=(const SyclBufferStorage &) = delete;
 
@@ -415,7 +408,8 @@ private:
 
         // Note: we need this storage to keep all sycl buffers alive
         // while the kernel is running
-        if (!_storage.add(buffer)) {
+        if (!_storage.add(buffer))
+        {
             status |= ErrorMemoryAllocationFailed;
             return;
         }
@@ -538,7 +532,6 @@ public:
     }
 
 private:
-
     template <typename Range>
     void scheduleImpl(const Range & range, const OpenClKernel & kernel, const KernelArguments & args, Status & status)
     {
@@ -546,7 +539,7 @@ private:
         {
         case ExecutionTargetIds::device: return scheduleOnDevice(range, kernel, args, status);
 
-        case ExecutionTargetIds::host: status |= services::ErrorMethodNotImplemented; return;
+        case ExecutionTargetIds::host: status |= ErrorMethodNotImplemented; return;
         }
 
         DAAL_ASSERT(!"Unexpected execution target");

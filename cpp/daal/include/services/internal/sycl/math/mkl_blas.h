@@ -24,8 +24,10 @@
 #ifndef __ONEAPI_INTERNAL_MKL_BLAS_H__
 #define __ONEAPI_INTERNAL_MKL_BLAS_H__
 
+#include <mkl_dal_sycl.hpp>
+
 #include "services/internal/buffer.h"
-#include "mkl_dal_sycl.hpp"
+#include "services/internal/sycl/error_handling_sycl.h"
 
 namespace daal
 {
@@ -53,10 +55,9 @@ struct MKLGemm
     MKLGemm(cl::sycl::queue & queue) : _queue(queue) {}
 
     Status operator()(const math::Transpose transa, const math::Transpose transb, const size_t m, const size_t n, const size_t k,
-                                const algorithmFPType alpha, const Buffer<algorithmFPType> & a_buffer, const size_t lda,
-                                const size_t offsetA, const Buffer<algorithmFPType> & b_buffer, const size_t ldb,
-                                const size_t offsetB, const algorithmFPType beta, Buffer<algorithmFPType> & c_buffer,
-                                const size_t ldc, const size_t offsetC)
+                      const algorithmFPType alpha, const Buffer<algorithmFPType> & a_buffer, const size_t lda, const size_t offsetA,
+                      const Buffer<algorithmFPType> & b_buffer, const size_t ldb, const size_t offsetB, const algorithmFPType beta,
+                      Buffer<algorithmFPType> & c_buffer, const size_t ldc, const size_t offsetC)
     {
         Status status;
 
@@ -64,13 +65,19 @@ struct MKLGemm
         const MKL_TRANSPOSE transbmkl = transb == math::Transpose::Trans ? MKL_TRANS : MKL_NOTRANS;
 
         cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a_buffer.toSycl(status);
+        DAAL_CHECK_STATUS_VAR(status);
+
         cl::sycl::buffer<algorithmFPType, 1> b_sycl_buff = b_buffer.toSycl(status);
+        DAAL_CHECK_STATUS_VAR(status);
+
         cl::sycl::buffer<algorithmFPType, 1> c_sycl_buff = c_buffer.toSycl(status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        innerGemm(transamkl, transbmkl, m, n, k, alpha, a_sycl_buff, lda, b_sycl_buff, ldb, beta, c_sycl_buff, ldc, offsetA, offsetB, offsetC);
+        status |= catchSyclExceptions([&]() mutable {
+            innerGemm(transamkl, transbmkl, m, n, k, alpha, a_sycl_buff, lda, b_sycl_buff, ldb, beta, c_sycl_buff, ldc, offsetA, offsetB, offsetC);
+            _queue.wait_and_throw();
+        });
 
-        _queue.wait();
         return status;
     }
 
@@ -108,10 +115,9 @@ struct MKLSyrk
 {
     MKLSyrk(cl::sycl::queue & queue) : _queue(queue) {}
 
-    Status operator()(const math::UpLo upper_lower, const math::Transpose trans, const size_t n, const size_t k,
-                                const algorithmFPType alpha, const Buffer<algorithmFPType> & a_buffer, const size_t lda,
-                                const size_t offsetA, const algorithmFPType beta, Buffer<algorithmFPType> & c_buffer,
-                                const size_t ldc, const size_t offsetC)
+    Status operator()(const math::UpLo upper_lower, const math::Transpose trans, const size_t n, const size_t k, const algorithmFPType alpha,
+                      const Buffer<algorithmFPType> & a_buffer, const size_t lda, const size_t offsetA, const algorithmFPType beta,
+                      Buffer<algorithmFPType> & c_buffer, const size_t ldc, const size_t offsetC)
     {
         Status status;
 
@@ -119,12 +125,16 @@ struct MKLSyrk
         const MKL_UPLO uplomkl       = upper_lower == math::UpLo::Upper ? MKL_UPPER : MKL_LOWER;
 
         cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a_buffer.toSycl(status);
+        DAAL_CHECK_STATUS_VAR(status);
+
         cl::sycl::buffer<algorithmFPType, 1> c_sycl_buff = c_buffer.toSycl(status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        innerSyrk(uplomkl, transmkl, n, k, alpha, a_sycl_buff, lda, beta, c_sycl_buff, ldc, offsetA, offsetC);
+        status |= catchSyclExceptions([&]() mutable {
+            innerSyrk(uplomkl, transmkl, n, k, alpha, a_sycl_buff, lda, beta, c_sycl_buff, ldc, offsetA, offsetC);
+            _queue.wait_and_throw();
+        });
 
-        _queue.wait();
         return status;
     }
 
@@ -160,17 +170,21 @@ struct MKLAxpy
     MKLAxpy(cl::sycl::queue & queue) : _queue(queue) {}
 
     Status operator()(const int n, const algorithmFPType a, const Buffer<algorithmFPType> & x_buffer, const int incx,
-                                Buffer<algorithmFPType> & y_buffer, const int incy)
+                      Buffer<algorithmFPType> & y_buffer, const int incy)
     {
         Status status;
 
         cl::sycl::buffer<algorithmFPType, 1> x_sycl_buff = x_buffer.toSycl(status);
+        DAAL_CHECK_STATUS_VAR(status);
+
         cl::sycl::buffer<algorithmFPType, 1> y_sycl_buff = y_buffer.toSycl(status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        ::oneapi::fpk::blas::axpy(_queue, n, a, x_sycl_buff, incx, y_sycl_buff, incy);
+        status |= catchSyclExceptions([&]() mutable {
+            ::oneapi::fpk::blas::axpy(_queue, n, a, x_sycl_buff, incx, y_sycl_buff, incy);
+            _queue.wait_and_throw();
+        });
 
-        _queue.wait();
         return status;
     }
 

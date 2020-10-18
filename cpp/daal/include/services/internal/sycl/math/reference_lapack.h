@@ -66,8 +66,8 @@ struct DAAL_EXPORT ReferencePotrs
 {
     ReferencePotrs() {}
 
-    Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, Buffer<algorithmFPType> & a_buffer,
-                                const size_t lda, Buffer<algorithmFPType> & b_buffer, const size_t ldb);
+    Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, Buffer<algorithmFPType> & a_buffer, const size_t lda,
+                      Buffer<algorithmFPType> & b_buffer, const size_t ldb);
 };
 
 /** @} */

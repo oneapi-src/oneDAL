@@ -55,7 +55,8 @@ services::Status Partition::scan(ClKernelFactoryIface & factory, UniversalBuffer
     auto kernel    = factory.getKernel("scan", status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(3);
+    KernelArguments args(3, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, mask, AccessModeIds::read);
     args.set(1, partialSums, AccessModeIds::write);
     args.set(2, (int)nElems);
@@ -86,7 +87,8 @@ services::Status Partition::scanIndex(ClKernelFactoryIface & factory, UniversalB
     auto kernel    = factory.getKernel("scanIndex", status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(4);
+    KernelArguments args(4, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, mask, AccessModeIds::read);
     args.set(1, data, AccessModeIds::read);
     args.set(2, partialSums, AccessModeIds::write);
@@ -117,7 +119,8 @@ services::Status Partition::sumScan(ClKernelFactoryIface & factory, UniversalBuf
     auto kernel    = factory.getKernel("sumScan", status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(4);
+    KernelArguments args(4, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, partialSums, AccessModeIds::read);
     args.set(1, partialPrefixSums, AccessModeIds::write);
     args.set(2, totalSum, AccessModeIds::write);
@@ -149,7 +152,8 @@ services::Status Partition::reorder(ClKernelFactoryIface & factory, UniversalBuf
     auto kernel    = factory.getKernel("reorder", status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(5);
+    KernelArguments args(5, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, mask, AccessModeIds::read);
     args.set(1, data, AccessModeIds::read);
     args.set(2, outData, AccessModeIds::write);
@@ -182,7 +186,8 @@ services::Status Partition::reorderIndex(ClKernelFactoryIface & factory, Univers
     auto kernel    = factory.getKernel("reorderIndex", status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(5);
+    KernelArguments args(5, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, mask, AccessModeIds::read);
     args.set(1, data, AccessModeIds::read);
     args.set(2, outData, AccessModeIds::write);

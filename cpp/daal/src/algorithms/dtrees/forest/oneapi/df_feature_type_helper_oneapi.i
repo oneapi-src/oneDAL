@@ -158,7 +158,8 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::extractColumn(const ser
     DAAL_CHECK_STATUS_VAR(status);
 
     {
-        KernelArguments args(6);
+        KernelArguments args(6, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, data, AccessModeIds::read);
         args.set(1, values, AccessModeIds::write);
         args.set(2, indices, AccessModeIds::write);
@@ -191,7 +192,8 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::collectBinBorders(Unive
     DAAL_CHECK_STATUS_VAR(status);
 
     {
-        KernelArguments args(3);
+        KernelArguments args(3, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, values, AccessModeIds::read);
         args.set(1, binOffsets, AccessModeIds::read);
         args.set(2, binBorders, AccessModeIds::write);
@@ -223,7 +225,8 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
     DAAL_CHECK_STATUS_VAR(status);
 
     {
-        KernelArguments args(6);
+        KernelArguments args(6, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, values, AccessModeIds::read);
         args.set(1, indices, AccessModeIds::read);
         args.set(2, binBorders, AccessModeIds::read);
@@ -329,7 +332,8 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::storeColumn(const Unive
     DAAL_CHECK_STATUS_VAR(status);
 
     {
-        KernelArguments args(5);
+        KernelArguments args(5, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, data, AccessModeIds::read);
         args.set(1, fullData, AccessModeIds::write);
         args.set(2, featureId);

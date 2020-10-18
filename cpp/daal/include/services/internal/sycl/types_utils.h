@@ -86,7 +86,7 @@ private:
     }
 };
 
-services::String getKeyFPType(TypeId typeId);
+String getKeyFPType(TypeId typeId);
 
 /** @} */
 

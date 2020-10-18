@@ -27,7 +27,6 @@ namespace sycl
 {
 namespace interface1
 {
-
 struct TypeToStringConverter
 {
     services::String result;

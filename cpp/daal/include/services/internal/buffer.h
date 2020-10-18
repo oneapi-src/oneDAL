@@ -65,8 +65,7 @@ public:
      *  \param[in]  buffer  SYCL* buffer
      *  \param[out] status  Status of operation
      */
-    Buffer(const cl::sycl::buffer<T, 1> & buffer, Status & status) :
-            _impl(internal::SyclBuffer<T>::create(buffer, status)) {}
+    Buffer(const cl::sycl::buffer<T, 1> & buffer, Status & status) : _impl(internal::SyclBuffer<T>::create(buffer, status)) {}
 
     #ifndef DAAL_NOTHROW_EXCEPTIONS
     /**
@@ -80,7 +79,7 @@ public:
         throwIfPossible(status);
     }
     #endif // DAAL_NOTHROW_EXCEPTIONS
-#endif // DAAL_SYCL_INTERFACE_USM
+#endif     // DAAL_SYCL_INTERFACE_USM
 
 #ifdef DAAL_SYCL_INTERFACE_USM
     /**
@@ -91,8 +90,9 @@ public:
      *  \param[in] allocType  USM allocation type
      *  \param[out] status    Status of operation
      */
-    Buffer(T * usmData, size_t size, cl::sycl::usm::alloc allocType, Status & status) :
-        _impl(internal::UsmBuffer<T>::create(usmData, size, allocType, status)) {}
+    Buffer(T * usmData, size_t size, cl::sycl::usm::alloc allocType, Status & status)
+        : _impl(internal::UsmBuffer<T>::create(usmData, size, allocType, status))
+    {}
 
     #ifndef DAAL_NOTHROW_EXCEPTIONS
     /**
@@ -109,7 +109,7 @@ public:
         throwIfPossible(status);
     }
     #endif // DAAL_NOTHROW_EXCEPTIONS
-#endif // DAAL_SYCL_INTERFACE_USM
+#endif     // DAAL_SYCL_INTERFACE_USM
 
 #ifdef DAAL_SYCL_INTERFACE_USM
     /**
@@ -121,7 +121,8 @@ public:
      *  \param[out] status    Status of operation
      */
     Buffer(const SharedPtr<T> & usmData, size_t size, cl::sycl::usm::alloc allocType, Status & status)
-            : _impl(internal::UsmBuffer<T>::create(usmData, size, allocType, status)) {}
+        : _impl(internal::UsmBuffer<T>::create(usmData, size, allocType, status))
+    {}
 
     #ifndef DAAL_NOTHROW_EXCEPTIONS
     /**
@@ -139,7 +140,7 @@ public:
         throwIfPossible(status);
     }
     #endif // DAAL_NOTHROW_EXCEPTIONS
-#endif // DAAL_SYCL_INTERFACE_USM
+#endif     // DAAL_SYCL_INTERFACE_USM
 
     /**
      *   Creates a Buffer object from host-allocated raw pointer

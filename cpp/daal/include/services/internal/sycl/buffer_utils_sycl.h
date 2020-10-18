@@ -51,9 +51,7 @@ private:
         template <typename T>
         void operator()(Typelist<T>, Status & status)
         {
-            status |= catchSyclExceptions([&]() mutable {
-                buffer = Buffer<T>(cl::sycl::buffer<T, 1>(bufferSize), status);
-            });
+            status |= catchSyclExceptions([&]() mutable { buffer = Buffer<T>(cl::sycl::buffer<T, 1>(bufferSize), status); });
         }
     };
 
@@ -90,11 +88,17 @@ private:
         template <typename T>
         void operator()(Typelist<T>, Status & status)
         {
+            DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(srcUnivers, T);
+            DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(dstUnivers, T);
+
             auto src = srcUnivers.get<T>().toSycl(status);
             DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
             auto dst = dstUnivers.get<T>().toSycl(status);
             DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+
+            DAAL_ASSERT(src.get_count() >= srcOffset + count);
+            DAAL_ASSERT(dst.get_count() >= dstOffset + count);
 
             status |= catchSyclExceptions([&]() mutable {
                 cl::sycl::event event = queue.submit([&](cl::sycl::handler & cgh) {
@@ -129,19 +133,27 @@ private:
         UniversalBuffer & dstUnivers;
         size_t dstOffset;
         void * srcArray;
+        size_t srcCount;
         size_t srcOffset;
         size_t count;
 
-        explicit Execute(cl::sycl::queue & queue, UniversalBuffer & dst, size_t desOffset, void * src, size_t srcOffset, size_t count)
-            : queue(queue), dstUnivers(dst), dstOffset(desOffset), srcArray(src), srcOffset(srcOffset), count(count)
+        explicit Execute(cl::sycl::queue & queue, UniversalBuffer & dst, size_t desOffset, void * src, size_t srcCount, size_t srcOffset,
+                         size_t count)
+            : queue(queue), dstUnivers(dst), dstOffset(desOffset), srcArray(src), srcCount(srcCount), srcOffset(srcOffset), count(count)
         {}
 
         template <typename T>
         void operator()(Typelist<T>, Status & status)
         {
+            DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(dstUnivers, T);
+
             auto src = (T *)srcArray;
             auto dst = dstUnivers.get<T>().toSycl(status);
             DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+
+            DAAL_ASSERT(srcArray);
+            DAAL_ASSERT(srcCount >= srcOffset + count);
+            DAAL_ASSERT(dst.get_count() >= dstOffset + count);
 
             status |= catchSyclExceptions([&]() mutable {
                 cl::sycl::event event = queue.submit([&](cl::sycl::handler & cgh) {
@@ -154,10 +166,10 @@ private:
     };
 
 public:
-    static void copy(cl::sycl::queue & queue, UniversalBuffer & dest, size_t dstOffset, void * src, size_t srcOffset, size_t count,
+    static void copy(cl::sycl::queue & queue, UniversalBuffer & dest, size_t dstOffset, void * src, size_t srcCount, size_t srcOffset, size_t count,
                      Status & status)
     {
-        Execute op(queue, dest, dstOffset, src, srcOffset, count);
+        Execute op(queue, dest, dstOffset, src, srcCount, srcOffset, count);
         TypeDispatcher::dispatch(dest.type(), op, status);
     }
 };
@@ -175,13 +187,13 @@ private:
         UniversalBuffer & dstUnivers;
         double value;
 
-        explicit Execute(cl::sycl::queue & queue, UniversalBuffer & dest, double value)
-            : queue(queue), dstUnivers(dest), value(value)
-        {}
+        explicit Execute(cl::sycl::queue & queue, UniversalBuffer & dest, double value) : queue(queue), dstUnivers(dest), value(value) {}
 
         template <typename T>
         void operator()(Typelist<T>, Status & status)
         {
+            DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(dstUnivers, T);
+
             auto dst = dstUnivers.get<T>().toSycl(status);
             DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 

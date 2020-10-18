@@ -48,8 +48,8 @@ public:
 
     void build(ExecutionTargetId target, const char * name, const char * program, const char * options, Status & status) DAAL_C11_OVERRIDE
     {
-        services::String key = name;
-        const bool res       = programHashTable.contain(key, status);
+        String key     = name;
+        const bool res = programHashTable.contain(key, status);
         DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
         if (!res)
@@ -60,7 +60,7 @@ public:
             {
         #endif // DAAL_DISABLE_LEVEL_ZERO \
             // OpenCl branch
-                auto programPtr = services::SharedPtr<OpenClProgramRef>(
+                auto programPtr = SharedPtr<OpenClProgramRef>(
                     new OpenClProgramRef(_deviceQueue.get_context().get(), _deviceQueue.get_device().get(), name, program, options, status));
                 DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
@@ -79,9 +79,9 @@ public:
                     DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
                 }
 
-                auto programPtr = services::SharedPtr<OpenClProgramRef>(
-                    new OpenClProgramRef(_levelZeroOpenClInteropContext.getOpenClContextRef().get(),
-                                         _levelZeroOpenClInteropContext.getOpenClDeviceRef().get(), _deviceQueue, name, program, options, status));
+                auto programPtr = SharedPtr<OpenClProgramRef>(new OpenClProgramRef(_levelZeroOpenClInteropContext.getOpenClContextRef().get(),
+                                                                                   _levelZeroOpenClInteropContext.getOpenClDeviceRef().get(),
+                                                                                   _deviceQueue, name, program, options, status));
                 DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
                 programHashTable.add(key, programPtr, status);
@@ -104,11 +104,11 @@ public:
     {
         if (_currentProgramRef == nullptr)
         {
-            status |= services::ErrorExecutionContext;
+            status |= ErrorExecutionContext;
             return KernelPtr();
         }
 
-        services::String key = _currentProgramRef->getName();
+        String key = _currentProgramRef->getName();
         key.add(kernelName);
 
         bool res = kernelHashTable.contain(key, status);
@@ -181,19 +181,11 @@ public:
 
     void run(const KernelRange & range, const KernelPtr & kernel, const KernelArguments & args, Status & status) DAAL_C11_OVERRIDE
     {
-        // TODO: Thread safe?
-        // TODO: Check for input arguments
-        // TODO: Need to save reference to kernel to prevent
-        //       releasing in case of asynchronous execution?
         kernel->schedule(_kernelScheduler, range, args, status);
     }
 
     void run(const KernelNDRange & range, const KernelPtr & kernel, const KernelArguments & args, Status & status) DAAL_C11_OVERRIDE
     {
-        // TODO: Thread safe?
-        // TODO: Check for input arguments
-        // TODO: Need to save reference to kernel to prevent
-        //       releasing in case of asynchronous execution?
         kernel->schedule(_kernelScheduler, range, args, status);
     }
 
@@ -201,10 +193,6 @@ public:
               size_t lda, size_t offsetA, const UniversalBuffer & b_buffer, size_t ldb, size_t offsetB, double beta, UniversalBuffer & c_buffer,
               size_t ldc, size_t offsetC, Status & status) DAAL_C11_OVERRIDE
     {
-        DAAL_ASSERT(a_buffer.type() == b_buffer.type());
-        DAAL_ASSERT(b_buffer.type() == c_buffer.type());
-
-        // TODO: Check for input arguments
         math::GemmExecutor::run(_deviceQueue, transa, transb, m, n, k, alpha, a_buffer, lda, offsetA, b_buffer, ldb, offsetB, beta, c_buffer, ldc,
                                 offsetC, status);
     }
@@ -212,16 +200,12 @@ public:
     void syrk(math::UpLo upper_lower, math::Transpose trans, size_t n, size_t k, double alpha, const UniversalBuffer & a_buffer, size_t lda,
               size_t offsetA, double beta, UniversalBuffer & c_buffer, size_t ldc, size_t offsetC, Status & status) DAAL_C11_OVERRIDE
     {
-        DAAL_ASSERT(a_buffer.type() == c_buffer.type());
-
         math::SyrkExecutor::run(_deviceQueue, upper_lower, trans, n, k, alpha, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC, status);
     }
 
     void axpy(const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx, const UniversalBuffer y_buffer, const int incy,
               Status & status) DAAL_C11_OVERRIDE
     {
-        DAAL_ASSERT(x_buffer.type() == y_buffer.type());
-
         math::AxpyExecutor::run(_deviceQueue, n, a, x_buffer, incx, y_buffer, incy, status);
     }
 
@@ -233,7 +217,6 @@ public:
     void potrs(math::UpLo uplo, size_t n, size_t ny, UniversalBuffer & a_buffer, size_t lda, UniversalBuffer & b_buffer, size_t ldb,
                Status & status) DAAL_C11_OVERRIDE
     {
-        DAAL_ASSERT(a_buffer.type() == b_buffer.type());
         math::PotrsExecutor::run(_deviceQueue, uplo, n, ny, a_buffer, lda, b_buffer, ldb, status);
     }
 
@@ -242,26 +225,21 @@ public:
         return BufferAllocator::allocate(type, bufferSize, status);
     }
 
-    void copy(UniversalBuffer dest, size_t desOffset, UniversalBuffer src, size_t srcOffset, size_t count,
-              Status & status) DAAL_C11_OVERRIDE
+    void copy(UniversalBuffer dest, size_t desOffset, UniversalBuffer src, size_t srcOffset, size_t count, Status & status) DAAL_C11_OVERRIDE
     {
-        DAAL_ASSERT(dest.type() == src.type());
         BufferCopier::copy(_deviceQueue, dest, desOffset, src, srcOffset, count, status);
     }
 
-    void fill(UniversalBuffer dest, double value, Status & status) DAAL_C11_OVERRIDE
+    void copy(UniversalBuffer dest, size_t desOffset, void * src, size_t srcCount, size_t srcOffset, size_t count, Status & status) DAAL_C11_OVERRIDE
     {
-        BufferFiller::fill(_deviceQueue, dest, value, status);
+        ArrayCopier::copy(_deviceQueue, dest, desOffset, src, srcCount, srcOffset, count, status);
     }
+
+    void fill(UniversalBuffer dest, double value, Status & status) DAAL_C11_OVERRIDE { BufferFiller::fill(_deviceQueue, dest, value, status); }
 
     ClKernelFactoryIface & getClKernelFactory() DAAL_C11_OVERRIDE { return _kernelFactory; }
 
     InfoDevice & getInfoDevice() DAAL_C11_OVERRIDE { return _infoDevice; }
-
-    void copy(UniversalBuffer dest, size_t desOffset, void * src, size_t srcOffset, size_t count, Status & status) DAAL_C11_OVERRIDE
-    {
-        ArrayCopier::copy(_deviceQueue, dest, desOffset, src, srcOffset, count, status);
-    }
 
 private:
     cl::sycl::queue _deviceQueue;

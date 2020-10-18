@@ -541,7 +541,7 @@ private:
             services::throwIfPossible(st);
             DAAL_CHECK_STATUS_VAR(st);
 
-            auto buffer = converter.getResult();
+            auto buffer       = converter.getResult();
             auto colSharedPtr = buffer.toHost(readOnly, st);
             services::throwIfPossible(st);
             DAAL_CHECK_STATUS_VAR(st);

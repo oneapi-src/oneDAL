@@ -81,7 +81,8 @@ static services::Status runRadixSortSimd(ExecutionContextIface & context, ClKern
     DAAL_ASSERT_UNIVERSAL_BUFFER(output, int, nVectors);
     DAAL_ASSERT_UNIVERSAL_BUFFER(buffer, int, nVectors);
 
-    KernelArguments args(5);
+    KernelArguments args(5, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, input, AccessModeIds::read);
     args.set(1, output, AccessModeIds::write);
     args.set(2, buffer, AccessModeIds::read);
@@ -172,7 +173,8 @@ services::Status RadixSort::radixScan(UniversalBuffer & values, UniversalBuffer 
     {
         DAAL_ASSERT_UNIVERSAL_BUFFER(partialHists, int, (nLocalHists + 1) << _radixBits);
 
-        KernelArguments args(4);
+        KernelArguments args(4, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, values, AccessModeIds::read);
         args.set(1, partialHists, AccessModeIds::write);
         args.set(2, nRows);
@@ -212,7 +214,8 @@ services::Status RadixSort::radixHistScan(UniversalBuffer & values, UniversalBuf
         DAAL_ASSERT_UNIVERSAL_BUFFER(partialHists, int, (nSubgroupHists + 1) << _radixBits);
         DAAL_ASSERT_UNIVERSAL_BUFFER(partialPrefixHists, int, (nSubgroupHists + 1) << _radixBits);
 
-        KernelArguments args(3);
+        KernelArguments args(3, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, partialHists, AccessModeIds::read);
         args.set(1, partialPrefixHists, AccessModeIds::write);
         args.set(2, nSubgroupHists);
@@ -253,7 +256,8 @@ services::Status RadixSort::radixReorder(UniversalBuffer & valuesSrc, UniversalB
         DAAL_ASSERT_UNIVERSAL_BUFFER(partialPrefixHists, int, (nLocalHists + 1) << _radixBits);
         DAAL_ASSERT_UNIVERSAL_BUFFER(indicesDst, int, nRows);
 
-        KernelArguments args(7);
+        KernelArguments args(7, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, valuesSrc, AccessModeIds::read);
         args.set(1, indicesSrc, AccessModeIds::read);
         args.set(2, partialPrefixHists, AccessModeIds::read);

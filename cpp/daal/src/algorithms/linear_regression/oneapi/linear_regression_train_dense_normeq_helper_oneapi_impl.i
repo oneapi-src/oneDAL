@@ -71,7 +71,8 @@ services::Status KernelHelperOneAPI<algorithmFPType>::copyBetaToResult(const ser
     KernelPtr kernel              = factory.getKernel(kernelName, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(5);
+    KernelArguments args(5, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, betaTmp, AccessModeIds::read);
     args.set(1, nBetas);
     args.set(2, nBetasIntercept);

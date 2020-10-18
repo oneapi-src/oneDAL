@@ -54,10 +54,10 @@ namespace sycl
 {
 namespace interface1
 {
-inline services::String getOpenClErrorDescription(cl_int clError)
+inline String getOpenClErrorDescription(cl_int clError)
 {
 #define OPENCL_ERROR_CASE(x) \
-case x: return services::String(#x);
+case x: return String(#x);
     switch (clError)
     {
         OPENCL_ERROR_CASE(CL_BUILD_PROGRAM_FAILURE);
@@ -105,21 +105,21 @@ case x: return services::String(#x);
         OPENCL_ERROR_CASE(CL_OUT_OF_RESOURCES);
         OPENCL_ERROR_CASE(CL_PROFILING_INFO_NOT_AVAILABLE);
     }
-    return services::String("Unknown OpenCL error");
+    return String("Unknown OpenCL error");
 
 #undef OPENCL_ERROR_CASE
 }
 
-inline services::ErrorPtr convertOpenClErrorToErrorPtr(cl_int clError)
+inline ErrorPtr convertOpenClErrorToErrorPtr(cl_int clError)
 {
-    return services::Error::create(services::ErrorID::ErrorExecutionContext, services::ErrorDetailID::OpenCL, getOpenClErrorDescription(clError));
+    return Error::create(ErrorID::ErrorExecutionContext, ErrorDetailID::OpenCL, getOpenClErrorDescription(clError));
 }
 
 #ifndef DAAL_DISABLE_LEVEL_ZERO
-inline services::String getLevelZeroErrorDescription(ze_result_t zeError)
+inline String getLevelZeroErrorDescription(ze_result_t zeError)
 {
     #define LEVEL_ZERO_ERROR_CASE(x) \
-    case x: return services::String(#x);
+    case x: return String(#x);
     switch (zeError)
     {
         LEVEL_ZERO_ERROR_CASE(ZE_RESULT_SUCCESS);
@@ -161,25 +161,24 @@ inline services::String getLevelZeroErrorDescription(ze_result_t zeError)
         LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_UNKNOWN);
         LEVEL_ZERO_ERROR_CASE(ZE_RESULT_FORCE_UINT32);
     }
-    return services::String("Unknown LevelZero error");
+    return String("Unknown LevelZero error");
 
     #undef LEVEL_ZERO_ERROR_CASE
 }
 
-inline services::ErrorPtr convertLevelZeroErrorToErrorPtr(ze_result_t zeError)
+inline ErrorPtr convertLevelZeroErrorToErrorPtr(ze_result_t zeError)
 {
-    return services::Error::create(services::ErrorID::ErrorExecutionContext, services::ErrorDetailID::LevelZero,
-                                   getLevelZeroErrorDescription(zeError));
+    return Error::create(ErrorID::ErrorExecutionContext, ErrorDetailID::LevelZero, getLevelZeroErrorDescription(zeError));
 }
 #endif // DAAL_DISABLE_LEVEL_ZERO
 
 inline Status convertSyclExceptionToStatus(const std::exception & ex)
 {
-    return services::Error::create(services::ErrorID::ErrorExecutionContext, services::ErrorDetailID::Sycl, services::String(ex.what()));
+    return Error::create(ErrorID::ErrorExecutionContext, ErrorDetailID::Sycl, String(ex.what()));
 }
 
 template <typename TryBody, typename CatchBody>
-DAAL_FORCEINLINE auto catchSyclExceptions(Status & status, TryBody&& tryBody, CatchBody&& catchBody) -> decltype(tryBody())
+DAAL_FORCEINLINE auto catchSyclExceptions(Status & status, TryBody && tryBody, CatchBody && catchBody) -> decltype(tryBody())
 {
     try
     {
@@ -203,17 +202,16 @@ DAAL_FORCEINLINE auto catchSyclExceptions(Status & status, TryBody&& tryBody, Ca
 }
 
 template <typename Body>
-DAAL_FORCEINLINE Status catchSyclExceptions(Body&& body)
+DAAL_FORCEINLINE Status catchSyclExceptions(Body && body)
 {
     Status status;
-    return catchSyclExceptions(status,
+    return catchSyclExceptions(
+        status,
         [&]() {
             body();
             return status;
         },
-        [&]() {
-            return status;
-        });
+        [&]() { return status; });
 }
 
 } // namespace interface1

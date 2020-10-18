@@ -80,7 +80,7 @@ public:
         services::Status localStatus;
         services::internal::Buffer<DataType> buffer(usmData, bufferSize, usmAllocType, localStatus);
         services::internal::tryAssignStatusAndThrow(stat, localStatus);
-        DAAL_CHECK_STATUS_RETURN_IF_FAIL(localStatus, services::SharedPtr<SyclHomogenNumericTable<DataType>>());
+        DAAL_CHECK_STATUS_RETURN_IF_FAIL(localStatus, services::SharedPtr<SyclHomogenNumericTable<DataType> >());
 
         return create(buffer, nColumns, nRows, stat);
     }
@@ -95,7 +95,7 @@ public:
         services::Status localStatus;
         services::internal::Buffer<DataType> buffer(usmData, bufferSize, usmAllocType, localStatus);
         services::internal::tryAssignStatusAndThrow(stat, localStatus);
-        DAAL_CHECK_STATUS_RETURN_IF_FAIL(localStatus, services::SharedPtr<SyclHomogenNumericTable<DataType>>());
+        DAAL_CHECK_STATUS_RETURN_IF_FAIL(localStatus, services::SharedPtr<SyclHomogenNumericTable<DataType> >());
 
         return create(buffer, nColumns, nRows, stat);
     }

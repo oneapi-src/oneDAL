@@ -86,9 +86,10 @@ private:
     };
 
 public:
-    static void run(cl::sycl::queue & queue, const math::UpLo uplo, const size_t n, UniversalBuffer & a_buffer, const size_t lda,
-                    Status & status)
+    static void run(cl::sycl::queue & queue, const math::UpLo uplo, const size_t n, UniversalBuffer & a_buffer, const size_t lda, Status & status)
     {
+        DAAL_ASSERT(!a_buffer.empty());
+
         Execute op(queue, uplo, n, a_buffer, lda);
         TypeDispatcher::floatDispatch(a_buffer.type(), op, status);
     }
@@ -140,6 +141,11 @@ public:
     static void run(cl::sycl::queue & queue, const math::UpLo uplo, const size_t n, const size_t ny, UniversalBuffer & a_buffer, const size_t lda,
                     UniversalBuffer & b_buffer, const size_t ldb, Status & status)
     {
+        DAAL_ASSERT(!a_buffer.empty());
+        DAAL_ASSERT(!b_buffer.empty());
+
+        DAAL_ASSERT(a_buffer.type() == b_buffer.type());
+
         Execute op(queue, uplo, n, ny, a_buffer, lda, b_buffer, ldb);
         TypeDispatcher::floatDispatch(a_buffer.type(), op, status);
     }

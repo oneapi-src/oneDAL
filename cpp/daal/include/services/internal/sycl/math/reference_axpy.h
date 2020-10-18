@@ -51,7 +51,7 @@ struct DAAL_EXPORT ReferenceAxpy
     ReferenceAxpy() {}
 
     Status operator()(const int n, const algorithmFPType a, const Buffer<algorithmFPType> & x_buffer, const int incx,
-                                Buffer<algorithmFPType> & y_buffer, const int incy);
+                      Buffer<algorithmFPType> & y_buffer, const int incy);
 };
 
 /** @} */

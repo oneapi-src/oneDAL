@@ -49,16 +49,19 @@ public:
         : _src(src), _dest(dest), _offset(offset), _size(size)
     {}
 
-    UniversalBuffer getResult()
-    {
-        return _dest;
-    }
+    UniversalBuffer getResult() { return _dest; }
 
     template <typename T>
     void operator()(Typelist<T>, Status & st)
     {
         using namespace daal::data_management;
         using namespace daal::data_management::internal;
+
+        DAAL_ASSERT(!_src.empty());
+        DAAL_ASSERT(!_dest.empty());
+
+        DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(_src, DataType);
+        DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(_dest, DataType);
 
         auto srcBuffer  = _src.template get<DataType>();
         auto srcHostPtr = srcBuffer.toHost(readOnly, st);
@@ -92,16 +95,16 @@ class BufferConverterTo
 public:
     BufferConverterTo(const UniversalBuffer & src, size_t offset, size_t size) : _src(src), _offset(offset), _size(size) {}
 
-    Buffer<DataType> getResult()
-    {
-        return _dest;
-    }
+    Buffer<DataType> getResult() { return _dest; }
 
     template <typename T>
     void operator()(Typelist<T>, Status & st)
     {
         using namespace daal::data_management;
         using namespace daal::data_management::internal;
+
+        DAAL_ASSERT(!_src.empty());
+        DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(_src, DataType);
 
         auto buffer = _src.template get<T>();
 
@@ -153,26 +156,25 @@ public:
         : _src(src), _mode(mode), _size(size)
     {}
 
-    services::SharedPtr<DataType> getResult()
-    {
-        return _reinterpretedPtr;
-    }
+    SharedPtr<DataType> getResult() { return _reinterpretedPtr; }
 
     template <typename T>
     void operator()(Typelist<T>, Status & st)
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(_src, T);
+
         auto buffer = _src.template get<T>();
         auto ptr    = buffer.toHost(_mode, st);
         DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
 
-        _reinterpretedPtr = services::reinterpretPointerCast<DataType, T>(ptr);
+        _reinterpretedPtr = reinterpretPointerCast<DataType, T>(ptr);
     }
 
 private:
     UniversalBuffer _src;
     data_management::ReadWriteMode _mode;
     size_t _size;
-    services::SharedPtr<DataType> _reinterpretedPtr;
+    SharedPtr<DataType> _reinterpretedPtr;
 };
 
 /** @} */

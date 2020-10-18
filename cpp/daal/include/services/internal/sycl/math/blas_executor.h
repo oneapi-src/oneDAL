@@ -132,6 +132,13 @@ public:
                     const UniversalBuffer & b_buffer, const size_t ldb, const size_t offsetB, const double beta, UniversalBuffer & c_buffer,
                     const size_t ldc, const size_t offsetC, Status & status)
     {
+        DAAL_ASSERT(!a_buffer.empty());
+        DAAL_ASSERT(!b_buffer.empty());
+        DAAL_ASSERT(!c_buffer.empty());
+
+        DAAL_ASSERT(a_buffer.type() == b_buffer.type());
+        DAAL_ASSERT(b_buffer.type() == c_buffer.type());
+
         Execute op(queue, transa, transb, m, n, k, alpha, a_buffer, lda, offsetA, b_buffer, ldb, offsetB, beta, c_buffer, ldc, offsetC);
         TypeDispatcher::floatDispatch(a_buffer.type(), op, status);
     }
@@ -205,6 +212,11 @@ public:
                     const double alpha, const UniversalBuffer & a_buffer, const size_t lda, const size_t offsetA, const double beta,
                     UniversalBuffer & c_buffer, const size_t ldc, const size_t offsetC, Status & status)
     {
+        DAAL_ASSERT(!a_buffer.empty());
+        DAAL_ASSERT(!c_buffer.empty());
+
+        DAAL_ASSERT(a_buffer.type() == c_buffer.type());
+
         Execute op(queue, upper_lower, trans, n, k, alpha, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC);
         TypeDispatcher::floatDispatch(a_buffer.type(), op, status);
     }
@@ -269,6 +281,11 @@ public:
     static void run(cl::sycl::queue & queue, const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx,
                     UniversalBuffer y_buffer, const int incy, Status & status)
     {
+        DAAL_ASSERT(!x_buffer.empty());
+        DAAL_ASSERT(!y_buffer.empty());
+
+        DAAL_ASSERT(x_buffer.type() == y_buffer.type());
+
         Execute op(queue, n, a, x_buffer, incx, y_buffer, incy);
         TypeDispatcher::floatDispatch(x_buffer.type(), op, status);
     }

@@ -110,7 +110,8 @@ class HostBuffer : public Base, public BufferIface<T>
 public:
     static HostBuffer<T> * create(const SharedPtr<T> & data, size_t size, Status & status)
     {
-        if (!data && size != size_t(0)) {
+        if (!data && size != size_t(0))
+        {
             status |= ErrorNullPtr;
             return nullptr;
         }
@@ -121,7 +122,7 @@ public:
 
     static HostBuffer<T> * create(T * data, size_t size, Status & status)
     {
-        return create(SharedPtr<T>{data, services::EmptyDeleter()}, size, status);
+        return create(SharedPtr<T> { data, services::EmptyDeleter() }, size, status);
     }
 
     size_t size() const DAAL_C11_OVERRIDE { return _size; }

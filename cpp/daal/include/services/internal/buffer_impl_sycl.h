@@ -36,7 +36,7 @@ namespace internal
 template <typename T>
 inline cl::sycl::buffer<T, 1> createEmptySyclBuffer()
 {
-    return cl::sycl::buffer<T, 1>(nullptr, cl::sycl::range<1>{0});
+    return cl::sycl::buffer<T, 1>(nullptr, cl::sycl::range<1> { 0 });
 }
 
 #ifdef DAAL_SYCL_INTERFACE_USM
@@ -50,7 +50,8 @@ class UsmBuffer : public Base, public UsmBufferIface<T>
 public:
     static UsmBuffer<T> * create(const SharedPtr<T> & data, size_t size, cl::sycl::usm::alloc allocType, Status & status)
     {
-        if (!data && size != size_t(0)) {
+        if (!data && size != size_t(0))
+        {
             status |= ErrorNullPtr;
             return nullptr;
         }
@@ -60,7 +61,7 @@ public:
 
     static UsmBuffer<T> * create(T * data, size_t size, cl::sycl::usm::alloc allocType, Status & status)
     {
-        return create(SharedPtr<T>{data, EmptyDeleter()}, size, allocType, status);
+        return create(SharedPtr<T> { data, EmptyDeleter() }, size, allocType, status);
     }
 
     size_t size() const DAAL_C11_OVERRIDE { return _size; }
@@ -182,8 +183,7 @@ public:
             return create(nativeBuffer, status);
         }
 
-        const auto nativeBufferWithOffset = createNativeBuffer(status, nativeBuffer,
-            cl::sycl::id<1>(offset), cl::sycl::range<1>(size));
+        const auto nativeBufferWithOffset = createNativeBuffer(status, nativeBuffer, cl::sycl::id<1>(offset), cl::sycl::range<1>(size));
         DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, nullptr);
 
         return create(nativeBufferWithOffset, status);
@@ -198,33 +198,29 @@ public:
     const BufferType & get() const { return _nativeBuffer; }
 
 private:
-    explicit SyclBuffer(size_t size, Status & status)
-        : _nativeBuffer(createNativeBuffer(status, size)) {}
+    explicit SyclBuffer(size_t size, Status & status) : _nativeBuffer(createNativeBuffer(status, size)) {}
 
-    explicit SyclBuffer(const BufferType & nativeBuffer, Status & status)
-        : _nativeBuffer(createNativeBuffer(status, nativeBuffer)) {}
+    explicit SyclBuffer(const BufferType & nativeBuffer, Status & status) : _nativeBuffer(createNativeBuffer(status, nativeBuffer)) {}
 
     template <cl::sycl::access::mode mode>
     SharedPtr<T> getHostPtr(Status & status) const
     {
         using DeleterType  = SyclHostDeleter<T, mode>;
         using AccessorType = typename DeleterType::HostAccessorType;
-        return internal::sycl::catchSyclExceptions(status, [&]() {
-            auto * accessor = new AccessorType(const_cast<BufferType &>(_nativeBuffer));
-            return SharedPtr<T>(accessor->get_pointer(), DeleterType(_nativeBuffer, accessor));
-        }, [&]() {
-            return SharedPtr<T>();
-        });
+        return internal::sycl::catchSyclExceptions(
+            status,
+            [&]() {
+                auto * accessor = new AccessorType(const_cast<BufferType &>(_nativeBuffer));
+                return SharedPtr<T>(accessor->get_pointer(), DeleterType(_nativeBuffer, accessor));
+            },
+            [&]() { return SharedPtr<T>(); });
     }
 
-    template <typename ... Args>
-    static BufferType createNativeBuffer(Status & status, Args && ...args)
+    template <typename... Args>
+    static BufferType createNativeBuffer(Status & status, Args &&... args)
     {
-        return internal::sycl::catchSyclExceptions(status, [&]() {
-            return BufferType(std::forward<Args>(args)...);
-        }, [&]() {
-            return createEmptySyclBuffer<T>();
-        });
+        return internal::sycl::catchSyclExceptions(
+            status, [&]() { return BufferType(std::forward<Args>(args)...); }, [&]() { return createEmptySyclBuffer<T>(); });
     }
 
     BufferType _nativeBuffer;
@@ -266,14 +262,15 @@ public:
 private:
     static SyclBufferType wrap(Status & status, const SharedPtr<T> & ptr, size_t size, bool useHostPtr = false)
     {
-        return internal::sycl::catchSyclExceptions(status, [&]() {
-            const auto bufferProperties =
-                (useHostPtr) ? cl::sycl::property_list { cl::sycl::property::buffer::use_host_ptr() } : cl::sycl::property_list {};
+        return internal::sycl::catchSyclExceptions(
+            status,
+            [&]() {
+                const auto bufferProperties =
+                    (useHostPtr) ? cl::sycl::property_list { cl::sycl::property::buffer::use_host_ptr() } : cl::sycl::property_list {};
 
-            return SyclBufferType(ptr.get(), cl::sycl::range<1>(size), bufferProperties);
-        }, [&]() {
-            return createEmptySyclBuffer<T>();
-        });
+                return SyclBufferType(ptr.get(), cl::sycl::range<1>(size), bufferProperties);
+            },
+            [&]() { return createEmptySyclBuffer<T>(); });
     }
 
     services::internal::Any _nativeBuffer;
