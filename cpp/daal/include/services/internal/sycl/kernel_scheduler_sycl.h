@@ -163,13 +163,13 @@ public:
 
     void findDevice(cl_device_id * pClDevice, unsigned int vendor_id, unsigned int frq, Status & status)
     {
-        constexpr auto maxPlatforms = 16;
+        constexpr cl_uint maxPlatforms = 16;
         cl_platform_id platIds[maxPlatforms];
         cl_uint nplat, ndev;
 
         DAAL_CHECK_OPENCL(clGetPlatformIDs(maxPlatforms, platIds, &nplat), status);
 
-        for (int pidx = 0; pidx < nplat && pidx < maxPlatforms; pidx++)
+        for (cl_uint pidx = 0; pidx < nplat && pidx < maxPlatforms; pidx++)
         {
             if (clGetDeviceIDs(platIds[pidx], CL_DEVICE_TYPE_GPU, 1, pClDevice, &ndev) == CL_SUCCESS)
             {
@@ -356,8 +356,8 @@ public:
     const OpenClProgramRef & getProgramRef() const { return _clProgramRef; }
 
 private:
-    OpenClProgramRef _clProgramRef;
     ExecutionTargetId _executionTarget;
+    OpenClProgramRef _clProgramRef;
 };
 
 class OpenClKernelNative : public OpenClKernel
@@ -442,9 +442,8 @@ public:
         case KernelArgumentTypes::publicBuffer: return handlePublicBuffer<T>(status);
         case KernelArgumentTypes::privateBuffer: return handlePrivateBuffer<T>(status);
         case KernelArgumentTypes::publicConstant: return handlePublicConstant<T>(status);
+        default: DAAL_ASSERT(!"Unexpected kernel argument type");
         }
-
-        DAAL_ASSERT(!"Unexpected kernel argument type");
     }
 
 private:
@@ -469,9 +468,9 @@ private:
         case AccessModeIds::write: return handlePublicBuffer<cl::sycl::access::mode::write>(buffer);
 
         case AccessModeIds::readwrite: return handlePublicBuffer<cl::sycl::access::mode::read_write>(buffer);
-        }
 
-        DAAL_ASSERT(!"Unexpected buffer access mode");
+        default: DAAL_ASSERT(!"Unexpected buffer access mode");
+        }
     }
 
     template <cl::sycl::access::mode mode, typename Buffer>
@@ -588,9 +587,9 @@ private:
         case ExecutionTargetIds::device: return scheduleOnDevice(range, kernel, args, status);
 
         case ExecutionTargetIds::host: status |= ErrorMethodNotImplemented; return;
-        }
 
-        DAAL_ASSERT(!"Unexpected execution target");
+        default: DAAL_ASSERT(!"Unexpected execution target");
+        }
     }
 
     template <typename Range>
@@ -601,9 +600,8 @@ private:
         case 1: return scheduleSycl(convertToSyclRange<1>(range), kernel, args, status);
         case 2: return scheduleSycl(convertToSyclRange<2>(range), kernel, args, status);
         case 3: return scheduleSycl(convertToSyclRange<3>(range), kernel, args, status);
+        default: DAAL_ASSERT(!"Unexpected number of dimensions");
         }
-
-        DAAL_ASSERT(!"Unexpected number of dimensions");
     }
 
     template <typename Range>

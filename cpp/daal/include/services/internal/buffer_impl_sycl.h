@@ -62,6 +62,7 @@ public:
         }
         const auto newBuffer = new UsmBuffer<T>(data, size, allocType);
         DAAL_CHECK_COND_ERROR(newBuffer, status, ErrorMemoryAllocationFailed);
+        return newBuffer;
     }
 
     static UsmBuffer<T> * create(T * data, size_t size, cl::sycl::usm::alloc allocType, Status & status)
@@ -145,8 +146,8 @@ public:
     }
 
 private:
-    HostAccessorType * _hostAccessor;
     cl::sycl::buffer<T, 1> _buffer;
+    HostAccessorType * _hostAccessor;
 };
 
 /**

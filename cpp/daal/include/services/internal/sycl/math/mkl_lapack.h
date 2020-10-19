@@ -25,7 +25,7 @@
 #define __ONEAPI_INTERNAL_MKL_LAPACK_H__
 
 #include "services/internal/buffer.h"
-#include "mkl_dal_sycl.hpp"
+#include "services/internal/sycl/math/mkl_dal.h"
 
 namespace daal
 {
@@ -61,7 +61,7 @@ struct MKLPotrf
         DAAL_CHECK_STATUS_VAR(status);
 
         {
-            const std::int64_t minimalScratchpadSize = ::oneapi::fpk::lapack::potrf_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, lda);
+            const size_t minimalScratchpadSize = size_t(::oneapi::fpk::lapack::potrf_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, lda));
             if (scratchpad.get_count() < minimalScratchpadSize) return ErrorMemoryAllocationFailed;
         }
 
@@ -118,8 +118,8 @@ struct MKLPotrs
         DAAL_CHECK_STATUS_VAR(status);
 
         {
-            const std::int64_t minimalScratchpadSize =
-                ::oneapi::fpk::lapack::potrs_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, ny, lda, ldb);
+            const size_t minimalScratchpadSize =
+                size_t(::oneapi::fpk::lapack::potrs_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, ny, lda, ldb));
             if (scratchpad.get_count() < minimalScratchpadSize) return ErrorMemoryAllocationFailed;
         }
 

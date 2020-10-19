@@ -109,9 +109,6 @@ COPTS := -std=c++17 \
          -Wall \
          -Wextra \
          -Werror \
-         -Werror=return-type \
-         -Werror=uninitialized \
-         -Werror=unknown-pragmas \
          -Wno-unused-parameter \
          -I./source \
          -I"$(DAALROOT)/include"

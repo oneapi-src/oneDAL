@@ -28,22 +28,22 @@
 #include "services/error_handling.h"
 #include "services/internal/sycl/level_zero_common.h"
 
-#define DAAL_CHECK_OPENCL(cl_error, status, ...)              \
+#define DAAL_CHECK_OPENCL(cl_error, status)                   \
     {                                                         \
         if (cl_error != CL_SUCCESS)                           \
         {                                                     \
             status |= convertOpenClErrorToErrorPtr(cl_error); \
-            return __VA_ARGS__;                               \
+            return;                                           \
         }                                                     \
     }
 
 #ifndef DAAL_DISABLE_LEVEL_ZERO
-    #define DAAL_CHECK_LEVEL_ZERO(ze_error, status, ...)             \
+    #define DAAL_CHECK_LEVEL_ZERO(ze_error, status)                  \
         {                                                            \
             if (ze_error != ZE_RESULT_SUCCESS)                       \
             {                                                        \
                 status |= convertLevelZeroErrorToErrorPtr(ze_error); \
-                return __VA_ARGS__;                                  \
+                return;                                              \
             }                                                        \
         }
 #endif // DAAL_DISABLE_LEVEL_ZERO

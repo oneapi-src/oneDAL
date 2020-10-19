@@ -24,10 +24,9 @@
 #ifndef __ONEAPI_INTERNAL_MKL_BLAS_H__
 #define __ONEAPI_INTERNAL_MKL_BLAS_H__
 
-#include "mkl_dal_sycl.hpp"
-
 #include "services/internal/buffer.h"
 #include "services/internal/sycl/error_handling_sycl.h"
+#include "services/internal/sycl/math/mkl_dal.h"
 
 namespace daal
 {
