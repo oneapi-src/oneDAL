@@ -28,6 +28,7 @@
 DAAL_ITTNOTIFY_DOMAIN(pca.dense.correlation.batch.oneapi);
 
 #include "services/env_detect.h"
+#include "include/services/internal/sycl/daal_defines_sycl.h"
 #include "src/algorithms/pca/oneapi/cl_kernels/pca_cl_kernels.cl"
 #include "data_management/data/internal/numeric_table_sycl_homogen.h"
 #include "src/sycl/blas_gpu.h"
@@ -80,8 +81,17 @@ Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::compute(bool isCorrelati
 
     auto calculateVariancesKernel = kernel_factory.getKernel("calculateVariances", st);
 
-    const uint32_t N = dataTable.getNumberOfRows();
-    const uint32_t p = dataTable.getNumberOfColumns();
+    if (dataTable.getNumberOfColumns() > static_cast<size_t>(services::internal::MaxVal<uint32_t>::get()))
+    {
+        return services::Status(daal::services::ErrorCovarianceInternal);
+    }
+    if (dataTable.getNumberOfRows() > static_cast<size_t>(services::internal::MaxVal<uint32_t>::get()))
+    {
+        return services::Status(daal::services::ErrorCovarianceInternal);
+    }
+
+    const uint32_t N = static_cast<uint32_t>(dataTable.getNumberOfRows());
+    const uint32_t p = static_cast<uint32_t>(dataTable.getNumberOfColumns());
 
     if (isCorrelation)
     {
@@ -92,11 +102,11 @@ Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::compute(bool isCorrelati
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation.fillTable(means));
 
             BlockDescriptor<algorithmFPType> meansBlock;
-            means.getBlockOfRows(0, 1, readWrite, meansBlock);
+            DAAL_CHECK_STATUS_VAR(means.getBlockOfRows(0, 1, readWrite, meansBlock));
+            DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(meansBlock.getBuffer()), algorithmFPType, p);
             context.fill(meansBlock.getBuffer(), (algorithmFPType)0, st);
-            means.releaseBlockOfRows(meansBlock);
-
             DAAL_CHECK_STATUS_VAR(st);
+            DAAL_CHECK_STATUS_VAR(means.releaseBlockOfRows(meansBlock));
         }
 
         if (resultsToCompute & variance)
@@ -104,11 +114,11 @@ Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::compute(bool isCorrelati
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation.fillTable(variances));
 
             BlockDescriptor<algorithmFPType> varBlock;
-            variances.getBlockOfRows(0, 1, readWrite, varBlock);
+            DAAL_CHECK_STATUS_VAR(variances.getBlockOfRows(0, 1, readWrite, varBlock));
+            DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(varBlock.getBuffer()), algorithmFPType, p);
             context.fill(varBlock.getBuffer(), (algorithmFPType)1, st);
-            variances.releaseBlockOfRows(varBlock);
-
             DAAL_CHECK_STATUS_VAR(st);
+            DAAL_CHECK_STATUS_VAR(variances.releaseBlockOfRows(varBlock));
         }
 
         {
@@ -136,27 +146,25 @@ Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::compute(bool isCorrelati
             auto mean_cov = covarianceAlg->getResult()->get(covariance::mean);
 
             BlockDescriptor<algorithmFPType> meansBlock, covMeanBlock;
-            means.getBlockOfRows(0, 1, readWrite, meansBlock);
-            mean_cov->getBlockOfRows(0, 1, readOnly, covMeanBlock);
+            DAAL_CHECK_STATUS_VAR(means.getBlockOfRows(0, 1, readWrite, meansBlock));
+            DAAL_CHECK_STATUS_VAR(mean_cov->getBlockOfRows(0, 1, readOnly, covMeanBlock));
 
+            DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(meansBlock.getBuffer()), algorithmFPType, p);
+            DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(covMeanBlock.getBuffer()), algorithmFPType, p);
             context.copy(meansBlock.getBuffer(), 0, covMeanBlock.getBuffer(), 0, p, st);
-
-            means.releaseBlockOfRows(meansBlock);
-            mean_cov->releaseBlockOfRows(covMeanBlock);
-
             DAAL_CHECK_STATUS_VAR(st);
+
+            DAAL_CHECK_STATUS_VAR(means.releaseBlockOfRows(meansBlock));
+            DAAL_CHECK_STATUS_VAR(mean_cov->releaseBlockOfRows(covMeanBlock));
         }
 
         if (resultsToCompute & variance)
         {
             BlockDescriptor<algorithmFPType> varBlock;
-            variances.getBlockOfRows(0, 1, readWrite, varBlock);
-
+            DAAL_CHECK_STATUS_VAR(variances.getBlockOfRows(0, 1, readWrite, varBlock));
             DAAL_CHECK_STATUS(st, calculateVariances(context, calculateVariancesKernel, covarianceTable, varBlock.getBuffer()));
-
             DAAL_CHECK_STATUS(st, correlationFromCovarianceTable(N, covarianceTable, varBlock.getBuffer()));
-
-            variances.releaseBlockOfRows(varBlock);
+            DAAL_CHECK_STATUS_VAR(variances.releaseBlockOfRows(varBlock));
         }
         else
         {
@@ -189,23 +197,26 @@ services::Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::correlationFro
     uint32_t nObservations, NumericTable & covariance, const services::internal::Buffer<algorithmFPType> & variances)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlationFromCovarianceTable);
-    services::Status status;
 
-    uint32_t nFeatures = covariance.getNumberOfRows();
+    if (covariance.getNumberOfRows() > static_cast<size_t>(services::internal::MaxVal<uint32_t>::get()))
+    {
+        return services::Status(daal::services::ErrorCovarianceInternal);
+    }
+
+    const uint32_t nFeatures = static_cast<uint32_t>(covariance.getNumberOfRows());
 
     BlockDescriptor<algorithmFPType> covBlock;
-
-    covariance.getBlockOfRows(0, nFeatures, writeOnly, covBlock);
+    DAAL_CHECK_STATUS_VAR(covariance.getBlockOfRows(0, nFeatures, writeOnly, covBlock));
 
     covariance::Parameter parameter;
     parameter.outputMatrixType = covariance::correlationMatrix;
 
-    status |= covariance::oneapi::internal::finalize<algorithmFPType>(nFeatures, nObservations, covBlock.getBuffer(), covBlock.getBuffer(), variances,
-                                                                      &parameter);
+    DAAL_CHECK_STATUS_VAR(covariance::oneapi::internal::finalize<algorithmFPType>(nFeatures, nObservations, covBlock.getBuffer(),
+                                                                                  covBlock.getBuffer(), variances, &parameter));
 
-    covariance.releaseBlockOfRows(covBlock);
+    DAAL_CHECK_STATUS_VAR(covariance.releaseBlockOfRows(covBlock));
 
-    return status;
+    return services::Status();
 }
 
 template <typename algorithmFPType>
@@ -217,11 +228,17 @@ services::Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::calculateVaria
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.calculateVariances);
     services::Status status;
 
-    uint32_t nFeatures = covariance.getNumberOfRows();
+    if (covariance.getNumberOfRows() > static_cast<size_t>(services::internal::MaxVal<uint32_t>::get()))
+    {
+        return services::Status(daal::services::ErrorCovarianceInternal);
+    }
+
+    uint32_t nFeatures = static_cast<uint32_t>(covariance.getNumberOfRows());
 
     BlockDescriptor<algorithmFPType> covBlock;
+    DAAL_CHECK_STATUS_VAR(covariance.getBlockOfRows(0, nFeatures, readOnly, covBlock));
 
-    covariance.getBlockOfRows(0, nFeatures, readOnly, covBlock);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(covBlock.getBuffer()), algorithmFPType, nFeatures);
 
     KernelArguments args(2, status);
     DAAL_CHECK_STATUS_VAR(status);
@@ -230,8 +247,9 @@ services::Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::calculateVaria
 
     KernelRange range(nFeatures);
     context.run(range, calculateVariancesKernel, args, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    covariance.releaseBlockOfRows(covBlock);
+    DAAL_CHECK_STATUS_VAR(covariance.releaseBlockOfRows(covBlock));
 
     return status;
 }
