@@ -309,15 +309,15 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computePartialCandidate
     auto kernel           = kernel_factory.getKernel("partial_candidates", st);
     DAAL_CHECK_STATUS_VAR(st);
 
-    int num_parts = getCandidatePartNum(nClusters);
-    if (num_parts > _preferableSubGroup) num_parts = _preferableSubGroup;
+    int numParts = getCandidatePartNum(nClusters);
+    if (numParts > _preferableSubGroup) numParts = _preferableSubGroup;
     DAAL_ASSERT_UNIVERSAL_BUFFER(assignments, int, blockSize);
     DAAL_ASSERT_UNIVERSAL_BUFFER(_mindistances, algorithmFPType, blockSize);
     DAAL_ASSERT_UNIVERSAL_BUFFER(_dataSq, algorithmFPType, blockSize);
     DAAL_ASSERT_UNIVERSAL_BUFFER(_candidates, int, nClusters);
     DAAL_ASSERT_UNIVERSAL_BUFFER(_candidateDistances, algorithmFPType, nClusters);
-    DAAL_ASSERT_UNIVERSAL_BUFFER(_partialCandidates, int, nClusters * num_parts);
-    DAAL_ASSERT_UNIVERSAL_BUFFER(_partialCandidateDistances, algorithmFPType, nClusters * num_parts);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(_partialCandidates, int, nClusters * numParts);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(_partialCandidateDistances, algorithmFPType, nClusters * numParts);
 
     DAAL_ASSERT(blockSize <= maxInt32AsUint32T);
     DAAL_ASSERT(nClusters <= maxInt32AsUint32T);
@@ -336,7 +336,7 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computePartialCandidate
     args.set(9, static_cast<int32_t>(reset));
 
     KernelRange local_range(1, _preferableSubGroup);
-    KernelRange global_range(num_parts, _preferableSubGroup);
+    KernelRange global_range(numParts, _preferableSubGroup);
 
     KernelNDRange range(2);
     range.global(global_range, st);
@@ -357,12 +357,12 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::mergePartialCandidates(
     auto kernel           = kernel_factory.getKernel("merge_candidates", st);
     DAAL_CHECK_STATUS_VAR(st);
 
-    int num_parts = getCandidatePartNum(nClusters);
-    if (num_parts > _preferableSubGroup) num_parts = _preferableSubGroup;
+    int numParts = getCandidatePartNum(nClusters);
+    if (numParts > _preferableSubGroup) numParts = _preferableSubGroup;
     DAAL_ASSERT_UNIVERSAL_BUFFER(_candidates, int, nClusters);
     DAAL_ASSERT_UNIVERSAL_BUFFER(_candidateDistances, algorithmFPType, nClusters);
-    DAAL_ASSERT_UNIVERSAL_BUFFER(_partialCandidates, int, num_parts * nClusters);
-    DAAL_ASSERT_UNIVERSAL_BUFFER(_partialCandidateDistances, algorithmFPType, num_parts * nClusters);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(_partialCandidates, int, numParts * nClusters);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(_partialCandidateDistances, algorithmFPType, numParts * nClusters);
 
     DAAL_ASSERT(nClusters <= maxInt32AsUint32T);
 
@@ -373,8 +373,8 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::mergePartialCandidates(
     args.set(3, _partialCandidateDistances, AccessModeIds::read);
     args.set(4, static_cast<int32_t>(nClusters));
 
-    KernelRange local_range(1, num_parts);
-    KernelRange global_range(1, num_parts);
+    KernelRange local_range(1, numParts);
+    KernelRange global_range(1, numParts);
 
     KernelNDRange range(2);
     range.global(global_range, st);
