@@ -47,8 +47,18 @@ services::Status CovarianceDenseBatchKernelOneAPI<algorithmFPType, method>::comp
 
     services::Status status;
 
-    const size_t nFeatures              = dataTable->getNumberOfColumns();
-    const size_t nVectors               = dataTable->getNumberOfRows();
+    if (dataTable->getNumberOfColumns() > static_cast<size_t>(services::internal::MaxVal<uint32_t>::get()))
+    {
+        return services::Status(daal::services::ErrorCovarianceInternal);
+    }
+    const uint32_t nFeatures = static_cast<uint32_t>(dataTable->getNumberOfColumns());
+
+    if (dataTable->getNumberOfRows() > static_cast<size_t>(services::internal::MaxVal<uint32_t>::get()))
+    {
+        return services::Status(daal::services::ErrorCovarianceInternal);
+    }
+    const uint32_t nVectors = static_cast<uint32_t>(dataTable->getNumberOfRows());
+
     const algorithmFPType nObservations = static_cast<algorithmFPType>(nVectors);
 
     BlockDescriptor<algorithmFPType> dataBlock;
