@@ -82,7 +82,6 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
     const uint32_t nClusters = static_cast<uint32_t>(nClustersAsSizeT);
 
     DAAL_ASSERT(ntObjFunction->getNumberOfRows() == 1 && ntObjFunction->getNumberOfColumns() == 1);
-    DAAL_ASSERT(ntAssignments->getNumberOfRows() == nDataRowsAsSizeT && ntAssignments->getNumberOfColumns() == 1);
 
     uint32_t blockSize = 0;
     DAAL_CHECK_STATUS_VAR(this->getBlockSize(nRows, nClusters, nFeatures, blockSize));
