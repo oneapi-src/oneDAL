@@ -1058,20 +1058,22 @@ $(foreach x,$(release.ONEAPI.EXAMPLES.DATA),$(eval $(call .release.x,$x,$(RELEAS
 ifeq ($(OS_is_win),yes)
 # $1: Relative examples directiry
 # $2: Solution filename
-# $3: Target to trigger
+# $3: Prefix of solution template
+# $4: Target to trigger
 define .release.x.sln
-$3: $(RELEASEDIR.daal)/$1/$2
+$4: $(RELEASEDIR.daal)/$1/$2
 $(RELEASEDIR.daal)/$1/$2: \
-        $1/daal_win.vcxproj.tpl \
-        $1/daal_win.vcxproj.filters.tpl \
-        $1/daal_win.vcxproj.user.tpl \
-        $1/daal_win.sln.tpl
-	python ./deploy/local/generate_win_solution.py $1 $(RELEASEDIR.daal)/$1 $2
+        $1/$3.vcxproj.tpl \
+        $1/$3.vcxproj.filters.tpl \
+        $1/$3.vcxproj.user.tpl \
+        $1/$3.sln.tpl
+	python ./deploy/local/generate_win_solution.py $1 $(RELEASEDIR.daal)/$1 $2 --template_name $3
 endef
 
-$(eval $(call .release.x.sln,examples/daal/cpp,DAALExamples.sln,_release_c))
-$(eval $(call .release.x.sln,examples/daal/cpp_sycl,DAALExamples_sycl.sln,_release_c))
-$(eval $(call .release.x.sln,examples/oneapi/cpp,oneDALExamples.sln,_release_oneapi_c))
+$(eval $(call .release.x.sln,examples/daal/cpp,DAALExamples.sln,daal_win,_release_c))
+$(eval $(call .release.x.sln,examples/daal/cpp_sycl,DAALExamples_sycl.sln,daal_win,_release_c))
+$(eval $(call .release.x.sln,examples/oneapi/cpp,oneDALExamples.sln,onedal_win,_release_oneapi_c))
+$(eval $(call .release.x.sln,examples/oneapi/dpc,oneDALExamples.sln,onedal_win,_release_oneapi_dpc))
 endif
 
 #----- releasing environment scripts
