@@ -22,7 +22,9 @@
 #include "src/sycl/reducer.h"
 #include "src/sycl/select_indexed.h"
 #include "src/sycl/sorter.h"
+#include "src/services/service_data_utils.h"
 #include "services/daal_defines.h"
+#include "services/internal/sycl/daal_defines_sycl.h"
 
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_predict_kernel_ucapi.h"
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
@@ -31,6 +33,9 @@
 #include "src/algorithms/k_nearest_neighbors/oneapi/cl_kernels/bf_knn_cl_kernels.cl"
 
 #include "src/externals/service_ittnotify.h"
+
+constexpr size_t maxInt32AsSizeT     = static_cast<size_t>(daal::services::internal::MaxVal<int32_t>::get());
+constexpr uint32_t maxInt32AsUint32T = static_cast<uint32_t>(daal::services::internal::MaxVal<int32_t>::get());
 
 namespace daal
 {
@@ -70,14 +75,14 @@ private:
 };
 
 template <typename algorithmFpType>
-Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(const NumericTable * x, const classifier::Model * m, NumericTable * y,
-                                                                     const daal::algorithms::Parameter * par)
+services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(const NumericTable * x, const classifier::Model * m, NumericTable * y,
+                                                                               const daal::algorithms::Parameter * par)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute);
 
-    Status st;
+    services::Status st;
 
-    auto & context = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
     const Model * model = static_cast<const Model *>(m);
 
@@ -86,18 +91,33 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(const Numer
     NumericTable * labels = const_cast<NumericTable *>(model->impl()->getLabels().get());
 
     const Parameter * const parameter = static_cast<const Parameter *>(par);
-    const uint32_t k                  = parameter->k;
+    const size_t kAsSizeT             = parameter->k;
+    DAAL_CHECK(kAsSizeT <= maxInt32AsSizeT, services::ErrorIncorrectParameter);
+    const uint32_t k = static_cast<uint32_t>(kAsSizeT);
 
-    const size_t nQueryRows  = ntData->getNumberOfRows();
-    const size_t nLabelRows  = labels->getNumberOfRows();
-    const size_t nDataRows   = points->getNumberOfRows() < nLabelRows ? points->getNumberOfRows() : nLabelRows;
-    const uint32_t nFeatures = points->getNumberOfColumns();
+    const size_t nQueryRowsSizeT     = ntData->getNumberOfRows();
+    const size_t nQueryFeaturesSizeT = ntData->getNumberOfColumns();
+    const size_t nLabelRowsSizeT     = labels->getNumberOfRows();
+    const size_t nDataRowsSizeT      = points->getNumberOfRows();
+    const size_t nTrainFeaturesSizeT = points->getNumberOfColumns();
+
+    DAAL_CHECK(nQueryRowsSizeT <= maxInt32AsSizeT, services::ErrorIncorrectNumberOfRowsInInputNumericTable);
+    DAAL_CHECK(nLabelRowsSizeT <= maxInt32AsSizeT, services::ErrorIncorrectNumberOfRowsInInputNumericTable);
+    DAAL_CHECK(nDataRowsSizeT <= maxInt32AsSizeT, services::ErrorIncorrectNumberOfRowsInInputNumericTable)
+    DAAL_CHECK(nTrainFeaturesSizeT <= maxInt32AsSizeT, services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
+    DAAL_CHECK(nTrainFeaturesSizeT == nQueryFeaturesSizeT, services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
+
+    const uint32_t nQueryRows = static_cast<uint32_t>(nQueryRowsSizeT);
+    const uint32_t nLabelRows = static_cast<uint32_t>(nLabelRowsSizeT);
+    const uint32_t nDataRows  = static_cast<uint32_t>(nDataRowsSizeT < nLabelRowsSizeT ? nDataRowsSizeT : nLabelRowsSizeT);
+    const uint32_t nFeatures  = static_cast<uint32_t>(nTrainFeaturesSizeT);
 
     // Block dimensions below are optimal for GEN9
     // Number of doubles is to 2X less against floats
     // to keep the same block size in bytes
     const uint32_t maxDataBlockRowCount  = 4096 * 4;
     const uint32_t maxQueryBlockRowCount = (2048 * 4) / sizeof(algorithmFpType);
+    DAAL_CHECK(k <= maxDataBlockRowCount, services::ErrorIncorrectParameter);
 
     // Maximal number of partial selections to be merged at once
     const uint32_t selectionMaxNumberOfChunks = 16;
@@ -160,8 +180,8 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(const Numer
                 DAAL_CHECK_STATUS_VAR(
                     computeDistances(context, dataRows.getBuffer(), curQuery, distances, curDataRange.count, curQueryRange.count, nFeatures));
                 // Select k smallest distances and their labels from every row of the [curQueryRange.count]x[curDataRange.count] block
-                selector->selectNearestDistancesAndLabels(distances, labelRows.getBuffer(), k, curQueryRange.count, curDataRange.count,
-                                                          curDataRange.count, 0, selectResult, st);
+                DAAL_CHECK_STATUS_VAR(selector->selectNearestDistancesAndLabels(distances, labelRows.getBuffer(), k, curQueryRange.count,
+                                                                                curDataRange.count, curDataRange.count, 0, selectResult));
                 DAAL_CHECK_STATUS_VAR(st);
                 // copy block results to buffer in order to get merged with the same selection algorithm (up to selectionMaxNumberOfChunks of partial results)
                 // and keep the first part containing previously merged result if exists
@@ -173,9 +193,9 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(const Numer
                 selectionChunkCount++;
             }
             // merge partial data by one more K-selection
-            selector->selectNearestDistancesAndLabels(partialDistances, partialLabels, k, curQueryRange.count, k * curDataBlockRange.count,
-                                                      k * selectionMaxNumberOfChunks, k * selectionMaxNumberOfChunks, selectResult, st);
-            DAAL_CHECK_STATUS_VAR(st);
+            DAAL_CHECK_STATUS_VAR(selector->selectNearestDistancesAndLabels(partialDistances, partialLabels, k, curQueryRange.count,
+                                                                            k * curDataBlockRange.count, k * selectionMaxNumberOfChunks,
+                                                                            k * selectionMaxNumberOfChunks, selectResult));
         }
         // sort labels of closest neighbors
         st |= RadixSort::sort(selectResult.indices, sortedLabels, radixBuffer, curQueryRange.count, k, k);
@@ -190,128 +210,140 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(const Numer
     return st;
 }
 template <typename algorithmFpType>
-Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::copyPartialDistancesAndLabels(
+services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::copyPartialDistancesAndLabels(
     ExecutionContextIface & context, const UniversalBuffer & distances, const UniversalBuffer & labels, UniversalBuffer & partialDistances,
     UniversalBuffer & partialLabels, uint32_t queryBlockRows, uint32_t k, uint32_t nChunk, uint32_t totalNumberOfChunks)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.copyPartialSelections);
-    if (k > static_cast<uint32_t>(INT_MAX) || totalNumberOfChunks > static_cast<uint32_t>(INT_MAX) || nChunk > static_cast<uint32_t>(INT_MAX))
-    {
-        return services::Status(services::ErrorBufferSizeIntegerOverflow);
-    }
 
-    Status st;
-    auto & kernel_factory = context.getClKernelFactory();
-    DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
-    auto kernel_gather_selection = kernel_factory.getKernel("copy_partial_selection", st);
+    services::Status st;
+    auto & kernelFactory = context.getClKernelFactory();
+    DAAL_CHECK_STATUS_VAR(buildProgram(kernelFactory));
+    auto kernel = kernelFactory.getKernel("copy_partial_selection", st);
     DAAL_CHECK_STATUS_VAR(st);
+
+    DAAL_ASSERT_UNIVERSAL_BUFFER(distances, algorithmFpType, queryBlockRows * k);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(labels, int, queryBlockRows * k);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(partialDistances, algorithmFpType, queryBlockRows * k * totalNumberOfChunks);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(partialLabels, int, queryBlockRows * k * totalNumberOfChunks);
 
     KernelArguments args(7);
     args.set(0, distances, AccessModeIds::read);
     args.set(1, labels, AccessModeIds::read);
     args.set(2, partialDistances, AccessModeIds::readwrite);
     args.set(3, partialLabels, AccessModeIds::readwrite);
-    args.set(4, k);
-    args.set(5, nChunk);
-    args.set(6, totalNumberOfChunks);
+    args.set(4, static_cast<int32_t>(k));
+    args.set(5, static_cast<int32_t>(nChunk));
+    args.set(6, static_cast<int32_t>(totalNumberOfChunks));
 
-    KernelRange local_range(1, 1);
-    KernelRange global_range(queryBlockRows, k);
+    KernelRange localRange(1, 1);
+    KernelRange globalRange(queryBlockRows, k);
 
     KernelNDRange range(2);
-    range.global(global_range, st);
+    range.global(globalRange, st);
     DAAL_CHECK_STATUS_VAR(st);
-    range.local(local_range, st);
+    range.local(localRange, st);
     DAAL_CHECK_STATUS_VAR(st);
-    context.run(range, kernel_gather_selection, args, st);
+    context.run(range, kernel, args, st);
+    DAAL_CHECK_STATUS_VAR(st);
     return st;
 }
 
 template <typename algorithmFpType>
-Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::scatterSumOfSquares(ExecutionContextIface & context,
-                                                                                 const UniversalBuffer & dataSumOfSquares, uint32_t dataBlockRowCount,
-                                                                                 uint32_t queryBlockRowCount, UniversalBuffer & distances)
+services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::scatterSumOfSquares(ExecutionContextIface & context,
+                                                                                           const UniversalBuffer & dataSumOfSquares,
+                                                                                           uint32_t dataBlockRowCount, uint32_t queryBlockRowCount,
+                                                                                           UniversalBuffer & distances)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.scatterSumOfSquares);
-    if (dataBlockRowCount > static_cast<uint32_t>(INT_MAX))
-    {
-        return services::Status(services::ErrorBufferSizeIntegerOverflow);
-    }
-    Status st;
-    auto & kernel_factory = context.getClKernelFactory();
-    DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
-    auto kernel_init_distances = kernel_factory.getKernel("scatter_row", st);
+    DAAL_CHECK(dataBlockRowCount <= maxInt32AsUint32T, services::ErrorBufferSizeIntegerOverflow);
+
+    services::Status st;
+    auto & kernelFactory = context.getClKernelFactory();
+    DAAL_CHECK_STATUS_VAR(buildProgram(kernelFactory));
+    auto kernel = kernelFactory.getKernel("scatter_row", st);
     DAAL_CHECK_STATUS_VAR(st);
+
+    DAAL_ASSERT_UNIVERSAL_BUFFER(dataSumOfSquares, algorithmFpType, dataBlockRowCount);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(distances, algorithmFpType, dataBlockRowCount * queryBlockRowCount);
 
     KernelArguments args(3);
     args.set(0, dataSumOfSquares, AccessModeIds::read);
     args.set(1, distances, AccessModeIds::write);
-    args.set(2, dataBlockRowCount);
+    args.set(2, static_cast<int32_t>(dataBlockRowCount));
 
-    KernelRange global_range(dataBlockRowCount, queryBlockRowCount);
-    context.run(global_range, kernel_init_distances, args, st);
+    KernelRange globalRange(dataBlockRowCount, queryBlockRowCount);
+    context.run(globalRange, kernel, args, st);
+    DAAL_CHECK_STATUS_VAR(st);
     return st;
 }
 
 template <typename algorithmFpType>
-Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeDistances(ExecutionContextIface & context,
-                                                                              const services::internal::Buffer<algorithmFpType> & data,
-                                                                              const services::internal::Buffer<algorithmFpType> & query,
-                                                                              UniversalBuffer & distances, uint32_t dataBlockRowCount,
-                                                                              uint32_t queryBlockRowCount, uint32_t nFeatures)
+services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeDistances(ExecutionContextIface & context,
+                                                                                        const services::internal::Buffer<algorithmFpType> & data,
+                                                                                        const services::internal::Buffer<algorithmFpType> & query,
+                                                                                        UniversalBuffer & distances, uint32_t dataBlockRowCount,
+                                                                                        uint32_t queryBlockRowCount, uint32_t nFeatures)
+
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.GEMM);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(distances, algorithmFpType, queryBlockRowCount * dataBlockRowCount);
+    DAAL_ASSERT(data.size() >= dataBlockRowCount * nFeatures);
+    DAAL_ASSERT(query.size() >= queryBlockRowCount * nFeatures);
     return BlasGpu<algorithmFpType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::Trans, queryBlockRowCount,
                                            dataBlockRowCount, nFeatures, algorithmFpType(-2.0), query, nFeatures, 0, data, nFeatures, 0,
                                            algorithmFpType(1.0), distances.get<algorithmFpType>(), dataBlockRowCount, 0);
 }
 
 template <typename algorithmFpType>
-Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeWinners(ExecutionContextIface & context, const UniversalBuffer & labels,
-                                                                            uint32_t queryBlockRowCount, uint32_t k, UniversalBuffer labelsOut)
+services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeWinners(ExecutionContextIface & context, const UniversalBuffer & labels,
+                                                                                      uint32_t queryBlockRowCount, uint32_t k,
+                                                                                      UniversalBuffer labelsOut)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeWinners);
-    if (k > static_cast<uint32_t>(INT_MAX))
-    {
-        return services::Status(services::ErrorBufferSizeIntegerOverflow);
-    }
-    Status st;
-    auto & kernel_factory = context.getClKernelFactory();
-    DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
-    auto kernel_compute_winners = kernel_factory.getKernel("find_max_occurance", st);
+
+    services::Status st;
+    auto & kernelFactory = context.getClKernelFactory();
+    DAAL_CHECK_STATUS_VAR(buildProgram(kernelFactory));
+    auto kernel = kernelFactory.getKernel("find_max_occurance", st);
     DAAL_CHECK_STATUS_VAR(st);
+
+    DAAL_ASSERT_UNIVERSAL_BUFFER(labels, int, queryBlockRowCount * k);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(labelsOut, algorithmFpType, queryBlockRowCount);
 
     KernelArguments args(3);
     args.set(0, labels, AccessModeIds::read);
     args.set(1, labelsOut, AccessModeIds::write);
-    args.set(2, k);
+    args.set(2, static_cast<int32_t>(k));
 
-    KernelRange local_range(1);
-    KernelRange global_range(queryBlockRowCount);
+    KernelRange localRange(1);
+    KernelRange globalRange(queryBlockRowCount);
 
     KernelNDRange range(1);
-    range.global(global_range, st);
+    range.global(globalRange, st);
     DAAL_CHECK_STATUS_VAR(st);
-    range.local(local_range, st);
+    range.local(localRange, st);
     DAAL_CHECK_STATUS_VAR(st);
-    context.run(range, kernel_compute_winners, args, st);
+    context.run(range, kernel, args, st);
+    DAAL_CHECK_STATUS_VAR(st);
     return st;
 }
 
 template <typename algorithmFpType>
-Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::buildProgram(ClKernelFactoryIface & kernel_factory)
+services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::buildProgram(ClKernelFactoryIface & kernelFactory)
 {
-    auto fptype_name   = services::internal::sycl::getKeyFPType<algorithmFpType>();
-    auto build_options = fptype_name;
-    build_options.add(" -D sortedType=int -D NumParts=16 ");
+    auto fptypeName   = services::internal::sycl::getKeyFPType<algorithmFpType>();
+    auto buildOptions = fptypeName;
+    buildOptions.add(" -D sortedType=int -D NumParts=16 ");
 
     services::String cachekey("__daal_algorithms_bf_knn_block_");
-    cachekey.add(fptype_name);
+    cachekey.add(fptypeName);
+    cachekey.add(buildOptions);
 
-    Status st;
+    services::Status st;
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(compute.buildProgram);
-        kernel_factory.build(ExecutionTargetIds::device, cachekey.c_str(), bf_knn_cl_kernels, build_options.c_str(), st);
+        kernelFactory.build(ExecutionTargetIds::device, cachekey.c_str(), bf_knn_cl_kernels, buildOptions.c_str(), st);
         DAAL_CHECK_STATUS_VAR(st);
     }
     return st;
