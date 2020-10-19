@@ -30,7 +30,7 @@
 #define DAAL_ASSERT_UNIVERSAL_BUFFER(buffer, BufferType, bufferSize)             \
     {                                                                            \
         DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(buffer, BufferType)                    \
-        DAAL_ASSERT((buffer).template get<BufferType>().size() == (bufferSize)); \
+        DAAL_ASSERT((buffer).template get<BufferType>().size() >= (bufferSize)); \
     }
 
 namespace daal

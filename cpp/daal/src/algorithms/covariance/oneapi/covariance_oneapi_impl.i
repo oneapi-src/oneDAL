@@ -33,7 +33,6 @@
 #include "src/algorithms/covariance/oneapi/cl_kernels/covariance_kernels.cl"
 #include "src/externals/service_ittnotify.h"
 #include "src/services/service_data_utils.h"
-#include "include/services/internal/sycl/daal_defines_sycl.h"
 
 using namespace daal::services::internal;
 using namespace daal::services::internal::sycl;

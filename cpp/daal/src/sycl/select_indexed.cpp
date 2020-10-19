@@ -24,7 +24,6 @@
 #include "services/daal_string.h"
 #include "src/services/service_data_utils.h"
 #include "src/externals/service_ittnotify.h"
-#include "services/internal/sycl/daal_defines_sycl.h"
 
 using namespace daal::data_management;
 using namespace daal::services::internal;
@@ -91,7 +90,7 @@ services::Status runQuickSelectSimd(ExecutionContextIface & context, ClKernelFac
     DAAL_CHECK_STATUS_VAR(status);
 
     KernelArguments args(10, status);
-    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, dataVectors, AccessModeIds::read);
     args.set(1, indexVectors, AccessModeIds::read);
     args.set(2, result.values, AccessModeIds::write);
@@ -152,7 +151,7 @@ services::Status runDirectSelectSimd(ExecutionContextIface & context, ClKernelFa
     DAAL_CHECK_STATUS_VAR(status);
 
     KernelArguments args(7, status);
-    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, dataVectors, AccessModeIds::read);
     args.set(1, result.values, AccessModeIds::write);
     args.set(2, result.indices, AccessModeIds::write);
