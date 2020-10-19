@@ -14,11 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-<<<<<<< HEAD
 #pragma once
 
-=======
->>>>>>> 744720e0b... Fixed build issue on VS2017 in Jaccard (#1111)
 #include <immintrin.h>
 
 #include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
@@ -29,10 +26,6 @@
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/graph/detail/graph_service_functions_impl.hpp"
-<<<<<<< HEAD
-#include "oneapi/dal/graph/detail/undirected_adjacency_array_graph_impl.hpp"
-=======
->>>>>>> 744720e0b... Fixed build issue on VS2017 in Jaccard (#1111)
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
 namespace oneapi::dal::preview {
@@ -176,10 +169,6 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
     const std::int32_t n_v_4_end = n_v - 4;
 
     while (i_u <= n_u_4_end && i_v <= n_v_4_end) { // not in last n%8 elements
-<<<<<<< HEAD
-
-=======
->>>>>>> 744720e0b... Fixed build issue on VS2017 in Jaccard (#1111)
         // assumes neighbor list is ordered
         std::int32_t minu = neigh_u[i_u];
         std::int32_t maxv = neigh_v[i_v + 3];
