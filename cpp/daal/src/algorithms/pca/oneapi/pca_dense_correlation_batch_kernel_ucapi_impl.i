@@ -80,6 +80,7 @@ Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::compute(bool isCorrelati
     }
 
     auto calculateVariancesKernel = kernel_factory.getKernel("calculateVariances", st);
+    DAAL_CHECK_STATUS_VAR(st);
 
     if (dataTable.getNumberOfColumns() > static_cast<size_t>(services::internal::MaxVal<uint32_t>::get()))
     {

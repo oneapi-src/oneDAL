@@ -78,6 +78,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::computeInvSigma
     DAAL_CHECK_STATUS_VAR(variances->getBlockOfRows(0, nFeatures, readOnly, varBlock));
 
     DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(varBlock.getBuffer()), algorithmFPType, nFeatures);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(invSigmas), algorithmFPType, nFeatures);
 
     KernelArguments args(2, status);
     DAAL_CHECK_STATUS_VAR(status);
@@ -95,7 +96,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::computeInvSigma
 template <typename algorithmFPType, transform::Method method>
 services::Status TransformKernelOneAPI<algorithmFPType, method>::normalize(ExecutionContextIface & ctx, UniversalBuffer & copyBlock,
                                                                            UniversalBuffer & rawMeans, UniversalBuffer & invSigmas, bool hasMeans,
-                                                                           bool hasInvSigmas, const uint32_t numFeatures, const uint32_t numVectors)
+                                                                           bool hasInvSigmas, const uint32_t nFeatures, const uint32_t nVectors)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(pca.transform.compute.normalize);
     services::Status status;
@@ -111,7 +112,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::normalize(Execu
     DAAL_ASSERT_UNIVERSAL_BUFFER(rawMeans, algorithmFPType, nFeatures);
     DAAL_ASSERT_UNIVERSAL_BUFFER(invSigmas, algorithmFPType, nFeatures);
 
-    const unsigned int workItemsPerGroup = (numFeatures > maxWorkItemsPerGroup) ? maxWorkItemsPerGroup : numFeatures;
+    const uint32_t workItemsPerGroup = (numFeatures > maxWorkItemsPerGroup) ? maxWorkItemsPerGroup : numFeatures;
     DAAL_ASSERT(workItemsPerGroup != 0);
     KernelArguments args(7, status);
     DAAL_CHECK_STATUS_VAR(status);
@@ -121,10 +122,10 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::normalize(Execu
     args.set(3, static_cast<unsigned char>(hasMeans));
     args.set(4, static_cast<unsigned char>(hasInvSigmas));
     args.set(5, maxWorkItemsPerGroup);
-    args.set(6, numFeatures);
+    args.set(6, nFeatures);
 
     KernelRange local_range(workItemsPerGroup);
-    KernelRange global_range(workItemsPerGroup * numVectors);
+    KernelRange global_range(workItemsPerGroup * nVectors);
     KernelNDRange range(1);
     range.global(global_range, status);
     DAAL_CHECK_STATUS_VAR(status);
@@ -146,11 +147,14 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::whitening(Execu
     services::Status status;
 
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
-    buildKernel(ctx, factory);
+    DAAL_CHECK_STATUS_VAR(buildKernel(ctx, factory));
 
     const char * const whiteningKernel = "whitening";
     KernelPtr kernel                   = factory.getKernel(whiteningKernel, status);
     DAAL_CHECK_STATUS_VAR(status);
+
+    DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(transformedBlock), algorithmFPType, numVectors * numComponents);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(invEigenvalues, algorithmFPType, numComponents);
 
     const uint32_t workItemsPerGroup = (numComponents > maxWorkItemsPerGroup) ? maxWorkItemsPerGroup : numComponents;
     KernelArguments args(4, status);
@@ -184,6 +188,8 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::allocateBuffer(
     const algorithmFPType zero = 0.0;
     returnBuffer               = ctx.allocate(TypeIds::id<algorithmFPType>(), bufferSize, status);
     DAAL_CHECK_STATUS_VAR(status);
+
+    DAAL_ASSERT_UNIVERSAL_BUFFER(returnBuffer, algorithmFPType, bufferSize);
     ctx.fill(returnBuffer, zero, status);
     DAAL_CHECK_STATUS_VAR(status);
 
@@ -201,6 +207,8 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::copyBuffer(Exec
     BlockDescriptor<algorithmFPType> dataBlock;
     DAAL_CHECK_STATUS(status, data.getBlockOfRows(0, nRows, ReadWriteMode::readOnly, dataBlock));
 
+    DAAL_ASSERT_UNIVERSAL_BUFFER(returnBuffer, algorithmFPType, nRows * nCols);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(dataBlock.getBuffer()), algorithmFPType, nRows * nCols);
     ctx.copy(returnBuffer, 0, dataBlock.getBuffer(), 0, nRows * nCols, status);
     DAAL_CHECK_STATUS_VAR(status);
 
@@ -257,8 +265,11 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::initBuffers(Exe
     DAAL_CHECK_STATUS(status, allocateBuffer(ctx, invSigmas, numFeatures));
     DAAL_CHECK_STATUS(status, allocateBuffer(ctx, invEigenvalues, numComponents));
     DAAL_CHECK_STATUS(status, allocateBuffer(ctx, rawMeans, numFeatures));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, numVectors, numFeatures);
     copyBlock = ctx.allocate(TypeIds::id<algorithmFPType>(), numVectors * numFeatures, status);
     DAAL_CHECK_STATUS_VAR(status);
+
+    /// check buffer size. which macros should I use?
     DAAL_CHECK_STATUS(status, copyBuffer(ctx, copyBlock, data, numVectors, numFeatures));
 
     return status;
