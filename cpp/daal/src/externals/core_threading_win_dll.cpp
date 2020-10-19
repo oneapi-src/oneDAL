@@ -317,6 +317,8 @@ static _daal_tbb_task_scheduler_free_t _daal_tbb_task_scheduler_free_ptr = NULL;
 static _setNumberOfThreads_t _setNumberOfThreads_ptr                     = NULL;
 static _daal_threader_env_t _daal_threader_env_ptr                       = NULL;
 
+static _daal_parallel_sort_t _daal_parallel_sort_ptr = NULL;
+
 #if !(defined DAAL_THREAD_PINNING_DISABLED)
 static _thread_pinner_thread_pinner_init_t _thread_pinner_thread_pinner_init_ptr = NULL;
 static _thread_pinner_read_topology_t _thread_pinner_read_topology_ptr           = NULL;
