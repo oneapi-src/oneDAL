@@ -156,7 +156,7 @@ jobs:
     displayName: conda build
   - script: |
       $(Pipeline.Workspace)/s/.ci/scripts/conformance_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/oneapi
-    timeoutInMinutes: 15
+    timeoutInMinutes: 30
     displayName: conformance
   - script: |
       cp -R $(Pipeline.Workspace)/s/.ci/scripts/conformance-scripts/_log_* $(Build.ArtifactStagingDirectory)/
