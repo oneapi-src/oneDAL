@@ -42,8 +42,8 @@ using namespace daal::services;
 using namespace daal::services::internal::sycl;
 using namespace daal::data_management;
 
-constexpr size_t maxInt32AsSizeT   = static_cast<size_t>(daal::services::internal::MaxVal<int32_t>::get());
-constexpr size_t maxInt32AsUint32T = static_cast<uint32_t>(daal::services::internal::MaxVal<int32_t>::get());
+constexpr size_t maxInt32AsSizeT     = static_cast<size_t>(daal::services::internal::MaxVal<int32_t>::get());
+constexpr uint32_t maxInt32AsUint32T = static_cast<uint32_t>(daal::services::internal::MaxVal<int32_t>::get());
 
 namespace daal
 {
