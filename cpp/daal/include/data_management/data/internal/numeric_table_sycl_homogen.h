@@ -259,22 +259,20 @@ protected:
 
             if (!getNumberOfRows())
             {
-                status |= services::Status(services::ErrorIncorrectNumberOfRows);
+                status |= services::Status(services::ErrorIncorrectNumberOfObservations);
                 return services::throwIfPossible(status);
             }
-            else
-            {
-                status |= checkSizeOverflow(getNumberOfColumns(), getNumberOfRows());
-                if (!status) return services::throwIfPossible(status);
 
-                const size_t size = getNumberOfColumns() * getNumberOfRows();
-                const auto universalBuffer =
-                    services::internal::getDefaultContext().allocate(services::internal::sycl::TypeIds::id<DataType>(), size, status);
+            status |= checkSizeOverflow(getNumberOfColumns(), getNumberOfRows());
+            if (!status) return services::throwIfPossible(status);
 
-                if (!status) return services::throwIfPossible(status);
+            const size_t size = getNumberOfColumns() * getNumberOfRows();
+            const auto universalBuffer =
+                services::internal::getDefaultContext().allocate(services::internal::sycl::TypeIds::id<DataType>(), size, status);
 
-                _buffer = universalBuffer.template get<DataType>();
-            }
+            if (!status) return services::throwIfPossible(status);
+
+            _buffer = universalBuffer.template get<DataType>();
         }
 
         _memStatus = internallyAllocated;
