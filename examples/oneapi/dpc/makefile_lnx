@@ -83,7 +83,7 @@ else
 endif
 
 ifeq ($(threading),sequential)
-    $(error Sequential version is not supported. To run sequential version please refer to 'examples/daal/cpp')
+    $(error Sequential version is not supported. To run sequential version please refer to 'examples/oneapi/cpp')
 else
     override threading = parallel
     THREADING_LIB := onedal_thread
