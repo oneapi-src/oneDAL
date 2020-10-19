@@ -62,15 +62,31 @@ public:
 public:
     virtual ~SelectIndexed() {}
     virtual Result & selectIndices(const UniversalBuffer & dataVectors, uint32_t nK, uint32_t nVectors, uint32_t vectorSize, uint32_t lastVectorSize,
+<<<<<<< HEAD
                                    uint32_t vectorOffset, Result & result, services::Status * status) = 0;
     static void convertIndicesToLabels(const UniversalBuffer & indices, const UniversalBuffer & labels, uint32_t nVectors, uint32_t vectorSize,
                                        uint32_t vectorOffset, services::Status * status);
     void selectNearestDistancesAndLabels(const UniversalBuffer & distances, const UniversalBuffer & dataLabels, uint32_t nK, uint32_t nVectors,
                                          uint32_t vectorSize, uint32_t vectorOffset, uint32_t labelOffset, Result & result, services::Status * status)
+=======
+                                   uint32_t vectorOffset, Result & result, services::Status & status) = 0;
+    static services::Status convertIndicesToLabels(const UniversalBuffer & indices, const UniversalBuffer & labels, uint32_t nVectors,
+                                                   uint32_t vectorSize, uint32_t vectorOffset);
+    services::Status selectNearestDistancesAndLabels(const UniversalBuffer & distances, const UniversalBuffer & dataLabels, uint32_t nK,
+                                                     uint32_t nVectors, uint32_t vectorSize, uint32_t vectorOffset, uint32_t labelOffset,
+                                                     Result & result)
+>>>>>>> ed9a09429... Added safety checks for BF KNN on GPU (#995)
     {
+        services::Status status;
         selectIndices(distances, nK, nVectors, vectorSize, vectorSize, vectorOffset, result, status);
+<<<<<<< HEAD
         DAAL_CHECK_STATUS_PTR(status);
         convertIndicesToLabels(result.indices, dataLabels, nVectors, nK, labelOffset, status);
+=======
+        DAAL_CHECK_STATUS_VAR(status);
+        DAAL_CHECK_STATUS_VAR(convertIndicesToLabels(result.indices, dataLabels, nVectors, nK, labelOffset));
+        return services::Status();
+>>>>>>> ed9a09429... Added safety checks for BF KNN on GPU (#995)
     }
 };
 
@@ -78,10 +94,17 @@ class SelectIndexedFactory
 {
 public:
     SelectIndexedFactory();
+<<<<<<< HEAD
     SelectIndexed * create(int nK, SelectIndexed::Params & par, daal::services::Status * st);
 
 private:
     typedef SelectIndexed * (*CreateFuncType)(SelectIndexed::Params & par, daal::services::Status * st);
+=======
+    SelectIndexed * create(int nK, SelectIndexed::Params & par, services::Status & st);
+
+private:
+    typedef SelectIndexed * (*CreateFuncType)(SelectIndexed::Params & par, services::Status & st);
+>>>>>>> ed9a09429... Added safety checks for BF KNN on GPU (#995)
     struct Entry
     {
         int minK;
@@ -126,7 +149,11 @@ private:
                                   uint32_t nRndSeq, uint32_t nK, uint32_t nVectors, uint32_t vectorSize, uint32_t lastVectorSize,
                                   uint32_t vectorOffset, Result & result, services::Status * status);
     daal::services::Status init(Params & par);
+<<<<<<< HEAD
     static void buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId & vectorTypeId, services::Status * status);
+=======
+    static services::Status buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId & vectorTypeId);
+>>>>>>> ed9a09429... Added safety checks for BF KNN on GPU (#995)
 
 private:
     static const uint32_t _maxSeqLength = 1024;
@@ -146,7 +173,11 @@ public:
                                    uint32_t vectorOffset, Result & result, services::Status * status);
 
 private:
+<<<<<<< HEAD
     static void buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId & vectorTypeId, uint32_t nK, services::Status * status);
+=======
+    static services::Status buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId & vectorTypeId, uint32_t nK);
+>>>>>>> ed9a09429... Added safety checks for BF KNN on GPU (#995)
 
 private:
     DirectSelectIndexed(uint32_t nK) : _nK(nK) {}
