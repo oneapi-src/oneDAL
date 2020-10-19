@@ -111,7 +111,7 @@ DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, 
 #endif
 }
 
-DAAL_EXPORT void _daal_parallel_sort(void ** begin_ptr, void * end_ptr)
+DAAL_EXPORT void _daal_parallel_sort(void * begin_ptr, void * end_ptr)
 {
     int * begin_p = (int *)begin_ptr;
     int * end_p   = (int *)end_ptr;
