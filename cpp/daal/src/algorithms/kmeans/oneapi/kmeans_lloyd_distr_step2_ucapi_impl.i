@@ -107,37 +107,37 @@ Status KMeansDistributedStep2KernelUCAPI<algorithmFPType>::compute(size_t na, co
     for (uint32_t i = 0; i < nBlocks; i++)
     {
         BlockDescriptor<int> ntParClusterS0Rows;
-        const_cast<NumericTable *>(a[i * 5 + 0])->getBlockOfRows(0, nClusters, readOnly, ntParClusterS0Rows);
+        DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(a[i * 5 + 0])->getBlockOfRows(0, nClusters, readOnly, ntParClusterS0Rows));
         auto inParClusterS0 = ntParClusterS0Rows.getBuffer();
 
         BlockDescriptor<algorithmFPType> ntParClusterS1Rows;
-        const_cast<NumericTable *>(a[i * 5 + 1])->getBlockOfRows(0, nClusters, readOnly, ntParClusterS1Rows);
+        DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(a[i * 5 + 1])->getBlockOfRows(0, nClusters, readOnly, ntParClusterS1Rows));
         auto inParClusterS1 = ntParClusterS1Rows.getBuffer();
 
         DAAL_CHECK_STATUS_VAR(updateClusters(i == 0, inParClusterS0, inParClusterS1, outCCounters, outCentroids, nClusters, nFeatures));
 
         BlockDescriptor<algorithmFPType> ntParObjFunctionRows;
-        const_cast<NumericTable *>(a[i * 5 + 2])->getBlockOfRows(0, 1, readOnly, ntParObjFunctionRows);
+        DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(a[i * 5 + 2])->getBlockOfRows(0, 1, readOnly, ntParObjFunctionRows));
         DAAL_ASSERT(ntParObjFunctionRows.getBuffer().size() > 0);
         auto inParObjFunction = ntParObjFunctionRows.getBuffer().toHost(data_management::readOnly, st);
         DAAL_CHECK_STATUS_VAR(st);
         tmpObjValue += *inParObjFunction.get();
 
         BlockDescriptor<algorithmFPType> ntParCValuesRows;
-        const_cast<NumericTable *>(a[i * 5 + 3])->getBlockOfRows(0, nClusters, readOnly, ntParCValuesRows);
+        DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(a[i * 5 + 3])->getBlockOfRows(0, nClusters, readOnly, ntParCValuesRows));
         auto inParCValues = ntParCValuesRows.getBuffer();
 
         BlockDescriptor<int> ntParCCandidates;
-        const_cast<NumericTable *>(a[i * 5 + 4])->getBlockOfRows(0, nClusters, readOnly, ntParCCandidates);
+        DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(a[i * 5 + 4])->getBlockOfRows(0, nClusters, readOnly, ntParCCandidates));
         auto intParCCandidates = ntParCCandidates.getBuffer();
 
         DAAL_CHECK_STATUS_VAR(updateCandidates(i == 0, intParCCandidates, inParCValues, outCCentroids, outCValues, nClusters));
 
-        const_cast<NumericTable *>(a[i * 5 + 0])->releaseBlockOfRows(ntParClusterS0Rows);
-        const_cast<NumericTable *>(a[i * 5 + 1])->releaseBlockOfRows(ntParClusterS1Rows);
-        const_cast<NumericTable *>(a[i * 5 + 2])->releaseBlockOfRows(ntParObjFunctionRows);
-        const_cast<NumericTable *>(a[i * 5 + 3])->releaseBlockOfRows(ntParCValuesRows);
-        const_cast<NumericTable *>(a[i * 5 + 4])->releaseBlockOfRows(ntParCCandidates);
+        DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(a[i * 5 + 0])->releaseBlockOfRows(ntParClusterS0Rows));
+        DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(a[i * 5 + 1])->releaseBlockOfRows(ntParClusterS1Rows));
+        DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(a[i * 5 + 2])->releaseBlockOfRows(ntParObjFunctionRows));
+        DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(a[i * 5 + 3])->releaseBlockOfRows(ntParCValuesRows));
+        DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(a[i * 5 + 4])->releaseBlockOfRows(ntParCCandidates));
     }
     *outObjFunction.get() = tmpObjValue;
     {
@@ -155,11 +155,11 @@ Status KMeansDistributedStep2KernelUCAPI<algorithmFPType>::compute(size_t na, co
             for (int k = 0; k < nFeatures; k++) retCentroids.get()[j * nFeatures + k] *= count;
         }
     }
-    ntClusterS0->releaseBlockOfRows(ntClusterS0Rows);
-    ntClusterS1->releaseBlockOfRows(ntClusterS1Rows);
-    ntObjFunction->releaseBlockOfRows(ntObjFunctionRows);
-    ntCValues->releaseBlockOfRows(ntCValuesRows);
-    ntCCentroids->releaseBlockOfRows(ntCCentroidsRows);
+    DAAL_CHECK_STATUS_VAR(ntClusterS0->releaseBlockOfRows(ntClusterS0Rows));
+    DAAL_CHECK_STATUS_VAR(ntClusterS1->releaseBlockOfRows(ntClusterS1Rows));
+    DAAL_CHECK_STATUS_VAR(ntObjFunction->releaseBlockOfRows(ntObjFunctionRows));
+    DAAL_CHECK_STATUS_VAR(ntCValues->releaseBlockOfRows(ntCValuesRows));
+    DAAL_CHECK_STATUS_VAR(ntCCentroids->releaseBlockOfRows(ntCCentroidsRows));
 
     return st;
 }
