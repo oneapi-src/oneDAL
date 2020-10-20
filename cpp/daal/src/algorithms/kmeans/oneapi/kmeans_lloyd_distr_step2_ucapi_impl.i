@@ -87,8 +87,9 @@ Status KMeansDistributedStep2KernelUCAPI<algorithmFPType>::compute(size_t na, co
     auto outCentroids = ntClusterS1Rows.getBuffer();
 
     BlockDescriptor<algorithmFPType> ntObjFunctionRows;
-    DAAL_CHECK_STATUS_VAR(ntObjFunction->getBlockOfRows(0, nClusters, writeOnly, ntObjFunctionRows));
+    DAAL_CHECK_STATUS_VAR(ntObjFunction->getBlockOfRows(0, 1, writeOnly, ntObjFunctionRows));
 
+    DAAL_ASSERT(ntObjFunctionRows.getBuffer().size() >= 1);
     auto outObjFunction = ntObjFunctionRows.getBuffer().toHost(data_management::readOnly, st);
     DAAL_CHECK_STATUS_VAR(st);
 
@@ -144,7 +145,7 @@ Status KMeansDistributedStep2KernelUCAPI<algorithmFPType>::compute(size_t na, co
         DAAL_ASSERT(outCentroids.size() >= nFeatures * nClusters);
         auto retCentroids = outCentroids.toHost(ReadWriteMode::readWrite, st);
         DAAL_CHECK_STATUS_VAR(st);
-        DAAL_ASSERT(outCentroids.size() >= nClusters);
+        DAAL_ASSERT(outCCounters.size() >= nClusters);
         auto retCCounters = outCCounters.toHost(ReadWriteMode::readOnly, st);
         DAAL_CHECK_STATUS_VAR(st);
 
