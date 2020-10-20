@@ -148,7 +148,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>onedal_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>onedal_dll.1.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -170,7 +170,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>onedal_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>onedal_dll.1.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -196,7 +196,7 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>onedal.lib;onedal_core.lib;onedal_thread.lib;tbb.lib;tbbmalloc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>onedal.1.lib;onedal_core.1.lib;onedal_thread.1.lib;tbb.lib;tbbmalloc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <SubSystem>Console</SubSystem>
     </Link>
@@ -223,7 +223,7 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>onedal.lib;onedal_core.lib;onedal_sequential.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>onedal.1.lib;onedal_core.1.lib;onedal_sequential.1.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <SubSystem>Console</SubSystem>
     </Link>

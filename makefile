@@ -267,6 +267,12 @@ mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl_dal_sycl.hpp $(MKLGPUFPKDIR.inc
 # Release library names
 #===============================================================================
 
+major_version := 1
+minor_version := 0
+
+y_full_name_postfix := $(if $(OS_is_win),,$(if $(OS_is_mac),.$(major_version).$(minor_version).$(y),.$(y).$(major_version).$(minor_version)))
+y_major_name_postfix := $(if $(OS_is_win),,$(if $(OS_is_mac),.$(major_version).$(y),.$(y).$(major_version)))
+
 core_a       := $(plib)onedal_core.$a
 core_y       := $(plib)onedal_core.$y
 oneapi_a     := $(plib)onedal.$a
@@ -980,18 +986,43 @@ upd = $(cpy)
 _release: info.building.release
 
 #----- releasing static and dynamic libraries
-define .release.ay
+define .release.ay_win
+$3: $2/$1
+$(if $(phony-upd),$(eval .PHONY: $2/$1))
+$2/$1: $(WORKDIR.lib)/$1 | $2/.
+	cp -fp $(WORKDIR.lib)/$1 $2/$(subst dll.,dll.$(major_version).,$1)
+endef
+define .release.y_link
+$3: $2/$1
+$(if $(phony-upd),$(eval .PHONY: $2/$1))
+$2/$1: $(WORKDIR.lib)/$1 | $2/.
+	cp -fp $(WORKDIR.lib)/$1 $2/$(subst .$y,$(y_full_name_postfix),$1) && cd $2 && ln -sf $(subst .$y,$(y_full_name_postfix),$1) $(subst .$y,$(y_major_name_postfix),$1) && ln -sf $(subst .$y,$(y_major_name_postfix),$1) $1
+endef
+define .release.a_link
 $3: $2/$1
 $(if $(phony-upd),$(eval .PHONY: $2/$1))
 $2/$1: $(WORKDIR.lib)/$1 | $2/. ; $(value upd)
 endef
-$(foreach x,$(release.LIBS_A),$(eval $(call .release.ay,$x,$(RELEASEDIR.libia),_release_c)))
-$(foreach x,$(release.LIBS_Y),$(eval $(call .release.ay,$x,$(RELEASEDIR.soia),_release_c)))
-$(foreach x,$(release.LIBS_J),$(eval $(call .release.ay,$x,$(RELEASEDIR.soia),_release_jj)))
-$(foreach x,$(release.ONEAPI.LIBS_A),$(eval $(call .release.ay,$x,$(RELEASEDIR.libia),_release_oneapi_c)))
-$(foreach x,$(release.ONEAPI.LIBS_Y),$(eval $(call .release.ay,$x,$(RELEASEDIR.soia),_release_oneapi_c)))
-$(foreach x,$(release.ONEAPI.LIBS_A.dpc),$(eval $(call .release.ay,$x,$(RELEASEDIR.libia),_release_oneapi_dpc)))
-$(foreach x,$(release.ONEAPI.LIBS_Y.dpc),$(eval $(call .release.ay,$x,$(RELEASEDIR.soia),_release_oneapi_dpc)))
+
+ifeq ($(if $(or $(OS_is_lnx),$(OS_is_mac)),yes,),yes)
+$(foreach x,$(release.LIBS_A),$(eval $(call .release.a_link,$x,$(RELEASEDIR.libia),_release_c)))
+$(foreach x,$(release.LIBS_Y),$(eval $(call .release.y_link,$x,$(RELEASEDIR.soia),_release_c)))
+$(foreach x,$(release.LIBS_J),$(eval $(call .release.y_link,$x,$(RELEASEDIR.soia),_release_jj)))
+$(foreach x,$(release.ONEAPI.LIBS_A),$(eval $(call .release.a_link,$x,$(RELEASEDIR.libia),_release_oneapi_c)))
+$(foreach x,$(release.ONEAPI.LIBS_Y),$(eval $(call .release.y_link,$x,$(RELEASEDIR.soia),_release_oneapi_c)))
+$(foreach x,$(release.ONEAPI.LIBS_A.dpc),$(eval $(call .release.a_link,$x,$(RELEASEDIR.libia),_release_oneapi_dpc)))
+$(foreach x,$(release.ONEAPI.LIBS_Y.dpc),$(eval $(call .release.y_link,$x,$(RELEASEDIR.soia),_release_oneapi_dpc)))
+endif
+
+ifeq ($(OS_is_win),yes)
+$(foreach x,$(release.LIBS_A),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.libia),_release_c)))
+$(foreach x,$(release.LIBS_Y),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.soia),_release_c)))
+$(foreach x,$(release.LIBS_J),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.soia),_release_jj)))
+$(foreach x,$(release.ONEAPI.LIBS_A),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.libia),_release_oneapi_c)))
+$(foreach x,$(release.ONEAPI.LIBS_Y),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.soia),_release_oneapi_c)))
+$(foreach x,$(release.ONEAPI.LIBS_A.dpc),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.libia),_release_oneapi_dpc)))
+$(foreach x,$(release.ONEAPI.LIBS_Y.dpc),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.soia),_release_oneapi_dpc)))
+endif
 
 ifneq ($(MKLGPUFPKDIR),)
 # Copies the file to the destination directory and renames daal -> onedal
@@ -1004,36 +1035,6 @@ endef
 
 $(foreach t,$(mklgpufpk.HEADERS),$(eval $(call .release.sycl.old,$t,$(RELEASEDIR.include.mklgpufpk))))
 $(foreach t,$(mklgpufpk.LIBS_A), $(eval $(call .release.sycl.old,$t,$(RELEASEDIR.libia))))
-endif
-
-# Adds symlink to the old library name
-# $1: New library name
-# $2: Release directory
-# $3: make target to add dependency
-# Note: The `ln` command does not support `-r` on MacOS, so we
-#       `cd`to the lib directory first and then create symlink.
-define .release.add_compat_symlink
-$3: $2/$(subst onedal,daal,$1)
-$2/$(subst onedal,daal,$1): $2/$1
-	cd $2 && ln -sf $1 $(subst onedal,daal,$1)
-endef
-
-ifeq ($(if $(or $(OS_is_lnx),$(OS_is_mac)),yes,),yes)
-$(foreach x,$(release.LIBS_A),$(eval $(call .release.add_compat_symlink,$x,$(RELEASEDIR.libia),_release_c)))
-$(foreach x,$(release.LIBS_Y),$(eval $(call .release.add_compat_symlink,$x,$(RELEASEDIR.soia),_release_c)))
-endif
-
-# Adds copy to the old library name
-# $1: New library name
-# $2: Release directory
-# $3: make target to add dependency
-define .release.add_compat_copy
-$3: $2/$(subst onedal,daal,$1)
-$2/$(subst onedal,daal,$1): $(WORKDIR.lib)/$1 ; $(value cpy)
-endef
-
-ifeq ($(OS_is_win),yes)
-$(foreach x,$(filter %_dll.$a,$(release.LIBS_A)),$(eval $(call .release.add_compat_copy,$x,$(RELEASEDIR.libia),_release_c)))
 endif
 
 #----- releasing jar files

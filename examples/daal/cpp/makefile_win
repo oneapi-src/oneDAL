@@ -125,10 +125,10 @@ COPTS=-W3 -EHsc $(COPTS)
 
 !IF ("$(RES_EXT)"=="lib")
 !IF ("$(threading)"=="sequential")
-DAAL_LIB_T = "$(DAAL_PATH)\onedal_sequential.lib"
+DAAL_LIB_T = "$(DAAL_PATH)\onedal_sequential.1.lib"
 !ELSE
 threading = parallel
-DAAL_LIB_T = "$(DAAL_PATH)\onedal_thread.lib"
+DAAL_LIB_T = "$(DAAL_PATH)\onedal_thread.1.lib"
 EXT_LIB = tbb.lib tbbmalloc.lib
 !ENDIF
 !ENDIF
@@ -140,9 +140,9 @@ LOPTS = $(DAAL_LIB) $(EXT_LIB)
 RES_DIR  =_results\$(compiler)_intel64_$(threading)_$(RES_EXT)
 
 lib libintel64:
-	nmake comm_func $(RES) $(CLEAN) EXT=.lib RES_EXT=lib compiler=$(compiler) threading=$(threading)
+	nmake comm_func $(RES) $(CLEAN) EXT=.1.lib RES_EXT=lib compiler=$(compiler) threading=$(threading)
 dll dllintel64:
-	nmake comm_func $(RES) $(CLEAN) EXT=_dll.lib RES_EXT=dll compiler=$(compiler) threading=$(threading)
+	nmake comm_func $(RES) $(CLEAN) EXT=_dll.1.lib RES_EXT=dll compiler=$(compiler) threading=$(threading)
 
 comm_func:
 	if not exist _results md _results
