@@ -140,50 +140,6 @@ public:
             }
         });
 
-        if (_res)
-        {
-            printf("Labels:\n");
-            size_t nRows = _res->getNumberOfRows();
-            ReadRows<algorithmFPType, cpu> xBD(_res, 0, nRows);
-            const algorithmFPType* p = xBD.get();
-
-            printf("%f\n", p[0]);
-            printf("%f\n", p[(nRows/2)]);
-            printf("%f\n", p[(nRows-1)]);
-        }
-        if (_prob)
-        {
-            printf("Prob:\n");
-            size_t nRows = _prob->getNumberOfRows();
-            ReadRows<algorithmFPType, cpu> xBD(_prob, 0, nRows);
-            const algorithmFPType* p = xBD.get();
-
-            for (size_t i = 0; i < 2; ++i) printf("%f ", p[0 * 2 + i]);
-            printf("\n");
-
-            for (size_t i = 0; i < 2; ++i) printf("%f ", p[(nRows/2) * 2 + i]);
-            printf("\n");
-
-            for (size_t i = 0; i < 2; ++i) printf("%f ", p[(nRows-1) * 2 + i]);
-            printf("\n");
-        }
-        if (_logProb)
-        {
-            printf("Log prob:\n");
-            size_t nRows = _logProb->getNumberOfRows();
-            ReadRows<algorithmFPType, cpu> xBD(_logProb, 0, nRows);
-            const algorithmFPType* p = xBD.get();
-
-            for (size_t i = 0; i < 2; ++i) printf("%f ", p[0 * 2 + i]);
-            printf("\n");
-
-            for (size_t i = 0; i < 2; ++i) printf("%f ", p[(nRows/2) * 2 + i]);
-            printf("\n");
-
-            for (size_t i = 0; i < 2; ++i) printf("%f ", p[(nRows-1) * 2 + i]);
-            printf("\n");
-        }
-
         return safeStat.detach();
     }
 
@@ -385,51 +341,6 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::run(const NumericT
         }
     });
     tlsData.reduce([](TlsDataCpu * ptr) { delete ptr; });
-
-    if (_res)
-    {
-        printf("Labels:\n");
-        size_t nRows = _res->getNumberOfRows();
-        ReadRows<algorithmFPType, cpu> xBD(_res, 0, nRows);
-        const algorithmFPType* p = xBD.get();
-
-        printf("%f\n", p[0]);
-        printf("%f\n", p[(nRows/2)]);
-        printf("%f\n", p[(nRows-1)]);
-    }
-    if (_prob)
-    {
-        printf("Prob:\n");
-        size_t nRows = _prob->getNumberOfRows();
-        ReadRows<algorithmFPType, cpu> xBD(_prob, 0, nRows);
-        const algorithmFPType* p = xBD.get();
-
-        for (size_t i = 0; i < nClasses; ++i) printf("%f ", p[0 * nClasses + i]);
-        printf("\n");
-
-        for (size_t i = 0; i < nClasses; ++i) printf("%f ", p[(nRows/2) * nClasses + i]);
-        printf("\n");
-
-        for (size_t i = 0; i < nClasses; ++i) printf("%f ", p[(nRows-1) * nClasses + i]);
-        printf("\n");
-    }
-    if (_logProb)
-    {
-        printf("Log prob:\n");
-        size_t nRows = _logProb->getNumberOfRows();
-        ReadRows<algorithmFPType, cpu> xBD(_logProb, 0, nRows);
-        const algorithmFPType* p = xBD.get();
-
-        for (size_t i = 0; i < nClasses; ++i) printf("%f ", p[0 * nClasses + i]);
-        printf("\n");
-
-        for (size_t i = 0; i < nClasses; ++i) printf("%f ", p[(nRows/2) * nClasses + i]);
-        printf("\n");
-
-        for (size_t i = 0; i < nClasses; ++i) printf("%f ", p[(nRows-1) * nClasses + i]);
-        printf("\n");
-    }
-
 
     return safeStat.detach();
 }
