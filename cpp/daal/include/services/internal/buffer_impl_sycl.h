@@ -93,8 +93,6 @@ public:
 private:
     UsmBuffer(const SharedPtr<T> & data, size_t size, cl::sycl::usm::alloc allocType) : _data(data), _size(size), _allocType(allocType) {}
 
-    // UsmBuffer(T * data, size_t size, cl::sycl::usm::alloc allocType) : _data(data, EmptyDeleter()), _size(size), _allocType(allocType) {}
-
     SharedPtr<T> getHostPtr(Status & status) const
     {
         using namespace cl::sycl::usm;
