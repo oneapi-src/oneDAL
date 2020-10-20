@@ -1,0 +1,711 @@
+/* file: numeric_table_sycl_csr.h */
+/*******************************************************************************
+* Copyright 2020 Intel Corporation
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*******************************************************************************/
+
+/*
+//++
+//  Implementation of a compressed sparse row (CSR) numeric table.
+//--
+*/
+
+#ifndef __SYCL_CSR_NUMERIC_TABLE_H__
+#define __SYCL_CSR_NUMERIC_TABLE_H__
+
+#include "services/base.h"
+#include "data_management/data/numeric_table.h"
+#include "data_management/data/csr_numeric_table.h"
+#include "data_management/data/data_serialize.h"
+#include "data_management/data/internal/conversion.h"
+#include "services/internal/sycl/buffer_utils.h"
+
+namespace daal
+{
+namespace data_management
+{
+namespace internal
+{
+namespace interface1
+{
+/**
+ *  <a name="DAAL-CLASS-DATA_MANAGEMENT__CSRNUMERICTABLE"></a>
+ *  \brief Class that provides methods to access data stored in the CSR layout.
+ */
+class DAAL_EXPORT SyclCSRNumericTable : public SyclNumericTable, public CSRNumericTableIface
+{
+public:
+    DECLARE_SERIALIZABLE_TAG()
+    DECLARE_SERIALIZABLE_IMPL()
+
+    DAAL_CAST_OPERATOR(SyclCSRNumericTable)
+
+    /**
+     *  Constructs CSR numeric table with user-allocated memory
+     *  \tparam   DataType        Type of values in the Numeric Table
+     *  \param[in]    ptr         Array of values in the CSR layout. Let ptr_size denote the size of an array ptr
+     *  \param[in]    colIndices  Array of column indices in the CSR layout. Values of indices are determined by the index base
+     *  \param[in]    rowOffsets  Array of row indices in the CSR layout. Size of the array is nrow+1. The first element is 0/1
+     *                            in zero-/one-based indexing. The last element is ptr_size+0/1 in zero-/one-based indexing
+     *  \param[in]    nColumns    Number of columns in the corresponding dense table
+     *  \param[in]    nRows       Number of rows in the corresponding dense table
+     *  \param[in]    indexing    Indexing scheme used to access data in the CSR layout
+     *  \param[out]   stat        Status of the numeric table construction
+     *  \return       CSR numeric table with user-allocated memory
+     *  \note Present version of Intel(R) Data Analytics Acceleration Library supports 1-based indexing only
+     */
+
+    template <typename DataType>
+    static services::SharedPtr<SyclCSRNumericTable> create(const services::internal::Buffer<DataType> & bufferData,
+                                                           const services::internal::Buffer<size_t> & bufferColIndices,
+                                                           const services::internal::Buffer<size_t> & bufferRowOffsets, size_t nColumns, size_t nRows,
+                                                           CSRIndexing indexing = oneBased, services::Status * stat = NULL)
+    {
+        DAAL_DEFAULT_CREATE_IMPL_EX(SyclCSRNumericTable, bufferData, bufferColIndices, bufferRowOffsets, nColumns, nRows, indexing);
+    }
+
+    virtual ~SyclCSRNumericTable() { freeDataMemoryImpl(); }
+
+    virtual services::Status resize(size_t nrows) DAAL_C11_OVERRIDE { return setNumberOfRowsImpl(nrows); }
+
+    /**
+     *  Returns  pointers to a data set stored in the CSR layout
+     *  \param[out]    values         Array of values in the CSR layout
+     *  \param[out]    colIndices  Array of column indices in the CSR layout
+     *  \param[out]    rowOffsets  Array of row indices in the CSR layout
+     */
+    template <typename DataType>
+    services::Status getArrays(services::internal::Buffer<DataType> & values, services::internal::Buffer<size_t> & colIndices,
+                               services::internal::Buffer<size_t> & rowOffsets) const
+    {
+        if (values)
+        {
+            values = _values.get<DataType>();
+        }
+        if (colIndices)
+        {
+            colIndices = _colIndices;
+        }
+        if (rowOffsets)
+        {
+            rowOffsets = _rowOffsets;
+        }
+        return services::Status();
+    }
+    /**
+     *  Sets a pointer to a CSR data set
+     *  \param[in]    ptr         Array of values in the CSR layout
+     *  \param[in]    colIndices  Array of column indices in the CSR layout
+     *  \param[in]    rowOffsets  Array of row indices in the CSR layout
+     *  \param[in]    indexing    The indexing scheme for access to data in the CSR layout
+     */
+    services::Status setArrays(const services::internal::sycl::UniversalBuffer & values, const services::internal::Buffer<size_t> & colIndices,
+                               const services::internal::Buffer<size_t> & rowOffsets, CSRIndexing indexing = oneBased)
+    {
+        freeDataMemoryImpl();
+        _values     = values;
+        _colIndices = colIndices;
+        _rowOffsets = rowOffsets;
+
+        // _ptr        = services::reinterpretPointerCast<byte, DataType>(ptr);
+        // _colIndices = colIndices;
+        // _rowOffsets = rowOffsets;
+        // _indexing   = indexing;
+
+        // if (ptr && colIndices && rowOffsets)
+        // {
+        //     _memStatus = userAllocated;
+        // }
+        return services::Status();
+    }
+
+    virtual services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag,
+                                            BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
+    {
+        if (isCpuTable())
+        {
+            return _cpuTable->getBlockOfRows(vector_idx, vector_num, rwflag, block);
+        }
+        return getTBlock<double>(vector_idx, vector_num, rwflag, block);
+    }
+    virtual services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag,
+                                            BlockDescriptor<float> & block) DAAL_C11_OVERRIDE
+    {
+        if (isCpuTable())
+        {
+            return _cpuTable->getBlockOfRows(vector_idx, vector_num, rwflag, block);
+        }
+
+        return getTBlock<float>(vector_idx, vector_num, rwflag, block);
+    }
+    virtual services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag,
+                                            BlockDescriptor<int> & block) DAAL_C11_OVERRIDE
+    {
+        if (isCpuTable())
+        {
+            return _cpuTable->getBlockOfRows(vector_idx, vector_num, rwflag, block);
+        }
+
+        return getTBlock<int>(vector_idx, vector_num, rwflag, block);
+    }
+
+    virtual services::Status releaseBlockOfRows(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
+    {
+        if (isCpuTable())
+        {
+            return _cpuTable->releaseBlockOfRows(block);
+        }
+
+        return releaseTBlock<double>(block);
+    }
+    virtual services::Status releaseBlockOfRows(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE
+    {
+        if (isCpuTable())
+        {
+            return _cpuTable->releaseBlockOfRows(block);
+        }
+
+        return releaseTBlock<float>(block);
+    }
+    virtual services::Status releaseBlockOfRows(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE
+    {
+        if (isCpuTable())
+        {
+            return _cpuTable->releaseBlockOfRows(block);
+        }
+
+        return releaseTBlock<int>(block);
+    }
+
+    virtual services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, ReadWriteMode rwflag,
+                                                    BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
+    {
+        if (isCpuTable())
+        {
+            return _cpuTable->getBlockOfColumnValues(feature_idx, vector_idx, value_num, rwflag, block);
+        }
+
+        return getTFeature<double>(feature_idx, vector_idx, value_num, rwflag, block);
+    }
+    virtual services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, ReadWriteMode rwflag,
+                                                    BlockDescriptor<float> & block) DAAL_C11_OVERRIDE
+    {
+        if (isCpuTable())
+        {
+            return _cpuTable->getBlockOfColumnValues(feature_idx, vector_idx, value_num, rwflag, block);
+        }
+
+        return getTFeature<float>(feature_idx, vector_idx, value_num, rwflag, block);
+    }
+    virtual services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, ReadWriteMode rwflag,
+                                                    BlockDescriptor<int> & block) DAAL_C11_OVERRIDE
+    {
+        if (isCpuTable())
+        {
+            return _cpuTable->getBlockOfColumnValues(feature_idx, vector_idx, value_num, rwflag, block);
+        }
+
+        return getTFeature<int>(feature_idx, vector_idx, value_num, rwflag, block);
+    }
+
+    virtual services::Status releaseBlockOfColumnValues(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
+    {
+        if (isCpuTable())
+        {
+            return _cpuTable->releaseBlockOfColumnValues(block);
+        }
+
+        return releaseTFeature<double>(block);
+    }
+    virtual services::Status releaseBlockOfColumnValues(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE
+    {
+        if (isCpuTable())
+        {
+            return _cpuTable->releaseBlockOfColumnValues(block);
+        }
+
+        return releaseTFeature<float>(block);
+    }
+    virtual services::Status releaseBlockOfColumnValues(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE
+    {
+        if (isCpuTable())
+        {
+            return _cpuTable->releaseBlockOfColumnValues(block);
+        }
+
+        return releaseTFeature<int>(block);
+    }
+
+    virtual services::Status getSparseBlock(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag,
+                                            CSRBlockDescriptor<double> & block) DAAL_C11_OVERRIDE
+    {
+        if (isCpuTable())
+        {
+            return _cpuTable->getSparseBlock(vector_idx, vector_num, rwflag, block);
+        }
+
+        return getSparseTBlock<double>(vector_idx, vector_num, rwflag, block);
+    }
+    virtual services::Status getSparseBlock(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag,
+                                            CSRBlockDescriptor<float> & block) DAAL_C11_OVERRIDE
+    {
+        if (isCpuTable())
+        {
+            return _cpuTable->getSparseBlock(vector_idx, vector_num, rwflag, block);
+        }
+
+        return getSparseTBlock<float>(vector_idx, vector_num, rwflag, block);
+    }
+    virtual services::Status getSparseBlock(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag,
+                                            CSRBlockDescriptor<int> & block) DAAL_C11_OVERRIDE
+    {
+        if (isCpuTable())
+        {
+            return _cpuTable->getSparseBlock(vector_idx, vector_num, rwflag, block);
+        }
+
+        return getSparseTBlock<int>(vector_idx, vector_num, rwflag, block);
+    }
+
+    virtual services::Status releaseSparseBlock(CSRBlockDescriptor<double> & block) DAAL_C11_OVERRIDE
+    {
+        if (isCpuTable())
+        {
+            return _cpuTable->releaseSparseBlock(block);
+        }
+
+        return releaseSparseTBlock<double>(block);
+    }
+    virtual services::Status releaseSparseBlock(CSRBlockDescriptor<float> & block) DAAL_C11_OVERRIDE
+    {
+        if (isCpuTable())
+        {
+            return _cpuTable->releaseSparseBlock(block);
+        }
+
+        return releaseSparseTBlock<float>(block);
+    }
+    virtual services::Status releaseSparseBlock(CSRBlockDescriptor<int> & block) DAAL_C11_OVERRIDE
+    {
+        if (isCpuTable())
+        {
+            return _cpuTable->releaseSparseBlock(block);
+        }
+
+        return releaseSparseTBlock<int>(block);
+    }
+
+    /**
+     *  Allocates memory for a data set
+     *  \param[in]    dataSize     Number of non-zero values
+     *  \param[in]    type         Memory type
+     */
+    using daal::data_management::interface1::NumericTableIface::allocateDataMemory;
+
+    services::Status allocateDataMemory(size_t dataSize, daal::MemType /*type*/ = daal::dram)
+    {
+        using namespace services::internal::sycl;
+
+        services::Status status;
+        auto & context = services::internal::getDefaultContext();
+
+        freeDataMemoryImpl();
+
+        size_t nrow = getNumberOfRows();
+
+        // if (isCpuContext())
+        // {
+        //     services::Status st;
+        //     _cpuTable = CSRNumericTable::create(_ddict, nrows, doAllocate, &st);
+        //     return st;
+        // }
+
+        if (nrow == 0) return services::Status(services::ErrorIncorrectNumberOfObservations);
+
+        const NumericTableFeature & f = (*_ddict)[0];
+
+        switch (f.indexType)
+        {
+        case features::DAAL_FLOAT32:
+        {
+            _values = context.allocate(TypeId::float32, dataSize, status);
+            break;
+        }
+        case features::DAAL_FLOAT64:
+        {
+            _values = context.allocate(TypeId::float64, dataSize, status);
+            break;
+        }
+        }
+
+        const auto colIndicesU = context.allocate(services::internal::sycl::TypeIds::id<size_t>(), dataSize, status);
+        const auto rowOffsetsU = context.allocate(services::internal::sycl::TypeIds::id<size_t>(), (nrow + 1), status);
+
+        services::throwIfPossible(status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        _colIndices = colIndicesU.template get<size_t>();
+        _rowOffsets = rowOffsetsU.template get<size_t>();
+
+        _memStatus = internallyAllocated;
+
+        // if (!_ptr || !_colIndices || !_rowOffsets)
+        // {
+        //     freeDataMemoryImpl();
+        //     return services::Status(services::ErrorMemoryAllocationFailed);
+        // }
+
+        // _rowOffsets.get()[0] = ((_indexing == oneBased) ? 1 : 0);
+        return services::Status();
+    }
+
+    /**
+     * Returns the indexing scheme for access to data in the CSR layout
+     * \return  CSR layout indexing
+     */
+    CSRIndexing getCSRIndexing() const { return _indexing; }
+
+    /**
+     * \copydoc NumericTableIface::check
+     */
+    virtual services::Status check(const char * description, bool checkDataAllocation = true) const DAAL_C11_OVERRIDE
+    {
+        // services::Status s;
+        // DAAL_CHECK_STATUS(s, data_management::SyclNumericTable::check(description, checkDataAllocation));
+
+        // if (_indexing != oneBased)
+        // {
+        //     return services::Status(services::Error::create(services::ErrorUnsupportedCSRIndexing, services::ArgumentName, description));
+        // }
+
+        return services::Status();
+    }
+
+protected:
+    inline bool isCpuTable() const { return (bool)_cpuTable; }
+
+    static bool isCpuContext() { return services::internal::getDefaultContext().getInfoDevice().isCpu; }
+
+protected:
+    NumericTableFeature _defaultFeature;
+    CSRIndexing _indexing;
+
+    services::internal::sycl::UniversalBuffer _values;
+    services::internal::Buffer<size_t> _colIndices;
+    services::internal::Buffer<size_t> _rowOffsets;
+
+    CSRNumericTablePtr _cpuTable;
+
+    services::Status allocateDataMemoryImpl(daal::MemType /*type*/ = daal::dram) DAAL_C11_OVERRIDE
+    {
+        return services::Status(services::ErrorMethodNotSupported);
+    }
+
+    void freeDataMemoryImpl() DAAL_C11_OVERRIDE
+    {
+        // _values.reset();
+        _colIndices.reset();
+        _rowOffsets.reset();
+        _memStatus = notAllocated;
+    }
+
+    /** \private */
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
+    {
+        SyclNumericTable::serialImpl<Archive, onDeserialize>(arch);
+
+        // size_t dataSize = 0;
+        // if (!onDeserialize)
+        // {
+        //     dataSize = getDataSize();
+        // }
+        // arch->set(dataSize);
+
+        // if (onDeserialize)
+        // {
+        //     allocateDataMemory(dataSize);
+        // }
+
+        // size_t nfeat = getNumberOfColumns();
+        // size_t nobs  = getNumberOfRows();
+
+        // if (nfeat > 0)
+        // {
+        //     NumericTableFeature & f = (*_ddict)[0];
+
+        //     arch->set((char *)_ptr.get(), dataSize * f.typeSize);
+        //     arch->set(_colIndices.get(), dataSize);
+        //     arch->set(_rowOffsets.get(), nobs + 1);
+        // }
+
+        return services::Status();
+    }
+
+public:
+    virtual size_t getDataSize() DAAL_C11_OVERRIDE
+    {
+        if (isCpuTable())
+        {
+            return _cpuTable->getDataSize();
+        }
+        size_t dataSize = 0;
+        {
+            services::Status status;
+            auto resinfoHostPtr = _rowOffsets.toHost(ReadWriteMode::readOnly, status);
+            auto resinfoHost    = resinfoHostPtr.get();
+            dataSize            = resinfoHost[getNumberOfRows()];
+        }
+
+        return dataSize;
+    }
+
+protected:
+    template <typename DataType>
+    SyclCSRNumericTable(const services::internal::Buffer<DataType> & bufferData, const services::internal::Buffer<size_t> & bufferColIndices,
+                        const services::internal::Buffer<size_t> & bufferRowOffsets, size_t nColumns, size_t nRows, CSRIndexing indexing,
+                        services::Status & st)
+        : SyclNumericTable(nColumns, nRows, DictionaryIface::equal, st), _indexing(indexing)
+    {
+        _layout = csrArray;
+        _defaultFeature.setType<DataType>();
+        st |= _ddict->setAllFeatures(_defaultFeature);
+
+        if (isCpuContext())
+        {
+            const auto hostData       = bufferData.toHost(ReadWriteMode::readOnly, st);
+            const auto hostColIndices = bufferColIndices.toHost(ReadWriteMode::readOnly, st);
+            const auto hostRowOffsets = bufferRowOffsets.toHost(ReadWriteMode::readOnly, st);
+            _cpuTable                 = CSRNumericTable::create(hostData, hostColIndices, hostRowOffsets, nColumns, nRows, indexing, &st);
+            return;
+        }
+
+        st |= setArrays(bufferData, bufferColIndices, bufferRowOffsets, indexing);
+    }
+
+    template <typename T>
+    services::Status getTBlock(size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
+    {
+        // size_t ncols = getNumberOfColumns();
+        // size_t nobs  = getNumberOfRows();
+        // block.setDetails(0, idx, rwFlag);
+        // size_t * rowOffsets = _rowOffsets.get();
+
+        // if (idx >= nobs)
+        // {
+        //     block.resizeBuffer(ncols, 0);
+        //     return services::Status();
+        // }
+
+        // const NumericTableFeature & f = (*_ddict)[0];
+        // const int indexType           = f.indexType;
+
+        // T * buffer;
+        // T * castingBuffer;
+        // T * location = (T *)(_ptr.get() + (rowOffsets[idx] - 1) * f.typeSize);
+
+        // if (features::internal::getIndexNumType<T>() == indexType)
+        // {
+        //     castingBuffer = location;
+
+        //     if (!block.resizeBuffer(ncols, nrows)) return services::Status(services::ErrorMemoryAllocationFailed);
+        //     buffer = block.getBlockPtr();
+        // }
+        // else
+        // {
+        //     size_t sparseBlockSize = rowOffsets[idx + nrows] - rowOffsets[idx];
+
+        //     if (!block.resizeBuffer(ncols, nrows, sparseBlockSize * sizeof(T))) return services::Status(services::ErrorMemoryAllocationFailed);
+        //     buffer = block.getBlockPtr();
+
+        //     castingBuffer = (T *)block.getAdditionalBufferPtr();
+
+        //     if (data_management::features::DAAL_OTHER_T == indexType) return services::Status(services::ErrorDataTypeNotSupported);
+
+        //     internal::getVectorUpCast(indexType, internal::getConversionDataType<T>())(sparseBlockSize, location, castingBuffer);
+        // }
+
+        // T * bufRowCursor       = castingBuffer;
+        // size_t * indicesCursor = _colIndices.get() + rowOffsets[idx] - 1;
+
+        // for (size_t i = 0; i < ncols * nrows; i++)
+        // {
+        //     buffer[i] = (T)0;
+        // }
+
+        // for (size_t i = 0; i < nrows; i++)
+        // {
+        //     size_t sparseRowSize = rowOffsets[idx + i + 1] - rowOffsets[idx + i];
+
+        //     for (size_t k = 0; k < sparseRowSize; k++)
+        //     {
+        //         buffer[i * ncols + indicesCursor[k] - 1] = bufRowCursor[k];
+        //     }
+
+        //     bufRowCursor += sparseRowSize;
+        //     indicesCursor += sparseRowSize;
+        // }
+        return services::Status();
+    }
+
+    template <typename T>
+    services::Status releaseTBlock(BlockDescriptor<T> & block)
+    {
+        if (!(block.getRWFlag() & (int)writeOnly)) block.reset();
+        return services::Status();
+    }
+
+    template <typename T>
+    services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
+    {
+        services::throwIfPossible(services::ErrorMethodNotImplemented);
+        return services::ErrorMethodNotImplemented;
+    }
+
+    template <typename T>
+    services::Status releaseTFeature(BlockDescriptor<T> & block)
+    {
+        services::throwIfPossible(services::ErrorMethodNotImplemented);
+        return services::ErrorMethodNotImplemented;
+    }
+
+    // static services::Status read(const services::internal::Buffer<T> & buffer, BlockDescriptor<T> & block, size_t nRows, size_t nCols)
+    // {
+    //     DAAL_ASSERT(buffer.size() == nRows * nCols);
+
+    //     block.setBuffer(buffer, nCols, nRows);
+    //     return services::Status();
+    // }
+
+    template <typename T>
+    services::Status getSparseTBlock(size_t idx, size_t nrows, int rwFlag, CSRBlockDescriptor<T> & block)
+    {
+        size_t ncols = getNumberOfColumns();
+        size_t nobs  = getNumberOfRows();
+        block.setDetails(ncols, idx, rwFlag);
+
+        if (idx >= nobs)
+        {
+            block.resizeValuesBuffer(0);
+            return services::Status();
+        }
+
+        nrows = (idx + nrows < nobs) ? nrows : nobs - idx;
+
+        const NumericTableFeature & f = (*_ddict)[0];
+        const int indexType           = f.indexType;
+
+        if (nrows == nobs && idx == 0)
+        {
+            block.setValuesBuffer(_values);
+            block.setColumnIndicesBuffer(_colIndices);
+            block.setRowIndicesBuffer(_rowOffsets);
+            return services::Status();
+        }
+        DAAL_ASSERT(false);
+        // size_t nValues = _rowOffsets[idx + nrows] - _rowOffsets[idx];
+
+        // if (features::internal::getIndexNumType<T>() == indexType)
+        // {
+        //     DAAL_ASSERT(false);
+        //     // block.setValuesBuffer(_values);
+        // }
+        // else
+        // {
+        //     if (!block.resizeValuesBuffer(nValues))
+        //     {
+        //         return services::Status();
+        //     }
+
+        //     if (data_management::features::DAAL_OTHER_T == indexType) return services::Status(services::ErrorDataTypeNotSupported);
+
+        //     // TODO
+        //     DAAL_ASSERT(false);
+
+        //     // services::SharedPtr<byte> location(_ptr, _ptr.get() + (rowOffsets[idx] - 1) * f.typeSize);
+        //     // internal::getVectorUpCast(indexType, internal::getConversionDataType<T>())(nValues, location.get(), block.getBlockValuesPtr());
+        // }
+
+        // services::SharedPtr<size_t> shiftedColumns(_colIndices, _colIndices.get() + (rowOffsets[idx] - 1));
+        // block.setColumnIndicesBuffer(&_rowOffsets, nValues);
+        // // block.setColumnIndicesPtr(shiftedColumns, nValues);
+
+        // if (idx == 0)
+        // {
+        //     block.setRowIndicesPtr(_rowOffsets, nrows);
+        // }
+        // else
+        // {
+        //     if (!block.resizeRowsBuffer(nrows))
+        //     {
+        //         return services::Status();
+        //     }
+
+        //     size_t * row_offsets = block.getBlockRowIndicesSharedPtr().get();
+
+        //     for (size_t i = 0; i < nrows + 1; i++)
+        //     {
+        //         row_offsets[i] = rowOffsets[idx + i] - rowOffsets[idx] + 1;
+        //     }
+        // }
+        return services::Status();
+    }
+
+    template <typename T>
+    services::Status releaseSparseTBlock(CSRBlockDescriptor<T> & block)
+    {
+        if (block.getRWFlag() & (int)writeOnly)
+        {
+            NumericTableFeature & f = (*_ddict)[0];
+            const int indexType     = f.indexType;
+
+            if (data_management::features::DAAL_OTHER_T == indexType && features::internal::getIndexNumType<T>() != indexType)
+            {
+                block.reset();
+                return services::Status(services::ErrorDataTypeNotSupported);
+            }
+
+            if (features::internal::getIndexNumType<T>() != indexType)
+            {
+                size_t nrows = block.getNumberOfRows();
+                size_t idx   = block.getRowsOffset();
+                // size_t nValues = _rowOffsets.get()[idx + nrows] - _rowOffsets.get()[idx];
+
+                // services::SharedPtr<byte> ptr      = services::reinterpretPointerCast<byte, T>(block.getBlockValuesSharedPtr());
+                // services::SharedPtr<byte> location = services::SharedPtr<byte>(ptr, _ptr.get() + (_rowOffsets.get()[idx] - 1) * f.typeSize);
+
+                // internal::getVectorDownCast(indexType, internal::getConversionDataType<T>())(nValues, ptr.get(), location.get());
+            }
+        }
+        block.reset();
+        return services::Status();
+    }
+
+    virtual services::Status setNumberOfColumnsImpl(size_t ncol) DAAL_C11_OVERRIDE
+    {
+        _ddict->setNumberOfFeatures(ncol);
+        _ddict->setAllFeatures(_defaultFeature);
+        return services::Status();
+    }
+};
+typedef services::SharedPtr<SyclCSRNumericTable> SyclCSRNumericTablePtr;
+/** @} */
+} // namespace interface1
+using interface1::SyclCSRNumericTable;
+using interface1::SyclCSRNumericTablePtr;
+
+} // namespace internal
+} // namespace data_management
+} // namespace daal
+#endif
