@@ -60,7 +60,7 @@ typedef int32_t featureIndexType;
 #define _DEFAULT_BLOCK_SIZE_COMMON               22
 #define _MIN_TREES_FOR_THREADING                 100
 #define _SCALE_FACTOR_FOR_VECT_PARALLEL_COMPUTE  0.3 /* scale tree size to chose whethever vectorized or not compute path in parallel mode */
-#define _MIN_NUMBER_OF_ROWS_FOR_VECT_SEQ_COMPUTE 32  /* min number of rows to be predicted by vectorized compute path in sequential mode */
+#define _MIN_NUMBER_OF_ROWS_FOR_VECT_SEQ_COMPUTE 32 /* min number of rows to be predicted by vectorized compute path in sequential mode */
 
 template <typename algorithmFPType, CpuType cpu>
 DAAL_FORCEINLINE void fillResults(const size_t nClasses, const enum VotingMethod votingMethod, const size_t blockSize, const double * const probas,
@@ -922,10 +922,8 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
     else
     {
         commonBufVal = prob;
-
     }
     services::internal::service_memset<algorithmFPType, cpu>(commonBufVal, algorithmFPType(0), _nClasses * nRowsOfRes);
-
 
     ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), 0, nRowsOfRes);
     DAAL_CHECK_BLOCK_STATUS(xBD);
