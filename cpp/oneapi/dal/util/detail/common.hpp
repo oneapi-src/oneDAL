@@ -41,8 +41,7 @@ inline void throw_on_false(bool condition, Args&&... args) {
 
 template <typename Data>
 inline void throw_on_sum_overflow(const Data& first, const Data& second) {
-    static_assert(std::is_integral_v<Data>,
-                  "The check requires integral operands");
+    static_assert(std::is_integral_v<Data>, "The check requires integral operands");
 
     volatile Data tmp = first + second;
     tmp -= first;
@@ -53,8 +52,7 @@ inline void throw_on_sum_overflow(const Data& first, const Data& second) {
 
 template <typename Data>
 inline void throw_on_mul_overflow(const Data& first, const Data& second) {
-    static_assert(std::is_integral_v<Data>,
-                  "The check requires integral operands");
+    static_assert(std::is_integral_v<Data>, "The check requires integral operands");
 
     if (first != 0 && second != 0) {
         volatile Data tmp = first * second;
