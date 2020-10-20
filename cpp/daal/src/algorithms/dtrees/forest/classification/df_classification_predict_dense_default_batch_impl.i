@@ -536,6 +536,9 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictByAllTrees(const 
             DAAL_CHECK_BLOCK_STATUS_THR(xBD);
             algorithmFPType * const res  = resBD.get() + iStartRow;
             algorithmFPType * const prob = probPtr + iStartRow * _nClasses;
+
+            services::internal::service_memset_seq<algorithmFPType, cpu>(prob, algorithmFPType(0), nRowsToProcess * _nClasses);
+
             daal::threader_for(nRowsToProcess, nRowsToProcess, [&](const size_t iRow) {
                 predictByTrees(0, nTreesTotal, xBD.get() + iRow * nCols, prob + iRow * _nClasses, nTreesTotal);
                 if (_res)
@@ -633,9 +636,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictOneRowByAllTrees(
     double * prob_d = _probas_d.get();
 
     DAAL_ASSERT(prob_d);
-    PRAGMA_IVDEP
-    PRAGMA_VECTOR_ALWAYS
-    for (size_t i = 0; i < _nClasses; ++i) prob_d[i] = 0;
+    services::internal::service_memset_seq<double, cpu>(prob_d, 0.0, _nClasses);
 
     predictByTreesWithoutConversion(0, nTreesTotal, x_ptr, prob_d, nTreesTotal);
 
@@ -757,7 +758,7 @@ Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t 
 
     double * prob_d = _probas_d.get();
     DAAL_ASSERT(prob_d)
-    services::internal::service_memset<double, avx512>(prob_d, double(0), _nClasses);
+    services::internal::service_memset_seq<double, avx512>(prob_d, double(0), _nClasses);
 
     size_t iTree = 0;
     for (; iTree < nVectorBlocks * 16; iTree += 16)
@@ -917,12 +918,15 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
     {
         commonBufValT.reset(_nClasses * nRowsOfRes);
         commonBufVal = commonBufValT.get();
-        services::internal::service_memset<algorithmFPType, cpu>(commonBufVal, algorithmFPType(0), _nClasses * nRowsOfRes);
     }
     else
     {
         commonBufVal = prob;
+
     }
+    services::internal::service_memset<algorithmFPType, cpu>(commonBufVal, algorithmFPType(0), _nClasses * nRowsOfRes);
+
+
     ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), 0, nRowsOfRes);
     DAAL_CHECK_BLOCK_STATUS(xBD);
     const algorithmFPType * const aX         = xBD.get();
@@ -1106,6 +1110,12 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictByBlocksOfTrees(s
             if (probBDPtr != nullptr)
             {
                 algorithmFPType * prob = probBDPtr + iStartRow * _nClasses;
+
+                if (iTree == 0)
+                {
+                    services::internal::service_memset_seq<algorithmFPType, cpu>(prob, algorithmFPType(0), nRowsToProcess * _nClasses);
+                }
+
                 if (nRowsToProcess < 2 * nThreads || cpu == __avx512_mic__)
                 {
                     for (size_t iRow = 0; iRow < nRowsToProcess; ++iRow)
