@@ -74,6 +74,29 @@ protected:
     services::Status computeInternalMatrixMatrix(NumericTable * matLeft, NumericTable * matRight, NumericTable * result, const ParameterBase * par);
 };
 
+template <typename algorithmFPType>
+class KernelImplLinearOneAPI<fastCSR, algorithmFPType> : public Kernel
+{
+public:
+    services::Status compute(NumericTable * ntLeft, NumericTable * ntRight, NumericTable * result, const ParameterBase * par)
+    {
+        ComputationMode computationMode = par->computationMode;
+        switch (computationMode)
+        {
+        case vectorVector: return computeInternalVectorVector(ntLeft, ntRight, result, par);
+        case matrixVector: return computeInternalMatrixVector(ntLeft, ntRight, result, par);
+        case matrixMatrix: return computeInternalMatrixMatrix(ntLeft, ntRight, result, par);
+        default: return services::ErrorIncorrectParameter;
+        }
+        return services::Status();
+    }
+
+protected:
+    services::Status computeInternalVectorVector(NumericTable * vecLeft, NumericTable * vecRight, NumericTable * result, const ParameterBase * par);
+    services::Status computeInternalMatrixVector(NumericTable * matLeft, NumericTable * vecRight, NumericTable * result, const ParameterBase * par);
+    services::Status computeInternalMatrixMatrix(NumericTable * matLeft, NumericTable * matRight, NumericTable * result, const ParameterBase * par);
+};
+
 } // namespace internal
 } // namespace linear
 } // namespace kernel_function

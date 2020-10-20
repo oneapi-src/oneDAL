@@ -25,6 +25,8 @@
 #define __CSR_NUMERIC_TABLE_H__
 
 #include "services/base.h"
+#include "services/internal/sycl/types_utils.h"
+
 #include "data_management/data/numeric_table.h"
 #include "data_management/data/data_serialize.h"
 #include "data_management/data/internal/conversion.h"
@@ -83,22 +85,24 @@ public:
         {
             return _valuesBuffer;
         }
-        else
-        {
-            return daal::services::internal::Buffer<DataType>(_rawPtr, _nvalues);
-        }
+        return _valuesBuffer;
+        // else
+        // {
+        //     return daal::services::internal::Buffer<DataType>(_rawPtr, _nvalues);
+        // }
     }
 
     inline daal::services::internal::Buffer<size_t> getBlockColumnIndicesBuffer() const
     {
         if (_cols_ptr)
         {
-            return daal::services::internal::Buffer<size_t>((size_t *)_cols_ptr, _nvalues);
+            return daal::services::internal::Buffer<size_t>((size_t *)_cols_ptr.get(), _nvalues);
         }
         else if (_colsBuffer)
         {
             return _colsBuffer;
         }
+        return _colsBuffer;
         // else
         // {
         //     return daal::services::internal::Buffer<size_t>(_cols_ptr, _nvalues);
@@ -111,6 +115,7 @@ public:
         {
             return _rowsBuffer;
         }
+        return _rowsBuffer;
     }
 
     /**
@@ -199,12 +204,12 @@ public:
         _nrows    = nRows;
     }
 
-    inline void setValuesBuffer(daal::services::internal::Buffer<DataType> valuesBuffer)
+    inline void setValuesBuffer(services::internal::sycl::UniversalBuffer & valuesBuffer)
     {
-        _valuesBuffer = valuesBuffer;
+        _valuesBuffer = valuesBuffer.get<DataType>();
         // _pPtr    = pPtr;
         // _rawPtr  = rawPtr;
-        _nvalues = valuesBuffer.size();
+        _nvalues = _valuesBuffer.size();
     }
 
     inline void setColumnIndicesBuffer(daal::services::internal::Buffer<size_t> colIndBuffer)
@@ -329,8 +334,8 @@ private:
     size_t _rowsOffset;
     int _rwFlag;
 
-    daal::services::internal::Buffer<DataType> _rowsBuffer;
-    daal::services::internal::Buffer<size_t> _valuesBuffer;
+    daal::services::internal::Buffer<DataType> _valuesBuffer;
+    daal::services::internal::Buffer<size_t> _rowsBuffer;
     daal::services::internal::Buffer<size_t> _colsBuffer;
 
     services::SharedPtr<DataType> _values_buffer; /*<! Pointer to the buffer */
