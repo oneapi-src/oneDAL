@@ -76,7 +76,7 @@ RES = $(example:+=.exe)
 RES = $(example:+=.res)
 !ENDIF
 
-!IF ("$(compiler)"=="dpcpp")
+!IF ("$(compiler)"=="dpcpp" || "$(compiler)"=="clang")
 CC=dpcpp
 COPTS=/W3 /EHsc /std:c++17
 OUT_OPTS=/Fe$(RES_DIR)
@@ -96,6 +96,7 @@ EXT_LIB = tbb.lib tbbmalloc.lib
 
 !ELSE
 DAAL_LIB="$(DAAL_PATH)\onedal_dpc_dll.lib"
+RT_LIB=/link /ignore:4078
 !ENDIF
 
 COPTS = /Isource /I"$(DAALROOT)\include" $(COPTS) $(OUT_OPTS)
