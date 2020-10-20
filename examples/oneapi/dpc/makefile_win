@@ -25,7 +25,7 @@ help:
 	@echo "name              - example name."
 	@echo
 	@echo "compiler_name     - the only supported compiler is dpcpp (default value)"
-	@echo "                    Intel(R) oneAPI DPC++ compiler"
+	@echo "                    Intel(R) oneAPI DPC++ Compiler"
 	@echo
 	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
 	@echo
@@ -34,23 +34,13 @@ help:
 ##------------------------------------------------------------------------------
 ## examples of using:
 ##
-## nmake dll example=kmeans_dense_batch+     - build by Intel(R) oneAPI Compiler (as default)
-##                                             and run kmeans_dense_batch example for 64-bit
-##                                             applications, dynamic linking
+## make dll                               - build by Intel(R) oneAPI DPC++ Compiler (as default)
+##                                          and run all examples, dynamic linking
 ##
-## nmake dll compiler=dpcpp                  - build by Intel(R) oneAPI Compiler (as default)
-##                                             and run all examples of oneDAL for
-##                                             64-bit applications, dynamic linking
+## make dll mode=build                    - build only (not run) by Intel(R) oneAPI DPC++ Compiler
+##                                          (as default) all examples, dynamic linking
 ##
-## nmake dll                                 - build by Intel(R) oneAPI Compiler (as default)
-##                                             and run all examples for Intel(R) 64 processor
-##                                             family applications, dynamic linking
-##
-## nmake dll mode=build                      - build only (not run) by Intel(R) oneAPI Compiler
-##                                             (as default) all examples for Intel(R) 64
-##                                             processor family applications, dynamic linking
-##
-## nmake help                                - show help
+## make help                              - show help
 ##
 ##------------------------------------------------------------------------------
 
@@ -60,7 +50,7 @@ help:
 example = $(EXAMPLES_LIST)
 !ENDIF
 
-!IFNDEF compiler
+!IF ("$(compiler)"!="dpcpp")
 compiler = dpcpp
 !ENDIF
 
@@ -88,7 +78,7 @@ RES = $(example:+=.res)
 
 !IF ("$(compiler)"=="dpcpp")
 CC=dpcpp
-COPTS=/W3 /EHsc -Qstd:c++17
+COPTS=/W3 /EHsc /std:c++17
 OUT_OPTS=/Fe$(RES_DIR)
 CLEAN=
 !ENDIF
