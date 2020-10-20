@@ -90,7 +90,6 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
     uint32_t blockSize = 0;
     DAAL_CHECK_STATUS_VAR(this->getBlockSize(nRows, nClusters, nFeatures, blockSize));
     DAAL_CHECK_STATUS_VAR(this->initializeBuffers(nClusters, nFeatures, blockSize));
-    DAAL_ASSERT_UNIVERSAL_BUFFER(this->_numEmptyClusters, int, 1);
 
     BlockDescriptor<algorithmFPType> inCentroidsRows;
     DAAL_CHECK_STATUS_VAR(ntInCentroids->getBlockOfRows(0, nClusters, readOnly, inCentroidsRows));
@@ -133,6 +132,7 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
                 DAAL_CHECK_STATUS_VAR(st);
                 int numEmpty = 0;
                 {
+                    DAAL_ASSERT_UNIVERSAL_BUFFER(this->_numEmptyClusters, int, 1);
                     auto num = this->_numEmptyClusters.template get<int>().toHost(ReadWriteMode::readOnly, st);
                     DAAL_CHECK_STATUS_VAR(st);
                     numEmpty = *num.get();
@@ -158,6 +158,7 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
         }
         algorithmFPType curObjFunction = (algorithmFPType)0.0;
         {
+            DAAL_ASSERT(objFunction.size() >= 1);
             auto hostPtr = objFunction.toHost(data_management::readOnly, st);
             DAAL_CHECK_STATUS_VAR(st);
             curObjFunction = *hostPtr;

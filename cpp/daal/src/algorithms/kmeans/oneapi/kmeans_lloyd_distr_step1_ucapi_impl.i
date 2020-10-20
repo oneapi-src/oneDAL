@@ -112,6 +112,7 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
     DAAL_CHECK_STATUS_VAR(ntCCentroids->getBlockOfRows(0, nClusters, writeOnly, ntCCentroidsRows));
     auto outCCentroids = UniversalBuffer(ntCCentroidsRows.getBuffer());
 
+    DAAL_ASSERT_UNIVERSAL_BUFFER(outCValues, algorithmFPType, nClusters);
     context.fill(outCValues, sizeof(algorithmFPType) == 4 ? FLT_MAX : DBL_MAX, st);
     DAAL_CHECK_STATUS_VAR(st);
 
@@ -141,6 +142,7 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
             DAAL_CHECK_STATUS_VAR(st);
             int numEmpty = 0;
             {
+                DAAL_ASSERT_UNIVERSAL_BUFFER(this->_numEmptyClusters, int, 1);
                 auto num = this->_numEmptyClusters.template get<int>().toHost(ReadWriteMode::readOnly, st);
                 DAAL_CHECK_STATUS_VAR(st);
                 numEmpty = num.get()[0];
@@ -154,18 +156,22 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
             needCandidates = hasEmptyClusters;
         }
         DAAL_CHECK_STATUS_VAR(this->updateObjectiveFunction(outObjFunction, range.count, nClusters, int(block == 0)));
-        ntData->releaseBlockOfRows(dataRows);
+        DAAL_CHECK_STATUS_VAR(ntData->releaseBlockOfRows(dataRows));
         if (par->assignFlag)
         {
             BlockDescriptor<int> assignmentsRows;
             DAAL_CHECK_STATUS_VAR(ntAssignments->getBlockOfRows(0, nRows, writeOnly, assignmentsRows));
             auto finalAssignments = assignmentsRows.getBuffer();
+            DAAL_ASSERT(finalAssignments.size() >= range.startIndex + range.count);
+            DAAL_ASSERT_UNIVERSAL_BUFFER(assignments, int, range.count);
             context.copy(finalAssignments, range.startIndex, assignments, 0, range.count, st);
             DAAL_CHECK_STATUS_VAR(st);
             DAAL_CHECK_STATUS_VAR(ntAssignments->releaseBlockOfRows(assignmentsRows));
         }
     }
     DAAL_CHECK_STATUS_VAR(this->mergeReduceCentroids(outCentroids, nClusters, nFeatures));
+    DAAL_ASSERT(outCCounters.size() >= nClusters);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(this->_partialCentroidsCounters, int, nClusters);
     context.copy(outCCounters, 0, this->_partialCentroidsCounters, 0, nClusters, st);
     DAAL_CHECK_STATUS_VAR(st);
     DAAL_CHECK_STATUS_VAR(ntInCentroids->releaseBlockOfRows(inCentroidsRows));
@@ -174,12 +180,15 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
     DAAL_CHECK_STATUS_VAR(ntObjFunction->releaseBlockOfRows(ntObjFunctionRows));
     if (needCandidates)
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(outCValues, algorithmFPType, nClusters);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(this->_candidateDistances, algorithmFPType, nClusters);
         context.copy(outCValues, 0, this->_candidateDistances, 0, nClusters, st);
     }
     DAAL_CHECK_STATUS_VAR(st);
     DAAL_CHECK_STATUS_VAR(ntCValues->releaseBlockOfRows(ntCValuesRows));
     if (needCandidates)
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(this->_candidates, int, nClusters);
         auto hostCandidates = this->_candidates.template get<int>().toHost(ReadWriteMode::readOnly, st);
         DAAL_CHECK_STATUS_VAR(st);
         for (uint32_t cPos = 0; cPos < nClusters; cPos++)
@@ -191,6 +200,8 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
             }
             BlockDescriptor<algorithmFPType> dataRows;
             DAAL_CHECK_STATUS_VAR(ntData->getBlockOfRows(index, 1, readOnly, dataRows));
+            DAAL_ASSERT_UNIVERSAL_BUFFER(outCCentroids, algorithmFPType, cPos * nFeatures + nFeatures);
+            DAAL_ASSERT(dataRows.getBuffer().size() >= nFeatures);
             context.copy(outCCentroids, cPos * nFeatures, dataRows.getBuffer(), 0, nFeatures, st);
             DAAL_CHECK_STATUS_VAR(st);
         }
@@ -217,6 +228,8 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::finalizeCompute(size_
 
     auto & context = Environment::getInstance()->getDefaultExecutionContext();
     Status status;
+    DAAL_ASSERT(outBlock.getBuffer().size() >= n);
+    DAAL_ASSERT(inBlock.getBuffer().size() >= n);
     context.copy(outBlock.getBuffer(), 0, inBlock.getBuffer(), 0, n, status);
     DAAL_CHECK_STATUS_VAR(ntPartialAssignments->releaseBlockOfRows(inBlock));
     DAAL_CHECK_STATUS_VAR(ntAssignments->releaseBlockOfRows(outBlock));
