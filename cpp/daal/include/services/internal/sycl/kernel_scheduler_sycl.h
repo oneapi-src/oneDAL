@@ -559,8 +559,7 @@ private:
 
         case ExecutionTargetIds::host: status |= services::ErrorMethodNotImplemented; return;
 
-        default:
-            DAAL_ASSERT(!"Unexpected execution target");
+        default: DAAL_ASSERT(!"Unexpected execution target");
         }
     }
 
