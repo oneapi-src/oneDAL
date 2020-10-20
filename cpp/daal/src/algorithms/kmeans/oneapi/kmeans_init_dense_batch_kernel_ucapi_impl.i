@@ -74,6 +74,7 @@ Status KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::init(size_t p, 
         auto clusters = clustersRows.getBuffer();
 
         DAAL_ASSERT(clusters.size() >= nClusters * p);
+        DAAL_ASSERT(data.size() >= nClusters * p);
         context.copy(clusters, 0, data, 0, nClusters * p, st);
         DAAL_CHECK_STATUS_VAR(st);
 
