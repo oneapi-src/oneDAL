@@ -71,7 +71,7 @@ private:
         template <typename T>
         void operator()(Typelist<T>, Status & status)
         {
-            DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(a_buffer, T);
+            DAAL_ASSERT_UNIVERSAL_BUFFER(a_buffer, T, n * lda);
 
             auto a_buffer_t = a_buffer.template get<T>();
 
@@ -120,8 +120,8 @@ private:
         template <typename T>
         void operator()(Typelist<T>, Status & status)
         {
-            DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(a_buffer, T);
-            DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(b_buffer, T);
+            DAAL_ASSERT_UNIVERSAL_BUFFER(a_buffer, T, n * lda);
+            DAAL_ASSERT_UNIVERSAL_BUFFER(b_buffer, T, ny * ldb);
 
             auto a_buffer_t = a_buffer.template get<T>();
             auto b_buffer_t = b_buffer.template get<T>();
