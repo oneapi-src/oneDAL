@@ -190,12 +190,78 @@ private:
     services::SharedPtr<DataType> _reinterpretedPtr;
 };
 
+UniversalBuffer allocateByNumericTableFeature(const data_management::NumericTableFeature & feature, const size_t size, services::Status & status)
+{
+    using namespace data_management;
+    auto & context = services::internal::getDefaultContext();
+    UniversalBuffer buffer;
+    switch (feature.indexType)
+    {
+    case features::DAAL_INT8_U:
+    {
+        buffer = context.allocate(TypeId::uint8, size, status);
+        break;
+    }
+    case features::DAAL_INT16_U:
+    {
+        buffer = context.allocate(TypeId::uint16, size, status);
+        break;
+    }
+    case features::DAAL_INT32_U:
+    {
+        buffer = context.allocate(TypeId::uint32, size, status);
+        break;
+    }
+    case features::DAAL_INT64_U:
+    {
+        buffer = context.allocate(TypeId::uint64, size, status);
+        break;
+    }
+
+    case features::DAAL_INT8_S:
+    {
+        buffer = context.allocate(TypeId::int8, size, status);
+        break;
+    }
+    case features::DAAL_INT16_S:
+    {
+        buffer = context.allocate(TypeId::int16, size, status);
+        break;
+    }
+    case features::DAAL_INT32_S:
+    {
+        buffer = context.allocate(TypeId::int32, size, status);
+        break;
+    }
+    case features::DAAL_INT64_S:
+    {
+        buffer = context.allocate(TypeId::int64, size, status);
+        break;
+    }
+
+    case features::DAAL_FLOAT32:
+    {
+        buffer = context.allocate(TypeId::float32, size, status);
+        break;
+    }
+    case features::DAAL_FLOAT64:
+    {
+        buffer = context.allocate(TypeId::float64, size, status);
+        break;
+    }
+
+    default: status = services::Status(services::ErrorIncorrectParameter);
+    }
+    return buffer;
+}
+
 /** @} */
 } // namespace interface1
 
 using interface1::BufferConverterFrom;
 using interface1::BufferConverterTo;
 using interface1::BufferHostReinterpreter;
+using interface1::allocateByNumericTableFeature;
 
 } // namespace sycl
 } // namespace internal

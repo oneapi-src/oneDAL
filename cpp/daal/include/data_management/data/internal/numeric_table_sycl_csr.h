@@ -110,23 +110,21 @@ public:
      *  \param[in]    rowOffsets  Array of row indices in the CSR layout
      *  \param[in]    indexing    The indexing scheme for access to data in the CSR layout
      */
-    services::Status setArrays(const services::internal::sycl::UniversalBuffer & values, const services::internal::Buffer<size_t> & colIndices,
+    template <typename DataType>
+    services::Status setArrays(const services::internal::Buffer<DataType> & values, const services::internal::Buffer<size_t> & colIndices,
                                const services::internal::Buffer<size_t> & rowOffsets, CSRIndexing indexing = oneBased)
     {
         freeDataMemoryImpl();
         _values     = values;
         _colIndices = colIndices;
         _rowOffsets = rowOffsets;
+        _indexing   = indexing;
+        _dataSize   = values.size();
 
-        // _ptr        = services::reinterpretPointerCast<byte, DataType>(ptr);
-        // _colIndices = colIndices;
-        // _rowOffsets = rowOffsets;
-        // _indexing   = indexing;
-
-        // if (ptr && colIndices && rowOffsets)
-        // {
-        //     _memStatus = userAllocated;
-        // }
+        if (values && colIndices && rowOffsets)
+        {
+            _memStatus = userAllocated;
+        }
         return services::Status();
     }
 
@@ -321,36 +319,17 @@ public:
         auto & context = services::internal::getDefaultContext();
 
         freeDataMemoryImpl();
-
         size_t nrow = getNumberOfRows();
-
-        // if (isCpuContext())
-        // {
-        //     services::Status st;
-        //     _cpuTable = CSRNumericTable::create(_ddict, nrows, doAllocate, &st);
-        //     return st;
-        // }
 
         if (nrow == 0) return services::Status(services::ErrorIncorrectNumberOfObservations);
 
         const NumericTableFeature & f = (*_ddict)[0];
-
-        switch (f.indexType)
-        {
-        case features::DAAL_FLOAT32:
-        {
-            _values = context.allocate(TypeId::float32, dataSize, status);
-            break;
-        }
-        case features::DAAL_FLOAT64:
-        {
-            _values = context.allocate(TypeId::float64, dataSize, status);
-            break;
-        }
-        }
-
+        _values                       = allocateByNumericTableFeature(f, dataSize, status);
+        DAAL_CHECK_STATUS_VAR(status);
         const auto colIndicesU = context.allocate(services::internal::sycl::TypeIds::id<size_t>(), dataSize, status);
+        DAAL_CHECK_STATUS_VAR(status);
         const auto rowOffsetsU = context.allocate(services::internal::sycl::TypeIds::id<size_t>(), (nrow + 1), status);
+        DAAL_CHECK_STATUS_VAR(status);
 
         services::throwIfPossible(status);
         DAAL_CHECK_STATUS_VAR(status);
@@ -360,14 +339,9 @@ public:
 
         _memStatus = internallyAllocated;
 
-        // if (!_ptr || !_colIndices || !_rowOffsets)
-        // {
-        //     freeDataMemoryImpl();
-        //     return services::Status(services::ErrorMemoryAllocationFailed);
-        // }
-
         // _rowOffsets.get()[0] = ((_indexing == oneBased) ? 1 : 0);
-        return services::Status();
+        services::throwIfPossible(status);
+        return status;
     }
 
     /**
@@ -381,13 +355,13 @@ public:
      */
     virtual services::Status check(const char * description, bool checkDataAllocation = true) const DAAL_C11_OVERRIDE
     {
-        // services::Status s;
+        services::Status s;
         // DAAL_CHECK_STATUS(s, data_management::SyclNumericTable::check(description, checkDataAllocation));
 
-        // if (_indexing != oneBased)
-        // {
-        //     return services::Status(services::Error::create(services::ErrorUnsupportedCSRIndexing, services::ArgumentName, description));
-        // }
+        if (_indexing != oneBased)
+        {
+            return services::Status(services::Error::create(services::ErrorUnsupportedCSRIndexing, services::ArgumentName, description));
+        }
 
         return services::Status();
     }
@@ -400,6 +374,7 @@ protected:
 protected:
     NumericTableFeature _defaultFeature;
     CSRIndexing _indexing;
+    size_t _dataSize;
 
     services::internal::sycl::UniversalBuffer _values;
     services::internal::Buffer<size_t> _colIndices;
@@ -422,54 +397,65 @@ protected:
 
     /** \private */
     template <typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive * arch)
+    services::Status serialImpl(Archive * archive)
     {
-        SyclNumericTable::serialImpl<Archive, onDeserialize>(arch);
+        services::Status status = SyclNumericTable::serialImpl<Archive, onDeserialize>(archive);
 
-        // size_t dataSize = 0;
-        // if (!onDeserialize)
-        // {
-        //     dataSize = getDataSize();
-        // }
-        // arch->set(dataSize);
+        size_t dataSize = 0;
+        if (!onDeserialize)
+        {
+            dataSize = getDataSize();
+        }
+        archive->set(dataSize);
 
-        // if (onDeserialize)
-        // {
-        //     allocateDataMemory(dataSize);
-        // }
+        if (onDeserialize)
+        {
+            if (isCpuTable())
+            {
+                DAAL_CHECK_STATUS(status, _cpuTable->allocateDataMemory(dataSize));
+            }
+            else
+            {
+                DAAL_CHECK_STATUS(status, allocateDataMemory(dataSize));
+            }
+        }
 
-        // size_t nfeat = getNumberOfColumns();
-        // size_t nobs  = getNumberOfRows();
+        size_t nfeat = getNumberOfColumns();
+        size_t nobs  = getNumberOfRows();
 
-        // if (nfeat > 0)
-        // {
-        //     NumericTableFeature & f = (*_ddict)[0];
+        if (nfeat > 0)
+        {
+            NumericTableFeature & f = (*_ddict)[0];
+            if (isCpuTable())
+            {
+                char * data         = NULL;
+                size_t * colIndices = NULL;
+                size_t * rowOffsets = NULL;
 
-        //     arch->set((char *)_ptr.get(), dataSize * f.typeSize);
-        //     arch->set(_colIndices.get(), dataSize);
-        //     arch->set(_rowOffsets.get(), nobs + 1);
-        // }
+                _cpuTable->getArrays(&data, &colIndices, &rowOffsets);
+                archive->set(data, dataSize * f.typeSize);
+                archive->set(colIndices, dataSize);
+                archive->set(rowOffsets, nobs + 1);
+            }
+            else
+            {
+                // services::SharedPtr<DataType> hostData = _values.get<DataType>().toHost(data_management::readOnly, status);
+                // DAAL_CHECK_STATUS_VAR(status);
+                services::SharedPtr<size_t> hostColIndices = _colIndices.toHost(data_management::readOnly, status);
+                DAAL_CHECK_STATUS_VAR(status);
+                services::SharedPtr<size_t> hostRowOffsets = _rowOffsets.toHost(data_management::readOnly, status);
+                DAAL_CHECK_STATUS_VAR(status);
 
+                // archive->set(hostData.get(), dataSize);
+                archive->set(hostColIndices.get(), dataSize);
+                archive->set(hostRowOffsets.get(), nobs + 1);
+            }
+        }
         return services::Status();
     }
 
 public:
-    virtual size_t getDataSize() DAAL_C11_OVERRIDE
-    {
-        if (isCpuTable())
-        {
-            return _cpuTable->getDataSize();
-        }
-        size_t dataSize = 0;
-        {
-            services::Status status;
-            auto resinfoHostPtr = _rowOffsets.toHost(ReadWriteMode::readOnly, status);
-            auto resinfoHost    = resinfoHostPtr.get();
-            dataSize            = resinfoHost[getNumberOfRows()];
-        }
-
-        return dataSize;
-    }
+    virtual size_t getDataSize() DAAL_C11_OVERRIDE { return _dataSize; }
 
 protected:
     template <typename DataType>
@@ -478,7 +464,8 @@ protected:
                         services::Status & st)
         : SyclNumericTable(nColumns, nRows, DictionaryIface::equal, st), _indexing(indexing)
     {
-        _layout = csrArray;
+        _layout   = csrArray;
+        _dataSize = bufferData.size();
         _defaultFeature.setType<DataType>();
         st |= _ddict->setAllFeatures(_defaultFeature);
 
