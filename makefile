@@ -985,13 +985,13 @@ $3: $2/$1
 $(if $(phony-upd),$(eval .PHONY: $2/$1))
 $2/$1: $(WORKDIR.lib)/$1 | $2/. ; $(value upd)
 endef
-$(foreach a,$(release.LIBS_A),$(eval $(call .release.ay,$a,$(RELEASEDIR.libia),_release_c)))
-$(foreach y,$(release.LIBS_Y),$(eval $(call .release.ay,$y,$(RELEASEDIR.soia),_release_c)))
-$(foreach j,$(release.LIBS_J),$(eval $(call .release.ay,$j,$(RELEASEDIR.soia),_release_jj)))
-$(foreach a,$(release.ONEAPI.LIBS_A),$(eval $(call .release.ay,$a,$(RELEASEDIR.libia),_release_oneapi_c)))
-$(foreach y,$(release.ONEAPI.LIBS_Y),$(eval $(call .release.ay,$y,$(RELEASEDIR.soia),_release_oneapi_c)))
-$(foreach a,$(release.ONEAPI.LIBS_A.dpc),$(eval $(call .release.ay,$a,$(RELEASEDIR.libia),_release_oneapi_dpc)))
-$(foreach y,$(release.ONEAPI.LIBS_Y.dpc),$(eval $(call .release.ay,$y,$(RELEASEDIR.soia),_release_oneapi_dpc)))
+$(foreach x,$(release.LIBS_A),$(eval $(call .release.ay,$x,$(RELEASEDIR.libia),_release_c)))
+$(foreach x,$(release.LIBS_Y),$(eval $(call .release.ay,$x,$(RELEASEDIR.soia),_release_c)))
+$(foreach x,$(release.LIBS_J),$(eval $(call .release.ay,$x,$(RELEASEDIR.soia),_release_jj)))
+$(foreach x,$(release.ONEAPI.LIBS_A),$(eval $(call .release.ay,$x,$(RELEASEDIR.libia),_release_oneapi_c)))
+$(foreach x,$(release.ONEAPI.LIBS_Y),$(eval $(call .release.ay,$x,$(RELEASEDIR.soia),_release_oneapi_c)))
+$(foreach x,$(release.ONEAPI.LIBS_A.dpc),$(eval $(call .release.ay,$x,$(RELEASEDIR.libia),_release_oneapi_dpc)))
+$(foreach x,$(release.ONEAPI.LIBS_Y.dpc),$(eval $(call .release.ay,$x,$(RELEASEDIR.soia),_release_oneapi_dpc)))
 
 ifneq ($(MKLGPUFPKDIR),)
 # Copies the file to the destination directory and renames daal -> onedal
@@ -1019,8 +1019,8 @@ $2/$(subst onedal,daal,$1): $2/$1
 endef
 
 ifeq ($(if $(or $(OS_is_lnx),$(OS_is_mac)),yes,),yes)
-$(foreach a,$(release.LIBS_A),$(eval $(call .release.add_compat_symlink,$a,$(RELEASEDIR.libia),_release_c)))
-$(foreach y,$(release.LIBS_Y),$(eval $(call .release.add_compat_symlink,$y,$(RELEASEDIR.soia),_release_c)))
+$(foreach x,$(release.LIBS_A),$(eval $(call .release.add_compat_symlink,$x,$(RELEASEDIR.libia),_release_c)))
+$(foreach x,$(release.LIBS_Y),$(eval $(call .release.add_compat_symlink,$x,$(RELEASEDIR.soia),_release_c)))
 endif
 
 # Adds copy to the old library name
@@ -1033,7 +1033,7 @@ $2/$(subst onedal,daal,$1): $(WORKDIR.lib)/$1 ; $(value cpy)
 endef
 
 ifeq ($(OS_is_win),yes)
-$(foreach a,$(filter %_dll.$a,$(release.LIBS_A)),$(eval $(call .release.add_compat_copy,$a,$(RELEASEDIR.libia),_release_c)))
+$(foreach x,$(filter %_dll.$a,$(release.LIBS_A)),$(eval $(call .release.add_compat_copy,$x,$(RELEASEDIR.libia),_release_c)))
 endif
 
 #----- releasing jar files
