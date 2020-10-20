@@ -31,6 +31,7 @@
 #include "data_management/data/numeric_table.h"
 #include "src/externals/service_blas.h"
 #include "src/services/service_arrays.h"
+#include "src/algorithms/k_nearest_neighbors/knn_heap.h"
 
 namespace daal
 {
@@ -49,11 +50,8 @@ namespace prediction
 namespace internal
 {
 using namespace daal::data_management;
+using namespace daal::internal;
 
-template <typename algorithmFpType, CpuType cpu>
-struct GlobalNeighbors;
-template <typename T, CpuType cpu>
-class Heap;
 template <typename algorithmFpType>
 struct SearchNode;
 
@@ -76,8 +74,8 @@ protected:
 
     services::Status predict(algorithmFpType * predictedClass, const Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap,
                              const NumericTable * labels, size_t k, VoteWeights voteWeights, const NumericTable * modelIndices,
-                             data_management::BlockDescriptor<algorithmFpType> & indices,
-                             data_management::BlockDescriptor<algorithmFpType> & distances, size_t index, const size_t nClasses);
+                             data_management::BlockDescriptor<int> & indices, data_management::BlockDescriptor<algorithmFpType> & distances,
+                             size_t index, const size_t nClasses);
 };
 
 } // namespace internal
