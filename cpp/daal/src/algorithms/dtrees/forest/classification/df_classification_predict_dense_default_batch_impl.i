@@ -734,7 +734,7 @@ Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t 
     if (_prob != nullptr)
     {
         DAAL_ASSERT(probPtr);
-        services::internal::service_memset<float, avx512>(probPtr, float(0), _nClasses);
+        services::internal::service_memset_seq<float, avx512>(probPtr, float(0), _nClasses);
     }
 
     const HomogenNumericTable<float> * hmgData = dynamic_cast<const HomogenNumericTable<float> *>(_data);
