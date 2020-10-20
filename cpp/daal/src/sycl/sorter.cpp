@@ -250,9 +250,9 @@ services::Status RadixSort::radixReorder(UniversalBuffer & valuesSrc, UniversalB
     DAAL_CHECK_STATUS_VAR(status);
 
     {
-        DAAL_ASSERT_UNIVERSAL_BUFFER2(indicesSrc, int, unsigned int, nRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER2(indicesSrc, int, uint32_t, nRows);
         DAAL_ASSERT_UNIVERSAL_BUFFER(partialPrefixHists, int, (nLocalHists + 1) << _radixBits);
-        DAAL_ASSERT_UNIVERSAL_BUFFER2(indicesDst, int, unsigned int, nRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER2(indicesDst, int, uint32_t, nRows);
 
         KernelArguments args(7);
         args.set(0, valuesSrc, AccessModeIds::read);
