@@ -38,6 +38,7 @@
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_predict_dense_default_batch.h"
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_impl.i"
+#include "src/algorithms/k_nearest_neighbors/knn_heap.h"
 
 namespace daal
 {
@@ -54,6 +55,7 @@ using namespace daal::services;
 using namespace daal::internal;
 using namespace kdtree_knn_classification::internal;
 
+<<<<<<< HEAD
 template <CpuType cpu, typename T>
 DAAL_FORCEINLINE T heapLeftChildIndex(T index)
 {
@@ -207,6 +209,8 @@ struct GlobalNeighbors
     inline bool operator<(const GlobalNeighbors & rhs) const { return (distance < rhs.distance); }
 };
 
+=======
+>>>>>>> 49cdfdbdb... Optimizations of kNN BF prediction for large k  (#1121)
 template <typename algorithmFpType>
 struct SearchNode
 {
