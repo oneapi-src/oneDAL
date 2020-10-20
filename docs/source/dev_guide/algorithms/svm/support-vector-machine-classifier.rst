@@ -99,7 +99,7 @@ complete the following steps:
   - Use the ``setSupportVectors``, ``setClassificationCoefficients``, and ``setSupportIndices`` methods to add
     pre-calculated support vectors, classification coefficients, and support indices (optional), respectively, to the model.
     For each method specify random access iterators to the first and the last element
-    of the corresponding set of values [ISO/IEC 14882:2011 § 24.2.7].
+    of the corresponding set of values [ISO/IEC 14882:2011 § 24.2.7]_.
   - Use ``setBias`` to add a bias term to the model.
 
 - Use the ``getModel`` method to get the trained SVM Classifier model.
