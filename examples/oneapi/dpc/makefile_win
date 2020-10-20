@@ -88,7 +88,7 @@ RES = $(example:+=.res)
 
 !IF ("$(compiler)"=="dpcpp")
 CC=dpcpp
-COPTS=/W3 /EHsc
+COPTS=/W3 /EHsc -Qstd:c++17
 OUT_OPTS=/Fe$(RES_DIR)
 CLEAN=
 !ENDIF
