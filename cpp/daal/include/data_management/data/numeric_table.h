@@ -721,7 +721,7 @@ public:
     {
         size_t obsnum      = _obsnum;
         services::Status s = setNumberOfRowsImpl(nrows);
-        if ((_memStatus != userAllocated && obsnum < nrows) || (_memStatus == notAllocated && nrows > 0))
+        if ((_memStatus != userAllocated && obsnum < nrows) || _memStatus == notAllocated)
         {
             s |= allocateDataMemoryImpl();
         }

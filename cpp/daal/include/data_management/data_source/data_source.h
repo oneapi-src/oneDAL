@@ -513,8 +513,7 @@ protected:
             nt->getDictionarySharedPtr()->setNumberOfFeatures(nFeatures);
         }
 
-        nt->resize(0);
-        nt->resize(linesToLoad);
+        DAAL_CHECK_STATUS_VAR(nt->resize(linesToLoad));
 
         const size_t nCols = nt->getNumberOfColumns();
 
