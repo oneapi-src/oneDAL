@@ -64,20 +64,21 @@ Status KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::init(size_t p, 
 
     if (method == deterministicDense)
     {
-        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nClusters, p);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, nClusters, p);
         BlockDescriptor<algorithmFPType> dataRows;
-        ntData->getBlockOfRows(0, nClusters, readOnly, dataRows);
+        DAAL_CHECK_STATUS_VAR(ntData->getBlockOfRows(0, nClusters, readOnly, dataRows));
         auto data = dataRows.getBuffer();
 
         BlockDescriptor<algorithmFPType> clustersRows;
-        ntClusters->getBlockOfRows(0, nClusters, writeOnly, clustersRows);
+        DAAL_CHECK_STATUS_VAR(ntClusters->getBlockOfRows(0, nClusters, writeOnly, clustersRows));
         auto clusters = clustersRows.getBuffer();
 
+        DAAL_ASSERT(clusters.size() >= nClusters * p);
         context.copy(clusters, 0, data, 0, nClusters * p, st);
         DAAL_CHECK_STATUS_VAR(st);
 
-        ntData->releaseBlockOfRows(dataRows);
-        ntClusters->releaseBlockOfRows(clustersRows);
+        DAAL_CHECK_STATUS_VAR(ntData->releaseBlockOfRows(dataRows));
+        DAAL_CHECK_STATUS_VAR(ntClusters->releaseBlockOfRows(clustersRows));
 
         clustersFound = nClusters;
 
@@ -90,8 +91,8 @@ Status KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::init(size_t p, 
         DAAL_CHECK(nRowsTotal <= maxInt32AsSizeT, services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
         auto indices = context.allocate(TypeIds::id<int>(), nClusters, st);
         DAAL_CHECK_STATUS_VAR(st);
-
         {
+            DAAL_ASSERT_UNIVERSAL_BUFFER(indices, int, nClusters);
             auto indicesHostPtr = indices.get<int>().toHost(data_management::readWrite, st);
             DAAL_CHECK_STATUS_VAR(st);
             auto * indicesHost = indicesHostPtr.get();
@@ -119,17 +120,17 @@ Status KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::init(size_t p, 
         }
 
         BlockDescriptor<algorithmFPType> dataRows;
-        ntData->getBlockOfRows(0, nRowsTotal, readOnly, dataRows);
+        DAAL_CHECK_STATUS_VAR(ntData->getBlockOfRows(0, nRowsTotal, readOnly, dataRows));
         auto data = dataRows.getBuffer();
 
         BlockDescriptor<algorithmFPType> clustersRows;
-        ntClusters->getBlockOfRows(0, clustersFound, writeOnly, clustersRows);
+        DAAL_CHECK_STATUS_VAR(ntClusters->getBlockOfRows(0, clustersFound, writeOnly, clustersRows));
         auto clusters = clustersRows.getBuffer();
 
         DAAL_CHECK_STATUS_VAR(gatherRandom(data, clusters, indices, nRowsTotal, clustersFound, p));
 
-        ntData->releaseBlockOfRows(dataRows);
-        ntClusters->releaseBlockOfRows(clustersRows);
+        DAAL_CHECK_STATUS_VAR(ntData->releaseBlockOfRows(dataRows));
+        DAAL_CHECK_STATUS_VAR(ntClusters->releaseBlockOfRows(clustersRows));
 
         return st;
     }
