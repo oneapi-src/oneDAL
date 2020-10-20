@@ -42,7 +42,7 @@ Intel&reg; oneAPI Data Analytics Library is an extension of Intel&reg; Data Anal
 
 ## Build yours high-performance data science application with intel&reg; oneDAL
 
-Intel&reg; oneDAL uses all capabilities of Intel&reg; hardware, which allows you to get an sugnificant performance boost on the classic machine learning algorithms.
+Intel&reg; oneDAL uses all capabilities of Intel&reg; hardware, which allows you to get an significant performance boost on the classic machine learning algorithms.
 
 We provide highly optimized algorithmic building blocks for all stages of data analytics: **preprocessing**, **transformation**, **analysis**, **modeling**, **validation**, and **decision making**.
 

@@ -69,6 +69,56 @@ public:
     ModelBuilder(size_t nFeatures, size_t nClasses);
 
     /**
+     *  Method to set betas to model via NumericTablePtr, size of NumericTable have to be equal to (_nFeatures)*_nClasses
+     *  in case when intercept flag is suppose to be false and (_nFeatures + 1)*_nClasses when intercept flag is true
+     *  \param[in] beta       NumericTablePtr represent support vectors
+     */
+    void setBeta(const data_management::NumericTablePtr & beta)
+    {
+        data_management::BlockDescriptor<modelFPType> resBeta, inBeta;
+        const size_t nVectorsBeta = _nClasses == 2 ? 1 : _nClasses;
+
+        if (beta->getNumberOfColumns() == _nFeatures)
+        {
+            setInterceptFlag(false);
+            for (size_t i = 0; i < nVectorsBeta; ++i)
+            {
+                _modelPtr->getBeta()->getBlockOfRows(i, 1, data_management::writeOnly, resBeta);
+                beta->getBlockOfRows(i, 1, data_management::readOnly, inBeta);
+                modelFPType * const resBetaData      = resBeta.getBlockPtr();
+                const modelFPType * const inBetaData = inBeta.getBlockPtr();
+                resBetaData[0]                       = modelFPType(0);
+                for (size_t j = 0; j < _nFeatures; ++j)
+                {
+                    resBetaData[j + 1] = inBetaData[j];
+                }
+                _modelPtr->getBeta()->releaseBlockOfRows(resBeta);
+                beta->releaseBlockOfRows(inBeta);
+            }
+        }
+        else if (beta->getNumberOfColumns() == (_nFeatures + 1))
+        {
+            setInterceptFlag(true);
+            _modelPtr->getBeta()->getBlockOfRows(0, nVectorsBeta, data_management::writeOnly, resBeta);
+            beta->getBlockOfRows(0, nVectorsBeta, data_management::readOnly, inBeta);
+            modelFPType * const resBetaData      = resBeta.getBlockPtr();
+            const modelFPType * const inBetaData = inBeta.getBlockPtr();
+            const size_t betaSize                = beta->getNumberOfColumns() * beta->getNumberOfRows();
+            for (size_t i = 0; i < betaSize; ++i)
+            {
+                resBetaData[i] = inBetaData[i];
+            }
+            _modelPtr->getBeta()->releaseBlockOfRows(resBeta);
+            beta->releaseBlockOfRows(inBeta);
+        }
+        else
+        {
+            _s = services::Status(services::ErrorIncorrectParameter);
+            services::throwIfPossible(_s);
+        }
+    }
+
+    /**
      *  Method to set betas to model via random access iterator, last - first value have to be equal to (_nFeatures)*_nClasses
      *  in case when intercept flag is suppose to be false and (_nFeatures + 1)*_nClasses when intercept flag is true
      * \tparam RandomIterator Random access iterator type for access to values of suport vectors
