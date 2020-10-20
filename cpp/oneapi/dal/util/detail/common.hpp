@@ -29,10 +29,20 @@ namespace oneapi::dal::detail {
 #define oneapi_dal_assert(cond)
 #endif
 
+template <typename Exception, typename... Args>
+inline void throw_on_false(bool condition, Args&&... args) {
+    static_assert(std::is_base_of_v<dal::exception, Exception>,
+                  "Exception type shall be derived from dal::exception");
+
+    if (!condition) {
+        throw Exception(std::forward<Args>(args)...);
+    }
+}
+
 template <typename Data>
-inline void throw_if_sum_overflow(const Data& first, const Data& second) {
+inline void throw_on_sum_overflow(const Data& first, const Data& second) {
     static_assert(std::is_integral_v<Data>,
-                  "Check requires integral operands");
+                  "The check requires integral operands");
 
     volatile Data tmp = first + second;
     tmp -= first;
@@ -42,9 +52,9 @@ inline void throw_if_sum_overflow(const Data& first, const Data& second) {
 }
 
 template <typename Data>
-inline void throw_if_mul_overflow(const Data& first, const Data& second) {
+inline void throw_on_mul_overflow(const Data& first, const Data& second) {
     static_assert(std::is_integral_v<Data>,
-                  "Check requires integral operands");
+                  "The check requires integral operands");
 
     if (first != 0 && second != 0) {
         volatile Data tmp = first * second;
