@@ -96,7 +96,7 @@ public:
         using namespace daal::data_management::internal;
 
         DAAL_ASSERT(!_src.empty());
-        DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(_src, DataType);
+        DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(_src, T);
 
         auto buffer = _src.template get<T>();
 

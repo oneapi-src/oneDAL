@@ -103,12 +103,24 @@ private:
               offsetC(offsetC)
         {}
 
+        size_t getAExpectedSize() const {
+            return (transa == math::Transpose::NoTrans) ? lda * k : lda * m;
+        }
+
+        size_t getBExpectedSize() const {
+            return (transb == math::Transpose::NoTrans) ? ldb * n : ldb * k;
+        }
+
+        size_t getCExpectedSize() const {
+            return ldc * n;
+        }
+
         template <typename T>
         void operator()(Typelist<T>, Status & status)
         {
-            DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(a_buffer, T);
-            DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(b_buffer, T);
-            DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(c_buffer, T);
+            DAAL_ASSERT_UNIVERSAL_BUFFER(a_buffer, T, getAExpectedSize() + offsetA);
+            DAAL_ASSERT_UNIVERSAL_BUFFER(b_buffer, T, getBExpectedSize() + offsetB);
+            DAAL_ASSERT_UNIVERSAL_BUFFER(c_buffer, T, getCExpectedSize() + offsetC);
 
             auto a_buffer_t = a_buffer.template get<T>();
             auto b_buffer_t = b_buffer.template get<T>();
@@ -165,6 +177,7 @@ private:
         const size_t ldc;
         const size_t offsetC;
 
+
         explicit Execute(cl::sycl::queue & queue, const math::UpLo upper_lower, const math::Transpose trans, const size_t n, const size_t k,
                          const double alpha, const UniversalBuffer & a_buffer, const size_t lda, const size_t offsetA, const double beta,
                          UniversalBuffer & c_buffer, const size_t ldc, const size_t offsetC)
@@ -183,11 +196,19 @@ private:
               offsetC(offsetC)
         {}
 
+        size_t getAExpectedSize() const {
+            return (trans == math::Transpose::NoTrans) ? lda * k : lda * n;
+        }
+
+        size_t getCExpectedSize() const {
+            return ldc * n;
+        }
+
         template <typename T>
         void operator()(Typelist<T>, Status & status)
         {
-            DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(a_buffer, T);
-            DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(c_buffer, T);
+            DAAL_ASSERT_UNIVERSAL_BUFFER(a_buffer, T, getAExpectedSize() + offsetA);
+            DAAL_ASSERT_UNIVERSAL_BUFFER(c_buffer, T, getCExpectedSize() + offsetC);
 
             auto a_buffer_t = a_buffer.template get<T>();
             auto c_buffer_t = c_buffer.template get<T>();
@@ -257,8 +278,8 @@ private:
             auto y_buffer_t = y_buffer.template get<algorithmFPType>();
 
             DAAL_ASSERT(n > 0);
-            DAAL_ASSERT(size_t((n - 1) * incx) >= x_buffer_t.size());
-            DAAL_ASSERT(size_t((n - 1) * incy) >= y_buffer_t.size());
+            DAAL_ASSERT(size_t((n - 1) * incx) < x_buffer_t.size());
+            DAAL_ASSERT(size_t((n - 1) * incy) < y_buffer_t.size());
 
 #ifdef ONEAPI_DAAL_NO_MKL_GPU_FUNC
             ReferenceAxpy<algorithmFPType> functor;

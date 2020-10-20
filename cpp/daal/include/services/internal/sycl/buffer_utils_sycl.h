@@ -150,7 +150,7 @@ private:
             status |= catchSyclExceptions([&]() mutable {
                 cl::sycl::event event = queue.submit([&](cl::sycl::handler & cgh) {
                     auto dst_acc = dst.template get_access<cl::sycl::access::mode::write>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(dstOffset));
-                    cgh.copy(src, dst_acc);
+                    cgh.copy(src + srcOffset, dst_acc);
                 });
                 event.wait_and_throw();
             });
