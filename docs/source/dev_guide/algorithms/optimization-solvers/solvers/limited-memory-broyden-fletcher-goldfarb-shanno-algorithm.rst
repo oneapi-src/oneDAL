@@ -109,7 +109,7 @@ Hessian Update Algorithm
 
 This algorithm computes the approximation of the inverse Hessian
 matrix from the set of correction pairs
-[Byrd2015]).
+[Byrd2015]_.
 
 For a given set of correction pairs :math:`(s_j, y_j)`, :math:`j = k - min(k, m) + 1, \ldots, k`:
 

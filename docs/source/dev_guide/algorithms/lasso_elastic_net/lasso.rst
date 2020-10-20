@@ -39,7 +39,7 @@ Details
 *******
 
 Let |x_vector| be a vector of input variables and :math:`y = (y_1, \ldots, y_k)` be the response.
-For each |j_1_k|, the LASSO model has the form similar to linear and ridge regression model [Hoerl70],
+For each |j_1_k|, the LASSO model has the form similar to linear and ridge regression model [Hoerl70]_,
 except that the coefficients are trained by minimizing a regularized by :math:`L_1` penalty mean squared error (MSE)
 objective function.
 
