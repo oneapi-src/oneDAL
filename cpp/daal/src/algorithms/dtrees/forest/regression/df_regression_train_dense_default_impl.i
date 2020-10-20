@@ -321,6 +321,8 @@ void OrderedRespHelper<algorithmFPType, cpu>::finalizeBestSplit(const IndexType 
     size_t iLeft                                            = 0;
     size_t iRight                                           = 0;
     int iRowSplitVal                                        = -1;
+    int iNext                                               = -1;
+    int idxNext                                             = this->_aResponse.size() - 1;
     const auto aResponse                                    = this->_aResponse.get();
     const auto aWeights                                     = this->_aWeights.get();
     const IndexedFeatures::IndexType * const indexedFeature = this->indexedFeatures().data(iFeature);
@@ -342,13 +344,19 @@ void OrderedRespHelper<algorithmFPType, cpu>::finalizeBestSplit(const IndexType 
             const algorithmFPType w = aWeights[iSample].val;
             bestSplit.left.var += w * (y - bestSplit.left.mean) * (y - bestSplit.left.mean);
         }
+        if ((idx > idxFeatureValueBestSplit) && (idxNext > idx))
+        {
+            idxNext = idx;
+            iNext   = aResponse[iSample].idx;
+        }
     }
     DAAL_ASSERT(iRight == n - bestSplit.nLeft);
     DAAL_ASSERT(iLeft == bestSplit.nLeft);
     bestSplit.left.var *= divL;
     bestSplit.iStart = 0;
     DAAL_ASSERT(iRowSplitVal >= 0);
-    bestSplit.featureValue = this->getValue(iFeature, iRowSplitVal);
+    if (idxNext == this->_aResponse.size() - 1) iNext = iRowSplitVal;
+    bestSplit.featureValue = (this->getValue(iFeature, iRowSplitVal) + this->getValue(iFeature, iNext)) / (algorithmFPType)2.;
 }
 
 template <typename algorithmFPType, CpuType cpu>
