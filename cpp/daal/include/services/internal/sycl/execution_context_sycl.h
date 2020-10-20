@@ -33,6 +33,7 @@
 #include "services/internal/sycl/math/blas_executor.h"
 #include "services/internal/sycl/math/lapack_executor.h"
 
+/// \cond INTERNAL
 namespace daal
 {
 namespace services
@@ -271,8 +272,6 @@ private:
     SyclKernelScheduler _kernelScheduler;
     InfoDevice _infoDevice;
 };
-
-/** } */
 } // namespace interface1
 
 using interface1::SyclExecutionContextImpl;
@@ -281,5 +280,6 @@ using interface1::SyclExecutionContextImpl;
 } // namespace internal
 } // namespace services
 } // namespace daal
+/// \endcond
 
 #endif

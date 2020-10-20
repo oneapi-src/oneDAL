@@ -35,6 +35,7 @@
     #include "services/internal/sycl/level_zero_module_sycl.h"
 #endif
 
+/// \cond INTERNAL
 namespace daal
 {
 namespace services
@@ -641,5 +642,6 @@ private:
 } // namespace internal
 } // namespace services
 } // namespace daal
+/// \endcond
 
 #endif

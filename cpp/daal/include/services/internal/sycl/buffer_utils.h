@@ -22,6 +22,7 @@
 #include "services/internal/sycl/types_utils.h"
 #include "data_management/data/internal/conversion.h"
 
+/// \cond INTERNAL
 namespace daal
 {
 namespace services
@@ -32,15 +33,6 @@ namespace sycl
 {
 namespace interface1
 {
-/** @ingroup oneapi_internal
- * @{
- */
-
-/**
- *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__BUFFERCONVERTERFROM"></a>
- *  \brief Converts UniversalBuffer from compile-time known type to
- *  runtime-known type
- */
 template <typename DataType>
 class BufferConverterFrom
 {
@@ -188,5 +180,6 @@ using interface1::BufferHostReinterpreter;
 } // namespace internal
 } // namespace services
 } // namespace daal
+/// \endcond
 
 #endif

@@ -48,6 +48,7 @@
         }
 #endif // DAAL_DISABLE_LEVEL_ZERO
 
+/// \cond INTERNAL
 namespace daal
 {
 namespace services
@@ -228,5 +229,6 @@ using interface1::catchSyclExceptions;
 } // namespace internal
 } // namespace services
 } // namespace daal
+/// \endcond
 
 #endif

@@ -39,6 +39,7 @@
     #include <CL/sycl/backend/Intel_level0.hpp>
 #endif
 
+/// \cond INTERNAL
 namespace daal
 {
 namespace services
@@ -117,5 +118,6 @@ typedef SharedPtr<ZeModule> ZeModulePtr;
 } // namespace internal
 } // namespace services
 } // namespace daal
+/// \endcond
 
 #endif

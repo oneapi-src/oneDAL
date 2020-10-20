@@ -24,6 +24,7 @@
 
 #include "services/internal/sycl/types_utils.h"
 
+/// \cond INTERNAL
 namespace daal
 {
 namespace services
@@ -34,14 +35,6 @@ namespace sycl
 {
 namespace interface1
 {
-/** @ingroup oneapi_internal
- * @{
- */
-
-/**
- *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__BUFFERALLOCATOR"></a>
- *  \brief Allocator for UniversalBuffer
- */
 class BufferAllocator
 {
 private:
@@ -68,10 +61,6 @@ public:
     }
 };
 
-/**
- *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__BUFFERCOPIER"></a>
- *  \brief Copier for two UniversalBuffers
- */
 class BufferCopier
 {
 private:
@@ -127,10 +116,6 @@ public:
     }
 };
 
-/**
- *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__ARRAYCOPIER"></a>
- *  \brief Copier from array to UniversalBuffers
- */
 class ArrayCopier
 {
 private:
@@ -183,10 +168,6 @@ public:
     }
 };
 
-/**
- *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__BUFFERFILLER"></a>
- *  \brief Fills UniversalBuffers with single value
- */
 class BufferFiller
 {
 private:
@@ -225,8 +206,6 @@ public:
         TypeDispatcher::dispatch(dest.type(), op, status);
     }
 };
-
-/** @} */
 } // namespace interface1
 
 using interface1::BufferAllocator;
@@ -237,5 +216,6 @@ using interface1::BufferFiller;
 } // namespace internal
 } // namespace services
 } // namespace daal
+/// \endcond
 
 #endif

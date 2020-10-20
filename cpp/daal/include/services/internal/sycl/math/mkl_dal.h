@@ -19,11 +19,8 @@
 #define __DAAL_SERVICES_INTERNAL_SYCL_MATH_MKL_DAL_H__
 
 #ifdef __clang__
-    #define DISABLE_MKL_DAL_SYCL_WARNINGS_BEGIN() \
-        _Pragma("clang diagnostic push") \
-        _Pragma("clang diagnostic ignored \"-Wreorder-ctor\"")
-    #define DISABLE_MKL_DAL_SYCL_WARNINGS_END() \
-        _Pragma("clang diagnostic pop")
+    #define DISABLE_MKL_DAL_SYCL_WARNINGS_BEGIN() _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wreorder-ctor\"")
+    #define DISABLE_MKL_DAL_SYCL_WARNINGS_END()   _Pragma("clang diagnostic pop")
 #else
     #define DISABLE_MKL_DAL_SYCL_WARNINGS_BEGIN()
     #define DISABLE_MKL_DAL_SYCL_WARNINGS_END()

@@ -20,6 +20,7 @@
 
 #include "services/internal/sycl/types.h"
 
+/// \cond INTERNAL
 namespace daal
 {
 namespace services
@@ -30,10 +31,6 @@ namespace sycl
 {
 namespace interface1
 {
-/** @ingroup oneapi_internal
- * @{
- */
-
 template <typename...>
 struct Typelist
 {};
@@ -46,10 +43,6 @@ typedef Typelist<daal::services::internal::sycl::int8_t, daal::services::interna
 
 typedef Typelist<daal::services::internal::sycl::float32_t, daal::services::internal::sycl::float64_t> FloatTypes;
 
-/**
- *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__TYPEDISPATCHER"></a>
- *  \brief Makes runtime dispatching of types
- */
 class TypeDispatcher
 {
 public:
@@ -88,8 +81,6 @@ private:
 
 String getKeyFPType(TypeId typeId);
 
-/** @} */
-
 } // namespace interface1
 
 using interface1::Typelist;
@@ -100,5 +91,6 @@ using interface1::getKeyFPType;
 } // namespace internal
 } // namespace services
 } // namespace daal
+/// \endcond
 
 #endif
