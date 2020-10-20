@@ -115,8 +115,11 @@ public:
     {
         if (_rawPtr)
         {
+            const size_t size = _ncols * _nrows;
+            DAAL_ASSERT((size / _ncols) == _nrows);
+
             services::Status status;
-            services::internal::Buffer<DataType> buffer((DataType *)_rawPtr, _ncols * _nrows, status);
+            services::internal::Buffer<DataType> buffer((DataType *)_rawPtr, size, status);
             services::throwIfPossible(status);
             return buffer;
         }
@@ -126,8 +129,12 @@ public:
         }
         else
         {
+            const size_t size = _ncols * _nrows;
+            DAAL_ASSERT((size / _ncols) == _nrows);
+            DAAL_ASSERT(_ptr.get() != nullptr);
+
             services::Status status;
-            services::internal::Buffer<DataType> buffer(_ptr, _ncols * _nrows, status);
+            services::internal::Buffer<DataType> buffer(_ptr, size, status);
             services::throwIfPossible(status);
             return buffer;
         }
@@ -222,7 +229,14 @@ public:
         _ncols = nColumns;
         _nrows = nRows;
 
-        size_t newSize = nColumns * nRows * sizeof(DataType) + auxMemorySize;
+        const size_t elementsCount = nColumns * nRows;
+        DAAL_ASSERT((elementsCount / nRows) == nColumns);
+
+        const size_t bytesCount = elementsCount * sizeof(DataType);
+        DAAL_ASSERT((bytesCount / sizeof(DataType)) == elementsCount);
+
+        const size_t newSize = bytesCount + auxMemorySize;
+        DAAL_ASSERT((newSize - bytesCount) == auxMemorySize);
 
         if (newSize > _capacity)
         {

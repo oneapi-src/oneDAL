@@ -23,7 +23,7 @@ Implicit Alternating Least Squares
 
 
 The library provides the Implicit Alternating Least Squares (implicit
-ALS) algorithm [Fleischer2008],
+ALS) algorithm [Fleischer2008]_,
 based on collaborative filtering.
 
 Details
@@ -49,12 +49,11 @@ random numbers uniformly distributed on the interval :math:`(0,1)`, :math:`k = 2
 Training Stage
 --------------
 
-The ALS model is trained using the implicit ALS algorithm
-[Hu2008]
+The ALS model is trained using the implicit ALS algorithm [Hu2008]_
 by minimizing the following cost function:
 
 .. math::
-	\underset{{x}_{*},{y}_{*}}{\mathrm{min}}\underset{u,i}{\mathrm{\Sigma }}{c}_{ui}{\left({p}_{ui}-{x}_{u}^{T}{y}_{i}\right)}^{2}+\lambda \left(\underset{u}{\mathrm{\Sigma }}{n}_{{x}_{u}}{‖{x}_{u}‖}^{2}+\underset{i}{\mathrm{\Sigma }}{m}_{{y}_{i}}{‖{y}_{i}‖}^{2}\right),
+	\underset{{x}_{*},{y}_{*}}{\mathrm{min}}\underset{u,i}{\mathrm{\Sigma }}{c}_{ui}{\left({p}_{ui}-{x}_{u}^{T}{y}_{i}\right)}^{2}+\lambda \left(\underset{u}{\mathrm{\Sigma }}{n}_{{x}_{u}}{\|{x}_{u}\|}^{2}+\underset{i}{\mathrm{\Sigma }}{m}_{{y}_{i}}{\|{y}_{i}\|}^{2}\right),
 
 where:
 
