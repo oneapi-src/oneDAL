@@ -24,7 +24,6 @@
 #include "services/env_detect.h"
 #include "services/internal/sycl/execution_context.h"
 #include "services/internal/sycl/types.h"
-#include "services/internal/sycl/daal_defines_sycl.h"
 #include "src/services/service_data_utils.h"
 #include "src/sycl/blas_gpu.h"
 #include "src/algorithms/kmeans/oneapi/kmeans_lloyd_distr_step2_kernel_ucapi.h"
@@ -255,7 +254,8 @@ Status KMeansDistributedStep2KernelUCAPI<algorithmFPType>::updateClusters(bool i
     DAAL_ASSERT(centroidCounters.size() >= nClusters);
     DAAL_ASSERT(centroids.size() >= nClusters * nFeatures);
 
-    KernelArguments args(5);
+    KernelArguments args(5, st);
+    DAAL_CHECK_STATUS_VAR(st);
     args.set(0, partialCentroidsCounters, AccessModeIds::read);
     args.set(1, partialCentroids, AccessModeIds::read);
     args.set(2, centroidCounters, AccessModeIds::readwrite);
@@ -297,7 +297,8 @@ Status KMeansDistributedStep2KernelUCAPI<algorithmFPType>::updateCandidates(bool
     DAAL_ASSERT(candidates.size() >= nClusters);
     DAAL_ASSERT(cValues.size() >= nClusters);
 
-    KernelArguments args(5);
+    KernelArguments args(5, st);
+    DAAL_CHECK_STATUS_VAR(st);
     args.set(0, partialCandidates, AccessModeIds::read);
     args.set(1, partialCValues, AccessModeIds::read);
     args.set(2, candidates, AccessModeIds::readwrite);

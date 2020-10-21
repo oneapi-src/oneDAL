@@ -28,7 +28,6 @@
 #include "src/algorithms/kmeans/oneapi/cl_kernels/kmeans_cl_kernels.cl"
 #include "services/internal/sycl/execution_context.h"
 #include "services/internal/sycl/types.h"
-#include "services/internal/sycl/daal_defines_sycl.h"
 #include "src/services/service_data_utils.h"
 #include "src/sycl/blas_gpu.h"
 
@@ -185,7 +184,8 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computeSquares(const se
     DAAL_ASSERT(nRows <= maxInt32AsUint32T);
     DAAL_ASSERT(nFeatures <= maxInt32AsUint32T);
 
-    KernelArguments args(4);
+    KernelArguments args(4, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, data, AccessModeIds::read);
     args.set(1, dataSq, AccessModeIds::write);
     args.set(2, static_cast<int32_t>(nRows));
@@ -219,7 +219,8 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::getNumEmptyClusters(uin
     DAAL_ASSERT_UNIVERSAL_BUFFER(_numEmptyClusters, int, 1);
     DAAL_ASSERT(nClusters <= maxInt32AsUint32T);
 
-    KernelArguments args(4);
+    KernelArguments args(4, st);
+    DAAL_CHECK_STATUS_VAR(st);
     args.set(0, _partialCentroidsCounters, AccessModeIds::read);
     args.set(1, static_cast<int32_t>(nClusters));
     args.set(2, static_cast<int32_t>(_nPartialCentroids));
@@ -270,7 +271,8 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computeAssignments(cons
     DAAL_ASSERT(blockSize <= maxInt32AsUint32T);
     DAAL_ASSERT(nClusters <= maxInt32AsUint32T);
 
-    KernelArguments args(7);
+    KernelArguments args(7, st);
+    DAAL_CHECK_STATUS_VAR(st);
     args.set(0, _centroidsSq, AccessModeIds::read);
     args.set(1, _distances, AccessModeIds::read);
     args.set(2, static_cast<int32_t>(blockSize));
@@ -323,7 +325,8 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computePartialCandidate
     DAAL_ASSERT(nClusters <= maxInt32AsUint32T);
     DAAL_ASSERT(reset <= maxInt32AsUint32T);
 
-    KernelArguments args(10);
+    KernelArguments args(10, st);
+    DAAL_CHECK_STATUS_VAR(st);
     args.set(0, assignments, AccessModeIds::read);
     args.set(1, _mindistances, AccessModeIds::read);
     args.set(2, _dataSq, AccessModeIds::read);
@@ -366,7 +369,8 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::mergePartialCandidates(
 
     DAAL_ASSERT(nClusters <= maxInt32AsUint32T);
 
-    KernelArguments args(5);
+    KernelArguments args(5, st);
+    DAAL_CHECK_STATUS_VAR(st);
     args.set(0, _candidates, AccessModeIds::write);
     args.set(1, _candidateDistances, AccessModeIds::write);
     args.set(2, _partialCandidates, AccessModeIds::read);
@@ -411,7 +415,8 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::partialReduceCentroids(
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, _nPartialCentroids * nClusters, nFeatures);
 
-    KernelArguments args(9);
+    KernelArguments args(9, st);
+    DAAL_CHECK_STATUS_VAR(st);
     args.set(0, data, AccessModeIds::read);
     args.set(1, _distances, AccessModeIds::read);
     args.set(2, assignments, AccessModeIds::read);
@@ -445,7 +450,8 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::mergeReduceCentroids(co
     DAAL_ASSERT(nClusters <= maxInt32AsUint32T);
     DAAL_ASSERT(nFeatures <= maxInt32AsUint32T);
 
-    KernelArguments args(6);
+    KernelArguments args(6, st);
+    DAAL_CHECK_STATUS_VAR(st);
     args.set(0, _partialCentroids, AccessModeIds::readwrite);
     args.set(1, _partialCentroidsCounters, AccessModeIds::readwrite);
     args.set(2, centroids, AccessModeIds::write);
@@ -490,7 +496,8 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::updateObjectiveFunction
     DAAL_ASSERT(blockSize <= maxInt32AsUint32T);
     DAAL_ASSERT(nClusters <= maxInt32AsUint32T);
 
-    KernelArguments args(5);
+    KernelArguments args(5, st);
+    DAAL_CHECK_STATUS_VAR(st);
     args.set(0, _dataSq, AccessModeIds::read);
     args.set(1, _mindistances, AccessModeIds::read);
     args.set(2, blockSize);

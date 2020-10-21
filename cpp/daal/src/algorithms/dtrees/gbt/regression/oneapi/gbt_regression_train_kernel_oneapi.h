@@ -32,7 +32,6 @@
 #include "algorithms/gradient_boosted_trees/gbt_regression_training_types.h"
 #include "src/algorithms/engines/engine_batch_impl.h"
 #include "src/algorithms/dtrees/gbt/oneapi/gbt_feature_type_helper_oneapi.h"
-#include "services/internal/sycl/daal_defines_sycl.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

@@ -115,6 +115,10 @@
     #endif
 #endif
 
+#if !(defined(__linux__) || defined(_WIN64))
+    #define DAAL_DISABLE_LEVEL_ZERO
+#endif
+
 /**
  *  Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) namespace
  */
