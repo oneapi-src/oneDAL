@@ -151,8 +151,8 @@ services::Status LowOrderMomentsBatchKernelOneAPI<algorithmFPType, method>::comp
     return status;
 }
 
-template <typename T>
-static inline services::Status overflowCheckByMultiplication(const T & v1, const T & v2)
+template <typename T, typename Q, typename P>
+static inline services::Status overflowCheckByMultiplication(const Q & v1, const P & v2)
 {
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(T, v1, v2);
     return services::Status();
@@ -206,9 +206,6 @@ LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::LowOrderMomentsBatchTask
     nVectors  = static_cast<uint32_t>(dataTable->getNumberOfRows());
     nFeatures = static_cast<uint32_t>(dataTable->getNumberOfColumns());
 
-    status |= overflowCheckByMultiplication(nVectors, nFeatures);
-    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
-
     nColsBlocks = (nFeatures + maxWorkItemsPerGroup - 1) / maxWorkItemsPerGroup;
 
     nRowsBlocks = 128;
@@ -227,15 +224,13 @@ LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::LowOrderMomentsBatchTask
 
     CHECK_AND_RET_IF_FAIL(status, dataTable->getBlockOfRows(0, nVectors, readOnly, dataBD));
 
-    DAAL_ASSERT(nVectors > nRowsBlocks)
-
     for (uint32_t i = 0; i < TaskInfoBatch<algorithmFPType, scope>::nResults; i++)
     {
         resultTable[i] = result->get((ResultId)TaskInfoBatch<algorithmFPType, scope>::resIds[i]);
         CHECK_AND_RET_IF_FAIL(status, resultTable[i]->getBlockOfRows(0, 1, writeOnly, resultBD[i]));
     }
 
-    status |= overflowCheckByMultiplication(nRowsBlocks, nFeatures);
+    status |= overflowCheckByMultiplication<size_t>(nRowsBlocks, nFeatures);
     DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
     if (TaskInfoBatch<algorithmFPType, scope>::isRowsInBlockInfoRequired)
     {
@@ -292,7 +287,7 @@ services::Status LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::compute
         auto kProcessBlocks = factory.getKernel(TaskInfoBatch<algorithmFPType, scope>::kProcessBlocksName, status);
         DAAL_CHECK_STATUS_VAR(status);
         {
-            // nRowsBlocks * nColsBlocks overflow check was done as part of check nVectors * nFeatures
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRowsBlocks, nColsBlocks);
             DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRowsBlocks * nColsBlocks, workItemsPerGroup);
             KernelRange localRange(workItemsPerGroup);
             KernelRange globalRange(nRowsBlocks * nColsBlocks * workItemsPerGroup);

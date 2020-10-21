@@ -190,8 +190,8 @@ services::Status LowOrderMomentsOnlineKernelOneAPI<algorithmFPType, method>::fin
     return status;
 }
 
-template <typename T>
-static inline services::Status overflowCheckByMultiplication(const T & v1, const T & v2)
+template <typename T, typename Q, typename P>
+static inline services::Status overflowCheckByMultiplication(const Q & v1, const P & v2)
 {
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(T, v1, v2);
     return services::Status();
@@ -246,9 +246,6 @@ LowOrderMomentsOnlineTaskOneAPI<algorithmFPType, scope>::LowOrderMomentsOnlineTa
     nVectors  = static_cast<uint32_t>(dataTable->getNumberOfRows());
     nFeatures = static_cast<uint32_t>(dataTable->getNumberOfColumns());
 
-    status |= overflowCheckByMultiplication(nVectors, nFeatures);
-    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
-
     nColsBlocks = (nFeatures + maxWorkItemsPerGroup - 1) / maxWorkItemsPerGroup;
 
     nRowsBlocks = 128;
@@ -280,7 +277,7 @@ LowOrderMomentsOnlineTaskOneAPI<algorithmFPType, scope>::LowOrderMomentsOnlineTa
         DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
     }
 
-    status |= overflowCheckByMultiplication(nRowsBlocks, nFeatures);
+    status |= overflowCheckByMultiplication<size_t>(nRowsBlocks, nFeatures);
     DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
     if (TaskInfoOnline<algorithmFPType, scope>::isRowsInBlockInfoRequired)
@@ -345,7 +342,7 @@ services::Status LowOrderMomentsOnlineTaskOneAPI<algorithmFPType, scope>::comput
         auto kProcessBlocks = factory.getKernel(TaskInfoOnline<algorithmFPType, scope>::kProcessBlocksName, status);
         DAAL_CHECK_STATUS_VAR(status);
         {
-            // nRowsBlocks * nColsBlocks overflow check was done as part of check nVectors * nFeatures
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRowsBlocks, nColsBlocks);
             DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRowsBlocks * nColsBlocks, workItemsPerGroup);
             KernelRange localRange(workItemsPerGroup);
             KernelRange globalRange(nRowsBlocks * nColsBlocks * workItemsPerGroup);
