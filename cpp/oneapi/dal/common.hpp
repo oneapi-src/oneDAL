@@ -29,7 +29,7 @@
 #define ONEDAL_EXPORT
 #endif
 
-#ifdef NDEBUG
+#ifndef ONEDAL_ENABLE_ASSERT
 #define ONEDAL_ASSERT(...)
 #else
 #include <cassert>

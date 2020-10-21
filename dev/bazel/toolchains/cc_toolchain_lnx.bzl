@@ -313,9 +313,6 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                     # Security hardening on by default.
                     "-D_FORTIFY_SOURCE=2",
 
-                    # Disable assertions
-                    "-DNDEBUG",
-
                     # Removal of unused code and data at link time (can this increase binary
                     # size in some cases?).
                     "-ffunction-sections",
@@ -352,6 +349,9 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
             "%{dbg_compile_flags}": get_starlark_list(
                 [
                     "-g",
+
+                    # Enable assertions
+                    "-DONEDAL_ENABLE_ASSERT",
 
                     # Disable optimizations explicitly
                     # Some compilers like Intel uses -O2 by default
