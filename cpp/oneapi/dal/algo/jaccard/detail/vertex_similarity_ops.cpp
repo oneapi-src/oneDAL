@@ -24,7 +24,7 @@ namespace jaccard {
 namespace detail {
 
 template <typename Policy, typename Float, class Method, typename Graph>
-ONEAPI_DAL_EXPORT vertex_similarity_result
+ONEDAL_EXPORT vertex_similarity_result
 vertex_similarity_ops_dispatcher<Policy, Float, Method, Graph>::operator()(
     const Policy &policy,
     const descriptor_base &desc,
@@ -34,7 +34,7 @@ vertex_similarity_ops_dispatcher<Policy, Float, Method, Graph>::operator()(
 }
 
 #define INSTANTIATE(F, M, G)          \
-    template struct ONEAPI_DAL_EXPORT \
+    template struct ONEDAL_EXPORT \
         vertex_similarity_ops_dispatcher<oneapi::dal::detail::host_policy, F, M, G>;
 
 INSTANTIATE(float,

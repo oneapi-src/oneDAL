@@ -26,7 +26,7 @@ template <typename Context,
           typename Float,
           typename Method = method::by_default,
           typename Task = task::by_default>
-struct ONEAPI_DAL_EXPORT train_ops_dispatcher {
+struct ONEDAL_EXPORT train_ops_dispatcher {
     train_result<Task> operator()(const Context&,
                                   const descriptor_base<Task>&,
                                   const train_input<Task>&) const;

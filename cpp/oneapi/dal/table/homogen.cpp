@@ -42,15 +42,15 @@ void homogen_table::init_impl(const Policy& policy,
     init_impl(backend::homogen_table_impl(column_count, data, dtype, layout));
 }
 
-template ONEAPI_DAL_EXPORT void homogen_table::init_impl(const detail::default_host_policy&,
+template ONEDAL_EXPORT void homogen_table::init_impl(const detail::default_host_policy&,
                                                          int64_t,
                                                          int64_t,
                                                          const array<byte_t>&,
                                                          const data_type&,
                                                          data_layout);
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
-template ONEAPI_DAL_EXPORT void homogen_table::init_impl(const detail::data_parallel_policy&,
+#ifdef ONEDAL_DATA_PARALLEL
+template ONEDAL_EXPORT void homogen_table::init_impl(const detail::data_parallel_policy&,
                                                          int64_t,
                                                          int64_t,
                                                          const array<byte_t>&,

@@ -17,7 +17,7 @@
 #include "oneapi/dal/detail/threading.hpp"
 #include "src/threading/threading.h"
 
-ONEAPI_DAL_EXPORT void _daal_threader_for_oneapi(int n,
+ONEDAL_EXPORT void _daal_threader_for_oneapi(int n,
                                                  int threads_request,
                                                  const void* a,
                                                  oneapi::dal::preview::functype func) {

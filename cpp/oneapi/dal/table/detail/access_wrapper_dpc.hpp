@@ -16,7 +16,7 @@
 
 #pragma once
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 
 #include "oneapi/dal/table/detail/access_iface_type_traits.hpp"
 #include "oneapi/dal/table/detail/access_iface_wrapper.hpp"

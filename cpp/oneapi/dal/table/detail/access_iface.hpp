@@ -71,7 +71,7 @@ struct access_iface {
 
 using access_iface_host = access_iface<default_host_policy, host_allocator>;
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 using access_iface_dpc = access_iface<data_parallel_policy, data_parallel_allocator>;
 #endif
 
@@ -80,7 +80,7 @@ public:
     virtual ~access_provider_iface() {}
 
     virtual access_iface_host& get_access_iface_host() const = 0;
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     virtual access_iface_dpc& get_access_iface_dpc() const = 0;
 #endif
 };

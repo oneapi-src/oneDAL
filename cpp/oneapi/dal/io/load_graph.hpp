@@ -36,7 +36,7 @@ namespace oneapi::dal::preview::load_graph {
 ///
 /// @return The graph object filled by data from the data_source
 template <typename Descriptor = descriptor<>, typename DataSource = graph_csv_data_source>
-ONEAPI_DAL_EXPORT output_type<Descriptor> load(const Descriptor &desc,
+ONEDAL_EXPORT output_type<Descriptor> load(const Descriptor &desc,
                                                const DataSource &data_source) {
     return detail::load_impl(desc, data_source);
 }

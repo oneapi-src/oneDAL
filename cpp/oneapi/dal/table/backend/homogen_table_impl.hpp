@@ -80,7 +80,7 @@ public:
         push_column_impl(detail::default_host_policy{}, block, column_index, rows);
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename Data>
     void pull_rows(sycl::queue& queue,
                    array<Data>& block,

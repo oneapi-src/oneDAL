@@ -22,7 +22,7 @@
 #include "oneapi/dal/detail/policy.hpp"
 
 namespace oneapi::dal::detail {
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 
 template <typename T>
 inline T* malloc(const data_parallel_policy& policy,

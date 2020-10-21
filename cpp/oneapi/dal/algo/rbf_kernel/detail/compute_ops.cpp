@@ -22,7 +22,7 @@ namespace oneapi::dal::rbf_kernel::detail {
 using oneapi::dal::detail::host_policy;
 
 template <typename Float, typename Method>
-struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<host_policy, Float, Method> {
+struct ONEDAL_EXPORT compute_ops_dispatcher<host_policy, Float, Method> {
     compute_result operator()(const host_policy& ctx,
                               const descriptor_base& desc,
                               const compute_input& input) const {
@@ -33,7 +33,7 @@ struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<host_policy, Float, Method> {
 };
 
 #define INSTANTIATE(F, M) \
-    template struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<host_policy, F, M>;
+    template struct ONEDAL_EXPORT compute_ops_dispatcher<host_policy, F, M>;
 
 INSTANTIATE(float, method::dense)
 INSTANTIATE(float, method::csr)

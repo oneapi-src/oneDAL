@@ -22,7 +22,7 @@ namespace oneapi::dal::svm::detail {
 using oneapi::dal::detail::host_policy;
 
 template <typename Float, typename Task, typename Method>
-struct ONEAPI_DAL_EXPORT infer_ops_dispatcher<host_policy, Float, Task, Method> {
+struct ONEDAL_EXPORT infer_ops_dispatcher<host_policy, Float, Task, Method> {
     infer_result operator()(const host_policy& ctx,
                             const descriptor_base& desc,
                             const infer_input& input) const {
@@ -33,7 +33,7 @@ struct ONEAPI_DAL_EXPORT infer_ops_dispatcher<host_policy, Float, Task, Method> 
 };
 
 #define INSTANTIATE(F, T, M) \
-    template struct ONEAPI_DAL_EXPORT infer_ops_dispatcher<host_policy, F, T, M>;
+    template struct ONEDAL_EXPORT infer_ops_dispatcher<host_policy, F, T, M>;
 
 INSTANTIATE(float, task::classification, method::by_default)
 INSTANTIATE(double, task::classification, method::by_default)

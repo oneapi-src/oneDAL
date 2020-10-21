@@ -20,13 +20,13 @@
 #include <utility>
 
 #if defined(_WIN32) || defined(_WIN64)
-#ifdef __ONEAPI_DAL_ENABLE_DLL_EXPORT__
-#define ONEAPI_DAL_EXPORT __declspec(dllexport)
+#ifdef __ONEDAL_ENABLE_DLL_EXPORT__
+#define ONEDAL_EXPORT __declspec(dllexport)
 #else
-#define ONEAPI_DAL_EXPORT
+#define ONEDAL_EXPORT
 #endif
 #else
-#define ONEAPI_DAL_EXPORT
+#define ONEDAL_EXPORT
 #endif
 
 #ifdef NDEBUG

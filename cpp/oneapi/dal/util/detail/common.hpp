@@ -22,7 +22,7 @@
 
 namespace oneapi::dal::detail {
 
-#ifdef ONEAPI_DAL_DEBUG
+#ifdef ONEDAL_DEBUG
 #include <cassert>
 #define oneapi_dal_assert(cond) assert(cond)
 #else
