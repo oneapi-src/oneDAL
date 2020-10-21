@@ -26,29 +26,23 @@
 #include "services/daal_string.h"
 #include "services/internal/sycl/daal_level_zero_common.h"
 
-#define DAAL_CHECK_OPENCL(cl_error, statusPtr, ...)                     \
-    {                                                                   \
-        if (cl_error != CL_SUCCESS)                                     \
-        {                                                               \
-            if (statusPtr != nullptr)                                   \
-            {                                                           \
-                statusPtr->add(convertOpenClErrorToErrorPtr(cl_error)); \
-            }                                                           \
-            return __VA_ARGS__;                                         \
-        }                                                               \
+#define DAAL_CHECK_OPENCL(cl_error, status, ...)                \
+    {                                                           \
+        if (cl_error != CL_SUCCESS)                             \
+        {                                                       \
+            status.add(convertOpenClErrorToErrorPtr(cl_error)); \
+            return __VA_ARGS__;                                 \
+        }                                                       \
     }
 
 #ifndef DAAL_DISABLE_LEVEL_ZERO
-    #define DAAL_CHECK_LEVEL_ZERO(ze_error, statusPtr, ...)                    \
-        {                                                                      \
-            if (ze_error != ZE_RESULT_SUCCESS)                                 \
-            {                                                                  \
-                if (statusPtr != nullptr)                                      \
-                {                                                              \
-                    statusPtr->add(convertLevelZeroErrorToErrorPtr(ze_error)); \
-                }                                                              \
-                return __VA_ARGS__;                                            \
-            }                                                                  \
+    #define DAAL_CHECK_LEVEL_ZERO(ze_error, status, ...)               \
+        {                                                              \
+            if (ze_error != ZE_RESULT_SUCCESS)                         \
+            {                                                          \
+                status.add(convertLevelZeroErrorToErrorPtr(ze_error)); \
+                return __VA_ARGS__;                                    \
+            }                                                          \
         }
 #endif // DAAL_DISABLE_LEVEL_ZERO
 
@@ -181,12 +175,9 @@ inline services::ErrorPtr convertLevelZeroErrorToErrorPtr(ze_result_t zeError)
 }
 #endif // DAAL_DISABLE_LEVEL_ZERO
 
-inline void convertSyclExceptionToStatus(cl::sycl::exception const & e, services::Status * statusPtr)
+inline void convertSyclExceptionToStatus(cl::sycl::exception const & e, services::Status & status)
 {
-    if (statusPtr != NULL)
-    {
-        statusPtr->add(services::Error::create(services::ErrorID::ErrorExecutionContext, services::ErrorDetailID::Sycl, services::String(e.what())));
-    }
+    status |= services::Error::create(services::ErrorID::ErrorExecutionContext, services::ErrorDetailID::Sycl, services::String(e.what()));
 }
 } // namespace interface1
 

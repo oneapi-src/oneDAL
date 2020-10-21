@@ -34,7 +34,7 @@ namespace prediction
 {
 namespace internal
 {
-template struct SVMPredictImplOneAPI<defaultDense, DAAL_FPTYPE>;
+template struct DAAL_EXPORT SVMPredictImplOneAPI<defaultDense, DAAL_FPTYPE>;
 
 } // namespace internal
 } // namespace prediction

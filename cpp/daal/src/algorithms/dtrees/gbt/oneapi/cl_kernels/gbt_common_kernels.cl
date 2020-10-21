@@ -31,11 +31,11 @@
 DECLARE_SOURCE(
     gbt_common_kernels,
 
-    __kernel void extractColumn(const __global algorithmFPType * data, __global algorithmFPType * values, __global int * indices, int featureId,
-                                int nFeatures, int nRows) {
-        const int id = get_global_id(0);
-        values[id]   = data[id * nFeatures + featureId];
-        indices[id]  = id;
+    __kernel void extractColumn(const __global algorithmFPType * data, __global algorithmFPType * values, __global int * indices,
+                                unsigned int featureId, unsigned int nFeatures, unsigned int nRows) {
+        const unsigned int id = get_global_id(0);
+        values[id]            = data[id * nFeatures + featureId];
+        indices[id]           = id;
     }
 
     uint __attribute__((overloadable)) invBits(uint x) {
@@ -48,87 +48,87 @@ DECLARE_SOURCE(
         //    return x ^ 0x8000000000000000u;
     }
 
-    __kernel void radixScan(const __global radixIntType * values, __global int * partialHists, int nRows, int bitOffset) {
-        const int RADIX_BITS = 4;
+    __kernel void radixScan(const __global radixIntType * values, __global int * partialHists, unsigned int nRows, unsigned int bitOffset) {
+        const unsigned int RADIX_BITS = 4;
 
-        const int n_groups             = get_num_groups(0);
-        const int n_sub_groups         = get_num_sub_groups();
-        const int n_total_sub_groups   = n_sub_groups * n_groups;
-        const int nElementsForSubgroup = nRows / n_total_sub_groups + !!(nRows % n_total_sub_groups);
-        const int local_size           = get_sub_group_size();
+        const unsigned int n_groups             = get_num_groups(0);
+        const unsigned int n_sub_groups         = get_num_sub_groups();
+        const unsigned int n_total_sub_groups   = n_sub_groups * n_groups;
+        const unsigned int nElementsForSubgroup = nRows / n_total_sub_groups + !!(nRows % n_total_sub_groups);
+        const unsigned int local_size           = get_sub_group_size();
 
-        const int id           = get_local_id(0);
-        const int local_id     = get_sub_group_local_id();
-        const int sub_group_id = get_sub_group_id();
-        const int group_id     = get_group_id(0) * n_sub_groups + sub_group_id;
+        const unsigned int id           = get_local_id(0);
+        const unsigned int local_id     = get_sub_group_local_id();
+        const unsigned int sub_group_id = get_sub_group_id();
+        const unsigned int group_id     = get_group_id(0) * n_sub_groups + sub_group_id;
 
-        int iStart = group_id * nElementsForSubgroup;
-        int iEnd   = (group_id + 1) * nElementsForSubgroup;
+        unsigned int iStart = group_id * nElementsForSubgroup;
+        unsigned int iEnd   = (group_id + 1) * nElementsForSubgroup;
 
         if (iEnd > nRows)
         {
             iEnd = nRows;
         }
 
-        int offset[1 << RADIX_BITS];
-        const int radix_range   = 1 << RADIX_BITS;
-        const int radix_range_1 = radix_range - 1;
-        for (int i = 0; i < radix_range; i++)
+        unsigned int offset[1 << RADIX_BITS];
+        const unsigned int radix_range   = 1 << RADIX_BITS;
+        const unsigned int radix_range_1 = radix_range - 1;
+        for (unsigned int i = 0; i < radix_range; i++)
         {
             offset[i] = 0;
         }
 
-        for (int i = iStart + local_id; i < iEnd; i += local_size)
+        for (unsigned int i = iStart + local_id; i < iEnd; i += local_size)
         {
             radixIntType data_bits = ((invBits(values[i]) >> bitOffset) & radix_range_1);
-            for (int j = 0; j < radix_range; j++)
+            for (unsigned int j = 0; j < radix_range; j++)
             {
-                int value          = data_bits == j;
-                int partial_offset = sub_group_reduce_add(value);
+                unsigned int value          = data_bits == j;
+                unsigned int partial_offset = sub_group_reduce_add(value);
                 offset[j] += partial_offset;
             }
         }
 
         if (local_id == 0)
         {
-            for (int j = 0; j < radix_range; j++)
+            for (unsigned int j = 0; j < radix_range; j++)
             {
                 partialHists[group_id * radix_range + j] = offset[j];
             }
         }
     }
 
-    __kernel void radixHistScan(const __global int * partialHists, __global int * partialPrefixHists, int nSubgroupSums) {
-        const int RADIX_BITS = 4;
+    __kernel void radixHistScan(const __global int * partialHists, __global int * partialPrefixHists, unsigned int nSubgroupSums) {
+        const unsigned int RADIX_BITS = 4;
 
         if (get_sub_group_id() > 0) return;
 
-        const int local_size = get_sub_group_size();
-        const int local_id   = get_sub_group_local_id();
+        const unsigned int local_size = get_sub_group_size();
+        const unsigned int local_id   = get_sub_group_local_id();
 
-        int offset[1 << RADIX_BITS];
-        const int radix_range = 1 << RADIX_BITS;
-        for (int i = 0; i < radix_range; i++)
+        unsigned int offset[1 << RADIX_BITS];
+        const unsigned int radix_range = 1 << RADIX_BITS;
+        for (unsigned int i = 0; i < radix_range; i++)
         {
             offset[i] = 0;
         }
 
-        for (int i = local_id; i < nSubgroupSums; i += local_size)
+        for (unsigned int i = local_id; i < nSubgroupSums; i += local_size)
         {
-            for (int j = 0; j < radix_range; j++)
+            for (unsigned int j = 0; j < radix_range; j++)
             {
-                int value                               = partialHists[i * radix_range + j];
-                int boundary                            = sub_group_scan_exclusive_add(value);
+                unsigned int value                      = partialHists[i * radix_range + j];
+                unsigned int boundary                   = sub_group_scan_exclusive_add(value);
                 partialPrefixHists[i * radix_range + j] = offset[j] + boundary;
-                int partial_offset                      = sub_group_reduce_add(value);
+                unsigned int partial_offset             = sub_group_reduce_add(value);
                 offset[j] += partial_offset;
             }
         }
 
         if (local_id == 0)
         {
-            int totalSum = 0;
-            for (int j = 0; j < radix_range; j++)
+            unsigned int totalSum = 0;
+            for (unsigned int j = 0; j < radix_range; j++)
             {
                 partialPrefixHists[nSubgroupSums * radix_range + j] = totalSum;
                 totalSum += offset[j];
@@ -137,50 +137,50 @@ DECLARE_SOURCE(
     }
 
     __kernel void radixReorder(const __global radixIntType * valuesSrc, const __global int * indicesSrc, const __global int * partialPrefixHists,
-                               __global radixIntType * valuesDst, __global int * indicesDst, int nRows, int bitOffset) {
-        const int RADIX_BITS = 4;
+                               __global radixIntType * valuesDst, __global int * indicesDst, unsigned int nRows, unsigned int bitOffset) {
+        const unsigned int RADIX_BITS = 4;
 
-        const int n_groups             = get_num_groups(0);
-        const int n_sub_groups         = get_num_sub_groups();
-        const int n_total_sub_groups   = n_sub_groups * n_groups;
-        const int nElementsForSubgroup = nRows / n_total_sub_groups + !!(nRows % n_total_sub_groups);
-        const int local_size           = get_sub_group_size();
+        const unsigned int n_groups             = get_num_groups(0);
+        const unsigned int n_sub_groups         = get_num_sub_groups();
+        const unsigned int n_total_sub_groups   = n_sub_groups * n_groups;
+        const unsigned int nElementsForSubgroup = nRows / n_total_sub_groups + !!(nRows % n_total_sub_groups);
+        const unsigned int local_size           = get_sub_group_size();
 
-        const int id           = get_local_id(0);
-        const int local_id     = get_sub_group_local_id();
-        const int sub_group_id = get_sub_group_id();
-        const int group_id     = get_group_id(0) * n_sub_groups + sub_group_id;
+        const unsigned int id           = get_local_id(0);
+        const unsigned int local_id     = get_sub_group_local_id();
+        const unsigned int sub_group_id = get_sub_group_id();
+        const unsigned int group_id     = get_group_id(0) * n_sub_groups + sub_group_id;
 
-        int iStart = group_id * nElementsForSubgroup;
-        int iEnd   = (group_id + 1) * nElementsForSubgroup;
+        unsigned int iStart = group_id * nElementsForSubgroup;
+        unsigned int iEnd   = (group_id + 1) * nElementsForSubgroup;
 
         if (iEnd > nRows)
         {
             iEnd = nRows;
         }
 
-        int offset[1 << RADIX_BITS];
+        unsigned int offset[1 << RADIX_BITS];
 
-        const int radix_range   = 1 << RADIX_BITS;
-        const int radix_range_1 = radix_range - 1;
+        const unsigned int radix_range   = 1 << RADIX_BITS;
+        const unsigned int radix_range_1 = radix_range - 1;
 
-        for (int i = 0; i < radix_range; i++)
+        for (unsigned int i = 0; i < radix_range; i++)
         {
             offset[i] = partialPrefixHists[group_id * radix_range + i] + partialPrefixHists[n_total_sub_groups * radix_range + i];
         }
 
-        for (int i = iStart + local_id; i < iEnd; i += local_size)
+        for (unsigned int i = iStart + local_id; i < iEnd; i += local_size)
         {
             radixIntType data_value = valuesSrc[i];
             radixIntType data_bits  = ((invBits(data_value) >> bitOffset) & radix_range_1);
-            int pos_new             = 0;
-            for (int j = 0; j < radix_range; j++)
+            unsigned int pos_new    = 0;
+            for (unsigned int j = 0; j < radix_range; j++)
             {
-                int value    = data_bits == j;
-                int boundary = sub_group_scan_exclusive_add(value);
+                unsigned int value    = data_bits == j;
+                unsigned int boundary = sub_group_scan_exclusive_add(value);
                 pos_new |= value * (offset[j] + boundary);
-                int partial_offset = sub_group_reduce_add(value);
-                offset[j]          = offset[j] + partial_offset;
+                unsigned int partial_offset = sub_group_reduce_add(value);
+                offset[j]                   = offset[j] + partial_offset;
             }
             valuesDst[pos_new]  = data_value;
             indicesDst[pos_new] = indicesSrc[i];
@@ -188,34 +188,34 @@ DECLARE_SOURCE(
     }
 
     __kernel void collectBinBorders(const __global algorithmFPType * values, const __global int * binOffsets, __global algorithmFPType * binBorders) {
-        const int id   = get_global_id(0);
-        binBorders[id] = values[binOffsets[id]];
+        const unsigned int id = get_global_id(0);
+        binBorders[id]        = values[binOffsets[id]];
     }
 
     __kernel void computeBins(const __global algorithmFPType * values, const __global int * indices, const __global algorithmFPType * binBorders,
-                              __global int * bins, int nRows, int nBins) {
-        const int n_groups             = get_num_groups(0);
-        const int n_sub_groups         = get_num_sub_groups();
-        const int n_total_sub_groups   = n_sub_groups * n_groups;
-        const int nElementsForSubgroup = nRows / n_total_sub_groups + !!(nRows % n_total_sub_groups);
-        const int local_size           = get_sub_group_size();
+                              __global int * bins, unsigned int nRows, unsigned int nBins) {
+        const unsigned int n_groups             = get_num_groups(0);
+        const unsigned int n_sub_groups         = get_num_sub_groups();
+        const unsigned int n_total_sub_groups   = n_sub_groups * n_groups;
+        const unsigned int nElementsForSubgroup = nRows / n_total_sub_groups + !!(nRows % n_total_sub_groups);
+        const unsigned int local_size           = get_sub_group_size();
 
-        const int id           = get_local_id(0);
-        const int local_id     = get_sub_group_local_id();
-        const int sub_group_id = get_sub_group_id();
-        const int group_id     = get_group_id(0) * n_sub_groups + sub_group_id;
+        const unsigned int id           = get_local_id(0);
+        const unsigned int local_id     = get_sub_group_local_id();
+        const unsigned int sub_group_id = get_sub_group_id();
+        const unsigned int group_id     = get_group_id(0) * n_sub_groups + sub_group_id;
 
-        int iStart = group_id * nElementsForSubgroup;
-        int iEnd   = (group_id + 1) * nElementsForSubgroup;
+        unsigned int iStart = group_id * nElementsForSubgroup;
+        unsigned int iEnd   = (group_id + 1) * nElementsForSubgroup;
 
         if (iEnd > nRows)
         {
             iEnd = nRows;
         }
 
-        int curBin = 0;
+        unsigned int curBin = 0;
 
-        for (int i = iStart + local_id; i < iEnd; i += local_size)
+        for (unsigned int i = iStart + local_id; i < iEnd; i += local_size)
         {
             algorithmFPType value = values[i];
             while (binBorders[curBin] < value) curBin++;
@@ -223,8 +223,9 @@ DECLARE_SOURCE(
         }
     }
 
-    __kernel void storeColumn(const __global int * data, __global int * fullData, int featureId, int nFeatures, int nRows) {
-        const int id                         = get_global_id(0);
+    __kernel void storeColumn(const __global int * data, __global int * fullData, unsigned int featureId, unsigned int nFeatures,
+                              unsigned int nRows) {
+        const unsigned int id                = get_global_id(0);
         fullData[id * nFeatures + featureId] = data[id];
     }
 

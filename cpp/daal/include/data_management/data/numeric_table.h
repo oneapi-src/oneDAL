@@ -96,7 +96,12 @@ public:
         }
         else if (_xBuffer)
         {
-            return _xBuffer.toHost((data_management::ReadWriteMode)_rwFlag);
+            // If status is in erroneous state `toHost` returns empty shared
+            // pointer which the user is expected to check.
+            services::Status status;
+            services::SharedPtr<DataType> ptr = _xBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
+            services::throwIfPossible(status);
+            return ptr;
         }
         else
         {
@@ -112,7 +117,10 @@ public:
     {
         if (_rawPtr)
         {
-            return daal::services::internal::Buffer<DataType>((DataType *)_rawPtr, _ncols * _nrows);
+            const size_t size = _ncols * _nrows;
+            DAAL_ASSERT((size / _ncols) == _nrows);
+
+            return daal::services::internal::Buffer<DataType>((DataType *)_rawPtr, size);
         }
         else if (_xBuffer)
         {
@@ -120,7 +128,11 @@ public:
         }
         else
         {
-            return daal::services::internal::Buffer<DataType>(_ptr, _ncols * _nrows);
+            const size_t size = _ncols * _nrows;
+            DAAL_ASSERT((size / _ncols) == _nrows);
+            DAAL_ASSERT(_ptr.get() != nullptr);
+
+            return daal::services::internal::Buffer<DataType>(_ptr, size);
         }
     }
 
@@ -213,7 +225,14 @@ public:
         _ncols = nColumns;
         _nrows = nRows;
 
-        size_t newSize = nColumns * nRows * sizeof(DataType) + auxMemorySize;
+        const size_t elementsCount = nColumns * nRows;
+        DAAL_ASSERT((elementsCount / nRows) == nColumns);
+
+        const size_t bytesCount = elementsCount * sizeof(DataType);
+        DAAL_ASSERT((bytesCount / sizeof(DataType)) == elementsCount);
+
+        const size_t newSize = bytesCount + auxMemorySize;
+        DAAL_ASSERT((newSize - bytesCount) == auxMemorySize);
 
         if (newSize > _capacity)
         {
@@ -307,7 +326,11 @@ protected:
     {
         if (!_hostSharedPtr)
         {
-            _hostSharedPtr = _xBuffer.toHost((data_management::ReadWriteMode)_rwFlag);
+            // If status is in erroneous state `toHost` returns empty shared
+            // pointer which the user is expected to check.
+            services::Status status;
+            _hostSharedPtr = _xBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
+            services::throwIfPossible(status);
         }
         return _hostSharedPtr;
     }

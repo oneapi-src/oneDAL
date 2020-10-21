@@ -35,6 +35,7 @@
 #include "src/algorithms/service_kernel_math.h"
 #include "src/algorithms/service_sort.h"
 #include "src/externals/service_math.h"
+#include "src/algorithms/k_nearest_neighbors/knn_heap.h"
 
 namespace daal
 {
@@ -51,6 +52,9 @@ public:
     BruteForceNearestNeighbors() {}
 
     ~BruteForceNearestNeighbors() {}
+
+    typedef GlobalNeighbors<FPType, cpu> Neighbors;
+    typedef Heap<Neighbors, cpu> HeapType;
 
     services::Status kNeighbors(const size_t k, const size_t nClasses, VoteWeights voteWeights, DAAL_UINT64 resultsToCompute,
                                 DAAL_UINT64 resultsToEvaluate, const NumericTable * trainTable, const NumericTable * testTable,
@@ -110,9 +114,8 @@ protected:
     {
     public:
         DAAL_NEW_DELETE();
-        FPType * kDistances;
         FPType * maxs;
-        int * kIndexes;
+        HeapType * heapsData;
 
         static BruteForceTask * create(const size_t inBlockSize, const size_t outBlockSize, const size_t k)
         {
@@ -122,26 +125,26 @@ protected:
             return nullptr;
         }
 
-        bool isValid() const { return _buff.get(); }
+        bool isValid() const { return _buff.get() && _heaps.get(); }
 
     private:
         BruteForceTask(size_t inBlockSize, size_t outBlockSize, size_t k)
         {
-            const size_t kDistancesSize = inBlockSize * k * sizeof(FPType);
-            const size_t maxsSize       = inBlockSize * sizeof(FPType);
-            const size_t kIndexesSize   = inBlockSize * k * sizeof(int);
-
-            _buff.reset(kDistancesSize + maxsSize + kIndexesSize);
-
-            kDistances = reinterpret_cast<FPType *>(&_buff[0]);
-            maxs       = reinterpret_cast<FPType *>(&_buff[kDistancesSize]);
-            kIndexes   = reinterpret_cast<int *>(&_buff[kDistancesSize + maxsSize]);
-
+            _buff.reset(outBlockSize);
+            maxs = _buff.get();
             service_memset_seq<FPType, cpu>(maxs, MaxVal<FPType>::get(), outBlockSize);
-            service_memset_seq<FPType, cpu>(kDistances, MaxVal<FPType>::get(), inBlockSize * k);
+
+            _heaps.reset(outBlockSize);
+
+            for (size_t i = 0; i < outBlockSize; ++i)
+            {
+                _heaps[i].init(k);
+            }
+            heapsData = _heaps.get();
         }
 
-        TArrayScalable<byte, cpu> _buff;
+        TArrayScalable<FPType, cpu> _buff;
+        TArrayScalable<HeapType, cpu> _heaps;
     };
 
     services::Status computeKNearestBlock(daal::algorithms::internal::EuclideanDistances<FPType, cpu> * distancesInstance, const size_t blockSize,
@@ -172,7 +175,7 @@ protected:
         SafeStatus safeStat;
 
         daal::tls<BruteForceTask *> tlsTask([=, &safeStat]() {
-            auto tlsData = BruteForceTask::create(inBlockSize, blockSize, k);
+            auto tlsData = BruteForceTask::create(inBlockSize, iSize, k);
             if (!tlsData)
             {
                 safeStat.add(services::ErrorMemoryAllocationFailed);
@@ -180,7 +183,8 @@ protected:
             return tlsData;
         });
 
-        daal::conditional_threader_for(nOuterBlocks > 3 * threader_get_max_threads_number(), nInBlocks, [&](size_t inBlock) {
+        const size_t nThreads = _daal_threader_get_max_threads();
+        daal::conditional_threader_for(nOuterBlocks < 2 * nThreads, nInBlocks, [&](size_t inBlock) {
             const size_t j1    = inBlock * inBlockSize;
             const size_t j2    = (inBlock + 1 == nInBlocks ? inRows : j1 + inBlockSize);
             const size_t jSize = j2 - j1;
@@ -194,9 +198,8 @@ protected:
             int * idx = tlsIdx.local();
             DAAL_CHECK_MALLOC_THR(idx);
 
-            FPType * maxs            = tls->maxs;
-            FPType * kDistancesLocal = tls->kDistances;
-            int * kIndexesLocal      = tls->kIndexes;
+            FPType * maxs         = tls->maxs;
+            HeapType * heapsLocal = tls->heapsData;
 
             ReadRows<FPType, cpu> outDataRows(const_cast<NumericTable *>(trainTable), j1, j2 - j1);
             DAAL_CHECK_BLOCK_STATUS_THR(outDataRows);
@@ -212,7 +215,7 @@ protected:
                 {
                     DAAL_ASSERT(inRows + j1 <= static_cast<size_t>(services::internal::MaxVal<int>::get()));
                     DAAL_ASSERT(inRows + i * jSize <= static_cast<size_t>(services::internal::MaxVal<int>::get()));
-                    updateLocalNeighbours(indexes, idx, jSize, i, k, kDistancesLocal, kIndexesLocal, maxs, distancesBuff, j1);
+                    updateLocalNeighbours(indexes, idx, jSize, i, k, maxs, distancesBuff, j1, heapsLocal[i]);
                 }
             }
         });
@@ -223,32 +226,49 @@ protected:
         FPType * kDistances = tlsKDistances.local();
         DAAL_CHECK_MALLOC(kDistances);
 
-        service_memset_seq<FPType, cpu>(kDistances, MaxVal<FPType>::get(), blockSize * k);
+        TArrayScalable<HeapType, cpu> heaps(iSize);
+
+        for (size_t i = 0; i < iSize; ++i)
+        {
+            heaps[i].init(k);
+        }
 
         tlsTask.reduce([&](BruteForceTask * tls) {
-            FPType * kDistancesLocal = tls->kDistances;
-            int * kIndexesLocal      = tls->kIndexes;
-
+            HeapType * heapsLocal = tls->heapsData;
             for (size_t i = 0; i < iSize; i++)
             {
-                mergeNeighbours(i, k, kIndexesLocal, kDistancesLocal, kIndexes, kDistances);
+                const size_t size = heapsLocal[i].size();
+                for (size_t j = 0; j < size; ++j)
+                {
+                    heaps[i].replaceMaxIfNeeded(heapsLocal[i][j], k);
+                }
             }
 
             delete tls;
         });
 
+        for (size_t i = 0; i < iSize; i++)
+        {
+            for (size_t kk = 0; kk < k; ++kk)
+            {
+                // max(0, d) to remove negative distances before Sqrt
+                kDistances[i * k + kk] = services::internal::max<cpu, FPType>(FPType(0), heaps[i][kk].distance);
+                kIndexes[i * k + kk]   = heaps[i][kk].index;
+            }
+        }
+
         // Euclidean Distances are computed without Sqrt, fixing it here
-        Math<FPType, cpu>::vSqrt(blockSize * k, kDistances, kDistances);
+        Math<FPType, cpu>::vSqrt(iSize * k, kDistances, kDistances);
 
         // sort by distances
-        for (size_t i = 0; i < blockSize; ++i)
+        for (size_t i = 0; i < iSize; ++i)
         {
             daal::algorithms::internal::qSort<FPType, int, cpu>(k, kDistances + i * k, kIndexes + i * k);
         }
 
         if (resultsToCompute & computeIndicesOfNeighbors)
         {
-            daal::internal::WriteOnlyRows<int, cpu> indexesBlock(indicesTable, startTestIdx, blockSize);
+            daal::internal::WriteOnlyRows<int, cpu> indexesBlock(indicesTable, startTestIdx, iSize);
             DAAL_CHECK_BLOCK_STATUS(indexesBlock);
             int * indices = indexesBlock.get();
 
@@ -259,7 +279,7 @@ protected:
 
         if (resultsToCompute & computeDistances)
         {
-            daal::internal::WriteOnlyRows<FPType, cpu> distancesBlock(distancesTable, startTestIdx, blockSize);
+            daal::internal::WriteOnlyRows<FPType, cpu> distancesBlock(distancesTable, startTestIdx, iSize);
             DAAL_CHECK_BLOCK_STATUS(distancesBlock);
             FPType * distances = distancesBlock.get();
 
@@ -270,7 +290,7 @@ protected:
 
         if (resultsToEvaluate & daal::algorithms::classifier::computeClassLabels)
         {
-            daal::internal::WriteOnlyRows<int, cpu> testLabelRows(testLabelTable, startTestIdx, blockSize);
+            daal::internal::WriteOnlyRows<int, cpu> testLabelRows(testLabelTable, startTestIdx, iSize);
             DAAL_CHECK_BLOCK_STATUS(testLabelRows);
             int * testLabel = testLabelRows.get();
 
@@ -279,11 +299,11 @@ protected:
 
             if (voteWeights == VoteWeights::voteUniform)
             {
-                DAAL_CHECK_STATUS_VAR(uniformWeightedVoting(nClasses, k, blockSize, nTrain, kIndexes, trainLabel, testLabel, voting));
+                DAAL_CHECK_STATUS_VAR(uniformWeightedVoting(nClasses, k, iSize, nTrain, kIndexes, trainLabel, testLabel, voting));
             }
             else
             {
-                DAAL_CHECK_STATUS_VAR(distanceWeightedVoting(nClasses, k, blockSize, nTrain, kDistances, kIndexes, trainLabel, testLabel, voting));
+                DAAL_CHECK_STATUS_VAR(distanceWeightedVoting(nClasses, k, iSize, nTrain, kDistances, kIndexes, trainLabel, testLabel, voting));
             }
         }
 
@@ -304,59 +324,21 @@ protected:
         return count;
     }
 
-    void updateLocalNeighbours(size_t indexes, int * idx, size_t jSize, size_t i, size_t k, FPType * kDistances, int * kIndexes, FPType * maxs,
-                               FPType * distances, size_t j1)
+    void updateLocalNeighbours(size_t indexes, int * idx, size_t jSize, size_t i, size_t k, FPType * maxs, FPType * distances, size_t j1,
+                               HeapType & heap)
     {
         for (size_t j = 0; j < indexes; ++j)
         {
             FPType d = distances[i * jSize + idx[j]];
 
-            int maxIdx = 0;
-            for (size_t kk = 0; kk < k; ++kk)
-            {
-                if (d < kDistances[i * k + kk] && kDistances[i * k + kk] > kDistances[i * k + maxIdx])
-                {
-                    maxIdx = kk;
-                }
-            }
-            if (kDistances[i * k + maxIdx] > d)
-            {
-                kDistances[i * k + maxIdx] = d;
-                kIndexes[i * k + maxIdx]   = idx[j] + j1;
-            }
+            Neighbors neigh;
+            neigh.distance = d;
+            neigh.index    = idx[j] + j1;
+
+            heap.replaceMaxIfNeeded(neigh, k);
         }
 
-        FPType max = kDistances[i * k + 0];
-        for (size_t kk = 1; kk < k; ++kk)
-        {
-            if (kDistances[i * k + kk] > max)
-            {
-                max = kDistances[i * k + kk];
-            }
-        }
-        maxs[i] = max;
-    }
-
-    void mergeNeighbours(size_t i, size_t k, int * idxLocal, FPType * distancesLocal, int * kIndexes, FPType * kDistances)
-    {
-        for (size_t j = 0; j < k; ++j)
-        {
-            FPType d = distancesLocal[i * k + j];
-
-            int maxIdx = 0;
-            for (size_t kk = 0; kk < k; ++kk)
-            {
-                if (d < kDistances[i * k + kk] && kDistances[i * k + kk] > kDistances[i * k + maxIdx])
-                {
-                    maxIdx = kk;
-                }
-            }
-            if (kDistances[i * k + maxIdx] > d)
-            {
-                kDistances[i * k + maxIdx] = d;
-                kIndexes[i * k + maxIdx]   = idxLocal[i * k + j];
-            }
-        }
+        maxs[i] = heap.getMax()->distance;
     }
 
     services::Status uniformWeightedVoting(const size_t nClasses, const size_t k, const size_t n, const size_t nTrain, int * indices,

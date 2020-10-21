@@ -31,30 +31,35 @@ namespace math
 {
 DAAL_ITTNOTIFY_DOMAIN(daal.oneapi.internal.math.SumReducer);
 
-void buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId & vectorTypeId)
+services::Status buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId & vectorTypeId)
 {
+    services::Status status;
+
     services::String fptype_name = getKeyFPType(vectorTypeId);
     auto build_options           = fptype_name;
     build_options.add("-cl-std=CL1.2 -D LOCAL_BUFFER_SIZE=256");
 
     services::String cachekey("__daal_oneapi_internal_math_sum_reducer_");
     cachekey.add(build_options);
-    kernelFactory.build(ExecutionTargetIds::device, cachekey.c_str(), sum_reducer, build_options.c_str());
+    kernelFactory.build(ExecutionTargetIds::device, cachekey.c_str(), sum_reducer, build_options.c_str(), status);
+
+    return status;
 }
 
 void sum_singlepass(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, Layout vectorsLayout, const UniversalBuffer & vectors,
-                    uint32_t nVectors, uint32_t vectorSize, uint32_t workItemsPerGroup, SumReducer::Result & result, services::Status * status)
+                    uint32_t nVectors, uint32_t vectorSize, uint32_t workItemsPerGroup, SumReducer::Result & result, services::Status & status)
 {
-    auto sum_kernel = kernelFactory.getKernel("sum_singlepass");
+    auto sum_kernel = kernelFactory.getKernel("sum_singlepass", status);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
     KernelRange localRange(workItemsPerGroup, 1);
     KernelRange globalRange(workItemsPerGroup, nVectors);
 
     KernelNDRange range(2);
     range.global(globalRange, status);
-    DAAL_CHECK_STATUS_PTR(status);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
     range.local(localRange, status);
-    DAAL_CHECK_STATUS_PTR(status);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
     KernelArguments args(6 /*8*/);
     uint32_t vectorsAreRows = vectorsLayout == Layout::RowMajor ? 1 : 0;
@@ -71,18 +76,19 @@ void sum_singlepass(ExecutionContextIface & context, ClKernelFactoryIface & kern
 }
 
 void runStepColmajor(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, const UniversalBuffer & vectors, uint32_t nVectors,
-                     uint32_t vectorSize, uint32_t numWorkItems, uint32_t numWorkGroups, SumReducer::Result & stepResult, services::Status * status)
+                     uint32_t vectorSize, uint32_t numWorkItems, uint32_t numWorkGroups, SumReducer::Result & stepResult, services::Status & status)
 {
-    auto sum_kernel = kernelFactory.getKernel("sum_step_colmajor");
+    auto sum_kernel = kernelFactory.getKernel("sum_step_colmajor", status);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
     KernelRange localRange(numWorkItems);
     KernelRange globalRange(numWorkGroups * numWorkItems);
 
     KernelNDRange range(1);
     range.global(globalRange, status);
-    DAAL_CHECK_STATUS_PTR(status);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
     range.local(localRange, status);
-    DAAL_CHECK_STATUS_PTR(status);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
     KernelArguments args(5);
 
@@ -96,18 +102,19 @@ void runStepColmajor(ExecutionContextIface & context, ClKernelFactoryIface & ker
 }
 
 void runFinalStepRowmajor(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, SumReducer::Result & stepResult, uint32_t nVectors,
-                          uint32_t vectorSize, uint32_t workItemsPerGroup, SumReducer::Result & result, services::Status * status)
+                          uint32_t vectorSize, uint32_t workItemsPerGroup, SumReducer::Result & result, services::Status & status)
 {
-    auto sum_kernel = kernelFactory.getKernel("sum_final_step_rowmajor");
+    auto sum_kernel = kernelFactory.getKernel("sum_final_step_rowmajor", status);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
     KernelRange localRange(workItemsPerGroup);
     KernelRange globalRange(workItemsPerGroup * nVectors);
 
     KernelNDRange range(1);
     range.global(globalRange, status);
-    DAAL_CHECK_STATUS_PTR(status);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
     range.local(localRange, status);
-    DAAL_CHECK_STATUS_PTR(status);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
     KernelArguments args(6);
     args.set(0, stepResult.sum, AccessModeIds::read);
@@ -121,14 +128,15 @@ void runFinalStepRowmajor(ExecutionContextIface & context, ClKernelFactoryIface 
 }
 
 SumReducer::Result SumReducer::sum(Layout vectorsLayout, const UniversalBuffer & vectors, uint32_t nVectors, uint32_t vectorSize,
-                                   services::Status * status)
+                                   services::Status & status)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(SumReducer.sum);
 
     auto & context       = services::internal::getDefaultContext();
     auto & kernelFactory = context.getClKernelFactory();
 
-    buildProgram(kernelFactory, vectors.type());
+    status |= buildProgram(kernelFactory, vectors.type());
+    DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, SumReducer::Result());
 
     const uint32_t maxWorkItemsPerGroup = 256;
     const uint32_t maxNumSubSlices      = 9;

@@ -919,6 +919,9 @@ void ErrorMessageCollection::parseResourceFile()
     add(ErrorDFBootstrapVarImportanceIncompatible, "Parameter 'bootstrap' is incompatible with requested variable importance type");
     add(ErrorDFBootstrapOOBIncompatible, "Parameter 'bootstrap' is incompatible with requested OOB result (no out-of-bag observations)");
 
+    // K-Nearest Neighbors errors: -21000..21999
+    add(ErrorKNNInternal, "K-Nearest Neighbors internal error");
+
     // GBT error: -30000..-30099
     add(ErrorGbtIncorrectNumberOfTrees, "Number of trees in the model is not consistent with the number of classes");
     add(ErrorGbtPredictIncorrectNumberOfIterations, "Number of iterations value in GBT parameter is not consistent with the model");

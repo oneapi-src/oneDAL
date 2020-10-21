@@ -32,7 +32,13 @@
 #define DAAL_ASSERT_UNIVERSAL_BUFFER(buffer, bufferType, bufferSize)             \
     {                                                                            \
         DAAL_ASSERT((buffer).type() == TypeIds::id<bufferType>());               \
-        DAAL_ASSERT((buffer).template get<bufferType>().size() == (bufferSize)); \
+        DAAL_ASSERT((buffer).template get<bufferType>().size() >= (bufferSize)); \
+    }
+
+#define DAAL_ASSERT_UNIVERSAL_BUFFER2(buffer, bufferType1, bufferType2, bufferSize)                                                     \
+    {                                                                                                                                   \
+        DAAL_ASSERT(((buffer).type() == TypeIds::id<bufferType1>() && (buffer).template get<bufferType1>().size() >= (bufferSize))      \
+                    || ((buffer).type() == TypeIds::id<bufferType2>() && (buffer).template get<bufferType2>().size() >= (bufferSize))); \
     }
 
 #endif

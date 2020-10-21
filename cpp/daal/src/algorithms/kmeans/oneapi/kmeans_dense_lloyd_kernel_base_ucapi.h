@@ -62,31 +62,30 @@ template <typename algorithmFPType>
 class KMeansDenseLloydKernelBaseUCAPI : public Kernel
 {
 protected:
-    void computeSquares(const services::internal::Buffer<algorithmFPType> & data, services::internal::sycl::UniversalBuffer & dataSq, uint32_t nRows,
-                        uint32_t nFeatures, services::Status * st);
+    services::Status computeSquares(const services::internal::Buffer<algorithmFPType> & data, services::internal::sycl::UniversalBuffer & dataSq,
+                                    uint32_t nRows, uint32_t nFeatures);
 
-    void computeDistances(const services::internal::Buffer<algorithmFPType> & data, const services::internal::Buffer<algorithmFPType> & centroids,
-                          uint32_t blockSize, uint32_t nClusters, uint32_t nFeatures, services::Status * st);
+    services::Status computeDistances(const services::internal::Buffer<algorithmFPType> & data,
+                                      const services::internal::Buffer<algorithmFPType> & centroids, uint32_t blockSize, uint32_t nClusters,
+                                      uint32_t nFeatures);
 
-    void computeAssignments(const services::internal::sycl::UniversalBuffer & assignments, uint32_t blockSize, uint32_t nClusters,
-                            services::Status * st);
+    services::Status computeAssignments(const services::internal::sycl::UniversalBuffer & assignments, uint32_t blockSize, uint32_t nClusters);
 
-    void computePartialCandidates(const services::internal::sycl::UniversalBuffer & assignments, uint32_t blockSize, uint32_t nClusters,
-                                  uint32_t reset, services::Status * st);
+    services::Status computePartialCandidates(const services::internal::sycl::UniversalBuffer & assignments, uint32_t blockSize, uint32_t nClusters,
+                                              uint32_t reset);
 
-    void mergePartialCandidates(uint32_t nClusters, services::Status * st);
+    services::Status mergePartialCandidates(uint32_t nClusters);
 
-    void partialReduceCentroids(const services::internal::Buffer<algorithmFPType> & data,
-                                const services::internal::sycl::UniversalBuffer & assignments, uint32_t blockSize, uint32_t nClusters,
-                                uint32_t nFeatures, uint32_t doReset, services::Status * st);
+    services::Status partialReduceCentroids(const services::internal::Buffer<algorithmFPType> & data,
+                                            const services::internal::sycl::UniversalBuffer & assignments, uint32_t blockSize, uint32_t nClusters,
+                                            uint32_t nFeatures, uint32_t doReset);
 
-    void mergeReduceCentroids(const services::internal::Buffer<algorithmFPType> & centroids, uint32_t nClusters, uint32_t nFeatures,
-                              services::Status * st);
+    services::Status mergeReduceCentroids(const services::internal::Buffer<algorithmFPType> & centroids, uint32_t nClusters, uint32_t nFeatures);
 
-    void updateObjectiveFunction(const services::internal::Buffer<algorithmFPType> & objFunction, uint32_t blockSize, uint32_t nClusters,
-                                 uint32_t doReset, services::Status * st);
-    void getNumEmptyClusters(uint32_t nClusters, services::Status * st);
-    void buildProgram(services::internal::sycl::ClKernelFactoryIface & kernelFactory, uint32_t nClusters, daal::services::Status * st);
+    services::Status updateObjectiveFunction(const services::internal::Buffer<algorithmFPType> & objFunction, uint32_t blockSize, uint32_t nClusters,
+                                             uint32_t doReset);
+    services::Status getNumEmptyClusters(uint32_t nClusters);
+    services::Status buildProgram(services::internal::sycl::ClKernelFactoryIface & kernelFactory, uint32_t nClusters);
     services::Status setEmptyClusters(NumericTable * const ntData, uint32_t nRows, uint32_t nClusters, uint32_t nFeatures,
                                       services::internal::Buffer<algorithmFPType> & outCentroids, algorithmFPType & objFuncCorrection);
     services::Status initializeBuffers(uint32_t nClusters, uint32_t nFeatures, uint32_t blockSize);

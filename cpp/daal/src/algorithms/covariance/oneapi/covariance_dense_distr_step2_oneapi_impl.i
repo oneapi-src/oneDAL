@@ -50,8 +50,13 @@ services::Status CovarianceDenseDistrStep2KernelOneAPI<algorithmFPType, method>:
 
     services::Status status;
 
+    if (crossProductTable->getNumberOfColumns() > static_cast<size_t>(services::internal::MaxVal<uint32_t>::get()))
+    {
+        return services::Status(daal::services::ErrorCovarianceInternal);
+    }
+
+    const uint32_t nFeatures    = static_cast<uint32_t>(crossProductTable->getNumberOfColumns());
     const size_t collectionSize = partialResultsCollection->size();
-    const size_t nFeatures      = crossProductTable->getNumberOfColumns();
 
     BlockDescriptor<algorithmFPType> sumBlock;
     BlockDescriptor<algorithmFPType> crossProductBlock;
@@ -65,11 +70,11 @@ services::Status CovarianceDenseDistrStep2KernelOneAPI<algorithmFPType, method>:
     DAAL_CHECK_STATUS_VAR(status);
 
     const algorithmFPType zero = 0.0;
-    context.fill(sumBlock.getBuffer(), zero, &status);
+    context.fill(sumBlock.getBuffer(), zero, status);
     DAAL_CHECK_STATUS_VAR(status);
-    context.fill(crossProductBlock.getBuffer(), zero, &status);
+    context.fill(crossProductBlock.getBuffer(), zero, status);
     DAAL_CHECK_STATUS_VAR(status);
-    context.fill(nObservationsBlock.getBuffer(), zero, &status);
+    context.fill(nObservationsBlock.getBuffer(), zero, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     for (size_t i = 0; i < collectionSize; i++)
@@ -92,25 +97,40 @@ services::Status CovarianceDenseDistrStep2KernelOneAPI<algorithmFPType, method>:
 
         if (i == 0)
         {
-            context.copy(crossProductBlock.getBuffer(), 0, partialCrossProductBlock.getBuffer(), 0, nFeatures * nFeatures, &status);
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, nFeatures, nFeatures);
+            DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(crossProductBlock.getBuffer()), algorithmFPType, nFeatures * nFeatures);
+            DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(partialCrossProductBlock.getBuffer()), algorithmFPType, nFeatures * nFeatures);
+            context.copy(crossProductBlock.getBuffer(), 0, partialCrossProductBlock.getBuffer(), 0, nFeatures * nFeatures, status);
             DAAL_CHECK_STATUS_VAR(status);
-            context.copy(sumBlock.getBuffer(), 0, partialSumsBlock.getBuffer(), 0, nFeatures, &status);
+
+            DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(partialSumsBlock.getBuffer()), algorithmFPType, nFeatures);
+            DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(sumBlock.getBuffer()), algorithmFPType, nFeatures);
+            context.copy(sumBlock.getBuffer(), 0, partialSumsBlock.getBuffer(), 0, nFeatures, status);
             DAAL_CHECK_STATUS_VAR(status);
         }
         else
         {
+            DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(partialNObservationsBlock.getBuffer()), algorithmFPType, 1);
+            const auto partialNObservationsBlockHost = partialNObservationsBlock.getBuffer().toHost(data_management::readOnly, status);
+            DAAL_CHECK_STATUS_VAR(status);
+
+            DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(nObservationsBlock.getBuffer()), algorithmFPType, 1);
+            const auto nObservationsBlockHost = nObservationsBlock.getBuffer().toHost(data_management::readOnly, status);
+            DAAL_CHECK_STATUS_VAR(status);
+
             status |= mergeCrossProduct<algorithmFPType>(nFeatures, partialCrossProductBlock.getBuffer(), partialSumsBlock.getBuffer(),
-                                                         *(partialNObservationsBlock.getBuffer().toHost(data_management::readOnly).get()),
-                                                         crossProductBlock.getBuffer(), sumBlock.getBuffer(),
-                                                         *(nObservationsBlock.getBuffer().toHost(data_management::readOnly).get()));
+                                                         *partialNObservationsBlockHost, crossProductBlock.getBuffer(), sumBlock.getBuffer(),
+                                                         *nObservationsBlockHost);
             DAAL_CHECK_STATUS_VAR(status);
 
             status |= mergeSums<algorithmFPType, method>(nFeatures, partialSumsBlock.getBuffer(), sumBlock.getBuffer());
             DAAL_CHECK_STATUS_VAR(status);
         }
 
+        DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(partialNObservationsBlock.getBuffer()), algorithmFPType, 1);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(nObservationsBlock.getBuffer()), algorithmFPType, 1);
         status |= BlasGpu<algorithmFPType>::xaxpy(1, 1, partialNObservationsBlock.getBuffer(), 1, nObservationsBlock.getBuffer(), 1);
-
+        DAAL_CHECK_STATUS_VAR(status);
         status |= partialSumsTable->releaseBlockOfRows(partialSumsBlock);
         DAAL_CHECK_STATUS_VAR(status);
         status |= partialCrossProductTable->releaseBlockOfRows(partialCrossProductBlock);
@@ -140,7 +160,12 @@ services::Status CovarianceDenseDistrStep2KernelOneAPI<algorithmFPType, method>:
 
     services::Status status;
 
-    const size_t nFeatures = crossProductTable->getNumberOfColumns();
+    if (crossProductTable->getNumberOfColumns() > static_cast<size_t>(services::internal::MaxVal<uint32_t>::get()))
+    {
+        return services::Status(daal::services::ErrorCovarianceInternal);
+    }
+
+    const uint32_t nFeatures = static_cast<uint32_t>(crossProductTable->getNumberOfColumns());
 
     BlockDescriptor<algorithmFPType> sumBlock;
     BlockDescriptor<algorithmFPType> covBlock;
@@ -159,9 +184,12 @@ services::Status CovarianceDenseDistrStep2KernelOneAPI<algorithmFPType, method>:
     status |= nObservationsTable->getBlockOfRows(0, nObservationsTable->getNumberOfRows(), readWrite, nObservationsBlock);
     DAAL_CHECK_STATUS_VAR(status);
 
-    status |= finalizeCovariance<algorithmFPType, method>(nFeatures, *(nObservationsBlock.getBuffer().toHost(data_management::readOnly).get()),
-                                                          crossProductBlock.getBuffer(), sumBlock.getBuffer(), covBlock.getBuffer(),
-                                                          meanBlock.getBuffer(), parameter);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(nObservationsBlock.getBuffer()), algorithmFPType, 1);
+    const auto nObservationsBlockHost = nObservationsBlock.getBuffer().toHost(data_management::readOnly, status);
+    DAAL_CHECK_STATUS_VAR(status);
+
+    status |= finalizeCovariance<algorithmFPType, method>(nFeatures, *nObservationsBlockHost, crossProductBlock.getBuffer(), sumBlock.getBuffer(),
+                                                          covBlock.getBuffer(), meanBlock.getBuffer(), parameter);
     DAAL_CHECK_STATUS_VAR(status);
 
     status |= sumTable->releaseBlockOfRows(sumBlock);

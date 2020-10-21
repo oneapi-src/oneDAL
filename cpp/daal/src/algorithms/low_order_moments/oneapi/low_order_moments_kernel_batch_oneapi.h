@@ -124,7 +124,7 @@ template <typename algorithmFPType, EstimatesToCompute scope>
 class LowOrderMomentsBatchTaskOneAPI : public TaskInfoBatch<algorithmFPType, scope>
 {
 public:
-    LowOrderMomentsBatchTaskOneAPI(ExecutionContextIface & context, NumericTable * dataTable, Result * result, services::Status * status);
+    LowOrderMomentsBatchTaskOneAPI(ExecutionContextIface & context, NumericTable * dataTable, Result * result, services::Status & status);
     LowOrderMomentsBatchTaskOneAPI(const LowOrderMomentsBatchTaskOneAPI &) = delete;
     LowOrderMomentsBatchTaskOneAPI & operator=(const LowOrderMomentsBatchTaskOneAPI &) = delete;
     virtual ~LowOrderMomentsBatchTaskOneAPI();
