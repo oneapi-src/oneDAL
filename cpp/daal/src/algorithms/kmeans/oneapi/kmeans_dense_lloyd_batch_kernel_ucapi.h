@@ -48,28 +48,28 @@ public:
 
 private:
     void computeSquares(const services::internal::Buffer<algorithmFPType> & data, services::internal::sycl::UniversalBuffer & dataSq, uint32_t nRows,
-                        uint32_t nFeatures, services::Status * st);
+                        uint32_t nFeatures, services::Status & st);
 
     void computeDistances(const services::internal::Buffer<algorithmFPType> & data, const services::internal::Buffer<algorithmFPType> & centroids,
-                          uint32_t blockSize, uint32_t nClusters, uint32_t nFeatures, services::Status * st);
+                          uint32_t blockSize, uint32_t nClusters, uint32_t nFeatures, services::Status & st);
 
-    void computeAssignments(const services::internal::Buffer<int> & assignments, uint32_t blockSize, uint32_t nClusters, services::Status * st);
+    void computeAssignments(const services::internal::Buffer<int> & assignments, uint32_t blockSize, uint32_t nClusters, services::Status & st);
 
     void computePartialCandidates(const services::internal::Buffer<int> & assignments, uint32_t blockSize, uint32_t nClusters, uint32_t reset,
-                                  services::Status * st);
+                                  services::Status & st);
 
-    void mergePartialCandidates(uint32_t nClusters, services::Status * st);
+    void mergePartialCandidates(uint32_t nClusters, services::Status & st);
 
     void partialReduceCentroids(const services::internal::Buffer<algorithmFPType> & data, const services::internal::Buffer<int> & assignments,
-                                uint32_t blockSize, uint32_t nClusters, uint32_t nFeatures, uint32_t doReset, services::Status * st);
+                                uint32_t blockSize, uint32_t nClusters, uint32_t nFeatures, uint32_t doReset, services::Status & st);
 
     void mergeReduceCentroids(const services::internal::Buffer<algorithmFPType> & centroids, uint32_t nClusters, uint32_t nFeatures,
-                              services::Status * st);
+                              services::Status & st);
 
     void updateObjectiveFunction(const services::internal::Buffer<algorithmFPType> & objFunction, uint32_t blockSize, uint32_t nClusters,
-                                 uint32_t doReset, services::Status * st);
-    void getNumEmptyClusters(uint32_t nClusters, services::Status * st);
-    void buildProgram(services::internal::sycl::ClKernelFactoryIface & kernelFactory, uint32_t nClusters, daal::services::Status * st);
+                                 uint32_t doReset, services::Status & st);
+    void getNumEmptyClusters(uint32_t nClusters, services::Status & st);
+    void buildProgram(services::internal::sycl::ClKernelFactoryIface & kernelFactory, uint32_t nClusters, daal::services::Status & st);
     services::Status setEmptyClusters(NumericTable * const ntData, uint32_t nRows, uint32_t nClusters, uint32_t nFeatures,
                                       services::internal::Buffer<algorithmFPType> & outCentroids, algorithmFPType & objFuncCorrection);
     services::Status initializeBuffers(uint32_t nClusters, uint32_t nFeatures, uint32_t blockSize);

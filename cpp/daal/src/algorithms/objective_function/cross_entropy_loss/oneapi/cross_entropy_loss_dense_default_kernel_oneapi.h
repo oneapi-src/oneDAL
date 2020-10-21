@@ -96,7 +96,7 @@ private:
                                NumericTable * lipschitzConstantNT, const algorithmFPType l1reg, const algorithmFPType l2reg, const bool interceptFlag,
                                const bool isSourceData);
 
-    static void buildProgram(services::internal::sycl::ClKernelFactoryIface & factory);
+    static services::Status buildProgram(services::internal::sycl::ClKernelFactoryIface & factory);
 
     services::internal::sycl::UniversalBuffer _uX;
     services::internal::sycl::UniversalBuffer _uY;

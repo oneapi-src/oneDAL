@@ -48,9 +48,11 @@ namespace oneapi
 namespace internal
 {
 template <typename algorithmFPType>
-static void __buildProgram(ClKernelFactoryIface & factory)
+static services::Status buildProgram(ClKernelFactoryIface & factory)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.buildProgram);
+
+    services::Status status;
 
     auto fptype_name   = getKeyFPType<algorithmFPType>();
     auto build_options = fptype_name;
@@ -58,7 +60,10 @@ static void __buildProgram(ClKernelFactoryIface & factory)
 
     services::String cachekey("__daal_algorithms_covariance_dense_batch_finalizeCovariance_");
     cachekey.add(fptype_name);
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), covariance_kernels, build_options.c_str());
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), covariance_kernels, build_options.c_str(), status);
+    DAAL_CHECK_STATUS_VAR(status);
+
+    return status;
 }
 
 static size_t getGlobalRangeSize(size_t localRangeSize, size_t N)
@@ -78,8 +83,11 @@ static KernelNDRange getKernelNDRange(size_t localRangeSize, size_t globalRangeS
     KernelRange local_range(localRangeSize, localRangeSize);
     KernelRange global_range(globalRangeSize, globalRangeSize);
 
-    ndrange.global(global_range, &status);
-    ndrange.local(local_range, &status);
+    ndrange.global(global_range, status);
+    DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, ndrange);
+
+    ndrange.local(local_range, status);
+    DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, ndrange);
 
     return ndrange;
 }
@@ -100,14 +108,14 @@ services::Status prepareSums(NumericTable * dataTable, const services::internal:
         BlockDescriptor<algorithmFPType> userSums;
         dataSumsTable->getBlockOfRows(0, dataSumsTable->getNumberOfRows(), readOnly, userSums);
 
-        context.copy(sumsBuffer, 0, userSums.getBuffer(), 0, nFeatures, &status);
+        context.copy(sumsBuffer, 0, userSums.getBuffer(), 0, nFeatures, status);
 
         dataSumsTable->releaseBlockOfRows(userSums);
     }
     else
     {
         const algorithmFPType zero = 0.0;
-        context.fill(sumsBuffer, zero, &status);
+        context.fill(sumsBuffer, zero, status);
     }
 
     return status;
@@ -123,7 +131,7 @@ services::Status prepareCrossProduct(size_t nFeatures, const services::internal:
     auto & context = services::internal::getDefaultContext();
     services::Status status;
 
-    context.fill(crossProductBuffer, zero, &status);
+    context.fill(crossProductBuffer, zero, status);
     return status;
 }
 
@@ -146,10 +154,10 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
 
         if (!isNormalized)
         {
-            auto sumResult = math::SumReducer::sum(math::Layout::ColMajor, dataBlock, nFeatures, nVectors, &status);
+            auto sumResult = math::SumReducer::sum(math::Layout::ColMajor, dataBlock, nFeatures, nVectors, status);
             DAAL_CHECK_STATUS_VAR(status);
 
-            context.copy(sums, 0, sumResult.sum, 0, sums.size(), &status);
+            context.copy(sums, 0, sumResult.sum, 0, sums.size(), status);
             DAAL_CHECK_STATUS_VAR(status);
 
             {
@@ -196,9 +204,11 @@ services::Status mergeCrossProduct(size_t nFeatures, const services::internal::B
 
     auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
-    __buildProgram<algorithmFPType>(factory);
+    status |= buildProgram<algorithmFPType>(factory);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    auto kernel = factory.getKernel("mergeCrossProduct");
+    auto kernel = factory.getKernel("mergeCrossProduct", status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     {
         const algorithmFPType invPartialNObs = (algorithmFPType)(1.0) / partialNObservations;
@@ -218,7 +228,7 @@ services::Status mergeCrossProduct(size_t nFeatures, const services::internal::B
         size_t localRangeSize = 16;
         KernelNDRange ndrange = getKernelNDRange(localRangeSize, getGlobalRangeSize(localRangeSize, nFeatures), status);
 
-        context.run(ndrange, kernel, args, &status);
+        context.run(ndrange, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -257,9 +267,11 @@ services::Status prepareMeansAndCrossProductDiag(size_t nFeatures, algorithmFPTy
 
     auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
-    __buildProgram<algorithmFPType>(factory);
+    status |= buildProgram<algorithmFPType>(factory);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    auto kernel = factory.getKernel("prepareMeansAndCrossProductDiag");
+    auto kernel = factory.getKernel("prepareMeansAndCrossProductDiag", status);
+    DAAL_CHECK_STATUS_VAR(status);
     {
         KernelArguments args(6);
         args.set(0, static_cast<uint32_t>(nFeatures));
@@ -270,7 +282,7 @@ services::Status prepareMeansAndCrossProductDiag(size_t nFeatures, algorithmFPTy
         args.set(5, mean, AccessModeIds::readwrite);
 
         KernelRange range(nFeatures);
-        context.run(range, kernel, args, &status);
+        context.run(range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -293,9 +305,11 @@ services::Status finalize(size_t nFeatures, algorithmFPType nObservations, const
 
     auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
-    __buildProgram<algorithmFPType>(factory);
+    status |= buildProgram<algorithmFPType>(factory);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    auto kernel = factory.getKernel("finalize");
+    auto kernel = factory.getKernel("finalize", status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     {
         uint32_t isOutputCorrelationMatrix = parameter->outputMatrixType == covariance::correlationMatrix;
@@ -311,7 +325,7 @@ services::Status finalize(size_t nFeatures, algorithmFPType nObservations, const
         size_t localRangeSize = 4;
         KernelNDRange ndrange = getKernelNDRange(localRangeSize, getGlobalRangeSize(localRangeSize, nFeatures), status);
 
-        context.run(ndrange, kernel, args, &status);
+        context.run(ndrange, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -358,7 +372,7 @@ services::Status finalizeCovariance(size_t nFeatures, algorithmFPType nObservati
 
     auto & context = services::internal::getDefaultContext();
 
-    auto diagCrossProduct = context.allocate(TypeIds::id<algorithmFPType>(), nFeatures, &status);
+    auto diagCrossProduct = context.allocate(TypeIds::id<algorithmFPType>(), nFeatures, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     status |= prepareMeansAndCrossProductDiag<algorithmFPType>(nFeatures, nObservations, crossProduct,

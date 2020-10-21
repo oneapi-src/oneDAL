@@ -141,11 +141,11 @@ private:
 
     algorithmFPType computeOOBError(const dtrees::internal::Tree & t, const algorithmFPType * x, const algorithmFPType * y, const size_t nRows,
                                     const size_t nFeatures, const services::internal::sycl::UniversalBuffer & indices, size_t n,
-                                    services::internal::sycl::UniversalBuffer oobBuf, services::Status * status);
+                                    services::internal::sycl::UniversalBuffer oobBuf, services::Status & status);
 
     algorithmFPType computeOOBErrorPerm(const dtrees::internal::Tree & t, const algorithmFPType * x, const algorithmFPType * y, const size_t nRows,
                                         const size_t nFeatures, const services::internal::sycl::UniversalBuffer & indices, const int * indicesPerm,
-                                        const size_t testFtrInd, size_t n, services::Status * status);
+                                        const size_t testFtrInd, size_t n, services::Status & status);
 
     services::Status finalizeOOBError(const algorithmFPType * y, const services::internal::sycl::UniversalBuffer & oobBuf, const size_t nRows,
                                       algorithmFPType * res, algorithmFPType * resPerObs);

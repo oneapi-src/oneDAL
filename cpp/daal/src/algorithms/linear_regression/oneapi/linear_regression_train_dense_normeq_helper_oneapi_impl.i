@@ -64,10 +64,12 @@ services::Status KernelHelperOneAPI<algorithmFPType>::copyBetaToResult(const ser
     const services::String options = getKeyFPType<algorithmFPType>();
     services::String cachekey("__daal_algorithms_linear_regression_training_helper_");
     cachekey.add(options);
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelHelperBetaCopy, options.c_str());
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelHelperBetaCopy, options.c_str(), status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "copyBeta";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     KernelArguments args(5);
     args.set(0, betaTmp, AccessModeIds::read);
@@ -78,7 +80,7 @@ services::Status KernelHelperOneAPI<algorithmFPType>::copyBetaToResult(const ser
 
     KernelRange range(nResponses, nBetas);
 
-    ctx.run(range, kernel, args, &status);
+    ctx.run(range, kernel, args, status);
 
     return status;
 }

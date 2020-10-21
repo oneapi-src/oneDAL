@@ -83,20 +83,20 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
     {
         const TypeIds::Id idType = TypeIds::id<algorithmFPType>();
 
-        sumXBuf = xtxBuff.getSubBuffer(nBetasIntercept * nCols, nBetasIntercept, &status);
+        sumXBuf = xtxBuff.getSubBuffer(nBetasIntercept * nCols, nBetasIntercept, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        UniversalBuffer sumYBufTmp = context.allocate(idType, nResponses, &status);
+        UniversalBuffer sumYBufTmp = context.allocate(idType, nResponses, status);
         DAAL_CHECK_STATUS_VAR(status);
         sumYBuf = sumYBufTmp.get<algorithmFPType>();
-        context.fill(sumYBuf, 0.0, &status);
+        context.fill(sumYBuf, 0.0, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        UniversalBuffer onesBufTmp = context.allocate(idType, nRowsPerBlock, &status);
+        UniversalBuffer onesBufTmp = context.allocate(idType, nRowsPerBlock, status);
         DAAL_CHECK_STATUS_VAR(status);
         onesBuf = onesBufTmp.get<algorithmFPType>();
 
-        context.fill(onesBuf, 1.0, &status);
+        context.fill(onesBuf, 1.0, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -191,10 +191,12 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::reduceResults(services::in
     const services::String options = getKeyFPType<algorithmFPType>();
     services::String cachekey("__daal_algorithms_linear_model_copy_");
     cachekey.add(options);
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelCopy, options.c_str());
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelCopy, options.c_str(), status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "reduceResults";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     KernelArguments args(6);
     args.set(0, dst, AccessModeIds::write);
@@ -206,7 +208,7 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::reduceResults(services::in
 
     KernelRange range(count);
 
-    ctx.run(range, kernel, args, &status);
+    ctx.run(range, kernel, args, status);
 
     return status;
 }

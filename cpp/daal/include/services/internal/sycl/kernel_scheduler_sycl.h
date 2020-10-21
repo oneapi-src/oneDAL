@@ -125,7 +125,7 @@ class OpenClContextRef : public OpenClResourceRef<cl_context, OpenClRetainContex
 public:
     OpenClContextRef() = default;
 
-    explicit OpenClContextRef(cl_device_id clDevice, services::Status * status = nullptr) : _clDeviceRef(clDevice)
+    explicit OpenClContextRef(cl_device_id clDevice, services::Status & status) : _clDeviceRef(clDevice)
     {
         cl_int err = 0;
         reset(clCreateContext(nullptr, 1, &clDevice, nullptr, nullptr, &err));
@@ -146,19 +146,15 @@ public:
 
     LevelZeroOpenClInteropContext(const LevelZeroOpenClInteropContext &) = delete;
 
-    explicit LevelZeroOpenClInteropContext(cl::sycl::queue & deviceQueue, services::Status * status = nullptr) { reset(deviceQueue, status); }
+    explicit LevelZeroOpenClInteropContext(cl::sycl::queue & deviceQueue, services::Status & status) { reset(deviceQueue, status); }
 
-    void reset(cl::sycl::queue & deviceQueue, services::Status * status = nullptr)
+    void reset(cl::sycl::queue & deviceQueue, services::Status & status)
     {
-        services::Status localStatus;
         cl_device_id clDevice;
         findDevice(&clDevice, deviceQueue.get_device().get_info<cl::sycl::info::device::vendor_id>(),
-                   deviceQueue.get_device().get_info<cl::sycl::info::device::max_clock_frequency>(), &localStatus);
-        if (!localStatus.ok())
-        {
-            services::internal::tryAssignStatus(status, localStatus);
-            return;
-        }
+                   deviceQueue.get_device().get_info<cl::sycl::info::device::max_clock_frequency>(), status);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+
         _clDeviceRef.reset(clDevice);
 
         cl_int err = 0;
@@ -166,7 +162,7 @@ public:
         DAAL_CHECK_OPENCL(err, status)
     }
 
-    void findDevice(cl_device_id * pClDevice, unsigned int vendor_id, unsigned int frq, services::Status * status = nullptr)
+    void findDevice(cl_device_id * pClDevice, unsigned int vendor_id, unsigned int frq, services::Status & status)
     {
         constexpr auto maxPlatforms = 16;
         cl_platform_id platIds[maxPlatforms];
@@ -191,7 +187,7 @@ public:
             }
         }
 
-        services::internal::tryAssignStatus(status, services::ErrorDeviceSupportNotImplemented);
+        status |= services::ErrorDeviceSupportNotImplemented;
     }
 
     OpenClDeviceRef & getOpenClDeviceRef() { return _clDeviceRef; }
@@ -209,21 +205,16 @@ public:
     OpenClProgramRef() {}
 
     explicit OpenClProgramRef(cl_context clContext, cl_device_id clDevice, const char * programName, const char * programSrc, const char * options,
-                              services::Status * status = nullptr)
+                              services::Status & status)
     {
         initOpenClProgramRef(clContext, clDevice, programName, programSrc, options, status);
     }
         #ifndef DAAL_DISABLE_LEVEL_ZERO
     explicit OpenClProgramRef(cl_context clContext, cl_device_id clDevice, cl::sycl::queue & deviceQueue, const char * programName,
-                              const char * programSrc, const char * options, services::Status * status = nullptr)
+                              const char * programSrc, const char * options, services::Status & status)
     {
-        services::Status localStatus;
-        initOpenClProgramRef(clContext, clDevice, programName, programSrc, options, &localStatus);
-        if (!localStatus.ok())
-        {
-            services::internal::tryAssignStatus(status, localStatus);
-            return;
-        }
+        initOpenClProgramRef(clContext, clDevice, programName, programSrc, options, status);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
         initModuleLevelZero(deviceQueue, status);
     }
 
@@ -234,7 +225,7 @@ public:
 
 private:
     void initOpenClProgramRef(cl_context clContext, cl_device_id clDevice, const char * programName, const char * programSrc, const char * options,
-                              services::Status * status = nullptr)
+                              services::Status & status)
     {
         _programName           = programName;
         cl_int err             = 0;
@@ -266,7 +257,7 @@ private:
     }
 
         #ifndef DAAL_DISABLE_LEVEL_ZERO
-    void initModuleLevelZero(cl::sycl::queue & deviceQueue, services::Status * status = nullptr)
+    void initModuleLevelZero(cl::sycl::queue & deviceQueue, services::Status & status)
     {
         size_t binarySize = 0;
         DAAL_CHECK_OPENCL(clGetProgramInfo(get(), CL_PROGRAM_BINARY_SIZES, sizeof(size_t), &binarySize, NULL), status);
@@ -274,7 +265,7 @@ private:
         auto binary = (unsigned char *)daal::services::daal_malloc(binarySize);
         if (binary == nullptr)
         {
-            services::internal::tryAssignStatus(status, services::ErrorMemoryAllocationFailed);
+            status |= services::ErrorMemoryAllocationFailed;
             return;
         }
 
@@ -296,7 +287,7 @@ class OpenClKernelRef : public OpenClResourceRef<cl_kernel, OpenClRetainKernel, 
 public:
     OpenClKernelRef() = default;
 
-    explicit OpenClKernelRef(cl_program clProgram, const char * kernelName, services::Status * status = nullptr)
+    explicit OpenClKernelRef(cl_program clProgram, const char * kernelName, services::Status & status)
     {
         cl_int err = 0;
         reset(clCreateKernel(clProgram, kernelName, &err));
@@ -310,7 +301,7 @@ class OpenClKernelLevelZeroRef : public Base
 public:
     OpenClKernelLevelZeroRef() = default;
 
-    explicit OpenClKernelLevelZeroRef(const char * kernelName, services::Status * status = nullptr) : _kernelName(kernelName) {}
+    explicit OpenClKernelLevelZeroRef(const char * kernelName, services::Status & status) : _kernelName(kernelName) {}
 
     const char * getName() const { return _kernelName.c_str(); }
 
@@ -327,13 +318,13 @@ public:
     {}
 
     void schedule(KernelSchedulerIface & scheduler, const KernelRange & range, const KernelArguments & args,
-                  services::Status * status = nullptr) const DAAL_C11_OVERRIDE
+                  services::Status & status) const DAAL_C11_OVERRIDE
     {
         scheduler.schedule(*this, range, args, status);
     }
 
     void schedule(KernelSchedulerIface & scheduler, const KernelNDRange & range, const KernelArguments & args,
-                  services::Status * status = nullptr) const DAAL_C11_OVERRIDE
+                  services::Status & status) const DAAL_C11_OVERRIDE
     {
         scheduler.schedule(*this, range, args, status);
     }
@@ -396,8 +387,9 @@ private:
 class SyclKernelSchedulerArgHandler
 {
 public:
-    SyclKernelSchedulerArgHandler(cl::sycl::handler & handler, SyclBufferStorage & storage, size_t argumentIndex, const KernelArgument & arg)
-        : _handler(handler), _storage(storage), _argumentIndex(argumentIndex), _argument(arg)
+    SyclKernelSchedulerArgHandler(cl::sycl::handler & handler, SyclBufferStorage & storage, size_t argumentIndex, const KernelArgument & arg,
+                                  services::Status & status)
+        : _handler(handler), _storage(storage), _argumentIndex(argumentIndex), _argument(arg), _status(status)
     {}
 
     template <typename T>
@@ -417,7 +409,8 @@ private:
     template <typename T>
     void handlePublicBuffer()
     {
-        auto buffer = _argument.get<services::internal::Buffer<T> >().toSycl();
+        auto buffer = _argument.get<services::internal::Buffer<T> >().toSycl(_status);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(_status);
 
         // Note: we need this storage to keep all sycl buffers alive
         // while the kernel is running
@@ -461,7 +454,7 @@ private:
     SyclBufferStorage & _storage;
     size_t _argumentIndex;
     const KernelArgument & _argument;
-    services::Status _status;
+    services::Status & _status;
 };
 
 template <int dim>
@@ -533,21 +526,19 @@ class SyclKernelScheduler : public Base, public KernelSchedulerIface
 public:
     explicit SyclKernelScheduler(cl::sycl::queue & deviceQueue) : _queue(deviceQueue) {}
 
-    void schedule(const OpenClKernel & kernel, const KernelRange & range, const KernelArguments & args,
-                  services::Status * status = nullptr) DAAL_C11_OVERRIDE
+    void schedule(const OpenClKernel & kernel, const KernelRange & range, const KernelArguments & args, services::Status & status) DAAL_C11_OVERRIDE
     {
         scheduleImplSafe(range, kernel, args, status);
     }
 
-    void schedule(const OpenClKernel & kernel, const KernelNDRange & range, const KernelArguments & args,
-                  services::Status * status = nullptr) DAAL_C11_OVERRIDE
+    void schedule(const OpenClKernel & kernel, const KernelNDRange & range, const KernelArguments & args, services::Status & status) DAAL_C11_OVERRIDE
     {
         scheduleImplSafe(range, kernel, args, status);
     }
 
 private:
     template <typename Range>
-    void scheduleImplSafe(const Range & range, const OpenClKernel & kernel, const KernelArguments & args, services::Status * status = nullptr)
+    void scheduleImplSafe(const Range & range, const OpenClKernel & kernel, const KernelArguments & args, services::Status & status)
     {
         try
         {
@@ -560,20 +551,20 @@ private:
     }
 
     template <typename Range>
-    void scheduleImpl(const Range & range, const OpenClKernel & kernel, const KernelArguments & args, services::Status * status = nullptr)
+    void scheduleImpl(const Range & range, const OpenClKernel & kernel, const KernelArguments & args, services::Status & status)
     {
         switch (kernel.getTarget())
         {
         case ExecutionTargetIds::device: return scheduleOnDevice(range, kernel, args, status);
 
-        case ExecutionTargetIds::host: return services::internal::tryAssignStatus(status, services::ErrorID::ErrorMethodNotImplemented);
+        case ExecutionTargetIds::host: status |= services::ErrorMethodNotImplemented; return;
         }
 
         DAAL_ASSERT(!"Unexpected execution target");
     }
 
     template <typename Range>
-    void scheduleOnDevice(const Range & range, const OpenClKernel & kernel, const KernelArguments & args, services::Status * status = nullptr)
+    void scheduleOnDevice(const Range & range, const OpenClKernel & kernel, const KernelArguments & args, services::Status & status)
     {
         switch (range.dimensions())
         {
@@ -586,26 +577,27 @@ private:
     }
 
     template <typename Range>
-    void scheduleSycl(const Range & range, const OpenClKernel & kernel, const KernelArguments & args, services::Status * status = nullptr)
+    void scheduleSycl(const Range & range, const OpenClKernel & kernel, const KernelArguments & args, services::Status & status)
     {
         SyclBufferStorage bufferStorage;
 
         cl::sycl::kernel syclKernel = kernel.toSycl(_queue.get_context());
 
         auto event = _queue.submit([&](cl::sycl::handler & cgh) {
-            passArguments(cgh, bufferStorage, args);
+            passArguments(cgh, bufferStorage, args, status);
+            DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
             cgh.parallel_for(range, syclKernel);
         });
 
         event.wait_and_throw();
     }
 
-    void passArguments(cl::sycl::handler & cgh, SyclBufferStorage & storage, const KernelArguments & args) const
+    void passArguments(cl::sycl::handler & cgh, SyclBufferStorage & storage, const KernelArguments & args, services::Status & status) const
     {
         for (size_t i = 0; i < args.size(); i++)
         {
             const auto & arg = args.get(i);
-            SyclKernelSchedulerArgHandler argHandler(cgh, storage, i, arg);
+            SyclKernelSchedulerArgHandler argHandler(cgh, storage, i, arg, status);
             TypeDispatcher::dispatch(arg.dataType(), argHandler);
         }
     }
