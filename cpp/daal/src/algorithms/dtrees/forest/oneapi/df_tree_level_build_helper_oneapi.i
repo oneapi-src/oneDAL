@@ -25,6 +25,7 @@
 
 #include "src/services/service_data_utils.h"
 #include "src/externals/service_ittnotify.h"
+#include "services/internal/sycl/daal_defines_sycl.h"
 
 using namespace daal::services::internal::sycl;
 using namespace daal::services;
@@ -71,6 +72,8 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::initializeTreeOrde
 
     services::Status status;
 
+    DAAL_ASSERT_UNIVERSAL_BUFFER(treeOrder, int32_t, nRows);
+
     auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelInitializeTreeOrder;
@@ -94,6 +97,9 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::markPresentRows(co
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.markPresentRows);
     services::Status status;
+
+    DAAL_ASSERT_UNIVERSAL_BUFFER(rowsList, int32_t, nRows);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(rowsBuffer, int32_t, nRows);
 
     auto & context = services::internal::getDefaultContext();
 
@@ -130,6 +136,9 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::countAbsentRowsFor
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.countAbsentRowsForBlocks);
     services::Status status;
 
+    DAAL_ASSERT_UNIVERSAL_BUFFER(rowsBuffer, int32_t, nRows);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(partialSums, int32_t, nSubgroupSums);
+
     auto & context = services::internal::getDefaultContext();
 
     {
@@ -165,6 +174,10 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::countAbsentRowsTot
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.countAbsentRowsTotal);
     services::Status status;
 
+    DAAL_ASSERT_UNIVERSAL_BUFFER(partialSums, int32_t, nSubgroupSums);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(partialPrefixSums, int32_t, nSubgroupSums);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(totalSum, int32_t, 1);
+
     auto & context = services::internal::getDefaultContext();
 
     {
@@ -197,10 +210,14 @@ template <typename algorithmFPType>
 services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::fillOOBRowsListByBlocks(const UniversalBuffer & rowsBuffer, size_t nRows,
                                                                                       const UniversalBuffer & partialPrefixSums,
                                                                                       UniversalBuffer & oobRowsList, size_t localSize,
-                                                                                      size_t nSubgroupSums)
+                                                                                      size_t nSubgroupSums, size_t nOOBRows)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.fillOOBRowsListByBlocks);
     services::Status status;
+
+    DAAL_ASSERT_UNIVERSAL_BUFFER(rowsBuffer, int32_t, nRows);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(partialPrefixSums, int32_t, nSubgroupSums);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(oobRowsList, int32_t, nOOBRows);
 
     auto & context = services::internal::getDefaultContext();
 
@@ -268,7 +285,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::getOOBRows(const U
         oobRowsList = context.allocate(TypeIds::id<int>(), nOOBRows, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        DAAL_CHECK_STATUS_VAR(fillOOBRowsListByBlocks(rowsBuffer, nRows, partialPrefixSums, oobRowsList, localSize, nSubgroupSums));
+        DAAL_CHECK_STATUS_VAR(fillOOBRowsListByBlocks(rowsBuffer, nRows, partialPrefixSums, oobRowsList, localSize, nSubgroupSums, nOOBRows));
     }
 
     return status;
@@ -281,6 +298,8 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::getNumOfSplitNodes
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.getNumOfSplitNodes);
 
     services::Status status;
+
+    DAAL_ASSERT_UNIVERSAL_BUFFER(nodeList, int32_t, nNodes * _nNodeProps);
 
     auto & context = services::internal::getDefaultContext();
 
@@ -327,6 +346,8 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::convertSplitToLeaf
 
     services::Status status;
 
+    DAAL_ASSERT_UNIVERSAL_BUFFER(nodeList, int32_t, nNodes * _nNodeProps);
+
     auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelConvertSplitToLeaf;
@@ -346,13 +367,16 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::convertSplitToLeaf
 
 template <typename algorithmFPType>
 services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::doNodesSplit(const UniversalBuffer & nodeList, size_t nNodes,
-                                                                           UniversalBuffer & nodeListNew)
+                                                                           UniversalBuffer & nodeListNew, size_t nNodesNew)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.doNodesSplit);
 
     /*split rows for each nodes in accordance with best split info*/
 
     services::Status status;
+
+    DAAL_ASSERT_UNIVERSAL_BUFFER(nodeList, int32_t, nNodes * _nNodeProps);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(nodeListNew, int32_t, nNodesNew * _nNodeProps);
 
     auto & context = services::internal::getDefaultContext();
 
@@ -387,12 +411,16 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::doNodesSplit(const
 
 template <typename algorithmFPType>
 services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::splitNodeListOnGroupsBySize(const UniversalBuffer & nodeList, size_t nNodes,
-                                                                                          UniversalBuffer & nodesGroups,
-                                                                                          UniversalBuffer & nodeIndices)
+                                                                                          UniversalBuffer & nodesGroups, const size_t nGroups,
+                                                                                          const size_t nGroupProps, UniversalBuffer & nodeIndices)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.splitNodeListOnGroupsBySize);
 
     services::Status status;
+
+    DAAL_ASSERT_UNIVERSAL_BUFFER(nodeList, int32_t, nNodes * _nNodeProps);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(nodeIndices, int32_t, nNodes);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(nodesGroups, int32_t, nGroups * nGroupProps);
 
     auto & context = services::internal::getDefaultContext();
 
@@ -436,6 +464,11 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::doLevelPartition(c
 
     services::Status status;
 
+    DAAL_ASSERT_UNIVERSAL_BUFFER(data, uint32_t, nRows * nFeatures);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(nodeList, int32_t, nNodes * _nNodeProps);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(treeOrder, int32_t, nRows);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(treeOrderBuf, int32_t, nRows);
+
     auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelDoLevelPartition;
@@ -478,6 +511,9 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::partitionCopy(Univ
 
     services::Status status;
 
+    DAAL_ASSERT_UNIVERSAL_BUFFER(treeOrder, int32_t, nRows);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(treeOrderBuf, int32_t, nRows);
+
     auto & context = services::internal::getDefaultContext();
 
     auto & kernel = kernelPartitionCopy;
@@ -508,6 +544,11 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::updateMDIVarImport
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateMDIVarImportance);
 
     services::Status status;
+
+    DAAL_ASSERT(varImp.size() == nFeatures);
+
+    DAAL_ASSERT_UNIVERSAL_BUFFER(nodeList, int32_t, nNodes * _nNodeProps);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(nodeImpDecreaseList, algorithmFPType, nNodes);
 
     auto & context = services::internal::getDefaultContext();
 
@@ -549,9 +590,11 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::updateMDIVarImport
 /* init method for TreeLevelBuildHelperOneAPI */
 ///////////////////////////////////////////////////////////////////////////////////////////
 template <typename algorithmFPType>
-services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::init(const char * buildOptions)
+services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::init(const char * buildOptions, size_t nNodeProps)
 {
     services::Status status;
+
+    _nNodeProps = nNodeProps;
 
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
