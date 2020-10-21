@@ -28,6 +28,10 @@
 #include "src/algorithms/kmeans/oneapi/cl_kernels/kmeans_cl_kernels.cl"
 #include "services/internal/sycl/execution_context.h"
 #include "services/internal/sycl/types.h"
+<<<<<<< HEAD
+=======
+#include "src/services/service_data_utils.h"
+>>>>>>> d3f16fdca... Safety checks in SYCL abstraction layer (#1120)
 #include "src/sycl/blas_gpu.h"
 
 #include "src/externals/service_ittnotify.h"

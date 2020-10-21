@@ -179,7 +179,8 @@ void KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::gatherRandom(Exec
                                                                             UniversalBuffer & indices, uint32_t nRows, uint32_t nClusters,
                                                                             uint32_t nFeatures, Status & st)
 {
-    KernelArguments args(6);
+    KernelArguments args(6, st);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
     args.set(0, data, AccessModeIds::read);
     args.set(1, clusters, AccessModeIds::write);
     args.set(2, indices, AccessModeIds::read);

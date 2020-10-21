@@ -96,8 +96,6 @@ public:
         }
         else if (_xBuffer)
         {
-            // If status is in erroneous state `toHost` returns empty shared
-            // pointer which the user is expected to check.
             services::Status status;
             services::SharedPtr<DataType> ptr = _xBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
             services::throwIfPossible(status);
@@ -113,11 +111,21 @@ public:
      *  Gets a Buffer object to the data block
      *  \return Buffer to the block
      */
-    inline daal::services::internal::Buffer<DataType> getBuffer() const
+    inline services::internal::Buffer<DataType> getBuffer() const
     {
         if (_rawPtr)
         {
+<<<<<<< HEAD
             return daal::services::internal::Buffer<DataType>((DataType *)_rawPtr, _ncols * _nrows);
+=======
+            const size_t size = _ncols * _nrows;
+            DAAL_ASSERT((size / _ncols) == _nrows);
+
+            services::Status status;
+            services::internal::Buffer<DataType> buffer((DataType *)_rawPtr, size, status);
+            services::throwIfPossible(status);
+            return buffer;
+>>>>>>> d3f16fdca... Safety checks in SYCL abstraction layer (#1120)
         }
         else if (_xBuffer)
         {
@@ -125,7 +133,18 @@ public:
         }
         else
         {
+<<<<<<< HEAD
             return daal::services::internal::Buffer<DataType>(_ptr, _ncols * _nrows);
+=======
+            const size_t size = _ncols * _nrows;
+            DAAL_ASSERT((size / _ncols) == _nrows);
+            DAAL_ASSERT(_ptr.get() != nullptr);
+
+            services::Status status;
+            services::internal::Buffer<DataType> buffer(_ptr, size, status);
+            services::throwIfPossible(status);
+            return buffer;
+>>>>>>> d3f16fdca... Safety checks in SYCL abstraction layer (#1120)
         }
     }
 
@@ -312,8 +331,6 @@ protected:
     {
         if (!_hostSharedPtr)
         {
-            // If status is in erroneous state `toHost` returns empty shared
-            // pointer which the user is expected to check.
             services::Status status;
             _hostSharedPtr = _xBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
             services::throwIfPossible(status);

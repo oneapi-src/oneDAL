@@ -206,7 +206,18 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::copyPartialDistance
     auto kernel_gather_selection = kernel_factory.getKernel("copy_partial_selection", st);
     DAAL_CHECK_STATUS_VAR(st);
 
+<<<<<<< HEAD
     KernelArguments args(7);
+=======
+    DAAL_ASSERT_UNIVERSAL_BUFFER(distances, algorithmFpType, queryBlockRows * k);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(labels, int, queryBlockRows * k);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(partialDistances, algorithmFpType, queryBlockRows * k * totalNumberOfChunks);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(partialLabels, int, queryBlockRows * k * totalNumberOfChunks);
+
+    KernelArguments args(7, st);
+    DAAL_CHECK_STATUS_VAR(st);
+
+>>>>>>> d3f16fdca... Safety checks in SYCL abstraction layer (#1120)
     args.set(0, distances, AccessModeIds::read);
     args.set(1, labels, AccessModeIds::read);
     args.set(2, partialDistances, AccessModeIds::readwrite);
@@ -243,7 +254,15 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::scatterSumOfSquares
     auto kernel_init_distances = kernel_factory.getKernel("scatter_row", st);
     DAAL_CHECK_STATUS_VAR(st);
 
+<<<<<<< HEAD
     KernelArguments args(3);
+=======
+    DAAL_ASSERT_UNIVERSAL_BUFFER(dataSumOfSquares, algorithmFpType, dataBlockRowCount);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(distances, algorithmFpType, dataBlockRowCount * queryBlockRowCount);
+
+    KernelArguments args(3, st);
+    DAAL_CHECK_STATUS_VAR(st);
+>>>>>>> d3f16fdca... Safety checks in SYCL abstraction layer (#1120)
     args.set(0, dataSumOfSquares, AccessModeIds::read);
     args.set(1, distances, AccessModeIds::write);
     args.set(2, dataBlockRowCount);
@@ -281,7 +300,15 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeWinners(Exec
     auto kernel_compute_winners = kernel_factory.getKernel("find_max_occurance", st);
     DAAL_CHECK_STATUS_VAR(st);
 
+<<<<<<< HEAD
     KernelArguments args(3);
+=======
+    DAAL_ASSERT_UNIVERSAL_BUFFER(labels, int, queryBlockRowCount * k);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(labelsOut, algorithmFpType, queryBlockRowCount);
+
+    KernelArguments args(3, st);
+    DAAL_CHECK_STATUS_VAR(st);
+>>>>>>> d3f16fdca... Safety checks in SYCL abstraction layer (#1120)
     args.set(0, labels, AccessModeIds::read);
     args.set(1, labelsOut, AccessModeIds::write);
     args.set(2, k);

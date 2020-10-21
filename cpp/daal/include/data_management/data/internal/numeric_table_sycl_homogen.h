@@ -76,7 +76,13 @@ public:
                                                                           services::Status * stat = NULL)
     {
         const size_t bufferSize = nColumns * nRows;
-        return create(services::internal::Buffer<DataType>(usmData, bufferSize, usmAllocType), nColumns, nRows, stat);
+
+        services::Status localStatus;
+        services::internal::Buffer<DataType> buffer(usmData, bufferSize, usmAllocType, localStatus);
+        services::internal::tryAssignStatusAndThrow(stat, localStatus);
+        DAAL_CHECK_STATUS_RETURN_IF_FAIL(localStatus, services::SharedPtr<SyclHomogenNumericTable<DataType> >());
+
+        return create(buffer, nColumns, nRows, stat);
     }
 #endif
 
@@ -85,7 +91,13 @@ public:
                                                                           const cl::sycl::usm::alloc & usmAllocType, services::Status * stat = NULL)
     {
         const size_t bufferSize = nColumns * nRows;
-        return create(services::internal::Buffer<DataType>(usmData, bufferSize, usmAllocType), nColumns, nRows, stat);
+
+        services::Status localStatus;
+        services::internal::Buffer<DataType> buffer(usmData, bufferSize, usmAllocType, localStatus);
+        services::internal::tryAssignStatusAndThrow(stat, localStatus);
+        DAAL_CHECK_STATUS_RETURN_IF_FAIL(localStatus, services::SharedPtr<SyclHomogenNumericTable<DataType> >());
+
+        return create(buffer, nColumns, nRows, stat);
     }
 #endif
 

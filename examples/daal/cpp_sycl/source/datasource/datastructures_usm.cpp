@@ -36,7 +36,9 @@ using namespace daal::data_management;
 using daal::services::internal::SyclExecutionContext;
 using daal::data_management::internal::SyclHomogenNumericTable;
 
-#define IS_USM_SUPPORTED (defined(__SYCL_COMPILER_VERSION)) && (__SYCL_COMPILER_VERSION >= 20191001)
+#if (defined(__SYCL_COMPILER_VERSION)) && (__SYCL_COMPILER_VERSION >= 20191001)
+    #define IS_USM_SUPPORTED
+#endif
 
 uint32_t generateMinStd(uint32_t x)
 {
@@ -60,7 +62,7 @@ NumericTablePtr computeCorrelationMatrix(const NumericTablePtr & table)
 }
 
 /* Detect wether USM extensions are supported */
-#if IS_USM_SUPPORTED
+#ifdef IS_USM_SUPPORTED
 
 /* Fill the buffer with pseudo random numbers generated with MinStd engine */
 cl::sycl::event generateData(cl::sycl::queue & q, float * deviceData, size_t nRows, size_t nCols)

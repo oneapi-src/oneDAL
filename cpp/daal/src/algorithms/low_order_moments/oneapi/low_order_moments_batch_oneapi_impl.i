@@ -275,8 +275,10 @@ services::Status LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::compute
             range.local(localRange, status);
             DAAL_CHECK_STATUS_VAR(status);
 
-            KernelArguments args(3 + TaskInfoBatch<algorithmFPType, scope>::nBuffers
-                                 + (TaskInfoBatch<algorithmFPType, scope>::isRowsInBlockInfoRequired ? 1 : 0));
+            KernelArguments args(
+                3 + TaskInfoBatch<algorithmFPType, scope>::nBuffers + (TaskInfoBatch<algorithmFPType, scope>::isRowsInBlockInfoRequired ? 1 : 0),
+                status);
+            DAAL_CHECK_STATUS_VAR(status);
 
             unsigned int argsI = 0;
             args.set(argsI++, dataBD.getBuffer(), AccessModeIds::read);
@@ -314,7 +316,9 @@ services::Status LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::compute
             DAAL_CHECK_STATUS_VAR(status);
 
             KernelArguments args(1 + TaskInfoBatch<algorithmFPType, scope>::nResults + TaskInfoBatch<algorithmFPType, scope>::nBuffers
-                                 + (TaskInfoBatch<algorithmFPType, scope>::isRowsInBlockInfoRequired ? 1 : 0));
+                                     + (TaskInfoBatch<algorithmFPType, scope>::isRowsInBlockInfoRequired ? 1 : 0),
+                                 status);
+            DAAL_CHECK_STATUS_VAR(status);
 
             unsigned int argsI = 0;
             args.set(argsI++, nRowsBlocks); // num of values to merge
@@ -354,7 +358,8 @@ services::Status LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::compute
             range.local(localRange, status);
             DAAL_CHECK_STATUS_VAR(status);
 
-            KernelArguments args(3 + TaskInfoBatch<algorithmFPType, scope>::nResults);
+            KernelArguments args(3 + TaskInfoBatch<algorithmFPType, scope>::nResults, status);
+            DAAL_CHECK_STATUS_VAR(status);
 
             unsigned int argsI = 0;
             args.set(argsI++, dataBD.getBuffer(), AccessModeIds::read);

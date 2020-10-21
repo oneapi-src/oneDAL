@@ -61,7 +61,8 @@ static services::Status vLog(const services::internal::Buffer<algorithmFPType> &
     services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    services::internal::sycl::KernelArguments args(2);
+    services::internal::sycl::KernelArguments args(2, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, x, services::internal::sycl::AccessModeIds::read);
     args.set(1, result, services::internal::sycl::AccessModeIds::write);
 

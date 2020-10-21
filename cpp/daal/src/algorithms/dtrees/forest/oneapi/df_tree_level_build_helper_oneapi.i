@@ -76,7 +76,8 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::initializeTreeOrde
     auto & kernel = kernelInitializeTreeOrder;
 
     {
-        KernelArguments args(1);
+        KernelArguments args(1, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, treeOrder, AccessModeIds::write);
 
         KernelRange global_range(nRows);
@@ -101,7 +102,8 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::markPresentRows(co
         DAAL_ASSERT(nRows <= _int32max);
 
         auto & kernel = kernelMarkPresentRows;
-        KernelArguments args(3);
+        KernelArguments args(3, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, rowsList, AccessModeIds::read);
         args.set(1, rowsBuffer, AccessModeIds::write);
         args.set(2, static_cast<int32_t>(nRows));
@@ -136,7 +138,8 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::countAbsentRowsFor
         DAAL_ASSERT(nRows <= _int32max);
 
         auto & kernel = kernelCountAbsentRowsForBlocks;
-        KernelArguments args(3);
+        KernelArguments args(3, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, rowsBuffer, AccessModeIds::read);
         args.set(1, partialSums, AccessModeIds::write);
         args.set(2, static_cast<int32_t>(nRows));
@@ -171,7 +174,8 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::countAbsentRowsTot
         DAAL_ASSERT(nSubgroupSums <= _int32max);
 
         auto & kernel = kernelCountAbsentRowsTotal;
-        KernelArguments args(4);
+        KernelArguments args(4, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, partialSums, AccessModeIds::read);
         args.set(1, partialPrefixSums, AccessModeIds::write);
         args.set(2, totalSum, AccessModeIds::write);
@@ -208,7 +212,8 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::fillOOBRowsListByB
         DAAL_ASSERT(nRows <= _int32max);
 
         auto & kernel = kernelFillOOBRowsListByBlocks;
-        KernelArguments args(4);
+        KernelArguments args(4, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, rowsBuffer, AccessModeIds::read);
         args.set(1, partialPrefixSums, AccessModeIds::read);
         args.set(2, oobRowsList, AccessModeIds::write);
@@ -292,7 +297,8 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::getNumOfSplitNodes
     {
         DAAL_ASSERT(nNodes <= _int32max);
 
-        KernelArguments args(3);
+        KernelArguments args(3, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, nodeList, AccessModeIds::read);
         args.set(1, static_cast<int32_t>(nNodes));
         args.set(2, bufNSplitNodes, AccessModeIds::write);
@@ -332,7 +338,8 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::convertSplitToLeaf
     auto & kernel = kernelConvertSplitToLeaf;
 
     {
-        KernelArguments args(1);
+        KernelArguments args(1, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, nodeList, AccessModeIds::readwrite);
 
         KernelRange global_range(nNodes);
@@ -361,7 +368,8 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::doNodesSplit(const
     {
         DAAL_ASSERT(nNodes <= _int32max);
 
-        KernelArguments args(3);
+        KernelArguments args(3, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, nodeList, AccessModeIds::read);
         args.set(1, static_cast<int32_t>(nNodes));
         args.set(2, nodeListNew, AccessModeIds::write);
@@ -402,7 +410,8 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::splitNodeListOnGro
         DAAL_ASSERT(nNodes <= _int32max);
         DAAL_ASSERT(_minRowsBlock <= _int32max);
 
-        KernelArguments args(5);
+        KernelArguments args(5, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, nodeList, AccessModeIds::read);
         args.set(1, static_cast<int32_t>(nNodes));
         args.set(2, nodesGroups, AccessModeIds::write);
@@ -443,7 +452,8 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::doLevelPartition(c
     {
         DAAL_ASSERT(nFeatures <= _int32max);
 
-        KernelArguments args(5);
+        KernelArguments args(5, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, data, AccessModeIds::read);
         args.set(1, nodeList, AccessModeIds::read);
         args.set(2, treeOrder, AccessModeIds::read);
@@ -485,7 +495,8 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::partitionCopy(Univ
     {
         DAAL_ASSERT(iStart <= _int32max);
 
-        KernelArguments args(3);
+        KernelArguments args(3, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, treeOrderBuf, AccessModeIds::read);
         args.set(1, treeOrder, AccessModeIds::write);
         args.set(2, static_cast<int32_t>(iStart));
@@ -516,7 +527,8 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::updateMDIVarImport
     {
         DAAL_ASSERT(nNodes <= _int32max);
 
-        KernelArguments args(4);
+        KernelArguments args(4, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, nodeList, AccessModeIds::read);
         args.set(1, nodeImpDecreaseList, AccessModeIds::read);
         args.set(2, static_cast<int32_t>(nNodes));

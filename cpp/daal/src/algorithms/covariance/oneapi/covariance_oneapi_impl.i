@@ -215,8 +215,14 @@ services::Status mergeCrossProduct(size_t nFeatures, const services::internal::B
         const algorithmFPType invNObs        = (algorithmFPType)(1.0) / nObservations;
         const algorithmFPType invNewNObs     = (algorithmFPType)(1.0) / (nObservations + partialNObservations);
 
+<<<<<<< HEAD
         KernelArguments args(8);
         args.set(0, static_cast<uint32_t>(nFeatures));
+=======
+        KernelArguments args(8, status);
+        DAAL_CHECK_STATUS_VAR(status);
+        args.set(0, nFeatures);
+>>>>>>> d3f16fdca... Safety checks in SYCL abstraction layer (#1120)
         args.set(1, partialCrossProduct, AccessModeIds::read);
         args.set(2, partialSums, AccessModeIds::read);
         args.set(3, crossProduct, AccessModeIds::readwrite);
@@ -273,8 +279,19 @@ services::Status prepareMeansAndCrossProductDiag(size_t nFeatures, algorithmFPTy
     auto kernel = factory.getKernel("prepareMeansAndCrossProductDiag", status);
     DAAL_CHECK_STATUS_VAR(status);
     {
+<<<<<<< HEAD
         KernelArguments args(6);
         args.set(0, static_cast<uint32_t>(nFeatures));
+=======
+        DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(crossProduct), algorithmFPType, nFeatures * nFeatures);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(diagCrossProduct), algorithmFPType, nFeatures);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(sums), algorithmFPType, nFeatures);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(means), algorithmFPType, nFeatures);
+
+        KernelArguments args(6, status);
+        DAAL_CHECK_STATUS_VAR(status);
+        args.set(0, nFeatures);
+>>>>>>> d3f16fdca... Safety checks in SYCL abstraction layer (#1120)
         args.set(1, nObservations);
         args.set(2, crossProduct, AccessModeIds::read);
         args.set(3, diagCrossProduct, AccessModeIds::write);
@@ -314,8 +331,14 @@ services::Status finalize(size_t nFeatures, algorithmFPType nObservations, const
     {
         uint32_t isOutputCorrelationMatrix = parameter->outputMatrixType == covariance::correlationMatrix;
 
+<<<<<<< HEAD
         KernelArguments args(6);
         args.set(0, static_cast<uint32_t>(nFeatures));
+=======
+        KernelArguments args(6, status);
+        DAAL_CHECK_STATUS_VAR(status);
+        args.set(0, nFeatures);
+>>>>>>> d3f16fdca... Safety checks in SYCL abstraction layer (#1120)
         args.set(1, nObservations);
         args.set(2, crossProduct, AccessModeIds::read);
         args.set(3, cov, AccessModeIds::readwrite);

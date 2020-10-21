@@ -145,7 +145,20 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
         DAAL_ASSERT(nMaxBinsAmongFtrs <= _int32max);
         DAAL_ASSERT(minObservationsInLeafNode <= _int32max);
 
+<<<<<<< HEAD
         KernelArguments args(13);
+=======
+        DAAL_ASSERT_UNIVERSAL_BUFFER(nodeHistogramList, algorithmFPType, nNodes * nSelectedFeatures * _nMaxBinsAmongFtrs * _nClasses);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(selectedFeatures, int32_t, nNodes * nSelectedFeatures);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(nodeList, int32_t, nNodes * TreeLevelRecord<algorithmFPType>::_nNodeSplitProps);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(nodeIndices, int32_t, nNodes);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(binOffsets, uint32_t, _nFeatures + 1);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(impList, algorithmFPType, nNodes * (TreeLevelRecord<algorithmFPType>::_nNodeImpProps + _nClasses));
+        if (updateImpDecreaseRequired) DAAL_ASSERT_UNIVERSAL_BUFFER(nodeImpDecreaseList, algorithmFPType, nNodes);
+
+        KernelArguments args(13, status);
+        DAAL_CHECK_STATUS_VAR(status);
+>>>>>>> d3f16fdca... Safety checks in SYCL abstraction layer (#1120)
         args.set(0, nodeHistogramList, AccessModeIds::read);
         args.set(1, selectedFeatures, AccessModeIds::read);
         args.set(2, static_cast<int32_t>(nSelectedFeatures));
@@ -200,8 +213,24 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
         DAAL_ASSERT(updateImpDecreaseRequired <= _int32max);
         DAAL_ASSERT(nFeatures <= _int32max);
         DAAL_ASSERT(minObservationsInLeafNode <= _int32max);
+<<<<<<< HEAD
 
         KernelArguments args(15);
+=======
+        DAAL_ASSERT(response.size() == _nRows);
+
+        DAAL_ASSERT_UNIVERSAL_BUFFER(data, uint32_t, _nRows * _nFeatures);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(treeOrder, int32_t, _nSelectedRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(selectedFeatures, int32_t, nNodes * nSelectedFeatures);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(binOffsets, uint32_t, _nFeatures + 1);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(nodeList, int32_t, nNodes * TreeLevelRecord<algorithmFPType>::_nNodeSplitProps);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(nodeIndices, int32_t, nNodes);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(impList, algorithmFPType, nNodes * (TreeLevelRecord<algorithmFPType>::_nNodeImpProps + _nClasses));
+        if (updateImpDecreaseRequired) DAAL_ASSERT_UNIVERSAL_BUFFER(nodeImpDecreaseList, algorithmFPType, nNodes);
+
+        KernelArguments args(15, status);
+        DAAL_CHECK_STATUS_VAR(status);
+>>>>>>> d3f16fdca... Safety checks in SYCL abstraction layer (#1120)
         args.set(0, data, AccessModeIds::read);
         args.set(1, treeOrder, AccessModeIds::read);
         args.set(2, selectedFeatures, AccessModeIds::read);
@@ -331,8 +360,24 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
         DAAL_ASSERT(nodeIndicesOffset <= _int32max);
         DAAL_ASSERT(nMaxBinsAmongFtrs <= _int32max);
         DAAL_ASSERT(nFeatures <= _int32max);
+<<<<<<< HEAD
 
         KernelArguments args(11);
+=======
+        DAAL_ASSERT(response.size() == _nRows);
+
+        DAAL_ASSERT_UNIVERSAL_BUFFER(data, uint32_t, _nRows * _nFeatures);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(treeOrder, int32_t, _nSelectedRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(selectedFeatures, int32_t, nNodes * nSelectedFeatures);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(binOffsets, uint32_t, _nFeatures + 1);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(nodeList, int32_t, nNodes * TreeLevelRecord<algorithmFPType>::_nNodeSplitProps);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(nodeIndices, int32_t, nNodes);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(partialHistograms, algorithmFPType,
+                                     nNodes * nPartialHistograms * nSelectedFeatures * _nMaxBinsAmongFtrs * _nClasses);
+
+        KernelArguments args(11, status);
+        DAAL_CHECK_STATUS_VAR(status);
+>>>>>>> d3f16fdca... Safety checks in SYCL abstraction layer (#1120)
         args.set(0, data, AccessModeIds::read);
         args.set(1, treeOrder, AccessModeIds::read);
         args.set(2, nodeList, AccessModeIds::read);
@@ -381,7 +426,16 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::re
         DAAL_ASSERT(nSelectedFeatures <= _int32max);
         DAAL_ASSERT(nMaxBinsAmongFtrs <= _int32max);
 
+<<<<<<< HEAD
         KernelArguments args(5);
+=======
+        DAAL_ASSERT_UNIVERSAL_BUFFER(partialHistograms, algorithmFPType,
+                                     nNodes * nPartialHistograms * nSelectedFeatures * _nMaxBinsAmongFtrs * _nClasses);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(histograms, algorithmFPType, nNodes * nSelectedFeatures * _nMaxBinsAmongFtrs * _nClasses);
+
+        KernelArguments args(5, status);
+        DAAL_CHECK_STATUS_VAR(status);
+>>>>>>> d3f16fdca... Safety checks in SYCL abstraction layer (#1120)
         args.set(0, partialHistograms, AccessModeIds::read);
         args.set(1, histograms, AccessModeIds::write);
         args.set(2, static_cast<int32_t>(nPartialHistograms));
@@ -812,7 +866,11 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
             rng.uniform(nSelectedRows, selectedRowsHost.get(), engineImpl->getState(), 0, nRows);
             daal::algorithms::internal::qSort<int, sse2>(nSelectedRows, selectedRowsHost.get());
 
+<<<<<<< HEAD
             context.copy(treeOrderLev, 0, (void *)selectedRowsHost.get(), 0, nSelectedRows, status);
+=======
+            context.copy(treeOrderLev, 0, (void *)selectedRowsHost.get(), _nSelectedRows, 0, _nSelectedRows, status);
+>>>>>>> d3f16fdca... Safety checks in SYCL abstraction layer (#1120)
             DAAL_CHECK_STATUS_VAR(status);
         }
 
@@ -854,7 +912,8 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
                 }
             }
 
-            context.copy(selectedFeaturesCom, 0, (void *)selectedFeaturesHost.get(), 0, nSelectedFeatures * nNodes, status);
+            context.copy(selectedFeaturesCom, 0, (void *)selectedFeaturesHost.get(), nSelectedFeatures * nNodes, 0, nSelectedFeatures * nNodes,
+                         status);
             DAAL_CHECK_STATUS_VAR(status);
 
             if (mdiRequired)

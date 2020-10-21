@@ -1,4 +1,4 @@
-/* file: error_handling.h */
+/* file: error_handling_sycl.h */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -15,37 +15,40 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __DAAL_SERVICES_INTERNAL_SYCL_ERROR_HANDLING_H__
-#define __DAAL_SERVICES_INTERNAL_SYCL_ERROR_HANDLING_H__
+#ifndef __DAAL_SERVICES_INTERNAL_SYCL_ERROR_HANDLING_SYCL_H__
+#define __DAAL_SERVICES_INTERNAL_SYCL_ERROR_HANDLING_SYCL_H__
+
+#ifndef DAAL_SYCL_INTERFACE
+    #error "DAAL_SYCL_INTERFACE must be defined to include this file"
+#endif
 
 #include <CL/cl.h>
 #include <CL/sycl.hpp>
 
-#include "services/internal/error_handling_helpers.h"
-#include "services/error_indexes.h"
-#include "services/daal_string.h"
-#include "services/internal/sycl/daal_level_zero_common.h"
+#include "services/error_handling.h"
+#include "services/internal/sycl/level_zero_common.h"
 
-#define DAAL_CHECK_OPENCL(cl_error, status, ...)                \
-    {                                                           \
-        if (cl_error != CL_SUCCESS)                             \
-        {                                                       \
-            status.add(convertOpenClErrorToErrorPtr(cl_error)); \
-            return __VA_ARGS__;                                 \
-        }                                                       \
+#define DAAL_CHECK_OPENCL(cl_error, status)                   \
+    {                                                         \
+        if (cl_error != CL_SUCCESS)                           \
+        {                                                     \
+            status |= convertOpenClErrorToErrorPtr(cl_error); \
+            return;                                           \
+        }                                                     \
     }
 
 #ifndef DAAL_DISABLE_LEVEL_ZERO
-    #define DAAL_CHECK_LEVEL_ZERO(ze_error, status, ...)               \
-        {                                                              \
-            if (ze_error != ZE_RESULT_SUCCESS)                         \
-            {                                                          \
-                status.add(convertLevelZeroErrorToErrorPtr(ze_error)); \
-                return __VA_ARGS__;                                    \
-            }                                                          \
+    #define DAAL_CHECK_LEVEL_ZERO(ze_error, status)                  \
+        {                                                            \
+            if (ze_error != ZE_RESULT_SUCCESS)                       \
+            {                                                        \
+                status |= convertLevelZeroErrorToErrorPtr(ze_error); \
+                return;                                              \
+            }                                                        \
         }
 #endif // DAAL_DISABLE_LEVEL_ZERO
 
+/// \cond INTERNAL
 namespace daal
 {
 namespace services
@@ -56,10 +59,10 @@ namespace sycl
 {
 namespace interface1
 {
-inline services::String getOpenClErrorDescription(cl_int clError)
+inline String getOpenClErrorDescription(cl_int clError)
 {
 #define OPENCL_ERROR_CASE(x) \
-case x: return services::String(#x);
+case x: return String(#x);
     switch (clError)
     {
         OPENCL_ERROR_CASE(CL_BUILD_PROGRAM_FAILURE);
@@ -107,21 +110,21 @@ case x: return services::String(#x);
         OPENCL_ERROR_CASE(CL_OUT_OF_RESOURCES);
         OPENCL_ERROR_CASE(CL_PROFILING_INFO_NOT_AVAILABLE);
     }
-    return services::String("Unknown OpenCL error");
+    return String("Unknown OpenCL error");
 
 #undef OPENCL_ERROR_CASE
 }
 
-inline services::ErrorPtr convertOpenClErrorToErrorPtr(cl_int clError)
+inline ErrorPtr convertOpenClErrorToErrorPtr(cl_int clError)
 {
-    return services::Error::create(services::ErrorID::ErrorExecutionContext, services::ErrorDetailID::OpenCL, getOpenClErrorDescription(clError));
+    return Error::create(ErrorID::ErrorExecutionContext, ErrorDetailID::OpenCL, getOpenClErrorDescription(clError));
 }
 
 #ifndef DAAL_DISABLE_LEVEL_ZERO
-inline services::String getLevelZeroErrorDescription(ze_result_t zeError)
+inline String getLevelZeroErrorDescription(ze_result_t zeError)
 {
     #define LEVEL_ZERO_ERROR_CASE(x) \
-    case x: return services::String(#x);
+    case x: return String(#x);
     switch (zeError)
     {
         LEVEL_ZERO_ERROR_CASE(ZE_RESULT_SUCCESS);
@@ -163,30 +166,69 @@ inline services::String getLevelZeroErrorDescription(ze_result_t zeError)
         LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_UNKNOWN);
         LEVEL_ZERO_ERROR_CASE(ZE_RESULT_FORCE_UINT32);
     }
-    return services::String("Unknown LevelZero error");
+    return String("Unknown LevelZero error");
 
     #undef LEVEL_ZERO_ERROR_CASE
 }
 
-inline services::ErrorPtr convertLevelZeroErrorToErrorPtr(ze_result_t zeError)
+inline ErrorPtr convertLevelZeroErrorToErrorPtr(ze_result_t zeError)
 {
-    return services::Error::create(services::ErrorID::ErrorExecutionContext, services::ErrorDetailID::LevelZero,
-                                   getLevelZeroErrorDescription(zeError));
+    return Error::create(ErrorID::ErrorExecutionContext, ErrorDetailID::LevelZero, getLevelZeroErrorDescription(zeError));
 }
 #endif // DAAL_DISABLE_LEVEL_ZERO
 
-inline void convertSyclExceptionToStatus(cl::sycl::exception const & e, services::Status & status)
+inline Status convertSyclExceptionToStatus(const std::exception & ex)
 {
-    status |= services::Error::create(services::ErrorID::ErrorExecutionContext, services::ErrorDetailID::Sycl, services::String(e.what()));
+    return Error::create(ErrorID::ErrorExecutionContext, ErrorDetailID::Sycl, String(ex.what()));
 }
+
+template <typename TryBody, typename CatchBody>
+DAAL_FORCEINLINE auto catchSyclExceptions(Status & status, TryBody && tryBody, CatchBody && catchBody) -> decltype(tryBody())
+{
+    try
+    {
+        return tryBody();
+    }
+    catch (const std::bad_alloc &)
+    {
+        status |= ErrorMemoryAllocationFailed;
+        return catchBody();
+    }
+    catch (const std::exception & ex)
+    {
+        status |= convertSyclExceptionToStatus(ex);
+        return catchBody();
+    }
+    catch (...)
+    {
+        status |= UnknownError;
+        return catchBody();
+    }
+}
+
+template <typename Body>
+DAAL_FORCEINLINE Status catchSyclExceptions(Body && body)
+{
+    Status status;
+    return catchSyclExceptions(
+        status,
+        [&]() {
+            body();
+            return status;
+        },
+        [&]() { return status; });
+}
+
 } // namespace interface1
 
 using interface1::convertOpenClErrorToErrorPtr;
 using interface1::convertSyclExceptionToStatus;
+using interface1::catchSyclExceptions;
 
 } // namespace sycl
 } // namespace internal
 } // namespace services
 } // namespace daal
+/// \endcond
 
 #endif
