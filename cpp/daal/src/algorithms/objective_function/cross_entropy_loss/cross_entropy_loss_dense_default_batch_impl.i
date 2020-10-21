@@ -87,7 +87,7 @@ void CrossEntropyLossKernel<algorithmFPType, method, cpu>::softmax(const algorit
     const algorithmFPType expThreshold = daal::internal::Math<algorithmFPType, cpu>::vExpThreshold();
     if (softmaxSums != nullptr)
     {
-        services::internal::service_memset<algorithmFPType, cpu>(softmaxSums, 0.0, nCols);
+        services::internal::service_memset_seq<algorithmFPType, cpu>(softmaxSums, 0.0, nCols);
     }
     for (size_t iRow = 0; iRow < nRows; ++iRow)
     {
@@ -119,7 +119,10 @@ void CrossEntropyLossKernel<algorithmFPType, method, cpu>::softmax(const algorit
             algorithmFPType sum(0.);
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < nCols; ++i) sum += pRes[i];
+            for (size_t i = 0; i < nCols; ++i)
+            {
+                sum += pRes[i];
+            }
             sum = static_cast<algorithmFPType>(1.) / sum;
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
@@ -139,7 +142,10 @@ void CrossEntropyLossKernel<algorithmFPType, method, cpu>::softmax(const algorit
             algorithmFPType sum(0.);
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < nCols; ++i) sum += pRes[i];
+            for (size_t i = 0; i < nCols; ++i)
+            {
+                sum += pRes[i];
+            }
             sum = static_cast<algorithmFPType>(1.) / sum;
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
@@ -406,10 +412,12 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
                     }
                 }
 
-                for (size_t i = 0; i < nRowsToProcess; ++i)
-                {
-                    algorithmFPType * const fPtrInternal = fPtrLocal + i * nClasses;
-                    ++(fPtrInternal[size_t(yLocal[i])]);
+                if (hessianNT) {
+                    for (size_t i = 0; i < nRowsToProcess; ++i)
+                    {
+                        algorithmFPType * const fPtrInternal = fPtrLocal + i * nClasses;
+                        ++(fPtrInternal[size_t(yLocal[i])]);
+                    }
                 }
             }
         });
