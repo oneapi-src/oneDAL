@@ -16,8 +16,8 @@
 
 #pragma once
 
+#include "oneapi/dal/detail/error_reporting.hpp"
 #include "oneapi/dal/algo/decision_forest/train_types.hpp"
-#include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::decision_forest::detail {
 
@@ -38,21 +38,18 @@ struct train_ops {
     using descriptor_base_t = descriptor_base<task_t>;
 
     void check_preconditions(const Descriptor& params, const input_t& input) const {
-        if (!(input.get_data().has_data())) {
-            throw domain_error("Input data should not be empty");
-        }
-        if (!(input.get_labels().has_data())) {
-            throw domain_error("Input labels should not be empty");
-        }
-        if (input.get_data().get_row_count() != input.get_labels().get_row_count()) {
-            throw invalid_argument("Input data row_count should be equal to labels row_count");
-        }
-        if (!params.get_bootstrap() &&
-            (params.get_variable_importance_mode() == variable_importance_mode::mda_raw ||
-             params.get_variable_importance_mode() == variable_importance_mode::mda_scaled)) {
-            throw invalid_argument(
-                "Parameter 'bootstrap' is incompatible with requested variable importance mode");
-        }
+        using eg = dal::detail::exception_generator;
+
+        eg::report_input_data_is_empty_if_false(input.get_data().has_data());
+        eg::report_input_labels_are_empty_if_false(input.get_labels().has_data());
+
+        eg::report_input_data_row_count_is_not_equal_to_input_labels_row_count_if_false(
+            input.get_data().get_row_count() == input.get_labels().get_row_count());
+
+        eg::report_bootstrap_is_incompatible_with_variable_importance_mode_if_false(
+            params.get_bootstrap() ||
+            (params.get_variable_importance_mode() != variable_importance_mode::mda_raw &&
+             params.get_variable_importance_mode() != variable_importance_mode::mda_scaled));
 
         if (!params.get_bootstrap() &&
             (check_mask_flag(params.get_error_metric_mode(), error_metric_mode::out_of_bag_error) ||
