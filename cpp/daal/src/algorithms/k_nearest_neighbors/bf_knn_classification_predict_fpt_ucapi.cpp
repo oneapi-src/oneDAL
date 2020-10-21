@@ -28,7 +28,7 @@ namespace prediction
 {
 namespace internal
 {
-template class KNNClassificationPredictKernelUCAPI<DAAL_FPTYPE>;
+template class DAAL_EXPORT KNNClassificationPredictKernelUCAPI<DAAL_FPTYPE>;
 
 } // namespace internal
 } // namespace prediction
