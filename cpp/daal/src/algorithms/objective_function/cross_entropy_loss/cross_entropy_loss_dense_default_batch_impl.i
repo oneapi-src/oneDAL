@@ -412,7 +412,8 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
                     }
                 }
 
-                if (hessianNT) {
+                if (hessianNT)
+                {
                     for (size_t i = 0; i < nRowsToProcess; ++i)
                     {
                         algorithmFPType * const fPtrInternal = fPtrLocal + i * nClasses;
