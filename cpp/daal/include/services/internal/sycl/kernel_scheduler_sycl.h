@@ -566,10 +566,15 @@ private:
         {
         case ExecutionTargetIds::device: return scheduleOnDevice(range, kernel, args, status);
 
+<<<<<<< HEAD
         case ExecutionTargetIds::host: return services::internal::tryAssignStatus(status, services::ErrorID::ErrorMethodNotImplemented);
         }
+=======
+        case ExecutionTargetIds::host: status |= services::ErrorMethodNotImplemented; return;
+>>>>>>> 8b1906e51... Build oneAPI DPC++ part on Windows (#1105)
 
-        DAAL_ASSERT(!"Unexpected execution target");
+        default: DAAL_ASSERT(!"Unexpected execution target");
+        }
     }
 
     template <typename Range>

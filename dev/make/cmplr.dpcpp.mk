@@ -28,6 +28,7 @@ CORE.SERV.COMPILER.dpcpp = generic
 -Zl.dpcpp =
 -DEBC.dpcpp = -g
 
+<<<<<<< HEAD
 COMPILER.lnx.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64) -stdlib=libstdc++ -fgnu-runtime -fwrapv
 
 link.dynamic.lnx.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64)
@@ -39,3 +40,23 @@ avx_OPT.dpcpp  = $(-Q)march=sandybridge
 avx2_OPT.dpcpp = $(-Q)march=haswell
 knl_OPT.dpcpp  = $(-Q)march=knl
 skx_OPT.dpcpp  = $(-Q)march=skx
+=======
+COMPILER.lnx.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64) -stdlib=libstdc++ -fgnu-runtime -fwrapv \
+                     -Werror -Wreturn-type
+COMPILER.win.dpcpp = dpcpp -nologo -WX -Wno-deprecated-declarations
+
+link.dynamic.lnx.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64)
+
+pedantic.opts.lnx.dpcpp = -pedantic \
+                          -Wall \
+                          -Wextra \
+                          -Wno-unused-parameter
+
+p4_OPT.dpcpp   = -march=nocona
+mc_OPT.dpcpp   = -march=core2
+mc3_OPT.dpcpp  = -march=nehalem
+avx_OPT.dpcpp  = -march=sandybridge
+avx2_OPT.dpcpp = -march=haswell
+knl_OPT.dpcpp  = -march=knl
+skx_OPT.dpcpp  = -march=skx
+>>>>>>> 8b1906e51... Build oneAPI DPC++ part on Windows (#1105)
