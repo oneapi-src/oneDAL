@@ -32,6 +32,7 @@
 #include "src/algorithms/low_order_moments/oneapi/low_order_moments_kernel_batch_oneapi.h"
 #include "src/externals/service_ittnotify.h"
 #include "services/internal/execution_context.h"
+#include "services/internal/sycl/daal_defines_sycl.h"
 
 using namespace daal::services::internal;
 using namespace daal::services::internal::sycl;
@@ -150,6 +151,13 @@ services::Status LowOrderMomentsBatchKernelOneAPI<algorithmFPType, method>::comp
     return status;
 }
 
+template <typename T>
+static inline services::Status overflowCheckByMultiplication(const T & v1, const T & v2)
+{
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(T, v1, v2);
+    return services::Status();
+}
+
 template <typename algorithmFPType, EstimatesToCompute scope>
 static inline services::Status buildProgram(ClKernelFactoryIface & factory, const char * buildOptions = nullptr)
 {
@@ -184,8 +192,22 @@ LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::LowOrderMomentsBatchTask
                                                                                        Result * result, services::Status & status)
     : dataTable(dataTable)
 {
-    nVectors  = dataTable->getNumberOfRows();
-    nFeatures = dataTable->getNumberOfColumns();
+    if (dataTable->getNumberOfRows() > _uint32max)
+    {
+        status |= services::ErrorIncorrectNumberOfRowsInInputNumericTable;
+        return;
+    }
+    if (dataTable->getNumberOfColumns() > _uint32max)
+    {
+        status |= services::ErrorIncorrectNumberOfColumnsInInputNumericTable;
+        return;
+    }
+
+    nVectors  = static_cast<uint32_t>(dataTable->getNumberOfRows());
+    nFeatures = static_cast<uint32_t>(dataTable->getNumberOfColumns());
+
+    status |= overflowCheckByMultiplication(nVectors, nFeatures);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
     nColsBlocks = (nFeatures + maxWorkItemsPerGroup - 1) / maxWorkItemsPerGroup;
 
@@ -205,12 +227,16 @@ LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::LowOrderMomentsBatchTask
 
     CHECK_AND_RET_IF_FAIL(status, dataTable->getBlockOfRows(0, nVectors, readOnly, dataBD));
 
-    for (unsigned int i = 0; i < TaskInfoBatch<algorithmFPType, scope>::nResults; i++)
+    DAAL_ASSERT(nVectors > nRowsBlocks)
+
+    for (uint32_t i = 0; i < TaskInfoBatch<algorithmFPType, scope>::nResults; i++)
     {
         resultTable[i] = result->get((ResultId)TaskInfoBatch<algorithmFPType, scope>::resIds[i]);
         CHECK_AND_RET_IF_FAIL(status, resultTable[i]->getBlockOfRows(0, 1, writeOnly, resultBD[i]));
     }
 
+    status |= overflowCheckByMultiplication(nRowsBlocks, nFeatures);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
     if (TaskInfoBatch<algorithmFPType, scope>::isRowsInBlockInfoRequired)
     {
         if (nRowsBlocks > 1)
@@ -222,7 +248,7 @@ LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::LowOrderMomentsBatchTask
 
     if (nRowsBlocks > 1)
     {
-        for (unsigned int i = 0; i < TaskInfoBatch<algorithmFPType, scope>::nBuffers; i++)
+        for (uint32_t i = 0; i < TaskInfoBatch<algorithmFPType, scope>::nBuffers; i++)
         {
             bAuxBuffers[i] = context.allocate(TypeIds::id<algorithmFPType>(), nFeatures * nRowsBlocks, status);
             DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
@@ -238,7 +264,7 @@ LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::~LowOrderMomentsBatchTas
         dataTable->releaseBlockOfRows(dataBD);
     }
 
-    for (unsigned int i = 0; i < TaskInfoBatch<algorithmFPType, scope>::nResults; i++)
+    for (uint32_t i = 0; i < TaskInfoBatch<algorithmFPType, scope>::nResults; i++)
     {
         if (resultTable[i])
         {
@@ -266,6 +292,8 @@ services::Status LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::compute
         auto kProcessBlocks = factory.getKernel(TaskInfoBatch<algorithmFPType, scope>::kProcessBlocksName, status);
         DAAL_CHECK_STATUS_VAR(status);
         {
+            // nRowsBlocks * nColsBlocks overflow check was done as part of check nVectors * nFeatures
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRowsBlocks * nColsBlocks, workItemsPerGroup);
             KernelRange localRange(workItemsPerGroup);
             KernelRange globalRange(nRowsBlocks * nColsBlocks * workItemsPerGroup);
 
@@ -278,18 +306,21 @@ services::Status LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::compute
             KernelArguments args(3 + TaskInfoBatch<algorithmFPType, scope>::nBuffers
                                  + (TaskInfoBatch<algorithmFPType, scope>::isRowsInBlockInfoRequired ? 1 : 0));
 
-            unsigned int argsI = 0;
+            uint32_t argsI = 0;
+            DAAL_ASSERT(dataBD.getBuffer().size() == nVectors * nFeatures);
             args.set(argsI++, dataBD.getBuffer(), AccessModeIds::read);
             args.set(argsI++, nFeatures);
             args.set(argsI++, nVectors);
 
             if (TaskInfoBatch<algorithmFPType, scope>::isRowsInBlockInfoRequired)
             {
+                DAAL_ASSERT_UNIVERSAL_BUFFER(bNVec, uint32_t, nFeatures * nRowsBlocks);
                 args.set(argsI++, bNVec, AccessModeIds::write);
             }
 
-            for (unsigned int i = 0; i < TaskInfoBatch<algorithmFPType, scope>::nBuffers; i++)
+            for (uint32_t i = 0; i < TaskInfoBatch<algorithmFPType, scope>::nBuffers; i++)
             {
+                DAAL_ASSERT_UNIVERSAL_BUFFER(bAuxBuffers[i], algorithmFPType, nFeatures * nRowsBlocks);
                 args.set(argsI++, bAuxBuffers[i], AccessModeIds::write);
             }
 
@@ -304,6 +335,7 @@ services::Status LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::compute
         auto kMergeBlocks = factory.getKernel(TaskInfoBatch<algorithmFPType, scope>::kMergeBlocksName, status);
         DAAL_CHECK_STATUS_VAR(status);
         {
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, maxWorkItemsPerGroupToMerge);
             KernelRange localRange(maxWorkItemsPerGroupToMerge);
             KernelRange globalRange(maxWorkItemsPerGroupToMerge * nFeatures);
 
@@ -316,20 +348,23 @@ services::Status LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::compute
             KernelArguments args(1 + TaskInfoBatch<algorithmFPType, scope>::nResults + TaskInfoBatch<algorithmFPType, scope>::nBuffers
                                  + (TaskInfoBatch<algorithmFPType, scope>::isRowsInBlockInfoRequired ? 1 : 0));
 
-            unsigned int argsI = 0;
+            uint32_t argsI = 0;
             args.set(argsI++, nRowsBlocks); // num of values to merge
-            for (unsigned int i = 0; i < TaskInfoBatch<algorithmFPType, scope>::nResults; i++)
+            for (uint32_t i = 0; i < TaskInfoBatch<algorithmFPType, scope>::nResults; i++)
             {
+                DAAL_ASSERT(resultBD[i].getBuffer().size() == nFeatures);
                 args.set(argsI++, resultBD[i].getBuffer(), AccessModeIds::readwrite);
             }
 
             if (TaskInfoBatch<algorithmFPType, scope>::isRowsInBlockInfoRequired)
             {
+                DAAL_ASSERT_UNIVERSAL_BUFFER(bNVec, uint32_t, nFeatures * nRowsBlocks);
                 args.set(argsI++, bNVec, AccessModeIds::write);
             }
 
-            for (unsigned int i = 0; i < TaskInfoBatch<algorithmFPType, scope>::nBuffers; i++)
+            for (uint32_t i = 0; i < TaskInfoBatch<algorithmFPType, scope>::nBuffers; i++)
             {
+                DAAL_ASSERT_UNIVERSAL_BUFFER(bAuxBuffers[i], algorithmFPType, nFeatures * nRowsBlocks);
                 args.set(argsI++, bAuxBuffers[i], AccessModeIds::write);
             }
 
@@ -345,6 +380,7 @@ services::Status LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::compute
         auto kSinglePass = factory.getKernel(TaskInfoBatch<algorithmFPType, scope>::kSinglePassName, status);
         DAAL_CHECK_STATUS_VAR(status);
         {
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nColsBlocks, workItemsPerGroup);
             KernelRange localRange(workItemsPerGroup);
             KernelRange globalRange(nColsBlocks * workItemsPerGroup);
 
@@ -356,12 +392,14 @@ services::Status LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::compute
 
             KernelArguments args(3 + TaskInfoBatch<algorithmFPType, scope>::nResults);
 
-            unsigned int argsI = 0;
+            uint32_t argsI = 0;
+            DAAL_ASSERT(dataBD.getBuffer().size() == nVectors * nFeatures);
             args.set(argsI++, dataBD.getBuffer(), AccessModeIds::read);
             args.set(argsI++, nFeatures);
             args.set(argsI++, nVectors);
-            for (unsigned int i = 0; i < TaskInfoBatch<algorithmFPType, scope>::nResults; i++)
+            for (uint32_t i = 0; i < TaskInfoBatch<algorithmFPType, scope>::nResults; i++)
             {
+                DAAL_ASSERT(resultBD[i].getBuffer().size() == nFeatures);
                 args.set(argsI++, resultBD[i].getBuffer(), AccessModeIds::readwrite);
             }
 
