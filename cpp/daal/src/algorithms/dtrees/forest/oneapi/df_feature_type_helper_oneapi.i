@@ -25,6 +25,7 @@
 #include "src/services/service_data_utils.h"
 #include "src/sycl/sorter.h"
 #include "src/externals/service_ittnotify.h"
+#include "services/internal/sycl/daal_defines_sycl.h"
 
 DAAL_ITTNOTIFY_DOMAIN(df.common.oneapi);
 
@@ -74,17 +75,31 @@ static void buildProgram(ClKernelFactoryIface & factory)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.buildProgram);
 
+<<<<<<< HEAD
     {
         auto fptype_name    = getKeyFPType<algorithmFPType>();
         auto radixtype_name = getOpenCLKeyType<typename GetIntegerTypeForFPType<algorithmFPType>::Type>("radixIntType");
         auto build_options  = fptype_name + radixtype_name;
+=======
+    services::Status status;
 
-        services::String cachekey("__daal_algorithms_df_common_");
-        cachekey.add(build_options);
-        build_options.add(" -cl-std=CL1.2 ");
+    auto fptype_name    = getKeyFPType<algorithmFPType>();
+    auto radixtype_name = getOpenCLKeyType<typename GetIntegerTypeForFPType<algorithmFPType>::Type>("radixIntType");
+    auto build_options  = fptype_name + radixtype_name;
+>>>>>>> 5a68313b5... required sfixes for df (#1146)
 
+    services::String cachekey("__daal_algorithms_df_common_");
+    cachekey.add(build_options);
+    build_options.add(" -cl-std=CL1.2 ");
+
+<<<<<<< HEAD
         factory.build(ExecutionTargetIds::device, cachekey.c_str(), df_common_kernels, build_options.c_str());
     }
+=======
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), df_common_kernels, build_options.c_str(), status);
+
+    return status;
+>>>>>>> 5a68313b5... required sfixes for df (#1146)
 }
 
 template <typename algorithmFPType>
@@ -101,8 +116,12 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::FeatureEntry::allocBord
     auto & context = services::internal::getDefaultContext();
     services::Status status;
 
+<<<<<<< HEAD
     binBorders = context.allocate(TypeIds::id<algorithmFPType>(), numIndices, &status);
     DAAL_CHECK_STATUS_VAR(status);
+=======
+    binBorders = context.allocate(TypeIds::id<algorithmFPType>(), numIndices, status);
+>>>>>>> 5a68313b5... required sfixes for df (#1146)
     return status;
 }
 
@@ -120,7 +139,12 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::alloc(size_t nC, size_t
         DAAL_CHECK_STATUS_VAR(status);
     }
 
+<<<<<<< HEAD
     _fullData = context.allocate(TypeId::uint32, nR * nC, &status);
+=======
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nR, nC);
+    _fullData = context.allocate(TypeId::uint32, nR * nC, status);
+>>>>>>> 5a68313b5... required sfixes for df (#1146)
     DAAL_CHECK_STATUS_VAR(status);
 
     _binOffsets = context.allocate(TypeId::uint32, nC + 1, &status);
@@ -146,11 +170,19 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::extractColumn(const ser
 
     auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
+<<<<<<< HEAD
     buildProgram<algorithmFPType>(factory);
+=======
+    DAAL_CHECK_STATUS_VAR(buildProgram<algorithmFPType>(factory));
+>>>>>>> 5a68313b5... required sfixes for df (#1146)
 
     auto kernel = factory.getKernel("extractColumn");
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(data), algorithmFPType, nRows * nFeatures);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(values, algorithmFPType, nRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(indices, int32_t, nRows);
+
         KernelArguments args(6);
         args.set(0, data, AccessModeIds::read);
         args.set(1, values, AccessModeIds::write);
@@ -182,6 +214,10 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::collectBinBorders(Unive
     auto kernel = factory.getKernel("collectBinBorders");
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(values, algorithmFPType, nRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(binOffsets, int32_t, maxBins);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(binBorders, algorithmFPType, maxBins);
+
         KernelArguments args(3);
         args.set(0, values, AccessModeIds::read);
         args.set(1, binOffsets, AccessModeIds::read);
@@ -199,7 +235,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::collectBinBorders(Unive
 template <typename algorithmFPType>
 services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBuffer & values, UniversalBuffer & indices,
                                                                      UniversalBuffer & binBorders, UniversalBuffer & bins, int32_t nRows,
-                                                                     int32_t nBins, int32_t localSize, int32_t nLocalBlocks)
+                                                                     int32_t nBins, int32_t maxBins, int32_t localSize, int32_t nLocalBlocks)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(indexedFeatures.computeBins);
 
@@ -212,6 +248,11 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
     auto kernel = factory.getKernel("computeBins");
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(values, algorithmFPType, nRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(indices, int32_t, nRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(binBorders, algorithmFPType, maxBins);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(bins, uint32_t, nRows);
+
         KernelArguments args(6);
         args.set(0, values, AccessModeIds::read);
         args.set(1, indices, AccessModeIds::read);
@@ -268,11 +309,17 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
 
     int32_t nBins = 0;
     {
+<<<<<<< HEAD
         auto binBordersHost = binBorders.template get<algorithmFPType>().toHost(ReadWriteMode::readWrite);
+=======
+        DAAL_ASSERT_UNIVERSAL_BUFFER(binBorders, algorithmFPType, maxBins);
+        auto binBordersHost = binBorders.template get<algorithmFPType>().toHost(ReadWriteMode::readWrite, status);
+        DAAL_CHECK_STATUS_VAR(status);
+>>>>>>> 5a68313b5... required sfixes for df (#1146)
         DAAL_CHECK_MALLOC(binBordersHost.get());
         for (int32_t i = 0; i < maxBins; i++)
         {
-            if (nBins == 0 || binBordersHost.get()[i] != binBordersHost.get()[nBins - 1])
+            if (nBins == 0 || (nBins > 0 && binBordersHost.get()[i] != binBordersHost.get()[nBins - 1]))
             {
                 binBordersHost.get()[nBins] = binBordersHost.get()[i];
                 nBins++;
@@ -280,9 +327,9 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
         }
     }
 
-    DAAL_CHECK_STATUS_VAR(computeBins(values, indices, binBorders, bins, nRows, nBins, localSize, nLocalBlocks));
+    DAAL_CHECK_STATUS_VAR(computeBins(values, indices, binBorders, bins, nRows, nBins, maxBins, localSize, nLocalBlocks));
 
-    entry.numIndices = nBins;
+    entry.numIndices = static_cast<size_t>(nBins);
     entry.binBorders = binBorders;
 
     return status;
@@ -314,6 +361,9 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::storeColumn(const Unive
     auto kernel = factory.getKernel("storeColumn");
 
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(data, uint32_t, nRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(fullData, uint32_t, nRows * nFeatures);
+
         KernelArguments args(5);
         args.set(0, data, AccessModeIds::read);
         args.set(1, fullData, AccessModeIds::write);
@@ -353,11 +403,13 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::init(NumericTable & nt,
         return services::Status(services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
     }
 
-    services::Status status = alloc(nCsz, nRsz);
-    DAAL_CHECK_STATUS_VAR(status);
-
     const int32_t nC = static_cast<int32_t>(nCsz);
     const int32_t nR = static_cast<int32_t>(nRsz);
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(int32_t, nR, nC);
+
+    services::Status status = alloc(nCsz, nRsz);
+    DAAL_CHECK_STATUS_VAR(status);
 
     auto & context = services::internal::getDefaultContext();
 
@@ -377,27 +429,35 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::init(NumericTable & nt,
     {
         for (int32_t i = 0; i < nC; i++)
         {
-            nt.getBlockOfColumnValues(i, 0, nR, readOnly, dataBlock);
+            DAAL_CHECK_STATUS_VAR(nt.getBlockOfColumnValues(i, 0, nR, readOnly, dataBlock));
             auto dataBuffer = dataBlock.getBuffer();
             DAAL_CHECK_STATUS_VAR(makeIndex(dataBuffer, 0, 1, nR, pBinPrm, _data[i], _entries[i]));
-            nt.releaseBlockOfColumnValues(dataBlock);
+            DAAL_CHECK_STATUS_VAR(nt.releaseBlockOfColumnValues(dataBlock));
         }
     }
     else
     {
-        nt.getBlockOfRows(0, nR, readOnly, dataBlock);
+        DAAL_CHECK_STATUS_VAR(nt.getBlockOfRows(0, nR, readOnly, dataBlock));
         auto dataBuffer = dataBlock.getBuffer();
         for (int32_t i = 0; i < nC; i++)
         {
             DAAL_CHECK_STATUS_VAR(makeIndex(dataBuffer, i, nC, nR, pBinPrm, _data[i], _entries[i]));
         }
-        nt.releaseBlockOfRows(dataBlock);
+        DAAL_CHECK_STATUS_VAR(nt.releaseBlockOfRows(dataBlock));
     }
 
     {
+<<<<<<< HEAD
         auto binOffsetsHost = _binOffsets.template get<int32_t>().toHost(ReadWriteMode::writeOnly);
         DAAL_CHECK_MALLOC(binOffsetsHost.get());
         size_t total = 0;
+=======
+        DAAL_ASSERT_UNIVERSAL_BUFFER(_binOffsets, uint32_t, nC + 1);
+        auto binOffsetsHost = _binOffsets.template get<uint32_t>().toHost(ReadWriteMode::writeOnly, status);
+        DAAL_CHECK_STATUS_VAR(status);
+        DAAL_CHECK_MALLOC(binOffsetsHost.get());
+        uint32_t total = 0;
+>>>>>>> 5a68313b5... required sfixes for df (#1146)
         for (int32_t i = 0; i < nC; i++)
         {
             DAAL_CHECK_STATUS_VAR(storeColumn(_data[i], _fullData, i, nC, nR));

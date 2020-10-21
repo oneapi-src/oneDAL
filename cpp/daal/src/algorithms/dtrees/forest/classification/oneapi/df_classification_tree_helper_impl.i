@@ -27,6 +27,7 @@
 #include "data_management/data/aos_numeric_table.h"
 #include "src/services/service_arrays.h"
 #include "src/algorithms/dtrees/dtrees_predict_dense_default_impl.i"
+#include "services/internal/sycl/daal_defines_sycl.h"
 
 namespace daal
 {
@@ -96,8 +97,8 @@ struct TreeLevelRecord
         _nNodes   = nNodes;
         _nClasses = nClasses;
 
-        DAAL_ASSERT(nNodes * _nNodeSplitProps == nodeList.template get<int>().size());
-        DAAL_ASSERT(nNodes * (_nNodeImpProps + _nClasses) == impInfo.template get<algorithmFPType>().size());
+        DAAL_ASSERT_UNIVERSAL_BUFFER(nodeList, int32_t, nNodes * _nNodeSplitProps);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(impInfo, algorithmFPType, nNodes * (_nNodeImpProps + _nClasses));
 
         auto nodeListHost = nodeList.template get<int>().toHost(ReadWriteMode::readOnly);
         _nodeList         = nodeListHost.get();

@@ -88,8 +88,8 @@ struct TreeLevelRecord
     services::Status init(services::internal::sycl::UniversalBuffer & nodeList, services::internal::sycl::UniversalBuffer & impInfo, size_t nNodes)
     {
         _nNodes = nNodes;
-        DAAL_ASSERT(nNodes * _nNodeSplitProps == nodeList.template get<int>().size());
-        DAAL_ASSERT(nNodes * _nNodeImpProps == impInfo.template get<algorithmFPType>().size());
+        DAAL_ASSERT_UNIVERSAL_BUFFER(nodeList, int32_t, nNodes * _nNodeSplitProps);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(impInfo, algorithmFPType, nNodes * _nNodeImpProps);
 
         auto nodeListHost = nodeList.template get<int>().toHost(ReadWriteMode::readOnly);
         _nodeList         = nodeListHost.get();
