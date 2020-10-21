@@ -18,7 +18,7 @@
 
 namespace oneapi::dal::detail {
 
-#define ONEDAL_HAS_METHOD_TRAIT(return_value, method_name, params, checker_name)        \
+#define ONEDAL_HAS_METHOD_TRAIT(return_value, method_name, params, checker_name)            \
     template <typename _Type>                                                               \
     struct has_method_##checker_name {                                                      \
     private:                                                                                \

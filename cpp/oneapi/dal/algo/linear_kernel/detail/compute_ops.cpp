@@ -32,8 +32,7 @@ struct ONEDAL_EXPORT compute_ops_dispatcher<host_policy, Float, Method> {
     }
 };
 
-#define INSTANTIATE(F, M) \
-    template struct ONEDAL_EXPORT compute_ops_dispatcher<host_policy, F, M>;
+#define INSTANTIATE(F, M) template struct ONEDAL_EXPORT compute_ops_dispatcher<host_policy, F, M>;
 
 INSTANTIATE(float, method::dense)
 INSTANTIATE(float, method::csr)

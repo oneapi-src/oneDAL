@@ -36,16 +36,16 @@ struct has_push_rows_host {
 template <typename T, typename Data>
 struct has_pull_column_host {
     ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void,
-                                       pull_column,
-                                       (array<Data>&, std::int64_t, const range&)const)
+                                   pull_column,
+                                   (array<Data>&, std::int64_t, const range&)const)
     static constexpr bool value = has_method_pull_column_v<T>;
 };
 
 template <typename T, typename Data>
 struct has_push_column_host {
     ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void,
-                                       push_column,
-                                       (const array<Data>&, std::int64_t, const range&))
+                                   push_column,
+                                   (const array<Data>&, std::int64_t, const range&))
     static constexpr bool value = has_method_push_column_v<T>;
 };
 
@@ -63,8 +63,8 @@ struct has_pull_rows_dpc {
 template <typename T, typename Data>
 struct has_push_rows_dpc {
     ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void,
-                                       push_rows,
-                                       (sycl::queue&, const array<Data>&, const range&))
+                                   push_rows,
+                                   (sycl::queue&, const array<Data>&, const range&))
     static constexpr bool value = has_method_push_rows_v<T>;
 };
 
@@ -79,10 +79,9 @@ struct has_pull_column_dpc {
 
 template <typename T, typename Data>
 struct has_push_column_dpc {
-    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(
-        void,
-        push_column,
-        (sycl::queue&, const array<Data>&, std::int64_t, const range&))
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void,
+                                   push_column,
+                                   (sycl::queue&, const array<Data>&, std::int64_t, const range&))
     static constexpr bool value = has_method_push_column_v<T>;
 };
 

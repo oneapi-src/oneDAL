@@ -24,9 +24,9 @@ typedef void (*functype)(int i, const void *a);
 
 extern "C" {
 ONEDAL_EXPORT void _daal_threader_for_oneapi(int n,
-                                                 int threads_request,
-                                                 const void *a,
-                                                 oneapi::dal::preview::functype func);
+                                             int threads_request,
+                                             const void *a,
+                                             oneapi::dal::preview::functype func);
 }
 
 namespace oneapi::dal::preview::load_graph::detail {

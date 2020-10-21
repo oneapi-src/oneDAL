@@ -37,22 +37,22 @@ struct is_homogen_table_builder_impl {
     ONEDAL_SIMPLE_HAS_METHOD_TRAIT(homogen_table, build, ())
     ONEDAL_HAS_METHOD_TRAIT(void, reset, (homogen_table && t), reset_from_table)
     ONEDAL_HAS_METHOD_TRAIT(void,
-                                reset,
-                                (const array<byte_t>& data,
-                                 std::int64_t row_count,
-                                 std::int64_t column_count),
-                                reset_from_array)
+                            reset,
+                            (const array<byte_t>& data,
+                             std::int64_t row_count,
+                             std::int64_t column_count),
+                            reset_from_array)
     ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void, set_data_type, (data_type dt))
     ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void, set_feature_type, (feature_type ft))
     ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void,
-                                       allocate,
-                                       (std::int64_t row_count, std::int64_t column_count))
+                                   allocate,
+                                   (std::int64_t row_count, std::int64_t column_count))
     ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void, set_layout, (data_layout layout))
     ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void,
-                                       copy_data,
-                                       (const void* data,
-                                        std::int64_t row_count,
-                                        std::int64_t column_count))
+                                   copy_data,
+                                   (const void* data,
+                                    std::int64_t row_count,
+                                    std::int64_t column_count))
 
     static constexpr bool value_host =
         has_method_build_v<T> && has_method_reset_from_table_v<T> &&
@@ -62,12 +62,12 @@ struct is_homogen_table_builder_impl {
 
 #ifdef ONEDAL_DATA_PARALLEL
     ONEDAL_HAS_METHOD_TRAIT(void,
-                                allocate,
-                                (const sycl::queue& queue,
-                                 std::int64_t row_count,
-                                 std::int64_t column_count,
-                                 sycl::usm::alloc kind),
-                                allocate_dpc)
+                            allocate,
+                            (const sycl::queue& queue,
+                             std::int64_t row_count,
+                             std::int64_t column_count,
+                             sycl::usm::alloc kind),
+                            allocate_dpc)
     ONEDAL_HAS_METHOD_TRAIT(
         void,
         copy_data,

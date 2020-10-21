@@ -129,10 +129,10 @@ undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, 
 }
 
 template class ONEDAL_EXPORT undirected_adjacency_array_graph<empty_value,
-                                                                  empty_value,
-                                                                  empty_value,
-                                                                  std::int32_t,
-                                                                  std::allocator<char>>;
+                                                              empty_value,
+                                                              empty_value,
+                                                              std::int32_t,
+                                                              std::allocator<char>>;
 
 using graph_default = undirected_adjacency_array_graph<empty_value,
                                                        empty_value,
@@ -144,12 +144,10 @@ namespace detail {
 
 template ONEDAL_EXPORT typename graph_default::pimpl &get_impl(graph_default &graph);
 
-template ONEDAL_EXPORT const typename graph_default::pimpl &get_impl(
-    const graph_default &graph);
+template ONEDAL_EXPORT const typename graph_default::pimpl &get_impl(const graph_default &graph);
 
 template <typename Graph>
-ONEDAL_EXPORT auto get_vertex_count_impl(const Graph &graph) noexcept
-    -> vertex_size_type<Graph> {
+ONEDAL_EXPORT auto get_vertex_count_impl(const Graph &graph) noexcept -> vertex_size_type<Graph> {
     const auto &layout = detail::get_impl(graph);
     return layout->_vertex_count;
 }
@@ -168,7 +166,7 @@ template ONEDAL_EXPORT auto get_edge_count_impl(const graph_default &graph) noex
 
 template <typename Graph>
 ONEDAL_EXPORT auto get_vertex_degree_impl(const Graph &graph,
-                                              const vertex_type<Graph> &vertex) noexcept
+                                          const vertex_type<Graph> &vertex) noexcept
     -> edge_size_type<Graph> {
     const auto &layout = detail::get_impl(graph);
     return layout->_degrees[vertex];
@@ -180,7 +178,7 @@ template ONEDAL_EXPORT auto get_vertex_degree_impl(
 
 template <typename Graph>
 ONEDAL_EXPORT auto get_vertex_neighbors_impl(const Graph &graph,
-                                                 const vertex_type<Graph> &vertex) noexcept
+                                             const vertex_type<Graph> &vertex) noexcept
     -> const_edge_range_type<Graph> {
     const auto &layout = detail::get_impl(graph);
     const_edge_iterator_type<Graph> vertex_neighbors_begin =
