@@ -89,6 +89,11 @@ public:
             return services::throwIfPossible(services::ErrorIncorrectNumberOfFeatures);
         }
 
+        if (getNumberOfRows() != bf.size())
+        {
+            return services::throwIfPossible(services::ErrorIncorrectParameter);
+        }
+
         _ddict->setFeature<T>(idx);
 
         if (_arrays[idx].empty() && bf)
