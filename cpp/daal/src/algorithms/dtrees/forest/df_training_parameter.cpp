@@ -64,7 +64,7 @@ Status checkImpl(const decision_forest::training::interface2::Parameter & prm)
 {
     DAAL_CHECK_EX(prm.nTrees, ErrorIncorrectParameter, ParameterName, nTreesStr());
     DAAL_CHECK_EX(prm.minObservationsInLeafNode, ErrorIncorrectParameter, ParameterName, minObservationsInLeafNodeStr());
-    DAAL_CHECK_EX(prm.minObservationsInSplitNode, ErrorIncorrectParameter, ParameterName, minObservationsInSplitNodeStr());
+    DAAL_CHECK_EX(prm.minObservationsInSplitNode > 1, ErrorIncorrectParameter, ParameterName, minObservationsInSplitNodeStr());
     DAAL_CHECK_EX((prm.minWeightFractionInLeafNode >= 0.0) && (prm.minWeightFractionInLeafNode <= 0.5), ErrorIncorrectParameter, ParameterName,
                   minWeightFractionInLeafNodeStr());
     DAAL_CHECK_EX(prm.minImpurityDecreaseInSplitNode >= 0.0, ErrorIncorrectParameter, ParameterName, minImpurityDecreaseInSplitNodeStr());
