@@ -72,7 +72,7 @@ public:
         else if (_valuesBuffer)
         {
             services::Status status;
-            auto hostSharedPtr = _valuesBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
+            services::SharedPtr<DataType> hostSharedPtr = _valuesBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
             services::throwIfPossible(status);
 
             return hostSharedPtr.get();
@@ -85,7 +85,7 @@ public:
         if (_colsBuffer)
         {
             services::Status status;
-            auto hostSharedPtr = _colsBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
+            services::SharedPtr<size_t> hostSharedPtr = _colsBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
             services::throwIfPossible(status);
 
             return hostSharedPtr.get();
@@ -98,7 +98,7 @@ public:
         if (_rowsBuffer)
         {
             services::Status status;
-            auto hostSharedPtr = _rowsBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
+            services::SharedPtr<size_t> hostSharedPtr = _rowsBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
             services::throwIfPossible(status);
 
             return hostSharedPtr.get();
@@ -161,7 +161,7 @@ public:
         else if (_valuesBuffer)
         {
             services::Status status;
-            auto hostSharedPtr = _valuesBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
+            services::SharedPtr<DataType> hostSharedPtr = _valuesBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
             services::throwIfPossible(status);
             return hostSharedPtr;
         }
@@ -176,7 +176,7 @@ public:
         if (_colsBuffer)
         {
             services::Status status;
-            auto hostSharedPtr = _colsBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
+            services::SharedPtr<size_t> hostSharedPtr = _colsBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
             services::throwIfPossible(status);
             return hostSharedPtr;
         }
@@ -191,7 +191,7 @@ public:
         if (_rowsBuffer)
         {
             services::Status status;
-            auto hostSharedPtr = _rowsBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
+            services::SharedPtr<size_t> hostSharedPtr = _rowsBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
             services::throwIfPossible(status);
             return hostSharedPtr;
         }
