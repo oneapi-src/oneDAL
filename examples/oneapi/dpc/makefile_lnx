@@ -19,36 +19,29 @@
 ##******************************************************************************
 
 help:
-	@echo "Usage: make {lib|so|libintel64|sointel64|help}"
-	@echo "lib is alias for libintel64, so is alias for sointel64"
+	@echo "Usage: make {lib|so|help}"
 	@echo "[example=name] [compiler=compiler_name] [mode=mode_name]"
 	@echo
-	@echo "name              - example name. Please see daal.lst file"
+	@echo "name              - example name. Please see onedal.lst file"
 	@echo
-	@echo "compiler_name     - currently can be dpc++ only that stands
-	@echo "                    for oneAPI DPC++ Compiler."
+	@echo "compiler_name     - currently can be dpcpp only that stands
+	@echo "                    for Intel(R) oneAPI DPC++ Compiler."
 	@echo
 	@echo "mode_name         - can be build or run. Default is run"
 
 ##------------------------------------------------------------------------------
 ## examples of using:
 ##
-## make lib example=pca_cor_dense_batch - build  by Intel(R) C++ Compiler (as default)
-##                                 and run pca_cor_dense_batch example, static linking
+## make lib example=pca_cor_dense_batch   - build by Intel(R) oneAPI DPC++ Compiler (as default)
+##                                          and run pca_cor_dense_batch example, static linking
 ##
-## make so compiler=gnu          - build by GNU C++ compiler and run all examples,
-##                                 dynamic linking
+## make so                                - build by Intel(R) oneAPI DPC++ Compiler (as default)
+##                                          and run all examples, dynamic linking
 ##
-## make libintel64 compiler=gnu  - build by GNU C++ compiler and run all examples,
-##                                 static linking
+## make so mode=build                     - build only (not run) by Intel(R) oneAPI DPC++ Compiler
+##                                          (as default) all examples, dynamic linking
 ##
-## make sointel64                - build by Intel(R) C++ Compiler (as default)
-##                                 and run all examples, dynamic linking
-##
-## make sointel64 mode=build     - build only (not run) by Intel(R) C++ Compiler
-##                                 (as default) all examples, dynamic linking
-##
-## make help                     - show help
+## make help                              - show help
 ##
 ##------------------------------------------------------------------------------
 
@@ -58,8 +51,8 @@ ifndef example
     example = $(ONEDAL)
 endif
 
-ifneq ($(compiler),dpc++)
-    override compiler = dpc++
+ifneq ($(compiler),dpcpp)
+    override compiler = dpcpp
 endif
 
 ifneq ($(mode),build)
@@ -115,7 +108,7 @@ LOPTS := -L"$(DAAL_PATH)" \
 RES_DIR=_results/$(compiler)_intel64_$(threading)_$(RES_EXT)
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run,$(mode)), $(addsuffix .res,$(example)), $(addsuffix .exe,$(example))))
 
-ifeq ($(compiler),dpc++)
+ifeq ($(compiler),dpcpp)
     gcc_toolchain := $(realpath $(dir $(shell which gcc))/..)
     CC = dpcpp --gcc-toolchain=$(gcc_toolchain)
 endif
