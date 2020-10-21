@@ -244,6 +244,11 @@ protected:
 
         freeDataMemoryImpl();
 
+        if (!getNumberOfRows() || !getNumberOfColumns())
+        {
+            return status;
+        }
+
         if (isCpuContext())
         {
             status |= allocateDataMemoryOnCpu();
@@ -251,18 +256,6 @@ protected:
         }
         else
         {
-            if (!getNumberOfColumns())
-            {
-                status |= services::Status(services::ErrorIncorrectNumberOfFeatures);
-                return services::throwIfPossible(status);
-            }
-
-            if (!getNumberOfRows())
-            {
-                status |= services::Status(services::ErrorIncorrectNumberOfObservations);
-                return services::throwIfPossible(status);
-            }
-
             status |= checkSizeOverflow(getNumberOfColumns(), getNumberOfRows());
             if (!status) return services::throwIfPossible(status);
 
