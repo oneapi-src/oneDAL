@@ -19,8 +19,7 @@
 ##******************************************************************************
 
 help:
-	@echo "Usage: nmake {{lib|dll|libintel64|dllintel64|help}}"
-	@echo "lib is alias for libintel64, dll is alias for dllintel64"
+	@echo "Usage: nmake {{lib|dll|help}}"
 	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
 	@echo
 	@echo "name              - example name."
@@ -35,26 +34,26 @@ help:
 ##------------------------------------------------------------------------------
 ## examples of using:
 ##
-## nmake lib example=kmeans_dense_batch+  	- build by Intel(R) C++ Compiler (as default)
-##                                 				  and run kmeans_dense_batch example for 32-bit
-##                                 				  applications, static linking
+## nmake lib example=kmeans_dense_batch+         - build by Intel(R) C++ Compiler (as default)
+##                                                 and run kmeans_dense_batch example for 32-bit
+##                                                 applications, static linking
 ##
-## nmake dll compiler=msvs     				- build by Microsoft(R) C++ compiler and run all examples
-##                                 				  of Intel(R) DAAL dynamic linking
+## nmake dll compiler=msvs                       - build by Microsoft(R) C++ compiler and run all examples
+##                                                 of Intel(R) DAAL dynamic linking
 ##
-## nmake libintel64 example=kmeans_dense_batch+ - build by Intel(R) C++ Compiler (as default)
-##                                 				  and run kmeans_dense_batch example for 64-bit
-##                                 				  applications, static linking
+## nmake lib example=kmeans_dense_batch+         - build by Intel(R) C++ Compiler (as default)
+##                                                 and run kmeans_dense_batch example for 64-bit
+##                                                 applications, static linking
 ##
-## nmake dllintel64                				- build by Intel(R) C++ Compiler (as default)
-##                                 				  and run all examples for Intel(R)64 processor
-##                                 				  family applications, dynamic linking
+## nmake dll                                     - build by Intel(R) C++ Compiler (as default)
+##                                                 and run all examples for Intel(R) 64 processor
+##                                                 family applications, dynamic linking
 ##
-## nmake dllintel64 mode=build     				- build only (not run) by Intel(R) C++ Compiler
-##                                 				  (as default) all examples for Intel(R)64
-##                                				  processor family applications, dynamic linking
+## nmake dll mode=build                          - build only (not run) by Intel(R) C++ Compiler
+##                                                 (as default) all examples for Intel(R)64
+##                                                 processor family applications, dynamic linking
 ##
-## nmake help                     				- show help
+## nmake help                                    - show help
 ##
 ##------------------------------------------------------------------------------
 

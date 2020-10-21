@@ -36,7 +36,7 @@ namespace oneapi
 {
 namespace internal
 {
-template class TransformKernelOneAPI<DAAL_FPTYPE, defaultDense>;
+template class DAAL_EXPORT TransformKernelOneAPI<DAAL_FPTYPE, defaultDense>;
 
 } // namespace internal
 } // namespace oneapi

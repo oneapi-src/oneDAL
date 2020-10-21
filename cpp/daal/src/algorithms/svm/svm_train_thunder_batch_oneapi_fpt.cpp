@@ -34,7 +34,7 @@ namespace training
 {
 namespace internal
 {
-template struct SVMTrainOneAPI<DAAL_FPTYPE, thunder>;
+template struct DAAL_EXPORT SVMTrainOneAPI<DAAL_FPTYPE, thunder>;
 
 } // namespace internal
 } // namespace training
