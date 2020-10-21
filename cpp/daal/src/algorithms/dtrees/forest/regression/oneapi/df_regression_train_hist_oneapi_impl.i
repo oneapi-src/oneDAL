@@ -728,7 +728,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
     _totalBins = indexedFeatures.totalBins();
     /* calculating the maximal number of bins for feature among all features */
     {
-        auto binOffsetsHost = indexedFeatures.binOffsets().template get<int32_t>().toHost(ReadWriteMode::readOnly, status);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(indexedFeatures.binOffsets(), uint32_t, _nFeatures + 1);
+        auto binOffsetsHost = indexedFeatures.binOffsets().template get<uint32_t>().toHost(ReadWriteMode::readOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         _nMaxBinsAmongFtrs = 0;
@@ -958,6 +959,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
 
         for (size_t i = 0; i < _nFeatures; i++)
         {
+            DAAL_ASSERT_UNIVERSAL_BUFFER(indexedFeatures.binBorders(i), algorithmFPType, par.maxBins);
             binValuesHost[i] = indexedFeatures.binBorders(i).template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, status);
             DAAL_CHECK_STATUS_VAR(status);
             binValues[i] = binValuesHost[i].get();
@@ -1005,7 +1007,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
 
     if (par.varImportance != decision_forest::training::none && par.varImportance != decision_forest::training::MDA_Raw)
     {
-        finalizeVarImp(par, varImpBlock.getBlockPtr(), varImpVariance.get(), _nFeatures);
+        DAAL_CHECK_STATUS_VAR(finalizeVarImp(par, varImpBlock.getBlockPtr(), varImpVariance.get(), _nFeatures));
     }
 
     if (mdiRequired || mdaRequired) DAAL_CHECK_STATUS_VAR(varImpResPtr->releaseBlockOfRows(varImpBlock));
