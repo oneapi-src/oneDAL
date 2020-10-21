@@ -42,6 +42,7 @@
 #include "src/services/service_utils.h"
 #include "src/services/daal_strings.h"
 #include "services/internal/sycl/types.h"
+#include "services/internal/sycl/daal_defines_sycl.h"
 
 using namespace daal::services;
 using namespace daal::services::internal;
@@ -356,6 +357,14 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesWei
         DAAL_ASSERT(nTrees <= _int32max);
         DAAL_ASSERT(maxTreeSize <= _int32max);
 
+        DAAL_ASSERT(srcBuffer.size() == nRows * nCols);
+
+        DAAL_ASSERT_UNIVERSAL_BUFFER(featureIndexList, int32_t, maxTreeSize * nTrees);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(leftOrClassTypeList, int32_t, maxTreeSize * nTrees);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(featureValueList, algorithmFPType, maxTreeSize * nTrees);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(classProba, double, maxTreeSize * nTrees * _nClasses);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(obsClassHist, algorithmFPType, nRows * _nClasses * _nTreeGroups);
+
         for (size_t procTrees = 0; procTrees < nTrees; procTrees += _nTreeGroups)
         {
             KernelArguments args(12, status);
@@ -425,6 +434,13 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesUnw
         DAAL_ASSERT(nTrees <= _int32max);
         DAAL_ASSERT(maxTreeSize <= _int32max);
 
+        DAAL_ASSERT(srcBuffer.size() == nRows * nCols);
+
+        DAAL_ASSERT_UNIVERSAL_BUFFER(featureIndexList, int32_t, maxTreeSize * nTrees);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(leftOrClassTypeList, int32_t, maxTreeSize * nTrees);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(featureValueList, algorithmFPType, maxTreeSize * nTrees);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(obsClassHist, algorithmFPType, nRows * _nClasses * _nTreeGroups);
+
         for (size_t procTrees = 0; procTrees < nTrees; procTrees += _nTreeGroups)
         {
             KernelArguments args(11, status);
@@ -467,6 +483,9 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::reduceClassHist(c
         DAAL_ASSERT(nRows <= _int32max);
         DAAL_ASSERT(nTrees <= _int32max);
 
+        DAAL_ASSERT_UNIVERSAL_BUFFER(obsClassHist, algorithmFPType, nRows * _nClasses * _nTreeGroups);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(classHist, algorithmFPType, nRows * _nClasses);
+
         KernelArguments args(4, status);
         DAAL_CHECK_STATUS_VAR(status);
         args.set(0, obsClassHist, AccessModeIds::read);
@@ -507,6 +526,9 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::determineWinners(
 
     {
         DAAL_ASSERT(nRows <= _int32max);
+
+        DAAL_ASSERT(resBuffer.size() == nRows * 1);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(classHist, algorithmFPType, nRows * _nClasses);
 
         KernelArguments args(3, status);
         DAAL_CHECK_STATUS_VAR(status);

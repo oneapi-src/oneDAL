@@ -41,6 +41,7 @@
 #include "src/services/service_arrays.h"
 #include "src/services/service_utils.h"
 #include "services/internal/sycl/types.h"
+#include "services/internal/sycl/daal_defines_sycl.h"
 
 using namespace daal::services;
 using namespace daal::services::internal;
@@ -281,6 +282,13 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesGro
         DAAL_ASSERT(nTrees <= _int32max);
         DAAL_ASSERT(maxTreeSize <= _int32max);
 
+        DAAL_ASSERT(srcBuffer.size() == nRows * nCols);
+
+        DAAL_ASSERT_UNIVERSAL_BUFFER(featureIndexList, int32_t, maxTreeSize * nTrees);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(leftOrClassTypeList, int32_t, maxTreeSize * nTrees);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(featureValueList, algorithmFPType, maxTreeSize * nTrees);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(obsResponses, algorithmFPType, nRows * _nTreeGroups);
+
         for (size_t procTrees = 0; procTrees < nTrees; procTrees += _nTreeGroups)
         {
             KernelArguments args(10, status);
@@ -322,6 +330,8 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::reduceResponse(co
     {
         DAAL_ASSERT(nRows <= _int32max);
         DAAL_ASSERT(nTrees <= _int32max);
+        DAAL_ASSERT(resObsResponse.size() == nRows * 1);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(obsResponses, algorithmFPType, nRows * _nTreeGroups);
 
         KernelArguments args(5, status);
         DAAL_CHECK_STATUS_VAR(status);
