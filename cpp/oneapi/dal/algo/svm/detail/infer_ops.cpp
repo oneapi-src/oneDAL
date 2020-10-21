@@ -22,7 +22,7 @@ namespace oneapi::dal::svm::detail {
 using oneapi::dal::detail::host_policy;
 
 template <typename Float, typename Task, typename Method>
-struct ONEDAL_EXPORT infer_ops_dispatcher<host_policy, Float, Task, Method> {
+struct infer_ops_dispatcher<host_policy, Float, Task, Method> {
     infer_result operator()(const host_policy& ctx,
                             const descriptor_base& desc,
                             const infer_input& input) const {

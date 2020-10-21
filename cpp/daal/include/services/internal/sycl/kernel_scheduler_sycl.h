@@ -558,9 +558,9 @@ private:
         case ExecutionTargetIds::device: return scheduleOnDevice(range, kernel, args, status);
 
         case ExecutionTargetIds::host: status |= services::ErrorMethodNotImplemented; return;
-        }
 
-        DAAL_ASSERT(!"Unexpected execution target");
+        default: DAAL_ASSERT(!"Unexpected execution target");
+        }
     }
 
     template <typename Range>

@@ -22,7 +22,7 @@ namespace oneapi::dal::pca::detail {
 using oneapi::dal::detail::host_policy;
 
 template <typename Float, typename Method, typename Task>
-struct ONEDAL_EXPORT train_ops_dispatcher<host_policy, Float, Method, Task> {
+struct train_ops_dispatcher<host_policy, Float, Method, Task> {
     train_result<Task> operator()(const host_policy& ctx,
                                   const descriptor_base<Task>& desc,
                                   const train_input<Task>& input) const {

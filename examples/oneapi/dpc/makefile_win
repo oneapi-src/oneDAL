@@ -20,35 +20,27 @@
 
 help:
 	@echo "Usage: nmake {{dll|help}}"
-	@echo "[example=name] [compiler=compiler_name] [mode=mode_name]"
+	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
 	@echo
 	@echo "name              - example name."
 	@echo
-	@echo "compiler_name     - the only supported compiler is clang (default value)"
-	@echo "                    Intel(R) oneAPI DPC++ compiler"
+	@echo "compiler_name     - the only supported compiler is dpcpp (default value)"
+	@echo "                    Intel(R) oneAPI DPC++ Compiler"
+	@echo
+	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
 	@echo
 	@echo "mode_name         - can be build or run. Default is run."
 
 ##------------------------------------------------------------------------------
 ## examples of using:
 ##
-## nmake dll example=kmeans_dense_batch+ - build by Intel(R) oneAPI Compiler (as default)
-##                                         and run kmeans_dense_batch example for 64-bit
-##                                         applications, dynamic linking
+## make dll                               - build by Intel(R) oneAPI DPC++ Compiler (as default)
+##                                          and run all examples, dynamic linking
 ##
-## nmake dll compiler=clang              - build by Intel(R) oneAPI Compiler (as default)
-##                                         and run all examples of Intel(R) DAAL for
-##                                         64-bit applications, dynamic linking
+## make dll mode=build                    - build only (not run) by Intel(R) oneAPI DPC++ Compiler
+##                                          (as default) all examples, dynamic linking
 ##
-## nmake dll                             - build by Intel(R) oneAPI Compiler (as default)
-##                                         and run all examples for Intel(R) 64 processor
-##                                         family applications, dynamic linking
-##
-## nmake dll mode=build                  - build only (not run) by Intel(R) oneAPI Compiler
-##                                         (as default) all examples for Intel(R) 64
-##                                         processor family applications, dynamic linking
-##
-## nmake help                            - show help
+## make help                              - show help
 ##
 ##------------------------------------------------------------------------------
 
@@ -58,8 +50,8 @@ help:
 example = $(EXAMPLES_LIST)
 !ENDIF
 
-!IFNDEF compiler
-compiler = clang
+!IF ("$(compiler)"!="dpcpp")
+compiler = dpcpp
 !ENDIF
 
 !IFNDEF mode
@@ -84,38 +76,35 @@ RES = $(example:+=.exe)
 RES = $(example:+=.res)
 !ENDIF
 
-!IF ("$(compiler)"=="clang")
-CC=clang-cl
-COPTS=/clang:-fsycl /EHs
+!IF ("$(compiler)"=="dpcpp" || "$(compiler)"=="clang")
+CC=dpcpp
+COPTS=/W3 /EHsc /std:c++17
 OUT_OPTS=/Fe$(RES_DIR)
-RT_LIB=/link /ignore:4078 OpenCL.lib "$(DAAL_PATH)\onedal_sycl.lib"
 CLEAN=
 !ENDIF
 
-COPTS=-Wall -w $(COPTS)
-
-!IF ("$(_IA)"=="intel64")
-COPTS=-m64 $(COPTS)
-!ENDIF
-
 !IF ("$(RES_EXT)"=="lib")
+DAAL_LIB="$(DAAL_PATH)\onedal_core.lib" "$(DAAL_PATH)\onedal_dpc.lib" "$(DAAL_PATH)\onedal_sycl.lib"
+RT_LIB=/link /ignore:4078 OpenCL.lib
 !IF ("$(threading)"=="sequential")
-ERROR  Sequential version is not supported. To run sequential version please refer to 'examples/daal/cpp'
+DAAL_LIB_T = "$(DAAL_PATH)\onedal_sequential.lib"
 !ELSE
 threading = parallel
 DAAL_LIB_T = "$(DAAL_PATH)\onedal_thread.lib"
 EXT_LIB = tbb.lib tbbmalloc.lib
 !ENDIF
+
+!ELSE
+DAAL_LIB="$(DAAL_PATH)\onedal_dpc_dll.lib"
+RT_LIB=/link /ignore:4078
 !ENDIF
 
-DAAL_LIB = "$(DAAL_PATH)\onedal_core$(EXT)" $(DAAL_LIB_T)
-
-COPTS = -Isource\utils $(COPTS) $(OUT_OPTS)
-LOPTS = $(DAAL_LIB) $(EXT_LIB) $(RT_LIB)
+COPTS = /Isource /I"$(DAALROOT)\include" $(COPTS) $(OUT_OPTS)
+LOPTS = $(DAAL_LIB) $(DAAL_LIB_T) $(EXT_LIB) $(RT_LIB)
 RES_DIR  =_results\$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
 
 dll dllintel64:
-	nmake comm_func $(RES) EXT=_dll.lib _IA=intel64 RES_EXT=dll compiler=$(compiler) threading=$(threading)
+	nmake comm_func $(RES) _IA=intel64 RES_EXT=dll compiler=$(compiler) threading=$(threading)
 
 comm_func:
 	if not exist _results md _results

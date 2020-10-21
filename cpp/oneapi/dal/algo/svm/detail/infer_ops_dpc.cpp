@@ -22,7 +22,7 @@
 namespace oneapi::dal::svm::detail {
 using oneapi::dal::detail::data_parallel_policy;
 template <typename Float, typename Task, typename Method>
-struct ONEDAL_EXPORT infer_ops_dispatcher<data_parallel_policy, Float, Task, Method> {
+struct infer_ops_dispatcher<data_parallel_policy, Float, Task, Method> {
     infer_result operator()(const data_parallel_policy& ctx,
                             const descriptor_base& params,
                             const infer_input& input) const {

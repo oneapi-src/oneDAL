@@ -19,7 +19,7 @@
 ##******************************************************************************
 
 help:
-	@echo "Usage: nmake {{libia32|dllia32|libintel64|dllintel64|help}}"
+	@echo "Usage: nmake {{lib|dll|help}}"
 	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
 	@echo
 	@echo "name              - example name."
@@ -34,27 +34,26 @@ help:
 ##------------------------------------------------------------------------------
 ## examples of using:
 ##
-## nmake libia32 example=kmeans_dense_batch+  	- build by Intel(R) C++ Compiler (as default)
-##                                 				  and run kmeans_dense_batch example for 32-bit
-##                                 				  applications, static linking
+## nmake lib example=kmeans_dense_batch+  - build by Intel(R) C++ Compiler (as default)
+##                                          and run kmeans_dense_batch example for 32-bit
+##                                          applications, static linking
 ##
-## nmake dllia32 compiler=msvs     				- build by Microsoft(R) C++ compiler and run all examples
-##                                 				  of Intel(R) DAAL for
-##                                 				  32-bit applications, dynamic linking
+## nmake dll compiler=msvs                - build by Microsoft(R) C++ compiler and run all examples
+##                                          of oneDAL for 64-bit applications, dynamic linking
 ##
-## nmake libintel64 example=kmeans_dense_batch+ - build by Intel(R) C++ Compiler (as default)
-##                                 				  and run kmeans_dense_batch example for 64-bit
-##                                 				  applications, static linking
+## nmake lib example=kmeans_dense_batch+  - build by Intel(R) C++ Compiler (as default)
+##                                          and run kmeans_dense_batch example for 64-bit
+##                                          applications, static linking
 ##
-## nmake dllintel64                				- build by Intel(R) C++ Compiler (as default)
-##                                 				  and run all examples for Intel(R)64 processor
-##                                 				  family applications, dynamic linking
+## nmake dll                              - build by Intel(R) C++ Compiler (as default)
+##                                          and run all examples for Intel(R) 64 processor
+##                                          family applications, dynamic linking
 ##
-## nmake dllintel64 mode=build     				- build only (not run) by Intel(R) C++ Compiler
-##                                 				  (as default) all examples for Intel(R)64
-##                                				  processor family applications, dynamic linking
+## nmake dll mode=build                   - build only (not run) by Intel(R) C++ Compiler
+##                                          (as default) all examples for Intel(R) 64
+##                                          processor family applications, dynamic linking
 ##
-## nmake help                     				- show help
+## nmake help                             - show help
 ##
 ##------------------------------------------------------------------------------
 
@@ -91,14 +90,6 @@ RES = $(example:+=.res)
 !ENDIF
 
 COMMON_COPTS=/W3 /EHsc
-
-!IF ("$(_IA)"=="ia32")
-ARCH_OPT=-Qm32
-!ENDIF
-
-!IF ("$(_IA)"=="intel64")
-ARCH_OPT=-Qm64
-!ENDIF
 
 !IF ("$(compiler)"=="msvs")
 CC=cl
@@ -139,13 +130,9 @@ RES_DIR = _results\$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
 COPTS = /Isource /I"$(DAALROOT)\include" $(COPTS) /Fe$(RES_DIR)\\
 LOPTS = $(DAAL_LIB) $(EXT_LIB)
 
-libia32:
-	nmake comm_func $(RES) $(CLEAN) EXT=.lib _IA=ia32 RES_EXT=lib compiler=$(compiler) threading=$(threading)
-dllia32:
-	nmake comm_func $(RES) $(CLEAN) EXT=_dll.lib _IA=ia32 RES_EXT=dll compiler=$(compiler) threading=$(threading)
-libintel64:
+lib libintel64:
 	nmake comm_func $(RES) $(CLEAN) EXT=.lib _IA=intel64 RES_EXT=lib compiler=$(compiler) threading=$(threading)
-dllintel64:
+dll dllintel64:
 	nmake comm_func $(RES) $(CLEAN) EXT=_dll.lib _IA=intel64 RES_EXT=dll compiler=$(compiler) threading=$(threading)
 
 comm_func:

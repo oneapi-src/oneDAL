@@ -56,8 +56,8 @@ private:
 };
 
 template <typename Float, typename Method>
-class ONEDAL_EXPORT kernel_function<linear_kernel::descriptor<Float, Method>>
-        : public base, public kernel_function_iface {
+class kernel_function<linear_kernel::descriptor<Float, Method>> : public base,
+                                                                  public kernel_function_iface {
 public:
     using kernel_t = linear_kernel::descriptor<Float, Method>;
     explicit kernel_function(const kernel_t &kernel);
@@ -69,8 +69,8 @@ private:
 };
 
 template <typename Float, typename Method>
-class ONEDAL_EXPORT kernel_function<rbf_kernel::descriptor<Float, Method>>
-        : public base, public kernel_function_iface {
+class kernel_function<rbf_kernel::descriptor<Float, Method>> : public base,
+                                                               public kernel_function_iface {
 public:
     using kernel_t = rbf_kernel::descriptor<Float, Method>;
     explicit kernel_function(const kernel_t &kernel);

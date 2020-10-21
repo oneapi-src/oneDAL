@@ -23,7 +23,7 @@ namespace oneapi::dal::knn::detail {
 using oneapi::dal::detail::data_parallel_policy;
 
 template <typename Float, typename Method, typename Task>
-struct ONEDAL_EXPORT train_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
+struct train_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
     train_result<Task> operator()(const data_parallel_policy& ctx,
                                   const descriptor_base<Task>& params,
                                   const train_input<Task>& input) const {

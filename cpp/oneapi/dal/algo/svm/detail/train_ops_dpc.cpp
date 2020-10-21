@@ -23,7 +23,7 @@ namespace oneapi::dal::svm::detail {
 using oneapi::dal::detail::data_parallel_policy;
 
 template <typename Float, typename Task, typename Method>
-struct ONEDAL_EXPORT train_ops_dispatcher<data_parallel_policy, Float, Task, Method> {
+struct train_ops_dispatcher<data_parallel_policy, Float, Task, Method> {
     train_result operator()(const data_parallel_policy& ctx,
                             const descriptor_base& params,
                             const train_input& input) const {
