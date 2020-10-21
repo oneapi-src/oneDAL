@@ -31,6 +31,7 @@ load("@onedal//dev/bazel:utils.bzl",
 load("@onedal//dev/bazel/config:config.bzl",
     "CpuInfo",
 )
+load("@onedal//dev/bazel:cc.bzl", "ModuleInfo")
 
 def dal_module(name, hdrs=[], srcs=[],
                dal_deps=[], extra_deps=[],
@@ -92,7 +93,7 @@ def dal_public_includes(name, dal_deps=[], **kwargs):
         name = name,
         deps = dal_deps + _get_dpc_deps(dal_deps),
         include = [
-            "oneapi/dal/",
+            "oneapi/",
         ],
         exclude = [
             "backend/",
@@ -177,7 +178,9 @@ def dal_test(name, hdrs=[], srcs=[],
             "@config//:release_dynamic_test_link_mode": [
                 "@onedal_release//:onedal_dynamic",
             ],
-        }) + ([
+        }) +  ([
+            "@onedal//cpp/oneapi/dal:include_root"
+        ]) + ([
             "@onedal//cpp/oneapi/dal/test:common",
         ] if catch2 else []),
         extra_deps = _select({
@@ -334,6 +337,72 @@ dal_generate_cpu_dispatcher = rule(
         "_cpus": attr.label(
             default = "@config//:cpu",
         ),
+    },
+)
+
+def dal_global_header_test(name, algo_dir, algo_exclude, dal_deps=[]):
+    _generate_global_header_test_cpp(
+        name = "_" + name,
+        algo_dir = algo_dir,
+        algo_exclude = algo_exclude,
+        deps = dal_deps,
+    )
+    dal_test(
+        name = name,
+        srcs = [
+            ":_" + name,
+        ],
+        dal_deps = dal_deps,
+    )
+
+def _collect_algorithm_names(algo_dir, deps):
+    algo_names = []
+    for dep in deps:
+        if not ModuleInfo in dep:
+            continue
+        headers = dep[ModuleInfo].compilation_context.headers.to_list()
+        for header in headers:
+            header_path = header.path
+            header_name = paths.basename(header_path)
+            if (algo_dir + "/" + header_name) in header_path:
+                algo_name, _ = paths.split_extension(header_name)
+                algo_names.append(algo_name)
+    return algo_names
+
+def _generate_global_header_test_cpp_impl(ctx):
+    algo_dir = paths.normalize(ctx.attr.algo_dir)
+    algo_names = _collect_algorithm_names(algo_dir, ctx.attr.deps)
+    filtered_algo_names = sets.to_list(
+        sets.difference(sets.make(algo_names),
+                        sets.make(ctx.attr.algo_exclude))
+    )
+    test_file = ctx.actions.declare_file("{}.cpp".format(ctx.label.name))
+    content = "#include \"oneapi/dal.hpp\"\n"
+    # Add comments for people who may open this file to understand root cause of an error
+    content += (
+        "\n" +
+        "// This is automatically generated file for testing `dal.hpp`.\n" +
+        "// If you encountered error compiling this file, it means not all the algorithms\n" +
+        "// declared in `{}` are included to `dal.hpp`. Make sure all algorithm are included\n".format(algo_dir) +
+        "// or add exception to `algo_exclude` list in `{}`.\n".format(ctx.build_file_path) +
+        "\n"
+    )
+    for algo_name in filtered_algo_names:
+        content += "using namespace oneapi::dal::{};\n".format(algo_name)
+    # Linkers may complain about empty object files, so
+    # add dummy function. It's more safe to declare static function, but
+    # compiler warns about unused functions in this case
+    content += "\nvoid __headers_test_dummy__() {}\n"
+    ctx.actions.write(test_file, content)
+    return [ DefaultInfo(files=depset([ test_file ])) ]
+
+_generate_global_header_test_cpp = rule(
+    implementation = _generate_global_header_test_cpp_impl,
+    output_to_genfiles = True,
+    attrs = {
+        "algo_dir": attr.string(mandatory=True),
+        "algo_exclude": attr.string_list(),
+        "deps": attr.label_list(mandatory=True),
     },
 )
 
