@@ -327,8 +327,10 @@ services::Status LowOrderMomentsOnlineTaskOneAPI<algorithmFPType, scope>::comput
             range.local(localRange, status);
             DAAL_CHECK_STATUS_VAR(status);
 
-            KernelArguments args(3 + TaskInfoOnline<algorithmFPType, scope>::nBuffers
-                                 + (TaskInfoOnline<algorithmFPType, scope>::isRowsInBlockInfoRequired ? 1 : 0));
+            KernelArguments args(
+                3 + TaskInfoOnline<algorithmFPType, scope>::nBuffers + (TaskInfoOnline<algorithmFPType, scope>::isRowsInBlockInfoRequired ? 1 : 0),
+                status);
+            DAAL_CHECK_STATUS_VAR(status);
 
             unsigned int argsI = 0;
             args.set(argsI++, dataBD.getBuffer(), AccessModeIds::read);
@@ -366,7 +368,9 @@ services::Status LowOrderMomentsOnlineTaskOneAPI<algorithmFPType, scope>::comput
             DAAL_CHECK_STATUS_VAR(status);
 
             KernelArguments args(2 + TaskInfoOnline<algorithmFPType, scope>::nPartialResults + TaskInfoOnline<algorithmFPType, scope>::nBuffers
-                                 + (TaskInfoOnline<algorithmFPType, scope>::isRowsInBlockInfoRequired ? 1 : 0));
+                                     + (TaskInfoOnline<algorithmFPType, scope>::isRowsInBlockInfoRequired ? 1 : 0),
+                                 status);
+            DAAL_CHECK_STATUS_VAR(status);
 
             unsigned int argsI = 0;
             args.set(argsI++, nRowsBlocks); // num of values to merge
@@ -407,7 +411,8 @@ services::Status LowOrderMomentsOnlineTaskOneAPI<algorithmFPType, scope>::comput
             range.local(localRange, status);
             DAAL_CHECK_STATUS_VAR(status);
 
-            KernelArguments args(4 + TaskInfoOnline<algorithmFPType, scope>::nPartialResults);
+            KernelArguments args(4 + TaskInfoOnline<algorithmFPType, scope>::nPartialResults, status);
+            DAAL_CHECK_STATUS_VAR(status);
 
             unsigned int argsI = 0;
             args.set(argsI++, dataBD.getBuffer(), AccessModeIds::read);
@@ -495,7 +500,8 @@ services::Status LowOrderMomentsOnlineFinalizeTaskOneAPI<algorithmFPType, scope>
     {
         KernelRange range(nFeatures);
 
-        KernelArguments args(1 + nTotalResults);
+        KernelArguments args(1 + nTotalResults, status);
+        DAAL_CHECK_STATUS_VAR(status);
 
         unsigned int argsI = 0;
         args.set(argsI++, *pNObservations);

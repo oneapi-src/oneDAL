@@ -63,7 +63,8 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::addBetaInte
     KernelPtr kernel              = factory.getKernel(kernelName, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(4);
+    KernelArguments args(4, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, betaTable, AccessModeIds::read);
     args.set(1, nBetas);
     args.set(2, yTable, AccessModeIds::write);

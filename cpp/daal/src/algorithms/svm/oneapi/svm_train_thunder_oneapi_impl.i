@@ -115,7 +115,8 @@ services::Status SVMTrainOneAPI<algorithmFPType, thunder>::smoKernel(
     auto kernel = factory.getKernel("smoKernel", status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(12);
+    KernelArguments args(12, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, y, AccessModeIds::read);
     args.set(1, kernelWsRows, AccessModeIds::read);
     args.set(2, wsIndices, AccessModeIds::read);
