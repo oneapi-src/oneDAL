@@ -345,16 +345,17 @@ At the training stage, decision forest regression has the following parameters:
      - Minimum weighted fraction of the sum total of weights of all the input observations required to be at a leaf node,
        from :math:`0.0` to :math:`0.5`.
         
-       Each observation has equal weights if weights of the observations is not provided.
+       All observations have equal weights if the weights of the observations are not provided.
 
    * - ``minImpurityDecreaseInSplitNode``
      - :math:`0.0`
      - Minimum amount of impurity decrease required to split a node; it can be any non-negative number.
    * - ``maxLeafNodes``
      - :math:`0`
-     - Grow trees with positive maximal number of leaf nodes in :ref:`best-first <best_first_strategy>` fashion.
+     - Grow trees with positive maximal number of leaf nodes in a :ref:`best-first <best_first_strategy>` fashion.
        Best nodes are defined as relative reduction in impurity.
-       If maximal number of leaf nodes is equal zero, then this parameter does not limit the number of leaf nodes and trees grow with depth-first fashion.
+       If maximal number of leaf nodes equals zero,
+       then this parameter does not limit the number of leaf nodes, and trees grow in a :ref:`depth-first <depth_first_strategy>` fashion.
 
 
 
