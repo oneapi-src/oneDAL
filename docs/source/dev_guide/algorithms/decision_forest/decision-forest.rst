@@ -103,13 +103,13 @@ Maximal number of leaf nodes
   If maximal number of leaf nodes equals zero, then this criterion does not limit the number of leaf nodes,
   and trees grow in a :ref:`depth-first <depth_first_strategy>` fashion. 
 
-.. _depth_first_strategy:
-
 Tree Building Strategies
 ++++++++++++++++++++++++
 
 Maximal number of leaf nodes defines the strategy of tree building:
 :ref:`depth-first <depth_first_strategy>` or :ref:`best-first <best_first_strategy>`.
+
+.. _depth_first_strategy:
 
 Depth-first Strategy
 ~~~~~~~~~~~~~~~~~~~~
