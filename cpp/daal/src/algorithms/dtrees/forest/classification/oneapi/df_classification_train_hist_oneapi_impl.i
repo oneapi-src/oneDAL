@@ -47,7 +47,6 @@
 #include "src/services/daal_strings.h"
 #include "src/algorithms/engines/engine_types_internal.h"
 #include "services/internal/sycl/types.h"
-#include "services/internal/sycl/daal_defines_sycl.h"
 
 using namespace daal::algorithms::decision_forest::internal;
 using namespace daal::algorithms::decision_forest::classification::internal;
@@ -354,7 +353,6 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
         DAAL_ASSERT(nMaxBinsAmongFtrs <= _int32max);
         DAAL_ASSERT(nFeatures <= _int32max);
         DAAL_ASSERT(response.size() == _nRows);
-
 
         DAAL_ASSERT_UNIVERSAL_BUFFER(data, uint32_t, _nRows * _nFeatures);
         DAAL_ASSERT_UNIVERSAL_BUFFER(treeOrder, int32_t, _nSelectedRows);

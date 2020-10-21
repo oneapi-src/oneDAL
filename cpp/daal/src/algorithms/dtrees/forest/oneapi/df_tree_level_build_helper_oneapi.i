@@ -25,7 +25,6 @@
 
 #include "src/services/service_data_utils.h"
 #include "src/externals/service_ittnotify.h"
-#include "services/internal/sycl/daal_defines_sycl.h"
 
 using namespace daal::services::internal::sycl;
 using namespace daal::services;

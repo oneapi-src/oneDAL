@@ -41,7 +41,6 @@
 #include "src/services/service_arrays.h"
 #include "src/services/service_utils.h"
 #include "services/internal/sycl/types.h"
-#include "services/internal/sycl/daal_defines_sycl.h"
 
 using namespace daal::services;
 using namespace daal::services::internal;

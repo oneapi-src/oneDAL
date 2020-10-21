@@ -24,7 +24,6 @@
 #include "services/env_detect.h"
 #include "services/internal/sycl/execution_context.h"
 #include "services/internal/sycl/types.h"
-#include "services/internal/sycl/daal_defines_sycl.h"
 #include "src/services/service_data_utils.h"
 #include "src/sycl/blas_gpu.h"
 #include "src/algorithms/kmeans/oneapi/kmeans_lloyd_distr_step1_kernel_ucapi.h"
