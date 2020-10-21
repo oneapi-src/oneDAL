@@ -77,7 +77,8 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::makeStep(const uin
     KernelPtr kernel              = factory.getKernel(kernelName, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(5);
+    KernelArguments args(5, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, gradientBuff, AccessModeIds::read);
     args.set(1, prevWorkValueBuff, AccessModeIds::read);
     args.set(2, workValueBuff, AccessModeIds::readwrite);
@@ -144,7 +145,8 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::vectorNorm(const B
     UniversalBuffer buffer                  = ctx.allocate(idType, nWorkGroups, status);
     Buffer<algorithmFPType> reductionBuffer = buffer.get<algorithmFPType>();
 
-    KernelArguments args(3 /*4*/);
+    KernelArguments args(3 /*4*/, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, x, AccessModeIds::read);
     args.set(1, n);
     args.set(2, reductionBuffer, AccessModeIds::write);

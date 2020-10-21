@@ -489,12 +489,11 @@ protected:
                 NumericTableFeature f = (*_ddict)[i];
 
                 BufferHostReinterpreter<char> reinterpreter(_arrays[i], rwMode, nrows);
-                TypeDispatcher::dispatch(_arrays[i].type(), reinterpreter);
-
-                auto charPtr = reinterpreter.getResult(st);
+                TypeDispatcher::dispatch(_arrays[i].type(), reinterpreter, st);
                 services::throwIfPossible(st);
                 DAAL_CHECK_STATUS_VAR(st);
 
+                auto charPtr = reinterpreter.getResult();
                 arch->set(charPtr.get(), nrows * f.typeSize);
             }
         }
@@ -535,15 +534,14 @@ private:
 
         for (size_t j = 0; j < ncols; j++)
         {
+            services::Status st;
             auto featureUniBuffer = _arrays[j];
             BufferConverterTo<T> converter(featureUniBuffer, idx, nrows);
-            TypeDispatcher::dispatch(featureUniBuffer.type(), converter);
-
-            services::Status st;
-            auto buffer = converter.getResult(st);
+            TypeDispatcher::dispatch(featureUniBuffer.type(), converter, st);
             services::throwIfPossible(st);
             DAAL_CHECK_STATUS_VAR(st);
 
+            auto buffer       = converter.getResult();
             auto colSharedPtr = buffer.toHost(readOnly, st);
             services::throwIfPossible(st);
             DAAL_CHECK_STATUS_VAR(st);
@@ -595,10 +593,11 @@ private:
 
                 auto uniBuffer = _arrays[j];
                 BufferConverterFrom<T> converter(tempColumn, uniBuffer, 0, nrows);
-                TypeDispatcher::dispatch(uniBuffer.type(), converter);
-
-                _arrays[j] = converter.getResult(st);
+                TypeDispatcher::dispatch(uniBuffer.type(), converter, st);
+                services::throwIfPossible(st);
                 DAAL_CHECK_STATUS_VAR(st);
+
+                _arrays[j] = converter.getResult();
             }
         }
         block.reset();
@@ -626,16 +625,17 @@ private:
 
         nrows = (idx + nrows < nobs) ? nrows : nobs - idx;
 
+        services::Status st;
         auto uniBuffer = _arrays[feat_idx];
         BufferConverterTo<T> converter(uniBuffer, idx, nrows);
-        TypeDispatcher::dispatch(uniBuffer.type(), converter);
-        services::Status st;
-
-        auto buffer = converter.getResult(st);
+        TypeDispatcher::dispatch(uniBuffer.type(), converter, st);
+        services::throwIfPossible(st);
         DAAL_CHECK_STATUS_VAR(st);
+
+        auto buffer = converter.getResult();
         block.setBuffer(buffer, 1, nrows);
 
-        return services::Status();
+        return st;
     }
 
     template <typename T>
@@ -651,13 +651,15 @@ private:
 
             if (features::internal::getIndexNumType<T>() != f.indexType)
             {
+                services::Status st;
+
                 auto uniBuffer = _arrays[feat_idx];
                 BufferConverterFrom<T> converter(block.getBuffer(), uniBuffer, block.getRowsOffset(), block.getNumberOfRows());
-                TypeDispatcher::dispatch(uniBuffer.type(), converter);
-
-                services::Status st;
-                _arrays[feat_idx] = converter.getResult(st);
+                TypeDispatcher::dispatch(uniBuffer.type(), converter, st);
+                services::throwIfPossible(st);
                 DAAL_CHECK_STATUS_VAR(st);
+
+                _arrays[feat_idx] = converter.getResult();
             }
         }
         block.reset();

@@ -42,7 +42,6 @@
 #include "src/services/service_utils.h"
 #include "src/services/daal_strings.h"
 #include "services/internal/sycl/types.h"
-#include "services/internal/sycl/daal_defines_sycl.h"
 
 using namespace daal::services;
 using namespace daal::services::internal;
@@ -287,18 +286,18 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees
         if (weighted)
         {
             const double * probas = pModel->getProbas(iTree);
-            context.copy(probasArr, iTree * maxTreeSize * _nClasses, (void *)probas, 0, treeSize * _nClasses, status);
+            context.copy(probasArr, iTree * maxTreeSize * _nClasses, (void *)probas, treeSize * _nClasses, 0, treeSize * _nClasses, status);
             DAAL_CHECK_STATUS_VAR(status);
         }
     }
 
     algorithmFPType probasScale = (algorithmFPType)1 / nTrees;
 
-    context.copy(ftrIdxArr, 0, (void *)tFI.get(), 0, treeBlockSize, status);
+    context.copy(ftrIdxArr, 0, (void *)tFI.get(), treeBlockSize, 0, treeBlockSize, status);
     DAAL_CHECK_STATUS_VAR(status);
-    context.copy(leftNodeIdxOrClassIdArr, 0, (void *)tLC.get(), 0, treeBlockSize, status);
+    context.copy(leftNodeIdxOrClassIdArr, 0, (void *)tLC.get(), treeBlockSize, 0, treeBlockSize, status);
     DAAL_CHECK_STATUS_VAR(status);
-    context.copy(ftrValueArr, 0, (void *)tFV.get(), 0, treeBlockSize, status);
+    context.copy(ftrValueArr, 0, (void *)tFV.get(), treeBlockSize, 0, treeBlockSize, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     if (weighted)
@@ -367,7 +366,8 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesWei
 
         for (size_t procTrees = 0; procTrees < nTrees; procTrees += _nTreeGroups)
         {
-            KernelArguments args(12);
+            KernelArguments args(12, status);
+            DAAL_CHECK_STATUS_VAR(status);
             args.set(0, srcBuffer, AccessModeIds::read);
             args.set(1, featureIndexList, AccessModeIds::read);
             args.set(2, leftOrClassTypeList, AccessModeIds::read);
@@ -442,7 +442,8 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesUnw
 
         for (size_t procTrees = 0; procTrees < nTrees; procTrees += _nTreeGroups)
         {
-            KernelArguments args(11);
+            KernelArguments args(11, status);
+            DAAL_CHECK_STATUS_VAR(status);
             args.set(0, srcBuffer, AccessModeIds::read);
             args.set(1, featureIndexList, AccessModeIds::read);
             args.set(2, leftOrClassTypeList, AccessModeIds::read);
@@ -484,7 +485,8 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::reduceClassHist(c
         DAAL_ASSERT_UNIVERSAL_BUFFER(obsClassHist, algorithmFPType, nRows * _nClasses * _nTreeGroups);
         DAAL_ASSERT_UNIVERSAL_BUFFER(classHist, algorithmFPType, nRows * _nClasses);
 
-        KernelArguments args(4);
+        KernelArguments args(4, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, obsClassHist, AccessModeIds::read);
         args.set(1, classHist, AccessModeIds::readwrite);
         args.set(2, static_cast<int32_t>(nRows));
@@ -527,7 +529,8 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::determineWinners(
         DAAL_ASSERT(resBuffer.size() == nRows * 1);
         DAAL_ASSERT_UNIVERSAL_BUFFER(classHist, algorithmFPType, nRows * _nClasses);
 
-        KernelArguments args(3);
+        KernelArguments args(3, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, classHist, AccessModeIds::read);
         args.set(1, resBuffer, AccessModeIds::write);
         args.set(2, static_cast<int32_t>(nRows));
