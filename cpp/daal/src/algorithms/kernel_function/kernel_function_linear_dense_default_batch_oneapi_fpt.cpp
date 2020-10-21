@@ -34,7 +34,7 @@ namespace linear
 {
 namespace internal
 {
-template class KernelImplLinearOneAPI<defaultDense, DAAL_FPTYPE>;
+template class DAAL_EXPORT KernelImplLinearOneAPI<defaultDense, DAAL_FPTYPE>;
 
 } // namespace internal
 } // namespace linear
