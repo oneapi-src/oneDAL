@@ -190,7 +190,8 @@ private:
     services::SharedPtr<DataType> _reinterpretedPtr;
 };
 
-UniversalBuffer allocateByNumericTableFeature(const data_management::NumericTableFeature & feature, const size_t size, services::Status & status)
+inline UniversalBuffer allocateByNumericTableFeature(const data_management::NumericTableFeature & feature, const size_t size,
+                                                     services::Status & status)
 {
     using namespace data_management;
     auto & context = services::internal::getDefaultContext();

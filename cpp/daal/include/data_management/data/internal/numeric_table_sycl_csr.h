@@ -75,6 +75,22 @@ public:
         DAAL_DEFAULT_CREATE_IMPL_EX(SyclCSRNumericTable, bufferData, bufferColIndices, bufferRowOffsets, nColumns, nRows, indexing);
     }
 
+    /**
+     *  Constructs CSR numeric table with user-allocated memory
+     *  \param[in]    nColumns    Number of columns in the corresponding dense table
+     *  \param[in]    nRows       Number of rows in the corresponding dense table
+     *  \param[in]    indexing    Indexing scheme used to access data in the CSR layout
+     *  \param[out]   stat        Status of the numeric table construction
+     *  \return       CSR numeric table with user-allocated memory
+     *  \note Present version of Intel(R) Data Analytics Acceleration Library supports 1-based indexing only
+     */
+    // template <typename DataType>
+    // static services::SharedPtr<SyclCSRNumericTable> create(size_t nColumns, size_t nRows, size_t dataSize, AllocationFlag memoryAllocationFlag,
+    //                                                        CSRIndexing indexing = oneBased, services::Status * stat = NULL)
+    // {
+    //     DAAL_DEFAULT_CREATE_IMPL_EX(SyclCSRNumericTable, DataType, nColumns, nRows, dataSize, memoryAllocationFlag, indexing);
+    // }
+
     virtual ~SyclCSRNumericTable() { freeDataMemoryImpl(); }
 
     virtual services::Status resize(size_t nrows) DAAL_C11_OVERRIDE { return setNumberOfRowsImpl(nrows); }
@@ -313,11 +329,16 @@ public:
 
     services::Status allocateDataMemory(size_t dataSize, daal::MemType /*type*/ = daal::dram)
     {
+        if (isCpuTable())
+        {
+            return _cpuTable->allocateDataMemory(dataSize);
+        }
+
         using namespace services::internal::sycl;
 
         services::Status status;
         auto & context = services::internal::getDefaultContext();
-
+        _dataSize      = dataSize;
         freeDataMemoryImpl();
         size_t nrow = getNumberOfRows();
 
@@ -480,6 +501,21 @@ protected:
 
         st |= setArrays(bufferData, bufferColIndices, bufferRowOffsets, indexing);
     }
+
+    // SyclCSRNumericTable(size_t nColumns, size_t nRows, size_t dataSize, AllocationFlag memoryAllocationFlag, CSRIndexing indexing,
+    //                     services::Status & st)
+    //     : SyclNumericTable(nColumns, nRows, DictionaryIface::equal, st), _indexing(indexing)
+    // {
+    //     _layout   = csrArray;
+    //     _dataSize = dataSize;
+    //     _defaultFeature.setType<DataType>();
+    //     st |= _ddict->setAllFeatures(_defaultFeature);
+
+    //     if (memoryAllocationFlag == NumericTableIface::doAllocate)
+    //     {
+    //         st |= allocateDataMemory(dataSize);
+    //     }
+    // }
 
     template <typename T>
     services::Status getTBlock(size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)

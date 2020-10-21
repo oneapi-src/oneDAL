@@ -69,11 +69,42 @@ public:
         {
             return (DataType *)_rawPtr;
         }
+        else if (_valuesBuffer)
+        {
+            services::Status status;
+            auto hostSharedPtr = _valuesBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
+            services::throwIfPossible(status);
+
+            return hostSharedPtr.get();
+        }
         return _values_ptr.get();
     }
 
-    inline size_t * getBlockColumnIndicesPtr() const { return _cols_ptr.get(); }
-    inline size_t * getBlockRowIndicesPtr() const { return _rows_ptr.get(); }
+    inline size_t * getBlockColumnIndicesPtr() const
+    {
+        if (_colsBuffer)
+        {
+            services::Status status;
+            auto hostSharedPtr = _colsBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
+            services::throwIfPossible(status);
+
+            return hostSharedPtr.get();
+        }
+        return _cols_ptr.get();
+    }
+
+    inline size_t * getBlockRowIndicesPtr() const
+    {
+        if (_rowsBuffer)
+        {
+            services::Status status;
+            auto hostSharedPtr = _rowsBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
+            services::throwIfPossible(status);
+
+            return hostSharedPtr.get();
+        }
+        return _rows_ptr.get();
+    }
 
     inline daal::services::internal::Buffer<DataType> getBlockValuesBuffer() const
     {
@@ -81,37 +112,36 @@ public:
         {
             return daal::services::internal::Buffer<DataType>((DataType *)_rawPtr, _nvalues);
         }
-        else if (_valuesBuffer)
+        else if (_values_ptr)
+        {
+            return daal::services::internal::Buffer<DataType>(_values_ptr, _nvalues);
+        }
+        else
         {
             return _valuesBuffer;
         }
-        return _valuesBuffer;
-        // else
-        // {
-        //     return daal::services::internal::Buffer<DataType>(_rawPtr, _nvalues);
-        // }
     }
 
     inline daal::services::internal::Buffer<size_t> getBlockColumnIndicesBuffer() const
     {
         if (_cols_ptr)
         {
-            return daal::services::internal::Buffer<size_t>((size_t *)_cols_ptr.get(), _nvalues);
+            return daal::services::internal::Buffer<size_t>(_cols_ptr.get(), _nvalues);
         }
-        else if (_colsBuffer)
+        else
         {
             return _colsBuffer;
         }
-        return _colsBuffer;
-        // else
-        // {
-        //     return daal::services::internal::Buffer<size_t>(_cols_ptr, _nvalues);
-        // }
     }
 
     inline daal::services::internal::Buffer<size_t> getBlockRowIndicesBuffer() const
     {
-        if (_rowsBuffer)
+        if (_rows_buffer)
+        {
+            return daal::services::internal::Buffer<size_t>(_rows_buffer.get(), _nrows + 1);
+        }
+
+        else if (_rowsBuffer)
         {
             return _rowsBuffer;
         }
@@ -128,11 +158,48 @@ public:
         {
             return services::SharedPtr<DataType>(services::reinterpretPointerCast<DataType, byte>(*_pPtr), (DataType *)_rawPtr);
         }
-        return _values_ptr;
+        else if (_valuesBuffer)
+        {
+            services::Status status;
+            auto hostSharedPtr = _valuesBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
+            services::throwIfPossible(status);
+            return hostSharedPtr;
+        }
+        else
+        {
+            return _values_ptr;
+        }
     }
 
-    inline services::SharedPtr<size_t> getBlockColumnIndicesSharedPtr() const { return _cols_ptr; }
-    inline services::SharedPtr<size_t> getBlockRowIndicesSharedPtr() const { return _rows_ptr; }
+    inline services::SharedPtr<size_t> getBlockColumnIndicesSharedPtr() const
+    {
+        if (_colsBuffer)
+        {
+            services::Status status;
+            auto hostSharedPtr = _colsBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
+            services::throwIfPossible(status);
+            return hostSharedPtr;
+        }
+        else
+        {
+            return _cols_ptr;
+        }
+    }
+
+    inline services::SharedPtr<size_t> getBlockRowIndicesSharedPtr() const
+    {
+        if (_rowsBuffer)
+        {
+            services::Status status;
+            auto hostSharedPtr = _rowsBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
+            services::throwIfPossible(status);
+            return hostSharedPtr;
+        }
+        else
+        {
+            return _rows_ptr;
+        }
+    }
 
     /**
      *  Returns the number of columns in the block
@@ -275,6 +342,11 @@ public:
         if (newSize > _rows_capacity)
         {
             freeRowsBuffer();
+            if (_rowsBuffer)
+            {
+                services::throwIfPossible(services::ErrorMethodNotImplemented);
+            }
+
             _rows_buffer = services::SharedPtr<size_t>((size_t *)daal::services::daal_malloc(newSize), services::ServiceDeleter());
             if (_rows_buffer)
             {
@@ -311,6 +383,10 @@ protected:
         {
             _values_buffer = services::SharedPtr<DataType>();
         }
+        else if (_valuesBuffer)
+        {
+            _valuesBuffer.reset();
+        }
         _values_capacity = 0;
     }
 
@@ -321,6 +397,7 @@ protected:
     {
         _rows_buffer   = services::SharedPtr<size_t>();
         _rows_capacity = 0;
+        _rowsBuffer.reset();
     }
 
 private:
