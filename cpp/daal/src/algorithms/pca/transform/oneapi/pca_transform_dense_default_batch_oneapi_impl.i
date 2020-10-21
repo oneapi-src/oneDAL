@@ -55,6 +55,11 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::computeTransfor
     const services::internal::Buffer<algorithmFPType> & eigenvectors, const services::internal::Buffer<algorithmFPType> & resultBlock)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(pca.transform.compute.gemm);
+
+    DAAL_ASSERT_UNIVERSAL_BUFFER(dataBlock, algorithmFPType, numRows * nFeatures);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(eigenvectors), algorithmFPType, numComponents * nFeatures);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(resultBlock), algorithmFPType, numRows * numComponents);
+
     return BlasGpu<algorithmFPType>::xgemm(math::Layout::ColMajor, math::Transpose::Trans, math::Transpose::NoTrans, numComponents, numRows,
                                            nFeatures, 1.0, eigenvectors, nFeatures, 0, dataBlock, nFeatures, 0, 0.0, resultBlock, numComponents, 0);
 }
@@ -269,7 +274,6 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::initBuffers(Exe
     copyBlock = ctx.allocate(TypeIds::id<algorithmFPType>(), numVectors * numFeatures, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    /// check buffer size. which macros should I use?
     DAAL_CHECK_STATUS(status, copyBuffer(ctx, copyBlock, data, numVectors, numFeatures));
 
     return status;

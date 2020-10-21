@@ -136,7 +136,8 @@ Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::compute(bool isCorrelati
             DAAL_CHECK_STATUS(st, covarianceAlg->computeNoThrow());
         }
 
-        auto pCovarianceTable          = covarianceAlg->getResult()->get(covariance::covariance);
+        auto pCovarianceTable = covarianceAlg->getResult()->get(covariance::covariance);
+        DAAL_ASSERT(pCovarianceTable);
         NumericTable & covarianceTable = *pCovarianceTable;
 
         // copying variances. Means are computed inplace
@@ -145,6 +146,7 @@ Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::compute(bool isCorrelati
         if (resultsToCompute & mean)
         {
             auto mean_cov = covarianceAlg->getResult()->get(covariance::mean);
+            DAAL_ASSERT(mean_cov);
 
             BlockDescriptor<algorithmFPType> meansBlock, covMeanBlock;
             DAAL_CHECK_STATUS_VAR(means.getBlockOfRows(0, 1, readWrite, meansBlock));
