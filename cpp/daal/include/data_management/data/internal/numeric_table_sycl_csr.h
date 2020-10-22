@@ -502,84 +502,11 @@ protected:
         st |= setArrays(bufferData, bufferColIndices, bufferRowOffsets, indexing);
     }
 
-    // SyclCSRNumericTable(size_t nColumns, size_t nRows, size_t dataSize, AllocationFlag memoryAllocationFlag, CSRIndexing indexing,
-    //                     services::Status & st)
-    //     : SyclNumericTable(nColumns, nRows, DictionaryIface::equal, st), _indexing(indexing)
-    // {
-    //     _layout   = csrArray;
-    //     _dataSize = dataSize;
-    //     _defaultFeature.setType<DataType>();
-    //     st |= _ddict->setAllFeatures(_defaultFeature);
-
-    //     if (memoryAllocationFlag == NumericTableIface::doAllocate)
-    //     {
-    //         st |= allocateDataMemory(dataSize);
-    //     }
-    // }
-
     template <typename T>
     services::Status getTBlock(size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
     {
-        // size_t ncols = getNumberOfColumns();
-        // size_t nobs  = getNumberOfRows();
-        // block.setDetails(0, idx, rwFlag);
-        // size_t * rowOffsets = _rowOffsets.get();
-
-        // if (idx >= nobs)
-        // {
-        //     block.resizeBuffer(ncols, 0);
-        //     return services::Status();
-        // }
-
-        // const NumericTableFeature & f = (*_ddict)[0];
-        // const int indexType           = f.indexType;
-
-        // T * buffer;
-        // T * castingBuffer;
-        // T * location = (T *)(_ptr.get() + (rowOffsets[idx] - 1) * f.typeSize);
-
-        // if (features::internal::getIndexNumType<T>() == indexType)
-        // {
-        //     castingBuffer = location;
-
-        //     if (!block.resizeBuffer(ncols, nrows)) return services::Status(services::ErrorMemoryAllocationFailed);
-        //     buffer = block.getBlockPtr();
-        // }
-        // else
-        // {
-        //     size_t sparseBlockSize = rowOffsets[idx + nrows] - rowOffsets[idx];
-
-        //     if (!block.resizeBuffer(ncols, nrows, sparseBlockSize * sizeof(T))) return services::Status(services::ErrorMemoryAllocationFailed);
-        //     buffer = block.getBlockPtr();
-
-        //     castingBuffer = (T *)block.getAdditionalBufferPtr();
-
-        //     if (data_management::features::DAAL_OTHER_T == indexType) return services::Status(services::ErrorDataTypeNotSupported);
-
-        //     internal::getVectorUpCast(indexType, internal::getConversionDataType<T>())(sparseBlockSize, location, castingBuffer);
-        // }
-
-        // T * bufRowCursor       = castingBuffer;
-        // size_t * indicesCursor = _colIndices.get() + rowOffsets[idx] - 1;
-
-        // for (size_t i = 0; i < ncols * nrows; i++)
-        // {
-        //     buffer[i] = (T)0;
-        // }
-
-        // for (size_t i = 0; i < nrows; i++)
-        // {
-        //     size_t sparseRowSize = rowOffsets[idx + i + 1] - rowOffsets[idx + i];
-
-        //     for (size_t k = 0; k < sparseRowSize; k++)
-        //     {
-        //         buffer[i * ncols + indicesCursor[k] - 1] = bufRowCursor[k];
-        //     }
-
-        //     bufRowCursor += sparseRowSize;
-        //     indicesCursor += sparseRowSize;
-        // }
-        return services::Status();
+        services::throwIfPossible(services::ErrorMethodNotImplemented);
+        return services::ErrorMethodNotImplemented;
     }
 
     template <typename T>
@@ -603,17 +530,11 @@ protected:
         return services::ErrorMethodNotImplemented;
     }
 
-    // static services::Status read(const services::internal::Buffer<T> & buffer, BlockDescriptor<T> & block, size_t nRows, size_t nCols)
-    // {
-    //     DAAL_ASSERT(buffer.size() == nRows * nCols);
-
-    //     block.setBuffer(buffer, nCols, nRows);
-    //     return services::Status();
-    // }
-
     template <typename T>
     services::Status getSparseTBlock(size_t idx, size_t nrows, int rwFlag, CSRBlockDescriptor<T> & block)
     {
+        using namespace services::internal::sycl;
+
         size_t ncols = getNumberOfColumns();
         size_t nobs  = getNumberOfRows();
         block.setDetails(ncols, idx, rwFlag);
@@ -626,68 +547,32 @@ protected:
 
         nrows = (idx + nrows < nobs) ? nrows : nobs - idx;
 
-        const NumericTableFeature & f = (*_ddict)[0];
-        const int indexType           = f.indexType;
+        services::Status st;
+        auto uniBuffer = _values;
+        BufferConverterTo<T> converter(uniBuffer, 0, _dataSize);
+        TypeDispatcher::dispatch(_values.type(), converter);
 
-        if (nrows == nobs && idx == 0)
+        services::internal::Buffer<T> valuesBuffer = converter.getResult(st);
+        DAAL_CHECK_STATUS_VAR(st);
+        printf("valuesBuffer.size(): %lu; _dataSize: %lu\n", valuesBuffer.size(), _dataSize);
+        block.setValuesBuffer(valuesBuffer);
+
+        block.setColumnIndicesBuffer(_colIndices);
+        block.setRowIndicesBuffer(_rowOffsets);
+
+        // TODO idx!=0 for _rowOffsets
+        if (idx != 0)
         {
-            block.setValuesBuffer(_values);
-            block.setColumnIndicesBuffer(_colIndices);
-            block.setRowIndicesBuffer(_rowOffsets);
-            return services::Status();
+            DAAL_ASSERT(false);
         }
-        DAAL_ASSERT(false);
-        // size_t nValues = _rowOffsets[idx + nrows] - _rowOffsets[idx];
-
-        // if (features::internal::getIndexNumType<T>() == indexType)
-        // {
-        //     DAAL_ASSERT(false);
-        //     // block.setValuesBuffer(_values);
-        // }
-        // else
-        // {
-        //     if (!block.resizeValuesBuffer(nValues))
-        //     {
-        //         return services::Status();
-        //     }
-
-        //     if (data_management::features::DAAL_OTHER_T == indexType) return services::Status(services::ErrorDataTypeNotSupported);
-
-        //     // TODO
-        //     DAAL_ASSERT(false);
-
-        //     // services::SharedPtr<byte> location(_ptr, _ptr.get() + (rowOffsets[idx] - 1) * f.typeSize);
-        //     // internal::getVectorUpCast(indexType, internal::getConversionDataType<T>())(nValues, location.get(), block.getBlockValuesPtr());
-        // }
-
-        // services::SharedPtr<size_t> shiftedColumns(_colIndices, _colIndices.get() + (rowOffsets[idx] - 1));
-        // block.setColumnIndicesBuffer(&_rowOffsets, nValues);
-        // // block.setColumnIndicesPtr(shiftedColumns, nValues);
-
-        // if (idx == 0)
-        // {
-        //     block.setRowIndicesPtr(_rowOffsets, nrows);
-        // }
-        // else
-        // {
-        //     if (!block.resizeRowsBuffer(nrows))
-        //     {
-        //         return services::Status();
-        //     }
-
-        //     size_t * row_offsets = block.getBlockRowIndicesSharedPtr().get();
-
-        //     for (size_t i = 0; i < nrows + 1; i++)
-        //     {
-        //         row_offsets[i] = rowOffsets[idx + i] - rowOffsets[idx] + 1;
-        //     }
-        // }
-        return services::Status();
+        return st;
     }
 
     template <typename T>
     services::Status releaseSparseTBlock(CSRBlockDescriptor<T> & block)
     {
+        using namespace services::internal::sycl;
+
         if (block.getRWFlag() & (int)writeOnly)
         {
             NumericTableFeature & f = (*_ddict)[0];
@@ -701,14 +586,13 @@ protected:
 
             if (features::internal::getIndexNumType<T>() != indexType)
             {
-                size_t nrows = block.getNumberOfRows();
-                size_t idx   = block.getRowsOffset();
-                // size_t nValues = _rowOffsets.get()[idx + nrows] - _rowOffsets.get()[idx];
+                auto uniBuffer = _values;
+                BufferConverterFrom<T> converter(block.getBlockValuesBuffer(), uniBuffer, block.getRowsOffset(), block.getNumberOfRows());
+                TypeDispatcher::dispatch(uniBuffer.type(), converter);
 
-                // services::SharedPtr<byte> ptr      = services::reinterpretPointerCast<byte, T>(block.getBlockValuesSharedPtr());
-                // services::SharedPtr<byte> location = services::SharedPtr<byte>(ptr, _ptr.get() + (_rowOffsets.get()[idx] - 1) * f.typeSize);
-
-                // internal::getVectorDownCast(indexType, internal::getConversionDataType<T>())(nValues, ptr.get(), location.get());
+                services::Status st;
+                _values = converter.getResult(st);
+                DAAL_CHECK_STATUS_VAR(st);
             }
         }
         block.reset();

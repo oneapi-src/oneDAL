@@ -25,22 +25,9 @@
 DECLARE_SOURCE(
     clKernelSpGemm,
 
-    __kernel void spmm_kernel_without_sum(const algorithmFPType alpha, __global const algorithmFPType * const aValues,
-                                          __global const ulong * const aCols, __global const ulong * const aRowInd,
-                                          __global const algorithmFPType * const bValues, __global const ulong * const bCols,
-                                          __global const ulong * const bRowInd, __global algorithmFPType * c, const ulong ldC, const ulong offsetC) {
-        const ulong i = get_global_id(0);
-        const ulong j = get_global_id(1);
-
-        ulong aRowCur       = aRowInd[i] - 1;
-        const ulong aRowEnd = aRowInd[i + 1] - 1;
-
-        ulong bRowCur       = bRowInd[j] - 1;
-        const ulong bRowEnd = bRowInd[j + 1] - 1;
-
-        // printf("aRowCur: %lu; aRowEnd: %lu; bRowCur: %lu; bRowEnd: %lu\n", aRowCur, aRowEnd, bRowCur, bRowEnd);
-        // printf("aRowCur: %lu; aRowEnd: %lu; bRowCur: %lu; bRowEnd: %lu\n", aRowCur, aRowEnd, bRowCur, bRowEnd);
-
+    algorithmFPType dot_product(__global const algorithmFPType * const aValues, __global const algorithmFPType * const bValues,
+                                __global const ulong * const aCols, __global const ulong * const bCols, ulong aRowCur, ulong aRowEnd, ulong bRowCur,
+                                ulong bRowEnd) {
         algorithmFPType localSum = (algorithmFPType)0;
 
         while ((aRowCur < aRowEnd) && (bRowCur < bRowEnd))
@@ -63,8 +50,44 @@ DECLARE_SOURCE(
                 bRowCur++;
             }
         }
+        return localSum;
+    }
 
-        c[i * ldC + j + offsetC] = alpha * localSum;
+    __kernel void spmm_kernel_without_sum(const algorithmFPType alpha, __global const algorithmFPType * const aValues,
+                                          __global const ulong * const aCols, __global const ulong * const aRowInd,
+                                          __global const algorithmFPType * const bValues, __global const ulong * const bCols,
+                                          __global const ulong * const bRowInd, __global algorithmFPType * c, const ulong ldC, const ulong offsetC,
+                                          const algorithmFPType beta) {
+        const ulong i = get_global_id(0);
+        const ulong j = get_global_id(1);
+
+        const ulong aRowCur = aRowInd[i] - 1;
+        const ulong aRowEnd = aRowInd[i + 1] - 1;
+
+        const ulong bRowCur = bRowInd[j] - 1;
+        const ulong bRowEnd = bRowInd[j + 1] - 1;
+
+        const algorithmFPType dotProduct = dot_product(aValues, bValues, aCols, bCols, aRowCur, aRowEnd, bRowCur, bRowEnd);
+        c[i * ldC + j + offsetC]         = alpha * dotProduct;
+        // printf("(%lu %lu) :%f\n", i, j, c[i * ldC + j + offsetC]);
+    }
+
+    __kernel void spmm_kernel(const algorithmFPType alpha, __global const algorithmFPType * const aValues, __global const ulong * const aCols,
+                              __global const ulong * const aRowInd, __global const algorithmFPType * const bValues,
+                              __global const ulong * const bCols, __global const ulong * const bRowInd, __global algorithmFPType * c, const ulong ldC,
+                              const ulong offsetC, const algorithmFPType beta) {
+        const ulong i = get_global_id(0);
+        const ulong j = get_global_id(1);
+
+        const ulong aRowCur = aRowInd[i] - 1;
+        const ulong aRowEnd = aRowInd[i + 1] - 1;
+
+        const ulong bRowCur = bRowInd[j] - 1;
+        const ulong bRowEnd = bRowInd[j + 1] - 1;
+
+        const algorithmFPType dotProduct = dot_product(aValues, bValues, aCols, bCols, aRowCur, aRowEnd, bRowCur, bRowEnd);
+        c[i * ldC + j + offsetC]         = alpha * dotProduct + beta * c[i * ldC + j + offsetC];
+        // printf("(%lu %lu) :%f\n", i, j, c[i * ldC + j + offsetC]);
     }
 
 );

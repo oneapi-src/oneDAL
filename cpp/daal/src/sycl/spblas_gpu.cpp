@@ -57,7 +57,7 @@ services::Status SpBlasGpu<algorithmFPType>::xgemm(const Transpose transa, const
 
     if (transa == Transpose::Trans && transb == Transpose::NoTrans)
     {
-        KernelArguments args(10);
+        KernelArguments args(11);
         args.set(0, alpha);
         args.set(1, a_buffer);
         args.set(2, aColsBuff);
@@ -68,7 +68,8 @@ services::Status SpBlasGpu<algorithmFPType>::xgemm(const Transpose transa, const
         args.set(7, c_buffer);
         args.set(8, ldc);
         args.set(9, offsetC);
-
+        args.set(10, beta);
+        // printf("SpBlasGpu::xgemm\n");
         KernelRange range(m, n);
         ctx.run(range, kernelSpGemm, args, status);
     }

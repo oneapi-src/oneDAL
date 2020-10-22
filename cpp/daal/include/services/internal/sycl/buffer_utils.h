@@ -134,9 +134,11 @@ public:
 
     void operator()(Typelist<DataType>)
     {
+        printf("BufferConverterTo:Typelist<DataType>\n");
         _st = services::Status();
 
-        auto buffer    = _src.template get<DataType>();
+        auto buffer = _src.template get<DataType>();
+
         auto subbuffer = buffer.getSubBuffer(_offset, _size, _st);
         DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(_st);
 

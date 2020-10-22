@@ -100,6 +100,12 @@ services::Status KernelImplLinearOneAPI<fastCSR, algorithmFPType>::computeIntern
     DAAL_CHECK_STATUS(status, result->getBlockOfRows(0, nMatLeft, ReadWriteMode::writeOnly, resultBlock));
     auto resultBuff = resultBlock.getBuffer();
 
+    if (beta != 0.0)
+    {
+        context.fill(resultBuff, 1.0, status);
+        DAAL_CHECK_STATUS_VAR(status);
+    }
+
     DAAL_CHECK_STATUS(status,
                       math::SpBlasGpu<algorithmFPType>::xgemm(math::Transpose::Trans, math::Transpose::NoTrans, nMatLeft, nMatRight, pMatLeft, alpha,
                                                               matLeftValuesBuff, matLeftColumnIndicesBuff, matLeftRowIndicesBuff, matRightValuesBuff,

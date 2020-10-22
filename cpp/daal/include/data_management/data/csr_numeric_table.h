@@ -67,15 +67,14 @@ public:
     {
         if (_rawPtr)
         {
+            printf("[CSRBlockDescriptor]:getBlockValuesPtr _rawPtr \n");
             return (DataType *)_rawPtr;
         }
         else if (_valuesBuffer)
         {
-            services::Status status;
-            services::SharedPtr<DataType> hostSharedPtr = _valuesBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
-            services::throwIfPossible(status);
+            printf("[CSRBlockDescriptor]:getBlockValuesPtr getValuesCachedHostSharedPtr \n");
 
-            return hostSharedPtr.get();
+            return getValuesCachedHostSharedPtr().get();
         }
         return _values_ptr.get();
     }
@@ -84,11 +83,7 @@ public:
     {
         if (_colsBuffer)
         {
-            services::Status status;
-            services::SharedPtr<size_t> hostSharedPtr = _colsBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
-            services::throwIfPossible(status);
-
-            return hostSharedPtr.get();
+            return getColsCachedHostSharedPtr().get();
         }
         return _cols_ptr.get();
     }
@@ -97,11 +92,7 @@ public:
     {
         if (_rowsBuffer)
         {
-            services::Status status;
-            services::SharedPtr<size_t> hostSharedPtr = _rowsBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
-            services::throwIfPossible(status);
-
-            return hostSharedPtr.get();
+            return getRowsCachedHostSharedPtr().get();
         }
         return _rows_ptr.get();
     }
@@ -217,17 +208,34 @@ public:
      *  Returns number of elements in values array.
      *  \return Number of elements in values array.
      */
-    inline size_t getDataSize() const { return ((_nrows > 0) ? _rows_ptr.get()[_nrows] - _rows_ptr.get()[0] : 0); }
+    inline size_t getDataSize() const
+    {
+        if (_nrows > 0)
+        {
+            if (_rows_ptr)
+            {
+                return _rows_ptr.get()[_nrows] - _rows_ptr.get()[0];
+            }
+            else if (_rowsBuffer)
+            {
+                size_t * rowsHost = getRowsCachedHostSharedPtr().get();
+                return rowsHost[_nrows] - rowsHost[0];
+            }
+        }
+        return 0;
+    }
 
 public:
     inline void setValuesPtr(DataType * ptr, size_t nValues)
     {
+        _hostValuesSharedPtr.reset();
         _values_ptr = services::SharedPtr<DataType>(ptr, services::EmptyDeleter());
         _nvalues    = nValues;
     }
 
     inline void setColumnIndicesPtr(size_t * ptr, size_t nValues)
     {
+        _hostColsSharedPtr.reset();
         _cols_ptr = services::SharedPtr<size_t>(ptr, services::EmptyDeleter());
         _nvalues  = nValues;
     }
@@ -238,18 +246,21 @@ public:
      */
     inline void setRowIndicesPtr(size_t * ptr, size_t nRows)
     {
+        _hostRowsSharedPtr.reset();
         _rows_ptr = services::SharedPtr<size_t>(ptr, services::EmptyDeleter());
         _nrows    = nRows;
     }
 
     inline void setValuesPtr(services::SharedPtr<DataType> ptr, size_t nValues)
     {
+        _hostValuesSharedPtr.reset();
         _values_ptr = ptr;
         _nvalues    = nValues;
     }
 
     inline void setValuesPtr(services::SharedPtr<byte> * pPtr, byte * rawPtr, size_t nValues)
     {
+        _hostValuesSharedPtr.reset();
         _pPtr    = pPtr;
         _rawPtr  = rawPtr;
         _nvalues = nValues;
@@ -257,6 +268,7 @@ public:
 
     inline void setColumnIndicesPtr(services::SharedPtr<size_t> ptr, size_t nValues)
     {
+        _hostColsSharedPtr.reset();
         _cols_ptr = ptr;
         _nvalues  = nValues;
     }
@@ -267,20 +279,23 @@ public:
      */
     inline void setRowIndicesPtr(services::SharedPtr<size_t> ptr, size_t nRows)
     {
+        _hostRowsSharedPtr.reset();
         _rows_ptr = ptr;
         _nrows    = nRows;
     }
 
-    inline void setValuesBuffer(services::internal::sycl::UniversalBuffer & valuesBuffer)
+    inline void setValuesBuffer(services::internal::sycl::UniversalBuffer valuesBuffer)
     {
+        _hostValuesSharedPtr.reset();
         _valuesBuffer = valuesBuffer.get<DataType>();
-        // _pPtr    = pPtr;
-        // _rawPtr  = rawPtr;
-        _nvalues = _valuesBuffer.size();
+        _pPtr         = pPtr;
+        _rawPtr       = services::SharedPtr<byte>();
+        _nvalues      = _valuesBuffer.size();
     }
 
     inline void setColumnIndicesBuffer(daal::services::internal::Buffer<size_t> colIndBuffer)
     {
+        _hostColsSharedPtr.reset();
         _colsBuffer = colIndBuffer;
         _nvalues    = colIndBuffer.size();
     }
@@ -291,6 +306,7 @@ public:
      */
     inline void setRowIndicesBuffer(daal::services::internal::Buffer<size_t> rowsBuffer)
     {
+        _hostRowsSharedPtr.reset();
         _rowsBuffer = rowsBuffer;
         _nrows      = rowsBuffer.size();
     }
@@ -305,6 +321,9 @@ public:
         _rwFlag     = 0;
         _pPtr       = NULL;
         _rawPtr     = NULL;
+        _hostValuesSharedPtr.reset();
+        _hostRowsSharedPtr.reset();
+        _hostColsSharedPtr.reset();
     }
 
     /**
@@ -368,6 +387,9 @@ public:
         _ncols      = nColumns;
         _rowsOffset = rowIdx;
         _rwFlag     = rwFlag;
+        _hostValuesSharedPtr.reset();
+        _hostRowsSharedPtr.reset();
+        _hostColsSharedPtr.reset();
     }
 
     inline size_t getRowsOffset() const { return _rowsOffset; }
@@ -400,6 +422,39 @@ protected:
         _rowsBuffer.reset();
     }
 
+    inline services::SharedPtr<DataType> getValuesCachedHostSharedPtr() const
+    {
+        if (!_hostValuesSharedPtr)
+        {
+            services::Status status;
+            _hostValuesSharedPtr = _valuesBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
+            services::throwIfPossible(status);
+        }
+        return _hostValuesSharedPtr;
+    }
+
+    inline services::SharedPtr<size_t> getColsCachedHostSharedPtr() const
+    {
+        if (!_hostColsSharedPtr)
+        {
+            services::Status status;
+            _hostColsSharedPtr = _colsBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
+            services::throwIfPossible(status);
+        }
+        return _hostColsSharedPtr;
+    }
+
+    inline services::SharedPtr<size_t> getRowsCachedHostSharedPtr() const
+    {
+        if (!_hostRowsSharedPtr)
+        {
+            services::Status status;
+            _hostRowsSharedPtr = _rowsBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
+            services::throwIfPossible(status);
+        }
+        return _hostRowsSharedPtr;
+    }
+
 private:
     services::SharedPtr<DataType> _values_ptr;
     services::SharedPtr<size_t> _cols_ptr;
@@ -423,6 +478,10 @@ private:
 
     services::SharedPtr<byte> * _pPtr;
     byte * _rawPtr;
+
+    mutable services::SharedPtr<DataType> _hostValuesSharedPtr; // owns pointer returned from getBlockPtr() method
+    mutable services::SharedPtr<size_t> _hostRowsSharedPtr;     // owns pointer returned from getBlockPtr() method
+    mutable services::SharedPtr<size_t> _hostColsSharedPtr;     // owns pointer returned from getBlockPtr() method
 };
 
 /**
