@@ -314,7 +314,10 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
             algorithmFPType * const sgPtrLocal   = sgPtr + iStartRow;
 
             //f = X*b + b0
-            applyBeta(xLocal, b, fPtrLocal, nRowsToProcess, p, parameter->interceptFlag);
+            {
+                DAAL_ITTNOTIFY_SCOPED_TASK(applyBeta);
+                applyBeta(xLocal, b, fPtrLocal, nRowsToProcess, p, parameter->interceptFlag);
+            }
 
             {
                 DAAL_ITTNOTIFY_SCOPED_TASK(sigmoids);

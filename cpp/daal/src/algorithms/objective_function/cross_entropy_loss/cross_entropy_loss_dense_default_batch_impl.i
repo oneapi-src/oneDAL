@@ -349,7 +349,10 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
             algorithmFPType * const fPtrLocal = f.get() + iStartRow * nClasses;
 
             //f = X*b + b0
-            applyBeta(xLocal, b, fPtrLocal, nRowsToProcess, nClasses, p, interceptFlag);
+            {
+                DAAL_ITTNOTIFY_SCOPED_TASK(applyBeta);
+                applyBeta(xLocal, b, fPtrLocal, nRowsToProcess, nClasses, p, interceptFlag);
+            }
 
             //f = softmax(f)
             algorithmFPType * softmaxSums = nullptr;
