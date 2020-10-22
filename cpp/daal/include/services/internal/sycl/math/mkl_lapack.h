@@ -25,7 +25,7 @@
 #define __ONEAPI_INTERNAL_MKL_LAPACK_H__
 
 #include "services/internal/buffer.h"
-#include "mkl_dal_sycl.hpp"
+#include "services/internal/sycl/math/mkl_dal.h"
 
 namespace daal
 {
@@ -52,37 +52,40 @@ struct MKLPotrf
 {
     MKLPotrf(cl::sycl::queue & queue) : _queue(queue) {}
 
-    services::Status operator()(const math::UpLo uplo, const size_t n, services::internal::Buffer<algorithmFPType> & a, const size_t lda,
-                                cl::sycl::buffer<algorithmFPType, 1> & scratchpad)
+    Status operator()(const math::UpLo uplo, const size_t n, Buffer<algorithmFPType> & a, const size_t lda,
+                      cl::sycl::buffer<algorithmFPType, 1> & scratchpad)
     {
-        services::Status status;
+        Status status;
         const ::oneapi::fpk::uplo uplomkl                = uplo == math::UpLo::Upper ? ::oneapi::fpk::uplo::upper : ::oneapi::fpk::uplo::lower;
         cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a.toSycl(status);
         DAAL_CHECK_STATUS_VAR(status);
 
         {
-            using namespace daal::services;
-            const std::int64_t minimalScratchpadSize = ::oneapi::fpk::lapack::potrf_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, lda);
-            if (scratchpad.get_count() < minimalScratchpadSize) return Status(ErrorID::ErrorMemoryAllocationFailed);
+            const size_t minimalScratchpadSize = size_t(::oneapi::fpk::lapack::potrf_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, lda));
+            if (scratchpad.get_count() < minimalScratchpadSize) return ErrorMemoryAllocationFailed;
         }
 
-        ::oneapi::fpk::lapack::potrf(_queue, uplomkl, n, a_sycl_buff, lda, scratchpad, scratchpad.get_count());
+        status |= catchSyclExceptions([&]() mutable {
+            ::oneapi::fpk::lapack::potrf(_queue, uplomkl, n, a_sycl_buff, lda, scratchpad, scratchpad.get_count());
+            _queue.wait_and_throw();
+        });
 
-        _queue.wait();
-        /** TODO: Check info buffer for containing errors. Now it is not supported.:
-         *  https://software.intel.com/en-us/oneapi-mkl-dpcpp-developer-reference-potrf
-        */
         return status;
     }
 
-    services::Status operator()(const math::UpLo uplo, const size_t n, services::internal::Buffer<algorithmFPType> & a, const size_t lda,
-                                const std::int64_t scratchpadSize)
+    Status operator()(const math::UpLo uplo, const size_t n, Buffer<algorithmFPType> & a, const size_t lda, const std::int64_t scratchpadSize)
     {
-        cl::sycl::buffer<algorithmFPType, 1> scratchpad_buffer { cl::sycl::range<1>(scratchpadSize) };
-        return this->operator()(uplo, n, a, lda, scratchpad_buffer);
+        Status status;
+
+        status |= catchSyclExceptions([&]() mutable {
+            cl::sycl::buffer<algorithmFPType, 1> scratchpad_buffer { cl::sycl::range<1>(scratchpadSize) };
+            status |= this->operator()(uplo, n, a, lda, scratchpad_buffer);
+        });
+
+        return status;
     }
 
-    services::Status operator()(const math::UpLo uplo, const size_t n, services::internal::Buffer<algorithmFPType> & a, const size_t lda)
+    Status operator()(const math::UpLo uplo, const size_t n, Buffer<algorithmFPType> & a, const size_t lda)
     {
         const ::oneapi::fpk::uplo uplomkl        = uplo == math::UpLo::Upper ? ::oneapi::fpk::uplo::upper : ::oneapi::fpk::uplo::lower;
         const std::int64_t minimalScratchpadSize = ::oneapi::fpk::lapack::potrf_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, lda);
@@ -102,42 +105,47 @@ struct MKLPotrs
 {
     MKLPotrs(cl::sycl::queue & queue) : _queue(queue) {}
 
-    services::Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, services::internal::Buffer<algorithmFPType> & a,
-                                const size_t lda, services::internal::Buffer<algorithmFPType> & b, const size_t ldb,
-                                cl::sycl::buffer<algorithmFPType, 1> & scratchpad)
+    Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, Buffer<algorithmFPType> & a, const size_t lda,
+                      Buffer<algorithmFPType> & b, const size_t ldb, cl::sycl::buffer<algorithmFPType, 1> & scratchpad)
     {
-        services::Status status;
-        const ::oneapi::fpk::uplo uplomkl                = uplo == math::UpLo::Upper ? ::oneapi::fpk::uplo::upper : ::oneapi::fpk::uplo::lower;
+        Status status;
+        const ::oneapi::fpk::uplo uplomkl = uplo == math::UpLo::Upper ? ::oneapi::fpk::uplo::upper : ::oneapi::fpk::uplo::lower;
+
         cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a.toSycl(status);
+        DAAL_CHECK_STATUS_VAR(status);
+
         cl::sycl::buffer<algorithmFPType, 1> b_sycl_buff = b.toSycl(status);
         DAAL_CHECK_STATUS_VAR(status);
 
         {
-            using namespace daal::services;
-            const std::int64_t minimalScratchpadSize =
-                ::oneapi::fpk::lapack::potrs_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, ny, lda, ldb);
-            if (scratchpad.get_count() < minimalScratchpadSize) return Status(ErrorID::ErrorMemoryAllocationFailed);
+            const size_t minimalScratchpadSize =
+                size_t(::oneapi::fpk::lapack::potrs_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, ny, lda, ldb));
+            if (scratchpad.get_count() < minimalScratchpadSize) return ErrorMemoryAllocationFailed;
         }
 
-        ::oneapi::fpk::lapack::potrs(_queue, uplomkl, n, ny, a_sycl_buff, lda, b_sycl_buff, ldb, scratchpad, scratchpad.get_count());
+        status |= catchSyclExceptions([&]() mutable {
+            ::oneapi::fpk::lapack::potrs(_queue, uplomkl, n, ny, a_sycl_buff, lda, b_sycl_buff, ldb, scratchpad, scratchpad.get_count());
+            _queue.wait_and_throw();
+        });
 
-        _queue.wait();
-        /** TODO: Check info buffer for containing errors. Now it is not supported.:
-         *  https://software.intel.com/en-us/oneapi-mkl-dpcpp-developer-reference-potrs
-        */
         return status;
     }
 
-    services::Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, services::internal::Buffer<algorithmFPType> & a,
-                                const size_t lda, services::internal::Buffer<algorithmFPType> & b, const size_t ldb,
-                                const std::int64_t scratchpadSize)
+    Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, Buffer<algorithmFPType> & a, const size_t lda,
+                      Buffer<algorithmFPType> & b, const size_t ldb, const std::int64_t scratchpadSize)
     {
-        cl::sycl::buffer<algorithmFPType, 1> scratchpad_buffer { cl::sycl::range<1>(scratchpadSize) };
-        return this->operator()(uplo, n, ny, a, lda, b, ldb, scratchpad_buffer);
+        Status status;
+
+        status |= catchSyclExceptions([&]() mutable {
+            cl::sycl::buffer<algorithmFPType, 1> scratchpad_buffer { cl::sycl::range<1>(scratchpadSize) };
+            status |= this->operator()(uplo, n, ny, a, lda, b, ldb, scratchpad_buffer);
+        });
+
+        return status;
     }
 
-    services::Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, services::internal::Buffer<algorithmFPType> & a,
-                                const size_t lda, services::internal::Buffer<algorithmFPType> & b, const size_t ldb)
+    Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, Buffer<algorithmFPType> & a, const size_t lda,
+                      Buffer<algorithmFPType> & b, const size_t ldb)
     {
         const ::oneapi::fpk::uplo uplomkl        = uplo == math::UpLo::Upper ? ::oneapi::fpk::uplo::upper : ::oneapi::fpk::uplo::lower;
         const std::int64_t minimalScratchpadSize = ::oneapi::fpk::lapack::potrs_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, ny, lda, ldb);

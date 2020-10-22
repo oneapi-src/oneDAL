@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/backend/interop/common.hpp"
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 
 #include <daal/include/services/env_detect.h>
 #include <daal/src/services/service_defines.h>

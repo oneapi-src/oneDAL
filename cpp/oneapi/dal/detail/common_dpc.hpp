@@ -16,18 +16,18 @@
 
 #pragma once
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 #include <CL/sycl.hpp>
-#endif // ONEAPI_DAL_DATA_PARALLEL
+#endif // ONEDAL_DATA_PARALLEL
 
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::detail {
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 inline void wait_and_throw(const sycl::vector_class<sycl::event>& dependencies) {
     sycl::event::wait_and_throw(dependencies);
 }
-#endif // ONEAPI_DAL_DATA_PARALLEL
+#endif // ONEDAL_DATA_PARALLEL
 
 } // namespace oneapi::dal::detail

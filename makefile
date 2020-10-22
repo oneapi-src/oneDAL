@@ -67,10 +67,10 @@ C.COMPILE.gcc_toolchain := $(GCC_TOOLCHAIN_PATH)
 endif
 
 DPC.COMPILE.gcc_toolchain := $(GCC_TOOLCHAIN_PATH)
-include dev/make/cmplr.dpcpp.mk
 endif
 
 include dev/make/cmplr.$(COMPILER).mk
+include dev/make/cmplr.dpcpp.mk
 
 $(if $(filter $(PLATs.$(COMPILER)),$(PLAT)),,$(error PLAT for $(COMPILER) must be defined to one of $(PLATs.$(COMPILER))))
 
@@ -100,7 +100,7 @@ y      := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib fbsd/so))
 -cxx17 := $(if $(COMPILER_is_vc),/std:c++17,$(-Q)std=c++17)
 -fPIC  := $(if $(OS_is_win),,-fPIC)
 -Zl    := $(-Zl.$(COMPILER))
--DEBC  := $(if $(REQDBG),$(-DEBC.$(COMPILER)) -DDEBUG_ASSERT) -DTBB_SUPPRESS_DEPRECATED_MESSAGES -D__TBB_LEGACY_MODE $(if $(REQPRF), -D__DAAL_ITTNOTIFY_ENABLE__)
+-DEBC  := $(if $(REQDBG),$(-DEBC.$(COMPILER)) -DDEBUG_ASSERT -DONEDAL_ENABLE_ASSERT) -DTBB_SUPPRESS_DEPRECATED_MESSAGES -D__TBB_LEGACY_MODE $(if $(REQPRF), -D__DAAL_ITTNOTIFY_ENABLE__)
 -DEBJ  := $(if $(REQDBG),-g,-g:none)
 -DEBL  := $(if $(REQDBG),$(if $(OS_is_win),-debug,))
 -EHsc  := $(if $(OS_is_win),-EHsc,)
@@ -573,7 +573,7 @@ ONEAPI.incdirs.common := $(CPPDIR)
 ONEAPI.incdirs.thirdp := $(CORE.incdirs.common) $(MKLFPKDIR.include) $(TBBDIR.include)
 ONEAPI.incdirs := $(ONEAPI.incdirs.common) $(CORE.incdirs.thirdp)
 
-ONEAPI.dispatcher_cpu = $(WORKDIR)/_dal_cpu_dispatcher_gen.hpp
+ONEAPI.dispatcher_cpu = $(WORKDIR)/oneapi/dal/_dal_cpu_dispatcher_gen.hpp
 ONEAPI.dispatcher_tag.nrh := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_default
 ONEAPI.dispatcher_tag.mrm := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_ssse3
 ONEAPI.dispatcher_tag.neh := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_sse42
@@ -668,7 +668,7 @@ $1: LOPT:=
 $1: $(1:%.$a=%_link.txt) | $(dir $1)/. ; $(value LINK.STATIC)
 endef
 
-$(ONEAPI.dispatcher_cpu): | $(WORKDIR)/.
+$(ONEAPI.dispatcher_cpu): | $(dir $(ONEAPI.dispatcher_cpu))/.
 	$(if $(filter ssse3,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_SSSE3" >> $@)
 	$(if $(filter sse42,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_SSE42" >> $@)
 	$(if $(filter avx,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_AVX" >> $@)
@@ -712,7 +712,7 @@ $(ONEAPI.objs_a.dpc): COPT += $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.op
                               -DDAAL_NOTHROW_EXCEPTIONS \
                               -DDAAL_HIDE_DEPRECATED \
                               -DDAAL_SYCL_INTERFACE \
-                              -DONEAPI_DAL_DATA_PARALLEL \
+                              -DONEDAL_DATA_PARALLEL \
                               -D__TBB_NO_IMPLICIT_LINKAGE \
                               -DTBB_USE_ASSERT=0 \
                                @$(ONEAPI.tmpdir_a.dpc)/inc_a_folders.txt
@@ -730,7 +730,7 @@ $(ONEAPI.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic
                           -DDAAL_NOTHROW_EXCEPTIONS \
                           -DDAAL_HIDE_DEPRECATED \
                           $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG) \
-                          -D__ONEAPI_DAL_ENABLE_DLL_EXPORT__ \
+                          -D__ONEDAL_ENABLE_DLL_EXPORT__ \
                           -D__TBB_NO_IMPLICIT_LINKAGE \
                           -DTBB_USE_ASSERT=0 \
                           @$(ONEAPI.tmpdir_y)/inc_y_folders.txt
@@ -747,9 +747,9 @@ $(ONEAPI.objs_y.dpc): COPT += $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.op
                               -DDAAL_NOTHROW_EXCEPTIONS \
                               -DDAAL_HIDE_DEPRECATED \
                               -DDAAL_SYCL_INTERFACE \
-                              -DONEAPI_DAL_DATA_PARALLEL \
+                              -DONEDAL_DATA_PARALLEL \
                               $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG) \
-                              -D__ONEAPI_DAL_ENABLE_DLL_EXPORT__ \
+                              -D__ONEDAL_ENABLE_DLL_EXPORT__ \
                               -D__TBB_NO_IMPLICIT_LINKAGE \
                               -DTBB_USE_ASSERT=0 \
                               @$(ONEAPI.tmpdir_y.dpc)/inc_y_folders.txt
@@ -791,15 +791,21 @@ $(WORKDIR.lib)/$(oneapi_y.dpc): \
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(daaldep.rt.dpc)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.dll=%_dll.lib),)
-$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y.dpc:%.dll=%_dll.lib))
+$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.dll=%_dll.lib))
+$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),sycl.lib OpenCL.lib)
+$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),$(mklgpufpk.LIBS_A))
 ifdef OS_is_win
 $(WORKDIR.lib)/$(oneapi_y.dpc:%.dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y.dpc)
 endif
 
 $(ONEAPI.tmpdir_y)/dll.res: $(VERSION_DATA_FILE)
-$(ONEAPI.tmpdir_y)/dll.res: RCOPT += $(addprefix -I, $(CORE.incdirs.common))
-$(ONEAPI.tmpdir_y)/%.res: %.rc | $(ONEAPI.tmpdir_y)/. ; $(RC.COMPILE)
+$(ONEAPI.tmpdir_y)/dll.res: RCOPT += $(addprefix -I, $(WORKDIR) $(CORE.SERV.srcdir))
+$(ONEAPI.tmpdir_y)/dll.res: $(CPPDIR.onedal)/dll.rc | $(ONEAPI.tmpdir_y)/. ; $(RC.COMPILE)
 
+$(ONEAPI.tmpdir_y.dpc)/dll.res: $(VERSION_DATA_FILE)
+$(ONEAPI.tmpdir_y.dpc)/dll.res: RCOPT += $(addprefix -I, $(WORKDIR) $(CORE.SERV.srcdir)) \
+                                         -DONEDAL_DLL_RC_DATA_PARALLEL
+$(ONEAPI.tmpdir_y.dpc)/dll.res: $(CPPDIR.onedal)/dll.rc | $(ONEAPI.tmpdir_y)/. ; $(RC.COMPILE)
 
 #===============================================================================
 # Threading parts
@@ -1052,20 +1058,22 @@ $(foreach x,$(release.ONEAPI.EXAMPLES.DATA),$(eval $(call .release.x,$x,$(RELEAS
 ifeq ($(OS_is_win),yes)
 # $1: Relative examples directiry
 # $2: Solution filename
-# $3: Target to trigger
+# $3: Prefix of solution template
+# $4: Target to trigger
 define .release.x.sln
-$3: $(RELEASEDIR.daal)/$1/$2
+$4: $(RELEASEDIR.daal)/$1/$2
 $(RELEASEDIR.daal)/$1/$2: \
-        $1/daal_win.vcxproj.tpl \
-        $1/daal_win.vcxproj.filters.tpl \
-        $1/daal_win.vcxproj.user.tpl \
-        $1/daal_win.sln.tpl
-	python ./deploy/local/generate_win_solution.py $1 $(RELEASEDIR.daal)/$1 $2
+        $1/$3.vcxproj.tpl \
+        $1/$3.vcxproj.filters.tpl \
+        $1/$3.vcxproj.user.tpl \
+        $1/$3.sln.tpl
+	python ./deploy/local/generate_win_solution.py $1 $(RELEASEDIR.daal)/$1 $2 --template_name $3
 endef
 
-$(eval $(call .release.x.sln,examples/daal/cpp,DAALExamples.sln,_release_c))
-$(eval $(call .release.x.sln,examples/daal/cpp_sycl,DAALExamples_sycl.sln,_release_c))
-$(eval $(call .release.x.sln,examples/oneapi/cpp,oneDALExamples.sln,_release_oneapi_c))
+$(eval $(call .release.x.sln,examples/daal/cpp,DAALExamples.sln,daal_win,_release_c))
+$(eval $(call .release.x.sln,examples/daal/cpp_sycl,DAALExamples_sycl.sln,daal_win,_release_c))
+$(eval $(call .release.x.sln,examples/oneapi/cpp,oneDALExamples.sln,onedal_win,_release_oneapi_c))
+$(eval $(call .release.x.sln,examples/oneapi/dpc,oneDALExamples.sln,onedal_win,_release_oneapi_dpc))
 endif
 
 #----- releasing environment scripts
