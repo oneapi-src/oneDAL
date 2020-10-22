@@ -57,13 +57,15 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::addBetaInte
     const services::String options = getKeyFPType<algorithmFPType>();
     services::String cachekey("__daal_algorithms_linear_model_prediction_");
     cachekey.add(options);
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelPrediction, options.c_str());
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelPrediction, options.c_str(), status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "addBetaIntercept";
     KernelPtr kernel              = factory.getKernel(kernelName, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(4);
+    KernelArguments args(4, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, betaTable, AccessModeIds::read);
     DAAL_ASSERT(nBetas <= services::internal::MaxVal<uint32_t>::get());
     args.set(1, nBetas);
@@ -73,7 +75,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::addBetaInte
 
     KernelRange range(yNRows, yNCols);
 
-    ctx.run(range, kernel, args, &status);
+    ctx.run(range, kernel, args, status);
 
     return status;
 }

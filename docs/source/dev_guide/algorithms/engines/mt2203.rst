@@ -19,7 +19,7 @@ mt2203
 
 The engine is based on a set of 6024 Mersenne Twister pseudorandom number generators with period 22203.
 
-MT2203 generators are intended for use in large scale Monte Carlo simulations performed on multi-processor computer systems [Matsum2000].
+MT2203 generators are intended for use in large scale Monte Carlo simulations performed on multi-processor computer systems [Matsumoto2000]_.
 
 .. rubric:: Subsequence selection methods support
 

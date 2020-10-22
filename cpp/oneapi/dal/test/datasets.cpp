@@ -98,7 +98,7 @@ table dataset::get_table(const std::string& table_type) const {
     }
 }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 template <typename Float>
 table dataset::get_table(device_test_policy& policy, const std::string& table_type) const {
     const auto data = get().get_data();
@@ -116,7 +116,7 @@ table dataset::get_table(device_test_policy& policy, const std::string& table_ty
 }
 #endif
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 #define INSTANTIATE(F)                                              \
     template table dataset::get_table<F>(const std::string&) const; \
     template table dataset::get_table<F>(device_test_policy&, const std::string&) const;

@@ -38,7 +38,9 @@ services::Status Partition::buildProgram(ClKernelFactoryIface & factory, const T
     cachekey.add(build_options);
 
     services::Status status;
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), kernelsPartition, build_options.c_str(), &status);
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), kernelsPartition, build_options.c_str(), status);
+    DAAL_CHECK_STATUS_VAR(status);
+
     return status;
 }
 
@@ -50,9 +52,11 @@ services::Status Partition::scan(ClKernelFactoryIface & factory, UniversalBuffer
     services::Status status;
 
     auto & context = services::internal::getDefaultContext();
-    auto kernel    = factory.getKernel("scan");
+    auto kernel    = factory.getKernel("scan", status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(3);
+    KernelArguments args(3, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, mask, AccessModeIds::read);
     args.set(1, partialSums, AccessModeIds::write);
     args.set(2, (int)nElems);
@@ -61,12 +65,12 @@ services::Status Partition::scan(ClKernelFactoryIface & factory, UniversalBuffer
     KernelRange global_range(localSize * nLocalSums);
 
     KernelNDRange range(1);
-    range.global(global_range, &status);
+    range.global(global_range, status);
     DAAL_CHECK_STATUS_VAR(status);
-    range.local(local_range, &status);
+    range.local(local_range, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    context.run(range, kernel, args, &status);
+    context.run(range, kernel, args, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     return status;
@@ -80,9 +84,11 @@ services::Status Partition::scanIndex(ClKernelFactoryIface & factory, UniversalB
     services::Status status;
 
     auto & context = services::internal::getDefaultContext();
-    auto kernel    = factory.getKernel("scanIndex");
+    auto kernel    = factory.getKernel("scanIndex", status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(4);
+    KernelArguments args(4, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, mask, AccessModeIds::read);
     args.set(1, data, AccessModeIds::read);
     args.set(2, partialSums, AccessModeIds::write);
@@ -92,12 +98,12 @@ services::Status Partition::scanIndex(ClKernelFactoryIface & factory, UniversalB
     KernelRange global_range(localSize * nLocalSums);
 
     KernelNDRange range(1);
-    range.global(global_range, &status);
+    range.global(global_range, status);
     DAAL_CHECK_STATUS_VAR(status);
-    range.local(local_range, &status);
+    range.local(local_range, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    context.run(range, kernel, args, &status);
+    context.run(range, kernel, args, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     return status;
@@ -110,9 +116,11 @@ services::Status Partition::sumScan(ClKernelFactoryIface & factory, UniversalBuf
     services::Status status;
 
     auto & context = services::internal::getDefaultContext();
-    auto kernel    = factory.getKernel("sumScan");
+    auto kernel    = factory.getKernel("sumScan", status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(4);
+    KernelArguments args(4, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, partialSums, AccessModeIds::read);
     args.set(1, partialPrefixSums, AccessModeIds::write);
     args.set(2, totalSum, AccessModeIds::write);
@@ -122,12 +130,12 @@ services::Status Partition::sumScan(ClKernelFactoryIface & factory, UniversalBuf
     KernelRange global_range(localSize);
 
     KernelNDRange range(1);
-    range.global(global_range, &status);
+    range.global(global_range, status);
     DAAL_CHECK_STATUS_VAR(status);
-    range.local(local_range, &status);
+    range.local(local_range, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    context.run(range, kernel, args, &status);
+    context.run(range, kernel, args, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     return status;
@@ -141,9 +149,11 @@ services::Status Partition::reorder(ClKernelFactoryIface & factory, UniversalBuf
     services::Status status;
 
     auto & context = services::internal::getDefaultContext();
-    auto kernel    = factory.getKernel("reorder");
+    auto kernel    = factory.getKernel("reorder", status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(5);
+    KernelArguments args(5, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, mask, AccessModeIds::read);
     args.set(1, data, AccessModeIds::read);
     args.set(2, outData, AccessModeIds::write);
@@ -154,12 +164,12 @@ services::Status Partition::reorder(ClKernelFactoryIface & factory, UniversalBuf
     KernelRange global_range(localSize * nLocalSums);
 
     KernelNDRange range(1);
-    range.global(global_range, &status);
+    range.global(global_range, status);
     DAAL_CHECK_STATUS_VAR(status);
-    range.local(local_range, &status);
+    range.local(local_range, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    context.run(range, kernel, args, &status);
+    context.run(range, kernel, args, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     return status;
@@ -173,9 +183,11 @@ services::Status Partition::reorderIndex(ClKernelFactoryIface & factory, Univers
     services::Status status;
 
     auto & context = services::internal::getDefaultContext();
-    auto kernel    = factory.getKernel("reorderIndex");
+    auto kernel    = factory.getKernel("reorderIndex", status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(5);
+    KernelArguments args(5, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, mask, AccessModeIds::read);
     args.set(1, data, AccessModeIds::read);
     args.set(2, outData, AccessModeIds::write);
@@ -186,12 +198,12 @@ services::Status Partition::reorderIndex(ClKernelFactoryIface & factory, Univers
     KernelRange global_range(localSize * nLocalSums);
 
     KernelNDRange range(1);
-    range.global(global_range, &status);
+    range.global(global_range, status);
     DAAL_CHECK_STATUS_VAR(status);
-    range.local(local_range, &status);
+    range.local(local_range, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    context.run(range, kernel, args, &status);
+    context.run(range, kernel, args, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     return status;
@@ -212,18 +224,17 @@ services::Status Partition::flagged(UniversalBuffer mask, UniversalBuffer data, 
     const uint32_t nLocalSums    = _maxLocalSums * localSize < nElems ? _maxLocalSums : (nElems / localSize) + !!(nElems % localSize);
     const uint32_t nSubgroupSums = nLocalSums * (localSize / subSize);
 
-    auto partialSums       = context.allocate(TypeIds::id<int>(), nSubgroupSums + 1, &status);
-    auto partialPrefixSums = context.allocate(TypeIds::id<int>(), nSubgroupSums + 1, &status);
-    auto totalSum          = context.allocate(TypeIds::id<int>(), 1, &status);
+    auto partialSums       = context.allocate(TypeIds::id<int>(), nSubgroupSums + 1, status);
+    auto partialPrefixSums = context.allocate(TypeIds::id<int>(), nSubgroupSums + 1, status);
+    auto totalSum          = context.allocate(TypeIds::id<int>(), 1, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     DAAL_CHECK_STATUS_VAR(scan(factory, mask, partialSums, nElems, localSize, nLocalSums));
     DAAL_CHECK_STATUS_VAR(sumScan(factory, partialSums, partialPrefixSums, totalSum, localSize, nSubgroupSums));
     DAAL_CHECK_STATUS_VAR(reorder(factory, mask, data, outData, partialPrefixSums, nElems, localSize, nLocalSums));
 
-    DAAL_CHECK_STATUS_VAR(status);
-
     {
-        auto totalSumHost = totalSum.template get<int>().toHost(data_management::ReadWriteMode::readOnly, &status);
+        auto totalSumHost = totalSum.template get<int>().toHost(data_management::ReadWriteMode::readOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
         const int * totalSumHostPtr = totalSumHost.get();
         if (!totalSumHostPtr)
@@ -251,18 +262,17 @@ services::Status Partition::flaggedIndex(UniversalBuffer mask, UniversalBuffer d
     const uint32_t nLocalSums    = _maxLocalSums * localSize < nElems ? _maxLocalSums : (nElems / localSize) + !!(nElems % localSize);
     const uint32_t nSubgroupSums = nLocalSums * (localSize / subSize);
 
-    auto partialSums       = context.allocate(TypeIds::id<int>(), nSubgroupSums + 1, &status);
-    auto partialPrefixSums = context.allocate(TypeIds::id<int>(), nSubgroupSums + 1, &status);
-    auto totalSum          = context.allocate(TypeIds::id<int>(), 1, &status);
+    auto partialSums       = context.allocate(TypeIds::id<int>(), nSubgroupSums + 1, status);
+    auto partialPrefixSums = context.allocate(TypeIds::id<int>(), nSubgroupSums + 1, status);
+    auto totalSum          = context.allocate(TypeIds::id<int>(), 1, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     DAAL_CHECK_STATUS_VAR(scanIndex(factory, mask, data, partialSums, nElems, localSize, nLocalSums));
     DAAL_CHECK_STATUS_VAR(sumScan(factory, partialSums, partialPrefixSums, totalSum, localSize, nSubgroupSums));
     DAAL_CHECK_STATUS_VAR(reorderIndex(factory, mask, data, outData, partialPrefixSums, nElems, localSize, nLocalSums));
 
-    DAAL_CHECK_STATUS_VAR(status);
-
     {
-        auto totalSumHost = totalSum.template get<int>().toHost(data_management::ReadWriteMode::readOnly, &status);
+        auto totalSumHost = totalSum.template get<int>().toHost(data_management::ReadWriteMode::readOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
         const int * totalSumHostPtr = totalSumHost.get();
         if (!totalSumHostPtr)

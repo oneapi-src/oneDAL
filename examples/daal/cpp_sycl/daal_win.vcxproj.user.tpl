@@ -14,18 +14,4 @@
     </LocalDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory>$(ProjectDir)..\..</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug.dynamic.sequential|x64'">
-    <LocalDebuggerEnvironment>PATH=$(SolutionDir)..\..\..\redist\intel64;$(SolutionDir)..\..\..\..\..\tbb\latest\redist\intel64\vc_mt;$(PATH)</LocalDebuggerEnvironment>
-    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>
-    </LocalDebuggerCommandArguments>
-    <LocalDebuggerWorkingDirectory>$(ProjectDir)..\..</LocalDebuggerWorkingDirectory>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release.dynamic.sequential|x64'">
-    <LocalDebuggerEnvironment>PATH=$(SolutionDir)..\..\..\redist\intel64;$(SolutionDir)..\..\..\..\..\tbb\latest\redist\intel64\vc_mt;$(PATH)</LocalDebuggerEnvironment>
-    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>
-    </LocalDebuggerCommandArguments>
-    <LocalDebuggerWorkingDirectory>$(ProjectDir)..\..</LocalDebuggerWorkingDirectory>
-  </PropertyGroup>
 </Project>

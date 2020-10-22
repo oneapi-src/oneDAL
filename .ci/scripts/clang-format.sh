@@ -21,7 +21,7 @@ echo "Starting format check..."
 
 RETURN_CODE=0
 
-for sources_path in cpp/daal cpp/oneapi/dal ; do
+for sources_path in cpp/daal cpp/oneapi ; do
     pushd ${sources_path} || exit 1
     for filename in $(find . -type f | grep -P ".*\.(c|cpp|h|hpp|cl|i)$"); do clang-format -style=file -i "${filename}"; done
 

@@ -40,7 +40,6 @@
 #include "src/services/service_data_utils.h"
 #include "src/services/service_algo_utils.h"
 #include "services/internal/sycl/types.h"
-#include "services/internal/sycl/daal_defines_sycl.h"
 
 using namespace daal::algorithms::dtrees::training::internal;
 using namespace daal::algorithms::gbt::internal;
@@ -59,7 +58,7 @@ namespace training
 namespace internal
 {
 template <typename algorithmFPType>
-static services::Status __buildProgram(ClKernelFactoryIface & factory)
+static services::Status buildProgram(ClKernelFactoryIface & factory)
 {
     services::Status status;
 
@@ -71,7 +70,7 @@ static services::Status __buildProgram(ClKernelFactoryIface & factory)
 
     services::String cachekey("__daal_algorithms_gbt_batch_regression_");
     cachekey.add(fptype_name);
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), gbt_batch_regression_kernels, build_options.c_str(), &status);
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), gbt_batch_regression_kernels, build_options.c_str(), status);
 
     return status;
 }
@@ -93,7 +92,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::scan
         DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(values), algorithmFPType, nRows);
         DAAL_ASSERT_UNIVERSAL_BUFFER(partialSums, algorithmFPType, nLocalSums);
 
-        KernelArguments args(3);
+        KernelArguments args(3, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, values, AccessModeIds::read);
         args.set(1, partialSums, AccessModeIds::write);
         args.set(2, nRows);
@@ -102,12 +102,12 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::scan
         KernelRange global_range(localSize * nLocalSums);
 
         KernelNDRange range(1);
-        range.global(global_range, &status);
+        range.global(global_range, status);
         DAAL_CHECK_STATUS_VAR(status);
-        range.local(local_range, &status);
+        range.local(local_range, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        context.run(range, kernel, args, &status);
+        context.run(range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -130,7 +130,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::redu
         DAAL_ASSERT_UNIVERSAL_BUFFER(partialSums, algorithmFPType, nSubgroupSums);
         DAAL_ASSERT_UNIVERSAL_BUFFER(totalSum, algorithmFPType, 1);
 
-        KernelArguments args(3);
+        KernelArguments args(3, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, partialSums, AccessModeIds::read);
         args.set(1, totalSum, AccessModeIds::write);
         args.set(2, nSubgroupSums);
@@ -139,12 +140,12 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::redu
         KernelRange global_range(localSize);
 
         KernelNDRange range(1);
-        range.global(global_range, &status);
+        range.global(global_range, status);
         DAAL_CHECK_STATUS_VAR(status);
-        range.local(local_range, &status);
+        range.local(local_range, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        context.run(range, kernel, args, &status);
+        context.run(range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -167,9 +168,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::getI
     const uint32_t nLocalSums    = 1024 * localSize < nRows ? 1024 : (nRows / localSize) + !!(nRows % localSize);
     const uint32_t nSubgroupSums = nLocalSums * (localSize / subSize);
 
-    auto partialSums = context.allocate(TypeIds::id<algorithmFPType>(), nSubgroupSums, &status);
+    auto partialSums = context.allocate(TypeIds::id<algorithmFPType>(), nSubgroupSums, status);
     DAAL_CHECK_STATUS_VAR(status);
-    auto totalSum = context.allocate(TypeIds::id<algorithmFPType>(), 1, &status);
+    auto totalSum = context.allocate(TypeIds::id<algorithmFPType>(), 1, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     BlockDescriptor<algorithmFPType> yBlock;
@@ -181,7 +182,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::getI
 
     {
         DAAL_ASSERT_UNIVERSAL_BUFFER(totalSum, algorithmFPType, 1);
-        auto totalSumHost = totalSum.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, &status);
+        auto totalSumHost = totalSum.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
         DAAL_ASSERT(response);
         *response = totalSumHost.get()[0] / nRows;
@@ -215,14 +216,15 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         DAAL_ASSERT_UNIVERSAL_BUFFER(response, algorithmFPType, nRows);
         DAAL_ASSERT_UNIVERSAL_BUFFER(optCoeffs, algorithmFPType, nRows * 2);
 
-        KernelArguments args(3);
+        KernelArguments args(3, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, yBuffer, AccessModeIds::read);
         args.set(1, response, AccessModeIds::read);
         args.set(2, optCoeffs, AccessModeIds::write);
 
         KernelRange global_range(nRows);
 
-        context.run(global_range, kernel, args, &status);
+        context.run(global_range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -245,12 +247,13 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::init
     {
         DAAL_ASSERT_UNIVERSAL_BUFFER(treeOrder, int, nRows);
 
-        KernelArguments args(1);
+        KernelArguments args(1, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, treeOrder, AccessModeIds::write);
 
         KernelRange global_range(nRows);
 
-        context.run(global_range, kernel, args, &status);
+        context.run(global_range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -278,7 +281,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         DAAL_ASSERT_UNIVERSAL_BUFFER(partialHistograms, algorithmFPType, _maxLocalHistograms * nTotalBins * 2);
         DAAL_ASSERT_UNIVERSAL_BUFFER(binOffsets, uint32_t, nFeatures + 1);
 
-        KernelArguments args(9);
+        KernelArguments args(9, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, data, AccessModeIds::read);
         args.set(1, treeOrder, AccessModeIds::read);
         args.set(2, optCoeffs, AccessModeIds::read);
@@ -295,12 +299,12 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         KernelRange global_range(nPartialHistograms, localSize);
 
         KernelNDRange range(2);
-        range.local(local_range, &status);
+        range.local(local_range, status);
         DAAL_CHECK_STATUS_VAR(status);
-        range.global(global_range, &status);
+        range.global(global_range, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        context.run(range, kernel, args, &status);
+        context.run(range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -325,7 +329,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::redu
         DAAL_ASSERT_UNIVERSAL_BUFFER(partialHistograms, algorithmFPType, _maxLocalHistograms * nTotalBins * 2);
         DAAL_ASSERT_UNIVERSAL_BUFFER(histograms, algorithmFPType, nTotalBins * 2);
 
-        KernelArguments args(4);
+        KernelArguments args(4, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, partialHistograms, AccessModeIds::read);
         args.set(1, histograms, AccessModeIds::write);
         args.set(2, nPartialHistograms);
@@ -335,12 +340,12 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::redu
         KernelRange global_range(nTotalBins, reduceLocalSize);
 
         KernelNDRange range(2);
-        range.global(global_range, &status);
+        range.global(global_range, status);
         DAAL_CHECK_STATUS_VAR(status);
-        range.local(local_range, &status);
+        range.local(local_range, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        context.run(range, kernel, args, &status);
+        context.run(range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -392,14 +397,15 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         DAAL_ASSERT_UNIVERSAL_BUFFER(histogramTotal, algorithmFPType, nTotalBins * 2);
         DAAL_ASSERT_UNIVERSAL_BUFFER(histogramDst, algorithmFPType, nTotalBins * 2);
 
-        KernelArguments args(3);
+        KernelArguments args(3, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, histogramSrc, AccessModeIds::read);
         args.set(1, histogramTotal, AccessModeIds::read);
         args.set(2, histogramDst, AccessModeIds::write);
 
         KernelRange global_range(nTotalBins);
 
-        context.run(global_range, kernel, args, &status);
+        context.run(global_range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -425,7 +431,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         DAAL_ASSERT_UNIVERSAL_BUFFER(totalOptCoeffs, algorithmFPType, 2);
         DAAL_ASSERT_UNIVERSAL_BUFFER(binOffsets, uint32_t, nFeatures + 1);
 
-        KernelArguments args(4);
+        KernelArguments args(4, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, histograms, AccessModeIds::read);
         args.set(1, totalOptCoeffs, AccessModeIds::write);
         args.set(2, binOffsets, AccessModeIds::read);
@@ -433,7 +440,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 
         KernelRange global_range(localSize, nFeatures);
 
-        context.run(global_range, kernel, args, &status);
+        context.run(global_range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -460,7 +467,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         DAAL_ASSERT_UNIVERSAL_BUFFER(splitValue, int, nFeatures);
         DAAL_ASSERT_UNIVERSAL_BUFFER(binOffsets, uint32_t, nFeatures + 1);
 
-        KernelArguments args(7);
+        KernelArguments args(7, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, histograms, AccessModeIds::read);
         args.set(1, totalOptCoeffs, AccessModeIds::read);
         args.set(2, splitInfo, AccessModeIds::write);
@@ -473,12 +481,12 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         KernelRange global_range(localSize, nFeatures);
 
         KernelNDRange range(2);
-        range.local(local_range, &status);
+        range.local(local_range, status);
         DAAL_CHECK_STATUS_VAR(status);
-        range.global(global_range, &status);
+        range.global(global_range, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        context.run(range, kernel, args, &status);
+        context.run(range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -497,10 +505,10 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     services::Status status;
 
     auto & context      = services::internal::getDefaultContext();
-    auto totalOptCoeffs = context.allocate(TypeIds::id<algorithmFPType>(), 2, &status);
+    auto totalOptCoeffs = context.allocate(TypeIds::id<algorithmFPType>(), 2, status);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, nFeatures, 5);
-    auto splitInfo  = context.allocate(TypeIds::id<algorithmFPType>(), nFeatures * 5, &status);
-    auto splitValue = context.allocate(TypeIds::id<int>(), nFeatures, &status);
+    auto splitInfo  = context.allocate(TypeIds::id<algorithmFPType>(), nFeatures * 5, status);
+    auto splitValue = context.allocate(TypeIds::id<int>(), nFeatures, status);
 
     DAAL_CHECK_STATUS_VAR(status);
 
@@ -513,7 +521,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     if (gTotal && hTotal)
     {
         DAAL_ASSERT_UNIVERSAL_BUFFER(totalOptCoeffs, algorithmFPType, 2);
-        auto totalOptCoeffsHost = totalOptCoeffs.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, &status);
+        auto totalOptCoeffsHost = totalOptCoeffs.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
         *gTotal = totalOptCoeffsHost.get()[0];
         *hTotal = totalOptCoeffsHost.get()[1];
@@ -521,9 +529,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     {
         DAAL_ASSERT_UNIVERSAL_BUFFER(splitInfo, algorithmFPType, nFeatures * 5);
         DAAL_ASSERT_UNIVERSAL_BUFFER(splitValue, int, nFeatures);
-        auto splitInfoHost = splitInfo.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, &status);
+        auto splitInfoHost = splitInfo.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
-        auto splitValueHost = splitValue.template get<int>().toHost(ReadWriteMode::readOnly, &status);
+        auto splitValueHost = splitValue.template get<int>().toHost(ReadWriteMode::readOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
         for (uint32_t featId = 0; featId < nFeatures; featId++)
         {
@@ -568,7 +576,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
         DAAL_ASSERT_UNIVERSAL_BUFFER(treeOrder, int, totalRows);
         DAAL_ASSERT_UNIVERSAL_BUFFER(partialSums, int, nLocalSums + 1);
 
-        KernelArguments args(6);
+        KernelArguments args(6, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, data, AccessModeIds::read);
         args.set(1, treeOrder, AccessModeIds::read);
         args.set(2, partialSums, AccessModeIds::write);
@@ -580,12 +589,12 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
         KernelRange global_range(localSize * nLocalSums);
 
         KernelNDRange range(1);
-        range.global(global_range, &status);
+        range.global(global_range, status);
         DAAL_CHECK_STATUS_VAR(status);
-        range.local(local_range, &status);
+        range.local(local_range, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        context.run(range, kernel, args, &status);
+        context.run(range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -611,7 +620,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
         DAAL_ASSERT_UNIVERSAL_BUFFER(partialPrefixSums, int, nSubgroupSums + 1);
         DAAL_ASSERT_UNIVERSAL_BUFFER(totalSum, int, 1);
 
-        KernelArguments args(4);
+        KernelArguments args(4, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, partialSums, AccessModeIds::read);
         args.set(1, partialPrefixSums, AccessModeIds::write);
         args.set(2, totalSum, AccessModeIds::write);
@@ -621,12 +631,12 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
         KernelRange global_range(localSize);
 
         KernelNDRange range(1);
-        range.global(global_range, &status);
+        range.global(global_range, status);
         DAAL_CHECK_STATUS_VAR(status);
-        range.local(local_range, &status);
+        range.local(local_range, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        context.run(range, kernel, args, &status);
+        context.run(range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -652,7 +662,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
         DAAL_ASSERT_UNIVERSAL_BUFFER(treeOrderBuf, int, totalRows);
         DAAL_ASSERT_UNIVERSAL_BUFFER(partialPrefixSums, int, nLocalSums + 1);
 
-        KernelArguments args(7);
+        KernelArguments args(7, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, data, AccessModeIds::read);
         args.set(1, treeOrder, AccessModeIds::read);
         args.set(2, treeOrderBuf, AccessModeIds::write);
@@ -665,12 +676,12 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
         KernelRange global_range(localSize * nLocalSums);
 
         KernelNDRange range(1);
-        range.global(global_range, &status);
+        range.global(global_range, status);
         DAAL_CHECK_STATUS_VAR(status);
-        range.local(local_range, &status);
+        range.local(local_range, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        context.run(range, kernel, args, &status);
+        context.run(range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -693,14 +704,15 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
         DAAL_ASSERT_UNIVERSAL_BUFFER(treeOrder, int, totalRows);
         DAAL_ASSERT_UNIVERSAL_BUFFER(treeOrderBuf, int, totalRows);
 
-        KernelArguments args(3);
+        KernelArguments args(3, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, treeOrderBuf, AccessModeIds::read);
         args.set(1, treeOrder, AccessModeIds::write);
         args.set(2, iStart);
 
         KernelRange global_range(nRows);
 
-        context.run(global_range, kernel, args, &status);
+        context.run(global_range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -725,11 +737,11 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::doPa
     const int nSubgroupSums = nLocalSums * (localSize / subSize);
 
     DAAL_OVERFLOW_CHECK_BY_ADDING(uint32_t, nSubgroupSums, 1);
-    auto partialSums = context.allocate(TypeIds::id<int>(), nSubgroupSums + 1, &status);
+    auto partialSums = context.allocate(TypeIds::id<int>(), nSubgroupSums + 1, status);
     DAAL_CHECK_STATUS_VAR(status);
-    auto partialPrefixSums = context.allocate(TypeIds::id<int>(), nSubgroupSums + 1, &status);
+    auto partialPrefixSums = context.allocate(TypeIds::id<int>(), nSubgroupSums + 1, status);
     DAAL_CHECK_STATUS_VAR(status);
-    auto totalSum = context.allocate(TypeIds::id<int>(), 1, &status);
+    auto totalSum = context.allocate(TypeIds::id<int>(), 1, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     DAAL_CHECK_STATUS_VAR(partitionScan(data, treeOrder, partialSums, splitValue, iStart, nRows, localSize, nLocalSums, totalRows));
@@ -740,7 +752,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::doPa
 
     {
         DAAL_ASSERT_UNIVERSAL_BUFFER(totalSum, int, 1);
-        auto totalSumHost = totalSum.template get<int>().toHost(ReadWriteMode::readOnly, &status);
+        auto totalSumHost = totalSum.template get<int>().toHost(ReadWriteMode::readOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
         nRight = totalSumHost.get()[0];
         nLeft  = nRows - totalSumHost.get()[0];
@@ -770,7 +782,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::upda
         DAAL_ASSERT_UNIVERSAL_BUFFER(treeOrder, int, totalRows);
         DAAL_ASSERT_UNIVERSAL_BUFFER(response, algorithmFPType, totalRows);
 
-        KernelArguments args(5);
+        KernelArguments args(5, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, treeOrder, AccessModeIds::read);
         args.set(1, response, AccessModeIds::write);
         args.set(2, iStart);
@@ -779,7 +792,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::upda
 
         KernelRange global_range(nRows);
 
-        context.run(global_range, kernel, args, &status);
+        context.run(global_range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -817,22 +830,24 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
 
-    DAAL_CHECK_STATUS_VAR(__buildProgram<algorithmFPType>(kernel_factory));
+    status |= buildProgram<algorithmFPType>(kernel_factory);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    kernelScan                        = kernel_factory.getKernel("scan", &status);
-    kernelReduce                      = kernel_factory.getKernel("reduce", &status);
-    kernelInitializeTreeOrder         = kernel_factory.getKernel("initializeTreeOrder", &status);
-    kernelComputePartialHistograms    = kernel_factory.getKernel("computePartialHistograms", &status);
-    kernelReducePartialHistograms     = kernel_factory.getKernel("reducePartialHistograms", &status);
-    kernelComputeHistogramDiff        = kernel_factory.getKernel("computeHistogramDiff", &status);
-    kernelComputeOptCoeffs            = kernel_factory.getKernel("computeOptCoeffs", &status);
-    kernelComputeTotalOptCoeffs       = kernel_factory.getKernel("computeTotalOptCoeffs", &status);
-    kernelComputeBestSplitForFeatures = kernel_factory.getKernel("computeBestSplitForFeatures", &status);
-    kernelPartitionScan               = kernel_factory.getKernel("partitionScan", &status);
-    kernelPartitionSumScan            = kernel_factory.getKernel("partitionSumScan", &status);
-    kernelPartitionReorder            = kernel_factory.getKernel("partitionReorder", &status);
-    kernelPartitionCopy               = kernel_factory.getKernel("partitionCopy", &status);
-    kernelUpdateResponse              = kernel_factory.getKernel("updateResponse", &status);
+    kernelScan                        = kernel_factory.getKernel("scan", status);
+    kernelReduce                      = kernel_factory.getKernel("reduce", status);
+    kernelInitializeTreeOrder         = kernel_factory.getKernel("initializeTreeOrder", status);
+    kernelComputePartialHistograms    = kernel_factory.getKernel("computePartialHistograms", status);
+    kernelReducePartialHistograms     = kernel_factory.getKernel("reducePartialHistograms", status);
+    kernelComputeHistogramDiff        = kernel_factory.getKernel("computeHistogramDiff", status);
+    kernelComputeOptCoeffs            = kernel_factory.getKernel("computeOptCoeffs", status);
+    kernelComputeTotalOptCoeffs       = kernel_factory.getKernel("computeTotalOptCoeffs", status);
+    kernelComputeBestSplitForFeatures = kernel_factory.getKernel("computeBestSplitForFeatures", status);
+    kernelPartitionScan               = kernel_factory.getKernel("partitionScan", status);
+    kernelPartitionSumScan            = kernel_factory.getKernel("partitionSumScan", status);
+    kernelPartitionReorder            = kernel_factory.getKernel("partitionReorder", status);
+    kernelPartitionCopy               = kernel_factory.getKernel("partitionCopy", status);
+    kernelUpdateResponse              = kernel_factory.getKernel("updateResponse", status);
+
     DAAL_CHECK_STATUS_VAR(status);
 
     gbt::internal::IndexedFeaturesOneAPI<algorithmFPType> indexedFeatures;
@@ -842,24 +857,24 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     BinParams prm(par.maxBins, par.minBinSize);
     DAAL_CHECK_STATUS(status, (indexedFeatures.init(*const_cast<NumericTable *>(x), &featTypes, &prm)));
 
-    auto response = context.allocate(TypeIds::id<algorithmFPType>(), nRows, &status);
+    auto response = context.allocate(TypeIds::id<algorithmFPType>(), nRows, status);
     DAAL_CHECK_STATUS_VAR(status);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, nRows, 2);
-    auto optCoeffs = context.allocate(TypeIds::id<algorithmFPType>(), nRows * 2, &status);
+    auto optCoeffs = context.allocate(TypeIds::id<algorithmFPType>(), nRows * 2, status);
     DAAL_CHECK_STATUS_VAR(status);
-    auto treeOrder = context.allocate(TypeIds::id<int>(), nRows, &status);
+    auto treeOrder = context.allocate(TypeIds::id<int>(), nRows, status);
     DAAL_CHECK_STATUS_VAR(status);
-    auto treeOrderBuf = context.allocate(TypeIds::id<int>(), nRows, &status);
+    auto treeOrderBuf = context.allocate(TypeIds::id<int>(), nRows, status);
     DAAL_CHECK_STATUS_VAR(status);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, _maxLocalHistograms, indexedFeatures.totalBins());
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, _maxLocalHistograms * indexedFeatures.totalBins(), 2);
-    auto partialHistograms = context.allocate(TypeIds::id<algorithmFPType>(), _maxLocalHistograms * indexedFeatures.totalBins() * 2, &status);
+    auto partialHistograms = context.allocate(TypeIds::id<algorithmFPType>(), _maxLocalHistograms * indexedFeatures.totalBins() * 2, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     algorithmFPType initResp = 0.0;
     DAAL_CHECK_STATUS(status, getInitialResponse(*const_cast<NumericTable *>(y), &initResp));
 
-    context.fill(response, initResp, &status);
+    context.fill(response, initResp, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     AOSNumericTablePtr treeStructure = ConnectorType::createGBTree(par.maxTreeDepth, status);
@@ -1084,7 +1099,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         for (uint32_t i = 0; i < nFeatures; i++)
         {
             DAAL_ASSERT_UNIVERSAL_BUFFER(indexedFeatures.binBorders(i), algorithmFPType, par.maxBins);
-            binValuesHost[i] = indexedFeatures.binBorders(i).template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, &status);
+            binValuesHost[i] = indexedFeatures.binBorders(i).template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, status);
             DAAL_CHECK_STATUS_VAR(status);
             binValues[i] = binValuesHost[i].get();
         }

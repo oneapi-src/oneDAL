@@ -96,12 +96,15 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::ap
     ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-    buildProgram(factory);
+    status |= buildProgram(factory);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "hessian";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(9);
+    KernelArguments args(9, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, x, AccessModeIds::read);
     args.set(1, p);
     args.set(2, prob, AccessModeIds::read);
@@ -113,7 +116,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::ap
     args.set(8, alpha);
 
     KernelRange range(nBeta * nClasses, nBeta * nClasses);
-    ctx.run(range, kernel, args, &status);
+    ctx.run(range, kernel, args, status);
 
     return status;
 }
@@ -129,14 +132,17 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::so
     ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-    buildProgram(factory);
+    status |= buildProgram(factory);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "softmax";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const algorithmFPType expThreshold = math::expThreshold<algorithmFPType>();
 
-    KernelArguments args(4);
+    KernelArguments args(4, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, x, AccessModeIds::read);
     args.set(1, result, AccessModeIds::readwrite);
     args.set(2, nClasses);
@@ -144,7 +150,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::so
 
     KernelRange range(n);
 
-    ctx.run(range, kernel, args, &status);
+    ctx.run(range, kernel, args, status);
 
     return status;
 }
@@ -160,14 +166,17 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::so
     ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-    buildProgram(factory);
+    status |= buildProgram(factory);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "softmaxAndUpdateProba";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const algorithmFPType expThreshold = math::expThreshold<algorithmFPType>();
 
-    KernelArguments args(5);
+    KernelArguments args(5, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, x, AccessModeIds::read);
     args.set(1, y, AccessModeIds::read);
     args.set(2, result, AccessModeIds::readwrite);
@@ -176,7 +185,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::so
 
     KernelRange range(n);
 
-    ctx.run(range, kernel, args, &status);
+    ctx.run(range, kernel, args, status);
 
     return status;
 }
@@ -194,12 +203,15 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::cr
     ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-    buildProgram(factory);
+    status |= buildProgram(factory);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "crossEntropy";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(4);
+    KernelArguments args(4, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, y, AccessModeIds::read);
     args.set(1, sigma, AccessModeIds::read);
     args.set(2, result, AccessModeIds::write);
@@ -207,7 +219,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::cr
 
     KernelRange range(n);
 
-    ctx.run(range, kernel, args, &status);
+    ctx.run(range, kernel, args, status);
 
     return status;
 }
@@ -225,12 +237,15 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::up
     ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-    buildProgram(factory);
+    status |= buildProgram(factory);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "updateProba";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(4);
+    KernelArguments args(4, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, y, AccessModeIds::read);
     args.set(1, sigma, AccessModeIds::readwrite);
     args.set(2, nClasses);
@@ -238,20 +253,24 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::up
 
     KernelRange range(n);
     {
-        ctx.run(range, kernel, args, &status);
+        ctx.run(range, kernel, args, status);
     }
 
     return status;
 }
 
 template <typename algorithmFPType>
-void CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::buildProgram(ClKernelFactoryIface & factory)
+services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::buildProgram(ClKernelFactoryIface & factory)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(buildProgram);
+    services::Status status;
     services::String options = getKeyFPType<algorithmFPType>();
     services::String cachekey("__daal_algorithms_optimization_solver_cross_entropy_loss_");
     cachekey.add(options);
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelCrossEntropyLoss, options.c_str());
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelCrossEntropyLoss, options.c_str(), status);
+    DAAL_CHECK_STATUS_VAR(status);
+
+    return status;
 }
 
 template <typename algorithmFPType>
@@ -289,7 +308,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::do
         DAAL_CHECK_STATUS(status, HelperObjectiveFunction::lazyAllocate(_oneVector, n));
         services::internal::Buffer<algorithmFPType> oneVectorBuf = _oneVector.get<algorithmFPType>();
 
-        ctx.fill(_oneVector, 1.0, &status);
+        ctx.fill(_oneVector, 1.0, status);
         DAAL_CHECK_STATUS(status, betaIntercept(oneVectorBuf, argBuff, fBuf, n, nClasses, nBeta));
     }
 
@@ -358,7 +377,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::do
         const algorithmFPType coeffBeta = algorithmFPType(2) * l2reg;
         if (l2reg > 0)
         {
-            ctx.copy(gradientBuff, 0, argBuff, 0, nBeta * nClasses, &status);
+            ctx.copy(gradientBuff, 0, argBuff, 0, nBeta * nClasses, status);
             DAAL_CHECK_STATUS(status, HelperObjectiveFunction::setColElem(0, zero, gradientBuff, nClasses, nBeta));
         }
 

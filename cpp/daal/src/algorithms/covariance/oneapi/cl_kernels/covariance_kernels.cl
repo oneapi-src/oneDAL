@@ -33,12 +33,12 @@ DECLARE_SOURCE(
 
     bool isFirstDataBlock(const algorithmFPType nObservations) { return (nObservations < (algorithmFPType)(0.5)); }
 
-    __kernel void mergeCrossProduct(uint nFeatures, __global const algorithmFPType * partialCrossProduct,
+    __kernel void mergeCrossProduct(unsigned int nFeatures, __global const algorithmFPType * partialCrossProduct,
                                     __global const algorithmFPType * partialSums, __global algorithmFPType * crossProduct,
                                     __global const algorithmFPType * sums, const algorithmFPType invPartialNObs, const algorithmFPType invNObs,
                                     const algorithmFPType invNewNObs) {
-        const int i = get_global_id(0);
-        const int j = get_global_id(1);
+        const unsigned int i = get_global_id(0);
+        const unsigned int j = get_global_id(1);
 
         if ((i < nFeatures) && (j < nFeatures))
         {
@@ -52,7 +52,7 @@ DECLARE_SOURCE(
     __kernel void prepareMeansAndCrossProductDiag(unsigned int nFeatures, algorithmFPType nObservations, __global algorithmFPType * crossProduct,
                                                   __global algorithmFPType * diagCrossProduct, __global algorithmFPType * sums,
                                                   __global algorithmFPType * mean) {
-        const int tid                          = get_global_id(0);
+        const unsigned int tid                 = get_global_id(0);
         const algorithmFPType invNObservations = (algorithmFPType)(1.0) / nObservations;
 
         diagCrossProduct[tid] = crossProduct[tid * nFeatures + tid];
@@ -68,8 +68,8 @@ DECLARE_SOURCE(
             invNObservationsM1 = (algorithmFPType)(1.0) / (nObservations - (algorithmFPType)(1.0));
         }
 
-        const int global_row_id = get_global_id(0);
-        const int global_col_id = get_global_id(1);
+        const unsigned int global_row_id = get_global_id(0);
+        const unsigned int global_col_id = get_global_id(1);
 
         if ((global_row_id < nFeatures) && (global_col_id < nFeatures))
         {

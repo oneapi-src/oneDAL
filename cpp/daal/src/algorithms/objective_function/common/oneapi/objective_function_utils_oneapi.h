@@ -44,7 +44,7 @@ struct HelperObjectiveFunction
 
         if (x.empty() || x.get<algorithmFPType>().size() < n)
         {
-            x = ctx.allocate(idType, n, &status);
+            x = ctx.allocate(idType, n, status);
         }
 
         return status;
@@ -71,19 +71,22 @@ struct HelperObjectiveFunction
         services::internal::sycl::ExecutionContextIface & ctx    = services::internal::getDefaultContext();
         services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-        buildProgram(factory);
+        status |= buildProgram(factory);
+        DAAL_CHECK_STATUS_VAR(status);
 
         const char * const kernelName              = "subVectors";
-        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
+        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
+        DAAL_CHECK_STATUS_VAR(status);
 
-        services::internal::sycl::KernelArguments args(3);
+        services::internal::sycl::KernelArguments args(3, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, x, services::internal::sycl::AccessModeIds::read);
         args.set(1, y, services::internal::sycl::AccessModeIds::read);
         args.set(2, result, services::internal::sycl::AccessModeIds::write);
 
         services::internal::sycl::KernelRange range(n);
 
-        ctx.run(range, kernel, args, &status);
+        ctx.run(range, kernel, args, status);
 
         return status;
     }
@@ -95,19 +98,22 @@ struct HelperObjectiveFunction
         services::internal::sycl::ExecutionContextIface & ctx    = services::internal::getDefaultContext();
         services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-        buildProgram(factory);
+        status |= buildProgram(factory);
+        DAAL_CHECK_STATUS_VAR(status);
 
         const char * const kernelName              = "setElem";
-        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
+        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
+        DAAL_CHECK_STATUS_VAR(status);
 
-        services::internal::sycl::KernelArguments args(3);
+        services::internal::sycl::KernelArguments args(3, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, index);
         args.set(1, element);
         args.set(2, buffer, services::internal::sycl::AccessModeIds::write);
 
         services::internal::sycl::KernelRange range(1);
 
-        ctx.run(range, kernel, args, &status);
+        ctx.run(range, kernel, args, status);
 
         return status;
     }
@@ -119,12 +125,15 @@ struct HelperObjectiveFunction
         services::internal::sycl::ExecutionContextIface & ctx    = services::internal::getDefaultContext();
         services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-        buildProgram(factory);
+        status |= buildProgram(factory);
+        DAAL_CHECK_STATUS_VAR(status);
 
         const char * const kernelName              = "setColElem";
-        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
+        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
+        DAAL_CHECK_STATUS_VAR(status);
 
-        services::internal::sycl::KernelArguments args(4);
+        services::internal::sycl::KernelArguments args(4, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, icol);
         args.set(1, element);
         args.set(2, buffer, services::internal::sycl::AccessModeIds::write);
@@ -132,7 +141,7 @@ struct HelperObjectiveFunction
 
         services::internal::sycl::KernelRange range(n);
 
-        ctx.run(range, kernel, args, &status);
+        ctx.run(range, kernel, args, status);
 
         return status;
     }
@@ -145,12 +154,15 @@ struct HelperObjectiveFunction
         services::internal::sycl::ExecutionContextIface & ctx    = services::internal::getDefaultContext();
         services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-        buildProgram(factory);
+        status |= buildProgram(factory);
+        DAAL_CHECK_STATUS_VAR(status);
 
         const char * const kernelName              = "transpose";
-        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
+        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
+        DAAL_CHECK_STATUS_VAR(status);
 
-        services::internal::sycl::KernelArguments args(4);
+        services::internal::sycl::KernelArguments args(4, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, x, services::internal::sycl::AccessModeIds::read);
         args.set(1, xt, services::internal::sycl::AccessModeIds::write);
         args.set(2, n);
@@ -158,15 +170,19 @@ struct HelperObjectiveFunction
 
         services::internal::sycl::KernelRange range(n, p);
 
-        ctx.run(range, kernel, args, &status);
+        ctx.run(range, kernel, args, status);
 
-        return services::Status();
+        return status;
     }
 
     static services::Status sumReduction(const services::internal::Buffer<algorithmFPType> & reductionBuffer, const size_t nWorkGroups,
                                          algorithmFPType & result)
     {
-        auto sumReductionArrayPtr      = reductionBuffer.toHost(data_management::readOnly);
+        services::Status status;
+
+        auto sumReductionArrayPtr = reductionBuffer.toHost(data_management::readOnly, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
         const auto * sumReductionArray = sumReductionArrayPtr.get();
 
         // Final summation with CPU
@@ -175,7 +191,7 @@ struct HelperObjectiveFunction
             result += sumReductionArray[i];
         }
 
-        return services::Status();
+        return status;
     }
 
     // l1*||beta|| + l2*||beta||**2
@@ -190,10 +206,12 @@ struct HelperObjectiveFunction
         services::internal::sycl::ExecutionContextIface & ctx    = services::internal::getDefaultContext();
         services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-        buildProgram(factory);
+        status |= buildProgram(factory);
+        DAAL_CHECK_STATUS_VAR(status);
 
         const char * const kernelName              = "regularization";
-        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
+        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
+        DAAL_CHECK_STATUS_VAR(status);
 
         services::internal::sycl::KernelNDRange range(1);
 
@@ -212,14 +230,15 @@ struct HelperObjectiveFunction
         services::internal::sycl::KernelRange localRange(workItemsPerGroup);
         services::internal::sycl::KernelRange globalRange(workItemsPerGroup * nWorkGroups);
 
-        range.local(localRange, &status);
-        range.global(globalRange, &status);
+        range.local(localRange, status);
+        range.global(globalRange, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        services::internal::sycl::UniversalBuffer buffer            = ctx.allocate(idType, nWorkGroups, &status);
+        services::internal::sycl::UniversalBuffer buffer            = ctx.allocate(idType, nWorkGroups, status);
         services::internal::Buffer<algorithmFPType> reductionBuffer = buffer.get<algorithmFPType>();
 
-        services::internal::sycl::KernelArguments args(6 /*7*/);
+        services::internal::sycl::KernelArguments args(6 /*7*/, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, beta, services::internal::sycl::AccessModeIds::read);
         args.set(1, nBeta);
         args.set(2, n);
@@ -228,7 +247,7 @@ struct HelperObjectiveFunction
         args.set(5, l2);
         //args.set(6, services::internal::sycl::LocalBuffer(idType, workItemsPerGroup));
 
-        ctx.run(range, kernel, args, &status);
+        ctx.run(range, kernel, args, status);
 
         DAAL_CHECK_STATUS(status, sumReduction(reductionBuffer, nWorkGroups, reg));
 
@@ -244,10 +263,12 @@ struct HelperObjectiveFunction
         services::internal::sycl::ExecutionContextIface & ctx    = services::internal::getDefaultContext();
         services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-        buildProgram(factory);
+        status |= buildProgram(factory);
+        DAAL_CHECK_STATUS_VAR(status);
 
         const char * const kernelName              = "sumReduction";
-        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
+        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
+        DAAL_CHECK_STATUS_VAR(status);
 
         services::internal::sycl::KernelNDRange range(1);
 
@@ -266,20 +287,21 @@ struct HelperObjectiveFunction
         services::internal::sycl::KernelRange localRange(workItemsPerGroup);
         services::internal::sycl::KernelRange globalRange(workItemsPerGroup * nWorkGroups);
 
-        range.local(localRange, &status);
-        range.global(globalRange, &status);
+        range.local(localRange, status);
+        range.global(globalRange, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        services::internal::sycl::UniversalBuffer buffer            = ctx.allocate(idType, nWorkGroups, &status);
+        services::internal::sycl::UniversalBuffer buffer            = ctx.allocate(idType, nWorkGroups, status);
         services::internal::Buffer<algorithmFPType> reductionBuffer = buffer.get<algorithmFPType>();
 
-        services::internal::sycl::KernelArguments args(3 /*4*/);
+        services::internal::sycl::KernelArguments args(3 /*4*/, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, x, services::internal::sycl::AccessModeIds::read);
         args.set(1, n);
         args.set(2, reductionBuffer, services::internal::sycl::AccessModeIds::write);
         //args.set(3, services::internal::sycl::LocalBuffer(idType, workItemsPerGroup));
 
-        ctx.run(range, kernel, args, &status);
+        ctx.run(range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         DAAL_CHECK_STATUS(status, sumReduction(reductionBuffer, nWorkGroups, result));
@@ -296,18 +318,21 @@ struct HelperObjectiveFunction
         services::internal::sycl::ExecutionContextIface & ctx    = services::internal::getDefaultContext();
         services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-        buildProgram(factory);
+        status |= buildProgram(factory);
+        DAAL_CHECK_STATUS_VAR(status);
 
         const char * const kernelName              = "addVectorScalar";
-        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
+        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
+        DAAL_CHECK_STATUS_VAR(status);
 
-        services::internal::sycl::KernelArguments args(2);
+        services::internal::sycl::KernelArguments args(2, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, x, services::internal::sycl::AccessModeIds::write);
         args.set(1, alpha);
 
         services::internal::sycl::KernelRange range(n);
 
-        ctx.run(range, kernel, args, &status);
+        ctx.run(range, kernel, args, status);
 
         return status;
     }
@@ -322,19 +347,22 @@ struct HelperObjectiveFunction
         services::internal::sycl::ExecutionContextIface & ctx    = services::internal::getDefaultContext();
         services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-        buildProgram(factory);
+        status |= buildProgram(factory);
+        DAAL_CHECK_STATUS_VAR(status);
 
         const char * const kernelName              = "addVectorScalar2";
-        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
+        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
+        DAAL_CHECK_STATUS_VAR(status);
 
-        services::internal::sycl::KernelArguments args(3);
+        services::internal::sycl::KernelArguments args(3, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, x, services::internal::sycl::AccessModeIds::write);
         args.set(1, y, services::internal::sycl::AccessModeIds::read);
         args.set(2, id);
 
         services::internal::sycl::KernelRange range(n);
 
-        ctx.run(range, kernel, args, &status);
+        ctx.run(range, kernel, args, status);
 
         return status;
     }
@@ -349,14 +377,17 @@ struct HelperObjectiveFunction
         services::internal::sycl::ExecutionContextIface & ctx    = services::internal::getDefaultContext();
         services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-        buildProgram(factory);
+        status |= buildProgram(factory);
+        DAAL_CHECK_STATUS_VAR(status);
 
         const algorithmFPType interceptValue = interceptFlag ? algorithmFPType(1) : algorithmFPType(0);
 
         const char * const kernelName              = "getXY";
-        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
+        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
+        DAAL_CHECK_STATUS_VAR(status);
 
-        services::internal::sycl::KernelArguments args(7);
+        services::internal::sycl::KernelArguments args(7, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, xBuff, services::internal::sycl::AccessModeIds::read);
         args.set(1, yBuff, services::internal::sycl::AccessModeIds::read);
         args.set(2, indBuff, services::internal::sycl::AccessModeIds::read);
@@ -367,14 +398,15 @@ struct HelperObjectiveFunction
 
         services::internal::sycl::KernelRange range(p, nBatch);
 
-        ctx.run(range, kernel, args, &status);
+        ctx.run(range, kernel, args, status);
 
         return status;
     }
 
 private:
-    static void buildProgram(services::internal::sycl::ClKernelFactoryIface & factory)
+    static services::Status buildProgram(services::internal::sycl::ClKernelFactoryIface & factory)
     {
+        services::Status status;
         services::String options = services::internal::sycl::getKeyFPType<algorithmFPType>();
 
         services::String cachekey("__daal_algorithms_optimization_solver_objective_function_");
@@ -382,7 +414,10 @@ private:
 
         options.add(" -D LOCAL_SUM_SIZE=256 "); //depends on workItemsPerGroup value
 
-        factory.build(services::internal::sycl::ExecutionTargetIds::device, cachekey.c_str(), clKernelObjectiveFunction, options.c_str());
+        factory.build(services::internal::sycl::ExecutionTargetIds::device, cachekey.c_str(), clKernelObjectiveFunction, options.c_str(), status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        return status;
     }
 };
 

@@ -70,7 +70,8 @@ template <typename algorithmFPType>
 class ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist> : public daal::algorithms::Kernel
 {
 public:
-    ClassificationTrainBatchKernelOneAPI() {}
+    ClassificationTrainBatchKernelOneAPI() : _nClasses(0), _nRows(0), _nFeatures(0), _nSelectedRows(0), _nMaxBinsAmongFtrs(0), _totalBins(0) {};
+
     services::Status compute(services::HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y,
                              decision_forest::classification::Model & m, Result & res,
                              const decision_forest::classification::training::interface1::Parameter & par)
@@ -141,11 +142,11 @@ private:
 
     algorithmFPType computeOOBError(const dtrees::internal::Tree & t, const algorithmFPType * x, const algorithmFPType * y, const size_t nRows,
                                     const size_t nFeatures, const services::internal::sycl::UniversalBuffer & indices, size_t n,
-                                    services::internal::sycl::UniversalBuffer oobBuf, services::Status * status);
+                                    services::internal::sycl::UniversalBuffer oobBuf, services::Status & status);
 
     algorithmFPType computeOOBErrorPerm(const dtrees::internal::Tree & t, const algorithmFPType * x, const algorithmFPType * y, const size_t nRows,
                                         const size_t nFeatures, const services::internal::sycl::UniversalBuffer & indices, const int * indicesPerm,
-                                        const size_t testFtrInd, size_t n, services::Status * status);
+                                        const size_t testFtrInd, size_t n, services::Status & status);
 
     services::Status finalizeOOBError(const algorithmFPType * y, const services::internal::sycl::UniversalBuffer & oobBuf, const size_t nRows,
                                       algorithmFPType * res, algorithmFPType * resPerObs);
@@ -174,6 +175,9 @@ private:
     static constexpr size_t _int32max = static_cast<size_t>(services::internal::MaxVal<int32_t>::get());
 
     size_t _nClasses;
+    size_t _nRows;
+    size_t _nFeatures;
+    size_t _nSelectedRows;
     size_t _nMaxBinsAmongFtrs;
     size_t _totalBins;
 };

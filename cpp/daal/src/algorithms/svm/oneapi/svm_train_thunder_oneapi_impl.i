@@ -108,13 +108,15 @@ services::Status SVMTrainOneAPI<algorithmFPType, thunder>::smoKernel(
     cachekey.add(build_options);
 
     services::Status status;
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelBlockSMO, build_options.c_str(), &status);
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelBlockSMO, build_options.c_str(), status);
 
     DAAL_CHECK_STATUS_VAR(status);
 
-    auto kernel = factory.getKernel("smoKernel");
+    auto kernel = factory.getKernel("smoKernel", status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(12);
+    KernelArguments args(12, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, y, AccessModeIds::read);
     args.set(1, kernelWsRows, AccessModeIds::read);
     args.set(2, wsIndices, AccessModeIds::read);
@@ -134,12 +136,12 @@ services::Status SVMTrainOneAPI<algorithmFPType, thunder>::smoKernel(
     KernelRange globalRange(nWS);
 
     KernelNDRange range(1);
-    range.global(globalRange, &status);
+    range.global(globalRange, status);
     DAAL_CHECK_STATUS_VAR(status);
-    range.local(localRange, &status);
+    range.local(localRange, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    context.run(range, kernel, args, &status);
+    context.run(range, kernel, args, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     return status;
@@ -177,8 +179,8 @@ services::Status SVMTrainOneAPI<algorithmFPType, thunder>::compute(const Numeric
     const size_t nVectors  = xTable->getNumberOfRows();
     const size_t nFeatures = xTable->getNumberOfColumns();
     // ai = 0
-    auto alphaU = context.allocate(idType, nVectors, &status);
-    context.fill(alphaU, 0.0, &status);
+    auto alphaU = context.allocate(idType, nVectors, status);
+    context.fill(alphaU, 0.0, status);
     DAAL_CHECK_STATUS_VAR(status);
     auto alphaBuff = alphaU.template get<algorithmFPType>();
 
@@ -187,7 +189,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, thunder>::compute(const Numeric
     auto yBuff = yBD.getBuffer();
 
     // gradi = -yi
-    auto gradU = context.allocate(idType, nVectors, &status);
+    auto gradU = context.allocate(idType, nVectors, status);
     DAAL_CHECK_STATUS_VAR(status);
     auto gradBuff = gradU.template get<algorithmFPType>();
 
@@ -201,11 +203,11 @@ services::Status SVMTrainOneAPI<algorithmFPType, thunder>::compute(const Numeric
 
     const size_t innerMaxIterations(nWS * cInnerIterations);
 
-    auto deltaalphaU = context.allocate(idType, nWS, &status);
+    auto deltaalphaU = context.allocate(idType, nWS, status);
     DAAL_CHECK_STATUS_VAR(status);
     auto deltaalphaBuff = deltaalphaU.template get<algorithmFPType>();
 
-    auto resinfoU = context.allocate(idType, 2, &status);
+    auto resinfoU = context.allocate(idType, 2, status);
     DAAL_CHECK_STATUS_VAR(status);
     auto resinfoBuff = resinfoU.template get<algorithmFPType>();
 
@@ -238,7 +240,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, thunder>::compute(const Numeric
                                             deltaalphaBuff, resinfoBuff, nWS));
 
         {
-            auto resinfoHostPtr = resinfoBuff.toHost(ReadWriteMode::readOnly, &status);
+            auto resinfoHostPtr = resinfoBuff.toHost(ReadWriteMode::readOnly, status);
             DAAL_CHECK_STATUS_VAR(status);
             auto resinfoHost = resinfoHostPtr.get();
             diff             = resinfoHost[1];

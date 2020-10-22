@@ -20,15 +20,12 @@
 
 help:
 	@echo "Usage: make {libintel64|sointel64|help}"
-	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
+	@echo "[example=name] [compiler=compiler_name] [mode=mode_name]"
 	@echo
 	@echo "name              - example name. Please see daal.lst file."
 	@echo
 	@echo "compiler_name     - the only supported compiler is clang (default value)"
 	@echo "                    Intel(R) oneAPI DPC++ compiler"
-	@echo
-	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
-	@echo
 	@echo "mode_name         - can be build or run. Default is run"
 
 ##------------------------------------------------------------------------------
@@ -87,8 +84,7 @@ else
 endif
 
 ifeq ($(threading),sequential)
-    DAAL_LIB_T := $(DAAL_LIB_EXT),-lonedal_sequential
-    EXT_LIB += $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
+    $(error Sequential version is not supported. To run sequential version please refer to 'examples/daal/cpp')
 else
     override threading = parallel
     DAAL_LIB_T := $(DAAL_LIB_EXT),-lonedal_thread
@@ -97,7 +93,10 @@ endif
 
 DAAL_LIB := -L$(DAAL_PATH),$(DAAL_LIB_EXT),-lonedal_core,-Bdynamic -Wl,$(DAAL_LIB_T)
 
-COPTS := -Wall -w -I./source/utils
+COPTS := -pedantic -Wall -Wextra -Werror \
+         -Wno-deprecated-declarations \
+         -Wno-unused-parameter \
+         -I./source/utils
 
 ifeq ($(compiler),clang)
     CC = clang++

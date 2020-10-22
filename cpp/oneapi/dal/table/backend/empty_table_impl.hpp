@@ -56,7 +56,7 @@ public:
         block.reset();
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename Data>
     void pull_rows(sycl::queue&, array<Data>& block, const range&, const sycl::usm::alloc&) const {
         block.reset();

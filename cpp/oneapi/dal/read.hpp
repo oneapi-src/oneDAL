@@ -26,7 +26,7 @@ auto read(Args&&... args) {
     return detail::read_dispatch<Object>(std::forward<Args>(args)...);
 }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 template <typename Object, typename... Args>
 auto read(sycl::queue& queue, Args&&... args) {
     return detail::read_dispatch<Object>(detail::data_parallel_policy{ queue },
