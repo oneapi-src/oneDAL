@@ -52,10 +52,10 @@ public:
 
     static void applyBeta(const algorithmFPType * x, const algorithmFPType * beta, algorithmFPType * xb, size_t nRows, size_t nClasses, size_t nCols,
                           bool bIntercept);
-    static void applyBetaThreaded(const algorithmFPType * x, const algorithmFPType * beta, algorithmFPType * xb, size_t nRows, size_t nClasses,
-                                  size_t nCols, bool bIntercept);
 
-    static void softmax(const algorithmFPType * arg, algorithmFPType * res, size_t nRows, size_t nCols);
+    static void softmax(const algorithmFPType * const arg, algorithmFPType * const res, size_t nRows, size_t nCols,
+                        algorithmFPType * const softmaxSums, const algorithmFPType * const yLocal);
+
     static void softmaxThreaded(const algorithmFPType * arg, algorithmFPType * res, size_t nRows, size_t nCols);
 
 protected:
