@@ -425,9 +425,9 @@ protected:
                 NumericTableFeature f = (*_ddict)[i];
 
                 BufferHostReinterpreter<char> reinterpreter(_arrays[i], rwMode, nrows);
-                TypeDispatcher::dispatch(_arrays[i].type(), reinterpreter, st);
-                services::throwIfPossible(st);
-                DAAL_CHECK_STATUS_VAR(st);
+                TypeDispatcher::dispatch(_arrays[i].type(), reinterpreter, status);
+                services::throwIfPossible(status);
+                DAAL_CHECK_STATUS_VAR(status);
 
                 auto charPtr = reinterpreter.getResult();
                 arch->set(charPtr.get(), nrows * f.typeSize);
@@ -620,7 +620,6 @@ private:
             return services::Status();
         }
 
-        services::Status st;
         auto uniBuffer = _arrays[feat_idx];
         BufferConverterTo<T> converter(uniBuffer, idx, nrows);
         TypeDispatcher::dispatch(uniBuffer.type(), converter, st);

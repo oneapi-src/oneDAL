@@ -20,7 +20,6 @@
 
 #include "services/internal/execution_context.h"
 #include "services/internal/sycl/types_utils.h"
-#include "services/internal/sycl/daal_defines_sycl.h"
 #include "data_management/data/internal/conversion.h"
 
 /// \cond INTERNAL
