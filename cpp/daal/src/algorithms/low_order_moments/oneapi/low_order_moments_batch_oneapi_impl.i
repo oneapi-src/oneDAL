@@ -32,7 +32,7 @@
 #include "src/algorithms/low_order_moments/oneapi/low_order_moments_kernel_batch_oneapi.h"
 #include "src/externals/service_ittnotify.h"
 #include "services/internal/execution_context.h"
-#include "services/internal/sycl/daal_defines_sycl.h"
+#include "services/daal_defines.h"
 
 using namespace daal::services::internal;
 using namespace daal::services::internal::sycl;
