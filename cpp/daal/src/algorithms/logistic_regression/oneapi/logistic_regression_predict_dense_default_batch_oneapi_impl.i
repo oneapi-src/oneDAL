@@ -134,7 +134,7 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::compute(serv
     DAAL_CHECK(p <= maxInt32Value, services::ErrorIncorrectNumberOfColumns);
     DAAL_CHECK(nClasses <= maxInt32Value, services::ErrorIncorrectNumberOfClasses);
     DAAL_OVERFLOW_CHECK_BY_ADDING(uint32_t, p, 1);
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, n, (p+1));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, n, (p + 1));
 
     const bool isBinary = nClasses == 2;
 

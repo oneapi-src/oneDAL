@@ -462,7 +462,7 @@ const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP13_ID = 121310;
     {                                                                                             \
         if (!(0 == (op1)) && !(0 == (op2)))                                                       \
         {                                                                                         \
-            volatile type r = (op1) * (op2);                                                               \
+            volatile type r = (op1) * (op2);                                                      \
             r /= (op1);                                                                           \
             if (!(r == (op2))) return services::Status(services::ErrorBufferSizeIntegerOverflow); \
         }                                                                                         \
@@ -470,7 +470,7 @@ const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP13_ID = 121310;
 
 #define DAAL_OVERFLOW_CHECK_BY_ADDING(type, op1, op2)                                         \
     {                                                                                         \
-        volatile type r = (op1) + (op2);                                                               \
+        volatile type r = (op1) + (op2);                                                      \
         r -= (op1);                                                                           \
         if (!(r == (op2))) return services::Status(services::ErrorBufferSizeIntegerOverflow); \
     }

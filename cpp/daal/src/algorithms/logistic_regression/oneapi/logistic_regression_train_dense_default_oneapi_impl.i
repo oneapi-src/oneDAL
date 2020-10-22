@@ -56,8 +56,8 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
 {
     services::Status status;
 
-    const size_t p     = x->getNumberOfColumns();
-    const size_t n     = x->getNumberOfRows();
+    const size_t p = x->getNumberOfColumns();
+    const size_t n = x->getNumberOfRows();
 
     constexpr size_t maxInt32Value = static_cast<size_t>(daal::services::internal::MaxVal<int32_t>::get());
 
@@ -103,7 +103,7 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
         pSolver->getParameter()->function  = objFunc;
     }
 
-    const size_t nBetaRows  = m.getBeta()->getNumberOfRows();
+    const size_t nBetaRows = m.getBeta()->getNumberOfRows();
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBeta, nBetaRows);
     const size_t nBetaTotal = nBeta * nBetaRows;
 
