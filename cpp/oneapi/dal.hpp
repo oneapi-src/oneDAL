@@ -38,6 +38,7 @@
 
 /* I/O */
 #include "oneapi/dal/io/csv.hpp"
+#include "oneapi/dal/io/load_graph.hpp"
 
 /* Algos */
 #include "oneapi/dal/algo/decision_forest.hpp"
