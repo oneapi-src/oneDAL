@@ -28,6 +28,7 @@
 #include "src/data_management/service_numeric_table.h"
 #include "src/sycl/blas_gpu.h"
 #include "services/internal/execution_context.h"
+#include "src/services/service_data_utils.h"
 #include "src/algorithms/linear_model/oneapi/cl_kernel/linear_model_prediction.cl"
 
 namespace daal
@@ -59,14 +60,16 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::addBetaInte
     factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelPrediction, options.c_str());
 
     const char * const kernelName = "addBetaIntercept";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     KernelArguments args(4);
     args.set(0, betaTable, AccessModeIds::read);
-    DAAL
+    DAAL_ASSERT(nBetas <= services::internal::MaxVal<uint32_t>::get());
     args.set(1, nBetas);
     args.set(2, yTable, AccessModeIds::write);
-    args.set(3, /*uint nResponses =*/yNCols);
+    DAAL_ASSERT(yNCols <= services::internal::MaxVal<uint32_t>::get());
+    args.set(3, yNCols);
 
     KernelRange range(yNRows, yNCols);
 

@@ -67,7 +67,6 @@ services::Status KernelHelperOneAPI<algorithmFPType>::copyBetaToResult(const ser
     const services::String options = getKeyFPType<algorithmFPType>();
     services::String cachekey("__daal_algorithms_linear_regression_training_helper_");
     cachekey.add(options);
-    status |= buildProgram<algorithmFPType>()
     factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelHelperBetaCopy, options.c_str());
  
     const char * const kernelName = "copyBeta";
@@ -77,13 +76,13 @@ services::Status KernelHelperOneAPI<algorithmFPType>::copyBetaToResult(const ser
     KernelArguments args(5, status);
     DAAL_ASSERT_UNIVERSAL_BUFFER(betaTmp, algorithmFPType, );
     args.set(0, /*const __global algorithmFPType * src =*/betaTmp, AccessModeIds::read);
-    DAAL_ASSERT_CONVERSION_XFLOW(nBetas, uint32_t);
+    DAAL_ASSERT(nBetas <= services::internal::MaxVal<uint32_t>::get());
     args.set(1, /*uint nCols =*/static_cast<uint32_t>(nBetas));
-    DAAL_ASSERT_CONVERSION_XFLOW(nBetasIntercept, uint32_t);
+    DAAL_ASSERT(nBetasIntercept <= services::internal::MaxVal<uint32_t>::get());
     args.set(2, /*uint nColsSrcs =*/static_cast<uint32_t>(nBetasIntercept));
     DAAL_ASSERT_UNIVERSAL_BUFFER(betaRes, algorithmFPType, nBetas);
     args.set(3, betaRes, AccessModeIds::write);
-    DAAL_ASSERT_CONVERSION_XFLOW(intercept, uint32_t);
+    DAAL_ASSERT(intercept <= services::internal::MaxVal<uint32_t>::get());
     args.set(4, /*uint intercept =*/static_cast<uint32_t>(intercept));
 
     KernelRange range(nResponses, nBetas);

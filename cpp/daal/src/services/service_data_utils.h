@@ -94,29 +94,6 @@ struct MinVal<float>
     DAAL_FORCEINLINE static constexpr float get() { return FLT_MIN; }
 };
 
-template<typename TypeToConvert, typename TypeFromConvert>
-DAAL_FORCEINLINE services::Status check_conversion_overflow(TypeFromConvert var)
-{
-    return (var <= services::internal::MaxVal<TypeToConvert>::get()) ? 
-        services::Status() : sevices::Status(services::ErrorID::ErrorConversionOverFlow);
-}
-
-template<typename TypeToConvert, typename TypeFromConvert>
-DAAL_FORCEINLINE services::Status check_conversion_underflow(TypeFromConvert var)
-{
-    return (services::internal::MinVal<TypeToConvert>::get() <= var) ? 
-        services::Status() : sevices::Status(services::ErrorID::ErrorConversionUnderFlow);
-}
-
-template<typename TypeToConvert, typename TypeFromConvert>
-DAAL_FORCEINLINE services::Status check_conversion_xflow(TypeFromConvert var)
-{
-    services::Status st;
-    st |= check_conversion_overflow<TypeToConvert>(var);
-    st |= check_conversion_underflow<TypeToConvert>(var);
-    return st;
-}
-
 template <typename T>
 struct EpsilonVal
 {
@@ -159,32 +136,5 @@ void vectorStrideConvertFuncCpu(size_t n, void * src, size_t srcByteStride, void
 } // namespace internal
 } // namespace services
 } // namespace daal
-
-#define DAAL_CHECK_CONVERSION_OVERFLOW(var, type, status)                       \
-(status) |= daal::services::internal::check_conversion_overflow<type>((var));   
-
-#define DAAL_ASSERT_CONVERSION_OVERFLOW(var, type)                              \
-{                                                                               \
-    auto st = daal::services::internal::check_conversion_overflow<type>((var)); \
-    if(!st.ok()) return st;                                                     \
-}
-
-#define DAAL_CHECK_CONVERSION_UNDERFLOW(var, type, status)                      \
-(status) |= daal::services::internal::check_conversion_underflow<type>((var));
-
-#define DAAL_ASSERT_CONVERSION_UNDERFLOW(var, type)                             \
-{                                                                               \
-    auto st = daal::services::internal::check_conversion_underflow<type>((var));\
-    if(!st.ok()) return st;                                                     \
-}
-
-#define DAAL_CHECK_CONVERSION_XFLOW(var, type, status)                          \
-(status) |= daal::services::internal::check_conversion_xflow<type>((var));
-
-#define DAAL_ASSERT_CONVERSION_XFLOW(var, type)                                 \
-{                                                                               \
-    auto st = daal::services::internal::check_conversion_xflow<type>((var));    \
-    if(!st.ok()) return st;                                                     \
-}
 
 #endif
