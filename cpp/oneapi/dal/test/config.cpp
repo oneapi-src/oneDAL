@@ -16,14 +16,14 @@
 
 #include "oneapi/dal/test/config.hpp"
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 #include "oneapi/dal/test/common.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #endif
 
 namespace oneapi::dal::test {
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 
 static sycl::queue get_default_queue() {
     return sycl::gpu_selector{};

@@ -19,5 +19,5 @@
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::preview::load_graph::detail {
-ONEAPI_DAL_EXPORT int daal_string_to_int(const char *nptr, char **endptr);
+ONEDAL_EXPORT int daal_string_to_int(const char *nptr, char **endptr);
 } // namespace oneapi::dal::preview::load_graph::detail

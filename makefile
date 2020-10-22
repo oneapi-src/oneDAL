@@ -100,7 +100,7 @@ y      := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib fbsd/so))
 -cxx17 := $(if $(COMPILER_is_vc),/std:c++17,$(-Q)std=c++17)
 -fPIC  := $(if $(OS_is_win),,-fPIC)
 -Zl    := $(-Zl.$(COMPILER))
--DEBC  := $(if $(REQDBG),$(-DEBC.$(COMPILER)) -DDEBUG_ASSERT) -DTBB_SUPPRESS_DEPRECATED_MESSAGES -D__TBB_LEGACY_MODE $(if $(REQPRF), -D__DAAL_ITTNOTIFY_ENABLE__)
+-DEBC  := $(if $(REQDBG),$(-DEBC.$(COMPILER)) -DDEBUG_ASSERT -DONEDAL_ENABLE_ASSERT) -DTBB_SUPPRESS_DEPRECATED_MESSAGES -D__TBB_LEGACY_MODE $(if $(REQPRF), -D__DAAL_ITTNOTIFY_ENABLE__)
 -DEBJ  := $(if $(REQDBG),-g,-g:none)
 -DEBL  := $(if $(REQDBG),$(if $(OS_is_win),-debug,))
 -EHsc  := $(if $(OS_is_win),-EHsc,)
@@ -712,7 +712,7 @@ $(ONEAPI.objs_a.dpc): COPT += $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.op
                               -DDAAL_NOTHROW_EXCEPTIONS \
                               -DDAAL_HIDE_DEPRECATED \
                               -DDAAL_SYCL_INTERFACE \
-                              -DONEAPI_DAL_DATA_PARALLEL \
+                              -DONEDAL_DATA_PARALLEL \
                               -D__TBB_NO_IMPLICIT_LINKAGE \
                               -DTBB_USE_ASSERT=0 \
                                @$(ONEAPI.tmpdir_a.dpc)/inc_a_folders.txt
@@ -730,7 +730,7 @@ $(ONEAPI.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic
                           -DDAAL_NOTHROW_EXCEPTIONS \
                           -DDAAL_HIDE_DEPRECATED \
                           $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG) \
-                          -D__ONEAPI_DAL_ENABLE_DLL_EXPORT__ \
+                          -D__ONEDAL_ENABLE_DLL_EXPORT__ \
                           -D__TBB_NO_IMPLICIT_LINKAGE \
                           -DTBB_USE_ASSERT=0 \
                           @$(ONEAPI.tmpdir_y)/inc_y_folders.txt
@@ -747,9 +747,9 @@ $(ONEAPI.objs_y.dpc): COPT += $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.op
                               -DDAAL_NOTHROW_EXCEPTIONS \
                               -DDAAL_HIDE_DEPRECATED \
                               -DDAAL_SYCL_INTERFACE \
-                              -DONEAPI_DAL_DATA_PARALLEL \
+                              -DONEDAL_DATA_PARALLEL \
                               $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG) \
-                              -D__ONEAPI_DAL_ENABLE_DLL_EXPORT__ \
+                              -D__ONEDAL_ENABLE_DLL_EXPORT__ \
                               -D__TBB_NO_IMPLICIT_LINKAGE \
                               -DTBB_USE_ASSERT=0 \
                               @$(ONEAPI.tmpdir_y.dpc)/inc_y_folders.txt

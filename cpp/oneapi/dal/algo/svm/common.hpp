@@ -38,7 +38,7 @@ public:
 using kf_iface_ptr = std::shared_ptr<kernel_function_iface>;
 
 template <typename Kernel>
-class ONEAPI_DAL_EXPORT kernel_function : public base, public kernel_function_iface {
+class ONEDAL_EXPORT kernel_function : public base, public kernel_function_iface {
 public:
     explicit kernel_function(const Kernel &kernel) : kernel_(kernel) {}
 
@@ -95,7 +95,7 @@ struct regression {};
 using by_default = classification;
 } // namespace task
 
-class ONEAPI_DAL_EXPORT descriptor_base : public base {
+class ONEDAL_EXPORT descriptor_base : public base {
 public:
     using tag_t = detail::tag;
     using float_t = float;
@@ -181,7 +181,7 @@ public:
     }
 };
 
-class ONEAPI_DAL_EXPORT model : public base {
+class ONEDAL_EXPORT model : public base {
     friend dal::detail::pimpl_accessor;
 
 public:

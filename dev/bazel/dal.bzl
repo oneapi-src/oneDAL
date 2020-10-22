@@ -356,7 +356,7 @@ def _dal_module(name, lib_tag="dal", is_dpc=False, features=[],
         },
         local_defines = local_defines + ([
             "DAAL_SYCL_INTERFACE",
-            "ONEAPI_DAL_DATA_PARALLEL"
+            "ONEDAL_DATA_PARALLEL"
         ] if is_dpc else []),
         deps = _expand_select(deps),
         **kwargs,

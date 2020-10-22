@@ -33,7 +33,7 @@ struct train_ops_dispatcher<host_policy, Float, Task, Method> {
 };
 
 #define INSTANTIATE(F, T, M) \
-    template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<host_policy, F, T, M>;
+    template struct ONEDAL_EXPORT train_ops_dispatcher<host_policy, F, T, M>;
 
 INSTANTIATE(float, task::classification, method::smo)
 INSTANTIATE(float, task::classification, method::thunder)

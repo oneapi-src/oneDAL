@@ -35,7 +35,7 @@ struct compute_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
 };
 
 #define INSTANTIATE(F, M, T) \
-    template struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<data_parallel_policy, F, M, T>;
+    template struct ONEDAL_EXPORT compute_ops_dispatcher<data_parallel_policy, F, M, T>;
 
 INSTANTIATE(float, method::dense, task::init)
 INSTANTIATE(double, method::dense, task::init)
