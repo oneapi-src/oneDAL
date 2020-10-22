@@ -24,8 +24,7 @@ class PropertyTransformer(doxypy.TransformerPass):
     _default_re = re.compile(r'default *= *(.+)')
 
     def enter(self, node):
-        return (isinstance(node, doxypy.model.Namespace) or
-                isinstance(node, doxypy.model.Class))
+        return (isinstance(node, (doxypy.model.Class, doxypy.model.Namespace)))
 
     def transform(self, node):
         if isinstance(node, doxypy.model.Class):
@@ -121,5 +120,4 @@ class RstDescriptionTransformer(doxypy.TransformerPass):
                            'type', 'concept', 'enum', 'enumerator' }
         if directive in cpp_directives:
             return f':cpp:{directive}:'
-        else:
-            return f':{directive}:'
+        return f':{directive}:'

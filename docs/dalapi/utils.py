@@ -49,5 +49,4 @@ class FileModificationTimer(object):
         if hasattr(self, '_base_dir'):
             glob_str = f'{self._base_dir}/**/{self._pattern}'
             return iglob(glob_str, recursive=True)
-        else:
-            return self._files
+        return self._files
