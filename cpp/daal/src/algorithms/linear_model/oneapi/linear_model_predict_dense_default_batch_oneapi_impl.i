@@ -63,9 +63,10 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::addBetaInte
 
     KernelArguments args(4);
     args.set(0, betaTable, AccessModeIds::read);
+    DAAL
     args.set(1, nBetas);
     args.set(2, yTable, AccessModeIds::write);
-    args.set(3, yNCols);
+    args.set(3, /*uint nResponses =*/yNCols);
 
     KernelRange range(yNRows, yNCols);
 
@@ -99,16 +100,15 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute(con
 
     BlockDescriptor<algorithmFPType> betaBlock;
     DAAL_CHECK_STATUS(status, betaTable->getBlockOfRows(0, nResponses, ReadWriteMode::readOnly, betaBlock));
+
     const services::internal::Buffer<algorithmFPType> betaBuf = betaBlock.getBuffer();
 
     for (size_t blockIdx = 0; blockIdx < nBlocks; ++blockIdx)
     {
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, blockIdx, nRowsPerBlock);
         const size_t startRow = blockIdx * nRowsPerBlock;
-        size_t endRow         = startRow + nRowsPerBlock;
-        if (endRow > nRows)
-        {
-            endRow = nRows;
-        };
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, startRow, nRowsPerBlock);
+        const size_t endRow   = (endRows > nRows) ? nRows : startRow + nRowsPerBlock;
 
         BlockDescriptor<algorithmFPType> xBlock;
         BlockDescriptor<algorithmFPType> yBlock;
@@ -119,9 +119,16 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute(con
         const services::internal::Buffer<algorithmFPType> xBuf = xBlock.getBuffer();
         services::internal::Buffer<algorithmFPType> yBuf       = yBlock.getBuffer();
 
+        DAAL_ASSERT(endRow >= startRow);
         const size_t xNRows = endRow - startRow;
+        DAAL_ASSERT(nbetas >= 1);
         const size_t xNCols = nBetas - 1;
         const size_t yNCols = nResponses;
+
+        DAAL_ASSERT(xBuf.size() == xNRows * xNCols);
+        DAAL_ASSERT(betBuf.size() == yNCols * xNCols);
+        DAAL_ASSERT(yBuf.size() == xNRows * yNCols);
+
 
         /* SYRK: Compute beta*xTable for each block */
         status = BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::Trans, xNRows, yNCols, xNCols,

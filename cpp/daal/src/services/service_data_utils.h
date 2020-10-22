@@ -111,7 +111,10 @@ DAAL_FORCEINLINE services::Status check_conversion_underflow(TypeFromConvert var
 template<typename TypeToConvert, typename TypeFromConvert>
 DAAL_FORCEINLINE services::Status check_conversion_xflow(TypeFromConvert var)
 {
-    return check_conversion_overflow<TypeToConvert>(var) | check_conversion_underflow<TypeToConvert>(var);
+    services::Status st;
+    st |= check_conversion_overflow<TypeToConvert>(var);
+    st |= check_conversion_underflow<TypeToConvert>(var);
+    return st;
 }
 
 template <typename T>
@@ -158,7 +161,7 @@ void vectorStrideConvertFuncCpu(size_t n, void * src, size_t srcByteStride, void
 } // namespace daal
 
 #define DAAL_CHECK_CONVERSION_OVERFLOW(var, type, status)                       \
-(status) |= daal::services::internal::check_conversion_overflow<type>((var));   \
+(status) |= daal::services::internal::check_conversion_overflow<type>((var));   
 
 #define DAAL_ASSERT_CONVERSION_OVERFLOW(var, type)                              \
 {                                                                               \

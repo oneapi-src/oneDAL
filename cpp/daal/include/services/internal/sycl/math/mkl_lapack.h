@@ -56,6 +56,10 @@ struct MKLPotrf
                                 cl::sycl::buffer<algorithmFPType, 1> & scratchpad)
     {
         services::Status status;
+        
+        DAAL_ASSERT_CONVERSION_XFLOW(n, std::int64_t);
+        DAAL_ASSERT_CONVERSION_XFLOW(lda, std::int64_t);
+
         const ::oneapi::fpk::uplo uplomkl                = uplo == math::UpLo::Upper ? ::oneapi::fpk::uplo::upper : ::oneapi::fpk::uplo::lower;
         cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a.toSycl();
 
@@ -64,6 +68,8 @@ struct MKLPotrf
             const std::int64_t minimalScratchpadSize = ::oneapi::fpk::lapack::potrf_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, lda);
             if (scratchpad.get_count() < minimalScratchpadSize) return Status(ErrorID::ErrorMemoryAllocationFailed);
         }
+
+        if (scratchpad.get_count() <= 0) return services::Status(services::ErrorID::ErrorIncorrectSizeOfArray);
 
         ::oneapi::fpk::lapack::potrf(_queue, uplomkl, n, a_sycl_buff, lda, scratchpad, scratchpad.get_count());
 
@@ -117,6 +123,8 @@ struct MKLPotrs
             if (scratchpad.get_count() < minimalScratchpadSize) return Status(ErrorID::ErrorMemoryAllocationFailed);
         }
 
+        if (scratchpad.get_count() <= 0) return services::Status(services::ErrorID::ErrorIncorrectSizeOfArray);
+        
         ::oneapi::fpk::lapack::potrs(_queue, uplomkl, n, ny, a_sycl_buff, lda, b_sycl_buff, ldb, scratchpad, scratchpad.get_count());
 
         _queue.wait();

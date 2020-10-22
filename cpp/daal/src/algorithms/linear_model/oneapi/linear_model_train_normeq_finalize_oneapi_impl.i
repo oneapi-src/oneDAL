@@ -27,6 +27,7 @@
 #include "src/externals/service_lapack.h"
 #include "src/externals/service_ittnotify.h"
 
+
 namespace daal
 {
 namespace algorithms
@@ -151,7 +152,7 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::solveSystem(const size_t
     DAAL_ITTNOTIFY_SCOPED_TASK(solveSystem);
     services::Status status;
 
-    math::UpLo uplo = math::UpLo::Upper;
+    const math::UpLo uplo = math::UpLo::Upper;
 
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(solveSystem.xpotrf);
@@ -166,6 +167,7 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::solveSystem(const size_t
         status = LapackGpu<algorithmFPType>::xpotrs(uplo, p, ny, a, p, b, p);
     }
     DAAL_CHECK_STATUS_VAR(status);
+
     return status;
 }
 

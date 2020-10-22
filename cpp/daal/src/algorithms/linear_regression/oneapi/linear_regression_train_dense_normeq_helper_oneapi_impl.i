@@ -48,7 +48,6 @@ services::Status KernelHelperOneAPI<algorithmFPType>::computeBetasImpl(const siz
                                                                        const size_t ny, services::internal::Buffer<algorithmFPType> & b,
                                                                        const bool inteceptFlag) const
 {
-    DAAL
     return linear_model::normal_equations::training::internal::FinalizeKernelOneAPI<algorithmFPType>::solveSystem(p, a, ny, b);
 }
 
@@ -68,20 +67,24 @@ services::Status KernelHelperOneAPI<algorithmFPType>::copyBetaToResult(const ser
     const services::String options = getKeyFPType<algorithmFPType>();
     services::String cachekey("__daal_algorithms_linear_regression_training_helper_");
     cachekey.add(options);
+    status |= buildProgram<algorithmFPType>()
     factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelHelperBetaCopy, options.c_str());
-
+ 
     const char * const kernelName = "copyBeta";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(5);
-    args.set(0, betaTmp, AccessModeIds::read);
+    KernelArguments args(5, status);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(betaTmp, algorithmFPType, );
+    args.set(0, /*const __global algorithmFPType * src =*/betaTmp, AccessModeIds::read);
     DAAL_ASSERT_CONVERSION_XFLOW(nBetas, uint32_t);
-    args.set(1, /*uint nCols = */static_cast<uint32_t>(nBetas));
+    args.set(1, /*uint nCols =*/static_cast<uint32_t>(nBetas));
     DAAL_ASSERT_CONVERSION_XFLOW(nBetasIntercept, uint32_t);
-    args.set(2, /*uint nColsSrcs = */static_cast<uint32_t>(nBetasIntercept));
+    args.set(2, /*uint nColsSrcs =*/static_cast<uint32_t>(nBetasIntercept));
+    DAAL_ASSERT_UNIVERSAL_BUFFER(betaRes, algorithmFPType, nBetas);
     args.set(3, betaRes, AccessModeIds::write);
     DAAL_ASSERT_CONVERSION_XFLOW(intercept, uint32_t);
-    args.set(4, /*uint intercept = */static_cast<uint32_t>(intercept));
+    args.set(4, /*uint intercept =*/static_cast<uint32_t>(intercept));
 
     KernelRange range(nResponses, nBetas);
 
