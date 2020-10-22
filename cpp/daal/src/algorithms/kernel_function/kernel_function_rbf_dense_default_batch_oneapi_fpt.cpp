@@ -34,7 +34,7 @@ namespace rbf
 {
 namespace internal
 {
-template class KernelImplRBFOneAPI<defaultDense, DAAL_FPTYPE>;
+template class DAAL_EXPORT KernelImplRBFOneAPI<defaultDense, DAAL_FPTYPE>;
 
 } // namespace internal
 } // namespace rbf

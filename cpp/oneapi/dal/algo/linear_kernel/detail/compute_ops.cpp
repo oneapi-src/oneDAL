@@ -22,7 +22,7 @@ namespace oneapi::dal::linear_kernel::detail {
 using oneapi::dal::detail::host_policy;
 
 template <typename Float, typename Method>
-struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<host_policy, Float, Method> {
+struct compute_ops_dispatcher<host_policy, Float, Method> {
     compute_result operator()(const host_policy& ctx,
                               const descriptor_base& desc,
                               const compute_input& input) const {
