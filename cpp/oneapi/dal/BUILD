@@ -16,15 +16,6 @@ dal_generate_cpu_dispatcher(
 )
 
 dal_module(
-    name = "include_root",
-    includes = [ ".", "../.." ],
-    system_includes = [
-        "../../daal",
-        "../../daal/include",
-    ],
-)
-
-dal_module(
     name = "common",
     auto = True,
     hdrs = [
@@ -34,7 +25,7 @@ dal_module(
         "@onedal//cpp/oneapi:dal_header",
     ],
     extra_deps = [
-        ":include_root",
+        "@onedal//cpp/oneapi:include_root",
         "@onedal//cpp/daal:services",
         "@onedal//cpp/daal:data_management",
     ],
@@ -128,6 +119,6 @@ dal_collect_test_suites(
     ],
     tests = [
         ":common_tests",
-        "@onedal//cpp/oneapi:tests",
+        "@onedal//cpp/oneapi:dal_hpp_test",
     ],
 )

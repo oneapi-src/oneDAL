@@ -178,8 +178,8 @@ def dal_test(name, hdrs=[], srcs=[],
             "@config//:release_dynamic_test_link_mode": [
                 "@onedal_release//:onedal_dynamic",
             ],
-        }) +  ([
-            "@onedal//cpp/oneapi/dal:include_root"
+        }) + ([
+            "@onedal//cpp/oneapi:include_root"
         ]) + ([
             "@onedal//cpp/oneapi/dal/test:common",
         ] if catch2 else []),
@@ -340,11 +340,12 @@ dal_generate_cpu_dispatcher = rule(
     },
 )
 
-def dal_global_header_test(name, algo_dir, algo_exclude, dal_deps=[]):
+def dal_global_header_test(name, algo_dir, algo_exclude=[], algo_preview=[], dal_deps=[]):
     _generate_global_header_test_cpp(
         name = "_" + name,
         algo_dir = algo_dir,
         algo_exclude = algo_exclude,
+        algo_preview = algo_preview,
         deps = dal_deps,
     )
     dal_test(
@@ -376,6 +377,7 @@ def _generate_global_header_test_cpp_impl(ctx):
         sets.difference(sets.make(algo_names),
                         sets.make(ctx.attr.algo_exclude))
     )
+    preview_algo_names = sets.make(ctx.attr.algo_preview)
     test_file = ctx.actions.declare_file("{}.cpp".format(ctx.label.name))
     content = "#include \"oneapi/dal.hpp\"\n"
     # Add comments for people who may open this file to understand root cause of an error
@@ -388,7 +390,10 @@ def _generate_global_header_test_cpp_impl(ctx):
         "\n"
     )
     for algo_name in filtered_algo_names:
-        content += "using namespace oneapi::dal::{};\n".format(algo_name)
+        if sets.contains(preview_algo_names, algo_name):
+            content += "using namespace oneapi::dal::preview::{};\n".format(algo_name)
+        else:
+            content += "using namespace oneapi::dal::{};\n".format(algo_name)
     # Linkers may complain about empty object files, so
     # add dummy function. It's more safe to declare static function, but
     # compiler warns about unused functions in this case
@@ -402,6 +407,7 @@ _generate_global_header_test_cpp = rule(
     attrs = {
         "algo_dir": attr.string(mandatory=True),
         "algo_exclude": attr.string_list(),
+        "algo_preview": attr.string_list(),
         "deps": attr.label_list(mandatory=True),
     },
 )

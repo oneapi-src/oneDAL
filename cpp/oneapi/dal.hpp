@@ -31,11 +31,17 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/table/column_accessor.hpp"
 
+/* Graphs */
+#include "oneapi/dal/graph/graph_common.hpp"
+#include "oneapi/dal/graph/graph_service_functions.hpp"
+#include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
+
 /* I/O */
 #include "oneapi/dal/io/csv.hpp"
 
 /* Algos */
 #include "oneapi/dal/algo/decision_forest.hpp"
+#include "oneapi/dal/algo/jaccard.hpp"
 #include "oneapi/dal/algo/kmeans.hpp"
 #include "oneapi/dal/algo/kmeans_init.hpp"
 #include "oneapi/dal/algo/knn.hpp"
