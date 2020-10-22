@@ -23,6 +23,7 @@
 #include "services/internal/sycl/daal_defines_sycl.h"
 #include "data_management/data/internal/conversion.h"
 
+/// \cond INTERNAL
 namespace daal
 {
 namespace services
@@ -33,15 +34,6 @@ namespace sycl
 {
 namespace interface1
 {
-/** @ingroup oneapi_internal
- * @{
- */
-
-/**
- *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__BUFFERCONVERTERFROM"></a>
- *  \brief Converts UniversalBuffer from compile-time known type to
- *  runtime-known type
- */
 template <typename DataType>
 class BufferConverterFrom
 {
@@ -50,40 +42,34 @@ public:
         : _src(src), _dest(dest), _offset(offset), _size(size)
     {}
 
-    UniversalBuffer getResult(services::Status & st)
-    {
-        st = _st;
-        return _dest;
-    }
+    UniversalBuffer getResult() { return _dest; }
 
     template <typename T>
-    void operator()(Typelist<T>)
+    void operator()(Typelist<T>, Status & st)
     {
         using namespace daal::data_management;
         using namespace daal::data_management::internal;
 
+        DAAL_ASSERT(!_src.empty());
+        DAAL_ASSERT(!_dest.empty());
         DAAL_ASSERT_UNIVERSAL_BUFFER(_src, DataType, _size);
-        DAAL_ASSERT(_dest.type() == TypeIds::id<T>());
-
-        _st = services::Status();
+        DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(_dest, T);
 
         auto srcBuffer  = _src.template get<DataType>();
-        auto srcHostPtr = srcBuffer.toHost(readOnly, _st);
-        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(_st);
+        auto srcHostPtr = srcBuffer.toHost(readOnly, st);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
 
         auto destBuffer    = _dest.template get<T>();
-        auto destSubBuffer = destBuffer.getSubBuffer(_offset, _size, _st);
-        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(_st);
+        auto destSubBuffer = destBuffer.getSubBuffer(_offset, _size, st);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
 
-        auto destHostPtr = destSubBuffer.toHost(readWrite, _st);
-        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(_st);
+        auto destHostPtr = destSubBuffer.toHost(readWrite, st);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
 
         VectorDownCast<DataType, T>()(_size, srcHostPtr.get(), destHostPtr.get());
     }
 
 private:
-    services::Status _st;
-
     UniversalBuffer _src;
     UniversalBuffer _dest;
     size_t _offset;
@@ -101,64 +87,57 @@ class BufferConverterTo
 public:
     BufferConverterTo(const UniversalBuffer & src, size_t offset, size_t size) : _src(src), _offset(offset), _size(size) {}
 
-    services::internal::Buffer<DataType> getResult(services::Status & st)
-    {
-        st = _st;
-        return _dest;
-    }
+    Buffer<DataType> getResult() { return _dest; }
 
     template <typename T>
-    void operator()(Typelist<T>)
+    void operator()(Typelist<T>, Status & st)
     {
         using namespace daal::data_management;
         using namespace daal::data_management::internal;
 
-        _st = services::Status();
+        DAAL_ASSERT(!_src.empty());
+        DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(_src, T);
 
         DAAL_ASSERT(_src.type() == TypeIds::id<T>());
 
         auto buffer = _src.template get<T>();
 
-        auto subbuffer = buffer.getSubBuffer(_offset, _size, _st);
-        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(_st);
+        auto subbuffer = buffer.getSubBuffer(_offset, _size, st);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
 
-        auto memoryBlock = subbuffer.toHost(readOnly, _st);
-        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(_st);
+        auto memoryBlock = subbuffer.toHost(readOnly, st);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
 
         auto & context      = getDefaultContext();
-        auto uniBufferBlock = context.allocate(TypeIds::id<DataType>(), _size, _st);
-        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(_st);
+        auto uniBufferBlock = context.allocate(TypeIds::id<DataType>(), _size, st);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
 
         auto bufferBlock = uniBufferBlock.template get<DataType>();
         {
-            auto bufferHostPtr = bufferBlock.toHost(readWrite, _st);
-            DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(_st);
+            auto bufferHostPtr = bufferBlock.toHost(readWrite, st);
+            DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
             VectorUpCast<T, DataType>()(_size, memoryBlock.get(), bufferHostPtr.get());
         }
         _dest = bufferBlock;
     }
 
-    void operator()(Typelist<DataType>)
+    void operator()(Typelist<DataType>, Status & st)
     {
-        _st = services::Status();
-
-        DAAL_ASSERT(_src.type() == TypeIds::id<DataType>());
+        DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(_src, DataType);
 
         auto buffer    = _src.template get<DataType>();
-        auto subbuffer = buffer.getSubBuffer(_offset, _size, _st);
-        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(_st);
+        auto subbuffer = buffer.getSubBuffer(_offset, _size, st);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
 
         _dest = subbuffer;
     }
 
 private:
-    services::Status _st;
-
     UniversalBuffer _src;
     size_t _offset;
     size_t _size;
 
-    services::internal::Buffer<DataType> _dest;
+    Buffer<DataType> _dest;
 };
 
 /**
@@ -173,31 +152,25 @@ public:
         : _src(src), _mode(mode), _size(size)
     {}
 
-    services::SharedPtr<DataType> getResult(services::Status & st)
-    {
-        st = _st;
-        return _reinterpretedPtr;
-    }
+    SharedPtr<DataType> getResult() { return _reinterpretedPtr; }
 
     template <typename T>
-    void operator()(Typelist<T>)
+    void operator()(Typelist<T>, Status & st)
     {
         DAAL_ASSERT_UNIVERSAL_BUFFER(_src, T, _size);
 
         auto buffer = _src.template get<T>();
-        auto ptr    = buffer.toHost(_mode, _st);
-        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(_st);
+        auto ptr    = buffer.toHost(_mode, st);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
 
-        _reinterpretedPtr = services::reinterpretPointerCast<DataType, T>(ptr);
+        _reinterpretedPtr = reinterpretPointerCast<DataType, T>(ptr);
     }
 
 private:
-    services::Status _st;
-
     UniversalBuffer _src;
     data_management::ReadWriteMode _mode;
     size_t _size;
-    services::SharedPtr<DataType> _reinterpretedPtr;
+    SharedPtr<DataType> _reinterpretedPtr;
 };
 
 /** @} */
@@ -211,5 +184,6 @@ using interface1::BufferHostReinterpreter;
 } // namespace internal
 } // namespace services
 } // namespace daal
+/// \endcond
 
 #endif

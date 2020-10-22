@@ -57,7 +57,8 @@ services::Status ReferenceGemm<algorithmFPType>::operator()(const Transpose tran
     KernelPtr kernelGemm = factory.getKernel(kernelName, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(15);
+    KernelArguments args(15, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const uint32_t one = uint32_t(1);
 
@@ -131,7 +132,8 @@ services::Status ReferenceAxpy<algorithmFPType>::operator()(const int n, const a
     KernelPtr blas_axpy = factory.getKernel("blas_axpy", status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(5);
+    KernelArguments args(5, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     args.set(0, a);
     args.set(1, x_buffer, AccessModeId::read);

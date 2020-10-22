@@ -43,7 +43,7 @@ basic usage scenarios of |short_name| with SYCL*. Go to
 
         Run the following command:
 
-          .. prompt:: bash
+          .. code-block:: bash
 
             source ./env/vars.sh
 
@@ -51,7 +51,7 @@ basic usage scenarios of |short_name| with SYCL*. Go to
 
         1. Initialize ``modules``:
 
-          .. prompt:: bash
+          .. code-block:: bash
 
             source $MODULESHOME/init/bash
 
@@ -59,13 +59,13 @@ basic usage scenarios of |short_name| with SYCL*. Go to
 
         2. Provide ``modules`` with a path to the ``modulefiles`` directory:
 
-          .. prompt:: bash
+          .. code-block:: bash
 
             module use ./modulefiles
 
         3. Run the module:
 
-          .. prompt:: bash
+          .. code-block:: bash
 
             module load dal    
 
@@ -73,13 +73,13 @@ basic usage scenarios of |short_name| with SYCL*. Go to
 
       Run the following command:
 
-      .. prompt:: bash
+      .. code-block:: bash
 
         /env/vars.bat
 
 2. Copy ``./examples/daal/cpp_sycl`` to a writable directory if necessary (since it creates temporary files):
 
-  .. prompt:: bash
+  .. code-block:: bash
 
     cp –r ./examples/daal/cpp_sycl ${WRITABLE_DIR}
 
@@ -100,7 +100,7 @@ basic usage scenarios of |short_name| with SYCL*. Go to
 
     .. group-tab:: Linux
 
-      .. prompt:: bash
+      .. code-block:: bash
 
         # Navigate to DPC++ examples directory and build examples
         cd /examples/daal/cpp_sycl
@@ -109,7 +109,7 @@ basic usage scenarios of |short_name| with SYCL*. Go to
 
     .. group-tab:: Windows
 
-      .. prompt:: bash
+      .. code-block:: bash
 
         # Navigate to DPC++ examples directory and build examples
         cd /examples/daal/cpp_sycl

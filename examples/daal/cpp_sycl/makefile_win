@@ -19,38 +19,36 @@
 ##******************************************************************************
 
 help:
-	@echo "Usage: nmake {{dllintel64|help}}"
-	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
+	@echo "Usage: nmake {{dll|help}}"
+	@echo "[example=name] [compiler=compiler_name] [mode=mode_name]"
 	@echo
 	@echo "name              - example name."
 	@echo
 	@echo "compiler_name     - the only supported compiler is clang (default value)"
 	@echo "                    Intel(R) oneAPI DPC++ compiler"
 	@echo
-	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
-	@echo
 	@echo "mode_name         - can be build or run. Default is run."
 
 ##------------------------------------------------------------------------------
 ## examples of using:
 ##
-## nmake dllintel64 example=kmeans_dense_batch+ - build by Intel(R) oneAPI Compiler (as default)
-##                                 				  and run kmeans_dense_batch example for 64-bit
-##                                 				  applications, dynamic linking
+## nmake dll example=kmeans_dense_batch+ - build by Intel(R) oneAPI Compiler (as default)
+##                                         and run kmeans_dense_batch example for 64-bit
+##                                         applications, dynamic linking
 ##
-## nmake dllintel64 compiler=clang 				- build by Intel(R) oneAPI Compiler (as default)
-##                                 				  and run all examples of Intel(R) DAAL for
-##                                 				  64-bit applications, dynamic linking
+## nmake dll compiler=clang              - build by Intel(R) oneAPI Compiler (as default)
+##                                         and run all examples of Intel(R) DAAL for
+##                                         64-bit applications, dynamic linking
 ##
-## nmake dllintel64                				- build by Intel(R) oneAPI Compiler (as default)
-##                                 				  and run all examples for Intel(R)64 processor
-##                                 				  family applications, dynamic linking
+## nmake dll                             - build by Intel(R) oneAPI Compiler (as default)
+##                                         and run all examples for Intel(R) 64 processor
+##                                         family applications, dynamic linking
 ##
-## nmake dllintel64 mode=build     				- build only (not run) by Intel(R) oneAPI Compiler
-##                                 				  (as default) all examples for Intel(R)64
-##                                				  processor family applications, dynamic linking
+## nmake dll mode=build                  - build only (not run) by Intel(R) oneAPI Compiler
+##                                         (as default) all examples for Intel(R) 64
+##                                         processor family applications, dynamic linking
 ##
-## nmake help                     				- show help
+## nmake help                            - show help
 ##
 ##------------------------------------------------------------------------------
 
@@ -102,7 +100,7 @@ COPTS=-m64 $(COPTS)
 
 !IF ("$(RES_EXT)"=="lib")
 !IF ("$(threading)"=="sequential")
-DAAL_LIB_T = "$(DAAL_PATH)\onedal_sequential.lib"
+ERROR  Sequential version is not supported. To run sequential version please refer to 'examples/daal/cpp'
 !ELSE
 threading = parallel
 DAAL_LIB_T = "$(DAAL_PATH)\onedal_thread.lib"
@@ -116,7 +114,7 @@ COPTS = -Isource\utils $(COPTS) $(OUT_OPTS)
 LOPTS = $(DAAL_LIB) $(EXT_LIB) $(RT_LIB)
 RES_DIR  =_results\$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
 
-dllintel64:
+dll dllintel64:
 	nmake comm_func $(RES) EXT=_dll.lib _IA=intel64 RES_EXT=dll compiler=$(compiler) threading=$(threading)
 
 comm_func:

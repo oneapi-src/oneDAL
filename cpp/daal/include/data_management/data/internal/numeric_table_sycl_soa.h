@@ -425,11 +425,11 @@ protected:
                 NumericTableFeature f = (*_ddict)[i];
 
                 BufferHostReinterpreter<char> reinterpreter(_arrays[i], rwMode, nrows);
-                TypeDispatcher::dispatch(_arrays[i].type(), reinterpreter);
+                TypeDispatcher::dispatch(_arrays[i].type(), reinterpreter, st);
+                services::throwIfPossible(st);
+                DAAL_CHECK_STATUS_VAR(st);
 
-                auto charPtr = reinterpreter.getResult(status);
-                if (!status) return services::throwIfPossible(status);
-
+                auto charPtr = reinterpreter.getResult();
                 arch->set(charPtr.get(), nrows * f.typeSize);
             }
         }
@@ -495,17 +495,19 @@ private:
 
         for (size_t j = 0; j < ncols; j++)
         {
+            services::Status st;
             auto featureUniBuffer = _arrays[j];
             BufferConverterTo<T> converter(featureUniBuffer, idx, nrows);
-            TypeDispatcher::dispatch(featureUniBuffer.type(), converter);
+            TypeDispatcher::dispatch(featureUniBuffer.type(), converter, st);
+            services::throwIfPossible(st);
+            DAAL_CHECK_STATUS_VAR(st);
 
-            auto buffer = converter.getResult(status);
-            if (!status) return services::throwIfPossible(status);
+            auto buffer       = converter.getResult();
             DAAL_ASSERT(buffer.size() == nrows);
 
-            auto colSharedPtr = buffer.toHost(readOnly, status);
-            if (!status) return services::throwIfPossible(status);
-
+            auto colSharedPtr = buffer.toHost(readOnly, st);
+            services::throwIfPossible(st);
+            DAAL_CHECK_STATUS_VAR(st);
             T * colPtr = colSharedPtr.get();
 
             for (size_t i = 0; i < nrows; i++)
@@ -565,10 +567,11 @@ private:
 
                 auto uniBuffer = _arrays[j];
                 BufferConverterFrom<T> converter(tempColumn, uniBuffer, 0, nrows);
-                TypeDispatcher::dispatch(uniBuffer.type(), converter);
+                TypeDispatcher::dispatch(uniBuffer.type(), converter, st);
+                services::throwIfPossible(st);
+                DAAL_CHECK_STATUS_VAR(st);
 
-                _arrays[j] = converter.getResult(st);
-                if (!st) return services::throwIfPossible(st);
+                _arrays[j] = converter.getResult();
             }
         }
         block.reset();
@@ -617,16 +620,17 @@ private:
             return services::Status();
         }
 
+        services::Status st;
         auto uniBuffer = _arrays[feat_idx];
         BufferConverterTo<T> converter(uniBuffer, idx, nrows);
-        TypeDispatcher::dispatch(uniBuffer.type(), converter);
+        TypeDispatcher::dispatch(uniBuffer.type(), converter, st);
+        services::throwIfPossible(st);
+        DAAL_CHECK_STATUS_VAR(st);
 
-        auto buffer = converter.getResult(st);
-        if (!st) return services::throwIfPossible(st);
-
+        auto buffer = converter.getResult();
         block.setBuffer(buffer, 1, nrows);
 
-        return services::Status();
+        return st;
     }
 
     template <typename T>
@@ -654,12 +658,15 @@ private:
             auto blockBuffer = block.getBuffer();
             if ((features::internal::getIndexNumType<T>() != f.indexType) || (uniBuffer.get<T>() != blockBuffer))
             {
-                BufferConverterFrom<T> converter(blockBuffer, uniBuffer, block.getRowsOffset(), block.getNumberOfRows());
-                TypeDispatcher::dispatch(uniBuffer.type(), converter);
-
                 services::Status st;
-                _arrays[feat_idx] = converter.getResult(st);
-                if (!st) return services::throwIfPossible(st);
+
+                auto uniBuffer = _arrays[feat_idx];
+                BufferConverterFrom<T> converter(block.getBuffer(), uniBuffer, block.getRowsOffset(), block.getNumberOfRows());
+                TypeDispatcher::dispatch(uniBuffer.type(), converter, st);
+                services::throwIfPossible(st);
+                DAAL_CHECK_STATUS_VAR(st);
+
+                _arrays[feat_idx] = converter.getResult();
             }
         }
         block.reset();

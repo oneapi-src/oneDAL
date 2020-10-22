@@ -21,9 +21,23 @@
 #include <cstddef>
 #include <stdint.h>
 
-#include "services/internal/buffer.h"
-#include "services/internal/any.h"
 #include "services/daal_string.h"
+#include "services/internal/any.h"
+#include "services/internal/buffer.h"
+
+#define DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(buffer, BufferType) DAAL_ASSERT((buffer).type() == TypeIds::id<BufferType>());
+
+#define DAAL_ASSERT_UNIVERSAL_BUFFER(buffer, BufferType, bufferSize)             \
+    {                                                                            \
+        DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(buffer, BufferType)                    \
+        DAAL_ASSERT((buffer).template get<BufferType>().size() >= (bufferSize)); \
+    }
+
+#define DAAL_ASSERT_UNIVERSAL_BUFFER2(buffer, bufferType1, bufferType2, bufferSize)                                                     \
+    {                                                                                                                                   \
+        DAAL_ASSERT(((buffer).type() == TypeIds::id<bufferType1>() && (buffer).template get<bufferType1>().size() >= (bufferSize))      \
+                    || ((buffer).type() == TypeIds::id<bufferType2>() && (buffer).template get<bufferType2>().size() >= (bufferSize))); \
+    }
 
 namespace daal
 {
@@ -49,25 +63,25 @@ typedef float float32_t;
 typedef double float64_t;
 
 template <typename algorithmFPType>
-inline services::String getKeyFPType()
+inline String getKeyFPType()
 {
     if (IsSameType<algorithmFPType, float>::value)
     {
-        return services::String(" -D algorithmFPType=float -D algorithmFPType2=float2 -D algorithmFPType4=float4 ");
+        return String(" -D algorithmFPType=float -D algorithmFPType2=float2 -D algorithmFPType4=float4 ");
     }
     if (IsSameType<algorithmFPType, double>::value)
     {
-        return services::String(" -D algorithmFPType=double -D algorithmFPType2=double2  -D algorithmFPType4=double4 ");
+        return String(" -D algorithmFPType=double -D algorithmFPType2=double2  -D algorithmFPType4=double4 ");
     }
     if (IsSameType<algorithmFPType, int32_t>::value)
     {
-        return services::String(" -D algorithmFPType=int -D algorithmFPType2=int2  -D algorithmFPType4=int4 ");
+        return String(" -D algorithmFPType=int -D algorithmFPType2=int2  -D algorithmFPType4=int4 ");
     }
     if (IsSameType<algorithmFPType, uint32_t>::value)
     {
-        return services::String(" -D algorithmFPType=uint -D algorithmFPType2=uint2  -D algorithmFPType4=uint4 ");
+        return String(" -D algorithmFPType=uint -D algorithmFPType2=uint2  -D algorithmFPType4=uint4 ");
     }
-    return services::String();
+    return String();
 }
 
 namespace interface1
@@ -185,7 +199,7 @@ typedef AccessModeIds::Id AccessModeId;
 
 /**
  *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__UNIVERSALBUFFER"></a>
- *  \brief Non-templated wrapper for services::Buffer object
+ *  \brief Non-templated wrapper for Buffer object
  */
 class UniversalBuffer : public Base
 {
@@ -193,24 +207,32 @@ public:
     UniversalBuffer() : _type(TypeIds::id<void>()) {}
 
     template <typename T>
-    UniversalBuffer(const services::internal::Buffer<T> & buffer) : _type(TypeIds::id<T>()), _anyBuffer(buffer)
+    UniversalBuffer(const Buffer<T> & buffer) : _type(TypeIds::id<T>()), _anyBuffer(buffer)
     {}
 
     template <typename T>
-    const services::internal::Buffer<T> & get() const
+    const Buffer<T> & get() const
     {
-        return _anyBuffer.get<services::internal::Buffer<T> >();
+        return _anyBuffer.get<Buffer<T> >();
+    }
+
+    template <typename T>
+    UniversalBuffer & operator=(const Buffer<T> & buffer)
+    {
+        _type      = TypeIds::id<T>();
+        _anyBuffer = buffer;
+        return *this;
     }
 
     TypeId type() const { return _type; }
 
-    const services::internal::Any & any() const { return _anyBuffer; }
+    const Any & any() const { return _anyBuffer; }
 
     bool empty() const { return _anyBuffer.empty(); }
 
 private:
     TypeId _type;
-    services::internal::Any _anyBuffer;
+    Any _anyBuffer;
 };
 
 /**
