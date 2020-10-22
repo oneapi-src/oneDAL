@@ -215,7 +215,6 @@ protected:
         using namespace services::internal::sycl;
 
         Status st;
-        auto & context     = services::internal::getDefaultContext();
         const size_t nrows = getNumberOfRows();
 
         if (idx >= _arrays.size())

@@ -57,7 +57,9 @@ services::Status SpBlasGpu<algorithmFPType>::xgemm(const Transpose transa, const
 
     if (transa == Transpose::Trans && transb == Transpose::NoTrans)
     {
-        KernelArguments args(11);
+        KernelArguments args(11, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
         args.set(0, alpha);
         args.set(1, a_buffer);
         args.set(2, aColsBuff);

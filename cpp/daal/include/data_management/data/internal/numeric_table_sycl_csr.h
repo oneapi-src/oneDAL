@@ -550,10 +550,10 @@ protected:
         services::Status st;
         auto uniBuffer = _values;
         BufferConverterTo<T> converter(uniBuffer, 0, _dataSize);
-        TypeDispatcher::dispatch(_values.type(), converter);
-
-        services::internal::Buffer<T> valuesBuffer = converter.getResult(st);
+        TypeDispatcher::dispatch(_values.type(), converter, st);
         DAAL_CHECK_STATUS_VAR(st);
+
+        services::internal::Buffer<T> valuesBuffer = converter.getResult();
         printf("valuesBuffer.size(): %lu; _dataSize: %lu\n", valuesBuffer.size(), _dataSize);
         block.setValuesBuffer(valuesBuffer);
 
@@ -586,13 +586,13 @@ protected:
 
             if (features::internal::getIndexNumType<T>() != indexType)
             {
+                services::Status st;
                 auto uniBuffer = _values;
                 BufferConverterFrom<T> converter(block.getBlockValuesBuffer(), uniBuffer, block.getRowsOffset(), block.getNumberOfRows());
-                TypeDispatcher::dispatch(uniBuffer.type(), converter);
-
-                services::Status st;
-                _values = converter.getResult(st);
+                TypeDispatcher::dispatch(uniBuffer.type(), converter, st);
                 DAAL_CHECK_STATUS_VAR(st);
+
+                _values = converter.getResult();
             }
         }
         block.reset();

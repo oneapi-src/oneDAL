@@ -101,11 +101,17 @@ public:
     {
         if (_rawPtr)
         {
-            return daal::services::internal::Buffer<DataType>((DataType *)_rawPtr, _nvalues);
+            services::Status status;
+            daal::services::internal::Buffer<DataType> buffer((DataType *)_rawPtr, _nvalues, status);
+            services::throwIfPossible(status);
+            return buffer;
         }
         else if (_values_ptr)
         {
-            return daal::services::internal::Buffer<DataType>(_values_ptr, _nvalues);
+            services::Status status;
+            services::internal::Buffer<DataType> buffer(_values_ptr, _nvalues, status);
+            services::throwIfPossible(status);
+            return buffer;
         }
         else
         {
@@ -117,7 +123,10 @@ public:
     {
         if (_cols_ptr)
         {
-            return daal::services::internal::Buffer<size_t>(_cols_ptr.get(), _nvalues);
+            services::Status status;
+            daal::services::internal::Buffer<size_t> buffer(_cols_ptr.get(), _nvalues, status);
+            services::throwIfPossible(status);
+            return buffer;
         }
         else
         {
@@ -129,7 +138,10 @@ public:
     {
         if (_rows_buffer)
         {
-            return daal::services::internal::Buffer<size_t>(_rows_buffer.get(), _nrows + 1);
+            services::Status status;
+            daal::services::internal::Buffer<size_t> buffer(_rows_buffer.get(), _nrows + 1, status);
+            services::throwIfPossible(status);
+            return buffer;
         }
 
         else if (_rowsBuffer)
@@ -288,14 +300,15 @@ public:
     {
         _hostValuesSharedPtr.reset();
         _valuesBuffer = valuesBuffer.get<DataType>();
-        _pPtr         = pPtr;
-        _rawPtr       = services::SharedPtr<byte>();
+        _pPtr         = NULL;
+        _rawPtr       = NULL;
         _nvalues      = _valuesBuffer.size();
     }
 
     inline void setColumnIndicesBuffer(daal::services::internal::Buffer<size_t> colIndBuffer)
     {
         _hostColsSharedPtr.reset();
+        _cols_ptr.reset();
         _colsBuffer = colIndBuffer;
         _nvalues    = colIndBuffer.size();
     }
@@ -307,6 +320,7 @@ public:
     inline void setRowIndicesBuffer(daal::services::internal::Buffer<size_t> rowsBuffer)
     {
         _hostRowsSharedPtr.reset();
+        _rows_buffer.reset();
         _rowsBuffer = rowsBuffer;
         _nrows      = rowsBuffer.size();
     }
