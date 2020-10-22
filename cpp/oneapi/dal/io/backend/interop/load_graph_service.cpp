@@ -14,23 +14,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "oneapi/dal/io/detail/load_graph_service.hpp"
+#include "src/externals/service_service.h"
 
-#include "oneapi/dal/detail/infer_ops.hpp"
+namespace oneapi::dal::preview::load_graph::detail {
 
-namespace oneapi::dal {
-
-template <typename... Args>
-auto infer(Args&&... args) {
-    return detail::infer_dispatch(std::forward<Args>(args)...);
+ONEDAL_EXPORT int daal_string_to_int(const char* nptr, char** endptr) {
+    return daal::internal::Service<>::serv_string_to_int(nptr, endptr);
 }
-
-#ifdef ONEDAL_DATA_PARALLEL
-template <typename... Args>
-auto infer(sycl::queue& queue, Args&&... args) {
-    return detail::infer_dispatch(detail::data_parallel_policy{ queue },
-                                  std::forward<Args>(args)...);
-}
-#endif
-
-} // namespace oneapi::dal
+} // namespace oneapi::dal::preview::load_graph::detail

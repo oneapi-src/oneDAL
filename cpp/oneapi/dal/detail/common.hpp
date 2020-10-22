@@ -17,6 +17,7 @@
 #pragma once
 
 #include <memory>
+#include <type_traits>
 
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
@@ -145,6 +146,30 @@ constexpr bool is_floating_point(data_type t) {
 template <typename T>
 constexpr bool is_floating_point() {
     return is_floating_point(make_data_type<T>());
+}
+
+template <typename Data>
+inline void check_sum_overflow(const Data& first, const Data& second) {
+    static_assert(std::is_integral_v<Data>, "The check requires integral operands");
+
+    volatile Data tmp = first + second;
+    tmp -= first;
+    if (tmp != second) {
+        throw range_error("overflow found in sum of two values");
+    }
+}
+
+template <typename Data>
+inline void check_mul_overflow(const Data& first, const Data& second) {
+    static_assert(std::is_integral_v<Data>, "The check requires integral operands");
+
+    if (first != 0 && second != 0) {
+        volatile Data tmp = first * second;
+        tmp /= first;
+        if (tmp != second) {
+            throw range_error("overflow found in multiplication of two values");
+        }
+    }
 }
 
 } // namespace oneapi::dal::detail

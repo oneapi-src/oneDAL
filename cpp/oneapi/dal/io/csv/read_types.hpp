@@ -29,7 +29,7 @@ template <typename Object = table>
 class read_args;
 
 template <>
-class ONEAPI_DAL_EXPORT read_args<table> : public base {
+class ONEDAL_EXPORT read_args<table> : public base {
 public:
     read_args();
 

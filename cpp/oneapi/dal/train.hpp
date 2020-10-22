@@ -25,7 +25,7 @@ auto train(Args&&... args) {
     return detail::train_dispatch(std::forward<Args>(args)...);
 }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 template <typename... Args>
 auto train(sycl::queue& queue, Args&&... args) {
     return detail::train_dispatch(detail::data_parallel_policy{ queue },

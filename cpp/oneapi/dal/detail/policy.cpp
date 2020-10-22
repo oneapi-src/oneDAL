@@ -34,7 +34,7 @@ cpu_extension host_policy::get_enabled_cpu_extensions() const noexcept {
     return impl_->cpu_extensions_mask;
 }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 void data_parallel_policy::init_impl(const sycl::queue& queue) {
     this->impl_ = nullptr; // reserved for future use
 }

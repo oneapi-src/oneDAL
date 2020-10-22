@@ -16,25 +16,20 @@
 
 #pragma once
 
-#include "services/daal_atomic_int.h"
-#include "services/daal_memory.h"
-
-#include "oneapi/dal/graph/graph_common.hpp"
+#include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::preview {
 typedef void (*functype)(int i, const void *a);
 }
 
 extern "C" {
-ONEAPI_DAL_EXPORT void _daal_threader_for_oneapi(int n,
-                                                 int threads_request,
-                                                 const void *a,
-                                                 oneapi::dal::preview::functype func);
+ONEDAL_EXPORT void _daal_threader_for_oneapi(int n,
+                                             int threads_request,
+                                             const void *a,
+                                             oneapi::dal::preview::functype func);
 }
 
 namespace oneapi::dal::preview::load_graph::detail {
-<<<<<<< HEAD
-
 template <typename F>
 inline void threader_func(int i, const void *a) {
     const F &lambda = *static_cast<const F *>(a);
@@ -42,14 +37,9 @@ inline void threader_func(int i, const void *a) {
 }
 
 template <typename F>
-inline ONEAPI_DAL_EXPORT void threader_for(size_t n, size_t threads_request, const F &lambda) {
+inline ONEDAL_EXPORT void threader_for(size_t n, size_t threads_request, const F &lambda) {
     const void *a = static_cast<const void *>(&lambda);
 
     _daal_threader_for_oneapi((int)n, (int)threads_request, a, threader_func<F>);
 }
-
-ONEAPI_DAL_EXPORT int daal_string_to_int(const char *nptr, char **endptr);
-=======
-ONEDAL_EXPORT int daal_string_to_int(const char *nptr, char **endptr);
->>>>>>> 78caaa38d... New interfaces: safety check functions (#1137)
 } // namespace oneapi::dal::preview::load_graph::detail
