@@ -75,7 +75,8 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::computeInvSigma
     BlockDescriptor<algorithmFPType> varBlock;
     variances->getBlockOfRows(0, numFeatures, readOnly, varBlock);
 
-    KernelArguments args(2);
+    KernelArguments args(2, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, varBlock.getBuffer(), AccessModeIds::read);
     args.set(1, invSigmas, AccessModeIds::write);
     KernelRange range(numFeatures);
@@ -100,7 +101,8 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::normalize(Execu
     DAAL_CHECK_STATUS_VAR(status);
 
     const unsigned int workItemsPerGroup = (numFeatures > maxWorkItemsPerGroup) ? maxWorkItemsPerGroup : numFeatures;
-    KernelArguments args(7);
+    KernelArguments args(7, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, copyBlock, AccessModeIds::readwrite);
     args.set(1, rawMeans, AccessModeIds::read);
     args.set(2, invSigmas, AccessModeIds::read);
@@ -139,7 +141,8 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::whitening(Execu
     DAAL_CHECK_STATUS_VAR(status);
 
     const unsigned int workItemsPerGroup = (numComponents > maxWorkItemsPerGroup) ? maxWorkItemsPerGroup : numComponents;
-    KernelArguments args(4);
+    KernelArguments args(4, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, transformedBlock, AccessModeIds::readwrite);
     args.set(1, invEigenvalues, AccessModeIds::read);
     args.set(2, maxWorkItemsPerGroup);

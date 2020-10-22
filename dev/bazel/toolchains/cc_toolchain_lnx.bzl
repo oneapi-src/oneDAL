@@ -219,6 +219,11 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                     repo_ctx,
                     tools.cc,
                     "-diag-disable=remark",
+                ) +
+                add_compiler_option_if_supported(
+                    repo_ctx,
+                    tools.cc,
+                    "-fdiagnostics-color=always",
                 )
             ),
             "%{compile_flags_dpcc}": get_starlark_list(
@@ -229,6 +234,11 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                     tools.dpcc,
                     is_dpcc = True,
                     category = "common",
+                ) +
+                add_compiler_option_if_supported(
+                    repo_ctx,
+                    tools.cc,
+                    "-fdiagnostics-color=always",
                 )
             ) if tools.is_dpc_found else "",
             "%{compile_flags_pedantic_cc}": get_starlark_list(
@@ -356,6 +366,9 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                     # Disable optimizations explicitly
                     # Some compilers like Intel uses -O2 by default
                     "-O0",
+
+                    # oneDAL specific defined to enabled assertions
+                    "-DDEBUG_ASSERT",
                 ]
             ),
             "%{supports_start_end_lib}": "False" if reqs.compiler_id == "icc" else "True",

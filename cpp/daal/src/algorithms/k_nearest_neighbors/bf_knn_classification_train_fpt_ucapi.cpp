@@ -28,7 +28,7 @@ namespace training
 {
 namespace internal
 {
-template class KNNClassificationTrainKernelUCAPI<DAAL_FPTYPE>;
+template class DAAL_EXPORT KNNClassificationTrainKernelUCAPI<DAAL_FPTYPE>;
 
 } // namespace internal
 } // namespace training
