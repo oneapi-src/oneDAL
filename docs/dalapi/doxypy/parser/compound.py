@@ -191,8 +191,7 @@ except ImportError as exp:
         def gds_validate_string(self, input_data, node=None, input_name=''):
             if not input_data:
                 return ''
-            else:
-                return input_data
+            return input_data
         def gds_format_base64(self, input_data, input_name=''):
             return base64.b64encode(input_data)
         def gds_validate_base64(self, input_data, node=None, input_name=''):
@@ -603,8 +602,7 @@ except ImportError as exp:
                 else:
                     encoding = 'utf-8'
                 return instring.encode(encoding)
-            else:
-                return instring
+            return instring
         @staticmethod
         def convert_unicode(instring):
             if isinstance(instring, str):
@@ -640,8 +638,7 @@ except ImportError as exp:
                     self.gds_elementtree_node_ is not None):
                 return ' near line {}'.format(
                     self.gds_elementtree_node_.sourceline)
-            else:
-                return ""
+            return ""
 
 
     def getSubclassFromModule_(module, class_):
@@ -649,8 +646,7 @@ except ImportError as exp:
         name = class_.__name__ + 'Sub'
         if hasattr(module, name):
             return getattr(module, name)
-        else:
-            return None
+        return None
 
 
 #
@@ -742,15 +738,13 @@ def quote_python(inStr):
     if s1.find("'") == -1:
         if s1.find('\n') == -1:
             return "'%s'" % s1
-        else:
-            return "'''%s'''" % s1
+        return "'''%s'''" % s1
     else:
         if s1.find('"') != -1:
             s1 = s1.replace('"', '\\"')
         if s1.find('\n') == -1:
             return '"%s"' % s1
-        else:
-            return '"""%s"""' % s1
+        return '"""%s"""' % s1
 
 
 def get_all_text_(node):
@@ -927,10 +921,8 @@ class MemberSpec_(object):
         if isinstance(self.data_type, list):
             if len(self.data_type) > 0:
                 return self.data_type[-1]
-            else:
-                return 'xs:string'
-        else:
-            return self.data_type
+            return 'xs:string'
+        return self.data_type
     def set_container(self, container): self.container = container
     def get_container(self): return self.container
     def set_child_attrs(self, child_attrs): self.child_attrs = child_attrs
@@ -1143,8 +1135,7 @@ class DoxygenType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if DoxygenType.subclass:
             return DoxygenType.subclass(*args_, **kwargs_)
-        else:
-            return DoxygenType(*args_, **kwargs_)
+        return DoxygenType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -1180,8 +1171,7 @@ class DoxygenType(GeneratedsSuper):
             self.compounddef
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='DoxygenType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('DoxygenType')
         if imported_ns_def_ is not None:
@@ -1352,8 +1342,7 @@ class compounddefType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if compounddefType.subclass:
             return compounddefType.subclass(*args_, **kwargs_)
-        else:
-            return compounddefType(*args_, **kwargs_)
+        return compounddefType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -1607,8 +1596,7 @@ class compounddefType(GeneratedsSuper):
             self.listofallmembers is not None
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='compounddefType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('compounddefType')
         if imported_ns_def_ is not None:
@@ -1912,8 +1900,7 @@ class listofallmembersType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if listofallmembersType.subclass:
             return listofallmembersType.subclass(*args_, **kwargs_)
-        else:
-            return listofallmembersType(*args_, **kwargs_)
+        return listofallmembersType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -1934,8 +1921,7 @@ class listofallmembersType(GeneratedsSuper):
             self.member
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='listofallmembersType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('listofallmembersType')
         if imported_ns_def_ is not None:
@@ -2021,8 +2007,7 @@ class memberRefType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if memberRefType.subclass:
             return memberRefType.subclass(*args_, **kwargs_)
-        else:
-            return memberRefType(*args_, **kwargs_)
+        return memberRefType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -2084,8 +2069,7 @@ class memberRefType(GeneratedsSuper):
             self.name is not None
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='memberRefType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('memberRefType')
         if imported_ns_def_ is not None:
@@ -2199,8 +2183,7 @@ class scope(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if scope.subclass:
             return scope.subclass(*args_, **kwargs_)
-        else:
-            return scope(*args_, **kwargs_)
+        return scope(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -2211,8 +2194,7 @@ class scope(GeneratedsSuper):
 
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='scope', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('scope')
         if imported_ns_def_ is not None:
@@ -2275,8 +2257,7 @@ class name(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if name.subclass:
             return name.subclass(*args_, **kwargs_)
-        else:
-            return name(*args_, **kwargs_)
+        return name(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -2287,8 +2268,7 @@ class name(GeneratedsSuper):
 
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='name', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('name')
         if imported_ns_def_ is not None:
@@ -2358,8 +2338,7 @@ class compoundRefType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if compoundRefType.subclass:
             return compoundRefType.subclass(*args_, **kwargs_)
-        else:
-            return compoundRefType(*args_, **kwargs_)
+        return compoundRefType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -2410,8 +2389,7 @@ class compoundRefType(GeneratedsSuper):
             (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='compoundRefType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('compoundRefType')
         if imported_ns_def_ is not None:
@@ -2500,8 +2478,7 @@ class reimplementType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if reimplementType.subclass:
             return reimplementType.subclass(*args_, **kwargs_)
-        else:
-            return reimplementType(*args_, **kwargs_)
+        return reimplementType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -2518,8 +2495,7 @@ class reimplementType(GeneratedsSuper):
             (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='reimplementType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('reimplementType')
         if imported_ns_def_ is not None:
@@ -2594,8 +2570,7 @@ class incType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if incType.subclass:
             return incType.subclass(*args_, **kwargs_)
-        else:
-            return incType(*args_, **kwargs_)
+        return incType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -2629,8 +2604,7 @@ class incType(GeneratedsSuper):
             (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='incType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('incType')
         if imported_ns_def_ is not None:
@@ -2713,8 +2687,7 @@ class refType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if refType.subclass:
             return refType.subclass(*args_, **kwargs_)
-        else:
-            return refType(*args_, **kwargs_)
+        return refType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -2748,8 +2721,7 @@ class refType(GeneratedsSuper):
             (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='refType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('refType')
         if imported_ns_def_ is not None:
@@ -2836,8 +2808,7 @@ class refTextType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if refTextType.subclass:
             return refTextType.subclass(*args_, **kwargs_)
-        else:
-            return refTextType(*args_, **kwargs_)
+        return refTextType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -2879,8 +2850,7 @@ class refTextType(GeneratedsSuper):
             (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='refTextType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('refTextType')
         if imported_ns_def_ is not None:
@@ -2983,8 +2953,7 @@ class sectiondefType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if sectiondefType.subclass:
             return sectiondefType.subclass(*args_, **kwargs_)
-        else:
-            return sectiondefType(*args_, **kwargs_)
+        return sectiondefType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -3032,8 +3001,7 @@ class sectiondefType(GeneratedsSuper):
             self.memberdef
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='sectiondefType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('sectiondefType')
         if imported_ns_def_ is not None:
@@ -3257,8 +3225,7 @@ class memberdefType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if memberdefType.subclass:
             return memberdefType.subclass(*args_, **kwargs_)
-        else:
-            return memberdefType(*args_, **kwargs_)
+        return memberdefType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -3605,8 +3572,7 @@ class memberdefType(GeneratedsSuper):
             self.referencedby
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='memberdefType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('memberdefType')
         if imported_ns_def_ is not None:
@@ -4113,8 +4079,7 @@ class definition(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if definition.subclass:
             return definition.subclass(*args_, **kwargs_)
-        else:
-            return definition(*args_, **kwargs_)
+        return definition(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -4125,8 +4090,7 @@ class definition(GeneratedsSuper):
 
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='definition', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('definition')
         if imported_ns_def_ is not None:
@@ -4189,8 +4153,7 @@ class argsstring(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if argsstring.subclass:
             return argsstring.subclass(*args_, **kwargs_)
-        else:
-            return argsstring(*args_, **kwargs_)
+        return argsstring(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -4201,8 +4164,7 @@ class argsstring(GeneratedsSuper):
 
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='argsstring', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('argsstring')
         if imported_ns_def_ is not None:
@@ -4265,8 +4227,7 @@ class read(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if read.subclass:
             return read.subclass(*args_, **kwargs_)
-        else:
-            return read(*args_, **kwargs_)
+        return read(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -4277,8 +4238,7 @@ class read(GeneratedsSuper):
 
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='read', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('read')
         if imported_ns_def_ is not None:
@@ -4341,8 +4301,7 @@ class write(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if write.subclass:
             return write.subclass(*args_, **kwargs_)
-        else:
-            return write(*args_, **kwargs_)
+        return write(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -4353,8 +4312,7 @@ class write(GeneratedsSuper):
 
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='write', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('write')
         if imported_ns_def_ is not None:
@@ -4417,8 +4375,7 @@ class bitfield(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if bitfield.subclass:
             return bitfield.subclass(*args_, **kwargs_)
-        else:
-            return bitfield(*args_, **kwargs_)
+        return bitfield(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -4429,8 +4386,7 @@ class bitfield(GeneratedsSuper):
 
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='bitfield', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('bitfield')
         if imported_ns_def_ is not None:
@@ -4517,8 +4473,7 @@ class descriptionType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if descriptionType.subclass:
             return descriptionType.subclass(*args_, **kwargs_)
-        else:
-            return descriptionType(*args_, **kwargs_)
+        return descriptionType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -4564,8 +4519,7 @@ class descriptionType(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='descriptionType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('descriptionType')
         if imported_ns_def_ is not None:
@@ -4716,8 +4670,7 @@ class enumvalueType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if enumvalueType.subclass:
             return enumvalueType.subclass(*args_, **kwargs_)
-        else:
-            return enumvalueType(*args_, **kwargs_)
+        return enumvalueType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -4772,8 +4725,7 @@ class enumvalueType(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='enumvalueType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('enumvalueType')
         if imported_ns_def_ is not None:
@@ -4920,8 +4872,7 @@ class templateparamlistType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if templateparamlistType.subclass:
             return templateparamlistType.subclass(*args_, **kwargs_)
-        else:
-            return templateparamlistType(*args_, **kwargs_)
+        return templateparamlistType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -4942,8 +4893,7 @@ class templateparamlistType(GeneratedsSuper):
             self.param
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='templateparamlistType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('templateparamlistType')
         if imported_ns_def_ is not None:
@@ -5029,8 +4979,7 @@ class paramType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if paramType.subclass:
             return paramType.subclass(*args_, **kwargs_)
-        else:
-            return paramType(*args_, **kwargs_)
+        return paramType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -5070,8 +5019,7 @@ class paramType(GeneratedsSuper):
             self.briefdescription is not None
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='paramType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('paramType')
         if imported_ns_def_ is not None:
@@ -5191,8 +5139,7 @@ class declname(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if declname.subclass:
             return declname.subclass(*args_, **kwargs_)
-        else:
-            return declname(*args_, **kwargs_)
+        return declname(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -5203,8 +5150,7 @@ class declname(GeneratedsSuper):
 
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='declname', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('declname')
         if imported_ns_def_ is not None:
@@ -5267,8 +5213,7 @@ class defname(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if defname.subclass:
             return defname.subclass(*args_, **kwargs_)
-        else:
-            return defname(*args_, **kwargs_)
+        return defname(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -5279,8 +5224,7 @@ class defname(GeneratedsSuper):
 
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='defname', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('defname')
         if imported_ns_def_ is not None:
@@ -5343,8 +5287,7 @@ class array(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if array.subclass:
             return array.subclass(*args_, **kwargs_)
-        else:
-            return array(*args_, **kwargs_)
+        return array(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -5355,8 +5298,7 @@ class array(GeneratedsSuper):
 
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='array', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('array')
         if imported_ns_def_ is not None:
@@ -5434,8 +5376,7 @@ class linkedTextType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if linkedTextType.subclass:
             return linkedTextType.subclass(*args_, **kwargs_)
-        else:
-            return linkedTextType(*args_, **kwargs_)
+        return linkedTextType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -5460,8 +5401,7 @@ class linkedTextType(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='linkedTextType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('linkedTextType')
         if imported_ns_def_ is not None:
@@ -5557,8 +5497,7 @@ class graphType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if graphType.subclass:
             return graphType.subclass(*args_, **kwargs_)
-        else:
-            return graphType(*args_, **kwargs_)
+        return graphType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -5579,8 +5518,7 @@ class graphType(GeneratedsSuper):
             self.node
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='graphType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('graphType')
         if imported_ns_def_ is not None:
@@ -5665,8 +5603,7 @@ class nodeType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if nodeType.subclass:
             return nodeType.subclass(*args_, **kwargs_)
-        else:
-            return nodeType(*args_, **kwargs_)
+        return nodeType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -5701,8 +5638,7 @@ class nodeType(GeneratedsSuper):
             self.childnode
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='nodeType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('nodeType')
         if imported_ns_def_ is not None:
@@ -5799,8 +5735,7 @@ class label(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if label.subclass:
             return label.subclass(*args_, **kwargs_)
-        else:
-            return label(*args_, **kwargs_)
+        return label(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -5811,8 +5746,7 @@ class label(GeneratedsSuper):
 
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='label', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('label')
         if imported_ns_def_ is not None:
@@ -5884,8 +5818,7 @@ class childnodeType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if childnodeType.subclass:
             return childnodeType.subclass(*args_, **kwargs_)
-        else:
-            return childnodeType(*args_, **kwargs_)
+        return childnodeType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -5927,8 +5860,7 @@ class childnodeType(GeneratedsSuper):
             self.edgelabel
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='childnodeType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('childnodeType')
         if imported_ns_def_ is not None:
@@ -6017,8 +5949,7 @@ class edgelabel(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if edgelabel.subclass:
             return edgelabel.subclass(*args_, **kwargs_)
-        else:
-            return edgelabel(*args_, **kwargs_)
+        return edgelabel(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -6029,8 +5960,7 @@ class edgelabel(GeneratedsSuper):
 
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='edgelabel', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('edgelabel')
         if imported_ns_def_ is not None:
@@ -6097,8 +6027,7 @@ class linkType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if linkType.subclass:
             return linkType.subclass(*args_, **kwargs_)
-        else:
-            return linkType(*args_, **kwargs_)
+        return linkType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -6117,8 +6046,7 @@ class linkType(GeneratedsSuper):
 
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='linkType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('linkType')
         if imported_ns_def_ is not None:
@@ -6198,8 +6126,7 @@ class listingType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if listingType.subclass:
             return listingType.subclass(*args_, **kwargs_)
-        else:
-            return listingType(*args_, **kwargs_)
+        return listingType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -6220,8 +6147,7 @@ class listingType(GeneratedsSuper):
             self.codeline
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='listingType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('listingType')
         if imported_ns_def_ is not None:
@@ -6308,8 +6234,7 @@ class codelineType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if codelineType.subclass:
             return codelineType.subclass(*args_, **kwargs_)
-        else:
-            return codelineType(*args_, **kwargs_)
+        return codelineType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -6372,8 +6297,7 @@ class codelineType(GeneratedsSuper):
             self.highlight
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='codelineType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('codelineType')
         if imported_ns_def_ is not None:
@@ -6497,8 +6421,7 @@ class highlightType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if highlightType.subclass:
             return highlightType.subclass(*args_, **kwargs_)
-        else:
-            return highlightType(*args_, **kwargs_)
+        return highlightType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -6551,8 +6474,7 @@ class highlightType(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='highlightType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('highlightType')
         if imported_ns_def_ is not None:
@@ -6661,8 +6583,7 @@ class sp(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if sp.subclass:
             return sp.subclass(*args_, **kwargs_)
-        else:
-            return sp(*args_, **kwargs_)
+        return sp(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -6673,8 +6594,7 @@ class sp(GeneratedsSuper):
 
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='sp', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('sp')
         if imported_ns_def_ is not None:
@@ -6755,8 +6675,7 @@ class referenceType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if referenceType.subclass:
             return referenceType.subclass(*args_, **kwargs_)
-        else:
-            return referenceType(*args_, **kwargs_)
+        return referenceType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -6786,8 +6705,7 @@ class referenceType(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='referenceType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('referenceType')
         if imported_ns_def_ is not None:
@@ -6895,8 +6813,7 @@ class locationType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if locationType.subclass:
             return locationType.subclass(*args_, **kwargs_)
-        else:
-            return locationType(*args_, **kwargs_)
+        return locationType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -6931,8 +6848,7 @@ class locationType(GeneratedsSuper):
 
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='locationType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('locationType')
         if imported_ns_def_ is not None:
@@ -7061,8 +6977,7 @@ class docSect1Type(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docSect1Type.subclass:
             return docSect1Type.subclass(*args_, **kwargs_)
-        else:
-            return docSect1Type(*args_, **kwargs_)
+        return docSect1Type(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -7112,8 +7027,7 @@ class docSect1Type(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docSect1Type', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docSect1Type')
         if imported_ns_def_ is not None:
@@ -7273,8 +7187,7 @@ class docSect2Type(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docSect2Type.subclass:
             return docSect2Type.subclass(*args_, **kwargs_)
-        else:
-            return docSect2Type(*args_, **kwargs_)
+        return docSect2Type(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -7324,8 +7237,7 @@ class docSect2Type(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docSect2Type', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docSect2Type')
         if imported_ns_def_ is not None:
@@ -7485,8 +7397,7 @@ class docSect3Type(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docSect3Type.subclass:
             return docSect3Type.subclass(*args_, **kwargs_)
-        else:
-            return docSect3Type(*args_, **kwargs_)
+        return docSect3Type(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -7536,8 +7447,7 @@ class docSect3Type(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docSect3Type', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docSect3Type')
         if imported_ns_def_ is not None:
@@ -7692,8 +7602,7 @@ class docSect4Type(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docSect4Type.subclass:
             return docSect4Type.subclass(*args_, **kwargs_)
-        else:
-            return docSect4Type(*args_, **kwargs_)
+        return docSect4Type(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -7732,8 +7641,7 @@ class docSect4Type(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docSect4Type', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docSect4Type')
         if imported_ns_def_ is not None:
@@ -7874,8 +7782,7 @@ class docInternalType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docInternalType.subclass:
             return docInternalType.subclass(*args_, **kwargs_)
-        else:
-            return docInternalType(*args_, **kwargs_)
+        return docInternalType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -7911,8 +7818,7 @@ class docInternalType(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docInternalType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docInternalType')
         if imported_ns_def_ is not None:
@@ -8036,8 +7942,7 @@ class docInternalS1Type(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docInternalS1Type.subclass:
             return docInternalS1Type.subclass(*args_, **kwargs_)
-        else:
-            return docInternalS1Type(*args_, **kwargs_)
+        return docInternalS1Type(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -8073,8 +7978,7 @@ class docInternalS1Type(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docInternalS1Type', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docInternalS1Type')
         if imported_ns_def_ is not None:
@@ -8198,8 +8102,7 @@ class docInternalS2Type(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docInternalS2Type.subclass:
             return docInternalS2Type.subclass(*args_, **kwargs_)
-        else:
-            return docInternalS2Type(*args_, **kwargs_)
+        return docInternalS2Type(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -8235,8 +8138,7 @@ class docInternalS2Type(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docInternalS2Type', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docInternalS2Type')
         if imported_ns_def_ is not None:
@@ -8360,8 +8262,7 @@ class docInternalS3Type(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docInternalS3Type.subclass:
             return docInternalS3Type.subclass(*args_, **kwargs_)
-        else:
-            return docInternalS3Type(*args_, **kwargs_)
+        return docInternalS3Type(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -8397,8 +8298,7 @@ class docInternalS3Type(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docInternalS3Type', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docInternalS3Type')
         if imported_ns_def_ is not None:
@@ -8517,8 +8417,7 @@ class docInternalS4Type(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docInternalS4Type.subclass:
             return docInternalS4Type.subclass(*args_, **kwargs_)
-        else:
-            return docInternalS4Type(*args_, **kwargs_)
+        return docInternalS4Type(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -8543,8 +8442,7 @@ class docInternalS4Type(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docInternalS4Type', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docInternalS4Type')
         if imported_ns_def_ is not None:
@@ -9175,8 +9073,7 @@ class docTitleType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docTitleType.subclass:
             return docTitleType.subclass(*args_, **kwargs_)
-        else:
-            return docTitleType(*args_, **kwargs_)
+        return docTitleType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -10356,8 +10253,7 @@ class docTitleType(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docTitleType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docTitleType')
         if imported_ns_def_ is not None:
@@ -12466,8 +12362,7 @@ class docParaType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docParaType.subclass:
             return docParaType.subclass(*args_, **kwargs_)
-        else:
-            return docParaType(*args_, **kwargs_)
+        return docParaType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -13911,8 +13806,7 @@ class docParaType(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docParaType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docParaType')
         if imported_ns_def_ is not None:
@@ -16332,8 +16226,7 @@ class docMarkupType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docMarkupType.subclass:
             return docMarkupType.subclass(*args_, **kwargs_)
-        else:
-            return docMarkupType(*args_, **kwargs_)
+        return docMarkupType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -17777,8 +17670,7 @@ class docMarkupType(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docMarkupType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docMarkupType')
         if imported_ns_def_ is not None:
@@ -20080,8 +19972,7 @@ class docURLLink(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docURLLink.subclass:
             return docURLLink.subclass(*args_, **kwargs_)
-        else:
-            return docURLLink(*args_, **kwargs_)
+        return docURLLink(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -21265,8 +21156,7 @@ class docURLLink(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docURLLink', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docURLLink')
         if imported_ns_def_ is not None:
@@ -22732,8 +22622,7 @@ class docAnchorType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docAnchorType.subclass:
             return docAnchorType.subclass(*args_, **kwargs_)
-        else:
-            return docAnchorType(*args_, **kwargs_)
+        return docAnchorType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -22751,8 +22640,7 @@ class docAnchorType(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docAnchorType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docAnchorType')
         if imported_ns_def_ is not None:
@@ -22839,8 +22727,7 @@ class docFormulaType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docFormulaType.subclass:
             return docFormulaType.subclass(*args_, **kwargs_)
-        else:
-            return docFormulaType(*args_, **kwargs_)
+        return docFormulaType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -22858,8 +22745,7 @@ class docFormulaType(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docFormulaType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docFormulaType')
         if imported_ns_def_ is not None:
@@ -22938,8 +22824,7 @@ class docIndexEntryType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docIndexEntryType.subclass:
             return docIndexEntryType.subclass(*args_, **kwargs_)
-        else:
-            return docIndexEntryType(*args_, **kwargs_)
+        return docIndexEntryType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -22959,8 +22844,7 @@ class docIndexEntryType(GeneratedsSuper):
             self.secondaryie is not None
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docIndexEntryType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docIndexEntryType')
         if imported_ns_def_ is not None:
@@ -23051,8 +22935,7 @@ class docListType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docListType.subclass:
             return docListType.subclass(*args_, **kwargs_)
-        else:
-            return docListType(*args_, **kwargs_)
+        return docListType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -23073,8 +22956,7 @@ class docListType(GeneratedsSuper):
             self.listitem
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docListType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docListType')
         if imported_ns_def_ is not None:
@@ -23153,8 +23035,7 @@ class docListItemType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docListItemType.subclass:
             return docListItemType.subclass(*args_, **kwargs_)
-        else:
-            return docListItemType(*args_, **kwargs_)
+        return docListItemType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -23175,8 +23056,7 @@ class docListItemType(GeneratedsSuper):
             self.para
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docListItemType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docListItemType')
         if imported_ns_def_ is not None:
@@ -23264,8 +23144,7 @@ class docSimpleSectType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docSimpleSectType.subclass:
             return docSimpleSectType.subclass(*args_, **kwargs_)
-        else:
-            return docSimpleSectType(*args_, **kwargs_)
+        return docSimpleSectType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -23319,8 +23198,7 @@ class docSimpleSectType(GeneratedsSuper):
             self.simplesectsep
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docSimpleSectType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docSimpleSectType')
         if imported_ns_def_ is not None:
@@ -23418,8 +23296,7 @@ class docVarListEntryType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docVarListEntryType.subclass:
             return docVarListEntryType.subclass(*args_, **kwargs_)
-        else:
-            return docVarListEntryType(*args_, **kwargs_)
+        return docVarListEntryType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -23434,8 +23311,7 @@ class docVarListEntryType(GeneratedsSuper):
             self.term is not None
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docVarListEntryType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docVarListEntryType')
         if imported_ns_def_ is not None:
@@ -23519,8 +23395,7 @@ class docVariableListType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docVariableListType.subclass:
             return docVariableListType.subclass(*args_, **kwargs_)
-        else:
-            return docVariableListType(*args_, **kwargs_)
+        return docVariableListType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -23552,8 +23427,7 @@ class docVariableListType(GeneratedsSuper):
             self.listitem
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docVariableListType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docVariableListType')
         if imported_ns_def_ is not None:
@@ -24181,8 +24055,7 @@ class docRefTextType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docRefTextType.subclass:
             return docRefTextType.subclass(*args_, **kwargs_)
-        else:
-            return docRefTextType(*args_, **kwargs_)
+        return docRefTextType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -25387,8 +25260,7 @@ class docRefTextType(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docRefTextType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docRefTextType')
         if imported_ns_def_ is not None:
@@ -26868,8 +26740,7 @@ class docTableType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docTableType.subclass:
             return docTableType.subclass(*args_, **kwargs_)
-        else:
-            return docTableType(*args_, **kwargs_)
+        return docTableType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -26903,8 +26774,7 @@ class docTableType(GeneratedsSuper):
             self.caption is not None
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docTableType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docTableType')
         if imported_ns_def_ is not None:
@@ -27003,8 +26873,7 @@ class docRowType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docRowType.subclass:
             return docRowType.subclass(*args_, **kwargs_)
-        else:
-            return docRowType(*args_, **kwargs_)
+        return docRowType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -27025,8 +26894,7 @@ class docRowType(GeneratedsSuper):
             self.entry
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docRowType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docRowType')
         if imported_ns_def_ is not None:
@@ -27107,8 +26975,7 @@ class docEntryType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docEntryType.subclass:
             return docEntryType.subclass(*args_, **kwargs_)
-        else:
-            return docEntryType(*args_, **kwargs_)
+        return docEntryType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -27146,8 +27013,7 @@ class docEntryType(GeneratedsSuper):
             self.para
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docEntryType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docEntryType')
         if imported_ns_def_ is not None:
@@ -27767,8 +27633,7 @@ class docCaptionType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docCaptionType.subclass:
             return docCaptionType.subclass(*args_, **kwargs_)
-        else:
-            return docCaptionType(*args_, **kwargs_)
+        return docCaptionType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -28948,8 +28813,7 @@ class docCaptionType(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docCaptionType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docCaptionType')
         if imported_ns_def_ is not None:
@@ -30940,8 +30804,7 @@ class docHeadingType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docHeadingType.subclass:
             return docHeadingType.subclass(*args_, **kwargs_)
-        else:
-            return docHeadingType(*args_, **kwargs_)
+        return docHeadingType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -32125,8 +31988,7 @@ class docHeadingType(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docHeadingType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docHeadingType')
         if imported_ns_def_ is not None:
@@ -34128,8 +33990,7 @@ class docImageType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docImageType.subclass:
             return docImageType.subclass(*args_, **kwargs_)
-        else:
-            return docImageType(*args_, **kwargs_)
+        return docImageType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -35338,8 +35199,7 @@ class docImageType(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docImageType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docImageType')
         if imported_ns_def_ is not None:
@@ -37357,8 +37217,7 @@ class docFileType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docFileType.subclass:
             return docFileType.subclass(*args_, **kwargs_)
-        else:
-            return docFileType(*args_, **kwargs_)
+        return docFileType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -38542,8 +38401,7 @@ class docFileType(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docFileType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docFileType')
         if imported_ns_def_ is not None:
@@ -40539,8 +40397,7 @@ class docTocItemType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docTocItemType.subclass:
             return docTocItemType.subclass(*args_, **kwargs_)
-        else:
-            return docTocItemType(*args_, **kwargs_)
+        return docTocItemType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -41724,8 +41581,7 @@ class docTocItemType(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docTocItemType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docTocItemType')
         if imported_ns_def_ is not None:
@@ -43184,8 +43040,7 @@ class docTocListType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docTocListType.subclass:
             return docTocListType.subclass(*args_, **kwargs_)
-        else:
-            return docTocListType(*args_, **kwargs_)
+        return docTocListType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -43206,8 +43061,7 @@ class docTocListType(GeneratedsSuper):
             self.tocitem
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docTocListType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docTocListType')
         if imported_ns_def_ is not None:
@@ -43288,8 +43142,7 @@ class docLanguageType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docLanguageType.subclass:
             return docLanguageType.subclass(*args_, **kwargs_)
-        else:
-            return docLanguageType(*args_, **kwargs_)
+        return docLanguageType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -43314,8 +43167,7 @@ class docLanguageType(GeneratedsSuper):
             self.para
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docLanguageType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docLanguageType')
         if imported_ns_def_ is not None:
@@ -43401,8 +43253,7 @@ class docParamListType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docParamListType.subclass:
             return docParamListType.subclass(*args_, **kwargs_)
-        else:
-            return docParamListType(*args_, **kwargs_)
+        return docParamListType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -43440,8 +43291,7 @@ class docParamListType(GeneratedsSuper):
             self.parameteritem
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docParamListType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docParamListType')
         if imported_ns_def_ is not None:
@@ -43528,8 +43378,7 @@ class docParamListItem(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docParamListItem.subclass:
             return docParamListItem.subclass(*args_, **kwargs_)
-        else:
-            return docParamListItem(*args_, **kwargs_)
+        return docParamListItem(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -43555,8 +43404,7 @@ class docParamListItem(GeneratedsSuper):
             self.parameterdescription is not None
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docParamListItem', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docParamListItem')
         if imported_ns_def_ is not None:
@@ -43648,8 +43496,7 @@ class docParamNameList(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docParamNameList.subclass:
             return docParamNameList.subclass(*args_, **kwargs_)
-        else:
-            return docParamNameList(*args_, **kwargs_)
+        return docParamNameList(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -43681,8 +43528,7 @@ class docParamNameList(GeneratedsSuper):
             self.parametername
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docParamNameList', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docParamNameList')
         if imported_ns_def_ is not None:
@@ -43776,8 +43622,7 @@ class docParamType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docParamType.subclass:
             return docParamType.subclass(*args_, **kwargs_)
-        else:
-            return docParamType(*args_, **kwargs_)
+        return docParamType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -43796,8 +43641,7 @@ class docParamType(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docParamType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docParamType')
         if imported_ns_def_ is not None:
@@ -43902,8 +43746,7 @@ class docParamName(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docParamName.subclass:
             return docParamName.subclass(*args_, **kwargs_)
-        else:
-            return docParamName(*args_, **kwargs_)
+        return docParamName(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -43939,8 +43782,7 @@ class docParamName(GeneratedsSuper):
             self.content_
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docParamName', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docParamName')
         if imported_ns_def_ is not None:
@@ -44046,8 +43888,7 @@ class docXRefSectType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docXRefSectType.subclass:
             return docXRefSectType.subclass(*args_, **kwargs_)
-        else:
-            return docXRefSectType(*args_, **kwargs_)
+        return docXRefSectType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -44077,8 +43918,7 @@ class docXRefSectType(GeneratedsSuper):
             self.xrefdescription is not None
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docXRefSectType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docXRefSectType')
         if imported_ns_def_ is not None:
@@ -44181,8 +44021,7 @@ class docCopyType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docCopyType.subclass:
             return docCopyType.subclass(*args_, **kwargs_)
-        else:
-            return docCopyType(*args_, **kwargs_)
+        return docCopyType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -44223,8 +44062,7 @@ class docCopyType(GeneratedsSuper):
             self.internal is not None
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docCopyType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docCopyType')
         if imported_ns_def_ is not None:
@@ -44324,8 +44162,7 @@ class docBlockQuoteType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docBlockQuoteType.subclass:
             return docBlockQuoteType.subclass(*args_, **kwargs_)
-        else:
-            return docBlockQuoteType(*args_, **kwargs_)
+        return docBlockQuoteType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -44346,8 +44183,7 @@ class docBlockQuoteType(GeneratedsSuper):
             self.para
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docBlockQuoteType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docBlockQuoteType')
         if imported_ns_def_ is not None:
@@ -44426,8 +44262,7 @@ class docParBlockType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docParBlockType.subclass:
             return docParBlockType.subclass(*args_, **kwargs_)
-        else:
-            return docParBlockType(*args_, **kwargs_)
+        return docParBlockType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -44448,8 +44283,7 @@ class docParBlockType(GeneratedsSuper):
             self.para
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docParBlockType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docParBlockType')
         if imported_ns_def_ is not None:
@@ -44525,8 +44359,7 @@ class docCharType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docCharType.subclass:
             return docCharType.subclass(*args_, **kwargs_)
-        else:
-            return docCharType(*args_, **kwargs_)
+        return docCharType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -44552,8 +44385,7 @@ class docCharType(GeneratedsSuper):
 
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docCharType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docCharType')
         if imported_ns_def_ is not None:
@@ -44622,8 +44454,7 @@ class docEmptyType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if docEmptyType.subclass:
             return docEmptyType.subclass(*args_, **kwargs_)
-        else:
-            return docEmptyType(*args_, **kwargs_)
+        return docEmptyType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -44634,8 +44465,7 @@ class docEmptyType(GeneratedsSuper):
 
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='docEmptyType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('docEmptyType')
         if imported_ns_def_ is not None:
