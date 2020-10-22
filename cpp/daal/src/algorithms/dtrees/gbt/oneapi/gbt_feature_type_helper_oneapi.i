@@ -163,7 +163,8 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::extractColumn(const ser
         DAAL_ASSERT_UNIVERSAL_BUFFER(values, algorithmFPType, nRows);
         DAAL_ASSERT_UNIVERSAL_BUFFER(indices, int, nRows);
 
-        KernelArguments args(6);
+        KernelArguments args(6, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, data, AccessModeIds::read);
         args.set(1, values, AccessModeIds::write);
         args.set(2, indices, AccessModeIds::write);
@@ -200,7 +201,8 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::collectBinBorders(Unive
         DAAL_ASSERT_UNIVERSAL_BUFFER(binOffsets, int, maxBins);
         DAAL_ASSERT_UNIVERSAL_BUFFER(binBorders, algorithmFPType, maxBins);
 
-        KernelArguments args(3);
+        KernelArguments args(3, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, values, AccessModeIds::read);
         args.set(1, binOffsets, AccessModeIds::read);
         args.set(2, binBorders, AccessModeIds::write);
@@ -237,7 +239,8 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
         DAAL_ASSERT_UNIVERSAL_BUFFER(binBorders, algorithmFPType, maxBins);
         DAAL_ASSERT_UNIVERSAL_BUFFER(bins, uint32_t, nRows);
 
-        KernelArguments args(6);
+        KernelArguments args(6, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, values, AccessModeIds::read);
         args.set(1, indices, AccessModeIds::read);
         args.set(2, binBorders, AccessModeIds::read);
@@ -347,7 +350,8 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::storeColumn(const Unive
         DAAL_ASSERT_UNIVERSAL_BUFFER(data, uint32_t, nRows);
         DAAL_ASSERT_UNIVERSAL_BUFFER(fullData, uint32_t, nRows * nFeatures);
 
-        KernelArguments args(5);
+        KernelArguments args(5, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, data, AccessModeIds::read);
         args.set(1, fullData, AccessModeIds::write);
         args.set(2, featureId);

@@ -24,7 +24,6 @@
 #include "services/daal_string.h"
 #include "src/services/service_data_utils.h"
 #include "src/externals/service_ittnotify.h"
-#include "services/internal/sycl/daal_defines_sycl.h"
 
 using namespace daal::data_management;
 using namespace daal::services::internal;
@@ -90,7 +89,8 @@ services::Status runQuickSelectSimd(ExecutionContextIface & context, ClKernelFac
     range.local(localRange, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(10);
+    KernelArguments args(10, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, dataVectors, AccessModeIds::read);
     args.set(1, indexVectors, AccessModeIds::read);
     args.set(2, result.values, AccessModeIds::write);
@@ -150,7 +150,8 @@ services::Status runDirectSelectSimd(ExecutionContextIface & context, ClKernelFa
     range.local(localRange, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(7);
+    KernelArguments args(7, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, dataVectors, AccessModeIds::read);
     args.set(1, result.values, AccessModeIds::write);
     args.set(2, result.indices, AccessModeIds::write);
@@ -270,7 +271,7 @@ Status QuickSelectIndexed::init(Params & par)
     auto & context = Environment::getInstance()->getDefaultExecutionContext();
     _rndSeq        = context.allocate(par.type, _nRndSeq, status);
     DAAL_CHECK_STATUS_VAR(status);
-    context.copy(_rndSeq, 0, (void *)&values[0], 0, _nRndSeq, status);
+    context.copy(_rndSeq, 0, (void *)&values[0], _nRndSeq, 0, _nRndSeq, status);
     DAAL_CHECK_STATUS_VAR(status);
     return status;
 }

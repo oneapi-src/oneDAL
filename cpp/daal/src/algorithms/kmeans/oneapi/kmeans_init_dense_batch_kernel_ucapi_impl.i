@@ -28,7 +28,6 @@
 #include "data_management/data/numeric_table.h"
 #include "services/daal_defines.h"
 #include "src/services/service_data_utils.h"
-#include "services/internal/sycl/daal_defines_sycl.h"
 #include "src/externals/service_memory.h"
 #include "src/data_management/service_numeric_table.h"
 #include "src/algorithms/distributions/uniform/uniform_kernel.h"
@@ -190,7 +189,8 @@ Status KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::gatherRandom(co
     DAAL_ASSERT(clusters.size() >= nClusters * nFeatures);
     DAAL_ASSERT_UNIVERSAL_BUFFER(indices, int, nClusters);
 
-    KernelArguments args(6);
+    KernelArguments args(6, st);
+    DAAL_CHECK_STATUS_VAR(st);
     args.set(0, data, AccessModeIds::read);
     args.set(1, clusters, AccessModeIds::write);
     args.set(2, indices, AccessModeIds::read);
@@ -218,7 +218,7 @@ Status KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::buildProgram(Cl
 {
     auto fptypeName   = services::internal::sycl::getKeyFPType<algorithmFPType>();
     auto buildOptions = fptypeName;
-    buildOptions.add("-cl-std=CL1.2 -D LOCAL_SUM_SIZE=256"); // should be equal to _maxWorkitemsPerGroup
+    buildOptions.add("-cl-std=CL1.2 -D LOCAL_SUM_SIZE=256"); // should be not less than _maxWorkitemsPerGroup
 
     services::String cachekey("__daal_algorithms_kmeans_init_dense_batch_");
     cachekey.add(fptypeName);
