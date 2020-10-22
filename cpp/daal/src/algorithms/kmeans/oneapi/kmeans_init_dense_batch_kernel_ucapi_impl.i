@@ -59,22 +59,7 @@ Status KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::init(size_t p, 
 {
     Status st;
 
-<<<<<<< HEAD
-    auto & context        = services::internal::getDefaultContext();
-    auto & kernel_factory = context.getClKernelFactory();
-
-    auto fptype_name   = services::internal::sycl::getKeyFPType<algorithmFPType>();
-    auto build_options = fptype_name;
-    build_options.add("-cl-std=CL1.2 -D LOCAL_SUM_SIZE=256"); // should be equal to _maxWorkitemsPerGroup
-
-    services::String cachekey("__daal_algorithms_kmeans_init_dense_batch_");
-    cachekey.add(fptype_name);
-
-    kernel_factory.build(ExecutionTargetIds::device, cachekey.c_str(), kmeans_init_cl_kernels, build_options.c_str(), st);
-    DAAL_CHECK_STATUS_VAR(st);
-=======
-    auto & context = Environment::getInstance()->getDefaultExecutionContext();
->>>>>>> 89fb3922e... Checks for K-Means initialization (#1131)
+    auto & context = services::internal::getDefaultContext();
 
     if (method == deterministicDense)
     {
@@ -189,7 +174,7 @@ Status KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::gatherRandom(co
                                                                               uint32_t nFeatures)
 {
     Status st;
-    auto & context       = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context       = services::internal::getDefaultContext();
     auto & kernelFactory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernelFactory));
 
