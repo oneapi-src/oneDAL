@@ -502,7 +502,7 @@ private:
             services::throwIfPossible(st);
             DAAL_CHECK_STATUS_VAR(st);
 
-            auto buffer       = converter.getResult();
+            auto buffer = converter.getResult();
             DAAL_ASSERT(buffer.size() == nrows);
 
             auto colSharedPtr = buffer.toHost(readOnly, st);
