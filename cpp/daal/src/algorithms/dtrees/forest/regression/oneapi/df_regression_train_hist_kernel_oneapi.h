@@ -63,7 +63,7 @@ template <typename algorithmFPType>
 class RegressionTrainBatchKernelOneAPI<algorithmFPType, hist> : public daal::algorithms::Kernel
 {
 public:
-    RegressionTrainBatchKernelOneAPI() {}
+    RegressionTrainBatchKernelOneAPI() : _nRows(0), _nFeatures(0), _nSelectedRows(0), _nMaxBinsAmongFtrs(0), _totalBins(0) {};
     services::Status compute(services::HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y,
                              decision_forest::regression::Model & m, Result & res, const Parameter & par);
 
@@ -143,12 +143,16 @@ private:
     const size_t _minRowsBlock         = 256;
     const size_t _maxBins              = 256;
 
+    const size_t _nOOBProps      = 2; // number of props for each OOB row to compute prediction (i.e. mean and num of predictions)
     const size_t _nHistProps     = 3; // number of properties in bins histogram (i.e. n, mean and var)
     const size_t _nNodesGroups   = 3; // all nodes are split on groups (big, medium, small)
     const size_t _nodeGroupProps = 2; // each nodes Group contains props: numOfNodes, maxNumOfBlocks
 
     static constexpr size_t _int32max = static_cast<size_t>(services::internal::MaxVal<int32_t>::get());
 
+    size_t _nRows;
+    size_t _nFeatures;
+    size_t _nSelectedRows;
     size_t _nMaxBinsAmongFtrs;
     size_t _totalBins;
 };

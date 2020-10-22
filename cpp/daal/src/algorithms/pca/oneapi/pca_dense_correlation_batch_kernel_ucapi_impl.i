@@ -223,7 +223,8 @@ services::Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::calculateVaria
 
     covariance.getBlockOfRows(0, nFeatures, readOnly, covBlock);
 
-    KernelArguments args(2);
+    KernelArguments args(2, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, covBlock.getBuffer(), AccessModeIds::read);
     args.set(1, variances, AccessModeIds::write);
 

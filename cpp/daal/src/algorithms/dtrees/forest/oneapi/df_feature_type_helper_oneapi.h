@@ -71,7 +71,6 @@ public:
     };
 
 public:
-    //IndexedFeaturesOneAPI() : _data(), _sizeOfIndex(sizeof(IndexType)), _nCols(0), _nRows(0) {}
     IndexedFeaturesOneAPI() : _data(), _nCols(0), _nRows(0) {}
     ~IndexedFeaturesOneAPI();
 
@@ -105,7 +104,7 @@ protected:
 
     services::Status computeBins(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & indices,
                                  services::internal::sycl::UniversalBuffer & binBorders, services::internal::sycl::UniversalBuffer & bins,
-                                 int32_t nRows, int32_t nBins, int32_t localSize, int32_t nLocalBlocks);
+                                 int32_t nRows, int32_t nBins, int32_t maxBins, int32_t localSize, int32_t nLocalBlocks);
 
     services::Status computeBins(services::internal::sycl::UniversalBuffer & values, services::internal::sycl::UniversalBuffer & indices,
                                  services::internal::sycl::UniversalBuffer & bins, FeatureEntry & entry, int32_t nRows,
