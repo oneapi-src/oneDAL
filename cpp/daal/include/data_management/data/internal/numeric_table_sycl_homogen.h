@@ -76,10 +76,17 @@ public:
                                                                           services::Status * stat = NULL)
     {
         const size_t bufferSize = nColumns * nRows;
+
         // multiplication overflow check is done in the constructor.
         // its not a safety problem to postpone this check since services::internal::Buffer() constructor
         // do not perform any data allocations in case of input usm data - we can create it even with wrong bufferSize
-        return create(services::internal::Buffer<DataType>(usmData, bufferSize, usmAllocType), nColumns, nRows, stat);
+
+        services::Status localStatus;
+        services::internal::Buffer<DataType> buffer(usmData, bufferSize, usmAllocType, localStatus);
+        services::internal::tryAssignStatusAndThrow(stat, localStatus);
+        DAAL_CHECK_STATUS_RETURN_IF_FAIL(localStatus, services::SharedPtr<SyclHomogenNumericTable<DataType> >());
+
+        return create(buffer, nColumns, nRows, stat);
     }
 #endif
 
@@ -95,7 +102,13 @@ public:
             return services::SharedPtr<SyclHomogenNumericTable<DataType> >();
         }
         const size_t bufferSize = nColumns * nRows;
-        return create(services::internal::Buffer<DataType>(usmData, bufferSize, usmAllocType), nColumns, nRows, stat);
+
+        services::Status localStatus;
+        services::internal::Buffer<DataType> buffer(usmData, bufferSize, usmAllocType, localStatus);
+        services::internal::tryAssignStatusAndThrow(stat, localStatus);
+        DAAL_CHECK_STATUS_RETURN_IF_FAIL(localStatus, services::SharedPtr<SyclHomogenNumericTable<DataType> >());
+
+        return create(buffer, nColumns, nRows, stat);
     }
 #endif
 

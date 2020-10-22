@@ -59,7 +59,8 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::heaviside(co
     KernelPtr kernel              = factory.getKernel(kernelName, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(2);
+    KernelArguments args(2, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, x, AccessModeIds::read);
     args.set(1, result, AccessModeIds::write);
 
@@ -91,7 +92,8 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::argMax(const
     KernelPtr kernel              = factory.getKernel(kernelName, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(3);
+    KernelArguments args(3, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, x, AccessModeIds::read);
     args.set(1, result, AccessModeIds::write);
     args.set(2, p);

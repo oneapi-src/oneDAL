@@ -36,7 +36,7 @@ namespace training
 {
 namespace internal
 {
-template class ClassificationTrainBatchKernelOneAPI<DAAL_FPTYPE, hist>;
+template class DAAL_EXPORT ClassificationTrainBatchKernelOneAPI<DAAL_FPTYPE, hist>;
 }
 
 } // namespace training
