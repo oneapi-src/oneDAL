@@ -28,7 +28,7 @@
 DAAL_ITTNOTIFY_DOMAIN(pca.dense.correlation.batch.oneapi);
 
 #include "services/env_detect.h"
-#include "include/services/internal/sycl/daal_defines_sycl.h"
+#include "include/services/internal/sycl/types.h"
 #include "src/algorithms/pca/oneapi/cl_kernels/pca_cl_kernels.cl"
 #include "data_management/data/internal/numeric_table_sycl_homogen.h"
 #include "src/sycl/blas_gpu.h"

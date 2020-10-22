@@ -29,7 +29,7 @@ DAAL_ITTNOTIFY_DOMAIN(pca.transform.batch.oneapi);
 
 #include "src/algorithms/pca/transform/oneapi/cl_kernels/pca_transform_cl_kernels.cl"
 #include "src/services/service_data_utils.h"
-#include "include/services/internal/sycl/daal_defines_sycl.h"
+#include "include/services/internal/sycl/types.h"
 
 using namespace daal::services;
 using namespace daal::services::internal::sycl;
@@ -117,7 +117,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::normalize(Execu
     DAAL_ASSERT_UNIVERSAL_BUFFER(rawMeans, algorithmFPType, nFeatures);
     DAAL_ASSERT_UNIVERSAL_BUFFER(invSigmas, algorithmFPType, nFeatures);
 
-    const uint32_t workItemsPerGroup = (numFeatures > maxWorkItemsPerGroup) ? maxWorkItemsPerGroup : numFeatures;
+    const uint32_t workItemsPerGroup = (nFeatures > maxWorkItemsPerGroup) ? maxWorkItemsPerGroup : nFeatures;
     DAAL_ASSERT(workItemsPerGroup != 0);
     KernelArguments args(7, status);
     DAAL_CHECK_STATUS_VAR(status);

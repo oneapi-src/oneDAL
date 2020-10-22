@@ -28,7 +28,7 @@
 DAAL_ITTNOTIFY_DOMAIN(pca.dense.correlation.online.oneapi);
 
 #include "include/services/env_detect.h"
-#include "include/services/internal/sycl/daal_defines_sycl.h"
+#include "include/services/internal/sycl/types.h"
 #include "src/algorithms/covariance/oneapi/covariance_oneapi_impl.i"
 #include "pca_dense_correlation_online_kernel_ucapi.h"
 
