@@ -191,8 +191,7 @@ except ImportError as exp:
         def gds_validate_string(self, input_data, node=None, input_name=''):
             if not input_data:
                 return ''
-            else:
-                return input_data
+            return input_data
         def gds_format_base64(self, input_data, input_name=''):
             return base64.b64encode(input_data)
         def gds_validate_base64(self, input_data, node=None, input_name=''):
@@ -603,8 +602,7 @@ except ImportError as exp:
                 else:
                     encoding = 'utf-8'
                 return instring.encode(encoding)
-            else:
-                return instring
+            return instring
         @staticmethod
         def convert_unicode(instring):
             if isinstance(instring, str):
@@ -640,8 +638,7 @@ except ImportError as exp:
                     self.gds_elementtree_node_ is not None):
                 return ' near line {}'.format(
                     self.gds_elementtree_node_.sourceline)
-            else:
-                return ""
+            return ""
 
 
     def getSubclassFromModule_(module, class_):
@@ -649,8 +646,7 @@ except ImportError as exp:
         name = class_.__name__ + 'Sub'
         if hasattr(module, name):
             return getattr(module, name)
-        else:
-            return None
+        return None
 
 
 #
@@ -742,15 +738,13 @@ def quote_python(inStr):
     if s1.find("'") == -1:
         if s1.find('\n') == -1:
             return "'%s'" % s1
-        else:
-            return "'''%s'''" % s1
+        return "'''%s'''" % s1
     else:
         if s1.find('"') != -1:
             s1 = s1.replace('"', '\\"')
         if s1.find('\n') == -1:
             return '"%s"' % s1
-        else:
-            return '"""%s"""' % s1
+        return '"""%s"""' % s1
 
 
 def get_all_text_(node):
@@ -927,10 +921,8 @@ class MemberSpec_(object):
         if isinstance(self.data_type, list):
             if len(self.data_type) > 0:
                 return self.data_type[-1]
-            else:
-                return 'xs:string'
-        else:
-            return self.data_type
+            return 'xs:string'
+        return self.data_type
     def set_container(self, container): self.container = container
     def get_container(self): return self.container
     def set_child_attrs(self, child_attrs): self.child_attrs = child_attrs
@@ -1008,8 +1000,7 @@ class DoxygenType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if DoxygenType.subclass:
             return DoxygenType.subclass(*args_, **kwargs_)
-        else:
-            return DoxygenType(*args_, **kwargs_)
+        return DoxygenType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -1034,8 +1025,7 @@ class DoxygenType(GeneratedsSuper):
             self.compound
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='DoxygenType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('DoxygenType')
         if imported_ns_def_ is not None:
@@ -1125,8 +1115,7 @@ class CompoundType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if CompoundType.subclass:
             return CompoundType.subclass(*args_, **kwargs_)
-        else:
-            return CompoundType(*args_, **kwargs_)
+        return CompoundType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -1173,8 +1162,7 @@ class CompoundType(GeneratedsSuper):
             self.member
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='CompoundType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('CompoundType')
         if imported_ns_def_ is not None:
@@ -1277,8 +1265,7 @@ class MemberType(GeneratedsSuper):
                 return subclass(*args_, **kwargs_)
         if MemberType.subclass:
             return MemberType.subclass(*args_, **kwargs_)
-        else:
-            return MemberType(*args_, **kwargs_)
+        return MemberType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_ns_prefix_(self):
         return self.ns_prefix_
@@ -1314,8 +1301,7 @@ class MemberType(GeneratedsSuper):
             self.name is not None
         ):
             return True
-        else:
-            return False
+        return False
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='MemberType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('MemberType')
         if imported_ns_def_ is not None:
