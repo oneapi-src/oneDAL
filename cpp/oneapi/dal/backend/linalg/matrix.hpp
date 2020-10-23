@@ -23,7 +23,6 @@
 #include <functional>
 
 #include "oneapi/dal/array.hpp"
-#include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 

@@ -22,7 +22,6 @@
 #include <daal/include/data_management/data/internal/numeric_table_sycl_homogen.h>
 #endif
 
-#include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
 namespace oneapi::dal::backend::interop {
