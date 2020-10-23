@@ -28,6 +28,8 @@
 #include "src/algorithms/linear_model/oneapi/cl_kernel/reduce_results.cl"
 #include "src/services/service_data_utils.h"
 
+#include <iostream>
+
 namespace daal
 {
 namespace algorithms
@@ -228,20 +230,29 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::reduceResults(services::in
 
     KernelArguments args(6, status);
     DAAL_CHECK_STATUS_VAR(status);
+
     DAAL_ASSERT(count <= services::internal::MaxVal<uint32_t>::get());
+
     DAAL_ASSERT(dstStride <= services::internal::MaxVal<uint32_t>::get());
     DAAL_ASSERT(dstOffset <= services::internal::MaxVal<uint32_t>::get());
+
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, dstStride, count);
     DAAL_OVERFLOW_CHECK_BY_ADDING(uint32_t, dstOffset, (dstStride * count));
+    std::cout << dst.size() << ' ' << dstStride << ' ' << count  << ' ' << dstOffset << std::endl << std::flush; 
     DAAL_ASSERT(dst.size() >= (dstStride * count + dstOffset));
+
     args.set(0, dst, AccessModeIds::write);
     args.set(1, static_cast<uint32_t>(dstOffset));
     args.set(2, static_cast<uint32_t>(dstStride));
+
     DAAL_ASSERT(srcStride <= services::internal::MaxVal<uint32_t>::get());
     DAAL_ASSERT(srcOffset <= services::internal::MaxVal<uint32_t>::get());
+
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, srcStride, count);
     DAAL_OVERFLOW_CHECK_BY_ADDING(uint32_t, srcOffset, (srcStride * count));
+
     DAAL_ASSERT(src.size() >= (srcStride * count + srcOffset));
+
     args.set(3, src, AccessModeIds::read);
     args.set(4, static_cast<uint32_t>(srcOffset));
     args.set(5, static_cast<uint32_t>(srcStride));
