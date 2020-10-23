@@ -148,7 +148,7 @@ constexpr bool is_floating_point() {
     return is_floating_point(make_data_type<T>());
 }
 
-template<typename Data>
+template <typename Data>
 struct integer_overflow_ops {
     static void check_mul_overflow(const Data& first, const Data& second);
     static void check_sum_overflow(const Data& first, const Data& second);

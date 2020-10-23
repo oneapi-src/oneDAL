@@ -18,7 +18,7 @@
 
 namespace oneapi::dal::detail {
 
-template<typename Data>
+template <typename Data>
 void integer_overflow_ops<Data>::check_sum_overflow(const Data& first, const Data& second) {
     volatile Data tmp = first + second;
     tmp -= first;
