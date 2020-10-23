@@ -81,6 +81,8 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
     {
         const TypeIds::Id idType = TypeIds::id<algorithmFPType>();
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBetasIntercept, nCols);
+        DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, nBetasIntercept, (nBetasIntercept * nCols));
+        DAAL_ASSERT(xtxBuff.size() >= (nBetasIntercept + nBetasIntercept * nCols));
         sumXBuf = xtxBuff.getSubBuffer(nBetasIntercept * nCols, nBetasIntercept, status);
         DAAL_CHECK_STATUS_VAR(status);
 
