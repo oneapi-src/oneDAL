@@ -51,6 +51,8 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::addBetaInte
 {
     services::Status status;
 
+    DAAL_ASSERT(nBetas );
+
     ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
@@ -66,12 +68,14 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::addBetaInte
 
     KernelArguments args(4, status);
     DAAL_CHECK_STATUS_VAR(status);
+    DAAL_ASSERT(betaTable.size() >= nBetas * yNCols);
     args.set(0, betaTable, AccessModeIds::read);
     DAAL_ASSERT(nBetas <= services::internal::MaxVal<uint32_t>::get());
-    args.set(1, nBetas);
+    args.set(1, static_cast<uint32_t>(nBetas));
+    DAAL_ASSERT(yTable.size() >= yNRows * yNCols);
     args.set(2, yTable, AccessModeIds::write);
     DAAL_ASSERT(yNCols <= services::internal::MaxVal<uint32_t>::get());
-    args.set(3, yNCols);
+    args.set(3, static_cast<uint32_t>(yNCols));
 
     KernelRange range(yNRows, yNCols);
 
@@ -97,11 +101,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute(con
 
     const size_t nRowsPerBlock = 90000;
 
-    size_t nBlocks = nRows / nRowsPerBlock;
-    if (nBlocks * nRowsPerBlock < nRows)
-    {
-        ++nBlocks;
-    }
+    const size_t nBlocks = (nRows / nRowsPerBlock) + bool(nRows % nRowsPerBlock) ? 1 : 0;
 
     BlockDescriptor<algorithmFPType> betaBlock;
     DAAL_CHECK_STATUS(status, betaTable->getBlockOfRows(0, nResponses, ReadWriteMode::readOnly, betaBlock));
@@ -112,8 +112,8 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute(con
     {
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, blockIdx, nRowsPerBlock);
         const size_t startRow = blockIdx * nRowsPerBlock;
-        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, startRow, nRowsPerBlock);
-        const size_t endRow   = (endRows > nRows) ? nRows : startRow + nRowsPerBlock;
+        DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, startRow, nRowsPerBlock);
+        const size_t endRow   = ((startRow + nRowsPerBlock) > nRows) ? nRows : startRow + nRowsPerBlock;
 
         BlockDescriptor<algorithmFPType> xBlock;
         BlockDescriptor<algorithmFPType> yBlock;

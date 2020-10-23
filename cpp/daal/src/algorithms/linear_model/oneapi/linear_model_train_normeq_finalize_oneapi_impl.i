@@ -51,8 +51,11 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::compute(NumericTable & x
     services::Status status;
 
     const size_t nBetasIntercept = xtxTable.getNumberOfRows();
+    DAAL_ASSERT(nBetasIntercept <= services::internal::MaxVal<uint32_t>::get());
     const size_t nBetas          = interceptFlag ? nBetasIntercept : (nBetasIntercept + 1);
+    DAAL_ASSERT(nBetas <= services::internal::MaxVal<uint32_t>::get());
     const size_t nResponses      = xtyTable.getNumberOfRows();
+    DAAL_ASSERT(nResponses <= services::internal::MaxVal<uint32_t>::get());
 
     {
         if (&xtxTable != &xtxFinalTable)
@@ -136,6 +139,9 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::copyDataToFinalTable(Num
     services::internal::Buffer<algorithmFPType> dstBuf       = dstBlock.getBuffer();
 
     auto & context = services::internal::getDefaultContext();
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nCols * nRows);
+    DAAL_ASSERT(dstBuf.size() >= nCols * nRows);
+    DAAL_ASSERT(srcBuf.size() >= nCols * nRows);
     context.copy(dstBuf, 0, srcBuf, 0, nCols * nRows, status);
     DAAL_CHECK_STATUS_VAR(status);
 
