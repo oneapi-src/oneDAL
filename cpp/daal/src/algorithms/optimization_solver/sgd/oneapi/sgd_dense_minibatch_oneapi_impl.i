@@ -292,7 +292,7 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::compute(HostAppIfa
     if (pastWorkValueInput)
     {
         BlockDescriptor<algorithmFPType> pastWorkValueInputBD;
-        DAAL_CHECK_STATUS(pastWorkValueInput->getBlockOfRows(0, argumentSize, ReadWriteMode::readOnly, pastWorkValueInputBD));
+        DAAL_CHECK_STATUS(status, pastWorkValueInput->getBlockOfRows(0, argumentSize, ReadWriteMode::readOnly, pastWorkValueInputBD));
 
         const Buffer<algorithmFPType> pastWorkValueInputBuff = pastWorkValueInputBD.getBuffer();
 
