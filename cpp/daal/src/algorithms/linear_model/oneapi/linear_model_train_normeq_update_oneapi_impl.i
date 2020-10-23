@@ -225,13 +225,17 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::reduceResults(services::in
 
     KernelArguments args(6, status);
     DAAL_CHECK_STATUS_VAR(status);
-    
+    DAAL_ASSERT(count <= services::internal::MaxVal<uint32_t>::get());
+    DAAL_ASSERT(dstStride <= services::internal::MaxVal<uint32_t>::get());
+    DAAL_ASSERT(dstOffset <= services::internal::MaxVal<uint32_t>::get());
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, dstStride, count);
     DAAL_OVERFLOW_CHECK_BY_ADDING(uint32_t, dstOffset, (dstStride * count));
     DAAL_ASSERT(dst.size() >= (dstStride * count + dstOffset));
     args.set(0, dst, AccessModeIds::write);
     args.set(1, static_cast<uint32_t>(dstOffset));
     args.set(2, static_cast<uint32_t>(dstStride));
+    DAAL_ASSERT(srcStride <= services::internal::MaxVal<uint32_t>::get());
+    DAAL_ASSERT(srcOffset <= services::internal::MaxVal<uint32_t>::get());
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, srcStride, count);
     DAAL_OVERFLOW_CHECK_BY_ADDING(uint32_t, srcOffset, (srcStride * count));
     DAAL_ASSERT(src.size() >= (srcStride * count + srcOffset));
