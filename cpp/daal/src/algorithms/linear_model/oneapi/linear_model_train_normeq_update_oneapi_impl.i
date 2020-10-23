@@ -52,6 +52,7 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
     const size_t nCols           = xTable.getNumberOfColumns();
     const size_t nResponses      = yTable.getNumberOfColumns();
     const size_t nBetas          = nCols + 1;
+    DAAL_ASSERT((interceptFlag ? (nBetas >= 0) ? (nBetas >= 1)));
     const size_t nBetasIntercept = (interceptFlag ? nBetas : (nBetas - 1));
 
     BlockDescriptor<algorithmFPType> xtxBlock;
@@ -78,32 +79,31 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
     if (interceptFlag)
     {
         const TypeIds::Id idType = TypeIds::id<algorithmFPType>();
-
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBetasIntercept, nCols);
         sumXBuf = xtxBuff.getSubBuffer(nBetasIntercept * nCols, nBetasIntercept, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         UniversalBuffer sumYBufTmp = context.allocate(idType, nResponses, status);
         DAAL_CHECK_STATUS_VAR(status);
+
         sumYBuf = sumYBufTmp.get<algorithmFPType>();
-        context.fill(sumYBuf, 0.0, status);
+        context.fill(sumYBuf, algorithmFPType(0), status);
         DAAL_CHECK_STATUS_VAR(status);
 
         UniversalBuffer onesBufTmp = context.allocate(idType, nRowsPerBlock, status);
         DAAL_CHECK_STATUS_VAR(status);
         onesBuf = onesBufTmp.get<algorithmFPType>();
 
-        context.fill(onesBuf, 1.0, status);
+        context.fill(onesBuf, algorithmFPType(1), status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
     for (size_t blockIdx = 0; blockIdx < nBlocks; ++blockIdx)
     {
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, blockIdx, nRowsPerBlock);
         const size_t startRow = blockIdx * nRowsPerBlock;
-        size_t endRow         = startRow + nRowsPerBlock;
-        if (endRow > nRows)
-        {
-            endRow = nRows;
-        };
+        DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, startRow, nRowsPerBlock);
+        const size_t endRow   = ((startRow + nRowsPerBlock) > nRows) ? nRows : (startRow + nRowsPerBlock);
 
         BlockDescriptor<algorithmFPType> xBlock;
         BlockDescriptor<algorithmFPType> yBlock;
@@ -114,12 +114,19 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
         const services::internal::Buffer<algorithmFPType> xBuf = xBlock.getBuffer();
         const services::internal::Buffer<algorithmFPType> yBuf = yBlock.getBuffer();
 
+        DAAL_ASSERT(endRow >= startRow);
         const size_t xNRows   = endRow - startRow;
         const size_t xNCols   = nCols;
         const size_t xtxNCols = nBetasIntercept;
         const size_t yNCols   = nResponses;
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.syrkX);
+
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, xNRows, xNCols);
+            DAAL_ASSERT(xBuf.size() >= xNRows * xNCols);
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, xNCols, xNCols);
+            DAAL_ASSERT(xtxBuff.size() >= xNCols * xNCols);
+
             /* Compute XTX for each block and reduce to final result*/
             status = BlasGpu<algorithmFPType>::xsyrk(math::Layout::RowMajor, math::UpLo::Upper, math::Transpose::Trans, xNCols, xNRows,
                                                      algorithmFPType(1.0), xBuf, xNCols, 0, algorithmFPType(1.0), xtxBuff, xtxNCols, 0);
@@ -128,6 +135,14 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
 
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.gemmXY);
+
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, xNRows, xNCols);
+            DAAL_ASSERT(xBuf.size() >= xNRows * xNCols);
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, yNCols, xNCols);
+            DAAL_ASSERT(xtyBuf.size() >= yNCols * xNCols);
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, xNRows, yNCols);
+            DAAL_ASSERT(yBuf.size() >= xNRows * yNCols);
+
             /* Compute XTY (in real YTX) for each block and reduce to final result*/
             status =
                 BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::Trans, math::Transpose::NoTrans, yNCols, xNCols, xNRows,
@@ -139,6 +154,12 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
         {
             {
                 DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.gemm1X);
+
+                DAAL_ASSERT(onesBuf.size() >= xNRows);
+                DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, xNCols, xNRows);
+                DAAL_ASSERT(xBuf.size() >= xNCols * xNRows);
+                DAAL_ASSERT(sumXBuf.size() >= xNCols);
+
                 /* Compute reduce X in columns for each block and reduce it to final result*/
                 status = BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::NoTrans, 1, xNCols,
                                                          xNRows, algorithmFPType(1.0), onesBuf, nRowsPerBlock, 0, xBuf, xNCols, 0,
@@ -148,6 +169,12 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
 
             {
                 DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.gemm1Y);
+
+                DAAL_ASSERT(onesBuf.size() >= xNRows);
+                DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, yNCols, xNRows);
+                DAAL_ASSERT(yBuf.size() >= yNCols * xNRows);
+                DAAL_ASSERT(sumYBuf.size() >= yNCols);
+
                 /* Compute reduce Y in columns for each block and reduce it to final result*/
                 status = BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::NoTrans, 1, yNCols,
                                                          xNRows, algorithmFPType(1.0), onesBuf, nRowsPerBlock, 0, yBuf, yNCols, 0,
@@ -198,12 +225,19 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::reduceResults(services::in
 
     KernelArguments args(6, status);
     DAAL_CHECK_STATUS_VAR(status);
+    
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, dstStride, count);
+    DAAL_OVERFLOW_CHECK_BY_ADDING(uint32_t, dstOffset, (dstStride * count));
+    DAAL_ASSERT(dst.size() >= (dstStride * count + dstOffset));
     args.set(0, dst, AccessModeIds::write);
-    args.set(1, dstOffset);
-    args.set(2, dstStride);
+    args.set(1, static_cast<uint32_t>(dstOffset));
+    args.set(2, static_cast<uint32_t>(dstStride));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, srcStride, count);
+    DAAL_OVERFLOW_CHECK_BY_ADDING(uint32_t, srcOffset, (srcStride * count));
+    DAAL_ASSERT(src.size() >= (srcStride * count + srcOffset));
     args.set(3, src, AccessModeIds::read);
-    args.set(4, srcOffset);
-    args.set(5, srcStride);
+    args.set(4, static_cast<uint32_t>(srcOffset));
+    args.set(5, static_cast<uint32_t>(srcStride));
 
     KernelRange range(count);
 
