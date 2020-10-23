@@ -25,6 +25,7 @@
 #include "src/services/service_data_utils.h"
 #include "src/sycl/sorter.h"
 #include "src/externals/service_ittnotify.h"
+#include "services/internal/sycl/daal_defines_sycl.h"
 
 DAAL_ITTNOTIFY_DOMAIN(df.common.oneapi);
 
@@ -158,8 +159,12 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::extractColumn(const ser
         DAAL_ASSERT_UNIVERSAL_BUFFER(values, algorithmFPType, nRows);
         DAAL_ASSERT_UNIVERSAL_BUFFER(indices, int32_t, nRows);
 
+<<<<<<< HEAD
+        KernelArguments args(6);
+=======
         KernelArguments args(6, status);
         DAAL_CHECK_STATUS_VAR(status);
+>>>>>>> intel_daal/master
         args.set(0, data, AccessModeIds::read);
         args.set(1, values, AccessModeIds::write);
         args.set(2, indices, AccessModeIds::write);
@@ -196,8 +201,12 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::collectBinBorders(Unive
         DAAL_ASSERT_UNIVERSAL_BUFFER(binOffsets, int32_t, maxBins);
         DAAL_ASSERT_UNIVERSAL_BUFFER(binBorders, algorithmFPType, maxBins);
 
+<<<<<<< HEAD
+        KernelArguments args(3);
+=======
         KernelArguments args(3, status);
         DAAL_CHECK_STATUS_VAR(status);
+>>>>>>> intel_daal/master
         args.set(0, values, AccessModeIds::read);
         args.set(1, binOffsets, AccessModeIds::read);
         args.set(2, binBorders, AccessModeIds::write);
@@ -234,8 +243,12 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
         DAAL_ASSERT_UNIVERSAL_BUFFER(binBorders, algorithmFPType, maxBins);
         DAAL_ASSERT_UNIVERSAL_BUFFER(bins, uint32_t, nRows);
 
+<<<<<<< HEAD
+        KernelArguments args(6);
+=======
         KernelArguments args(6, status);
         DAAL_CHECK_STATUS_VAR(status);
+>>>>>>> intel_daal/master
         args.set(0, values, AccessModeIds::read);
         args.set(1, indices, AccessModeIds::read);
         args.set(2, binBorders, AccessModeIds::read);
@@ -345,8 +358,12 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::storeColumn(const Unive
         DAAL_ASSERT_UNIVERSAL_BUFFER(data, uint32_t, nRows);
         DAAL_ASSERT_UNIVERSAL_BUFFER(fullData, uint32_t, nRows * nFeatures);
 
+<<<<<<< HEAD
+        KernelArguments args(5);
+=======
         KernelArguments args(5, status);
         DAAL_CHECK_STATUS_VAR(status);
+>>>>>>> intel_daal/master
         args.set(0, data, AccessModeIds::read);
         args.set(1, fullData, AccessModeIds::write);
         args.set(2, featureId);
@@ -385,11 +402,14 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::init(NumericTable & nt,
         return services::Status(services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
     }
 
-    const int32_t nC = static_cast<int32_t>(nCsz);
-    const int32_t nR = static_cast<int32_t>(nRsz);
+    const int32_t nC        = static_cast<int32_t>(nCsz);
+    const int32_t nR        = static_cast<int32_t>(nRsz);
 
+<<<<<<< HEAD
+=======
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(int32_t, nR, nC);
 
+>>>>>>> intel_daal/master
     services::Status status = alloc(nCsz, nRsz);
     DAAL_CHECK_STATUS_VAR(status);
 
