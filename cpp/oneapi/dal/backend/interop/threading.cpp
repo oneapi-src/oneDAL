@@ -14,29 +14,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/io/detail/load_graph_service.hpp"
-#include "oneapi/dal/detail/common.hpp"
-#include "src/externals/service_service.h"
-#include "src/threading/threading.h"
+#include "oneapi/dal/detail/threading.hpp"
+#include <daal/src/threading/threading.h>
 
-<<<<<<< HEAD:cpp/oneapi/dal/io/detail/load_graph_service.cpp
-using namespace std;
-namespace oneapi::dal::preview::load_graph::detail {
-
-ONEAPI_DAL_EXPORT int daal_string_to_int(const char* nptr, char** endptr) {
-    return daal::internal::Service<>::serv_string_to_int(nptr, endptr);
-}
-} // namespace oneapi::dal::preview::load_graph::detail
-
-ONEAPI_DAL_EXPORT void _daal_threader_for_oneapi(int n,
-                                                 int threads_request,
-                                                 const void* a,
-                                                 oneapi::dal::preview::functype func) {
-=======
 ONEDAL_EXPORT void _daal_threader_for_oneapi(int n,
                                              int threads_request,
                                              const void* a,
                                              oneapi::dal::preview::functype func) {
->>>>>>> 78caaa38d... New interfaces: safety check functions (#1137):cpp/oneapi/dal/backend/interop/threading.cpp
     _daal_threader_for(n, threads_request, a, static_cast<daal::functype>(func));
 }
