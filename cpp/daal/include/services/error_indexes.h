@@ -428,11 +428,7 @@ enum ErrorID
     ErrorInconsistenceModelAndBatchSizeInParameter = -1000008, /*!< Inconsistence of model and batch size parameter in optimization solver */
 
     ErrorCanNotLoadDynamicLibrary       = -1000009, /*!< Failure during loading of dynamic library */
-    ErrorCanNotLoadDynamicLibrarySymbol = -1000010, /*!< Failure during loading symbol from dynamic library */
-
-    // Group of Conversion related errors
-    ErrorConversionOverFlow = -1000011, /*!< Value is too high to be converted into proposed type */
-    ErrorConversionUnderFlow = -1000012  /*!< Value is too low to be converted into proposed type */
+    ErrorCanNotLoadDynamicLibrarySymbol = -1000010  /*!< Failure during loading symbol from dynamic library */
 };
 /** @} */
 } // namespace services
