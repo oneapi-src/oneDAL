@@ -26,7 +26,6 @@
 #include "src/algorithms/dbscan/oneapi/cl_kernels/dbscan_cl_kernels.cl"
 #include "src/services/service_data_utils.h"
 #include "src/externals/service_ittnotify.h"
-#include "services/internal/sycl/daal_defines_sycl.h"
 
 using namespace daal::services;
 using namespace daal::services::internal::sycl;
@@ -272,7 +271,8 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::startNextCluster(uint3
     DAAL_ASSERT_UNIVERSAL_BUFFER(clusters, int, nRows);
     DAAL_ASSERT_UNIVERSAL_BUFFER(_queue, int, nRows);
 
-    KernelArguments args(7);
+    KernelArguments args(7, st);
+    DAAL_CHECK_STATUS_VAR(st);
     args.set(0, static_cast<int32_t>(clusterId));
     args.set(1, static_cast<int32_t>(nRows));
     args.set(2, static_cast<int32_t>(queueEnd));
@@ -318,7 +318,8 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::getCores(const Univers
     DAAL_ASSERT_UNIVERSAL_BUFFER(_weights, algorithmFPType, _useWeights ? nRows : 1);
     DAAL_ASSERT_UNIVERSAL_BUFFER(_isCore, int, nRows);
 
-    KernelArguments args(6);
+    KernelArguments args(6, st);
+    DAAL_CHECK_STATUS_VAR(st);
     args.set(0, static_cast<int32_t>(nRows));
     args.set(1, static_cast<int32_t>(nFeatures));
     args.set(2, nNbrs);
@@ -357,7 +358,8 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::getCoresWithWeights(co
     DAAL_ASSERT_UNIVERSAL_BUFFER(_weights, algorithmFPType, _useWeights ? nRows : 1);
     DAAL_ASSERT_UNIVERSAL_BUFFER(_isCore, int, nRows);
 
-    KernelArguments args(8);
+    KernelArguments args(8, st);
+    DAAL_CHECK_STATUS_VAR(st);
     args.set(0, static_cast<int32_t>(nRows));
     args.set(1, static_cast<int32_t>(nFeatures));
     args.set(2, nNbrs);
@@ -401,7 +403,8 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::updateQueue(uint32_t c
     DAAL_ASSERT_UNIVERSAL_BUFFER(_queue, int, nRows);
     DAAL_ASSERT_UNIVERSAL_BUFFER(_queueFront, int, 1);
 
-    KernelArguments args(11);
+    KernelArguments args(11, st);
+    DAAL_CHECK_STATUS_VAR(st);
     args.set(0, static_cast<int32_t>(clusterId));
     args.set(1, static_cast<int32_t>(nRows));
     args.set(2, static_cast<int32_t>(nFeatures));

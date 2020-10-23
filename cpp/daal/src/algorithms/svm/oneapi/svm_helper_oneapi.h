@@ -102,7 +102,8 @@ struct HelperSVM
         auto kernel = factory.getKernel("makeInversion", status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        KernelArguments args(2);
+        KernelArguments args(2, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, x, AccessModeIds::read);
         args.set(1, res, AccessModeIds::write);
 
@@ -125,7 +126,8 @@ struct HelperSVM
         auto kernel = factory.getKernel("makeRange", status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        KernelArguments args(1);
+        KernelArguments args(1, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, x, AccessModeIds::readwrite);
 
         KernelRange range(n);
@@ -161,8 +163,11 @@ struct HelperSVM
 
         const char * const kernelName              = "copyDataByIndices";
         services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
+        DAAL_CHECK_STATUS_VAR(status);
 
-        services::internal::sycl::KernelArguments args(4);
+        services::internal::sycl::KernelArguments args(4, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
         args.set(0, x, services::internal::sycl::AccessModeIds::read);
         args.set(1, indX, services::internal::sycl::AccessModeIds::read);
         DAAL_ASSERT(p <= uint32max);
@@ -190,7 +195,8 @@ struct HelperSVM
         services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        services::internal::sycl::KernelArguments args(4);
+        services::internal::sycl::KernelArguments args(4, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, x, services::internal::sycl::AccessModeIds::read);
         args.set(1, indX, services::internal::sycl::AccessModeIds::read);
         DAAL_ASSERT(p <= uint32max);
@@ -217,7 +223,8 @@ struct HelperSVM
         auto kernel = factory.getKernel("checkUpper", status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        KernelArguments args(4);
+        KernelArguments args(4, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, y, AccessModeIds::read);
         args.set(1, alpha, AccessModeIds::read);
         args.set(2, C);
@@ -244,7 +251,8 @@ struct HelperSVM
         auto kernel = factory.getKernel("checkLower", status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        KernelArguments args(4);
+        KernelArguments args(4, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, y, AccessModeIds::read);
         args.set(1, alpha, AccessModeIds::read);
         args.set(2, C);
@@ -270,7 +278,8 @@ struct HelperSVM
         auto kernel = factory.getKernel("checkBorder", status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        KernelArguments args(3);
+        KernelArguments args(3, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, alpha, AccessModeIds::read);
         args.set(1, C);
         args.set(2, mask, AccessModeIds::write);
@@ -295,7 +304,8 @@ struct HelperSVM
         auto kernel = factory.getKernel("checkNonZeroBinary", status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        KernelArguments args(2);
+        KernelArguments args(2, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, alpha, AccessModeIds::read);
         args.set(1, mask, AccessModeIds::write);
 
@@ -319,7 +329,8 @@ struct HelperSVM
         auto kernel = factory.getKernel("computeDualCoeffs", status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        KernelArguments args(2);
+        KernelArguments args(2, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, y, AccessModeIds::read);
         args.set(1, alpha, AccessModeIds::readwrite);
 

@@ -86,7 +86,8 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::applyHessia
     KernelPtr kernel              = factory.getKernel(kernelName, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(8);
+    KernelArguments args(8, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, x, AccessModeIds::read);
     args.set(1, p);
     args.set(2, sigma, AccessModeIds::read);
@@ -122,7 +123,8 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::logLoss(con
     KernelPtr kernel              = factory.getKernel(kernelName, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(3);
+    KernelArguments args(3, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, y, AccessModeIds::read);
     args.set(1, sigma, AccessModeIds::read);
     args.set(2, result, AccessModeIds::write);
@@ -154,7 +156,8 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::sigmoids(co
 
     const algorithmFPType expThreshold = math::expThreshold<algorithmFPType>();
 
-    KernelArguments args(4);
+    KernelArguments args(4, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, x, AccessModeIds::read);
     args.set(1, expThreshold);
     args.set(2, uint32_t(calculateInverse));
@@ -203,7 +206,8 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::hessianInte
         KernelPtr kernel              = factory.getKernel(kernelName, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        KernelArguments args(7);
+        KernelArguments args(7, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, x, AccessModeIds::read);
         args.set(1, p);
         args.set(2, sigma, AccessModeIds::read);
@@ -244,7 +248,8 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::hessianInte
         UniversalBuffer buffer                                      = ctx.allocate(idType, nWorkGroups, status);
         services::internal::Buffer<algorithmFPType> reductionBuffer = buffer.get<algorithmFPType>();
 
-        KernelArguments args(3 /*4*/);
+        KernelArguments args(3 /*4*/, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, sigma, AccessModeIds::read);
         args.set(1, n);
         args.set(2, reductionBuffer, AccessModeIds::write);
@@ -280,7 +285,8 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::hessianRegu
 
     const algorithmFPType beta = l2 * algorithmFPType(2);
 
-    KernelArguments args(3);
+    KernelArguments args(3, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, h, AccessModeIds::write);
     args.set(1, nBeta);
     args.set(2, beta);

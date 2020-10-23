@@ -78,7 +78,8 @@ struct HelperObjectiveFunction
         services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        services::internal::sycl::KernelArguments args(3);
+        services::internal::sycl::KernelArguments args(3, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, x, services::internal::sycl::AccessModeIds::read);
         args.set(1, y, services::internal::sycl::AccessModeIds::read);
         args.set(2, result, services::internal::sycl::AccessModeIds::write);
@@ -104,7 +105,8 @@ struct HelperObjectiveFunction
         services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        services::internal::sycl::KernelArguments args(3);
+        services::internal::sycl::KernelArguments args(3, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, index);
         args.set(1, element);
         args.set(2, buffer, services::internal::sycl::AccessModeIds::write);
@@ -130,7 +132,8 @@ struct HelperObjectiveFunction
         services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        services::internal::sycl::KernelArguments args(4);
+        services::internal::sycl::KernelArguments args(4, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, icol);
         args.set(1, element);
         args.set(2, buffer, services::internal::sycl::AccessModeIds::write);
@@ -158,7 +161,8 @@ struct HelperObjectiveFunction
         services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        services::internal::sycl::KernelArguments args(4);
+        services::internal::sycl::KernelArguments args(4, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, x, services::internal::sycl::AccessModeIds::read);
         args.set(1, xt, services::internal::sycl::AccessModeIds::write);
         args.set(2, n);
@@ -233,7 +237,8 @@ struct HelperObjectiveFunction
         services::internal::sycl::UniversalBuffer buffer            = ctx.allocate(idType, nWorkGroups, status);
         services::internal::Buffer<algorithmFPType> reductionBuffer = buffer.get<algorithmFPType>();
 
-        services::internal::sycl::KernelArguments args(6 /*7*/);
+        services::internal::sycl::KernelArguments args(6 /*7*/, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, beta, services::internal::sycl::AccessModeIds::read);
         args.set(1, nBeta);
         args.set(2, n);
@@ -289,7 +294,8 @@ struct HelperObjectiveFunction
         services::internal::sycl::UniversalBuffer buffer            = ctx.allocate(idType, nWorkGroups, status);
         services::internal::Buffer<algorithmFPType> reductionBuffer = buffer.get<algorithmFPType>();
 
-        services::internal::sycl::KernelArguments args(3 /*4*/);
+        services::internal::sycl::KernelArguments args(3 /*4*/, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, x, services::internal::sycl::AccessModeIds::read);
         args.set(1, n);
         args.set(2, reductionBuffer, services::internal::sycl::AccessModeIds::write);
@@ -319,7 +325,8 @@ struct HelperObjectiveFunction
         services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        services::internal::sycl::KernelArguments args(2);
+        services::internal::sycl::KernelArguments args(2, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, x, services::internal::sycl::AccessModeIds::write);
         args.set(1, alpha);
 
@@ -347,7 +354,8 @@ struct HelperObjectiveFunction
         services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        services::internal::sycl::KernelArguments args(3);
+        services::internal::sycl::KernelArguments args(3, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, x, services::internal::sycl::AccessModeIds::write);
         args.set(1, y, services::internal::sycl::AccessModeIds::read);
         args.set(2, id);
@@ -378,7 +386,8 @@ struct HelperObjectiveFunction
         services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        services::internal::sycl::KernelArguments args(7);
+        services::internal::sycl::KernelArguments args(7, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, xBuff, services::internal::sycl::AccessModeIds::read);
         args.set(1, yBuff, services::internal::sycl::AccessModeIds::read);
         args.set(2, indBuff, services::internal::sycl::AccessModeIds::read);

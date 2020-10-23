@@ -98,8 +98,8 @@ struct TreeLevelRecord
         _nNodes   = nNodes;
         _nClasses = nClasses;
 
-        DAAL_ASSERT(nNodes * _nNodeSplitProps == nodeList.template get<int>().size());
-        DAAL_ASSERT(nNodes * (_nNodeImpProps + _nClasses) == impInfo.template get<algorithmFPType>().size());
+        DAAL_ASSERT_UNIVERSAL_BUFFER(nodeList, int32_t, nNodes * _nNodeSplitProps);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(impInfo, algorithmFPType, nNodes * (_nNodeImpProps + _nClasses));
 
         auto nodeListHost = nodeList.template get<int>().toHost(ReadWriteMode::readOnly, status);
         auto impInfoHost  = impInfo.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, status);

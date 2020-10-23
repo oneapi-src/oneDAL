@@ -32,7 +32,7 @@ DECLARE_SOURCE(
     pca_transform_cl_kernels,
 
     __kernel void computeInvSigmas(__global const algorithmFPType * rawVariances, __global algorithmFPType * invSigmas) {
-        const int tid                 = get_global_id(0);
+        const unsigned int tid        = get_global_id(0);
         const algorithmFPType epsilon = 1e-10;
 
         /*Case when rawVariances[tid] < 0 is handled inside compute method*/
@@ -49,9 +49,9 @@ DECLARE_SOURCE(
     __kernel void normalize(__global algorithmFPType * copyBlock, __global const algorithmFPType * rawMeans,
                             __global const algorithmFPType * invSigmas, const char hasMeans, const char hasInvSigmas, const uint maxWorkItemsPerGroup,
                             const uint numFeatures) {
-        const int glid                 = get_global_id(0);
-        const int numWorkItemsPerGroup = get_local_size(0);
-        const int numVec               = get_num_groups(0);
+        const unsigned int glid                 = get_global_id(0);
+        const unsigned int numWorkItemsPerGroup = get_local_size(0);
+        const unsigned int numVec               = get_num_groups(0);
 
         uint numOfDataItemsProcessedByWI = numFeatures / maxWorkItemsPerGroup;
 
