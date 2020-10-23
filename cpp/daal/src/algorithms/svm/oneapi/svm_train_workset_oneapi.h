@@ -108,7 +108,7 @@ struct TaskWorkingSet
 
             DAAL_CHECK_STATUS(status, Helper::checkUpper(yBuff, alphaBuff, indicatorBuff, C, _nVectors));
 
-            /* Reset indicator for busy indeces */
+            /* Reset indicator for busy Indices */
             if (_nSelected > 0)
             {
                 DAAL_CHECK_STATUS(status, resetIndicatorWithZeros(wsIndicesBuff, indicatorBuff, _nSelected));
@@ -130,7 +130,7 @@ struct TaskWorkingSet
 
             DAAL_CHECK_STATUS(status, Helper::checkLower(yBuff, alphaBuff, indicatorBuff, C, _nVectors));
 
-            /* Reset indicator for busy indeces */
+            /* Reset indicator for busy Indices */
             if (_nSelected > 0)
             {
                 DAAL_CHECK_STATUS(status, resetIndicatorWithZeros(wsIndicesBuff, indicatorBuff, _nSelected));
@@ -153,7 +153,7 @@ struct TaskWorkingSet
 
             DAAL_CHECK_STATUS(status, Helper::checkUpper(yBuff, alphaBuff, indicatorBuff, C, _nVectors));
 
-            /* Reset indicator for busy indeces */
+            /* Reset indicator for busy Indices */
             if (_nSelected > 0)
             {
                 DAAL_CHECK_STATUS(status, resetIndicatorWithZeros(wsIndicesBuff, indicatorBuff, _nSelected));
@@ -175,7 +175,7 @@ struct TaskWorkingSet
         return status;
     }
 
-    const services::internal::Buffer<uint32_t> & getWSIndeces() const { return _wsIndices.get<uint32_t>(); }
+    const services::internal::Buffer<uint32_t> & getWSIndices() const { return _wsIndices.get<uint32_t>(); }
 
     services::Status resetIndicatorWithZeros(const services::internal::Buffer<uint32_t> & idx, services::internal::Buffer<uint32_t> & indicator,
                                              const size_t n)

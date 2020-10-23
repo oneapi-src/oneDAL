@@ -101,6 +101,8 @@ public:
     {
         if (_rawPtr)
         {
+            printf("[CSRBlockDescriptor]:getBlockValuesBuffer _rawPtr \n");
+
             services::Status status;
             daal::services::internal::Buffer<DataType> buffer((DataType *)_rawPtr, _nvalues, status);
             services::throwIfPossible(status);
@@ -108,6 +110,8 @@ public:
         }
         else if (_values_ptr)
         {
+            printf("[CSRBlockDescriptor]:getBlockValuesBuffer _values_ptr \n");
+
             services::Status status;
             services::internal::Buffer<DataType> buffer(_values_ptr, _nvalues, status);
             services::throwIfPossible(status);
@@ -115,6 +119,7 @@ public:
         }
         else
         {
+            printf("[CSRBlockDescriptor]:getBlockValuesBuffer _valuesBuffer \n");
             return _valuesBuffer;
         }
     }
@@ -159,10 +164,14 @@ public:
     {
         if (_rawPtr)
         {
+            printf("[CSRBlockDescriptor]:getBlockValuesSharedPtr _rawPtr \n");
+
             return services::SharedPtr<DataType>(services::reinterpretPointerCast<DataType, byte>(*_pPtr), (DataType *)_rawPtr);
         }
         else if (_valuesBuffer)
         {
+            printf("[CSRBlockDescriptor]:getBlockValuesSharedPtr _valuesBuffer \n");
+
             services::Status status;
             services::SharedPtr<DataType> hostSharedPtr = _valuesBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
             services::throwIfPossible(status);
@@ -170,6 +179,8 @@ public:
         }
         else
         {
+            printf("[CSRBlockDescriptor]:getBlockValuesSharedPtr _values_ptr \n");
+
             return _values_ptr;
         }
     }
@@ -230,6 +241,8 @@ public:
             }
             else if (_rowsBuffer)
             {
+                printf("[CSRBlockDescriptor]:getDataSize _rowsBuffer \n");
+
                 size_t * rowsHost = getRowsCachedHostSharedPtr().get();
                 return rowsHost[_nrows] - rowsHost[0];
             }
@@ -273,6 +286,7 @@ public:
     inline void setValuesPtr(services::SharedPtr<byte> * pPtr, byte * rawPtr, size_t nValues)
     {
         _hostValuesSharedPtr.reset();
+        _valuesBuffer.reset();
         _pPtr    = pPtr;
         _rawPtr  = rawPtr;
         _nvalues = nValues;
@@ -281,6 +295,7 @@ public:
     inline void setColumnIndicesPtr(services::SharedPtr<size_t> ptr, size_t nValues)
     {
         _hostColsSharedPtr.reset();
+        _colsBuffer.reset();
         _cols_ptr = ptr;
         _nvalues  = nValues;
     }
@@ -292,6 +307,7 @@ public:
     inline void setRowIndicesPtr(services::SharedPtr<size_t> ptr, size_t nRows)
     {
         _hostRowsSharedPtr.reset();
+        _rowsBuffer.reset();
         _rows_ptr = ptr;
         _nrows    = nRows;
     }
@@ -305,7 +321,7 @@ public:
         _nvalues      = _valuesBuffer.size();
     }
 
-    inline void setColumnIndicesBuffer(daal::services::internal::Buffer<size_t> colIndBuffer)
+    inline void setColumnIndicesBuffer(const daal::services::internal::Buffer<size_t> & colIndBuffer)
     {
         _hostColsSharedPtr.reset();
         _cols_ptr.reset();
@@ -317,7 +333,7 @@ public:
      *  \param[in] ptr      Pointer to the buffer
      *  \param[in] nRows    Number of rows
      */
-    inline void setRowIndicesBuffer(daal::services::internal::Buffer<size_t> rowsBuffer)
+    inline void setRowIndicesBuffer(const daal::services::internal::Buffer<size_t> & rowsBuffer)
     {
         _hostRowsSharedPtr.reset();
         _rows_buffer.reset();
@@ -338,6 +354,10 @@ public:
         _hostValuesSharedPtr.reset();
         _hostRowsSharedPtr.reset();
         _hostColsSharedPtr.reset();
+
+        _valuesBuffer.reset();
+        _rowsBuffer.reset();
+        _colsBuffer.reset();
     }
 
     /**
@@ -345,6 +365,7 @@ public:
      */
     inline bool resizeValuesBuffer(size_t nValues)
     {
+        printf("[CSRBlockDescriptor]:resizeValuesBuffer: %lu\n", nValues);
         size_t newSize = nValues * sizeof(DataType);
         if (newSize > _values_capacity)
         {
@@ -370,6 +391,8 @@ public:
      */
     inline bool resizeRowsBuffer(size_t nRows)
     {
+        printf("[CSRBlockDescriptor]:resizeRowsBuffer: %lu\n", nRows);
+
         _nrows         = nRows;
         size_t newSize = (nRows + 1) * sizeof(size_t);
         if (newSize > _rows_capacity)
@@ -441,6 +464,7 @@ protected:
         if (!_hostValuesSharedPtr)
         {
             services::Status status;
+            printf("[getValuesCachedHostSharedPtr]_valuesBuffer %lu\n", _valuesBuffer.size());
             _hostValuesSharedPtr = _valuesBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
             services::throwIfPossible(status);
         }

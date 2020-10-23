@@ -357,6 +357,7 @@ public:
 
         _colIndices = colIndicesU.template get<size_t>();
         _rowOffsets = rowOffsetsU.template get<size_t>();
+        DAAL_ASSERT(dataSize == _colIndices.size());
 
         _memStatus = internallyAllocated;
 
@@ -410,7 +411,7 @@ protected:
 
     void freeDataMemoryImpl() DAAL_C11_OVERRIDE
     {
-        // _values.reset();
+        _values = services::internal::sycl::UniversalBuffer();
         _colIndices.reset();
         _rowOffsets.reset();
         _memStatus = notAllocated;
@@ -490,6 +491,9 @@ protected:
         _defaultFeature.setType<DataType>();
         st |= _ddict->setAllFeatures(_defaultFeature);
 
+        DAAL_ASSERT(bufferData.size() == bufferColIndices.size());
+        DAAL_ASSERT(bufferRowOffsets.size() == nRows + 1);
+
         if (isCpuContext())
         {
             const auto hostData       = bufferData.toHost(ReadWriteMode::readOnly, st);
@@ -498,8 +502,10 @@ protected:
             _cpuTable                 = CSRNumericTable::create(hostData, hostColIndices, hostRowOffsets, nColumns, nRows, indexing, &st);
             return;
         }
-
-        st |= setArrays(bufferData, bufferColIndices, bufferRowOffsets, indexing);
+        if (_dataSize)
+        {
+            st |= setArrays(bufferData, bufferColIndices, bufferRowOffsets, indexing);
+        }
     }
 
     template <typename T>
