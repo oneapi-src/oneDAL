@@ -28,7 +28,6 @@
 #include "src/externals/service_ittnotify.h"
 #include "src/services/service_data_utils.h"
 
-
 namespace daal
 {
 namespace algorithms
@@ -93,7 +92,7 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::compute(NumericTable & x
         services::internal::Buffer<algorithmFPType> xtxBufCopy = xtxCopyAlloc.get<algorithmFPType>();
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.xtxCopy);
-            DAAL_ASSERT(xtxBuf.size() >= nBetasIntercept * nBetasIntercept);    
+            DAAL_ASSERT(xtxBuf.size() >= nBetasIntercept * nBetasIntercept);
             DAAL_ASSERT(xtxBufCopy.size() >= nBetasIntercept * nBetasIntercept);
             context.copy(xtxBufCopy, 0, xtxBuf, 0, nBetasIntercept * nBetasIntercept, status);
         }
@@ -106,7 +105,7 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::compute(NumericTable & x
         services::internal::Buffer<algorithmFPType> betaBuf = xtyCopyAlloc.get<algorithmFPType>();
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.betaBufCopy);
-            DAAL_ASSERT(xtyBuf.size() >= nResponses * nBetasIntercept);    
+            DAAL_ASSERT(xtyBuf.size() >= nResponses * nBetasIntercept);
             DAAL_ASSERT(betaBuf.size() >= nResponses * nBetasIntercept);
             context.copy(betaBuf, 0, xtyBuf, 0, nResponses * nBetasIntercept, status);
         }
