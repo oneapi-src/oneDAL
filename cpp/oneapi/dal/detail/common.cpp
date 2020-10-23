@@ -16,10 +16,10 @@
 
 #include "oneapi/dal/detail/common.hpp"
 
-template <typename Data>
-void check_sum_overflow(const Data& first, const Data& second) {
-    static_assert(std::is_integral_v<Data>, "The check requires integral operands");
+namespace oneapi::dal::detail {
 
+template<typename Data>
+void integer_overflow_ops<Data>::check_sum_overflow(const Data& first, const Data& second) {
     volatile Data tmp = first + second;
     tmp -= first;
     if (tmp != second) {
@@ -28,9 +28,7 @@ void check_sum_overflow(const Data& first, const Data& second) {
 }
 
 template <typename Data>
-void check_mul_overflow(const Data& first, const Data& second) {
-    static_assert(std::is_integral_v<Data>, "The check requires integral operands");
-
+void integer_overflow_ops<Data>::check_mul_overflow(const Data& first, const Data& second) {
     if (first != 0 && second != 0) {
         volatile Data tmp = first * second;
         tmp /= first;
@@ -39,3 +37,14 @@ void check_mul_overflow(const Data& first, const Data& second) {
         }
     }
 }
+
+template struct integer_overflow_ops<int8_t>;
+template struct integer_overflow_ops<int16_t>;
+template struct integer_overflow_ops<int32_t>;
+template struct integer_overflow_ops<int64_t>;
+template struct integer_overflow_ops<uint8_t>;
+template struct integer_overflow_ops<uint16_t>;
+template struct integer_overflow_ops<uint32_t>;
+template struct integer_overflow_ops<uint64_t>;
+
+} // namespace oneapi::dal::detail

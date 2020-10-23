@@ -148,10 +148,22 @@ constexpr bool is_floating_point() {
     return is_floating_point(make_data_type<T>());
 }
 
-template <typename Data>
-void check_sum_overflow(const Data& first, const Data& second);
+template<typename Data>
+struct integer_overflow_ops {
+    static void check_mul_overflow(const Data& first, const Data& second);
+    static void check_sum_overflow(const Data& first, const Data& second);
+};
 
 template <typename Data>
-void check_mul_overflow(const Data& first, const Data& second);
+inline void check_sum_overflow(const Data& first, const Data& second) {
+    static_assert(std::is_integral_v<Data>, "The check requires integral operands");
+    integer_overflow_ops<Data>::check_sum_overflow(first, second);
+}
+
+template <typename Data>
+inline void check_mul_overflow(const Data& first, const Data& second) {
+    static_assert(std::is_integral_v<Data>, "The check requires integral operands");
+    integer_overflow_ops<Data>::check_mul_overflow(first, second);
+}
 
 } // namespace oneapi::dal::detail
