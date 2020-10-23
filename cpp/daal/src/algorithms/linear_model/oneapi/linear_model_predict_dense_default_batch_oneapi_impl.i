@@ -99,7 +99,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute(con
 
     const size_t nRowsPerBlock = 90000;
 
-    const size_t nBlocks = (nRows / nRowsPerBlock) + bool(nRows % nRowsPerBlock) ? 1 : 0;
+    const size_t nBlocks = (nRows / nRowsPerBlock) + (bool(nRows % nRowsPerBlock) ? 1 : 0);
 
     BlockDescriptor<algorithmFPType> betaBlock;
     DAAL_CHECK_STATUS(status, betaTable->getBlockOfRows(0, nResponses, ReadWriteMode::readOnly, betaBlock));
