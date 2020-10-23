@@ -52,12 +52,13 @@ struct HelperObjectiveFunction
 
     static uint32_t getWorkgroupsCount(const uint32_t n, const uint32_t localWorkSize)
     {
+        DAAL_ASSERT(localWorkSize > 0);
         const uint32_t elementsPerGroup = localWorkSize;
         uint32_t workgroupsCount        = n / elementsPerGroup;
 
         if (workgroupsCount * elementsPerGroup < n)
         {
-            workgroupsCount++;
+            workgroupsCount++; // no need on overflow check since its always smaller than n
         }
         return workgroupsCount;
     }
@@ -80,6 +81,11 @@ struct HelperObjectiveFunction
 
         services::internal::sycl::KernelArguments args(3, status);
         DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_ASSERT(x.size() == n);
+        DAAL_ASSERT(y.size() == n);
+        DAAL_ASSERT(result.size() == n);
+
         args.set(0, x, services::internal::sycl::AccessModeIds::read);
         args.set(1, y, services::internal::sycl::AccessModeIds::read);
         args.set(2, result, services::internal::sycl::AccessModeIds::write);
@@ -104,6 +110,8 @@ struct HelperObjectiveFunction
         const char * const kernelName              = "setElem";
         services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
         DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_ASSERT(buffer.size() > index);
 
         services::internal::sycl::KernelArguments args(3, status);
         DAAL_CHECK_STATUS_VAR(status);
@@ -134,6 +142,11 @@ struct HelperObjectiveFunction
 
         services::internal::sycl::KernelArguments args(4, status);
         DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_CHECK(icol < m, services::ErrorIncorrectParameter);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, n, m);
+        DAAL_ASSERT(buffer.size() >= n * m);
+
         args.set(0, icol);
         args.set(1, element);
         args.set(2, buffer, services::internal::sycl::AccessModeIds::write);
@@ -163,6 +176,11 @@ struct HelperObjectiveFunction
 
         services::internal::sycl::KernelArguments args(4, status);
         DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, n, p);
+        DAAL_ASSERT(x.size() == n * p);
+        DAAL_ASSERT(xt.size() == n * p);
+
         args.set(0, x, services::internal::sycl::AccessModeIds::read);
         args.set(1, xt, services::internal::sycl::AccessModeIds::write);
         args.set(2, n);
@@ -182,6 +200,7 @@ struct HelperObjectiveFunction
 
         auto sumReductionArrayPtr = reductionBuffer.toHost(data_management::readOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
+        DAAL_ASSERT(reductionBuffer.size() == nWorkGroups);
 
         const auto * sumReductionArray = sumReductionArrayPtr.get();
 
@@ -199,6 +218,7 @@ struct HelperObjectiveFunction
                                            algorithmFPType & reg, const algorithmFPType l1, const algorithmFPType l2)
     {
         services::Status status;
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, nBeta, nClasses);
         const uint32_t n = nBeta * nClasses;
 
         const services::internal::sycl::TypeIds::Id idType = services::internal::sycl::TypeIds::id<algorithmFPType>();
@@ -215,18 +235,11 @@ struct HelperObjectiveFunction
 
         services::internal::sycl::KernelNDRange range(1);
 
-        // services::internal::sycl::InfoDevice& info = ctx.getInfoDevice();
-        // const size_t maxWorkItemSizes1d = info.max_work_item_sizes_1d;
-        // const size_t maxWorkGroupSize = info.max_work_group_size;
-
-        // TODO replace on min
-        // size_t workItemsPerGroup = maxWorkItemSizes1d > maxWorkGroupSize ?
-        //     maxWorkGroupSize : maxWorkItemSizes1d;
-
         size_t workItemsPerGroup = 256;
 
         const size_t nWorkGroups = getWorkgroupsCount(n, workItemsPerGroup);
 
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, workItemsPerGroup, nWorkGroups);
         services::internal::sycl::KernelRange localRange(workItemsPerGroup);
         services::internal::sycl::KernelRange globalRange(workItemsPerGroup * nWorkGroups);
 
@@ -235,19 +248,23 @@ struct HelperObjectiveFunction
         DAAL_CHECK_STATUS_VAR(status);
 
         services::internal::sycl::UniversalBuffer buffer            = ctx.allocate(idType, nWorkGroups, status);
+        DAAL_CHECK_STATUS_VAR(status);
         services::internal::Buffer<algorithmFPType> reductionBuffer = buffer.get<algorithmFPType>();
 
-        services::internal::sycl::KernelArguments args(6 /*7*/, status);
+        services::internal::sycl::KernelArguments args(6, status);
         DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_ASSERT(beta.size() == n);
+
         args.set(0, beta, services::internal::sycl::AccessModeIds::read);
         args.set(1, nBeta);
         args.set(2, n);
         args.set(3, reductionBuffer, services::internal::sycl::AccessModeIds::write);
         args.set(4, l1);
         args.set(5, l2);
-        //args.set(6, services::internal::sycl::LocalBuffer(idType, workItemsPerGroup));
 
         ctx.run(range, kernel, args, status);
+        DAAL_CHECK_STATUS_VAR(status);
 
         DAAL_CHECK_STATUS(status, sumReduction(reductionBuffer, nWorkGroups, reg));
 
@@ -272,18 +289,11 @@ struct HelperObjectiveFunction
 
         services::internal::sycl::KernelNDRange range(1);
 
-        // services::internal::sycl::InfoDevice &info = ctx.getInfoDevice();
-        // const size_t maxWorkItemSizes1d = info.max_work_item_sizes_1d;
-        // const size_t maxWorkGroupSize = info.max_work_group_size;
-
-        // TODO replace on min
-        // size_t workItemsPerGroup = maxWorkItemSizes1d > maxWorkGroupSize ?
-        //     maxWorkGroupSize : maxWorkItemSizes1d;
-
         size_t workItemsPerGroup = 256;
 
         const size_t nWorkGroups = getWorkgroupsCount(n, workItemsPerGroup);
 
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, workItemsPerGroup, nWorkGroups);
         services::internal::sycl::KernelRange localRange(workItemsPerGroup);
         services::internal::sycl::KernelRange globalRange(workItemsPerGroup * nWorkGroups);
 
@@ -292,14 +302,17 @@ struct HelperObjectiveFunction
         DAAL_CHECK_STATUS_VAR(status);
 
         services::internal::sycl::UniversalBuffer buffer            = ctx.allocate(idType, nWorkGroups, status);
+        DAAL_CHECK_STATUS_VAR(status);
         services::internal::Buffer<algorithmFPType> reductionBuffer = buffer.get<algorithmFPType>();
 
-        services::internal::sycl::KernelArguments args(3 /*4*/, status);
+        services::internal::sycl::KernelArguments args(3, status);
         DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_ASSERT(x.size() == n);
+
         args.set(0, x, services::internal::sycl::AccessModeIds::read);
         args.set(1, n);
         args.set(2, reductionBuffer, services::internal::sycl::AccessModeIds::write);
-        //args.set(3, services::internal::sycl::LocalBuffer(idType, workItemsPerGroup));
 
         ctx.run(range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
@@ -327,6 +340,8 @@ struct HelperObjectiveFunction
 
         services::internal::sycl::KernelArguments args(2, status);
         DAAL_CHECK_STATUS_VAR(status);
+        DAAL_ASSERT(x.size() == n);
+
         args.set(0, x, services::internal::sycl::AccessModeIds::write);
         args.set(1, alpha);
 
@@ -356,6 +371,10 @@ struct HelperObjectiveFunction
 
         services::internal::sycl::KernelArguments args(3, status);
         DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_ASSERT(x.size() == n);
+        DAAL_ASSERT(y.size() > id);
+
         args.set(0, x, services::internal::sycl::AccessModeIds::write);
         args.set(1, y, services::internal::sycl::AccessModeIds::read);
         args.set(2, id);
@@ -369,7 +388,7 @@ struct HelperObjectiveFunction
 
     static services::Status getXY(const services::internal::Buffer<algorithmFPType> & xBuff,
                                   const services::internal::Buffer<algorithmFPType> & yBuff, const services::internal::Buffer<int> & indBuff,
-                                  services::internal::Buffer<algorithmFPType> aX, services::internal::Buffer<algorithmFPType> aY, uint32_t nBatch,
+                                  services::internal::Buffer<algorithmFPType>& aX, services::internal::Buffer<algorithmFPType>& aY, uint32_t nBatch,
                                   uint32_t p, bool interceptFlag)
     {
         services::Status status;
@@ -388,6 +407,16 @@ struct HelperObjectiveFunction
 
         services::internal::sycl::KernelArguments args(7, status);
         DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, nBatch, (p+1));
+        DAAL_ASSERT(xBuff.size() >= nBatch * p);
+        DAAL_ASSERT(aX.size() == nBatch * (p + 1));
+        DAAL_ASSERT(indBuff.size() == nBatch);
+        // we do not check index values since they do not exceed n by the construction algorithm.
+
+        DAAL_ASSERT(yBuff.size() >= nBatch);
+        DAAL_ASSERT(aY.size() == nBatch);
+
         args.set(0, xBuff, services::internal::sycl::AccessModeIds::read);
         args.set(1, yBuff, services::internal::sycl::AccessModeIds::read);
         args.set(2, indBuff, services::internal::sycl::AccessModeIds::read);

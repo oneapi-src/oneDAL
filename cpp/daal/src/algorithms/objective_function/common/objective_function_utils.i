@@ -39,12 +39,20 @@ services::Status getXY(NumericTable * dataNT, NumericTable * dependentVariablesN
                        algorithmFPType * aY, size_t nRows, size_t n, size_t p)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(getXY);
+    DAAL_ASSERT(indNT != nullptr);
+    DAAL_ASSERT(dataNT != nullptr);
+    DAAL_ASSERT(dependentVariablesNT != nullptr);
+    DAAL_ASSERT(aX != nullptr);
+    DAAL_ASSERT(aY != nullptr);
 
     ReadRows<int, cpu> rInd(*const_cast<NumericTable *>(indNT), 0, n);
     DAAL_CHECK_BLOCK_STATUS(rInd);
     const int * ind = rInd.get();
+
     ReadRows<algorithmFPType, cpu> xr(*dataNT);
+    DAAL_CHECK_BLOCK_STATUS(xr);
     ReadRows<algorithmFPType, cpu> yr(*dependentVariablesNT, 0, nRows);
+    DAAL_CHECK_BLOCK_STATUS(yr);
     for (size_t i = 0; i < n; ++i)
     {
         xr.next(ind[i], 1);

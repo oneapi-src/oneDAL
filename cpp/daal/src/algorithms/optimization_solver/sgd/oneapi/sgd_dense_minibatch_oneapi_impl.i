@@ -48,6 +48,7 @@ using daal::data_management::internal::SyclHomogenNumericTable;
 
 static uint32_t getWorkgroupsCount(const uint32_t n, const uint32_t localWorkSize)
 {
+    DAAL_ASSERT(localWorkSize > 0);
     const uint32_t elementsPerGroup = localWorkSize;
     uint32_t workgroupsCount        = n / elementsPerGroup;
 
