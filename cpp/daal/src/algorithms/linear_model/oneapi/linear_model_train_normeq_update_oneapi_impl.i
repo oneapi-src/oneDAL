@@ -49,10 +49,10 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
     DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate);
     services::Status status;
 
-    const size_t nRows           = xTable.getNumberOfRows();
-    const size_t nCols           = xTable.getNumberOfColumns();
-    const size_t nResponses      = yTable.getNumberOfColumns();
-    const size_t nBetas          = nCols + 1;
+    const size_t nRows      = xTable.getNumberOfRows();
+    const size_t nCols      = xTable.getNumberOfColumns();
+    const size_t nResponses = yTable.getNumberOfColumns();
+    const size_t nBetas     = nCols + 1;
     DAAL_ASSERT((interceptFlag ? (nBetas >= 0) ? (nBetas >= 1)));
     const size_t nBetasIntercept = (interceptFlag ? nBetas : (nBetas - 1));
 
@@ -106,7 +106,7 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, blockIdx, nRowsPerBlock);
         const size_t startRow = blockIdx * nRowsPerBlock;
         DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, startRow, nRowsPerBlock);
-        const size_t endRow   = ((startRow + nRowsPerBlock) > nRows) ? nRows : (startRow + nRowsPerBlock);
+        const size_t endRow = ((startRow + nRowsPerBlock) > nRows) ? nRows : (startRow + nRowsPerBlock);
 
         BlockDescriptor<algorithmFPType> xBlock;
         BlockDescriptor<algorithmFPType> yBlock;
