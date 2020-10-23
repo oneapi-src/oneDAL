@@ -29,6 +29,6 @@ table read_ops_dispatcher<table, host_policy>::operator()(const host_policy& ctx
     return kernel_dispatcher_t()(ctx, ds, args);
 }
 
-template struct ONEAPI_DAL_EXPORT read_ops_dispatcher<table, host_policy>;
+template struct ONEDAL_EXPORT read_ops_dispatcher<table, host_policy>;
 
 } // namespace oneapi::dal::csv::detail

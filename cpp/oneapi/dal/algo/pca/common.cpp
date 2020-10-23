@@ -74,7 +74,7 @@ void model<Task>::set_eigenvectors_impl(const table& value) {
     impl_->eigenvectors = value;
 }
 
-template class ONEAPI_DAL_EXPORT descriptor_base<task::dim_reduction>;
-template class ONEAPI_DAL_EXPORT model<task::dim_reduction>;
+template class ONEDAL_EXPORT descriptor_base<task::dim_reduction>;
+template class ONEDAL_EXPORT model<task::dim_reduction>;
 
 } // namespace oneapi::dal::pca

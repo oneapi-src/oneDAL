@@ -56,7 +56,7 @@ public:
 
 template class detail::vertex_similarity_input_impl<undirected_adjacency_array_graph<>>;
 
-template class ONEAPI_DAL_EXPORT vertex_similarity_input<undirected_adjacency_array_graph<>>;
+template class ONEDAL_EXPORT vertex_similarity_input<undirected_adjacency_array_graph<>>;
 
 using detail::vertex_similarity_result_impl;
 

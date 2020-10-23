@@ -34,7 +34,7 @@ struct infer_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
 };
 
 #define INSTANTIATE(F, M, T) \
-    template struct ONEAPI_DAL_EXPORT infer_ops_dispatcher<data_parallel_policy, F, M, T>;
+    template struct ONEDAL_EXPORT infer_ops_dispatcher<data_parallel_policy, F, M, T>;
 
 INSTANTIATE(float, method::kd_tree, task::classification)
 INSTANTIATE(double, method::kd_tree, task::classification)

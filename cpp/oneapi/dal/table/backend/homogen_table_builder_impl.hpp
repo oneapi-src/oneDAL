@@ -96,7 +96,7 @@ public:
         return new_table;
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     void allocate(const sycl::queue& queue,
                   std::int64_t row_count,
                   std::int64_t column_count,
@@ -147,7 +147,7 @@ public:
         impl.push_column(a, idx, r);
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename T>
     void pull_rows(sycl::queue& q,
                    array<T>& a,

@@ -44,7 +44,7 @@ public:
                           detail::host_allocator<data_t>{});
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     array<data_t> pull(sycl::queue& queue,
                        std::int64_t column_index,
                        const range& rows = { 0, -1 },
@@ -62,7 +62,7 @@ public:
                           detail::host_allocator<data_t>{});
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     T* pull(sycl::queue& queue,
             array<data_t>& block,
             std::int64_t column_index,
@@ -82,7 +82,7 @@ public:
         base::push(detail::default_host_policy{}, block, { column_index, rows });
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename Q = T>
     std::enable_if_t<sizeof(Q) && !is_readonly> push(sycl::queue& queue,
                                                      const array<data_t>& block,

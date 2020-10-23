@@ -63,8 +63,8 @@ void infer_input<Task>::set_data_impl(const table& value) {
     impl_->data = value;
 }
 
-template class ONEAPI_DAL_EXPORT infer_input<task::classification>;
-template class ONEAPI_DAL_EXPORT infer_input<task::regression>;
+template class ONEDAL_EXPORT infer_input<task::classification>;
+template class ONEDAL_EXPORT infer_input<task::regression>;
 
 /* infer_result implementation */
 
@@ -91,7 +91,7 @@ void infer_result<Task>::set_probabilities_impl(const table& value) {
     impl_->probabilities = value;
 }
 
-template class ONEAPI_DAL_EXPORT infer_result<task::classification>;
-template class ONEAPI_DAL_EXPORT infer_result<task::regression>;
+template class ONEDAL_EXPORT infer_result<task::classification>;
+template class ONEDAL_EXPORT infer_result<task::regression>;
 
 } // namespace oneapi::dal::decision_forest

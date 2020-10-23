@@ -25,7 +25,7 @@ class compute_input_impl;
 class compute_result_impl;
 } // namespace detail
 
-class ONEAPI_DAL_EXPORT compute_input : public base {
+class ONEDAL_EXPORT compute_input : public base {
 public:
     compute_input(const table& x, const table& y);
 
@@ -49,7 +49,7 @@ private:
     dal::detail::pimpl<detail::compute_input_impl> impl_;
 };
 
-class ONEAPI_DAL_EXPORT compute_result : public base {
+class ONEDAL_EXPORT compute_result : public base {
 public:
     compute_result();
 
