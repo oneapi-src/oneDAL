@@ -82,13 +82,13 @@ DECLARE_SOURCE(
     void reduceReduceColmajor(__global const algorithmFPType * vectors, const uint nVectors, const uint vectorSize,
                               __global algorithmFPType * mergedReduce, const uint rowPartIndex, const uint rowParts, const uint colPartIndex,
                               const uint colParts, const uint tid, const uint tnum) {
-        const int colOffset = colPartIndex * tnum;
-        const int x         = tid + colOffset;
+        const uint colOffset = colPartIndex * tnum;
+        const uint x         = tid + colOffset;
 
         if (x < nVectors)
         {
-            int rowPartSize     = (vectorSize + rowParts - 1) / rowParts;
-            const int rowOffset = rowPartSize * rowPartIndex;
+            uint rowPartSize     = (vectorSize + rowParts - 1) / rowParts;
+            const uint rowOffset = rowPartSize * rowPartIndex;
 
             if (rowPartSize + rowOffset > vectorSize)
             {
@@ -99,7 +99,7 @@ DECLARE_SOURCE(
 
             for (int row = 0; row < rowPartSize; row++)
             {
-                const int y              = (row + rowOffset) * nVectors;
+                const uint y             = (row + rowOffset) * nVectors;
                 const algorithmFPType el = vectors[y + x];
 
                 partialRes = BINARY_OP(partialRes, UNARY_OP(el));
@@ -111,16 +111,16 @@ DECLARE_SOURCE(
 
     __kernel void reduceStepColmajor(__global const algorithmFPType * vectors, const uint nVectors, const uint vectorSize,
                                      __global algorithmFPType * mergedReduce) {
-        const int tid  = get_local_id(0);
-        const int tnum = get_local_size(0);
-        const int gid  = get_group_id(0);
-        const int gnum = get_num_groups(0);
+        const uint tid  = get_local_id(0);
+        const uint tnum = get_local_size(0);
+        const uint gid  = get_group_id(0);
+        const uint gnum = get_num_groups(0);
 
-        const int colParts = (nVectors + tnum - 1) / tnum;
-        const int rowParts = gnum / colParts;
+        const uint colParts = (nVectors + tnum - 1) / tnum;
+        const uint rowParts = gnum / colParts;
 
-        const int rowPartIndex = gid / colParts;
-        const int colPartIndex = gid - rowPartIndex * colParts;
+        const uint rowPartIndex = gid / colParts;
+        const uint colPartIndex = gid - rowPartIndex * colParts;
 
         reduceReduceColmajor(vectors, nVectors, vectorSize, mergedReduce, rowPartIndex, rowParts, colPartIndex, colParts, tid, tnum);
     }
