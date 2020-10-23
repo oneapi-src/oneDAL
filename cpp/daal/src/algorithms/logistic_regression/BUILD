@@ -9,7 +9,8 @@ daal_module(
         "@onedal//cpp/daal:core",
         "@onedal//cpp/daal:sycl",
         "@onedal//cpp/daal/src/algorithms/classifier:kernel",
-        "@onedal//cpp/daal/src/algorithms/dtrees:kernel",
-        "@onedal//cpp/daal/src/algorithms/dtrees/forest:kernel",
+        "@onedal//cpp/daal/src/algorithms/objective_function:kernel",
+        "@onedal//cpp/daal/src/algorithms/objective_function/logistic_loss:kernel",
+        "@onedal//cpp/daal/src/algorithms/objective_function/cross_entropy_loss:kernel",
     ],
 )
