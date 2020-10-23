@@ -202,6 +202,8 @@ SumReducer::Result SumReducer::sum(Layout vectorsLayout, const UniversalBuffer &
     status |= buildProgram(kernelFactory, vectors.type());
     DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, SumReducer::Result());
 
+    DAAL_ASSERT(vectors.type() == TypeIds::id<float>() || vectors.type() == TypeIds::id<float>());
+
     const uint32_t maxWorkItemsPerGroup = 256;
     const uint32_t maxNumSubSlices      = 9;
 

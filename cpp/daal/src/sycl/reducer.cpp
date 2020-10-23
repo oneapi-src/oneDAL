@@ -196,6 +196,7 @@ Reducer::Result Reducer::reduce(const BinaryOp op, Layout vectorsLayout, const U
 {
     auto & context = services::internal::getDefaultContext();
     Result result(context, nVectors, vectors.type(), status);
+    DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, Reducer::Result());
     return Reducer::reduce(op, vectorsLayout, vectors, result.reduceRes, nVectors, vectorSize, status);
 }
 
@@ -207,6 +208,8 @@ Reducer::Result Reducer::reduce(const BinaryOp op, Layout vectorsLayout, const U
 
     Result result(context, resReduce, nVectors, vectors.type(), status);
     DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, Reducer::Result());
+
+    DAAL_ASSERT(vectors.type() == TypeIds::id<float>() || vectors.type() == TypeIds::id<float>());
 
     auto & kernelFactory = context.getClKernelFactory();
 
