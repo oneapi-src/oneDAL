@@ -51,8 +51,6 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::addBetaInte
 {
     services::Status status;
 
-    DAAL_ASSERT(nBetas );
-
     ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
