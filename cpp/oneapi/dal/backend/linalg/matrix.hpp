@@ -23,6 +23,7 @@
 #include <functional>
 
 #include "oneapi/dal/array.hpp"
+#include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
@@ -114,6 +115,8 @@ protected:
             : s_(s),
               l_(l),
               stride_(stride) {
+        ONEDAL_ASSERT(s.count() / s.columns() == s.rows(),
+                      "Shape overflow");
         if (l == layout::row_major) {
             ONEDAL_ASSERT(stride >= s.columns(),
                           "Stride must be greater than "
@@ -166,6 +169,7 @@ public:
     }
 
     static matrix eye(std::int64_t dim, layout l = layout::row_major) {
+        check_mul_overflow(dim, dim);
         auto m = zeros({ dim, dim }, l);
         Float* data = m.get_mutable_data();
         for (std::int64_t i = 0; i < dim; i++) {
@@ -401,6 +405,8 @@ private:
     explicit matrix(const array<Float>& x, const shape& s, layout l, std::int64_t stride)
             : matrix_base(s, l, stride),
               x_(x) {
+        ONEDAL_ASSERT(s.count() / s.columns() == s.rows(),
+                      "Shape overflow");
         ONEDAL_ASSERT(s.count() <= x.get_count(),
                       "Element count in matrix does not match "
                       "element count in the provided array");
