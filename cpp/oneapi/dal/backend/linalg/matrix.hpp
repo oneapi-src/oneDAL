@@ -168,7 +168,6 @@ public:
     }
 
     static matrix eye(std::int64_t dim, layout l = layout::row_major) {
-        dal::detail::check_mul_overflow(dim, dim);
         auto m = zeros({ dim, dim }, l);
         Float* data = m.get_mutable_data();
         for (std::int64_t i = 0; i < dim; i++) {

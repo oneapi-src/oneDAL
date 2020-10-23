@@ -38,13 +38,13 @@ void integer_overflow_ops<Data>::check_mul_overflow(const Data& first, const Dat
     }
 }
 
-template struct integer_overflow_ops<int8_t>;
-template struct integer_overflow_ops<int16_t>;
-template struct integer_overflow_ops<int32_t>;
-template struct integer_overflow_ops<int64_t>;
-template struct integer_overflow_ops<uint8_t>;
-template struct integer_overflow_ops<uint16_t>;
-template struct integer_overflow_ops<uint32_t>;
-template struct integer_overflow_ops<uint64_t>;
+template struct integer_overflow_ops<std::int8_t>;
+template struct integer_overflow_ops<std::int16_t>;
+template struct integer_overflow_ops<std::int32_t>;
+template struct integer_overflow_ops<std::int64_t>;
+template struct integer_overflow_ops<std::uint8_t>;
+template struct integer_overflow_ops<std::uint16_t>;
+template struct integer_overflow_ops<std::uint32_t>;
+template struct integer_overflow_ops<std::uint64_t>;
 
 } // namespace oneapi::dal::detail

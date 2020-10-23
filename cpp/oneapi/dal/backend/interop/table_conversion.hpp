@@ -40,7 +40,6 @@ struct daal_array_owner {
 
 template <typename T>
 inline auto allocate_daal_homogen_table(std::int64_t row_count, std::int64_t column_count) {
-    dal::detail::check_mul_overflow(row_count, column_count);
     return daal::data_management::HomogenNumericTable<T>::create(
         column_count,
         row_count,
@@ -51,7 +50,6 @@ template <typename T>
 inline auto convert_to_daal_homogen_table(array<T>& data,
                                           std::int64_t row_count,
                                           std::int64_t column_count) {
-    dal::detail::check_mul_overflow(row_count, column_count);
     if (!data.get_count())
         return daal::services::SharedPtr<daal::data_management::HomogenNumericTable<T>>();
     data.need_mutable_data();
@@ -68,7 +66,6 @@ inline table convert_from_daal_homogen_table(const daal::data_management::Numeri
     daal::data_management::BlockDescriptor<T> block;
     const std::int64_t row_count = nt->getNumberOfRows();
     const std::int64_t column_count = nt->getNumberOfColumns();
-    dal::detail::check_mul_overflow(row_count, column_count);
 
     nt->getBlockOfRows(0, row_count, daal::data_management::readOnly, block);
     T* data = block.getBlockPtr();
@@ -84,7 +81,6 @@ inline auto convert_to_daal_sycl_homogen_table(sycl::queue& queue,
                                                array<T>& data,
                                                std::int64_t row_count,
                                                std::int64_t column_count) {
-    dal::detail::check_mul_overflow(row_count, column_count);
     data.need_mutable_data(queue);
     const auto daal_data =
         daal::services::SharedPtr<T>(data.get_mutable_data(), daal_array_owner<T>{ data });
