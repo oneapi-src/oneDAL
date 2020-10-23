@@ -50,8 +50,7 @@ public:
                              NumericTable * hessian, NumericTable * gradient, NumericTable * nonSmoothTermValue, NumericTable * proximalProjection,
                              NumericTable * lipschitzConstant, Parameter * parameter);
     static void applyBeta(const algorithmFPType * x, const algorithmFPType * beta, algorithmFPType * xb, size_t nRows, size_t nCols, bool bIntercept);
-    static void applyBetaThreaded(const algorithmFPType * x, const algorithmFPType * beta, algorithmFPType * xb, size_t nRows, size_t nCols,
-                                  bool bIntercept);
+
     static void sigmoid(const algorithmFPType * f, algorithmFPType * s, size_t n);
 
 protected:
