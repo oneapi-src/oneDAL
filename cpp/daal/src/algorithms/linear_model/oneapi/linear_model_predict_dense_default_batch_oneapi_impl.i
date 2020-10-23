@@ -130,8 +130,11 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute(con
         const size_t xNCols = nBetas - 1;
         const size_t yNCols = nResponses;
 
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, xNRows, xNCols);
         DAAL_ASSERT(xBuf.size() == xNRows * xNCols);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, yNCols, xNCols);
         DAAL_ASSERT(betBuf.size() == yNCols * xNCols);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, xNRows, yNCols);
         DAAL_ASSERT(yBuf.size() == xNRows * yNCols);
 
 

@@ -88,22 +88,28 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::compute(NumericTable & x
 
         const TypeIds::Id idType = TypeIds::id<algorithmFPType>();
 
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBetasIntercept, nBetasIntercept);
         UniversalBuffer xtxCopyAlloc = context.allocate(idType, nBetasIntercept * nBetasIntercept, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         services::internal::Buffer<algorithmFPType> xtxBufCopy = xtxCopyAlloc.get<algorithmFPType>();
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.xtxCopy);
+            DAAL_ASSERT(xtxBuf.size() >= nBetasIntercept * nBetasIntercept);    
+            DAAL_ASSERT(xtxBufCopy.size() >= nBetasIntercept * nBetasIntercept);
             context.copy(xtxBufCopy, 0, xtxBuf, 0, nBetasIntercept * nBetasIntercept, status);
         }
         DAAL_CHECK_STATUS_VAR(status);
 
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nResponses, nBetasIntercept);
         UniversalBuffer xtyCopyAlloc = context.allocate(idType, nResponses * nBetasIntercept, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         services::internal::Buffer<algorithmFPType> betaBuf = xtyCopyAlloc.get<algorithmFPType>();
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.betaBufCopy);
+            DAAL_ASSERT(xtyBuf.size() >= nResponses * nBetasIntercept);    
+            DAAL_ASSERT(betaBuf.size() >= nResponses * nBetasIntercept);
             context.copy(betaBuf, 0, xtyBuf, 0, nResponses * nBetasIntercept, status);
         }
         DAAL_CHECK_STATUS_VAR(status);
@@ -159,6 +165,10 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::solveSystem(const size_t
     services::Status status;
 
     const math::UpLo uplo = math::UpLo::Upper;
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, ny, p);
+    DAAL_ASSERT(a.size() >= ny * p);
+    DAAL_ASSERT(b.size() >= ny * p);
 
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(solveSystem.xpotrf);
