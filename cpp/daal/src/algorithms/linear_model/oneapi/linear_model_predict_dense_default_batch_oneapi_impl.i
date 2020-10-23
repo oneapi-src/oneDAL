@@ -111,7 +111,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute(con
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, blockIdx, nRowsPerBlock);
         const size_t startRow = blockIdx * nRowsPerBlock;
         DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, startRow, nRowsPerBlock);
-        const size_t endRow   = ((startRow + nRowsPerBlock) > nRows) ? nRows : startRow + nRowsPerBlock;
+        const size_t endRow   = ((startRow + nRowsPerBlock) > nRows) ? nRows : (startRow + nRowsPerBlock);
 
         BlockDescriptor<algorithmFPType> xBlock;
         BlockDescriptor<algorithmFPType> yBlock;

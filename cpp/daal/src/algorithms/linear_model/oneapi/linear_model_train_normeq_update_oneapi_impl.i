@@ -69,11 +69,7 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
 
     const size_t nRowsPerBlock = 90000;
 
-    size_t nBlocks = nRows / nRowsPerBlock;
-    if (nBlocks * nRowsPerBlock < nRows)
-    {
-        ++nBlocks;
-    }
+    const size_t nBlocks = (nRows / nRowsPerBlock) + bool(nRows % nRowsPerBlock) ? 1 : 0;
 
     services::internal::Buffer<algorithmFPType> sumXBuf;
     services::internal::Buffer<algorithmFPType> sumYBuf;
