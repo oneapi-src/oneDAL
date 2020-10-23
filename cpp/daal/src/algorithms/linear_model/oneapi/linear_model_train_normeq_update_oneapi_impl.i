@@ -53,7 +53,7 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
     const size_t nCols      = xTable.getNumberOfColumns();
     const size_t nResponses = yTable.getNumberOfColumns();
     const size_t nBetas     = nCols + 1;
-    DAAL_ASSERT((interceptFlag ? (nBetas >= 0) ? (nBetas >= 1)));
+    DAAL_ASSERT((interceptFlag ? (nBetas >= 0) : (nBetas >= 1)));
     const size_t nBetasIntercept = (interceptFlag ? nBetas : (nBetas - 1));
 
     BlockDescriptor<algorithmFPType> xtxBlock;
@@ -142,7 +142,7 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
             DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, xNRows, xNCols);
             DAAL_ASSERT(xBuf.size() >= xNRows * xNCols);
             DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, yNCols, xNCols);
-            DAAL_ASSERT(xtyBuf.size() >= yNCols * xNCols);
+            DAAL_ASSERT(xtyBuff.size() >= yNCols * xNCols);
             DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, xNRows, yNCols);
             DAAL_ASSERT(yBuf.size() >= xNRows * yNCols);
 
