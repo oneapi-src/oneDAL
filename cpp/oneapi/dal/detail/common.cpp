@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/exceptions.hpp"
+#include "oneapi/dal/detail/common.hpp"
 
 template <typename Data>
 void check_sum_overflow(const Data& first, const Data& second) {

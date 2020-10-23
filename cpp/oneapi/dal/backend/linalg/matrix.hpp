@@ -115,8 +115,7 @@ protected:
             : s_(s),
               l_(l),
               stride_(stride) {
-        ONEDAL_ASSERT(s.count() / s.columns() == s.rows(),
-                      "Shape overflow");
+        ONEDAL_ASSERT(s.count() / s.columns() == s.rows(), "Shape overflow");
         if (l == layout::row_major) {
             ONEDAL_ASSERT(stride >= s.columns(),
                           "Stride must be greater than "
@@ -405,8 +404,7 @@ private:
     explicit matrix(const array<Float>& x, const shape& s, layout l, std::int64_t stride)
             : matrix_base(s, l, stride),
               x_(x) {
-        ONEDAL_ASSERT(s.count() / s.columns() == s.rows(),
-                      "Shape overflow");
+        ONEDAL_ASSERT(s.count() / s.columns() == s.rows(), "Shape overflow");
         ONEDAL_ASSERT(s.count() <= x.get_count(),
                       "Element count in matrix does not match "
                       "element count in the provided array");
