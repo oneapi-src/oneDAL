@@ -124,7 +124,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute(con
 
         DAAL_ASSERT(endRow >= startRow);
         const size_t xNRows = endRow - startRow;
-        DAAL_ASSERT(nbetas >= 1);
+        DAAL_ASSERT(nBetas >= 1);
         const size_t xNCols = nBetas - 1;
         const size_t yNCols = nResponses;
 
