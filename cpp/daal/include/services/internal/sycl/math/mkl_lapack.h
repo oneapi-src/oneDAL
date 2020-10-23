@@ -55,9 +55,7 @@ struct MKLPotrf
     Status operator()(const math::UpLo uplo, const size_t n, Buffer<algorithmFPType> & a, const size_t lda,
                       cl::sycl::buffer<algorithmFPType, 1> & scratchpad)
     {
-
         Status status;
-
         const ::oneapi::fpk::uplo uplomkl                = uplo == math::UpLo::Upper ? ::oneapi::fpk::uplo::upper : ::oneapi::fpk::uplo::lower;
         cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a.toSycl(status);
         DAAL_CHECK_STATUS_VAR(status);
