@@ -51,11 +51,8 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::compute(NumericTable & x
     services::Status status;
 
     const size_t nBetasIntercept = xtxTable.getNumberOfRows();
-    DAAL_ASSERT(nBetasIntercept <= services::internal::MaxVal<uint32_t>::get());
     const size_t nBetas          = interceptFlag ? nBetasIntercept : (nBetasIntercept + 1);
-    DAAL_ASSERT(nBetas <= services::internal::MaxVal<uint32_t>::get());
     const size_t nResponses      = xtyTable.getNumberOfRows();
-    DAAL_ASSERT(nResponses <= services::internal::MaxVal<uint32_t>::get());
 
     {
         if (&xtxTable != &xtxFinalTable)
