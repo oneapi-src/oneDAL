@@ -26,6 +26,7 @@
 #include "src/sycl/lapack_gpu.h"
 #include "src/externals/service_lapack.h"
 #include "src/externals/service_ittnotify.h"
+#include "src/services/service_data_utils.h"
 
 
 namespace daal

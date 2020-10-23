@@ -26,6 +26,7 @@
 #include "services/internal/execution_context.h"
 #include "src/externals/service_ittnotify.h"
 #include "src/algorithms/linear_model/oneapi/cl_kernel/reduce_results.cl"
+#include "src/services/service_data_utils.h"
 
 namespace daal
 {
