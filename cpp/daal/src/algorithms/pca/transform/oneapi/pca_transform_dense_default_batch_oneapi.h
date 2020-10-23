@@ -50,10 +50,10 @@ public:
                              data_management::NumericTable * pMeans, data_management::NumericTable * pVariances,
                              data_management::NumericTable * pEigenvalues, data_management::NumericTable & transformedData);
 
-    void computeTransformedBlock(uint32_t numRows, uint32_t numFeatures, uint32_t numComponents,
-                                 daal::services::internal::sycl::UniversalBuffer & dataBlock,
-                                 const services::internal::Buffer<algorithmFPType> & eigenvectors,
-                                 const services::internal::Buffer<algorithmFPType> & resultBlock);
+    services::Status computeTransformedBlock(uint32_t numRows, uint32_t numFeatures, uint32_t numComponents,
+                                             daal::services::internal::sycl::UniversalBuffer & dataBlock,
+                                             const services::internal::Buffer<algorithmFPType> & eigenvectors,
+                                             const services::internal::Buffer<algorithmFPType> & resultBlock);
 
 private:
     services::Status allocateBuffer(daal::services::internal::sycl::ExecutionContextIface & context,
@@ -86,7 +86,7 @@ private:
                                  const uint32_t numFeatures, const uint32_t numComponents, const uint32_t numVectors);
 
 private:
-    const unsigned int maxWorkItemsPerGroup = 256;
+    const uint32_t maxWorkItemsPerGroup = 256;
     daal::services::internal::sycl::UniversalBuffer invSigmas;
     daal::services::internal::sycl::UniversalBuffer invEigenvalues;
     daal::services::internal::sycl::UniversalBuffer rawMeans;

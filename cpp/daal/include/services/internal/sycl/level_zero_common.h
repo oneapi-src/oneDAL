@@ -1,4 +1,4 @@
-/* file: daal_defines_sycl.h */
+/* file: level_zero_common.h */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -15,24 +15,20 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Common definitions.
-//--
-*/
+#ifndef __DAAL_SERVICES_INTERNAL_SYCL_LEVEL_ZERO_COMMON_H__
+#define __DAAL_SERVICES_INTERNAL_SYCL_LEVEL_ZERO_COMMON_H__
 
-#ifndef __DAAL_DEFINES_SYCL_H__
-#define __DAAL_DEFINES_SYCL_H__
+#ifdef DAAL_DISABLE_LEVEL_ZERO
+    #error "DAAL_DISABLE_LEVEL_ZERO must be undefined to include this file"
+#endif
 
-/** \file daal_defines_sycl.h */
+#ifndef _ZE_API_H
+    #include "services/internal/sycl/level_zero_types.h"
+#endif
 
-#include "services/daal_defines.h"
-#include "services/internal/sycl/types.h"
+typedef ze_result_t (*zeModuleCreateFT)(ze_context_handle_t, ze_device_handle_t, const ze_module_desc_t *, ze_module_handle_t *,
+                                        ze_module_build_log_handle_t *);
 
-#define DAAL_ASSERT_UNIVERSAL_BUFFER(buffer, bufferType, bufferSize)             \
-    {                                                                            \
-        DAAL_ASSERT((buffer).type() == TypeIds::id<bufferType>());               \
-        DAAL_ASSERT((buffer).template get<bufferType>().size() >= (bufferSize)); \
-    }
+typedef ze_result_t (*zeModuleDestroyFT)(ze_module_handle_t hModule);
 
 #endif

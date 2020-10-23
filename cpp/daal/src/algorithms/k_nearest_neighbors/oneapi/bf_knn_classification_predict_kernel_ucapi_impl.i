@@ -24,7 +24,6 @@
 #include "src/sycl/sorter.h"
 #include "src/services/service_data_utils.h"
 #include "services/daal_defines.h"
-#include "services/internal/sycl/daal_defines_sycl.h"
 
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_predict_kernel_ucapi.h"
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
@@ -227,7 +226,9 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::copyParti
     DAAL_ASSERT_UNIVERSAL_BUFFER(partialDistances, algorithmFpType, queryBlockRows * k * totalNumberOfChunks);
     DAAL_ASSERT_UNIVERSAL_BUFFER(partialLabels, int, queryBlockRows * k * totalNumberOfChunks);
 
-    KernelArguments args(7);
+    KernelArguments args(7, st);
+    DAAL_CHECK_STATUS_VAR(st);
+
     args.set(0, distances, AccessModeIds::read);
     args.set(1, labels, AccessModeIds::read);
     args.set(2, partialDistances, AccessModeIds::readwrite);
@@ -267,7 +268,8 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::scatterSu
     DAAL_ASSERT_UNIVERSAL_BUFFER(dataSumOfSquares, algorithmFpType, dataBlockRowCount);
     DAAL_ASSERT_UNIVERSAL_BUFFER(distances, algorithmFpType, dataBlockRowCount * queryBlockRowCount);
 
-    KernelArguments args(3);
+    KernelArguments args(3, st);
+    DAAL_CHECK_STATUS_VAR(st);
     args.set(0, dataSumOfSquares, AccessModeIds::read);
     args.set(1, distances, AccessModeIds::write);
     args.set(2, static_cast<int32_t>(dataBlockRowCount));
@@ -311,7 +313,8 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeWi
     DAAL_ASSERT_UNIVERSAL_BUFFER(labels, int, queryBlockRowCount * k);
     DAAL_ASSERT_UNIVERSAL_BUFFER(labelsOut, algorithmFpType, queryBlockRowCount);
 
-    KernelArguments args(3);
+    KernelArguments args(3, st);
+    DAAL_CHECK_STATUS_VAR(st);
     args.set(0, labels, AccessModeIds::read);
     args.set(1, labelsOut, AccessModeIds::write);
     args.set(2, static_cast<int32_t>(k));

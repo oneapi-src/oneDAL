@@ -61,7 +61,8 @@ void sum_singlepass(ExecutionContextIface & context, ClKernelFactoryIface & kern
     range.local(localRange, status);
     DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
-    KernelArguments args(6 /*8*/);
+    KernelArguments args(6 /*8*/, status);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
     uint32_t vectorsAreRows = vectorsLayout == Layout::RowMajor ? 1 : 0;
     args.set(0, vectorsAreRows);
     args.set(1, vectors, AccessModeIds::read);
@@ -90,7 +91,8 @@ void runStepColmajor(ExecutionContextIface & context, ClKernelFactoryIface & ker
     range.local(localRange, status);
     DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
-    KernelArguments args(5);
+    KernelArguments args(5, status);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
     args.set(0, vectors, AccessModeIds::read);
     args.set(1, nVectors);
@@ -116,7 +118,8 @@ void runFinalStepRowmajor(ExecutionContextIface & context, ClKernelFactoryIface 
     range.local(localRange, status);
     DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
-    KernelArguments args(6);
+    KernelArguments args(6, status);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
     args.set(0, stepResult.sum, AccessModeIds::read);
     args.set(1, stepResult.sumOfSquares, AccessModeIds::read);
     args.set(2, nVectors);

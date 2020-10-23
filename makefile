@@ -573,7 +573,7 @@ ONEAPI.incdirs.common := $(CPPDIR)
 ONEAPI.incdirs.thirdp := $(CORE.incdirs.common) $(MKLFPKDIR.include) $(TBBDIR.include)
 ONEAPI.incdirs := $(ONEAPI.incdirs.common) $(CORE.incdirs.thirdp)
 
-ONEAPI.dispatcher_cpu = $(WORKDIR)/_dal_cpu_dispatcher_gen.hpp
+ONEAPI.dispatcher_cpu = $(WORKDIR)/oneapi/dal/_dal_cpu_dispatcher_gen.hpp
 ONEAPI.dispatcher_tag.nrh := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_default
 ONEAPI.dispatcher_tag.mrm := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_ssse3
 ONEAPI.dispatcher_tag.neh := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_sse42
@@ -668,7 +668,7 @@ $1: LOPT:=
 $1: $(1:%.$a=%_link.txt) | $(dir $1)/. ; $(value LINK.STATIC)
 endef
 
-$(ONEAPI.dispatcher_cpu): | $(WORKDIR)/.
+$(ONEAPI.dispatcher_cpu): | $(dir $(ONEAPI.dispatcher_cpu))/.
 	$(if $(filter ssse3,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_SSSE3" >> $@)
 	$(if $(filter sse42,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_SSE42" >> $@)
 	$(if $(filter avx,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_AVX" >> $@)

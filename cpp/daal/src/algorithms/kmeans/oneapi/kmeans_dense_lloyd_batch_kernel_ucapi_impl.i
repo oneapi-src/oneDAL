@@ -381,7 +381,8 @@ void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::computeSquares(const ser
     auto kernel           = kernel_factory.getKernel(getComputeSquaresKernelName(nFeatures), st);
     DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
 
-    KernelArguments args(4);
+    KernelArguments args(4, st);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
     args.set(0, data, AccessModeIds::read);
     args.set(1, dataSq, AccessModeIds::write);
     args.set(2, nRows);
@@ -409,7 +410,8 @@ void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::getNumEmptyClusters(uint
     auto kernel           = kernel_factory.getKernel("count_empty_clusters", st);
     DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
 
-    KernelArguments args(4);
+    KernelArguments args(4, st);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
     args.set(0, _partialCentroidsCounters, AccessModeIds::read);
     args.set(1, nClusters);
     args.set(2, nClusters);
@@ -449,7 +451,8 @@ void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::computeAssignments(const
     auto kernel           = kernel_factory.getKernel("reduce_assignments", st);
     DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
 
-    KernelArguments args(7);
+    KernelArguments args(7, st);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
     args.set(0, _centroidsSq, AccessModeIds::read);
     args.set(1, _distances, AccessModeIds::read);
     args.set(2, blockSize);
@@ -487,7 +490,8 @@ void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::computePartialCandidates
     auto kernel           = kernel_factory.getKernel("partial_candidates", st);
     DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
 
-    KernelArguments args(10);
+    KernelArguments args(10, st);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
     args.set(0, assignments, AccessModeIds::read);
     args.set(1, _mindistances, AccessModeIds::read);
     args.set(2, _dataSq, AccessModeIds::read);
@@ -522,7 +526,8 @@ void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::mergePartialCandidates(u
     auto kernel           = kernel_factory.getKernel("merge_candidates", st);
     DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
 
-    KernelArguments args(5);
+    KernelArguments args(5, st);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
     args.set(0, _candidates, AccessModeIds::write);
     args.set(1, _candidateDistances, AccessModeIds::write);
     args.set(2, _partialCandidates, AccessModeIds::read);
@@ -556,7 +561,8 @@ void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::partialReduceCentroids(c
     auto kernel           = kernel_factory.getKernel("partial_reduce_centroids", st);
     DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
 
-    KernelArguments args(9);
+    KernelArguments args(9, st);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
     args.set(0, data, AccessModeIds::read);
     args.set(1, _distances, AccessModeIds::read);
     args.set(2, assignments, AccessModeIds::read);
@@ -582,7 +588,8 @@ void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::mergeReduceCentroids(con
     auto kernel           = kernel_factory.getKernel("merge_reduce_centroids", st);
     DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
 
-    KernelArguments args(6);
+    KernelArguments args(6, st);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
     args.set(0, _partialCentroids, AccessModeIds::readwrite);
     args.set(1, _partialCentroidsCounters, AccessModeIds::readwrite);
     args.set(2, centroids, AccessModeIds::write);
@@ -620,7 +627,8 @@ void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::updateObjectiveFunction(
     auto kernel           = kernel_factory.getKernel("update_objective_function", st);
     DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
 
-    KernelArguments args(5);
+    KernelArguments args(5, st);
+    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
     args.set(0, _dataSq, AccessModeIds::read);
     args.set(1, _mindistances, AccessModeIds::read);
     args.set(2, blockSize);
