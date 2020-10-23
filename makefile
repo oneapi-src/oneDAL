@@ -266,12 +266,10 @@ mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl_dal_sycl.hpp $(MKLGPUFPKDIR.inc
 #===============================================================================
 # Release library names
 #===============================================================================
+include makefile.ver
 
-major_version := 1
-minor_version := 0
-
-y_full_name_postfix := $(if $(OS_is_win),,$(if $(OS_is_mac),.$(major_version).$(minor_version).$(y),.$(y).$(major_version).$(minor_version)))
-y_major_name_postfix := $(if $(OS_is_win),,$(if $(OS_is_mac),.$(major_version).$(y),.$(y).$(major_version)))
+y_full_name_postfix := $(if $(OS_is_win),,$(if $(OS_is_mac),.$(MAJORBINARY).$(MINORBINARY).$(y),.$(y).$(MAJORBINARY).$(MINORBINARY)))
+y_major_name_postfix := $(if $(OS_is_win),,$(if $(OS_is_mac),.$(MAJORBINARY).$(y),.$(y).$(MAJORBINARY)))
 
 core_a       := $(plib)onedal_core.$a
 core_y       := $(plib)onedal_core.$y
@@ -426,7 +424,6 @@ release.DOC.OSSPEC := $(foreach fn,$(release.DOC),$(if $(filter %$(_OS),$(basena
 #===============================================================================
 # Core part
 #===============================================================================
-include makefile.ver
 include makefile.lst
 
 THR.srcdir       := $(CPPDIR.daal)/src/threading
@@ -990,7 +987,7 @@ define .release.ay_win
 $3: $2/$1
 $(if $(phony-upd),$(eval .PHONY: $2/$1))
 $2/$1: $(WORKDIR.lib)/$1 | $2/.
-	cp -fp $(WORKDIR.lib)/$1 $2/$(subst dll.,dll.$(major_version).,$1)
+	cp -fp $(WORKDIR.lib)/$1 $2/$(subst dll.,dll.$(MAJORBINARY).,$1)
 endef
 define .release.y_link
 $3: $2/$1
