@@ -150,13 +150,13 @@ protected:
         const DAAL_INT incY(1);
         const DAAL_INT size(nRows);
 
-        services::internal::service_memset_seq<algorithmFPType, cpu>(res, nRows, algorithmFPType(0.0));
+        services::internal::service_memset_seq<algorithmFPType, cpu>(res, algorithmFPType(0.0), nRows);
 
         for (size_t i = 0; i < nCols; ++i)
         {
             ReadColumns<algorithmFPType, cpu> xBlock(const_cast<NumericTable *>(x), i, xOffset, nRows);
             DAAL_CHECK_BLOCK_STATUS(xBlock);
-            const algorithmFPType * xData = xBlock.get();
+            const algorithmFPType * const xData = xBlock.get();
             const algorithmFPType value   = b[i];
 
             Blas<algorithmFPType, cpu>::xxaxpy(&size, &value, xData, &incX, res, &incY);
