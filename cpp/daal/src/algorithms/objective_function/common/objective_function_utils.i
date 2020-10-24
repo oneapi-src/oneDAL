@@ -45,6 +45,8 @@ services::Status getXY(NumericTable * dataNT, NumericTable * dependentVariablesN
     DAAL_ASSERT(aX != nullptr);
     DAAL_ASSERT(aY != nullptr);
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, p);
+
     ReadRows<int, cpu> rInd(*const_cast<NumericTable *>(indNT), 0, n);
     DAAL_CHECK_BLOCK_STATUS(rInd);
     const int * ind = rInd.get();
