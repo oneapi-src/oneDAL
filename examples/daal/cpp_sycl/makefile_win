@@ -115,7 +115,7 @@ LOPTS = $(DAAL_LIB) $(EXT_LIB) $(RT_LIB)
 RES_DIR  =_results\$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
 
 dll dllintel64:
-	nmake comm_func $(RES) EXT=_dll.lib _IA=intel64 RES_EXT=dll compiler=$(compiler) threading=$(threading)
+	nmake comm_func $(RES) EXT=_dll.1.lib _IA=intel64 RES_EXT=dll compiler=$(compiler) threading=$(threading)
 
 comm_func:
 	if not exist _results md _results
