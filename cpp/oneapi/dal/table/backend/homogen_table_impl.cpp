@@ -107,58 +107,100 @@ void refer_source_data(const array<DataSrc>& src,
 }
 
 class block_access_provider {
+private:
+    struct block_info {
+        block_info(int64_t row_count, int64_t column_count,
+                   int64_t row_offset, int64_t column_offset)
+            : row_count(row_count),
+              column_count(column_count),
+              row_offset(row_offset),
+              column_offset(column_offset),
+              element_count(row_count * column_count) {
+            // TODO: check parameters
+            detail::check_mul_overflow(row_count, column_count);
+        }
+
+        int64_t row_count;
+        int64_t column_count;
+        int64_t row_offset;
+        int64_t column_offset;
+        int64_t element_count;
+    };
+
+    struct origin_info {
+        origin_info(data_type dtype, int64_t row_count, int64_t column_count)
+            : data_type(dtype),
+              row_count(row_count),
+              column_count(column_count),
+              element_count(row_count * column_count) {
+            // TODO: check parameters
+            detail::check_mul_overflow(row_count, column_count);
+        }
+
+        data_type data_type;
+        int64_t row_count;
+        int64_t column_count;
+        int64_t element_count;
+    };
+
 public:
     block_access_provider(int64_t origin_row_count,
                           int64_t origin_column_count,
                           data_type origin_data_type,
                           const range& block_row_range,
                           const range& block_column_range)
-            : block_row_count_(block_row_range.get_element_count(origin_row_count)),
-              block_column_count_(block_column_range.get_element_count(origin_column_count)),
-              block_start_row_idx_(block_row_range.start_idx),
-              block_start_column_idx_(block_column_range.start_idx),
-              block_size_(block_row_count_ * block_column_count_),
-              origin_dtype_(origin_data_type),
-              origin_row_count_(origin_row_count),
-              origin_column_count_(origin_column_count) {}
+            : block_(block_row_range.get_element_count(origin_row_count),
+                     block_column_range.get_element_count(origin_column_count),
+                     block_row_range.start_idx,
+                     block_column_range.start_idx),
+              origin_(origin_data_type, origin_row_count, origin_column_count) {
+        //TODO: check origin-block sizes
+    }
 
     template <typename Policy, typename BlockData, typename Alloc>
     void pull_by_row_major(const Policy& policy,
-                           const array<byte_t>& origin,
-                           array<BlockData>& block,
+                           const array<byte_t>& origin_data,
+                           array<BlockData>& block_data,
                            const Alloc& kind) const {
+        constexpr int64_t block_data_type_size = sizeof(BlockData);
         const auto block_dtype = detail::make_data_type<BlockData>();
         const int64_t origin_offset =
-            (block_start_row_idx_ * origin_column_count_ + block_start_column_idx_);
-        const bool contiguous_block_requested =
-            block_column_count_ == origin_column_count_ || block_row_count_ == 1;
+            (block_.row_offset * origin_.column_count + block_.column_offset);
+        // operation is safe because block values do not exceed origin values
 
-        if (block_dtype == origin_dtype_ && contiguous_block_requested == true &&
-            has_array_data_kind(policy, origin, kind)) {
-            refer_source_data(origin, origin_offset * sizeof(BlockData), block_size_, block);
+        const bool contiguous_block_requested =
+            block_.column_count == origin_.column_count || block_.row_count == 1;
+
+        if (block_dtype == origin_.data_type && contiguous_block_requested == true &&
+            has_array_data_kind(policy, origin_data, kind)) {
+            detail::check_mul_overflow<int64_t>(origin_offset, block_data_type_size);
+            refer_source_data(origin_data, origin_offset * block_data_type_size, block_.element_count, block_data);
         }
         else {
-            const auto origin_dtype_size = detail::get_data_type_size(origin_dtype_);
+            const auto origin_dtype_size = detail::get_data_type_size(origin_.data_type);
 
-            if (block.get_count() < block_size_ || block.has_mutable_data() == false ||
-                has_array_data_kind(policy, block, kind) == false) {
-                reset_array(policy, block, block_size_, kind);
+            if (block_data.get_count() < block_.element_count ||
+                block_data.has_mutable_data() == false ||
+                has_array_data_kind(policy, block_data, kind) == false) {
+                reset_array(policy, block_data, block_.element_count, kind);
             }
 
-            auto src_data = origin.get_data() + origin_offset * origin_dtype_size;
-            auto dst_data = block.get_mutable_data();
+            detail::check_mul_overflow(origin_.element_count, origin_dtype_size);
 
-            if (block_column_count_ > 1) {
-                const int64_t subblocks_count = contiguous_block_requested ? 1 : block_row_count_;
+            auto src_data = origin_data.get_data() + origin_offset * origin_dtype_size;
+            auto dst_data = block_data.get_mutable_data();
+
+            if (block_.column_count > 1) {
+                const int64_t subblocks_count = contiguous_block_requested ? 1 : block_.row_count;
                 const int64_t subblock_size =
-                    contiguous_block_requested ? block_size_ : block_column_count_;
+                    contiguous_block_requested ? block_.element_count : block_.column_count;
 
                 for (int64_t subblock_idx = 0; subblock_idx < subblocks_count; subblock_idx++) {
                     backend::convert_vector(
                         policy,
-                        src_data + subblock_idx * origin_column_count_ * origin_dtype_size,
-                        dst_data + subblock_idx * block_column_count_,
-                        origin_dtype_,
+                        src_data + subblock_idx * origin_.column_count * origin_dtype_size,
+                        dst_data + subblock_idx * block_.column_count,
+                        origin_.data_type,
                         block_dtype,
                         subblock_size);
                 }
@@ -167,89 +209,99 @@ public:
                 backend::convert_vector(policy,
                                         src_data,
                                         dst_data,
-                                        origin_dtype_,
+                                        origin_.data_type,
                                         block_dtype,
-                                        origin_dtype_size * origin_column_count_,
-                                        sizeof(BlockData),
-                                        block_size_);
+                                        origin_dtype_size * origin_.column_count,
+                                        block_data_type_size,
+                                        block_.element_count);
             }
         }
     }
 
     template <typename Policy, typename BlockData, typename Alloc>
     void pull_by_column_major(const Policy& policy,
-                              const array<byte_t>& origin,
-                              array<BlockData>& block,
+                              const array<byte_t>& origin_data,
+                              array<BlockData>& block_data,
                               const Alloc& kind) const {
+        constexpr int64_t block_data_type_size = sizeof(BlockData);
         const auto block_dtype = detail::make_data_type<BlockData>();
         const int64_t origin_offset =
-            block_start_row_idx_ + block_start_column_idx_ * origin_row_count_;
-        const auto origin_dtype_size = detail::get_data_type_size(origin_dtype_);
+            block_.row_offset + block_.column_offset * origin_.row_count;
+            // operation is safe because block values do not exceed origin values
 
-        if (block.get_count() < block_size_ || block.has_mutable_data() == false ||
-            has_array_data_kind(policy, block, kind) == false) {
-            reset_array(policy, block, block_size_, kind);
+        const int64_t origin_dtype_size = detail::get_data_type_size(origin_.data_type);
+
+        if (block_data.get_count() < block_.element_count ||
+            block_data.has_mutable_data() == false ||
+            has_array_data_kind(policy, block_data, kind) == false) {
+            reset_array(policy, block_data, block_.element_count, kind);
         }
 
-        auto src_data = origin.get_data() + origin_offset * origin_dtype_size;
-        auto dst_data = block.get_mutable_data();
+        detail::check_mul_overflow(origin_.element_count, origin_dtype_size);
+        auto src_data = origin_data.get_data() + origin_offset * origin_dtype_size;
+        auto dst_data = block_data.get_mutable_data();
 
-        for (int64_t row_idx = 0; row_idx < block_row_count_; row_idx++) {
+        for (int64_t row_idx = 0; row_idx < block_.row_count; row_idx++) {
             backend::convert_vector(policy,
                                     src_data + row_idx * origin_dtype_size,
-                                    dst_data + row_idx * block_column_count_,
-                                    origin_dtype_,
+                                    dst_data + row_idx * block_.column_count,
+                                    origin_.data_type,
                                     block_dtype,
-                                    origin_dtype_size * origin_row_count_,
-                                    sizeof(BlockData),
-                                    block_column_count_);
+                                    origin_dtype_size * origin_.row_count,
+                                    block_data_type_size,
+                                    block_.column_count);
         }
     }
 
     template <typename Policy, typename BlockData>
     void push_by_row_major(const Policy& policy,
-                           array<byte_t>& origin,
-                           const array<BlockData>& block) const {
-        make_mutable_data(policy, origin);
+                           array<byte_t>& origin_data,
+                           const array<BlockData>& block_data) const {
+        constexpr int64_t block_data_type_size = sizeof(BlockData);
+        make_mutable_data(policy, origin_data);
 
         const auto block_dtype = detail::make_data_type<BlockData>();
         const int64_t origin_offset =
-            block_start_row_idx_ * origin_column_count_ + block_start_column_idx_;
-        const bool contiguous_block_requested =
-            block_column_count_ == origin_column_count_ || block_row_count_ == 1;
+            block_.row_offset * origin_.column_count + block_.column_offset;
+        // operation is safe because block values do not exceed origin values
 
-        if (origin_dtype_ == block_dtype && contiguous_block_requested == true) {
-            auto row_data = reinterpret_cast<BlockData*>(origin.get_mutable_data());
+        const bool contiguous_block_requested =
+            block_.column_count == origin_.column_count || block_.row_count == 1;
+
+        if (origin_.data_type == block_dtype && contiguous_block_requested == true) {
+            auto row_data = reinterpret_cast<BlockData*>(origin_data.get_mutable_data());
             auto row_start_pointer = row_data + origin_offset;
 
-            if (row_start_pointer == block.get_data()) {
+            if (row_start_pointer == block_data.get_data()) {
                 return;
             }
             else {
+                detail::check_mul_overflow(block_.element_count, block_data_type_size);
                 detail::memcpy(policy,
                                row_start_pointer,
-                               block.get_data(),
-                               block_size_ * sizeof(BlockData));
+                               block_data.get_data(),
+                               block_.element_count * block_data_type_size);
             }
         }
         else {
-            const auto origin_dtype_size = detail::get_data_type_size(origin_dtype_);
+            const auto origin_dtype_size = detail::get_data_type_size(origin_.data_type);
+            detail::check_mul_overflow(origin_.element_count, origin_dtype_size);
 
-            auto src_data = block.get_data();
-            auto dst_data = origin.get_mutable_data() + origin_offset * origin_dtype_size;
+            auto src_data = block_data.get_data();
+            auto dst_data = origin_data.get_mutable_data() + origin_offset * origin_dtype_size;
 
-            if (block_column_count_ > 1) {
-                const int64_t blocks_count = contiguous_block_requested ? 1 : block_row_count_;
+            if (block_.column_count > 1) {
+                const int64_t blocks_count = contiguous_block_requested ? 1 : block_.row_count;
                 const int64_t block_size =
-                    contiguous_block_requested ? block_size_ : block_column_count_;
+                    contiguous_block_requested ? block_.element_count : block_.column_count;
 
                 for (int64_t block_idx = 0; block_idx < blocks_count; block_idx++) {
                     backend::convert_vector(
                         policy,
-                        src_data + block_idx * block_column_count_,
-                        dst_data + block_idx * origin_column_count_ * origin_dtype_size,
+                        src_data + block_idx * block_.column_count,
+                        dst_data + block_idx * origin_.column_count * origin_dtype_size,
                         block_dtype,
-                        origin_dtype_,
+                        origin_.data_type,
                         block_size);
                 }
             }
@@ -258,48 +310,47 @@ public:
                                         src_data,
                                         dst_data,
                                         block_dtype,
-                                        origin_dtype_,
-                                        sizeof(BlockData),
-                                        origin_dtype_size * origin_column_count_,
-                                        block_size_);
+                                        origin_.data_type,
+                                        block_data_type_size,
+                                        origin_dtype_size * origin_.column_count,
+                                        block_.element_count);
             }
         }
     }
 
     template <typename Policy, typename BlockData>
     void push_by_column_major(const Policy& policy,
-                              array<byte_t>& origin,
-                              const array<BlockData>& block) const {
-        make_mutable_data(policy, origin);
+                              array<byte_t>& origin_data,
+                              const array<BlockData>& block_data) const {
+        constexpr int64_t block_data_type_size = sizeof(BlockData);
+
+        make_mutable_data(policy, origin_data);
         const auto block_dtype = detail::make_data_type<BlockData>();
-        const auto origin_dtype_size = detail::get_data_type_size(origin_dtype_);
+        const auto origin_dtype_size = detail::get_data_type_size(origin_.data_type);
         const int64_t origin_offset =
-            block_start_row_idx_ + block_start_column_idx_ * origin_row_count_;
+            block_.row_offset + block_.column_offset * origin_.row_count;
+        // operation is safe because block values do not exceed origin values
 
-        auto src_data = block.get_data();
-        auto dst_data = origin.get_mutable_data() + origin_offset * origin_dtype_size;
+        auto src_data = block_data.get_data();
 
-        for (int64_t row_idx = 0; row_idx < block_row_count_; row_idx++) {
+        detail::check_mul_overflow(origin_.element_count, origin_dtype_size);
+        auto dst_data = origin_data.get_mutable_data() + origin_offset * origin_dtype_size;
+
+        for (int64_t row_idx = 0; row_idx < block_.row_count; row_idx++) {
             backend::convert_vector(policy,
-                                    src_data + row_idx * block_column_count_,
+                                    src_data + row_idx * block_.column_count,
                                     dst_data + row_idx * origin_dtype_size,
                                     block_dtype,
-                                    origin_dtype_,
-                                    sizeof(BlockData),
-                                    origin_dtype_size * origin_row_count_,
-                                    block_column_count_);
+                                    origin_.data_type,
+                                    block_data_type_size,
+                                    origin_dtype_size * origin_.row_count,
+                                    block_.column_count);
         }
     }
 
 private:
-    const int64_t block_row_count_;
-    const int64_t block_column_count_;
-    const int64_t block_start_row_idx_;
-    const int64_t block_start_column_idx_;
-    const int64_t block_size_;
-    const data_type origin_dtype_;
-    const int64_t origin_row_count_;
-    const int64_t origin_column_count_;
+    block_info block_;
+    origin_info origin_;
 };
 
 template <typename Policy, typename Data, typename Alloc>
