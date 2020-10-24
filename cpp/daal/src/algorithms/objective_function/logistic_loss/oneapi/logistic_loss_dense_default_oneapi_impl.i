@@ -263,7 +263,7 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::hessianInte
         range.global(globalRange, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        UniversalBuffer buffer                                      = ctx.allocate(idType, nWorkGroups, status);
+        UniversalBuffer buffer = ctx.allocate(idType, nWorkGroups, status);
         DAAL_CHECK_STATUS_VAR(status);
         services::internal::Buffer<algorithmFPType> reductionBuffer = buffer.get<algorithmFPType>();
 
@@ -348,7 +348,7 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::doCompute(
 
     ExecutionContextIface & ctx = services::internal::getDefaultContext();
 
-    const uint32_t nBeta   = nFeatures + 1;
+    const uint32_t nBeta = nFeatures + 1;
     DAAL_ASSERT(nBeta > nFeatures);
     const uint32_t ldX     = isSourceData ? nFeatures : nBeta;
     const uint32_t offsetX = isSourceData ? 1 : 0;
@@ -388,7 +388,7 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::doCompute(
         DAAL_CHECK_STATUS(status, valueNT->getBlockOfRows(0, 1, ReadWriteMode::readWrite, vr));
         algorithmFPType & value = *vr.getBlockPtr();
 
-        UniversalBuffer logLosUniversal                         = ctx.allocate(idType, n, status);
+        UniversalBuffer logLosUniversal = ctx.allocate(idType, n, status);
         DAAL_CHECK_STATUS_VAR(status);
         services::internal::Buffer<algorithmFPType> logLossBuff = logLosUniversal.get<algorithmFPType>();
 

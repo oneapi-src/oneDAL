@@ -247,7 +247,7 @@ struct HelperObjectiveFunction
         range.global(globalRange, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        services::internal::sycl::UniversalBuffer buffer            = ctx.allocate(idType, nWorkGroups, status);
+        services::internal::sycl::UniversalBuffer buffer = ctx.allocate(idType, nWorkGroups, status);
         DAAL_CHECK_STATUS_VAR(status);
         services::internal::Buffer<algorithmFPType> reductionBuffer = buffer.get<algorithmFPType>();
 
@@ -301,7 +301,7 @@ struct HelperObjectiveFunction
         range.global(globalRange, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        services::internal::sycl::UniversalBuffer buffer            = ctx.allocate(idType, nWorkGroups, status);
+        services::internal::sycl::UniversalBuffer buffer = ctx.allocate(idType, nWorkGroups, status);
         DAAL_CHECK_STATUS_VAR(status);
         services::internal::Buffer<algorithmFPType> reductionBuffer = buffer.get<algorithmFPType>();
 
@@ -388,7 +388,7 @@ struct HelperObjectiveFunction
 
     static services::Status getXY(const services::internal::Buffer<algorithmFPType> & xBuff,
                                   const services::internal::Buffer<algorithmFPType> & yBuff, const services::internal::Buffer<int> & indBuff,
-                                  services::internal::Buffer<algorithmFPType>& aX, services::internal::Buffer<algorithmFPType>& aY, uint32_t nBatch,
+                                  services::internal::Buffer<algorithmFPType> & aX, services::internal::Buffer<algorithmFPType> & aY, uint32_t nBatch,
                                   uint32_t p, bool interceptFlag)
     {
         services::Status status;
@@ -408,7 +408,7 @@ struct HelperObjectiveFunction
         services::internal::sycl::KernelArguments args(7, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, nBatch, (p+1));
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, nBatch, (p + 1));
         DAAL_ASSERT(xBuff.size() >= nBatch * p);
         DAAL_ASSERT(aX.size() == nBatch * (p + 1));
         DAAL_ASSERT(indBuff.size() == nBatch);

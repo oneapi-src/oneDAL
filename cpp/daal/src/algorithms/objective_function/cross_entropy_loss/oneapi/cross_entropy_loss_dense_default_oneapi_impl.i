@@ -272,7 +272,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::do
 
     ExecutionContextIface & ctx = services::internal::getDefaultContext();
 
-    const uint32_t nBeta   = nFeatures + 1;
+    const uint32_t nBeta = nFeatures + 1;
     DAAL_ASSERT(nBeta > nFeatures);
 
     const uint32_t ldX     = isSourceData || interceptFlag ? nFeatures : nBeta;
@@ -410,9 +410,8 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::co
     DAAL_ASSERT(dependentVariables != nullptr);
     DAAL_ASSERT(argument != nullptr);
 
-
-    const size_t nRows    = data->getNumberOfRows();
-    const size_t p        = data->getNumberOfColumns();
+    const size_t nRows = data->getNumberOfRows();
+    const size_t p     = data->getNumberOfColumns();
     DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, p, 1);
     const size_t nBeta    = p + 1;
     const size_t nClasses = parameter->nClasses;

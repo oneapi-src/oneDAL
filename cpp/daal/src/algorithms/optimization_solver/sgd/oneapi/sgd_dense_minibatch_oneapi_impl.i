@@ -148,7 +148,7 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::vectorNorm(const B
     range.global(globalRange, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    UniversalBuffer buffer                  = ctx.allocate(idType, nWorkGroups, status);
+    UniversalBuffer buffer = ctx.allocate(idType, nWorkGroups, status);
     DAAL_CHECK_STATUS_VAR(status);
     Buffer<algorithmFPType> reductionBuffer = buffer.get<algorithmFPType>();
 
@@ -275,8 +275,8 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::compute(HostAppIfa
     NumericTablePtr previousBatchIndices            = function->sumOfFunctionsParameter->batchIndices;
     function->sumOfFunctionsParameter->batchIndices = ntBatchIndices;
 
-    const TypeIds::Id idType                  = TypeIds::id<algorithmFPType>();
-    UniversalBuffer prevWorkValueU            = ctx.allocate(idType, argumentSize, status);
+    const TypeIds::Id idType       = TypeIds::id<algorithmFPType>();
+    UniversalBuffer prevWorkValueU = ctx.allocate(idType, argumentSize, status);
     DAAL_CHECK_STATUS_VAR(status);
     Buffer<algorithmFPType> prevWorkValueBuff = prevWorkValueU.get<algorithmFPType>();
 
@@ -287,7 +287,7 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::compute(HostAppIfa
         DAAL_CHECK_BLOCK_STATUS(lastIterationInputBD);
         const int * lastIterationInputArray = lastIterationInputBD.get();
         DAAL_ASSERT(lastIterationInputArray[0] > 0);
-        startIteration                      = lastIterationInputArray[0];
+        startIteration = lastIterationInputArray[0];
     }
 
     if (pastWorkValueInput)
@@ -322,7 +322,7 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::compute(HostAppIfa
     algorithmFPType learningRate = learningRateArray[0];
     algorithmFPType consCoeff    = consCoeffsArray[0];
 
-    UniversalBuffer gradientU            = ctx.allocate(idType, argumentSize, status);
+    UniversalBuffer gradientU = ctx.allocate(idType, argumentSize, status);
     DAAL_CHECK_STATUS_VAR(status);
     Buffer<algorithmFPType> gradientBuff = gradientU.get<algorithmFPType>();
 
