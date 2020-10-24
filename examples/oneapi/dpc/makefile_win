@@ -95,7 +95,7 @@ EXT_LIB = tbb.lib tbbmalloc.lib
 !ENDIF
 
 !ELSE
-DAAL_LIB="$(DAAL_PATH)\onedal_dpc_dll.lib"
+DAAL_LIB="$(DAAL_PATH)\onedal_dpc_dll.1.lib"
 RT_LIB=/link /ignore:4078
 !ENDIF
 

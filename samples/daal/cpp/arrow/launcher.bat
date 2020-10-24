@@ -55,9 +55,9 @@ echo %RESULT_DIR%
 set CFLAGS=-nologo -w -DDAAL_CHECK_PARAMETER -std=c++14 /I %ARROWROOT%\cpp\src /I %ARROWROOT%\cpp\%ARROWCONFIG%\src /I %DAALROOT%\include
 set LFLAGS=-nologo
 set LIB_DAAL=onedal_core.lib onedal_thread.lib
-set LIB_DAAL_DLL=onedal_core_dll.lib
+set LIB_DAAL_DLL=onedal_core_dll.1.lib
 set LFLAGS_DAAL=%LIB_DAAL% tbb.lib tbbmalloc.lib
-set LFLAGS_DAAL_DLL=onedal_core_dll.lib
+set LFLAGS_DAAL_DLL=onedal_core_dll.1.lib
 set ARROW_LOGFILE=.\%RESULT_DIR%\build_arrow.log
 set LIB_DOUBLE_CONV=%ARROWROOT%\cpp\%ARROWCONFIG%\double-conversion_ep\src\double-conversion_ep\lib\double-conversion.lib
 set ARROW_LIBRARIES=%ARROWROOT%\cpp\%ARROWCONFIG%\%ARROWCONFIG%\Release\arrow.lib
