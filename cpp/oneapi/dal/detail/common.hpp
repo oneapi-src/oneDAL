@@ -149,27 +149,21 @@ constexpr bool is_floating_point() {
 }
 
 template <typename Data>
+struct integer_overflow_ops {
+    void check_mul_overflow(const Data& first, const Data& second);
+    void check_sum_overflow(const Data& first, const Data& second);
+};
+
+template <typename Data>
 inline void check_sum_overflow(const Data& first, const Data& second) {
     static_assert(std::is_integral_v<Data>, "The check requires integral operands");
-
-    volatile Data tmp = first + second;
-    tmp -= first;
-    if (tmp != second) {
-        throw range_error("overflow found in sum of two values");
-    }
+    integer_overflow_ops<Data>{}.check_sum_overflow(first, second);
 }
 
 template <typename Data>
 inline void check_mul_overflow(const Data& first, const Data& second) {
     static_assert(std::is_integral_v<Data>, "The check requires integral operands");
-
-    if (first != 0 && second != 0) {
-        volatile Data tmp = first * second;
-        tmp /= first;
-        if (tmp != second) {
-            throw range_error("overflow found in multiplication of two values");
-        }
-    }
+    integer_overflow_ops<Data>{}.check_mul_overflow(first, second);
 }
 
 } // namespace oneapi::dal::detail
