@@ -157,7 +157,7 @@ protected:
             ReadColumns<algorithmFPType, cpu> xBlock(const_cast<NumericTable *>(x), i, xOffset, nRows);
             DAAL_CHECK_BLOCK_STATUS(xBlock);
             const algorithmFPType * const xData = xBlock.get();
-            const algorithmFPType value   = b[i];
+            const algorithmFPType value         = b[i];
 
             Blas<algorithmFPType, cpu>::xxaxpy(&size, &value, xData, &incX, res, &incY);
         }
