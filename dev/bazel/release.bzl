@@ -83,7 +83,7 @@ def _copy_lib(ctx, prefix):
     return dst_files
 
 def _copy_to_release_impl(ctx):
-    extra_toolchain = ctx.toolchains["@onedal//dev/bazel/toolchains:extra"]
+    extra_toolchain = ctx.toolchains["@onedal//dev/bazel/toolchains/extra"]
     prefix = ctx.attr.name + "/daal/latest"
     files = []
     files += _copy_include(ctx, prefix)
@@ -99,7 +99,7 @@ _release = rule(
         "lib": attr.label_list(allow_files=True),
     },
     toolchains = [
-        "@onedal//dev/bazel/toolchains:extra"
+        "@onedal//dev/bazel/toolchains/extra"
     ],
 )
 

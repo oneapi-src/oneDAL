@@ -14,8 +14,8 @@
 # limitations under the License.
 #===============================================================================
 
-load("@onedal//dev/bazel/toolchains:common.bzl", "detect_os", "detect_compiler")
-load("@onedal//dev/bazel/toolchains:extra_toolchain_lnx.bzl",
+load("@onedal//dev/bazel/toolchains/cc:common.bzl", "detect_os", "detect_compiler")
+load("@onedal//dev/bazel/toolchains/extra:toolchain_lnx.bzl",
     "configure_extra_toolchain_lnx")
 
 ExtraToolchainInfo = provider(

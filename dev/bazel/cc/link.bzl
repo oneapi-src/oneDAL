@@ -19,7 +19,7 @@ load("@onedal//dev/bazel:utils.bzl",
     "paths",
     "sets",
 )
-load("@onedal//dev/bazel/toolchains:action_names.bzl",
+load("@onedal//dev/bazel/toolchains/cc:action_names.bzl",
     "CPP_MERGE_STATIC_LIBRARIES"
 )
 load("@onedal//dev/bazel/cc:common.bzl",

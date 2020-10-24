@@ -1,6 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
-load("@onedal//dev/bazel/toolchains:extra_toolchain.bzl", "extra_toolchain")
+load("@onedal//dev/bazel/toolchains/extra:toolchain.bzl", "extra_toolchain")
 
 extra_toolchain(
     name = "extra_tools",
@@ -18,5 +18,5 @@ toolchain(
         "@platforms//os:linux",
     ],
     toolchain = ":extra_tools",
-    toolchain_type = "@onedal//dev/bazel/toolchains:extra",
+    toolchain_type = "@onedal//dev/bazel/toolchains/extra",
 )

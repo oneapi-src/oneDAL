@@ -19,6 +19,9 @@ load("@onedal//dev/bazel:cc.bzl",
     "cc_static_lib",
     "cc_dynamic_lib",
 )
+load("@onedal//dev/bazel:java.bzl",
+    "java_jni_headers",
+)
 load("@onedal//dev/bazel:utils.bzl",
     "sets",
     "paths",
@@ -114,8 +117,17 @@ daal_generate_version = rule(
     },
 )
 
+def daal_jni_headers(name, srcs):
+    java_jni_headers(
+        name = name,
+        srcs = srcs,
+    )
+
+def daal_jar(*args):
+    pass
+
 def _get_tool_for_kernel_defines_patching(ctx):
-    return ctx.toolchains["@onedal//dev/bazel/toolchains:extra"] \
+    return ctx.toolchains["@onedal//dev/bazel/toolchains/extra"] \
         .extra_toolchain_info.patch_daal_kernel_defines
 
 def _get_disabled_cpus(ctx):
@@ -153,5 +165,5 @@ daal_patch_kernel_defines = rule(
             default = "@config//:cpu",
         ),
     },
-    toolchains = ["@onedal//dev/bazel/toolchains:extra"],
+    toolchains = ["@onedal//dev/bazel/toolchains/extra"],
 )

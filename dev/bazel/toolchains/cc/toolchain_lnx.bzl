@@ -24,7 +24,7 @@ load("@onedal//dev/bazel:utils.bzl",
     "utils",
     "paths",
 )
-load("@onedal//dev/bazel/toolchains:common.bzl",
+load("@onedal//dev/bazel/toolchains/cc:common.bzl",
     "TEST_CPP_FILE",
     "get_starlark_list_dict",
     "get_cxx_inc_directories",
@@ -170,7 +170,7 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
 
     repo_ctx.template(
         "BUILD",
-        Label("@onedal//dev/bazel/toolchains:cc_toolchain_lnx.tpl.BUILD"),
+        Label("@onedal//dev/bazel/toolchains/cc:toolchain_lnx.tpl.BUILD"),
         {
             # Various IDs
             "%{cc_toolchain_identifier}": get_toolchain_identifier(reqs),

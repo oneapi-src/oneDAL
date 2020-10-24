@@ -14,8 +14,8 @@
 # limitations under the License.
 #===============================================================================
 
-load("@onedal//dev/bazel/toolchains:common.bzl", "detect_os", "detect_compiler")
-load("@onedal//dev/bazel/toolchains:cc_toolchain_lnx.bzl", "configure_cc_toolchain_lnx")
+load("@onedal//dev/bazel/toolchains/cc:common.bzl", "detect_os", "detect_compiler")
+load("@onedal//dev/bazel/toolchains/cc:toolchain_lnx.bzl", "configure_cc_toolchain_lnx")
 
 def _detect_requirements(repo_ctx):
     os_id = detect_os(repo_ctx)
