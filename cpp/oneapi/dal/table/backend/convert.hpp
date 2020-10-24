@@ -57,7 +57,7 @@ void convert_vector(const detail::data_parallel_policy& policy,
 
 #endif
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 
 void convert_vector(const detail::data_parallel_policy& policy,
                     const void* src,
