@@ -115,13 +115,14 @@ inputs that are used for post-pruning:
 .. list-table::
    :header-rows: 1
    :align: left
+   :widths: 10 60
 
    * - Input ID
      - Input
-   * - dataForPruning
+   * - ``dataForPruning``
      - Pointer to the :math:`m \times p` numeric table with the pruning data set. This table
        can be an object of any class derived from NumericTable.
-   * - labelsForPruning
+   * - ``labelsForPruning``
      - Pointer to the :math:`m \times 1` numeric table with class labels. This table can be
        an object of any class derived from NumericTable except
        PackedSymmetricMatrix and PackedTriangularMatrix.
@@ -130,42 +131,42 @@ inputs that are used for post-pruning:
 At the training stage, decision tree classifier has the following parameters:
 
 .. list-table::
-   :widths: 25 25 25
+   :widths: 10 10 60
    :header-rows: 1
    :align: left
 
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
      - The computation method used by the decision tree classification. The
        only training method supported so far is the default dense method.
-   * - nClasses
+   * - ``nClasses``
      - Not applicable
      - The number of classes. A required parameter.
-   * - splitCriterion
-     - infoGain
+   * - ``splitCriterion``
+     - ``infoGain``
      - Split criterion to choose the best test for split nodes. Available split criteria for decision trees:
 
-       + gini - the Gini index
-       + infoGain - the information gain
+       + ``gini`` - the Gini index
+       + ``infoGain`` - the information gain
 
-   * - pruning
-     - reducedErrorPruning
+   * - ``pruning``
+     - ``reducedErrorPruning``
      - Method to perform post-pruning. Available options for the pruning parameter:
 
-       + reducedErrorPruning - reduced error pruning. Provide dataForPruning and labelsForPruning inputs, if you use pruning.
-       + none - do not prune.
+       + ``reducedErrorPruning`` - reduced error pruning. Provide dataForPruning and labelsForPruning inputs, if you use pruning.
+       + ``none`` - do not prune.
 
-   * - maxTreeDepth
-     - 0
+   * - ``maxTreeDepth``
+     - :math:`0`
      - Maximum tree depth. Zero value means unlimited depth. Can be any non-negative number.
-   * - minObservationsInLeafNodes
-     - 1
+   * - ``minObservationsInLeafNodes``
+     - :math:`1`
      - Minimum number of observations in the leaf node. Can be any positive number.
 
 
@@ -176,18 +177,18 @@ At the prediction stage, decision tree classifier has the following
 parameters:
 
 .. list-table::
-   :widths: 25 25 25
+   :widths: 10 10 60
    :header-rows: 1
    :align: left
 
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
      - The computation method used by the decision tree classification. The
        only training method supported so far is the default dense method.
 

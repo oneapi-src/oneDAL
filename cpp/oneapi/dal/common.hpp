@@ -20,13 +20,34 @@
 #include <utility>
 
 #if defined(_WIN32) || defined(_WIN64)
-#ifdef __ONEAPI_DAL_ENABLE_DLL_EXPORT__
-#define ONEAPI_DAL_EXPORT __declspec(dllexport)
+#ifdef __ONEDAL_ENABLE_DLL_EXPORT__
+#define ONEDAL_EXPORT __declspec(dllexport)
 #else
-#define ONEAPI_DAL_EXPORT
+#define ONEDAL_EXPORT
 #endif
 #else
-#define ONEAPI_DAL_EXPORT
+#define ONEDAL_EXPORT
+#endif
+
+#ifndef ONEDAL_ENABLE_ASSERT
+#define ONEDAL_ASSERT(...)
+#else
+#include <cassert>
+#include <iostream>
+#define __ONEDAL_ASSERT_NO_MESSAGE__(condition) assert(condition);
+
+#define __ONEDAL_ASSERT_MESSAGE__(condition, message) \
+    if (!(condition)) {                               \
+        std::cerr << message << std::endl;            \
+        std::cerr.flush();                            \
+        assert(condition);                            \
+    }
+
+#define __ONEDAL_ASSERT_GET__(_1, _2, F, ...) F
+
+#define ONEDAL_ASSERT(...)                                                                         \
+    __ONEDAL_ASSERT_GET__(__VA_ARGS__, __ONEDAL_ASSERT_MESSAGE__, __ONEDAL_ASSERT_NO_MESSAGE__, 0) \
+    (__VA_ARGS__)
 #endif
 
 namespace oneapi::dal {

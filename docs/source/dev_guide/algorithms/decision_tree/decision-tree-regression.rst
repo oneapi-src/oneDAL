@@ -86,42 +86,42 @@ At the training stage, decision tree regression has the following
 parameters:
 
 .. list-table::
-   :widths: 25 25 25
+   :widths: 10 20 30
    :header-rows: 1
    :align: left
 
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
      - The computation method used by the decision tree regression. The only
        training method supported so far is the default dense method.
-   * - pruning
-     - reducedErrorPruning
+   * - ``pruning``
+     - ``reducedErrorPruning``
      - Method to perform post-pruning. Available options for the pruning parameter:
 
-       + reducedErrorPruning - reduced error pruning. Provide dataForPruning and dependentVariablesForPruning inputs, if you use pruning.
-       + none - do not prune.
+       + ``reducedErrorPruning`` - reduced error pruning. Provide dataForPruning and dependentVariablesForPruning inputs, if you use pruning.
+       + ``none`` - do not prune.
 
-   * - maxTreeDepth
-     - 0
+   * - ``maxTreeDepth``
+     - :math:`0`
      - Maximum tree depth. Zero value means unlimited depth. Can be any non-negative number.
-   * - minObservationsInLeafNodes
-     - 5
+   * - ``minObservationsInLeafNodes``
+     - :math:`5`
      - Minimum number of observations in the leaf node. Can be any positive number.
-   * - pruningFraction
-     - 0.2
+   * - ``pruningFraction``
+     - :math:`0.2`
      - Fraction of observations from training dataset to be used as
        observations for post-pruning via random sampling. The rest observations
        (with fraction :math:`1 - pruningFraction` to be used to build a decision tree).
        Can be any number in the interval (0, 1). If pruning is not used, all
        observations are used to build the decision tree regardless of this parameter value.
-   * - engine
-     - SharedPtr<engines::mt19937::Batch<> >()
+   * - ``engine``
+     - `SharedPtr<engines::mt19937::Batch<> >()`
      - Pointer to the random number engine to be used for random sampling for reduced error post-pruning.
 
 Prediction
@@ -131,18 +131,18 @@ At the prediction stage, decision tree regression has the following
 parameters:
 
 .. list-table::
-   :widths: 25 25 25
+   :widths: 10 10 60
    :header-rows: 1
    :align: left
 
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
      - The computation method used by the decision tree regression. The only
        training method supported so far is the default dense method.
 

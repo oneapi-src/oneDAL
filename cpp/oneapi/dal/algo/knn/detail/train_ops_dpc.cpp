@@ -22,24 +22,24 @@
 namespace oneapi::dal::knn::detail {
 using oneapi::dal::detail::data_parallel_policy;
 
-template <typename Float, typename Method>
-struct ONEAPI_DAL_EXPORT train_ops_dispatcher<data_parallel_policy, Float, Method> {
-    train_result operator()(const data_parallel_policy& ctx,
-                            const descriptor_base& params,
-                            const train_input& input) const {
+template <typename Float, typename Method, typename Task>
+struct train_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
+    train_result<Task> operator()(const data_parallel_policy& ctx,
+                                  const descriptor_base<Task>& params,
+                                  const train_input<Task>& input) const {
         using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Method>,
-                                            backend::train_kernel_gpu<Float, Method>>;
+            dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Method, Task>,
+                                            backend::train_kernel_gpu<Float, Method, Task>>;
         return kernel_dispatcher_t{}(ctx, params, input);
     }
 };
 
-#define INSTANTIATE(F, M) \
-    template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<data_parallel_policy, F, M>;
+#define INSTANTIATE(F, M, T) \
+    template struct ONEDAL_EXPORT train_ops_dispatcher<data_parallel_policy, F, M, T>;
 
-INSTANTIATE(float, method::kd_tree)
-INSTANTIATE(double, method::kd_tree)
-INSTANTIATE(float, method::brute_force)
-INSTANTIATE(double, method::brute_force)
+INSTANTIATE(float, method::kd_tree, task::classification)
+INSTANTIATE(double, method::kd_tree, task::classification)
+INSTANTIATE(float, method::brute_force, task::classification)
+INSTANTIATE(double, method::brute_force, task::classification)
 
 } // namespace oneapi::dal::knn::detail

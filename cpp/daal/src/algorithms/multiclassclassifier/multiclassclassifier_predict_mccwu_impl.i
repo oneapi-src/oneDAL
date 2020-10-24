@@ -55,8 +55,8 @@ namespace internal
 {
 template <typename algorithmFPType, typename ClsType, typename MultiClsParam, CpuType cpu>
 services::Status MultiClassClassifierPredictKernel<multiClassClassifierWu, training::oneAgainstOne, algorithmFPType, ClsType, MultiClsParam,
-                                                   cpu>::compute(const NumericTable * a, const daal::algorithms::Model * m, NumericTable * r,
-                                                                 const daal::algorithms::Parameter * par)
+                                                   cpu>::compute(const NumericTable * a, const daal::algorithms::Model * m, NumericTable * pred,
+                                                                 NumericTable * df, const daal::algorithms::Parameter * par)
 {
     Model * model          = static_cast<Model *>(const_cast<daal::algorithms::Model *>(m));
     MultiClsParam * mccPar = static_cast<MultiClsParam *>(const_cast<daal::algorithms::Parameter *>(par));
@@ -89,8 +89,8 @@ services::Status MultiClassClassifierPredictKernel<multiClassClassifierWu, train
     typedef SubTask<algorithmFPType, ClsType, cpu> TSubTask;
     daal::ls<TSubTask *> lsTask([=]() {
         if (a->getDataLayout() == NumericTableIface::csrArray)
-            return (TSubTask *)SubTaskCSR<algorithmFPType, ClsType, cpu>::create(nClasses, nRowsInBlock, a, r, mccPar->prediction);
-        return (TSubTask *)SubTaskDense<algorithmFPType, ClsType, cpu>::create(nClasses, nRowsInBlock, a, r, mccPar->prediction);
+            return (TSubTask *)SubTaskCSR<algorithmFPType, ClsType, cpu>::create(nClasses, nRowsInBlock, a, df, mccPar->prediction);
+        return (TSubTask *)SubTaskDense<algorithmFPType, ClsType, cpu>::create(nClasses, nRowsInBlock, a, df, mccPar->prediction);
     });
 
     daal::SafeStatus safeStat;
@@ -107,7 +107,7 @@ services::Status MultiClassClassifierPredictKernel<multiClassClassifierWu, train
         }
         DAAL_LS_RELEASE(TSubTask, lsTask, local); //releases local storage when leaving this scope
 
-        safeStat |= local->getBlockOfRowsOfResults(r, nFeatures, startRow, nRows, nClasses, nonEmptyClassMap, model, nIter, eps);
+        safeStat |= local->getBlockOfRowsOfResults(pred, nFeatures, startRow, nRows, nClasses, nonEmptyClassMap, model, nIter, eps);
     });
 
     lsTask.reduce([=](SubTask<algorithmFPType, ClsType, cpu> * local) { delete local; });
@@ -199,7 +199,7 @@ inline void updateProbabilities(size_t nClasses, const algorithmFPType * Q, algo
 }
 
 template <typename algorithmFPType, typename ClsType, CpuType cpu>
-services::Status SubTask<algorithmFPType, ClsType, cpu>::getBlockOfRowsOfResults(NumericTable * r, size_t nFeatures, size_t startRow, size_t nRows,
+services::Status SubTask<algorithmFPType, ClsType, cpu>::getBlockOfRowsOfResults(NumericTable * pred, size_t nFeatures, size_t startRow, size_t nRows,
                                                                                  size_t nClasses, const size_t * nonEmptyClassMap, Model * model,
                                                                                  size_t nIter, double eps)
 {
@@ -242,20 +242,23 @@ services::Status SubTask<algorithmFPType, ClsType, cpu>::getBlockOfRowsOfResults
             updateProbabilities<algorithmFPType, cpu>(nClasses, Q, Qp, p);
         }
 
-        /* Calculate resulting classes labels */
-        _mtR.set(r, 0, startRow + k, 1);
-        DAAL_CHECK_BLOCK_STATUS(_mtR);
-        int & label             = *_mtR.get();
-        algorithmFPType maxProb = p[0];
-        DAAL_CHECK(nonEmptyClassMap[0] <= services::internal::MaxVal<int>::get(), services::ErrorIncorrectNumberOfClasses)
-        label = (int)nonEmptyClassMap[0];
-        for (size_t j = 1; j < nClasses; j++)
+        if (pred)
         {
-            if (p[j] > maxProb)
+            /* Calculate resulting classes labels */
+            _mtR.set(pred, 0, startRow + k, 1);
+            DAAL_CHECK_BLOCK_STATUS(_mtR);
+            int & label             = *_mtR.get();
+            algorithmFPType maxProb = p[0];
+            DAAL_CHECK(nonEmptyClassMap[0] <= services::internal::MaxVal<int>::get(), services::ErrorIncorrectNumberOfClasses)
+            label = (int)nonEmptyClassMap[0];
+            for (size_t j = 1; j < nClasses; j++)
             {
-                maxProb = p[j];
-                DAAL_ASSERT(nonEmptyClassMap[j] <= services::internal::MaxVal<int>::get())
-                label = (int)nonEmptyClassMap[j];
+                if (p[j] > maxProb)
+                {
+                    maxProb = p[j];
+                    DAAL_ASSERT(nonEmptyClassMap[j] <= services::internal::MaxVal<int>::get())
+                    label = (int)nonEmptyClassMap[j];
+                }
             }
         }
     }

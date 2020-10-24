@@ -31,8 +31,8 @@
 #include "src/externals/service_memory.h"
 #include "src/services/service_data_utils.h"
 
-#include "sycl/internal/execution_context.h"
-#include "sycl/internal/types.h"
+#include "services/internal/sycl/execution_context.h"
+#include "services/internal/sycl/types.h"
 
 namespace daal
 {
@@ -50,71 +50,77 @@ template <typename algorithmFPType>
 class TreeLevelBuildHelperOneAPI
 {
 public:
-    TreeLevelBuildHelperOneAPI() {}
+    TreeLevelBuildHelperOneAPI() : _nNodeProps(0) {}
     ~TreeLevelBuildHelperOneAPI() {}
 
-    services::Status init(const char * buildOptions);
+    services::Status init(const char * buildOptions, size_t nNodeProps);
 
-    services::Status initializeTreeOrder(size_t nRows, oneapi::internal::UniversalBuffer & treeOrder);
+    services::Status initializeTreeOrder(size_t nRows, services::internal::sycl::UniversalBuffer & treeOrder);
 
-    services::Status convertSplitToLeaf(oneapi::internal::UniversalBuffer & nodeList, size_t nNodes);
+    services::Status convertSplitToLeaf(services::internal::sycl::UniversalBuffer & nodeList, size_t nNodes);
 
-    services::Status markPresentRows(const oneapi::internal::UniversalBuffer & rowsList, oneapi::internal::UniversalBuffer & rowsBuffer, size_t nRows,
-                                     size_t localSize, size_t nSubgroupSums);
-    services::Status countAbsentRowsForBlocks(const oneapi::internal::UniversalBuffer & rowsBuffer, size_t nRows,
-                                              oneapi::internal::UniversalBuffer & partialSums, size_t localSize, size_t nSubgroupSums);
-    services::Status countAbsentRowsTotal(const oneapi::internal::UniversalBuffer & partialSums,
-                                          oneapi::internal::UniversalBuffer & partialPrefixSums, oneapi::internal::UniversalBuffer & totalSum,
-                                          size_t localSize, size_t nSubgroupSums);
-    services::Status fillOOBRowsListByBlocks(const oneapi::internal::UniversalBuffer & rowsBuffer, size_t nRows,
-                                             const oneapi::internal::UniversalBuffer & partialPrefixSums,
-                                             oneapi::internal::UniversalBuffer & oobRowsList, size_t localSize, size_t nSubgroupSums);
+    services::Status markPresentRows(const services::internal::sycl::UniversalBuffer & rowsList,
+                                     services::internal::sycl::UniversalBuffer & rowsBuffer, size_t nRows, size_t localSize, size_t nSubgroupSums);
+    services::Status countAbsentRowsForBlocks(const services::internal::sycl::UniversalBuffer & rowsBuffer, size_t nRows,
+                                              services::internal::sycl::UniversalBuffer & partialSums, size_t localSize, size_t nSubgroupSums);
+    services::Status countAbsentRowsTotal(const services::internal::sycl::UniversalBuffer & partialSums,
+                                          services::internal::sycl::UniversalBuffer & partialPrefixSums,
+                                          services::internal::sycl::UniversalBuffer & totalSum, size_t localSize, size_t nSubgroupSums);
+    services::Status fillOOBRowsListByBlocks(const services::internal::sycl::UniversalBuffer & rowsBuffer, size_t nRows,
+                                             const services::internal::sycl::UniversalBuffer & partialPrefixSums,
+                                             services::internal::sycl::UniversalBuffer & oobRowsList, size_t localSize, size_t nSubgroupSums,
+                                             size_t nOOBRows);
 
-    services::Status getOOBRows(const oneapi::internal::UniversalBuffer & rowsList, size_t nRows, size_t & nOOBRows,
-                                oneapi::internal::UniversalBuffer & oobRowsList);
+    services::Status getOOBRows(const services::internal::sycl::UniversalBuffer & rowsList, size_t nRows, size_t & nOOBRows,
+                                services::internal::sycl::UniversalBuffer & oobRowsList);
 
-    services::Status getNumOfSplitNodes(const oneapi::internal::UniversalBuffer & nodeList, size_t nNodes, size_t & nSplitNodes);
+    services::Status getNumOfSplitNodes(const services::internal::sycl::UniversalBuffer & nodeList, size_t nNodes, size_t & nSplitNodes);
 
-    services::Status doNodesSplit(const oneapi::internal::UniversalBuffer & nodeList, size_t nNodes, oneapi::internal::UniversalBuffer & nodeListNew);
+    services::Status doNodesSplit(const services::internal::sycl::UniversalBuffer & nodeList, size_t nNodes,
+                                  services::internal::sycl::UniversalBuffer & nodeListNew, size_t nNodesNew);
 
-    services::Status splitNodeListOnGroupsBySize(const oneapi::internal::UniversalBuffer & nodeList, size_t nNodes,
-                                                 oneapi::internal::UniversalBuffer & bigNodesGroups, oneapi::internal::UniversalBuffer & nodeIndeces);
+    services::Status splitNodeListOnGroupsBySize(const services::internal::sycl::UniversalBuffer & nodeList, size_t nNodes,
+                                                 services::internal::sycl::UniversalBuffer & bigNodesGroups, const size_t nGroups,
+                                                 const size_t nGroupProps, services::internal::sycl::UniversalBuffer & nodeIndices);
 
-    services::Status doLevelPartition(const oneapi::internal::UniversalBuffer & data, oneapi::internal::UniversalBuffer & nodeList, size_t nNodes,
-                                      oneapi::internal::UniversalBuffer & treeOrder, oneapi::internal::UniversalBuffer & treeOrderBuf, size_t nRows,
-                                      size_t nFeatures);
+    services::Status doLevelPartition(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & nodeList,
+                                      size_t nNodes, services::internal::sycl::UniversalBuffer & treeOrder,
+                                      services::internal::sycl::UniversalBuffer & treeOrderBuf, size_t nRows, size_t nFeatures);
 
-    services::Status partitionCopy(oneapi::internal::UniversalBuffer & treeOrderBuf, oneapi::internal::UniversalBuffer & treeOrder, size_t iStart,
-                                   size_t nRows);
+    services::Status partitionCopy(services::internal::sycl::UniversalBuffer & treeOrderBuf, services::internal::sycl::UniversalBuffer & treeOrder,
+                                   size_t iStart, size_t nRows);
 
-    services::Status updateMDIVarImportance(const oneapi::internal::UniversalBuffer & nodeList,
-                                            const oneapi::internal::UniversalBuffer & nodeImpDecreaseList, size_t nNodes,
-                                            services::Buffer<algorithmFPType> & varImp, size_t nFeatures);
+    services::Status updateMDIVarImportance(const services::internal::sycl::UniversalBuffer & nodeList,
+                                            const services::internal::sycl::UniversalBuffer & nodeImpDecreaseList, size_t nNodes,
+                                            services::internal::Buffer<algorithmFPType> & varImp, size_t nFeatures);
 
 private:
-    services::Status buildProgram(oneapi::internal::ClKernelFactoryIface & factory, const char * buildOptions = nullptr);
+    services::Status buildProgram(services::internal::sycl::ClKernelFactoryIface & factory, const char * buildOptions = nullptr);
 
-    oneapi::internal::KernelPtr kernelInitializeTreeOrder;
-    oneapi::internal::KernelPtr kernelConvertSplitToLeaf;
-    oneapi::internal::KernelPtr kernelGetNumOfSplitNodes;
-    oneapi::internal::KernelPtr kernelDoNodesSplit;
-    oneapi::internal::KernelPtr kernelDoLevelPartition;
-    oneapi::internal::KernelPtr kernelSplitNodeListOnGroupsBySize;
+    services::internal::sycl::KernelPtr kernelInitializeTreeOrder;
+    services::internal::sycl::KernelPtr kernelConvertSplitToLeaf;
+    services::internal::sycl::KernelPtr kernelGetNumOfSplitNodes;
+    services::internal::sycl::KernelPtr kernelDoNodesSplit;
+    services::internal::sycl::KernelPtr kernelDoLevelPartition;
+    services::internal::sycl::KernelPtr kernelSplitNodeListOnGroupsBySize;
 
-    oneapi::internal::KernelPtr kernelMarkPresentRows;
-    oneapi::internal::KernelPtr kernelCountAbsentRowsForBlocks;
-    oneapi::internal::KernelPtr kernelCountAbsentRowsTotal;
-    oneapi::internal::KernelPtr kernelFillOOBRowsListByBlocks;
+    services::internal::sycl::KernelPtr kernelMarkPresentRows;
+    services::internal::sycl::KernelPtr kernelCountAbsentRowsForBlocks;
+    services::internal::sycl::KernelPtr kernelCountAbsentRowsTotal;
+    services::internal::sycl::KernelPtr kernelFillOOBRowsListByBlocks;
 
-    oneapi::internal::KernelPtr kernelUpdateMDIVarImportance;
-    oneapi::internal::KernelPtr kernelPartitionCopy;
+    services::internal::sycl::KernelPtr kernelUpdateMDIVarImportance;
+    services::internal::sycl::KernelPtr kernelPartitionCopy;
 
-    const uint32_t _maxLocalSums = 256;
-    const uint32_t _minRowsBlock = 256;
+    const size_t _maxLocalSums = 256;
+    const size_t _minRowsBlock = 256;
 
-    const uint32_t _preferableGroupSize  = 256;
-    const uint32_t _maxWorkItemsPerGroup = 256; // should be a power of two for interal needs
-    const uint32_t _preferableSubGroup   = 16;  // preferable maximal sub-group size
+    const size_t _preferableGroupSize  = 256;
+    const size_t _maxWorkItemsPerGroup = 256; // should be a power of two for interal needs
+    const size_t _preferableSubGroup   = 16;  // preferable maximal sub-group size
+
+    const size_t _int32max = static_cast<size_t>(services::internal::MaxVal<int32_t>::get());
+    size_t _nNodeProps;
 };
 
 } /* namespace internal */

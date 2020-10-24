@@ -139,7 +139,8 @@ template <typename algorithmFPType, typename ClsType, typename MultiClsParam, Cp
 struct MultiClassClassifierPredictKernel<multiClassClassifierWu, training::oneAgainstOne, algorithmFPType, ClsType, MultiClsParam, cpu>
     : public Kernel
 {
-    services::Status compute(const NumericTable * a, const daal::algorithms::Model * m, NumericTable * r, const daal::algorithms::Parameter * par);
+    services::Status compute(const NumericTable * a, const daal::algorithms::Model * m, NumericTable * pred, NumericTable * df,
+                             const daal::algorithms::Parameter * par);
 };
 
 } // namespace internal

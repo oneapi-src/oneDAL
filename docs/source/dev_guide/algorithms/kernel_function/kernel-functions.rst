@@ -52,12 +52,13 @@ Algorithm Input
 +++++++++++++++
 
 The linear kernel function accepts the input described below. Pass
-the Input ID as a parameter to the methods that provide input for
+the ``Input ID`` as a parameter to the methods that provide input for
 your algorithm.
 
 .. list-table::
    :header-rows: 1
    :align: left
+   :widths: 10 60
 
    * - Input ID
      - Input
@@ -74,22 +75,23 @@ The linear kernel function has the following parameters:
 .. list-table::
    :header-rows: 1
    :align: left
+   :widths: 10 10 60
 
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
      - Available computation methods:
 
-       + defaultDense - default performance-oriented method
-       + fastCSR - performance-oriented method for CSR numeric tables
+       + ``defaultDense`` - default performance-oriented method
+       + ``fastCSR`` - performance-oriented method for CSR numeric tables
 
-   * - computationMode
-     - matrixMatrix
+   * - ``computationMode``
+     - ``matrixMatrix``
      - Computation mode for the kernel function. Can be:
 
        For CPU:
@@ -104,15 +106,15 @@ The linear kernel function has the following parameters:
        + ``matrixMatrix`` - compute the kernel function for all vectors in the sets :math:`X` and :math:`Y`. 
          In |product|, this mode requires equal numbers of observations in both input tables: :math:`n = m`.
 
-   * - rowIndexX
+   * - ``rowIndexX``
      - :math:`0`
-     - Index i of the vector in the set :math:`X` for the vectorVector computation mode.
-   * - rowIndexY
+     - Index i of the vector in the set :math:`X` for the ``vectorVector`` computation mode.
+   * - ``rowIndexY``
      - :math:`0`
-     - Index :math:`j` of the vector in the set :math:`Y` for the vectorVector or matrixVector computation mode.
-   * - rowIndexResult
+     - Index :math:`j` of the vector in the set :math:`Y` for the ``vectorVector`` or ``matrixVector`` computation mode.
+   * - ``rowIndexResult``
      - :math:`0`
-     - Row index in the values numeric table to locate the result of the computation for the vectorVector computation mode.
+     - Row index in the values numeric table to locate the result of the computation for the ``vectorVector`` computation mode.
    * - :math:`k`
      - :math:`1.0`
      - The coefficient :math:`k` of the linear kernel.
@@ -124,23 +126,25 @@ Algorithm Output
 ++++++++++++++++
 
 The linear kernel function calculates the results described below.
-Pass the Result ID as a parameter to the methods that access the
-results of your algorithm.
+Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 
 
 .. list-table::
    :header-rows: 1
    :align: left
-
+   :widths: 10 60
 
    * - Result ID
      - Result
-   * - values
+   * - ``values``
      - Pointer to the :math:`n \times m` numeric table with the values of the kernel
-       function. By default, this result is an object of the
-       HomogenNumericTable class, but you can define the result as an object of
-       any class derived from NumericTable except PackedSymmetricMatrix,
-       PackedTriangularMatrix, and CSRNumericTable.
+       function.
+       
+       .. note::
+          
+          By default, this result is an object of the ``HomogenNumericTable`` class,
+          but you can define the result as an object of any class derived from ``NumericTable``
+          except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
 
 Examples
 ++++++++
@@ -196,7 +200,7 @@ feature vectors :math:`y_1 = (y_{11}, \ldots, y_{1p}), \ldots, y_m = (y_{m1}, \l
 the problem is to compute the RBF kernel function :math:`K(x_i,, y_i)` for any pair of input vectors:
 
 .. math::
-   K\left({x}_{i},{y}_{j}\right)=exp\left(-\frac{{\left(‖{x}_{i}-{y}_{j}‖\right)}^{2}}{2{\sigma }^{2}}\right)
+   K\left({x}_{i},{y}_{j}\right)=exp\left(-\frac{{\left(\|{x}_{i}-{y}_{j}\|\right)}^{2}}{2{\sigma }^{2}}\right)
 
 Batch Processing
 ****************
@@ -211,13 +215,14 @@ algorithm.
 .. list-table::
    :header-rows: 1
    :align: left
+   :widths: 10 60
 
    * - Input ID
      - Input
    * - :math:`X`
-     - Pointer to the :math:`n \times p` numeric table that represents the matrix :math:`X`. This table can be an object of any class derived from NumericTable.
+     - Pointer to the :math:`n \times p` numeric table that represents the matrix :math:`X`. This table can be an object of any class derived from ``NumericTable``.
    * - :math:`Y`
-     - Pointer to the :math:`m \times p` numeric table that represents the matrix :math:`Y`. This table can be an object of any class derived from NumericTable.
+     - Pointer to the :math:`m \times p` numeric table that represents the matrix :math:`Y`. This table can be an object of any class derived from ``NumericTable``.
 
 Algorithm Parameters
 ++++++++++++++++++++
@@ -227,22 +232,23 @@ The RBF kernel has the following parameters:
 .. list-table::
    :header-rows: 1
    :align: left
+   :widths: 10 10 60
 
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
      - Available computation methods:
 
-       + defaultDense - default performance-oriented method
-       + fastCSR - performance-oriented method for CSR numeric tables
+       + ``defaultDense`` - default performance-oriented method
+       + ``fastCSR`` - performance-oriented method for CSR numeric tables
 
-   * - computationMode
-     - matrixMatrix
+   * - ``computationMode``
+     - ``matrixMatrix``
      - Computation mode for the kernel function. Can be:
 
        For CPU:
@@ -257,16 +263,16 @@ The RBF kernel has the following parameters:
        + ``matrixMatrix`` - compute the kernel function for all vectors in the sets :math:`X` and :math:`Y`.
          In |product|, this mode requires equal numbers of observations in both input tables: :math:`n = m`.
 
-   * - rowIndexX
+   * - ``rowIndexX``
      - :math:`0`
-     - Index :math:`i` of the vector in the set :math:`X` for the vectorVector computation mode.
-   * - rowIndexY
+     - Index :math:`i` of the vector in the set :math:`X` for the ``vectorVector`` computation mode.
+   * - ``rowIndexY``
      - :math:`0`
-     - Index :math:`j` of the vector in the set :math:`Y` for the vectorVector or matrixVector computation mode.
-   * - rowIndexResult
+     - Index :math:`j` of the vector in the set :math:`Y` for the ``vectorVector`` or ``matrixVector`` computation mode.
+   * - ``rowIndexResult``
      - :math:`0`
-     - Row index in the values numeric table to locate the result of the computation for the vectorVector computation mode.
-   * - sigma
+     - Row index in the values numeric table to locate the result of the computation for the ``vectorVector`` computation mode.
+   * - ``sigma``
      - :math:`1.0`
      - The coefficient :math:`\sigma` of the RBF kernel.
 
@@ -280,16 +286,20 @@ your algorithm.
 .. list-table::
    :header-rows: 1
    :align: left
-
+   :widths: 10 60
 
    * - Result ID
      - Result
-   * - values
+   * - ``values``
      - Pointer to the :math:`n \times m` numeric table with the values of the kernel
-       function. By default, this result is an object of the
-       HomogenNumericTable class, but you can define the result as an object of
-       any class derived from NumericTable except PackedSymmetricMatrix,
-       PackedTriangularMatrix, and CSRNumericTable.
+       function.
+
+       .. note::
+          
+          By default, this result is an object of the ``HomogenNumericTable`` class,
+          but you can define the result as an object of any class derived from ``NumericTable``
+          except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
+
 
 Examples
 ********

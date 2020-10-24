@@ -38,10 +38,12 @@ using namespace daal::algorithms;
 using namespace daal::data_management;
 using namespace daal::algorithms::decision_forest::classification;
 
+using daal::services::internal::SyclExecutionContext;
+using daal::data_management::internal::SyclHomogenNumericTable;
+
 /* Input data set parameters */
 const string trainDatasetFileName         = "../data/batch/df_classification_train.csv";
 const string testDatasetFileName          = "../data/batch/df_classification_test.csv";
-const size_t categoricalFeaturesIndices[] = {};
 const size_t nFeatures                    = 3; /* Number of features in training and testing data sets */
 
 /* Decision forest parameters */
@@ -66,7 +68,7 @@ int main(int argc, char * argv[])
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
-        daal::services::SyclExecutionContext ctx(queue);
+        SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
         /* Create an algorithm object to train the decision forest classification model */
@@ -145,8 +147,4 @@ void loadData(const std::string & fileName, NumericTablePtr & pData, NumericTabl
 
     /* Retrieve the data from input file */
     trainDataSource.loadDataBlock(mergedData.get());
-
-    NumericTableDictionaryPtr pDictionary = pData->getDictionarySharedPtr();
-    for (size_t i = 0, n = sizeof(categoricalFeaturesIndices) / sizeof(categoricalFeaturesIndices[0]); i < n; ++i)
-        (*pDictionary)[categoricalFeaturesIndices[i]].featureType = data_feature_utils::DAAL_CATEGORICAL;
 }

@@ -65,7 +65,9 @@ SOANumericTable::SOANumericTable(NumericTableDictionaryPtr ddict, size_t nRows, 
 {
     _layout = soa;
     _index  = 0;
+
     this->_status |= setNumberOfRowsImpl(nRows);
+
     if (!resizePointersArray(getNumberOfColumns()))
     {
         this->_status.add(services::ErrorMemoryAllocationFailed);
@@ -130,14 +132,7 @@ bool SOANumericTable::isHomogeneousFloatOrDouble() const
 
 bool SOANumericTable::isAllCompleted() const
 {
-    const size_t ncols = getNumberOfColumns();
-
-    for (size_t i = 0; i < ncols; ++i)
-    {
-        if (!_arrays[i].get()) return false;
-    }
-
-    return true;
+    return _arraysInitialized == getNumberOfColumns();
 }
 
 services::Status SOANumericTable::searchMinPointer()
@@ -273,7 +268,7 @@ services::Status SOANumericTable::allocateDataMemoryImpl(daal::MemType /*type*/)
         _memStatus = internallyAllocated;
     }
 
-    DAAL_CHECK_STATUS_VAR(generatesOffsets())
+    DAAL_CHECK_STATUS_VAR(generatesOffsets());
 
     return services::Status();
 }

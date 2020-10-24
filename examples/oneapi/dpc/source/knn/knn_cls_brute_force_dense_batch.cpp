@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#define ONEAPI_DAL_DATA_PARALLEL
+#define ONEDAL_DATA_PARALLEL
 #include "oneapi/dal/algo/knn.hpp"
 #include "oneapi/dal/io/csv.hpp"
 
@@ -33,10 +33,7 @@ void run(sycl::queue& queue) {
     const auto y_train = dal::read<dal::table>(queue, dal::csv::data_source{train_label_file_name});
 
     const auto knn_desc =
-        dal::knn::descriptor<float, oneapi::dal::knn::method::brute_force>()
-            .set_class_count(5)
-            .set_neighbor_count(1)
-            .set_data_use_in_model(false);
+        dal::knn::descriptor<float, oneapi::dal::knn::method::brute_force, oneapi::dal::knn::task::classification>(5, 1);
 
     const auto x_test = dal::read<dal::table>(queue, dal::csv::data_source{test_data_file_name});
     const auto y_test = dal::read<dal::table>(queue, dal::csv::data_source{test_label_file_name});
@@ -51,7 +48,7 @@ void run(sycl::queue& queue) {
                 << test_result.get_labels() << std::endl;
         std::cout << "True labels:" << std::endl << y_test << std::endl;
     }
-    catch(oneapi::dal::unimplemented_error& e) {
+    catch(oneapi::dal::unimplemented& e) {
         std::cout << "  " << e.what() << std::endl;
         return;
     }

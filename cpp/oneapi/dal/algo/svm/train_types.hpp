@@ -25,7 +25,7 @@ class train_input_impl;
 class train_result_impl;
 } // namespace detail
 
-class ONEAPI_DAL_EXPORT train_input : public base {
+class ONEDAL_EXPORT train_input : public base {
 public:
     train_input(const table& data, const table& labels, const table& weights = table{});
 
@@ -58,7 +58,7 @@ private:
     dal::detail::pimpl<detail::train_input_impl> impl_;
 };
 
-class ONEAPI_DAL_EXPORT train_result : public base {
+class ONEDAL_EXPORT train_result : public base {
 public:
     train_result();
 

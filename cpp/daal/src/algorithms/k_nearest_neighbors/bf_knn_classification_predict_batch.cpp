@@ -16,6 +16,7 @@
 *******************************************************************************/
 
 #include "algorithms/k_nearest_neighbors/bf_knn_classification_predict_types.h"
+#include "algorithms/classifier/classifier_model.h"
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
 #include "src/services/daal_strings.h"
 
@@ -52,14 +53,17 @@ void Input::set(classifier::prediction::ModelInputId id, const bf_knn_classifica
 services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     const Parameter * const algParameter = static_cast<const Parameter *>(parameter);
-    DAAL_CHECK_EX(algParameter->k > 0, services::ErrorIncorrectParameter, services::ParameterName, kStr());
     DAAL_CHECK_STATUS_VAR(classifier::prediction::Input::check(parameter, method));
 
     const bf_knn_classification::ModelPtr m = get(classifier::prediction::model);
     ErrorCollection errors;
     errors.setCanThrow(false);
     DAAL_CHECK(checkNumericTable(m->impl()->getData().get(), dataStr()), ErrorModelNotFullInitialized);
-    DAAL_CHECK(checkNumericTable(m->impl()->getLabels().get(), labelsStr()), ErrorModelNotFullInitialized);
+    DAAL_CHECK_EX(algParameter->k <= m->impl()->getData()->getNumberOfRows(), services::ErrorIncorrectParameter, services::ParameterName, kStr());
+    if ((algParameter->resultsToEvaluate & daal::algorithms::classifier::computeClassLabels) != 0)
+    {
+        DAAL_CHECK(checkNumericTable(m->impl()->getLabels().get(), labelsStr()), ErrorModelNotFullInitialized);
+    }
     return services::Status();
 }
 

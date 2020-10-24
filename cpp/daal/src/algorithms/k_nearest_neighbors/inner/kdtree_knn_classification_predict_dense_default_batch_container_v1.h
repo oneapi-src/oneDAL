@@ -22,6 +22,9 @@
 //--
 */
 
+#ifndef __KDTREE_KNN_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_CONTAINER_V1_H__
+#define __KDTREE_KNN_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_CONTAINER_V1_H__
+
 #include "algorithms/k_nearest_neighbors/kdtree_knn_classification_predict.h"
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_predict_dense_default_batch.h"
 
@@ -61,7 +64,7 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
     daal::services::Environment::env & env        = *_env;
 
     __DAAL_CALL_KERNEL(env, internal::KNNClassificationPredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFpType, method), compute, a.get(), m.get(),
-                       r.get(), par);
+                       r.get(), nullptr, nullptr, par);
 }
 
 } // namespace interface1
@@ -69,3 +72,5 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 } // namespace kdtree_knn_classification
 } // namespace algorithms
 } // namespace daal
+
+#endif

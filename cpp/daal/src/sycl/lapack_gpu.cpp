@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "sycl/internal/math/reference_lapack.h"
+#include "services/internal/sycl/math/reference_lapack.h"
 #include "src/externals/service_lapack.h"
 #include "services/error_handling.h"
 #include "src/sycl/blas_gpu.h"
@@ -23,9 +23,11 @@
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace math
 {
@@ -34,8 +36,8 @@ namespace interface1
 using namespace daal::internal;
 
 template <typename algorithmFPType>
-services::Status ReferencePotrf<algorithmFPType>::operator()(const math::UpLo uplo, const size_t n, services::Buffer<algorithmFPType> & a_buffer,
-                                                             const size_t lda)
+services::Status ReferencePotrf<algorithmFPType>::operator()(const math::UpLo uplo, const size_t n,
+                                                             services::internal::Buffer<algorithmFPType> & a_buffer, const size_t lda)
 {
     services::Status status;
 
@@ -46,7 +48,8 @@ services::Status ReferencePotrf<algorithmFPType>::operator()(const math::UpLo up
     DAAL_INT nInt   = static_cast<DAAL_INT>(n);
     DAAL_INT ldaInt = static_cast<DAAL_INT>(lda);
 
-    services::SharedPtr<algorithmFPType> aPtr = a_buffer.toHost(data_management::ReadWriteMode::readWrite);
+    services::SharedPtr<algorithmFPType> aPtr = a_buffer.toHost(data_management::ReadWriteMode::readWrite, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     LapackAutoDispatch<algorithmFPType>::xpotrf(&up, &nInt, aPtr.get(), &ldaInt, &info);
 
@@ -56,8 +59,8 @@ services::Status ReferencePotrf<algorithmFPType>::operator()(const math::UpLo up
 
 template <typename algorithmFPType>
 services::Status ReferencePotrs<algorithmFPType>::operator()(const math::UpLo uplo, const size_t n, const size_t ny,
-                                                             services::Buffer<algorithmFPType> & a_buffer, const size_t lda,
-                                                             services::Buffer<algorithmFPType> & b_buffer, const size_t ldb)
+                                                             services::internal::Buffer<algorithmFPType> & a_buffer, const size_t lda,
+                                                             services::internal::Buffer<algorithmFPType> & b_buffer, const size_t ldb)
 {
     services::Status status;
 
@@ -70,8 +73,11 @@ services::Status ReferencePotrs<algorithmFPType>::operator()(const math::UpLo up
     DAAL_INT ldaInt = static_cast<DAAL_INT>(lda);
     DAAL_INT ldbInt = static_cast<DAAL_INT>(ldb);
 
-    services::SharedPtr<algorithmFPType> aPtr = a_buffer.toHost(data_management::ReadWriteMode::readWrite);
-    services::SharedPtr<algorithmFPType> bPtr = b_buffer.toHost(data_management::ReadWriteMode::readWrite);
+    services::SharedPtr<algorithmFPType> aPtr = a_buffer.toHost(data_management::ReadWriteMode::readWrite, status);
+    DAAL_CHECK_STATUS_VAR(status);
+
+    services::SharedPtr<algorithmFPType> bPtr = b_buffer.toHost(data_management::ReadWriteMode::readWrite, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     LapackAutoDispatch<algorithmFPType>::xpotrs(&up, &nInt, &nyInt, aPtr.get(), &ldaInt, bPtr.get(), &ldbInt, &info);
 
@@ -87,6 +93,7 @@ template class ReferencePotrs<double>;
 
 } // namespace interface1
 } // namespace math
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal

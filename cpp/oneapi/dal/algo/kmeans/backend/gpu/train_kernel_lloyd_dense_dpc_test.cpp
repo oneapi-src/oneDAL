@@ -17,8 +17,8 @@
 #include <CL/sycl.hpp>
 
 #include "gtest/gtest.h"
-#define ONEAPI_DAL_DATA_PARALLEL
-#include "oneapi/dal/algo/kmeans.hpp"
+#include "oneapi/dal/algo/kmeans/train.hpp"
+#include "oneapi/dal/algo/kmeans/infer.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
@@ -102,9 +102,6 @@ TEST(kmeans_lloyd_dense_gpu, infer_results) {
                                                         cluster_count,
                                                         column_count,
                                                         empty_delete<const float>() };
-
-    const int labels[] = { 1, 1, 1, 1, 0, 0, 0, 0 };
-    const float centroids[] = { -1.5, -1.5, 1.5, 1.5 };
 
     const auto kmeans_desc = kmeans::descriptor<>()
                                  .set_cluster_count(cluster_count)

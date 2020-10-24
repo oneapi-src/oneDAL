@@ -18,7 +18,7 @@
 #  Intel compiler defenitions for makefile
 #--
 
-PLATs.icc = lnx32e lnx32 win32e win32 mac32e
+PLATs.icc = lnx32e win32e mac32e
 
 CMPLRDIRSUFF.icc =
 
@@ -28,10 +28,12 @@ CORE.SERV.COMPILER.icc = generic
 -Zl.icc = $(if $(OS_is_win),-Zl,) -mGLOB_freestanding=TRUE -mCG_no_libirc=TRUE
 -Qopt = $(if $(OS_is_win),-Qopt-,-qopt-)
 
-COMPILER.lnx.icc  = $(if $(COVFILE),cov01 -1; covc -i )icc -Werror -qopenmp-simd -Wreturn-type
+COMPILER.lnx.icc  = $(if $(COVFILE),cov01 -1; covc -i )icc -qopenmp-simd \
+                    -Werror -Wreturn-type
 COMPILER.lnx.icc += $(if $(COVFILE), $(if $(IA_is_ia32), $(-Q)m32, $(-Q)m64))
 COMPILER.win.icc = icl -nologo -WX -Qopenmp-simd
-COMPILER.mac.icc = icc -Werror -stdlib=libc++ -mmacosx-version-min=10.14 -Wreturn-type
+COMPILER.mac.icc = icc -stdlib=libc++ -mmacosx-version-min=10.14 \
+				   -Werror -Wreturn-type
 
 # icc 16 does not support -qopenmp-simd option on macOS*
 ifeq ($(if $(OS_is_mac),$(shell icc --version | grep "icc (ICC) 16"),),)
@@ -40,6 +42,11 @@ endif
 
 link.dynamic.lnx.icc = icc -no-cilk
 link.dynamic.mac.icc = icc
+
+pedantic.opts.lnx.icc = -pedantic \
+                        -Wall \
+                        -Wextra \
+                        -Wno-unused-parameter
 
 daaldep.lnx32e.rt.icc = -static-intel
 daaldep.lnx32.rt.icc  = -static-intel

@@ -22,22 +22,22 @@
 namespace oneapi::dal::kmeans::detail {
 using oneapi::dal::detail::data_parallel_policy;
 
-template <typename Float, typename Method>
-struct ONEAPI_DAL_EXPORT infer_ops_dispatcher<data_parallel_policy, Float, Method> {
-    infer_result operator()(const data_parallel_policy& ctx,
-                            const descriptor_base& params,
-                            const infer_input& input) const {
+template <typename Float, typename Method, typename Task>
+struct infer_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
+    infer_result<Task> operator()(const data_parallel_policy& ctx,
+                                  const descriptor_base<Task>& params,
+                                  const infer_input<Task>& input) const {
         using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::infer_kernel_cpu<Float, Method>,
-                                            backend::infer_kernel_gpu<Float, Method>>;
+            dal::backend::kernel_dispatcher<backend::infer_kernel_cpu<Float, Method, Task>,
+                                            backend::infer_kernel_gpu<Float, Method, Task>>;
         return kernel_dispatcher_t{}(ctx, params, input);
     }
 };
 
-#define INSTANTIATE(F, M) \
-    template struct ONEAPI_DAL_EXPORT infer_ops_dispatcher<data_parallel_policy, F, M>;
+#define INSTANTIATE(F, M, T) \
+    template struct ONEDAL_EXPORT infer_ops_dispatcher<data_parallel_policy, F, M, T>;
 
-INSTANTIATE(float, method::by_default)
-INSTANTIATE(double, method::by_default)
+INSTANTIATE(float, method::by_default, task::clustering)
+INSTANTIATE(double, method::by_default, task::clustering)
 
 } // namespace oneapi::dal::kmeans::detail

@@ -59,6 +59,18 @@ enum Method
 };
 
 /**
+ * <a name="DAAL-ENUM-ALGORITHMS__BF_KNN_CLASSIFICATION__PREDICTION__RESULTID"></a>
+ * \brief Available identifiers of the result for making brute-force kNN model-based prediction
+ */
+enum ResultId
+{
+    prediction   = classifier::prediction::prediction,       /*!< Prediction results */
+    indices      = classifier::prediction::lastResultId + 1, /*!< Indices of nearest neighbors */
+    distances    = classifier::prediction::lastResultId + 2, /*!< Distances to nearest neighbors */
+    lastResultId = distances
+};
+
+/**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface
  */
 namespace interface1
@@ -107,9 +119,70 @@ public:
     services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
+/**
+ * <a name="DAAL-CLASS-ALGORITHMS__BF_KNN_CLASSIFICATION__PREDICTION__RESULT"></a>
+ * \brief Provides interface for the result of brute-force kNN model-based prediction
+ */
+class DAAL_EXPORT Result : public classifier::prediction::Result
+{
+public:
+    DECLARE_SERIALIZABLE_CAST(Result)
+    Result();
+
+    /**
+     * Returns the result of brute-force kNN model-based prediction
+     * \param[in] id    Identifier of the result
+     * \return          Result that corresponds to the given identifier
+     */
+    data_management::NumericTablePtr get(ResultId id) const;
+
+    /**
+     * Sets the result of brute-force kNN model-based prediction
+     * \param[in] id      Identifier of the input object
+     * \param[in] value   %Input object
+     */
+    void set(ResultId id, const data_management::NumericTablePtr & value);
+
+    /**
+     * Allocates memory for storing prediction results of brute-force kNN algorithm
+     * \tparam  algorithmFPType     Data type for storing prediction results
+     * \param[in] input     Pointer to the input objects of the classification algorithm
+     * \param[in] parameter Pointer to the parameters of the classification algorithm
+     * \param[in] method    Computation method
+     */
+    template <typename algorithmFPType>
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method);
+
+    /**
+     * Checks the correctness of prediction results of brute-force kNN algorithm
+     * \param[in] input     Pointer to the the input object
+     * \param[in] parameter Pointer to the algorithm parameters
+     * \param[in] method    Computation method
+     */
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+
+protected:
+    using classifier::prediction::Result::check;
+
+    /** \private */
+    services::Status checkImpl(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter) const;
+
+    /** \private */
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
+    {
+        return classifier::prediction::Result::serialImpl<Archive, onDeserialize>(arch);
+    }
+};
+typedef services::SharedPtr<Result> ResultPtr;
+typedef services::SharedPtr<const Result> ResultConstPtr;
+
 } // namespace interface1
 
 using interface1::Input;
+using interface1::Result;
+using interface1::ResultPtr;
+using interface1::ResultConstPtr;
 
 } // namespace prediction
 /** @} */

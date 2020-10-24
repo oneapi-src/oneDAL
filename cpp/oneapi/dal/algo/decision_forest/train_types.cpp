@@ -65,8 +65,8 @@ void train_input<Task>::set_labels_impl(const table& value) {
     impl_->labels = value;
 }
 
-template class ONEAPI_DAL_EXPORT train_input<task::classification>;
-template class ONEAPI_DAL_EXPORT train_input<task::regression>;
+template class ONEDAL_EXPORT train_input<task::classification>;
+template class ONEDAL_EXPORT train_input<task::regression>;
 
 /* train_result implementation*/
 template <typename Task>
@@ -112,7 +112,7 @@ void train_result<Task>::set_var_importance_impl(const table& value) {
     impl_->variable_importance = value;
 }
 
-template class ONEAPI_DAL_EXPORT train_result<task::classification>;
-template class ONEAPI_DAL_EXPORT train_result<task::regression>;
+template class ONEDAL_EXPORT train_result<task::classification>;
+template class ONEDAL_EXPORT train_result<task::regression>;
 
 } // namespace oneapi::dal::decision_forest

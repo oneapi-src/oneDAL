@@ -35,10 +35,10 @@ template <typename Float, daal::CpuType Cpu, typename Method>
 using daal_kmeans_init_kernel_t =
     daal_kmeans_init::internal::KMeansInitKernel<to_daal_method<Method>::value, Float, Cpu>;
 
-template <typename Float, typename Method>
-static compute_result call_daal_kernel(const context_cpu& ctx,
-                                       const descriptor_base& desc,
-                                       const table& data) {
+template <typename Float, typename Method, typename Task>
+static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
+                                             const descriptor_base<Task>& desc,
+                                             const table& data) {
     const int64_t column_count = data.get_column_count();
     const int64_t cluster_count = desc.get_cluster_count();
 
@@ -65,32 +65,34 @@ static compute_result call_daal_kernel(const context_cpu& ctx,
             .compute(len_input, input, len_output, output, &par, *(par.engine));
     }));
 
-    return compute_result().set_centroids(dal::detail::homogen_table_builder{}
-                                              .reset(arr_centroids, cluster_count, column_count)
-                                              .build());
+    return compute_result<Task>().set_centroids(
+        dal::detail::homogen_table_builder{}
+            .reset(arr_centroids, cluster_count, column_count)
+            .build());
 }
 
-template <typename Float, typename Method>
-static compute_result compute(const context_cpu& ctx,
-                              const descriptor_base& desc,
-                              const compute_input& input) {
-    return call_daal_kernel<Float, Method>(ctx, desc, input.get_data());
+template <typename Float, typename Method, typename Task>
+static compute_result<Task> compute(const context_cpu& ctx,
+                                    const descriptor_base<Task>& desc,
+                                    const compute_input<Task>& input) {
+    return call_daal_kernel<Float, Method, Task>(ctx, desc, input.get_data());
 }
 
-template <typename Float, typename Method>
-compute_result compute_kernel_cpu<Float, Method>::operator()(const context_cpu& ctx,
-                                                             const descriptor_base& desc,
-                                                             const compute_input& input) const {
-    return compute<Float, Method>(ctx, desc, input);
+template <typename Float, typename Method, typename Task>
+compute_result<Task> compute_kernel_cpu<Float, Method, Task>::operator()(
+    const context_cpu& ctx,
+    const descriptor_base<Task>& desc,
+    const compute_input<Task>& input) const {
+    return compute<Float, Method, Task>(ctx, desc, input);
 }
 
-template struct compute_kernel_cpu<float, method::dense>;
-template struct compute_kernel_cpu<double, method::dense>;
-template struct compute_kernel_cpu<float, method::random_dense>;
-template struct compute_kernel_cpu<double, method::random_dense>;
-template struct compute_kernel_cpu<float, method::plus_plus_dense>;
-template struct compute_kernel_cpu<double, method::plus_plus_dense>;
-template struct compute_kernel_cpu<float, method::parallel_plus_dense>;
-template struct compute_kernel_cpu<double, method::parallel_plus_dense>;
+template struct compute_kernel_cpu<float, method::dense, task::init>;
+template struct compute_kernel_cpu<double, method::dense, task::init>;
+template struct compute_kernel_cpu<float, method::random_dense, task::init>;
+template struct compute_kernel_cpu<double, method::random_dense, task::init>;
+template struct compute_kernel_cpu<float, method::plus_plus_dense, task::init>;
+template struct compute_kernel_cpu<double, method::plus_plus_dense, task::init>;
+template struct compute_kernel_cpu<float, method::parallel_plus_dense, task::init>;
+template struct compute_kernel_cpu<double, method::parallel_plus_dense, task::init>;
 
 } // namespace oneapi::dal::kmeans_init::backend

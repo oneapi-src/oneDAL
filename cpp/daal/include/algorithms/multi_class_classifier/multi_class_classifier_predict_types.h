@@ -52,6 +52,17 @@ enum Method
     voteBased              = 1  /*!< Prediction method that is based on votes returned by two-class classifiers */
 };
 
+/**
+ * <a name="DAAL-ENUM-ALGORITHMS__MULTI_CLASS_CLASSIFIER__PREDICTION__RESULTID"></a>
+ * \brief Available identifiers of the result for the multi-class classifier prediction
+ */
+enum ResultId
+{
+    prediction       = classifier::prediction::prediction,       /*!< Prediction results */
+    decisionFunction = classifier::prediction::lastResultId + 1, /*!< Decision function */
+    lastResultId     = decisionFunction
+};
+
 namespace interface1
 {
 /**
@@ -108,8 +119,74 @@ public:
     services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
+/**
+* <a name="DAAL-CLASS-ALGORITHMS__MULTI_CLASS_CLASSIFIER__PREDICTION__RESULT"></a>
+* \brief Provides interface for the result of model-based prediction
+*/
+class DAAL_EXPORT Result : public classifier::prediction::Result
+{
+    typedef classifier::prediction::Result super;
+
+public:
+    DECLARE_SERIALIZABLE_CAST(Result)
+    Result();
+
+    /**
+    * Returns the result of model-based prediction
+    * \param[in] id    Identifier of the result
+    * \return          Result that corresponds to the given identifier
+    */
+    data_management::NumericTablePtr get(ResultId id) const;
+
+    /**
+    * Sets the result of model-based prediction
+    * \param[in] id      Identifier of the input object
+    * \param[in] value   %Input object
+    */
+    void set(ResultId id, const data_management::NumericTablePtr & value);
+
+    /**
+    * Allocates memory to store a partial result of model-based prediction
+    * \param[in] input    %Input object
+    * \param[in] par      %Parameter of the algorithm
+    * \param[in] pmethod  Computation method for the algorithm, \ref prediction::Method
+    * \param[in] tmethod  Computation method that was used to train the multi-class classifier model, \ref training::Method
+    * \return Status of allocation
+    */
+    template <typename algorithmFPType>
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int pmethod,
+                                          const int tmethod);
+
+    /**
+    * Checks the result of model-based prediction
+    * \param[in] input   %Input object
+    * \param[in] par     %Parameter of the algorithm
+    * \param[in] method  Computation method
+    * \return Status of checking
+    */
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+
+protected:
+    using classifier::prediction::Result::check;
+
+    /** \protected */
+    services::Status checkImpl(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter) const;
+
+    /** \protected */
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
+    {
+        return daal::algorithms::classifier::prediction::Result::serialImpl<Archive, onDeserialize>(arch);
+    }
+};
+typedef services::SharedPtr<Result> ResultPtr;
+typedef services::SharedPtr<const Result> ResultConstPtr;
+
 } // namespace interface1
 using interface1::Input;
+using interface1::Result;
+using interface1::ResultPtr;
+using interface1::ResultConstPtr;
 
 } // namespace prediction
 /** @} */

@@ -19,13 +19,15 @@
 
 namespace oneapi::dal::pca {
 
-class detail::descriptor_impl : public base {
+template <>
+class detail::descriptor_impl<task::dim_reduction> : public base {
 public:
     std::int64_t component_count = -1;
-    bool is_deterministic = false;
+    bool deterministic = false;
 };
 
-class detail::model_impl : public base {
+template <>
+class detail::model_impl<task::dim_reduction> : public base {
 public:
     table eigenvectors;
 };
@@ -33,35 +35,46 @@ public:
 using detail::descriptor_impl;
 using detail::model_impl;
 
-descriptor_base::descriptor_base() : impl_(new descriptor_impl{}) {}
+template <typename Task>
+descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl{}) {}
 
-std::int64_t descriptor_base::get_component_count() const {
+template <>
+std::int64_t descriptor_base<task::dim_reduction>::get_component_count() const {
     return impl_->component_count;
 }
 
-bool descriptor_base::get_is_deterministic() const {
-    return impl_->is_deterministic;
+template <>
+bool descriptor_base<task::dim_reduction>::get_deterministic() const {
+    return impl_->deterministic;
 }
 
-void descriptor_base::set_component_count_impl(std::int64_t value) {
+template <>
+void descriptor_base<task::dim_reduction>::set_component_count_impl(std::int64_t value) {
     if (value < 0) {
         throw domain_error("Descriptor component_count should be >= 0");
     }
     impl_->component_count = value;
 }
 
-void descriptor_base::set_is_deterministic_impl(bool value) {
-    impl_->is_deterministic = value;
+template <>
+void descriptor_base<task::dim_reduction>::set_deterministic_impl(bool value) {
+    impl_->deterministic = value;
 }
 
-model::model() : impl_(new model_impl{}) {}
+template <typename Task>
+model<Task>::model() : impl_(new model_impl{}) {}
 
-table model::get_eigenvectors() const {
+template <typename Task>
+table model<Task>::get_eigenvectors() const {
     return impl_->eigenvectors;
 }
 
-void model::set_eigenvectors_impl(const table& value) {
+template <typename Task>
+void model<Task>::set_eigenvectors_impl(const table& value) {
     impl_->eigenvectors = value;
 }
+
+template class ONEDAL_EXPORT descriptor_base<task::dim_reduction>;
+template class ONEDAL_EXPORT model<task::dim_reduction>;
 
 } // namespace oneapi::dal::pca

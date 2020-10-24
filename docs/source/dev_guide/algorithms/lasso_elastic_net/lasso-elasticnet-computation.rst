@@ -31,13 +31,13 @@ For a description of common input and output parameters, refer to
 Both LASSO and Elastic Net algorithms have the following input parameters in addition to the common input parameters:
 
 .. list-table::
-   :widths: 25 75
+   :widths: 10 60
    :header-rows: 1
    :align: left
 
    * - Input ID
      - Input
-   * - weights
+   * - ``weights``
      - Optional input.
 
        Pointer to the :math:`1 \times n` numeric table with weights of samples. 
@@ -46,7 +46,7 @@ Both LASSO and Elastic Net algorithms have the following input parameters in add
 
        By default, all weights are equal to 1.
 
-   * - gramMatrix
+   * - ``gramMatrix``
      - Optional input.
 
        Pointer to the :math:`p \times p` numeric table with pre-computed Gram Matrix. 
@@ -62,24 +62,24 @@ Chosse the appropriate tab to see the parameters used in LASSO and Elastic Net b
   .. group-tab:: LASSO
 
     .. list-table::
-      :widths: 25 25 25
+      :widths: 10 20 30
       :header-rows: 1
       :align: left
 
       * - Parameter
         - Default Value
         - Description
-      * - algorithmFPType
-        - float
-        - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-      * - method
-        - defaultDense 
+      * - ``algorithmFPType``
+        - ``float``
+        - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+      * - ``method``
+        - ``defaultDense`` 
         - The computation method used by the LASSO regression. The only training method supported so far is the default dense method.
-      * - interceptFlag
-        - True
+      * - ``interceptFlag``
+        - ``True``
         - A flag that indicates whether or not to compute
-      * - lassoParameters 
-        - Numeric table of size :math:`1 \times 1` that contains the default LASSO parameter equal to :math:`0.1`.
+      * - ``lassoParameters`` 
+        - A numeric table of size :math:`1 \times 1` that contains the default LASSO parameter equal to :math:`0.1`.
         - :math:`L_1` coefficients: :math:`\lambda_i`
 
           A numeric table of size :math:`1 \times k` (where :math:`k` is the number of dependent variables) or :math:`1 \times 1`. 
@@ -91,19 +91,19 @@ Chosse the appropriate tab to see the parameters used in LASSO and Elastic Net b
           This parameter can be an object of any class derived from NumericTable, except for PackedTriangularMatrix,
           PackedSymmetricMatrix, and CSRNumericTable.
 
-      * - optimizationSolver
-        - Coordinate Descent solver
+      * - ``optimizationSolver``
+        - :ref:`Coordinate Descent solver <cda_solver>`
         - Optimization procedure used at the training stage.
-      * - optResultToCompute
-        - 0
+      * - ``optResultToCompute``
+        - :math:`0`
         - The 64-bit integer flag that specifies which extra characteristics of the LASSO regression to compute.
 
           Provide the following value to request a characteristic:
 
           - ``computeGramMatrix`` for Computation Gram matrix
 
-      * - dataUseInComputation
-        - doNotUse
+      * - ``dataUseInComputation``
+        - ``doNotUse``
         - A flag that indicates a permission to overwrite input data. 
           Provide the following value to restrict or allow modification of input data:
 
@@ -113,24 +113,24 @@ Chosse the appropriate tab to see the parameters used in LASSO and Elastic Net b
   .. group-tab:: Elastic Net
 
     .. list-table::
-      :widths: 25 25 25
+      :widths: 10 20 30
       :header-rows: 1
       :align: left
 
       * - Parameter
         - Default Value
         - Description
-      * - algorithmFPType
-        - float
-        - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-      * - method
-        - defaultDense 
+      * - ``algorithmFPType``
+        - ``float``
+        - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+      * - ``method``
+        - ``defaultDense`` 
         - The computation method used by the Elastic Net regression. The only training method supported so far is the default dense method.
-      * - interceptFlag
-        - True
+      * - ``interceptFlag``
+        - ``True``
         - A flag that indicates whether or not to compute
-      * - penaltyL1
-        - Numeric table of size :math:`1 \times 1` that contains the default Elastic Net parameter equal to :math:`0.5`.
+      * - ``penaltyL1``
+        - A umeric table of size :math:`1 \times 1` that contains the default Elastic Net parameter equal to :math:`0.5`.
         - L1 regularization coefficient (penaltyL1 is :math:`\lambda_1` as described in :ref:`elastic_net`).
 
           The numeric table of size :math:`1 \times k` (where :math:`k` is the number of dependent variables) or :math:`1 \times 1`.
@@ -142,8 +142,8 @@ Chosse the appropriate tab to see the parameters used in LASSO and Elastic Net b
           This parameter can be an object of any class derived from NumericTable,
           except for PackedTriangularMatrix, PackedSymmetricMatrix, and CSRNumericTable.
 
-      * - penaltyL2
-        - Numeric table of size :math:`1 \times 1` that contains the default Elastic Net parameter equal to :math:`0.5`.
+      * - ``penaltyL2``
+        - A numeric table of size :math:`1 \times 1` that contains the default Elastic Net parameter equal to :math:`0.5`.
         - L2 regularization coefficient (penaltyL2 is :math:`\lambda_2` as described in :ref:`elastic_net`).
 
           The numeric table of size :math:`1 \times k` (where :math:`k` is the number of dependent variables) or :math:`1 \times 1`.
@@ -155,19 +155,19 @@ Chosse the appropriate tab to see the parameters used in LASSO and Elastic Net b
           This parameter can be an object of any class derived from NumericTable,
           except for PackedTriangularMatrix, PackedSymmetricMatrix, and CSRNumericTable.
 
-      * - optimizationSolver
-        - Coordinate Descent solver
+      * - ``optimizationSolver``
+        - :ref:`Coordinate Descent solver <cda_solver>`
         - Optimization procedure used at the training stage.
-      * - optResultToCompute
-        - 0
+      * - ``optResultToCompute``
+        - :math:`0`
         - The 64-bit integer flag that specifies which extra characteristics of the Elastic Net regression to compute.
 
           Provide the following value to request a characteristic:
 
           - ``computeGramMatrix`` for computation of the Gram Matrix
 
-      * - dataUseInComputation
-        - doNotUse
+      * - ``dataUseInComputation``
+        - ``doNotUse``
         - A flag that indicates a permission to overwrite input data. 
           Provide the following value to restrict or allow modification of input data:
 
@@ -194,13 +194,13 @@ Chosse the appropriate tab to see the parameters used in LASSO and Elastic Net b
 In addition, both LASSO and Elastic Net algorithms have the following optional results:
 
 .. list-table::
-   :widths: 25 75
+   :widths: 10 60
    :header-rows: 1
    :align: left
 
    * - Result ID
      - Result
-   * - gramMatrix
+   * - ``gramMatrix``
      - Pointer to the computed Gram Matrix with size :math:`p \times p`
 
 Prediction
@@ -212,18 +212,18 @@ For a description of the input and output, refer to
 At the prediction stage, LASSO and Elastic Net algorithms have the following parameters:
 
 .. list-table::
-   :widths: 25 25 50
+   :widths: 10 10 60
    :header-rows: 1
    :align: left
 
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
      - Default performance-oriented computation method, the only method supported by the regression-based prediction.
 
 Examples

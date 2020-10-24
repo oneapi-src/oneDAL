@@ -25,7 +25,7 @@
 #define __NUMERIC_TABLE_H__
 
 #include "services/base.h"
-#include "services/buffer.h"
+#include "services/internal/buffer.h"
 #include "services/daal_defines.h"
 #include "services/daal_memory.h"
 #include "services/error_handling.h"
@@ -96,7 +96,10 @@ public:
         }
         else if (_xBuffer)
         {
-            return _xBuffer.toHost((data_management::ReadWriteMode)_rwFlag);
+            services::Status status;
+            services::SharedPtr<DataType> ptr = _xBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
+            services::throwIfPossible(status);
+            return ptr;
         }
         else
         {
@@ -108,11 +111,17 @@ public:
      *  Gets a Buffer object to the data block
      *  \return Buffer to the block
      */
-    inline daal::services::Buffer<DataType> getBuffer() const
+    inline services::internal::Buffer<DataType> getBuffer() const
     {
         if (_rawPtr)
         {
-            return daal::services::Buffer<DataType>((DataType *)_rawPtr, _ncols * _nrows);
+            const size_t size = _ncols * _nrows;
+            DAAL_ASSERT((size / _ncols) == _nrows);
+
+            services::Status status;
+            services::internal::Buffer<DataType> buffer((DataType *)_rawPtr, size, status);
+            services::throwIfPossible(status);
+            return buffer;
         }
         else if (_xBuffer)
         {
@@ -120,7 +129,14 @@ public:
         }
         else
         {
-            return daal::services::Buffer<DataType>(_ptr, _ncols * _nrows);
+            const size_t size = _ncols * _nrows;
+            DAAL_ASSERT((size / _ncols) == _nrows);
+            DAAL_ASSERT(_ptr.get() != nullptr);
+
+            services::Status status;
+            services::internal::Buffer<DataType> buffer(_ptr, size, status);
+            services::throwIfPossible(status);
+            return buffer;
         }
     }
 
@@ -187,7 +203,7 @@ public:
      *  \param[in] nColumns Number of columns
      *  \param[in] nRows Number of rows
      */
-    inline void setBuffer(const daal::services::Buffer<DataType> & buffer, size_t nColumns, size_t nRows)
+    inline void setBuffer(const daal::services::internal::Buffer<DataType> & buffer, size_t nColumns, size_t nRows)
     {
         _xBuffer = buffer;
         _hostSharedPtr.reset();
@@ -213,7 +229,14 @@ public:
         _ncols = nColumns;
         _nrows = nRows;
 
-        size_t newSize = nColumns * nRows * sizeof(DataType) + auxMemorySize;
+        const size_t elementsCount = nColumns * nRows;
+        DAAL_ASSERT((elementsCount / nRows) == nColumns);
+
+        const size_t bytesCount = elementsCount * sizeof(DataType);
+        DAAL_ASSERT((bytesCount / sizeof(DataType)) == elementsCount);
+
+        const size_t newSize = bytesCount + auxMemorySize;
+        DAAL_ASSERT((newSize - bytesCount) == auxMemorySize);
 
         if (newSize > _capacity)
         {
@@ -307,7 +330,9 @@ protected:
     {
         if (!_hostSharedPtr)
         {
-            _hostSharedPtr = _xBuffer.toHost((data_management::ReadWriteMode)_rwFlag);
+            services::Status status;
+            _hostSharedPtr = _xBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
+            services::throwIfPossible(status);
         }
         return _hostSharedPtr;
     }
@@ -329,7 +354,7 @@ private:
     services::SharedPtr<byte> * _pPtr;
     byte * _rawPtr;
 
-    daal::services::Buffer<DataType> _xBuffer;
+    daal::services::internal::Buffer<DataType> _xBuffer;
     mutable services::SharedPtr<DataType> _hostSharedPtr; // owns pointer returned from getBlockPtr() method
 };
 

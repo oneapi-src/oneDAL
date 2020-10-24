@@ -132,6 +132,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
         daal::services::internal::hostApp(daal_input),
         daal_data.get(),
         daal_labels.get(),
+        nullptr, // no weights
         *mptr,
         daal_result,
         daal_parameter));

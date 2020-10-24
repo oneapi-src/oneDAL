@@ -18,6 +18,7 @@
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
 #include "src/services/serialization_utils.h"
 #include "src/services/daal_strings.h"
+#include "src/services/service_data_utils.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -64,8 +65,11 @@ size_t Model::getNumberOfFeatures() const
 
 services::Status Parameter::check() const
 {
-    // Inherited.
-    return daal::algorithms::classifier::Parameter::check();
+    DAAL_CHECK_EX(this->nClasses > 1 && this->nClasses < static_cast<size_t>(services::internal::MaxVal<int>::get()),
+                  services::ErrorIncorrectParameter, services::ParameterName, nClassesStr());
+    DAAL_CHECK_EX(this->k > 0 && this->k <= static_cast<size_t>(services::internal::MaxVal<int>::get()), services::ErrorIncorrectParameter,
+                  services::ParameterName, kStr());
+    return services::Status();
 }
 
 } // namespace interface1

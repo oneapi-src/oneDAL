@@ -48,7 +48,8 @@ namespace internal
 template <prediction::Method pmethod, training::Method tmethod, typename algorithmFPType, typename ClsType, typename MultiClsParam, CpuType cpu>
 struct MultiClassClassifierPredictKernel : public Kernel
 {
-    services::Status compute(const NumericTable * a, const daal::algorithms::Model * m, NumericTable * r, const daal::algorithms::Parameter * par);
+    services::Status compute(const NumericTable * a, const daal::algorithms::Model * m, NumericTable * pred, NumericTable * df,
+                             const daal::algorithms::Parameter * par);
 };
 
 template <typename algorithmFPType, CpuType cpu>

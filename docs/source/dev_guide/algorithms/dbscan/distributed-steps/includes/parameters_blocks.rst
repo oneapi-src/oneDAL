@@ -35,4 +35,4 @@
      - Unique identifier of block initially passed for computation on the local node.
    * - ``nBlocks``
      - Not applicable
-     - Number of blocks initially passed for computation on all nodes.
+     - The number of blocks initially passed for computation on all nodes.

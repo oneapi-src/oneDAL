@@ -15,7 +15,7 @@
 .. *******************************************************************************/
 
 .. |idz| replace:: |short_name| home page
-.. _idz: https://software.intel.com/en-us/oneapi/dal
+.. _idz: https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onedal.html
 
 .. |github_rls| replace:: |short_name| GitHub\*
 .. _github_rls: https://github.com/oneapi-src/oneDAL/releases

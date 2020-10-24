@@ -21,28 +21,34 @@
 
 namespace oneapi::dal::knn::detail {
 
-template <typename Context, typename... Options>
-struct ONEAPI_DAL_EXPORT infer_ops_dispatcher {
-    infer_result operator()(const Context&, const descriptor_base&, const infer_input&) const;
+template <typename Context,
+          typename Float,
+          typename Method = method::by_default,
+          typename Task = task::by_default>
+struct ONEDAL_EXPORT infer_ops_dispatcher {
+    infer_result<Task> operator()(const Context&,
+                                  const descriptor_base<Task>&,
+                                  const infer_input<Task>&) const;
 };
 
 template <typename Descriptor>
 struct infer_ops {
     using float_t = typename Descriptor::float_t;
     using method_t = typename Descriptor::method_t;
-    using input_t = infer_input;
-    using result_t = infer_result;
-    using descriptor_base_t = descriptor_base;
+    using task_t = typename Descriptor::task_t;
+    using input_t = infer_input<task_t>;
+    using result_t = infer_result<task_t>;
+    using descriptor_base_t = descriptor_base<task_t>;
 
-    void check_preconditions(const Descriptor& params, const infer_input& input) const {
+    void check_preconditions(const Descriptor& params, const input_t& input) const {
         if (!(input.get_data().has_data())) {
             throw domain_error("Input data should not be empty");
         }
     }
 
     void check_postconditions(const Descriptor& params,
-                              const infer_input& input,
-                              const infer_result& result) const {
+                              const input_t& input,
+                              const result_t& result) const {
         if (result.get_labels().get_column_count() != 1) {
             throw internal_error("Result labels column_count should contain a single column");
         }
@@ -52,9 +58,10 @@ struct infer_ops {
     }
 
     template <typename Context>
-    auto operator()(const Context& ctx, const Descriptor& desc, const infer_input& input) const {
+    auto operator()(const Context& ctx, const Descriptor& desc, const input_t& input) const {
         check_preconditions(desc, input);
-        const auto result = infer_ops_dispatcher<Context, float_t, method_t>()(ctx, desc, input);
+        const auto result =
+            infer_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, input);
         check_postconditions(desc, input, result);
         return result;
     }

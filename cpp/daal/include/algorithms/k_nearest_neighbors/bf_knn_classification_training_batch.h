@@ -89,7 +89,7 @@ class DAAL_EXPORT Batch : public classifier::training::Batch
 public:
     typedef classifier::training::Batch super;
 
-    typedef typename super::InputType InputType;
+    typedef algorithms::bf_knn_classification::training::Input InputType;
     typedef algorithms::bf_knn_classification::Parameter ParameterType;
     typedef algorithms::bf_knn_classification::training::Result ResultType;
 

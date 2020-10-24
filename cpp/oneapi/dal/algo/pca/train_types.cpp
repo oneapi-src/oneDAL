@@ -19,6 +19,7 @@
 
 namespace oneapi::dal::pca {
 
+template <typename Task>
 class detail::train_input_impl : public base {
 public:
     train_input_impl(const table& data) : data(data) {}
@@ -26,54 +27,80 @@ public:
     table data;
 };
 
+template <typename Task>
 class detail::train_result_impl : public base {
 public:
-    model trained_model;
+    model<Task> trained_model;
     table eigenvalues;
-    table explained_variance;
+    table variances;
+    table means;
 };
 
 using detail::train_input_impl;
 using detail::train_result_impl;
 
-train_input::train_input(const table& data) : impl_(new train_input_impl(data)) {}
+template <typename Task>
+train_input<Task>::train_input(const table& data) : impl_(new train_input_impl(data)) {}
 
-table train_input::get_data() const {
+template <typename Task>
+table train_input<Task>::get_data() const {
     return impl_->data;
 }
 
-void train_input::set_data_impl(const table& value) {
+template <typename Task>
+void train_input<Task>::set_data_impl(const table& value) {
     impl_->data = value;
 }
 
-train_result::train_result() : impl_(new train_result_impl{}) {}
+template <typename Task>
+train_result<Task>::train_result() : impl_(new train_result_impl{}) {}
 
-model train_result::get_model() const {
+template <typename Task>
+model<Task> train_result<Task>::get_model() const {
     return impl_->trained_model;
 }
 
-table train_result::get_eigenvalues() const {
+template <typename Task>
+table train_result<Task>::get_eigenvalues() const {
     return impl_->eigenvalues;
 }
 
-table train_result::get_eigenvectors() const {
+template <typename Task>
+table train_result<Task>::get_eigenvectors() const {
     return impl_->trained_model.get_eigenvectors();
 }
 
-table train_result::get_explained_variance() const {
-    return impl_->explained_variance;
+template <typename Task>
+table train_result<Task>::get_variances() const {
+    return impl_->variances;
 }
 
-void train_result::set_model_impl(const model& value) {
+template <typename Task>
+table train_result<Task>::get_means() const {
+    return impl_->means;
+}
+
+template <typename Task>
+void train_result<Task>::set_model_impl(const model<Task>& value) {
     impl_->trained_model = value;
 }
 
-void train_result::set_eigenvalues_impl(const table& value) {
+template <typename Task>
+void train_result<Task>::set_eigenvalues_impl(const table& value) {
     impl_->eigenvalues = value;
 }
 
-void train_result::set_explained_variance_impl(const table& value) {
-    impl_->explained_variance = value;
+template <typename Task>
+void train_result<Task>::set_variances_impl(const table& value) {
+    impl_->variances = value;
 }
+
+template <typename Task>
+void train_result<Task>::set_means_impl(const table& value) {
+    impl_->means = value;
+}
+
+template class ONEDAL_EXPORT train_input<task::dim_reduction>;
+template class ONEDAL_EXPORT train_result<task::dim_reduction>;
 
 } // namespace oneapi::dal::pca

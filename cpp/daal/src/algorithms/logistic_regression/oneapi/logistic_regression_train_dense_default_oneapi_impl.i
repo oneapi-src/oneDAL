@@ -27,7 +27,9 @@
 
 #include "algorithms/optimization_solver/objective_function/logistic_loss_batch.h"
 #include "algorithms/optimization_solver/objective_function/cross_entropy_loss_batch.h"
-#include "data_management/data/numeric_table_sycl_homogen.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
+
+#include "src/services/service_data_utils.h"
 
 #include "src/externals/service_ittnotify.h"
 DAAL_ITTNOTIFY_DOMAIN(logistic_regression.training.batch.oneapi);
@@ -45,7 +47,7 @@ namespace internal
 using namespace daal::algorithms::logistic_regression::training::internal;
 using namespace daal::algorithms::optimization_solver;
 using namespace daal::data_management;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 template <typename algorithmFPType, Method method>
 services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const services::HostAppIfacePtr & pHost, const NumericTablePtr & x,
@@ -54,20 +56,31 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
 {
     services::Status status;
 
-    const size_t p     = x->getNumberOfColumns();
-    const size_t n     = x->getNumberOfRows();
+    const size_t p = x->getNumberOfColumns();
+    const size_t n = x->getNumberOfRows();
+
+    constexpr size_t maxInt32Value = static_cast<size_t>(daal::services::internal::MaxVal<int32_t>::get());
+
+    DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, p, 1);
     const size_t nBeta = p + 1;
+
     DAAL_ASSERT(nBeta == m.getNumberOfBetas());
     const size_t nClasses    = par.nClasses;
     const TypeIds::Id idType = TypeIds::id<algorithmFPType>();
 
-    auto & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
+    DAAL_CHECK(nClasses <= maxInt32Value, services::ErrorIncorrectNumberOfClasses);
+    DAAL_CHECK(p <= maxInt32Value, services::ErrorIncorrectNumberOfFeatures);
+
+    auto & ctx = services::internal::getDefaultContext();
 
     services::SharedPtr<optimization_solver::iterative_solver::Batch> pSolver = par.optimizationSolver->clone();
+    DAAL_ASSERT(pSolver == true);
     pSolver->setHostApp(pHost);
     if (nClasses == 2)
     {
         services::SharedPtr<logistic_loss::Batch<algorithmFPType> > objFunc(logistic_loss::Batch<algorithmFPType>::create(n));
+
+        DAAL_ASSERT(objFunc == true);
         objFunc->input.set(logistic_loss::data, x);
         objFunc->input.set(logistic_loss::dependentVariables, y);
         objFunc->parameter().interceptFlag = par.interceptFlag;
@@ -77,8 +90,11 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
     }
     else
     {
+        DAAL_CHECK(nClasses > 2, services::ErrorIncorrectParameter);
+
         services::SharedPtr<cross_entropy_loss::Batch<algorithmFPType> > objFunc(cross_entropy_loss::Batch<algorithmFPType>::create(nClasses, n));
 
+        DAAL_ASSERT(objFunc == true);
         objFunc->input.set(cross_entropy_loss::data, x);
         objFunc->input.set(cross_entropy_loss::dependentVariables, y);
         objFunc->parameter().interceptFlag = par.interceptFlag;
@@ -87,23 +103,21 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
         pSolver->getParameter()->function  = objFunc;
     }
 
-    const size_t nBetaRows  = m.getBeta()->getNumberOfRows();
+    const size_t nBetaRows = m.getBeta()->getNumberOfRows();
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBeta, nBetaRows);
     const size_t nBetaTotal = nBeta * nBetaRows;
 
-    UniversalBuffer argumentU                      = ctx.allocate(idType, nBetaTotal, &status);
-    services::Buffer<algorithmFPType> argumentBuff = argumentU.get<algorithmFPType>();
+    UniversalBuffer argumentU                                = ctx.allocate(idType, nBetaTotal, status);
+    services::internal::Buffer<algorithmFPType> argumentBuff = argumentU.get<algorithmFPType>();
 
-    auto argumentSNT = data_management::SyclHomogenNumericTable<algorithmFPType>::create(argumentBuff, 1, nBetaTotal, &status);
+    auto argumentSNT = data_management::internal::SyclHomogenNumericTable<algorithmFPType>::create(argumentBuff, 1, nBetaTotal, &status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    ctx.fill(argumentU, 0.0, &status);
+    ctx.fill(argumentU, 0.0, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     //initialization
-    if (nClasses == 2)
-    {
-        // TODO
-    }
-    else
+    if (nClasses != 2)
     {
         const algorithmFPType initialVal = algorithmFPType(1e-3);
         DAAL_CHECK_STATUS(status, HelperObjectiveFunction::setColElem(0, initialVal, argumentBuff, nClasses, p));
@@ -112,11 +126,7 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
     //initialize solver arguments
     pSolver->getInput()->set(optimization_solver::iterative_solver::inputArgument, argumentSNT);
 
-    {
-        DAAL_CHECK_STATUS(status, pSolver->computeNoThrow());
-    }
-
-    DAAL_CHECK_STATUS_VAR(status);
+    DAAL_CHECK_STATUS(status, pSolver->computeNoThrow());
 
     {
         NumericTablePtr nIterationsNT = pSolver->getResult()->get(optimization_solver::iterative_solver::nIterations);
@@ -126,6 +136,8 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
         const int * pnIterations = nIterationsBlock.getBlockPtr();
 
         NumericTablePtr nIterationsOut = data_management::HomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, pnIterations[0], &status);
+        DAAL_CHECK_STATUS_VAR(status);
+
         par.optimizationSolver->getResult()->set(optimization_solver::iterative_solver::nIterations, nIterationsOut);
         DAAL_CHECK_STATUS(status, nIterationsNT->releaseBlockOfRows(nIterationsBlock));
     }
@@ -134,7 +146,7 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
     BlockDescriptor<algorithmFPType> minimumBlock;
     DAAL_CHECK_STATUS(status, minimumSNT->getBlockOfRows(0, nBetaTotal, ReadWriteMode::readOnly, minimumBlock));
 
-    services::Buffer<algorithmFPType> minimumBuff = minimumBlock.getBuffer();
+    services::internal::Buffer<algorithmFPType> minimumBuff = minimumBlock.getBuffer();
 
     data_management::NumericTablePtr betaNT = m.getBeta();
     {
@@ -142,11 +154,17 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
 
         DAAL_CHECK_STATUS(status, betaNT->getBlockOfRows(0, nBetaRows, ReadWriteMode::writeOnly, dataRows));
 
-        services::Buffer<algorithmFPType> betaBuff = dataRows.getBuffer();
-        ctx.copy(betaBuff, 0, minimumBuff, 0, nBetaTotal, &status);
+        services::internal::Buffer<algorithmFPType> betaBuff = dataRows.getBuffer();
+
+        DAAL_ASSERT(betaBuff.size() == nBetaTotal);
+        DAAL_ASSERT(minimumBuff.size() == nBetaTotal);
+        ctx.copy(betaBuff, 0, minimumBuff, 0, nBetaTotal, status);
+        DAAL_CHECK_STATUS_VAR(status);
 
         if (!par.interceptFlag)
         {
+            DAAL_CHECK(nBeta <= maxInt32Value, services::ErrorIncorrectNumberOfBetas);
+            DAAL_CHECK(nBetaRows <= maxInt32Value, services::ErrorIncorrectNumberOfRows);
             DAAL_CHECK_STATUS(status, HelperObjectiveFunction::setColElem(0, algorithmFPType(0), betaBuff, nBetaRows, nBeta));
         }
 

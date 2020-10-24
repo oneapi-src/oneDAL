@@ -79,7 +79,6 @@
 #include "algorithms/kmeans/kmeans_types.h"
 #include "algorithms/kmeans/kmeans_batch.h"
 #include "algorithms/kmeans/kmeans_distributed.h"
-#include "algorithms/kmeans/kmeans_multinode_batch.h"
 #include "algorithms/kmeans/kmeans_init_types.h"
 #include "algorithms/kmeans/kmeans_init_batch.h"
 #include "algorithms/kmeans/kmeans_init_distributed.h"

@@ -254,6 +254,9 @@ JJ.ALGORITHMS       := adaboost                                                 
                        adaboost/training                                         \
                        association_rules                                         \
                        bacon_outlier_detection                                   \
+                       bf_knn_classification                                     \
+                       bf_knn_classification/prediction                          \
+                       bf_knn_classification/training                            \
                        binary_adaboost                                           \
                        binary_adaboost/prediction                                \
                        binary_adaboost/quality_metric_set                        \

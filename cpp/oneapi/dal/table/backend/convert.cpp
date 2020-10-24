@@ -23,49 +23,49 @@ void convert_vector(const detail::default_host_policy& policy,
                     const void* src,
                     void* dst,
                     data_type src_type,
-                    data_type dest_type,
-                    std::int64_t size) {
-    interop::daal_convert(src, dst, src_type, dest_type, size);
+                    data_type dst_type,
+                    std::int64_t element_count) {
+    interop::daal_convert(src, dst, src_type, dst_type, element_count);
 }
 
 void convert_vector(const detail::default_host_policy& policy,
                     const void* src,
                     void* dst,
                     data_type src_type,
-                    data_type dest_type,
+                    data_type dst_type,
                     std::int64_t src_stride,
                     std::int64_t dst_stride,
-                    std::int64_t size) {
-    interop::daal_convert(src, dst, src_type, dest_type, src_stride, dst_stride, size);
+                    std::int64_t element_count) {
+    interop::daal_convert(src, dst, src_type, dst_type, src_stride, dst_stride, element_count);
 }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 
 void convert_vector(const detail::data_parallel_policy& policy,
                     const void* src,
                     void* dst,
                     data_type src_type,
-                    data_type dest_type,
-                    std::int64_t size) {
-    convert_vector(detail::default_host_policy{}, src, dst, src_type, dest_type, size);
+                    data_type dst_type,
+                    std::int64_t element_count) {
+    convert_vector(detail::default_host_policy{}, src, dst, src_type, dst_type, element_count);
 }
 
 void convert_vector(const detail::data_parallel_policy& policy,
                     const void* src,
                     void* dst,
                     data_type src_type,
-                    data_type dest_type,
+                    data_type dst_type,
                     std::int64_t src_stride,
                     std::int64_t dst_stride,
-                    std::int64_t size) {
+                    std::int64_t element_count) {
     convert_vector(detail::default_host_policy{},
                    src,
                    dst,
                    src_type,
-                   dest_type,
+                   dst_type,
                    src_stride,
                    dst_stride,
-                   size);
+                   element_count);
 }
 #endif
 

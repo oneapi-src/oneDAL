@@ -29,8 +29,14 @@
 #define __INTEL_DAAL__        2199
 #define __INTEL_DAAL_MINOR__  9
 #define __INTEL_DAAL_UPDATE__ 9
+#define __INTEL_DAAL_STATUS__ 'A'
 
 #define INTEL_DAAL_VERSION (__INTEL_DAAL__ * 10000 + __INTEL_DAAL_MINOR__ * 100 + __INTEL_DAAL_UPDATE__)
+
+#define __INTEL_DAAL_MAJOR_BINARY__ 999
+#define __INTEL_DAAL_MINOR_BINARY__ 999
+
+#define INTEL_DAAL_BINARY_VERSION (__INTEL_DAAL_MAJOR_BINARY__ * 1000 + __INTEL_DAAL_MINOR_BINARY__)
 
 #include "services/base.h"
 

@@ -20,6 +20,7 @@
 
 namespace oneapi::dal::kmeans {
 
+template <typename Task>
 class detail::train_input_impl : public base {
 public:
     train_input_impl(const table& data) : data(data) {}
@@ -31,9 +32,10 @@ public:
     table initial_centroids;
 };
 
+template <typename Task>
 class detail::train_result_impl : public base {
 public:
-    model trained_model;
+    model<Task> trained_model;
     table labels;
     std::int64_t iteration_count = 0;
     double objective_function_value = 0.0;
@@ -42,65 +44,83 @@ public:
 using detail::train_input_impl;
 using detail::train_result_impl;
 
-train_input::train_input(const table& data) : impl_(new train_input_impl(data)) {}
+template <typename Task>
+train_input<Task>::train_input(const table& data) : impl_(new train_input_impl(data)) {}
 
-train_input::train_input(const table& data, const table& initial_centroids)
-        : impl_(new train_input_impl(data, initial_centroids)) {}
+template <typename Task>
+train_input<Task>::train_input(const table& data, const table& initial_centroids)
+        : impl_(new train_input_impl<Task>(data, initial_centroids)) {}
 
-table train_input::get_data() const {
+template <typename Task>
+table train_input<Task>::get_data() const {
     return impl_->data;
 }
 
-table train_input::get_initial_centroids() const {
+template <typename Task>
+table train_input<Task>::get_initial_centroids() const {
     return impl_->initial_centroids;
 }
 
-void train_input::set_data_impl(const table& value) {
+template <typename Task>
+void train_input<Task>::set_data_impl(const table& value) {
     impl_->data = value;
 }
 
-void train_input::set_initial_centroids_impl(const table& value) {
+template <typename Task>
+void train_input<Task>::set_initial_centroids_impl(const table& value) {
     impl_->initial_centroids = value;
 }
 
-train_result::train_result() : impl_(new train_result_impl{}) {}
+template <typename Task>
+train_result<Task>::train_result() : impl_(new train_result_impl{}) {}
 
-model train_result::get_model() const {
+template <typename Task>
+model<Task> train_result<Task>::get_model() const {
     return impl_->trained_model;
 }
 
-table train_result::get_labels() const {
+template <typename Task>
+table train_result<Task>::get_labels() const {
     return impl_->labels;
 }
 
-std::int64_t train_result::get_iteration_count() const {
+template <typename Task>
+std::int64_t train_result<Task>::get_iteration_count() const {
     return impl_->iteration_count;
 }
 
-double train_result::get_objective_function_value() const {
+template <typename Task>
+double train_result<Task>::get_objective_function_value() const {
     return impl_->objective_function_value;
 }
 
-void train_result::set_model_impl(const model& value) {
+template <typename Task>
+void train_result<Task>::set_model_impl(const model<Task>& value) {
     impl_->trained_model = value;
 }
 
-void train_result::set_labels_impl(const table& value) {
+template <typename Task>
+void train_result<Task>::set_labels_impl(const table& value) {
     impl_->labels = value;
 }
 
-void train_result::set_iteration_count_impl(std::int64_t value) {
+template <typename Task>
+void train_result<Task>::set_iteration_count_impl(std::int64_t value) {
     if (value < 0) {
         throw domain_error("iteration_count should be >= 0");
     }
     impl_->iteration_count = value;
 }
 
-void train_result::set_objective_function_value_impl(double value) {
+template <typename Task>
+void train_result<Task>::set_objective_function_value_impl(double value) {
     if (value < 0.0) {
         throw domain_error("objective_function_value should be >= 0");
     }
     impl_->objective_function_value = value;
 }
+
+template class ONEDAL_EXPORT train_input<task::clustering>;
+template class ONEDAL_EXPORT train_result<task::clustering>;
 
 } // namespace oneapi::dal::kmeans

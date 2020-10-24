@@ -141,15 +141,18 @@ jobs:
       wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
       bash miniconda.sh -b -p $HOME/miniconda
       export PATH="$HOME/miniconda/bin:$PATH"
+      conda config --set always_yes yes --set changeps1 no
+      conda update -q conda
       conda create -q -y -n CB python=3.7 conda-build conda-verify
     displayName: Create Anaconda environment
   - script: |
-      export DPCPP_VAR=/opt/intel/oneapi/compiler/latest/env/vars.sh
+      export DPCPPROOT=/opt/intel/oneapi/compiler/latest
       export DAALROOT=$(Pipeline.Workspace)/daal/latest
+      export TBBROOT=$(Pipeline.Workspace)/tbb/latest
       . $HOME/miniconda/etc/profile.d/conda.sh
       conda activate CB
       cd daal4py
-      conda build --override-channels -c conda-forge -c intel --no-test conda-recipe
+      conda build --override-channels -c conda-forge -c intel --numpy=1.17 conda-recipe
     displayName: conda build
   - script: |
       $(Pipeline.Workspace)/s/.ci/scripts/conformance_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/oneapi
@@ -163,11 +166,7 @@ jobs:
     inputs:
       artifactName: '$(platform.type) conformance tests report'
       targetPath: '$(Build.ArtifactStagingDirectory)/'
-  - script: |
-      export TBBROOT=$(Pipeline.Workspace)/tbb/latest
-      $(Pipeline.Workspace)/s/.ci/scripts/daal4py_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/oneapi --daal4py-dir $(Pipeline.Workspace)/s/daal4py
-    timeoutInMinutes: 15
-    displayName: daal4py test
+
 - job: 'macOSMake'
   timeoutInMinutes: 0
   variables:
@@ -190,15 +189,20 @@ jobs:
       artifactName: 'Mac build'
       targetPath: '$(release.dir)'
 
-# Windows build is temporary disabled
 #- job: Windows
+#  timeoutInMinutes: 0
 #  pool:
-#    vmImage: 'vs2017-win2016'
+#    vmImage: 'windows-2019'
 #  steps:
 #  - script: |
 #      java -version
-#      set INCLUDE=%JAVA_HOME%\include;%JAVA_HOME%\include\win32;%INCLUDE%
-#      call .\scripts\mklfpk.bat && call .\scripts\tbb.bat
-#      call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
-#      call .\__deps\tbb\bin\tbbvars.bat intel64 14_uwp
-#     make daal COMPILER=vc PLAT="win32e"
+#      set INCLUDE=%JAVA_HOME%\include;%INCLUDE%
+#      echo "call .ci\env\tbb.bat"
+#      call .ci\env\tbb.bat
+#      echo "call .\dev\download_micromkl.bat"
+#      call .\dev\download_micromkl.bat
+#      echo call "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
+#      call "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
+#      echo make daal COMPILER=vc PLAT="win32e" REQCPU="avx2"
+#      make daal COMPILER=vc PLAT="win32e" REQCPU="avx2"
+#    displayName: 'Build'

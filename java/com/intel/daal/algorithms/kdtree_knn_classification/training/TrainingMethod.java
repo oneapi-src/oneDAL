@@ -28,7 +28,7 @@ import java.lang.annotation.Native;
 import com.intel.daal.utils.*;
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__TRAINING__TRAININGMETHOD"></a>
- * @brief Available methods for k nearest neighbors model-based training
+ * @brief Available methods for KD-tree based k nearest neighbors model-based training
  */
 public final class TrainingMethod {
 

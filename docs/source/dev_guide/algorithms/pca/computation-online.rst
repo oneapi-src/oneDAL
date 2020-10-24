@@ -152,7 +152,7 @@ For more details, see :ref:`algorithms`.
                     except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
 
             * - ``sumSquaresSVD``
-              - Pointer to the :math:`1 x p` numeric table with partial sums of squares computed so far.
+              - Pointer to the :math:`1 \times p` numeric table with partial sums of squares computed so far.
 
                 .. note::
 

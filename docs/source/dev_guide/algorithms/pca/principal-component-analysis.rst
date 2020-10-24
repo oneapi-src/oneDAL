@@ -106,7 +106,7 @@ Examples
 
       Batch Processing:
 
-      - :ref:`cpp_pca_cor_dense_batch.cpp`
+      - :ref:`cpp_pca_dense_batch.cpp`
 
    .. tab:: C++ (CPU)
 
@@ -214,7 +214,7 @@ Distributed Processing
 ----------------------
 
 PCA with the SVD method (svdDense) in the distributed processing
-mode requires gathering local-node p x p numeric tables on the
+mode requires gathering local-node :math:`p \times p` numeric tables on the
 master node. When the amount of local-node work is small, that is,
 when the local-node data set is small, the network data transfer
 may become a bottleneck. To avoid this situation, ensure that

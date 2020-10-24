@@ -55,14 +55,16 @@ Parameter::Parameter()
       minObservationsInSplitNode(2),
       minWeightFractionInLeafNode(0.),
       minImpurityDecreaseInSplitNode(0.),
-      maxLeafNodes(0)
+      maxLeafNodes(0),
+      minBinSize(5),
+      maxBins(256)
 {}
 } // namespace interface2
 Status checkImpl(const decision_forest::training::interface2::Parameter & prm)
 {
     DAAL_CHECK_EX(prm.nTrees, ErrorIncorrectParameter, ParameterName, nTreesStr());
     DAAL_CHECK_EX(prm.minObservationsInLeafNode, ErrorIncorrectParameter, ParameterName, minObservationsInLeafNodeStr());
-    DAAL_CHECK_EX(prm.minObservationsInSplitNode, ErrorIncorrectParameter, ParameterName, minObservationsInSplitNodeStr());
+    DAAL_CHECK_EX(prm.minObservationsInSplitNode > 1, ErrorIncorrectParameter, ParameterName, minObservationsInSplitNodeStr());
     DAAL_CHECK_EX((prm.minWeightFractionInLeafNode >= 0.0) && (prm.minWeightFractionInLeafNode <= 0.5), ErrorIncorrectParameter, ParameterName,
                   minWeightFractionInLeafNodeStr());
     DAAL_CHECK_EX(prm.minImpurityDecreaseInSplitNode >= 0.0, ErrorIncorrectParameter, ParameterName, minImpurityDecreaseInSplitNodeStr());
@@ -75,6 +77,8 @@ Status checkImpl(const decision_forest::training::interface2::Parameter & prm)
         if (prm.varImportance == MDA_Raw || prm.varImportance == MDA_Scaled) s.add(Error::create(ErrorDFBootstrapVarImportanceIncompatible));
         if (prm.resultsToCompute & computeOutOfBagError) s.add(Error::create(ErrorDFBootstrapOOBIncompatible));
     }
+    DAAL_CHECK_EX((prm.maxBins >= 2), ErrorIncorrectParameter, ParameterName, maxBinsStr());
+    DAAL_CHECK_EX((prm.minBinSize >= 1), ErrorIncorrectParameter, ParameterName, minBinSizeStr());
     return s;
 }
 } // namespace training

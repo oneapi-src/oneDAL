@@ -16,6 +16,7 @@
 *******************************************************************************/
 
 #include "src/algorithms/k_nearest_neighbors/bf_knn_classification_train_container.h"
+#include "src/algorithms/k_nearest_neighbors/bf_knn_classification_train_kernel_impl.i"
 
 namespace daal
 {
@@ -28,8 +29,11 @@ namespace training
 namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-
-} // namespace interface1
+}
+namespace internal
+{
+template class KNNClassificationTrainKernel<DAAL_FPTYPE, DAAL_CPU>;
+}
 } // namespace training
 } // namespace bf_knn_classification
 } // namespace algorithms

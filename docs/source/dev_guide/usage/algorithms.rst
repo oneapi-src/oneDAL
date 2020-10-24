@@ -35,7 +35,7 @@ ensure that the structure of the input data, that is, the number of features, th
 The following methods are available to provide input to an algorithm:
 
 .. list-table::
-   :widths: 25 75
+   :widths: 10 60
    :align: left
 
    * - ``input.set(Input ID, InputData)``
@@ -70,7 +70,7 @@ Follow these steps to provide user allocated memory for partial or final results
 Algorithm Parameters
 ********************
 
-Most of algorithms in Intel DAAL have a set of algorithm-specific parameters.
+Most of algorithms in |short_name| have a set of algorithm-specific parameters.
 Because most of the parameters are optional and preset with default values, you can often omit parameter modification.
 Provide required parameters to the algorithm using the constructor during algorithm initialization.
 If you need to change the parameters, you can do it by accessing the public field parameter of the algorithm.

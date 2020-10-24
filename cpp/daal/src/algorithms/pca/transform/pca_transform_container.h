@@ -26,9 +26,8 @@
 #ifndef __PCA_TRANSFORM_CONTAINER_H__
 #define __PCA_TRANSFORM_CONTAINER_H__
 
-#include "algorithms/pca/transform/pca_transform_batch.h"
 #include "src/algorithms/pca/transform/pca_transform_kernel.h"
-#include "sycl/internal/utils.h"
+#include "services/internal/execution_context.h"
 #include "src/algorithms/pca/transform/oneapi/pca_transform_dense_default_batch_oneapi.h"
 
 namespace daal
@@ -42,7 +41,7 @@ namespace transform
 template <typename algorithmFPType, transform::Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : AnalysisContainerIface<batch>(daalEnv)
 {
-    auto & context    = daal::oneapi::internal::getDefaultContext();
+    auto & context    = daal::services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)
@@ -74,7 +73,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     daal::services::Environment::env & env = *_env;
 
-    auto & context    = daal::oneapi::internal::getDefaultContext();
+    auto & context    = daal::services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)

@@ -97,13 +97,51 @@ public class Parameter extends com.intel.daal.algorithms.classifier.Parameter {
         return new DataUseInModelId(cGetDataUseInModel(this.cObject));
     }
 
+    /**
+     * Sets the flag that indicates the results to compute
+     * @param resultsToCompute   Flag that indicates the results to compute
+     */
+    public void setResultsToCompute(long resultsToCompute) {
+        cSetResultsToCompute(this.cObject, resultsToCompute);
+    }
+
+    /**
+     * Returns the flag that indicates the results to compute
+     * @return Flag that indicates the results to compute
+     */
+    public long getResultsToCompute() {
+        return cGetResultsToCompute(this.cObject);
+    }
+
+    /**
+     * @DAAL_DEPRECATED
+     * Sets the weight function used in prediction voting
+     * @param voteWeights   Weight function used in prediction voting
+     */
+    public void setVoteWeights(VoteWeightsId voteWeights) {
+        cSetVoteWeights(this.cObject, voteWeights.getValue());
+    }
+
+    /**
+     * @DAAL_DEPRECATED
+     * Returns the weight function used in prediction voting
+     * @return Weight function used in prediction voting
+     */
+    public VoteWeightsId getVoteWeights() {
+        return new VoteWeightsId(cGetVoteWeights(this.cObject));
+    }
+
     private native void cSetK(long algAddr, long k);
     private native void cSetSeed(long algAddr, int seed);
     private native void cSetEngine(long cObject, long cEngineObject);
     private native void cSetDataUseInModel(long algAddr, int flag);
+    private native void cSetResultsToCompute(long algAddr, long flag);
+    private native void cSetVoteWeights(long algAddr, int flag);
 
     private native long cGetK(long algAddr);
     private native int cGetSeed(long algAddr);
     private native int cGetDataUseInModel(long algAddr);
+    private native long cGetResultsToCompute(long algAddr);
+    private native int cGetVoteWeights(long algAddr);
 }
 /** @} */

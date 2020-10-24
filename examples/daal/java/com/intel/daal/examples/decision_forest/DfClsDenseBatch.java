@@ -62,6 +62,9 @@ class DfClsDenseBatch {
     /* Decision forest classification algorithm parameters */
     private static final int nTrees = 10;
     private static final int minObservationsInLeafNode = 8;
+    private static final int minObservationsInSplitNode = 16;
+    private static final double minWeightFractionInLeafNode = 0.0;
+    private static final double minImpurityDecreaseInSplitNode = 0.0;
 
     private static NumericTable testGroundTruth;
 
@@ -104,6 +107,9 @@ class DfClsDenseBatch {
         algorithm.parameter.setMinObservationsInLeafNode(minObservationsInLeafNode);
         algorithm.parameter.setVariableImportanceMode(VariableImportanceModeId.MDI);
         algorithm.parameter.setResultsToCompute(ResultsToComputeId.computeOutOfBagError);
+        algorithm.parameter.setMinObservationsInSplitNode(minObservationsInSplitNode);
+        algorithm.parameter.setMinWeightFractionInLeafNode(minWeightFractionInLeafNode);
+        algorithm.parameter.setMinImpurityDecreaseInSplitNode(minImpurityDecreaseInSplitNode);
 
         /* Pass a training data set and dependent values to the algorithm */
         algorithm.input.set(InputId.data, trainData);

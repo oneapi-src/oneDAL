@@ -47,6 +47,12 @@ case ${ALG_NAME} in
     "svm_sparse")
         cp ${SKLEARN_PATH}svm/tests/test_sparse.py test_svm_sparse.py
     ;;
+    "forest")
+        cp ${SKLEARN_PATH}ensemble/tests/test_forest.py test_forest.py
+    ;;
+    "knn")
+        cp ${SKLEARN_PATH}neighbors/tests/test_neighbors.py test_knn.py
+    ;;
     *)
         echo "Unknown algorithm: ${ALG_NAME}"
         exit 1

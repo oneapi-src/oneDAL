@@ -64,6 +64,29 @@ enum Method
 namespace interface1
 {
 /**
+ * <a name="DAAL-CLASS-ALGORITHMS__BF_KNN_CLASSIFICATION__TRAINING__INPUT"></a>
+ * \brief %Input objects for brute force kNN model-based training
+ */
+class DAAL_EXPORT Input : public classifier::training::Input
+{
+public:
+    Input() : classifier::training::Input() {}
+    Input(const Input & other) : classifier::training::Input(other) {}
+
+    /**
+     * Checks the correctness of the input object
+     * \param[in] parameter Pointer to the structure of the algorithm parameters
+     * \param[in] method    Computation method
+     */
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+
+protected:
+    services::Status checkImpl(const daal::algorithms::Parameter * parameter) const;
+};
+typedef services::SharedPtr<Input> InputPtr;
+typedef services::SharedPtr<const Input> InputConstPtr;
+
+/**
  * <a name="DAAL-CLASS-ALGORITHMS__BF_KNN_CLASSIFICATION__TRAINING__RESULT"></a>
  * \brief Provides methods to access the result obtained with the compute() method of BF kNN model-based training
  */
@@ -102,6 +125,10 @@ typedef services::SharedPtr<Result> ResultPtr;
 
 using interface1::Result;
 using interface1::ResultPtr;
+
+using interface1::Input;
+using interface1::InputPtr;
+using interface1::InputConstPtr;
 
 } // namespace training
 /** @} */

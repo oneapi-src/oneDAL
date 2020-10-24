@@ -15,16 +15,18 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "sycl/internal/math/reference_gemm.h"
-#include "sycl/internal/math/reference_axpy.h"
+#include "services/internal/sycl/math/reference_gemm.h"
+#include "services/internal/sycl/math/reference_axpy.h"
 #include "src/sycl/blas_gpu.h"
 #include "src/sycl/cl_kernels/kernel_blas.cl"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 namespace math
 {
@@ -33,26 +35,30 @@ namespace interface1
 template <typename algorithmFPType>
 services::Status ReferenceGemm<algorithmFPType>::operator()(const Transpose transa, const Transpose transb, const size_t m, const size_t n,
                                                             const size_t k, const algorithmFPType alpha,
-                                                            const services::Buffer<algorithmFPType> & a_buffer, const size_t lda,
-                                                            const size_t offsetA, const services::Buffer<algorithmFPType> & b_buffer,
+                                                            const services::internal::Buffer<algorithmFPType> & a_buffer, const size_t lda,
+                                                            const size_t offsetA, const services::internal::Buffer<algorithmFPType> & b_buffer,
                                                             const size_t ldb, const size_t offsetB, const algorithmFPType beta,
-                                                            services::Buffer<algorithmFPType> & c_buffer, const size_t ldc, const size_t offsetC)
+                                                            services::internal::Buffer<algorithmFPType> & c_buffer, const size_t ldc,
+                                                            const size_t offsetC)
 {
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
     services::String options       = getKeyFPType<algorithmFPType>();
     services::String cacheKey      = "__daal_gemm_";
     cacheKey.add(options);
 
-    factory.build(ExecutionTargetIds::device, cacheKey.c_str(), clKernelGemm, options.c_str());
+    factory.build(ExecutionTargetIds::device, cacheKey.c_str(), clKernelGemm, options.c_str(), status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = beta != algorithmFPType(0) ? "blas_sgemm_small" : "blas_sgemm_without_sum";
 
-    KernelPtr kernelGemm = factory.getKernel(kernelName);
+    KernelPtr kernelGemm = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(15);
+    KernelArguments args(15, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const uint32_t one = uint32_t(1);
 
@@ -99,7 +105,7 @@ services::Status ReferenceGemm<algorithmFPType>::operator()(const Transpose tran
 
     KernelRange range(m, n);
 
-    ctx.run(range, kernelGemm, args, &status);
+    ctx.run(range, kernelGemm, args, status);
 
     return status;
 }
@@ -108,22 +114,26 @@ template class ReferenceGemm<float>;
 template class ReferenceGemm<double>;
 
 template <typename algorithmFPType>
-services::Status ReferenceAxpy<algorithmFPType>::operator()(const int n, const algorithmFPType a, const services::Buffer<algorithmFPType> & x_buffer,
-                                                            const int incx, services::Buffer<algorithmFPType> & y_buffer, const int incy)
+services::Status ReferenceAxpy<algorithmFPType>::operator()(const int n, const algorithmFPType a,
+                                                            const services::internal::Buffer<algorithmFPType> & x_buffer, const int incx,
+                                                            services::internal::Buffer<algorithmFPType> & y_buffer, const int incy)
 {
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
     services::String options       = getKeyFPType<algorithmFPType>();
     services::String cacheKey      = "__daal_axpy_";
     cacheKey.add(options);
 
-    factory.build(ExecutionTargetIds::device, cacheKey.c_str(), clKernelAxpy, options.c_str());
+    factory.build(ExecutionTargetIds::device, cacheKey.c_str(), clKernelAxpy, options.c_str(), status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelPtr blas_axpy = factory.getKernel("blas_axpy");
+    KernelPtr blas_axpy = factory.getKernel("blas_axpy", status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(5);
+    KernelArguments args(5, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     args.set(0, a);
     args.set(1, x_buffer, AccessModeId::read);
@@ -133,7 +143,7 @@ services::Status ReferenceAxpy<algorithmFPType>::operator()(const int n, const a
 
     KernelRange range(n);
 
-    ctx.run(range, blas_axpy, args, &status);
+    ctx.run(range, blas_axpy, args, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     return status;
@@ -144,6 +154,7 @@ template class ReferenceAxpy<double>;
 
 } // namespace interface1
 } // namespace math
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal

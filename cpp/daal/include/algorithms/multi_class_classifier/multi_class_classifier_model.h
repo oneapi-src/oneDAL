@@ -46,6 +46,16 @@ namespace algorithms
 namespace multi_class_classifier
 {
 /**
+ * <a name="DAAL-ENUM-ALGORITHMS__MULTI_CLASS_CLASSIFIER__RESULTTOCOMPUTEID"></a>
+ * Available identifiers to specify the result to compute
+ */
+enum ResultToComputeId
+{
+    computeClassLabels      = classifier::computeClassLabels, /*!< Numeric table of size n x 1 with the predicted labels >*/
+    computeDecisionFunction = 0x00000032ULL /*!< Numeric table of size n x (k*(k-1)/2) with the decision function for each observation >*/
+};
+
+/**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
 namespace interface1

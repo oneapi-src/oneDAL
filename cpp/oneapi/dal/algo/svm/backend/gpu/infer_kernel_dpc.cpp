@@ -14,10 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#define DAAL_SYCL_INTERFACE
-#define DAAL_SYCL_INTERFACE_USM
-#define DAAL_SYCL_INTERFACE_REVERSED_RANGE
-
 #include "oneapi/dal/algo/svm/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/svm/backend/interop_model.hpp"
 #include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"

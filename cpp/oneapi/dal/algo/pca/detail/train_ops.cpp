@@ -21,22 +21,23 @@
 namespace oneapi::dal::pca::detail {
 using oneapi::dal::detail::host_policy;
 
-template <typename Float, typename Method>
-struct ONEAPI_DAL_EXPORT train_ops_dispatcher<host_policy, Float, Method> {
-    train_result operator()(const host_policy& ctx,
-                            const descriptor_base& desc,
-                            const train_input& input) const {
+template <typename Float, typename Method, typename Task>
+struct train_ops_dispatcher<host_policy, Float, Method, Task> {
+    train_result<Task> operator()(const host_policy& ctx,
+                                  const descriptor_base<Task>& desc,
+                                  const train_input<Task>& input) const {
         using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Method>>;
+            dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Method, Task>>;
         return kernel_dispatcher_t()(ctx, desc, input);
     }
 };
 
-#define INSTANTIATE(F, M) template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<host_policy, F, M>;
+#define INSTANTIATE(F, M, T) \
+    template struct ONEDAL_EXPORT train_ops_dispatcher<host_policy, F, M, T>;
 
-INSTANTIATE(float, method::cov)
-INSTANTIATE(float, method::svd)
-INSTANTIATE(double, method::cov)
-INSTANTIATE(double, method::svd)
+INSTANTIATE(float, method::cov, task::dim_reduction)
+INSTANTIATE(float, method::svd, task::dim_reduction)
+INSTANTIATE(double, method::cov, task::dim_reduction)
+INSTANTIATE(double, method::svd, task::dim_reduction)
 
 } // namespace oneapi::dal::pca::detail

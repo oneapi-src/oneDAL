@@ -110,8 +110,20 @@ struct SplitData
     size_t nLeft;
     size_t iStart;
     bool featureUnordered;
-    SplitData() : impurityDecrease(-daal::services::internal::MaxVal<algorithmFPType>::get()) {}
-    SplitData(algorithmFPType impDecr, bool bFeatureUnordered) : impurityDecrease(impDecr), featureUnordered(bFeatureUnordered) {}
+    algorithmFPType totalWeights;
+    algorithmFPType leftWeights;
+
+    SplitData()
+        : impurityDecrease(-daal::services::internal::MaxVal<algorithmFPType>::get()),
+          featureValue(0.0),
+          nLeft(0),
+          iStart(0),
+          totalWeights(0.0),
+          leftWeights(0.0)
+    {}
+    SplitData(algorithmFPType impDecr, bool bFeatureUnordered)
+        : impurityDecrease(impDecr), featureUnordered(bFeatureUnordered), featureValue(0.0), nLeft(0), iStart(0), totalWeights(0.0), leftWeights(0.0)
+    {}
     SplitData(const SplitData & o) = delete;
     void copyTo(SplitData & o) const
     {
@@ -121,6 +133,8 @@ struct SplitData
         o.left             = left;
         o.featureUnordered = featureUnordered;
         o.impurityDecrease = impurityDecrease;
+        o.totalWeights     = totalWeights;
+        o.leftWeights      = leftWeights;
     }
 };
 
@@ -147,9 +161,10 @@ public:
         DAAL_ASSERT(_indexedFeatures);
         return *_indexedFeatures;
     }
-    void init(const NumericTable * data, const NumericTable * resp)
+    void init(const NumericTable * data, const NumericTable * resp, const NumericTable * weights = nullptr)
     {
         _data                                            = const_cast<NumericTable *>(data);
+        _weights                                         = (weights ? const_cast<NumericTable *>(weights) : nullptr);
         _nCols                                           = data->getNumberOfColumns();
         const HomogenNumericTable<algorithmFPType> * hmg = dynamic_cast<const HomogenNumericTable<algorithmFPType> *>(data);
         _dataDirect                                      = (hmg ? hmg->getArray() : nullptr);
@@ -169,6 +184,7 @@ protected:
     const dtrees::internal::IndexedFeatures * _indexedFeatures;
     const algorithmFPType * _dataDirect = nullptr;
     NumericTable * _data                = nullptr;
+    NumericTable * _weights             = nullptr;
     size_t _nCols                       = 0;
 };
 
@@ -182,6 +198,7 @@ class DataHelper : public DataHelperBase<algorithmFPType, cpu>
 {
 public:
     typedef SResponse<TResponse> Response;
+    typedef SResponse<algorithmFPType> Weights;
     typedef DataHelperBase<algorithmFPType, cpu> super;
 
 public:
@@ -189,36 +206,117 @@ public:
     size_t size() const { return _aResponse.size(); }
     TResponse response(size_t i) const { return _aResponse[i].val; }
     const Response * responses() const { return _aResponse.get(); }
+
     bool reset(size_t n)
     {
         _aResponse.reset(n);
         return _aResponse.get() != nullptr;
     }
 
-    virtual bool init(const NumericTable * data, const NumericTable * resp, const IndexType * aSample)
+    bool resetWeights(size_t n)
     {
-        super::init(data, resp);
+        _aWeights.reset(n);
+        return _aWeights.get() != nullptr;
+    }
+
+    virtual bool init(const NumericTable * data, const NumericTable * resp, const IndexType * aSample, const NumericTable * weights = nullptr)
+    {
+        super::init(data, resp, weights);
         DAAL_ASSERT(_aResponse.size());
-        if (aSample)
+        if (_aWeights.get())
         {
-            const IndexType firstRow = aSample[0];
-            const IndexType lastRow  = aSample[_aResponse.size() - 1];
-            ReadRows<algorithmFPType, cpu> bd(const_cast<NumericTable *>(resp), firstRow, lastRow - firstRow + 1);
-            const auto pbd = bd.get();
-            for (size_t i = 0; i < _aResponse.size(); ++i)
+            // An auxiliary array is created where the weights are stored,
+            // if weights is nullptr then the array consists of ones
+            DAAL_ASSERT(_aWeights.size());
+            DAAL_ASSERT(_aWeights.size() == _aResponse.size());
+            if (aSample)
             {
-                _aResponse[i].idx = aSample[i];
-                _aResponse[i].val = TResponse(pbd[aSample[i] - firstRow]);
+                const size_t firstRow = aSample[0];
+                const size_t lastRow  = aSample[_aResponse.size() - 1];
+                ReadRows<algorithmFPType, cpu> bd(const_cast<NumericTable *>(resp), firstRow, lastRow - firstRow + 1);
+                const auto pbd = bd.get();
+                if (weights)
+                {
+                    ReadRows<algorithmFPType, cpu> bdw(const_cast<NumericTable *>(weights), firstRow, lastRow - firstRow + 1);
+                    const auto pbdw = bdw.get();
+                    PRAGMA_VECTOR_ALWAYS
+                    for (size_t i = 0; i < _aResponse.size(); ++i)
+                    {
+                        _aResponse[i].idx = aSample[i];
+                        _aResponse[i].val = TResponse(pbd[aSample[i] - firstRow]);
+                        _aWeights[i].idx  = aSample[i];
+                        _aWeights[i].val =
+                            (isPositive<algorithmFPType, cpu>(pbdw[aSample[i] - firstRow]) ? pbdw[aSample[i] - firstRow] : algorithmFPType(0.));
+                    }
+                }
+                else
+                {
+                    PRAGMA_VECTOR_ALWAYS
+                    for (size_t i = 0; i < _aResponse.size(); ++i)
+                    {
+                        _aResponse[i].idx = aSample[i];
+                        _aResponse[i].val = TResponse(pbd[aSample[i] - firstRow]);
+                        _aWeights[i].idx  = aSample[i];
+                        _aWeights[i].val  = algorithmFPType(1.);
+                    }
+                }
+            }
+            else
+            {
+                ReadRows<algorithmFPType, cpu> bd(const_cast<NumericTable *>(resp), 0, _aResponse.size());
+                const auto pbd = bd.get();
+                if (weights)
+                {
+                    ReadRows<algorithmFPType, cpu> bdw(const_cast<NumericTable *>(weights), 0, _aResponse.size());
+                    const auto pbdw = bdw.get();
+                    PRAGMA_VECTOR_ALWAYS
+                    for (size_t i = 0; i < _aResponse.size(); ++i)
+                    {
+                        _aResponse[i].idx = i;
+                        _aResponse[i].val = TResponse(pbd[i]);
+                        _aWeights[i].idx  = i;
+                        _aWeights[i].val  = (isPositive<algorithmFPType, cpu>(pbdw[i]) ? pbdw[i] : algorithmFPType(0.));
+                    }
+                }
+                else
+                {
+                    PRAGMA_VECTOR_ALWAYS
+                    for (size_t i = 0; i < _aResponse.size(); ++i)
+                    {
+                        _aResponse[i].idx = i;
+                        _aResponse[i].val = TResponse(pbd[i]);
+                        _aWeights[i].idx  = i;
+                        _aWeights[i].val  = algorithmFPType(1.);
+                    }
+                }
             }
         }
         else
         {
-            ReadRows<algorithmFPType, cpu> bd(const_cast<NumericTable *>(resp), 0, _aResponse.size());
-            const auto pbd = bd.get();
-            for (size_t i = 0; i < _aResponse.size(); ++i)
+            // Weights are not supported
+            if (aSample)
             {
-                _aResponse[i].idx = i;
-                _aResponse[i].val = TResponse(pbd[i]);
+                const size_t firstRow = aSample[0];
+                const size_t lastRow  = aSample[_aResponse.size() - 1];
+                ReadRows<algorithmFPType, cpu> bd(const_cast<NumericTable *>(resp), firstRow, lastRow - firstRow + 1);
+                const auto pbd = bd.get();
+                PRAGMA_VECTOR_ALWAYS
+                for (size_t i = 0; i < _aResponse.size(); ++i)
+                {
+                    _aResponse[i].idx = aSample[i];
+                    _aResponse[i].val = TResponse(pbd[aSample[i] - firstRow]);
+                }
+            }
+            else
+            {
+                ReadRows<algorithmFPType, cpu> bd(const_cast<NumericTable *>(resp), 0, _aResponse.size());
+                const auto pbd = bd.get();
+                PRAGMA_VECTOR_ALWAYS
+                for (size_t i = 0; i < _aResponse.size(); ++i)
+                {
+                    _aResponse[i].idx = i;
+                    _aResponse[i].val = TResponse(pbd[i]);
+                }
             }
         }
         return true;
@@ -303,6 +401,7 @@ protected:
 
 protected:
     TArray<Response, cpu> _aResponse;
+    TArray<Weights, cpu> _aWeights;
 };
 
 //partition given set of indices into the left and right parts

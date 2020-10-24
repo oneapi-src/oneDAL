@@ -19,15 +19,16 @@
 namespace oneapi::dal::pca::backend {
 
 template <typename Float>
-struct train_kernel_gpu<Float, method::svd> {
-    train_result operator()(const dal::backend::context_gpu& ctx,
-                            const descriptor_base& params,
-                            const train_input& input) const {
-        return train_result();
+struct train_kernel_gpu<Float, method::svd, task::dim_reduction> {
+    train_result<task::dim_reduction> operator()(
+        const dal::backend::context_gpu& ctx,
+        const descriptor_base<task::dim_reduction>& params,
+        const train_input<task::dim_reduction>& input) const {
+        throw unimplemented("PCA SVD-based method is not implemented for GPU");
     }
 };
 
-template struct train_kernel_gpu<float, method::svd>;
-template struct train_kernel_gpu<double, method::svd>;
+template struct train_kernel_gpu<float, method::svd, task::dim_reduction>;
+template struct train_kernel_gpu<double, method::svd, task::dim_reduction>;
 
 } // namespace oneapi::dal::pca::backend

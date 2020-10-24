@@ -19,7 +19,7 @@ Batch Processing
 ****************
 
 Naïve Bayes classifier in the batch processing mode follows the general workflow described
-in `Usage Model: Training and Prediction <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction-1>`_.
+in :ref:`classification_usage_model`.
 
 Training
 --------
@@ -61,19 +61,19 @@ Prediction
 At the prediction stage, Naïve Bayes classifier has the following parameters:
 
 .. list-table::
-   :widths: 25 25 50
+   :widths: 10 20 30
    :header-rows: 1
    :align: left
 
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
      - Performance-oriented computation method, the only method supported by the algorithm.
-   * - nClasses
+   * - ``nClasses``
      - Not applicable
      - The number of classes. A required parameter.

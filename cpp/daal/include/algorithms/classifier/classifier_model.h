@@ -44,6 +44,7 @@ namespace classifier
 */
 enum ResultToComputeId
 {
+    none                         = 0x00000000ULL,
     computeClassLabels           = 0x00000001ULL, /*!< Numeric table of size n x 1 with the predicted labels >*/
     computeClassProbabilities    = 0x00000002ULL, /*!< Numeric table of size n x p with the predicted class probabilities for each observation >*/
     computeClassLogProbabilities = 0x00000004ULL  /*!< Numeric table of size n x p with the predicted class probabilities for each observation >*/

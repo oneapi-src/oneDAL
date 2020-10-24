@@ -57,6 +57,22 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
  */
 template <typename algorithmFPType>
 DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input,
+                                              const kdtree_knn_classification::interface2::Parameter * parameter, int method)
+{
+    services::Status status;
+    const classifier::training::Input * algInput = static_cast<const classifier::training::Input *>(input);
+    set(classifier::training::model, kdtree_knn_classification::ModelPtr(Model::create(algInput->getNumberOfFeatures(), &status)));
+    return status;
+}
+
+/**
+ * Allocates memory to store the result of KD-tree based kNN model-based training
+ * \param[in] input Pointer to an object containing the input data
+ * \param[in] parameter %Parameter of KD-tree based kNN model-based training
+ * \param[in] method Computation method for the algorithm
+ */
+template <typename algorithmFPType>
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input,
                                               const kdtree_knn_classification::interface1::Parameter * parameter, int method)
 {
     services::Status status;

@@ -31,7 +31,7 @@
 #include "src/algorithms/low_order_moments/low_order_moments_kernel.h"
 #include "src/algorithms/low_order_moments/oneapi/low_order_moments_kernel_batch_oneapi.h"
 #include "src/algorithms/low_order_moments/oneapi/low_order_moments_kernel_online_oneapi.h"
-#include "sycl/internal/utils.h"
+#include "services/internal/execution_context.h"
 
 namespace daal
 {
@@ -42,7 +42,7 @@ namespace low_order_moments
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = daal::oneapi::internal::getDefaultContext();
+    auto & context    = daal::services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (method != defaultDense || deviceInfo.isCpu)
@@ -72,7 +72,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     Parameter * par                        = static_cast<Parameter *>(_par);
     daal::services::Environment::env & env = *_env;
 
-    auto & context    = daal::oneapi::internal::getDefaultContext();
+    auto & context    = daal::services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (method != defaultDense || deviceInfo.isCpu)
@@ -90,7 +90,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 template <typename algorithmFPType, Method method, CpuType cpu>
 OnlineContainer<algorithmFPType, method, cpu>::OnlineContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = daal::oneapi::internal::getDefaultContext();
+    auto & context    = daal::services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (method != defaultDense || deviceInfo.isCpu)
@@ -121,7 +121,7 @@ services::Status OnlineContainer<algorithmFPType, method, cpu>::compute()
     Parameter * par                        = static_cast<Parameter *>(_par);
     daal::services::Environment::env & env = *_env;
 
-    auto & context    = daal::oneapi::internal::getDefaultContext();
+    auto & context    = daal::services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (method != defaultDense || deviceInfo.isCpu)
@@ -146,7 +146,7 @@ services::Status OnlineContainer<algorithmFPType, method, cpu>::finalizeCompute(
     daal::services::Environment::env & env = *_env;
 
     // for other methods oneapi isn't implemented yet
-    auto & context    = daal::oneapi::internal::getDefaultContext();
+    auto & context    = daal::services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     result->set(minimum, partialResult->get(partialMinimum));

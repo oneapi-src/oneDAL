@@ -33,8 +33,6 @@ package com.intel.daal.examples.svm;
 
 import java.nio.FloatBuffer;
 import com.intel.daal.algorithms.classifier.training.InputId;
-import com.intel.daal.algorithms.classifier.prediction.PredictionResult;
-import com.intel.daal.algorithms.classifier.prediction.PredictionResultId;
 import com.intel.daal.algorithms.classifier.training.TrainingResultId;
 import com.intel.daal.algorithms.classifier.prediction.NumericTableInputId;
 import com.intel.daal.algorithms.classifier.prediction.ModelInputId;

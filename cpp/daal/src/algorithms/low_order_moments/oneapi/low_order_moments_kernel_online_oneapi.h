@@ -27,10 +27,11 @@
 #include "data_management/data/numeric_table.h"
 #include "algorithms/algorithm_base_common.h"
 #include "algorithms/moments/low_order_moments_types.h"
+#include "src/services/service_data_utils.h"
 
 using namespace daal::services;
 using namespace daal::data_management;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 namespace daal
 {
@@ -48,10 +49,10 @@ struct TaskInfoOnline;
 template <typename algorithmFPType>
 struct TaskInfoOnline<algorithmFPType, estimatesMinMax>
 {
-    constexpr static unsigned int nResults          = 2;
-    constexpr static unsigned int nBuffers          = 2;
+    constexpr static uint32_t nResults              = 2;
+    constexpr static uint32_t nBuffers              = 2;
     constexpr static bool isRowsInBlockInfoRequired = false;
-    constexpr static unsigned int nPartialResults   = 2;
+    constexpr static uint32_t nPartialResults       = 2;
     // names of used kernels
     static const char * kSinglePassName;
     static const char * kProcessBlocksName;
@@ -70,11 +71,11 @@ struct TaskInfoOnline<algorithmFPType, estimatesMinMax>
 template <typename algorithmFPType>
 struct TaskInfoOnline<algorithmFPType, estimatesMeanVariance>
 {
-    constexpr static unsigned int nResults          = 2;
-    constexpr static unsigned int nBuffers          = 2;
+    constexpr static uint32_t nResults              = 2;
+    constexpr static uint32_t nBuffers              = 2;
     constexpr static bool isRowsInBlockInfoRequired = true;
-    constexpr static unsigned int nPartialResults   = 2;
-    constexpr static unsigned int nFinalizeResults  = 2;
+    constexpr static uint32_t nPartialResults       = 2;
+    constexpr static uint32_t nFinalizeResults      = 2;
     // names of used kernels
     static const char * kSinglePassName;
     static const char * kProcessBlocksName;
@@ -95,11 +96,11 @@ struct TaskInfoOnline<algorithmFPType, estimatesMeanVariance>
 template <typename algorithmFPType>
 struct TaskInfoOnline<algorithmFPType, estimatesAll>
 {
-    constexpr static unsigned int nResults          = lastResultId + 1;
-    constexpr static unsigned int nBuffers          = 5;
+    constexpr static uint32_t nResults              = lastResultId + 1;
+    constexpr static uint32_t nBuffers              = 5;
     constexpr static bool isRowsInBlockInfoRequired = true;
-    constexpr static unsigned int nPartialResults   = lastPartialResultId; // removed '+1' due to nObservations is mapped separately
-    constexpr static unsigned int nFinalizeResults  = 5;
+    constexpr static uint32_t nPartialResults       = lastPartialResultId; // removed '+1' due to nObservations is mapped separately
+    constexpr static uint32_t nFinalizeResults      = 5;
     // names of used kernels
     static const char * kSinglePassName;
     static const char * kProcessBlocksName;
@@ -136,22 +137,24 @@ class LowOrderMomentsOnlineTaskOneAPI : public TaskInfoOnline<algorithmFPType, s
 {
 public:
     LowOrderMomentsOnlineTaskOneAPI(ExecutionContextIface & context, NumericTable * dataTable, PartialResult * partialResult,
-                                    services::Status * status);
+                                    services::Status & status);
     LowOrderMomentsOnlineTaskOneAPI(const LowOrderMomentsOnlineTaskOneAPI &) = delete;
     LowOrderMomentsOnlineTaskOneAPI & operator=(const LowOrderMomentsOnlineTaskOneAPI &) = delete;
     virtual ~LowOrderMomentsOnlineTaskOneAPI();
     Status compute();
 
 private:
-    unsigned int nVectors;
-    unsigned int nFeatures;
+    static constexpr size_t _uint32max = static_cast<size_t>(services::internal::MaxVal<uint32_t>::get());
 
-    const unsigned int maxWorkItemsPerGroup        = 256;
-    const unsigned int maxWorkItemsPerGroupToMerge = 16;
+    uint32_t nVectors;
+    uint32_t nFeatures;
 
-    unsigned int nRowsBlocks;
-    unsigned int nColsBlocks;
-    unsigned int workItemsPerGroup;
+    const uint32_t maxWorkItemsPerGroup        = 256;
+    const uint32_t maxWorkItemsPerGroupToMerge = 16;
+
+    uint32_t nRowsBlocks;
+    uint32_t nColsBlocks;
+    uint32_t workItemsPerGroup;
 
     NumericTable * dataTable;
     BlockDescriptor<algorithmFPType> dataBD;
@@ -174,15 +177,15 @@ class LowOrderMomentsOnlineFinalizeTaskOneAPI : public TaskInfoOnline<algorithmF
 {
 public:
     LowOrderMomentsOnlineFinalizeTaskOneAPI(ExecutionContextIface & context, PartialResult * partialResult, Result * result,
-                                            services::Status * status);
+                                            services::Status & status);
     LowOrderMomentsOnlineFinalizeTaskOneAPI(const LowOrderMomentsOnlineFinalizeTaskOneAPI &) = delete;
     LowOrderMomentsOnlineFinalizeTaskOneAPI & operator=(const LowOrderMomentsOnlineFinalizeTaskOneAPI &) = delete;
     virtual ~LowOrderMomentsOnlineFinalizeTaskOneAPI();
     Status compute();
 
 private:
-    unsigned int nFeatures;
-    constexpr static unsigned int nTotalResults =
+    uint32_t nFeatures;
+    constexpr static uint32_t nTotalResults =
         TaskInfoOnline<algorithmFPType, scope>::nPartialResults + TaskInfoOnline<algorithmFPType, scope>::nFinalizeResults;
 
     NumericTablePtr nObservationsTable;

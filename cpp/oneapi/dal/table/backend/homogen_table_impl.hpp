@@ -80,7 +80,7 @@ public:
         push_column_impl(detail::default_host_policy{}, block, column_index, rows);
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename Data>
     void pull_rows(sycl::queue& queue,
                    array<Data>& block,
@@ -100,7 +100,7 @@ public:
                      std::int64_t column_index,
                      const range& rows,
                      const sycl::usm::alloc& kind) const {
-        pull_column_impl(detail::data_parallel_policy{ queue }, block, column_index rows, kind);
+        pull_column_impl(detail::data_parallel_policy{ queue }, block, column_index, rows, kind);
     }
 
     template <typename Data>
@@ -108,7 +108,7 @@ public:
                      const array<Data>& block,
                      std::int64_t column_index,
                      const range& rows) {
-        push_column_impl(detail::data_parallel_policy{ queue }, block, column_index rows);
+        push_column_impl(detail::data_parallel_policy{ queue }, block, column_index, rows);
     }
 #endif
 

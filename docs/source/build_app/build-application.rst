@@ -17,8 +17,9 @@
 Build applications with oneDAL
 ==============================
 
-See Get Started Guides for `Windows\* <https://software.intel.com/en-us/get-started-with-daal-for-windows>`_
-and `Linux\* <https://software.intel.com/en-us/get-started-with-daal-for-linux>`_
+See Get Started Guides for `Windows\*
+<https://software.intel.com/content/www/us/en/develop/documentation/get-started-with-daal-for-windows/top.html>`_
+and `Linux\* <https://software.intel.com/content/www/us/en/develop/documentation/get-started-with-daal-for-linux/top.html>`_
 for instruction on how to build applications for C++.
 This section contains instructions for building applications with |short_name| for SYCL\*.
 

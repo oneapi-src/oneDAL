@@ -92,11 +92,11 @@ For more details, see :ref:`algorithms`.
    * - Input ID
      - Input
    * - ``argument``
-     - Numeric table of size :math:`(p + 1) \times 1` with the input argument :math:`\theta` of the objective function.
+     - A numeric table of size :math:`(p + 1) \times 1` with the input argument :math:`\theta` of the objective function.
    * - ``data``
-     - Numeric table of size :math:`n \times p` with the data :math:`x_{ij}`.
+     - A numeric table of size :math:`n \times p` with the data :math:`x_{ij}`.
    * - ``dependentVariables``
-     - Numeric table of size :math:`n \times 1` with dependent variables :math:`y_i`.
+     - A numeric table of size :math:`n \times 1` with dependent variables :math:`y_i`.
 
 Optional Algorithm Input
 ------------------------

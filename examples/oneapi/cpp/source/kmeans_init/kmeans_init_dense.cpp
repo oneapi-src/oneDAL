@@ -25,10 +25,10 @@
 using namespace oneapi;
 
 template <typename Method>
-void run_compute(dal::table x_train, const char *method_name) {
-    constexpr std::int64_t cluster_count       = 20;
+void run(const dal::table& x_train, const std::string& method_name) {
+    constexpr std::int64_t cluster_count = 20;
     constexpr std::int64_t max_iteration_count = 1000;
-    constexpr double accuracy_threshold        = 0.01;
+    constexpr double accuracy_threshold = 0.01;
 
     const auto kmeans_init_desc =
         dal::kmeans_init::descriptor<float, Method>().set_cluster_count(cluster_count);
@@ -56,10 +56,10 @@ int main(int argc, char const *argv[]) {
 
     const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
 
-    run_compute<dal::kmeans_init::method::dense>(x_train, "dense");
-    run_compute<dal::kmeans_init::method::random_dense>(x_train, "random_dense");
-    run_compute<dal::kmeans_init::method::plus_plus_dense>(x_train, "plus_plus_dense");
-    run_compute<dal::kmeans_init::method::parallel_plus_dense>(x_train, "parallel_plus_dense");
+    run<dal::kmeans_init::method::dense>(x_train, "dense");
+    run<dal::kmeans_init::method::random_dense>(x_train, "random_dense");
+    run<dal::kmeans_init::method::plus_plus_dense>(x_train, "plus_plus_dense");
+    run<dal::kmeans_init::method::parallel_plus_dense>(x_train, "parallel_plus_dense");
 
     return 0;
 }

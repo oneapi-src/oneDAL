@@ -105,18 +105,18 @@ For more details, see :ref:`algorithms`.
    * - Input ID
      - Input
    * - ``argument``
-     - Numeric table of size :math:`(p + 1) \times 1` with the input argument :math:`\theta` of the objective function.
+     - A numeric table of size :math:`(p + 1) \times 1` with the input argument :math:`\theta` of the objective function.
 
        .. note:: 
             The sizes of the argument, gradient, and hessian numeric tables do not depend on ``interceptFlag``.
             When ``interceptFlag`` is set to ``false``, the computation of :math:`\theta_0` value is skipped,
             but the sizes of the tables should remain the same.
    * - ``data``
-     - Numeric table of size :math:`n \times p` with the data :math:`x_ij`.
+     - A numeric table of size :math:`n \times p` with the data :math:`x_ij`.
        
        .. note:: This parameter can be an object of any class derived from ``NumericTable``.
    * - ``dependentVariables``
-     - Numeric table of size :math:`n \times 1` with dependent variables :math:`y_i`.
+     - A numeric table of size :math:`n \times 1` with dependent variables :math:`y_i`.
 
        .. note:: 
            This parameter can be an object of any class derived from ``NumericTable``,

@@ -60,7 +60,7 @@ The DBSCAN clustering algorithm has the following parameters:
 
    * - ``resultsToCompute``
      - :math:`0`
-     - The 64-bit integer flag that specifies which extra characteristics of the DBSCAN to compute.
+     - The 64-bit integer flag that specifies which extra characteristics of the DBSCAN algorithm to compute.
         
        Provide one of the following values to request a single characteristic or
        use bitwise OR to request a combination of the characteristics:

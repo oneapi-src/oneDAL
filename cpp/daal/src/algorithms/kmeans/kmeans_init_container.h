@@ -31,7 +31,7 @@
 #include "src/algorithms/kmeans/kmeans_init_kernel.h"
 #include "src/algorithms/kmeans/kmeans_init_impl.h"
 #include "src/algorithms/kmeans/oneapi/kmeans_init_dense_batch_kernel_ucapi.h"
-#include "sycl/internal/execution_context.h"
+#include "services/internal/sycl/execution_context.h"
 
 namespace daal
 {
@@ -44,7 +44,7 @@ namespace init
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu || (method != deterministicDense && method != randomDense))
@@ -66,7 +66,7 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     Input * input   = static_cast<Input *>(_in);

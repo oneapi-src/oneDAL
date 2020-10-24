@@ -25,7 +25,6 @@
 #define __KMEANS_LLOYD_DISTR_STEP2_KERNEL_UCAPI_H__
 
 #include "src/algorithms/kmeans/oneapi/kmeans_dense_lloyd_kernel_base_ucapi.h"
-#include "src/algorithms/kmeans/oneapi/cl_kernels/kmeans_cl_kernels_distr.cl"
 
 using namespace daal::data_management;
 
@@ -43,14 +42,16 @@ class KMeansDistributedStep2KernelUCAPI : public Kernel
 public:
     services::Status compute(size_t na, const NumericTable * const * a, size_t nr, const NumericTable * const * r, const Parameter * par);
     services::Status finalizeCompute(size_t na, const NumericTable * const * a, size_t nr, const NumericTable * const * r, const Parameter * par);
-    void updateClusters(bool init, const services::Buffer<int> & partialCentroidsCounters, const services::Buffer<algorithmFPType> & partialCentroids,
-                        const services::Buffer<int> & centroidCounters, const services::Buffer<algorithmFPType> & centroids, uint32_t nClusters,
-                        uint32_t nFeatures, services::Status * st);
+    services::Status updateClusters(bool init, const services::internal::Buffer<int> & partialCentroidsCounters,
+                                    const services::internal::Buffer<algorithmFPType> & partialCentroids,
+                                    const services::internal::Buffer<int> & centroidCounters,
+                                    const services::internal::Buffer<algorithmFPType> & centroids, uint32_t nClusters, uint32_t nFeatures);
 
-    void updateCandidates(bool init, const services::Buffer<int> & partialCandidates, const services::Buffer<algorithmFPType> & partialCValues,
-                          const services::Buffer<int> & candidates, const services::Buffer<algorithmFPType> & cValues, uint32_t nClusters,
-                          services::Status * st);
-    void buildProgram(oneapi::internal::ClKernelFactoryIface & kernelFactory, services::Status * st);
+    services::Status updateCandidates(bool init, const services::internal::Buffer<int> & partialCandidates,
+                                      const services::internal::Buffer<algorithmFPType> & partialCValues,
+                                      const services::internal::Buffer<int> & candidates, const services::internal::Buffer<algorithmFPType> & cValues,
+                                      uint32_t nClusters);
+    services::Status buildProgram(services::internal::sycl::ClKernelFactoryIface & kernelFactory);
     uint32_t _maxWGSize = 256;
 };
 

@@ -122,7 +122,7 @@ for :math:`i = 1, \ldots, n` and :math:`j=1, \ldots, k`.
 
 	c.
 	   Covariance estimate :math:`\sum _{r}^{(j+1)}=({\sigma }_{r,hg}^{(j+1)})`
-	   of size p x p with :math:`\sigma_{r,hg}^{(j+1)}=\frac{1}{n_r}\sum_{l=1}^{n}{w}_{lr}(x_{lh}-m_{r,h}^{(j+1)})(x_{lg}-m_{r,g}^{(j+1)})`
+	   of size :math:`p \times p` with :math:`\sigma_{r,hg}^{(j+1)}=\frac{1}{n_r}\sum_{l=1}^{n}{w}_{lr}(x_{lh}-m_{r,h}^{(j+1)})(x_{lg}-m_{r,g}^{(j+1)})`
 
 
 #.
@@ -180,11 +180,11 @@ Algorithm Input
 +++++++++++++++
 
 The EM for GMM initialization algorithm accepts the input
-described below. Pass the Input ID as a parameter to the methods
+described below. Pass the ``Input ID`` as a parameter to the methods
 that provide input for your algorithm.
 
 .. list-table::
-   :widths: 25 25
+   :widths: 10 60
    :header-rows: 1
    :align: left
 
@@ -201,82 +201,89 @@ Algorithm Parameters
 The EM for GMM initialization algorithm has the following parameters:
 
 .. list-table::
-   :widths: 25 25 25
+   :widths: 10 20 30
    :header-rows: 1
    :align: left
 
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
      - Performance-oriented computation method, the only method supported by the algorithm.
-   * - nComponents
+   * - ``nComponents``
      - Not applicable
      - The number of components in the Gaussian Mixture Model, a required parameter.
-   * - nTrials
-     - 20
+   * - ``nTrials``
+     - :math:`20`
      - The number of starts of the EM algorithm.
-   * - nIterations
-     - 10
+   * - ``nIterations``
+     - :math:`10`
      - The maximal number of iterations in each start of the EM algorithm.
-   * - accuracyThreshold
+   * - ``accuracyThreshold``
      - 1.0e-04
      - The threshold for termination of the algorithm.
-   * - covarianceStorage
-     - full
+   * - ``covarianceStorage``
+     - ``full``
      - Covariance matrix storage scheme in the Gaussian Mixture Model:
 
-       + full - covariance matrices are stored as numeric tables of size :math:`p \times p`.
+       + ``full`` - covariance matrices are stored as numeric tables of size :math:`p \times p`.
          All elements of the matrix are updated during the processing.
-       + diagonal - covariance matrices are stored as numeric tables of size :math:`1 \times p`.
+       + ``diagonal`` - covariance matrices are stored as numeric tables of size :math:`1 \times p`.
          Only diagonal elements of the matrix are updated during the
          processing, and the rest are assumed to be zero.
 
-   * - engine
-     - SharePtr< engines:: mt19937:: Batch>()
+   * - ``engine``
+     - `SharePtr< engines:: mt19937:: Batch>()`
      - Pointer to the random number generator engine that is used internally to get the initial means in each EM start.
 
 Algorithm Output
 ++++++++++++++++
 
-The EM for GMM initialization algorithm calculates the results
-described below. Pass the Result ID as a parameter to the methods
-that access the results of your algorithm.
+The EM for GMM initialization algorithm calculates the results described below.
+Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 
 .. list-table::
-   :widths: 25 25
+   :widths: 10 60
    :header-rows: 1
    :align: left
 
    * - Result ID
      - Result
-   * - weights
-     - Pointer to the :math:`1 \times k` numeric table with mixture weights. By default,
-       this result is an object of the HomogenNumericTable class, but you can
-       define the result as an object of any class derived from NumericTable
-       except PackedTriangularMatrix, PackedSymmetricMatrix, and CSRNumericTable.
-   * - means
+   * - ``weights``
+     - Pointer to the :math:`1 \times k` numeric table with mixture weights.
+
+       .. note::
+       
+          By default, this result is an object of the ``HomogenNumericTable`` class,
+          but you can define the result as an object of any class derived from ``NumericTable``
+          except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
+
+   * - ``means``
      - Pointer to the :math:`k \times p` numeric table with each row containing the estimate
-       of the means for the i-th mixture component, where :math:`i=0, 1, \ldots, k-1`. By
-       default, this result is an object of the HomogenNumericTable class, but
-       you can define the result as an object of any class derived from
-       NumericTable except PackedTriangularMatrix, PackedSymmetricMatrix, and
-       CSRNumericTable.
-   * - covariances
-     - Pointer to the DataCollection object that contains k numeric tables,
-       each with the p x p variance-covariance matrix for the i-th mixture
+       of the means for the :math:`i`-th mixture component, where :math:`i=0, 1, \ldots, k-1`.
+       
+       .. note::
+       
+          By default, this result is an object of the ``HomogenNumericTable`` class,
+          but you can define the result as an object of any class derived from ``NumericTable``
+          except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
+   * - ``covariances``
+     - Pointer to the ``DataCollection`` object that contains :math:`k` numeric tables,
+       each with the :math:`p \times p` variance-covariance matrix for the :math:`i`-th mixture
        component of size:
 
         + :math:`p \times p` - for the full covariance matrix storage scheme
         + :math:`1 \times p` - for the diagonal covariance matrix storage scheme
 
-       By default, the collection contains objects of the HomogenNumericTable
-       class, but you can define them as objects of any class derived from
-       NumericTable except PackedTriangularMatrix and CSRNumericTable.
+       .. note::
+       
+          By default, the collection contains objects of the ``HomogenNumericTable`` class,
+          but you can define them as objects of any class derived from ``NumericTable``
+          except ``PackedTriangularMatrix`` and ``CSRNumericTable``.
 
 Computation
 ===========
@@ -287,29 +294,28 @@ Batch Processing
 Algorithm Input
 +++++++++++++++
 
-The EM for GMM algorithm accepts the input described below. Pass
-the Input ID as a parameter to the methods that provide input for
-your algorithm.
+The EM for GMM algorithm accepts the input described below.
+Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 
 .. list-table::
-   :widths: 25 25
+   :widths: 10 60
    :header-rows: 1
    :align: left
 
    * - Input ID
      - Input
-   * - data
+   * - ``data``
      - Pointer to the :math:`n \times p` numeric table with the data to which the EM
        algorithm is applied. The input can be an object of any class derived
-       from NumericTable.
-   * - inputWeights
+       from ``NumericTable``.
+   * - ``inputWeights``
      - Pointer to the :math:`1 \times k` numeric table with initial mixture weights. This input can be an object of any class derived from NumericTable.
-   * - inputMeans
+   * - ``inputMeans``
      - Pointer to a :math:`k \times p` numeric table. Each row in this table contains the
        initial value of the means for the :math:`i`-th mixture component, where :math:`i = 0, 1, \ldots, k-1`.
-       This input can be an object of any class derived from NumericTable.
-   * - inputCovariances
-     - Pointer to the DataCollection object that contains k numeric tables,
+       This input can be an object of any class derived from ``NumericTable``.
+   * - ``inputCovariances``
+     - Pointer to the ``DataCollection`` object that contains :math:`k` numeric tables,
        each with the :math:`p \times p` variance-covariance matrix for the :math:`i`-th mixture component of size:
 
         + :math:`p \times p` - for the full covariance matrix storage scheme
@@ -317,7 +323,7 @@ your algorithm.
 
        The collection can contain objects of any class derived from NumericTable.
 
-   * - inputValues
+   * - ``inputValues``
      - Pointer to the result of the EM for GMM initialization algorithm. The
        result of initialization contains weights, means, and a collection of
        covariances. You can use this input to set the initial values for the EM
@@ -330,44 +336,47 @@ Algorithm Parameters
 The EM for GMM algorithm has the following parameters:
 
 .. list-table::
-   :widths: 25 25 25
+   :widths: 10 20 30
    :header-rows: 1
    :align: left
 
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
      - Performance-oriented computation method, the only method supported by the algorithm.
-   * - nComponents
+   * - ``nComponents``
      - Not applicable
      - The number of components in the Gaussian Mixture Model, a required parameter.
-   * - maxIterations
-     - 10
+   * - ``maxIterations``
+     - :math:`10`
      - The maximal number of iterations in the algorithm.
-   * - accuracyThreshold
+   * - ``accuracyThreshold``
      - 1.0e-04
      - The threshold for termination of the algorithm.
-   * - covariance
+   * - ``covariance``
      - Pointer to an object of the BatchIface class
-     - Pointer to the algorithm that computes the covariance matrix. By
-       default, the respective |product| algorithm is used, implemented in the
-       class derived from BatchIface.
-   * - regularizationFactor
-     - 0.01
+     - Pointer to the algorithm that computes the covariance matrix.
+     
+       .. note::
+          
+          By default, the respective |product| algorithm is used,
+          implemented in the class derived from ``BatchIface``.
+   * - ``regularizationFactor``
+     - :math:`0.01`
      - Factor for covariance regularization in the case of ill-conditional data.
-   * - covarianceStorage
-     - full
+   * - ``covarianceStorage``
+     - ``full``
      - Covariance matrix storage scheme in the Gaussian Mixture Model:
 
-        + full - covariance matrices are stored as numeric tables of size :math:`p \times p`.
+        + ``full`` - covariance matrices are stored as numeric tables of size :math:`p \times p`.
           All elements of the matrix are updated during the processing.
 
-        + diagonal - covariance matrices are stored as numeric tables of size :math:`1 \times p`.
+        + ``diagonal`` - covariance matrices are stored as numeric tables of size :math:`1 \times p`.
           Only diagonal elements of the matrix are updated during the processing, and the rest are assumed to be zero.
 
 
@@ -375,46 +384,58 @@ Algorithm Output
 ++++++++++++++++
 
 The EM for GMM algorithm calculates the results described below. Pass
-the Result ID as a parameter to the methods that access the results
+the ``Result ID`` as a parameter to the methods that access the results
 of your algorithm.
 
 .. list-table::
-   :widths: 25 25
+   :widths: 10 60
    :header-rows: 1
    :align: left
 
    * - Result ID
      - Result
-   * - weights
-     - Pointer to the :math:`1 \times k` numeric table with mixture weights. By default,
-       this result is an object of the HomogenNumericTable class, but you can
-       define the result as an object of any class derived from NumericTable
-       except PackedTriangularMatrix, PackedSymmetricMatrix, and CSRNumericTable.
-   * - means
+   * - ``weights``
+     - Pointer to the :math:`1 \times k` numeric table with mixture weights.
+     
+       .. note::
+       
+          By default, this result is an object of the ``HomogenNumericTable`` class,
+          but you can define the result as an object of any class derived from ``NumericTable``
+          except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
+   * - ``means``
      - Pointer to the :math:`k \times p` numeric table with each row containing the estimate
-       of the means for the i-th mixture component, where :math:`i=0, 1, \ldots, k-1`. By
-       default, this result is an object of the HomogenNumericTable class, but
-       you can define the result as an object of any class derived from
-       NumericTable except PackedTriangularMatrix, PackedSymmetricMatrix, and CSRNumericTable.
-   * - covariances
-     - Pointer to the DataCollection object that contains k numeric tables,
-       each with the p x p variance-covariance matrix for the i-th mixture component of size:
+       of the means for the :math:`i`-th mixture component, where :math:`i=0, 1, \ldots, k-1`.
+
+       .. note::
+       
+          By default, this result is an object of the ``HomogenNumericTable`` class,
+          but you can define the result as an object of any class derived from ``NumericTable``
+          except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
+
+   * - ``covariances``
+     - Pointer to the DataCollection object that contains :math:`k` numeric tables,
+       each with the :math:`p \times p` variance-covariance matrix for the :math:`i`-th mixture component of size:
 
         + :math:`p \times p` - for the full covariance matrix storage scheme
         + :math:`1 \times p` - for the diagonal covariance matrix storage scheme
 
-       By default, the collection contains objects of the HomogenNumericTable
-       class, but you can define them as objects of any class derived from
-       NumericTable except PackedTriangularMatrix and CSRNumericTable.
 
-   * - goalFunction
+       .. note::
+
+          By default, the collection contains objects of the ``HomogenNumericTable`` class,
+          but you can define them as objects of any class derived from ``NumericTable``
+          except ``PackedTriangularMatrix`` and ``CSRNumericTable``.
+
+   * - ``goalFunction``
      - Pointer to the :math:`1 \times 1` numeric table with the value of the logarithm of
-       the likelihood function after the last iteration. By default, this
-       result is an object of the HomogenNumericTable class.
-   * - nIterations
+       the likelihood function after the last iteration.
+       
+       .. note:: By default, this result is an object of the ``HomogenNumericTable`` class.
+   * - ``nIterations``
      - Pointer to the :math:`1 \times 1` numeric table with the number of iterations
-       computed after completion of the algorithm. By default, this result is
-       an object of the HomogenNumericTable class.
+       computed after completion of the algorithm.
+
+       .. note:: By default, this result is an object of the ``HomogenNumericTable`` class.
 
 Examples
 ++++++++

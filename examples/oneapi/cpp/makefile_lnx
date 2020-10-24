@@ -23,9 +23,9 @@ help:
 	@echo "lib is alias for libintel64, so is alias for sointel64"
 	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
 	@echo
-	@echo "name              - example name. Please see daal.lst file"
+	@echo "name              - example name. Please see onedal.lst file"
 	@echo
-	@echo "compiler_name     - can be intel, gnu or clang. Default value is intel."
+	@echo "compiler_name     - can be intel, gnu, clang or icx. Default value is intel."
 	@echo
 	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
 	@echo
@@ -61,7 +61,9 @@ endif
 
 ifneq ($(compiler),gnu)
     ifneq ($(compiler),clang)
-        override compiler = intel
+        ifneq ($(compiler),icx)
+            override compiler = intel
+        endif
     endif
 endif
 
@@ -107,9 +109,6 @@ COPTS := -std=c++17 \
          -Wall \
          -Wextra \
          -Werror \
-         -Werror=return-type \
-         -Werror=uninitialized \
-         -Werror=unknown-pragmas \
          -Wno-unused-parameter \
          -I./source \
          -I"$(DAALROOT)/include"
@@ -140,6 +139,12 @@ endif
 ifeq ($(compiler),clang)
     gcc_toolchain := $(realpath $(dir $(shell which gcc))/..)
     CC = clang++ --gcc-toolchain=$(gcc_toolchain)
+endif
+
+ifeq ($(compiler),icx)
+    gcc_toolchain := $(realpath $(dir $(shell which gcc))/..)
+    CC = icx --gcc-toolchain=$(gcc_toolchain)
+    COPTS += -lstdc++
 endif
 
 CC := $(if $(COVFILE), cov01 -1; covc -i  $(CC),$(CC))

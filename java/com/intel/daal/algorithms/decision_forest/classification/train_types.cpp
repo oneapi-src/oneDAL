@@ -152,6 +152,106 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classific
 
 /*
 * Class:     com_intel_daal_algorithms_decision_forest_classification_training_Parameter
+* Method:    cGetMinObservationsInSplitNode
+* Signature: (J)J
+*/
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_training_Parameter_cGetMinObservationsInSplitNode(JNIEnv *,
+                                                                                                                                        jobject,
+                                                                                                                                        jlong parAddr)
+{
+    return (jlong)(*(dfct::Parameter *)parAddr).minObservationsInSplitNode;
+}
+
+/*
+* Class:     com_intel_daal_algorithms_decision_forest_classification_training_Parameter
+* Method:    cSetMinObservationsInSplitNode
+* Signature: (JJ)V
+*/
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_training_Parameter_cSetMinObservationsInSplitNode(JNIEnv *,
+                                                                                                                                       jobject,
+                                                                                                                                       jlong parAddr,
+                                                                                                                                       jlong value)
+{
+    (*(dfct::Parameter *)parAddr).minObservationsInSplitNode = value;
+}
+
+/*
+* Class:     com_intel_daal_algorithms_decision_forest_classification_training_Parameter
+* Method:    cGetMinWeightFractionInLeafNode
+* Signature: (J)J
+*/
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_training_Parameter_cGetMinWeightFractionInLeafNode(JNIEnv *,
+                                                                                                                                         jobject,
+                                                                                                                                         jlong parAddr)
+{
+    return (jlong)(*(dfct::Parameter *)parAddr).minWeightFractionInLeafNode;
+}
+
+/*
+* Class:     com_intel_daal_algorithms_decision_forest_classification_training_Parameter
+* Method:    cSetMinWeightFractionInLeafNode
+* Signature: (JJ)V
+*/
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_training_Parameter_cSetMinWeightFractionInLeafNode(JNIEnv *,
+                                                                                                                                        jobject,
+                                                                                                                                        jlong parAddr,
+                                                                                                                                        jdouble value)
+{
+    (*(dfct::Parameter *)parAddr).minWeightFractionInLeafNode = value;
+}
+
+/*
+* Class:     com_intel_daal_algorithms_decision_forest_classification_training_Parameter
+* Method:    cGetMinImpurityDecreaseInSplitNode
+* Signature: (J)J
+*/
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_training_Parameter_cGetMinImpurityDecreaseInSplitNode(JNIEnv *,
+                                                                                                                                            jobject,
+                                                                                                                                            jlong parAddr)
+{
+    return (jlong)(*(dfct::Parameter *)parAddr).minImpurityDecreaseInSplitNode;
+}
+
+/*
+* Class:     com_intel_daal_algorithms_decision_forest_classification_training_Parameter
+* Method:    cSetMinImpurityDecreaseInSplitNode
+* Signature: (JJ)V
+*/
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_training_Parameter_cSetMinImpurityDecreaseInSplitNode(JNIEnv *,
+                                                                                                                                           jobject,
+                                                                                                                                           jlong parAddr,
+                                                                                                                                           jdouble value)
+{
+    (*(dfct::Parameter *)parAddr).minImpurityDecreaseInSplitNode = value;
+}
+
+/*
+* Class:     com_intel_daal_algorithms_decision_forest_classification_training_Parameter
+* Method:    cGetMaxLeafNodes
+* Signature: (J)J
+*/
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_training_Parameter_cGetMaxLeafNodes(JNIEnv *,
+                                                                                                                          jobject,
+                                                                                                                          jlong parAddr)
+{
+    return (jlong)(*(dfct::Parameter *)parAddr).maxLeafNodes;
+}
+
+/*
+* Class:     com_intel_daal_algorithms_decision_forest_classification_training_Parameter
+* Method:    cSetMaxLeafNodes
+* Signature: (JJ)V
+*/
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_training_Parameter_cSetMaxLeafNodes(JNIEnv *,
+                                                                                                                         jobject,
+                                                                                                                         jlong parAddr,
+                                                                                                                         jlong value)
+{
+    (*(dfct::Parameter *)parAddr).maxLeafNodes = value;
+}
+
+/*
+* Class:     com_intel_daal_algorithms_decision_forest_classification_training_Parameter
 * Method:    cGetSeed
 * Signature: (J)I
 */
