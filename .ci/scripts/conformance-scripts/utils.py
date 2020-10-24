@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 
-daalLine = "uses Intel® DAAL solver"
+daalLine = "uses optimized solver"
 sklearnLine = "uses original Scikit-learn solver"
-failLine = "uses original Scikit-learn solver, because the task was not solved with Intel® DAAL"
+failLine = "uses original Scikit-learn solver, because the task was not solved with optimized variant"
 
 def make_report(algs_filename, report_filename):
     countDaalCalls = 0
