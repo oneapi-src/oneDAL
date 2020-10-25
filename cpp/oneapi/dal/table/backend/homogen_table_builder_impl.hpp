@@ -48,7 +48,8 @@ public:
     void reset(homogen_table&& t) {
         if (t.has_data()) {
             auto& meta = t.get_metadata();
-            const int64_t data_size = get_data_size(t.get_row_count(), t.get_column_count(), meta.get_data_type(0));
+            const int64_t data_size =
+                get_data_size(t.get_row_count(), t.get_column_count(), meta.get_data_type(0));
 
             // TODO: make data move without copying
             // now we are accepting const data pointer from table
@@ -61,7 +62,8 @@ public:
             dtype_ = meta.get_data_type(0);
             row_count_ = t.get_row_count();
             column_count_ = t.get_column_count();
-        } else {
+        }
+        else {
             reset();
         }
     }
@@ -109,10 +111,7 @@ public:
         }
 
         data_.reset(data_size);
-        detail::memcpy(detail::default_host_policy{},
-                       data_.get_mutable_data(),
-                       data,
-                       data_size);
+        detail::memcpy(detail::default_host_policy{}, data_.get_mutable_data(), data, data_size);
 
         row_count_ = row_count;
         column_count_ = column_count;
