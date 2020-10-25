@@ -51,6 +51,9 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::applyBeta(c
                                                                                const uint32_t p, const uint32_t offset)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(applyBeta);
+    DAAL_ASSERT(x.size() == size_t(n) * size_t(p)); // overflows checked in the algorithm
+    DAAL_ASSERT(beta.size() >= size_t(offset) + size_t(p));
+    DAAL_ASSERT(xb.size() >= size_t(n));
     return BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::NoTrans, n, 1, p, algorithmFPType(1), x,
                                            p, 0, beta, 1, offset, algorithmFPType(0), xb, 1, 0);
 }
@@ -64,6 +67,9 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::applyGradie
                                                                                    const algorithmFPType beta, const uint32_t offset)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(applyGradient);
+    DAAL_ASSERT(x.size() == size_t(n) * size_t(p)); // overflows checked in the algorithm
+    DAAL_ASSERT(sub.size() == size_t(n));
+    DAAL_ASSERT(gradient.size() >= size_t(offset) + size_t(p));
     return BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::Trans, math::Transpose::NoTrans, p, 1, n, alpha, x, p, 0, sub, 1,
                                            0, beta, gradient, 1, offset);
 }
@@ -75,6 +81,10 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::applyHessia
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(applyHessian);
     services::Status status;
+
+    DAAL_ASSERT(x.size() == n * p); //overflows checked in the algorithm
+    DAAL_ASSERT(h.size() == nBeta * nBeta);
+    DAAL_ASSERT(sigma.size() == n);
 
     ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
@@ -113,6 +123,10 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::logLoss(con
     DAAL_ITTNOTIFY_SCOPED_TASK(logLoss);
     services::Status status;
 
+    DAAL_ASSERT(y.size() == n);
+    DAAL_ASSERT(sigma.size() == n);
+    DAAL_ASSERT(result.size() == n);
+
     ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
@@ -143,6 +157,9 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::sigmoids(co
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(sigmoids);
     services::Status status;
+
+    DAAL_ASSERT(x.size() == n);
+    DAAL_ASSERT(calculateInverse ? result.size() >= 2 * n : result.size() >= n);
 
     ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
@@ -201,6 +218,10 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::hessianInte
 
     const TypeIds::Id idType = TypeIds::id<algorithmFPType>();
 
+    DAAL_ASSERT(x.size() == n * p); //overflows checked in the algorithm
+    DAAL_ASSERT(h.size() == nBeta * nBeta);
+    DAAL_ASSERT(sigma.size() == n);
+
     {
         const char * const kernelName = "hessianIntercept";
         KernelPtr kernel              = factory.getKernel(kernelName, status);
@@ -230,30 +251,27 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::hessianInte
 
         KernelNDRange range(1);
 
-        // TODO replace on min
-        // size_t workItemsPerGroup = maxWorkItemSizes1d > maxWorkGroupSize ?
-        //     maxWorkGroupSize : maxWorkItemSizes1d;
-
         size_t workItemsPerGroup = 256;
 
         const size_t nWorkGroups = HelperObjectiveFunction::getWorkgroupsCount(n, workItemsPerGroup);
 
         KernelRange localRange(workItemsPerGroup);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nWorkGroups, workItemsPerGroup);
         KernelRange globalRange(nWorkGroups * workItemsPerGroup);
 
         range.local(localRange, status);
         range.global(globalRange, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        UniversalBuffer buffer                                      = ctx.allocate(idType, nWorkGroups, status);
+        UniversalBuffer buffer = ctx.allocate(idType, nWorkGroups, status);
+        DAAL_CHECK_STATUS_VAR(status);
         services::internal::Buffer<algorithmFPType> reductionBuffer = buffer.get<algorithmFPType>();
 
-        KernelArguments args(3 /*4*/, status);
+        KernelArguments args(3, status);
         DAAL_CHECK_STATUS_VAR(status);
         args.set(0, sigma, AccessModeIds::read);
         args.set(1, n);
         args.set(2, reductionBuffer, AccessModeIds::write);
-        //args.set(3, LocalBuffer(idType, workItemsPerGroup));
 
         ctx.run(range, kernel, args, status);
 
@@ -271,6 +289,9 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::hessianRegu
                                                                                          const uint32_t nBeta, const algorithmFPType l2)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(hessianRegulization);
+
+    DAAL_ASSERT(h.size() == nBeta * nBeta); //overflows checked in the algorithm
+
     services::Status status;
 
     ExecutionContextIface & ctx    = services::internal::getDefaultContext();
@@ -327,7 +348,8 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::doCompute(
 
     ExecutionContextIface & ctx = services::internal::getDefaultContext();
 
-    const uint32_t nBeta   = nFeatures + 1;
+    const uint32_t nBeta = nFeatures + 1;
+    DAAL_ASSERT(nBeta > nFeatures);
     const uint32_t ldX     = isSourceData ? nFeatures : nBeta;
     const uint32_t offsetX = isSourceData ? 1 : 0;
 
@@ -366,13 +388,12 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::doCompute(
         DAAL_CHECK_STATUS(status, valueNT->getBlockOfRows(0, 1, ReadWriteMode::readWrite, vr));
         algorithmFPType & value = *vr.getBlockPtr();
 
-        UniversalBuffer logLosUniversal                         = ctx.allocate(idType, n, status);
+        UniversalBuffer logLosUniversal = ctx.allocate(idType, n, status);
+        DAAL_CHECK_STATUS_VAR(status);
         services::internal::Buffer<algorithmFPType> logLossBuff = logLosUniversal.get<algorithmFPType>();
 
         value = algorithmFPType(0);
         DAAL_CHECK_STATUS(status, logLoss(yBuff, sigmoidBuf, logLossBuff, n));
-
-        // TODO replace
         DAAL_CHECK_STATUS(status, HelperObjectiveFunction::sum(logLossBuff, value, n));
         value *= -div;
 
@@ -409,6 +430,7 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::doCompute(
         if (l2reg > 0)
         {
             ctx.copy(gradientBuff, 1, argBuff, 1, nBeta - 1, status);
+            DAAL_CHECK_STATUS_VAR(status);
             const algorithmFPType zero = algorithmFPType(0);
             DAAL_CHECK_STATUS(status, HelperObjectiveFunction::setElem(0, zero, gradientBuff));
         }
@@ -463,9 +485,14 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::compute(Num
                                                                              Parameter * parameter)
 {
     services::Status status;
+    DAAL_ASSERT(data != nullptr);
+    DAAL_ASSERT(parameter != nullptr);
+    DAAL_ASSERT(dependentVariables != nullptr);
+    DAAL_ASSERT(argument != nullptr);
 
     const size_t nRows = data->getNumberOfRows();
     const size_t p     = data->getNumberOfColumns();
+    DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, p, 1);
     const size_t nBeta = p + 1;
 
     DAAL_ASSERT(argument->getNumberOfColumns() == 1);
