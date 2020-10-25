@@ -24,7 +24,7 @@ namespace oneapi::dal::backend {
 table_metadata create_homogen_metadata(std::int64_t feature_count, data_type dtype);
 
 class homogen_table_impl {
-private:
+public:
     struct host_alloc_t {};
 
 public:
