@@ -208,7 +208,7 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::compute(serv
         DAAL_ASSERT(pRes->getNumberOfColumns() == 1);
 
         BlockDescriptor<algorithmFPType> yBlock;
-        DAAL_CHECK_STATUS(status, pRes->getBlockOfRows(0, n, ReadWriteMode::readWrite, yBlock));
+        DAAL_CHECK_STATUS(status, pRes->getBlockOfRows(0, n, ReadWriteMode::writeOnly, yBlock));
         services::internal::Buffer<algorithmFPType> yBuff = yBlock.getBuffer();
 
         if (isBinary)

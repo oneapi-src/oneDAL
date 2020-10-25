@@ -73,6 +73,11 @@ public:
         const size_t nRowsInBlock = 512;
         const size_t nDataBlocks  = nRowsTotal / nRowsInBlock + !!(nRowsTotal % nRowsInBlock);
 
+        DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, nCols, size_t(1));
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRowsTotal, size_t(2));
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRowsTotal, nCols + 1);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRowsInBlock, sizeof(algorithmFPType));
+
         ReadRows<algorithmFPType, cpu> betaBD(const_cast<NumericTable &>(beta), 0, 1);
         DAAL_CHECK_BLOCK_STATUS(betaBD);
 
@@ -148,7 +153,8 @@ protected:
     {
         const DAAL_INT incX(1);
         const DAAL_INT incY(1);
-        const DAAL_INT size(nRows);
+        const DAAL_INT size = static_cast<DAAL_INT>(nRows);
+        DAAL_ASSERT(nRows <= services::internal::MaxVal<DAAL_INT>::get());
 
         services::internal::service_memset_seq<algorithmFPType, cpu>(res, algorithmFPType(0.0), nRows);
 
@@ -268,6 +274,12 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::run(const NumericT
     const size_t nYPerRow            = nClasses;
     const size_t nRowsInBlockDefault = 500;
 
+    DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, nCols, size_t(1));
+    DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, nYPerRow, nCols);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nCols + nYPerRow, sizeof(algorithmFPType));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRowsTotal, nClasses);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRowsTotal, nCols + 1);
+
     WriteOnlyRows<algorithmFPType, cpu> resBD;
     if (_res)
     {
@@ -276,7 +288,9 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::run(const NumericT
     }
     const size_t nRowsInBlock = services::internal::getNumElementsFitInMemory(services::internal::getL1CacheSize() * 0.8,
                                                                               (nCols + nYPerRow) * sizeof(algorithmFPType), nRowsInBlockDefault);
-    const size_t nDataBlocks  = nRowsTotal / nRowsInBlock + !!(nRowsTotal % nRowsInBlock);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRowsInBlock * nClasses, sizeof(algorithmFPType));
+
+    const size_t nDataBlocks = nRowsTotal / nRowsInBlock + !!(nRowsTotal % nRowsInBlock);
 
     ReadRows<algorithmFPType, cpu> betaBD(const_cast<NumericTable &>(beta), 0, nClasses);
     DAAL_CHECK_BLOCK_STATUS(betaBD);
