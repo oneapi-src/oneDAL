@@ -19,6 +19,7 @@
 
 namespace oneapi::dal::svm {
 
+template <typename Task>
 class detail::train_input_impl : public base {
 public:
     train_input_impl(const table& data, const table& labels, const table& weights)
@@ -30,89 +31,114 @@ public:
     table weights;
 };
 
+template <typename Task>
 class detail::train_result_impl : public base {
 public:
-    model trained_model;
+    model<Task> trained_model;
     table support_indices;
 };
 
 using detail::train_input_impl;
 using detail::train_result_impl;
 
-train_input::train_input(const table& data, const table& labels, const table& weights)
+template <typename Task>
+train_input<Task>::train_input(const table& data, const table& labels, const table& weights)
         : impl_(new train_input_impl(data, labels, weights)) {}
 
-table train_input::get_data() const {
+template <typename Task>
+table train_input<Task>::get_data() const {
     return impl_->data;
 }
 
-table train_input::get_labels() const {
+template <typename Task>
+table train_input<Task>::get_labels() const {
     return impl_->labels;
 }
 
-table train_input::get_weights() const {
+template <typename Task>
+table train_input<Task>::get_weights() const {
     return impl_->weights;
 }
 
-void train_input::set_data_impl(const table& value) {
+template <typename Task>
+void train_input<Task>::set_data_impl(const table& value) {
     impl_->data = value;
 }
 
-void train_input::set_labels_impl(const table& value) {
+template <typename Task>
+void train_input<Task>::set_labels_impl(const table& value) {
     impl_->labels = value;
 }
 
-void train_input::set_weights_impl(const table& value) {
+template <typename Task>
+void train_input<Task>::set_weights_impl(const table& value) {
     impl_->weights = value;
 }
 
-train_result::train_result() : impl_(new train_result_impl{}) {}
+template <typename Task>
+train_result<Task>::train_result() : impl_(new train_result_impl{}) {}
 
-model train_result::get_model() const {
+template <typename Task>
+model<Task> train_result<Task>::get_model() const {
     return impl_->trained_model;
 }
 
-table train_result::get_support_vectors() const {
+template <typename Task>
+table train_result<Task>::get_support_vectors() const {
     return impl_->trained_model.get_support_vectors();
 }
 
-table train_result::get_support_indices() const {
+template <typename Task>
+table train_result<Task>::get_support_indices() const {
     return impl_->support_indices;
 }
 
-table train_result::get_coeffs() const {
+template <typename Task>
+table train_result<Task>::get_coeffs() const {
     return impl_->trained_model.get_coeffs();
 }
 
-double train_result::get_bias() const {
+template <typename Task>
+double train_result<Task>::get_bias() const {
     return impl_->trained_model.get_bias();
 }
 
-std::int64_t train_result::get_support_vector_count() const {
+template <typename Task>
+std::int64_t train_result<Task>::get_support_vector_count() const {
     return impl_->trained_model.get_support_vector_count();
 }
 
-void train_result::set_model_impl(const model& value) {
+template <typename Task>
+void train_result<Task>::set_model_impl(const model<Task>& value) {
     impl_->trained_model = value;
 }
 
-void train_result::set_support_vectors_impl(const table& value) {
+template <typename Task>
+void train_result<Task>::set_support_vectors_impl(const table& value) {
     impl_->trained_model.set_support_vectors(value);
 }
-void train_result::set_support_indices_impl(const table& value) {
+
+template <typename Task>
+void train_result<Task>::set_support_indices_impl(const table& value) {
     impl_->support_indices = value;
 }
 
-void train_result::set_coeffs_impl(const table& value) {
+template <typename Task>
+void train_result<Task>::set_coeffs_impl(const table& value) {
     impl_->trained_model.set_coeffs(value);
 }
 
-void train_result::set_bias_impl(double value) {
+template <typename Task>
+void train_result<Task>::set_bias_impl(double value) {
     impl_->trained_model.set_bias(value);
 }
 
-void train_result::set_support_vector_count_impl(std::int64_t value) {
+template <typename Task>
+void train_result<Task>::set_support_vector_count_impl(std::int64_t value) {
     impl_->trained_model.set_support_vector_count(value);
 }
+
+template class ONEDAL_EXPORT train_input<task::classification>;
+template class ONEDAL_EXPORT train_result<task::classification>;
 
 } // namespace oneapi::dal::svm

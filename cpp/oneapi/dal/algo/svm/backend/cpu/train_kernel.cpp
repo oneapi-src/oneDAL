@@ -30,8 +30,11 @@
 
 namespace oneapi::dal::svm::backend {
 
-using std::int64_t;
 using dal::backend::context_cpu;
+using model_t = model<task::classification>;
+using input_t = train_input<task::classification>;
+using result_t = train_result<task::classification>;
+using descriptor_t = descriptor_base<task::classification>;
 
 namespace daal_svm = daal::algorithms::svm;
 namespace daal_kernel_function = daal::algorithms::kernel_function;
@@ -46,11 +49,11 @@ using daal_svm_smo_kernel_t =
     daal_svm::training::internal::SVMTrainImpl<daal_svm::training::boser, Float, Cpu>;
 
 template <typename Float, typename Method>
-static train_result call_daal_kernel(const context_cpu& ctx,
-                                     const descriptor_base& desc,
-                                     const table& data,
-                                     const table& labels,
-                                     const table& weights) {
+static result_t call_daal_kernel(const context_cpu& ctx,
+                                 const descriptor_t& desc,
+                                 const table& data,
+                                 const table& labels,
+                                 const table& weights) {
     const int64_t row_count = data.get_row_count();
     const int64_t column_count = data.get_column_count();
 
@@ -71,14 +74,18 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     auto kernel_impl = desc.get_kernel_impl()->get_impl();
     const auto daal_kernel = kernel_impl->get_daal_kernel_function();
 
-    daal_svm::Parameter daal_parameter(
-        daal_kernel,
-        desc.get_c(),
-        desc.get_accuracy_threshold(),
-        desc.get_tau(),
-        desc.get_max_iteration_count(),
-        int64_t(desc.get_cache_size() * 1024 * 1024), // DAAL get in bytes
-        desc.get_shrinking());
+    const std::int64_t cache_megabyte = static_cast<std::int64_t>(desc.get_cache_size());
+    constexpr std::int64_t megabyte = 1024 * 1024;
+    dal::detail::check_mul_overflow(cache_megabyte, megabyte);
+    const std::int64_t cache_byte = cache_megabyte * megabyte;
+
+    daal_svm::Parameter daal_parameter(daal_kernel,
+                                       desc.get_c(),
+                                       desc.get_accuracy_threshold(),
+                                       desc.get_tau(),
+                                       desc.get_max_iteration_count(),
+                                       cache_byte,
+                                       desc.get_shrinking());
 
     auto daal_model = daal_svm::Model::create<Float>(column_count);
 
@@ -102,17 +109,15 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     auto table_support_indices =
         interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());
 
-    auto trained_model = convert_from_daal_model<Float>(*daal_model)
+    auto trained_model = convert_from_daal_model<task::classification, Float>(*daal_model)
                              .set_first_class_label(unique_label.first)
                              .set_second_class_label(unique_label.second);
 
-    return train_result().set_model(trained_model).set_support_indices(table_support_indices);
+    return result_t().set_model(trained_model).set_support_indices(table_support_indices);
 }
 
 template <typename Float, typename Method>
-static train_result train(const context_cpu& ctx,
-                          const descriptor_base& desc,
-                          const train_input& input) {
+static result_t train(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
     return call_daal_kernel<Float, Method>(ctx,
                                            desc,
                                            input.get_data(),
@@ -121,17 +126,17 @@ static train_result train(const context_cpu& ctx,
 }
 
 template <typename Float, typename Method>
-struct train_kernel_cpu<Float, task::classification, Method> {
-    train_result operator()(const context_cpu& ctx,
-                            const descriptor_base& desc,
-                            const train_input& input) const {
+struct train_kernel_cpu<Float, Method, task::classification> {
+    result_t operator()(const context_cpu& ctx,
+                        const descriptor_t& desc,
+                        const input_t& input) const {
         return train<Float, Method>(ctx, desc, input);
     }
 };
 
-template struct train_kernel_cpu<float, task::classification, method::thunder>;
-template struct train_kernel_cpu<float, task::classification, method::smo>;
-template struct train_kernel_cpu<double, task::classification, method::thunder>;
-template struct train_kernel_cpu<double, task::classification, method::smo>;
+template struct train_kernel_cpu<float, method::thunder, task::classification>;
+template struct train_kernel_cpu<float, method::smo, task::classification>;
+template struct train_kernel_cpu<double, method::thunder, task::classification>;
+template struct train_kernel_cpu<double, method::smo, task::classification>;
 
 } // namespace oneapi::dal::svm::backend
