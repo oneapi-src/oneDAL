@@ -21,10 +21,16 @@
 
 namespace oneapi::dal::rbf_kernel {
 
+namespace task {
+struct kernel_function {};
+using by_default = kernel_function;
+} // namespace task
+
 namespace detail {
 struct tag {};
+
+template <typename Task = task::by_default>
 class descriptor_impl;
-class model_impl;
 } // namespace detail
 
 namespace method {
@@ -33,11 +39,13 @@ struct csr {};
 using by_default = dense;
 } // namespace method
 
+template <typename Task = task::by_default>
 class ONEDAL_EXPORT descriptor_base : public base {
 public:
     using tag_t = detail::tag;
     using float_t = float;
     using method_t = method::by_default;
+    using task_t = Task;
 
     descriptor_base();
 
@@ -46,17 +54,20 @@ public:
 protected:
     void set_sigma_impl(double);
 
-    dal::detail::pimpl<detail::descriptor_impl> impl_;
+    dal::detail::pimpl<detail::descriptor_impl<task_t>> impl_;
 };
 
-template <typename Float = descriptor_base::float_t, typename Method = descriptor_base::method_t>
-class descriptor : public descriptor_base {
+template <typename Float = descriptor_base<task::by_default>::float_t,
+          typename Method = descriptor_base<task::by_default>::method_t,
+          typename Task = task::by_default>
+class descriptor : public descriptor_base<Task> {
 public:
     using float_t = Float;
     using method_t = Method;
+    using task_t = Task;
 
     auto& set_sigma(double value) {
-        set_sigma_impl(value);
+        descriptor_base<task_t>::set_sigma_impl(value);
         return *this;
     }
 };

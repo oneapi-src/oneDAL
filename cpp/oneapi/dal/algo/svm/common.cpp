@@ -70,9 +70,7 @@ kernel_function_impl *kernel_function<linear_kernel_t<F, M>>::get_impl() const {
     template class ONEDAL_EXPORT kernel_function<linear_kernel_t<F, M>>;
 
 INSTANTIATE_LINEAR(float, linear_kernel::method::dense)
-INSTANTIATE_LINEAR(float, linear_kernel::method::csr)
 INSTANTIATE_LINEAR(double, linear_kernel::method::dense)
-INSTANTIATE_LINEAR(double, linear_kernel::method::csr)
 
 #undef INSTANTIATE_LINEAR
 
@@ -116,9 +114,7 @@ kernel_function_impl *kernel_function<rbf_kernel_t<F, M>>::get_impl() const {
 #define INSTANTIATE_RBF(F, M) template class kernel_function<rbf_kernel_t<F, M>>;
 
 INSTANTIATE_RBF(float, rbf_kernel::method::dense)
-INSTANTIATE_RBF(float, rbf_kernel::method::csr)
 INSTANTIATE_RBF(double, rbf_kernel::method::dense)
-INSTANTIATE_RBF(double, rbf_kernel::method::csr)
 
 #undef INSTANTIATE_RBF
 

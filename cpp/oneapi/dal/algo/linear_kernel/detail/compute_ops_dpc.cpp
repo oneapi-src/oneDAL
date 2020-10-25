@@ -22,24 +22,21 @@
 namespace oneapi::dal::linear_kernel::detail {
 using oneapi::dal::detail::data_parallel_policy;
 
-template <typename Float, typename Method>
-struct compute_ops_dispatcher<data_parallel_policy, Float, Method> {
-    compute_result operator()(const data_parallel_policy& ctx,
-                              const descriptor_base& params,
-                              const compute_input& input) const {
+template <typename Float, typename Method, typename Task>
+struct compute_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
+    compute_result<Task> operator()(const data_parallel_policy& ctx,
+                                    const descriptor_base<Task>& params,
+                                    const compute_input<Task>& input) const {
         using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::compute_kernel_cpu<Float, Method>,
-                                            backend::compute_kernel_gpu<Float, Method>>;
+            dal::backend::kernel_dispatcher<backend::compute_kernel_cpu<Float, Method, Task>,
+                                            backend::compute_kernel_gpu<Float, Method, Task>>;
         return kernel_dispatcher_t{}(ctx, params, input);
     }
 };
+#define INSTANTIATE(F, M, T) \
+    template struct ONEDAL_EXPORT compute_ops_dispatcher<data_parallel_policy, F, M, T>;
 
-#define INSTANTIATE(F, M) \
-    template struct ONEDAL_EXPORT compute_ops_dispatcher<data_parallel_policy, F, M>;
-
-INSTANTIATE(float, method::dense)
-INSTANTIATE(float, method::csr)
-INSTANTIATE(double, method::dense)
-INSTANTIATE(double, method::csr)
+INSTANTIATE(float, method::dense, task::kernel_function)
+INSTANTIATE(double, method::dense, task::kernel_function)
 
 } // namespace oneapi::dal::linear_kernel::detail

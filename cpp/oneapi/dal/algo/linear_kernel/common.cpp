@@ -18,7 +18,8 @@
 
 namespace oneapi::dal::linear_kernel {
 
-class detail::descriptor_impl : public base {
+template <>
+class detail::descriptor_impl<task::kernel_function> : public base {
 public:
     double scale = 1.0;
     double shift = 0.0;
@@ -26,22 +27,29 @@ public:
 
 using detail::descriptor_impl;
 
-descriptor_base::descriptor_base() : impl_(new descriptor_impl{}) {}
+template <typename Task>
+descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
 
-double descriptor_base::get_scale() const {
+template <typename Task>
+double descriptor_base<Task>::get_scale() const {
     return impl_->scale;
 }
 
-double descriptor_base::get_shift() const {
+template <typename Task>
+double descriptor_base<Task>::get_shift() const {
     return impl_->shift;
 }
 
-void descriptor_base::set_scale_impl(double value) {
+template <typename Task>
+void descriptor_base<Task>::set_scale_impl(double value) {
     impl_->scale = value;
 }
 
-void descriptor_base::set_shift_impl(double value) {
+template <typename Task>
+void descriptor_base<Task>::set_shift_impl(double value) {
     impl_->shift = value;
 }
+
+template class ONEDAL_EXPORT descriptor_base<task::kernel_function>;
 
 } // namespace oneapi::dal::linear_kernel

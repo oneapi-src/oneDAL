@@ -19,6 +19,7 @@
 
 namespace oneapi::dal::linear_kernel {
 
+template <typename Task>
 class detail::compute_input_impl : public base {
 public:
     compute_input_impl(const table& x, const table& y) : x(x), y(y) {}
@@ -26,6 +27,7 @@ public:
     table y;
 };
 
+template <typename Task>
 class detail::compute_result_impl : public base {
 public:
     table values;
@@ -34,33 +36,45 @@ public:
 using detail::compute_input_impl;
 using detail::compute_result_impl;
 
-compute_input::compute_input(const table& x, const table& y)
-        : impl_(new compute_input_impl(x, y)) {}
+template <typename Task>
+compute_input<Task>::compute_input(const table& x, const table& y)
+        : impl_(new compute_input_impl<Task>(x, y)) {}
 
-table compute_input::get_x() const {
+template <typename Task>
+table compute_input<Task>::get_x() const {
     return impl_->x;
 }
 
-table compute_input::get_y() const {
+template <typename Task>
+table compute_input<Task>::get_y() const {
     return impl_->y;
 }
 
-void compute_input::set_x_impl(const table& value) {
+template <typename Task>
+void compute_input<Task>::set_x_impl(const table& value) {
     impl_->x = value;
 }
 
-void compute_input::set_y_impl(const table& value) {
+template <typename Task>
+void compute_input<Task>::set_y_impl(const table& value) {
     impl_->y = value;
 }
 
-compute_result::compute_result() : impl_(new compute_result_impl{}) {}
+template class ONEDAL_EXPORT compute_input<task::kernel_function>;
 
-table compute_result::get_values() const {
+template <typename Task>
+compute_result<Task>::compute_result() : impl_(new compute_result_impl<Task>{}) {}
+
+template <typename Task>
+table compute_result<Task>::get_values() const {
     return impl_->values;
 }
 
-void compute_result::set_values_impl(const table& value) {
+template <typename Task>
+void compute_result<Task>::set_values_impl(const table& value) {
     impl_->values = value;
 }
+
+template class ONEDAL_EXPORT compute_result<task::kernel_function>;
 
 } // namespace oneapi::dal::linear_kernel
