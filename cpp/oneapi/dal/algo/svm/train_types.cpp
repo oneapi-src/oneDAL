@@ -43,7 +43,7 @@ using detail::train_result_impl;
 
 template <typename Task>
 train_input<Task>::train_input(const table& data, const table& labels, const table& weights)
-        : impl_(new train_input_impl(data, labels, weights)) {}
+        : impl_(new train_input_impl<Task>(data, labels, weights)) {}
 
 template <typename Task>
 table train_input<Task>::get_data() const {

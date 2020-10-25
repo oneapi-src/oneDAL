@@ -41,7 +41,7 @@ using detail::infer_result_impl;
 
 template <typename Task>
 infer_input<Task>::infer_input(const model<Task>& trained_model, const table& data)
-        : impl_(new infer_input_impl(trained_model, data)) {}
+        : impl_(new infer_input_impl<Task>(trained_model, data)) {}
 
 template <typename Task>
 model<Task> infer_input<Task>::get_model() const {
