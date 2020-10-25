@@ -191,7 +191,8 @@ struct TaskWorkingSet
         auto kernel = factory.getKernel("resetIndicatorWithZeros", status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        KernelArguments args(2);
+        KernelArguments args(2, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, idx, AccessModeIds::read);
         args.set(1, indicator, AccessModeIds::write);
 

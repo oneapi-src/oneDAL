@@ -56,8 +56,10 @@ class cd:
     def __exit__(self, etype, value, traceback):
         os.chdir(self.saved_path)
 
-def get_template(config, template_name):
-    template_name = os.path.join(config.examples_dir, template_name + '.tpl')
+def get_template(config, template_extension):
+    template_base_name = config.template_name
+    template_name = os.path.join(config.examples_dir, '{}.{}.tpl'.format(
+        template_base_name, template_extension))
     return open(template_name, 'r').read()
 
 def write_file(root_dir, filename, content):
@@ -95,7 +97,7 @@ def generate_sln(config, examples_info):
         all_platform_decl.append(platfrom_decl)
     all_project_decls_str = ''.join(all_project_decls)
     all_platform_decl_str = ''.join(all_platform_decl)
-    solution = get_template(config, 'daal_win.sln').format(
+    solution = get_template(config, 'sln').format(
         project_decl = all_project_decls_str,
         platform_decl = all_platform_decl_str
     )
@@ -107,15 +109,15 @@ def generate_proj(config, relative_example_path):
     example_name = get_example_name(relative_example_path)
     normalized_example_path = relative_example_path.replace('/', '\\')
     guid = '{' + '{}'.format(uuid.uuid3(uuid.NAMESPACE_URL, relative_example_path)).upper() + '}'
-    proj = get_template(config, 'daal_win.vcxproj').format(
+    proj = get_template(config, 'vcxproj').format(
         example_guid = guid,
         example_name = example_name,
         example_relative_path = normalized_example_path,
     )
-    proj_filters = get_template(config, 'daal_win.vcxproj.filters').format(
+    proj_filters = get_template(config, 'vcxproj.filters').format(
         example_relative_path = normalized_example_path,
     )
-    proj_user = get_template(config, 'daal_win.vcxproj.user')
+    proj_user = get_template(config, 'vcxproj.user')
     write_proj(config, example_name, proj, proj_filters, proj_user)
     return example_name, guid
 
@@ -145,5 +147,7 @@ if __name__ == "__main__":
                         help='Solution name to be generated')
     parser.add_argument('--test', action='store_true', default=False,
                         help='Does not write the file, but prints log')
+    parser.add_argument('--template_name', type=str, default='daal_win',
+                        help='Name of the solution template file without extension')
     config = parser.parse_args()
     generate(config)

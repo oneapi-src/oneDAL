@@ -96,7 +96,7 @@ void model<task::clustering>::set_centroids_impl(const table& value) {
     impl_->centroids = value;
 }
 
-template class ONEAPI_DAL_EXPORT descriptor_base<task::clustering>;
-template class ONEAPI_DAL_EXPORT model<task::clustering>;
+template class ONEDAL_EXPORT descriptor_base<task::clustering>;
+template class ONEDAL_EXPORT model<task::clustering>;
 
 } // namespace oneapi::dal::kmeans

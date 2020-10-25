@@ -100,7 +100,7 @@ void train_result<Task>::set_means_impl(const table& value) {
     impl_->means = value;
 }
 
-template class ONEAPI_DAL_EXPORT train_input<task::dim_reduction>;
-template class ONEAPI_DAL_EXPORT train_result<task::dim_reduction>;
+template class ONEDAL_EXPORT train_input<task::dim_reduction>;
+template class ONEDAL_EXPORT train_result<task::dim_reduction>;
 
 } // namespace oneapi::dal::pca

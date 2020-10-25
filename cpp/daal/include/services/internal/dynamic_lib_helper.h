@@ -94,7 +94,7 @@ public:
             return NULL;
         }
     #elif defined(_WIN32) || defined(_WIN64)
-        void * sym = GetProcAddress((HMODULE)_handle, symName);
+        void * sym = (void *)GetProcAddress((HMODULE)_handle, symName);
 
         if (NULL == sym)
         {

@@ -120,7 +120,7 @@ void train_result<Task>::set_objective_function_value_impl(double value) {
     impl_->objective_function_value = value;
 }
 
-template class ONEAPI_DAL_EXPORT train_input<task::clustering>;
-template class ONEAPI_DAL_EXPORT train_result<task::clustering>;
+template class ONEDAL_EXPORT train_input<task::clustering>;
+template class ONEDAL_EXPORT train_result<task::clustering>;
 
 } // namespace oneapi::dal::kmeans

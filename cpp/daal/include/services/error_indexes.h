@@ -369,6 +369,9 @@ enum ErrorID
     ErrorDFBootstrapVarImportanceIncompatible = -20000, /*!< Parameter 'bootstrap' is incompatible with requested variable importance type */
     ErrorDFBootstrapOOBIncompatible = -20001, /*!< Parameter 'bootstrap' is incompatible with requested OOB result (no out-of-bag observations) */
 
+    // K-Nearest Neighbors errors: -21000..21999
+    ErrorKNNInternal = -21000, /*!< K-Nearest Neighbors internal error */
+
     // GBT error: -30000..-30099
     ErrorGbtIncorrectNumberOfTrees             = -30000, /*!< Number of trees in the model is not consistent with the number of classes */
     ErrorGbtPredictIncorrectNumberOfIterations = -30001, /*!< Number of iterations value in GBT parameter is not consistent with the model */

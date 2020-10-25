@@ -49,7 +49,7 @@ void compute_input<Task>::set_data_impl(const table& value) {
     impl_->data = value;
 }
 
-template class ONEAPI_DAL_EXPORT compute_input<task::init>;
+template class ONEDAL_EXPORT compute_input<task::init>;
 
 template <typename Task>
 compute_result<Task>::compute_result() : impl_(new compute_result_impl{}) {}
@@ -64,6 +64,6 @@ void compute_result<Task>::set_centroids_impl(const table& value) {
     impl_->centroids = value;
 }
 
-template class ONEAPI_DAL_EXPORT compute_result<task::init>;
+template class ONEDAL_EXPORT compute_result<task::init>;
 
 } // namespace oneapi::dal::kmeans_init

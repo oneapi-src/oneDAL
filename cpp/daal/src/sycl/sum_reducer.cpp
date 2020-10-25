@@ -18,6 +18,7 @@
 #include "src/sycl/reducer.h"
 #include "services/internal/execution_context.h"
 #include "src/externals/service_ittnotify.h"
+#include "services/daal_defines.h"
 
 namespace daal
 {
@@ -46,22 +47,40 @@ services::Status buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId
     return status;
 }
 
-void sum_singlepass(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, Layout vectorsLayout, const UniversalBuffer & vectors,
-                    uint32_t nVectors, uint32_t vectorSize, uint32_t workItemsPerGroup, SumReducer::Result & result, services::Status & status)
+services::Status sum_singlepass(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, Layout vectorsLayout,
+                                const UniversalBuffer & vectors, uint32_t nVectors, uint32_t vectorSize, uint32_t workItemsPerGroup,
+                                SumReducer::Result & result)
 {
+    services::Status status;
+
     auto sum_kernel = kernelFactory.getKernel("sum_singlepass", status);
-    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+    DAAL_CHECK_STATUS_VAR(status);
+
+    // no need to check overflow for nVectors * vectorSize due to we already have buffer vectors of such size
+    if (vectors.type() == TypeIds::id<float>())
+    {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(vectors, float, nVectors * vectorSize);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(result.sum, float, nVectors);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(result.sumOfSquares, float, nVectors);
+    }
+    else
+    {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(vectors, double, nVectors * vectorSize);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(result.sum, double, nVectors);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(result.sumOfSquares, double, nVectors);
+    }
 
     KernelRange localRange(workItemsPerGroup, 1);
     KernelRange globalRange(workItemsPerGroup, nVectors);
 
     KernelNDRange range(2);
     range.global(globalRange, status);
-    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+    DAAL_CHECK_STATUS_VAR(status);
     range.local(localRange, status);
-    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(6 /*8*/);
+    KernelArguments args(6 /*8*/, status);
+    DAAL_CHECK_STATUS_VAR(status);
     uint32_t vectorsAreRows = vectorsLayout == Layout::RowMajor ? 1 : 0;
     args.set(0, vectorsAreRows);
     args.set(1, vectors, AccessModeIds::read);
@@ -73,24 +92,45 @@ void sum_singlepass(ExecutionContextIface & context, ClKernelFactoryIface & kern
     //args.set(7, LocalBuffer(vectors.type(), workItemsPerGroup));
 
     context.run(range, sum_kernel, args, status);
+    return status;
 }
 
-void runStepColmajor(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, const UniversalBuffer & vectors, uint32_t nVectors,
-                     uint32_t vectorSize, uint32_t numWorkItems, uint32_t numWorkGroups, SumReducer::Result & stepResult, services::Status & status)
+services::Status runStepColmajor(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, const UniversalBuffer & vectors,
+                                 uint32_t nVectors, uint32_t vectorSize, uint32_t numWorkItems, uint32_t numWorkGroups, uint32_t numDivisionsByRow,
+                                 SumReducer::Result & stepResult)
 {
+    services::Status status;
+
     auto sum_kernel = kernelFactory.getKernel("sum_step_colmajor", status);
-    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+    DAAL_CHECK_STATUS_VAR(status);
+
+    // no need to check overflow for nVectors * vectorSize due to we already have buffer vectors of such size
+    if (vectors.type() == TypeIds::id<float>())
+    {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(vectors, float, nVectors * vectorSize);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(stepResult.sum, float, nVectors * numDivisionsByRow);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(stepResult.sumOfSquares, float, nVectors * numDivisionsByRow);
+    }
+    else
+    {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(vectors, double, nVectors * vectorSize);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(stepResult.sum, double, nVectors * numDivisionsByRow);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(stepResult.sumOfSquares, double, nVectors * numDivisionsByRow);
+    }
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, numWorkGroups, numWorkItems);
 
     KernelRange localRange(numWorkItems);
     KernelRange globalRange(numWorkGroups * numWorkItems);
 
     KernelNDRange range(1);
     range.global(globalRange, status);
-    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+    DAAL_CHECK_STATUS_VAR(status);
     range.local(localRange, status);
-    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(5);
+    KernelArguments args(5, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     args.set(0, vectors, AccessModeIds::read);
     args.set(1, nVectors);
@@ -99,24 +139,46 @@ void runStepColmajor(ExecutionContextIface & context, ClKernelFactoryIface & ker
     args.set(4, stepResult.sumOfSquares, AccessModeIds::write);
 
     context.run(range, sum_kernel, args, status);
+
+    return status;
 }
 
-void runFinalStepRowmajor(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, SumReducer::Result & stepResult, uint32_t nVectors,
-                          uint32_t vectorSize, uint32_t workItemsPerGroup, SumReducer::Result & result, services::Status & status)
+services::Status runFinalStepRowmajor(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, SumReducer::Result & stepResult,
+                                      uint32_t nVectors, uint32_t vectorSize, uint32_t workItemsPerGroup, SumReducer::Result & result)
 {
+    services::Status status;
+
     auto sum_kernel = kernelFactory.getKernel("sum_final_step_rowmajor", status);
-    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+    DAAL_CHECK_STATUS_VAR(status);
+
+    if (result.sum.type() == TypeIds::id<float>())
+    {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(stepResult.sum, float, nVectors * vectorSize);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(stepResult.sumOfSquares, float, nVectors * vectorSize);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(result.sum, float, nVectors);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(result.sumOfSquares, float, nVectors);
+    }
+    else
+    {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(stepResult.sum, double, nVectors * vectorSize);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(stepResult.sumOfSquares, double, nVectors * vectorSize);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(result.sum, double, nVectors);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(result.sumOfSquares, double, nVectors);
+    }
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, workItemsPerGroup, nVectors);
 
     KernelRange localRange(workItemsPerGroup);
     KernelRange globalRange(workItemsPerGroup * nVectors);
 
     KernelNDRange range(1);
     range.global(globalRange, status);
-    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+    DAAL_CHECK_STATUS_VAR(status);
     range.local(localRange, status);
-    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(6);
+    KernelArguments args(6, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, stepResult.sum, AccessModeIds::read);
     args.set(1, stepResult.sumOfSquares, AccessModeIds::read);
     args.set(2, nVectors);
@@ -125,6 +187,8 @@ void runFinalStepRowmajor(ExecutionContextIface & context, ClKernelFactoryIface 
     args.set(5, result.sumOfSquares, AccessModeIds::write);
 
     context.run(range, sum_kernel, args, status);
+
+    return status;
 }
 
 SumReducer::Result SumReducer::sum(Layout vectorsLayout, const UniversalBuffer & vectors, uint32_t nVectors, uint32_t vectorSize,
@@ -138,6 +202,8 @@ SumReducer::Result SumReducer::sum(Layout vectorsLayout, const UniversalBuffer &
     status |= buildProgram(kernelFactory, vectors.type());
     DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, SumReducer::Result());
 
+    DAAL_ASSERT(vectors.type() == TypeIds::id<float>() || vectors.type() == TypeIds::id<double>());
+
     const uint32_t maxWorkItemsPerGroup = 256;
     const uint32_t maxNumSubSlices      = 9;
 
@@ -146,12 +212,12 @@ SumReducer::Result SumReducer::sum(Layout vectorsLayout, const UniversalBuffer &
 
     if (vectorsLayout == Layout::RowMajor)
     {
-        sum_singlepass(context, kernelFactory, vectorsLayout, vectors, nVectors, vectorSize, maxWorkItemsPerGroup, result, status);
+        status |= sum_singlepass(context, kernelFactory, vectorsLayout, vectors, nVectors, vectorSize, maxWorkItemsPerGroup, result);
     }
     else
     {
-        const int32_t numDivisionsByCol = (nVectors + maxWorkItemsPerGroup - 1) / maxWorkItemsPerGroup;
-        int32_t numDivisionsByRow       = 9;
+        const uint32_t numDivisionsByCol = (nVectors + maxWorkItemsPerGroup - 1) / maxWorkItemsPerGroup;
+        uint32_t numDivisionsByRow       = 9;
         if (vectorSize < 5000)
             numDivisionsByRow = 1;
         else if (vectorSize < 10000)
@@ -159,22 +225,26 @@ SumReducer::Result SumReducer::sum(Layout vectorsLayout, const UniversalBuffer &
         else if (vectorSize < 20000)
             numDivisionsByRow = 6;
 
-        const int32_t workItemsPerGroup = (maxWorkItemsPerGroup < nVectors) ? maxWorkItemsPerGroup : nVectors;
+        const uint32_t workItemsPerGroup = (maxWorkItemsPerGroup < nVectors) ? maxWorkItemsPerGroup : nVectors;
 
         if (numDivisionsByRow > 1)
         {
+            // no need to check overflow for numDivisionsByRow * nVectors due to numDivisionsByRow less than vectorSize,
+            // and input vectors buffer has size of vectorSize * numDivisionsByRow
             Result stepResult(context, numDivisionsByRow * nVectors, vectors.type(), status);
             DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, result);
 
-            runStepColmajor(context, kernelFactory, vectors, nVectors, vectorSize, workItemsPerGroup, numDivisionsByCol * numDivisionsByRow,
-                            stepResult, status);
+            status |= runStepColmajor(context, kernelFactory, vectors, nVectors, vectorSize, workItemsPerGroup, numDivisionsByCol * numDivisionsByRow,
+                                      numDivisionsByRow, stepResult);
+            DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, result);
 
             const uint32_t stepWorkItems = maxNumSubSlices / 2; //need to be power of two
-            runFinalStepRowmajor(context, kernelFactory, stepResult, nVectors, numDivisionsByRow, stepWorkItems, result, status);
+            status |= runFinalStepRowmajor(context, kernelFactory, stepResult, nVectors, numDivisionsByRow, stepWorkItems, result);
         }
         else
         {
-            runStepColmajor(context, kernelFactory, vectors, nVectors, vectorSize, workItemsPerGroup, numDivisionsByCol, result, status);
+            status |= runStepColmajor(context, kernelFactory, vectors, nVectors, vectorSize, workItemsPerGroup, numDivisionsByCol, numDivisionsByRow,
+                                      result);
         }
     }
 

@@ -32,7 +32,7 @@ namespace kmeans
 {
 namespace internal
 {
-template class KMeansDenseLloydBatchKernelUCAPI<DAAL_FPTYPE>;
+template class DAAL_EXPORT KMeansDenseLloydBatchKernelUCAPI<DAAL_FPTYPE>;
 } // namespace internal
 } // namespace kmeans
 } // namespace algorithms

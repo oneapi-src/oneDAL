@@ -240,6 +240,13 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                 services::Status stat;
                 const size_t idx = adjustIndexesInParallel(bn.start, bn.end, d, approximatedMedian, x, indexes, stat);
                 DAAL_CHECK_STATUS_VAR(stat)
+                if (idx == bn.start || idx == bn.end)
+                {
+                    service_free<algorithmFpType, cpu>(subSamples);
+                    stat.add(services::ErrorKNNInternal);
+                    return stat;
+                }
+
                 curNode.cutPoint   = approximatedMedian;
                 curNode.dimension  = d;
                 size_t nodeIdx     = r.impl()->getLastNodeIndex();

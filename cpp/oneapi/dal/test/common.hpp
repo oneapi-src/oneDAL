@@ -30,7 +30,7 @@
 // Disable clang-format as it dramatically
 // affects redability of macro definitions
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 #define DECLARE_TEST_POLICY(policy_name) oneapi::dal::test::device_test_policy policy_name
 #else
 #define DECLARE_TEST_POLICY(policy_name) oneapi::dal::test::host_test_policy policy_name
@@ -63,7 +63,7 @@ inline auto compute(host_test_policy& policy, Args&&... args) {
     return dal::compute(std::forward<Args>(args)...);
 }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 class test_queue_provider {
 public:
     static test_queue_provider& get_instance();

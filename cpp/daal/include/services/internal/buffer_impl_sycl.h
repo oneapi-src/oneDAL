@@ -18,9 +18,15 @@
 #ifndef __DAAL_SERVICES_INTERNAL_BUFFER_SYCL_H__
 #define __DAAL_SERVICES_INTERNAL_BUFFER_SYCL_H__
 
+#ifndef DAAL_SYCL_INTERFACE
+    #error "DAAL_SYCL_INTERFACE must be defined to include this file"
+#endif
+
 #include <CL/sycl.hpp>
+
 #include "services/internal/any.h"
 #include "services/internal/buffer_impl.h"
+#include "services/internal/sycl/error_handling_sycl.h"
 
 namespace daal
 {
@@ -32,6 +38,12 @@ namespace internal
  * @{
  */
 
+template <typename T>
+inline cl::sycl::buffer<T, 1> createEmptySyclBuffer()
+{
+    return cl::sycl::buffer<T, 1>(nullptr, cl::sycl::range<1> { 0 });
+}
+
 #ifdef DAAL_SYCL_INTERFACE_USM
 /**
  *  <a name="DAAL-CLASS-SERVICES-INTERNAL__USMBUFFER"></a>
@@ -41,18 +53,31 @@ template <typename T>
 class UsmBuffer : public Base, public UsmBufferIface<T>
 {
 public:
-    UsmBuffer(const SharedPtr<T> & data, size_t size, cl::sycl::usm::alloc allocType) : _data(data), _size(size), _allocType(allocType) {}
+    static UsmBuffer<T> * create(const SharedPtr<T> & data, size_t size, cl::sycl::usm::alloc allocType, Status & status)
+    {
+        if (!data && size != size_t(0))
+        {
+            status |= ErrorNullPtr;
+            return nullptr;
+        }
+        const auto newBuffer = new UsmBuffer<T>(data, size, allocType);
+        DAAL_CHECK_COND_ERROR(newBuffer, status, ErrorMemoryAllocationFailed);
+        return newBuffer;
+    }
 
-    UsmBuffer(T * data, size_t size, cl::sycl::usm::alloc allocType) : _data(data, EmptyDeleter()), _size(size), _allocType(allocType) {}
+    static UsmBuffer<T> * create(T * data, size_t size, cl::sycl::usm::alloc allocType, Status & status)
+    {
+        return create(SharedPtr<T> { data, EmptyDeleter() }, size, allocType, status);
+    }
 
     size_t size() const DAAL_C11_OVERRIDE { return _size; }
 
-    void apply(BufferVisitor<T> & visitor) const DAAL_C11_OVERRIDE { visitor(*this); }
+    Status apply(BufferVisitor<T> & visitor) const DAAL_C11_OVERRIDE { return visitor(*this); }
 
-    UsmBuffer<T> * getSubBuffer(size_t offset, size_t size) const DAAL_C11_OVERRIDE
+    UsmBuffer<T> * getSubBuffer(size_t offset, size_t size, Status & status) const DAAL_C11_OVERRIDE
     {
         DAAL_ASSERT(offset + size <= _size);
-        return new UsmBuffer<T>(SharedPtr<T>(_data, _data.get() + offset), size, _allocType);
+        return create(SharedPtr<T>(_data, _data.get() + offset), size, _allocType, status);
     }
 
     SharedPtr<T> getHostRead(Status & status) const DAAL_C11_OVERRIDE { return getHostPtr(status); }
@@ -66,6 +91,8 @@ public:
     cl::sycl::usm::alloc getAllocType() const { return _allocType; }
 
 private:
+    UsmBuffer(const SharedPtr<T> & data, size_t size, cl::sycl::usm::alloc allocType) : _data(data), _size(size), _allocType(allocType) {}
+
     SharedPtr<T> getHostPtr(Status & status) const
     {
         using namespace cl::sycl::usm;
@@ -99,21 +126,30 @@ public:
     typedef cl::sycl::accessor<T, 1, mode, cl::sycl::access::target::host_buffer> HostAccessorType;
 
 public:
-    explicit SyclHostDeleter(const cl::sycl::buffer<T, 1> & buffer, HostAccessorType * accessor) : _buffer(buffer), _hostAccessor(accessor) {}
+    explicit SyclHostDeleter(const cl::sycl::buffer<T, 1> & buffer, HostAccessorType * accessor) : _buffer(buffer), _hostAccessor(accessor)
+    {
+        DAAL_ASSERT(_hostAccessor);
+    }
 
     void operator()(const void * ptr)
     {
+        if (!_hostAccessor)
+        {
+            DAAL_ASSERT(!"Potential attempt to delete host accessor twice");
+        }
+
+        DAAL_ASSERT(ptr == _hostAccessor->get_pointer());
         delete _hostAccessor;
         _hostAccessor = nullptr;
     }
 
 private:
-    HostAccessorType * _hostAccessor;
     cl::sycl::buffer<T, 1> _buffer;
+    HostAccessorType * _hostAccessor;
 };
 
 /**
- *  <a name="DAAL-CLASS-SERVICES-INTERNAL__SYCLBUFFER"></a>
+ *  <a name="DAAL-CLASS-SERVICES-INTERNAL__nativeBuffer"></a>
  *  \brief BufferIface implementation based on SYCL* buffer
  */
 template <typename T>
@@ -123,54 +159,75 @@ private:
     typedef cl::sycl::buffer<T, 1> BufferType;
 
 public:
-    explicit SyclBuffer(size_t size) : _syclBuffer(cl::sycl::range<1>(size)) {}
+    static SyclBuffer<T> * create(size_t size, Status & status)
+    {
+        const auto newBuffer = new SyclBuffer<T>(size, status);
+        DAAL_CHECK_COND_ERROR(newBuffer, status, ErrorMemoryAllocationFailed);
+        return newBuffer;
+    }
 
-    explicit SyclBuffer(const BufferType & syclBuffer) : _syclBuffer(syclBuffer) {}
+    static SyclBuffer<T> * create(const BufferType & syclBuffer, Status & status)
+    {
+        const auto newBuffer = new SyclBuffer<T>(syclBuffer, status);
+        DAAL_CHECK_COND_ERROR(newBuffer, status, ErrorMemoryAllocationFailed);
+        return newBuffer;
+    }
 
-    size_t size() const DAAL_C11_OVERRIDE { return _syclBuffer.get_count(); }
+    size_t size() const DAAL_C11_OVERRIDE { return _nativeBuffer.get_count(); }
 
-    void apply(BufferVisitor<T> & visitor) const DAAL_C11_OVERRIDE { visitor(*this); }
+    Status apply(BufferVisitor<T> & visitor) const DAAL_C11_OVERRIDE { return visitor(*this); }
 
-    SyclBuffer<T> * getSubBuffer(size_t offset, size_t size) const DAAL_C11_OVERRIDE
+    SyclBuffer<T> * getSubBuffer(size_t offset, size_t size, Status & status) const DAAL_C11_OVERRIDE
     {
         DAAL_ASSERT(offset + size <= this->size());
 
-        /* Workaround: ComputeCpp does not provide constructor for SYCL* buffer
-         * defined in standard 1.2.1:
-         *      buffer(buffer<T, dimensions, AllocatorT> b,
-         *             const id<dimensions> &baseIndex,
-         *             const range<dimensions> &subRange);
-         *
-         * Instead, they provide the method that accepts the first argument via
-         * non-const reference, so we remove cv-qualifier for _syclBuffer
-        */
-        BufferType & buffer = const_cast<BufferType &>(_syclBuffer);
-        if ((offset == 0) && (size == this->size()))
+        BufferType & nativeBuffer = const_cast<BufferType &>(_nativeBuffer);
+        if (offset == 0 && size == this->size())
         {
-            return new SyclBuffer<T>(buffer);
+            return create(nativeBuffer, status);
         }
-        return new SyclBuffer<T>(BufferType(buffer, offset, size));
+
+        const auto nativeBufferWithOffset = createNativeBuffer(status, nativeBuffer, cl::sycl::id<1>(offset), cl::sycl::range<1>(size));
+        DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, nullptr);
+
+        return create(nativeBufferWithOffset, status);
     }
 
-    SharedPtr<T> getHostRead(Status & status) const DAAL_C11_OVERRIDE { return getHostPtr<cl::sycl::access::mode::read>(); }
+    SharedPtr<T> getHostRead(Status & status) const DAAL_C11_OVERRIDE { return getHostPtr<cl::sycl::access::mode::read>(status); }
 
-    SharedPtr<T> getHostWrite(Status & status) const DAAL_C11_OVERRIDE { return getHostPtr<cl::sycl::access::mode::write>(); }
+    SharedPtr<T> getHostWrite(Status & status) const DAAL_C11_OVERRIDE { return getHostPtr<cl::sycl::access::mode::write>(status); }
 
-    SharedPtr<T> getHostReadWrite(Status & status) const DAAL_C11_OVERRIDE { return getHostPtr<cl::sycl::access::mode::read_write>(); }
+    SharedPtr<T> getHostReadWrite(Status & status) const DAAL_C11_OVERRIDE { return getHostPtr<cl::sycl::access::mode::read_write>(status); }
 
-    const BufferType & get() const { return _syclBuffer; }
+    const BufferType & get() const { return _nativeBuffer; }
 
 private:
+    explicit SyclBuffer(size_t size, Status & status) : _nativeBuffer(createNativeBuffer(status, size)) {}
+
+    explicit SyclBuffer(const BufferType & nativeBuffer, Status & status) : _nativeBuffer(createNativeBuffer(status, nativeBuffer)) {}
+
     template <cl::sycl::access::mode mode>
-    SharedPtr<T> getHostPtr() const
+    SharedPtr<T> getHostPtr(Status & status) const
     {
         using DeleterType  = SyclHostDeleter<T, mode>;
         using AccessorType = typename DeleterType::HostAccessorType;
-        auto * accessor    = new AccessorType(const_cast<BufferType &>(_syclBuffer));
-        return SharedPtr<T>(accessor->get_pointer(), DeleterType(_syclBuffer, accessor));
+        return internal::sycl::catchSyclExceptions(
+            status,
+            [&]() {
+                auto * accessor = new AccessorType(const_cast<BufferType &>(_nativeBuffer));
+                return SharedPtr<T>(accessor->get_pointer(), DeleterType(_nativeBuffer, accessor));
+            },
+            [&]() { return SharedPtr<T>(); });
     }
 
-    BufferType _syclBuffer;
+    template <typename... Args>
+    static BufferType createNativeBuffer(Status & status, Args &&... args)
+    {
+        return internal::sycl::catchSyclExceptions(
+            status, [&]() { return BufferType(std::forward<Args>(args)...); }, [&]() { return createEmptySyclBuffer<T>(); });
+    }
+
+    BufferType _nativeBuffer;
 };
 
 /**
@@ -184,24 +241,43 @@ private:
     typedef cl::sycl::buffer<T, 1> SyclBufferType;
 
 public:
-    void operator()(const HostBuffer<T> & buffer) DAAL_C11_OVERRIDE { _syclBuffer = wrap(buffer.get(), buffer.size()); }
-
-    void operator()(const UsmBufferIface<T> & buffer) DAAL_C11_OVERRIDE { _syclBuffer = wrap(buffer.get(), buffer.size(), true); }
-
-    void operator()(const SyclBufferIface<T> & buffer) DAAL_C11_OVERRIDE { _syclBuffer = static_cast<const SyclBuffer<T> &>(buffer).get(); }
-
-    const SyclBufferType & get() const { return _syclBuffer.get<SyclBufferType>(); }
-
-private:
-    static SyclBufferType wrap(const SharedPtr<T> & ptr, size_t size, bool useHostPtr = false)
+    Status operator()(const HostBuffer<T> & buffer) DAAL_C11_OVERRIDE
     {
-        const auto bufferProperties =
-            (useHostPtr) ? cl::sycl::property_list { cl::sycl::property::buffer::use_host_ptr() } : cl::sycl::property_list {};
-
-        return SyclBufferType(ptr.get(), cl::sycl::range<1>(size), bufferProperties);
+        Status status;
+        _nativeBuffer = wrap(status, buffer.get(), buffer.size());
+        return status;
     }
 
-    services::internal::Any _syclBuffer;
+    Status operator()(const UsmBufferIface<T> & buffer) DAAL_C11_OVERRIDE
+    {
+        Status status;
+        _nativeBuffer = wrap(status, buffer.get(), buffer.size(), true);
+        return status;
+    }
+
+    Status operator()(const SyclBufferIface<T> & buffer) DAAL_C11_OVERRIDE
+    {
+        _nativeBuffer = static_cast<const SyclBuffer<T> &>(buffer).get();
+        return Status();
+    }
+
+    const SyclBufferType & get() const { return _nativeBuffer.get<SyclBufferType>(); }
+
+private:
+    static SyclBufferType wrap(Status & status, const SharedPtr<T> & ptr, size_t size, bool useHostPtr = false)
+    {
+        return internal::sycl::catchSyclExceptions(
+            status,
+            [&]() {
+                const auto bufferProperties =
+                    (useHostPtr) ? cl::sycl::property_list { cl::sycl::property::buffer::use_host_ptr() } : cl::sycl::property_list {};
+
+                return SyclBufferType(ptr.get(), cl::sycl::range<1>(size), bufferProperties);
+            },
+            [&]() { return createEmptySyclBuffer<T>(); });
+    }
+
+    Any _nativeBuffer;
 };
 
 #ifdef DAAL_SYCL_INTERFACE_USM
@@ -213,19 +289,28 @@ template <typename T>
 class ConvertToUsm : public BufferVisitor<T>
 {
 public:
-    void operator()(const HostBuffer<T> & buffer) DAAL_C11_OVERRIDE { _data = buffer.get(); }
-
-    void operator()(const UsmBufferIface<T> & buffer) DAAL_C11_OVERRIDE { _data = buffer.get(); }
-
-    void operator()(const SyclBufferIface<T> & buffer) DAAL_C11_OVERRIDE
+    Status operator()(const HostBuffer<T> & buffer) DAAL_C11_OVERRIDE
     {
+        _data = buffer.get();
+        return Status();
+    }
+
+    Status operator()(const UsmBufferIface<T> & buffer) DAAL_C11_OVERRIDE
+    {
+        _data = buffer.get();
+        return Status();
+    }
+
+    Status operator()(const SyclBufferIface<T> & buffer) DAAL_C11_OVERRIDE
+    {
+        Status status;
         /* NOTE: Performance might be not quite satisfactory. If the SYCL* buffer
        * is a wrapper over pointer (e.g., was created using `use_host_ptr`
        * property), `getHostReadWrite` will not create overhead. Otherwise,
        * getting host pointer will result in graph synchronization and potential
        * data copy. */
-        // TODO: Report error or warning, if `buffer` does not has property `use_host_ptr`
-        _data = buffer.getHostReadWrite();
+        _data = buffer.getHostReadWrite(status);
+        return status;
     }
 
     const SharedPtr<T> & get() const { return _data; }
@@ -236,25 +321,27 @@ private:
 #endif
 
 /**
- *  <a name="DAAL-CLASS-SERVICES-INTERNAL__SYCLBUFFERCONVERTER"></a>
+ *  <a name="DAAL-CLASS-SERVICES-INTERNAL__nativeBufferCONVERTER"></a>
  *  \brief Groups high-level conversion methods for SYCL* buffer and USM
  */
 template <typename T>
 class SyclBufferConverter
 {
 public:
-    cl::sycl::buffer<T, 1> toSycl(const internal::BufferIface<T> & buffer)
+    cl::sycl::buffer<T, 1> toSycl(const internal::BufferIface<T> & buffer, Status & status)
     {
         ConvertToSycl<T> action;
-        buffer.apply(action);
+        status |= buffer.apply(action);
+        DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, createEmptySyclBuffer<T>());
         return action.get();
     }
 
 #ifdef DAAL_SYCL_INTERFACE_USM
-    SharedPtr<T> toUSM(const internal::BufferIface<T> & buffer)
+    SharedPtr<T> toUSM(const internal::BufferIface<T> & buffer, Status & status)
     {
         ConvertToUsm<T> action;
-        buffer.apply(action);
+        status |= buffer.apply(action);
+        DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, SharedPtr<T>());
         return action.get();
     }
 #endif

@@ -333,12 +333,13 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::run(const NumericT
             pLocal->tmp.set(_prob, iStartRow, nRowsToProcess);
             DAAL_CHECK_BLOCK_STATUS_THR(pLocal->tmp);
             cel::internal::CrossEntropyLossKernel<algorithmFPType, cel::defaultDense, cpu>::softmax(pRawValues, pLocal->tmp.get(), nRowsToProcess,
-                                                                                                    nClasses);
+                                                                                                    nClasses, nullptr, nullptr);
         }
         else if (_prob || _logProb)
         {
             //compute softmax in pRawValues
-            cel::internal::CrossEntropyLossKernel<algorithmFPType, cel::defaultDense, cpu>::softmax(pRawValues, pRawValues, nRowsToProcess, nClasses);
+            cel::internal::CrossEntropyLossKernel<algorithmFPType, cel::defaultDense, cpu>::softmax(pRawValues, pRawValues, nRowsToProcess, nClasses,
+                                                                                                    nullptr, nullptr);
             if (_prob)
             {
                 pLocal->tmp.set(_prob, iStartRow, nRowsToProcess);
