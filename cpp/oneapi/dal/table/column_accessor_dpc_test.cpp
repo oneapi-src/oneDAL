@@ -152,7 +152,7 @@ TEST(column_accessor_test, can_get_column_values_from_column_major_homogen_table
     });
 
     auto t =
-        homogen_table::wrap(data, row_count, column_count, { event }, data_layout::column_major);
+        homogen_table::wrap(q, data, row_count, column_count, { event }, data_layout::column_major);
     column_accessor<const float> acc{ t };
     auto col = acc.pull(q, 1, { 1, 3 });
 
@@ -161,6 +161,8 @@ TEST(column_accessor_test, can_get_column_values_from_column_major_homogen_table
 
     ASSERT_FLOAT_EQ(col[0], 5.f);
     ASSERT_FLOAT_EQ(col[1], 6.f);
+
+    sycl::free(data, q);
 }
 
 TEST(column_accessor_test, can_get_column_values_from_column_major_homogen_table_with_conversion) {
@@ -178,7 +180,7 @@ TEST(column_accessor_test, can_get_column_values_from_column_major_homogen_table
     });
 
     auto t =
-        homogen_table::wrap(data, row_count, column_count, { event }, data_layout::column_major);
+        homogen_table::wrap(q, data, row_count, column_count, { event }, data_layout::column_major);
     column_accessor<const std::int32_t> acc{ t };
     auto col = acc.pull(q, 1, { 1, 3 });
 
@@ -186,4 +188,6 @@ TEST(column_accessor_test, can_get_column_values_from_column_major_homogen_table
 
     ASSERT_EQ(col[0], 5);
     ASSERT_EQ(col[1], 6);
+
+    sycl::free(data, q);
 }

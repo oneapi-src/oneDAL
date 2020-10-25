@@ -57,24 +57,4 @@ void convert_vector(const detail::data_parallel_policy& policy,
 
 #endif
 
-#ifdef ONEDAL_DATA_PARALLEL
-
-void convert_vector(const detail::data_parallel_policy& policy,
-                    const void* src,
-                    void* dst,
-                    data_type src_type,
-                    data_type dest_type,
-                    std::int64_t size);
-
-void convert_vector(const detail::data_parallel_policy& policy,
-                    const void* src,
-                    void* dst,
-                    data_type src_type,
-                    data_type dest_type,
-                    std::int64_t src_stride,
-                    std::int64_t dst_stride,
-                    std::int64_t size);
-
-#endif
-
 } // namespace oneapi::dal::backend
