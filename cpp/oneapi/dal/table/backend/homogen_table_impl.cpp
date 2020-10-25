@@ -147,7 +147,7 @@ private:
 
     struct origin_info {
         origin_info(data_type dtype, int64_t row_count, int64_t column_count)
-                : data_type(dtype),
+                : dtype(dtype),
                   row_count(row_count),
                   column_count(column_count),
                   element_count(row_count * column_count) {
@@ -158,7 +158,7 @@ private:
             }
         }
 
-        data_type data_type;
+        data_type dtype;
         int64_t row_count;
         int64_t column_count;
         int64_t element_count;
@@ -201,7 +201,7 @@ public:
                            array<BlockData>& block_data,
                            const Alloc& kind) const {
         constexpr int64_t block_dtype_size = sizeof(BlockData);
-        const auto origin_dtype_size = detail::get_data_type_size(origin_.data_type);
+        const auto origin_dtype_size = detail::get_data_type_size(origin_.dtype);
 
         // overflows checked here
         check_origin_data(origin_data, origin_dtype_size, block_dtype_size);
@@ -215,7 +215,7 @@ public:
         const bool contiguous_block_requested =
             block_.column_count == origin_.column_count || block_.row_count == 1;
 
-        if (block_dtype == origin_.data_type && contiguous_block_requested == true &&
+        if (block_dtype == origin_.dtype && contiguous_block_requested == true &&
             has_array_data_kind(policy, origin_data, kind)) {
             refer_source_data(origin_data,
                               origin_offset * block_dtype_size,
@@ -242,7 +242,7 @@ public:
                         policy,
                         src_data + subblock_idx * origin_.column_count * origin_dtype_size,
                         dst_data + subblock_idx * block_.column_count,
-                        origin_.data_type,
+                        origin_.dtype,
                         block_dtype,
                         subblock_size);
                 }
@@ -251,7 +251,7 @@ public:
                 backend::convert_vector(policy,
                                         src_data,
                                         dst_data,
-                                        origin_.data_type,
+                                        origin_.dtype,
                                         block_dtype,
                                         origin_dtype_size * origin_.column_count,
                                         block_dtype_size,
@@ -266,7 +266,7 @@ public:
                               array<BlockData>& block_data,
                               const Alloc& kind) const {
         constexpr int64_t block_dtype_size = sizeof(BlockData);
-        const auto origin_dtype_size = detail::get_data_type_size(origin_.data_type);
+        const auto origin_dtype_size = detail::get_data_type_size(origin_.dtype);
 
         // overflows checked here
         check_origin_data(origin_data, origin_dtype_size, block_dtype_size);
@@ -288,7 +288,7 @@ public:
             backend::convert_vector(policy,
                                     src_data + row_idx * origin_dtype_size,
                                     dst_data + row_idx * block_.column_count,
-                                    origin_.data_type,
+                                    origin_.dtype,
                                     block_dtype,
                                     origin_dtype_size * origin_.row_count,
                                     block_dtype_size,
@@ -301,7 +301,7 @@ public:
                            array<byte_t>& origin_data,
                            const array<BlockData>& block_data) const {
         constexpr int64_t block_dtype_size = sizeof(BlockData);
-        const auto origin_dtype_size = detail::get_data_type_size(origin_.data_type);
+        const auto origin_dtype_size = detail::get_data_type_size(origin_.dtype);
 
         // overflows checked here
         check_origin_data(origin_data, origin_dtype_size, block_dtype_size);
@@ -319,7 +319,7 @@ public:
         const bool contiguous_block_requested =
             block_.column_count == origin_.column_count || block_.row_count == 1;
 
-        if (origin_.data_type == block_dtype && contiguous_block_requested == true) {
+        if (origin_.dtype == block_dtype && contiguous_block_requested == true) {
             auto row_data = reinterpret_cast<BlockData*>(origin_data.get_mutable_data());
             auto row_start_pointer = row_data + origin_offset;
 
@@ -348,7 +348,7 @@ public:
                         src_data + block_idx * block_.column_count,
                         dst_data + block_idx * origin_.column_count * origin_dtype_size,
                         block_dtype,
-                        origin_.data_type,
+                        origin_.dtype,
                         block_size);
                 }
             }
@@ -357,7 +357,7 @@ public:
                                         src_data,
                                         dst_data,
                                         block_dtype,
-                                        origin_.data_type,
+                                        origin_.dtype,
                                         block_dtype_size,
                                         origin_dtype_size * origin_.column_count,
                                         block_.element_count);
@@ -370,7 +370,7 @@ public:
                               array<byte_t>& origin_data,
                               const array<BlockData>& block_data) const {
         constexpr int64_t block_dtype_size = sizeof(BlockData);
-        const auto origin_dtype_size = detail::get_data_type_size(origin_.data_type);
+        const auto origin_dtype_size = detail::get_data_type_size(origin_.dtype);
 
         // overflows checked here
         check_origin_data(origin_data, origin_dtype_size, block_dtype_size);
@@ -394,7 +394,7 @@ public:
                                     src_data + row_idx * block_.column_count,
                                     dst_data + row_idx * origin_dtype_size,
                                     block_dtype,
-                                    origin_.data_type,
+                                    origin_.dtype,
                                     block_dtype_size,
                                     origin_dtype_size * origin_.row_count,
                                     block_.column_count);

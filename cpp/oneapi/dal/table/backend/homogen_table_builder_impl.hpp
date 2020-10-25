@@ -86,7 +86,9 @@ public:
     }
 
     homogen_table build() {
-        homogen_table new_table{ homogen_table_impl{ column_count_, data_, dtype_, layout_ } };
+        homogen_table new_table{
+            homogen_table_impl{ row_count_, column_count_, data_, dtype_, layout_ }
+        };
         data_.reset();
         row_count_ = 0;
         column_count_ = 0;
@@ -125,25 +127,25 @@ public:
     // pull_*() methods can be generalized between table and builder
     template <typename T>
     void pull_rows(array<T>& a, const range& r) const {
-        homogen_table_impl impl{ column_count_, data_, dtype_, layout_ };
+        homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
         impl.pull_rows(a, r);
     }
 
     template <typename T>
     void push_rows(const array<T>& a, const range& r) {
-        homogen_table_impl impl{ column_count_, data_, dtype_, layout_ };
+        homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
         impl.push_rows(a, r);
     }
 
     template <typename T>
     void pull_column(array<T>& a, std::int64_t idx, const range& r) const {
-        homogen_table_impl impl{ column_count_, data_, dtype_, layout_ };
+        homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
         impl.pull_column(a, idx, r);
     }
 
     template <typename T>
     void push_column(const array<T>& a, std::int64_t idx, const range& r) {
-        homogen_table_impl impl{ column_count_, data_, dtype_, layout_ };
+        homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
         impl.push_column(a, idx, r);
     }
 
@@ -153,13 +155,13 @@ public:
                    array<T>& a,
                    const range& r,
                    const sycl::usm::alloc& kind) const {
-        homogen_table_impl impl{ column_count_, data_, dtype_, layout_ };
+        homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
         impl.pull_rows(q, a, r, kind);
     }
 
     template <typename T>
     void push_rows(sycl::queue& q, const array<T>& a, const range& r) {
-        homogen_table_impl impl{ column_count_, data_, dtype_, layout_ };
+        homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
         impl.push_rows(q, a, r);
     }
 
@@ -169,13 +171,13 @@ public:
                      std::int64_t idx,
                      const range& r,
                      const sycl::usm::alloc& kind) const {
-        homogen_table_impl impl{ column_count_, data_, dtype_, layout_ };
+        homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
         impl.pull_column(q, a, idx, r, kind);
     }
 
     template <typename T>
     void push_column(sycl::queue& q, const array<T>& a, std::int64_t idx, const range& r) {
-        homogen_table_impl impl{ column_count_, data_, dtype_, layout_ };
+        homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
         impl.push_column(q, a, idx, r);
     }
 #endif
