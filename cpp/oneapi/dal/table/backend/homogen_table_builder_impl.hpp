@@ -22,32 +22,55 @@
 namespace oneapi::dal::backend {
 
 class homogen_table_builder_impl {
+private:
+    std::int64_t get_data_size(std::int64_t row_count, std::int64_t column_count, data_type dtype) {
+        detail::check_mul_overflow(row_count, column_count);
+        const std::int64_t element_count = row_count * column_count;
+        const std::int64_t dtype_size = detail::get_data_type_size(dtype);
+
+        detail::check_mul_overflow(element_count, dtype_size);
+        return element_count * dtype_size;
+    }
+
 public:
-    homogen_table_builder_impl()
-            : row_count_(0),
-              column_count_(0),
-              layout_(data_layout::row_major),
-              dtype_(data_type::float32) {}
+    homogen_table_builder_impl() {
+        reset();
+    }
+
+    void reset() {
+        data_.reset();
+        row_count_ = 0;
+        column_count_ = 0;
+        layout_ = data_layout::row_major;
+        dtype_ = data_type::float32;
+    }
 
     void reset(homogen_table&& t) {
-        auto& t_impl = detail::get_impl<detail::homogen_table_impl_iface>(t);
-        auto& meta = t_impl.get_metadata();
+        if (t.has_data()) {
+            auto& meta = t.get_metadata();
+            const int64_t data_size = get_data_size(t.get_row_count(), t.get_column_count(), meta.get_data_type(0));
 
-        layout_ = t.get_data_layout();
-        dtype_ = meta.get_data_type(0);
+            // TODO: make data move without copying
+            // now we are accepting const data pointer from table
+            data_.reset(reinterpret_cast<const byte_t*>(t.get_data()),
+                        data_size,
+                        empty_delete<const byte_t>());
+            data_.need_mutable_data();
 
-        std::int64_t data_size =
-            detail::get_data_type_size(dtype_) * t_impl.get_row_count() * t_impl.get_column_count();
-
-        // TODO: make data move without copying
-        // now we are accepting const data pointer from table
-        data_.reset(array<byte_t>(), reinterpret_cast<const byte_t*>(t_impl.get_data()), data_size);
-        data_.need_mutable_data();
-        row_count_ = t_impl.get_row_count();
-        column_count_ = t_impl.get_column_count();
+            layout_ = t.get_data_layout();
+            dtype_ = meta.get_data_type(0);
+            row_count_ = t.get_row_count();
+            column_count_ = t.get_column_count();
+        } else {
+            reset();
+        }
     }
 
     void reset(const array<byte_t>& data, std::int64_t row_count, std::int64_t column_count) {
+        if (get_data_size(row_count, column_count, dtype_) != data.get_count()) {
+            throw dal::range_error("invalid data size");
+        }
+
         data_ = data;
         row_count_ = row_count;
         column_count_ = column_count;
@@ -61,11 +84,16 @@ public:
     }
 
     void set_feature_type(feature_type ft) {
-        // TODO: not propagated to homogen_table_impl
+        throw dal::unimplemented("set_feature_type is not implemented");
     }
 
     void allocate(std::int64_t row_count, std::int64_t column_count) {
-        data_.reset(row_count * column_count * detail::get_data_type_size(dtype_));
+        const std::int64_t data_size = get_data_size(row_count, column_count, dtype_);
+        if (data_size <= 0) {
+            throw dal::domain_error("data count to allocate is not positive");
+        }
+
+        data_.reset(data_size);
         row_count_ = row_count;
         column_count_ = column_count;
     }
@@ -75,11 +103,16 @@ public:
     }
 
     void copy_data(const void* data, std::int64_t row_count, std::int64_t column_count) {
-        data_.reset(row_count * column_count * detail::get_data_type_size(dtype_));
+        const std::int64_t data_size = get_data_size(row_count, column_count, dtype_);
+        if (data_size <= 0) {
+            throw dal::domain_error("data count to copy is not positive");
+        }
+
+        data_.reset(data_size);
         detail::memcpy(detail::default_host_policy{},
                        data_.get_mutable_data(),
                        data,
-                       data_.get_size());
+                       data_size);
 
         row_count_ = row_count;
         column_count_ = column_count;
@@ -89,12 +122,8 @@ public:
         homogen_table new_table{
             homogen_table_impl{ row_count_, column_count_, data_, dtype_, layout_ }
         };
-        data_.reset();
-        row_count_ = 0;
-        column_count_ = 0;
-        layout_ = data_layout::row_major;
-        dtype_ = data_type::float32; // TODO: default data_type
 
+        reset();
         return new_table;
     }
 
@@ -103,7 +132,12 @@ public:
                   std::int64_t row_count,
                   std::int64_t column_count,
                   sycl::usm::alloc kind) {
-        data_.reset(queue, row_count * column_count * detail::get_data_type_size(dtype_), kind);
+        const std::int64_t data_size = get_data_size(row_count, column_count, dtype_);
+        if (data_size <= 0) {
+            throw dal::domain_error("data count to allocate is not positive");
+        }
+
+        data_.reset(queue, data_size, kind);
         row_count_ = row_count;
         column_count_ = column_count;
     }
@@ -112,10 +146,15 @@ public:
                    const void* data,
                    std::int64_t row_count,
                    std::int64_t column_count) {
+        const std::int64_t data_size = get_data_size(row_count, column_count, dtype_);
+        if (data_size <= 0) {
+            throw dal::domain_error("data count to copy is not positive");
+        }
+
         data_.reset(queue,
-                    row_count * column_count * detail::get_data_type_size(dtype_),
+                    data_size,
                     sycl::get_pointer_type(data_.get_data(), queue.get_context()));
-        detail::memcpy(queue, data_.get_mutable_data(), data, data_.get_size());
+        detail::memcpy(queue, data_.get_mutable_data(), data, data_size);
 
         row_count_ = row_count;
         column_count_ = column_count;
