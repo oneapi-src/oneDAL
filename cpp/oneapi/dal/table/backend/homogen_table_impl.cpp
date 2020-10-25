@@ -37,7 +37,7 @@ void make_mutable_data(const Policy& policy, array<Data>& array) {
     }
 #ifdef ONEDAL_DATA_PARALLEL
     else if constexpr (std::is_same_v<Policy, detail::data_parallel_policy>) {
-        auto queue = policy.get_queue();
+        auto& queue = policy.get_queue();
         auto kind = sycl::get_pointer_type(array.get_data(), queue.get_context());
         array.need_mutable_data(queue, kind);
     }
@@ -72,6 +72,7 @@ bool has_array_data_kind(const Policy& policy, const array<Data>& array, const A
         // We assume that no sycl::usm::alloc::device pointers used with host policies.
         // It is responsibility of user to pass right pointers because we cannot check
         // the right pointer type with the host policy.
+        static_assert(std::is_same_v<Alloc, homogen_table_impl::host_alloc_t>);
         return true;
     }
 #ifdef ONEDAL_DATA_PARALLEL
@@ -91,9 +92,23 @@ bool has_array_data_kind(const Policy& policy, const array<Data>& array, const A
 
 template <typename DataSrc, typename DataDest>
 void refer_source_data(const array<DataSrc>& src,
-                       std::int64_t src_start_index,
-                       std::int64_t dst_count,
+                       int64_t src_start_index,
+                       int64_t dst_count,
                        array<DataDest>& dst) {
+    const int64_t src_count = src.get_count();
+    if (src_count <= src_start_index ||
+        src_start_index < 0 ||
+        src_count < 0) {
+        throw dal::range_error("invalid source data size");
+    }
+
+    const int64_t src_remaining_count = src_count - src_start_index;
+    constexpr float type_ratio = static_cast<float>(sizeof(DataSrc)) / sizeof(DataDest);
+    const int64_t dst_avaliable_count = static_cast<int64_t>(src_remaining_count * type_ratio);
+    if (dst_avaliable_count < dst_count) {
+        throw dal::range_error("requested dst size bigger than available");
+    }
+
     if (src.has_mutable_data()) {
         // TODO: in future, when table knows about mutability of its data this branch shall be
         // available only for builders, not for tables.
@@ -116,8 +131,12 @@ private:
               row_offset(row_offset),
               column_offset(column_offset),
               element_count(row_count * column_count) {
-            // TODO: check parameters
             detail::check_mul_overflow(row_count, column_count);
+
+            if (row_count <= 0 || column_count <= 0 ||
+                row_offset < 0 || column_offset < 0) {
+                throw dal::range_error("invalid parameters");
+            }
         }
 
         int64_t row_count;
@@ -133,8 +152,11 @@ private:
               row_count(row_count),
               column_count(column_count),
               element_count(row_count * column_count) {
-            // TODO: check parameters
             detail::check_mul_overflow(row_count, column_count);
+
+            if (row_count <= 0 || column_count <= 0) {
+                throw dal::range_error("invalid parameters");
+            }
         }
 
         data_type data_type;
@@ -142,6 +164,17 @@ private:
         int64_t column_count;
         int64_t element_count;
     };
+
+private:
+    void check_origin_data(const array<byte_t>& origin_data,
+                     int64_t origin_dtype_size,
+                     int64_t block_dtype_size) const {
+        detail::check_mul_overflow(origin_.element_count,
+                                   std::max(origin_dtype_size, block_dtype_size));
+        if (origin_data.get_count() != origin_.element_count * origin_dtype_size) {
+            throw dal::range_error("origin has less data than required");
+        }
+    }
 
 public:
     block_access_provider(int64_t origin_row_count,
@@ -154,7 +187,13 @@ public:
                      block_row_range.start_idx,
                      block_column_range.start_idx),
               origin_(origin_data_type, origin_row_count, origin_column_count) {
-        //TODO: check origin-block sizes
+        detail::check_sum_overflow(block_.row_count, block_.row_offset);
+        detail::check_sum_overflow(block_.column_count, block_.column_offset);
+
+        if (block_.row_count + block_.row_offset > origin_.row_count ||
+            block_.column_count + block_.column_offset > origin_.column_count) {
+            throw dal::range_error("incorrect block size");
+        }
     }
 
     template <typename Policy, typename BlockData, typename Alloc>
@@ -162,30 +201,31 @@ public:
                            const array<byte_t>& origin_data,
                            array<BlockData>& block_data,
                            const Alloc& kind) const {
-        constexpr int64_t block_data_type_size = sizeof(BlockData);
+        constexpr int64_t block_dtype_size = sizeof(BlockData);
+        const auto origin_dtype_size = detail::get_data_type_size(origin_.data_type);
+
+        // overflows checked here
+        check_origin_data(origin_data, origin_dtype_size, block_dtype_size);
+
         const auto block_dtype = detail::make_data_type<BlockData>();
+
         const int64_t origin_offset =
             (block_.row_offset * origin_.column_count + block_.column_offset);
-        // operation is safe because block values do not exceed origin values
+        // operation is safe because block offsets do not exceed origin element count
 
         const bool contiguous_block_requested =
             block_.column_count == origin_.column_count || block_.row_count == 1;
 
         if (block_dtype == origin_.data_type && contiguous_block_requested == true &&
             has_array_data_kind(policy, origin_data, kind)) {
-            detail::check_mul_overflow<int64_t>(origin_offset, block_data_type_size);
-            refer_source_data(origin_data, origin_offset * block_data_type_size, block_.element_count, block_data);
+            refer_source_data(origin_data, origin_offset * block_dtype_size, block_.element_count, block_data);
         }
         else {
-            const auto origin_dtype_size = detail::get_data_type_size(origin_.data_type);
-
             if (block_data.get_count() < block_.element_count ||
                 block_data.has_mutable_data() == false ||
                 has_array_data_kind(policy, block_data, kind) == false) {
                 reset_array(policy, block_data, block_.element_count, kind);
             }
-
-            detail::check_mul_overflow(origin_.element_count, origin_dtype_size);
 
             auto src_data = origin_data.get_data() + origin_offset * origin_dtype_size;
             auto dst_data = block_data.get_mutable_data();
@@ -212,7 +252,7 @@ public:
                                         origin_.data_type,
                                         block_dtype,
                                         origin_dtype_size * origin_.column_count,
-                                        block_data_type_size,
+                                        block_dtype_size,
                                         block_.element_count);
             }
         }
@@ -223,13 +263,16 @@ public:
                               const array<byte_t>& origin_data,
                               array<BlockData>& block_data,
                               const Alloc& kind) const {
-        constexpr int64_t block_data_type_size = sizeof(BlockData);
+        constexpr int64_t block_dtype_size = sizeof(BlockData);
+        const auto origin_dtype_size = detail::get_data_type_size(origin_.data_type);
+
+        // overflows checked here
+        check_origin_data(origin_data, origin_dtype_size, block_dtype_size);
+
         const auto block_dtype = detail::make_data_type<BlockData>();
         const int64_t origin_offset =
             block_.row_offset + block_.column_offset * origin_.row_count;
-            // operation is safe because block values do not exceed origin values
-
-        const int64_t origin_dtype_size = detail::get_data_type_size(origin_.data_type);
+        // operation is safe because block offsets do not exceed origin element count
 
         if (block_data.get_count() < block_.element_count ||
             block_data.has_mutable_data() == false ||
@@ -237,7 +280,6 @@ public:
             reset_array(policy, block_data, block_.element_count, kind);
         }
 
-        detail::check_mul_overflow(origin_.element_count, origin_dtype_size);
         auto src_data = origin_data.get_data() + origin_offset * origin_dtype_size;
         auto dst_data = block_data.get_mutable_data();
 
@@ -248,7 +290,7 @@ public:
                                     origin_.data_type,
                                     block_dtype,
                                     origin_dtype_size * origin_.row_count,
-                                    block_data_type_size,
+                                    block_dtype_size,
                                     block_.column_count);
         }
     }
@@ -257,13 +299,21 @@ public:
     void push_by_row_major(const Policy& policy,
                            array<byte_t>& origin_data,
                            const array<BlockData>& block_data) const {
-        constexpr int64_t block_data_type_size = sizeof(BlockData);
+        constexpr int64_t block_dtype_size = sizeof(BlockData);
+        const auto origin_dtype_size = detail::get_data_type_size(origin_.data_type);
+
+        // overflows checked here
+        check_origin_data(origin_data, origin_dtype_size, block_dtype_size);
+        if (block_data.get_count() != block_.element_count) {
+            throw dal::range_error("block data size is smaller than expected");
+        }
+
         make_mutable_data(policy, origin_data);
 
         const auto block_dtype = detail::make_data_type<BlockData>();
         const int64_t origin_offset =
             block_.row_offset * origin_.column_count + block_.column_offset;
-        // operation is safe because block values do not exceed origin values
+        // operation is safe because block offsets do not exceed origin element count
 
         const bool contiguous_block_requested =
             block_.column_count == origin_.column_count || block_.row_count == 1;
@@ -276,17 +326,13 @@ public:
                 return;
             }
             else {
-                detail::check_mul_overflow(block_.element_count, block_data_type_size);
                 detail::memcpy(policy,
                                row_start_pointer,
                                block_data.get_data(),
-                               block_.element_count * block_data_type_size);
+                               block_.element_count * block_dtype_size);
             }
         }
         else {
-            const auto origin_dtype_size = detail::get_data_type_size(origin_.data_type);
-            detail::check_mul_overflow(origin_.element_count, origin_dtype_size);
-
             auto src_data = block_data.get_data();
             auto dst_data = origin_data.get_mutable_data() + origin_offset * origin_dtype_size;
 
@@ -311,7 +357,7 @@ public:
                                         dst_data,
                                         block_dtype,
                                         origin_.data_type,
-                                        block_data_type_size,
+                                        block_dtype_size,
                                         origin_dtype_size * origin_.column_count,
                                         block_.element_count);
             }
@@ -322,14 +368,21 @@ public:
     void push_by_column_major(const Policy& policy,
                               array<byte_t>& origin_data,
                               const array<BlockData>& block_data) const {
-        constexpr int64_t block_data_type_size = sizeof(BlockData);
+        constexpr int64_t block_dtype_size = sizeof(BlockData);
+        const auto origin_dtype_size = detail::get_data_type_size(origin_.data_type);
+
+        // overflows checked here
+        check_origin_data(origin_data, origin_dtype_size, block_dtype_size);
+
+        if (block_data.get_count() != block_.element_count) {
+            throw dal::range_error("block data size is smaller than expected");
+        }
 
         make_mutable_data(policy, origin_data);
         const auto block_dtype = detail::make_data_type<BlockData>();
-        const auto origin_dtype_size = detail::get_data_type_size(origin_.data_type);
         const int64_t origin_offset =
             block_.row_offset + block_.column_offset * origin_.row_count;
-        // operation is safe because block values do not exceed origin values
+        // operation is safe because block offsets do not exceed origin element count
 
         auto src_data = block_data.get_data();
 
@@ -342,7 +395,7 @@ public:
                                     dst_data + row_idx * origin_dtype_size,
                                     block_dtype,
                                     origin_.data_type,
-                                    block_data_type_size,
+                                    block_dtype_size,
                                     origin_dtype_size * origin_.row_count,
                                     block_.column_count);
         }
@@ -358,8 +411,6 @@ void homogen_table_impl::pull_rows_impl(const Policy& policy,
                                         array<Data>& block,
                                         const range& rows,
                                         const Alloc& kind) const {
-    // TODO: check range correctness
-    // TODO: check array size if non-zero
     const block_access_provider provider{ row_count_,
                                           col_count_,
                                           meta_.get_data_type(0),
@@ -371,7 +422,7 @@ void homogen_table_impl::pull_rows_impl(const Policy& policy,
         case data_layout::column_major:
             provider.pull_by_column_major(policy, data_, block, kind);
             break;
-        default: throw internal_error("homogen_table_impl::pull_rows_impl: unsupported layout");
+        default: throw dal::domain_error("unsupported layout");
     }
 }
 
@@ -381,8 +432,6 @@ void homogen_table_impl::pull_column_impl(const Policy& policy,
                                           std::int64_t column_index,
                                           const range& rows,
                                           const Alloc& kind) const {
-    // TODO: check range correctness
-    // TODO: check array size if non-zero
     const block_access_provider provider{ col_count_,
                                           row_count_,
                                           meta_.get_data_type(0),
@@ -396,7 +445,7 @@ void homogen_table_impl::pull_column_impl(const Policy& policy,
         case data_layout::column_major:
             provider.pull_by_row_major(policy, data_, block, kind);
             break;
-        default: throw internal_error("homogen_table_impl::pull_column_impl: unsupported layout");
+        default: throw dal::domain_error("unsupported layout");
     }
 }
 
@@ -404,8 +453,6 @@ template <typename Policy, typename Data>
 void homogen_table_impl::push_rows_impl(const Policy& policy,
                                         const array<Data>& block,
                                         const range& rows) {
-    // TODO: check range correctness
-    // TODO: check array size if non-zero
     const block_access_provider provider{ row_count_,
                                           col_count_,
                                           meta_.get_data_type(0),
@@ -415,7 +462,7 @@ void homogen_table_impl::push_rows_impl(const Policy& policy,
     switch (layout_) {
         case data_layout::row_major: provider.push_by_row_major(policy, data_, block); break;
         case data_layout::column_major: provider.push_by_column_major(policy, data_, block); break;
-        default: throw internal_error("homogen_table_impl::push_rows_impl: unsupported layout");
+        default: throw dal::domain_error("unsupported layout");
     }
 }
 
@@ -424,8 +471,6 @@ void homogen_table_impl::push_column_impl(const Policy& policy,
                                           const array<Data>& block,
                                           std::int64_t column_index,
                                           const range& rows) {
-    // TODO: check range correctness
-    // TODO: check array size if non-zero
     const block_access_provider provider{ col_count_,
                                           row_count_,
                                           meta_.get_data_type(0),
@@ -435,7 +480,7 @@ void homogen_table_impl::push_column_impl(const Policy& policy,
     switch (layout_) {
         case data_layout::row_major: provider.push_by_column_major(policy, data_, block); break;
         case data_layout::column_major: provider.push_by_row_major(policy, data_, block); break;
-        default: throw internal_error("homogen_table_impl::push_column_impl: unsupported layout");
+        default: throw dal::domain_error("unsupported layout");
     }
 }
 
