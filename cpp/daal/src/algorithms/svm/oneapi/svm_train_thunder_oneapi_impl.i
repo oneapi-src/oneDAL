@@ -225,6 +225,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, thunder>::compute(const Numeric
 
     // TODO: support caching for thunder method
     SVMCacheOneAPIPtr<algorithmFPType> cachePtr = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, nWS, nVectors, xTable, kernel, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     size_t iter = 0;
     for (; iter < maxIterations; iter++)
