@@ -6,7 +6,10 @@ daal_module(
     auto = True,
     opencl = True,
     deps = [
+        "@onedal//cpp/daal:core",
+        "@onedal//cpp/daal:sycl",
         "@onedal//cpp/daal/src/algorithms/regression:kernel",
+        "@onedal//cpp/daal/src/algorithms/dtrees:kernel",
         "@onedal//cpp/daal/src/algorithms/dtrees/forest:kernel",
     ],
 )
