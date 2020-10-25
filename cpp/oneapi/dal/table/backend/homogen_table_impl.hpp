@@ -28,17 +28,33 @@ public:
     struct host_alloc_t {};
 
 public:
-    homogen_table_impl() : row_count_(0), col_count_(0) {}
+    homogen_table_impl() : row_count_(0), col_count_(0), layout_(data_layout::unknown) {}
 
-    homogen_table_impl(std::int64_t column_count,
+    homogen_table_impl(std::int64_t row_count,
+                       std::int64_t column_count,
                        const array<byte_t>& data,
                        data_type dtype,
                        data_layout layout)
             : meta_(create_homogen_metadata(column_count, dtype)),
               data_(data),
-              row_count_(data.get_count() / column_count / detail::get_data_type_size(dtype)),
+              row_count_(row_count),
               col_count_(column_count),
-              layout_(layout) {}
+              layout_(layout) {
+        if (row_count <= 0 || column_count <= 0) {
+            throw dal::domain_error("invalid shape of a table");
+        }
+        detail::check_mul_overflow(row_count, column_count);
+        const int64_t element_count = row_count * column_count;
+        const int64_t dtype_size = detail::get_data_type_size(dtype);
+
+        detail::check_mul_overflow(element_count, dtype_size);
+        if (data.get_count() != element_count * dtype_size) {
+            throw dal::domain_error("invalid data size");
+        }
+        if (layout != data_layout::row_major && layout != data_layout::column_major) {
+            throw dal::domain_error("data layout not supported");
+        }
+    }
 
     std::int64_t get_column_count() const {
         return col_count_;
