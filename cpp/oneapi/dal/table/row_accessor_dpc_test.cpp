@@ -32,13 +32,12 @@ TEST(row_accessor_dpc_test, can_get_rows_from_column_major_homogen_table) {
     auto data = sycl::malloc_shared<float>(data_size, q);
 
     q.submit([&](sycl::handler& cgh) {
-        cgh.parallel_for(sycl::range<1>(data_size), [=](sycl::id<1> idx) {
-            data[idx[0]] = idx[0];
-        });
-    }).wait();
+         cgh.parallel_for(sycl::range<1>(data_size), [=](sycl::id<1> idx) {
+             data[idx[0]] = idx[0];
+         });
+     }).wait();
 
-    auto t =
-        homogen_table::wrap(q, data, row_count, column_count, {}, data_layout::column_major);
+    auto t = homogen_table::wrap(q, data, row_count, column_count, {}, data_layout::column_major);
     row_accessor<const float> acc{ t };
     auto block = acc.pull(q, { 1, 3 });
 

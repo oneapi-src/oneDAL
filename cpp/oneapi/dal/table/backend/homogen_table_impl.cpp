@@ -96,9 +96,7 @@ void refer_source_data(const array<DataSrc>& src,
                        int64_t dst_count,
                        array<DataDest>& dst) {
     const int64_t src_count = src.get_count();
-    if (src_count <= src_start_index ||
-        src_start_index < 0 ||
-        src_count < 0) {
+    if (src_count <= src_start_index || src_start_index < 0 || src_count < 0) {
         throw dal::range_error("invalid source data size");
     }
 
@@ -124,17 +122,18 @@ void refer_source_data(const array<DataSrc>& src,
 class block_access_provider {
 private:
     struct block_info {
-        block_info(int64_t row_count, int64_t column_count,
-                   int64_t row_offset, int64_t column_offset)
-            : row_count(row_count),
-              column_count(column_count),
-              row_offset(row_offset),
-              column_offset(column_offset),
-              element_count(row_count * column_count) {
+        block_info(int64_t row_count,
+                   int64_t column_count,
+                   int64_t row_offset,
+                   int64_t column_offset)
+                : row_count(row_count),
+                  column_count(column_count),
+                  row_offset(row_offset),
+                  column_offset(column_offset),
+                  element_count(row_count * column_count) {
             detail::check_mul_overflow(row_count, column_count);
 
-            if (row_count <= 0 || column_count <= 0 ||
-                row_offset < 0 || column_offset < 0) {
+            if (row_count <= 0 || column_count <= 0 || row_offset < 0 || column_offset < 0) {
                 throw dal::range_error("invalid parameters");
             }
         }
@@ -148,10 +147,10 @@ private:
 
     struct origin_info {
         origin_info(data_type dtype, int64_t row_count, int64_t column_count)
-            : data_type(dtype),
-              row_count(row_count),
-              column_count(column_count),
-              element_count(row_count * column_count) {
+                : data_type(dtype),
+                  row_count(row_count),
+                  column_count(column_count),
+                  element_count(row_count * column_count) {
             detail::check_mul_overflow(row_count, column_count);
 
             if (row_count <= 0 || column_count <= 0) {
@@ -167,8 +166,8 @@ private:
 
 private:
     void check_origin_data(const array<byte_t>& origin_data,
-                     int64_t origin_dtype_size,
-                     int64_t block_dtype_size) const {
+                           int64_t origin_dtype_size,
+                           int64_t block_dtype_size) const {
         detail::check_mul_overflow(origin_.element_count,
                                    std::max(origin_dtype_size, block_dtype_size));
         if (origin_data.get_count() != origin_.element_count * origin_dtype_size) {
@@ -218,7 +217,10 @@ public:
 
         if (block_dtype == origin_.data_type && contiguous_block_requested == true &&
             has_array_data_kind(policy, origin_data, kind)) {
-            refer_source_data(origin_data, origin_offset * block_dtype_size, block_.element_count, block_data);
+            refer_source_data(origin_data,
+                              origin_offset * block_dtype_size,
+                              block_.element_count,
+                              block_data);
         }
         else {
             if (block_data.get_count() < block_.element_count ||
@@ -270,8 +272,7 @@ public:
         check_origin_data(origin_data, origin_dtype_size, block_dtype_size);
 
         const auto block_dtype = detail::make_data_type<BlockData>();
-        const int64_t origin_offset =
-            block_.row_offset + block_.column_offset * origin_.row_count;
+        const int64_t origin_offset = block_.row_offset + block_.column_offset * origin_.row_count;
         // operation is safe because block offsets do not exceed origin element count
 
         if (block_data.get_count() < block_.element_count ||
@@ -380,8 +381,7 @@ public:
 
         make_mutable_data(policy, origin_data);
         const auto block_dtype = detail::make_data_type<BlockData>();
-        const int64_t origin_offset =
-            block_.row_offset + block_.column_offset * origin_.row_count;
+        const int64_t origin_offset = block_.row_offset + block_.column_offset * origin_.row_count;
         // operation is safe because block offsets do not exceed origin element count
 
         auto src_data = block_data.get_data();
