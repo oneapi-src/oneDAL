@@ -71,6 +71,7 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
 
     const size_t nRowsPerBlock = 90000;
     const size_t nBlocks       = (nRows / nRowsPerBlock) + (bool(nRows % nRowsPerBlock) ? 1 : 0);
+
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocks, nRowsPerBlock);
 
     services::internal::Buffer<algorithmFPType> sumXBuf;
