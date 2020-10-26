@@ -82,8 +82,8 @@ services::Status KernelHelperOneAPI<algorithmFPType>::copyBetaToResult(const ser
     args.set(1, /*uint nCols =*/static_cast<uint32_t>(nBetas));
     DAAL_ASSERT(nBetasIntercept <= services::internal::MaxVal<uint32_t>::get());
     args.set(2, /*uint nColsSrcs =*/static_cast<uint32_t>(nBetasIntercept));
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBetasIntercept, nBetas);
-    DAAL_ASSERT(betaRes.size() >= nBetasIntercept * nBetas);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBetas, nBetas);
+    DAAL_ASSERT(betaRes.size() >= nBetas * nBetas);
     args.set(3, betaRes, AccessModeIds::write);
     DAAL_ASSERT(intercept <= services::internal::MaxVal<uint32_t>::get());
     args.set(4, /*uint intercept =*/static_cast<uint32_t>(intercept));
