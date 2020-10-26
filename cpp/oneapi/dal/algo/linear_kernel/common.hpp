@@ -22,8 +22,8 @@
 namespace oneapi::dal::linear_kernel {
 
 namespace task {
-struct kernel_function {};
-using by_default = kernel_function;
+struct compute {};
+using by_default = compute;
 } // namespace task
 
 namespace detail {

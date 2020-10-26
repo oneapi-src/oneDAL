@@ -20,7 +20,7 @@
 namespace oneapi::dal::rbf_kernel {
 
 template <>
-class detail::descriptor_impl<task::kernel_function> : public base {
+class detail::descriptor_impl<task::compute> : public base {
 public:
     double sigma = 1.0;
 };
@@ -43,6 +43,6 @@ void descriptor_base<Task>::set_sigma_impl(double value) {
     impl_->sigma = value;
 }
 
-template class ONEDAL_EXPORT descriptor_base<task::kernel_function>;
+template class ONEDAL_EXPORT descriptor_base<task::compute>;
 
 } // namespace oneapi::dal::rbf_kernel

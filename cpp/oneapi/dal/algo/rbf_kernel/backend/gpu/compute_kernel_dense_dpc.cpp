@@ -20,14 +20,14 @@
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
-#include <daal/src/algorithms/kernel_function/oneapi/kernel_function_rbf_dense_default_kernel_oneapi.h>
+#include <daal/src/algorithms/compute/oneapi/compute_rbf_dense_default_kernel_oneapi.h>
 
 namespace oneapi::dal::rbf_kernel::backend {
 
 using dal::backend::context_gpu;
-using input_t = compute_input<task::kernel_function>;
-using result_t = compute_result<task::kernel_function>;
-using descriptor_t = descriptor_base<task::kernel_function>;
+using input_t = compute_input<task::compute>;
+using result_t = compute_result<task::compute>;
+using descriptor_t = descriptor_base<task::compute>;
 
 namespace daal_rbf_kernel = daal::algorithms::kernel_function::rbf;
 namespace interop = dal::backend::interop;
@@ -77,7 +77,7 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
 }
 
 template <typename Float>
-struct compute_kernel_gpu<Float, method::dense, task::kernel_function> {
+struct compute_kernel_gpu<Float, method::dense, task::compute> {
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
@@ -85,7 +85,7 @@ struct compute_kernel_gpu<Float, method::dense, task::kernel_function> {
     }
 };
 
-template struct compute_kernel_gpu<float, method::dense, task::kernel_function>;
-template struct compute_kernel_gpu<double, method::dense, task::kernel_function>;
+template struct compute_kernel_gpu<float, method::dense, task::compute>;
+template struct compute_kernel_gpu<double, method::dense, task::compute>;
 
 } // namespace oneapi::dal::rbf_kernel::backend

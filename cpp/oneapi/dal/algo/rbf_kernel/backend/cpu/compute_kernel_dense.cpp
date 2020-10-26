@@ -26,9 +26,9 @@
 namespace oneapi::dal::rbf_kernel::backend {
 
 using dal::backend::context_cpu;
-using input_t = compute_input<task::kernel_function>;
-using result_t = compute_result<task::kernel_function>;
-using descriptor_t = descriptor_base<task::kernel_function>;
+using input_t = compute_input<task::compute>;
+using result_t = compute_result<task::compute>;
+using descriptor_t = descriptor_base<task::compute>;
 
 namespace daal_rbf_kernel = daal::algorithms::kernel_function::rbf;
 namespace interop = dal::backend::interop;
@@ -76,7 +76,7 @@ static result_t compute(const context_cpu& ctx, const descriptor_t& desc, const 
 }
 
 template <typename Float>
-struct compute_kernel_cpu<Float, method::dense, task::kernel_function> {
+struct compute_kernel_cpu<Float, method::dense, task::compute> {
     result_t operator()(const context_cpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
@@ -84,7 +84,7 @@ struct compute_kernel_cpu<Float, method::dense, task::kernel_function> {
     }
 };
 
-template struct compute_kernel_cpu<float, method::dense, task::kernel_function>;
-template struct compute_kernel_cpu<double, method::dense, task::kernel_function>;
+template struct compute_kernel_cpu<float, method::dense, task::compute>;
+template struct compute_kernel_cpu<double, method::dense, task::compute>;
 
 } // namespace oneapi::dal::rbf_kernel::backend

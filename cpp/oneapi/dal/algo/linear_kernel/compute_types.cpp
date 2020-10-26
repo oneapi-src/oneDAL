@@ -60,7 +60,7 @@ void compute_input<Task>::set_y_impl(const table& value) {
     impl_->y = value;
 }
 
-template class ONEDAL_EXPORT compute_input<task::kernel_function>;
+template class ONEDAL_EXPORT compute_input<task::compute>;
 
 template <typename Task>
 compute_result<Task>::compute_result() : impl_(new compute_result_impl<Task>{}) {}
@@ -75,6 +75,6 @@ void compute_result<Task>::set_values_impl(const table& value) {
     impl_->values = value;
 }
 
-template class ONEDAL_EXPORT compute_result<task::kernel_function>;
+template class ONEDAL_EXPORT compute_result<task::compute>;
 
 } // namespace oneapi::dal::linear_kernel
