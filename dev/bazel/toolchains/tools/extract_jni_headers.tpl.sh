@@ -1,3 +1,4 @@
+#!/bin/bash
 #===============================================================================
 # Copyright 2020 Intel Corporation
 #
@@ -14,22 +15,29 @@
 # limitations under the License.
 #===============================================================================
 
-load("@onedal//dev/bazel/toolchains/cc:common.bzl", "detect_os", "detect_compiler")
-load("@onedal//dev/bazel/toolchains/extra:toolchain_lnx.bzl",
-    "configure_extra_toolchain_lnx")
+# Input format
+# $1: jar archive that contains all JNI headers
+# $2: output directory
+# $3...$n: expected JNI headers list
 
-def _onedal_extra_toolchain_impl(repo_ctx):
-    os_id = detect_os(repo_ctx)
-    compiler_id = detect_compiler(repo_ctx, os_id)
-    configure_extra_toolchain_os = {
-        "lnx": configure_extra_toolchain_lnx,
-    }[os_id]
-    configure_extra_toolchain_os(repo_ctx, compiler_id)
+jar_archive=$1
+output_dir=$2
+shift 2
 
-onedal_extra_toolchain = repository_rule(
-    implementation = _onedal_extra_toolchain_impl,
-)
+# Extact JNI headers
+%{jar_path} xf ${jar_archive}
 
-def declare_onedal_extra_toolchain(name):
-    onedal_extra_toolchain(name = name)
-    native.register_toolchains("@{}//:all".format(name))
+# If some expected headers are missing
+# in the archive, we will create dummy files
+error_message="#error \"There are no native functions\
+ declared in the corresponding java file\""
+for jni_header in $*
+do
+    if [ ! -f "${jni_header}" ]; then
+        echo ${error_message} > "${jni_header}"
+    fi
+done
+
+# Move all files to the output directory
+mkdir -p ${output_dir}
+mv $* ${output_dir}

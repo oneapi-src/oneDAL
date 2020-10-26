@@ -1,6 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
-load("@onedal//dev/bazel/toolchains/extra:toolchain.bzl", "extra_toolchain")
+load("@onedal//dev/bazel/toolchains/extra:toolchain_lnx_config.bzl", "extra_toolchain")
 
 extra_toolchain(
     name = "extra_tools",

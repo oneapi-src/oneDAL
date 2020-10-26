@@ -25,6 +25,11 @@ declare_onedal_extra_toolchain(
     name = "onedal_extra_toolchain",
 )
 
+load("@onedal//dev/bazel/toolchains/jdk:toolchain.bzl", "declare_onedal_jdk_toolchain")
+declare_onedal_jdk_toolchain(
+    name = "onedal_jdk_toolchain",
+)
+
 load("@onedal//dev/bazel/deps:opencl.bzl", "opencl_repo")
 opencl_repo(
     name = "opencl",

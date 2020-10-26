@@ -14,22 +14,23 @@
 # limitations under the License.
 #===============================================================================
 
-load("@onedal//dev/bazel/toolchains/cc:common.bzl", "detect_os", "detect_compiler")
-load("@onedal//dev/bazel/toolchains/extra:toolchain_lnx.bzl",
-    "configure_extra_toolchain_lnx")
-
-def _onedal_extra_toolchain_impl(repo_ctx):
-    os_id = detect_os(repo_ctx)
-    compiler_id = detect_compiler(repo_ctx, os_id)
-    configure_extra_toolchain_os = {
-        "lnx": configure_extra_toolchain_lnx,
-    }[os_id]
-    configure_extra_toolchain_os(repo_ctx, compiler_id)
-
-onedal_extra_toolchain = repository_rule(
-    implementation = _onedal_extra_toolchain_impl,
+ExtraToolchainInfo = provider(
+    fields = [
+        "patch_daal_kernel_defines",
+    ],
 )
 
-def declare_onedal_extra_toolchain(name):
-    onedal_extra_toolchain(name = name)
-    native.register_toolchains("@{}//:all".format(name))
+def _extra_toolchain_impl(ctx):
+    toolchain_info = platform_common.ToolchainInfo(
+        extra_toolchain_info = ExtraToolchainInfo(
+            patch_daal_kernel_defines = ctx.attr.patch_daal_kernel_defines,
+        ),
+    )
+    return [toolchain_info]
+
+extra_toolchain = rule(
+    implementation = _extra_toolchain_impl,
+    attrs = {
+        "patch_daal_kernel_defines": attr.string(mandatory=True),
+    },
+)

@@ -14,22 +14,15 @@
 # limitations under the License.
 #===============================================================================
 
-load("@onedal//dev/bazel/toolchains/cc:common.bzl", "detect_os", "detect_compiler")
-load("@onedal//dev/bazel/toolchains/extra:toolchain_lnx.bzl",
-    "configure_extra_toolchain_lnx")
+def _extra_jdk_tools_impl(ctx):
+    toolchain_info = platform_common.ToolchainInfo(
+        extract_jni_headers = ctx.attr.extract_jni_headers,
+    )
+    return [toolchain_info]
 
-def _onedal_extra_toolchain_impl(repo_ctx):
-    os_id = detect_os(repo_ctx)
-    compiler_id = detect_compiler(repo_ctx, os_id)
-    configure_extra_toolchain_os = {
-        "lnx": configure_extra_toolchain_lnx,
-    }[os_id]
-    configure_extra_toolchain_os(repo_ctx, compiler_id)
-
-onedal_extra_toolchain = repository_rule(
-    implementation = _onedal_extra_toolchain_impl,
+extra_jdk_tools = rule(
+    implementation = _extra_jdk_tools_impl,
+    attrs = {
+        "extract_jni_headers": attr.string(mandatory=True),
+    },
 )
-
-def declare_onedal_extra_toolchain(name):
-    onedal_extra_toolchain(name = name)
-    native.register_toolchains("@{}//:all".format(name))

@@ -117,29 +117,51 @@ daal_generate_version = rule(
     },
 )
 
-def daal_jni_headers(name, srcs):
-    java_jni_headers(
+def daal_java_module(name, **kwargs):
+    native.java_library(
         name = name,
-        srcs = srcs,
+        **kwargs
+    )
+
+def daal_java_jni_module(name, java_deps=[], java_srcs=[],
+                         cc_srcs=[], cc_hdrs=[], cc_deps=[]):
+    name_java = name + "_java"
+    name_jni_headers = name + "_jni_headers"
+    name_cc = name + "_cc"
+    daal_java_module(
+        name = name_java,
+        srcs = java_srcs,
+        deps = java_deps,
+    )
+    java_jni_headers(
+        name = name_jni_headers,
+        srcs = java_srcs,
+        deps = [
+            ":" + name_java,
+        ],
+        out_dir_name = "jni",
+    )
+    _daal_jni_cc_module(
+        name = name_cc,
+        includes = ["jni"],
+        hdrs = cc_hdrs + [
+            ":" + name_jni_headers,
+        ],
+        srcs = cc_srcs,
+        deps = cc_deps + [
+            "@onedal_jdk_toolchain//:jni_headers",
+        ],
+    )
+
+def daal_jni_dynamic_lib(name, lib_tags=["daal_java_api"], **kwargs):
+    daal_dynamic_lib(
+        name = name,
+        lib_tags = lib_tags,
+        **kwargs
     )
 
 def daal_jar(*args):
     pass
-
-def _get_tool_for_kernel_defines_patching(ctx):
-    return ctx.toolchains["@onedal//dev/bazel/toolchains/extra"] \
-        .extra_toolchain_info.patch_daal_kernel_defines
-
-def _get_disabled_cpus(ctx):
-    cpu_info = ctx.attr._cpus[CpuInfo]
-    all_cpus = sets.make(cpu_info.allowed)
-    enabled_cpus = sets.make(cpu_info.enabled)
-    return sets.difference(all_cpus, enabled_cpus)
-
-def _declare_patched_kernel_defines(ctx):
-    relpath = paths.dirname(ctx.build_file_path)
-    patched_path = paths.relativize(ctx.file.src.path, relpath)
-    return ctx.actions.declare_file(patched_path)
 
 def _daal_patch_kernel_defines_impl(ctx):
     disabled_cpus = _get_disabled_cpus(ctx)
@@ -167,3 +189,26 @@ daal_patch_kernel_defines = rule(
     },
     toolchains = ["@onedal//dev/bazel/toolchains/extra"],
 )
+
+
+def _daal_jni_cc_module(name, lib_tag="daal_java_api", **kwargs):
+    daal_module(
+        name = name,
+        lib_tag = lib_tag,
+        **kwargs
+    )
+
+def _get_tool_for_kernel_defines_patching(ctx):
+    return ctx.toolchains["@onedal//dev/bazel/toolchains/extra"] \
+        .extra_toolchain_info.patch_daal_kernel_defines
+
+def _get_disabled_cpus(ctx):
+    cpu_info = ctx.attr._cpus[CpuInfo]
+    all_cpus = sets.make(cpu_info.allowed)
+    enabled_cpus = sets.make(cpu_info.enabled)
+    return sets.difference(all_cpus, enabled_cpus)
+
+def _declare_patched_kernel_defines(ctx):
+    relpath = paths.dirname(ctx.build_file_path)
+    patched_path = paths.relativize(ctx.file.src.path, relpath)
+    return ctx.actions.declare_file(patched_path)

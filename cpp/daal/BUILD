@@ -58,8 +58,6 @@ daal_module(
     ],
     deps = [
         ":public_includes",
-        "@micromkl//:headers",
-        "@micromkl_dpc//:headers",
     ],
 )
 
@@ -79,6 +77,7 @@ daal_module(
     ],
     deps = [
         ":includes",
+        "@micromkl//:headers",
     ],
 )
 
@@ -122,7 +121,6 @@ daal_module(
     deps = [
         ":services",
         "@onedal//cpp/daal/src/algorithms/engines:kernel",
-        "@micromkl_dpc//:headers",
     ],
 )
 
