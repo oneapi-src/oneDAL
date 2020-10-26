@@ -165,7 +165,7 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::solveSystem(const size_t
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, ny, p);
     DAAL_ASSERT(a.size() >= p * p);
-    DAAL_ASSERT(b.size() >= p * p);
+    DAAL_ASSERT(b.size() >= p * ny);
 
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(solveSystem.xpotrf);
