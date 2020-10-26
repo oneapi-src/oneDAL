@@ -28,8 +28,6 @@
 #include "src/algorithms/linear_model/oneapi/cl_kernel/reduce_results.cl"
 #include "src/services/service_data_utils.h"
 
-#include <iostream>
-
 namespace daal
 {
 namespace algorithms
@@ -132,7 +130,7 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
             DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, xNCols, xNCols);
             DAAL_ASSERT(xtxBuff.size() >= xNCols * xNCols);
 
-            /* Compute XTX for each block and reduce to final result*/
+            /* Compute XTX for each block and reduce to final result */
             status = BlasGpu<algorithmFPType>::xsyrk(math::Layout::RowMajor, math::UpLo::Upper, math::Transpose::Trans, xNCols, xNRows,
                                                      algorithmFPType(1.0), xBuf, xNCols, 0, algorithmFPType(1.0), xtxBuff, xtxNCols, 0);
         }
@@ -232,14 +230,14 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::reduceResults(services::in
     DAAL_CHECK_STATUS_VAR(status);
 
     DAAL_ASSERT(count <= services::internal::MaxVal<uint32_t>::get());
+    DAAL_ASSERT(count >= 1);
 
     DAAL_ASSERT(dstStride <= services::internal::MaxVal<uint32_t>::get());
     DAAL_ASSERT(dstOffset <= services::internal::MaxVal<uint32_t>::get());
 
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, dstStride, count);
-    DAAL_OVERFLOW_CHECK_BY_ADDING(uint32_t, dstOffset, (dstStride * count));
-    std::cout << dst.size() << ' ' << dstStride << ' ' << count  << ' ' << dstOffset << std::endl << std::flush; 
-    DAAL_ASSERT(dst.size() >= (dstStride * count + dstOffset));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, dstStride, (count - 1));
+    DAAL_OVERFLOW_CHECK_BY_ADDING(uint32_t, dstOffset, (dstStride * (count - 1)));
+    DAAL_ASSERT(dst.size() >= (dstStride * (count - 1) + dstOffset));
 
     args.set(0, dst, AccessModeIds::write);
     args.set(1, static_cast<uint32_t>(dstOffset));
@@ -248,10 +246,9 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::reduceResults(services::in
     DAAL_ASSERT(srcStride <= services::internal::MaxVal<uint32_t>::get());
     DAAL_ASSERT(srcOffset <= services::internal::MaxVal<uint32_t>::get());
 
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, srcStride, count);
-    DAAL_OVERFLOW_CHECK_BY_ADDING(uint32_t, srcOffset, (srcStride * count));
-
-    DAAL_ASSERT(src.size() >= (srcStride * count + srcOffset));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, srcStride, (count - 1));
+    DAAL_OVERFLOW_CHECK_BY_ADDING(uint32_t, srcOffset, (srcStride * (count - 1)));
+    DAAL_ASSERT(src.size() >= (srcStride * (count - 1) + srcOffset));
 
     args.set(3, src, AccessModeIds::read);
     args.set(4, static_cast<uint32_t>(srcOffset));
