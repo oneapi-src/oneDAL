@@ -13,6 +13,10 @@
   
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sphinx_tabs/semantic-ui-2.4.1/segment.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sphinx_tabs/semantic-ui-2.4.1/menu.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sphinx_tabs/semantic-ui-2.4.1/tab.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sphinx_tabs/tabs.css" type="text/css" />
 
   
   
@@ -722,6 +726,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#output">Output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#id4">Examples</a></li>
 </ul>
 </li>
@@ -805,7 +810,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/knn_cls_kd_tree_dense_batch.html">knn_cls_kd_tree_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/load_graph.html">load_graph.cpp</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/pca_dense_batch.html">pca_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/svm_two_class_smo_dense_batch.html">svm_two_class_smo_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
@@ -1063,28 +1068,67 @@ of a specific algorithm.</p>
 <h4>Termination Criteria<a class="headerlink" href="#termination-criteria" title="Permalink to this headline">¶</a></h4>
 <p>The library supports the following termination criteria of
 decision forest training:</p>
+<dl class="simple">
+<dt>Minimal number of observations in a leaf node</dt><dd><p>Node <span class="math notranslate nohighlight">\(t\)</span> is not processed if <span class="math notranslate nohighlight">\(|D_t|\)</span> is smaller than the predefined value.
+Splits that produce nodes with the number of observations smaller than that value are not allowed.</p>
+</dd>
+<dt>Minimal number of observations in a split node</dt><dd><p>Node <span class="math notranslate nohighlight">\(t\)</span> is not processed if <span class="math notranslate nohighlight">\(|D_t|\)</span> is smaller than the predefined value.
+Splits that produce nodes with the number of observations smaller than that value are not allowed.</p>
+</dd>
+<dt>Minimum weighted fraction of the sum total of weights of all the input observations required to be at a leaf node</dt><dd><p>Node <span class="math notranslate nohighlight">\(t\)</span> is not processed if <span class="math notranslate nohighlight">\(|D_t|\)</span> is smaller than the predefined value.
+Splits that produce nodes with the number of observations smaller than that value are not allowed.</p>
+</dd>
+<dt>Maximal tree depth</dt><dd><p>Node <span class="math notranslate nohighlight">\(t\)</span> is not processed if its depth in the tree reached the predefined value.</p>
+</dd>
+<dt>Impurity threshold</dt><dd><p>Node <span class="math notranslate nohighlight">\(t\)</span> is not processed if its impurity is smaller than the predefined threshold.</p>
+</dd>
+<dt>Maximal number of leaf nodes</dt><dd><p>Grow trees with positive maximal number of leaf nodes in a <a class="reference internal" href="#best-first-strategy"><span class="std std-ref">best-first</span></a> fashion.
+Best nodes are defined by relative reduction in impurity.
+If maximal number of leaf nodes equals zero, then this criterion does not limit the number of leaf nodes,
+and trees grow in a <a class="reference internal" href="#depth-first-strategy"><span class="std std-ref">depth-first</span></a> fashion.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="tree-building-strategies">
+<h4>Tree Building Strategies<a class="headerlink" href="#tree-building-strategies" title="Permalink to this headline">¶</a></h4>
+<p>Maximal number of leaf nodes defines the strategy of tree building:
+<a class="reference internal" href="#depth-first-strategy"><span class="std std-ref">depth-first</span></a> or <a class="reference internal" href="#best-first-strategy"><span class="std std-ref">best-first</span></a>.</p>
+<div class="section" id="depth-first-strategy">
+<span id="id2"></span><h5>Depth-first Strategy<a class="headerlink" href="#depth-first-strategy" title="Permalink to this headline">¶</a></h5>
+<p>If maximal number of leaf nodes equals zero, a decision tree is built using depth-first strategy.
+In each terminal node <span class="math notranslate nohighlight">\(t\)</span>, the following recursive procedure is applied:</p>
 <ul class="simple">
-<li><p><em>Minimal number of observations in a leaf node</em>. Node <span class="math notranslate nohighlight">\(t\)</span> is not
-processed if <span class="math notranslate nohighlight">\(|D_t|\)</span> is smaller than the predefined
-value. Splits that produce nodes with the number of
-<em>observations</em> smaller than that value are not allowed.</p></li>
-<li><p><em>Maximal tree depth</em>. Node <span class="math notranslate nohighlight">\(t\)</span> is not processed, if its depth in
-the tree reached the predefined value.</p></li>
-<li><p><em>Impurity threshold</em>. Node <span class="math notranslate nohighlight">\(t\)</span> is not processed, if its impurity
-is smaller than the predefined threshold.</p></li>
-</ul>
-<p>Decision tree follows the recursive procedure below applied in
-each terminal node <span class="math notranslate nohighlight">\(t\)</span>:</p>
-<ul class="simple">
-<li><p>Stop, if the termination criteria is met.</p></li>
+<li><p>Stop if the termination criteria are met.</p></li>
 <li><p>Choose randomly without replacement <span class="math notranslate nohighlight">\(m\)</span> feature indices <span class="math notranslate nohighlight">\(J_t \in \{0, 1, \ldots, p-1\}\)</span>.</p></li>
 <li><p>For each <span class="math notranslate nohighlight">\(j \in J_t\)</span>, find the best split <span class="math notranslate nohighlight">\(s_{j,t}\)</span> that
 partitions subset <span class="math notranslate nohighlight">\(D_t\)</span> and maximizes impurity decrease
 <span class="math notranslate nohighlight">\(\Delta i(t)\)</span>.</p></li>
-<li><p>Get the best split <span class="math notranslate nohighlight">\(s_t\)</span> that maximizes impurity decrease
+<li><p>A node is a split if this split induces a decrease of the impurity greater than or equal to the predefined value.
+Get the best split <span class="math notranslate nohighlight">\(s_t\)</span> that maximizes impurity decrease
 <span class="math notranslate nohighlight">\(\Delta i\)</span> in all <span class="math notranslate nohighlight">\(s_{j,t}\)</span> splits.</p></li>
 <li><p>Apply this procedure recursively to <span class="math notranslate nohighlight">\(t_L\)</span> and <span class="math notranslate nohighlight">\(t_R\)</span>.</p></li>
 </ul>
+</div>
+<div class="section" id="best-first-strategy">
+<span id="id3"></span><h5>Best-first Strategy<a class="headerlink" href="#best-first-strategy" title="Permalink to this headline">¶</a></h5>
+<p>If maximal number of leaf nodes is positive, a decision tree is built using best-first strategy.
+In each terminal node <span class="math notranslate nohighlight">\(t\)</span>, the following steps are applied:</p>
+<ul class="simple">
+<li><p>Stop if the termination criteria are met.</p></li>
+<li><p>Choose randomly without replacement <span class="math notranslate nohighlight">\(m\)</span> feature indices <span class="math notranslate nohighlight">\(J_t \in \{0, 1, \ldots, p-1\}\)</span>.</p></li>
+<li><p>For each <span class="math notranslate nohighlight">\(j \in J_t\)</span>, find the best split <span class="math notranslate nohighlight">\(s_{j,t}\)</span> that
+partitions subset <span class="math notranslate nohighlight">\(D_t\)</span> and maximizes impurity decrease
+<span class="math notranslate nohighlight">\(\Delta i(t)\)</span>.</p></li>
+<li><p>A node is a split if this split induces a decrease of the impurity greater than or equal to the predefined value
+and the number of split nodes is less or equal to <span class="math notranslate nohighlight">\(\mathrm{maxLeafNodes} – 1\)</span>.
+Get the best split <span class="math notranslate nohighlight">\(s_t\)</span> that maximizes impurity decrease
+<span class="math notranslate nohighlight">\(\Delta i\)</span> in all <span class="math notranslate nohighlight">\(s_{j,t}\)</span> splits.</p></li>
+<li><p>Put a node into a sorted array, where sort criterion is the improvement in impurity <span class="math notranslate nohighlight">\(\Delta i(t)|D_t|\)</span>.
+The node with maximal improvement is the first in the array. For a leaf node, the improvement in impurity is zero.</p></li>
+<li><p>Apply this procedure to <span class="math notranslate nohighlight">\(t_L\)</span> and <span class="math notranslate nohighlight">\(t_R\)</span> and grow a tree one by one getting the first element from the array
+until the array is empty.</p></li>
+</ul>
+</div>
 </div>
 <div class="section" id="random-numbers-generation">
 <h4>Random Numbers Generation<a class="headerlink" href="#random-numbers-generation" title="Permalink to this headline">¶</a></h4>
@@ -1194,8 +1238,7 @@ follows:</p>
 workflow described in <a class="reference internal" href="../../usage/training-and-prediction/classification.html#classification-usage-model"><span class="std std-ref">Classification Usage Model</span></a>.</p>
 <div class="section" id="training">
 <h3>Training<a class="headerlink" href="#training" title="Permalink to this headline">¶</a></h3>
-<p>At the training stage, decision tree regression has the following
-parameters:</p>
+<p>At the training stage, decision forest regression has the following parameters:</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
 <col style="width: 17%" />
@@ -1209,35 +1252,45 @@ parameters:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">seed</span></code></p></td>
-<td><p><span class="math notranslate nohighlight">\(777\)</span></p></td>
-<td><p>The seed for random number generator, which is used to choose the
-bootstrap set, split features in every split node in a tree, and
-generate permutation required in computations of <code class="docutils literal notranslate"><span class="pre">MDA</span></code> variable importance.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nTrees</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nTrees</span></code></p></td>
 <td><p><span class="math notranslate nohighlight">\(100\)</span></p></td>
 <td><p>The number of trees in the forest.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">observationsPerTreeFraction</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">observationsPerTreeFraction</span></code></p></td>
 <td><p><span class="math notranslate nohighlight">\(1\)</span></p></td>
 <td><p>Fraction of the training set S used to form the bootstrap set for a
 single tree training, <span class="math notranslate nohighlight">\(0 &lt; \mathrm{observationsPerTreeFraction} \leq 1\)</span>. The
 observations are sampled randomly with replacement.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">featuresPerNode</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">featuresPerNode</span></code></p></td>
 <td><p><span class="math notranslate nohighlight">\(0\)</span></p></td>
 <td><p>The number of features tried as possible splits per node. If the
 parameter is set to <span class="math notranslate nohighlight">\(0\)</span>, the library uses the square root of the number of
-features for classification and <span class="math notranslate nohighlight">\(\fraq{\mathrm{the number of features}}{3}\)</span> for regression.</p></td>
+features, <span class="math notranslate nohighlight">\(\sqrt{p}\)</span>, for classification
+and <span class="math notranslate nohighlight">\(\frac{p}{3}\)</span> features for regression.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">maxTreeDepth</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">maxTreeDepth</span></code></p></td>
 <td><p><span class="math notranslate nohighlight">\(0\)</span></p></td>
 <td><p>Maximal tree depth. Default is <span class="math notranslate nohighlight">\(0\)</span> (unlimited).</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">minObservationsInLeafNode</span></code></p></td>
-<td><p><span class="math notranslate nohighlight">\(1\)</span> for classification, <span class="math notranslate nohighlight">\(5\)</span> for regression</p></td>
-<td><p>Minimum number of observations in the leaf node.</p></td>
+<tr class="row-even"><td><p><strong>DEPRECATED:</strong> <code class="docutils literal notranslate"><span class="pre">seed</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(777\)</span></p></td>
+<td><p>The seed for random number generator, which is used to choose the
+bootstrap set, split features in every split node in a tree, and
+generate permutation required in computations of <code class="docutils literal notranslate"><span class="pre">MDA</span></code> variable importance.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This parameter is deprecated and will be removed in future releases. Use <code class="docutils literal notranslate"><span class="pre">engine</span></code> instead.</p>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">engine</span></code></p></td>
+<td><p><cite>SharePtr&lt; engines:: mt2203:: Batch&gt;()</cite></p></td>
+<td><p>Pointer to the random number generator engine.</p>
+<p>The random numbers produced by this engine are used to choose the bootstrap set,
+split features in every split node in a tree, and generate permutation required in computations
+of MDA variable importance.</p>
+</td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">impurityThreshold</span></code></p></td>
 <td><p><span class="math notranslate nohighlight">\(0\)</span></p></td>
@@ -1270,9 +1323,36 @@ combination of the characteristics:</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">engine</span></code></p></td>
-<td><p><cite>SharePtr&lt; engines:: mt2203:: Batch&gt;()</cite></p></td>
-<td><p>Pointer to the random number generator engine.</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">bootstrap</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
+<td><p>If true, the training set for a tree is a bootstrap of the whole training set.
+If false, the whole training set is used to build trees.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">minObservationsInLeafNode</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(1\)</span> for classification, <span class="math notranslate nohighlight">\(5\)</span> for regression</p></td>
+<td><p>Minimum number of observations in the leaf node.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">minObservationsInSplitNode</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(2\)</span></p></td>
+<td><p>Minimum number of samples required to split an internal node; it can be any non-negative number.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">minWeightFractionInLeafNode</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.0\)</span></p></td>
+<td><p>Minimum weighted fraction of the sum total of weights of all the input observations required to be at a leaf node,
+from <span class="math notranslate nohighlight">\(0.0\)</span> to <span class="math notranslate nohighlight">\(0.5\)</span>.</p>
+<p>All observations have equal weights if the weights of the observations are not provided.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">minImpurityDecreaseInSplitNode</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.0\)</span></p></td>
+<td><p>Minimum amount of impurity decrease required to split a node; it can be any non-negative number.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">maxLeafNodes</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(0\)</span></p></td>
+<td><p>Grow trees with positive maximal number of leaf nodes in a <a class="reference internal" href="#best-first-strategy"><span class="std std-ref">best-first</span></a> fashion.
+Best nodes are defined as relative reduction in impurity.
+If maximal number of leaf nodes equals zero,
+then this parameter does not limit the number of leaf nodes, and trees grow in a <a class="reference internal" href="#depth-first-strategy"><span class="std std-ref">depth-first</span></a> fashion.</p></td>
 </tr>
 </tbody>
 </table>

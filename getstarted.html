@@ -728,6 +728,7 @@
 <li class="toctree-l3"><a class="reference internal" href="dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#output">Output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#id4">Examples</a></li>
 </ul>
 </li>
@@ -811,7 +812,7 @@
 <li class="toctree-l3"><a class="reference internal" href="examples/cpp/knn_cls_kd_tree_dense_batch.html">knn_cls_kd_tree_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/cpp/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/cpp/load_graph.html">load_graph.cpp</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/cpp/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/cpp/pca_dense_batch.html">pca_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/cpp/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/cpp/svm_two_class_smo_dense_batch.html">svm_two_class_smo_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/cpp/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
@@ -1170,20 +1171,20 @@ via <code class="docutils literal notranslate"><span class="pre">vars.sh</span><
 <li><p>Setting up oneDAL environment via <code class="docutils literal notranslate"><span class="pre">vars.sh</span></code> script</p>
 <p>Run the following command:</p>
 <blockquote>
-<div><div class="highlight-default notranslate"><div class="highlight"><pre><style type="text/css">
-span.prompt1:before {
-  content: "$ ";
-}
-</style><span class="prompt1"><span class="nb">source</span> ./env/vars.sh</span>
-</pre></div></div></div></blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span> ./env/vars.sh
+</pre></div>
+</div>
+</div></blockquote>
 </li>
 <li><p>Setting up oneDAL environment via <code class="docutils literal notranslate"><span class="pre">modulefiles</span></code></p>
 <ol class="arabic simple">
 <li><p>Initialize <code class="docutils literal notranslate"><span class="pre">modules</span></code>:</p></li>
 </ol>
 <blockquote>
-<div><div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1"><span class="nb">source</span> <span class="nv">$MODULESHOME</span>/init/bash</span>
-</pre></div></div><div class="admonition note">
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span> <span class="nv">$MODULESHOME</span>/init/bash
+</pre></div>
+</div>
+<div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Refer to <a class="reference external" href="https://modules.readthedocs.io/en/latest/index.html">Environment Modules documentation</a> for details.</p>
 </div>
@@ -1192,29 +1193,37 @@ span.prompt1:before {
 <li><p>Provide <code class="docutils literal notranslate"><span class="pre">modules</span></code> with a path to the <code class="docutils literal notranslate"><span class="pre">modulefiles</span></code> directory:</p></li>
 </ol>
 <blockquote>
-<div><div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1">module use ./modulefiles</span>
-</pre></div></div></div></blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>module use ./modulefiles
+</pre></div>
+</div>
+</div></blockquote>
 <ol class="arabic simple" start="3">
 <li><p>Run the module:</p></li>
 </ol>
 <blockquote>
-<div><div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1">module load dal</span>
-</pre></div></div></div></blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>module load dal
+</pre></div>
+</div>
+</div></blockquote>
 </li>
 </ul>
 </div>
 <div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-V2luZG93cw== docutils container">
 <p>Run the following command:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1">/env/vars.bat</span>
-</pre></div></div></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>/env/vars.bat
+</pre></div>
+</div>
+</div>
 </div>
 </div></blockquote>
 <ol class="arabic simple" start="2">
 <li><p>Copy <code class="docutils literal notranslate"><span class="pre">./examples/daal/cpp_sycl</span></code> to a writable directory if necessary (since it creates temporary files):</p></li>
 </ol>
 <blockquote>
-<div><div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1">cp –r ./examples/daal/cpp_sycl <span class="si">${</span><span class="nv">WRITABLE_DIR</span><span class="si">}</span></span>
-</pre></div></div></div></blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cp –r ./examples/daal/cpp_sycl <span class="si">${</span><span class="nv">WRITABLE_DIR</span><span class="si">}</span>
+</pre></div>
+</div>
+</div></blockquote>
 <ol class="arabic simple" start="3">
 <li><p>Set up the compiler environment for Intel® oneAPI DPC++/C++ Compiler.
 See <a class="reference external" href="https://software.intel.com/content/www/us/en/develop/documentation/get-started-with-dpcpp-compiler/top.html">Get Started with Intel® oneAPI DPC++/C++ Compiler</a> for details.</p></li>
@@ -1243,17 +1252,21 @@ in the same directory level relative to each other.</p>
 </div>
 </div>
 <div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-TGludXg= active docutils container">
-<div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1"><span class="c1"># Navigate to DPC++ examples directory and build examples</span></span>
-<span class="prompt1"><span class="nb">cd</span> /examples/daal/cpp_sycl</span>
-<span class="prompt1">make sointel64 <span class="nv">example</span><span class="o">=</span>cor_dense_batch <span class="c1"># This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ Compiler</span></span>
-<span class="prompt1">make sointel64 <span class="nv">mode</span><span class="o">=</span>build                          <span class="c1"># This will compile all DPC++ examples</span></span>
-</pre></div></div></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Navigate to DPC++ examples directory and build examples</span>
+<span class="nb">cd</span> /examples/daal/cpp_sycl
+make sointel64 <span class="nv">example</span><span class="o">=</span>cor_dense_batch <span class="c1"># This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ Compiler</span>
+make sointel64 <span class="nv">mode</span><span class="o">=</span>build                          <span class="c1"># This will compile all DPC++ examples</span>
+</pre></div>
+</div>
+</div>
 <div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-V2luZG93cw== docutils container">
-<div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1"><span class="c1"># Navigate to DPC++ examples directory and build examples</span></span>
-<span class="prompt1"><span class="nb">cd</span> /examples/daal/cpp_sycl</span>
-<span class="prompt1">nmake libintel64 <span class="nv">example</span><span class="o">=</span>cor_dense_batch+ <span class="c1"># This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ compiler</span></span>
-<span class="prompt1">nmake libintel64 <span class="nv">mode</span><span class="o">=</span>build                          <span class="c1"># This will compile all DPC++ examples</span></span>
-</pre></div></div></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Navigate to DPC++ examples directory and build examples</span>
+<span class="nb">cd</span> /examples/daal/cpp_sycl
+nmake libintel64 <span class="nv">example</span><span class="o">=</span>cor_dense_batch+ <span class="c1"># This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ compiler</span>
+nmake libintel64 <span class="nv">mode</span><span class="o">=</span>build                          <span class="c1"># This will compile all DPC++ examples</span>
+</pre></div>
+</div>
+</div>
 </div>
 <p>To see all avaliable parameters of the build procedure, type <code class="docutils literal notranslate"><span class="pre">make</span></code> on Linux* or <code class="docutils literal notranslate"><span class="pre">nmake</span></code> on Windows*.</p>
 </div></blockquote>

@@ -7,12 +7,16 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pca_cor_dense_batch.cpp &mdash; Intel&amp;reg; oneAPI Data Analytics Library Documentation (Beta) 1.0 documentation</title>
+  <title>pca_dense_batch.cpp &mdash; Intel&amp;reg; oneAPI Data Analytics Library Documentation (Beta) 1.0 documentation</title>
   
 
   
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinx_tabs/semantic-ui-2.4.1/segment.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinx_tabs/semantic-ui-2.4.1/menu.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinx_tabs/semantic-ui-2.4.1/tab.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinx_tabs/tabs.css" type="text/css" />
 
   
   
@@ -722,6 +726,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#output">Output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#id4">Examples</a></li>
 </ul>
 </li>
@@ -805,7 +810,7 @@
 <li class="toctree-l3"><a class="reference internal" href="knn_cls_kd_tree_dense_batch.html">knn_cls_kd_tree_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="load_graph.html">load_graph.cpp</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pca_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="svm_two_class_smo_dense_batch.html">svm_two_class_smo_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
@@ -994,13 +999,13 @@
         
           <li><a href="../cpp.html">oneAPI C++ Examples</a> &raquo;</li>
         
-      <li>pca_cor_dense_batch.cpp</li>
+      <li>pca_dense_batch.cpp</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../../_sources/examples/cpp/pca_cor_dense_batch.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/examples/cpp/pca_dense_batch.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -1013,8 +1018,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="pca-cor-dense-batch-cpp">
-<span id="cpp-pca-cor-dense-batch-cpp"></span><h1>pca_cor_dense_batch.cpp<a class="headerlink" href="#pca-cor-dense-batch-cpp" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="pca-dense-batch-cpp">
+<span id="cpp-pca-dense-batch-cpp"></span><h1>pca_dense_batch.cpp<a class="headerlink" href="#pca-dense-batch-cpp" title="Permalink to this headline">¶</a></h1>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cm">/*******************************************************************************</span>
 <span class="cm">* Copyright 2020 Intel Corporation</span>
 <span class="cm">*</span>
@@ -1038,22 +1043,35 @@
 
 <span class="k">using</span> <span class="k">namespace</span> <span class="n">oneapi</span><span class="p">;</span>
 
-<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="k">const</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
-    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">data_file_name</span> <span class="o">=</span> <span class="n">get_data_path</span><span class="p">(</span><span class="s">&quot;pca_normalized.csv&quot;</span><span class="p">);</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">Method</span><span class="o">&gt;</span>
+<span class="kt">void</span> <span class="n">run</span><span class="p">(</span><span class="k">const</span> <span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="o">&amp;</span> <span class="n">x_train</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">method_name</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">const</span> <span class="k">auto</span> <span class="n">pca_desc</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">pca</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;</span><span class="kt">float</span><span class="p">,</span> <span class="n">Method</span><span class="o">&gt;</span><span class="p">()</span>
+        <span class="p">.</span><span class="n">set_component_count</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="p">.</span><span class="n">set_deterministic</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
 
-    <span class="k">const</span> <span class="k">auto</span> <span class="n">data</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">read</span><span class="o">&lt;</span><span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="o">&gt;</span><span class="p">(</span><span class="n">dal</span><span class="o">::</span><span class="n">csv</span><span class="o">::</span><span class="n">data_source</span><span class="p">{</span><span class="n">data_file_name</span><span class="p">});</span>
+    <span class="k">const</span> <span class="k">auto</span> <span class="n">result_train</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">train</span><span class="p">(</span><span class="n">pca_desc</span><span class="p">,</span> <span class="n">x_train</span><span class="p">);</span>
 
-    <span class="k">const</span> <span class="k">auto</span> <span class="n">pca_desc</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">pca</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;&gt;</span><span class="p">()</span>
-        <span class="p">.</span><span class="n">set_component_count</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">get_column_count</span><span class="p">())</span>
-        <span class="p">.</span><span class="n">set_is_deterministic</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
-
-    <span class="k">const</span> <span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">train</span><span class="p">(</span><span class="n">pca_desc</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">method_name</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
 
     <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Eigenvectors:&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span>
-              <span class="o">&lt;&lt;</span> <span class="n">result</span><span class="p">.</span><span class="n">get_eigenvectors</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+              <span class="o">&lt;&lt;</span> <span class="n">result_train</span><span class="p">.</span><span class="n">get_eigenvectors</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
 
     <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Eigenvalues:&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span>
-              <span class="o">&lt;&lt;</span> <span class="n">result</span><span class="p">.</span><span class="n">get_eigenvalues</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+              <span class="o">&lt;&lt;</span> <span class="n">result_train</span><span class="p">.</span><span class="n">get_eigenvalues</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+    <span class="k">const</span> <span class="k">auto</span> <span class="n">result_infer</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">infer</span><span class="p">(</span><span class="n">pca_desc</span><span class="p">,</span> <span class="n">result_train</span><span class="p">.</span><span class="n">get_model</span><span class="p">(),</span> <span class="n">x_train</span><span class="p">);</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Transformed data:&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span>
+              <span class="o">&lt;&lt;</span> <span class="n">result_infer</span><span class="p">.</span><span class="n">get_transformed_data</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="k">const</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">train_data_file_name</span> <span class="o">=</span> <span class="n">get_data_path</span><span class="p">(</span><span class="s">&quot;pca_normalized.csv&quot;</span><span class="p">);</span>
+
+    <span class="k">const</span> <span class="k">auto</span> <span class="n">x_train</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">read</span><span class="o">&lt;</span><span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="o">&gt;</span><span class="p">(</span><span class="n">dal</span><span class="o">::</span><span class="n">csv</span><span class="o">::</span><span class="n">data_source</span><span class="p">{</span> <span class="n">train_data_file_name</span> <span class="p">});</span>
+
+    <span class="n">run</span><span class="o">&lt;</span><span class="n">dal</span><span class="o">::</span><span class="n">pca</span><span class="o">::</span><span class="n">method</span><span class="o">::</span><span class="n">cov</span><span class="o">&gt;</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="s">&quot;Training method: Covariance&quot;</span><span class="p">);</span>
+    <span class="n">run</span><span class="o">&lt;</span><span class="n">dal</span><span class="o">::</span><span class="n">pca</span><span class="o">::</span><span class="n">method</span><span class="o">::</span><span class="n">svd</span><span class="o">&gt;</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="s">&quot;Training method: SVD&quot;</span><span class="p">);</span>
 
     <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>

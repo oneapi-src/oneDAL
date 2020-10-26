@@ -728,6 +728,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#output">Output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#id4">Examples</a></li>
 </ul>
 </li>
@@ -811,7 +812,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/knn_cls_kd_tree_dense_batch.html">knn_cls_kd_tree_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/load_graph.html">load_graph.cpp</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/pca_dense_batch.html">pca_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/svm_two_class_smo_dense_batch.html">svm_two_class_smo_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
@@ -1026,19 +1027,49 @@
 <p>Decision forest classifier is a special case of the <a class="reference internal" href="decision-forest.html#decision-forest"><span class="std std-ref">Decision Forest</span></a> model.</p>
 <div class="section" id="details">
 <h2>Details<a class="headerlink" href="#details" title="Permalink to this headline">¶</a></h2>
-<p>Given <span class="math notranslate nohighlight">\(n\)</span> feature vectors <span class="math notranslate nohighlight">\(X = \{x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np}) \}\)</span>
-of <span class="math notranslate nohighlight">\(n\)</span> <span class="math notranslate nohighlight">\(p\)</span>-dimensional feature vectors, a vector of class labels <span class="math notranslate nohighlight">\(y = (y_1, \ldots, y_n)\)</span>,
-where <span class="math notranslate nohighlight">\(y_i \in \{0, 1, \ldots, C-1\}\)</span> describes the class to which the feature vector <span class="math notranslate nohighlight">\(x_i\)</span> belongs
-and <span class="math notranslate nohighlight">\(C\)</span> is the number of classes, the problem is to build a decision
-forest classifier.</p>
+<p>Given:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(n\)</span> feature vectors <span class="math notranslate nohighlight">\(X = \{x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np}) \}\)</span>
+of size <span class="math notranslate nohighlight">\(p\)</span>;</p></li>
+<li><p>their non-negative sample weights <span class="math notranslate nohighlight">\(w = (w_1, \ldots, w_n)\)</span>;</p></li>
+<li><p>the vector of class labels <span class="math notranslate nohighlight">\(y = (y_1, \ldots, y_n)\)</span> that describes the class
+to which the feature vector <span class="math notranslate nohighlight">\(x_i\)</span> belongs,
+where <span class="math notranslate nohighlight">\(y_i \in \{0, 1, \ldots, C-1\}\)</span> and <span class="math notranslate nohighlight">\(C\)</span> is the number of classes.</p></li>
+</ul>
+<p>The problem is to build a decision forest classifier.</p>
 <div class="section" id="training-stage">
 <h3>Training Stage<a class="headerlink" href="#training-stage" title="Permalink to this headline">¶</a></h3>
 <p>Decision forest classifier follows the algorithmic framework of
 decision forest training with Gini impurity metrics as impurity
-metrics, that are calculated as follows:</p>
+metrics <a class="reference internal" href="../../../bibliography.html#breiman84" id="id1"><span>[Breiman84]</span></a>.
+If sample weights are provided as input, the library uses a weighted version of the algorithm.</p>
+<p>Gini index is an impurity metric, calculated as follows:</p>
 <div class="math notranslate nohighlight">
 \[{I}_{Gini}\left(D\right)=1-\sum _{i=0}^{C-1}{p}_{i}^{2}\]</div>
-<p>where <span class="math notranslate nohighlight">\(p_i\)</span> is the fraction of observations in the subset <span class="math notranslate nohighlight">\(D\)</span> that belong to the <span class="math notranslate nohighlight">\(i\)</span>-th class.</p>
+<p>where</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(D\)</span> is a set of observations that reach the node;</p></li>
+<li><p><span class="math notranslate nohighlight">\(p_i\)</span> is specified in the table below:</p></li>
+</ul>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Without sample weights</p></th>
+<th class="head"><p>With sample weights</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(p_i\)</span> is the observed fraction of observations that belong to class <span class="math notranslate nohighlight">\(i\)</span> in <span class="math notranslate nohighlight">\(D\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(p_i\)</span> is the observed weighted fraction of observations that belong to class <span class="math notranslate nohighlight">\(i\)</span> in <span class="math notranslate nohighlight">\(D\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[p_i = \frac{\sum_{d \in \{d \in D | y_d = i \}} W_d}{\sum_{d \in D} W_d}\]</div>
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="prediction-stage">
 <h3>Prediction Stage<a class="headerlink" href="#prediction-stage" title="Permalink to this headline">¶</a></h3>
@@ -1192,24 +1223,6 @@ following parameters:</p>
 <td><p>Not applicable</p></td>
 <td><p>The number of classes. A required parameter.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">votingMethod</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">weighted</span></code></p></td>
-<td><p>A flag that specifies which method is used to compute probabilities and class labels:</p>
-<dl class="simple">
-<dt>weighted</dt><dd><ul class="simple">
-<li><p>Probability for each class is computed as a sample mean of estimates across all trees, where each estimate
-is the normalized number of training samples for this class that were recorded in a particular leaf node for current input.</p></li>
-<li><p>The algorithm returns the label for the class that gets the maximal value in a sample mean.</p></li>
-</ul>
-</dd>
-<dt>unweighted</dt><dd><ul class="simple">
-<li><p>Probabilities are computed as normalized votes distribution across all trees of the forest.</p></li>
-<li><p>The algorithm returns the label for the class that gets the majority of votes across all trees of the forest.</p></li>
-</ul>
-</dd>
-</dl>
-</td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -1249,11 +1262,29 @@ only prediction method supported so far is the default dense method.</p></td>
 <td><p>Not applicable</p></td>
 <td><p>The number of classes. A required parameter.</p></td>
 </tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">votingMethod</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">weighted</span></code></p></td>
+<td><p>A flag that specifies which method is used to compute probabilities and class labels:</p>
+<dl class="simple">
+<dt>weighted</dt><dd><ul class="simple">
+<li><p>Probability for each class is computed as a sample mean of estimates across all trees, where each estimate
+is the normalized number of training samples for this class that were recorded in a particular leaf node for current input.</p></li>
+<li><p>The algorithm returns the label for the class that gets the maximal value in a sample mean.</p></li>
+</ul>
+</dd>
+<dt>unweighted</dt><dd><ul class="simple">
+<li><p>Probabilities are computed as normalized votes distribution across all trees of the forest.</p></li>
+<li><p>The algorithm returns the label for the class that gets the majority of votes across all trees of the forest.</p></li>
+</ul>
+</dd>
+</dl>
+</td>
+</tr>
 </tbody>
 </table>
 </div>
-<div class="section" id="id1">
-<h3>Examples<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id2">
+<h3>Examples<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <div class="sphinx-tabs docutils container">
 <div class="ui top attached tabular menu sphinx-menu docutils container">
 <div class="active item sphinx-data-tab-1-0 docutils container">

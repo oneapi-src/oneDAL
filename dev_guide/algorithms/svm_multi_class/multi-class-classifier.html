@@ -728,6 +728,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#output">Output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id4">Examples</a></li>
 </ul>
 </li>
@@ -811,7 +812,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/knn_cls_kd_tree_dense_batch.html">knn_cls_kd_tree_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/load_graph.html">load_graph.cpp</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/pca_dense_batch.html">pca_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/svm_two_class_smo_dense_batch.html">svm_two_class_smo_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
@@ -1045,7 +1046,7 @@ the problem is to build a multi-class classifier using a two-class
 binary classification described in
 <a class="reference internal" href="../../../bibliography.html#hsu02" id="id1"><span>[Hsu02]</span></a> as follows:
 For each pair of classes <span class="math notranslate nohighlight">\((i, j)\)</span>, train a binary classifier, such
-as SVM. The total number of such binary classifiers is <span class="math notranslate nohighlight">\(K(K-1)/2\)</span>.</p>
+as SVM. The total number of such binary classifiers is <span class="math notranslate nohighlight">\(\frac{K(K-1)}{2}\)</span>.</p>
 </div>
 <div class="section" id="prediction-stage">
 <h3>Prediction Stage<a class="headerlink" href="#prediction-stage" title="Permalink to this headline">¶</a></h3>
@@ -1178,10 +1179,10 @@ training method supported so far is One-Against-One.</p></td>
 <p>At the prediction stage, a multi-class classifier has the following parameters:</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 12%" />
-<col style="width: 24%" />
-<col style="width: 35%" />
-<col style="width: 29%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 50%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Parameter</p></th>
@@ -1203,7 +1204,7 @@ computations. Can be <code class="docutils literal notranslate"><span class="pre
 <td><p>Available methods for multi-class classifier prediction stage:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code> - the method described in <a class="reference internal" href="../../../bibliography.html#wu04" id="id3"><span>[Wu04]</span></a></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">voteBasedthe</span></code> method based on the votes obtained from two-class classifiers.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">voteBased</span></code> - the method based on the votes obtained from two-class classifiers.</p></li>
 </ul>
 </td>
 </tr>
@@ -1232,8 +1233,50 @@ computations. Can be <code class="docutils literal notranslate"><span class="pre
 <td><p>1.0e-12</p></td>
 <td><p>The prediction accuracy.</p></td>
 </tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">resultsToEvaluate</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">voteBased</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">computeClassLabels</span></code></p></td>
+<td><p>The 64-bit integer flag that specifies which extra characteristics of the decision function to compute.</p>
+<p>Provide one of the following values to request a single characteristic
+or use bitwise OR to request a combination of the characteristics:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">computeClassLabels</span></code> for <cite>prediction</cite></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">computeDecisionFunction</span></code> for <cite>decisionFunction</cite></p></li>
+</ul>
+</td>
+</tr>
 </tbody>
 </table>
+</div>
+<div class="section" id="output">
+<h3>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h3>
+<p>In addition to classifier output, multiclass classifier calculates the result described below.
+Pass the <code class="docutils literal notranslate"><span class="pre">Result</span> <span class="pre">ID</span></code> as a parameter to the methods that access the result of your algorithm.
+For more details, see <a class="reference internal" href="../../usage/algorithms.html#algorithms"><span class="std std-ref">Algorithms</span></a>.</p>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 86%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Result ID</p></th>
+<th class="head"><p>Result</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">decisionFunction</span></code></p></td>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(n \times \frac{K(K-1)}{2}\)</span> containing the results of the decision function
+computed for all binary models when the <code class="docutils literal notranslate"><span class="pre">computeDecisionFunction</span></code> option is enabled.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If <cite>resultsToEvaluate</cite> does not contain <cite>computeDecisionFunction</cite>, the result of <cite>decisionFunction</cite> table is <cite>NULL</cite>.</p>
+<p>By default, each numeric table of this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except for <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code> and <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>.</p>
+</div>
 </div>
 <div class="section" id="id4">
 <h3>Examples<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>

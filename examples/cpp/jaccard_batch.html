@@ -13,6 +13,10 @@
   
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinx_tabs/semantic-ui-2.4.1/segment.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinx_tabs/semantic-ui-2.4.1/menu.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinx_tabs/semantic-ui-2.4.1/tab.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinx_tabs/tabs.css" type="text/css" />
 
   
   
@@ -722,6 +726,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#output">Output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#id4">Examples</a></li>
 </ul>
 </li>
@@ -805,7 +810,7 @@
 <li class="toctree-l3"><a class="reference internal" href="knn_cls_kd_tree_dense_batch.html">knn_cls_kd_tree_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="load_graph.html">load_graph.cpp</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pca_dense_batch.html">pca_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="svm_two_class_smo_dense_batch.html">svm_two_class_smo_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
@@ -1033,6 +1038,7 @@
 
 <span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
 
+<span class="cp">#include</span> <span class="cpf">&quot;example_util/output_helpers_graph.hpp&quot;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&quot;example_util/utils.hpp&quot;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&quot;oneapi/dal/algo/jaccard.hpp&quot;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&quot;oneapi/dal/graph/undirected_adjacency_array_graph.hpp&quot;</span><span class="cp"></span>
@@ -1041,42 +1047,42 @@
 <span class="cp">#include</span> <span class="cpf">&quot;oneapi/dal/table/common.hpp&quot;</span><span class="cp"></span>
 
 <span class="k">using</span> <span class="k">namespace</span> <span class="n">oneapi</span><span class="o">::</span><span class="n">dal</span><span class="p">;</span>
-<span class="k">using</span> <span class="k">namespace</span> <span class="n">oneapi</span><span class="o">::</span><span class="n">dal</span><span class="o">::</span><span class="n">preview</span><span class="p">;</span>
 
 <span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">get_data_path</span><span class="p">(</span><span class="s">&quot;graph.csv&quot;</span><span class="p">);</span>
-  <span class="c1">// read the graph</span>
-  <span class="n">graph_csv_data_source</span> <span class="n">ds</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span>
-  <span class="n">load_graph</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;&gt;</span> <span class="n">d</span><span class="p">;</span>
-  <span class="k">auto</span> <span class="n">my_graph</span> <span class="o">=</span> <span class="n">load_graph</span><span class="o">::</span><span class="n">load</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">ds</span><span class="p">);</span>
+    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">get_data_path</span><span class="p">(</span><span class="s">&quot;graph.csv&quot;</span><span class="p">);</span>
 
-  <span class="c1">// set blocks ranges</span>
-  <span class="k">auto</span> <span class="n">row_range_begin</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="k">auto</span> <span class="n">row_range_end</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
-  <span class="k">auto</span> <span class="n">column_range_begin</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="k">auto</span> <span class="n">column_range_end</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+    <span class="c1">// read the graph</span>
+    <span class="k">const</span> <span class="n">preview</span><span class="o">::</span><span class="n">graph_csv_data_source</span> <span class="n">ds</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span>
+    <span class="k">const</span> <span class="n">preview</span><span class="o">::</span><span class="n">load_graph</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;&gt;</span> <span class="n">d</span><span class="p">;</span>
+    <span class="k">const</span> <span class="k">auto</span> <span class="n">my_graph</span> <span class="o">=</span> <span class="n">preview</span><span class="o">::</span><span class="n">load_graph</span><span class="o">::</span><span class="n">load</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">ds</span><span class="p">);</span>
 
-  <span class="c1">// set algorithm parameters</span>
-  <span class="k">const</span> <span class="k">auto</span> <span class="n">jaccard_desc</span> <span class="o">=</span> <span class="n">jaccard</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;&gt;</span><span class="p">().</span><span class="n">set_block</span><span class="p">(</span>
-      <span class="p">{</span><span class="n">row_range_begin</span><span class="p">,</span> <span class="n">row_range_end</span><span class="p">},</span> <span class="p">{</span><span class="n">column_range_begin</span><span class="p">,</span> <span class="n">column_range_end</span><span class="p">});</span>
+    <span class="c1">// set blocks ranges</span>
+    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">row_range_begin</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">row_range_end</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">column_range_begin</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">column_range_end</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
 
-  <span class="c1">// create caching builder for jaccard result</span>
-  <span class="n">jaccard</span><span class="o">::</span><span class="n">caching_builder</span> <span class="n">builder</span><span class="p">;</span>
+    <span class="c1">// set algorithm parameters</span>
+    <span class="k">const</span> <span class="k">auto</span> <span class="n">jaccard_desc</span> <span class="o">=</span>
+        <span class="n">preview</span><span class="o">::</span><span class="n">jaccard</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;&gt;</span><span class="p">().</span><span class="n">set_block</span><span class="p">({</span> <span class="n">row_range_begin</span><span class="p">,</span> <span class="n">row_range_end</span> <span class="p">},</span>
+                                                   <span class="p">{</span> <span class="n">column_range_begin</span><span class="p">,</span> <span class="n">column_range_end</span> <span class="p">});</span>
 
-  <span class="c1">// compute Jaccard similarity coefficients</span>
-  <span class="k">auto</span> <span class="n">result_vertex_similarity</span> <span class="o">=</span> <span class="n">vertex_similarity</span><span class="p">(</span><span class="n">jaccard_desc</span><span class="p">,</span> <span class="n">my_graph</span><span class="p">,</span> <span class="n">builder</span><span class="p">);</span>
+    <span class="c1">// create caching builder for jaccard result</span>
+    <span class="n">preview</span><span class="o">::</span><span class="n">jaccard</span><span class="o">::</span><span class="n">caching_builder</span> <span class="n">builder</span><span class="p">;</span>
 
-  <span class="c1">// extract the result</span>
-  <span class="k">auto</span> <span class="n">jaccard_coeffs</span> <span class="o">=</span> <span class="n">result_vertex_similarity</span><span class="p">.</span><span class="n">get_coeffs</span><span class="p">();</span>
-  <span class="k">auto</span> <span class="n">vertex_pairs</span> <span class="o">=</span> <span class="n">result_vertex_similarity</span><span class="p">.</span><span class="n">get_vertex_pairs</span><span class="p">();</span>
-  <span class="k">auto</span> <span class="n">nonzero_coeff_count</span> <span class="o">=</span> <span class="n">result_vertex_similarity</span><span class="p">.</span><span class="n">get_nonzero_coeff_count</span><span class="p">();</span>
+    <span class="c1">// compute Jaccard similarity coefficients</span>
+    <span class="k">const</span> <span class="k">auto</span> <span class="n">result_vertex_similarity</span> <span class="o">=</span>
+        <span class="n">preview</span><span class="o">::</span><span class="n">vertex_similarity</span><span class="p">(</span><span class="n">jaccard_desc</span><span class="p">,</span> <span class="n">my_graph</span><span class="p">,</span> <span class="n">builder</span><span class="p">);</span>
 
-  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;The number of nonzero Jaccard coeffs in the block: &quot;</span>
-            <span class="o">&lt;&lt;</span> <span class="n">nonzero_coeff_count</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="c1">// extract the result</span>
+    <span class="k">const</span> <span class="k">auto</span> <span class="n">jaccard_coeffs</span> <span class="o">=</span> <span class="n">result_vertex_similarity</span><span class="p">.</span><span class="n">get_coeffs</span><span class="p">();</span>
+    <span class="k">const</span> <span class="k">auto</span> <span class="n">vertex_pairs</span> <span class="o">=</span> <span class="n">result_vertex_similarity</span><span class="p">.</span><span class="n">get_vertex_pairs</span><span class="p">();</span>
+    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="kt">int64_t</span> <span class="n">nonzero_coeff_count</span> <span class="o">=</span> <span class="n">result_vertex_similarity</span><span class="p">.</span><span class="n">get_nonzero_coeff_count</span><span class="p">();</span>
 
-  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Vertex pairs: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
-  <span class="n">print_vertex_similarity_result</span><span class="p">(</span><span class="n">vertex_pairs</span><span class="p">,</span> <span class="n">nonzero_coeff_count</span><span class="p">);</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;The number of nonzero Jaccard coeffs in the block: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">nonzero_coeff_count</span>
+              <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
 
-  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Jaccard values: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
-  <span class="n">print_vertex_similarity_result</span><span class="p">(</span><span class="n">jaccard_coeffs</span><span class="p">,</span> <span class="n">nonzero_coeff_count</span><span class="p">);</span>
+    <span class="n">print_vertex_similarity_result</span><span class="p">(</span><span class="n">result_vertex_similarity</span><span class="p">);</span>
 <span class="p">}</span>
 </pre></div>
 </div>

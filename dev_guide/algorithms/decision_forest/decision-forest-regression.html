@@ -728,6 +728,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#output">Output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#id4">Examples</a></li>
 </ul>
 </li>
@@ -811,7 +812,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/knn_cls_kd_tree_dense_batch.html">knn_cls_kd_tree_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/load_graph.html">load_graph.cpp</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/pca_dense_batch.html">pca_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/svm_two_class_smo_dense_batch.html">svm_two_class_smo_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
@@ -1026,17 +1027,39 @@
 <p>Decision forest regression is a special case of the <a class="reference internal" href="decision-forest.html#decision-forest"><span class="std std-ref">Decision Forest</span></a> model.</p>
 <div class="section" id="details">
 <h2>Details<a class="headerlink" href="#details" title="Permalink to this headline">¶</a></h2>
-<p>Given n feature vectors <span class="math notranslate nohighlight">\(X = \{x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np}) \}\)</span> of <span class="math notranslate nohighlight">\(n\)</span>
-<span class="math notranslate nohighlight">\(p\)</span>-dimensional feature vectors and vector of dependent variables <span class="math notranslate nohighlight">\(y = (y_1, \ldots, y_n)\)</span>,
-the problem is to build a decision
-forest regression model that minimizes the Mean-Square Error (MSE)
-between the predicted and true value.</p>
+<p>Given:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(n\)</span> feature vectors <span class="math notranslate nohighlight">\(X = \{x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np}) \}\)</span>
+of size <span class="math notranslate nohighlight">\(p\)</span>;</p></li>
+<li><p>their non-negative sample weights <span class="math notranslate nohighlight">\(w = (w_1, \ldots, w_n)\)</span>;</p></li>
+<li><p>the vector of responses <span class="math notranslate nohighlight">\(y = (y_1, \ldots, y_n)\)</span></p></li>
+</ul>
+<p>The problem is to build a decision forest regression model that minimizes the Mean-Square Error (MSE) between the predicted and true value.</p>
 <div class="section" id="training-stage">
 <h3>Training Stage<a class="headerlink" href="#training-stage" title="Permalink to this headline">¶</a></h3>
-<p>Decision forest classifier follows the algorithmic framework of
-decision forest training with variance as impurity metrics,
-calculated as follows:</p>
-<p><span class="math notranslate nohighlight">\({I}_{var}\left(D\right)= \frac{1}{N-1} \sum _{i=0}^{N-1}{\left({y}_{i}-\overline{y}\right)}^{2}\)</span>, where <span class="math notranslate nohighlight">\(N=|D|\)</span> and <span class="math notranslate nohighlight">\(\overline{y}=\text{ }\frac{1}{N}\text{ }\sum _{i=0}^{N-1}{y}_{i}\)</span>.</p>
+<p>Decision forest regression follows the algorithmic framework of decision forest training algorithm
+based on the mean-squared error (MSE) <a class="reference internal" href="../../../bibliography.html#breiman84" id="id1"><span>[Breiman84]</span></a>.
+If sample weights are provided as input, the library uses a weighted version of the algorithm.</p>
+<p>MSE is an impurity metric (<span class="math notranslate nohighlight">\(D\)</span> is a set of observations that reach the node), calculated as follows:</p>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Without sample weights</p></th>
+<th class="head"><p>With sample weights</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(I_{\mathrm{MSE}}\left(D\right) = \frac{1}{W(D)} \sum _{i=1}^{W(D)}{\left(y_i - \frac{1}{W(D)} \sum _{j=1}^{W(D)} y_j \right)}^{2}\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(I_{\mathrm{MSE}}\left(D\right) = \frac{1}{W(D)} \sum _{i \in D}{w_i \left(y_i - \frac{1}{W(D)} \sum _{j \in D} w_j y_j \right)}^{2}\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(W(S) = \sum_{s \in S} 1\)</span>, which is equivalent to the number of elements in <span class="math notranslate nohighlight">\(S\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(W(S) = \sum_{s \in S} w_s\)</span></p></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="prediction-stage">
 <h3>Prediction Stage<a class="headerlink" href="#prediction-stage" title="Permalink to this headline">¶</a></h3>
