@@ -347,7 +347,8 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
     const descriptor_base &desc,
     vertex_similarity_input<undirected_adjacency_array_graph<>> &input) {
     const auto &my_graph = input.get_graph();
-    const auto &g = oneapi::dal::preview::detail::get_impl(my_graph);
+    using graph_type = undirected_adjacency_array_graph<>;
+    const auto &g = oneapi::dal::preview::detail::get_impl<graph_type>(my_graph);
 
     auto g_edge_offsets = g->_edge_offsets.data();
     auto g_vertex_neighbors = g->_vertex_neighbors.data();

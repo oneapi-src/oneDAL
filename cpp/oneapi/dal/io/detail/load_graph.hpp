@@ -72,7 +72,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
 
     const vertex_t vertex_count = max_id + 1;
 
-    auto layout = oneapi::dal::preview::detail::get_impl(g);
+    auto layout = oneapi::dal::preview::detail::get_impl<Graph>(g);
     auto &allocator = layout->_allocator;
     layout->_vertex_count = vertex_count;
 

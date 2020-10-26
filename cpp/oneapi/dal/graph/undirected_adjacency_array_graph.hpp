@@ -77,21 +77,27 @@ public:
 
     /// Move operator for undirected_adjacency_array_graph
     undirected_adjacency_array_graph &operator=(undirected_adjacency_array_graph &&graph);
-
     using pimpl =
-        oneapi::dal::detail::pimpl<detail::undirected_adjacency_array_graph_impl<VertexValue,
-                                                                                 EdgeValue,
-                                                                                 GraphValue,
-                                                                                 IndexType,
-                                                                                 Allocator>>;
+        oneapi::dal::detail::pimpl<typename graph_traits<graph_type>::impl_type>;
 
 private:
+    //using pimpl =
+       // oneapi::dal::detail::pimpl<typename graph_traits<graph_type>::impl_type>;
+
     pimpl impl_;
-    friend pimpl &oneapi::dal::preview::detail::get_impl<undirected_adjacency_array_graph>(
+
+    friend pimpl &oneapi::dal::preview::detail::get_impl(
         undirected_adjacency_array_graph &graph);
 
-    friend const pimpl &oneapi::dal::preview::detail::get_impl<undirected_adjacency_array_graph>(
+    friend const pimpl &oneapi::dal::preview::detail::get_impl(
         const undirected_adjacency_array_graph &graph);
+ /*
+    friend oneapi::dal::detail::pimpl<typename graph_traits<undirected_adjacency_array_graph>::impl_type> &oneapi::dal::preview::detail::get_impl(
+        undirected_adjacency_array_graph &graph);
+
+    friend const oneapi::dal::detail::pimpl<typename graph_traits<undirected_adjacency_array_graph>::impl_type> &oneapi::dal::preview::detail::get_impl(
+        const undirected_adjacency_array_graph &graph);
+        */
 };
 
 template <typename VertexValue,
@@ -103,7 +109,7 @@ struct graph_traits<
     undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>> {
     using graph_type =
         undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>;
-    using graph_impl_type = detail::undirected_adjacency_array_graph_impl<VertexValue,
+    using impl_type = detail::undirected_adjacency_array_graph_impl<VertexValue,
                                                                           EdgeValue,
                                                                           GraphValue,
                                                                           IndexType,
@@ -117,11 +123,11 @@ struct graph_traits<
     // vertex types
     using vertex_type = IndexType;
     using const_vertex_type = const vertex_type;
-    using vertex_allocator_type = typename graph_impl_type::vertex_allocator_type;
-    using vertex_set = typename graph_impl_type::vertex_set;
-    using vertex_iterator = typename graph_impl_type::vertex_iterator;
-    using const_vertex_iterator = typename graph_impl_type::const_vertex_iterator;
-    using vertex_size_type = typename graph_impl_type::vertex_size_type;
+    using vertex_allocator_type = typename impl_type::vertex_allocator_type;
+    using vertex_set = typename impl_type::vertex_set;
+    using vertex_iterator = typename impl_type::vertex_iterator;
+    using const_vertex_iterator = typename impl_type::const_vertex_iterator;
+    using vertex_size_type = typename impl_type::vertex_size_type;
 
     using vertex_key_type = vertex_type;
     using const_vertex_key_type = const vertex_key_type;
@@ -130,21 +136,21 @@ struct graph_traits<
     using vertex_user_value_type = VertexValue;
     using const_vertex_user_value_type = const vertex_user_value_type;
     using vertex_user_value_allocator_type =
-        typename graph_impl_type::vertex_user_value_allocator_type;
-    using vertex_user_value_set = typename graph_impl_type::vertex_user_value_set;
+        typename impl_type::vertex_user_value_allocator_type;
+    using vertex_user_value_set = typename impl_type::vertex_user_value_set;
 
     // edge types
     using edge_type = IndexType;
-    using edge_allocator_type = typename graph_impl_type::edge_allocator_type;
-    using edge_set = typename graph_impl_type::edge_set;
-    using edge_iterator = typename graph_impl_type::edge_iterator;
-    using const_edge_iterator = typename graph_impl_type::const_edge_iterator;
-    using edge_size_type = typename graph_impl_type::edge_size_type;
+    using edge_allocator_type = typename impl_type::edge_allocator_type;
+    using edge_set = typename impl_type::edge_set;
+    using edge_iterator = typename impl_type::edge_iterator;
+    using const_edge_iterator = typename impl_type::const_edge_iterator;
+    using edge_size_type = typename impl_type::edge_size_type;
 
     // edge weight types
     using edge_user_value_type = EdgeValue;
-    using edge_user_value_allocator_type = typename graph_impl_type::edge_user_value_allocator_type;
-    using edge_user_value_set = typename graph_impl_type::edge_user_value_set;
+    using edge_user_value_allocator_type = typename impl_type::edge_user_value_allocator_type;
+    using edge_user_value_set = typename impl_type::edge_user_value_set;
 
     using edge_key_type = std::pair<vertex_key_type, vertex_key_type>;
     using edge_value_type = std::pair<edge_key_type, edge_user_value_type>;

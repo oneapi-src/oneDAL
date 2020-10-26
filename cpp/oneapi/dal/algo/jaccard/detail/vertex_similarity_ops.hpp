@@ -45,7 +45,7 @@ struct vertex_similarity_ops {
         const auto column_begin = param.get_column_range_begin();
         const auto column_end = param.get_column_range_end();
         auto vertex_count = static_cast<int64_t>(
-            oneapi::dal::preview::detail::get_impl(input.get_graph())->_vertex_count);
+            oneapi::dal::preview::detail::get_impl<Graph>(input.get_graph())->_vertex_count);
         if (row_begin < 0 || column_begin < 0) {
             throw oneapi::dal::invalid_argument("Negative interval");
         }
