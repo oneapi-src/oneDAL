@@ -93,7 +93,7 @@ template <typename VertexValue,
           typename GraphValue,
           typename IndexType,
           typename Allocator>
-struct ONEDAL_EXPORT graph_traits<
+struct graph_traits<
     undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>> {
     using graph_type =
         undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>;
