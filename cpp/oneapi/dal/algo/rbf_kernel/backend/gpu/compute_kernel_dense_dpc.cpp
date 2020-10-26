@@ -20,7 +20,7 @@
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
-#include <daal/src/algorithms/compute/kernel_function/kernel_function_rbf_dense_default_kernel_oneapi.h>
+#include <daal/src/algorithms/kernel_function/kernel_function_rbf_dense_default_kernel_oneapi.h>
 
 namespace oneapi::dal::rbf_kernel::backend {
 
