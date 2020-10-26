@@ -80,7 +80,7 @@ dep-gen-enhanced-common   = $(call $(SELF),$1 $(.copt-gen-deps)) && $(.keep-raw-
 dep-gen-enhanced.icc   = $(dep-gen-enhanced-common)
 dep-gen-enhanced.icl   = $(dep-gen-enhanced-common)
 dep-gen-enhanced.g++   = $(dep-gen-enhanced-common)
-dep-gen-enhanced.dpcpp = $(dep-gen-enhanced-common)
+dep-gen-enhanced.dpcpp = $(if $(OS_is_win),,$(dep-gen-enhanced-common))
 cmd-enhanced-with-dep-gen = $(or $(dep-gen-enhanced.$(call get-command-name,$($(SELF)))),$($(SELF)))
 
 $(call .inject.dep.gen, C.COMPILE,     $$(cmd-enhanced-with-dep-gen))

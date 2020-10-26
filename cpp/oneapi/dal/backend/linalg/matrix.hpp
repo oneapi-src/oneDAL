@@ -48,6 +48,7 @@ public:
         }
         shape_[0] = row_count;
         shape_[1] = column_count;
+        ONEDAL_ASSERT(count() / columns() == rows(), "Shape count overflow");
     }
 
     std::int64_t operator[](std::int64_t i) const {
