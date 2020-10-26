@@ -20,6 +20,7 @@
 //  Implementation of cross-entropy loss algorithm
 //--
 */
+#include "src/services/service_data_utils.h"
 #include "src/externals/service_math.h"
 #include "src/services/service_utils.h"
 #include "src/services/service_environment.h"
@@ -66,7 +67,10 @@ static void applyBetaImpl(const algorithmFPType * x, const algorithmFPType * bet
         PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < nRows; ++i)
         {
-            for (size_t j = 0; j < nClasses; ++j) xb[i * nClasses + j] += beta[j * nBetaPerClass + 0];
+            for (size_t j = 0; j < nClasses; ++j)
+            {
+                xb[i * nClasses + j] += beta[j * nBetaPerClass + 0];
+            }
         }
     }
 }
@@ -79,23 +83,20 @@ void CrossEntropyLossKernel<algorithmFPType, method, cpu>::applyBeta(const algor
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
-void CrossEntropyLossKernel<algorithmFPType, method, cpu>::applyBetaThreaded(const algorithmFPType * x, const algorithmFPType * beta,
-                                                                             algorithmFPType * xb, size_t nRows, size_t nClasses, size_t nCols,
-                                                                             bool bIntercept)
-{
-    DAAL_ITTNOTIFY_SCOPED_TASK(applyBeta);
-    applyBetaImpl<algorithmFPType, cpu>(x, beta, xb, nRows, nClasses, nCols, bIntercept, true);
-}
-
-template <typename algorithmFPType, Method method, CpuType cpu>
-void CrossEntropyLossKernel<algorithmFPType, method, cpu>::softmax(const algorithmFPType * arg, algorithmFPType * res, size_t nRows, size_t nCols)
+void CrossEntropyLossKernel<algorithmFPType, method, cpu>::softmax(const algorithmFPType * const arg, algorithmFPType * const res, size_t nRows,
+                                                                   size_t nCols, algorithmFPType * const softmaxSums,
+                                                                   const algorithmFPType * const yLocal)
 {
     const algorithmFPType expThreshold = daal::internal::Math<algorithmFPType, cpu>::vExpThreshold();
+    if (softmaxSums != nullptr)
+    {
+        services::internal::service_memset_seq<algorithmFPType, cpu>(softmaxSums, 0.0, nCols);
+    }
     for (size_t iRow = 0; iRow < nRows; ++iRow)
     {
-        const algorithmFPType * pArg = arg + iRow * nCols;
-        algorithmFPType * pRes       = res + iRow * nCols;
-        algorithmFPType maxArg       = pArg[0];
+        const algorithmFPType * const pArg = arg + iRow * nCols;
+        algorithmFPType * const pRes       = res + iRow * nCols;
+        algorithmFPType maxArg             = pArg[0];
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
         for (size_t i = 1; i < nCols; ++i)
@@ -113,17 +114,49 @@ void CrossEntropyLossKernel<algorithmFPType, method, cpu>::softmax(const algorit
         }
     }
     daal::internal::Math<algorithmFPType, cpu>::vExp(nRows * nCols, res, res);
-    for (size_t iRow = 0; iRow < nRows; ++iRow)
+    if (softmaxSums != nullptr && yLocal != nullptr)
     {
-        algorithmFPType * pRes = res + iRow * nCols;
-        algorithmFPType sum(0.);
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < nCols; ++i) sum += pRes[i];
-        sum = algorithmFPType(1.) / sum;
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < nCols; ++i) pRes[i] *= sum;
+        for (size_t iRow = 0; iRow < nRows; ++iRow)
+        {
+            algorithmFPType * const pRes = res + iRow * nCols;
+            algorithmFPType sum(0.);
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for (size_t i = 0; i < nCols; ++i)
+            {
+                sum += pRes[i];
+            }
+            sum = static_cast<algorithmFPType>(1.) / sum;
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for (size_t i = 0; i < nCols; ++i)
+            {
+                pRes[i] *= sum;
+                softmaxSums[i] += pRes[i];
+            }
+            softmaxSums[static_cast<size_t>(yLocal[iRow])] -= 1;
+        }
+    }
+    else
+    {
+        for (size_t iRow = 0; iRow < nRows; ++iRow)
+        {
+            algorithmFPType * const pRes = res + iRow * nCols;
+            algorithmFPType sum(0.);
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for (size_t i = 0; i < nCols; ++i)
+            {
+                sum += pRes[i];
+            }
+            sum = static_cast<algorithmFPType>(1.) / sum;
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for (size_t i = 0; i < nCols; ++i)
+            {
+                pRes[i] *= sum;
+            }
+        }
     }
 }
 
@@ -142,21 +175,8 @@ void CrossEntropyLossKernel<algorithmFPType, method, cpu>::softmaxThreaded(const
         const size_t nRowsToProcess  = (iBlock == nDataBlocks - 1) ? nRows - iBlock * nRowsInBlock : nRowsInBlock;
         const algorithmFPType * pArg = arg + iStartRow * nCols;
         algorithmFPType * pRes       = res + iStartRow * nCols;
-        softmax(pArg, pRes, nRowsToProcess, nCols);
+        softmax(pArg, pRes, nRowsToProcess, nCols, nullptr, nullptr);
     });
-}
-
-template <typename algorithmFPType, CpuType cpu>
-void addGradInPt(algorithmFPType * g, const algorithmFPType * xi, const algorithmFPType * pi, size_t yi, algorithmFPType interceptFactor,
-                 size_t nClasses, size_t nBetaPerClass)
-{
-    for (size_t k = 0; k < nClasses; ++k)
-    {
-        const algorithmFPType pk = pi[k];
-        algorithmFPType gk       = ((yi == k) ? (pk - algorithmFPType(1.)) : pk);
-        g[nBetaPerClass * k] += interceptFactor * gk;
-        for (size_t iBeta = 1; iBeta < nBetaPerClass; ++iBeta) g[nBetaPerClass * k + iBeta] += gk * xi[iBeta - 1];
-    }
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -205,7 +225,10 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
         DAAL_CHECK_BLOCK_STATUS(proxPtr);
         algorithmFPType * prox = proxPtr.get();
 
-        for (size_t i = 0; i < nClasses; i++) prox[i * nBetaPerClass] = b[i * nBetaPerClass];
+        for (size_t i = 0; i < nClasses; i++)
+        {
+            prox[i * nBetaPerClass] = b[i * nBetaPerClass];
+        }
         for (size_t i = 0; i < nClasses; i++)
         {
             for (size_t j = 1; j < nBetaPerClass; j++)
@@ -235,7 +258,9 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
         for (size_t i = 0; i < nClasses; i++)
         {
             for (size_t j = 1; j < nBetaPerClass; j++)
+            {
                 notSmoothTerm += (b[i * nBetaPerClass + j] < 0 ? -b[i * nBetaPerClass + j] : b[i * nBetaPerClass + j]) * parameter->penaltyL1;
+            }
         }
         value = notSmoothTerm;
     }
@@ -286,32 +311,142 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
         c                            = 2 * lipschitz + displacement;
     }
 
+    const size_t nRowsInBlock = 512;
+    const size_t nDataBlocks  = n / nRowsInBlock + !!(n % nRowsInBlock);
+
+    TArrayScalable<algorithmFPType, cpu> values;
+    if (valueNT)
+    {
+        values.reset(nDataBlocks);
+        DAAL_CHECK_MALLOC(values.get());
+    }
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRowsInBlock, nClasses);
+    TlsMem<algorithmFPType, cpu> tlsLogP(nRowsInBlock * nClasses);
+    TArrayScalable<algorithmFPType, cpu> grads;
+    if (gradientNT)
+    {
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nDataBlocks, nBeta);
+        grads.reset(nDataBlocks * nBeta);
+        DAAL_CHECK_MALLOC(grads.get());
+    }
+    TlsMem<algorithmFPType, cpu> tlsSoftmaxSum(nClasses);
+    const algorithmFPType div = static_cast<algorithmFPType>(1) / static_cast<algorithmFPType>(n);
+    const bool bL1            = parameter->penaltyL1 > 0;
+    const bool bL2            = parameter->penaltyL2 > 0;
+    const bool interceptFlag  = parameter->interceptFlag;
+
     if (valueNT || gradientNT || hessianNT)
     {
-        //f = X*b + b0
-        applyBetaThreaded(x, b, f.get(), n, nClasses, p, parameter->interceptFlag);
+        SafeStatus safeStat;
+        daal::threader_for(nDataBlocks, nDataBlocks, [&](size_t iBlock) {
+            const size_t iStartRow      = iBlock * nRowsInBlock;
+            const size_t nRowsToProcess = (iBlock == nDataBlocks - 1) ? n - iBlock * nRowsInBlock : nRowsInBlock;
 
-        //f = softmax(f)
-        softmaxThreaded(f.get(), f.get(), n, nClasses);
+            const algorithmFPType * const xLocal = x + iStartRow * p;
+            const algorithmFPType * const yLocal = y + iStartRow;
 
-        const bool bL1 = (parameter->penaltyL1 > 0);
-        const bool bL2 = (parameter->penaltyL2 > 0);
+            algorithmFPType * const fPtrLocal = f.get() + iStartRow * nClasses;
 
-        const algorithmFPType div = algorithmFPType(1) / algorithmFPType(n);
+            //f = X*b + b0
+            {
+                DAAL_ITTNOTIFY_SCOPED_TASK(applyBeta);
+                applyBeta(xLocal, b, fPtrLocal, nRowsToProcess, nClasses, p, interceptFlag);
+            }
+
+            //f = softmax(f)
+            algorithmFPType * softmaxSums = nullptr;
+
+            if (interceptFlag && gradientNT)
+            {
+                softmaxSums = tlsSoftmaxSum.local();
+                DAAL_CHECK_THR(softmaxSums, services::ErrorMemoryAllocationFailed);
+                softmax(fPtrLocal, fPtrLocal, nRowsToProcess, nClasses, softmaxSums, yLocal);
+            }
+            else
+            {
+                softmax(fPtrLocal, fPtrLocal, nRowsToProcess, nClasses, nullptr, nullptr);
+            }
+            const algorithmFPType * const fixedSoftmaxSums = softmaxSums;
+
+            if (valueNT)
+            {
+                algorithmFPType * const logP = tlsLogP.local();
+                DAAL_CHECK_THR(logP, services::ErrorMemoryAllocationFailed);
+                daal::internal::Math<algorithmFPType, cpu>::vLog(nRowsToProcess * nClasses, fPtrLocal, logP);
+
+                algorithmFPType localValue(0);
+                for (size_t i = 0; i < nRowsToProcess; ++i)
+                {
+                    const size_t label = static_cast<size_t>(yLocal[i]);
+                    localValue += logP[i * nClasses + label];
+                }
+                values[iBlock] = localValue;
+            }
+            if (gradientNT)
+            {
+                algorithmFPType * const g = grads.get() + iBlock * nBeta;
+
+                for (size_t i = 0; i < nRowsToProcess; ++i)
+                {
+                    algorithmFPType * const fPtrInternal = fPtrLocal + i * nClasses;
+                    --(fPtrInternal[size_t(yLocal[i])]);
+                }
+
+                const char trans           = 'T';
+                const char notrans         = 'N';
+                const algorithmFPType one  = 1.0;
+                const algorithmFPType zero = 0.0;
+                DAAL_ASSERT(p <= services::internal::MaxVal<DAAL_INT>::get());
+                const DAAL_INT m = static_cast<algorithmFPType>(p);
+                DAAL_ASSERT(nClasses <= services::internal::MaxVal<DAAL_INT>::get());
+                const DAAL_INT n = static_cast<DAAL_INT>(nClasses);
+                DAAL_ASSERT(nRowsToProcess <= services::internal::MaxVal<DAAL_INT>::get());
+                const DAAL_INT k   = static_cast<DAAL_INT>(nRowsToProcess);
+                const DAAL_INT lda = m;
+                const DAAL_INT ldb = n;
+                DAAL_ASSERT((m + 1) <= services::internal::MaxVal<DAAL_INT>::get());
+                const DAAL_INT ldc = m + 1;
+
+                daal::internal::Blas<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &m, &n, &k, &one, xLocal, &lda, fPtrLocal, &ldb, &zero, g + 1,
+                                                                   &ldc);
+
+                if (interceptFlag)
+                {
+                    for (size_t indexClass = 0; indexClass < nClasses; ++indexClass)
+                    {
+                        g[indexClass * nBetaPerClass] = fixedSoftmaxSums[indexClass];
+                    }
+                }
+                else
+                {
+                    for (size_t indexClass = 0; indexClass < nClasses; ++indexClass)
+                    {
+                        g[indexClass * nBetaPerClass] = static_cast<algorithmFPType>(0.0);
+                    }
+                }
+
+                if (hessianNT)
+                {
+                    for (size_t i = 0; i < nRowsToProcess; ++i)
+                    {
+                        algorithmFPType * const fPtrInternal = fPtrLocal + i * nClasses;
+                        ++(fPtrInternal[size_t(yLocal[i])]);
+                    }
+                }
+            }
+        });
+
         if (valueNT)
         {
-            TArrayScalable<algorithmFPType, cpu> logP(f.size());
-            daal::internal::Math<algorithmFPType, cpu>::vLog(n * nClasses, f.get(), logP.get());
-
             WriteRows<algorithmFPType, cpu> vr(valueNT, 0, 1);
             DAAL_CHECK_BLOCK_STATUS(vr);
-            algorithmFPType & value    = *vr.get();
-            value                      = 0.0;
-            const algorithmFPType * lp = logP.get();
+            algorithmFPType & value = *vr.get();
+            value                   = 0;
 
-            for (size_t i = 0; i < n; ++i)
+            for (size_t i = 0; i < nDataBlocks; ++i)
             {
-                for (size_t j = 0; j < nClasses; ++j) value += (size_t(y[i]) == j) * lp[i * nClasses + j];
+                value += values[i];
             }
 
             value *= -div;
@@ -320,7 +455,10 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
             {
                 for (size_t i = 0; i < nClasses; i++)
                 {
-                    for (size_t j = 1; j < nBetaPerClass; j++) value += b[i * nBetaPerClass + j] * b[i * nBetaPerClass + j] * parameter->penaltyL2;
+                    for (size_t j = 1; j < nBetaPerClass; j++)
+                    {
+                        value += b[i * nBetaPerClass + j] * b[i * nBetaPerClass + j] * parameter->penaltyL2;
+                    }
                 }
             }
 
@@ -335,7 +473,9 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
                     for (size_t i = 0; i < nClasses; i++)
                     {
                         for (size_t j = 1; j < nBetaPerClass; j++)
+                        {
                             value += (b[i * nBetaPerClass + j] < 0 ? -b[i * nBetaPerClass + j] : b[i * nBetaPerClass + j]) * parameter->penaltyL1;
+                        }
                     }
                 }
             }
@@ -344,27 +484,19 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
         if (gradientNT)
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(applyGradient);
-
-            const algorithmFPType * pp = f.get();
-            DAAL_ASSERT(gradientNT->getNumberOfRows() == nBeta);
             WriteRows<algorithmFPType, cpu> gr(gradientNT, 0, nBeta);
             DAAL_CHECK_BLOCK_STATUS(gr);
-            algorithmFPType * g                   = gr.get();
-            const algorithmFPType interceptFactor = (parameter->interceptFlag ? 1 : 0);
-            if (n > 10 * daal::threader_get_threads_number())
+            algorithmFPType * const g              = gr.get();
+            const algorithmFPType * const gradsPtr = grads.get();
+
+            int result = services::internal::daal_memcpy_s(g, nBeta * sizeof(algorithmFPType), gradsPtr, nBeta * sizeof(algorithmFPType));
+            DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
+            for (size_t indexBlock = 1; indexBlock < nDataBlocks; ++indexBlock)
             {
-                TlsSum<algorithmFPType, cpu> tlsData(nBeta);
-                daal::threader_for(n, n, [&](size_t i) {
-                    addGradInPt<algorithmFPType, cpu>(tlsData.local(), x + i * p, pp + i * nClasses, size_t(y[i]), interceptFactor, nClasses,
-                                                      nBetaPerClass);
-                });
-                tlsData.reduceTo(g, nBeta);
-            }
-            else
-            {
-                for (size_t i = 0; i < nBeta; ++i) g[i] = 0;
-                for (size_t i = 0; i < n; ++i)
-                    addGradInPt<algorithmFPType, cpu>(g, x + i * p, pp + i * nClasses, size_t(y[i]), interceptFactor, nClasses, nBetaPerClass);
+                for (size_t i = 0; i < nBeta; ++i)
+                {
+                    g[i] += gradsPtr[indexBlock * nBeta + i];
+                }
             }
 
             for (size_t i = 0; i < nBeta; ++i) g[i] *= div;
@@ -373,10 +505,14 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
             {
                 for (size_t i = 0; i < nClasses; i++)
                 {
-                    for (size_t j = 1; j < nBetaPerClass; j++) g[i * nBetaPerClass + j] += 2 * b[i * nBetaPerClass + j] * parameter->penaltyL2;
+                    for (size_t j = 1; j < nBetaPerClass; j++)
+                    {
+                        g[i * nBetaPerClass + j] += 2 * b[i * nBetaPerClass + j] * parameter->penaltyL2;
+                    }
                 }
             }
         }
+
         if (hessianNT)
         {
             const algorithmFPType * pp = f.get();
@@ -414,6 +550,7 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
                 }
             }
         }
+        DAAL_CHECK_SAFE_STATUS()
     }
     return services::Status();
 }

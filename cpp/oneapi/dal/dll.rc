@@ -20,7 +20,7 @@
 #include "daal_version.h"
 
 #define FILE_COMMENT "Analytics algorithms optimized for IA.\0"
-#ifdef ONEDAL_DLL_RC_DATA_PARALLEL
+#ifndef ONEDAL_DLL_RC_DATA_PARALLEL
   #define ORIG_FILE_NAME "onedal.dll\0"
   #define INTERNAL_FILE_NAME "onedal\0"
 #else
