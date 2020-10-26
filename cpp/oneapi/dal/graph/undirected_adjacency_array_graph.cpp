@@ -40,7 +40,7 @@ template <typename VertexValue,
 undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::
     undirected_adjacency_array_graph(const undirected_adjacency_array_graph &graph)
         : undirected_adjacency_array_graph() {
-    const auto &layout = detail::get_impl(graph);
+    const auto &layout = detail::get_impl<undirected_adjacency_array_graph>(graph);
 
     impl_->_vertex_count = layout->_vertex_count;
     impl_->_edge_count = layout->_edge_count;
@@ -61,7 +61,7 @@ template <typename VertexValue,
 undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::
     undirected_adjacency_array_graph(undirected_adjacency_array_graph &&graph)
         : undirected_adjacency_array_graph() {
-    auto &layout = detail::get_impl(graph);
+    auto &layout = detail::get_impl<undirected_adjacency_array_graph>(graph);
 
     impl_->_vertex_count = layout->_vertex_count;
     layout->_vertex_count = 0;
@@ -86,7 +86,7 @@ undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, 
     &undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::
     operator=(const undirected_adjacency_array_graph &graph) {
     if (&graph != this) {
-        const auto &layout = detail::get_impl(graph);
+        const auto &layout = detail::get_impl<undirected_adjacency_array_graph>(graph);
 
         impl_->_vertex_count = layout->_vertex_count;
         impl_->_edge_count = layout->_edge_count;
@@ -110,7 +110,7 @@ undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, 
     &undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::
     operator=(undirected_adjacency_array_graph &&graph) {
     if (&graph != this) {
-        auto &layout = detail::get_impl(graph);
+        auto &layout = detail::get_impl<undirected_adjacency_array_graph>(graph);
 
         impl_->_vertex_count = layout->_vertex_count;
         layout->_vertex_count = 0;
@@ -135,10 +135,10 @@ template class ONEDAL_EXPORT undirected_adjacency_array_graph<empty_value,
                                                               std::allocator<char>>;
 
 template struct ONEDAL_EXPORT graph_traits<undirected_adjacency_array_graph<empty_value,
-                                                              empty_value,
-                                                              empty_value,
-                                                              std::int32_t,
-                                                              std::allocator<char>>>;                                                               
+                                                                            empty_value,
+                                                                            empty_value,
+                                                                            std::int32_t,
+                                                                            std::allocator<char>>>;
 
 using graph_default = undirected_adjacency_array_graph<empty_value,
                                                        empty_value,
@@ -148,14 +148,17 @@ using graph_default = undirected_adjacency_array_graph<empty_value,
 
 namespace detail {
 
-template ONEAPI_DAL_EXPORT oneapi::dal::detail::pimpl<typename oneapi::dal::preview::graph_traits<graph_default>::impl_type> &get_impl(graph_default &graph);
+template ONEDAL_EXPORT oneapi::dal::detail::pimpl<
+    typename oneapi::dal::preview::graph_traits<graph_default>::impl_type>
+    &get_impl(graph_default &graph);
 
-template ONEAPI_DAL_EXPORT const oneapi::dal::detail::pimpl<typename oneapi::dal::preview::graph_traits<graph_default>::impl_type> &get_impl(
-    const graph_default &graph);
+template ONEDAL_EXPORT const oneapi::dal::detail::pimpl<
+    typename oneapi::dal::preview::graph_traits<graph_default>::impl_type>
+    &get_impl(const graph_default &graph);
 
 template <typename Graph>
 ONEDAL_EXPORT auto get_vertex_count_impl(const Graph &graph) noexcept -> vertex_size_type<Graph> {
-    const auto &layout = detail::get_impl(graph);
+    const auto &layout = detail::get_impl<Graph>(graph);
     return layout->_vertex_count;
 }
 
@@ -164,7 +167,7 @@ template ONEDAL_EXPORT auto get_vertex_count_impl<graph_default>(
 
 template <typename Graph>
 ONEDAL_EXPORT auto get_edge_count_impl(const Graph &graph) noexcept -> edge_size_type<Graph> {
-    const auto &layout = detail::get_impl(graph);
+    const auto &layout = detail::get_impl<Graph>(graph);
     return layout->_edge_count;
 }
 
@@ -175,7 +178,7 @@ template <typename Graph>
 ONEDAL_EXPORT auto get_vertex_degree_impl(const Graph &graph,
                                           const vertex_type<Graph> &vertex) noexcept
     -> edge_size_type<Graph> {
-    const auto &layout = detail::get_impl(graph);
+    const auto &layout = detail::get_impl<Graph>(graph);
     return layout->_degrees[vertex];
 }
 
@@ -187,7 +190,7 @@ template <typename Graph>
 ONEDAL_EXPORT auto get_vertex_neighbors_impl(const Graph &graph,
                                              const vertex_type<Graph> &vertex) noexcept
     -> const_edge_range_type<Graph> {
-    const auto &layout = detail::get_impl(graph);
+    const auto &layout = detail::get_impl<Graph>(graph);
     const_edge_iterator_type<Graph> vertex_neighbors_begin =
         layout->_vertex_neighbors.begin() + layout->_edge_offsets[vertex];
     const_edge_iterator_type<Graph> vertex_neighbors_end =

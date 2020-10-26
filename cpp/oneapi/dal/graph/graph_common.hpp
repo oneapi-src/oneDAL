@@ -27,7 +27,7 @@
 namespace oneapi::dal::preview {
 
 template <typename Graph>
-struct graph_traits {
+struct ONEDAL_EXPORT graph_traits {
     using graph_type = Graph;
     using allocator_type = typename Graph::allocator_type;
 

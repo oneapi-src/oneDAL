@@ -25,18 +25,6 @@
 
 namespace oneapi::dal::preview {
 
-namespace detail {
-template <typename Graph>
-ONEAPI_DAL_EXPORT oneapi::dal::detail::pimpl<typename graph_traits<Graph>::impl_type>& get_impl(Graph& graph) {
-    return graph.impl_;
-}
-
-template <typename Graph>
-ONEAPI_DAL_EXPORT const oneapi::dal::detail::pimpl<typename graph_traits<Graph>::impl_type>& get_impl(const Graph& graph) {
-    return graph.impl_;
-}
-}
-
 /// Class for a data management component responsible for representation of data
 /// in the graph format. The class is designed to minimize storage requirements
 /// and offer good performance characteristics. The graph is stored in a 0-based
@@ -53,7 +41,7 @@ template <typename VertexValue = empty_value,
           typename GraphValue = empty_value,
           typename IndexType = std::int32_t,
           typename Allocator = std::allocator<char>>
-class ONEAPI_DAL_EXPORT undirected_adjacency_array_graph {
+class ONEDAL_EXPORT undirected_adjacency_array_graph {
 public:
     using graph_type =
         undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>;
@@ -89,27 +77,16 @@ public:
 
     /// Move operator for undirected_adjacency_array_graph
     undirected_adjacency_array_graph &operator=(undirected_adjacency_array_graph &&graph);
-    using pimpl =
-        oneapi::dal::detail::pimpl<typename graph_traits<graph_type>::impl_type>;
 
 private:
-    //using pimpl =
-       // oneapi::dal::detail::pimpl<typename graph_traits<graph_type>::impl_type>;
+    using pimpl = oneapi::dal::detail::pimpl<typename graph_traits<graph_type>::impl_type>;
 
     pimpl impl_;
 
-    friend pimpl &oneapi::dal::preview::detail::get_impl(
-        undirected_adjacency_array_graph &graph);
+    friend pimpl &oneapi::dal::preview::detail::get_impl(undirected_adjacency_array_graph &graph);
 
     friend const pimpl &oneapi::dal::preview::detail::get_impl(
         const undirected_adjacency_array_graph &graph);
- /*
-    friend oneapi::dal::detail::pimpl<typename graph_traits<undirected_adjacency_array_graph>::impl_type> &oneapi::dal::preview::detail::get_impl(
-        undirected_adjacency_array_graph &graph);
-
-    friend const oneapi::dal::detail::pimpl<typename graph_traits<undirected_adjacency_array_graph>::impl_type> &oneapi::dal::preview::detail::get_impl(
-        const undirected_adjacency_array_graph &graph);
-        */
 };
 
 template <typename VertexValue,
@@ -117,15 +94,15 @@ template <typename VertexValue,
           typename GraphValue,
           typename IndexType,
           typename Allocator>
-struct graph_traits<
+struct ONEDAL_EXPORT graph_traits<
     undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>> {
     using graph_type =
         undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>;
     using impl_type = detail::undirected_adjacency_array_graph_impl<VertexValue,
-                                                                          EdgeValue,
-                                                                          GraphValue,
-                                                                          IndexType,
-                                                                          Allocator>;
+                                                                    EdgeValue,
+                                                                    GraphValue,
+                                                                    IndexType,
+                                                                    Allocator>;
     using allocator_type = Allocator;
 
     // graph weight types
@@ -147,8 +124,7 @@ struct graph_traits<
     // vertex weight types
     using vertex_user_value_type = VertexValue;
     using const_vertex_user_value_type = const vertex_user_value_type;
-    using vertex_user_value_allocator_type =
-        typename impl_type::vertex_user_value_allocator_type;
+    using vertex_user_value_allocator_type = typename impl_type::vertex_user_value_allocator_type;
     using vertex_user_value_set = typename impl_type::vertex_user_value_set;
 
     // edge types

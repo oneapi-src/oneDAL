@@ -19,17 +19,28 @@
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/graph/detail/graph_container.hpp"
-//#include "oneapi/dal/graph/graph_common.hpp"
+#include "oneapi/dal/graph/graph_common.hpp"
 
 namespace oneapi::dal::preview::detail {
 
+template <typename Graph>
+ONEDAL_EXPORT oneapi::dal::detail::pimpl<typename graph_traits<Graph>::impl_type>& get_impl(
+    Graph& graph) {
+    return graph.impl_;
+}
+
+template <typename Graph>
+ONEDAL_EXPORT const oneapi::dal::detail::pimpl<typename graph_traits<Graph>::impl_type>& get_impl(
+    const Graph& graph) {
+    return graph.impl_;
+}
 
 template <typename VertexValue = empty_value,
           typename EdgeValue = empty_value,
           typename GraphValue = empty_value,
           typename IndexType = std::int32_t,
           typename Allocator = std::allocator<char>>
-class ONEAPI_DAL_EXPORT undirected_adjacency_array_graph_impl {
+class ONEDAL_EXPORT undirected_adjacency_array_graph_impl {
 public:
     using allocator_type = Allocator;
 
