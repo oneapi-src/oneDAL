@@ -85,11 +85,11 @@ services::Status KernelHelperOneAPI<algorithmFPType>::copyBetaToResult(const ser
     DAAL_ASSERT(betaRes.size() >= nResponses * nBetas);
 
     KernelArguments args(5, status);
-    args.set(0, /*const __global algorithmFPType * src =*/betaTmp, AccessModeIds::read);
-    args.set(1, /*uint nCols =*/static_cast<uint32_t>(nBetas));
-    args.set(2, /*uint nColsSrcs =*/static_cast<uint32_t>(nBetasIntercept));
-    args.set(3, /*__global algorithmFPType * dst =*/betaRes, AccessModeIds::write);
-    args.set(4, /*uint intercept =*/static_cast<uint32_t>(intercept));
+    args.set(0, betaTmp, AccessModeIds::read);
+    args.set(1, static_cast<uint32_t>(nBetas));
+    args.set(2, static_cast<uint32_t>(nBetasIntercept));
+    args.set(3, betaRes, AccessModeIds::write);
+    args.set(4, static_cast<uint32_t>(intercept));
 
     KernelRange range(nResponses, nBetas);
 
