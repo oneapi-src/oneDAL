@@ -72,7 +72,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::addBetaInte
 
     KernelArguments args(4, status);
     DAAL_CHECK_STATUS_VAR(status);
-    
+
     args.set(0, betaTable, AccessModeIds::read);
     args.set(1, static_cast<uint32_t>(nBetas));
     args.set(2, yTable, AccessModeIds::write);
