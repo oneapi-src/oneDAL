@@ -60,9 +60,9 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     {
         data_management::NumericTablePtr nt;
         if (deviceInfo.isCpu)
-            nt = HomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTableIface::doAllocate, 0, &st);
+            nt = HomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTableIface::doAllocate, &st);
         else
-            nt = internal::SyclHomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTableIface::doAllocate, 0, &st);
+            nt = internal::SyclHomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTableIface::doAllocate, &st);
 
         set(prediction, nt);
     }
@@ -70,9 +70,9 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     {
         data_management::NumericTablePtr nt;
         if (deviceInfo.isCpu)
-            nt = HomogenNumericTable<algorithmFPType>::create(nClasses, nRows, NumericTableIface::doAllocate, 0, &st);
+            nt = HomogenNumericTable<algorithmFPType>::create(nClasses, nRows, NumericTableIface::doAllocate, &st);
         else
-            nt = internal::SyclHomogenNumericTable<algorithmFPType>::create(nClasses, nRows, NumericTableIface::doAllocate, 0, &st);
+            nt = internal::SyclHomogenNumericTable<algorithmFPType>::create(nClasses, nRows, NumericTableIface::doAllocate, &st);
 
         set(probabilities, nt);
     }
@@ -80,9 +80,9 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     {
         data_management::NumericTablePtr nt;
         if (deviceInfo.isCpu)
-            nt = HomogenNumericTable<algorithmFPType>::create(nClasses, nRows, NumericTableIface::doAllocate, 0, &st);
+            nt = HomogenNumericTable<algorithmFPType>::create(nClasses, nRows, NumericTableIface::doAllocate, &st);
         else
-            nt = internal::SyclHomogenNumericTable<algorithmFPType>::create(nClasses, nRows, NumericTableIface::doAllocate, 0, &st);
+            nt = internal::SyclHomogenNumericTable<algorithmFPType>::create(nClasses, nRows, NumericTableIface::doAllocate, &st);
 
         set(logProbabilities, nt);
     }
