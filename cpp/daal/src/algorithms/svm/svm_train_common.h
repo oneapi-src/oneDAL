@@ -184,9 +184,7 @@ private:
         const size_t nRows                    = xTable->getNumberOfRows();
         CSRNumericTableIface * const csrIface = dynamic_cast<CSRNumericTableIface * const>(const_cast<NumericTable *>(xTable.get()));
         if (!csrIface) return;
-        ReadRowsCSR<algorithmFPType, cpu> mtX(csrIface, 0, nRows);
-        const size_t * const rowOffsets = mtX.rows();
-        const size_t maxDataSize        = rowOffsets[nRows] - rowOffsets[0];
+        const size_t maxDataSize = csrIface->getDataSize();
         this->_data.reset(maxDataSize);
         _colIndices.reset(maxDataSize + nMaxSubsetVectors + 1);
         _rowOffsets = _colIndices.get() + maxDataSize;
