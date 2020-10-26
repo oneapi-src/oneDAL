@@ -23,6 +23,7 @@
 
 namespace oneapi::dal::preview::detail {
 
+
 template <typename VertexValue = empty_value,
           typename EdgeValue = empty_value,
           typename GraphValue = empty_value,
