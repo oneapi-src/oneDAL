@@ -164,6 +164,7 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::solveSystem(const size_t
     const math::UpLo uplo = math::UpLo::Upper;
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, ny, p);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, p, p);
     DAAL_ASSERT(a.size() >= p * p);
     DAAL_ASSERT(b.size() >= p * ny);
 
