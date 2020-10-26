@@ -33,7 +33,6 @@
 #include "src/algorithms/covariance/oneapi/cl_kernels/covariance_kernels.cl"
 #include "src/externals/service_ittnotify.h"
 #include "src/services/service_data_utils.h"
-#include "include/services/internal/sycl/daal_defines_sycl.h"
 
 using namespace daal::services::internal;
 using namespace daal::services::internal::sycl;
@@ -236,7 +235,8 @@ services::Status mergeCrossProduct(uint32_t nFeatures, const services::internal:
         const algorithmFPType invNObs        = (algorithmFPType)(1.0) / nObservations;
         const algorithmFPType invNewNObs     = (algorithmFPType)(1.0) / (nObservations + partialNObservations);
 
-        KernelArguments args(8);
+        KernelArguments args(8, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, nFeatures);
         args.set(1, partialCrossProduct, AccessModeIds::read);
         args.set(2, partialSums, AccessModeIds::read);
@@ -297,7 +297,8 @@ services::Status prepareMeansAndCrossProductDiag(uint32_t nFeatures, algorithmFP
         DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(sums), algorithmFPType, nFeatures);
         DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(means), algorithmFPType, nFeatures);
 
-        KernelArguments args(6);
+        KernelArguments args(6, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, nFeatures);
         args.set(1, nObservations);
         args.set(2, crossProduct, AccessModeIds::read);
@@ -338,7 +339,8 @@ services::Status finalize(uint32_t nFeatures, algorithmFPType nObservations, con
 
         uint32_t isOutputCorrelationMatrix = static_cast<uint32_t>(parameter->outputMatrixType == covariance::correlationMatrix);
 
-        KernelArguments args(6);
+        KernelArguments args(6, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, nFeatures);
         args.set(1, nObservations);
         args.set(2, crossProduct, AccessModeIds::read);

@@ -84,13 +84,13 @@ void singlePassBlockProcessor(__global const algorithmFPType * vectors, const ui
                               const uint rowPartIndex, const uint rowParts, const uint colPartIndex, const uint colParts, const uint tid,
                               const uint tnum)
 {
-    const int colOffset = colPartIndex * tnum;
-    const int x         = tid + colOffset;
+    const uint colOffset = colPartIndex * tnum;
+    const uint x         = tid + colOffset;
 
     if (x < nVectors)
     {
-        int rowPartSize     = (vectorSize + rowParts - 1) / rowParts;
-        const int rowOffset = rowPartSize * rowPartIndex;
+        uint rowPartSize     = (vectorSize + rowParts - 1) / rowParts;
+        const uint rowOffset = rowPartSize * rowPartIndex;
 
         if (rowPartSize + rowOffset > vectorSize)
         {
@@ -168,7 +168,7 @@ void singlePassBlockProcessor(__global const algorithmFPType * vectors, const ui
 
         for (int row = 0; row < rowPartSize; row++)
         {
-            const int y              = (row + rowOffset) * nVectors;
+            const uint y             = (row + rowOffset) * nVectors;
             const algorithmFPType el = vectors[y + x];
 #if (defined _RSUM2C_) || (defined _RVARC_) || (defined _RSTDEV_) || (defined _RVART_)
     #if (defined _ONLINE_)
@@ -293,16 +293,16 @@ __kernel void singlePass(__global const algorithmFPType * vectors, const uint nV
 #endif
 )
 {
-    const int tid  = get_local_id(0);
-    const int tnum = get_local_size(0);
-    const int gid  = get_group_id(0);
-    const int gnum = get_num_groups(0);
+    const uint tid  = get_local_id(0);
+    const uint tnum = get_local_size(0);
+    const uint gid  = get_group_id(0);
+    const uint gnum = get_num_groups(0);
 
-    const int colParts = (nVectors + tnum - 1) / tnum;
-    const int rowParts = gnum / colParts;
+    const uint colParts = (nVectors + tnum - 1) / tnum;
+    const uint rowParts = gnum / colParts;
 
-    const int rowPartIndex = gid / colParts;
-    const int colPartIndex = gid - rowPartIndex * colParts;
+    const uint rowPartIndex = gid / colParts;
+    const uint colPartIndex = gid - rowPartIndex * colParts;
 
     singlePassBlockProcessor(vectors, nVectors, vectorSize
 #if (defined _ONLINE_)
@@ -386,13 +386,13 @@ void blockProcessor(__global const algorithmFPType * vectors, const uint nVector
                     ,
                     const uint rowPartIndex, const uint rowParts, const uint colPartIndex, const uint colParts, const uint tid, const uint tnum)
 {
-    const int colOffset = colPartIndex * tnum;
-    const int x         = tid + colOffset;
+    const uint colOffset = colPartIndex * tnum;
+    const uint x         = tid + colOffset;
 
     if (x < nVectors)
     {
-        int rowPartSize     = (vectorSize + rowParts - 1) / rowParts;
-        const int rowOffset = rowPartSize * rowPartIndex;
+        uint rowPartSize     = (vectorSize + rowParts - 1) / rowParts;
+        const uint rowOffset = rowPartSize * rowPartIndex;
 
         if (rowPartSize + rowOffset > vectorSize)
         {
@@ -418,7 +418,7 @@ void blockProcessor(__global const algorithmFPType * vectors, const uint nVector
 
         for (int row = 0; row < rowPartSize; row++)
         {
-            const int y              = (row + rowOffset) * nVectors;
+            const uint y             = (row + rowOffset) * nVectors;
             const algorithmFPType el = vectors[y + x];
 #if (defined _RSUM2C_) || (defined _RVARC_) || (defined _RSTDEV_) || (defined _RVART_)
             algorithmFPType invN  = ((algorithmFPType)1) / (algorithmFPType)(row + 1);
@@ -491,16 +491,16 @@ __kernel void processBlocks(__global const algorithmFPType * vectors, const uint
 #endif
 )
 {
-    const int tid  = get_local_id(0);
-    const int tnum = get_local_size(0);
-    const int gid  = get_group_id(0);
-    const int gnum = get_num_groups(0);
+    const uint tid  = get_local_id(0);
+    const uint tnum = get_local_size(0);
+    const uint gid  = get_group_id(0);
+    const uint gnum = get_num_groups(0);
 
-    const int colParts = (nVectors + tnum - 1) / tnum;
-    const int rowParts = gnum / colParts;
+    const uint colParts = (nVectors + tnum - 1) / tnum;
+    const uint rowParts = gnum / colParts;
 
-    const int rowPartIndex = gid / colParts;
-    const int colPartIndex = gid - rowPartIndex * colParts;
+    const uint rowPartIndex = gid / colParts;
+    const uint colPartIndex = gid - rowPartIndex * colParts;
 
     blockProcessor(vectors, nVectors, vectorSize
 #if (defined _RSUM2C_) || (defined _RVARC_) || (defined _RSTDEV_) || (defined _RVART_)

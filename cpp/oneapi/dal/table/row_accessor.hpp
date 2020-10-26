@@ -44,7 +44,7 @@ public:
                           detail::host_allocator<data_t>{});
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     array<data_t> pull(sycl::queue& queue,
                        const range& rows = { 0, -1 },
                        const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
@@ -61,7 +61,7 @@ public:
                           detail::host_allocator<data_t>{});
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     T* pull(sycl::queue& queue,
             array<data_t>& block,
             const range& rows = { 0, -1 },
@@ -79,7 +79,7 @@ public:
         base::push(detail::default_host_policy{}, block, { rows });
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename Q = T>
     std::enable_if_t<sizeof(Q) && !is_readonly> push(sycl::queue& queue,
                                                      const array<data_t>& block,

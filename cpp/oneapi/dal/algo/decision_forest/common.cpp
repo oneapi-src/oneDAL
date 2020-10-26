@@ -273,8 +273,8 @@ void descriptor_base<Task>::set_voting_mode_impl(voting_mode value) {
     impl_->voting_mode_value = value;
 }
 
-template class ONEAPI_DAL_EXPORT descriptor_base<task::classification>;
-template class ONEAPI_DAL_EXPORT descriptor_base<task::regression>;
+template class ONEDAL_EXPORT descriptor_base<task::classification>;
+template class ONEDAL_EXPORT descriptor_base<task::regression>;
 
 /* model implementation */
 template <typename Task>
@@ -295,6 +295,6 @@ void model<Task>::clear() {
     impl_->clear();
 }
 
-template class ONEAPI_DAL_EXPORT model<task::classification>;
-template class ONEAPI_DAL_EXPORT model<task::regression>;
+template class ONEDAL_EXPORT model<task::classification>;
+template class ONEDAL_EXPORT model<task::regression>;
 } // namespace oneapi::dal::decision_forest

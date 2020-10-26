@@ -27,6 +27,8 @@
 #include "src/algorithms/logistic_regression/logistic_regression_model_impl.h"
 #include "src/algorithms/logistic_regression/oneapi/cl_kernel/logistic_regression_dense_default.cl"
 
+#include "src/services/service_data_utils.h"
+
 namespace daal
 {
 namespace algorithms
@@ -46,6 +48,9 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::heaviside(co
 {
     services::Status status;
 
+    DAAL_CHECK(x.size() == n, services::ErrorIncorrectParameter);
+    DAAL_CHECK(result.size() == n, services::ErrorIncorrectParameter);
+
     ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
@@ -59,7 +64,8 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::heaviside(co
     KernelPtr kernel              = factory.getKernel(kernelName, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(2);
+    KernelArguments args(2, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, x, AccessModeIds::read);
     args.set(1, result, AccessModeIds::write);
 
@@ -78,6 +84,9 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::argMax(const
 {
     services::Status status;
 
+    DAAL_CHECK(x.size() == n * p, services::ErrorIncorrectParameter); // overflow checked in compute()
+    DAAL_CHECK(result.size() == n, services::ErrorIncorrectParameter);
+
     ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
@@ -91,7 +100,8 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::argMax(const
     KernelPtr kernel              = factory.getKernel(kernelName, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(3);
+    KernelArguments args(3, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, x, AccessModeIds::read);
     args.set(1, result, AccessModeIds::write);
     args.set(2, p);
@@ -108,6 +118,8 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::compute(serv
                                                                             const logistic_regression::Model * m, size_t nClasses,
                                                                             NumericTable * pRes, NumericTable * pProb, NumericTable * pLogProb)
 {
+    constexpr size_t maxInt32Value = static_cast<size_t>(daal::services::internal::MaxVal<int32_t>::get());
+
     services::Status status;
 
     auto & ctx = services::internal::getDefaultContext();
@@ -117,6 +129,12 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::compute(serv
 
     const size_t n = x->getNumberOfRows();
     const size_t p = x->getNumberOfColumns();
+
+    DAAL_CHECK(n <= maxInt32Value, services::ErrorIncorrectNumberOfRows);
+    DAAL_CHECK(p <= maxInt32Value, services::ErrorIncorrectNumberOfColumns);
+    DAAL_CHECK(nClasses <= maxInt32Value, services::ErrorIncorrectNumberOfClasses);
+    DAAL_OVERFLOW_CHECK_BY_ADDING(uint32_t, p, 1);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, n, (p + 1));
 
     const bool isBinary = nClasses == 2;
 
@@ -128,15 +146,15 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::compute(serv
     const services::internal::Buffer<algorithmFPType> xBuff = xBlock.getBuffer();
 
     // Beta
-    DAAL_ASSERT(beta->getNumberOfRows() == nClasses);
+    DAAL_ASSERT(beta->getNumberOfRows() == (nClasses == 2) ? 1 : nClasses);
     DAAL_ASSERT(beta->getNumberOfColumns() == p + 1);
 
     BlockDescriptor<algorithmFPType> betaBlock;
-    DAAL_CHECK_STATUS(status, beta->getBlockOfRows(0, p, ReadWriteMode::readOnly, betaBlock));
+    DAAL_CHECK_STATUS(status, beta->getBlockOfRows(0, beta->getNumberOfRows(), ReadWriteMode::readOnly, betaBlock));
     const services::internal::Buffer<algorithmFPType> betaBuff = betaBlock.getBuffer();
 
     //compute
-    DAAL_CHECK_STATUS(status, HelperObjectiveFunction::lazyAllocate(_fUniversal, n * p));
+    DAAL_CHECK_STATUS(status, HelperObjectiveFunction::lazyAllocate(_fUniversal, n * beta->getNumberOfRows()));
     services::internal::Buffer<algorithmFPType> fBuf = _fUniversal.get<algorithmFPType>();
 
     const uint32_t offset = uint32_t(1);
@@ -181,6 +199,8 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::compute(serv
 
         if (pLogProb)
         {
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, n, nClasses);
+
             if (pProb)
             {
                 DAAL_ASSERT(pLogProb->getNumberOfRows() == n);
@@ -208,7 +228,7 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::compute(serv
         DAAL_ASSERT(pRes->getNumberOfColumns() == 1);
 
         BlockDescriptor<algorithmFPType> yBlock;
-        DAAL_CHECK_STATUS(status, pRes->getBlockOfRows(0, n, ReadWriteMode::readWrite, yBlock));
+        DAAL_CHECK_STATUS(status, pRes->getBlockOfRows(0, n, ReadWriteMode::writeOnly, yBlock));
         services::internal::Buffer<algorithmFPType> yBuff = yBlock.getBuffer();
 
         if (isBinary)

@@ -17,7 +17,7 @@
 #pragma once
 
 #include <type_traits>
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 #include <CL/sycl.hpp>
 #endif
 
@@ -38,9 +38,9 @@ enum class cpu_extension : uint64_t {
     avx512 = 1U << 5
 };
 
-class ONEAPI_DAL_EXPORT default_host_policy {};
+class ONEDAL_EXPORT default_host_policy {};
 
-class ONEAPI_DAL_EXPORT host_policy : public base {
+class ONEDAL_EXPORT host_policy : public base {
 public:
     host_policy();
 
@@ -57,9 +57,9 @@ private:
     pimpl<detail::host_policy_impl> impl_;
 };
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 // to detail
-class ONEAPI_DAL_EXPORT data_parallel_policy : public base {
+class ONEDAL_EXPORT data_parallel_policy : public base {
 public:
     data_parallel_policy(const sycl::queue& queue) : queue_(queue) {
         init_impl(queue);
@@ -84,7 +84,7 @@ struct is_execution_policy : std::bool_constant<false> {};
 template <>
 struct is_execution_policy<host_policy> : std::bool_constant<true> {};
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 template <>
 struct is_execution_policy<data_parallel_policy> : std::bool_constant<true> {};
 #endif

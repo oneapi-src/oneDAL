@@ -43,6 +43,6 @@ void descriptor_base<Task>::set_cluster_count_impl(std::int64_t value) {
     impl_->cluster_count = value;
 }
 
-template class ONEAPI_DAL_EXPORT descriptor_base<task::init>;
+template class ONEDAL_EXPORT descriptor_base<task::init>;
 
 } // namespace oneapi::dal::kmeans_init

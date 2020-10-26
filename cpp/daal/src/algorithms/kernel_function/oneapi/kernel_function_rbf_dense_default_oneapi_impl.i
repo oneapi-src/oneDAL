@@ -94,7 +94,8 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeRBF(
 
     const algorithmFPType threshold = math::expThreshold<algorithmFPType>();
 
-    KernelArguments args(6);
+    KernelArguments args(6, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, sqrMatLeft, AccessModeIds::read);
     args.set(1, sqrMatRight, AccessModeIds::read);
     args.set(2, ld);

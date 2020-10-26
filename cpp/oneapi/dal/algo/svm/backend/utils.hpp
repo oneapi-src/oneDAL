@@ -68,7 +68,7 @@ static array<Float> convert_labels(const array<Float>& arr_label,
     return new_label_arr;
 }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 
 template <typename Float>
 static array<Float> convert_labels(const sycl::queue& queue,

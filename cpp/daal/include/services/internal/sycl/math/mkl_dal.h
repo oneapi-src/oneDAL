@@ -1,6 +1,6 @@
-/* file: daal_level_zero_common.h */
+/* file: mkl_dal.h */
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,23 +15,22 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef _DAAL_LEVEL_ZERO_COMMON
+#ifndef __DAAL_SERVICES_INTERNAL_SYCL_MATH_MKL_DAL_H__
+#define __DAAL_SERVICES_INTERNAL_SYCL_MATH_MKL_DAL_H__
 
-    #if !(defined(__linux__) || defined(_WIN64))
-        #define DAAL_DISABLE_LEVEL_ZERO
-    #endif
+#ifdef __clang__
+    #define DISABLE_MKL_DAL_SYCL_WARNINGS_BEGIN() _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wreorder-ctor\"")
+    #define DISABLE_MKL_DAL_SYCL_WARNINGS_END()   _Pragma("clang diagnostic pop")
+#else
+    #define DISABLE_MKL_DAL_SYCL_WARNINGS_BEGIN()
+    #define DISABLE_MKL_DAL_SYCL_WARNINGS_END()
+#endif
 
-    #ifndef DAAL_DISABLE_LEVEL_ZERO
+DISABLE_MKL_DAL_SYCL_WARNINGS_BEGIN()
+#include "mkl_dal_sycl.hpp"
+DISABLE_MKL_DAL_SYCL_WARNINGS_END()
 
-        #ifndef _ZE_API_H
-            #include "services/internal/sycl/daal_level_zero_types.h"
-        #endif
+#undef DISABLE_MKL_DAL_SYCL_WARNINGS_BEGIN
+#undef DISABLE_MKL_DAL_SYCL_WARNINGS_END
 
-typedef ze_result_t (*zeModuleCreateFT)(ze_context_handle_t, ze_device_handle_t, const ze_module_desc_t *, ze_module_handle_t *,
-                                        ze_module_build_log_handle_t *);
-
-typedef ze_result_t (*zeModuleDestroyFT)(ze_module_handle_t hModule);
-
-    #endif // DAAL_DISABLE_LEVEL_ZERO
-
-#endif // _DAAL_LEVEL_ZERO_COMMON
+#endif
