@@ -25,6 +25,18 @@
 
 namespace oneapi::dal::preview {
 
+namespace detail {
+template <typename Graph>
+ONEAPI_DAL_EXPORT oneapi::dal::detail::pimpl<typename graph_traits<Graph>::impl_type>& get_impl(Graph& graph) {
+    return graph.impl_;
+}
+
+template <typename Graph>
+ONEAPI_DAL_EXPORT const oneapi::dal::detail::pimpl<typename graph_traits<Graph>::impl_type>& get_impl(const Graph& graph) {
+    return graph.impl_;
+}
+}
+
 /// Class for a data management component responsible for representation of data
 /// in the graph format. The class is designed to minimize storage requirements
 /// and offer good performance characteristics. The graph is stored in a 0-based
