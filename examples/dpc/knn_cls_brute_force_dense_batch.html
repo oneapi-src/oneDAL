@@ -13,6 +13,10 @@
   
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinx_tabs/semantic-ui-2.4.1/segment.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinx_tabs/semantic-ui-2.4.1/menu.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinx_tabs/semantic-ui-2.4.1/tab.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinx_tabs/tabs.css" type="text/css" />
 
   
   
@@ -722,6 +726,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#output">Output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#id4">Examples</a></li>
 </ul>
 </li>
@@ -805,7 +810,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../cpp/knn_cls_kd_tree_dense_batch.html">knn_cls_kd_tree_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../cpp/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../cpp/load_graph.html">load_graph.cpp</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../cpp/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cpp/pca_dense_batch.html">pca_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../cpp/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../cpp/svm_two_class_smo_dense_batch.html">svm_two_class_smo_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../cpp/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
@@ -1031,7 +1036,7 @@
 <span class="cm">* limitations under the License.</span>
 <span class="cm">*******************************************************************************/</span>
 
-<span class="cp">#define ONEAPI_DAL_DATA_PARALLEL</span>
+<span class="cp">#define ONEDAL_DATA_PARALLEL</span>
 <span class="cp">#include</span> <span class="cpf">&quot;oneapi/dal/algo/knn.hpp&quot;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&quot;oneapi/dal/io/csv.hpp&quot;</span><span class="cp"></span>
 
@@ -1050,9 +1055,7 @@
     <span class="k">const</span> <span class="k">auto</span> <span class="n">y_train</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">read</span><span class="o">&lt;</span><span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="o">&gt;</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">dal</span><span class="o">::</span><span class="n">csv</span><span class="o">::</span><span class="n">data_source</span><span class="p">{</span><span class="n">train_label_file_name</span><span class="p">});</span>
 
     <span class="k">const</span> <span class="k">auto</span> <span class="n">knn_desc</span> <span class="o">=</span>
-        <span class="n">dal</span><span class="o">::</span><span class="n">knn</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;</span><span class="kt">float</span><span class="p">,</span> <span class="n">oneapi</span><span class="o">::</span><span class="n">dal</span><span class="o">::</span><span class="n">knn</span><span class="o">::</span><span class="n">method</span><span class="o">::</span><span class="n">brute_force</span><span class="o">&gt;</span><span class="p">()</span>
-            <span class="p">.</span><span class="n">set_class_count</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-            <span class="p">.</span><span class="n">set_neighbor_count</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+        <span class="n">dal</span><span class="o">::</span><span class="n">knn</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;</span><span class="kt">float</span><span class="p">,</span> <span class="n">oneapi</span><span class="o">::</span><span class="n">dal</span><span class="o">::</span><span class="n">knn</span><span class="o">::</span><span class="n">method</span><span class="o">::</span><span class="n">brute_force</span><span class="p">,</span> <span class="n">oneapi</span><span class="o">::</span><span class="n">dal</span><span class="o">::</span><span class="n">knn</span><span class="o">::</span><span class="n">task</span><span class="o">::</span><span class="n">classification</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
 
     <span class="k">const</span> <span class="k">auto</span> <span class="n">x_test</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">read</span><span class="o">&lt;</span><span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="o">&gt;</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">dal</span><span class="o">::</span><span class="n">csv</span><span class="o">::</span><span class="n">data_source</span><span class="p">{</span><span class="n">test_data_file_name</span><span class="p">});</span>
     <span class="k">const</span> <span class="k">auto</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">read</span><span class="o">&lt;</span><span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="o">&gt;</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">dal</span><span class="o">::</span><span class="n">csv</span><span class="o">::</span><span class="n">data_source</span><span class="p">{</span><span class="n">test_label_file_name</span><span class="p">});</span>
@@ -1067,7 +1070,7 @@
                 <span class="o">&lt;&lt;</span> <span class="n">test_result</span><span class="p">.</span><span class="n">get_labels</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
         <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;True labels:&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span> <span class="o">&lt;&lt;</span> <span class="n">y_test</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
     <span class="p">}</span>
-    <span class="k">catch</span><span class="p">(</span><span class="n">oneapi</span><span class="o">::</span><span class="n">dal</span><span class="o">::</span><span class="n">unimplemented_error</span><span class="o">&amp;</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">catch</span><span class="p">(</span><span class="n">oneapi</span><span class="o">::</span><span class="n">dal</span><span class="o">::</span><span class="n">unimplemented</span><span class="o">&amp;</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
         <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;  &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
         <span class="k">return</span><span class="p">;</span>
     <span class="p">}</span>

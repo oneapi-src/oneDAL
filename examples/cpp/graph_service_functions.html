@@ -13,6 +13,10 @@
   
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinx_tabs/semantic-ui-2.4.1/segment.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinx_tabs/semantic-ui-2.4.1/menu.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinx_tabs/semantic-ui-2.4.1/tab.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinx_tabs/tabs.css" type="text/css" />
 
   
   
@@ -722,6 +726,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#output">Output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#id4">Examples</a></li>
 </ul>
 </li>
@@ -805,7 +810,7 @@
 <li class="toctree-l3"><a class="reference internal" href="knn_cls_kd_tree_dense_batch.html">knn_cls_kd_tree_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="load_graph.html">load_graph.cpp</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pca_dense_batch.html">pca_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="svm_two_class_smo_dense_batch.html">svm_two_class_smo_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
@@ -1040,24 +1045,24 @@
 <span class="cp">#include</span> <span class="cpf">&quot;oneapi/dal/io/load_graph.hpp&quot;</span><span class="cp"></span>
 
 <span class="k">using</span> <span class="k">namespace</span> <span class="n">oneapi</span><span class="o">::</span><span class="n">dal</span><span class="p">;</span>
-<span class="k">using</span> <span class="k">namespace</span> <span class="n">oneapi</span><span class="o">::</span><span class="n">dal</span><span class="o">::</span><span class="n">preview</span><span class="p">;</span>
 
 <span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">get_data_path</span><span class="p">(</span><span class="s">&quot;graph.csv&quot;</span><span class="p">);</span>
 
-    <span class="n">graph_csv_data_source</span> <span class="n">ds</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span>
-    <span class="n">load_graph</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;&gt;</span> <span class="n">d</span><span class="p">;</span>
-    <span class="k">auto</span> <span class="n">my_graph</span> <span class="o">=</span> <span class="n">load_graph</span><span class="o">::</span><span class="n">load</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">ds</span><span class="p">);</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Number of vertices: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">get_vertex_count</span><span class="p">(</span><span class="n">my_graph</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Number of edges: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">get_edge_count</span><span class="p">(</span><span class="n">my_graph</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="k">const</span> <span class="n">preview</span><span class="o">::</span><span class="n">graph_csv_data_source</span> <span class="n">ds</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span>
+    <span class="k">using</span> <span class="n">my_graph_type</span> <span class="o">=</span> <span class="n">preview</span><span class="o">::</span><span class="n">undirected_adjacency_array_graph</span><span class="o">&lt;&gt;</span><span class="p">;</span>
+    <span class="k">const</span> <span class="n">preview</span><span class="o">::</span><span class="n">load_graph</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;</span><span class="n">preview</span><span class="o">::</span><span class="n">edge_list</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">my_graph_type</span><span class="o">&gt;</span> <span class="n">desc</span><span class="p">;</span>
+    <span class="k">const</span> <span class="k">auto</span> <span class="n">my_graph</span> <span class="o">=</span> <span class="n">preview</span><span class="o">::</span><span class="n">load_graph</span><span class="o">::</span><span class="n">load</span><span class="p">(</span><span class="n">desc</span><span class="p">,</span> <span class="n">ds</span><span class="p">);</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Number of vertices: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">preview</span><span class="o">::</span><span class="n">get_vertex_count</span><span class="p">(</span><span class="n">my_graph</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Number of edges: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">preview</span><span class="o">::</span><span class="n">get_edge_count</span><span class="p">(</span><span class="n">my_graph</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
 
-    <span class="k">auto</span> <span class="n">node_id</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Degree of &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">node_id</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">get_vertex_degree</span><span class="p">(</span><span class="n">my_graph</span><span class="p">,</span> <span class="n">node_id</span><span class="p">)</span>
+    <span class="n">preview</span><span class="o">::</span><span class="n">vertex_type</span><span class="o">&lt;</span><span class="n">my_graph_type</span><span class="o">&gt;</span> <span class="n">vertex_id</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Degree of &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">vertex_id</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">preview</span><span class="o">::</span><span class="n">get_vertex_degree</span><span class="p">(</span><span class="n">my_graph</span><span class="p">,</span> <span class="n">vertex_id</span><span class="p">)</span>
               <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
 
-    <span class="k">for</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">get_vertex_count</span><span class="p">(</span><span class="n">my_graph</span><span class="p">);</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">preview</span><span class="o">::</span><span class="n">vertex_size_type</span><span class="o">&lt;</span><span class="n">my_graph_type</span><span class="o">&gt;</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">preview</span><span class="o">::</span><span class="n">get_vertex_count</span><span class="p">(</span><span class="n">my_graph</span><span class="p">);</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span> <span class="p">{</span>
         <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Neighbors of &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">j</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;: &quot;</span><span class="p">;</span>
-        <span class="k">auto</span> <span class="n">neigh</span> <span class="o">=</span> <span class="n">get_vertex_neighbors</span><span class="p">(</span><span class="n">my_graph</span><span class="p">,</span> <span class="n">j</span><span class="p">);</span>
+        <span class="k">const</span> <span class="k">auto</span> <span class="n">neigh</span> <span class="o">=</span> <span class="n">preview</span><span class="o">::</span><span class="n">get_vertex_neighbors</span><span class="p">(</span><span class="n">my_graph</span><span class="p">,</span> <span class="n">j</span><span class="p">);</span>
         <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="n">i</span> <span class="o">=</span> <span class="n">neigh</span><span class="p">.</span><span class="n">first</span><span class="p">;</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">neigh</span><span class="p">.</span><span class="n">second</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
             <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="o">*</span><span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; &quot;</span><span class="p">;</span>
         <span class="p">}</span>

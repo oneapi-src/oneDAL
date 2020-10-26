@@ -728,6 +728,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#output">Output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#id4">Examples</a></li>
 </ul>
 </li>
@@ -811,7 +812,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/knn_cls_kd_tree_dense_batch.html">knn_cls_kd_tree_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/load_graph.html">load_graph.cpp</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/pca_dense_batch.html">pca_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/svm_two_class_smo_dense_batch.html">svm_two_class_smo_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
@@ -1232,7 +1233,7 @@ of dimension <span class="math notranslate nohighlight">\(p\)</span> and a set <
 feature vectors <span class="math notranslate nohighlight">\(y_1 = (y_{11}, \ldots, y_{1p}), \ldots, y_m = (y_{m1}, \ldots, x_{mp})\)</span>,
 the problem is to compute the RBF kernel function <span class="math notranslate nohighlight">\(K(x_i,, y_i)\)</span> for any pair of input vectors:</p>
 <div class="math notranslate nohighlight">
-\[K\left({x}_{i},{y}_{j}\right)=exp\left(-\frac{{\left(‖{x}_{i}-{y}_{j}‖\right)}^{2}}{2{\sigma }^{2}}\right)\]</div>
+\[K\left({x}_{i},{y}_{j}\right)=exp\left(-\frac{{\left(\|{x}_{i}-{y}_{j}\|\right)}^{2}}{2{\sigma }^{2}}\right)\]</div>
 </div>
 <div class="section" id="id2">
 <h3>Batch Processing<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>

@@ -728,6 +728,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#output">Output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#id4">Examples</a></li>
 </ul>
 </li>
@@ -811,7 +812,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/knn_cls_kd_tree_dense_batch.html">knn_cls_kd_tree_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/load_graph.html">load_graph.cpp</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/pca_dense_batch.html">pca_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/svm_two_class_smo_dense_batch.html">svm_two_class_smo_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
@@ -1041,15 +1042,15 @@ to build a kNN classifier.</p>
 <ol class="arabic simple">
 <li><p>Identifies the set <span class="math notranslate nohighlight">\(N_0\)</span> of the k feature vectors in the
 training data that are closest to <span class="math notranslate nohighlight">\(x_0\)</span> according to the
-Euclidian distance</p></li>
+distance metric</p></li>
 <li><p>Estimates the conditional probability for the class <span class="math notranslate nohighlight">\(j\)</span> as the
 fraction of vectors in <span class="math notranslate nohighlight">\(N_0\)</span> whose labels y are equal to <span class="math notranslate nohighlight">\(j\)</span></p></li>
 <li><p>Assigns the class with the largest probability to the test
 observation <span class="math notranslate nohighlight">\(x_0\)</span></p></li>
 </ol>
-<p>kNN classification on CPU and GPU are based on different approaches.
-On CPU, kNN classification uses <a class="reference internal" href="#k-d-tree">K-D tree</a>, a space-partitioning data structure, to find nearest neighbors,
-while on GPU the <a class="reference internal" href="#brute-force">Brute Force</a> search is used.</p>
+<p>On CPU, kNN classification might use <a class="reference internal" href="#k-d-tree">K-D tree</a>, a space-partitioning data structure,
+or <a class="reference internal" href="#brute-force">Brute Force</a> search to find nearest neighbors,
+while on GPU only <a class="reference internal" href="#brute-force">Brute Force</a> search is available.</p>
 <div class="section" id="k-d-tree">
 <h3>K-D tree<a class="headerlink" href="#k-d-tree" title="Permalink to this headline">¶</a></h3>
 <p>On CPU, the library provides kNN classification based on multidimensional binary search tree
@@ -1123,6 +1124,15 @@ respective part of the feature space is not less than the distance
 from the <span class="math notranslate nohighlight">\(k^{th}\)</span> neighbor. This distance is progressively
 updated during the tree traverse.</p>
 </div>
+<div class="section" id="prediction-using-brute-force">
+<h4>Prediction using Brute Force<a class="headerlink" href="#prediction-using-brute-force" title="Permalink to this headline">¶</a></h4>
+<p>To solve the problem, the algorithm computes distances between vectors from training and testing sets:
+<span class="math notranslate nohighlight">\(d_{ij}=\mathrm{distance\_metric}(x_i^\mathrm{test}, x_j^\mathrm{train})\)</span>.
+For example, if Euclidean distance is used, <span class="math notranslate nohighlight">\(d_{ij}\)</span> would be the following:</p>
+<div class="math notranslate nohighlight">
+\[d_{ij} = \sum_{k=1}^p (x_{ik}^{\mathrm{test}} - x_{jk}^{\mathrm{train}})^2\]</div>
+<p>K training vectors with minimal distance to the testing vector are the nearest neighbors the algorithms searches for.</p>
+</div>
 </div>
 </div>
 <div class="section" id="batch-processing">
@@ -1171,7 +1181,7 @@ in the trained kNN model but creates a copy of the input data set.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">doUse</span></code> - the algorithm includes the input data and labels in the trained kNN model.</p></li>
 </ul>
 </div></blockquote>
-<p>The algorithm reorders feature vectors and corresponding labels in the
+<p>K-D tree based kNN reorders feature vectors and corresponding labels in the
 input data set or its copy to improve performance at the prediction stage.</p>
 <p>If the value is <code class="docutils literal notranslate"><span class="pre">doUse</span></code>, do not deallocate the memory for input data and labels.</p>
 </td>
@@ -1258,7 +1268,7 @@ Pass the <code class="docutils literal notranslate"><span class="pre">Result</sp
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">indices</span></code></p></td>
-<td><p>A numeric table <span class="math notranslate nohighlight">\(k \times n\)</span> containing indices of rows from training dataset that are nearest neighbors computed when the <code class="docutils literal notranslate"><span class="pre">computeIndicesOfNeigtbors</span></code> option is on.</p>
+<td><p>A numeric table <span class="math notranslate nohighlight">\(n \times k\)</span> containing indices of rows from training dataset that are nearest neighbors computed when the <code class="docutils literal notranslate"><span class="pre">computeIndicesOfNeigtbors</span></code> option is on.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
@@ -1267,7 +1277,7 @@ but you can define the result as an object of any class derived from <code class
 </td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">distances</span></code></p></td>
-<td><p>A numeric table <span class="math notranslate nohighlight">\(k \times n\)</span> containing distances to nearest neighbors computed when the <code class="docutils literal notranslate"><span class="pre">computeDistances</span></code> option is on.</p>
+<td><p>A numeric table <span class="math notranslate nohighlight">\(n \times k\)</span> containing distances to nearest neighbors computed when the <code class="docutils literal notranslate"><span class="pre">computeDistances</span></code> option is on.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
@@ -1330,6 +1340,7 @@ but you can define the result as an object of any class derived from <code class
 <p>Batch Processing:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/k_nearest_neighbors/kdtree_knn_dense_batch.cpp">kdtree_knn_dense_batch.cpp</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/k_nearest_neighbors/bf_knn_dense_batch.cpp">bf_knn_dense_batch.cpp</a></p></li>
 </ul>
 </div>
 <div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-3 docutils container">
@@ -1340,6 +1351,7 @@ but you can define the result as an object of any class derived from <code class
 <p>Batch Processing:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/knn_classification/KDTreeKNNDenseBatch.java">KDTreeKNNDenseBatch.java</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/knn_classification/BFKNNDenseBatch.java">BFKNNDenseBatch.java</a></p></li>
 </ul>
 </div>
 <div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-4 docutils container">
@@ -1352,6 +1364,7 @@ but you can define the result as an object of any class derived from <code class
 <p>Batch Processing:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/IntelPython/daal4py/tree/master/examples/kdtree_knn_classification_batch.py">kdtree_knn_classification_batch.py</a></p></li>
+<li><p><a class="reference external" href="https://github.com/IntelPython/daal4py/tree/master/examples/bf_knn_classification_batch.py">bf_knn_classification_batch.py</a></p></li>
 </ul>
 </div>
 </div>

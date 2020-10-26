@@ -28,20 +28,35 @@ Decision forest regression is a special case of the :ref:`decision_forest` model
 Details
 =======
 
-Given n feature vectors :math:`X = \{x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np}) \}` of :math:`n`
-:math:`p`-dimensional feature vectors and vector of dependent variables :math:`y = (y_1, \ldots, y_n)`,
-the problem is to build a decision
-forest regression model that minimizes the Mean-Square Error (MSE)
-between the predicted and true value.
+Given:
+
+- :math:`n` feature vectors :math:`X = \{x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np}) \}` 
+  of size :math:`p`;
+- their non-negative sample weights :math:`w = (w_1, \ldots, w_n)`;
+- the vector of responses :math:`y = (y_1, \ldots, y_n)`
+
+The problem is to build a decision forest regression model that minimizes the Mean-Square Error (MSE) between the predicted and true value.
 
 Training Stage
 **************
 
-Decision forest classifier follows the algorithmic framework of
-decision forest training with variance as impurity metrics,
-calculated as follows:
+Decision forest regression follows the algorithmic framework of decision forest training algorithm
+based on the mean-squared error (MSE) [Breiman84]_.
+If sample weights are provided as input, the library uses a weighted version of the algorithm.
 
-:math:`{I}_{var}\left(D\right)= \frac{1}{N-1} \sum _{i=0}^{N-1}{\left({y}_{i}-\overline{y}\right)}^{2}`, where :math:`N=|D|` and :math:`\overline{y}=\text{ }\frac{1}{N}\text{ }\sum _{i=0}^{N-1}{y}_{i}`.
+MSE is an impurity metric (:math:`D` is a set of observations that reach the node), calculated as follows:
+
+.. list-table::
+   :widths: 10 10
+   :header-rows: 1
+   :align: left
+
+   * - Without sample weights
+     - With sample weights
+   * - :math:`I_{\mathrm{MSE}}\left(D\right) = \frac{1}{W(D)} \sum _{i=1}^{W(D)}{\left(y_i - \frac{1}{W(D)} \sum _{j=1}^{W(D)} y_j \right)}^{2}`
+     - :math:`I_{\mathrm{MSE}}\left(D\right) = \frac{1}{W(D)} \sum _{i \in D}{w_i \left(y_i - \frac{1}{W(D)} \sum _{j \in D} w_j y_j \right)}^{2}`
+   * - :math:`W(S) = \sum_{s \in S} 1`, which is equivalent to the number of elements in :math:`S`
+     - :math:`W(S) = \sum_{s \in S} w_s`
 
 
 Prediction Stage

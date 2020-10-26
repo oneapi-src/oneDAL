@@ -727,6 +727,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#output">Output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#id4">Examples</a></li>
 </ul>
 </li>
@@ -810,7 +811,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/cpp/knn_cls_kd_tree_dense_batch.html">knn_cls_kd_tree_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/cpp/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/cpp/load_graph.html">load_graph.cpp</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/cpp/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/cpp/pca_dense_batch.html">pca_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/cpp/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/cpp/svm_two_class_smo_dense_batch.html">svm_two_class_smo_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/cpp/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
@@ -1091,7 +1092,7 @@ This guarantees that source code always looks and prints fine regardless of any 
 <li><p>Do not remove letters from words.</p></li>
 </ul>
 <div class="comparison docutils container">
-<div class="leftside docutils container">
+<div class="column docutils container">
 <div class="error admonition">
 <p class="admonition-title">Not recommended</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="n">n</span><span class="p">;</span> <span class="c1">// Meaningless</span>
@@ -1104,7 +1105,7 @@ This guarantees that source code always looks and prints fine regardless of any 
 </div>
 </div>
 </div>
-<div class="rightside docutils container">
+<div class="column docutils container">
 <div class="hint admonition">
 <p class="admonition-title">Good</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="n">priceCountReader</span><span class="p">;</span>
@@ -1144,9 +1145,9 @@ This guarantees that source code always looks and prints fine regardless of any 
 <li><p>should not contain underscores (<code class="docutils literal notranslate"><span class="pre">_</span></code>)</p></li>
 </ul>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyClass</span><span class="p">;</span>
-<span class="k">struct</span> <span class="n">MyStruct</span><span class="p">;</span>
+<span class="k">struct</span> <span class="nc">MyStruct</span><span class="p">;</span>
 <span class="k">typedef</span> <span class="kt">int</span> <span class="n">MyType</span><span class="p">;</span>
-<span class="k">enum</span> <span class="n">MyEnum</span><span class="p">;</span>
+<span class="k">enum</span> <span class="nc">MyEnum</span><span class="p">;</span>
 </pre></div>
 </div>
 </div>
@@ -1204,7 +1205,7 @@ This guarantees that source code always looks and prints fine regardless of any 
 </pre></div>
 </div>
 <p>Enum members:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">enum</span> <span class="n">MyTableTypes</span> <span class="p">{</span><span class="n">intType</span><span class="p">,</span> <span class="n">doubleType</span><span class="p">};</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">enum</span> <span class="nc">MyTableTypes</span> <span class="p">{</span><span class="n">intType</span><span class="p">,</span> <span class="n">doubleType</span><span class="p">};</span>
 </pre></div>
 </div>
 </div>
@@ -1327,7 +1328,7 @@ that the same type is used in all cases.</p>
 <ul>
 <li><p>Each line should contain at most one statement:</p>
 <div class="comparison docutils container">
-<div class="leftside docutils container">
+<div class="column docutils container">
 <div class="error admonition">
 <p class="admonition-title">Not recommended</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Not recommended</span>
@@ -1336,7 +1337,7 @@ that the same type is used in all cases.</p>
 </div>
 </div>
 </div>
-<div class="rightside docutils container">
+<div class="column docutils container">
 <div class="hint admonition">
 <p class="admonition-title">Good</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">a</span><span class="o">++</span><span class="p">;</span>
@@ -1349,7 +1350,7 @@ that the same type is used in all cases.</p>
 </li>
 <li><p>The statement that follows conditional statement should be on a separate line:</p>
 <div class="comparison docutils container">
-<div class="leftside docutils container">
+<div class="column docutils container">
 <div class="error admonition">
 <p class="admonition-title">Not recommended</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Not recommended</span>
@@ -1358,7 +1359,7 @@ that the same type is used in all cases.</p>
 </div>
 </div>
 </div>
-<div class="rightside docutils container">
+<div class="column docutils container">
 <div class="hint admonition">
 <p class="admonition-title">Good</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="n">condition</span><span class="p">)</span>
@@ -1475,18 +1476,18 @@ more comments are required.</p>
 <span class="cm">* Description for function that will be removed</span>
 <span class="hll"><span class="cm">* \DAAL_DEPRECATED</span>
 </span><span class="cm">*/</span>
-<span class="n">DAAL_DEPRECATED</span> <span class="kt">int</span> <span class="nf">removedFunction</span><span class="p">()</span> <span class="p">{}</span>
+<span class="n">DAAL_DEPRECATED</span> <span class="kt">int</span> <span class="n">removedFunction</span><span class="p">()</span> <span class="p">{}</span>
 
 <span class="cm">/**</span>
 <span class="cm">* Description for function with old name</span>
 <span class="hll"><span class="cm">* \DAAL_DEPRECATED_USE{ newFunction }</span>
 </span><span class="cm">*/</span>
-<span class="n">DAAL_DEPRECATED</span> <span class="kt">int</span> <span class="nf">oldFunction</span><span class="p">()</span> <span class="p">{}</span>
+<span class="n">DAAL_DEPRECATED</span> <span class="kt">int</span> <span class="n">oldFunction</span><span class="p">()</span> <span class="p">{}</span>
 
 <span class="cm">/**</span>
 <span class="cm">* Description for new function</span>
 <span class="cm">*/</span>
-<span class="kt">void</span> <span class="nf">newFunction</span><span class="p">()</span> <span class="p">{}</span>
+<span class="kt">void</span> <span class="n">newFunction</span><span class="p">()</span> <span class="p">{}</span>
 </pre></div>
 </div>
 </div></blockquote>
@@ -1557,7 +1558,7 @@ is not parsed correctly by doxygen (quotation marks are a part of a command).</p
 <li><p>Initialize variables in the declaration.</p></li>
 <li><p>Use initialization instead of declaration and assignment.</p>
 <div class="comparison docutils container">
-<div class="leftside docutils container">
+<div class="column docutils container">
 <div class="error admonition">
 <p class="admonition-title">Not recommended</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
@@ -1566,7 +1567,7 @@ is not parsed correctly by doxygen (quotation marks are a part of a command).</p
 </div>
 </div>
 </div>
-<div class="rightside docutils container">
+<div class="column docutils container">
 <div class="hint admonition">
 <p class="admonition-title">Good</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Declaration includes initialization.</span>
@@ -1577,7 +1578,7 @@ is not parsed correctly by doxygen (quotation marks are a part of a command).</p
 </div>
 </div>
 <div class="comparison docutils container">
-<div class="leftside docutils container">
+<div class="column docutils container">
 <div class="error admonition">
 <p class="admonition-title">Not recommended</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">v</span><span class="p">;</span>
@@ -1587,7 +1588,7 @@ is not parsed correctly by doxygen (quotation marks are a part of a command).</p
 </div>
 </div>
 </div>
-<div class="rightside docutils container">
+<div class="column docutils container">
 <div class="hint admonition">
 <p class="admonition-title">Good</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Good -- v starts initialized, brace initialization is used.</span>
@@ -1611,7 +1612,7 @@ is not parsed correctly by doxygen (quotation marks are a part of a command).</p
 <p>As object’s constructor is invoked every time the object is created or enters the scope, and its destructor is
 invoked every time the object goes out of scope, you make your code inefficient by placing variable’s declaration inside a loop.</p>
 <div class="comparison docutils container">
-<div class="leftside docutils container">
+<div class="column docutils container">
 <div class="error admonition">
 <p class="admonition-title">Not recommended</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Inefficient implementation:</span>
@@ -1624,7 +1625,7 @@ invoked every time the object goes out of scope, you make your code inefficient 
 </div>
 </div>
 </div>
-<div class="rightside docutils container">
+<div class="column docutils container">
 <div class="hint admonition">
 <p class="admonition-title">Good</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// More efficient</span>
@@ -1646,7 +1647,7 @@ invoked every time the object goes out of scope, you make your code inefficient 
 <ul>
 <li><p>Use constant variables or functions returning the constant value instead of hard coded constant values:</p>
 <div class="comparison docutils container">
-<div class="leftside docutils container">
+<div class="column docutils container">
 <div class="error admonition">
 <p class="admonition-title">Not recommended</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">foo</span><span class="p">(</span><span class="s">&quot;Hard coded string&quot;</span><span class="p">);</span>
@@ -1656,10 +1657,10 @@ invoked every time the object goes out of scope, you make your code inefficient 
 </div>
 </div>
 </div>
-<div class="rightside docutils container">
+<div class="column docutils container">
 <div class="hint admonition">
 <p class="admonition-title">Good</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="nf">hardCodedString</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="s">&quot;Hard coded string&quot;</span><span class="p">;</span> <span class="p">}</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">hardCodedString</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="s">&quot;Hard coded string&quot;</span><span class="p">;</span> <span class="p">}</span>
 <span class="n">foo</span><span class="p">(</span><span class="n">hardCodedString</span><span class="p">());</span>
 <span class="n">bar</span><span class="p">(</span><span class="n">hardCodedString</span><span class="p">());</span>
 </pre></div>
@@ -1708,7 +1709,7 @@ if you need a static or a global variable of a class type. Create a function
 that returns the variable you need, but make sure that the function call
 does not happen when the program is terminating.</p>
 <div class="comparison docutils container">
-<div class="leftside docutils container">
+<div class="column docutils container">
 <div class="error admonition">
 <p class="admonition-title">Not recommended</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="n">SingletonClass</span> <span class="n">inst</span><span class="p">;</span> <span class="c1">// Bad – initialization order is undefined.</span>
@@ -1716,10 +1717,10 @@ does not happen when the program is terminating.</p>
 </div>
 </div>
 </div>
-<div class="rightside docutils container">
+<div class="column docutils container">
 <div class="hint admonition">
 <p class="admonition-title">Good</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">SingletonClass</span><span class="o">&amp;</span> <span class="n">getInst</span><span class="p">()</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">SingletonClass</span><span class="o">&amp;</span> <span class="nf">getInst</span><span class="p">()</span>
 <span class="p">{</span>
     <span class="k">static</span> <span class="n">SingletonClass</span> <span class="n">inst</span><span class="p">;</span>
     <span class="k">return</span> <span class="n">inst</span><span class="p">;</span>
@@ -1870,7 +1871,7 @@ If objects are destroyed properly, resource leaks do not occur.</p>
 </li>
 <li><p>Place resource acquisition in a separate instruction:</p>
 <div class="comparison docutils container">
-<div class="leftside docutils container">
+<div class="column docutils container">
 <div class="error admonition">
 <p class="admonition-title">Not recommended</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Not recommended</span>
@@ -1883,7 +1884,7 @@ If objects are destroyed properly, resource leaks do not occur.</p>
 </div>
 </div>
 </div>
-<div class="rightside docutils container">
+<div class="column docutils container">
 <div class="hint admonition">
 <p class="admonition-title">Good</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Preferable</span>
@@ -1942,7 +1943,7 @@ Some smart pointer types can be used to automate ownership bookkeeping.</p>
 
 <span class="k">class</span> <span class="nc">Derived</span><span class="o">:</span> <span class="k">public</span> <span class="n">Base</span>
 <span class="p">{</span>
-  <span class="k">virtual</span> <span class="n">printMe</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Derived&quot;</span><span class="p">;</span> <span class="p">}</span>
+  <span class="k">virtual</span> <span class="nf">printMe</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Derived&quot;</span><span class="p">;</span> <span class="p">}</span>
 <span class="p">};</span>
 
 <span class="kt">void</span> <span class="nf">print</span><span class="p">(</span><span class="n">Base</span> <span class="n">b</span><span class="p">);</span> <span class="c1">// Reference was forgotten!!!</span>
@@ -2014,8 +2015,8 @@ this can leas to a name confict.</p>
 <div class="error admonition">
 <p class="admonition-title">Not recommended</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// client_code.cpp</span>
-<span class="cp">#include</span> <span class="cpf">“foo.h”</span><span class="cp"></span>
-<span class="k">struct</span> <span class="n">Bar</span> <span class="p">{</span> <span class="kt">int</span> <span class="n">code</span><span class="p">;</span> <span class="p">}</span>
+<span class="cp">#include “foo.h”</span>
+<span class="k">struct</span> <span class="nc">Bar</span> <span class="p">{</span> <span class="kt">int</span> <span class="n">code</span><span class="p">;</span> <span class="p">}</span>
 
 <span class="n">Bar</span> <span class="n">res</span><span class="p">;</span> <span class="c1">// Error: ambiguous</span>
 </pre></div>
@@ -2064,7 +2065,7 @@ like to understand what you did 2 weeks from now.</em></p>
 <p>Do not rely on the evaluation order of function’s arguments, as it is undefined.
 Directly specify evaluation order instead.</p>
 <div class="comparison docutils container">
-<div class="leftside docutils container">
+<div class="column docutils container">
 <div class="error admonition">
 <p class="admonition-title">Not recommended</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Not recommended</span>
@@ -2079,7 +2080,7 @@ Directly specify evaluation order instead.</p>
 </div>
 </div>
 </div>
-<div class="rightside docutils container">
+<div class="column docutils container">
 <div class="hint admonition">
 <p class="admonition-title">Good</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
@@ -2108,7 +2109,7 @@ non-scalar type, copying <code class="docutils literal notranslate"><span class
 increment behave the same when the value is ignored, why not just always
 pre-increment?</p>
 <div class="comparison docutils container">
-<div class="leftside docutils container">
+<div class="column docutils container">
 <div class="error admonition">
 <p class="admonition-title">Not recommended</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">for</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="c1">// Not recommended</span>
@@ -2116,7 +2117,7 @@ pre-increment?</p>
 </div>
 </div>
 </div>
-<div class="rightside docutils container">
+<div class="column docutils container">
 <div class="hint admonition">
 <p class="admonition-title">Good</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">for</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="c1">// Preferable</span>
@@ -2163,7 +2164,7 @@ This might result in some fields not being initialized at all or initialized to 
 <h5>Initializers<a class="headerlink" href="#initializers" title="Permalink to this headline">¶</a></h5>
 <p>Use initializers list instead of assignment in constructors:</p>
 <div class="comparison docutils container">
-<div class="leftside docutils container">
+<div class="column docutils container">
 <div class="error admonition">
 <p class="admonition-title">Not recommended</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Not recommended</span>
@@ -2180,7 +2181,7 @@ This might result in some fields not being initialized at all or initialized to 
 </div>
 </div>
 </div>
-<div class="rightside docutils container">
+<div class="column docutils container">
 <div class="hint admonition">
 <p class="admonition-title">Good</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// The following is more efficient:</span>
@@ -2239,13 +2240,13 @@ before <code class="docutils literal notranslate"><span class="pre">main()</spa
 <p>Use explicit copy constructors for non-trivial types:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Base</span>
 <span class="p">{</span>
-  <span class="k">explicit</span> <span class="n">Base</span><span class="p">(</span><span class="k">const</span> <span class="n">Base</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">);</span>
+  <span class="k">explicit</span> <span class="nf">Base</span><span class="p">(</span><span class="k">const</span> <span class="n">Base</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">);</span>
   <span class="k">virtual</span> <span class="nf">printMe</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Base&quot;</span><span class="p">;</span> <span class="p">}</span>
 <span class="p">};</span>
 
 <span class="k">class</span> <span class="nc">Derived</span><span class="o">:</span> <span class="k">public</span> <span class="n">Base</span>
 <span class="p">{</span>
-  <span class="k">virtual</span> <span class="n">printMe</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Derived&quot;</span><span class="p">;</span> <span class="p">}</span>
+  <span class="k">virtual</span> <span class="nf">printMe</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Derived&quot;</span><span class="p">;</span> <span class="p">}</span>
 <span class="p">};</span>
 
 <span class="kt">void</span> <span class="nf">print</span><span class="p">(</span><span class="n">Base</span> <span class="n">b</span><span class="p">);</span>
@@ -2295,7 +2296,7 @@ The error messages are a part of your user interface, and your code should be tw
 </ul>
 </li>
 <li><p>Use class member types (<code class="docutils literal notranslate"><span class="pre">typedefs</span></code>) to increase readability of template classes:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="o">&gt;</span>
 <span class="k">class</span> <span class="nc">Point</span>
 <span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>
@@ -2303,7 +2304,7 @@ The error messages are a part of your user interface, and your code should be tw
   <span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Point</span><span class="o">&gt;</span> <span class="n">pointer</span><span class="p">;</span>
   <span class="p">...</span>
 
-  <span class="k">static</span> <span class="n">pointer</span> <span class="n">create</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">pointer</span><span class="p">(</span><span class="k">new</span> <span class="n">Point</span><span class="p">());</span> <span class="p">}</span>
+  <span class="k">static</span> <span class="n">pointer</span> <span class="n">create</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="nf">pointer</span><span class="p">(</span><span class="k">new</span> <span class="n">Point</span><span class="p">());</span> <span class="p">}</span>
 <span class="p">};</span>
 </pre></div>
 </div>

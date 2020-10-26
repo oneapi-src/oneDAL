@@ -728,6 +728,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#output">Output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../svm_multi_class/multi-class-classifier.html#id4">Examples</a></li>
 </ul>
 </li>
@@ -811,7 +812,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/knn_cls_kd_tree_dense_batch.html">knn_cls_kd_tree_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/load_graph.html">load_graph.cpp</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/pca_dense_batch.html">pca_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/svm_two_class_smo_dense_batch.html">svm_two_class_smo_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
@@ -1048,7 +1049,7 @@ label <span class="math notranslate nohighlight">\(y \in \{0, 1, \ldots, K - 1\}
 <p>Training procedure is an iterative algorithm which minimizes
 objective function</p>
 <div class="math notranslate nohighlight">
-\[L\left(\beta \right)=-\frac{1}{n}\sum _{i=1}^{n}\mathrm{log}{p}_{{y}_{i}}\left({x}_{i},\mathrm{ }\mathrm{\beta }\right)+\mathrm{ }{\lambda }_{1}\sum _{k=0}^{K-1}{‖{\beta }_{k}‖}_{L1}+ {\lambda }_{2}\sum _{k=0}^{K-1}{‖{\beta }_{k}‖}_{L2}\]</div>
+\[L\left(\beta \right)=-\frac{1}{n}\sum _{i=1}^{n}\mathrm{log}{p}_{{y}_{i}}\left({x}_{i},\mathrm{ }\mathrm{\beta }\right)+\mathrm{ }{\lambda }_{1}\sum _{k=0}^{K-1}{\|{\beta }_{k}\|}_{L1}+ {\lambda }_{2}\sum _{k=0}^{K-1}{\|{\beta }_{k}\|}_{L2}\]</div>
 <p>where the first term is the negative log-likelihood of conditional
 <span class="math notranslate nohighlight">\(Y\)</span> given <span class="math notranslate nohighlight">\(X\)</span>, and the latter terms are regularization ones that
 penalize the complexity of the model (large <span class="math notranslate nohighlight">\(\beta\)</span> values), <span class="math notranslate nohighlight">\(\lambda_1\)</span> and <span class="math notranslate nohighlight">\(\lambda_2\)</span> are non-negative regularization
@@ -1073,7 +1074,7 @@ complete the following steps:</p>
 <ul>
 <li><p>Create a Logistic Regression model builder using a constructor with the required number of responses and features.</p></li>
 <li><p>Use the <code class="docutils literal notranslate"><span class="pre">setBeta</span></code> method to add the set of pre-calculated coefficients to the model.
-Specify random access iterators to the first and the last element of the set of coefficients [ISO/IEC 14882:2011 §24.2.7].</p>
+Specify random access iterators to the first and the last element of the set of coefficients [ISO/IEC 14882:2011 §24.2.7]_.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>If your set of coefficients does not contain an intercept, interceptFlag is automatically set to <code class="docutils literal notranslate"><span class="pre">False</span></code>, and to <code class="docutils literal notranslate"><span class="pre">True</span></code>, otherwise.</p>
@@ -1235,9 +1236,9 @@ the logistic regression to compute.</p>
 <p>Provide one of the following values to request a single characteristic
 or use bitwise OR to request a combination of the characteristics:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">computeClassesLabels</span></code> for prediction</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">computeClassesProbabilities</span></code> for probabilities</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">computeClassesLogProbabilities</span></code> for logProbabilities</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">computeClassesLabels</span></code> for <cite>prediction</cite></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">computeClassesProbabilities</span></code> for <cite>probabilities</cite></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">computeClassesLogProbabilities</span></code> for <cite>logProbabilities</cite></p></li>
 </ul>
 </td>
 </tr>
@@ -1260,10 +1261,10 @@ Pass the <code class="docutils literal notranslate"><span class="pre">Result</sp
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">probabilities</span></code></p></td>
-<td><p>A numeric table of size <span class="math notranslate nohighlight">\(n \times nClasses\)</span> containing probabilities of classes computed when computeClassesProbabilities option is enabled.</p></td>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(n \times nClasses\)</span> containing probabilities of classes computed when <code class="docutils literal notranslate"><span class="pre">computeClassesProbabilities</span></code> option is enabled.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">logProbabilities</span></code></p></td>
-<td><p>A numeric table of size <span class="math notranslate nohighlight">\(n \times nClasses\)</span> containing logarithms of classes’ probabilities computed when computeClassesLogProbabilities option is enabled.</p></td>
+<td><p>A numeric table of size <span class="math notranslate nohighlight">\(n \times nClasses\)</span> containing logarithms of classes’ probabilities computed when <code class="docutils literal notranslate"><span class="pre">computeClassesLogProbabilities</span></code> option is enabled.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1271,13 +1272,13 @@ Pass the <code class="docutils literal notranslate"><span class="pre">Result</sp
 <p class="admonition-title">Note</p>
 <p>Note that:</p>
 <ul class="simple">
-<li><p>If resultsToCompute does not contain computeClassesLabels, the prediction table is NULL.</p></li>
-<li><p>If resultsToCompute does not contain computeClassesProbabilities, the probabilities table is NULL.</p></li>
-<li><p>If resultsToCompute does not contain computeClassesLogProbabilities, the logProbabilities table is NULL.</p></li>
+<li><p>If <cite>resultsToCompute</cite> does not contain <cite>computeClassesLabels</cite>, the <cite>prediction</cite> table is <cite>NULL</cite>.</p></li>
+<li><p>If <cite>resultsToCompute</cite> does not contain <cite>computeClassesProbabilities</cite>, the <cite>probabilities</cite> table is <cite>NULL</cite>.</p></li>
+<li><p>If <cite>resultsToCompute</cite> does not contain <cite>computeClassesLogProbabilities</cite>, the <cite>logProbabilities</cite> table is <cite>NULL</cite>.</p></li>
 <li><p>By default, each numeric table of this result is an object of
-the HomogenNumericTable class, but you can define the result as
-an object of any class derived from NumericTable except for
-PackedSymmetricMatrix and PackedTriangularMatrix.</p></li>
+the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class, but you can define the result as
+an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except for
+<code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code> and <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>.</p></li>
 </ul>
 </div>
 </div>

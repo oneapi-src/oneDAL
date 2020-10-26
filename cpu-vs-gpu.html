@@ -13,6 +13,10 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/sphinx_tabs/semantic-ui-2.4.1/segment.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/sphinx_tabs/semantic-ui-2.4.1/menu.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/sphinx_tabs/semantic-ui-2.4.1/tab.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/sphinx_tabs/tabs.css" type="text/css" />
 
   
   
@@ -722,6 +726,7 @@
 <li class="toctree-l3"><a class="reference internal" href="dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#output">Output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#id4">Examples</a></li>
 </ul>
 </li>
@@ -805,7 +810,7 @@
 <li class="toctree-l3"><a class="reference internal" href="examples/cpp/knn_cls_kd_tree_dense_batch.html">knn_cls_kd_tree_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/cpp/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/cpp/load_graph.html">load_graph.cpp</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/cpp/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/cpp/pca_dense_batch.html">pca_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/cpp/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/cpp/svm_two_class_smo_dense_batch.html">svm_two_class_smo_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/cpp/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
@@ -1011,7 +1016,8 @@
             
   <div class="section" id="cpu-and-gpu-support">
 <span id="cpu-vs-gpu"></span><h1>CPU and GPU Support<a class="headerlink" href="#cpu-and-gpu-support" title="Permalink to this headline">¶</a></h1>
-<p>Differences in CPU and GPU support affect the algorithms</p>
+<p>Not all computation modes, methods, and parameters are supported on both CPU and GPU.
+Differences in CPU and GPU support are listed below.</p>
 <div class="section" id="computation-modes">
 <h2>Computation modes<a class="headerlink" href="#computation-modes" title="Permalink to this headline">¶</a></h2>
 <p>For the following algorithms, only listed computation modes are supported on GPU:</p>
@@ -1111,7 +1117,7 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p><a class="reference internal" href="dev_guide/algorithms/svm/support-vector-machine-classifier.html#svm"><span class="std std-ref">Support Vector Machine Classifier</span></a></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">doShrinking</span></code> is only supported for <code class="docutils literal notranslate"><span class="pre">defaultDense</span></code> method</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">doShrinking</span></code> is only supported for <code class="docutils literal notranslate"><span class="pre">defaultDense</span></code> method.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="dev_guide/algorithms/dbscan/index.html#dbscan"><span class="std std-ref">Density-Based Spatial Clustering of Applications with Noise</span></a></p></td>
 <td><ul class="simple">
