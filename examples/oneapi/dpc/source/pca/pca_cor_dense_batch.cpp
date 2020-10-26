@@ -18,7 +18,7 @@
 #include <iostream>
 #include <CL/sycl.hpp>
 
-#define ONEAPI_DAL_DATA_PARALLEL
+#define ONEDAL_DATA_PARALLEL
 #include "oneapi/dal/algo/pca.hpp"
 #include "oneapi/dal/io/csv.hpp"
 

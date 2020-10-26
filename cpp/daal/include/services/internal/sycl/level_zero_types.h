@@ -1,4 +1,4 @@
-/* file: daal_level_zero_types.h */
+/* file: level_zero_types.h */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *

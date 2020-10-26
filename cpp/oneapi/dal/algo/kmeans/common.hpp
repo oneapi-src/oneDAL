@@ -42,7 +42,7 @@ using by_default = lloyd_dense;
 } // namespace method
 
 template <typename Task = task::by_default>
-class ONEAPI_DAL_EXPORT descriptor_base : public base {
+class ONEDAL_EXPORT descriptor_base : public base {
 public:
     using tag_t = detail::tag;
     using task_t = Task;
@@ -88,7 +88,7 @@ public:
 };
 
 template <typename Task = task::by_default>
-class ONEAPI_DAL_EXPORT model : public base {
+class ONEDAL_EXPORT model : public base {
     friend dal::detail::pimpl_accessor;
 
 public:

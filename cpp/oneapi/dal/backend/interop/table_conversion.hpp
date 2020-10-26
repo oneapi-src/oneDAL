@@ -18,7 +18,7 @@
 
 #include <daal/include/data_management/data/homogen_numeric_table.h>
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 #include <daal/include/data_management/data/internal/numeric_table_sycl_homogen.h>
 #endif
 
@@ -74,7 +74,7 @@ inline table convert_from_daal_homogen_table(const daal::data_management::Numeri
     return detail::homogen_table_builder{}.reset(arr, row_count, column_count).build();
 }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 template <typename T>
 inline auto convert_to_daal_sycl_homogen_table(sycl::queue& queue,
                                                array<T>& data,

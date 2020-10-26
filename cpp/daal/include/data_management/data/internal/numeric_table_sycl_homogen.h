@@ -76,7 +76,17 @@ public:
                                                                           services::Status * stat = NULL)
     {
         const size_t bufferSize = nColumns * nRows;
-        return create(services::internal::Buffer<DataType>(usmData, bufferSize, usmAllocType), nColumns, nRows, stat);
+
+        // multiplication overflow check is done in the constructor.
+        // its not a safety problem to postpone this check since services::internal::Buffer() constructor
+        // do not perform any data allocations in case of input usm data - we can create it even with wrong bufferSize
+
+        services::Status localStatus;
+        services::internal::Buffer<DataType> buffer(usmData, bufferSize, usmAllocType, localStatus);
+        services::internal::tryAssignStatusAndThrow(stat, localStatus);
+        DAAL_CHECK_STATUS_RETURN_IF_FAIL(localStatus, services::SharedPtr<SyclHomogenNumericTable<DataType> >());
+
+        return create(buffer, nColumns, nRows, stat);
     }
 #endif
 
@@ -84,8 +94,21 @@ public:
     static services::SharedPtr<SyclHomogenNumericTable<DataType> > create(DataType * usmData, size_t nColumns, size_t nRows,
                                                                           const cl::sycl::usm::alloc & usmAllocType, services::Status * stat = NULL)
     {
+        const auto overflow_status = checkSizeOverflow(nRows, nColumns);
+        if (!overflow_status)
+        {
+            services::throwIfPossible(overflow_status);
+            DAAL_CHECK_COND_ERROR(stat, *stat, overflow_status);
+            return services::SharedPtr<SyclHomogenNumericTable<DataType> >();
+        }
         const size_t bufferSize = nColumns * nRows;
-        return create(services::internal::Buffer<DataType>(usmData, bufferSize, usmAllocType), nColumns, nRows, stat);
+
+        services::Status localStatus;
+        services::internal::Buffer<DataType> buffer(usmData, bufferSize, usmAllocType, localStatus);
+        services::internal::tryAssignStatusAndThrow(stat, localStatus);
+        DAAL_CHECK_STATUS_RETURN_IF_FAIL(localStatus, services::SharedPtr<SyclHomogenNumericTable<DataType> >());
+
+        return create(buffer, nColumns, nRows, stat);
     }
 #endif
 
@@ -183,12 +206,16 @@ protected:
         NumericTableFeature df;
         df.setType<DataType>();
         st |= _ddict->setAllFeatures(df);
+        services::throwIfPossible(st);
     }
 
     SyclHomogenNumericTable(DictionaryIface::FeaturesEqual featuresEqual, const services::internal::Buffer<DataType> & buffer, size_t nColumns,
                             size_t nRows, services::Status & st)
         : SyclHomogenNumericTable(featuresEqual, nColumns, nRows, st)
     {
+        st |= checkSizeOverflow(nRows, nColumns);
+        services::throwIfPossible(st);
+
         if (nColumns * nRows > buffer.size())
         {
             st |= services::Error::create(services::ErrorIncorrectSizeOfArray, services::Row, "Buffer size is not enough to represent the table");
@@ -221,9 +248,19 @@ protected:
 
     services::Status allocateDataMemoryImpl(daal::MemType type = daal::dram) DAAL_C11_OVERRIDE
     {
+        if (type != daal::dram)
+        {
+            return services::throwIfPossible(services::ErrorIncorrectParameter);
+        }
+
         services::Status status;
 
         freeDataMemoryImpl();
+
+        if (!getNumberOfRows() || !getNumberOfColumns())
+        {
+            return status;
+        }
 
         if (isCpuContext())
         {
@@ -232,24 +269,16 @@ protected:
         }
         else
         {
-            if (!getNumberOfColumns())
-            {
-                status |= services::Status(services::ErrorIncorrectNumberOfFeatures);
-                return services::throwIfPossible(status);
-            }
+            status |= checkSizeOverflow(getNumberOfColumns(), getNumberOfRows());
+            if (!status) return services::throwIfPossible(status);
 
-            if (getNumberOfRows())
-            {
-                const size_t size = getNumberOfColumns() * getNumberOfRows();
+            const size_t size = getNumberOfColumns() * getNumberOfRows();
+            const auto universalBuffer =
+                services::internal::getDefaultContext().allocate(services::internal::sycl::TypeIds::id<DataType>(), size, status);
 
-                const auto universalBuffer =
-                    services::internal::getDefaultContext().allocate(services::internal::sycl::TypeIds::id<DataType>(), size, &status);
+            if (!status) return services::throwIfPossible(status);
 
-                services::throwIfPossible(status);
-                DAAL_CHECK_STATUS_VAR(status);
-
-                _buffer = universalBuffer.template get<DataType>();
-            }
+            _buffer = universalBuffer.template get<DataType>();
         }
 
         _memStatus = internallyAllocated;
@@ -270,16 +299,21 @@ protected:
         if (isCpuTable())
         {
             status |= _cpuTable->setNumberOfColumns(ncol);
+            if (!status) return services::throwIfPossible(status);
         }
 
-        if (status && _ddict->getNumberOfFeatures() != ncol)
+        if (_ddict->getNumberOfFeatures() != ncol)
         {
-            _ddict->resetDictionary();
-            _ddict->setNumberOfFeatures(ncol);
+            status |= _ddict->resetDictionary();
+            if (!status) return services::throwIfPossible(status);
+
+            status |= _ddict->setNumberOfFeatures(ncol);
+            if (!status) return services::throwIfPossible(status);
 
             NumericTableFeature df;
             df.setType<DataType>();
-            _ddict->setAllFeatures(df);
+            status |= _ddict->setAllFeatures(df);
+            if (!status) return services::throwIfPossible(status);
         }
 
         return status;
@@ -288,24 +322,31 @@ protected:
     template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * archive)
     {
-        NumericTable::serialImpl<Archive, onDeserialize>(archive);
+        auto st = NumericTable::serialImpl<Archive, onDeserialize>(archive);
+        DAAL_CHECK_STATUS_VAR(st);
 
         if (onDeserialize)
         {
-            allocateDataMemoryImpl();
+            st |= allocateDataMemoryImpl();
+            DAAL_CHECK_STATUS_VAR(st);
         }
 
         const size_t size = getNumberOfColumns() * getNumberOfRows();
+        // overflow checks done in constructors and allocateDataMemoryImpl() method
+
         if (isCpuTable())
         {
             archive->set(_cpuTable->getArray(), size);
         }
         else
         {
-            archive->set(_buffer.toHost(data_management::readOnly).get(), size);
+            const auto hostData = _buffer.toHost(data_management::readOnly, st);
+            if (!st) return services::throwIfPossible(st);
+
+            archive->set(hostData.get(), size);
         }
 
-        return services::Status();
+        return st;
     }
 
     template <typename T>
@@ -316,8 +357,7 @@ protected:
         if (_memStatus == notAllocated)
         {
             status |= services::Status(services::ErrorEmptyHomogenNumericTable);
-            services::throwIfPossible(status);
-            return status;
+            return services::throwIfPossible(status);
         }
 
         if (isCpuTable())
@@ -325,45 +365,63 @@ protected:
             return _cpuTable->assign(value);
         }
 
-        services::internal::getDefaultContext().fill(_buffer, (double)value, &status);
-        services::throwIfPossible(status);
-
-        return status;
+        services::internal::getDefaultContext().fill(_buffer, (double)value, status);
+        return services::throwIfPossible(status);
     }
 
 private:
+    static services::Status checkSizeOverflow(size_t nRows, size_t nCols)
+    {
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, nCols);
+        return services::Status();
+    }
+
+    static services::Status checkOffsetOverflow(size_t size, size_t offset)
+    {
+        DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, size, offset);
+        return services::Status();
+    }
+
     template <typename T, typename U>
     struct BufferIO
     {
         static services::Status read(const services::internal::Buffer<U> & buffer, BlockDescriptor<T> & block, size_t nRows, size_t nCols)
         {
             DAAL_ASSERT(buffer.size() == nRows * nCols);
+            services::Status status;
 
             if (!block.resizeBuffer(nCols, nRows))
             {
-                services::Status status(services::ErrorMemoryAllocationFailed);
-                services::throwIfPossible(status);
-                return status;
+                return services::throwIfPossible(services::ErrorMemoryAllocationFailed);
             }
 
-            // TODO: Figure out how to convert the data without fallback to host
-            auto hostPtr = buffer.toHost(data_management::readOnly);
+            auto hostPtr = buffer.toHost(data_management::readOnly, status);
+            if (!status) return services::throwIfPossible(status);
+
             internal::VectorUpCast<U, T>()(nRows * nCols, hostPtr.get(), block.getBlockPtr());
 
-            return services::Status();
+            return status;
         }
 
         static services::Status write(services::internal::Buffer<U> buffer, const BlockDescriptor<T> & block, size_t nRows, size_t nCols)
         {
+            services::Status status;
+
             DAAL_ASSERT(block.getNumberOfRows() == nRows);
             DAAL_ASSERT(block.getNumberOfColumns() == nCols);
             DAAL_ASSERT(buffer.size() == nRows * nCols);
 
-            // TODO: Figure out how to convert the data without fallback to host
-            auto hostPtr = buffer.toHost(data_management::writeOnly);
+            auto hostPtr = buffer.toHost(data_management::writeOnly, status);
+            if (!status) return services::throwIfPossible(status);
+
+            if (!block.getBlockPtr())
+            {
+                return services::throwIfPossible(services::ErrorNullPtr);
+            }
+
             internal::VectorDownCast<T, U>()(nRows * nCols, block.getBlockPtr(), hostPtr.get());
 
-            return services::Status();
+            return status;
         }
     };
 
@@ -380,22 +438,33 @@ private:
 
         static services::Status write(services::internal::Buffer<T> buffer, const BlockDescriptor<T> & block, size_t nRows, size_t nCols)
         {
+            DAAL_ASSERT(buffer == block.getBuffer());
+
             // TODO: Support case when block.getBuffer() != buffer
             // It means that user calls block.setBuffer on their side
             return services::Status();
         }
     };
 
-    services::internal::Buffer<DataType> getSubBuffer(size_t rowOffset, size_t nRows)
+    services::internal::Buffer<DataType> getSubBuffer(size_t rowOffset, size_t nRows, services::Status & st)
     {
+        DAAL_ASSERT(rowOffset < getNumberOfRows());
+        DAAL_ASSERT(nRows <= getNumberOfRows());
+
         const size_t nCols  = getNumberOfColumns();
         const size_t offset = rowOffset * nCols;
         const size_t size   = nRows * nCols;
+
+        // Checks on offset+size correctness are done in getTBlock(), releaseTBlock() functions
+
         if (size == _buffer.size())
         {
             return _buffer;
         }
-        return _buffer.getSubBuffer(offset, size);
+        services::internal::Buffer<DataType> subBuffer = _buffer.getSubBuffer(offset, size, st);
+        services::throwIfPossible(st);
+
+        return subBuffer;
     }
 
     template <typename T>
@@ -405,6 +474,8 @@ private:
         {
             return _cpuTable->getBlockOfRows(rowOffset, nRowsBlockDesired, rwFlag, block);
         }
+
+        services::Status status;
 
         const size_t nRows = getNumberOfRows();
         const size_t nCols = getNumberOfColumns();
@@ -416,9 +487,16 @@ private:
             return services::Status();
         }
 
+        auto st = checkOffsetOverflow(nRowsBlockDesired, rowOffset);
+        if (!st) return services::throwIfPossible(st);
+
         const size_t nRowsBlock = (rowOffset + nRowsBlockDesired < nRows) ? nRowsBlockDesired : nRows - rowOffset;
 
-        return BufferIO<T, DataType>::read(getSubBuffer(rowOffset, nRowsBlock), block, nRowsBlock, nCols);
+        auto subbuffer = getSubBuffer(rowOffset, nRowsBlock, st);
+        DAAL_CHECK_STATUS_VAR(st);
+
+        st |= BufferIO<T, DataType>::read(subbuffer, block, nRowsBlock, nCols);
+        return st;
     }
 
     template <typename T>
@@ -433,11 +511,22 @@ private:
 
         if (block.getRWFlag() & (int)writeOnly)
         {
-            const size_t nCols     = getNumberOfColumns();
-            const size_t nRows     = block.getNumberOfRows();
-            const size_t rowOffset = block.getRowsOffset();
+            const size_t nCols      = getNumberOfColumns();
+            const size_t nRows      = getNumberOfRows();
+            const size_t nRowsBlock = block.getNumberOfRows();
+            const size_t rowOffset  = block.getRowsOffset();
 
-            status |= BufferIO<T, DataType>::write(getSubBuffer(rowOffset, nRows), block, nRows, nCols);
+            status |= checkOffsetOverflow(nRowsBlock, rowOffset);
+            if (!status) return throwIfPossible(status);
+
+            if ((nRowsBlock + rowOffset) > nRows || nCols != block.getNumberOfColumns())
+            {
+                return services::throwIfPossible(services::ErrorIncorrectParameter);
+            }
+            auto subbuffer = getSubBuffer(rowOffset, nRowsBlock, status);
+            DAAL_CHECK_STATUS_VAR(status);
+
+            status |= BufferIO<T, DataType>::write(subbuffer, block, nRowsBlock, nCols);
         }
 
         block.reset();
@@ -452,8 +541,7 @@ private:
             return _cpuTable->getBlockOfColumnValues(columnIndex, rowOffset, nRowsBlockDesired, rwFlag, block);
         }
 
-        services::throwIfPossible(services::ErrorMethodNotImplemented);
-        return services::ErrorMethodNotImplemented;
+        return services::throwIfPossible(services::ErrorMethodNotImplemented);
     }
 
     template <typename T>
@@ -464,8 +552,7 @@ private:
             return _cpuTable->releaseBlockOfColumnValues(block);
         }
 
-        services::throwIfPossible(services::ErrorMethodNotImplemented);
-        return services::ErrorMethodNotImplemented;
+        return services::throwIfPossible(services::ErrorMethodNotImplemented);
     }
 
     services::Status allocateDataMemoryOnCpu()

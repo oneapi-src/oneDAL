@@ -27,6 +27,7 @@
 #include "data_management/data/numeric_table.h"
 #include "algorithms/algorithm_base_common.h"
 #include "algorithms/moments/low_order_moments_types.h"
+#include "src/services/service_data_utils.h"
 
 using namespace daal::services;
 using namespace daal::data_management;
@@ -48,8 +49,8 @@ struct TaskInfoBatch;
 template <typename algorithmFPType>
 struct TaskInfoBatch<algorithmFPType, estimatesMinMax>
 {
-    constexpr static unsigned int nResults          = 2;
-    constexpr static unsigned int nBuffers          = 2;
+    constexpr static uint32_t nResults              = 2;
+    constexpr static uint32_t nBuffers              = 2;
     constexpr static bool isRowsInBlockInfoRequired = false;
     using resultsSetType                            = int[nResults];
     using resultTableType                           = NumericTablePtr[nResults];
@@ -70,8 +71,8 @@ struct TaskInfoBatch<algorithmFPType, estimatesMinMax>
 template <typename algorithmFPType>
 struct TaskInfoBatch<algorithmFPType, estimatesMeanVariance>
 {
-    constexpr static unsigned int nResults          = 2;
-    constexpr static unsigned int nBuffers          = 2;
+    constexpr static uint32_t nResults              = 2;
+    constexpr static uint32_t nBuffers              = 2;
     constexpr static bool isRowsInBlockInfoRequired = true;
     using resultsSetType                            = int[nResults];
     using resultTableType                           = NumericTablePtr[nResults];
@@ -92,8 +93,8 @@ struct TaskInfoBatch<algorithmFPType, estimatesMeanVariance>
 template <typename algorithmFPType>
 struct TaskInfoBatch<algorithmFPType, estimatesAll>
 {
-    constexpr static unsigned int nResults          = lastResultId + 1;
-    constexpr static unsigned int nBuffers          = 5;
+    constexpr static uint32_t nResults              = lastResultId + 1;
+    constexpr static uint32_t nBuffers              = 5;
     constexpr static bool isRowsInBlockInfoRequired = true;
     using resultsSetType                            = int[nResults];
     using resultTableType                           = NumericTablePtr[nResults];
@@ -124,22 +125,24 @@ template <typename algorithmFPType, EstimatesToCompute scope>
 class LowOrderMomentsBatchTaskOneAPI : public TaskInfoBatch<algorithmFPType, scope>
 {
 public:
-    LowOrderMomentsBatchTaskOneAPI(ExecutionContextIface & context, NumericTable * dataTable, Result * result, services::Status * status);
+    LowOrderMomentsBatchTaskOneAPI(ExecutionContextIface & context, NumericTable * dataTable, Result * result, services::Status & status);
     LowOrderMomentsBatchTaskOneAPI(const LowOrderMomentsBatchTaskOneAPI &) = delete;
     LowOrderMomentsBatchTaskOneAPI & operator=(const LowOrderMomentsBatchTaskOneAPI &) = delete;
     virtual ~LowOrderMomentsBatchTaskOneAPI();
     Status compute();
 
 private:
-    unsigned int nVectors;
-    unsigned int nFeatures;
+    static constexpr size_t _uint32max = static_cast<size_t>(services::internal::MaxVal<uint32_t>::get());
 
-    const unsigned int maxWorkItemsPerGroup        = 256;
-    const unsigned int maxWorkItemsPerGroupToMerge = 16;
+    uint32_t nVectors;
+    uint32_t nFeatures;
 
-    unsigned int nRowsBlocks;
-    unsigned int nColsBlocks;
-    unsigned int workItemsPerGroup;
+    const uint32_t maxWorkItemsPerGroup        = 256;
+    const uint32_t maxWorkItemsPerGroupToMerge = 16;
+
+    uint32_t nRowsBlocks;
+    uint32_t nColsBlocks;
+    uint32_t workItemsPerGroup;
 
     NumericTable * dataTable;
     BlockDescriptor<algorithmFPType> dataBD;

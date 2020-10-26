@@ -76,7 +76,7 @@ void train_result<Task>::set_model_impl(const model<Task>& value) {
     impl_->trained_model = value;
 }
 
-template class ONEAPI_DAL_EXPORT train_input<task::classification>;
-template class ONEAPI_DAL_EXPORT train_result<task::classification>;
+template class ONEDAL_EXPORT train_input<task::classification>;
+template class ONEDAL_EXPORT train_result<task::classification>;
 
 } // namespace oneapi::dal::knn

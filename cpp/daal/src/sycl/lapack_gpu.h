@@ -48,7 +48,7 @@ struct LapackGpu
 
         ExecutionContextIface & ctx = services::internal::getDefaultContext();
 
-        ctx.potrf(uplo, n, a_buffer, lda, &status);
+        ctx.potrf(uplo, n, a_buffer, lda, status);
 
         return status;
     }
@@ -60,7 +60,7 @@ struct LapackGpu
 
         ExecutionContextIface & ctx = services::internal::getDefaultContext();
 
-        ctx.potrs(uplo, n, ny, a_buffer, lda, b_buffer, ldb, &status);
+        ctx.potrs(uplo, n, ny, a_buffer, lda, b_buffer, ldb, status);
 
         return status;
     }

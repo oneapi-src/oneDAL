@@ -16,7 +16,7 @@
 
 #include "gtest/gtest.h"
 
-#define ONEAPI_DAL_DATA_PARALLEL
+#define ONEDAL_DATA_PARALLEL
 #include "oneapi/dal/table/column_accessor.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 

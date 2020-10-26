@@ -84,23 +84,23 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::compute(NumericTable & x
 
         const TypeIds::Id idType = TypeIds::id<algorithmFPType>();
 
-        UniversalBuffer xtxCopyAlloc = context.allocate(idType, nBetasIntercept * nBetasIntercept, &status);
+        UniversalBuffer xtxCopyAlloc = context.allocate(idType, nBetasIntercept * nBetasIntercept, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         services::internal::Buffer<algorithmFPType> xtxBufCopy = xtxCopyAlloc.get<algorithmFPType>();
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.xtxCopy);
-            context.copy(xtxBufCopy, 0, xtxBuf, 0, nBetasIntercept * nBetasIntercept, &status);
+            context.copy(xtxBufCopy, 0, xtxBuf, 0, nBetasIntercept * nBetasIntercept, status);
         }
         DAAL_CHECK_STATUS_VAR(status);
 
-        UniversalBuffer xtyCopyAlloc = context.allocate(idType, nResponses * nBetasIntercept, &status);
+        UniversalBuffer xtyCopyAlloc = context.allocate(idType, nResponses * nBetasIntercept, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         services::internal::Buffer<algorithmFPType> betaBuf = xtyCopyAlloc.get<algorithmFPType>();
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.betaBufCopy);
-            context.copy(betaBuf, 0, xtyBuf, 0, nResponses * nBetasIntercept, &status);
+            context.copy(betaBuf, 0, xtyBuf, 0, nResponses * nBetasIntercept, status);
         }
         DAAL_CHECK_STATUS_VAR(status);
 
@@ -135,7 +135,7 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::copyDataToFinalTable(Num
     services::internal::Buffer<algorithmFPType> dstBuf       = dstBlock.getBuffer();
 
     auto & context = services::internal::getDefaultContext();
-    context.copy(dstBuf, 0, srcBuf, 0, nCols * nRows, &status);
+    context.copy(dstBuf, 0, srcBuf, 0, nCols * nRows, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     DAAL_CHECK_STATUS(status, srcTable.releaseBlockOfRows(srcBlock));

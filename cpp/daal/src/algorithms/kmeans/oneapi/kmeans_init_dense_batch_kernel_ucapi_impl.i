@@ -27,6 +27,7 @@
 
 #include "data_management/data/numeric_table.h"
 #include "services/daal_defines.h"
+#include "src/services/service_data_utils.h"
 #include "src/externals/service_memory.h"
 #include "src/data_management/service_numeric_table.h"
 #include "src/algorithms/distributions/uniform/uniform_kernel.h"
@@ -48,6 +49,9 @@ using namespace daal::services::internal::sycl;
 using namespace daal::data_management;
 using namespace daal::algorithms::distributions::uniform::internal;
 
+constexpr uint32_t maxInt32AsUint32T = static_cast<uint32_t>(daal::services::internal::MaxVal<int32_t>::get());
+constexpr size_t maxInt32AsSizeT     = static_cast<size_t>(daal::services::internal::MaxVal<int32_t>::get());
+
 template <Method method, typename algorithmFPType>
 Status KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::init(size_t p, size_t n, size_t nRowsTotal, size_t nClusters,
                                                                       NumericTable * ntClusters, NumericTable * ntData, unsigned int seed,
@@ -55,33 +59,26 @@ Status KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::init(size_t p, 
 {
     Status st;
 
-    auto & context        = services::internal::getDefaultContext();
-    auto & kernel_factory = context.getClKernelFactory();
-
-    auto fptype_name   = services::internal::sycl::getKeyFPType<algorithmFPType>();
-    auto build_options = fptype_name;
-    build_options.add("-cl-std=CL1.2 -D LOCAL_SUM_SIZE=256"); // should be equal to _maxWorkitemsPerGroup
-
-    services::String cachekey("__daal_algorithms_kmeans_init_dense_batch_");
-    cachekey.add(fptype_name);
-
-    kernel_factory.build(ExecutionTargetIds::device, cachekey.c_str(), kmeans_init_cl_kernels, build_options.c_str());
+    auto & context = services::internal::getDefaultContext();
 
     if (method == deterministicDense)
     {
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, nClusters, p);
         BlockDescriptor<algorithmFPType> dataRows;
-        ntData->getBlockOfRows(0, nClusters, readOnly, dataRows);
+        DAAL_CHECK_STATUS_VAR(ntData->getBlockOfRows(0, nClusters, readOnly, dataRows));
         auto data = dataRows.getBuffer();
 
         BlockDescriptor<algorithmFPType> clustersRows;
-        ntClusters->getBlockOfRows(0, nClusters, writeOnly, clustersRows);
+        DAAL_CHECK_STATUS_VAR(ntClusters->getBlockOfRows(0, nClusters, writeOnly, clustersRows));
         auto clusters = clustersRows.getBuffer();
 
-        context.copy(clusters, 0, data, 0, nClusters * p, &st);
+        DAAL_ASSERT(clusters.size() >= nClusters * p);
+        DAAL_ASSERT(data.size() >= nClusters * p);
+        context.copy(clusters, 0, data, 0, nClusters * p, st);
         DAAL_CHECK_STATUS_VAR(st);
 
-        ntData->releaseBlockOfRows(dataRows);
-        ntClusters->releaseBlockOfRows(clustersRows);
+        DAAL_CHECK_STATUS_VAR(ntData->releaseBlockOfRows(dataRows));
+        DAAL_CHECK_STATUS_VAR(ntClusters->releaseBlockOfRows(clustersRows));
 
         clustersFound = nClusters;
 
@@ -90,27 +87,28 @@ Status KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::init(size_t p, 
 
     if (method == randomDense)
     {
-        auto gather_random = kernel_factory.getKernel("gather_random");
-
-        auto indices = context.allocate(TypeIds::id<int>(), nClusters, &st);
+        DAAL_CHECK(nClusters <= maxInt32AsSizeT, services::ErrorIncorrectParameter);
+        DAAL_CHECK(nRowsTotal <= maxInt32AsSizeT, services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
+        auto indices = context.allocate(TypeIds::id<int>(), nClusters, st);
         DAAL_CHECK_STATUS_VAR(st);
-
         {
-            auto indicesHostPtr = indices.get<int>().toHost(data_management::readWrite);
-            auto * indicesHost  = indicesHostPtr.get();
+            DAAL_ASSERT_UNIVERSAL_BUFFER(indices, int, nClusters);
+            auto indicesHostPtr = indices.get<int>().toHost(data_management::readWrite, st);
+            DAAL_CHECK_STATUS_VAR(st);
+            auto * indicesHost = indicesHostPtr.get();
 
-            size_t k = 0;
+            uint32_t k = 0;
             Status s;
-            for (size_t i = 0; i < nClusters; i++)
+            for (uint32_t i = 0; i < nClusters; i++)
             {
-                DAAL_CHECK_STATUS(s, (UniformKernelDefault<int, sse2>::compute(i, (int)nRowsTotal, engine, 1, indicesHost + k)));
-                size_t c    = (size_t)indicesHost[k];
+                DAAL_CHECK_STATUS(s, (UniformKernelDefault<int, sse2>::compute(i, static_cast<int32_t>(nRowsTotal), engine, 1, indicesHost + k)));
+                uint32_t c  = (size_t)indicesHost[k];
                 int & value = indicesHost[k];
-                for (size_t j = k; j > 0; j--)
+                for (uint32_t j = k; j > 0; j--)
                 {
                     if (value == indicesHost[j - 1])
                     {
-                        c     = (size_t)(j - 1);
+                        c     = (uint32_t)(j - 1);
                         value = c;
                     }
                 }
@@ -122,18 +120,17 @@ Status KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::init(size_t p, 
         }
 
         BlockDescriptor<algorithmFPType> dataRows;
-        ntData->getBlockOfRows(0, nRowsTotal, readOnly, dataRows);
+        DAAL_CHECK_STATUS_VAR(ntData->getBlockOfRows(0, nRowsTotal, readOnly, dataRows));
         auto data = dataRows.getBuffer();
 
         BlockDescriptor<algorithmFPType> clustersRows;
-        ntClusters->getBlockOfRows(0, clustersFound, writeOnly, clustersRows);
+        DAAL_CHECK_STATUS_VAR(ntClusters->getBlockOfRows(0, clustersFound, writeOnly, clustersRows));
         auto clusters = clustersRows.getBuffer();
 
-        gatherRandom(context, gather_random, data, clusters, indices, nRowsTotal, clustersFound, p, &st);
-        DAAL_CHECK_STATUS_VAR(st);
+        DAAL_CHECK_STATUS_VAR(gatherRandom(data, clusters, indices, nRowsTotal, clustersFound, p));
 
-        ntData->releaseBlockOfRows(dataRows);
-        ntClusters->releaseBlockOfRows(clustersRows);
+        DAAL_CHECK_STATUS_VAR(ntData->releaseBlockOfRows(dataRows));
+        DAAL_CHECK_STATUS_VAR(ntClusters->releaseBlockOfRows(clustersRows));
 
         return st;
     }
@@ -171,32 +168,65 @@ uint32_t KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::getWorkgroups
 }
 
 template <Method method, typename algorithmFPType>
-void KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::gatherRandom(ExecutionContextIface & context, const KernelPtr & kernel_gather_random,
-                                                                            const services::internal::Buffer<algorithmFPType> & data,
-                                                                            const services::internal::Buffer<algorithmFPType> & clusters,
-                                                                            UniversalBuffer & indices, uint32_t nRows, uint32_t nClusters,
-                                                                            uint32_t nFeatures, Status * st)
+Status KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::gatherRandom(const services::internal::Buffer<algorithmFPType> & data,
+                                                                              const services::internal::Buffer<algorithmFPType> & clusters,
+                                                                              UniversalBuffer & indices, uint32_t nRows, uint32_t nClusters,
+                                                                              uint32_t nFeatures)
 {
-    KernelArguments args(6);
+    Status st;
+    auto & context       = services::internal::getDefaultContext();
+    auto & kernelFactory = context.getClKernelFactory();
+    DAAL_CHECK_STATUS_VAR(buildProgram(kernelFactory));
+
+    auto kernel = kernelFactory.getKernel("gather_random", st);
+    DAAL_CHECK_STATUS_VAR(st);
+
+    DAAL_ASSERT(nRows <= maxInt32AsUint32T);
+    DAAL_ASSERT(nClusters <= maxInt32AsUint32T);
+    DAAL_ASSERT(nFeatures <= maxInt32AsUint32T);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, nClusters, nFeatures);
+    DAAL_ASSERT(data.size() >= nRows);
+    DAAL_ASSERT(clusters.size() >= nClusters * nFeatures);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(indices, int, nClusters);
+
+    KernelArguments args(6, st);
+    DAAL_CHECK_STATUS_VAR(st);
     args.set(0, data, AccessModeIds::read);
     args.set(1, clusters, AccessModeIds::write);
     args.set(2, indices, AccessModeIds::read);
-    args.set(3, nRows);
-    args.set(4, nClusters);
-    args.set(5, nFeatures);
+    args.set(3, static_cast<int32_t>(nRows));
+    args.set(4, static_cast<int32_t>(nClusters));
+    args.set(5, static_cast<int32_t>(nFeatures));
 
     KernelRange local_range(1, _maxWorkItemsPerGroup);
     KernelRange global_range(nClusters, _maxWorkItemsPerGroup);
 
     KernelNDRange range(2);
     range.global(global_range, st);
-    DAAL_CHECK_STATUS_PTR(st);
+    DAAL_CHECK_STATUS_VAR(st);
     range.local(local_range, st);
-    DAAL_CHECK_STATUS_PTR(st);
+    DAAL_CHECK_STATUS_VAR(st);
 
     {
-        context.run(range, kernel_gather_random, args, st);
+        context.run(range, kernel, args, st);
     }
+    return st;
+}
+
+template <Method method, typename algorithmFPType>
+Status KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::buildProgram(ClKernelFactoryIface & kernelFactory)
+{
+    auto fptypeName   = services::internal::sycl::getKeyFPType<algorithmFPType>();
+    auto buildOptions = fptypeName;
+    buildOptions.add("-cl-std=CL1.2 -D LOCAL_SUM_SIZE=256"); // should be not less than _maxWorkitemsPerGroup
+
+    services::String cachekey("__daal_algorithms_kmeans_init_dense_batch_");
+    cachekey.add(fptypeName);
+    cachekey.add(buildOptions);
+
+    Status st;
+    kernelFactory.build(ExecutionTargetIds::device, cachekey.c_str(), kmeans_init_cl_kernels, buildOptions.c_str(), st);
+    return st;
 }
 
 } // namespace internal

@@ -147,7 +147,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>onedal_core_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>onedal_core_dll.1.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -168,7 +168,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>onedal_core_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>onedal_core_dll.1.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -244,7 +244,7 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>onedal_core_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>onedal_core_dll.1.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -269,7 +269,7 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>onedal_core_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>onedal_core_dll.1.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>

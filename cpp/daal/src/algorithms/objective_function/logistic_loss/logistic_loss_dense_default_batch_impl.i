@@ -65,7 +65,10 @@ static void applyBetaImpl(const algorithmFPType * x, const algorithmFPType * bet
     {
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < n; ++i) xb[i] += beta[0];
+        for (size_t i = 0; i < n; ++i)
+        {
+            xb[i] += beta[0];
+        }
     }
 }
 
@@ -74,14 +77,6 @@ void LogLossKernel<algorithmFPType, method, cpu>::applyBeta(const algorithmFPTyp
                                                             size_t nRows, size_t nCols, bool bIntercept)
 {
     applyBetaImpl<algorithmFPType, cpu>(x, beta, xb, nRows, nCols, bIntercept, false);
-}
-
-template <typename algorithmFPType, Method method, CpuType cpu>
-void LogLossKernel<algorithmFPType, method, cpu>::applyBetaThreaded(const algorithmFPType * x, const algorithmFPType * beta, algorithmFPType * xb,
-                                                                    size_t nRows, size_t nCols, bool bIntercept)
-{
-    DAAL_ITTNOTIFY_SCOPED_TASK(applyBeta);
-    applyBetaImpl<algorithmFPType, cpu>(x, beta, xb, nRows, nCols, bIntercept, true);
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -101,15 +96,15 @@ static void vexp(const algorithmFPType * f, algorithmFPType * exp, size_t n)
 }
 
 template <typename algorithmFPType, CpuType cpu>
-static void sigmoids(algorithmFPType * exp, size_t n)
+static void sigmoids(algorithmFPType * exp, size_t n, size_t offset)
 {
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
     for (size_t i = 0; i < n; ++i)
     {
-        const auto sigm = algorithmFPType(1.0) / (algorithmFPType(1.0) + exp[i]);
+        const auto sigm = static_cast<algorithmFPType>(1.0) / (static_cast<algorithmFPType>(1.0) + exp[i]);
         exp[i]          = sigm;
-        exp[i + n]      = 1 - sigm;
+        exp[i + offset] = 1 - sigm;
     }
 }
 
@@ -121,7 +116,10 @@ void LogLossKernel<algorithmFPType, method, cpu>::sigmoid(const algorithmFPType 
     //s = sigm(f)
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
-    for (size_t i = 0; i < n; ++i) s[i] = algorithmFPType(1.0) / (algorithmFPType(1.0) + s[i]);
+    for (size_t i = 0; i < n; ++i)
+    {
+        s[i] = static_cast<algorithmFPType>(1.0) / (static_cast<algorithmFPType>(1.0) + s[i]);
+    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -192,9 +190,8 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
         WriteRows<algorithmFPType, cpu> lipschitzConstantPtr(lipschitzConstant, 0, 1);
         algorithmFPType & c = *lipschitzConstantPtr.get();
 
-        const size_t blockSize = 256;
-        size_t nBlocks         = n / blockSize;
-        nBlocks += (nBlocks * blockSize != n);
+        const size_t blockSize        = 256;
+        const size_t nBlocks          = n / blockSize + !!(n % blockSize);
         algorithmFPType globalMaxNorm = 0;
 
         TlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> > tlsData(lipschitzConstant->getNumberOfRows());
@@ -249,6 +246,7 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
 
     if (valueNT || gradientNT || hessianNT)
     {
+        SafeStatus safeStat;
         TNArray<algorithmFPType, 16, cpu> f;
         TNArray<algorithmFPType, 32, cpu> sg;
 
@@ -257,6 +255,7 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
 
         algorithmFPType * fPtr;
         algorithmFPType * sgPtr;
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, 2);
         if (n < 16)
         {
             f.reset(n);
@@ -271,42 +270,147 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
             fPtr  = fScalable.get();
             sgPtr = sgScalable.get();
         }
-        //f = X*b + b0
-        applyBetaThreaded(x, b, fPtr, n, p, parameter->interceptFlag);
+        DAAL_CHECK(fPtr && sgPtr, ErrorMemoryAllocationFailed);
 
-        {
-            DAAL_ITTNOTIFY_SCOPED_TASK(sigmoids);
-            //s = exp(-f)
-            vexp<algorithmFPType, cpu>(fPtr, sgPtr, n);
-
-            //s = sigm(f), s1 = 1 - s
-            sigmoids<algorithmFPType, cpu>(sgPtr, n);
-        }
-
-        const bool bL1 = (parameter->penaltyL1 > 0);
-        const bool bL2 = (parameter->penaltyL2 > 0);
+        const bool bL1 = parameter->penaltyL1 > 0;
+        const bool bL2 = parameter->penaltyL2 > 0;
 
         const size_t iFirstBeta   = parameter->interceptFlag ? 0 : 1;
-        const algorithmFPType div = algorithmFPType(1) / algorithmFPType(n);
+        const algorithmFPType div = static_cast<algorithmFPType>(1) / static_cast<algorithmFPType>(n);
+
+        const size_t nRowsInBlock = 512;
+        const size_t nDataBlocks  = n / nRowsInBlock + !!(n % nRowsInBlock);
+
+        TlsMem<algorithmFPType, cpu> tlsData(2 * nRowsInBlock);
+
+        TArrayScalable<algorithmFPType, cpu> values;
+        if (valueNT)
+        {
+            values.reset(nDataBlocks);
+            DAAL_CHECK_MALLOC(values.get());
+        }
+        TArrayScalable<algorithmFPType, cpu> grads;
+        if (gradientNT)
+        {
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nDataBlocks, p);
+            grads.reset(nDataBlocks * p);
+            DAAL_CHECK_MALLOC(grads.get());
+        }
+
+        TArrayScalable<algorithmFPType, cpu> interceptGrad;
+        if (gradientNT && parameter->interceptFlag)
+        {
+            interceptGrad.reset(nDataBlocks);
+            DAAL_CHECK_MALLOC(interceptGrad.get());
+        }
+
+        daal::threader_for(nDataBlocks, nDataBlocks, [&](size_t iBlock) {
+            const size_t iStartRow      = iBlock * nRowsInBlock;
+            const size_t nRowsToProcess = (iBlock == nDataBlocks - 1) ? n - iBlock * nRowsInBlock : nRowsInBlock;
+
+            const algorithmFPType * const xLocal = x + iStartRow * p;
+            const algorithmFPType * const yLocal = y + iStartRow;
+            algorithmFPType * const fPtrLocal    = fPtr + iStartRow;
+            algorithmFPType * const sgPtrLocal   = sgPtr + iStartRow;
+
+            //f = X*b + b0
+            {
+                DAAL_ITTNOTIFY_SCOPED_TASK(applyBeta);
+                applyBeta(xLocal, b, fPtrLocal, nRowsToProcess, p, parameter->interceptFlag);
+            }
+
+            {
+                DAAL_ITTNOTIFY_SCOPED_TASK(sigmoids);
+                //s = exp(-f)
+                vexp<algorithmFPType, cpu>(fPtrLocal, sgPtrLocal, nRowsToProcess);
+
+                //s = sigm(f), s1 = 1 - s
+                sigmoids<algorithmFPType, cpu>(sgPtrLocal, nRowsToProcess, n);
+            }
+
+            if (valueNT)
+            {
+                algorithmFPType * const ls = tlsData.local();
+                DAAL_CHECK_THR(ls, services::ErrorMemoryAllocationFailed);
+                algorithmFPType * const ls1 = ls + nRowsInBlock;
+
+                daal::internal::Math<algorithmFPType, cpu>::vLog(nRowsToProcess, sgPtrLocal, ls);
+                daal::internal::Math<algorithmFPType, cpu>::vLog(nRowsToProcess, sgPtrLocal + n, ls1);
+
+                algorithmFPType localValue(0);
+
+                for (size_t i = 0; i < nRowsToProcess; ++i)
+                {
+                    localValue += yLocal[i] * ls[i] + (static_cast<algorithmFPType>(1) - yLocal[i]) * ls1[i];
+                }
+                localValue *= -div;
+
+                values[iBlock] = localValue;
+            }
+
+            if (gradientNT)
+            {
+                DAAL_ASSERT(gradientNT->getNumberOfRows() == nBeta);
+
+                const char notrans         = 'N';
+                const algorithmFPType one  = 1.0;
+                const algorithmFPType zero = 0.0;
+                const DAAL_INT yDim        = 1;
+                DAAL_ASSERT(p <= services::internal::MaxVal<DAAL_INT>::get());
+                const DAAL_INT dim = static_cast<DAAL_INT>(p);
+                DAAL_ASSERT(nRowsToProcess <= services::internal::MaxVal<DAAL_INT>::get());
+                const DAAL_INT nN          = static_cast<DAAL_INT>(nRowsToProcess);
+                algorithmFPType * const pg = grads.get() + iBlock * p;
+
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for (size_t i = 0; i < nRowsToProcess; ++i)
+                {
+                    sgPtrLocal[i] -= yLocal[i];
+                }
+
+                daal::internal::Blas<algorithmFPType, cpu>::xxgemm(&notrans, &notrans, &dim, &yDim, &nN, &one, xLocal, &dim, sgPtrLocal, &nN, &zero,
+                                                                   pg, &dim);
+
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for (size_t i = 0; i < nRowsToProcess; ++i)
+                {
+                    sgPtrLocal[i] += yLocal[i];
+                }
+
+                if (parameter->interceptFlag)
+                {
+                    algorithmFPType interceptGradLocal(0);
+
+                    for (size_t i = 0; i < nRowsToProcess; ++i)
+                    {
+                        interceptGradLocal += (sgPtrLocal[i] - yLocal[i]);
+                    }
+
+                    interceptGrad[iBlock] = interceptGradLocal;
+                }
+            }
+        });
 
         if (valueNT)
         {
-            TArrayScalable<algorithmFPType, cpu> logS(2 * n);
-            daal::internal::Math<algorithmFPType, cpu>::vLog(2 * n, sgPtr, logS.get());
-
-            const algorithmFPType * ls  = logS.get();
-            const algorithmFPType * ls1 = ls + n;
-
             WriteRows<algorithmFPType, cpu> vr(valueNT, 0, 1);
             DAAL_CHECK_BLOCK_STATUS(vr);
             algorithmFPType & value = *vr.get();
-            value                   = 0.0;
-            for (size_t i = 0; i < n; ++i) value += y[i] * ls[i] + (algorithmFPType(1) - y[i]) * ls1[i];
+            value                   = 0;
 
-            value *= -div;
+            for (size_t i = 0; i < nDataBlocks; ++i)
+            {
+                value += values[i];
+            }
+
             if (bL2)
             {
-                for (size_t i = 1; i < nBeta; ++i) value += b[i] * b[i] * parameter->penaltyL2;
+                for (size_t i = 1; i < nBeta; ++i)
+                {
+                    value += b[i] * b[i] * parameter->penaltyL2;
+                }
             }
 
             if (bL1)
@@ -317,7 +421,10 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
                 }
                 else
                 {
-                    for (size_t i = 1; i < nBeta; ++i) value += (b[i] < 0 ? -b[i] : b[i]) * parameter->penaltyL1;
+                    for (size_t i = 1; i < nBeta; ++i)
+                    {
+                        value += (b[i] < 0 ? -b[i] : b[i]) * parameter->penaltyL1;
+                    }
                 }
             }
         }
@@ -325,12 +432,8 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
         if (gradientNT)
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(applyGradient);
-
-            DAAL_ASSERT(gradientNT->getNumberOfRows() == nBeta);
-            algorithmFPType * s = sgPtr;
-
             algorithmFPType * g;
-            HomogenNumericTable<algorithmFPType> * hmgGrad = dynamic_cast<HomogenNumericTable<algorithmFPType> *>(gradientNT);
+            HomogenNumericTable<algorithmFPType> * const hmgGrad = dynamic_cast<HomogenNumericTable<algorithmFPType> *>(gradientNT);
             WriteRows<algorithmFPType, cpu> gr;
             if (hmgGrad)
             {
@@ -342,71 +445,40 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
                 DAAL_CHECK_BLOCK_STATUS(gr);
                 g = gr.get();
             }
-            g[0]                = 0;
-            char trans          = 'T';
-            char notrans        = 'N';
-            algorithmFPType one = 1.0;
-            DAAL_INT yDim       = 1;
-            DAAL_ASSERT(p <= services::internal::MaxVal<DAAL_INT>::get());
-            DAAL_INT dim = (DAAL_INT)p;
 
-            const size_t nRowsInBlock = 1024;
-            const size_t nDataBlocks  = n / nRowsInBlock + !!(n % nRowsInBlock);
-            const auto nThreads       = daal::threader_get_threads_number();
-            if ((nThreads > 1) && (nDataBlocks > 1))
+            const algorithmFPType * const gradsPtr         = grads.get();
+            const algorithmFPType * const interceptGradPtr = interceptGrad.get();
+
+            int result = services::internal::daal_memcpy_s(g + 1, p * sizeof(algorithmFPType), gradsPtr, p * sizeof(algorithmFPType));
+            DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
+
+            for (size_t i = 1; i < nDataBlocks; i++)
             {
-                TArray<algorithmFPType, cpu> grads(nDataBlocks * p);
-                algorithmFPType * const gradsPtr = grads.get();
-                daal::services::internal::service_memset<algorithmFPType, cpu>(gradsPtr, algorithmFPType(0), nDataBlocks * p);
-                daal::threader_for(nDataBlocks, nDataBlocks, [&](size_t iBlock) {
-                    const size_t iStartRow      = iBlock * nRowsInBlock;
-                    const size_t nRowsToProcess = (iBlock == nDataBlocks - 1) ? n - iBlock * nRowsInBlock : nRowsInBlock;
-                    const auto px               = x + iStartRow * p;
-                    auto ps                     = s + iStartRow;
-                    const auto py               = y + iStartRow;
-                    DAAL_ASSERT(nRowsToProcess <= services::internal::MaxVal<DAAL_INT>::get());
-                    DAAL_INT nN = (DAAL_INT)nRowsToProcess;
-                    auto pg     = gradsPtr + iBlock * p;
-                    PRAGMA_IVDEP
-                    PRAGMA_VECTOR_ALWAYS
-                    for (size_t i = 0; i < nRowsToProcess; ++i)
-                    {
-                        ps[i] -= py[i];
-                    }
-                    daal::internal::Blas<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &yDim, &dim, &nN, &one, ps, &yDim, px, &dim, &one, pg,
-                                                                       &yDim);
-                    PRAGMA_IVDEP
-                    PRAGMA_VECTOR_ALWAYS
-                    for (size_t i = 0; i < nRowsToProcess; ++i)
-                    {
-                        ps[i] += py[i];
-                    }
-                });
-                for (size_t j = 0; j < p; j++) g[j + 1] = gradsPtr[j];
-                for (size_t i = 1; i < nDataBlocks; i++)
-                    for (size_t j = 0; j < p; j++) g[j + 1] += gradsPtr[i * p + j];
-            }
-            else
-            {
-                for (size_t i = 0; i < nBeta; ++i) g[i] = 0.0;
-                for (size_t i = 0; i < n; ++i)
+                for (size_t j = 0; j < p; j++)
                 {
-                    const algorithmFPType d = (s[i] - y[i]);
-                    PRAGMA_IVDEP
-                    PRAGMA_VECTOR_ALWAYS
-                    for (size_t j = 0; j < p; ++j) g[j + 1] += d * x[i * p + j];
+                    g[j + 1] += gradsPtr[i * p + j];
                 }
             }
 
+            g[0] = 0;
             if (parameter->interceptFlag)
             {
-                for (size_t i = 0; i < n; ++i) g[0] += (s[i] - y[i]);
+                for (size_t i = 0; i < nDataBlocks; i++)
+                {
+                    g[0] += interceptGradPtr[i];
+                }
             }
-            for (size_t i = iFirstBeta; i < nBeta; ++i) g[i] *= div;
+            for (size_t i = iFirstBeta; i < nBeta; ++i)
+            {
+                g[i] *= div;
+            }
 
             if (bL2)
             {
-                for (size_t i = 1; i < nBeta; ++i) g[i] += 2. * b[i] * parameter->penaltyL2;
+                for (size_t i = 1; i < nBeta; ++i)
+                {
+                    g[i] += 2. * b[i] * parameter->penaltyL2;
+                }
             }
         }
 
@@ -426,14 +498,20 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
             h[0] = 0;
             if (parameter->interceptFlag)
             {
-                for (size_t i = 0; i < n; ++i) h[0] += s[i];
+                for (size_t i = 0; i < n; ++i)
+                {
+                    h[0] += s[i];
+                }
                 h[0] *= div; //average of sigmoid derivatives
 
                 //first row and column
                 for (size_t k = 1; k < nBeta; ++k)
                 {
                     algorithmFPType val = 0;
-                    for (size_t i = 0; i < n; ++i) val += s[i] * x[i * p + k - 1];
+                    for (size_t i = 0; i < n; ++i)
+                    {
+                        val += s[i] * x[i * p + k - 1];
+                    }
                     h[k]         = val * div;
                     h[k * nBeta] = val * div;
                 }
@@ -453,13 +531,17 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
                 for (size_t k = j; k < nBeta; ++k)
                 {
                     algorithmFPType val = 0;
-                    for (size_t i = 0; i < n; ++i) val += x[i * p + j - 1] * x[i * p + k - 1] * s[i];
+                    for (size_t i = 0; i < n; ++i)
+                    {
+                        val += x[i * p + j - 1] * x[i * p + k - 1] * s[i];
+                    }
                     h[j * nBeta + k] = val * div;
                     h[k * nBeta + j] = val * div;
                 }
                 h[j * nBeta + j] += 2. * parameter->penaltyL2;
             }
         }
+        DAAL_CHECK_SAFE_STATUS()
     }
     return services::Status();
 }
@@ -488,6 +570,7 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::compute(NumericTab
             int ind                    = ntInd->getValue<int>(0, 0);
             const algorithmFPType * aX = (*hmgData)[ind];
             const algorithmFPType * aY = (*hmgDependentVariables)[ind];
+
             s |=
                 doCompute(aX, aY, n, p, betaNT, valueNT, hessianNT, gradientNT, nonSmoothTermValue, proximalProjection, lipschitzConstant, parameter);
             return s;

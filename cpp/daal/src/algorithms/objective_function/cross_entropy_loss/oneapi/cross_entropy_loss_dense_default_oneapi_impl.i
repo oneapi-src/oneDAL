@@ -50,6 +50,10 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::ap
                                                                                         const uint32_t nBeta, const uint32_t offset)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(applyBeta);
+    DAAL_ASSERT(x.size() == size_t(n) * size_t(ldX)); // overflows checked in the algorithm
+    DAAL_ASSERT(beta.size() >= size_t(offset) + size_t(ldX) * size_t(nClasses));
+    DAAL_ASSERT(xb.size() >= size_t(n) * size_t(nClasses));
+
     return BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::Trans, n, nClasses, ldX,
                                            algorithmFPType(1), x, ldX, 0, beta, nBeta, offset, algorithmFPType(0), xb, nClasses, 0);
 }
@@ -62,6 +66,9 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::be
                                                                                             const uint32_t nBeta)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(betaIntercept);
+    DAAL_ASSERT(one.size() == size_t(n));
+    DAAL_ASSERT(arg.size() >= size_t(nClasses));
+    DAAL_ASSERT(f.size() == size_t(n) * size_t(nClasses)); // overflows checked in the algorithm
 
     return BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::Trans, n, nClasses, 1,
                                            algorithmFPType(1), one, 1, 0, arg, nBeta, 0, algorithmFPType(1), f, nClasses, 0);
@@ -77,45 +84,12 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::ap
                                                                                             const algorithmFPType beta, const uint32_t offset)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(applyGradient);
+    DAAL_ASSERT(g.size() == size_t(n) * size_t(nClasses));
+    DAAL_ASSERT(x.size() == size_t(n) * size_t(p));
+    DAAL_ASSERT(gradient.size() >= size_t(offset) + size_t(p) * size_t(nClasses)); // overflows checked in the algorithm
 
     return BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::Trans, math::Transpose::NoTrans, nClasses, p, n, alpha, g,
                                            nClasses, 0, x, p, 0, beta, gradient, nBeta, offset);
-}
-
-template <typename algorithmFPType>
-services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::applyHessian(const services::internal::Buffer<algorithmFPType> & x,
-                                                                                           const services::internal::Buffer<algorithmFPType> & prob,
-                                                                                           const uint32_t n, const uint32_t p,
-                                                                                           services::internal::Buffer<algorithmFPType> & h,
-                                                                                           const uint32_t nBeta, const uint32_t nClasses,
-                                                                                           const uint32_t offset, const algorithmFPType alpha)
-{
-    DAAL_ITTNOTIFY_SCOPED_TASK(applyHessian);
-    services::Status status;
-
-    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
-    ClKernelFactoryIface & factory = ctx.getClKernelFactory();
-
-    buildProgram(factory);
-
-    const char * const kernelName = "hessian";
-    KernelPtr kernel              = factory.getKernel(kernelName);
-
-    KernelArguments args(9);
-    args.set(0, x, AccessModeIds::read);
-    args.set(1, p);
-    args.set(2, prob, AccessModeIds::read);
-    args.set(3, n);
-    args.set(4, h, AccessModeIds::write);
-    args.set(5, nBeta);
-    args.set(6, nClasses);
-    args.set(7, 0);
-    args.set(8, alpha);
-
-    KernelRange range(nBeta * nClasses, nBeta * nClasses);
-    ctx.run(range, kernel, args, &status);
-
-    return status;
 }
 
 template <typename algorithmFPType>
@@ -124,19 +98,26 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::so
                                                                                       const uint32_t n, const uint32_t nClasses)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(softmax);
+
+    DAAL_ASSERT(x.size() == size_t(n) * size_t(nClasses)); // overflows checked in the algorithm
+    DAAL_ASSERT(result.size() == size_t(n) * size_t(nClasses));
+
     services::Status status;
 
     ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-    buildProgram(factory);
+    status |= buildProgram(factory);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "softmax";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const algorithmFPType expThreshold = math::expThreshold<algorithmFPType>();
 
-    KernelArguments args(4);
+    KernelArguments args(4, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, x, AccessModeIds::read);
     args.set(1, result, AccessModeIds::readwrite);
     args.set(2, nClasses);
@@ -144,7 +125,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::so
 
     KernelRange range(n);
 
-    ctx.run(range, kernel, args, &status);
+    ctx.run(range, kernel, args, status);
 
     return status;
 }
@@ -155,19 +136,27 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::so
     services::internal::Buffer<algorithmFPType> & result, const uint32_t n, const uint32_t nClasses)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(softmaxAndUpdateProba);
+
+    DAAL_ASSERT(x.size() == size_t(n) * size_t(nClasses)); // overflows checked in the algorithm
+    DAAL_ASSERT(result.size() == size_t(n) * size_t(nClasses));
+    DAAL_ASSERT(y.size() == n);
+
     services::Status status;
 
     ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-    buildProgram(factory);
+    status |= buildProgram(factory);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "softmaxAndUpdateProba";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const algorithmFPType expThreshold = math::expThreshold<algorithmFPType>();
 
-    KernelArguments args(5);
+    KernelArguments args(5, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, x, AccessModeIds::read);
     args.set(1, y, AccessModeIds::read);
     args.set(2, result, AccessModeIds::readwrite);
@@ -176,7 +165,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::so
 
     KernelRange range(n);
 
-    ctx.run(range, kernel, args, &status);
+    ctx.run(range, kernel, args, status);
 
     return status;
 }
@@ -191,15 +180,22 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::cr
     DAAL_ITTNOTIFY_SCOPED_TASK(crossEntropy);
     services::Status status;
 
+    DAAL_ASSERT(sigma.size() == size_t(n) * size_t(nClasses)); // overflows checked in the algorithm
+    DAAL_ASSERT(result.size() == n);
+    DAAL_ASSERT(y.size() == n);
+
     ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-    buildProgram(factory);
+    status |= buildProgram(factory);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "crossEntropy";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(4);
+    KernelArguments args(4, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, y, AccessModeIds::read);
     args.set(1, sigma, AccessModeIds::read);
     args.set(2, result, AccessModeIds::write);
@@ -207,7 +203,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::cr
 
     KernelRange range(n);
 
-    ctx.run(range, kernel, args, &status);
+    ctx.run(range, kernel, args, status);
 
     return status;
 }
@@ -222,15 +218,21 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::up
     DAAL_ITTNOTIFY_SCOPED_TASK(updateProba);
     services::Status status;
 
+    DAAL_ASSERT(sigma.size() == size_t(n) * size_t(nClasses)); // overflows checked in the algorithm
+    DAAL_ASSERT(y.size() == n);
+
     ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-    buildProgram(factory);
+    status |= buildProgram(factory);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "updateProba";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(4);
+    KernelArguments args(4, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, y, AccessModeIds::read);
     args.set(1, sigma, AccessModeIds::readwrite);
     args.set(2, nClasses);
@@ -238,20 +240,24 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::up
 
     KernelRange range(n);
     {
-        ctx.run(range, kernel, args, &status);
+        ctx.run(range, kernel, args, status);
     }
 
     return status;
 }
 
 template <typename algorithmFPType>
-void CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::buildProgram(ClKernelFactoryIface & factory)
+services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::buildProgram(ClKernelFactoryIface & factory)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(buildProgram);
+    services::Status status;
     services::String options = getKeyFPType<algorithmFPType>();
     services::String cachekey("__daal_algorithms_optimization_solver_cross_entropy_loss_");
     cachekey.add(options);
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelCrossEntropyLoss, options.c_str());
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelCrossEntropyLoss, options.c_str(), status);
+    DAAL_CHECK_STATUS_VAR(status);
+
+    return status;
 }
 
 template <typename algorithmFPType>
@@ -266,7 +272,9 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::do
 
     ExecutionContextIface & ctx = services::internal::getDefaultContext();
 
-    const uint32_t nBeta   = nFeatures + 1;
+    const uint32_t nBeta = nFeatures + 1;
+    DAAL_ASSERT(nBeta > nFeatures);
+
     const uint32_t ldX     = isSourceData || interceptFlag ? nFeatures : nBeta;
     const uint32_t offsetX = isSourceData || interceptFlag ? 1 : 0;
 
@@ -274,9 +282,10 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::do
 
     if (hessianNT || nonSmoothTermValueNT || proximalProjectionNT || lipschitzConstantNT)
     {
-        // TODO
         return services::ErrorMethodNotImplemented;
     }
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, n, nClasses);
 
     DAAL_CHECK_STATUS(status, HelperObjectiveFunction::lazyAllocate(_fUniversal, n * nClasses));
     services::internal::Buffer<algorithmFPType> fBuf = _fUniversal.get<algorithmFPType>();
@@ -289,11 +298,12 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::do
         DAAL_CHECK_STATUS(status, HelperObjectiveFunction::lazyAllocate(_oneVector, n));
         services::internal::Buffer<algorithmFPType> oneVectorBuf = _oneVector.get<algorithmFPType>();
 
-        ctx.fill(_oneVector, 1.0, &status);
+        ctx.fill(_oneVector, 1.0, status);
+        DAAL_CHECK_STATUS_VAR(status);
         DAAL_CHECK_STATUS(status, betaIntercept(oneVectorBuf, argBuff, fBuf, n, nClasses, nBeta));
     }
 
-    const bool isNotOnlyGrad = valueNT || hessianNT;
+    const bool isNotOnlyGrad = valueNT != nullptr || hessianNT != nullptr;
 
     services::internal::Buffer<algorithmFPType> softmaxBuf;
     if (isNotOnlyGrad)
@@ -358,7 +368,8 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::do
         const algorithmFPType coeffBeta = algorithmFPType(2) * l2reg;
         if (l2reg > 0)
         {
-            ctx.copy(gradientBuff, 0, argBuff, 0, nBeta * nClasses, &status);
+            // overflow checked in compute()
+            ctx.copy(gradientBuff, 0, argBuff, 0, nBeta * nClasses, status);
             DAAL_CHECK_STATUS(status, HelperObjectiveFunction::setColElem(0, zero, gradientBuff, nClasses, nBeta));
         }
 
@@ -394,13 +405,19 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::co
                                                                                       NumericTable * lipschitzConstantNT, Parameter * parameter)
 {
     services::Status status;
+    DAAL_ASSERT(data != nullptr);
+    DAAL_ASSERT(parameter != nullptr);
+    DAAL_ASSERT(dependentVariables != nullptr);
+    DAAL_ASSERT(argument != nullptr);
 
-    const size_t nRows    = data->getNumberOfRows();
-    const size_t p        = data->getNumberOfColumns();
+    const size_t nRows = data->getNumberOfRows();
+    const size_t p     = data->getNumberOfColumns();
+    DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, p, 1);
     const size_t nBeta    = p + 1;
     const size_t nClasses = parameter->nClasses;
 
     DAAL_ASSERT(argument->getNumberOfColumns() == 1);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, nBeta, nClasses);
     DAAL_ASSERT(argument->getNumberOfRows() == nClasses * nBeta);
 
     BlockDescriptor<algorithmFPType> agrBlock;

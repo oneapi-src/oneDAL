@@ -1,4 +1,3 @@
-/* file: daal_defines_sycl.h */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -15,24 +14,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Common definitions.
-//--
-*/
+#include "oneapi/dal/io/detail/load_graph_service.hpp"
+#include "src/externals/service_service.h"
 
-#ifndef __DAAL_DEFINES_SYCL_H__
-#define __DAAL_DEFINES_SYCL_H__
+namespace oneapi::dal::preview::load_graph::detail {
 
-/** \file daal_defines_sycl.h */
-
-#include "services/daal_defines.h"
-#include "services/internal/sycl/types.h"
-
-#define DAAL_ASSERT_UNIVERSAL_BUFFER(buffer, bufferType, bufferSize)             \
-    {                                                                            \
-        DAAL_ASSERT((buffer).type() == TypeIds::id<bufferType>());               \
-        DAAL_ASSERT((buffer).template get<bufferType>().size() == (bufferSize)); \
-    }
-
-#endif
+ONEDAL_EXPORT int daal_string_to_int(const char* nptr, char** endptr) {
+    return daal::internal::Service<>::serv_string_to_int(nptr, endptr);
+}
+} // namespace oneapi::dal::preview::load_graph::detail

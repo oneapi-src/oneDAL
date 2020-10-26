@@ -27,17 +27,14 @@ CORE.SERV.COMPILER.gnu = generic
 -Zl.gnu =
 -DEBC.gnu = -g
 
-COMPILER.lnx.gnu =  ${CXX} $(if $(IA_is_ia32),-m32,-m64) -fwrapv -Werror -fno-strict-overflow -fno-delete-null-pointer-checks
+COMPILER.lnx.gnu =  ${CXX} $(if $(IA_is_ia32),-m32,-m64) -fwrapv -fno-strict-overflow -fno-delete-null-pointer-checks \
+                    -Werror -Wreturn-type
 
 link.dynamic.lnx.gnu = ${CXX} $(if $(IA_is_ia32),-m32,-m64)
 
 pedantic.opts.lnx.gnu = -pedantic \
                         -Wall \
                         -Wextra \
-                        -Werror \
-                        -Werror=return-type \
-                        -Werror=uninitialized \
-                        -Werror=unknown-pragmas \
                         -Wno-unused-parameter
 
 p4_OPT.gnu   = $(-Q)$(if $(IA_is_ia32),march=pentium4,march=nocona)

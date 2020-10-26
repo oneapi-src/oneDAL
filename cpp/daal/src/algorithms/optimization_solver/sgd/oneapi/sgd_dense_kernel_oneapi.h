@@ -69,7 +69,7 @@ private:
 
     static services::Status vectorNorm(const services::internal::Buffer<algorithmFPType> & x, const uint32_t n, algorithmFPType & norm);
 
-    static void buildProgram(services::internal::sycl::ClKernelFactoryIface & factory);
+    static services::Status buildProgram(services::internal::sycl::ClKernelFactoryIface & factory);
 
     enum IndicesStatus
     {

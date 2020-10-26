@@ -76,7 +76,7 @@ void infer_result<Task>::set_transformed_data_impl(const table& value) {
     impl_->transformed_data = value;
 }
 
-template class ONEAPI_DAL_EXPORT infer_input<task::dim_reduction>;
-template class ONEAPI_DAL_EXPORT infer_result<task::dim_reduction>;
+template class ONEDAL_EXPORT infer_input<task::dim_reduction>;
+template class ONEDAL_EXPORT infer_result<task::dim_reduction>;
 
 } // namespace oneapi::dal::pca

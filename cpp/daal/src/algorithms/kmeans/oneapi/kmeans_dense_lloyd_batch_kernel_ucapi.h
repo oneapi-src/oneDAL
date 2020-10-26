@@ -29,6 +29,7 @@
 #include "algorithms/kmeans/kmeans_types.h"
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
+#include "src/algorithms/kmeans/oneapi/kmeans_dense_lloyd_kernel_base_ucapi.h"
 
 using namespace daal::data_management;
 
@@ -41,63 +42,10 @@ namespace kmeans
 namespace internal
 {
 template <typename algorithmFPType>
-class KMeansDenseLloydBatchKernelUCAPI : public Kernel
+class KMeansDenseLloydBatchKernelUCAPI : public KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>
 {
 public:
     services::Status compute(const NumericTable * const * a, const NumericTable * const * r, const Parameter * par);
-
-private:
-    void computeSquares(const services::internal::Buffer<algorithmFPType> & data, services::internal::sycl::UniversalBuffer & dataSq, uint32_t nRows,
-                        uint32_t nFeatures, services::Status * st);
-
-    void computeDistances(const services::internal::Buffer<algorithmFPType> & data, const services::internal::Buffer<algorithmFPType> & centroids,
-                          uint32_t blockSize, uint32_t nClusters, uint32_t nFeatures, services::Status * st);
-
-    void computeAssignments(const services::internal::Buffer<int> & assignments, uint32_t blockSize, uint32_t nClusters, services::Status * st);
-
-    void computePartialCandidates(const services::internal::Buffer<int> & assignments, uint32_t blockSize, uint32_t nClusters, uint32_t reset,
-                                  services::Status * st);
-
-    void mergePartialCandidates(uint32_t nClusters, services::Status * st);
-
-    void partialReduceCentroids(const services::internal::Buffer<algorithmFPType> & data, const services::internal::Buffer<int> & assignments,
-                                uint32_t blockSize, uint32_t nClusters, uint32_t nFeatures, uint32_t doReset, services::Status * st);
-
-    void mergeReduceCentroids(const services::internal::Buffer<algorithmFPType> & centroids, uint32_t nClusters, uint32_t nFeatures,
-                              services::Status * st);
-
-    void updateObjectiveFunction(const services::internal::Buffer<algorithmFPType> & objFunction, uint32_t blockSize, uint32_t nClusters,
-                                 uint32_t doReset, services::Status * st);
-    void getNumEmptyClusters(uint32_t nClusters, services::Status * st);
-    void buildProgram(services::internal::sycl::ClKernelFactoryIface & kernelFactory, uint32_t nClusters, daal::services::Status * st);
-    services::Status setEmptyClusters(NumericTable * const ntData, uint32_t nRows, uint32_t nClusters, uint32_t nFeatures,
-                                      services::internal::Buffer<algorithmFPType> & outCentroids, algorithmFPType & objFuncCorrection);
-    services::Status initializeBuffers(uint32_t nClusters, uint32_t nFeatures, uint32_t blockSize);
-    services::Status getBlockSize(uint32_t nRows, uint32_t nClusters, uint32_t nFeatures, uint32_t & blockSize);
-    uint32_t getCandidatePartNum(uint32_t nClusters);
-    uint32_t getWorkgroupsCount(uint32_t rows);
-    uint32_t getComputeSquaresWorkgroupsCount(uint32_t nFeatures);
-    const char * getComputeSquaresKernelName(uint32_t nFeatures);
-    services::String getBuildOptions(uint32_t nClusters);
-
-    services::internal::sycl::UniversalBuffer _dataSq;
-    services::internal::sycl::UniversalBuffer _centroidsSq;
-    services::internal::sycl::UniversalBuffer _distances;
-    services::internal::sycl::UniversalBuffer _mindistances;
-    services::internal::sycl::UniversalBuffer _candidates;
-    services::internal::sycl::UniversalBuffer _candidateDistances;
-    services::internal::sycl::UniversalBuffer _partialCandidates;
-    services::internal::sycl::UniversalBuffer _partialCandidateDistances;
-    services::internal::sycl::UniversalBuffer _partialCentroids;
-    services::internal::sycl::UniversalBuffer _partialCentroidsCounters;
-    services::internal::sycl::UniversalBuffer _numEmptyClusters;
-
-    const uint32_t _maxWorkItemsPerGroup = 128;                                          // should be a power of two for interal needs
-    const uint32_t _maxLocalBuffer       = 30000;                                        // should be less than a half of local memory (two buffers)
-    const uint32_t _preferableSubGroup   = 16;                                           // preferable maximal sub-group size
-    const uint32_t _nPartialCentroids    = 128;                                          // Recommended number of partial centroids
-    const uint32_t _nValuesInBlock       = 1024 * 1024 * 1024 / sizeof(algorithmFPType); // Max block size is 1GB
-    const uint32_t _nMinRows             = 1;                                            // At least a single row should fit into block
 };
 
 } // namespace internal

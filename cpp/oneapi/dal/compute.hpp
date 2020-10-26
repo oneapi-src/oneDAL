@@ -25,7 +25,7 @@ auto compute(Args&&... args) {
     return detail::compute_dispatch(std::forward<Args>(args)...);
 }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 template <typename... Args>
 auto compute(sycl::queue& queue, Args&&... args) {
     return detail::compute_dispatch(detail::data_parallel_policy{ queue },
