@@ -26,55 +26,101 @@
 
 namespace oneapi::dal::preview {
 
+template <typename Graph>
+struct graph_traits {
+    using graph_type = Graph;
+    using allocator_type = typename Graph::allocator_type;
+
+    // graph weight types
+    using graph_user_value_type = typename Graph::graph_value;
+    using const_graph_user_value_type = const graph_user_value_type;
+
+    // vertex types
+    using vertex_type = typename Graph::index_type;
+    using const_vertex_type = const vertex_type;
+    using vertex_iterator = typename Graph::vertex_iterator;
+    using const_vertex_iterator = typename Graph::const_vertex_iterator;
+    using vertex_size_type = typename Graph::vertex_size_type;
+
+    using vertex_key_type = vertex_type;
+    using const_vertex_key_type = const vertex_key_type;
+
+    // vertex weight types
+    using vertex_user_value_type = typename Graph::vertex_value;
+    using const_vertex_user_value_type = const vertex_user_value_type;
+
+    // edge types
+    using edge_type = typename Graph::index_type;
+    using edge_iterator = typename Graph::edge_iterator;
+    using const_edge_iterator = typename Graph::const_edge_iterator;
+    using edge_size_type = typename Graph::edge_size_type;
+
+    // edge weight types
+    using edge_user_value_type = typename Graph::edge_value;
+
+    using edge_key_type = std::pair<vertex_key_type, vertex_key_type>;
+    using edge_value_type = std::pair<edge_key_type, edge_user_value_type>;
+    using edge_index = typename Graph::index_type;
+
+    // ranges
+    using edge_range = range<edge_iterator>;
+    using const_edge_range = range<const_edge_iterator>;
+};
+
+/// Type of the graph properties
+/// @tparam Graph Type of the graph
+template <typename Graph>
+using graph_user_value_type = typename graph_traits<Graph>::graph_user_value_type;
+
 /// Type of the graph vertex properties
 /// @tparam Graph Type of the graph
 template <typename Graph>
-using vertex_user_value_type = typename Graph::vertex_user_value_type;
+using vertex_user_value_type = typename graph_traits<Graph>::vertex_user_value_type;
 
 /// Type of the graph edge properties
 /// @tparam Graph Type of the graph
 template <typename Graph>
-using edge_user_value_type = typename Graph::edge_user_value_type;
+using edge_user_value_type = typename graph_traits<Graph>::edge_user_value_type;
 
 /// Type of the graph vertex indices
 /// @tparam Graph Type of the graph
 template <typename Graph>
-using vertex_type = typename Graph::vertex_type;
+using vertex_type = typename graph_traits<Graph>::vertex_type;
 
 /// Type of the graph vertex set size
 /// @tparam Graph Type of the graph
 template <typename Graph>
-using vertex_size_type = typename Graph::vertex_size_type;
+using vertex_size_type = typename graph_traits<Graph>::vertex_size_type;
 
 /// Type of the graph edge set size
 /// @tparam Graph Type of the graph
 template <typename Graph>
-using edge_size_type = typename Graph::edge_size_type;
+using edge_size_type = typename graph_traits<Graph>::edge_size_type;
 
 /// Type of the graph edge iterator
 /// @tparam Graph Type of the graph
 template <typename Graph>
-using edge_iterator_type = typename Graph::edge_iterator;
+using edge_iterator_type = typename graph_traits<Graph>::edge_iterator;
 
 /// Type of the constant graph edge iterator
 /// @tparam Graph Type of the graph
 template <typename Graph>
-using const_edge_iterator_type = typename Graph::const_edge_iterator;
+using const_edge_iterator_type = typename graph_traits<Graph>::const_edge_iterator;
 
 /// Type of the graph range of the edges
 /// @tparam Graph Type of the graph
 template <typename Graph>
-using edge_range_type = typename Graph::edge_range;
+using edge_range_type = typename graph_traits<Graph>::edge_range;
 
 /// Type of the constant graph range of the edges
 /// @tparam Graph Type of the graph
 template <typename Graph>
-using const_edge_range_type = typename Graph::const_edge_range;
+using const_edge_range_type = typename graph_traits<Graph>::const_edge_range;
 
 /// Type of the graph allocator
 /// @tparam Graph Type of the graph
 template <typename Graph>
-using graph_allocator = typename Graph::allocator_type;
+using graph_allocator = typename graph_traits<Graph>::allocator_type;
 
 /// Type of graph representation as an edge list
 /// @tparam IndexType Type of the graph vertex indicies

@@ -134,6 +134,12 @@ template class ONEDAL_EXPORT undirected_adjacency_array_graph<empty_value,
                                                               std::int32_t,
                                                               std::allocator<char>>;
 
+template struct ONEDAL_EXPORT graph_traits<undirected_adjacency_array_graph<empty_value,
+                                                              empty_value,
+                                                              empty_value,
+                                                              std::int32_t,
+                                                              std::allocator<char>>>;                                                               
+
 using graph_default = undirected_adjacency_array_graph<empty_value,
                                                        empty_value,
                                                        empty_value,
@@ -142,9 +148,10 @@ using graph_default = undirected_adjacency_array_graph<empty_value,
 
 namespace detail {
 
-template ONEDAL_EXPORT typename graph_default::pimpl &get_impl(graph_default &graph);
+template ONEAPI_DAL_EXPORT oneapi::dal::detail::pimpl<typename oneapi::dal::preview::graph_traits<graph_default>::impl_type> &get_impl(graph_default &graph);
 
-template ONEDAL_EXPORT const typename graph_default::pimpl &get_impl(const graph_default &graph);
+template ONEAPI_DAL_EXPORT const oneapi::dal::detail::pimpl<typename oneapi::dal::preview::graph_traits<graph_default>::impl_type> &get_impl(
+    const graph_default &graph);
 
 template <typename Graph>
 ONEDAL_EXPORT auto get_vertex_count_impl(const Graph &graph) noexcept -> vertex_size_type<Graph> {

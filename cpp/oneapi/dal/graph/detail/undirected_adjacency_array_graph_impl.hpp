@@ -19,16 +19,17 @@
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/graph/detail/graph_container.hpp"
+#include "oneapi/dal/graph/graph_common.hpp"
 
 namespace oneapi::dal::preview::detail {
 
 template <typename Graph>
-ONEDAL_EXPORT typename Graph::pimpl& get_impl(Graph& graph) {
+ONEAPI_DAL_EXPORT oneapi::dal::detail::pimpl<typename graph_traits<Graph>::graph_impl_type>& get_impl(Graph& graph) {
     return graph.impl_;
 }
 
 template <typename Graph>
-ONEDAL_EXPORT const typename Graph::pimpl& get_impl(const Graph& graph) {
+ONEAPI_DAL_EXPORT const oneapi::dal::detail::pimpl<typename graph_traits<Graph>::graph_impl_type>& get_impl(const Graph& graph) {
     return graph.impl_;
 }
 
