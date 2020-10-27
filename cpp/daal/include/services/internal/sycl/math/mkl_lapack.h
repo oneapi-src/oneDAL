@@ -170,7 +170,7 @@ private:
                 _queue.wait_and_throw();
                 if (scratchpad.get_count() < minimalScratchpadSize) return ErrorMemoryAllocationFailed;
 
-                :oneapi::fpk::lapack::potrs(_queue, uplomkl, n, ny, a_sycl_buff, lda, b_sycl_buff, ldb, scratchpad, scratchpad.get_count());
+                ::oneapi::fpk::lapack::potrs(_queue, uplomkl, n, ny, a_sycl_buff, lda, b_sycl_buff, ldb, scratchpad, scratchpad.get_count());
                 _queue.wait_and_throw();
             });
         }

@@ -451,7 +451,7 @@ private:
     template <typename T>
     void handlePublicBuffer(Status & status)
     {
-        auto service_buffer = _argument.get<Buffer<T> >()
+        auto service_buffer = _argument.get<Buffer<T> >();
 #ifdef DAAL_SYCL_INTERFACE_USM
         if (service_buffer.isUSMBacked())
         {

@@ -81,7 +81,7 @@ private:
                 return;
             }
             services::SharedPtr<T> usmSharedPtr(usmPtr, UsmDeleter { queue });
-            buffer = services::internal::Buffer<T>(usmSharedPtr, bufferSize, usmKind);
+            buffer = services::internal::Buffer<T>(usmSharedPtr, bufferSize, usmKind, status);
         }
     };
 #endif
@@ -95,7 +95,7 @@ public:
     }
 
 #ifdef DAAL_SYCL_INTERFACE_USM
-    static UniversalBuffer allocateVanilla(const cl::sycl::queue& q, TypeId type, size_t bufferSize, Status & status)
+    static UniversalBuffer allocateUSMBacked(const cl::sycl::queue& q, TypeId type, size_t bufferSize, Status & status)
     {
         AllocateUSMBacked allocateOp(q, bufferSize);
         TypeDispatcher::dispatch(type, allocateOp, status);
