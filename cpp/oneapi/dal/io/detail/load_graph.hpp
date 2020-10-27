@@ -42,10 +42,20 @@ edge_list<std::int32_t> load_edge_list(const std::string &name) {
     edge_list<int_t> elist;
     elist.reserve(1024);
 
-    int_t source_vertex, destination_vertex;
-    while (file >> source_vertex >> destination_vertex) {
-        auto edge = std::make_pair(source_vertex, destination_vertex);
-        elist.push_back(edge);
+    char source_str_buffer[32], dest_str_buffer[32];
+    const char *source_str = &source_str_buffer[0];
+    const char *dest_str = &dest_str_buffer[0];
+
+    char *source_end_ptr, *dest_end_ptr;
+
+    while (file >> source_str_buffer >> dest_str_buffer) {
+        const int_t source = daal_string_to_int(source_str, &source_end_ptr);
+        const int_t dest = daal_string_to_int(dest_str, &dest_end_ptr);
+
+        if (source_str == source_end_ptr || dest_str == dest_end_ptr)
+            throw invalid_argument("Incorrect vertex value");
+
+        elist.push_back(std::make_pair(source, dest));
     }
 
     file.close();
