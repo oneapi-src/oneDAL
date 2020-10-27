@@ -20,13 +20,125 @@
 
 namespace oneapi::dal::detail {
 
-#define DECLARE_MESSAGE(id) static const char* id() noexcept
+#define MSG(id) static const char* id() noexcept
+
+// LaTeX-like
+// =             eq
+// !=            neq
+// >             gt
+// >=            geq
+// <             lt
+// <=            leq
+// row count     rc
+// column count  cc
+// descriptor    desc
 
 class error_messages {
 public:
     error_messages() = delete;
+
+    /* Common */
+    MSG(array_does_not_contain_mutable_data);
+    MSG(feature_index_is_out_of_range);
+    MSG(only_homogen_table_is_supported);
+    MSG(overflow_found_in_multiplication_of_two_values);
+    MSG(overflow_found_in_sum_of_two_values);
+    MSG(unknown_status_code);
+    MSG(unsupported_data_layout);
+    MSG(unsupported_data_type);
+    MSG(unsupported_device_type);
+
+    /* Tables */
+    MSG(cannot_get_data_type_from_empty_metadata);
+    MSG(cannot_get_feature_type_from_empty_metadata);
+    MSG(element_count_in_data_type_and_feature_type_arrays_does_not_match);
+    MSG(pulling_column_is_not_supported_for_dpc);
+    MSG(pulling_column_is_not_supported);
+    MSG(pulling_rows_is_not_supported_for_dpc);
+    MSG(pulling_rows_is_not_supported);
+    MSG(pushing_column_is_not_supported_for_dpc);
+    MSG(pushing_column_is_not_supported);
+    MSG(pushing_rows_is_not_supported_for_dpc);
+    MSG(pushing_rows_is_not_supported);
+    MSG(unsupported_conversion_types);
+
+    /* Graphs */
+    MSG(vertex_index_out_of_range_expect_from_zero_to_vertex_count);
+
+    /* General algorithms */
+    MSG(accuracy_threshold_lt_zero);
+    MSG(class_count_leq_one);
+    MSG(input_data_is_empty);
+    MSG(input_data_rc_neq_input_labels_rc);
+    MSG(input_data_rc_neq_input_weights_rc);
+    MSG(input_labels_are_empty);
+    MSG(input_labels_contain_only_one_unique_value_expect_two);
+    MSG(input_labels_contain_wrong_unique_values_count_expect_two);
+    MSG(input_labels_has_wrong_cc_expect_one);
+    MSG(iteration_count_lt_zero);
+    MSG(max_iteration_count_leq_zero);
+    MSG(max_iteration_count_lt_zero);
+
+    /* I/O */
+    MSG(file_not_found);
+
+    /* K-Means */
+    MSG(cluster_count_leq_zero);
+    MSG(input_initial_centroids_are_empty);
+    MSG(input_initial_centroids_cc_neq_input_data_cc);
+    MSG(input_initial_centroids_rc_neq_desc_cluster_count);
+    MSG(input_model_centroids_are_empty);
+    MSG(input_model_centroids_cc_neq_input_data_cc);
+    MSG(input_model_centroids_rc_neq_desc_cluster_count);
+    MSG(kmeans_init_parallel_plus_dense_method_is_not_implemented_for_gpu);
+    MSG(kmeans_init_plus_plus_dense_method_is_not_implemented_for_gpu);
+    MSG(objective_function_value_lt_zero);
+
+    /* k-NN */
+    MSG(knn_brute_force_method_is_not_implemented_for_cpu);
+    MSG(knn_kd_tree_method_is_not_implemented_for_gpu);
+    MSG(neighbor_count_lt_one);
+
+    /* Jaccard */
+    MSG(column_begin_gt_column_end);
+    MSG(empty_edge_list);
+    MSG(negative_interval);
+    MSG(interval_gt_vertex_count);
+    MSG(row_begin_gt_row_end);
+
+    /* PCA */
+    MSG(component_count_lt_zero);
+    MSG(input_data_cc_lt_desc_component_count);
+    MSG(input_model_eigenvectors_cc_neq_input_data_cc);
+    MSG(input_model_eigenvectors_rc_neq_desc_component_count);
+    MSG(pca_svd_based_method_is_not_implemented_for_gpu);
+
+    /* SVM */
+    MSG(c_leq_zero);
+    MSG(cache_size_leq_zero);
+    MSG(input_kernel_is_empty);
+    MSG(input_model_coeffs_are_empty);
+    MSG(input_model_coeffs_rc_neq_input_model_support_vector_count);
+    MSG(input_model_does_not_match_kernel_function);
+    MSG(input_model_support_vectors_are_empty);
+    MSG(input_model_support_vectors_cc_neq_input_data_cc);
+    MSG(input_model_support_vectors_rc_neq_input_model_support_vector_count);
+    MSG(sigma_leq_zero);
+    MSG(svm_smo_method_is_not_implemented_for_gpu);
+    MSG(tau_leq_zero);
+
+    /* Kernel Functions */
+    MSG(input_y_is_empty);
+    MSG(input_x_is_empty);
+    MSG(input_x_cc_neq_y_cc);
+
+    /* Decision Forest */
+    MSG(bootstrap_is_incompatible_with_error_metric);
+    MSG(bootstrap_is_incompatible_with_variable_importance_mode);
+    MSG(decision_forest_train_dense_method_is_not_implemented_for_gpu);
+    MSG(decision_forest_train_hist_method_is_not_implemented_for_cpu);
 };
 
-#undef DECLARE_MESSAGE
+#undef MSG
 
 } // namespace oneapi::dal::detail

@@ -179,35 +179,35 @@ bool descriptor_base::get_shrinking() const {
 
 void descriptor_base::set_c_impl(double value) {
     if (value <= 0.0) {
-        throw domain_error("c should be > 0");
+        throw domain_error(dal::detail::error_messages::c_leq_zero());
     }
     impl_->c = value;
 }
 
 void descriptor_base::set_accuracy_threshold_impl(double value) {
     if (value < 0.0) {
-        throw domain_error("accuracy_threshold should be >= 0.0");
+        throw domain_error(dal::detail::error_messages::accuracy_threshold_lt_zero());
     }
     impl_->accuracy_threshold = value;
 }
 
 void descriptor_base::set_max_iteration_count_impl(std::int64_t value) {
     if (value <= 0) {
-        throw domain_error("max_iteration_count should be > 0");
+        throw domain_error(dal::detail::error_messages::max_iteration_count_leq_zero());
     }
     impl_->max_iteration_count = value;
 }
 
 void descriptor_base::set_cache_size_impl(double value) {
     if (value <= 0.0) {
-        throw domain_error("cache_size should be > 0");
+        throw domain_error(dal::detail::error_messages::cache_size_leq_zero());
     }
     impl_->cache_size = value;
 }
 
 void descriptor_base::set_tau_impl(double value) {
     if (value <= 0.0) {
-        throw domain_error("tau should be > 0");
+        throw domain_error(dal::detail::error_messages::tau_leq_zero());
     }
     impl_->tau = value;
 }

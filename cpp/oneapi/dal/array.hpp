@@ -17,9 +17,9 @@
 #pragma once
 
 #include <algorithm>
-#include <stdexcept> // TODO: change by onedal exceptions
 
 #include "oneapi/dal/detail/array_impl.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal {
 
@@ -174,7 +174,7 @@ public:
 
     T* get_mutable_data() const {
         if (!has_mutable_data()) {
-            throw dal::domain_error("array does not contain mutable data");
+            throw domain_error(dal::detail::error_messages::array_does_not_contain_mutable_data());
         }
         return mutable_data_ptr_;
     }

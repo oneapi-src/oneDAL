@@ -64,7 +64,8 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
 
     auto model_pimpl = dal::detail::pimpl_accessor().get_pimpl(trained_model);
     if (!model_pimpl->is_interop()) {
-        throw dal::internal_error("Input model is inconsistent with kernel type");
+        throw dal::internal_error(
+            dal::detail::error_messages::input_model_is_inconsistent_with_kernel_type());
     }
 
     auto pinterop_model =

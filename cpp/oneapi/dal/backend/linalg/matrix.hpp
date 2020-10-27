@@ -143,7 +143,7 @@ public:
     static matrix wrap(const table& t, layout l = layout::row_major) {
         if (l != layout::row_major) {
             // TODO: Figure out how to use column-major layout
-            throw unimplemented{ "Only row-major is supported" };
+            throw unimplemented{ dal::detail::error_messages::only_row - major_is_supported() };
         }
         const auto t_flat = row_accessor<const Float>{ t }.pull();
         return wrap(t_flat, { t.get_row_count(), t.get_column_count() });

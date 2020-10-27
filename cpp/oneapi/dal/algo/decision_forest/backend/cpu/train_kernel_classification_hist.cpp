@@ -24,7 +24,8 @@ struct train_kernel_cpu<Float, Task, method::hist> {
     train_result<Task> operator()(const dal::backend::context_cpu& ctx,
                                   const descriptor_base<Task>& params,
                                   const train_input<Task>& input) const {
-        throw unimplemented("Decision forest train hist method is not implemented for CPU");
+        throw unimplemented(dal::detail::error_messages::
+                                decision_forest_train_hist_method_is_not_implemented_for_cpu());
     }
 };
 

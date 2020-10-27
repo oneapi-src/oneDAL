@@ -28,7 +28,8 @@ struct train_kernel_gpu<Float, method::kd_tree, Task> {
     train_result<Task> operator()(const context_gpu& ctx,
                                   const descriptor_base<Task>& desc,
                                   const train_input<Task>& input) const {
-        throw unimplemented("k-NN k-d tree method is not implemented for GPU");
+        throw unimplemented(
+            dal::detail::error_messages::knn_kd_tree_method_is_not_implemented_for_gpu());
         return train_result<Task>();
     }
 };

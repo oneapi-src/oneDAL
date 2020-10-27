@@ -34,7 +34,7 @@ double descriptor_base::get_sigma() const {
 
 void descriptor_base::set_sigma_impl(double value) {
     if (value <= 0.0) {
-        throw domain_error("sigma should be > 0.0");
+        throw domain_error(dal::detail::error_messages::sigma_leq_zero());
     }
     impl_->sigma = value;
 }
