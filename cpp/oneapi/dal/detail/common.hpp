@@ -17,6 +17,7 @@
 #pragma once
 
 #include <memory>
+#include <limits>
 #include <type_traits>
 
 #include "oneapi/dal/common.hpp"
