@@ -21,12 +21,17 @@
 namespace oneapi::dal::svm {
 
 namespace detail {
+template <typename Task = task::by_default>
 class train_input_impl;
+
+template <typename Task = task::by_default>
 class train_result_impl;
 } // namespace detail
 
+template <typename Task = task::by_default>
 class ONEDAL_EXPORT train_input : public base {
 public:
+    using task_t = Task;
     train_input(const table& data, const table& labels, const table& weights = table{});
 
     table get_data() const;
@@ -55,21 +60,23 @@ private:
     void set_labels_impl(const table& value);
     void set_weights_impl(const table& value);
 
-    dal::detail::pimpl<detail::train_input_impl> impl_;
+    dal::detail::pimpl<detail::train_input_impl<task_t>> impl_;
 };
 
+template <typename Task = task::by_default>
 class ONEDAL_EXPORT train_result : public base {
 public:
+    using task_t = Task;
     train_result();
 
-    model get_model() const;
+    model<task_t> get_model() const;
     table get_support_vectors() const;
     table get_support_indices() const;
     table get_coeffs() const;
     double get_bias() const;
     std::int64_t get_support_vector_count() const;
 
-    auto& set_model(const model& value) {
+    auto& set_model(const model<task_t>& value) {
         set_model_impl(value);
         return *this;
     }
@@ -100,14 +107,14 @@ public:
     }
 
 private:
-    void set_model_impl(const model&);
+    void set_model_impl(const model<task_t>&);
     void set_support_vectors_impl(const table&);
     void set_support_indices_impl(const table&);
     void set_coeffs_impl(const table&);
     void set_bias_impl(double);
     void set_support_vector_count_impl(std::int64_t);
 
-    dal::detail::pimpl<detail::train_result_impl> impl_;
+    dal::detail::pimpl<detail::train_result_impl<task_t>> impl_;
 };
 
 } // namespace oneapi::dal::svm
