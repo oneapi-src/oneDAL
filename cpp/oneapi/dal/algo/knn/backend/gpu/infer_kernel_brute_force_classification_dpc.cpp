@@ -57,8 +57,8 @@ static infer_result<task::classification> call_daal_kernel(
 
     const auto data_use_in_model = daal_knn::doNotUse;
     daal_knn::Parameter daal_parameter(
-        dal::detail::integral_cast<size_t>(desc.get_class_count()),
-        dal::detail::integral_cast<size_t>(desc.get_neighbor_count()),
+        dal::detail::integral_asserted_cast<size_t>(desc.get_class_count()),
+        dal::detail::integral_asserted_cast<size_t>(desc.get_neighbor_count()),
         data_use_in_model);
 
     interop::status_to_exception(daal_knn_brute_force_kernel_t<Float>().compute(
