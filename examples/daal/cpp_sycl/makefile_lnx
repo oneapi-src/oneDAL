@@ -75,7 +75,7 @@ ifndef TBBROOT
 endif
 TBB_PATH = "$(TBBROOT)/lib/$(_IA)/gcc4.8"
 
-EXT_LIB := -Bdynamic -lpthread -ldl -lOpenCL
+EXT_LIB := -Bdynamic -lpthread -ldl -lOpenCL -lintlc
 
 ifeq ($(RES_EXT),so)
     DAAL_LIB_EXT := -Bdynamic
