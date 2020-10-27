@@ -84,6 +84,9 @@ set daal_target_arch         "intel64"
 module-whatis "Intel(R) Data Analytics Library for $daal_target_arch."
 
 # Setup environment variables
+setenv          DAL_MAJOR_BINARY   1
+setenv          DAL_MINOR_BINARY   0
+setenv          DALROOT            $daalroot
 setenv          DAALROOT           $daalroot
 
 prepend-path    LD_LIBRARY_PATH    $daalroot/lib/$daal_target_arch
