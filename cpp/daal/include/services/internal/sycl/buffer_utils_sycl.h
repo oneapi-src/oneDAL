@@ -95,7 +95,7 @@ public:
     }
 
 #ifdef DAAL_SYCL_INTERFACE_USM
-    static UniversalBuffer allocateUSMBacked(const cl::sycl::queue& q, TypeId type, size_t bufferSize, Status & status)
+    static UniversalBuffer allocateUSMBacked(const cl::sycl::queue & q, TypeId type, size_t bufferSize, Status & status)
     {
         AllocateUSMBacked allocateOp(q, bufferSize);
         TypeDispatcher::dispatch(type, allocateOp, status);
@@ -156,15 +156,16 @@ private:
             {
                 // this branch is a workaround on the SYCL RT bug
                 // on copy operation from usm-backed buffer to the vanilla buffer
-                auto src   = src_buffer.toUSM(status);
+                auto src = src_buffer.toUSM(status);
                 DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
-                auto dst   = dst_buffer.toSycl(status);
+                auto dst = dst_buffer.toSycl(status);
                 DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
                 status |= catchSyclExceptions([&]() mutable {
                     auto event = queue.submit([&](cl::sycl::handler & cgh) {
-                        auto dst_acc = dst.template get_access<cl::sycl::access::mode::write>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(dstOffset));
+                        auto dst_acc =
+                            dst.template get_access<cl::sycl::access::mode::write>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(dstOffset));
                         cgh.copy(src.get() + srcOffset, dst_acc);
                     });
                     event.wait_and_throw();
@@ -181,8 +182,10 @@ private:
 
                 status |= catchSyclExceptions([&]() mutable {
                     cl::sycl::event event = queue.submit([&](cl::sycl::handler & cgh) {
-                        auto src_acc = src.template get_access<cl::sycl::access::mode::read>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(srcOffset));
-                        auto dst_acc = dst.template get_access<cl::sycl::access::mode::write>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(dstOffset));
+                        auto src_acc =
+                            src.template get_access<cl::sycl::access::mode::read>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(srcOffset));
+                        auto dst_acc =
+                            dst.template get_access<cl::sycl::access::mode::write>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(dstOffset));
                         cgh.copy(src_acc, dst_acc);
                     });
                     event.wait_and_throw();
@@ -227,7 +230,7 @@ private:
         {
             DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(dstUnivers, T);
 
-            auto src = (T *)srcArray;
+            auto src                = (T *)srcArray;
             const auto & dst_buffer = dstUnivers.get<T>();
 
             DAAL_ASSERT(srcArray);
@@ -261,7 +264,8 @@ private:
 
                 status |= catchSyclExceptions([&]() mutable {
                     cl::sycl::event event = queue.submit([&](cl::sycl::handler & cgh) {
-                        auto dst_acc = dst.template get_access<cl::sycl::access::mode::write>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(dstOffset));
+                        auto dst_acc =
+                            dst.template get_access<cl::sycl::access::mode::write>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(dstOffset));
                         cgh.copy(src + srcOffset, dst_acc);
                     });
                     event.wait_and_throw();

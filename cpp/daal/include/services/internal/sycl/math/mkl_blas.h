@@ -111,7 +111,8 @@ struct MKLGemm
             DAAL_CHECK_STATUS_VAR(status);
 
             status |= catchSyclExceptions([&]() mutable {
-                innerGemm(transamkl, transbmkl, m, n, k, alpha, a_sycl_buff, lda, b_sycl_buff, ldb, beta, c_sycl_buff, ldc, offsetA, offsetB, offsetC);
+                innerGemm(transamkl, transbmkl, m, n, k, alpha, a_sycl_buff, lda, b_sycl_buff, ldb, beta, c_sycl_buff, ldc, offsetA, offsetB,
+                          offsetC);
                 _queue.wait_and_throw();
             });
         }

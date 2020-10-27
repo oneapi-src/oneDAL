@@ -70,15 +70,14 @@ private:
 #ifdef DAAL_SYCL_INTERFACE_USM
         if (a.isUSMBacked())
         {
-            auto a_usm      = a.toUSM(status);
+            auto a_usm = a.toUSM(status);
             DAAL_CHECK_STATUS_VAR(status);
 
-            algorithmFPType* scratchpad = nullptr;
+            algorithmFPType * scratchpad = nullptr;
             if (scratchpadSize > 0)
             {
                 scratchpad = cl::sycl::malloc<algorithmFPType>(scratchpadSize, _queue, cl::sycl::usm::alloc::shared);
-                if (scratchpad == nullptr)
-                    return ErrorMemoryAllocationFailed;
+                if (scratchpad == nullptr) return ErrorMemoryAllocationFailed;
             }
 
             status |= catchSyclExceptions([&]() mutable {
@@ -86,8 +85,7 @@ private:
                 _queue.wait_and_throw();
             });
 
-            if (scratchpadSize > 0)
-                cl::sycl::free(scratchpad, _queue);
+            if (scratchpadSize > 0) cl::sycl::free(scratchpad, _queue);
 
             scratchpad = nullptr;
         }
@@ -146,18 +144,17 @@ private:
 #ifdef DAAL_SYCL_INTERFACE_USM
         if (a.isUSMBacked())
         {
-            auto a_usm      = a.toUSM(status);
+            auto a_usm = a.toUSM(status);
             DAAL_CHECK_STATUS_VAR(status);
 
-            auto b_usm      = b.toUSM(status);
+            auto b_usm = b.toUSM(status);
             DAAL_CHECK_STATUS_VAR(status);
 
-            algorithmFPType* scratchpad = nullptr;
+            algorithmFPType * scratchpad = nullptr;
             if (scratchpadSize > 0)
             {
                 scratchpad = cl::sycl::malloc<algorithmFPType>(scratchpadSize, _queue, cl::sycl::usm::alloc::shared);
-                if (scratchpad == nullptr)
-                    return ErrorMemoryAllocationFailed;
+                if (scratchpad == nullptr) return ErrorMemoryAllocationFailed;
             }
 
             status |= catchSyclExceptions([&]() mutable {
@@ -165,8 +162,7 @@ private:
                 _queue.wait_and_throw();
             });
 
-            if (scratchpadSize > 0)
-                cl::sycl::free(scratchpad, _queue);
+            if (scratchpadSize > 0) cl::sycl::free(scratchpad, _queue);
 
             scratchpad = nullptr;
         }
