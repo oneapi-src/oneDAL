@@ -21,18 +21,25 @@
 
 namespace oneapi::dal::linear_kernel::detail {
 
-template <typename Context, typename... Options>
+template <typename Context,
+          typename Float,
+          typename Method = method::dense,
+          typename Task = task::by_default,
+          typename... Options>
 struct compute_ops_dispatcher {
-    compute_result operator()(const Context&, const descriptor_base&, const compute_input&) const;
+    compute_result<Task> operator()(const Context&,
+                                    const descriptor_base<Task>&,
+                                    const compute_input<Task>&) const;
 };
 
 template <typename Descriptor>
 struct compute_ops {
     using float_t = typename Descriptor::float_t;
     using method_t = typename Descriptor::method_t;
-    using input_t = compute_input;
-    using result_t = compute_result;
-    using descriptor_base_t = descriptor_base;
+    using task_t = typename Descriptor::task_t;
+    using input_t = compute_input<task_t>;
+    using result_t = compute_result<task_t>;
+    using descriptor_base_t = descriptor_base<task_t>;
 
     void check_preconditions(const Descriptor& params, const compute_input& input) const {
         using msg = dal::detail::error_messages;
@@ -57,9 +64,10 @@ struct compute_ops {
     }
 
     template <typename Context>
-    auto operator()(const Context& ctx, const Descriptor& desc, const compute_input& input) const {
+    auto operator()(const Context& ctx, const Descriptor& desc, const input_t& input) const {
         check_preconditions(desc, input);
-        const auto result = compute_ops_dispatcher<Context, float_t, method_t>()(ctx, desc, input);
+        const auto result =
+            compute_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, input);
         check_postconditions(desc, input, result);
         return result;
     }

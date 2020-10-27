@@ -32,8 +32,8 @@ DECLARE_SOURCE(
     clKernelHelperBetaCopy,
 
     __kernel void copyBeta(const __global algorithmFPType * src, uint nCols, uint nColsSrc, __global algorithmFPType * dst, uint intercept) {
-        uint idxY = get_global_id(0);
-        uint idxX = get_global_id(1);
+        const uint idxY = get_global_id(0);
+        const uint idxX = get_global_id(1);
 
         if (idxX == 0)
         {

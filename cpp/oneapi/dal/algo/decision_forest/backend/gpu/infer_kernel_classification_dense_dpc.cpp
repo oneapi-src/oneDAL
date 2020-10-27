@@ -88,6 +88,7 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
     }
 
     if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_probabilities)) {
+        dal::detail::check_mul_overflow(desc.get_class_count(), row_count);
         arr_labels_prob = array<Float>::empty(queue, desc.get_class_count() * row_count);
         daal_labels_prob = interop::convert_to_daal_sycl_homogen_table(queue,
                                                                        arr_labels_prob,

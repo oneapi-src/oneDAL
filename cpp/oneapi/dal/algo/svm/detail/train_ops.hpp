@@ -21,20 +21,26 @@
 
 namespace oneapi::dal::svm::detail {
 
-template <typename Context, typename... Options>
+template <typename Context,
+          typename Float,
+          typename Method = method::by_default,
+          typename Task = task::by_default,
+          typename... Options>
 struct ONEDAL_EXPORT train_ops_dispatcher {
-    train_result operator()(const Context&, const descriptor_base&, const train_input&) const;
+    train_result<Task> operator()(const Context&,
+                                  const descriptor_base<Task>&,
+                                  const train_input<Task>&) const;
 };
 
 template <typename Descriptor>
 struct train_ops {
     using float_t = typename Descriptor::float_t;
+    using method_t = method::by_default;
     using task_t = typename Descriptor::task_t;
-    using method_t = typename Descriptor::method_t;
     using kernel_t = typename Descriptor::kernel_t;
-    using input_t = train_input;
-    using result_t = train_result;
-    using descriptor_base_t = descriptor_base;
+    using input_t = train_input<task_t>;
+    using result_t = train_result<task_t>;
+    using descriptor_base_t = descriptor_base<task_t>;
 
     void check_preconditions(const Descriptor& params, const train_input& input) const {
         using msg = dal::detail::error_messages;
@@ -75,10 +81,10 @@ struct train_ops {
     }
 
     template <typename Context>
-    auto operator()(const Context& ctx, const Descriptor& desc, const train_input& input) const {
+    auto operator()(const Context& ctx, const Descriptor& desc, const input_t& input) const {
         check_preconditions(desc, input);
         const auto result =
-            train_ops_dispatcher<Context, float_t, task_t, method_t>()(ctx, desc, input);
+            train_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, input);
         check_postconditions(desc, input, result);
         return result;
     }
