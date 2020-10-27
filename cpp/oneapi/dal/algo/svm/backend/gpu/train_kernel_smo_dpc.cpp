@@ -20,16 +20,16 @@
 namespace oneapi::dal::svm::backend {
 
 template <typename Float>
-struct train_kernel_gpu<Float, task::classification, method::smo> {
-    train_result operator()(const dal::backend::context_gpu& ctx,
-                            const descriptor_base& params,
-                            const train_input& input) const {
+struct train_kernel_gpu<Float, method::smo, task::classification> {
+    train_result<task::classification> operator()(
+        const dal::backend::context_gpu& ctx,
+        const descriptor_base<task::classification>& params,
+        const train_input<task::classification>& input) const {
         throw unimplemented("SVM smo method is not implemented for GPU");
-        return train_result();
     }
 };
 
-template struct train_kernel_gpu<float, task::classification, method::smo>;
-template struct train_kernel_gpu<double, task::classification, method::smo>;
+template struct train_kernel_gpu<float, method::smo, task::classification>;
+template struct train_kernel_gpu<double, method::smo, task::classification>;
 
 } // namespace oneapi::dal::svm::backend

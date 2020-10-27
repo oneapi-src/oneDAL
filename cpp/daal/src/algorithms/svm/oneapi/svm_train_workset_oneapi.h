@@ -193,6 +193,10 @@ struct TaskWorkingSet
 
         KernelArguments args(2, status);
         DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_ASSERT(idx.size() == _nWS);
+        DAAL_ASSERT(indicator.size() == _nVectors);
+
         args.set(0, idx, AccessModeIds::read);
         args.set(1, indicator, AccessModeIds::write);
 

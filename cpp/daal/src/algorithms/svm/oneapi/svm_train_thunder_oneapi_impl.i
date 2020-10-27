@@ -117,6 +117,13 @@ services::Status SVMTrainOneAPI<algorithmFPType, thunder>::smoKernel(
 
     KernelArguments args(12, status);
     DAAL_CHECK_STATUS_VAR(status);
+
+    DAAL_ASSERT(wsIndices.size() == nWS);
+    DAAL_ASSERT(deltaalpha.size() == nWS);
+    DAAL_ASSERT(resinfo.size() == 2);
+    DAAL_ASSERT(f.size() == y.size());
+    DAAL_ASSERT(f.size() == alpha.size());
+
     args.set(0, y, AccessModeIds::read);
     args.set(1, kernelWsRows, AccessModeIds::read);
     args.set(2, wsIndices, AccessModeIds::read);
@@ -215,10 +222,10 @@ services::Status SVMTrainOneAPI<algorithmFPType, thunder>::compute(const Numeric
     algorithmFPType diffPrev = algorithmFPType(0);
 
     size_t sameLocalDiff = 0;
-    SVMCacheOneAPIPtr<algorithmFPType> cachePtr;
 
     // TODO: support caching for thunder method
-    cachePtr = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, nWS, nVectors, xTable, kernel, status);
+    SVMCacheOneAPIPtr<algorithmFPType> cachePtr = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, nWS, nVectors, xTable, kernel, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     size_t iter = 0;
     for (; iter < maxIterations; iter++)

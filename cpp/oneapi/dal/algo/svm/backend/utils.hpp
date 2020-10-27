@@ -15,8 +15,23 @@
 *******************************************************************************/
 
 #include "oneapi/dal/table/row_accessor.hpp"
+#include <include/algorithms/svm/svm_train_types.h>
 
 namespace oneapi::dal::svm::backend {
+
+namespace daal_svm = daal::algorithms::svm;
+
+template <daal_svm::training::Method Value>
+using daal_method_constant = std::integral_constant<daal_svm::training::Method, Value>;
+
+template <typename Method>
+struct to_daal_method;
+
+template <>
+struct to_daal_method<method::smo> : daal_method_constant<daal_svm::training::boser> {};
+
+template <>
+struct to_daal_method<method::thunder> : daal_method_constant<daal_svm::training::thunder> {};
 
 template <typename Float>
 struct binary_label_t {

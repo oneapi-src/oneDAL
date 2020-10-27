@@ -282,6 +282,7 @@ public:
         services::Status status;
 
         auto & context = services::internal::getDefaultContext();
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, _nSelectRows, _lineSize);
         context.copy(_cache, 0, _cache, _nSelectRows * _lineSize, _nSelectRows * _lineSize, status);
         return status;
     }
@@ -296,6 +297,7 @@ protected:
         services::Status status;
         auto & context = services::internal::getDefaultContext();
 
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, _lineSize, _blockSize);
         _cache = context.allocate(TypeIds::id<algorithmFPType>(), _lineSize * _blockSize, status);
         DAAL_CHECK_STATUS_VAR(status);
 
@@ -303,7 +305,7 @@ protected:
         auto cacheTable = SyclHomogenNumericTable<algorithmFPType>::create(_cacheBuff, _lineSize, _blockSize, &status);
 
         const size_t p = xTable->getNumberOfColumns();
-        // _xBlock        = context.allocate(TypeIds::id<algorithmFPType>(), _blockSize * p, status);
+
         DAAL_CHECK_STATUS_VAR(status);
 
         if (xTable->getDataLayout() == NumericTableIface::csrArray)
