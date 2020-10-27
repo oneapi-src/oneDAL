@@ -41,11 +41,11 @@ struct infer_ops {
     using result_t = infer_result<task_t>;
     using descriptor_base_t = descriptor_base<task_t>;
 
-    void check_preconditions(const Descriptor& params, const infer_input& input) const {
+    void check_preconditions(const Descriptor& params, const input_t& input) const {
         using msg = dal::detail::error_messages;
 
         // TODO: Should be invariant of model
-        ONEDAL_ASSERT(input.get_model().get_support_vector_count() < 0);
+        ONEDAL_ASSERT(input.get_model().get_support_vector_count() >= 0);
 
         // TODO: Should be invariant of kernel
         ONEDAL_ASSERT(params.get_kernel_impl()->get_impl());
@@ -76,8 +76,8 @@ struct infer_ops {
     }
 
     void check_postconditions(const Descriptor& params,
-                              const infer_input& input,
-                              const infer_result& result) const {
+                              const input_t& input,
+                              const result_t& result) const {
         ONEDAL_ASSERT(result.get_labels().has_data());
         ONEDAL_ASSERT(result.get_decision_function().has_data());
         ONEDAL_ASSERT(result.get_decision_function().get_row_count() ==

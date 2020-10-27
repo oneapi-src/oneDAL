@@ -41,7 +41,7 @@ struct compute_ops {
     using result_t = compute_result<task_t>;
     using descriptor_base_t = descriptor_base<task_t>;
 
-    void check_preconditions(const Descriptor& params, const compute_input& input) const {
+    void check_preconditions(const Descriptor& params, const input_t& input) const {
         using msg = dal::detail::error_messages;
 
         if (!input.get_x().has_data()) {
@@ -56,8 +56,8 @@ struct compute_ops {
     }
 
     void check_postconditions(const Descriptor& params,
-                              const compute_input& input,
-                              const compute_result& result) const {
+                              const input_t& input,
+                              const result_t& result) const {
         ONEDAL_ASSERT(result.get_values().has_data());
         ONEDAL_ASSERT(input.get_x().get_row_count() == result.get_values().get_row_count());
         ONEDAL_ASSERT(input.get_y().get_row_count() == result.get_values().get_column_count());

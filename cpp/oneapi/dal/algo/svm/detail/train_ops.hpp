@@ -42,7 +42,7 @@ struct train_ops {
     using result_t = train_result<task_t>;
     using descriptor_base_t = descriptor_base<task_t>;
 
-    void check_preconditions(const Descriptor& params, const train_input& input) const {
+    void check_preconditions(const Descriptor& params, const input_t& input) const {
         using msg = dal::detail::error_messages;
 
         if (!input.get_data().has_data()) {
@@ -64,8 +64,8 @@ struct train_ops {
     }
 
     void check_postconditions(const Descriptor& params,
-                              const train_input& input,
-                              const train_result& result) const {
+                              const input_t& input,
+                              const result_t& result) const {
         ONEDAL_ASSERT(result.get_support_vectors().has_data());
         ONEDAL_ASSERT(result.get_support_indices().has_data());
         ONEDAL_ASSERT(result.get_coeffs().has_data());
