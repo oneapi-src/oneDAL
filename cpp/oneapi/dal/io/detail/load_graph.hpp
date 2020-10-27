@@ -42,10 +42,9 @@ edge_list<std::int32_t> load_edge_list(const std::string &name) {
     edge_list<int_t> elist;
     elist.reserve(1024);
 
-    char source_vertex[32], destination_vertex[32];
+    int_t source_vertex, destination_vertex;
     while (file >> source_vertex >> destination_vertex) {
-        auto edge = std::make_pair(daal_string_to_int(&source_vertex[0], 0),
-                                   daal_string_to_int(&destination_vertex[0], 0));
+        auto edge = std::make_pair(source_vertex, destination_vertex);
         elist.push_back(edge);
     }
 
