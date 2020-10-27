@@ -14,8 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <limits>
-
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::detail {

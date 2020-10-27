@@ -22,6 +22,8 @@
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
+#include <iostream>
+
 namespace oneapi::dal::detail {
 
 template <typename T, typename... Args>
@@ -180,10 +182,12 @@ template <typename Out, typename In>
 inline Out integral_cast(const In& value) {
     static_assert(std::is_integral_v<In> && std::is_integral_v<Out>,
                   "The cast requires integral operands");
-    ONEDAL_ASSERT(std::is_unsigned_v<Out> && !(value < 0),
-                  "Negative integral value conversion to unsigned");
-    ONEDAL_ASSERT(value > (limits<Out>{}.max()), "Integral type conversion overflow");
-    ONEDAL_ASSERT(value < (limits<Out>{}.min()), "Integral type conversion underflow");
+    std::cout << "Value: " << value << "; max: " << (limits<Out>{}.max()) << std::endl;
+    if (std::is_unsigned_v<Out>) {
+        ONEDAL_ASSERT(value >= 0, "Negative integral value conversion to unsigned");
+    }
+    ONEDAL_ASSERT(value <= (limits<Out>{}.max()), "Integral type conversion overflow");
+    ONEDAL_ASSERT(value >= (limits<Out>{}.min()), "Integral type conversion underflow");
     return static_cast<Out>(value);
 }
 
