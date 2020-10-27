@@ -38,6 +38,7 @@ namespace interface1
 class BufferAllocator
 {
 private:
+#ifdef DAAL_SYCL_INTERFACE_USM
     struct UsmDeleter
     {
         cl::sycl::queue queue;
@@ -46,6 +47,7 @@ private:
 
         void operator()(const void * ptr) const { cl::sycl::free(const_cast<void *>(ptr), queue); }
     };
+#endif
 
     struct AllocateVanilla
     {

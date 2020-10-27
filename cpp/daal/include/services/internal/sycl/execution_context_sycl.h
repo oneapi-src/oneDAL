@@ -250,7 +250,7 @@ public:
 #ifdef DAAL_SYCL_INTERFACE_USM
         return BufferAllocator::allocateUSMBacked(_deviceQueue, type, bufferSize, status);
 #else
-        return BufferAllocator::allocate(type, bufferSize, status);
+        return BufferAllocator::allocateVanilla(type, bufferSize, status);
 #endif // DAAL_SYCL_INTERFACE_USM
     }
 
