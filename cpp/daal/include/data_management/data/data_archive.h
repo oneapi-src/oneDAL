@@ -34,7 +34,6 @@
 #include "data_management/data/data_serialize.h"
 #include "data_management/data/data_collection.h"
 #include "data_management/features/defines.h"
-#include "data_management/compression/compression_stream.h"
 
 namespace daal
 {
@@ -497,243 +496,6 @@ private:
 };
 
 /**
- *  <a name="DAAL-CLASS-DATA_MANAGEMENT__COMPRESSEDDATAARCHIVE"></a>
- *  \brief Abstract interface class that defines methods to access and modify a serialized object.
- *  This class declares the most generic access and modification methods.
- */
-class CompressedDataArchive : public DataArchiveImpl
-{
-public:
-    /**
-     *  Constructor of a compressed data archive from compressor
-     *  \param[in]  compressor  Pointer to the compressor
-     */
-    CompressedDataArchive(daal::data_management::CompressorImpl * compressor) : minBlockSize(1024 * 64), _errors(new services::ErrorCollection())
-    {
-        compressionStream = new daal::data_management::CompressionStream(compressor, minBlockSize);
-        serializedBuffer  = 0;
-    }
-
-    /** \private */
-    ~CompressedDataArchive() DAAL_C11_OVERRIDE
-    {
-        if (serializedBuffer)
-        {
-            daal::services::daal_free(serializedBuffer);
-        }
-        delete compressionStream;
-    }
-
-    void write(byte * ptr, size_t size) DAAL_C11_OVERRIDE
-    {
-        DataBlock wBlock;
-        wBlock.setPtr(ptr);
-        wBlock.setSize(size);
-        compressionStream->push_back(&wBlock);
-    }
-
-    void read(byte * /*ptr*/, size_t /*size*/) DAAL_C11_OVERRIDE {}
-
-    size_t getSizeOfArchive() const DAAL_C11_OVERRIDE { return compressionStream->getCompressedDataSize(); }
-
-    byte * getArchiveAsArray() DAAL_C11_OVERRIDE
-    {
-        if (serializedBuffer)
-        {
-            return serializedBuffer;
-        }
-
-        size_t length = getSizeOfArchive();
-
-        if (length == 0)
-        {
-            return 0;
-        }
-
-        serializedBuffer = (byte *)daal::services::daal_malloc(length);
-        if (serializedBuffer == 0)
-        {
-            return 0;
-        }
-
-        compressionStream->copyCompressedArray(serializedBuffer, length);
-        return serializedBuffer;
-    }
-
-    services::SharedPtr<byte> getArchiveAsArraySharedPtr() const DAAL_C11_OVERRIDE
-    {
-        size_t length = getSizeOfArchive();
-
-        if (length == 0)
-        {
-            return services::SharedPtr<byte>();
-        }
-
-        services::SharedPtr<byte> serializedBufferPtr((byte *)daal::services::daal_malloc(length), services::ServiceDeleter());
-        if (!serializedBufferPtr)
-        {
-            return services::SharedPtr<byte>();
-        }
-
-        copyArchiveToArray(serializedBufferPtr.get(), length);
-
-        return serializedBufferPtr;
-    }
-
-    std::string getArchiveAsString() DAAL_C11_OVERRIDE
-    {
-        size_t length = getSizeOfArchive();
-        char * buffer = (char *)getArchiveAsArray();
-
-        return std::string(buffer, length);
-    }
-
-    size_t copyArchiveToArray(byte * ptr, size_t maxLength) const DAAL_C11_OVERRIDE
-    {
-        size_t length = getSizeOfArchive();
-
-        if (length == 0 || length > maxLength)
-        {
-            return length;
-        }
-
-        compressionStream->copyCompressedArray(ptr, length);
-        return length;
-    }
-
-    /**
-    * Returns errors during the computation
-    * \return Errors during the computation
-    */
-    services::SharedPtr<services::ErrorCollection> getErrors() { return _errors; }
-
-private:
-    size_t minBlockSize;
-    byte * serializedBuffer;
-    daal::data_management::CompressionStream * compressionStream;
-    services::SharedPtr<services::ErrorCollection> _errors;
-};
-
-/**
- *  <a name="DAAL-CLASS-DATA_MANAGEMENT__DECOMPRESSEDDATAARCHIVE"></a>
- *  \brief Abstract interface class that defines methods to access and modify a serialized object.
- *  This class declares the most generic access and modification methods.
- */
-class DecompressedDataArchive : public DataArchiveImpl
-{
-public:
-    /**
-     *  Constructor of a decompressed data archive from decompressor
-     *  \param[in]  decompressor  Pointer to the decompressor
-     */
-    DecompressedDataArchive(daal::data_management::DecompressorImpl * decompressor)
-        : minBlockSize(1024 * 64), _errors(new services::ErrorCollection())
-    {
-        decompressionStream = new daal::data_management::DecompressionStream(decompressor, minBlockSize);
-        serializedBuffer    = 0;
-    }
-
-    /** \private */
-    ~DecompressedDataArchive() DAAL_C11_OVERRIDE
-    {
-        if (serializedBuffer)
-        {
-            daal::services::daal_free(serializedBuffer);
-        }
-        delete decompressionStream;
-    }
-
-    void write(byte * ptr, size_t size) DAAL_C11_OVERRIDE
-    {
-        DataBlock wBlock;
-        wBlock.setPtr(ptr);
-        wBlock.setSize(size);
-        decompressionStream->push_back(&wBlock);
-    }
-
-    void read(byte * ptr, size_t size) DAAL_C11_OVERRIDE { decompressionStream->copyDecompressedArray(ptr, size); }
-
-    size_t getSizeOfArchive() const DAAL_C11_OVERRIDE { return decompressionStream->getDecompressedDataSize(); }
-
-    byte * getArchiveAsArray() DAAL_C11_OVERRIDE
-    {
-        if (serializedBuffer)
-        {
-            return serializedBuffer;
-        }
-
-        size_t length = getSizeOfArchive();
-
-        if (length == 0)
-        {
-            return 0;
-        }
-
-        serializedBuffer = (byte *)daal::services::daal_malloc(length);
-        if (serializedBuffer == 0)
-        {
-            return 0;
-        }
-
-        decompressionStream->copyDecompressedArray(serializedBuffer, length);
-        return serializedBuffer;
-    }
-
-    services::SharedPtr<byte> getArchiveAsArraySharedPtr() const DAAL_C11_OVERRIDE
-    {
-        size_t length = getSizeOfArchive();
-
-        if (length == 0)
-        {
-            return services::SharedPtr<byte>();
-        }
-
-        services::SharedPtr<byte> serializedBufferPtr((byte *)daal::services::daal_malloc(length), services::ServiceDeleter());
-        if (!serializedBufferPtr)
-        {
-            return services::SharedPtr<byte>();
-        }
-
-        copyArchiveToArray(serializedBufferPtr.get(), length);
-
-        return serializedBufferPtr;
-    }
-
-    std::string getArchiveAsString() DAAL_C11_OVERRIDE
-    {
-        size_t length = getSizeOfArchive();
-        char * buffer = (char *)getArchiveAsArray();
-
-        return std::string(buffer, length);
-    }
-
-    size_t copyArchiveToArray(byte * ptr, size_t maxLength) const DAAL_C11_OVERRIDE
-    {
-        size_t length = getSizeOfArchive();
-
-        if (length == 0 || length > maxLength)
-        {
-            return length;
-        }
-
-        decompressionStream->copyDecompressedArray(ptr, length);
-        return length;
-    }
-
-    /**
-     * Returns errors during the computation
-     * \return Errors during the computation
-     */
-    services::SharedPtr<services::ErrorCollection> getErrors() { return _errors; }
-
-private:
-    size_t minBlockSize;
-    byte * serializedBuffer;
-    daal::data_management::DecompressionStream * decompressionStream;
-    services::SharedPtr<services::ErrorCollection> _errors;
-};
-
-/**
  *  <a name="DAAL-CLASS-DATA_MANAGEMENT__INPUTDATAARCHIVE"></a>
  *  \brief Provides methods to create an archive data object (serialized) and access this object
  */
@@ -757,15 +519,6 @@ public:
     InputDataArchive(DataArchiveIface * arch) : _finalized(false), _errors(new services::ErrorCollection())
     {
         _arch = arch;
-        archiveHeader();
-    }
-
-    /**
-     *  Constructor of an input data archive to a byte array of compressed data
-     */
-    InputDataArchive(daal::data_management::CompressorImpl * compressor) : _finalized(false), _errors(new services::ErrorCollection())
-    {
-        _arch = new CompressedDataArchive(compressor);
         archiveHeader();
     }
 
@@ -1029,16 +782,6 @@ public:
         archiveHeader();
     }
 
-    /**
-     *  Constructor of an output data archive from a byte array of compressed data
-     */
-    OutputDataArchive(daal::data_management::DecompressorImpl * decompressor, byte * ptr, size_t size) : _errors(new services::ErrorCollection())
-    {
-        _arch = new DecompressedDataArchive(decompressor);
-        _arch->write(ptr, size);
-        archiveHeader();
-    }
-
     ~OutputDataArchive() DAAL_C11_OVERRIDE { delete _arch; }
 
     /**
@@ -1242,8 +985,6 @@ private:
 } // namespace interface1
 using interface1::DataArchiveIface;
 using interface1::DataArchive;
-using interface1::CompressedDataArchive;
-using interface1::DecompressedDataArchive;
 using interface1::InputDataArchive;
 using interface1::OutputDataArchive;
 

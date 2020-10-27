@@ -28,9 +28,6 @@ Java_example_list=( association_rules/AssocRulesAprioriBatch         \
                     boosting/adaboost/AdaBoostDenseBatch             \
                     boosting/logitboost/LogitBoostDenseBatch         \
                     cholesky/CholeskyDenseBatch                      \
-                    compression/CompressorExample                    \
-                    compression/CompressionBatch                     \
-                    compression/CompressionOnline                    \
                     covariance/CorCSRBatch                           \
                     covariance/CorCSRDistr                           \
                     covariance/CorCSROnline                          \

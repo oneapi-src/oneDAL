@@ -28,9 +28,6 @@ boosting\brownboost\BrownBoostDenseBatch ^
 boosting\adaboost\AdaBoostDenseBatch ^
 boosting\logitboost\LogitBoostDenseBatch ^
 cholesky\CholeskyDenseBatch ^
-compression\CompressorExample ^
-compression\CompressionBatch ^
-compression\CompressionOnline ^
 covariance\CorCSRBatch ^
 covariance\CorCSRDistr ^
 covariance\CorCSROnline ^

@@ -409,8 +409,4 @@ JJ.ALGORITHMS       := adaboost                                                 
 
 JJ.DATA_MANAGEMENT  := data                                                      \
                        data_source                                               \
-                       compression                                               \
-                       compression/bzip2                                         \
-                       compression/lzo                                           \
-                       compression/rle                                           \
-                       compression/zlib
+
