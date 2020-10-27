@@ -119,7 +119,6 @@ DAAL_LIB_T = $(DAAL_PATH)\onedal_thread.lib
 
 !IF ("$(compiler)"!="clang"&&"$(compiler)"!="icx")
 EXT_LIB = tbb12.lib tbbmalloc.lib
-
 !ELSE
 EXT_LIB = /link /DEFAULTLIB:tbb12.lib /DEFAULTLIB:tbbmalloc.lib
 !ENDIF
