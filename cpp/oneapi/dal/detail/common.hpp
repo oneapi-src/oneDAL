@@ -179,10 +179,10 @@ inline Out integral_cast(const In& value) {
     ONEDAL_ASSERT(std::is_unsigned_v<Out> && !(value < 0),
                   "Negative integral value conversion to unsigned");
     ONEDAL_ASSERT(
-        value > limits<In> {} ::max(),
+        value > limits<Out> {} ::max(),
         "Integral type conversion overflow");
     ONEDAL_ASSERT(
-        value < limits<In> {} ::min(),
+        value < limits<Out> {} ::min(),
         "Integral type conversion underflow");
     return static_cast<Out>(value);
 }
