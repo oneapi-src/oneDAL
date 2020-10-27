@@ -46,7 +46,7 @@ echo %RESULT_DIR%
 set CFLAGS=-nologo -w
 set LFLAGS=-nologo
 set LIB_DAAL=onedal_core.lib onedal_thread.lib
-set LIB_DAAL_DLL=onedal_core_dll.1.1lib
+set LIB_DAAL_DLL=onedal_core_dll.1.lib
 set LFLAGS_DAAL=%LIB_DAAL% tbb12.lib tbbmalloc.lib impi.lib
 set LFLAGS_DAAL_DLL=onedal_core_dll.1.lib
 set MPI_LOGFILE=.\%RESULT_DIR%\build_mpi.log
