@@ -285,6 +285,10 @@ public:
     #endif // DAAL_NOTHROW_EXCEPTIONS
 #endif     // DAAL_SYCL_INTERFACE_USM
 
+#ifdef DAAL_SYCL_INTERFACE_USM
+    inline bool isUSMBacked() const { return dynamic_cast<internal::UsmBuffer<T> *>(_impl.get()) != nullptr; }
+#endif // DAAL_SYCL_INTERFACE_USM
+
     /**
      *   Returns the total number of elements in the buffer
      */

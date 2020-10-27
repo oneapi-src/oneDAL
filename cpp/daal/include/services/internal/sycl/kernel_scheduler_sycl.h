@@ -451,26 +451,40 @@ private:
     template <typename T>
     void handlePublicBuffer(Status & status)
     {
-        auto buffer = _argument.get<Buffer<T> >().toSycl(status);
-        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
-
-        // Note: we need this storage to keep all sycl buffers alive
-        // while the kernel is running
-        if (!_storage.add(buffer))
+        auto service_buffer = _argument.get<Buffer<T> >()
+#ifdef DAAL_SYCL_INTERFACE_USM
+        if (service_buffer.isUSMBacked())
         {
-            status |= ErrorMemoryAllocationFailed;
-            return;
+            DAAL_ASSERT((_argument.accessMode() == AccessModeIds::read ||
+                         _argument.accessMode() == AccessModeIds::write ||
+                         _argument.accessMode() == AccessModeIds::readwrite));
+            auto shared_pointer = service_buffer.toUSM(status);
+            _handler.set_arg((int)_argumentIndex, shared_pointer.get());
         }
-
-        switch (_argument.accessMode())
+        else
+#endif
         {
-        case AccessModeIds::read: return handlePublicBuffer<cl::sycl::access::mode::read>(buffer);
+            auto buffer = service_buffer.toSycl(status);
+            DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
-        case AccessModeIds::write: return handlePublicBuffer<cl::sycl::access::mode::write>(buffer);
+            // Note: we need this storage to keep all sycl buffers alive
+            // while the kernel is running
+            if (!_storage.add(buffer))
+            {
+                status |= ErrorMemoryAllocationFailed;
+                return;
+            }
 
-        case AccessModeIds::readwrite: return handlePublicBuffer<cl::sycl::access::mode::read_write>(buffer);
+            switch (_argument.accessMode())
+            {
+            case AccessModeIds::read: return handlePublicBuffer<cl::sycl::access::mode::read>(buffer);
 
-        default: DAAL_ASSERT(!"Unexpected buffer access mode");
+            case AccessModeIds::write: return handlePublicBuffer<cl::sycl::access::mode::write>(buffer);
+
+            case AccessModeIds::readwrite: return handlePublicBuffer<cl::sycl::access::mode::read_write>(buffer);
+
+            default: DAAL_ASSERT(!"Unexpected buffer access mode");
+            }
         }
     }
 
