@@ -168,8 +168,12 @@ inline void check_mul_overflow(const Data& first, const Data& second) {
 
 template <typename Data>
 struct limits {
-    Data min();
-    Data max();
+    constexpr Data min() {
+        return std::numeric_limits<Data>::min();
+    }
+    constexpr Data max() {
+        return std::numeric_limits<Data>::max();
+    }
 };
 
 template <typename Out, typename In>
@@ -178,12 +182,8 @@ inline Out integral_cast(const In& value) {
                   "The cast requires integral operands");
     ONEDAL_ASSERT(std::is_unsigned_v<Out> && !(value < 0),
                   "Negative integral value conversion to unsigned");
-    ONEDAL_ASSERT(
-        value > limits<Out> {} ::max(),
-        "Integral type conversion overflow");
-    ONEDAL_ASSERT(
-        value < limits<Out> {} ::min(),
-        "Integral type conversion underflow");
+    ONEDAL_ASSERT(value > (limits<Out>{}.max()), "Integral type conversion overflow");
+    ONEDAL_ASSERT(value < (limits<Out>{}.min()), "Integral type conversion underflow");
     return static_cast<Out>(value);
 }
 
