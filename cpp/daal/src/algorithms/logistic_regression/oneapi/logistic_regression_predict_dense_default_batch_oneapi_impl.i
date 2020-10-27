@@ -27,6 +27,8 @@
 #include "src/algorithms/logistic_regression/logistic_regression_model_impl.h"
 #include "src/algorithms/logistic_regression/oneapi/cl_kernel/logistic_regression_dense_default.cl"
 
+#include "src/services/service_data_utils.h"
+
 namespace daal
 {
 namespace algorithms
@@ -37,64 +39,76 @@ namespace prediction
 {
 namespace internal
 {
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 // Heaviside step function
 template <typename algorithmFPType, prediction::Method method>
-services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::heaviside(const services::Buffer<algorithmFPType> & x,
-                                                                              services::Buffer<algorithmFPType> & result, const uint32_t n)
+services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::heaviside(const services::internal::Buffer<algorithmFPType> & x,
+                                                                              services::internal::Buffer<algorithmFPType> & result, const uint32_t n)
 {
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+    DAAL_CHECK(x.size() == n, services::ErrorIncorrectParameter);
+    DAAL_CHECK(result.size() == n, services::ErrorIncorrectParameter);
+
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     const services::String options = getKeyFPType<algorithmFPType>();
     services::String cachekey("__daal_algorithms_logistic_regression_prediction_");
     cachekey.add(options);
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelLogisticResgression, options.c_str());
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelLogisticResgression, options.c_str(), status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "heaviside";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(2);
+    KernelArguments args(2, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, x, AccessModeIds::read);
     args.set(1, result, AccessModeIds::write);
 
     KernelRange range(n);
 
-    ctx.run(range, kernel, args, &status);
+    ctx.run(range, kernel, args, status);
 
     return status;
 }
 
 // Index max elements for each row
 template <typename algorithmFPType, prediction::Method method>
-services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::argMax(const services::Buffer<algorithmFPType> & x,
-                                                                           services::Buffer<algorithmFPType> & result, const uint32_t n,
+services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::argMax(const services::internal::Buffer<algorithmFPType> & x,
+                                                                           services::internal::Buffer<algorithmFPType> & result, const uint32_t n,
                                                                            const uint32_t p)
 {
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+    DAAL_CHECK(x.size() == n * p, services::ErrorIncorrectParameter); // overflow checked in compute()
+    DAAL_CHECK(result.size() == n, services::ErrorIncorrectParameter);
+
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     const services::String options = getKeyFPType<algorithmFPType>();
     services::String cachekey("__daal_algorithms_logistic_regression_prediction_");
     cachekey.add(options);
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelLogisticResgression, options.c_str());
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelLogisticResgression, options.c_str(), status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "argMax";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(3);
+    KernelArguments args(3, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, x, AccessModeIds::read);
     args.set(1, result, AccessModeIds::write);
     args.set(2, p);
 
     KernelRange range(n);
 
-    ctx.run(range, kernel, args, &status);
+    ctx.run(range, kernel, args, status);
 
     return status;
 }
@@ -104,15 +118,23 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::compute(serv
                                                                             const logistic_regression::Model * m, size_t nClasses,
                                                                             NumericTable * pRes, NumericTable * pProb, NumericTable * pLogProb)
 {
+    constexpr size_t maxInt32Value = static_cast<size_t>(daal::services::internal::MaxVal<int32_t>::get());
+
     services::Status status;
 
-    auto & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & ctx = services::internal::getDefaultContext();
 
     const daal::algorithms::logistic_regression::internal::ModelImpl * pModel =
         static_cast<const daal::algorithms::logistic_regression::internal::ModelImpl *>(m);
 
     const size_t n = x->getNumberOfRows();
     const size_t p = x->getNumberOfColumns();
+
+    DAAL_CHECK(n <= maxInt32Value, services::ErrorIncorrectNumberOfRows);
+    DAAL_CHECK(p <= maxInt32Value, services::ErrorIncorrectNumberOfColumns);
+    DAAL_CHECK(nClasses <= maxInt32Value, services::ErrorIncorrectNumberOfClasses);
+    DAAL_OVERFLOW_CHECK_BY_ADDING(uint32_t, p, 1);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, n, (p + 1));
 
     const bool isBinary = nClasses == 2;
 
@@ -121,19 +143,19 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::compute(serv
     // X
     BlockDescriptor<algorithmFPType> xBlock;
     DAAL_CHECK_STATUS(status, x->getBlockOfRows(0, n, ReadWriteMode::readOnly, xBlock));
-    const services::Buffer<algorithmFPType> xBuff = xBlock.getBuffer();
+    const services::internal::Buffer<algorithmFPType> xBuff = xBlock.getBuffer();
 
     // Beta
-    DAAL_ASSERT(beta->getNumberOfRows() == nClasses);
+    DAAL_ASSERT(beta->getNumberOfRows() == (nClasses == 2) ? 1 : nClasses);
     DAAL_ASSERT(beta->getNumberOfColumns() == p + 1);
 
     BlockDescriptor<algorithmFPType> betaBlock;
-    DAAL_CHECK_STATUS(status, beta->getBlockOfRows(0, p, ReadWriteMode::readOnly, betaBlock));
-    const services::Buffer<algorithmFPType> betaBuff = betaBlock.getBuffer();
+    DAAL_CHECK_STATUS(status, beta->getBlockOfRows(0, beta->getNumberOfRows(), ReadWriteMode::readOnly, betaBlock));
+    const services::internal::Buffer<algorithmFPType> betaBuff = betaBlock.getBuffer();
 
     //compute
-    DAAL_CHECK_STATUS(status, HelperObjectiveFunction::lazyAllocate(_fUniversal, n * p));
-    services::Buffer<algorithmFPType> fBuf = _fUniversal.get<algorithmFPType>();
+    DAAL_CHECK_STATUS(status, HelperObjectiveFunction::lazyAllocate(_fUniversal, n * beta->getNumberOfRows()));
+    services::internal::Buffer<algorithmFPType> fBuf = _fUniversal.get<algorithmFPType>();
 
     const uint32_t offset = uint32_t(1);
 
@@ -146,8 +168,8 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::compute(serv
     {
         DAAL_CHECK_STATUS(status, CrossEntropyLoss::applyBeta(xBuff, betaBuff, fBuf, n, nClasses, p, p + 1, offset));
         DAAL_CHECK_STATUS(status, HelperObjectiveFunction::lazyAllocate(_oneVector, n));
-        services::Buffer<algorithmFPType> oneVectorBuf = _oneVector.get<algorithmFPType>();
-        ctx.fill(_oneVector, 1.0, &status);
+        services::internal::Buffer<algorithmFPType> oneVectorBuf = _oneVector.get<algorithmFPType>();
+        ctx.fill(_oneVector, 1.0, status);
 
         DAAL_CHECK_STATUS(status, CrossEntropyLoss::betaIntercept(oneVectorBuf, betaBuff, fBuf, n, nClasses, p + 1));
     }
@@ -163,7 +185,7 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::compute(serv
 
         BlockDescriptor<algorithmFPType> rawBlock;
         DAAL_CHECK_STATUS(status, pRaw->getBlockOfRows(0, n, ReadWriteMode::writeOnly, rawBlock));
-        services::Buffer<algorithmFPType> aRawBuff = rawBlock.getBuffer();
+        services::internal::Buffer<algorithmFPType> aRawBuff = rawBlock.getBuffer();
 
         if (isBinary)
         {
@@ -177,6 +199,8 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::compute(serv
 
         if (pLogProb)
         {
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, n, nClasses);
+
             if (pProb)
             {
                 DAAL_ASSERT(pLogProb->getNumberOfRows() == n);
@@ -184,7 +208,7 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::compute(serv
 
                 BlockDescriptor<algorithmFPType> logProbBlock;
                 DAAL_CHECK_STATUS(status, pLogProb->getBlockOfRows(0, n, ReadWriteMode::writeOnly, logProbBlock));
-                services::Buffer<algorithmFPType> logProbBuff = logProbBlock.getBuffer();
+                services::internal::Buffer<algorithmFPType> logProbBuff = logProbBlock.getBuffer();
 
                 DAAL_CHECK_STATUS(status, math::vLog(aRawBuff, logProbBuff, n * nClasses));
 
@@ -204,8 +228,8 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::compute(serv
         DAAL_ASSERT(pRes->getNumberOfColumns() == 1);
 
         BlockDescriptor<algorithmFPType> yBlock;
-        DAAL_CHECK_STATUS(status, pRes->getBlockOfRows(0, n, ReadWriteMode::readWrite, yBlock));
-        services::Buffer<algorithmFPType> yBuff = yBlock.getBuffer();
+        DAAL_CHECK_STATUS(status, pRes->getBlockOfRows(0, n, ReadWriteMode::writeOnly, yBlock));
+        services::internal::Buffer<algorithmFPType> yBuff = yBlock.getBuffer();
 
         if (isBinary)
         {

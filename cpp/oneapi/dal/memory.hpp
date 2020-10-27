@@ -44,7 +44,7 @@ inline auto make_default_delete(const detail::default_host_policy& policy) {
     return default_delete<T, detail::default_host_policy>{ policy };
 }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 
 template <typename T>
 inline auto make_default_delete(const detail::data_parallel_policy& policy) {

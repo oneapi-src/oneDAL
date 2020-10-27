@@ -58,11 +58,12 @@ public:
      * \param[in] interceptFlag Flag. If true, then it is required to compute an intercept term
      * \return Status of the computations
      */
-    virtual services::Status computeBetasImpl(size_t p, services::Buffer<algorithmFPType> & a, size_t ny, services::Buffer<algorithmFPType> & b,
-                                              bool inteceptFlag) const = 0;
+    virtual services::Status computeBetasImpl(size_t p, services::internal::Buffer<algorithmFPType> & a, size_t ny,
+                                              services::internal::Buffer<algorithmFPType> & b, bool inteceptFlag) const = 0;
 
-    virtual services::Status copyBetaToResult(const services::Buffer<algorithmFPType> & betaTmp, services::Buffer<algorithmFPType> & betaRes,
-                                              const size_t nBetas, const size_t nResponses, const bool interceptFlag) const = 0;
+    virtual services::Status copyBetaToResult(const services::internal::Buffer<algorithmFPType> & betaTmp,
+                                              services::internal::Buffer<algorithmFPType> & betaRes, const size_t nBetas, const size_t nResponses,
+                                              const bool interceptFlag) const = 0;
 };
 
 /**
@@ -107,8 +108,8 @@ public:
      *                          are passed into lapack routines
      * \return Status of the computations
      */
-    static services::Status solveSystem(const size_t p, services::Buffer<algorithmFPType> & a, const size_t ny,
-                                        services::Buffer<algorithmFPType> & b);
+    static services::Status solveSystem(const size_t p, services::internal::Buffer<algorithmFPType> & a, const size_t ny,
+                                        services::internal::Buffer<algorithmFPType> & b);
 };
 
 /**
@@ -132,8 +133,8 @@ public:
     static services::Status compute(NumericTable & x, NumericTable & y, NumericTable & xtx, NumericTable & xty, bool interceptFlag);
 
 private:
-    static services::Status reduceResults(services::Buffer<algorithmFPType> & dst, size_t dstOffset, size_t dstStride,
-                                          const services::Buffer<algorithmFPType> & src, size_t srcOffset, size_t srcStride, size_t count);
+    static services::Status reduceResults(services::internal::Buffer<algorithmFPType> & dst, size_t dstOffset, size_t dstStride,
+                                          const services::internal::Buffer<algorithmFPType> & src, size_t srcOffset, size_t srcStride, size_t count);
 };
 
 } // namespace internal

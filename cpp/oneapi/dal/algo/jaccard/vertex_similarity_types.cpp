@@ -49,13 +49,6 @@ caching_builder& vertex_similarity_input<Graph>::get_caching_builder() {
 
 class detail::vertex_similarity_result_impl : public base {
 public:
-    vertex_similarity_result_impl(const table& vertex_pairs,
-                                  const table& coeffs,
-                                  std::int64_t nonzero_coeff_count)
-            : coeffs(coeffs),
-              vertex_pairs(vertex_pairs),
-              nonzero_coeff_count(nonzero_coeff_count) {}
-
     table coeffs;
     table vertex_pairs;
     std::int64_t nonzero_coeff_count;
@@ -63,14 +56,20 @@ public:
 
 template class detail::vertex_similarity_input_impl<undirected_adjacency_array_graph<>>;
 
-template class ONEAPI_DAL_EXPORT vertex_similarity_input<undirected_adjacency_array_graph<>>;
+template class ONEDAL_EXPORT vertex_similarity_input<undirected_adjacency_array_graph<>>;
 
 using detail::vertex_similarity_result_impl;
+
+vertex_similarity_result::vertex_similarity_result() : impl_(new vertex_similarity_result_impl()) {}
 
 vertex_similarity_result::vertex_similarity_result(const table& vertex_pairs,
                                                    const table& coeffs,
                                                    std::int64_t nonzero_coeff_count)
-        : impl_(new vertex_similarity_result_impl(vertex_pairs, coeffs, nonzero_coeff_count)) {}
+        : impl_(new vertex_similarity_result_impl()) {
+    impl_->vertex_pairs = vertex_pairs;
+    impl_->coeffs = coeffs;
+    impl_->nonzero_coeff_count = nonzero_coeff_count;
+}
 
 table vertex_similarity_result::get_coeffs() const {
     return impl_->coeffs;

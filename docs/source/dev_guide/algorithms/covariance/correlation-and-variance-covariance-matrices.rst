@@ -45,7 +45,7 @@ dimension :math:`p`, the problem is to compute the sample means and
 variance-covariance matrix or correlation matrix:
 
 .. list-table::
-   :widths: 25 25
+   :widths: 10 60
    :header-rows: 1
 
    * - Statistic

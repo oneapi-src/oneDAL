@@ -26,7 +26,8 @@ public:
     homogen_table_builder_impl()
             : row_count_(0),
               column_count_(0),
-              layout_(data_layout::row_major) {}
+              layout_(data_layout::row_major),
+              dtype_(data_type::float32) {}
 
     void reset(homogen_table&& t) {
         auto& t_impl = detail::get_impl<detail::homogen_table_impl_iface>(t);
@@ -95,7 +96,7 @@ public:
         return new_table;
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     void allocate(const sycl::queue& queue,
                   std::int64_t row_count,
                   std::int64_t column_count,
@@ -146,20 +147,20 @@ public:
         impl.push_column(a, idx, r);
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename T>
     void pull_rows(sycl::queue& q,
                    array<T>& a,
                    const range& r,
                    const sycl::usm::alloc& kind) const {
         homogen_table_impl impl{ column_count_, data_, dtype_, layout_ };
-        impl.pull_rows(a, r);
+        impl.pull_rows(q, a, r, kind);
     }
 
     template <typename T>
     void push_rows(sycl::queue& q, const array<T>& a, const range& r) {
         homogen_table_impl impl{ column_count_, data_, dtype_, layout_ };
-        impl.push_rows(a, r);
+        impl.push_rows(q, a, r);
     }
 
     template <typename T>
@@ -169,13 +170,13 @@ public:
                      const range& r,
                      const sycl::usm::alloc& kind) const {
         homogen_table_impl impl{ column_count_, data_, dtype_, layout_ };
-        impl.pull_column(a, idx, r);
+        impl.pull_column(q, a, idx, r, kind);
     }
 
     template <typename T>
     void push_column(sycl::queue& q, const array<T>& a, std::int64_t idx, const range& r) {
         homogen_table_impl impl{ column_count_, data_, dtype_, layout_ };
-        impl.push_column(a, idx, r);
+        impl.push_column(q, a, idx, r);
     }
 #endif
 

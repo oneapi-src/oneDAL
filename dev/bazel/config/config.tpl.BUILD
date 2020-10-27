@@ -3,6 +3,7 @@ load("@onedal//dev/bazel/config:config.bzl",
     "cpu_info",
     "version_info",
     "config_flag",
+    "config_bool_flag",
     "dump_config_info",
 )
 
@@ -89,6 +90,18 @@ config_setting(
     name = "seq_test_thread_mode",
     flag_values  = {
         ":test_thread_mode": "seq",
+    },
+)
+
+config_bool_flag(
+    name = "release_dpc",
+    build_setting_default = False,
+)
+
+config_setting(
+    name = "release_dpc_enabled",
+    flag_values  = {
+        ":release_dpc": "True",
     },
 )
 

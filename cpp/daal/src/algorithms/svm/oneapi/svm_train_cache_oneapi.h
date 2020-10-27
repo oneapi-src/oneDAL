@@ -28,7 +28,7 @@
 #include "src/externals/service_memory.h"
 #include "src/data_management/service_micro_table.h"
 #include "src/data_management/service_numeric_table.h"
-#include "data_management/data/numeric_table_sycl_homogen.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 #include "src/algorithms/svm/oneapi/svm_helper_oneapi.h"
 
 namespace daal
@@ -42,7 +42,8 @@ namespace training
 namespace internal
 {
 using namespace daal::data_management;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
+using daal::data_management::internal::SyclHomogenNumericTable;
 
 /**
  * Types of caches for kernel function values
@@ -64,10 +65,10 @@ class SVMCacheOneAPIIface
 public:
     virtual ~SVMCacheOneAPIIface() {}
 
-    virtual services::Status compute(const NumericTablePtr & xTable, const services::Buffer<uint32_t> & wsIndices, const size_t p) = 0;
+    virtual services::Status compute(const NumericTablePtr & xTable, const services::internal::Buffer<uint32_t> & wsIndices, const size_t p) = 0;
 
-    virtual const services::Buffer<algorithmFPType> & getRowsBlock() const = 0;
-    virtual services::Status copyLastToFirst()                             = 0;
+    virtual const services::internal::Buffer<algorithmFPType> & getRowsBlock() const = 0;
+    virtual services::Status copyLastToFirst()                                       = 0;
 
 protected:
     SVMCacheOneAPIIface(const size_t blockSize, const size_t lineSize, const kernel_function::KernelIfacePtr & kernel)
@@ -125,9 +126,9 @@ public:
         return SVMCacheOneAPIPtr<algorithmFPType>(res);
     }
 
-    const services::Buffer<algorithmFPType> & getRowsBlock() const override { return _cacheBuff; }
+    const services::internal::Buffer<algorithmFPType> & getRowsBlock() const override { return _cacheBuff; }
 
-    services::Status compute(const NumericTablePtr & xTable, const services::Buffer<uint32_t> & wsIndices, const size_t p) override
+    services::Status compute(const NumericTablePtr & xTable, const services::internal::Buffer<uint32_t> & wsIndices, const size_t p) override
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(cacheCompute);
 
@@ -135,10 +136,10 @@ public:
         BlockDescriptor<algorithmFPType> xBlock;
 
         DAAL_CHECK_STATUS(status, xTable->getBlockOfRows(0, xTable->getNumberOfRows(), ReadWriteMode::readOnly, xBlock));
-        const services::Buffer<algorithmFPType> & xBuff = xBlock.getBuffer();
+        const services::internal::Buffer<algorithmFPType> & xBuff = xBlock.getBuffer();
 
-        size_t blockSize                         = _blockSize;
-        services::Buffer<uint32_t> wsIndicesReal = wsIndices;
+        size_t blockSize                                   = _blockSize;
+        services::internal::Buffer<uint32_t> wsIndicesReal = wsIndices;
         if (_ifComputeSubKernel)
         {
             // SubBuffer in not working on L0 (Date: 20200423).
@@ -164,8 +165,8 @@ public:
         _ifComputeSubKernel = true;
         services::Status status;
 
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
-        context.copy(_cache, 0, _cache, _nSelectRows * _lineSize, _nSelectRows * _lineSize, &status);
+        auto & context = services::internal::getDefaultContext();
+        context.copy(_cache, 0, _cache, _nSelectRows * _lineSize, _nSelectRows * _lineSize, status);
         return status;
     }
 
@@ -177,16 +178,16 @@ protected:
     services::Status init(const size_t cacheSize, const NumericTablePtr & xTable)
     {
         services::Status status;
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::internal::getDefaultContext();
 
-        _cache = context.allocate(TypeIds::id<algorithmFPType>(), _lineSize * _blockSize, &status);
+        _cache = context.allocate(TypeIds::id<algorithmFPType>(), _lineSize * _blockSize, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         _cacheBuff      = _cache.get<algorithmFPType>();
         auto cacheTable = SyclHomogenNumericTable<algorithmFPType>::create(_cacheBuff, _lineSize, _blockSize, &status);
 
         const size_t p = xTable->getNumberOfColumns();
-        _xBlock        = context.allocate(TypeIds::id<algorithmFPType>(), _blockSize * p, &status);
+        _xBlock        = context.allocate(TypeIds::id<algorithmFPType>(), _blockSize * p, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         _xBlockBuff                    = _xBlock.get<algorithmFPType>();
@@ -232,8 +233,8 @@ protected:
     bool _ifComputeSubKernel;
     UniversalBuffer _cache;
     UniversalBuffer _xBlock;
-    services::Buffer<algorithmFPType> _xBlockBuff;
-    services::Buffer<algorithmFPType> _cacheBuff;
+    services::internal::Buffer<algorithmFPType> _xBlockBuff;
+    services::internal::Buffer<algorithmFPType> _cacheBuff;
 };
 
 } // namespace internal

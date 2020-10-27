@@ -40,6 +40,8 @@ public:
     std::int64_t min_observations_in_leaf_node = 1;
     std::int64_t min_observations_in_split_node = 2;
     std::int64_t max_leaf_nodes = 0;
+    std::int64_t max_bins = 256;
+    std::int64_t min_bin_size = 5;
 
     error_metric_mode error_metric_mode_value = error_metric_mode::none;
     infer_mode infer_mode_value = infer_mode::class_labels;
@@ -66,6 +68,8 @@ public:
     std::int64_t min_observations_in_leaf_node = 5;
     std::int64_t min_observations_in_split_node = 2;
     std::int64_t max_leaf_nodes = 0;
+    std::int64_t max_bins = 256;
+    std::int64_t min_bin_size = 5;
 
     error_metric_mode error_metric_mode_value = error_metric_mode::none;
     infer_mode infer_mode_value = infer_mode::class_labels;
@@ -128,6 +132,14 @@ std::int64_t descriptor_base<Task>::get_min_observations_in_split_node() const {
 template <typename Task>
 std::int64_t descriptor_base<Task>::get_max_leaf_nodes() const {
     return impl_->max_leaf_nodes;
+}
+template <typename Task>
+std::int64_t descriptor_base<Task>::get_max_bins() const {
+    return impl_->max_bins;
+}
+template <typename Task>
+std::int64_t descriptor_base<Task>::get_min_bin_size() const {
+    return impl_->min_bin_size;
 }
 
 template <typename Task>
@@ -217,6 +229,16 @@ void descriptor_base<Task>::set_max_leaf_nodes_impl(std::int64_t value) {
     check_domain_cond((value >= 0), "max_leaf_nodes schould be >= 0");
     impl_->max_leaf_nodes = value;
 }
+template <typename Task>
+void descriptor_base<Task>::set_max_bins_impl(std::int64_t value) {
+    check_domain_cond((value >= 2), "max_bins schould be >= 2");
+    impl_->max_bins = value;
+}
+template <typename Task>
+void descriptor_base<Task>::set_min_bin_size_impl(std::int64_t value) {
+    check_domain_cond((value >= 1), "min_bin_size schould be >= 1");
+    impl_->min_bin_size = value;
+}
 
 template <typename Task>
 void descriptor_base<Task>::set_error_metric_mode_impl(error_metric_mode value) {
@@ -251,8 +273,8 @@ void descriptor_base<Task>::set_voting_mode_impl(voting_mode value) {
     impl_->voting_mode_value = value;
 }
 
-template class ONEAPI_DAL_EXPORT descriptor_base<task::classification>;
-template class ONEAPI_DAL_EXPORT descriptor_base<task::regression>;
+template class ONEDAL_EXPORT descriptor_base<task::classification>;
+template class ONEDAL_EXPORT descriptor_base<task::regression>;
 
 /* model implementation */
 template <typename Task>
@@ -273,6 +295,6 @@ void model<Task>::clear() {
     impl_->clear();
 }
 
-template class ONEAPI_DAL_EXPORT model<task::classification>;
-template class ONEAPI_DAL_EXPORT model<task::regression>;
+template class ONEDAL_EXPORT model<task::classification>;
+template class ONEDAL_EXPORT model<task::regression>;
 } // namespace oneapi::dal::decision_forest

@@ -29,7 +29,7 @@ pointer to an instance of Algorithm class.
 Following methods of the Algorithm class are used:
 
 .. list-table::
-   :widths: 50 50
+   :widths: 20 60
    :header-rows: 1
    :align: left
 
@@ -44,7 +44,7 @@ Following methods of the Algorithm class are used:
 HostAppIface class includes following methods:
 
 .. list-table::
-   :widths: 50 50
+   :widths: 20 60
    :header-rows: 1
    :align: left
 

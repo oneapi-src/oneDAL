@@ -252,12 +252,19 @@ Examples
 
 .. tabs::
 
+  .. tab:: oneAPI DPC++
+
+    Batch Processing:
+
+    - :ref:`dpc_kmeans_init_dense.cpp`
+    - :ref:`dpc_kmeans_lloyd_dense_batch.cpp`
+
   .. tab:: oneAPI C++
 
-	Batch Processing:
+    Batch Processing:
 
-	- :ref:`cpp_kmeans_lloyd_dense_batch.cpp`
-	- :ref:`cpp_kmeans_init_dense.cpp`
+    - :ref:`cpp_kmeans_lloyd_dense_batch.cpp`
+    - :ref:`cpp_kmeans_init_dense.cpp`
 
   .. tab:: C++ (CPU)
 

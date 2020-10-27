@@ -94,6 +94,7 @@ public:
 private:
     services::Status grow()
     {
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, _capacity, 2);
         const size_t newCapacity = _capacity * 2;
         DAAL_ASSERT(_count < newCapacity);
         WorkItem * const newData = new WorkItem[newCapacity];

@@ -23,7 +23,7 @@ template <>
 class detail::descriptor_impl<task::dim_reduction> : public base {
 public:
     std::int64_t component_count = -1;
-    bool is_deterministic = false;
+    bool deterministic = false;
 };
 
 template <>
@@ -44,8 +44,8 @@ std::int64_t descriptor_base<task::dim_reduction>::get_component_count() const {
 }
 
 template <>
-bool descriptor_base<task::dim_reduction>::get_is_deterministic() const {
-    return impl_->is_deterministic;
+bool descriptor_base<task::dim_reduction>::get_deterministic() const {
+    return impl_->deterministic;
 }
 
 template <>
@@ -57,8 +57,8 @@ void descriptor_base<task::dim_reduction>::set_component_count_impl(std::int64_t
 }
 
 template <>
-void descriptor_base<task::dim_reduction>::set_is_deterministic_impl(bool value) {
-    impl_->is_deterministic = value;
+void descriptor_base<task::dim_reduction>::set_deterministic_impl(bool value) {
+    impl_->deterministic = value;
 }
 
 template <typename Task>
@@ -74,7 +74,7 @@ void model<Task>::set_eigenvectors_impl(const table& value) {
     impl_->eigenvectors = value;
 }
 
-template class ONEAPI_DAL_EXPORT descriptor_base<task::dim_reduction>;
-template class ONEAPI_DAL_EXPORT model<task::dim_reduction>;
+template class ONEDAL_EXPORT descriptor_base<task::dim_reduction>;
+template class ONEDAL_EXPORT model<task::dim_reduction>;
 
 } // namespace oneapi::dal::pca

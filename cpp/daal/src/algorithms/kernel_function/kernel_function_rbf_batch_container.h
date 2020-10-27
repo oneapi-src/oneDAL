@@ -39,7 +39,7 @@ using namespace daal::data_management;
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
     if (method == defaultDense && !deviceInfo.isCpu)
     {
@@ -79,7 +79,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
             return services::Status(services::ErrorIncorrectTypeOfInputNumericTable);
     }
 
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (method == defaultDense && !deviceInfo.isCpu)

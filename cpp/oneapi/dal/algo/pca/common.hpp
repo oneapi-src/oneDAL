@@ -43,7 +43,7 @@ using by_default = cov;
 } // namespace method
 
 template <typename Task = task::by_default>
-class ONEAPI_DAL_EXPORT descriptor_base : public base {
+class ONEDAL_EXPORT descriptor_base : public base {
 public:
     using tag_t = detail::tag;
     using task_t = Task;
@@ -53,11 +53,11 @@ public:
     descriptor_base();
 
     auto get_component_count() const -> std::int64_t;
-    auto get_is_deterministic() const -> bool;
+    auto get_deterministic() const -> bool;
 
 protected:
     void set_component_count_impl(std::int64_t value);
-    void set_is_deterministic_impl(bool value);
+    void set_deterministic_impl(bool value);
 
     dal::detail::pimpl<detail::descriptor_impl<task_t>> impl_;
 };
@@ -75,14 +75,14 @@ public:
         return *this;
     }
 
-    auto& set_is_deterministic(bool value) {
-        descriptor_base<Task>::set_is_deterministic_impl(value);
+    auto& set_deterministic(bool value) {
+        descriptor_base<Task>::set_deterministic_impl(value);
         return *this;
     }
 };
 
 template <typename Task = task::by_default>
-class ONEAPI_DAL_EXPORT model : public base {
+class ONEDAL_EXPORT model : public base {
     friend dal::detail::pimpl_accessor;
 
 public:

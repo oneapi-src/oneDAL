@@ -112,18 +112,27 @@ For more details, see :ref:`algorithms`.
    * - ``nObservations``
      - Pointer to the :math:`1 \times 1` numeric table that contains the number of observations processed so far.
        
-       By default, this result is an object of the ``HomogenNumericTable`` class, but you can define the result as an object of any class
-       derived from ``NumericTable`` except ``CSRNumericTable``.
+       .. note::
+          
+          By default, this result is an object of the ``HomogenNumericTable`` class,
+          but you can define the result as an object of any class derived from ``NumericTable``
+          except ``CSRNumericTable``.
    * - ``crossProduct``
      - Pointer to :math:`p \times p` numeric table with the cross-product matrix computed so far.
        
-       By default, this table is an object of the ``HomogenNumericTable`` class, but you can define the result as an object of any class
-       derived from ``NumericTable`` except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
+       .. note::
+          
+          By default, this table is an object of the ``HomogenNumericTable`` class,
+          but you can define the result as an object of any class derived from ``NumericTable``
+          except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
    * - ``sum``
      - Pointer to :math:`1 \times p` numeric table with partial sums computed so far.
        
-       By default, this table is an object of the ``HomogenNumericTable`` class, but you can define the result as an object of any class
-       derived from ``NumericTable`` except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
+       .. note::
+          
+          By default, this table is an object of the ``HomogenNumericTable`` class,
+          but you can define the result as an object of any class derived from ``NumericTable``
+          except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
 
 Algorithm Output
 ****************
@@ -141,18 +150,27 @@ For more details, see :ref:`algorithms`.
    * - ``covariance``
      - Use when ``outputMatrixType``=``covarianceMatrix``. Pointer to the numeric table with the :math:`p \times p` variance-covariance matrix. 
        
-       By default, this result is an object of the HomogenNumericTable class, but you can define the result as an object of any class
-       derived from NumericTable except PackedTriangularMatrix and CSRNumericTable.
+       .. note::
+       
+          By default, this result is an object of the ``HomogenNumericTable`` class,
+          but you can define the result as an object of any class derived from ``NumericTable``
+          except ``PackedTriangularMatrix`` and ``CSRNumericTable``.
    * - ``correlation``
      - Use when ``outputMatrixType``=``correlationMatrix``. Pointer to the numeric table with the :math:`p \times p` correlation matrix.
      
-       By default, this result is an object of the ``HomogenNumericTable`` class, but you can define the result as an object of any class
-       derived from ``NumericTable`` except ``PackedTriangularMatrix`` and ``CSRNumericTable``.
+       .. note::
+       
+          By default, this result is an object of the ``HomogenNumericTable`` class,
+          but you can define the result as an object of any class derived from ``NumericTable``
+          except ``PackedTriangularMatrix`` and ``CSRNumericTable``.
    * - ``mean``
      - Pointer to the :math:`1 \times p` numeric table with means.
      
-       By default, this result is an object of the ``HomogenNumericTable`` class, but you can define the result as an object of any class
-       derived from ``NumericTable`` except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
+       .. note::
+          
+          By default, this result is an object of the ``HomogenNumericTable`` class,
+          but you can define the result as an object of any class derived from ``NumericTable``
+          except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
 
 
 .. include:: ../../../opt-notice.rst

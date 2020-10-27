@@ -42,7 +42,7 @@ Intel&reg; oneAPI Data Analytics Library is an extension of Intel&reg; Data Anal
 
 ## Build yours high-performance data science application with intel&reg; oneDAL
 
-Intel&reg; oneDAL uses all capabilities of Intel&reg; hardware, which allows you to get an sugnificant performance boost on the classic machine learning algorithms.
+Intel&reg; oneDAL uses all capabilities of Intel&reg; hardware, which allows you to get an significant performance boost on the classic machine learning algorithms.
 
 We provide highly optimized algorithmic building blocks for all stages of data analytics: **preprocessing**, **transformation**, **analysis**, **modeling**, **validation**, and **decision making**.
 
@@ -216,7 +216,7 @@ Samples is an examples of how oneDAL can be used in different applications.
 ## Technical Preview Features
 
 Technical preview features are introduced to gain early feedback from developers. A technical preview feature is subject to change in the future releases. Using a technical preview feature in a production code base is therefore strongly discouraged.
-In C++ APIs, technical preview features are located in `daal::preview` and `onedal::preview` namespaces. In Java APIs, technical preview features are located in packages that have the `com.intel.daal.preview` name prefix.
+In C++ APIs, technical preview features are located in `daal::preview` and `oneapi::dal::preview` namespaces. In Java APIs, technical preview features are located in packages that have the `com.intel.daal.preview` name prefix.
 The preview features list:
 - Graph Analytics: 
 	- Undirected graph without edge and vertex weights (undirected_adjacency_array_graph) - 32bit vertex index only

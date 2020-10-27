@@ -43,7 +43,7 @@ namespace linear
 {
 namespace internal
 {
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 template <typename algorithmFPType>
 services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeInternalVectorVector(NumericTable * vecLeft, NumericTable * vecRight,
@@ -65,7 +65,7 @@ services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeI
 {
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     const size_t nMatLeft  = matLeft->getNumberOfRows();
     const size_t nMatRight = matRight->getNumberOfRows();
@@ -90,14 +90,14 @@ services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeI
 
         DAAL_CHECK_STATUS(status, result->getBlockOfRows(0, nMatLeft, ReadWriteMode::writeOnly, resultBlock));
 
-        const services::Buffer<algorithmFPType> matLeftBuff  = matLeftBlock.getBuffer();
-        const services::Buffer<algorithmFPType> matRightBuff = matRightBlock.getBuffer();
+        const services::internal::Buffer<algorithmFPType> matLeftBuff  = matLeftBlock.getBuffer();
+        const services::internal::Buffer<algorithmFPType> matRightBuff = matRightBlock.getBuffer();
 
-        services::Buffer<algorithmFPType> resultBuff = resultBlock.getBuffer();
+        services::internal::Buffer<algorithmFPType> resultBuff = resultBlock.getBuffer();
 
         if (beta != 0.0)
         {
-            context.fill(resultBuff, 1.0, &status);
+            context.fill(resultBuff, 1.0, status);
             DAAL_CHECK_STATUS_VAR(status);
         }
 

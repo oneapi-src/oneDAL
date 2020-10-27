@@ -26,7 +26,7 @@
 
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
-#include "sycl/internal/execution_context.h"
+#include "services/internal/sycl/execution_context.h"
 
 namespace daal
 {
@@ -46,63 +46,31 @@ public:
                              const Parameter * par);
 
 private:
+    services::Status getCores(const services::internal::sycl::UniversalBuffer & data, uint32_t nRows, uint32_t nFeatures, int nNbrs,
+                              algorithmFPType eps);
+    services::Status getCoresWithWeights(const services::internal::sycl::UniversalBuffer & data, uint32_t nRows, uint32_t nFeatures,
+                                         algorithmFPType nNbrs, algorithmFPType eps);
+    services::Status updateQueue(uint32_t clusterId, uint32_t nRows, uint32_t nFeatures, algorithmFPType eps, uint32_t queueBegin, uint32_t queueEnd,
+                                 const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & clusters);
+
+    services::Status startNextCluster(uint32_t clusterId, uint32_t nRows, uint32_t queueEnd, services::internal::sycl::UniversalBuffer & clusters,
+                                      bool & found);
     services::Status processResultsToCompute(DAAL_UINT64 resultsToCompute, daal::data_management::NumericTable * ntData,
                                              daal::data_management::NumericTable * ntCoreIndices,
                                              daal::data_management::NumericTable * ntCoreObservations);
-    services::Status pushNeighborsToQueue(const oneapi::internal::UniversalBuffer & distances, const oneapi::internal::UniversalBuffer & chunkOffests,
-                                          uint32_t rowId, uint32_t clusterId, uint32_t chunkOffset, uint32_t nRows, uint32_t qEnd,
-                                          algorithmFPType eps, oneapi::internal::UniversalBuffer & assignments,
-                                          oneapi::internal::UniversalBuffer & queue);
+    services::Status initializeBuffers(uint32_t nRows, daal::data_management::NumericTable * weights);
+    services::Status buildProgram(services::internal::sycl::ClKernelFactoryIface & kernel_factory);
+    services::Status setQueueFront(uint32_t queueEnd);
+    services::Status getQueueFront(uint32_t & queueEnd);
 
-    services::Status countOffsets(const oneapi::internal::UniversalBuffer & counters, oneapi::internal::UniversalBuffer & offsets);
+    static constexpr uint32_t _maxSubgroupSize = 32;
+    bool _useWeights;
 
-    services::Status setBufferValue(oneapi::internal::UniversalBuffer & buffer, uint32_t index, int value);
-
-    services::Status setBufferValueByQueueIndex(oneapi::internal::UniversalBuffer & buffer, const oneapi::internal::UniversalBuffer & queue,
-                                                uint32_t posInQueue, int value);
-
-    services::Status getPointDistances(const oneapi::internal::UniversalBuffer & data, uint32_t nRows, uint32_t rowId, uint32_t dim,
-                                       uint32_t minkowskiPower, oneapi::internal::UniversalBuffer & pointDistances);
-
-    services::Status getQueueBlockDistances(const oneapi::internal::UniversalBuffer & data, uint32_t nRows,
-                                            const oneapi::internal::UniversalBuffer & queue, uint32_t queueBegin, uint32_t queueBlockSize,
-                                            uint32_t dim, uint32_t minkowskiPower, oneapi::internal::UniversalBuffer & queueBlockDistances);
-
-    services::Status countPointNeighbors(const oneapi::internal::UniversalBuffer & assignments,
-                                         const oneapi::internal::UniversalBuffer & pointDistances, uint32_t rowId, int chunkOffset, uint32_t nRows,
-                                         algorithmFPType epsP, const oneapi::internal::UniversalBuffer & queue,
-                                         oneapi::internal::UniversalBuffer & countersTotal, oneapi::internal::UniversalBuffer & countersNewNeighbors);
-
-    uint32_t sumCounters(const oneapi::internal::UniversalBuffer & counters);
-
-    bool canQueryRow(const oneapi::internal::UniversalBuffer & assignments, uint32_t rowIndex, services::Status * s);
-
-    uint32_t computeQueueBlockSize(uint32_t queueBegin, uint32_t queueEnd);
-
-    uint32_t getWorkgroupNumber(uint32_t numberOfChunks) { return numberOfChunks * _minSubgroupSize / _maxWorkgroupSize + 1; }
-
-    services::Status initializeBuffers(uint32_t nRows);
-
-    services::Status buildProgram(oneapi::internal::ClKernelFactoryIface & kernel_factory);
-
-    void calculateChunks(uint32_t nRows);
-
-    static const uint32_t _minSubgroupSize              = 16;
-    static const uint32_t _maxWorkgroupSize             = 256;
-    static const uint32_t _minRecommendedNumberOfChunks = 64;
-    static const uint32_t _recommendedChunkSize         = 256;
-    static const uint32_t _minChunkSize                 = 16;
-    static const uint32_t _queueBlockSize               = 64;
-    uint32_t _chunkNumber                               = _minRecommendedNumberOfChunks;
-    uint32_t _chunkSize                                 = _recommendedChunkSize;
-
-    oneapi::internal::UniversalBuffer _queueBlockDistances;
-    oneapi::internal::UniversalBuffer _singlePointDistances;
-    oneapi::internal::UniversalBuffer _queue;
-    oneapi::internal::UniversalBuffer _isCore;
-    oneapi::internal::UniversalBuffer _countersTotal;
-    oneapi::internal::UniversalBuffer _countersNewNeighbors;
-    oneapi::internal::UniversalBuffer _chunkOffsets;
+    services::internal::sycl::UniversalBuffer _weights;
+    services::internal::sycl::UniversalBuffer _queue;
+    services::internal::sycl::UniversalBuffer _isCore;
+    services::internal::sycl::UniversalBuffer _lastPoint;
+    services::internal::sycl::UniversalBuffer _queueFront;
 };
 
 } // namespace internal

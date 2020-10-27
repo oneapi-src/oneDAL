@@ -47,12 +47,12 @@ internal::ConversionDataType getConversionDataType(data_type t) {
 
 template <typename DownCast, typename UpCast, typename... Args>
 void daal_convert_dispatcher(data_type src_type,
-                             data_type dest_type,
+                             data_type dst_type,
                              DownCast&& dcast,
                              UpCast&& ucast,
                              Args&&... args) {
     auto from_type = getIndexNumType(src_type);
-    auto to_type = getConversionDataType(dest_type);
+    auto to_type = getConversionDataType(dst_type);
 
     auto check_types = [](auto from_type, auto to_type) {
         if (from_type == features::DAAL_OTHER_T || to_type == internal::DAAL_OTHER) {
@@ -60,9 +60,9 @@ void daal_convert_dispatcher(data_type src_type,
         }
     };
 
-    if (getConversionDataType(dest_type) == internal::DAAL_OTHER &&
+    if (getConversionDataType(dst_type) == internal::DAAL_OTHER &&
         getConversionDataType(src_type) != internal::DAAL_OTHER) {
-        from_type = getIndexNumType(dest_type);
+        from_type = getIndexNumType(dst_type);
         to_type = getConversionDataType(src_type);
 
         check_types(from_type, to_type);
@@ -78,12 +78,12 @@ void daal_convert(const void* src,
                   void* dst,
                   data_type src_type,
                   data_type dst_type,
-                  std::int64_t size) {
+                  std::int64_t element_count) {
     daal_convert_dispatcher(src_type,
                             dst_type,
                             internal::getVectorDownCast,
                             internal::getVectorUpCast,
-                            size,
+                            element_count,
                             src,
                             dst);
 }
@@ -94,12 +94,12 @@ void daal_convert(const void* src,
                   data_type dst_type,
                   std::int64_t src_stride,
                   std::int64_t dst_stride,
-                  std::int64_t size) {
+                  std::int64_t element_count) {
     daal_convert_dispatcher(src_type,
                             dst_type,
                             internal::getVectorStrideDownCast,
                             internal::getVectorStrideUpCast,
-                            size,
+                            element_count,
                             src,
                             src_stride,
                             dst,

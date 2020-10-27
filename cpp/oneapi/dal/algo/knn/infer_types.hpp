@@ -21,35 +21,40 @@
 namespace oneapi::dal::knn {
 
 namespace detail {
+template <typename Task = task::by_default>
 class infer_input_impl;
+
+template <typename Task = task::by_default>
 class infer_result_impl;
 } // namespace detail
 
-class ONEAPI_DAL_EXPORT infer_input : public base {
+template <typename Task = task::by_default>
+class ONEDAL_EXPORT infer_input : public base {
 public:
-    infer_input(const table& data, const model& model);
+    infer_input(const table& data, const model<Task>& model);
 
-    table get_data() const;
-    model get_model() const;
+    const table& get_data() const;
+    const model<Task>& get_model() const;
 
     auto& set_data(const table& data) {
         set_data_impl(data);
         return *this;
     }
 
-    auto& set_model(const model& m) {
+    auto& set_model(const model<Task>& m) {
         set_model_impl(m);
         return *this;
     }
 
 private:
     void set_data_impl(const table& data);
-    void set_model_impl(const model& model);
+    void set_model_impl(const model<Task>& model);
 
-    dal::detail::pimpl<detail::infer_input_impl> impl_;
+    dal::detail::pimpl<detail::infer_input_impl<Task>> impl_;
 };
 
-class ONEAPI_DAL_EXPORT infer_result {
+template <typename Task = task::by_default>
+class ONEDAL_EXPORT infer_result {
 public:
     infer_result();
 
@@ -62,8 +67,8 @@ public:
 
 private:
     void set_labels_impl(const table&);
-    table get_labels_impl() const;
-    dal::detail::pimpl<detail::infer_result_impl> impl_;
+    const table& get_labels_impl() const;
+    dal::detail::pimpl<detail::infer_result_impl<Task>> impl_;
 };
 
 } // namespace oneapi::dal::knn

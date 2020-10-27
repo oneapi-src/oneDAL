@@ -46,15 +46,31 @@ public:
         return data_layout::unknown;
     }
 
-    template <typename T>
-    void pull_rows(array<T>& block, const range&) const {
+    template <typename Data>
+    void pull_rows(array<Data>& block, const range&) const {
         block.reset();
     }
 
-    template <typename T>
-    void pull_column(array<T>& block, std::int64_t, const range&) const {
+    template <typename Data>
+    void pull_column(array<Data>& block, std::int64_t, const range&) const {
         block.reset();
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    template <typename Data>
+    void pull_rows(sycl::queue&, array<Data>& block, const range&, const sycl::usm::alloc&) const {
+        block.reset();
+    }
+
+    template <typename Data>
+    void pull_column(sycl::queue&,
+                     array<Data>& block,
+                     std::int64_t,
+                     const range&,
+                     const sycl::usm::alloc&) const {
+        block.reset();
+    }
+#endif
 };
 
 } // namespace oneapi::dal::backend

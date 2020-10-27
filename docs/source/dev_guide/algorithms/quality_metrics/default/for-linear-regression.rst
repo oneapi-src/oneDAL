@@ -98,7 +98,7 @@ The library uses the following quality metrics:
      - :math:`R^2_j = \frac {\text{RegSS}_j}{\text{TTS}_j }`, :math:`j = 1, \ldots, k`
    * - F-statistics used in testing insignificance of a group of betas :math:`F = (F_1, \ldots, F_k)`
      - :math:`F_j = \frac {(\text{ResSS}_{0j} - \text{ResSS}_j)/(p - p_0)}
-       {\text{ResSS}_j}/(n - p - 1)}`, :math:`j = 1, \ldots, k`,
+       {{\text{ResSS}_j}/(n - p - 1)}`, :math:`j = 1, \ldots, k`,
        where :math:`\text{ResSS}_j` are computed for a model with :math:`p + 1` betas and 
        :math:`\text{ResSS}_{0j}` are computed for a reduced model with :math:`p_0 + 1` betas (:math:`p - p_0` betas are set to zero)
 
@@ -232,7 +232,7 @@ Testing Insignificance of a Group of Betas
 .. rubric:: Algorithm Input
 
 The quality metric algorithm for linear regression accepts the input described below. 
-Pass the Input ID as a parameter to the methods that provide input for your algorithm. 
+Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm. 
 For more details, see :ref:`algorithms`.
 
 .. list-table::

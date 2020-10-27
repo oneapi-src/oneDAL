@@ -21,12 +21,17 @@
 namespace oneapi::dal::kmeans {
 
 namespace detail {
+template <typename Task = task::by_default>
 class train_input_impl;
+
+template <typename Task = task::by_default>
 class train_result_impl;
 } // namespace detail
 
-class ONEAPI_DAL_EXPORT train_input : public base {
+template <typename Task = task::by_default>
+class ONEDAL_EXPORT train_input : public base {
 public:
+    using task_t = Task;
     train_input(const table& data);
     train_input(const table& data, const table& initial_centroids);
 
@@ -47,19 +52,21 @@ private:
     void set_data_impl(const table& data);
     void set_initial_centroids_impl(const table& data);
 
-    dal::detail::pimpl<detail::train_input_impl> impl_;
+    dal::detail::pimpl<detail::train_input_impl<task_t>> impl_;
 };
 
-class ONEAPI_DAL_EXPORT train_result {
+template <typename Task = task::by_default>
+class ONEDAL_EXPORT train_result {
 public:
+    using task_t = Task;
     train_result();
 
-    model get_model() const;
+    model<task_t> get_model() const;
     table get_labels() const;
     int64_t get_iteration_count() const;
     double get_objective_function_value() const;
 
-    auto& set_model(const model& value) {
+    auto& set_model(const model<task_t>& value) {
         set_model_impl(value);
         return *this;
     }
@@ -79,12 +86,12 @@ public:
     }
 
 private:
-    void set_model_impl(const model&);
+    void set_model_impl(const model<task_t>&);
     void set_labels_impl(const table&);
     void set_iteration_count_impl(std::int64_t);
     void set_objective_function_value_impl(double);
 
-    dal::detail::pimpl<detail::train_result_impl> impl_;
+    dal::detail::pimpl<detail::train_result_impl<task_t>> impl_;
 };
 
 } // namespace oneapi::dal::kmeans

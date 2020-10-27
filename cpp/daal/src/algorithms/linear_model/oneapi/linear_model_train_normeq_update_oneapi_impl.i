@@ -23,7 +23,7 @@
 
 #include "src/algorithms/linear_model/oneapi/linear_model_train_normeq_kernel_oneapi.h"
 #include "src/sycl/blas_gpu.h"
-#include "sycl/internal/utils.h"
+#include "services/internal/execution_context.h"
 #include "src/externals/service_ittnotify.h"
 #include "src/algorithms/linear_model/oneapi/cl_kernel/reduce_results.cl"
 
@@ -39,7 +39,7 @@ namespace training
 {
 namespace internal
 {
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 template <typename algorithmFPType>
 services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTable, NumericTable & yTable, NumericTable & xtx, NumericTable & xty,
@@ -60,9 +60,9 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
     DAAL_CHECK_STATUS(status, xtx.getBlockOfRows(0, nBetasIntercept, ReadWriteMode::readWrite, xtxBlock));
     DAAL_CHECK_STATUS(status, xty.getBlockOfRows(0, nResponses, ReadWriteMode::readWrite, xtyBlock));
 
-    auto & context                            = getDefaultContext();
-    services::Buffer<algorithmFPType> xtxBuff = xtxBlock.getBuffer();
-    services::Buffer<algorithmFPType> xtyBuff = xtyBlock.getBuffer();
+    auto & context                                      = services::internal::getDefaultContext();
+    services::internal::Buffer<algorithmFPType> xtxBuff = xtxBlock.getBuffer();
+    services::internal::Buffer<algorithmFPType> xtyBuff = xtyBlock.getBuffer();
 
     DAAL_CHECK_STATUS(status, xtx.releaseBlockOfRows(xtxBlock));
     DAAL_CHECK_STATUS(status, xty.releaseBlockOfRows(xtyBlock));
@@ -75,28 +75,28 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
         ++nBlocks;
     }
 
-    services::Buffer<algorithmFPType> sumXBuf;
-    services::Buffer<algorithmFPType> sumYBuf;
-    services::Buffer<algorithmFPType> onesBuf;
+    services::internal::Buffer<algorithmFPType> sumXBuf;
+    services::internal::Buffer<algorithmFPType> sumYBuf;
+    services::internal::Buffer<algorithmFPType> onesBuf;
 
     if (interceptFlag)
     {
         const TypeIds::Id idType = TypeIds::id<algorithmFPType>();
 
-        sumXBuf = xtxBuff.getSubBuffer(nBetasIntercept * nCols, nBetasIntercept, &status);
+        sumXBuf = xtxBuff.getSubBuffer(nBetasIntercept * nCols, nBetasIntercept, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        UniversalBuffer sumYBufTmp = context.allocate(idType, nResponses, &status);
+        UniversalBuffer sumYBufTmp = context.allocate(idType, nResponses, status);
         DAAL_CHECK_STATUS_VAR(status);
         sumYBuf = sumYBufTmp.get<algorithmFPType>();
-        context.fill(sumYBuf, 0.0, &status);
+        context.fill(sumYBuf, 0.0, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        UniversalBuffer onesBufTmp = context.allocate(idType, nRowsPerBlock, &status);
+        UniversalBuffer onesBufTmp = context.allocate(idType, nRowsPerBlock, status);
         DAAL_CHECK_STATUS_VAR(status);
         onesBuf = onesBufTmp.get<algorithmFPType>();
 
-        context.fill(onesBuf, 1.0, &status);
+        context.fill(onesBuf, 1.0, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -115,8 +115,8 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
         DAAL_CHECK_STATUS(status, xTable.getBlockOfRows(startRow, endRow - startRow, ReadWriteMode::readOnly, xBlock));
         DAAL_CHECK_STATUS(status, yTable.getBlockOfRows(startRow, endRow - startRow, ReadWriteMode::readOnly, yBlock));
 
-        const services::Buffer<algorithmFPType> xBuf = xBlock.getBuffer();
-        const services::Buffer<algorithmFPType> yBuf = yBlock.getBuffer();
+        const services::internal::Buffer<algorithmFPType> xBuf = xBlock.getBuffer();
+        const services::internal::Buffer<algorithmFPType> yBuf = yBlock.getBuffer();
 
         const size_t xNRows   = endRow - startRow;
         const size_t xNCols   = nCols;
@@ -169,7 +169,9 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
         DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.copyResults);
 
         algorithmFPType nrowsVal = static_cast<algorithmFPType>(nRows);
-        const services::Buffer<algorithmFPType> nrowsBuf(&nrowsVal, 1);
+        const services::internal::Buffer<algorithmFPType> nrowsBuf(&nrowsVal, 1, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
         DAAL_CHECK_STATUS(status, reduceResults(sumXBuf, nCols, 1, nrowsBuf, 0, 1, 1));
 
         DAAL_CHECK_STATUS(status, reduceResults(xtyBuff, nCols, nBetasIntercept, sumYBuf, 0, 1, nResponses));
@@ -179,24 +181,27 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
 }
 
 template <typename algorithmFPType>
-services::Status UpdateKernelOneAPI<algorithmFPType>::reduceResults(services::Buffer<algorithmFPType> & dst, size_t dstOffset, size_t dstStride,
-                                                                    const services::Buffer<algorithmFPType> & src, size_t srcOffset, size_t srcStride,
-                                                                    size_t count)
+services::Status UpdateKernelOneAPI<algorithmFPType>::reduceResults(services::internal::Buffer<algorithmFPType> & dst, size_t dstOffset,
+                                                                    size_t dstStride, const services::internal::Buffer<algorithmFPType> & src,
+                                                                    size_t srcOffset, size_t srcStride, size_t count)
 {
     services::Status status;
 
-    ExecutionContextIface & ctx    = getDefaultContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     const services::String options = getKeyFPType<algorithmFPType>();
     services::String cachekey("__daal_algorithms_linear_model_copy_");
     cachekey.add(options);
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelCopy, options.c_str());
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelCopy, options.c_str(), status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "reduceResults";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(6);
+    KernelArguments args(6, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, dst, AccessModeIds::write);
     args.set(1, dstOffset);
     args.set(2, dstStride);
@@ -206,7 +211,7 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::reduceResults(services::Bu
 
     KernelRange range(count);
 
-    ctx.run(range, kernel, args, &status);
+    ctx.run(range, kernel, args, status);
 
     return status;
 }

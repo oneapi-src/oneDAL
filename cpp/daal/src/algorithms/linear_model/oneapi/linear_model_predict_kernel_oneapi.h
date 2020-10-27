@@ -63,8 +63,8 @@ public:
     services::Status compute(const NumericTable * a, const linear_model::Model * m, NumericTable * r);
 
 protected:
-    services::Status addBetaIntercept(const services::Buffer<algorithmFPType> & betaTable, const size_t nBetas,
-                                      services::Buffer<algorithmFPType> & yTable, const size_t yNRows, const size_t yNCols);
+    services::Status addBetaIntercept(const services::internal::Buffer<algorithmFPType> & betaTable, const size_t nBetas,
+                                      services::internal::Buffer<algorithmFPType> & yTable, const size_t yNRows, const size_t yNCols);
 };
 
 } // namespace internal

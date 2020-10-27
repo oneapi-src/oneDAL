@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/kernel_function/kernel_function_types.h"
-#include "data_management/data/numeric_table_sycl_homogen.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 
 namespace daal
 {
@@ -47,13 +47,13 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     const size_t nVectors2 = algInput->get(Y)->getNumberOfRows();
 
     services::Status status;
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (method == 0 && !deviceInfo.isCpu)
     {
-        set(values, data_management::SyclHomogenNumericTable<algorithmFPType>::create(nVectors2, nVectors1, data_management::NumericTable::doAllocate,
-                                                                                      &status));
+        set(values, data_management::internal::SyclHomogenNumericTable<algorithmFPType>::create(nVectors2, nVectors1,
+                                                                                                data_management::NumericTable::doAllocate, &status));
     }
     else
     {

@@ -23,12 +23,12 @@
 namespace oneapi::dal::preview::detail {
 
 template <typename Graph>
-ONEAPI_DAL_EXPORT typename Graph::pimpl& get_impl(Graph& graph) {
+ONEDAL_EXPORT typename Graph::pimpl& get_impl(Graph& graph) {
     return graph.impl_;
 }
 
 template <typename Graph>
-ONEAPI_DAL_EXPORT const typename Graph::pimpl& get_impl(const Graph& graph) {
+ONEDAL_EXPORT const typename Graph::pimpl& get_impl(const Graph& graph) {
     return graph.impl_;
 }
 
@@ -37,7 +37,7 @@ template <typename VertexValue = empty_value,
           typename GraphValue = empty_value,
           typename IndexType = std::int32_t,
           typename Allocator = std::allocator<char>>
-class ONEAPI_DAL_EXPORT undirected_adjacency_array_graph_impl {
+class ONEDAL_EXPORT undirected_adjacency_array_graph_impl {
 public:
     using allocator_type = Allocator;
 

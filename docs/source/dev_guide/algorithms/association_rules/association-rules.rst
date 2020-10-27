@@ -70,17 +70,17 @@ Algorithm Input
 ---------------
 
 The association rules algorithm accepts the input described below.
-Pass the Input ID as a parameter to the methods that provide input
+Pass the ``Input ID`` as a parameter to the methods that provide input
 for your algorithm.
 
 .. list-table::
-   :widths: 25 25
+   :widths: 10 60
    :header-rows: 1
    :align: left
 
    * - Input ID
      - Input
-   * - data
+   * - ``data``
      - Pointer to the :math:`n \times 2` numeric table t with the mining data. Each row consists of two integers:
 
        + Transaction ID, the number between 0 and :math:`nTransactions - 1`.
@@ -94,53 +94,53 @@ Algorithm Parameters
 The association rules algorithm has the following parameters:
 
 .. list-table::
-   :widths: 25 25 25
+   :widths: 10 10 60
    :header-rows: 1
    :align: left
 
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
      - The computation method used by the algorithm. The only method supported so far is Apriori.
-   * - minSupport
-     - 0.01
+   * - ``minSupport``
+     - :math:`0.01`
      - Minimal support, a number in the [0,1) interval.
-   * - minConfidence
-     - 0.6
+   * - ``minConfidence``
+     - :math:`0.6`
      - Minimal confidence, a number in the [0,1) interval.
-   * - nUniqueItems
-     - 0
+   * - ``nUniqueItems``
+     - :math:`0`
      - The total number of unique items. If set to zero, the library automatically determines the number of unique items from the input data.
-   * - nTransactions
-     - 0
+   * - ``nTransactions``
+     - :math:`0`
      - The total number of transactions. If set to zero, the library automatically determines the number transactions from the input data.
-   * - discoverRules
-     - true
+   * - ``discoverRules``
+     - ``true``
      - A flag that enables generation of the rules from large item sets.
-   * - itemsetsOrder
-     - itemsetsUnsorted
+   * - ``itemsetsOrder``
+     - ``itemsetsUnsorted``
      - The sort order of returned item sets:
 
        + itemsetsUnsorted - not sorted
        + itemsetsSortedBySupport - sorted by support in a descending order
 
-   * - rulesOrder
-     - rulesUnsorted
+   * - ``rulesOrder``
+     - ``rulesUnsorted``
      - The sort order of returned rules:
 
        + rulesUnsorted - not sorted
        + rulesSortedByConfidence - sorted by support in a descending order
 
-   * - minItemsetSize
-     - 0
+   * - ``minItemsetSize``
+     - :math:`0`
      - A parameter that defines the minimal size of item sets to be included into the array of results. The value of zero imposes no limitations on the minimal size of item sets.
-   * - maxItemsetSize
-     - 0
+   * - ``maxItemsetSize``
+     - :math:`0`
      - A parameter that defines the maximal size of item sets to be included into the array of results. The value of zero imposes no limitations on the maximal size of item sets.
 
 
@@ -148,17 +148,17 @@ Algorithm Output
 ----------------
 
 The association rules algorithm calculates the result described
-below. Pass the Result ID as a parameter to the methods that access
+below. Pass the ``Result ID`` as a parameter to the methods that access
 the results of your algorithm.
 
 .. list-table::
-   :widths: 25 25
+   :widths: 10 60
    :header-rows: 1
    :align: left
 
    * - Result ID
      - Result
-   * - largeItemsets
+   * - ``largeItemsets``
      - Pointer to the numeric table with large item sets. The number of rows in
        the table equals the number of items in the large item sets. Each row
        contains two integers:
@@ -166,27 +166,27 @@ the results of your algorithm.
         + ID of the large item set, the number between 0 and nLargeItemsets -1.
         + ID of the item, the number between 0 and :math:`nUniqueItems-1`.
 
-   * - largeItemsetsSupport
+   * - ``largeItemsetsSupport``
      - Pointer to the :math:`nLargeItemsets \times 2` numeric table of support values. Each row contains two integers:
 
         + ID of the large item set, the number between 0 and nLargeItemsets-1.
         + The support value, the number of times the item set is met in the array of transactions.
 
-   * - antecedentItemsets
+   * - ``antecedentItemsets``
      - Pointer to the :math:`nAntecedentItems \times 2` numeric table that contains the
        left-hand-side (X) part of the association rules. Each row contains two integers:
 
         + Rule ID, the number between 0 and :math:`nAntecedentItems-1`.
         + Item ID, the number between 0 and :math:`nUniqueItems-1`.
 
-   * - conseqentItemsets
+   * - ``conseqentItemsets``
      - Pointer to the :math:`nConsequentItems \times 2` numeric table that contains the
        right-hand-side (Y) part of the association rules. Each row contains two integers:
 
         + Rule ID, the number between 0 and :math:`nConsequentItems-1`.
         + Item ID, the number between 0 and :math:`nUniqueItems-1`.
 
-   * - confidence
+   * - ``confidence``
      - Pointer to the :math:`nRules \times 1` numeric table that contains confidence values
        of rules, floating-point numbers between 0 and 1. Confidence value in
        the i-th position corresponds to the rule with the index i.

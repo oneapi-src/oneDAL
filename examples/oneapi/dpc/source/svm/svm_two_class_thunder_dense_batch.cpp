@@ -16,7 +16,7 @@
 
 #include <CL/sycl.hpp>
 
-#define ONEAPI_DAL_DATA_PARALLEL
+#define ONEDAL_DATA_PARALLEL
 #include "oneapi/dal/algo/svm.hpp"
 #include "oneapi/dal/io/csv.hpp"
 
@@ -37,8 +37,8 @@ void run(sycl::queue &queue) {
     const auto svm_desc    = dal::svm::descriptor{ kernel_desc }
                               .set_c(1.0)
                               .set_accuracy_threshold(0.001)
-                              .set_max_iteration_count(1000)
-                              .set_cache_size(8)
+                              .set_max_iteration_count(100)
+                              .set_cache_size(200.0)
                               .set_tau(1e-6);
 
     const auto result_train = dal::train(queue, svm_desc, x_train, y_train);

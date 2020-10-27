@@ -27,7 +27,7 @@
 #include "src/algorithms/linear_model/oneapi/linear_model_predict_kernel_oneapi.h"
 #include "src/data_management/service_numeric_table.h"
 #include "src/sycl/blas_gpu.h"
-#include "sycl/internal/utils.h"
+#include "services/internal/execution_context.h"
 #include "src/algorithms/linear_model/oneapi/cl_kernel/linear_model_prediction.cl"
 
 namespace daal
@@ -40,27 +40,31 @@ namespace prediction
 {
 namespace internal
 {
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 template <typename algorithmFPType>
-services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::addBetaIntercept(const services::Buffer<algorithmFPType> & betaTable,
-                                                                                      const size_t nBetas, services::Buffer<algorithmFPType> & yTable,
+services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::addBetaIntercept(const services::internal::Buffer<algorithmFPType> & betaTable,
+                                                                                      const size_t nBetas,
+                                                                                      services::internal::Buffer<algorithmFPType> & yTable,
                                                                                       const size_t yNRows, const size_t yNCols)
 {
     services::Status status;
 
-    ExecutionContextIface & ctx    = getDefaultContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     const services::String options = getKeyFPType<algorithmFPType>();
     services::String cachekey("__daal_algorithms_linear_model_prediction_");
     cachekey.add(options);
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelPrediction, options.c_str());
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelPrediction, options.c_str(), status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "addBetaIntercept";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(4);
+    KernelArguments args(4, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, betaTable, AccessModeIds::read);
     args.set(1, nBetas);
     args.set(2, yTable, AccessModeIds::write);
@@ -68,7 +72,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::addBetaInte
 
     KernelRange range(yNRows, yNCols);
 
-    ctx.run(range, kernel, args, &status);
+    ctx.run(range, kernel, args, status);
 
     return status;
 }
@@ -98,7 +102,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute(con
 
     BlockDescriptor<algorithmFPType> betaBlock;
     DAAL_CHECK_STATUS(status, betaTable->getBlockOfRows(0, nResponses, ReadWriteMode::readOnly, betaBlock));
-    const services::Buffer<algorithmFPType> betaBuf = betaBlock.getBuffer();
+    const services::internal::Buffer<algorithmFPType> betaBuf = betaBlock.getBuffer();
 
     for (size_t blockIdx = 0; blockIdx < nBlocks; ++blockIdx)
     {
@@ -115,8 +119,8 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute(con
         DAAL_CHECK_STATUS(status, xTable->getBlockOfRows(startRow, endRow - startRow, ReadWriteMode::readOnly, xBlock));
         DAAL_CHECK_STATUS(status, yTable->getBlockOfRows(startRow, endRow - startRow, ReadWriteMode::readWrite, yBlock));
 
-        const services::Buffer<algorithmFPType> xBuf = xBlock.getBuffer();
-        services::Buffer<algorithmFPType> yBuf       = yBlock.getBuffer();
+        const services::internal::Buffer<algorithmFPType> xBuf = xBlock.getBuffer();
+        services::internal::Buffer<algorithmFPType> yBuf       = yBlock.getBuffer();
 
         const size_t xNRows = endRow - startRow;
         const size_t xNCols = nBetas - 1;

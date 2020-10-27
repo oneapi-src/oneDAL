@@ -21,9 +21,18 @@
 
 namespace oneapi::dal::kmeans {
 
+namespace task {
+struct clustering {};
+using by_default = clustering;
+} // namespace task
+
 namespace detail {
 struct tag {};
+
+template <typename Task = task::by_default>
 class descriptor_impl;
+
+template <typename Task = task::by_default>
 class model_impl;
 } // namespace detail
 
@@ -32,9 +41,11 @@ struct lloyd_dense {};
 using by_default = lloyd_dense;
 } // namespace method
 
-class ONEAPI_DAL_EXPORT descriptor_base : public base {
+template <typename Task = task::by_default>
+class ONEDAL_EXPORT descriptor_base : public base {
 public:
     using tag_t = detail::tag;
+    using task_t = Task;
     using float_t = float;
     using method_t = method::by_default;
 
@@ -49,35 +60,39 @@ protected:
     void set_max_iteration_count_impl(std::int64_t);
     void set_accuracy_threshold_impl(double);
 
-    dal::detail::pimpl<detail::descriptor_impl> impl_;
+    dal::detail::pimpl<detail::descriptor_impl<task_t>> impl_;
 };
 
-template <typename Float = descriptor_base::float_t, typename Method = descriptor_base::method_t>
-class descriptor : public descriptor_base {
+template <typename Float = descriptor_base<task::by_default>::float_t,
+          typename Method = descriptor_base<task::by_default>::method_t,
+          typename Task = task::by_default>
+class descriptor : public descriptor_base<Task> {
 public:
     using float_t = Float;
     using method_t = Method;
 
     auto& set_cluster_count(int64_t value) {
-        set_cluster_count_impl(value);
+        descriptor_base<Task>::set_cluster_count_impl(value);
         return *this;
     }
 
     auto& set_max_iteration_count(int64_t value) {
-        set_max_iteration_count_impl(value);
+        descriptor_base<Task>::set_max_iteration_count_impl(value);
         return *this;
     }
 
     auto& set_accuracy_threshold(double value) {
-        set_accuracy_threshold_impl(value);
+        descriptor_base<Task>::set_accuracy_threshold_impl(value);
         return *this;
     }
 };
 
-class ONEAPI_DAL_EXPORT model : public base {
+template <typename Task = task::by_default>
+class ONEDAL_EXPORT model : public base {
     friend dal::detail::pimpl_accessor;
 
 public:
+    using task_t = Task;
     model();
 
     table get_centroids() const;
@@ -91,7 +106,7 @@ public:
 private:
     void set_centroids_impl(const table&);
 
-    dal::detail::pimpl<detail::model_impl> impl_;
+    dal::detail::pimpl<detail::model_impl<task_t>> impl_;
 };
 
 } // namespace oneapi::dal::kmeans

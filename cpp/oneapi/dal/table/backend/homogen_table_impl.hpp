@@ -21,22 +21,23 @@
 
 namespace oneapi::dal::backend {
 
+table_metadata create_homogen_metadata(std::int64_t feature_count, data_type dtype);
+
 class homogen_table_impl {
+private:
+    struct host_alloc_t {};
+
 public:
     homogen_table_impl() : row_count_(0), col_count_(0) {}
 
-    homogen_table_impl(std::int64_t p,
+    homogen_table_impl(std::int64_t column_count,
                        const array<byte_t>& data,
                        data_type dtype,
                        data_layout layout)
-            : meta_(array<data_type>::full(p, dtype),
-                    array<feature_type>::full(p,
-                                              detail::is_floating_point(dtype)
-                                                  ? feature_type::ratio
-                                                  : feature_type::ordinal)),
+            : meta_(create_homogen_metadata(column_count, dtype)),
               data_(data),
-              row_count_(data.get_count() / p / detail::get_data_type_size(dtype)),
-              col_count_(p),
+              row_count_(data.get_count() / column_count / detail::get_data_type_size(dtype)),
+              col_count_(column_count),
               layout_(layout) {}
 
     std::int64_t get_column_count() const {
@@ -59,35 +60,80 @@ public:
         return layout_;
     }
 
-    template <typename T>
-    void pull_rows(array<T>& a, const range& r) const;
+    template <typename Data>
+    void pull_rows(array<Data>& block, const range& rows) const {
+        pull_rows_impl(detail::default_host_policy{}, block, rows, host_alloc_t{});
+    }
 
-    template <typename T>
-    void push_rows(const array<T>& a, const range& r);
+    template <typename Data>
+    void push_rows(const array<Data>& block, const range& rows) {
+        push_rows_impl(detail::default_host_policy{}, block, rows);
+    }
 
-    template <typename T>
-    void pull_column(array<T>& a, std::int64_t idx, const range& r) const;
+    template <typename Data>
+    void pull_column(array<Data>& block, std::int64_t column_index, const range& rows) const {
+        pull_column_impl(detail::default_host_policy{}, block, column_index, rows, host_alloc_t{});
+    }
 
-    template <typename T>
-    void push_column(const array<T>& a, std::int64_t idx, const range& r);
+    template <typename Data>
+    void push_column(const array<Data>& block, std::int64_t column_index, const range& rows) {
+        push_column_impl(detail::default_host_policy{}, block, column_index, rows);
+    }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
-    template <typename T>
-    void pull_rows(sycl::queue& q, array<T>& a, const range& r, const sycl::usm::alloc& kind) const;
+#ifdef ONEDAL_DATA_PARALLEL
+    template <typename Data>
+    void pull_rows(sycl::queue& queue,
+                   array<Data>& block,
+                   const range& rows,
+                   const sycl::usm::alloc& kind) const {
+        pull_rows_impl(detail::data_parallel_policy{ queue }, block, rows, kind);
+    }
 
-    template <typename T>
-    void push_rows(sycl::queue& q, const array<T>& a, const range& r);
+    template <typename Data>
+    void push_rows(sycl::queue& queue, const array<Data>& block, const range& rows) {
+        push_rows_impl(detail::data_parallel_policy{ queue }, block, rows);
+    }
 
-    template <typename T>
-    void pull_column(sycl::queue& q,
-                     array<T>& a,
-                     std::int64_t idx,
-                     const range& r,
-                     const sycl::usm::alloc& kind) const;
+    template <typename Data>
+    void pull_column(sycl::queue& queue,
+                     array<Data>& block,
+                     std::int64_t column_index,
+                     const range& rows,
+                     const sycl::usm::alloc& kind) const {
+        pull_column_impl(detail::data_parallel_policy{ queue }, block, column_index, rows, kind);
+    }
 
-    template <typename T>
-    void push_column(sycl::queue& q, const array<T>& a, std::int64_t idx, const range& r);
+    template <typename Data>
+    void push_column(sycl::queue& queue,
+                     const array<Data>& block,
+                     std::int64_t column_index,
+                     const range& rows) {
+        push_column_impl(detail::data_parallel_policy{ queue }, block, column_index, rows);
+    }
 #endif
+
+private:
+    template <typename Policy, typename Data, typename Alloc>
+    void pull_rows_impl(const Policy& policy,
+                        array<Data>& block,
+                        const range& rows,
+                        const Alloc& kind) const;
+
+    template <typename Policy, typename Data>
+    void push_rows_impl(const Policy& policy, const array<Data>& block, const range& rows);
+
+    template <typename Policy, typename Data, typename Alloc>
+    void pull_column_impl(const Policy& policy,
+                          array<Data>& block,
+                          int64_t column_index,
+                          const range& rows,
+                          const Alloc& kind) const;
+
+    template <typename Policy, typename Data>
+    void push_column_impl(const Policy& policy,
+                          const array<Data>& block,
+                          int64_t column_index,
+                          const range& rows);
 
 private:
     table_metadata meta_;

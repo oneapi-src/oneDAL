@@ -99,7 +99,7 @@ complete the following steps:
   - Use the ``setSupportVectors``, ``setClassificationCoefficients``, and ``setSupportIndices`` methods to add
     pre-calculated support vectors, classification coefficients, and support indices (optional), respectively, to the model.
     For each method specify random access iterators to the first and the last element
-    of the corresponding set of values [ISO/IEC 14882:2011 § 24.2.7].
+    of the corresponding set of values [ISO/IEC 14882:2011 § 24.2.7]_.
   - Use ``setBias`` to add a bias term to the model.
 
 - Use the ``getModel`` method to get the trained SVM Classifier model.
@@ -147,7 +147,7 @@ At the training stage, SVM classifier has the following parameters:
 
 .. list-table::
    :header-rows: 1
-   :widths: 10 10 60
+   :widths: 20 30 60
    :align: left
 
    * - Parameter
@@ -155,7 +155,7 @@ At the training stage, SVM classifier has the following parameters:
      - Description
    * - ``algorithmFPType``
      - ``float``
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
    * - ``method``
      - ``defaultDense``
      - The computation method used by the SVM classifier. Available methods for the training stage:
@@ -208,7 +208,7 @@ At the prediction stage, SVM classifier has the following parameters:
 
 .. list-table::
    :header-rows: 1
-   :widths: 10 10 60
+   :widths: 20 30 60
    :align: left
 
    * - Parameter
@@ -216,7 +216,7 @@ At the prediction stage, SVM classifier has the following parameters:
      - Description
    * - ``algorithmFPType``
      - ``float``
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
    * - ``method``
      - ``defaultDense``
      - Performance-oriented computation method, the only prediction method supported by the algorithm.

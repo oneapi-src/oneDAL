@@ -32,7 +32,7 @@ using by_default = fast;
 } // namespace method
 
 /// The base class for the Jaccard similarity algorithm descriptor
-class ONEAPI_DAL_EXPORT descriptor_base : public base {
+class ONEDAL_EXPORT descriptor_base : public base {
 public:
     using tag_t = detail::tag;
     using float_t = float;
@@ -102,7 +102,7 @@ public:
 };
 
 /// Structure for the caching builder
-struct ONEAPI_DAL_EXPORT caching_builder {
+struct ONEDAL_EXPORT caching_builder {
     /// Returns the pointer to the allocated memory of size block_max_size.
     ///
     /// @param [in]   block_max_size  The required size of memory

@@ -41,7 +41,7 @@ template <typename VertexValue = empty_value,
           typename GraphValue = empty_value,
           typename IndexType = std::int32_t,
           typename Allocator = std::allocator<char>>
-class ONEAPI_DAL_EXPORT undirected_adjacency_array_graph {
+class ONEDAL_EXPORT undirected_adjacency_array_graph {
 public:
     using graph_type =
         undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>;

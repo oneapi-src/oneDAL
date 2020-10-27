@@ -36,6 +36,9 @@ using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
+using daal::services::internal::SyclExecutionContext;
+using daal::data_management::internal::SyclHomogenNumericTable;
+
 string trainDatasetFileName = "../data/batch/svm_two_class_train_dense.csv";
 string testDatasetFileName  = "../data/batch/svm_two_class_test_dense.csv";
 
@@ -65,7 +68,7 @@ int main(int argc, char * argv[])
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
-        daal::services::SyclExecutionContext ctx(queue);
+        SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
         trainModel();
@@ -90,9 +93,9 @@ void trainModel()
     svm::training::Batch<float, svm::training::thunder> algorithm;
     algorithm.parameter.kernel            = kernel;
     algorithm.parameter.C                 = 1.0;
-    algorithm.parameter.accuracyThreshold = 0.01;
+    algorithm.parameter.accuracyThreshold = 0.001;
     algorithm.parameter.tau               = 1e-6;
-    algorithm.parameter.maxIterations     = 50;
+    algorithm.parameter.maxIterations     = 100;
 
     algorithm.input.set(classifier::training::data, trainData);
     algorithm.input.set(classifier::training::labels, trainGroundTruth);

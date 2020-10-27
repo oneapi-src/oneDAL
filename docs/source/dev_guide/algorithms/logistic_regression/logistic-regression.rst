@@ -64,7 +64,7 @@ Training procedure is an iterative algorithm which minimizes
 objective function
 
 .. math::
-		 L\left(\beta \right)=-\frac{1}{n}\sum _{i=1}^{n}\mathrm{log}{p}_{{y}_{i}}\left({x}_{i},\mathrm{ }\mathrm{\beta }\right)+\mathrm{ }{\lambda }_{1}\sum _{k=0}^{K-1}{‖{\beta }_{k}‖}_{L1}+ {\lambda }_{2}\sum _{k=0}^{K-1}{‖{\beta }_{k}‖}_{L2}
+		 L\left(\beta \right)=-\frac{1}{n}\sum _{i=1}^{n}\mathrm{log}{p}_{{y}_{i}}\left({x}_{i},\mathrm{ }\mathrm{\beta }\right)+\mathrm{ }{\lambda }_{1}\sum _{k=0}^{K-1}{\|{\beta }_{k}\|}_{L1}+ {\lambda }_{2}\sum _{k=0}^{K-1}{\|{\beta }_{k}\|}_{L2}
 
 where the first term is the negative log-likelihood of conditional
 :math:`Y` given :math:`X`, and the latter terms are regularization ones that
@@ -93,7 +93,7 @@ complete the following steps:
 
 - Create a Logistic Regression model builder using a constructor with the required number of responses and features.
 - Use the ``setBeta`` method to add the set of pre-calculated coefficients to the model.
-  Specify random access iterators to the first and the last element of the set of coefficients [ISO/IEC 14882:2011 §24.2.7].
+  Specify random access iterators to the first and the last element of the set of coefficients [ISO/IEC 14882:2011 §24.2.7]_.
 
   .. note:: 
   
@@ -136,46 +136,44 @@ in :ref:`classification_usage_model`.
 
 Training
 --------
-For a description of the input and output, refer to Usage Model:
-Training and Prediction
 
-In addition to the parameters of classifier described in
-:ref:`classification_usage_model`,
-the logistic regression batch training algorithm has the following
-parameters:
+For a description of the input and output, refer to :ref:`classification_usage_model`.
+
+In addition to the parameters of classifier described in :ref:`classification_usage_model`,
+the logistic regression batch training algorithm has the following parameters:
 
 .. list-table::
-   :widths: 25 25 25
+   :widths: 10 10 60
    :header-rows: 1
    :align: left
 
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
      - The computation method used by the logistic regression. The only
        training method supported so far is the default dense method.
-   * - nClasses
-     - Not applicable.
+   * - ``nClasses``
+     - Not applicable
      - The number of classes. A required parameter.
-   * - interceptFlag
-     - True
+   * - ``interceptFlag``
+     - ``True``
      - A flag that indicates a need to compute :math:`\theta_j`
-   * - penaltyL1
+   * - ``penaltyL1``
      - :math:`0`
      - L1 regularization coefficient
 
        .. note:: L1 regularization is not supported on GPU.
 
-   * - penaltyL2
+   * - ``penaltyL2``
      - :math:`0`
      - L2 regularization coefficient
-   * - optimizationSolver
-     - SGD solver
+   * - ``optimizationSolver``
+     - :ref:`SGD solver <sgd_solver>`
      - All iterative solvers are available as optimization procedures to use at the training stage:
 
        -  :ref:`SGD (Stochastic Gradient Descent Algorithm) <sgd_solver>`
@@ -186,60 +184,59 @@ parameters:
 Prediction
 ----------
 
-For a description of the input, refer to Usage Model: Training and Prediction
+For a description of the input, refer to :ref:`classification_usage_model`.
 
-At the prediction stage logistic regression batch algorithm has the
-following parameters:
+At the prediction stage logistic regression batch algorithm has the following parameters:
 
 .. list-table::
-   :widths: 25 25 25
+   :widths: 10 10 60
    :header-rows: 1
    :align: left
 
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
+   * - ``algorithmFPType``
+     - ``float``
      - The floating-point type that the algorithm uses for intermediate
-       computations. Can be float or double.
-   * - method
-     - defaultDense
+       computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
      - The computation method used by logistic regression. The only prediction
        method supported so far is the default dense method.
-   * - nClasses
-     - Not applicable.
+   * - ``nClasses``
+     - Not applicable
      - The number of classes. A required parameter.
-   * - resultsToCompute
-     - computeClassesLabels
+   * - ``resultsToCompute``
+     - ``computeClassesLabels``
      - The 64-bit integer flag that specifies which extra characteristics of
        the logistic regression to compute.
 
        Provide one of the following values to request a single characteristic
        or use bitwise OR to request a combination of the characteristics:
 
-       - computeClassesLabels for prediction
-       - computeClassesProbabilities for probabilities
-       - computeClassesLogProbabilities for logProbabilities
+       - ``computeClassesLabels`` for `prediction`
+       - ``computeClassesProbabilities`` for `probabilities`
+       - ``computeClassesLogProbabilities`` for `logProbabilities`
 
 Output
 ------
-In addition to classifier output, logistic regression prediction
-calculates the result described below. Pass the Result ID as a
-parameter to the methods that access the results of your algorithm.
+
+In addition to classifier output, logistic regression prediction calculates the result described below.
+Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 
 .. list-table::
-   :widths: 25 25
+   :widths: 10 60
    :header-rows: 1
    :align: left
 
    * - Result ID
      - Result
-   * - probabilities
-     - Numeric table of size :math:`n \times nClasses` containing probabilities of classes computed when computeClassesProbabilities option is enabled.
+   * - ``probabilities``
+     - A numeric table of size :math:`n \times nClasses` containing probabilities of classes computed when ``computeClassesProbabilities`` option is enabled.
 
-   * - logProbabilities
-     - Numeric table of size :math:`n \times nClasses` containing logarithms of classes' probabilities computed when computeClassesLogProbabilities option is enabled.
+   * - ``logProbabilities``
+     - A numeric table of size :math:`n \times nClasses` containing logarithms of classes' probabilities computed when ``computeClassesLogProbabilities`` option is enabled.
 
 
 
@@ -247,16 +244,16 @@ parameter to the methods that access the results of your algorithm.
 
    Note that:
 
-   - If resultsToCompute does not contain computeClassesLabels, the prediction table is NULL.
+   - If `resultsToCompute` does not contain `computeClassesLabels`, the `prediction` table is `NULL`.
 
-   - If resultsToCompute does not contain computeClassesProbabilities, the probabilities table is NULL.
+   - If `resultsToCompute` does not contain `computeClassesProbabilities`, the `probabilities` table is `NULL`.
 
-   - If resultsToCompute does not contain computeClassesLogProbabilities, the logProbabilities table is NULL.
+   - If `resultsToCompute` does not contain `computeClassesLogProbabilities`, the `logProbabilities` table is `NULL`.
 
    -  By default, each numeric table of this result is an object of
-      the HomogenNumericTable class, but you can define the result as
-      an object of any class derived from NumericTable except for
-      PackedSymmetricMatrix and PackedTriangularMatrix.
+      the ``HomogenNumericTable`` class, but you can define the result as
+      an object of any class derived from ``NumericTable`` except for
+      ``PackedSymmetricMatrix`` and ``PackedTriangularMatrix``.
 
 Examples
 ********

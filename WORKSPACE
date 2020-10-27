@@ -25,6 +25,11 @@ declare_onedal_extra_toolchain(
     name = "onedal_extra_toolchain",
 )
 
+load("@onedal//dev/bazel/deps:opencl.bzl", "opencl_repo")
+opencl_repo(
+    name = "opencl",
+)
+
 load("@onedal//dev/bazel/deps:micromkl.bzl", "micromkl_repo", "micromkl_dpc_repo")
 micromkl_repo(
     name = "micromkl",
@@ -36,8 +41,8 @@ micromkl_repo(
 micromkl_dpc_repo(
     name = "micromkl_dpc",
     root_env_var = "MKLGPUFPKROOT",
-    url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklgpufpk_lnx_20200414.tgz",
-    sha256 = "24ba3bb79693d691632da505378d975f903e830568fe2b6ce671156f4c9d568f",
+    url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklgpufpk_lnx_20201003.tgz",
+    sha256 = "f2ac366f9faedef6e5f7392d79bab4148ef30941d00c041eb021e5f85d7f97f4",
 )
 
 load("@onedal//dev/bazel/deps:tbb.bzl", "tbb_repo")

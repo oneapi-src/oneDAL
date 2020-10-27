@@ -25,13 +25,13 @@ Pass the ``Input ID`` as a parameter to the methods that provide input for your 
 For more details, see :ref:`algorithms`.
 
 .. list-table::
-   :widths: 25 75
+   :widths: 10 60
    :align: left
 
    * - Input ID
      - Input
    * - ``argument``
-     - Numeric table of size :math:`p \times 1` with the input argument of the objective function.
+     - A numeric table of size :math:`p \times 1` with the input argument of the objective function.
 
 Parameters
 **********
@@ -79,37 +79,37 @@ Output
 ******
 
 The objective function calculates the result described below. 
-Pass the Result ID as a parameter to the methods that access the results of your algorithm. 
+Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm. 
 For more details, see :ref:`algorithms`.
 
 .. list-table::
-   :widths: 25 75
+   :widths: 10 60
    :align: left
 
    * - Result ID
      - Result
    * - ``valueIdx``
-     - Numeric table of size :math:`1 \times 1` with the value of the objective function in the given argument.
+     - A numeric table of size :math:`1 \times 1` with the value of the objective function in the given argument.
    * - ``nonSmoothTermValueIdx``
-     - Numeric table of size :math:`1 \times 1` with the value of the non-smooth term of the 
+     - A numeric table of size :math:`1 \times 1` with the value of the non-smooth term of the 
        objective function in the given argument.
    * - ``gradientIdx``
-     - Numeric table of size :math:`p \times 1` with the gradient of the smooth term of the 
+     - A numeric table of size :math:`p \times 1` with the gradient of the smooth term of the 
        objective function in the given argument.
    * - ``hessianIdx``
-     - Numeric table of size :math:`p \times p` with the Hessian of the smooth term of the 
+     - A numeric table of size :math:`p \times p` with the Hessian of the smooth term of the 
        objective function in the given argument.
    * - ``proximalProjectionIdx``
-     - Numeric table of size :math:`p \times 1` with the projection of proximal operator
+     - A numeric table of size :math:`p \times 1` with the projection of proximal operator
        for non-smooth term of the objective function in the given argument.
    * - ``lipschitzConstantIdx``
-     - Numeric table of size :math:`1 \times 1` with Lipschitz constant of the smooth term of the objective function.
+     - A numeric table of size :math:`1 \times 1` with Lipschitz constant of the smooth term of the objective function.
    * - ``gradientOverCertainFeatureIdx``
-     - Numeric table of size :math:`1 \times 1` with certain component of gradient vector.
+     - A numeric table of size :math:`1 \times 1` with certain component of gradient vector.
    * - ``hessianOverCertainFeatureIdx``
-     - Numeric table of size :math:`1 \times 1` with certain component of hessian diagonal.
+     - A numeric table of size :math:`1 \times 1` with certain component of hessian diagonal.
    * - ``proximalProjectionOverCertainFeatureIdx``
-     - Numeric table of size :math:`1 \times 1` with certain component of proximal projection.
+     - A numeric table of size :math:`1 \times 1` with certain component of proximal projection.
 
 .. note::
 

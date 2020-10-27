@@ -25,8 +25,8 @@
 #ifndef __DF_REGRESSION_TRAIN_HIST_KERNEL_ONEAPI_H__
 #define __DF_REGRESSION_TRAIN_HIST_KERNEL_ONEAPI_H__
 
-#include "sycl/internal/types.h"
-#include "sycl/internal/execution_context.h"
+#include "services/internal/sycl/types.h"
+#include "services/internal/sycl/execution_context.h"
 #include "data_management/data/numeric_table.h"
 #include "algorithms/algorithm_base_common.h"
 #include "src/algorithms/dtrees/forest/regression/df_regression_model_impl.h"
@@ -34,9 +34,6 @@
 #include "algorithms/decision_forest/decision_forest_regression_model.h"
 #include "src/algorithms/dtrees/forest/oneapi/df_feature_type_helper_oneapi.h"
 #include "src/algorithms/dtrees/forest/oneapi/df_tree_level_build_helper_oneapi.h"
-
-using namespace daal::data_management;
-using namespace daal::services;
 
 namespace daal
 {
@@ -55,8 +52,8 @@ class RegressionTrainBatchKernelOneAPI : public daal::algorithms::Kernel
 {
 public:
     RegressionTrainBatchKernelOneAPI() {}
-    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::regression::Model & m,
-                             Result & res, const Parameter & par)
+    services::Status compute(services::HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y,
+                             decision_forest::regression::Model & m, Result & res, const Parameter & par)
     {
         return services::ErrorMethodNotImplemented;
     }
@@ -66,88 +63,96 @@ template <typename algorithmFPType>
 class RegressionTrainBatchKernelOneAPI<algorithmFPType, hist> : public daal::algorithms::Kernel
 {
 public:
-    RegressionTrainBatchKernelOneAPI() {}
-    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::regression::Model & m,
-                             Result & res, const Parameter & par);
+    RegressionTrainBatchKernelOneAPI() : _nRows(0), _nFeatures(0), _nSelectedRows(0), _nMaxBinsAmongFtrs(0), _totalBins(0) {};
+    services::Status compute(services::HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y,
+                             decision_forest::regression::Model & m, Result & res, const Parameter & par);
 
 private:
-    services::Status buildProgram(oneapi::internal::ClKernelFactoryIface & factory, const char * programName, const char * programSrc,
+    services::Status buildProgram(services::internal::sycl::ClKernelFactoryIface & factory, const char * programName, const char * programSrc,
                                   const char * buildOptions);
 
-    services::Status computeBestSplit(const oneapi::internal::UniversalBuffer & data, oneapi::internal::UniversalBuffer & treeOrder,
-                                      oneapi::internal::UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
-                                      const services::Buffer<algorithmFPType> & response, oneapi::internal::UniversalBuffer & nodeOffsets,
-                                      oneapi::internal::UniversalBuffer & binOffsets, oneapi::internal::UniversalBuffer & splitInfo,
-                                      oneapi::internal::UniversalBuffer & nodeImpDecreaseList, bool updateImpDecreaseRequired, size_t nFeatures,
-                                      size_t nNodes, size_t minObservationsInLeafNode, algorithmFPType impurityThreshold);
+    services::Status computeBestSplit(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & treeOrder,
+                                      services::internal::sycl::UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
+                                      const services::internal::Buffer<algorithmFPType> & response,
+                                      services::internal::sycl::UniversalBuffer & nodeOffsets, services::internal::sycl::UniversalBuffer & binOffsets,
+                                      services::internal::sycl::UniversalBuffer & splitInfo,
+                                      services::internal::sycl::UniversalBuffer & nodeImpDecreaseList, bool updateImpDecreaseRequired,
+                                      size_t nFeatures, size_t nNodes, size_t minObservationsInLeafNode, algorithmFPType impurityThreshold);
 
-    services::Status computeBestSplitSinglePass(const oneapi::internal::UniversalBuffer & data, oneapi::internal::UniversalBuffer & treeOrder,
-                                                oneapi::internal::UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
-                                                const services::Buffer<algorithmFPType> & response, oneapi::internal::UniversalBuffer & binOffsets,
-                                                oneapi::internal::UniversalBuffer & nodeList, oneapi::internal::UniversalBuffer & nodeIndices,
-                                                size_t nodeIndicesOffset, oneapi::internal::UniversalBuffer & impList,
-                                                oneapi::internal::UniversalBuffer & nodeImpDecreaseList, bool updateImpDecreaseRequired,
-                                                size_t nFeatures, size_t nNodes, size_t minObservationsInLeafNode, algorithmFPType impurityThreshold);
+    services::Status computeBestSplitSinglePass(
+        const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & treeOrder,
+        services::internal::sycl::UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
+        const services::internal::Buffer<algorithmFPType> & response, services::internal::sycl::UniversalBuffer & binOffsets,
+        services::internal::sycl::UniversalBuffer & nodeList, services::internal::sycl::UniversalBuffer & nodeIndices, size_t nodeIndicesOffset,
+        services::internal::sycl::UniversalBuffer & impList, services::internal::sycl::UniversalBuffer & nodeImpDecreaseList,
+        bool updateImpDecreaseRequired, size_t nFeatures, size_t nNodes, size_t minObservationsInLeafNode, algorithmFPType impurityThreshold);
 
-    services::Status computeBestSplitByHistogram(const oneapi::internal::UniversalBuffer & nodeHistogramList,
-                                                 oneapi::internal::UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
-                                                 oneapi::internal::UniversalBuffer & nodeList, oneapi::internal::UniversalBuffer & nodeIndices,
-                                                 size_t nodeIndicesOffset, oneapi::internal::UniversalBuffer & binOffsets,
-                                                 oneapi::internal::UniversalBuffer & splitInfo,
-                                                 oneapi::internal::UniversalBuffer & nodeImpDecreaseList, bool updateImpDecreaseRequired,
-                                                 size_t nNodes, size_t nMaxBinsAmongFtrs, size_t minObservationsInLeafNode,
-                                                 algorithmFPType impurityThreshold);
+    services::Status computeBestSplitByHistogram(
+        const services::internal::sycl::UniversalBuffer & nodeHistogramList, services::internal::sycl::UniversalBuffer & selectedFeatures,
+        size_t nSelectedFeatures, services::internal::sycl::UniversalBuffer & nodeList, services::internal::sycl::UniversalBuffer & nodeIndices,
+        size_t nodeIndicesOffset, services::internal::sycl::UniversalBuffer & binOffsets, services::internal::sycl::UniversalBuffer & splitInfo,
+        services::internal::sycl::UniversalBuffer & nodeImpDecreaseList, bool updateImpDecreaseRequired, size_t nNodes, size_t nMaxBinsAmongFtrs,
+        size_t minObservationsInLeafNode, algorithmFPType impurityThreshold);
 
-    services::Status computePartialHistograms(const oneapi::internal::UniversalBuffer & data, oneapi::internal::UniversalBuffer & treeOrder,
-                                              oneapi::internal::UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
-                                              const services::Buffer<algorithmFPType> & response, oneapi::internal::UniversalBuffer & nodeList,
-                                              oneapi::internal::UniversalBuffer & nodeIndices, size_t nodeIndicesOffset,
-                                              oneapi::internal::UniversalBuffer & binOffsets, size_t nMaxBinsAmongFtrs, size_t nFeatures,
-                                              size_t nNodes, oneapi::internal::UniversalBuffer & partialHistograms, size_t nPartialHistograms);
+    services::Status computePartialHistograms(const services::internal::sycl::UniversalBuffer & data,
+                                              services::internal::sycl::UniversalBuffer & treeOrder,
+                                              services::internal::sycl::UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
+                                              const services::internal::Buffer<algorithmFPType> & response,
+                                              services::internal::sycl::UniversalBuffer & nodeList,
+                                              services::internal::sycl::UniversalBuffer & nodeIndices, size_t nodeIndicesOffset,
+                                              services::internal::sycl::UniversalBuffer & binOffsets, size_t nMaxBinsAmongFtrs, size_t nFeatures,
+                                              size_t nNodes, services::internal::sycl::UniversalBuffer & partialHistograms,
+                                              size_t nPartialHistograms);
 
-    services::Status reducePartialHistograms(oneapi::internal::UniversalBuffer & partialHistograms, oneapi::internal::UniversalBuffer & histograms,
-                                             size_t nPartialHistograms, size_t nNodes, size_t nSelectedFeatures, size_t nMaxBinsAmongFtrs,
-                                             size_t reduceLocalSize);
+    services::Status reducePartialHistograms(services::internal::sycl::UniversalBuffer & partialHistograms,
+                                             services::internal::sycl::UniversalBuffer & histograms, size_t nPartialHistograms, size_t nNodes,
+                                             size_t nSelectedFeatures, size_t nMaxBinsAmongFtrs, size_t reduceLocalSize);
 
     services::Status computeResults(const dtrees::internal::Tree & t, const algorithmFPType * x, const algorithmFPType * y, const size_t nRows,
-                                    const size_t nFeatures, const oneapi::internal::UniversalBuffer & oobIndices, size_t nOOB,
-                                    oneapi::internal::UniversalBuffer & oobBuf, algorithmFPType * varImp, algorithmFPType * varImpVariance,
+                                    const size_t nFeatures, const services::internal::sycl::UniversalBuffer & oobIndices, size_t nOOB,
+                                    services::internal::sycl::UniversalBuffer & oobBuf, algorithmFPType * varImp, algorithmFPType * varImpVariance,
                                     size_t nBuiltTrees, const engines::EnginePtr & engine, const Parameter & par);
 
     algorithmFPType computeOOBError(const dtrees::internal::Tree & t, const algorithmFPType * x, const algorithmFPType * y, const size_t nRows,
-                                    const size_t nFeatures, const oneapi::internal::UniversalBuffer & indices, size_t n,
-                                    oneapi::internal::UniversalBuffer oobBuf, services::Status * status);
+                                    const size_t nFeatures, const services::internal::sycl::UniversalBuffer & indices, size_t n,
+                                    services::internal::sycl::UniversalBuffer oobBuf, services::Status & status);
 
     algorithmFPType computeOOBErrorPerm(const dtrees::internal::Tree & t, const algorithmFPType * x, const algorithmFPType * y, const size_t nRows,
-                                        const size_t nFeatures, const oneapi::internal::UniversalBuffer & indices, const int * indicesPerm,
-                                        const size_t testFtrInd, size_t n, services::Status * status);
+                                        const size_t nFeatures, const services::internal::sycl::UniversalBuffer & indices, const int * indicesPerm,
+                                        const size_t testFtrInd, size_t n, services::Status & status);
 
-    services::Status finalizeOOBError(const algorithmFPType * y, const oneapi::internal::UniversalBuffer & oobBuf, const size_t nRows,
+    services::Status finalizeOOBError(const algorithmFPType * y, const services::internal::sycl::UniversalBuffer & oobBuf, const size_t nRows,
                                       algorithmFPType * res, algorithmFPType * resPerObs);
 
     services::Status finalizeVarImp(const Parameter & par, algorithmFPType * varImp, algorithmFPType * varImpVariance, size_t nFeatures);
 
-    oneapi::internal::KernelPtr kernelComputePartialHistograms;
-    oneapi::internal::KernelPtr kernelReducePartialHistograms;
-    oneapi::internal::KernelPtr kernelComputeBestSplitByHistogram;
-    oneapi::internal::KernelPtr kernelComputeBestSplitSinglePass;
+    services::internal::sycl::KernelPtr kernelComputePartialHistograms;
+    services::internal::sycl::KernelPtr kernelReducePartialHistograms;
+    services::internal::sycl::KernelPtr kernelComputeBestSplitByHistogram;
+    services::internal::sycl::KernelPtr kernelComputeBestSplitSinglePass;
 
     decision_forest::internal::TreeLevelBuildHelperOneAPI<algorithmFPType> _treeLevelBuildHelper;
 
-    const uint32_t _maxWorkItemsPerGroup = 256;   // should be a power of two for interal needs
-    const uint32_t _maxLocalBuffer       = 30000; // should be less than a half of local memory (two buffers)
-    const uint32_t _preferableSubGroup   = 16;    // preferable maximal sub-group size
-    const uint32_t _maxLocalSize         = 128;
-    const uint32_t _maxLocalSums         = 256;
-    const uint32_t _maxLocalHistograms   = 256;
-    const uint32_t _preferableGroupSize  = 256;
-    const uint32_t _minRowsBlock         = 256;
-    const uint32_t _maxBins              = 256;
+    const size_t _maxWorkItemsPerGroup = 256;   // should be a power of two for interal needs
+    const size_t _maxLocalBuffer       = 30000; // should be less than a half of local memory (two buffers)
+    const size_t _preferableSubGroup   = 16;    // preferable maximal sub-group size
+    const size_t _maxLocalSize         = 128;
+    const size_t _maxLocalSums         = 256;
+    const size_t _maxLocalHistograms   = 256;
+    const size_t _preferableGroupSize  = 256;
+    const size_t _minRowsBlock         = 256;
+    const size_t _maxBins              = 256;
 
-    const uint32_t _nHistProps     = 3; // number of properties in bins histogram (i.e. n, mean and var)
-    const uint32_t _nNodesGroups   = 3; // all nodes are split on groups (big, medium, small)
-    const uint32_t _nodeGroupProps = 2; // each nodes Group contains props: numOfNodes, maxNumOfBlocks
+    const size_t _nOOBProps      = 2; // number of props for each OOB row to compute prediction (i.e. mean and num of predictions)
+    const size_t _nHistProps     = 3; // number of properties in bins histogram (i.e. n, mean and var)
+    const size_t _nNodesGroups   = 3; // all nodes are split on groups (big, medium, small)
+    const size_t _nodeGroupProps = 2; // each nodes Group contains props: numOfNodes, maxNumOfBlocks
 
+    static constexpr size_t _int32max = static_cast<size_t>(services::internal::MaxVal<int32_t>::get());
+
+    size_t _nRows;
+    size_t _nFeatures;
+    size_t _nSelectedRows;
     size_t _nMaxBinsAmongFtrs;
     size_t _totalBins;
 };

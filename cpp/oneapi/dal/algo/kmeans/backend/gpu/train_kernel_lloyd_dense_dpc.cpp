@@ -14,10 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#define DAAL_SYCL_INTERFACE
-#define DAAL_SYCL_INTERFACE_USM
-#define DAAL_SYCL_INTERFACE_REVERSED_RANGE
-
 #include <src/algorithms/kmeans/oneapi/kmeans_dense_lloyd_batch_kernel_ucapi.h>
 
 #include "oneapi/dal/algo/kmeans/backend/gpu/train_kernel.hpp"
@@ -41,10 +37,10 @@ using daal_kmeans_lloyd_dense_ucapi_kernel_t =
     daal_kmeans::internal::KMeansDenseLloydBatchKernelUCAPI<Float>;
 
 template <typename Float>
-struct train_kernel_gpu<Float, method::lloyd_dense> {
-    train_result operator()(const dal::backend::context_gpu& ctx,
-                            const descriptor_base& params,
-                            const train_input& input) const {
+struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
+    train_result<task::clustering> operator()(const dal::backend::context_gpu& ctx,
+                                              const descriptor_base<task::clustering>& params,
+                                              const train_input<task::clustering>& input) const {
         if (!(input.get_initial_centroids().has_data())) {
             throw domain_error("Input initial_centroids should not be empty");
         }
@@ -105,18 +101,19 @@ struct train_kernel_gpu<Float, method::lloyd_dense> {
         interop::status_to_exception(
             daal_kmeans_lloyd_dense_ucapi_kernel_t<Float>().compute(daal_input, daal_output, &par));
 
-        return train_result()
+        return train_result<task::clustering>()
             .set_labels(
                 dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build())
             .set_iteration_count(static_cast<std::int64_t>(arr_iteration_count[0]))
             .set_objective_function_value(static_cast<double>(arr_objective_function_value[0]))
-            .set_model(model().set_centroids(dal::detail::homogen_table_builder{}
-                                                 .reset(arr_centroids, cluster_count, column_count)
-                                                 .build()));
+            .set_model(model<task::clustering>().set_centroids(
+                dal::detail::homogen_table_builder{}
+                    .reset(arr_centroids, cluster_count, column_count)
+                    .build()));
     }
 };
 
-template struct train_kernel_gpu<float, method::lloyd_dense>;
-template struct train_kernel_gpu<double, method::lloyd_dense>;
+template struct train_kernel_gpu<float, method::lloyd_dense, task::clustering>;
+template struct train_kernel_gpu<double, method::lloyd_dense, task::clustering>;
 
 } // namespace oneapi::dal::kmeans::backend

@@ -42,7 +42,7 @@ public:
         };
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     static array<T> empty(const sycl::queue& queue,
                           std::int64_t count,
                           const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
@@ -60,7 +60,7 @@ public:
                                       detail::host_allocator<T>()) };
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename K>
     static array<T> full(sycl::queue& queue,
                          std::int64_t count,
@@ -80,7 +80,7 @@ public:
         };
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     static array<T> zeros(sycl::queue& queue,
                           std::int64_t count,
                           const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
@@ -96,7 +96,7 @@ public:
         return array<T>{ data, count, empty_delete<const T>{} };
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename Y>
     static array<T> wrap(Y* data,
                          std::int64_t count,
@@ -131,7 +131,7 @@ public:
         update_data(impl_.get());
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename Deleter>
     explicit array(const sycl::queue& queue,
                    T* data,
@@ -193,7 +193,7 @@ public:
         return *this;
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     array& need_mutable_data(sycl::queue& queue,
                              const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
         impl_->need_mutable_data(detail::data_parallel_policy{ queue },
@@ -222,7 +222,7 @@ public:
         update_data(impl_->get_mutable_data(), count);
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     void reset(const sycl::queue& queue,
                std::int64_t count,
                const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
@@ -247,7 +247,7 @@ public:
         update_data(data, count);
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename Y, typename YDeleter>
     void reset(Y* data,
                std::int64_t count,

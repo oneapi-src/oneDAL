@@ -24,18 +24,20 @@
 #ifndef __SERVICE_ONEAPI_BLAS_GPU_H__
 #define __SERVICE_ONEAPI_BLAS_GPU_H__
 
-#include "services/env_detect.h"
-#include "sycl/internal/execution_context.h"
-#include "sycl/internal/types_utils.h"
+#include "services/internal/sycl/execution_context.h"
+#include "services/internal/sycl/types_utils.h"
 #include "src/sycl/math_service_types.h"
-#include "services/buffer.h"
-#include "sycl/internal/math/types.h"
+#include "services/internal/buffer.h"
+#include "services/internal/execution_context.h"
+#include "services/internal/sycl/math/types.h"
 
 namespace daal
 {
-namespace oneapi
+namespace services
 {
 namespace internal
+{
+namespace sycl
 {
 template <typename algorithmFPType>
 struct BlasGpu
@@ -47,15 +49,15 @@ struct BlasGpu
     {
         services::Status status;
 
-        ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
+        ExecutionContextIface & ctx = services::internal::getDefaultContext();
 
         if (layout == math::Layout::ColMajor)
         {
-            ctx.gemm(transa, transb, m, n, k, alpha, a_buffer, lda, offsetA, b_buffer, ldb, offsetB, beta, c_buffer, ldc, offsetC, &status);
+            ctx.gemm(transa, transb, m, n, k, alpha, a_buffer, lda, offsetA, b_buffer, ldb, offsetB, beta, c_buffer, ldc, offsetC, status);
         }
         else
         {
-            ctx.gemm(transb, transa, n, m, k, alpha, b_buffer, ldb, offsetB, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC, &status);
+            ctx.gemm(transb, transa, n, m, k, alpha, b_buffer, ldb, offsetB, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC, status);
         }
 
         return status;
@@ -68,15 +70,15 @@ struct BlasGpu
     {
         services::Status status;
 
-        ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
+        ExecutionContextIface & ctx = services::internal::getDefaultContext();
 
         if (layout == math::Layout::ColMajor)
         {
-            ctx.syrk(upper_lower, trans, n, k, alpha, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC, &status);
+            ctx.syrk(upper_lower, trans, n, k, alpha, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC, status);
         }
         else
         {
-            ctx.syrk(upper_lower, trans, k, n, alpha, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC, &status);
+            ctx.syrk(upper_lower, trans, k, n, alpha, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC, status);
         }
 
         return status;
@@ -87,16 +89,17 @@ struct BlasGpu
     {
         services::Status status;
 
-        ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
+        ExecutionContextIface & ctx = services::internal::getDefaultContext();
 
-        ctx.axpy(n, a, x_buffer, incx, y_buffer, incy, &status);
+        ctx.axpy(n, a, x_buffer, incx, y_buffer, incy, status);
 
         return status;
     }
 };
 
+} // namespace sycl
 } // namespace internal
-} // namespace oneapi
+} // namespace services
 } // namespace daal
 
 #endif

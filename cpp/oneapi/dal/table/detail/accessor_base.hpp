@@ -28,7 +28,7 @@ public:
 public:
     static constexpr bool is_readonly = std::is_const_v<T>;
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename K>
     accessor_base(const K& obj)
             : host_access_(get_impl<access_provider_iface>(obj).get_access_iface_host()),
@@ -73,7 +73,7 @@ private:
         return host_access_;
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     access_iface_dpc& get_access(const data_parallel_policy&) {
         return dpc_access_;
     }
@@ -84,7 +84,7 @@ private:
 
 private:
     access_iface_host& host_access_;
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     access_iface_dpc& dpc_access_;
 #endif
 };

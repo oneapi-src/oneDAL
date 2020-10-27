@@ -54,9 +54,9 @@ def _prebuilt_libs_repo_impl(repo_ctx):
         substitutions = substitutions,
     )
 
-def prebuilt_libs_repo_rule(includes, libs, build_template,
-                            root_env_var="", fallback_root="",
-                            url="", sha256="", strip_prefix=""):
+def _prebuilt_libs_repo_rule(includes, libs, build_template,
+                             root_env_var="", fallback_root="",
+                             url="", sha256="", strip_prefix=""):
     return repository_rule(
         implementation = _prebuilt_libs_repo_impl,
         environ = [
@@ -78,5 +78,6 @@ def prebuilt_libs_repo_rule(includes, libs, build_template,
     )
 
 repos = struct(
-    prebuilt_libs_repo_rule = prebuilt_libs_repo_rule,
+    prebuilt_libs_repo_rule = _prebuilt_libs_repo_rule,
+    create_symlinks = _create_symlinks,
 )

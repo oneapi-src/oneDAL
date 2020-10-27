@@ -67,7 +67,7 @@ Algorithm Input
 ---------------
 
 The multivariate BACON outlier detection algorithm accepts the input described below.
-Pass the Input ID as a parameter to the methods that provide input for your algorithm.
+Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, see :ref:`algorithms`.
 
 .. list-table::
@@ -116,7 +116,7 @@ Algorithm Output
 ----------------
 
 The multivariate BACON outlier detection algorithm calculates the result described below.
-Pass the Result ID as a parameter to the methods that access the results of your algorithm.
+Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
 For more details, see :ref:`algorithms`.
 
 .. list-table::

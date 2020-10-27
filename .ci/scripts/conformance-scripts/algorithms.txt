@@ -7,3 +7,5 @@ pca
 ridge_reg
 svm
 svm_sparse
+forest
+knn

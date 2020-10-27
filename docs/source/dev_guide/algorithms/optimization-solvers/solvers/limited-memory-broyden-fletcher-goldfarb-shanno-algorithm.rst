@@ -109,7 +109,7 @@ Hessian Update Algorithm
 
 This algorithm computes the approximation of the inverse Hessian
 matrix from the set of correction pairs
-[Byrd2015]).
+[Byrd2015]_.
 
 For a given set of correction pairs :math:`(s_j, y_j)`, :math:`j = k - min(k, m) + 1, \ldots, k`:
 
@@ -134,28 +134,27 @@ solver. For parameters, input, and output of iterative solvers, see :ref:`iterat
 Algorithm Input
 ---------------
 
-In addition to the input of the iterative solver, the
-limited-memory BFGS algorithm accepts the following optional
-input:
+In addition to the input of the iterative solver,
+the limited-memory BFGS algorithm accepts the following optional input:
 
 .. list-table::
-   :widths: 25 50
+   :widths: 10 60
    :header-rows: 1
    :align: left
 
    * - OptionalDataID
      - Input
-   * - correctionPairs
-     - Numeric table of size :math:`2m \times p` where the rows represent correction pairs :math:`s`
+   * - ``correctionPairs``
+     - A numeric table of size :math:`2m \times p` where the rows represent correction pairs :math:`s`
        and :math:`y`. The row correctionPairs[j], :math:`0 \leq j < m`, is a correction vector
        :math:`s_j`, and the row correctionPairs[j], :math:`m \leq j < 2m`, is a correction
        vector :math:`y_j`.
-   * - correctionIndices
-     - Numeric table of size :math:`1 \times 2` with 32-bit integer indexes. The first value
+   * - ``correctionIndices``
+     - A numeric table of size :math:`1 \times 2` with 32-bit integer indexes. The first value
        is the index of correction pair :math:`t`, the second value is the index of last
        iteration :math:`k` from the previous run.
-   * - averageArgumentLIterations
-     - Numeric table of size :math:`2 \times p`, where row 0 represents average arguments
+   * - ``averageArgumentLIterations``
+     - A numeric table of size :math:`2 \times p`, where row 0 represents average arguments
        for previous :math:`L` iterations, and row 1 represents average arguments for
        last :math:`L` iterations. These values are required to compute :math:`s` correction
        vectors in the next step. 
@@ -163,34 +162,35 @@ input:
 Algorithm Parameters
 --------------------
 
-In addition to parameters of the iterative solver, the limited-memory
-BFGS algorithm has the following parameters:
+In addition to parameters of the iterative solver,
+the limited-memory BFGS algorithm has the following parameters:
 
 .. list-table::
-   :widths: 25 50 50
+   :widths: 10 20 30
    :header-rows: 1
    :align: left
 
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
      - Performance-oriented computation method
-   * - batchIndices
-     - NULL
+   * - ``batchIndices``
+     - ``NULL``
      - The numeric table of size :math:`nIterations \times batchSize` with 32-bit integer
        indices of terms in the objective function to be used in step
        2 of the limited-memory BFGS algorithm. If no indices are provided, the
        implementation generates random indices.
 
-       This parameter can be an object of any class derived fromNumericTable,
-       except for PackedTriangularMatrix, PackedSymmetricMatrix, and
-       CSRNumericTable.
-   * - batchSize
+       .. note::
+       
+          This parameter can be an object of any class derived from ``NumericTable``,
+          except for ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
+   * - ``batchSize``
      - :math:`10`
      - The number of observations to compute the stochastic gradient. The
        implementation of the algorithm ignores this parameter if the
@@ -199,29 +199,31 @@ BFGS algorithm has the following parameters:
        If BatchSize equals the number of terms in the objective function, no
        random sampling is performed and all terms are used to calculate the
        gradient.
-   * - correctionPairBatchSize
+   * - ``correctionPairBatchSize``
      - :math:`100`
      - The number of observations to compute the sub-sampled Hessian for
        correction pairs computation. The implementation of the
        algorithm ignores this parameter if the correctionPairIndices numeric
        table is provided.
 
-       If correctionPairBatchSize equals the number of terms in the objective
+       If ``correctionPairBatchSize`` equals the number of terms in the objective
        function, no random sampling is performed and all terms are used to
        calculate the Hessian matrix.
-   * - correctionPairIndices
-     - NULL
+   * - ``correctionPairIndices``
+     - ``NULL``
      - The numeric table of size :math:`(nIterations/L) \times correctionPairBatchSize` with
        32-bit integer indices to be used instead of random values. If no indices are provided, the
        implementation generates random indices.
 
-       This parameter can be an object of any class derived fromNumericTable,
-       except for PackedTriangularMatrix, PackedSymmetricMatrix, and
-       CSRNumericTable.
+       .. note::
+        
+          This parameter can be an object of any class derived from ``NumericTable``,
+          except for ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
 
-       **NOTE**: If the algorithm runs with no optional input data, :math:`(nIterations / L -
-       1)` rows of the table are used. Otherwise, it can use one more row,
-       :math:`(nIterations / L)` in total.
+       .. note::
+          
+          If the algorithm runs with no optional input data, :math:`(nIterations / L - 1)` rows
+          of the table are used. Otherwise, it can use one more row, :math:`(nIterations / L)` in total.
    * - :math:`m`
      - :math:`10`
      - The memory parameter. The maximum number of correction pairs that define
@@ -229,21 +231,24 @@ BFGS algorithm has the following parameters:
    * - :math:`L`
      - :math:`10`
      - The number of iterations between calculations of the curvature estimates.
-   * - stepLengthSequence
-     - Numeric table of size :math:`1 \times 1` that contains the default step length equal to :math:`1`.
+   * - ``stepLengthSequence``
+     - A numeric table of size :math:`1 \times 1` that contains the default step length equal to :math:`1`.
      - The numeric table of size :math:`1 \times nIterations` or :math:`1 \times 1`. The contents of the table depend on its size:
 
        -  :math:`size = 1 \times nIterations`: values of the step-length sequence :math:`\alpha^k` for :math:`k = 1, \ldots, nIterations`.
 
        -  :math:`size = 1 \times 1`: the value of step length at each iteration :math:`\alpha^1 = \ldots = \alpha^{nIterations}`
 
-       This parameter can be an object of any class derived fromNumericTable,
-       except for PackedTriangularMatrix, PackedSymmetricMatrix, and CSRNumericTable.
+       ..note::
+       
+          This parameter can be an object of any class derived from ``NumericTable``,
+          except for ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
+       
        The recommended data type for storing the step-length sequence is the
        floating-point type, either float or double, that the algorithm uses in
        intermediate computations.
-   * - engine
-     - SharePtr< engines:: mt19937:: Batch>()
+   * - ``engine``
+     - `SharePtr< engines:: mt19937:: Batch>()`
      - Pointer to the random number generator engine that is used internally
        for random choosing terms from the objective function.
 
@@ -254,23 +259,23 @@ In addition to the output of the iterative solver, the limited-memory
 BFGS algorithm calculates the following optional results:
 
 .. list-table::
-   :widths: 25 50
+   :widths: 10 60
    :header-rows: 1
    :align: left
 
    * - OptionalDataID
      - Output
-   * - correctionPairs
-     - Numeric table of size :math:`2m \times p` where the rows represent correction pairs :math:`s`
+   * - ``correctionPairs``
+     - A numeric table of size :math:`2m \times p` where the rows represent correction pairs :math:`s`
        and :math:`y`. The row correctionPairs[j], :math:`0 \leq j < m`, is a correction vector
        :math:`s_j`, and the row correctionPairs[j], :math:`m \leq j < 2m`, is a correction
        vector :math:`y_j`.
-   * - correctionIndices
-     - Numeric table of size :math:`1 \times 2` with 32-bit integer indexes. The first value
+   * - ``correctionIndices``
+     - A numeric table of size :math:`1 \times 2` with 32-bit integer indexes. The first value
        is the index of correction pair :math:`t`, the second value is the index of last
        iteration :math:`k` from the previous run.
-   * - averageArgumentLIterations
-     - Numeric table of size :math:`2 \times p`, where row 0 represents average arguments
+   * - ``averageArgumentLIterations``
+     - A numeric table of size :math:`2 \times p`, where row 0 represents average arguments
        for previous :math:`L` iterations, and row 1 represents average arguments for
        last :math:`L` iterations. These values are required to compute :math:`s` correction
        vectors in the next step. 

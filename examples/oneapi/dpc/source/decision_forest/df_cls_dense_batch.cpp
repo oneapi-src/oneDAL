@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#define ONEAPI_DAL_DATA_PARALLEL
+#define ONEDAL_DATA_PARALLEL
 #include "oneapi/dal/algo/decision_forest.hpp"
 #include "oneapi/dal/io/csv.hpp"
 
@@ -33,7 +33,7 @@ void run(sycl::queue &queue) {
   const auto x_train = dal::read<dal::table>(queue, dal::csv::data_source{train_data_file_name});
   const auto y_train = dal::read<dal::table>(queue, dal::csv::data_source{train_label_file_name});
 
-  const auto x_test = dal::read<dal::table>(dal::csv::data_source{test_data_file_name});
+  const auto x_test = dal::read<dal::table>(queue, dal::csv::data_source{test_data_file_name});
   const auto y_test = dal::read<dal::table>(dal::csv::data_source{test_label_file_name});
 
   const auto df_train_desc = df::descriptor<float, df::task::classification, df::method::hist>{}
@@ -60,7 +60,7 @@ void run(sycl::queue &queue) {
 
     std::cout << "OOB error: " << result_train.get_oob_err() << std::endl;
 
-    const auto result_infer = dal::infer(df_infer_desc, result_train.get_model(), x_test);
+    const auto result_infer = dal::infer(queue, df_infer_desc, result_train.get_model(), x_test);
 
     std::cout << "Prediction results:" << std::endl
               << result_infer.get_labels() << std::endl;
@@ -68,7 +68,7 @@ void run(sycl::queue &queue) {
               << result_infer.get_probabilities() << std::endl;
 
     std::cout << "Ground truth:" << std::endl << y_test << std::endl;
-  } catch (oneapi::dal::unimplemented_error &e) {
+  } catch (oneapi::dal::unimplemented &e) {
     std::cout << "  " << e.what() << std::endl;
     return;
   }

@@ -32,8 +32,8 @@ DECLARE_SOURCE(
     pca_cl_kernels,
 
     __kernel void calculateVariances(__global algorithmFPType * covariance, __global algorithmFPType * variances) {
-        const int tid       = get_global_id(0);
-        const int nFeatures = get_global_size(0);
+        const unsigned int tid       = get_global_id(0);
+        const unsigned int nFeatures = get_global_size(0);
 
         variances[tid] = covariance[tid * nFeatures + tid];
     }

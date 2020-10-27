@@ -25,7 +25,7 @@
 #define __COVARIANCE_PARTIALRESULT_
 
 #include "algorithms/covariance/covariance_types.h"
-#include "data_management/data/numeric_table_sycl_homogen.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 
 using namespace daal::data_management;
 namespace daal
@@ -48,7 +48,7 @@ DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Inp
     size_t nColumns             = algInput->getNumberOfFeatures();
     services::Status status;
 
-    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)
@@ -59,9 +59,9 @@ DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Inp
     }
     else
     {
-        set(nObservations, SyclHomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, &status));
-        set(crossProduct, SyclHomogenNumericTable<algorithmFPType>::create(nColumns, nColumns, NumericTable::doAllocate, &status));
-        set(sum, SyclHomogenNumericTable<algorithmFPType>::create(nColumns, 1, NumericTable::doAllocate, &status));
+        set(nObservations, internal::SyclHomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, &status));
+        set(crossProduct, internal::SyclHomogenNumericTable<algorithmFPType>::create(nColumns, nColumns, NumericTable::doAllocate, &status));
+        set(sum, internal::SyclHomogenNumericTable<algorithmFPType>::create(nColumns, 1, NumericTable::doAllocate, &status));
     }
     return status;
 }

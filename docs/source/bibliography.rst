@@ -116,6 +116,11 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Machines.*. Journal of Machine Learning Research 6 (2005), pp:
    1889–1918.
 
+.. [Fleischer2008]
+   Rudolf Fleischer, Jinhui Xu.
+   Algorithmic Aspects in Information and Management.
+   4th International conference, AAIM 2008, Shanghai, China, June 23-25, 2008. Proceedings, Springer.
+
 .. [Freund99] 
    Yoav Freund, Robert E. Schapire. *Additive Logistic regression: a
    statistical view of boosting*. Journal of Japanese Society for
@@ -161,6 +166,11 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Multiclass Support Vector Machines*. IEEE Transactions on Neural
    Networks, Vol. 13, No. 2, pp: 415-425, 2002.
 
+.. [Hu2008]
+   Yifan Hu, Yehuda Koren, Chris Volinsky.
+   Collaborative Filtering for Implicit Feedback Datasets.
+   ICDM'08. Eighth IEEE International Conference, 2008.
+
 .. [James2013] 
    Gareth James, Daniela Witten, Trevor Hastie, and Rob Tibshirani.
    *An Introduction to Statistical Learning with Applications in R*.
@@ -188,6 +198,12 @@ For more information about algorithms implemented in |short_name|, refer to the 
    A 623-Dimensionally Equidistributed Uniform Pseudo-Random Number Generator.
    ACM Transactions on Modeling and Computer Simulation,
    Vol. 8, No. 1, pp. 3-30, January 1998.
+
+.. [Matsumoto2000]
+   Matsumoto, M., Nishimura, T.
+   Dynamic Creation of Pseudorandom Number Generators Monte Carlo and Quasi-Monte Carlo Methods
+   1998, Ed. Niederreiter, H. and Spanier, J., Springer 2000, pp. 56-69,
+   available from http://www.math.sci.hiroshima-u.ac.jp/%7Em-mat/MT/DC/dc.html.
 
 .. [Mitchell97] 
    Tom M. Mitchell. *Machine Learning*. McGraw-Hill Education, 1997.

@@ -24,7 +24,7 @@ Details
 
 Given a transformation matrix :math:`T` computed by :ref:`PCA <pca>` (eigenvectors in row-major order)
 and data set :math:`X` as input, the PCA Transform algorithm transforms input data set :math:`X`
-of size :math:`n \times p` to the data set :math:`Y` of size :math:`n x p_r`, :math:`pr \leq p`.
+of size :math:`n \times p` to the data set :math:`Y` of size :math:`n \times p_r`, :math:`pr \leq p`.
 
 Batch Processing
 ****************
@@ -91,7 +91,7 @@ The PCA Transform algorithm has the following parameters:
    * - ``nComponents``
      - ``defaultDense``
      - :math:`0`
-     - Number of principal components :math:`(p_r \leq p)`. If zero, the algorithm will compute the result for :math:`\text{nComponents} = p_r`.
+     - The number of principal components :math:`(p_r \leq p)`. If zero, the algorithm will compute the result for :math:`\text{nComponents} = p_r`.
 
 
 Algorithm Output

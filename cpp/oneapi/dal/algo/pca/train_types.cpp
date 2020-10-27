@@ -32,7 +32,8 @@ class detail::train_result_impl : public base {
 public:
     model<Task> trained_model;
     table eigenvalues;
-    table explained_variance;
+    table variances;
+    table means;
 };
 
 using detail::train_input_impl;
@@ -70,8 +71,13 @@ table train_result<Task>::get_eigenvectors() const {
 }
 
 template <typename Task>
-table train_result<Task>::get_explained_variance() const {
-    return impl_->explained_variance;
+table train_result<Task>::get_variances() const {
+    return impl_->variances;
+}
+
+template <typename Task>
+table train_result<Task>::get_means() const {
+    return impl_->means;
 }
 
 template <typename Task>
@@ -85,11 +91,16 @@ void train_result<Task>::set_eigenvalues_impl(const table& value) {
 }
 
 template <typename Task>
-void train_result<Task>::set_explained_variance_impl(const table& value) {
-    impl_->explained_variance = value;
+void train_result<Task>::set_variances_impl(const table& value) {
+    impl_->variances = value;
 }
 
-template class ONEAPI_DAL_EXPORT train_input<task::dim_reduction>;
-template class ONEAPI_DAL_EXPORT train_result<task::dim_reduction>;
+template <typename Task>
+void train_result<Task>::set_means_impl(const table& value) {
+    impl_->means = value;
+}
+
+template class ONEDAL_EXPORT train_input<task::dim_reduction>;
+template class ONEDAL_EXPORT train_result<task::dim_reduction>;
 
 } // namespace oneapi::dal::pca

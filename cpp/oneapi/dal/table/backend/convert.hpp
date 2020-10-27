@@ -17,21 +17,44 @@
 #pragma once
 
 #include "oneapi/dal/common.hpp"
+#include "oneapi/dal/detail/policy.hpp"
 
 namespace oneapi::dal::backend {
 
-void convert_vector(const void* src,
+void convert_vector(const detail::default_host_policy& policy,
+                    const void* src,
                     void* dst,
                     data_type src_type,
-                    data_type dest_type,
-                    std::int64_t size);
+                    data_type dst_type,
+                    std::int64_t element_count);
 
-void convert_vector(const void* src,
+void convert_vector(const detail::default_host_policy& policy,
+                    const void* src,
                     void* dst,
                     data_type src_type,
-                    data_type dest_type,
+                    data_type dst_type,
                     std::int64_t src_stride,
                     std::int64_t dst_stride,
-                    std::int64_t size);
+                    std::int64_t element_count);
+
+#ifdef ONEDAL_DATA_PARALLEL
+
+void convert_vector(const detail::data_parallel_policy& policy,
+                    const void* src,
+                    void* dst,
+                    data_type src_type,
+                    data_type dst_type,
+                    std::int64_t element_count);
+
+void convert_vector(const detail::data_parallel_policy& policy,
+                    const void* src,
+                    void* dst,
+                    data_type src_type,
+                    data_type dst_type,
+                    std::int64_t src_stride,
+                    std::int64_t dst_stride,
+                    std::int64_t element_count);
+
+#endif
 
 } // namespace oneapi::dal::backend

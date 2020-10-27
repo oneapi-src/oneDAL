@@ -62,13 +62,14 @@ public:
                              OptionalArgument * optionalArgument, OptionalArgument * optionalResult, engines::BatchBase & engine);
 
 private:
-    static services::Status makeStep(const uint32_t argumentSize, const services::Buffer<algorithmFPType> & prevWorkValueBuff,
-                                     const services::Buffer<algorithmFPType> & gradientBuff, services::Buffer<algorithmFPType> & workValueBuff,
-                                     const algorithmFPType learningRate, const algorithmFPType consCoeff);
+    static services::Status makeStep(const uint32_t argumentSize, const services::internal::Buffer<algorithmFPType> & prevWorkValueBuff,
+                                     const services::internal::Buffer<algorithmFPType> & gradientBuff,
+                                     services::internal::Buffer<algorithmFPType> & workValueBuff, const algorithmFPType learningRate,
+                                     const algorithmFPType consCoeff);
 
-    static services::Status vectorNorm(const services::Buffer<algorithmFPType> & x, const uint32_t n, algorithmFPType & norm);
+    static services::Status vectorNorm(const services::internal::Buffer<algorithmFPType> & x, const uint32_t n, algorithmFPType & norm);
 
-    static void buildProgram(oneapi::internal::ClKernelFactoryIface & factory);
+    static services::Status buildProgram(services::internal::sycl::ClKernelFactoryIface & factory);
 
     enum IndicesStatus
     {

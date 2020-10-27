@@ -242,6 +242,7 @@ void CompressionStream::push_back(DataBlock * block)
         if (result)
         {
             this->_errors->add(services::ErrorMemoryCopyFailedInternal);
+            delete tmpBlock;
             return;
         }
 

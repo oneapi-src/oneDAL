@@ -26,7 +26,7 @@
 #define __LINEAR_REGRESSION_TRAIN_DENSE_NORMEQ_HELPER_ONEAPI_IMPL_I__
 
 #include "src/algorithms/linear_regression/oneapi/linear_regression_train_kernel_oneapi.h"
-#include "sycl/internal/utils.h"
+#include "services/internal/execution_context.h"
 #include "src/algorithms/linear_regression/oneapi/cl_kernel/helper_beta_copy.cl"
 
 namespace daal
@@ -39,36 +39,40 @@ namespace training
 {
 namespace internal
 {
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 template <typename algorithmFPType>
-services::Status KernelHelperOneAPI<algorithmFPType>::computeBetasImpl(const size_t p, services::Buffer<algorithmFPType> & a, const size_t ny,
-                                                                       services::Buffer<algorithmFPType> & b, const bool inteceptFlag) const
+services::Status KernelHelperOneAPI<algorithmFPType>::computeBetasImpl(const size_t p, services::internal::Buffer<algorithmFPType> & a,
+                                                                       const size_t ny, services::internal::Buffer<algorithmFPType> & b,
+                                                                       const bool inteceptFlag) const
 {
     return linear_model::normal_equations::training::internal::FinalizeKernelOneAPI<algorithmFPType>::solveSystem(p, a, ny, b);
 }
 
 template <typename algorithmFPType>
-services::Status KernelHelperOneAPI<algorithmFPType>::copyBetaToResult(const services::Buffer<algorithmFPType> & betaTmp,
-                                                                       services::Buffer<algorithmFPType> & betaRes, const size_t nBetas,
+services::Status KernelHelperOneAPI<algorithmFPType>::copyBetaToResult(const services::internal::Buffer<algorithmFPType> & betaTmp,
+                                                                       services::internal::Buffer<algorithmFPType> & betaRes, const size_t nBetas,
                                                                        const size_t nResponses, const bool interceptFlag) const
 {
     services::Status status;
     const size_t nBetasIntercept = interceptFlag ? nBetas : (nBetas - 1);
     const size_t intercept       = interceptFlag ? 1 : 0;
 
-    ExecutionContextIface & ctx    = getDefaultContext();
+    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     const services::String options = getKeyFPType<algorithmFPType>();
     services::String cachekey("__daal_algorithms_linear_regression_training_helper_");
     cachekey.add(options);
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelHelperBetaCopy, options.c_str());
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelHelperBetaCopy, options.c_str(), status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "copyBeta";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(5);
+    KernelArguments args(5, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, betaTmp, AccessModeIds::read);
     args.set(1, nBetas);
     args.set(2, nBetasIntercept);
@@ -77,7 +81,7 @@ services::Status KernelHelperOneAPI<algorithmFPType>::copyBetaToResult(const ser
 
     KernelRange range(nResponses, nBetas);
 
-    ctx.run(range, kernel, args, &status);
+    ctx.run(range, kernel, args, status);
 
     return status;
 }

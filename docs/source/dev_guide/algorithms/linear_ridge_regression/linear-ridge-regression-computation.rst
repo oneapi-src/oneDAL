@@ -43,7 +43,7 @@ algorithm.
   .. group-tab:: Linear Regression
 
     .. list-table::
-      :widths: 20 30 60
+      :widths: 10 10 60
       :header-rows: 1
       :align: left
 
@@ -82,7 +82,7 @@ algorithm.
         - Default computation method used by the ridge regression. 
           The only method supported at the training stage is the normal equations method.
       * - ``ridgeParameters``
-        - Numeric table of size :math:`1 \times 1` that contains the default ridge parameter
+        - A numeric table of size :math:`1 \times 1` that contains the default ridge parameter
           equal to :math:`1`.
         - The numeric table of size :math:`1 \times k` (:math:`k` is the number of dependent variables)
           or :math:`1 \times 1`. The contents of the table depend on its size:
@@ -109,7 +109,7 @@ For a description of the input and output, refer to :ref:`regression_usage_model
 At the prediction stage, linear and ridge regressions have the following parameters:
 
 .. list-table::
-   :widths: 20 30 60
+   :widths: 10 10 60
    :header-rows: 1
    :align: left
 
@@ -160,7 +160,7 @@ The following table lists parameters of linear and ridge regressions at the trai
   .. group-tab:: Linear Regression
 
     .. list-table::
-      :widths: 20 30 60
+      :widths: 10 10 60
       :header-rows: 1
       :align: left
 
@@ -200,7 +200,7 @@ The following table lists parameters of linear and ridge regressions at the trai
           The only method supported at the training stage is the normal equations method.
 
       * - ``ridgeParameters``
-        - Numeric table of size :math:`1 \times 1` that contains the default ridge parameter equal to :math:`1`.
+        - A numeric table of size :math:`1 \times 1` that contains the default ridge parameter equal to :math:`1`.
         - The numeric table of size :math:`1 \times k` (:math:`k` is the number of dependent variables) or :math:`1 \times 1`.
           The contents of the table depend on its size:
 
@@ -243,7 +243,7 @@ The following table lists parameters of linear and ridge regressions at the trai
   .. group-tab:: Linear Regression
 
     .. list-table::
-      :widths: 20 30 60
+      :widths: 10 10 60
       :header-rows: 1
       :align: left
 
@@ -296,7 +296,7 @@ The following table lists parameters of linear and ridge regressions at the trai
         - Default computation method used by the ridge regression.
           The only method supported at the training stage is the normal equations method.
       * - ``ridgeParameters``
-        - Numeric table of size :math:`1 \times 1` that contains the default ridge parameter equal to :math:`1`.
+        - A numeric table of size :math:`1 \times 1` that contains the default ridge parameter equal to :math:`1`.
         - The numeric table of size :math:`1 \times k` (:math:`k` is the number of dependent variables) or :math:`1 \times 1`.
           The contents of the table depend on its size:
 

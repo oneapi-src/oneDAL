@@ -104,6 +104,7 @@
 #endif
 
 #ifdef DAAL_SYCL_INTERFACE
+    #include <CL/sycl.hpp>
     #if (defined(__SYCL_COMPILER_VERSION) && (__SYCL_COMPILER_VERSION >= 20191001))
         #define DAAL_SYCL_INTERFACE_USM
     #endif
@@ -112,6 +113,10 @@
     #elif (defined(COMPUTECPP_VERSION_MAJOR) && (COMPUTECPP_VERSION_MAJOR >= 1) && (COMPUTECPP_VERSION_MINOR >= 1) && (COMPUTECPP_VERSION_PATCH >= 6))
         #define DAAL_SYCL_INTERFACE_REVERSED_RANGE
     #endif
+#endif
+
+#if !(defined(__linux__) || defined(_WIN64))
+    #define DAAL_DISABLE_LEVEL_ZERO
 #endif
 
 /**
@@ -457,7 +462,7 @@ const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP13_ID = 121310;
     {                                                                                             \
         if (!(0 == (op1)) && !(0 == (op2)))                                                       \
         {                                                                                         \
-            type r = (op1) * (op2);                                                               \
+            volatile type r = (op1) * (op2);                                                      \
             r /= (op1);                                                                           \
             if (!(r == (op2))) return services::Status(services::ErrorBufferSizeIntegerOverflow); \
         }                                                                                         \
@@ -465,24 +470,19 @@ const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP13_ID = 121310;
 
 #define DAAL_OVERFLOW_CHECK_BY_ADDING(type, op1, op2)                                         \
     {                                                                                         \
-        type r = (op1) + (op2);                                                               \
+        volatile type r = (op1) + (op2);                                                      \
         r -= (op1);                                                                           \
         if (!(r == (op2))) return services::Status(services::ErrorBufferSizeIntegerOverflow); \
     }
 
-#define DAAL_CHECK_STATUS_PTR(statusPtr)              \
-    {                                                 \
-        if (statusPtr != nullptr && !statusPtr->ok()) \
-        {                                             \
-            return;                                   \
-        }                                             \
+#define DAAL_CHECK_STATUS_RETURN_IF_FAIL(statVal, returnObj) \
+    {                                                        \
+        if (!(statVal)) return returnObj;                    \
     }
-#define DAAL_CHECK_STATUS_RETURN_IF_FAIL(statusPtr, return_obj) \
-    {                                                           \
-        if (statusPtr != nullptr && !statusPtr->ok())           \
-        {                                                       \
-            return return_obj;                                  \
-        }                                                       \
+
+#define DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(statVal) \
+    {                                                  \
+        if (!(statVal)) return;                        \
     }
 
 #define DAAL_CHECK(cond, error) \

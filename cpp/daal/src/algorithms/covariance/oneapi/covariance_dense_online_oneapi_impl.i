@@ -26,9 +26,8 @@
 
 #include "src/algorithms/covariance/oneapi/covariance_kernel_oneapi.h"
 #include "src/algorithms/covariance/oneapi/covariance_oneapi_impl.i"
-#include <iostream>
 
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
 
 namespace daal
 {
@@ -58,9 +57,19 @@ services::Status CovarianceDenseOnlineKernelOneAPI<algorithmFPType, method>::com
     algorithmFPType * nObservations      = nullptr;
     algorithmFPType partialNObservations = 0.0;
 
-    const size_t nFeatures = dataTable->getNumberOfColumns();
-    const size_t nVectors  = dataTable->getNumberOfRows();
-    partialNObservations   = static_cast<algorithmFPType>(nVectors);
+    if (dataTable->getNumberOfColumns() > static_cast<size_t>(services::internal::MaxVal<uint32_t>::get()))
+    {
+        return services::Status(daal::services::ErrorCovarianceInternal);
+    }
+    const uint32_t nFeatures = static_cast<uint32_t>(dataTable->getNumberOfColumns());
+
+    if (dataTable->getNumberOfRows() > static_cast<size_t>(services::internal::MaxVal<uint32_t>::get()))
+    {
+        return services::Status(daal::services::ErrorCovarianceInternal);
+    }
+    const uint32_t nVectors = static_cast<uint32_t>(dataTable->getNumberOfRows());
+
+    partialNObservations = static_cast<algorithmFPType>(nVectors);
 
     BlockDescriptor<algorithmFPType> dataBlock;
     BlockDescriptor<algorithmFPType> sumBlock;
@@ -85,15 +94,18 @@ services::Status CovarianceDenseOnlineKernelOneAPI<algorithmFPType, method>::com
 
     if (isFirstDataBlock(*nObservations))
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(crossProductBlock.getBuffer()), algorithmFPType, nFeatures * nFeatures);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(sumBlock.getBuffer()), algorithmFPType, nFeatures);
         status |= calculateCrossProductAndSums<algorithmFPType, method>(dataTable, crossProductBlock.getBuffer(), sumBlock.getBuffer());
         DAAL_CHECK_STATUS_VAR(status);
     }
     else
     {
-        auto partialCrossProductBlock = context.allocate(TypeIds::id<algorithmFPType>(), nFeatures * nFeatures, &status);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, nFeatures, nFeatures);
+        auto partialCrossProductBlock = context.allocate(TypeIds::id<algorithmFPType>(), nFeatures * nFeatures, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        auto partialSumBlock = context.allocate(TypeIds::id<algorithmFPType>(), nFeatures, &status);
+        auto partialSumBlock = context.allocate(TypeIds::id<algorithmFPType>(), nFeatures, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         status |= calculateCrossProductAndSums<algorithmFPType, method>(dataTable, partialCrossProductBlock.template get<algorithmFPType>(),
@@ -111,19 +123,10 @@ services::Status CovarianceDenseOnlineKernelOneAPI<algorithmFPType, method>::com
 
     *nObservations += partialNObservations;
 
-    {
-        status |= dataTable->releaseBlockOfRows(dataBlock);
-        DAAL_CHECK_STATUS_VAR(status);
-
-        status |= sumTable->releaseBlockOfRows(sumBlock);
-        DAAL_CHECK_STATUS_VAR(status);
-
-        status |= crossProductTable->releaseBlockOfRows(crossProductBlock);
-        DAAL_CHECK_STATUS_VAR(status);
-
-        status |= nObsTable->releaseBlockOfRows(nObsBlock);
-        DAAL_CHECK_STATUS_VAR(status);
-    }
+    DAAL_CHECK_STATUS_VAR(dataTable->releaseBlockOfRows(dataBlock));
+    DAAL_CHECK_STATUS_VAR(sumTable->releaseBlockOfRows(sumBlock));
+    DAAL_CHECK_STATUS_VAR(crossProductTable->releaseBlockOfRows(crossProductBlock));
+    DAAL_CHECK_STATUS_VAR(nObsTable->releaseBlockOfRows(nObsBlock));
 
     return status;
 }
@@ -136,7 +139,12 @@ services::Status CovarianceDenseOnlineKernelOneAPI<algorithmFPType, method>::fin
 {
     services::Status status;
 
-    const size_t nFeatures          = crossProductTable->getNumberOfColumns();
+    if (crossProductTable->getNumberOfColumns() > static_cast<size_t>(services::internal::MaxVal<uint32_t>::get()))
+    {
+        return services::Status(daal::services::ErrorCovarianceInternal);
+    }
+
+    const uint32_t nFeatures        = static_cast<uint32_t>(crossProductTable->getNumberOfColumns());
     algorithmFPType * nObservations = nullptr;
 
     BlockDescriptor<algorithmFPType> dataBlock;
@@ -167,23 +175,13 @@ services::Status CovarianceDenseOnlineKernelOneAPI<algorithmFPType, method>::fin
 
     status |= finalizeCovariance<algorithmFPType, method>(nFeatures, *nObservations, crossProductBlock.getBuffer(), sumBlock.getBuffer(),
                                                           covBlock.getBuffer(), meanBlock.getBuffer(), parameter);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    {
-        status |= sumTable->releaseBlockOfRows(sumBlock);
-        DAAL_CHECK_STATUS_VAR(status);
-
-        status |= crossProductTable->releaseBlockOfRows(crossProductBlock);
-        DAAL_CHECK_STATUS_VAR(status);
-
-        status |= nObservationsTable->releaseBlockOfRows(nObservationsBlock);
-        DAAL_CHECK_STATUS_VAR(status);
-
-        status |= meanTable->releaseBlockOfRows(meanBlock);
-        DAAL_CHECK_STATUS_VAR(status);
-
-        status |= covTable->releaseBlockOfRows(covBlock);
-        DAAL_CHECK_STATUS_VAR(status);
-    }
+    DAAL_CHECK_STATUS_VAR(sumTable->releaseBlockOfRows(sumBlock));
+    DAAL_CHECK_STATUS_VAR(crossProductTable->releaseBlockOfRows(crossProductBlock));
+    DAAL_CHECK_STATUS_VAR(nObservationsTable->releaseBlockOfRows(nObservationsBlock));
+    DAAL_CHECK_STATUS_VAR(meanTable->releaseBlockOfRows(meanBlock));
+    DAAL_CHECK_STATUS_VAR(covTable->releaseBlockOfRows(covBlock));
 
     return status;
 }

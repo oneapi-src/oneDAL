@@ -17,7 +17,7 @@
 #include <immintrin.h>
 
 #include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
-#include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel_avx2.hpp"
+#include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel_avx512.hpp"
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
@@ -32,7 +32,7 @@ namespace jaccard {
 namespace detail {
 
 template vertex_similarity_result
-call_jaccard_default_kernel_avx2<oneapi::dal::backend::cpu_dispatch_avx512>(
+call_jaccard_default_kernel_avx512<oneapi::dal::backend::cpu_dispatch_avx512>(
     const descriptor_base &desc,
     vertex_similarity_input<undirected_adjacency_array_graph<>> &input);
 
@@ -41,7 +41,8 @@ vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_
                                                      oneapi::dal::backend::cpu_dispatch_avx512>(
     const descriptor_base &desc,
     vertex_similarity_input<undirected_adjacency_array_graph<>> &input) {
-    return call_jaccard_default_kernel_avx2<oneapi::dal::backend::cpu_dispatch_avx512>(desc, input);
+    return call_jaccard_default_kernel_avx512<oneapi::dal::backend::cpu_dispatch_avx512>(desc,
+                                                                                         input);
 }
 } // namespace detail
 } // namespace jaccard

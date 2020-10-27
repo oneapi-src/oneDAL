@@ -44,8 +44,8 @@ namespace rbf
 {
 namespace internal
 {
-using namespace daal::oneapi::internal;
-using namespace daal::oneapi::internal::math;
+using namespace daal::services::internal::sycl;
+using namespace daal::services::internal::sycl::math;
 
 template <typename algorithmFPType>
 services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::buildProgram(ClKernelFactoryIface & factory)
@@ -56,7 +56,7 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::buildProgra
     cachekey.add(options);
 
     services::Status status;
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelKF, options.c_str(), &status);
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelKF, options.c_str(), status);
     return status;
 }
 
@@ -64,11 +64,11 @@ template <typename algorithmFPType>
 services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::lazyAllocate(UniversalBuffer & x, const size_t n)
 {
     services::Status status;
-    ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
+    ExecutionContextIface & ctx = services::internal::getDefaultContext();
     const TypeIds::Id idType    = TypeIds::id<algorithmFPType>();
     if (x.empty() || x.get<algorithmFPType>().size() < n)
     {
-        x = ctx.allocate(idType, n, &status);
+        x = ctx.allocate(idType, n, status);
     }
 
     return status;
@@ -77,22 +77,25 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::lazyAllocat
 template <typename algorithmFPType>
 services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeRBF(const UniversalBuffer & sqrMatLeft,
                                                                                 const UniversalBuffer & sqrMatRight, const uint32_t ld,
-                                                                                const algorithmFPType coeff, services::Buffer<algorithmFPType> & rbf,
-                                                                                const size_t n, const size_t m)
+                                                                                const algorithmFPType coeff,
+                                                                                services::internal::Buffer<algorithmFPType> & rbf, const size_t n,
+                                                                                const size_t m)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.computeRBF);
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
     auto & factory = context.getClKernelFactory();
 
     services::Status status = buildProgram(factory);
     DAAL_CHECK_STATUS_VAR(status);
 
-    auto kernel = factory.getKernel("computeRBF");
+    auto kernel = factory.getKernel("computeRBF", status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const algorithmFPType threshold = math::expThreshold<algorithmFPType>();
 
-    KernelArguments args(6);
+    KernelArguments args(6, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, sqrMatLeft, AccessModeIds::read);
     args.set(1, sqrMatRight, AccessModeIds::read);
     args.set(2, ld);
@@ -102,7 +105,7 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeRBF(
 
     KernelRange range(n, m);
 
-    context.run(range, kernel, args, &status);
+    context.run(range, kernel, args, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     return status;
@@ -128,7 +131,7 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInte
 {
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     const size_t nMatLeft  = matLeft->getNumberOfRows();
     const size_t nMatRight = matRight->getNumberOfRows();
@@ -149,25 +152,25 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInte
 
     DAAL_CHECK_STATUS(status, result->getBlockOfRows(0, nMatLeft, ReadWriteMode::writeOnly, resultBlock));
 
-    const services::Buffer<algorithmFPType> matLeftBuf  = matLeftBlock.getBuffer();
-    const services::Buffer<algorithmFPType> matRightBuf = matRightBlock.getBuffer();
+    const services::internal::Buffer<algorithmFPType> matLeftBuf  = matLeftBlock.getBuffer();
+    const services::internal::Buffer<algorithmFPType> matRightBuf = matRightBlock.getBuffer();
 
-    services::Buffer<algorithmFPType> rBuf = resultBlock.getBuffer();
+    services::internal::Buffer<algorithmFPType> rBuf = resultBlock.getBuffer();
 
     DAAL_CHECK_STATUS(status, lazyAllocate(_sqrMatLeft, nMatLeft));
     DAAL_CHECK_STATUS(status, lazyAllocate(_sqrMatRight, nMatRight));
 
-    UniversalBuffer sqrA1U = context.allocate(TypeIds::id<algorithmFPType>(), nMatLeft, &status);
+    UniversalBuffer sqrA1U = context.allocate(TypeIds::id<algorithmFPType>(), nMatLeft, status);
     DAAL_CHECK_STATUS_VAR(status);
-    UniversalBuffer sqrA2U = context.allocate(TypeIds::id<algorithmFPType>(), nMatRight, &status);
+    UniversalBuffer sqrA2U = context.allocate(TypeIds::id<algorithmFPType>(), nMatRight, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.sumOfSquares);
 
-        Reducer::reduce(Reducer::BinaryOp::SUM_OF_SQUARES, Layout::RowMajor, matLeftBuf, _sqrMatLeft, nMatLeft, pMatLeft, &status);
+        Reducer::reduce(Reducer::BinaryOp::SUM_OF_SQUARES, Layout::RowMajor, matLeftBuf, _sqrMatLeft, nMatLeft, pMatLeft, status);
         DAAL_CHECK_STATUS_VAR(status);
-        Reducer::reduce(Reducer::BinaryOp::SUM_OF_SQUARES, Layout::RowMajor, matRightBuf, _sqrMatRight, nMatRight, pMatRight, &status);
+        Reducer::reduce(Reducer::BinaryOp::SUM_OF_SQUARES, Layout::RowMajor, matRightBuf, _sqrMatRight, nMatRight, pMatRight, status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 

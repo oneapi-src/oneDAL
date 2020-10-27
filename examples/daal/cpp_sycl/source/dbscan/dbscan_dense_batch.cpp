@@ -34,6 +34,8 @@ using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
+using daal::services::internal::SyclExecutionContext;
+
 /* Input data set parameters */
 string datasetFileName = "../data/batch/dbscan_dense.csv";
 
@@ -51,7 +53,7 @@ int main(int argc, char * argv[])
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
-        daal::services::SyclExecutionContext ctx(queue);
+        SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
         /* Initialize FileDataSource to retrieve the input data from a .csv file */

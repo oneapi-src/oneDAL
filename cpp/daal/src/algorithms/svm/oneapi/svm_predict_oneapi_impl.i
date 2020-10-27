@@ -26,7 +26,7 @@
 
 #include "src/sycl/blas_gpu.h"
 #include "src/externals/service_ittnotify.h"
-#include "data_management/data/numeric_table_sycl_homogen.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 #include "src/algorithms/svm/oneapi/svm_helper_oneapi.h"
 
 DAAL_ITTNOTIFY_DOMAIN(svm_predict.default.batch);
@@ -42,14 +42,15 @@ namespace prediction
 namespace internal
 {
 using namespace daal::internal;
-using namespace daal::oneapi::internal;
+using namespace daal::services::internal::sycl;
+using daal::data_management::internal::SyclHomogenNumericTable;
 
 template <typename algorithmFPType>
 services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(const NumericTablePtr & xTable, Model * model, NumericTable & result,
                                                                               const svm::Parameter * par)
 {
     services::Status status;
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::internal::getDefaultContext();
 
     const size_t nVectors  = xTable->getNumberOfRows();
     const size_t nFeatures = xTable->getNumberOfColumns();
@@ -65,7 +66,7 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
 
     if (nSV == 0)
     {
-        context.fill(distanceBuff, 0.0, &status);
+        context.fill(distanceBuff, 0.0, status);
         return status;
     }
 
@@ -74,7 +75,7 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
     auto svCoeffBuff = svCoeffBlock.getBuffer();
 
     const algorithmFPType bias(model->getBias());
-    context.fill(distanceBuff, double(bias), &status);
+    context.fill(distanceBuff, double(bias), status);
     DAAL_CHECK_STATUS_VAR(status);
 
     auto svTable = model->getSupportVectors();
@@ -82,7 +83,10 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
     const size_t nRowsPerBlock = 1024;
     const size_t nBlocks       = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
 
-    auto kernelResU    = context.allocate(TypeIds::id<algorithmFPType>(), nRowsPerBlock * nSV, &status);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRowsPerBlock, nSV);
+    auto kernelResU = context.allocate(TypeIds::id<algorithmFPType>(), nRowsPerBlock * nSV, status);
+    DAAL_CHECK_STATUS_VAR(status);
+
     auto kernelResBuff = kernelResU.template get<algorithmFPType>();
 
     kernel_function::ResultPtr shRes(new kernel_function::Result());
@@ -100,7 +104,7 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
 
         BlockDescriptor<algorithmFPType> xBlock;
         DAAL_CHECK_STATUS(status, xTable->getBlockOfRows(startRow, nRowsPerBlockReal, ReadWriteMode::readOnly, xBlock));
-        const services::Buffer<algorithmFPType> xBuf = xBlock.getBuffer();
+        const services::internal::Buffer<algorithmFPType> xBuf = xBlock.getBuffer();
 
         NumericTablePtr xBlockNT = SyclHomogenNumericTable<algorithmFPType>::create(xBuf, nFeatures, nRowsPerBlockReal, &status);
         DAAL_CHECK_STATUS_VAR(status);

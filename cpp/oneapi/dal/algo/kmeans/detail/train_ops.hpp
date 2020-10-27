@@ -21,20 +21,26 @@
 
 namespace oneapi::dal::kmeans::detail {
 
-template <typename Context, typename... Options>
-struct ONEAPI_DAL_EXPORT train_ops_dispatcher {
-    train_result operator()(const Context&, const descriptor_base&, const train_input&) const;
+template <typename Context,
+          typename Float,
+          typename Method = method::by_default,
+          typename Task = task::by_default>
+struct ONEDAL_EXPORT train_ops_dispatcher {
+    train_result<Task> operator()(const Context&,
+                                  const descriptor_base<Task>&,
+                                  const train_input<Task>&) const;
 };
 
 template <typename Descriptor>
 struct train_ops {
     using float_t = typename Descriptor::float_t;
     using method_t = typename Descriptor::method_t;
-    using input_t = train_input;
-    using result_t = train_result;
-    using descriptor_base_t = descriptor_base;
+    using task_t = typename Descriptor::task_t;
+    using input_t = train_input<task_t>;
+    using result_t = train_result<task_t>;
+    using descriptor_base_t = descriptor_base<task_t>;
 
-    void check_preconditions(const Descriptor& params, const train_input& input) const {
+    void check_preconditions(const Descriptor& params, const input_t& input) const {
         if (!(input.get_data().has_data())) {
             throw domain_error("Input data should not be empty");
         }
@@ -52,31 +58,40 @@ struct train_ops {
     }
 
     void check_postconditions(const Descriptor& params,
-                              const train_input& input,
-                              const train_result& result) const {
+                              const input_t& input,
+                              const result_t& result) const {
         if (!(result.get_labels().has_data())) {
             throw internal_error("Result labels should not be empty");
         }
-        if (result.get_labels().get_row_count() != input.get_data().get_row_count()) {
-            throw internal_error("Result labels row_count should be equal to data row_count");
-        }
-        if (!(result.get_model().get_centroids().has_data())) {
-            throw internal_error("Result model centroids should not be empty");
-        }
-        if (result.get_model().get_cluster_count() != params.get_cluster_count()) {
-            throw internal_error(
-                "Result model cluster_count should be equal to descriptor cluster_count");
+        if (result.get_labels().get_column_count() != 1) {
+            throw internal_error("Result labels column_count should be equal to 1");
         }
         if (result.get_iteration_count() > params.get_max_iteration_count()) {
             throw internal_error(
                 "Result iteration_count should not exceed descriptor max_iteration_count");
         }
+        if (!(result.get_model().get_centroids().has_data())) {
+            throw internal_error("Result model centroids should not be empty");
+        }
+        if (result.get_model().get_centroids().get_row_count() != params.get_cluster_count()) {
+            throw internal_error(
+                "Result model centroids row_count should be equal to descriptor cluster_count");
+        }
+        if (result.get_model().get_centroids().get_column_count() !=
+            input.get_data().get_column_count()) {
+            throw internal_error(
+                "Result model centroids column_count should be equal to input data column_count");
+        }
+        if (result.get_labels().get_row_count() != input.get_data().get_row_count()) {
+            throw internal_error("Result labels row_count should be equal to data row_count");
+        }
     }
 
     template <typename Context>
-    auto operator()(const Context& ctx, const Descriptor& desc, const train_input& input) const {
+    auto operator()(const Context& ctx, const Descriptor& desc, const input_t& input) const {
         check_preconditions(desc, input);
-        const auto result = train_ops_dispatcher<Context, float_t, method_t>()(ctx, desc, input);
+        const auto result =
+            train_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, input);
         check_postconditions(desc, input, result);
         return result;
     }

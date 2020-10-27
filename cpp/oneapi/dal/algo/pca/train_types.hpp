@@ -29,7 +29,7 @@ class train_result_impl;
 } // namespace detail
 
 template <typename Task = task::by_default>
-class ONEAPI_DAL_EXPORT train_input : public base {
+class ONEDAL_EXPORT train_input : public base {
 public:
     using task_t = Task;
     train_input(const table& data);
@@ -48,7 +48,7 @@ private:
 };
 
 template <typename Task = task::by_default>
-class ONEAPI_DAL_EXPORT train_result {
+class ONEDAL_EXPORT train_result {
 public:
     using task_t = Task;
     train_result();
@@ -56,7 +56,8 @@ public:
     model<task_t> get_model() const;
     table get_eigenvalues() const;
     table get_eigenvectors() const;
-    table get_explained_variance() const;
+    table get_variances() const;
+    table get_means() const;
 
     auto& set_model(const model<task_t>& value) {
         set_model_impl(value);
@@ -68,8 +69,13 @@ public:
         return *this;
     }
 
-    auto& set_explained_variance(const table& value) {
-        set_explained_variance_impl(value);
+    auto& set_variances(const table& value) {
+        set_variances_impl(value);
+        return *this;
+    }
+
+    auto& set_means(const table& value) {
+        set_means_impl(value);
         return *this;
     }
 
@@ -77,7 +83,8 @@ private:
     void set_model_impl(const model<task_t>&);
     void set_eigenvalues_impl(const table&);
     void set_eigenvectors_impl(const table&);
-    void set_explained_variance_impl(const table&);
+    void set_variances_impl(const table&);
+    void set_means_impl(const table&);
 
     dal::detail::pimpl<detail::train_result_impl<task_t>> impl_;
 };
