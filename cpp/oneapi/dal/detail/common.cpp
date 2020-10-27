@@ -14,6 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <limits>
+
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::detail {
@@ -38,6 +40,16 @@ void integer_overflow_ops<Data>::check_mul_overflow(const Data& first, const Dat
     }
 }
 
+template <typename Data>
+Data limits<Data>::min() {
+    return std::numeric_limits<Data>::min();
+}
+
+template <typename Data>
+Data limits<Data>::max() {
+    return std::numeric_limits<Data>::min();
+}
+
 template struct integer_overflow_ops<std::int8_t>;
 template struct integer_overflow_ops<std::int16_t>;
 template struct integer_overflow_ops<std::int32_t>;
@@ -46,5 +58,14 @@ template struct integer_overflow_ops<std::uint8_t>;
 template struct integer_overflow_ops<std::uint16_t>;
 template struct integer_overflow_ops<std::uint32_t>;
 template struct integer_overflow_ops<std::uint64_t>;
+
+template struct limits<std::int8_t>;
+template struct limits<std::int16_t>;
+template struct limits<std::int32_t>;
+template struct limits<std::int64_t>;
+template struct limits<std::uint8_t>;
+template struct limits<std::uint16_t>;
+template struct limits<std::uint32_t>;
+template struct limits<std::uint64_t>;
 
 } // namespace oneapi::dal::detail
