@@ -28,43 +28,43 @@ namespace oneapi::dal::preview {
 
 template <typename Graph>
 struct ONEDAL_EXPORT graph_traits {
-    using graph_type = Graph;
-    using allocator_type = typename Graph::allocator_type;
+    using graph_type = empty_value;
+    using allocator_type = empty_value;
 
     // graph weight types
-    using graph_user_value_type = typename Graph::graph_value;
-    using const_graph_user_value_type = const graph_user_value_type;
+    using graph_user_value_type = empty_value;
+    using const_graph_user_value_type = empty_value;
 
     // vertex types
-    using vertex_type = typename Graph::index_type;
-    using const_vertex_type = const vertex_type;
-    using vertex_iterator = typename Graph::vertex_iterator;
-    using const_vertex_iterator = typename Graph::const_vertex_iterator;
-    using vertex_size_type = typename Graph::vertex_size_type;
+    using vertex_type = empty_value;
+    using const_vertex_type = empty_value;
+    using vertex_iterator = empty_value;
+    using const_vertex_iterator = empty_value;
+    using vertex_size_type = empty_value;
 
-    using vertex_key_type = vertex_type;
-    using const_vertex_key_type = const vertex_key_type;
+    using vertex_key_type = empty_value;
+    using const_vertex_key_type = empty_value;
 
     // vertex weight types
-    using vertex_user_value_type = typename Graph::vertex_value;
-    using const_vertex_user_value_type = const vertex_user_value_type;
+    using vertex_user_value_type = empty_value;
+    using const_vertex_user_value_type = empty_value;
 
     // edge types
-    using edge_type = typename Graph::index_type;
-    using edge_iterator = typename Graph::edge_iterator;
-    using const_edge_iterator = typename Graph::const_edge_iterator;
-    using edge_size_type = typename Graph::edge_size_type;
+    using edge_type = empty_value;
+    using edge_iterator = empty_value;
+    using const_edge_iterator = empty_value;
+    using edge_size_type = empty_value;
 
     // edge weight types
-    using edge_user_value_type = typename Graph::edge_value;
+    using edge_user_value_type = empty_value;
 
-    using edge_key_type = std::pair<vertex_key_type, vertex_key_type>;
-    using edge_value_type = std::pair<edge_key_type, edge_user_value_type>;
-    using edge_index = typename Graph::index_type;
+    using edge_key_type = empty_value;
+    using edge_value_type = empty_value;
+    using edge_index = empty_value;
 
     // ranges
-    using edge_range = range<edge_iterator>;
-    using const_edge_range = range<const_edge_iterator>;
+    using edge_range = empty_value;
+    using const_edge_range = empty_value;
 };
 
 /// Type of the graph properties
