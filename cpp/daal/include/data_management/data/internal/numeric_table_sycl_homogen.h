@@ -439,9 +439,10 @@ private:
         static services::Status write(services::internal::Buffer<T> buffer, const BlockDescriptor<T> & block, size_t nRows, size_t nCols)
         {
 #ifdef DAAL_SYCL_INTERFACE_USM
-#ifdef DEBUG_ASSERT
+    #ifdef DEBUG_ASSERT
             auto block_buffer = block.getBuffer();
-            if (buffer.isUSMBacked() && block_buffer.isUSMBacked()) {
+            if (buffer.isUSMBacked() && block_buffer.isUSMBacked())
+            {
                 services::Status st;
                 auto buffer_usm = buffer.toUSM(st);
                 DAAL_CHECK_STATUS_VAR(st);
@@ -450,7 +451,7 @@ private:
 
                 DAAL_ASSERT(buffer_usm.get() == block_usm.get());
             }
-#endif
+    #endif
 #endif
             // The case when user calls block.setBuffer() on their side is not supported
             // SYCL have no API to check that two buffers or subbuffers point to the same memory.
