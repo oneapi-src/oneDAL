@@ -190,7 +190,8 @@ inline Out integral_cast(const In& value) {
     }
     else if constexpr (std::is_unsigned_v<Out> && std::is_signed_v<In>) {
         ONEDAL_ASSERT(value >= In(0), "Negative integral value conversion to unsigned");
-        ONEDAL_ASSERT(value <= (limits<Out>::max()), "Integral type conversion overflow");
+        using InUnsigned = std::make_unsigned_t<In>;
+        ONEDAL_ASSERT(static_cast<InUnsigned>(value) <= limits<Out>::max(), "Integral type conversion overflow");
     }
     else if constexpr (std::is_signed_v<Out> && std::is_unsigned_v<In>) {
         ONEDAL_ASSERT(value <= (limits<Out>::max()), "Integral type conversion overflow");
