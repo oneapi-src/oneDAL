@@ -56,7 +56,7 @@ namespace oneapi::dal::detail {
 //   column count   cc
 //   descriptor     desc
 
-class error_messages {
+class ONEDAL_EXPORT error_messages {
 public:
     error_messages() = delete;
 
