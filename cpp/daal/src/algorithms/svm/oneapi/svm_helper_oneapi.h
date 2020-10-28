@@ -239,8 +239,6 @@ struct HelperSVM
         auto newColsHostPtr = newCols.toHost(data_management::writeOnly, status);
         auto newRowsHosrPtr = newRows.toHost(data_management::writeOnly, status);
 
-        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
-
         auto valHost     = valHostPtr.get();
         auto colsHost    = colsHostPtr.get();
         auto rowsHosr    = rowsHosrPtr.get();
@@ -273,8 +271,8 @@ struct HelperSVM
                     !services::internal::daal_memcpy_s(dataOut, nNonZeroValuesInRow * sizeof(size_t), dataIn, nNonZeroValuesInRow * sizeof(size_t)),
                     services::ErrorMemoryCopyFailedInternal);
             }
+            newRowsHost[i + 1] = newRowsHost[i] + nNonZeroValuesInRow;
         }
-        newRowsHost[i + 1] = newRowsHost[i] + nNonZeroValuesInRow;
 
         return status;
     }

@@ -74,6 +74,8 @@ public:
 
         size_t nSV;
         DAAL_CHECK_STATUS(status, setSVCoefficients(nSV, model));
+        printf("nSV: %lu \n", nSV);
+
         DAAL_CHECK_STATUS(status, setSVIndices(nSV, model));
 
         DAAL_CHECK_STATUS(status, setSVDense(model, xTable, nSV));

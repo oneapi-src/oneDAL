@@ -29,6 +29,7 @@
 #include "src/data_management/service_micro_table.h"
 #include "src/data_management/service_numeric_table.h"
 #include "data_management/data/internal/numeric_table_sycl_homogen.h"
+#include "data_management/data/internal/numeric_table_sycl_csr.h"
 #include "src/algorithms/svm/oneapi/svm_helper_oneapi.h"
 
 namespace daal
@@ -144,8 +145,8 @@ public:
         services::internal::Buffer<uint32_t> wsIndicesReal = wsIndices;
         auto xBlockBuff                                    = this->_data.template get<algorithmFPType>();
 
-        DAAL_CHECK_STATUS(status, Helper::copyCSRDataByIndices(xValuesBuff, xColumnIndicesBuff, xRowIndicesBuff, wsIndicesReal, xBlockBuff,
-                                                               _colIndices, _rowOffsets, nSubsetVectors));
+        DAAL_CHECK_STATUS(status, Helper::copyCSRByIndices(xValuesBuff, xColumnIndicesBuff, xRowIndicesBuff, wsIndicesReal, xBlockBuff, _colIndices,
+                                                           _rowOffsets, nSubsetVectors));
         DAAL_CHECK_STATUS(status, csrIface->releaseSparseBlock(blockCSR));
         return status;
     }
@@ -168,7 +169,7 @@ protected:
         _rowOffsets                = rowOffsets.template get<size_t>();
 
         auto data        = this->_data.template get<algorithmFPType>();
-        this->_dataTable = SyclCSRNumericTable<algorithmFPType>::create(data, _colIndices, _rowOffsets, p, nMaxSubsetVectors,
+        this->_dataTable = SyclCSRNumericTable::create<algorithmFPType>(data, _colIndices, _rowOffsets, p, nMaxSubsetVectors,
                                                                         CSRNumericTableIface::oneBased, &status);
     }
 
@@ -309,7 +310,7 @@ protected:
 
         if (xTable->getDataLayout() == NumericTableIface::csrArray)
         {
-            // task = SubDataTaskCSR<algorithmFPType>::create(_xTable, nSize);
+            _blockTask = SubDataTaskCSR<algorithmFPType>::create(xTable, _blockSize, &status);
         }
         else
         {
