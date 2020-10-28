@@ -387,7 +387,7 @@ public:
      *  \param[in]    nColumns    Number of columns in the corresponding dense table
      *  \param[in]    nRows       Number of rows in the corresponding dense table
      *  \param[in]    indexing    Indexing scheme used to access data in the CSR layout
-     *  \note Present version of Intel(R) Data Analytics Acceleration Library supports 1-based indexing only
+     *  \note Present version of Intel(R) oneAPI Data Analytics Library supports 1-based indexing only
      *  \DAAL_DEPRECATED_USE{ CSRNumericTable::create }
      */
     template <typename DataType>
@@ -414,7 +414,7 @@ public:
      *  \param[in]    indexing    Indexing scheme used to access data in the CSR layout
      *  \param[out]   stat        Status of the numeric table construction
      *  \return CSR numeric table with user-allocated memory
-     *  \note Present version of Intel(R) Data Analytics Acceleration Library supports 1-based indexing only
+     *  \note Present version of Intel(R) oneAPI Data Analytics Library supports 1-based indexing only
      */
     template <typename DataType>
     static services::SharedPtr<CSRNumericTable> create(DataType * const ptr, size_t * colIndices = 0, size_t * rowOffsets = 0, size_t nColumns = 0,
@@ -435,7 +435,7 @@ public:
      *  \param[in]    nColumns    Number of columns in the corresponding dense table
      *  \param[in]    nRows       Number of rows in the corresponding dense table
      *  \param[in]    indexing    Indexing scheme used to access data in the CSR layout
-     *  \note Present version of Intel(R) Data Analytics Acceleration Library supports 1-based indexing only
+     *  \note Present version of Intel(R) oneAPI Data Analytics Library supports 1-based indexing only
      *  \DAAL_DEPRECATED_USE{ CSRNumericTable::create }
      */
     template <typename DataType>
@@ -462,7 +462,7 @@ public:
      *  \param[in]    indexing    Indexing scheme used to access data in the CSR layout
      *  \param[out]   stat        Status of the numeric table construction
      *  \return       CSR numeric table with user-allocated memory
-     *  \note Present version of Intel(R) Data Analytics Acceleration Library supports 1-based indexing only
+     *  \note Present version of Intel(R) oneAPI Data Analytics Library supports 1-based indexing only
      */
     template <typename DataType>
     static services::SharedPtr<CSRNumericTable> create(const services::SharedPtr<DataType> & ptr, const services::SharedPtr<size_t> & colIndices,
