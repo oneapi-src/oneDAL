@@ -54,8 +54,8 @@ static infer_result<task::classification> call_daal_kernel(
     const std::int64_t dummy_seed = 777;
     const auto data_use_in_model = daal_knn::doNotUse;
     daal_knn::Parameter daal_parameter(
-        dal::detail::integral_cast<size_t>(desc.get_class_count()),
-        dal::detail::integral_cast<size_t>(desc.get_neighbor_count()),
+        dal::detail::integral_cast<std::size_t>(desc.get_class_count()),
+        dal::detail::integral_cast<std::size_t>(desc.get_neighbor_count()),
         dal::detail::integral_cast<int>(dummy_seed),
         data_use_in_model);
 
