@@ -22,16 +22,6 @@
 namespace oneapi::dal::backend {
 
 class homogen_table_builder_impl {
-private:
-    std::int64_t get_data_size(std::int64_t row_count, std::int64_t column_count, data_type dtype) {
-        detail::check_mul_overflow(row_count, column_count);
-        const std::int64_t element_count = row_count * column_count;
-        const std::int64_t dtype_size = detail::get_data_type_size(dtype);
-
-        detail::check_mul_overflow(element_count, dtype_size);
-        return element_count * dtype_size;
-    }
-
 public:
     homogen_table_builder_impl() {
         reset();
@@ -47,8 +37,8 @@ public:
 
     void reset(homogen_table&& t) {
         if (t.has_data()) {
-            auto& meta = t.get_metadata();
-            const int64_t data_size =
+            const auto& meta = t.get_metadata();
+            const std::int64_t data_size =
                 get_data_size(t.get_row_count(), t.get_column_count(), meta.get_data_type(0));
 
             // TODO: make data move without copying
@@ -105,16 +95,8 @@ public:
     }
 
     void copy_data(const void* data, std::int64_t row_count, std::int64_t column_count) {
-        const std::int64_t data_size = get_data_size(row_count, column_count, dtype_);
-        if (data_size <= 0) {
-            throw dal::domain_error("data count to copy is not positive");
-        }
-
-        data_.reset(data_size);
+        allocate(row_count, column_count);
         detail::memcpy(detail::default_host_policy{}, data_.get_mutable_data(), data, data_size);
-
-        row_count_ = row_count;
-        column_count_ = column_count;
     }
 
     homogen_table build() {
@@ -145,18 +127,11 @@ public:
                    const void* data,
                    std::int64_t row_count,
                    std::int64_t column_count) {
-        const std::int64_t data_size = get_data_size(row_count, column_count, dtype_);
-        if (data_size <= 0) {
-            throw dal::domain_error("data count to copy is not positive");
-        }
+        const auto kind = sycl::get_pointer_type(data_.get_data(), queue.get_context());
+        ONEDAL_ASSERT(kind != sycl::usm::alloc::unknown);
 
-        data_.reset(queue,
-                    data_size,
-                    sycl::get_pointer_type(data_.get_data(), queue.get_context()));
+        allocate(queue, row_count, column_count, kind);
         detail::memcpy(queue, data_.get_mutable_data(), data, data_size);
-
-        row_count_ = row_count;
-        column_count_ = column_count;
     }
 #endif
 
@@ -221,9 +196,19 @@ public:
 #endif
 
 private:
+    static std::int64_t get_data_size(std::int64_t row_count, std::int64_t column_count, data_type dtype) const {
+        detail::check_mul_overflow(row_count, column_count);
+        const std::int64_t element_count = row_count * column_count;
+        const std::int64_t dtype_size = detail::get_data_type_size(dtype);
+
+        detail::check_mul_overflow(element_count, dtype_size);
+        return element_count * dtype_size;
+    }
+
+private:
     array<byte_t> data_;
-    int64_t row_count_;
-    int64_t column_count_;
+    std::int64_t row_count_;
+    std::int64_t column_count_;
     data_layout layout_;
     data_type dtype_;
 };
