@@ -38,7 +38,7 @@ double descriptor_base<Task>::get_sigma() const {
 template <typename Task>
 void descriptor_base<Task>::set_sigma_impl(double value) {
     if (value <= 0.0) {
-        throw domain_error("sigma should be > 0.0");
+        throw domain_error(dal::detail::error_messages::sigma_leq_zero());
     }
     impl_->sigma = value;
 }

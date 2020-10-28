@@ -103,7 +103,8 @@ void homogen_table_impl::pull_rows_impl(const Policy& policy,
     const data_type block_dtype = detail::make_data_type<Data>();
 
     if (layout_ != data_layout::row_major) {
-        throw std::runtime_error("unsupported data layout"); // TODO: oneDAL exception
+        throw std::runtime_error(
+            dal::detail::error_messages::unsupported_data_layout()); // TODO: oneDAL exception
     }
 
     const auto table_dtype = meta_.get_data_type(0);
@@ -149,7 +150,7 @@ void homogen_table_impl::push_rows_impl(const Policy& policy,
     const data_type block_dtype = detail::make_data_type<Data>();
 
     if (layout_ != data_layout::row_major) {
-        throw std::runtime_error("unsupported data layout");
+        throw std::runtime_error(dal::detail::error_messages::unsupported_data_layout());
     }
 
     make_mutable_data(policy, data_);
@@ -194,7 +195,7 @@ void homogen_table_impl::pull_column_impl(const Policy& policy,
     const data_type block_dtype = detail::make_data_type<Data>();
 
     if (layout_ != data_layout::row_major) {
-        throw std::runtime_error("unsupported data layout");
+        throw std::runtime_error(dal::detail::error_messages::unsupported_data_layout());
     }
 
     const auto table_dtype = meta_.get_data_type(0);

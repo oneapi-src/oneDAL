@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/backend/interop/error_converter.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::backend::interop {
 
@@ -246,7 +247,7 @@ void status_to_exception(const daal::services::Status& s) {
         case ErrorID::ErrorMemoryAllocationFailed:
         case ErrorID::ErrorZlibMemoryAllocationFailed:
         case ErrorID::ErrorBzip2MemoryAllocationFailed: throw host_bad_alloc();
-        default: throw internal_error("Unknown status code");
+        default: throw internal_error(dal::detail::error_messages::unknown_status_code());
     }
 }
 

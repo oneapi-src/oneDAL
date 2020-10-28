@@ -16,9 +16,8 @@
 
 #pragma once
 
-#include "oneapi/dal/exceptions.hpp"
-#include "oneapi/dal/io/csv/read_types.hpp"
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/io/csv/read_types.hpp"
 
 namespace oneapi::dal::csv::detail {
 

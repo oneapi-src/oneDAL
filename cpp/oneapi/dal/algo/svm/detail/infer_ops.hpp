@@ -17,7 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/svm/infer_types.hpp"
-#include "oneapi/dal/exceptions.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::svm::detail {
 
@@ -42,51 +42,46 @@ struct infer_ops {
     using descriptor_base_t = descriptor_base<task_t>;
 
     void check_preconditions(const Descriptor& params, const input_t& input) const {
-        if (!(input.get_data().has_data())) {
-            throw domain_error("Input data should not be empty");
+        using msg = dal::detail::error_messages;
+
+        // TODO: Should be invariant of model
+        ONEDAL_ASSERT(input.get_model().get_support_vector_count() >= 0);
+
+        // TODO: Should be invariant of kernel
+        ONEDAL_ASSERT(params.get_kernel_impl()->get_impl());
+
+        if (!input.get_data().has_data()) {
+            throw domain_error(msg::input_data_is_empty());
         }
-        if (input.get_model().get_support_vector_count() < 0) {
-            throw invalid_argument("Input model support_vector_count should be >= 0");
+        if (!input.get_model().get_support_vectors().has_data()) {
+            throw domain_error(msg::input_model_support_vectors_are_empty());
         }
-        if (!(input.get_model().get_support_vectors().has_data())) {
-            throw domain_error("Input model support_vectors should not be empty");
-        }
-        if (!(input.get_model().get_coeffs().has_data())) {
-            throw domain_error("Input model coeffs should not be empty");
+        if (!input.get_model().get_coeffs().has_data()) {
+            throw domain_error(msg::input_model_coeffs_are_empty());
         }
         if (input.get_model().get_support_vectors().get_column_count() !=
             input.get_data().get_column_count()) {
-            throw invalid_argument(
-                "Input model support_vectors column_count should be equal to input data column_count");
+            throw invalid_argument(msg::input_model_support_vectors_cc_neq_input_data_cc());
         }
         if (input.get_model().get_support_vectors().get_row_count() !=
             input.get_model().get_support_vector_count()) {
             throw invalid_argument(
-                "Input model support_vectors row_count should be equal to input model support_vector_count");
+                msg::input_model_support_vectors_rc_neq_input_model_support_vector_count());
         }
         if (input.get_model().get_coeffs().get_row_count() !=
             input.get_model().get_support_vector_count()) {
             throw invalid_argument(
-                "Input model coeffs row_count should be equal to input model support_vector_count");
-        }
-        if (!(params.get_kernel_impl()->get_impl())) {
-            throw domain_error("Input kernel should be not be empty");
+                msg::input_model_coeffs_rc_neq_input_model_support_vector_count());
         }
     }
 
     void check_postconditions(const Descriptor& params,
                               const input_t& input,
                               const result_t& result) const {
-        if (!(result.get_labels().has_data())) {
-            throw domain_error("Relult labels should not be empty");
-        }
-        if (!(result.get_decision_function().has_data())) {
-            throw domain_error("Relult decision_function should not be empty");
-        }
-        if (result.get_decision_function().get_row_count() != result.get_labels().get_row_count()) {
-            throw internal_error(
-                "Relult decision_function row_count should be equal labels row_count");
-        }
+        ONEDAL_ASSERT(result.get_labels().has_data());
+        ONEDAL_ASSERT(result.get_decision_function().has_data());
+        ONEDAL_ASSERT(result.get_decision_function().get_row_count() ==
+                      result.get_labels().get_row_count());
     }
 
     template <typename Context>

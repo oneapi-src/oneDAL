@@ -17,7 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/svm/train_types.hpp"
-#include "oneapi/dal/exceptions.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::svm::detail {
 
@@ -43,59 +43,41 @@ struct train_ops {
     using descriptor_base_t = descriptor_base<task_t>;
 
     void check_preconditions(const Descriptor& params, const input_t& input) const {
-        if (!(input.get_data().has_data())) {
-            throw invalid_argument("Input data should not be empty");
+        using msg = dal::detail::error_messages;
+
+        if (!input.get_data().has_data()) {
+            throw invalid_argument(msg::input_data_is_empty());
         }
-        if (!(input.get_labels().has_data())) {
-            throw invalid_argument("Input labels should not be empty");
+        if (!input.get_labels().has_data()) {
+            throw invalid_argument(msg::input_labels_are_empty());
         }
         if (input.get_data().get_row_count() != input.get_labels().get_row_count()) {
-            throw invalid_argument("Input data row_count should be equal to labels row_count");
+            throw invalid_argument(msg::input_data_rc_neq_input_labels_rc());
         }
-        if (input.get_weights().has_data()) {
-            if (input.get_data().get_row_count() != input.get_weights().get_row_count()) {
-                throw invalid_argument("Input data row_count should be equal to weights row_count");
-            }
+        if (input.get_weights().has_data() &&
+            input.get_data().get_row_count() != input.get_weights().get_row_count()) {
+            throw invalid_argument(msg::input_data_rc_neq_input_weights_rc());
         }
-        if (!(params.get_kernel_impl()->get_impl())) {
-            throw invalid_argument("Input kernel should be not be empty");
+        if (!params.get_kernel_impl()->get_impl()) {
+            throw invalid_argument(msg::input_kernel_is_empty());
         }
     }
 
     void check_postconditions(const Descriptor& params,
                               const input_t& input,
                               const result_t& result) const {
-        if (result.get_support_vector_count() < 0 ||
-            result.get_support_vector_count() > input.get_data().get_row_count()) {
-            throw internal_error(
-                "Result support_vector_count should be >= 0 and <= input data row_count");
-        }
-        if (!(result.get_support_vectors().has_data())) {
-            throw internal_error("Result support_vectors should not be empty");
-        }
-        if (!(result.get_support_indices().has_data())) {
-            throw internal_error("Result support_indices should not be empty");
-        }
-        if (!(result.get_coeffs().has_data())) {
-            throw internal_error("Result coeffs should not be empty");
-        }
-        if (result.get_support_vectors().get_column_count() !=
-            input.get_data().get_column_count()) {
-            throw internal_error(
-                "Result support_vectors column_count should be equal to input data column_count");
-        }
-        if (result.get_support_vectors().get_row_count() != result.get_support_vector_count()) {
-            throw internal_error(
-                "Result support_vectors row_count should be equal to result support_vector_count");
-        }
-        if (result.get_support_indices().get_row_count() != result.get_support_vector_count()) {
-            throw internal_error(
-                "Result support_indices row_count should be equal to result support_vector_count");
-        }
-        if (result.get_coeffs().get_row_count() != result.get_support_vector_count()) {
-            throw internal_error(
-                "Result coeffs row_count should be equal to result support_vector_count");
-        }
+        ONEDAL_ASSERT(result.get_support_vectors().has_data());
+        ONEDAL_ASSERT(result.get_support_indices().has_data());
+        ONEDAL_ASSERT(result.get_coeffs().has_data());
+        ONEDAL_ASSERT(result.get_support_vector_count() >= 0 &&
+                      result.get_support_vector_count() <= input.get_data().get_row_count());
+        ONEDAL_ASSERT(result.get_support_vectors().get_column_count() ==
+                      input.get_data().get_column_count());
+        ONEDAL_ASSERT(result.get_support_vectors().get_row_count() ==
+                      result.get_support_vector_count());
+        ONEDAL_ASSERT(result.get_support_indices().get_row_count() ==
+                      result.get_support_vector_count());
+        ONEDAL_ASSERT(result.get_coeffs().get_row_count() == result.get_support_vector_count());
     }
 
     template <typename Context>

@@ -27,7 +27,8 @@ struct train_kernel_cpu<Float, method::brute_force, Task> {
     train_result<Task> operator()(const context_cpu& ctx,
                                   const descriptor_base<Task>& desc,
                                   const train_input<Task>& input) const {
-        throw unimplemented("k-NN brute force method is not implemented for CPU");
+        throw unimplemented(
+            dal::detail::error_messages::knn_brute_force_method_is_not_implemented_for_cpu());
         return train_result<Task>();
     }
 };
