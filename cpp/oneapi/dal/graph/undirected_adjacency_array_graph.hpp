@@ -83,9 +83,7 @@ private:
 
     pimpl impl_;
 
-    friend pimpl &oneapi::dal::preview::detail::get_impl<graph_type>(graph_type &graph);
-
-    friend const pimpl &oneapi::dal::preview::detail::get_impl<graph_type>(const graph_type &graph);
+    friend oneapi::dal::detail::pimpl_accessor;
 };
 
 template <typename VertexValue,

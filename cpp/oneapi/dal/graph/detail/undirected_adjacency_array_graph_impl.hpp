@@ -23,18 +23,6 @@
 
 namespace oneapi::dal::preview::detail {
 
-template <typename Graph>
-ONEDAL_EXPORT oneapi::dal::detail::pimpl<typename graph_traits<Graph>::impl_type>& get_impl(
-    Graph& graph) {
-    return graph.impl_;
-}
-
-template <typename Graph>
-ONEDAL_EXPORT const oneapi::dal::detail::pimpl<typename graph_traits<Graph>::impl_type>& get_impl(
-    const Graph& graph) {
-    return graph.impl_;
-}
-
 template <typename VertexValue = empty_value,
           typename EdgeValue = empty_value,
           typename GraphValue = empty_value,
