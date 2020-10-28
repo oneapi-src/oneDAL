@@ -178,7 +178,7 @@ struct limits {
 };
 
 template <typename Out, typename In>
-inline Out integral_asserted_cast(const In& value) {
+inline Out integral_cast(const In& value) {
     static_assert(std::is_integral_v<In> && std::is_integral_v<Out>,
                   "The cast requires integral operands");
     if constexpr (std::is_signed_v<Out> && std::is_signed_v<In>) {
