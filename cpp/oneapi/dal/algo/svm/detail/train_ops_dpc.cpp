@@ -22,24 +22,24 @@
 namespace oneapi::dal::svm::detail {
 using oneapi::dal::detail::data_parallel_policy;
 
-template <typename Float, typename Task, typename Method>
-struct train_ops_dispatcher<data_parallel_policy, Float, Task, Method> {
-    train_result operator()(const data_parallel_policy& ctx,
-                            const descriptor_base& params,
-                            const train_input& input) const {
+template <typename Float, typename Method, typename Task>
+struct train_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
+    train_result<Task> operator()(const data_parallel_policy& ctx,
+                                  const descriptor_base<Task>& params,
+                                  const train_input<Task>& input) const {
         using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Task, Method>,
-                                            backend::train_kernel_gpu<Float, Task, Method>>;
+            dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Method, Task>,
+                                            backend::train_kernel_gpu<Float, Method, Task>>;
         return kernel_dispatcher_t{}(ctx, params, input);
     }
 };
 
-#define INSTANTIATE(F, T, M) \
-    template struct ONEDAL_EXPORT train_ops_dispatcher<data_parallel_policy, F, T, M>;
+#define INSTANTIATE(F, M, T) \
+    template struct ONEDAL_EXPORT train_ops_dispatcher<data_parallel_policy, F, M, T>;
 
-INSTANTIATE(float, task::classification, method::smo)
-INSTANTIATE(float, task::classification, method::thunder)
-INSTANTIATE(double, task::classification, method::smo)
-INSTANTIATE(double, task::classification, method::thunder)
+INSTANTIATE(float, method::smo, task::classification)
+INSTANTIATE(float, method::thunder, task::classification)
+INSTANTIATE(double, method::smo, task::classification)
+INSTANTIATE(double, method::thunder, task::classification)
 
 } // namespace oneapi::dal::svm::detail
