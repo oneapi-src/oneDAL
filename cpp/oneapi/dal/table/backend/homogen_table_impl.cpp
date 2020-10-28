@@ -95,7 +95,8 @@ void refer_source_data(const array<DataSrc>& src,
                        array<DataDest>& dst) {
     ONEDAL_ASSERT(src_start_index >= 0);
     ONEDAL_ASSERT(src.get_count() > src_start_index);
-    ONEDAL_ASSERT((src.get_count() - src_start_index) * sizeof(DataSrc) >= dst_count * sizeof(DataDest));
+    ONEDAL_ASSERT((src.get_count() - src_start_index) * sizeof(DataSrc) >=
+                  dst_count * sizeof(DataDest));
 
     if (src.has_mutable_data()) {
         // TODO: in future, when table knows about mutability of its data this branch shall be
