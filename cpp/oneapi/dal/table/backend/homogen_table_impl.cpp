@@ -125,8 +125,8 @@ struct block_info {
 
         ONEDAL_ASSERT(row_count > 0);
         ONEDAL_ASSERT(column_count > 0);
-        ONEDAL_ASSERT(row_offset > 0);
-        ONEDAL_ASSERT(column_offset > 0);
+        ONEDAL_ASSERT(row_offset >= 0);
+        ONEDAL_ASSERT(column_offset >= 0);
     }
 
     std::int64_t row_count;

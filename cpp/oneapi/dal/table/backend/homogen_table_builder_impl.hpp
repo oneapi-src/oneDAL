@@ -96,7 +96,7 @@ public:
 
     void copy_data(const void* data, std::int64_t row_count, std::int64_t column_count) {
         allocate(row_count, column_count);
-        detail::memcpy(detail::default_host_policy{}, data_.get_mutable_data(), data, data_size);
+        detail::memcpy(detail::default_host_policy{}, data_.get_mutable_data(), data, data_.get_size());
     }
 
     homogen_table build() {
@@ -131,7 +131,7 @@ public:
         ONEDAL_ASSERT(kind != sycl::usm::alloc::unknown);
 
         allocate(queue, row_count, column_count, kind);
-        detail::memcpy(queue, data_.get_mutable_data(), data, data_size);
+        detail::memcpy(queue, data_.get_mutable_data(), data, data_.get_size());
     }
 #endif
 
@@ -198,7 +198,7 @@ public:
 private:
     static std::int64_t get_data_size(std::int64_t row_count,
                                       std::int64_t column_count,
-                                      data_type dtype) const {
+                                      data_type dtype) {
         detail::check_mul_overflow(row_count, column_count);
         const std::int64_t element_count = row_count * column_count;
         const std::int64_t dtype_size = detail::get_data_type_size(dtype);
