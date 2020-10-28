@@ -438,10 +438,9 @@ private:
 
         static services::Status write(services::internal::Buffer<T> buffer, const BlockDescriptor<T> & block, size_t nRows, size_t nCols)
         {
-            DAAL_ASSERT(buffer == block.getBuffer());
-
-            // TODO: Support case when block.getBuffer() != buffer
-            // It means that user calls block.setBuffer on their side
+            // The case when user calls block.setBuffer() on their side is not supported
+            // SYCL have no API to check that two buffers or subbuffers point to the same memory.
+            // Use of block.setBuffer() should be reviewed manually in the algorithms
             return services::Status();
         }
     };
