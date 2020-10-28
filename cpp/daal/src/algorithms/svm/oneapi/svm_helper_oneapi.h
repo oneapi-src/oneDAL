@@ -218,6 +218,67 @@ struct HelperSVM
         return status;
     }
 
+    static services::Status copyCSRByIndices(const services::internal::Buffer<algorithmFPType> & val, const services::internal::Buffer<size_t> & cols,
+                                             const services::internal::Buffer<size_t> & rows, const services::internal::Buffer<uint32_t> & ind,
+                                             services::internal::Buffer<algorithmFPType> & newVal, const services::internal::Buffer<size_t> & newCols,
+                                             const services::internal::Buffer<size_t> & newRows, const size_t nWS)
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(copyCSRByIndices);
+        services::Status status;
+
+        services::internal::sycl::ExecutionContextIface & ctx    = services::internal::getDefaultContext();
+        services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
+
+        auto valHostPtr  = val.toHost(data_management::readOnly, status);
+        auto colsHostPtr = cols.toHost(data_management::readOnly, status);
+        auto rowsHosrPtr = rows.toHost(data_management::readOnly, status);
+
+        auto indHosrPtr = ind.toHost(data_management::readOnly, status);
+
+        auto newValHostPtr  = newVal.toHost(data_management::writeOnly, status);
+        auto newColsHostPtr = newCols.toHost(data_management::writeOnly, status);
+        auto newRowsHosrPtr = newRows.toHost(data_management::writeOnly, status);
+
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+
+        auto valHost     = valHostPtr.get();
+        auto colsHost    = colsHostPtr.get();
+        auto rowsHosr    = rowsHosrPtr.get();
+        auto indHosr     = indHosrPtr.get();
+        auto newValHost  = newValHostPtr.get();
+        auto newColsHost = newColsHostPtr.get();
+        auto newRowsHost = newRowsHosrPtr.get();
+
+        newRowsHost[0] = 1;
+        for (size_t i = 0; i < nWS; ++i)
+        {
+            const size_t iRows               = indHosr[i];
+            const size_t nNonZeroValuesInRow = rowsHosr[iRows + 1] - rowsHosr[iRows];
+
+            const size_t offsetIn  = rowsHosr[i] - newRowsHost[0];
+            const size_t offsetOut = newRowsHost[i] - newRowsHost[0];
+            {
+                // Copy values
+                const algorithmFPType * const dataIn = valHost + offsetIn;
+                algorithmFPType * const dataOut      = newValHost + offsetOut;
+                DAAL_CHECK(!services::internal::daal_memcpy_s(dataOut, nNonZeroValuesInRow * sizeof(algorithmFPType), dataIn,
+                                                              nNonZeroValuesInRow * sizeof(algorithmFPType)),
+                           services::ErrorMemoryCopyFailedInternal);
+            }
+            {
+                // Copy col indices
+                const size_t * const dataIn = colsHost + offsetIn;
+                size_t * const dataOut      = newColsHost + offsetOut;
+                DAAL_CHECK(
+                    !services::internal::daal_memcpy_s(dataOut, nNonZeroValuesInRow * sizeof(size_t), dataIn, nNonZeroValuesInRow * sizeof(size_t)),
+                    services::ErrorMemoryCopyFailedInternal);
+            }
+        }
+        newRowsHost[i + 1] = newRowsHost[i] + nNonZeroValuesInRow;
+
+        return status;
+    }
+
     static services::Status checkUpper(const services::internal::Buffer<algorithmFPType> & y,
                                        const services::internal::Buffer<algorithmFPType> & alpha, services::internal::Buffer<uint32_t> & indicator,
                                        const algorithmFPType C, const size_t n)

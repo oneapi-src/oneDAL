@@ -95,36 +95,41 @@ DECLARE_SOURCE_DAAL(
         newXi[jCol] = xi[jCol];
     }
 
-    __kernel void copyRowIndicesByIndices(const __global ulong * const rowIndex, const __global uint * const xInd, const uint ldx,
-                                          __global ulong * newRowIndex) {
-        const int index = get_global_id(0);
+    // __kernel void copyRowIndicesByIndices(const __global ulong * const rowIndex, const __global uint * const xInd, const uint ldx,
+    //                                       __global ulong * newRowIndex) {
+    //     const int index = get_global_id(0);
 
-        if (index == 0)
-        {
-            newRowIndex[index] = 0
-        }
-        else
-        {
-            const uint iRow                 = xInd[index];
-            const ulong nNonZeroValuesInRow = rowIndex[iRow] - rowIndex[iRow - 1];
-            newRowIndex[index]              = nNonZeroValuesInRow;
-        }
-    }
+    //     if (index == 0)
+    //     {
+    //         newRowIndex[index] = 0
+    //     }
+    //     else
+    //     {
+    //         const uint iRow                 = xInd[index];
+    //         const ulong nNonZeroValuesInRow = rowIndex[iRow] - rowIndex[iRow - 1];
+    //         newRowIndex[index]              = nNonZeroValuesInRow;
+    //     }
+    // }
 
-    __kernel void copyCSRByIndices(const __global ulong * const rowIndex, const __global uint * const xInd, const uint ldx,
-                                   __global ulong * newRowIndex) {
-        const uint iRow                 = get_global_id(0);
-        const ulong nNonZeroValuesInRow = rowIndex[index + 1] - rowIndex[iRow];
-        const ulong nNonZeroByRow       = rowIndex[iRow] - rowIndex[0];
+    // __kernel void copyCSRByIndices(const __global ulong * const rowIndex, const __global uint * const xInd, const uint ldx,
+    //                                __global ulong * newRowIndex) {
+    //     const uint iRow                 = get_global_id(0);
+    //     const uint j                 = get_global_id(1);
 
-        const ulong nNonZeroByRow = rowIndex[iRow] - rowIndex[0];
+    //     const ulong nNonZeroValuesInRow = rowIndex[iRow + 1] - rowIndex[iRow];
+    //     const ulong nNonZeroByRow       = rowIndex[iRow] - rowIndex[0];
 
-        for (uint i = 0; i < nNonZeroValuesInRow; i++)
-        {
-            newValues[i + nNonZeroByRow]  = values[i];
-            newColumns[i + nNonZeroByRow] = columns[i];
-        }
-    }
+    //     newValues[i + nNonZeroByRow]  = values[i];
+    //     newColumns[i + nNonZeroByRow] = columns[i];
+
+    //     // const ulong nNonZeroByRow = rowIndex[iRow] - rowIndex[0];
+
+    //     // for (uint i = 0; i < nNonZeroValuesInRow; i++)
+    //     // {
+    //     //     newValues[i + nNonZeroByRow]  = values[i];
+    //     //     newColumns[i + nNonZeroByRow] = columns[i];
+    //     // }
+    // }
 
     __kernel void computeDualCoeffs(const __global algorithmFPType * const y, __global algorithmFPType * a) {
         const uint i = get_global_id(0);

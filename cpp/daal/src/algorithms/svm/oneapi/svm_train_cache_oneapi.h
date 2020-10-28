@@ -141,12 +141,11 @@ public:
         const auto xColumnIndicesBuff = blockCSR.getBlockColumnIndicesBuffer();
         const auto xRowIndicesBuff    = blockCSR.getBlockRowIndicesBuffer();
 
-        size_t blockSize                                   = nSubsetVectors;
         services::internal::Buffer<uint32_t> wsIndicesReal = wsIndices;
         auto xBlockBuff                                    = this->_data.template get<algorithmFPType>();
 
         DAAL_CHECK_STATUS(status, Helper::copyCSRDataByIndices(xValuesBuff, xColumnIndicesBuff, xRowIndicesBuff, wsIndicesReal, xBlockBuff,
-                                                               _colIndices, _rowOffsets, blockSize, xTable->getNumberOfColumns()));
+                                                               _colIndices, _rowOffsets, nSubsetVectors));
         DAAL_CHECK_STATUS(status, csrIface->releaseSparseBlock(blockCSR));
         return status;
     }
