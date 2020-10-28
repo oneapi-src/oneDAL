@@ -20,7 +20,7 @@
 #include <type_traits>
 
 #include "oneapi/dal/common.hpp"
-#include "oneapi/dal/exceptions.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::detail {
 
@@ -94,7 +94,7 @@ constexpr std::int64_t get_data_type_size(data_type t) {
         return sizeof(uint64_t);
     }
     else {
-        throw unimplemented{ "Data type is not supported" };
+        throw unimplemented{ dal::detail::error_messages::unsupported_data_type() };
     }
 }
 

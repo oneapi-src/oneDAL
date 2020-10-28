@@ -85,7 +85,7 @@ void infer_result<Task>::set_labels_impl(const table& value) {
 template <typename Task>
 void infer_result<Task>::set_objective_function_value_impl(double value) {
     if (value < 0.0) {
-        throw domain_error("objective_function_value should be >= 0");
+        throw domain_error(dal::detail::error_messages::objective_function_value_lt_zero());
     }
     impl_->objective_function_value = value;
 }
