@@ -113,14 +113,14 @@ void refer_source_data(const array<DataSrc>& src,
 
 struct block_info {
     block_info(std::int64_t row_count,
-                std::int64_t column_count,
-                std::int64_t row_offset,
-                std::int64_t column_offset)
+               std::int64_t column_count,
+               std::int64_t row_offset,
+               std::int64_t column_offset)
             : row_count(row_count),
-                column_count(column_count),
-                row_offset(row_offset),
-                column_offset(column_offset),
-                element_count(row_count * column_count) {
+              column_count(column_count),
+              row_offset(row_offset),
+              column_offset(column_offset),
+              element_count(row_count * column_count) {
         detail::check_mul_overflow(row_count, column_count);
 
         ONEDAL_ASSERT(row_count > 0);
@@ -139,9 +139,9 @@ struct block_info {
 struct origin_info {
     origin_info(data_type dtype, std::int64_t row_count, std::int64_t column_count)
             : dtype(dtype),
-                row_count(row_count),
-                column_count(column_count),
-                element_count(row_count * column_count) {
+              row_count(row_count),
+              column_count(column_count),
+              element_count(row_count * column_count) {
         // row_count * column_count overflow checked in homogen_table_impl
 
         ONEDAL_ASSERT(row_count > 0);
@@ -209,11 +209,13 @@ public:
             auto dst_data = block_data.get_mutable_data();
 
             if (block_.column_count > 1) {
-                const std::int64_t subblocks_count = contiguous_block_requested ? 1 : block_.row_count;
+                const std::int64_t subblocks_count =
+                    contiguous_block_requested ? 1 : block_.row_count;
                 const std::int64_t subblock_size =
                     contiguous_block_requested ? block_.element_count : block_.column_count;
 
-                for (std::int64_t subblock_idx = 0; subblock_idx < subblocks_count; subblock_idx++) {
+                for (std::int64_t subblock_idx = 0; subblock_idx < subblocks_count;
+                     subblock_idx++) {
                     backend::convert_vector(
                         policy,
                         src_data + subblock_idx * origin_.column_count * origin_dtype_size,
@@ -248,7 +250,8 @@ public:
         check_origin_data(origin_data, origin_dtype_size, block_dtype_size);
 
         const auto block_dtype = detail::make_data_type<BlockData>();
-        const std::int64_t origin_offset = block_.row_offset + block_.column_offset * origin_.row_count;
+        const std::int64_t origin_offset =
+            block_.row_offset + block_.column_offset * origin_.row_count;
         // operation is safe because block offsets do not exceed origin element count
 
         if (block_data.get_count() < block_.element_count ||
@@ -357,7 +360,8 @@ public:
 
         make_mutable_data(policy, origin_data);
         const auto block_dtype = detail::make_data_type<BlockData>();
-        const std::int64_t origin_offset = block_.row_offset + block_.column_offset * origin_.row_count;
+        const std::int64_t origin_offset =
+            block_.row_offset + block_.column_offset * origin_.row_count;
         // operation is safe because block offsets do not exceed origin element count
 
         auto src_data = block_data.get_data();
@@ -413,8 +417,8 @@ void homogen_table_impl::pull_rows_impl(const Policy& policy,
     check_block_row_range(rows, row_count_);
 
     const auto& data_type = meta_.get_data_type(0);
-    const range cols { 0, -1 };
-    const block_access_provider p { row_count_, col_count_, data_type, rows, cols };
+    const range cols{ 0, -1 };
+    const block_access_provider p{ row_count_, col_count_, data_type, rows, cols };
 
     switch (layout_) {
         case data_layout::row_major: p.pull_by_row_major(policy, data_, block, kind); break;
@@ -433,8 +437,8 @@ void homogen_table_impl::pull_column_impl(const Policy& policy,
     check_block_column_index(column_index, col_count_);
 
     const auto& data_type = meta_.get_data_type(0);
-    const range column { column_index, column_index + 1 };
-    const block_access_provider p { col_count_, row_count_, data_type, column, rows };
+    const range column{ column_index, column_index + 1 };
+    const block_access_provider p{ col_count_, row_count_, data_type, column, rows };
 
     switch (layout_) {
         case data_layout::row_major: p.pull_by_column_major(policy, data_, block, kind); break;
@@ -450,8 +454,8 @@ void homogen_table_impl::push_rows_impl(const Policy& policy,
     check_block_row_range(rows, row_count_);
 
     const auto& data_type = meta_.get_data_type(0);
-    const range cols { 0, -1 };
-    const block_access_provider p { row_count_, col_count_, data_type, rows, cols };
+    const range cols{ 0, -1 };
+    const block_access_provider p{ row_count_, col_count_, data_type, rows, cols };
 
     switch (layout_) {
         case data_layout::row_major: p.push_by_row_major(policy, data_, block); break;
@@ -469,8 +473,8 @@ void homogen_table_impl::push_column_impl(const Policy& policy,
     check_block_column_index(column_index, col_count_);
 
     const auto& data_type = meta_.get_data_type(0);
-    const range column { column_index, column_index + 1 };
-    const block_access_provider p { col_count_, row_count_, data_type, column, rows };
+    const range column{ column_index, column_index + 1 };
+    const block_access_provider p{ col_count_, row_count_, data_type, column, rows };
 
     switch (layout_) {
         case data_layout::row_major: p.push_by_column_major(policy, data_, block); break;
@@ -479,22 +483,22 @@ void homogen_table_impl::push_column_impl(const Policy& policy,
     }
 }
 
-#define INSTANTIATE_IMPL(Policy, Data, Alloc)                                    \
-    template void homogen_table_impl::pull_rows_impl(const Policy& policy,       \
-                                                     array<Data>& block,         \
-                                                     const range& rows,          \
-                                                     const Alloc& kind) const;   \
-    template void homogen_table_impl::pull_column_impl(const Policy& policy,     \
-                                                       array<Data>& block,       \
-                                                       std::int64_t column_index,     \
-                                                       const range& rows,        \
-                                                       const Alloc& kind) const; \
-    template void homogen_table_impl::push_rows_impl(const Policy& policy,       \
-                                                     const array<Data>& block,   \
-                                                     const range& rows);         \
-    template void homogen_table_impl::push_column_impl(const Policy& policy,     \
-                                                       const array<Data>& block, \
-                                                       std::int64_t column_index,     \
+#define INSTANTIATE_IMPL(Policy, Data, Alloc)                                     \
+    template void homogen_table_impl::pull_rows_impl(const Policy& policy,        \
+                                                     array<Data>& block,          \
+                                                     const range& rows,           \
+                                                     const Alloc& kind) const;    \
+    template void homogen_table_impl::pull_column_impl(const Policy& policy,      \
+                                                       array<Data>& block,        \
+                                                       std::int64_t column_index, \
+                                                       const range& rows,         \
+                                                       const Alloc& kind) const;  \
+    template void homogen_table_impl::push_rows_impl(const Policy& policy,        \
+                                                     const array<Data>& block,    \
+                                                     const range& rows);          \
+    template void homogen_table_impl::push_column_impl(const Policy& policy,      \
+                                                       const array<Data>& block,  \
+                                                       std::int64_t column_index, \
                                                        const range& rows);
 
 #ifdef ONEDAL_DATA_PARALLEL

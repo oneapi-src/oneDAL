@@ -196,7 +196,9 @@ public:
 #endif
 
 private:
-    static std::int64_t get_data_size(std::int64_t row_count, std::int64_t column_count, data_type dtype) const {
+    static std::int64_t get_data_size(std::int64_t row_count,
+                                      std::int64_t column_count,
+                                      data_type dtype) const {
         detail::check_mul_overflow(row_count, column_count);
         const std::int64_t element_count = row_count * column_count;
         const std::int64_t dtype_size = detail::get_data_type_size(dtype);
