@@ -152,7 +152,7 @@ jobs:
       . $HOME/miniconda/etc/profile.d/conda.sh
       conda activate CB
       cd daal4py
-      conda build --override-channels -c conda-forge -c intel --numpy=1.17 conda-recipe
+      conda build --override-channels -c intel -c conda-forge --numpy=1.17 conda-recipe
     displayName: conda build
   - script: |
       export DPCPPROOT=/opt/intel/oneapi/compiler/latest
