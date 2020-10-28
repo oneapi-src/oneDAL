@@ -93,11 +93,9 @@ void refer_source_data(const array<DataSrc>& src,
                        std::int64_t src_start_index,
                        std::int64_t dst_count,
                        array<DataDest>& dst) {
-    const std::int64_t src_count = src.get_count();
-
     ONEDAL_ASSERT(src_start_index >= 0);
-    ONEDAL_ASSERT(src_count > src_start_index);
-    ONEDAL_ASSERT((src_count - src_start_index) * sizeof(DataSrc) >= dst_count * sizeof(DataDest));
+    ONEDAL_ASSERT(src.get_count() > src_start_index);
+    ONEDAL_ASSERT((src.get_count() - src_start_index) * sizeof(DataSrc) >= dst_count * sizeof(DataDest));
 
     if (src.has_mutable_data()) {
         // TODO: in future, when table knows about mutability of its data this branch shall be
