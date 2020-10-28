@@ -96,7 +96,10 @@ public:
 
     void copy_data(const void* data, std::int64_t row_count, std::int64_t column_count) {
         allocate(row_count, column_count);
-        detail::memcpy(detail::default_host_policy{}, data_.get_mutable_data(), data, data_.get_size());
+        detail::memcpy(detail::default_host_policy{},
+                       data_.get_mutable_data(),
+                       data,
+                       data_.get_size());
     }
 
     homogen_table build() {
