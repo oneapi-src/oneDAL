@@ -94,7 +94,7 @@ table dataset::get_table(const std::string& table_type) const {
         return dal::detail::homogen_table_builder{}.reset(data, row_count, column_count).build();
     }
     else {
-        throw unimplemented{ "Only homogen table is supported" };
+        throw unimplemented{ dal::detail::error_messages::only_homogen_table_is_supported() };
     }
 }
 
@@ -111,7 +111,7 @@ table dataset::get_table(device_test_policy& policy, const std::string& table_ty
             .build();
     }
     else {
-        throw unimplemented{ "Only homogen table is supported" };
+        throw unimplemented{ dal::detail::error_messages::only_homogen_table_is_supported() };
     }
 }
 #endif
