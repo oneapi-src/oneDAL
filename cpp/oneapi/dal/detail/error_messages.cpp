@@ -104,8 +104,8 @@ MSG(neighbor_count_lt_one, "Neighbor count lower than one")
 /* Jaccard */
 MSG(column_begin_gt_column_end, "Column begin is greater than column end")
 MSG(empty_edge_list, "Empty edge list")
-MSG(negative_interval, "Negative interval")
 MSG(interval_gt_vertex_count, "Interval is greater than vertex count")
+MSG(negative_interval, "Negative interval")
 MSG(row_begin_gt_row_end, "Row begin is greater than row end")
 
 /* PCA */
@@ -137,9 +137,9 @@ MSG(svm_smo_method_is_not_implemented_for_gpu, "SVM SMO method is not implemente
 MSG(tau_leq_zero, "Tau is lower than or equal to zero")
 
 /* Kernel Functions */
-MSG(input_y_is_empty, "Input y is empty")
-MSG(input_x_is_empty, "Input x is empty")
 MSG(input_x_cc_neq_y_cc, "Input x column count is not qual to y column count")
+MSG(input_x_is_empty, "Input x is empty")
+MSG(input_y_is_empty, "Input y is empty")
 
 /* Decision Forest */
 MSG(bootstrap_is_incompatible_with_error_metric,

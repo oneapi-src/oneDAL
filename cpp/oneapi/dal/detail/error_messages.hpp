@@ -114,8 +114,8 @@ public:
     /* Jaccard */
     MSG(column_begin_gt_column_end);
     MSG(empty_edge_list);
-    MSG(negative_interval);
     MSG(interval_gt_vertex_count);
+    MSG(negative_interval);
     MSG(row_begin_gt_row_end);
 
     /* K-Means and K-Means Init */
@@ -136,9 +136,9 @@ public:
     MSG(neighbor_count_lt_one);
 
     /* Linear and RBF Kernels */
-    MSG(input_y_is_empty);
-    MSG(input_x_is_empty);
     MSG(input_x_cc_neq_y_cc);
+    MSG(input_x_is_empty);
+    MSG(input_y_is_empty);
 
     /* PCA */
     MSG(component_count_lt_zero);
