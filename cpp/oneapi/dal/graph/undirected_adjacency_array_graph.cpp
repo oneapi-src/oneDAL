@@ -151,15 +151,6 @@ using graph_default = undirected_adjacency_array_graph<empty_value,
                                                        std::allocator<char>>;
 
 namespace detail {
-/*
-template ONEDAL_EXPORT oneapi::dal::detail::pimpl<
-    typename oneapi::dal::preview::graph_traits<graph_default>::impl_type>
-    &get_impl(graph_default &graph);
-
-template ONEDAL_EXPORT const oneapi::dal::detail::pimpl<
-    typename oneapi::dal::preview::graph_traits<graph_default>::impl_type>
-    &get_impl(const graph_default &graph);
-*/
 template <typename Graph>
 ONEDAL_EXPORT auto get_vertex_count_impl(const Graph &graph) noexcept -> vertex_size_type<Graph> {
     const auto &layout =
