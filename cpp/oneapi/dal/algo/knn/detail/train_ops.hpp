@@ -50,7 +50,7 @@ struct train_ops {
             throw domain_error(msg::input_labels_are_empty());
         }
         if (input.get_labels().get_column_count() != 1) {
-            throw domain_error(msg::input_labels_has_wrong_cc_expect_one());
+            throw domain_error(msg::input_labels_table_has_wrong_cc_expect_one());
         }
         if (input.get_data().get_row_count() != input.get_labels().get_row_count()) {
             throw domain_error(msg::input_data_rc_neq_input_labels_rc());
