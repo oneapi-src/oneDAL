@@ -16,7 +16,7 @@
 *******************************************************************************/
 
 /**
- * @brief Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) package
+ * @brief Intel(R) oneAPI Data Analytics Library package
  */
 package com.intel.daal.utils;
 

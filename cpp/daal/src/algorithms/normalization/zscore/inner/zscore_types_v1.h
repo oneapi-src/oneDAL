@@ -59,7 +59,7 @@ namespace normalization
 namespace zscore
 {
 /**
-* \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+* \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
 */
 namespace interface1
 {

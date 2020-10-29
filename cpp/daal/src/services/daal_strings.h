@@ -381,7 +381,7 @@
     DECLARE_DAAL_STRING_CONST(lassoParameters)
 
 /**
- *  Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) namespace
+ *  Intel(R) oneAPI Data Analytics Library namespace
  */
 namespace daal
 {

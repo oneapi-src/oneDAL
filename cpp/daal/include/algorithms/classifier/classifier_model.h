@@ -51,7 +51,7 @@ enum ResultToComputeId
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
  */
 namespace interface1
 {
@@ -77,7 +77,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 /* [interface1::Parameter source code] */
 } // namespace interface1
 /**
- * \brief Contains version 2.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface.
  */
 namespace interface2
 {
@@ -106,7 +106,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 using interface2::Parameter;
 
 /**
- * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
  */
 namespace interface1
 {
