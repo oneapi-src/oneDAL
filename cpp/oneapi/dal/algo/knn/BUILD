@@ -16,6 +16,34 @@ dal_module(
 )
 
 dal_test_suite(
+    name = "common_tests",
+    dpc = False,
+    srcs = glob([
+        "common_*_test.cpp",
+    ]),
+    dal_deps = [
+        ":knn",
+    ],
+)
+
+dal_test_suite(
+    name = "gpu_tests_dpc",
+    host = False,
+    srcs = glob([
+        "common_*_test_dpc.cpp",
+    ]),
+    dal_deps = [
+        ":knn",
+    ],
+    tags = ["gpu"],
+)
+
+dal_test_suite(
     name = "tests",
-    tests = [],
+    host_tests = [
+        ":common_tests",
+    ],
+    dpc_tests = [
+        ":gpu_tests_dpc",
+    ],
 )
