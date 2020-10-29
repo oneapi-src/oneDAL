@@ -15,7 +15,7 @@
 #===============================================================================
 
 ##  Content:
-##     Intel(R) Data Analytics Acceleration Library examples creation and run
+##     Intel(R) oneAPI Data Analytics Library examples creation and run
 ##******************************************************************************
 
 help:
@@ -37,7 +37,7 @@ help:
 ##                                         applications, dynamic linking
 ##
 ## nmake dll compiler=clang              - build by Intel(R) oneAPI Compiler (as default)
-##                                         and run all examples of Intel(R) DAAL for
+##                                         and run all examples of Intel(R) oneDAL for
 ##                                         64-bit applications, dynamic linking
 ##
 ## nmake dll                             - build by Intel(R) oneAPI Compiler (as default)
