@@ -60,9 +60,13 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     }
 
     using vertex_t = typename Graph::vertex_type;
+    using vertex_size_type = typename Graph::vertex_size_type;
     using edge_t = typename Graph::edge_type;
-    using vector_vertex_t = typename Graph::vertex_set;
-    using atomic_t = typename daal::services::Atomic<vertex_t>;
+    using edge_size_type = typename Graph::edge_size_type;
+    using vertex_set = typename Graph::vertex_set;
+    using edge_set = typename Graph::edge_set;
+    using atomic_vertex_t = typename daal::services::Atomic<vertex_t>;
+    using atomic_edge_t = typename daal::services::Atomic<edge_t>;
 
     vertex_t max_id = edges[0].first;
     for (auto u : edges) {
@@ -70,38 +74,45 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         max_id = std::max(max_id, edge_max);
     }
 
-    const vertex_t vertex_count = max_id + 1;
+    oneapi::dal::detail::check_sum_overflow(max_id, static_cast<vertex_t>(1));
+    const vertex_size_type vertex_count = max_id + 1;
 
     auto layout = oneapi::dal::preview::detail::get_impl(g);
     auto &allocator = layout->_allocator;
     layout->_vertex_count = vertex_count;
 
+    oneapi::dal::detail::check_mul_overflow(vertex_count, sizeof(atomic_vertex_t) / sizeof(char));
     void *degrees_vec_void =
-        (void *)allocator.allocate(vertex_count * (sizeof(atomic_t) / sizeof(char)));
-    atomic_t *degrees_cv = new (degrees_vec_void) atomic_t[vertex_count];
+        (void *)allocator.allocate(vertex_count * (sizeof(atomic_vertex_t) / sizeof(char)));
+    atomic_vertex_t *degrees_cv = new (degrees_vec_void) atomic_vertex_t[vertex_count];
 
     threader_for(edges.size(), edges.size(), [&](vertex_t u) {
         degrees_cv[edges[u].first].inc();
         degrees_cv[edges[u].second].inc();
     });
 
+    oneapi::dal::detail::check_sum_overflow(vertex_count, static_cast<vertex_size_type>(1));
+    oneapi::dal::detail::check_mul_overflow(vertex_count + 1, sizeof(atomic_edge_t) / sizeof(char));
     void *rows_vec_void =
-        (void *)allocator.allocate((vertex_count + 1) * (sizeof(atomic_t) / sizeof(char)));
-    atomic_t *rows_vec_atomic = new (rows_vec_void) atomic_t[vertex_count + 1];
+        (void *)allocator.allocate((vertex_count + 1) * (sizeof(atomic_edge_t) / sizeof(char)));
+    atomic_vertex_t *rows_vec_atomic = new (rows_vec_void) atomic_edge_t[vertex_count + 1];
 
-    vertex_t total_sum_degrees = 0;
+    edge_t total_sum_degrees = 0;
     rows_vec_atomic[0].set(total_sum_degrees);
     for (vertex_t i = 0; i < vertex_count; ++i) {
         total_sum_degrees += degrees_cv[i].get();
         rows_vec_atomic[i + 1].set(total_sum_degrees);
     }
     allocator.deallocate((char *)degrees_vec_void,
-                         vertex_count * (sizeof(atomic_t) / sizeof(char)));
+                         vertex_count * (sizeof(atomic_vertex_t) / sizeof(char)));
 
-    void *unfiltered_neighs_void =
-        (void *)allocator.allocate((total_sum_degrees) * (sizeof(vertex_t) / sizeof(char)));
+    oneapi::dal::detail::check_mul_overflow(static_cast<vertex_size_type>(total_sum_degrees),
+                                            sizeof(vertex_t) / sizeof(char));
+    void *unfiltered_neighs_void = (void *)allocator.allocate(
+        static_cast<vertex_size_type>(total_sum_degrees) * (sizeof(vertex_t) / sizeof(char)));
     vertex_t *unfiltered_neighs = new (unfiltered_neighs_void) vertex_t[total_sum_degrees];
 
+    oneapi::dal::detail::check_mul_overflow(vertex_count + 1, sizeof(edge_t) / sizeof(char));
     void *unfiltered_offsets_void =
         (void *)allocator.allocate((vertex_count + 1) * (sizeof(edge_t) / sizeof(char)));
     edge_t *unfiltered_offsets = new (unfiltered_offsets_void) edge_t[vertex_count + 1];
@@ -115,9 +126,9 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         unfiltered_neighs[rows_vec_atomic[edges[u].second].inc() - 1] = edges[u].first;
     });
     allocator.deallocate((char *)rows_vec_void,
-                         (vertex_count + 1) * (sizeof(atomic_t) / sizeof(char)));
+                         (vertex_count + 1) * (sizeof(atomic_vertex_t) / sizeof(char)));
 
-    layout->_degrees = std::move(vector_vertex_t(vertex_count));
+    layout->_degrees = std::move(vertex_set(vertex_count));
     auto degrees_data = layout->_degrees.data();
 
     //removing self-loops,  multiple edges from graph, and make neighbors in CSR sorted
@@ -132,18 +143,19 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         degrees_data[u] = (vertex_t)std::distance(start_p, neighs_u_new_end);
     });
 
-    layout->_edge_offsets = std::move(vector_vertex_t(vertex_count + 1));
+    layout->_edge_offsets = std::move(edge_set(vertex_count + 1));
     auto edge_offsets_data = layout->_edge_offsets.data();
 
-    vertex_t filtered_total_sum_degrees = 0;
+    edge_t filtered_total_sum_degrees = 0;
     edge_offsets_data[0] = filtered_total_sum_degrees;
     for (vertex_t i = 0; i < vertex_count; ++i) {
         filtered_total_sum_degrees += degrees_data[i];
         edge_offsets_data[i + 1] = filtered_total_sum_degrees;
     }
+    // safe arimthetics guaranteed by algorithm
     layout->_edge_count = filtered_total_sum_degrees / 2;
 
-    layout->_vertex_neighbors = std::move(vector_vertex_t(layout->_edge_offsets[vertex_count]));
+    layout->_vertex_neighbors = std::move(vertex_set(layout->_edge_offsets[vertex_count]));
 
     auto vert_neighs = layout->_vertex_neighbors.data();
     auto edge_offs = layout->_edge_offsets.data();

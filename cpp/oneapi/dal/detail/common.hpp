@@ -179,7 +179,7 @@ inline void assert_sum_overflow(const Data& first, const Data& second) {
 }
 
 template <typename Data>
-void integer_overflow_ops<Data>::check_mul_overflow(const Data& first, const Data& second) {
+inline void assert_mul_overflow(const Data& first, const Data& second) {
 #ifdef ONEDAL_ENABLE_ASSERT
     if (first != 0 && second != 0) {
         volatile Data tmp = first * second;
