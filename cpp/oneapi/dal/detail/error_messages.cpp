@@ -52,8 +52,8 @@ MSG(pushing_column_is_not_supported, "Pushing column is not supported")
 MSG(pushing_rows_is_not_supported_for_dpc, "Pushing rows is not supported for DPC++")
 MSG(pushing_rows_is_not_supported, "Pushing rows is not supported")
 MSG(unsupported_conversion_types, "Unsupported conversion types")
-MSG(number_of_rows_leq_zero, "Number of rows is lower than or equal to zero")
-MSG(number_of_columns_leq_zero, "Number of columns is lower than or equal to zero")
+MSG(rc_leq_zero, "Row count is lower than or equal to zero")
+MSG(cc_leq_zero, "Column count is lower than or equal to zero")
 
 /* Ranges */
 MSG(invalid_range_of_rows, "Invalid range of rows")
