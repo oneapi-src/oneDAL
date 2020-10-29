@@ -40,22 +40,31 @@ TEST(df_bad_arg_tests, test_checks_for_inputs_exceed_int32) {
     ASSERT_NE(y_train, nullptr);
     const auto y_train_table = dal::homogen_table::wrap(queue, y_train, row_count_train, 1);
 
+    ASSERT_THROW((dal::train(queue,
+                             df::descriptor<float, df::task::regression, df::method::hist>{}
+                                 .set_min_observations_in_leaf_node(0xFFFFFFFF),
+                             x_train_table,
+                             y_train_table)),
+                 dal::domain_error);
+    ASSERT_THROW((dal::train(queue,
+                             df::descriptor<float, df::task::regression, df::method::hist>{}
+                                 .set_features_per_node(0xFFFFFFFF),
+                             x_train_table,
+                             y_train_table)),
+                 dal::domain_error);
     ASSERT_THROW(
-        (dal::train(queue, df::descriptor<float, df::task::regression, df::method::hist>{}.set_min_observations_in_leaf_node(0xFFFFFFFF),
-                    x_train_table, y_train_table)),
+        (dal::train(queue,
+                    df::descriptor<float, df::task::regression, df::method::hist>{}.set_max_bins(
+                        0xFFFFFFFF),
+                    x_train_table,
+                    y_train_table)),
         dal::domain_error);
-    ASSERT_THROW(
-        (dal::train(queue, df::descriptor<float, df::task::regression, df::method::hist>{}.set_features_per_node(0xFFFFFFFF),
-                    x_train_table, y_train_table)),
-        dal::domain_error);
-    ASSERT_THROW(
-        (dal::train(queue, df::descriptor<float, df::task::regression, df::method::hist>{}.set_max_bins(0xFFFFFFFF),
-                    x_train_table, y_train_table)),
-        dal::domain_error);
-    ASSERT_THROW(
-        (dal::train(queue, df::descriptor<float, df::task::regression, df::method::hist>{}.set_min_bin_size(0xFFFFFFFF),
-                    x_train_table, y_train_table)),
-        dal::domain_error);
+    ASSERT_THROW((dal::train(queue,
+                             df::descriptor<float, df::task::regression, df::method::hist>{}
+                                 .set_min_bin_size(0xFFFFFFFF),
+                             x_train_table,
+                             y_train_table)),
+                 dal::domain_error);
 }
 
 TEST(df_bad_arg_tests, test_overflow_checks_in_train) {
@@ -75,8 +84,11 @@ TEST(df_bad_arg_tests, test_overflow_checks_in_train) {
     const auto y_train_table = dal::homogen_table::wrap(queue, y_train, row_count_train, 1);
 
     ASSERT_THROW(
-        (dal::train(queue, df::descriptor<float, df::task::regression, df::method::hist>{}.set_tree_count(0x7FFFFFFFFFFFFFFF),
-                    x_train_table, y_train_table)),
+        (dal::train(queue,
+                    df::descriptor<float, df::task::regression, df::method::hist>{}.set_tree_count(
+                        0x7FFFFFFFFFFFFFFF),
+                    x_train_table,
+                    y_train_table)),
         dal::internal_error);
 }
 
