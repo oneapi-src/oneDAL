@@ -17,6 +17,7 @@
 #pragma once
 
 #include <memory>
+#include <limits>
 #include <type_traits>
 
 #include "oneapi/dal/common.hpp"
@@ -155,6 +156,39 @@ template <typename Data>
 inline void check_mul_overflow(const Data& first, const Data& second) {
     static_assert(std::is_integral_v<Data>, "The check requires integral operands");
     integer_overflow_ops<Data>{}.check_mul_overflow(first, second);
+}
+
+template <typename Data>
+struct limits {
+    static constexpr Data min() {
+        return std::numeric_limits<Data>::min();
+    }
+    static constexpr Data max() {
+        return std::numeric_limits<Data>::max();
+    }
+};
+
+template <typename Out, typename In>
+inline Out integral_cast(const In& value) {
+    static_assert(std::is_integral_v<In> && std::is_integral_v<Out>,
+                  "The cast requires integral operands");
+    if constexpr (std::is_signed_v<Out> && std::is_signed_v<In>) {
+        ONEDAL_ASSERT(value <= limits<Out>::max(), "Integral type conversion overflow");
+        ONEDAL_ASSERT(value >= limits<Out>::min(), "Integral type conversion underflow");
+    }
+    else if constexpr (std::is_unsigned_v<Out> && std::is_unsigned_v<In>) {
+        ONEDAL_ASSERT(value <= limits<Out>::max(), "Integral type conversion overflow");
+    }
+    else if constexpr (std::is_unsigned_v<Out> && std::is_signed_v<In>) {
+        ONEDAL_ASSERT(value >= In(0), "Negative integral value conversion to unsigned");
+        ONEDAL_ASSERT(static_cast<std::make_unsigned_t<In>>(value) <= limits<Out>::max(),
+                      "Integral type conversion overflow");
+    }
+    else if constexpr (std::is_signed_v<Out> && std::is_unsigned_v<In>) {
+        ONEDAL_ASSERT(value <= static_cast<std::make_unsigned_t<Out>>(limits<Out>::max()),
+                      "Integral type conversion overflow");
+    }
+    return static_cast<Out>(value);
 }
 
 } // namespace oneapi::dal::detail

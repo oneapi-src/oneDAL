@@ -66,21 +66,27 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     daal_input.set(daal::algorithms::classifier::training::data, daal_data);
     daal_input.set(daal::algorithms::classifier::training::labels, daal_labels);
 
-    auto daal_parameter = daal_df_cls_train::Parameter(desc.get_class_count());
-    daal_parameter.nTrees = desc.get_tree_count();
+    auto daal_parameter =
+        daal_df_cls_train::Parameter(dal::detail::integral_cast<std::size_t>(desc.get_class_count()));
+    daal_parameter.nTrees = dal::detail::integral_cast<std::size_t>(desc.get_tree_count());
     daal_parameter.observationsPerTreeFraction = desc.get_observations_per_tree_fraction();
-    daal_parameter.featuresPerNode = desc.get_features_per_node();
-    daal_parameter.maxTreeDepth = desc.get_max_tree_depth();
-    daal_parameter.minObservationsInLeafNode = desc.get_min_observations_in_leaf_node();
+    daal_parameter.featuresPerNode =
+        dal::detail::integral_cast<std::size_t>(desc.get_features_per_node());
+    daal_parameter.maxTreeDepth =
+        dal::detail::integral_cast<std::size_t>(desc.get_max_tree_depth());
+    daal_parameter.minObservationsInLeafNode =
+        dal::detail::integral_cast<std::size_t>(desc.get_min_observations_in_leaf_node());
     // TODO take engines from desc
     daal_parameter.engine = daal::algorithms::engines::mt2203::Batch<>::create();
     daal_parameter.impurityThreshold = desc.get_impurity_threshold();
     daal_parameter.memorySavingMode = desc.get_memory_saving_mode();
     daal_parameter.bootstrap = desc.get_bootstrap();
-    daal_parameter.minObservationsInSplitNode = desc.get_min_observations_in_split_node();
+    daal_parameter.minObservationsInSplitNode =
+        dal::detail::integral_cast<std::size_t>(desc.get_min_observations_in_split_node());
     daal_parameter.minWeightFractionInLeafNode = desc.get_min_weight_fraction_in_leaf_node();
     daal_parameter.minImpurityDecreaseInSplitNode = desc.get_min_impurity_decrease_in_split_node();
-    daal_parameter.maxLeafNodes = desc.get_max_leaf_nodes();
+    daal_parameter.maxLeafNodes =
+        dal::detail::integral_cast<std::size_t>(desc.get_max_leaf_nodes());
 
     daal_parameter.resultsToCompute = static_cast<std::uint64_t>(desc.get_error_metric_mode());
 

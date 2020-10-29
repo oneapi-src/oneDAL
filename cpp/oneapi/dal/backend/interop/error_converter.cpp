@@ -66,6 +66,7 @@ void status_to_exception(const daal::services::Status& s) {
         case ErrorID::ErrorNullOutputNumericTable:
         case ErrorID::ErrorNullModel:
         case ErrorID::ErrorIncorrectNumberOfColumnsInInputNumericTable:
+        case ErrorID::ErrorIncorrectNumberOfRowsInInputNumericTable:
         case ErrorID::ErrorIncorrectNumberOfRowsInOutputNumericTable:
         case ErrorID::ErrorIncorrectNumberOfColumnsInOutputNumericTable:
         case ErrorID::ErrorIncorrectTypeOfInputNumericTable:

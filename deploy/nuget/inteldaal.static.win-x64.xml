@@ -25,11 +25,11 @@
     <Rule.DataSource>
       <DataSource Persistence="ProjectFile" ItemType="" />
     </Rule.DataSource>
-    <EnumProperty Name="linkage-DAAL-static-win-x64" DisplayName="Linkage" Description="Select linking for the Intel(R) DAAL" Category="libdaal">
+    <EnumProperty Name="linkage-DAAL-static-win-x64" DisplayName="Linkage" Description="Select linking for the Intel(R) oneDAL" Category="libdaal">
       <EnumValue Name=""       DisplayName="Not linked" />
       <EnumValue Name="static" DisplayName="Static"     />
     </EnumProperty>
-    <EnumProperty Name="threading-DAAL-static-win-x64" DisplayName="Threading Layer" Description="Select threading layer for the Intel(R) DAAL" Category="libdaal">
+    <EnumProperty Name="threading-DAAL-static-win-x64" DisplayName="Threading Layer" Description="Select threading layer for the Intel(R) oneDAL" Category="libdaal">
       <EnumValue Name="sequential" DisplayName="Sequential"   />
       <EnumValue Name="tbb"        DisplayName="Intel(R) TBB" />
     </EnumProperty>
