@@ -15,9 +15,9 @@
 *******************************************************************************/
 
 #include <daal/include/data_management/data/internal/conversion.h>
-#include <stdexcept>
 
 #include "oneapi/dal/common.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::backend::interop {
 
@@ -56,7 +56,7 @@ void daal_convert_dispatcher(data_type src_type,
 
     auto check_types = [](auto from_type, auto to_type) {
         if (from_type == features::DAAL_OTHER_T || to_type == internal::DAAL_OTHER) {
-            throw std::runtime_error("unsupported conversion types");
+            throw invalid_argument(dal::detail::error_messages::unsupported_conversion_types());
         }
     };
 

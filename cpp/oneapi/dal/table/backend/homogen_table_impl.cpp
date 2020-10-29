@@ -37,7 +37,7 @@ void make_mutable_data(const Policy& policy, array<Data>& array) {
     if constexpr (std::is_same_v<Policy, detail::default_host_policy>) {
         array.need_mutable_data();
     }
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     else if constexpr (std::is_same_v<Policy, detail::data_parallel_policy>) {
         auto& queue = policy.get_queue();
         auto kind = sycl::get_pointer_type(array.get_data(), queue.get_context());
@@ -54,7 +54,7 @@ void reset_array(const Policy& policy, array<Data>& array, int64_t count, const 
     if constexpr (std::is_same_v<Policy, detail::default_host_policy>) {
         array.reset(count);
     }
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     else if constexpr (std::is_same_v<Policy, detail::data_parallel_policy>) {
         array.reset(policy.get_queue(), count, kind);
     }
@@ -76,7 +76,7 @@ bool has_array_data_kind(const Policy& policy, const array<Data>& array, const A
         // the right pointer type with the host policy.
         return true;
     }
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     else if constexpr (std::is_same_v<Policy, detail::data_parallel_policy>) {
         static_assert(std::is_same_v<Alloc, sycl::usm::alloc>);
         auto array_data_kind =
@@ -103,7 +103,8 @@ void homogen_table_impl::pull_rows_impl(const Policy& policy,
     const data_type block_dtype = detail::make_data_type<Data>();
 
     if (layout_ != data_layout::row_major) {
-        throw std::runtime_error("unsupported data layout"); // TODO: oneDAL exception
+        throw std::runtime_error(
+            dal::detail::error_messages::unsupported_data_layout()); // TODO: oneDAL exception
     }
 
     const auto table_dtype = meta_.get_data_type(0);
@@ -149,7 +150,7 @@ void homogen_table_impl::push_rows_impl(const Policy& policy,
     const data_type block_dtype = detail::make_data_type<Data>();
 
     if (layout_ != data_layout::row_major) {
-        throw std::runtime_error("unsupported data layout");
+        throw std::runtime_error(dal::detail::error_messages::unsupported_data_layout());
     }
 
     make_mutable_data(policy, data_);
@@ -194,7 +195,7 @@ void homogen_table_impl::pull_column_impl(const Policy& policy,
     const data_type block_dtype = detail::make_data_type<Data>();
 
     if (layout_ != data_layout::row_major) {
-        throw std::runtime_error("unsupported data layout");
+        throw std::runtime_error(dal::detail::error_messages::unsupported_data_layout());
     }
 
     const auto table_dtype = meta_.get_data_type(0);
@@ -292,7 +293,7 @@ void homogen_table_impl::push_column_impl(const Policy& policy,
                                                        int64_t,             \
                                                        const range&);
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 #define INSTANTIATE_IMPL_ALL_POLICIES(Data)                                               \
     INSTANTIATE_IMPL(detail::default_host_policy, Data, homogen_table_impl::host_alloc_t) \
     INSTANTIATE_IMPL(detail::data_parallel_policy, Data, sycl::usm::alloc)

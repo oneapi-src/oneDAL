@@ -34,8 +34,8 @@ DECLARE_SOURCE_DAAL(
     __kernel void heaviside(const __global algorithmFPType * const x, __global algorithmFPType * result) {
         const uint i = get_global_id(0);
 
-        algorithmFPType zero = (algorithmFPType)0;
-        algorithmFPType one  = (algorithmFPType)1;
+        const algorithmFPType zero = (algorithmFPType)0;
+        const algorithmFPType one  = (algorithmFPType)1;
 
         result[i] = x[i] >= zero ? one : zero;
     }

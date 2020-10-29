@@ -18,15 +18,16 @@ Decision Forest
 ---------------
 
 The library provides decision forest classification and regression
-algorithms based on an ensemble of tree-structured classifiers
-(decision trees) built using the general technique of bootstrap
-aggregation (bagging) and random choice of features. *Decision tree*
-is a binary tree graph. Its internal (split) nodes represent a
-*decision function* used to select the following (child) node at the
-prediction stage. Its leaf (terminal) nodes represent the
+algorithms based on an ensemble of tree-structured classifiers,
+which are known as decision trees.
+Decision forest is built using the general technique of bagging, a **b**\ ootstrap
+**agg**\ regation, and a random choice of features.
+
+:ref:`decision_tree` is a binary tree graph. Its internal (split) nodes represent a
+*decision function* used to select the child node at the
+prediction stage. Its leaf, or terminal, nodes represent the
 corresponding response values, which are the result of the prediction
-from the tree. For more details, see Classification and Regression >
-Decision Tree, [Breiman84]_ and [Breiman2001]_.
+from the tree. For more details, see [Breiman84]_ and [Breiman2001]_.
 
 .. toctree::
    :maxdepth: 1

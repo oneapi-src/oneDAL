@@ -46,7 +46,7 @@ std::int64_t descriptor_base<task::classification>::get_neighbor_count() const {
 template <>
 void descriptor_base<task::classification>::set_class_count_impl(std::int64_t value) {
     if (value < 2) {
-        throw domain_error("class_count should be > 1");
+        throw domain_error(dal::detail::error_messages::class_count_leq_one());
     }
     impl_->class_count = value;
 }
@@ -54,7 +54,7 @@ void descriptor_base<task::classification>::set_class_count_impl(std::int64_t va
 template <>
 void descriptor_base<task::classification>::set_neighbor_count_impl(std::int64_t value) {
     if (value < 1) {
-        throw domain_error("neighbor_count should be > 0");
+        throw domain_error(dal::detail::error_messages::neighbor_count_lt_one());
     }
     impl_->neighbor_count = value;
 }
@@ -67,7 +67,7 @@ model<Task>::model() : impl_(new empty_model_impl{}) {}
 template <typename Task>
 model<Task>::model(const std::shared_ptr<detail::model_impl>& impl) : impl_(impl) {}
 
-template class ONEAPI_DAL_EXPORT descriptor_base<task::classification>;
-template class ONEAPI_DAL_EXPORT model<task::classification>;
+template class ONEDAL_EXPORT descriptor_base<task::classification>;
+template class ONEDAL_EXPORT model<task::classification>;
 
 } // namespace oneapi::dal::knn

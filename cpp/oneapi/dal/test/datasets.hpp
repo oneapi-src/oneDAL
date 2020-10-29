@@ -42,7 +42,7 @@ public:
         return get_table<Float>(table_type);
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename Float>
     table get_table(device_test_policy& policy, const std::string& table_type) const;
 #endif

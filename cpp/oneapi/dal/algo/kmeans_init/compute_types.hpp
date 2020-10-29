@@ -29,7 +29,7 @@ class compute_result_impl;
 } // namespace detail
 
 template <typename Task = task::by_default>
-class ONEAPI_DAL_EXPORT compute_input : public base {
+class ONEDAL_EXPORT compute_input : public base {
 public:
     using task_t = Task;
 
@@ -49,7 +49,7 @@ private:
 };
 
 template <typename Task = task::by_default>
-class ONEAPI_DAL_EXPORT compute_result {
+class ONEDAL_EXPORT compute_result {
 public:
     using task_t = Task;
 

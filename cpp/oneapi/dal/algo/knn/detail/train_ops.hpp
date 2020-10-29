@@ -17,7 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/knn/train_types.hpp"
-#include "oneapi/dal/exceptions.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::knn::detail {
 
@@ -25,7 +25,7 @@ template <typename Context,
           typename Float,
           typename Method = method::by_default,
           typename Task = task::by_default>
-struct ONEAPI_DAL_EXPORT train_ops_dispatcher {
+struct ONEDAL_EXPORT train_ops_dispatcher {
     train_result<Task> operator()(const Context&,
                                   const descriptor_base<Task>&,
                                   const train_input<Task>&) const;
@@ -41,17 +41,19 @@ struct train_ops {
     using descriptor_base_t = descriptor_base<task_t>;
 
     void check_preconditions(const Descriptor& params, const input_t& input) const {
-        if (!(input.get_data().has_data())) {
-            throw domain_error("Input data should not be empty");
+        using msg = dal::detail::error_messages;
+
+        if (!input.get_data().has_data()) {
+            throw domain_error(msg::input_data_is_empty());
         }
-        if (!(input.get_labels().has_data())) {
-            throw domain_error("Input labels should not be empty");
+        if (!input.get_labels().has_data()) {
+            throw domain_error(msg::input_labels_are_empty());
         }
         if (input.get_labels().get_column_count() != 1) {
-            throw domain_error("Labels should contain a single column");
+            throw domain_error(msg::input_labels_table_has_wrong_cc_expect_one());
         }
-        if (!(input.get_labels().get_row_count() == input.get_data().get_row_count())) {
-            throw domain_error("Number of labels should match number of rows in data");
+        if (input.get_data().get_row_count() != input.get_labels().get_row_count()) {
+            throw domain_error(msg::input_data_rc_neq_input_labels_rc());
         }
     }
 

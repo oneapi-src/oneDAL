@@ -100,7 +100,7 @@ y      := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib fbsd/so))
 -cxx17 := $(if $(COMPILER_is_vc),/std:c++17,$(-Q)std=c++17)
 -fPIC  := $(if $(OS_is_win),,-fPIC)
 -Zl    := $(-Zl.$(COMPILER))
--DEBC  := $(if $(REQDBG),$(-DEBC.$(COMPILER)) -DDEBUG_ASSERT) -DTBB_SUPPRESS_DEPRECATED_MESSAGES -D__TBB_LEGACY_MODE $(if $(REQPRF), -D__DAAL_ITTNOTIFY_ENABLE__)
+-DEBC  := $(if $(REQDBG),$(-DEBC.$(COMPILER)) -DDEBUG_ASSERT -DONEDAL_ENABLE_ASSERT) -DTBB_SUPPRESS_DEPRECATED_MESSAGES -D__TBB_LEGACY_MODE $(if $(REQPRF), -D__DAAL_ITTNOTIFY_ENABLE__)
 -DEBJ  := $(if $(REQDBG),-g,-g:none)
 -DEBL  := $(if $(REQDBG),$(if $(OS_is_win),-debug,))
 -EHsc  := $(if $(OS_is_win),-EHsc,)
@@ -266,6 +266,10 @@ mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl_dal_sycl.hpp $(MKLGPUFPKDIR.inc
 #===============================================================================
 # Release library names
 #===============================================================================
+include makefile.ver
+
+y_full_name_postfix := $(if $(OS_is_win),,$(if $(OS_is_mac),.$(MAJORBINARY).$(MINORBINARY).$(y),.$(y).$(MAJORBINARY).$(MINORBINARY)))
+y_major_name_postfix := $(if $(OS_is_win),,$(if $(OS_is_mac),.$(MAJORBINARY).$(y),.$(y).$(MAJORBINARY)))
 
 core_a       := $(plib)onedal_core.$a
 core_y       := $(plib)onedal_core.$y
@@ -420,7 +424,6 @@ release.DOC.OSSPEC := $(foreach fn,$(release.DOC),$(if $(filter %$(_OS),$(basena
 #===============================================================================
 # Core part
 #===============================================================================
-include makefile.ver
 include makefile.lst
 
 THR.srcdir       := $(CPPDIR.daal)/src/threading
@@ -573,7 +576,7 @@ ONEAPI.incdirs.common := $(CPPDIR)
 ONEAPI.incdirs.thirdp := $(CORE.incdirs.common) $(MKLFPKDIR.include) $(TBBDIR.include)
 ONEAPI.incdirs := $(ONEAPI.incdirs.common) $(CORE.incdirs.thirdp)
 
-ONEAPI.dispatcher_cpu = $(WORKDIR)/_dal_cpu_dispatcher_gen.hpp
+ONEAPI.dispatcher_cpu = $(WORKDIR)/oneapi/dal/_dal_cpu_dispatcher_gen.hpp
 ONEAPI.dispatcher_tag.nrh := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_default
 ONEAPI.dispatcher_tag.mrm := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_ssse3
 ONEAPI.dispatcher_tag.neh := -D__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_sse42
@@ -668,7 +671,7 @@ $1: LOPT:=
 $1: $(1:%.$a=%_link.txt) | $(dir $1)/. ; $(value LINK.STATIC)
 endef
 
-$(ONEAPI.dispatcher_cpu): | $(WORKDIR)/.
+$(ONEAPI.dispatcher_cpu): | $(dir $(ONEAPI.dispatcher_cpu))/.
 	$(if $(filter ssse3,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_SSSE3" >> $@)
 	$(if $(filter sse42,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_SSE42" >> $@)
 	$(if $(filter avx,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_AVX" >> $@)
@@ -712,7 +715,7 @@ $(ONEAPI.objs_a.dpc): COPT += $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.op
                               -DDAAL_NOTHROW_EXCEPTIONS \
                               -DDAAL_HIDE_DEPRECATED \
                               -DDAAL_SYCL_INTERFACE \
-                              -DONEAPI_DAL_DATA_PARALLEL \
+                              -DONEDAL_DATA_PARALLEL \
                               -D__TBB_NO_IMPLICIT_LINKAGE \
                               -DTBB_USE_ASSERT=0 \
                                @$(ONEAPI.tmpdir_a.dpc)/inc_a_folders.txt
@@ -730,7 +733,7 @@ $(ONEAPI.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic
                           -DDAAL_NOTHROW_EXCEPTIONS \
                           -DDAAL_HIDE_DEPRECATED \
                           $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG) \
-                          -D__ONEAPI_DAL_ENABLE_DLL_EXPORT__ \
+                          -D__ONEDAL_ENABLE_DLL_EXPORT__ \
                           -D__TBB_NO_IMPLICIT_LINKAGE \
                           -DTBB_USE_ASSERT=0 \
                           @$(ONEAPI.tmpdir_y)/inc_y_folders.txt
@@ -747,9 +750,9 @@ $(ONEAPI.objs_y.dpc): COPT += $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.op
                               -DDAAL_NOTHROW_EXCEPTIONS \
                               -DDAAL_HIDE_DEPRECATED \
                               -DDAAL_SYCL_INTERFACE \
-                              -DONEAPI_DAL_DATA_PARALLEL \
+                              -DONEDAL_DATA_PARALLEL \
                               $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG) \
-                              -D__ONEAPI_DAL_ENABLE_DLL_EXPORT__ \
+                              -D__ONEDAL_ENABLE_DLL_EXPORT__ \
                               -D__TBB_NO_IMPLICIT_LINKAGE \
                               -DTBB_USE_ASSERT=0 \
                               @$(ONEAPI.tmpdir_y.dpc)/inc_y_folders.txt
@@ -980,18 +983,43 @@ upd = $(cpy)
 _release: info.building.release
 
 #----- releasing static and dynamic libraries
-define .release.ay
+define .release.ay_win
+$3: $2/$1
+$(if $(phony-upd),$(eval .PHONY: $2/$1))
+$2/$1: $(WORKDIR.lib)/$1 | $2/.
+	cp -fp $(WORKDIR.lib)/$1 $2/$(subst dll.,dll.$(MAJORBINARY).,$1)
+endef
+define .release.y_link
+$3: $2/$1
+$(if $(phony-upd),$(eval .PHONY: $2/$1))
+$2/$1: $(WORKDIR.lib)/$1 | $2/.
+	cp -fp $(WORKDIR.lib)/$1 $2/$(subst .$y,$(y_full_name_postfix),$1) && cd $2 && ln -sf $(subst .$y,$(y_full_name_postfix),$1) $(subst .$y,$(y_major_name_postfix),$1) && ln -sf $(subst .$y,$(y_major_name_postfix),$1) $1
+endef
+define .release.a_link
 $3: $2/$1
 $(if $(phony-upd),$(eval .PHONY: $2/$1))
 $2/$1: $(WORKDIR.lib)/$1 | $2/. ; $(value upd)
 endef
-$(foreach a,$(release.LIBS_A),$(eval $(call .release.ay,$a,$(RELEASEDIR.libia),_release_c)))
-$(foreach y,$(release.LIBS_Y),$(eval $(call .release.ay,$y,$(RELEASEDIR.soia),_release_c)))
-$(foreach j,$(release.LIBS_J),$(eval $(call .release.ay,$j,$(RELEASEDIR.soia),_release_jj)))
-$(foreach a,$(release.ONEAPI.LIBS_A),$(eval $(call .release.ay,$a,$(RELEASEDIR.libia),_release_oneapi_c)))
-$(foreach y,$(release.ONEAPI.LIBS_Y),$(eval $(call .release.ay,$y,$(RELEASEDIR.soia),_release_oneapi_c)))
-$(foreach a,$(release.ONEAPI.LIBS_A.dpc),$(eval $(call .release.ay,$a,$(RELEASEDIR.libia),_release_oneapi_dpc)))
-$(foreach y,$(release.ONEAPI.LIBS_Y.dpc),$(eval $(call .release.ay,$y,$(RELEASEDIR.soia),_release_oneapi_dpc)))
+
+ifeq ($(if $(or $(OS_is_lnx),$(OS_is_mac)),yes,),yes)
+$(foreach x,$(release.LIBS_A),$(eval $(call .release.a_link,$x,$(RELEASEDIR.libia),_release_c)))
+$(foreach x,$(release.LIBS_Y),$(eval $(call .release.y_link,$x,$(RELEASEDIR.soia),_release_c)))
+$(foreach x,$(release.LIBS_J),$(eval $(call .release.y_link,$x,$(RELEASEDIR.soia),_release_jj)))
+$(foreach x,$(release.ONEAPI.LIBS_A),$(eval $(call .release.a_link,$x,$(RELEASEDIR.libia),_release_oneapi_c)))
+$(foreach x,$(release.ONEAPI.LIBS_Y),$(eval $(call .release.y_link,$x,$(RELEASEDIR.soia),_release_oneapi_c)))
+$(foreach x,$(release.ONEAPI.LIBS_A.dpc),$(eval $(call .release.a_link,$x,$(RELEASEDIR.libia),_release_oneapi_dpc)))
+$(foreach x,$(release.ONEAPI.LIBS_Y.dpc),$(eval $(call .release.y_link,$x,$(RELEASEDIR.soia),_release_oneapi_dpc)))
+endif
+
+ifeq ($(OS_is_win),yes)
+$(foreach x,$(release.LIBS_A),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.libia),_release_c)))
+$(foreach x,$(release.LIBS_Y),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.soia),_release_c)))
+$(foreach x,$(release.LIBS_J),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.soia),_release_jj)))
+$(foreach x,$(release.ONEAPI.LIBS_A),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.libia),_release_oneapi_c)))
+$(foreach x,$(release.ONEAPI.LIBS_Y),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.soia),_release_oneapi_c)))
+$(foreach x,$(release.ONEAPI.LIBS_A.dpc),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.libia),_release_oneapi_dpc)))
+$(foreach x,$(release.ONEAPI.LIBS_Y.dpc),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.soia),_release_oneapi_dpc)))
+endif
 
 ifneq ($(MKLGPUFPKDIR),)
 # Copies the file to the destination directory and renames daal -> onedal
@@ -1004,36 +1032,6 @@ endef
 
 $(foreach t,$(mklgpufpk.HEADERS),$(eval $(call .release.sycl.old,$t,$(RELEASEDIR.include.mklgpufpk))))
 $(foreach t,$(mklgpufpk.LIBS_A), $(eval $(call .release.sycl.old,$t,$(RELEASEDIR.libia))))
-endif
-
-# Adds symlink to the old library name
-# $1: New library name
-# $2: Release directory
-# $3: make target to add dependency
-# Note: The `ln` command does not support `-r` on MacOS, so we
-#       `cd`to the lib directory first and then create symlink.
-define .release.add_compat_symlink
-$3: $2/$(subst onedal,daal,$1)
-$2/$(subst onedal,daal,$1): $2/$1
-	cd $2 && ln -sf $1 $(subst onedal,daal,$1)
-endef
-
-ifeq ($(if $(or $(OS_is_lnx),$(OS_is_mac)),yes,),yes)
-$(foreach a,$(release.LIBS_A),$(eval $(call .release.add_compat_symlink,$a,$(RELEASEDIR.libia),_release_c)))
-$(foreach y,$(release.LIBS_Y),$(eval $(call .release.add_compat_symlink,$y,$(RELEASEDIR.soia),_release_c)))
-endif
-
-# Adds copy to the old library name
-# $1: New library name
-# $2: Release directory
-# $3: make target to add dependency
-define .release.add_compat_copy
-$3: $2/$(subst onedal,daal,$1)
-$2/$(subst onedal,daal,$1): $(WORKDIR.lib)/$1 ; $(value cpy)
-endef
-
-ifeq ($(OS_is_win),yes)
-$(foreach a,$(filter %_dll.$a,$(release.LIBS_A)),$(eval $(call .release.add_compat_copy,$a,$(RELEASEDIR.libia),_release_c)))
 endif
 
 #----- releasing jar files

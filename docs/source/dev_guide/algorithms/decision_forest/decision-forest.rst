@@ -79,26 +79,76 @@ Termination Criteria
 The library supports the following termination criteria of
 decision forest training:
 
-- *Minimal number of observations in a leaf node*. Node :math:`t` is not
-  processed if :math:`|D_t|` is smaller than the predefined
-  value. Splits that produce nodes with the number of
-  *observations* smaller than that value are not allowed.
-- *Maximal tree depth*. Node :math:`t` is not processed, if its depth in
-  the tree reached the predefined value.
-- *Impurity threshold*. Node :math:`t` is not processed, if its impurity
-  is smaller than the predefined threshold.
+Minimal number of observations in a leaf node
+  Node :math:`t` is not processed if :math:`|D_t|` is smaller than the predefined value.
+  Splits that produce nodes with the number of observations smaller than that value are not allowed.
 
-Decision tree follows the recursive procedure below applied in
-each terminal node :math:`t`:
+Minimal number of observations in a split node
+  Node :math:`t` is not processed if :math:`|D_t|` is smaller than the predefined value.
+  Splits that produce nodes with the number of observations smaller than that value are not allowed.
 
--  Stop, if the termination criteria is met.
--  Choose randomly without replacement :math:`m` feature indices :math:`J_t \in \{0, 1, \ldots, p-1\}`.
--  For each :math:`j \in J_t`, find the best split :math:`s_{j,t}` that
-   partitions subset :math:`D_t` and maximizes impurity decrease
-   :math:`\Delta i(t)`.
--  Get the best split :math:`s_t` that maximizes impurity decrease
-   :math:`\Delta i` in all :math:`s_{j,t}` splits.
--  Apply this procedure recursively to :math:`t_L` and :math:`t_R`.
+Minimum weighted fraction of the sum total of weights of all the input observations required to be at a leaf node
+  Node :math:`t` is not processed if :math:`|D_t|` is smaller than the predefined value.
+  Splits that produce nodes with the number of observations smaller than that value are not allowed.
+
+Maximal tree depth
+  Node :math:`t` is not processed if its depth in the tree reached the predefined value.
+
+Impurity threshold
+  Node :math:`t` is not processed if its impurity is smaller than the predefined threshold.
+
+Maximal number of leaf nodes
+  Grow trees with positive maximal number of leaf nodes in a :ref:`best-first <best_first_strategy>` fashion.
+  Best nodes are defined by relative reduction in impurity.
+  If maximal number of leaf nodes equals zero, then this criterion does not limit the number of leaf nodes,
+  and trees grow in a :ref:`depth-first <depth_first_strategy>` fashion. 
+
+Tree Building Strategies
+++++++++++++++++++++++++
+
+Maximal number of leaf nodes defines the strategy of tree building:
+:ref:`depth-first <depth_first_strategy>` or :ref:`best-first <best_first_strategy>`.
+
+.. _depth_first_strategy:
+
+Depth-first Strategy
+~~~~~~~~~~~~~~~~~~~~
+
+If maximal number of leaf nodes equals zero, a decision tree is built using depth-first strategy.
+In each terminal node :math:`t`, the following recursive procedure is applied: 
+
+- Stop if the termination criteria are met.
+- Choose randomly without replacement :math:`m` feature indices :math:`J_t \in \{0, 1, \ldots, p-1\}`.
+- For each :math:`j \in J_t`, find the best split :math:`s_{j,t}` that
+  partitions subset :math:`D_t` and maximizes impurity decrease
+  :math:`\Delta i(t)`.
+- A node is a split if this split induces a decrease of the impurity greater than or equal to the predefined value.
+  Get the best split :math:`s_t` that maximizes impurity decrease
+  :math:`\Delta i` in all :math:`s_{j,t}` splits.
+- Apply this procedure recursively to :math:`t_L` and :math:`t_R`.
+
+.. _best_first_strategy:
+
+Best-first Strategy
+~~~~~~~~~~~~~~~~~~~
+
+If maximal number of leaf nodes is positive, a decision tree is built using best-first strategy.
+In each terminal node :math:`t`, the following steps are applied:
+
+- Stop if the termination criteria are met.
+- Choose randomly without replacement :math:`m` feature indices :math:`J_t \in \{0, 1, \ldots, p-1\}`.
+- For each :math:`j \in J_t`, find the best split :math:`s_{j,t}` that
+  partitions subset :math:`D_t` and maximizes impurity decrease
+  :math:`\Delta i(t)`.
+- A node is a split if this split induces a decrease of the impurity greater than or equal to the predefined value
+  and the number of split nodes is less or equal to :math:`\mathrm{maxLeafNodes} – 1`.
+  Get the best split :math:`s_t` that maximizes impurity decrease
+  :math:`\Delta i` in all :math:`s_{j,t}` splits.
+- Put a node into a sorted array, where sort criterion is the improvement in impurity :math:`\Delta i(t)|D_t|`.
+  The node with maximal improvement is the first in the array. For a leaf node, the improvement in impurity is zero.
+- Apply this procedure to :math:`t_L` and :math:`t_R` and grow a tree one by one getting the first element from the array
+  until the array is empty.
+
 
 Random Numbers Generation
 +++++++++++++++++++++++++
@@ -213,9 +263,7 @@ workflow described in :ref:`classification_usage_model`.
 Training
 --------
 
-At the training stage, decision tree regression has the following
-parameters:
-
+At the training stage, decision forest regression has the following parameters:
 
 .. list-table::
    :widths: 10 20 30
@@ -225,11 +273,6 @@ parameters:
    * - Parameter
      - Default Value
      - Description
-   * - ``seed``
-     - :math:`777`
-     - The seed for random number generator, which is used to choose the
-       bootstrap set, split features in every split node in a tree, and
-       generate permutation required in computations of ``MDA`` variable importance.
    * - ``nTrees``
      - :math:`100`
      - The number of trees in the forest.
@@ -242,13 +285,27 @@ parameters:
      - :math:`0`
      - The number of features tried as possible splits per node. If the
        parameter is set to :math:`0`, the library uses the square root of the number of
-       features for classification and :math:`\fraq{\mathrm{the number of features}}{3}` for regression.
+       features, :math:`\sqrt{p}`, for classification
+       and :math:`\frac{p}{3}` features for regression.
    * - ``maxTreeDepth``
      - :math:`0`
      - Maximal tree depth. Default is :math:`0` (unlimited).
-   * - ``minObservationsInLeafNode``
-     - :math:`1` for classification, :math:`5` for regression
-     - Minimum number of observations in the leaf node.
+   * - **DEPRECATED:** ``seed``
+     - :math:`777`
+     - The seed for random number generator, which is used to choose the
+       bootstrap set, split features in every split node in a tree, and
+       generate permutation required in computations of ``MDA`` variable importance.
+
+       .. note::
+
+          This parameter is deprecated and will be removed in future releases. Use ``engine`` instead.
+   * - ``engine``
+     - `SharePtr< engines:: mt2203:: Batch>()`
+     - Pointer to the random number generator engine.
+
+       The random numbers produced by this engine are used to choose the bootstrap set,
+       split features in every split node in a tree, and generate permutation required in computations
+       of MDA variable importance.
    * - ``impurityThreshold``
      - :math:`0`
      - The threshold value used as stopping criteria: if the impurity value in
@@ -273,10 +330,34 @@ parameters:
 
         + ``computeOutOfBagError``
         + ``computeOutOfBagErrorPerObservation``
+   * - ``bootstrap``
+     - ``true``
+     - If true, the training set for a tree is a bootstrap of the whole training set.
+       If false, the whole training set is used to build trees.        
+   * - ``minObservationsInLeafNode``
+     - :math:`1` for classification, :math:`5` for regression
+     - Minimum number of observations in the leaf node.
+   * - ``minObservationsInSplitNode``
+     - :math:`2`
+     - Minimum number of samples required to split an internal node; it can be any non-negative number.
+   * - ``minWeightFractionInLeafNode``
+     - :math:`0.0`
+     - Minimum weighted fraction of the sum total of weights of all the input observations required to be at a leaf node,
+       from :math:`0.0` to :math:`0.5`.
+        
+       All observations have equal weights if the weights of the observations are not provided.
 
-   * - ``engine``
-     - `SharePtr< engines:: mt2203:: Batch>()`
-     - Pointer to the random number generator engine.
+   * - ``minImpurityDecreaseInSplitNode``
+     - :math:`0.0`
+     - Minimum amount of impurity decrease required to split a node; it can be any non-negative number.
+   * - ``maxLeafNodes``
+     - :math:`0`
+     - Grow trees with positive maximal number of leaf nodes in a :ref:`best-first <best_first_strategy>` fashion.
+       Best nodes are defined as relative reduction in impurity.
+       If maximal number of leaf nodes equals zero,
+       then this parameter does not limit the number of leaf nodes, and trees grow in a :ref:`depth-first <depth_first_strategy>` fashion.
+
+
 
 Output
 ------

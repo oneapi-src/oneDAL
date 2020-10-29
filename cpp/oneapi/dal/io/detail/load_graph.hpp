@@ -37,7 +37,7 @@ edge_list<std::int32_t> load_edge_list(const std::string &name) {
 
     std::ifstream file(name);
     if (!file.is_open()) {
-        throw invalid_argument("File not found");
+        throw invalid_argument(dal::detail::error_messages::file_not_found());
     }
     edge_list<int_t> elist;
     elist.reserve(1024);
@@ -56,7 +56,7 @@ edge_list<std::int32_t> load_edge_list(const std::string &name) {
 template <typename Graph>
 void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     if (edges.size() == 0) {
-        throw invalid_argument("Empty edge list");
+        throw invalid_argument(dal::detail::error_messages::empty_edge_list());
     }
 
     using vertex_t = typename Graph::vertex_type;
@@ -98,10 +98,9 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     allocator.deallocate((char *)degrees_vec_void,
                          vertex_count * (sizeof(atomic_t) / sizeof(char)));
 
-    void *unfiltered_neighs_void = (void *)allocator.allocate(
-        (rows_vec_atomic[vertex_count].get()) * (sizeof(vertex_t) / sizeof(char)));
-    vertex_t *unfiltered_neighs =
-        new (unfiltered_neighs_void) vertex_t[rows_vec_atomic[vertex_count].get()];
+    void *unfiltered_neighs_void =
+        (void *)allocator.allocate((total_sum_degrees) * (sizeof(vertex_t) / sizeof(char)));
+    vertex_t *unfiltered_neighs = new (unfiltered_neighs_void) vertex_t[total_sum_degrees];
 
     void *unfiltered_offsets_void =
         (void *)allocator.allocate((vertex_count + 1) * (sizeof(edge_t) / sizeof(char)));
@@ -136,13 +135,13 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     layout->_edge_offsets = std::move(vector_vertex_t(vertex_count + 1));
     auto edge_offsets_data = layout->_edge_offsets.data();
 
-    total_sum_degrees = 0;
-    edge_offsets_data[0] = total_sum_degrees;
+    vertex_t filtered_total_sum_degrees = 0;
+    edge_offsets_data[0] = filtered_total_sum_degrees;
     for (vertex_t i = 0; i < vertex_count; ++i) {
-        total_sum_degrees += degrees_data[i];
-        edge_offsets_data[i + 1] = total_sum_degrees;
+        filtered_total_sum_degrees += degrees_data[i];
+        edge_offsets_data[i + 1] = filtered_total_sum_degrees;
     }
-    layout->_edge_count = total_sum_degrees / 2;
+    layout->_edge_count = filtered_total_sum_degrees / 2;
 
     layout->_vertex_neighbors = std::move(vector_vertex_t(layout->_edge_offsets[vertex_count]));
 
@@ -157,7 +156,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     });
 
     allocator.deallocate((char *)unfiltered_neighs_void,
-                         (rows_vec_atomic[vertex_count].get()) * (sizeof(vertex_t) / sizeof(char)));
+                         (total_sum_degrees) * (sizeof(vertex_t) / sizeof(char)));
     allocator.deallocate((char *)unfiltered_offsets_void,
                          (vertex_count + 1) * (sizeof(edge_t) / sizeof(char)));
     return;

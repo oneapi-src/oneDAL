@@ -57,7 +57,7 @@ double descriptor_base<task::clustering>::get_accuracy_threshold() const {
 template <>
 void descriptor_base<task::clustering>::set_cluster_count_impl(std::int64_t value) {
     if (value <= 0) {
-        throw domain_error("cluster_count should be > 0");
+        throw domain_error(dal::detail::error_messages::cluster_count_leq_zero());
     }
     impl_->cluster_count = value;
 }
@@ -65,7 +65,7 @@ void descriptor_base<task::clustering>::set_cluster_count_impl(std::int64_t valu
 template <>
 void descriptor_base<task::clustering>::set_max_iteration_count_impl(std::int64_t value) {
     if (value < 0) {
-        throw domain_error("max_iteration_count should be >= 0");
+        throw domain_error(dal::detail::error_messages::max_iteration_count_lt_zero());
     }
     impl_->max_iteration_count = value;
 }
@@ -73,7 +73,7 @@ void descriptor_base<task::clustering>::set_max_iteration_count_impl(std::int64_
 template <>
 void descriptor_base<task::clustering>::set_accuracy_threshold_impl(double value) {
     if (value < 0.0) {
-        throw domain_error("accuracy_threshold should be >= 0.0");
+        throw domain_error(dal::detail::error_messages::accuracy_threshold_lt_zero());
     }
     impl_->accuracy_threshold = value;
 }
@@ -96,7 +96,7 @@ void model<task::clustering>::set_centroids_impl(const table& value) {
     impl_->centroids = value;
 }
 
-template class ONEAPI_DAL_EXPORT descriptor_base<task::clustering>;
-template class ONEAPI_DAL_EXPORT model<task::clustering>;
+template class ONEDAL_EXPORT descriptor_base<task::clustering>;
+template class ONEDAL_EXPORT model<task::clustering>;
 
 } // namespace oneapi::dal::kmeans

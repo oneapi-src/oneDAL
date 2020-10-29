@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#define ONEAPI_DAL_DATA_PARALLEL
+#define ONEDAL_DATA_PARALLEL
 #include "oneapi/dal/algo/decision_forest.hpp"
 #include "oneapi/dal/io/csv.hpp"
 

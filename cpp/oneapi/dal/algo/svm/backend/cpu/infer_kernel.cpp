@@ -27,8 +27,11 @@
 
 namespace oneapi::dal::svm::backend {
 
-using std::int64_t;
 using dal::backend::context_cpu;
+using model_t = model<task::classification>;
+using input_t = infer_input<task::classification>;
+using result_t = infer_result<task::classification>;
+using descriptor_t = descriptor_base<task::classification>;
 
 namespace daal_svm = daal::algorithms::svm;
 namespace daal_kernel_function = daal::algorithms::kernel_function;
@@ -39,13 +42,13 @@ using daal_svm_predict_kernel_t =
     daal_svm::prediction::internal::SVMPredictImpl<daal_svm::prediction::defaultDense, Float, Cpu>;
 
 template <typename Float>
-static infer_result call_daal_kernel(const context_cpu& ctx,
-                                     const descriptor_base& desc,
-                                     const model& trained_model,
-                                     const table& data) {
-    const int64_t row_count = data.get_row_count();
-    const int64_t column_count = data.get_column_count();
-    const int64_t support_vector_count = trained_model.get_support_vector_count();
+static result_t call_daal_kernel(const context_cpu& ctx,
+                                 const descriptor_t& desc,
+                                 const model_t& trained_model,
+                                 const table& data) {
+    const std::int64_t row_count = data.get_row_count();
+    const std::int64_t column_count = data.get_column_count();
+    const std::int64_t support_vector_count = trained_model.get_support_vector_count();
 
     // TODO: data is table, not a homogen_table. Think better about accessor - is it enough to have just a row_accessor?
     auto arr_data = row_accessor<const Float>{ data }.pull();
@@ -89,29 +92,27 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
                                                       : trained_model.get_first_class_label();
     }
 
-    return infer_result()
+    return result_t()
         .set_decision_function(
             dal::detail::homogen_table_builder{}.reset(arr_decision_function, row_count, 1).build())
         .set_labels(dal::detail::homogen_table_builder{}.reset(arr_label, row_count, 1).build());
 }
 
 template <typename Float>
-static infer_result infer(const context_cpu& ctx,
-                          const descriptor_base& desc,
-                          const infer_input& input) {
+static result_t infer(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_model(), input.get_data());
 }
 
 template <typename Float>
-struct infer_kernel_cpu<Float, task::classification, method::by_default> {
-    infer_result operator()(const context_cpu& ctx,
-                            const descriptor_base& desc,
-                            const infer_input& input) const {
+struct infer_kernel_cpu<Float, method::by_default, task::classification> {
+    result_t operator()(const context_cpu& ctx,
+                        const descriptor_t& desc,
+                        const input_t& input) const {
         return infer<Float>(ctx, desc, input);
     }
 };
 
-template struct infer_kernel_cpu<float, task::classification, method::by_default>;
-template struct infer_kernel_cpu<double, task::classification, method::by_default>;
+template struct infer_kernel_cpu<float, method::by_default, task::classification>;
+template struct infer_kernel_cpu<double, method::by_default, task::classification>;
 
 } // namespace oneapi::dal::svm::backend

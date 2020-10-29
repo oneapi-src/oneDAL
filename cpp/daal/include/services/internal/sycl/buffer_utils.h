@@ -51,9 +51,8 @@ public:
 
         DAAL_ASSERT(!_src.empty());
         DAAL_ASSERT(!_dest.empty());
-
-        DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(_src, DataType);
-        DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(_dest, DataType);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(_src, DataType, _size);
+        DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(_dest, T);
 
         auto srcBuffer  = _src.template get<DataType>();
         auto srcHostPtr = srcBuffer.toHost(readOnly, st);
@@ -98,6 +97,8 @@ public:
         DAAL_ASSERT(!_src.empty());
         DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(_src, T);
 
+        DAAL_ASSERT(_src.type() == TypeIds::id<T>());
+
         auto buffer = _src.template get<T>();
 
         auto subbuffer = buffer.getSubBuffer(_offset, _size, st);
@@ -121,6 +122,8 @@ public:
 
     void operator()(Typelist<DataType>, Status & st)
     {
+        DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(_src, DataType);
+
         auto buffer    = _src.template get<DataType>();
         auto subbuffer = buffer.getSubBuffer(_offset, _size, st);
         DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
@@ -153,7 +156,7 @@ public:
     template <typename T>
     void operator()(Typelist<T>, Status & st)
     {
-        DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(_src, T);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(_src, T, _size);
 
         auto buffer = _src.template get<T>();
         auto ptr    = buffer.toHost(_mode, st);

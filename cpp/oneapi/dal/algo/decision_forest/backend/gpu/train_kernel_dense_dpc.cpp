@@ -24,7 +24,8 @@ struct train_kernel_gpu<Float, Task, method::dense> {
     train_result<Task> operator()(const dal::backend::context_gpu& ctx,
                                   const descriptor_base<Task>& params,
                                   const train_input<Task>& input) const {
-        throw unimplemented("Decision forest train dense method is not implemented for GPU");
+        throw unimplemented(dal::detail::error_messages::
+                                decision_forest_train_dense_method_is_not_implemented_for_gpu());
     }
 };
 

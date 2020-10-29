@@ -28,7 +28,7 @@ struct data_source_tag {};
 class data_source_impl;
 } // namespace detail
 
-class ONEAPI_DAL_EXPORT data_source_base : public base {
+class ONEDAL_EXPORT data_source_base : public base {
 public:
     using tag_t = detail::data_source_tag;
 
