@@ -234,4 +234,3 @@ TEST(knn_unit_tests, full_sim_kd_tree) {
 
     ASSERT_NO_THROW(dal::infer(knn_desc, x_train_table, result_train.get_model()));
 }
-
