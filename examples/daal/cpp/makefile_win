@@ -15,7 +15,7 @@
 #===============================================================================
 
 ##  Content:
-##     Intel(R) Data Analytics Acceleration Library examples creation and run
+##     Intel(R) oneAPI Data Analytics Library examples creation and run
 ##******************************************************************************
 
 help:
@@ -39,7 +39,7 @@ help:
 ##                                                 applications, static linking
 ##
 ## nmake dll compiler=msvs                       - build by Microsoft(R) C++ compiler and run all examples
-##                                                 of Intel(R) DAAL dynamic linking
+##                                                 of Intel(R) oneDAL dynamic linking
 ##
 ## nmake lib example=kmeans_dense_batch+         - build by Intel(R) C++ Compiler (as default)
 ##                                                 and run kmeans_dense_batch example for 64-bit

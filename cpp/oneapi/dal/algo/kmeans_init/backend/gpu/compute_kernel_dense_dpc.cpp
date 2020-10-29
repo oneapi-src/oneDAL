@@ -22,7 +22,7 @@
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
-#include "oneapi/dal/exceptions.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::kmeans_init::backend {
@@ -42,11 +42,6 @@ template <typename Float, typename Method, typename Task>
 static compute_result<Task> call_daal_kernel(const context_gpu& ctx,
                                              const descriptor_base<Task>& params,
                                              const table& data) {
-    if constexpr (std::is_same_v<Method, method::plus_plus_dense>)
-        throw unimplemented("plus_plus_dense method is not implemented for GPU");
-    if constexpr (std::is_same_v<Method, method::parallel_plus_dense>)
-        throw unimplemented("parallel_plus_dense method is not implemented for GPU");
-
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
@@ -89,6 +84,17 @@ template <typename Float, typename Method, typename Task>
 static compute_result<Task> compute(const context_gpu& ctx,
                                     const descriptor_base<Task>& desc,
                                     const compute_input<Task>& input) {
+    using msg = dal::detail::error_messages;
+
+    if constexpr (std::is_same_v<Method, method::plus_plus_dense>) {
+        throw unimplemented(msg::kmeans_init_plus_plus_dense_method_is_not_implemented_for_gpu());
+    }
+
+    if constexpr (std::is_same_v<Method, method::parallel_plus_dense>) {
+        throw unimplemented(
+            msg::kmeans_init_parallel_plus_dense_method_is_not_implemented_for_gpu());
+    }
+
     return call_daal_kernel<Float, Method, Task>(ctx, desc, input.get_data());
 }
 

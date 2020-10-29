@@ -64,7 +64,8 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
 
     auto model_pimpl = dal::detail::pimpl_accessor().get_pimpl(trained_model);
     if (!model_pimpl->is_interop()) {
-        throw dal::internal_error("Input model is inconsistent with kernel type");
+        throw dal::internal_error(
+            dal::detail::error_messages::input_model_does_not_match_kernel_function());
     }
 
     auto pinterop_model =
@@ -87,6 +88,7 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
     }
 
     if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_probabilities)) {
+        dal::detail::check_mul_overflow(desc.get_class_count(), row_count);
         arr_labels_prob = array<Float>::empty(queue, desc.get_class_count() * row_count);
         daal_labels_prob = interop::convert_to_daal_sycl_homogen_table(queue,
                                                                        arr_labels_prob,

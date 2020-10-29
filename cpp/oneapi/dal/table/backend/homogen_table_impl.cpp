@@ -19,6 +19,8 @@
 
 namespace oneapi::dal::backend {
 
+using error_msg = dal::detail::error_messages;
+
 table_metadata create_homogen_metadata(std::int64_t feature_count, data_type dtype) {
     auto default_ftype =
         detail::is_floating_point(dtype) ? feature_type::ratio : feature_type::ordinal;
@@ -29,7 +31,7 @@ table_metadata create_homogen_metadata(std::int64_t feature_count, data_type dty
 }
 
 template <typename Policy, typename Data>
-void make_mutable_data(const Policy& policy, array<Data>& array) {
+static void make_mutable_data(const Policy& policy, array<Data>& array) {
     if constexpr (std::is_same_v<Policy, detail::default_host_policy>) {
         array.need_mutable_data();
     }
@@ -46,7 +48,7 @@ void make_mutable_data(const Policy& policy, array<Data>& array) {
 }
 
 template <typename Policy, typename Data, typename Alloc>
-void reset_array(const Policy& policy, array<Data>& array, std::int64_t count, const Alloc& kind) {
+static void reset_array(const Policy& policy, array<Data>& array, std::int64_t count, const Alloc& kind) {
     if constexpr (std::is_same_v<Policy, detail::default_host_policy>) {
         array.reset(count);
     }
@@ -61,7 +63,7 @@ void reset_array(const Policy& policy, array<Data>& array, std::int64_t count, c
 }
 
 template <typename Policy, typename Data, typename Alloc>
-bool has_array_data_kind(const Policy& policy, const array<Data>& array, const Alloc& kind) {
+static bool has_array_data_kind(const Policy& policy, const array<Data>& array, const Alloc& kind) {
     if (array.get_count() <= 0) {
         return false;
     }
@@ -89,7 +91,7 @@ bool has_array_data_kind(const Policy& policy, const array<Data>& array, const A
 }
 
 template <typename DataSrc, typename DataDest>
-void refer_source_data(const array<DataSrc>& src,
+static void refer_source_data(const array<DataSrc>& src,
                        std::int64_t src_start_index,
                        std::int64_t dst_count,
                        array<DataDest>& dst) {
@@ -284,7 +286,7 @@ public:
         // overflows checked here
         check_origin_data(origin_data, origin_dtype_size, block_dtype_size);
         if (block_data.get_count() != block_.element_count) {
-            throw dal::range_error("block data size is smaller than expected");
+            throw dal::range_error(error_msg::small_data_block());
         }
 
         make_mutable_data(policy, origin_data);
@@ -354,7 +356,7 @@ public:
         check_origin_data(origin_data, origin_dtype_size, block_dtype_size);
 
         if (block_data.get_count() != block_.element_count) {
-            throw dal::range_error("block data size is smaller than expected");
+            throw dal::range_error(error_msg::small_data_block());
         }
 
         make_mutable_data(policy, origin_data);
@@ -394,17 +396,17 @@ private:
     origin_info origin_;
 };
 
-void check_block_row_range(const range& rows, std::int64_t origin_row_count) {
+static void check_block_row_range(const range& rows, std::int64_t origin_row_count) {
     const std::int64_t range_row_count = rows.get_element_count(origin_row_count);
     detail::check_sum_overflow(rows.start_idx, range_row_count);
     if (rows.start_idx + range_row_count > origin_row_count) {
-        throw dal::range_error("invalid range of rows");
+        throw dal::range_error(error_msg::invalid_range_of_rows());
     }
 }
 
-void check_block_column_index(std::int64_t column_index, std::int64_t origin_col_count) {
+static void check_block_column_index(std::int64_t column_index, std::int64_t origin_col_count) {
     if (column_index >= origin_col_count) {
-        throw dal::range_error("column index out of range");
+        throw dal::range_error(error_msg::column_index_out_of_range());
     }
 }
 
@@ -422,7 +424,7 @@ void homogen_table_impl::pull_rows_impl(const Policy& policy,
     switch (layout_) {
         case data_layout::row_major: p.pull_by_row_major(policy, data_, block, kind); break;
         case data_layout::column_major: p.pull_by_column_major(policy, data_, block, kind); break;
-        default: throw dal::domain_error("unsupported layout");
+        default: throw dal::domain_error(error_msg::unsupported_data_layout());
     }
 }
 
@@ -442,7 +444,7 @@ void homogen_table_impl::pull_column_impl(const Policy& policy,
     switch (layout_) {
         case data_layout::row_major: p.pull_by_column_major(policy, data_, block, kind); break;
         case data_layout::column_major: p.pull_by_row_major(policy, data_, block, kind); break;
-        default: throw dal::domain_error("unsupported layout");
+        default: throw dal::domain_error(error_msg::unsupported_data_layout());
     }
 }
 
@@ -459,7 +461,7 @@ void homogen_table_impl::push_rows_impl(const Policy& policy,
     switch (layout_) {
         case data_layout::row_major: p.push_by_row_major(policy, data_, block); break;
         case data_layout::column_major: p.push_by_column_major(policy, data_, block); break;
-        default: throw dal::domain_error("unsupported layout");
+        default: throw dal::domain_error(error_msg::unsupported_data_layout());
     }
 }
 
@@ -478,7 +480,7 @@ void homogen_table_impl::push_column_impl(const Policy& policy,
     switch (layout_) {
         case data_layout::row_major: p.push_by_column_major(policy, data_, block); break;
         case data_layout::column_major: p.push_by_row_major(policy, data_, block); break;
-        default: throw dal::domain_error("unsupported layout");
+        default: throw dal::domain_error(error_msg::unsupported_data_layout());
     }
 }
 

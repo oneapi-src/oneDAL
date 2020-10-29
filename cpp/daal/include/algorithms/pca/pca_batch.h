@@ -39,7 +39,7 @@ namespace pca
 namespace interface3
 {
 /**
-    * \brief Contains version 3.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+    * \brief Contains version 3.0 of Intel(R) oneAPI Data Analytics Library interface.
     */
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__PCA__BATCHCONTAINER"></a>

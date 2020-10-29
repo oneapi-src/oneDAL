@@ -25,13 +25,13 @@ package com.intel.daal.services;
 import com.intel.daal.utils.*;
 /**
  * @defgroup library_version_info Extracting Version Information
- * @brief Provides information about the version of Intel(R) Data Analytics Acceleration Library.
+ * @brief Provides information about the version of Intel(R) oneAPI Data Analytics Library.
  * @ingroup services
  * @{
  */
 /**
  *  <a name="DAAL-CLASS-SERVICES__LIBRARYVERSIONINFO"></a>
- * @brief Provides information about the version of Intel(R) Data Analytics Acceleration Library.
+ * @brief Provides information about the version of Intel(R) oneAPI Data Analytics Library.
  * <!-- \n<a href="DAAL-REF-LIBRARYVERSIONINFO-STRUCTURE">LibraryVersionInfo structure details and Optimization Notice</a> -->
  */
 public class LibraryVersionInfo {

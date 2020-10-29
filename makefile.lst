@@ -15,7 +15,7 @@
 #===============================================================================
 
 ##  Content:
-##     Intel(R) Data Analytics Acceleration Library algorithms list
+##     Intel(R) oneAPI Data Analytics Library algorithms list
 ##******************************************************************************
 
 CORE.ALGORITHMS.CUSTOM.AVAILABLE := low_order_moments quantiles covariance cosdistance cordistance kmeans pca cholesky \

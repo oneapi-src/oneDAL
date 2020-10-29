@@ -70,9 +70,7 @@ kernel_function_impl *kernel_function<linear_kernel_t<F, M>>::get_impl() const {
     template class ONEDAL_EXPORT kernel_function<linear_kernel_t<F, M>>;
 
 INSTANTIATE_LINEAR(float, linear_kernel::method::dense)
-INSTANTIATE_LINEAR(float, linear_kernel::method::csr)
 INSTANTIATE_LINEAR(double, linear_kernel::method::dense)
-INSTANTIATE_LINEAR(double, linear_kernel::method::csr)
 
 #undef INSTANTIATE_LINEAR
 
@@ -116,15 +114,14 @@ kernel_function_impl *kernel_function<rbf_kernel_t<F, M>>::get_impl() const {
 #define INSTANTIATE_RBF(F, M) template class kernel_function<rbf_kernel_t<F, M>>;
 
 INSTANTIATE_RBF(float, rbf_kernel::method::dense)
-INSTANTIATE_RBF(float, rbf_kernel::method::csr)
 INSTANTIATE_RBF(double, rbf_kernel::method::dense)
-INSTANTIATE_RBF(double, rbf_kernel::method::csr)
 
 #undef INSTANTIATE_RBF
 
 } // namespace detail
 
-class detail::descriptor_impl : public base {
+template <>
+class detail::descriptor_impl<task::classification> : public base {
 public:
     explicit descriptor_impl(const detail::kf_iface_ptr &kernel) : kernel(kernel) {}
 
@@ -137,7 +134,8 @@ public:
     bool shrinking = true;
 };
 
-class detail::model_impl : public base {
+template <>
+class detail::model_impl<task::classification> : public base {
 public:
     table support_vectors;
     table coeffs;
@@ -150,128 +148,160 @@ public:
 using detail::descriptor_impl;
 using detail::model_impl;
 
-descriptor_base::descriptor_base(const detail::kf_iface_ptr &kernel)
-        : impl_(new descriptor_impl{ kernel }) {}
+template <typename Task>
+descriptor_base<Task>::descriptor_base(const detail::kf_iface_ptr &kernel)
+        : impl_(new descriptor_impl<Task>{ kernel }) {}
 
-double descriptor_base::get_c() const {
+template <typename Task>
+double descriptor_base<Task>::get_c() const {
     return impl_->c;
 }
 
-double descriptor_base::get_accuracy_threshold() const {
+template <typename Task>
+double descriptor_base<Task>::get_accuracy_threshold() const {
     return impl_->accuracy_threshold;
 }
 
-std::int64_t descriptor_base::get_max_iteration_count() const {
+template <typename Task>
+std::int64_t descriptor_base<Task>::get_max_iteration_count() const {
     return impl_->max_iteration_count;
 }
 
-double descriptor_base::get_cache_size() const {
+template <typename Task>
+double descriptor_base<Task>::get_cache_size() const {
     return impl_->cache_size;
 }
 
-double descriptor_base::get_tau() const {
+template <typename Task>
+double descriptor_base<Task>::get_tau() const {
     return impl_->tau;
 }
 
-bool descriptor_base::get_shrinking() const {
+template <typename Task>
+bool descriptor_base<Task>::get_shrinking() const {
     return impl_->shrinking;
 }
 
-void descriptor_base::set_c_impl(double value) {
+template <typename Task>
+void descriptor_base<Task>::set_c_impl(double value) {
     if (value <= 0.0) {
-        throw domain_error("c should be > 0");
+        throw domain_error(dal::detail::error_messages::c_leq_zero());
     }
     impl_->c = value;
 }
 
-void descriptor_base::set_accuracy_threshold_impl(double value) {
+template <typename Task>
+void descriptor_base<Task>::set_accuracy_threshold_impl(double value) {
     if (value < 0.0) {
-        throw domain_error("accuracy_threshold should be >= 0.0");
+        throw domain_error(dal::detail::error_messages::accuracy_threshold_lt_zero());
     }
     impl_->accuracy_threshold = value;
 }
 
-void descriptor_base::set_max_iteration_count_impl(std::int64_t value) {
+template <typename Task>
+void descriptor_base<Task>::set_max_iteration_count_impl(std::int64_t value) {
     if (value <= 0) {
-        throw domain_error("max_iteration_count should be > 0");
+        throw domain_error(dal::detail::error_messages::max_iteration_count_leq_zero());
     }
     impl_->max_iteration_count = value;
 }
 
-void descriptor_base::set_cache_size_impl(double value) {
+template <typename Task>
+void descriptor_base<Task>::set_cache_size_impl(double value) {
     if (value <= 0.0) {
-        throw domain_error("cache_size should be > 0");
+        throw domain_error(dal::detail::error_messages::cache_size_leq_zero());
     }
     impl_->cache_size = value;
 }
 
-void descriptor_base::set_tau_impl(double value) {
+template <typename Task>
+void descriptor_base<Task>::set_tau_impl(double value) {
     if (value <= 0.0) {
-        throw domain_error("tau should be > 0");
+        throw domain_error(dal::detail::error_messages::tau_leq_zero());
     }
     impl_->tau = value;
 }
 
-void descriptor_base::set_shrinking_impl(bool value) {
+template <typename Task>
+void descriptor_base<Task>::set_shrinking_impl(bool value) {
     impl_->shrinking = value;
 }
 
-void descriptor_base::set_kernel_impl(const detail::kf_iface_ptr &kernel) {
+template <typename Task>
+void descriptor_base<Task>::set_kernel_impl(const detail::kf_iface_ptr &kernel) {
     impl_->kernel = kernel;
 }
 
-const detail::kf_iface_ptr &descriptor_base::get_kernel_impl() const {
+template <typename Task>
+const detail::kf_iface_ptr &descriptor_base<Task>::get_kernel_impl() const {
     return impl_->kernel;
 }
 
-model::model() : impl_(new model_impl{}) {}
+template class ONEDAL_EXPORT descriptor_base<task::classification>;
 
-table model::get_support_vectors() const {
+template <typename Task>
+model<Task>::model() : impl_(new model_impl<Task>{}) {}
+
+template <typename Task>
+table model<Task>::get_support_vectors() const {
     return impl_->support_vectors;
 }
 
-table model::get_coeffs() const {
+template <typename Task>
+table model<Task>::get_coeffs() const {
     return impl_->coeffs;
 }
 
-double model::get_bias() const {
+template <typename Task>
+double model<Task>::get_bias() const {
     return impl_->bias;
 }
 
-std::int64_t model::get_support_vector_count() const {
+template <typename Task>
+std::int64_t model<Task>::get_support_vector_count() const {
     return impl_->support_vector_count;
 }
 
-std::int64_t model::get_first_class_label() const {
+template <typename Task>
+std::int64_t model<Task>::get_first_class_label() const {
     return impl_->first_class_label;
 }
 
-std::int64_t model::get_second_class_label() const {
+template <typename Task>
+std::int64_t model<Task>::get_second_class_label() const {
     return impl_->second_class_label;
 }
 
-void model::set_support_vectors_impl(const table &value) {
+template <typename Task>
+void model<Task>::set_support_vectors_impl(const table &value) {
     impl_->support_vectors = value;
 }
 
-void model::set_coeffs_impl(const table &value) {
+template <typename Task>
+void model<Task>::set_coeffs_impl(const table &value) {
     impl_->coeffs = value;
 }
 
-void model::set_bias_impl(double value) {
+template <typename Task>
+void model<Task>::set_bias_impl(double value) {
     impl_->bias = value;
 }
 
-void model::set_support_vector_count_impl(std::int64_t value) {
+template <typename Task>
+void model<Task>::set_support_vector_count_impl(std::int64_t value) {
     impl_->support_vector_count = value;
 }
 
-void model::set_first_class_label_impl(std::int64_t value) {
+template <typename Task>
+void model<Task>::set_first_class_label_impl(std::int64_t value) {
     impl_->first_class_label = value;
 }
 
-void model::set_second_class_label_impl(std::int64_t value) {
+template <typename Task>
+void model<Task>::set_second_class_label_impl(std::int64_t value) {
     impl_->second_class_label = value;
 }
+
+template class ONEDAL_EXPORT model<task::classification>;
 
 } // namespace oneapi::dal::svm
