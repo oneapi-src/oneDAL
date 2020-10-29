@@ -62,7 +62,6 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     using vertex_t = typename Graph::vertex_type;
     using vertex_size_type = typename Graph::vertex_size_type;
     using edge_t = typename Graph::edge_type;
-    using edge_size_type = typename Graph::edge_size_type;
     using vertex_set = typename Graph::vertex_set;
     using edge_set = typename Graph::edge_set;
     using atomic_vertex_t = typename daal::services::Atomic<vertex_t>;
@@ -99,7 +98,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
 
     edge_t total_sum_degrees = 0;
     rows_vec_atomic[0].set(total_sum_degrees);
-    for (vertex_t i = 0; i < vertex_count; ++i) {
+    for (auto i = 0; i < vertex_count; ++i) {
         total_sum_degrees += degrees_cv[i].get();
         rows_vec_atomic[i + 1].set(total_sum_degrees);
     }
@@ -148,7 +147,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
 
     edge_t filtered_total_sum_degrees = 0;
     edge_offsets_data[0] = filtered_total_sum_degrees;
-    for (vertex_t i = 0; i < vertex_count; ++i) {
+    for (auto i = 0; i < vertex_count; ++i) {
         filtered_total_sum_degrees += degrees_data[i];
         edge_offsets_data[i + 1] = filtered_total_sum_degrees;
     }
