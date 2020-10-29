@@ -57,7 +57,7 @@ MSG(number_of_columns_leq_zero, "Number of columns is lower than or equal to zer
 
 /* Ranges */
 MSG(invalid_range_of_rows, "Invalid range of rows")
-MSG(column_index_out_of_range, "Column index out of range");
+MSG(column_index_out_of_range, "Column index out of range")
 
 /* Graphs */
 MSG(vertex_index_out_of_range_expect_from_zero_to_vertex_count,
