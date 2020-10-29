@@ -55,7 +55,7 @@ TEST(linear_kernel_bad_arg_tests, incorect_columns) {
     const float x_train[] = { 0.f, 1.f };
     const float y_train[] = { 0.f, 1.f, 1.f, 1.f };
     const auto x_train_table = dal::homogen_table::wrap(x_train, row_count, column_count_x);
-    const auto y_train_table = dal::homogen_table::wrap(x_train, row_count, column_count_y);
+    const auto y_train_table = dal::homogen_table::wrap(y_train, row_count, column_count_y);
 
     const auto linear_kernel_desc = linear_kernel::descriptor{};
 
