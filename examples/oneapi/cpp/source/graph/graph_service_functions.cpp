@@ -29,16 +29,20 @@ int main(int argc, char **argv) {
 
     const onedal::preview::graph_csv_data_source ds(filename);
     using my_graph_type = onedal::preview::undirected_adjacency_array_graph<>;
-    const onedal::preview::load_graph::descriptor<onedal::preview::edge_list<int32_t>, my_graph_type> desc;
+    const onedal::preview::load_graph::descriptor<onedal::preview::edge_list<int32_t>,
+                                                  my_graph_type>
+        desc;
     const auto my_graph = onedal::preview::load_graph::load(desc, ds);
     std::cout << "Number of vertices: " << onedal::preview::get_vertex_count(my_graph) << std::endl;
     std::cout << "Number of edges: " << onedal::preview::get_edge_count(my_graph) << std::endl;
 
     onedal::preview::vertex_type<my_graph_type> vertex_id = 0;
-    std::cout << "Degree of " << vertex_id << ": " << onedal::preview::get_vertex_degree(my_graph, vertex_id)
-              << std::endl;
+    std::cout << "Degree of " << vertex_id << ": "
+              << onedal::preview::get_vertex_degree(my_graph, vertex_id) << std::endl;
 
-    for (onedal::preview::vertex_size_type<my_graph_type> j = 0; j < onedal::preview::get_vertex_count(my_graph); ++j) {
+    for (onedal::preview::vertex_size_type<my_graph_type> j = 0;
+         j < onedal::preview::get_vertex_count(my_graph);
+         ++j) {
         std::cout << "Neighbors of " << j << ": ";
         const auto neigh = onedal::preview::get_vertex_neighbors(my_graph, j);
         for (auto i = neigh.first; i != neigh.second; ++i) {

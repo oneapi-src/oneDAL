@@ -27,7 +27,7 @@
 namespace onedal = oneapi::dal;
 
 template <typename Method>
-void run(sycl::queue &q, const onedal::table& x_train, const std::string& method_name) {
+void run(sycl::queue& q, const onedal::table& x_train, const std::string& method_name) {
     constexpr std::int64_t cluster_count = 20;
     constexpr std::int64_t max_iteration_count = 1000;
     constexpr double accuracy_threshold = 0.01;
@@ -53,12 +53,11 @@ void run(sycl::queue &q, const onedal::table& x_train, const std::string& method
               << std::endl;
 }
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char const* argv[]) {
     const std::string train_data_file_name = get_data_path("kmeans_init_dense.csv");
 
     for (auto d : list_devices()) {
-        std::cout << "Running on " << d.get_info<sycl::info::device::name>() << '\n'
-                  << std::endl;
+        std::cout << "Running on " << d.get_info<sycl::info::device::name>() << '\n' << std::endl;
         auto q = sycl::queue{ d };
 
         const auto x_train =

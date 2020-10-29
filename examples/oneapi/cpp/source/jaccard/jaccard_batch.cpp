@@ -41,9 +41,9 @@ int main(int argc, char **argv) {
     const std::int64_t column_range_end = 3;
 
     // set algorithm parameters
-    const auto jaccard_desc =
-        onedal::preview::jaccard::descriptor<>().set_block({ row_range_begin, row_range_end },
-                                                   { column_range_begin, column_range_end });
+    const auto jaccard_desc = onedal::preview::jaccard::descriptor<>().set_block(
+        { row_range_begin, row_range_end },
+        { column_range_begin, column_range_end });
 
     // create caching builder for jaccard result
     onedal::preview::jaccard::caching_builder builder;

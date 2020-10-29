@@ -51,10 +51,11 @@ void run(const onedal::table& x_train, const std::string& method_name) {
               << std::endl;
 }
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char const* argv[]) {
     const std::string train_data_file_name = get_data_path("kmeans_init_dense.csv");
 
-    const auto x_train = onedal::read<onedal::table>(onedal::csv::data_source{ train_data_file_name });
+    const auto x_train =
+        onedal::read<onedal::table>(onedal::csv::data_source{ train_data_file_name });
 
     run<onedal::kmeans_init::method::dense>(x_train, "dense");
     run<onedal::kmeans_init::method::random_dense>(x_train, "random_dense");

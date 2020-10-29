@@ -25,14 +25,13 @@
 namespace onedal = oneapi::dal;
 
 void run(sycl::queue &q) {
-    std::cout << "Running on " << q.get_device().get_info<sycl::info::device::name>()
-              << "\n"
+    std::cout << "Running on " << q.get_device().get_info<sycl::info::device::name>() << "\n"
               << std::endl;
 
     const std::string data_file_name = get_data_path("kernel_function.csv");
 
-    const auto x = onedal::read<onedal::table>(q, onedal::csv::data_source{data_file_name});
-    const auto y = onedal::read<onedal::table>(q, onedal::csv::data_source{data_file_name});
+    const auto x = onedal::read<onedal::table>(q, onedal::csv::data_source{ data_file_name });
+    const auto y = onedal::read<onedal::table>(q, onedal::csv::data_source{ data_file_name });
 
     const auto kernel_desc = onedal::linear_kernel::descriptor{}.set_scale(1.0).set_shift(0.0);
 
@@ -43,8 +42,7 @@ void run(sycl::queue &q) {
 
 int main(int argc, char const *argv[]) {
     for (auto d : list_devices()) {
-        std::cout << "Running on " << d.get_info<sycl::info::device::name>() << "\n"
-                  << std::endl;
+        std::cout << "Running on " << d.get_info<sycl::info::device::name>() << "\n" << std::endl;
         auto q = sycl::queue{ d };
         run(q);
     }

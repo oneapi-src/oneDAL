@@ -22,16 +22,17 @@
 namespace onedal = oneapi::dal;
 
 int main(int argc, char const *argv[]) {
-    const std::string train_data_file_name  = get_data_path("svm_two_class_train_dense_data.csv");
+    const std::string train_data_file_name = get_data_path("svm_two_class_train_dense_data.csv");
     const std::string train_label_file_name = get_data_path("svm_two_class_train_dense_label.csv");
-    const std::string test_data_file_name   = get_data_path("svm_two_class_test_dense_data.csv");
-    const std::string test_label_file_name  = get_data_path("svm_two_class_test_dense_label.csv");
+    const std::string test_data_file_name = get_data_path("svm_two_class_test_dense_data.csv");
+    const std::string test_label_file_name = get_data_path("svm_two_class_test_dense_label.csv");
 
-    const auto x_train = onedal::read<onedal::table>(onedal::csv::data_source{train_data_file_name});
-    const auto y_train = onedal::read<onedal::table>(onedal::csv::data_source{train_label_file_name});
+    const auto x_train =
+        onedal::read<onedal::table>(onedal::csv::data_source{ train_data_file_name });
+    const auto y_train =
+        onedal::read<onedal::table>(onedal::csv::data_source{ train_label_file_name });
 
-    const auto kernel_desc =
-        onedal::linear_kernel::descriptor{}.set_scale(1.0).set_shift(0.0);
+    const auto kernel_desc = onedal::linear_kernel::descriptor{}.set_scale(1.0).set_shift(0.0);
 
     const auto svm_desc = onedal::svm::descriptor{ kernel_desc }
                               .set_c(1.0)
@@ -40,23 +41,20 @@ int main(int argc, char const *argv[]) {
                               .set_cache_size(200.0)
                               .set_tau(1e-6);
 
-    const auto result_train =
-        onedal::train(svm_desc, x_train, y_train);
+    const auto result_train = onedal::train(svm_desc, x_train, y_train);
 
     std::cout << "Bias:\n" << result_train.get_bias() << std::endl;
-    std::cout << "Support indices:\n"
-              << result_train.get_support_indices() << std::endl;
+    std::cout << "Support indices:\n" << result_train.get_support_indices() << std::endl;
 
-    const auto x_test = onedal::read<onedal::table>(onedal::csv::data_source{test_data_file_name});
-    const auto y_true = onedal::read<onedal::table>(onedal::csv::data_source{test_label_file_name});
+    const auto x_test =
+        onedal::read<onedal::table>(onedal::csv::data_source{ test_data_file_name });
+    const auto y_true =
+        onedal::read<onedal::table>(onedal::csv::data_source{ test_label_file_name });
 
-    const auto result_test =
-        onedal::infer(svm_desc, result_train.get_model(), x_test);
+    const auto result_test = onedal::infer(svm_desc, result_train.get_model(), x_test);
 
-    std::cout << "Decision function result:\n"
-              << result_test.get_decision_function() << std::endl;
-    std::cout << "Labels result:\n"
-              << result_test.get_labels() << std::endl;
+    std::cout << "Decision function result:\n" << result_test.get_decision_function() << std::endl;
+    std::cout << "Labels result:\n" << result_test.get_labels() << std::endl;
     std::cout << "Labels true:\n" << y_true << std::endl;
 
     return 0;

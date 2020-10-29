@@ -29,11 +29,11 @@ namespace onedal = oneapi::dal;
 void run(sycl::queue& q) {
     const std::string train_data_file_name = get_data_path("pca_normalized.csv");
 
-    const auto x_train = onedal::read<onedal::table>(q, onedal::csv::data_source{ train_data_file_name });
+    const auto x_train =
+        onedal::read<onedal::table>(q, onedal::csv::data_source{ train_data_file_name });
 
-    const auto pca_desc = onedal::pca::descriptor<>()
-        .set_component_count(5)
-        .set_deterministic(true);
+    const auto pca_desc =
+        onedal::pca::descriptor<>().set_component_count(5).set_deterministic(true);
 
     const auto result_train = onedal::train(q, pca_desc, x_train);
 
@@ -46,12 +46,10 @@ void run(sycl::queue& q) {
     std::cout << "Transformed data:\n" << result_infer.get_transformed_data() << std::endl;
 }
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char const* argv[]) {
     for (auto d : list_devices()) {
-        std::cout << "Running on "
-                  << d.get_info<sycl::info::device::name>() <<
-                  "\n" << std::endl;
-        auto q = sycl::queue{d};
+        std::cout << "Running on " << d.get_info<sycl::info::device::name>() << "\n" << std::endl;
+        auto q = sycl::queue{ d };
         run(q);
     }
     return 0;
