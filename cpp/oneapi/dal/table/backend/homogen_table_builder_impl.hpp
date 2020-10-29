@@ -81,11 +81,11 @@ public:
 
     void allocate(std::int64_t row_count, std::int64_t column_count) {
         if (row_count <= 0) {
-            throw dal::domain_error(error_msg::number_of_rows_leq_zero());
+            throw dal::domain_error(dal::detail::error_messages::number_of_rows_leq_zero());
         }
 
         if (column_count <= 0) {
-            throw dal::domain_error(error_msg::number_of_columns_leq_zero());
+            throw dal::domain_error(dal::detail::error_messages::number_of_columns_leq_zero());
         }
 
         const std::int64_t data_size = get_data_size(row_count, column_count, dtype_);
@@ -121,11 +121,11 @@ public:
                   std::int64_t column_count,
                   sycl::usm::alloc kind) {
         if (row_count <= 0) {
-            throw dal::domain_error(error_msg::number_of_rows_leq_zero());
+            throw dal::domain_error(dal::detail::error_messages::number_of_rows_leq_zero());
         }
 
         if (column_count <= 0) {
-            throw dal::domain_error(error_msg::number_of_columns_leq_zero());
+            throw dal::domain_error(dal::detail::error_messages::number_of_columns_leq_zero());
         }
 
         const std::int64_t data_size = get_data_size(row_count, column_count, dtype_);
