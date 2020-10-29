@@ -167,7 +167,8 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
     const uint32_t minkowskiPower = 2;
     algorithmFPType epsP          = 1.0;
     for (uint32_t i = 0; i < minkowskiPower; i++) epsP *= par->epsilon;
-    DAAL_CHECK((par->minObservations > algorithmFPType(0)) && (par->minObservations < algorithmFPType(maxInt32AsSizeT)), services::ErrorIncorrectParameter);
+    DAAL_CHECK((par->minObservations > algorithmFPType(0)) && (par->minObservations < algorithmFPType(maxInt32AsSizeT)),
+               services::ErrorIncorrectParameter);
 
     NumericTable * const ntData = const_cast<NumericTable *>(x);
     NumericTable * const ntW    = const_cast<NumericTable *>(ntWeights);
