@@ -44,32 +44,27 @@ TEST(df_bad_arg_tests, test_checks_for_inputs_exceed_int32) {
     const auto y_train_table = dal::homogen_table::wrap(queue, y_train, row_count_train, 1);
 
     ASSERT_THROW((dal::train(queue,
-                             df_hist_classifier{}
-                                 .set_class_count(0xFFFFFFFF),
+                             df_hist_classifier{}.set_class_count(0xFFFFFFFF),
                              x_train_table,
                              y_train_table)),
                  dal::domain_error);
     ASSERT_THROW((dal::train(queue,
-                             df_hist_classifier{}
-                                 .set_min_observations_in_leaf_node(0xFFFFFFFF),
+                             df_hist_classifier{}.set_min_observations_in_leaf_node(0xFFFFFFFF),
                              x_train_table,
                              y_train_table)),
                  dal::domain_error);
     ASSERT_THROW((dal::train(queue,
-                             df_hist_classifier{}
-                                 .set_features_per_node(0xFFFFFFFF),
+                             df_hist_classifier{}.set_features_per_node(0xFFFFFFFF),
                              x_train_table,
                              y_train_table)),
                  dal::domain_error);
     ASSERT_THROW((dal::train(queue,
-                             df_hist_classifier{}
-                                 .set_max_bins(0xFFFFFFFF),
+                             df_hist_classifier{}.set_max_bins(0xFFFFFFFF),
                              x_train_table,
                              y_train_table)),
                  dal::domain_error);
     ASSERT_THROW((dal::train(queue,
-                             df_hist_classifier{}
-                                 .set_min_bin_size(0xFFFFFFFF),
+                             df_hist_classifier{}.set_min_bin_size(0xFFFFFFFF),
                              x_train_table,
                              y_train_table)),
                  dal::domain_error);
@@ -92,8 +87,7 @@ TEST(df_bad_arg_tests, test_overflow_checks_in_train) {
     const auto y_train_table = dal::homogen_table::wrap(queue, y_train, row_count_train, 1);
 
     ASSERT_THROW((dal::train(queue,
-                             df_hist_classifier{}
-                                 .set_tree_count(0x7FFFFFFFFFFFFFFF),
+                             df_hist_classifier{}.set_tree_count(0x7FFFFFFFFFFFFFFF),
                              x_train_table,
                              y_train_table)),
                  dal::internal_error);
@@ -134,8 +128,7 @@ TEST(df_bad_arg_tests, set_infer_params_over_int32) {
     const auto result_train = dal::train(queue, df_train_desc, x_train_table, y_train_table);
 
     ASSERT_THROW((dal::infer(queue,
-                             df_dense_classifier{}
-                                 .set_class_count(0xFFFFFFFF),
+                             df_dense_classifier{}.set_class_count(0xFFFFFFFF),
                              result_train.get_model(),
                              x_test_table)),
                  dal::domain_error);

@@ -66,8 +66,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     daal_input.set(daal::algorithms::classifier::training::data, daal_data);
     daal_input.set(daal::algorithms::classifier::training::labels, daal_labels);
 
-    auto daal_parameter =
-        daal_df_cls_train::Parameter(dal::detail::integral_cast<std::size_t>(desc.get_class_count()));
+    auto daal_parameter = daal_df_cls_train::Parameter(
+        dal::detail::integral_cast<std::size_t>(desc.get_class_count()));
     daal_parameter.nTrees = dal::detail::integral_cast<std::size_t>(desc.get_tree_count());
     daal_parameter.observationsPerTreeFraction = desc.get_observations_per_tree_fraction();
     daal_parameter.featuresPerNode =

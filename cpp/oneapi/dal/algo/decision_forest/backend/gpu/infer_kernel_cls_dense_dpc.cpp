@@ -76,7 +76,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
 
     auto daal_parameter =
         daal_df_cls_pred::Parameter(dal::detail::integral_cast<std::size_t>(desc.get_class_count()),
-                                   daal_voting_mode);
+                                    daal_voting_mode);
 
     daal::data_management::NumericTablePtr daal_labels;
     daal::data_management::NumericTablePtr daal_labels_prob;
