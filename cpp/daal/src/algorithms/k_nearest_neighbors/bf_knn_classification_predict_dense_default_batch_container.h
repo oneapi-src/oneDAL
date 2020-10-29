@@ -19,6 +19,7 @@
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_predict_kernel_ucapi.h"
 #include "src/algorithms/k_nearest_neighbors/bf_knn_classification_predict_kernel.h"
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
+#include "services/error_indexes.h"
 
 namespace daal
 {
@@ -53,7 +54,7 @@ BatchContainer<algorithmFpType, method, cpu>::~BatchContainer()
 template <typename algorithmFpType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 {
-    const daal::algorithms::Parameter * const par            = _par;
+    const Parameter * const par                              = static_cast<const Parameter *>(_par);
     const classifier::prediction::Input * const input        = static_cast<const classifier::prediction::Input *>(_in);
     bf_knn_classification::prediction::Result * const result = static_cast<bf_knn_classification::prediction::Result *>(_res);
     const data_management::NumericTableConstPtr a            = input->get(classifier::prediction::data);
@@ -71,8 +72,15 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
     }
     else
     {
-        __DAAL_CALL_KERNEL_SYCL(env, internal::KNNClassificationPredictKernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFpType), compute, a.get(),
-                                m.get(), label.get(), par);
+        if (par->resultsToEvaluate & daal::algorithms::classifier::computeClassLabels)
+        {
+            __DAAL_CALL_KERNEL_SYCL(env, internal::KNNClassificationPredictKernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFpType), compute, a.get(),
+                                    m.get(), label.get(), par);
+        }
+        else
+        {
+            return services::Status(services::ErrorDeviceSupportNotImplemented);
+        }
     }
 }
 
