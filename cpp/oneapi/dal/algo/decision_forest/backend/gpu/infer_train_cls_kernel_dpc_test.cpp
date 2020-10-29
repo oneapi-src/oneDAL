@@ -109,7 +109,6 @@ TEST(df_bad_arg_tests, set_infer_params_over_int32) {
     const float y_train_host[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f };
 
     const float x_test_host[] = { -1.f, -1.f, 2.f, 2.f, 3.f, 2.f };
-    const float y_test_host[] = { 0.f, 1.f, 1.f };
 
     auto selector = sycl::gpu_selector();
     auto queue = sycl::queue(selector);
