@@ -92,7 +92,7 @@ public class CSRNumericTable extends NumericTable {
      * @param nFeatures     Number of columns in the corresponding dense table
      * @param nVectors      Number of rows in the corresponding dense table
      * @param indexing      %Indexing scheme used to access data in the CSR layout
-     *  Note: Present version of Intel(R) Data Analytics Acceleration Library supports 1-based indexing only
+     *  Note: Present version of Intel(R) oneAPI Data Analytics Library supports 1-based indexing only
      */
     public CSRNumericTable(DaalContext context, double[] data, long[] colIndices, long[] rowOffsets, long nFeatures,
             long nVectors, Indexing indexing) {
@@ -128,7 +128,7 @@ public class CSRNumericTable extends NumericTable {
      * @param nFeatures     Number of columns in the corresponding dense table
      * @param nVectors      Number of rows in the corresponding dense table
      * @param indexing      %Indexing scheme used to access data in the CSR layout
-     *  Note: Present version of Intel(R) Data Analytics Acceleration Library supports 1-based indexing only
+     *  Note: Present version of Intel(R) oneAPI Data Analytics Library supports 1-based indexing only
      */
     public CSRNumericTable(DaalContext context, float[] data, long[] colIndices, long[] rowOffsets, long nFeatures,
             long nVectors, Indexing indexing) {
@@ -164,7 +164,7 @@ public class CSRNumericTable extends NumericTable {
      * @param nFeatures     Number of columns in the corresponding dense table
      * @param nVectors      Number of rows in the corresponding dense table
      * @param indexing      %Indexing scheme used to access data in the CSR layout
-     *  Note: Present version of Intel(R) Data Analytics Acceleration Library supports 1-based indexing only
+     *  Note: Present version of Intel(R) oneAPI Data Analytics Library supports 1-based indexing only
      */
     public CSRNumericTable(DaalContext context, int[] data, long[] colIndices, long[] rowOffsets, long nFeatures,
             long nVectors, Indexing indexing) {
@@ -200,7 +200,7 @@ public class CSRNumericTable extends NumericTable {
      * @param nFeatures     Number of columns in the corresponding dense table
      * @param nVectors      Number of rows in the corresponding dense table
      * @param indexing      %Indexing scheme used to access data in the CSR layout
-     *  Note: Present version of Intel(R) Data Analytics Acceleration Library supports 1-based indexing only
+     *  Note: Present version of Intel(R) oneAPI Data Analytics Library supports 1-based indexing only
      */
     public CSRNumericTable(DaalContext context, long[] data, long[] colIndices, long[] rowOffsets, long nFeatures,
             long nVectors, Indexing indexing) {
