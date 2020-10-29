@@ -179,9 +179,8 @@ struct limits {
 
 template <typename Out, typename In>
 inline Out integral_cast(const In& value) {
-    static_assert(
-        std::is_integral_v<In> && (std::is_integral_v<Out> || std::is_floating_point<Out>),
-        "The cast requires integral operands");
+    static_assert(std::is_integral_v<In> && std::is_integral_v<Out>,
+                  "The cast requires integral operands");
     if constexpr (std::is_signed_v<Out> && std::is_signed_v<In>) {
         ONEDAL_ASSERT(value <= limits<Out>::max(), "Integral type conversion overflow");
         ONEDAL_ASSERT(value >= limits<Out>::min(), "Integral type conversion underflow");
@@ -198,11 +197,6 @@ inline Out integral_cast(const In& value) {
         ONEDAL_ASSERT(value <= static_cast<std::make_unsigned_t<Out>>(limits<Out>::max()),
                       "Integral type conversion overflow");
     }
-    else if constexpr (std::is_signed_v<Out> && std::is_unsigned_v<In>) {
-        ONEDAL_ASSERT(value <= static_cast<std::make_unsigned_t<Out>>(limits<Out>::max()),
-                      "Integral type conversion overflow");
-    }
-
     return static_cast<Out>(value);
 }
 
