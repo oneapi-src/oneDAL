@@ -17,7 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/kmeans/infer_types.hpp"
-#include "oneapi/dal/exceptions.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::kmeans::detail {
 
@@ -41,35 +41,29 @@ struct infer_ops {
     using descriptor_base_t = descriptor_base<task_t>;
 
     void check_preconditions(const Descriptor& params, const input_t& input) const {
-        if (!(input.get_data().has_data())) {
-            throw domain_error("Input data should not be empty");
+        using msg = dal::detail::error_messages;
+
+        if (!input.get_data().has_data()) {
+            throw domain_error(msg::input_data_is_empty());
         }
-        if (!(input.get_model().get_centroids().has_data())) {
-            throw domain_error("Input model centroids should not be empty");
+        if (!input.get_model().get_centroids().has_data()) {
+            throw domain_error(msg::input_model_centroids_are_empty());
         }
         if (input.get_model().get_centroids().get_row_count() != params.get_cluster_count()) {
-            throw invalid_argument(
-                "Model centroids row_count should be equal to descriptor cluster_count");
+            throw invalid_argument(msg::input_model_centroids_rc_neq_desc_cluster_count());
         }
         if (input.get_model().get_centroids().get_column_count() !=
             input.get_data().get_column_count()) {
-            throw invalid_argument(
-                "Model centroids column_count should be equal to input data column_count");
+            throw invalid_argument(msg::input_model_centroids_cc_neq_input_data_cc());
         }
     }
 
     void check_postconditions(const Descriptor& params,
                               const input_t& input,
                               const result_t& result) const {
-        if (!(result.get_labels().has_data())) {
-            throw internal_error("Result labels should not be empty");
-        }
-        if (result.get_labels().get_row_count() != input.get_data().get_row_count()) {
-            throw internal_error("Result labels row_count should be equal to data row_count");
-        }
-        if (result.get_labels().get_column_count() != 1) {
-            throw internal_error("Result labels column_count should be equal to 1");
-        }
+        ONEDAL_ASSERT(result.get_labels().has_data());
+        ONEDAL_ASSERT(result.get_labels().get_row_count() == input.get_data().get_row_count());
+        ONEDAL_ASSERT(result.get_labels().get_column_count() == 1);
     }
 
     template <typename Context>

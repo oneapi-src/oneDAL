@@ -15,7 +15,7 @@
 #===============================================================================
 
 ##  Content:
-##     Intel(R) Data Analytics Acceleration Library examples creation and run
+##     Intel(R) oneAPI Data Analytics Library examples creation and run
 ##******************************************************************************
 
 help:
@@ -44,7 +44,7 @@ help:
 ##                                 dynamic linking
 ##
 ## make libintel64 compiler=gnu  - build by GNU C++ compiler and run all example
-##                                 of Intel(R) DAAL for
+##                                 of Intel(R) oneDAL for
 ##                                 Intel(R) 64 processor family applications,
 ##                                 static linking
 ##

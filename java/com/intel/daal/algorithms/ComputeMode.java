@@ -25,7 +25,7 @@ import java.lang.annotation.Native;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__COMPUTEMODE"></a>
- * Computation modes of the Intel(R) Data Analytics Acceleration Library algorithms
+ * Computation modes of the Intel(R) oneAPI Data Analytics Library algorithms
  */
 public final class ComputeMode {
     private int _value;

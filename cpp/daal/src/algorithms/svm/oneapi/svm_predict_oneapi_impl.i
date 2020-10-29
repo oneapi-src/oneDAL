@@ -55,6 +55,9 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
     const size_t nVectors  = xTable->getNumberOfRows();
     const size_t nFeatures = xTable->getNumberOfColumns();
 
+    DAAL_ASSERT(result.getNumberOfRows() == nVectors)
+    DAAL_ASSERT(result.getNumberOfColumns() == 1)
+
     BlockDescriptor<algorithmFPType> resultBlock;
     DAAL_CHECK_STATUS(status, result.getBlockOfRows(0, nVectors, ReadWriteMode::writeOnly, resultBlock));
     auto distanceBuff = resultBlock.getBuffer();
@@ -92,14 +95,12 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
     kernel_function::ResultPtr shRes(new kernel_function::Result());
     DAAL_CHECK_MALLOC(shRes)
 
-    for (size_t blockIdx = 0; blockIdx < nBlocks; blockIdx++)
+    for (size_t iBlock = 0; iBlock < nBlocks; ++iBlock)
     {
-        const size_t startRow          = blockIdx * nRowsPerBlock;
-        const size_t offestRow         = startRow + nRowsPerBlock;
-        const size_t endRow            = utils::internal::min(offestRow, nVectors);
-        const size_t nRowsPerBlockReal = endRow - startRow;
-
-        NumericTablePtr kernelResNT = SyclHomogenNumericTable<algorithmFPType>::create(kernelResBuff, nSV, nRowsPerBlockReal, &status);
+        const size_t startRow          = iBlock * nRowsPerBlock;
+        const size_t nRowsPerBlockReal = (iBlock != nBlocks - 1) ? nRowsPerBlock : nVectors - iBlock * nRowsPerBlock;
+        NumericTablePtr kernelResNT = SyclHomogenNumericTable<algorithmFPType>::create(kernelResBuff.getSubBuffer(0, nRowsPerBlockReal * nSV, status),
+                                                                                       nSV, nRowsPerBlockReal, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
         BlockDescriptor<algorithmFPType> xBlock;

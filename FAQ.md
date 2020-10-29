@@ -16,9 +16,9 @@
 *******************************************************************************/-->
 
 # Frequently Asked Questions
-This document provides answers to frequently asked questions about the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL). Let us know if you have a question that is not covered here via [GitHub issues][gh-issues] or [Intel(R) DAAL Forum][daal-forum].
+This document provides answers to frequently asked questions about the Intel(R) oneAPI Data Analytics Library. Let us know if you have a question that is not covered here via [GitHub issues][gh-issues] or [Intel(R) oneDAL Forum][daal-forum].
 
-## Building Intel(R) DAAL from sources
+## Building Intel(R) oneDAL from sources
 > During the compilation of Java binding I got the following problem
 > ```
 > fatal error: jni.h: No such file or directory

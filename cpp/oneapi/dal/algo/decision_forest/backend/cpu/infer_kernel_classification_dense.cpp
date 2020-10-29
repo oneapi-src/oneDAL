@@ -61,7 +61,8 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     auto model_pimpl = dal::detail::pimpl_accessor().get_pimpl(trained_model);
     if (!model_pimpl->is_interop()) {
-        throw dal::internal_error("Input model is inconsistent with kernel type");
+        throw dal::internal_error(
+            dal::detail::error_messages::input_model_does_not_match_kernel_function());
     }
 
     auto pinterop_model =
@@ -71,7 +72,9 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     auto daal_voting_mode = df_interop::convert_to_daal_voting_mode(desc.get_voting_mode());
 
-    auto daal_parameter = cls::prediction::Parameter(desc.get_class_count(), daal_voting_mode);
+    auto daal_parameter =
+        cls::prediction::Parameter(dal::detail::integral_cast<std::size_t>(desc.get_class_count()),
+                                   daal_voting_mode);
 
     daal::data_management::NumericTablePtr daal_labels_res;
     daal::data_management::NumericTablePtr daal_labels_prob_res;

@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Details of errors in Intel(R) DAAL.
+//  Details of errors in Intel(R) oneDAL.
 //--
 */
 

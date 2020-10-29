@@ -31,7 +31,8 @@ struct infer_kernel_gpu<Float, method::kd_tree, Task> {
     infer_result<Task> operator()(const context_gpu& ctx,
                                   const descriptor_base<Task>& desc,
                                   const infer_input<Task>& input) const {
-        throw unimplemented("k-NN k-d tree method is not implemented for GPU");
+        throw unimplemented(
+            dal::detail::error_messages::knn_kd_tree_method_is_not_implemented_for_gpu());
         return infer_result<Task>();
     }
 };

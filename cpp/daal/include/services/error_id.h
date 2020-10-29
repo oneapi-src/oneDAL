@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Data types for error handling in Intel(R) DAAL.
+//  Data types for error handling in Intel(R) oneDAL.
 //--
 */
 

@@ -38,7 +38,7 @@ std::int64_t descriptor_base<Task>::get_cluster_count() const {
 template <typename Task>
 void descriptor_base<Task>::set_cluster_count_impl(std::int64_t value) {
     if (value <= 0) {
-        throw domain_error("cluster_count should be > 0");
+        throw domain_error(dal::detail::error_messages::cluster_count_leq_zero());
     }
     impl_->cluster_count = value;
 }
