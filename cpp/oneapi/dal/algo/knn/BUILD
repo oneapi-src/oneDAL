@@ -19,7 +19,7 @@ dal_test_suite(
     name = "common_tests",
     dpc = False,
     srcs = glob([
-        "common_*_test.cpp",
+        "common_*_host_test.cpp",
     ]),
     dal_deps = [
         ":knn",
@@ -30,7 +30,7 @@ dal_test_suite(
     name = "gpu_tests_dpc",
     host = False,
     srcs = glob([
-        "common_*_test_dpc.cpp",
+        "common_*_dpc_test.cpp",
     ]),
     dal_deps = [
         ":knn",
