@@ -19,7 +19,7 @@
 #include "oneapi/dal/table/column_accessor.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 
-using namespace oneapi;
+namespace onedal = oneapi::dal;
 
 int main(int argc, char const *argv[]) {
     constexpr std::int64_t row_count = 6;
@@ -33,8 +33,8 @@ int main(int argc, char const *argv[]) {
         5.f, 11.f,
     };
 
-    auto table = dal::homogen_table::wrap(data, row_count, column_count);
-    dal::column_accessor<const float> acc { table };
+    auto table = onedal::homogen_table::wrap(data, row_count, column_count);
+    onedal::column_accessor<const float> acc { table };
 
     for(std::int64_t col = 0; col < table.get_column_count(); col++) {
         std::cout << "column " << col << " values: ";

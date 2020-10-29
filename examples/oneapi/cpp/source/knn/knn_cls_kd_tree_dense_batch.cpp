@@ -22,7 +22,7 @@
 
 #include "example_util/utils.hpp"
 
-using namespace oneapi;
+namespace onedal = oneapi::dal;
 
 int main(int argc, char const *argv[]) {
   const std::string train_data_file_name  = get_data_path("k_nearest_neighbors_train_data.csv");
@@ -30,23 +30,23 @@ int main(int argc, char const *argv[]) {
   const std::string test_data_file_name   = get_data_path("k_nearest_neighbors_test_data.csv");
   const std::string test_label_file_name  = get_data_path("k_nearest_neighbors_test_label.csv");
 
-  const auto x_train = dal::read<dal::table>(dal::csv::data_source{train_data_file_name});
-  const auto y_train = dal::read<dal::table>(dal::csv::data_source{train_label_file_name});
+  const auto x_train = onedal::read<onedal::table>(onedal::csv::data_source{train_data_file_name});
+  const auto y_train = onedal::read<onedal::table>(onedal::csv::data_source{train_label_file_name});
 
   const auto knn_desc =
-      dal::knn::descriptor<float, oneapi::dal::knn::method::kd_tree, oneapi::dal::knn::task::classification>(5, 1);
+      onedal::knn::descriptor<float, onedal::knn::method::kd_tree, onedal::knn::task::classification>(5, 1);
 
-  const auto train_result = dal::train(knn_desc, x_train, y_train);
+  const auto train_result = onedal::train(knn_desc, x_train, y_train);
 
-  const auto x_test = dal::read<dal::table>(dal::csv::data_source{test_data_file_name});
-  const auto y_true = dal::read<dal::table>(dal::csv::data_source{test_label_file_name});
+  const auto x_test = onedal::read<onedal::table>(onedal::csv::data_source{test_data_file_name});
+  const auto y_true = onedal::read<onedal::table>(onedal::csv::data_source{test_label_file_name});
 
   const auto test_result =
-      dal::infer(knn_desc, x_test, train_result.get_model());
+      onedal::infer(knn_desc, x_test, train_result.get_model());
 
-  std::cout << "Test results:" << std::endl
+  std::cout << "Test results:\n"
             << test_result.get_labels() << std::endl;
-  std::cout << "True labels:" << std::endl << y_true << std::endl;
+  std::cout << "True labels:\n" << y_true << std::endl;
 
   return 0;
 }

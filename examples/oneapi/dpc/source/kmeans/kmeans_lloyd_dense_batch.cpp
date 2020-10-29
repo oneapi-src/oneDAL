@@ -24,46 +24,46 @@
 
 #include "example_util/utils.hpp"
 
-using namespace oneapi;
+namespace onedal = oneapi::dal;
 
-void run(sycl::queue &queue) {
+void run(sycl::queue &q) {
     const std::string train_data_file_name        = get_data_path("kmeans_dense_train_data.csv");
     const std::string initial_centroids_file_name = get_data_path("kmeans_dense_train_centroids.csv");
     const std::string test_data_file_name         = get_data_path("kmeans_dense_test_data.csv");
     const std::string test_label_file_name        = get_data_path("kmeans_dense_test_label.csv");
 
-    const auto x_train           = dal::read<dal::table>(queue, dal::csv::data_source{train_data_file_name});
-    const auto initial_centroids = dal::read<dal::table>(queue, dal::csv::data_source{initial_centroids_file_name});
+    const auto x_train           = onedal::read<onedal::table>(q, onedal::csv::data_source{train_data_file_name});
+    const auto initial_centroids = onedal::read<onedal::table>(q, onedal::csv::data_source{initial_centroids_file_name});
 
-    const auto x_test = dal::read<dal::table>(queue, dal::csv::data_source{test_data_file_name});
-    const auto y_test = dal::read<dal::table>(queue, dal::csv::data_source{test_label_file_name});
+    const auto x_test = onedal::read<onedal::table>(q, onedal::csv::data_source{test_data_file_name});
+    const auto y_test = onedal::read<onedal::table>(q, onedal::csv::data_source{test_label_file_name});
 
-    const auto kmeans_desc = dal::kmeans::descriptor<>()
+    const auto kmeans_desc = onedal::kmeans::descriptor<>()
                                  .set_cluster_count(20)
                                  .set_max_iteration_count(5)
                                  .set_accuracy_threshold(0.001);
 
     const auto result_train =
-        dal::train(queue, kmeans_desc, x_train, initial_centroids);
+        onedal::train(q, kmeans_desc, x_train, initial_centroids);
 
     std::cout << "Iteration count: " << result_train.get_iteration_count() << std::endl;
     std::cout << "Objective function value: " << result_train.get_objective_function_value()
               << std::endl;
-    std::cout << "Lables:" << std::endl << result_train.get_labels() << std::endl;
-    std::cout << "Centroids:" << std::endl << result_train.get_model().get_centroids() << std::endl;
+    std::cout << "Lables:\n" << result_train.get_labels() << std::endl;
+    std::cout << "Centroids:\n" << result_train.get_model().get_centroids() << std::endl;
 
-    const auto result_test = dal::infer(queue, kmeans_desc, result_train.get_model(), x_test);
+    const auto result_test = onedal::infer(q, kmeans_desc, result_train.get_model(), x_test);
 
-    std::cout << "Infer result:" << std::endl << result_test.get_labels() << std::endl;
+    std::cout << "Infer result:\n" << result_test.get_labels() << std::endl;
 
-    std::cout << "Ground truth:" << std::endl << y_test << std::endl;
+    std::cout << "Ground truth:\n" << y_test << std::endl;
 }
 
 int main(int argc, char const *argv[]) {
-    for (auto device : list_devices()) {
-        std::cout << "Running on " << device.get_info<sycl::info::device::name>() << std::endl;
-        auto queue = sycl::queue{ device };
-        run(queue);
+    for (auto d : list_devices()) {
+        std::cout << "Running on " << d.get_info<sycl::info::device::name>() << std::endl;
+        auto q = sycl::queue{ d };
+        run(q);
     }
     return 0;
 }
