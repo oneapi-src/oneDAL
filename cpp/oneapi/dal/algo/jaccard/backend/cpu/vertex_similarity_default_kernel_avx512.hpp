@@ -60,21 +60,21 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
 #if defined(__INTEL_COMPILER)
     while (i_u < (n_u / 16) * 16 && i_v < (n_v / 16) * 16) { // not in last n%16 elements
         // assumes neighbor list is ordered
-        std::int32_t minu = neigh_u[i_u];
-        std::int32_t maxv = neigh_v[i_v + 15];
+        std::int32_t min_neigh_u = neigh_u[i_u];
+        std::int32_t max_neigh_v = neigh_v[i_v + 15];
 
-        if (minu > maxv) {
-            if (minu > neigh_v[n_v - 1]) {
+        if (min_neigh_u > max_neigh_v) {
+            if (min_neigh_u > neigh_v[n_v - 1]) {
                 return total;
             }
             i_v += 16;
             continue;
         }
 
-        std::int32_t minv = neigh_v[i_v];
-        std::int32_t maxu = neigh_u[i_u + 15];
-        if (minv > maxu) {
-            if (minv > neigh_u[n_u - 1]) {
+        std::int32_t min_neigh_v = neigh_v[i_v];
+        std::int32_t max_neigh_u = neigh_u[i_u + 15];
+        if (min_neigh_v > max_neigh_u) {
+            if (min_neigh_v > neigh_u[n_u - 1]) {
                 return total;
             }
             i_u += 16;
@@ -82,9 +82,9 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
         }
         __m512i v_u = _mm512_loadu_si512((void *)(neigh_u + i_u)); // load 16 neighbors of u
         __m512i v_v = _mm512_loadu_si512((void *)(neigh_v + i_v)); // load 16 neighbors of v
-        if (maxu >= maxv)
+        if (max_neigh_u >= max_neigh_v)
             i_v += 16;
-        if (maxu <= maxv)
+        if (max_neigh_u <= max_neigh_v)
             i_u += 16;
 
         __mmask16 match = _mm512_cmpeq_epi32_mask(v_u, v_v);
@@ -173,20 +173,20 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
 
     while (i_u <= (n_u - 8) && i_v <= (n_v - 8)) { // not in last n%8 elements
         // assumes neighbor list is ordered
-        std::int32_t minu = neigh_u[i_u];
-        std::int32_t maxv = neigh_v[i_v + 7];
+        std::int32_t min_neigh_u = neigh_u[i_u];
+        std::int32_t max_neigh_v = neigh_v[i_v + 7];
 
-        if (minu > maxv) {
-            if (minu > neigh_v[n_v - 1]) {
+        if (min_neigh_u > max_neigh_v) {
+            if (min_neigh_u > neigh_v[n_v - 1]) {
                 return total;
             }
             i_v += 8;
             continue;
         }
-        std::int32_t maxu = neigh_u[i_u + 7];
-        std::int32_t minv = neigh_v[i_v];
-        if (minv > maxu) {
-            if (minv > neigh_u[n_u - 1]) {
+        std::int32_t max_neigh_u = neigh_u[i_u + 7];
+        std::int32_t min_neigh_v = neigh_v[i_v];
+        if (min_neigh_v > max_neigh_u) {
+            if (min_neigh_v > neigh_u[n_u - 1]) {
                 return total;
             }
             i_u += 8;
@@ -197,9 +197,9 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
         __m256i v_v = _mm256_loadu_si256(
             reinterpret_cast<const __m256i *>(neigh_v + i_v)); // load 8 neighbors of v
 
-        if (maxu >= maxv)
+        if (max_neigh_u >= max_neigh_v)
             i_v += 8;
-        if (maxu <= maxv)
+        if (max_neigh_u <= max_neigh_v)
             i_u += 8;
 
         __mmask8 match = _mm256_cmpeq_epi32_mask(v_u, v_v);
@@ -260,20 +260,20 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
 
     while (i_u <= (n_u - 4) && i_v <= (n_v - 4)) { // not in last n%8 elements
         // assumes neighbor list is ordered
-        std::int32_t minu = neigh_u[i_u];
-        std::int32_t maxv = neigh_v[i_v + 3];
+        std::int32_t min_neigh_u = neigh_u[i_u];
+        std::int32_t max_neigh_v = neigh_v[i_v + 3];
 
-        if (minu > maxv) {
-            if (minu > neigh_v[n_v - 1]) {
+        if (min_neigh_u > max_neigh_v) {
+            if (min_neigh_u > neigh_v[n_v - 1]) {
                 return total;
             }
             i_v += 4;
             continue;
         }
-        std::int32_t minv = neigh_v[i_v];
-        std::int32_t maxu = neigh_u[i_u + 3];
-        if (minv > maxu) {
-            if (minv > neigh_u[n_u - 1]) {
+        std::int32_t min_neigh_v = neigh_v[i_v];
+        std::int32_t max_neigh_u = neigh_u[i_u + 3];
+        if (min_neigh_v > max_neigh_u) {
+            if (min_neigh_v > neigh_u[n_u - 1]) {
                 return total;
             }
             i_u += 4;
@@ -284,9 +284,9 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
         __m128i v_v = _mm_loadu_si128(
             reinterpret_cast<const __m128i *>(neigh_v + i_v)); // load 8 neighbors of v
 
-        if (maxu >= maxv)
+        if (max_neigh_u >= max_neigh_v)
             i_v += 4;
-        if (maxu <= maxv)
+        if (max_neigh_u <= max_neigh_v)
             i_u += 4;
 
         __mmask8 match = _mm_cmpeq_epi32_mask(v_u, v_v);

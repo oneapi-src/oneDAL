@@ -23,10 +23,20 @@
 
 namespace oneapi::dal::svm {
 
+namespace task {
+struct classification {};
+using by_default = classification;
+} // namespace task
+
 namespace detail {
 struct tag {};
+
+template <typename Task = task::by_default>
 class descriptor_impl;
+
+template <typename Task = task::by_default>
 class model_impl;
+
 class kernel_function_impl;
 
 class kernel_function_iface {
@@ -38,7 +48,7 @@ public:
 using kf_iface_ptr = std::shared_ptr<kernel_function_iface>;
 
 template <typename Kernel>
-class ONEAPI_DAL_EXPORT kernel_function : public base, public kernel_function_iface {
+class ONEDAL_EXPORT kernel_function : public base, public kernel_function_iface {
 public:
     explicit kernel_function(const Kernel &kernel) : kernel_(kernel) {}
 
@@ -89,17 +99,12 @@ struct smo {};
 using by_default = thunder;
 } // namespace method
 
-namespace task {
-struct classification {};
-struct regression {};
-using by_default = classification;
-} // namespace task
-
-class ONEAPI_DAL_EXPORT descriptor_base : public base {
+template <typename Task = task::by_default>
+class ONEDAL_EXPORT descriptor_base : public base {
 public:
     using tag_t = detail::tag;
     using float_t = float;
-    using task_t = task::by_default;
+    using task_t = Task;
     using method_t = method::by_default;
     using kernel_t = linear_kernel::descriptor<float_t>;
 
@@ -122,69 +127,72 @@ protected:
     void set_shrinking_impl(bool);
     void set_kernel_impl(const detail::kf_iface_ptr &);
 
-    dal::detail::pimpl<detail::descriptor_impl> impl_;
+    dal::detail::pimpl<detail::descriptor_impl<Task>> impl_;
 };
 
-template <typename Float = descriptor_base::float_t,
-          typename Task = descriptor_base::task_t,
-          typename Method = descriptor_base::method_t,
-          typename Kernel = descriptor_base::kernel_t>
-class descriptor : public descriptor_base {
+template <typename Float = descriptor_base<task::by_default>::float_t,
+          typename Method = descriptor_base<task::by_default>::method_t,
+          typename Task = task::by_default,
+          typename Kernel = descriptor_base<task::by_default>::kernel_t>
+class descriptor : public descriptor_base<Task> {
 public:
     using float_t = Float;
-    using task_t = Task;
     using method_t = Method;
+    using task_t = Task;
     using kernel_t = Kernel;
 
     explicit descriptor(const Kernel &kernel = kernel_t{})
-            : descriptor_base(std::make_shared<detail::kernel_function<Kernel>>(kernel)) {}
+            : descriptor_base<Task>(std::make_shared<detail::kernel_function<Kernel>>(kernel)) {}
 
     const Kernel &get_kernel() const {
         using kf_t = detail::kernel_function<Kernel>;
-        const auto kf = std::static_pointer_cast<kf_t>(get_kernel_impl());
+        const auto kf = std::static_pointer_cast<kf_t>(descriptor_base<Task>::get_kernel_impl());
         return kf->get_kernel();
     }
 
     auto &set_kernel(const Kernel &kernel) {
-        set_kernel_impl(std::make_shared<detail::kernel_function<Kernel>>(kernel));
+        descriptor_base<Task>::set_kernel_impl(
+            std::make_shared<detail::kernel_function<Kernel>>(kernel));
         return *this;
     }
 
     auto &set_c(double value) {
-        set_c_impl(value);
+        descriptor_base<Task>::set_c_impl(value);
         return *this;
     }
 
     auto &set_accuracy_threshold(double value) {
-        set_accuracy_threshold_impl(value);
+        descriptor_base<Task>::set_accuracy_threshold_impl(value);
         return *this;
     }
 
     auto &set_max_iteration_count(std::int64_t value) {
-        set_max_iteration_count_impl(value);
+        descriptor_base<Task>::set_max_iteration_count_impl(value);
         return *this;
     }
 
     auto &set_cache_size(double value) {
-        set_cache_size_impl(value);
+        descriptor_base<Task>::set_cache_size_impl(value);
         return *this;
     }
 
     auto &set_tau(double value) {
-        set_tau_impl(value);
+        descriptor_base<Task>::set_tau_impl(value);
         return *this;
     }
 
     auto &set_shrinking(bool value) {
-        set_shrinking_impl(value);
+        descriptor_base<Task>::set_shrinking_impl(value);
         return *this;
     }
 };
 
-class ONEAPI_DAL_EXPORT model : public base {
+template <typename Task = task::by_default>
+class ONEDAL_EXPORT model : public base {
     friend dal::detail::pimpl_accessor;
 
 public:
+    using task_t = Task;
     model();
 
     table get_support_vectors() const;
@@ -237,7 +245,7 @@ private:
     void set_first_class_label_impl(std::int64_t);
     void set_second_class_label_impl(std::int64_t);
 
-    dal::detail::pimpl<detail::model_impl> impl_;
+    dal::detail::pimpl<detail::model_impl<task_t>> impl_;
 };
 
 } // namespace oneapi::dal::svm

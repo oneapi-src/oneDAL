@@ -35,7 +35,7 @@ struct train_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
 };
 
 #define INSTANTIATE(F, M, T) \
-    template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<data_parallel_policy, F, M, T>;
+    template struct ONEDAL_EXPORT train_ops_dispatcher<data_parallel_policy, F, M, T>;
 
 INSTANTIATE(float, method::cov, task::dim_reduction)
 INSTANTIATE(float, method::svd, task::dim_reduction)

@@ -19,24 +19,30 @@
 
 namespace oneapi::dal::rbf_kernel {
 
-class detail::descriptor_impl : public base {
+template <>
+class detail::descriptor_impl<task::compute> : public base {
 public:
     double sigma = 1.0;
 };
 
 using detail::descriptor_impl;
 
-descriptor_base::descriptor_base() : impl_(new descriptor_impl{}) {}
+template <typename Task>
+descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
 
-double descriptor_base::get_sigma() const {
+template <typename Task>
+double descriptor_base<Task>::get_sigma() const {
     return impl_->sigma;
 }
 
-void descriptor_base::set_sigma_impl(double value) {
+template <typename Task>
+void descriptor_base<Task>::set_sigma_impl(double value) {
     if (value <= 0.0) {
-        throw domain_error("sigma should be > 0.0");
+        throw domain_error(dal::detail::error_messages::sigma_leq_zero());
     }
     impl_->sigma = value;
 }
+
+template class ONEDAL_EXPORT descriptor_base<task::compute>;
 
 } // namespace oneapi::dal::rbf_kernel

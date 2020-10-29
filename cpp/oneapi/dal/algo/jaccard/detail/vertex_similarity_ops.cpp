@@ -32,8 +32,8 @@ vertex_similarity_result vertex_similarity_ops_dispatcher<Policy, Float, Method,
     return (*impl)(oneapi::dal::backend::context_cpu{ policy }, desc, input);
 }
 
-#define INSTANTIATE(F, M, G)          \
-    template struct ONEAPI_DAL_EXPORT \
+#define INSTANTIATE(F, M, G)      \
+    template struct ONEDAL_EXPORT \
         vertex_similarity_ops_dispatcher<oneapi::dal::detail::host_policy, F, M, G>;
 
 INSTANTIATE(float,

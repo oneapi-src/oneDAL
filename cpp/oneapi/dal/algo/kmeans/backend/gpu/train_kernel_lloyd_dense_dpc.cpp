@@ -42,7 +42,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                               const descriptor_base<task::clustering>& params,
                                               const train_input<task::clustering>& input) const {
         if (!(input.get_initial_centroids().has_data())) {
-            throw domain_error("Input initial_centroids should not be empty");
+            throw domain_error(dal::detail::error_messages::input_initial_centroids_are_empty());
         }
 
         auto& queue = ctx.get_queue();

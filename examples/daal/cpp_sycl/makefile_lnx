@@ -15,7 +15,7 @@
 #===============================================================================
 
 ##  Content:
-##     Intel(R) Data Analytics Acceleration Library examples creation and run
+##     Intel(R) oneAPI Data Analytics Library examples creation and run
 ##******************************************************************************
 
 help:
@@ -36,7 +36,7 @@ help:
 ##                                 applications, static linking
 ##
 ## make sointel64 compiler=clang   - build by Intel(R) oneAPI Compiler and run all examples
-##                                 of Intel(R) DAAL for
+##                                 of Intel(R) oneDAL for
 ##                                 64-bit applications, dynamic linking
 ##
 ## make sointel64                - build by Intel(R) oneAPI Compiler (as default)

@@ -49,7 +49,7 @@
     #define DAAL_C11_OVERRIDE
 #endif
 
-/* Intel(R) DAAL 64-bit integer types */
+/* Intel(R) oneDAL 64-bit integer types */
 #if (!defined(__INTEL_COMPILER)) & defined(_MSC_VER)
     #define DAAL_INT64  __int64
     #define DAAL_UINT64 unsigned __int64
@@ -120,13 +120,13 @@
 #endif
 
 /**
- *  Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) namespace
+ *  Intel(R) oneAPI Data Analytics Library namespace
  */
 namespace daal
 {
 /**
 * <a name="DAAL-ENUM-COMPUTEMODE"></a>
-* Computation modes of Intel(R) DAAL algorithms
+* Computation modes of Intel(R) oneDAL algorithms
 */
 enum ComputeMode
 {
@@ -462,7 +462,7 @@ const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP13_ID = 121310;
     {                                                                                             \
         if (!(0 == (op1)) && !(0 == (op2)))                                                       \
         {                                                                                         \
-            type r = (op1) * (op2);                                                               \
+            volatile type r = (op1) * (op2);                                                      \
             r /= (op1);                                                                           \
             if (!(r == (op2))) return services::Status(services::ErrorBufferSizeIntegerOverflow); \
         }                                                                                         \
@@ -470,7 +470,7 @@ const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP13_ID = 121310;
 
 #define DAAL_OVERFLOW_CHECK_BY_ADDING(type, op1, op2)                                         \
     {                                                                                         \
-        type r = (op1) + (op2);                                                               \
+        volatile type r = (op1) + (op2);                                                      \
         r -= (op1);                                                                           \
         if (!(r == (op2))) return services::Status(services::ErrorBufferSizeIntegerOverflow); \
     }

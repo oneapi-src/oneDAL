@@ -15,7 +15,7 @@
 #===============================================================================
 
 ##  Content:
-##     Intel(R) Data Analytics Acceleration Library examples creation and run
+##     Intel(R) oneAPI Data Analytics Library examples creation and run
 ##******************************************************************************
 
 help:
@@ -39,7 +39,7 @@ help:
 ##                                                 applications, static linking
 ##
 ## nmake dll compiler=msvs                       - build by Microsoft(R) C++ compiler and run all examples
-##                                                 of Intel(R) DAAL dynamic linking
+##                                                 of Intel(R) oneDAL dynamic linking
 ##
 ## nmake lib example=kmeans_dense_batch+         - build by Intel(R) C++ Compiler (as default)
 ##                                                 and run kmeans_dense_batch example for 64-bit
@@ -142,7 +142,7 @@ RES_DIR  =_results\$(compiler)_intel64_$(threading)_$(RES_EXT)
 lib libintel64:
 	nmake comm_func $(RES) $(CLEAN) EXT=.lib RES_EXT=lib compiler=$(compiler) threading=$(threading)
 dll dllintel64:
-	nmake comm_func $(RES) $(CLEAN) EXT=_dll.lib RES_EXT=dll compiler=$(compiler) threading=$(threading)
+	nmake comm_func $(RES) $(CLEAN) EXT=_dll.1.lib RES_EXT=dll compiler=$(compiler) threading=$(threading)
 
 comm_func:
 	if not exist _results md _results

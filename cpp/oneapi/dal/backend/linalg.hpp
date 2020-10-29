@@ -17,4 +17,3 @@
 #pragma once
 
 #include "oneapi/dal/backend/linalg/matrix.hpp"
-#include "oneapi/dal/backend/linalg/dot.hpp"
