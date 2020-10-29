@@ -168,6 +168,27 @@ inline void check_mul_overflow(const Data& first, const Data& second) {
 }
 
 template <typename Data>
+inline void assert_sum_overflow(const Data& first, const Data& second) {
+#ifdef ONEDAL_ENABLE_ASSERT
+    static_assert(std::is_integral_v<Data>, "The check requires integral operands");
+    volatile Data tmp = first + second;
+    tmp -= first;
+    ONEDAL_ASSERT(tmp == second, dal::detail::error_messages::overflow_found_in_sum_of_two_values());
+#endif
+}
+
+template <typename Data>
+void integer_overflow_ops<Data>::check_mul_overflow(const Data& first, const Data& second) {
+#ifdef ONEDAL_ENABLE_ASSERT
+    if (first != 0 && second != 0) {
+        volatile Data tmp = first * second;
+        tmp /= first;
+        ONEDAL_ASSERT(tmp == second, dal::detail::error_messages::overflow_found_in_multiplication_of_two_values());
+    }
+#endif
+}
+
+template <typename Data>
 struct limits {
     static constexpr Data min() {
         return std::numeric_limits<Data>::min();
