@@ -72,7 +72,9 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     auto daal_voting_mode = df_interop::convert_to_daal_voting_mode(desc.get_voting_mode());
 
-    auto daal_parameter = cls::prediction::Parameter(desc.get_class_count(), daal_voting_mode);
+    auto daal_parameter =
+        cls::prediction::Parameter(dal::detail::integral_cast<std::size_t>(desc.get_class_count()),
+                                   daal_voting_mode);
 
     daal::data_management::NumericTablePtr daal_labels_res;
     daal::data_management::NumericTablePtr daal_labels_prob_res;

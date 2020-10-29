@@ -24,6 +24,62 @@
 using namespace oneapi;
 namespace df = oneapi::dal::decision_forest;
 
+TEST(df_bad_arg_tests, test_checks_for_inputs_exceed_int32) {
+    constexpr std::int64_t row_count_train = 6;
+    constexpr std::int64_t column_count = 2;
+
+    auto selector = sycl::gpu_selector();
+    auto queue = sycl::queue(selector);
+
+    auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
+    ASSERT_NE(x_train, nullptr);
+    const auto x_train_table =
+        dal::homogen_table::wrap(queue, x_train, row_count_train, column_count);
+
+    auto y_train = sycl::malloc_shared<float>(row_count_train, queue);
+    ASSERT_NE(y_train, nullptr);
+    const auto y_train_table = dal::homogen_table::wrap(queue, y_train, row_count_train, 1);
+
+    ASSERT_THROW(
+        (dal::train(queue, df::descriptor<float, df::task::regression, df::method::hist>{}.set_min_observations_in_leaf_node(0xFFFFFFFF),
+                    x_train_table, y_train_table)),
+        dal::domain_error);
+    ASSERT_THROW(
+        (dal::train(queue, df::descriptor<float, df::task::regression, df::method::hist>{}.set_features_per_node(0xFFFFFFFF),
+                    x_train_table, y_train_table)),
+        dal::domain_error);
+    ASSERT_THROW(
+        (dal::train(queue, df::descriptor<float, df::task::regression, df::method::hist>{}.set_max_bins(0xFFFFFFFF),
+                    x_train_table, y_train_table)),
+        dal::domain_error);
+    ASSERT_THROW(
+        (dal::train(queue, df::descriptor<float, df::task::regression, df::method::hist>{}.set_min_bin_size(0xFFFFFFFF),
+                    x_train_table, y_train_table)),
+        dal::domain_error);
+}
+
+TEST(df_bad_arg_tests, test_overflow_checks_in_train) {
+    constexpr std::int64_t row_count_train = 6;
+    constexpr std::int64_t column_count = 2;
+
+    auto selector = sycl::gpu_selector();
+    auto queue = sycl::queue(selector);
+
+    auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
+    ASSERT_NE(x_train, nullptr);
+    const auto x_train_table =
+        dal::homogen_table::wrap(queue, x_train, row_count_train, column_count);
+
+    auto y_train = sycl::malloc_shared<float>(row_count_train, queue);
+    ASSERT_NE(y_train, nullptr);
+    const auto y_train_table = dal::homogen_table::wrap(queue, y_train, row_count_train, 1);
+
+    ASSERT_THROW(
+        (dal::train(queue, df::descriptor<float, df::task::regression, df::method::hist>{}.set_tree_count(0x7FFFFFFFFFFFFFFF),
+                    x_train_table, y_train_table)),
+        dal::internal_error);
+}
+
 TEST(infer_and_train_reg_kernels_test, can_process_simple_case_default_params) {
     const double mse_threshold = 0.05;
     constexpr std::int64_t row_count_train = 10;
