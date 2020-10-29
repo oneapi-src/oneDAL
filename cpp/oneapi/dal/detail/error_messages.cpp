@@ -34,6 +34,9 @@ MSG(unknown_status_code, "Unknown status code")
 MSG(unsupported_data_layout, "Unsupported data layout")
 MSG(unsupported_data_type, "Requested data type is not supported")
 MSG(unsupported_device_type, "Requested device type is not supported")
+MSG(small_data_block, "Data block size is smaller than expected")
+MSG(invalid_data_block_size, "Invalid data block size")
+MSG(method_not_implemented, "Method is not implemented")
 
 /* Tables */
 MSG(cannot_get_data_type_from_empty_metadata, "Cannot get data type from empty metadata")
@@ -49,6 +52,12 @@ MSG(pushing_column_is_not_supported, "Pushing column is not supported")
 MSG(pushing_rows_is_not_supported_for_dpc, "Pushing rows is not supported for DPC++")
 MSG(pushing_rows_is_not_supported, "Pushing rows is not supported")
 MSG(unsupported_conversion_types, "Unsupported conversion types")
+MSG(number_of_rows_leq_zero, "Number of rows is lower than or equal to zero")
+MSG(number_of_columns_leq_zero, "Number of columns is lower than or equal to zero")
+
+/* Ranges */
+MSG(invalid_range_of_rows, "Invalid range of rows")
+MSG(column_index_out_of_range, "Column index out of range");
 
 /* Graphs */
 MSG(vertex_index_out_of_range_expect_from_zero_to_vertex_count,

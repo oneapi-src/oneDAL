@@ -60,7 +60,7 @@ public:
 
     void reset(const array<byte_t>& data, std::int64_t row_count, std::int64_t column_count) {
         if (get_data_size(row_count, column_count, dtype_) != data.get_count()) {
-            throw dal::range_error("invalid data size");
+            throw dal::range_error(dal::detail::error_messages::invalid_data_block_size());
         }
 
         data_ = data;
@@ -76,15 +76,19 @@ public:
     }
 
     void set_feature_type(feature_type ft) {
-        throw dal::unimplemented("set_feature_type is not implemented");
+        throw dal::unimplemented(dal::detail::error_messages::method_not_implemented());
     }
 
     void allocate(std::int64_t row_count, std::int64_t column_count) {
-        const std::int64_t data_size = get_data_size(row_count, column_count, dtype_);
-        if (data_size <= 0) {
-            throw dal::domain_error("data count to allocate is not positive");
+        if (row_count <= 0) {
+            throw dal::domain_error(error_msg::number_of_rows_leq_zero());
         }
 
+        if (column_count <= 0) {
+            throw dal::domain_error(error_msg::number_of_columns_leq_zero());
+        }
+
+        const std::int64_t data_size = get_data_size(row_count, column_count, dtype_);
         data_.reset(data_size);
         row_count_ = row_count;
         column_count_ = column_count;
@@ -116,11 +120,15 @@ public:
                   std::int64_t row_count,
                   std::int64_t column_count,
                   sycl::usm::alloc kind) {
-        const std::int64_t data_size = get_data_size(row_count, column_count, dtype_);
-        if (data_size <= 0) {
-            throw dal::domain_error("data count to allocate is not positive");
+        if (row_count <= 0) {
+            throw dal::domain_error(error_msg::number_of_rows_leq_zero());
         }
 
+        if (column_count <= 0) {
+            throw dal::domain_error(error_msg::number_of_columns_leq_zero());
+        }
+
+        const std::int64_t data_size = get_data_size(row_count, column_count, dtype_);
         data_.reset(queue, data_size, kind);
         row_count_ = row_count;
         column_count_ = column_count;

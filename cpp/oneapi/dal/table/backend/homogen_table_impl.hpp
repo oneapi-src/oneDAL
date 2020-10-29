@@ -40,19 +40,26 @@ public:
               row_count_(row_count),
               col_count_(column_count),
               layout_(layout) {
-        if (row_count <= 0 || column_count <= 0) {
-            throw dal::domain_error("invalid shape of a table");
+        using error_msg = dal::detail::error_messages;
+
+        if (row_count <= 0) {
+            throw dal::domain_error(error_msg::number_of_rows_leq_zero());
         }
+
+        if (column_count <= 0) {
+            throw dal::domain_error(error_msg::number_of_columns_leq_zero());
+        }
+
         detail::check_mul_overflow(row_count, column_count);
         const int64_t element_count = row_count * column_count;
         const int64_t dtype_size = detail::get_data_type_size(dtype);
 
         detail::check_mul_overflow(element_count, dtype_size);
         if (data.get_count() != element_count * dtype_size) {
-            throw dal::domain_error("invalid data size");
+            throw dal::domain_error(error_msg::invalid_data_block_size());
         }
         if (layout != data_layout::row_major && layout != data_layout::column_major) {
-            throw dal::domain_error("data layout not supported");
+            throw dal::domain_error(error_msg::unsupported_data_layout());
         }
     }
 
