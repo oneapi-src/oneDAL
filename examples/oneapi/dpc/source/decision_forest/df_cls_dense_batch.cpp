@@ -36,7 +36,7 @@ void run(sycl::queue &queue) {
   const auto x_test = dal::read<dal::table>(queue, dal::csv::data_source{test_data_file_name});
   const auto y_test = dal::read<dal::table>(dal::csv::data_source{test_label_file_name});
 
-  const auto df_train_desc = df::descriptor<float, df::task::classification, df::method::hist>{}
+  const auto df_train_desc = df::descriptor<float, df::method::hist, df::task::classification>{}
           .set_class_count(5)
           .set_tree_count(10)
           .set_features_per_node(1)
@@ -47,7 +47,7 @@ void run(sycl::queue &queue) {
           .set_error_metric_mode(df::error_metric_mode::out_of_bag_error)
           .set_variable_importance_mode(df::variable_importance_mode::mdi);
 
-  const auto df_infer_desc = df::descriptor<float, df::task::classification, df::method::dense>{}
+  const auto df_infer_desc = df::descriptor<float, df::method::dense, df::task::classification>{}
           .set_class_count(5)
           .set_infer_mode(df::infer_mode::class_labels | df::infer_mode::class_probabilities)
           .set_voting_mode(df::voting_mode::weighted);
