@@ -20,6 +20,7 @@ dal_test_suite(
     dpc = False,
     srcs = glob([
         "backend/cpu/*_test.cpp",
+        "*_test.cpp",
     ]),
     dal_deps = [
         ":rbf_kernel",

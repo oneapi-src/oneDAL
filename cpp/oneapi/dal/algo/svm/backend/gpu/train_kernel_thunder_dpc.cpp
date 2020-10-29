@@ -68,20 +68,21 @@ static result_t call_daal_kernel(const context_gpu& ctx,
         interop::convert_to_daal_sycl_homogen_table(queue, arr_new_label, row_count, 1);
 
     auto kernel_impl = desc.get_kernel_impl()->get_impl();
-
-    const std::int64_t cache_megabyte = static_cast<std::int64_t>(desc.get_cache_size());
-    constexpr std::int64_t megabyte = 1024 * 1024;
-    dal::detail::check_mul_overflow(cache_megabyte, megabyte);
-    const std::int64_t cache_byte = cache_megabyte * megabyte;
-
     const auto daal_kernel = kernel_impl->get_daal_kernel_function();
-    daal_svm::Parameter daal_parameter(daal_kernel,
-                                       desc.get_c(),
-                                       desc.get_accuracy_threshold(),
-                                       desc.get_tau(),
-                                       desc.get_max_iteration_count(),
-                                       cache_byte,
-                                       desc.get_shrinking());
+
+    const std::size_t cache_megabyte = static_cast<std::size_t>(desc.get_cache_size());
+    constexpr std::size_t megabyte = 1024 * 1024;
+    dal::detail::check_mul_overflow(cache_megabyte, megabyte);
+    const std::size_t cache_byte = cache_megabyte * megabyte;
+
+    daal_svm::Parameter daal_parameter(
+        daal_kernel,
+        desc.get_c(),
+        desc.get_accuracy_threshold(),
+        desc.get_tau(),
+        dal::detail::integral_cast<std::size_t>(desc.get_max_iteration_count()),
+        cache_byte,
+        desc.get_shrinking());
 
     auto daal_model = daal_svm::Model::create<Float>(column_count);
     interop::status_to_exception(daal_svm_thunder_kernel_t<Float>().compute(daal_data,

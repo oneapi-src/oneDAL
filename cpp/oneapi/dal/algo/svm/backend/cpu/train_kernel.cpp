@@ -70,18 +70,19 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     auto kernel_impl = desc.get_kernel_impl()->get_impl();
     const auto daal_kernel = kernel_impl->get_daal_kernel_function();
 
-    const std::int64_t cache_megabyte = static_cast<std::int64_t>(desc.get_cache_size());
-    constexpr std::int64_t megabyte = 1024 * 1024;
+    const std::size_t cache_megabyte = static_cast<std::size_t>(desc.get_cache_size());
+    constexpr std::size_t megabyte = 1024 * 1024;
     dal::detail::check_mul_overflow(cache_megabyte, megabyte);
-    const std::int64_t cache_byte = cache_megabyte * megabyte;
+    const std::size_t cache_byte = cache_megabyte * megabyte;
 
-    daal_svm::Parameter daal_parameter(daal_kernel,
-                                       desc.get_c(),
-                                       desc.get_accuracy_threshold(),
-                                       desc.get_tau(),
-                                       desc.get_max_iteration_count(),
-                                       cache_byte,
-                                       desc.get_shrinking());
+    daal_svm::Parameter daal_parameter(
+        daal_kernel,
+        desc.get_c(),
+        desc.get_accuracy_threshold(),
+        desc.get_tau(),
+        dal::detail::integral_cast<std::size_t>(desc.get_max_iteration_count()),
+        cache_byte,
+        desc.get_shrinking());
 
     auto daal_model = daal_svm::Model::create<Float>(column_count);
 
