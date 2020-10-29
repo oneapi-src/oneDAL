@@ -20,7 +20,7 @@ dal_test_suite(
     dpc = False,
     srcs = glob([
         "backend/cpu/*_test.cpp",
-        "*_test.cpp",
+        "*_host_test.cpp",
     ]),
     dal_deps = [
         ":linear_kernel",
@@ -32,6 +32,7 @@ dal_test_suite(
     host = False,
     srcs = glob([
         "backend/gpu/*_test.cpp",
+        "*_dpc_test.cpp",
     ]),
     dal_deps = [
         ":linear_kernel",

@@ -31,7 +31,11 @@ TEST(linear_kernel_bad_arg_tests, set_x) {
 
     const auto linear_kernel_desc = linear_kernel::descriptor{};
 
-    ASSERT_THROW(dal::compute(linear_kernel_desc, x_train_table, y_train_table), dal::domain_error);
+    auto selector = sycl::gpu_selector();
+    auto queue = sycl::queue(selector);
+
+    ASSERT_THROW(dal::compute(queue, linear_kernel_desc, x_train_table, y_train_table),
+                 dal::domain_error);
 }
 
 TEST(linear_kernel_bad_arg_tests, set_y) {
@@ -44,7 +48,11 @@ TEST(linear_kernel_bad_arg_tests, set_y) {
 
     const auto linear_kernel_desc = linear_kernel::descriptor{};
 
-    ASSERT_THROW(dal::compute(linear_kernel_desc, x_train_table, y_train_table), dal::domain_error);
+    auto selector = sycl::gpu_selector();
+    auto queue = sycl::queue(selector);
+
+    ASSERT_THROW(dal::compute(queue, linear_kernel_desc, x_train_table, y_train_table),
+                 dal::domain_error);
 }
 
 TEST(linear_kernel_bad_arg_tests, incorect_columns) {
@@ -59,6 +67,9 @@ TEST(linear_kernel_bad_arg_tests, incorect_columns) {
 
     const auto linear_kernel_desc = linear_kernel::descriptor{};
 
-    ASSERT_THROW(dal::compute(linear_kernel_desc, x_train_table, y_train_table),
+    auto selector = sycl::gpu_selector();
+    auto queue = sycl::queue(selector);
+
+    ASSERT_THROW(dal::compute(queue, linear_kernel_desc, x_train_table, y_train_table),
                  dal::invalid_argument);
 }
