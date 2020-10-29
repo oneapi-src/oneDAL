@@ -52,7 +52,7 @@ public:
         return homogen_table{ data_pointer,
                               row_count,
                               column_count,
-                              empty_delete<const Data>(),
+                              dal::detail::empty_delete<const Data>(),
                               layout };
     }
 
@@ -65,7 +65,8 @@ public:
                               const sycl::vector_class<sycl::event>& dependencies = {},
                               data_layout layout = data_layout::row_major) {
         return homogen_table{
-            queue,        data_pointer, row_count, column_count, empty_delete<const Data>(),
+            queue,        data_pointer, row_count, column_count,
+            dal::detail::empty_delete<const Data>(),
             dependencies, layout
         };
     }

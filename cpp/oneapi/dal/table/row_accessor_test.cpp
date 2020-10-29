@@ -21,6 +21,8 @@
 using namespace oneapi::dal;
 
 TEST(homogen_table_test, can_read_table_data_via_row_accessor) {
+    using oneapi::dal::detail::empty_delete;
+
     double data[] = { 1.0, 2.0, 3.0, -1.0, -2.0, -3.0 };
 
     homogen_table t{ data, 2, 3, empty_delete<const double>() };
@@ -35,6 +37,8 @@ TEST(homogen_table_test, can_read_table_data_via_row_accessor) {
 }
 
 TEST(homogen_table_test, can_read_table_data_via_row_accessor_with_conversion) {
+    using oneapi::dal::detail::empty_delete;
+
     float data[] = { 1.0f, 2.0f, 3.0f, -1.0f, -2.0f, -3.0f };
 
     homogen_table t{ data, 2, 3, empty_delete<const float>() };
@@ -49,6 +53,8 @@ TEST(homogen_table_test, can_read_table_data_via_row_accessor_with_conversion) {
 }
 
 TEST(homogen_table_test, can_read_table_data_via_row_accessor_and_array_outside) {
+    using oneapi::dal::detail::empty_delete;
+
     float data[] = { 1.0f, 2.0f, 3.0f, -1.0f, -2.0f, -3.0f };
 
     homogen_table t{ data, 2, 3, empty_delete<const float>() };

@@ -30,7 +30,7 @@ public:
               dtype_(data_type::float32) {}
 
     void reset(homogen_table&& t) {
-        auto& t_impl = detail::get_impl<detail::homogen_table_impl_iface>(t);
+        auto& t_impl = detail::cast_impl<detail::homogen_table_impl_iface>(t);
         auto& meta = t_impl.get_metadata();
 
         layout_ = t.get_data_layout();

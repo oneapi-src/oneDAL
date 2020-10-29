@@ -17,23 +17,37 @@
 #pragma once
 
 #include "oneapi/dal/algo/decision_forest/common.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/model_interop.hpp"
 
 namespace oneapi::dal::decision_forest {
 
 template <typename Task>
-class detail::model_impl : public base {
+class detail::v1::model_impl : public base {
 public:
-    virtual std::int64_t get_tree_count() const {
-        return 0;
-    }
-    virtual std::int64_t get_class_count() const {
-        return 0;
-    }
-    virtual void clear() {}
+    model_impl() = default;
+    model_impl(const model_impl&) = delete;
+    model_impl& operator=(const model_impl&) = delete;
 
-    virtual bool is_interop() const {
-        return false;
+    model_impl(backend::model_interop* interop)
+        : interop_(interop) {}
+
+    virtual ~model_impl() {
+        delete interop_;
+        interop_ = nullptr;
     }
+
+    backend::model_interop* get_interop() const {
+        return interop_;
+    }
+
+    std::int64_t tree_count = 0;
+    std::int64_t class_count = 0;
+
+private:
+    backend::model_interop* interop_ = nullptr;
 };
+
+using model_impl_cls = detail::model_impl<task::classification>;
+using model_impl_reg = detail::model_impl<task::regression>;
 
 } // namespace oneapi::dal::decision_forest

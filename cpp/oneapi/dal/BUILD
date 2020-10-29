@@ -119,6 +119,8 @@ dal_collect_test_suites(
     ],
     tests = [
         ":common_tests",
-        "@onedal//cpp/oneapi:dal_hpp_test",
+        # TODO: Temporary disabled due to
+        #       unexpectedly high build time
+        # "@onedal//cpp/oneapi:dal_hpp_test",
     ],
 )

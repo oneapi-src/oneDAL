@@ -27,6 +27,9 @@ namespace oneapi::dal::detail {
 template <typename T, typename... Args>
 struct is_one_of : public std::disjunction<std::is_same<T, Args>...> {};
 
+template <typename T, typename... Args>
+constexpr bool is_one_of_v = is_one_of<T, Args...>::value;
+
 template <typename T>
 using shared = std::shared_ptr<T>;
 
@@ -42,39 +45,28 @@ struct pimpl_accessor {
         return object.impl_;
     }
 
-    template <typename Object>
-    auto make_from_pimpl(typename Object::pimpl const& impl) {
-        return Object{ impl };
-    }
-
     template <typename Object, typename... Args>
-    static auto make(Args&&... args) {
+    Object make(Args&&... args) const {
         return Object{ std::forward<Args>(args)... };
-    }
-
-    template <typename Object>
-    auto make_from_pointer(typename Object::pimpl::element_type* pointer) {
-        using pimpl_t = typename Object::pimpl;
-        return Object{ pimpl_t(pointer) };
     }
 };
 
+template <typename Object>
+inline auto& get_impl(Object&& object) {
+    return *pimpl_accessor{}.get_pimpl(object);
+}
+
 template <typename Impl, typename Object>
-Impl& get_impl(Object&& object) {
-    return static_cast<Impl&>(*pimpl_accessor().get_pimpl(object));
+inline Impl& cast_impl(Object&& object) {
+    return static_cast<Impl&>(get_impl(object));
 }
 
-template <typename Object, typename Pimpl>
-Object make_from_pimpl(const Pimpl& impl) {
-    return pimpl_accessor().template make_from_pimpl<Object>(impl);
+template <typename Object, typename... Args>
+inline Object make_private(Args&&... args) {
+    return pimpl_accessor{}.template make<Object>(std::forward<Args>(args)...);
 }
 
-template <typename Object, typename Pimpl>
-Object make_from_pointer(typename Object::pimpl::element_type* pointer) {
-    return pimpl_accessor().template make_from_pointer<Object>(pointer);
-}
-
-constexpr std::int64_t get_data_type_size(data_type t) {
+inline constexpr std::int64_t get_data_type_size(data_type t) {
     if (t == data_type::float32) {
         return sizeof(float);
     }
@@ -128,8 +120,7 @@ constexpr data_type make_data_type_impl() {
     }
 
     static_assert(
-        is_one_of<T, std::int32_t, std::int64_t, std::uint32_t, std::uint64_t, float, double>::
-            value,
+        is_one_of_v<T, std::int32_t, std::int64_t, std::uint32_t, std::uint64_t, float, double>,
         "unsupported data type");
     return data_type::float32; // shall never come here
 }

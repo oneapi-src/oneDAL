@@ -20,6 +20,7 @@
 #include "oneapi/dal/table/common.hpp"
 
 namespace oneapi::dal {
+namespace v1 {
 
 template <typename Object, typename... Args>
 auto read(Args&&... args) {
@@ -33,5 +34,9 @@ auto read(sycl::queue& queue, Args&&... args) {
                                          std::forward<Args>(args)...);
 }
 #endif
+
+} // namespace v1
+
+using v1::read;
 
 } // namespace oneapi::dal

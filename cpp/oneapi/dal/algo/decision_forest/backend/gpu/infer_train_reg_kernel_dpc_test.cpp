@@ -66,8 +66,8 @@ TEST(infer_and_train_reg_kernels_test, can_process_simple_case_default_params) {
     std::memcpy(x_test, x_test_host, sizeof(float) * row_count_test * column_count);
     const auto x_test_table = dal::homogen_table::wrap(queue, x_test, row_count_test, column_count);
 
-    const auto df_train_desc = df::descriptor<float, df::task::regression, df::method::hist>{};
-    const auto df_infer_desc = df::descriptor<float, df::task::regression, df::method::dense>{};
+    const auto df_train_desc = df::descriptor<float, df::method::hist, df::task::regression>{};
+    const auto df_infer_desc = df::descriptor<float, df::method::dense, df::task::regression>{};
 
     const auto result_train = dal::train(queue, df_train_desc, x_train_table, y_train_table);
     ASSERT_EQ(!(result_train.get_var_importance().has_data()), true);
@@ -130,7 +130,7 @@ TEST(infer_and_train_reg_kernels_test, can_process_simple_case_non_default_param
     const auto x_test_table = dal::homogen_table::wrap(queue, x_test, row_count_test, column_count);
 
     const auto df_train_desc =
-        df::descriptor<float, df::task::regression, df::method::hist>{}
+        df::descriptor<float, df::method::hist, df::task::regression>{}
             .set_tree_count(tree_count)
             .set_features_per_node(1)
             .set_min_observations_in_leaf_node(2)
@@ -138,7 +138,7 @@ TEST(infer_and_train_reg_kernels_test, can_process_simple_case_non_default_param
             .set_error_metric_mode(df::error_metric_mode::out_of_bag_error |
                                    df::error_metric_mode::out_of_bag_error_per_observation);
 
-    const auto df_infer_desc = df::descriptor<float, df::task::regression, df::method::dense>{};
+    const auto df_infer_desc = df::descriptor<float, df::method::dense, df::task::regression>{};
 
     const auto result_train = dal::train(queue, df_train_desc, x_train_table, y_train_table);
 
