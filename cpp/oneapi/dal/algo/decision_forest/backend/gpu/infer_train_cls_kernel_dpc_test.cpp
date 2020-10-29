@@ -24,11 +24,9 @@
 using namespace oneapi;
 namespace df = oneapi::dal::decision_forest;
 
-using df_hist_classifier =
-    df::descriptor<float, df::method::hist, df::task::classification>;
+using df_hist_classifier = df::descriptor<float, df::method::hist, df::task::classification>;
 
-using df_dense_classifier =
-    df::descriptor<float, df::method::dense, df::task::classification>;
+using df_dense_classifier = df::descriptor<float, df::method::dense, df::task::classification>;
 
 TEST(infer_and_train_cls_kernels_test, can_process_simple_case_default_params) {
     constexpr double accuracy_threshold = 0.05;
@@ -197,8 +195,7 @@ TEST(infer_and_train_cls_kernels_test, can_process_corner_case) {
                                    .set_class_count(2)
                                    .set_tree_count(10)
                                    .set_min_observations_in_leaf_node(8);
-    const auto df_infer_desc =
-        df_dense_classifier{}.set_class_count(2);
+    const auto df_infer_desc = df_dense_classifier{}.set_class_count(2);
 
     const auto result_train = dal::train(queue, df_train_desc, x_train_table, y_train_table);
     // infer on CPU for now

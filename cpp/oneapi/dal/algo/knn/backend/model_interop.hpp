@@ -25,8 +25,7 @@ class model_interop : public base {
 public:
     using DaalModel = daal::algorithms::classifier::ModelPtr;
 
-    model_interop(const DaalModel& daal_model)
-            : daal_model_(daal_model) {}
+    model_interop(const DaalModel& daal_model) : daal_model_(daal_model) {}
 
     void set_daal_model(const DaalModel& model) {
         daal_model_ = model;

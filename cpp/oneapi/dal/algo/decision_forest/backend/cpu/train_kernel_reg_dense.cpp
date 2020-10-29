@@ -43,9 +43,8 @@ namespace daal_df_reg_train = daal_df::regression::training;
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
-using reg_dense_kernel_t =
-    daal_df_reg_train::internal::RegressionTrainBatchKernel<
-        Float, daal_df_reg_train::defaultDense, Cpu>;
+using reg_dense_kernel_t = daal_df_reg_train::internal::
+    RegressionTrainBatchKernel<Float, daal_df_reg_train::defaultDense, Cpu>;
 
 template <typename Float>
 static result_t call_daal_kernel(const context_cpu& ctx,
@@ -155,16 +154,14 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         res.set_var_importance(table_var_imp);
     }
 
-    const auto model_impl = std::make_shared<model_impl_reg>(new model_interop_reg{mptr});
+    const auto model_impl = std::make_shared<model_impl_reg>(new model_interop_reg{ mptr });
     model_impl->tree_count = mptr->getNumberOfTrees();
 
     return res.set_model(dal::detail::make_private<model_t>(model_impl));
 }
 
 template <typename Float>
-static result_t train(const context_cpu& ctx,
-                      const descriptor_t& desc,
-                      const input_t& input) {
+static result_t train(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_labels());
 }
 

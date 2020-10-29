@@ -80,14 +80,11 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         daal_model_ptr,
         daal_labels_res.get()));
 
-    return result_t{}.set_labels(
-        interop::convert_from_daal_homogen_table<Float>(daal_labels_res));
+    return result_t{}.set_labels(interop::convert_from_daal_homogen_table<Float>(daal_labels_res));
 }
 
 template <typename Float>
-static result_t infer(const context_cpu& ctx,
-                      const descriptor_t& desc,
-                      const input_t& input) {
+static result_t infer(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_model(), input.get_data());
 }
 

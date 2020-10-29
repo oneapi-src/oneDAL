@@ -22,11 +22,9 @@
 using namespace oneapi;
 namespace df = oneapi::dal::decision_forest;
 
-using df_hist_classifier =
-    df::descriptor<float, df::method::hist, df::task::classification>;
+using df_hist_classifier = df::descriptor<float, df::method::hist, df::task::classification>;
 
-using df_dense_classifier =
-    df::descriptor<float, df::method::dense, df::task::classification>;
+using df_dense_classifier = df::descriptor<float, df::method::dense, df::task::classification>;
 
 TEST(infer_and_train_cls_kernels_test, can_process_simple_case_default_params) {
     constexpr double accuracy_threshold = 0.05;

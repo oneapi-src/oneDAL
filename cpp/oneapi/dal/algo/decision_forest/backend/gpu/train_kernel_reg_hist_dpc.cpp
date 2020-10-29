@@ -41,14 +41,14 @@ namespace daal_df_reg_train = daal_df::regression::training;
 namespace interop = dal::backend::interop;
 
 template <typename Float>
-using reg_hist_kernel_t = daal_df_reg_train::internal::
-    RegressionTrainBatchKernelOneAPI<Float, daal_df_reg_train::hist>;
+using reg_hist_kernel_t =
+    daal_df_reg_train::internal::RegressionTrainBatchKernelOneAPI<Float, daal_df_reg_train::hist>;
 
 template <typename Float>
 static result_t call_daal_kernel(const context_gpu& ctx,
-                                           const descriptor_t& desc,
-                                           const table& data,
-                                           const table& labels) {
+                                 const descriptor_t& desc,
+                                 const table& data,
+                                 const table& labels) {
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
@@ -125,7 +125,8 @@ static result_t call_daal_kernel(const context_gpu& ctx,
         daal_result.set(daal_df_reg_train::variableImportance, res_var_imp);
     }
 
-    daal_df::regression::ModelPtr mptr = daal_df::regression::ModelPtr(new daal_df::regression::internal::ModelImpl(column_count));
+    daal_df::regression::ModelPtr mptr =
+        daal_df::regression::ModelPtr(new daal_df::regression::internal::ModelImpl(column_count));
 
     interop::status_to_exception(
         reg_hist_kernel_t<Float>().compute(daal::services::internal::hostApp(daal_input),
@@ -150,24 +151,22 @@ static result_t call_daal_kernel(const context_gpu& ctx,
             dal::detail::homogen_table_builder{}.reset(arr_var_imp, 1, column_count).build());
     }
 
-    const auto model_impl = std::make_shared<model_impl_reg>(new model_interop_impl{mptr});
+    const auto model_impl = std::make_shared<model_impl_reg>(new model_interop_impl{ mptr });
     model_impl->tree_count = mptr->getNumberOfTrees();
 
     return res.set_model(dal::detail::make_private<model_t>(model_impl));
 }
 
 template <typename Float>
-static result_t train(const context_gpu& ctx,
-                                const descriptor_t& desc,
-                                const input_t& input) {
+static result_t train(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_labels());
 }
 
 template <typename Float, typename Task>
 struct train_kernel_gpu<Float, Task, method::hist> {
     result_t operator()(const context_gpu& ctx,
-                                  const descriptor_t& desc,
-                                  const input_t& input) const {
+                        const descriptor_t& desc,
+                        const input_t& input) const {
         return train<Float>(ctx, desc, input);
     }
 };

@@ -122,17 +122,15 @@ static result_t call_daal_kernel(const context_gpu& ctx,
 }
 
 template <typename Float>
-static result_t infer(const context_gpu& ctx,
-                                const descriptor_t& desc,
-                                const input_t& input) {
+static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_model(), input.get_data());
 }
 
 template <typename Float, typename Task>
 struct infer_kernel_gpu<Float, Task, method::dense> {
     result_t operator()(const context_gpu& ctx,
-                                  const descriptor_t& desc,
-                                  const input_t& input) const {
+                        const descriptor_t& desc,
+                        const input_t& input) const {
         return infer<Float>(ctx, desc, input);
     }
 };

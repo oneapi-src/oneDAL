@@ -37,9 +37,8 @@ inline auto convert_to_daal_variable_importance_mode(variable_importance_mode vi
                ? daal_df::training::MDI
                : variable_importance_mode::mda_raw == vimp
                      ? daal_df::training::MDA_Raw
-                     : variable_importance_mode::mda_scaled == vimp
-                           ? daal_df::training::MDA_Scaled
-                           : daal_df::training::none;
+                     : variable_importance_mode::mda_scaled == vimp ? daal_df::training::MDA_Scaled
+                                                                    : daal_df::training::none;
 }
 
 class model_interop : public base {
@@ -51,8 +50,7 @@ public:
 template <typename DaalModel>
 class model_interop_impl : public model_interop {
 public:
-    model_interop_impl(const DaalModel& model)
-        : daal_model_(model) {}
+    model_interop_impl(const DaalModel& model) : daal_model_(model) {}
 
     const DaalModel get_model() const {
         return daal_model_;

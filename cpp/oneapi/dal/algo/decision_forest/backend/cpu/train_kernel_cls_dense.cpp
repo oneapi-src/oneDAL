@@ -154,7 +154,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         res.set_var_importance(table_var_imp);
     }
 
-    auto model_impl = std::make_shared<model_impl_cls>(new model_interop_cls{mptr});
+    auto model_impl = std::make_shared<model_impl_cls>(new model_interop_cls{ mptr });
     model_impl->tree_count = mptr->getNumberOfTrees();
     model_impl->class_count = mptr->getNumberOfClasses();
 
@@ -162,9 +162,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 }
 
 template <typename Float>
-static result_t train(const context_cpu& ctx,
-                      const descriptor_t& desc,
-                      const input_t& input) {
+static result_t train(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_labels());
 }
 

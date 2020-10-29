@@ -41,8 +41,9 @@ namespace daal_df_cls_train = daal_df::classification::training;
 namespace interop = dal::backend::interop;
 
 template <typename Float>
-using cls_hist_kernel_t = daal_df_cls_train::internal::
-    ClassificationTrainBatchKernelOneAPI<Float, daal_df_cls_train::hist>;
+using cls_hist_kernel_t =
+    daal_df_cls_train::internal::ClassificationTrainBatchKernelOneAPI<Float,
+                                                                      daal_df_cls_train::hist>;
 
 template <typename Float>
 static result_t call_daal_kernel(const context_gpu& ctx,
@@ -125,7 +126,8 @@ static result_t call_daal_kernel(const context_gpu& ctx,
         daal_result.set(daal_df_cls_train::variableImportance, res_var_imp);
     }
 
-    daal_df::classification::ModelPtr mptr = daal_df::classification::ModelPtr(new daal_df::classification::internal::ModelImpl(column_count));
+    daal_df::classification::ModelPtr mptr = daal_df::classification::ModelPtr(
+        new daal_df::classification::internal::ModelImpl(column_count));
 
     interop::status_to_exception(
         cls_hist_kernel_t<Float>().compute(daal::services::internal::hostApp(daal_input),
@@ -150,7 +152,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
             dal::detail::homogen_table_builder{}.reset(arr_var_imp, 1, column_count).build());
     }
 
-    const auto model_impl = std::make_shared<model_impl_cls>(new model_interop_cls{mptr});
+    const auto model_impl = std::make_shared<model_impl_cls>(new model_interop_cls{ mptr });
     model_impl->tree_count = mptr->getNumberOfTrees();
     model_impl->class_count = mptr->getNumberOfClasses();
 
@@ -158,17 +160,15 @@ static result_t call_daal_kernel(const context_gpu& ctx,
 }
 
 template <typename Float>
-static result_t train(const context_gpu& ctx,
-                      const descriptor_t& desc,
-                      const input_t& input) {
+static result_t train(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_labels());
 }
 
 template <typename Float, typename Task>
 struct train_kernel_gpu<Float, Task, method::hist> {
     result_t operator()(const context_gpu& ctx,
-                                  const descriptor_t& desc,
-                                  const input_t& input) const {
+                        const descriptor_t& desc,
+                        const input_t& input) const {
         return train<Float>(ctx, desc, input);
     }
 };

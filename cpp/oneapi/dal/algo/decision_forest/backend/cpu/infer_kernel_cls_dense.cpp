@@ -70,7 +70,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     daal_input.set(daal::algorithms::classifier::prediction::model, daal_model);
 
     const auto daal_voting_mode = convert_to_daal_voting_mode(desc.get_voting_mode());
-    const auto daal_parameter = daal_df_cls_pred::Parameter(desc.get_class_count(), daal_voting_mode);
+    const auto daal_parameter =
+        daal_df_cls_pred::Parameter(desc.get_class_count(), daal_voting_mode);
 
     daal::data_management::NumericTablePtr daal_labels_res;
     daal::data_management::NumericTablePtr daal_labels_prob_res;
@@ -110,9 +111,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 }
 
 template <typename Float>
-static result_t infer(const context_cpu& ctx,
-                      const descriptor_t& desc,
-                      const input_t& input) {
+static result_t infer(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_model(), input.get_data());
 }
 

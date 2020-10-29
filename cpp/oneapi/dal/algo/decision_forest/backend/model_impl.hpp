@@ -28,8 +28,7 @@ public:
     model_impl(const model_impl&) = delete;
     model_impl& operator=(const model_impl&) = delete;
 
-    model_impl(backend::model_interop* interop)
-        : interop_(interop) {}
+    model_impl(backend::model_interop* interop) : interop_(interop) {}
 
     virtual ~model_impl() {
         delete interop_;
