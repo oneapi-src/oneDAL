@@ -71,6 +71,51 @@ TEST(knn_bad_arg_tests, set_neighbor_count) {
                     dal::domain_error);
 }
 
+TEST(knn_overflow_tests, classes_kd_tree) {
+    constexpr std::int64_t row_count_train = 6;
+
+    const float y_train[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f };
+
+    dal::homogen_table x_train_table;
+    const auto y_train_table = dal::homogen_table::wrap(y_train, row_count_train, 1);
+
+    ASSERT_THROW(dal::train(nn::descriptor<float, nn::task::classification, nn::method::kd_tree>{}.set_class_count(0xFFFFFFFF), x_train_table, y_train_table), dal::domain_error);
+}
+
+TEST(knn_overflow_tests, classes_brute_force) {
+    constexpr std::int64_t row_count_train = 6;
+
+    const float y_train[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f };
+
+    dal::homogen_table x_train_table;
+    const auto y_train_table = dal::homogen_table::wrap(y_train, row_count_train, 1);
+
+    ASSERT_THROW(dal::train(nn::descriptor<float, nn::task::classification, nn::method::brute_force>{}.set_class_count(0xFFFFFFFF), x_train_table, y_train_table), dal::domain_error);
+}
+
+TEST(knn_overflow_tests, neighbors_kd_tree) {
+    constexpr std::int64_t row_count_train = 6;
+
+    const float y_train[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f };
+
+    dal::homogen_table x_train_table;
+    const auto y_train_table = dal::homogen_table::wrap(y_train, row_count_train, 1);
+
+    ASSERT_THROW(dal::train(nn::descriptor<float, nn::task::classification, nn::method::kd_tree>{}.set_neighbor_count(0xFFFFFFFF), x_train_table, y_train_table), dal::domain_error);
+}
+
+TEST(knn_overflow_tests, neighbors_brute_force) {
+    constexpr std::int64_t row_count_train = 6;
+
+    const float y_train[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f };
+
+    dal::homogen_table x_train_table;
+    const auto y_train_table = dal::homogen_table::wrap(y_train, row_count_train, 1);
+
+    ASSERT_THROW(dal::train(nn::descriptor<float, nn::task::classification, nn::method::brute_force>{}.set_neighbor_count(0xFFFFFFFF), x_train_table, y_train_table), dal::domain_error);
+}
+
+
 TEST(knn_bad_arg_tests, set_train_data_kd_tree) {
     constexpr std::int64_t row_count_train = 6;
 
