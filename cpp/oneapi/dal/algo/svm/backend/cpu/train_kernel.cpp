@@ -70,10 +70,10 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     auto kernel_impl = desc.get_kernel_impl()->get_impl();
     const auto daal_kernel = kernel_impl->get_daal_kernel_function();
 
-    const std::size_t cache_megabyte = static_cast<std::size_t>(desc.get_cache_size());
-    constexpr std::size_t megabyte = 1024 * 1024;
+    const std::uint64_t cache_megabyte = static_cast<std::uint64_t>(desc.get_cache_size());
+    constexpr std::uint64_t megabyte = 1024 * 1024;
     dal::detail::check_mul_overflow(cache_megabyte, megabyte);
-    const std::size_t cache_byte = cache_megabyte * megabyte;
+    const std::uint64_t cache_byte = cache_megabyte * megabyte;
 
     daal_svm::Parameter daal_parameter(
         daal_kernel,
