@@ -145,11 +145,13 @@ private:
                    const Data* data_pointer,
                    ConstDeleter&& data_deleter,
                    data_layout layout) {
+        dal::detail::check_mul_overflow(row_count, column_count);
         array<Data> data_array{ data_pointer,
                                 row_count * column_count,
                                 std::forward<ConstDeleter>(data_deleter) };
 
         auto byte_data = reinterpret_cast<const byte_t*>(data_pointer);
+        dal::detail::check_mul_overflow(data_array.get_count(), sizeof(Data));
         const std::int64_t byte_count = data_array.get_count() * sizeof(Data);
 
         auto byte_array = array<byte_t>{ data_array, byte_data, byte_count };
