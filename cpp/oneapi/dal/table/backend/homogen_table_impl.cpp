@@ -48,7 +48,10 @@ static void make_mutable_data(const Policy& policy, array<Data>& array) {
 }
 
 template <typename Policy, typename Data, typename Alloc>
-static void reset_array(const Policy& policy, array<Data>& array, std::int64_t count, const Alloc& kind) {
+static void reset_array(const Policy& policy,
+                        array<Data>& array,
+                        std::int64_t count,
+                        const Alloc& kind) {
     if constexpr (std::is_same_v<Policy, detail::default_host_policy>) {
         array.reset(count);
     }
@@ -92,9 +95,9 @@ static bool has_array_data_kind(const Policy& policy, const array<Data>& array, 
 
 template <typename DataSrc, typename DataDest>
 static void refer_source_data(const array<DataSrc>& src,
-                       std::int64_t src_start_index,
-                       std::int64_t dst_count,
-                       array<DataDest>& dst) {
+                              std::int64_t src_start_index,
+                              std::int64_t dst_count,
+                              array<DataDest>& dst) {
     ONEDAL_ASSERT(src_start_index >= 0);
     ONEDAL_ASSERT(src.get_count() > src_start_index);
     ONEDAL_ASSERT((src.get_count() - src_start_index) * sizeof(DataSrc) >=
