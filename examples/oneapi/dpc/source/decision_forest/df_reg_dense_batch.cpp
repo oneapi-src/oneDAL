@@ -63,13 +63,13 @@ void run(sycl::queue &q) {
 
         const auto result_infer = onedal::infer(q, df_infer_desc, result_train.get_model(), x_test);
 
-        std::cout << "Prediction results:\n" result_infer.get_labels() << std::endl;
+        std::cout << "Prediction results:\n" << result_infer.get_labels() << std::endl;
 
         std::cout << "Ground truth:\n" << y_test << std::endl;
     }
     catch (onedal::unimplemented &e) {
         std::cout << "  " << e.what() << std::endl;
-        return -1;
+        return;
     }
 }
 

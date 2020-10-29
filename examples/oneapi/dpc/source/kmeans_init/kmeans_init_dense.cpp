@@ -33,7 +33,7 @@ void run(sycl::queue& q, const onedal::table& x_train, const std::string& method
     constexpr double accuracy_threshold = 0.01;
 
     const auto kmeans_init_desc =
-        dal::kmeans_init::descriptor<float, Method>().set_cluster_count(cluster_count);
+        onedal::kmeans_init::descriptor<float, Method>().set_cluster_count(cluster_count);
 
     const auto result_init = onedal::compute(q, kmeans_init_desc, x_train);
 
