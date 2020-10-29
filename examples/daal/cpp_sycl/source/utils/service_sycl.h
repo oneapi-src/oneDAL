@@ -52,8 +52,8 @@ std::list<std::pair<std::string, cl::sycl::device> > getListOfDevices()
     device = makeDevice<cl::sycl::gpu_selector>();
     if (device) selects.emplace_back("GPU", *device);
 
-    device = makeDevice<cl::sycl::cpu_selector>();
-    if (device) selects.emplace_back("CPU", *device);
+    // device = makeDevice<cl::sycl::cpu_selector>();
+    // if (device) selects.emplace_back("CPU", *device);
 
     device = makeDevice<cl::sycl::host_selector>();
     if (device) selects.emplace_back("HOST", *device);

@@ -125,10 +125,10 @@ public:
         DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(_src, DataType);
 
         auto buffer = _src.template get<DataType>();
-        printf("%lu %lu\n", _offset, _size);
+        // printf("%lu %lu\n", _offset, _size);
         auto subbuffer = buffer.getSubBuffer(_offset, _size, st);
         DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
-        printf("GetSub\n");
+        // printf("GetSub\n");
 
         _dest = subbuffer;
     }

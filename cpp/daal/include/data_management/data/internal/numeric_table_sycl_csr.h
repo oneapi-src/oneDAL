@@ -560,7 +560,7 @@ protected:
         DAAL_CHECK_STATUS_VAR(st);
 
         services::internal::Buffer<T> valuesBuffer = converter.getResult();
-        printf("valuesBuffer.size(): %lu; _dataSize: %lu\n", valuesBuffer.size(), _dataSize);
+        // printf("valuesBuffer.size(): %lu; _dataSize: %lu\n", valuesBuffer.size(), _dataSize);
         block.setValuesBuffer(valuesBuffer);
 
         block.setColumnIndicesBuffer(_colIndices);

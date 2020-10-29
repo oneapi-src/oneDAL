@@ -202,6 +202,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
         diffPrev = diff;
     }
 
+    printf("iter: %lu; diff: %lf\n", iter, diff);
+
     cachePtr->clear();
     SaveResultTask<algorithmFPType, cpu> saveResult(nVectors, y, alpha, grad, cachePtr.get());
     DAAL_CHECK_STATUS(status, saveResult.compute(*xTable, *static_cast<Model *>(r), cw));

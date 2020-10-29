@@ -78,7 +78,7 @@ services::Status KernelImplLinearOneAPI<fastCSR, algorithmFPType>::computeIntern
     const algorithmFPType alpha = algorithmFPType(linPar->k);
     const algorithmFPType beta  = algorithmFPType(linPar->b);
 
-    printf("[KernelImplLinearOneAPI<fastCSR>]\n");
+    // printf("[KernelImplLinearOneAPI<fastCSR>]\n");
 
     CSRBlockDescriptor<algorithmFPType> matLeftBD, matRightBD;
 

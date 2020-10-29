@@ -67,12 +67,12 @@ public:
     {
         if (_rawPtr)
         {
-            printf("[CSRBlockDescriptor]:getBlockValuesPtr _rawPtr \n");
+            // printf("[CSRBlockDescriptor]:getBlockValuesPtr _rawPtr \n");
             return (DataType *)_rawPtr;
         }
         else if (_valuesBuffer)
         {
-            printf("[CSRBlockDescriptor]:getBlockValuesPtr getValuesCachedHostSharedPtr \n");
+            // printf("[CSRBlockDescriptor]:getBlockValuesPtr getValuesCachedHostSharedPtr \n");
 
             return getValuesCachedHostSharedPtr().get();
         }
@@ -101,7 +101,7 @@ public:
     {
         if (_rawPtr)
         {
-            printf("[CSRBlockDescriptor]:getBlockValuesBuffer _rawPtr \n");
+            // printf("[CSRBlockDescriptor]:getBlockValuesBuffer _rawPtr \n");
 
             services::Status status;
             daal::services::internal::Buffer<DataType> buffer((DataType *)_rawPtr, _nvalues, status);
@@ -110,7 +110,7 @@ public:
         }
         else if (_values_ptr)
         {
-            printf("[CSRBlockDescriptor]:getBlockValuesBuffer _values_ptr \n");
+            // printf("[CSRBlockDescriptor]:getBlockValuesBuffer _values_ptr \n");
 
             services::Status status;
             services::internal::Buffer<DataType> buffer(_values_ptr, _nvalues, status);
@@ -119,7 +119,7 @@ public:
         }
         else
         {
-            printf("[CSRBlockDescriptor]:getBlockValuesBuffer _valuesBuffer \n");
+            // printf("[CSRBlockDescriptor]:getBlockValuesBuffer _valuesBuffer \n");
             return _valuesBuffer;
         }
     }
@@ -164,13 +164,13 @@ public:
     {
         if (_rawPtr)
         {
-            printf("[CSRBlockDescriptor]:getBlockValuesSharedPtr _rawPtr \n");
+            // printf("[CSRBlockDescriptor]:getBlockValuesSharedPtr _rawPtr \n");
 
             return services::SharedPtr<DataType>(services::reinterpretPointerCast<DataType, byte>(*_pPtr), (DataType *)_rawPtr);
         }
         else if (_valuesBuffer)
         {
-            printf("[CSRBlockDescriptor]:getBlockValuesSharedPtr _valuesBuffer \n");
+            // printf("[CSRBlockDescriptor]:getBlockValuesSharedPtr _valuesBuffer \n");
 
             services::Status status;
             services::SharedPtr<DataType> hostSharedPtr = _valuesBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
@@ -179,7 +179,7 @@ public:
         }
         else
         {
-            printf("[CSRBlockDescriptor]:getBlockValuesSharedPtr _values_ptr \n");
+            // printf("[CSRBlockDescriptor]:getBlockValuesSharedPtr _values_ptr \n");
 
             return _values_ptr;
         }
@@ -241,7 +241,7 @@ public:
             }
             else if (_rowsBuffer)
             {
-                printf("[CSRBlockDescriptor]:getDataSize _rowsBuffer \n");
+                // printf("[CSRBlockDescriptor]:getDataSize _rowsBuffer \n");
 
                 size_t * rowsHost = getRowsCachedHostSharedPtr().get();
                 return rowsHost[_nrows] - rowsHost[0];
@@ -365,7 +365,6 @@ public:
      */
     inline bool resizeValuesBuffer(size_t nValues)
     {
-        printf("[CSRBlockDescriptor]:resizeValuesBuffer: %lu\n", nValues);
         size_t newSize = nValues * sizeof(DataType);
         if (newSize > _values_capacity)
         {
@@ -391,8 +390,6 @@ public:
      */
     inline bool resizeRowsBuffer(size_t nRows)
     {
-        printf("[CSRBlockDescriptor]:resizeRowsBuffer: %lu\n", nRows);
-
         _nrows         = nRows;
         size_t newSize = (nRows + 1) * sizeof(size_t);
         if (newSize > _rows_capacity)
@@ -464,7 +461,6 @@ protected:
         if (!_hostValuesSharedPtr)
         {
             services::Status status;
-            printf("[getValuesCachedHostSharedPtr]_valuesBuffer %lu\n", _valuesBuffer.size());
             _hostValuesSharedPtr = _valuesBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
             services::throwIfPossible(status);
         }
