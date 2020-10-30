@@ -83,7 +83,7 @@ static train_result<task::classification> call_daal_kernel(
     auto interop = new daal_model_interop_t(model_ptr);
     const auto model_impl = std::make_shared<detail::model_impl>(interop);
     return train_result<task::classification>().set_model(
-        dal::detail::pimpl_accessor::make<model<task::classification>>(model_impl));
+        dal::detail::make_private<model<task::classification>>(model_impl));
 }
 
 template <typename Float>
