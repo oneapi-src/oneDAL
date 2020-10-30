@@ -39,7 +39,7 @@ void homogen_table::init_impl(const Policy& policy,
                               const array<byte_t>& data,
                               const data_type& dtype,
                               data_layout layout) {
-    init_impl(backend::homogen_table_impl(column_count, data, dtype, layout));
+    init_impl(backend::homogen_table_impl(row_count, column_count, data, dtype, layout));
 }
 
 template ONEDAL_EXPORT void homogen_table::init_impl(const detail::default_host_policy&,

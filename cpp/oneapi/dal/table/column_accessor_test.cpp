@@ -105,3 +105,30 @@ TEST(column_accessor_test, can_get_columns_from_homogen_table_builder) {
         }
     }
 }
+
+TEST(column_accessor_test, can_get_column_values_from_column_major_homogen_table) {
+    float data[] = { 0.f, 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, 9.f, 10.f, 11.f };
+
+    auto t = homogen_table::wrap(data, 4, 3, data_layout::column_major);
+    column_accessor<const float> acc{ t };
+    auto col = acc.pull(1, { 1, 3 });
+
+    ASSERT_EQ(col.get_count(), 2);
+    ASSERT_EQ(col.get_data(), &data[5]);
+
+    ASSERT_FLOAT_EQ(col[0], 5.f);
+    ASSERT_FLOAT_EQ(col[1], 6.f);
+}
+
+TEST(column_accessor_test, can_get_column_values_from_column_major_homogen_table_with_conversion) {
+    float data[] = { 0.f, 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, 9.f, 10.f, 11.f };
+
+    auto t = homogen_table::wrap(data, 4, 3, data_layout::column_major);
+    column_accessor<const std::int32_t> acc{ t };
+    auto col = acc.pull(1, { 1, 3 });
+
+    ASSERT_EQ(col.get_count(), 2);
+
+    ASSERT_EQ(col[0], 5);
+    ASSERT_EQ(col[1], 6);
+}
