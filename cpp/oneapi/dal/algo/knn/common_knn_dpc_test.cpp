@@ -22,7 +22,7 @@
 using namespace oneapi;
 namespace nn = oneapi::dal::knn;
 
-TEST(knn_overflow_tests, classes_brute_force) {
+TEST(knn_brute_force_overflow_tests, throws_if_class_count_leads_to_overflow) {
     constexpr std::int64_t row_count_train = 6;
 
     const float y_train[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f };
@@ -38,7 +38,7 @@ TEST(knn_overflow_tests, classes_brute_force) {
         dal::domain_error);
 }
 
-TEST(knn_overflow_tests, neighbors_brute_force) {
+TEST(knn_brute_force_overflow_tests, throws_if_neighbor_count_leads_to_overflow) {
     constexpr std::int64_t row_count_train = 6;
 
     const float y_train[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f };
@@ -54,7 +54,7 @@ TEST(knn_overflow_tests, neighbors_brute_force) {
         dal::domain_error);
 }
 
-TEST(knn_bad_arg_tests, set_train_data_brute_force) {
+TEST(knn_brute_force_bad_arg_tests, throws_if_x_train_table_is_empty) {
     constexpr std::int64_t row_count_train = 6;
 
     const float y_train[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f };
@@ -68,7 +68,7 @@ TEST(knn_bad_arg_tests, set_train_data_brute_force) {
     ASSERT_THROW(dal::train(knn_desc, x_train_table, y_train_table), dal::domain_error);
 }
 
-TEST(knn_bad_arg_tests, set_train_labels_brute_force) {
+TEST(knn_brute_force_bad_arg_tests, throws_if_y_train_table_is_empty) {
     constexpr std::int64_t row_count_train = 6;
     constexpr std::int64_t column_count = 2;
 
@@ -84,7 +84,7 @@ TEST(knn_bad_arg_tests, set_train_labels_brute_force) {
     ASSERT_THROW(dal::train(knn_desc, x_train_table, y_train_table), dal::domain_error);
 }
 
-TEST(knn_bad_arg_tests, single_column_labels_brute_force) {
+TEST(knn_brute_force_bad_arg_tests, throws_if_y_train_table_contains_multiple_columns) {
     constexpr std::int64_t row_count_train = 6;
     constexpr std::int64_t column_count = 2;
 
@@ -101,7 +101,7 @@ TEST(knn_bad_arg_tests, single_column_labels_brute_force) {
     ASSERT_THROW(dal::train(knn_desc, x_train_table, y_train_table), dal::domain_error);
 }
 
-TEST(knn_bad_arg_tests, data_rows_matches_labels_rows_brute_force) {
+TEST(knn_brute_force_bad_arg_tests, throws_if_data_rows_dont_match_for_x_and_y_train_tables) {
     constexpr std::int64_t row_count_train = 6;
     constexpr std::int64_t row_count_train_invalid = 5;
     constexpr std::int64_t column_count = 2;
@@ -119,27 +119,7 @@ TEST(knn_bad_arg_tests, data_rows_matches_labels_rows_brute_force) {
     ASSERT_THROW(dal::train(knn_desc, x_train_table, y_train_table), dal::domain_error);
 }
 
-TEST(knn_bad_arg_tests, bad_infer_data_brute_force) {
-    constexpr std::int64_t row_count_train = 6;
-    constexpr std::int64_t column_count = 2;
-
-    const float x_train[] = {
-        -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f, +1.f, +2.f, +2.f, +1.f
-    };
-    const float y_train[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f };
-
-    const auto x_train_table = dal::homogen_table::wrap(x_train, row_count_train, column_count);
-    const auto y_train_table = dal::homogen_table::wrap(y_train, row_count_train, 1);
-    dal::homogen_table x_test_table;
-
-    const auto knn_desc =
-        nn::descriptor<float, nn::method::brute_force, nn::task::classification>{ 2, 1 };
-    const auto result_train = dal::train(knn_desc, x_train_table, y_train_table);
-
-    ASSERT_THROW(dal::infer(knn_desc, x_test_table, result_train.get_model()), dal::domain_error);
-}
-
-TEST(knn_bad_arg_tests, set_infer_data_kd_tree) {
+TEST(knn_brute_force_bad_arg_tests, throws_if_x_test_table_is_empty) {
     constexpr std::int64_t row_count_train = 6;
     constexpr std::int64_t column_count = 2;
 
@@ -159,7 +139,7 @@ TEST(knn_bad_arg_tests, set_infer_data_kd_tree) {
     ASSERT_THROW(dal::infer(knn_desc, x_test_table, result_train.get_model()), dal::domain_error);
 }
 
-TEST(knn_unit_tests, train_brute_force) {
+TEST(knn_brute_force_unit_tests, train_no_throw) {
     constexpr std::int64_t row_count_train = 6;
     constexpr std::int64_t column_count = 2;
 
@@ -176,7 +156,7 @@ TEST(knn_unit_tests, train_brute_force) {
     ASSERT_NO_THROW(dal::train(knn_desc, x_train_table, y_train_table));
 }
 
-TEST(knn_unit_tests, full_sim_brute_force) {
+TEST(knn_brute_force_unit_tests, train_and_infer_no_throw) {
     constexpr std::int64_t row_count_train = 6;
     constexpr std::int64_t column_count = 2;
 
