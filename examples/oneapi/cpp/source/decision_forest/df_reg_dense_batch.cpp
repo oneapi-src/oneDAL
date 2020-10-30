@@ -18,45 +18,43 @@
 #include "oneapi/dal/algo/decision_forest.hpp"
 #include "oneapi/dal/io/csv.hpp"
 
-using namespace oneapi;
-namespace df = oneapi::dal::decision_forest;
-
+namespace dal = oneapi::dal;
+namespace df = dal::decision_forest;
 
 int main(int argc, char const *argv[]) {
-  const std::string train_data_file_name  = get_data_path("df_regression_train_data.csv");
-  const std::string train_label_file_name = get_data_path("df_regression_train_label.csv");
-  const std::string test_data_file_name   = get_data_path("df_regression_test_data.csv");
-  const std::string test_label_file_name  = get_data_path("df_regression_test_label.csv");
+    const auto train_data_file_name = get_data_path("df_regression_train_data.csv");
+    const auto train_label_file_name = get_data_path("df_regression_train_label.csv");
+    const auto test_data_file_name = get_data_path("df_regression_test_data.csv");
+    const auto test_label_file_name = get_data_path("df_regression_test_label.csv");
 
-  const auto x_train = dal::read<dal::table>(dal::csv::data_source{train_data_file_name});
-  const auto y_train = dal::read<dal::table>(dal::csv::data_source{train_label_file_name});
+    const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
+    const auto y_train = dal::read<dal::table>(dal::csv::data_source{ train_label_file_name });
 
-  const auto x_test = dal::read<dal::table>(dal::csv::data_source{test_data_file_name});
-  const auto y_test = dal::read<dal::table>(dal::csv::data_source{test_label_file_name});
+    const auto x_test = dal::read<dal::table>(dal::csv::data_source{ test_data_file_name });
+    const auto y_test = dal::read<dal::table>(dal::csv::data_source{ test_label_file_name });
 
-  const auto df_desc =
-      df::descriptor<float, df::method::dense, df::task::regression>{}
-          .set_tree_count(100)
-          .set_features_per_node(0)
-          .set_min_observations_in_leaf_node(1)
-          .set_error_metric_mode(df::error_metric_mode::out_of_bag_error | df::error_metric_mode::out_of_bag_error_per_observation)
-          .set_variable_importance_mode(df::variable_importance_mode::mda_raw);
+    const auto df_desc =
+        df::descriptor<float, df::method::dense, df::task::regression>{}
+            .set_tree_count(100)
+            .set_features_per_node(0)
+            .set_min_observations_in_leaf_node(1)
+            .set_error_metric_mode(df::error_metric_mode::out_of_bag_error |
+                                   df::error_metric_mode::out_of_bag_error_per_observation)
+            .set_variable_importance_mode(df::variable_importance_mode::mda_raw);
 
-  const auto result_train = dal::train(df_desc, x_train, y_train);
+    const auto result_train = dal::train(df_desc, x_train, y_train);
 
-  std::cout << "Variable importance results:" << std::endl
-            << result_train.get_var_importance() << std::endl;
+    std::cout << "Variable importance results:\n" << result_train.get_var_importance() << std::endl;
 
-  std::cout << "OOB error: " << result_train.get_oob_err() << std::endl;
-  std::cout << "OOB error per observation:" << std::endl
-            << result_train.get_oob_err_per_observation() << std::endl;
+    std::cout << "OOB error: " << result_train.get_oob_err() << std::endl;
+    std::cout << "OOB error per observation:\n"
+              << result_train.get_oob_err_per_observation() << std::endl;
 
-  const auto result_infer = dal::infer(df_desc, result_train.get_model(), x_test);
+    const auto result_infer = dal::infer(df_desc, result_train.get_model(), x_test);
 
-  std::cout << "Prediction results:" << std::endl
-            << result_infer.get_labels() << std::endl;
+    std::cout << "Prediction results:\n" << result_infer.get_labels() << std::endl;
 
-  std::cout << "Ground truth:" << std::endl << y_test << std::endl;
+    std::cout << "Ground truth:\n" << y_test << std::endl;
 
-  return 0;
+    return 0;
 }

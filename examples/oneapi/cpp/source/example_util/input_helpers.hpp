@@ -21,14 +21,11 @@
 #include <fstream>
 
 inline bool check_file(const std::string& name) {
-    return std::ifstream{name}.good();
+    return std::ifstream{ name }.good();
 }
 
 inline std::string get_data_path(const std::string& name) {
-    const std::vector<std::string> paths = {
-        "../data",
-        "examples/oneapi/data"
-    };
+    const std::vector<std::string> paths = { "../data", "examples/oneapi/data" };
 
     for (const auto& path : paths) {
         const std::string try_path = path + "/" + name;
