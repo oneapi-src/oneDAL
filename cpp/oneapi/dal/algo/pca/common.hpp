@@ -70,6 +70,10 @@ public:
     using float_t = Float;
     using method_t = Method;
 
+    explicit descriptor(std::int64_t component_count = 0) {
+        set_component_count(component_count);
+    }
+
     auto& set_component_count(int64_t value) {
         descriptor_base<Task>::set_component_count_impl(value);
         return *this;
