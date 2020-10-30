@@ -19,14 +19,14 @@
 
 #include "example_util/utils.hpp"
 
-namespace onedal = oneapi::dal;
+namespace dal = oneapi::dal;
 
 template <typename Method>
-void run(const onedal::table& x_train, const std::string& method_name) {
+void run(const dal::table& x_train, const std::string& method_name) {
     const auto pca_desc =
-        onedal::pca::descriptor<float, Method>().set_component_count(5).set_deterministic(true);
+        dal::pca::descriptor<float, Method>().set_component_count(5).set_deterministic(true);
 
-    const auto result_train = onedal::train(pca_desc, x_train);
+    const auto result_train = dal::train(pca_desc, x_train);
 
     std::cout << method_name << "\n" << std::endl;
 
@@ -34,7 +34,7 @@ void run(const onedal::table& x_train, const std::string& method_name) {
 
     std::cout << "Eigenvalues:\n" << result_train.get_eigenvalues() << std::endl;
 
-    const auto result_infer = onedal::infer(pca_desc, result_train.get_model(), x_train);
+    const auto result_infer = dal::infer(pca_desc, result_train.get_model(), x_train);
 
     std::cout << "Transformed data:\n" << result_infer.get_transformed_data() << std::endl;
 }
@@ -42,11 +42,10 @@ void run(const onedal::table& x_train, const std::string& method_name) {
 int main(int argc, char const* argv[]) {
     const auto train_data_file_name = get_data_path("pca_normalized.csv");
 
-    const auto x_train =
-        onedal::read<onedal::table>(onedal::csv::data_source{ train_data_file_name });
+    const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
 
-    run<onedal::pca::method::cov>(x_train, "Training method: Covariance");
-    run<onedal::pca::method::svd>(x_train, "Training method: SVD");
+    run<dal::pca::method::cov>(x_train, "Training method: Covariance");
+    run<dal::pca::method::svd>(x_train, "Training method: SVD");
 
     return 0;
 }

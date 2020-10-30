@@ -24,25 +24,25 @@
 #include "oneapi/dal/algo/kmeans_init.hpp"
 #include "oneapi/dal/io/csv.hpp"
 
-namespace onedal = oneapi::dal;
+namespace dal = oneapi::dal;
 
 template <typename Method>
-void run(sycl::queue& q, const onedal::table& x_train, const std::string& method_name) {
+void run(sycl::queue& q, const dal::table& x_train, const std::string& method_name) {
     constexpr std::int64_t cluster_count = 20;
     constexpr std::int64_t max_iteration_count = 1000;
     constexpr double accuracy_threshold = 0.01;
 
     const auto kmeans_init_desc =
-        onedal::kmeans_init::descriptor<float, Method>().set_cluster_count(cluster_count);
+        dal::kmeans_init::descriptor<float, Method>().set_cluster_count(cluster_count);
 
-    const auto result_init = onedal::compute(q, kmeans_init_desc, x_train);
+    const auto result_init = dal::compute(q, kmeans_init_desc, x_train);
 
-    const auto kmeans_desc = onedal::kmeans::descriptor<>()
+    const auto kmeans_desc = dal::kmeans::descriptor<>()
                                  .set_cluster_count(cluster_count)
                                  .set_max_iteration_count(max_iteration_count)
                                  .set_accuracy_threshold(accuracy_threshold);
 
-    const auto result_train = onedal::train(q, kmeans_desc, x_train, result_init.get_centroids());
+    const auto result_train = dal::train(q, kmeans_desc, x_train, result_init.get_centroids());
 
     std::cout << "Method: " << method_name << std::endl;
     std::cout << "Max iteration count: " << max_iteration_count
@@ -61,10 +61,10 @@ int main(int argc, char const* argv[]) {
         auto q = sycl::queue{ d };
 
         const auto x_train =
-            onedal::read<onedal::table>(q, onedal::csv::data_source{ train_data_file_name });
+            dal::read<dal::table>(q, dal::csv::data_source{ train_data_file_name });
 
-        run<onedal::kmeans_init::method::dense>(q, x_train, "dense");
-        run<onedal::kmeans_init::method::random_dense>(q, x_train, "random_dense");
+        run<dal::kmeans_init::method::dense>(q, x_train, "dense");
+        run<dal::kmeans_init::method::random_dense>(q, x_train, "random_dense");
     }
     return 0;
 }

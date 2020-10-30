@@ -23,7 +23,7 @@
 
 #include "example_util/dpc_helpers.hpp"
 
-namespace onedal = oneapi::dal;
+namespace dal = oneapi::dal;
 
 void run(sycl::queue &q) {
     constexpr std::int64_t row_count = 6;
@@ -35,12 +35,12 @@ void run(sycl::queue &q) {
     auto data = sycl::malloc_shared<float>(row_count * column_count, q);
     q.memcpy(data, data_host, sizeof(float) * row_count * column_count).wait();
 
-    auto table = onedal::homogen_table{ q,
-                                        data,
-                                        row_count,
-                                        column_count,
-                                        onedal::make_default_delete<const float>(q) };
-    onedal::column_accessor<const float> acc{ table };
+    auto table = dal::homogen_table{ q,
+                                     data,
+                                     row_count,
+                                     column_count,
+                                     dal::make_default_delete<const float>(q) };
+    dal::column_accessor<const float> acc{ table };
 
     for (std::int64_t col = 0; col < table.get_column_count(); col++) {
         std::cout << "column " << col << " values: ";

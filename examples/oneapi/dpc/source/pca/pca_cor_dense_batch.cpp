@@ -24,24 +24,22 @@
 
 #include "example_util/utils.hpp"
 
-namespace onedal = oneapi::dal;
+namespace dal = oneapi::dal;
 
 void run(sycl::queue& q) {
     const auto train_data_file_name = get_data_path("pca_normalized.csv");
 
-    const auto x_train =
-        onedal::read<onedal::table>(q, onedal::csv::data_source{ train_data_file_name });
+    const auto x_train = dal::read<dal::table>(q, dal::csv::data_source{ train_data_file_name });
 
-    const auto pca_desc =
-        onedal::pca::descriptor<>().set_component_count(5).set_deterministic(true);
+    const auto pca_desc = dal::pca::descriptor<>().set_component_count(5).set_deterministic(true);
 
-    const auto result_train = onedal::train(q, pca_desc, x_train);
+    const auto result_train = dal::train(q, pca_desc, x_train);
 
     std::cout << "Eigenvectors:\n" << result_train.get_eigenvectors() << std::endl;
 
     std::cout << "Eigenvalues:\n" << result_train.get_eigenvalues() << std::endl;
 
-    const auto result_infer = onedal::infer(q, pca_desc, result_train.get_model(), x_train);
+    const auto result_infer = dal::infer(q, pca_desc, result_train.get_model(), x_train);
 
     std::cout << "Transformed data:\n" << result_infer.get_transformed_data() << std::endl;
 }

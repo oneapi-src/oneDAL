@@ -24,15 +24,15 @@
 #include "oneapi/dal/io/load_graph.hpp"
 #include "oneapi/dal/table/common.hpp"
 
-namespace onedal = oneapi::dal;
+namespace dal = oneapi::dal;
 
 int main(int argc, char **argv) {
     const auto filename = get_data_path("graph.csv");
 
     // read the graph
-    const onedal::preview::graph_csv_data_source ds(filename);
-    const onedal::preview::load_graph::descriptor<> d;
-    const auto my_graph = onedal::preview::load_graph::load(d, ds);
+    const dal::preview::graph_csv_data_source ds(filename);
+    const dal::preview::load_graph::descriptor<> d;
+    const auto my_graph = dal::preview::load_graph::load(d, ds);
 
     // set blocks ranges
     const std::int64_t row_range_begin = 0;
@@ -41,16 +41,16 @@ int main(int argc, char **argv) {
     const std::int64_t column_range_end = 3;
 
     // set algorithm parameters
-    const auto jaccard_desc = onedal::preview::jaccard::descriptor<>().set_block(
-        { row_range_begin, row_range_end },
-        { column_range_begin, column_range_end });
+    const auto jaccard_desc =
+        dal::preview::jaccard::descriptor<>().set_block({ row_range_begin, row_range_end },
+                                                        { column_range_begin, column_range_end });
 
     // create caching builder for jaccard result
-    onedal::preview::jaccard::caching_builder builder;
+    dal::preview::jaccard::caching_builder builder;
 
     // compute Jaccard similarity coefficients
     const auto result_vertex_similarity =
-        onedal::preview::vertex_similarity(jaccard_desc, my_graph, builder);
+        dal::preview::vertex_similarity(jaccard_desc, my_graph, builder);
 
     // extract the result
     const auto jaccard_coeffs = result_vertex_similarity.get_coeffs();

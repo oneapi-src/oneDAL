@@ -22,16 +22,16 @@
 
 #include "example_util/utils.hpp"
 
-namespace onedal = oneapi::dal;
+namespace dal = oneapi::dal;
 
 void run(sycl::queue &q) {
     const auto data_file_name = get_data_path("kernel_function.csv");
 
-    const auto x = onedal::read<onedal::table>(q, onedal::csv::data_source{ data_file_name });
-    const auto y = onedal::read<onedal::table>(q, onedal::csv::data_source{ data_file_name });
+    const auto x = dal::read<dal::table>(q, dal::csv::data_source{ data_file_name });
+    const auto y = dal::read<dal::table>(q, dal::csv::data_source{ data_file_name });
 
-    const auto kernel_desc = onedal::rbf_kernel::descriptor{}.set_sigma(1.0);
-    const auto result = onedal::compute(q, kernel_desc, x, y);
+    const auto kernel_desc = dal::rbf_kernel::descriptor{}.set_sigma(1.0);
+    const auto result = dal::compute(q, kernel_desc, x, y);
 
     std::cout << "Values:\n" << result.get_values() << std::endl;
 }
