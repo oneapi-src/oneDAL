@@ -136,3 +136,58 @@ TEST(column_accessor_test, can_get_columns_from_homogen_table_builder) {
         }
     }
 }
+
+TEST(column_accessor_test, can_get_column_values_from_column_major_homogen_table) {
+    sycl::queue q;
+    constexpr std::int64_t row_count = 4;
+    constexpr std::int64_t column_count = 3;
+    constexpr std::int64_t data_size = row_count * column_count;
+
+    auto data = sycl::malloc_shared<float>(data_size, q);
+
+    auto event = q.submit([&](sycl::handler& cgh) {
+        cgh.parallel_for(sycl::range<1>(data_size), [=](sycl::id<1> idx) {
+            data[idx[0]] = idx[0];
+        });
+    });
+
+    auto t =
+        homogen_table::wrap(q, data, row_count, column_count, { event }, data_layout::column_major);
+    column_accessor<const float> acc{ t };
+    auto col = acc.pull(q, 1, { 1, 3 });
+
+    ASSERT_EQ(col.get_count(), 2);
+    ASSERT_EQ(col.get_data(), &data[5]);
+
+    ASSERT_FLOAT_EQ(col[0], 5.f);
+    ASSERT_FLOAT_EQ(col[1], 6.f);
+
+    sycl::free(data, q);
+}
+
+TEST(column_accessor_test, can_get_column_values_from_column_major_homogen_table_with_conversion) {
+    sycl::queue q;
+    constexpr std::int64_t row_count = 4;
+    constexpr std::int64_t column_count = 3;
+    constexpr std::int64_t data_size = row_count * column_count;
+
+    auto data = sycl::malloc_shared<float>(data_size, q);
+
+    auto event = q.submit([&](sycl::handler& cgh) {
+        cgh.parallel_for(sycl::range<1>(data_size), [=](sycl::id<1> idx) {
+            data[idx[0]] = idx[0];
+        });
+    });
+
+    auto t =
+        homogen_table::wrap(q, data, row_count, column_count, { event }, data_layout::column_major);
+    column_accessor<const std::int32_t> acc{ t };
+    auto col = acc.pull(q, 1, { 1, 3 });
+
+    ASSERT_EQ(col.get_count(), 2);
+
+    ASSERT_EQ(col[0], 5);
+    ASSERT_EQ(col[1], 6);
+
+    sycl::free(data, q);
+}
