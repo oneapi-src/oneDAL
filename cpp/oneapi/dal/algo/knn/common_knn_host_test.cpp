@@ -22,47 +22,36 @@
 using namespace oneapi;
 namespace nn = oneapi::dal::knn;
 
-TEST(knn_bad_arg_tests, set_class_count) {
-    ASSERT_THROW((nn::descriptor<float, nn::method::kd_tree, nn::task::classification>{ 2, 1 }
-                      .set_class_count(-1)),
-                 dal::domain_error);
-    ASSERT_THROW((nn::descriptor<float, nn::method::kd_tree, nn::task::classification>{ 2, 1 }
-                      .set_class_count(1)),
-                 dal::domain_error);
-    ASSERT_NO_THROW((nn::descriptor<float, nn::method::kd_tree, nn::task::classification>{ 2, 1 }
-                         .set_class_count(2)));
-    ASSERT_THROW((nn::descriptor<float, nn::method::brute_force, nn::task::classification>{ 2, 1 }
-                      .set_class_count(-1)),
-                 dal::domain_error);
-    ASSERT_THROW((nn::descriptor<float, nn::method::brute_force, nn::task::classification>{ 2, 1 }
-                      .set_class_count(1)),
-                 dal::domain_error);
+using knn_methods = testing::Types<nn::method::kd_tree, nn::method::brute_force>;
+
+template <typename Tuple>
+class knn_common_bad_arg_tests : public ::testing::Test {};
+
+TYPED_TEST_SUITE_P(knn_common_bad_arg_tests);
+
+TYPED_TEST_P(knn_common_bad_arg_tests, test_set_class_count) {
+    ASSERT_THROW(
+        (nn::descriptor<float, TypeParam, nn::task::classification>{ 2, 1 }.set_class_count(-1)),
+        dal::domain_error);
+    ASSERT_THROW(
+        (nn::descriptor<float, TypeParam, nn::task::classification>{ 2, 1 }.set_class_count(1)),
+        dal::domain_error);
     ASSERT_NO_THROW(
-        (nn::descriptor<float, nn::method::brute_force, nn::task::classification>{ 2, 1 }
-             .set_class_count(2)));
+        (nn::descriptor<float, TypeParam, nn::task::classification>{ 2, 1 }.set_class_count(2)));
 }
 
-TEST(knn_bad_arg_tests, set_neighbor_count) {
-    ASSERT_THROW((nn::descriptor<float, nn::method::kd_tree, nn::task::classification>{ 2, 1 }
-                      .set_neighbor_count(-1)),
-                 dal::domain_error);
-    ASSERT_THROW((nn::descriptor<float, nn::method::kd_tree, nn::task::classification>{ 2, 1 }
-                      .set_neighbor_count(0)),
-                 dal::domain_error);
-    ASSERT_NO_THROW((nn::descriptor<float, nn::method::kd_tree, nn::task::classification>{ 2, 1 }
-                         .set_neighbor_count(1)));
-    ASSERT_THROW((nn::descriptor<float, nn::method::brute_force, nn::task::classification>{ 2, 1 }
-                      .set_neighbor_count(-1)),
-                 dal::domain_error);
-    ASSERT_THROW((nn::descriptor<float, nn::method::brute_force, nn::task::classification>{ 2, 1 }
-                      .set_neighbor_count(0)),
-                 dal::domain_error);
+TYPED_TEST_P(knn_common_bad_arg_tests, test_set_neighbor_count) {
+    ASSERT_THROW(
+        (nn::descriptor<float, TypeParam, nn::task::classification>{ 2, 1 }.set_neighbor_count(-1)),
+        dal::domain_error);
+    ASSERT_THROW(
+        (nn::descriptor<float, TypeParam, nn::task::classification>{ 2, 1 }.set_neighbor_count(0)),
+        dal::domain_error);
     ASSERT_NO_THROW(
-        (nn::descriptor<float, nn::method::brute_force, nn::task::classification>{ 2, 1 }
-             .set_neighbor_count(1)));
+        (nn::descriptor<float, TypeParam, nn::task::classification>{ 2, 1 }.set_neighbor_count(1)));
 }
 
-TEST(knn_kd_tree_overflow_tests, throws_if_class_count_leads_to_overflow) {
+TYPED_TEST_P(knn_common_bad_arg_tests, throws_if_class_count_leads_to_overflow) {
     constexpr std::int64_t row_count_train = 6;
 
     const float y_train[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f };
@@ -70,15 +59,14 @@ TEST(knn_kd_tree_overflow_tests, throws_if_class_count_leads_to_overflow) {
     dal::homogen_table x_train_table;
     const auto y_train_table = dal::homogen_table::wrap(y_train, row_count_train, 1);
 
-    ASSERT_THROW(
-        dal::train(nn::descriptor<float, nn::method::kd_tree, nn::task::classification>{ 2, 1 }
-                       .set_class_count(0xFFFFFFFF),
-                   x_train_table,
-                   y_train_table),
-        dal::domain_error);
+    ASSERT_THROW(dal::train(nn::descriptor<float, TypeParam, nn::task::classification>{ 2, 1 }
+                                .set_class_count(0xFFFFFFFF),
+                            x_train_table,
+                            y_train_table),
+                 dal::domain_error);
 }
 
-TEST(knn_kd_tree_overflow_tests, throws_if_neighbor_count_leads_to_overflow) {
+TYPED_TEST_P(knn_common_bad_arg_tests, throws_if_neighbor_count_leads_to_overflow) {
     constexpr std::int64_t row_count_train = 6;
 
     const float y_train[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f };
@@ -94,7 +82,7 @@ TEST(knn_kd_tree_overflow_tests, throws_if_neighbor_count_leads_to_overflow) {
         dal::domain_error);
 }
 
-TEST(knn_kd_tree_bad_arg_tests, throws_if_x_train_table_is_empty) {
+TYPED_TEST_P(knn_common_bad_arg_tests, throws_if_x_train_table_is_empty) {
     constexpr std::int64_t row_count_train = 6;
 
     const float y_train[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f };
@@ -108,7 +96,7 @@ TEST(knn_kd_tree_bad_arg_tests, throws_if_x_train_table_is_empty) {
     ASSERT_THROW(dal::train(knn_desc, x_train_table, y_train_table), dal::domain_error);
 }
 
-TEST(knn_kd_tree_bad_arg_tests, throws_if_y_train_table_is_empty) {
+TYPED_TEST_P(knn_common_bad_arg_tests, throws_if_y_train_table_is_empty) {
     constexpr std::int64_t row_count_train = 6;
     constexpr std::int64_t column_count = 2;
 
@@ -124,7 +112,7 @@ TEST(knn_kd_tree_bad_arg_tests, throws_if_y_train_table_is_empty) {
     ASSERT_THROW(dal::train(knn_desc, x_train_table, y_train_table), dal::domain_error);
 }
 
-TEST(knn_kd_tree_bad_arg_tests, throws_if_y_train_table_contains_multiple_columns) {
+TYPED_TEST_P(knn_common_bad_arg_tests, throws_if_y_train_table_contains_multiple_columns) {
     constexpr std::int64_t row_count_train = 6;
     constexpr std::int64_t column_count = 2;
 
@@ -141,7 +129,7 @@ TEST(knn_kd_tree_bad_arg_tests, throws_if_y_train_table_contains_multiple_column
     ASSERT_THROW(dal::train(knn_desc, x_train_table, y_train_table), dal::domain_error);
 }
 
-TEST(knn_kd_tree_bad_arg_tests, throws_if_data_rows_dont_match_for_x_and_y_train_tables) {
+TYPED_TEST_P(knn_common_bad_arg_tests, throws_if_data_rows_dont_match_for_x_and_y_train_tables) {
     constexpr std::int64_t row_count_train = 6;
     constexpr std::int64_t row_count_train_invalid = 5;
     constexpr std::int64_t column_count = 2;
@@ -158,6 +146,16 @@ TEST(knn_kd_tree_bad_arg_tests, throws_if_data_rows_dont_match_for_x_and_y_train
         nn::descriptor<float, nn::method::kd_tree, nn::task::classification>{ 2, 1 };
     ASSERT_THROW(dal::train(knn_desc, x_train_table, y_train_table), dal::domain_error);
 }
+REGISTER_TYPED_TEST_SUITE_P(knn_common_bad_arg_tests,
+                            test_set_class_count,
+                            test_set_neighbor_count,
+                            throws_if_class_count_leads_to_overflow,
+                            throws_if_neighbor_count_leads_to_overflow,
+                            throws_if_x_train_table_is_empty,
+                            throws_if_y_train_table_is_empty,
+                            throws_if_y_train_table_contains_multiple_columns,
+                            throws_if_data_rows_dont_match_for_x_and_y_train_tables);
+INSTANTIATE_TYPED_TEST_SUITE_P(run_knn_common_bad_arg_tests, knn_common_bad_arg_tests, knn_methods);
 
 TEST(knn_kd_tree_bad_arg_tests, throws_if_x_test_table_is_empty) {
     constexpr std::int64_t row_count_train = 6;

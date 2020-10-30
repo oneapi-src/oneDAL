@@ -14,6 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <CL/sycl.hpp>
+
 #include "gtest/gtest.h"
 #include "oneapi/dal/algo/knn/infer.hpp"
 #include "oneapi/dal/algo/knn/train.hpp"
@@ -22,106 +24,12 @@
 using namespace oneapi;
 namespace nn = oneapi::dal::knn;
 
-TEST(knn_brute_force_overflow_tests, throws_if_class_count_leads_to_overflow) {
-    constexpr std::int64_t row_count_train = 6;
-
-    const float y_train[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f };
-
-    dal::homogen_table x_train_table;
-    const auto y_train_table = dal::homogen_table::wrap(y_train, row_count_train, 1);
-
-    ASSERT_THROW(
-        dal::train(nn::descriptor<float, nn::method::brute_force, nn::task::classification>{ 2, 1 }
-                       .set_class_count(0xFFFFFFFF),
-                   x_train_table,
-                   y_train_table),
-        dal::domain_error);
-}
-
-TEST(knn_brute_force_overflow_tests, throws_if_neighbor_count_leads_to_overflow) {
-    constexpr std::int64_t row_count_train = 6;
-
-    const float y_train[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f };
-
-    dal::homogen_table x_train_table;
-    const auto y_train_table = dal::homogen_table::wrap(y_train, row_count_train, 1);
-
-    ASSERT_THROW(
-        dal::train(nn::descriptor<float, nn::method::brute_force, nn::task::classification>{ 2, 1 }
-                       .set_neighbor_count(0xFFFFFFFF),
-                   x_train_table,
-                   y_train_table),
-        dal::domain_error);
-}
-
-TEST(knn_brute_force_bad_arg_tests, throws_if_x_train_table_is_empty) {
-    constexpr std::int64_t row_count_train = 6;
-
-    const float y_train[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f };
-
-    dal::homogen_table x_train_table;
-    const auto y_train_table = dal::homogen_table::wrap(y_train, row_count_train, 1);
-
-    const auto knn_desc =
-        nn::descriptor<float, nn::method::brute_force, nn::task::classification>{ 2, 1 };
-
-    ASSERT_THROW(dal::train(knn_desc, x_train_table, y_train_table), dal::domain_error);
-}
-
-TEST(knn_brute_force_bad_arg_tests, throws_if_y_train_table_is_empty) {
-    constexpr std::int64_t row_count_train = 6;
-    constexpr std::int64_t column_count = 2;
-
-    const float x_train[] = {
-        -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f, +1.f, +2.f, +2.f, +1.f
-    };
-
-    const auto x_train_table = dal::homogen_table::wrap(x_train, row_count_train, column_count);
-    dal::homogen_table y_train_table;
-
-    const auto knn_desc =
-        nn::descriptor<float, nn::method::brute_force, nn::task::classification>{ 2, 1 };
-    ASSERT_THROW(dal::train(knn_desc, x_train_table, y_train_table), dal::domain_error);
-}
-
-TEST(knn_brute_force_bad_arg_tests, throws_if_y_train_table_contains_multiple_columns) {
-    constexpr std::int64_t row_count_train = 6;
-    constexpr std::int64_t column_count = 2;
-
-    const float x_train[] = {
-        -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f, +1.f, +2.f, +2.f, +1.f
-    };
-    const float y_train[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 0.f, 0.f, 0.f, 1.f, 1.f, 1.f };
-
-    const auto x_train_table = dal::homogen_table::wrap(x_train, row_count_train, column_count);
-    const auto y_train_table = dal::homogen_table::wrap(y_train, row_count_train, 2);
-
-    const auto knn_desc =
-        nn::descriptor<float, nn::method::brute_force, nn::task::classification>{ 2, 1 };
-    ASSERT_THROW(dal::train(knn_desc, x_train_table, y_train_table), dal::domain_error);
-}
-
-TEST(knn_brute_force_bad_arg_tests, throws_if_data_rows_dont_match_for_x_and_y_train_tables) {
-    constexpr std::int64_t row_count_train = 6;
-    constexpr std::int64_t row_count_train_invalid = 5;
-    constexpr std::int64_t column_count = 2;
-
-    const float x_train[] = {
-        -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f, +1.f, +2.f, +2.f, +1.f
-    };
-    const float y_train[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f };
-
-    const auto x_train_table = dal::homogen_table::wrap(x_train, row_count_train, column_count);
-    const auto y_train_table = dal::homogen_table::wrap(y_train, row_count_train_invalid, 1);
-
-    const auto knn_desc =
-        nn::descriptor<float, nn::method::brute_force, nn::task::classification>{ 2, 1 };
-    ASSERT_THROW(dal::train(knn_desc, x_train_table, y_train_table), dal::domain_error);
-}
-
 TEST(knn_brute_force_bad_arg_tests, throws_if_x_test_table_is_empty) {
     constexpr std::int64_t row_count_train = 6;
     constexpr std::int64_t column_count = 2;
+
+    auto selector = sycl::gpu_selector();
+    auto queue = sycl::queue(selector);
 
     const float x_train[] = {
         -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f, +1.f, +2.f, +2.f, +1.f
@@ -133,16 +41,20 @@ TEST(knn_brute_force_bad_arg_tests, throws_if_x_test_table_is_empty) {
     dal::homogen_table x_test_table;
 
     const auto knn_desc =
-        nn::descriptor<float, nn::method::kd_tree, nn::task::classification>{ 2, 1 };
-    const auto result_train = dal::train(knn_desc, x_train_table, y_train_table);
+        nn::descriptor<float, nn::method::brute_force, nn::task::classification>{ 2, 1 };
+    const auto result_train = dal::train(queue, knn_desc, x_train_table, y_train_table);
 
-    ASSERT_THROW(dal::infer(knn_desc, x_test_table, result_train.get_model()), dal::domain_error);
+    ASSERT_THROW(dal::infer(queue, knn_desc, x_test_table, result_train.get_model()),
+                 dal::domain_error);
 }
 
 TEST(knn_brute_force_unit_tests, train_no_throw) {
     constexpr std::int64_t row_count_train = 6;
     constexpr std::int64_t column_count = 2;
 
+    auto selector = sycl::gpu_selector();
+    auto queue = sycl::queue(selector);
+
     const float x_train[] = {
         -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f, +1.f, +2.f, +2.f, +1.f
     };
@@ -153,13 +65,16 @@ TEST(knn_brute_force_unit_tests, train_no_throw) {
 
     const auto knn_desc =
         nn::descriptor<float, nn::method::brute_force, nn::task::classification>{ 2, 1 };
-    ASSERT_NO_THROW(dal::train(knn_desc, x_train_table, y_train_table));
+    ASSERT_NO_THROW(dal::train(queue, knn_desc, x_train_table, y_train_table));
 }
 
 TEST(knn_brute_force_unit_tests, train_and_infer_no_throw) {
     constexpr std::int64_t row_count_train = 6;
     constexpr std::int64_t column_count = 2;
 
+    auto selector = sycl::gpu_selector();
+    auto queue = sycl::queue(selector);
+
     const float x_train[] = {
         -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f, +1.f, +2.f, +2.f, +1.f
     };
@@ -170,7 +85,7 @@ TEST(knn_brute_force_unit_tests, train_and_infer_no_throw) {
 
     const auto knn_desc =
         nn::descriptor<float, nn::method::brute_force, nn::task::classification>{ 2, 1 };
-    const auto result_train = dal::train(knn_desc, x_train_table, y_train_table);
+    const auto result_train = dal::train(queue, knn_desc, x_train_table, y_train_table);
 
-    ASSERT_NO_THROW(dal::infer(knn_desc, x_train_table, result_train.get_model()));
+    ASSERT_NO_THROW(dal::infer(queue, knn_desc, x_train_table, result_train.get_model()));
 }
