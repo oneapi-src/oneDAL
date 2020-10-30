@@ -61,5 +61,6 @@ inline auto make_default_delete(const detail::data_parallel_policy& policy) {
 
 using v1::empty_delete;
 using v1::default_delete;
+using v1::make_default_delete;
 
 } // namespace oneapi::dal::detail

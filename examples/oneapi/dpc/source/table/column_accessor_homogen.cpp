@@ -40,7 +40,7 @@ void run(sycl::queue &queue) {
     auto data = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(data, data_host, sizeof(float) * row_count * column_count).wait();
 
-    auto table = dal::homogen_table{ queue, data, row_count, column_count, dal::make_default_delete<const float>(queue)};
+    auto table = dal::homogen_table{ queue, data, row_count, column_count, dal::detail::make_default_delete<const float>(queue)};
     dal::column_accessor<const float> acc { table };
 
     for(std::int64_t col = 0; col < table.get_column_count(); col++) {
