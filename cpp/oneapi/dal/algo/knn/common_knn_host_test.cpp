@@ -74,12 +74,11 @@ TYPED_TEST_P(knn_common_bad_arg_tests, throws_if_neighbor_count_leads_to_overflo
     dal::homogen_table x_train_table;
     const auto y_train_table = dal::homogen_table::wrap(y_train, row_count_train, 1);
 
-    ASSERT_THROW(
-        dal::train(nn::descriptor<float, nn::method::kd_tree, nn::task::classification>{ 2, 1 }
-                       .set_neighbor_count(0xFFFFFFFF),
-                   x_train_table,
-                   y_train_table),
-        dal::domain_error);
+    ASSERT_THROW(dal::train(nn::descriptor<float, TypeParam, nn::task::classification>{ 2, 1 }
+                                .set_neighbor_count(0xFFFFFFFF),
+                            x_train_table,
+                            y_train_table),
+                 dal::domain_error);
 }
 
 TYPED_TEST_P(knn_common_bad_arg_tests, throws_if_x_train_table_is_empty) {
@@ -90,8 +89,7 @@ TYPED_TEST_P(knn_common_bad_arg_tests, throws_if_x_train_table_is_empty) {
     dal::homogen_table x_train_table;
     const auto y_train_table = dal::homogen_table::wrap(y_train, row_count_train, 1);
 
-    const auto knn_desc =
-        nn::descriptor<float, nn::method::kd_tree, nn::task::classification>{ 2, 1 };
+    const auto knn_desc = nn::descriptor<float, TypeParam, nn::task::classification>{ 2, 1 };
 
     ASSERT_THROW(dal::train(knn_desc, x_train_table, y_train_table), dal::domain_error);
 }
@@ -107,8 +105,7 @@ TYPED_TEST_P(knn_common_bad_arg_tests, throws_if_y_train_table_is_empty) {
     const auto x_train_table = dal::homogen_table::wrap(x_train, row_count_train, column_count);
     dal::homogen_table y_train_table;
 
-    const auto knn_desc =
-        nn::descriptor<float, nn::method::kd_tree, nn::task::classification>{ 2, 1 };
+    const auto knn_desc = nn::descriptor<float, TypeParam, nn::task::classification>{ 2, 1 };
     ASSERT_THROW(dal::train(knn_desc, x_train_table, y_train_table), dal::domain_error);
 }
 
@@ -124,8 +121,7 @@ TYPED_TEST_P(knn_common_bad_arg_tests, throws_if_y_train_table_contains_multiple
     const auto x_train_table = dal::homogen_table::wrap(x_train, row_count_train, column_count);
     const auto y_train_table = dal::homogen_table::wrap(y_train, row_count_train, 2);
 
-    const auto knn_desc =
-        nn::descriptor<float, nn::method::kd_tree, nn::task::classification>{ 2, 1 };
+    const auto knn_desc = nn::descriptor<float, TypeParam, nn::task::classification>{ 2, 1 };
     ASSERT_THROW(dal::train(knn_desc, x_train_table, y_train_table), dal::domain_error);
 }
 
@@ -142,8 +138,7 @@ TYPED_TEST_P(knn_common_bad_arg_tests, throws_if_data_rows_dont_match_for_x_and_
     const auto x_train_table = dal::homogen_table::wrap(x_train, row_count_train, column_count);
     const auto y_train_table = dal::homogen_table::wrap(y_train, row_count_train_invalid, 1);
 
-    const auto knn_desc =
-        nn::descriptor<float, nn::method::kd_tree, nn::task::classification>{ 2, 1 };
+    const auto knn_desc = nn::descriptor<float, TypeParam, nn::task::classification>{ 2, 1 };
     ASSERT_THROW(dal::train(knn_desc, x_train_table, y_train_table), dal::domain_error);
 }
 REGISTER_TYPED_TEST_SUITE_P(knn_common_bad_arg_tests,
