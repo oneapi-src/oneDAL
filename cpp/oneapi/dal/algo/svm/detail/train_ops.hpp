@@ -46,10 +46,10 @@ struct train_ops {
         using msg = dal::detail::error_messages;
 
         if (!input.get_data().has_data()) {
-            throw invalid_argument(msg::input_data_is_empty());
+            throw domain_error(msg::input_data_is_empty());
         }
         if (!input.get_labels().has_data()) {
-            throw invalid_argument(msg::input_labels_are_empty());
+            throw domain_error(msg::input_labels_are_empty());
         }
         if (input.get_data().get_row_count() != input.get_labels().get_row_count()) {
             throw invalid_argument(msg::input_data_rc_neq_input_labels_rc());
@@ -59,7 +59,7 @@ struct train_ops {
             throw invalid_argument(msg::input_data_rc_neq_input_weights_rc());
         }
         if (!params.get_kernel_impl()->get_impl()) {
-            throw invalid_argument(msg::input_kernel_is_empty());
+            throw domain_error(msg::input_kernel_is_empty());
         }
     }
 
