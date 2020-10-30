@@ -54,7 +54,7 @@ void run(sycl::queue& q, const onedal::table& x_train, const std::string& method
 }
 
 int main(int argc, char const* argv[]) {
-    const std::string train_data_file_name = get_data_path("kmeans_init_dense.csv");
+    const auto train_data_file_name = get_data_path("kmeans_init_dense.csv");
 
     for (auto d : list_devices()) {
         std::cout << "Running on " << d.get_info<sycl::info::device::name>() << '\n' << std::endl;

@@ -22,7 +22,7 @@
 namespace onedal = oneapi::dal;
 
 int main(int argc, char const *argv[]) {
-    const std::string data_file_name = get_data_path("kernel_function.csv");
+    const auto data_file_name = get_data_path("kernel_function.csv");
 
     const auto x = onedal::read<onedal::table>(onedal::csv::data_source{ data_file_name });
     const auto y = onedal::read<onedal::table>(onedal::csv::data_source{ data_file_name });

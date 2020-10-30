@@ -22,10 +22,10 @@
 namespace onedal = oneapi::dal;
 
 int main(int argc, char const *argv[]) {
-    const std::string train_data_file_name = get_data_path("svm_two_class_train_dense_data.csv");
-    const std::string train_label_file_name = get_data_path("svm_two_class_train_dense_label.csv");
-    const std::string test_data_file_name = get_data_path("svm_two_class_test_dense_data.csv");
-    const std::string test_label_file_name = get_data_path("svm_two_class_test_dense_label.csv");
+    const auto train_data_file_name = get_data_path("svm_two_class_train_dense_data.csv");
+    const auto train_label_file_name = get_data_path("svm_two_class_train_dense_label.csv");
+    const auto test_data_file_name = get_data_path("svm_two_class_test_dense_data.csv");
+    const auto test_label_file_name = get_data_path("svm_two_class_test_dense_label.csv");
 
     const auto x_train =
         onedal::read<onedal::table>(onedal::csv::data_source{ train_data_file_name });

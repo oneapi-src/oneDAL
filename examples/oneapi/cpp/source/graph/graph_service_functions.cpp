@@ -25,7 +25,7 @@
 namespace onedal = oneapi::dal;
 
 int main(int argc, char **argv) {
-    const std::string filename = get_data_path("graph.csv");
+    const auto filename = get_data_path("graph.csv");
 
     const onedal::preview::graph_csv_data_source ds(filename);
     using my_graph_type = onedal::preview::undirected_adjacency_array_graph<>;

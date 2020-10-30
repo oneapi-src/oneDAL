@@ -27,11 +27,10 @@
 namespace onedal = oneapi::dal;
 
 void run(sycl::queue &q) {
-    const std::string train_data_file_name = get_data_path("kmeans_dense_train_data.csv");
-    const std::string initial_centroids_file_name =
-        get_data_path("kmeans_dense_train_centroids.csv");
-    const std::string test_data_file_name = get_data_path("kmeans_dense_test_data.csv");
-    const std::string test_label_file_name = get_data_path("kmeans_dense_test_label.csv");
+    const auto train_data_file_name = get_data_path("kmeans_dense_train_data.csv");
+    const auto initial_centroids_file_name = get_data_path("kmeans_dense_train_centroids.csv");
+    const auto test_data_file_name = get_data_path("kmeans_dense_test_data.csv");
+    const auto test_label_file_name = get_data_path("kmeans_dense_test_label.csv");
 
     const auto x_train =
         onedal::read<onedal::table>(q, onedal::csv::data_source{ train_data_file_name });
@@ -53,7 +52,7 @@ void run(sycl::queue &q) {
     std::cout << "Iteration count: " << result_train.get_iteration_count() << std::endl;
     std::cout << "Objective function value: " << result_train.get_objective_function_value()
               << std::endl;
-    std::cout << "Lables:\n" << result_train.get_labels() << std::endl;
+    std::cout << "Labels:\n" << result_train.get_labels() << std::endl;
     std::cout << "Centroids:\n" << result_train.get_model().get_centroids() << std::endl;
 
     const auto result_test = onedal::infer(q, kmeans_desc, result_train.get_model(), x_test);

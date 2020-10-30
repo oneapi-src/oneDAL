@@ -42,7 +42,7 @@ void vertex_similarity_block_processing(const Graph &g,
 
 int main(int argc, char **argv) {
     // load the graph
-    const std::string filename = get_data_path("graph.csv");
+    const auto filename = get_data_path("graph.csv");
 
     const onedal::preview::graph_csv_data_source ds(filename);
     const onedal::preview::load_graph::descriptor<> d;

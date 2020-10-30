@@ -27,7 +27,7 @@
 namespace onedal = oneapi::dal;
 
 void run(sycl::queue& q) {
-    const std::string train_data_file_name = get_data_path("pca_normalized.csv");
+    const auto train_data_file_name = get_data_path("pca_normalized.csv");
 
     const auto x_train =
         onedal::read<onedal::table>(q, onedal::csv::data_source{ train_data_file_name });

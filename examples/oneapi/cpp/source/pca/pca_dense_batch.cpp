@@ -40,7 +40,7 @@ void run(const onedal::table& x_train, const std::string& method_name) {
 }
 
 int main(int argc, char const* argv[]) {
-    const std::string train_data_file_name = get_data_path("pca_normalized.csv");
+    const auto train_data_file_name = get_data_path("pca_normalized.csv");
 
     const auto x_train =
         onedal::read<onedal::table>(onedal::csv::data_source{ train_data_file_name });

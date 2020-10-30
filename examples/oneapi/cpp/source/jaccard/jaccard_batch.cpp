@@ -27,7 +27,7 @@
 namespace onedal = oneapi::dal;
 
 int main(int argc, char **argv) {
-    const std::string filename = get_data_path("graph.csv");
+    const auto filename = get_data_path("graph.csv");
 
     // read the graph
     const onedal::preview::graph_csv_data_source ds(filename);

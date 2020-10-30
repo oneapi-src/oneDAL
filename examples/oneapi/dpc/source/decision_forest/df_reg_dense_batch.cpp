@@ -25,10 +25,10 @@ namespace onedal = oneapi::dal;
 namespace df = onedal::decision_forest;
 
 void run(sycl::queue &q) {
-    const std::string train_data_file_name = get_data_path("df_regression_train_data.csv");
-    const std::string train_label_file_name = get_data_path("df_regression_train_label.csv");
-    const std::string test_data_file_name = get_data_path("df_regression_test_data.csv");
-    const std::string test_label_file_name = get_data_path("df_regression_test_label.csv");
+    const auto train_data_file_name = get_data_path("df_regression_train_data.csv");
+    const auto train_label_file_name = get_data_path("df_regression_train_label.csv");
+    const auto test_data_file_name = get_data_path("df_regression_test_data.csv");
+    const auto test_label_file_name = get_data_path("df_regression_test_label.csv");
 
     const auto x_train =
         onedal::read<onedal::table>(q, onedal::csv::data_source{ train_data_file_name });

@@ -25,10 +25,10 @@ namespace onedal = oneapi::dal;
 namespace df = onedal::decision_forest;
 
 void run(sycl::queue &q) {
-    const std::string train_data_file_name = get_data_path("df_classification_train_data.csv");
-    const std::string train_label_file_name = get_data_path("df_classification_train_label.csv");
-    const std::string test_data_file_name = get_data_path("df_classification_test_data.csv");
-    const std::string test_label_file_name = get_data_path("df_classification_test_label.csv");
+    const auto train_data_file_name = get_data_path("df_classification_train_data.csv");
+    const auto train_label_file_name = get_data_path("df_classification_train_label.csv");
+    const auto test_data_file_name = get_data_path("df_classification_test_data.csv");
+    const auto test_label_file_name = get_data_path("df_classification_test_label.csv");
 
     const auto x_train =
         onedal::read<onedal::table>(q, onedal::csv::data_source{ train_data_file_name });
@@ -52,7 +52,7 @@ void run(sycl::queue &q) {
                                    .set_variable_importance_mode(df::variable_importance_mode::mdi);
 
     const auto df_infer_desc =
-        df::descriptor<float, df::task::classification, df::method::dense>{}
+        df::descriptor<>{}
             .set_class_count(5)
             .set_infer_mode(df::infer_mode::class_labels | df::infer_mode::class_probabilities)
             .set_voting_mode(df::voting_mode::weighted);
