@@ -129,7 +129,7 @@ DAAL_LIB_T = "$(DAAL_PATH)\onedal_sequential.lib"
 !ELSE
 threading = parallel
 DAAL_LIB_T = "$(DAAL_PATH)\onedal_thread.lib"
-EXT_LIB = tbb.lib tbbmalloc.lib
+EXT_LIB = tbb12.lib tbbmalloc.lib
 !ENDIF
 !ENDIF
 
