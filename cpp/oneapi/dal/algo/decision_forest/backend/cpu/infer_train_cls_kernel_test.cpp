@@ -22,6 +22,10 @@
 using namespace oneapi;
 namespace df = oneapi::dal::decision_forest;
 
+using df_hist_classifier = df::descriptor<float, df::method::hist, df::task::classification>;
+
+using df_dense_classifier = df::descriptor<float, df::method::dense, df::task::classification>;
+
 TEST(infer_and_train_cls_kernels_test, can_process_simple_case_default_params) {
     constexpr double accuracy_threshold = 0.05;
     constexpr std::int64_t row_count_train = 6;
@@ -43,7 +47,7 @@ TEST(infer_and_train_cls_kernels_test, can_process_simple_case_default_params) {
     const auto y_train_table = dal::homogen_table::wrap(y_train, row_count_train, 1);
     const auto x_test_table = dal::homogen_table::wrap(x_test, row_count_test, column_count);
 
-    const auto df_desc = df::descriptor<float, df::task::classification, df::method::dense>{};
+    const auto df_desc = df_dense_classifier{};
 
     const auto result_train = dal::train(df_desc, x_train_table, y_train_table);
     ASSERT_EQ(!(result_train.get_var_importance().has_data()), true);
@@ -85,7 +89,7 @@ TEST(infer_and_train_cls_kernels_test, can_process_simple_case_non_default_param
     const auto x_test_table = dal::homogen_table::wrap(x_test, row_count_test, column_count);
 
     const auto df_desc =
-        df::descriptor<float, df::task::classification, df::method::dense>{}
+        df_dense_classifier{}
             .set_tree_count(tree_count)
             .set_features_per_node(1)
             .set_min_observations_in_leaf_node(2)
@@ -144,7 +148,7 @@ TEST(infer_and_train_cls_kernels_test, can_process_corner_case) {
 
     const auto x_test_table = dal::homogen_table::wrap(x_test, row_count_test, column_count);
 
-    const auto df_desc = df::descriptor<float, df::task::classification, df::method::dense>{}
+    const auto df_desc = df_dense_classifier{}
                              .set_class_count(2)
                              .set_tree_count(10)
                              .set_min_observations_in_leaf_node(8);

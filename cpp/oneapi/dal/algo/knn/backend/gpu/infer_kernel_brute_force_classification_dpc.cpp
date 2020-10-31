@@ -63,7 +63,7 @@ static infer_result<task::classification> call_daal_kernel(
 
     interop::status_to_exception(daal_knn_brute_force_kernel_t<Float>().compute(
         daal_data.get(),
-        dal::detail::get_impl<detail::model_impl>(m).get_interop()->get_daal_model().get(),
+        dal::detail::get_impl(m).get_interop()->get_daal_model().get(),
         daal_labels.get(),
         &daal_parameter));
 
