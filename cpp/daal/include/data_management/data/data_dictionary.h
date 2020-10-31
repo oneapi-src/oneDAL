@@ -263,10 +263,18 @@ public:
         if (_featuresEqual == DictionaryIface::equal)
         {
             _dict = new Feature[1];
+            if (_dict == NULL)
+            {
+                return services::throwIfPossible(services::ErrorMemoryAllocationFailed);
+            }
         }
         else
         {
             _dict = new Feature[_nfeat];
+            if (_dict == NULL)
+            {
+                return services::throwIfPossible(services::ErrorMemoryAllocationFailed);
+            }
         }
         return services::Status();
     }
