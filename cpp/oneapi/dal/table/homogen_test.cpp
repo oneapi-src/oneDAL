@@ -75,6 +75,8 @@ TEST(homogen_table_test, can_set_custom_implementation) {
 }
 
 TEST(homogen_table_test, can_construct_rowmajor_table_3x2) {
+    using oneapi::dal::detail::empty_delete;
+
     float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f };
 
     homogen_table t{ data, 3, 2, empty_delete<const float>() };
@@ -96,6 +98,8 @@ TEST(homogen_table_test, can_construct_rowmajor_table_3x2) {
 }
 
 TEST(homogen_table_test, can_construct_colmajor_float64_table) {
+    using oneapi::dal::detail::empty_delete;
+
     double data[] = { 1., 2., 3., 4., 5., 6. };
     homogen_table t{ data, 2, 3, empty_delete<const double>(), data_layout::column_major };
 
@@ -115,6 +119,8 @@ TEST(homogen_table_test, can_construct_colmajor_float64_table) {
 }
 
 TEST(homogen_table_test, can_construct_table_reference) {
+    using oneapi::dal::detail::empty_delete;
+
     float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f };
 
     homogen_table t1{ data, 3, 2, empty_delete<const float>() };
@@ -141,6 +147,8 @@ TEST(homogen_table_test, can_construct_table_reference) {
 }
 
 TEST(homogen_table_test, can_construct_table_with_move) {
+    using oneapi::dal::detail::empty_delete;
+
     float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f };
 
     homogen_table t1{ data, 3, 2, empty_delete<const float>() };
@@ -161,6 +169,8 @@ TEST(homogen_table_test, can_construct_table_with_move) {
 }
 
 TEST(homogen_table_test, can_assign_two_table_references) {
+    using oneapi::dal::detail::empty_delete;
+
     float data_float[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f };
 
     std::int32_t data_int[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
@@ -185,6 +195,8 @@ TEST(homogen_table_test, can_assign_two_table_references) {
 }
 
 TEST(homogen_table_test, can_move_assigned_table_reference) {
+    using oneapi::dal::detail::empty_delete;
+
     float data_float[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f };
 
     std::int32_t data_int[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };

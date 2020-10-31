@@ -37,7 +37,7 @@ void run(sycl::queue &q) {
     const auto y_test = dal::read<dal::table>(dal::csv::data_source{ test_label_file_name });
 
     const auto df_train_desc =
-        df::descriptor<float, df::task::regression, df::method::hist>{}
+        df::descriptor<float, df::method::hist, df::task::regression>{}
             .set_tree_count(100)
             .set_features_per_node(0)
             .set_min_observations_in_leaf_node(1)
@@ -45,7 +45,7 @@ void run(sycl::queue &q) {
                                    df::error_metric_mode::out_of_bag_error_per_observation)
             .set_variable_importance_mode(df::variable_importance_mode::mdi);
 
-    const auto df_infer_desc = df::descriptor<float, df::task::regression, df::method::dense>();
+    const auto df_infer_desc = df::descriptor<float, df::method::dense, df::task::regression>();
 
     try {
         const auto result_train = dal::train(q, df_train_desc, x_train, y_train);

@@ -24,6 +24,9 @@
 using namespace oneapi;
 namespace df = oneapi::dal::decision_forest;
 
+using df_hist_regressor = df::descriptor<float, df::method::hist, df::task::regression>;
+using df_dense_regressor = df::descriptor<float, df::method::dense, df::task::regression>;
+
 TEST(df_bad_arg_tests, test_checks_for_inputs_exceed_int32) {
     constexpr std::int64_t row_count_train = 6;
     constexpr std::int64_t column_count = 2;
@@ -41,27 +44,22 @@ TEST(df_bad_arg_tests, test_checks_for_inputs_exceed_int32) {
     const auto y_train_table = dal::homogen_table::wrap(queue, y_train, row_count_train, 1);
 
     ASSERT_THROW((dal::train(queue,
-                             df::descriptor<float, df::task::regression, df::method::hist>{}
-                                 .set_min_observations_in_leaf_node(0xFFFFFFFF),
+                             df_hist_regressor{}.set_min_observations_in_leaf_node(0xFFFFFFFF),
                              x_train_table,
                              y_train_table)),
                  dal::domain_error);
     ASSERT_THROW((dal::train(queue,
-                             df::descriptor<float, df::task::regression, df::method::hist>{}
-                                 .set_features_per_node(0xFFFFFFFF),
+                             df_hist_regressor{}.set_features_per_node(0xFFFFFFFF),
                              x_train_table,
                              y_train_table)),
                  dal::domain_error);
-    ASSERT_THROW(
-        (dal::train(queue,
-                    df::descriptor<float, df::task::regression, df::method::hist>{}.set_max_bins(
-                        0xFFFFFFFF),
-                    x_train_table,
-                    y_train_table)),
-        dal::domain_error);
     ASSERT_THROW((dal::train(queue,
-                             df::descriptor<float, df::task::regression, df::method::hist>{}
-                                 .set_min_bin_size(0xFFFFFFFF),
+                             df_hist_regressor{}.set_max_bins(0xFFFFFFFF),
+                             x_train_table,
+                             y_train_table)),
+                 dal::domain_error);
+    ASSERT_THROW((dal::train(queue,
+                             df_hist_regressor{}.set_min_bin_size(0xFFFFFFFF),
                              x_train_table,
                              y_train_table)),
                  dal::domain_error);
@@ -83,13 +81,11 @@ TEST(df_bad_arg_tests, test_overflow_checks_in_train) {
     ASSERT_NE(y_train, nullptr);
     const auto y_train_table = dal::homogen_table::wrap(queue, y_train, row_count_train, 1);
 
-    ASSERT_THROW(
-        (dal::train(queue,
-                    df::descriptor<float, df::task::regression, df::method::hist>{}.set_tree_count(
-                        0x7FFFFFFFFFFFFFFF),
-                    x_train_table,
-                    y_train_table)),
-        dal::internal_error);
+    ASSERT_THROW((dal::train(queue,
+                             df_hist_regressor{}.set_tree_count(0x7FFFFFFFFFFFFFFF),
+                             x_train_table,
+                             y_train_table)),
+                 dal::internal_error);
 }
 
 TEST(infer_and_train_reg_kernels_test, can_process_simple_case_default_params) {
@@ -134,8 +130,8 @@ TEST(infer_and_train_reg_kernels_test, can_process_simple_case_default_params) {
     std::memcpy(x_test, x_test_host, sizeof(float) * row_count_test * column_count);
     const auto x_test_table = dal::homogen_table::wrap(queue, x_test, row_count_test, column_count);
 
-    const auto df_train_desc = df::descriptor<float, df::task::regression, df::method::hist>{};
-    const auto df_infer_desc = df::descriptor<float, df::task::regression, df::method::dense>{};
+    const auto df_train_desc = df_hist_regressor{};
+    const auto df_infer_desc = df_dense_regressor{};
 
     const auto result_train = dal::train(queue, df_train_desc, x_train_table, y_train_table);
     ASSERT_EQ(!(result_train.get_var_importance().has_data()), true);
@@ -198,7 +194,7 @@ TEST(infer_and_train_reg_kernels_test, can_process_simple_case_non_default_param
     const auto x_test_table = dal::homogen_table::wrap(queue, x_test, row_count_test, column_count);
 
     const auto df_train_desc =
-        df::descriptor<float, df::task::regression, df::method::hist>{}
+        df_hist_regressor{}
             .set_tree_count(tree_count)
             .set_features_per_node(1)
             .set_min_observations_in_leaf_node(2)
@@ -206,7 +202,7 @@ TEST(infer_and_train_reg_kernels_test, can_process_simple_case_non_default_param
             .set_error_metric_mode(df::error_metric_mode::out_of_bag_error |
                                    df::error_metric_mode::out_of_bag_error_per_observation);
 
-    const auto df_infer_desc = df::descriptor<float, df::task::regression, df::method::dense>{};
+    const auto df_infer_desc = df_dense_regressor{};
 
     const auto result_train = dal::train(queue, df_train_desc, x_train_table, y_train_table);
 
