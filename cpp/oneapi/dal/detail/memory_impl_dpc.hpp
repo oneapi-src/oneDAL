@@ -85,7 +85,7 @@ public:
     }
 
     void deallocate(T* p, std::int64_t n) const {
-        return free(policy_, p);
+        free(policy_, p);
     }
 
     sycl::usm::alloc get_kind() const {
