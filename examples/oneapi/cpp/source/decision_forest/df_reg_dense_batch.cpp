@@ -34,7 +34,7 @@ int main(int argc, char const *argv[]) {
     const auto y_test = dal::read<dal::table>(dal::csv::data_source{ test_label_file_name });
 
     const auto df_desc =
-        df::descriptor<float, df::task::regression, df::method::dense>{}
+        df::descriptor<float, df::method::dense, df::task::regression>{}
             .set_tree_count(100)
             .set_features_per_node(0)
             .set_min_observations_in_leaf_node(1)

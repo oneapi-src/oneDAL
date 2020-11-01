@@ -39,7 +39,7 @@ void run(sycl::queue &q) {
                                      data,
                                      row_count,
                                      column_count,
-                                     dal::make_default_delete<const float>(q) };
+                                     dal::detail::make_default_delete<const float>(q) };
     dal::column_accessor<const float> acc{ table };
 
     for (std::int64_t col = 0; col < table.get_column_count(); col++) {

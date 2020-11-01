@@ -36,7 +36,7 @@ void run(sycl::queue &q) {
     const auto x_test = dal::read<dal::table>(q, dal::csv::data_source{ test_data_file_name });
     const auto y_test = dal::read<dal::table>(dal::csv::data_source{ test_label_file_name });
 
-    const auto df_train_desc = df::descriptor<float, df::task::classification, df::method::hist>{}
+    const auto df_train_desc = df::descriptor<float, df::method::hist, df::task::classification>{}
                                    .set_class_count(5)
                                    .set_tree_count(10)
                                    .set_features_per_node(1)

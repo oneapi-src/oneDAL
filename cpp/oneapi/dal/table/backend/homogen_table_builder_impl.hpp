@@ -45,7 +45,7 @@ public:
             // now we are accepting const data pointer from table
             data_.reset(reinterpret_cast<const byte_t*>(t.get_data()),
                         data_size,
-                        empty_delete<const byte_t>());
+                        detail::empty_delete<const byte_t>());
             data_.need_mutable_data();
 
             layout_ = t.get_data_layout();
