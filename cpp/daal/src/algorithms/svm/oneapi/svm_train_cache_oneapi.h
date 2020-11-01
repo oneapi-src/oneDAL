@@ -136,7 +136,7 @@ public:
         CSRNumericTableIface * csrIface = dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(xTable.get()));
         DAAL_CHECK(csrIface, services::ErrorEmptyCSRNumericTable);
 
-        DAAL_CHECK_STATUS(status, csrIface->getSparseBlock(0, nSubsetVectors, readOnly, blockCSR));
+        DAAL_CHECK_STATUS(status, csrIface->getSparseBlock(0, xTable->getNumberOfRows(), readOnly, blockCSR));
 
         const auto xValuesBuff        = blockCSR.getBlockValuesBuffer();
         const auto xColumnIndicesBuff = blockCSR.getBlockColumnIndicesBuffer();
@@ -158,7 +158,7 @@ protected:
         const size_t nRows                    = xTable->getNumberOfRows();
         CSRNumericTableIface * const csrIface = dynamic_cast<CSRNumericTableIface * const>(const_cast<NumericTable *>(xTable.get()));
         const size_t maxDataSize              = csrIface->getDataSize();
-        printf("[SubDataTaskCSR]: maxDataSize: %lu\n", maxDataSize);
+        printf("[SubDataTaskCSR]: maxDataSize: %lu; nMaxSubsetVectors: %lu\n", maxDataSize, nMaxSubsetVectors);
 
         auto & context = services::internal::getDefaultContext();
         this->_data    = context.allocate(TypeIds::id<algorithmFPType>(), maxDataSize, status);

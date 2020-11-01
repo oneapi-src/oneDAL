@@ -239,13 +239,13 @@ struct HelperSVM
         auto newColsHostPtr = newCols.toHost(data_management::writeOnly, status);
         auto newRowsHosrPtr = newRows.toHost(data_management::writeOnly, status);
 
-        auto valHost     = valHostPtr.get();
-        auto colsHost    = colsHostPtr.get();
-        auto rowsHosr    = rowsHosrPtr.get();
-        auto indHosr     = indHosrPtr.get();
-        auto newValHost  = newValHostPtr.get();
-        auto newColsHost = newColsHostPtr.get();
-        auto newRowsHost = newRowsHosrPtr.get();
+        auto valHost                   = valHostPtr.get();
+        auto colsHost                  = colsHostPtr.get();
+        auto rowsHosr                  = rowsHosrPtr.get();
+        const uint32_t * const indHosr = indHosrPtr.get();
+        auto newValHost                = newValHostPtr.get();
+        auto newColsHost               = newColsHostPtr.get();
+        auto newRowsHost               = newRowsHosrPtr.get();
 
         newRowsHost[0] = 1;
         for (size_t i = 0; i < nWS; ++i)
@@ -253,7 +253,7 @@ struct HelperSVM
             const size_t iRows               = indHosr[i];
             const size_t nNonZeroValuesInRow = rowsHosr[iRows + 1] - rowsHosr[iRows];
 
-            const size_t offsetIn  = rowsHosr[i] - newRowsHost[0];
+            const size_t offsetIn  = rowsHosr[iRows] - rowsHosr[0];
             const size_t offsetOut = newRowsHost[i] - newRowsHost[0];
             {
                 // Copy values

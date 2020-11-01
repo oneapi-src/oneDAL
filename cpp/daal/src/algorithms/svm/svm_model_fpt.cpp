@@ -23,6 +23,7 @@
 
 #include "algorithms/svm/svm_model.h"
 #include "data_management/data/internal/numeric_table_sycl_homogen.h"
+#include "data_management/data/internal/numeric_table_sycl_csr.h"
 
 namespace daal
 {
@@ -48,7 +49,17 @@ Model::Model(modelFPType dummy, size_t nColumns, data_management::NumericTableIf
 
     if (!deviceInfo.isCpu)
     {
-        _SV = internal::SyclHomogenNumericTable<modelFPType>::create(nColumns, 0, NumericTable::doNotAllocate, &st);
+        // _SV = internal::SyclHomogenNumericTable<modelFPType>::create(nColumns, 0, NumericTable::doNotAllocate, &st);
+        if (layout == NumericTableIface::csrArray)
+        {
+            _SV = internal::SyclCSRNumericTable::create<modelFPType>(services::internal::Buffer<modelFPType>(), services::internal::Buffer<size_t>(),
+                                                                     services::internal::Buffer<size_t>(), nColumns, size_t(0),
+                                                                     CSRNumericTable::oneBased, &st);
+        }
+        else
+        {
+            _SV = internal::SyclHomogenNumericTable<modelFPType>::create(nColumns, 0, NumericTable::doNotAllocate, &st);
+        }
     }
     else
     {

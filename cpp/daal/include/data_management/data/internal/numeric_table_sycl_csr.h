@@ -492,7 +492,7 @@ protected:
         st |= _ddict->setAllFeatures(_defaultFeature);
 
         DAAL_ASSERT(bufferData.size() == bufferColIndices.size());
-        DAAL_ASSERT(bufferRowOffsets.size() == nRows + 1);
+        // DAAL_ASSERT(bufferRowOffsets.size() == nRows + 1);
 
         if (isCpuContext())
         {

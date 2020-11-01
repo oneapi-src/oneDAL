@@ -55,7 +55,6 @@ kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<float,
 /* Model object for the SVM algorithm */
 svm::training::ResultPtr trainingResult;
 classifier::prediction::ResultPtr predictionResult;
-NumericTablePtr testGroundTruth;
 
 void trainModel();
 void testModel();
@@ -77,8 +76,8 @@ int main(int argc, char * argv[])
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
         trainModel();
-        // testModel();
-        // printResults();
+        testModel();
+        printResults();
     }
 
     return 0;
@@ -135,9 +134,13 @@ void testModel()
 
 void printResults()
 {
-    // printNumericTables<int, float>(testGroundTruth, predictionResult->get(classifier::prediction::prediction), "Ground truth\t",
-    //                                "Classification results", "SVM classification results (first 20 observations):", 20);
+    /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
+    FileDataSource<CSVFeatureManager> testLabelsDataSource(testLabelsFileName, DataSource::doAllocateNumericTable,
+                                                           DataSource::doDictionaryFromContext);
+    /* Retrieve the data from input file */
+    testLabelsDataSource.loadDataBlock();
 
-    // printNumericTables<int, float>(testGroundTruth, predictionResult->get(classifier::prediction::prediction), "Ground truth\t",
-    //                                "Classification results", "SVM classification results (first 20 observations):", 20);
+    NumericTablePtr testGroundTruth = testLabelsDataSource.getNumericTable();
+    printNumericTables<int, float>(testGroundTruth, predictionResult->get(classifier::prediction::prediction), "Ground truth\t",
+                                   "Classification results", "SVM classification results (first 20 observations):", 20);
 }
