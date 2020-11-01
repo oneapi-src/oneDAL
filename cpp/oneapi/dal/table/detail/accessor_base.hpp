@@ -31,12 +31,12 @@ public:
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename K>
     accessor_base(const K& obj)
-            : host_access_(get_impl<access_provider_iface>(obj).get_access_iface_host()),
-              dpc_access_(get_impl<access_provider_iface>(obj).get_access_iface_dpc()) {}
+            : host_access_(cast_impl<access_provider_iface>(obj).get_access_iface_host()),
+              dpc_access_(cast_impl<access_provider_iface>(obj).get_access_iface_dpc()) {}
 #else
     template <typename K>
     accessor_base(const K& obj)
-            : host_access_(get_impl<access_provider_iface>(obj).get_access_iface_host()) {}
+            : host_access_(cast_impl<access_provider_iface>(obj).get_access_iface_host()) {}
 #endif
 
     template <typename Policy, typename Allocator>

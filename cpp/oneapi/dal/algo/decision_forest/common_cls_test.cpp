@@ -22,156 +22,95 @@
 using namespace oneapi;
 namespace df = oneapi::dal::decision_forest;
 
+using df_hist_classifier = df::descriptor<float, df::method::hist, df::task::classification>;
+
+using df_dense_classifier = df::descriptor<float, df::method::dense, df::task::classification>;
+
 TEST(df_bad_arg_tests, set_class_count) {
-    ASSERT_THROW(
-        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_class_count(0)),
-        dal::domain_error);
-    ASSERT_THROW(
-        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_class_count(-1)),
-        dal::domain_error);
+    ASSERT_THROW((df_hist_classifier{}.set_class_count(0)), dal::domain_error);
+    ASSERT_THROW((df_hist_classifier{}.set_class_count(-1)), dal::domain_error);
 }
 
 TEST(df_bad_arg_tests, set_tree_count) {
-    ASSERT_THROW(
-        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_tree_count(0)),
-        dal::domain_error);
-    ASSERT_THROW(
-        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_tree_count(-1)),
-        dal::domain_error);
+    ASSERT_THROW((df_hist_classifier{}.set_tree_count(0)), dal::domain_error);
+    ASSERT_THROW((df_hist_classifier{}.set_tree_count(-1)), dal::domain_error);
 }
 
 TEST(df_bad_arg_tests, set_min_observations_in_leaf_node) {
-    ASSERT_THROW((df::descriptor<float, df::task::classification, df::method::hist>{}
-                      .set_min_observations_in_leaf_node(0)),
-                 dal::domain_error);
-    ASSERT_THROW((df::descriptor<float, df::task::classification, df::method::hist>{}
-                      .set_min_observations_in_leaf_node(-1)),
-                 dal::domain_error);
+    ASSERT_THROW((df_hist_classifier{}.set_min_observations_in_leaf_node(0)), dal::domain_error);
+    ASSERT_THROW((df_hist_classifier{}.set_min_observations_in_leaf_node(-1)), dal::domain_error);
 }
 
 TEST(df_bad_arg_tests, set_min_observations_in_split_node) {
-    ASSERT_THROW((df::descriptor<float, df::task::classification, df::method::hist>{}
-                      .set_min_observations_in_split_node(0)),
-                 dal::domain_error);
-    ASSERT_THROW((df::descriptor<float, df::task::classification, df::method::hist>{}
-                      .set_min_observations_in_split_node(-1)),
-                 dal::domain_error);
+    ASSERT_THROW((df_hist_classifier{}.set_min_observations_in_split_node(0)), dal::domain_error);
+    ASSERT_THROW((df_hist_classifier{}.set_min_observations_in_split_node(-1)), dal::domain_error);
 }
 
 TEST(df_bad_arg_tests, set_min_weight_fraction_in_leaf_node) {
-    ASSERT_THROW((df::descriptor<float, df::task::classification, df::method::hist>{}
-                      .set_min_weight_fraction_in_leaf_node(-0.1)),
+    ASSERT_THROW((df_hist_classifier{}.set_min_weight_fraction_in_leaf_node(-0.1)),
                  dal::domain_error);
-    ASSERT_THROW((df::descriptor<float, df::task::classification, df::method::hist>{}
-                      .set_min_weight_fraction_in_leaf_node(0.6)),
+    ASSERT_THROW((df_hist_classifier{}.set_min_weight_fraction_in_leaf_node(0.6)),
                  dal::domain_error);
 
-    ASSERT_NO_THROW((df::descriptor<float, df::task::classification, df::method::hist>{}
-                         .set_min_weight_fraction_in_leaf_node(0.0)));
-    ASSERT_NO_THROW((df::descriptor<float, df::task::classification, df::method::hist>{}
-                         .set_min_weight_fraction_in_leaf_node(0.5)));
+    ASSERT_NO_THROW((df_hist_classifier{}.set_min_weight_fraction_in_leaf_node(0.0)));
+    ASSERT_NO_THROW((df_hist_classifier{}.set_min_weight_fraction_in_leaf_node(0.5)));
 }
 
 TEST(df_bad_arg_tests, set_min_impurity_decrease_in_split_node) {
-    ASSERT_THROW((df::descriptor<float, df::task::classification, df::method::hist>{}
-                      .set_min_impurity_decrease_in_split_node(-0.1)),
+    ASSERT_THROW((df_hist_classifier{}.set_min_impurity_decrease_in_split_node(-0.1)),
                  dal::domain_error);
 
-    ASSERT_NO_THROW((df::descriptor<float, df::task::classification, df::method::hist>{}
-                         .set_min_impurity_decrease_in_split_node(0.0)));
+    ASSERT_NO_THROW((df_hist_classifier{}.set_min_impurity_decrease_in_split_node(0.0)));
 }
 
 TEST(df_bad_arg_tests, set_observations_per_tree_fraction) {
-    ASSERT_THROW((df::descriptor<float, df::task::classification, df::method::hist>{}
-                      .set_observations_per_tree_fraction(0.0)),
-                 dal::domain_error);
-    ASSERT_THROW((df::descriptor<float, df::task::classification, df::method::hist>{}
-                      .set_observations_per_tree_fraction(1.1)),
-                 dal::domain_error);
-    ASSERT_THROW((df::descriptor<float, df::task::classification, df::method::hist>{}
-                      .set_observations_per_tree_fraction(-0.5)),
+    ASSERT_THROW((df_hist_classifier{}.set_observations_per_tree_fraction(0.0)), dal::domain_error);
+    ASSERT_THROW((df_hist_classifier{}.set_observations_per_tree_fraction(1.1)), dal::domain_error);
+    ASSERT_THROW((df_hist_classifier{}.set_observations_per_tree_fraction(-0.5)),
                  dal::domain_error);
 
-    ASSERT_NO_THROW((df::descriptor<float, df::task::classification, df::method::hist>{}
-                         .set_observations_per_tree_fraction(1.0)));
-    ASSERT_NO_THROW((df::descriptor<float, df::task::classification, df::method::hist>{}
-                         .set_observations_per_tree_fraction(0.5)));
+    ASSERT_NO_THROW((df_hist_classifier{}.set_observations_per_tree_fraction(1.0)));
+    ASSERT_NO_THROW((df_hist_classifier{}.set_observations_per_tree_fraction(0.5)));
 }
 
 TEST(df_bad_arg_tests, set_features_per_node) {
-    ASSERT_THROW(
-        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_features_per_node(
-            -1)),
-        dal::domain_error);
+    ASSERT_THROW((df_hist_classifier{}.set_features_per_node(-1)), dal::domain_error);
 
-    ASSERT_NO_THROW(
-        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_features_per_node(
-            0)));
-    ASSERT_NO_THROW(
-        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_features_per_node(
-            2)));
+    ASSERT_NO_THROW((df_hist_classifier{}.set_features_per_node(0)));
+    ASSERT_NO_THROW((df_hist_classifier{}.set_features_per_node(2)));
 }
 
 TEST(df_bad_arg_tests, set_impurity_threshold) {
-    ASSERT_THROW(
-        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_impurity_threshold(
-            -0.1)),
-        dal::domain_error);
+    ASSERT_THROW((df_hist_classifier{}.set_impurity_threshold(-0.1)), dal::domain_error);
 
-    ASSERT_NO_THROW(
-        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_impurity_threshold(
-            0.0)));
-    ASSERT_NO_THROW(
-        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_impurity_threshold(
-            0.5)));
+    ASSERT_NO_THROW((df_hist_classifier{}.set_impurity_threshold(0.0)));
+    ASSERT_NO_THROW((df_hist_classifier{}.set_impurity_threshold(0.5)));
 }
 
 TEST(df_bad_arg_tests, set_max_tree_depth) {
-    ASSERT_THROW(
-        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_max_tree_depth(
-            -1)),
-        dal::domain_error);
-    ASSERT_NO_THROW((
-        df::descriptor<float, df::task::classification, df::method::hist>{}.set_max_tree_depth(0)));
-    ASSERT_NO_THROW((
-        df::descriptor<float, df::task::classification, df::method::hist>{}.set_max_tree_depth(5)));
+    ASSERT_THROW((df_hist_classifier{}.set_max_tree_depth(-1)), dal::domain_error);
+    ASSERT_NO_THROW((df_hist_classifier{}.set_max_tree_depth(0)));
+    ASSERT_NO_THROW((df_hist_classifier{}.set_max_tree_depth(5)));
 }
 
 TEST(df_bad_arg_tests, set_max_leaf_nodes) {
-    ASSERT_THROW(
-        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_max_leaf_nodes(
-            -1)),
-        dal::domain_error);
-    ASSERT_NO_THROW((
-        df::descriptor<float, df::task::classification, df::method::hist>{}.set_max_leaf_nodes(0)));
-    ASSERT_NO_THROW((
-        df::descriptor<float, df::task::classification, df::method::hist>{}.set_max_leaf_nodes(5)));
+    ASSERT_THROW((df_hist_classifier{}.set_max_leaf_nodes(-1)), dal::domain_error);
+    ASSERT_NO_THROW((df_hist_classifier{}.set_max_leaf_nodes(0)));
+    ASSERT_NO_THROW((df_hist_classifier{}.set_max_leaf_nodes(5)));
 }
 
 TEST(df_bad_arg_tests, set_max_bins) {
-    ASSERT_THROW(
-        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_max_bins(-1)),
-        dal::domain_error);
-    ASSERT_THROW(
-        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_max_bins(1)),
-        dal::domain_error);
-    ASSERT_NO_THROW(
-        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_max_bins(2)));
-    ASSERT_NO_THROW(
-        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_max_bins(64)));
+    ASSERT_THROW((df_hist_classifier{}.set_max_bins(-1)), dal::domain_error);
+    ASSERT_THROW((df_hist_classifier{}.set_max_bins(1)), dal::domain_error);
+    ASSERT_NO_THROW((df_hist_classifier{}.set_max_bins(2)));
+    ASSERT_NO_THROW((df_hist_classifier{}.set_max_bins(64)));
 }
 
 TEST(df_bad_arg_tests, set_min_bin_size) {
-    ASSERT_THROW(
-        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_min_bin_size(-1)),
-        dal::domain_error);
-    ASSERT_THROW(
-        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_min_bin_size(0)),
-        dal::domain_error);
-    ASSERT_NO_THROW(
-        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_min_bin_size(1)));
-    ASSERT_NO_THROW(
-        (df::descriptor<float, df::task::classification, df::method::hist>{}.set_min_bin_size(8)));
+    ASSERT_THROW((df_hist_classifier{}.set_min_bin_size(-1)), dal::domain_error);
+    ASSERT_THROW((df_hist_classifier{}.set_min_bin_size(0)), dal::domain_error);
+    ASSERT_NO_THROW((df_hist_classifier{}.set_min_bin_size(1)));
+    ASSERT_NO_THROW((df_hist_classifier{}.set_min_bin_size(8)));
 }
 
 TEST(df_bad_arg_tests, set_train_data) {
@@ -182,7 +121,7 @@ TEST(df_bad_arg_tests, set_train_data) {
     dal::homogen_table x_train_table;
     const auto y_train_table = dal::homogen_table::wrap(y_train, row_count_train, 1);
 
-    const auto df_desc = df::descriptor<float, df::task::classification, df::method::dense>{};
+    const auto df_desc = df_dense_classifier{};
 
     ASSERT_THROW(dal::train(df_desc, x_train_table, y_train_table), dal::domain_error);
 }
@@ -198,7 +137,7 @@ TEST(df_bad_arg_tests, set_train_labels) {
     const auto x_train_table = dal::homogen_table::wrap(x_train, row_count_train, column_count);
     dal::homogen_table y_train_table;
 
-    const auto df_desc = df::descriptor<float, df::task::classification, df::method::dense>{};
+    const auto df_desc = df_dense_classifier{};
 
     ASSERT_THROW(dal::train(df_desc, x_train_table, y_train_table), dal::domain_error);
 }
@@ -217,37 +156,32 @@ TEST(df_bad_arg_tests, set_bootstrap) {
 
     // check bootstrap(false) and mda_raw
     {
-        auto df_desc = df::descriptor<float, df::task::classification, df::method::dense>{}
-                           .set_bootstrap(false)
-                           .set_variable_importance_mode(df::variable_importance_mode::mda_raw);
+        auto df_desc = df_dense_classifier{}.set_bootstrap(false).set_variable_importance_mode(
+            df::variable_importance_mode::mda_raw);
 
         ASSERT_THROW(dal::train(df_desc, x_train_table, y_train_table), dal::invalid_argument);
         ASSERT_NO_THROW(dal::train(df_desc.set_bootstrap(true), x_train_table, y_train_table));
     }
     // check bootstrap(false) and mda_raw_scaled
     {
-        auto df_desc = df::descriptor<float, df::task::classification, df::method::dense>{}
-                           .set_bootstrap(false)
-                           .set_variable_importance_mode(df::variable_importance_mode::mda_scaled);
+        auto df_desc = df_dense_classifier{}.set_bootstrap(false).set_variable_importance_mode(
+            df::variable_importance_mode::mda_scaled);
 
         ASSERT_THROW(dal::train(df_desc, x_train_table, y_train_table), dal::invalid_argument);
         ASSERT_NO_THROW(dal::train(df_desc.set_bootstrap(true), x_train_table, y_train_table));
     }
     // check bootstrap(false) and out_of_bag_error
     {
-        auto df_desc = df::descriptor<float, df::task::classification, df::method::dense>{}
-                           .set_bootstrap(false)
-                           .set_error_metric_mode(df::error_metric_mode::out_of_bag_error);
+        auto df_desc = df_dense_classifier{}.set_bootstrap(false).set_error_metric_mode(
+            df::error_metric_mode::out_of_bag_error);
 
         ASSERT_THROW(dal::train(df_desc, x_train_table, y_train_table), dal::invalid_argument);
         ASSERT_NO_THROW(dal::train(df_desc.set_bootstrap(true), x_train_table, y_train_table));
     }
     // check bootstrap(false) and out_of_bag_error_per_observation
     {
-        auto df_desc =
-            df::descriptor<float, df::task::classification, df::method::dense>{}
-                .set_bootstrap(false)
-                .set_error_metric_mode(df::error_metric_mode::out_of_bag_error_per_observation);
+        auto df_desc = df_dense_classifier{}.set_bootstrap(false).set_error_metric_mode(
+            df::error_metric_mode::out_of_bag_error_per_observation);
 
         ASSERT_THROW(dal::train(df_desc, x_train_table, y_train_table), dal::invalid_argument);
         ASSERT_NO_THROW(dal::train(df_desc.set_bootstrap(true), x_train_table, y_train_table));
@@ -267,7 +201,7 @@ TEST(df_bad_arg_tests, data_rows_matches_labels_rows) {
     const auto x_train_table = dal::homogen_table::wrap(x_train, row_count_train, column_count);
     const auto y_train_table = dal::homogen_table::wrap(y_train, row_count_train_invalid, 1);
 
-    const auto df_desc = df::descriptor<float, df::task::classification, df::method::dense>{};
+    const auto df_desc = df_dense_classifier{};
     ASSERT_THROW(dal::train(df_desc, x_train_table, y_train_table), dal::invalid_argument);
 }
 
@@ -284,7 +218,7 @@ TEST(df_bad_arg_tests, set_infer_data) {
     const auto y_train_table = dal::homogen_table::wrap(y_train, row_count_train, 1);
     dal::homogen_table x_test_table;
 
-    const auto df_desc = df::descriptor<float, df::task::classification, df::method::dense>{};
+    const auto df_desc = df_dense_classifier{};
     const auto result_train = dal::train(df_desc, x_train_table, y_train_table);
 
     ASSERT_THROW(dal::infer(df_desc, result_train.get_model(), x_test_table), dal::domain_error);

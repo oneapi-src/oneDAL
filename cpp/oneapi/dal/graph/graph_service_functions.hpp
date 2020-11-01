@@ -63,7 +63,8 @@ template <typename Graph>
 constexpr auto get_vertex_degree(const Graph &graph, vertex_type<Graph> vertex)
     -> edge_size_type<Graph> {
     if (vertex < 0 || (vertex_size_type<Graph>)vertex >= detail::get_vertex_count_impl(graph)) {
-        throw out_of_range("Vertex index should be in [0, vertex_count)");
+        throw out_of_range(dal::detail::error_messages::
+                               vertex_index_out_of_range_expect_from_zero_to_vertex_count());
     }
     return detail::get_vertex_degree_impl(graph, vertex);
 }
@@ -81,7 +82,8 @@ template <typename Graph>
 constexpr auto get_vertex_neighbors(const Graph &graph, vertex_type<Graph> vertex)
     -> const_edge_range_type<Graph> {
     if (vertex < 0 || (vertex_size_type<Graph>)vertex >= detail::get_vertex_count_impl(graph)) {
-        throw out_of_range("Vertex index should be in [0, vertex_count)");
+        throw out_of_range(dal::detail::error_messages::
+                               vertex_index_out_of_range_expect_from_zero_to_vertex_count());
     }
     return detail::get_vertex_neighbors_impl(graph, vertex);
 }

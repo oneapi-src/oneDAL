@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Intel(R) DAAL string class.
+//  Intel(R) oneDAL string class.
 //--
 */
 

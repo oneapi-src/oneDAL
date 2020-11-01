@@ -23,31 +23,30 @@
 
 #include "example_util/dpc_helpers.hpp"
 
-using namespace oneapi;
+namespace dal = oneapi::dal;
 
-void run(sycl::queue &queue) {
+void run(sycl::queue &q) {
     constexpr std::int64_t row_count = 6;
     constexpr std::int64_t column_count = 2;
     const float data_host[] = {
-        0.f, 6.f,
-        1.f, 7.f,
-        2.f, 8.f,
-        3.f, 9.f,
-        4.f, 10.f,
-        5.f, 11.f,
+        0.f, 6.f, 1.f, 7.f, 2.f, 8.f, 3.f, 9.f, 4.f, 10.f, 5.f, 11.f,
     };
 
-    auto data = sycl::malloc_shared<float>(row_count * column_count, queue);
-    queue.memcpy(data, data_host, sizeof(float) * row_count * column_count).wait();
+    auto data = sycl::malloc_shared<float>(row_count * column_count, q);
+    q.memcpy(data, data_host, sizeof(float) * row_count * column_count).wait();
 
-    auto table = dal::homogen_table{ queue, data, row_count, column_count, dal::make_default_delete<const float>(queue)};
-    dal::column_accessor<const float> acc { table };
+    auto table = dal::homogen_table{ q,
+                                     data,
+                                     row_count,
+                                     column_count,
+                                     dal::detail::make_default_delete<const float>(q) };
+    dal::column_accessor<const float> acc{ table };
 
-    for(std::int64_t col = 0; col < table.get_column_count(); col++) {
+    for (std::int64_t col = 0; col < table.get_column_count(); col++) {
         std::cout << "column " << col << " values: ";
 
-        const auto col_values = acc.pull(queue, col);
-        for(std::int64_t i = 0; i < col_values.get_count(); i++) {
+        const auto col_values = acc.pull(q, col);
+        for (std::int64_t i = 0; i < col_values.get_count(); i++) {
             std::cout << col_values[i] << ", ";
         }
         std::cout << std::endl;
@@ -55,12 +54,10 @@ void run(sycl::queue &queue) {
 }
 
 int main(int argc, char const *argv[]) {
-    for (auto device : list_devices()) {
-        std::cout << "Running on "
-                  << device.get_info<sycl::info::device::name>()
-                  << std::endl << std::endl;
-        auto queue = sycl::queue{device};
-        run(queue);
+    for (auto d : list_devices()) {
+        std::cout << "Running on " << d.get_info<sycl::info::device::name>() << "\n" << std::endl;
+        auto q = sycl::queue{ d };
+        run(q);
     }
     return 0;
 }

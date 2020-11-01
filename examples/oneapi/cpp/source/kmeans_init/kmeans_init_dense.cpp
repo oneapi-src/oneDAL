@@ -22,7 +22,7 @@
 #include "oneapi/dal/algo/kmeans_init.hpp"
 #include "oneapi/dal/io/csv.hpp"
 
-using namespace oneapi;
+namespace dal = oneapi::dal;
 
 template <typename Method>
 void run(const dal::table& x_train, const std::string& method_name) {
@@ -51,8 +51,8 @@ void run(const dal::table& x_train, const std::string& method_name) {
               << std::endl;
 }
 
-int main(int argc, char const *argv[]) {
-    const std::string train_data_file_name = get_data_path("kmeans_init_dense.csv");
+int main(int argc, char const* argv[]) {
+    const auto train_data_file_name = get_data_path("kmeans_init_dense.csv");
 
     const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
 

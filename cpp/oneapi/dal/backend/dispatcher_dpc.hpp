@@ -54,8 +54,7 @@ struct kernel_dispatcher<CpuKernel, GpuKernel> {
             return GpuKernel()(gpu_policy, std::forward<Args>(args)...);
         }
         else {
-            throw std::runtime_error("Unsupported device type, supported types "
-                                     "are host, cpu and gpu");
+            throw unsupported_device(dal::detail::error_messages::unsupported_device_type());
         }
     }
 };

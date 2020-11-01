@@ -14,37 +14,47 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <daal/src/algorithms/dtrees/forest/regression/oneapi/df_regression_predict_dense_kernel_oneapi.h>
 #include <daal/src/services/service_algo_utils.h>
-
-#include "oneapi/dal/table/row_accessor.hpp"
+#include <daal/src/algorithms/dtrees/forest/regression/oneapi/df_regression_predict_dense_kernel_oneapi.h>
 
 #include "oneapi/dal/algo/decision_forest/backend/gpu/infer_kernel.hpp"
+
+#include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
-
-#include "oneapi/dal/algo/decision_forest/backend/interop_helpers.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/model_impl.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
 using dal::backend::context_gpu;
+using model_t = model<task::regression>;
+using input_t = infer_input<task::regression>;
+using result_t = infer_result<task::regression>;
+using descriptor_t = descriptor_base<task::regression>;
 
-namespace df = daal::algorithms::decision_forest;
-namespace rgr = daal::algorithms::decision_forest::regression;
+namespace daal_df = daal::algorithms::decision_forest;
+namespace daal_df_reg_pred = daal_df::regression::prediction;
 namespace interop = dal::backend::interop;
 
 template <typename Float>
-using rgr_dense_predict_kernel_t =
-    rgr::prediction::internal::PredictKernelOneAPI<Float, rgr::prediction::defaultDense>;
+using reg_dense_predict_kernel_t =
+    daal_df_reg_pred::internal::PredictKernelOneAPI<Float, daal_df_reg_pred::defaultDense>;
 
-using rgr_model_p = rgr::ModelPtr;
+static daal_df::regression::ModelPtr get_daal_model(const model_t& trained_model) {
+    const model_interop* interop_model = dal::detail::get_impl(trained_model).get_interop();
+    if (!interop_model) {
+        throw dal::internal_error(
+            dal::detail::error_messages::input_model_does_not_match_kernel_function());
+    }
+    return static_cast<const model_interop_reg*>(interop_model)->get_model();
+}
 
-template <typename Float, typename Task>
-static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
-                                           const descriptor_base<Task>& desc,
-                                           const model<Task>& trained_model,
-                                           const table& data) {
+template <typename Float>
+static result_t call_daal_kernel(const context_gpu& ctx,
+                                 const descriptor_t& desc,
+                                 const model_t& trained_model,
+                                 const table& data) {
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
@@ -59,46 +69,35 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
     const auto daal_labels =
         interop::convert_to_daal_sycl_homogen_table(queue, arr_labels, row_count, 1);
 
+    auto daal_model = get_daal_model(trained_model);
+
     /* init param for daal kernel */
-    auto daal_input = rgr::prediction::Input();
-    daal_input.set(rgr::prediction::data, daal_data);
+    auto daal_input = daal_df_reg_pred::Input();
+    daal_input.set(daal_df_reg_pred::data, daal_data);
+    daal_input.set(daal_df_reg_pred::model, daal_model);
 
-    auto model_pimpl = dal::detail::pimpl_accessor().get_pimpl(trained_model);
-    if (!model_pimpl->is_interop()) {
-        throw dal::internal_error("Input model is inconsistent with kernel type");
-    }
-
-    auto pinterop_model =
-        static_cast<backend::interop::decision_forest::interop_model_impl<Task, rgr_model_p>*>(
-            model_pimpl.get());
-
-    daal_input.set(rgr::prediction::model, pinterop_model->get_model());
-
-    const rgr::Model* const daal_model =
-        static_cast<rgr::Model*>(pinterop_model->get_model().get());
+    const daal_df::regression::Model* const daal_model_ptr = daal_model.get();
     interop::status_to_exception(
-        rgr_dense_predict_kernel_t<Float>().compute(daal::services::internal::hostApp(daal_input),
+        reg_dense_predict_kernel_t<Float>().compute(daal::services::internal::hostApp(daal_input),
                                                     daal_data.get(),
-                                                    daal_model,
+                                                    daal_model_ptr,
                                                     daal_labels.get()));
 
-    return infer_result<Task>().set_labels(
+    return result_t().set_labels(
         dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build());
 }
 
-template <typename Float, typename Task>
-static infer_result<Task> infer(const context_gpu& ctx,
-                                const descriptor_base<Task>& desc,
-                                const infer_input<Task>& input) {
-    return call_daal_kernel<Float, Task>(ctx, desc, input.get_model(), input.get_data());
+template <typename Float>
+static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
+    return call_daal_kernel<Float>(ctx, desc, input.get_model(), input.get_data());
 }
 
 template <typename Float, typename Task>
 struct infer_kernel_gpu<Float, Task, method::dense> {
-    infer_result<Task> operator()(const context_gpu& ctx,
-                                  const descriptor_base<Task>& desc,
-                                  const infer_input<Task>& input) const {
-        return infer<Float, Task>(ctx, desc, input);
+    result_t operator()(const context_gpu& ctx,
+                        const descriptor_t& desc,
+                        const input_t& input) const {
+        return infer<Float>(ctx, desc, input);
     }
 };
 

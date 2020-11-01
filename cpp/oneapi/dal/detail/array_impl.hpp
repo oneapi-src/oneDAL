@@ -18,8 +18,8 @@
 
 #include <variant>
 
-#include "oneapi/dal/exceptions.hpp"
-#include "oneapi/dal/memory.hpp"
+#include "oneapi/dal/detail/memory.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::detail {
 
@@ -88,7 +88,8 @@ public:
             return mut_ptr.get();
         }
         catch (std::bad_variant_access&) {
-            throw dal::internal_error("array does not contain mutable data");
+            throw internal_error(
+                dal::detail::error_messages::array_does_not_contain_mutable_data());
         }
     }
 
