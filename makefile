@@ -987,7 +987,8 @@ define .release.ay_win
 $3: $2/$1
 $(if $(phony-upd),$(eval .PHONY: $2/$1))
 $2/$1: $(WORKDIR.lib)/$1 | $2/.
-	cp -fp $(WORKDIR.lib)/$1 $2/$(subst dll.,dll.$(MAJORBINARY).,$1)
+	cp -fp $(WORKDIR.lib)/$1 $2/$(if $(findstring dll.,$1),$(subst dll.,dll.$(MAJORBINARY).,$1),$(subst .dll,.$(MAJORBINARY).dll,$1))
+	cd $2 && ln -sf $(if $(findstring dll.,$1),$(subst dll.,dll.$(MAJORBINARY).,$1),$(subst .dll,.$(MAJORBINARY).dll,$1)) $1
 endef
 define .release.y_link
 $3: $2/$1
