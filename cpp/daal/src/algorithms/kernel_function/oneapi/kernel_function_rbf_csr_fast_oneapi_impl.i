@@ -28,9 +28,8 @@
 #include "src/data_management/service_numeric_table.h"
 #include "src/externals/service_math.h"
 #include "src/externals/service_ittnotify.h"
-#include "src/sycl/blas_gpu.h"
+#include "src/sycl/spblas_gpu.h"
 #include "src/sycl/reducer.h"
-#include "src/algorithms/kernel_function/oneapi/cl_kernels/kernel_function.cl"
 
 DAAL_ITTNOTIFY_DOMAIN(kernel_function.rbf.batch.oneapi);
 
@@ -49,21 +48,21 @@ using namespace daal::services::internal::sycl::math;
 
 template <typename algorithmFPType>
 services::Status KernelImplRBFOneAPI<fastCSR, algorithmFPType>::computeInternalVectorVector(NumericTable * vecLeft, NumericTable * vecRight,
-                                                                                                 NumericTable * result, const ParameterBase * par)
+                                                                                            NumericTable * result, const ParameterBase * par)
 {
     return services::ErrorMethodNotImplemented;
 }
 
 template <typename algorithmFPType>
 services::Status KernelImplRBFOneAPI<fastCSR, algorithmFPType>::computeInternalMatrixVector(NumericTable * matLeft, NumericTable * vecRight,
-                                                                                                 NumericTable * result, const ParameterBase * par)
+                                                                                            NumericTable * result, const ParameterBase * par)
 {
     return services::ErrorMethodNotImplemented;
 }
 
 template <typename algorithmFPType>
 services::Status KernelImplRBFOneAPI<fastCSR, algorithmFPType>::computeInternalMatrixMatrix(NumericTable * matLeft, NumericTable * matRight,
-                                                                                                 NumericTable * result, const ParameterBase * par)
+                                                                                            NumericTable * result, const ParameterBase * par)
 {
     services::Status status;
 
@@ -79,50 +78,53 @@ services::Status KernelImplRBFOneAPI<fastCSR, algorithmFPType>::computeInternalM
     const Parameter * rbfPar    = static_cast<const Parameter *>(par);
     const algorithmFPType coeff = algorithmFPType(-0.5 / (rbfPar->sigma * rbfPar->sigma));
 
-    // BlockDescriptor<algorithmFPType> matLeftBlock;
-    // BlockDescriptor<algorithmFPType> matRightBlock;
-    // BlockDescriptor<algorithmFPType> resultBlock;
+    DAAL_CHECK_STATUS(status, Helper::lazyAllocate(_sqrMatLeft, nMatLeft));
+    DAAL_CHECK_STATUS(status, Helper::lazyAllocate(_sqrMatRight, nMatRight));
 
-    // DAAL_CHECK_STATUS(status, matLeft->getBlockOfRows(0, nMatLeft, ReadWriteMode::readOnly, matLeftBlock));
-    // DAAL_CHECK_STATUS(status, matRight->getBlockOfRows(0, nMatRight, ReadWriteMode::readOnly, matRightBlock));
+    CSRBlockDescriptor<algorithmFPType> matLeftBD, matRightBD;
 
-    // DAAL_CHECK_STATUS(status, result->getBlockOfRows(0, nMatLeft, ReadWriteMode::writeOnly, resultBlock));
+    CSRNumericTableIface * matLeftCSR = dynamic_cast<CSRNumericTableIface *>(matLeft);
+    DAAL_CHECK(matLeftCSR, services::ErrorIncorrectTypeOfInputNumericTable);
+    CSRNumericTableIface * matRightCSR = dynamic_cast<CSRNumericTableIface *>(matRight);
+    DAAL_CHECK(matRightCSR, services::ErrorIncorrectTypeOfInputNumericTable);
 
-    // const services::internal::Buffer<algorithmFPType> matLeftBuf  = matLeftBlock.getBuffer();
-    // const services::internal::Buffer<algorithmFPType> matRightBuf = matRightBlock.getBuffer();
+    DAAL_CHECK_STATUS(status, matLeftCSR->getSparseBlock(0, nMatLeft, readOnly, matLeftBD));
+    DAAL_CHECK_STATUS(status, matRightCSR->getSparseBlock(0, nMatRight, readOnly, matRightBD));
 
-    // services::internal::Buffer<algorithmFPType> rBuf = resultBlock.getBuffer();
+    const auto matLeftValuesBuff        = matLeftBD.getBlockValuesBuffer();
+    const auto matLeftColumnIndicesBuff = matLeftBD.getBlockColumnIndicesBuffer();
+    const auto matLeftRowIndicesBuff    = matLeftBD.getBlockRowIndicesBuffer();
 
-    // DAAL_CHECK_STATUS(status, lazyAllocate(_sqrMatLeft, nMatLeft));
-    // DAAL_CHECK_STATUS(status, lazyAllocate(_sqrMatRight, nMatRight));
+    const auto matRightValuesBuff        = matRightBD.getBlockValuesBuffer();
+    const auto matRightColumnIndicesBuff = matRightBD.getBlockColumnIndicesBuffer();
+    const auto matRightRowIndicesBuff    = matRightBD.getBlockRowIndicesBuffer();
 
-    // UniversalBuffer sqrA1U = context.allocate(TypeIds::id<algorithmFPType>(), nMatLeft, status);
-    // DAAL_CHECK_STATUS_VAR(status);
-    // UniversalBuffer sqrA2U = context.allocate(TypeIds::id<algorithmFPType>(), nMatRight, status);
-    // DAAL_CHECK_STATUS_VAR(status);
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.sumOfSquaresCSR);
 
-    // {
-    //     DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.sumOfSquares);
+        DAAL_CHECK_STATUS(status, Helper::sumOfSquaresCSR(matLeftValuesBuff, matLeftRowIndicesBuff, _sqrMatLeft, nMatLeft));
+        DAAL_CHECK_STATUS_VAR(status);
+        DAAL_CHECK_STATUS(status, Helper::sumOfSquaresCSR(matRightValuesBuff, matRightRowIndicesBuff, _sqrMatRight, nMatRight));
+        DAAL_CHECK_STATUS_VAR(status);
+    }
+    BlockDescriptor<algorithmFPType> resultBlock;
+    DAAL_CHECK_STATUS(status, result->getBlockOfRows(0, nMatLeft, ReadWriteMode::writeOnly, resultBlock));
+    services::internal::Buffer<algorithmFPType> resultBuff = resultBlock.getBuffer();
 
-    //     Reducer::reduce(Reducer::BinaryOp::SUM_OF_SQUARES, Layout::RowMajor, matLeftBuf, _sqrMatLeft, nMatLeft, pMatLeft, status);
-    //     DAAL_CHECK_STATUS_VAR(status);
-    //     Reducer::reduce(Reducer::BinaryOp::SUM_OF_SQUARES, Layout::RowMajor, matRightBuf, _sqrMatRight, nMatRight, pMatRight, status);
-    //     DAAL_CHECK_STATUS_VAR(status);
-    // }
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.gemmCSR);
 
-    // {
-    //     DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.gemm);
-    //     DAAL_CHECK_STATUS(status, BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::Trans, nMatLeft,
-    //                                                               nMatRight, pMatLeft, algorithmFPType(-2.0), matLeftBuf, pMatLeft, 0, matRightBuf,
-    //                                                               pMatRight, 0, algorithmFPType(0.0), rBuf, nMatRight, 0));
-    // }
+        DAAL_CHECK_STATUS(status, math::SpBlasGpu<algorithmFPType>::xgemm(
+                                      math::Transpose::Trans, math::Transpose::NoTrans, nMatLeft, nMatRight, pMatLeft, algorithmFPType(-2.0),
+                                      matLeftValuesBuff, matLeftColumnIndicesBuff, matLeftRowIndicesBuff, matRightValuesBuff,
+                                      matRightColumnIndicesBuff, matRightRowIndicesBuff, algorithmFPType(0.0), resultBuff, nMatRight, 0));
+    }
 
-    // DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, nMatLeft, nMatRight);
-    // DAAL_CHECK_STATUS(status, computeRBF(_sqrMatLeft, _sqrMatRight, nMatRight, coeff, rBuf, nMatLeft, nMatRight));
+    DAAL_CHECK_STATUS(status, Helper::computeRBF(_sqrMatLeft, _sqrMatRight, nMatRight, coeff, resultBuff, nMatLeft, nMatRight));
 
-    // DAAL_CHECK_STATUS(status, matLeft->releaseBlockOfRows(matLeftBlock));
-    // DAAL_CHECK_STATUS(status, matRight->releaseBlockOfRows(matRightBlock));
-    // DAAL_CHECK_STATUS(status, result->releaseBlockOfRows(resultBlock));
+    DAAL_CHECK_STATUS(status, matLeftCSR->releaseSparseBlock(matLeftBD));
+    DAAL_CHECK_STATUS(status, matRightCSR->releaseSparseBlock(matRightBD));
+    DAAL_CHECK_STATUS(status, result->releaseBlockOfRows(resultBlock));
 
     return status;
 }

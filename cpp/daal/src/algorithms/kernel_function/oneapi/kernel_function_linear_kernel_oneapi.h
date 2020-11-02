@@ -1,4 +1,4 @@
-/* file: kernel_function_linear_dense_default_kernel_oneapi.h */
+/* file: kernel_function_linear_kernel_oneapi.h */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *

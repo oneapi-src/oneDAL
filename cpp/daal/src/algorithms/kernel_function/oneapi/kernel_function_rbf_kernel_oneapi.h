@@ -1,4 +1,4 @@
-/* file: kernel_function_rbf_dense_default_kernel_oneapi.h */
+/* file: kernel_function_rbf_kernel_oneapi.h */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -27,6 +27,7 @@
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "algorithms/kernel_function/kernel_function_rbf.h"
+#include "src/algorithms/kernel_function/oneapi/kernel_function_helper_oneapi.h"
 
 namespace daal
 {
@@ -41,19 +42,6 @@ namespace internal
 using namespace daal::data_management;
 using namespace daal::services;
 using namespace daal::services::internal::sycl;
-
-template <typename algorithmFPType>
-class HelperKernel
-{
-public:
-    static services::Status buildProgram(ClKernelFactoryIface & factory);
-    static services::Status lazyAllocate(UniversalBuffer & x, const size_t n);
-
-    static services::Status computeRBF(const UniversalBuffer & sqrMatLeft, const UniversalBuffer & sqrMatRight, const uint32_t ld,
-                                       const algorithmFPType coeff, services::internal::Buffer<algorithmFPType> & rbf, const size_t n,
-                                       const size_t m);
-};
-
 
 template <Method method, typename algorithmFPType>
 class KernelImplRBFOneAPI : public Kernel
@@ -122,7 +110,6 @@ private:
     UniversalBuffer _sqrMatLeft;
     UniversalBuffer _sqrMatRight;
 };
-
 
 } // namespace internal
 } // namespace rbf

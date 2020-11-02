@@ -1,4 +1,4 @@
-/* file: kernel_function_rbf_dense_default_oneapi_impl.i */
+/* file: kernel_function_rbf_kernel_oneapi.i */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -30,7 +30,6 @@
 #include "src/externals/service_ittnotify.h"
 #include "src/sycl/blas_gpu.h"
 #include "src/sycl/reducer.h"
-#include "src/algorithms/kernel_function/oneapi/cl_kernels/kernel_function.cl"
 
 DAAL_ITTNOTIFY_DOMAIN(kernel_function.rbf.batch.oneapi);
 
@@ -46,75 +45,6 @@ namespace internal
 {
 using namespace daal::services::internal::sycl;
 using namespace daal::services::internal::sycl::math;
-
-template <typename algorithmFPType>
-services::Status HelperKernel<algorithmFPType>::buildProgram(ClKernelFactoryIface & factory)
-{
-    services::String options = getKeyFPType<algorithmFPType>();
-
-    services::String cachekey("__daal_algorithms_kernel_function_rbf");
-    cachekey.add(options);
-
-    services::Status status;
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelKF, options.c_str(), status);
-    return status;
-}
-
-template <typename algorithmFPType>
-services::Status HelperKernel<algorithmFPType>::lazyAllocate(UniversalBuffer & x, const size_t n)
-{
-    services::Status status;
-    ExecutionContextIface & ctx = services::internal::getDefaultContext();
-    const TypeIds::Id idType    = TypeIds::id<algorithmFPType>();
-    if (x.empty() || x.get<algorithmFPType>().size() < n)
-    {
-        x = ctx.allocate(idType, n, status);
-    }
-
-    return status;
-}
-
-template <typename algorithmFPType>
-services::Status HelperKernel<algorithmFPType>::computeRBF(const UniversalBuffer & sqrMatLeft,
-                                                                                const UniversalBuffer & sqrMatRight, const uint32_t ld,
-                                                                                const algorithmFPType coeff,
-                                                                                services::internal::Buffer<algorithmFPType> & rbf, const size_t n,
-                                                                                const size_t m)
-{
-    DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.computeRBF);
-
-    auto & context = services::internal::getDefaultContext();
-    auto & factory = context.getClKernelFactory();
-
-    services::Status status = buildProgram(factory);
-    DAAL_CHECK_STATUS_VAR(status);
-
-    auto kernel = factory.getKernel("computeRBF", status);
-    DAAL_CHECK_STATUS_VAR(status);
-
-    const algorithmFPType threshold = math::expThreshold<algorithmFPType>();
-
-    KernelArguments args(6, status);
-    DAAL_CHECK_STATUS_VAR(status);
-
-    DAAL_ASSERT_UNIVERSAL_BUFFER(sqrMatRight, algorithmFPType, n);
-    DAAL_ASSERT_UNIVERSAL_BUFFER(sqrMatRight, algorithmFPType, m);
-    DAAL_ASSERT(rbf.size() == n * m);
-
-    args.set(0, sqrMatLeft, AccessModeIds::read);
-    args.set(1, sqrMatRight, AccessModeIds::read);
-    args.set(2, ld);
-    args.set(3, threshold);
-    args.set(4, coeff);
-    args.set(5, rbf, AccessModeIds::readwrite);
-
-    KernelRange range(n, m);
-
-    context.run(range, kernel, args, status);
-    DAAL_CHECK_STATUS_VAR(status);
-
-    return status;
-}
 
 template <typename algorithmFPType>
 services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInternalVectorVector(NumericTable * vecLeft, NumericTable * vecRight,
@@ -164,11 +94,6 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInte
 
     DAAL_CHECK_STATUS(status, Helper::lazyAllocate(_sqrMatLeft, nMatLeft));
     DAAL_CHECK_STATUS(status, Helper::lazyAllocate(_sqrMatRight, nMatRight));
-
-    UniversalBuffer sqrA1U = context.allocate(TypeIds::id<algorithmFPType>(), nMatLeft, status);
-    DAAL_CHECK_STATUS_VAR(status);
-    UniversalBuffer sqrA2U = context.allocate(TypeIds::id<algorithmFPType>(), nMatRight, status);
-    DAAL_CHECK_STATUS_VAR(status);
 
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.sumOfSquares);
