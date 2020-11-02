@@ -59,17 +59,20 @@ vertex_similarity_result call_jaccard_default_kernel_scalar(
     auto g_edge_offsets = g->_edge_offsets.data();
     auto g_vertex_neighbors = g->_vertex_neighbors.data();
     auto g_degrees = g->_degrees.data();
-    const std::int32_t row_begin = static_cast<std::int32_t>(desc.get_row_range_begin());
-    const auto row_end = static_cast<std::int32_t>(desc.get_row_range_end());
-    const auto column_begin = static_cast<std::int32_t>(desc.get_column_range_begin());
-    const auto column_end = static_cast<std::int32_t>(desc.get_column_range_end());
-    const auto number_elements_in_block = (row_end - row_begin) * (column_end - column_begin);
-    const size_t max_block_size =
-        compute_max_block_size(row_begin, row_end, column_begin, column_end);
+    const auto row_begin =
+        oneapi::dal::detail::integral_cast<std::int32_t>(desc.get_row_range_begin());
+    const auto row_end = oneapi::dal::detail::integral_cast<std::int32_t>(desc.get_row_range_end());
+    const auto column_begin =
+        oneapi::dal::detail::integral_cast<std::int32_t>(desc.get_column_range_begin());
+    const auto column_end =
+        oneapi::dal::detail::integral_cast<std::int32_t>(desc.get_column_range_end());
+    const auto number_elements_in_block =
+        compute_number_elements_in_block(row_begin, row_end, column_begin, column_end);
+    const auto max_block_size = compute_max_block_size(number_elements_in_block);
     void *result_ptr = input.get_caching_builder()(max_block_size);
     int *first_vertices = reinterpret_cast<int *>(result_ptr);
     int *second_vertices = first_vertices + number_elements_in_block;
-    float *jaccard = reinterpret_cast<float *>(first_vertices + 2 * number_elements_in_block);
+    float *jaccard = reinterpret_cast<float *>(second_vertices + number_elements_in_block);
     std::int64_t nnz = 0;
     for (std::int32_t i = row_begin; i < row_end; ++i) {
         const auto i_neighbor_size = g_degrees[i];
@@ -87,6 +90,8 @@ vertex_similarity_result call_jaccard_default_kernel_scalar(
                                    float(i_neighbor_size + j_neighbor_size - intersection_value);
                     first_vertices[nnz] = i;
                     second_vertices[nnz] = j;
+                    // Safe incrementing of nnz
+                    //max nnz = (2^(31)  * 2^(31))=(2^62) < 2^63 = max size of std::int64_t
                     nnz++;
                 }
             }
