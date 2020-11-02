@@ -63,7 +63,6 @@ TYPED_TEST_P(pca_common_bad_arg_tests,
 TYPED_TEST_P(pca_common_bad_arg_tests, throws_if_infer_data_table_is_empty) {
     constexpr std::int64_t row_count = 8;
     constexpr std::int64_t column_count = 2;
-    constexpr std::int64_t component_count = 2;
 
     const float data[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
                            -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
@@ -81,7 +80,6 @@ TYPED_TEST_P(pca_common_bad_arg_tests, throws_if_infer_data_table_is_empty) {
 TYPED_TEST_P(pca_common_bad_arg_tests, throws_if_component_count_ne_eigenvector_rows) {
     constexpr std::int64_t row_count = 8;
     constexpr std::int64_t column_count = 2;
-    constexpr std::int64_t component_count = 2;
 
     const float data[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
                            -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
@@ -106,7 +104,6 @@ TYPED_TEST_P(pca_common_bad_arg_tests, throws_if_component_count_ne_eigenvector_
 TYPED_TEST_P(pca_common_bad_arg_tests, throws_if_infer_data_column_count_ne_eigenvector_columns) {
     constexpr std::int64_t row_count = 8;
     constexpr std::int64_t column_count = 2;
-    constexpr std::int64_t component_count = 2;
 
     const float data[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
                            -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
