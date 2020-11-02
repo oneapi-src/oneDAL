@@ -108,5 +108,6 @@ TEST(kmn_bad_arg_tests, throws_if_infer_data_table_is_empty) {
                                  .set_accuracy_threshold(0.001);
 
     const auto result_train = train(kmeans_desc, data_table);
-    ASSERT_THROW(infer(kmeans_desc, result_train.get_model(), dal::homogen_table()), dal::domain_error);
+    ASSERT_THROW(infer(kmeans_desc, result_train.get_model(), dal::homogen_table()),
+                 dal::domain_error);
 }

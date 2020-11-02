@@ -21,7 +21,10 @@
 using namespace oneapi;
 namespace kmn_init = oneapi::dal::kmeans_init;
 
-using kmn_init_methods = testing::Types<kmn_init::method::dense, kmn_init::method::random_dense, kmn_init::method::plus_plus_dense, kmn_init::method::parallel_plus_dense>;
+using kmn_init_methods = testing::Types<kmn_init::method::dense,
+                                        kmn_init::method::random_dense,
+                                        kmn_init::method::plus_plus_dense,
+                                        kmn_init::method::parallel_plus_dense>;
 
 template <typename Tuple>
 class kmeans_init_common_bad_arg_tests : public ::testing::Test {};
@@ -46,9 +49,10 @@ TYPED_TEST_P(kmeans_init_common_bad_arg_tests, throws_if_data_table_is_empty) {
     ASSERT_THROW(compute(kmeans_init_desc, dal::homogen_table()), dal::domain_error);
 }
 
-REGISTER_TYPED_TEST_SUITE_P(kmeans_init_common_bad_arg_tests, 
+REGISTER_TYPED_TEST_SUITE_P(kmeans_init_common_bad_arg_tests,
                             test_set_cluster_count,
                             throws_if_data_table_is_empty);
 
-INSTANTIATE_TYPED_TEST_SUITE_P(run_kmeans_init_common_bad_arg_tests, kmeans_init_common_bad_arg_tests, kmn_init_methods);
-
+INSTANTIATE_TYPED_TEST_SUITE_P(run_kmeans_init_common_bad_arg_tests,
+                               kmeans_init_common_bad_arg_tests,
+                               kmn_init_methods);
