@@ -30,8 +30,6 @@ namespace algorithms
 {
 namespace internal
 {
-namespace services
-{
 template <typename T>
 inline void swap(T & x, T & y)
 {
@@ -129,7 +127,6 @@ void qSort(size_t n, algorithmDataType * x)
         }
     }
 }
-} // namespace services
 } // namespace internal
 } // namespace algorithms
 } // namespace daal
