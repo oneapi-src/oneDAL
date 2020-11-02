@@ -40,15 +40,14 @@ services::Status SpBlasGpu<algorithmFPType>::xgemm(const Transpose transa, const
 {
     services::Status status;
 
-    ExecutionContextIface & ctx    = services::internal::getDefaultContext();
-    ClKernelFactoryIface & factory = ctx.getClKernelFactory();
-    services::String options       = getKeyFPType<algorithmFPType>();
-    services::String cacheKey      = "__daal_spmm_";
+    auto & context            = services::internal::getDefaultContext();
+    auto & factory            = context.getClKernelFactory();
+    services::String options  = getKeyFPType<algorithmFPType>();
+    services::String cacheKey = "__daal_services_math_spmm_";
     cacheKey.add(options);
 
     factory.build(ExecutionTargetIds::device, cacheKey.c_str(), clKernelSpGemm, options.c_str(), status);
     DAAL_CHECK_STATUS_VAR(status);
-
     const char * const kernelName = beta != algorithmFPType(0) ? "spmm_kernel" : "spmm_kernel_without_sum";
     KernelPtr kernelSpGemm        = factory.getKernel(kernelName, status);
     DAAL_CHECK_STATUS_VAR(status);
@@ -71,9 +70,8 @@ services::Status SpBlasGpu<algorithmFPType>::xgemm(const Transpose transa, const
         args.set(8, ldc);
         args.set(9, offsetC);
         args.set(10, beta);
-        // printf("SpBlasGpu::xgemm s\n");
         KernelRange range(m, n);
-        ctx.run(range, kernelSpGemm, args, status);
+        context.run(range, kernelSpGemm, args, status);
     }
     else
     {

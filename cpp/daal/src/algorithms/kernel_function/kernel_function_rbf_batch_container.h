@@ -41,7 +41,7 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
 {
     auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
-    if (method == defaultDense && !deviceInfo.isCpu)
+    if (!deviceInfo.isCpu)
     {
         __DAAL_INITIALIZE_KERNELS_SYCL(internal::KernelImplRBFOneAPI, method, algorithmFPType);
     }
@@ -82,7 +82,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
-    if (method == defaultDense && !deviceInfo.isCpu)
+    if (!deviceInfo.isCpu)
     {
         __DAAL_CALL_KERNEL_SYCL(env, internal::KernelImplRBFOneAPI, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a[0], a[1], r[0], par);
     }

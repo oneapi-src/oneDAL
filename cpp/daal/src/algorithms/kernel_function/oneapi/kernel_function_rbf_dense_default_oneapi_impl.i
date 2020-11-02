@@ -48,7 +48,7 @@ using namespace daal::services::internal::sycl;
 using namespace daal::services::internal::sycl::math;
 
 template <typename algorithmFPType>
-services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::buildProgram(ClKernelFactoryIface & factory)
+services::Status HelperKernel<algorithmFPType>::buildProgram(ClKernelFactoryIface & factory)
 {
     services::String options = getKeyFPType<algorithmFPType>();
 
@@ -61,7 +61,7 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::buildProgra
 }
 
 template <typename algorithmFPType>
-services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::lazyAllocate(UniversalBuffer & x, const size_t n)
+services::Status HelperKernel<algorithmFPType>::lazyAllocate(UniversalBuffer & x, const size_t n)
 {
     services::Status status;
     ExecutionContextIface & ctx = services::internal::getDefaultContext();
@@ -75,7 +75,7 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::lazyAllocat
 }
 
 template <typename algorithmFPType>
-services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeRBF(const UniversalBuffer & sqrMatLeft,
+services::Status HelperKernel<algorithmFPType>::computeRBF(const UniversalBuffer & sqrMatLeft,
                                                                                 const UniversalBuffer & sqrMatRight, const uint32_t ld,
                                                                                 const algorithmFPType coeff,
                                                                                 services::internal::Buffer<algorithmFPType> & rbf, const size_t n,
@@ -162,8 +162,8 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInte
 
     services::internal::Buffer<algorithmFPType> rBuf = resultBlock.getBuffer();
 
-    DAAL_CHECK_STATUS(status, lazyAllocate(_sqrMatLeft, nMatLeft));
-    DAAL_CHECK_STATUS(status, lazyAllocate(_sqrMatRight, nMatRight));
+    DAAL_CHECK_STATUS(status, Helper::lazyAllocate(_sqrMatLeft, nMatLeft));
+    DAAL_CHECK_STATUS(status, Helper::lazyAllocate(_sqrMatRight, nMatRight));
 
     UniversalBuffer sqrA1U = context.allocate(TypeIds::id<algorithmFPType>(), nMatLeft, status);
     DAAL_CHECK_STATUS_VAR(status);
@@ -187,7 +187,7 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInte
     }
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, nMatLeft, nMatRight);
-    DAAL_CHECK_STATUS(status, computeRBF(_sqrMatLeft, _sqrMatRight, nMatRight, coeff, rBuf, nMatLeft, nMatRight));
+    DAAL_CHECK_STATUS(status, Helper::computeRBF(_sqrMatLeft, _sqrMatRight, nMatRight, coeff, rBuf, nMatLeft, nMatRight));
 
     DAAL_CHECK_STATUS(status, matLeft->releaseBlockOfRows(matLeftBlock));
     DAAL_CHECK_STATUS(status, matRight->releaseBlockOfRows(matRightBlock));

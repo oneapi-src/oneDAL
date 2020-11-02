@@ -347,16 +347,16 @@ public:
         const NumericTableFeature & f = (*_ddict)[0];
         _values                       = allocateByNumericTableFeature(f, dataSize, status);
         DAAL_CHECK_STATUS_VAR(status);
-        const auto colIndicesU = context.allocate(services::internal::sycl::TypeIds::id<size_t>(), dataSize, status);
+        _colIndicesU = context.allocate(services::internal::sycl::TypeIds::id<size_t>(), dataSize, status);
         DAAL_CHECK_STATUS_VAR(status);
-        const auto rowOffsetsU = context.allocate(services::internal::sycl::TypeIds::id<size_t>(), (nrow + 1), status);
+        _rowOffsetsU = context.allocate(services::internal::sycl::TypeIds::id<size_t>(), (nrow + 1), status);
         DAAL_CHECK_STATUS_VAR(status);
 
         services::throwIfPossible(status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        _colIndices = colIndicesU.template get<size_t>();
-        _rowOffsets = rowOffsetsU.template get<size_t>();
+        _colIndices = _colIndicesU.template get<size_t>();
+        _rowOffsets = _rowOffsetsU.template get<size_t>();
         DAAL_ASSERT(dataSize == _colIndices.size());
 
         _memStatus = internallyAllocated;
@@ -399,6 +399,8 @@ protected:
     size_t _dataSize;
 
     services::internal::sycl::UniversalBuffer _values;
+    services::internal::sycl::UniversalBuffer _colIndicesU;
+    services::internal::sycl::UniversalBuffer _rowOffsetsU;
     services::internal::Buffer<size_t> _colIndices;
     services::internal::Buffer<size_t> _rowOffsets;
 

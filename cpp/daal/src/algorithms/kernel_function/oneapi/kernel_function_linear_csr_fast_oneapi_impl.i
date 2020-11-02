@@ -78,12 +78,12 @@ services::Status KernelImplLinearOneAPI<fastCSR, algorithmFPType>::computeIntern
     const algorithmFPType alpha = algorithmFPType(linPar->k);
     const algorithmFPType beta  = algorithmFPType(linPar->b);
 
-    // printf("[KernelImplLinearOneAPI<fastCSR>]\n");
-
     CSRBlockDescriptor<algorithmFPType> matLeftBD, matRightBD;
 
-    CSRNumericTableIface * matLeftCSR  = dynamic_cast<CSRNumericTableIface *>(matLeft);
+    CSRNumericTableIface * matLeftCSR = dynamic_cast<CSRNumericTableIface *>(matLeft);
+    DAAL_CHECK(matLeftCSR, services::ErrorIncorrectTypeOfInputNumericTable);
     CSRNumericTableIface * matRightCSR = dynamic_cast<CSRNumericTableIface *>(matRight);
+    DAAL_CHECK(matRightCSR, services::ErrorIncorrectTypeOfInputNumericTable);
 
     DAAL_CHECK_STATUS(status, matLeftCSR->getSparseBlock(0, nMatLeft, readOnly, matLeftBD));
     DAAL_CHECK_STATUS(status, matRightCSR->getSparseBlock(0, nMatRight, readOnly, matRightBD));
@@ -114,38 +114,6 @@ services::Status KernelImplLinearOneAPI<fastCSR, algorithmFPType>::computeIntern
     DAAL_CHECK_STATUS(status, matLeftCSR->releaseSparseBlock(matLeftBD));
     DAAL_CHECK_STATUS(status, matRightCSR->releaseSparseBlock(matRightBD));
     DAAL_CHECK_STATUS(status, result->releaseBlockOfRows(resultBlock));
-
-    // {
-    //     DAAL_ITTNOTIFY_SCOPED_TASK(KernelLinearOneAPI.gemm);
-
-    //     BlockDescriptor<algorithmFPType> matLeftBlock;
-    //     BlockDescriptor<algorithmFPType> matRightBlock;
-    //     BlockDescriptor<algorithmFPType> resultBlock;
-
-    //     DAAL_CHECK_STATUS(status, matLeft->getBlockOfRows(0, nMatLeft, ReadWriteMode::readOnly, matLeftBlock));
-    //     DAAL_CHECK_STATUS(status, matRight->getBlockOfRows(0, nMatRight, ReadWriteMode::readOnly, matRightBlock));
-
-    //     DAAL_CHECK_STATUS(status, result->getBlockOfRows(0, nMatLeft, ReadWriteMode::writeOnly, resultBlock));
-
-    //     const services::internal::Buffer<algorithmFPType> matLeftBuff  = matLeftBlock.getBuffer();
-    //     const services::internal::Buffer<algorithmFPType> matRightBuff = matRightBlock.getBuffer();
-
-    //     services::internal::Buffer<algorithmFPType> resultBuff = resultBlock.getBuffer();
-
-    //     if (beta != 0.0)
-    //     {
-    //         context.fill(resultBuff, 1.0, status);
-    //         DAAL_CHECK_STATUS_VAR(status);
-    //     }
-
-    //     DAAL_CHECK_STATUS(status, BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::Trans, nMatLeft,
-    //                                                               nMatRight, pMatLeft, alpha, matLeftBuff, pMatLeft, 0, matRightBuff, pMatRight, 0,
-    //                                                               beta, resultBuff, nMatRight, 0));
-
-    //     DAAL_CHECK_STATUS(status, matLeft->releaseBlockOfRows(matLeftBlock));
-    //     DAAL_CHECK_STATUS(status, matRight->releaseBlockOfRows(matRightBlock));
-    //     DAAL_CHECK_STATUS(status, result->releaseBlockOfRows(resultBlock));
-    // }
 
     return status;
 }

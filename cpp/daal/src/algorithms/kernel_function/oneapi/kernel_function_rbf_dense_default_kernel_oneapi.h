@@ -42,6 +42,19 @@ using namespace daal::data_management;
 using namespace daal::services;
 using namespace daal::services::internal::sycl;
 
+template <typename algorithmFPType>
+class HelperKernel
+{
+public:
+    static services::Status buildProgram(ClKernelFactoryIface & factory);
+    static services::Status lazyAllocate(UniversalBuffer & x, const size_t n);
+
+    static services::Status computeRBF(const UniversalBuffer & sqrMatLeft, const UniversalBuffer & sqrMatRight, const uint32_t ld,
+                                       const algorithmFPType coeff, services::internal::Buffer<algorithmFPType> & rbf, const size_t n,
+                                       const size_t m);
+};
+
+
 template <Method method, typename algorithmFPType>
 class KernelImplRBFOneAPI : public Kernel
 {
@@ -56,6 +69,8 @@ template <typename algorithmFPType>
 class KernelImplRBFOneAPI<defaultDense, algorithmFPType> : public Kernel
 {
 public:
+    using Helper = HelperKernel<algorithmFPType>;
+
     services::Status compute(NumericTable * ntLeft, NumericTable * ntRight, NumericTable * result, const ParameterBase * par)
     {
         ComputationMode computationMode = par->computationMode;
@@ -70,13 +85,6 @@ public:
     }
 
 protected:
-    static services::Status buildProgram(ClKernelFactoryIface & factory);
-    static services::Status lazyAllocate(UniversalBuffer & x, const size_t n);
-
-    static services::Status computeRBF(const UniversalBuffer & sqrMatLeft, const UniversalBuffer & sqrMatRight, const uint32_t ld,
-                                       const algorithmFPType coeff, services::internal::Buffer<algorithmFPType> & rbf, const size_t n,
-                                       const size_t m);
-
     services::Status computeInternalVectorVector(NumericTable * vecLeft, NumericTable * vecRight, NumericTable * result, const ParameterBase * par);
     services::Status computeInternalMatrixVector(NumericTable * matLeft, NumericTable * vecRight, NumericTable * result, const ParameterBase * par);
     services::Status computeInternalMatrixMatrix(NumericTable * matLeft, NumericTable * matRight, NumericTable * result, const ParameterBase * par);
@@ -85,6 +93,36 @@ private:
     UniversalBuffer _sqrMatLeft;
     UniversalBuffer _sqrMatRight;
 };
+
+template <typename algorithmFPType>
+class KernelImplRBFOneAPI<fastCSR, algorithmFPType> : public Kernel
+{
+public:
+    using Helper = HelperKernel<algorithmFPType>;
+
+    services::Status compute(NumericTable * ntLeft, NumericTable * ntRight, NumericTable * result, const ParameterBase * par)
+    {
+        ComputationMode computationMode = par->computationMode;
+        switch (computationMode)
+        {
+        case vectorVector: return computeInternalVectorVector(ntLeft, ntRight, result, par);
+        case matrixVector: return computeInternalMatrixVector(ntLeft, ntRight, result, par);
+        case matrixMatrix: return computeInternalMatrixMatrix(ntLeft, ntRight, result, par);
+        default: return services::ErrorIncorrectParameter;
+        }
+        return services::Status();
+    }
+
+protected:
+    services::Status computeInternalVectorVector(NumericTable * vecLeft, NumericTable * vecRight, NumericTable * result, const ParameterBase * par);
+    services::Status computeInternalMatrixVector(NumericTable * matLeft, NumericTable * vecRight, NumericTable * result, const ParameterBase * par);
+    services::Status computeInternalMatrixMatrix(NumericTable * matLeft, NumericTable * matRight, NumericTable * result, const ParameterBase * par);
+
+private:
+    UniversalBuffer _sqrMatLeft;
+    UniversalBuffer _sqrMatRight;
+};
+
 
 } // namespace internal
 } // namespace rbf

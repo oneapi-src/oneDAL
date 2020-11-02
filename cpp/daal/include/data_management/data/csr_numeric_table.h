@@ -25,7 +25,7 @@
 #define __CSR_NUMERIC_TABLE_H__
 
 #include "services/base.h"
-#include "services/internal/sycl/types_utils.h"
+#include "services/internal/buffer.h"
 
 #include "data_management/data/numeric_table.h"
 #include "data_management/data/data_serialize.h"
@@ -101,8 +101,6 @@ public:
     {
         if (_rawPtr)
         {
-            // printf("[CSRBlockDescriptor]:getBlockValuesBuffer _rawPtr \n");
-
             services::Status status;
             daal::services::internal::Buffer<DataType> buffer((DataType *)_rawPtr, _nvalues, status);
             services::throwIfPossible(status);
@@ -110,8 +108,6 @@ public:
         }
         else if (_values_ptr)
         {
-            // printf("[CSRBlockDescriptor]:getBlockValuesBuffer _values_ptr \n");
-
             services::Status status;
             services::internal::Buffer<DataType> buffer(_values_ptr, _nvalues, status);
             services::throwIfPossible(status);
@@ -119,7 +115,6 @@ public:
         }
         else
         {
-            // printf("[CSRBlockDescriptor]:getBlockValuesBuffer _valuesBuffer \n");
             return _valuesBuffer;
         }
     }
@@ -148,12 +143,17 @@ public:
             services::throwIfPossible(status);
             return buffer;
         }
-
-        else if (_rowsBuffer)
+        else if (_rows_ptr)
+        {
+            services::Status status;
+            daal::services::internal::Buffer<size_t> buffer(_rows_ptr.get(), _nrows + 1, status);
+            services::throwIfPossible(status);
+            return buffer;
+        }
+        else
         {
             return _rowsBuffer;
         }
-        return _rowsBuffer;
     }
 
     /**
@@ -276,6 +276,10 @@ public:
         _nrows    = nRows;
     }
 
+    /**
+     *  \param[in] ptr      Pointer to the buffer
+     *  \param[in] nRows    Number of rows
+     */
     inline void setValuesPtr(services::SharedPtr<DataType> ptr, size_t nValues)
     {
         _hostValuesSharedPtr.reset();
@@ -283,6 +287,11 @@ public:
         _nvalues    = nValues;
     }
 
+    /**
+     *  \param[in] ptr      Pointer to the buffer
+     *  \param[in] nRows    Number of rows
+     *  \param[in] nRows    Number of rows
+     */
     inline void setValuesPtr(services::SharedPtr<byte> * pPtr, byte * rawPtr, size_t nValues)
     {
         _hostValuesSharedPtr.reset();
@@ -312,15 +321,24 @@ public:
         _nrows    = nRows;
     }
 
-    inline void setValuesBuffer(services::internal::sycl::UniversalBuffer valuesBuffer)
+    /**
+     *  Sets values buffer to the table
+     *  \param[in] buffer Buffer object that contains the memory
+     */
+    inline void setValuesBuffer(const daal::services::internal::Buffer<DataType> & valuesBuffer)
     {
         _hostValuesSharedPtr.reset();
-        _valuesBuffer = valuesBuffer.get<DataType>();
+        // _valuesBuffer = valuesBuffer.get<DataType>();
+        _valuesBuffer = valuesBuffer;
         _pPtr         = NULL;
         _rawPtr       = NULL;
         _nvalues      = _valuesBuffer.size();
     }
 
+    /**
+     *  Sets cols indices buffer to the table
+     *  \param[in] buffer Buffer object that contains the memory
+     */
     inline void setColumnIndicesBuffer(const daal::services::internal::Buffer<size_t> & colIndBuffer)
     {
         _hostColsSharedPtr.reset();
@@ -330,8 +348,8 @@ public:
     }
 
     /**
-     *  \param[in] ptr      Pointer to the buffer
-     *  \param[in] nRows    Number of rows
+     *  Sets row indices buffer to the table
+     *  \param[in] buffer Buffer object that contains the memory
      */
     inline void setRowIndicesBuffer(const daal::services::internal::Buffer<size_t> & rowsBuffer)
     {
