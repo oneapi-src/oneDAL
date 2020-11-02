@@ -151,8 +151,8 @@ private:
                                 std::forward<ConstDeleter>(data_deleter) };
 
         auto byte_data = reinterpret_cast<const byte_t*>(data_pointer);
-        dal::detail::check_mul_overflow(data_array.get_count(), sizeof(Data));
-        const std::int64_t byte_count = data_array.get_count() * sizeof(Data);
+        dal::detail::check_mul_overflow(data_array.get_count(), static_cast<std::int64_t>(sizeof(Data)));
+        const std::int64_t byte_count = data_array.get_count() * static_cast<std::int64_t>(sizeof(Data));
 
         auto byte_array = array<byte_t>{ data_array, byte_data, byte_count };
 
