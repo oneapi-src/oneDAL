@@ -1,4 +1,4 @@
-/** \mainpage Java* Language Application Programming Interface Reference for Intel(R) Data Analytics Acceleration Library
+/** \mainpage Java* Language Application Programming Interface Reference for Intel(R) oneAPI Data Analytics Library
  *    
  *	
 */

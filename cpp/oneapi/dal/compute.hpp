@@ -19,6 +19,7 @@
 #include "oneapi/dal/detail/compute_ops.hpp"
 
 namespace oneapi::dal {
+namespace v1 {
 
 template <typename... Args>
 auto compute(Args&&... args) {
@@ -32,5 +33,9 @@ auto compute(sycl::queue& queue, Args&&... args) {
                                     std::forward<Args>(args)...);
 }
 #endif
+
+} // namespace v1
+
+using v1::compute;
 
 } // namespace oneapi::dal

@@ -58,9 +58,10 @@ static train_result<task::classification> call_daal_kernel(
         interop::convert_to_daal_sycl_homogen_table(queue, arr_labels, row_count, 1);
 
     const auto data_use_in_model = daal_knn::doNotUse;
-    daal_knn::Parameter daal_parameter(desc.get_class_count(),
-                                       desc.get_neighbor_count(),
-                                       data_use_in_model);
+    daal_knn::Parameter daal_parameter(
+        dal::detail::integral_cast<std::size_t>(desc.get_class_count()),
+        dal::detail::integral_cast<std::size_t>(desc.get_neighbor_count()),
+        data_use_in_model);
 
     daal::algorithms::classifier::ModelPtr model_ptr(new daal_knn::Model(column_count));
     if (!model_ptr) {
@@ -82,7 +83,7 @@ static train_result<task::classification> call_daal_kernel(
     auto interop = new daal_model_interop_t(model_ptr);
     const auto model_impl = std::make_shared<detail::model_impl>(interop);
     return train_result<task::classification>().set_model(
-        dal::detail::pimpl_accessor::make<model<task::classification>>(model_impl));
+        dal::detail::make_private<model<task::classification>>(model_impl));
 }
 
 template <typename Float>

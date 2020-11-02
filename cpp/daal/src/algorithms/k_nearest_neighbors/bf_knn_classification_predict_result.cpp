@@ -82,6 +82,10 @@ services::Status Result::checkImpl(const daal::algorithms::Input * input, const 
     DAAL_CHECK(par, services::ErrorNullParameterNotSupported);
 
     const size_t nRows = (static_cast<const classifier::prediction::InputIface *>(input))->getNumberOfRows();
+    if (par->resultsToEvaluate & daal::algorithms::classifier::computeClassLabels)
+    {
+        DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(prediction).get(), predictionStr(), data_management::packed_mask, 0, 1, nRows));
+    }
     if (par->resultsToCompute & computeIndicesOfNeighbors)
     {
         DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(indices).get(), indicesStr(), data_management::packed_mask, 0, par->k, nRows));

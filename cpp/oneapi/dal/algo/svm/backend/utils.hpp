@@ -14,8 +14,10 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <daal/include/algorithms/svm/svm_train_types.h>
+
 #include "oneapi/dal/table/row_accessor.hpp"
-#include <include/algorithms/svm/svm_train_types.h>
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::svm::backend {
 
@@ -63,7 +65,8 @@ static array<Float> convert_labels(const array<Float>& arr_label,
         }
     }
     if (value_first_class_label == value_second_class_label) {
-        throw invalid_argument("Input label data should have more than one unique label");
+        throw invalid_argument(
+            dal::detail::error_messages::input_labels_contain_only_one_unique_value_expect_two());
     }
 
     for (; i < count; ++i) {
@@ -74,7 +77,8 @@ static array<Float> convert_labels(const array<Float>& arr_label,
             new_label_data[i] = in_binary_labels.second;
         }
         else {
-            throw invalid_argument("Input label data should have only two unique labels");
+            throw invalid_argument(dal::detail::error_messages::
+                                       input_labels_contain_wrong_unique_values_count_expect_two());
         }
     }
 
@@ -111,7 +115,8 @@ static array<Float> convert_labels(const sycl::queue& queue,
         }
     }
     if (value_first_class_label == value_second_class_label) {
-        throw invalid_argument("Input label data should have more one unique label");
+        throw invalid_argument(
+            dal::detail::error_messages::input_labels_contain_only_one_unique_value_expect_two());
     }
 
     for (; i < count; ++i) {
@@ -122,7 +127,8 @@ static array<Float> convert_labels(const sycl::queue& queue,
             new_label_data[i] = in_binary_labels.second;
         }
         else {
-            throw invalid_argument("Input label data should have only two unique labels");
+            throw invalid_argument(dal::detail::error_messages::
+                                       input_labels_contain_wrong_unique_values_count_expect_two());
         }
     }
 
