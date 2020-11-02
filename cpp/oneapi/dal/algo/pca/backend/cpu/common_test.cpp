@@ -14,8 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <CL/sycl.hpp>
-
 #include "gtest/gtest.h"
 #include "oneapi/dal/algo/pca/train.hpp"
 #include "oneapi/dal/algo/pca/infer.hpp"
