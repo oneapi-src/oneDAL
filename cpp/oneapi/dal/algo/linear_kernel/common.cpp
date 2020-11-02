@@ -19,13 +19,15 @@
 namespace oneapi::dal::linear_kernel {
 
 template <>
-class detail::descriptor_impl<task::compute> : public base {
+class detail::v1::descriptor_impl<task::compute> : public base {
 public:
     double scale = 1.0;
     double shift = 0.0;
 };
 
-using detail::descriptor_impl;
+using detail::v1::descriptor_impl;
+
+namespace v1 {
 
 template <typename Task>
 descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
@@ -52,4 +54,5 @@ void descriptor_base<Task>::set_shift_impl(double value) {
 
 template class ONEDAL_EXPORT descriptor_base<task::compute>;
 
+} // namespace v1
 } // namespace oneapi::dal::linear_kernel

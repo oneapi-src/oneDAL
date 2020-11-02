@@ -20,23 +20,25 @@
 namespace oneapi::dal::pca {
 
 template <>
-class detail::descriptor_impl<task::dim_reduction> : public base {
+class detail::v1::descriptor_impl<task::dim_reduction> : public base {
 public:
     std::int64_t component_count = -1;
     bool deterministic = false;
 };
 
 template <>
-class detail::model_impl<task::dim_reduction> : public base {
+class detail::v1::model_impl<task::dim_reduction> : public base {
 public:
     table eigenvectors;
 };
 
-using detail::descriptor_impl;
-using detail::model_impl;
+using detail::v1::descriptor_impl;
+using detail::v1::model_impl;
+
+namespace v1 {
 
 template <typename Task>
-descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl{}) {}
+descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
 
 template <>
 std::int64_t descriptor_base<task::dim_reduction>::get_component_count() const {
@@ -62,10 +64,10 @@ void descriptor_base<task::dim_reduction>::set_deterministic_impl(bool value) {
 }
 
 template <typename Task>
-model<Task>::model() : impl_(new model_impl{}) {}
+model<Task>::model() : impl_(new model_impl<Task>{}) {}
 
 template <typename Task>
-table model<Task>::get_eigenvectors() const {
+const table& model<Task>::get_eigenvectors() const {
     return impl_->eigenvectors;
 }
 
@@ -77,4 +79,5 @@ void model<Task>::set_eigenvectors_impl(const table& value) {
 template class ONEDAL_EXPORT descriptor_base<task::dim_reduction>;
 template class ONEDAL_EXPORT model<task::dim_reduction>;
 
+} // namespace v1
 } // namespace oneapi::dal::pca

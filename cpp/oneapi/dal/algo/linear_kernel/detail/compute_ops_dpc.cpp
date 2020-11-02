@@ -20,7 +20,9 @@
 #include "oneapi/dal/backend/dispatcher_dpc.hpp"
 
 namespace oneapi::dal::linear_kernel::detail {
-using oneapi::dal::detail::data_parallel_policy;
+namespace v1 {
+
+using dal::detail::data_parallel_policy;
 
 template <typename Float, typename Method, typename Task>
 struct compute_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
@@ -39,4 +41,5 @@ struct compute_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
 INSTANTIATE(float, method::dense, task::compute)
 INSTANTIATE(double, method::dense, task::compute)
 
+} // namespace v1
 } // namespace oneapi::dal::linear_kernel::detail

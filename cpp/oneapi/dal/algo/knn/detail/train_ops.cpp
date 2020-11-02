@@ -19,7 +19,9 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::knn::detail {
-using oneapi::dal::detail::host_policy;
+namespace v1 {
+
+using dal::detail::host_policy;
 
 template <typename Float, typename Method, typename Task>
 struct train_ops_dispatcher<host_policy, Float, Method, Task> {
@@ -39,5 +41,9 @@ INSTANTIATE(float, method::kd_tree, task::classification)
 INSTANTIATE(double, method::kd_tree, task::classification)
 INSTANTIATE(float, method::brute_force, task::classification)
 INSTANTIATE(double, method::brute_force, task::classification)
+
+} // namespace v1
+
+using v1::train_ops;
 
 } // namespace oneapi::dal::knn::detail

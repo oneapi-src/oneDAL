@@ -21,58 +21,78 @@
 namespace oneapi::dal::linear_kernel {
 
 namespace detail {
-template <typename Task = task::by_default>
+namespace v1 {
+template <typename Task>
 class compute_input_impl;
 
-template <typename Task = task::by_default>
+template <typename Task>
 class compute_result_impl;
+} // namespace v1
+
+using v1::compute_input_impl;
+using v1::compute_result_impl;
+
 } // namespace detail
 
+namespace v1 {
+
 template <typename Task = task::by_default>
-class ONEDAL_EXPORT compute_input : public base {
+class compute_input : public base {
+    static_assert(detail::is_valid_task_v<Task>);
+
 public:
     using task_t = Task;
 
     compute_input(const table& x, const table& y);
 
-    table get_x() const;
-    table get_y() const;
+    const table& get_x() const;
 
     auto& set_x(const table& data) {
         set_x_impl(data);
         return *this;
     }
 
+    const table& get_y() const;
+
     auto& set_y(const table& data) {
         set_y_impl(data);
         return *this;
     }
 
-private:
+protected:
     void set_x_impl(const table& data);
     void set_y_impl(const table& data);
 
-    dal::detail::pimpl<detail::compute_input_impl<task_t>> impl_;
+private:
+    dal::detail::pimpl<detail::compute_input_impl<Task>> impl_;
 };
 
 template <typename Task = task::by_default>
-class ONEDAL_EXPORT compute_result : public base {
+class compute_result : public base {
+    static_assert(detail::is_valid_task_v<Task>);
+
 public:
     using task_t = Task;
 
     compute_result();
 
-    table get_values() const;
+    const table& get_values() const;
 
     auto& set_values(const table& value) {
         set_values_impl(value);
         return *this;
     }
 
-private:
+protected:
     void set_values_impl(const table&);
 
-    dal::detail::pimpl<detail::compute_result_impl<task_t>> impl_;
+private:
+    dal::detail::pimpl<detail::compute_result_impl<Task>> impl_;
 };
+
+} // namespace v1
+
+using v1::compute_input;
+using v1::compute_result;
 
 } // namespace oneapi::dal::linear_kernel

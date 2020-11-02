@@ -26,10 +26,50 @@
 namespace oneapi::dal::detail {
 
 template <typename T, typename... Args>
-struct is_one_of : public std::disjunction<std::is_same<T, Args>...> {};
+using is_one_of = std::disjunction<std::is_same<T, Args>...>;
 
 template <typename T, typename... Args>
 constexpr bool is_one_of_v = is_one_of<T, Args...>::value;
+
+template <class T, class U = void>
+struct enable_if_type {
+    using type = U;
+};
+
+template <typename T>
+using enable_if_type_t = typename enable_if_type<T>::type;
+
+template <typename T, typename Enable = void>
+struct is_tagged : std::false_type {};
+
+template <typename T>
+struct is_tagged<T, enable_if_type_t<typename T::tag_t>> : std::true_type {};
+
+template <typename T>
+constexpr bool is_tagged_v = is_tagged<T>::value;
+
+template <typename T, bool Enable = is_tagged_v<T>>
+struct is_tag_one_of_impl {};
+
+template <typename T>
+struct is_tag_one_of_impl<T, true> {
+    template <typename... Tags>
+    static constexpr bool value = is_one_of_v<typename T::tag_t, Tags...>;
+};
+
+template <typename T>
+struct is_tag_one_of_impl<T, false> {
+    template <typename... Tags>
+    static constexpr bool value = false;
+};
+
+template <typename T, typename... Tags>
+struct is_tag_one_of {
+    static constexpr bool value = is_tag_one_of_impl<T>::template value<Tags...>;
+};
+
+template <typename T, typename... Tags>
+constexpr bool is_tag_one_of_v = is_tag_one_of<T, Tags...>::value;
 
 template <typename T>
 using shared = std::shared_ptr<T>;

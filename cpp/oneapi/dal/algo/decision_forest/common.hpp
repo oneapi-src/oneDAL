@@ -51,6 +51,7 @@ using v1::by_default;
 namespace detail {
 namespace v1 {
 struct tag {};
+
 template <typename Task>
 class descriptor_impl;
 
@@ -65,6 +66,16 @@ using v1::model_impl;
 template <typename T>
 using enable_if_classification_t =
     std::enable_if_t<std::is_same_v<std::decay_t<T>, task::classification>>;
+
+template <typename Float>
+constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
+
+template <typename Method>
+constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::dense, method::hist>;
+
+template <typename Task>
+constexpr bool is_valid_task_v =
+    dal::detail::is_one_of_v<Task, task::classification, task::regression>;
 
 } // namespace detail
 
@@ -100,6 +111,7 @@ enum class voting_mode { weighted, unweighted };
 
 template <typename Task = task::by_default>
 class descriptor_base : public base {
+    static_assert(detail::is_valid_task_v<Task>);
     friend dal::detail::pimpl_accessor;
 
 public:
@@ -182,9 +194,9 @@ template <typename Float = descriptor_base<>::float_t,
           typename Method = descriptor_base<>::method_t,
           typename Task = descriptor_base<>::task_t>
 class descriptor : public descriptor_base<Task> {
-    static_assert(dal::detail::is_one_of_v<Float, float, double>);
-    static_assert(dal::detail::is_one_of_v<Method, method::dense, method::hist>);
-    static_assert(dal::detail::is_one_of_v<Task, task::classification, task::regression>);
+    static_assert(detail::is_valid_float_v<Float>);
+    static_assert(detail::is_valid_method_v<Method>);
+    static_assert(detail::is_valid_task_v<Task>);
 
 public:
     using float_t = Float;
@@ -292,6 +304,7 @@ public:
 
 template <typename Task = task::by_default>
 class model : public base {
+    static_assert(detail::is_valid_task_v<Task>);
     friend dal::detail::pimpl_accessor;
 
 public:

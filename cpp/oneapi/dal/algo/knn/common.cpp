@@ -21,14 +21,16 @@
 namespace oneapi::dal::knn {
 
 template <>
-class detail::descriptor_impl<task::classification> : public base {
+class detail::v1::descriptor_impl<task::classification> : public base {
 public:
     std::int64_t class_count = 2;
     std::int64_t neighbor_count = 1;
 };
 
-using detail::descriptor_impl;
-using detail::model_impl;
+using detail::v1::descriptor_impl;
+using detail::v1::model_impl;
+
+namespace v1 {
 
 template <typename Task>
 descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
@@ -60,15 +62,14 @@ ONEDAL_EXPORT void descriptor_base<task::classification>::set_neighbor_count_imp
     impl_->neighbor_count = value;
 }
 
-class empty_model_impl : public detail::model_impl {};
+template <typename Task>
+model<Task>::model() : impl_(new model_impl<Task>{}) {}
 
 template <typename Task>
-model<Task>::model() : impl_(new empty_model_impl{}) {}
-
-template <typename Task>
-model<Task>::model(const std::shared_ptr<detail::model_impl>& impl) : impl_(impl) {}
+model<Task>::model(const std::shared_ptr<detail::model_impl<Task>>& impl) : impl_(impl) {}
 
 template class ONEDAL_EXPORT descriptor_base<task::classification>;
 template class ONEDAL_EXPORT model<task::classification>;
 
+} // namespace v1
 } // namespace oneapi::dal::knn

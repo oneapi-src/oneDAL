@@ -20,7 +20,7 @@
 namespace oneapi::dal::kmeans {
 
 template <>
-class detail::descriptor_impl<task::clustering> : public base {
+class detail::v1::descriptor_impl<task::clustering> : public base {
 public:
     std::int64_t cluster_count = 2;
     std::int64_t max_iteration_count = 100;
@@ -28,16 +28,18 @@ public:
 };
 
 template <>
-class detail::model_impl<task::clustering> : public base {
+class detail::v1::model_impl<task::clustering> : public base {
 public:
     table centroids;
 };
 
-using detail::descriptor_impl;
-using detail::model_impl;
+using detail::v1::descriptor_impl;
+using detail::v1::model_impl;
+
+namespace v1 {
 
 template <typename Task>
-descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl{}) {}
+descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
 
 template <>
 std::int64_t descriptor_base<task::clustering>::get_cluster_count() const {
@@ -79,10 +81,10 @@ void descriptor_base<task::clustering>::set_accuracy_threshold_impl(double value
 }
 
 template <typename Task>
-model<Task>::model() : impl_(new model_impl{}) {}
+model<Task>::model() : impl_(new model_impl<Task>{}) {}
 
 template <>
-table model<task::clustering>::get_centroids() const {
+const table& model<task::clustering>::get_centroids() const {
     return impl_->centroids;
 }
 
@@ -99,4 +101,5 @@ void model<task::clustering>::set_centroids_impl(const table& value) {
 template class ONEDAL_EXPORT descriptor_base<task::clustering>;
 template class ONEDAL_EXPORT model<task::clustering>;
 
+} // namespace v1
 } // namespace oneapi::dal::kmeans
