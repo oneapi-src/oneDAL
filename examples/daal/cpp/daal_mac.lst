@@ -15,7 +15,7 @@
 #===============================================================================
 
 ##  Content:
-##     Intel(R) Data Analytics Acceleration Library examples list
+##     Intel(R) oneAPI Data Analytics Library examples list
 ##******************************************************************************
 
 DAAL  = assoc_rules_apriori_batch             \

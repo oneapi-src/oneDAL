@@ -19,15 +19,17 @@
 
 namespace oneapi::dal::svm {
 
+template <typename Task>
 class detail::infer_input_impl : public base {
 public:
-    infer_input_impl(const model& trained_model, const table& data)
+    infer_input_impl(const model<Task>& trained_model, const table& data)
             : trained_model(trained_model),
               data(data) {}
-    model trained_model;
+    model<Task> trained_model;
     table data;
 };
 
+template <typename Task>
 class detail::infer_result_impl : public base {
 public:
     table labels;
@@ -37,41 +39,54 @@ public:
 using detail::infer_input_impl;
 using detail::infer_result_impl;
 
-infer_input::infer_input(const model& trained_model, const table& data)
-        : impl_(new infer_input_impl(trained_model, data)) {}
+template <typename Task>
+infer_input<Task>::infer_input(const model<Task>& trained_model, const table& data)
+        : impl_(new infer_input_impl<Task>(trained_model, data)) {}
 
-model infer_input::get_model() const {
+template <typename Task>
+model<Task> infer_input<Task>::get_model() const {
     return impl_->trained_model;
 }
 
-table infer_input::get_data() const {
+template <typename Task>
+table infer_input<Task>::get_data() const {
     return impl_->data;
 }
 
-void infer_input::set_model_impl(const model& value) {
+template <typename Task>
+void infer_input<Task>::set_model_impl(const model<Task>& value) {
     impl_->trained_model = value;
 }
 
-void infer_input::set_data_impl(const table& value) {
+template <typename Task>
+void infer_input<Task>::set_data_impl(const table& value) {
     impl_->data = value;
 }
 
-infer_result::infer_result() : impl_(new infer_result_impl{}) {}
+template <typename Task>
+infer_result<Task>::infer_result() : impl_(new infer_result_impl{}) {}
 
-table infer_result::get_labels() const {
+template <typename Task>
+table infer_result<Task>::get_labels() const {
     return impl_->labels;
 }
 
-table infer_result::get_decision_function() const {
+template <typename Task>
+table infer_result<Task>::get_decision_function() const {
     return impl_->decision_function;
 }
 
-void infer_result::set_labels_impl(const table& value) {
+template <typename Task>
+void infer_result<Task>::set_labels_impl(const table& value) {
     impl_->labels = value;
 }
 
-void infer_result::set_decision_function_impl(const table& value) {
+template <typename Task>
+void infer_result<Task>::set_decision_function_impl(const table& value) {
     impl_->decision_function = value;
 }
+
+template class ONEDAL_EXPORT infer_input<task::classification>;
+template class ONEDAL_EXPORT infer_result<task::classification>;
 
 } // namespace oneapi::dal::svm

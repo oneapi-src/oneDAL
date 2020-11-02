@@ -54,11 +54,10 @@ private:
     services::Status init(size_t p, size_t n, size_t nRowsTotal, size_t nClusters, NumericTable * ntClusters, NumericTable * ntData,
                           unsigned int seed, engines::BatchBase & engine, size_t & clustersFound);
 
-    void gatherRandom(services::internal::sycl::ExecutionContextIface & context, const services::internal::sycl::KernelPtr & kernel_gather_random,
-                      const services::internal::Buffer<algorithmFPType> & data, const services::internal::Buffer<algorithmFPType> & clusters,
-                      services::internal::sycl::UniversalBuffer & indices, uint32_t nRows, uint32_t nClusters, uint32_t nFeatures,
-                      services::Status * st);
-
+    services::Status gatherRandom(const services::internal::Buffer<algorithmFPType> & data,
+                                  const services::internal::Buffer<algorithmFPType> & clusters, services::internal::sycl::UniversalBuffer & indices,
+                                  uint32_t nRows, uint32_t nClusters, uint32_t nFeatures);
+    services::Status buildProgram(services::internal::sycl::ClKernelFactoryIface & kernelFactory);
     uint32_t getWorkgroupsCount(uint32_t rows);
 
     const uint32_t _maxWorkItemsPerGroup = 256; // should be a power of two for interal needs

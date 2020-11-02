@@ -16,25 +16,27 @@
 
 #pragma once
 
-#include "algorithms/classifier/classifier_model.h"
+#include <algorithms/classifier/classifier_model.h>
 #include "oneapi/dal/algo/knn/common.hpp"
 
 namespace oneapi::dal::knn::backend {
 
-namespace daal_cls = daal::algorithms::classifier;
-
-class model_interop {
+class model_interop : public base {
 public:
-    model_interop(const daal_cls::ModelPtr& daal_model) : daal_model(daal_model) {}
-    void set_daal_model(const daal_cls::ModelPtr& model) {
-        daal_model = model;
+    using DaalModel = daal::algorithms::classifier::ModelPtr;
+
+    model_interop(const DaalModel& daal_model) : daal_model_(daal_model) {}
+
+    void set_daal_model(const DaalModel& model) {
+        daal_model_ = model;
     }
-    daal_cls::ModelPtr get_daal_model() {
-        return daal_model;
+
+    const DaalModel& get_daal_model() const {
+        return daal_model_;
     }
 
 private:
-    daal_cls::ModelPtr daal_model;
+    DaalModel daal_model_;
 };
 
 } // namespace oneapi::dal::knn::backend

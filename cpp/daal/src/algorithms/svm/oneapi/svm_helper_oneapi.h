@@ -84,7 +84,7 @@ struct HelperSVM
         cachekey.add(options);
 
         services::Status status;
-        factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelSVM, options.c_str(), &status);
+        factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelSVM, options.c_str(), status);
         return status;
     }
 
@@ -99,15 +99,20 @@ struct HelperSVM
         services::Status status = buildProgram(factory);
         DAAL_CHECK_STATUS_VAR(status);
 
-        auto kernel = factory.getKernel("makeInversion");
+        auto kernel = factory.getKernel("makeInversion", status);
+        DAAL_CHECK_STATUS_VAR(status);
 
-        KernelArguments args(2);
+        KernelArguments args(2, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_ASSERT(x.size() == n);
+        DAAL_ASSERT(res.size() == n);
+
         args.set(0, x, AccessModeIds::read);
         args.set(1, res, AccessModeIds::write);
-
         KernelRange range(n);
 
-        context.run(range, kernel, args, &status);
+        context.run(range, kernel, args, status);
         return status;
     }
 
@@ -121,14 +126,16 @@ struct HelperSVM
         services::Status status = buildProgram(factory);
         DAAL_CHECK_STATUS_VAR(status);
 
-        auto kernel = factory.getKernel("makeRange");
+        auto kernel = factory.getKernel("makeRange", status);
+        DAAL_CHECK_STATUS_VAR(status);
 
-        KernelArguments args(1);
+        KernelArguments args(1, status);
+        DAAL_CHECK_STATUS_VAR(status);
         args.set(0, x, AccessModeIds::readwrite);
 
         KernelRange range(n);
 
-        context.run(range, kernel, args, &status);
+        context.run(range, kernel, args, status);
         return status;
     }
 
@@ -138,7 +145,7 @@ struct HelperSVM
         services::Status status;
         auto & context = services::internal::getDefaultContext();
 
-        context.copy(values, 0, f, 0, n, &status);
+        context.copy(values, 0, f, 0, n, status);
         DAAL_CHECK_STATUS_VAR(status);
         DAAL_CHECK_STATUS(status, makeRange(indecesSort, n));
         DAAL_CHECK_STATUS(status, sort::RadixSort::sortIndices(values, indecesSort, valuesBuf, indecesBuf, n));
@@ -158,9 +165,15 @@ struct HelperSVM
         buildProgram(factory);
 
         const char * const kernelName              = "copyDataByIndices";
-        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
+        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
+        DAAL_CHECK_STATUS_VAR(status);
 
-        services::internal::sycl::KernelArguments args(4);
+        services::internal::sycl::KernelArguments args(4, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_ASSERT(indX.size() == nWS);
+        DAAL_ASSERT(newX.size() == nWS * p);
+
         args.set(0, x, services::internal::sycl::AccessModeIds::read);
         args.set(1, indX, services::internal::sycl::AccessModeIds::read);
         DAAL_ASSERT(p <= uint32max);
@@ -169,7 +182,7 @@ struct HelperSVM
 
         services::internal::sycl::KernelRange range(p, nWS);
 
-        ctx.run(range, kernel, args, &status);
+        ctx.run(range, kernel, args, status);
         return status;
     }
 
@@ -185,9 +198,15 @@ struct HelperSVM
         buildProgram(factory);
 
         const char * const kernelName              = "copyDataByIndicesInt";
-        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
+        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
+        DAAL_CHECK_STATUS_VAR(status);
 
-        services::internal::sycl::KernelArguments args(4);
+        services::internal::sycl::KernelArguments args(4, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_ASSERT(indX.size() == nWS);
+        DAAL_ASSERT(newX.size() == nWS * p);
+
         args.set(0, x, services::internal::sycl::AccessModeIds::read);
         args.set(1, indX, services::internal::sycl::AccessModeIds::read);
         DAAL_ASSERT(p <= uint32max);
@@ -195,7 +214,7 @@ struct HelperSVM
         args.set(3, newX, services::internal::sycl::AccessModeIds::write);
         services::internal::sycl::KernelRange range(p, nWS);
 
-        ctx.run(range, kernel, args, &status);
+        ctx.run(range, kernel, args, status);
         return status;
     }
 
@@ -211,9 +230,16 @@ struct HelperSVM
         services::Status status = buildProgram(factory);
         DAAL_CHECK_STATUS_VAR(status);
 
-        auto kernel = factory.getKernel("checkUpper");
+        auto kernel = factory.getKernel("checkUpper", status);
+        DAAL_CHECK_STATUS_VAR(status);
 
-        KernelArguments args(4);
+        KernelArguments args(4, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_ASSERT(y.size() == n);
+        DAAL_ASSERT(alpha.size() == n);
+        DAAL_ASSERT(indicator.size() == n);
+
         args.set(0, y, AccessModeIds::read);
         args.set(1, alpha, AccessModeIds::read);
         args.set(2, C);
@@ -221,7 +247,7 @@ struct HelperSVM
 
         KernelRange range(n);
 
-        context.run(range, kernel, args, &status);
+        context.run(range, kernel, args, status);
         return status;
     }
 
@@ -237,9 +263,16 @@ struct HelperSVM
         services::Status status = buildProgram(factory);
         DAAL_CHECK_STATUS_VAR(status);
 
-        auto kernel = factory.getKernel("checkLower");
+        auto kernel = factory.getKernel("checkLower", status);
+        DAAL_CHECK_STATUS_VAR(status);
 
-        KernelArguments args(4);
+        KernelArguments args(4, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_ASSERT(y.size() == n);
+        DAAL_ASSERT(alpha.size() == n);
+        DAAL_ASSERT(indicator.size() == n);
+
         args.set(0, y, AccessModeIds::read);
         args.set(1, alpha, AccessModeIds::read);
         args.set(2, C);
@@ -247,7 +280,7 @@ struct HelperSVM
 
         KernelRange range(n);
 
-        context.run(range, kernel, args, &status);
+        context.run(range, kernel, args, status);
         return status;
     }
 
@@ -262,16 +295,22 @@ struct HelperSVM
         services::Status status = buildProgram(factory);
         DAAL_CHECK_STATUS_VAR(status);
 
-        auto kernel = factory.getKernel("checkBorder");
+        auto kernel = factory.getKernel("checkBorder", status);
+        DAAL_CHECK_STATUS_VAR(status);
 
-        KernelArguments args(3);
+        KernelArguments args(3, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_ASSERT(alpha.size() == n);
+        DAAL_ASSERT(mask.size() == n);
+
         args.set(0, alpha, AccessModeIds::read);
         args.set(1, C);
         args.set(2, mask, AccessModeIds::write);
 
         KernelRange range(n);
 
-        context.run(range, kernel, args, &status);
+        context.run(range, kernel, args, status);
         return status;
     }
 
@@ -286,15 +325,21 @@ struct HelperSVM
         services::Status status = buildProgram(factory);
         DAAL_CHECK_STATUS_VAR(status);
 
-        auto kernel = factory.getKernel("checkNonZeroBinary");
+        auto kernel = factory.getKernel("checkNonZeroBinary", status);
+        DAAL_CHECK_STATUS_VAR(status);
 
-        KernelArguments args(2);
+        KernelArguments args(2, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_ASSERT(alpha.size() == n);
+        DAAL_ASSERT(mask.size() == n);
+
         args.set(0, alpha, AccessModeIds::read);
         args.set(1, mask, AccessModeIds::write);
 
         KernelRange range(n);
 
-        context.run(range, kernel, args, &status);
+        context.run(range, kernel, args, status);
         return status;
     }
 
@@ -309,15 +354,21 @@ struct HelperSVM
         services::Status status = buildProgram(factory);
         DAAL_CHECK_STATUS_VAR(status);
 
-        auto kernel = factory.getKernel("computeDualCoeffs");
+        auto kernel = factory.getKernel("computeDualCoeffs", status);
+        DAAL_CHECK_STATUS_VAR(status);
 
-        KernelArguments args(2);
+        KernelArguments args(2, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_ASSERT(y.size() == n);
+        DAAL_ASSERT(alpha.size() == n);
+
         args.set(0, y, AccessModeIds::read);
         args.set(1, alpha, AccessModeIds::readwrite);
 
         KernelRange range(n);
 
-        context.run(range, kernel, args, &status);
+        context.run(range, kernel, args, status);
         return status;
     }
 

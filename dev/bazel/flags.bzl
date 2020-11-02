@@ -19,17 +19,16 @@ lnx_cc_common_flags = [
     "-fstack-protector-strong",
     "-fno-strict-overflow",
     "-fno-delete-null-pointer-checks",
+    "-Werror",
     "-Wformat",
     "-Wformat-security",
+    "-Wreturn-type",
 ]
 
 lnx_cc_pedantic_flags = [
     "-pedantic",
     "-Wall",
     "-Wextra",
-    "-Werror=uninitialized",
-    "-Werror=unknown-pragmas",
-    "-Werror=return-type",
     "-Wno-unused-parameter",
 ]
 
@@ -49,6 +48,7 @@ def get_default_flags(arch_id, os_id, compiler_id, category="common"):
                 "-mCG_no_libirc=TRUE",
             ]
         if compiler_id == "dpcpp" and category == "pedantic":
+            # TODO: Consider removing
             flags = flags + ["-Wno-unused-command-line-argument"]
         return flags
     fail("Unsupported OS")

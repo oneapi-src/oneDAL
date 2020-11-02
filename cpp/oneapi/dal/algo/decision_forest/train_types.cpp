@@ -20,7 +20,7 @@
 namespace oneapi::dal::decision_forest {
 
 template <typename Task>
-class detail::train_input_impl : public base {
+class detail::v1::train_input_impl : public base {
 public:
     train_input_impl(const table& data, const table& labels) : data(data), labels(labels) {}
 
@@ -29,7 +29,7 @@ public:
 };
 
 template <typename Task>
-class detail::train_result_impl : public base {
+class detail::v1::train_result_impl : public base {
 public:
     model<Task> trained_model;
 
@@ -38,20 +38,22 @@ public:
     table variable_importance;
 };
 
-using detail::train_input_impl;
-using detail::train_result_impl;
+using detail::v1::train_input_impl;
+using detail::v1::train_result_impl;
+
+namespace v1 {
 
 template <typename Task>
 train_input<Task>::train_input(const table& data, const table& labels)
         : impl_(new train_input_impl<Task>(data, labels)) {}
 
 template <typename Task>
-table train_input<Task>::get_data() const {
+const table& train_input<Task>::get_data() const {
     return impl_->data;
 }
 
 template <typename Task>
-table train_input<Task>::get_labels() const {
+const table& train_input<Task>::get_labels() const {
     return impl_->labels;
 }
 
@@ -65,30 +67,26 @@ void train_input<Task>::set_labels_impl(const table& value) {
     impl_->labels = value;
 }
 
-template class ONEAPI_DAL_EXPORT train_input<task::classification>;
-template class ONEAPI_DAL_EXPORT train_input<task::regression>;
-
-/* train_result implementation*/
 template <typename Task>
 train_result<Task>::train_result() : impl_(new train_result_impl<Task>{}) {}
 
 template <typename Task>
-model<Task> train_result<Task>::get_model() const {
+const model<Task>& train_result<Task>::get_model() const {
     return impl_->trained_model;
 }
 
 template <typename Task>
-table train_result<Task>::get_oob_err() const {
+const table& train_result<Task>::get_oob_err() const {
     return impl_->oob_err;
 }
 
 template <typename Task>
-table train_result<Task>::get_oob_err_per_observation() const {
+const table& train_result<Task>::get_oob_err_per_observation() const {
     return impl_->oob_err_per_observation;
 }
 
 template <typename Task>
-table train_result<Task>::get_var_importance() const {
+const table& train_result<Task>::get_var_importance() const {
     return impl_->variable_importance;
 }
 
@@ -112,7 +110,10 @@ void train_result<Task>::set_var_importance_impl(const table& value) {
     impl_->variable_importance = value;
 }
 
-template class ONEAPI_DAL_EXPORT train_result<task::classification>;
-template class ONEAPI_DAL_EXPORT train_result<task::regression>;
+template class ONEDAL_EXPORT train_input<task::classification>;
+template class ONEDAL_EXPORT train_input<task::regression>;
+template class ONEDAL_EXPORT train_result<task::classification>;
+template class ONEDAL_EXPORT train_result<task::regression>;
 
+} // namespace v1
 } // namespace oneapi::dal::decision_forest

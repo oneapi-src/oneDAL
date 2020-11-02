@@ -49,7 +49,7 @@ TEST(kmeans_lloyd_dense_gpu, train_results) {
                                                         initial_centroids,
                                                         cluster_count,
                                                         column_count,
-                                                        empty_delete<const float>() };
+                                                        detail::empty_delete<const float>() };
 
     const int labels[] = { 1, 1, 1, 1, 0, 0, 0, 0 };
     const float centroids[] = { -1.5, -1.5, 1.5, 1.5 };
@@ -101,7 +101,7 @@ TEST(kmeans_lloyd_dense_gpu, infer_results) {
                                                         initial_centroids,
                                                         cluster_count,
                                                         column_count,
-                                                        empty_delete<const float>() };
+                                                        detail::empty_delete<const float>() };
 
     const auto kmeans_desc = kmeans::descriptor<>()
                                  .set_cluster_count(cluster_count)
@@ -119,7 +119,7 @@ TEST(kmeans_lloyd_dense_gpu, infer_results) {
                                                  data_infer,
                                                  infer_row_count,
                                                  column_count,
-                                                 empty_delete<const float>() };
+                                                 detail::empty_delete<const float>() };
 
     const int infer_labels[] = { 1, 1, 1, 1, 1, 0, 0, 0, 0 };
 

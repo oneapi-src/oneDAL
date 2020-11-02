@@ -16,8 +16,8 @@
 
 #pragma once
 
-#ifndef ONEAPI_DAL_DATA_PARALLEL
-#error ONEAPI_DAL_DATA_PARALLEL must be defined to include this file
+#ifndef ONEDAL_DATA_PARALLEL
+#error ONEDAL_DATA_PARALLEL must be defined to include this file
 #endif
 
 #include <stdexcept> // TODO: change by onedal exceptions
@@ -54,8 +54,7 @@ struct kernel_dispatcher<CpuKernel, GpuKernel> {
             return GpuKernel()(gpu_policy, std::forward<Args>(args)...);
         }
         else {
-            throw std::runtime_error("Unsupported device type, supported types "
-                                     "are host, cpu and gpu");
+            throw unsupported_device(dal::detail::error_messages::unsupported_device_type());
         }
     }
 };

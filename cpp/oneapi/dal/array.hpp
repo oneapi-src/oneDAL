@@ -17,11 +17,12 @@
 #pragma once
 
 #include <algorithm>
-#include <stdexcept> // TODO: change by onedal exceptions
 
 #include "oneapi/dal/detail/array_impl.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal {
+namespace v1 {
 
 template <typename T>
 class array {
@@ -42,7 +43,7 @@ public:
         };
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     static array<T> empty(const sycl::queue& queue,
                           std::int64_t count,
                           const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
@@ -60,7 +61,7 @@ public:
                                       detail::host_allocator<T>()) };
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename K>
     static array<T> full(sycl::queue& queue,
                          std::int64_t count,
@@ -80,12 +81,12 @@ public:
         };
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     static array<T> zeros(sycl::queue& queue,
                           std::int64_t count,
                           const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
         // TODO: can be optimized in future
-        return array<T>{ impl_t::full(detail::data_parallel_policy{ queue },
+        return array<T>{ impl_t::full(dal::detail::data_parallel_policy{ queue },
                                       count,
                                       T{},
                                       detail::data_parallel_allocator<T>(queue, alloc)) };
@@ -93,15 +94,15 @@ public:
 #endif
     template <typename Y>
     static array<T> wrap(Y* data, std::int64_t count) {
-        return array<T>{ data, count, empty_delete<const T>{} };
+        return array<T>{ data, count, dal::detail::empty_delete<const T>{} };
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename Y>
     static array<T> wrap(Y* data,
                          std::int64_t count,
                          const sycl::vector_class<sycl::event>& dependencies) {
-        return array<T>{ data, count, empty_delete<const T>{}, dependencies };
+        return array<T>{ data, count, dal::detail::empty_delete<const T>{}, dependencies };
     }
 #endif
 
@@ -131,7 +132,7 @@ public:
         update_data(impl_.get());
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename Deleter>
     explicit array(const sycl::queue& queue,
                    T* data,
@@ -174,7 +175,7 @@ public:
 
     T* get_mutable_data() const {
         if (!has_mutable_data()) {
-            throw dal::domain_error("array does not contain mutable data");
+            throw domain_error(dal::detail::error_messages::array_does_not_contain_mutable_data());
         }
         return mutable_data_ptr_;
     }
@@ -193,7 +194,7 @@ public:
         return *this;
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     array& need_mutable_data(sycl::queue& queue,
                              const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
         impl_->need_mutable_data(detail::data_parallel_policy{ queue },
@@ -222,7 +223,7 @@ public:
         update_data(impl_->get_mutable_data(), count);
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     void reset(const sycl::queue& queue,
                std::int64_t count,
                const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
@@ -247,7 +248,7 @@ public:
         update_data(data, count);
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename Y, typename YDeleter>
     void reset(Y* data,
                std::int64_t count,
@@ -315,5 +316,9 @@ private:
     T* mutable_data_ptr_;
     std::int64_t count_;
 };
+
+} // namespace v1
+
+using v1::array;
 
 } // namespace oneapi::dal

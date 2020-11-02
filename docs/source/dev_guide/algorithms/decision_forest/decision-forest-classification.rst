@@ -28,23 +28,48 @@ Decision forest classifier is a special case of the :ref:`decision_forest` model
 Details
 =======
 
-Given :math:`n` feature vectors :math:`X = \{x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np}) \}` 
-of :math:`n` :math:`p`-dimensional feature vectors, a vector of class labels :math:`y = (y_1, \ldots, y_n)`, 
-where :math:`y_i \in \{0, 1, \ldots, C-1\}` describes the class to which the feature vector :math:`x_i` belongs
-and :math:`C` is the number of classes, the problem is to build a decision
-forest classifier.
+Given:
+
+- :math:`n` feature vectors :math:`X = \{x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np}) \}` 
+  of size :math:`p`;
+- their non-negative sample weights :math:`w = (w_1, \ldots, w_n)`;
+- the vector of class labels :math:`y = (y_1, \ldots, y_n)` that describes the class
+  to which the feature vector :math:`x_i` belongs,
+  where :math:`y_i \in \{0, 1, \ldots, C-1\}` and :math:`C` is the number of classes.
+
+The problem is to build a decision forest classifier.
 
 Training Stage
 **************
 
 Decision forest classifier follows the algorithmic framework of
 decision forest training with Gini impurity metrics as impurity
-metrics, that are calculated as follows:
+metrics [Breiman84]_.
+If sample weights are provided as input, the library uses a weighted version of the algorithm.
+
+Gini index is an impurity metric, calculated as follows:
 
 .. math::
 	{I}_{Gini}\left(D\right)=1-\sum _{i=0}^{C-1}{p}_{i}^{2}
 
-where :math:`p_i` is the fraction of observations in the subset :math:`D` that belong to the :math:`i`-th class.
+where 
+
+- :math:`D` is a set of observations that reach the node;
+- :math:`p_i` is specified in the table below:
+
+.. list-table::
+   :widths: 10 10
+   :header-rows: 1
+   :align: left
+
+   * - Without sample weights
+     - With sample weights
+   * - :math:`p_i` is the observed fraction of observations that belong to class :math:`i` in :math:`D`
+     - :math:`p_i` is the observed weighted fraction of observations that belong to class :math:`i` in :math:`D`:
+
+       .. math::
+
+          p_i = \frac{\sum_{d \in \{d \in D | y_d = i \}} W_d}{\sum_{d \in D} W_d}
 
 Prediction Stage
 ****************
@@ -182,18 +207,6 @@ following parameters:
    * - ``nClasses``
      - Not applicable
      - The number of classes. A required parameter.
-   * - ``votingMethod``
-     - ``weighted``
-     - A flag that specifies which method is used to compute probabilities and class labels:
-
-       weighted
-         - Probability for each class is computed as a sample mean of estimates across all trees, where each estimate
-           is the normalized number of training samples for this class that were recorded in a particular leaf node for current input.
-         - The algorithm returns the label for the class that gets the maximal value in a sample mean.
-
-       unweighted
-         - Probabilities are computed as normalized votes distribution across all trees of the forest.
-         - The algorithm returns the label for the class that gets the majority of votes across all trees of the forest.
 
 Output
 ******
@@ -227,6 +240,19 @@ classification has the following parameters at the prediction stage:
    * - ``nClasses``
      - Not applicable
      - The number of classes. A required parameter.
+   * - ``votingMethod``
+     - ``weighted``
+     - A flag that specifies which method is used to compute probabilities and class labels:
+
+       weighted
+         - Probability for each class is computed as a sample mean of estimates across all trees, where each estimate
+           is the normalized number of training samples for this class that were recorded in a particular leaf node for current input.
+         - The algorithm returns the label for the class that gets the maximal value in a sample mean.
+
+       unweighted
+         - Probabilities are computed as normalized votes distribution across all trees of the forest.
+         - The algorithm returns the label for the class that gets the majority of votes across all trees of the forest.
+
 
 Examples
 ********

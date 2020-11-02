@@ -23,16 +23,16 @@ typedef void (*functype)(int i, const void *a);
 }
 
 extern "C" {
-ONEAPI_DAL_EXPORT void _daal_threader_for_oneapi(int n,
-                                                 int threads_request,
-                                                 const void *a,
-                                                 oneapi::dal::preview::functype func);
+ONEDAL_EXPORT void _daal_threader_for_oneapi(int n,
+                                             int threads_request,
+                                             const void *a,
+                                             oneapi::dal::preview::functype func);
 
-ONEAPI_DAL_EXPORT void _daal_parallel_sort_oneapi(void *begin_ptr, void *end_ptr);
+ONEDAL_EXPORT void _daal_parallel_sort_oneapi(void *begin_ptr, void *end_ptr);
 }
 
 namespace oneapi::dal::preview::load_graph::detail {
-inline ONEAPI_DAL_EXPORT void parallel_sort(int *begin_ptr, int *end_ptr) {
+inline ONEDAL_EXPORT void parallel_sort(int *begin_ptr, int *end_ptr) {
     _daal_parallel_sort_oneapi((void *)begin_ptr, (void *)end_ptr);
 }
 
@@ -43,7 +43,7 @@ inline void threader_func(int i, const void *a) {
 }
 
 template <typename F>
-inline ONEAPI_DAL_EXPORT void threader_for(size_t n, size_t threads_request, const F &lambda) {
+inline ONEDAL_EXPORT void threader_for(size_t n, size_t threads_request, const F &lambda) {
     const void *a = static_cast<const void *>(&lambda);
 
     _daal_threader_for_oneapi((int)n, (int)threads_request, a, threader_func<F>);

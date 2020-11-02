@@ -62,16 +62,10 @@ public:
                                           const uint32_t p, const uint32_t nBeta, uint32_t nClasses, const algorithmFPType beta,
                                           const uint32_t offset);
 
-    static services::Status applyHessian(const services::internal::Buffer<algorithmFPType> & x,
-                                         const services::internal::Buffer<algorithmFPType> & prob, const uint32_t n, const uint32_t p,
-                                         services::internal::Buffer<algorithmFPType> & h, const uint32_t nBeta, const uint32_t nClasses,
-                                         const uint32_t offset, const algorithmFPType alpha);
-
     static services::Status betaIntercept(const services::internal::Buffer<algorithmFPType> & one,
                                           const services::internal::Buffer<algorithmFPType> & arg, services::internal::Buffer<algorithmFPType> & f,
                                           const uint32_t n, const uint32_t nClasses, const uint32_t nBeta);
 
-    // TODO: move in common services
     static services::Status softmax(const services::internal::Buffer<algorithmFPType> & x, services::internal::Buffer<algorithmFPType> & result,
                                     const uint32_t n, const uint32_t nClasses);
 
@@ -79,7 +73,6 @@ public:
                                                   const services::internal::Buffer<algorithmFPType> & y,
                                                   services::internal::Buffer<algorithmFPType> & result, const uint32_t n, const uint32_t nClasses);
 
-    // TODO: move in common services
     static services::Status crossEntropy(const services::internal::Buffer<algorithmFPType> & y,
                                          const services::internal::Buffer<algorithmFPType> & sigma,
                                          services::internal::Buffer<algorithmFPType> & result, const uint32_t n, const uint32_t nClasses);
@@ -96,7 +89,7 @@ private:
                                NumericTable * lipschitzConstantNT, const algorithmFPType l1reg, const algorithmFPType l2reg, const bool interceptFlag,
                                const bool isSourceData);
 
-    static void buildProgram(services::internal::sycl::ClKernelFactoryIface & factory);
+    static services::Status buildProgram(services::internal::sycl::ClKernelFactoryIface & factory);
 
     services::internal::sycl::UniversalBuffer _uX;
     services::internal::sycl::UniversalBuffer _uY;

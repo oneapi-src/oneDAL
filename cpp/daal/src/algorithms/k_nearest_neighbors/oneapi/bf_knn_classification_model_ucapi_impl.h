@@ -111,7 +111,7 @@ protected:
                 auto source      = srcBD.getBuffer();
                 auto destination = destBD.getBuffer();
                 auto & context   = services::internal::getDefaultContext();
-                context.copy(destination, 0, source, 0, source.size(), &status);
+                context.copy(destination, 0, source, 0, source.size(), status);
                 DAAL_CHECK_STATUS_VAR(status);
                 DAAL_CHECK_STATUS_VAR(dest->releaseBlockOfRows(destBD));
                 DAAL_CHECK_STATUS_VAR(value->releaseBlockOfRows(srcBD));

@@ -43,7 +43,7 @@ using by_default = cov;
 } // namespace method
 
 template <typename Task = task::by_default>
-class ONEAPI_DAL_EXPORT descriptor_base : public base {
+class ONEDAL_EXPORT descriptor_base : public base {
 public:
     using tag_t = detail::tag;
     using task_t = Task;
@@ -70,6 +70,10 @@ public:
     using float_t = Float;
     using method_t = Method;
 
+    explicit descriptor(std::int64_t component_count = 0) {
+        set_component_count(component_count);
+    }
+
     auto& set_component_count(int64_t value) {
         descriptor_base<Task>::set_component_count_impl(value);
         return *this;
@@ -82,7 +86,7 @@ public:
 };
 
 template <typename Task = task::by_default>
-class ONEAPI_DAL_EXPORT model : public base {
+class ONEDAL_EXPORT model : public base {
     friend dal::detail::pimpl_accessor;
 
 public:

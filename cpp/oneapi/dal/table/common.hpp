@@ -30,7 +30,7 @@ namespace detail {
 class table_metadata_impl;
 } // namespace detail
 
-class ONEAPI_DAL_EXPORT table_metadata {
+class ONEDAL_EXPORT table_metadata {
     friend detail::pimpl_accessor;
     using pimpl = detail::pimpl<detail::table_metadata_impl>;
 
@@ -51,11 +51,11 @@ private:
 
 template <typename T>
 struct is_table_impl {
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(std::int64_t, get_column_count, () const)
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(std::int64_t, get_row_count, () const)
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(const table_metadata&, get_metadata, () const)
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(std::int64_t, get_kind, () const)
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(data_layout, get_data_layout, () const)
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(std::int64_t, get_column_count, () const)
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(std::int64_t, get_row_count, () const)
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(const table_metadata&, get_metadata, () const)
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(std::int64_t, get_kind, () const)
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(data_layout, get_data_layout, () const)
 
     static constexpr bool value = has_method_get_column_count_v<T> &&
                                   has_method_get_row_count_v<T> && has_method_get_metadata_v<T> &&
@@ -65,7 +65,7 @@ struct is_table_impl {
 template <typename T>
 inline constexpr bool is_table_impl_v = is_table_impl<T>::value;
 
-class ONEAPI_DAL_EXPORT table {
+class ONEDAL_EXPORT table {
     friend detail::pimpl_accessor;
     using pimpl = detail::pimpl<detail::table_impl_iface>;
 

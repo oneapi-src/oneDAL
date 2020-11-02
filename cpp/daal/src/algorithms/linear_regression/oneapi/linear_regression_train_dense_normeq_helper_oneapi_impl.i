@@ -28,6 +28,7 @@
 #include "src/algorithms/linear_regression/oneapi/linear_regression_train_kernel_oneapi.h"
 #include "services/internal/execution_context.h"
 #include "src/algorithms/linear_regression/oneapi/cl_kernel/helper_beta_copy.cl"
+#include "src/services/service_data_utils.h"
 
 namespace daal
 {
@@ -55,6 +56,7 @@ services::Status KernelHelperOneAPI<algorithmFPType>::copyBetaToResult(const ser
                                                                        const size_t nResponses, const bool interceptFlag) const
 {
     services::Status status;
+
     const size_t nBetasIntercept = interceptFlag ? nBetas : (nBetas - 1);
     const size_t intercept       = interceptFlag ? 1 : 0;
 
@@ -64,21 +66,34 @@ services::Status KernelHelperOneAPI<algorithmFPType>::copyBetaToResult(const ser
     const services::String options = getKeyFPType<algorithmFPType>();
     services::String cachekey("__daal_algorithms_linear_regression_training_helper_");
     cachekey.add(options);
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelHelperBetaCopy, options.c_str());
+
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelHelperBetaCopy, options.c_str(), status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "copyBeta";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(5);
+    DAAL_ASSERT(nBetas <= services::internal::MaxVal<uint32_t>::get());
+    DAAL_ASSERT(nBetasIntercept <= services::internal::MaxVal<uint32_t>::get());
+    DAAL_ASSERT(intercept <= services::internal::MaxVal<uint32_t>::get());
+    DAAL_ASSERT(nResponses <= services::internal::MaxVal<uint32_t>::get());
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, nResponses, nBetasIntercept);
+    DAAL_ASSERT(betaTmp.size() >= nResponses * nBetasIntercept);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, nResponses, nBetas);
+    DAAL_ASSERT(betaRes.size() >= nResponses * nBetas);
+
+    KernelArguments args(5, status);
     args.set(0, betaTmp, AccessModeIds::read);
-    args.set(1, nBetas);
-    args.set(2, nBetasIntercept);
+    args.set(1, static_cast<uint32_t>(nBetas));
+    args.set(2, static_cast<uint32_t>(nBetasIntercept));
     args.set(3, betaRes, AccessModeIds::write);
-    args.set(4, intercept);
+    args.set(4, static_cast<uint32_t>(intercept));
 
     KernelRange range(nResponses, nBetas);
 
-    ctx.run(range, kernel, args, &status);
+    ctx.run(range, kernel, args, status);
 
     return status;
 }

@@ -20,7 +20,7 @@
 namespace oneapi::dal::decision_forest {
 
 template <typename Task>
-class detail::infer_input_impl : public base {
+class detail::v1::infer_input_impl : public base {
 public:
     infer_input_impl(const model<Task>& trained_model, const table& data)
             : trained_model(trained_model),
@@ -30,26 +30,28 @@ public:
 };
 
 template <typename Task>
-class detail::infer_result_impl : public base {
+class detail::v1::infer_result_impl : public base {
 public:
     table labels;
     table probabilities;
 };
 
-using detail::infer_input_impl;
-using detail::infer_result_impl;
+using detail::v1::infer_input_impl;
+using detail::v1::infer_result_impl;
+
+namespace v1 {
 
 template <typename Task>
 infer_input<Task>::infer_input(const model<Task>& trained_model, const table& data)
         : impl_(new infer_input_impl<Task>(trained_model, data)) {}
 
 template <typename Task>
-model<Task> infer_input<Task>::get_model() const {
+const model<Task>& infer_input<Task>::get_model() const {
     return impl_->trained_model;
 }
 
 template <typename Task>
-table infer_input<Task>::get_data() const {
+const table& infer_input<Task>::get_data() const {
     return impl_->data;
 }
 
@@ -63,21 +65,16 @@ void infer_input<Task>::set_data_impl(const table& value) {
     impl_->data = value;
 }
 
-template class ONEAPI_DAL_EXPORT infer_input<task::classification>;
-template class ONEAPI_DAL_EXPORT infer_input<task::regression>;
-
-/* infer_result implementation */
-
 template <typename Task>
 infer_result<Task>::infer_result() : impl_(new infer_result_impl<Task>{}) {}
 
 template <typename Task>
-table infer_result<Task>::get_labels() const {
+const table& infer_result<Task>::get_labels() const {
     return impl_->labels;
 }
 
 template <typename Task>
-table infer_result<Task>::get_probabilities_impl() const {
+const table& infer_result<Task>::get_probabilities_impl() const {
     return impl_->probabilities;
 }
 
@@ -91,7 +88,10 @@ void infer_result<Task>::set_probabilities_impl(const table& value) {
     impl_->probabilities = value;
 }
 
-template class ONEAPI_DAL_EXPORT infer_result<task::classification>;
-template class ONEAPI_DAL_EXPORT infer_result<task::regression>;
+template class ONEDAL_EXPORT infer_input<task::classification>;
+template class ONEDAL_EXPORT infer_input<task::regression>;
+template class ONEDAL_EXPORT infer_result<task::classification>;
+template class ONEDAL_EXPORT infer_result<task::regression>;
 
+} // namespace v1
 } // namespace oneapi::dal::decision_forest

@@ -20,16 +20,16 @@
 #include <utility>
 
 #if defined(_WIN32) || defined(_WIN64)
-#ifdef __ONEAPI_DAL_ENABLE_DLL_EXPORT__
-#define ONEAPI_DAL_EXPORT __declspec(dllexport)
+#ifdef __ONEDAL_ENABLE_DLL_EXPORT__
+#define ONEDAL_EXPORT __declspec(dllexport)
 #else
-#define ONEAPI_DAL_EXPORT
+#define ONEDAL_EXPORT
 #endif
 #else
-#define ONEAPI_DAL_EXPORT
+#define ONEDAL_EXPORT
 #endif
 
-#ifdef NDEBUG
+#ifndef ONEDAL_ENABLE_ASSERT
 #define ONEDAL_ASSERT(...)
 #else
 #include <cassert>
@@ -51,6 +51,7 @@
 #endif
 
 namespace oneapi::dal {
+namespace v1 {
 
 using byte_t = std::uint8_t;
 
@@ -86,6 +87,13 @@ public:
     std::int64_t start_idx;
     std::int64_t end_idx;
 };
+
+} // namespace v1
+
+using v1::byte_t;
+using v1::base;
+using v1::data_type;
+using v1::range;
 
 } // namespace oneapi::dal
 

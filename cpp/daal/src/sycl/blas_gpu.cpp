@@ -49,13 +49,16 @@ services::Status ReferenceGemm<algorithmFPType>::operator()(const Transpose tran
     services::String cacheKey      = "__daal_gemm_";
     cacheKey.add(options);
 
-    factory.build(ExecutionTargetIds::device, cacheKey.c_str(), clKernelGemm, options.c_str());
+    factory.build(ExecutionTargetIds::device, cacheKey.c_str(), clKernelGemm, options.c_str(), status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = beta != algorithmFPType(0) ? "blas_sgemm_small" : "blas_sgemm_without_sum";
 
-    KernelPtr kernelGemm = factory.getKernel(kernelName);
+    KernelPtr kernelGemm = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(15);
+    KernelArguments args(15, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const uint32_t one = uint32_t(1);
 
@@ -102,7 +105,7 @@ services::Status ReferenceGemm<algorithmFPType>::operator()(const Transpose tran
 
     KernelRange range(m, n);
 
-    ctx.run(range, kernelGemm, args, &status);
+    ctx.run(range, kernelGemm, args, status);
 
     return status;
 }
@@ -123,11 +126,14 @@ services::Status ReferenceAxpy<algorithmFPType>::operator()(const int n, const a
     services::String cacheKey      = "__daal_axpy_";
     cacheKey.add(options);
 
-    factory.build(ExecutionTargetIds::device, cacheKey.c_str(), clKernelAxpy, options.c_str());
+    factory.build(ExecutionTargetIds::device, cacheKey.c_str(), clKernelAxpy, options.c_str(), status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelPtr blas_axpy = factory.getKernel("blas_axpy");
+    KernelPtr blas_axpy = factory.getKernel("blas_axpy", status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(5);
+    KernelArguments args(5, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     args.set(0, a);
     args.set(1, x_buffer, AccessModeId::read);
@@ -137,7 +143,7 @@ services::Status ReferenceAxpy<algorithmFPType>::operator()(const int n, const a
 
     KernelRange range(n);
 
-    ctx.run(range, blas_axpy, args, &status);
+    ctx.run(range, blas_axpy, args, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     return status;

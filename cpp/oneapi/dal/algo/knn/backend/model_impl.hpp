@@ -24,8 +24,16 @@ namespace oneapi::dal::knn::detail {
 class model_impl : public base {
 public:
     model_impl() : interop_(nullptr) {}
-    model_impl(knn::backend::model_interop* interop) : interop_(interop) {}
-    ~model_impl();
+    model_impl(const model_impl&) = delete;
+    model_impl& operator=(const model_impl&) = delete;
+
+    model_impl(backend::model_interop* interop) : interop_(interop) {}
+
+    ~model_impl() {
+        delete interop_;
+        interop_ = nullptr;
+    }
+
     knn::backend::model_interop* get_interop() {
         return interop_;
     }

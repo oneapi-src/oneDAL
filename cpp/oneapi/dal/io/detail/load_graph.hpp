@@ -37,7 +37,7 @@ edge_list<std::int32_t> load_edge_list(const std::string &name) {
 
     std::ifstream file(name);
     if (!file.is_open()) {
-        throw invalid_argument("File not found");
+        throw invalid_argument(dal::detail::error_messages::file_not_found());
     }
     edge_list<int_t> elist;
     elist.reserve(1024);
@@ -56,7 +56,7 @@ edge_list<std::int32_t> load_edge_list(const std::string &name) {
 template <typename Graph>
 void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     if (edges.size() == 0) {
-        throw invalid_argument("Empty edge list");
+        throw invalid_argument(dal::detail::error_messages::empty_edge_list());
     }
 
     using vertex_t = typename Graph::vertex_type;

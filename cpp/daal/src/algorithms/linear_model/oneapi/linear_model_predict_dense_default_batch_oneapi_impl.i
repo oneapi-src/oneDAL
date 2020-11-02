@@ -28,6 +28,7 @@
 #include "src/data_management/service_numeric_table.h"
 #include "src/sycl/blas_gpu.h"
 #include "services/internal/execution_context.h"
+#include "src/services/service_data_utils.h"
 #include "src/algorithms/linear_model/oneapi/cl_kernel/linear_model_prediction.cl"
 
 namespace daal
@@ -56,20 +57,30 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::addBetaInte
     const services::String options = getKeyFPType<algorithmFPType>();
     services::String cachekey("__daal_algorithms_linear_model_prediction_");
     cachekey.add(options);
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelPrediction, options.c_str());
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelPrediction, options.c_str(), status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName = "addBetaIntercept";
-    KernelPtr kernel              = factory.getKernel(kernelName);
+    KernelPtr kernel              = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(4);
+    DAAL_ASSERT(yNCols <= services::internal::MaxVal<uint32_t>::get());
+    DAAL_ASSERT(nBetas <= services::internal::MaxVal<uint32_t>::get());
+
+    DAAL_ASSERT(betaTable.size() >= nBetas * yNCols);
+    DAAL_ASSERT(yTable.size() >= yNRows * yNCols);
+
+    KernelArguments args(4, status);
+    DAAL_CHECK_STATUS_VAR(status);
+
     args.set(0, betaTable, AccessModeIds::read);
-    args.set(1, nBetas);
+    args.set(1, static_cast<uint32_t>(nBetas));
     args.set(2, yTable, AccessModeIds::write);
-    args.set(3, yNCols);
+    args.set(3, static_cast<uint32_t>(yNCols));
 
     KernelRange range(yNRows, yNCols);
 
-    ctx.run(range, kernel, args, &status);
+    ctx.run(range, kernel, args, status);
 
     return status;
 }
@@ -91,24 +102,21 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute(con
 
     const size_t nRowsPerBlock = 90000;
 
-    size_t nBlocks = nRows / nRowsPerBlock;
-    if (nBlocks * nRowsPerBlock < nRows)
-    {
-        ++nBlocks;
-    }
+    const size_t nBlocks = (nRows / nRowsPerBlock) + (bool(nRows % nRowsPerBlock) ? 1 : 0);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocks, nRowsPerBlock);
 
     BlockDescriptor<algorithmFPType> betaBlock;
     DAAL_CHECK_STATUS(status, betaTable->getBlockOfRows(0, nResponses, ReadWriteMode::readOnly, betaBlock));
+
     const services::internal::Buffer<algorithmFPType> betaBuf = betaBlock.getBuffer();
 
     for (size_t blockIdx = 0; blockIdx < nBlocks; ++blockIdx)
     {
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, blockIdx, nRowsPerBlock);
         const size_t startRow = blockIdx * nRowsPerBlock;
-        size_t endRow         = startRow + nRowsPerBlock;
-        if (endRow > nRows)
-        {
-            endRow = nRows;
-        };
+        DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, startRow, nRowsPerBlock);
+        const size_t endRow = ((startRow + nRowsPerBlock) > nRows) ? nRows : (startRow + nRowsPerBlock);
+        DAAL_ASSERT(endRow >= startRow);
 
         BlockDescriptor<algorithmFPType> xBlock;
         BlockDescriptor<algorithmFPType> yBlock;
@@ -120,8 +128,16 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute(con
         services::internal::Buffer<algorithmFPType> yBuf       = yBlock.getBuffer();
 
         const size_t xNRows = endRow - startRow;
+        DAAL_ASSERT(nBetas >= 1);
         const size_t xNCols = nBetas - 1;
         const size_t yNCols = nResponses;
+
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, xNRows, xNCols);
+        DAAL_ASSERT(xBuf.size() >= xNRows * xNCols);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, yNCols, xNCols);
+        DAAL_ASSERT(betaBuf.size() >= yNCols * xNCols);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, xNRows, yNCols);
+        DAAL_ASSERT(yBuf.size() >= xNRows * yNCols);
 
         /* SYRK: Compute beta*xTable for each block */
         status = BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::Trans, xNRows, yNCols, xNCols,

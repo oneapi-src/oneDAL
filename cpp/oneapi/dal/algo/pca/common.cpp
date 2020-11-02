@@ -51,7 +51,7 @@ bool descriptor_base<task::dim_reduction>::get_deterministic() const {
 template <>
 void descriptor_base<task::dim_reduction>::set_component_count_impl(std::int64_t value) {
     if (value < 0) {
-        throw domain_error("Descriptor component_count should be >= 0");
+        throw domain_error(dal::detail::error_messages::component_count_lt_zero());
     }
     impl_->component_count = value;
 }
@@ -74,7 +74,7 @@ void model<Task>::set_eigenvectors_impl(const table& value) {
     impl_->eigenvectors = value;
 }
 
-template class ONEAPI_DAL_EXPORT descriptor_base<task::dim_reduction>;
-template class ONEAPI_DAL_EXPORT model<task::dim_reduction>;
+template class ONEDAL_EXPORT descriptor_base<task::dim_reduction>;
+template class ONEDAL_EXPORT model<task::dim_reduction>;
 
 } // namespace oneapi::dal::pca

@@ -22,7 +22,7 @@
 #include "oneapi/dal/detail/policy.hpp"
 
 namespace oneapi::dal::detail {
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 
 template <typename T>
 inline T* malloc(const data_parallel_policy& policy,
@@ -85,7 +85,7 @@ public:
     }
 
     void deallocate(T* p, std::int64_t n) const {
-        return free(policy_, p);
+        free(policy_, p);
     }
 
     sycl::usm::alloc get_kind() const {

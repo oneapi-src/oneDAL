@@ -54,18 +54,21 @@ static services::Status vLog(const services::internal::Buffer<algorithmFPType> &
     const services::String options = services::internal::sycl::getKeyFPType<algorithmFPType>();
     services::String cachekey("__daal_algorithms_math_");
     cachekey.add(options);
-    factory.build(services::internal::sycl::ExecutionTargetIds::device, cachekey.c_str(), clKernelMath, options.c_str());
+    factory.build(services::internal::sycl::ExecutionTargetIds::device, cachekey.c_str(), clKernelMath, options.c_str(), status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     const char * const kernelName              = "vLog";
-    services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName);
+    services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
-    services::internal::sycl::KernelArguments args(2);
+    services::internal::sycl::KernelArguments args(2, status);
+    DAAL_CHECK_STATUS_VAR(status);
     args.set(0, x, services::internal::sycl::AccessModeIds::read);
     args.set(1, result, services::internal::sycl::AccessModeIds::write);
 
     services::internal::sycl::KernelRange range(n);
 
-    ctx.run(range, kernel, args, &status);
+    ctx.run(range, kernel, args, status);
 
     return status;
 }

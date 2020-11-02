@@ -16,14 +16,13 @@
 
 #pragma once
 
-#include "oneapi/dal/exceptions.hpp"
-#include "oneapi/dal/io/csv/read_types.hpp"
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/io/csv/read_types.hpp"
 
 namespace oneapi::dal::csv::detail {
 
 template <typename Object, typename Context, typename... Options>
-struct ONEAPI_DAL_EXPORT read_ops_dispatcher {
+struct ONEDAL_EXPORT read_ops_dispatcher {
     table operator()(const Context&, const data_source&, const read_args<table>&) const;
 };
 

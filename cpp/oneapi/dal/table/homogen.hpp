@@ -23,7 +23,7 @@ namespace oneapi::dal {
 
 template <typename T>
 struct is_homogen_table_impl {
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(const void*, get_data, () const)
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(const void*, get_data, () const)
 
     using base = is_table_impl<T>;
 
@@ -37,7 +37,7 @@ struct is_homogen_table_impl {
 template <typename T>
 inline constexpr bool is_homogen_table_impl_v = is_homogen_table_impl<T>::value;
 
-class ONEAPI_DAL_EXPORT homogen_table : public table {
+class ONEDAL_EXPORT homogen_table : public table {
     friend detail::pimpl_accessor;
     using pimpl = detail::pimpl<detail::homogen_table_impl_iface>;
 
@@ -52,11 +52,11 @@ public:
         return homogen_table{ data_pointer,
                               row_count,
                               column_count,
-                              empty_delete<const Data>(),
+                              dal::detail::empty_delete<const Data>(),
                               layout };
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename Data>
     static homogen_table wrap(const sycl::queue& queue,
                               const Data* data_pointer,
@@ -64,10 +64,13 @@ public:
                               std::int64_t column_count,
                               const sycl::vector_class<sycl::event>& dependencies = {},
                               data_layout layout = data_layout::row_major) {
-        return homogen_table{
-            queue,        data_pointer, row_count, column_count, empty_delete<const Data>(),
-            dependencies, layout
-        };
+        return homogen_table{ queue,
+                              data_pointer,
+                              row_count,
+                              column_count,
+                              dal::detail::empty_delete<const Data>(),
+                              dependencies,
+                              layout };
     }
 #endif
 
@@ -96,7 +99,7 @@ public:
                   layout);
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename Data, typename ConstDeleter>
     homogen_table(const sycl::queue& queue,
                   const Data* data_pointer,

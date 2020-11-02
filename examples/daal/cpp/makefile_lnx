@@ -15,7 +15,7 @@
 #===============================================================================
 
 ##  Content:
-##     Intel(R) Data Analytics Acceleration Library examples creation and run
+##     Intel(R) oneAPI Data Analytics Library examples creation and run
 ##******************************************************************************
 
 help:
@@ -42,7 +42,7 @@ help:
 ##                                 dynamic linking
 ##
 ## make libintel64 compiler=gnu  - build by GNU C++ compiler and run all example
-##                                 of Intel(R) DAAL for
+##                                 of Intel(R) oneDAL for
 ##                                 Intel(R) 64 processor family applications,
 ##                                 static linking
 ##
@@ -100,9 +100,6 @@ endif
 DAAL_LIB := $(DAAL_PATH)/libonedal_core.$(RES_EXT) $(DAAL_LIB_T)
 
 COPTS := -pedantic -Wall -Wextra -Werror \
-         -Werror=return-type \
-         -Werror=uninitialized \
-         -Werror=unknown-pragmas \
          -Wno-deprecated-declarations \
          -Wno-unused-parameter \
          -I./source/utils

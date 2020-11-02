@@ -39,7 +39,7 @@ class vertex_similarity_result_impl;
 ///
 /// @tparam Graph  Type of the input graph
 template <typename Graph>
-class ONEAPI_DAL_EXPORT vertex_similarity_input {
+class ONEDAL_EXPORT vertex_similarity_input {
 public:
     /// Constructs the algorithm input initialized with the graph and the caching builder.
     ///
@@ -58,10 +58,10 @@ private:
 };
 
 /// Class for the description of the result of the Jaccard Similarity algorithm
-class ONEAPI_DAL_EXPORT vertex_similarity_result {
+class ONEDAL_EXPORT vertex_similarity_result {
 public:
     /// Constructs the empty result
-    vertex_similarity_result(){};
+    vertex_similarity_result();
 
     /// Constructs the algorithm result initialized with the table of vertex pairs,
     /// the table of the corresponding computed Jaccard similarity coefficients, and

@@ -76,7 +76,7 @@ void infer_result<Task>::set_labels_impl(const table& value) {
     impl_->labels = value;
 }
 
-template class ONEAPI_DAL_EXPORT infer_input<task::classification>;
-template class ONEAPI_DAL_EXPORT infer_result<task::classification>;
+template class ONEDAL_EXPORT infer_input<task::classification>;
+template class ONEDAL_EXPORT infer_result<task::classification>;
 
 } // namespace oneapi::dal::knn

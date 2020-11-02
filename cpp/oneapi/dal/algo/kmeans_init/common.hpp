@@ -42,7 +42,7 @@ using by_default = dense;
 } // namespace method
 
 template <typename Task = task::by_default>
-class ONEAPI_DAL_EXPORT descriptor_base : public base {
+class ONEDAL_EXPORT descriptor_base : public base {
 public:
     using tag_t = detail::tag;
     using task_t = Task;
@@ -66,6 +66,10 @@ class descriptor : public descriptor_base<Task> {
 public:
     using float_t = Float;
     using method_t = Method;
+
+    explicit descriptor(std::int64_t cluster_count = 2) {
+        set_cluster_count(cluster_count);
+    }
 
     auto& set_cluster_count(int64_t value) {
         descriptor_base<Task>::set_cluster_count_impl(value);

@@ -21,17 +21,22 @@
 namespace oneapi::dal::svm {
 
 namespace detail {
+template <typename Task = task::by_default>
 class infer_input_impl;
+
+template <typename Task = task::by_default>
 class infer_result_impl;
 } // namespace detail
 
-class ONEAPI_DAL_EXPORT infer_input : public base {
+template <typename Task = task::by_default>
+class ONEDAL_EXPORT infer_input : public base {
 public:
-    infer_input(const model& trained_model, const table& data);
+    using task_t = Task;
+    infer_input(const model<task_t>& trained_model, const table& data);
 
-    model get_model() const;
+    model<task_t> get_model() const;
 
-    auto& set_model(const model& value) {
+    auto& set_model(const model<task_t>& value) {
         set_model_impl(value);
         return *this;
     }
@@ -44,14 +49,16 @@ public:
     }
 
 private:
-    void set_model_impl(const model& value);
+    void set_model_impl(const model<task_t>& value);
     void set_data_impl(const table& value);
 
-    dal::detail::pimpl<detail::infer_input_impl> impl_;
+    dal::detail::pimpl<detail::infer_input_impl<task_t>> impl_;
 };
 
-class ONEAPI_DAL_EXPORT infer_result : public base {
+template <typename Task = task::by_default>
+class ONEDAL_EXPORT infer_result : public base {
 public:
+    using task_t = Task;
     infer_result();
 
     table get_labels() const;
@@ -71,7 +78,7 @@ private:
     void set_labels_impl(const table&);
     void set_decision_function_impl(const table&);
 
-    dal::detail::pimpl<detail::infer_result_impl> impl_;
+    dal::detail::pimpl<detail::infer_result_impl<task_t>> impl_;
 };
 
 } // namespace oneapi::dal::svm

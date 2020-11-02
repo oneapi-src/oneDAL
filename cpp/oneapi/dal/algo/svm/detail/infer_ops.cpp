@@ -21,21 +21,21 @@
 namespace oneapi::dal::svm::detail {
 using oneapi::dal::detail::host_policy;
 
-template <typename Float, typename Task, typename Method>
-struct ONEAPI_DAL_EXPORT infer_ops_dispatcher<host_policy, Float, Task, Method> {
-    infer_result operator()(const host_policy& ctx,
-                            const descriptor_base& desc,
-                            const infer_input& input) const {
+template <typename Float, typename Method, typename Task>
+struct infer_ops_dispatcher<host_policy, Float, Method, Task> {
+    infer_result<Task> operator()(const host_policy& ctx,
+                                  const descriptor_base<Task>& desc,
+                                  const infer_input<Task>& input) const {
         using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::infer_kernel_cpu<Float, Task, Method>>;
+            dal::backend::kernel_dispatcher<backend::infer_kernel_cpu<Float, Method, Task>>;
         return kernel_dispatcher_t()(ctx, desc, input);
     }
 };
 
-#define INSTANTIATE(F, T, M) \
-    template struct ONEAPI_DAL_EXPORT infer_ops_dispatcher<host_policy, F, T, M>;
+#define INSTANTIATE(F, M, T) \
+    template struct ONEDAL_EXPORT infer_ops_dispatcher<host_policy, F, M, T>;
 
-INSTANTIATE(float, task::classification, method::by_default)
-INSTANTIATE(double, task::classification, method::by_default)
+INSTANTIATE(float, method::by_default, task::classification)
+INSTANTIATE(double, method::by_default, task::classification)
 
 } // namespace oneapi::dal::svm::detail
