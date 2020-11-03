@@ -62,7 +62,7 @@ MSG(column_index_out_of_range, "Column index out of range")
 /* Graphs */
 MSG(vertex_index_out_of_range_expect_from_zero_to_vertex_count,
     "Vertex index is out of range, expect index in [0, vertex_count)")
-MSG(negative_vertex_id, "Negative vertex ID");
+MSG(negative_vertex_id, "Negative vertex ID")
 
 /* General algorithms */
 MSG(accuracy_threshold_lt_zero, "Accuracy_threshold is lower than zero")
