@@ -50,7 +50,7 @@ TEST(kmeans_bad_arg_tests, throws_if_train_data_table_is_empty) {
     ASSERT_THROW(train(kmeans_desc, data_table), dal::domain_error);
 }
 
-TEST(kmeans_bad_arg_tests, throws_if_initial_centroids_rows_dont_match_clusters_count) {
+TEST(kmeans_bad_arg_tests, throws_if_initial_centroids_rows_dont_match_clusters_count_host_api) {
     constexpr std::int64_t row_count = 8;
     constexpr std::int64_t column_count = 2;
     constexpr std::int64_t cluster_count = 2;
@@ -71,7 +71,7 @@ TEST(kmeans_bad_arg_tests, throws_if_initial_centroids_rows_dont_match_clusters_
     ASSERT_THROW(train(kmeans_desc, data_table, initial_centroids_table), dal::invalid_argument);
 }
 
-TEST(kmeans_bad_arg_tests, throws_if_initial_centroids_columns_dont_match_data_columns) {
+TEST(kmeans_bad_arg_tests, throws_if_initial_centroids_columns_dont_match_data_columns_host_api) {
     constexpr std::int64_t row_count = 8;
     constexpr std::int64_t column_count = 2;
     constexpr std::int64_t cluster_count = 2;
@@ -92,7 +92,7 @@ TEST(kmeans_bad_arg_tests, throws_if_initial_centroids_columns_dont_match_data_c
     ASSERT_THROW(train(kmeans_desc, data_table, initial_centroids_table), dal::invalid_argument);
 }
 
-TEST(kmeans_bad_arg_tests, throws_if_infer_data_table_is_empty) {
+TEST(kmeans_bad_arg_tests, throws_if_infer_data_table_is_empty_host_api) {
     constexpr std::int64_t row_count = 8;
     constexpr std::int64_t column_count = 2;
     constexpr std::int64_t cluster_count = 2;
