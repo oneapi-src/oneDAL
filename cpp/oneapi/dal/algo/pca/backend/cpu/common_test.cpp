@@ -21,7 +21,6 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 
 using namespace oneapi::dal;
-namespace pca = oneapi::dal::pca;
 
 using pca_methods = testing::Types<pca::method::cov, pca::method::svd>;
 
