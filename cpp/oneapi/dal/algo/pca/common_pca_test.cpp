@@ -20,9 +20,8 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 
 using namespace oneapi;
-namespace pca = oneapi::dal::pca;
 
-using pca_methods = testing::Types<pca::method::cov, pca::method::svd>;
+using pca_methods = testing::Types<dal::pca::method::cov, dal::pca::method::svd>;
 
 template <typename Tuple>
 class pca_common_bad_arg_tests : public ::testing::Test {};
@@ -30,16 +29,18 @@ class pca_common_bad_arg_tests : public ::testing::Test {};
 TYPED_TEST_SUITE_P(pca_common_bad_arg_tests);
 
 TYPED_TEST_P(pca_common_bad_arg_tests, test_set_component_count) {
-    ASSERT_THROW(
-        (pca::descriptor<float, TypeParam, pca::task::dim_reduction>().set_component_count(-1)),
-        dal::domain_error);
-    ASSERT_NO_THROW(
-        (pca::descriptor<float, TypeParam, pca::task::dim_reduction>().set_component_count(0)));
+    ASSERT_THROW((dal::pca::descriptor<float, TypeParam, dal::pca::task::dim_reduction>()
+                      .set_component_count(-1)),
+                 dal::domain_error);
+    ASSERT_NO_THROW((
+        dal::pca::descriptor<float, TypeParam, dal::pca::task::dim_reduction>().set_component_count(
+            0)));
 }
 
 TYPED_TEST_P(pca_common_bad_arg_tests, throws_if_train_data_table_is_empty) {
     const auto pca_desc =
-        pca::descriptor<float, TypeParam, pca::task::dim_reduction>().set_component_count(2);
+        dal::pca::descriptor<float, TypeParam, dal::pca::task::dim_reduction>().set_component_count(
+            2);
 
     ASSERT_THROW(train(pca_desc, dal::homogen_table()), dal::domain_error);
 }
@@ -55,7 +56,8 @@ TYPED_TEST_P(pca_common_bad_arg_tests,
     const auto data_table = dal::homogen_table::wrap(data, row_count, column_count);
 
     const auto pca_desc =
-        pca::descriptor<float, TypeParam, pca::task::dim_reduction>().set_component_count(4);
+        dal::pca::descriptor<float, TypeParam, dal::pca::task::dim_reduction>().set_component_count(
+            4);
 
     ASSERT_THROW(train(pca_desc, data_table), dal::invalid_argument);
 }
@@ -70,7 +72,8 @@ TYPED_TEST_P(pca_common_bad_arg_tests, throws_if_infer_data_table_is_empty) {
     const auto data_table = dal::homogen_table::wrap(data, row_count, column_count);
 
     const auto pca_desc =
-        pca::descriptor<float, TypeParam, pca::task::dim_reduction>().set_component_count(2);
+        dal::pca::descriptor<float, TypeParam, dal::pca::task::dim_reduction>().set_component_count(
+            2);
 
     const auto result_train = train(pca_desc, data_table);
     ASSERT_THROW(infer(pca_desc, result_train.get_model(), dal::homogen_table()),
@@ -91,7 +94,8 @@ TYPED_TEST_P(pca_common_bad_arg_tests, throws_if_component_count_ne_eigenvector_
     const auto data_infer_table = dal::homogen_table::wrap(data_infer, row_count, column_count);
 
     auto pca_desc =
-        pca::descriptor<float, TypeParam, pca::task::dim_reduction>().set_component_count(2);
+        dal::pca::descriptor<float, TypeParam, dal::pca::task::dim_reduction>().set_component_count(
+            2);
 
     const auto result_train = train(pca_desc, data_table);
 
@@ -115,7 +119,8 @@ TYPED_TEST_P(pca_common_bad_arg_tests, throws_if_infer_data_column_count_ne_eige
     const auto data_infer_table = dal::homogen_table::wrap(data_infer, 4, 4);
 
     auto pca_desc =
-        pca::descriptor<float, TypeParam, pca::task::dim_reduction>().set_component_count(2);
+        dal::pca::descriptor<float, TypeParam, dal::pca::task::dim_reduction>().set_component_count(
+            2);
 
     const auto result_train = train(pca_desc, data_table);
 

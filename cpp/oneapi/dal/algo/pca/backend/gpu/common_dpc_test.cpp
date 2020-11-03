@@ -84,8 +84,8 @@ struct homogen_table_dummy_impl {
     }
 
     table_metadata m;
-    std::int64_t _column_count;
     std::int64_t _row_count;
+    std::int64_t _column_count;
 };
 
 TYPED_TEST_P(pca_common_overflow_gpu_tests, train_throws_if_component_count_leads_to_overflow) {
