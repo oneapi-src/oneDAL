@@ -431,7 +431,8 @@ private:
 class SyclKernelSchedulerArgHandler
 {
 public:
-    SyclKernelSchedulerArgHandler(cl::sycl::queue& queue, cl::sycl::handler & handler, SyclBufferStorage & storage, size_t argumentIndex, const KernelArgument & arg)
+    SyclKernelSchedulerArgHandler(cl::sycl::queue & queue, cl::sycl::handler & handler, SyclBufferStorage & storage, size_t argumentIndex,
+                                  const KernelArgument & arg)
         : _queue(queue), _handler(handler), _storage(storage), _argumentIndex(argumentIndex), _argument(arg)
     {}
 
@@ -638,7 +639,8 @@ private:
         });
     }
 
-    void passArguments(cl::sycl::queue& queue, cl::sycl::handler & cgh, SyclBufferStorage & storage, const KernelArguments & args, Status & status) const
+    void passArguments(cl::sycl::queue & queue, cl::sycl::handler & cgh, SyclBufferStorage & storage, const KernelArguments & args,
+                       Status & status) const
     {
         for (size_t i = 0; i < args.size(); i++)
         {

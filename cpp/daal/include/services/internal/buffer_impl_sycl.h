@@ -289,31 +289,29 @@ template <typename T>
 class ConvertToUsm : public BufferVisitor<T>
 {
 public:
-    ConvertToUsm(cl::sycl::queue& queue)
-        : _q(queue) {}
+    ConvertToUsm(cl::sycl::queue & queue) : _q(queue) {}
 
     Status operator()(const HostBuffer<T> & buffer) DAAL_C11_OVERRIDE
     {
         Status st;
 
         auto host_data = buffer.get();
-        auto usm_data = cl::sycl::malloc_shared<T>(buffer.size(), _q);
+        auto usm_data  = cl::sycl::malloc_shared<T>(buffer.size(), _q);
         if (usm_data == nullptr)
         {
             return services::ErrorMemoryAllocationFailed;
         }
 
-        const size_t size = sizeof(T)*buffer.size();
+        const size_t size = sizeof(T) * buffer.size();
         DAAL_ASSERT(size / sizeof(T) == buffer.size());
 
-        auto result = services::internal::daal_memcpy_s(usm_data, size,
-                                                        host_data.get(), size);
+        auto result = services::internal::daal_memcpy_s(usm_data, size, host_data.get(), size);
         if (result)
         {
             return services::ErrorMemoryCopyFailedInternal;
         }
 
-        _data = SharedPtr<T>(usm_data, [q = this->_q](const void* data){ cl::sycl::free(const_cast<void*>(data), q); });
+        _data = SharedPtr<T>(usm_data, [q = this->_q](const void * data) { cl::sycl::free(const_cast<void *>(data), q); });
         return st;
     }
 
@@ -335,17 +333,16 @@ public:
             return services::ErrorMemoryAllocationFailed;
         }
 
-        const size_t size = sizeof(T)*buffer.size();
+        const size_t size = sizeof(T) * buffer.size();
         DAAL_ASSERT(size / sizeof(T) == buffer.size());
 
-        auto result = services::internal::daal_memcpy_s(usm_data, size,
-                                                        host_data.get(), size);
+        auto result = services::internal::daal_memcpy_s(usm_data, size, host_data.get(), size);
         if (result)
         {
             return services::ErrorMemoryCopyFailedInternal;
         }
 
-        _data = SharedPtr<T>(usm_data, [q = this->_q](const void* data){ cl::sycl::free(const_cast<void*>(data), q); });
+        _data = SharedPtr<T>(usm_data, [q = this->_q](const void * data) { cl::sycl::free(const_cast<void *>(data), q); });
         return st;
     }
 
@@ -353,7 +350,7 @@ public:
 
 private:
     SharedPtr<T> _data;
-    cl::sycl::queue& _q;
+    cl::sycl::queue & _q;
 };
 #endif
 
@@ -374,7 +371,7 @@ public:
     }
 
 #ifdef DAAL_SYCL_INTERFACE_USM
-    SharedPtr<T> toUSM(const internal::BufferIface<T> & buffer, cl::sycl::queue& q, Status & status)
+    SharedPtr<T> toUSM(const internal::BufferIface<T> & buffer, cl::sycl::queue & q, Status & status)
     {
         ConvertToUsm<T> action(q);
         status |= buffer.apply(action);

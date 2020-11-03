@@ -260,7 +260,7 @@ public:
      *  \param[out] status Status of operation
      *  \return USM shared pointer
      */
-    SharedPtr<T> toUSM(cl::sycl::queue& q, Status & status) const
+    SharedPtr<T> toUSM(cl::sycl::queue & q, Status & status) const
     {
         if (!_impl)
         {
@@ -275,7 +275,7 @@ public:
      *  Converts buffer to the USM shared pointer, throws exception if conversion fails
      *  \return USM shared pointer
      */
-    SharedPtr<T> toUSM(cl::sycl::queue& q) const
+    SharedPtr<T> toUSM(cl::sycl::queue & q) const
     {
         Status status;
         const SharedPtr<T> ptr = toUSM(q, status);
@@ -284,7 +284,7 @@ public:
     }
     #endif // DAAL_NOTHROW_EXCEPTIONS
 
-#endif     // DAAL_SYCL_INTERFACE_USM
+#endif // DAAL_SYCL_INTERFACE_USM
 
 #ifdef DAAL_SYCL_INTERFACE_USM
     inline bool isUSMBacked() const { return dynamic_cast<internal::UsmBuffer<T> *>(_impl.get()) != nullptr; }
