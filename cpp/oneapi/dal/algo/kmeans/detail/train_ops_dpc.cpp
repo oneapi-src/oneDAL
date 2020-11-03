@@ -20,7 +20,9 @@
 #include "oneapi/dal/backend/dispatcher_dpc.hpp"
 
 namespace oneapi::dal::kmeans::detail {
-using oneapi::dal::detail::data_parallel_policy;
+namespace v1 {
+
+using dal::detail::data_parallel_policy;
 
 template <typename Float, typename Method, typename Task>
 struct train_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
@@ -40,4 +42,5 @@ struct train_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
 INSTANTIATE(float, method::lloyd_dense, task::clustering)
 INSTANTIATE(double, method::lloyd_dense, task::clustering)
 
+} // namespace v1
 } // namespace oneapi::dal::kmeans::detail
