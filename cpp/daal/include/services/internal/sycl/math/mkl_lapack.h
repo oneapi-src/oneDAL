@@ -70,7 +70,7 @@ private:
 #ifdef DAAL_SYCL_INTERFACE_USM
         if (a.isUSMBacked())
         {
-            auto a_usm = a.toUSM(status);
+            auto a_usm = a.toUSM(_queue, status);
             DAAL_CHECK_STATUS_VAR(status);
 
             algorithmFPType * scratchpad = nullptr;
@@ -144,10 +144,10 @@ private:
 #ifdef DAAL_SYCL_INTERFACE_USM
         if (a.isUSMBacked())
         {
-            auto a_usm = a.toUSM(status);
+            auto a_usm = a.toUSM(_queue, status);
             DAAL_CHECK_STATUS_VAR(status);
 
-            auto b_usm = b.toUSM(status);
+            auto b_usm = b.toUSM(_queue, status);
             DAAL_CHECK_STATUS_VAR(status);
 
             algorithmFPType * scratchpad = nullptr;

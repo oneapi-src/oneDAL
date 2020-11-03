@@ -431,8 +431,8 @@ private:
 class SyclKernelSchedulerArgHandler
 {
 public:
-    SyclKernelSchedulerArgHandler(cl::sycl::handler & handler, SyclBufferStorage & storage, size_t argumentIndex, const KernelArgument & arg)
-        : _handler(handler), _storage(storage), _argumentIndex(argumentIndex), _argument(arg)
+    SyclKernelSchedulerArgHandler(cl::sycl::queue& queue, cl::sycl::handler & handler, SyclBufferStorage & storage, size_t argumentIndex, const KernelArgument & arg)
+        : _queue(queue), _handler(handler), _storage(storage), _argumentIndex(argumentIndex), _argument(arg)
     {}
 
     template <typename T>
@@ -457,7 +457,9 @@ private:
         {
             DAAL_ASSERT((_argument.accessMode() == AccessModeIds::read || _argument.accessMode() == AccessModeIds::write
                          || _argument.accessMode() == AccessModeIds::readwrite));
-            auto shared_pointer = service_buffer.toUSM(status);
+            auto shared_pointer = service_buffer.toUSM(_queue, status);
+            DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+
             _handler.set_arg((int)_argumentIndex, shared_pointer.get());
         }
         else
@@ -507,6 +509,7 @@ private:
         _handler.set_arg((int)_argumentIndex, value);
     }
 
+    cl::sycl::queue & _queue;
     cl::sycl::handler & _handler;
     SyclBufferStorage & _storage;
     size_t _argumentIndex;
@@ -627,7 +630,7 @@ private:
             cl::sycl::kernel syclKernel = kernel.toSycl(_queue.get_context());
 
             auto event = _queue.submit([&](cl::sycl::handler & cgh) {
-                passArguments(cgh, bufferStorage, args, status);
+                passArguments(_queue, cgh, bufferStorage, args, status);
                 DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
                 cgh.parallel_for(range, syclKernel);
             });
@@ -635,12 +638,12 @@ private:
         });
     }
 
-    void passArguments(cl::sycl::handler & cgh, SyclBufferStorage & storage, const KernelArguments & args, Status & status) const
+    void passArguments(cl::sycl::queue& queue, cl::sycl::handler & cgh, SyclBufferStorage & storage, const KernelArguments & args, Status & status) const
     {
         for (size_t i = 0; i < args.size(); i++)
         {
             const auto & arg = args.get(i);
-            SyclKernelSchedulerArgHandler argHandler(cgh, storage, i, arg);
+            SyclKernelSchedulerArgHandler argHandler(queue, cgh, storage, i, arg);
             TypeDispatcher::dispatch(arg.dataType(), argHandler, status);
             DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
         }

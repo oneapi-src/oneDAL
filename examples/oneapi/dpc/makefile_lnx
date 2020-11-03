@@ -69,17 +69,23 @@ ifndef TBBROOT
 endif
 TBB_PATH = $(TBBROOT)/lib/intel64/gcc4.8
 
-ifeq ($(RES_EXT),so)
-    -B := -Bdynamic
-else
-    -B := -Bstatic
-endif
-
 ifeq ($(threading),sequential)
     $(error Sequential version is not supported. To run sequential version please refer to 'examples/oneapi/cpp')
 else
     override threading = parallel
     THREADING_LIB := onedal_thread
+endif
+
+ifeq ($(RES_EXT),so)
+    ONEDAL_LIBS := -Wl,-Bdynamic -lonedal_dpc \
+                   -Wl,-Bdynamic -lonedal_core \
+                   -Wl,-Bdynamic -l$(THREADING_LIB) \
+                   -Wl,"$(DAAL_PATH)"/libonedal_sycl.a
+else
+    ONEDAL_LIBS := -Wl,"$(DAAL_PATH)"/libonedal_dpc.a \
+                   -Wl,"$(DAAL_PATH)"/libonedal_core.a \
+                   -Wl,"$(DAAL_PATH)"/lib$(THREADING_LIB).a \
+                   -Wl,"$(DAAL_PATH)"/libonedal_sycl.a
 endif
 
 COPTS := -std=c++17 \
@@ -91,10 +97,7 @@ COPTS := -std=c++17 \
          -I./source \
          -I"$(DAALROOT)/include"
 
-LIBS := -Wl,$(-B) -lonedal_dpc \
-        -Wl,$(-B) -lonedal_core \
-        -Wl,$(-B) -lonedal_sycl \
-        -Wl,$(-B) -l$(THREADING_LIB) \
+LIBS := $(ONEDAL_LIBS) \
         -Wl,-Bdynamic -ltbb \
         -Wl,-Bdynamic -ltbbmalloc \
         -Wl,-Bdynamic -lpthread \

@@ -137,10 +137,10 @@ private:
 #ifdef DAAL_SYCL_INTERFACE_USM
             if (src_buffer.isUSMBacked() && dst_buffer.isUSMBacked())
             {
-                auto src = src_buffer.toUSM(status);
+                auto src = src_buffer.toUSM(queue, status);
                 DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
-                auto dst = dst_buffer.toUSM(status);
+                auto dst = dst_buffer.toUSM(queue, status);
                 DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
                 auto src_raw = src.get() + srcOffset;
@@ -158,7 +158,7 @@ private:
             {
                 // this branch is a workaround on the SYCL RT bug
                 // on copy operation from usm-backed buffer to the vanilla buffer
-                auto src = src_buffer.toUSM(status);
+                auto src = src_buffer.toUSM(queue, status);
                 DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
                 auto dst = dst_buffer.toSycl(status);
@@ -242,7 +242,7 @@ private:
 #ifdef DAAL_SYCL_INTERFACE_USM
             if (dst_buffer.isUSMBacked())
             {
-                auto dst = dst_buffer.toUSM(status);
+                auto dst = dst_buffer.toUSM(queue, status);
                 DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
                 auto dst_raw = dst.get() + dstOffset;
@@ -308,7 +308,7 @@ private:
 #ifdef DAAL_SYCL_INTERFACE_USM
             if (dstBuffer.isUSMBacked())
             {
-                auto dstPtr = dstBuffer.toUSM(status);
+                auto dstPtr = dstBuffer.toUSM(queue, status);
                 DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
                 status |= catchSyclExceptions([&]() mutable {

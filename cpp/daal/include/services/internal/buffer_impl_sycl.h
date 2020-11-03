@@ -289,10 +289,32 @@ template <typename T>
 class ConvertToUsm : public BufferVisitor<T>
 {
 public:
+    ConvertToUsm(cl::sycl::queue& queue)
+        : _q(queue) {}
+
     Status operator()(const HostBuffer<T> & buffer) DAAL_C11_OVERRIDE
     {
-        _data = buffer.get();
-        return Status();
+        Status st;
+
+        auto host_data = buffer.get();
+        auto usm_data = cl::sycl::malloc_shared<T>(buffer.size(), _q);
+        if (usm_data == nullptr)
+        {
+            return services::ErrorMemoryAllocationFailed;
+        }
+
+        const size_t size = sizeof(T)*buffer.size();
+        DAAL_ASSERT(size / sizeof(T) == buffer.size());
+
+        auto result = services::internal::daal_memcpy_s(usm_data, size,
+                                                        host_data.get(), size);
+        if (result)
+        {
+            return services::ErrorMemoryCopyFailedInternal;
+        }
+
+        _data = SharedPtr<T>(usm_data, [q = this->_q](const void* data){ cl::sycl::free(const_cast<void*>(data), q); });
+        return st;
     }
 
     Status operator()(const UsmBufferIface<T> & buffer) DAAL_C11_OVERRIDE
@@ -303,20 +325,35 @@ public:
 
     Status operator()(const SyclBufferIface<T> & buffer) DAAL_C11_OVERRIDE
     {
-        Status status;
-        /* NOTE: Performance might be not quite satisfactory. If the SYCL* buffer
-       * is a wrapper over pointer (e.g., was created using `use_host_ptr`
-       * property), `getHostReadWrite` will not create overhead. Otherwise,
-       * getting host pointer will result in graph synchronization and potential
-       * data copy. */
-        _data = buffer.getHostReadWrite(status);
-        return status;
+        Status st;
+
+        auto host_data = buffer.getHostRead(st);
+        DAAL_CHECK_STATUS_VAR(st);
+        auto usm_data = cl::sycl::malloc_shared<T>(buffer.size(), _q);
+        if (usm_data == nullptr)
+        {
+            return services::ErrorMemoryAllocationFailed;
+        }
+
+        const size_t size = sizeof(T)*buffer.size();
+        DAAL_ASSERT(size / sizeof(T) == buffer.size());
+
+        auto result = services::internal::daal_memcpy_s(usm_data, size,
+                                                        host_data.get(), size);
+        if (result)
+        {
+            return services::ErrorMemoryCopyFailedInternal;
+        }
+
+        _data = SharedPtr<T>(usm_data, [q = this->_q](const void* data){ cl::sycl::free(const_cast<void*>(data), q); });
+        return st;
     }
 
     const SharedPtr<T> & get() const { return _data; }
 
 private:
     SharedPtr<T> _data;
+    cl::sycl::queue& _q;
 };
 #endif
 
@@ -337,9 +374,9 @@ public:
     }
 
 #ifdef DAAL_SYCL_INTERFACE_USM
-    SharedPtr<T> toUSM(const internal::BufferIface<T> & buffer, Status & status)
+    SharedPtr<T> toUSM(const internal::BufferIface<T> & buffer, cl::sycl::queue& q, Status & status)
     {
-        ConvertToUsm<T> action;
+        ConvertToUsm<T> action(q);
         status |= buffer.apply(action);
         DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, SharedPtr<T>());
         return action.get();
