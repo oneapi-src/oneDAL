@@ -19,7 +19,9 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::svm::detail {
-using oneapi::dal::detail::host_policy;
+namespace v1 {
+
+using dal::detail::host_policy;
 
 template <typename Float, typename Method, typename Task>
 struct infer_ops_dispatcher<host_policy, Float, Method, Task> {
@@ -38,4 +40,5 @@ struct infer_ops_dispatcher<host_policy, Float, Method, Task> {
 INSTANTIATE(float, method::by_default, task::classification)
 INSTANTIATE(double, method::by_default, task::classification)
 
+} // namespace v1
 } // namespace oneapi::dal::svm::detail

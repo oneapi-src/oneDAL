@@ -22,6 +22,7 @@
 #include <daal/include/algorithms/kernel_function/kernel_function_rbf.h>
 
 namespace oneapi::dal::svm::detail {
+namespace v1 {
 
 class kernel_function_impl : public base {
 public:
@@ -29,5 +30,9 @@ public:
 
     virtual daal::algorithms::kernel_function::KernelIfacePtr get_daal_kernel_function() = 0;
 };
+
+} // namespace v1
+
+using v1::kernel_function_impl;
 
 } // namespace oneapi::dal::svm::detail

@@ -23,14 +23,14 @@ namespace v1 {
 
 template <typename... Args>
 auto train(Args&&... args) {
-    return detail::train_dispatch(std::forward<Args>(args)...);
+    return dal::detail::train_dispatch(std::forward<Args>(args)...);
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename... Args>
 auto train(sycl::queue& queue, Args&&... args) {
-    return detail::train_dispatch(detail::data_parallel_policy{ queue },
-                                  std::forward<Args>(args)...);
+    return dal::detail::train_dispatch(detail::data_parallel_policy{ queue },
+                                       std::forward<Args>(args)...);
 }
 #endif
 

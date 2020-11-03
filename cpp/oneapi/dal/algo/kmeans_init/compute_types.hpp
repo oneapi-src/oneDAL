@@ -21,21 +21,31 @@
 namespace oneapi::dal::kmeans_init {
 
 namespace detail {
-template <typename Task = task::by_default>
+namespace v1 {
+template <typename Task>
 class compute_input_impl;
 
-template <typename Task = task::by_default>
+template <typename Task>
 class compute_result_impl;
+} // namespace v1
+
+using v1::compute_input_impl;
+using v1::compute_result_impl;
+
 } // namespace detail
 
+namespace v1 {
+
 template <typename Task = task::by_default>
-class ONEDAL_EXPORT compute_input : public base {
+class compute_input : public base {
+    static_assert(detail::is_valid_task_v<Task>);
+
 public:
     using task_t = Task;
 
     compute_input(const table& data);
 
-    table get_data() const;
+    const table& get_data() const;
 
     auto& set_data(const table& data) {
         set_data_impl(data);
@@ -45,27 +55,35 @@ public:
 private:
     void set_data_impl(const table& data);
 
-    dal::detail::pimpl<detail::compute_input_impl<task_t>> impl_;
+    dal::detail::pimpl<detail::compute_input_impl<Task>> impl_;
 };
 
 template <typename Task = task::by_default>
-class ONEDAL_EXPORT compute_result {
+class compute_result {
+    static_assert(detail::is_valid_task_v<Task>);
+
 public:
     using task_t = Task;
 
     compute_result();
 
-    table get_centroids() const;
+    const table& get_centroids() const;
 
     auto& set_centroids(const table& value) {
         set_centroids_impl(value);
         return *this;
     }
 
-private:
+protected:
     void set_centroids_impl(const table&);
 
-    dal::detail::pimpl<detail::compute_result_impl<task_t>> impl_;
+private:
+    dal::detail::pimpl<detail::compute_result_impl<Task>> impl_;
 };
+
+} // namespace v1
+
+using v1::compute_input;
+using v1::compute_result;
 
 } // namespace oneapi::dal::kmeans_init

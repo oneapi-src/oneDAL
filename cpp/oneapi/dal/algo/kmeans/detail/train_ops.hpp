@@ -20,12 +20,10 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::kmeans::detail {
+namespace v1 {
 
-template <typename Context,
-          typename Float,
-          typename Method = method::by_default,
-          typename Task = task::by_default>
-struct ONEDAL_EXPORT train_ops_dispatcher {
+template <typename Context, typename Float, typename Method, typename Task, typename... Options>
+struct train_ops_dispatcher {
     train_result<Task> operator()(const Context&,
                                   const descriptor_base<Task>&,
                                   const train_input<Task>&) const;
@@ -80,5 +78,9 @@ struct train_ops {
         return result;
     }
 };
+
+} // namespace v1
+
+using v1::train_ops;
 
 } // namespace oneapi::dal::kmeans::detail

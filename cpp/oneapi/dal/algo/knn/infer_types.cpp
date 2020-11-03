@@ -19,9 +19,8 @@
 
 namespace oneapi::dal::knn {
 
-namespace detail {
 template <typename Task>
-class infer_input_impl : public base {
+class detail::v1::infer_input_impl : public base {
 public:
     infer_input_impl(const table& data, const model<Task>& m) : data(data), trained_model(m) {}
 
@@ -30,14 +29,15 @@ public:
 };
 
 template <typename Task>
-class infer_result_impl : public base {
+class detail::v1::infer_result_impl : public base {
 public:
     table labels;
 };
-} // namespace detail
 
-using detail::infer_input_impl;
-using detail::infer_result_impl;
+using detail::v1::infer_input_impl;
+using detail::v1::infer_result_impl;
+
+namespace v1 {
 
 template <typename Task>
 infer_input<Task>::infer_input(const table& data, const model<Task>& m)
@@ -64,7 +64,7 @@ void infer_input<Task>::set_model_impl(const model<Task>& value) {
 }
 
 template <typename Task>
-infer_result<Task>::infer_result() : impl_(new infer_result_impl{}) {}
+infer_result<Task>::infer_result() : impl_(new infer_result_impl<Task>{}) {}
 
 template <typename Task>
 const table& infer_result<Task>::get_labels() const {
@@ -79,4 +79,5 @@ void infer_result<Task>::set_labels_impl(const table& value) {
 template class ONEDAL_EXPORT infer_input<task::classification>;
 template class ONEDAL_EXPORT infer_result<task::classification>;
 
+} // namespace v1
 } // namespace oneapi::dal::knn
