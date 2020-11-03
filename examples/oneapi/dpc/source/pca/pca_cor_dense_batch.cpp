@@ -24,38 +24,31 @@
 
 #include "example_util/utils.hpp"
 
-using namespace oneapi;
+namespace dal = oneapi::dal;
 
-void run(sycl::queue& queue) {
-    const std::string train_data_file_name = get_data_path("pca_normalized.csv");
+void run(sycl::queue& q) {
+    const auto train_data_file_name = get_data_path("pca_normalized.csv");
 
-    const auto x_train = dal::read<dal::table>(queue, dal::csv::data_source{ train_data_file_name });
+    const auto x_train = dal::read<dal::table>(q, dal::csv::data_source{ train_data_file_name });
 
-    const auto pca_desc = dal::pca::descriptor<>()
-        .set_component_count(5)
-        .set_deterministic(true);
+    const auto pca_desc = dal::pca::descriptor<>().set_component_count(5).set_deterministic(true);
 
-    const auto result_train = dal::train(queue, pca_desc, x_train);
+    const auto result_train = dal::train(q, pca_desc, x_train);
 
-    std::cout << "Eigenvectors:" << std::endl
-              << result_train.get_eigenvectors() << std::endl;
+    std::cout << "Eigenvectors:\n" << result_train.get_eigenvectors() << std::endl;
 
-    std::cout << "Eigenvalues:" << std::endl
-              << result_train.get_eigenvalues() << std::endl;
+    std::cout << "Eigenvalues:\n" << result_train.get_eigenvalues() << std::endl;
 
-    const auto result_infer = dal::infer(queue, pca_desc, result_train.get_model(), x_train);
+    const auto result_infer = dal::infer(q, pca_desc, result_train.get_model(), x_train);
 
-    std::cout << "Transformed data:" << std::endl
-              << result_infer.get_transformed_data() << std::endl;
+    std::cout << "Transformed data:\n" << result_infer.get_transformed_data() << std::endl;
 }
 
-int main(int argc, char const *argv[]) {
-    for (auto device : list_devices()) {
-        std::cout << "Running on "
-                  << device.get_info<sycl::info::device::name>()
-                  << std::endl << std::endl;
-        auto queue = sycl::queue{device};
-        run(queue);
+int main(int argc, char const* argv[]) {
+    for (auto d : list_devices()) {
+        std::cout << "Running on " << d.get_info<sycl::info::device::name>() << "\n" << std::endl;
+        auto q = sycl::queue{ d };
+        run(q);
     }
     return 0;
 }

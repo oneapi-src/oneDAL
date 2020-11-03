@@ -18,7 +18,7 @@
 
 #include <variant>
 
-#include "oneapi/dal/memory.hpp"
+#include "oneapi/dal/detail/memory.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::detail {

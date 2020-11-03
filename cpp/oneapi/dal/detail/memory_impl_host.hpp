@@ -60,7 +60,7 @@ public:
         return malloc<T>(default_host_policy{}, n);
     }
     void deallocate(T* p, std::int64_t n) const {
-        return free(default_host_policy{}, p);
+        free(default_host_policy{}, p);
     }
 };
 
