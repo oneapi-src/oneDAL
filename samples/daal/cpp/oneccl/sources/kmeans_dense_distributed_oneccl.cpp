@@ -70,7 +70,7 @@ int getLocalRank(ccl::communicator& comm, int size, int rank)
     std::string str(name.begin(), name.end());
     std::vector<char> allNames((MPI_MAX_PROCESSOR_NAME + 1) * size, zero);
     std::vector<size_t> aReceiveCount(size, MPI_MAX_PROCESSOR_NAME + 1);
-    comm.allgatherv(name.data(), name.size(),  allNames.data(), aReceiveCount)->wait();
+    ccl::allgatherv((int8_t*)name.data(), name.size(),  (int8_t*)allNames.data(), aReceiveCount, comm).wait();
     int localRank = 0;
     for(int i = 0; i < rank; i++) {
         auto nameBegin = allNames.begin() + i * (MPI_MAX_PROCESSOR_NAME + 1);
@@ -96,26 +96,26 @@ NumericTablePtr compute(int rankId, const NumericTablePtr & pData, const Numeric
 
 int main(int argc, char * argv[])
 {
+    ccl::init();
+
     MPI_Init(NULL, NULL); 
     int size, rank; 
     MPI_Comm_size(MPI_COMM_WORLD, &size); 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank); 
     
-    auto& env = ccl::environment::instance(); 
-    
-    ccl::shared_ptr_class<ccl::kvs> kvs; 
-    ccl::kvs::address_type main_addr; 
+    ccl::shared_ptr_class<ccl::kvs> kvs;
+    ccl::kvs::address_type main_addr;
     if (rank == 0) { 
-        kvs = env.create_main_kvs(); 
+        kvs = ccl::create_main_kvs(); 
         main_addr = kvs->get_address(); 
         MPI_Bcast((void*)main_addr.data(), main_addr.size(), MPI_BYTE, 0, MPI_COMM_WORLD); 
     } 
     else { 
         MPI_Bcast((void*)main_addr.data(), main_addr.size(), MPI_BYTE, 0, MPI_COMM_WORLD); 
-        kvs = env.create_kvs(main_addr); 
+        kvs = ccl::create_kvs(main_addr); 
     } 
     
-    auto comm = env.create_communicator(size, rank, kvs); 
+    auto comm = ccl::create_communicator(size, rank, kvs); 
     auto local_rank = getLocalRank(comm, size, rank);
 
     auto gpus = get_gpus();
@@ -155,12 +155,12 @@ NumericTablePtr init(int rankId, const NumericTablePtr & pData, ccl::communicato
     /* Serialize partial results required by step 2 */
     InputDataArchive dataArch;
     localInit.getPartialResult()->serialize(dataArch);
-    const size_t perNodeArchLength = (size_t)dataArch.getSizeOfArchive();
+    const uint64_t perNodeArchLength = (size_t)dataArch.getSizeOfArchive();
 
-    std::vector<size_t> aPerNodeArchLength(comm.size());
+    std::vector<uint64_t> aPerNodeArchLength(comm.size());
     std::vector<size_t> aReceiveCount(comm.size(), 1);
     /* Transfer archive length to the step 2 on the root node */
-    comm.allgatherv(&perNodeArchLength, 1,  aPerNodeArchLength.data(), aReceiveCount)->wait();
+    ccl::allgatherv(&perNodeArchLength, 1,  aPerNodeArchLength.data(), aReceiveCount, comm).wait();
 
     ByteBuffer serializedData;
     /* Calculate total archive length */
@@ -178,7 +178,7 @@ NumericTablePtr init(int rankId, const NumericTablePtr & pData, ccl::communicato
     dataArch.copyArchiveToArray(&nodeResults[0], perNodeArchLength);
 
     /* Transfer partial results to step 2 on the root node */
-    comm.allgatherv((char*)&nodeResults[0], perNodeArchLength,  (char*)&serializedData[0], aPerNodeArchLength)->wait();
+    ccl::allgatherv((int8_t*)&nodeResults[0], perNodeArchLength,  (int8_t*)&serializedData[0], aPerNodeArchLength, comm).wait();
     if (isRoot)
     {
         /* Create an algorithm to compute k-means on the master node */
@@ -198,7 +198,6 @@ NumericTablePtr init(int rankId, const NumericTablePtr & pData, ccl::communicato
         /* Merge and finalizeCompute k-means on the master node */
         masterInit.compute();
         masterInit.finalizeCompute();
-
         return masterInit.getResult()->get(kmeans::init::centroids);
     }
     return NumericTablePtr();
@@ -207,7 +206,7 @@ NumericTablePtr init(int rankId, const NumericTablePtr & pData, ccl::communicato
 NumericTablePtr compute(int rankId, const NumericTablePtr & pData, const NumericTablePtr & initialCentroids, ccl::communicator& comm)
 {
     const bool isRoot          = (rankId == ccl_root);
-    size_t CentroidsArchLength = 0;
+    uint64_t CentroidsArchLength = 0;
     InputDataArchive inputArch;
     if (isRoot)
     {
@@ -217,12 +216,12 @@ NumericTablePtr compute(int rankId, const NumericTablePtr & pData, const Numeric
     }
 
     /* Get partial results from the root node */
-    MPI_Bcast(&CentroidsArchLength, sizeof(size_t), MPI_CHAR, ccl_root, MPI_COMM_WORLD);
+    ccl::broadcast(&CentroidsArchLength, 1, ccl_root, comm).wait();
 
     ByteBuffer nodeCentroids(CentroidsArchLength);
     if (isRoot) inputArch.copyArchiveToArray(&nodeCentroids[0], CentroidsArchLength);
 
-    MPI_Bcast(&nodeCentroids[0], CentroidsArchLength, MPI_CHAR, ccl_root, MPI_COMM_WORLD);
+    ccl::broadcast((int8_t*)&nodeCentroids[0], CentroidsArchLength, ccl_root, comm).wait();
 
     /* Deserialize centroids data */
     OutputDataArchive outArch(nodeCentroids.size() ? &nodeCentroids[0] : NULL, CentroidsArchLength);
@@ -254,7 +253,7 @@ NumericTablePtr compute(int rankId, const NumericTablePtr & pData, const Numeric
     dataArch.copyArchiveToArray(&nodeResults[0], perNodeArchLength);
     std::vector<size_t> aReceiveCount(comm.size(), perNodeArchLength);
     /* Transfer partial results to step 2 on the root node */
-    comm.allgatherv((char*)&nodeResults[0], perNodeArchLength,  (char*)&serializedData[0], aReceiveCount)->wait();
+    ccl::allgatherv((int8_t*)&nodeResults[0], perNodeArchLength,  (int8_t*)&serializedData[0], aReceiveCount, comm).wait();
 
     if (isRoot)
     {
