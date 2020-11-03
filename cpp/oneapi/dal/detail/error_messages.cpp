@@ -117,7 +117,7 @@ MSG(empty_edge_list, "Empty edge list")
 MSG(interval_gt_vertex_count, "Interval is greater than vertex count")
 MSG(negative_interval, "Negative interval")
 MSG(row_begin_gt_row_end, "Row begin is greater than row end")
-MSG(range_idx_gt_max_int32, "Range indexes are greater than max of int32");
+MSG(range_idx_gt_max_int32, "Range indexes are greater than max of int32")
 
 /* PCA */
 MSG(component_count_lt_zero, "Component count is lower than zero")
