@@ -19,8 +19,8 @@
 
 namespace oneapi::dal::rbf_kernel {
 
-template <>
-class detail::v1::descriptor_impl<task::compute> : public base {
+template <typename Task>
+class detail::v1::descriptor_impl : public base {
 public:
     double sigma = 1.0;
 };

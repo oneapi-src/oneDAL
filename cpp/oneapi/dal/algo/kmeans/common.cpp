@@ -19,16 +19,16 @@
 
 namespace oneapi::dal::kmeans {
 
-template <>
-class detail::v1::descriptor_impl<task::clustering> : public base {
+template <typename Task>
+class detail::v1::descriptor_impl : public base {
 public:
     std::int64_t cluster_count = 2;
     std::int64_t max_iteration_count = 100;
     double accuracy_threshold = 0;
 };
 
-template <>
-class detail::v1::model_impl<task::clustering> : public base {
+template <typename Task>
+class detail::v1::model_impl : public base {
 public:
     table centroids;
 };

@@ -19,8 +19,8 @@
 
 namespace oneapi::dal::kmeans_init {
 
-template <>
-class detail::v1::descriptor_impl<task::init> : public base {
+template <typename Task>
+class detail::v1::descriptor_impl : public base {
 public:
     std::int64_t cluster_count = 2;
 };

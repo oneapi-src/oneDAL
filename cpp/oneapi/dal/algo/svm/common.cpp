@@ -20,8 +20,8 @@
 
 namespace oneapi::dal::svm {
 
-template <>
-class detail::v1::descriptor_impl<task::classification> : public base {
+template <typename Task>
+class detail::v1::descriptor_impl : public base {
 public:
     explicit descriptor_impl(const detail::kernel_function_ptr& kernel) : kernel(kernel) {}
 
@@ -34,8 +34,8 @@ public:
     bool shrinking = true;
 };
 
-template <>
-class detail::v1::model_impl<task::classification> : public base {
+template <typename Task>
+class detail::v1::model_impl : public base {
 public:
     table support_vectors;
     table coeffs;

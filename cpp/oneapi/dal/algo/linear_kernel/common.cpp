@@ -18,8 +18,8 @@
 
 namespace oneapi::dal::linear_kernel {
 
-template <>
-class detail::v1::descriptor_impl<task::compute> : public base {
+template <typename Task>
+class detail::v1::descriptor_impl : public base {
 public:
     double scale = 1.0;
     double shift = 0.0;

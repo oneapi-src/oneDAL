@@ -19,15 +19,15 @@
 
 namespace oneapi::dal::pca {
 
-template <>
-class detail::v1::descriptor_impl<task::dim_reduction> : public base {
+template <typename Task>
+class detail::v1::descriptor_impl : public base {
 public:
     std::int64_t component_count = -1;
     bool deterministic = false;
 };
 
-template <>
-class detail::v1::model_impl<task::dim_reduction> : public base {
+template <typename Task>
+class detail::v1::model_impl : public base {
 public:
     table eigenvectors;
 };
@@ -40,26 +40,26 @@ namespace v1 {
 template <typename Task>
 descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
 
-template <>
-std::int64_t descriptor_base<task::dim_reduction>::get_component_count() const {
+template <typename Task>
+std::int64_t descriptor_base<Task>::get_component_count() const {
     return impl_->component_count;
 }
 
-template <>
-bool descriptor_base<task::dim_reduction>::get_deterministic() const {
+template <typename Task>
+bool descriptor_base<Task>::get_deterministic() const {
     return impl_->deterministic;
 }
 
-template <>
-void descriptor_base<task::dim_reduction>::set_component_count_impl(std::int64_t value) {
+template <typename Task>
+void descriptor_base<Task>::set_component_count_impl(std::int64_t value) {
     if (value < 0) {
         throw domain_error(dal::detail::error_messages::component_count_lt_zero());
     }
     impl_->component_count = value;
 }
 
-template <>
-void descriptor_base<task::dim_reduction>::set_deterministic_impl(bool value) {
+template <typename Task>
+void descriptor_base<Task>::set_deterministic_impl(bool value) {
     impl_->deterministic = value;
 }
 
