@@ -274,9 +274,9 @@ y_major_name_postfix := $(if $(OS_is_win),,$(if $(OS_is_mac),.$(MAJORBINARY).$(y
 core_a       := $(plib)onedal_core.$a
 core_y       := $(plib)onedal_core$(if $(OS_is_win),.$(MAJORBINARY),).$y
 oneapi_a     := $(plib)onedal.$a
-oneapi_y     := $(plib)onedal.$y
+oneapi_y     := $(plib)onedal$(if $(OS_is_win),.$(MAJORBINARY),).$y
 oneapi_a.dpc := $(plib)onedal_dpc.$a
-oneapi_y.dpc := $(plib)onedal_dpc.$y
+oneapi_y.dpc := $(plib)onedal_dpc$(if $(OS_is_win),.$(MAJORBINARY),).$y
 
 thr_tbb_a := $(plib)onedal_thread.$a
 thr_seq_a := $(plib)onedal_sequential.$a
@@ -780,10 +780,10 @@ $(WORKDIR.lib)/$(oneapi_y): \
     $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 $(WORKDIR.lib)/$(oneapi_y): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(oneapi_y): LOPT += $(daaldep.rt.seq)
-$(WORKDIR.lib)/$(oneapi_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.dll=%_dll.lib),)
-$(WORKDIR.lib)/$(oneapi_y): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.dll=%_dll.lib))
+$(WORKDIR.lib)/$(oneapi_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.$(MAJORBINARY).dll=%_dll.lib),)
+$(WORKDIR.lib)/$(oneapi_y): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib))
 ifdef OS_is_win
-$(WORKDIR.lib)/$(oneapi_y:%.dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y)
+$(WORKDIR.lib)/$(oneapi_y:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y)
 endif
 
 $(ONEAPI.tmpdir_y.dpc)/$(oneapi_y.dpc:%.$y=%_link.txt): \
@@ -793,12 +793,12 @@ $(WORKDIR.lib)/$(oneapi_y.dpc): \
     $(ONEAPI.tmpdir_y.dpc)/$(oneapi_y.dpc:%.$y=%_link.txt) ; $(DPC.LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(daaldep.rt.dpc)
-$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.dll=%_dll.lib),)
-$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.dll=%_dll.lib))
+$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.$(MAJORBINARY).dll=%_dll.lib),)
+$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib))
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),sycl.lib OpenCL.lib)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),$(mklgpufpk.LIBS_A))
 ifdef OS_is_win
-$(WORKDIR.lib)/$(oneapi_y.dpc:%.dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y.dpc)
+$(WORKDIR.lib)/$(oneapi_y.dpc:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y.dpc)
 endif
 
 $(ONEAPI.tmpdir_y)/dll.res: $(VERSION_DATA_FILE)
@@ -1023,9 +1023,9 @@ ifeq ($(OS_is_win),yes)
 $(foreach x,$(release.LIBS_A),$(eval $(call .release.a_win,$x,$(RELEASEDIR.libia),_release_c)))
 $(foreach x,$(release.LIBS_Y),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.soia),_release_c)))
 $(foreach x,$(release.LIBS_J),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.soia),_release_jj)))
-$(foreach x,$(release.ONEAPI.LIBS_A),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.libia),_release_oneapi_c)))
+$(foreach x,$(release.ONEAPI.LIBS_A),$(eval $(call .release.a_win,$x,$(RELEASEDIR.libia),_release_oneapi_c)))
 $(foreach x,$(release.ONEAPI.LIBS_Y),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.soia),_release_oneapi_c)))
-$(foreach x,$(release.ONEAPI.LIBS_A.dpc),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.libia),_release_oneapi_dpc)))
+$(foreach x,$(release.ONEAPI.LIBS_A.dpc),$(eval $(call .release.a_win,$x,$(RELEASEDIR.libia),_release_oneapi_dpc)))
 $(foreach x,$(release.ONEAPI.LIBS_Y.dpc),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.soia),_release_oneapi_dpc)))
 endif
 
