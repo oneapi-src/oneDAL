@@ -346,25 +346,23 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
     const descriptor_base &desc,
     vertex_similarity_input<undirected_adjacency_array_graph<>> &input) {
     const auto &my_graph = input.get_graph();
-    const auto &g = oneapi::dal::preview::detail::get_impl(my_graph);
+    const auto &g = dal::preview::detail::get_impl(my_graph);
 
     auto g_edge_offsets = g->_edge_offsets.data();
     auto g_vertex_neighbors = g->_vertex_neighbors.data();
     auto g_degrees = g->_degrees.data();
-
-    const auto row_begin = static_cast<std::int32_t>(desc.get_row_range_begin());
-    const auto row_end = static_cast<std::int32_t>(desc.get_row_range_end());
-    const auto column_begin = static_cast<std::int32_t>(desc.get_column_range_begin());
-    const auto column_end = static_cast<std::int32_t>(desc.get_column_range_end());
-
-    const auto number_elements_in_block = (row_end - row_begin) * (column_end - column_begin);
-    const size_t max_block_size =
-        compute_max_block_size(row_begin, row_end, column_begin, column_end);
-
+    const auto row_begin = dal::detail::integral_cast<std::int32_t>(desc.get_row_range_begin());
+    const auto row_end = dal::detail::integral_cast<std::int32_t>(desc.get_row_range_end());
+    const auto column_begin =
+        dal::detail::integral_cast<std::int32_t>(desc.get_column_range_begin());
+    const auto column_end = dal::detail::integral_cast<std::int32_t>(desc.get_column_range_end());
+    const auto number_elements_in_block =
+        compute_number_elements_in_block(row_begin, row_end, column_begin, column_end);
+    const auto max_block_size = compute_max_block_size(number_elements_in_block);
     void *result_ptr = input.get_caching_builder()(max_block_size);
     std::int32_t *first_vertices = reinterpret_cast<std::int32_t *>(result_ptr);
     std::int32_t *second_vertices = first_vertices + number_elements_in_block;
-    float *jaccard = reinterpret_cast<float *>(first_vertices + 2 * number_elements_in_block);
+    float *jaccard = reinterpret_cast<float *>(second_vertices + number_elements_in_block);
 
     std::int64_t nnz = 0;
     std::int32_t j = column_begin;
@@ -451,6 +449,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
                     _mm512_mask_compressstoreu_ps((jaccard + nnz), non_zero_coefficients, tmp_v);
 
                     nnz += _popcnt32_redef(_cvtmask16_u32(non_zero_coefficients));
+                    ONEDAL_ASSERT(nnz > 0, "Overflow found in sum of two values");
                 }
 
                 j += 16;
@@ -497,6 +496,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
                 _mm512_mask_compressstoreu_ps((jaccard + nnz), non_zero_coefficients, tmp_v);
 
                 nnz += _popcnt32_redef(_cvtmask16_u32(non_zero_coefficients));
+                ONEDAL_ASSERT(nnz > 0, "Overflow found in sum of two values");
             }
 
             j += 16;
@@ -513,6 +513,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
                         first_vertices[nnz] = i;
                         second_vertices[nnz] = j;
                         nnz++;
+                        ONEDAL_ASSERT(nnz > 0, "Overflow found in sum of two values");
                     }
                 }
             }
@@ -531,6 +532,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
                         first_vertices[nnz] = i;
                         second_vertices[nnz] = j;
                         nnz++;
+                        ONEDAL_ASSERT(nnz > 0, "Overflow found in sum of two values");
                     }
                 }
             }
@@ -544,6 +546,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
             first_vertices[nnz] = i;
             second_vertices[nnz] = diagonal;
             nnz++;
+            ONEDAL_ASSERT(nnz > 0, "Overflow found in sum of two values");
             tmp_idx = diagonal + 1;
         }
         j = tmp_idx;
@@ -614,6 +617,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
                     _mm512_mask_compressstoreu_ps((jaccard + nnz), non_zero_coefficients, tmp_v);
 
                     nnz += _popcnt32_redef(_cvtmask16_u32(non_zero_coefficients));
+                    ONEDAL_ASSERT(nnz > 0, "Overflow found in sum of two values");
                 }
 
                 j += 16;
@@ -660,6 +664,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
                 _mm512_mask_compressstoreu_ps((jaccard + nnz), non_zero_coefficients, tmp_v);
 
                 nnz += _popcnt32_redef(_cvtmask16_u32(non_zero_coefficients));
+                ONEDAL_ASSERT(nnz > 0, "Overflow found in sum of two values");
             }
 
             j += 16;
@@ -676,6 +681,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
                         first_vertices[nnz] = i;
                         second_vertices[nnz] = j;
                         nnz++;
+                        ONEDAL_ASSERT(nnz > 0, "Overflow found in sum of two values");
                     }
                 }
             }
@@ -694,6 +700,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
                         first_vertices[nnz] = i;
                         second_vertices[nnz] = j;
                         nnz++;
+                        ONEDAL_ASSERT(nnz > 0, "Overflow found in sum of two values");
                     }
                 }
             }
