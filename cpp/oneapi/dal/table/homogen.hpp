@@ -145,6 +145,16 @@ private:
                    const Data* data_pointer,
                    ConstDeleter&& data_deleter,
                    data_layout layout) {
+        using error_msg = dal::detail::error_messages;
+
+        if (row_count <= 0) {
+            throw dal::domain_error(error_msg::rc_leq_zero());
+        }
+
+        if (column_count <= 0) {
+            throw dal::domain_error(error_msg::cc_leq_zero());
+        }
+
         dal::detail::check_mul_overflow(row_count, column_count);
         array<Data> data_array{ data_pointer,
                                 row_count * column_count,

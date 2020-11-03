@@ -18,6 +18,7 @@
 #include "gtest/gtest.h"
 
 using namespace oneapi::dal;
+using namespace oneapi;
 
 TEST(table_test, can_construct_empty_table) {
     table t;
@@ -72,4 +73,28 @@ TEST(table_test, can_set_custom_implementation) {
     ASSERT_TRUE(t.has_data());
     ASSERT_EQ(t.get_kind(), table_impl{}.get_kind());
     ASSERT_EQ(data_layout::row_major, t.get_data_layout());
+}
+
+TEST(simple_metadata_bad_arg_tests, get_feature_type) {
+    const std::int64_t n_features = 5;
+    auto dtypes = array<data_type>::full(n_features, data_type::int32);
+    auto ftypes = array<feature_type>::full(n_features, feature_type::nominal);
+
+    table_metadata md(dtypes, ftypes);
+
+    ASSERT_THROW(md.get_feature_type(-1), dal::out_of_range);
+    ASSERT_THROW(md.get_feature_type(n_features), dal::out_of_range);
+    ASSERT_NO_THROW(md.get_feature_type(0));
+}
+
+TEST(simple_metadata_bad_arg_tests, get_data_type) {
+    const std::int64_t n_features = 5;
+    auto dtypes = array<data_type>::full(n_features, data_type::int32);
+    auto ftypes = array<feature_type>::full(n_features, feature_type::nominal);
+
+    table_metadata md(dtypes, ftypes);
+
+    ASSERT_THROW(md.get_data_type(-1), dal::out_of_range);
+    ASSERT_THROW(md.get_data_type(n_features), dal::out_of_range);
+    ASSERT_NO_THROW(md.get_data_type(0));
 }
