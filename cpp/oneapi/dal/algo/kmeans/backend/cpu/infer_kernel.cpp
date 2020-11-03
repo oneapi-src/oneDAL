@@ -47,8 +47,9 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
     const int64_t cluster_count = desc.get_cluster_count();
     const int64_t max_iteration_count = 0;
 
-    daal_kmeans::Parameter par(cluster_count, max_iteration_count);
-    par.resultsToEvaluate = daal_kmeans::computeAssignments;
+    daal_kmeans::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count),
+                               dal::detail::integral_cast<std::size_t>(max_iteration_count));
+    par.resultsToEvaluate = static_cast<DAAL_UINT64>(daal_kmeans::computeAssignments);
 
     auto arr_data = row_accessor<const Float>{ data }.pull();
     auto arr_initial_centroids = row_accessor<const Float>{ trained_model.get_centroids() }.pull();
@@ -57,9 +58,8 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
     array<Float> arr_objective_function_value = array<Float>::empty(1);
     array<int> arr_iteration_count = array<int>::empty(1);
 
-    const auto daal_data = interop::convert_to_daal_homogen_table(arr_data,
-                                                                  data.get_row_count(),
-                                                                  data.get_column_count());
+    const auto daal_data =
+        interop::convert_to_daal_homogen_table(arr_data, row_count, column_count);
     const auto daal_initial_centroids =
         interop::convert_to_daal_homogen_table(arr_initial_centroids, cluster_count, column_count);
     const auto daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);

@@ -54,17 +54,17 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     const int64_t max_iteration_count = desc.get_max_iteration_count();
     const double accuracy_threshold = desc.get_accuracy_threshold();
 
-    daal_kmeans::Parameter par(cluster_count, max_iteration_count);
+    daal_kmeans::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count),
+                               dal::detail::integral_cast<std::size_t>(max_iteration_count));
     par.accuracyThreshold = accuracy_threshold;
 
     auto arr_data = row_accessor<const Float>{ data }.pull();
-    const auto daal_data = interop::convert_to_daal_homogen_table(arr_data,
-                                                                  data.get_row_count(),
-                                                                  data.get_column_count());
+    const auto daal_data =
+        interop::convert_to_daal_homogen_table(arr_data, row_count, column_count);
 
     auto new_initial_centroids = initial_centroids;
     if (!new_initial_centroids.has_data()) {
-        daal_kmeans_init::Parameter par(cluster_count);
+        daal_kmeans_init::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count));
 
         const size_t init_len_input = 1;
         daal::data_management::NumericTable* init_input[init_len_input] = { daal_data.get() };
@@ -91,6 +91,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     auto arr_initial_centroids = row_accessor<const Float>{ new_initial_centroids }.pull();
 
+    dal::detail::check_mul_overflow(cluster_count, column_count);
     array<Float> arr_centroids = array<Float>::empty(cluster_count * column_count);
     array<int> arr_labels = array<int>::empty(row_count);
     array<Float> arr_objective_function_value = array<Float>::empty(1);
