@@ -141,7 +141,7 @@ constexpr bool is_floating_point() {
 }
 
 template <typename Data>
-struct integer_overflow_ops {
+struct ONEDAL_EXPORT integer_overflow_ops {
     void check_mul_overflow(const Data& first, const Data& second);
     void check_sum_overflow(const Data& first, const Data& second);
 };
