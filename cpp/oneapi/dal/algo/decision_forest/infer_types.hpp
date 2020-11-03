@@ -24,6 +24,7 @@ namespace detail {
 namespace v1 {
 template <typename Task>
 class infer_input_impl;
+
 template <typename Task>
 class infer_result_impl;
 } // namespace v1
@@ -37,6 +38,8 @@ namespace v1 {
 
 template <typename Task = task::by_default>
 class infer_input : public base {
+    static_assert(detail::is_valid_task_v<Task>);
+
 public:
     using task_t = Task;
 
@@ -65,6 +68,8 @@ private:
 
 template <typename Task = task::by_default>
 class infer_result : public base {
+    static_assert(detail::is_valid_task_v<Task>);
+
 public:
     using task_t = Task;
 

@@ -22,10 +22,10 @@ namespace oneapi::dal::decision_forest {
 
 namespace detail {
 namespace v1 {
-template <typename Task = task::by_default>
+template <typename Task>
 class train_input_impl;
 
-template <typename Task = task::by_default>
+template <typename Task>
 class train_result_impl;
 } // namespace v1
 
@@ -38,6 +38,8 @@ namespace v1 {
 
 template <typename Task = task::by_default>
 class train_input : public base {
+    static_assert(detail::is_valid_task_v<Task>);
+
 public:
     using task_t = Task;
 
@@ -66,6 +68,8 @@ private:
 
 template <typename Task = task::by_default>
 class train_result {
+    static_assert(detail::is_valid_task_v<Task>);
+
 public:
     using task_t = Task;
 

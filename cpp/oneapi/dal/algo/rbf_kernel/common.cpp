@@ -19,13 +19,15 @@
 
 namespace oneapi::dal::rbf_kernel {
 
-template <>
-class detail::descriptor_impl<task::compute> : public base {
+template <typename Task>
+class detail::v1::descriptor_impl : public base {
 public:
     double sigma = 1.0;
 };
 
-using detail::descriptor_impl;
+using detail::v1::descriptor_impl;
+
+namespace v1 {
 
 template <typename Task>
 descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
@@ -45,4 +47,5 @@ void descriptor_base<Task>::set_sigma_impl(double value) {
 
 template class ONEDAL_EXPORT descriptor_base<task::compute>;
 
+} // namespace v1
 } // namespace oneapi::dal::rbf_kernel
