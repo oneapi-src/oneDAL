@@ -95,7 +95,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     oneapi::dal::detail::check_mul_overflow(vertex_count + 1, sizeof(atomic_edge_t) / sizeof(char));
     void *rows_vec_void =
         (void *)allocator.allocate((vertex_count + 1) * (sizeof(atomic_edge_t) / sizeof(char)));
-    atomic_vertex_t *rows_vec_atomic = new (rows_vec_void) atomic_edge_t[vertex_count + 1];
+    atomic_edge_t *rows_vec_atomic = new (rows_vec_void) atomic_edge_t[vertex_count + 1];
 
     edge_t total_sum_degrees = 0;
     //TODO: rows_vec_atomic should contain edge_t
@@ -129,7 +129,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         unfiltered_neighs[rows_vec_atomic[edges[u].second].inc() - 1] = edges[u].first;
     });
     allocator.deallocate((char *)rows_vec_void,
-                         (vertex_count + 1) * (sizeof(atomic_vertex_t) / sizeof(char)));
+                         (vertex_count + 1) * (sizeof(atomic_edge_t) / sizeof(char)));
 
     layout->_degrees = std::move(vertex_set(vertex_count));
     auto degrees_data = layout->_degrees.data();

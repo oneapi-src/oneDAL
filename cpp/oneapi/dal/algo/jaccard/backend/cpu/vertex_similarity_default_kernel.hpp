@@ -53,7 +53,7 @@ DAAL_FORCEINLINE std::size_t compute_number_elements_in_block(
     // compute the number of the vertex pairs in the block of the graph
     const std::size_t vertex_pairs_count = row_count * column_count;
     ONEDAL_ASSERT(vertex_pairs_count / row_count == column_count,
-                  "Overflow_found_in_multiplication_of_two_values");
+                  "Overflow found in multiplication of two values");
     return vertex_pairs_count;
 }
 
@@ -69,7 +69,7 @@ DAAL_FORCEINLINE std::size_t compute_max_block_size(const std::size_t &vertex_pa
 
     const std::size_t block_result_size = element_result_size * vertex_pairs_count;
     ONEDAL_ASSERT(block_result_size / vertex_pairs_count == element_result_size,
-                  "Overflow_found_in_multiplication_of_two_values");
+                  "Overflow found in multiplication of two values");
     return block_result_size;
 }
 
