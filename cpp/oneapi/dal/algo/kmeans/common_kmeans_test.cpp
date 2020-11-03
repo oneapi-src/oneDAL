@@ -24,20 +24,20 @@ namespace kmn = oneapi::dal::kmeans;
 
 using kmn_desc = kmn::descriptor<float, kmn::method::lloyd_dense, kmn::task::clustering>;
 
-TEST(kmn_bad_arg_tests, set_cluster_count) {
+TEST(kmeans_bad_arg_tests, set_cluster_count) {
     ASSERT_THROW((kmn_desc{}.set_cluster_count(0)), dal::domain_error);
     ASSERT_THROW((kmn_desc{}.set_cluster_count(-1)), dal::domain_error);
 }
 
-TEST(kmn_bad_arg_tests, set_max_iteration_count) {
+TEST(kmeans_bad_arg_tests, set_max_iteration_count) {
     ASSERT_THROW((kmn_desc{}.set_max_iteration_count(-1)), dal::domain_error);
 }
 
-TEST(kmn_bad_arg_tests, set_accuracy_threshold) {
+TEST(kmeans_bad_arg_tests, set_accuracy_threshold) {
     ASSERT_THROW((kmn_desc{}.set_accuracy_threshold(-0.1)), dal::domain_error);
 }
 
-TEST(kmn_bad_arg_tests, throws_if_train_data_table_is_empty) {
+TEST(kmeans_bad_arg_tests, throws_if_train_data_table_is_empty) {
     constexpr std::int64_t cluster_count = 2;
 
     dal::homogen_table data_table;
@@ -50,7 +50,7 @@ TEST(kmn_bad_arg_tests, throws_if_train_data_table_is_empty) {
     ASSERT_THROW(train(kmeans_desc, data_table), dal::domain_error);
 }
 
-TEST(kmn_bad_arg_tests, throws_if_initial_centroids_rows_dont_match_clusters_count) {
+TEST(kmeans_bad_arg_tests, throws_if_initial_centroids_rows_dont_match_clusters_count) {
     constexpr std::int64_t row_count = 8;
     constexpr std::int64_t column_count = 2;
     constexpr std::int64_t cluster_count = 2;
@@ -71,7 +71,7 @@ TEST(kmn_bad_arg_tests, throws_if_initial_centroids_rows_dont_match_clusters_cou
     ASSERT_THROW(train(kmeans_desc, data_table, initial_centroids_table), dal::invalid_argument);
 }
 
-TEST(kmn_bad_arg_tests, throws_if_initial_centroids_columns_dont_match_data_columns) {
+TEST(kmeans_bad_arg_tests, throws_if_initial_centroids_columns_dont_match_data_columns) {
     constexpr std::int64_t row_count = 8;
     constexpr std::int64_t column_count = 2;
     constexpr std::int64_t cluster_count = 2;
@@ -92,7 +92,7 @@ TEST(kmn_bad_arg_tests, throws_if_initial_centroids_columns_dont_match_data_colu
     ASSERT_THROW(train(kmeans_desc, data_table, initial_centroids_table), dal::invalid_argument);
 }
 
-TEST(kmn_bad_arg_tests, throws_if_infer_data_table_is_empty) {
+TEST(kmeans_bad_arg_tests, throws_if_infer_data_table_is_empty) {
     constexpr std::int64_t row_count = 8;
     constexpr std::int64_t column_count = 2;
     constexpr std::int64_t cluster_count = 2;
