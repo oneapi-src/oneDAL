@@ -91,6 +91,7 @@ vertex_similarity_result call_jaccard_default_kernel_scalar(
                     // Safe incrementing of nnz
                     //max nnz = (2^(31)  * 2^(31))=(2^62) < 2^63 = max size of std::int64_t
                     nnz++;
+                    ONEDAL_ASSERT(nnz > 0, "Overflow found in sum of two values");
                 }
             }
         }
