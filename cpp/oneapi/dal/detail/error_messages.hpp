@@ -96,6 +96,7 @@ public:
 
     /* Graphs */
     MSG(vertex_index_out_of_range_expect_from_zero_to_vertex_count);
+    MSG(negative_vertex_id);
 
     /* General Algorithms */
     MSG(accuracy_threshold_lt_zero);
@@ -126,6 +127,7 @@ public:
     MSG(interval_gt_vertex_count);
     MSG(negative_interval);
     MSG(row_begin_gt_row_end);
+    MSG(range_idx_gt_max_int32);
 
     /* K-Means and K-Means Init */
     MSG(cluster_count_leq_zero);
