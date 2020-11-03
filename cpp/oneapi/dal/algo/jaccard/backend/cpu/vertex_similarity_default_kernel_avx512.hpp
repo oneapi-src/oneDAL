@@ -352,7 +352,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
     auto g_vertex_neighbors = g->_vertex_neighbors.data();
     auto g_degrees = g->_degrees.data();
     const auto row_begin = dal::detail::integral_cast<std::int32_t>(desc.get_row_range_begin());
-    const auto row_end = oneapi::dal::detail::integral_cast<std::int32_t>(desc.get_row_range_end());
+    const auto row_end = dal::detail::integral_cast<std::int32_t>(desc.get_row_range_end());
     const auto column_begin =
         dal::detail::integral_cast<std::int32_t>(desc.get_column_range_begin());
     const auto column_end = dal::detail::integral_cast<std::int32_t>(desc.get_column_range_end());
