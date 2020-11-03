@@ -272,7 +272,7 @@ y_full_name_postfix := $(if $(OS_is_win),,$(if $(OS_is_mac),.$(MAJORBINARY).$(MI
 y_major_name_postfix := $(if $(OS_is_win),,$(if $(OS_is_mac),.$(MAJORBINARY).$(y),.$(y).$(MAJORBINARY)))
 
 core_a       := $(plib)onedal_core.$a
-core_y       := $(plib)onedal_core.$y
+core_y       := $(plib)onedal_core$(if $(OS_is_win),.$(MAJORBINARY),).$y
 oneapi_a     := $(plib)onedal.$a
 oneapi_y     := $(plib)onedal.$y
 oneapi_a.dpc := $(plib)onedal_dpc.$a
@@ -280,8 +280,8 @@ oneapi_y.dpc := $(plib)onedal_dpc.$y
 
 thr_tbb_a := $(plib)onedal_thread.$a
 thr_seq_a := $(plib)onedal_sequential.$a
-thr_tbb_y := $(plib)onedal_thread.$y
-thr_seq_y := $(plib)onedal_sequential.$y
+thr_tbb_y := $(plib)onedal_thread$(if $(OS_is_win),.$(MAJORBINARY),).$y
+thr_seq_y := $(plib)onedal_sequential$(if $(OS_is_win),.$(MAJORBINARY),).$y
 
 daal_jar  := onedal.jar
 
@@ -489,9 +489,9 @@ $(WORKDIR.lib)/$(core_a):                   $(daaldep.ipp) $(daaldep.vml) $(daal
 
 $(WORKDIR.lib)/$(core_y): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(core_y): LOPT += $(daaldep.rt.seq)
-$(WORKDIR.lib)/$(core_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.dll=%_dll.lib),)
+$(WORKDIR.lib)/$(core_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.$(MAJORBINARY).dll=%_dll.lib),)
 ifdef OS_is_win
-$(WORKDIR.lib)/$(core_y:%.dll=%_dll.lib): $(WORKDIR.lib)/$(core_y)
+$(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(core_y)
 endif
 $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt): $(CORE.objs_y) $(if $(OS_is_win),$(CORE.tmpdir_y)/dll.res,) | $(CORE.tmpdir_y)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(core_y):                   $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
@@ -988,6 +988,14 @@ $3: $2/$1
 $(if $(phony-upd),$(eval .PHONY: $2/$1))
 $2/$1: $(WORKDIR.lib)/$1 | $2/.
 	cp -fp $(WORKDIR.lib)/$1 $2/$(subst dll.,dll.$(MAJORBINARY).,$1)
+
+endef
+define .release.a_win
+$3: $2/$1
+$(if $(phony-upd),$(eval .PHONY: $2/$1))
+$2/$1: $(WORKDIR.lib)/$1 | $2/.
+	cp -fp $(WORKDIR.lib)/$1 $2/$(subst dll.,dll.$(MAJORBINARY).,$1)
+	cp -fp $(WORKDIR.lib)/$1 $2/$1
 endef
 define .release.y_link
 $3: $2/$1
@@ -1012,7 +1020,7 @@ $(foreach x,$(release.ONEAPI.LIBS_Y.dpc),$(eval $(call .release.y_link,$x,$(RELE
 endif
 
 ifeq ($(OS_is_win),yes)
-$(foreach x,$(release.LIBS_A),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.libia),_release_c)))
+$(foreach x,$(release.LIBS_A),$(eval $(call .release.a_win,$x,$(RELEASEDIR.libia),_release_c)))
 $(foreach x,$(release.LIBS_Y),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.soia),_release_c)))
 $(foreach x,$(release.LIBS_J),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.soia),_release_jj)))
 $(foreach x,$(release.ONEAPI.LIBS_A),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.libia),_release_oneapi_c)))
