@@ -36,9 +36,7 @@ vertex_similarity_result vertex_similarity_ops_dispatcher<Policy, Float, Method,
     template struct ONEDAL_EXPORT \
         vertex_similarity_ops_dispatcher<dal::detail::host_policy, F, M, G>;
 
-INSTANTIATE(float,
-            dal::preview::jaccard::method::by_default,
-            undirected_adjacency_array_graph<>)
+INSTANTIATE(float, dal::preview::jaccard::method::by_default, undirected_adjacency_array_graph<>)
 
 } // namespace detail
 } // namespace jaccard

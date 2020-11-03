@@ -271,13 +271,11 @@ vertex_similarity_result call_jaccard_default_kernel_avx2(
     auto g_edge_offsets = g->_edge_offsets.data();
     auto g_vertex_neighbors = g->_vertex_neighbors.data();
     auto g_degrees = g->_degrees.data();
-    const auto row_begin =
-        dal::detail::integral_cast<std::int32_t>(desc.get_row_range_begin());
+    const auto row_begin = dal::detail::integral_cast<std::int32_t>(desc.get_row_range_begin());
     const auto row_end = dal::detail::integral_cast<std::int32_t>(desc.get_row_range_end());
     const auto column_begin =
         dal::detail::integral_cast<std::int32_t>(desc.get_column_range_begin());
-    const auto column_end =
-        dal::detail::integral_cast<std::int32_t>(desc.get_column_range_end());
+    const auto column_end = dal::detail::integral_cast<std::int32_t>(desc.get_column_range_end());
     const auto number_elements_in_block =
         compute_number_elements_in_block(row_begin, row_end, column_begin, column_end);
     const auto max_block_size = compute_max_block_size(number_elements_in_block);

@@ -26,6 +26,7 @@
 #include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
 #include "oneapi/dal/io/detail/load_graph_service.hpp"
 #include "oneapi/dal/detail/threading.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/io/graph_csv_data_source.hpp"
 #include "oneapi/dal/io/load_graph_descriptor.hpp"
 #include "services/daal_atomic_int.h"
@@ -71,6 +72,10 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     for (auto u : edges) {
         vertex_t edge_max = std::max(u.first, u.second);
         max_id = std::max(max_id, edge_max);
+    }
+
+    if (max_id < 0) {
+        throw invalid_argument(dal::detail::error_messages::negative_vertex_id());
     }
     const vertex_size_type unsigned_max_id =
         oneapi::dal::detail::integral_cast<vertex_size_type>(max_id);

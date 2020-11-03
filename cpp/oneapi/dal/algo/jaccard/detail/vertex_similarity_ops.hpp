@@ -63,6 +63,10 @@ struct vertex_similarity_ops {
             static_cast<std::size_t>(column_end) > vertex_count) {
             throw out_of_range(msg::interval_gt_vertex_count());
         }
+        if (row_end >= dal::detail::limits<std::int32_t>::max() ||
+            column_end >= dal::detail::limits<std::int32_t>::max()) {
+            throw invalid_argument(msg::range_idx_gt_max_int32());
+        }
     }
 
     template <typename Policy>
