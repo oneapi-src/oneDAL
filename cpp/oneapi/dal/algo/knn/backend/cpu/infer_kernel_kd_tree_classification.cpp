@@ -62,7 +62,7 @@ static infer_result<task::classification> call_daal_kernel(
     interop::status_to_exception(interop::call_daal_kernel<Float, daal_knn_kd_tree_kernel_t>(
         ctx,
         daal_data.get(),
-        dal::detail::get_impl<detail::model_impl>(m).get_interop()->get_daal_model().get(),
+        dal::detail::cast_impl<detail::model_impl>(m).get_interop()->get_daal_model().get(),
         daal_labels.get(),
         nullptr,
         nullptr,

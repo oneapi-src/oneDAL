@@ -24,6 +24,116 @@
 using namespace oneapi;
 namespace df = oneapi::dal::decision_forest;
 
+using df_hist_classifier = df::descriptor<float, df::method::hist, df::task::classification>;
+using df_dense_classifier = df::descriptor<float, df::method::dense, df::task::classification>;
+
+TEST(df_bad_arg_tests, test_checks_for_inputs_exceed_int32) {
+    constexpr std::int64_t row_count_train = 6;
+    constexpr std::int64_t column_count = 2;
+
+    auto selector = sycl::gpu_selector();
+    auto queue = sycl::queue(selector);
+
+    auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
+    ASSERT_NE(x_train, nullptr);
+    const auto x_train_table =
+        dal::homogen_table::wrap(queue, x_train, row_count_train, column_count);
+
+    auto y_train = sycl::malloc_shared<float>(row_count_train, queue);
+    ASSERT_NE(y_train, nullptr);
+    const auto y_train_table = dal::homogen_table::wrap(queue, y_train, row_count_train, 1);
+
+    ASSERT_THROW((dal::train(queue,
+                             df_hist_classifier{}.set_class_count(0xFFFFFFFF),
+                             x_train_table,
+                             y_train_table)),
+                 dal::domain_error);
+    ASSERT_THROW((dal::train(queue,
+                             df_hist_classifier{}.set_min_observations_in_leaf_node(0xFFFFFFFF),
+                             x_train_table,
+                             y_train_table)),
+                 dal::domain_error);
+    ASSERT_THROW((dal::train(queue,
+                             df_hist_classifier{}.set_features_per_node(0xFFFFFFFF),
+                             x_train_table,
+                             y_train_table)),
+                 dal::domain_error);
+    ASSERT_THROW((dal::train(queue,
+                             df_hist_classifier{}.set_max_bins(0xFFFFFFFF),
+                             x_train_table,
+                             y_train_table)),
+                 dal::domain_error);
+    ASSERT_THROW((dal::train(queue,
+                             df_hist_classifier{}.set_min_bin_size(0xFFFFFFFF),
+                             x_train_table,
+                             y_train_table)),
+                 dal::domain_error);
+}
+
+TEST(df_bad_arg_tests, test_overflow_checks_in_train) {
+    constexpr std::int64_t row_count_train = 6;
+    constexpr std::int64_t column_count = 2;
+
+    auto selector = sycl::gpu_selector();
+    auto queue = sycl::queue(selector);
+
+    auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
+    ASSERT_NE(x_train, nullptr);
+    const auto x_train_table =
+        dal::homogen_table::wrap(queue, x_train, row_count_train, column_count);
+
+    auto y_train = sycl::malloc_shared<float>(row_count_train, queue);
+    ASSERT_NE(y_train, nullptr);
+    const auto y_train_table = dal::homogen_table::wrap(queue, y_train, row_count_train, 1);
+
+    ASSERT_THROW((dal::train(queue,
+                             df_hist_classifier{}.set_tree_count(0x7FFFFFFFFFFFFFFF),
+                             x_train_table,
+                             y_train_table)),
+                 dal::internal_error);
+}
+
+TEST(df_bad_arg_tests, set_infer_params_over_int32) {
+    constexpr std::int64_t row_count_train = 6;
+    constexpr std::int64_t row_count_test = 3;
+    constexpr std::int64_t column_count = 2;
+
+    const float x_train_host[] = { -2.f, -1.f, -1.f, -1.f, -1.f, -2.f,
+                                   +1.f, +1.f, +1.f, +2.f, +2.f, +1.f };
+    const float y_train_host[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f };
+
+    const float x_test_host[] = { -1.f, -1.f, 2.f, 2.f, 3.f, 2.f };
+
+    auto selector = sycl::gpu_selector();
+    auto queue = sycl::queue(selector);
+
+    auto x_train = sycl::malloc_shared<float>(row_count_train * column_count, queue);
+    ASSERT_NE(x_train, nullptr);
+    std::memcpy(x_train, x_train_host, sizeof(float) * row_count_train * column_count);
+    const auto x_train_table =
+        dal::homogen_table::wrap(queue, x_train, row_count_train, column_count);
+
+    auto y_train = sycl::malloc_shared<float>(row_count_train, queue);
+    ASSERT_NE(y_train, nullptr);
+    std::memcpy(y_train, y_train_host, sizeof(float) * row_count_train);
+    const auto y_train_table = dal::homogen_table::wrap(queue, y_train, row_count_train, 1);
+
+    auto x_test = sycl::malloc_shared<float>(row_count_test * column_count, queue);
+    ASSERT_NE(x_test, nullptr);
+    std::memcpy(x_test, x_test_host, sizeof(float) * row_count_test * column_count);
+    const auto x_test_table = dal::homogen_table::wrap(queue, x_test, row_count_test, column_count);
+
+    const auto df_train_desc = df_hist_classifier{};
+
+    const auto result_train = dal::train(queue, df_train_desc, x_train_table, y_train_table);
+
+    ASSERT_THROW((dal::infer(queue,
+                             df_dense_classifier{}.set_class_count(0xFFFFFFFF),
+                             result_train.get_model(),
+                             x_test_table)),
+                 dal::domain_error);
+}
+
 TEST(infer_and_train_cls_kernels_test, can_process_simple_case_default_params) {
     constexpr double accuracy_threshold = 0.05;
     constexpr std::int64_t row_count_train = 6;
@@ -56,8 +166,8 @@ TEST(infer_and_train_cls_kernels_test, can_process_simple_case_default_params) {
     std::memcpy(x_test, x_test_host, sizeof(float) * row_count_test * column_count);
     const auto x_test_table = dal::homogen_table::wrap(queue, x_test, row_count_test, column_count);
 
-    const auto df_train_desc = df::descriptor<float, df::task::classification, df::method::hist>{};
-    const auto df_infer_desc = df::descriptor<float, df::task::classification, df::method::dense>{};
+    const auto df_train_desc = df_hist_classifier{};
+    const auto df_infer_desc = df_dense_classifier{};
 
     const auto result_train = dal::train(queue, df_train_desc, x_train_table, y_train_table);
     ASSERT_EQ(!(result_train.get_var_importance().has_data()), true);
@@ -111,7 +221,7 @@ TEST(infer_and_train_cls_kernels_test, can_process_simple_case_non_default_param
     const auto x_test_table = dal::homogen_table::wrap(queue, x_test, row_count_test, column_count);
 
     const auto df_train_desc =
-        df::descriptor<float, df::task::classification, df::method::hist>{}
+        df_hist_classifier{}
             .set_class_count(class_count)
             .set_tree_count(tree_count)
             .set_features_per_node(1)
@@ -121,7 +231,7 @@ TEST(infer_and_train_cls_kernels_test, can_process_simple_case_non_default_param
                                    df::error_metric_mode::out_of_bag_error_per_observation);
 
     const auto df_infer_desc =
-        df::descriptor<float, df::task::classification, df::method::dense>{}
+        df_dense_classifier{}
             .set_infer_mode(df::infer_mode::class_labels | df::infer_mode::class_probabilities)
             .set_voting_mode(df::voting_mode::unweighted);
 
@@ -187,12 +297,11 @@ TEST(infer_and_train_cls_kernels_test, can_process_corner_case) {
     std::memcpy(x_test, x_test_host, sizeof(float) * row_count_test * column_count);
     const auto x_test_table = dal::homogen_table::wrap(queue, x_test, row_count_test, column_count);
 
-    const auto df_train_desc = df::descriptor<float, df::task::classification, df::method::hist>{}
+    const auto df_train_desc = df_hist_classifier{}
                                    .set_class_count(2)
                                    .set_tree_count(10)
                                    .set_min_observations_in_leaf_node(8);
-    const auto df_infer_desc =
-        df::descriptor<float, df::task::classification, df::method::dense>{}.set_class_count(2);
+    const auto df_infer_desc = df_dense_classifier{}.set_class_count(2);
 
     const auto result_train = dal::train(queue, df_train_desc, x_train_table, y_train_table);
     // infer on CPU for now

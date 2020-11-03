@@ -67,6 +67,10 @@ public:
     using float_t = Float;
     using method_t = Method;
 
+    explicit descriptor(std::int64_t cluster_count = 2) {
+        set_cluster_count(cluster_count);
+    }
+
     auto& set_cluster_count(int64_t value) {
         descriptor_base<Task>::set_cluster_count_impl(value);
         return *this;

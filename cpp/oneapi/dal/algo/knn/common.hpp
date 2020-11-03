@@ -42,7 +42,7 @@ using by_default = brute_force;
 } // namespace method
 
 template <typename Task = task::by_default>
-class ONEDAL_EXPORT descriptor_base : public base {
+class descriptor_base : public base {
 public:
     using tag_t = detail::tag;
     using float_t = float;
@@ -88,7 +88,7 @@ public:
 };
 
 template <typename Task = task::by_default>
-class ONEDAL_EXPORT model : public base {
+class model : public base {
     friend dal::detail::pimpl_accessor;
 
 public:

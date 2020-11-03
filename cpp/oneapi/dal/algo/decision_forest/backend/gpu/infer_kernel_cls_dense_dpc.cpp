@@ -14,39 +14,47 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <daal/src/services/service_algo_utils.h>
 #include <daal/src/algorithms/dtrees/forest/classification/oneapi/df_classification_predict_dense_kernel_oneapi.h>
 
-#include "oneapi/dal/table/row_accessor.hpp"
-
 #include "oneapi/dal/algo/decision_forest/backend/gpu/infer_kernel.hpp"
+
+#include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
-
-#include "oneapi/dal/algo/decision_forest/backend/interop_helpers.hpp"
-#include "oneapi/dal/exceptions.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/model_impl.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
 using dal::backend::context_gpu;
+using model_t = model<task::classification>;
+using input_t = infer_input<task::classification>;
+using result_t = infer_result<task::classification>;
+using descriptor_t = descriptor_base<task::classification>;
 
-namespace df = daal::algorithms::decision_forest;
-namespace cls = daal::algorithms::decision_forest::classification;
-
+namespace daal_df = daal::algorithms::decision_forest;
+namespace daal_df_cls_pred = daal_df::classification::prediction;
 namespace interop = dal::backend::interop;
-namespace df_interop = dal::backend::interop::decision_forest;
 
 template <typename Float>
 using cls_dense_predict_kernel_t =
-    cls::prediction::internal::PredictKernelOneAPI<Float, cls::prediction::defaultDense>;
+    daal_df_cls_pred::internal::PredictKernelOneAPI<Float, daal_df_cls_pred::defaultDense>;
 
-using cls_model_p = cls::ModelPtr;
+static daal_df::classification::ModelPtr get_daal_model(const model_t& trained_model) {
+    const model_interop* interop_model = dal::detail::get_impl(trained_model).get_interop();
+    if (!interop_model) {
+        throw dal::internal_error(
+            dal::detail::error_messages::input_model_does_not_match_kernel_function());
+    }
+    return static_cast<const model_interop_cls*>(interop_model)->get_model();
+}
 
-template <typename Float, typename Task>
-static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
-                                           const descriptor_base<Task>& desc,
-                                           const model<Task>& trained_model,
-                                           const table& data) {
+template <typename Float>
+static result_t call_daal_kernel(const context_gpu& ctx,
+                                 const descriptor_t& desc,
+                                 const model_t& trained_model,
+                                 const table& data) {
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
@@ -58,24 +66,17 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
     const auto daal_data =
         interop::convert_to_daal_sycl_homogen_table(queue, arr_data, row_count, column_count);
 
-    /* init param for daal kernel */
+    auto daal_model = get_daal_model(trained_model);
+
     auto daal_input = daal::algorithms::classifier::prediction::Input();
     daal_input.set(daal::algorithms::classifier::prediction::data, daal_data);
+    daal_input.set(daal::algorithms::classifier::prediction::model, daal_model);
 
-    auto model_pimpl = dal::detail::pimpl_accessor().get_pimpl(trained_model);
-    if (!model_pimpl->is_interop()) {
-        throw dal::internal_error(
-            dal::detail::error_messages::input_model_does_not_match_kernel_function());
-    }
+    auto daal_voting_mode = convert_to_daal_voting_mode(desc.get_voting_mode());
 
-    auto pinterop_model =
-        static_cast<df_interop::interop_model_impl<Task, cls_model_p>*>(model_pimpl.get());
-
-    daal_input.set(daal::algorithms::classifier::prediction::model, pinterop_model->get_model());
-
-    auto daal_voting_mode = df_interop::convert_to_daal_voting_mode(desc.get_voting_mode());
-
-    auto daal_parameter = cls::prediction::Parameter(desc.get_class_count(), daal_voting_mode);
+    auto daal_parameter =
+        daal_df_cls_pred::Parameter(dal::detail::integral_cast<std::size_t>(desc.get_class_count()),
+                                    daal_voting_mode);
 
     daal::data_management::NumericTablePtr daal_labels;
     daal::data_management::NumericTablePtr daal_labels_prob;
@@ -96,18 +97,17 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
                                                                        desc.get_class_count());
     }
 
-    const cls::Model* const daal_model =
-        static_cast<cls::Model*>(pinterop_model->get_model().get());
+    const daal_df::classification::Model* const daal_model_ptr = daal_model.get();
     interop::status_to_exception(
         cls_dense_predict_kernel_t<Float>().compute(daal::services::internal::hostApp(daal_input),
                                                     daal_data.get(),
-                                                    daal_model,
+                                                    daal_model_ptr,
                                                     daal_labels.get(),
                                                     daal_labels_prob.get(),
                                                     desc.get_class_count(),
                                                     daal_voting_mode));
 
-    infer_result<Task> res;
+    result_t res;
 
     if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_labels)) {
         res.set_labels(
@@ -123,19 +123,17 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
     return res;
 }
 
-template <typename Float, typename Task>
-static infer_result<Task> infer(const context_gpu& ctx,
-                                const descriptor_base<Task>& desc,
-                                const infer_input<Task>& input) {
-    return call_daal_kernel<Float, Task>(ctx, desc, input.get_model(), input.get_data());
+template <typename Float>
+static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
+    return call_daal_kernel<Float>(ctx, desc, input.get_model(), input.get_data());
 }
 
 template <typename Float, typename Task>
 struct infer_kernel_gpu<Float, Task, method::dense> {
-    infer_result<Task> operator()(const context_gpu& ctx,
-                                  const descriptor_base<Task>& desc,
-                                  const infer_input<Task>& input) const {
-        return infer<Float, Task>(ctx, desc, input);
+    result_t operator()(const context_gpu& ctx,
+                        const descriptor_t& desc,
+                        const input_t& input) const {
+        return infer<Float>(ctx, desc, input);
     }
 };
 

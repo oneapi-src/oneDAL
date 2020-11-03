@@ -23,6 +23,7 @@
 #include "oneapi/dal/common.hpp"
 
 namespace oneapi::dal {
+namespace v1 {
 
 class ONEDAL_EXPORT exception {
 public:
@@ -95,5 +96,22 @@ public:
     device_bad_alloc() noexcept = default;
     const char* what() const noexcept override;
 };
+
+} // namespace v1
+
+using v1::exception;
+using v1::logic_error;
+using v1::runtime_error;
+using v1::invalid_argument;
+using v1::domain_error;
+using v1::out_of_range;
+using v1::unimplemented;
+using v1::unsupported_device;
+using v1::range_error;
+using v1::system_error;
+using v1::internal_error;
+using v1::bad_alloc;
+using v1::host_bad_alloc;
+using v1::device_bad_alloc;
 
 } // namespace oneapi::dal
