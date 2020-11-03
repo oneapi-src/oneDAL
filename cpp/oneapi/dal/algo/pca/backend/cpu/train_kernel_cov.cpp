@@ -46,6 +46,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     const std::int64_t component_count = desc.get_component_count();
 
     auto arr_data = row_accessor<const Float>{ data }.pull();
+
+    dal::detail::check_mul_overflow(column_count, component_count);
     auto arr_eigvec = array<Float>::empty(column_count * component_count);
     auto arr_eigval = array<Float>::empty(1 * component_count);
     auto arr_means = array<Float>::empty(1 * column_count);
@@ -71,17 +73,17 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     constexpr std::uint64_t results_to_compute =
         std::uint64_t(daal_pca::mean | daal_pca::variance | daal_pca::eigenvalue);
 
-    interop::status_to_exception(
-        interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(ctx,
-                                                                is_correlation,
-                                                                desc.get_deterministic(),
-                                                                *daal_data,
-                                                                &covariance_alg,
-                                                                results_to_compute,
-                                                                *daal_eigenvectors,
-                                                                *daal_eigenvalues,
-                                                                *daal_means,
-                                                                *daal_variances));
+    interop::status_to_exception(interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(
+        ctx,
+        is_correlation,
+        desc.get_deterministic(),
+        *daal_data,
+        &covariance_alg,
+        static_cast<DAAL_UINT64>(results_to_compute),
+        *daal_eigenvectors,
+        *daal_eigenvalues,
+        *daal_means,
+        *daal_variances));
 
     // clang-format off
     const auto mdl = model_t{}

@@ -20,7 +20,9 @@
 #include "oneapi/dal/backend/dispatcher_dpc.hpp"
 
 namespace oneapi::dal::decision_forest::detail {
-using oneapi::dal::detail::data_parallel_policy;
+namespace v1 {
+
+using dal::detail::data_parallel_policy;
 
 template <typename Float, typename Task, typename Method>
 struct infer_ops_dispatcher<data_parallel_policy, Float, Task, Method> {
@@ -42,4 +44,6 @@ INSTANTIATE(double, task::classification, method::dense)
 
 INSTANTIATE(float, task::regression, method::dense)
 INSTANTIATE(double, task::regression, method::dense)
+
+} // namespace v1
 } // namespace oneapi::dal::decision_forest::detail

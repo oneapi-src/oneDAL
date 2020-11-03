@@ -49,6 +49,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     auto arr_data = row_accessor<const Float>{ data }.pull();
     auto arr_eigvec = row_accessor<const Float>{ model.get_eigenvectors() }.pull();
 
+    dal::detail::check_mul_overflow(row_count, component_count);
     auto arr_result = array<Float>::empty(row_count * component_count);
 
     // TODO: read-only access performed with deep copy of data since daal numeric tables are mutable.

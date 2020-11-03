@@ -17,5 +17,46 @@ dal_module(
 )
 
 dal_test_suite(
+    name = "common_tests",
+    dpc = False,
+    srcs = glob([
+        "common_*_test.cpp",
+    ]),
+    dal_deps = [
+        ":pca",
+    ],
+)
+
+dal_test_suite(
+    name = "cpu_tests",
+    dpc = False,
+    srcs = glob([
+        "backend/cpu/*_test.cpp",
+    ]),
+    dal_deps = [
+        ":pca",
+    ],
+)
+
+dal_test_suite(
+    name = "gpu_tests_dpc",
+    host = False,
+    srcs = glob([
+        "backend/gpu/*_test.cpp",
+    ]),
+    dal_deps = [
+        ":pca",
+    ],
+    tags = ["gpu", "exclusive"],
+)
+
+dal_test_suite(
     name = "tests",
+    host_tests = [
+        ":common_tests",
+        ":cpu_tests",
+    ],
+    dpc_tests = [
+        ":gpu_tests_dpc",
+    ],
 )

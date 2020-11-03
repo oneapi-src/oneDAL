@@ -20,13 +20,10 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::svm::detail {
+namespace v1 {
 
-template <typename Context,
-          typename Float,
-          typename Method = method::by_default,
-          typename Task = task::by_default,
-          typename... Options>
-struct ONEDAL_EXPORT infer_ops_dispatcher {
+template <typename Context, typename Float, typename Method, typename Task, typename... Options>
+struct infer_ops_dispatcher {
     infer_result<Task> operator()(const Context&,
                                   const descriptor_base<Task>&,
                                   const infer_input<Task>&) const;
@@ -43,12 +40,6 @@ struct infer_ops {
 
     void check_preconditions(const Descriptor& params, const input_t& input) const {
         using msg = dal::detail::error_messages;
-
-        // TODO: Should be invariant of model
-        ONEDAL_ASSERT(input.get_model().get_support_vector_count() >= 0);
-
-        // TODO: Should be invariant of kernel
-        ONEDAL_ASSERT(params.get_kernel_impl()->get_impl());
 
         if (!input.get_data().has_data()) {
             throw domain_error(msg::input_data_is_empty());
@@ -93,5 +84,9 @@ struct infer_ops {
         return result;
     }
 };
+
+} // namespace v1
+
+using v1::infer_ops;
 
 } // namespace oneapi::dal::svm::detail

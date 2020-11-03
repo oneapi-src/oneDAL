@@ -22,25 +22,54 @@
 namespace oneapi::dal::rbf_kernel {
 
 namespace task {
+namespace v1 {
 struct compute {};
 using by_default = compute;
+} // namespace v1
+
+using v1::compute;
+using v1::by_default;
+
 } // namespace task
 
-namespace detail {
-struct tag {};
-
-template <typename Task = task::by_default>
-class descriptor_impl;
-} // namespace detail
-
 namespace method {
+namespace v1 {
 struct dense {};
-struct csr {};
 using by_default = dense;
+} // namespace v1
+
+using v1::dense;
+using v1::by_default;
+
 } // namespace method
 
+namespace detail {
+namespace v1 {
+struct tag {};
+template <typename Task>
+class descriptor_impl;
+} // namespace v1
+
+using v1::tag;
+using v1::descriptor_impl;
+
+template <typename Float>
+constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
+
+template <typename Method>
+constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::dense>;
+
+template <typename Task>
+constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::compute>;
+
+} // namespace detail
+
+namespace v1 {
+
 template <typename Task = task::by_default>
-class ONEDAL_EXPORT descriptor_base : public base {
+class descriptor_base : public base {
+    static_assert(detail::is_valid_task_v<Task>);
+
 public:
     using tag_t = detail::tag;
     using float_t = float;
@@ -54,22 +83,32 @@ public:
 protected:
     void set_sigma_impl(double);
 
-    dal::detail::pimpl<detail::descriptor_impl<task_t>> impl_;
+private:
+    dal::detail::pimpl<detail::descriptor_impl<Task>> impl_;
 };
 
-template <typename Float = descriptor_base<task::by_default>::float_t,
-          typename Method = descriptor_base<task::by_default>::method_t,
-          typename Task = task::by_default>
+template <typename Float = descriptor_base<>::float_t,
+          typename Method = descriptor_base<>::method_t,
+          typename Task = descriptor_base<>::task_t>
 class descriptor : public descriptor_base<Task> {
+    static_assert(detail::is_valid_float_v<Float>);
+    static_assert(detail::is_valid_method_v<Method>);
+    static_assert(detail::is_valid_task_v<Task>);
+
 public:
     using float_t = Float;
     using method_t = Method;
     using task_t = Task;
 
     auto& set_sigma(double value) {
-        descriptor_base<task_t>::set_sigma_impl(value);
+        descriptor_base<Task>::set_sigma_impl(value);
         return *this;
     }
 };
+
+} // namespace v1
+
+using v1::descriptor_base;
+using v1::descriptor;
 
 } // namespace oneapi::dal::rbf_kernel
