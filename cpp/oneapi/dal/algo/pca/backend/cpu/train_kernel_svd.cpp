@@ -47,6 +47,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     const std::int64_t component_count = desc.get_component_count();
 
     auto arr_data = row_accessor<const Float>{ data }.pull();
+
+    dal::detail::check_mul_overflow(column_count, component_count);
     auto arr_eigvec = array<Float>::empty(column_count * component_count);
     auto arr_eigval = array<Float>::empty(1 * component_count);
     auto arr_means = array<Float>::empty(1 * column_count);
