@@ -29,15 +29,15 @@ vertex_similarity_result vertex_similarity_ops_dispatcher<Policy, Float, Method,
     const descriptor_base &desc,
     vertex_similarity_input<Graph> &input) const {
     static auto impl = get_backend<Float, Method>(desc, input);
-    return (*impl)(oneapi::dal::backend::context_cpu{ policy }, desc, input);
+    return (*impl)(dal::backend::context_cpu{ policy }, desc, input);
 }
 
 #define INSTANTIATE(F, M, G)      \
     template struct ONEDAL_EXPORT \
-        vertex_similarity_ops_dispatcher<oneapi::dal::detail::host_policy, F, M, G>;
+        vertex_similarity_ops_dispatcher<dal::detail::host_policy, F, M, G>;
 
 INSTANTIATE(float,
-            oneapi::dal::preview::jaccard::method::by_default,
+            dal::preview::jaccard::method::by_default,
             undirected_adjacency_array_graph<>)
 
 } // namespace detail

@@ -57,7 +57,7 @@ struct vertex_similarity_ops {
             throw invalid_argument(msg::column_begin_gt_column_end());
         }
         const auto vertex_count =
-            (oneapi::dal::preview::detail::get_impl(input.get_graph())->_vertex_count);
+            (dal::preview::detail::get_impl(input.get_graph())->_vertex_count);
         // Safe conversion as ranges were checked
         if (static_cast<std::size_t>(row_end) > vertex_count ||
             static_cast<std::size_t>(column_end) > vertex_count) {
