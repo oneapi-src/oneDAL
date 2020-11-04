@@ -19,6 +19,8 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::decision_forest::detail {
+namespace v1 {
+
 using oneapi::dal::detail::host_policy;
 
 template <typename Float, typename Task, typename Method>
@@ -40,4 +42,6 @@ INSTANTIATE(double, task::classification, method::dense)
 
 INSTANTIATE(float, task::regression, method::dense)
 INSTANTIATE(double, task::regression, method::dense)
+
+} // namespace v1
 } // namespace oneapi::dal::decision_forest::detail

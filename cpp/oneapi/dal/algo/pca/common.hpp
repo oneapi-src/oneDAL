@@ -22,53 +22,91 @@
 namespace oneapi::dal::pca {
 
 namespace task {
+namespace v1 {
 struct dim_reduction {};
 using by_default = dim_reduction;
+} // namespace v1
+
+using v1::dim_reduction;
+using v1::by_default;
+
 } // namespace task
 
-namespace detail {
-struct tag {};
-
-template <typename Task = task::by_default>
-class descriptor_impl;
-
-template <typename Task = task::by_default>
-class model_impl;
-} // namespace detail
-
 namespace method {
+namespace v1 {
 struct cov {};
 struct svd {};
 using by_default = cov;
+} // namespace v1
+
+using v1::cov;
+using v1::svd;
+using v1::by_default;
+
 } // namespace method
 
+namespace detail {
+namespace v1 {
+struct tag {};
+template <typename Task>
+class descriptor_impl;
+
+template <typename Task>
+class model_impl;
+} // namespace v1
+
+using v1::tag;
+using v1::descriptor_impl;
+using v1::model_impl;
+
+template <typename Float>
+constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
+
+template <typename Method>
+constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::cov, method::svd>;
+
+template <typename Task>
+constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::dim_reduction>;
+
+} // namespace detail
+
+namespace v1 {
+
 template <typename Task = task::by_default>
-class ONEDAL_EXPORT descriptor_base : public base {
+class descriptor_base : public base {
+    static_assert(detail::is_valid_task_v<Task>);
+
 public:
     using tag_t = detail::tag;
-    using task_t = Task;
     using float_t = float;
     using method_t = method::by_default;
+    using task_t = Task;
 
     descriptor_base();
 
-    auto get_component_count() const -> std::int64_t;
-    auto get_deterministic() const -> bool;
+    std::int64_t get_component_count() const;
+    bool get_deterministic() const;
 
 protected:
     void set_component_count_impl(std::int64_t value);
     void set_deterministic_impl(bool value);
 
-    dal::detail::pimpl<detail::descriptor_impl<task_t>> impl_;
+private:
+    dal::detail::pimpl<detail::descriptor_impl<Task>> impl_;
 };
 
-template <typename Float = descriptor_base<task::by_default>::float_t,
-          typename Method = descriptor_base<task::by_default>::method_t,
-          typename Task = task::by_default>
+template <typename Float = descriptor_base<>::float_t,
+          typename Method = descriptor_base<>::method_t,
+          typename Task = descriptor_base<>::task_t>
 class descriptor : public descriptor_base<Task> {
+    static_assert(detail::is_valid_float_v<Float>);
+    static_assert(detail::is_valid_method_v<Method>);
+    static_assert(detail::is_valid_task_v<Task>);
+
 public:
     using float_t = Float;
     using method_t = Method;
+    using task_t = Task;
 
     explicit descriptor(std::int64_t component_count = 0) {
         set_component_count(component_count);
@@ -86,24 +124,33 @@ public:
 };
 
 template <typename Task = task::by_default>
-class ONEDAL_EXPORT model : public base {
+class model : public base {
+    static_assert(detail::is_valid_task_v<Task>);
     friend dal::detail::pimpl_accessor;
 
 public:
     using task_t = Task;
+
     model();
 
-    table get_eigenvectors() const;
+    const table& get_eigenvectors() const;
 
     auto& set_eigenvectors(const table& value) {
         set_eigenvectors_impl(value);
         return *this;
     }
 
-private:
+protected:
     void set_eigenvectors_impl(const table&);
 
-    dal::detail::pimpl<detail::model_impl<task_t>> impl_;
+private:
+    dal::detail::pimpl<detail::model_impl<Task>> impl_;
 };
+
+} // namespace v1
+
+using v1::descriptor_base;
+using v1::descriptor;
+using v1::model;
 
 } // namespace oneapi::dal::pca

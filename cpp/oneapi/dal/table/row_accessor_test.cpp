@@ -15,10 +15,12 @@
 *******************************************************************************/
 
 #include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/table/column_accessor.hpp"
 #include "gtest/gtest.h"
 #include "oneapi/dal/table/homogen.hpp"
 
 using namespace oneapi::dal;
+using namespace oneapi;
 
 TEST(homogen_table_test, can_read_table_data_via_row_accessor) {
     using oneapi::dal::detail::empty_delete;
@@ -100,4 +102,16 @@ TEST(homogen_table_test, can_read_rows_from_column_major_table_with_conversion) 
 
     ASSERT_EQ(rows_data[0], 2);
     ASSERT_EQ(rows_data[1], -2);
+}
+
+TEST(row_accessor_bad_arg_test, invalid_range) {
+    detail::homogen_table_builder b;
+    b.reset(array<float>::zeros(3 * 2), 3, 2);
+    row_accessor<float> acc{ b };
+
+    ASSERT_THROW(acc.pull({ 1, 4 }), dal::range_error);
+
+    auto rows_data = acc.pull({ 1, 2 });
+    ASSERT_THROW(acc.push(rows_data, { 0, 2 }), dal::range_error);
+    ASSERT_THROW(acc.push(rows_data, { 3, 4 }), dal::range_error);
 }

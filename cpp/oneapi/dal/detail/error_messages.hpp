@@ -96,6 +96,7 @@ public:
 
     /* Graphs */
     MSG(vertex_index_out_of_range_expect_from_zero_to_vertex_count);
+    MSG(negative_vertex_id);
 
     /* General Algorithms */
     MSG(accuracy_threshold_lt_zero);
@@ -126,6 +127,7 @@ public:
     MSG(interval_gt_vertex_count);
     MSG(negative_interval);
     MSG(row_begin_gt_row_end);
+    MSG(range_idx_gt_max_int32);
 
     /* K-Means and K-Means Init */
     MSG(cluster_count_leq_zero);
@@ -159,7 +161,6 @@ public:
     /* SVM */
     MSG(c_leq_zero);
     MSG(cache_size_leq_zero);
-    MSG(input_kernel_is_empty);
     MSG(input_model_coeffs_are_empty);
     MSG(input_model_coeffs_rc_neq_input_model_support_vector_count);
     MSG(input_model_does_not_match_kernel_function);
@@ -169,6 +170,7 @@ public:
     MSG(sigma_leq_zero);
     MSG(svm_smo_method_is_not_implemented_for_gpu);
     MSG(tau_leq_zero);
+    MSG(unknown_kernel_function_type);
 };
 
 #undef MSG

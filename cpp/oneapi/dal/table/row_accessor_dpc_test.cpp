@@ -21,6 +21,7 @@
 #include "oneapi/dal/table/homogen.hpp"
 
 using namespace oneapi::dal;
+using namespace oneapi;
 using std::int32_t;
 
 TEST(row_accessor_dpc_test, can_get_rows_from_column_major_homogen_table) {
@@ -52,4 +53,18 @@ TEST(row_accessor_dpc_test, can_get_rows_from_column_major_homogen_table) {
     ASSERT_FLOAT_EQ(block[5], 10);
 
     sycl::free(data, q);
+}
+
+TEST(row_accessor_bad_arg_test, invalid_range) {
+    sycl::queue q;
+
+    detail::homogen_table_builder b;
+    b.reset(array<float>::zeros(q, 3 * 2), 3, 2);
+    row_accessor<float> acc{ b };
+
+    ASSERT_THROW(acc.pull(q, { 1, 4 }), dal::range_error);
+
+    auto rows_data = acc.pull(q, { 1, 2 });
+    ASSERT_THROW(acc.push(q, rows_data, { 0, 2 }), dal::range_error);
+    ASSERT_THROW(acc.push(q, rows_data, { 3, 4 }), dal::range_error);
 }

@@ -59,7 +59,7 @@ protected:
     void set_block_impl(const std::initializer_list<std::int64_t>& row_range,
                         const std::initializer_list<std::int64_t>& column_range);
 
-    oneapi::dal::detail::pimpl<detail::descriptor_impl> impl_;
+    dal::detail::pimpl<detail::descriptor_impl> impl_;
 };
 
 /// Class for the Jaccard similarity algorithm descriptor
