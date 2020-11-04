@@ -28,6 +28,7 @@ namespace oneapi::dal::kmeans::backend {
 
 using std::int64_t;
 using dal::backend::context_gpu;
+using descriptor_t = detail::descriptor_base<task::clustering>;
 
 namespace daal_kmeans = daal::algorithms::kmeans;
 namespace interop = dal::backend::interop;
@@ -39,7 +40,7 @@ using daal_kmeans_lloyd_dense_ucapi_kernel_t =
 template <typename Float>
 struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
     train_result<task::clustering> operator()(const dal::backend::context_gpu& ctx,
-                                              const descriptor_base<task::clustering>& params,
+                                              const descriptor_t& params,
                                               const train_input<task::clustering>& input) const {
         if (!(input.get_initial_centroids().has_data())) {
             throw domain_error(dal::detail::error_messages::input_initial_centroids_are_empty());

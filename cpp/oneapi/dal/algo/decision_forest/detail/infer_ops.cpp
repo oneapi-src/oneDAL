@@ -26,7 +26,7 @@ using oneapi::dal::detail::host_policy;
 template <typename Float, typename Task, typename Method>
 struct infer_ops_dispatcher<host_policy, Float, Task, Method> {
     infer_result<Task> operator()(const host_policy& ctx,
-                                  const descriptor_base<Task>& desc,
+                                  const detail::descriptor_base<Task>& desc,
                                   const infer_input<Task>& input) const {
         using kernel_dispatcher_t =
             dal::backend::kernel_dispatcher<backend::infer_kernel_cpu<Float, Task, Method>>;

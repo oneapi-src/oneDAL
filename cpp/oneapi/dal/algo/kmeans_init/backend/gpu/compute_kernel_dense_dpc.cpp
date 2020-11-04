@@ -40,7 +40,7 @@ using daal_kmeans_init_kernel_t =
 
 template <typename Float, typename Method, typename Task>
 static compute_result<Task> call_daal_kernel(const context_gpu& ctx,
-                                             const descriptor_base<Task>& params,
+                                             const detail::descriptor_base<Task>& params,
                                              const table& data) {
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
@@ -82,7 +82,7 @@ static compute_result<Task> call_daal_kernel(const context_gpu& ctx,
 
 template <typename Float, typename Method, typename Task>
 static compute_result<Task> compute(const context_gpu& ctx,
-                                    const descriptor_base<Task>& desc,
+                                    const detail::descriptor_base<Task>& desc,
                                     const compute_input<Task>& input) {
     using msg = dal::detail::error_messages;
 
@@ -101,7 +101,7 @@ static compute_result<Task> compute(const context_gpu& ctx,
 template <typename Float, typename Method, typename Task>
 compute_result<Task> compute_kernel_gpu<Float, Method, Task>::operator()(
     const context_gpu& ctx,
-    const descriptor_base<Task>& desc,
+    const detail::descriptor_base<Task>& desc,
     const compute_input<Task>& input) const {
     return compute<Float, Method, Task>(ctx, desc, input);
 }

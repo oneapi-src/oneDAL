@@ -38,7 +38,7 @@ namespace daal_dm = daal::data_management;
 
 template <>
 table read_kernel_gpu<table>::operator()(const dal::backend::context_gpu& ctx,
-                                         const data_source_base& ds,
+                                         const detail::data_source_base& ds,
                                          const read_args<table>& args) const {
     auto& queue = ctx.get_queue();
 

@@ -27,6 +27,7 @@ namespace oneapi::dal::kmeans_init::backend {
 
 using std::int64_t;
 using dal::backend::context_cpu;
+using descriptor_t = detail::descriptor_base<task::init>;
 
 namespace daal_kmeans_init = daal::algorithms::kmeans::init;
 namespace interop = dal::backend::interop;
@@ -37,7 +38,7 @@ using daal_kmeans_init_kernel_t =
 
 template <typename Float, typename Method, typename Task>
 static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
-                                             const descriptor_base<Task>& desc,
+                                             const detail::descriptor_base<Task>& desc,
                                              const table& data) {
     const int64_t column_count = data.get_column_count();
     const int64_t cluster_count = desc.get_cluster_count();
@@ -73,7 +74,7 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
 
 template <typename Float, typename Method, typename Task>
 static compute_result<Task> compute(const context_cpu& ctx,
-                                    const descriptor_base<Task>& desc,
+                                    const descriptor_t& desc,
                                     const compute_input<Task>& input) {
     return call_daal_kernel<Float, Method, Task>(ctx, desc, input.get_data());
 }
@@ -81,7 +82,7 @@ static compute_result<Task> compute(const context_cpu& ctx,
 template <typename Float, typename Method, typename Task>
 compute_result<Task> compute_kernel_cpu<Float, Method, Task>::operator()(
     const context_cpu& ctx,
-    const descriptor_base<Task>& desc,
+    const detail::descriptor_base<Task>& desc,
     const compute_input<Task>& input) const {
     return compute<Float, Method, Task>(ctx, desc, input);
 }

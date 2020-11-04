@@ -27,6 +27,7 @@ namespace oneapi::dal::kmeans::backend {
 
 using std::int64_t;
 using dal::backend::context_gpu;
+using descriptor_t = detail::descriptor_base<task::clustering>;
 
 namespace daal_kmeans = daal::algorithms::kmeans;
 namespace interop = dal::backend::interop;
@@ -38,7 +39,7 @@ using daal_kmeans_lloyd_dense_ucapi_kernel_t =
 template <typename Float>
 struct infer_kernel_gpu<Float, method::by_default, task::clustering> {
     infer_result<task::clustering> operator()(const dal::backend::context_gpu& ctx,
-                                              const descriptor_base<task::clustering>& params,
+                                              const descriptor_t& params,
                                               const infer_input<task::clustering>& input) const {
         auto& queue = ctx.get_queue();
         interop::execution_context_guard guard(queue);

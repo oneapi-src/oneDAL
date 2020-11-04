@@ -28,6 +28,7 @@
 namespace oneapi::dal::knn::backend {
 
 using dal::backend::context_gpu;
+using descriptor_t = detail::descriptor_base<task::classification>;
 
 namespace daal_knn = daal::algorithms::bf_knn_classification;
 namespace interop = dal::backend::interop;
@@ -39,7 +40,7 @@ using daal_knn_brute_force_kernel_t =
 template <typename Float>
 static train_result<task::classification> call_daal_kernel(
     const context_gpu& ctx,
-    const descriptor_base<task::classification>& desc,
+    const descriptor_t& desc,
     const table& data,
     const table& labels) {
     using daal_model_interop_t = backend::model_interop;
@@ -88,7 +89,7 @@ static train_result<task::classification> call_daal_kernel(
 
 template <typename Float>
 static train_result<task::classification> train(const context_gpu& ctx,
-                                                const descriptor_base<task::classification>& desc,
+                                                const descriptor_t& desc,
                                                 const train_input<task::classification>& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_labels());
 }
@@ -97,7 +98,7 @@ template <typename Float>
 struct train_kernel_gpu<Float, method::brute_force, task::classification> {
     train_result<task::classification> operator()(
         const context_gpu& ctx,
-        const descriptor_base<task::classification>& desc,
+        const descriptor_t& desc,
         const train_input<task::classification>& input) const {
         return train<Float>(ctx, desc, input);
     }

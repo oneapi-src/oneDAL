@@ -25,20 +25,13 @@ namespace oneapi::dal::csv {
 
 namespace detail {
 namespace v1 {
+
 struct data_source_tag {};
 class data_source_impl;
-} // namespace v1
-
-using v1::data_source_tag;
-using v1::data_source_impl;
-
-} // namespace detail
-
-namespace v1 {
 
 class ONEDAL_EXPORT data_source_base : public base {
 public:
-    using tag_t = detail::data_source_tag;
+    using tag_t = data_source_tag;
 
     explicit data_source_base(const char* file_name);
 
@@ -63,14 +56,24 @@ protected:
     void set_parse_header_impl(bool value);
     void set_file_name_impl(const char *);
 
-    dal::detail::pimpl<detail::data_source_impl> impl_;
+    dal::detail::pimpl<data_source_impl> impl_;
 };
 
-class data_source : public data_source_base {
-public:
-    data_source(const char* file_name) : data_source_base(file_name) {}
+} // namespace v1
 
-    data_source(const std::string& file_name) : data_source_base(file_name.c_str()) {}
+using v1::data_source_tag;
+using v1::data_source_impl;
+using v1::data_source_base;
+
+} // namespace detail
+
+namespace v1 {
+
+class data_source : public detail::data_source_base {
+public:
+    explicit data_source(const char* file_name) : data_source_base(file_name) {}
+
+    explicit data_source(const std::string& file_name) : data_source_base(file_name.c_str()) {}
 
     auto& set_delimiter(char value) {
         set_delimiter_impl(value);
@@ -95,7 +98,6 @@ public:
 
 } // namespace v1
 
-using v1::data_source_base;
 using v1::data_source;
 
 } // namespace oneapi::dal::csv
