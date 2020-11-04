@@ -24,7 +24,7 @@ namespace oneapi::dal::csv::backend {
 template <typename Object>
 struct read_kernel_gpu {
     table operator()(const dal::backend::context_gpu& ctx,
-                     const data_source& ds,
+                     const data_source_base& ds,
                      const read_args<Object>& args) const;
 };
 

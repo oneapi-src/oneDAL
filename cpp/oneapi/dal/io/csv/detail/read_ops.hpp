@@ -20,10 +20,13 @@
 #include "oneapi/dal/io/csv/read_types.hpp"
 
 namespace oneapi::dal::csv::detail {
+namespace v1 {
 
-template <typename Object, typename Context, typename... Options>
-struct ONEDAL_EXPORT read_ops_dispatcher {
-    table operator()(const Context&, const data_source&, const read_args<table>&) const;
+template <typename Object, typename Policy, typename... Options>
+struct read_ops_dispatcher {
+    Object operator()(const Policy&,
+                      const data_source_base&,
+                      const read_args<Object>&) const;
 };
 
 template <typename Object, typename DataSource>
@@ -31,27 +34,30 @@ struct read_ops;
 
 template <typename Object>
 struct read_ops<Object, data_source> {
-    static_assert(std::is_same_v<Object, table>, "CSV data source defined only for table");
+    static_assert(std::is_same_v<Object, table>, "CSV data source is defined only for table");
 
     using args_t = read_args<Object>;
     using result_t = Object;
-    using data_source_base_t = data_source;
 
-    void check_preconditions(const data_source& ds, const args_t& args) const {}
+    void check_preconditions(const data_source_base& ds, const args_t& args) const {}
 
-    void check_postconditions(const data_source& ds,
+    void check_postconditions(const data_source_base& ds,
                               const args_t& args,
                               const result_t& result) const {}
 
-    template <typename Context>
-    auto operator()(const Context& ctx,
-                    const data_source& ds,
-                    const read_args<Object>& args) const {
+    template <typename Policy>
+    auto operator()(const Policy& ctx,
+                    const data_source_base& ds,
+                    const args_t& args) const {
         check_preconditions(ds, args);
-        const auto result = read_ops_dispatcher<Object, Context>()(ctx, ds, args);
+        const auto result = read_ops_dispatcher<Object, Policy>()(ctx, ds, args);
         check_postconditions(ds, args, result);
         return result;
     }
 };
+
+} // namespace v1
+
+using v1::read_ops;
 
 } // namespace oneapi::dal::csv::detail

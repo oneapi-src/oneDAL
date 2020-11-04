@@ -67,7 +67,7 @@ TEST(homogen_table_test, can_set_custom_implementation) {
         table_metadata m;
     };
 
-    ASSERT_TRUE(is_homogen_table_impl_v<homogen_table_impl>);
+    ASSERT_TRUE(detail::is_homogen_table_impl_v<homogen_table_impl>);
 
     homogen_table t{ homogen_table_impl{} };
     ASSERT_TRUE(t.has_data());

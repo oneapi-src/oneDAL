@@ -17,9 +17,11 @@
 #pragma once
 
 #include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/table/detail/common.hpp"
 
 namespace oneapi::dal {
+
+namespace detail {
+namespace v1 {
 
 template <typename T>
 struct is_homogen_table_impl {
@@ -36,6 +38,15 @@ struct is_homogen_table_impl {
 
 template <typename T>
 inline constexpr bool is_homogen_table_impl_v = is_homogen_table_impl<T>::value;
+
+} // namespace v1
+
+using v1::is_homogen_table_impl;
+using v1::is_homogen_table_impl_v;
+
+} // namespace detail
+
+namespace v1 {
 
 class ONEDAL_EXPORT homogen_table : public table {
     friend detail::pimpl_accessor;
@@ -79,7 +90,7 @@ public:
 
     template <typename Impl,
               typename ImplType = std::decay_t<Impl>,
-              typename = std::enable_if_t<is_homogen_table_impl_v<ImplType> &&
+              typename = std::enable_if_t<detail::is_homogen_table_impl_v<ImplType> &&
                                           !std::is_base_of_v<table, ImplType>>>
     homogen_table(Impl&& impl) {
         init_impl(std::forward<Impl>(impl));
@@ -173,5 +184,9 @@ private:
 private:
     homogen_table(const pimpl& impl) : table(impl) {}
 };
+
+} // namespace v1
+
+using v1::homogen_table;
 
 } // namespace oneapi::dal

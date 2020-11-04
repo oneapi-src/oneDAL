@@ -17,6 +17,7 @@
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::detail {
+namespace v1 {
 
 template <typename Data>
 void integer_overflow_ops<Data>::check_sum_overflow(const Data& first, const Data& second) {
@@ -48,4 +49,5 @@ template struct integer_overflow_ops<std::uint16_t>;
 template struct integer_overflow_ops<std::uint32_t>;
 template struct integer_overflow_ops<std::uint64_t>;
 
+} // namespace v1
 } // namespace oneapi::dal::detail

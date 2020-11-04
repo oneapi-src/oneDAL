@@ -19,14 +19,16 @@
 
 namespace oneapi::dal::csv {
 
-class detail::data_source_impl : public base {
+class detail::v1::data_source_impl : public base {
 public:
     char delimiter = ',';
     bool parse_header = false;
     std::string file_name = "";
 };
 
-using detail::data_source_impl;
+using detail::v1::data_source_impl;
+
+namespace v1 {
 
 data_source_base::data_source_base(const char* file_name) : impl_(new data_source_impl{}) {
     set_file_name_impl(file_name);
@@ -56,4 +58,5 @@ void data_source_base::set_file_name_impl(const char* value) {
     impl_->file_name = std::string(value);
 }
 
+} // namespace v1
 } // namespace oneapi::dal::csv
