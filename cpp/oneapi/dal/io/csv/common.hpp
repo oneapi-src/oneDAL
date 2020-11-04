@@ -54,7 +54,7 @@ protected:
 
     void set_delimiter_impl(char value);
     void set_parse_header_impl(bool value);
-    void set_file_name_impl(const char *);
+    void set_file_name_impl(const char*);
 
     dal::detail::pimpl<data_source_impl> impl_;
 };
@@ -85,7 +85,7 @@ public:
         return *this;
     }
 
-    auto& set_file_name(const char *value) {
+    auto& set_file_name(const char* value) {
         set_file_name_impl(value);
         return *this;
     }

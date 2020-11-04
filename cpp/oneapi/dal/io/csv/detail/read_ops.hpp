@@ -24,9 +24,7 @@ namespace v1 {
 
 template <typename Object, typename Policy, typename... Options>
 struct read_ops_dispatcher {
-    Object operator()(const Policy&,
-                      const data_source_base&,
-                      const read_args<Object>&) const;
+    Object operator()(const Policy&, const data_source_base&, const read_args<Object>&) const;
 };
 
 template <typename Object, typename DataSource>
@@ -46,9 +44,7 @@ struct read_ops<Object, data_source> {
                               const result_t& result) const {}
 
     template <typename Policy>
-    auto operator()(const Policy& ctx,
-                    const data_source_base& ds,
-                    const args_t& args) const {
+    auto operator()(const Policy& ctx, const data_source_base& ds, const args_t& args) const {
         check_preconditions(ds, args);
         const auto result = read_ops_dispatcher<Object, Policy>()(ctx, ds, args);
         check_postconditions(ds, args, result);

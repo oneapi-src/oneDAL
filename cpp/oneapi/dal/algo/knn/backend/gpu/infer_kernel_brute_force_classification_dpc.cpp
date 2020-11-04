@@ -37,11 +37,10 @@ using daal_knn_brute_force_kernel_t =
     daal_knn::prediction::internal::KNNClassificationPredictKernelUCAPI<Float>;
 
 template <typename Float>
-static infer_result<task::classification> call_daal_kernel(
-    const context_gpu& ctx,
-    const descriptor_t& desc,
-    const table& data,
-    const model<task::classification> m) {
+static infer_result<task::classification> call_daal_kernel(const context_gpu& ctx,
+                                                           const descriptor_t& desc,
+                                                           const table& data,
+                                                           const model<task::classification> m) {
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 

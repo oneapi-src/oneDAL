@@ -39,11 +39,10 @@ using daal_knn_kd_tree_kernel_t = daal_knn::training::internal::
     KNNClassificationTrainBatchKernel<Float, daal_knn::training::defaultDense, Cpu>;
 
 template <typename Float>
-static train_result<task::classification> call_daal_kernel(
-    const context_cpu& ctx,
-    const descriptor_t& desc,
-    const table& data,
-    const table& labels) {
+static train_result<task::classification> call_daal_kernel(const context_cpu& ctx,
+                                                           const descriptor_t& desc,
+                                                           const table& data,
+                                                           const table& labels) {
     using daal_model_interop_t = model_interop;
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();

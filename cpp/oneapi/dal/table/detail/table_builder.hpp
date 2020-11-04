@@ -85,7 +85,6 @@ struct is_homogen_table_builder_impl {
 template <typename T>
 inline constexpr bool is_homogen_table_builder_impl_v = is_homogen_table_builder_impl<T>::value;
 
-
 class ONEDAL_EXPORT table_builder {
     friend detail::pimpl_accessor;
     using pimpl_t = detail::pimpl<detail::table_builder_impl_iface>;
