@@ -78,16 +78,20 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         throw invalid_argument(dal::detail::error_messages::negative_vertex_id());
     }
     const vertex_size_type unsigned_max_id = dal::detail::integral_cast<vertex_size_type>(max_id);
-    dal::detail::check_sum_overflow(unsigned_max_id, static_cast<vertex_size_type>(1));
     const vertex_size_type vertex_count = unsigned_max_id + static_cast<vertex_size_type>(1);
-
+    if ((vertex_count - unsigned_max_id) != static_cast<vertex_size_type>(1)) {
+        throw range_error(dal::detail::error_messages::overflow_found_in_sum_of_two_values());
+    }
     auto layout = dal::preview::detail::get_impl(g);
     auto &allocator = layout->_allocator;
     layout->_vertex_count = vertex_count;
 
-    dal::detail::check_mul_overflow(vertex_count, sizeof(atomic_vertex_t) / sizeof(char));
-    void *degrees_vec_void =
-        (void *)allocator.allocate(vertex_count * (sizeof(atomic_vertex_t) / sizeof(char)));
+    const vertex_size_type degrees_size = vertex_count * (sizeof(atomic_vertex_t) / sizeof(char));
+    if ((degrees_size / (sizeof(atomic_vertex_t) / sizeof(char))) != vertex_count) {
+        throw range_error(
+            dal::detail::error_messages::overflow_found_in_multiplication_of_two_values());
+    }
+    void *degrees_vec_void = (void *)allocator.allocate(degrees_size);
     atomic_vertex_t *degrees_cv = new (degrees_vec_void) atomic_vertex_t[vertex_count];
 
     threader_for(edges.size(), edges.size(), [&](vertex_t u) {
@@ -95,33 +99,47 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         degrees_cv[edges[u].second].inc();
     });
 
-    dal::detail::check_sum_overflow(vertex_count, static_cast<vertex_size_type>(1));
-    dal::detail::check_mul_overflow(vertex_count + 1, sizeof(atomic_edge_t) / sizeof(char));
-    void *rows_vec_void =
-        (void *)allocator.allocate((vertex_count + 1) * (sizeof(atomic_edge_t) / sizeof(char)));
-    atomic_edge_t *rows_vec_atomic = new (rows_vec_void) atomic_edge_t[vertex_count + 1];
+    const vertex_size_type rows_vec_count = vertex_count + 1;
+    if ((rows_vec_count - vertex_count) != static_cast<vertex_size_type>(1)) {
+        throw range_error(dal::detail::error_messages::overflow_found_in_sum_of_two_values());
+    }
+    const vertex_size_type rows_vec_size = rows_vec_count * (sizeof(atomic_edge_t) / sizeof(char));
+    if ((rows_vec_size / (sizeof(atomic_edge_t) / sizeof(char))) != rows_vec_count) {
+        throw range_error(
+            dal::detail::error_messages::overflow_found_in_multiplication_of_two_values());
+    }
+    void *rows_vec_void = (void *)allocator.allocate(rows_vec_size);
+    atomic_edge_t *rows_vec_atomic = new (rows_vec_void) atomic_edge_t[rows_vec_count];
 
     edge_t total_sum_degrees = 0;
-    //TODO: rows_vec_atomic should contain edge_t
+
     rows_vec_atomic[0].set(total_sum_degrees);
     for (vertex_size_type i = 0; i < vertex_count; ++i) {
         total_sum_degrees += degrees_cv[i].get();
         rows_vec_atomic[i + 1].set(total_sum_degrees);
     }
-    allocator.deallocate((char *)degrees_vec_void,
-                         vertex_count * (sizeof(atomic_vertex_t) / sizeof(char)));
+    allocator.deallocate((char *)degrees_vec_void, degrees_size);
 
-    dal::detail::check_mul_overflow(dal::detail::integral_cast<vertex_size_type>(total_sum_degrees),
-                                    sizeof(vertex_t) / sizeof(char));
-    void *unfiltered_neighs_void =
-        (void *)allocator.allocate(dal::detail::integral_cast<vertex_size_type>(total_sum_degrees) *
-                                   (sizeof(vertex_t) / sizeof(char)));
-    vertex_t *unfiltered_neighs = new (unfiltered_neighs_void) vertex_t[total_sum_degrees];
+    const vertex_size_type unfiltered_neighs_size =
+        dal::detail::integral_cast<vertex_size_type>(total_sum_degrees) *
+        (sizeof(vertex_t) / sizeof(char));
+    if ((unfiltered_neighs_size / (sizeof(vertex_t) / sizeof(char))) !=
+        dal::detail::integral_cast<vertex_size_type>(total_sum_degrees)) {
+        throw range_error(
+            dal::detail::error_messages::overflow_found_in_multiplication_of_two_values());
+    }
+    void *unfiltered_neighs_void = (void *)allocator.allocate(unfiltered_neighs_size);
+    vertex_t *unfiltered_neighs = new (unfiltered_neighs_void)
+        vertex_t[dal::detail::integral_cast<vertex_size_type>(total_sum_degrees)];
 
-    dal::detail::check_mul_overflow(vertex_count + 1, sizeof(edge_t) / sizeof(char));
-    void *unfiltered_offsets_void =
-        (void *)allocator.allocate((vertex_count + 1) * (sizeof(edge_t) / sizeof(char)));
-    edge_t *unfiltered_offsets = new (unfiltered_offsets_void) edge_t[vertex_count + 1];
+    const vertex_size_type unfiltered_offsets_size =
+        rows_vec_count * (sizeof(edge_t) / sizeof(char));
+    if ((unfiltered_offsets_size / (sizeof(edge_t) / sizeof(char))) != rows_vec_count) {
+        throw range_error(
+            dal::detail::error_messages::overflow_found_in_multiplication_of_two_values());
+    }
+    void *unfiltered_offsets_void = (void *)allocator.allocate(unfiltered_offsets_size);
+    edge_t *unfiltered_offsets = new (unfiltered_offsets_void) edge_t[rows_vec_count];
 
     threader_for(vertex_count + 1, vertex_count + 1, [&](vertex_t n) {
         unfiltered_offsets[n] = rows_vec_atomic[n].get();
@@ -131,8 +149,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         unfiltered_neighs[rows_vec_atomic[edges[u].first].inc() - 1] = edges[u].second;
         unfiltered_neighs[rows_vec_atomic[edges[u].second].inc() - 1] = edges[u].first;
     });
-    allocator.deallocate((char *)rows_vec_void,
-                         (vertex_count + 1) * (sizeof(atomic_edge_t) / sizeof(char)));
+    allocator.deallocate((char *)rows_vec_void, rows_vec_size);
 
     layout->_degrees = std::move(vertex_set(vertex_count));
     auto degrees_data = layout->_degrees.data();
@@ -173,10 +190,8 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         }
     });
 
-    allocator.deallocate((char *)unfiltered_neighs_void,
-                         (total_sum_degrees) * (sizeof(vertex_t) / sizeof(char)));
-    allocator.deallocate((char *)unfiltered_offsets_void,
-                         (vertex_count + 1) * (sizeof(edge_t) / sizeof(char)));
+    allocator.deallocate((char *)unfiltered_neighs_void, unfiltered_neighs_size);
+    allocator.deallocate((char *)unfiltered_offsets_void, unfiltered_offsets_size);
     return;
 }
 
