@@ -198,7 +198,7 @@ public:
 
 private:
     detail::homogen_table_builder_iface& get_impl() {
-        return detail::get_impl<detail::homogen_table_builder_iface>(*this);
+        return detail::cast_impl<detail::homogen_table_builder_iface>(*this);
     }
 };
 

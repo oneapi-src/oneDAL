@@ -15,7 +15,7 @@
 #===============================================================================
 
 ##  Content:
-##     Intel(R) DAAL examples makefiles for windows generator
+##     Intel(R) oneDAL examples makefiles for windows generator
 ##******************************************************************************
 
 import os

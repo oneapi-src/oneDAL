@@ -23,7 +23,7 @@ void integer_overflow_ops<Data>::check_sum_overflow(const Data& first, const Dat
     volatile Data tmp = first + second;
     tmp -= first;
     if (tmp != second) {
-        throw range_error("overflow found in sum of two values");
+        throw range_error(dal::detail::error_messages::overflow_found_in_sum_of_two_values());
     }
 }
 
@@ -33,18 +33,19 @@ void integer_overflow_ops<Data>::check_mul_overflow(const Data& first, const Dat
         volatile Data tmp = first * second;
         tmp /= first;
         if (tmp != second) {
-            throw range_error("overflow found in multiplication of two values");
+            throw range_error(
+                dal::detail::error_messages::overflow_found_in_multiplication_of_two_values());
         }
     }
 }
 
-template struct integer_overflow_ops<std::int8_t>;
-template struct integer_overflow_ops<std::int16_t>;
-template struct integer_overflow_ops<std::int32_t>;
-template struct integer_overflow_ops<std::int64_t>;
-template struct integer_overflow_ops<std::uint8_t>;
-template struct integer_overflow_ops<std::uint16_t>;
-template struct integer_overflow_ops<std::uint32_t>;
-template struct integer_overflow_ops<std::uint64_t>;
+template struct ONEDAL_EXPORT integer_overflow_ops<std::int8_t>;
+template struct ONEDAL_EXPORT integer_overflow_ops<std::int16_t>;
+template struct ONEDAL_EXPORT integer_overflow_ops<std::int32_t>;
+template struct ONEDAL_EXPORT integer_overflow_ops<std::int64_t>;
+template struct ONEDAL_EXPORT integer_overflow_ops<std::uint8_t>;
+template struct ONEDAL_EXPORT integer_overflow_ops<std::uint16_t>;
+template struct ONEDAL_EXPORT integer_overflow_ops<std::uint32_t>;
+template struct ONEDAL_EXPORT integer_overflow_ops<std::uint64_t>;
 
 } // namespace oneapi::dal::detail

@@ -52,7 +52,7 @@ public:
         return homogen_table{ data_pointer,
                               row_count,
                               column_count,
-                              empty_delete<const Data>(),
+                              dal::detail::empty_delete<const Data>(),
                               layout };
     }
 
@@ -64,10 +64,13 @@ public:
                               std::int64_t column_count,
                               const sycl::vector_class<sycl::event>& dependencies = {},
                               data_layout layout = data_layout::row_major) {
-        return homogen_table{
-            queue,        data_pointer, row_count, column_count, empty_delete<const Data>(),
-            dependencies, layout
-        };
+        return homogen_table{ queue,
+                              data_pointer,
+                              row_count,
+                              column_count,
+                              dal::detail::empty_delete<const Data>(),
+                              dependencies,
+                              layout };
     }
 #endif
 
@@ -142,12 +145,26 @@ private:
                    const Data* data_pointer,
                    ConstDeleter&& data_deleter,
                    data_layout layout) {
+        using error_msg = dal::detail::error_messages;
+
+        if (row_count <= 0) {
+            throw dal::domain_error(error_msg::rc_leq_zero());
+        }
+
+        if (column_count <= 0) {
+            throw dal::domain_error(error_msg::cc_leq_zero());
+        }
+
+        dal::detail::check_mul_overflow(row_count, column_count);
         array<Data> data_array{ data_pointer,
                                 row_count * column_count,
                                 std::forward<ConstDeleter>(data_deleter) };
 
         auto byte_data = reinterpret_cast<const byte_t*>(data_pointer);
-        const std::int64_t byte_count = data_array.get_count() * sizeof(Data);
+        dal::detail::check_mul_overflow(data_array.get_count(),
+                                        static_cast<std::int64_t>(sizeof(Data)));
+        const std::int64_t byte_count =
+            data_array.get_count() * static_cast<std::int64_t>(sizeof(Data));
 
         auto byte_array = array<byte_t>{ data_array, byte_data, byte_count };
 

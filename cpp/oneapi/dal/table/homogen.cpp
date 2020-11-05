@@ -28,7 +28,7 @@ int64_t homogen_table::kind() {
 homogen_table::homogen_table() : homogen_table(backend::homogen_table_impl{}) {}
 
 const void* homogen_table::get_data() const {
-    const auto& impl = detail::get_impl<detail::homogen_table_impl_iface>(*this);
+    const auto& impl = detail::cast_impl<detail::homogen_table_impl_iface>(*this);
     return impl.get_data();
 }
 
@@ -39,7 +39,7 @@ void homogen_table::init_impl(const Policy& policy,
                               const array<byte_t>& data,
                               const data_type& dtype,
                               data_layout layout) {
-    init_impl(backend::homogen_table_impl(column_count, data, dtype, layout));
+    init_impl(backend::homogen_table_impl(row_count, column_count, data, dtype, layout));
 }
 
 template ONEDAL_EXPORT void homogen_table::init_impl(const detail::default_host_policy&,

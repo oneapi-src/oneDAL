@@ -70,7 +70,9 @@ public:
 
     const sycl::queue& get_global_queue() const {
         if (!queue_) {
-            throw internal_error{ "Test queue provider is not initialized" };
+            throw internal_error{
+                dal::detail::error_messages::test_queue_provider_is_not_initialized()
+            };
         }
         return *queue_;
     }

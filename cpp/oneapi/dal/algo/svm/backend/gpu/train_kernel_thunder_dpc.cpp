@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/svm/backend/gpu/train_kernel.hpp"
-#include "oneapi/dal/algo/svm/backend/interop_model.hpp"
+#include "oneapi/dal/algo/svm/backend/model_interop.hpp"
 #include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
 #include "oneapi/dal/algo/svm/backend/utils.hpp"
 
@@ -29,8 +29,11 @@
 
 namespace oneapi::dal::svm::backend {
 
-using std::int64_t;
 using dal::backend::context_gpu;
+using model_t = model<task::classification>;
+using input_t = train_input<task::classification>;
+using result_t = train_result<task::classification>;
+using descriptor_t = descriptor_base<task::classification>;
 
 namespace daal_svm = daal::algorithms::svm;
 namespace daal_kernel_function = daal::algorithms::kernel_function;
@@ -41,15 +44,15 @@ using daal_svm_thunder_kernel_t =
     daal_svm::training::internal::SVMTrainOneAPI<Float, daal_svm::training::thunder>;
 
 template <typename Float>
-static train_result call_daal_kernel(const context_gpu& ctx,
-                                     const descriptor_base& desc,
-                                     const table& data,
-                                     const table& labels) {
+static result_t call_daal_kernel(const context_gpu& ctx,
+                                 const descriptor_t& desc,
+                                 const table& data,
+                                 const table& labels) {
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
-    const int64_t row_count = data.get_row_count();
-    const int64_t column_count = data.get_column_count();
+    const std::int64_t row_count = data.get_row_count();
+    const std::int64_t column_count = data.get_column_count();
 
     // TODO: data is table, not a homogen_table. Think better about accessor - is it enough to have just a row_accessor?
     auto arr_data = row_accessor<const Float>{ data }.pull(queue);
@@ -64,15 +67,24 @@ static train_result call_daal_kernel(const context_gpu& ctx,
     const auto daal_labels =
         interop::convert_to_daal_sycl_homogen_table(queue, arr_new_label, row_count, 1);
 
-    auto kernel_impl = desc.get_kernel_impl()->get_impl();
+    auto kernel_impl = detail::get_kernel_function_impl(desc);
+    if (!kernel_impl) {
+        throw internal_error{ dal::detail::error_messages::unknown_kernel_function_type() };
+    }
     const auto daal_kernel = kernel_impl->get_daal_kernel_function();
+
+    const std::uint64_t cache_megabyte = static_cast<std::uint64_t>(desc.get_cache_size());
+    constexpr std::uint64_t megabyte = 1024 * 1024;
+    dal::detail::check_mul_overflow(cache_megabyte, megabyte);
+    const std::uint64_t cache_byte = cache_megabyte * megabyte;
+
     daal_svm::Parameter daal_parameter(
         daal_kernel,
         desc.get_c(),
         desc.get_accuracy_threshold(),
         desc.get_tau(),
-        desc.get_max_iteration_count(),
-        int64_t(desc.get_cache_size() * 1024.0 * 1024.0), // DAAL get in bytes
+        dal::detail::integral_cast<std::size_t>(desc.get_max_iteration_count()),
+        cache_byte,
         desc.get_shrinking());
 
     auto daal_model = daal_svm::Model::create<Float>(column_count);
@@ -83,30 +95,28 @@ static train_result call_daal_kernel(const context_gpu& ctx,
     auto table_support_indices =
         interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());
 
-    auto trained_model = convert_from_daal_model<Float>(*daal_model)
+    auto trained_model = convert_from_daal_model<task::classification, Float>(*daal_model)
                              .set_first_class_label(unique_label.first)
                              .set_second_class_label(unique_label.second);
 
-    return train_result().set_model(trained_model).set_support_indices(table_support_indices);
+    return result_t().set_model(trained_model).set_support_indices(table_support_indices);
 }
 
 template <typename Float>
-static train_result train(const context_gpu& ctx,
-                          const descriptor_base& desc,
-                          const train_input& input) {
+static result_t train(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_labels());
 }
 
 template <typename Float>
-struct train_kernel_gpu<Float, task::classification, method::thunder> {
-    train_result operator()(const dal::backend::context_gpu& ctx,
-                            const descriptor_base& desc,
-                            const train_input& input) const {
+struct train_kernel_gpu<Float, method::thunder, task::classification> {
+    result_t operator()(const context_gpu& ctx,
+                        const descriptor_t& desc,
+                        const input_t& input) const {
         return train<Float>(ctx, desc, input);
     }
 };
 
-template struct train_kernel_gpu<float, task::classification, method::thunder>;
-template struct train_kernel_gpu<double, task::classification, method::thunder>;
+template struct train_kernel_gpu<float, method::thunder, task::classification>;
+template struct train_kernel_gpu<double, method::thunder, task::classification>;
 
 } // namespace oneapi::dal::svm::backend

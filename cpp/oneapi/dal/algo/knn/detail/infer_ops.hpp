@@ -17,15 +17,13 @@
 #pragma once
 
 #include "oneapi/dal/algo/knn/infer_types.hpp"
-#include "oneapi/dal/exceptions.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::knn::detail {
+namespace v1 {
 
-template <typename Context,
-          typename Float,
-          typename Method = method::by_default,
-          typename Task = task::by_default>
-struct ONEDAL_EXPORT infer_ops_dispatcher {
+template <typename Context, typename Float, typename Method, typename Task, typename... Options>
+struct infer_ops_dispatcher {
     infer_result<Task> operator()(const Context&,
                                   const descriptor_base<Task>&,
                                   const infer_input<Task>&) const;
@@ -41,20 +39,18 @@ struct infer_ops {
     using descriptor_base_t = descriptor_base<task_t>;
 
     void check_preconditions(const Descriptor& params, const input_t& input) const {
-        if (!(input.get_data().has_data())) {
-            throw domain_error("Input data should not be empty");
+        using msg = dal::detail::error_messages;
+
+        if (!input.get_data().has_data()) {
+            throw domain_error(msg::input_data_is_empty());
         }
     }
 
     void check_postconditions(const Descriptor& params,
                               const input_t& input,
                               const result_t& result) const {
-        if (result.get_labels().get_column_count() != 1) {
-            throw internal_error("Result labels column_count should contain a single column");
-        }
-        if (result.get_labels().get_row_count() != input.get_data().get_row_count()) {
-            throw internal_error("Number of labels in result should match number of rows in input");
-        }
+        ONEDAL_ASSERT(result.get_labels().get_column_count() == 1);
+        ONEDAL_ASSERT(result.get_labels().get_row_count() == input.get_data().get_row_count());
     }
 
     template <typename Context>
@@ -66,5 +62,9 @@ struct infer_ops {
         return result;
     }
 };
+
+} // namespace v1
+
+using v1::infer_ops;
 
 } // namespace oneapi::dal::knn::detail

@@ -43,7 +43,7 @@ public:
             obj_.pull_rows(block, index.rows);
         }
         else {
-            throw std::runtime_error("pulling rows is not supported");
+            throw std::runtime_error(dal::detail::error_messages::pulling_rows_is_not_supported());
         }
     }
 
@@ -56,7 +56,8 @@ public:
             obj_.pull_column(block, index.column_index, index.rows);
         }
         else {
-            throw std::runtime_error("pulling column is not supported");
+            throw std::runtime_error(
+                dal::detail::error_messages::pulling_column_is_not_supported());
         }
     }
 
@@ -66,7 +67,7 @@ public:
             obj_.push_rows(block, index.rows);
         }
         else {
-            throw std::runtime_error("pushing rows is not supported");
+            throw std::runtime_error(dal::detail::error_messages::pushing_rows_is_not_supported());
         }
     }
 
@@ -76,7 +77,8 @@ public:
             obj_.push_column(block, index.column_index, index.rows);
         }
         else {
-            throw std::runtime_error("pushing column is not supported");
+            throw std::runtime_error(
+                dal::detail::error_messages::pushing_column_is_not_supported());
         }
     }
 

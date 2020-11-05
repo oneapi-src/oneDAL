@@ -24,7 +24,8 @@ void try_add_device(std::vector<sycl::device>& devices) {
     try {
         devices.push_back(Selector{}.select_device());
     }
-    catch (...) {}
+    catch (...) {
+    }
 }
 
 std::vector<sycl::device> list_devices() {

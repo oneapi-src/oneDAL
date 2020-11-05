@@ -56,13 +56,14 @@ static infer_result<task::classification> call_daal_kernel(
         interop::convert_to_daal_sycl_homogen_table(queue, arr_labels, row_count, 1);
 
     const auto data_use_in_model = daal_knn::doNotUse;
-    daal_knn::Parameter daal_parameter(desc.get_class_count(),
-                                       desc.get_neighbor_count(),
-                                       data_use_in_model);
+    daal_knn::Parameter daal_parameter(
+        dal::detail::integral_cast<std::size_t>(desc.get_class_count()),
+        dal::detail::integral_cast<std::size_t>(desc.get_neighbor_count()),
+        data_use_in_model);
 
     interop::status_to_exception(daal_knn_brute_force_kernel_t<Float>().compute(
         daal_data.get(),
-        dal::detail::get_impl<detail::model_impl>(m).get_interop()->get_daal_model().get(),
+        dal::detail::get_impl(m).get_interop()->get_daal_model().get(),
         daal_labels.get(),
         &daal_parameter));
 

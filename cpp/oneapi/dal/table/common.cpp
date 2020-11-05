@@ -38,10 +38,11 @@ public:
         return 0;
     }
     const feature_type& get_feature_type(int64_t) const override {
-        throw domain_error("cannot get feature type from empty metadata");
+        throw domain_error(
+            dal::detail::error_messages::cannot_get_feature_type_from_empty_metadata());
     }
     const data_type& get_data_type(int64_t) const override {
-        throw domain_error("cannot get data type from empty metadata");
+        throw domain_error(dal::detail::error_messages::cannot_get_data_type_from_empty_metadata());
     }
 };
 
@@ -51,7 +52,9 @@ public:
             : dtypes_(dtypes),
               ftypes_(ftypes) {
         if (dtypes_.get_count() != ftypes_.get_count()) {
-            throw out_of_range("data type and feature type arrays shall be the same size");
+            throw out_of_range(
+                dal::detail::error_messages::
+                    element_count_in_data_type_and_feature_type_arrays_does_not_match());
         }
     }
 
@@ -60,13 +63,13 @@ public:
     }
     const feature_type& get_feature_type(int64_t i) const override {
         if (!is_in_range(i)) {
-            throw out_of_range("feature index is out of range");
+            throw out_of_range(dal::detail::error_messages::feature_index_is_out_of_range());
         }
         return ftypes_[i];
     }
     const data_type& get_data_type(int64_t i) const override {
         if (!is_in_range(i)) {
-            throw out_of_range("feature index is out of range");
+            throw out_of_range(dal::detail::error_messages::feature_index_is_out_of_range());
         }
         return dtypes_[i];
     }
