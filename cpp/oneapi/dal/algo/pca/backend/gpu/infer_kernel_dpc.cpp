@@ -29,7 +29,7 @@ using dal::backend::context_gpu;
 using model_t = model<task::dim_reduction>;
 using input_t = infer_input<task::dim_reduction>;
 using result_t = infer_result<task::dim_reduction>;
-using descriptor_t = descriptor_base<task::dim_reduction>;
+using descriptor_t = detail::descriptor_base<task::dim_reduction>;
 
 namespace daal_pca_tr = daal::algorithms::pca::transform;
 namespace daal_pca_tr_oneapi = daal::algorithms::pca::transform::oneapi;
@@ -86,7 +86,7 @@ template <typename Float>
 struct infer_kernel_gpu<Float, task::dim_reduction> {
     infer_result<task::dim_reduction> operator()(
         const dal::backend::context_gpu& ctx,
-        const descriptor_base<task::dim_reduction>& desc,
+        const detail::descriptor_base<task::dim_reduction>& desc,
         const infer_input<task::dim_reduction>& input) const {
         return infer<Float>(ctx, desc, input);
     }

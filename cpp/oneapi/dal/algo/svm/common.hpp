@@ -48,17 +48,13 @@ using v1::by_default;
 
 namespace detail {
 namespace v1 {
-struct tag {};
+struct descriptor_tag {};
+
 template <typename Task>
 class descriptor_impl;
 
 template <typename Task>
 class model_impl;
-} // namespace v1
-
-using v1::tag;
-using v1::descriptor_impl;
-using v1::model_impl;
 
 template <typename Float>
 constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
@@ -71,19 +67,16 @@ constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::classifica
 
 template <typename Kernel>
 constexpr bool is_valid_kernel_v =
-    dal::detail::is_tag_one_of_v<Kernel, linear_kernel::detail::tag, rbf_kernel::detail::tag>;
-
-} // namespace detail
-
-namespace v1 {
+    dal::detail::is_tag_one_of_v<Kernel, linear_kernel::detail::descriptor_tag,
+                                         rbf_kernel::detail::descriptor_tag>;
 
 template <typename Task = task::by_default>
 class descriptor_base : public base {
-    static_assert(detail::is_valid_task_v<Task>);
+    static_assert(is_valid_task_v<Task>);
     friend detail::kernel_function_accessor;
 
 public:
-    using tag_t = detail::tag;
+    using tag_t = descriptor_tag;
     using float_t = float;
     using method_t = method::by_default;
     using task_t = Task;
@@ -110,20 +103,38 @@ protected:
     const detail::kernel_function_ptr& get_kernel_impl() const;
 
 private:
-    dal::detail::pimpl<detail::descriptor_impl<Task>> impl_;
+    dal::detail::pimpl<descriptor_impl<Task>> impl_;
 };
 
-template <typename Float = descriptor_base<>::float_t,
-          typename Method = descriptor_base<>::method_t,
-          typename Task = descriptor_base<>::task_t,
-          typename Kernel = descriptor_base<>::kernel_t>
-class descriptor : public descriptor_base<Task> {
+} // namespace v1
+
+using v1::descriptor_tag;
+using v1::descriptor_impl;
+using v1::model_impl;
+using v1::descriptor_base;
+
+using v1::is_valid_float_v;
+using v1::is_valid_method_v;
+using v1::is_valid_task_v;
+using v1::is_valid_kernel_v;
+
+} // namespace detail
+
+namespace v1 {
+
+template <typename Float = detail::descriptor_base<>::float_t,
+          typename Method = detail::descriptor_base<>::method_t,
+          typename Task = detail::descriptor_base<>::task_t,
+          typename Kernel = detail::descriptor_base<>::kernel_t>
+class descriptor : public detail::descriptor_base<Task> {
     static_assert(detail::is_valid_float_v<Float>);
     static_assert(detail::is_valid_method_v<Method>);
     static_assert(detail::is_valid_task_v<Task>);
     static_assert(detail::is_valid_kernel_v<Kernel>,
                   "Custom kernel for SVM is not supported. "
                   "Use one of the predefined kernels.");
+
+    using base_t = detail::descriptor_base<Task>;
 
 public:
     using float_t = Float;
@@ -132,47 +143,47 @@ public:
     using kernel_t = Kernel;
 
     explicit descriptor(const Kernel& kernel = kernel_t{})
-            : descriptor_base<Task>(std::make_shared<detail::kernel_function<Kernel>>(kernel)) {}
+            : base_t(std::make_shared<detail::kernel_function<Kernel>>(kernel)) {}
 
     const Kernel& get_kernel() const {
         using kf_t = detail::kernel_function<Kernel>;
-        const auto kf = std::static_pointer_cast<kf_t>(descriptor_base<Task>::get_kernel_impl());
+        const auto kf = std::static_pointer_cast<kf_t>(base_t::get_kernel_impl());
         return kf->get_kernel();
     }
 
     auto& set_kernel(const Kernel& kernel) {
-        descriptor_base<Task>::set_kernel_impl(
+        base_t::set_kernel_impl(
             std::make_shared<detail::kernel_function<Kernel>>(kernel));
         return *this;
     }
 
     auto& set_c(double value) {
-        descriptor_base<Task>::set_c_impl(value);
+        base_t::set_c_impl(value);
         return *this;
     }
 
     auto& set_accuracy_threshold(double value) {
-        descriptor_base<Task>::set_accuracy_threshold_impl(value);
+        base_t::set_accuracy_threshold_impl(value);
         return *this;
     }
 
     auto& set_max_iteration_count(std::int64_t value) {
-        descriptor_base<Task>::set_max_iteration_count_impl(value);
+        base_t::set_max_iteration_count_impl(value);
         return *this;
     }
 
     auto& set_cache_size(double value) {
-        descriptor_base<Task>::set_cache_size_impl(value);
+        base_t::set_cache_size_impl(value);
         return *this;
     }
 
     auto& set_tau(double value) {
-        descriptor_base<Task>::set_tau_impl(value);
+        base_t::set_tau_impl(value);
         return *this;
     }
 
     auto& set_shrinking(bool value) {
-        descriptor_base<Task>::set_shrinking_impl(value);
+        base_t::set_shrinking_impl(value);
         return *this;
     }
 };
@@ -237,7 +248,6 @@ private:
 
 } // namespace v1
 
-using v1::descriptor_base;
 using v1::descriptor;
 using v1::model;
 
