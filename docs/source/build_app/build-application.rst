@@ -29,6 +29,7 @@ This section contains instructions for building applications with |short_name| f
 
 - `Applications on Windows`_
 - `Applications on Linux`_
+- `Dynamic library versions`_
 
 Applications on Windows
 -----------------------
@@ -78,8 +79,10 @@ Applications on Windows
             - onedal_core.lib, onedal_sequential.lib
             - onedal_core.lib, onedal_thread.lib
           * - Dynamic linking
-            - onedal_core_dll.lib
-            - onedal_core_dll.lib
+            - onedal_core_dll.1.lib
+            - onedal_core_dll.1.lib
+
+   Number in dynamic library file name is major binary version of library. See `Dynamic library versions`_ to find that major version means.
 
 Applications on Linux
 ---------------------
@@ -132,6 +135,13 @@ Applications on Linux
             - libonedal_core.so, libonedal_sequential.so
             - libonedal_core.so, libonedal_thread.so
 
+     There are three available file names for dynamic linking: with major and minor binary versions, with major version or without versions.
+     They are implemented through chain of Linux soft links:
+
+     libonedal_*.so (soft link) -> libonedal_*.so.{major version} (soft link) -> libonedal_*.so.{major version}.{minor version} (actual library file)
+
+     See `Dynamic library versions`_ to find that major and minor versions mean.
+
   - Add an additional |short_name| library:
 
     .. code-block:: text
@@ -154,3 +164,9 @@ Static linking, Single-threaded |short_name|:
 
      clang++ -fsycl -DONEAPI_DAAL_USE_MKL_GPU_GEMM my_first_daal_program.cpp -Wl,
      --start-group <install dir>/daal/latest/lib/intel64/libonedal_core.a <install dir>/daal/latest/lib/intel64/libonedal_sequential.a -lpthread -ldl -lOpenCL -foffload-static-lib=<install dir>/daal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
+
+Dynamic library versions
+---------------------
+Some dynamic library files and links have major and minor binary versions in names.
+When new library version without ABI compatibility to previous versions are going to be released, major version is incremented and minor is set to 0.
+When new library version with ABI compatibility to previous versions and additional API are going to be released, minor version is incremented.
