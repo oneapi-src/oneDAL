@@ -19,18 +19,15 @@
 #include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::knn {
+namespace detail {
+namespace v1 {
 
 template <typename Task>
-class detail::v1::descriptor_impl : public base {
+class descriptor_impl : public base {
 public:
     std::int64_t class_count = 2;
     std::int64_t neighbor_count = 1;
 };
-
-using detail::v1::descriptor_impl;
-using detail::v1::model_impl;
-
-namespace v1 {
 
 template <typename Task>
 descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
@@ -61,13 +58,21 @@ void descriptor_base<Task>::set_neighbor_count_impl(std::int64_t value) {
     impl_->neighbor_count = value;
 }
 
+template class ONEDAL_EXPORT descriptor_base<task::classification>;
+
+} // namespace v1
+} // namespace detail
+
+namespace v1 {
+
+using detail::v1::model_impl;
+
 template <typename Task>
 model<Task>::model() : impl_(new model_impl<Task>{}) {}
 
 template <typename Task>
 model<Task>::model(const std::shared_ptr<detail::model_impl<Task>>& impl) : impl_(impl) {}
 
-template class ONEDAL_EXPORT descriptor_base<task::classification>;
 template class ONEDAL_EXPORT model<task::classification>;
 
 } // namespace v1

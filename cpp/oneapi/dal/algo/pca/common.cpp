@@ -18,24 +18,21 @@
 #include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::pca {
+namespace detail {
+namespace v1 {
 
 template <typename Task>
-class detail::v1::descriptor_impl : public base {
+class descriptor_impl : public base {
 public:
     std::int64_t component_count = -1;
     bool deterministic = false;
 };
 
 template <typename Task>
-class detail::v1::model_impl : public base {
+class model_impl : public base {
 public:
     table eigenvectors;
 };
-
-using detail::v1::descriptor_impl;
-using detail::v1::model_impl;
-
-namespace v1 {
 
 template <typename Task>
 descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
@@ -63,6 +60,15 @@ void descriptor_base<Task>::set_deterministic_impl(bool value) {
     impl_->deterministic = value;
 }
 
+template class ONEDAL_EXPORT descriptor_base<task::dim_reduction>;
+
+} // namespace v1
+} // namespace detail
+
+namespace v1 {
+
+using detail::v1::model_impl;
+
 template <typename Task>
 model<Task>::model() : impl_(new model_impl<Task>{}) {}
 
@@ -76,7 +82,6 @@ void model<Task>::set_eigenvectors_impl(const table& value) {
     impl_->eigenvectors = value;
 }
 
-template class ONEDAL_EXPORT descriptor_base<task::dim_reduction>;
 template class ONEDAL_EXPORT model<task::dim_reduction>;
 
 } // namespace v1

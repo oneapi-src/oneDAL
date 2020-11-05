@@ -17,7 +17,6 @@
 #pragma once
 
 #include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/table/detail/common.hpp"
 
 namespace oneapi::dal::backend {
 

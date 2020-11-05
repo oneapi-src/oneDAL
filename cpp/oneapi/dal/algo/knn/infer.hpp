@@ -25,7 +25,8 @@ namespace oneapi::dal::detail {
 namespace v1 {
 
 template <typename Descriptor>
-struct infer_ops<Descriptor, dal::knn::detail::tag> : dal::knn::detail::infer_ops<Descriptor> {};
+struct infer_ops<Descriptor, dal::knn::detail::descriptor_tag>
+        : dal::knn::detail::infer_ops<Descriptor> {};
 
 } // namespace v1
 } // namespace oneapi::dal::detail

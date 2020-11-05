@@ -22,6 +22,7 @@
     }
 
 namespace oneapi::dal::detail {
+namespace v1 {
 
 /* Common */
 MSG(array_does_not_contain_mutable_data, "Array does not contain mutable data")
@@ -164,4 +165,5 @@ MSG(decision_forest_train_dense_method_is_not_implemented_for_gpu,
 MSG(decision_forest_train_hist_method_is_not_implemented_for_cpu,
     "Decision forest train hist method is not implemented for CPU")
 
+} // namespace v1
 } // namespace oneapi::dal::detail

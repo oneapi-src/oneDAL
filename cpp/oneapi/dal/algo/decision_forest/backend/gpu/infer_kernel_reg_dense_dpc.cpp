@@ -31,7 +31,7 @@ using dal::backend::context_gpu;
 using model_t = model<task::regression>;
 using input_t = infer_input<task::regression>;
 using result_t = infer_result<task::regression>;
-using descriptor_t = descriptor_base<task::regression>;
+using descriptor_t = detail::descriptor_base<task::regression>;
 
 namespace daal_df = daal::algorithms::decision_forest;
 namespace daal_df_reg_pred = daal_df::regression::prediction;
