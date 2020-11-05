@@ -19,7 +19,7 @@
 #include <cstdint>
 #include <utility>
 
-#define ONEDAL_SPEC_VERSION "1.0"
+#define ONEDAL_SPEC_VERSION        "1.0"
 #define ONEDAL_SPEC_VERSION_NUMBER 100
 
 #if defined(_WIN32) || defined(_WIN64)

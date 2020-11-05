@@ -67,8 +67,9 @@ constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::classifica
 
 template <typename Kernel>
 constexpr bool is_valid_kernel_v =
-    dal::detail::is_tag_one_of_v<Kernel, linear_kernel::detail::descriptor_tag,
-                                         rbf_kernel::detail::descriptor_tag>;
+    dal::detail::is_tag_one_of_v<Kernel,
+                                 linear_kernel::detail::descriptor_tag,
+                                 rbf_kernel::detail::descriptor_tag>;
 
 template <typename Task = task::by_default>
 class descriptor_base : public base {
@@ -152,8 +153,7 @@ public:
     }
 
     auto& set_kernel(const Kernel& kernel) {
-        base_t::set_kernel_impl(
-            std::make_shared<detail::kernel_function<Kernel>>(kernel));
+        base_t::set_kernel_impl(std::make_shared<detail::kernel_function<Kernel>>(kernel));
         return *this;
     }
 
