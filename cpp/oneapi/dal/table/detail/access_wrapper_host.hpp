@@ -19,9 +19,8 @@
 #include "oneapi/dal/table/detail/access_iface_type_traits.hpp"
 #include "oneapi/dal/table/detail/access_iface_wrapper.hpp"
 
-#include <stdexcept> // TODO: change by oneDAL exceptions
-
 namespace oneapi::dal::detail {
+namespace v1 {
 
 template <typename T>
 class access_wrapper_impl_host {
@@ -88,5 +87,10 @@ private:
 
 template <typename T>
 using access_wrapper_host = access_iface_wrapper<access_iface_host, access_wrapper_impl_host<T>>;
+
+} // namespace v1
+
+using v1::access_wrapper_impl_host;
+using v1::access_wrapper_host;
 
 } // namespace oneapi::dal::detail

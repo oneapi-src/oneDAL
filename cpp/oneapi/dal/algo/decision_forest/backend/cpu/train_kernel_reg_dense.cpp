@@ -36,7 +36,7 @@ using dal::backend::context_cpu;
 using model_t = model<task::regression>;
 using input_t = train_input<task::regression>;
 using result_t = train_result<task::regression>;
-using descriptor_t = descriptor_base<task::regression>;
+using descriptor_t = detail::descriptor_base<task::regression>;
 
 namespace daal_df = daal::algorithms::decision_forest;
 namespace daal_df_reg_train = daal_df::regression::training;

@@ -22,6 +22,7 @@
 #include "oneapi/dal/detail/policy.hpp"
 
 namespace oneapi::dal::detail {
+namespace v1 {
 
 template <typename T>
 inline T* malloc(const default_host_policy&, std::int64_t count) {
@@ -63,5 +64,14 @@ public:
         free(default_host_policy{}, p);
     }
 };
+
+} // namespace v1
+
+using v1::malloc;
+using v1::free;
+using v1::memset;
+using v1::memcpy;
+using v1::fill;
+using v1::host_allocator;
 
 } // namespace oneapi::dal::detail

@@ -19,9 +19,11 @@
 #include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::svm {
+namespace detail {
+namespace v1 {
 
 template <typename Task>
-class detail::v1::descriptor_impl : public base {
+class descriptor_impl : public base {
 public:
     explicit descriptor_impl(const detail::kernel_function_ptr& kernel) : kernel(kernel) {}
 
@@ -35,7 +37,7 @@ public:
 };
 
 template <typename Task>
-class detail::v1::model_impl : public base {
+class model_impl : public base {
 public:
     table support_vectors;
     table coeffs;
@@ -43,11 +45,6 @@ public:
     double first_class_label;
     double second_class_label;
 };
-
-using detail::v1::descriptor_impl;
-using detail::v1::model_impl;
-
-namespace v1 {
 
 template <typename Task>
 descriptor_base<Task>::descriptor_base(const detail::kernel_function_ptr& kernel)
@@ -138,6 +135,15 @@ const detail::kernel_function_ptr& descriptor_base<Task>::get_kernel_impl() cons
     return impl_->kernel;
 }
 
+template class ONEDAL_EXPORT descriptor_base<task::classification>;
+
+} // namespace v1
+} // namespace detail
+
+namespace v1 {
+
+using detail::v1::model_impl;
+
 template <typename Task>
 model<Task>::model() : impl_(new model_impl<Task>{}) {}
 
@@ -196,7 +202,6 @@ void model<Task>::set_second_class_label_impl(std::int64_t value) {
     impl_->second_class_label = value;
 }
 
-template class ONEDAL_EXPORT descriptor_base<task::classification>;
 template class ONEDAL_EXPORT model<task::classification>;
 
 } // namespace v1

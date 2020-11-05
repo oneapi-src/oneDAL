@@ -24,7 +24,7 @@ namespace oneapi::dal::svm::backend {
 template <typename Float, typename Method, typename Task>
 struct train_kernel_gpu {
     train_result<Task> operator()(const dal::backend::context_gpu& ctx,
-                                  const descriptor_base<Task>& params,
+                                  const detail::descriptor_base<Task>& params,
                                   const train_input<Task>& input) const;
 };
 

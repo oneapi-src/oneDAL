@@ -20,6 +20,7 @@
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
 namespace oneapi::dal {
+namespace v1 {
 
 template <typename T>
 class column_accessor : private detail::accessor_base<T, detail::column_values_block> {
@@ -92,5 +93,9 @@ public:
     }
 #endif
 };
+
+} // namespace v1
+
+using v1::column_accessor;
 
 } // namespace oneapi::dal
