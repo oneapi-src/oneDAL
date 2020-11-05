@@ -24,7 +24,8 @@ namespace oneapi::dal::detail {
 namespace v1 {
 
 template <typename Descriptor>
-struct train_ops<Descriptor, dal::svm::detail::tag> : dal::svm::detail::train_ops<Descriptor> {};
+struct train_ops<Descriptor, dal::svm::detail::descriptor_tag>
+        : dal::svm::detail::train_ops<Descriptor> {};
 
 } // namespace v1
 } // namespace oneapi::dal::detail

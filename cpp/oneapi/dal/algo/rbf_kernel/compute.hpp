@@ -24,7 +24,7 @@ namespace oneapi::dal::detail {
 namespace v1 {
 
 template <typename Descriptor>
-struct compute_ops<Descriptor, dal::rbf_kernel::detail::tag>
+struct compute_ops<Descriptor, dal::rbf_kernel::detail::descriptor_tag>
         : dal::rbf_kernel::detail::compute_ops<Descriptor> {};
 
 } // namespace v1

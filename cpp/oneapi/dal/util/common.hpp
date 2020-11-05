@@ -19,6 +19,7 @@
 #include "oneapi/dal/util/detail/type_traits.hpp"
 
 namespace oneapi::dal {
+namespace v1 {
 
 template <typename T>
 inline constexpr bool check_mask_flag(T mask, T flag) {
@@ -37,4 +38,11 @@ inline constexpr T bitwise_or(T lhs_mask, T rhs_mask) {
     using U = std::underlying_type_t<T>;
     return static_cast<T>(static_cast<U>(lhs_mask) | static_cast<U>(rhs_mask));
 }
+
+} // namespace v1
+
+using v1::check_mask_flag;
+using v1::bitwise_and;
+using v1::bitwise_or;
+
 } // namespace oneapi::dal
