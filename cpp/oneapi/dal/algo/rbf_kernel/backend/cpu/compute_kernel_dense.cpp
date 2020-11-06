@@ -28,7 +28,7 @@ namespace oneapi::dal::rbf_kernel::backend {
 using dal::backend::context_cpu;
 using input_t = compute_input<task::compute>;
 using result_t = compute_result<task::compute>;
-using descriptor_t = descriptor_base<task::compute>;
+using descriptor_t = detail::descriptor_base<task::compute>;
 
 namespace daal_rbf_kernel = daal::algorithms::kernel_function::rbf;
 namespace interop = dal::backend::interop;

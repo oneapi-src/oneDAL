@@ -18,9 +18,11 @@
 #include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::kmeans {
+namespace detail {
+namespace v1 {
 
 template <typename Task>
-class detail::v1::descriptor_impl : public base {
+class descriptor_impl : public base {
 public:
     std::int64_t cluster_count = 2;
     std::int64_t max_iteration_count = 100;
@@ -28,15 +30,10 @@ public:
 };
 
 template <typename Task>
-class detail::v1::model_impl : public base {
+class model_impl : public base {
 public:
     table centroids;
 };
-
-using detail::v1::descriptor_impl;
-using detail::v1::model_impl;
-
-namespace v1 {
 
 template <typename Task>
 descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
@@ -80,6 +77,15 @@ void descriptor_base<Task>::set_accuracy_threshold_impl(double value) {
     impl_->accuracy_threshold = value;
 }
 
+template class ONEDAL_EXPORT descriptor_base<task::clustering>;
+
+} // namespace v1
+} // namespace detail
+
+namespace v1 {
+
+using detail::v1::model_impl;
+
 template <typename Task>
 model<Task>::model() : impl_(new model_impl<Task>{}) {}
 
@@ -98,7 +104,6 @@ void model<Task>::set_centroids_impl(const table& value) {
     impl_->centroids = value;
 }
 
-template class ONEDAL_EXPORT descriptor_base<task::clustering>;
 template class ONEDAL_EXPORT model<task::clustering>;
 
 } // namespace v1

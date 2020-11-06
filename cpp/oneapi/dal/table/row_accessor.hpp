@@ -20,6 +20,7 @@
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
 namespace oneapi::dal {
+namespace v1 {
 
 template <typename T>
 class row_accessor : private detail::accessor_base<T, detail::row_block> {
@@ -29,7 +30,6 @@ public:
     using data_t = typename base::data_t;
     static constexpr bool is_readonly = base::is_readonly;
 
-public:
     template <
         typename K,
         typename = std::enable_if_t<is_readonly && (std::is_base_of_v<table, K> ||
@@ -88,5 +88,9 @@ public:
     }
 #endif
 };
+
+} // namespace v1
+
+using v1::row_accessor;
 
 } // namespace oneapi::dal

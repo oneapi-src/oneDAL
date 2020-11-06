@@ -24,6 +24,7 @@
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::detail {
+namespace v1 {
 
 class host_policy_impl;
 class data_parallel_policy_impl;
@@ -54,11 +55,10 @@ public:
 private:
     void set_enabled_cpu_extensions_impl(const cpu_extension& extensions) noexcept;
 
-    pimpl<detail::host_policy_impl> impl_;
+    pimpl<host_policy_impl> impl_;
 };
 
 #ifdef ONEDAL_DATA_PARALLEL
-// to detail
 class ONEDAL_EXPORT data_parallel_policy : public base {
 public:
     data_parallel_policy(const sycl::queue& queue) : queue_(queue) {
@@ -91,5 +91,17 @@ struct is_execution_policy<data_parallel_policy> : std::bool_constant<true> {};
 
 template <typename T>
 constexpr bool is_execution_policy_v = is_execution_policy<T>::value;
+
+} // namespace v1
+
+using v1::cpu_extension;
+using v1::default_host_policy;
+using v1::host_policy;
+using v1::is_execution_policy;
+using v1::is_execution_policy_v;
+
+#ifdef ONEDAL_DATA_PARALLEL
+using v1::data_parallel_policy;
+#endif
 
 } // namespace oneapi::dal::detail

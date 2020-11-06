@@ -20,14 +20,12 @@
 #include "oneapi/dal/io/csv/read_types.hpp"
 #include "oneapi/dal/read.hpp"
 
-namespace oneapi::dal {
-
-namespace detail {
+namespace oneapi::dal::detail {
+namespace v1 {
 
 template <typename table, typename DataSource>
 struct read_ops<table, DataSource, dal::csv::detail::data_source_tag>
         : dal::csv::detail::read_ops<table, DataSource> {};
 
-} // namespace detail
-
-} // namespace oneapi::dal
+} // namespace v1
+} // namespace oneapi::dal::detail

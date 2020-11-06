@@ -19,6 +19,7 @@
 #include "oneapi/dal/table/homogen.hpp"
 
 namespace oneapi::dal::detail {
+namespace v1 {
 
 class table_builder_impl_iface : public access_provider_iface {
 public:
@@ -170,5 +171,12 @@ private:
     unique<access_iface_dpc> dpc_access_ptr_;
 #endif
 };
+
+} // namespace v1
+
+using v1::table_builder_impl_iface;
+using v1::homogen_table_builder_iface;
+using v1::table_builder_impl_wrapper;
+using v1::homogen_table_builder_impl_wrapper;
 
 } // namespace oneapi::dal::detail
