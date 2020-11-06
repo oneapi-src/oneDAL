@@ -19,21 +19,33 @@
 #include "oneapi/dal/algo/knn/common.hpp"
 #include "oneapi/dal/algo/knn/backend/model_interop.hpp"
 
-namespace oneapi::dal::knn::detail {
+namespace oneapi::dal::knn {
 
-class model_impl : public base {
+template <typename Task>
+class detail::v1::model_impl : public base {
 public:
     model_impl() : interop_(nullptr) {}
     model_impl(const model_impl&) = delete;
     model_impl& operator=(const model_impl&) = delete;
-    model_impl(knn::backend::model_interop* interop) : interop_(interop) {}
-    ~model_impl();
-    knn::backend::model_interop* get_interop() {
+
+    model_impl(backend::model_interop* interop) : interop_(interop) {}
+
+    ~model_impl() {
+        delete interop_;
+        interop_ = nullptr;
+    }
+
+    backend::model_interop* get_interop() {
         return interop_;
     }
 
 private:
-    knn::backend::model_interop* interop_;
+    backend::model_interop* interop_;
 };
 
-} // namespace oneapi::dal::knn::detail
+namespace backend {
+
+using model_impl_cls = detail::model_impl<task::classification>;
+
+} // namespace backend
+} // namespace oneapi::dal::knn

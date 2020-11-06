@@ -28,6 +28,7 @@ namespace oneapi::dal::kmeans::backend {
 
 using std::int64_t;
 using dal::backend::context_cpu;
+using descriptor_t = detail::descriptor_base<task::clustering>;
 
 namespace daal_kmeans = daal::algorithms::kmeans;
 namespace interop = dal::backend::interop;
@@ -38,7 +39,7 @@ using daal_kmeans_lloyd_dense_kernel_t =
 
 template <typename Float, typename Task>
 static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
-                                           const descriptor_base<Task>& desc,
+                                           const descriptor_t& desc,
                                            const model<Task>& trained_model,
                                            const table& data) {
     const int64_t row_count = data.get_row_count();
@@ -47,8 +48,9 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
     const int64_t cluster_count = desc.get_cluster_count();
     const int64_t max_iteration_count = 0;
 
-    daal_kmeans::Parameter par(cluster_count, max_iteration_count);
-    par.resultsToEvaluate = daal_kmeans::computeAssignments;
+    daal_kmeans::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count),
+                               dal::detail::integral_cast<std::size_t>(max_iteration_count));
+    par.resultsToEvaluate = static_cast<DAAL_UINT64>(daal_kmeans::computeAssignments);
 
     auto arr_data = row_accessor<const Float>{ data }.pull();
     auto arr_initial_centroids = row_accessor<const Float>{ trained_model.get_centroids() }.pull();
@@ -57,9 +59,8 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
     array<Float> arr_objective_function_value = array<Float>::empty(1);
     array<int> arr_iteration_count = array<int>::empty(1);
 
-    const auto daal_data = interop::convert_to_daal_homogen_table(arr_data,
-                                                                  data.get_row_count(),
-                                                                  data.get_column_count());
+    const auto daal_data =
+        interop::convert_to_daal_homogen_table(arr_data, row_count, column_count);
     const auto daal_initial_centroids =
         interop::convert_to_daal_homogen_table(arr_initial_centroids, cluster_count, column_count);
     const auto daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
@@ -89,7 +90,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
 
 template <typename Float, typename Task>
 static infer_result<Task> infer(const context_cpu& ctx,
-                                const descriptor_base<Task>& desc,
+                                const descriptor_t& desc,
                                 const infer_input<Task>& input) {
     return call_daal_kernel<Float, Task>(ctx, desc, input.get_model(), input.get_data());
 }
@@ -97,7 +98,7 @@ static infer_result<Task> infer(const context_cpu& ctx,
 template <typename Float>
 struct infer_kernel_cpu<Float, method::by_default, task::clustering> {
     infer_result<task::clustering> operator()(const context_cpu& ctx,
-                                              const descriptor_base<task::clustering>& desc,
+                                              const descriptor_t& desc,
                                               const infer_input<task::clustering>& input) const {
         return infer<Float, task::clustering>(ctx, desc, input);
     }

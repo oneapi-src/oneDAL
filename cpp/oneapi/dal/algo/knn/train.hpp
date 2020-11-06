@@ -22,8 +22,11 @@
 #include "oneapi/dal/train.hpp"
 
 namespace oneapi::dal::detail {
+namespace v1 {
 
 template <typename Descriptor>
-struct train_ops<Descriptor, dal::knn::detail::tag> : dal::knn::detail::train_ops<Descriptor> {};
+struct train_ops<Descriptor, dal::knn::detail::descriptor_tag>
+        : dal::knn::detail::train_ops<Descriptor> {};
 
+} // namespace v1
 } // namespace oneapi::dal::detail

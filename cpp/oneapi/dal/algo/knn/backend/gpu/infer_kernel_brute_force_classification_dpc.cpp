@@ -27,6 +27,7 @@
 namespace oneapi::dal::knn::backend {
 
 using dal::backend::context_gpu;
+using descriptor_t = detail::descriptor_base<task::classification>;
 
 namespace daal_knn = daal::algorithms::bf_knn_classification;
 namespace interop = dal::backend::interop;
@@ -36,11 +37,10 @@ using daal_knn_brute_force_kernel_t =
     daal_knn::prediction::internal::KNNClassificationPredictKernelUCAPI<Float>;
 
 template <typename Float>
-static infer_result<task::classification> call_daal_kernel(
-    const context_gpu& ctx,
-    const descriptor_base<task::classification>& desc,
-    const table& data,
-    const model<task::classification> m) {
+static infer_result<task::classification> call_daal_kernel(const context_gpu& ctx,
+                                                           const descriptor_t& desc,
+                                                           const table& data,
+                                                           const model<task::classification> m) {
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
@@ -56,13 +56,14 @@ static infer_result<task::classification> call_daal_kernel(
         interop::convert_to_daal_sycl_homogen_table(queue, arr_labels, row_count, 1);
 
     const auto data_use_in_model = daal_knn::doNotUse;
-    daal_knn::Parameter daal_parameter(desc.get_class_count(),
-                                       desc.get_neighbor_count(),
-                                       data_use_in_model);
+    daal_knn::Parameter daal_parameter(
+        dal::detail::integral_cast<std::size_t>(desc.get_class_count()),
+        dal::detail::integral_cast<std::size_t>(desc.get_neighbor_count()),
+        data_use_in_model);
 
     interop::status_to_exception(daal_knn_brute_force_kernel_t<Float>().compute(
         daal_data.get(),
-        dal::detail::get_impl<detail::model_impl>(m).get_interop()->get_daal_model().get(),
+        dal::detail::get_impl(m).get_interop()->get_daal_model().get(),
         daal_labels.get(),
         &daal_parameter));
 
@@ -72,7 +73,7 @@ static infer_result<task::classification> call_daal_kernel(
 
 template <typename Float>
 static infer_result<task::classification> infer(const context_gpu& ctx,
-                                                const descriptor_base<task::classification>& desc,
+                                                const descriptor_t& desc,
                                                 const infer_input<task::classification>& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_model());
 }
@@ -81,7 +82,7 @@ template <typename Float>
 struct infer_kernel_gpu<Float, method::brute_force, task::classification> {
     infer_result<task::classification> operator()(
         const context_gpu& ctx,
-        const descriptor_base<task::classification>& desc,
+        const descriptor_t& desc,
         const infer_input<task::classification>& input) const {
         return infer<Float>(ctx, desc, input);
     }

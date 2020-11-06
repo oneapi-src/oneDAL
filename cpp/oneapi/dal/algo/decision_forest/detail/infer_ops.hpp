@@ -17,12 +17,13 @@
 #pragma once
 
 #include "oneapi/dal/algo/decision_forest/infer_types.hpp"
-#include "oneapi/dal/exceptions.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::decision_forest::detail {
+namespace v1 {
 
-template <typename Context, typename Float, typename Task, typename Method>
-struct ONEDAL_EXPORT infer_ops_dispatcher {
+template <typename Context, typename Float, typename Task, typename Method, typename... Options>
+struct infer_ops_dispatcher {
     infer_result<Task> operator()(const Context&,
                                   const descriptor_base<Task>&,
                                   const infer_input<Task>&) const;
@@ -38,8 +39,10 @@ struct infer_ops {
     using descriptor_base_t = descriptor_base<task_t>;
 
     void check_preconditions(const Descriptor& params, const input_t& input) const {
+        using msg = dal::detail::error_messages;
+
         if (!(input.get_data().has_data())) {
-            throw domain_error("Input data should not be empty");
+            throw domain_error(msg::input_data_is_empty());
         }
     }
 
@@ -56,5 +59,9 @@ struct infer_ops {
         return result;
     }
 };
+
+} // namespace v1
+
+using v1::infer_ops;
 
 } // namespace oneapi::dal::decision_forest::detail

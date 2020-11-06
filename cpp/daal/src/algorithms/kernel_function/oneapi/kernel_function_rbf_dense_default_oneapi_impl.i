@@ -96,6 +96,11 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeRBF(
 
     KernelArguments args(6, status);
     DAAL_CHECK_STATUS_VAR(status);
+
+    DAAL_ASSERT_UNIVERSAL_BUFFER(sqrMatRight, algorithmFPType, n);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(sqrMatRight, algorithmFPType, m);
+    DAAL_ASSERT(rbf.size() == n * m);
+
     args.set(0, sqrMatLeft, AccessModeIds::read);
     args.set(1, sqrMatRight, AccessModeIds::read);
     args.set(2, ld);

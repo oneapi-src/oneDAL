@@ -26,6 +26,9 @@
 namespace oneapi::dal::linear_kernel::backend {
 
 using dal::backend::context_gpu;
+using input_t = compute_input<task::compute>;
+using result_t = compute_result<task::compute>;
+using descriptor_t = detail::descriptor_base<task::compute>;
 
 namespace daal_linear_kernel = daal::algorithms::kernel_function::linear;
 namespace interop = dal::backend::interop;
@@ -35,10 +38,10 @@ using daal_linear_kernel_t =
     daal_linear_kernel::internal::KernelImplLinearOneAPI<daal_linear_kernel::defaultDense, Float>;
 
 template <typename Float>
-static compute_result call_daal_kernel(const context_gpu& ctx,
-                                       const descriptor_base& desc,
-                                       const table& x,
-                                       const table& y) {
+static result_t call_daal_kernel(const context_gpu& ctx,
+                                 const descriptor_t& desc,
+                                 const table& x,
+                                 const table& y) {
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
@@ -49,6 +52,7 @@ static compute_result call_daal_kernel(const context_gpu& ctx,
     auto arr_x = row_accessor<const Float>{ x }.pull(queue);
     auto arr_y = row_accessor<const Float>{ y }.pull(queue);
 
+    dal::detail::check_mul_overflow(row_count_x, row_count_y);
     auto arr_values = array<Float>::empty(queue, row_count_x * row_count_y);
 
     const auto daal_x =
@@ -64,27 +68,25 @@ static compute_result call_daal_kernel(const context_gpu& ctx,
                                           daal_values.get(),
                                           &daal_parameter);
 
-    return compute_result().set_values(
+    return result_t{}.set_values(
         dal::detail::homogen_table_builder{}.reset(arr_values, row_count_x, row_count_y).build());
 }
 
 template <typename Float>
-static compute_result compute(const context_gpu& ctx,
-                              const descriptor_base& desc,
-                              const compute_input& input) {
+static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_x(), input.get_y());
 }
 
 template <typename Float>
-struct compute_kernel_gpu<Float, method::dense> {
-    compute_result operator()(const context_gpu& ctx,
-                              const descriptor_base& desc,
-                              const compute_input& input) const {
+struct compute_kernel_gpu<Float, method::dense, task::compute> {
+    result_t operator()(const context_gpu& ctx,
+                        const descriptor_t& desc,
+                        const input_t& input) const {
         return compute<Float>(ctx, desc, input);
     }
 };
 
-template struct compute_kernel_gpu<float, method::dense>;
-template struct compute_kernel_gpu<double, method::dense>;
+template struct compute_kernel_gpu<float, method::dense, task::compute>;
+template struct compute_kernel_gpu<double, method::dense, task::compute>;
 
 } // namespace oneapi::dal::linear_kernel::backend

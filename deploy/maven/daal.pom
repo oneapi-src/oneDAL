@@ -12,7 +12,7 @@
   <artifactId>daal</artifactId>
   <packaging>jar</packaging>
 
-  <name>Intel(R) Data Analytics Acceleration Library</name>
+  <name>Intel(R) oneAPI Data Analytics Library</name>
   <description>Boost machine learning and data analytics performance with this easy-to-use library</description>
   <url>https://software.intel.com/en-us/intel-daal</url>
 
@@ -31,9 +31,9 @@
   </developers>
 
   <scm>
-    <connection>scm:git:https://github.com/intel/daal.git</connection>
-    <developerConnection>scm:git:https://github.com/intel/daal.git</developerConnection>
-    <url>https://github.com/intel/daal</url>
+    <connection>scm:git:https://github.com/oneapi-src/oneDAL.git</connection>
+    <developerConnection>scm:git:https://github.com/oneapi-src/oneDAL.git</developerConnection>
+    <url>https://github.com/oneapi-src/oneDAL</url>
   </scm>
 
   <dependencies>

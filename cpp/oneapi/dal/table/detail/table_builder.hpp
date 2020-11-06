@@ -21,6 +21,7 @@
 #include "oneapi/dal/table/homogen.hpp"
 
 namespace oneapi::dal::detail {
+namespace v1 {
 
 template <typename T>
 struct is_table_builder_impl {
@@ -198,8 +199,13 @@ public:
 
 private:
     detail::homogen_table_builder_iface& get_impl() {
-        return detail::get_impl<detail::homogen_table_builder_iface>(*this);
+        return detail::cast_impl<detail::homogen_table_builder_iface>(*this);
     }
 };
+
+} // namespace v1
+
+using v1::table_builder;
+using v1::homogen_table_builder;
 
 } // namespace oneapi::dal::detail

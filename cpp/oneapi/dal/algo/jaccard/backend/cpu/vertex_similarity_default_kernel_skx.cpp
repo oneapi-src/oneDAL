@@ -32,17 +32,16 @@ namespace jaccard {
 namespace detail {
 
 template vertex_similarity_result
-call_jaccard_default_kernel_avx512<oneapi::dal::backend::cpu_dispatch_avx512>(
+call_jaccard_default_kernel_avx512<dal::backend::cpu_dispatch_avx512>(
     const descriptor_base &desc,
     vertex_similarity_input<undirected_adjacency_array_graph<>> &input);
 
 template <>
-vertex_similarity_result call_jaccard_default_kernel<undirected_adjacency_array_graph<>,
-                                                     oneapi::dal::backend::cpu_dispatch_avx512>(
+vertex_similarity_result
+call_jaccard_default_kernel<undirected_adjacency_array_graph<>, dal::backend::cpu_dispatch_avx512>(
     const descriptor_base &desc,
     vertex_similarity_input<undirected_adjacency_array_graph<>> &input) {
-    return call_jaccard_default_kernel_avx512<oneapi::dal::backend::cpu_dispatch_avx512>(desc,
-                                                                                         input);
+    return call_jaccard_default_kernel_avx512<dal::backend::cpu_dispatch_avx512>(desc, input);
 }
 } // namespace detail
 } // namespace jaccard

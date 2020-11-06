@@ -15,12 +15,16 @@
 *******************************************************************************/
 
 #include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/table/column_accessor.hpp"
 #include "gtest/gtest.h"
 #include "oneapi/dal/table/homogen.hpp"
 
 using namespace oneapi::dal;
+using namespace oneapi;
 
 TEST(homogen_table_test, can_read_table_data_via_row_accessor) {
+    using oneapi::dal::detail::empty_delete;
+
     double data[] = { 1.0, 2.0, 3.0, -1.0, -2.0, -3.0 };
 
     homogen_table t{ data, 2, 3, empty_delete<const double>() };
@@ -35,6 +39,8 @@ TEST(homogen_table_test, can_read_table_data_via_row_accessor) {
 }
 
 TEST(homogen_table_test, can_read_table_data_via_row_accessor_with_conversion) {
+    using oneapi::dal::detail::empty_delete;
+
     float data[] = { 1.0f, 2.0f, 3.0f, -1.0f, -2.0f, -3.0f };
 
     homogen_table t{ data, 2, 3, empty_delete<const float>() };
@@ -49,6 +55,8 @@ TEST(homogen_table_test, can_read_table_data_via_row_accessor_with_conversion) {
 }
 
 TEST(homogen_table_test, can_read_table_data_via_row_accessor_and_array_outside) {
+    using oneapi::dal::detail::empty_delete;
+
     float data[] = { 1.0f, 2.0f, 3.0f, -1.0f, -2.0f, -3.0f };
 
     homogen_table t{ data, 2, 3, empty_delete<const float>() };
@@ -66,4 +74,44 @@ TEST(homogen_table_test, can_read_table_data_via_row_accessor_and_array_outside)
         ASSERT_EQ(rows_ptr[i], data[i]);
         ASSERT_EQ(data_ptr[i], data[i]);
     }
+}
+
+TEST(homogen_table_test, can_read_rows_from_column_major_table) {
+    float data[] = { 1.0f, 2.0f, 3.0f, -1.0f, -2.0f, -3.0f };
+
+    auto t = homogen_table::wrap(data, 3, 2, data_layout::column_major);
+
+    auto rows_data = row_accessor<const float>(t).pull({ 1, -1 });
+
+    ASSERT_EQ(rows_data.get_count(), 2 * t.get_column_count());
+
+    ASSERT_FLOAT_EQ(rows_data[0], 2.0f);
+    ASSERT_FLOAT_EQ(rows_data[1], -2.0f);
+    ASSERT_FLOAT_EQ(rows_data[2], 3.0f);
+    ASSERT_FLOAT_EQ(rows_data[3], -3.0f);
+}
+
+TEST(homogen_table_test, can_read_rows_from_column_major_table_with_conversion) {
+    float data[] = { 1.0f, 2.0f, 3.0f, -1.0f, -2.0f, -3.0f };
+
+    auto t = homogen_table::wrap(data, 3, 2, data_layout::column_major);
+
+    auto rows_data = row_accessor<const std::int32_t>(t).pull({ 1, 2 });
+
+    ASSERT_EQ(rows_data.get_count(), 1 * t.get_column_count());
+
+    ASSERT_EQ(rows_data[0], 2);
+    ASSERT_EQ(rows_data[1], -2);
+}
+
+TEST(row_accessor_bad_arg_test, invalid_range) {
+    detail::homogen_table_builder b;
+    b.reset(array<float>::zeros(3 * 2), 3, 2);
+    row_accessor<float> acc{ b };
+
+    ASSERT_THROW(acc.pull({ 1, 4 }), dal::range_error);
+
+    auto rows_data = acc.pull({ 1, 2 });
+    ASSERT_THROW(acc.push(rows_data, { 0, 2 }), dal::range_error);
+    ASSERT_THROW(acc.push(rows_data, { 3, 4 }), dal::range_error);
 }

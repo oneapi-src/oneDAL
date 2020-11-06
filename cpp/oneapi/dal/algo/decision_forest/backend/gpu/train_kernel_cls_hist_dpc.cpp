@@ -14,44 +14,42 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <daal/src/algorithms/dtrees/forest/classification/df_classification_model_impl.h>
 #include <daal/src/services/service_algo_utils.h>
-
+#include <daal/src/algorithms/dtrees/forest/classification/df_classification_model_impl.h>
 #include <daal/include/algorithms/decision_forest/decision_forest_classification_training_batch.h>
 #include <daal/include/algorithms/decision_forest/decision_forest_classification_training_types.h>
-
 #include <daal/src/algorithms/dtrees/forest/classification/oneapi/df_classification_train_hist_kernel_oneapi.h>
 
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_kernel.hpp"
-#include "oneapi/dal/algo/decision_forest/backend/interop_helpers.hpp"
+
+#include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
-#include "oneapi/dal/detail/common.hpp"
-
-#include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/model_impl.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
 using dal::backend::context_gpu;
+using model_t = model<task::classification>;
+using input_t = train_input<task::classification>;
+using result_t = train_result<task::classification>;
+using descriptor_t = detail::descriptor_base<task::classification>;
 
-namespace df = daal::algorithms::decision_forest;
-namespace cls = daal::algorithms::decision_forest::classification;
-
+namespace daal_df = daal::algorithms::decision_forest;
+namespace daal_df_cls_train = daal_df::classification::training;
 namespace interop = dal::backend::interop;
-namespace df_interop = dal::backend::interop::decision_forest;
 
 template <typename Float>
 using cls_hist_kernel_t =
-    cls::training::internal::ClassificationTrainBatchKernelOneAPI<Float, cls::training::hist>;
+    daal_df_cls_train::internal::ClassificationTrainBatchKernelOneAPI<Float,
+                                                                      daal_df_cls_train::hist>;
 
-using cls_model_p = cls::ModelPtr;
-
-template <typename Float, typename Task>
-static train_result<Task> call_daal_kernel(const context_gpu& ctx,
-                                           const descriptor_base<Task>& desc,
-                                           const table& data,
-                                           const table& labels) {
+template <typename Float>
+static result_t call_daal_kernel(const context_gpu& ctx,
+                                 const descriptor_t& desc,
+                                 const table& data,
+                                 const table& labels) {
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
@@ -71,33 +69,39 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
     daal_input.set(daal::algorithms::classifier::training::data, daal_data);
     daal_input.set(daal::algorithms::classifier::training::labels, daal_labels);
 
-    auto daal_parameter = cls::training::Parameter(desc.get_class_count());
-    daal_parameter.nTrees = desc.get_tree_count();
+    auto daal_parameter = daal_df_cls_train::Parameter(
+        dal::detail::integral_cast<std::size_t>(desc.get_class_count()));
+    daal_parameter.nTrees = dal::detail::integral_cast<std::size_t>(desc.get_tree_count());
     daal_parameter.observationsPerTreeFraction = desc.get_observations_per_tree_fraction();
-    daal_parameter.featuresPerNode = desc.get_features_per_node();
-    daal_parameter.maxTreeDepth = desc.get_max_tree_depth();
-    daal_parameter.minObservationsInLeafNode = desc.get_min_observations_in_leaf_node();
+    daal_parameter.featuresPerNode =
+        dal::detail::integral_cast<std::size_t>(desc.get_features_per_node());
+    daal_parameter.maxTreeDepth =
+        dal::detail::integral_cast<std::size_t>(desc.get_max_tree_depth());
+    daal_parameter.minObservationsInLeafNode =
+        dal::detail::integral_cast<std::size_t>(desc.get_min_observations_in_leaf_node());
     // TODO take engines from desc
     daal_parameter.engine = daal::algorithms::engines::mt2203::Batch<>::create();
     daal_parameter.impurityThreshold = desc.get_impurity_threshold();
     daal_parameter.memorySavingMode = desc.get_memory_saving_mode();
     daal_parameter.bootstrap = desc.get_bootstrap();
-    daal_parameter.minObservationsInSplitNode = desc.get_min_observations_in_split_node();
+    daal_parameter.minObservationsInSplitNode =
+        dal::detail::integral_cast<std::size_t>(desc.get_min_observations_in_split_node());
     daal_parameter.minWeightFractionInLeafNode = desc.get_min_weight_fraction_in_leaf_node();
     daal_parameter.minImpurityDecreaseInSplitNode = desc.get_min_impurity_decrease_in_split_node();
-    daal_parameter.maxLeafNodes = desc.get_max_leaf_nodes();
-    daal_parameter.maxBins = desc.get_max_bins();
-    daal_parameter.minBinSize = desc.get_min_bin_size();
+    daal_parameter.maxLeafNodes =
+        dal::detail::integral_cast<std::size_t>(desc.get_max_leaf_nodes());
+    daal_parameter.maxBins = dal::detail::integral_cast<std::size_t>(desc.get_max_bins());
+    daal_parameter.minBinSize = dal::detail::integral_cast<std::size_t>(desc.get_min_bin_size());
 
     daal_parameter.resultsToCompute = static_cast<std::uint64_t>(desc.get_error_metric_mode());
 
     auto vimp = desc.get_variable_importance_mode();
 
-    daal_parameter.varImportance = df_interop::convert_to_daal_variable_importance_mode(vimp);
+    daal_parameter.varImportance = convert_to_daal_variable_importance_mode(vimp);
 
-    train_result<Task> res;
+    result_t res;
 
-    auto daal_result = cls::training::Result();
+    auto daal_result = daal_df_cls_train::Result();
 
     /* init daal result's objects */
     array<Float> arr_oob_err;
@@ -106,7 +110,7 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
 
         const auto res_oob_err =
             interop::convert_to_daal_sycl_homogen_table(queue, arr_oob_err, 1, 1);
-        daal_result.set(cls::training::outOfBagError, res_oob_err);
+        daal_result.set(daal_df_cls_train::outOfBagError, res_oob_err);
     }
 
     array<Float> arr_oob_per_obs_err;
@@ -116,7 +120,7 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
 
         const auto res_oob_per_obs_err =
             interop::convert_to_daal_sycl_homogen_table(queue, arr_oob_per_obs_err, row_count, 1);
-        daal_result.set(cls::training::outOfBagErrorPerObservation, res_oob_per_obs_err);
+        daal_result.set(daal_df_cls_train::outOfBagErrorPerObservation, res_oob_per_obs_err);
     }
 
     array<Float> arr_var_imp;
@@ -125,10 +129,11 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
 
         const auto res_var_imp =
             interop::convert_to_daal_sycl_homogen_table(queue, arr_var_imp, 1, column_count);
-        daal_result.set(cls::training::variableImportance, res_var_imp);
+        daal_result.set(daal_df_cls_train::variableImportance, res_var_imp);
     }
 
-    cls::ModelPtr mptr = cls::ModelPtr(new cls::internal::ModelImpl(column_count));
+    daal_df::classification::ModelPtr mptr = daal_df::classification::ModelPtr(
+        new daal_df::classification::internal::ModelImpl(column_count));
 
     interop::status_to_exception(
         cls_hist_kernel_t<Float>().compute(daal::services::internal::hostApp(daal_input),
@@ -153,23 +158,24 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
             dal::detail::homogen_table_builder{}.reset(arr_var_imp, 1, column_count).build());
     }
 
-    return res.set_model(dal::detail::pimpl_accessor().make_from_pimpl<model<Task>>(
-        std::make_shared<interop::decision_forest::interop_model_impl<Task, cls_model_p>>(mptr)));
+    const auto model_impl = std::make_shared<model_impl_cls>(new model_interop_cls{ mptr });
+    model_impl->tree_count = mptr->getNumberOfTrees();
+    model_impl->class_count = mptr->getNumberOfClasses();
+
+    return res.set_model(dal::detail::make_private<model_t>(model_impl));
 }
 
-template <typename Float, typename Task>
-static train_result<Task> train(const context_gpu& ctx,
-                                const descriptor_base<Task>& desc,
-                                const train_input<Task>& input) {
+template <typename Float>
+static result_t train(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_labels());
 }
 
 template <typename Float, typename Task>
 struct train_kernel_gpu<Float, Task, method::hist> {
-    train_result<Task> operator()(const context_gpu& ctx,
-                                  const descriptor_base<Task>& desc,
-                                  const train_input<Task>& input) const {
-        return train<Float, Task>(ctx, desc, input);
+    result_t operator()(const context_gpu& ctx,
+                        const descriptor_t& desc,
+                        const input_t& input) const {
+        return train<Float>(ctx, desc, input);
     }
 };
 

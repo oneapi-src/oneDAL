@@ -17,16 +17,14 @@
 #pragma once
 
 #include "oneapi/dal/algo/pca/train_types.hpp"
-#include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::pca::detail {
+namespace v1 {
 
-template <typename Context,
-          typename Float,
-          typename Method = method::by_default,
-          typename Task = task::by_default>
-struct ONEDAL_EXPORT train_ops_dispatcher {
+template <typename Context, typename Float, typename Method, typename Task, typename... Options>
+struct train_ops_dispatcher {
     train_result<Task> operator()(const Context&,
                                   const descriptor_base<Task>&,
                                   const train_input<Task>&) const;
@@ -42,40 +40,27 @@ struct train_ops {
     using descriptor_base_t = descriptor_base<task_t>;
 
     void check_preconditions(const Descriptor& params, const input_t& input) const {
-        if (!(input.get_data().has_data())) {
-            throw domain_error("Input data should not be empty");
+        using msg = dal::detail::error_messages;
+
+        if (!input.get_data().has_data()) {
+            throw domain_error(msg::input_data_is_empty());
         }
         if (input.get_data().get_column_count() < params.get_component_count()) {
-            throw invalid_argument(
-                "Input data column_count should be >= descriptor component_count");
+            throw invalid_argument(msg::input_data_cc_lt_desc_component_count());
         }
     }
 
     void check_postconditions(const Descriptor& params,
                               const input_t& input,
                               const result_t& result) const {
-        if (result.get_variances().get_row_count() != 1) {
-            throw internal_error("Result variances row_count should be equal to 1");
-        }
-        if (result.get_variances().get_column_count() != input.get_data().get_column_count()) {
-            throw internal_error(
-                "Result variance column_count should be equal to input data column_count");
-        }
-        if (result.get_eigenvalues().get_row_count() != 1) {
-            throw internal_error("Result eigenvalues row_count should be equal to 1");
-        }
-        if (result.get_eigenvalues().get_column_count() != params.get_component_count()) {
-            throw internal_error(
-                "Result eigenvalues row_count should be equal to descriptor component_count");
-        }
-        if (result.get_eigenvectors().get_column_count() != input.get_data().get_column_count()) {
-            throw internal_error(
-                "Result eigenvectors row_count should be equal to input data column_count");
-        }
-        if (result.get_eigenvectors().get_row_count() != params.get_component_count()) {
-            throw internal_error(
-                "Result eigenvectors row_count should be equal to descriptor component_count");
-        }
+        ONEDAL_ASSERT(result.get_variances().get_row_count() == 1);
+        ONEDAL_ASSERT(result.get_variances().get_column_count() ==
+                      input.get_data().get_column_count());
+        ONEDAL_ASSERT(result.get_eigenvalues().get_row_count() == 1);
+        ONEDAL_ASSERT(result.get_eigenvalues().get_column_count() == params.get_component_count());
+        ONEDAL_ASSERT(result.get_eigenvectors().get_column_count() ==
+                      input.get_data().get_column_count());
+        ONEDAL_ASSERT(result.get_eigenvectors().get_row_count() == params.get_component_count());
     }
 
     template <typename Context>
@@ -87,5 +72,9 @@ struct train_ops {
         return result;
     }
 };
+
+} // namespace v1
+
+using v1::train_ops;
 
 } // namespace oneapi::dal::pca::detail

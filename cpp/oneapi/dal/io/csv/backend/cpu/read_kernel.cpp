@@ -36,7 +36,7 @@ namespace daal_dm = daal::data_management;
 
 template <>
 table read_kernel_cpu<table>::operator()(const dal::backend::context_cpu& ctx,
-                                         const data_source& ds,
+                                         const detail::data_source_base& ds,
                                          const read_args<table>& args) const {
     daal_dm::CsvDataSourceOptions csv_options(daal_dm::operator|(
         daal_dm::operator|(daal_dm::CsvDataSourceOptions::allocateNumericTable,

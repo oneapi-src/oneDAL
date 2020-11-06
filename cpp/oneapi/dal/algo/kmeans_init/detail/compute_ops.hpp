@@ -17,14 +17,12 @@
 #pragma once
 
 #include "oneapi/dal/algo/kmeans_init/compute_types.hpp"
-#include "oneapi/dal/exceptions.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::kmeans_init::detail {
+namespace v1 {
 
-template <typename Context,
-          typename Float,
-          typename Method = method::dense,
-          typename Task = task::by_default>
+template <typename Context, typename Float, typename Method, typename Task, typename... Options>
 struct compute_ops_dispatcher {
     compute_result<Task> operator()(const Context&,
                                     const descriptor_base<Task>&,
@@ -41,29 +39,20 @@ struct compute_ops {
     using descriptor_base_t = descriptor_base<task_t>;
 
     void check_preconditions(const Descriptor& params, const input_t& input) const {
-        if (!(input.get_data().has_data())) {
-            throw domain_error("Input data should not be empty");
-        }
-        if (input.get_data().get_row_count() == params.get_cluster_count()) {
-            throw invalid_argument(
-                "Input data row_count should be equal to descriptor cluster_count");
+        using msg = dal::detail::error_messages;
+
+        if (!input.get_data().has_data()) {
+            throw domain_error(msg::input_data_is_empty());
         }
     }
 
-    void check_posrtconditions(const Descriptor& params,
-                               const input_t& input,
-                               const result_t& result) const {
-        if (!(result.get_centroids().has_data())) {
-            throw internal_error("Result centroids should not be empty");
-        }
-        if (result.get_centroids().get_row_count() != params.get_cluster_count()) {
-            throw internal_error(
-                "Result centroids row_count should be equal to descriptor cluster_count");
-        }
-        if (result.get_centroids().get_column_count() != input.get_data().get_column_count()) {
-            throw internal_error(
-                "Result centroids column_count should be equal to input data column_count");
-        }
+    void check_postconditions(const Descriptor& params,
+                              const input_t& input,
+                              const result_t& result) const {
+        ONEDAL_ASSERT(result.get_centroids().has_data());
+        ONEDAL_ASSERT(result.get_centroids().get_row_count() == params.get_cluster_count());
+        ONEDAL_ASSERT(result.get_centroids().get_column_count() ==
+                      input.get_data().get_column_count());
     }
 
     template <typename Context>
@@ -71,9 +60,13 @@ struct compute_ops {
         check_preconditions(desc, input);
         const auto result =
             compute_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, input);
-        check_posrtconditions(desc, input, result);
+        check_postconditions(desc, input, result);
         return result;
     }
 };
+
+} // namespace v1
+
+using v1::compute_ops;
 
 } // namespace oneapi::dal::kmeans_init::detail

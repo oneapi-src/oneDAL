@@ -27,6 +27,7 @@ namespace oneapi::dal::kmeans::backend {
 
 using std::int64_t;
 using dal::backend::context_gpu;
+using descriptor_t = detail::descriptor_base<task::clustering>;
 
 namespace daal_kmeans = daal::algorithms::kmeans;
 namespace interop = dal::backend::interop;
@@ -38,7 +39,7 @@ using daal_kmeans_lloyd_dense_ucapi_kernel_t =
 template <typename Float>
 struct infer_kernel_gpu<Float, method::by_default, task::clustering> {
     infer_result<task::clustering> operator()(const dal::backend::context_gpu& ctx,
-                                              const descriptor_base<task::clustering>& params,
+                                              const descriptor_t& params,
                                               const infer_input<task::clustering>& input) const {
         auto& queue = ctx.get_queue();
         interop::execution_context_guard guard(queue);
@@ -51,18 +52,18 @@ struct infer_kernel_gpu<Float, method::by_default, task::clustering> {
         const int64_t cluster_count = params.get_cluster_count();
         const int64_t max_iteration_count = 0;
 
-        daal_kmeans::Parameter par(cluster_count, max_iteration_count);
-        par.resultsToEvaluate = daal_kmeans::computeAssignments;
+        daal_kmeans::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count),
+                                   dal::detail::integral_cast<std::size_t>(max_iteration_count));
+        par.resultsToEvaluate = static_cast<DAAL_UINT64>(daal_kmeans::computeAssignments);
 
         auto arr_data = row_accessor<const Float>{ data }.pull(queue);
-        const auto daal_data = interop::convert_to_daal_sycl_homogen_table(queue,
-                                                                           arr_data,
-                                                                           data.get_row_count(),
-                                                                           data.get_column_count());
+        const auto daal_data =
+            interop::convert_to_daal_sycl_homogen_table(queue, arr_data, row_count, column_count);
 
         auto arr_initial_centroids =
             row_accessor<const Float>{ input.get_model().get_centroids() }.pull(queue);
 
+        dal::detail::check_mul_overflow(cluster_count, column_count);
         array<int> arr_centroids = array<int>::empty(queue, cluster_count * column_count);
         array<int> arr_labels = array<int>::empty(queue, row_count);
         array<Float> arr_objective_function_value = array<Float>::empty(queue, 1);

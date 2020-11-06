@@ -21,9 +21,11 @@
 #include "oneapi/dal/compute.hpp"
 
 namespace oneapi::dal::detail {
+namespace v1 {
 
 template <typename Descriptor>
-struct compute_ops<Descriptor, dal::kmeans_init::detail::tag>
+struct compute_ops<Descriptor, dal::kmeans_init::detail::descriptor_tag>
         : dal::kmeans_init::detail::compute_ops<Descriptor> {};
 
+} // namespace v1
 } // namespace oneapi::dal::detail
