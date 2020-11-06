@@ -19,6 +19,7 @@
 #include "oneapi/dal/detail/policy.hpp"
 
 namespace oneapi::dal::detail {
+namespace v1 {
 
 template <typename T, typename Ops, bool IsInput = std::is_same_v<T, typename Ops::input_t>>
 struct ops_input_dispatcher;
@@ -117,5 +118,11 @@ struct ops_policy_dispatcher_object<Object, T, Ops, /* IsPolicy = */ false> {
                               std::forward<Tail>(tail)...);
     }
 };
+
+} // namespace v1
+
+using v1::ops_input_dispatcher;
+using v1::ops_policy_dispatcher;
+using v1::ops_policy_dispatcher_object;
 
 } // namespace oneapi::dal::detail

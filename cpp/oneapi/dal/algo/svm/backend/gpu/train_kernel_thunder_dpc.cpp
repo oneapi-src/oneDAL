@@ -33,7 +33,7 @@ using dal::backend::context_gpu;
 using model_t = model<task::classification>;
 using input_t = train_input<task::classification>;
 using result_t = train_result<task::classification>;
-using descriptor_t = descriptor_base<task::classification>;
+using descriptor_t = detail::descriptor_base<task::classification>;
 
 namespace daal_svm = daal::algorithms::svm;
 namespace daal_kernel_function = daal::algorithms::kernel_function;

@@ -45,18 +45,13 @@ using v1::by_default;
 
 namespace detail {
 namespace v1 {
-struct tag {};
+struct descriptor_tag {};
 
 template <typename Task>
 class descriptor_impl;
 
 template <typename Task>
 class model_impl;
-} // namespace v1
-
-using v1::tag;
-using v1::descriptor_impl;
-using v1::model_impl;
 
 template <typename Float>
 constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
@@ -67,16 +62,12 @@ constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::lloy
 template <typename Task>
 constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::clustering>;
 
-} // namespace detail
-
-namespace v1 {
-
 template <typename Task = task::by_default>
 class descriptor_base : public base {
-    static_assert(detail::is_valid_task_v<Task>);
+    static_assert(is_valid_task_v<Task>);
 
 public:
-    using tag_t = detail::tag;
+    using tag_t = descriptor_tag;
     using float_t = float;
     using method_t = method::by_default;
     using task_t = Task;
@@ -93,16 +84,33 @@ protected:
     void set_accuracy_threshold_impl(double);
 
 private:
-    dal::detail::pimpl<detail::descriptor_impl<Task>> impl_;
+    dal::detail::pimpl<descriptor_impl<Task>> impl_;
 };
 
-template <typename Float = descriptor_base<>::float_t,
-          typename Method = descriptor_base<>::method_t,
-          typename Task = descriptor_base<>::task_t>
-class descriptor : public descriptor_base<Task> {
+} // namespace v1
+
+using v1::descriptor_tag;
+using v1::descriptor_impl;
+using v1::model_impl;
+using v1::descriptor_base;
+
+using v1::is_valid_float_v;
+using v1::is_valid_method_v;
+using v1::is_valid_task_v;
+
+} // namespace detail
+
+namespace v1 {
+
+template <typename Float = detail::descriptor_base<>::float_t,
+          typename Method = detail::descriptor_base<>::method_t,
+          typename Task = detail::descriptor_base<>::task_t>
+class descriptor : public detail::descriptor_base<Task> {
     static_assert(detail::is_valid_float_v<Float>);
     static_assert(detail::is_valid_method_v<Method>);
     static_assert(detail::is_valid_task_v<Task>);
+
+    using base_t = detail::descriptor_base<Task>;
 
 public:
     using float_t = Float;
@@ -114,17 +122,17 @@ public:
     }
 
     auto& set_cluster_count(int64_t value) {
-        descriptor_base<Task>::set_cluster_count_impl(value);
+        base_t::set_cluster_count_impl(value);
         return *this;
     }
 
     auto& set_max_iteration_count(int64_t value) {
-        descriptor_base<Task>::set_max_iteration_count_impl(value);
+        base_t::set_max_iteration_count_impl(value);
         return *this;
     }
 
     auto& set_accuracy_threshold(double value) {
-        descriptor_base<Task>::set_accuracy_threshold_impl(value);
+        base_t::set_accuracy_threshold_impl(value);
         return *this;
     }
 };
@@ -157,7 +165,6 @@ private:
 
 } // namespace v1
 
-using v1::descriptor_base;
 using v1::descriptor;
 using v1::model;
 

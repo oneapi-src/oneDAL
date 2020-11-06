@@ -16,18 +16,15 @@
 
 #include "oneapi/dal/algo/linear_kernel/common.hpp"
 
-namespace oneapi::dal::linear_kernel {
+namespace oneapi::dal::linear_kernel::detail {
+namespace v1 {
 
 template <typename Task>
-class detail::v1::descriptor_impl : public base {
+class descriptor_impl : public base {
 public:
     double scale = 1.0;
     double shift = 0.0;
 };
-
-using detail::v1::descriptor_impl;
-
-namespace v1 {
 
 template <typename Task>
 descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
@@ -55,4 +52,4 @@ void descriptor_base<Task>::set_shift_impl(double value) {
 template class ONEDAL_EXPORT descriptor_base<task::compute>;
 
 } // namespace v1
-} // namespace oneapi::dal::linear_kernel
+} // namespace oneapi::dal::linear_kernel::detail

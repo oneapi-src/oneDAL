@@ -31,7 +31,7 @@ using dal::backend::context_gpu;
 using model_t = model<task::classification>;
 using input_t = infer_input<task::classification>;
 using result_t = infer_result<task::classification>;
-using descriptor_t = descriptor_base<task::classification>;
+using descriptor_t = detail::descriptor_base<task::classification>;
 
 namespace daal_df = daal::algorithms::decision_forest;
 namespace daal_df_cls_pred = daal_df::classification::prediction;
