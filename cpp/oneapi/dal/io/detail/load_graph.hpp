@@ -82,7 +82,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     if ((vertex_count - unsigned_max_id) != static_cast<vertex_size_type>(1)) {
         throw range_error(dal::detail::error_messages::overflow_found_in_sum_of_two_values());
     }
-    auto layout = oneapi::dal::detail::get_impl(g);
+    auto &layout = oneapi::dal::detail::get_impl(g);
     auto &allocator = layout._allocator;
     layout._vertex_count = vertex_count;
 
@@ -188,7 +188,6 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
             u_neighs[i] = u_neighs_unf[i];
         }
     });
-
     allocator.deallocate((char *)unfiltered_neighs_void, unfiltered_neighs_size);
     allocator.deallocate((char *)unfiltered_offsets_void, unfiltered_offsets_size);
     return;
