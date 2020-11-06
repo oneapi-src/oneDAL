@@ -134,12 +134,6 @@ template class ONEDAL_EXPORT undirected_adjacency_array_graph<empty_value,
                                                               std::int32_t,
                                                               std::allocator<char>>;
 
-template struct ONEDAL_EXPORT graph_traits<undirected_adjacency_array_graph<empty_value,
-                                                                            empty_value,
-                                                                            empty_value,
-                                                                            std::int32_t,
-                                                                            std::allocator<char>>>;
-
 using graph_default = undirected_adjacency_array_graph<empty_value,
                                                        empty_value,
                                                        empty_value,
