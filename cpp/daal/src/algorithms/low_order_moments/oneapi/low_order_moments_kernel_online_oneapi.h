@@ -29,10 +29,6 @@
 #include "algorithms/moments/low_order_moments_types.h"
 #include "src/services/service_data_utils.h"
 
-//using namespace daal::services;
-//using namespace daal::data_management;
-//using namespace daal::services::internal::sycl;
-
 namespace daal
 {
 namespace algorithms
