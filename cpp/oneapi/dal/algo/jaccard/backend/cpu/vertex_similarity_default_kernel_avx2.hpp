@@ -46,8 +46,8 @@ DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
 }
 #endif
 
-DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
-                                          std::int32_t *neigh_v,
+DAAL_FORCEINLINE std::size_t intersection(const std::int32_t *neigh_u,
+                                          const std::int32_t *neigh_v,
                                           std::int32_t n_u,
                                           std::int32_t n_v) {
     std::size_t total = 0;
@@ -265,10 +265,10 @@ vertex_similarity_result call_jaccard_default_kernel_avx2(
     const descriptor_base &desc,
     vertex_similarity_input<undirected_adjacency_array_graph<>> &input) {
     const auto &my_graph = input.get_graph();
-    const auto &g = dal::preview::detail::get_impl(my_graph);
-    auto g_edge_offsets = g->_edge_offsets.data();
-    auto g_vertex_neighbors = g->_vertex_neighbors.data();
-    auto g_degrees = g->_degrees.data();
+    const auto &g = oneapi::dal::detail::get_impl(my_graph);
+    auto g_edge_offsets = g._edge_offsets.data();
+    auto g_vertex_neighbors = g._vertex_neighbors.data();
+    auto g_degrees = g._degrees.data();
     const auto row_begin = dal::detail::integral_cast<std::int32_t>(desc.get_row_range_begin());
     const auto row_end = dal::detail::integral_cast<std::int32_t>(desc.get_row_range_end());
     const auto column_begin =
