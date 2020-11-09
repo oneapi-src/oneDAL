@@ -104,7 +104,7 @@ DECLARE_SOURCE_DAAL(
         __local algorithmFPType deltaBi;
         __local algorithmFPType deltaBj;
 
-        __local KeyValue localCache[SIMD_WIDTH];
+        __local KeyValue localCache[WS_SIZE];
         __local KeyValue maxValInd;
 
         uint Bi = 0;
@@ -194,6 +194,11 @@ DECLARE_SOURCE_DAAL(
             barrier(CLK_LOCAL_MEM_FENCE);
 
             const algorithmFPType delta = min(deltaBi, deltaBj);
+
+            if (i == 0)
+            {
+                printf(">> Bi: %u Bj: %u; delta: %.3lf\n", Bi, Bj, delta);
+            }
 
             if (i == Bi)
             {
