@@ -35,7 +35,7 @@ using dal::backend::context_gpu;
 using model_t = model<task::dim_reduction>;
 using input_t = train_input<task::dim_reduction>;
 using result_t = train_result<task::dim_reduction>;
-using descriptor_t = descriptor_base<task::dim_reduction>;
+using descriptor_t = detail::descriptor_base<task::dim_reduction>;
 
 template <typename Float>
 using daal_pca_cor_cpu_kernel_iface_ptr =
@@ -78,6 +78,8 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     const std::int64_t component_count = desc.get_component_count();
 
     auto arr_data = row_accessor<const Float>{ data }.pull(queue);
+
+    dal::detail::check_mul_overflow(column_count, component_count);
     auto arr_eigvec = array<Float>::empty(queue, column_count * component_count);
     auto arr_eigval = array<Float>::empty(queue, 1 * component_count);
     auto arr_means = array<Float>::empty(queue, 1 * column_count);
@@ -108,7 +110,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
                                 is_deterministic,
                                 *daal_data,
                                 &covariance_alg,
-                                (DAAL_UINT64)results_to_compute,
+                                static_cast<DAAL_UINT64>(results_to_compute),
                                 *daal_eigvec,
                                 *daal_eigval,
                                 *daal_means,

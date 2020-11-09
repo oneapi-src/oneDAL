@@ -19,9 +19,8 @@
 #include "oneapi/dal/table/detail/access_iface_type_traits.hpp"
 #include "oneapi/dal/table/detail/access_iface_wrapper.hpp"
 
-#include <stdexcept> // TODO: change by oneDAL exceptions
-
 namespace oneapi::dal::detail {
+namespace v1 {
 
 template <typename T>
 class access_wrapper_impl_host {
@@ -43,7 +42,7 @@ public:
             obj_.pull_rows(block, index.rows);
         }
         else {
-            throw std::runtime_error("pulling rows is not supported");
+            throw std::runtime_error(dal::detail::error_messages::pulling_rows_is_not_supported());
         }
     }
 
@@ -56,7 +55,8 @@ public:
             obj_.pull_column(block, index.column_index, index.rows);
         }
         else {
-            throw std::runtime_error("pulling column is not supported");
+            throw std::runtime_error(
+                dal::detail::error_messages::pulling_column_is_not_supported());
         }
     }
 
@@ -66,7 +66,7 @@ public:
             obj_.push_rows(block, index.rows);
         }
         else {
-            throw std::runtime_error("pushing rows is not supported");
+            throw std::runtime_error(dal::detail::error_messages::pushing_rows_is_not_supported());
         }
     }
 
@@ -76,7 +76,8 @@ public:
             obj_.push_column(block, index.column_index, index.rows);
         }
         else {
-            throw std::runtime_error("pushing column is not supported");
+            throw std::runtime_error(
+                dal::detail::error_messages::pushing_column_is_not_supported());
         }
     }
 
@@ -86,5 +87,10 @@ private:
 
 template <typename T>
 using access_wrapper_host = access_iface_wrapper<access_iface_host, access_wrapper_impl_host<T>>;
+
+} // namespace v1
+
+using v1::access_wrapper_impl_host;
+using v1::access_wrapper_host;
 
 } // namespace oneapi::dal::detail

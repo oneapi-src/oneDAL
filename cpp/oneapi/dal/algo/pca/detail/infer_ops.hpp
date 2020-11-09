@@ -17,15 +17,13 @@
 #pragma once
 
 #include "oneapi/dal/algo/pca/infer_types.hpp"
-#include "oneapi/dal/exceptions.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::pca::detail {
+namespace v1 {
 
-template <typename Context,
-          typename Float,
-          typename Method = method::by_default,
-          typename Task = task::by_default>
-struct ONEDAL_EXPORT infer_ops_dispatcher {
+template <typename Context, typename Float, typename Method, typename Task, typename... Options>
+struct infer_ops_dispatcher {
     infer_result<Task> operator()(const Context&,
                                   const descriptor_base<Task>&,
                                   const infer_input<Task>&) const;
@@ -41,34 +39,28 @@ struct infer_ops {
     using descriptor_base_t = descriptor_base<task_t>;
 
     void check_preconditions(const Descriptor& params, const input_t& input) const {
-        if (!(input.get_data().has_data())) {
-            throw domain_error("Input data should not be empty");
+        using msg = dal::detail::error_messages;
+
+        if (!input.get_data().has_data()) {
+            throw domain_error(msg::input_data_is_empty());
         }
         if (input.get_model().get_eigenvectors().get_row_count() != params.get_component_count()) {
-            throw invalid_argument(
-                "Input model eigenvectors row_count should be equal to descriptor component_count");
+            throw invalid_argument(msg::input_model_eigenvectors_rc_neq_desc_component_count());
         }
         if (input.get_model().get_eigenvectors().get_column_count() !=
             input.get_data().get_column_count()) {
-            throw invalid_argument(
-                "Input model eigenvectors column_count should be equal to input data column_count");
+            throw invalid_argument(msg::input_model_eigenvectors_cc_neq_input_data_cc());
         }
     }
 
     void check_postconditions(const Descriptor& params,
                               const input_t& input,
                               const result_t& result) const {
-        if (!(result.get_transformed_data().has_data())) {
-            throw internal_error("Result transformed_data should not be empty");
-        }
-        if (result.get_transformed_data().get_row_count() != input.get_data().get_row_count()) {
-            throw internal_error(
-                "Result transformed_data row_count should be equal to input data row_count");
-        }
-        if (result.get_transformed_data().get_column_count() != params.get_component_count()) {
-            throw internal_error(
-                "Result transformed_data column_count should be equal to descriptor component_count");
-        }
+        ONEDAL_ASSERT(result.get_transformed_data().has_data());
+        ONEDAL_ASSERT(result.get_transformed_data().get_row_count() ==
+                      input.get_data().get_row_count());
+        ONEDAL_ASSERT(result.get_transformed_data().get_column_count() ==
+                      params.get_component_count());
     }
 
     template <typename Context>
@@ -80,5 +72,9 @@ struct infer_ops {
         return result;
     }
 };
+
+} // namespace v1
+
+using v1::infer_ops;
 
 } // namespace oneapi::dal::pca::detail

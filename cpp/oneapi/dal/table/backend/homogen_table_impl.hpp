@@ -17,28 +17,50 @@
 #pragma once
 
 #include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/table/detail/common.hpp"
 
 namespace oneapi::dal::backend {
 
 table_metadata create_homogen_metadata(std::int64_t feature_count, data_type dtype);
 
 class homogen_table_impl {
-private:
+public:
     struct host_alloc_t {};
 
 public:
-    homogen_table_impl() : row_count_(0), col_count_(0) {}
+    homogen_table_impl() : row_count_(0), col_count_(0), layout_(data_layout::unknown) {}
 
-    homogen_table_impl(std::int64_t column_count,
+    homogen_table_impl(std::int64_t row_count,
+                       std::int64_t column_count,
                        const array<byte_t>& data,
                        data_type dtype,
                        data_layout layout)
             : meta_(create_homogen_metadata(column_count, dtype)),
               data_(data),
-              row_count_(data.get_count() / column_count / detail::get_data_type_size(dtype)),
+              row_count_(row_count),
               col_count_(column_count),
-              layout_(layout) {}
+              layout_(layout) {
+        using error_msg = dal::detail::error_messages;
+
+        if (row_count <= 0) {
+            throw dal::domain_error(error_msg::rc_leq_zero());
+        }
+
+        if (column_count <= 0) {
+            throw dal::domain_error(error_msg::cc_leq_zero());
+        }
+
+        detail::check_mul_overflow(row_count, column_count);
+        const int64_t element_count = row_count * column_count;
+        const int64_t dtype_size = detail::get_data_type_size(dtype);
+
+        detail::check_mul_overflow(element_count, dtype_size);
+        if (data.get_count() != element_count * dtype_size) {
+            throw dal::domain_error(error_msg::invalid_data_block_size());
+        }
+        if (layout != data_layout::row_major && layout != data_layout::column_major) {
+            throw dal::domain_error(error_msg::unsupported_data_layout());
+        }
+    }
 
     std::int64_t get_column_count() const {
         return col_count_;
@@ -119,20 +141,20 @@ private:
                         const range& rows,
                         const Alloc& kind) const;
 
-    template <typename Policy, typename Data>
-    void push_rows_impl(const Policy& policy, const array<Data>& block, const range& rows);
-
     template <typename Policy, typename Data, typename Alloc>
     void pull_column_impl(const Policy& policy,
                           array<Data>& block,
-                          int64_t column_index,
+                          std::int64_t column_index,
                           const range& rows,
                           const Alloc& kind) const;
 
     template <typename Policy, typename Data>
+    void push_rows_impl(const Policy& policy, const array<Data>& block, const range& rows);
+
+    template <typename Policy, typename Data>
     void push_column_impl(const Policy& policy,
                           const array<Data>& block,
-                          int64_t column_index,
+                          std::int64_t column_index,
                           const range& rows);
 
 private:

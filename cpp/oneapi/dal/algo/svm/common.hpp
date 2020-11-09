@@ -16,91 +16,71 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/linear_kernel.hpp"
-#include "oneapi/dal/algo/rbf_kernel.hpp"
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/algo/svm/detail/kernel_function.hpp"
 
 namespace oneapi::dal::svm {
 
-namespace detail {
-struct tag {};
-class descriptor_impl;
-class model_impl;
-class kernel_function_impl;
+namespace task {
+namespace v1 {
+struct classification {};
+using by_default = classification;
+} // namespace v1
 
-class kernel_function_iface {
-public:
-    virtual ~kernel_function_iface() {}
-    virtual kernel_function_impl *get_impl() const = 0;
-};
+using v1::classification;
+using v1::by_default;
 
-using kf_iface_ptr = std::shared_ptr<kernel_function_iface>;
-
-template <typename Kernel>
-class ONEDAL_EXPORT kernel_function : public base, public kernel_function_iface {
-public:
-    explicit kernel_function(const Kernel &kernel) : kernel_(kernel) {}
-
-    kernel_function_impl *get_impl() const override {
-        return nullptr;
-    }
-
-    const Kernel &get_kernel() const {
-        return kernel_;
-    }
-
-private:
-    Kernel kernel_;
-    dal::detail::pimpl<kernel_function_impl> impl_;
-};
-
-template <typename Float, typename Method>
-class kernel_function<linear_kernel::descriptor<Float, Method>> : public base,
-                                                                  public kernel_function_iface {
-public:
-    using kernel_t = linear_kernel::descriptor<Float, Method>;
-    explicit kernel_function(const kernel_t &kernel);
-    kernel_function_impl *get_impl() const override;
-
-private:
-    kernel_t kernel_;
-    dal::detail::pimpl<kernel_function_impl> impl_;
-};
-
-template <typename Float, typename Method>
-class kernel_function<rbf_kernel::descriptor<Float, Method>> : public base,
-                                                               public kernel_function_iface {
-public:
-    using kernel_t = rbf_kernel::descriptor<Float, Method>;
-    explicit kernel_function(const kernel_t &kernel);
-    kernel_function_impl *get_impl() const override;
-
-private:
-    kernel_t kernel_;
-    dal::detail::pimpl<kernel_function_impl> impl_;
-};
-
-} // namespace detail
+} // namespace task
 
 namespace method {
+namespace v1 {
 struct thunder {};
 struct smo {};
 using by_default = thunder;
+} // namespace v1
+
+using v1::thunder;
+using v1::smo;
+using v1::by_default;
+
 } // namespace method
 
-namespace task {
-struct classification {};
-struct regression {};
-using by_default = classification;
-} // namespace task
+namespace detail {
+namespace v1 {
+struct descriptor_tag {};
 
-class ONEDAL_EXPORT descriptor_base : public base {
+template <typename Task>
+class descriptor_impl;
+
+template <typename Task>
+class model_impl;
+
+template <typename Float>
+constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
+
+template <typename Method>
+constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::smo, method::thunder>;
+
+template <typename Task>
+constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::classification>;
+
+template <typename Kernel>
+constexpr bool is_valid_kernel_v =
+    dal::detail::is_tag_one_of_v<Kernel,
+                                 linear_kernel::detail::descriptor_tag,
+                                 rbf_kernel::detail::descriptor_tag>;
+
+template <typename Task = task::by_default>
+class descriptor_base : public base {
+    static_assert(is_valid_task_v<Task>);
+    friend detail::kernel_function_accessor;
+
 public:
-    using tag_t = detail::tag;
+    using tag_t = descriptor_tag;
     using float_t = float;
-    using task_t = task::by_default;
     using method_t = method::by_default;
+    using task_t = Task;
     using kernel_t = linear_kernel::descriptor<float_t>;
 
     double get_c() const;
@@ -109,10 +89,9 @@ public:
     double get_cache_size() const;
     double get_tau() const;
     bool get_shrinking() const;
-    const detail::kf_iface_ptr &get_kernel_impl() const;
 
 protected:
-    explicit descriptor_base(const detail::kf_iface_ptr &kernel);
+    explicit descriptor_base(const detail::kernel_function_ptr& kernel);
 
     void set_c_impl(double);
     void set_accuracy_threshold_impl(double);
@@ -120,124 +99,156 @@ protected:
     void set_cache_size_impl(double);
     void set_tau_impl(double);
     void set_shrinking_impl(bool);
-    void set_kernel_impl(const detail::kf_iface_ptr &);
 
-    dal::detail::pimpl<detail::descriptor_impl> impl_;
+    void set_kernel_impl(const detail::kernel_function_ptr&);
+    const detail::kernel_function_ptr& get_kernel_impl() const;
+
+private:
+    dal::detail::pimpl<descriptor_impl<Task>> impl_;
 };
 
-template <typename Float = descriptor_base::float_t,
-          typename Task = descriptor_base::task_t,
-          typename Method = descriptor_base::method_t,
-          typename Kernel = descriptor_base::kernel_t>
-class descriptor : public descriptor_base {
+} // namespace v1
+
+using v1::descriptor_tag;
+using v1::descriptor_impl;
+using v1::model_impl;
+using v1::descriptor_base;
+
+using v1::is_valid_float_v;
+using v1::is_valid_method_v;
+using v1::is_valid_task_v;
+using v1::is_valid_kernel_v;
+
+} // namespace detail
+
+namespace v1 {
+
+template <typename Float = detail::descriptor_base<>::float_t,
+          typename Method = detail::descriptor_base<>::method_t,
+          typename Task = detail::descriptor_base<>::task_t,
+          typename Kernel = detail::descriptor_base<>::kernel_t>
+class descriptor : public detail::descriptor_base<Task> {
+    static_assert(detail::is_valid_float_v<Float>);
+    static_assert(detail::is_valid_method_v<Method>);
+    static_assert(detail::is_valid_task_v<Task>);
+    static_assert(detail::is_valid_kernel_v<Kernel>,
+                  "Custom kernel for SVM is not supported. "
+                  "Use one of the predefined kernels.");
+
+    using base_t = detail::descriptor_base<Task>;
+
 public:
     using float_t = Float;
-    using task_t = Task;
     using method_t = Method;
+    using task_t = Task;
     using kernel_t = Kernel;
 
-    explicit descriptor(const Kernel &kernel = kernel_t{})
-            : descriptor_base(std::make_shared<detail::kernel_function<Kernel>>(kernel)) {}
+    explicit descriptor(const Kernel& kernel = kernel_t{})
+            : base_t(std::make_shared<detail::kernel_function<Kernel>>(kernel)) {}
 
-    const Kernel &get_kernel() const {
+    const Kernel& get_kernel() const {
         using kf_t = detail::kernel_function<Kernel>;
-        const auto kf = std::static_pointer_cast<kf_t>(get_kernel_impl());
+        const auto kf = std::static_pointer_cast<kf_t>(base_t::get_kernel_impl());
         return kf->get_kernel();
     }
 
-    auto &set_kernel(const Kernel &kernel) {
-        set_kernel_impl(std::make_shared<detail::kernel_function<Kernel>>(kernel));
+    auto& set_kernel(const Kernel& kernel) {
+        base_t::set_kernel_impl(std::make_shared<detail::kernel_function<Kernel>>(kernel));
         return *this;
     }
 
-    auto &set_c(double value) {
-        set_c_impl(value);
+    auto& set_c(double value) {
+        base_t::set_c_impl(value);
         return *this;
     }
 
-    auto &set_accuracy_threshold(double value) {
-        set_accuracy_threshold_impl(value);
+    auto& set_accuracy_threshold(double value) {
+        base_t::set_accuracy_threshold_impl(value);
         return *this;
     }
 
-    auto &set_max_iteration_count(std::int64_t value) {
-        set_max_iteration_count_impl(value);
+    auto& set_max_iteration_count(std::int64_t value) {
+        base_t::set_max_iteration_count_impl(value);
         return *this;
     }
 
-    auto &set_cache_size(double value) {
-        set_cache_size_impl(value);
+    auto& set_cache_size(double value) {
+        base_t::set_cache_size_impl(value);
         return *this;
     }
 
-    auto &set_tau(double value) {
-        set_tau_impl(value);
+    auto& set_tau(double value) {
+        base_t::set_tau_impl(value);
         return *this;
     }
 
-    auto &set_shrinking(bool value) {
-        set_shrinking_impl(value);
+    auto& set_shrinking(bool value) {
+        base_t::set_shrinking_impl(value);
         return *this;
     }
 };
 
-class ONEDAL_EXPORT model : public base {
+template <typename Task = task::by_default>
+class model : public base {
+    static_assert(detail::is_valid_task_v<Task>);
     friend dal::detail::pimpl_accessor;
 
 public:
+    using task_t = Task;
+
     model();
 
-    table get_support_vectors() const;
+    std::int64_t get_support_vector_count() const;
 
-    auto &set_support_vectors(const table &value) {
+    const table& get_support_vectors() const;
+
+    auto& set_support_vectors(const table& value) {
         set_support_vectors_impl(value);
         return *this;
     }
 
-    table get_coeffs() const;
+    const table& get_coeffs() const;
 
-    auto &set_coeffs(const table &value) {
+    auto& set_coeffs(const table& value) {
         set_coeffs_impl(value);
         return *this;
     }
 
     double get_bias() const;
 
-    auto &set_bias(double value) {
+    auto& set_bias(double value) {
         set_bias_impl(value);
-        return *this;
-    }
-
-    std::int64_t get_support_vector_count() const;
-
-    auto &set_support_vector_count(std::int64_t value) {
-        set_support_vector_count_impl(value);
         return *this;
     }
 
     std::int64_t get_first_class_label() const;
 
-    auto &set_first_class_label(std::int64_t value) {
+    auto& set_first_class_label(std::int64_t value) {
         set_first_class_label_impl(value);
         return *this;
     }
 
     std::int64_t get_second_class_label() const;
 
-    auto &set_second_class_label(std::int64_t value) {
+    auto& set_second_class_label(std::int64_t value) {
         set_second_class_label_impl(value);
         return *this;
     }
 
-private:
-    void set_support_vectors_impl(const table &);
-    void set_coeffs_impl(const table &);
+protected:
+    void set_support_vectors_impl(const table&);
+    void set_coeffs_impl(const table&);
     void set_bias_impl(double);
-    void set_support_vector_count_impl(std::int64_t);
     void set_first_class_label_impl(std::int64_t);
     void set_second_class_label_impl(std::int64_t);
 
-    dal::detail::pimpl<detail::model_impl> impl_;
+private:
+    dal::detail::pimpl<detail::model_impl<Task>> impl_;
 };
+
+} // namespace v1
+
+using v1::descriptor;
+using v1::model;
 
 } // namespace oneapi::dal::svm

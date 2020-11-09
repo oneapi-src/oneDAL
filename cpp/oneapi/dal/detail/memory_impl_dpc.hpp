@@ -16,13 +16,14 @@
 
 #pragma once
 
+#ifdef ONEDAL_DATA_PARALLEL
 #include <cstring>
 
 #include "oneapi/dal/detail/common_dpc.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 
 namespace oneapi::dal::detail {
-#ifdef ONEDAL_DATA_PARALLEL
+namespace v1 {
 
 template <typename T>
 inline T* malloc(const data_parallel_policy& policy,
@@ -85,7 +86,7 @@ public:
     }
 
     void deallocate(T* p, std::int64_t n) const {
-        return free(policy_, p);
+        free(policy_, p);
     }
 
     sycl::usm::alloc get_kind() const {
@@ -97,6 +98,15 @@ private:
     sycl::usm::alloc kind_;
 };
 
-#endif
+} // namespace v1
+
+using v1::malloc;
+using v1::free;
+using v1::memset;
+using v1::memcpy;
+using v1::fill;
+using v1::data_parallel_allocator;
 
 } // namespace oneapi::dal::detail
+
+#endif // ONEDAL_DATA_PARALLEL

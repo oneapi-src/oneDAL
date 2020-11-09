@@ -21,6 +21,7 @@
 #include "oneapi/dal/table/detail/table_impl_iface.hpp"
 
 namespace oneapi::dal::detail {
+namespace v1 {
 
 template <typename Impl>
 class table_impl_wrapper : public table_impl_iface, public base {
@@ -142,5 +143,10 @@ private:
     unique<access_iface_dpc> dpc_access_ptr_;
 #endif
 };
+
+} // namespace v1
+
+using v1::table_impl_wrapper;
+using v1::homogen_table_impl_wrapper;
 
 } // namespace oneapi::dal::detail

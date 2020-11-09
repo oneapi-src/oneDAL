@@ -23,6 +23,29 @@
 
 using namespace oneapi::dal;
 
+TEST(kmeans_init_gpu, throws_if_cluster_count_leads_to_overflow) {
+    auto selector = sycl::gpu_selector();
+    auto queue = sycl::queue(selector);
+
+    constexpr std::int64_t row_count = 8;
+    constexpr std::int64_t column_count = 2;
+
+    const float data_host[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
+                                -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
+    auto data = sycl::malloc_shared<float>(row_count * column_count, queue);
+    ASSERT_NE(data, nullptr);
+    std::memcpy(data, data_host, sizeof(float) * row_count * column_count);
+    const auto data_table = homogen_table::wrap(queue, data, row_count, column_count);
+
+    const auto kmeans_desc =
+        kmeans_init::descriptor<float, kmeans_init::method::dense>().set_cluster_count(
+            0x7FFFFFFFFFFFFFFF);
+
+    ASSERT_THROW(compute(queue, kmeans_desc, data_table), range_error);
+
+    sycl::free(data, queue);
+}
+
 TEST(kmeans_init_gpu, compute_result) {
     auto selector = sycl::gpu_selector();
     auto queue = sycl::queue(selector);
@@ -34,7 +57,8 @@ TEST(kmeans_init_gpu, compute_result) {
     const float data_host[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
                                 -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
     auto data = sycl::malloc_shared<float>(row_count * column_count, queue);
-    queue.memcpy(data, data_host, sizeof(float) * row_count * column_count).wait();
+    ASSERT_NE(data, nullptr);
+    std::memcpy(data, data_host, sizeof(float) * row_count * column_count);
     const auto data_table = homogen_table::wrap(queue, data, row_count, column_count);
 
     const float centroids[] = { 1.0, 1.0, 2.0, 2.0 };

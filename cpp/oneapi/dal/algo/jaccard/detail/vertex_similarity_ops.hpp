@@ -19,6 +19,7 @@
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
 #include "oneapi/dal/detail/policy.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::preview {
 namespace jaccard {
@@ -40,23 +41,31 @@ struct vertex_similarity_ops {
     using descriptor_base_t = descriptor_base;
 
     void check_preconditions(const Descriptor &param, vertex_similarity_input<Graph> &input) const {
+        using msg = dal::detail::error_messages;
+
         const auto row_begin = param.get_row_range_begin();
         const auto row_end = param.get_row_range_end();
         const auto column_begin = param.get_column_range_begin();
         const auto column_end = param.get_column_range_end();
-        auto vertex_count = static_cast<int64_t>(
-            oneapi::dal::preview::detail::get_impl(input.get_graph())->_vertex_count);
         if (row_begin < 0 || column_begin < 0) {
-            throw oneapi::dal::invalid_argument("Negative interval");
+            throw invalid_argument(msg::negative_interval());
         }
         if (row_begin > row_end) {
-            throw oneapi::dal::invalid_argument("row_begin > row_end");
+            throw invalid_argument(msg::row_begin_gt_row_end());
         }
         if (column_begin > column_end) {
-            throw oneapi::dal::invalid_argument("column_begin > column_end");
+            throw invalid_argument(msg::column_begin_gt_column_end());
         }
-        if (row_end > vertex_count || column_end > vertex_count) {
-            throw oneapi::dal::out_of_range("interval > vertex_count");
+        const auto vertex_count =
+            (dal::preview::detail::get_impl(input.get_graph())->_vertex_count);
+        // Safe conversion as ranges were checked
+        if (static_cast<std::size_t>(row_end) > vertex_count ||
+            static_cast<std::size_t>(column_end) > vertex_count) {
+            throw out_of_range(msg::interval_gt_vertex_count());
+        }
+        if (row_end >= dal::detail::limits<std::int32_t>::max() ||
+            column_end >= dal::detail::limits<std::int32_t>::max()) {
+            throw invalid_argument(msg::range_idx_gt_max_int32());
         }
     }
 

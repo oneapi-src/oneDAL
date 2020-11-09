@@ -25,7 +25,7 @@
     <Rule.DataSource>
       <DataSource Persistence="ProjectFile" ItemType="" />
     </Rule.DataSource>
-    <EnumProperty Name="linkage-DAAL-dynamic-win-x64" DisplayName="Linkage" Description="Select linking for the Intel(R) DAAL" Category="libdaal">
+    <EnumProperty Name="linkage-DAAL-dynamic-win-x64" DisplayName="Linkage" Description="Select linking for the Intel(R) oneDAL" Category="libdaal">
       <EnumValue Name=""        DisplayName="Not linked" />
       <EnumValue Name="dynamic" DisplayName="Dynamic"    />
     </EnumProperty>

@@ -28,6 +28,7 @@ namespace oneapi::dal::kmeans::backend {
 
 using std::int64_t;
 using dal::backend::context_gpu;
+using descriptor_t = detail::descriptor_base<task::clustering>;
 
 namespace daal_kmeans = daal::algorithms::kmeans;
 namespace interop = dal::backend::interop;
@@ -39,10 +40,10 @@ using daal_kmeans_lloyd_dense_ucapi_kernel_t =
 template <typename Float>
 struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
     train_result<task::clustering> operator()(const dal::backend::context_gpu& ctx,
-                                              const descriptor_base<task::clustering>& params,
+                                              const descriptor_t& params,
                                               const train_input<task::clustering>& input) const {
         if (!(input.get_initial_centroids().has_data())) {
-            throw domain_error("Input initial_centroids should not be empty");
+            throw domain_error(dal::detail::error_messages::input_initial_centroids_are_empty());
         }
 
         auto& queue = ctx.get_queue();
@@ -57,18 +58,18 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         const int64_t max_iteration_count = params.get_max_iteration_count();
         const double accuracy_threshold = params.get_accuracy_threshold();
 
-        daal_kmeans::Parameter par(cluster_count, max_iteration_count);
+        daal_kmeans::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count),
+                                   dal::detail::integral_cast<std::size_t>(max_iteration_count));
         par.accuracyThreshold = accuracy_threshold;
 
         auto arr_data = row_accessor<const Float>{ data }.pull(queue);
-        const auto daal_data = interop::convert_to_daal_sycl_homogen_table(queue,
-                                                                           arr_data,
-                                                                           data.get_row_count(),
-                                                                           data.get_column_count());
+        const auto daal_data =
+            interop::convert_to_daal_sycl_homogen_table(queue, arr_data, row_count, column_count);
 
         auto arr_initial_centroids =
             row_accessor<const Float>{ input.get_initial_centroids() }.pull(queue);
 
+        dal::detail::check_mul_overflow(cluster_count, column_count);
         array<Float> arr_centroids = array<Float>::empty(queue, cluster_count * column_count);
         array<int> arr_labels = array<int>::empty(queue, row_count);
         array<Float> arr_objective_function_value = array<Float>::empty(queue, 1);

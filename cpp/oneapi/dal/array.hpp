@@ -17,11 +17,12 @@
 #pragma once
 
 #include <algorithm>
-#include <stdexcept> // TODO: change by onedal exceptions
 
 #include "oneapi/dal/detail/array_impl.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal {
+namespace v1 {
 
 template <typename T>
 class array {
@@ -85,7 +86,7 @@ public:
                           std::int64_t count,
                           const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
         // TODO: can be optimized in future
-        return array<T>{ impl_t::full(detail::data_parallel_policy{ queue },
+        return array<T>{ impl_t::full(dal::detail::data_parallel_policy{ queue },
                                       count,
                                       T{},
                                       detail::data_parallel_allocator<T>(queue, alloc)) };
@@ -93,7 +94,7 @@ public:
 #endif
     template <typename Y>
     static array<T> wrap(Y* data, std::int64_t count) {
-        return array<T>{ data, count, empty_delete<const T>{} };
+        return array<T>{ data, count, dal::detail::empty_delete<const T>{} };
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -101,7 +102,7 @@ public:
     static array<T> wrap(Y* data,
                          std::int64_t count,
                          const sycl::vector_class<sycl::event>& dependencies) {
-        return array<T>{ data, count, empty_delete<const T>{}, dependencies };
+        return array<T>{ data, count, dal::detail::empty_delete<const T>{}, dependencies };
     }
 #endif
 
@@ -174,7 +175,7 @@ public:
 
     T* get_mutable_data() const {
         if (!has_mutable_data()) {
-            throw dal::domain_error("array does not contain mutable data");
+            throw domain_error(dal::detail::error_messages::array_does_not_contain_mutable_data());
         }
         return mutable_data_ptr_;
     }
@@ -315,5 +316,9 @@ private:
     T* mutable_data_ptr_;
     std::int64_t count_;
 };
+
+} // namespace v1
+
+using v1::array;
 
 } // namespace oneapi::dal
