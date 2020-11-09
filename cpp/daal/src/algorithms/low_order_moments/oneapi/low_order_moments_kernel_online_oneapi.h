@@ -29,9 +29,9 @@
 #include "algorithms/moments/low_order_moments_types.h"
 #include "src/services/service_data_utils.h"
 
-using namespace daal::services;
-using namespace daal::data_management;
-using namespace daal::services::internal::sycl;
+//using namespace daal::services;
+//using namespace daal::data_management;
+//using namespace daal::services::internal::sycl;
 
 namespace daal
 {
@@ -136,8 +136,8 @@ template <typename algorithmFPType, EstimatesToCompute scope>
 class LowOrderMomentsOnlineTaskOneAPI : public TaskInfoOnline<algorithmFPType, scope>
 {
 public:
-    LowOrderMomentsOnlineTaskOneAPI(ExecutionContextIface & context, NumericTable * dataTable, PartialResult * partialResult,
-                                    services::Status & status);
+    LowOrderMomentsOnlineTaskOneAPI(services::internal::sycl::ExecutionContextIface & context, NumericTable * dataTable,
+                                    PartialResult * partialResult, services::Status & status);
     LowOrderMomentsOnlineTaskOneAPI(const LowOrderMomentsOnlineTaskOneAPI &) = delete;
     LowOrderMomentsOnlineTaskOneAPI & operator=(const LowOrderMomentsOnlineTaskOneAPI &) = delete;
     virtual ~LowOrderMomentsOnlineTaskOneAPI();
@@ -163,10 +163,10 @@ private:
     BlockDescriptor<algorithmFPType> nObservationsBD;
     algorithmFPType * pNObservations;
 
-    UniversalBuffer bNVec; // contains info about num of vectors in block
+    services::internal::sycl::UniversalBuffer bNVec; // contains info about num of vectors in block
 
     NumericTablePtr resultTable[TaskInfoOnline<algorithmFPType, scope>::nPartialResults];
-    UniversalBuffer bAuxBuffers[TaskInfoOnline<algorithmFPType, scope>::nBuffers];
+    services::internal::sycl::UniversalBuffer bAuxBuffers[TaskInfoOnline<algorithmFPType, scope>::nBuffers];
 
     BlockDescriptor<algorithmFPType> resultBD[TaskInfoOnline<algorithmFPType, scope>::nPartialResults];
 };
@@ -176,7 +176,7 @@ template <typename algorithmFPType, EstimatesToCompute scope>
 class LowOrderMomentsOnlineFinalizeTaskOneAPI : public TaskInfoOnline<algorithmFPType, scope>
 {
 public:
-    LowOrderMomentsOnlineFinalizeTaskOneAPI(ExecutionContextIface & context, PartialResult * partialResult, Result * result,
+    LowOrderMomentsOnlineFinalizeTaskOneAPI(services::internal::sycl::ExecutionContextIface & context, PartialResult * partialResult, Result * result,
                                             services::Status & status);
     LowOrderMomentsOnlineFinalizeTaskOneAPI(const LowOrderMomentsOnlineFinalizeTaskOneAPI &) = delete;
     LowOrderMomentsOnlineFinalizeTaskOneAPI & operator=(const LowOrderMomentsOnlineFinalizeTaskOneAPI &) = delete;

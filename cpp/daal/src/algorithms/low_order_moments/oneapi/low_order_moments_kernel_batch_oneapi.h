@@ -29,9 +29,9 @@
 #include "algorithms/moments/low_order_moments_types.h"
 #include "src/services/service_data_utils.h"
 
-using namespace daal::services;
-using namespace daal::data_management;
-using namespace daal::services::internal::sycl;
+//using namespace daal::services;
+//using namespace daal::data_management;
+//using namespace daal::services::internal::sycl;
 
 namespace daal
 {
@@ -52,9 +52,9 @@ struct TaskInfoBatch<algorithmFPType, estimatesMinMax>
     constexpr static uint32_t nResults              = 2;
     constexpr static uint32_t nBuffers              = 2;
     constexpr static bool isRowsInBlockInfoRequired = false;
-    using resultsSetType                            = int[nResults];
-    using resultTableType                           = NumericTablePtr[nResults];
-    using buffersType                               = UniversalBuffer[nBuffers];
+    //using resultsSetType                            = int[nResults];
+    //using resultTableType                           = NumericTablePtr[nResults];
+    //using buffersType                               = UniversalBuffer[nBuffers];
     // names of used kernels
     static const char * kSinglePassName;
     static const char * kProcessBlocksName;
@@ -74,9 +74,9 @@ struct TaskInfoBatch<algorithmFPType, estimatesMeanVariance>
     constexpr static uint32_t nResults              = 2;
     constexpr static uint32_t nBuffers              = 2;
     constexpr static bool isRowsInBlockInfoRequired = true;
-    using resultsSetType                            = int[nResults];
-    using resultTableType                           = NumericTablePtr[nResults];
-    using buffersType                               = UniversalBuffer[nBuffers];
+    //using resultsSetType                            = int[nResults];
+    //using resultTableType                           = NumericTablePtr[nResults];
+    //using buffersType                               = UniversalBuffer[nBuffers];
     // names of used kernels
     static const char * kSinglePassName;
     static const char * kProcessBlocksName;
@@ -96,9 +96,9 @@ struct TaskInfoBatch<algorithmFPType, estimatesAll>
     constexpr static uint32_t nResults              = lastResultId + 1;
     constexpr static uint32_t nBuffers              = 5;
     constexpr static bool isRowsInBlockInfoRequired = true;
-    using resultsSetType                            = int[nResults];
-    using resultTableType                           = NumericTablePtr[nResults];
-    using buffersType                               = UniversalBuffer[nBuffers];
+    //using resultsSetType                            = int[nResults];
+    //using resultTableType                           = NumericTablePtr[nResults];
+    //using buffersType                               = UniversalBuffer[nBuffers];
     // names of used kernels
     static const char * kSinglePassName;
     static const char * kProcessBlocksName;
@@ -125,7 +125,8 @@ template <typename algorithmFPType, EstimatesToCompute scope>
 class LowOrderMomentsBatchTaskOneAPI : public TaskInfoBatch<algorithmFPType, scope>
 {
 public:
-    LowOrderMomentsBatchTaskOneAPI(ExecutionContextIface & context, NumericTable * dataTable, Result * result, services::Status & status);
+    LowOrderMomentsBatchTaskOneAPI(services::internal::sycl::ExecutionContextIface & context, NumericTable * dataTable, Result * result,
+                                   services::Status & status);
     LowOrderMomentsBatchTaskOneAPI(const LowOrderMomentsBatchTaskOneAPI &) = delete;
     LowOrderMomentsBatchTaskOneAPI & operator=(const LowOrderMomentsBatchTaskOneAPI &) = delete;
     virtual ~LowOrderMomentsBatchTaskOneAPI();
@@ -147,10 +148,10 @@ private:
     NumericTable * dataTable;
     BlockDescriptor<algorithmFPType> dataBD;
 
-    UniversalBuffer bNVec; // contains info about num of vectors in block
+    services::internal::sycl::UniversalBuffer bNVec; // contains info about num of vectors in block
 
     NumericTablePtr resultTable[TaskInfoBatch<algorithmFPType, scope>::nResults];
-    UniversalBuffer bAuxBuffers[TaskInfoBatch<algorithmFPType, scope>::nBuffers];
+    services::internal::sycl::UniversalBuffer bAuxBuffers[TaskInfoBatch<algorithmFPType, scope>::nBuffers];
 
     BlockDescriptor<algorithmFPType> resultBD[TaskInfoBatch<algorithmFPType, scope>::nResults];
 };
