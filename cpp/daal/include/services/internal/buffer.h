@@ -62,9 +62,24 @@ public:
     /**
      *  Creates a Buffer object referencing a SYCL* buffer
      *  Does not copy the data from the SYCL* buffer
+     *  \param[in]  buffer  SYCL* buffer
+     *  \param[out] status  Status of operation
      */
-    Buffer(const cl::sycl::buffer<T, 1> & buffer) : _impl(new internal::SyclBuffer<T>(buffer)) {}
-#endif
+    Buffer(const cl::sycl::buffer<T, 1> & buffer, Status & status) : _impl(internal::SyclBuffer<T>::create(buffer, status)) {}
+
+    #ifndef DAAL_NOTHROW_EXCEPTIONS
+    /**
+     *  Creates a Buffer object referencing a SYCL* buffer
+     *  Does not copy the data from the SYCL* buffer
+     */
+    Buffer(const cl::sycl::buffer<T, 1> & buffer)
+    {
+        Status status;
+        _impl.reset(internal::SyclBuffer<T>::create(buffer, status));
+        throwIfPossible(status);
+    }
+    #endif // DAAL_NOTHROW_EXCEPTIONS
+#endif     // DAAL_SYCL_INTERFACE_USM
 
 #ifdef DAAL_SYCL_INTERFACE_USM
     /**
@@ -73,9 +88,28 @@ public:
      *  \param[in] usmData    Pointer to the USM-allocated data
      *  \param[in] size       Number of elements of type T stored in USM memory block
      *  \param[in] allocType  USM allocation type
+     *  \param[out] status    Status of operation
      */
-    Buffer(T * usmData, size_t size, cl::sycl::usm::alloc allocType) : _impl(new internal::UsmBuffer<T>(usmData, size, allocType)) {}
-#endif
+    Buffer(T * usmData, size_t size, cl::sycl::usm::alloc allocType, Status & status)
+        : _impl(internal::UsmBuffer<T>::create(usmData, size, allocType, status))
+    {}
+
+    #ifndef DAAL_NOTHROW_EXCEPTIONS
+    /**
+     *  Creates a Buffer object referencing a USM pointer
+     *  Does not copy the data from the USM pointer
+     *  \param[in] usmData    Pointer to the USM-allocated data
+     *  \param[in] size       Number of elements of type T stored in USM memory block
+     *  \param[in] allocType  USM allocation type
+     */
+    Buffer(T * usmData, size_t size, cl::sycl::usm::alloc allocType)
+    {
+        Status status;
+        _impl.reset(internal::UsmBuffer<T>::create(usmData, size, allocType, status));
+        throwIfPossible(status);
+    }
+    #endif // DAAL_NOTHROW_EXCEPTIONS
+#endif     // DAAL_SYCL_INTERFACE_USM
 
 #ifdef DAAL_SYCL_INTERFACE_USM
     /**
@@ -84,20 +118,64 @@ public:
      *  \param[in] usmData    Shared pointer to the USM-allocated data
      *  \param[in] size       Number of elements of type T stored in USM block
      *  \param[in] allocType  USM allocation type
+     *  \param[out] status    Status of operation
      */
-    Buffer(const SharedPtr<T> & usmData, size_t size, cl::sycl::usm::alloc allocType) : _impl(new internal::UsmBuffer<T>(usmData, size, allocType)) {}
-#endif
+    Buffer(const SharedPtr<T> & usmData, size_t size, cl::sycl::usm::alloc allocType, Status & status)
+        : _impl(internal::UsmBuffer<T>::create(usmData, size, allocType, status))
+    {}
+
+    #ifndef DAAL_NOTHROW_EXCEPTIONS
+    /**
+     *  Creates a Buffer object referencing a USM pointer
+     *  Does not copy the data from the USM pointer
+     *  \param[in] usmData    Shared pointer to the USM-allocated data
+     *  \param[in] size       Number of elements of type T stored in USM block
+     *  \param[in] allocType  USM allocation type
+     */
+    Buffer(const SharedPtr<T> & usmData, size_t size, cl::sycl::usm::alloc allocType)
+    {
+        Status status;
+        _impl.reset(internal::UsmBuffer<T>::create(usmData, size, allocType, status));
+        throwIfPossible(status);
+    }
+    #endif // DAAL_NOTHROW_EXCEPTIONS
+#endif     // DAAL_SYCL_INTERFACE_USM
 
     /**
      *   Creates a Buffer object from host-allocated raw pointer
      *   Buffer does not own this pointer
      */
-    Buffer(T * data, size_t size) : _impl(new internal::HostBuffer<T>(data, size)) {}
+    Buffer(T * data, size_t size, Status & status) : _impl(internal::HostBuffer<T>::create(data, size, status)) {}
+
+#ifndef DAAL_NOTHROW_EXCEPTIONS
+    /**
+     *   Creates a Buffer object from host-allocated raw pointer
+     *   Buffer does not own this pointer
+     */
+    Buffer(T * data, size_t size)
+    {
+        Status status;
+        _impl.reset(internal::HostBuffer<T>::create(data, size, status));
+        throwIfPossible(status);
+    }
+#endif // DAAL_NOTHROW_EXCEPTIONS
 
     /**
      *   Creates a Buffer object referencing the shared pointer to the host-allocated data
      */
-    Buffer(const SharedPtr<T> & data, size_t size) : _impl(new internal::HostBuffer<T>(data, size)) {}
+    Buffer(const SharedPtr<T> & data, size_t size, Status & status) : _impl(internal::HostBuffer<T>::create(data, size, status)) {}
+
+#ifndef DAAL_NOTHROW_EXCEPTIONS
+    /**
+     *   Creates a Buffer object referencing the shared pointer to the host-allocated data
+     */
+    Buffer(const SharedPtr<T> & data, size_t size)
+    {
+        Status status;
+        _impl.reset(internal::HostBuffer<T>::create(data, size, status));
+        throwIfPossible(status);
+    }
+#endif // DAAL_NOTHROW_EXCEPTIONS
 
     /**
      *  Returns true if Buffer points to any data
@@ -120,32 +198,61 @@ public:
      *  \param[out] status  Status of operation
      *  \return host-allocated shared pointer to the data
      */
-    SharedPtr<T> toHost(const data_management::ReadWriteMode & rwFlag, Status * status = NULL) const
+    SharedPtr<T> toHost(const data_management::ReadWriteMode & rwFlag, Status & status) const
     {
         if (!_impl)
         {
-            internal::tryAssignStatusAndThrow(status, ErrorEmptyBuffer);
+            status |= ErrorEmptyBuffer;
             return SharedPtr<T>();
         }
-
         return internal::HostBufferConverter<T>().toHost(*_impl, rwFlag, status);
     }
+
+#ifndef DAAL_NOTHROW_EXCEPTIONS
+    /**
+     *  Converts data inside the buffer to the host side, throws exception if conversion fails
+     *  \param[in]  rwFlag  Access flag to the data
+     *  \return host-allocated shared pointer to the data
+     */
+    SharedPtr<T> toHost(const data_management::ReadWriteMode & rwFlag) const
+    {
+        Status status;
+        const SharedPtr<T> ptr = toHost(rwFlag, status);
+        throwIfPossible(status);
+        return ptr;
+    }
+#endif // DAAL_NOTHROW_EXCEPTIONS
 
 #ifdef DAAL_SYCL_INTERFACE
     /**
      *  Converts buffer to the SYCL* buffer
+     *  \param[out] status  Status of operation
      *  \return one-dimensional SYCL* buffer
      */
-    cl::sycl::buffer<T, 1> toSycl(Status * status = NULL) const
+    cl::sycl::buffer<T, 1> toSycl(Status & status) const
     {
         if (!_impl)
         {
-            internal::tryAssignStatusAndThrow(status, ErrorEmptyBuffer);
+            status |= ErrorEmptyBuffer;
             return cl::sycl::buffer<T, 1>(cl::sycl::range<1>(1));
         }
-        return internal::SyclBufferConverter<T>().toSycl(*_impl);
+        return internal::SyclBufferConverter<T>().toSycl(*_impl, status);
     }
-#endif
+
+    #ifndef DAAL_NOTHROW_EXCEPTIONS
+    /**
+     *  Converts buffer to the SYCL* buffer, throws exception if conversion fails
+     *  \return one-dimensional SYCL* buffer
+     */
+    cl::sycl::buffer<T, 1> toSycl() const
+    {
+        Status status;
+        const cl::sycl::buffer<T, 1> buffer = toSycl(status);
+        throwIfPossible(status);
+        return buffer;
+    }
+    #endif // DAAL_NOTHROW_EXCEPTIONS
+#endif     // DAAL_SYCL_INTERFACE
 
 #ifdef DAAL_SYCL_INTERFACE_USM
     /**
@@ -153,17 +260,30 @@ public:
      *  \param[out] status Status of operation
      *  \return USM shared pointer
      */
-    SharedPtr<T> toUSM(Status * status = NULL) const
+    SharedPtr<T> toUSM(Status & status) const
     {
         if (!_impl)
         {
-            internal::tryAssignStatusAndThrow(status, ErrorEmptyBuffer);
+            status |= ErrorEmptyBuffer;
             return SharedPtr<T>();
         }
-
-        return internal::SyclBufferConverter<T>().toUSM(*_impl);
+        return internal::SyclBufferConverter<T>().toUSM(*_impl, status);
     }
-#endif
+
+    #ifndef DAAL_NOTHROW_EXCEPTIONS
+    /**
+     *  Converts buffer to the USM shared pointer, throws exception if conversion fails
+     *  \return USM shared pointer
+     */
+    SharedPtr<T> toUSM() const
+    {
+        Status status;
+        const SharedPtr<T> ptr = toUSM(status);
+        throwIfPossible(status);
+        return ptr;
+    }
+    #endif // DAAL_NOTHROW_EXCEPTIONS
+#endif     // DAAL_SYCL_INTERFACE_USM
 
     /**
      *   Returns the total number of elements in the buffer
@@ -189,15 +309,32 @@ public:
      *  \param[out] status  Status of operation
      *  \return Buffer that contains only a part of the original buffer
      */
-    Buffer<T> getSubBuffer(size_t offset, size_t size, Status * status = NULL) const
+    Buffer<T> getSubBuffer(size_t offset, size_t size, Status & status) const
     {
         if (!_impl)
         {
-            internal::tryAssignStatusAndThrow(status, ErrorEmptyBuffer);
+            status |= ErrorEmptyBuffer;
             return Buffer<T>();
         }
-        return Buffer<T>(_impl->getSubBuffer(offset, size));
+        return Buffer<T>(_impl->getSubBuffer(offset, size, status));
     }
+
+#ifndef DAAL_NOTHROW_EXCEPTIONS
+    /**
+     *  Creates Buffer object that points to the same memory as a parent but with offset,
+     *  throws exception if conversion fails
+     *  \param[in]  offset  Offset in elements from start of the parent buffer
+     *  \param[in]  size    Number of elements in the sub-buffer
+     *  \return Buffer that contains only a part of the original buffer
+     */
+    Buffer<T> getSubBuffer(size_t offset, size_t size) const
+    {
+        Status status;
+        const Buffer<T> suBuffer = getSubBuffer(offset, size, status);
+        throwIfPossible(status);
+        return suBuffer;
+    }
+#endif // DAAL_NOTHROW_EXCEPTIONS
 
 private:
     explicit Buffer(internal::BufferIface<T> * impl) : _impl(impl) {}

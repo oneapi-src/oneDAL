@@ -29,7 +29,7 @@ using dal::backend::context_cpu;
 using model_t = model<task::dim_reduction>;
 using input_t = train_input<task::dim_reduction>;
 using result_t = train_result<task::dim_reduction>;
-using descriptor_t = descriptor_base<task::dim_reduction>;
+using descriptor_t = detail::descriptor_base<task::dim_reduction>;
 
 namespace daal_pca = daal::algorithms::pca;
 namespace interop = dal::backend::interop;
@@ -47,6 +47,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     const std::int64_t component_count = desc.get_component_count();
 
     auto arr_data = row_accessor<const Float>{ data }.pull();
+
+    dal::detail::check_mul_overflow(column_count, component_count);
     auto arr_eigvec = array<Float>::empty(column_count * component_count);
     auto arr_eigval = array<Float>::empty(1 * component_count);
     auto arr_means = array<Float>::empty(1 * column_count);

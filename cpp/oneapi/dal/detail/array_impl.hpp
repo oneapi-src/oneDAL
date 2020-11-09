@@ -18,10 +18,11 @@
 
 #include <variant>
 
-#include "oneapi/dal/exceptions.hpp"
-#include "oneapi/dal/memory.hpp"
+#include "oneapi/dal/detail/memory.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::detail {
+namespace v1 {
 
 template <typename T>
 class array_impl : public base {
@@ -88,7 +89,8 @@ public:
             return mut_ptr.get();
         }
         catch (std::bad_variant_access&) {
-            throw dal::internal_error("array does not contain mutable data");
+            throw internal_error(
+                dal::detail::error_messages::array_does_not_contain_mutable_data());
         }
     }
 
@@ -164,5 +166,9 @@ private:
     std::variant<cshared, shared> data_owned_;
     std::int64_t count_;
 };
+
+} // namespace v1
+
+using v1::array_impl;
 
 } // namespace oneapi::dal::detail

@@ -34,14 +34,14 @@ namespace init
 {
 namespace internal
 {
-template class KMeansInitDenseBatchKernelUCAPI<deterministicDense, DAAL_FPTYPE>;
-template class KMeansInitDenseBatchKernelUCAPI<randomDense, DAAL_FPTYPE>;
-template class KMeansInitDenseBatchKernelUCAPI<plusPlusDense, DAAL_FPTYPE>;
-template class KMeansInitDenseBatchKernelUCAPI<parallelPlusDense, DAAL_FPTYPE>;
-template class KMeansInitDenseBatchKernelUCAPI<deterministicCSR, DAAL_FPTYPE>;
-template class KMeansInitDenseBatchKernelUCAPI<randomCSR, DAAL_FPTYPE>;
-template class KMeansInitDenseBatchKernelUCAPI<plusPlusCSR, DAAL_FPTYPE>;
-template class KMeansInitDenseBatchKernelUCAPI<parallelPlusCSR, DAAL_FPTYPE>;
+template class DAAL_EXPORT KMeansInitDenseBatchKernelUCAPI<deterministicDense, DAAL_FPTYPE>;
+template class DAAL_EXPORT KMeansInitDenseBatchKernelUCAPI<randomDense, DAAL_FPTYPE>;
+template class DAAL_EXPORT KMeansInitDenseBatchKernelUCAPI<plusPlusDense, DAAL_FPTYPE>;
+template class DAAL_EXPORT KMeansInitDenseBatchKernelUCAPI<parallelPlusDense, DAAL_FPTYPE>;
+template class DAAL_EXPORT KMeansInitDenseBatchKernelUCAPI<deterministicCSR, DAAL_FPTYPE>;
+template class DAAL_EXPORT KMeansInitDenseBatchKernelUCAPI<randomCSR, DAAL_FPTYPE>;
+template class DAAL_EXPORT KMeansInitDenseBatchKernelUCAPI<plusPlusCSR, DAAL_FPTYPE>;
+template class DAAL_EXPORT KMeansInitDenseBatchKernelUCAPI<parallelPlusCSR, DAAL_FPTYPE>;
 } // namespace internal
 } // namespace init
 } // namespace kmeans

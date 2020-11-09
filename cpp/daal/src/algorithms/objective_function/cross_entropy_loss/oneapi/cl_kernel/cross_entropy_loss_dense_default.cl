@@ -87,38 +87,6 @@ DECLARE_SOURCE_DAAL(
         sigma[i * nClasses + (uint)y[i]] += value;
     }
 
-    __kernel void hessian(const __global algorithmFPType * const x, const uint ldx, const __global algorithmFPType * const prob, const uint n,
-                          __global algorithmFPType * h, const uint nBeta, const uint nClasses, const uint offset, const algorithmFPType alpha) {
-        const uint row = get_global_id(0);
-        const uint col = get_global_id(1);
-
-        if (col < row) return;
-
-        const algorithmFPType one = (algorithmFPType)1.0;
-
-        const uint t = row / nBeta;
-        const uint p = col / nBeta;
-        const uint j = row % nBeta;
-        const uint q = col % nBeta;
-
-        if (j == 0 || q == 0)
-        {
-            h[row * nBeta + col] = (algorithmFPType)0;
-            h[col * nBeta + row] = (algorithmFPType)0;
-            return;
-        }
-
-        algorithmFPType sum = (algorithmFPType)0.0;
-        for (uint i = 0; i < n; i++)
-        {
-            const algorithmFPType pt = p == t ? one - prob[i * nClasses + t] : -prob[i * nClasses + t];
-            sum += x[i * ldx + j] * x[i * ldx + q] * prob[i * nClasses + p] * pt;
-        }
-
-        h[row * nBeta + col] = sum * alpha;
-        h[col * nBeta + row] = sum * alpha;
-    }
-
 );
 
 #undef DECLARE_SOURCE_DAAL

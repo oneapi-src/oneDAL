@@ -45,9 +45,16 @@ struct MaxVal<int>
 };
 
 template <>
-struct MaxVal<long long>
+struct MaxVal<DAAL_INT>
 {
-    DAAL_FORCEINLINE static constexpr long long get() { return LLONG_MAX; }
+    DAAL_FORCEINLINE static constexpr DAAL_INT get()
+    {
+#if defined(_WIN64) || defined(__x86_64__)
+        return INT64_MAX;
+#else
+        return INT32_MAX;
+#endif
+    }
 };
 
 template <>

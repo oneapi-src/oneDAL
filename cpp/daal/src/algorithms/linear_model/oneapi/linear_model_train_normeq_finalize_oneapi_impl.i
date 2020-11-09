@@ -26,6 +26,7 @@
 #include "src/sycl/lapack_gpu.h"
 #include "src/externals/service_lapack.h"
 #include "src/externals/service_ittnotify.h"
+#include "src/services/service_data_utils.h"
 
 namespace daal
 {
@@ -84,23 +85,29 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::compute(NumericTable & x
 
         const TypeIds::Id idType = TypeIds::id<algorithmFPType>();
 
-        UniversalBuffer xtxCopyAlloc = context.allocate(idType, nBetasIntercept * nBetasIntercept, &status);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBetasIntercept, nBetasIntercept);
+        UniversalBuffer xtxCopyAlloc = context.allocate(idType, nBetasIntercept * nBetasIntercept, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         services::internal::Buffer<algorithmFPType> xtxBufCopy = xtxCopyAlloc.get<algorithmFPType>();
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.xtxCopy);
-            context.copy(xtxBufCopy, 0, xtxBuf, 0, nBetasIntercept * nBetasIntercept, &status);
+            DAAL_ASSERT(xtxBuf.size() >= nBetasIntercept * nBetasIntercept);
+            DAAL_ASSERT(xtxBufCopy.size() >= nBetasIntercept * nBetasIntercept);
+            context.copy(xtxBufCopy, 0, xtxBuf, 0, nBetasIntercept * nBetasIntercept, status);
         }
         DAAL_CHECK_STATUS_VAR(status);
 
-        UniversalBuffer xtyCopyAlloc = context.allocate(idType, nResponses * nBetasIntercept, &status);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nResponses, nBetasIntercept);
+        UniversalBuffer xtyCopyAlloc = context.allocate(idType, nResponses * nBetasIntercept, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         services::internal::Buffer<algorithmFPType> betaBuf = xtyCopyAlloc.get<algorithmFPType>();
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.betaBufCopy);
-            context.copy(betaBuf, 0, xtyBuf, 0, nResponses * nBetasIntercept, &status);
+            DAAL_ASSERT(xtyBuf.size() >= nResponses * nBetasIntercept);
+            DAAL_ASSERT(betaBuf.size() >= nResponses * nBetasIntercept);
+            context.copy(betaBuf, 0, xtyBuf, 0, nResponses * nBetasIntercept, status);
         }
         DAAL_CHECK_STATUS_VAR(status);
 
@@ -135,7 +142,10 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::copyDataToFinalTable(Num
     services::internal::Buffer<algorithmFPType> dstBuf       = dstBlock.getBuffer();
 
     auto & context = services::internal::getDefaultContext();
-    context.copy(dstBuf, 0, srcBuf, 0, nCols * nRows, &status);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nCols, nRows);
+    DAAL_ASSERT(dstBuf.size() >= nCols * nRows);
+    DAAL_ASSERT(srcBuf.size() >= nCols * nRows);
+    context.copy(dstBuf, 0, srcBuf, 0, nCols * nRows, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     DAAL_CHECK_STATUS(status, srcTable.releaseBlockOfRows(srcBlock));
@@ -151,7 +161,12 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::solveSystem(const size_t
     DAAL_ITTNOTIFY_SCOPED_TASK(solveSystem);
     services::Status status;
 
-    math::UpLo uplo = math::UpLo::Upper;
+    const math::UpLo uplo = math::UpLo::Upper;
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, ny, p);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, p, p);
+    DAAL_ASSERT(a.size() >= p * p);
+    DAAL_ASSERT(b.size() >= p * ny);
 
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(solveSystem.xpotrf);
@@ -166,6 +181,7 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::solveSystem(const size_t
         status = LapackGpu<algorithmFPType>::xpotrs(uplo, p, ny, a, p, b, p);
     }
     DAAL_CHECK_STATUS_VAR(status);
+
     return status;
 }
 

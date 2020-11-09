@@ -17,12 +17,13 @@
 #pragma once
 
 #include "oneapi/dal/algo/decision_forest/train_types.hpp"
-#include "oneapi/dal/exceptions.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::decision_forest::detail {
+namespace v1 {
 
-template <typename Context, typename Float, typename Task, typename Method>
-struct ONEAPI_DAL_EXPORT train_ops_dispatcher {
+template <typename Context, typename Float, typename Task, typename Method, typename... Options>
+struct train_ops_dispatcher {
     train_result<Task> operator()(const Context&,
                                   const descriptor_base<Task>&,
                                   const train_input<Task>&) const;
@@ -38,28 +39,31 @@ struct train_ops {
     using descriptor_base_t = descriptor_base<task_t>;
 
     void check_preconditions(const Descriptor& params, const input_t& input) const {
+        using msg = dal::detail::error_messages;
+
         if (!(input.get_data().has_data())) {
-            throw domain_error("Input data should not be empty");
+            throw domain_error(msg::input_data_is_empty());
         }
         if (!(input.get_labels().has_data())) {
-            throw domain_error("Input labels should not be empty");
+            throw domain_error(msg::input_labels_are_empty());
+        }
+        if (input.get_labels().get_column_count() != 1) {
+            throw domain_error(msg::input_labels_table_has_wrong_cc_expect_one());
         }
         if (input.get_data().get_row_count() != input.get_labels().get_row_count()) {
-            throw invalid_argument("Input data row_count should be equal to labels row_count");
+            throw invalid_argument(msg::input_data_rc_neq_input_labels_rc());
         }
         if (!params.get_bootstrap() &&
             (params.get_variable_importance_mode() == variable_importance_mode::mda_raw ||
              params.get_variable_importance_mode() == variable_importance_mode::mda_scaled)) {
-            throw invalid_argument(
-                "Parameter 'bootstrap' is incompatible with requested variable importance mode");
+            throw invalid_argument(msg::bootstrap_is_incompatible_with_variable_importance_mode());
         }
 
         if (!params.get_bootstrap() &&
             (check_mask_flag(params.get_error_metric_mode(), error_metric_mode::out_of_bag_error) ||
              check_mask_flag(params.get_error_metric_mode(),
                              error_metric_mode::out_of_bag_error_per_observation))) {
-            throw invalid_argument(
-                "Parameter 'bootstrap' is incompatible with requested OOB result (no out-of-bag observations)");
+            throw invalid_argument(msg::bootstrap_is_incompatible_with_error_metric());
         }
     }
 
@@ -76,5 +80,9 @@ struct train_ops {
         return result;
     }
 };
+
+} // namespace v1
+
+using v1::train_ops;
 
 } // namespace oneapi::dal::decision_forest::detail

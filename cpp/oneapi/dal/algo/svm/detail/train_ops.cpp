@@ -19,25 +19,28 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::svm::detail {
-using oneapi::dal::detail::host_policy;
+namespace v1 {
 
-template <typename Float, typename Task, typename Method>
-struct ONEAPI_DAL_EXPORT train_ops_dispatcher<host_policy, Float, Task, Method> {
-    train_result operator()(const host_policy& ctx,
-                            const descriptor_base& desc,
-                            const train_input& input) const {
+using dal::detail::host_policy;
+
+template <typename Float, typename Method, typename Task>
+struct train_ops_dispatcher<host_policy, Float, Method, Task> {
+    train_result<Task> operator()(const host_policy& ctx,
+                                  const descriptor_base<Task>& desc,
+                                  const train_input<Task>& input) const {
         using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Task, Method>>;
-        return kernel_dispatcher_t()(ctx, desc, input);
+            dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Method, Task>>;
+        return kernel_dispatcher_t{}(ctx, desc, input);
     }
 };
 
-#define INSTANTIATE(F, T, M) \
-    template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<host_policy, F, T, M>;
+#define INSTANTIATE(F, M, T) \
+    template struct ONEDAL_EXPORT train_ops_dispatcher<host_policy, F, M, T>;
 
-INSTANTIATE(float, task::classification, method::smo)
-INSTANTIATE(float, task::classification, method::thunder)
-INSTANTIATE(double, task::classification, method::smo)
-INSTANTIATE(double, task::classification, method::thunder)
+INSTANTIATE(float, method::smo, task::classification)
+INSTANTIATE(float, method::thunder, task::classification)
+INSTANTIATE(double, method::smo, task::classification)
+INSTANTIATE(double, method::thunder, task::classification)
 
+} // namespace v1
 } // namespace oneapi::dal::svm::detail

@@ -19,10 +19,12 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::pca::detail {
-using oneapi::dal::detail::host_policy;
+namespace v1 {
+
+using dal::detail::host_policy;
 
 template <typename Float, typename Method, typename Task>
-struct ONEAPI_DAL_EXPORT train_ops_dispatcher<host_policy, Float, Method, Task> {
+struct train_ops_dispatcher<host_policy, Float, Method, Task> {
     train_result<Task> operator()(const host_policy& ctx,
                                   const descriptor_base<Task>& desc,
                                   const train_input<Task>& input) const {
@@ -33,11 +35,12 @@ struct ONEAPI_DAL_EXPORT train_ops_dispatcher<host_policy, Float, Method, Task> 
 };
 
 #define INSTANTIATE(F, M, T) \
-    template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<host_policy, F, M, T>;
+    template struct ONEDAL_EXPORT train_ops_dispatcher<host_policy, F, M, T>;
 
 INSTANTIATE(float, method::cov, task::dim_reduction)
 INSTANTIATE(float, method::svd, task::dim_reduction)
 INSTANTIATE(double, method::cov, task::dim_reduction)
 INSTANTIATE(double, method::svd, task::dim_reduction)
 
+} // namespace v1
 } // namespace oneapi::dal::pca::detail

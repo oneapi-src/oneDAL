@@ -23,14 +23,41 @@
 
 namespace oneapi::dal {
 
+namespace detail {
+namespace v1 {
+
+class table_metadata_impl;
+
+template <typename T>
+struct is_table_impl {
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(std::int64_t, get_column_count, () const)
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(std::int64_t, get_row_count, () const)
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(const table_metadata&, get_metadata, () const)
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(std::int64_t, get_kind, () const)
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(data_layout, get_data_layout, () const)
+
+    static constexpr bool value = has_method_get_column_count_v<T> &&
+                                  has_method_get_row_count_v<T> && has_method_get_metadata_v<T> &&
+                                  has_method_get_kind_v<T> && has_method_get_data_layout_v<T>;
+};
+
+template <typename T>
+inline constexpr bool is_table_impl_v = is_table_impl<T>::value;
+
+} // namespace v1
+
+using v1::table_metadata_impl;
+using v1::is_table_impl;
+using v1::is_table_impl_v;
+
+} // namespace detail
+
+namespace v1 {
+
 enum class feature_type { nominal, ordinal, interval, ratio };
 enum class data_layout { unknown, row_major, column_major };
 
-namespace detail {
-class table_metadata_impl;
-} // namespace detail
-
-class ONEAPI_DAL_EXPORT table_metadata {
+class ONEDAL_EXPORT table_metadata {
     friend detail::pimpl_accessor;
     using pimpl = detail::pimpl<detail::table_metadata_impl>;
 
@@ -49,23 +76,7 @@ private:
     pimpl impl_;
 };
 
-template <typename T>
-struct is_table_impl {
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(std::int64_t, get_column_count, () const)
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(std::int64_t, get_row_count, () const)
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(const table_metadata&, get_metadata, () const)
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(std::int64_t, get_kind, () const)
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(data_layout, get_data_layout, () const)
-
-    static constexpr bool value = has_method_get_column_count_v<T> &&
-                                  has_method_get_row_count_v<T> && has_method_get_metadata_v<T> &&
-                                  has_method_get_kind_v<T> && has_method_get_data_layout_v<T>;
-};
-
-template <typename T>
-inline constexpr bool is_table_impl_v = is_table_impl<T>::value;
-
-class ONEAPI_DAL_EXPORT table {
+class ONEDAL_EXPORT table {
     friend detail::pimpl_accessor;
     using pimpl = detail::pimpl<detail::table_impl_iface>;
 
@@ -76,7 +87,7 @@ public:
 
     template <typename Impl,
               typename ImplType = std::decay_t<Impl>,
-              typename = std::enable_if_t<is_table_impl_v<ImplType> &&
+              typename = std::enable_if_t<detail::is_table_impl_v<ImplType> &&
                                           !std::is_base_of_v<table, ImplType>>>
     table(Impl&& impl) {
         init_impl(new detail::table_impl_wrapper(std::forward<Impl>(impl)));
@@ -100,5 +111,12 @@ protected:
 private:
     pimpl impl_;
 };
+
+} // namespace v1
+
+using v1::feature_type;
+using v1::data_layout;
+using v1::table_metadata;
+using v1::table;
 
 } // namespace oneapi::dal

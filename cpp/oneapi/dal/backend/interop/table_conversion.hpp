@@ -18,7 +18,7 @@
 
 #include <daal/include/data_management/data/homogen_numeric_table.h>
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 #include <daal/include/data_management/data/internal/numeric_table_sycl_homogen.h>
 #endif
 
@@ -40,8 +40,8 @@ struct daal_array_owner {
 template <typename T>
 inline auto allocate_daal_homogen_table(std::int64_t row_count, std::int64_t column_count) {
     return daal::data_management::HomogenNumericTable<T>::create(
-        column_count,
-        row_count,
+        dal::detail::integral_cast<std::size_t>(column_count),
+        dal::detail::integral_cast<std::size_t>(row_count),
         daal::data_management::NumericTable::doAllocate);
 }
 
@@ -55,9 +55,10 @@ inline auto convert_to_daal_homogen_table(array<T>& data,
     const auto daal_data =
         daal::services::SharedPtr<T>(data.get_mutable_data(), daal_array_owner<T>{ data });
 
-    return daal::data_management::HomogenNumericTable<T>::create(daal_data,
-                                                                 column_count,
-                                                                 row_count);
+    return daal::data_management::HomogenNumericTable<T>::create(
+        daal_data,
+        dal::detail::integral_cast<std::size_t>(column_count),
+        dal::detail::integral_cast<std::size_t>(row_count));
 }
 
 template <typename T>
@@ -74,7 +75,7 @@ inline table convert_from_daal_homogen_table(const daal::data_management::Numeri
     return detail::homogen_table_builder{}.reset(arr, row_count, column_count).build();
 }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 template <typename T>
 inline auto convert_to_daal_sycl_homogen_table(sycl::queue& queue,
                                                array<T>& data,
@@ -86,8 +87,8 @@ inline auto convert_to_daal_sycl_homogen_table(sycl::queue& queue,
 
     using daal::data_management::internal::SyclHomogenNumericTable;
     return SyclHomogenNumericTable<T>::create(daal_data,
-                                              column_count,
-                                              row_count,
+                                              dal::detail::integral_cast<std::size_t>(column_count),
+                                              dal::detail::integral_cast<std::size_t>(row_count),
                                               cl::sycl::usm::alloc::shared);
 }
 

@@ -19,6 +19,7 @@
 #include "oneapi/dal/detail/ops_dispatcher.hpp"
 
 namespace oneapi::dal::detail {
+namespace v1 {
 
 template <typename Descriptor, typename Tag = typename Descriptor::tag_t>
 struct compute_ops;
@@ -31,5 +32,9 @@ auto compute_dispatch(Head&& head, Tail&&... tail) {
     using dispatcher_t = ops_policy_dispatcher<std::decay_t<Head>, tagged_compute_ops>;
     return dispatcher_t{}(std::forward<Head>(head), std::forward<Tail>(tail)...);
 }
+
+} // namespace v1
+
+using v1::compute_dispatch;
 
 } // namespace oneapi::dal::detail

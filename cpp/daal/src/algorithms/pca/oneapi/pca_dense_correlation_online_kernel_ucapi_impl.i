@@ -27,7 +27,8 @@
 #include "src/externals/service_ittnotify.h"
 DAAL_ITTNOTIFY_DOMAIN(pca.dense.correlation.online.oneapi);
 
-#include "services/env_detect.h"
+#include "include/services/env_detect.h"
+#include "include/services/internal/sycl/types.h"
 #include "src/algorithms/covariance/oneapi/covariance_oneapi_impl.i"
 #include "pca_dense_correlation_online_kernel_ucapi.h"
 
@@ -102,7 +103,9 @@ services::Status PCACorrelationKernelOnlineUCAPI<algorithmFPType>::copyIfNeeded(
 
     auto & context = services::internal::getDefaultContext();
     services::Status status;
-    context.copy(dstBlock.getBuffer(), 0, srcBlock.getBuffer(), 0, nDataElements, &status);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(dstBlock.getBuffer()), algorithmFPType, nDataElements);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(UniversalBuffer(srcBlock.getBuffer()), algorithmFPType, nDataElements);
+    context.copy(dstBlock.getBuffer(), 0, srcBlock.getBuffer(), 0, nDataElements, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(src)->releaseBlockOfRows(srcBlock));
@@ -124,6 +127,7 @@ Status PCACorrelationKernelOnlineUCAPI<algorithmFPType>::finalize(PartialResult<
     }
 
     data_management::NumericTablePtr correlation = parameter->covariance->getResult()->get(covariance::covariance);
+    DAAL_ASSERT(correlation);
     DAAL_CHECK_STATUS_VAR(_host_impl->computeCorrelationEigenvalues(*correlation, eigenvectors, eigenvalues));
 
     return services::Status();

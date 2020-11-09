@@ -20,6 +20,7 @@
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
 namespace oneapi::dal {
+namespace v1 {
 
 template <typename T>
 class row_accessor : private detail::accessor_base<T, detail::row_block> {
@@ -29,7 +30,6 @@ public:
     using data_t = typename base::data_t;
     static constexpr bool is_readonly = base::is_readonly;
 
-public:
     template <
         typename K,
         typename = std::enable_if_t<is_readonly && (std::is_base_of_v<table, K> ||
@@ -44,7 +44,7 @@ public:
                           detail::host_allocator<data_t>{});
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     array<data_t> pull(sycl::queue& queue,
                        const range& rows = { 0, -1 },
                        const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
@@ -61,7 +61,7 @@ public:
                           detail::host_allocator<data_t>{});
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     T* pull(sycl::queue& queue,
             array<data_t>& block,
             const range& rows = { 0, -1 },
@@ -79,7 +79,7 @@ public:
         base::push(detail::default_host_policy{}, block, { rows });
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename Q = T>
     std::enable_if_t<sizeof(Q) && !is_readonly> push(sycl::queue& queue,
                                                      const array<data_t>& block,
@@ -88,5 +88,9 @@ public:
     }
 #endif
 };
+
+} // namespace v1
+
+using v1::row_accessor;
 
 } // namespace oneapi::dal

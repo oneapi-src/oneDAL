@@ -164,24 +164,12 @@ static HMODULE WINAPI _daal_LoadLibrary(LPTSTR filename)
 
 DAAL_EXPORT HMODULE load_onedal_thread_dll()
 {
-    const HMODULE dll_handle = DAAL_LOAD_DLL("onedal_thread.dll");
-    if (!dll_handle)
-    {
-        printf("Intel oneDAL FATAL ERROR: Cannot load onedal_thread.dll.\n");
-        exit(1);
-    }
-    return dll_handle;
+    return DAAL_LOAD_DLL("onedal_thread.1.dll");
 }
 
 DAAL_EXPORT HMODULE load_onedal_sequential_dll()
 {
-    const HMODULE dll_handle = DAAL_LOAD_DLL("onedal_sequential.dll");
-    if (!dll_handle)
-    {
-        printf("Intel oneDAL FATAL ERROR: Cannot load onedal_sequential.dll.\n");
-        exit(1);
-    }
-    return dll_handle;
+    return DAAL_LOAD_DLL("onedal_sequential.1.dll");
 }
 
 static void load_daal_thr_dll(void)
@@ -196,17 +184,39 @@ static void load_daal_thr_dll(void)
     case daal::services::Environment::MultiThreaded:
     {
         daal_thr_dll_handle = load_onedal_thread_dll();
+        if (daal_thr_dll_handle == NULL)
+        {
+            printf("Intel oneDAL FATAL ERROR: Cannot load onedal_thread.1.dll.\n");
+            exit(1);
+        }
         break;
     }
     case daal::services::Environment::SingleThreaded:
     {
         daal_thr_dll_handle = load_onedal_sequential_dll();
+        if (daal_thr_dll_handle == NULL)
+        {
+            printf("Intel oneDAL FATAL ERROR: Cannot load onedal_sequential.1.dll.\n");
+            exit(1);
+        }
         break;
     }
     default:
     {
         daal_thr_dll_handle = load_onedal_thread_dll();
+        if (daal_thr_dll_handle != NULL)
+        {
+            return;
+        }
+
         daal_thr_dll_handle = load_onedal_sequential_dll();
+        if (daal_thr_dll_handle != NULL)
+        {
+            return;
+        }
+
+        printf("Intel oneDAL FATAL ERROR: Cannot load neither onedal_thread.1.dll nor onedal_sequential.1.dll.\n");
+        exit(1);
     }
     }
 }

@@ -20,18 +20,23 @@
 #include "oneapi/dal/table/common.hpp"
 
 namespace oneapi::dal {
+namespace v1 {
 
 template <typename Object, typename... Args>
 auto read(Args&&... args) {
     return detail::read_dispatch<Object>(std::forward<Args>(args)...);
 }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 template <typename Object, typename... Args>
 auto read(sycl::queue& queue, Args&&... args) {
     return detail::read_dispatch<Object>(detail::data_parallel_policy{ queue },
                                          std::forward<Args>(args)...);
 }
 #endif
+
+} // namespace v1
+
+using v1::read;
 
 } // namespace oneapi::dal

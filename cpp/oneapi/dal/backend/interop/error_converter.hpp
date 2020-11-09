@@ -19,8 +19,6 @@
 #include <daal/include/services/error_handling.h>
 #include <daal/include/services/internal/status_to_error_id.h>
 
-#include "oneapi/dal/exceptions.hpp"
-
 namespace oneapi::dal::backend::interop {
 
 void status_to_exception(const daal::services::Status& s);

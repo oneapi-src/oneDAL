@@ -21,20 +21,31 @@
 namespace oneapi::dal::csv {
 
 namespace detail {
+namespace v1 {
 template <typename Object>
 class read_args_impl;
+} // namespace v1
+
+using v1::read_args_impl;
+
 } // namespace detail
+
+namespace v1 {
 
 template <typename Object = table>
 class read_args;
 
 template <>
-class ONEAPI_DAL_EXPORT read_args<table> : public base {
+class ONEDAL_EXPORT read_args<table> : public base {
 public:
     read_args();
 
 private:
     dal::detail::pimpl<detail::read_args_impl<table>> impl_;
 };
+
+} // namespace v1
+
+using v1::read_args;
 
 } // namespace oneapi::dal::csv

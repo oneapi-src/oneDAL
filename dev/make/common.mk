@@ -95,6 +95,7 @@ DPC.COMPILE = $(if $(COMPILER.$(_OS).dpcpp),$(COMPILER.$(_OS).dpcpp),$(error COM
 
 # Enable additional options to follow ISO C++ standards
 pedantic.opts = $(pedantic.opts.$(_OS).$(COMPILER))
+pedantic.opts.dpcpp = $(pedantic.opts.$(_OS).dpcpp)
 
 # Write target's dependencies to target file
 # Args:
@@ -140,7 +141,8 @@ DPC.LINK.DYNAMIC = $(mkdir)$(call rm,$@)$(dpc.link.dynamic.cmd)
 dpc.link.dynamic.cmd = $(call dpc.link.dynamic.$(_OS),$(secure.opts.link.$(_OS)) $(or $1,$(^.no-mkdeps)) $(LOPT))
 dpc.link.dynamic.lnx = $(if $(link.dynamic.lnx.dpcpp),$(link.dynamic.lnx.dpcpp),$(error link.dynamic.lnx.dpcpp must be defined)) \
                        -shared $(-sGRP) $(patsubst %_link.txt,@%_link.txt,$(patsubst %_link.def,@%_link.def,$1)) $(-eGRP) -o $@
-
+dpc.link.dynamic.win = link $(link.dynamic.win.dpcpp) -WX -nologo -map -dll $(-DEBL) \
+                       $(patsubst %_link.txt,@%_link.txt,$(patsubst %.def,-DEF:%.def,$1)) -out:$@
 
 LINK.DYNAMIC.POST = $(call link.dynamic.post.$(_OS))
 link.dynamic.post.lnx =

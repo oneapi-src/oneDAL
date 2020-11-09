@@ -50,10 +50,10 @@ template <typename algorithmFPType>
 class TreeLevelBuildHelperOneAPI
 {
 public:
-    TreeLevelBuildHelperOneAPI() {}
+    TreeLevelBuildHelperOneAPI() : _nNodeProps(0) {}
     ~TreeLevelBuildHelperOneAPI() {}
 
-    services::Status init(const char * buildOptions);
+    services::Status init(const char * buildOptions, size_t nNodeProps);
 
     services::Status initializeTreeOrder(size_t nRows, services::internal::sycl::UniversalBuffer & treeOrder);
 
@@ -68,7 +68,8 @@ public:
                                           services::internal::sycl::UniversalBuffer & totalSum, size_t localSize, size_t nSubgroupSums);
     services::Status fillOOBRowsListByBlocks(const services::internal::sycl::UniversalBuffer & rowsBuffer, size_t nRows,
                                              const services::internal::sycl::UniversalBuffer & partialPrefixSums,
-                                             services::internal::sycl::UniversalBuffer & oobRowsList, size_t localSize, size_t nSubgroupSums);
+                                             services::internal::sycl::UniversalBuffer & oobRowsList, size_t localSize, size_t nSubgroupSums,
+                                             size_t nOOBRows);
 
     services::Status getOOBRows(const services::internal::sycl::UniversalBuffer & rowsList, size_t nRows, size_t & nOOBRows,
                                 services::internal::sycl::UniversalBuffer & oobRowsList);
@@ -76,11 +77,11 @@ public:
     services::Status getNumOfSplitNodes(const services::internal::sycl::UniversalBuffer & nodeList, size_t nNodes, size_t & nSplitNodes);
 
     services::Status doNodesSplit(const services::internal::sycl::UniversalBuffer & nodeList, size_t nNodes,
-                                  services::internal::sycl::UniversalBuffer & nodeListNew);
+                                  services::internal::sycl::UniversalBuffer & nodeListNew, size_t nNodesNew);
 
     services::Status splitNodeListOnGroupsBySize(const services::internal::sycl::UniversalBuffer & nodeList, size_t nNodes,
-                                                 services::internal::sycl::UniversalBuffer & bigNodesGroups,
-                                                 services::internal::sycl::UniversalBuffer & nodeIndeces);
+                                                 services::internal::sycl::UniversalBuffer & bigNodesGroups, const size_t nGroups,
+                                                 const size_t nGroupProps, services::internal::sycl::UniversalBuffer & nodeIndices);
 
     services::Status doLevelPartition(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & nodeList,
                                       size_t nNodes, services::internal::sycl::UniversalBuffer & treeOrder,
@@ -119,6 +120,7 @@ private:
     const size_t _preferableSubGroup   = 16;  // preferable maximal sub-group size
 
     const size_t _int32max = static_cast<size_t>(services::internal::MaxVal<int32_t>::get());
+    size_t _nNodeProps;
 };
 
 } /* namespace internal */

@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Intel(R) DAAL version information.
+//  Intel(R) oneDAL version information.
 //--
 */
 
@@ -32,6 +32,11 @@
 #define __INTEL_DAAL_STATUS__ 'A'
 
 #define INTEL_DAAL_VERSION (__INTEL_DAAL__ * 10000 + __INTEL_DAAL_MINOR__ * 100 + __INTEL_DAAL_UPDATE__)
+
+#define __INTEL_DAAL_MAJOR_BINARY__ 999
+#define __INTEL_DAAL_MINOR_BINARY__ 999
+
+#define INTEL_DAAL_BINARY_VERSION (__INTEL_DAAL_MAJOR_BINARY__ * 1000 + __INTEL_DAAL_MINOR_BINARY__)
 
 #include "services/base.h"
 
@@ -48,13 +53,13 @@ namespace interface1
 {
 /**
  * @defgroup library_version_info Extracting Version Information
- * \brief Provides information about the version of Intel(R) Data Analytics Acceleration Library.
+ * \brief Provides information about the version of Intel(R) oneAPI Data Analytics Library.
  * @ingroup services
  * @{
  */
 /**
  * <a name="DAAL-CLASS-SERVICES__LIBRARYVERSIONINFO"></a>
- * \brief Provides information about the version of Intel(R) Data Analytics Acceleration Library.
+ * \brief Provides information about the version of Intel(R) oneAPI Data Analytics Library.
  * <!-- \n<a href="DAAL-REF-LIBRARYVERSIONINFO-STRUCTURE">LibraryVersionInfo structure details and Optimization Notice</a> -->
  */
 class DAAL_EXPORT LibraryVersionInfo : public Base

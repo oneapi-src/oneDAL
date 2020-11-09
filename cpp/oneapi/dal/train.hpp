@@ -19,18 +19,23 @@
 #include "oneapi/dal/detail/train_ops.hpp"
 
 namespace oneapi::dal {
+namespace v1 {
 
 template <typename... Args>
 auto train(Args&&... args) {
-    return detail::train_dispatch(std::forward<Args>(args)...);
+    return dal::detail::train_dispatch(std::forward<Args>(args)...);
 }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 template <typename... Args>
 auto train(sycl::queue& queue, Args&&... args) {
-    return detail::train_dispatch(detail::data_parallel_policy{ queue },
-                                  std::forward<Args>(args)...);
+    return dal::detail::train_dispatch(detail::data_parallel_policy{ queue },
+                                       std::forward<Args>(args)...);
 }
 #endif
+
+} // namespace v1
+
+using v1::train;
 
 } // namespace oneapi::dal

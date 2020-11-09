@@ -16,7 +16,7 @@ rem limitations under the License.
 rem ============================================================================
 
 rem  Content:
-rem      Intel(R) Data Analytics Acceleration Library examples list
+rem      Intel(R) oneAPI Data Analytics Library examples list
 rem ============================================================================
 
 set Java_example_list=association_rules\AssocRulesAprioriBatch ^

@@ -19,9 +19,12 @@
 #include "oneapi/dal/table/homogen.hpp"
 
 using namespace oneapi::dal;
+using namespace oneapi;
 using std::int32_t;
 
 TEST(column_accessor_test, can_get_first_column_from_homogen_table) {
+    using oneapi::dal::detail::empty_delete;
+
     float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f };
 
     homogen_table t{ data, 4, 2, empty_delete<const float>() };
@@ -37,6 +40,8 @@ TEST(column_accessor_test, can_get_first_column_from_homogen_table) {
 }
 
 TEST(column_accessor_test, can_get_second_column_from_homogen_table_with_conversion) {
+    using oneapi::dal::detail::empty_delete;
+
     float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f };
 
     homogen_table t{ data, 4, 2, empty_delete<const float>() };
@@ -52,6 +57,8 @@ TEST(column_accessor_test, can_get_second_column_from_homogen_table_with_convers
 }
 
 TEST(column_accessor_test, can_get_first_column_from_homogen_table_with_subset_of_rows) {
+    using oneapi::dal::detail::empty_delete;
+
     float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f };
 
     homogen_table t{ data, 4, 2, empty_delete<const float>() };
@@ -98,4 +105,45 @@ TEST(column_accessor_test, can_get_columns_from_homogen_table_builder) {
             }
         }
     }
+}
+
+TEST(column_accessor_test, can_get_column_values_from_column_major_homogen_table) {
+    float data[] = { 0.f, 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, 9.f, 10.f, 11.f };
+
+    auto t = homogen_table::wrap(data, 4, 3, data_layout::column_major);
+    column_accessor<const float> acc{ t };
+    auto col = acc.pull(1, { 1, 3 });
+
+    ASSERT_EQ(col.get_count(), 2);
+    ASSERT_EQ(col.get_data(), &data[5]);
+
+    ASSERT_FLOAT_EQ(col[0], 5.f);
+    ASSERT_FLOAT_EQ(col[1], 6.f);
+}
+
+TEST(column_accessor_test, can_get_column_values_from_column_major_homogen_table_with_conversion) {
+    float data[] = { 0.f, 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, 9.f, 10.f, 11.f };
+
+    auto t = homogen_table::wrap(data, 4, 3, data_layout::column_major);
+    column_accessor<const std::int32_t> acc{ t };
+    auto col = acc.pull(1, { 1, 3 });
+
+    ASSERT_EQ(col.get_count(), 2);
+
+    ASSERT_EQ(col[0], 5);
+    ASSERT_EQ(col[1], 6);
+}
+
+TEST(column_accessor_bad_arg_test, invalid_range) {
+    detail::homogen_table_builder b;
+    b.reset(array<float>::zeros(3 * 2), 3, 2);
+    column_accessor<float> acc{ b };
+
+    ASSERT_THROW(acc.pull(0, { 1, 4 }), dal::range_error);
+    ASSERT_THROW(acc.pull(2, { 1, 2 }), dal::range_error);
+
+    auto column_data = acc.pull(0, { 1, 2 });
+    ASSERT_THROW(acc.push(column_data, 0, { 0, 2 }), dal::range_error);
+    ASSERT_THROW(acc.push(column_data, 0, { 3, 4 }), dal::range_error);
+    ASSERT_THROW(acc.push(column_data, 2, { 1, 2 }), dal::range_error);
 }

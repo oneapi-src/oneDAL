@@ -22,29 +22,54 @@
 namespace oneapi::dal::knn {
 
 namespace task {
+namespace v1 {
 struct classification {};
 using by_default = classification;
+} // namespace v1
+
+using v1::classification;
+using v1::by_default;
+
 } // namespace task
 
-namespace detail {
-struct tag {};
-
-template <typename Task = task::by_default>
-class descriptor_impl;
-
-class model_impl;
-} // namespace detail
-
 namespace method {
+namespace v1 {
 struct kd_tree {};
 struct brute_force {};
 using by_default = brute_force;
+} // namespace v1
+
+using v1::kd_tree;
+using v1::brute_force;
+using v1::by_default;
+
 } // namespace method
 
+namespace detail {
+namespace v1 {
+struct descriptor_tag {};
+template <typename Task>
+class descriptor_impl;
+
+template <typename Task>
+class model_impl;
+
+template <typename Float>
+constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
+
+template <typename Method>
+constexpr bool is_valid_method_v =
+    dal::detail::is_one_of_v<Method, method::kd_tree, method::brute_force>;
+
+template <typename Task>
+constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::classification>;
+
 template <typename Task = task::by_default>
-class ONEAPI_DAL_EXPORT descriptor_base : public base {
+class descriptor_base : public base {
+    static_assert(is_valid_task_v<Task>);
+
 public:
-    using tag_t = detail::tag;
+    using tag_t = descriptor_tag;
     using float_t = float;
     using method_t = method::by_default;
     using task_t = Task;
@@ -58,15 +83,36 @@ protected:
     void set_class_count_impl(std::int64_t value);
     void set_neighbor_count_impl(std::int64_t value);
 
-    dal::detail::pimpl<detail::descriptor_impl<task_t>> impl_;
+private:
+    dal::detail::pimpl<descriptor_impl<Task>> impl_;
 };
 
-template <typename Float = descriptor_base<task::by_default>::float_t,
-          typename Method = descriptor_base<task::by_default>::method_t,
-          typename Task = task::by_default>
-class descriptor : public descriptor_base<Task> {
+} // namespace v1
+
+using v1::descriptor_tag;
+using v1::descriptor_impl;
+using v1::model_impl;
+using v1::descriptor_base;
+
+using v1::is_valid_float_v;
+using v1::is_valid_method_v;
+using v1::is_valid_task_v;
+
+} // namespace detail
+
+namespace v1 {
+
+template <typename Float = detail::descriptor_base<>::float_t,
+          typename Method = detail::descriptor_base<>::method_t,
+          typename Task = detail::descriptor_base<>::task_t>
+class descriptor : public detail::descriptor_base<Task> {
+    static_assert(detail::is_valid_float_v<Float>);
+    static_assert(detail::is_valid_method_v<Method>);
+    static_assert(detail::is_valid_task_v<Task>);
+
+    using base_t = detail::descriptor_base<Task>;
+
 public:
-    using tag_t = detail::tag;
     using float_t = Float;
     using method_t = Method;
     using task_t = Task;
@@ -77,26 +123,32 @@ public:
     }
 
     auto& set_class_count(std::int64_t value) {
-        descriptor_base<task_t>::set_class_count_impl(value);
+        base_t::set_class_count_impl(value);
         return *this;
     }
 
     auto& set_neighbor_count(std::int64_t value) {
-        descriptor_base<task_t>::set_neighbor_count_impl(value);
+        base_t::set_neighbor_count_impl(value);
         return *this;
     }
 };
 
 template <typename Task = task::by_default>
-class ONEAPI_DAL_EXPORT model : public base {
+class model : public base {
+    static_assert(detail::is_valid_task_v<Task>);
     friend dal::detail::pimpl_accessor;
 
 public:
     model();
 
 private:
-    explicit model(const std::shared_ptr<detail::model_impl>& impl);
-    dal::detail::pimpl<detail::model_impl> impl_;
+    explicit model(const std::shared_ptr<detail::model_impl<Task>>& impl);
+    dal::detail::pimpl<detail::model_impl<Task>> impl_;
 };
+
+} // namespace v1
+
+using v1::descriptor;
+using v1::model;
 
 } // namespace oneapi::dal::knn

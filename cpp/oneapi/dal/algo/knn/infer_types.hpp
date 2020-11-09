@@ -21,41 +21,59 @@
 namespace oneapi::dal::knn {
 
 namespace detail {
-template <typename Task = task::by_default>
+namespace v1 {
+template <typename Task>
 class infer_input_impl;
 
-template <typename Task = task::by_default>
+template <typename Task>
 class infer_result_impl;
+} // namespace v1
+
+using v1::infer_input_impl;
+using v1::infer_result_impl;
+
 } // namespace detail
 
+namespace v1 {
+
 template <typename Task = task::by_default>
-class ONEAPI_DAL_EXPORT infer_input : public base {
+class infer_input : public base {
+    static_assert(detail::is_valid_task_v<Task>);
+
 public:
+    using task_t = Task;
+
     infer_input(const table& data, const model<Task>& model);
 
     const table& get_data() const;
-    const model<Task>& get_model() const;
 
     auto& set_data(const table& data) {
         set_data_impl(data);
         return *this;
     }
 
+    const model<Task>& get_model() const;
+
     auto& set_model(const model<Task>& m) {
         set_model_impl(m);
         return *this;
     }
 
-private:
+protected:
     void set_data_impl(const table& data);
     void set_model_impl(const model<Task>& model);
 
+private:
     dal::detail::pimpl<detail::infer_input_impl<Task>> impl_;
 };
 
 template <typename Task = task::by_default>
-class ONEAPI_DAL_EXPORT infer_result {
+class infer_result {
+    static_assert(detail::is_valid_task_v<Task>);
+
 public:
+    using task_t = Task;
+
     infer_result();
 
     const table& get_labels() const;
@@ -65,10 +83,17 @@ public:
         return *this;
     }
 
-private:
+protected:
     void set_labels_impl(const table&);
     const table& get_labels_impl() const;
+
+private:
     dal::detail::pimpl<detail::infer_result_impl<Task>> impl_;
 };
+
+} // namespace v1
+
+using v1::infer_input;
+using v1::infer_result;
 
 } // namespace oneapi::dal::knn

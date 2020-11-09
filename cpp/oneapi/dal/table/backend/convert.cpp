@@ -39,7 +39,7 @@ void convert_vector(const detail::default_host_policy& policy,
     interop::daal_convert(src, dst, src_type, dst_type, src_stride, dst_stride, element_count);
 }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 
 void convert_vector(const detail::data_parallel_policy& policy,
                     const void* src,

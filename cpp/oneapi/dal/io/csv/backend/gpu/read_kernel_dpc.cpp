@@ -14,12 +14,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef ONEAPI_DAL_DATA_CONVERSION
+#ifndef ONEDAL_DATA_CONVERSION
 
-#define ONEAPI_DAL_DATA_CONVERSION
+#define ONEDAL_DATA_CONVERSION
 #include "daal/include/data_management/data_source/csv_feature_manager.h"
 #include "daal/include/data_management/data_source/file_data_source.h"
-#undef ONEAPI_DAL_DATA_CONVERSION
+#undef ONEDAL_DATA_CONVERSION
 
 #endif
 
@@ -38,7 +38,7 @@ namespace daal_dm = daal::data_management;
 
 template <>
 table read_kernel_gpu<table>::operator()(const dal::backend::context_gpu& ctx,
-                                         const data_source& ds,
+                                         const detail::data_source_base& ds,
                                          const read_args<table>& args) const {
     auto& queue = ctx.get_queue();
 

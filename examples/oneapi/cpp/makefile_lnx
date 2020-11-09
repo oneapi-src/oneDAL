@@ -23,7 +23,7 @@ help:
 	@echo "lib is alias for libintel64, so is alias for sointel64"
 	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
 	@echo
-	@echo "name              - example name. Please see daal.lst file"
+	@echo "name              - example name. Please see onedal.lst file"
 	@echo
 	@echo "compiler_name     - can be intel, gnu, clang or icx. Default value is intel."
 	@echo
@@ -109,9 +109,6 @@ COPTS := -std=c++17 \
          -Wall \
          -Wextra \
          -Werror \
-         -Werror=return-type \
-         -Werror=uninitialized \
-         -Werror=unknown-pragmas \
          -Wno-unused-parameter \
          -I./source \
          -I"$(DAALROOT)/include"

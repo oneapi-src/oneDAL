@@ -21,27 +21,38 @@
 namespace oneapi::dal::decision_forest {
 
 namespace detail {
-template <typename Task = task::by_default>
+namespace v1 {
+template <typename Task>
 class infer_input_impl;
 
-template <typename Task = task::by_default>
+template <typename Task>
 class infer_result_impl;
+} // namespace v1
+
+using v1::infer_input_impl;
+using v1::infer_result_impl;
+
 } // namespace detail
+
+namespace v1 {
 
 template <typename Task = task::by_default>
 class infer_input : public base {
+    static_assert(detail::is_valid_task_v<Task>);
+
 public:
-    using pimpl = dal::detail::pimpl<detail::infer_input_impl<Task>>;
+    using task_t = Task;
+
     infer_input(const model<Task>& trained_model, const table& data);
 
-    model<Task> get_model() const;
+    const model<Task>& get_model() const;
 
     auto& set_model(const model<Task>& value) {
         set_model_impl(value);
         return *this;
     }
 
-    table get_data() const;
+    const table& get_data() const;
 
     auto& set_data(const table& value) {
         set_data_impl(value);
@@ -52,19 +63,19 @@ private:
     void set_model_impl(const model<Task>& value);
     void set_data_impl(const table& value);
 
-    pimpl impl_;
+    dal::detail::pimpl<detail::infer_input_impl<Task>> impl_;
 };
 
 template <typename Task = task::by_default>
 class infer_result : public base {
+    static_assert(detail::is_valid_task_v<Task>);
+
 public:
-    using pimpl = dal::detail::pimpl<detail::infer_result_impl<Task>>;
-    template <typename T>
-    using is_classification_t =
-        std::enable_if_t<std::is_same_v<T, std::decay_t<task::classification>>>;
+    using task_t = Task;
+
     infer_result();
 
-    table get_labels() const;
+    const table& get_labels() const;
 
     auto& set_labels(const table& value) {
         set_labels_impl(value);
@@ -72,23 +83,28 @@ public:
     }
 
     /* classification specific methods */
-    template <typename T = Task, typename = is_classification_t<T>>
-    table get_probabilities() const {
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+    const table& get_probabilities() const {
         return get_probabilities_impl();
     }
 
-    template <typename T = Task, typename = is_classification_t<T>>
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
     auto& set_probabilities(const table& value) {
         set_probabilities_impl(value);
         return *this;
     }
 
 private:
-    table get_probabilities_impl() const;
     void set_labels_impl(const table& value);
+    const table& get_probabilities_impl() const;
     void set_probabilities_impl(const table& value);
 
-    pimpl impl_;
+    dal::detail::pimpl<detail::infer_result_impl<Task>> impl_;
 };
+
+} // namespace v1
+
+using v1::infer_input;
+using v1::infer_result;
 
 } // namespace oneapi::dal::decision_forest

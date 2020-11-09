@@ -30,7 +30,7 @@
 // Disable clang-format as it dramatically
 // affects redability of macro definitions
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 #define DECLARE_TEST_POLICY(policy_name) oneapi::dal::test::device_test_policy policy_name
 #else
 #define DECLARE_TEST_POLICY(policy_name) oneapi::dal::test::host_test_policy policy_name
@@ -63,14 +63,16 @@ inline auto compute(host_test_policy& policy, Args&&... args) {
     return dal::compute(std::forward<Args>(args)...);
 }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 class test_queue_provider {
 public:
     static test_queue_provider& get_instance();
 
     const sycl::queue& get_global_queue() const {
         if (!queue_) {
-            throw internal_error{ "Test queue provider is not initialized" };
+            throw internal_error{
+                dal::detail::error_messages::test_queue_provider_is_not_initialized()
+            };
         }
         return *queue_;
     }

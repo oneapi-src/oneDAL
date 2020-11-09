@@ -31,7 +31,7 @@ auto vertex_similarity_dispatch_by_input(const Descriptor &desc, Head &&head, Ta
     using input_t = typename ops_t::input_t;
 
     auto input = input_t{ std::forward<Head>(head), std::forward<Tail>(tail)... };
-    return ops_t()(oneapi::dal::detail::host_policy{}, desc, input);
+    return ops_t()(dal::detail::host_policy{}, desc, input);
 }
 
 template <typename Head, typename... Tail>

@@ -20,10 +20,12 @@
 #include "oneapi/dal/backend/dispatcher_dpc.hpp"
 
 namespace oneapi::dal::knn::detail {
-using oneapi::dal::detail::data_parallel_policy;
+namespace v1 {
+
+using dal::detail::data_parallel_policy;
 
 template <typename Float, typename Method, typename Task>
-struct ONEAPI_DAL_EXPORT train_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
+struct train_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
     train_result<Task> operator()(const data_parallel_policy& ctx,
                                   const descriptor_base<Task>& params,
                                   const train_input<Task>& input) const {
@@ -35,11 +37,12 @@ struct ONEAPI_DAL_EXPORT train_ops_dispatcher<data_parallel_policy, Float, Metho
 };
 
 #define INSTANTIATE(F, M, T) \
-    template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<data_parallel_policy, F, M, T>;
+    template struct ONEDAL_EXPORT train_ops_dispatcher<data_parallel_policy, F, M, T>;
 
 INSTANTIATE(float, method::kd_tree, task::classification)
 INSTANTIATE(double, method::kd_tree, task::classification)
 INSTANTIATE(float, method::brute_force, task::classification)
 INSTANTIATE(double, method::brute_force, task::classification)
 
+} // namespace v1
 } // namespace oneapi::dal::knn::detail
