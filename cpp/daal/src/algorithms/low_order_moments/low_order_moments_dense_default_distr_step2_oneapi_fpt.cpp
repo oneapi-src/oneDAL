@@ -1,4 +1,4 @@
-/* file: low_order_moments_dense_default_distr_step2_fpt_cpu.cpp */
+/* file: low_order_moments_dense_default_distr_step2_oneapi_fpt.cpp*/
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
