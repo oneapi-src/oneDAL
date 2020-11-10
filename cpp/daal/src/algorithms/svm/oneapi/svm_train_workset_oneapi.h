@@ -60,8 +60,7 @@ struct TaskWorkingSet
 
         auto & deviceInfo = context.getInfoDevice();
 
-        // const size_t maxWS = deviceInfo.maxWorkGroupSize;
-        const size_t maxWS = 256;
+        const size_t maxWS = deviceInfo.maxWorkGroupSize;
 
         _nWS       = utils::internal::min(utils::internal::maxpow2(_nVectors), utils::internal::maxpow2(maxWS));
         _nSelected = 0;
