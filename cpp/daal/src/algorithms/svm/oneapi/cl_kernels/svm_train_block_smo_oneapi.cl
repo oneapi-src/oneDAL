@@ -40,7 +40,7 @@ DECLARE_SOURCE_DAAL(
     }
 
     typedef struct {
-        uint index;
+        int index;
         algorithmFPType value;
     } KeyValue;
 
@@ -157,6 +157,7 @@ DECLARE_SOURCE_DAAL(
                     resinfo[1] = localDiff;
                 }
             }
+
             barrier(CLK_LOCAL_MEM_FENCE);
             if (localDiff < localEps)
             {

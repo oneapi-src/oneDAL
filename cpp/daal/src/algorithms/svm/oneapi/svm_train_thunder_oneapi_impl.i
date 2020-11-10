@@ -227,8 +227,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, thunder>::compute(const Numeric
     SVMCacheOneAPIPtr<algorithmFPType> cachePtr = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, nWS, nVectors, xTable, kernel, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    size_t iter      = 0;
-    size_t localiter = 0;
+    size_t iter = 0;
     for (; iter < maxIterations; iter++)
     {
         if (iter != 0)
@@ -251,7 +250,6 @@ services::Status SVMTrainOneAPI<algorithmFPType, thunder>::compute(const Numeric
             auto resinfoHostPtr = resinfoBuff.toHost(ReadWriteMode::readOnly, status);
             DAAL_CHECK_STATUS_VAR(status);
             auto resinfoHost = resinfoHostPtr.get();
-            localiter        = size_t(resinfoHost[0]);
             diff             = resinfoHost[1];
         }
 

@@ -77,7 +77,6 @@ public:
         DAAL_CHECK_STATUS(status, setSVIndices(nSV, model));
 
         DAAL_CHECK_STATUS(status, setSVDense(model, xTable, nSV));
-        printf("[result] nSV: %lu\n", nSV);
 
         /* Calculate bias and write it into model */
         algorithmFPType bias;
@@ -226,8 +225,6 @@ protected:
 
             bias = -0.5 * (ub + lb);
         }
-        printf("[result] bias: %lf\n", bias);
-
         return status;
     }
 
