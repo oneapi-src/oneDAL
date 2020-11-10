@@ -24,12 +24,53 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::detail {
+namespace v1 {
 
 template <typename T, typename... Args>
-struct is_one_of : public std::disjunction<std::is_same<T, Args>...> {};
+using is_one_of = std::disjunction<std::is_same<T, Args>...>;
 
 template <typename T, typename... Args>
 constexpr bool is_one_of_v = is_one_of<T, Args...>::value;
+
+template <class T, class U = void>
+struct enable_if_type {
+    using type = U;
+};
+
+template <typename T>
+using enable_if_type_t = typename enable_if_type<T>::type;
+
+template <typename T, typename Enable = void>
+struct is_tagged : std::false_type {};
+
+template <typename T>
+struct is_tagged<T, enable_if_type_t<typename T::tag_t>> : std::true_type {};
+
+template <typename T>
+constexpr bool is_tagged_v = is_tagged<T>::value;
+
+template <typename T, bool Enable = is_tagged_v<T>>
+struct is_tag_one_of_impl {};
+
+template <typename T>
+struct is_tag_one_of_impl<T, true> {
+    template <typename... Tags>
+    static constexpr bool value = is_one_of_v<typename T::tag_t, Tags...>;
+};
+
+template <typename T>
+struct is_tag_one_of_impl<T, false> {
+    template <typename... Tags>
+    static constexpr bool value = false;
+};
+
+template <typename T, typename... Tags>
+struct is_tag_one_of {
+    static constexpr bool value = is_tag_one_of_impl<T>::template value<Tags...>;
+};
+
+template <typename T, typename... Tags>
+constexpr bool is_tag_one_of_v = is_tag_one_of<T, Tags...>::value;
 
 template <typename T>
 using shared = std::shared_ptr<T>;
@@ -190,5 +231,30 @@ inline Out integral_cast(const In& value) {
     }
     return static_cast<Out>(value);
 }
+
+} // namespace v1
+
+using v1::is_one_of;
+using v1::is_one_of_v;
+using v1::is_tagged;
+using v1::is_tagged_v;
+using v1::is_tag_one_of;
+using v1::is_tag_one_of_v;
+
+using v1::shared;
+using v1::unique;
+using v1::pimpl;
+using v1::pimpl_accessor;
+using v1::limits;
+
+using v1::get_impl;
+using v1::cast_impl;
+using v1::make_private;
+using v1::make_data_type;
+using v1::get_data_type_size;
+using v1::is_floating_point;
+using v1::check_sum_overflow;
+using v1::check_mul_overflow;
+using v1::integral_cast;
 
 } // namespace oneapi::dal::detail

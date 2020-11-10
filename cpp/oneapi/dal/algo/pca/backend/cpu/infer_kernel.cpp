@@ -28,7 +28,7 @@ using dal::backend::context_cpu;
 using model_t = model<task::dim_reduction>;
 using input_t = infer_input<task::dim_reduction>;
 using result_t = infer_result<task::dim_reduction>;
-using descriptor_t = descriptor_base<task::dim_reduction>;
+using descriptor_t = detail::descriptor_base<task::dim_reduction>;
 
 namespace daal_pca_tr = daal::algorithms::pca::transform;
 namespace interop = dal::backend::interop;
@@ -49,6 +49,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     auto arr_data = row_accessor<const Float>{ data }.pull();
     auto arr_eigvec = row_accessor<const Float>{ model.get_eigenvectors() }.pull();
 
+    dal::detail::check_mul_overflow(row_count, component_count);
     auto arr_result = array<Float>::empty(row_count * component_count);
 
     // TODO: read-only access performed with deep copy of data since daal numeric tables are mutable.

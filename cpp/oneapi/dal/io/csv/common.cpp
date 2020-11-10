@@ -17,16 +17,15 @@
 #include "oneapi/dal/io/csv/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
-namespace oneapi::dal::csv {
+namespace oneapi::dal::csv::detail {
+namespace v1 {
 
-class detail::data_source_impl : public base {
+class data_source_impl : public base {
 public:
     char delimiter = ',';
     bool parse_header = false;
     std::string file_name = "";
 };
-
-using detail::data_source_impl;
 
 data_source_base::data_source_base(const char* file_name) : impl_(new data_source_impl{}) {
     set_file_name_impl(file_name);
@@ -56,4 +55,5 @@ void data_source_base::set_file_name_impl(const char* value) {
     impl_->file_name = std::string(value);
 }
 
-} // namespace oneapi::dal::csv
+} // namespace v1
+} // namespace oneapi::dal::csv::detail

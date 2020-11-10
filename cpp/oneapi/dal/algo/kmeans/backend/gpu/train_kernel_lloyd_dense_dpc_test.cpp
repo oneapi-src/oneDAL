@@ -24,6 +24,42 @@
 
 using namespace oneapi::dal;
 
+TEST(kmeans_lloyd_dense_gpu, test_checks_for_train_inputs_dont_exceed_int32) {
+    auto selector = sycl::gpu_selector();
+    auto queue = sycl::queue(selector);
+
+    constexpr std::int64_t row_count = 8;
+    constexpr std::int64_t column_count = 2;
+    constexpr std::int64_t cluster_count = 2;
+
+    const float data_host[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
+                                -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
+    auto data = sycl::malloc_shared<float>(row_count * column_count, queue);
+    ASSERT_NE(data, nullptr);
+    std::memcpy(data, data_host, sizeof(float) * row_count * column_count);
+    const auto data_table = homogen_table::wrap(queue, data, row_count, column_count);
+
+    const float initial_centroids_host[] = { 0.0, 0.0, 0.0, 0.0 };
+    auto initial_centroids = sycl::malloc_shared<float>(cluster_count * column_count, queue);
+    ASSERT_NE(initial_centroids, nullptr);
+    std::memcpy(initial_centroids,
+                initial_centroids_host,
+                sizeof(float) * cluster_count * column_count);
+    const auto initial_centroids_table =
+        homogen_table::wrap(queue, initial_centroids, cluster_count, column_count);
+
+    const auto kmeans_desc = kmeans::descriptor<>()
+                                 .set_cluster_count(cluster_count)
+                                 .set_max_iteration_count(0xFFFFFFFF)
+                                 .set_accuracy_threshold(0.001);
+
+    ASSERT_THROW(train(queue, kmeans_desc, data_table, initial_centroids_table), domain_error);
+    // no suitable way to test internal check for cluster count exceeds int32
+
+    sycl::free(data, queue);
+    sycl::free(initial_centroids, queue);
+}
+
 TEST(kmeans_lloyd_dense_gpu, train_results) {
     auto selector = sycl::gpu_selector();
     auto queue = sycl::queue(selector);
@@ -35,16 +71,16 @@ TEST(kmeans_lloyd_dense_gpu, train_results) {
     const float data_host[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
                                 -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
     auto data = sycl::malloc_shared<float>(row_count * column_count, queue);
-    queue.memcpy(data, data_host, sizeof(float) * row_count * column_count).wait();
+    ASSERT_NE(data, nullptr);
+    std::memcpy(data, data_host, sizeof(float) * row_count * column_count);
     const auto data_table = homogen_table::wrap(queue, data, row_count, column_count);
 
     const float initial_centroids_host[] = { 0.0, 0.0, 0.0, 0.0 };
     auto initial_centroids = sycl::malloc_shared<float>(cluster_count * column_count, queue);
-    queue
-        .memcpy(initial_centroids,
+    ASSERT_NE(initial_centroids, nullptr);
+    std::memcpy(initial_centroids,
                 initial_centroids_host,
-                sizeof(float) * cluster_count * column_count)
-        .wait();
+                sizeof(float) * cluster_count * column_count);
     const auto initial_centroids_table = homogen_table{ queue,
                                                         initial_centroids,
                                                         cluster_count,
@@ -74,6 +110,7 @@ TEST(kmeans_lloyd_dense_gpu, train_results) {
     }
 
     sycl::free(data, queue);
+    sycl::free(initial_centroids, queue);
 }
 
 TEST(kmeans_lloyd_dense_gpu, infer_results) {
@@ -87,16 +124,16 @@ TEST(kmeans_lloyd_dense_gpu, infer_results) {
     const float data_host[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
                                 -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
     auto data = sycl::malloc_shared<float>(row_count * column_count, queue);
-    queue.memcpy(data, data_host, sizeof(float) * row_count * column_count).wait();
+    ASSERT_NE(data, nullptr);
+    std::memcpy(data, data_host, sizeof(float) * row_count * column_count);
     const auto data_table = homogen_table::wrap(queue, data, row_count, column_count);
 
     const float initial_centroids_host[] = { 0.0, 0.0, 0.0, 0.0 };
     auto initial_centroids = sycl::malloc_shared<float>(cluster_count * column_count, queue);
-    queue
-        .memcpy(initial_centroids,
+    ASSERT_NE(initial_centroids, nullptr);
+    std::memcpy(initial_centroids,
                 initial_centroids_host,
-                sizeof(float) * cluster_count * column_count)
-        .wait();
+                sizeof(float) * cluster_count * column_count);
     const auto initial_centroids_table = homogen_table{ queue,
                                                         initial_centroids,
                                                         cluster_count,
@@ -113,8 +150,8 @@ TEST(kmeans_lloyd_dense_gpu, infer_results) {
     const float data_infer_host[] = { 1.0, 1.0,  0.0, 1.0,  1.0,  0.0,  2.0, 2.0,  7.0,
                                       0.0, -1.0, 0.0, -5.0, -5.0, -5.0, 0.0, -2.0, 1.0 };
     auto data_infer = sycl::malloc_shared<float>(infer_row_count * column_count, queue);
-    queue.memcpy(data_infer, data_infer_host, sizeof(float) * infer_row_count * column_count)
-        .wait();
+    ASSERT_NE(data_infer, nullptr);
+    std::memcpy(data_infer, data_infer_host, sizeof(float) * infer_row_count * column_count);
     const auto data_infer_table = homogen_table{ queue,
                                                  data_infer,
                                                  infer_row_count,
@@ -133,4 +170,5 @@ TEST(kmeans_lloyd_dense_gpu, infer_results) {
 
     sycl::free(data, queue);
     sycl::free(data_infer, queue);
+    sycl::free(initial_centroids, queue);
 }

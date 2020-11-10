@@ -29,7 +29,7 @@ using dal::backend::context_gpu;
 using model_t = model<task::dim_reduction>;
 using input_t = infer_input<task::dim_reduction>;
 using result_t = infer_result<task::dim_reduction>;
-using descriptor_t = descriptor_base<task::dim_reduction>;
+using descriptor_t = detail::descriptor_base<task::dim_reduction>;
 
 namespace daal_pca_tr = daal::algorithms::pca::transform;
 namespace daal_pca_tr_oneapi = daal::algorithms::pca::transform::oneapi;
@@ -54,6 +54,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     auto arr_data = row_accessor<const Float>{ data }.pull(queue);
     auto arr_eigvec = row_accessor<const Float>{ model.get_eigenvectors() }.pull(queue);
 
+    dal::detail::check_mul_overflow(row_count, component_count);
     auto arr_result = array<Float>::empty(queue, row_count * component_count);
 
     // TODO: read-only access performed with deep copy of data since daal numeric tables are mutable.
@@ -86,7 +87,7 @@ template <typename Float>
 struct infer_kernel_gpu<Float, task::dim_reduction> {
     infer_result<task::dim_reduction> operator()(
         const dal::backend::context_gpu& ctx,
-        const descriptor_base<task::dim_reduction>& desc,
+        const detail::descriptor_base<task::dim_reduction>& desc,
         const infer_input<task::dim_reduction>& input) const {
         return infer<Float>(ctx, desc, input);
     }

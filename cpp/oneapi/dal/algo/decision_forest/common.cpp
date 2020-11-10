@@ -19,6 +19,8 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::decision_forest {
+namespace detail {
+namespace v1 {
 
 inline void check_domain_cond(bool value, const char* description) {
     if (!(value))
@@ -26,7 +28,7 @@ inline void check_domain_cond(bool value, const char* description) {
 }
 
 template <typename Task>
-class detail::v1::descriptor_impl : public base {
+class descriptor_impl : public base {
 public:
     explicit descriptor_impl() {
         if constexpr (std::is_same_v<Task, task::classification>) {
@@ -66,11 +68,6 @@ public:
     variable_importance_mode variable_importance_mode_value = variable_importance_mode::none;
     voting_mode voting_mode_value = voting_mode::weighted;
 };
-
-using detail::v1::descriptor_impl;
-using detail::v1::model_impl;
-
-namespace v1 {
 
 template <typename Task>
 descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
@@ -280,6 +277,16 @@ void descriptor_base<Task>::set_voting_mode_impl(voting_mode value) {
     impl_->voting_mode_value = value;
 }
 
+template class ONEDAL_EXPORT descriptor_base<task::classification>;
+template class ONEDAL_EXPORT descriptor_base<task::regression>;
+
+} // namespace v1
+} // namespace detail
+
+namespace v1 {
+
+using detail::v1::model_impl;
+
 template <typename Task>
 model<Task>::model() : impl_(new model_impl<Task>{}) {}
 
@@ -296,8 +303,6 @@ std::int64_t model<Task>::get_class_count_impl() const {
     return impl_->class_count;
 }
 
-template class ONEDAL_EXPORT descriptor_base<task::classification>;
-template class ONEDAL_EXPORT descriptor_base<task::regression>;
 template class ONEDAL_EXPORT model<task::classification>;
 template class ONEDAL_EXPORT model<task::regression>;
 

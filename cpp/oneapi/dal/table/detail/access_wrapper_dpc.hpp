@@ -23,6 +23,7 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::detail {
+namespace v1 {
 
 template <typename T>
 class access_wrapper_impl_dpc {
@@ -95,6 +96,11 @@ private:
 
 template <typename T>
 using access_wrapper_dpc = access_iface_wrapper<access_iface_dpc, access_wrapper_impl_dpc<T>>;
+
+} // namespace v1
+
+using v1::access_wrapper_impl_dpc;
+using v1::access_wrapper_dpc;
 
 } // namespace oneapi::dal::detail
 

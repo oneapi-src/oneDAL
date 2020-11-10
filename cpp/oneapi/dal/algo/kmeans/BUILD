@@ -16,6 +16,17 @@ dal_module(
 )
 
 dal_test_suite(
+    name = "common_tests",
+    dpc = False,
+    srcs = glob([
+        "common_*_test.cpp",
+    ]),
+    dal_deps = [
+        ":kmeans",
+    ],
+)
+
+dal_test_suite(
     name = "cpu_tests",
     dpc = False,
     srcs = glob([
@@ -41,6 +52,7 @@ dal_test_suite(
 dal_test_suite(
     name = "tests",
     host_tests = [
+        ":common_tests",
         ":cpu_tests",
     ],
     dpc_tests = [

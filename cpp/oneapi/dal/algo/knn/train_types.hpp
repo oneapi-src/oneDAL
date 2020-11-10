@@ -21,41 +21,59 @@
 namespace oneapi::dal::knn {
 
 namespace detail {
-template <typename Task = task::by_default>
+namespace v1 {
+template <typename Task>
 class train_input_impl;
 
-template <typename Task = task::by_default>
+template <typename Task>
 class train_result_impl;
+} // namespace v1
+
+using v1::train_input_impl;
+using v1::train_result_impl;
+
 } // namespace detail
 
+namespace v1 {
+
 template <typename Task = task::by_default>
-class ONEDAL_EXPORT train_input : public base {
+class train_input : public base {
+    static_assert(detail::is_valid_task_v<Task>);
+
 public:
+    using task_t = Task;
+
     train_input(const table& data, const table& labels);
 
     const table& get_data() const;
-    const table& get_labels() const;
 
     auto& set_data(const table& data) {
         set_data_impl(data);
         return *this;
     }
 
+    const table& get_labels() const;
+
     auto& set_labels(const table& labels) {
         set_data_impl(labels);
         return *this;
     }
 
-private:
+protected:
     void set_data_impl(const table& data);
     void set_labels_impl(const table& labels);
 
+private:
     dal::detail::pimpl<detail::train_input_impl<Task>> impl_;
 };
 
 template <typename Task = task::by_default>
-class ONEDAL_EXPORT train_result {
+class train_result {
+    static_assert(detail::is_valid_task_v<Task>);
+
 public:
+    using task_t = Task;
+
     train_result();
 
     const model<Task>& get_model() const;
@@ -65,9 +83,16 @@ public:
         return *this;
     }
 
-private:
+protected:
     void set_model_impl(const model<Task>&);
+
+private:
     dal::detail::pimpl<detail::train_result_impl<Task>> impl_;
 };
+
+} // namespace v1
+
+using v1::train_input;
+using v1::train_result;
 
 } // namespace oneapi::dal::knn

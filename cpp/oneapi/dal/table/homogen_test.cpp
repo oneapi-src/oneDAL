@@ -15,9 +15,11 @@
 *******************************************************************************/
 
 #include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/table/backend/homogen_table_impl.hpp"
 #include "gtest/gtest.h"
 
 using namespace oneapi::dal;
+using namespace oneapi;
 
 TEST(homogen_table_test, can_construct_empty_table) {
     homogen_table t;
@@ -67,7 +69,7 @@ TEST(homogen_table_test, can_set_custom_implementation) {
         table_metadata m;
     };
 
-    ASSERT_TRUE(is_homogen_table_impl_v<homogen_table_impl>);
+    ASSERT_TRUE(detail::is_homogen_table_impl_v<homogen_table_impl>);
 
     homogen_table t{ homogen_table_impl{} };
     ASSERT_TRUE(t.has_data());
@@ -223,4 +225,13 @@ TEST(homogen_table_test, can_upcast_table) {
     ASSERT_EQ(2, t.get_column_count());
     ASSERT_EQ(data_type::float32, t.get_metadata().get_data_type(0));
     ASSERT_EQ(t.get_kind(), homogen_table::kind());
+}
+
+TEST(homogen_table_bad_arg_test, invalid_constructor) {
+    float data_float[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f };
+
+    ASSERT_NO_THROW(homogen_table::wrap(data_float, 3, 2, data_layout::row_major));
+    ASSERT_THROW(homogen_table::wrap(data_float, -1, 2, data_layout::row_major), dal::domain_error);
+    ASSERT_THROW(homogen_table::wrap(data_float, 3, 0, data_layout::row_major), dal::domain_error);
+    ASSERT_THROW(homogen_table::wrap(data_float, 3, 2, data_layout::unknown), dal::domain_error);
 }

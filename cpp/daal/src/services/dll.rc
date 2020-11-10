@@ -21,19 +21,19 @@
 
 #if   defined(_DAAL_JAVA_INTERF)
   #define FILE_COMMENT "Analitics algorithms for Java*.\0"
-  #define ORIG_FILE_NAME "JavaAPI.dll\0"
+  #define ORIG_FILE_NAME "JavaAPI.1.dll\0"
   #define INTERNAL_FILE_NAME "JavaAPI.\0"
 #elif defined(_DAAL_THR_SEQ)
   #define FILE_COMMENT "Sequential version.\0"
-  #define ORIG_FILE_NAME "onedal_sequential.dll\0"
+  #define ORIG_FILE_NAME "onedal_sequential.1.dll\0"
   #define INTERNAL_FILE_NAME "onedal_sequential\0"
 #elif defined(_DAAL_THR_TBB)
   #define FILE_COMMENT "Parallel version.\0"
-  #define ORIG_FILE_NAME "onedal_thread.dll \0"
+  #define ORIG_FILE_NAME "onedal_thread.1.dll \0"
   #define INTERNAL_FILE_NAME "onedal_thread\0"
 #else
   #define FILE_COMMENT "Analitics algorithms optimized for IA.\0"
-  #define ORIG_FILE_NAME "onedal_core.dll\0"
+  #define ORIG_FILE_NAME "onedal_core.1.dll\0"
   #define INTERNAL_FILE_NAME "onedal_core\0"
 #endif
 
