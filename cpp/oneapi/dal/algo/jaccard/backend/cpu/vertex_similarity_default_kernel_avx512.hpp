@@ -346,7 +346,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
     const descriptor_base &desc,
     vertex_similarity_input<undirected_adjacency_array_graph<>> &input) {
     const auto &my_graph = input.get_graph();
-    const auto &g = oneapi::dal::detail::get_impl(my_graph);
+    const auto &g = dal::detail::get_impl(my_graph);
     auto g_edge_offsets = g._edge_offsets.data();
     auto g_vertex_neighbors = g._vertex_neighbors.data();
     auto g_degrees = g._degrees.data();
@@ -448,7 +448,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
                     _mm512_mask_compressstoreu_ps((jaccard + nnz), non_zero_coefficients, tmp_v);
 
                     nnz += _popcnt32_redef(_cvtmask16_u32(non_zero_coefficients));
-                    ONEDAL_ASSERT(nnz > 0, "Overflow found in sum of two values");
+                    ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
                 }
 
                 j += 16;
@@ -495,7 +495,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
                 _mm512_mask_compressstoreu_ps((jaccard + nnz), non_zero_coefficients, tmp_v);
 
                 nnz += _popcnt32_redef(_cvtmask16_u32(non_zero_coefficients));
-                ONEDAL_ASSERT(nnz > 0, "Overflow found in sum of two values");
+                ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
             }
 
             j += 16;
@@ -512,7 +512,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
                         first_vertices[nnz] = i;
                         second_vertices[nnz] = j;
                         nnz++;
-                        ONEDAL_ASSERT(nnz > 0, "Overflow found in sum of two values");
+                        ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
                     }
                 }
             }
@@ -531,7 +531,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
                         first_vertices[nnz] = i;
                         second_vertices[nnz] = j;
                         nnz++;
-                        ONEDAL_ASSERT(nnz > 0, "Overflow found in sum of two values");
+                        ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
                     }
                 }
             }
@@ -545,7 +545,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
             first_vertices[nnz] = i;
             second_vertices[nnz] = diagonal;
             nnz++;
-            ONEDAL_ASSERT(nnz > 0, "Overflow found in sum of two values");
+            ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
             tmp_idx = diagonal + 1;
         }
         j = tmp_idx;
@@ -616,7 +616,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
                     _mm512_mask_compressstoreu_ps((jaccard + nnz), non_zero_coefficients, tmp_v);
 
                     nnz += _popcnt32_redef(_cvtmask16_u32(non_zero_coefficients));
-                    ONEDAL_ASSERT(nnz > 0, "Overflow found in sum of two values");
+                    ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
                 }
 
                 j += 16;
@@ -663,7 +663,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
                 _mm512_mask_compressstoreu_ps((jaccard + nnz), non_zero_coefficients, tmp_v);
 
                 nnz += _popcnt32_redef(_cvtmask16_u32(non_zero_coefficients));
-                ONEDAL_ASSERT(nnz > 0, "Overflow found in sum of two values");
+                ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
             }
 
             j += 16;
@@ -680,7 +680,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
                         first_vertices[nnz] = i;
                         second_vertices[nnz] = j;
                         nnz++;
-                        ONEDAL_ASSERT(nnz > 0, "Overflow found in sum of two values");
+                        ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
                     }
                 }
             }
@@ -699,7 +699,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
                         first_vertices[nnz] = i;
                         second_vertices[nnz] = j;
                         nnz++;
-                        ONEDAL_ASSERT(nnz > 0, "Overflow found in sum of two values");
+                        ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
                     }
                 }
             }
