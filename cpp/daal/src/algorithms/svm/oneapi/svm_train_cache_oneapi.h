@@ -143,7 +143,7 @@ public:
         if (_ifComputeSubKernel)
         {
             blockSize     = _blockSize / 2;
-            wsIndicesReal = wsIndices.getSubBuffer(_nSelectRows, blockSize, &status);
+            wsIndicesReal = wsIndices.getSubBuffer(_nSelectRows, blockSize, status);
             DAAL_CHECK_STATUS_VAR(status);
             DAAL_CHECK_STATUS(status, initSubKernel(blockSize, xTable));
         }
@@ -209,7 +209,7 @@ protected:
     {
         services::Status status;
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, _lineSize, blockSize);
-        auto cacheHalf  = _cacheBuff.getSubBuffer(_lineSize * _nSelectRows, _lineSize * blockSize, &status);
+        auto cacheHalf  = _cacheBuff.getSubBuffer(_lineSize * _nSelectRows, _lineSize * blockSize, status);
         auto cacheTable = SyclHomogenNumericTable<algorithmFPType>::create(cacheHalf, _lineSize, blockSize, &status);
 
         const size_t p = xTable->getNumberOfColumns();
