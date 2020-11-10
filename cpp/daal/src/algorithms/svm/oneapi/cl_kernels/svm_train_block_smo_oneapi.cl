@@ -87,7 +87,7 @@ DECLARE_SOURCE_DAAL(
                             const algorithmFPType eps, const algorithmFPType tau, const uint maxInnerIteration, __global algorithmFPType * alpha,
                             __global algorithmFPType * deltaalpha, __global algorithmFPType * resinfo) {
         const uint i = get_local_id(0);
-        if (i == 0) printf("WS_SIZE: %u\n", WS_SIZE);
+        if (i == 0) printf("WS_SIZE: %d\n", (int)WS_SIZE);
         __local algorithmFPType kd[WS_SIZE];
         const uint wsIndex = wsIndices[i];
 
@@ -150,8 +150,9 @@ DECLARE_SOURCE_DAAL(
 
             if (i == 0)
             {
-                printf(">> localEps: %.3lf; maxGrad: %.3lf; ma: %.3lf; Bi: %u; eps: %lf\n", (double)localEps, (double)maxGrad, (double)ma, Bi,
-                       (double)eps);
+                printf("fds\n");
+                // printf(">> localEps: %.3lf; maxGrad: %.3lf; ma: %.3lf; Bi: %u; eps: %lf\n", (double)localEps, (double)maxGrad, (double)ma, Bi,
+                //        (double)eps);
             }
 
             if (localDiff < localEps)
