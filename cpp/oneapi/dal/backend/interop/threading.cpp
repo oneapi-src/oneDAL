@@ -31,3 +31,5 @@ ONEDAL_EXPORT void _onedal_threader_for(int n,
 
 ONEDAL_PARALLEL_SORT_IMPL(int)
 ONEDAL_PARALLEL_SORT_IMPL(size_t)
+
+#undef ONEDAL_PARALLEL_SORT_IMPL

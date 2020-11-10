@@ -127,6 +127,8 @@ DAAL_EXPORT void _daal_parallel_sort_template(F * begin_p, F * end_p)
 DAAL_PARALLEL_SORT_IMPL(int)
 DAAL_PARALLEL_SORT_IMPL(size_t)
 
+#undef DAAL_PARALLEL_SORT_IMPL
+
 DAAL_EXPORT void _daal_threader_for_blocked(int n, int threads_request, const void * a, daal::functype2 func)
 {
 #if defined(__DO_TBB_LAYER__)

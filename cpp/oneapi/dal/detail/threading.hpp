@@ -23,17 +23,19 @@ namespace oneapi::dal::preview {
 typedef void (*functype)(int i, const void *a);
 }
 
-#define ONEDAL_PARALLEL_SORT_DECL(TYPE) \
-    ONEDAL_EXPORT void _onedal_parallel_sort_##TYPE(TYPE *begin_ptr, TYPE *end_ptr);
-
 extern "C" {
 ONEDAL_EXPORT void _onedal_threader_for(int n,
                                         int threads_request,
                                         const void *a,
                                         oneapi::dal::preview::functype func);
 
+#define ONEDAL_PARALLEL_SORT_DECL(TYPE) \
+    ONEDAL_EXPORT void _onedal_parallel_sort_##TYPE(TYPE *begin_ptr, TYPE *end_ptr);
+
 ONEDAL_PARALLEL_SORT_DECL(int);
 ONEDAL_PARALLEL_SORT_DECL(size_t);
+
+#undef ONEDAL_PARALLEL_SORT_DECL
 }
 
 namespace oneapi::dal::preview::load_graph::detail {
@@ -50,6 +52,8 @@ inline ONEDAL_EXPORT void parallel_sort(F *begin_ptr, F *end_ptr) {
 
 ONEDAL_PARALLEL_SORT_SPECIALIZATION(int)
 ONEDAL_PARALLEL_SORT_SPECIALIZATION(size_t)
+
+#undef ONEDAL_PARALLEL_SORT_SPECIALIZATION
 
 template <typename F>
 inline void threader_func(int i, const void *a) {
