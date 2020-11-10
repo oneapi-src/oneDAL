@@ -117,7 +117,7 @@ DECLARE_SOURCE_DAAL(
         __local algorithmFPType localEps;
 
         uint iter = 0;
-        for (; iter < maxInnerIteration; iter++)
+        for (; iter < maxInnerIteration; ++iter)
         {
             /* m(alpha) = min(grad[i]): i belongs to I_UP (alpha) */
             objFunc[i] = isUpper(alphai, yi, C) ? -gradi : MIN_FLT;
@@ -145,8 +145,13 @@ DECLARE_SOURCE_DAAL(
                     resinfo[1] = localDiff;
                 }
             }
-
             barrier(CLK_LOCAL_MEM_FENCE);
+
+            if (i == 0)
+            {
+                printf(">> localEps: %.3lf; maxGrad: %.3lf; ma: %.3lf; Bi: %u; eps %lf\n", localEps, maxGrad, ma, Bi, eps);
+            }
+
             if (localDiff < localEps)
             {
                 break;
