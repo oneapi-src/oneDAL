@@ -111,16 +111,21 @@ DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, 
 #endif
 }
 
-DAAL_EXPORT void _daal_parallel_sort(void * begin_ptr, void * end_ptr)
+template <typename F>
+DAAL_EXPORT void _daal_parallel_sort_template(F * begin_p, F * end_p)
 {
-    int * begin_p = (int *)begin_ptr;
-    int * end_p   = (int *)end_ptr;
 #if defined(__DO_TBB_LAYER__)
     tbb::parallel_sort(begin_p, end_p);
 #elif defined(__DO_SEQ_LAYER__)
-    daal::algorithms::internal::qSort<int>(end_p - begin_p, begin_p);
+    daal::algorithms::internal::qSort<F>(end_p - begin_p, begin_p);
 #endif
 }
+
+#define DAAL_PARALLEL_SORT_IMPL(TYPE) \
+    DAAL_EXPORT void _daal_parallel_sort_##TYPE(TYPE * begin_p, TYPE * end_p) { _daal_parallel_sort_template<TYPE>(begin_p, end_p); }
+
+DAAL_PARALLEL_SORT_IMPL(int)
+DAAL_PARALLEL_SORT_IMPL(size_t)
 
 DAAL_EXPORT void _daal_threader_for_blocked(int n, int threads_request, const void * a, daal::functype2 func)
 {

@@ -36,6 +36,8 @@ typedef void (*functype_break)(int i, bool & needBreak, const void * a);
 class task;
 } // namespace daal
 
+#define DAAL_PARALLEL_SORT_DECL(TYPE) DAAL_EXPORT void _daal_parallel_sort_##TYPE(TYPE * begin_ptr, TYPE * end_ptr);
+
 extern "C"
 {
     DAAL_EXPORT int _daal_threader_get_max_threads();
@@ -75,7 +77,8 @@ extern "C"
     DAAL_EXPORT void * _threaded_scalable_malloc(const size_t size, const size_t alignment);
     DAAL_EXPORT void _threaded_scalable_free(void * ptr);
 
-    DAAL_EXPORT void _daal_parallel_sort(void * begin_ptr, void * end_ptr);
+    DAAL_PARALLEL_SORT_DECL(int)
+    DAAL_PARALLEL_SORT_DECL(size_t)
 }
 
 namespace daal
