@@ -169,8 +169,6 @@ struct TaskWorkingSet
             _nSelected += nCopy;
         }
 
-        printf("[init ws] _nSelected: %lu\n", _nSelected);
-
         DAAL_ASSERT(_nSelected == _nWS);
 
         _nSelected = 0;
