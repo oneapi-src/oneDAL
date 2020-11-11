@@ -20,40 +20,41 @@
 #include "oneapi/dal/util/detail/type_traits.hpp"
 
 namespace oneapi::dal::detail {
+namespace v1 {
 
 template <typename T, typename Data>
 struct has_pull_rows_host {
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void, pull_rows, (array<Data>&, const range&)const)
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void, pull_rows, (array<Data>&, const range&)const)
     static constexpr bool value = has_method_pull_rows_v<T>;
 };
 
 template <typename T, typename Data>
 struct has_push_rows_host {
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void, push_rows, (const array<Data>&, const range&))
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void, push_rows, (const array<Data>&, const range&))
     static constexpr bool value = has_method_push_rows_v<T>;
 };
 
 template <typename T, typename Data>
 struct has_pull_column_host {
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void,
-                                       pull_column,
-                                       (array<Data>&, std::int64_t, const range&)const)
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void,
+                                   pull_column,
+                                   (array<Data>&, std::int64_t, const range&)const)
     static constexpr bool value = has_method_pull_column_v<T>;
 };
 
 template <typename T, typename Data>
 struct has_push_column_host {
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void,
-                                       push_column,
-                                       (const array<Data>&, std::int64_t, const range&))
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void,
+                                   push_column,
+                                   (const array<Data>&, std::int64_t, const range&))
     static constexpr bool value = has_method_push_column_v<T>;
 };
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 
 template <typename T, typename Data>
 struct has_pull_rows_dpc {
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(
         void,
         pull_rows,
         (sycl::queue&, array<Data>&, const range&, const sycl::usm::alloc&)const)
@@ -62,15 +63,15 @@ struct has_pull_rows_dpc {
 
 template <typename T, typename Data>
 struct has_push_rows_dpc {
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void,
-                                       push_rows,
-                                       (sycl::queue&, const array<Data>&, const range&))
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void,
+                                   push_rows,
+                                   (sycl::queue&, const array<Data>&, const range&))
     static constexpr bool value = has_method_push_rows_v<T>;
 };
 
 template <typename T, typename Data>
 struct has_pull_column_dpc {
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(
         void,
         pull_column,
         (sycl::queue&, array<Data>&, std::int64_t, const range&, const sycl::usm::alloc&)const)
@@ -79,13 +80,26 @@ struct has_pull_column_dpc {
 
 template <typename T, typename Data>
 struct has_push_column_dpc {
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(
-        void,
-        push_column,
-        (sycl::queue&, const array<Data>&, std::int64_t, const range&))
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void,
+                                   push_column,
+                                   (sycl::queue&, const array<Data>&, std::int64_t, const range&))
     static constexpr bool value = has_method_push_column_v<T>;
 };
 
+#endif // ONEDAL_DATA_PARALLEL
+
+} // namespace v1
+
+using v1::has_pull_rows_host;
+using v1::has_push_rows_host;
+using v1::has_pull_column_host;
+using v1::has_push_column_host;
+
+#ifdef ONEDAL_DATA_PARALLEL
+using v1::has_pull_rows_dpc;
+using v1::has_push_rows_dpc;
+using v1::has_pull_column_dpc;
+using v1::has_push_column_dpc;
 #endif
 
 } // namespace oneapi::dal::detail

@@ -16,14 +16,14 @@
 
 #pragma once
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 
 #include "oneapi/dal/table/detail/access_iface_type_traits.hpp"
 #include "oneapi/dal/table/detail/access_iface_wrapper.hpp"
-
-#include <stdexcept> // TODO: change by oneDAL exceptions
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::detail {
+namespace v1 {
 
 template <typename T>
 class access_wrapper_impl_dpc {
@@ -45,7 +45,8 @@ public:
             obj_.pull_rows(policy.get_queue(), block, index.rows, alloc.get_kind());
         }
         else {
-            throw std::runtime_error("pulling rows is not supported for DPC++");
+            throw std::runtime_error(
+                dal::detail::error_messages::pulling_rows_is_not_supported_for_dpc());
         }
     }
 
@@ -62,7 +63,8 @@ public:
                              alloc.get_kind());
         }
         else {
-            throw std::runtime_error("pulling column is not supported for DPC++");
+            throw unimplemented(
+                dal::detail::error_messages::pulling_column_is_not_supported_for_dpc());
         }
     }
 
@@ -72,7 +74,8 @@ public:
             obj_.push_rows(policy.get_queue(), block, index.rows);
         }
         else {
-            throw std::runtime_error("pushing rows is not supported for DPC++");
+            throw unimplemented(
+                dal::detail::error_messages::pushing_rows_is_not_supported_for_dpc());
         }
     }
 
@@ -82,7 +85,8 @@ public:
             obj_.push_column(policy.get_queue(), block, index.column_index, index.rows);
         }
         else {
-            throw std::runtime_error("pushing column is not supported for DPC++");
+            throw unimplemented(
+                dal::detail::error_messages::pushing_column_is_not_supported_for_dpc());
         }
     }
 
@@ -92,6 +96,11 @@ private:
 
 template <typename T>
 using access_wrapper_dpc = access_iface_wrapper<access_iface_dpc, access_wrapper_impl_dpc<T>>;
+
+} // namespace v1
+
+using v1::access_wrapper_impl_dpc;
+using v1::access_wrapper_dpc;
 
 } // namespace oneapi::dal::detail
 

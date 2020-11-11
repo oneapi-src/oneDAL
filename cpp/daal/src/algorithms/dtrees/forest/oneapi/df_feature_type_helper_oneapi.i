@@ -388,8 +388,6 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::init(NumericTable & nt,
     const int32_t nC = static_cast<int32_t>(nCsz);
     const int32_t nR = static_cast<int32_t>(nRsz);
 
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(int32_t, nR, nC);
-
     services::Status status = alloc(nCsz, nRsz);
     DAAL_CHECK_STATUS_VAR(status);
 

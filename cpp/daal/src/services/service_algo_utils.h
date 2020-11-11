@@ -24,6 +24,7 @@
 #define __SERVICE_ALGO_UTILS_H__
 
 #include "services/host_app.h"
+#include "services/error_handling.h"
 
 namespace daal
 {

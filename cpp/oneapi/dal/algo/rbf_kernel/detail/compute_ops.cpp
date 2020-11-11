@@ -19,25 +19,26 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::rbf_kernel::detail {
-using oneapi::dal::detail::host_policy;
+namespace v1 {
 
-template <typename Float, typename Method>
-struct compute_ops_dispatcher<host_policy, Float, Method> {
-    compute_result operator()(const host_policy& ctx,
-                              const descriptor_base& desc,
-                              const compute_input& input) const {
+using dal::detail::host_policy;
+
+template <typename Float, typename Method, typename Task>
+struct compute_ops_dispatcher<host_policy, Float, Method, Task> {
+    compute_result<Task> operator()(const host_policy& ctx,
+                                    const descriptor_base<Task>& desc,
+                                    const compute_input<Task>& input) const {
         using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::compute_kernel_cpu<Float, Method>>;
+            dal::backend::kernel_dispatcher<backend::compute_kernel_cpu<Float, Method, Task>>;
         return kernel_dispatcher_t()(ctx, desc, input);
     }
 };
 
-#define INSTANTIATE(F, M) \
-    template struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<host_policy, F, M>;
+#define INSTANTIATE(F, M, T) \
+    template struct ONEDAL_EXPORT compute_ops_dispatcher<host_policy, F, M, T>;
 
-INSTANTIATE(float, method::dense)
-INSTANTIATE(float, method::csr)
-INSTANTIATE(double, method::dense)
-INSTANTIATE(double, method::csr)
+INSTANTIATE(float, method::dense, task::compute)
+INSTANTIATE(double, method::dense, task::compute)
 
+} // namespace v1
 } // namespace oneapi::dal::rbf_kernel::detail

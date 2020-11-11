@@ -20,7 +20,9 @@
 #include "oneapi/dal/backend/dispatcher_dpc.hpp"
 
 namespace oneapi::dal::pca::detail {
-using oneapi::dal::detail::data_parallel_policy;
+namespace v1 {
+
+using dal::detail::data_parallel_policy;
 
 template <typename Float, typename Method, typename Task>
 struct train_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
@@ -35,11 +37,12 @@ struct train_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
 };
 
 #define INSTANTIATE(F, M, T) \
-    template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<data_parallel_policy, F, M, T>;
+    template struct ONEDAL_EXPORT train_ops_dispatcher<data_parallel_policy, F, M, T>;
 
 INSTANTIATE(float, method::cov, task::dim_reduction)
 INSTANTIATE(float, method::svd, task::dim_reduction)
 INSTANTIATE(double, method::cov, task::dim_reduction)
 INSTANTIATE(double, method::svd, task::dim_reduction)
 
+} // namespace v1
 } // namespace oneapi::dal::pca::detail

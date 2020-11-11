@@ -22,32 +22,62 @@
 namespace oneapi::dal::kmeans_init {
 
 namespace task {
+namespace v1 {
 struct init {};
 using by_default = init;
+} // namespace v1
+
+using v1::init;
+using v1::by_default;
+
 } // namespace task
 
-namespace detail {
-struct tag {};
-
-template <typename Task = task::by_default>
-class descriptor_impl;
-} // namespace detail
-
 namespace method {
+namespace v1 {
 struct dense {};
 struct random_dense {};
 struct plus_plus_dense {};
 struct parallel_plus_dense {};
 using by_default = dense;
+} // namespace v1
+
+using v1::dense;
+using v1::random_dense;
+using v1::plus_plus_dense;
+using v1::parallel_plus_dense;
+using v1::by_default;
+
 } // namespace method
 
+namespace detail {
+namespace v1 {
+
+struct descriptor_tag {};
+template <typename Task>
+class descriptor_impl;
+
+template <typename Float>
+constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
+
+template <typename Method>
+constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method,
+                                                            method::dense,
+                                                            method::random_dense,
+                                                            method::plus_plus_dense,
+                                                            method::parallel_plus_dense>;
+
+template <typename Task>
+constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::init>;
+
 template <typename Task = task::by_default>
-class ONEAPI_DAL_EXPORT descriptor_base : public base {
+class descriptor_base : public base {
+    static_assert(is_valid_task_v<Task>);
+
 public:
-    using tag_t = detail::tag;
-    using task_t = Task;
+    using tag_t = descriptor_tag;
     using float_t = float;
     using method_t = method::by_default;
+    using task_t = Task;
 
     descriptor_base();
 
@@ -56,21 +86,51 @@ public:
 protected:
     void set_cluster_count_impl(std::int64_t);
 
-    dal::detail::pimpl<detail::descriptor_impl<task_t>> impl_;
+private:
+    dal::detail::pimpl<descriptor_impl<Task>> impl_;
 };
 
-template <typename Float = descriptor_base<task::by_default>::float_t,
-          typename Method = descriptor_base<task::by_default>::method_t,
-          typename Task = task::by_default>
-class descriptor : public descriptor_base<Task> {
+} // namespace v1
+
+using v1::descriptor_tag;
+using v1::descriptor_impl;
+using v1::descriptor_base;
+
+using v1::is_valid_float_v;
+using v1::is_valid_method_v;
+using v1::is_valid_task_v;
+
+} // namespace detail
+
+namespace v1 {
+
+template <typename Float = detail::descriptor_base<>::float_t,
+          typename Method = detail::descriptor_base<>::method_t,
+          typename Task = detail::descriptor_base<>::task_t>
+class descriptor : public detail::descriptor_base<Task> {
+    static_assert(detail::is_valid_float_v<Float>);
+    static_assert(detail::is_valid_method_v<Method>);
+    static_assert(detail::is_valid_task_v<Task>);
+
+    using base_t = detail::descriptor_base<Task>;
+
 public:
     using float_t = Float;
     using method_t = Method;
+    using task_t = Task;
+
+    explicit descriptor(std::int64_t cluster_count = 2) {
+        set_cluster_count(cluster_count);
+    }
 
     auto& set_cluster_count(int64_t value) {
-        descriptor_base<Task>::set_cluster_count_impl(value);
+        base_t::set_cluster_count_impl(value);
         return *this;
     }
 };
+
+} // namespace v1
+
+using v1::descriptor;
 
 } // namespace oneapi::dal::kmeans_init

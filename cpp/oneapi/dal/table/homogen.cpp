@@ -20,6 +20,7 @@
 using std::int64_t;
 
 namespace oneapi::dal {
+namespace v1 {
 
 int64_t homogen_table::kind() {
     return 1;
@@ -28,7 +29,7 @@ int64_t homogen_table::kind() {
 homogen_table::homogen_table() : homogen_table(backend::homogen_table_impl{}) {}
 
 const void* homogen_table::get_data() const {
-    const auto& impl = detail::get_impl<detail::homogen_table_impl_iface>(*this);
+    const auto& impl = detail::cast_impl<detail::homogen_table_impl_iface>(*this);
     return impl.get_data();
 }
 
@@ -39,23 +40,24 @@ void homogen_table::init_impl(const Policy& policy,
                               const array<byte_t>& data,
                               const data_type& dtype,
                               data_layout layout) {
-    init_impl(backend::homogen_table_impl(column_count, data, dtype, layout));
+    init_impl(backend::homogen_table_impl(row_count, column_count, data, dtype, layout));
 }
 
-template ONEAPI_DAL_EXPORT void homogen_table::init_impl(const detail::default_host_policy&,
-                                                         int64_t,
-                                                         int64_t,
-                                                         const array<byte_t>&,
-                                                         const data_type&,
-                                                         data_layout);
+template ONEDAL_EXPORT void homogen_table::init_impl(const detail::default_host_policy&,
+                                                     int64_t,
+                                                     int64_t,
+                                                     const array<byte_t>&,
+                                                     const data_type&,
+                                                     data_layout);
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
-template ONEAPI_DAL_EXPORT void homogen_table::init_impl(const detail::data_parallel_policy&,
-                                                         int64_t,
-                                                         int64_t,
-                                                         const array<byte_t>&,
-                                                         const data_type&,
-                                                         data_layout);
+#ifdef ONEDAL_DATA_PARALLEL
+template ONEDAL_EXPORT void homogen_table::init_impl(const detail::data_parallel_policy&,
+                                                     int64_t,
+                                                     int64_t,
+                                                     const array<byte_t>&,
+                                                     const data_type&,
+                                                     data_layout);
 #endif
 
+} // namespace v1
 } // namespace oneapi::dal

@@ -33,7 +33,7 @@ DECLARE_SOURCE(
 
     __kernel void reduceResults(__global algorithmFPType * dst, uint dstOffset, uint dstStride, const __global algorithmFPType * src, uint srcOffset,
                                 uint srcStride) {
-        uint valIdx = get_global_id(0);
+        const uint valIdx = get_global_id(0);
 
         dst[dstStride * valIdx + dstOffset] += src[srcStride * valIdx + srcOffset];
     }

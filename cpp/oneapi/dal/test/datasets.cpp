@@ -94,11 +94,11 @@ table dataset::get_table(const std::string& table_type) const {
         return dal::detail::homogen_table_builder{}.reset(data, row_count, column_count).build();
     }
     else {
-        throw unimplemented{ "Only homogen table is supported" };
+        throw unimplemented{ dal::detail::error_messages::only_homogen_table_is_supported() };
     }
 }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 template <typename Float>
 table dataset::get_table(device_test_policy& policy, const std::string& table_type) const {
     const auto data = get().get_data();
@@ -111,12 +111,12 @@ table dataset::get_table(device_test_policy& policy, const std::string& table_ty
             .build();
     }
     else {
-        throw unimplemented{ "Only homogen table is supported" };
+        throw unimplemented{ dal::detail::error_messages::only_homogen_table_is_supported() };
     }
 }
 #endif
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 #define INSTANTIATE(F)                                              \
     template table dataset::get_table<F>(const std::string&) const; \
     template table dataset::get_table<F>(device_test_policy&, const std::string&) const;

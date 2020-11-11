@@ -20,7 +20,9 @@
 #include "oneapi/dal/backend/dispatcher_dpc.hpp"
 
 namespace oneapi::dal::decision_forest::detail {
-using oneapi::dal::detail::data_parallel_policy;
+namespace v1 {
+
+using dal::detail::data_parallel_policy;
 
 template <typename Float, typename Task, typename Method>
 struct train_ops_dispatcher<data_parallel_policy, Float, Task, Method> {
@@ -35,7 +37,7 @@ struct train_ops_dispatcher<data_parallel_policy, Float, Task, Method> {
 };
 
 #define INSTANTIATE(F, T, M) \
-    template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<data_parallel_policy, F, T, M>;
+    template struct ONEDAL_EXPORT train_ops_dispatcher<data_parallel_policy, F, T, M>;
 
 INSTANTIATE(float, task::classification, method::dense)
 INSTANTIATE(float, task::classification, method::hist)
@@ -46,4 +48,6 @@ INSTANTIATE(float, task::regression, method::dense)
 INSTANTIATE(float, task::regression, method::hist)
 INSTANTIATE(double, task::regression, method::dense)
 INSTANTIATE(double, task::regression, method::hist)
+
+} // namespace v1
 } // namespace oneapi::dal::decision_forest::detail

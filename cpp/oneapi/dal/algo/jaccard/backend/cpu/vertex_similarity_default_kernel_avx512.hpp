@@ -51,8 +51,8 @@ DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
     {}
 #endif
 
-DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
-                                          std::int32_t *neigh_v,
+DAAL_FORCEINLINE std::size_t intersection(const std::int32_t *neigh_u,
+                                          const std::int32_t *neigh_v,
                                           std::int32_t n_u,
                                           std::int32_t n_v) {
     size_t total = 0;
@@ -60,21 +60,21 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
 #if defined(__INTEL_COMPILER)
     while (i_u < (n_u / 16) * 16 && i_v < (n_v / 16) * 16) { // not in last n%16 elements
         // assumes neighbor list is ordered
-        std::int32_t minu = neigh_u[i_u];
-        std::int32_t maxv = neigh_v[i_v + 15];
+        std::int32_t min_neigh_u = neigh_u[i_u];
+        std::int32_t max_neigh_v = neigh_v[i_v + 15];
 
-        if (minu > maxv) {
-            if (minu > neigh_v[n_v - 1]) {
+        if (min_neigh_u > max_neigh_v) {
+            if (min_neigh_u > neigh_v[n_v - 1]) {
                 return total;
             }
             i_v += 16;
             continue;
         }
 
-        std::int32_t minv = neigh_v[i_v];
-        std::int32_t maxu = neigh_u[i_u + 15];
-        if (minv > maxu) {
-            if (minv > neigh_u[n_u - 1]) {
+        std::int32_t min_neigh_v = neigh_v[i_v];
+        std::int32_t max_neigh_u = neigh_u[i_u + 15];
+        if (min_neigh_v > max_neigh_u) {
+            if (min_neigh_v > neigh_u[n_u - 1]) {
                 return total;
             }
             i_u += 16;
@@ -82,9 +82,9 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
         }
         __m512i v_u = _mm512_loadu_si512((void *)(neigh_u + i_u)); // load 16 neighbors of u
         __m512i v_v = _mm512_loadu_si512((void *)(neigh_v + i_v)); // load 16 neighbors of v
-        if (maxu >= maxv)
+        if (max_neigh_u >= max_neigh_v)
             i_v += 16;
-        if (maxu <= maxv)
+        if (max_neigh_u <= max_neigh_v)
             i_u += 16;
 
         __mmask16 match = _mm512_cmpeq_epi32_mask(v_u, v_v);
@@ -173,20 +173,20 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
 
     while (i_u <= (n_u - 8) && i_v <= (n_v - 8)) { // not in last n%8 elements
         // assumes neighbor list is ordered
-        std::int32_t minu = neigh_u[i_u];
-        std::int32_t maxv = neigh_v[i_v + 7];
+        std::int32_t min_neigh_u = neigh_u[i_u];
+        std::int32_t max_neigh_v = neigh_v[i_v + 7];
 
-        if (minu > maxv) {
-            if (minu > neigh_v[n_v - 1]) {
+        if (min_neigh_u > max_neigh_v) {
+            if (min_neigh_u > neigh_v[n_v - 1]) {
                 return total;
             }
             i_v += 8;
             continue;
         }
-        std::int32_t maxu = neigh_u[i_u + 7];
-        std::int32_t minv = neigh_v[i_v];
-        if (minv > maxu) {
-            if (minv > neigh_u[n_u - 1]) {
+        std::int32_t max_neigh_u = neigh_u[i_u + 7];
+        std::int32_t min_neigh_v = neigh_v[i_v];
+        if (min_neigh_v > max_neigh_u) {
+            if (min_neigh_v > neigh_u[n_u - 1]) {
                 return total;
             }
             i_u += 8;
@@ -197,9 +197,9 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
         __m256i v_v = _mm256_loadu_si256(
             reinterpret_cast<const __m256i *>(neigh_v + i_v)); // load 8 neighbors of v
 
-        if (maxu >= maxv)
+        if (max_neigh_u >= max_neigh_v)
             i_v += 8;
-        if (maxu <= maxv)
+        if (max_neigh_u <= max_neigh_v)
             i_u += 8;
 
         __mmask8 match = _mm256_cmpeq_epi32_mask(v_u, v_v);
@@ -260,20 +260,20 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
 
     while (i_u <= (n_u - 4) && i_v <= (n_v - 4)) { // not in last n%8 elements
         // assumes neighbor list is ordered
-        std::int32_t minu = neigh_u[i_u];
-        std::int32_t maxv = neigh_v[i_v + 3];
+        std::int32_t min_neigh_u = neigh_u[i_u];
+        std::int32_t max_neigh_v = neigh_v[i_v + 3];
 
-        if (minu > maxv) {
-            if (minu > neigh_v[n_v - 1]) {
+        if (min_neigh_u > max_neigh_v) {
+            if (min_neigh_u > neigh_v[n_v - 1]) {
                 return total;
             }
             i_v += 4;
             continue;
         }
-        std::int32_t minv = neigh_v[i_v];
-        std::int32_t maxu = neigh_u[i_u + 3];
-        if (minv > maxu) {
-            if (minv > neigh_u[n_u - 1]) {
+        std::int32_t min_neigh_v = neigh_v[i_v];
+        std::int32_t max_neigh_u = neigh_u[i_u + 3];
+        if (min_neigh_v > max_neigh_u) {
+            if (min_neigh_v > neigh_u[n_u - 1]) {
                 return total;
             }
             i_u += 4;
@@ -284,9 +284,9 @@ DAAL_FORCEINLINE std::size_t intersection(std::int32_t *neigh_u,
         __m128i v_v = _mm_loadu_si128(
             reinterpret_cast<const __m128i *>(neigh_v + i_v)); // load 8 neighbors of v
 
-        if (maxu >= maxv)
+        if (max_neigh_u >= max_neigh_v)
             i_v += 4;
-        if (maxu <= maxv)
+        if (max_neigh_u <= max_neigh_v)
             i_u += 4;
 
         __mmask8 match = _mm_cmpeq_epi32_mask(v_u, v_v);
@@ -346,25 +346,22 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
     const descriptor_base &desc,
     vertex_similarity_input<undirected_adjacency_array_graph<>> &input) {
     const auto &my_graph = input.get_graph();
-    const auto &g = oneapi::dal::preview::detail::get_impl(my_graph);
-
-    auto g_edge_offsets = g->_edge_offsets.data();
-    auto g_vertex_neighbors = g->_vertex_neighbors.data();
-    auto g_degrees = g->_degrees.data();
-
-    const auto row_begin = static_cast<std::int32_t>(desc.get_row_range_begin());
-    const auto row_end = static_cast<std::int32_t>(desc.get_row_range_end());
-    const auto column_begin = static_cast<std::int32_t>(desc.get_column_range_begin());
-    const auto column_end = static_cast<std::int32_t>(desc.get_column_range_end());
-
-    const auto number_elements_in_block = (row_end - row_begin) * (column_end - column_begin);
-    const size_t max_block_size =
-        compute_max_block_size(row_begin, row_end, column_begin, column_end);
-
+    const auto &g = dal::detail::get_impl(my_graph);
+    auto g_edge_offsets = g._edge_offsets.data();
+    auto g_vertex_neighbors = g._vertex_neighbors.data();
+    auto g_degrees = g._degrees.data();
+    const auto row_begin = dal::detail::integral_cast<std::int32_t>(desc.get_row_range_begin());
+    const auto row_end = dal::detail::integral_cast<std::int32_t>(desc.get_row_range_end());
+    const auto column_begin =
+        dal::detail::integral_cast<std::int32_t>(desc.get_column_range_begin());
+    const auto column_end = dal::detail::integral_cast<std::int32_t>(desc.get_column_range_end());
+    const auto number_elements_in_block =
+        compute_number_elements_in_block(row_begin, row_end, column_begin, column_end);
+    const auto max_block_size = compute_max_block_size(number_elements_in_block);
     void *result_ptr = input.get_caching_builder()(max_block_size);
     std::int32_t *first_vertices = reinterpret_cast<std::int32_t *>(result_ptr);
     std::int32_t *second_vertices = first_vertices + number_elements_in_block;
-    float *jaccard = reinterpret_cast<float *>(first_vertices + 2 * number_elements_in_block);
+    float *jaccard = reinterpret_cast<float *>(second_vertices + number_elements_in_block);
 
     std::int64_t nnz = 0;
     std::int32_t j = column_begin;
@@ -451,6 +448,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
                     _mm512_mask_compressstoreu_ps((jaccard + nnz), non_zero_coefficients, tmp_v);
 
                     nnz += _popcnt32_redef(_cvtmask16_u32(non_zero_coefficients));
+                    ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
                 }
 
                 j += 16;
@@ -497,6 +495,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
                 _mm512_mask_compressstoreu_ps((jaccard + nnz), non_zero_coefficients, tmp_v);
 
                 nnz += _popcnt32_redef(_cvtmask16_u32(non_zero_coefficients));
+                ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
             }
 
             j += 16;
@@ -513,6 +512,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
                         first_vertices[nnz] = i;
                         second_vertices[nnz] = j;
                         nnz++;
+                        ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
                     }
                 }
             }
@@ -531,6 +531,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
                         first_vertices[nnz] = i;
                         second_vertices[nnz] = j;
                         nnz++;
+                        ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
                     }
                 }
             }
@@ -544,6 +545,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
             first_vertices[nnz] = i;
             second_vertices[nnz] = diagonal;
             nnz++;
+            ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
             tmp_idx = diagonal + 1;
         }
         j = tmp_idx;
@@ -614,6 +616,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
                     _mm512_mask_compressstoreu_ps((jaccard + nnz), non_zero_coefficients, tmp_v);
 
                     nnz += _popcnt32_redef(_cvtmask16_u32(non_zero_coefficients));
+                    ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
                 }
 
                 j += 16;
@@ -660,6 +663,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
                 _mm512_mask_compressstoreu_ps((jaccard + nnz), non_zero_coefficients, tmp_v);
 
                 nnz += _popcnt32_redef(_cvtmask16_u32(non_zero_coefficients));
+                ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
             }
 
             j += 16;
@@ -676,6 +680,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
                         first_vertices[nnz] = i;
                         second_vertices[nnz] = j;
                         nnz++;
+                        ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
                     }
                 }
             }
@@ -694,6 +699,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
                         first_vertices[nnz] = i;
                         second_vertices[nnz] = j;
                         nnz++;
+                        ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
                     }
                 }
             }

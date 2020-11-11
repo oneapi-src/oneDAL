@@ -21,10 +21,11 @@
 #include "oneapi/dal/table/homogen.hpp"
 
 namespace oneapi::dal::detail {
+namespace v1 {
 
 template <typename T>
 struct is_table_builder_impl {
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(table, build, ())
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(table, build, ())
 
     static constexpr bool value = has_method_build_v<T>;
 };
@@ -34,25 +35,25 @@ inline constexpr bool is_table_builder_impl_v = is_table_builder_impl<T>::value;
 
 template <typename T>
 struct is_homogen_table_builder_impl {
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(homogen_table, build, ())
-    ONEAPI_DAL_HAS_METHOD_TRAIT(void, reset, (homogen_table && t), reset_from_table)
-    ONEAPI_DAL_HAS_METHOD_TRAIT(void,
-                                reset,
-                                (const array<byte_t>& data,
-                                 std::int64_t row_count,
-                                 std::int64_t column_count),
-                                reset_from_array)
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void, set_data_type, (data_type dt))
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void, set_feature_type, (feature_type ft))
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void,
-                                       allocate,
-                                       (std::int64_t row_count, std::int64_t column_count))
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void, set_layout, (data_layout layout))
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void,
-                                       copy_data,
-                                       (const void* data,
-                                        std::int64_t row_count,
-                                        std::int64_t column_count))
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(homogen_table, build, ())
+    ONEDAL_HAS_METHOD_TRAIT(void, reset, (homogen_table && t), reset_from_table)
+    ONEDAL_HAS_METHOD_TRAIT(void,
+                            reset,
+                            (const array<byte_t>& data,
+                             std::int64_t row_count,
+                             std::int64_t column_count),
+                            reset_from_array)
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void, set_data_type, (data_type dt))
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void, set_feature_type, (feature_type ft))
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void,
+                                   allocate,
+                                   (std::int64_t row_count, std::int64_t column_count))
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void, set_layout, (data_layout layout))
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void,
+                                   copy_data,
+                                   (const void* data,
+                                    std::int64_t row_count,
+                                    std::int64_t column_count))
 
     static constexpr bool value_host =
         has_method_build_v<T> && has_method_reset_from_table_v<T> &&
@@ -60,15 +61,15 @@ struct is_homogen_table_builder_impl {
         has_method_set_feature_type_v<T> && has_method_allocate_v<T> &&
         has_method_set_layout_v<T> && has_method_copy_data_v<T>;
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
-    ONEAPI_DAL_HAS_METHOD_TRAIT(void,
-                                allocate,
-                                (const sycl::queue& queue,
-                                 std::int64_t row_count,
-                                 std::int64_t column_count,
-                                 sycl::usm::alloc kind),
-                                allocate_dpc)
-    ONEAPI_DAL_HAS_METHOD_TRAIT(
+#ifdef ONEDAL_DATA_PARALLEL
+    ONEDAL_HAS_METHOD_TRAIT(void,
+                            allocate,
+                            (const sycl::queue& queue,
+                             std::int64_t row_count,
+                             std::int64_t column_count,
+                             sycl::usm::alloc kind),
+                            allocate_dpc)
+    ONEDAL_HAS_METHOD_TRAIT(
         void,
         copy_data,
         (sycl::queue & queue, const void* data, std::int64_t row_count, std::int64_t column_count),
@@ -84,7 +85,7 @@ struct is_homogen_table_builder_impl {
 template <typename T>
 inline constexpr bool is_homogen_table_builder_impl_v = is_homogen_table_builder_impl<T>::value;
 
-class ONEAPI_DAL_EXPORT table_builder {
+class ONEDAL_EXPORT table_builder {
     friend detail::pimpl_accessor;
     using pimpl_t = detail::pimpl<detail::table_builder_impl_iface>;
 
@@ -107,7 +108,7 @@ private:
     pimpl_t impl_;
 };
 
-class ONEAPI_DAL_EXPORT homogen_table_builder : public table_builder {
+class ONEDAL_EXPORT homogen_table_builder : public table_builder {
 public:
     homogen_table_builder();
 
@@ -174,7 +175,7 @@ public:
         return *this;
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     auto& allocate(const sycl::queue& queue,
                    std::int64_t row_count,
                    std::int64_t column_count,
@@ -198,8 +199,13 @@ public:
 
 private:
     detail::homogen_table_builder_iface& get_impl() {
-        return detail::get_impl<detail::homogen_table_builder_iface>(*this);
+        return detail::cast_impl<detail::homogen_table_builder_iface>(*this);
     }
 };
+
+} // namespace v1
+
+using v1::table_builder;
+using v1::homogen_table_builder;
 
 } // namespace oneapi::dal::detail

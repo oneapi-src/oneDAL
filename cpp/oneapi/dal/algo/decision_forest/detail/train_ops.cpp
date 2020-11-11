@@ -19,6 +19,8 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::decision_forest::detail {
+namespace v1 {
+
 using oneapi::dal::detail::host_policy;
 
 template <typename Float, typename Task, typename Method>
@@ -33,7 +35,7 @@ struct train_ops_dispatcher<host_policy, Float, Task, Method> {
 };
 
 #define INSTANTIATE(F, T, M) \
-    template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<host_policy, F, T, M>;
+    template struct ONEDAL_EXPORT train_ops_dispatcher<host_policy, F, T, M>;
 
 INSTANTIATE(float, task::classification, method::dense)
 INSTANTIATE(float, task::classification, method::hist)
@@ -44,4 +46,6 @@ INSTANTIATE(float, task::regression, method::dense)
 INSTANTIATE(float, task::regression, method::hist)
 INSTANTIATE(double, task::regression, method::dense)
 INSTANTIATE(double, task::regression, method::hist)
+
+} // namespace v1
 } // namespace oneapi::dal::decision_forest::detail

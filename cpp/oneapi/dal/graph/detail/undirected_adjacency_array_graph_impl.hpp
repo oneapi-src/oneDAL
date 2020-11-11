@@ -19,25 +19,16 @@
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/graph/detail/graph_container.hpp"
+#include "oneapi/dal/graph/graph_common.hpp"
 
 namespace oneapi::dal::preview::detail {
-
-template <typename Graph>
-ONEAPI_DAL_EXPORT typename Graph::pimpl& get_impl(Graph& graph) {
-    return graph.impl_;
-}
-
-template <typename Graph>
-ONEAPI_DAL_EXPORT const typename Graph::pimpl& get_impl(const Graph& graph) {
-    return graph.impl_;
-}
 
 template <typename VertexValue = empty_value,
           typename EdgeValue = empty_value,
           typename GraphValue = empty_value,
           typename IndexType = std::int32_t,
           typename Allocator = std::allocator<char>>
-class ONEAPI_DAL_EXPORT undirected_adjacency_array_graph_impl {
+class ONEDAL_EXPORT undirected_adjacency_array_graph_impl {
 public:
     using allocator_type = Allocator;
 
@@ -45,12 +36,16 @@ public:
     using vertex_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<vertex_type>;
     using vertex_set = detail::graph_container<vertex_type, vertex_allocator_type>;
+    using vertex_iterator = typename vertex_set::iterator;
+    using const_vertex_iterator = typename vertex_set::const_iterator;
     using vertex_size_type = typename vertex_set::size_type;
 
     using edge_type = IndexType;
     using edge_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<edge_type>;
     using edge_set = detail::graph_container<edge_type, edge_allocator_type>;
+    using edge_iterator = typename edge_set::iterator;
+    using const_edge_iterator = typename edge_set::const_iterator;
     using edge_size_type = typename edge_set::size_type;
 
     using vertex_user_value_type = VertexValue;
@@ -80,4 +75,5 @@ public:
 
     allocator_type _allocator;
 };
+
 } // namespace oneapi::dal::preview::detail

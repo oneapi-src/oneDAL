@@ -24,15 +24,16 @@
 namespace oneapi::dal::csv {
 
 namespace detail {
+namespace v1 {
+
 struct data_source_tag {};
 class data_source_impl;
-} // namespace detail
 
-class ONEAPI_DAL_EXPORT data_source_base : public base {
+class ONEDAL_EXPORT data_source_base : public base {
 public:
-    using tag_t = detail::data_source_tag;
+    using tag_t = data_source_tag;
 
-    explicit data_source_base(const char *file_name);
+    explicit data_source_base(const char* file_name);
 
     char get_delimiter() const {
         return get_delimiter_impl();
@@ -49,40 +50,54 @@ public:
 protected:
     char get_delimiter_impl() const;
     bool get_parse_header_impl() const;
-    const char *get_file_name_impl() const;
+    const char* get_file_name_impl() const;
 
     void set_delimiter_impl(char value);
     void set_parse_header_impl(bool value);
-    void set_file_name_impl(const char *);
+    void set_file_name_impl(const char*);
 
-    dal::detail::pimpl<detail::data_source_impl> impl_;
+    dal::detail::pimpl<data_source_impl> impl_;
 };
 
-class data_source : public data_source_base {
+} // namespace v1
+
+using v1::data_source_tag;
+using v1::data_source_impl;
+using v1::data_source_base;
+
+} // namespace detail
+
+namespace v1 {
+
+class data_source : public detail::data_source_base {
 public:
-    data_source(const char *file_name) : data_source_base(file_name) {}
+    explicit data_source(const char* file_name) : data_source_base(file_name) {}
 
-    data_source(const std::string &file_name) : data_source_base(file_name.c_str()) {}
+    explicit data_source(const std::string& file_name) : data_source_base(file_name.c_str()) {}
 
-    auto &set_delimiter(char value) {
+    auto& set_delimiter(char value) {
         set_delimiter_impl(value);
         return *this;
     }
 
-    auto &set_parse_header(bool value) {
+    auto& set_parse_header(bool value) {
         set_parse_header_impl(value);
         return *this;
     }
 
-    auto &set_file_name(const char *value) {
+    auto& set_file_name(const char* value) {
         set_file_name_impl(value);
         return *this;
     }
 
-    auto &set_file_name(const std::string &value) {
+    auto& set_file_name(const std::string& value) {
         set_file_name_impl(value.c_str());
         return *this;
     }
 };
+
+} // namespace v1
+
+using v1::data_source;
 
 } // namespace oneapi::dal::csv

@@ -19,6 +19,7 @@
 #include "oneapi/dal/array.hpp"
 
 namespace oneapi::dal::detail {
+namespace v1 {
 
 struct row_block {
     range rows;
@@ -71,7 +72,7 @@ struct access_iface {
 
 using access_iface_host = access_iface<default_host_policy, host_allocator>;
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
 using access_iface_dpc = access_iface<data_parallel_policy, data_parallel_allocator>;
 #endif
 
@@ -80,9 +81,21 @@ public:
     virtual ~access_provider_iface() {}
 
     virtual access_iface_host& get_access_iface_host() const = 0;
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     virtual access_iface_dpc& get_access_iface_dpc() const = 0;
 #endif
 };
+
+} // namespace v1
+
+using v1::row_block;
+using v1::column_values_block;
+using v1::access_iface;
+using v1::access_iface_host;
+using v1::access_provider_iface;
+
+#ifdef ONEDAL_DATA_PARALLEL
+using v1::access_iface_dpc;
+#endif
 
 } // namespace oneapi::dal::detail

@@ -15,7 +15,7 @@
 #===============================================================================
 
 ##  Content:
-##     Intel(R) Data Analytics Acceleration Library examples creation and run
+##     Intel(R) oneAPI Data Analytics Library examples creation and run
 ##******************************************************************************
 
 help:
@@ -91,11 +91,11 @@ DAAL_LIB_T = "$(DAAL_PATH)\onedal_sequential.lib"
 !ELSE
 threading = parallel
 DAAL_LIB_T = "$(DAAL_PATH)\onedal_thread.lib"
-EXT_LIB = tbb.lib tbbmalloc.lib
+EXT_LIB = tbb12.lib tbbmalloc.lib
 !ENDIF
 
 !ELSE
-DAAL_LIB="$(DAAL_PATH)\onedal_dpc_dll.lib"
+DAAL_LIB="$(DAAL_PATH)\onedal_dpc_dll.1.lib"
 RT_LIB=/link /ignore:4078
 !ENDIF
 

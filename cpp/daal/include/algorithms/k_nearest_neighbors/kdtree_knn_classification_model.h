@@ -78,7 +78,7 @@ enum VoteWeights
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
  */
 namespace interface1
 {
@@ -120,7 +120,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::interface1::
 } // namespace interface1
 
 /**
- * \brief Contains version 2.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface.
  */
 namespace interface2
 {
@@ -162,7 +162,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
 } // namespace interface2
 
 /**
- * \brief Contains version 3.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ * \brief Contains version 3.0 of the Intel(R) oneAPI Data Analytics Library interface.
  */
 namespace interface3
 {
@@ -214,7 +214,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
 } // namespace interface3
 
 /**
- * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
  */
 namespace interface1
 {

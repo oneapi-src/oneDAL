@@ -19,6 +19,7 @@
 #include "oneapi/dal/table/detail/access_iface.hpp"
 
 namespace oneapi::dal::detail {
+namespace v1 {
 
 template <typename T, typename BlockIndex>
 class accessor_base {
@@ -28,15 +29,15 @@ public:
 public:
     static constexpr bool is_readonly = std::is_const_v<T>;
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename K>
     accessor_base(const K& obj)
-            : host_access_(get_impl<access_provider_iface>(obj).get_access_iface_host()),
-              dpc_access_(get_impl<access_provider_iface>(obj).get_access_iface_dpc()) {}
+            : host_access_(cast_impl<access_provider_iface>(obj).get_access_iface_host()),
+              dpc_access_(cast_impl<access_provider_iface>(obj).get_access_iface_dpc()) {}
 #else
     template <typename K>
     accessor_base(const K& obj)
-            : host_access_(get_impl<access_provider_iface>(obj).get_access_iface_host()) {}
+            : host_access_(cast_impl<access_provider_iface>(obj).get_access_iface_host()) {}
 #endif
 
     template <typename Policy, typename Allocator>
@@ -69,14 +70,16 @@ private:
     access_iface_host& get_access(const default_host_policy&) {
         return host_access_;
     }
+
     const access_iface_host& get_access(const default_host_policy&) const {
         return host_access_;
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     access_iface_dpc& get_access(const data_parallel_policy&) {
         return dpc_access_;
     }
+
     const access_iface_dpc& get_access(const data_parallel_policy&) const {
         return dpc_access_;
     }
@@ -84,9 +87,13 @@ private:
 
 private:
     access_iface_host& host_access_;
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     access_iface_dpc& dpc_access_;
 #endif
 };
+
+} // namespace v1
+
+using v1::accessor_base;
 
 } // namespace oneapi::dal::detail

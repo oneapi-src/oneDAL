@@ -19,7 +19,9 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::kmeans::detail {
-using oneapi::dal::detail::host_policy;
+namespace v1 {
+
+using dal::detail::host_policy;
 
 template <typename Float, typename Method, typename Task>
 struct infer_ops_dispatcher<host_policy, Float, Method, Task> {
@@ -33,9 +35,10 @@ struct infer_ops_dispatcher<host_policy, Float, Method, Task> {
 };
 
 #define INSTANTIATE(F, M, T) \
-    template struct ONEAPI_DAL_EXPORT infer_ops_dispatcher<host_policy, F, M, T>;
+    template struct ONEDAL_EXPORT infer_ops_dispatcher<host_policy, F, M, T>;
 
 INSTANTIATE(float, method::by_default, task::clustering)
 INSTANTIATE(double, method::by_default, task::clustering)
 
+} // namespace v1
 } // namespace oneapi::dal::kmeans::detail

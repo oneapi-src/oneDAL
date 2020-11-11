@@ -17,18 +17,17 @@
 #include "oneapi/dal/algo/kmeans_init/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
-namespace oneapi::dal::kmeans_init {
+namespace oneapi::dal::kmeans_init::detail {
+namespace v1 {
 
-template <>
-class detail::descriptor_impl<task::init> : public base {
+template <typename Task>
+class descriptor_impl : public base {
 public:
     std::int64_t cluster_count = 2;
 };
 
-using detail::descriptor_impl;
-
 template <typename Task>
-descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl{}) {}
+descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
 
 template <typename Task>
 std::int64_t descriptor_base<Task>::get_cluster_count() const {
@@ -38,11 +37,12 @@ std::int64_t descriptor_base<Task>::get_cluster_count() const {
 template <typename Task>
 void descriptor_base<Task>::set_cluster_count_impl(std::int64_t value) {
     if (value <= 0) {
-        throw domain_error("cluster_count should be > 0");
+        throw domain_error(dal::detail::error_messages::cluster_count_leq_zero());
     }
     impl_->cluster_count = value;
 }
 
-template class ONEAPI_DAL_EXPORT descriptor_base<task::init>;
+template class ONEDAL_EXPORT descriptor_base<task::init>;
 
-} // namespace oneapi::dal::kmeans_init
+} // namespace v1
+} // namespace oneapi::dal::kmeans_init::detail

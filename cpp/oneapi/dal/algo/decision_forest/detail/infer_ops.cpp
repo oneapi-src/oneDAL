@@ -19,12 +19,14 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::decision_forest::detail {
+namespace v1 {
+
 using oneapi::dal::detail::host_policy;
 
 template <typename Float, typename Task, typename Method>
 struct infer_ops_dispatcher<host_policy, Float, Task, Method> {
     infer_result<Task> operator()(const host_policy& ctx,
-                                  const descriptor_base<Task>& desc,
+                                  const detail::descriptor_base<Task>& desc,
                                   const infer_input<Task>& input) const {
         using kernel_dispatcher_t =
             dal::backend::kernel_dispatcher<backend::infer_kernel_cpu<Float, Task, Method>>;
@@ -33,11 +35,13 @@ struct infer_ops_dispatcher<host_policy, Float, Task, Method> {
 };
 
 #define INSTANTIATE(F, T, M) \
-    template struct ONEAPI_DAL_EXPORT infer_ops_dispatcher<host_policy, F, T, M>;
+    template struct ONEDAL_EXPORT infer_ops_dispatcher<host_policy, F, T, M>;
 
 INSTANTIATE(float, task::classification, method::dense)
 INSTANTIATE(double, task::classification, method::dense)
 
 INSTANTIATE(float, task::regression, method::dense)
 INSTANTIATE(double, task::regression, method::dense)
+
+} // namespace v1
 } // namespace oneapi::dal::decision_forest::detail

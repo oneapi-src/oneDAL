@@ -15,7 +15,7 @@
 #===============================================================================
 
 ##  Content:
-##     Intel(R) Data Analytics Acceleration Library examples creation and run
+##     Intel(R) oneAPI Data Analytics Library examples creation and run
 ##******************************************************************************
 
 help:
@@ -42,22 +42,22 @@ help:
 ##                                 static linking
 ##
 ## make dylibia32 compiler=clang - build by Clang C++ compiler and
-##                                 run all examples of Intel(R) DAAL for
+##                                 run all examples of Intel(R) oneDAL for
 ##                                 Intel(R) 64 processor family applications,
 ##                                 dynamic linking
 ##
 ## make libintel64 compiler=gnu  - build by GNU C++ compiler and
-##                                 run all examples of Intel(R) DAAL for
+##                                 run all examples of Intel(R) oneDAL for
 ##                                 Intel(R) 64 processor family applications,
 ##                                 static linking
 ##
 ## make dylibintel64             - build by Intel(R) C++ Compiler (as default)
-##                                 and run all examples of Intel(R) DAAL for
+##                                 and run all examples of Intel(R) oneDAL for
 ##                                 Intel(R) 64 processor family applications,
 ##                                 dynamic linking
 ##
 ## make dylibintel64 mode=build  - build only (not run) by Intel(R) C++ Compiler (as default)
-##                                 all examples of Intel(R) DAAL for
+##                                 all examples of Intel(R) oneDAL for
 ##                                 Intel(R) 64 processor family applications,
 ##                                 dynamic linking
 ##

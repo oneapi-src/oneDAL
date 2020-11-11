@@ -17,13 +17,15 @@
 #pragma once
 
 #include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/table/detail/common.hpp"
 
 namespace oneapi::dal {
 
+namespace detail {
+namespace v1 {
+
 template <typename T>
 struct is_homogen_table_impl {
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(const void*, get_data, () const)
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(const void*, get_data, () const)
 
     using base = is_table_impl<T>;
 
@@ -37,7 +39,16 @@ struct is_homogen_table_impl {
 template <typename T>
 inline constexpr bool is_homogen_table_impl_v = is_homogen_table_impl<T>::value;
 
-class ONEAPI_DAL_EXPORT homogen_table : public table {
+} // namespace v1
+
+using v1::is_homogen_table_impl;
+using v1::is_homogen_table_impl_v;
+
+} // namespace detail
+
+namespace v1 {
+
+class ONEDAL_EXPORT homogen_table : public table {
     friend detail::pimpl_accessor;
     using pimpl = detail::pimpl<detail::homogen_table_impl_iface>;
 
@@ -52,11 +63,11 @@ public:
         return homogen_table{ data_pointer,
                               row_count,
                               column_count,
-                              empty_delete<const Data>(),
+                              dal::detail::empty_delete<const Data>(),
                               layout };
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename Data>
     static homogen_table wrap(const sycl::queue& queue,
                               const Data* data_pointer,
@@ -64,10 +75,13 @@ public:
                               std::int64_t column_count,
                               const sycl::vector_class<sycl::event>& dependencies = {},
                               data_layout layout = data_layout::row_major) {
-        return homogen_table{
-            queue,        data_pointer, row_count, column_count, empty_delete<const Data>(),
-            dependencies, layout
-        };
+        return homogen_table{ queue,
+                              data_pointer,
+                              row_count,
+                              column_count,
+                              dal::detail::empty_delete<const Data>(),
+                              dependencies,
+                              layout };
     }
 #endif
 
@@ -76,7 +90,7 @@ public:
 
     template <typename Impl,
               typename ImplType = std::decay_t<Impl>,
-              typename = std::enable_if_t<is_homogen_table_impl_v<ImplType> &&
+              typename = std::enable_if_t<detail::is_homogen_table_impl_v<ImplType> &&
                                           !std::is_base_of_v<table, ImplType>>>
     homogen_table(Impl&& impl) {
         init_impl(std::forward<Impl>(impl));
@@ -96,7 +110,7 @@ public:
                   layout);
     }
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename Data, typename ConstDeleter>
     homogen_table(const sycl::queue& queue,
                   const Data* data_pointer,
@@ -142,12 +156,26 @@ private:
                    const Data* data_pointer,
                    ConstDeleter&& data_deleter,
                    data_layout layout) {
+        using error_msg = dal::detail::error_messages;
+
+        if (row_count <= 0) {
+            throw dal::domain_error(error_msg::rc_leq_zero());
+        }
+
+        if (column_count <= 0) {
+            throw dal::domain_error(error_msg::cc_leq_zero());
+        }
+
+        dal::detail::check_mul_overflow(row_count, column_count);
         array<Data> data_array{ data_pointer,
                                 row_count * column_count,
                                 std::forward<ConstDeleter>(data_deleter) };
 
         auto byte_data = reinterpret_cast<const byte_t*>(data_pointer);
-        const std::int64_t byte_count = data_array.get_count() * sizeof(Data);
+        dal::detail::check_mul_overflow(data_array.get_count(),
+                                        static_cast<std::int64_t>(sizeof(Data)));
+        const std::int64_t byte_count =
+            data_array.get_count() * static_cast<std::int64_t>(sizeof(Data));
 
         auto byte_array = array<byte_t>{ data_array, byte_data, byte_count };
 
@@ -170,5 +198,9 @@ private:
 private:
     homogen_table(const pimpl& impl) : table(impl) {}
 };
+
+} // namespace v1
+
+using v1::homogen_table;
 
 } // namespace oneapi::dal

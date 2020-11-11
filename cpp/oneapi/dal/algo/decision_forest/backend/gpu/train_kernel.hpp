@@ -24,7 +24,7 @@ namespace oneapi::dal::decision_forest::backend {
 template <typename Float, typename Task, typename Method>
 struct train_kernel_gpu {
     train_result<Task> operator()(const dal::backend::context_gpu& ctx,
-                                  const descriptor_base<Task>& params,
+                                  const detail::descriptor_base<Task>& params,
                                   const train_input<Task>& input) const;
 };
 

@@ -104,9 +104,12 @@ struct HelperSVM
 
         KernelArguments args(2, status);
         DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_ASSERT(x.size() == n);
+        DAAL_ASSERT(res.size() == n);
+
         args.set(0, x, AccessModeIds::read);
         args.set(1, res, AccessModeIds::write);
-
         KernelRange range(n);
 
         context.run(range, kernel, args, status);
@@ -168,6 +171,9 @@ struct HelperSVM
         services::internal::sycl::KernelArguments args(4, status);
         DAAL_CHECK_STATUS_VAR(status);
 
+        DAAL_ASSERT(indX.size() == nWS);
+        DAAL_ASSERT(newX.size() == nWS * p);
+
         args.set(0, x, services::internal::sycl::AccessModeIds::read);
         args.set(1, indX, services::internal::sycl::AccessModeIds::read);
         DAAL_ASSERT(p <= uint32max);
@@ -197,6 +203,10 @@ struct HelperSVM
 
         services::internal::sycl::KernelArguments args(4, status);
         DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_ASSERT(indX.size() == nWS);
+        DAAL_ASSERT(newX.size() == nWS * p);
+
         args.set(0, x, services::internal::sycl::AccessModeIds::read);
         args.set(1, indX, services::internal::sycl::AccessModeIds::read);
         DAAL_ASSERT(p <= uint32max);
@@ -225,6 +235,11 @@ struct HelperSVM
 
         KernelArguments args(4, status);
         DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_ASSERT(y.size() == n);
+        DAAL_ASSERT(alpha.size() == n);
+        DAAL_ASSERT(indicator.size() == n);
+
         args.set(0, y, AccessModeIds::read);
         args.set(1, alpha, AccessModeIds::read);
         args.set(2, C);
@@ -253,6 +268,11 @@ struct HelperSVM
 
         KernelArguments args(4, status);
         DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_ASSERT(y.size() == n);
+        DAAL_ASSERT(alpha.size() == n);
+        DAAL_ASSERT(indicator.size() == n);
+
         args.set(0, y, AccessModeIds::read);
         args.set(1, alpha, AccessModeIds::read);
         args.set(2, C);
@@ -280,6 +300,10 @@ struct HelperSVM
 
         KernelArguments args(3, status);
         DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_ASSERT(alpha.size() == n);
+        DAAL_ASSERT(mask.size() == n);
+
         args.set(0, alpha, AccessModeIds::read);
         args.set(1, C);
         args.set(2, mask, AccessModeIds::write);
@@ -306,6 +330,10 @@ struct HelperSVM
 
         KernelArguments args(2, status);
         DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_ASSERT(alpha.size() == n);
+        DAAL_ASSERT(mask.size() == n);
+
         args.set(0, alpha, AccessModeIds::read);
         args.set(1, mask, AccessModeIds::write);
 
@@ -331,6 +359,10 @@ struct HelperSVM
 
         KernelArguments args(2, status);
         DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_ASSERT(y.size() == n);
+        DAAL_ASSERT(alpha.size() == n);
+
         args.set(0, y, AccessModeIds::read);
         args.set(1, alpha, AccessModeIds::readwrite);
 

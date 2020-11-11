@@ -56,7 +56,7 @@ enum Method
 };
 
 /**
- * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
  */
 namespace interface1
 {
@@ -152,7 +152,7 @@ typedef services::SharedPtr<Result> ResultPtr;
 } // namespace interface1
 
 /**
- * \brief Contains version 2.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ * \brief Contains version 2.0 of Intel(R) oneAPI Data Analytics Library interface.
  */
 namespace interface2
 {
