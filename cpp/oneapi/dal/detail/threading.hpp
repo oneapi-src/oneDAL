@@ -62,11 +62,11 @@ inline void threader_func(std::int32_t i, const void *a) {
 }
 
 template <typename F>
-inline ONEDAL_EXPORT void threader_for(std::uint64_t n,
-                                       std::uint64_t threads_request,
+inline ONEDAL_EXPORT void threader_for(std::int32_t n,
+                                       std::int32_t threads_request,
                                        const F &lambda) {
     const void *a = static_cast<const void *>(&lambda);
 
-    _onedal_threader_for((std::int32_t)n, (std::int32_t)threads_request, a, threader_func<F>);
+    _onedal_threader_for(n, threads_request, a, threader_func<F>);
 }
 } // namespace oneapi::dal::detail
