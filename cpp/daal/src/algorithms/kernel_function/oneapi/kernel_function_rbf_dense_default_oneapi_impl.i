@@ -1,4 +1,4 @@
-/* file: kernel_function_rbf_kernel_oneapi.i */
+/* file: kernel_function_rbf_dense_default_oneapi_impl.i */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
