@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020 std::int32_tel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,19 +17,19 @@
 #include "oneapi/dal/detail/threading.hpp"
 #include "src/threading/threading.h"
 
-ONEDAL_EXPORT void _onedal_threader_for(int n,
-                                        int threads_request,
+ONEDAL_EXPORT void _onedal_threader_for(std::int32_t n,
+                                        std::int32_t threads_request,
                                         const void *a,
                                         oneapi::dal::preview::functype func) {
     _daal_threader_for(n, threads_request, a, static_cast<daal::functype>(func));
 }
 
-#define ONEDAL_PARALLEL_SORT_IMPL(TYPE)                                               \
-    ONEDAL_EXPORT void _onedal_parallel_sort_##TYPE(TYPE *begin_ptr, TYPE *end_ptr) { \
-        _daal_parallel_sort_##TYPE(begin_ptr, end_ptr);                               \
+#define ONEDAL_PARALLEL_SORT_IMPL(TYPE, NAMESUFFIX)                                         \
+    ONEDAL_EXPORT void _onedal_parallel_sort_##NAMESUFFIX(TYPE *begin_ptr, TYPE *end_ptr) { \
+        _daal_parallel_sort_##NAMESUFFIX(begin_ptr, end_ptr);                               \
     }
 
-ONEDAL_PARALLEL_SORT_IMPL(int)
-ONEDAL_PARALLEL_SORT_IMPL(size_t)
+ONEDAL_PARALLEL_SORT_IMPL(std::int32_t, int32)
+ONEDAL_PARALLEL_SORT_IMPL(std::uint64_t, uint64)
 
 #undef ONEDAL_PARALLEL_SORT_IMPL
