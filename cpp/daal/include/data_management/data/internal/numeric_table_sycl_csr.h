@@ -498,10 +498,18 @@ protected:
 
         if (isCpuContext())
         {
-            const auto hostData       = bufferData.toHost(ReadWriteMode::readOnly, st);
-            const auto hostColIndices = bufferColIndices.toHost(ReadWriteMode::readOnly, st);
-            const auto hostRowOffsets = bufferRowOffsets.toHost(ReadWriteMode::readOnly, st);
-            _cpuTable                 = CSRNumericTable::create(hostData, hostColIndices, hostRowOffsets, nColumns, nRows, indexing, &st);
+            if (!bufferData.size() && !bufferColIndices.size() && !bufferRowOffsets.size())
+            {
+                _cpuTable = CSRNumericTable::create<DataType>(NULL, NULL, NULL, nColumns, nRows, indexing, &st);
+            }
+            else
+            {
+                const auto hostData       = bufferData.toHost(ReadWriteMode::readOnly, st);
+                const auto hostColIndices = bufferColIndices.toHost(ReadWriteMode::readOnly, st);
+                const auto hostRowOffsets = bufferRowOffsets.toHost(ReadWriteMode::readOnly, st);
+                _cpuTable                 = CSRNumericTable::create(hostData, hostColIndices, hostRowOffsets, nColumns, nRows, indexing, &st);
+            }
+
             return;
         }
         if (_dataSize)
