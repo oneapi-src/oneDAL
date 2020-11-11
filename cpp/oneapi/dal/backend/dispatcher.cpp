@@ -36,6 +36,9 @@ inline constexpr detail::cpu_extension from_daal_cpu_type(daal::CpuType cpu) {
 }
 
 detail::cpu_extension detect_top_cpu_extension() {
+    if (!__daal_serv_cpu_extensions_available()) {
+        return detail::cpu_extension::sse2;
+    }
     const auto daal_cpu = (daal::CpuType)__daal_serv_cpu_detect(0);
     return from_daal_cpu_type(daal_cpu);
 }
