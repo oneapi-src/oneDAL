@@ -1,8 +1,5 @@
-DAAL
-====
-
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Developer Guide
 
    usage/index.rst

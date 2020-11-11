@@ -14,16 +14,16 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-Get Started 
-=========================
+Get Started with oneDAL
+=======================
 
 .. toctree::
    :maxdepth: 4
 
-.. include:: ./topics/installation.rst
+.. include:: ./get-started/installation.rst
 
-.. include:: ./topics/prerequisites.rst
+.. include:: ./get-started/prerequisites.rst
 
-.. include:: ./topics/end-to-end-example.rst
+.. include:: ./get-started/end-to-end-example.rst
 
-.. include:: ./topics/build-and-run-examples.rst
+.. include:: ./get-started/build-and-run-examples.rst

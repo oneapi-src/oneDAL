@@ -50,18 +50,13 @@ list of features and documentation is available at |daal-docs|_.
    :caption: oneAPI Interfaces
 
    onedal/index.rst
+   examples.rst
 
 .. toctree::
    :maxdepth: 2
    :caption: DAAL Interfaces
 
    daal/index.rst
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Examples
-
-   examples.rst
 
 .. toctree::
    :maxdepth: 1

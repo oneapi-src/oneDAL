@@ -1,9 +1,12 @@
-oneDAL
-======
-
 .. toctree::
    :maxdepth: 2
    :caption: Introduction
 
-   getstarted.rst
+   get-started.rst
    build_app/build-application.rst
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Developer Guide
+
+   algorithms/index.rst
