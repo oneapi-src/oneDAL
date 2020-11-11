@@ -21,7 +21,7 @@ Build and Run Examples
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 Perform the following steps to build and run examples demonstrating the
-basic usage scenarios of |short_name| with SYCL*. Go to
+basic usage scenarios of |short_name| with DPCPP. Go to
 :file:`<install_dir>/daal/<version>` and then set up an environment as shown in the example below:
 
 .. note::
@@ -77,11 +77,11 @@ basic usage scenarios of |short_name| with SYCL*. Go to
 
         /env/vars.bat
 
-2. Copy ``./examples/daal/cpp_sycl`` to a writable directory if necessary (since it creates temporary files):
+2. Copy ``./examples/daal/dpc`` to a writable directory if necessary (since it creates temporary files):
 
   .. code-block:: bash
 
-    cp –r ./examples/daal/cpp_sycl ${WRITABLE_DIR}
+    cp –r ./examples/daal/dpc ${WRITABLE_DIR}
 
 3. Set up the compiler environment for |dpcpp|.
    See |dpcpp_gsg|_ for details.
@@ -92,7 +92,7 @@ basic usage scenarios of |short_name| with SYCL*. Go to
 
     You need to have write permissions to the :file:`examples` folder
     to build examples, and execute permissions to run them.
-    Otherwise, you need to copy :file:`examples/daal/cpp_sycl` and :file:`examples/daal/data` folders
+    Otherwise, you need to copy :file:`examples/daal/dpc` and :file:`examples/daal/data` folders
     to the directory with right permissions. These two folders must be retained
     in the same directory level relative to each other.
 
@@ -103,16 +103,16 @@ basic usage scenarios of |short_name| with SYCL*. Go to
       .. code-block:: bash
 
         # Navigate to DPC++ examples directory and build examples
-        cd /examples/daal/cpp_sycl
-        make sointel64 example=cor_dense_batch # This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ Compiler
-        make sointel64 mode=build			   # This will compile all DPC++ examples
+        cd /examples/daal/dpc
+        make example=cor_dense_batch # This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ Compiler
+        make mode=build			   # This will compile all DPC++ examples
 
     .. group-tab:: Windows
 
       .. code-block:: bash
 
         # Navigate to DPC++ examples directory and build examples
-        cd /examples/daal/cpp_sycl
+        cd /examples/daal/dpc
         nmake libintel64 example=cor_dense_batch+ # This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ compiler
         nmake libintel64 mode=build			     # This will compile all DPC++ examples
 
@@ -122,9 +122,9 @@ basic usage scenarios of |short_name| with SYCL*. Go to
 
   .. note::
 
-    You should run DPC++ examples from :file:`examples/daal/cpp_sycl` folder, not from :file:`_results` folder.
+    You should run DPC++ examples from :file:`examples/daal/dpc` folder, not from :file:`_results` folder.
     Most examples require data to be stored in :file:`examples/daal/data` folder and to have a relative link to it
-    started from :file:`examples/daal/cpp_sycl` folder.
+    started from :file:`examples/daal/dpc` folder.
 
 
   You can build traditional C++ examples located in ``examples/daal/cpp`` folder in a similar way.

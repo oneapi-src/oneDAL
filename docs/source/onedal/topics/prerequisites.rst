@@ -22,7 +22,7 @@
 Before You Begin
 ~~~~~~~~~~~~~~~~
 
-|short_name| is located in :file:`<install_dir>/daal` directory where :file:`<install_dir>`
+|short_name| is located in :file:`<install_dir>/dal` directory where :file:`<install_dir>`
 is the directory in which Intel\ |reg|\  oneAPI Toolkit was installed.
 
 The current version of |short_name| with
@@ -32,8 +32,7 @@ directory.
 
 The dependencies needed to build examples with DPC++ extensions API are:
 
-- C/C++ Compiler with C++11 support (or C++14 support on Windows\*)
-- |dpcpp_comp|_ 2019 August release or later (for DPC++ support)
+- |dpcpp_comp|_ 2021.1-beat10 release or later (for DPC++ support)
 - OpenCL™ runtime 1.2 or later (to run the DPC++ runtime)
 - GNU\* Make on Linux\*, nmake on Windows\*
 
