@@ -10,6 +10,7 @@ if /I %1 == parse-doxygen goto :parse-doxygen
 if /I %1 == clean goto :clean
 
 :html
+python3 rst_examples.py
 sphinx-build -M html source build -q
 goto :eof
 
