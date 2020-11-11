@@ -32,8 +32,8 @@ ONEDAL_EXPORT void _onedal_threader_for(int n,
 #define ONEDAL_PARALLEL_SORT_DECL(TYPE) \
     ONEDAL_EXPORT void _onedal_parallel_sort_##TYPE(TYPE *begin_ptr, TYPE *end_ptr);
 
-ONEDAL_PARALLEL_SORT_DECL(int);
-ONEDAL_PARALLEL_SORT_DECL(size_t);
+ONEDAL_PARALLEL_SORT_DECL(int)
+ONEDAL_PARALLEL_SORT_DECL(size_t)
 
 #undef ONEDAL_PARALLEL_SORT_DECL
 }
