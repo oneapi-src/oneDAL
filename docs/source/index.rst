@@ -43,33 +43,28 @@ list of features and documentation is available at |daal-docs|_.
    :maxdepth: 2
    :caption: Introduction
 
-   getstarted.rst
-   build_app/build-application.rst
    cpu-vs-gpu.rst
-   legal.rst
 
 .. toctree::
    :maxdepth: 2
-   :caption: Developer Guide
+   :caption: oneAPI Interfaces
 
-   dev_guide/usage/index.rst
-   dev_guide/data-management/data-management.rst
-   dev_guide/analysis.rst
-   dev_guide/training-prediction.rst
-   dev_guide/services/services.rst
-   bibliography.rst
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Examples
-
+   onedal/index.rst
    examples.rst
+
+.. toctree::
+   :maxdepth: 2
+   :caption: DAAL Interfaces
+
+   daal/index.rst
 
 .. toctree::
    :maxdepth: 1
    :caption: Notes
 
    notes/known_issues.rst
+   bibliography.rst
+   legal.rst
 
 .. toctree::
    :maxdepth: 1
