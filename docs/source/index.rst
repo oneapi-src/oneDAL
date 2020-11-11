@@ -50,15 +50,9 @@ list of features and documentation is available at |daal-docs|_.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Developer Guide
+   :caption: DAAL
 
-   dev_guide/usage/index.rst
-   dev_guide/data-management/data-management.rst
-   dev_guide/analysis.rst
-   dev_guide/training-prediction.rst
-   dev_guide/services/services.rst
-   bibliography.rst
-   array.rst
+   daal/index.rst
 
 .. toctree::
    :maxdepth: 2
@@ -71,6 +65,8 @@ list of features and documentation is available at |daal-docs|_.
    :caption: Notes
 
    notes/known_issues.rst
+   bibliography.rst
+   legal.rst
 
 .. toctree::
    :maxdepth: 1
