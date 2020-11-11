@@ -24,6 +24,6 @@ Get Started
 
 .. include:: ./topics/prerequisites.rst
 
-.. include:: ./topics/generic-workflow.rst
+.. include:: ./topics/end-to-end-example.rst
 
-.. include:: ./topics/build-examples.rst
+.. include:: ./topics/build-and-run-examples.rst

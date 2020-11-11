@@ -30,7 +30,7 @@ DPC++ is available for Linux\* and Windows\* 64-bit operating systems. The
 prebuilt |short_name| libraries can be found in the :file:`<install_dir>/daal/<version>/redist`
 directory.
 
-The dependencies needed to build examples with DPC++ extensions API are:
+The dependencies needed to build examples with DPC++ extensions:
 
 - |dpcpp_comp|_ 2021.1-beat10 release or later (for DPC++ support)
 - OpenCL™ runtime 1.2 or later (to run the DPC++ runtime)

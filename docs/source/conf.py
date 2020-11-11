@@ -78,11 +78,11 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["opt-notice.rst", 'dev_guide/data-management/numeric-tables/*.rst', 'topics/*.rst',
-                    'dev_guide/algorithms/dbscan/distributed-steps/*',
-                    'dev_guide/algorithms/kmeans/includes/*',
+exclude_patterns = ["opt-notice.rst", 'daal/data-management/numeric-tables/*.rst', 'onedal/topics/*.rst',
+                    'daal/algorithms/dbscan/distributed-steps/*',
+                    'daal/algorithms/kmeans/includes/*',
                     'notes/issues/2021.1-beta06/includes/*',
-                    'dev_guide/includes/*']
+                    'daal/includes/*']
 
 extlinks = {
     'cpp_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/%s', ''),
