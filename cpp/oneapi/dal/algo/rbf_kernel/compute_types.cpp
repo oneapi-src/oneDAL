@@ -20,7 +20,7 @@
 namespace oneapi::dal::rbf_kernel {
 
 template <typename Task>
-class detail::compute_input_impl : public base {
+class detail::v1::compute_input_impl : public base {
 public:
     compute_input_impl(const table& x, const table& y) : x(x), y(y) {}
     table x;
@@ -28,25 +28,27 @@ public:
 };
 
 template <typename Task>
-class detail::compute_result_impl : public base {
+class detail::v1::compute_result_impl : public base {
 public:
     table values;
 };
 
-using detail::compute_input_impl;
-using detail::compute_result_impl;
+using detail::v1::compute_input_impl;
+using detail::v1::compute_result_impl;
+
+namespace v1 {
 
 template <typename Task>
 compute_input<Task>::compute_input(const table& x, const table& y)
         : impl_(new compute_input_impl<Task>(x, y)) {}
 
 template <typename Task>
-table compute_input<Task>::get_x() const {
+const table& compute_input<Task>::get_x() const {
     return impl_->x;
 }
 
 template <typename Task>
-table compute_input<Task>::get_y() const {
+const table& compute_input<Task>::get_y() const {
     return impl_->y;
 }
 
@@ -66,7 +68,7 @@ template <typename Task>
 compute_result<Task>::compute_result() : impl_(new compute_result_impl<Task>{}) {}
 
 template <typename Task>
-table compute_result<Task>::get_values() const {
+const table& compute_result<Task>::get_values() const {
     return impl_->values;
 }
 
@@ -77,4 +79,5 @@ void compute_result<Task>::set_values_impl(const table& value) {
 
 template class ONEDAL_EXPORT compute_result<task::compute>;
 
+} // namespace v1
 } // namespace oneapi::dal::rbf_kernel

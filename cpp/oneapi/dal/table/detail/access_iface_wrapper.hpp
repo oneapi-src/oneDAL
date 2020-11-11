@@ -19,6 +19,7 @@
 #include "oneapi/dal/table/detail/access_iface.hpp"
 
 namespace oneapi::dal::detail {
+namespace v1 {
 
 template <typename AccessIface, typename AccessImpl>
 class access_iface_wrapper : public AccessIface, public base {
@@ -108,5 +109,9 @@ public:
 private:
     AccessImpl impl_;
 };
+
+} // namespace v1
+
+using v1::access_iface_wrapper;
 
 } // namespace oneapi::dal::detail

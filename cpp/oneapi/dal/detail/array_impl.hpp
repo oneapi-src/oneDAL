@@ -22,6 +22,7 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::detail {
+namespace v1 {
 
 template <typename T>
 class array_impl : public base {
@@ -165,5 +166,9 @@ private:
     std::variant<cshared, shared> data_owned_;
     std::int64_t count_;
 };
+
+} // namespace v1
+
+using v1::array_impl;
 
 } // namespace oneapi::dal::detail

@@ -22,6 +22,7 @@
     }
 
 namespace oneapi::dal::detail {
+namespace v1 {
 
 /* Common */
 MSG(array_does_not_contain_mutable_data, "Array does not contain mutable data")
@@ -62,6 +63,7 @@ MSG(column_index_out_of_range, "Column index out of range")
 /* Graphs */
 MSG(vertex_index_out_of_range_expect_from_zero_to_vertex_count,
     "Vertex index is out of range, expect index in [0, vertex_count)")
+MSG(negative_vertex_id, "Negative vertex ID")
 
 /* General algorithms */
 MSG(accuracy_threshold_lt_zero, "Accuracy_threshold is lower than zero")
@@ -116,6 +118,7 @@ MSG(empty_edge_list, "Empty edge list")
 MSG(interval_gt_vertex_count, "Interval is greater than vertex count")
 MSG(negative_interval, "Negative interval")
 MSG(row_begin_gt_row_end, "Row begin is greater than row end")
+MSG(range_idx_gt_max_int32, "Range indexes are greater than max of int32")
 
 /* PCA */
 MSG(component_count_lt_zero, "Component count is lower than zero")
@@ -131,7 +134,6 @@ MSG(pca_svd_based_method_is_not_implemented_for_gpu,
 /* SVM */
 MSG(c_leq_zero, "C is lower than or equal to zero")
 MSG(cache_size_leq_zero, "Cache size lower that or equal to zero")
-MSG(input_kernel_is_empty, "Input kernel function is empty")
 MSG(input_model_coeffs_are_empty, "Input model coeffs are empty")
 MSG(input_model_coeffs_rc_neq_input_model_support_vector_count,
     "Input model coeffs row count is not equal to support vector count provided in input model")
@@ -144,6 +146,7 @@ MSG(input_model_support_vectors_rc_neq_input_model_support_vector_count,
 MSG(sigma_leq_zero, "Sigma lower than or equal to zero")
 MSG(svm_smo_method_is_not_implemented_for_gpu, "SVM SMO method is not implemented for GPU")
 MSG(tau_leq_zero, "Tau is lower than or equal to zero")
+MSG(unknown_kernel_function_type, "Unknown kernel function type")
 
 /* Kernel Functions */
 MSG(input_x_cc_neq_y_cc, "Input x column count is not qual to y column count")
@@ -162,4 +165,5 @@ MSG(decision_forest_train_dense_method_is_not_implemented_for_gpu,
 MSG(decision_forest_train_hist_method_is_not_implemented_for_cpu,
     "Decision forest train hist method is not implemented for CPU")
 
+} // namespace v1
 } // namespace oneapi::dal::detail

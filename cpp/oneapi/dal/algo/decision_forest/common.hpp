@@ -48,26 +48,6 @@ using v1::by_default;
 
 } // namespace method
 
-namespace detail {
-namespace v1 {
-struct tag {};
-template <typename Task>
-class descriptor_impl;
-
-template <typename Task>
-class model_impl;
-} // namespace v1
-
-using v1::tag;
-using v1::descriptor_impl;
-using v1::model_impl;
-
-template <typename T>
-using enable_if_classification_t =
-    std::enable_if_t<std::is_same_v<std::decay_t<T>, task::classification>>;
-
-} // namespace detail
-
 namespace v1 {
 
 enum class variable_importance_mode {
@@ -97,222 +77,6 @@ enum class infer_mode : std::uint64_t {
 };
 
 enum class voting_mode { weighted, unweighted };
-
-template <typename Task = task::by_default>
-class descriptor_base : public base {
-    friend dal::detail::pimpl_accessor;
-
-public:
-    using tag_t = detail::tag;
-    using float_t = float;
-    using method_t = method::by_default;
-    using task_t = Task;
-
-    descriptor_base();
-
-    double get_observations_per_tree_fraction() const;
-    double get_impurity_threshold() const;
-    double get_min_weight_fraction_in_leaf_node() const;
-    double get_min_impurity_decrease_in_split_node() const;
-
-    std::int64_t get_tree_count() const;
-    std::int64_t get_features_per_node() const;
-    std::int64_t get_max_tree_depth() const;
-    std::int64_t get_min_observations_in_leaf_node() const;
-    std::int64_t get_min_observations_in_split_node() const;
-    std::int64_t get_max_leaf_nodes() const;
-    std::int64_t get_max_bins() const;
-    std::int64_t get_min_bin_size() const;
-
-    bool get_memory_saving_mode() const;
-    bool get_bootstrap() const;
-
-    error_metric_mode get_error_metric_mode() const;
-    variable_importance_mode get_variable_importance_mode() const;
-
-    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
-    std::int64_t get_class_count() const {
-        return get_class_count_impl();
-    }
-
-    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
-    infer_mode get_infer_mode() const {
-        return get_infer_mode_impl();
-    }
-
-    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
-    voting_mode get_voting_mode() const {
-        return get_voting_mode_impl();
-    }
-
-protected:
-    void set_observations_per_tree_fraction_impl(double value);
-    void set_impurity_threshold_impl(double value);
-    void set_min_weight_fraction_in_leaf_node_impl(double value);
-    void set_min_impurity_decrease_in_split_node_impl(double value);
-
-    void set_tree_count_impl(std::int64_t value);
-    void set_features_per_node_impl(std::int64_t value);
-    void set_max_tree_depth_impl(std::int64_t value);
-    void set_min_observations_in_leaf_node_impl(std::int64_t value);
-    void set_min_observations_in_split_node_impl(std::int64_t value);
-    void set_max_leaf_nodes_impl(std::int64_t value);
-    void set_max_bins_impl(std::int64_t value);
-    void set_min_bin_size_impl(std::int64_t value);
-
-    void set_memory_saving_mode_impl(bool value);
-    void set_bootstrap_impl(bool value);
-
-    void set_error_metric_mode_impl(error_metric_mode value);
-    void set_variable_importance_mode_impl(variable_importance_mode value);
-
-    void set_class_count_impl(std::int64_t value);
-    void set_infer_mode_impl(infer_mode value);
-    void set_voting_mode_impl(voting_mode value);
-
-    std::int64_t get_class_count_impl() const;
-    infer_mode get_infer_mode_impl() const;
-    voting_mode get_voting_mode_impl() const;
-
-private:
-    dal::detail::pimpl<detail::descriptor_impl<Task>> impl_;
-};
-
-template <typename Float = descriptor_base<>::float_t,
-          typename Method = descriptor_base<>::method_t,
-          typename Task = descriptor_base<>::task_t>
-class descriptor : public descriptor_base<Task> {
-    static_assert(dal::detail::is_one_of_v<Float, float, double>);
-    static_assert(dal::detail::is_one_of_v<Method, method::dense, method::hist>);
-    static_assert(dal::detail::is_one_of_v<Task, task::classification, task::regression>);
-
-public:
-    using float_t = Float;
-    using method_t = Method;
-    using task_t = Task;
-
-    auto& set_observations_per_tree_fraction(double value) {
-        descriptor_base<Task>::set_observations_per_tree_fraction_impl(value);
-        return *this;
-    }
-
-    auto& set_impurity_threshold(double value) {
-        descriptor_base<Task>::set_impurity_threshold_impl(value);
-        return *this;
-    }
-
-    auto& set_min_weight_fraction_in_leaf_node(double value) {
-        descriptor_base<Task>::set_min_weight_fraction_in_leaf_node_impl(value);
-        return *this;
-    }
-
-    auto& set_min_impurity_decrease_in_split_node(double value) {
-        descriptor_base<Task>::set_min_impurity_decrease_in_split_node_impl(value);
-        return *this;
-    }
-
-    auto& set_tree_count(std::int64_t value) {
-        descriptor_base<Task>::set_tree_count_impl(value);
-        return *this;
-    }
-
-    auto& set_features_per_node(std::int64_t value) {
-        descriptor_base<Task>::set_features_per_node_impl(value);
-        return *this;
-    }
-
-    auto& set_max_tree_depth(std::int64_t value) {
-        descriptor_base<Task>::set_max_tree_depth_impl(value);
-        return *this;
-    }
-
-    auto& set_min_observations_in_leaf_node(std::int64_t value) {
-        descriptor_base<Task>::set_min_observations_in_leaf_node_impl(value);
-        return *this;
-    }
-
-    auto& set_min_observations_in_split_node(std::int64_t value) {
-        descriptor_base<Task>::set_min_observations_in_split_node_impl(value);
-        return *this;
-    }
-
-    auto& set_max_leaf_nodes(std::int64_t value) {
-        descriptor_base<Task>::set_max_leaf_nodes_impl(value);
-        return *this;
-    }
-
-    auto& set_max_bins(std::int64_t value) {
-        descriptor_base<Task>::set_max_bins_impl(value);
-        return *this;
-    }
-
-    auto& set_min_bin_size(std::int64_t value) {
-        descriptor_base<Task>::set_min_bin_size_impl(value);
-        return *this;
-    }
-
-    auto& set_error_metric_mode(error_metric_mode value) {
-        descriptor_base<Task>::set_error_metric_mode_impl(value);
-        return *this;
-    }
-
-    auto& set_memory_saving_mode(bool value) {
-        descriptor_base<Task>::set_memory_saving_mode_impl(value);
-        return *this;
-    }
-
-    auto& set_bootstrap(bool value) {
-        descriptor_base<Task>::set_bootstrap_impl(value);
-        return *this;
-    }
-
-    auto& set_variable_importance_mode(variable_importance_mode value) {
-        descriptor_base<Task>::set_variable_importance_mode_impl(value);
-        return *this;
-    }
-
-    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
-    auto& set_class_count(std::int64_t value) {
-        descriptor_base<Task>::set_class_count_impl(value);
-        return *this;
-    }
-
-    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
-    auto& set_infer_mode(infer_mode value) {
-        descriptor_base<Task>::set_infer_mode_impl(value);
-        return *this;
-    }
-
-    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
-    auto& set_voting_mode(voting_mode value) {
-        descriptor_base<Task>::set_voting_mode_impl(value);
-        return *this;
-    }
-};
-
-template <typename Task = task::by_default>
-class model : public base {
-    friend dal::detail::pimpl_accessor;
-
-public:
-    using task_t = Task;
-
-    model();
-
-    std::int64_t get_tree_count() const;
-
-    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
-    std::int64_t get_class_count() const {
-        return get_class_count_impl();
-    }
-
-protected:
-    std::int64_t get_class_count_impl() const;
-
-private:
-    explicit model(const std::shared_ptr<detail::model_impl<Task>>& impl);
-    dal::detail::pimpl<detail::model_impl<Task>> impl_;
-};
 
 inline infer_mode operator|(infer_mode value_left, infer_mode value_right) {
     return bitwise_or(value_left, value_right);
@@ -356,7 +120,269 @@ using v1::variable_importance_mode;
 using v1::error_metric_mode;
 using v1::infer_mode;
 using v1::voting_mode;
+
+namespace detail {
+namespace v1 {
+struct descriptor_tag {};
+
+template <typename Task>
+class descriptor_impl;
+
+template <typename Task>
+class model_impl;
+
+template <typename T>
+using enable_if_classification_t =
+    std::enable_if_t<std::is_same_v<std::decay_t<T>, task::classification>>;
+
+template <typename Float>
+constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
+
+template <typename Method>
+constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::dense, method::hist>;
+
+template <typename Task>
+constexpr bool is_valid_task_v =
+    dal::detail::is_one_of_v<Task, task::classification, task::regression>;
+
+template <typename Task = task::by_default>
+class descriptor_base : public base {
+    static_assert(is_valid_task_v<Task>);
+    friend dal::detail::pimpl_accessor;
+
+public:
+    using tag_t = descriptor_tag;
+    using float_t = float;
+    using method_t = method::by_default;
+    using task_t = Task;
+
+    descriptor_base();
+
+    double get_observations_per_tree_fraction() const;
+    double get_impurity_threshold() const;
+    double get_min_weight_fraction_in_leaf_node() const;
+    double get_min_impurity_decrease_in_split_node() const;
+
+    std::int64_t get_tree_count() const;
+    std::int64_t get_features_per_node() const;
+    std::int64_t get_max_tree_depth() const;
+    std::int64_t get_min_observations_in_leaf_node() const;
+    std::int64_t get_min_observations_in_split_node() const;
+    std::int64_t get_max_leaf_nodes() const;
+    std::int64_t get_max_bins() const;
+    std::int64_t get_min_bin_size() const;
+
+    bool get_memory_saving_mode() const;
+    bool get_bootstrap() const;
+
+    error_metric_mode get_error_metric_mode() const;
+    variable_importance_mode get_variable_importance_mode() const;
+
+    template <typename T = Task, typename = enable_if_classification_t<T>>
+    std::int64_t get_class_count() const {
+        return get_class_count_impl();
+    }
+
+    template <typename T = Task, typename = enable_if_classification_t<T>>
+    infer_mode get_infer_mode() const {
+        return get_infer_mode_impl();
+    }
+
+    template <typename T = Task, typename = enable_if_classification_t<T>>
+    voting_mode get_voting_mode() const {
+        return get_voting_mode_impl();
+    }
+
+protected:
+    void set_observations_per_tree_fraction_impl(double value);
+    void set_impurity_threshold_impl(double value);
+    void set_min_weight_fraction_in_leaf_node_impl(double value);
+    void set_min_impurity_decrease_in_split_node_impl(double value);
+
+    void set_tree_count_impl(std::int64_t value);
+    void set_features_per_node_impl(std::int64_t value);
+    void set_max_tree_depth_impl(std::int64_t value);
+    void set_min_observations_in_leaf_node_impl(std::int64_t value);
+    void set_min_observations_in_split_node_impl(std::int64_t value);
+    void set_max_leaf_nodes_impl(std::int64_t value);
+    void set_max_bins_impl(std::int64_t value);
+    void set_min_bin_size_impl(std::int64_t value);
+
+    void set_memory_saving_mode_impl(bool value);
+    void set_bootstrap_impl(bool value);
+
+    void set_error_metric_mode_impl(error_metric_mode value);
+    void set_variable_importance_mode_impl(variable_importance_mode value);
+
+    void set_class_count_impl(std::int64_t value);
+    void set_infer_mode_impl(infer_mode value);
+    void set_voting_mode_impl(voting_mode value);
+
+    std::int64_t get_class_count_impl() const;
+    infer_mode get_infer_mode_impl() const;
+    voting_mode get_voting_mode_impl() const;
+
+private:
+    dal::detail::pimpl<descriptor_impl<Task>> impl_;
+};
+
+} // namespace v1
+
+using v1::descriptor_tag;
+using v1::descriptor_impl;
+using v1::model_impl;
 using v1::descriptor_base;
+
+using v1::enable_if_classification_t;
+using v1::is_valid_float_v;
+using v1::is_valid_method_v;
+using v1::is_valid_task_v;
+
+} // namespace detail
+
+namespace v1 {
+
+template <typename Float = detail::descriptor_base<>::float_t,
+          typename Method = detail::descriptor_base<>::method_t,
+          typename Task = detail::descriptor_base<>::task_t>
+class descriptor : public detail::descriptor_base<Task> {
+    static_assert(detail::is_valid_float_v<Float>);
+    static_assert(detail::is_valid_method_v<Method>);
+    static_assert(detail::is_valid_task_v<Task>);
+
+    using base_t = detail::descriptor_base<Task>;
+
+public:
+    using float_t = Float;
+    using method_t = Method;
+    using task_t = Task;
+
+    auto& set_observations_per_tree_fraction(double value) {
+        base_t::set_observations_per_tree_fraction_impl(value);
+        return *this;
+    }
+
+    auto& set_impurity_threshold(double value) {
+        base_t::set_impurity_threshold_impl(value);
+        return *this;
+    }
+
+    auto& set_min_weight_fraction_in_leaf_node(double value) {
+        base_t::set_min_weight_fraction_in_leaf_node_impl(value);
+        return *this;
+    }
+
+    auto& set_min_impurity_decrease_in_split_node(double value) {
+        base_t::set_min_impurity_decrease_in_split_node_impl(value);
+        return *this;
+    }
+
+    auto& set_tree_count(std::int64_t value) {
+        base_t::set_tree_count_impl(value);
+        return *this;
+    }
+
+    auto& set_features_per_node(std::int64_t value) {
+        base_t::set_features_per_node_impl(value);
+        return *this;
+    }
+
+    auto& set_max_tree_depth(std::int64_t value) {
+        base_t::set_max_tree_depth_impl(value);
+        return *this;
+    }
+
+    auto& set_min_observations_in_leaf_node(std::int64_t value) {
+        base_t::set_min_observations_in_leaf_node_impl(value);
+        return *this;
+    }
+
+    auto& set_min_observations_in_split_node(std::int64_t value) {
+        base_t::set_min_observations_in_split_node_impl(value);
+        return *this;
+    }
+
+    auto& set_max_leaf_nodes(std::int64_t value) {
+        base_t::set_max_leaf_nodes_impl(value);
+        return *this;
+    }
+
+    auto& set_max_bins(std::int64_t value) {
+        base_t::set_max_bins_impl(value);
+        return *this;
+    }
+
+    auto& set_min_bin_size(std::int64_t value) {
+        base_t::set_min_bin_size_impl(value);
+        return *this;
+    }
+
+    auto& set_error_metric_mode(error_metric_mode value) {
+        base_t::set_error_metric_mode_impl(value);
+        return *this;
+    }
+
+    auto& set_memory_saving_mode(bool value) {
+        base_t::set_memory_saving_mode_impl(value);
+        return *this;
+    }
+
+    auto& set_bootstrap(bool value) {
+        base_t::set_bootstrap_impl(value);
+        return *this;
+    }
+
+    auto& set_variable_importance_mode(variable_importance_mode value) {
+        base_t::set_variable_importance_mode_impl(value);
+        return *this;
+    }
+
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+    auto& set_class_count(std::int64_t value) {
+        base_t::set_class_count_impl(value);
+        return *this;
+    }
+
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+    auto& set_infer_mode(infer_mode value) {
+        base_t::set_infer_mode_impl(value);
+        return *this;
+    }
+
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+    auto& set_voting_mode(voting_mode value) {
+        base_t::set_voting_mode_impl(value);
+        return *this;
+    }
+};
+
+template <typename Task = task::by_default>
+class model : public base {
+    static_assert(detail::is_valid_task_v<Task>);
+    friend dal::detail::pimpl_accessor;
+
+public:
+    using task_t = Task;
+
+    model();
+
+    std::int64_t get_tree_count() const;
+
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+    std::int64_t get_class_count() const {
+        return get_class_count_impl();
+    }
+
+protected:
+    std::int64_t get_class_count_impl() const;
+
+private:
+    explicit model(const std::shared_ptr<detail::model_impl<Task>>& impl);
+    dal::detail::pimpl<detail::model_impl<Task>> impl_;
+};
+
+} // namespace v1
+
 using v1::descriptor;
 using v1::model;
 

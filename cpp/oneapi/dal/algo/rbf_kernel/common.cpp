@@ -17,15 +17,14 @@
 #include "oneapi/dal/algo/rbf_kernel/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
-namespace oneapi::dal::rbf_kernel {
+namespace oneapi::dal::rbf_kernel::detail {
+namespace v1 {
 
-template <>
-class detail::descriptor_impl<task::compute> : public base {
+template <typename Task>
+class descriptor_impl : public base {
 public:
     double sigma = 1.0;
 };
-
-using detail::descriptor_impl;
 
 template <typename Task>
 descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
@@ -45,4 +44,5 @@ void descriptor_base<Task>::set_sigma_impl(double value) {
 
 template class ONEDAL_EXPORT descriptor_base<task::compute>;
 
-} // namespace oneapi::dal::rbf_kernel
+} // namespace v1
+} // namespace oneapi::dal::rbf_kernel::detail

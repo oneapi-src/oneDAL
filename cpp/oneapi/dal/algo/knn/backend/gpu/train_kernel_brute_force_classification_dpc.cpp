@@ -28,6 +28,7 @@
 namespace oneapi::dal::knn::backend {
 
 using dal::backend::context_gpu;
+using descriptor_t = detail::descriptor_base<task::classification>;
 
 namespace daal_knn = daal::algorithms::bf_knn_classification;
 namespace interop = dal::backend::interop;
@@ -37,11 +38,10 @@ using daal_knn_brute_force_kernel_t =
     daal_knn::training::internal::KNNClassificationTrainKernelUCAPI<Float>;
 
 template <typename Float>
-static train_result<task::classification> call_daal_kernel(
-    const context_gpu& ctx,
-    const descriptor_base<task::classification>& desc,
-    const table& data,
-    const table& labels) {
+static train_result<task::classification> call_daal_kernel(const context_gpu& ctx,
+                                                           const descriptor_t& desc,
+                                                           const table& data,
+                                                           const table& labels) {
     using daal_model_interop_t = backend::model_interop;
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
@@ -81,14 +81,14 @@ static train_result<task::classification> call_daal_kernel(
                                                        *daal_parameter.engine.get()));
 
     auto interop = new daal_model_interop_t(model_ptr);
-    const auto model_impl = std::make_shared<detail::model_impl>(interop);
+    const auto model_impl = std::make_shared<model_impl_cls>(interop);
     return train_result<task::classification>().set_model(
         dal::detail::make_private<model<task::classification>>(model_impl));
 }
 
 template <typename Float>
 static train_result<task::classification> train(const context_gpu& ctx,
-                                                const descriptor_base<task::classification>& desc,
+                                                const descriptor_t& desc,
                                                 const train_input<task::classification>& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_labels());
 }
@@ -97,7 +97,7 @@ template <typename Float>
 struct train_kernel_gpu<Float, method::brute_force, task::classification> {
     train_result<task::classification> operator()(
         const context_gpu& ctx,
-        const descriptor_base<task::classification>& desc,
+        const descriptor_t& desc,
         const train_input<task::classification>& input) const {
         return train<Float>(ctx, desc, input);
     }

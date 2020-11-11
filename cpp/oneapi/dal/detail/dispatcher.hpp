@@ -17,12 +17,25 @@
 #pragma once
 
 namespace oneapi::dal::detail {
+namespace v1 {
 
-struct cpu_dispatch_default {};
+struct cpu_dispatch_sse2 {};
 struct cpu_dispatch_ssse3 {};
 struct cpu_dispatch_sse42 {};
 struct cpu_dispatch_avx {};
 struct cpu_dispatch_avx2 {};
 struct cpu_dispatch_avx512 {};
+
+using cpu_dispatch_default = cpu_dispatch_sse2;
+
+} // namespace v1
+
+using v1::cpu_dispatch_sse2;
+using v1::cpu_dispatch_ssse3;
+using v1::cpu_dispatch_sse42;
+using v1::cpu_dispatch_avx;
+using v1::cpu_dispatch_avx2;
+using v1::cpu_dispatch_avx512;
+using v1::cpu_dispatch_default;
 
 } // namespace oneapi::dal::detail

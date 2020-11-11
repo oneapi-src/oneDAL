@@ -20,13 +20,10 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::svm::detail {
+namespace v1 {
 
-template <typename Context,
-          typename Float,
-          typename Method = method::by_default,
-          typename Task = task::by_default,
-          typename... Options>
-struct ONEDAL_EXPORT train_ops_dispatcher {
+template <typename Context, typename Float, typename Method, typename Task, typename... Options>
+struct train_ops_dispatcher {
     train_result<Task> operator()(const Context&,
                                   const descriptor_base<Task>&,
                                   const train_input<Task>&) const;
@@ -58,9 +55,6 @@ struct train_ops {
             input.get_data().get_row_count() != input.get_weights().get_row_count()) {
             throw invalid_argument(msg::input_data_rc_neq_input_weights_rc());
         }
-        if (!params.get_kernel_impl()->get_impl()) {
-            throw domain_error(msg::input_kernel_is_empty());
-        }
     }
 
     void check_postconditions(const Descriptor& params,
@@ -89,5 +83,9 @@ struct train_ops {
         return result;
     }
 };
+
+} // namespace v1
+
+using v1::train_ops;
 
 } // namespace oneapi::dal::svm::detail

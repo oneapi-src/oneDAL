@@ -19,6 +19,7 @@
 #include "oneapi/dal/table/homogen.hpp"
 
 using namespace oneapi::dal;
+using namespace oneapi;
 using std::int32_t;
 
 TEST(column_accessor_test, can_get_first_column_from_homogen_table) {
@@ -131,4 +132,18 @@ TEST(column_accessor_test, can_get_column_values_from_column_major_homogen_table
 
     ASSERT_EQ(col[0], 5);
     ASSERT_EQ(col[1], 6);
+}
+
+TEST(column_accessor_bad_arg_test, invalid_range) {
+    detail::homogen_table_builder b;
+    b.reset(array<float>::zeros(3 * 2), 3, 2);
+    column_accessor<float> acc{ b };
+
+    ASSERT_THROW(acc.pull(0, { 1, 4 }), dal::range_error);
+    ASSERT_THROW(acc.pull(2, { 1, 2 }), dal::range_error);
+
+    auto column_data = acc.pull(0, { 1, 2 });
+    ASSERT_THROW(acc.push(column_data, 0, { 0, 2 }), dal::range_error);
+    ASSERT_THROW(acc.push(column_data, 0, { 3, 4 }), dal::range_error);
+    ASSERT_THROW(acc.push(column_data, 2, { 1, 2 }), dal::range_error);
 }
