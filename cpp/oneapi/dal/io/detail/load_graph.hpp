@@ -68,6 +68,8 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     using atomic_vertex_t = typename daal::services::Atomic<vertex_t>;
     using atomic_edge_t = typename daal::services::Atomic<edge_t>;
 
+    using namespace oneapi::dal::detail;
+
     vertex_t max_id = edges[0].first;
     for (auto u : edges) {
         vertex_t edge_max = std::max(u.first, u.second);
@@ -94,7 +96,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     void *degrees_vec_void = (void *)allocator.allocate(degrees_size);
     atomic_vertex_t *degrees_cv = new (degrees_vec_void) atomic_vertex_t[vertex_count];
 
-    oneapi::dal::detail::threader_for(edges.size(), edges.size(), [&](vertex_t u) {
+    threader_for(edges.size(), edges.size(), [&](vertex_t u) {
         degrees_cv[edges[u].first].inc();
         degrees_cv[edges[u].second].inc();
     });
@@ -141,11 +143,11 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     void *unfiltered_offsets_void = (void *)allocator.allocate(unfiltered_offsets_size);
     edge_t *unfiltered_offsets = new (unfiltered_offsets_void) edge_t[rows_vec_count];
 
-    oneapi::dal::detail::threader_for(vertex_count + 1, vertex_count + 1, [&](vertex_t n) {
+    threader_for(vertex_count + 1, vertex_count + 1, [&](vertex_t n) {
         unfiltered_offsets[n] = rows_vec_atomic[n].get();
     });
 
-    oneapi::dal::detail::threader_for(edges.size(), edges.size(), [&](vertex_t u) {
+    threader_for(edges.size(), edges.size(), [&](vertex_t u) {
         unfiltered_neighs[rows_vec_atomic[edges[u].first].inc() - 1] = edges[u].second;
         unfiltered_neighs[rows_vec_atomic[edges[u].second].inc() - 1] = edges[u].first;
     });
@@ -155,11 +157,11 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     auto degrees_data = layout._degrees.data();
 
     //removing self-loops,  multiple edges from graph, and make neighbors in CSR sorted
-    oneapi::dal::detail::threader_for(vertex_count, vertex_count, [&](vertex_t u) {
+    threader_for(vertex_count, vertex_count, [&](vertex_t u) {
         auto start_p = unfiltered_neighs + unfiltered_offsets[u];
         auto end_p = unfiltered_neighs + unfiltered_offsets[u + 1];
 
-        oneapi::dal::detail::parallel_sort(start_p, end_p);
+        parallel_sort(start_p, end_p);
 
         auto neighs_u_new_end = std::unique(start_p, end_p);
         neighs_u_new_end = std::remove(start_p, neighs_u_new_end, u);
@@ -181,7 +183,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
 
     auto vert_neighs = layout._vertex_neighbors.data();
     auto edge_offs = layout._edge_offsets.data();
-    oneapi::dal::detail::threader_for(vertex_count, vertex_count, [&](vertex_t u) {
+    threader_for(vertex_count, vertex_count, [&](vertex_t u) {
         auto u_neighs = vert_neighs + edge_offs[u];
         auto u_neighs_unf = unfiltered_neighs + unfiltered_offsets[u];
         for (vertex_t i = 0; i < degrees_data[u]; i++) {
