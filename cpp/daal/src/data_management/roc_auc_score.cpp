@@ -16,6 +16,19 @@
 *******************************************************************************/
 
 #include "data_management/data/internal/roc_auc_score.h"
+#include "data_management/data/numeric_table.h"
+#include "data_management/data/data_dictionary.h"
+#include "services/env_detect.h"
+#include "src/externals/service_dispatch.h"
+#include "src/services/service_data_utils.h"
+#include "src/services/service_utils.h"
+#include "src/services/service_defines.h"
+#include "src/threading/threading.h"
+#include "src/data_management/service_numeric_table.h"
+#include "data_management/features/defines.h"
+#include "src/algorithms/service_error_handling.h"
+#include "src/externals/service_rng.h"
+#include "src/externals/service_rng_mkl.h"
 #include "tbb/parallel_sort.h"
 #include "tbb/parallel_reduce.h"
 
@@ -42,32 +55,86 @@ struct Sum
 };
 
 template <typename DataType>
-DataType roc_auc_score_(const std::vector<DataType> &predictedRank, PyArrayObject* actual_numpy, int size)
+void calculateRankData(double * predictedRank, NumericTablePtr & prediction_numpy, const int& size)
 {
-    DataType* actual = (DataType*)PyArray_DATA(actual_numpy);
-    std::vector<DataType> actualVec;
+    data_management::BlockDescriptor<DataType> numpyBlock;
+    prediction_numpy->  getBlockOfRows(0, 1, data_management::readOnly, numpyBlock);
+    DataType * numpyPtr = numpyBlock.getBlockPtr();
 
-    actualVec.assign(actual, actual + size);
-    Sum<DataType> actualSum;
+    std::pair<DataType, size_t>* v_sort = new std::pair<DataType, size_t>[size];
 
-    parallel_reduce(tbb::blocked_range<typename std::std::vector<DataType>::iterator>(actualVec.begin(), actualVec.end()), actualSum);
+    for (size_t i = 0; i < size; ++i) {
+        v_sort[i] = std::make_pair(numpyPtr[i], i);
+    }
 
-    DataType nPos = actualSum.value;
-    DataType nNeg = size-nPos;
+    for(size_t i = 0;i < size;++i){ //temporarily, bubble sort
+        for(size_t j = i + 1;j < size;++j){
+            if (v_sort[j] < v_sort[i]){
+                std::swap(v_sort[i], v_sort[j]);
+            }
+        }
+    }
+
+    /*
+    tbb::parallel_sort(v_sort.begin(), v_sort.end(), [](auto &left, auto &right) {
+        return left.first < right.first;
+    });
+    */
+
+    int r = 1;
+    int n = 1;
+    size_t i = 0;
+
+    while (i < size) {
+        size_t j = i;
+        while ((j < (size - 1)) && (v_sort[j].first == v_sort[j + 1].first)) {
+            j++;
+        }
+        n = j - i + 1;
+        for (size_t j = 0; j < n; ++j) { // parallel this
+            int idx = v_sort[i+j].second;
+            predictedRank[idx] = r + ((n - 1) * 0.5);
+        }
+        r += n;
+        i += n;
+    }
+    prediction_numpy->releaseBlockOfRows(numpyBlock);
+}
+
+template DAAL_EXPORT void calculateRankData<float> (double * predictedRank, NumericTablePtr & prediction_numpy, const int& size);
+template DAAL_EXPORT void calculateRankData<double>(double * predictedRank, NumericTablePtr & prediction_numpy, const int& size);
+
+template <typename DataType>
+double rocAucScore(double * predictedRank, NumericTablePtr & actual_numpy, const int& size)
+{
+    data_management::BlockDescriptor<DataType> numpyBlock;
+    actual_numpy->  getBlockOfRows(0, 1, data_management::readOnly, numpyBlock);
+    DataType * numpyPtr = numpyBlock.getBlockPtr();
+
+    DataType sum(0);
+    for(size_t i = 0;i < size;++i) sum += numpyPtr[i];
+
+    DataType nPos = sum;
+    DataType nNeg = size - nPos;
 
     DataType filteredRankSum = 0;
     
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
     for (size_t i = 0; i < size; ++i) { // parallel this
-        if (actual[i] == 1) {
-            filteredRankSum = filteredRankSum + predictedRank[i];
+        if (numpyPtr[i] == 1) {
+            filteredRankSum += predictedRank[i];
         }
     }
+
+    actual_numpy->releaseBlockOfRows(numpyBlock);
 
     DataType score = (filteredRankSum - (nPos*(nPos+1)/2)) / (nPos * nNeg);
     return score;
 }
+
+template DAAL_EXPORT double rocAucScore<float> (double * predictedRank, NumericTablePtr & actual_numpy, const int& size);
+template DAAL_EXPORT double rocAucScore<double>(double * predictedRank, NumericTablePtr & actual_numpy, const int& size);
 
 } // namespace internal
 } // namespace data_management

@@ -19,7 +19,6 @@
 #define __DATA_MANAGEMENT_DATA_INTERNAL_ROC_AUC_SCORE_H__
 
 #include "data_management/data/numeric_table.h"
-#include "services/daal_defines.h"
 
 namespace daal
 {
@@ -28,7 +27,10 @@ namespace data_management
 namespace internal
 {
 template <typename DataType>
-DataType roc_auc_score_(const std::vector<DataType> &predictedRank, PyArrayObject* actual_numpy, int size);
+DAAL_EXPORT double rocAucScore(double * predictedRank, NumericTablePtr & actual_numpy, const int& size);
+
+template <typename DataType>
+DAAL_EXPORT void calculateRankData(double * predictedRank, NumericTablePtr & prediction_numpy, const int& size);
 
 } // namespace internal
 } // namespace data_management
