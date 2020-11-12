@@ -124,8 +124,8 @@ DAAL_EXPORT void _daal_parallel_sort_template(F * begin_p, F * end_p)
 #define DAAL_PARALLEL_SORT_IMPL(TYPE, NAMESUFFIX) \
     DAAL_EXPORT void _daal_parallel_sort_##NAMESUFFIX(TYPE * begin_p, TYPE * end_p) { _daal_parallel_sort_template<TYPE>(begin_p, end_p); }
 
-DAAL_PARALLEL_SORT_IMPL(int, int32)
-DAAL_PARALLEL_SORT_IMPL(size_t, uint64)
+DAAL_PARALLEL_SORT_IMPL(std::int32_t, int32)
+DAAL_PARALLEL_SORT_IMPL(std::uint64_t, uint64)
 
 #undef DAAL_PARALLEL_SORT_IMPL
 
