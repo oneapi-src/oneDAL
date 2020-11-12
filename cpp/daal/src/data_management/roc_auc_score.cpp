@@ -36,8 +36,8 @@ namespace data_management
 {
 namespace internal
 {
-template <typename DataType>
 /*
+template <typename DataType>
 struct Sum 
 {
     double value;
