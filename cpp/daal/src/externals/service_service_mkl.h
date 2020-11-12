@@ -24,6 +24,7 @@
 #ifndef __SERVICE_SERVICE_MKL_H__
 #define __SERVICE_SERVICE_MKL_H__
 
+#include "services/daal_defines.h"
 #include "mkl_daal.h"
 #include "istrconv_daal.h"
 #include "istrconv_daal_el.h"
