@@ -37,6 +37,7 @@ namespace data_management
 namespace internal
 {
 template <typename DataType>
+/*
 struct Sum 
 {
     double value;
@@ -50,7 +51,7 @@ struct Sum
 
     void join(Sum& rhs) { value += rhs.value; }
 };
-
+*/
 template <typename DataType>
 void calculateRankData(double * predictedRank, NumericTablePtr & prediction_numpy, const int& size)
 {
