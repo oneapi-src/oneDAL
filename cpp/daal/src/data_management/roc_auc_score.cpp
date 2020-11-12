@@ -29,8 +29,6 @@
 #include "src/algorithms/service_error_handling.h"
 #include "src/externals/service_rng.h"
 #include "src/externals/service_rng_mkl.h"
-#include "tbb/parallel_sort.h"
-#include "tbb/parallel_reduce.h"
 
 namespace daal
 {
@@ -47,7 +45,6 @@ struct Sum
     Sum(Sum& s, tbb::split) : value(0) {}
 
     void operator()(const tbb::blocked_range<typename std::vector<DataType>::iterator>& r) {
-
         value = std::accumulate(r.begin(), r.end(), value);
     }
 
