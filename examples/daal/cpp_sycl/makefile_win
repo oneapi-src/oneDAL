@@ -85,8 +85,8 @@ RES = $(example:+=.res)
 !ENDIF
 
 !IF ("$(compiler)"=="clang")
-CC=clang-cl
-COPTS=/clang:-fsycl /EHs
+CC=dpcpp
+COPTS= /EHs
 OUT_OPTS=/Fe$(RES_DIR)
 RT_LIB=/link /ignore:4078 OpenCL.lib "$(DAAL_PATH)\onedal_sycl.lib"
 CLEAN=
