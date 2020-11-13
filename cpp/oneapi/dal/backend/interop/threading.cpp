@@ -24,12 +24,13 @@ ONEDAL_EXPORT void _onedal_threader_for(std::int32_t n,
     _daal_threader_for(n, threads_request, a, static_cast<daal::functype>(func));
 }
 
-#define ONEDAL_PARALLEL_SORT_IMPL(TYPE, NAMESUFFIX)                                         \
+#define ONEDAL_PARALLEL_SORT_IMPL(TYPE, NAMESUFFIX, MAPPEDTYPE)                             \
     ONEDAL_EXPORT void _onedal_parallel_sort_##NAMESUFFIX(TYPE *begin_ptr, TYPE *end_ptr) { \
-        _daal_parallel_sort_##NAMESUFFIX(begin_ptr, end_ptr);                               \
+        static_assert(sizeof(TYPE) == sizeof(MAPPEDTYPE));                                  \
+        _daal_parallel_sort_##NAMESUFFIX((MAPPEDTYPE *)begin_ptr, (MAPPEDTYPE *)end_ptr);   \
     }
 
-ONEDAL_PARALLEL_SORT_IMPL(std::int32_t, int32)
-ONEDAL_PARALLEL_SORT_IMPL(std::uint64_t, uint64)
+ONEDAL_PARALLEL_SORT_IMPL(std::int32_t, int32, int)
+ONEDAL_PARALLEL_SORT_IMPL(std::uint64_t, uint64, size_t)
 
 #undef ONEDAL_PARALLEL_SORT_IMPL

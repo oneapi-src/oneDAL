@@ -25,7 +25,6 @@
 #define __THREADING_H__
 
 #include "services/daal_defines.h"
-#include <cstdint>
 
 namespace daal
 {
@@ -77,8 +76,8 @@ extern "C"
     DAAL_EXPORT void _threaded_scalable_free(void * ptr);
 
 #define DAAL_PARALLEL_SORT_DECL(TYPE, NAMESUFFIX) DAAL_EXPORT void _daal_parallel_sort_##NAMESUFFIX(TYPE * begin_ptr, TYPE * end_ptr);
-    DAAL_PARALLEL_SORT_DECL(std::int32_t, int32)
-    DAAL_PARALLEL_SORT_DECL(std::uint64_t, uint64)
+    DAAL_PARALLEL_SORT_DECL(int, int32)
+    DAAL_PARALLEL_SORT_DECL(size_t, uint64)
 #undef DAAL_PARALLEL_SORT_DECL
 }
 

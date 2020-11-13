@@ -373,7 +373,7 @@ DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, 
     _daal_threader_for_ptr(n, threads_request, a, func);
 }
 
-DAAL_EXPORT void _daal_parallel_sort_int32(std::int32_t * begin_ptr, std::int32_t * end_ptr)
+DAAL_EXPORT void _daal_parallel_sort_int32(int * begin_ptr, int * end_ptr)
 {
     load_daal_thr_dll();
     if (_daal_parallel_sort_int32_ptr == NULL)
@@ -383,7 +383,7 @@ DAAL_EXPORT void _daal_parallel_sort_int32(std::int32_t * begin_ptr, std::int32_
     _daal_parallel_sort_int32_ptr(begin_ptr, end_ptr);
 }
 
-DAAL_EXPORT void _daal_parallel_sort_uint64_t(std::uint64_t * begin_ptr, std::uint64_t * end_ptr)
+DAAL_EXPORT void _daal_parallel_sort_uint64_t(size_t * begin_ptr, size_t * end_ptr)
 {
     load_daal_thr_dll();
     if (_daal_parallel_sort_uint64_ptr == NULL)
