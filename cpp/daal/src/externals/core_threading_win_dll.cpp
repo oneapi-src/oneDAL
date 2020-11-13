@@ -277,8 +277,8 @@ typedef void (*_daal_tbb_task_scheduler_free_t)(void *& globalControl);
 typedef size_t (*_setNumberOfThreads_t)(const size_t, void **);
 typedef void * (*_daal_threader_env_t)();
 
-typedef void (*_daal_parallel_sort_int32_t)(std::int32_t *, std::int32_t *);
-typedef void (*_daal_parallel_sort_uint64_t)(std::uint64_t *, std::uint64_t *);
+typedef void (*_daal_parallel_sort_int32_t)(int *, int *);
+typedef void (*_daal_parallel_sort_uint64_t)(size_t *, size_t *);
 
 #if !(defined DAAL_THREAD_PINNING_DISABLED)
 typedef void (*_thread_pinner_thread_pinner_init_t)();
