@@ -98,11 +98,6 @@ COPTS := -pedantic -Wall -Wextra -Werror \
          -Wno-unused-parameter \
          -I./source/utils
 
-ifeq ($(compiler),clang)
-    CC = clang++
-    COPTS += -fsycl
-endif
-
 LOPTS := -Wl,--start-group -Wl,$(DAAL_LIB),$(EXT_LIB) $(DAAL_PATH)/libonedal_sycl.a -Wl,--end-group
 
 RES_DIR=_results/$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
@@ -110,7 +105,7 @@ RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(
 
 ifeq ($(compiler),clang)
     gcc_toolchain := $(realpath $(dir $(shell which gcc))/..)
-    CC = clang++ --gcc-toolchain=$(gcc_toolchain)
+    CC = dpcpp --gcc-toolchain=$(gcc_toolchain)
 endif
 
 CC := $(if $(COVFILE), cov01 -1; covc -i  $(CC),$(CC))
