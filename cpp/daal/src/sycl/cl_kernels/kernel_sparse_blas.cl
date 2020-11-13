@@ -69,7 +69,6 @@ DECLARE_SOURCE(
 
         const algorithmFPType dotProduct = dot_product(aValues, bValues, aCols, bCols, aRowCur, aRowEnd, bRowCur, bRowEnd);
         c[i * ldC + j + offsetC]         = alpha * dotProduct;
-        // printf("(%lu %lu) :%f\n", i, j, c[i * ldC + j + offsetC]);
     }
 
     __kernel void spmm_kernel(const algorithmFPType alpha, __global const algorithmFPType * const aValues, __global const ulong * const aCols,
@@ -87,7 +86,6 @@ DECLARE_SOURCE(
 
         const algorithmFPType dotProduct = dot_product(aValues, bValues, aCols, bCols, aRowCur, aRowEnd, bRowCur, bRowEnd);
         c[i * ldC + j + offsetC]         = alpha * dotProduct + beta * c[i * ldC + j + offsetC];
-        // printf("(%lu %lu) :%f\n", i, j, c[i * ldC + j + offsetC]);
     }
 
 );

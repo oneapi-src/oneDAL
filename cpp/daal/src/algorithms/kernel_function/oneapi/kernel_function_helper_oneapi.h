@@ -116,7 +116,7 @@ public:
         KernelArguments args(6, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        DAAL_ASSERT_UNIVERSAL_BUFFER(sqrMatRight, algorithmFPType, n);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(sqrMatLeft, algorithmFPType, n);
         DAAL_ASSERT_UNIVERSAL_BUFFER(sqrMatRight, algorithmFPType, m);
         DAAL_ASSERT(rbf.size() == n * m);
 

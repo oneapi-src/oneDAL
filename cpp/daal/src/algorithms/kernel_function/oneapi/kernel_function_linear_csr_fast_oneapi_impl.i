@@ -77,41 +77,44 @@ services::Status KernelImplLinearOneAPI<fastCSR, algorithmFPType>::computeIntern
     const algorithmFPType beta  = algorithmFPType(linPar->b);
 
     CSRBlockDescriptor<algorithmFPType> matLeftBD, matRightBD;
-
-    CSRNumericTableIface * matLeftCSR = dynamic_cast<CSRNumericTableIface *>(matLeft);
-    DAAL_CHECK(matLeftCSR, services::ErrorIncorrectTypeOfInputNumericTable);
-    CSRNumericTableIface * matRightCSR = dynamic_cast<CSRNumericTableIface *>(matRight);
-    DAAL_CHECK(matRightCSR, services::ErrorIncorrectTypeOfInputNumericTable);
-
-    DAAL_CHECK_STATUS(status, matLeftCSR->getSparseBlock(0, nMatLeft, readOnly, matLeftBD));
-    DAAL_CHECK_STATUS(status, matRightCSR->getSparseBlock(0, nMatRight, readOnly, matRightBD));
-
-    const auto matLeftValuesBuff        = matLeftBD.getBlockValuesBuffer();
-    const auto matLeftColumnIndicesBuff = matLeftBD.getBlockColumnIndicesBuffer();
-    const auto matLeftRowIndicesBuff    = matLeftBD.getBlockRowIndicesBuffer();
-
-    const auto matRightValuesBuff        = matRightBD.getBlockValuesBuffer();
-    const auto matRightColumnIndicesBuff = matRightBD.getBlockColumnIndicesBuffer();
-    const auto matRightRowIndicesBuff    = matRightBD.getBlockRowIndicesBuffer();
-
-    BlockDescriptor<algorithmFPType> resultBlock;
-    DAAL_CHECK_STATUS(status, result->getBlockOfRows(0, nMatLeft, ReadWriteMode::writeOnly, resultBlock));
-    auto resultBuff = resultBlock.getBuffer();
-
-    if (beta != 0.0)
     {
-        context.fill(resultBuff, 1.0, status);
-        DAAL_CHECK_STATUS_VAR(status);
+        DAAL_ITTNOTIFY_SCOPED_TASK(KernelLinearCSROneAPI.gemm);
+
+        CSRNumericTableIface * matLeftCSR = dynamic_cast<CSRNumericTableIface *>(matLeft);
+        DAAL_CHECK(matLeftCSR, services::ErrorIncorrectTypeOfInputNumericTable);
+        CSRNumericTableIface * matRightCSR = dynamic_cast<CSRNumericTableIface *>(matRight);
+        DAAL_CHECK(matRightCSR, services::ErrorIncorrectTypeOfInputNumericTable);
+        DAAL_CHECK_STATUS(status, matLeftCSR->getSparseBlock(0, nMatLeft, readOnly, matLeftBD));
+        DAAL_CHECK_STATUS(status, matRightCSR->getSparseBlock(0, nMatRight, readOnly, matRightBD));
+
+        const auto matLeftValuesBuff        = matLeftBD.getBlockValuesBuffer();
+        const auto matLeftColumnIndicesBuff = matLeftBD.getBlockColumnIndicesBuffer();
+        const auto matLeftRowIndicesBuff    = matLeftBD.getBlockRowIndicesBuffer();
+
+        const auto matRightValuesBuff        = matRightBD.getBlockValuesBuffer();
+        const auto matRightColumnIndicesBuff = matRightBD.getBlockColumnIndicesBuffer();
+        const auto matRightRowIndicesBuff    = matRightBD.getBlockRowIndicesBuffer();
+
+        BlockDescriptor<algorithmFPType> resultBlock;
+        DAAL_CHECK_STATUS(status, result->getBlockOfRows(0, nMatLeft, ReadWriteMode::writeOnly, resultBlock));
+
+        auto resultBuff = resultBlock.getBuffer();
+
+        if (beta != 0.0)
+        {
+            context.fill(resultBuff, 1.0, status);
+            DAAL_CHECK_STATUS_VAR(status);
+        }
+
+        DAAL_CHECK_STATUS(
+            status, math::SpBlasGpu<algorithmFPType>::xgemm(math::Transpose::Trans, math::Transpose::NoTrans, nMatLeft, nMatRight, pMatLeft, alpha,
+                                                            matLeftValuesBuff, matLeftColumnIndicesBuff, matLeftRowIndicesBuff, matRightValuesBuff,
+                                                            matRightColumnIndicesBuff, matRightRowIndicesBuff, beta, resultBuff, nMatRight, 0));
+
+        DAAL_CHECK_STATUS(status, matLeftCSR->releaseSparseBlock(matLeftBD));
+        DAAL_CHECK_STATUS(status, matRightCSR->releaseSparseBlock(matRightBD));
+        DAAL_CHECK_STATUS(status, result->releaseBlockOfRows(resultBlock));
     }
-
-    DAAL_CHECK_STATUS(status,
-                      math::SpBlasGpu<algorithmFPType>::xgemm(math::Transpose::Trans, math::Transpose::NoTrans, nMatLeft, nMatRight, pMatLeft, alpha,
-                                                              matLeftValuesBuff, matLeftColumnIndicesBuff, matLeftRowIndicesBuff, matRightValuesBuff,
-                                                              matRightColumnIndicesBuff, matRightRowIndicesBuff, beta, resultBuff, nMatRight, 0));
-
-    DAAL_CHECK_STATUS(status, matLeftCSR->releaseSparseBlock(matLeftBD));
-    DAAL_CHECK_STATUS(status, matRightCSR->releaseSparseBlock(matRightBD));
-    DAAL_CHECK_STATUS(status, result->releaseBlockOfRows(resultBlock));
 
     return status;
 }

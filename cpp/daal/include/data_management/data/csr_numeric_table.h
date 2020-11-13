@@ -328,7 +328,6 @@ public:
     inline void setValuesBuffer(const daal::services::internal::Buffer<DataType> & valuesBuffer)
     {
         _hostValuesSharedPtr.reset();
-        // _valuesBuffer = valuesBuffer.get<DataType>();
         _valuesBuffer = valuesBuffer;
         _pPtr         = NULL;
         _rawPtr       = NULL;
