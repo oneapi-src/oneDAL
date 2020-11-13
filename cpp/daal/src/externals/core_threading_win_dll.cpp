@@ -383,7 +383,7 @@ DAAL_EXPORT void _daal_parallel_sort_int32(int * begin_ptr, int * end_ptr)
     _daal_parallel_sort_int32_ptr(begin_ptr, end_ptr);
 }
 
-DAAL_EXPORT void _daal_parallel_sort_uint64_t(size_t * begin_ptr, size_t * end_ptr)
+DAAL_EXPORT void _daal_parallel_sort_uint64(size_t * begin_ptr, size_t * end_ptr)
 {
     load_daal_thr_dll();
     if (_daal_parallel_sort_uint64_ptr == NULL)
