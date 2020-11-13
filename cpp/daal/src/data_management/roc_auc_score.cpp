@@ -56,7 +56,7 @@ template <typename DataType>
 void calculateRankData(double * predictedRank, NumericTablePtr & prediction_numpy, const int& size)
 {
     data_management::BlockDescriptor<DataType> numpyBlock;
-    prediction_numpy->  getBlockOfRows(0, 1, data_management::readOnly, numpyBlock);
+    prediction_numpy->getBlockOfRows(0, 1, data_management::readOnly, numpyBlock);
     DataType * numpyPtr = numpyBlock.getBlockPtr();
 
     std::pair<DataType, size_t>* v_sort = new std::pair<DataType, size_t>[size];
@@ -111,7 +111,9 @@ double rocAucScore(double * predictedRank, NumericTablePtr & actual_numpy, const
 
     DataType sum(0);
     for(size_t i = 0;i < size;++i) sum += numpyPtr[i];
-
+    printf("actual_numpy\n");
+    for(size_t i = 0;i < size;++i) printf("%.5lf ", numpyPtr[i]);
+    printf("\n");
     DataType nPos = sum;
     DataType nNeg = size - nPos;
 
