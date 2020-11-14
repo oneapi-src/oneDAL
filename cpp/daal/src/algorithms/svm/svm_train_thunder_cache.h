@@ -93,7 +93,6 @@ public:
         services::SharedPtr<thisType> res = services::SharedPtr<thisType>(new thisType(cacheSize, lineSize, xTable, kernel));
         if (!res)
         {
-
             status.add(ErrorMemoryAllocationFailed);
         }
         else
@@ -221,9 +220,7 @@ protected:
         SubDataTaskBase<algorithmFPType, cpu> * task = nullptr;
         if (_xTable->getDataLayout() == NumericTableIface::csrArray)
         {
-            printf("[SVMCache][SubDataTaskCSR][%d]\n", __LINE__);
             task = SubDataTaskCSR<algorithmFPType, cpu>::create(_xTable, nSize);
-
         }
         else
         {
@@ -231,7 +228,6 @@ protected:
         }
 
         DAAL_CHECK_MALLOC(task);
-        printf("[SVMCache][%d]\n", __LINE__);
         _blockTask = SubDataTaskBasePtr<algorithmFPType, cpu>(task);
         return status;
     }
