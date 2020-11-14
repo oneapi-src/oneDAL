@@ -70,7 +70,6 @@ protected:
 protected:
     size_t _nMaxSubsetVectors;
     UniversalBuffer _data;
-    // TArray<algorithmFPType, cpu> _data;
     NumericTablePtr _dataTable;
 };
 
@@ -96,7 +95,7 @@ public:
         DAAL_CHECK_STATUS(status, xTable->getBlockOfRows(0, xTable->getNumberOfRows(), ReadWriteMode::readOnly, xBlock));
         const services::internal::Buffer<algorithmFPType> & xBuff = xBlock.getBuffer();
 
-        size_t blockSize                                   = nSubsetVectors;
+        const size_t blockSize                             = nSubsetVectors;
         services::internal::Buffer<uint32_t> wsIndicesReal = wsIndices;
         auto xBlockBuff                                    = this->_data.template get<algorithmFPType>();
 
@@ -158,7 +157,6 @@ protected:
         const size_t nRows                    = xTable->getNumberOfRows();
         CSRNumericTableIface * const csrIface = dynamic_cast<CSRNumericTableIface * const>(const_cast<NumericTable *>(xTable.get()));
         const size_t maxDataSize              = csrIface->getDataSize();
-        printf("[SubDataTaskCSR]: maxDataSize: %lu; nMaxSubsetVectors: %lu\n", maxDataSize, nMaxSubsetVectors);
 
         auto & context = services::internal::getDefaultContext();
         this->_data    = context.allocate(TypeIds::id<algorithmFPType>(), maxDataSize, status);
@@ -316,9 +314,6 @@ protected:
         {
             _blockTask = SubDataTaskDense<algorithmFPType>::create(p, _blockSize, &status);
         }
-
-        // _xBlockBuff                    = _xBlock.get<algorithmFPType>();
-        // const NumericTablePtr xWSTable = SyclHomogenNumericTable<algorithmFPType>::create(_xBlockBuff, p, _blockSize, &status);
 
         DAAL_CHECK_STATUS_VAR(status);
         _kernel->getParameter()->computationMode = kernel_function::matrixMatrix;

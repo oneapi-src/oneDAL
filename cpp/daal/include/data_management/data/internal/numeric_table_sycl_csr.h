@@ -40,8 +40,14 @@ namespace internal
 namespace interface1
 {
 /**
- *  <a name="DAAL-CLASS-DATA_MANAGEMENT__CSRNUMERICTABLE"></a>
+ * @ingroup sycl
+ * @{
+ */
+
+/**
+ *  <a name="DAAL-CLASS-DATA_MANAGEMENT__SYCLCSRNUMERICTABLE"></a>
  *  \brief Class that provides methods to access data stored in the CSR layout.
+ *         Each array is represented by SYCL* buffer.
  */
 class DAAL_EXPORT SyclCSRNumericTable : public SyclNumericTable, public CSRNumericTableIface
 {
@@ -52,20 +58,19 @@ public:
     DAAL_CAST_OPERATOR(SyclCSRNumericTable)
 
     /**
-     *  Constructs CSR numeric table with user-allocated memory
-     *  \tparam   DataType        Type of values in the Numeric Table
-     *  \param[in]    ptr         Array of values in the CSR layout. Let ptr_size denote the size of an array ptr
-     *  \param[in]    colIndices  Array of column indices in the CSR layout. Values of indices are determined by the index base
-     *  \param[in]    rowOffsets  Array of row indices in the CSR layout. Size of the array is nrow+1. The first element is 0/1
-     *                            in zero-/one-based indexing. The last element is ptr_size+0/1 in zero-/one-based indexing
-     *  \param[in]    nColumns    Number of columns in the corresponding dense table
-     *  \param[in]    nRows       Number of rows in the corresponding dense table
-     *  \param[in]    indexing    Indexing scheme used to access data in the CSR layout
-     *  \param[out]   stat        Status of the numeric table construction
-     *  \return       CSR numeric table with user-allocated memory
+     *  Constructs SYCL CSR numeric table with user-allocated memory
+     *  \tparam   DataType             Type of values in the Numeric Table
+     *  \param[in]    bufferData       Buffer of values in the CSR layout. Let ptr_size denote the size of an array ptr
+     *  \param[in]    bufferColIndices Buffer of column indices in the CSR layout. Values of indices are determined by the index base
+     *  \param[in]    bufferRowOffsets Buffer of row indices in the CSR layout. Size of the array is nrow+1. The first element is 0/1
+     *                                 in zero-/one-based indexing. The last element is ptr_size+0/1 in zero-/one-based indexing
+     *  \param[in]    nColumns         Number of columns in the corresponding dense table
+     *  \param[in]    nRows            Number of rows in the corresponding dense table
+     *  \param[in]    indexing         Indexing scheme used to access data in the CSR layout
+     *  \param[out]   stat             Status of the numeric table construction
+     *  \return       SYCL CSR numeric table with user-allocated memory
      *  \note Present version of Intel(R) Data Analytics Acceleration Library supports 1-based indexing only
      */
-
     template <typename DataType>
     static services::SharedPtr<SyclCSRNumericTable> create(const services::internal::Buffer<DataType> & bufferData,
                                                            const services::internal::Buffer<size_t> & bufferColIndices,
@@ -75,31 +80,15 @@ public:
         DAAL_DEFAULT_CREATE_IMPL_EX(SyclCSRNumericTable, bufferData, bufferColIndices, bufferRowOffsets, nColumns, nRows, indexing);
     }
 
-    /**
-     *  Constructs CSR numeric table with user-allocated memory
-     *  \param[in]    nColumns    Number of columns in the corresponding dense table
-     *  \param[in]    nRows       Number of rows in the corresponding dense table
-     *  \param[in]    indexing    Indexing scheme used to access data in the CSR layout
-     *  \param[out]   stat        Status of the numeric table construction
-     *  \return       CSR numeric table with user-allocated memory
-     *  \note Present version of Intel(R) Data Analytics Acceleration Library supports 1-based indexing only
-     */
-    // template <typename DataType>
-    // static services::SharedPtr<SyclCSRNumericTable> create(size_t nColumns, size_t nRows, size_t dataSize, AllocationFlag memoryAllocationFlag,
-    //                                                        CSRIndexing indexing = oneBased, services::Status * stat = NULL)
-    // {
-    //     DAAL_DEFAULT_CREATE_IMPL_EX(SyclCSRNumericTable, DataType, nColumns, nRows, dataSize, memoryAllocationFlag, indexing);
-    // }
-
     virtual ~SyclCSRNumericTable() { freeDataMemoryImpl(); }
 
     virtual services::Status resize(size_t nrows) DAAL_C11_OVERRIDE { return setNumberOfRowsImpl(nrows); }
 
     /**
-     *  Returns  pointers to a data set stored in the CSR layout
-     *  \param[out]    values         Array of values in the CSR layout
-     *  \param[out]    colIndices  Array of column indices in the CSR layout
-     *  \param[out]    rowOffsets  Array of row indices in the CSR layout
+     *  Returns buffers to a data set stored in the CSR layout
+     *  \param[out]    values      Buffer of values in the CSR layout
+     *  \param[out]    colIndices  Buffer of column indices in the CSR layout
+     *  \param[out]    rowOffsets  Buffer of row indices in the CSR layout
      */
     template <typename DataType>
     services::Status getArrays(services::internal::Buffer<DataType> & values, services::internal::Buffer<size_t> & colIndices,
@@ -120,10 +109,10 @@ public:
         return services::Status();
     }
     /**
-     *  Sets a pointer to a CSR data set
-     *  \param[in]    ptr         Array of values in the CSR layout
-     *  \param[in]    colIndices  Array of column indices in the CSR layout
-     *  \param[in]    rowOffsets  Array of row indices in the CSR layout
+     *  Sets a buffers to a CSR data set
+     *  \param[in]    values      Buffer of values in the CSR layout
+     *  \param[in]    colIndices  Buffer of column indices in the CSR layout
+     *  \param[in]    rowOffsets  Buffer of row indices in the CSR layout
      *  \param[in]    indexing    The indexing scheme for access to data in the CSR layout
      */
     template <typename DataType>
@@ -325,8 +314,6 @@ public:
      *  \param[in]    dataSize     Number of non-zero values
      *  \param[in]    type         Memory type
      */
-    using daal::data_management::interface1::NumericTableIface::allocateDataMemory;
-
     services::Status allocateDataMemory(size_t dataSize, daal::MemType /*type*/ = daal::dram)
     {
         if (isCpuTable())
@@ -342,7 +329,10 @@ public:
         freeDataMemoryImpl();
         size_t nrow = getNumberOfRows();
 
-        if (nrow == 0) return services::Status(services::ErrorIncorrectNumberOfObservations);
+        if (nrow == 0)
+        {
+            return services::Status(services::ErrorIncorrectNumberOfObservations);
+        }
 
         const NumericTableFeature & f = (*_ddict)[0];
         _values                       = allocateByNumericTableFeature(f, dataSize, status);
@@ -360,8 +350,6 @@ public:
         DAAL_ASSERT(dataSize == _colIndices.size());
 
         _memStatus = internallyAllocated;
-
-        // _rowOffsets.get()[0] = ((_indexing == oneBased) ? 1 : 0);
         services::throwIfPossible(status);
         return status;
     }
@@ -378,8 +366,6 @@ public:
     virtual services::Status check(const char * description, bool checkDataAllocation = true) const DAAL_C11_OVERRIDE
     {
         services::Status s;
-        // DAAL_CHECK_STATUS(s, data_management::SyclNumericTable::check(description, checkDataAllocation));
-
         if (_indexing != oneBased)
         {
             return services::Status(services::Error::create(services::ErrorUnsupportedCSRIndexing, services::ArgumentName, description));
@@ -463,14 +449,34 @@ protected:
             }
             else
             {
-                // services::SharedPtr<DataType> hostData = _values.get<DataType>().toHost(data_management::readOnly, status);
-                // DAAL_CHECK_STATUS_VAR(status);
                 services::SharedPtr<size_t> hostColIndices = _colIndices.toHost(data_management::readOnly, status);
                 DAAL_CHECK_STATUS_VAR(status);
                 services::SharedPtr<size_t> hostRowOffsets = _rowOffsets.toHost(data_management::readOnly, status);
                 DAAL_CHECK_STATUS_VAR(status);
 
-                // archive->set(hostData.get(), dataSize);
+                auto & context = services::internal::getDefaultContext();
+                switch (f.indexType)
+                {
+                case features::DAAL_FLOAT32:
+                {
+                    services::SharedPtr<float> hostData = _values.get<float>().toHost(data_management::readOnly, status);
+                    DAAL_CHECK_STATUS_VAR(status);
+                    archive->set(hostData.get(), dataSize);
+
+                    break;
+                }
+                case features::DAAL_FLOAT64:
+                {
+                    services::SharedPtr<double> hostData = _values.get<double>().toHost(data_management::readOnly, status);
+                    DAAL_CHECK_STATUS_VAR(status);
+                    archive->set(hostData.get(), dataSize);
+
+                    break;
+                }
+
+                default: status = services::Status(services::ErrorIncorrectParameter);
+                }
+
                 archive->set(hostColIndices.get(), dataSize);
                 archive->set(hostRowOffsets.get(), nobs + 1);
             }
@@ -479,7 +485,15 @@ protected:
     }
 
 public:
-    virtual size_t getDataSize() DAAL_C11_OVERRIDE { return _dataSize; }
+    virtual size_t getDataSize() DAAL_C11_OVERRIDE
+    {
+        if (isCpuTable())
+        {
+            return _cpuTable->getDataSize();
+        }
+
+        return _dataSize;
+    }
 
 protected:
     template <typename DataType>
@@ -494,7 +508,7 @@ protected:
         st |= _ddict->setAllFeatures(_defaultFeature);
 
         DAAL_ASSERT(bufferData.size() == bufferColIndices.size());
-        // DAAL_ASSERT(bufferRowOffsets.size() == nRows + 1);
+        DAAL_ASSERT(bufferRowOffsets.size() == nRows + 1);
 
         if (isCpuContext())
         {
@@ -565,22 +579,16 @@ protected:
 
         services::Status st;
         auto uniBuffer = _values;
-        BufferConverterTo<T> converter(uniBuffer, 0, _dataSize);
+        BufferConverterTo<T> converter(uniBuffer, idx, nrows);
         TypeDispatcher::dispatch(_values.type(), converter, st);
         DAAL_CHECK_STATUS_VAR(st);
 
         services::internal::Buffer<T> valuesBuffer = converter.getResult();
-        // printf("valuesBuffer.size(): %lu; _dataSize: %lu\n", valuesBuffer.size(), _dataSize);
         block.setValuesBuffer(valuesBuffer);
 
         block.setColumnIndicesBuffer(_colIndices);
         block.setRowIndicesBuffer(_rowOffsets);
 
-        // TODO idx!=0 for _rowOffsets
-        if (idx != 0)
-        {
-            DAAL_ASSERT(false);
-        }
         return st;
     }
 

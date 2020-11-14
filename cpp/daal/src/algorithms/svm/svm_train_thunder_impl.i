@@ -172,6 +172,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
     size_t defaultCacheSize = services::internal::min<cpu, size_t>(nVectors, cacheSize / nVectors / sizeof(algorithmFPType));
     defaultCacheSize        = services::internal::max<cpu, size_t>(nWS, defaultCacheSize);
     auto cachePtr           = SVMCache<thunder, lruCache, algorithmFPType, cpu>::create(defaultCacheSize, nWS, nVectors, xTable, kernel, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     _blockSizeWS = services::internal::min<cpu, algorithmFPType>(nWS, 256);
     TArrayScalable<algorithmFPType, cpu> gradBuff((nWS / _blockSizeWS) * nVectors);
@@ -193,11 +194,12 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
 
             DAAL_CHECK_STATUS(status, cachePtr->getRowsBlock(wsIndices, nWS, kernelSOARes));
         }
+
         DAAL_CHECK_STATUS(status, SMOBlockSolver(y, grad, wsIndices, kernelSOARes, nVectors, nWS, cw, eps, tau, buffer.get(), I.get(), alpha,
                                                  deltaAlpha.get(), diff));
 
-        DAAL_CHECK_STATUS(status, updateGrad(kernelSOARes, deltaAlpha.get(), gradBuff.get(), grad, nVectors, nWS));
 
+        DAAL_CHECK_STATUS(status, updateGrad(kernelSOARes, deltaAlpha.get(), gradBuff.get(), grad, nVectors, nWS));
         if (checkStopCondition(diff, diffPrev, eps, sameLocalDiff) && iter >= nNoChanges) break;
         diffPrev = diff;
     }

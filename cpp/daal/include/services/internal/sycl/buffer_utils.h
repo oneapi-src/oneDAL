@@ -124,12 +124,9 @@ public:
     {
         DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(_src, DataType);
 
-        auto buffer = _src.template get<DataType>();
-        // printf("%lu %lu\n", _offset, _size);
+        auto buffer    = _src.template get<DataType>();
         auto subbuffer = buffer.getSubBuffer(_offset, _size, st);
         DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(st);
-        // printf("GetSub\n");
-
         _dest = subbuffer;
     }
 
@@ -174,6 +171,10 @@ private:
     SharedPtr<DataType> _reinterpretedPtr;
 };
 
+/**
+ *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__ALLOCATEBYNUMERICTABLEFEATURE"></a>
+ *  \brief Allocate data by NumericTableFeature
+ */
 inline UniversalBuffer allocateByNumericTableFeature(const data_management::NumericTableFeature & feature, const size_t size,
                                                      services::Status & status)
 {

@@ -188,6 +188,8 @@ private:
         this->_data.reset(maxDataSize);
         _colIndices.reset(maxDataSize + nMaxSubsetVectors + 1);
         _rowOffsets = _colIndices.get() + maxDataSize;
+
+        printf("[SVMCache][%d]; nFeatures: %lu; nMaxSubsetVectors %lu; maxDataSize %lu\n", __LINE__, p, nMaxSubsetVectors, maxDataSize);
         if (this->_data.get())
             this->_dataTable = CSRNumericTable::create(this->_data.get(), _colIndices.get(), _rowOffsets, p, nMaxSubsetVectors,
                                                        CSRNumericTableIface::CSRIndexing::oneBased);
