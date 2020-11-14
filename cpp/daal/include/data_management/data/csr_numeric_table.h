@@ -285,7 +285,7 @@ public:
     }
 
     /**
-     *  \param[in] ptr      Pointer to the buffer
+     *  \param[in] pPtr     Pointer to the buffer
      *  \param[in] rawPtr   Pointer to the buffer
      *  \param[in] nValues  Number of values
      */

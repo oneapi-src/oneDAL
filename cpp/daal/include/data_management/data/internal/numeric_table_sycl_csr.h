@@ -314,6 +314,8 @@ public:
      *  \param[in]    dataSize     Number of non-zero values
      *  \param[in]    type         Memory type
      */
+    using daal::data_management::interface1::NumericTableIface::allocateDataMemory;
+
     services::Status allocateDataMemory(size_t dataSize, daal::MemType /*type*/ = daal::dram)
     {
         if (isCpuTable())
@@ -454,7 +456,6 @@ protected:
                 services::SharedPtr<size_t> hostRowOffsets = _rowOffsets.toHost(data_management::readOnly, status);
                 DAAL_CHECK_STATUS_VAR(status);
 
-                auto & context = services::internal::getDefaultContext();
                 switch (f.indexType)
                 {
                 case features::DAAL_FLOAT32:
@@ -508,7 +509,7 @@ protected:
         st |= _ddict->setAllFeatures(_defaultFeature);
 
         DAAL_ASSERT(bufferData.size() == bufferColIndices.size());
-        DAAL_ASSERT(bufferRowOffsets.size() == nRows + 1);
+        DAAL_ASSERT(bufferRowOffsets.size() == nRows + 1 || !_dataSize);
 
         if (isCpuContext())
         {
@@ -518,10 +519,10 @@ protected:
             }
             else
             {
-                const auto hostData       = bufferData.toHost(ReadWriteMode::readOnly, st);
-                const auto hostColIndices = bufferColIndices.toHost(ReadWriteMode::readOnly, st);
-                const auto hostRowOffsets = bufferRowOffsets.toHost(ReadWriteMode::readOnly, st);
-                _cpuTable                 = CSRNumericTable::create(hostData, hostColIndices, hostRowOffsets, nColumns, nRows, indexing, &st);
+                const services::SharedPtr<DataType> hostData     = bufferData.toHost(ReadWriteMode::readOnly, st);
+                const services::SharedPtr<size_t> hostColIndices = bufferColIndices.toHost(ReadWriteMode::readOnly, st);
+                const services::SharedPtr<size_t> hostRowOffsets = bufferRowOffsets.toHost(ReadWriteMode::readOnly, st);
+                _cpuTable = CSRNumericTable::create(hostData, hostColIndices, hostRowOffsets, nColumns, nRows, indexing, &st);
             }
 
             return;
@@ -578,16 +579,46 @@ protected:
         nrows = (idx + nrows < nobs) ? nrows : nobs - idx;
 
         services::Status st;
-        auto uniBuffer = _values;
-        BufferConverterTo<T> converter(uniBuffer, idx, nrows);
+
+        block.setRowIndicesBuffer(_rowOffsets);
+
+        size_t offset   = 0;
+        size_t datasize = _dataSize;
+        if (idx == 0)
+        {
+            block.setRowIndicesBuffer(_rowOffsets);
+        }
+        else
+        {
+            services::internal::sycl::UniversalBuffer rowOffsetsNew =
+                services::internal::getDefaultContext().allocate(services::internal::sycl::TypeIds::id<size_t>(), (nrows + 1), st);
+            DAAL_CHECK_STATUS_VAR(st);
+            services::SharedPtr<size_t> hostRowOffsetsNew = rowOffsetsNew.get<size_t>().toHost(ReadWriteMode::writeOnly, st);
+            DAAL_CHECK_STATUS_VAR(st);
+            const services::SharedPtr<size_t> hostRowOffsets = _rowOffsets.toHost(ReadWriteMode::readOnly, st);
+            DAAL_CHECK_STATUS_VAR(st);
+
+            size_t * rowOffsetsNewPtr    = hostRowOffsetsNew.get();
+            const size_t * rowOffsetsPtr = hostRowOffsets.get();
+
+            rowOffsetsNewPtr[0] = 1;
+            for (size_t i = 0; i < nrows; ++i)
+            {
+                const size_t nNonZeroValuesInRow = rowOffsetsPtr[idx + i + 1] - rowOffsetsPtr[idx + i];
+                rowOffsetsNewPtr[i + 1]          = rowOffsetsNewPtr[i] + nNonZeroValuesInRow;
+            }
+            offset   = rowOffsetsPtr[idx] - rowOffsetsPtr[0];
+            datasize = rowOffsetsNewPtr[nrows + 1] - rowOffsetsNewPtr[1];
+            block.setRowIndicesBuffer(rowOffsetsNew.get<size_t>());
+        }
+
+        BufferConverterTo<T> converter(_values, offset, datasize);
         TypeDispatcher::dispatch(_values.type(), converter, st);
         DAAL_CHECK_STATUS_VAR(st);
 
         services::internal::Buffer<T> valuesBuffer = converter.getResult();
         block.setValuesBuffer(valuesBuffer);
-
-        block.setColumnIndicesBuffer(_colIndices);
-        block.setRowIndicesBuffer(_rowOffsets);
+        block.setColumnIndicesBuffer(_colIndices.getSubBuffer(offset, datasize, st));
 
         return st;
     }

@@ -245,11 +245,9 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
         const size_t nRowsPerBlockReal = (iBlock != nBlocks - 1) ? nRowsPerBlock : nVectors - iBlock * nRowsPerBlock;
 
         DAAL_CHECK_STATUS_VAR(status);
-        printf("SVMPredictImplOneAPI [kernelCompute]\n");
 
         DAAL_CHECK_STATUS(predictTask->kernelCompute(startRow, nRowsPerBlockReal), services::ErrorSVMPredictKernerFunctionCall);
         const auto kernelResBuff = predictTask->getBuff();
-        printf("SVMPredictImplOneAPI [gemm]\n");
 
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(gemm);
@@ -258,7 +256,6 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
                                                                       svCoeffBuff, 1, 0, algorithmFPType(1.0), distanceBuff, 1, startRow));
         }
     }
-    printf("SVMPredictImplOneAPI[finish] nSV: %lu\n", nSV);
     DAAL_CHECK_STATUS(status, result.releaseBlockOfRows(resultBlock));
     DAAL_CHECK_STATUS(status, svCoeffTable->releaseBlockOfRows(svCoeffBlock));
 
