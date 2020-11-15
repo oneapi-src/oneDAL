@@ -34,8 +34,6 @@ using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
-// using daal::services::internal::SyclExecutionContext;
-
 /* Input data set parameters */
 string leftDatasetFileName  = "../data/batch/kernel_function_csr.csv";
 string rightDatasetFileName = "../data/batch/kernel_function_csr.csv";
