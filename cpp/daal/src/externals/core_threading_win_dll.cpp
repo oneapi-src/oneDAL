@@ -26,7 +26,7 @@
 #include "src/threading/threading.h"
 #include "src/threading/service_thread_pinner.h"
 #include "services/env_detect.h"
-#include "services/daal_defines.h"
+#include "mkl_daal.h"
 #include "vmlvsl.h"
 
 static HMODULE daal_thr_dll_handle = NULL;
