@@ -46,7 +46,5 @@ DAAL  = datastructures_soa                    \
         bf_knn_dense_batch                    \
         svm_two_class_thunder_dense_batch     \
         svm_two_class_thunder_csr_batch       \
-        svm_two_class_a9a_thunder_csr_batch   \
-        svm_two_class_rcv1_thunder_csr_batch  \
         df_reg_dense_batch                    \
         df_cls_dense_batch

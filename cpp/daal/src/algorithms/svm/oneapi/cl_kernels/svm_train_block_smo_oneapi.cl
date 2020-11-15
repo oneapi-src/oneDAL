@@ -102,7 +102,7 @@ DECLARE_SOURCE_DAAL(
         __local algorithmFPType kd[WS_SIZE];
         const uint wsIndex = wsIndices[i];
 
-        const algorithmFPType MIN_FLT = -FLT_MAX;
+        const algorithmFPType MIN_FLT = -MAX_FPTYPE;
 
         const algorithmFPType two = (algorithmFPType)2.0;
 

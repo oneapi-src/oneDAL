@@ -226,10 +226,9 @@ protected:
         DAAL_CHECK_STATUS(status, svIndicesTable->releaseBlockOfRows(svIndicesBlock));
         DAAL_CHECK_STATUS(status, csrIface->releaseSparseBlock(blockCSR));
 
-        services::Status s;
         /* Allocate memory for storing support vectors and coefficients */
         SyclCSRNumericTablePtr svTable = services::staticPointerCast<SyclCSRNumericTable, NumericTable>(model.getSupportVectors());
-        DAAL_CHECK_STATUS(s, svTable->resize(nSV));
+        DAAL_CHECK_STATUS(status, svTable->resize(nSV));
         svTable->setArrays(svValuesBuff, svColIndicesBuff, svRowOffsetsBuff);
 
         return status;
