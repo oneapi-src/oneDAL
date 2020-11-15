@@ -207,25 +207,7 @@ protected:
         const auto xRowOffsetsBuff = blockCSR.getBlockRowIndicesBuffer();
 
         size_t svDataSize = 0;
-
-        {
-            auto svRowOffsetstHosrPtr       = svRowOffsetsBuff.toHost(data_management::writeOnly, status);
-            size_t * const rowsOutHosr      = svRowOffsetstHosrPtr.get();
-            auto xRowOffsetstHosrPtr        = xRowOffsetsBuff.toHost(data_management::readOnly, status);
-            const size_t * const rowsInHosr = xRowOffsetstHosrPtr.get();
-
-            auto svIndicesHosrPtr       = svIndicesBuff.toHost(data_management::readOnly, status);
-            const int * const svIndices = svIndicesHosrPtr.get();
-
-            rowsOutHosr[0] = 1;
-            for (size_t i = 0; i < nSV; ++i)
-            {
-                const size_t iRows               = svIndices[i];
-                const size_t nNonZeroValuesInRow = rowsInHosr[iRows + 1] - rowsInHosr[iRows];
-                rowsOutHosr[i + 1]               = rowsOutHosr[i] + nNonZeroValuesInRow;
-                svDataSize += nNonZeroValuesInRow;
-            }
-        }
+        DAAL_CHECK_STATUS(status, Helper::copyRowIndicesByIndices(xRowOffsetsBuff, svIndicesBuff, svRowOffsetsBuff, nSV, svDataSize));
 
         UniversalBuffer values = context.allocate(TypeIds::id<algorithmFPType>(), svDataSize, status);
         DAAL_CHECK_STATUS_VAR(status);
@@ -238,43 +220,8 @@ protected:
         auto svValuesBuff     = values.template get<algorithmFPType>();
         auto svColIndicesBuff = colIndices.template get<size_t>();
 
-        {
-            auto svRowOffsetstHosrPtr      = svRowOffsetsBuff.toHost(data_management::readOnly, status);
-            const size_t * const svRowsPtr = svRowOffsetstHosrPtr.get();
-
-            auto xRowOffsetstHosrPtr      = xRowOffsetsBuff.toHost(data_management::readOnly, status);
-            const size_t * const xRowsPtr = xRowOffsetstHosrPtr.get();
-
-            auto svValuesHosrPtr                = svValuesBuff.toHost(data_management::writeOnly, status);
-            algorithmFPType * const svValuesPtr = svValuesHosrPtr.get();
-
-            auto xValuesHosrPtr                      = xValuesBuff.toHost(data_management::readOnly, status);
-            const algorithmFPType * const xValuesPtr = xValuesHosrPtr.get();
-
-            auto svColIndicesHosrPtr       = svColIndicesBuff.toHost(data_management::writeOnly, status);
-            size_t * const svColIndicesPtr = svColIndicesHosrPtr.get();
-
-            auto xColIndicesHosrPtr             = xColIndicesBuff.toHost(data_management::readOnly, status);
-            const size_t * const xColIndicesPtr = xColIndicesHosrPtr.get();
-
-            auto svIndicesHosrPtr       = svIndicesBuff.toHost(data_management::readOnly, status);
-            const int * const svIndices = svIndicesHosrPtr.get();
-
-            for (size_t i = 0; i < nSV; ++i)
-            {
-                const size_t iRows     = svIndices[i];
-                const size_t offsetIn  = xRowsPtr[iRows] - xRowsPtr[0];
-                const size_t offsetOut = svRowsPtr[i] - svRowsPtr[0];
-
-                const size_t nNonZeroValuesInRow = xRowsPtr[iRows + 1] - xRowsPtr[iRows];
-
-                for (size_t j = 0; j < nNonZeroValuesInRow; ++j)
-                {
-                    svValuesPtr[offsetOut + j]     = xValuesPtr[offsetIn + j];
-                    svColIndicesPtr[offsetOut + j] = xColIndicesPtr[offsetIn + j];
-                }
-            }
-        }
+        DAAL_CHECK_STATUS(status, Helper::copyCSRByIndices(xRowOffsetsBuff, svRowOffsetsBuff, svIndicesBuff, xValuesBuff, xColIndicesBuff,
+                                                           svValuesBuff, svColIndicesBuff, nSV, xTable->getNumberOfColumns()));
 
         DAAL_CHECK_STATUS(status, svIndicesTable->releaseBlockOfRows(svIndicesBlock));
         DAAL_CHECK_STATUS(status, csrIface->releaseSparseBlock(blockCSR));

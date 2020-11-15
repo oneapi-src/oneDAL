@@ -230,10 +230,9 @@ public:
             {
                 return _rows_ptr.get()[_nrows] - _rows_ptr.get()[0];
             }
-            else if (_rowsBuffer)
+            else if (_valuesBuffer)
             {
-                size_t * rowsHost = getRowsCachedHostSharedPtr().get();
-                return rowsHost[_nrows] - rowsHost[0];
+                return _valuesBuffer.size();
             }
         }
         return 0;
@@ -531,9 +530,9 @@ private:
     services::SharedPtr<byte> * _pPtr;
     byte * _rawPtr;
 
-    mutable services::SharedPtr<DataType> _hostValuesSharedPtr; // owns pointer returned from getBlockPtr() method
-    mutable services::SharedPtr<size_t> _hostRowsSharedPtr;     // owns pointer returned from getBlockPtr() method
-    mutable services::SharedPtr<size_t> _hostColsSharedPtr;     // owns pointer returned from getBlockPtr() method
+    mutable services::SharedPtr<DataType> _hostValuesSharedPtr;
+    mutable services::SharedPtr<size_t> _hostRowsSharedPtr;
+    mutable services::SharedPtr<size_t> _hostColsSharedPtr;
 };
 
 /**

@@ -144,8 +144,10 @@ public:
         services::internal::Buffer<uint32_t> wsIndicesReal = wsIndices;
         auto xBlockBuff                                    = this->_data.template get<algorithmFPType>();
 
-        DAAL_CHECK_STATUS(status, Helper::copyCSRByIndices(xValuesBuff, xColumnIndicesBuff, xRowIndicesBuff, wsIndicesReal, xBlockBuff, _colIndices,
-                                                           _rowOffsets, nSubsetVectors));
+        size_t dataSizeOut = 0;
+        DAAL_CHECK_STATUS(status, Helper::copyRowIndicesByIndices(xRowIndicesBuff, wsIndicesReal, _rowOffsets, nSubsetVectors, dataSizeOut));
+        DAAL_CHECK_STATUS(status, Helper::copyCSRByIndices(xRowIndicesBuff, _rowOffsets, wsIndicesReal, xValuesBuff, xColumnIndicesBuff, xBlockBuff,
+                                                           _colIndices, nSubsetVectors, xTable->getNumberOfColumns()));
         DAAL_CHECK_STATUS(status, csrIface->releaseSparseBlock(blockCSR));
         return status;
     }

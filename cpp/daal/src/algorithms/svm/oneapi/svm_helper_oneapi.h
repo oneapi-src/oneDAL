@@ -218,10 +218,8 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status copyCSRByIndices(const services::internal::Buffer<algorithmFPType> & val, const services::internal::Buffer<size_t> & cols,
-                                             const services::internal::Buffer<size_t> & rows, const services::internal::Buffer<uint32_t> & ind,
-                                             services::internal::Buffer<algorithmFPType> & newVal, const services::internal::Buffer<size_t> & newCols,
-                                             const services::internal::Buffer<size_t> & newRows, const size_t nWS)
+    static services::Status copyRowIndicesByIndices(const services::internal::Buffer<size_t> & rowsIn, const UniversalBuffer & ind,
+                                                    services::internal::Buffer<size_t> & rowsOut, const size_t nWS, size_t & dataSize)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(copyCSRByIndices);
         services::Status status;
@@ -229,51 +227,74 @@ struct HelperSVM
         services::internal::sycl::ExecutionContextIface & ctx    = services::internal::getDefaultContext();
         services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
-        auto valHostPtr  = val.toHost(data_management::readOnly, status);
-        auto colsHostPtr = cols.toHost(data_management::readOnly, status);
-        auto rowsHosrPtr = rows.toHost(data_management::readOnly, status);
+        buildProgram(factory);
 
-        auto indHosrPtr = ind.toHost(data_management::readOnly, status);
+        const char * const kernelName              = "copyRowIndicesByIndices";
+        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
+        DAAL_CHECK_STATUS_VAR(status);
 
-        auto newValHostPtr  = newVal.toHost(data_management::writeOnly, status);
-        auto newColsHostPtr = newCols.toHost(data_management::writeOnly, status);
-        auto newRowsHosrPtr = newRows.toHost(data_management::writeOnly, status);
+        services::internal::sycl::KernelArguments args(5, status);
+        DAAL_CHECK_STATUS_VAR(status);
 
-        auto valHost                   = valHostPtr.get();
-        auto colsHost                  = colsHostPtr.get();
-        auto rowsHosr                  = rowsHosrPtr.get();
-        const uint32_t * const indHosr = indHosrPtr.get();
-        auto newValHost                = newValHostPtr.get();
-        auto newColsHost               = newColsHostPtr.get();
-        auto newRowsHost               = newRowsHosrPtr.get();
+        auto dataSizeU = ctx.allocate(TypeIds::id<size_t>(), 1, status);
+        DAAL_CHECK_STATUS_VAR(status);
 
-        newRowsHost[0] = 1;
-        for (size_t i = 0; i < nWS; ++i)
-        {
-            const size_t iRows               = indHosr[i];
-            const size_t nNonZeroValuesInRow = rowsHosr[iRows + 1] - rowsHosr[iRows];
+        DAAL_ASSERT(rowsOut.size() == nWS + 1);
+        DAAL_ASSERT(rowsIn.size() > nWS);
 
-            const size_t offsetIn  = rowsHosr[iRows] - rowsHosr[0];
-            const size_t offsetOut = newRowsHost[i] - newRowsHost[0];
-            {
-                // Copy values
-                const algorithmFPType * const dataIn = valHost + offsetIn;
-                algorithmFPType * const dataOut      = newValHost + offsetOut;
-                DAAL_CHECK(!services::internal::daal_memcpy_s(dataOut, nNonZeroValuesInRow * sizeof(algorithmFPType), dataIn,
-                                                              nNonZeroValuesInRow * sizeof(algorithmFPType)),
-                           services::ErrorMemoryCopyFailedInternal);
-            }
-            {
-                // Copy col indices
-                const size_t * const dataIn = colsHost + offsetIn;
-                size_t * const dataOut      = newColsHost + offsetOut;
-                DAAL_CHECK(
-                    !services::internal::daal_memcpy_s(dataOut, nNonZeroValuesInRow * sizeof(size_t), dataIn, nNonZeroValuesInRow * sizeof(size_t)),
-                    services::ErrorMemoryCopyFailedInternal);
-            }
-            newRowsHost[i + 1] = newRowsHost[i] + nNonZeroValuesInRow;
-        }
+        args.set(0, rowsIn, services::internal::sycl::AccessModeIds::read);
+        args.set(1, ind, services::internal::sycl::AccessModeIds::read);
+        args.set(2, rowsOut, services::internal::sycl::AccessModeIds::write);
+        args.set(3, nWS);
+        args.set(4, dataSizeU);
 
+        services::internal::sycl::KernelRange range(1);
+
+        ctx.run(range, kernel, args, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        auto svValuesHosrPtr = dataSizeU.get<size_t>().toHost(data_management::writeOnly, status);
+        DAAL_CHECK_STATUS_VAR(status);
+        dataSize = *svValuesHosrPtr;
+
+        return status;
+    }
+
+    static services::Status copyCSRByIndices(const services::internal::Buffer<size_t> & rowsIn, const services::internal::Buffer<size_t> & rowsOut,
+                                             const UniversalBuffer & ind, const services::internal::Buffer<algorithmFPType> & val,
+                                             const services::internal::Buffer<size_t> & cols, services::internal::Buffer<algorithmFPType> & valOut,
+                                             services::internal::Buffer<size_t> & colsOut, const size_t nWS, const size_t p)
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(copyCSRByIndices);
+        services::Status status;
+
+        services::internal::sycl::ExecutionContextIface & ctx    = services::internal::getDefaultContext();
+        services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
+
+        buildProgram(factory);
+
+        const char * const kernelName              = "copyCSRByIndices";
+        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        services::internal::sycl::KernelArguments args(7, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_ASSERT(rowsOut.size() == nWS + 1);
+        DAAL_ASSERT(rowsIn.size() > nWS);
+
+        args.set(0, rowsIn, services::internal::sycl::AccessModeIds::read);
+        args.set(1, rowsOut, services::internal::sycl::AccessModeIds::read);
+        args.set(2, ind, services::internal::sycl::AccessModeIds::read);
+        args.set(3, val, services::internal::sycl::AccessModeIds::read);
+        args.set(4, cols, services::internal::sycl::AccessModeIds::read);
+        args.set(5, valOut, services::internal::sycl::AccessModeIds::write);
+        args.set(6, colsOut, services::internal::sycl::AccessModeIds::write);
+
+        services::internal::sycl::KernelRange range(nWS, p);
+
+        ctx.run(range, kernel, args, status);
+        DAAL_CHECK_STATUS_VAR(status);
         return status;
     }
 

@@ -69,7 +69,7 @@ public:
      *  \param[in]    indexing         Indexing scheme used to access data in the CSR layout
      *  \param[out]   stat             Status of the numeric table construction
      *  \return       SYCL CSR numeric table with user-allocated memory
-     *  \note Present version of Intel(R) Data Analytics Acceleration Library supports 1-based indexing only
+     *  \note Present version of Intel(R) oneAPI Data Analytics Library supports 1-based indexing only
      */
     template <typename DataType>
     static services::SharedPtr<SyclCSRNumericTable> create(const services::internal::Buffer<DataType> & bufferData,
