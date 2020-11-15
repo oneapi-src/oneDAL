@@ -338,7 +338,6 @@ protected:
 
             bias = -0.5 * (ub + lb);
         }
-
         return status;
     }
 
