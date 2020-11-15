@@ -68,7 +68,6 @@ public:
         {
             if (_alpha[i] > zero) nSV++;
         }
-        printf("nSV: %lu\n", nSV);
 
         model.setNFeatures(xTable.getNumberOfColumns());
         DAAL_CHECK_STATUS(s, setSVCoefficients(nSV, model));

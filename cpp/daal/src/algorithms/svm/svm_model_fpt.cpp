@@ -49,7 +49,6 @@ Model::Model(modelFPType dummy, size_t nColumns, data_management::NumericTableIf
 
     if (!deviceInfo.isCpu)
     {
-        // _SV = internal::SyclHomogenNumericTable<modelFPType>::create(nColumns, 0, NumericTable::doNotAllocate, &st);
         if (layout == NumericTableIface::csrArray)
         {
             _SV = internal::SyclCSRNumericTable::create<modelFPType>(services::internal::Buffer<modelFPType>(), services::internal::Buffer<size_t>(),
@@ -60,6 +59,9 @@ Model::Model(modelFPType dummy, size_t nColumns, data_management::NumericTableIf
         {
             _SV = internal::SyclHomogenNumericTable<modelFPType>::create(nColumns, 0, NumericTable::doNotAllocate, &st);
         }
+        _SVCoeff = internal::SyclHomogenNumericTable<modelFPType>::create(1, 0, NumericTable::doNotAllocate, &st);
+        if (!st) return;
+        _SVIndices = internal::SyclHomogenNumericTable<int>::create(1, 0, NumericTable::doNotAllocate, &st);
     }
     else
     {
@@ -71,24 +73,12 @@ Model::Model(modelFPType dummy, size_t nColumns, data_management::NumericTableIf
         {
             _SV = HomogenNumericTable<modelFPType>::create(NULL, nColumns, 0, &st);
         }
-    }
-
-    if (!st) return;
-
-    if (!deviceInfo.isCpu)
-    {
-        _SVCoeff = internal::SyclHomogenNumericTable<modelFPType>::create(1, 0, NumericTable::doNotAllocate, &st);
-        if (!st) return;
-        _SVIndices = internal::SyclHomogenNumericTable<int>::create(1, 0, NumericTable::doNotAllocate, &st);
-    }
-    else
-    {
         _SVCoeff = HomogenNumericTable<modelFPType>::create(NULL, 1, 0, &st);
         if (!st) return;
         _SVIndices = HomogenNumericTable<int>::create(NULL, 1, 0, &st);
     }
 
-    if (!st) return;
+    return;
 }
 
 template DAAL_EXPORT services::SharedPtr<Model> Model::create<DAAL_FPTYPE>(size_t nColumns, data_management::NumericTableIface::StorageLayout layout,

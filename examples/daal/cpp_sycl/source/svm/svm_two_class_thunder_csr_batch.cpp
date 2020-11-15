@@ -27,9 +27,6 @@
  * \example svm_two_class_thunder_dense_batch.cpp
  */
 
-// iter: 50; diff: 0.000936
-// nSV: 126
-
 #include "daal_sycl.h"
 #include "service.h"
 #include "service_sycl.h"
