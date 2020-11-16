@@ -82,7 +82,8 @@ Applications on Windows
             - onedal_core_dll.1.lib
             - onedal_core_dll.1.lib
 
-   Number in dynamic library file name is major binary version of library. See `Dynamic library versions`_ to find that major version means.
+   The number in the name of a dynamic library file is the major binary version of the library.
+   See `Dynamic library versions`_ to learn what the major version means.
 
 Applications on Linux
 ---------------------
@@ -135,12 +136,12 @@ Applications on Linux
             - libonedal_core.so, libonedal_sequential.so
             - libonedal_core.so, libonedal_thread.so
 
-     There are three available file names for dynamic linking: with major and minor binary versions, with major version or without versions.
-     They are implemented through chain of Linux soft links:
+     There are three available file names for dynamic linking: with major and minor binary versions, only with a major version, and without any versions.
+     They are implemented through a chain of Linux soft links:
 
      libonedal_*.so (soft link) -> libonedal_*.so.{major version} (soft link) -> libonedal_*.so.{major version}.{minor version} (actual library file)
 
-     See `Dynamic library versions`_ to find that major and minor versions mean.
+     See `Dynamic library versions`_ to learn what major and minor versions mean.
 
   - Add an additional |short_name| library:
 
@@ -166,7 +167,11 @@ Static linking, Single-threaded |short_name|:
      --start-group <install dir>/daal/latest/lib/intel64/libonedal_core.a <install dir>/daal/latest/lib/intel64/libonedal_sequential.a -lpthread -ldl -lOpenCL -foffload-static-lib=<install dir>/daal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
 
 Dynamic library versions
----------------------
-Some dynamic library files and links have major and minor binary versions in names.
-When new library version without ABI compatibility to previous versions are going to be released, major version is incremented and minor is set to 0.
-When new library version with ABI compatibility to previous versions and additional API are going to be released, minor version is incremented.
+------------------------
+
+The library follows `semantic versioning <https://semver.org>`_, so some dynamic library files and links have major and minor binary versions in their names.
+
+ - Minor version is incremented if new functionality has been introduced to the public API and backwards compatibility has been saved.
+ - Major version is incremented and minor is set to 0 if any backwards incompatible changes has been introduced.
+
+Environment scripts are setting binary versions in DAL_MAJOR_BINARY and DAL_MINOR_BINARY variables on call.
