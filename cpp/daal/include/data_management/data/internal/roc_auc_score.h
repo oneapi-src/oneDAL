@@ -27,7 +27,7 @@ namespace data_management
 namespace internal
 {
 template <typename DataType>
-DAAL_EXPORT DataType rocAucScore(DataType * predictedRank, NumericTablePtr & actual_numpy, const int& size);
+DAAL_EXPORT DataType rocAucScore(const DataType * predictedRank, NumericTablePtr & actual_numpy, const int& size);
 
 template <typename DataType>
 DAAL_EXPORT void calculateRankData(DataType * predictedRank, NumericTablePtr & prediction_numpy, const int& size);
