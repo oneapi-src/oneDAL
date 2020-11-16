@@ -30,34 +30,37 @@ namespace data_management
 namespace internal
 {
 template <typename DataType, daal::CpuType cpu>
-void calculateRankDataImpl(DataType * predictedRank, NumericTablePtr & prediction_numpy, const int& size)
+void calculateRankDataImpl(DataType * predictedRank, NumericTablePtr & prediction_numpy, const int & size)
 {
     ReadRows<DataType, cpu> numpyBlock(prediction_numpy.get(), 0, 1);
     const DataType * const numpyPtr = numpyBlock.get();
-    DataType * const values = new DataType[size];
-    size_t * const indexes = new size_t[size];
+    DataType * const values         = new DataType[size];
+    size_t * const indexes          = new size_t[size];
 
-    for(size_t i = 0;i < size;++i)
+    for (size_t i = 0; i < size; ++i)
     {
-        values[i] = numpyPtr[i];
+        values[i]  = numpyPtr[i];
         indexes[i] = i;
     }
 
     daal::algorithms::internal::qSort<DataType, size_t, cpu>(size, values, indexes);
 
-    int r = 1;
-    int n = 1;
+    int r    = 1;
+    int n    = 1;
     size_t i = 0;
-    while (i < size) {
+    while (i < size)
+    {
         size_t j = i;
-        while ((j < (size - 1)) && (values[j] == values[j + 1])) {
+        while ((j < (size - 1)) && (values[j] == values[j + 1]))
+        {
             j++;
         }
         n = j - i + 1;
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t j = 0; j < n; ++j) { // parallel this
-            int idx = indexes[i+j];
+        for (size_t j = 0; j < n; ++j) // parallel this
+        {
+            int idx            = indexes[i + j];
             predictedRank[idx] = r + ((n - 1) * 0.5);
         }
         r += n;
@@ -67,7 +70,7 @@ void calculateRankDataImpl(DataType * predictedRank, NumericTablePtr & predictio
 }
 
 template <typename DataType>
-void calculateRankDataDispImpl(DataType * predictedRank, NumericTablePtr & prediction_numpy, const int& size)
+void calculateRankDataDispImpl(DataType * predictedRank, NumericTablePtr & prediction_numpy, const int & size)
 {
 #define DAAL_CALC_RANK_DATA(cpuId, ...) calculateRankDataImpl<DataType, cpuId>(__VA_ARGS__);
 
@@ -77,18 +80,17 @@ void calculateRankDataDispImpl(DataType * predictedRank, NumericTablePtr & predi
 }
 
 template <typename DataType>
-DAAL_EXPORT void calculateRankData(DataType * predictedRank, NumericTablePtr & prediction_numpy, const int& size)
+DAAL_EXPORT void calculateRankData(DataType * predictedRank, NumericTablePtr & prediction_numpy, const int & size)
 {
     DAAL_SAFE_CPU_CALL((calculateRankDataDispImpl<DataType>(predictedRank, prediction_numpy, size)),
-                        (calculateRankDataImpl<DataType, daal::CpuType::sse2>(predictedRank, prediction_numpy, size)));
+                       (calculateRankDataImpl<DataType, daal::CpuType::sse2>(predictedRank, prediction_numpy, size)));
 }
 
-template DAAL_EXPORT void calculateRankData<float> (float * predictedRank, NumericTablePtr & prediction_numpy, const int& size);
-template DAAL_EXPORT void calculateRankData<double>(double * predictedRank, NumericTablePtr & prediction_numpy, const int& size);
-
+template DAAL_EXPORT void calculateRankData<float>(float * predictedRank, NumericTablePtr & prediction_numpy, const int & size);
+template DAAL_EXPORT void calculateRankData<double>(double * predictedRank, NumericTablePtr & prediction_numpy, const int & size);
 
 template <typename DataType, daal::CpuType cpu>
-void rocAucScoreImpl(const DataType * predictedRank, NumericTablePtr & actual_numpy, const int& size, DataType * score)
+void rocAucScoreImpl(const DataType * predictedRank, NumericTablePtr & actual_numpy, const int & size, DataType * score)
 {
     ReadRows<DataType, cpu> numpyBlock(actual_numpy.get(), 0, 1);
     const DataType * const numpyPtr = numpyBlock.get();
@@ -97,27 +99,28 @@ void rocAucScoreImpl(const DataType * predictedRank, NumericTablePtr & actual_nu
 
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
-    for(size_t i = 0;i < size;++i) sum += numpyPtr[i];
+    for (size_t i = 0; i < size; ++i) sum += numpyPtr[i];
 
     DataType nPos = sum;
     DataType nNeg = size - nPos;
 
     DataType filteredRankSum = 0;
-    
+
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
     for (size_t i = 0; i < size; ++i) // parallel this
     {
-        if (numpyPtr[i] == 1) {
+        if (numpyPtr[i] == 1)
+        {
             filteredRankSum += predictedRank[i];
         }
     }
 
-    *score = (filteredRankSum - (nPos*(nPos+1)/2)) / (nPos * nNeg);
+    *score = (filteredRankSum - (nPos * (nPos + 1) / 2)) / (nPos * nNeg);
 }
 
 template <typename DataType>
-void rocAucScoreDispImpl(const DataType * predictedRank, NumericTablePtr & actual_numpy, const int& size, DataType * score)
+void rocAucScoreDispImpl(const DataType * predictedRank, NumericTablePtr & actual_numpy, const int & size, DataType * score)
 {
 #define DAAL_ROC_AUC_SCORE(cpuId, ...) rocAucScoreImpl<DataType, cpuId>(__VA_ARGS__);
 
@@ -127,16 +130,16 @@ void rocAucScoreDispImpl(const DataType * predictedRank, NumericTablePtr & actua
 }
 
 template <typename DataType>
-DAAL_EXPORT DataType rocAucScore(const DataType * predictedRank, NumericTablePtr & actual_numpy, const int& size)
+DAAL_EXPORT DataType rocAucScore(const DataType * predictedRank, NumericTablePtr & actual_numpy, const int & size)
 {
     DataType score = 0;
     DAAL_SAFE_CPU_CALL((rocAucScoreDispImpl<DataType>(predictedRank, actual_numpy, size, &score)),
-                        (rocAucScoreImpl<DataType, daal::CpuType::sse2>(predictedRank, actual_numpy, size, &score)));
+                       (rocAucScoreImpl<DataType, daal::CpuType::sse2>(predictedRank, actual_numpy, size, &score)));
     return score;
 }
 
-template DAAL_EXPORT float rocAucScore<float>(const float * predictedRank, NumericTablePtr & actual_numpy, const int& size);
-template DAAL_EXPORT double rocAucScore<double>(const double * predictedRank, NumericTablePtr & actual_numpy, const int& size);
+template DAAL_EXPORT float rocAucScore<float>(const float * predictedRank, NumericTablePtr & actual_numpy, const int & size);
+template DAAL_EXPORT double rocAucScore<double>(const double * predictedRank, NumericTablePtr & actual_numpy, const int & size);
 
 } // namespace internal
 } // namespace data_management
