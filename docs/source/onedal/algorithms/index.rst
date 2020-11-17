@@ -29,3 +29,5 @@ and regression algorithms, as well as association rules discovery.
 ..   clustering/index.rst
 ..   nearest_neighbors/index.rst
 ..   decomposition/index.rst
+..   ensemles/index.rst
+..   support-vector-machines/index.rst

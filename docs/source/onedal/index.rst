@@ -25,4 +25,5 @@
    :maxdepth: 2
    :caption: Developer Guide
 
+   data-management/index.rst
    algorithms/index.rst
