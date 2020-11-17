@@ -80,6 +80,7 @@ Applications on Windows
             - onedal_core.lib, onedal_thread.lib
           * - Dynamic linking
             - onedal_core_dll.1.lib
+            - onedal_core_dll.1.lib
 
    The number in the name of a dynamic library file is the major binary version of the library.
    See `Dynamic library versions`_ to learn what the major version means.
