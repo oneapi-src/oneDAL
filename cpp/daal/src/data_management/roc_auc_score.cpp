@@ -21,21 +21,8 @@
 #include "src/algorithms/service_kernel_math.h"
 #include "src/algorithms/service_sort.h"
 #include "src/externals/service_dispatch.h"
+#include "src/externals/service_memory.h"
 #include "src/services/service_data_utils.h"
-
-#define DAAL_DISPATCH_FUNCTION_BY_CPU_SAFE(func, ...)                                                                           \
-    int cpuid = daal::sse2;                                                                                                     \
-    DAAL_SAFE_CPU_CALL((cpuid = daal::services::Environment::getInstance()->getCpuId()), (cpuid = daal::sse2))                  \
-    switch (static_cast<daal::CpuType>(cpuid))                                                                                  \
-    {                                                                                                                           \
-        DAAL_KERNEL_SSSE3_ONLY_CODE(case daal::CpuType::ssse3 : func(daal::CpuType::ssse3, __VA_ARGS__); break;)                \
-        DAAL_KERNEL_SSE42_ONLY_CODE(case daal::CpuType::sse42 : func(daal::CpuType::sse42, __VA_ARGS__); break;)                \
-        DAAL_KERNEL_AVX_ONLY_CODE(case daal::CpuType::avx : func(daal::CpuType::avx, __VA_ARGS__); break;)                      \
-        DAAL_KERNEL_AVX2_ONLY_CODE(case daal::CpuType::avx2 : func(daal::CpuType::avx2, __VA_ARGS__); break;)                   \
-        DAAL_KERNEL_AVX512_ONLY_CODE(case daal::CpuType::avx512 : func(daal::CpuType::avx512, __VA_ARGS__); break;)             \
-        DAAL_KERNEL_AVX512_MIC_ONLY_CODE(case daal::CpuType::avx512_mic : func(daal::CpuType::avx512_mic, __VA_ARGS__); break;) \
-        DAAL_EXPAND(default : func(daal::CpuType::sse2, __VA_ARGS__); break;)                                                   \
-    }
 
 namespace daal
 {
@@ -44,13 +31,16 @@ namespace data_management
 namespace internal
 {
 template <typename FPType, daal::CpuType cpu>
-void calculateRankDataImpl(FPType * predictedRank, NumericTablePtr & prediction_numpy, const int & size)
+services::Status calculateRankDataImpl(FPType * predictedRank, NumericTablePtr & testPrediction, const int & size)
 {
-    ReadRows<FPType, cpu> numpyBlock(prediction_numpy.get(), 0, 1);
-    const FPType * const numpyPtr = numpyBlock.get();
+    services::Status s;
+    ReadRows<FPType, cpu> testPredictionBlock(testPrediction.get(), 0, 1);
+    const FPType * const testPredictionPtr = testPredictionBlock.get();
+    DAAL_CHECK_MALLOC(testPredictionPtr);
 
     TArray<FPType, cpu> values(size);
-    TArray<size_t, cpu> indexes(size);
+    TArray<size_t, cpu> indeces(size);
+    DAAL_CHECK_MALLOC(values.get() && indeces.get());
 
     size_t blockSizeDefault = 256;
     size_t nBlocks          = size / blockSizeDefault + !!(size % blockSizeDefault);
@@ -60,16 +50,16 @@ void calculateRankDataImpl(FPType * predictedRank, NumericTablePtr & prediction_
         const size_t blockBegin = iBlock * blockSizeDefault;
         for (size_t i = 0;i < blockSize;++i)
         {
-            values[blockBegin + i]  = numpyPtr[blockBegin + i];
-            indexes[blockBegin + i] = blockBegin + i;
+            values[blockBegin + i]  = testPredictionPtr[blockBegin + i];
+            indeces[blockBegin + i] = blockBegin + i;
         }
     });
 
-    daal::algorithms::internal::qSort<FPType, size_t, cpu>(size, values.get(), indexes.get());
+    daal::algorithms::internal::qSort<FPType, size_t, cpu>(size, values.get(), indeces.get());
 
-    int r    = 1;
-    int n    = 1;
-    size_t i = 0;
+    size_t r    = 1;
+    size_t n    = 1;
+    size_t i    = 0;
     while (i < size)
     {
         size_t j = i;
@@ -83,41 +73,43 @@ void calculateRankDataImpl(FPType * predictedRank, NumericTablePtr & prediction_
         PRAGMA_VECTOR_ALWAYS
         for (size_t j = 0; j < n; ++j) // parallel this
         {
-            int idx            = indexes[i + j];
+            int idx            = indeces[i + j];
             predictedRank[idx] = r + ((n - 1) * 0.5);
         }
         r += n;
         i += n;
     }
+    return s;
 }
 
 template <typename FPType>
-DAAL_EXPORT void calculateRankData(FPType * predictedRank, NumericTablePtr & prediction_numpy, const int & size)
+DAAL_EXPORT void calculateRankData(FPType * predictedRank, NumericTablePtr & testPrediction, const int & size)
 {
 #define DAAL_CALC_RANK_DATA(cpuId, ...) calculateRankDataImpl<FPType, cpuId>(__VA_ARGS__);
 
-    DAAL_DISPATCH_FUNCTION_BY_CPU_SAFE(DAAL_CALC_RANK_DATA, predictedRank, prediction_numpy, size);
+    DAAL_DISPATCH_FUNCTION_BY_CPU_SAFE(DAAL_CALC_RANK_DATA, predictedRank, testPrediction, size);
 
 #undef DAAL_CALC_RANK_DATA
 }
 
-template DAAL_EXPORT void calculateRankData<float>(float * predictedRank, NumericTablePtr & prediction_numpy, const int & size);
-template DAAL_EXPORT void calculateRankData<double>(double * predictedRank, NumericTablePtr & prediction_numpy, const int & size);
+template DAAL_EXPORT void calculateRankData<float>(float * predictedRank, NumericTablePtr & testPrediction, const int & size);
+template DAAL_EXPORT void calculateRankData<double>(double * predictedRank, NumericTablePtr & testPrediction, const int & size);
 
 template <typename FPType, daal::CpuType cpu>
-void rocAucScoreImpl(const FPType * predictedRank, NumericTablePtr & actual_numpy, const int & size, FPType * score)
+services::Status rocAucScoreImpl(const FPType * predictedRank, NumericTablePtr & truePrediction, const int & size, FPType * score)
 {
-    ReadRows<FPType, cpu> numpyBlock(actual_numpy.get(), 0, 1);
-    const FPType * const numpyPtr = numpyBlock.get();
-
+    services::Status s;
+    ReadRows<FPType, cpu> truePredictionBlock(truePrediction.get(), 0, 1);
+    const FPType * const truePredictionPtr = truePredictionBlock.get();
+    DAAL_CHECK_MALLOC(truePredictionPtr);
     FPType sum = 0;
 
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
-    for (size_t i = 0; i < size; ++i) sum += numpyPtr[i];
+    for (size_t i = 0; i < size; ++i) sum += truePredictionPtr[i];
 
-    FPType nPos = sum;
-    FPType nNeg = size - nPos;
+    const FPType nPos = sum;
+    const FPType nNeg = size - nPos;
 
     FPType filteredRankSum = 0;
 
@@ -125,29 +117,30 @@ void rocAucScoreImpl(const FPType * predictedRank, NumericTablePtr & actual_nump
     PRAGMA_VECTOR_ALWAYS
     for (size_t i = 0; i < size; ++i) // parallel this
     {
-        if (numpyPtr[i] == 1)
+        if (truePredictionPtr[i] == 1)
         {
             filteredRankSum += predictedRank[i];
         }
     }
 
     *score = (filteredRankSum - (nPos * (nPos + 1) / 2)) / (nPos * nNeg);
+    return s;
 }
 
 template <typename FPType>
-DAAL_EXPORT FPType rocAucScore(const FPType * predictedRank, NumericTablePtr & actual_numpy, const int & size)
+DAAL_EXPORT FPType rocAucScore(const FPType * predictedRank, NumericTablePtr & truePrediction, const int & size)
 {
     FPType score = 0;
 #define DAAL_ROC_AUC_SCORE(cpuId, ...) rocAucScoreImpl<FPType, cpuId>(__VA_ARGS__);
 
-    DAAL_DISPATCH_FUNCTION_BY_CPU_SAFE(DAAL_ROC_AUC_SCORE, predictedRank, actual_numpy, size, &score);
+    DAAL_DISPATCH_FUNCTION_BY_CPU_SAFE(DAAL_ROC_AUC_SCORE, predictedRank, truePrediction, size, &score);
 
 #undef DAAL_ROC_AUC_SCORE
     return score;
 }
 
-template DAAL_EXPORT float rocAucScore<float>(const float * predictedRank, NumericTablePtr & actual_numpy, const int & size);
-template DAAL_EXPORT double rocAucScore<double>(const double * predictedRank, NumericTablePtr & actual_numpy, const int & size);
+template DAAL_EXPORT float rocAucScore<float>(const float * predictedRank, NumericTablePtr & truePrediction, const int & size);
+template DAAL_EXPORT double rocAucScore<double>(const double * predictedRank, NumericTablePtr & truePrediction, const int & size);
 
 } // namespace internal
 } // namespace data_management
