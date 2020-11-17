@@ -29,10 +29,6 @@
 #include "algorithms/moments/low_order_moments_types.h"
 #include "src/services/service_data_utils.h"
 
-//using namespace daal::services;
-//using namespace daal::data_management;
-//using namespace daal::services::internal::sycl;
-
 namespace daal
 {
 namespace algorithms
@@ -52,9 +48,6 @@ struct TaskInfoBatch<algorithmFPType, estimatesMinMax>
     constexpr static uint32_t nResults              = 2;
     constexpr static uint32_t nBuffers              = 2;
     constexpr static bool isRowsInBlockInfoRequired = false;
-    //using resultsSetType                            = int[nResults];
-    //using resultTableType                           = NumericTablePtr[nResults];
-    //using buffersType                               = UniversalBuffer[nBuffers];
     // names of used kernels
     static const char * kSinglePassName;
     static const char * kProcessBlocksName;
@@ -74,9 +67,6 @@ struct TaskInfoBatch<algorithmFPType, estimatesMeanVariance>
     constexpr static uint32_t nResults              = 2;
     constexpr static uint32_t nBuffers              = 2;
     constexpr static bool isRowsInBlockInfoRequired = true;
-    //using resultsSetType                            = int[nResults];
-    //using resultTableType                           = NumericTablePtr[nResults];
-    //using buffersType                               = UniversalBuffer[nBuffers];
     // names of used kernels
     static const char * kSinglePassName;
     static const char * kProcessBlocksName;
@@ -96,9 +86,6 @@ struct TaskInfoBatch<algorithmFPType, estimatesAll>
     constexpr static uint32_t nResults              = lastResultId + 1;
     constexpr static uint32_t nBuffers              = 5;
     constexpr static bool isRowsInBlockInfoRequired = true;
-    //using resultsSetType                            = int[nResults];
-    //using resultTableType                           = NumericTablePtr[nResults];
-    //using buffersType                               = UniversalBuffer[nBuffers];
     // names of used kernels
     static const char * kSinglePassName;
     static const char * kProcessBlocksName;

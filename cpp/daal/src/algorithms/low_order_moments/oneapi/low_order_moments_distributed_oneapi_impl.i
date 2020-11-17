@@ -108,20 +108,7 @@ const char * TaskInfoDistributed<DAAL_FPTYPE, estimatesAll>::kCacheKey = "__daal
 /*
    Kernel methods implementation
 */
-#define _P(...)              \
-    do                       \
-    {                        \
-        printf(__VA_ARGS__); \
-        printf("\n");        \
-        fflush(0);           \
-    } while (0)
 
-#define _PL(...)             \
-    do                       \
-    {                        \
-        printf(__VA_ARGS__); \
-        fflush(0);           \
-    } while (0)
 template <typename algorithmFPType, Method method>
 services::Status LowOrderMomentsDistributedKernelOneAPI<algorithmFPType, method>::compute(data_management::DataCollection * partialResultsCollection,
                                                                                           PartialResult * partialResult, const Parameter * parameter)
@@ -262,7 +249,6 @@ LowOrderMomentsDistributedTaskOneAPI<algorithmFPType, scope>::LowOrderMomentsDis
 
     for (uint32_t i = 0; i < TaskInfoDistributed<algorithmFPType, scope>::nBuffers; i++)
     {
-        //!!!! make allocation by aligned blocks
         bAuxHostBuffers[i].reset(nDistrBlocks * nElemsInStride);
         status |= bAuxHostBuffers[i].get() ? services::Status() : services::Status(services::ErrorMemoryAllocationFailed);
         DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
