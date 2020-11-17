@@ -174,4 +174,6 @@ The library follows `semantic versioning <https://semver.org>`_, so some dynamic
  - Minor version is incremented if new functionality has been introduced to the public API and backwards compatibility has been saved.
  - Major version is incremented and minor is set to 0 if any backwards incompatible changes has been introduced.
 
+Usage of dynamic library without any versions in production is not recommended.
+
 Environment scripts are setting binary versions in DAL_MAJOR_BINARY and DAL_MINOR_BINARY variables on call.
