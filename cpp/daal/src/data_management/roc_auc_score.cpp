@@ -52,11 +52,18 @@ void calculateRankDataImpl(FPType * predictedRank, NumericTablePtr & prediction_
     TArray<FPType, cpu> values(size);
     TArray<size_t, cpu> indexes(size);
 
-    for (size_t i = 0; i < size; ++i)
-    {
-        values[i]  = numpyPtr[i];
-        indexes[i] = i;
-    }
+    size_t blockSizeDefault = 256;
+    size_t nBlocks          = size / blockSizeDefault + !!(size % blockSizeDefault);
+
+    daal::threader_for(nBlocks, nBlocks, [&](int iBlock) {
+        const size_t blockSize  = (iBlock == nBlocks - 1) ? size % blockSizeDefault : blockSizeDefault;
+        const size_t blockBegin = iBlock * blockSizeDefault;
+        for (size_t i = 0;i < blockSize;++i)
+        {
+            values[blockBegin + i]  = numpyPtr[blockBegin + i];
+            indexes[blockBegin + i] = blockBegin + i;
+        }
+    });
 
     daal::algorithms::internal::qSort<FPType, size_t, cpu>(size, values.get(), indexes.get());
 
@@ -71,6 +78,7 @@ void calculateRankDataImpl(FPType * predictedRank, NumericTablePtr & prediction_
             j++;
         }
         n = j - i + 1;
+
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
         for (size_t j = 0; j < n; ++j) // parallel this
