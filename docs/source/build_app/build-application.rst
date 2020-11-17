@@ -80,7 +80,6 @@ Applications on Windows
             - onedal_core.lib, onedal_thread.lib
           * - Dynamic linking
             - onedal_core_dll.1.lib
-            - onedal_core_dll.1.lib
 
    The number in the name of a dynamic library file is the major binary version of the library.
    See `Dynamic library versions`_ to learn what the major version means.
@@ -171,9 +170,9 @@ Dynamic library versions
 
 The library follows `semantic versioning <https://semver.org>`_, so some dynamic library files and links have major and minor binary versions in their names.
 
- - Minor version is incremented if new functionality has been introduced to the public API and backwards compatibility has been saved.
- - Major version is incremented and minor is set to 0 if any backwards incompatible changes has been introduced.
+ - The minor version is incremented if new functionality is introduced to the public API and backwards compatibility is preserved.
+ - The major version is incremented and the minor version is set to 0 if any backwards incompatible changes are introduced.
 
-Usage of dynamic library without any versions in production is not recommended.
+It is not recommended to use dynamic library files without any versioning in production.
 
-Environment scripts are setting binary versions in DAL_MAJOR_BINARY and DAL_MINOR_BINARY variables on call.
+Environment scripts set binary versions in ``DAL_MAJOR_BINARY`` and ``DAL_MINOR_BINARY`` variables on call.
