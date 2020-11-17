@@ -17,29 +17,47 @@
 #pragma once
 
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::preview {
-typedef void (*functype)(int i, const void *a);
+typedef void (*functype)(std::int32_t i, const void *a);
 }
 
 extern "C" {
-ONEDAL_EXPORT void _daal_threader_for_oneapi(int n,
-                                             int threads_request,
-                                             const void *a,
-                                             oneapi::dal::preview::functype func);
+ONEDAL_EXPORT void _onedal_threader_for(std::int32_t n,
+                                        std::int32_t threads_request,
+                                        const void *a,
+                                        oneapi::dal::preview::functype func);
 }
 
-namespace oneapi::dal::preview::load_graph::detail {
+namespace oneapi::dal::detail {
 template <typename F>
-inline void threader_func(int i, const void *a) {
+inline void threader_func(std::int32_t i, const void *a) {
     const F &lambda = *static_cast<const F *>(a);
     lambda(i);
 }
 
 template <typename F>
-inline ONEDAL_EXPORT void threader_for(size_t n, size_t threads_request, const F &lambda) {
+inline ONEDAL_EXPORT void threader_for(std::int32_t n,
+                                       std::int32_t threads_request,
+                                       const F &lambda) {
     const void *a = static_cast<const void *>(&lambda);
 
-    _daal_threader_for_oneapi((int)n, (int)threads_request, a, threader_func<F>);
+    _onedal_threader_for(n, threads_request, a, threader_func<F>);
 }
-} // namespace oneapi::dal::preview::load_graph::detail
+
+template <typename F>
+ONEDAL_EXPORT void parallel_sort(F *begin_ptr, F *end_ptr) {
+    throw unimplemented(dal::detail::error_messages::unimplemented_sorting_procedure());
+}
+
+#define ONEDAL_PARALLEL_SORT_SPECIALIZATION_DECL(TYPE) \
+    template <>                                        \
+    ONEDAL_EXPORT void parallel_sort(TYPE *begin_ptr, TYPE *end_ptr);
+
+ONEDAL_PARALLEL_SORT_SPECIALIZATION_DECL(std::int32_t)
+ONEDAL_PARALLEL_SORT_SPECIALIZATION_DECL(std::uint64_t)
+
+#undef ONEDAL_PARALLEL_SORT_SPECIALIZATION_DECL
+
+} // namespace oneapi::dal::detail

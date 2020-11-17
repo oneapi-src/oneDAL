@@ -74,6 +74,11 @@ extern "C"
 
     DAAL_EXPORT void * _threaded_scalable_malloc(const size_t size, const size_t alignment);
     DAAL_EXPORT void _threaded_scalable_free(void * ptr);
+
+#define DAAL_PARALLEL_SORT_DECL(TYPE, NAMESUFFIX) DAAL_EXPORT void _daal_parallel_sort_##NAMESUFFIX(TYPE * begin_ptr, TYPE * end_ptr);
+    DAAL_PARALLEL_SORT_DECL(int, int32)
+    DAAL_PARALLEL_SORT_DECL(size_t, uint64)
+#undef DAAL_PARALLEL_SORT_DECL
 }
 
 namespace daal
