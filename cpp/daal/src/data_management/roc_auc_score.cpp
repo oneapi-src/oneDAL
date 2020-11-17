@@ -48,7 +48,7 @@ services::Status calculateRankDataImpl(FPType * predictedRank, NumericTablePtr &
     daal::threader_for(nBlocks, nBlocks, [&](int iBlock) {
         const size_t blockSize  = (iBlock == nBlocks - 1) ? size % blockSizeDefault : blockSizeDefault;
         const size_t blockBegin = iBlock * blockSizeDefault;
-        for (size_t i = 0;i < blockSize;++i)
+        for (size_t i = 0; i < blockSize; ++i)
         {
             values[blockBegin + i]  = testPredictionPtr[blockBegin + i];
             indeces[blockBegin + i] = blockBegin + i;
@@ -57,9 +57,9 @@ services::Status calculateRankDataImpl(FPType * predictedRank, NumericTablePtr &
 
     daal::algorithms::internal::qSort<FPType, size_t, cpu>(size, values.get(), indeces.get());
 
-    size_t r    = 1;
-    size_t n    = 1;
-    size_t i    = 0;
+    size_t r = 1;
+    size_t n = 1;
+    size_t i = 0;
     while (i < size)
     {
         size_t j = i;
