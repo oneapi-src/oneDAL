@@ -38,8 +38,8 @@ To contribute your changes directly to the repository, do the following:
 - Make sure you can build the product and run all the examples with your patch.
 - Make sure your code is in line with our [coding style](#code-style) as `clang-format` is one of the checks in our public CI.
 - For a larger feature, provide a relevant example.
-- [Document your code](#documentation-guidelines).
-- [Sign your work](#sign-your-work).
+- [Document](#documentation-guidelines) your code.
+- [Sign](#sign-your-work) your work.
 - [Submit](https://github.com/oneapi-src/oneDAL/pulls) a pull request into the `master` branch.
 
 Public and private CIs are enabled for the repository. Your PR should pass all of our checks. We will review your contribution and, if any additional fixes or modifications are necessary, we may give some feedback to guide you. When accepted, your pull request will be merged into our GitHub* repository.
