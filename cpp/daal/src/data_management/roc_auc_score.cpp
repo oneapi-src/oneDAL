@@ -58,9 +58,9 @@ services::Status calculateRankDataImpl(FPType * predictedRank, const NumericTabl
 
     daal::algorithms::internal::qSort<FPType, size_t, cpu>(nElements, values.get(), indeces.get());
 
-    size_t rank = 1;
+    size_t rank            = 1;
     size_t elementsInBlock = 1;
-    size_t i = 0;
+    size_t i               = 0;
     while (i < nElements)
     {
         size_t j = i;
