@@ -33,13 +33,13 @@ conda install -y -c conda-forge scikit-learn
 conda install $HOME/miniconda/envs/CB/conda-bld/linux-64/daal4py*.tar.bz2
 conda list
 compiler_vars=${ONEAPI_DIR}/compiler/latest/env/vars.sh
-if [ ! -f "${compiler_vars}" ]; then
+if [ ! -e "${compiler_vars}" ]; then
     echo "Can't find compiler vars ${compiler_vars}"
     exit 1
 fi
 source "${compiler_vars}"
 dal_vars=${BUILD_DIR}/daal/latest/env/vars.sh
-if [ ! -f "${dal_vars}" ]; then
+if [ ! -e "${dal_vars}" ]; then
     echo "Can't find oneDAL vars ${dal_vars}"
     exit 1
 fi
