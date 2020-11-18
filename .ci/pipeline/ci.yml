@@ -18,7 +18,7 @@ pr:
 jobs:
 - job: 'ClangFormat'
   pool:
-    vmImage: 'ubuntu-18.04'
+    vmImage: 'ubuntu-20.04'
   steps:
     - script: |
         .ci/env/clang.sh
@@ -33,7 +33,7 @@ jobs:
     release.dir: '__release_lnx_gnu'
     platform.type : 'lnx32e'
   pool:
-    vmImage: 'ubuntu-18.04'
+    vmImage: 'ubuntu-20.04'
   steps:
   - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib openjdk-8-jdk
     displayName: 'apt-get'
@@ -57,7 +57,7 @@ jobs:
 - job: 'LinuxBazel'
   timeoutInMinutes: 0
   pool:
-    vmImage: 'ubuntu-18.04'
+    vmImage: 'ubuntu-20.04'
   steps:
   - script: |
       sudo apt-get update
@@ -123,7 +123,7 @@ jobs:
     release.dir: '__release_lnx_gnu'
     platform.type : 'lnx32e'
   pool:
-    vmImage: 'ubuntu-18.04'
+    vmImage: 'ubuntu-20.04'
     maxParallel: 2
   steps:
   - task: DownloadPipelineArtifact@2
