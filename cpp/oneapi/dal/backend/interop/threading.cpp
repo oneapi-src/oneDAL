@@ -17,9 +17,25 @@
 #include "oneapi/dal/detail/threading.hpp"
 #include "src/threading/threading.h"
 
-ONEDAL_EXPORT void _daal_threader_for_oneapi(int n,
-                                             int threads_request,
-                                             const void* a,
-                                             oneapi::dal::preview::functype func) {
+ONEDAL_EXPORT void _onedal_threader_for(std::int32_t n,
+                                        std::int32_t threads_request,
+                                        const void *a,
+                                        oneapi::dal::preview::functype func) {
     _daal_threader_for(n, threads_request, a, static_cast<daal::functype>(func));
 }
+
+namespace oneapi::dal::detail {
+
+#define ONEDAL_PARALLEL_SORT_SPECIALIZATION(TYPE, DAALTYPE, NAMESUFFIX)               \
+    template <>                                                                       \
+    ONEDAL_EXPORT void parallel_sort(TYPE *begin_ptr, TYPE *end_ptr) {                \
+        static_assert(sizeof(TYPE) == sizeof(DAALTYPE));                              \
+        _daal_parallel_sort_##NAMESUFFIX((DAALTYPE *)begin_ptr, (DAALTYPE *)end_ptr); \
+    }
+
+ONEDAL_PARALLEL_SORT_SPECIALIZATION(std::int32_t, int, int32)
+ONEDAL_PARALLEL_SORT_SPECIALIZATION(std::uint64_t, size_t, uint64)
+
+#undef ONEDAL_PARALLEL_SORT_SPECIALIZATION
+
+} // namespace oneapi::dal::detail

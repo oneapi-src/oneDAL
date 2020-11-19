@@ -98,6 +98,7 @@ public:
     /* Graphs */
     MSG(vertex_index_out_of_range_expect_from_zero_to_vertex_count);
     MSG(negative_vertex_id);
+    MSG(unimplemented_sorting_procedure);
 
     /* General Algorithms */
     MSG(accuracy_threshold_lt_zero);
