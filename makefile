@@ -983,11 +983,20 @@ upd = $(cpy)
 _release: info.building.release
 
 #----- releasing static and dynamic libraries
-define .release.ay_win
+define .release.y_win
 $3: $2/$1
 $(if $(phony-upd),$(eval .PHONY: $2/$1))
 $2/$1: $(WORKDIR.lib)/$1 | $2/.
+	cp -fp $(WORKDIR.lib)/$1 $2/$1
+endef
+define .release.a_win
+$3: $2/$1
+$(if $(phony-upd),$(eval .PHONY: $2/$1))
+$2/$1: $(WORKDIR.lib)/$1 | $2/.
+	cp -fp $(WORKDIR.lib)/$1 $2/$1
+ifneq (,$(findstring dll.,$1))
 	cp -fp $(WORKDIR.lib)/$1 $2/$(subst dll.,dll.$(MAJORBINARY).,$1)
+endif
 endef
 define .release.y_link
 $3: $2/$1
@@ -1012,13 +1021,13 @@ $(foreach x,$(release.ONEAPI.LIBS_Y.dpc),$(eval $(call .release.y_link,$x,$(RELE
 endif
 
 ifeq ($(OS_is_win),yes)
-$(foreach x,$(release.LIBS_A),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.libia),_release_c)))
-$(foreach x,$(release.LIBS_Y),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.soia),_release_c)))
-$(foreach x,$(release.LIBS_J),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.soia),_release_jj)))
-$(foreach x,$(release.ONEAPI.LIBS_A),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.libia),_release_oneapi_c)))
-$(foreach x,$(release.ONEAPI.LIBS_Y),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.soia),_release_oneapi_c)))
-$(foreach x,$(release.ONEAPI.LIBS_A.dpc),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.libia),_release_oneapi_dpc)))
-$(foreach x,$(release.ONEAPI.LIBS_Y.dpc),$(eval $(call .release.ay_win,$x,$(RELEASEDIR.soia),_release_oneapi_dpc)))
+$(foreach x,$(release.LIBS_A),$(eval $(call .release.a_win,$x,$(RELEASEDIR.libia),_release_c)))
+$(foreach x,$(release.LIBS_Y),$(eval $(call .release.y_win,$x,$(RELEASEDIR.soia),_release_c)))
+$(foreach x,$(release.LIBS_J),$(eval $(call .release.a_win,$x,$(RELEASEDIR.soia),_release_jj)))
+$(foreach x,$(release.ONEAPI.LIBS_A),$(eval $(call .release.a_win,$x,$(RELEASEDIR.libia),_release_oneapi_c)))
+$(foreach x,$(release.ONEAPI.LIBS_Y),$(eval $(call .release.y_win,$x,$(RELEASEDIR.soia),_release_oneapi_c)))
+$(foreach x,$(release.ONEAPI.LIBS_A.dpc),$(eval $(call .release.a_win,$x,$(RELEASEDIR.libia),_release_oneapi_dpc)))
+$(foreach x,$(release.ONEAPI.LIBS_Y.dpc),$(eval $(call .release.y_win,$x,$(RELEASEDIR.soia),_release_oneapi_dpc)))
 endif
 
 ifneq ($(MKLGPUFPKDIR),)
