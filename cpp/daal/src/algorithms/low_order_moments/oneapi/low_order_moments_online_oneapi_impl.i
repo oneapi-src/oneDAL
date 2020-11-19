@@ -47,11 +47,6 @@ namespace oneapi
 {
 namespace internal
 {
-#define RET_IF_FAIL(st) \
-    if (!st)            \
-    {                   \
-        return;         \
-    }
 #define CHECK_AND_RET_IF_FAIL(st, expr) \
     (st) |= (expr);                     \
     if (!st)                            \
@@ -156,7 +151,7 @@ services::Status LowOrderMomentsOnlineKernelOneAPI<algorithmFPType, method>::com
         }
     }
 
-    return status;
+    return services::Status(ErrorMethodNotImplemented);
 }
 
 template <typename algorithmFPType, Method method>

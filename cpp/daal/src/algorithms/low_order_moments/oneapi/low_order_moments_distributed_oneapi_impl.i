@@ -47,17 +47,6 @@ namespace oneapi
 {
 namespace internal
 {
-#define RET_IF_FAIL(st) \
-    if (!st)            \
-    {                   \
-        return;         \
-    }
-#define CHECK_AND_RET_IF_FAIL(st, expr) \
-    (st) |= (expr);                     \
-    if (!st)                            \
-    {                                   \
-        return;                         \
-    }
 
 /* task info MinMax parameters definitions */
 template <>
@@ -141,7 +130,7 @@ services::Status LowOrderMomentsDistributedKernelOneAPI<algorithmFPType, method>
         }
     }
 
-    return status;
+    return services::Status(ErrorMethodNotImplemented);
 }
 
 template <typename algorithmFPType, Method method>
@@ -325,7 +314,7 @@ services::Status LowOrderMomentsDistributedTaskOneAPI<algorithmFPType, scope>::c
         tablePtr->releaseBlockOfRows(blockDesc);
     }
 
-    size_t rowSize = nFeatures * sizeof(algorithmFPType);
+    const size_t rowSize = nFeatures * sizeof(algorithmFPType);
 
     for (uint32_t i = 0; i < TaskInfoDistributed<algorithmFPType, scope>::nPartialResults; i++)
     {
