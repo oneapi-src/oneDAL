@@ -47,7 +47,6 @@ namespace oneapi
 {
 namespace internal
 {
-
 /* task info MinMax parameters definitions */
 template <>
 const char * TaskInfoDistributed<DAAL_FPTYPE, estimatesMinMax>::kMergeDistrBlocksName = "mergeDistrBlocksMinMax";
