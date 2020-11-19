@@ -133,10 +133,10 @@ public:
 
     inline daal::services::internal::Buffer<size_t> getBlockRowIndicesBuffer() const
     {
-        if (_rows_buffer)
+        if (_rowsInternal)
         {
             services::Status status;
-            daal::services::internal::Buffer<size_t> buffer(_rows_buffer.get(), _nrows + 1, status);
+            daal::services::internal::Buffer<size_t> buffer(_rowsInternal.get(), _nrows + 1, status);
             services::throwIfPossible(status);
             return buffer;
         }
@@ -353,7 +353,7 @@ public:
     inline void setRowIndicesBuffer(const daal::services::internal::Buffer<size_t> & buffer)
     {
         _hostRowsSharedPtr.reset();
-        _rows_buffer.reset();
+        _rowsInternal.reset();
         _rowsBuffer = buffer;
         _nrows      = buffer.size();
     }
@@ -386,8 +386,13 @@ public:
         if (newSize > _values_capacity)
         {
             freeValuesBuffer();
-            _values_buffer = services::SharedPtr<DataType>((DataType *)daal::services::daal_malloc(newSize), services::ServiceDeleter());
-            if (_values_buffer)
+            if (_valuesBuffer)
+            {
+                services::throwIfPossible(services::ErrorMethodNotImplemented);
+            }
+
+            _valuesInternal = services::SharedPtr<DataType>((DataType *)daal::services::daal_malloc(newSize), services::ServiceDeleter());
+            if (_valuesInternal)
             {
                 _values_capacity = newSize;
             }
@@ -397,7 +402,7 @@ public:
             }
         }
 
-        _values_ptr = _values_buffer;
+        _values_ptr = _valuesInternal;
 
         return true;
     }
@@ -417,8 +422,8 @@ public:
                 services::throwIfPossible(services::ErrorMethodNotImplemented);
             }
 
-            _rows_buffer = services::SharedPtr<size_t>((size_t *)daal::services::daal_malloc(newSize), services::ServiceDeleter());
-            if (_rows_buffer)
+            _rowsInternal = services::SharedPtr<size_t>((size_t *)daal::services::daal_malloc(newSize), services::ServiceDeleter());
+            if (_rowsInternal)
             {
                 _rows_capacity = newSize;
             }
@@ -428,7 +433,7 @@ public:
             }
         }
 
-        _rows_ptr = _rows_buffer;
+        _rows_ptr = _rowsInternal;
 
         return true;
     }
@@ -452,9 +457,9 @@ protected:
      */
     void freeValuesBuffer()
     {
-        if (_values_buffer)
+        if (_valuesInternal)
         {
-            _values_buffer = services::SharedPtr<DataType>();
+            _valuesInternal = services::SharedPtr<DataType>();
         }
         else if (_valuesBuffer)
         {
@@ -468,7 +473,7 @@ protected:
      */
     void freeRowsBuffer()
     {
-        _rows_buffer   = services::SharedPtr<size_t>();
+        _rowsInternal  = services::SharedPtr<size_t>();
         _rows_capacity = 0;
         _rowsBuffer.reset();
     }
@@ -517,18 +522,18 @@ private:
     size_t _rowsOffset;
     int _rwFlag;
 
-    daal::services::internal::Buffer<DataType> _valuesBuffer;
-    daal::services::internal::Buffer<size_t> _rowsBuffer;
-    daal::services::internal::Buffer<size_t> _colsBuffer;
+    services::SharedPtr<DataType> _valuesInternal; /*<! Pointer to the buffer */
+    size_t _values_capacity;                       /*<! Buffer size in bytes */
 
-    services::SharedPtr<DataType> _values_buffer; /*<! Pointer to the buffer */
-    size_t _values_capacity;                      /*<! Buffer size in bytes */
-
-    services::SharedPtr<size_t> _rows_buffer; /*<! Pointer to the buffer */
-    size_t _rows_capacity;                    /*<! Buffer size in bytes */
+    services::SharedPtr<size_t> _rowsInternal; /*<! Pointer to the buffer */
+    size_t _rows_capacity;                     /*<! Buffer size in bytes */
 
     services::SharedPtr<byte> * _pPtr;
     byte * _rawPtr;
+
+    daal::services::internal::Buffer<DataType> _valuesBuffer;
+    daal::services::internal::Buffer<size_t> _rowsBuffer;
+    daal::services::internal::Buffer<size_t> _colsBuffer;
 
     mutable services::SharedPtr<DataType> _hostValuesSharedPtr;
     mutable services::SharedPtr<size_t> _hostRowsSharedPtr;

@@ -94,18 +94,9 @@ public:
     services::Status getArrays(services::internal::Buffer<DataType> & values, services::internal::Buffer<size_t> & colIndices,
                                services::internal::Buffer<size_t> & rowOffsets) const
     {
-        if (values)
-        {
-            values = _values.get<DataType>();
-        }
-        if (colIndices)
-        {
-            colIndices = _colIndices;
-        }
-        if (rowOffsets)
-        {
-            rowOffsets = _rowOffsets;
-        }
+        values     = _values.get<DataType>();
+        colIndices = _colIndices;
+        rowOffsets = _rowOffsets;
         return services::Status();
     }
     /**
@@ -411,6 +402,7 @@ protected:
     template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * archive)
     {
+        using namespace services::internal::sycl;
         services::Status status = SyclNumericTable::serialImpl<Archive, onDeserialize>(archive);
 
         size_t dataSize = 0;
@@ -456,33 +448,17 @@ protected:
                 services::SharedPtr<size_t> hostRowOffsets = _rowOffsets.toHost(data_management::readOnly, status);
                 DAAL_CHECK_STATUS_VAR(status);
 
-                switch (f.indexType)
-                {
-                case features::DAAL_FLOAT32:
-                {
-                    services::SharedPtr<float> hostData = _values.get<float>().toHost(data_management::readOnly, status);
-                    DAAL_CHECK_STATUS_VAR(status);
-                    archive->set(hostData.get(), dataSize);
+                BufferHostReinterpreter<char> reinterpreter(_values, data_management::readOnly, dataSize);
+                TypeDispatcher::dispatch(_values.type(), reinterpreter, status);
+                DAAL_CHECK_STATUS_VAR(status);
+                services::SharedPtr<char> charPtr = reinterpreter.getResult();
 
-                    break;
-                }
-                case features::DAAL_FLOAT64:
-                {
-                    services::SharedPtr<double> hostData = _values.get<double>().toHost(data_management::readOnly, status);
-                    DAAL_CHECK_STATUS_VAR(status);
-                    archive->set(hostData.get(), dataSize);
-
-                    break;
-                }
-
-                default: status = services::Status(services::ErrorIncorrectParameter);
-                }
-
+                archive->set(charPtr.get(), dataSize * f.typeSize);
                 archive->set(hostColIndices.get(), dataSize);
                 archive->set(hostRowOffsets.get(), nobs + 1);
             }
         }
-        return services::Status();
+        return status;
     }
 
 public:
@@ -522,6 +498,12 @@ protected:
                 const services::SharedPtr<DataType> hostData     = bufferData.toHost(ReadWriteMode::readOnly, st);
                 const services::SharedPtr<size_t> hostColIndices = bufferColIndices.toHost(ReadWriteMode::readOnly, st);
                 const services::SharedPtr<size_t> hostRowOffsets = bufferRowOffsets.toHost(ReadWriteMode::readOnly, st);
+                if (!st)
+                {
+                    services::throwIfPossible(st);
+                    return;
+                }
+
                 _cpuTable = CSRNumericTable::create(hostData, hostColIndices, hostRowOffsets, nColumns, nRows, indexing, &st);
             }
 
@@ -536,29 +518,25 @@ protected:
     template <typename T>
     services::Status getTBlock(size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
     {
-        services::throwIfPossible(services::ErrorMethodNotImplemented);
-        return services::ErrorMethodNotImplemented;
+        return services::throwIfPossible(services::ErrorMethodNotImplemented);
     }
 
     template <typename T>
     services::Status releaseTBlock(BlockDescriptor<T> & block)
     {
-        if (!(block.getRWFlag() & (int)writeOnly)) block.reset();
-        return services::Status();
+        return services::throwIfPossible(services::ErrorMethodNotImplemented);
     }
 
     template <typename T>
     services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
     {
-        services::throwIfPossible(services::ErrorMethodNotImplemented);
-        return services::ErrorMethodNotImplemented;
+        return services::throwIfPossible(services::ErrorMethodNotImplemented);
     }
 
     template <typename T>
     services::Status releaseTFeature(BlockDescriptor<T> & block)
     {
-        services::throwIfPossible(services::ErrorMethodNotImplemented);
-        return services::ErrorMethodNotImplemented;
+        return services::throwIfPossible(services::ErrorMethodNotImplemented);
     }
 
     template <typename T>
