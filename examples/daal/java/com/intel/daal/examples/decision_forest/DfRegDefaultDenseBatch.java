@@ -1,4 +1,4 @@
-/* file: DfRegDenseBatch.java */
+/* file: DfRegDefaultDenseBatch.java */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -25,8 +25,8 @@
  */
 
 /**
- * <a name="DAAL-EXAMPLE-JAVA-DfRegDenseBatch">
- * @example DfRegDenseBatch.java
+ * <a name="DAAL-EXAMPLE-JAVA-DfRegDefaultDenseBatch">
+ * @example DfRegDefaultDenseBatch.java
  */
 
 package com.intel.daal.examples.decision_forest;
@@ -44,7 +44,7 @@ import com.intel.daal.examples.utils.Service;
 import com.intel.daal.services.DaalContext;
 import com.intel.daal.data_management.data.*;
 
-class DfRegDenseBatch {
+class DfRegDefaultDenseBatch {
     /* Input data set parameters */
     private static final String trainDataset = "../data/batch/df_regression_train.csv";
 
