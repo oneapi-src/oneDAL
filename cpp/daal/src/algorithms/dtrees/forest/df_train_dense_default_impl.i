@@ -305,22 +305,25 @@ services::Status selectParallelizationTechnique(const Parameter & par, engines::
 // compute() implementation
 //////////////////////////////////////////////////////////////////////////////////////////
 template <CpuType cpu, typename IndexType, typename BinIndexType>
-void computeImplDispatch(const size_t nRows, const size_t nCols, const IndexType * featureIndex,
-                         TVector<BinIndexType, cpu, ScalableAllocator<cpu> > & binIndexVector, BinIndexType ** binIndex);
+services::Status copyBinIndex(const size_t nRows, const size_t nCols, const IndexType * featureIndex,
+                              TVector<BinIndexType, cpu, ScalableAllocator<cpu> > & binIndexVector, BinIndexType ** binIndex);
 
 template <CpuType cpu, dtrees::internal::IndexedFeatures::IndexType, dtrees::internal::IndexedFeatures::IndexType>
-void computeImplDispatch(const size_t nRows, const size_t nCols, const dtrees::internal::IndexedFeatures::IndexType * featureIndex,
-                         TVector<dtrees::internal::IndexedFeatures::IndexType, cpu, ScalableAllocator<cpu> > & binIndexVector,
-                         dtrees::internal::IndexedFeatures::IndexType ** binIndex)
+services::Status copyBinIndex(const size_t nRows, const size_t nCols, const dtrees::internal::IndexedFeatures::IndexType * featureIndex,
+                              TVector<dtrees::internal::IndexedFeatures::IndexType, cpu, ScalableAllocator<cpu> > & binIndexVector,
+                              dtrees::internal::IndexedFeatures::IndexType ** binIndex)
 {
     *binIndex = const_cast<dtrees::internal::IndexedFeatures::IndexType *>(featureIndex);
+    return services::Status();
 }
 
 template <CpuType cpu, typename IndexType, typename BinIndexType>
-void computeImplDispatch(const size_t nRows, const size_t nCols, const IndexType * featureIndex,
-                         TVector<BinIndexType, cpu, ScalableAllocator<cpu> > & binIndexVector, BinIndexType ** binIndex)
+services::Status copyBinIndex(const size_t nRows, const size_t nCols, const IndexType * featureIndex,
+                              TVector<BinIndexType, cpu, ScalableAllocator<cpu> > & binIndexVector, BinIndexType ** binIndex)
 {
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, nCols);
     binIndexVector.resize(nRows * nCols);
+    DAAL_CHECK(binIndexVector.get(), ErrorMemoryAllocationFailed);
     *binIndex = binIndexVector.get();
 
     const size_t nThreads    = threader_get_threads_number();
@@ -337,10 +340,11 @@ void computeImplDispatch(const size_t nRows, const size_t nCols, const IndexType
             PRAGMA_VECTOR_ALWAYS
             for (size_t j = 0; j < nCols; ++j)
             {
-                (*binIndex)[nRows * j + i] = featureIndex[nRows * j + i];
+                (*binIndex)[nRows * j + i] = static_cast<BinIndexType>(featureIndex[nRows * j + i]);
             }
         }
     });
+    return services::Status();
 }
 
 template <typename algorithmFPType, typename BinIndexType, CpuType cpu, typename ModelType, typename TaskType>
@@ -356,7 +360,11 @@ services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, co
     TVector<BinIndexType, cpu, ScalableAllocator<cpu> > binIndexVector;
     BinIndexType * binIndex = nullptr;
 
-    if (!par.memorySavingMode) computeImplDispatch<cpu>(nRows, nCols, indexedFeatures.data(0), binIndexVector, &binIndex);
+    if (!par.memorySavingMode)
+    {
+        s = copyBinIndex<cpu>(nRows, nCols, indexedFeatures.data(0), binIndexVector, &binIndex);
+        DAAL_CHECK_STATUS_VAR(s);
+    }
 
     const auto nFeatures = x->getNumberOfColumns();
     WriteOnlyRows<algorithmFPType, cpu> varImpBD(res.varImp, 0, 1);

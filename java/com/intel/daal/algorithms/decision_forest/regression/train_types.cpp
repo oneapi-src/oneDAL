@@ -251,6 +251,56 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressio
 
 /*
 * Class:     com_intel_daal_algorithms_decision_forest_regression_training_Parameter
+* Method:    cGetMaxBins
+* Signature: (J)J
+*/
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cGetMaxBins(JNIEnv *,
+                                                                                                                 jobject,
+                                                                                                                 jlong parAddr)
+{
+    return (jlong)(*(dfct::Parameter *)parAddr).maxBins;
+}
+
+/*
+* Class:     com_intel_daal_algorithms_decision_forest_regression_training_Parameter
+* Method:    cSetMaxBins
+* Signature: (JJ)V
+*/
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cSetMaxBins(JNIEnv *,
+                                                                                                                jobject,
+                                                                                                                jlong parAddr,
+                                                                                                                jlong value)
+{
+    (*(dfct::Parameter *)parAddr).maxBins = value;
+}
+
+/*
+* Class:     com_intel_daal_algorithms_decision_forest_regression_training_Parameter
+* Method:    cGetMinBinSize
+* Signature: (J)J
+*/
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cGetMinBinSize(JNIEnv *,
+                                                                                                                    jobject,
+                                                                                                                    jlong parAddr)
+{
+    return (jlong)(*(dfct::Parameter *)parAddr).minBinSize;
+}
+
+/*
+* Class:     com_intel_daal_algorithms_decision_forest_regression_training_Parameter
+* Method:    cSetMinBinSize
+* Signature: (JJ)V
+*/
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cSetMinBinSize(JNIEnv *,
+                                                                                                                   jobject,
+                                                                                                                   jlong parAddr,
+                                                                                                                   jlong value)
+{
+    (*(dfct::Parameter *)parAddr).minBinSize = value;
+}
+
+/*
+* Class:     com_intel_daal_algorithms_decision_forest_regression_training_Parameter
 * Method:    cGetSeed
 * Signature: (J)I
 */
