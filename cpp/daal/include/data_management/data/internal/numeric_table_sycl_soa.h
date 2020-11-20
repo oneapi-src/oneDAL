@@ -382,7 +382,7 @@ protected:
     void freeDataMemoryImpl() DAAL_C11_OVERRIDE
     {
         _cpuTable.reset();
-        _arrays = services::Collection<services::internal::sycl::UniversalBuffer>(_ddict->getNumberOfFeatures());
+        _arrays            = services::Collection<services::internal::sycl::UniversalBuffer>(_ddict->getNumberOfFeatures());
         _arraysInitialized = 0;
 
         _partialMemStatus = notAllocated;
