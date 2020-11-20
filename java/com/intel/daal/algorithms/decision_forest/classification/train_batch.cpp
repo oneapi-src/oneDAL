@@ -47,7 +47,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_classifi
                                                                                                                              jlong algAddr, jint prec,
                                                                                                                              jint method, jint cmode)
 {
-    return jniBatch<dfct::Method, dfct::Batch, dfct::defaultDense, dfct::hist>>::getParameter(prec, method, algAddr);
+    return jniBatch<dfct::Method, dfct::Batch, dfct::defaultDense, dfct::hist>::getParameter(prec, method, algAddr);
 }
 
 /*
@@ -59,5 +59,5 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_classifi
                                                                                                                      jlong algAddr, jint prec,
                                                                                                                      jint method)
 {
-    return jniBatch<dfct::Method, dfct::Batch, dfct::defaultDense, dfct::hist>>::getClone(prec, method, algAddr);
+    return jniBatch<dfct::Method, dfct::Batch, dfct::defaultDense, dfct::hist>::getClone(prec, method, algAddr);
 }
