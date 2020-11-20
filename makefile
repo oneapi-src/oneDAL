@@ -1087,9 +1087,11 @@ endif
 define .release.x
 $4: $3/$2
 $3/$2: $(DIR)/$1 | $3/. ; $(value cpy)
+	$(if $(filter %.sh,$2),sed -i -e 's/__DAL_MAJOR_BINARY__/$(MAJORBINARY)/' $3/$2)
+	$(if $(filter %.sh,$2),sed -i -e 's/__DAL_MINOR_BINARY__/$(MINORBINARY)/' $3/$2)
+	$(if $(filter %.bat,$2),sed -i -e 's/__DAL_MAJOR_BINARY__& ^$(sed.eol)/$(MAJORBINARY)& ^$(sed.eol)/' $3/$2)
+	$(if $(filter %.bat,$2),sed -i -e 's/__DAL_MINOR_BINARY__& ^$(sed.eol)/$(MINORBINARY)& ^$(sed.eol)/' $3/$2)
 	$(if $(filter %.sh %.bat,$2),chmod +x $$@)
-	sed -i -e 's/__DAL_MAJOR_BINARY__/$(MAJORBINARY)/' $3/$2
-	sed -i -e 's/__DAL_MINOR_BINARY__/$(MINORBINARY)/' $3/$2
 endef
 $(foreach x,$(release.ENV),$(eval $(call .release.x,$x,$(notdir $(subst _$(_OS),,$x)),$(RELEASEDIR.env),_release_common)))
 $(if $(OS_is_lnx),$(foreach x,$(release.MODULEFILES),$(eval $(call .release.x,$x,$(notdir $x),$(RELEASEDIR.modulefiles),_release_common))))
