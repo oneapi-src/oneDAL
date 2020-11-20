@@ -258,7 +258,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressi
                                                                                                                  jobject,
                                                                                                                  jlong parAddr)
 {
-    return (jlong)(*(dfct::Parameter *)parAddr).maxBins;
+    return (jlong)(*(dfrt::Parameter *)parAddr).maxBins;
 }
 
 /*
@@ -271,7 +271,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressio
                                                                                                                 jlong parAddr,
                                                                                                                 jlong value)
 {
-    (*(dfct::Parameter *)parAddr).maxBins = value;
+    (*(dfrt::Parameter *)parAddr).maxBins = value;
 }
 
 /*
@@ -283,7 +283,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressi
                                                                                                                     jobject,
                                                                                                                     jlong parAddr)
 {
-    return (jlong)(*(dfct::Parameter *)parAddr).minBinSize;
+    return (jlong)(*(dfrt::Parameter *)parAddr).minBinSize;
 }
 
 /*
@@ -296,7 +296,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressio
                                                                                                                    jlong parAddr,
                                                                                                                    jlong value)
 {
-    (*(dfct::Parameter *)parAddr).minBinSize = value;
+    (*(dfrt::Parameter *)parAddr).minBinSize = value;
 }
 
 /*
