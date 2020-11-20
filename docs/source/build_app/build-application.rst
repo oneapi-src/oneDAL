@@ -28,6 +28,7 @@ This section contains instructions for building applications with |short_name| f
 
 - `Applications on Windows`_
 - `Applications on Linux`_
+- `Dynamic library versions`_
 
 Applications on Windows
 -----------------------
@@ -77,8 +78,11 @@ Applications on Windows
             - onedal_core.lib, onedal_sequential.lib
             - onedal_core.lib, onedal_thread.lib
           * - Dynamic linking
-            - onedal_core_dll.lib
-            - onedal_core_dll.lib
+            - onedal_core_dll.1.lib
+            - onedal_core_dll.1.lib
+
+   The number in the name of a dynamic library file is the major binary version of the library.
+   See `Dynamic library versions`_ to learn what the major version means.
 
 Applications on Linux
 ---------------------
@@ -131,6 +135,13 @@ Applications on Linux
             - libonedal_core.so, libonedal_sequential.so
             - libonedal_core.so, libonedal_thread.so
 
+     There are three available file names for dynamic linking: with major and minor binary versions, only with a major version, and without any versions.
+     They are implemented through a chain of Linux soft links:
+
+     libonedal_*.so (soft link) -> libonedal_*.so.{major version} (soft link) -> libonedal_*.so.{major version}.{minor version} (actual library file)
+
+     See `Dynamic library versions`_ to learn what major and minor versions mean.
+
   - Add an additional |short_name| library:
 
     .. code-block:: text
@@ -153,3 +164,15 @@ Static linking, Single-threaded |short_name|:
 
      clang++ -fsycl -DONEAPI_DAAL_USE_MKL_GPU_GEMM my_first_daal_program.cpp -Wl,
      --start-group <install dir>/daal/latest/lib/intel64/libonedal_core.a <install dir>/daal/latest/lib/intel64/libonedal_sequential.a -lpthread -ldl -lOpenCL -foffload-static-lib=<install dir>/daal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
+
+Dynamic library versions
+------------------------
+
+The library follows `semantic versioning <https://semver.org>`_, so some dynamic library files and links have major and minor binary versions in their names.
+
+ - The minor version is incremented if new functionality is introduced to the public API and backwards compatibility is preserved.
+ - The major version is incremented and the minor version is set to 0 if any backwards incompatible changes are introduced.
+
+It is not recommended to use dynamic library files without any versioning in production.
+
+Environment scripts set binary versions in ``DAL_MAJOR_BINARY`` and ``DAL_MINOR_BINARY`` variables on call.
