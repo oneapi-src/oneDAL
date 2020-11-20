@@ -33,7 +33,7 @@ public:
     explicit descriptor_impl() {
         if constexpr (std::is_same_v<Task, task::classification>) {
             class_count = 2;
-            min_observations_in_leaf_node = 2;
+            min_observations_in_leaf_node = 1;
         }
         else if constexpr (std::is_same_v<Task, task::regression>) {
             class_count = -1;
