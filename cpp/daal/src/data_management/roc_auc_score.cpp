@@ -26,7 +26,8 @@
 #include "src/threading/threading.h"
 
 template <typename FPType>
-void sort(IdxValType<FPType> * beginPtr, IdxValType<FPType> * endPtr) {}
+void sort(IdxValType<FPType> * beginPtr, IdxValType<FPType> * endPtr)
+{}
 
 template <>
 void sort<float>(IdxValType<float> * beginPtr, IdxValType<float> * endPtr)

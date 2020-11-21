@@ -32,17 +32,10 @@ struct IdxValType
     FPType value;
     size_t index;
 
-    bool operator < (const IdxValType & o) const {
-        return o.value == value ? index < o.index : value < o.value;
-    }
-    bool operator > (const IdxValType & o) const {
-        return o.value == value ? index > o.index : value > o.value;
-    }
-    bool operator <= (const IdxValType & o) const {
-        return value < o.value || (value == o.value && index == o.index);
-    }
+    bool operator<(const IdxValType & o) const { return o.value == value ? index < o.index : value < o.value; }
+    bool operator>(const IdxValType & o) const { return o.value == value ? index > o.index : value > o.value; }
+    bool operator<=(const IdxValType & o) const { return value < o.value || (value == o.value && index == o.index); }
 };
-
 
 namespace daal
 {
@@ -103,7 +96,6 @@ extern "C"
 
 namespace daal
 {
-
 inline void parallel_sort_pair_fp32_uint64(IdxValType<float> * begin_ptr, IdxValType<float> * end_ptr)
 {
     _daal_parallel_sort_pair_fp32_uint64(begin_ptr, end_ptr);

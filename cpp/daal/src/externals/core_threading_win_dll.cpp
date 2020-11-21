@@ -331,10 +331,10 @@ static _daal_tbb_task_scheduler_free_t _daal_tbb_task_scheduler_free_ptr = NULL;
 static _setNumberOfThreads_t _setNumberOfThreads_ptr                     = NULL;
 static _daal_threader_env_t _daal_threader_env_ptr                       = NULL;
 
-static _daal_parallel_sort_int32_t _daal_parallel_sort_int32_ptr                        = NULL;
-static _daal_parallel_sort_uint64_t _daal_parallel_sort_uint64_ptr                      = NULL;
-static _daal_parallel_sort_pair_fp32_uint64_t _daal_parallel_sort_pair_fp32_uint64_ptr  = NULL;
-static _daal_parallel_sort_pair_fp64_uint64_t _daal_parallel_sort_pair_fp64_uint64_ptr  = NULL;
+static _daal_parallel_sort_int32_t _daal_parallel_sort_int32_ptr                       = NULL;
+static _daal_parallel_sort_uint64_t _daal_parallel_sort_uint64_ptr                     = NULL;
+static _daal_parallel_sort_pair_fp32_uint64_t _daal_parallel_sort_pair_fp32_uint64_ptr = NULL;
+static _daal_parallel_sort_pair_fp64_uint64_t _daal_parallel_sort_pair_fp64_uint64_ptr = NULL;
 
 #if !(defined DAAL_THREAD_PINNING_DISABLED)
 static _thread_pinner_thread_pinner_init_t _thread_pinner_thread_pinner_init_ptr = NULL;
@@ -403,8 +403,7 @@ DAAL_EXPORT void _daal_parallel_sort_pair_fp32_uint64(IdxValType<float> * begin_
     load_daal_thr_dll();
     if (_daal_parallel_sort_pair_fp32_uint64_ptr == NULL)
     {
-        _daal_parallel_sort_pair_fp32_uint64_ptr =
-            (_daal_parallel_sort_pair_fp32_uint64_t)load_daal_thr_func("_daal_parallel_sort_pair_fp32_uint64");
+        _daal_parallel_sort_pair_fp32_uint64_ptr = (_daal_parallel_sort_pair_fp32_uint64_t)load_daal_thr_func("_daal_parallel_sort_pair_fp32_uint64");
     }
     _daal_parallel_sort_pair_fp32_uint64_ptr(begin_ptr, end_ptr);
 }
@@ -414,8 +413,7 @@ DAAL_EXPORT void _daal_parallel_sort_pair_fp64_uint64(IdxValType<double> * begin
     load_daal_thr_dll();
     if (_daal_parallel_sort_pair_fp64_uint64_ptr == NULL)
     {
-        _daal_parallel_sort_pair_fp64_uint64_ptr =
-            (_daal_parallel_sort_pair_fp64_uint64_t)load_daal_thr_func("_daal_parallel_sort_pair_fp64_uint64");
+        _daal_parallel_sort_pair_fp64_uint64_ptr = (_daal_parallel_sort_pair_fp64_uint64_t)load_daal_thr_func("_daal_parallel_sort_pair_fp64_uint64");
     }
     _daal_parallel_sort_pair_fp64_uint64_ptr(begin_ptr, end_ptr);
 }
