@@ -26,11 +26,11 @@ namespace data_management
 {
 namespace internal
 {
-template <typename DataType>
-DAAL_EXPORT DataType rocAucScore(const DataType * const predictedRank, const NumericTablePtr & actual_numpy, const size_t & nElements);
+template <typename FPType>
+DAAL_EXPORT FPType rocAucScore(const FPType * const predictedRank, const NumericTablePtr & actual_numpy, const size_t & nElements);
 
-template <typename DataType>
-DAAL_EXPORT void calculateRankData(DataType * predictedRank, const NumericTablePtr & prediction_numpy, const size_t & nElements);
+template <typename FPType>
+DAAL_EXPORT void calculateRankData(FPType * predictedRank, const NumericTablePtr & prediction_numpy, const size_t & nElements);
 
 } // namespace internal
 } // namespace data_management

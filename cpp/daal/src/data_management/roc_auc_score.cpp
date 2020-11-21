@@ -23,6 +23,22 @@
 #include "src/externals/service_dispatch.h"
 #include "src/externals/service_memory.h"
 #include "src/services/service_data_utils.h"
+#include "src/threading/threading.h"
+
+template <typename FPType>
+void sort(IdxValType<FPType> * beginPtr, IdxValType<FPType> * endPtr) {}
+
+template <>
+void sort<float>(IdxValType<float> * beginPtr, IdxValType<float> * endPtr)
+{
+    daal::parallel_sort_pair_fp32_uint64(beginPtr, endPtr);
+}
+
+template <>
+void sort<double>(IdxValType<double> * beginPtr, IdxValType<double> * endPtr)
+{
+    daal::parallel_sort_pair_fp64_uint64(beginPtr, endPtr);
+}
 
 namespace daal
 {
@@ -38,10 +54,8 @@ services::Status calculateRankDataImpl(FPType * predictedRank, const NumericTabl
     const FPType * const testPredictionPtr = testPredictionBlock.get();
     DAAL_CHECK_BLOCK_STATUS(testPredictionBlock);
 
-    TArray<FPType, cpu> values(nElements);
-    DAAL_CHECK_MALLOC(values.get());
-    TArray<size_t, cpu> indeces(nElements);
-    DAAL_CHECK_MALLOC(indeces.get());
+    TArray<IdxValType<FPType>, cpu> predict(nElements);
+    DAAL_CHECK_MALLOC(predict.get());
 
     const size_t blockSizeDefault = 256;
     const size_t nBlocks          = nElements / blockSizeDefault + !!(nElements % blockSizeDefault);
@@ -51,12 +65,12 @@ services::Status calculateRankDataImpl(FPType * predictedRank, const NumericTabl
         const size_t blockBegin = iBlock * blockSizeDefault;
         for (size_t i = 0; i < blockSize; ++i)
         {
-            values[blockBegin + i]  = testPredictionPtr[blockBegin + i];
-            indeces[blockBegin + i] = blockBegin + i;
+            predict[blockBegin + i].value = testPredictionPtr[blockBegin + i];
+            predict[blockBegin + i].index = blockBegin + i;
         }
     });
 
-    daal::algorithms::internal::qSort<FPType, size_t, cpu>(nElements, values.get(), indeces.get());
+    sort<FPType>(predict.get(), predict.get() + nElements);
 
     size_t rank            = 1;
     size_t elementsInBlock = 1;
@@ -64,7 +78,7 @@ services::Status calculateRankDataImpl(FPType * predictedRank, const NumericTabl
     while (i < nElements)
     {
         size_t j = i;
-        while ((j < (nElements - 1)) && (values[j] == values[j + 1]))
+        while ((j < (nElements - 1)) && (predict[j].value == predict[j + 1].value))
         {
             j++;
         }
@@ -74,7 +88,7 @@ services::Status calculateRankDataImpl(FPType * predictedRank, const NumericTabl
         PRAGMA_VECTOR_ALWAYS
         for (size_t j = 0; j < elementsInBlock; ++j)
         {
-            size_t idx         = indeces[i + j];
+            size_t idx         = predict[i + j].index;
             predictedRank[idx] = static_cast<FPType>(rank) + ((static_cast<FPType>(elementsInBlock) - FPType(1.0)) * FPType(0.5));
         }
         rank += elementsInBlock;
