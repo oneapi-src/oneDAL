@@ -53,6 +53,26 @@ void Helper<fpType, cpu>::copy(fpType * dsc, const fpType * src, const size_t n)
 #if defined(__INTEL_COMPILER)
 
 template <>
+void Helper<float, avx512>::copy(float * dsc, const float * src, const size_t n)
+{
+    size_t i           = 0;
+    const size_t align = ((64 - (reinterpret_cast<size_t>(dsc) & 63)) & 63) >> 2;
+    for (; i < align; ++i)
+    {
+        dsc[i] = src[i];
+    }
+    for (; (i + 16) < n; i += 16)
+    {
+        const __m512 srcVec = _mm512_loadu_ps(&src[i]);
+        _mm512_stream_ps(&dsc[i], srcVec);
+    }
+    for (; i < n; i++)
+    {
+        dsc[i] = src[i];
+    }
+}
+
+template <>
 void Helper<double, avx512>::copy(double * dsc, const double * src, const size_t n)
 {
     size_t i           = 0;
@@ -253,9 +273,6 @@ struct Blas
                         WriteOnlyColumns<fpType, cpu> mtcColumns(tc, startRowA + i, startRowB, nRowsInBlockB);
                         DAAL_CHECK_BLOCK_STATUS_THR(mtcColumns);
                         Helper<fpType, cpu>::copy(mtcColumns.get(), c + i * ldc2, nRowsInBlockB);
-
-                        // services::internal::daal_memcpy_s(mtcColumns.get(), nRowsInBlockB * sizeof(fpType), c + i * ldc2,
-                        //                                   nRowsInBlockB * sizeof(fpType));
                     }
                 }
             });

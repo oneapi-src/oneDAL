@@ -110,7 +110,7 @@ class LsMem : public daal::ls<T *>
 {
 public:
     typedef daal::ls<T *> super;
-    LsMem(size_t n) : super([=]() -> T * { return Allocator::allocate(n); }) {}
+    LsMem(size_t n, const bool isTls = false) : super([=]() -> T * { return Allocator::allocate(n); }, isTls) {}
     ~LsMem()
     {
         this->reduce([](T * ptr) -> void {
