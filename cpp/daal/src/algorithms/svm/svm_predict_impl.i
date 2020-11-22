@@ -53,128 +53,6 @@ public:
 
     bool isValid() const { return _buff.get(); }
 
-    services::Status kernelCompute(const size_t startRow, const size_t nRows)
-    {
-        services::Status status;
-        NumericTablePtr shResNT = HomogenNumericTableCPU<algorithmFPType, cpu>::create(_buff.get(), _nSV, nRows, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-
-        auto xBlockNT = getBlockNTData(startRow, nRows, status);
-        DAAL_CHECK_STATUS_VAR(status);
-
-        _shRes->set(kernel_function::values, shResNT);
-        _kernel->getInput()->set(kernel_function::X, xBlockNT);
-        _kernel->getParameter()->computationMode = kernel_function::matrixMatrix;
-
-        return _kernel->computeNoThrow();
-    }
-
-    const algorithmFPType * getBuff() const { return _buff.get(); }
-
-protected:
-    PredictTask(const size_t nRowsPerBlock, const NumericTablePtr & xTable, const NumericTablePtr & svTable, kernel_function::KernelIfacePtr & kernel)
-        : _xTable(xTable), _nSV(svTable->getNumberOfRows()), _nFeatures(svTable->getNumberOfColumns())
-    {
-        _buff.reset(_nSV * nRowsPerBlock);
-        _kernel = kernel->clone();
-        _shRes  = kernel_function::ResultPtr(new kernel_function::Result());
-        _kernel->setResult(_shRes);
-        _kernel->getInput()->set(kernel_function::Y, svTable);
-    }
-
-    virtual NumericTablePtr getBlockNTData(const size_t startRow, const size_t nRows, services::Status & status) = 0;
-
-protected:
-    const NumericTablePtr & _xTable;
-    const size_t _nSV;
-    const size_t _nFeatures;
-    TArrayScalable<algorithmFPType, cpu> _buff;
-    kernel_function::KernelIfacePtr _kernel;
-    kernel_function::ResultPtr _shRes;
-};
-
-template <typename algorithmFPType, CpuType cpu>
-class PredictTaskDense : PredictTask<algorithmFPType, cpu>
-{
-public:
-    using Super = PredictTask<algorithmFPType, cpu>;
-    DAAL_NEW_DELETE();
-    virtual ~PredictTaskDense() {}
-
-    static Super * create(const size_t nRowsPerBlock, const NumericTablePtr & xTable, const NumericTablePtr & svTable,
-                          kernel_function::KernelIfacePtr & kernel)
-    {
-        auto val = new PredictTaskDense(nRowsPerBlock, xTable, svTable, kernel);
-        if (val && val->isValid()) return val;
-        delete val;
-        return nullptr;
-    }
-
-protected:
-    PredictTaskDense(const size_t nRowsPerBlock, const NumericTablePtr & xTable, const NumericTablePtr & svTable,
-                     kernel_function::KernelIfacePtr & kernel)
-        : Super(nRowsPerBlock, xTable, svTable, kernel)
-    {}
-
-    NumericTablePtr getBlockNTData(const size_t startRow, const size_t nRows, services::Status & status) override
-    {
-        algorithmFPType * xData = const_cast<algorithmFPType *>(_xBlock.set(*Super::_xTable, startRow, nRows));
-        if (!xData) status |= services::Status(services::ErrorMemoryAllocationFailed);
-        return HomogenNumericTableCPU<algorithmFPType, cpu>::create(xData, Super::_nFeatures, nRows, &status);
-    }
-
-private:
-    ReadRows<algorithmFPType, cpu> _xBlock;
-};
-
-template <typename algorithmFPType, CpuType cpu>
-class PredictTaskCSR : PredictTask<algorithmFPType, cpu>
-{
-public:
-    using Super = PredictTask<algorithmFPType, cpu>;
-    DAAL_NEW_DELETE();
-    virtual ~PredictTaskCSR() {}
-
-    static Super * create(const size_t nRowsPerBlock, const NumericTablePtr & xTable, const NumericTablePtr & svTable,
-                          kernel_function::KernelIfacePtr & kernel)
-    {
-        auto val = new PredictTaskCSR(nRowsPerBlock, xTable, svTable, kernel);
-        if (val && val->isValid()) return val;
-        delete val;
-        return nullptr;
-    }
-
-protected:
-    PredictTaskCSR(const size_t nRowsPerBlock, const NumericTablePtr & xTable, const NumericTablePtr & svTable,
-                   kernel_function::KernelIfacePtr & kernel)
-        : Super(nRowsPerBlock, xTable, svTable, kernel), _rowOffsets(nRowsPerBlock + 1)
-    {}
-
-    NumericTablePtr getBlockNTData(const size_t startRow, const size_t nRows, services::Status & status) override
-    {
-        const bool toOneBaseRowIndices = true;
-        _xBlock.set(dynamic_cast<CSRNumericTableIface *>(Super::_xTable.get()), startRow, nRows, toOneBaseRowIndices);
-        algorithmFPType * const values = const_cast<algorithmFPType *>(_xBlock.values());
-        size_t * const cols            = const_cast<size_t *>(_xBlock.cols());
-        size_t * const rows            = const_cast<size_t *>(_xBlock.rows());
-
-        return CSRNumericTable::create(values, cols, rows, Super::_nFeatures, nRows, CSRNumericTableIface::CSRIndexing::oneBased, &status);
-    }
-
-private:
-    TArrayScalable<size_t, cpu> _rowOffsets;
-    ReadRowsCSR<algorithmFPType, cpu> _xBlock;
-};
-
-template <typename algorithmFPType, CpuType cpu>
-class PredictTask2
-{
-public:
-    DAAL_NEW_DELETE();
-    virtual ~PredictTask2() {}
-
-    bool isValid() const { return _buff.get(); }
-
     services::Status kernelCompute(const size_t startRow, const size_t nRows, const size_t startSV, const size_t nSV)
     {
         services::Status status;
@@ -198,8 +76,8 @@ public:
     const algorithmFPType * getBuff() const { return _buff.get(); }
 
 protected:
-    PredictTask2(const size_t nRowsPerBlock, const size_t nSVPerBlock, const NumericTablePtr & xTable, const NumericTablePtr & svTable,
-                 kernel_function::KernelIfacePtr & kernel)
+    PredictTask(const size_t nRowsPerBlock, const size_t nSVPerBlock, const NumericTablePtr & xTable, const NumericTablePtr & svTable,
+                kernel_function::KernelIfacePtr & kernel)
         : _xTable(xTable), _svTable(svTable), _nFeatures(svTable->getNumberOfColumns())
     {
         _buff.reset(nSVPerBlock * nRowsPerBlock);
@@ -221,24 +99,24 @@ protected:
 };
 
 template <typename algorithmFPType, CpuType cpu>
-class PredictTaskDense2 : PredictTask2<algorithmFPType, cpu>
+class PredictTaskDense : PredictTask<algorithmFPType, cpu>
 {
 public:
-    using Super = PredictTask2<algorithmFPType, cpu>;
-    virtual ~PredictTaskDense2() {}
+    using Super = PredictTask<algorithmFPType, cpu>;
+    virtual ~PredictTaskDense() {}
 
     static Super * create(const size_t nRowsPerBlock, const size_t nSVPerBlock, const NumericTablePtr & xTable, const NumericTablePtr & svTable,
                           kernel_function::KernelIfacePtr & kernel)
     {
-        auto val = new PredictTaskDense2(nRowsPerBlock, nSVPerBlock, xTable, svTable, kernel);
+        auto val = new PredictTaskDense(nRowsPerBlock, nSVPerBlock, xTable, svTable, kernel);
         if (val && val->isValid()) return val;
         delete val;
         return nullptr;
     }
 
 protected:
-    PredictTaskDense2(const size_t nRowsPerBlock, const size_t nSVPerBlock, const NumericTablePtr & xTable, const NumericTablePtr & svTable,
-                      kernel_function::KernelIfacePtr & kernel)
+    PredictTaskDense(const size_t nRowsPerBlock, const size_t nSVPerBlock, const NumericTablePtr & xTable, const NumericTablePtr & svTable,
+                     kernel_function::KernelIfacePtr & kernel)
         : Super(nRowsPerBlock, nSVPerBlock, xTable, svTable, kernel)
     {}
 
@@ -262,24 +140,24 @@ private:
 };
 
 template <typename algorithmFPType, CpuType cpu>
-class PredictTaskCSR2 : PredictTask2<algorithmFPType, cpu>
+class PredictTaskCSR : PredictTask<algorithmFPType, cpu>
 {
 public:
-    using Super = PredictTask2<algorithmFPType, cpu>;
-    virtual ~PredictTaskCSR2() {}
+    using Super = PredictTask<algorithmFPType, cpu>;
+    virtual ~PredictTaskCSR() {}
 
     static Super * create(const size_t nRowsPerBlock, const size_t nSVPerBlock, const NumericTablePtr & xTable, const NumericTablePtr & svTable,
                           kernel_function::KernelIfacePtr & kernel)
     {
-        auto val = new PredictTaskCSR2(nRowsPerBlock, nSVPerBlock, xTable, svTable, kernel);
+        auto val = new PredictTaskCSR(nRowsPerBlock, nSVPerBlock, xTable, svTable, kernel);
         if (val && val->isValid()) return val;
         delete val;
         return nullptr;
     }
 
 protected:
-    PredictTaskCSR2(const size_t nRowsPerBlock, const size_t nSVPerBlock, const NumericTablePtr & xTable, const NumericTablePtr & svTable,
-                    kernel_function::KernelIfacePtr & kernel)
+    PredictTaskCSR(const size_t nRowsPerBlock, const size_t nSVPerBlock, const NumericTablePtr & xTable, const NumericTablePtr & svTable,
+                   kernel_function::KernelIfacePtr & kernel)
         : Super(nRowsPerBlock, nSVPerBlock, xTable, svTable, kernel)
     {}
 
@@ -334,21 +212,19 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         const size_t nBlocksSV        = nSV / nSVPerBlock + !!(nSV % nSVPerBlock);
         const NumericTablePtr svTable = model->getSupportVectors();
 
-        printf("nVectors: %lu; nBlocks: %lu; nSV: %lu nBlocksSV %lu\n", nVectors, nBlocks, nSV, nBlocksSV);
-
-        const bool isSparse = (xTable->getDataLayout() == NumericTableIface::csrArray);
+        const bool isSparse = xTable->getDataLayout() == NumericTableIface::csrArray;
 
         /* TLS data initialization */
-        using TPredictTask2 = PredictTask2<algorithmFPType, cpu>;
-        daal::ls<TPredictTask2 *> lsTask(
+        using TPredictTask = PredictTask<algorithmFPType, cpu>;
+        daal::ls<TPredictTask *> lsTask(
             [&]() {
                 if (isSparse)
                 {
-                    return PredictTaskCSR2<algorithmFPType, cpu>::create(nRowsPerBlock, nSVPerBlock, xTable, svTable, kernel);
+                    return PredictTaskCSR<algorithmFPType, cpu>::create(nRowsPerBlock, nSVPerBlock, xTable, svTable, kernel);
                 }
                 else
                 {
-                    return PredictTaskDense2<algorithmFPType, cpu>::create(nRowsPerBlock, nSVPerBlock, xTable, svTable, kernel);
+                    return PredictTaskDense<algorithmFPType, cpu>::create(nRowsPerBlock, nSVPerBlock, xTable, svTable, kernel);
                 }
             },
             !isSparse);
@@ -365,9 +241,9 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
             DAAL_LS_RELEASE(algorithmFPType, lsDistance, distanceLocal); //releases local storage when leaving this scope
 
             daal::conditional_threader_for((nSV > 256), nBlocksSV, [&](const size_t iBlockSV) {
-                TPredictTask2 * lsLocal = lsTask.local();
+                TPredictTask * lsLocal = lsTask.local();
                 DAAL_CHECK_MALLOC_THR(lsLocal);
-                DAAL_LS_RELEASE(TPredictTask2, lsTask, lsLocal); //releases local storage when leaving this scope
+                DAAL_LS_RELEASE(TPredictTask, lsTask, lsLocal); //releases local storage when leaving this scope
 
                 const size_t startSV         = iBlockSV * nSVPerBlock;
                 const size_t nSVPerBlockReal = (iBlockSV != nBlocksSV - 1) ? nSVPerBlock : nSV - startSV;
@@ -391,7 +267,14 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
                 const algorithmFPType * const svCoeff = mtSVCoeff.get();
                 algorithmFPType * const distanceSV    = &distanceLocal[iBlockSV * nRowsPerBlock];
 
-                Blas<algorithmFPType, cpu>::xxgemv(&trans, &m, &n, &alpha, buffBlock, &ldA, svCoeff, &incX, &beta, distanceSV, &incY);
+                if (nBlocks == 1)
+                {
+                    Blas<algorithmFPType, cpu>::xgemv(&trans, &m, &n, &alpha, buffBlock, &ldA, svCoeff, &incX, &beta, distanceSV, &incY);
+                }
+                else
+                {
+                    Blas<algorithmFPType, cpu>::xxgemv(&trans, &m, &n, &alpha, buffBlock, &ldA, svCoeff, &incX, &beta, distanceSV, &incY);
+                }
             });
 
             WriteOnlyColumns<algorithmFPType, cpu> mtR(r, 0, startRow, nRowsPerBlockReal);
@@ -408,7 +291,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
             }
         });
 
-        lsTask.reduce([](PredictTask2<algorithmFPType, cpu> * local) { delete local; });
+        lsTask.reduce([](PredictTask<algorithmFPType, cpu> * local) { delete local; });
         return safeStat.detach();
     }
 }; // namespace internal
