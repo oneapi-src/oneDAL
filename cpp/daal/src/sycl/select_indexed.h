@@ -75,6 +75,16 @@ public:
         DAAL_CHECK_STATUS_VAR(convertIndicesToLabels(result.indices, dataLabels, nVectors, nK, labelOffset));
         return services::Status();
     }
+    services::Status selectNearestDistancesAndIndices(const UniversalBuffer & distances, const UniversalBuffer & dataLabels, uint32_t nK,
+                                                     uint32_t nVectors, uint32_t vectorSize, uint32_t vectorOffset, uint32_t labelOffset,
+                                                     Result & result)
+    {
+        services::Status status;
+        selectIndices(distances, nK, nVectors, vectorSize, vectorSize, vectorOffset, result, status);
+        DAAL_CHECK_STATUS_VAR(status);
+        DAAL_CHECK_STATUS_VAR(convertIndicesToLabels(result.indices, dataLabels, nVectors, nK, labelOffset));
+        return services::Status();
+    }
 };
 
 class SelectIndexedFactory

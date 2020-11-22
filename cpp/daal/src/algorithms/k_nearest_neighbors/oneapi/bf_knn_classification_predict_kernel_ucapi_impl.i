@@ -85,6 +85,11 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
 
     const Model * model = static_cast<const Model *>(m);
 
+    const auto resultsToEvaluate = par->resultsToEvaluate;
+    const bool computeLabels = resultsToEvaluate & daal::algorithms::classifier::computeClassLabels;
+    //const bool computeIndices = resultsToEvaluate & computeIndicesOfNeighbors;
+    //const bool computeDistances = resultsToEvaluate & computeDistances;
+
     NumericTable * ntData = const_cast<NumericTable *>(x);
     NumericTable * points = const_cast<NumericTable *>(model->impl()->getData().get());
     NumericTable * labels = const_cast<NumericTable *>(model->impl()->getLabels().get());
@@ -199,11 +204,14 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
         // sort labels of closest neighbors
         st |= RadixSort::sort(selectResult.indices, sortedLabels, radixBuffer, curQueryRange.count, k, k);
         DAAL_CHECK_STATUS_VAR(st);
-        BlockDescriptor<algorithmFpType> labelsBlock;
-        DAAL_CHECK_STATUS_VAR(y->getBlockOfRows(curQueryRange.startIndex, curQueryRange.count, writeOnly, labelsBlock));
-        // search for maximum occurrence label
-        DAAL_CHECK_STATUS_VAR(computeWinners(context, sortedLabels, curQueryRange.count, k, labelsBlock.getBuffer()));
-        DAAL_CHECK_STATUS_VAR(y->releaseBlockOfRows(labelsBlock));
+        if(computeLabels)
+        {
+            BlockDescriptor<algorithmFpType> labelsBlock;
+            DAAL_CHECK_STATUS_VAR(y->getBlockOfRows(curQueryRange.startIndex, curQueryRange.count, writeOnly, labelsBlock));
+            // search for maximum occurrence label
+            DAAL_CHECK_STATUS_VAR(computeWinners(context, sortedLabels, curQueryRange.count, k, labelsBlock.getBuffer()));
+            DAAL_CHECK_STATUS_VAR(y->releaseBlockOfRows(labelsBlock));
+        }
         DAAL_CHECK_STATUS_VAR(ntData->releaseBlockOfRows(queryRows));
     }
     return st;
