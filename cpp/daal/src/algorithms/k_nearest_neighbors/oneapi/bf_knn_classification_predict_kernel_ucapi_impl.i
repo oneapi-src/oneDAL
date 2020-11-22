@@ -190,10 +190,11 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
                 BlockDescriptor<algorithmFpType> dataRows;
                 DAAL_CHECK_STATUS_VAR(points->getBlockOfRows(curDataRange.startIndex, curDataRange.count, readOnly, dataRows));
                 // Collect sums of squares from train data
-                auto sumResult = math::SumReducer::sum(math::Layout::RowMajor, dataRows.getBuffer(), curDataRange.count, nFeatures, st);
+                auto dataSumResult = math::SumReducer::sum(math::Layout::RowMajor, dataRows.getBuffer(), curDataRange.count, nFeatures, st);
                 DAAL_CHECK_STATUS_VAR(st);
                 // Initialize GEMM distances
-                DAAL_CHECK_STATUS_VAR(scatterSumOfSquares(context, sumResult.sumOfSquares, curDataRange.count, curQueryRange.count, distances));
+                DAAL_CHECK_STATUS_VAR(scatterBothL2Norms(context, dataSumResult.sumOfSquares, querySumResult.sumOfSquares, 
+                                                         curDataRange.count, curQueryRange.count, distances));
                 // Let's calculate distances using GEMM
                 DAAL_CHECK_STATUS_VAR(
                     computeDistances(context, dataRows.getBuffer(), curQuery, distances, curDataRange.count, curQueryRange.count, nFeatures));
