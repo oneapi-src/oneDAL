@@ -105,6 +105,20 @@ public:
     }
 };
 
+template <typename T, CpuType cpu, typename Allocator = services::internal::ScalableMalloc<T, cpu> >
+class LsMem : public daal::ls<T *>
+{
+public:
+    typedef daal::ls<T *> super;
+    LsMem(size_t n) : super([=]() -> T * { return Allocator::allocate(n); }) {}
+    ~LsMem()
+    {
+        this->reduce([](T * ptr) -> void {
+            if (ptr) Allocator::deallocate(ptr);
+        });
+    }
+};
+
 template <typename algorithmFPType, CpuType cpu>
 class TlsSum : public daal::TlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> >
 {
