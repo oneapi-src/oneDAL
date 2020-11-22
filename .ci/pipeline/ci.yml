@@ -123,7 +123,7 @@ jobs:
     release.dir: '__release_lnx_gnu'
     platform.type : 'lnx32e'
   pool:
-    vmImage: 'ubuntu-18.04'
+    vmImage: 'ubuntu-20.04'
     maxParallel: 2
   steps:
   - task: DownloadPipelineArtifact@2

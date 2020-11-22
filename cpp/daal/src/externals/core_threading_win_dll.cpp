@@ -277,6 +277,9 @@ typedef void (*_daal_tbb_task_scheduler_free_t)(void *& globalControl);
 typedef size_t (*_setNumberOfThreads_t)(const size_t, void **);
 typedef void * (*_daal_threader_env_t)();
 
+typedef void (*_daal_parallel_sort_int32_t)(int *, int *);
+typedef void (*_daal_parallel_sort_uint64_t)(size_t *, size_t *);
+
 #if !(defined DAAL_THREAD_PINNING_DISABLED)
 typedef void (*_thread_pinner_thread_pinner_init_t)();
 typedef void (*_thread_pinner_read_topology_t)();
@@ -325,6 +328,9 @@ static _daal_tbb_task_scheduler_free_t _daal_tbb_task_scheduler_free_ptr = NULL;
 static _setNumberOfThreads_t _setNumberOfThreads_ptr                     = NULL;
 static _daal_threader_env_t _daal_threader_env_ptr                       = NULL;
 
+static _daal_parallel_sort_int32_t _daal_parallel_sort_int32_ptr   = NULL;
+static _daal_parallel_sort_uint64_t _daal_parallel_sort_uint64_ptr = NULL;
+
 #if !(defined DAAL_THREAD_PINNING_DISABLED)
 static _thread_pinner_thread_pinner_init_t _thread_pinner_thread_pinner_init_ptr = NULL;
 static _thread_pinner_read_topology_t _thread_pinner_read_topology_ptr           = NULL;
@@ -365,6 +371,26 @@ DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, 
         _daal_threader_for_ptr = (_daal_threader_for_t)load_daal_thr_func("_daal_threader_for");
     }
     _daal_threader_for_ptr(n, threads_request, a, func);
+}
+
+DAAL_EXPORT void _daal_parallel_sort_int32(int * begin_ptr, int * end_ptr)
+{
+    load_daal_thr_dll();
+    if (_daal_parallel_sort_int32_ptr == NULL)
+    {
+        _daal_parallel_sort_int32_ptr = (_daal_parallel_sort_int32_t)load_daal_thr_func("_daal_parallel_sort_int32");
+    }
+    _daal_parallel_sort_int32_ptr(begin_ptr, end_ptr);
+}
+
+DAAL_EXPORT void _daal_parallel_sort_uint64(size_t * begin_ptr, size_t * end_ptr)
+{
+    load_daal_thr_dll();
+    if (_daal_parallel_sort_uint64_ptr == NULL)
+    {
+        _daal_parallel_sort_uint64_ptr = (_daal_parallel_sort_uint64_t)load_daal_thr_func("_daal_parallel_sort_uint64");
+    }
+    _daal_parallel_sort_uint64_ptr(begin_ptr, end_ptr);
 }
 
 DAAL_EXPORT void _daal_threader_for_blocked(int n, int threads_request, const void * a, daal::functype2 func)
