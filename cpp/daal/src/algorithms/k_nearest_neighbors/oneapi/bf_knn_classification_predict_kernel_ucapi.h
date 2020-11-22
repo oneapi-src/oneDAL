@@ -53,6 +53,12 @@ private:
                                          const services::internal::sycl::UniversalBuffer & dataSumOfSquares, uint32_t dataBlockRowCount,
                                          uint32_t queryBlockRowCount, services::internal::sycl::UniversalBuffer & distances);
 
+    services::Status scatterBothL2Norms(services::internal::sycl::ExecutionContextIface & context,
+                                        const services::internal::sycl::UniversalBuffer & dataSumOfSquares,
+                                        const services::internal::sycl::UniversalBuffer & querySumOfSquares,
+                                        uint32_t dataBlockRowCount, uint32_t queryBlockRowCount,
+                                        services::internal::sycl::UniversalBuffer & distances);
+
     services::Status computeDistances(services::internal::sycl::ExecutionContextIface & context,
                                       const services::internal::Buffer<algorithmFpType> & data,
                                       const services::internal::Buffer<algorithmFpType> & query,

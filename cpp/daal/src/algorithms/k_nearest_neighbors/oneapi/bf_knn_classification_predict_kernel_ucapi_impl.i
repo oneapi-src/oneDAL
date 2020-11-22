@@ -166,10 +166,14 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
 
     for (uint32_t qblock = 0; qblock < nQueryBlockCount; qblock++)
     {
+
         Range curQueryRange = Range::createFromBlock(qblock, maxQueryBlockRowCount, nQueryRows);
         BlockDescriptor<algorithmFpType> queryRows;
         DAAL_CHECK_STATUS_VAR(ntData->getBlockOfRows(curQueryRange.startIndex, curQueryRange.count, readOnly, queryRows));
         auto curQuery = queryRows.getBuffer();
+        // Collect sums of squares from train data
+        auto querySumResult = math::SumReducer::sum(math::Layout::RowMajor, curQuery, curQueryRange.count, nFeatures, st);
+        DAAL_CHECK_STATUS_VAR(st);
         for (uint32_t sblock = 0; sblock < nSelectionBlockCount; sblock++)
         {
             uint32_t curSelectionMaxNumberOfChunks = sblock == 0 ? selectionMaxNumberOfChunks : selectionMaxNumberOfChunks - 1;
@@ -297,6 +301,38 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::scatterSu
     args.set(0, dataSumOfSquares, AccessModeIds::read);
     args.set(1, distances, AccessModeIds::write);
     args.set(2, static_cast<int32_t>(dataBlockRowCount));
+
+    KernelRange globalRange(dataBlockRowCount, queryBlockRowCount);
+    context.run(globalRange, kernel, args, st);
+    DAAL_CHECK_STATUS_VAR(st);
+    return st;
+}
+
+template <typename algorithmFpType>
+services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::scatterBothL2Norms(ExecutionContextIface & context,
+                                                                                          const UniversalBuffer & dataSumOfSquares,
+                                                                                          const UniversalBuffer & querySumOfSquares,
+                                                                                          uint32_t dataBlockRowCount, uint32_t queryBlockRowCount,
+                                                                                          UniversalBuffer & distances)
+{
+    DAAL_ITTNOTIFY_SCOPED_TASK(compute.scatterSumOfSquares);
+    DAAL_CHECK(dataBlockRowCount <= maxInt32AsUint32T, services::ErrorBufferSizeIntegerOverflow);
+
+    services::Status st;
+    auto & kernelFactory = context.getClKernelFactory();
+    DAAL_CHECK_STATUS_VAR(buildProgram(kernelFactory));
+    auto kernel = kernelFactory.getKernel("scatter_row_col", st);
+    DAAL_CHECK_STATUS_VAR(st);
+
+    DAAL_ASSERT_UNIVERSAL_BUFFER(dataSumOfSquares, algorithmFpType, dataBlockRowCount);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(distances, algorithmFpType, dataBlockRowCount * queryBlockRowCount);
+
+    KernelArguments args(3, st);
+    DAAL_CHECK_STATUS_VAR(st);
+    args.set(0, dataSumOfSquares, AccessModeIds::read);
+    args.set(1, querySumOfSquares, AccessModeIds::read);
+    args.set(2, distances, AccessModeIds::write);
+    args.set(3, static_cast<int32_t>(dataBlockRowCount));
 
     KernelRange globalRange(dataBlockRowCount, queryBlockRowCount);
     context.run(globalRange, kernel, args, st);
