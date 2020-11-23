@@ -92,8 +92,8 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
     const Parameter * const parameter = static_cast<const Parameter *>(par);
     DAAL_CHECK(par, services::ErrorNullParameterNotSupported);
     const bool computeLabels = parameter->resultsToEvaluate & daal::algorithms::classifier::computeClassLabels;
-    const bool computeRegressionIndices = parameter->resultsToEvaluate & computeIndicesOfNeighbors;
-    const bool computeRegressionDistances = parameter->resultsToEvaluate & computeDistances;
+    const bool computeRegressionIndices = parameter->resultsToEvaluate & ResultToComputeId::computeIndicesOfNeighbors;
+    const bool computeRegressionDistances = parameter->resultsToEvaluate & ResultToComputeId::computeDistances;
     const size_t kAsSizeT             = parameter->k;
     DAAL_CHECK(kAsSizeT <= maxInt32AsSizeT, services::ErrorIncorrectParameter);
     const uint32_t k = static_cast<uint32_t>(kAsSizeT);
@@ -160,6 +160,7 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
     const uint32_t nQueryBlockCount     = nQueryRows / maxQueryBlockRowCount + uint32_t(nQueryRows % maxQueryBlockRowCount != 0);
     const uint32_t nSelectionBlockCount = nDataBlockCount / selectionMaxNumberOfChunks + uint32_t(nDataBlockCount % selectionMaxNumberOfChunks != 0);
     SelectIndexed::Result selectResult(context, k, maxQueryBlockRowCount, distances.type(), st);
+    SelectIndexed::Result selectResultIndices(context, k, maxQueryBlockRowCount, distances.type(), st);
     DAAL_CHECK_STATUS_VAR(st);
 
     SelectIndexed::Params params(k, TypeIds::id<algorithmFpType>(), maxDataBlockRowCount, parameter->engine);
@@ -192,7 +193,7 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
                 }
                 if(computeRegressionIndices)
                 {
-                    DAAL_CHECK_STATUS_VAR(initializeIndices(context, curDataRange.startIndex, curDataRange.count, blockIndices));
+                    DAAL_CHECK_STATUS_VAR(initializeIndices(context, curDataRange.count, curDataRange.startIndex, blockIndices));
                 }
                 BlockDescriptor<algorithmFpType> dataRows;
                 DAAL_CHECK_STATUS_VAR(points->getBlockOfRows(curDataRange.startIndex, curDataRange.count, readOnly, dataRows));
@@ -226,18 +227,18 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
                                                                         selectionMaxNumberOfChunks));
                     DAAL_CHECK_STATUS_VAR(labels->releaseBlockOfRows(labelRows));
                 }
-                /*if(computeRegressionIndices)
+                if(computeRegressionIndices)
                 {
                     // Select k smallest distances and their indices from every row of the [curQueryRange.count]x[curDataRange.count] block
                     DAAL_CHECK_STATUS_VAR(selector->selectNearestDistancesAndLabels(distances, indices, k, curQueryRange.count,
-                                                                                    curDataRange.count, curDataRange.count, 0, selectResult));
+                                                                                    curDataRange.count, curDataRange.count, 0, selectResultIndices));
                     DAAL_CHECK_STATUS_VAR(st);
                     // copy block results to buffer in order to get merged with the same selection algorithm (up to selectionMaxNumberOfChunks of partial results)
                     // and keep the first part containing previously merged result if exists
-                    DAAL_CHECK_STATUS_VAR(copyPartialDistancesAndLabels(context, selectResult.values, selectResult.indices, partialDistances,
+                    DAAL_CHECK_STATUS_VAR(copyPartialDistancesAndLabels(context, selectResultIndices.values, selectResultIndices.indices, partialDistances,
                                                                         partialIndices, curQueryRange.count, k, selectionChunkCount,
                                                                         selectionMaxNumberOfChunks));
-                }*/
+                }
                 DAAL_CHECK_STATUS_VAR(points->releaseBlockOfRows(dataRows));
                 selectionChunkCount++;
             }
@@ -247,6 +248,13 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
                 DAAL_CHECK_STATUS_VAR(selector->selectNearestDistancesAndLabels(partialDistances, partialLabels, k, curQueryRange.count,
                                                                                 k * curDataBlockRange.count, k * selectionMaxNumberOfChunks,
                                                                                 k * selectionMaxNumberOfChunks, selectResult));
+            }
+            if(computeRegressionIndices)
+            {   
+                // merge partial data by one more K-selection
+                DAAL_CHECK_STATUS_VAR(selector->selectNearestDistancesAndLabels(partialDistances, partialIndices, k, curQueryRange.count,
+                                                                                k * curDataBlockRange.count, k * selectionMaxNumberOfChunks,
+                                                                                k * selectionMaxNumberOfChunks, selectResultIndices));
             }
         }
         if(computeLabels)
@@ -276,7 +284,7 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
 template <typename algorithmFpType>
 services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::initializeIndices(
                                         services::internal::sycl::ExecutionContextIface & context,
-                                        const uint32_t dataBlockRowCount, const uint32t_t fromDataBlockRow, 
+                                        const uint32_t dataBlockRowCount, const uint32_t fromDataBlockRow, 
                                         services::internal::sycl::UniversalBuffer & indices)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.initializeIndices);

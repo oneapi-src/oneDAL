@@ -67,7 +67,7 @@ private:
                                       uint32_t nFeatures);
 
     services::Status initializeIndices(services::internal::sycl::ExecutionContextIface & context,
-                                       const uint32_t dataBlockRowCount, const uint32t_t fromDataBlockRow, 
+                                       const uint32_t dataBlockRowCount, const uint32_t fromDataBlockRow, 
                                        services::internal::sycl::UniversalBuffer & indices);
 
     services::Status computeWinners(services::internal::sycl::ExecutionContextIface & context,
