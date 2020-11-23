@@ -92,8 +92,8 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
     const Parameter * const parameter = static_cast<const Parameter *>(par);
     DAAL_CHECK(par, services::ErrorNullParameterNotSupported);
     const bool computeLabels = parameter->resultsToEvaluate & daal::algorithms::classifier::computeClassLabels;
-    //const bool computeIndices = resultsToEvaluate & computeIndicesOfNeighbors;
-    //const bool computeDistances = resultsToEvaluate & computeDistances;
+    const bool computeRegressionIndices = parameter->resultsToEvaluate & computeIndicesOfNeighbors;
+    const bool computeRegressionDistances = parameter->resultsToEvaluate & computeDistances;
     const size_t kAsSizeT             = parameter->k;
     DAAL_CHECK(kAsSizeT <= maxInt32AsSizeT, services::ErrorIncorrectParameter);
     const uint32_t k = static_cast<uint32_t>(kAsSizeT);
@@ -141,6 +141,9 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
     DAAL_CHECK_STATUS_VAR(st);
     auto partialLabels = context.allocate(TypeIds::id<int>(), maxQueryBlockRowCount * k * selectionMaxNumberOfChunks, st);
     DAAL_CHECK_STATUS_VAR(st);
+    // temporary buffer for indices
+    auto blockIndices = context.allocate(TypeIds::id<int>(), maxDataBlockRowCount, st);
+    DAAL_CHECK_STATUS_VAR(st);
     auto partialIndices = context.allocate(TypeIds::id<int>(), maxQueryBlockRowCount * k * selectionMaxNumberOfChunks, st);
     DAAL_CHECK_STATUS_VAR(st);
     auto sortedLabels = context.allocate(TypeIds::id<int>(), maxQueryBlockRowCount * k, st);
@@ -187,14 +190,26 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
                 {
                     DAAL_CHECK_STATUS_VAR(labels->getBlockOfRows(curDataRange.startIndex, curDataRange.count, readOnly, labelRows));
                 }
+                if(computeRegressionIndices)
+                {
+                    DAAL_CHECK_STATUS_VAR(initializeIndices(context, curDataRange.startIndex, curDataRange.count, blockIndices));
+                }
                 BlockDescriptor<algorithmFpType> dataRows;
                 DAAL_CHECK_STATUS_VAR(points->getBlockOfRows(curDataRange.startIndex, curDataRange.count, readOnly, dataRows));
                 // Collect sums of squares from train data
                 auto dataSumResult = math::SumReducer::sum(math::Layout::RowMajor, dataRows.getBuffer(), curDataRange.count, nFeatures, st);
                 DAAL_CHECK_STATUS_VAR(st);
                 // Initialize GEMM distances
-                DAAL_CHECK_STATUS_VAR(scatterBothL2Norms(context, dataSumResult.sumOfSquares, querySumResult.sumOfSquares, 
-                                                         curDataRange.count, curQueryRange.count, distances));
+                if(computeRegressionDistances)
+                {
+                    DAAL_CHECK_STATUS_VAR(scatterBothL2Norms(context, dataSumResult.sumOfSquares, querySumResult.sumOfSquares, 
+                                                             curDataRange.count, curQueryRange.count, distances));
+                }
+                else 
+                {
+                    DAAL_CHECK_STATUS_VAR(scatterSumOfSquares(context, dataSumResult.sumOfSquares,
+                                                              curDataRange.count, curQueryRange.count, distances));
+                }
                 // Let's calculate distances using GEMM
                 DAAL_CHECK_STATUS_VAR(
                     computeDistances(context, dataRows.getBuffer(), curQuery, distances, curDataRange.count, curQueryRange.count, nFeatures));
@@ -211,6 +226,18 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
                                                                         selectionMaxNumberOfChunks));
                     DAAL_CHECK_STATUS_VAR(labels->releaseBlockOfRows(labelRows));
                 }
+                /*if(computeRegressionIndices)
+                {
+                    // Select k smallest distances and their indices from every row of the [curQueryRange.count]x[curDataRange.count] block
+                    DAAL_CHECK_STATUS_VAR(selector->selectNearestDistancesAndLabels(distances, indices, k, curQueryRange.count,
+                                                                                    curDataRange.count, curDataRange.count, 0, selectResult));
+                    DAAL_CHECK_STATUS_VAR(st);
+                    // copy block results to buffer in order to get merged with the same selection algorithm (up to selectionMaxNumberOfChunks of partial results)
+                    // and keep the first part containing previously merged result if exists
+                    DAAL_CHECK_STATUS_VAR(copyPartialDistancesAndLabels(context, selectResult.values, selectResult.indices, partialDistances,
+                                                                        partialIndices, curQueryRange.count, k, selectionChunkCount,
+                                                                        selectionMaxNumberOfChunks));
+                }*/
                 DAAL_CHECK_STATUS_VAR(points->releaseBlockOfRows(dataRows));
                 selectionChunkCount++;
             }
@@ -222,21 +249,61 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
                                                                                 k * selectionMaxNumberOfChunks, selectResult));
             }
         }
-        // sort labels of closest neighbors
-        st |= RadixSort::sort(selectResult.indices, sortedLabels, radixBuffer, curQueryRange.count, k, k);
-        DAAL_CHECK_STATUS_VAR(st);
         if(computeLabels)
         {
+            // sort labels of closest neighbors
+            st |= RadixSort::sort(selectResult.indices, sortedLabels, radixBuffer, curQueryRange.count, k, k);
+            DAAL_CHECK_STATUS_VAR(st);
             BlockDescriptor<algorithmFpType> labelsBlock;
             DAAL_CHECK_STATUS_VAR(y->getBlockOfRows(curQueryRange.startIndex, curQueryRange.count, writeOnly, labelsBlock));
             // search for maximum occurrence label
             DAAL_CHECK_STATUS_VAR(computeWinners(context, sortedLabels, curQueryRange.count, k, labelsBlock.getBuffer()));
             DAAL_CHECK_STATUS_VAR(y->releaseBlockOfRows(labelsBlock));
         }
+        /*if(computeDistances)
+        {
+            BlockDescriptor<algorithmFpType> distancesBlock;
+            DAAL_CHECK_STATUS_VAR(y->getBlockOfRows(curQueryRange.startIndex, curQueryRange.count, writeOnly, distancesBlock));
+            // search for maximum occurrence label
+            DAAL_CHECK_STATUS_VAR(computeWinners(context, sortedLabels, curQueryRange.count, k, labelsBlock.getBuffer()));
+            DAAL_CHECK_STATUS_VAR(y->releaseBlockOfRows(distancesBlock));
+        }*/
         DAAL_CHECK_STATUS_VAR(ntData->releaseBlockOfRows(queryRows));
     }
     return st;
 }
+
+template <typename algorithmFpType>
+services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::initializeIndices(
+                                        services::internal::sycl::ExecutionContextIface & context,
+                                        const uint32_t dataBlockRowCount, const uint32t_t fromDataBlockRow, 
+                                        services::internal::sycl::UniversalBuffer & indices)
+{
+    DAAL_ITTNOTIFY_SCOPED_TASK(compute.initializeIndices);
+
+    services::Status st;
+    auto & kernelFactory = context.getClKernelFactory();
+    DAAL_CHECK_STATUS_VAR(buildProgram(kernelFactory));
+    auto kernel = kernelFactory.getKernel("initialize_indices", st);
+    DAAL_CHECK_STATUS_VAR(st);
+
+    DAAL_OVERFLOW_CHECK_BY_ADDING(int32_t, fromDataBlockRow, dataBlockRowCount);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(indices, int, dataBlockRowCount);
+
+    KernelArguments args(2, st);
+    DAAL_CHECK_STATUS_VAR(st);
+
+    args.set(0, indices, AccessModeIds::write);
+    args.set(1, static_cast<int32_t>(fromDataBlockRow));
+
+    KernelRange range(dataBlockRowCount);
+
+    context.run(range, kernel, args, st);
+    DAAL_CHECK_STATUS_VAR(st);
+
+    return st;
+}
+
 template <typename algorithmFpType>
 services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::copyPartialDistancesAndLabels(
     ExecutionContextIface & context, const UniversalBuffer & distances, const UniversalBuffer & labels, UniversalBuffer & partialDistances,
@@ -328,8 +395,9 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::scatterBo
     DAAL_ASSERT_UNIVERSAL_BUFFER(dataSumOfSquares, algorithmFpType, dataBlockRowCount);
     DAAL_ASSERT_UNIVERSAL_BUFFER(distances, algorithmFpType, dataBlockRowCount * queryBlockRowCount);
 
-    KernelArguments args(3, st);
+    KernelArguments args(4, st);
     DAAL_CHECK_STATUS_VAR(st);
+
     args.set(0, dataSumOfSquares, AccessModeIds::read);
     args.set(1, querySumOfSquares, AccessModeIds::read);
     args.set(2, distances, AccessModeIds::write);

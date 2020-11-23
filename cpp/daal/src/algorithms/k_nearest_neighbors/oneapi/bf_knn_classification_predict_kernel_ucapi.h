@@ -49,6 +49,7 @@ private:
                                                    services::internal::sycl::UniversalBuffer & partialDistances,
                                                    services::internal::sycl::UniversalBuffer & partialLabels, uint32_t curQueryBlockRows, uint32_t k,
                                                    uint32_t nChunk, uint32_t totalNumberOfChunks);
+
     services::Status scatterSumOfSquares(services::internal::sycl::ExecutionContextIface & context,
                                          const services::internal::sycl::UniversalBuffer & dataSumOfSquares, uint32_t dataBlockRowCount,
                                          uint32_t queryBlockRowCount, services::internal::sycl::UniversalBuffer & distances);
@@ -64,6 +65,10 @@ private:
                                       const services::internal::Buffer<algorithmFpType> & query,
                                       services::internal::sycl::UniversalBuffer & distances, uint32_t dataBlockRowCount, uint32_t queryBlockRowCount,
                                       uint32_t nFeatures);
+
+    services::Status initializeIndices(services::internal::sycl::ExecutionContextIface & context,
+                                       const uint32_t dataBlockRowCount, const uint32t_t fromDataBlockRow, 
+                                       services::internal::sycl::UniversalBuffer & indices);
 
     services::Status computeWinners(services::internal::sycl::ExecutionContextIface & context,
                                     const services::internal::sycl::UniversalBuffer & labels, uint32_t queryBlockRowCount, uint32_t k,
