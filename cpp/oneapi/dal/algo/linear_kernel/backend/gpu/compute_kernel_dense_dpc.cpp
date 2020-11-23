@@ -21,7 +21,7 @@
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
-#include <daal/src/algorithms/kernel_function/oneapi/kernel_function_linear_dense_default_kernel_oneapi.h>
+#include <daal/src/algorithms/kernel_function/oneapi/kernel_function_linear_kernel_oneapi.h>
 
 namespace oneapi::dal::linear_kernel::backend {
 

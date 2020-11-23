@@ -1,6 +1,6 @@
-/* file: kernel_function_linear_csr_fast_batch_fpt_dispatcher.cpp */
+/* file: kernel_function_linear_csr_fast_batch_oneapi_fpt.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,18 +17,27 @@
 
 /*
 //++
-//  Implementation of linear kernel function container for CSR input data.
+//  Implementation of linear kernel functions for CSR input data.
 //--
 */
 
-#include "algorithms/kernel_function/kernel_function_linear.h"
-#include "src/algorithms/kernel_function/kernel_function_linear_batch_container.h"
-#include "src/algorithms/kernel_function/kernel_function_linear_csr_fast_kernel.h"
+#include "src/algorithms/kernel_function/oneapi/kernel_function_linear_kernel_oneapi.h"
+#include "src/algorithms/kernel_function/oneapi/kernel_function_linear_csr_fast_oneapi_impl.i"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(kernel_function::linear::BatchContainer, batch, DAAL_FPTYPE, kernel_function::linear::fastCSR)
+namespace kernel_function
+{
+namespace linear
+{
+namespace internal
+{
+template class KernelImplLinearOneAPI<fastCSR, DAAL_FPTYPE>;
+
+} // namespace internal
+} // namespace linear
+} // namespace kernel_function
 } // namespace algorithms
 } // namespace daal

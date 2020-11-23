@@ -1,4 +1,4 @@
-/* file: kernel_function_rbf_dense_default_kernel_oneapi.h */
+/* file: kernel_function_rbf_kernel_oneapi.h */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -27,6 +27,7 @@
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "algorithms/kernel_function/kernel_function_rbf.h"
+#include "src/algorithms/kernel_function/oneapi/kernel_function_helper_oneapi.h"
 
 namespace daal
 {
@@ -56,6 +57,8 @@ template <typename algorithmFPType>
 class KernelImplRBFOneAPI<defaultDense, algorithmFPType> : public Kernel
 {
 public:
+    using Helper = HelperKernel<algorithmFPType>;
+
     services::Status compute(NumericTable * ntLeft, NumericTable * ntRight, NumericTable * result, const ParameterBase * par)
     {
         ComputationMode computationMode = par->computationMode;
@@ -70,13 +73,35 @@ public:
     }
 
 protected:
-    static services::Status buildProgram(ClKernelFactoryIface & factory);
-    static services::Status lazyAllocate(UniversalBuffer & x, const size_t n);
+    services::Status computeInternalVectorVector(NumericTable * vecLeft, NumericTable * vecRight, NumericTable * result, const ParameterBase * par);
+    services::Status computeInternalMatrixVector(NumericTable * matLeft, NumericTable * vecRight, NumericTable * result, const ParameterBase * par);
+    services::Status computeInternalMatrixMatrix(NumericTable * matLeft, NumericTable * matRight, NumericTable * result, const ParameterBase * par);
 
-    static services::Status computeRBF(const UniversalBuffer & sqrMatLeft, const UniversalBuffer & sqrMatRight, const uint32_t ld,
-                                       const algorithmFPType coeff, services::internal::Buffer<algorithmFPType> & rbf, const size_t n,
-                                       const size_t m);
+private:
+    UniversalBuffer _sqrMatLeft;
+    UniversalBuffer _sqrMatRight;
+};
 
+template <typename algorithmFPType>
+class KernelImplRBFOneAPI<fastCSR, algorithmFPType> : public Kernel
+{
+public:
+    using Helper = HelperKernel<algorithmFPType>;
+
+    services::Status compute(NumericTable * ntLeft, NumericTable * ntRight, NumericTable * result, const ParameterBase * par)
+    {
+        ComputationMode computationMode = par->computationMode;
+        switch (computationMode)
+        {
+        case vectorVector: return computeInternalVectorVector(ntLeft, ntRight, result, par);
+        case matrixVector: return computeInternalMatrixVector(ntLeft, ntRight, result, par);
+        case matrixMatrix: return computeInternalMatrixMatrix(ntLeft, ntRight, result, par);
+        default: return services::ErrorIncorrectParameter;
+        }
+        return services::Status();
+    }
+
+protected:
     services::Status computeInternalVectorVector(NumericTable * vecLeft, NumericTable * vecRight, NumericTable * result, const ParameterBase * par);
     services::Status computeInternalMatrixVector(NumericTable * matLeft, NumericTable * vecRight, NumericTable * result, const ParameterBase * par);
     services::Status computeInternalMatrixMatrix(NumericTable * matLeft, NumericTable * matRight, NumericTable * result, const ParameterBase * par);

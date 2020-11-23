@@ -54,7 +54,7 @@ protected:
 
     explicit SyclNumericTable(NumericTableDictionaryPtr ddict, services::Status & st) : NumericTable(ddict, st) {}
 
-    ~SyclNumericTable() {}
+    virtual ~SyclNumericTable() {}
 };
 typedef services::SharedPtr<SyclNumericTable> SyclNumericTablePtr;
 typedef services::SharedPtr<const SyclNumericTable> SyclNumericTableConstPtr;

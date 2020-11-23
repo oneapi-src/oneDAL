@@ -61,4 +61,24 @@ std::list<std::pair<std::string, cl::sycl::device> > getListOfDevices()
     return selects;
 }
 
+template <typename DataType>
+daal::data_management::SyclCSRNumericTablePtr createSyclSparseTable(const std::string & datasetFileName)
+{
+    auto numericTable = createSparseTable<DataType>(datasetFileName);
+
+    DataType * data     = nullptr;
+    size_t * colIndices = nullptr;
+    size_t * rowOffsets = nullptr;
+    numericTable->getArrays(&data, &colIndices, &rowOffsets);
+
+    auto dataBuff       = cl::sycl::buffer<DataType, 1>(data, numericTable->getDataSize());
+    auto colIndicesBuff = cl::sycl::buffer<size_t, 1>(colIndices, numericTable->getDataSize());
+    auto rowOffsetsBuff = cl::sycl::buffer<size_t, 1>(rowOffsets, numericTable->getNumberOfRows() + 1);
+
+    auto syclNumericTable = daal::data_management::SyclCSRNumericTable::create<DataType>(
+        dataBuff, colIndicesBuff, rowOffsetsBuff, numericTable->getNumberOfColumns(), numericTable->getNumberOfRows());
+
+    return syclNumericTable;
+}
+
 #endif
