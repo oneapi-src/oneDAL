@@ -24,6 +24,7 @@
 #include "oneapi/dal/graph/detail/graph_container.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_array_graph_impl.hpp"
 #include "oneapi/dal/graph/graph_common.hpp"
+#include "oneapi/dal/common.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
 #include "oneapi/dal/io/detail/load_graph_service.hpp"
 #include "oneapi/dal/detail/threading.hpp"
@@ -67,7 +68,8 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     using edge_set = typename graph_traits<Graph>::edge_set;
     using atomic_vertex_t = typename daal::services::Atomic<vertex_t>;
     using atomic_edge_t = typename daal::services::Atomic<edge_t>;
-
+    using vertex_allocator_traits = typename graph_traits<Graph>::impl_type::vertex_allocator_traits;
+    using edge_allocator_traits = typename graph_traits<Graph>::impl_type::edge_allocator_traits;
     using namespace oneapi::dal::detail;
 
     vertex_t max_id = edges[0].first;
@@ -84,9 +86,11 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     if ((vertex_count - unsigned_max_id) != static_cast<vertex_size_type>(1)) {
         throw range_error(dal::detail::error_messages::overflow_found_in_sum_of_two_values());
     }
-    auto &layout = oneapi::dal::detail::get_impl(g);
-    auto &allocator = layout._allocator;
-    layout._vertex_count = vertex_count;
+    auto &graph_impl = oneapi::dal::detail::get_impl(g);
+    auto &allocator = graph_impl._allocator;
+    auto &vertex_allocator = graph_impl._vertex_allocator;
+    auto &edge_allocator = graph_impl._edge_allocator;
+    graph_impl._topology._vertex_count = vertex_count;
 
     const vertex_size_type degrees_size = vertex_count * (sizeof(atomic_vertex_t) / sizeof(char));
     if ((degrees_size / (sizeof(atomic_vertex_t) / sizeof(char))) != vertex_count) {
@@ -153,8 +157,8 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     });
     allocator.deallocate((char *)rows_vec_void, rows_vec_size);
 
-    layout._degrees = std::move(vertex_set(vertex_count));
-    auto degrees_data = layout._degrees.data();
+    graph_impl._topology._degrees = vertex_allocator_traits::allocate(vertex_allocator, vertex_count);
+    auto &degrees_data = graph_impl._topology._degrees;
 
     //removing self-loops,  multiple edges from graph, and make neighbors in CSR sorted
     threader_for(vertex_count, vertex_count, [&](vertex_t u) {
@@ -168,8 +172,8 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         degrees_data[u] = (vertex_t)std::distance(start_p, neighs_u_new_end);
     });
 
-    layout._edge_offsets = std::move(edge_set(vertex_count + 1));
-    auto edge_offsets_data = layout._edge_offsets.data();
+    graph_impl._topology._edge_offsets = edge_allocator_traits::allocate(edge_allocator, (vertex_count + 1));
+    auto &edge_offsets_data = graph_impl._topology._edge_offsets;
 
     edge_t filtered_total_sum_degrees = 0;
     edge_offsets_data[0] = filtered_total_sum_degrees;
@@ -177,12 +181,13 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         filtered_total_sum_degrees += degrees_data[i];
         edge_offsets_data[i + 1] = filtered_total_sum_degrees;
     }
-    layout._edge_count = filtered_total_sum_degrees / 2;
+    graph_impl._topology._edge_count = filtered_total_sum_degrees / 2;
 
-    layout._vertex_neighbors = std::move(vertex_set(layout._edge_offsets[vertex_count]));
+    graph_impl._topology._vertex_neighbors = 
+        vertex_allocator_traits::allocate(vertex_allocator, graph_impl._topology._edge_offsets[vertex_count]);
 
-    auto vert_neighs = layout._vertex_neighbors.data();
-    auto edge_offs = layout._edge_offsets.data();
+    auto &vert_neighs = graph_impl._topology._vertex_neighbors;
+    auto &edge_offs = graph_impl._topology._edge_offsets;
     threader_for(vertex_count, vertex_count, [&](vertex_t u) {
         auto u_neighs = vert_neighs + edge_offs[u];
         auto u_neighs_unf = unfiltered_neighs + unfiltered_offsets[u];

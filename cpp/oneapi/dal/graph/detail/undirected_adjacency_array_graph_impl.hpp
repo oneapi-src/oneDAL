@@ -23,6 +23,39 @@
 
 namespace oneapi::dal::preview::detail {
 
+
+template<typename Index>
+class topology {
+public:
+    topology() = default;
+    virtual ~topology() = default;
+
+    Index* _vertex_neighbors;
+    Index* _degrees;
+    Index* _edge_offsets;
+    int64_t _vertex_count;
+    int64_t _edge_count;
+};
+
+template<typename VertexValue>
+class vertex_values {
+public:
+    vertex_values() = default;
+    virtual ~vertex_values() = default;
+
+    VertexValue* _vertex_value;
+};
+
+template<typename EdgeValue>
+class edge_values {
+public:
+    edge_values() = default;
+    virtual ~edge_values() = default;
+
+    EdgeValue* _edge_value;
+};
+
+
 template <typename VertexValue = empty_value,
           typename EdgeValue = empty_value,
           typename GraphValue = empty_value,
@@ -35,17 +68,23 @@ public:
     using vertex_type = IndexType;
     using vertex_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<vertex_type>;
+    using vertex_allocator_traits =
+        typename std::allocator_traits<Allocator>::template rebind_traits<vertex_type>;
+    
+
     using vertex_set = detail::graph_container<vertex_type, vertex_allocator_type>;
-    using vertex_iterator = typename vertex_set::iterator;
-    using const_vertex_iterator = typename vertex_set::const_iterator;
+    using vertex_iterator =  vertex_type*;
+    using const_vertex_iterator = const vertex_type*;
     using vertex_size_type = typename vertex_set::size_type;
 
     using edge_type = IndexType;
     using edge_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<edge_type>;
+    using edge_allocator_traits =
+        typename std::allocator_traits<Allocator>::template rebind_traits<edge_type>;
     using edge_set = detail::graph_container<edge_type, edge_allocator_type>;
-    using edge_iterator = typename edge_set::iterator;
-    using const_edge_iterator = typename edge_set::const_iterator;
+    using edge_iterator = edge_type*;
+    using const_edge_iterator = const edge_type*;
     using edge_size_type = typename edge_set::size_type;
 
     using vertex_user_value_type = VertexValue;
@@ -61,19 +100,32 @@ public:
         detail::graph_container<edge_user_value_type, edge_user_value_allocator_type>;
 
     undirected_adjacency_array_graph_impl() = default;
-    virtual ~undirected_adjacency_array_graph_impl() = default;
+    ~undirected_adjacency_array_graph_impl() {
+        if (_topology._vertex_neighbors != nullptr) {
+            vertex_allocator_traits::deallocate(_vertex_allocator, _topology._vertex_neighbors,  2 * _topology._edge_count);
+        }
+        if (_topology._degrees != nullptr) {
+            vertex_allocator_traits::deallocate(_vertex_allocator, _topology._degrees,  _topology._vertex_count);
+        }
+        if (_topology._edge_offsets != nullptr) {
+            edge_allocator_traits::deallocate(_edge_allocator, _topology._edge_offsets,  1 + _topology._vertex_count);
+        }
+    }
 
     vertex_size_type _vertex_count;
     edge_size_type _edge_count;
 
-    vertex_set _vertex_neighbors;
-    vertex_set _degrees;
-    edge_set _edge_offsets;
-
-    vertex_user_value_set _vertex_value;
-    edge_user_value_set _edge_value;
+    topology<IndexType> _topology;
+    vertex_values<VertexValue> _vertex_values;
+    edge_values<VertexValue> _edge_values;
+    //vertex_user_value_set _vertex_value;
+    //edge_user_value_set _edge_value;
 
     allocator_type _allocator;
+    vertex_allocator_type _vertex_allocator;
+    edge_allocator_type _edge_allocator;
 };
+
+
 
 } // namespace oneapi::dal::preview::detail
