@@ -79,11 +79,11 @@ public:
     undirected_adjacency_array_graph &operator=(undirected_adjacency_array_graph &&graph);
 
 private:
-    using pimpl = oneapi::dal::detail::pimpl<typename graph_traits<graph_type>::impl_type>;
+    using pimpl = dal::detail::pimpl<typename graph_traits<graph_type>::impl_type>;
 
     pimpl impl_;
 
-    friend oneapi::dal::detail::pimpl_accessor;
+    friend dal::detail::pimpl_accessor;
 };
 
 template <typename VertexValue,

@@ -265,7 +265,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx2(
     const descriptor_base &desc,
     vertex_similarity_input<undirected_adjacency_array_graph<>> &input) {
     const auto &my_graph = input.get_graph();
-    const auto &g = oneapi::dal::detail::get_impl(my_graph);
+    const auto &g = dal::detail::get_impl(my_graph);
     auto g_edge_offsets = g._edge_offsets.data();
     auto g_vertex_neighbors = g._vertex_neighbors.data();
     auto g_degrees = g._degrees.data();
@@ -299,7 +299,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx2(
                     first_vertices[nnz] = i;
                     second_vertices[nnz] = j;
                     nnz++;
-                    ONEDAL_ASSERT(nnz > 0, "Overflow found in sum of two values");
+                    ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
                 }
             }
         }
@@ -309,7 +309,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx2(
             first_vertices[nnz] = i;
             second_vertices[nnz] = diagonal;
             nnz++;
-            ONEDAL_ASSERT(nnz > 0, "Overflow found in sum of two values");
+            ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
         }
 
         for (std::int32_t j = max(column_begin, diagonal + 1); j < column_end; j++) {
@@ -325,7 +325,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx2(
                     first_vertices[nnz] = i;
                     second_vertices[nnz] = j;
                     nnz++;
-                    ONEDAL_ASSERT(nnz > 0, "Overflow found in sum of two values");
+                    ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
                 }
             }
         }

@@ -67,11 +67,11 @@ inline String getKeyFPType()
 {
     if (IsSameType<algorithmFPType, float>::value)
     {
-        return String(" -D algorithmFPType=float -D algorithmFPType2=float2 -D algorithmFPType4=float4 ");
+        return String(" -D algorithmFPType=float -D algorithmFPType2=float2 -D algorithmFPType4=float4 -D FPTYPE_MAXVALUE=FLT_MAX");
     }
     if (IsSameType<algorithmFPType, double>::value)
     {
-        return String(" -D algorithmFPType=double -D algorithmFPType2=double2  -D algorithmFPType4=double4 ");
+        return String(" -D algorithmFPType=double -D algorithmFPType2=double2  -D algorithmFPType4=double4 -D FPTYPE_MAXVALUE=DBL_MAX");
     }
     if (IsSameType<algorithmFPType, int32_t>::value)
     {

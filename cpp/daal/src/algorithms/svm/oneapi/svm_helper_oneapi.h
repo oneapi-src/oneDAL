@@ -218,6 +218,86 @@ struct HelperSVM
         return status;
     }
 
+    static services::Status copyRowIndicesByIndices(const services::internal::Buffer<size_t> & rowsIn, const UniversalBuffer & ind,
+                                                    services::internal::Buffer<size_t> & rowsOut, const size_t nWS, size_t & dataSize)
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(copyCSRByIndices);
+        services::Status status;
+
+        services::internal::sycl::ExecutionContextIface & ctx    = services::internal::getDefaultContext();
+        services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
+
+        buildProgram(factory);
+
+        const char * const kernelName              = "copyRowIndicesByIndices";
+        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        services::internal::sycl::KernelArguments args(5, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        auto dataSizeU = ctx.allocate(TypeIds::id<size_t>(), 1, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_ASSERT(rowsOut.size() == nWS + 1);
+        DAAL_ASSERT(rowsIn.size() > nWS);
+
+        args.set(0, rowsIn, services::internal::sycl::AccessModeIds::read);
+        args.set(1, ind, services::internal::sycl::AccessModeIds::read);
+        args.set(2, rowsOut, services::internal::sycl::AccessModeIds::write);
+        args.set(3, nWS);
+        args.set(4, dataSizeU);
+
+        services::internal::sycl::KernelRange range(1);
+
+        ctx.run(range, kernel, args, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        auto svValuesHosrPtr = dataSizeU.get<size_t>().toHost(data_management::writeOnly, status);
+        DAAL_CHECK_STATUS_VAR(status);
+        dataSize = *svValuesHosrPtr;
+
+        return status;
+    }
+
+    static services::Status copyCSRByIndices(const services::internal::Buffer<size_t> & rowsIn, const services::internal::Buffer<size_t> & rowsOut,
+                                             const UniversalBuffer & ind, const services::internal::Buffer<algorithmFPType> & val,
+                                             const services::internal::Buffer<size_t> & cols, services::internal::Buffer<algorithmFPType> & valOut,
+                                             services::internal::Buffer<size_t> & colsOut, const size_t nWS, const size_t p)
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(copyCSRByIndices);
+        services::Status status;
+
+        services::internal::sycl::ExecutionContextIface & ctx    = services::internal::getDefaultContext();
+        services::internal::sycl::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
+
+        buildProgram(factory);
+
+        const char * const kernelName              = "copyCSRByIndices";
+        services::internal::sycl::KernelPtr kernel = factory.getKernel(kernelName, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        services::internal::sycl::KernelArguments args(7, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_ASSERT(rowsOut.size() == nWS + 1);
+        DAAL_ASSERT(rowsIn.size() > nWS);
+
+        args.set(0, rowsIn, services::internal::sycl::AccessModeIds::read);
+        args.set(1, rowsOut, services::internal::sycl::AccessModeIds::read);
+        args.set(2, ind, services::internal::sycl::AccessModeIds::read);
+        args.set(3, val, services::internal::sycl::AccessModeIds::read);
+        args.set(4, cols, services::internal::sycl::AccessModeIds::read);
+        args.set(5, valOut, services::internal::sycl::AccessModeIds::write);
+        args.set(6, colsOut, services::internal::sycl::AccessModeIds::write);
+
+        services::internal::sycl::KernelRange range(nWS, p);
+
+        ctx.run(range, kernel, args, status);
+        DAAL_CHECK_STATUS_VAR(status);
+        return status;
+    }
+
     static services::Status checkUpper(const services::internal::Buffer<algorithmFPType> & y,
                                        const services::internal::Buffer<algorithmFPType> & alpha, services::internal::Buffer<uint32_t> & indicator,
                                        const algorithmFPType C, const size_t n)

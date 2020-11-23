@@ -76,7 +76,14 @@ public:
         DAAL_CHECK_STATUS(status, setSVCoefficients(nSV, model));
         DAAL_CHECK_STATUS(status, setSVIndices(nSV, model));
 
-        DAAL_CHECK_STATUS(status, setSVDense(model, xTable, nSV));
+        if (xTable->getDataLayout() == NumericTableIface::csrArray)
+        {
+            DAAL_CHECK_STATUS(status, setSVCSR(model, xTable, nSV));
+        }
+        else
+        {
+            DAAL_CHECK_STATUS(status, setSVDense(model, xTable, nSV));
+        }
 
         /* Calculate bias and write it into model */
         algorithmFPType bias;
@@ -175,6 +182,56 @@ protected:
         return status;
     }
 
+    services::Status setSVCSR(Model & model, const NumericTablePtr & xTable, size_t nSV) const
+    {
+        services::Status status;
+
+        auto & context             = services::internal::getDefaultContext();
+        UniversalBuffer rowOffsets = context.allocate(TypeIds::id<size_t>(), nSV + 1, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        NumericTablePtr svIndicesTable = model.getSupportIndices();
+        BlockDescriptor<int> svIndicesBlock;
+        DAAL_CHECK_STATUS(status, svIndicesTable->getBlockOfRows(0, nSV, ReadWriteMode::readOnly, svIndicesBlock));
+        auto svIndicesBuff = svIndicesBlock.getBuffer();
+
+        auto svRowOffsetsBuff = rowOffsets.template get<size_t>();
+
+        CSRBlockDescriptor<algorithmFPType> blockCSR;
+        CSRNumericTableIface * const csrIface = dynamic_cast<CSRNumericTableIface * const>(xTable.get());
+        DAAL_CHECK(csrIface, services::ErrorEmptyCSRNumericTable);
+
+        DAAL_CHECK_STATUS(status, csrIface->getSparseBlock(0, xTable->getNumberOfRows(), readOnly, blockCSR));
+        const auto xRowOffsetsBuff = blockCSR.getBlockRowIndicesBuffer();
+
+        size_t svDataSize = 0;
+        DAAL_CHECK_STATUS(status, Helper::copyRowIndicesByIndices(xRowOffsetsBuff, svIndicesBuff, svRowOffsetsBuff, nSV, svDataSize));
+
+        UniversalBuffer values = context.allocate(TypeIds::id<algorithmFPType>(), svDataSize, status);
+        DAAL_CHECK_STATUS_VAR(status);
+        UniversalBuffer colIndices = context.allocate(TypeIds::id<size_t>(), svDataSize, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        const auto xValuesBuff     = blockCSR.getBlockValuesBuffer();
+        const auto xColIndicesBuff = blockCSR.getBlockColumnIndicesBuffer();
+
+        auto svValuesBuff     = values.template get<algorithmFPType>();
+        auto svColIndicesBuff = colIndices.template get<size_t>();
+
+        DAAL_CHECK_STATUS(status, Helper::copyCSRByIndices(xRowOffsetsBuff, svRowOffsetsBuff, svIndicesBuff, xValuesBuff, xColIndicesBuff,
+                                                           svValuesBuff, svColIndicesBuff, nSV, xTable->getNumberOfColumns()));
+
+        DAAL_CHECK_STATUS(status, svIndicesTable->releaseBlockOfRows(svIndicesBlock));
+        DAAL_CHECK_STATUS(status, csrIface->releaseSparseBlock(blockCSR));
+
+        /* Allocate memory for storing support vectors and coefficients */
+        SyclCSRNumericTablePtr svTable = services::staticPointerCast<SyclCSRNumericTable, NumericTable>(model.getSupportVectors());
+        DAAL_CHECK_STATUS(status, svTable->resize(nSV));
+        svTable->setArrays(svValuesBuff, svColIndicesBuff, svRowOffsetsBuff);
+
+        return status;
+    }
+
     services::Status calculateBias(const algorithmFPType C, algorithmFPType & bias) const
     {
         services::Status status;
@@ -225,7 +282,6 @@ protected:
 
             bias = -0.5 * (ub + lb);
         }
-
         return status;
     }
 
