@@ -139,7 +139,7 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTa
 
     __int64 * dest = (__int64 *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < nRows; i++)
+    for (size_t i = 0; i < nRows+1; i++)
     {
         dest[i] = rowOffsets[i];
     }
