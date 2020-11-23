@@ -484,8 +484,19 @@ protected:
         _defaultFeature.setType<DataType>();
         st |= _ddict->setAllFeatures(_defaultFeature);
 
-        DAAL_ASSERT(bufferData.size() == bufferColIndices.size());
-        DAAL_ASSERT(bufferRowOffsets.size() == nRows + 1 || !_dataSize);
+        if (bufferData.size() != bufferColIndices.size())
+        {
+            st |= services::Error::create(services::ErrorIncorrectSizeOfArray);
+            services::throwIfPossible(st);
+            return;
+        }
+
+        if (bufferRowOffsets.size() != nRows + 1 && _dataSize)
+        {
+            st |= services::Error::create(services::ErrorIncorrectNumberOfRows);
+            services::throwIfPossible(st);
+            return;
+        }
 
         if (isCpuContext())
         {

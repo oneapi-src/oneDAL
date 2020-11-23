@@ -96,60 +96,61 @@ public:
 
     inline daal::services::internal::Buffer<DataType> getBlockValuesBuffer() const
     {
-        if (_rawPtr)
+        if (_valuesBuffer)
+        {
+            return _valuesBuffer;
+        }
+        else if (_rawPtr)
         {
             services::Status status;
             daal::services::internal::Buffer<DataType> buffer((DataType *)_rawPtr, _nvalues, status);
             services::throwIfPossible(status);
             return buffer;
         }
-        else if (_values_ptr)
+        else
         {
             services::Status status;
             services::internal::Buffer<DataType> buffer(_values_ptr, _nvalues, status);
             services::throwIfPossible(status);
             return buffer;
         }
-        else
-        {
-            return _valuesBuffer;
-        }
     }
 
     inline daal::services::internal::Buffer<size_t> getBlockColumnIndicesBuffer() const
     {
-        if (_cols_ptr)
+        if (_colsBuffer)
+        {
+            return _colsBuffer;
+        }
+        else
         {
             services::Status status;
             daal::services::internal::Buffer<size_t> buffer(_cols_ptr.get(), _nvalues, status);
             services::throwIfPossible(status);
             return buffer;
         }
-        else
-        {
-            return _colsBuffer;
-        }
     }
 
     inline daal::services::internal::Buffer<size_t> getBlockRowIndicesBuffer() const
     {
-        if (_rowsInternal)
+        if (_rowsBuffer)
+        {
+            return _rowsBuffer;
+        }
+
+        else if (_rowsInternal)
         {
             services::Status status;
             daal::services::internal::Buffer<size_t> buffer(_rowsInternal.get(), _nrows + 1, status);
             services::throwIfPossible(status);
             return buffer;
         }
-        else if (_rows_ptr)
+        else
         {
             services::Status status;
             daal::services::internal::Buffer<size_t> buffer(_rows_ptr.get(), _nrows + 1, status);
             services::throwIfPossible(status);
             return buffer;
-        }
-        else
-        {
-            return _rowsBuffer;
         }
     }
 

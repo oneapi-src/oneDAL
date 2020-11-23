@@ -76,7 +76,7 @@ protected:
 
 private:
     // One of the conditions for stopping is diff stays unchanged. nNoChanges - number of repetitions
-    static constexpr size_t nNoChanges = 20;
+    static constexpr size_t nNoChanges = 5;
     // The maximum numbers of iteration of the subtask is number of observation in WS x cInnerIterations. It's enough to find minimum for subtask.
     static constexpr size_t cInnerIterations = 1000;
 
