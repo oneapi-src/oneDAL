@@ -17,10 +17,14 @@
 #pragma once
 
 #include <vector>
+#include "oneapi/dal/array.hpp"
 
 namespace oneapi::dal::preview::detail {
 
 template <class T, class Allocator = std::allocator<T>>
 using graph_container = std::vector<T, Allocator>;
+
+template <typename T>
+using array = dal::v1::array<T>;
 
 } // namespace oneapi::dal::preview::detail

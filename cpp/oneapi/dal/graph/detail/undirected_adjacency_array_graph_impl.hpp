@@ -29,9 +29,9 @@ public:
     topology() = default;
     virtual ~topology() = default;
 
-    Index* _vertex_neighbors = nullptr;
-    Index* _degrees = nullptr;
-    Index* _edge_offsets = nullptr;
+    array<Index> _vertex_neighbors;
+    array<Index> _degrees;
+    array<Index> _edge_offsets;
     int64_t _vertex_count = 0;
     int64_t _edge_count = 0;
 };
@@ -41,8 +41,7 @@ class vertex_values {
 public:
     vertex_values() = default;
     virtual ~vertex_values() = default;
-    std::int64_t _vertex_value_count = 0;
-    VertexValue* _vertex_value = nullptr;
+    array<VertexValue> _vertex_value;
 };
 
 template <typename EdgeValue>
@@ -50,8 +49,7 @@ class edge_values {
 public:
     edge_values() = default;
     virtual ~edge_values() = default;
-    std::int64_t _edge_value_count = 0;
-    EdgeValue* _edge_value = nullptr;
+    array<EdgeValue> _edge_value;
 };
 
 template <typename VertexValue = empty_value,
@@ -100,36 +98,38 @@ public:
     using edge_user_value_set =
         detail::graph_container<edge_user_value_type, edge_user_value_allocator_type>;
 
-    undirected_adjacency_array_graph_impl() = default; /* : _topology(new topology<IndexType>()),
-                     _vertex_values(new vertex_values<VertexValue>()),
-                     _edge_values(new edge_values<VertexValue>()) {}*/
+    undirected_adjacency_array_graph_impl() = default;
 
     virtual ~undirected_adjacency_array_graph_impl() {
-        //auto &_topology = this->get_topology();
-        if (_topology._vertex_neighbors != nullptr) {
+        auto& vertex_neighbors = _topology._vertex_neighbors;
+        auto& degrees = _topology._degrees;
+        auto& edge_offsets = _topology._edge_offsets;
+        auto& vertex_value = _vertex_values._vertex_value;
+        auto& edge_value = _edge_values._edge_value;
+        if (vertex_neighbors.get_data() != nullptr) {
             vertex_allocator_traits::deallocate(_vertex_allocator,
-                                                _topology._vertex_neighbors,
-                                                2 * _topology._edge_count);
+                                                vertex_neighbors.get_mutable_data(),
+                                                vertex_neighbors.get_count());
         }
-        if (_topology._degrees != nullptr) {
+        if (degrees.get_data() != nullptr) {
             vertex_allocator_traits::deallocate(_vertex_allocator,
-                                                _topology._degrees,
-                                                _topology._vertex_count);
+                                                degrees.get_mutable_data(),
+                                                degrees.get_count());
         }
-        if (_topology._edge_offsets != nullptr) {
+        if (edge_offsets.get_data() != nullptr) {
             edge_allocator_traits::deallocate(_edge_allocator,
-                                              _topology._edge_offsets,
-                                              1 + _topology._vertex_count);
+                                              edge_offsets.get_mutable_data(),
+                                              edge_offsets.get_count());
         }
-        if (_vertex_values._vertex_value != nullptr) {
+        if (vertex_value.get_data() != nullptr) {
             vertex_user_value_allocator_traits::deallocate(_vertex_user_value_allocator,
-                                                           _vertex_values._vertex_value,
-                                                           _vertex_values._vertex_value_count);
+                                                           vertex_value.get_mutable_data(),
+                                                           vertex_value.get_count());
         }
-        if (_edge_values._edge_value != nullptr) {
+        if (edge_value.get_data() != nullptr) {
             edge_user_value_allocator_traits::deallocate(_edge_user_value_allocator,
-                                                         _edge_values._edge_value,
-                                                         _edge_values._edge_value_count);
+                                                         edge_value.get_mutable_data(),
+                                                         edge_value.get_count());
         }
     }
 

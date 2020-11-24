@@ -158,9 +158,8 @@ void convert_to_csr_impl(const edge_list<std::int32_t> &edges, Graph &g) {
     });
     allocator.deallocate((char *)rows_vec_void, rows_vec_size);
 
-    graph_impl.get_topology()._degrees =
-        vertex_allocator_traits::allocate(vertex_allocator, vertex_count);
-    auto &degrees_data = graph_impl.get_topology()._degrees;
+    vertex_t *degrees_data = vertex_allocator_traits::allocate(vertex_allocator, vertex_count);
+    graph_impl.get_topology()._degrees = array<vertex_t>::wrap(degrees_data, vertex_count);
 
     //removing self-loops,  multiple edges from graph, and make neighbors in CSR sorted
     threader_for(vertex_count, vertex_count, [&](vertex_t u) {
@@ -174,9 +173,9 @@ void convert_to_csr_impl(const edge_list<std::int32_t> &edges, Graph &g) {
         degrees_data[u] = (vertex_t)std::distance(start_p, neighs_u_new_end);
     });
 
+    edge_t *edge_offsets_data = edge_allocator_traits::allocate(edge_allocator, (vertex_count + 1));
     graph_impl.get_topology()._edge_offsets =
-        edge_allocator_traits::allocate(edge_allocator, (vertex_count + 1));
-    auto &edge_offsets_data = graph_impl.get_topology()._edge_offsets;
+        array<edge_t>::wrap(edge_offsets_data, vertex_count + 1);
 
     edge_t filtered_total_sum_degrees = 0;
     edge_offsets_data[0] = filtered_total_sum_degrees;
@@ -186,12 +185,15 @@ void convert_to_csr_impl(const edge_list<std::int32_t> &edges, Graph &g) {
     }
     graph_impl.get_topology()._edge_count = filtered_total_sum_degrees / 2;
 
-    graph_impl.get_topology()._vertex_neighbors =
+    vertex_t *vertex_neighbors =
         vertex_allocator_traits::allocate(vertex_allocator,
                                           graph_impl.get_topology()._edge_offsets[vertex_count]);
+    graph_impl.get_topology()._vertex_neighbors =
+        array<vertex_t>::wrap(vertex_neighbors,
+                              graph_impl.get_topology()._edge_offsets[vertex_count]);
 
-    auto &vert_neighs = graph_impl.get_topology()._vertex_neighbors;
-    auto &edge_offs = graph_impl.get_topology()._edge_offsets;
+    vertex_t *vert_neighs = graph_impl.get_topology()._vertex_neighbors.get_mutable_data();
+    edge_t *edge_offs = graph_impl.get_topology()._edge_offsets.get_mutable_data();
     threader_for(vertex_count, vertex_count, [&](vertex_t u) {
         auto u_neighs = vert_neighs + edge_offs[u];
         auto u_neighs_unf = unfiltered_neighs + unfiltered_offsets[u];
