@@ -271,6 +271,11 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
         if(computeRegressionIndices)
         {
             BlockDescriptor<algorithmFpType> indicesBlock;
+            DAAL_CHECK_STATUS_VAR(outIndices->getBlockOfRows(curQueryRange.startIndex, curQueryRange.count, writeOnly, indicesBlock));
+            auto outBuff = indicesBlock.getBuffer();
+            context.copy(outBuff, 0, selectResultIndices.values, 0, outBuff.size(), st);
+            DAAL_CHECK_STATUS_VAR(st);
+            DAAL_CHECK_STATUS_VAR(outIndices->releaseBlockOfRows(indicesBlock));
         }  
         /*if(computeDistances)
         {
