@@ -28,7 +28,6 @@
 #include "services/env_detect.h"
 #include "mkl_daal.h"
 #include "vmlvsl.h"
-#include "include/data_management/data/internal/roc_auc_score.h"
 
 static HMODULE daal_thr_dll_handle = NULL;
 daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set();
