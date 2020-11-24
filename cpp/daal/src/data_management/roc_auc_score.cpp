@@ -48,22 +48,22 @@ namespace data_management
 namespace internal
 {
 template <typename FPType, daal::CpuType cpu>
-services::Status calculateRankDataImpl(FPType * predictedRank, const NumericTablePtr & testPrediction, const size_t & nElements)
+services::Status calculateRankDataImpl(FPType * predictedRank, const NumericTablePtr & testPrediction, const size_t nElements)
 {
     services::Status s;
     ReadRows<FPType, cpu> testPredictionBlock(testPrediction.get(), 0, 1);
     const FPType * const testPredictionPtr = testPredictionBlock.get();
     DAAL_CHECK_BLOCK_STATUS(testPredictionBlock);
 
-    TArray<IdxValType<FPType>, cpu> predict(nElements);
+    TArrayScalable<IdxValType<FPType>, cpu> predict(nElements);
     DAAL_CHECK_MALLOC(predict.get());
 
     const size_t blockSizeDefault = 256;
     const size_t nBlocks          = nElements / blockSizeDefault + !!(nElements % blockSizeDefault);
 
     daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
-        const size_t blockSize  = (iBlock == nBlocks - 1) ? nElements % blockSizeDefault : blockSizeDefault;
         const size_t blockBegin = iBlock * blockSizeDefault;
+        const size_t blockSize  = (iBlock == nBlocks - 1) ? nElements - blockBegin : blockSizeDefault;
         for (size_t i = 0; i < blockSize; ++i)
         {
             predict[blockBegin + i].value = testPredictionPtr[blockBegin + i];
@@ -89,17 +89,18 @@ services::Status calculateRankDataImpl(FPType * predictedRank, const NumericTabl
         PRAGMA_VECTOR_ALWAYS
         for (size_t j = 0; j < elementsInBlock; ++j)
         {
-            size_t idx         = predict[i + j].index;
+            const size_t idx   = predict[i + j].index;
             predictedRank[idx] = static_cast<FPType>(rank) + ((static_cast<FPType>(elementsInBlock) - FPType(1.0)) * FPType(0.5));
         }
         rank += elementsInBlock;
         i += elementsInBlock;
     }
+    services::throwIfPossible(s);
     return s;
 }
 
 template <typename FPType>
-DAAL_EXPORT void calculateRankData(FPType * predictedRank, const NumericTablePtr & testPrediction, const size_t & nElements)
+DAAL_EXPORT void calculateRankData(FPType * predictedRank, const NumericTablePtr & testPrediction, const size_t nElements)
 {
 #define DAAL_CALC_RANK_DATA(cpuId, ...) calculateRankDataImpl<FPType, cpuId>(__VA_ARGS__);
 
@@ -108,11 +109,11 @@ DAAL_EXPORT void calculateRankData(FPType * predictedRank, const NumericTablePtr
 #undef DAAL_CALC_RANK_DATA
 }
 
-template DAAL_EXPORT void calculateRankData<float>(float * predictedRank, const NumericTablePtr & testPrediction, const size_t & nElements);
-template DAAL_EXPORT void calculateRankData<double>(double * predictedRank, const NumericTablePtr & testPrediction, const size_t & nElements);
+template DAAL_EXPORT void calculateRankData<float>(float * predictedRank, const NumericTablePtr & testPrediction, const size_t nElements);
+template DAAL_EXPORT void calculateRankData<double>(double * predictedRank, const NumericTablePtr & testPrediction, const size_t nElements);
 
 template <typename FPType, daal::CpuType cpu>
-services::Status rocAucScoreImpl(const FPType * const predictedRank, const NumericTablePtr & truePrediction, const size_t & nElements, FPType & score)
+services::Status rocAucScoreImpl(const FPType * const predictedRank, const NumericTablePtr & truePrediction, const size_t nElements, FPType & score)
 {
     services::Status s;
     ReadRows<FPType, cpu> truePredictionBlock(truePrediction.get(), 0, 1);
@@ -142,11 +143,12 @@ services::Status rocAucScoreImpl(const FPType * const predictedRank, const Numer
     }
 
     score = (filteredRankSum - (nPos * (nPos + FPType(1.0)) * FPType(0.5))) / (nPos * nNeg);
+    services::throwIfPossible(s);
     return s;
 }
 
 template <typename FPType>
-DAAL_EXPORT FPType rocAucScore(const FPType * const predictedRank, const NumericTablePtr & truePrediction, const size_t & nElements)
+DAAL_EXPORT FPType rocAucScore(const FPType * const predictedRank, const NumericTablePtr & truePrediction, const size_t nElements)
 {
     FPType score = FPType(0);
 #define DAAL_ROC_AUC_SCORE(cpuId, ...) rocAucScoreImpl<FPType, cpuId>(__VA_ARGS__);
@@ -157,8 +159,8 @@ DAAL_EXPORT FPType rocAucScore(const FPType * const predictedRank, const Numeric
     return score;
 }
 
-template DAAL_EXPORT float rocAucScore<float>(const float * const predictedRank, const NumericTablePtr & truePrediction, const size_t & nElements);
-template DAAL_EXPORT double rocAucScore<double>(const double * const predictedRank, const NumericTablePtr & truePrediction, const size_t & nElements);
+template DAAL_EXPORT float rocAucScore<float>(const float * const predictedRank, const NumericTablePtr & truePrediction, const size_t nElements);
+template DAAL_EXPORT double rocAucScore<double>(const double * const predictedRank, const NumericTablePtr & truePrediction, const size_t nElements);
 
 } // namespace internal
 } // namespace data_management
