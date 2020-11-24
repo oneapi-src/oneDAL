@@ -209,9 +209,9 @@ protected:
 
         _cacheData.reset(newLineSize * _cacheSize);
         DAAL_CHECK_MALLOC(_cacheData.get());
-
         _cache.reset(_cacheSize);
         DAAL_CHECK_MALLOC(_cache.get());
+
         for (size_t i = 0; i < _cacheSize; ++i)
         {
             _cache[i] = &_cacheData[i * newLineSize]; // _cache[i] - always aligned on 64 bytes

@@ -1,6 +1,6 @@
 alabaster==0.7.12
-Babel==2.8.0
-certifi==2020.6.20
+Babel==2.8.1
+certifi==2020.11.8
 chardet==3.0.4
 colorama==0.4.4
 docutils==0.16
@@ -12,7 +12,7 @@ packaging==20.4
 Pygments==2.7.2
 pyparsing==2.4.7
 pytz==2020.4
-requests==2.24.0
+requests==2.25.0
 six==1.15.0
 snowballstemmer==2.0.0
 Sphinx==3.3.0

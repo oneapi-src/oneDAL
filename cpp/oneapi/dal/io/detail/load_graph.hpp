@@ -60,13 +60,15 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         throw invalid_argument(dal::detail::error_messages::empty_edge_list());
     }
 
-    using vertex_t = typename Graph::vertex_type;
-    using vertex_size_type = typename Graph::vertex_size_type;
-    using edge_t = typename Graph::edge_type;
-    using vertex_set = typename Graph::vertex_set;
-    using edge_set = typename Graph::edge_set;
+    using vertex_t = typename graph_traits<Graph>::vertex_type;
+    using vertex_size_type = typename graph_traits<Graph>::vertex_size_type;
+    using edge_t = typename graph_traits<Graph>::edge_type;
+    using vertex_set = typename graph_traits<Graph>::vertex_set;
+    using edge_set = typename graph_traits<Graph>::edge_set;
     using atomic_vertex_t = typename daal::services::Atomic<vertex_t>;
     using atomic_edge_t = typename daal::services::Atomic<edge_t>;
+
+    using namespace oneapi::dal::detail;
 
     vertex_t max_id = edges[0].first;
     for (auto u : edges) {
@@ -82,9 +84,9 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     if ((vertex_count - unsigned_max_id) != static_cast<vertex_size_type>(1)) {
         throw range_error(dal::detail::error_messages::overflow_found_in_sum_of_two_values());
     }
-    auto layout = dal::preview::detail::get_impl(g);
-    auto &allocator = layout->_allocator;
-    layout->_vertex_count = vertex_count;
+    auto &layout = oneapi::dal::detail::get_impl(g);
+    auto &allocator = layout._allocator;
+    layout._vertex_count = vertex_count;
 
     const vertex_size_type degrees_size = vertex_count * (sizeof(atomic_vertex_t) / sizeof(char));
     if ((degrees_size / (sizeof(atomic_vertex_t) / sizeof(char))) != vertex_count) {
@@ -151,23 +153,23 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     });
     allocator.deallocate((char *)rows_vec_void, rows_vec_size);
 
-    layout->_degrees = std::move(vertex_set(vertex_count));
-    auto degrees_data = layout->_degrees.data();
+    layout._degrees = std::move(vertex_set(vertex_count));
+    auto degrees_data = layout._degrees.data();
 
     //removing self-loops,  multiple edges from graph, and make neighbors in CSR sorted
     threader_for(vertex_count, vertex_count, [&](vertex_t u) {
         auto start_p = unfiltered_neighs + unfiltered_offsets[u];
         auto end_p = unfiltered_neighs + unfiltered_offsets[u + 1];
 
-        std::sort(start_p, end_p);
+        parallel_sort(start_p, end_p);
 
         auto neighs_u_new_end = std::unique(start_p, end_p);
         neighs_u_new_end = std::remove(start_p, neighs_u_new_end, u);
         degrees_data[u] = (vertex_t)std::distance(start_p, neighs_u_new_end);
     });
 
-    layout->_edge_offsets = std::move(edge_set(vertex_count + 1));
-    auto edge_offsets_data = layout->_edge_offsets.data();
+    layout._edge_offsets = std::move(edge_set(vertex_count + 1));
+    auto edge_offsets_data = layout._edge_offsets.data();
 
     edge_t filtered_total_sum_degrees = 0;
     edge_offsets_data[0] = filtered_total_sum_degrees;
@@ -175,13 +177,12 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         filtered_total_sum_degrees += degrees_data[i];
         edge_offsets_data[i + 1] = filtered_total_sum_degrees;
     }
+    layout._edge_count = filtered_total_sum_degrees / 2;
 
-    layout->_edge_count = filtered_total_sum_degrees / 2;
+    layout._vertex_neighbors = std::move(vertex_set(layout._edge_offsets[vertex_count]));
 
-    layout->_vertex_neighbors = std::move(vertex_set(layout->_edge_offsets[vertex_count]));
-
-    auto vert_neighs = layout->_vertex_neighbors.data();
-    auto edge_offs = layout->_edge_offsets.data();
+    auto vert_neighs = layout._vertex_neighbors.data();
+    auto edge_offs = layout._edge_offsets.data();
     threader_for(vertex_count, vertex_count, [&](vertex_t u) {
         auto u_neighs = vert_neighs + edge_offs[u];
         auto u_neighs_unf = unfiltered_neighs + unfiltered_offsets[u];
@@ -189,7 +190,6 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
             u_neighs[i] = u_neighs_unf[i];
         }
     });
-
     allocator.deallocate((char *)unfiltered_neighs_void, unfiltered_neighs_size);
     allocator.deallocate((char *)unfiltered_offsets_void, unfiltered_offsets_size);
     return;

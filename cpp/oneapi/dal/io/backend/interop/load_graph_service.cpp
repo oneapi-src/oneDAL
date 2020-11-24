@@ -19,7 +19,7 @@
 
 namespace oneapi::dal::preview::load_graph::detail {
 
-ONEDAL_EXPORT int daal_string_to_int(const char* nptr, char** endptr) {
+ONEDAL_EXPORT std::int32_t daal_string_to_int(const char* nptr, char** endptr) {
     return daal::internal::Service<>::serv_string_to_int(nptr, endptr);
 }
 } // namespace oneapi::dal::preview::load_graph::detail
