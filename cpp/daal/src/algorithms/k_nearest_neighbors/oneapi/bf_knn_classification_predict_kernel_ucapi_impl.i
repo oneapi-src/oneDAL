@@ -74,8 +74,8 @@ private:
 };
 
 template <typename algorithmFpType>
-services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(const NumericTable * x, const classifier::Model * m, NumericTable * y,
-                                                                               const daal::algorithms::Parameter * par)
+services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(const NumericTable * x, const classifier::Model * m, NumericTable * y, NumericTable * outIndices,
+                                                                               NumericTable * outDistances, const daal::algorithms::Parameter * par)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute);
 
@@ -91,9 +91,9 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
 
     const Parameter * const parameter = static_cast<const Parameter *>(par);
     DAAL_CHECK(par, services::ErrorNullParameterNotSupported);
-    const bool computeLabels = parameter->resultsToEvaluate & daal::algorithms::classifier::computeClassLabels;
-    const bool computeRegressionIndices = parameter->resultsToEvaluate & ResultToComputeId::computeIndicesOfNeighbors;
-    const bool computeRegressionDistances = parameter->resultsToEvaluate & ResultToComputeId::computeDistances;
+    const bool computeLabels = bool(parameter->resultsToEvaluate & daal::algorithms::classifier::computeClassLabels) && (y != NULL);
+    const bool computeRegressionIndices = bool(parameter->resultsToEvaluate & ResultToComputeId::computeIndicesOfNeighbors) && (outIndices != NULL);
+    const bool computeRegressionDistances = bool(parameter->resultsToEvaluate & ResultToComputeId::computeDistances) && (outDistances != NULL);
     const size_t kAsSizeT             = parameter->k;
     DAAL_CHECK(kAsSizeT <= maxInt32AsSizeT, services::ErrorIncorrectParameter);
     const uint32_t k = static_cast<uint32_t>(kAsSizeT);
@@ -230,7 +230,7 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
                 if(computeRegressionIndices)
                 {
                     // Select k smallest distances and their indices from every row of the [curQueryRange.count]x[curDataRange.count] block
-                    DAAL_CHECK_STATUS_VAR(selector->selectNearestDistancesAndLabels(distances, indices, k, curQueryRange.count,
+                    DAAL_CHECK_STATUS_VAR(selector->selectNearestDistancesAndLabels(distances, blockIndices, k, curQueryRange.count,
                                                                                     curDataRange.count, curDataRange.count, 0, selectResultIndices));
                     DAAL_CHECK_STATUS_VAR(st);
                     // copy block results to buffer in order to get merged with the same selection algorithm (up to selectionMaxNumberOfChunks of partial results)
@@ -268,6 +268,10 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
             DAAL_CHECK_STATUS_VAR(computeWinners(context, sortedLabels, curQueryRange.count, k, labelsBlock.getBuffer()));
             DAAL_CHECK_STATUS_VAR(y->releaseBlockOfRows(labelsBlock));
         }
+        if(computeRegressionIndices)
+        {
+            BlockDescriptor<algorithmFpType> indicesBlock;
+        }  
         /*if(computeDistances)
         {
             BlockDescriptor<algorithmFpType> distancesBlock;
@@ -280,6 +284,13 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
     }
     return st;
 }
+
+/*template <typename algorithmFpType>
+services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(const NumericTable * x, const classifier::Model * m, NumericTable * y, 
+                                                                               const daal::algorithms::Parameter * par);
+{
+    return compute(x, m, y, NULL, NULL, par);
+}*/
 
 template <typename algorithmFpType>
 services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::initializeIndices(
