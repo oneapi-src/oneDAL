@@ -175,9 +175,14 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
         BlockDescriptor<algorithmFpType> queryRows;
         DAAL_CHECK_STATUS_VAR(ntData->getBlockOfRows(curQueryRange.startIndex, curQueryRange.count, readOnly, queryRows));
         auto curQuery = queryRows.getBuffer();
-        // Collect sums of squares from train data
-        auto querySumResult = math::SumReducer::sum(math::Layout::RowMajor, curQuery, curQueryRange.count, nFeatures, st);
-        DAAL_CHECK_STATUS_VAR(st);
+        UniversalBuffer queryNormsBuffer;
+        if(computeRegressionDistances)
+        {
+            // Collect sums of squares from train data
+            auto querySumResult = math::SumReducer::sum(math::Layout::RowMajor, curQuery, curQueryRange.count, nFeatures, st);
+            DAAL_CHECK_STATUS_VAR(st);
+            queryNormsBuffer = querySumResult.sumOfSquares;
+        }
         for (uint32_t sblock = 0; sblock < nSelectionBlockCount; sblock++)
         {
             uint32_t curSelectionMaxNumberOfChunks = sblock == 0 ? selectionMaxNumberOfChunks : selectionMaxNumberOfChunks - 1;
@@ -197,18 +202,22 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
                 }
                 BlockDescriptor<algorithmFpType> dataRows;
                 DAAL_CHECK_STATUS_VAR(points->getBlockOfRows(curDataRange.startIndex, curDataRange.count, readOnly, dataRows));
-                // Collect sums of squares from train data
-                auto dataSumResult = math::SumReducer::sum(math::Layout::RowMajor, dataRows.getBuffer(), curDataRange.count, nFeatures, st);
-                DAAL_CHECK_STATUS_VAR(st);
+                UniversalBuffer dataNormsBuffer;
+                {
+                    // Collect sums of squares from train data
+                    auto dataSumResult = math::SumReducer::sum(math::Layout::RowMajor, dataRows.getBuffer(), curDataRange.count, nFeatures, st);
+                    DAAL_CHECK_STATUS_VAR(st);
+                    dataNormsBuffer = dataSumResult.sumOfSquares;
+                }
                 // Initialize GEMM distances
                 if(computeRegressionDistances)
                 {
-                    DAAL_CHECK_STATUS_VAR(scatterBothL2Norms(context, dataSumResult.sumOfSquares, querySumResult.sumOfSquares, 
+                    DAAL_CHECK_STATUS_VAR(scatterBothL2Norms(context, dataNormsBuffer, queryNormsBuffer, 
                                                              curDataRange.count, curQueryRange.count, distances));
                 }
                 else 
                 {
-                    DAAL_CHECK_STATUS_VAR(scatterSumOfSquares(context, dataSumResult.sumOfSquares,
+                    DAAL_CHECK_STATUS_VAR(scatterSumOfSquares(context, dataNormsBuffer,
                                                               curDataRange.count, curQueryRange.count, distances));
                 }
                 // Let's calculate distances using GEMM
@@ -239,6 +248,7 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
                                                                         partialIndices, curQueryRange.count, k, selectionChunkCount,
                                                                         selectionMaxNumberOfChunks));
                 }
+                
                 DAAL_CHECK_STATUS_VAR(points->releaseBlockOfRows(dataRows));
                 selectionChunkCount++;
             }
