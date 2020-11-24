@@ -304,18 +304,65 @@ services::Status selectParallelizationTechnique(const Parameter & par, engines::
 //////////////////////////////////////////////////////////////////////////////////////////
 // compute() implementation
 //////////////////////////////////////////////////////////////////////////////////////////
-template <typename algorithmFPType, CpuType cpu, typename ModelType, typename TaskType>
-services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, const NumericTable * w, ModelType & md,
-                             ResultData & res, const Parameter & par, size_t nClasses)
+template <CpuType cpu, typename IndexType, typename BinIndexType>
+services::Status copyBinIndex(const size_t nRows, const size_t nCols, const IndexType * featureIndex,
+                              TVector<BinIndexType, cpu, ScalableAllocator<cpu> > & binIndexVector, BinIndexType ** binIndex);
+
+template <CpuType cpu, dtrees::internal::IndexedFeatures::IndexType, dtrees::internal::IndexedFeatures::IndexType>
+services::Status copyBinIndex(const size_t nRows, const size_t nCols, const dtrees::internal::IndexedFeatures::IndexType * featureIndex,
+                              TVector<dtrees::internal::IndexedFeatures::IndexType, cpu, ScalableAllocator<cpu> > & binIndexVector,
+                              dtrees::internal::IndexedFeatures::IndexType ** binIndex)
 {
-    DAAL_CHECK(md.resize(par.nTrees), ErrorMemoryAllocationFailed);
-    dtrees::internal::FeatureTypes featTypes;
-    DAAL_CHECK(featTypes.init(*x), ErrorMemoryAllocationFailed);
-    dtrees::internal::IndexedFeatures indexedFeatures;
+    *binIndex = const_cast<dtrees::internal::IndexedFeatures::IndexType *>(featureIndex);
+    return services::Status();
+}
+
+template <CpuType cpu, typename IndexType, typename BinIndexType>
+services::Status copyBinIndex(const size_t nRows, const size_t nCols, const IndexType * featureIndex,
+                              TVector<BinIndexType, cpu, ScalableAllocator<cpu> > & binIndexVector, BinIndexType ** binIndex)
+{
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, nCols);
+    binIndexVector.resize(nRows * nCols);
+    DAAL_CHECK(binIndexVector.get(), ErrorMemoryAllocationFailed);
+    *binIndex = binIndexVector.get();
+
+    const size_t nThreads    = threader_get_threads_number();
+    const size_t nBlocks     = ((nThreads < nRows) ? nThreads : 1);
+    const size_t sizeOfBlock = nRows / nBlocks + !!(nRows % nBlocks);
+
+    daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
+        const size_t iStart = iBlock * sizeOfBlock;
+        const size_t iEnd   = (((iBlock + 1) * sizeOfBlock > nRows) ? nRows : iStart + sizeOfBlock);
+
+        for (size_t i = iStart; i < iEnd; ++i)
+        {
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for (size_t j = 0; j < nCols; ++j)
+            {
+                (*binIndex)[nRows * j + i] = static_cast<BinIndexType>(featureIndex[nRows * j + i]);
+            }
+        }
+    });
+    return services::Status();
+}
+
+template <typename algorithmFPType, typename BinIndexType, CpuType cpu, typename ModelType, typename TaskType>
+services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, const NumericTable * w, ModelType & md,
+                             ResultData & res, const Parameter & par, size_t nClasses, const dtrees::internal::FeatureTypes & featTypes,
+                             const dtrees::internal::IndexedFeatures & indexedFeatures)
+{
     services::Status s;
+    DAAL_CHECK(md.resize(par.nTrees), ErrorMemoryAllocationFailed);
+
+    const size_t nRows = x->getNumberOfRows();
+    const size_t nCols = x->getNumberOfColumns();
+    TVector<BinIndexType, cpu, ScalableAllocator<cpu> > binIndexVector;
+    BinIndexType * binIndex = nullptr;
+
     if (!par.memorySavingMode)
     {
-        s = indexedFeatures.init<algorithmFPType, cpu>(*x, &featTypes);
+        s = copyBinIndex<cpu>(nRows, nCols, indexedFeatures.data(0), binIndexVector, &binIndex);
         DAAL_CHECK_STATUS_VAR(s);
     }
 
@@ -341,7 +388,8 @@ services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, co
     daal::tls<TaskType *> tlsTask([&]() -> TaskType * {
         //in case of single thread no need to allocate
         Ctx * ctx = tlsCtx.local();
-        return ctx ? new TaskType(pHostApp, x, y, w, par, featTypes, par.memorySavingMode ? nullptr : &indexedFeatures, *ctx, nClasses) : nullptr;
+        return ctx ? new TaskType(pHostApp, x, y, w, par, featTypes, par.memorySavingMode ? nullptr : &indexedFeatures, binIndex, *ctx, nClasses) :
+                     nullptr;
     });
 
     engines::internal::ParallelizationTechnique technique = engines::internal::family;
@@ -374,8 +422,7 @@ services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, co
             md.add((typename ModelType::TreeType &)*pTree, nClasses);
         }
     });
-    s                = safeStat.detach();
-    const auto nRows = x->getNumberOfRows();
+    s = safeStat.detach();
     tlsCtx.reduce([&](Ctx * ctx) -> void {
         if (ctx && bThreaded)
         {
@@ -414,7 +461,7 @@ services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, co
 //////////////////////////////////////////////////////////////////////////////////////////
 // Base task class. Implements general pipeline of tree building
 //////////////////////////////////////////////////////////////////////////////////////////
-template <typename algorithmFPType, typename DataHelper, CpuType cpu>
+template <typename algorithmFPType, typename BinIndexType, typename DataHelper, CpuType cpu>
 class TrainBatchTaskBase
 {
 public:
@@ -426,7 +473,7 @@ protected:
     typedef dtrees::internal::TVector<IndexType, cpu> IndexTypeArray;
     TrainBatchTaskBase(HostAppIface * hostApp, const NumericTable * x, const NumericTable * y, const NumericTable * w, const Parameter & par,
                        const dtrees::internal::FeatureTypes & featTypes, const dtrees::internal::IndexedFeatures * indexedFeatures,
-                       ThreadCtxType & threadCtx, size_t nClasses)
+                       const BinIndexType * binIndex, ThreadCtxType & threadCtx, size_t nClasses)
         : _hostApp(hostApp, 0), //set granularity later
           _data(x),
           _resp(y),
@@ -436,6 +483,7 @@ protected:
           _nSamples(par.observationsPerTreeFraction * x->getNumberOfRows()),
           _nFeaturesPerNode(par.featuresPerNode),
           _helper(indexedFeatures, nClasses),
+          _binIndex(binIndex),
           _impurityThreshold(_par.impurityThreshold),
           _nFeatureBufs(1), //for sequential processing
           _featHelper(featTypes),
@@ -585,6 +633,7 @@ protected:
     const size_t _nFeaturesPerNode;
     const size_t _nFeatureBufs; //number of buffers to get feature values (to process features independently in parallel)
 
+    const BinIndexType * _binIndex;
     const FeatureTypes & _featHelper;
     algorithmFPType _accuracy;
     algorithmFPType _impurityThreshold;
@@ -597,9 +646,9 @@ protected:
     size_t _maxLeafNodes;
 };
 
-template <typename algorithmFPType, typename DataHelper, CpuType cpu>
-services::Status TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::run(engines::internal::BatchBaseImpl * engineImpl,
-                                                                           dtrees::internal::Tree *& pTree, size_t & numElems)
+template <typename algorithmFPType, typename BinIndexType, typename DataHelper, CpuType cpu>
+services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::run(engines::internal::BatchBaseImpl * engineImpl,
+                                                                                         dtrees::internal::Tree *& pTree, size_t & numElems)
 {
     _numElems   = &numElems;
     _engineImpl = engineImpl;
@@ -670,12 +719,10 @@ services::Status TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::run(engin
     return s;
 }
 
-template <typename algorithmFPType, typename DataHelper, CpuType cpu>
-typename DataHelper::NodeType::Split * TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::makeSplit(size_t iFeature, algorithmFPType featureValue,
-                                                                                                       bool bUnordered,
-                                                                                                       typename DataHelper::NodeType::Base * left,
-                                                                                                       typename DataHelper::NodeType::Base * right,
-                                                                                                       algorithmFPType imp)
+template <typename algorithmFPType, typename BinIndexType, typename DataHelper, CpuType cpu>
+typename DataHelper::NodeType::Split * TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::makeSplit(
+    size_t iFeature, algorithmFPType featureValue, bool bUnordered, typename DataHelper::NodeType::Base * left,
+    typename DataHelper::NodeType::Base * right, algorithmFPType imp)
 {
     typename DataHelper::NodeType::Split * pNode = _tree.allocator().allocSplit();
     pNode->set(iFeature, featureValue, bUnordered);
@@ -685,18 +732,17 @@ typename DataHelper::NodeType::Split * TrainBatchTaskBase<algorithmFPType, DataH
     return pNode;
 }
 
-template <typename algorithmFPType, typename DataHelper, CpuType cpu>
-typename DataHelper::NodeType::Leaf * TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::makeLeaf(const IndexType * idx, size_t n,
-                                                                                                     typename DataHelper::ImpurityData & imp,
-                                                                                                     size_t nClasses)
+template <typename algorithmFPType, typename BinIndexType, typename DataHelper, CpuType cpu>
+typename DataHelper::NodeType::Leaf * TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::makeLeaf(
+    const IndexType * idx, size_t n, typename DataHelper::ImpurityData & imp, size_t nClasses)
 {
     typename DataHelper::NodeType::Leaf * pNode = _tree.allocator().allocLeaf(_nClasses);
     _helper.setLeafData(*pNode, idx, n, imp);
     return pNode;
 }
 
-template <typename algorithmFPType, typename DataHelper, CpuType cpu>
-typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::buildDepthFirst(
+template <typename algorithmFPType, typename BinIndexType, typename DataHelper, CpuType cpu>
+typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::buildDepthFirst(
     services::Status & s, size_t iStart, size_t n, size_t level, typename DataHelper::ImpurityData & curImpurity, bool & bUnorderedFeaturesUsed,
     size_t nClasses, algorithmFPType totalWeights)
 {
@@ -740,11 +786,10 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, DataHe
     return makeLeaf(_aSample.get() + iStart, n, curImpurity, nClasses);
 }
 
-template <typename algorithmFPType, typename DataHelper, CpuType cpu>
+template <typename algorithmFPType, typename BinIndexType, typename DataHelper, CpuType cpu>
 template <typename WorkItem>
-typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::buildNode(const size_t nClasses,
-                                                                                                      size_t & remainingSplitNodes, WorkItem & item,
-                                                                                                      typename DataHelper::ImpurityData & impurity)
+typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::buildNode(
+    const size_t nClasses, size_t & remainingSplitNodes, WorkItem & item, typename DataHelper::ImpurityData & impurity)
 {
     typename DataHelper::TSplitData split;
     IndexType iFeature;
@@ -796,8 +841,8 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, DataHe
     }
 }
 
-template <typename algorithmFPType, typename DataHelper, CpuType cpu>
-typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::buildBestFirst(
+template <typename algorithmFPType, typename BinIndexType, typename DataHelper, CpuType cpu>
+typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::buildBestFirst(
     services::Status & s, size_t iStart, size_t n, size_t level, typename DataHelper::ImpurityData & curImpurity, bool & bUnorderedFeaturesUsed,
     size_t nClasses, algorithmFPType totalWeights)
 {
@@ -882,7 +927,7 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, DataHe
     // Create base
     WorkItem base(bUnorderedFeaturesUsed, iStart, n, level, totalWeights);
     typename DataHelper::NodeType::Base * baseNode =
-        TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::buildNode(nClasses, remainingSplitNodes, base, curImpurity);
+        TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::buildNode(nClasses, remainingSplitNodes, base, curImpurity);
 
     DAAL_ASSERT(baseNode);
     s = binaryHeap.push(base);
@@ -902,12 +947,12 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, DataHe
         // create leftChild
         WorkItem leftChild(src.featureUnordered, src.start, src.nLeft, src.level + 1, src.leftWeights);
         src.node->kid[0] =
-            TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::buildNode(nClasses, remainingSplitNodes, leftChild, src.impurityLeft);
+            TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::buildNode(nClasses, remainingSplitNodes, leftChild, src.impurityLeft);
 
         // create rightChild
         WorkItem rightChild(src.featureUnordered, src.start + src.nLeft, src.n - src.nLeft, src.level + 1, src.totalWeights - src.leftWeights);
-        src.node->kid[1] =
-            TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::buildNode(nClasses, remainingSplitNodes, rightChild, src.impurityRight);
+        src.node->kid[1] = TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::buildNode(nClasses, remainingSplitNodes, rightChild,
+                                                                                                         src.impurityRight);
 
         DAAL_ASSERT(src.node->kid[0]);
         DAAL_ASSERT(src.node->kid[1]);
@@ -925,9 +970,11 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, DataHe
     return baseNode;
 }
 
-template <typename algorithmFPType, typename DataHelper, CpuType cpu>
-bool TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::simpleSplit(size_t iStart, const typename DataHelper::ImpurityData & curImpurity,
-                                                                       IndexType & iFeatureBest, typename DataHelper::TSplitData & split)
+template <typename algorithmFPType, typename BinIndexType, typename DataHelper, CpuType cpu>
+bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::simpleSplit(size_t iStart,
+                                                                                     const typename DataHelper::ImpurityData & curImpurity,
+                                                                                     IndexType & iFeatureBest,
+                                                                                     typename DataHelper::TSplitData & split)
 {
     RNGs<IndexType, cpu> rng;
     algorithmFPType featBuf[2];
@@ -949,11 +996,12 @@ bool TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::simpleSplit(size_t iS
     return false;
 }
 
-template <typename algorithmFPType, typename DataHelper, CpuType cpu>
-bool TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::findBestSplit(size_t iStart, size_t n,
-                                                                         const typename DataHelper::ImpurityData & curImpurity,
-                                                                         IndexType & iFeatureBest, typename DataHelper::TSplitData & split,
-                                                                         algorithmFPType totalWeights)
+template <typename algorithmFPType, typename BinIndexType, typename DataHelper, CpuType cpu>
+bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBestSplit(size_t iStart, size_t n,
+                                                                                       const typename DataHelper::ImpurityData & curImpurity,
+                                                                                       IndexType & iFeatureBest,
+                                                                                       typename DataHelper::TSplitData & split,
+                                                                                       algorithmFPType totalWeights)
 {
     if (n == 2)
     {
@@ -968,11 +1016,12 @@ bool TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::findBestSplit(size_t 
 }
 
 //find best split and put it to featureIndexBuf
-template <typename algorithmFPType, typename DataHelper, CpuType cpu>
-bool TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::findBestSplitSerial(size_t iStart, size_t n,
-                                                                               const typename DataHelper::ImpurityData & curImpurity,
-                                                                               IndexType & iBestFeature, typename DataHelper::TSplitData & bestSplit,
-                                                                               algorithmFPType totalWeights)
+template <typename algorithmFPType, typename BinIndexType, typename DataHelper, CpuType cpu>
+bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBestSplitSerial(size_t iStart, size_t n,
+                                                                                             const typename DataHelper::ImpurityData & curImpurity,
+                                                                                             IndexType & iBestFeature,
+                                                                                             typename DataHelper::TSplitData & bestSplit,
+                                                                                             algorithmFPType totalWeights)
 {
     chooseFeatures();
     const float qMax             = 0.02; //min fracture of observations to be handled as indexed feature values
@@ -992,8 +1041,9 @@ bool TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::findBestSplitSerial(s
             if (!_helper.hasDiffFeatureValues(iFeature, aIdx, n)) continue; //all values of the feature are the same
             split.featureUnordered = _featHelper.isUnordered(iFeature);
             //index of best feature value in the array of sorted feature values
-            const int idxFeatureValue = _helper.findBestSplitForFeatureSorted(featureBuf(0), iFeature, aIdx, n, _par.minObservationsInLeafNode,
-                                                                              curImpurity, split, _minWeightLeaf, totalWeights);
+            const int idxFeatureValue =
+                _helper.findBestSplitForFeatureSorted(featureBuf(0), iFeature, aIdx, n, _par.minObservationsInLeafNode, curImpurity, split,
+                                                      _minWeightLeaf, totalWeights, _binIndex + _data->getNumberOfRows() * iFeature);
             if (idxFeatureValue < 0) continue;
             iBestSplit = i;
             split.copyTo(bestSplit);
@@ -1031,7 +1081,8 @@ bool TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::findBestSplitSerial(s
     {
         //sorted feature was used
         //calculate impurity and get split to bestSplitIdx
-        _helper.finalizeBestSplit(aIdx, n, iBestFeature, idxFeatureValueBestSplit, bestSplit, bestSplitIdx);
+        _helper.finalizeBestSplit(aIdx, _binIndex + _data->getNumberOfRows() * iBestFeature, n, iBestFeature, idxFeatureValueBestSplit, bestSplit,
+                                  bestSplitIdx);
     }
     else if (bestSplit.featureUnordered)
     {
@@ -1055,11 +1106,12 @@ bool TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::findBestSplitSerial(s
     return true;
 }
 
-template <typename algorithmFPType, typename DataHelper, CpuType cpu>
-bool TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::findBestSplitThreaded(size_t iStart, size_t n,
-                                                                                 const typename DataHelper::ImpurityData & curImpurity,
-                                                                                 IndexType & iFeatureBest, typename DataHelper::TSplitData & split,
-                                                                                 algorithmFPType totalWeights)
+template <typename algorithmFPType, typename BinIndexType, typename DataHelper, CpuType cpu>
+bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBestSplitThreaded(size_t iStart, size_t n,
+                                                                                               const typename DataHelper::ImpurityData & curImpurity,
+                                                                                               IndexType & iFeatureBest,
+                                                                                               typename DataHelper::TSplitData & split,
+                                                                                               algorithmFPType totalWeights)
 {
     chooseFeatures();
     TArray<typename DataHelper::TSplitData, cpu> aFeatureSplit(_nFeaturesPerNode);
@@ -1067,17 +1119,17 @@ bool TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::findBestSplitThreaded
     return false;
 }
 
-template <typename algorithmFPType, typename DataHelper, CpuType cpu>
-void TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::addImpurityDecrease(IndexType iFeature, size_t n,
-                                                                               const typename DataHelper::ImpurityData & curImpurity,
-                                                                               const typename DataHelper::TSplitData & split)
+template <typename algorithmFPType, typename BinIndexType, typename DataHelper, CpuType cpu>
+void TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::addImpurityDecrease(IndexType iFeature, size_t n,
+                                                                                             const typename DataHelper::ImpurityData & curImpurity,
+                                                                                             const typename DataHelper::TSplitData & split)
 {
     DAAL_ASSERT(_threadCtx.varImp);
     if (!isZero<algorithmFPType, cpu>(split.impurityDecrease)) _threadCtx.varImp[iFeature] += split.impurityDecrease;
 }
 
-template <typename algorithmFPType, typename DataHelper, CpuType cpu>
-services::Status TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::computeResults(const dtrees::internal::Tree & t)
+template <typename algorithmFPType, typename BinIndexType, typename DataHelper, CpuType cpu>
+services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::computeResults(const dtrees::internal::Tree & t)
 {
     const size_t nOOB = _helper.getNumOOBIndices();
     if (!nOOB) return services::Status();
@@ -1119,10 +1171,11 @@ algorithmFPType predictionError(const DataHelper & h, const dtrees::internal::Tr
     return h.predictionError(h.predict(t, x), *y.get());
 }
 
-template <typename algorithmFPType, typename DataHelper, CpuType cpu>
-algorithmFPType TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::computeOOBErrorPerm(const dtrees::internal::Tree & t, size_t n,
-                                                                                          const IndexType * aInd, const IndexType * aPerm,
-                                                                                          size_t iPermutedFeature)
+template <typename algorithmFPType, typename BinIndexType, typename DataHelper, CpuType cpu>
+algorithmFPType TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::computeOOBErrorPerm(const dtrees::internal::Tree & t, size_t n,
+                                                                                                        const IndexType * aInd,
+                                                                                                        const IndexType * aPerm,
+                                                                                                        size_t iPermutedFeature)
 {
     DAAL_ASSERT(n);
 
@@ -1147,9 +1200,9 @@ algorithmFPType TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::computeOOB
     return mean;
 }
 
-template <typename algorithmFPType, typename DataHelper, CpuType cpu>
-algorithmFPType TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::computeOOBError(const dtrees::internal::Tree & t, size_t n,
-                                                                                      const IndexType * aInd)
+template <typename algorithmFPType, typename BinIndexType, typename DataHelper, CpuType cpu>
+algorithmFPType TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::computeOOBError(const dtrees::internal::Tree & t, size_t n,
+                                                                                                    const IndexType * aInd)
 {
     DAAL_ASSERT(n);
     //compute prediction error on each OOB row and get its mean online formulae (Welford)

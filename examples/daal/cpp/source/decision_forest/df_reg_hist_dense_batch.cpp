@@ -1,4 +1,4 @@
-/* file: df_reg_dense_batch.cpp */
+/* file: df_reg_hist_dense_batch.cpp */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -24,32 +24,28 @@
 !******************************************************************************/
 
 /**
- * <a name="DAAL-EXAMPLE-CPP-DF_REG_DENSE_BATCH"></a>
- * \example df_reg_dense_batch.cpp
+ * <a name="DAAL-EXAMPLE-CPP-DF_REG_HIST_DENSE_BATCH"></a>
+ * \example df_reg_hist_dense_batch.cpp
  */
 
-#include "daal_sycl.h"
+#include "daal.h"
 #include "service.h"
-#include "service_sycl.h"
 
 using namespace std;
 using namespace daal;
 using namespace daal::data_management;
 using namespace daal::algorithms::decision_forest::regression;
 
-using daal::services::internal::SyclExecutionContext;
-using daal::data_management::internal::SyclHomogenNumericTable;
-
 /* Input data set parameters */
 const string trainDatasetFileName         = "../data/batch/df_regression_train.csv";
 const string testDatasetFileName          = "../data/batch/df_regression_test.csv";
+const size_t categoricalFeaturesIndices[] = { 3 };
 const size_t nFeatures                    = 13; /* Number of features in training and testing data sets */
 
 /* Decision forest parameters */
 const size_t nTrees = 100;
 
-template <typename algorithmType>
-training::ResultPtr trainModel(algorithmType && algorithm);
+training::ResultPtr trainModel();
 void testModel(const training::ResultPtr & res);
 void loadData(const std::string & fileName, NumericTablePtr & pData, NumericTablePtr & pDependentVar);
 
@@ -57,32 +53,22 @@ int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
-    for (const auto & deviceSelector : getListOfDevices())
-    {
-        const auto & nameDevice = deviceSelector.first;
-        const auto & device     = deviceSelector.second;
-        cl::sycl::queue queue(device);
-        std::cout << "Running on " << nameDevice << "\n\n";
+    training::ResultPtr trainingResult = trainModel();
+    testModel(trainingResult);
 
-        SyclExecutionContext ctx(queue);
-        services::Environment::getInstance()->setDefaultExecutionContext(ctx);
-
-        /* Create an algorithm object to train the decision forest regression model */
-        training::ResultPtr trainingResult = trainModel(training::Batch<float, training::hist>());
-
-        testModel(trainingResult);
-    }
     return 0;
 }
 
-template <typename algorithmType>
-training::ResultPtr trainModel(algorithmType && algorithm)
+training::ResultPtr trainModel()
 {
     /* Create Numeric Tables for training data and dependent variables */
     NumericTablePtr trainData;
     NumericTablePtr trainDependentVariable;
 
     loadData(trainDatasetFileName, trainData, trainDependentVariable);
+
+    /* Create an algorithm object to train the decision forest regression model with the default method */
+    training::Batch<float, training::hist> algorithm;
 
     /* Pass a training data set and dependent values to the algorithm */
     algorithm.input.set(training::data, trainData);
@@ -134,10 +120,14 @@ void loadData(const std::string & fileName, NumericTablePtr & pData, NumericTabl
     FileDataSource<CSVFeatureManager> trainDataSource(fileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and dependent variables */
-    pData         = SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::notAllocate);
-    pDependentVar = SyclHomogenNumericTable<>::create(1, 0, NumericTable::notAllocate);
+    pData.reset(new HomogenNumericTable<>(nFeatures, 0, NumericTable::notAllocate));
+    pDependentVar.reset(new HomogenNumericTable<>(1, 0, NumericTable::notAllocate));
     NumericTablePtr mergedData(new MergedNumericTable(pData, pDependentVar));
 
     /* Retrieve the data from input file */
     trainDataSource.loadDataBlock(mergedData.get());
+
+    NumericTableDictionaryPtr pDictionary = pData->getDictionarySharedPtr();
+    for (size_t i = 0, n = sizeof(categoricalFeaturesIndices) / sizeof(categoricalFeaturesIndices[0]); i < n; ++i)
+        (*pDictionary)[categoricalFeaturesIndices[i]].featureType = data_feature_utils::DAAL_CATEGORICAL;
 }

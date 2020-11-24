@@ -33,7 +33,7 @@ namespace dfrt = daal::algorithms::decision_forest::regression::training;
 JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_TrainingBatch_cInit(JNIEnv *, jobject thisObj, jint prec,
                                                                                                                 jint method)
 {
-    return jniBatch<dfrt::Method, dfrt::Batch, dfrt::defaultDense>::newObj(prec, method);
+    return jniBatch<dfrt::Method, dfrt::Batch, dfrt::defaultDense, dfrt::hist>::newObj(prec, method);
 }
 
 /*
@@ -45,7 +45,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressi
                                                                                                                          jlong algAddr, jint prec,
                                                                                                                          jint method, jint cmode)
 {
-    return jniBatch<dfrt::Method, dfrt::Batch, dfrt::defaultDense>::getParameter(prec, method, algAddr);
+    return jniBatch<dfrt::Method, dfrt::Batch, dfrt::defaultDense, dfrt::hist>::getParameter(prec, method, algAddr);
 }
 
 /*
@@ -57,5 +57,5 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressi
                                                                                                                  jlong algAddr, jint prec,
                                                                                                                  jint method)
 {
-    return jniBatch<dfrt::Method, dfrt::Batch, dfrt::defaultDense>::getClone(prec, method, algAddr);
+    return jniBatch<dfrt::Method, dfrt::Batch, dfrt::defaultDense, dfrt::hist>::getClone(prec, method, algAddr);
 }
