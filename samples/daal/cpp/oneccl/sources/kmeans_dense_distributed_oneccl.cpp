@@ -26,7 +26,7 @@
  */
 
 #include "daal_sycl.h"
-#include "service.h"
+#include "service_sycl.h"
 #include "oneapi/ccl.hpp"
 #include "mpi.h"
 #include "stdio.h"
@@ -50,19 +50,9 @@ const string dataFileNames[4] = { "./data/kmeans_dense.csv", "./data/kmeans_dens
 
 #define ccl_root 0
 
-std::vector<sycl::device> get_gpus() {
-    auto platforms = sycl::platform::get_platforms();
-    for (auto p : platforms) {
-        auto devices = p.get_devices(sycl::info::device_type::gpu);
-        if (!devices.empty()) {
-            return devices;
-        }
-    }
-    return {};
-}
-
 int getLocalRank(ccl::communicator& comm, int size, int rank) 
 {
+    /* Obtain local rank among nodes sharing the same host name */
     char zero = static_cast<char>(0);
     std::vector<char> name(MPI_MAX_PROCESSOR_NAME + 1, zero);
     int resultlen = 0;
@@ -96,6 +86,7 @@ NumericTablePtr compute(int rankId, const NumericTablePtr & pData, const Numeric
 
 int main(int argc, char * argv[])
 {
+    /* Initialize oneCCL */
     ccl::init();
 
     MPI_Init(NULL, NULL); 
@@ -116,14 +107,16 @@ int main(int argc, char * argv[])
     } 
     
     auto comm = ccl::create_communicator(size, rank, kvs); 
-    auto local_rank = getLocalRank(comm, size, rank);
 
+    /* Create GPU device from local rank and set execution context */
+    auto local_rank = getLocalRank(comm, size, rank);
     auto gpus = get_gpus();
     auto rank_gpu = gpus[local_rank % gpus.size()];
     cl::sycl::queue queue(rank_gpu);
     daal::services::SyclExecutionContext ctx(queue);
     services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
+    /* Start data processing */
     NumericTablePtr pData     = loadData(rank);
     NumericTablePtr centroids = init(rank, pData, comm);
 
