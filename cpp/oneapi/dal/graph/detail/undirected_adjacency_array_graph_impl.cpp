@@ -16,7 +16,20 @@
 
 #include "oneapi/dal/graph/detail/undirected_adjacency_array_graph_impl.hpp"
 
+#include <iostream>
+
 namespace oneapi::dal::preview::detail {
 
 template class ONEDAL_EXPORT topology<int32_t>;
+
+template class ONEDAL_EXPORT vertex_values<float>;
+
+template class ONEDAL_EXPORT edge_values<float>;
+
+template <>
+std::int64_t get_topology_vertex_count(const topology<std::int32_t>& _topology) {
+    std::cout << " vertex_count from lib ";
+    return _topology._vertex_count;
+}
+
 } // namespace oneapi::dal::preview::detail

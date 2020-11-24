@@ -56,7 +56,7 @@ edge_list<std::int32_t> load_edge_list(const std::string &name) {
 }
 
 template <typename Graph>
-void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
+void convert_to_csr_impl(const edge_list<std::int32_t> &edges, Graph &g) {
     if (edges.size() == 0) {
         throw invalid_argument(dal::detail::error_messages::empty_edge_list());
     }
@@ -68,7 +68,8 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     using edge_set = typename graph_traits<Graph>::edge_set;
     using atomic_vertex_t = typename daal::services::Atomic<vertex_t>;
     using atomic_edge_t = typename daal::services::Atomic<edge_t>;
-    using vertex_allocator_traits = typename graph_traits<Graph>::impl_type::vertex_allocator_traits;
+    using vertex_allocator_traits =
+        typename graph_traits<Graph>::impl_type::vertex_allocator_traits;
     using edge_allocator_traits = typename graph_traits<Graph>::impl_type::edge_allocator_traits;
     using namespace oneapi::dal::detail;
 
@@ -90,7 +91,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     auto &allocator = graph_impl._allocator;
     auto &vertex_allocator = graph_impl._vertex_allocator;
     auto &edge_allocator = graph_impl._edge_allocator;
-    graph_impl._topology._vertex_count = vertex_count;
+    graph_impl.get_topology()._vertex_count = vertex_count;
 
     const vertex_size_type degrees_size = vertex_count * (sizeof(atomic_vertex_t) / sizeof(char));
     if ((degrees_size / (sizeof(atomic_vertex_t) / sizeof(char))) != vertex_count) {
@@ -157,23 +158,25 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     });
     allocator.deallocate((char *)rows_vec_void, rows_vec_size);
 
-    graph_impl._topology._degrees = vertex_allocator_traits::allocate(vertex_allocator, vertex_count);
-    auto &degrees_data = graph_impl._topology._degrees;
+    graph_impl.get_topology()._degrees =
+        vertex_allocator_traits::allocate(vertex_allocator, vertex_count);
+    auto &degrees_data = graph_impl.get_topology()._degrees;
 
     //removing self-loops,  multiple edges from graph, and make neighbors in CSR sorted
     threader_for(vertex_count, vertex_count, [&](vertex_t u) {
         auto start_p = unfiltered_neighs + unfiltered_offsets[u];
         auto end_p = unfiltered_neighs + unfiltered_offsets[u + 1];
 
-        parallel_sort(start_p, end_p);
-
+        //parallel_sort(start_p, end_p);
+        std::sort(start_p, end_p);
         auto neighs_u_new_end = std::unique(start_p, end_p);
         neighs_u_new_end = std::remove(start_p, neighs_u_new_end, u);
         degrees_data[u] = (vertex_t)std::distance(start_p, neighs_u_new_end);
     });
 
-    graph_impl._topology._edge_offsets = edge_allocator_traits::allocate(edge_allocator, (vertex_count + 1));
-    auto &edge_offsets_data = graph_impl._topology._edge_offsets;
+    graph_impl.get_topology()._edge_offsets =
+        edge_allocator_traits::allocate(edge_allocator, (vertex_count + 1));
+    auto &edge_offsets_data = graph_impl.get_topology()._edge_offsets;
 
     edge_t filtered_total_sum_degrees = 0;
     edge_offsets_data[0] = filtered_total_sum_degrees;
@@ -181,13 +184,14 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
         filtered_total_sum_degrees += degrees_data[i];
         edge_offsets_data[i + 1] = filtered_total_sum_degrees;
     }
-    graph_impl._topology._edge_count = filtered_total_sum_degrees / 2;
+    graph_impl.get_topology()._edge_count = filtered_total_sum_degrees / 2;
 
-    graph_impl._topology._vertex_neighbors = 
-        vertex_allocator_traits::allocate(vertex_allocator, graph_impl._topology._edge_offsets[vertex_count]);
+    graph_impl.get_topology()._vertex_neighbors =
+        vertex_allocator_traits::allocate(vertex_allocator,
+                                          graph_impl.get_topology()._edge_offsets[vertex_count]);
 
-    auto &vert_neighs = graph_impl._topology._vertex_neighbors;
-    auto &edge_offs = graph_impl._topology._edge_offsets;
+    auto &vert_neighs = graph_impl.get_topology()._vertex_neighbors;
+    auto &edge_offs = graph_impl.get_topology()._edge_offsets;
     threader_for(vertex_count, vertex_count, [&](vertex_t u) {
         auto u_neighs = vert_neighs + edge_offs[u];
         auto u_neighs_unf = unfiltered_neighs + unfiltered_offsets[u];
@@ -195,6 +199,7 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
             u_neighs[i] = u_neighs_unf[i];
         }
     });
+
     allocator.deallocate((char *)unfiltered_neighs_void, unfiltered_neighs_size);
     allocator.deallocate((char *)unfiltered_offsets_void, unfiltered_offsets_size);
     return;
