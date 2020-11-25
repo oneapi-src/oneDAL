@@ -1,0 +1,40 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>daal</artifactId>
+  <packaging>pom</packaging>
+
+  <name>Intel(R) oneAPI Data Analytics Library</name>
+  <description>Boost machine learning and data analytics performance with this easy-to-use library</description>
+  <url>https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onedal.html</url>
+
+  <licenses>
+    <license>
+      <name>Intel Simplified Software License</name>
+      <url>https://software.intel.com/en-us/license/intel-simplified-software-license</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <organization>Intel</organization>
+      <organizationUrl>http://www.intel.com</organizationUrl>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:https://github.com/oneapi-src/oneDAL.git</connection>
+    <developerConnection>scm:git:https://github.com/oneapi-src/oneDAL.git</developerConnection>
+    <url>https://github.com/oneapi-src/oneDAL</url>
+  </scm>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.intel.dal</groupId>
+      <artifactId>dal-natives</artifactId>
+      <version>${project.version}</version>
+      <classifier>${dal.os.name}-${dal.arch.name}</classifier>
+    </dependency>
+  </dependencies>
+</project>
