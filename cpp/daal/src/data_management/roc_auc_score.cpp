@@ -25,22 +25,6 @@
 #include "src/services/service_data_utils.h"
 #include "src/threading/threading.h"
 
-template <typename FPType>
-void sort(IdxValType<FPType> * beginPtr, IdxValType<FPType> * endPtr)
-{}
-
-template <>
-void sort<float>(IdxValType<float> * beginPtr, IdxValType<float> * endPtr)
-{
-    daal::parallel_sort_pair_fp32_uint64(beginPtr, endPtr);
-}
-
-template <>
-void sort<double>(IdxValType<double> * beginPtr, IdxValType<double> * endPtr)
-{
-    daal::parallel_sort_pair_fp64_uint64(beginPtr, endPtr);
-}
-
 namespace daal
 {
 namespace data_management
@@ -71,7 +55,7 @@ services::Status calculateRankDataImpl(FPType * predictedRank, const NumericTabl
         }
     });
 
-    sort<FPType>(predict.get(), predict.get() + nElements);
+    parallel_sort<FPType>(predict.get(), predict.get() + nElements);
 
     size_t rank            = 1;
     size_t elementsInBlock = 1;
@@ -95,7 +79,6 @@ services::Status calculateRankDataImpl(FPType * predictedRank, const NumericTabl
         rank += elementsInBlock;
         i += elementsInBlock;
     }
-    services::throwIfPossible(s);
     return s;
 }
 
@@ -143,7 +126,6 @@ services::Status rocAucScoreImpl(const FPType * const predictedRank, const Numer
     }
 
     score = (filteredRankSum - (nPos * (nPos + FPType(1.0)) * FPType(0.5))) / (nPos * nNeg);
-    services::throwIfPossible(s);
     return s;
 }
 
