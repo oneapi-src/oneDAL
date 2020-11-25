@@ -147,7 +147,7 @@ jobs:
     displayName: Create Anaconda environment
   - script: |
       export DPCPPROOT=/opt/intel/oneapi/compiler/latest
-      export DAALROOT=$(Pipeline.Workspace)/daal/latest
+      export DALROOT=$(Pipeline.Workspace)/daal/latest
       export TBBROOT=$(Pipeline.Workspace)/tbb/latest
       . $HOME/miniconda/etc/profile.d/conda.sh
       conda activate CB
