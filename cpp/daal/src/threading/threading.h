@@ -95,7 +95,6 @@ extern "C"
 
 namespace daal
 {
-
 template <typename FPType>
 void parallel_sort(daal::IdxValType<FPType> * beginPtr, daal::IdxValType<FPType> * endPtr)
 {}
