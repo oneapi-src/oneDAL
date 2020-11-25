@@ -50,7 +50,7 @@ const string dataFileNames[4] = { "./data/kmeans_dense.csv", "./data/kmeans_dens
 
 #define ccl_root 0
 
-int getLocalRank(ccl::communicator& comm, int size, int rank) 
+int getLocalRank(ccl::communicator& comm, int size, int rank)
 {
     /* Obtain local rank among nodes sharing the same host name */
     char zero = static_cast<char>(0);
@@ -89,24 +89,24 @@ int main(int argc, char * argv[])
     /* Initialize oneCCL */
     ccl::init();
 
-    MPI_Init(NULL, NULL); 
-    int size, rank; 
-    MPI_Comm_size(MPI_COMM_WORLD, &size); 
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank); 
-    
+    MPI_Init(NULL, NULL);
+    int size, rank;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
     ccl::shared_ptr_class<ccl::kvs> kvs;
     ccl::kvs::address_type main_addr;
-    if (rank == 0) { 
-        kvs = ccl::create_main_kvs(); 
-        main_addr = kvs->get_address(); 
-        MPI_Bcast((void*)main_addr.data(), main_addr.size(), MPI_BYTE, 0, MPI_COMM_WORLD); 
-    } 
-    else { 
-        MPI_Bcast((void*)main_addr.data(), main_addr.size(), MPI_BYTE, 0, MPI_COMM_WORLD); 
-        kvs = ccl::create_kvs(main_addr); 
-    } 
-    
-    auto comm = ccl::create_communicator(size, rank, kvs); 
+    if (rank == 0) {
+        kvs = ccl::create_main_kvs();
+        main_addr = kvs->get_address();
+        MPI_Bcast((void*)main_addr.data(), main_addr.size(), MPI_BYTE, 0, MPI_COMM_WORLD);
+    }
+    else {
+        MPI_Bcast((void*)main_addr.data(), main_addr.size(), MPI_BYTE, 0, MPI_COMM_WORLD);
+        kvs = ccl::create_kvs(main_addr);
+    }
+
+    auto comm = ccl::create_communicator(size, rank, kvs);
 
     /* Create GPU device from local rank and set execution context */
     auto local_rank = getLocalRank(comm, size, rank);
