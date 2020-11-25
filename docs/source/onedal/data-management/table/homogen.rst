@@ -14,20 +14,25 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-Algorithms
-==========
 
-The Algorithms component consists of classes that implement algorithms
-for data analysis (data mining) and data modeling (training and prediction).
-These algorithms include matrix decompositions, clustering, classification,
-and regression algorithms, as well as association rules discovery.
+.. _homogen_table:
 
+=================
+Homogeneous table
+=================
 
-.. toctree::
-   :maxdepth: 2
+Class ``homogen_table`` is an implementation of a table type
+for which the following is true:
 
-   clustering/index.rst
-   nearest-neighbors/index.rst
-   decomposition/index.rst
-   ensembles/index.rst
-   support-vector-machines/index.rst
+- The data within the table are dense and stored as one contiguous memory block.
+- All the columns have the same :capterm:`data type <Data type>`.
+
+---------------------
+Programming interface
+---------------------
+
+All types and functions in this section are declared in the
+``oneapi::dal`` namespace and be available via inclusion of the
+``oneapi/dal/table/homogen.hpp`` header file.
+
+.. onedal_class:: oneapi::dal::v1::homogen_table

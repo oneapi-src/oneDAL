@@ -14,5 +14,11 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-Accessor
-========
+=======================
+Nearest Neighbors (kNN)
+=======================
+
+.. toctree::
+   :titlesonly:
+
+   knn-classification.rst

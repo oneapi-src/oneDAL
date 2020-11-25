@@ -14,5 +14,11 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-Table
-======
+=======================
+Support Vector Machines
+=======================
+
+.. toctree::
+   :titlesonly:
+
+   svm-classification.rst

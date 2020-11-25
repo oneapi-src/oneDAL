@@ -14,20 +14,13 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-Algorithms
+
+==========
+Clustering
 ==========
 
-The Algorithms component consists of classes that implement algorithms
-for data analysis (data mining) and data modeling (training and prediction).
-These algorithms include matrix decompositions, clustering, classification,
-and regression algorithms, as well as association rules discovery.
-
-
 .. toctree::
-   :maxdepth: 2
+   :titlesonly:
 
-   clustering/index.rst
-   nearest-neighbors/index.rst
-   decomposition/index.rst
-   ensembles/index.rst
-   support-vector-machines/index.rst
+   kmeans.rst
+   kmeans-init.rst

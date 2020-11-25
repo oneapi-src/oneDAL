@@ -47,6 +47,10 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Data Mining and Knowledge Discovery Handbook: A Complete Guide for Practitioners and Researchers",
    Kluwer Academic Publishers, 2005, ISBN 0-387-24435-2.
 
+.. [Bentley80]
+   J. L. Bentley. Multidimensional Divide and Conquer. Communications of the
+   ACM, 23(4):214--229, 1980.
+
 .. [Billor2000]
    Nedret Billor, Ali S. Hadib, and Paul F. Velleman.
    BACON: blocked adaptive computationally efficient outlier nominators.
@@ -93,6 +97,10 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Defazio, Aaron, Francis Bach, and Simon Lacoste-Julien.
    SAGA: A fast incremental gradient method with support for non-strongly convex composite objectives.
    Advances in neural information processing systems. 2014.
+
+.. [Demmel90]
+   J. W. Demmel and W. Kahan. *Accurate singular values of
+   bidiagonal matrices*. SIAM J. Sci. Stat. Comput., 11 (1990), pp. 873-912.
 
 .. [Dempster77] 
    A.P.Dempster, N.M. Laird, and D.B. Rubin. *Maximum-likelihood from
@@ -183,6 +191,9 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Schölkopf, C. Burges, and A. Smola (ed.), pp: 169 – 184, MIT Press
    Cambridge, MA, USA 1999.
 
+.. [Lang87]
+   S. Lang. *Linear Algebra*. Springer-Verlag New York, 1987.
+
 .. [Li2015]
    Li, Shengren, and Nina Amenta. 
    "Brute-force k-nearest neighbors search on the GPU."
@@ -213,12 +224,21 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Mini-batch Training for Stochastic Optimization*, 2014. Available
    from https://www.cs.cmu.edu/~muli/file/minibatch_sgd.pdf.
 
+.. [OpenCLSpec]
+   Khronos OpenCL Working Group, The OpenCL Specification
+   Version:2.1 Document Revision:24
+   Available from `opencl-2.1.pdf <https://www.khronos.org/registry/OpenCL/specs/opencl-2.1.pdf>`_
+
 .. [Patwary2016] 
    Md. Mostofa Ali Patwary, Nadathur Rajagopalan Satish, Narayanan
    Sundaram, Jialin Liu, Peter Sadowski, Evan Racah, Suren Byna,
    Craig Tull, Wahid Bhimji, Prabhat, Pradeep Dubey. *PANDA: Extreme
    Scale Parallel K-Nearest Neighbor on Distributed Architectures*,
    2016. Available from https://arxiv.org/abs/1607.08220.
+
+.. [Ping14]
+   Ping Tak Peter and Eric Polizzi. *FEAST as a Subspace Iteration Eigensolver
+   Accelerated by Approximate Spectral Projection.* 2014.
 
 .. [Platt98]
    Platt, John. "Sequential minimal optimization:
@@ -248,6 +268,11 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Marina Sokolova, Guy Lapalme. A systematic analysis of performance measures for classification tasks.
    Information Processing and Management 45 (2009), pp. 427–437.
    Available from http://atour.iro.umontreal.ca/rali/sites/default/files/publis/SokolovaLapalme-JIPM09.pdf.
+
+.. [SYCLSpec]
+   Khronos®OpenCL™ Working Group --- SYCL™ subgroup, SYCL™ Specification SYCL™
+   integrates OpenCL™ devices with modern C++, Version 1.2.1 Available from
+   `sycl-1.2.1.pdf <https://www.khronos.org/registry/SYCL/specs/sycl-1.2.1.pdf>`_
 
 .. [Tan2005] 
    Pang-Ning Tan, Michael Steinbach, Vipin Kumar, Introduction to

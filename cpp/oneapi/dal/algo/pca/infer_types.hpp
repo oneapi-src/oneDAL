@@ -36,6 +36,8 @@ using v1::infer_result_impl;
 
 namespace v1 {
 
+/// @tparam Task Tag-type that specifies type of the problem to solve. Can
+///              be :expr:`task::dim_reduction`.
 template <typename Task = task::by_default>
 class infer_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -43,8 +45,12 @@ class infer_input : public base {
 public:
     using task_t = Task;
 
+    /// Creates a new instance of the class with the given :literal:`model`
+    /// and :literal:`data` property values
     infer_input(const model<Task>& trained_model, const table& data);
 
+    /// The trained PCA model
+    /// @remark default = model<Task>{}
     const model<Task>& get_model() const;
 
     auto& set_model(const model<Task>& value) {
@@ -52,6 +58,8 @@ public:
         return *this;
     }
 
+    /// The dataset for inference $X'$
+    /// @remark default = table{}
     const table& get_data() const;
 
     auto& set_data(const table& value) {
@@ -67,6 +75,8 @@ private:
     dal::detail::pimpl<detail::infer_input_impl<Task>> impl_;
 };
 
+/// @tparam Task Tag-type that specifies type of the problem to solve. Can
+///              be :expr:`task::dim_reduction`.
 template <typename Task = task::by_default>
 class infer_result {
     static_assert(detail::is_valid_task_v<Task>);
@@ -74,8 +84,12 @@ class infer_result {
 public:
     using task_t = Task;
 
+    /// Creates a new instance of the class with the default property values.
     infer_result();
 
+    /// An $n \\times r$ table that contains data projected to the $r$
+    /// principal components.
+    /// @remark default = table{}
     const table& get_transformed_data() const;
 
     auto& set_transformed_data(const table& value) {

@@ -20,6 +20,7 @@
 
    get-started.rst
    build_app/build-application.rst
+   glossary.rst
 
 .. toctree::
    :maxdepth: 2
@@ -27,3 +28,9 @@
 
    data-management/index.rst
    algorithms/index.rst
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Appendix
+
+   appendix/index.rst

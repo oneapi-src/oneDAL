@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020 Intel Corporation
+.. * Copyright 2019-2020 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,20 +14,11 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-Algorithms
-==========
-
-The Algorithms component consists of classes that implement algorithms
-for data analysis (data mining) and data modeling (training and prediction).
-These algorithms include matrix decompositions, clustering, classification,
-and regression algorithms, as well as association rules discovery.
-
+========
+Appendix
+========
 
 .. toctree::
-   :maxdepth: 2
+   :titlesonly:
 
-   clustering/index.rst
-   nearest-neighbors/index.rst
-   decomposition/index.rst
-   ensembles/index.rst
-   support-vector-machines/index.rst
+   kd_tree.rst
