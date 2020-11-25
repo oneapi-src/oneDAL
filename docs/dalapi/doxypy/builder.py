@@ -180,7 +180,8 @@ class ParameterBuilder(_BuilderMixins):
         try:
             doc = self._find_parent_doc()
             param_desc = self._find_param_description(doc, param_name)
-            return build(DescriptionBuilder, param_desc)
+            if param_desc:
+                return build(DescriptionBuilder, param_desc)
         except (AttributeError, IndexError):
             pass
 
