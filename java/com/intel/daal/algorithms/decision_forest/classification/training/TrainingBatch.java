@@ -83,7 +83,7 @@ public class TrainingBatch extends com.intel.daal.algorithms.classifier.training
 
         this.method = method;
 
-        if (this.method != TrainingMethod.defaultDense) {
+        if (this.method != TrainingMethod.defaultDense && this.method != TrainingMethod.hist) {
             throw new IllegalArgumentException("method unsupported");
         }
 

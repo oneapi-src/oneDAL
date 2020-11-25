@@ -44,6 +44,22 @@ DECLARE_SOURCE_DAAL(
         rbf[i * ld + j] = exp(arg);
     }
 
+    __kernel void sumOfSquaresCSR(__global const algorithmFPType * const values, __global const ulong * const rowInd,
+                                  __global algorithmFPType * sumOfSquares) {
+        const ulong i = get_global_id(0);
+
+        const ulong rowCur = rowInd[i] - 1;
+        const ulong rowEnd = rowInd[i + 1] - 1;
+
+        algorithmFPType sum = (algorithmFPType)0;
+        for (ulong j = rowCur; j < rowEnd; ++j)
+        {
+            sum += values[j] * values[j];
+        }
+
+        sumOfSquares[i] = sum;
+    }
+
 );
 
 #undef DECLARE_SOURCE_DAAL

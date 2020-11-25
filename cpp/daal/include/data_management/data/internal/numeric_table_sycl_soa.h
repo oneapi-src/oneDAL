@@ -215,7 +215,6 @@ protected:
         using namespace services::internal::sycl;
 
         Status st;
-        auto & context     = services::internal::getDefaultContext();
         const size_t nrows = getNumberOfRows();
 
         if (idx >= _arrays.size())
@@ -223,65 +222,9 @@ protected:
             return throwIfPossible(services::ErrorIncorrectNumberOfFeatures);
         }
 
-        switch (feature.indexType)
-        {
-        case features::DAAL_INT8_U:
-        {
-            _arrays[idx] = context.allocate(TypeId::uint8, nrows, st);
-            break;
-        }
-        case features::DAAL_INT16_U:
-        {
-            _arrays[idx] = context.allocate(TypeId::uint16, nrows, st);
-            break;
-        }
-        case features::DAAL_INT32_U:
-        {
-            _arrays[idx] = context.allocate(TypeId::uint32, nrows, st);
-            break;
-        }
-        case features::DAAL_INT64_U:
-        {
-            _arrays[idx] = context.allocate(TypeId::uint64, nrows, st);
-            break;
-        }
-
-        case features::DAAL_INT8_S:
-        {
-            _arrays[idx] = context.allocate(TypeId::int8, nrows, st);
-            break;
-        }
-        case features::DAAL_INT16_S:
-        {
-            _arrays[idx] = context.allocate(TypeId::int16, nrows, st);
-            break;
-        }
-        case features::DAAL_INT32_S:
-        {
-            _arrays[idx] = context.allocate(TypeId::int32, nrows, st);
-            break;
-        }
-        case features::DAAL_INT64_S:
-        {
-            _arrays[idx] = context.allocate(TypeId::int64, nrows, st);
-            break;
-        }
-
-        case features::DAAL_FLOAT32:
-        {
-            _arrays[idx] = context.allocate(TypeId::float32, nrows, st);
-            break;
-        }
-        case features::DAAL_FLOAT64:
-        {
-            _arrays[idx] = context.allocate(TypeId::float64, nrows, st);
-            break;
-        }
-
-        default: st = Status(ErrorIncorrectParameter); break;
-        }
-
-        return services::throwIfPossible(st);
+        _arrays[idx] = allocateByNumericTableFeature(feature, nrows, st);
+        services::throwIfPossible(st);
+        return st;
     }
 
     services::Status allocateDataMemoryImpl(daal::MemType type = daal::dram) DAAL_C11_OVERRIDE
@@ -382,8 +325,7 @@ protected:
     void freeDataMemoryImpl() DAAL_C11_OVERRIDE
     {
         _cpuTable.reset();
-        _arrays.clear();
-        _arrays.resize(_ddict->getNumberOfFeatures());
+        _arrays            = services::Collection<services::internal::sycl::UniversalBuffer>(_ddict->getNumberOfFeatures());
         _arraysInitialized = 0;
 
         _partialMemStatus = notAllocated;

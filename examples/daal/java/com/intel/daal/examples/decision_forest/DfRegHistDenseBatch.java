@@ -1,6 +1,6 @@
-/* file: DfRegDenseBatch.java */
+/* file: DfRegHistDenseBatch.java */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@
  */
 
 /**
- * <a name="DAAL-EXAMPLE-JAVA-DfRegDenseBatch">
- * @example DfRegDenseBatch.java
+ * <a name="DAAL-EXAMPLE-JAVA-DfRegHistDenseBatch">
+ * @example DfRegHistDenseBatch.java
  */
 
 package com.intel.daal.examples.decision_forest;
@@ -44,7 +44,7 @@ import com.intel.daal.examples.utils.Service;
 import com.intel.daal.services.DaalContext;
 import com.intel.daal.data_management.data.*;
 
-class DfRegDenseBatch {
+class DfRegHistDenseBatch {
     /* Input data set parameters */
     private static final String trainDataset = "../data/batch/df_regression_train.csv";
 
@@ -54,6 +54,10 @@ class DfRegDenseBatch {
 
     /* Decision forest regression algorithm parameters */
     private static final int nTrees = 100;
+
+    private static final int maxBins = 256;
+
+    private static final int minBinSize = 5;
 
     private static NumericTable testGroundTruth;
 
@@ -90,10 +94,12 @@ class DfRegDenseBatch {
         trainData.getDictionary().setFeature(Float.class,3,DataFeatureUtils.FeatureType.DAAL_CATEGORICAL);
 
         /* Create algorithm objects to train the decision forest regression model */
-        TrainingBatch algorithm = new TrainingBatch(context, Float.class, TrainingMethod.defaultDense);
+        TrainingBatch algorithm = new TrainingBatch(context, Float.class, TrainingMethod.hist);
         algorithm.parameter.setNTrees(nTrees);
         algorithm.parameter.setVariableImportanceMode(VariableImportanceModeId.MDA_Raw);
         algorithm.parameter.setResultsToCompute(ResultsToComputeId.computeOutOfBagError|ResultsToComputeId.computeOutOfBagErrorPerObservation);
+        algorithm.parameter.setMaxBins(maxBins);
+        algorithm.parameter.setMinBinSize(minBinSize);
 
         /* Pass a training data set and dependent values to the algorithm */
         algorithm.input.set(InputId.data, trainData);
