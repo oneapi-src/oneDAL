@@ -2,6 +2,13 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+  <parent>
+    <groupId>com.intel.dal</groupId>
+    <artifactId>dal-parent</artifactId>
+    <version>{{version}}</version>
+    <relativePath></relativePath>
+  </parent>
+
   <artifactId>daal</artifactId>
   <packaging>pom</packaging>
 
@@ -32,7 +39,7 @@
   <dependencies>
     <dependency>
       <groupId>com.intel.dal</groupId>
-      <artifactId>dal-natives</artifactId>
+      <artifactId>dal</artifactId>
       <version>${project.version}</version>
       <classifier>${dal.os.name}-${dal.arch.name}</classifier>
     </dependency>
