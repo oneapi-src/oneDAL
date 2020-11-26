@@ -111,6 +111,20 @@ DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, 
 #endif
 }
 
+DAAL_EXPORT int _daal_parallel_reduce(int n, int init, const void * a, daal::loop_functype loop_func, const void * b,
+                                      daal::reduce_function reduction_func)
+{
+#if defined(__DO_TBB_LAYER__)
+    return tbb::parallel_reduce(
+        tbb::blocked_range<int>(0, n), init,
+        [&](const tbb::blocked_range<int> & r, int max_for_reduce) { return loop_func(r.begin(), r.end(), max_for_reduce, a); },
+        [&](int x, int y) { return reduction_func(x, y, b); });
+
+#elif defined(__DO_SEQ_LAYER__)
+    return -1;
+#endif
+}
+
 template <typename F>
 DAAL_EXPORT void _daal_parallel_sort_template(F * begin_p, F * end_p)
 {

@@ -70,11 +70,26 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
 
     using namespace oneapi::dal::detail;
 
-    vertex_t max_id = edges[0].first;
-    for (auto u : edges) {
-        vertex_t edge_max = std::max(u.first, u.second);
-        max_id = std::max(max_id, edge_max);
-    }
+    // vertex_t max_id = edges[0].first;
+    // for (auto u : edges) {
+    //     vertex_t edge_max = std::max(u.first, u.second);
+    //     max_id = std::max(max_id, edge_max);
+    // }
+
+    vertex_t max_id = parallel_reduce(
+        (std::int32_t)edges.size(),
+        (std::int32_t)-1,
+        [&](std::int32_t st_u, std::int32_t end_u, vertex_t max_for_reduce) -> vertex_t {
+            for (auto u = st_u; u != end_u; ++u) {
+                vertex_t max_id_in_edge =
+                    std::max((std::int32_t)edges[u].first, (std::int32_t)edges[u].second);
+                max_for_reduce = std::max(max_for_reduce, max_id_in_edge);
+            }
+            return max_for_reduce;
+        },
+        [&](vertex_t x, vertex_t y) -> vertex_t {
+            return std::max(x, y);
+        });
 
     if (max_id < 0) {
         throw invalid_argument(dal::detail::error_messages::negative_vertex_id());
