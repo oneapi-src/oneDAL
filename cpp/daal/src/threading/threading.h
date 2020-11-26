@@ -96,17 +96,17 @@ extern "C"
 namespace daal
 {
 template <typename FPType>
-void parallel_sort(daal::IdxValType<FPType> * beginPtr, daal::IdxValType<FPType> * endPtr)
+inline void parallel_sort(daal::IdxValType<FPType> * beginPtr, daal::IdxValType<FPType> * endPtr)
 {}
 
 template <>
-void parallel_sort<float>(daal::IdxValType<float> * beginPtr, daal::IdxValType<float> * endPtr)
+inline void parallel_sort<float>(daal::IdxValType<float> * beginPtr, daal::IdxValType<float> * endPtr)
 {
     _daal_parallel_sort_pair_fp32_uint64(beginPtr, endPtr);
 }
 
 template <>
-void parallel_sort<double>(daal::IdxValType<double> * beginPtr, daal::IdxValType<double> * endPtr)
+inline void parallel_sort<double>(daal::IdxValType<double> * beginPtr, daal::IdxValType<double> * endPtr)
 {
     _daal_parallel_sort_pair_fp64_uint64(beginPtr, endPtr);
 }
