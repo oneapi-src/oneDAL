@@ -28,6 +28,16 @@
 
 namespace daal
 {
+template <typename FPType>
+struct IdxValType
+{
+    FPType value;
+    size_t index;
+
+    bool operator<(const IdxValType & o) const { return o.value == value ? index < o.index : value < o.value; }
+    bool operator>(const IdxValType & o) const { return o.value == value ? index > o.index : value > o.value; }
+    bool operator<=(const IdxValType & o) const { return value < o.value || (value == o.value && index == o.index); }
+};
 typedef void (*functype)(int i, const void * a);
 typedef void (*functype2)(int i, int n, const void * a);
 typedef void * (*tls_functype)(const void * a);
@@ -78,11 +88,29 @@ extern "C"
 #define DAAL_PARALLEL_SORT_DECL(TYPE, NAMESUFFIX) DAAL_EXPORT void _daal_parallel_sort_##NAMESUFFIX(TYPE * begin_ptr, TYPE * end_ptr);
     DAAL_PARALLEL_SORT_DECL(int, int32)
     DAAL_PARALLEL_SORT_DECL(size_t, uint64)
+    DAAL_PARALLEL_SORT_DECL(daal::IdxValType<float>, pair_fp32_uint64)
+    DAAL_PARALLEL_SORT_DECL(daal::IdxValType<double>, pair_fp64_uint64)
 #undef DAAL_PARALLEL_SORT_DECL
 }
 
 namespace daal
 {
+template <typename FPType>
+inline void parallel_sort(daal::IdxValType<FPType> * beginPtr, daal::IdxValType<FPType> * endPtr)
+{}
+
+template <>
+inline void parallel_sort<float>(daal::IdxValType<float> * beginPtr, daal::IdxValType<float> * endPtr)
+{
+    _daal_parallel_sort_pair_fp32_uint64(beginPtr, endPtr);
+}
+
+template <>
+inline void parallel_sort<double>(daal::IdxValType<double> * beginPtr, daal::IdxValType<double> * endPtr)
+{
+    _daal_parallel_sort_pair_fp64_uint64(beginPtr, endPtr);
+}
+
 inline int threader_get_max_threads_number()
 {
     return _daal_threader_get_max_threads();
