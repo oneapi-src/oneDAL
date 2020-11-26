@@ -415,7 +415,7 @@ DAAL_EXPORT int _daal_parallel_reduce(size_t n, int init, const void * a, daal::
     {
         _daal_parallel_reduce_ptr = (_daal_parallel_reduce_t)load_daal_thr_func("_daal_parallel_reduce");
     }
-    _daal_parallel_reduce_ptr(n, init, a, loop_func, b, reduction_func);
+    return _daal_parallel_reduce_ptr(n, init, a, loop_func, b, reduction_func);
 }
 
 DAAL_EXPORT void _daal_parallel_sort_int32(int * begin_ptr, int * end_ptr)
