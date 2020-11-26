@@ -32,8 +32,7 @@ namespace data_management
 namespace internal
 {
 template <typename FPType, daal::CpuType cpu>
-services::Status rocAucScoreImpl(const NumericTablePtr & truePrediction, const NumericTablePtr & testPrediction,
-                                 FPType & score)
+services::Status rocAucScoreImpl(const NumericTablePtr & truePrediction, const NumericTablePtr & testPrediction, FPType & score)
 {
     services::Status s;
     const size_t nElements = truePrediction->getNumberOfColumns();
