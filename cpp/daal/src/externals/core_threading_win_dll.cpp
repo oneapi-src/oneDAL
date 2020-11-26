@@ -279,8 +279,8 @@ typedef void * (*_daal_threader_env_t)();
 
 typedef void (*_daal_parallel_sort_int32_t)(int *, int *);
 typedef void (*_daal_parallel_sort_uint64_t)(size_t *, size_t *);
-typedef void (*_daal_parallel_sort_pair_fp32_uint64_t)(IdxValType<float> *, IdxValType<float> *);
-typedef void (*_daal_parallel_sort_pair_fp64_uint64_t)(IdxValType<double> *, IdxValType<double> *);
+typedef void (*_daal_parallel_sort_pair_fp32_uint64_t)(daal::IdxValType<float> *, daal::IdxValType<float> *);
+typedef void (*_daal_parallel_sort_pair_fp64_uint64_t)(daal::IdxValType<double> *, daal::IdxValType<double> *);
 
 #if !(defined DAAL_THREAD_PINNING_DISABLED)
 typedef void (*_thread_pinner_thread_pinner_init_t)();
@@ -397,7 +397,7 @@ DAAL_EXPORT void _daal_parallel_sort_uint64(size_t * begin_ptr, size_t * end_ptr
     _daal_parallel_sort_uint64_ptr(begin_ptr, end_ptr);
 }
 
-DAAL_EXPORT void _daal_parallel_sort_pair_fp32_uint64(IdxValType<float> * begin_ptr, IdxValType<float> * end_ptr)
+DAAL_EXPORT void _daal_parallel_sort_pair_fp32_uint64(daal::IdxValType<float> * begin_ptr, daal::IdxValType<float> * end_ptr)
 {
     load_daal_thr_dll();
     if (_daal_parallel_sort_pair_fp32_uint64_ptr == NULL)
@@ -407,7 +407,7 @@ DAAL_EXPORT void _daal_parallel_sort_pair_fp32_uint64(IdxValType<float> * begin_
     _daal_parallel_sort_pair_fp32_uint64_ptr(begin_ptr, end_ptr);
 }
 
-DAAL_EXPORT void _daal_parallel_sort_pair_fp64_uint64(IdxValType<double> * begin_ptr, IdxValType<double> * end_ptr)
+DAAL_EXPORT void _daal_parallel_sort_pair_fp64_uint64(daal::IdxValType<double> * begin_ptr, daal::IdxValType<double> * end_ptr)
 {
     load_daal_thr_dll();
     if (_daal_parallel_sort_pair_fp64_uint64_ptr == NULL)
