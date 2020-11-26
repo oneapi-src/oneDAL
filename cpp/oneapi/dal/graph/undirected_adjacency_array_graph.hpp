@@ -259,29 +259,27 @@ undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, 
 namespace detail {
 
 template <typename Graph>
-ONEDAL_EXPORT auto get_vertex_count_impl(const Graph &graph) noexcept -> vertex_size_type<Graph> {
+inline auto get_vertex_count_impl(const Graph &graph) noexcept -> vertex_size_type<Graph> {
     const auto &layout = dal::detail::get_impl(graph).get_topology();
     return get_topology_vertex_count(layout);
 }
 
 template <typename Graph>
-ONEDAL_EXPORT auto get_edge_count_impl(const Graph &graph) noexcept -> edge_size_type<Graph> {
+inline auto get_edge_count_impl(const Graph &graph) noexcept -> edge_size_type<Graph> {
     const auto &layout = dal::detail::get_impl(graph).get_topology();
     return get_topology_edge_count(layout);
     layout._edge_count;
 }
 
 template <typename Graph>
-ONEDAL_EXPORT auto get_vertex_degree_impl(const Graph &graph,
-                                          const vertex_type<Graph> &vertex) noexcept
+inline auto get_vertex_degree_impl(const Graph &graph, const vertex_type<Graph> &vertex) noexcept
     -> edge_size_type<Graph> {
     const auto &layout = dal::detail::get_impl(graph).get_topology();
     return get_topology_vertex_degree(layout, vertex);
 }
 
 template <typename Graph>
-ONEDAL_EXPORT auto get_vertex_neighbors_impl(const Graph &graph,
-                                             const vertex_type<Graph> &vertex) noexcept
+inline auto get_vertex_neighbors_impl(const Graph &graph, const vertex_type<Graph> &vertex) noexcept
     -> const_edge_range_type<Graph> {
     const auto &layout = dal::detail::get_impl(graph).get_topology();
     return get_topology_vertex_neighbors(layout, vertex);

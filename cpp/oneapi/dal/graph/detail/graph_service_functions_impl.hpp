@@ -22,18 +22,16 @@
 namespace oneapi::dal::preview::detail {
 
 template <typename Graph>
-ONEDAL_EXPORT auto get_vertex_count_impl(const Graph &graph) noexcept -> vertex_size_type<Graph>;
+inline auto get_vertex_count_impl(const Graph &graph) noexcept -> vertex_size_type<Graph>;
 
 template <typename Graph>
-ONEDAL_EXPORT auto get_edge_count_impl(const Graph &graph) noexcept -> edge_size_type<Graph>;
+inline auto get_edge_count_impl(const Graph &graph) noexcept -> edge_size_type<Graph>;
 
 template <typename Graph>
-ONEDAL_EXPORT auto get_vertex_degree_impl(const Graph &graph,
-                                          const vertex_type<Graph> &vertex) noexcept
+inline auto get_vertex_degree_impl(const Graph &graph, const vertex_type<Graph> &vertex) noexcept
     -> edge_size_type<Graph>;
 
 template <typename Graph>
-ONEDAL_EXPORT auto get_vertex_neighbors_impl(const Graph &graph,
-                                             const vertex_type<Graph> &vertex) noexcept
+inline auto get_vertex_neighbors_impl(const Graph &graph, const vertex_type<Graph> &vertex) noexcept
     -> const_edge_range_type<Graph>;
 } // namespace oneapi::dal::preview::detail
