@@ -1,4 +1,4 @@
-/* file: bf_knn_dense_batch.cpp */
+/* file: bf_knn_search_dense_batch.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -40,18 +40,23 @@ using daal::data_management::internal::SyclHomogenNumericTable;
 /* Input data set parameters */
 const string trainDatasetFileName = "../data/batch/k_nearest_neighbors_train.csv";
 const string testDatasetFileName  = "../data/batch/k_nearest_neighbors_test.csv";
+const string groundTruthDistancesFileName  = "../data/batch/k_nearest_neighbors_distances_ground_truth.csv";
+const string groundTruthIndicesFileName  = "../data/batch/k_nearest_neighbors_indices_ground_truth.csv";
 
 const size_t nFeatures = 5;
 const size_t nClasses  = 5;
+const size_t kNeighbors = 3;
 
 void trainModel(bf_knn_classification::training::ResultPtr & trainingResult);
-void testModel(bf_knn_classification::training::ResultPtr & trainingResult, classifier::prediction::ResultPtr & predictionResult,
-               NumericTablePtr & testGroundTruth);
-void printResults(NumericTablePtr & testGroundTruth, classifier::prediction::ResultPtr & predictionResult);
+void testModel(bf_knn_classification::training::ResultPtr & trainingResult, bf_knn_classification::prediction::ResultPtr & predictionResult);
+void readGroundTruth(NumericTablePtr& groundTruthIndices, NumericTablePtr& groundTruthDistances);
+void printIndicesResults(NumericTablePtr & testGroundTruth, bf_knn_classification::prediction::ResultPtr & predictionResult);
+void printDistancesResults(NumericTablePtr & testGroundTruth, bf_knn_classification::prediction::ResultPtr & predictionResult);
 
 int main(int argc, char * argv[])
 {
-    checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
+    checkArguments(argc, argv, 4, &trainDatasetFileName, &testDatasetFileName, 
+        &groundTruthDistancesFileName, &groundTruthIndicesFileName);
 
     for (const auto & deviceSelector : getListOfDevices())
     {
@@ -64,12 +69,17 @@ int main(int argc, char * argv[])
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
         bf_knn_classification::training::ResultPtr trainingResult;
-        classifier::prediction::ResultPtr predictionResult;
-        NumericTablePtr testGroundTruth;
-
         trainModel(trainingResult);
-        testModel(trainingResult, predictionResult, testGroundTruth);
-        printResults(testGroundTruth, predictionResult);
+
+        bf_knn_classification::prediction::ResultPtr searchResult;
+        testModel(trainingResult, searchResult);
+
+        NumericTablePtr groundTruthDistances, groundTruthIndices;
+        readGroundTruth(groundTruthIndices, groundTruthDistances);
+
+
+        printIndicesResults(groundTruthIndices, searchResult);
+        printDistancesResults(groundTruthDistances, searchResult);
     }
     return 0;
 }
@@ -92,22 +102,24 @@ void trainModel(bf_knn_classification::training::ResultPtr & trainingResult)
     /* Pass the training data set and dependent values to the algorithm */
     algorithm.input.set(classifier::training::data, trainData);
     algorithm.input.set(classifier::training::labels, trainGroundTruth);
+    algorithm.parameter().k = kNeighbors;
     algorithm.parameter().nClasses = nClasses;
+    algorithm.parameter().resultsToCompute = bf_knn_classification::computeDistances | bf_knn_classification::computeIndicesOfNeighbors;
+
     /* Train the BF kNN model */
     algorithm.compute();
     /* Retrieve the results of the training algorithm  */
     trainingResult = algorithm.getResult();
 }
 
-void testModel(bf_knn_classification::training::ResultPtr & trainingResult, classifier::prediction::ResultPtr & predictionResult,
-               NumericTablePtr & testGroundTruth)
+void testModel(bf_knn_classification::training::ResultPtr & trainingResult, bf_knn_classification::prediction::ResultPtr & predictionResult)
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
     FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for testing data and labels */
-    NumericTablePtr testData = SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate);
-    testGroundTruth          = SyclHomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
+    NumericTablePtr testData        = SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate);
+    NumericTablePtr testGroundTruth = SyclHomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
     NumericTablePtr mergedData(new MergedNumericTable(testData, testGroundTruth));
 
     /* Retrieve the data from input file */
@@ -119,7 +131,9 @@ void testModel(bf_knn_classification::training::ResultPtr & trainingResult, clas
     /* Pass the testing data set and trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);
     algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
+    algorithm.parameter().k = kNeighbors;
     algorithm.parameter().nClasses = nClasses;
+    algorithm.parameter().resultsToCompute = bf_knn_classification::computeDistances | bf_knn_classification::computeIndicesOfNeighbors;
 
     /* Compute prediction results */
     algorithm.compute();
@@ -128,8 +142,29 @@ void testModel(bf_knn_classification::training::ResultPtr & trainingResult, clas
     predictionResult = algorithm.getResult();
 }
 
-void printResults(NumericTablePtr & testGroundTruth, classifier::prediction::ResultPtr & predictionResult)
+void readGroundTruth(NumericTablePtr& groundTruthIndices, NumericTablePtr& groundTruthDistances)
 {
-    printNumericTables<int, int>(testGroundTruth, predictionResult->get(classifier::prediction::prediction), "Ground truth", "Classification results",
-                                 "BF kNN classification results (first 20 observations):", 20);
+    /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
+    FileDataSource<CSVFeatureManager> indicesDataSource(groundTruthIndicesFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> distancesDataSource(groundTruthDistancesFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
+
+    /* Create Numeric Tables for testing data and labels */
+    groundTruthIndices = SyclHomogenNumericTable<>::create(kNeighbors, 0, NumericTable::doNotAllocate);
+    groundTruthDistances = SyclHomogenNumericTable<>::create(kNeighbors, 0, NumericTable::doNotAllocate);
+
+    /* Retrieve the data from input file */
+    indicesDataSource.loadDataBlock(groundTruthIndices.get());
+    distancesDataSource.loadDataBlock(groundTruthDistances.get());
+}
+
+void printIndicesResults(NumericTablePtr & testGroundTruth, bf_knn_classification::prediction::ResultPtr & predictionResult)
+{
+    printNumericTables<int, int>(testGroundTruth, predictionResult->get(bf_knn_classification::prediction::indices), 
+        "Ground truth", "Indices results", "BF kNN search results (first 20 observations):", 20);
+}
+
+void printDistancesResults(NumericTablePtr & testGroundTruth, bf_knn_classification::prediction::ResultPtr & predictionResult)
+{
+    printNumericTables<float, float>(testGroundTruth, predictionResult->get(bf_knn_classification::prediction::distances), 
+        "Ground truth", "Distances results", "BF kNN search results (first 20 observations):", 20);
 }
