@@ -27,11 +27,7 @@ namespace data_management
 namespace internal
 {
 template <typename FPType>
-DAAL_EXPORT FPType rocAucScore(const FPType * const predictedRank, const NumericTablePtr & truePrediction, const size_t nElements);
-
-template <typename FPType>
-DAAL_EXPORT void calculateRankData(FPType * predictedRank, const NumericTablePtr & testPrediction, const size_t nElements);
-
+DAAL_EXPORT FPType rocAucScore(const NumericTablePtr & truePrediction, const NumericTablePtr & testPrediction, const size_t nElements);
 } // namespace internal
 } // namespace data_management
 } // namespace daal
