@@ -44,13 +44,12 @@ extern "C"
 {
     DAAL_EXPORT int _daal_threader_get_max_threads();
     DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, daal::functype func);
-
-    DAAL_EXPORT int _daal_parallel_reduce(size_t n, int init, const void * a, daal::loop_functype loop_func, const void * b,
-                                          daal::reduction_functype reduction_func);
-
     DAAL_EXPORT void _daal_threader_for_blocked(int n, int threads_request, const void * a, daal::functype2 func);
     DAAL_EXPORT void _daal_threader_for_optional(int n, int threads_request, const void * a, daal::functype func);
     DAAL_EXPORT void _daal_threader_for_break(int n, int threads_request, const void * a, daal::functype_break func);
+
+    DAAL_EXPORT int _daal_parallel_reduce(size_t n, int init, const void * a, daal::loop_functype loop_func, const void * b,
+                                          daal::reduction_functype reduction_func);
 
     DAAL_EXPORT void * _daal_get_tls_ptr(void * a, daal::tls_functype func);
     DAAL_EXPORT void * _daal_get_tls_local(void * tlsPtr);
