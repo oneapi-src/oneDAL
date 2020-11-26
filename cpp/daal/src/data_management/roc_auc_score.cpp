@@ -32,11 +32,11 @@ namespace data_management
 namespace internal
 {
 template <typename FPType, daal::CpuType cpu>
-services::Status rocAucScoreImpl(const NumericTablePtr & truePrediction, const NumericTablePtr & testPrediction, const size_t nElements,
+services::Status rocAucScoreImpl(const NumericTablePtr & truePrediction, const NumericTablePtr & testPrediction,
                                  FPType & score)
 {
     services::Status s;
-
+    const size_t nElements = truePrediction->getNumberOfColumns();
     ReadRows<FPType, cpu> testPredictionBlock(testPrediction.get(), 0, 1);
     const FPType * const testPredictionPtr = testPredictionBlock.get();
     DAAL_CHECK_BLOCK_STATUS(testPredictionBlock);
@@ -61,7 +61,7 @@ services::Status rocAucScoreImpl(const NumericTablePtr & truePrediction, const N
         }
     });
 
-    parallel_sort<FPType>(predict.get(), predict.get() + nElements);
+    daal::parallel_sort<FPType>(predict.get(), predict.get() + nElements);
 
     size_t rank            = 1;
     size_t elementsInBlock = 1;
@@ -117,20 +117,19 @@ services::Status rocAucScoreImpl(const NumericTablePtr & truePrediction, const N
 }
 
 template <typename FPType>
-DAAL_EXPORT FPType rocAucScore(const NumericTablePtr & truePrediction, const NumericTablePtr & testPrediction, const size_t nElements)
+DAAL_EXPORT FPType rocAucScore(const NumericTablePtr & truePrediction, const NumericTablePtr & testPrediction)
 {
     FPType score = FPType(0);
 #define DAAL_ROC_AUC_SCORE(cpuId, ...) rocAucScoreImpl<FPType, cpuId>(__VA_ARGS__);
 
-    DAAL_DISPATCH_FUNCTION_BY_CPU_SAFE(DAAL_ROC_AUC_SCORE, truePrediction, testPrediction, nElements, score);
+    DAAL_DISPATCH_FUNCTION_BY_CPU_SAFE(DAAL_ROC_AUC_SCORE, truePrediction, testPrediction, score);
 
 #undef DAAL_ROC_AUC_SCORE
     return score;
 }
 
-template DAAL_EXPORT float rocAucScore<float>(const NumericTablePtr & truePrediction, const NumericTablePtr & testPrediction, const size_t nElements);
-template DAAL_EXPORT double rocAucScore<double>(const NumericTablePtr & truePrediction, const NumericTablePtr & testPrediction,
-                                                const size_t nElements);
+template DAAL_EXPORT float rocAucScore<float>(const NumericTablePtr & truePrediction, const NumericTablePtr & testPrediction);
+template DAAL_EXPORT double rocAucScore<double>(const NumericTablePtr & truePrediction, const NumericTablePtr & testPrediction);
 
 } // namespace internal
 } // namespace data_management
