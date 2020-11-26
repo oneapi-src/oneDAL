@@ -41,33 +41,82 @@ DECLARE_SOURCE(
         treeOrder[offset + id] = treeOrderBuf[offset + id];
     }
 
-    __kernel void doLevelPartition(const __global int * data, const __global int * nodeList, const __global int * treeOrder,
-                                   __global int * treeOrderBuf, int nFeatures) {
-        const int nNodeProp  = NODE_PROPS; // num of split attributes for node
-        const int leafMark   = -1;
-        const int local_id   = get_sub_group_local_id();
-        const int nodeId     = get_global_id(1);
-        const int local_size = get_sub_group_size();
+    __kernel void doLevelPartitionByGroups(const __global int * data, const __global int * nodeList, __global int * nodeAuxList,
+                                           const __global int * treeOrder, __global int * treeOrderBuf, int nNodes, int nFeatures) {
+        const int nNodeProp    = NODE_PROPS;               // num of split attributes for node
+        const int nAuxNodeProp = AUX_NODE_PROPS;           // num of auxilliary attributes for node
+        const int maxBlocksNum = PARTITION_MAX_BLOCKS_NUM; // num of auxilliary attributes for node
+        const int minBlockSize = MIN_BLOCK_SIZE;           // num of auxilliary attributes for node
+        const int leafMark     = -1;
 
-        __global const int * node = nodeList + nodeId * nNodeProp;
-        const int offset          = node[0];
-        const int nRows           = node[1];
-        const int featId          = node[2];
-        const int splitVal        = node[3];
-        const int nRowsLeft       = node[4]; // num of items in Left part
+        const int sub_group_size               = get_sub_group_size();
+        const int work_group_size              = get_local_size(0);
+        const int sub_groups_in_work_group_num = work_group_size / sub_group_size; // num of subgroups for current node processing
 
-        if (featId != leafMark) // split node
+        const int sub_group_local_id  = get_sub_group_local_id();
+        const int work_group_local_id = get_local_id(0);
+
+        const int sub_group_id   = get_group_id(0) * sub_groups_in_work_group_num + work_group_local_id / sub_group_size;
+        const int sub_groups_num = get_num_groups(0) * sub_groups_in_work_group_num; // num of subgroups for current node processing
+
+        const int totalBlocksNum = nNodes * maxBlocksNum;
+
+        for (int blockIndGlob = sub_group_id; blockIndGlob < totalBlocksNum; blockIndGlob += sub_groups_num)
         {
-            int sum = 0;
+            int nodeId   = blockIndGlob / maxBlocksNum;
+            int blockInd = blockIndGlob % maxBlocksNum;
 
-            for (int i = local_id; i < nRows; i += local_size)
+            __global const int * node = nodeList + nodeId * nNodeProp;
+            const int offset          = node[0];
+            const int nRows           = node[1];
+            const int featId          = node[2];
+            const int splitVal        = node[3];
+            const int nRowsLeft       = node[4]; // num of items in Left part
+
+            int nodeBlocks = nRows / minBlockSize ? min(nRows / minBlockSize, maxBlocksNum) : 1;
+
+            if (featId != leafMark && blockInd < nodeBlocks) // split node
             {
-                int id                        = treeOrder[offset + i];
-                int toRight                   = (int)(data[id * nFeatures + featId] > splitVal);
-                int boundary                  = sum + sub_group_scan_exclusive_add(toRight);
-                int posNew                    = (toRight ? nRowsLeft + boundary : i - boundary);
-                treeOrderBuf[offset + posNew] = id;
-                sum += sub_group_reduce_add(toRight);
+                __global const int * nodeAux = nodeAuxList + nodeId * nAuxNodeProp;
+
+                const int blockSize = nodeBlocks > 1 ? nRows / nodeBlocks + !!(nRows % nodeBlocks) : nRows;
+
+                int iStart = blockInd * blockSize;
+                int iEnd   = min((blockInd + 1) * blockSize, nRows);
+
+                int groupLeftBoundary  = 0;
+                int groupRightBoundary = 0;
+
+                if (nodeBlocks > 1)
+                {
+                    int groupRowsToRight = 0;
+                    for (int i = iStart + sub_group_local_id; i < iEnd; i += sub_group_size)
+                    {
+                        int id      = treeOrder[offset + i];
+                        int toRight = (int)(data[id * nFeatures + featId] > splitVal);
+                        groupRowsToRight += sub_group_reduce_add(toRight);
+                    }
+
+                    if (0 == sub_group_local_id)
+                    {
+                        const int rowsForGroup = iEnd - iStart;
+                        groupLeftBoundary      = atomic_add(nodeAux + 0, rowsForGroup - groupRowsToRight);
+                        groupRightBoundary     = atomic_add(nodeAux + 1, groupRowsToRight);
+                    }
+                    groupLeftBoundary  = sub_group_broadcast(groupLeftBoundary, 0);
+                    groupRightBoundary = sub_group_broadcast(groupRightBoundary, 0);
+                }
+
+                int groupRowsToRight = 0;
+                for (int i = iStart + sub_group_local_id; i < iEnd; i += sub_group_size)
+                {
+                    int id                        = treeOrder[offset + i];
+                    int toRight                   = (int)(data[id * nFeatures + featId] > splitVal);
+                    int boundary                  = groupRowsToRight + sub_group_scan_exclusive_add(toRight);
+                    int posNew                    = (toRight ? nRowsLeft + groupRightBoundary + boundary : groupLeftBoundary + i - iStart - boundary);
+                    treeOrderBuf[offset + posNew] = id;
+                    groupRowsToRight += sub_group_reduce_add(toRight);
+                }
             }
         }
     }

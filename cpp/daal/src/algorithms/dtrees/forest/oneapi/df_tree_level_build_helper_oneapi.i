@@ -52,7 +52,8 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::buildProgram(ClKer
         {
             build_options.add(buildOptions);
         }
-        build_options.add(" -D BIG_NODE_LOW_BORDER_BLOCKS_NUM=32 -D LOCAL_BUFFER_SIZE=256 -D MAX_WORK_ITEMS_PER_GROUP=256 ");
+        build_options.add(" -D BIG_NODE_LOW_BORDER_BLOCKS_NUM=32 -D LOCAL_BUFFER_SIZE=256 -D MAX_WORK_ITEMS_PER_GROUP=256 -D AUX_NODE_PROPS=4 -D "
+                          "PARTITION_MAX_BLOCKS_NUM=256 -D MIN_BLOCK_SIZE=128 ");
 
         services::String cachekey("__daal_algorithms_df_tree_level_build_helper_");
         cachekey.add(build_options);
@@ -479,25 +480,34 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::doLevelPartition(c
 
     auto & context = services::internal::getDefaultContext();
 
-    auto & kernel = kernelDoLevelPartition;
+    auto & kernel = kernelDoLevelPartitionByGroups;
+
+    auto nodeAuxList = context.allocate(TypeIds::id<int>(), nNodes * _auxNodeBufferProps, status); // nelemsToLeft, nelemsToRight
+    DAAL_CHECK_STATUS_VAR(status);
+    context.fill(nodeAuxList, 0, status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     {
+        DAAL_ASSERT(nNodes <= _int32max);
         DAAL_ASSERT(nFeatures <= _int32max);
 
-        KernelArguments args(5, status);
+        KernelArguments args(7, status);
         DAAL_CHECK_STATUS_VAR(status);
+
         args.set(0, data, AccessModeIds::read);
         args.set(1, nodeList, AccessModeIds::read);
-        args.set(2, treeOrder, AccessModeIds::read);
-        args.set(3, treeOrderBuf, AccessModeIds::write);
-        args.set(4, static_cast<int32_t>(nFeatures));
+        args.set(2, nodeAuxList, AccessModeIds::readwrite);
+        args.set(3, treeOrder, AccessModeIds::read);
+        args.set(4, treeOrderBuf, AccessModeIds::write);
+        args.set(5, static_cast<int32_t>(nNodes));
+        args.set(6, static_cast<int32_t>(nFeatures));
 
-        size_t localSize = _preferableSubGroup;
+        size_t localSize = _preferablePartitionGroupSize;
 
-        KernelRange local_range(localSize, 1);
-        KernelRange global_range(localSize, nNodes);
+        KernelRange local_range(localSize);
+        KernelRange global_range(localSize * _preferablePartitionGroupsNum);
 
-        KernelNDRange range(2);
+        KernelNDRange range(1);
         range.global(global_range, status);
         DAAL_CHECK_STATUS_VAR(status);
         range.local(local_range, status);
@@ -508,6 +518,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::doLevelPartition(c
     }
 
     DAAL_CHECK_STATUS_VAR(partitionCopy(treeOrderBuf, treeOrder, 0, nRows));
+    //treeOrder = treeOrderBuf;
 
     return status;
 }
@@ -618,7 +629,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::init(const char * 
     kernelConvertSplitToLeaf          = kernel_factory.getKernel("convertSplitToLeaf", status);
     kernelGetNumOfSplitNodes          = kernel_factory.getKernel("getNumOfSplitNodes", status);
     kernelDoNodesSplit                = kernel_factory.getKernel("doNodesSplit", status);
-    kernelDoLevelPartition            = kernel_factory.getKernel("doLevelPartition", status);
+    kernelDoLevelPartitionByGroups    = kernel_factory.getKernel("doLevelPartitionByGroups", status);
     kernelSplitNodeListOnGroupsBySize = kernel_factory.getKernel("splitNodeListOnGroupsBySize", status);
 
     kernelMarkPresentRows          = kernel_factory.getKernel("markPresentRows", status);

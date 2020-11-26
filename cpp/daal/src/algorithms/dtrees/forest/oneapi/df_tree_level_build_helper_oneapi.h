@@ -101,7 +101,7 @@ private:
     services::internal::sycl::KernelPtr kernelConvertSplitToLeaf;
     services::internal::sycl::KernelPtr kernelGetNumOfSplitNodes;
     services::internal::sycl::KernelPtr kernelDoNodesSplit;
-    services::internal::sycl::KernelPtr kernelDoLevelPartition;
+    services::internal::sycl::KernelPtr kernelDoLevelPartitionByGroups;
     services::internal::sycl::KernelPtr kernelSplitNodeListOnGroupsBySize;
 
     services::internal::sycl::KernelPtr kernelMarkPresentRows;
@@ -115,9 +115,12 @@ private:
     const size_t _maxLocalSums = 256;
     const size_t _minRowsBlock = 256;
 
-    const size_t _preferableGroupSize  = 256;
-    const size_t _maxWorkItemsPerGroup = 256; // should be a power of two for interal needs
-    const size_t _preferableSubGroup   = 16;  // preferable maximal sub-group size
+    const size_t _preferableGroupSize          = 256;
+    const size_t _preferablePartitionGroupSize = 128;
+    const size_t _preferablePartitionGroupsNum = 8192;
+    const size_t _maxWorkItemsPerGroup         = 256; // should be a power of two for interal needs
+    const size_t _preferableSubGroup           = 16;  // preferable maximal sub-group size
+    const size_t _auxNodeBufferProps           = 4;
 
     const size_t _int32max = static_cast<size_t>(services::internal::MaxVal<int32_t>::get());
     size_t _nNodeProps;
