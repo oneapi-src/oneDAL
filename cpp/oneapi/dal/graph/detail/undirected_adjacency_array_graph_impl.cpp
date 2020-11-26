@@ -26,10 +26,4 @@ template class ONEDAL_EXPORT vertex_values<float>;
 
 template class ONEDAL_EXPORT edge_values<float>;
 
-template <>
-std::int64_t get_topology_vertex_count(const topology<std::int32_t>& _topology) {
-    std::cout << " vertex_count from lib ";
-    return _topology._vertex_count;
-}
-
 } // namespace oneapi::dal::preview::detail

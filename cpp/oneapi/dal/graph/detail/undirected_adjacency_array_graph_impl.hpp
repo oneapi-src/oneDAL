@@ -174,7 +174,23 @@ std::int64_t get_topology_vertex_count(const topology<Index>& _topology) {
     return _topology._vertex_count;
 }
 
-template <>
-std::int64_t get_topology_vertex_count(const topology<std::int32_t>& _topology);
+template <typename Index>
+std::int64_t get_topology_edge_count(const topology<Index>& _topology) {
+    return _topology._edge_count;
+}
+
+template <typename Index>
+auto get_topology_vertex_degree(const topology<Index>& _topology, const Index& vertex) noexcept {
+    return _topology._degrees[vertex];
+}
+
+template <typename Index>
+auto get_topology_vertex_neighbors(const topology<Index>& _topology, const Index& vertex) noexcept {
+    const Index* vertex_neighbors_begin =
+        _topology._vertex_neighbors.get_data() + _topology._edge_offsets[vertex];
+    const Index* vertex_neighbors_end =
+        _topology._vertex_neighbors.get_data() + _topology._edge_offsets[vertex + 1];
+    return std::make_pair(vertex_neighbors_begin, vertex_neighbors_end);
+}
 
 } // namespace oneapi::dal::preview::detail
