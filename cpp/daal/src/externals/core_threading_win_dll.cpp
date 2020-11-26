@@ -250,7 +250,7 @@ typedef void (*_daal_threader_for_blocked_t)(int, int, const void *, daal::funct
 typedef int (*_daal_threader_get_max_threads_t)(void);
 typedef void (*_daal_threader_for_break_t)(int, int, const void *, daal::functype_break);
 
-typedef int (*_daal_parallel_reduce_t)(size_t, int, const void *, daal::loop_functype, const void, daal::reduction_functype);
+typedef int (*_daal_parallel_reduce_t)(size_t, int, const void *, daal::loop_functype, const void *, daal::reduction_functype);
 
 typedef void * (*_daal_get_tls_ptr_t)(void *, daal::tls_functype);
 typedef void (*_daal_del_tls_ptr_t)(void *);
