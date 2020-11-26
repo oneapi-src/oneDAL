@@ -33,19 +33,6 @@
 
   <profiles>
     <profile>
-      <id>win_x86</id>
-      <activation>
-        <os>
-          <family>windows</family>
-          <arch>x86</arch>
-        </os>
-      </activation>
-      <properties>
-        <dal.os.name>windows</dal.os.name>
-        <dal.arch.name>x86</dal.arch.name>
-      </properties>
-    </profile>
-    <profile>
       <id>win_amd64</id>
       <activation>
         <os>
@@ -59,19 +46,6 @@
       </properties>
     </profile>
 
-    <profile>
-      <id>lnx_i386</id>
-      <activation>
-        <os>
-          <family>unix</family>
-          <arch>i386</arch>
-        </os>
-      </activation>
-      <properties>
-        <dal.os.name>linux</dal.os.name>
-        <dal.arch.name>x86</dal.arch.name>
-      </properties>
-    </profile>
     <profile>
       <id>lnx_amd64</id>
       <activation>
