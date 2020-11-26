@@ -25,19 +25,19 @@ ONEDAL_EXPORT void _onedal_threader_for(std::int32_t n,
 }
 
 ONEDAL_EXPORT std::int32_t _onedal_parallel_reduce(
-    std::int32_t n,
+    size_t n,
     std::int32_t init,
     const void *a,
     oneapi::dal::preview::loop_functype loop_func,
     const void *b,
-    oneapi::dal::preview::reduce_function reduction_func) {
+    oneapi::dal::preview::reduction_functype reduction_func) {
     static_assert(sizeof(int) == sizeof(std::int32_t));
-    return _daal_parallel_reduce((int)n,
+    return _daal_parallel_reduce(n,
                                  (int)init,
                                  a,
                                  static_cast<daal::loop_functype>(loop_func),
                                  b,
-                                 static_cast<daal::reduce_function>(reduction_func));
+                                 static_cast<daal::reduction_functype>(reduction_func));
 }
 
 namespace oneapi::dal::detail {
