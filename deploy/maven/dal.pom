@@ -9,8 +9,8 @@
     <relativePath></relativePath>
   </parent>
 
-  <artifactId>daal</artifactId>
-  <packaging>pom</packaging>
+  <artifactId>dal</artifactId>
+  <packaging>jar</packaging>
 
   <name>Intel(R) oneAPI Data Analytics Library</name>
   <description>Boost machine learning and data analytics performance with this easy-to-use library</description>
@@ -39,7 +39,7 @@
   <dependencies>
     <dependency>
       <groupId>com.intel.dal</groupId>
-      <artifactId>dal</artifactId>
+      <artifactId>dal-natives</artifactId>
       <version>${project.version}</version>
       <classifier>${dal.os.name}-${dal.arch.name}</classifier>
     </dependency>
