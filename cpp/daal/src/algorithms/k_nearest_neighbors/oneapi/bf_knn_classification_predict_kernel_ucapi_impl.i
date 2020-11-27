@@ -529,6 +529,7 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::scatterBo
     DAAL_CHECK_STATUS_VAR(st);
 
     DAAL_ASSERT_UNIVERSAL_BUFFER(dataSumOfSquares, algorithmFpType, dataBlockRowCount);
+    DAAL_ASSERT_UNIVERSAL_BUFFER(querySumOfSquares, algorithmFpType, queryBlockRowCount);
     DAAL_ASSERT_UNIVERSAL_BUFFER(distances, algorithmFpType, dataBlockRowCount * queryBlockRowCount);
 
     KernelArguments args(4, st);
