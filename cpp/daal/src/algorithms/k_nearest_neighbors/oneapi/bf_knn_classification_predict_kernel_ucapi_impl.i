@@ -84,6 +84,7 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
     auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
     const Model * model = static_cast<const Model *>(m);
+    DAAL_CHECK(model, services::ErrorNullModel);
 
     NumericTable * ntData = const_cast<NumericTable *>(x);
     NumericTable * points = const_cast<NumericTable *>(model->impl()->getData().get());
@@ -97,15 +98,31 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
     const bool computeOutputDistances = bool(parameter->resultsToCompute & ResultToComputeId::computeDistances);
     const bool isOwnDistances = computeOutputDistances && !(computeOutputLabels || computeOutputIndices);
 
+    DAAL_CHECK(ntData != NULL, services::ErrorNullInputNumericTable);
+    DAAL_CHECK(points != NULL, services::ErrorNullInputNumericTable);
+    if(computeOutputLabels)
+    {
+        DAAL_CHECK(y != NULL, services::ErrorNullOutputNumericTable);
+        DAAL_CHECK(labels != NULL, services::ErrorNullInputNumericTable);
+    }
+    if(computeOutputIndices)
+    {
+        DAAL_CHECK(outIndices != NULL, services::ErrorNullOutputNumericTable);
+    }
+    if(computeOutputDistances)
+    {
+        DAAL_CHECK(outDistances != NULL, services::ErrorNullOutputNumericTable);
+    }
+
     const size_t kAsSizeT             = parameter->k;
     DAAL_CHECK(kAsSizeT <= maxInt32AsSizeT, services::ErrorIncorrectParameter);
     const uint32_t k = static_cast<uint32_t>(kAsSizeT);
 
     const size_t nQueryRowsSizeT     = ntData->getNumberOfRows();
     const size_t nQueryFeaturesSizeT = ntData->getNumberOfColumns();
-    const size_t nLabelRowsSizeT     = labels->getNumberOfRows();
     const size_t nDataRowsSizeT      = points->getNumberOfRows();
     const size_t nTrainFeaturesSizeT = points->getNumberOfColumns();
+    const size_t nLabelRowsSizeT     = computeOutputLabels ? labels->getNumberOfRows() : size_t(0);
 
     DAAL_CHECK(nQueryRowsSizeT <= maxInt32AsSizeT, services::ErrorIncorrectNumberOfRowsInInputNumericTable);
     DAAL_CHECK(nDataRowsSizeT <= maxInt32AsSizeT, services::ErrorIncorrectNumberOfRowsInInputNumericTable)
@@ -115,18 +132,20 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
     if(computeOutputLabels)
     {
         DAAL_CHECK(nLabelRowsSizeT <= maxInt32AsSizeT, services::ErrorIncorrectNumberOfRowsInInputNumericTable);
-        //DAAL_CHECK(labels->getNumberOfColumns() != size_t(1), )
+        DAAL_CHECK(labels->getNumberOfColumns() != size_t(1), services::ErrorIncorrectNumberOfColumnsInOutputNumericTable);
+        DAAL_CHECK(y->getNumberOfColumns() != size_t(1), services::ErrorIncorrectNumberOfColumnsInOutputNumericTable);
     }
 
     if(computeOutputIndices)
     {
-        //DAAL_CHECK(outIndices->getNumberOfColumns() != kAsSizeT, )
-
+        DAAL_CHECK(outIndices->getNumberOfColumns() != kAsSizeT, services::ErrorIncorrectNumberOfColumnsInOutputNumericTable);
+        DAAL_CHECK(outIndices->getNumberOfRows() != nQueryRowsSizeT, services::ErrorIncorrectNumberOfRowsInOutputNumericTable);
     }
 
     if(computeOutputDistances)
     {
-
+        DAAL_CHECK(outDistances->getNumberOfColumns() != kAsSizeT, services::ErrorIncorrectNumberOfColumnsInOutputNumericTable);
+        DAAL_CHECK(outDistances->getNumberOfRows() != nQueryRowsSizeT, services::ErrorIncorrectNumberOfRowsInOutputNumericTable);
     }
 
     const uint32_t nQueryRows = static_cast<uint32_t>(nQueryRowsSizeT);
@@ -137,8 +156,8 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
     // Block dimensions below are optimal for GEN9
     // Number of doubles is to 2X less against floats
     // to keep the same block size in bytes
-    const uint32_t maxDataBlockRowCount  = 4096;
-    const uint32_t maxQueryBlockRowCount = 2048 / sizeof(algorithmFpType);
+    const uint32_t maxDataBlockRowCount  = 4 * 4096;
+    const uint32_t maxQueryBlockRowCount = 4 * 2048 / sizeof(algorithmFpType);
     DAAL_CHECK(k <= maxDataBlockRowCount, services::ErrorIncorrectParameter);
 
     // Maximal number of partial selections to be merged at once
@@ -149,6 +168,8 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, maxQueryBlockRowCount, k);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, maxQueryBlockRowCount * k, selectionMaxNumberOfChunks);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, maxQueryBlockRowCount, histogramSize);
+
+    // Allocation section
 
     auto dataSumOfSquares = context.allocate(TypeIds::id<algorithmFpType>(), maxDataBlockRowCount, st);
     DAAL_CHECK_STATUS_VAR(st);
