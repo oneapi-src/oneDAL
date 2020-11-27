@@ -75,6 +75,10 @@ private:
                                     const services::internal::sycl::UniversalBuffer & labels, uint32_t queryBlockRowCount, uint32_t k,
                                     services::internal::sycl::UniversalBuffer labelsOut);
 
+    services::Status distancesFromSquares(services::internal::sycl::ExecutionContextIface & context,
+                                          services::internal::sycl::UniversalBuffer & data,
+                                          const uint32_t distancesCount);
+
     services::Status buildProgram(services::internal::sycl::ClKernelFactoryIface & kernel_factory);
 };
 

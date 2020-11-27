@@ -124,7 +124,7 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
 
     }
 
-    if(computeOutputDistances && (outDistances == NULL))
+    if(computeOutputDistances)
     {
 
     }
@@ -332,9 +332,27 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
             DAAL_CHECK_STATUS_VAR(st);
             DAAL_CHECK_STATUS_VAR(outIndices->releaseBlockOfRows(indicesBlock));
         }  
-        if(computeOutputDistances && computeOutputIndices)
+        if((computeOutputDistances && computeOutputIndices) || isOwnDistances)
         {
-
+            BlockDescriptor<algorithmFpType> distancesBlock;
+            DAAL_CHECK_STATUS_VAR(outDistances->getBlockOfRows(curQueryRange.startIndex, curQueryRange.count, writeOnly, distancesBlock));
+            auto outBuff = distancesBlock.getBuffer();
+            const size_t distancesCount = outBuff.size();
+            auto inpBuff = selectResultIndices.values;
+            DAAL_CHECK_STATUS_VAR(distancesFromSquares(context, inpBuff, distancesCount));
+            DAAL_CHECK_STATUS_VAR(st);
+            DAAL_CHECK_STATUS_VAR(outDistances->releaseBlockOfRows(distancesBlock));
+        }
+        else if(computeOutputDistances && computeOutputLabels)
+        {
+            BlockDescriptor<algorithmFpType> distancesBlock;
+            DAAL_CHECK_STATUS_VAR(outDistances->getBlockOfRows(curQueryRange.startIndex, curQueryRange.count, writeOnly, distancesBlock));
+            auto outBuff = distancesBlock.getBuffer();
+            const size_t distancesCount = outBuff.size();
+            auto inpBuff = selectResult.values;
+            DAAL_CHECK_STATUS_VAR(distancesFromSquares(context, inpBuff, distancesCount));
+            DAAL_CHECK_STATUS_VAR(st);
+            DAAL_CHECK_STATUS_VAR(outDistances->releaseBlockOfRows(distancesBlock));
         }
         DAAL_CHECK_STATUS_VAR(ntData->releaseBlockOfRows(queryRows));
     }
@@ -365,6 +383,33 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::initializ
     args.set(1, static_cast<int32_t>(fromDataBlockRow));
 
     KernelRange range(dataBlockRowCount);
+
+    context.run(range, kernel, args, st);
+    DAAL_CHECK_STATUS_VAR(st);
+
+    return st;
+}
+
+template <typename algorithmFpType>
+services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::distancesFromSquares(
+                                        services::internal::sycl::ExecutionContextIface & context,
+                                        services::internal::sycl::UniversalBuffer & data,
+                                        const uint32_t distancesCount)
+{
+    DAAL_ITTNOTIFY_SCOPED_TASK(compute.distancesFromSquare);
+
+    services::Status st;
+    auto & kernelFactory = context.getClKernelFactory();
+    DAAL_CHECK_STATUS_VAR(buildProgram(kernelFactory));
+    auto kernel = kernelFactory.getKernel("distances_from_squares", st);
+    DAAL_CHECK_STATUS_VAR(st);
+
+    KernelArguments args(1, st);
+    DAAL_CHECK_STATUS_VAR(st);
+
+    args.set(0, data, AccessModeIds::readwrite);
+
+    KernelRange range(distancesCount);
 
     context.run(range, kernel, args, st);
     DAAL_CHECK_STATUS_VAR(st);

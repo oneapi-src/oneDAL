@@ -512,7 +512,7 @@ void printNumericTables(NumericTable * dataTable1, NumericTable * dataTable2, co
         }
         for (size_t j = 0; j < nCols2; j++)
         {
-            std::cout << std::setprecision(0) << std::setw(interval) << data2[i * nCols2 + j];
+            std::cout << std::setprecision(3) << std::setw(interval) << data2[i * nCols2 + j];
         }
         std::cout << std::endl;
     }

@@ -22,7 +22,7 @@
 
 /**
  * <a name="DAAL-EXAMPLE-CPP-BF_KNN_DENSE_BATCH"></a>
- * \example bf_knn_dense_batch.cpp
+ * \example bf_knn_dense_search_batch.cpp
  */
 
 #include "daal_sycl.h"
