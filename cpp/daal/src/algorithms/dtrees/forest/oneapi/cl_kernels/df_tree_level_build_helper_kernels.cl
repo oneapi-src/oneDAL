@@ -43,10 +43,10 @@ DECLARE_SOURCE(
 
     __kernel void doLevelPartitionByGroups(const __global int * data, const __global int * nodeList, __global int * nodeAuxList,
                                            const __global int * treeOrder, __global int * treeOrderBuf, int nNodes, int nFeatures) {
-        const int nNodeProp    = NODE_PROPS;               // num of split attributes for node
-        const int nAuxNodeProp = AUX_NODE_PROPS;           // num of auxilliary attributes for node
-        const int maxBlocksNum = PARTITION_MAX_BLOCKS_NUM; // num of auxilliary attributes for node
-        const int minBlockSize = MIN_BLOCK_SIZE;           // num of auxilliary attributes for node
+        const int nNodeProp    = NODE_PROPS;     // num of split attributes for node
+        const int nAuxNodeProp = AUX_NODE_PROPS; // num of auxilliary attributes for node
+        const int maxBlocksNum = PARTITION_MAX_BLOCKS_NUM;
+        const int minBlockSize = PARTITION_MIN_BLOCK_SIZE;
         const int leafMark     = -1;
 
         const int sub_group_size               = get_sub_group_size();
@@ -71,23 +71,25 @@ DECLARE_SOURCE(
             const int nRows           = node[1];
             const int featId          = node[2];
             const int splitVal        = node[3];
-            const int nRowsLeft       = node[4]; // num of items in Left part
+            const int nRowsLeft       = node[4]; // num of items in Left part of node
 
             int nodeBlocks = nRows / minBlockSize ? min(nRows / minBlockSize, maxBlocksNum) : 1;
 
+            // if node has blocks less than maxBlocksNum then subgroup will just go to the next node
             if (featId != leafMark && blockInd < nodeBlocks) // split node
             {
                 __global const int * nodeAux = nodeAuxList + nodeId * nAuxNodeProp;
 
                 const int blockSize = nodeBlocks > 1 ? nRows / nodeBlocks + !!(nRows % nodeBlocks) : nRows;
 
-                int iStart = blockInd * blockSize;
-                int iEnd   = min((blockInd + 1) * blockSize, nRows);
+                const int iEnd         = min((blockInd + 1) * blockSize, nRows);
+                const int iStart       = min(blockInd * blockSize, iEnd);
+                const int rowsForGroup = iEnd - iStart;
 
                 int groupLeftBoundary  = 0;
                 int groupRightBoundary = 0;
 
-                if (nodeBlocks > 1)
+                if (nodeBlocks > 1 && rowsForGroup > 0)
                 {
                     int groupRowsToRight = 0;
                     for (int i = iStart + sub_group_local_id; i < iEnd; i += sub_group_size)
@@ -99,9 +101,8 @@ DECLARE_SOURCE(
 
                     if (0 == sub_group_local_id)
                     {
-                        const int rowsForGroup = iEnd - iStart;
-                        groupLeftBoundary      = atomic_add(nodeAux + 0, rowsForGroup - groupRowsToRight);
-                        groupRightBoundary     = atomic_add(nodeAux + 1, groupRowsToRight);
+                        groupLeftBoundary  = atomic_add(nodeAux + 0, rowsForGroup - groupRowsToRight);
+                        groupRightBoundary = atomic_add(nodeAux + 1, groupRowsToRight);
                     }
                     groupLeftBoundary  = sub_group_broadcast(groupLeftBoundary, 0);
                     groupRightBoundary = sub_group_broadcast(groupRightBoundary, 0);
