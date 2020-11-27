@@ -70,7 +70,7 @@ public:
     using vertex_set = detail::graph_container<vertex_type, vertex_allocator_type>;
     using vertex_iterator = vertex_type*;
     using const_vertex_iterator = const vertex_type*;
-    using vertex_size_type = typename vertex_set::size_type;
+    using vertex_size_type = std::int64_t;
 
     using edge_type = IndexType;
     using edge_allocator_type =
@@ -80,7 +80,7 @@ public:
     using edge_set = detail::graph_container<edge_type, edge_allocator_type>;
     using edge_iterator = edge_type*;
     using const_edge_iterator = const edge_type*;
-    using edge_size_type = typename edge_set::size_type;
+    using edge_size_type = std::int64_t;
 
     using vertex_user_value_type = VertexValue;
     using vertex_user_value_allocator_type =
@@ -106,31 +106,44 @@ public:
         auto& edge_offsets = _topology._edge_offsets;
         auto& vertex_value = _vertex_values._vertex_value;
         auto& edge_value = _edge_values._edge_value;
-        if (vertex_neighbors.get_data() != nullptr) {
+
+        if (vertex_neighbors.get_data() != nullptr && vertex_neighbors.has_mutable_data()) {
             vertex_allocator_traits::deallocate(_vertex_allocator,
                                                 vertex_neighbors.get_mutable_data(),
                                                 vertex_neighbors.get_count());
         }
-        if (degrees.get_data() != nullptr) {
+        if (degrees.get_data() != nullptr && degrees.has_mutable_data()) {
             vertex_allocator_traits::deallocate(_vertex_allocator,
                                                 degrees.get_mutable_data(),
                                                 degrees.get_count());
         }
-        if (edge_offsets.get_data() != nullptr) {
+        if (edge_offsets.get_data() != nullptr && edge_offsets.has_mutable_data()) {
             edge_allocator_traits::deallocate(_edge_allocator,
                                               edge_offsets.get_mutable_data(),
                                               edge_offsets.get_count());
         }
-        if (vertex_value.get_data() != nullptr) {
+        if (vertex_value.get_data() != nullptr && vertex_value.has_mutable_data()) {
             vertex_user_value_allocator_traits::deallocate(_vertex_user_value_allocator,
                                                            vertex_value.get_mutable_data(),
                                                            vertex_value.get_count());
         }
-        if (edge_value.get_data() != nullptr) {
+        if (edge_value.get_data() != nullptr && edge_value.has_mutable_data()) {
             edge_user_value_allocator_traits::deallocate(_edge_user_value_allocator,
                                                          edge_value.get_mutable_data(),
                                                          edge_value.get_count());
         }
+    }
+
+    void set_topology(vertex_size_type vertex_count,
+                      edge_size_type edge_count,
+                      edge_type* offsets,
+                      vertex_type* neighbors,
+                      vertex_type* degrees) {
+        _topology._vertex_count = vertex_count;
+        _topology._edge_count = edge_count;
+        _topology._edge_offsets = array<edge_type>::wrap(offsets, vertex_count + 1);
+        _topology._degrees = array<vertex_type>::wrap(degrees, vertex_count);
+        _topology._vertex_neighbors = array<vertex_type>::wrap(neighbors, edge_count * 2);
     }
 
     topology<IndexType>& get_topology() {
