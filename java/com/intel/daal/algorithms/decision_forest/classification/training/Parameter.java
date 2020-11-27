@@ -257,6 +257,42 @@ public class Parameter extends com.intel.daal.algorithms.classifier.Parameter {
         cSetMaxLeafNodes(this.cObject, value);
     }
 
+    /**
+     * Return the maximal number of discrete bins to bucket continuous features. Used with 'hist' split finding method only.
+     * Default is 256. Increasing the number results in higher computation costs
+     * @return Maximal number of discrete bins to bucket continuous features
+     */
+    public long getMaxBins() {
+        return cGetMaxBins(this.cObject);
+    }
+
+    /**
+     * Sets the maximal number of discrete bins to bucket continuous features. Used with 'hist' split finding method only.
+     * Default is 256. Increasing the number results in higher computation costs
+     * @param value Maximal number of discrete bins to bucket continuous features
+     */
+    public void setMaxBins(long value) {
+        cSetMaxBins(this.cObject, value);
+    }
+
+    /**
+     * Return the minimal number of observations in a bin. Used with 'hist' split finding method only.
+     * Default is 5
+     * @return Minimal number of observations in a bin
+     */
+    public long getMinBinSize() {
+        return cGetMinBinSize(this.cObject);
+    }
+
+    /**
+     * Sets the minimal number of observations in a bin. Used with 'hist' split finding method only.
+     * Default is 5
+     * @param value Minimal number of observations in a bin
+     */
+    public void setMinBinSize(long value) {
+        cSetMinBinSize(this.cObject, value);
+    }
+
     private native long cGetNTrees(long parAddr);
     private native void cSetNTrees(long parAddr, long value);
 
@@ -296,6 +332,12 @@ public class Parameter extends com.intel.daal.algorithms.classifier.Parameter {
 
     private native long cGetMaxLeafNodes(long parAddr);
     private native void cSetMaxLeafNodes(long parAddr, long value);
+
+    private native long cGetMaxBins(long parAddr);
+    private native void cSetMaxBins(long parAddr, long value);
+
+    private native long cGetMinBinSize(long parAddr);
+    private native void cSetMinBinSize(long parAddr, long value);
 
 }
 /** @} */

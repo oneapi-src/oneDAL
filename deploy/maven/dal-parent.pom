@@ -2,14 +2,14 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.intel.daal</groupId>
-  <artifactId>daal-parent</artifactId>
+  <groupId>com.intel.dal</groupId>
+  <artifactId>dal-parent</artifactId>
   <version>{{version}}</version>
   <packaging>pom</packaging>
 
   <name>Intel(R) oneAPI Data Analytics Library</name>
   <description>Boost machine learning and data analytics performance with this easy-to-use library</description>
-  <url>https://software.intel.com/en-us/intel-daal</url>
+  <url>https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onedal.html</url>
 
   <licenses>
     <license>
@@ -33,19 +33,6 @@
 
   <profiles>
     <profile>
-      <id>win_x86</id>
-      <activation>
-        <os>
-          <family>windows</family>
-          <arch>x86</arch>
-        </os>
-      </activation>
-      <properties>
-        <daal.os.name>windows</daal.os.name>
-        <daal.arch.name>x86</daal.arch.name>
-      </properties>
-    </profile>
-    <profile>
       <id>win_amd64</id>
       <activation>
         <os>
@@ -54,24 +41,11 @@
         </os>
       </activation>
       <properties>
-        <daal.os.name>windows</daal.os.name>
-        <daal.arch.name>x86_64</daal.arch.name>
+        <dal.os.name>windows</dal.os.name>
+        <dal.arch.name>x86_64</dal.arch.name>
       </properties>
     </profile>
 
-    <profile>
-      <id>lnx_i386</id>
-      <activation>
-        <os>
-          <family>unix</family>
-          <arch>i386</arch>
-        </os>
-      </activation>
-      <properties>
-        <daal.os.name>linux</daal.os.name>
-        <daal.arch.name>x86</daal.arch.name>
-      </properties>
-    </profile>
     <profile>
       <id>lnx_amd64</id>
       <activation>
@@ -81,8 +55,8 @@
         </os>
       </activation>
       <properties>
-        <daal.os.name>linux</daal.os.name>
-        <daal.arch.name>x86_64</daal.arch.name>
+        <dal.os.name>linux</dal.os.name>
+        <dal.arch.name>x86_64</dal.arch.name>
       </properties>
     </profile>
 
@@ -95,8 +69,8 @@
         </os>
       </activation>
       <properties>
-        <daal.os.name>macos</daal.os.name>
-        <daal.arch.name>x86_64</daal.arch.name>
+        <dal.os.name>macos</dal.os.name>
+        <dal.arch.name>x86_64</dal.arch.name>
       </properties>
     </profile>
   </profiles>

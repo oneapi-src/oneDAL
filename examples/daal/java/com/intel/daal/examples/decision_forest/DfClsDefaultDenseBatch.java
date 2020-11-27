@@ -1,4 +1,4 @@
-/* file: DfClsDenseBatch.java */
+/* file: DfClsDefaultDenseBatch.java */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -25,8 +25,8 @@
  */
 
 /**
- * <a name="DAAL-EXAMPLE-JAVA-DfClsDenseBatch">
- * @example DfClsDenseBatch.java
+ * <a name="DAAL-EXAMPLE-JAVA-DfClsDefaultDenseBatch">
+ * @example DfClsDefaultDenseBatch.java
  */
 
 package com.intel.daal.examples.decision_forest;
@@ -50,7 +50,7 @@ import com.intel.daal.examples.utils.Service;
 import com.intel.daal.services.DaalContext;
 import com.intel.daal.data_management.data.*;
 
-class DfClsDenseBatch {
+class DfClsDefaultDenseBatch {
     /* Input data set parameters */
     private static final String trainDataset = "../data/batch/df_classification_train.csv";
 
