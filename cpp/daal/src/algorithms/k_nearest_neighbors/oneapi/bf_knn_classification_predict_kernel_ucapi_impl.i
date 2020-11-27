@@ -132,20 +132,20 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
     if(computeOutputLabels)
     {
         DAAL_CHECK(nLabelRowsSizeT <= maxInt32AsSizeT, services::ErrorIncorrectNumberOfRowsInInputNumericTable);
-        DAAL_CHECK(labels->getNumberOfColumns() != size_t(1), services::ErrorIncorrectNumberOfColumnsInOutputNumericTable);
-        DAAL_CHECK(y->getNumberOfColumns() != size_t(1), services::ErrorIncorrectNumberOfColumnsInOutputNumericTable);
+        DAAL_CHECK(labels->getNumberOfColumns() == size_t(1), services::ErrorIncorrectNumberOfColumnsInOutputNumericTable);
+        DAAL_CHECK(y->getNumberOfColumns() == size_t(1), services::ErrorIncorrectNumberOfColumnsInOutputNumericTable);
     }
 
     if(computeOutputIndices)
     {
-        DAAL_CHECK(outIndices->getNumberOfColumns() != kAsSizeT, services::ErrorIncorrectNumberOfColumnsInOutputNumericTable);
-        DAAL_CHECK(outIndices->getNumberOfRows() != nQueryRowsSizeT, services::ErrorIncorrectNumberOfRowsInOutputNumericTable);
+        DAAL_CHECK(outIndices->getNumberOfColumns() == kAsSizeT, services::ErrorIncorrectNumberOfColumnsInOutputNumericTable);
+        DAAL_CHECK(outIndices->getNumberOfRows() == nQueryRowsSizeT, services::ErrorIncorrectNumberOfRowsInOutputNumericTable);
     }
 
     if(computeOutputDistances)
     {
-        DAAL_CHECK(outDistances->getNumberOfColumns() != kAsSizeT, services::ErrorIncorrectNumberOfColumnsInOutputNumericTable);
-        DAAL_CHECK(outDistances->getNumberOfRows() != nQueryRowsSizeT, services::ErrorIncorrectNumberOfRowsInOutputNumericTable);
+        DAAL_CHECK(outDistances->getNumberOfColumns() == kAsSizeT, services::ErrorIncorrectNumberOfColumnsInOutputNumericTable);
+        DAAL_CHECK(outDistances->getNumberOfRows() == nQueryRowsSizeT, services::ErrorIncorrectNumberOfRowsInOutputNumericTable);
     }
 
     const uint32_t nQueryRows = static_cast<uint32_t>(nQueryRowsSizeT);
@@ -424,6 +424,8 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::distances
     DAAL_CHECK_STATUS_VAR(buildProgram(kernelFactory));
     auto kernel = kernelFactory.getKernel("distances_from_squares", st);
     DAAL_CHECK_STATUS_VAR(st);
+
+    DAAL_ASSERT_UNIVERSAL_BUFFER(data, algorithmFpType, distancesCount);
 
     KernelArguments args(1, st);
     DAAL_CHECK_STATUS_VAR(st);
