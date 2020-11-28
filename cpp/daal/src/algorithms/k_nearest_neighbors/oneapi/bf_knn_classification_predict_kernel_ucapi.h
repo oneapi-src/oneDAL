@@ -43,6 +43,7 @@ public:
     //services::Status compute(const NumericTable * x, const classifier::Model * m, NumericTable * y, const daal::algorithms::Parameter * par);
     services::Status compute(const NumericTable * x, const classifier::Model * m, NumericTable * y, NumericTable * outIndices,
                              NumericTable * outDistances, const daal::algorithms::Parameter * par);
+
 private:
     services::Status copyPartialDistancesAndLabels(services::internal::sycl::ExecutionContextIface & context,
                                                    const services::internal::sycl::UniversalBuffer & distances,
@@ -57,9 +58,8 @@ private:
 
     services::Status scatterBothL2Norms(services::internal::sycl::ExecutionContextIface & context,
                                         const services::internal::sycl::UniversalBuffer & dataSumOfSquares,
-                                        const services::internal::sycl::UniversalBuffer & querySumOfSquares,
-                                        uint32_t dataBlockRowCount, uint32_t queryBlockRowCount,
-                                        services::internal::sycl::UniversalBuffer & distances);
+                                        const services::internal::sycl::UniversalBuffer & querySumOfSquares, uint32_t dataBlockRowCount,
+                                        uint32_t queryBlockRowCount, services::internal::sycl::UniversalBuffer & distances);
 
     services::Status computeDistances(services::internal::sycl::ExecutionContextIface & context,
                                       const services::internal::Buffer<algorithmFpType> & data,
@@ -67,16 +67,14 @@ private:
                                       services::internal::sycl::UniversalBuffer & distances, uint32_t dataBlockRowCount, uint32_t queryBlockRowCount,
                                       uint32_t nFeatures);
 
-    services::Status initializeIndices(services::internal::sycl::ExecutionContextIface & context,
-                                       const uint32_t dataBlockRowCount, const uint32_t fromDataBlockRow, 
-                                       services::internal::sycl::UniversalBuffer & indices);
+    services::Status initializeIndices(services::internal::sycl::ExecutionContextIface & context, const uint32_t dataBlockRowCount,
+                                       const uint32_t fromDataBlockRow, services::internal::sycl::UniversalBuffer & indices);
 
     services::Status computeWinners(services::internal::sycl::ExecutionContextIface & context,
                                     const services::internal::sycl::UniversalBuffer & labels, uint32_t queryBlockRowCount, uint32_t k,
                                     services::internal::sycl::UniversalBuffer labelsOut);
 
-    services::Status distancesFromSquares(services::internal::sycl::ExecutionContextIface & context,
-                                          services::internal::sycl::UniversalBuffer & data,
+    services::Status distancesFromSquares(services::internal::sycl::ExecutionContextIface & context, services::internal::sycl::UniversalBuffer & data,
                                           const uint32_t distancesCount);
 
     services::Status buildProgram(services::internal::sycl::ClKernelFactoryIface & kernel_factory);
