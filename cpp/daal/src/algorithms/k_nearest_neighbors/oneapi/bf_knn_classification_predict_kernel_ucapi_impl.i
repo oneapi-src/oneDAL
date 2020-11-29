@@ -151,8 +151,9 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
 
     const uint32_t nQueryRows = static_cast<uint32_t>(nQueryRowsSizeT);
     const uint32_t nLabelRows = static_cast<uint32_t>(nLabelRowsSizeT);
-    const uint32_t nDataRows  = static_cast<uint32_t>(nDataRowsSizeT < nLabelRowsSizeT ? nDataRowsSizeT : nLabelRowsSizeT);
-    const uint32_t nFeatures  = static_cast<uint32_t>(nTrainFeaturesSizeT);
+    const uint32_t nDataRows  = computeOutputLabels ? static_cast<uint32_t>(nDataRowsSizeT < nLabelRowsSizeT ? nDataRowsSizeT : nLabelRowsSizeT) :
+                                                     static_cast<uint32_t>(nDataRowsSizeT);
+    const uint32_t nFeatures = static_cast<uint32_t>(nTrainFeaturesSizeT);
 
     // Block dimensions below are optimal for GEN9
     // Number of doubles is to 2X less against floats
@@ -347,8 +348,10 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
         {
             BlockDescriptor<int> indicesBlock;
             DAAL_CHECK_STATUS_VAR(outIndices->getBlockOfRows(curQueryRange.startIndex, curQueryRange.count, writeOnly, indicesBlock));
-            auto outBuff = indicesBlock.getBuffer();
-            context.copy(outBuff, size_t(0), selectResultIndices.indices, size_t(0), outBuff.size(), st);
+            auto outBuff              = indicesBlock.getBuffer();
+            const size_t indicesCount = outBuff.size();
+            auto inpBuff              = selectResultIndices.indices;
+            context.copy(outBuff, size_t(0), inpBuff, size_t(0), indicesCount, st);
             DAAL_CHECK_STATUS_VAR(st);
             DAAL_CHECK_STATUS_VAR(outIndices->releaseBlockOfRows(indicesBlock));
         }
@@ -360,6 +363,7 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
             const size_t distancesCount = outBuff.size();
             auto inpBuff                = selectResultIndices.values;
             DAAL_CHECK_STATUS_VAR(distancesFromSquares(context, inpBuff, distancesCount));
+            context.copy(outBuff, size_t(0), inpBuff, size_t(0), distancesCount, st);
             DAAL_CHECK_STATUS_VAR(st);
             DAAL_CHECK_STATUS_VAR(outDistances->releaseBlockOfRows(distancesBlock));
         }
@@ -371,6 +375,7 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
             const size_t distancesCount = outBuff.size();
             auto inpBuff                = selectResult.values;
             DAAL_CHECK_STATUS_VAR(distancesFromSquares(context, inpBuff, distancesCount));
+            context.copy(outBuff, size_t(0), inpBuff, size_t(0), distancesCount, st);
             DAAL_CHECK_STATUS_VAR(st);
             DAAL_CHECK_STATUS_VAR(outDistances->releaseBlockOfRows(distancesBlock));
         }

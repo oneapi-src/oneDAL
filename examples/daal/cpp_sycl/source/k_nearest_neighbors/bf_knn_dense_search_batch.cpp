@@ -1,4 +1,4 @@
-/* file: bf_knn_search_dense_batch.cpp */
+/* file: bf_knn_dense_search_batch.cpp */
 /*******************************************************************************
  * Copyright 2014-2020 Intel Corporation
  *
@@ -21,7 +21,7 @@
 !******************************************************************************/
 
 /**
- * <a name="DAAL-EXAMPLE-CPP-BF_KNN_DENSE_BATCH"></a>
+ * <a name="DAAL-EXAMPLE-CPP-BF_KNN_DENSE_SEARCH_BATCH"></a>
  * \example bf_knn_dense_search_batch.cpp
  */
 

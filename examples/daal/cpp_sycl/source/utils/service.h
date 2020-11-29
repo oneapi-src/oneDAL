@@ -490,11 +490,11 @@ void printNumericTables(NumericTable *dataTable1, NumericTable *dataTable2,
   for (size_t i = 0; i < nRows; i++) {
     for (size_t j = 0; j < nCols1; j++) {
       std::cout << std::setw(interval) << std::setiosflags(std::ios::fixed)
-                << std::setprecision(3);
+                << std::setprecision(5);
       std::cout << data1[i * nCols1 + j];
     }
     for (size_t j = 0; j < nCols2; j++) {
-      std::cout << std::setprecision(3) << std::setw(interval)
+      std::cout << std::setprecision(5) << std::setw(interval)
                 << data2[i * nCols2 + j];
     }
     std::cout << std::endl;
@@ -544,11 +544,11 @@ void printNumericTables(NumericTable *dataTable1, NumericTable *dataTable2,
   for (size_t i = 0; i < nRows; i++) {
     for (size_t j = 0; j < nCols1; j++) {
       std::cout << std::setw(interval) << std::setiosflags(std::ios::fixed)
-                << std::setprecision(3);
+                << std::setprecision(5);
       std::cout << data1[i * nCols1 + j];
     }
     for (size_t j = 0; j < nCols2; j++) {
-      std::cout << std::setprecision(0) << std::setw(interval)
+      std::cout << std::setprecision(5) << std::setw(interval)
                 << data2[i * nCols2 + j];
     }
     std::cout << std::endl;
