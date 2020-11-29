@@ -43,15 +43,15 @@ const string testDatasetFileName = "../data/batch/linear_regression_test.csv";
 
 const size_t nFeatures  = 10; /* Number of features in training and testing data sets */
 const size_t nResponses = 2;  /* Number of dependent variables that correspond to each observation */
-const size_t kNeighbors = 3;
+const size_t kNeighbors = 12; /* The best number of neighbors defined by hyperparameter search */
 
 void readDataFile(const string& fileName, NumericTablePtr &dataSamples, NumericTablePtr &dataResponses);
 void trainModel(NumericTablePtr &trainSamples, bf_knn_classification::training::ResultPtr &trainingResult);
 void testModel(bf_knn_classification::training::ResultPtr &trainingResult,
                NumericTablePtr &testSamples,
                bf_knn_classification::prediction::ResultPtr &searchResult);
-void doRegression(bf_knn_classification::prediction::ResultPtr &searchResult,
-                NumericTablePtr &trainResponses, NumericTablePtr &testResults);
+void doRegression(cl::sycl::queue& q, bf_knn_classification::prediction::ResultPtr &searchResult,
+                NumericTablePtr &trainResponses, NumericTablePtr &testResponses);
 void printResults(NumericTablePtr &testGroundTruth, NumericTablePtr &testPredictResult);
 
 int main(int argc, char *argv[]) {
@@ -77,11 +77,9 @@ int main(int argc, char *argv[]) {
     bf_knn_classification::prediction::ResultPtr searchResult;
     testModel(trainingResult, testSamples, searchResult);
 
-    printNumericTable(searchResult->get(bf_knn_classification::prediction::distances),
-        "Distances", 20);
-
-    NumericTablePtr testResults;
-    doRegression(searchResult, trainResponses, testResults);
+    const size_t nTestSamples = testSamples->getNumberOfRows();
+    NumericTablePtr testResults = SyclHomogenNumericTable<>::create(nResponses, nTestSamples, NumericTable::doAllocate);;
+    doRegression(queue, searchResult, trainResponses, testResults);
 
     printResults(testResults, testResponses);
   }
@@ -115,7 +113,6 @@ void trainModel(NumericTablePtr& trainSamples, bf_knn_classification::training::
     //algorithm.parameter().nClasses = 1;
     algorithm.parameter().resultsToEvaluate = 0;
     algorithm.parameter().resultsToCompute =
-        bf_knn_classification::computeDistances |
         bf_knn_classification::computeIndicesOfNeighbors;
     /* Train the BF kNN model */
     algorithm.compute();
@@ -137,7 +134,6 @@ void testModel(bf_knn_classification::training::ResultPtr &trainingResult,
   algorithm.parameter().resultsToEvaluate = 0;
   algorithm.parameter().k = kNeighbors;
   algorithm.parameter().resultsToCompute =
-      bf_knn_classification::computeDistances |
       bf_knn_classification::computeIndicesOfNeighbors;
 
   /* Compute prediction results */
@@ -147,10 +143,66 @@ void testModel(bf_knn_classification::training::ResultPtr &trainingResult,
   searchResult = algorithm.getResult();
 }
 
-void doRegression(bf_knn_classification::prediction::ResultPtr &searchResult,
-                NumericTablePtr &trainResponses, NumericTablePtr &testResults) 
+
+
+void doRegression(cl::sycl::queue& q, bf_knn_classification::prediction::ResultPtr &searchResult,
+                NumericTablePtr &trainResponses, NumericTablePtr &testResponses) 
 {
-    testResults = searchResult->get(bf_knn_classification::prediction::distances);
+    NumericTablePtr neighborsIndicesTable = searchResult->get(bf_knn_classification::prediction::indices);
+    printNumericTable(neighborsIndicesTable, "neighbors", 5);
+    BlockDescriptor<int> neighborsIndicesBlock;
+    BlockDescriptor<float> trainResponsesBlock;
+    BlockDescriptor<float> testResponsesBlock;
+    const size_t nTrainSamples = trainResponses->getNumberOfRows();
+    const size_t nTestSamples = testResponses->getNumberOfRows(); 
+    {
+        neighborsIndicesTable->getBlockOfRows(0, nTestSamples, readOnly, neighborsIndicesBlock);
+        testResponses->getBlockOfRows(0, nTestSamples, writeOnly, testResponsesBlock);
+        trainResponses->getBlockOfRows(0, nTrainSamples, readOnly, trainResponsesBlock);
+    }
+    {
+        auto neighborsIndicesBuffer = neighborsIndicesBlock.getBuffer().toSycl();
+        /*{
+            auto hostIds = neighborsIndicesBuffer.get_access<cl::sycl::access::mode::read>();
+            for(int i = 0; size_t(i) < (250 * kNeighbors); ++i)
+            {
+                std::cerr << hostIds[i] << std::endl;
+            }
+        }*/
+        auto testResponsesBuffer = testResponsesBlock.getBuffer().toSycl();
+        auto trainResponsesBuffer = trainResponsesBlock.getBuffer().toSycl();
+        const float kn = static_cast<float>(kNeighbors);
+        q.submit(
+            [&](cl::sycl::handler& h)
+            {
+
+                auto neighborsIndicesAcc = neighborsIndicesBuffer.get_access<cl::sycl::access::mode::read>(h);
+                auto testResponsesAcc = testResponsesBuffer.get_access<cl::sycl::access::mode::write>(h);
+                auto trainResponsesAcc = trainResponsesBuffer.get_access<cl::sycl::access::mode::read>(h);
+                h.parallel_for<class regressor>(
+                    cl::sycl::range<2>(nTestSamples, nResponses),
+                    [=](cl::sycl::id<2> idx)
+                    {
+                        float acc(0); 
+                        int trIndex;
+                        for(size_t i = 0; i < kNeighbors; ++i)
+                        {
+                            trIndex = neighborsIndicesAcc[idx[0] * kNeighbors + i];
+                            acc += trainResponsesAcc[trIndex * nResponses + idx[1]];
+                        }
+                        testResponsesAcc[idx[0] * nResponses + idx[1]] = acc / kn;
+                    }
+                );
+            }
+        );
+        q.wait();
+    }
+    {
+        neighborsIndicesTable->releaseBlockOfRows(neighborsIndicesBlock);
+        testResponses->releaseBlockOfRows(testResponsesBlock);
+        trainResponses->releaseBlockOfRows(trainResponsesBlock);
+    }
+    //testResults = searchResult->get(bf_knn_classification::prediction::indices);
 }
 
 void printResults(NumericTablePtr &testGroundTruth, NumericTablePtr &testPredictResult) {
