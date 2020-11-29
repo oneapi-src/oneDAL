@@ -91,7 +91,7 @@ int main(int argc, char *argv[]) {
     ;
     doRegression(queue, searchResult, trainResponses, testResults);
 
-    printResults(testResults, testResponses);
+    printResults(testResponses, testResults);
   }
   return 0;
 }
@@ -180,14 +180,6 @@ void doRegression(cl::sycl::queue &q,
   }
   {
     auto neighborsIndicesBuffer = neighborsIndicesBlock.getBuffer().toSycl();
-    /*{
-        auto hostIds =
-    neighborsIndicesBuffer.get_access<cl::sycl::access::mode::read>(); for(int i
-    = 0; size_t(i) < (250 * kNeighbors); ++i)
-        {
-            std::cerr << hostIds[i] << std::endl;
-        }
-    }*/
     auto testResponsesBuffer = testResponsesBlock.getBuffer().toSycl();
     auto trainResponsesBuffer = trainResponsesBlock.getBuffer().toSycl();
     const float kn = static_cast<float>(kNeighbors);
@@ -217,13 +209,11 @@ void doRegression(cl::sycl::queue &q,
     testResponses->releaseBlockOfRows(testResponsesBlock);
     trainResponses->releaseBlockOfRows(trainResponsesBlock);
   }
-  // testResults =
-  // searchResult->get(bf_knn_classification::prediction::indices);
 }
 
 void printResults(NumericTablePtr &testGroundTruth,
                   NumericTablePtr &testPredictResult) {
   printNumericTables<float, float>(
-      testGroundTruth, testPredictResult, "Ground truth", "Distances results",
-      "BF kNN search results (first 20 observations):", 20);
+      testGroundTruth, testPredictResult, "Ground truth", "Regression results",
+      "BF kNN regression results (first 20 observations):", 20);
 }
