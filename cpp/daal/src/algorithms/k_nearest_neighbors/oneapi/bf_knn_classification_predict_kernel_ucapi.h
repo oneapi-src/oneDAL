@@ -40,7 +40,6 @@ template <typename algorithmFpType>
 class KNNClassificationPredictKernelUCAPI : public daal::algorithms::Kernel
 {
 public:
-    //services::Status compute(const NumericTable * x, const classifier::Model * m, NumericTable * y, const daal::algorithms::Parameter * par);
     services::Status compute(const NumericTable * x, const classifier::Model * m, NumericTable * y, NumericTable * outIndices,
                              NumericTable * outDistances, const daal::algorithms::Parameter * par);
 

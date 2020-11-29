@@ -41,18 +41,26 @@ using daal::services::internal::SyclExecutionContext;
 const string trainDatasetFileName = "../data/batch/linear_regression_train.csv";
 const string testDatasetFileName = "../data/batch/linear_regression_test.csv";
 
-const size_t nFeatures  = 10; /* Number of features in training and testing data sets */
-const size_t nResponses = 2;  /* Number of dependent variables that correspond to each observation */
-const size_t kNeighbors = 12; /* The best number of neighbors defined by hyperparameter search */
+const size_t nFeatures =
+    10; /* Number of features in training and testing data sets */
+const size_t nResponses =
+    2; /* Number of dependent variables that correspond to each observation */
+const size_t kNeighbors =
+    12; /* The best number of neighbors defined by hyperparameter search */
 
-void readDataFile(const string& fileName, NumericTablePtr &dataSamples, NumericTablePtr &dataResponses);
-void trainModel(NumericTablePtr &trainSamples, bf_knn_classification::training::ResultPtr &trainingResult);
+void readDataFile(const string &fileName, NumericTablePtr &dataSamples,
+                  NumericTablePtr &dataResponses);
+void trainModel(NumericTablePtr &trainSamples,
+                bf_knn_classification::training::ResultPtr &trainingResult);
 void testModel(bf_knn_classification::training::ResultPtr &trainingResult,
                NumericTablePtr &testSamples,
                bf_knn_classification::prediction::ResultPtr &searchResult);
-void doRegression(cl::sycl::queue& q, bf_knn_classification::prediction::ResultPtr &searchResult,
-                NumericTablePtr &trainResponses, NumericTablePtr &testResponses);
-void printResults(NumericTablePtr &testGroundTruth, NumericTablePtr &testPredictResult);
+void doRegression(cl::sycl::queue &q,
+                  bf_knn_classification::prediction::ResultPtr &searchResult,
+                  NumericTablePtr &trainResponses,
+                  NumericTablePtr &testResponses);
+void printResults(NumericTablePtr &testGroundTruth,
+                  NumericTablePtr &testPredictResult);
 
 int main(int argc, char *argv[]) {
   checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
@@ -60,7 +68,7 @@ int main(int argc, char *argv[]) {
   for (const auto &deviceSelector : getListOfDevices()) {
     const auto &nameDevice = deviceSelector.first;
     const auto &device = deviceSelector.second;
-    //cl::sycl::queue queue{cl::sycl::cpu_selector()};
+    // cl::sycl::queue queue{cl::sycl::cpu_selector()};
     cl::sycl::queue queue(device);
     std::cout << "Running on " << nameDevice << "\n\n";
 
@@ -78,7 +86,9 @@ int main(int argc, char *argv[]) {
     testModel(trainingResult, testSamples, searchResult);
 
     const size_t nTestSamples = testSamples->getNumberOfRows();
-    NumericTablePtr testResults = SyclHomogenNumericTable<>::create(nResponses, nTestSamples, NumericTable::doAllocate);;
+    NumericTablePtr testResults = SyclHomogenNumericTable<>::create(
+        nResponses, nTestSamples, NumericTable::doAllocate);
+    ;
     doRegression(queue, searchResult, trainResponses, testResults);
 
     printResults(testResults, testResponses);
@@ -86,38 +96,43 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
-void readDataFile(const string& fileName, NumericTablePtr &dataSamples, NumericTablePtr &dataResponses)
-{
-    /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data
-    * from a .csv file */
-    FileDataSource<CSVFeatureManager> fileDataSource(
-        fileName, DataSource::notAllocateNumericTable,
-        DataSource::doDictionaryFromContext);
-    /* Create Numeric Tables for training data and labels */
-    dataSamples = SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::notAllocate);
-    dataResponses = SyclHomogenNumericTable<>::create(nResponses, 0, NumericTable::doNotAllocate);
-    NumericTablePtr mergedData(new MergedNumericTable(dataSamples, dataResponses));
-    /* Retrieve the data from the input file */
-    fileDataSource.loadDataBlock(mergedData.get());
+void readDataFile(const string &fileName, NumericTablePtr &dataSamples,
+                  NumericTablePtr &dataResponses) {
+  /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data
+   * from a .csv file */
+  FileDataSource<CSVFeatureManager> fileDataSource(
+      fileName, DataSource::notAllocateNumericTable,
+      DataSource::doDictionaryFromContext);
+  /* Create Numeric Tables for training data and labels */
+  dataSamples = SyclHomogenNumericTable<>::create(nFeatures, 0,
+                                                  NumericTable::notAllocate);
+  dataResponses = SyclHomogenNumericTable<>::create(
+      nResponses, 0, NumericTable::doNotAllocate);
+  NumericTablePtr mergedData(
+      new MergedNumericTable(dataSamples, dataResponses));
+  /* Retrieve the data from the input file */
+  fileDataSource.loadDataBlock(mergedData.get());
 }
 
-void trainModel(NumericTablePtr& trainSamples, bf_knn_classification::training::ResultPtr &trainingResult) {
-    /* Create an algorithm object to train the BF kNN model */
-    bf_knn_classification::training::Batch<> algorithm;
-    //const size_t nSamples = trainSamples->getNumberOfRows();
-    //NumericTablePtr zeroLabels = HomogenNumericTable<>::create(NULL, 1, nSamples);
-    /* Pass the training data set and dependent values to the algorithm */
-    //algorithm.input.set(classifier::training::labels, zeroLabels);
-    algorithm.input.set(classifier::training::data, trainSamples);
-    algorithm.parameter().k = kNeighbors;
-    //algorithm.parameter().nClasses = 1;
-    algorithm.parameter().resultsToEvaluate = 0;
-    algorithm.parameter().resultsToCompute =
-        bf_knn_classification::computeIndicesOfNeighbors;
-    /* Train the BF kNN model */
-    algorithm.compute();
-    /* Retrieve the results of the training algorithm  */
-    trainingResult = algorithm.getResult();
+void trainModel(NumericTablePtr &trainSamples,
+                bf_knn_classification::training::ResultPtr &trainingResult) {
+  /* Create an algorithm object to train the BF kNN model */
+  bf_knn_classification::training::Batch<> algorithm;
+  // const size_t nSamples = trainSamples->getNumberOfRows();
+  // NumericTablePtr zeroLabels = HomogenNumericTable<>::create(NULL, 1,
+  // nSamples);
+  /* Pass the training data set and dependent values to the algorithm */
+  // algorithm.input.set(classifier::training::labels, zeroLabels);
+  algorithm.input.set(classifier::training::data, trainSamples);
+  algorithm.parameter().k = kNeighbors;
+  // algorithm.parameter().nClasses = 1;
+  algorithm.parameter().resultsToEvaluate = 0;
+  algorithm.parameter().resultsToCompute =
+      bf_knn_classification::computeIndicesOfNeighbors;
+  /* Train the BF kNN model */
+  algorithm.compute();
+  /* Retrieve the results of the training algorithm  */
+  trainingResult = algorithm.getResult();
 }
 
 void testModel(bf_knn_classification::training::ResultPtr &trainingResult,
@@ -130,7 +145,7 @@ void testModel(bf_knn_classification::training::ResultPtr &trainingResult,
   algorithm.input.set(classifier::prediction::data, testSamples);
   algorithm.input.set(classifier::prediction::model,
                       trainingResult->get(classifier::training::model));
-  //algorithm.parameter().nClasses = 1;
+  // algorithm.parameter().nClasses = 1;
   algorithm.parameter().resultsToEvaluate = 0;
   algorithm.parameter().k = kNeighbors;
   algorithm.parameter().resultsToCompute =
@@ -143,69 +158,72 @@ void testModel(bf_knn_classification::training::ResultPtr &trainingResult,
   searchResult = algorithm.getResult();
 }
 
-
-
-void doRegression(cl::sycl::queue& q, bf_knn_classification::prediction::ResultPtr &searchResult,
-                NumericTablePtr &trainResponses, NumericTablePtr &testResponses) 
-{
-    NumericTablePtr neighborsIndicesTable = searchResult->get(bf_knn_classification::prediction::indices);
-    printNumericTable(neighborsIndicesTable, "neighbors", 5);
-    BlockDescriptor<int> neighborsIndicesBlock;
-    BlockDescriptor<float> trainResponsesBlock;
-    BlockDescriptor<float> testResponsesBlock;
-    const size_t nTrainSamples = trainResponses->getNumberOfRows();
-    const size_t nTestSamples = testResponses->getNumberOfRows(); 
-    {
-        neighborsIndicesTable->getBlockOfRows(0, nTestSamples, readOnly, neighborsIndicesBlock);
-        testResponses->getBlockOfRows(0, nTestSamples, writeOnly, testResponsesBlock);
-        trainResponses->getBlockOfRows(0, nTrainSamples, readOnly, trainResponsesBlock);
-    }
-    {
-        auto neighborsIndicesBuffer = neighborsIndicesBlock.getBuffer().toSycl();
-        /*{
-            auto hostIds = neighborsIndicesBuffer.get_access<cl::sycl::access::mode::read>();
-            for(int i = 0; size_t(i) < (250 * kNeighbors); ++i)
-            {
-                std::cerr << hostIds[i] << std::endl;
+void doRegression(cl::sycl::queue &q,
+                  bf_knn_classification::prediction::ResultPtr &searchResult,
+                  NumericTablePtr &trainResponses,
+                  NumericTablePtr &testResponses) {
+  NumericTablePtr neighborsIndicesTable =
+      searchResult->get(bf_knn_classification::prediction::indices);
+  printNumericTable(neighborsIndicesTable, "neighbors", 5);
+  BlockDescriptor<int> neighborsIndicesBlock;
+  BlockDescriptor<float> trainResponsesBlock;
+  BlockDescriptor<float> testResponsesBlock;
+  const size_t nTrainSamples = trainResponses->getNumberOfRows();
+  const size_t nTestSamples = testResponses->getNumberOfRows();
+  {
+    neighborsIndicesTable->getBlockOfRows(0, nTestSamples, readOnly,
+                                          neighborsIndicesBlock);
+    testResponses->getBlockOfRows(0, nTestSamples, writeOnly,
+                                  testResponsesBlock);
+    trainResponses->getBlockOfRows(0, nTrainSamples, readOnly,
+                                   trainResponsesBlock);
+  }
+  {
+    auto neighborsIndicesBuffer = neighborsIndicesBlock.getBuffer().toSycl();
+    /*{
+        auto hostIds =
+    neighborsIndicesBuffer.get_access<cl::sycl::access::mode::read>(); for(int i
+    = 0; size_t(i) < (250 * kNeighbors); ++i)
+        {
+            std::cerr << hostIds[i] << std::endl;
+        }
+    }*/
+    auto testResponsesBuffer = testResponsesBlock.getBuffer().toSycl();
+    auto trainResponsesBuffer = trainResponsesBlock.getBuffer().toSycl();
+    const float kn = static_cast<float>(kNeighbors);
+    q.submit([&](cl::sycl::handler &h) {
+      auto neighborsIndicesAcc =
+          neighborsIndicesBuffer.get_access<cl::sycl::access::mode::read>(h);
+      auto testResponsesAcc =
+          testResponsesBuffer.get_access<cl::sycl::access::mode::write>(h);
+      auto trainResponsesAcc =
+          trainResponsesBuffer.get_access<cl::sycl::access::mode::read>(h);
+      h.parallel_for<class regressor>(
+          cl::sycl::range<2>(nTestSamples, nResponses),
+          [=](cl::sycl::id<2> idx) {
+            float acc(0);
+            int trIndex;
+            for (size_t i = 0; i < kNeighbors; ++i) {
+              trIndex = neighborsIndicesAcc[idx[0] * kNeighbors + i];
+              acc += trainResponsesAcc[trIndex * nResponses + idx[1]];
             }
-        }*/
-        auto testResponsesBuffer = testResponsesBlock.getBuffer().toSycl();
-        auto trainResponsesBuffer = trainResponsesBlock.getBuffer().toSycl();
-        const float kn = static_cast<float>(kNeighbors);
-        q.submit(
-            [&](cl::sycl::handler& h)
-            {
-
-                auto neighborsIndicesAcc = neighborsIndicesBuffer.get_access<cl::sycl::access::mode::read>(h);
-                auto testResponsesAcc = testResponsesBuffer.get_access<cl::sycl::access::mode::write>(h);
-                auto trainResponsesAcc = trainResponsesBuffer.get_access<cl::sycl::access::mode::read>(h);
-                h.parallel_for<class regressor>(
-                    cl::sycl::range<2>(nTestSamples, nResponses),
-                    [=](cl::sycl::id<2> idx)
-                    {
-                        float acc(0); 
-                        int trIndex;
-                        for(size_t i = 0; i < kNeighbors; ++i)
-                        {
-                            trIndex = neighborsIndicesAcc[idx[0] * kNeighbors + i];
-                            acc += trainResponsesAcc[trIndex * nResponses + idx[1]];
-                        }
-                        testResponsesAcc[idx[0] * nResponses + idx[1]] = acc / kn;
-                    }
-                );
-            }
-        );
-        q.wait();
-    }
-    {
-        neighborsIndicesTable->releaseBlockOfRows(neighborsIndicesBlock);
-        testResponses->releaseBlockOfRows(testResponsesBlock);
-        trainResponses->releaseBlockOfRows(trainResponsesBlock);
-    }
-    //testResults = searchResult->get(bf_knn_classification::prediction::indices);
+            testResponsesAcc[idx[0] * nResponses + idx[1]] = acc / kn;
+          });
+    });
+    q.wait();
+  }
+  {
+    neighborsIndicesTable->releaseBlockOfRows(neighborsIndicesBlock);
+    testResponses->releaseBlockOfRows(testResponsesBlock);
+    trainResponses->releaseBlockOfRows(trainResponsesBlock);
+  }
+  // testResults =
+  // searchResult->get(bf_knn_classification::prediction::indices);
 }
 
-void printResults(NumericTablePtr &testGroundTruth, NumericTablePtr &testPredictResult) {
-  printNumericTables<float, float>(testGroundTruth, testPredictResult,
-    "Ground truth", "Distances results", "BF kNN search results (first 20 observations):", 20);
+void printResults(NumericTablePtr &testGroundTruth,
+                  NumericTablePtr &testPredictResult) {
+  printNumericTables<float, float>(
+      testGroundTruth, testPredictResult, "Ground truth", "Distances results",
+      "BF kNN search results (first 20 observations):", 20);
 }
