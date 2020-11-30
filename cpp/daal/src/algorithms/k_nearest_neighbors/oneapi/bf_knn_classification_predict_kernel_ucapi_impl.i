@@ -385,6 +385,13 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
 }
 
 template <typename algorithmFpType>
+services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(const NumericTable * x, const classifier::Model * m, NumericTable * y,
+                                                                               const daal::algorithms::Parameter * par)
+{
+    return compute(x, m, y, NULL, NULL, par);
+}
+
+template <typename algorithmFpType>
 services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::initializeIndices(services::internal::sycl::ExecutionContextIface & context,
                                                                                          const uint32_t fromDataBlockRow,
                                                                                          const uint32_t dataBlockRowCount,

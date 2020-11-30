@@ -164,7 +164,6 @@ void doRegression(cl::sycl::queue &q,
                   NumericTablePtr &testResponses) {
   NumericTablePtr neighborsIndicesTable =
       searchResult->get(bf_knn_classification::prediction::indices);
-  printNumericTable(neighborsIndicesTable, "neighbors", 5);
   BlockDescriptor<int> neighborsIndicesBlock;
   BlockDescriptor<float> trainResponsesBlock;
   BlockDescriptor<float> testResponsesBlock;
