@@ -74,9 +74,9 @@ void convert_to_csr_impl(const edge_list<vertex_type<Graph>> &edges, Graph &g) {
     vertex_t max_id = parallel_reduce(
         edges.size(),
         -1,
-        [&](edge_size_type st_u, edge_size_type end_u, vertex_t max_for_reduce) -> vertex_t {
-            for (auto u = st_u; u != end_u; ++u) {
-                vertex_t max_id_in_edge = std::max(edges[u].first, edges[u].second);
+        [&](edge_size_type start_u, edge_size_type end_u, vertex_t max_for_reduce) -> vertex_t {
+            for (auto u = start_u; u != end_u; ++u) {
+                const vertex_t max_id_in_edge = std::max(edges[u].first, edges[u].second);
                 max_for_reduce = std::max(max_for_reduce, max_id_in_edge);
             }
             return max_for_reduce;

@@ -111,8 +111,8 @@ DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, 
 #endif
 }
 
-DAAL_EXPORT int _daal_parallel_reduce(size_t n, int init, const void * a, daal::loop_functype loop_func, const void * b,
-                                      daal::reduction_functype reduction_func)
+DAAL_EXPORT int _daal_parallel_reduce_int32(size_t n, int init, const void * a, daal::loop_functype_int32 loop_func, const void * b,
+                                            daal::reduction_functype_int32 reduction_func)
 {
 #if defined(__DO_TBB_LAYER__)
     return tbb::parallel_reduce(

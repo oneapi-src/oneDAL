@@ -24,20 +24,20 @@ ONEDAL_EXPORT void _onedal_threader_for(std::int32_t n,
     _daal_threader_for(n, threads_request, a, static_cast<daal::functype>(func));
 }
 
-ONEDAL_EXPORT std::int32_t _onedal_parallel_reduce(
+ONEDAL_EXPORT std::int32_t _onedal_parallel_reduce_int32(
     size_t n,
     std::int32_t init,
     const void *a,
-    oneapi::dal::preview::loop_functype loop_func,
+    oneapi::dal::preview::loop_functype_int32 loop_func,
     const void *b,
-    oneapi::dal::preview::reduction_functype reduction_func) {
+    oneapi::dal::preview::reduction_functype_int32 reduction_func) {
     static_assert(sizeof(int) == sizeof(std::int32_t));
-    return _daal_parallel_reduce(n,
-                                 (int)init,
-                                 a,
-                                 static_cast<daal::loop_functype>(loop_func),
-                                 b,
-                                 static_cast<daal::reduction_functype>(reduction_func));
+    return _daal_parallel_reduce_int32(n,
+                                       (int)init,
+                                       a,
+                                       static_cast<daal::loop_functype_int32>(loop_func),
+                                       b,
+                                       static_cast<daal::reduction_functype_int32>(reduction_func));
 }
 
 namespace oneapi::dal::detail {
