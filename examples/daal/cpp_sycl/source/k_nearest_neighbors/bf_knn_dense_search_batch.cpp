@@ -168,6 +168,6 @@ void printIndicesResults(NumericTablePtr & testGroundTruth, bf_knn_classificatio
 
 void printDistancesResults(NumericTablePtr & testGroundTruth, bf_knn_classification::prediction::ResultPtr & predictionResult)
 {
-    printNumericTables<float, float>(testGroundTruth, predictionResult->get(bf_knn_classification::prediction::distances), "Ground truth",
+    printNumericTables<float, float, 3, 3>(testGroundTruth, predictionResult->get(bf_knn_classification::prediction::distances), "Ground truth",
                                      "Distances results", "BF kNN search results (first 20 observations):", 20);
 }

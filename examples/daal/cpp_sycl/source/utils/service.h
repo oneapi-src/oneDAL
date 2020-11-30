@@ -1,19 +1,19 @@
 /* file: service.h */
 /*******************************************************************************
- * Copyright 2014-2020 Intel Corporation
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *******************************************************************************/
+* Copyright 2014-2020 Intel Corporation
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*******************************************************************************/
 
 /*
 !  Content:
@@ -475,7 +475,7 @@ void printPackedNumericTable(NumericTable & dataTable, size_t nFeatures, const c
     printPackedNumericTable(&dataTable, nFeatures, message);
 }
 
-template <typename type1, typename type2>
+template <typename type1, typename type2, int prec1 = 3, int prec2 = 0>
 void printNumericTables(NumericTable * dataTable1, NumericTable * dataTable2, const char * title1 = "", const char * title2 = "",
                         const char * message = "", size_t nPrintedRows = 0, size_t interval = 15)
 {
@@ -507,12 +507,12 @@ void printNumericTables(NumericTable * dataTable1, NumericTable * dataTable2, co
     {
         for (size_t j = 0; j < nCols1; j++)
         {
-            std::cout << std::setw(interval) << std::setiosflags(std::ios::fixed) << std::setprecision(5);
-            std::cout << data1[i * nCols1 + j];
+            std::cout << std::setw(interval) << std::setiosflags(std::ios::fixed) 
+                << std::setprecision(prec1) << data1[i * nCols1 + j];
         }
         for (size_t j = 0; j < nCols2; j++)
         {
-            std::cout << std::setprecision(5) << std::setw(interval) << data2[i * nCols2 + j];
+            std::cout << std::setprecision(prec2) << std::setw(interval) << data2[i * nCols2 + j];
         }
         std::cout << std::endl;
     }
@@ -522,13 +522,14 @@ void printNumericTables(NumericTable * dataTable1, NumericTable * dataTable2, co
     dataTable2->releaseBlockOfRows(block2);
 }
 
-template <typename type1, typename type2>
+template <typename type1, typename type2, int prec1 = 3, int prec2 = 0>
 void printNumericTables(NumericTable * dataTable1, NumericTable & dataTable2, const char * title1 = "", const char * title2 = "",
                         const char * message = "", size_t nPrintedRows = 0, size_t interval = 15)
 {
-    printNumericTables<type1, type2>(dataTable1, &dataTable2, title1, title2, message, nPrintedRows, interval);
+    printNumericTables<type1, type2, prec1, prec2>(dataTable1, &dataTable2, title1, title2, message, nPrintedRows, interval);
 }
 
+template<int prec1 = 3, int prec2 = 0>
 void printNumericTables(NumericTable * dataTable1, NumericTable * dataTable2, const char * title1 = "", const char * title2 = "",
                         const char * message = "", size_t nPrintedRows = 0, size_t interval = 15)
 {
@@ -560,12 +561,12 @@ void printNumericTables(NumericTable * dataTable1, NumericTable * dataTable2, co
     {
         for (size_t j = 0; j < nCols1; j++)
         {
-            std::cout << std::setw(interval) << std::setiosflags(std::ios::fixed) << std::setprecision(5);
-            std::cout << data1[i * nCols1 + j];
+            std::cout << std::setw(interval) << std::setiosflags(std::ios::fixed) 
+                << std::setprecision(prec1) << data1[i * nCols1 + j];
         }
         for (size_t j = 0; j < nCols2; j++)
         {
-            std::cout << std::setprecision(5) << std::setw(interval) << data2[i * nCols2 + j];
+            std::cout << std::setprecision(prec2) << std::setw(interval) << data2[i * nCols2 + j];
         }
         std::cout << std::endl;
     }
@@ -575,17 +576,18 @@ void printNumericTables(NumericTable * dataTable1, NumericTable * dataTable2, co
     dataTable2->releaseBlockOfRows(block2);
 }
 
+template<int prec1 = 3, int prec2 = 0>
 void printNumericTables(NumericTable * dataTable1, NumericTable & dataTable2, const char * title1 = "", const char * title2 = "",
                         const char * message = "", size_t nPrintedRows = 0, size_t interval = 15)
 {
-    printNumericTables(dataTable1, &dataTable2, title1, title2, message, nPrintedRows, interval);
+    printNumericTables<prec1, prec2>(dataTable1, &dataTable2, title1, title2, message, nPrintedRows, interval);
 }
 
-template <typename type1, typename type2>
+template <typename type1, typename type2, int prec1 = 3, int prec2 = 0>
 void printNumericTables(NumericTablePtr dataTable1, NumericTablePtr dataTable2, const char * title1 = "", const char * title2 = "",
                         const char * message = "", size_t nPrintedRows = 0, size_t interval = 15)
 {
-    printNumericTables<type1, type2>(dataTable1.get(), dataTable2.get(), title1, title2, message, nPrintedRows, interval);
+    printNumericTables<type1, type2, prec1, prec2>(dataTable1.get(), dataTable2.get(), title1, title2, message, nPrintedRows, interval);
 }
 
 bool checkFileIsAvailable(std::string filename, bool needExit = false)
