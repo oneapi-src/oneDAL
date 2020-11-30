@@ -125,6 +125,6 @@ using graph_allocator = typename graph_traits<Graph>::allocator_type;
 /// Type of graph representation as an edge list
 /// @tparam IndexType Type of the graph vertex indicies
 template <typename IndexType = std::int32_t>
-using edge_list = detail::graph_container<std::pair<IndexType, IndexType>>;
+using edge_list = detail::edge_list_container<std::pair<IndexType, IndexType>>;
 
 } // namespace oneapi::dal::preview

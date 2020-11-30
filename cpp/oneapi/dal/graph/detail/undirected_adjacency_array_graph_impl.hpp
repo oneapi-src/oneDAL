@@ -29,9 +29,9 @@ public:
     topology() = default;
     virtual ~topology() = default;
 
-    array<Index> _vertex_neighbors;
-    array<Index> _degrees;
-    array<Index> _edge_offsets;
+    graph_container<Index> _vertex_neighbors;
+    graph_container<Index> _degrees;
+    graph_container<Index> _edge_offsets;
     int64_t _vertex_count = 0;
     int64_t _edge_count = 0;
 };
@@ -41,7 +41,7 @@ class vertex_values {
 public:
     vertex_values() = default;
     virtual ~vertex_values() = default;
-    array<VertexValue> _vertex_value;
+    graph_container<VertexValue> _vertex_value;
 };
 
 template <typename EdgeValue>
@@ -49,7 +49,7 @@ class edge_values {
 public:
     edge_values() = default;
     virtual ~edge_values() = default;
-    array<EdgeValue> _edge_value;
+    graph_container<EdgeValue> _edge_value;
 };
 
 template <typename VertexValue = empty_value,
@@ -67,7 +67,7 @@ public:
     using vertex_allocator_traits =
         typename std::allocator_traits<Allocator>::template rebind_traits<vertex_type>;
 
-    using vertex_set = detail::graph_container<vertex_type, vertex_allocator_type>;
+    using vertex_set = graph_container<vertex_type>;
     using vertex_iterator = vertex_type*;
     using const_vertex_iterator = const vertex_type*;
     using vertex_size_type = std::int64_t;
@@ -77,7 +77,7 @@ public:
         typename std::allocator_traits<Allocator>::template rebind_alloc<edge_type>;
     using edge_allocator_traits =
         typename std::allocator_traits<Allocator>::template rebind_traits<edge_type>;
-    using edge_set = detail::graph_container<edge_type, edge_allocator_type>;
+    using edge_set = graph_container<edge_type>;
     using edge_iterator = edge_type*;
     using const_edge_iterator = const edge_type*;
     using edge_size_type = std::int64_t;
@@ -87,16 +87,14 @@ public:
         typename std::allocator_traits<Allocator>::template rebind_alloc<vertex_user_value_type>;
     using vertex_user_value_allocator_traits =
         typename std::allocator_traits<Allocator>::template rebind_traits<vertex_user_value_type>;
-    using vertex_user_value_set =
-        detail::graph_container<vertex_user_value_type, vertex_user_value_allocator_type>;
+    using vertex_user_value_set = graph_container<vertex_user_value_type>;
 
     using edge_user_value_type = EdgeValue;
     using edge_user_value_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<edge_user_value_type>;
     using edge_user_value_allocator_traits =
         typename std::allocator_traits<Allocator>::template rebind_traits<edge_user_value_type>;
-    using edge_user_value_set =
-        detail::graph_container<edge_user_value_type, edge_user_value_allocator_type>;
+    using edge_user_value_set = graph_container<edge_user_value_type>;
 
     undirected_adjacency_array_graph_impl() = default;
 
@@ -141,9 +139,9 @@ public:
                       vertex_type* degrees) {
         _topology._vertex_count = vertex_count;
         _topology._edge_count = edge_count;
-        _topology._edge_offsets = array<edge_type>::wrap(offsets, vertex_count + 1);
-        _topology._degrees = array<vertex_type>::wrap(degrees, vertex_count);
-        _topology._vertex_neighbors = array<vertex_type>::wrap(neighbors, edge_count * 2);
+        _topology._edge_offsets = edge_set::wrap(offsets, vertex_count + 1);
+        _topology._degrees = vertex_set::wrap(degrees, vertex_count);
+        _topology._vertex_neighbors = vertex_set::wrap(neighbors, edge_count * 2);
     }
 
     topology<IndexType>& get_topology() {

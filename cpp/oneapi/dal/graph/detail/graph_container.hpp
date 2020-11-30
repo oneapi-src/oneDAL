@@ -21,10 +21,10 @@
 
 namespace oneapi::dal::preview::detail {
 
-template <class T, class Allocator = std::allocator<T>>
-using graph_container = std::vector<T, Allocator>;
+template <class T>
+using graph_container = dal::v1::array<T>;
 
-template <typename T>
-using array = dal::v1::array<T>;
+template <class T>
+using edge_list_container = std::vector<T>;
 
 } // namespace oneapi::dal::preview::detail

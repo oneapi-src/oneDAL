@@ -185,8 +185,6 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
     using vertex_t = typename graph_traits<Graph>::vertex_type;
     using vertex_size_type = typename graph_traits<Graph>::vertex_size_type;
     using edge_t = typename graph_traits<Graph>::edge_type;
-    using vertex_set = typename graph_traits<Graph>::vertex_set;
-    using edge_set = typename graph_traits<Graph>::edge_set;
     using atomic_vertex_t = typename daal::services::Atomic<vertex_t>;
     using atomic_edge_t = typename daal::services::Atomic<edge_t>;
     using vertex_allocator_traits =
@@ -234,8 +232,8 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
         vertex_allocator_traits::allocate(vertex_allocator, total_sum_degrees);
     edge_t *unfiltered_offsets = edge_allocator_traits::allocate(edge_allocator, rows_vec_count);
 
-    fill_from_atomics<edge_t, atomic_edge_t>(unfiltered_offsets, rows_vec_atomic, rows_vec_count);
-    fill_unfiltered_neighs<vertex_t, atomic_edge_t>(edges, rows_vec_atomic, unfiltered_neighs);
+    fill_from_atomics(unfiltered_offsets, rows_vec_atomic, rows_vec_count);
+    fill_unfiltered_neighs(edges, rows_vec_atomic, unfiltered_neighs);
 
     atomic_edge_allocator_traits::deallocate(atomic_edge_allocator,
                                              rows_vec_atomic,
