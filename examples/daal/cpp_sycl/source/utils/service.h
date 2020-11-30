@@ -507,8 +507,7 @@ void printNumericTables(NumericTable * dataTable1, NumericTable * dataTable2, co
     {
         for (size_t j = 0; j < nCols1; j++)
         {
-            std::cout << std::setw(interval) << std::setiosflags(std::ios::fixed) 
-                << std::setprecision(prec1) << data1[i * nCols1 + j];
+            std::cout << std::setw(interval) << std::setiosflags(std::ios::fixed) << std::setprecision(prec1) << data1[i * nCols1 + j];
         }
         for (size_t j = 0; j < nCols2; j++)
         {
@@ -529,7 +528,7 @@ void printNumericTables(NumericTable * dataTable1, NumericTable & dataTable2, co
     printNumericTables<type1, type2, prec1, prec2>(dataTable1, &dataTable2, title1, title2, message, nPrintedRows, interval);
 }
 
-template<int prec1 = 3, int prec2 = 0>
+template <int prec1 = 3, int prec2 = 0>
 void printNumericTables(NumericTable * dataTable1, NumericTable * dataTable2, const char * title1 = "", const char * title2 = "",
                         const char * message = "", size_t nPrintedRows = 0, size_t interval = 15)
 {
@@ -561,8 +560,7 @@ void printNumericTables(NumericTable * dataTable1, NumericTable * dataTable2, co
     {
         for (size_t j = 0; j < nCols1; j++)
         {
-            std::cout << std::setw(interval) << std::setiosflags(std::ios::fixed) 
-                << std::setprecision(prec1) << data1[i * nCols1 + j];
+            std::cout << std::setw(interval) << std::setiosflags(std::ios::fixed) << std::setprecision(prec1) << data1[i * nCols1 + j];
         }
         for (size_t j = 0; j < nCols2; j++)
         {
@@ -576,7 +574,7 @@ void printNumericTables(NumericTable * dataTable1, NumericTable * dataTable2, co
     dataTable2->releaseBlockOfRows(block2);
 }
 
-template<int prec1 = 3, int prec2 = 0>
+template <int prec1 = 3, int prec2 = 0>
 void printNumericTables(NumericTable * dataTable1, NumericTable & dataTable2, const char * title1 = "", const char * title2 = "",
                         const char * message = "", size_t nPrintedRows = 0, size_t interval = 15)
 {
