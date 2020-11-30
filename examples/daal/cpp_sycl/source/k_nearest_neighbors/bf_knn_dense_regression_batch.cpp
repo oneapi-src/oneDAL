@@ -38,18 +38,18 @@ using daal::data_management::internal::SyclHomogenNumericTable;
 using daal::services::internal::SyclExecutionContext;
 
 /* Input data set parameters */
-const string trainDatasetFileName = "../data/batch/linear_regression_train.csv";
-const string testDatasetFileName = "../data/batch/linear_regression_test.csv";
+const string trainDatasetFileName = "../data/batch/knn_regression_train.csv";
+const string testDatasetFileName = "../data/batch/knn_regression_test.csv";
 
 const size_t nFeatures =
-    10; /* Number of features in training and testing data sets */
+    3; /* Number of features in training and testing data sets */
 const size_t nResponses =
-    2; /* Number of dependent variables that correspond to each observation */
+    4; /* Number of dependent variables that correspond to each observation */
 const size_t kNeighbors =
-    12; /* The best number of neighbors defined by hyperparameter search */
+    4; /* The best number of neighbors defined by hyperparameter search */
 
-void readDataFile(const string &fileName, NumericTablePtr &dataSamples,
-                  NumericTablePtr &dataResponses);
+void loadData(const string &fileName, NumericTablePtr &dataSamples,
+              NumericTablePtr &dataResponses);
 void trainModel(NumericTablePtr &trainSamples,
                 bf_knn_classification::training::ResultPtr &trainingResult);
 void testModel(bf_knn_classification::training::ResultPtr &trainingResult,
@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
   for (const auto &deviceSelector : getListOfDevices()) {
     const auto &nameDevice = deviceSelector.first;
     const auto &device = deviceSelector.second;
-    // cl::sycl::queue queue{cl::sycl::cpu_selector()};
+
     cl::sycl::queue queue(device);
     std::cout << "Running on " << nameDevice << "\n\n";
 
@@ -76,19 +76,18 @@ int main(int argc, char *argv[]) {
     services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
     NumericTablePtr trainSamples, trainResponses;
-    readDataFile(trainDatasetFileName, trainSamples, trainResponses);
+    loadData(trainDatasetFileName, trainSamples, trainResponses);
     bf_knn_classification::training::ResultPtr trainingResult;
     trainModel(trainSamples, trainingResult);
 
     NumericTablePtr testSamples, testResponses;
-    readDataFile(testDatasetFileName, testSamples, testResponses);
+    loadData(testDatasetFileName, testSamples, testResponses);
     bf_knn_classification::prediction::ResultPtr searchResult;
     testModel(trainingResult, testSamples, searchResult);
 
     const size_t nTestSamples = testSamples->getNumberOfRows();
     NumericTablePtr testResults = SyclHomogenNumericTable<>::create(
         nResponses, nTestSamples, NumericTable::doAllocate);
-    ;
     doRegression(queue, searchResult, trainResponses, testResults);
 
     printResults(testResponses, testResults);
@@ -96,8 +95,8 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
-void readDataFile(const string &fileName, NumericTablePtr &dataSamples,
-                  NumericTablePtr &dataResponses) {
+void loadData(const string &fileName, NumericTablePtr &dataSamples,
+              NumericTablePtr &dataResponses) {
   /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data
    * from a .csv file */
   FileDataSource<CSVFeatureManager> fileDataSource(
@@ -118,15 +117,10 @@ void trainModel(NumericTablePtr &trainSamples,
                 bf_knn_classification::training::ResultPtr &trainingResult) {
   /* Create an algorithm object to train the BF kNN model */
   bf_knn_classification::training::Batch<> algorithm;
-  // const size_t nSamples = trainSamples->getNumberOfRows();
-  // NumericTablePtr zeroLabels = HomogenNumericTable<>::create(NULL, 1,
-  // nSamples);
   /* Pass the training data set and dependent values to the algorithm */
-  // algorithm.input.set(classifier::training::labels, zeroLabels);
   algorithm.input.set(classifier::training::data, trainSamples);
   algorithm.parameter().k = kNeighbors;
-  // algorithm.parameter().nClasses = 1;
-  algorithm.parameter().resultsToEvaluate = 0;
+  algorithm.parameter().resultsToEvaluate = classifier::none;
   algorithm.parameter().resultsToCompute =
       bf_knn_classification::computeIndicesOfNeighbors;
   /* Train the BF kNN model */
@@ -145,8 +139,7 @@ void testModel(bf_knn_classification::training::ResultPtr &trainingResult,
   algorithm.input.set(classifier::prediction::data, testSamples);
   algorithm.input.set(classifier::prediction::model,
                       trainingResult->get(classifier::training::model));
-  // algorithm.parameter().nClasses = 1;
-  algorithm.parameter().resultsToEvaluate = 0;
+  algorithm.parameter().resultsToEvaluate = classifier::none;
   algorithm.parameter().k = kNeighbors;
   algorithm.parameter().resultsToCompute =
       bf_knn_classification::computeIndicesOfNeighbors;
