@@ -23,14 +23,16 @@
 #ifndef _ERROR_HANDLING_H
 #define _ERROR_HANDLING_H
 
-const int fileError = -1001;
+const int fileError    = -1001;
+const int nullPtrError = -2;
+const int allocError   = -1;
 
 void checkAllocation(void * ptr)
 {
     if (!ptr)
     {
         std::cout << "Error: Memory allocation failed" << std::endl;
-        exit(-1);
+        exit(allocError);
     }
 }
 
@@ -39,7 +41,7 @@ void checkPtr(void * ptr)
     if (!ptr)
     {
         std::cout << "Error: NULL pointer" << std::endl;
-        exit(-2);
+        exit(nullPtrError);
     }
 }
 
