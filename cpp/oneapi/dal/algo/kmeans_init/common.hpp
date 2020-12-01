@@ -23,8 +23,11 @@ namespace oneapi::dal::kmeans_init {
 
 namespace task {
 namespace v1 {
-struct init {};
-using by_default = init;
+    /// Tag-type that parameterizes entities used for obtaining the initial K-Means centroids.
+    struct init {};
+    
+    /// Alias tag-type for the initialization task.
+    using by_default = init;
 } // namespace v1
 
 using v1::init;
@@ -34,11 +37,13 @@ using v1::by_default;
 
 namespace method {
 namespace v1 {
-struct dense {};
-struct random_dense {};
-struct plus_plus_dense {};
-struct parallel_plus_dense {};
-using by_default = dense;
+    /// Tag-type that denotes `dense <kmeans_init_c_math_dense_>`_
+    /// computational method.
+    struct dense {};
+    struct random_dense {};
+    struct plus_plus_dense {};
+    struct parallel_plus_dense {};
+    using by_default = dense;
 } // namespace v1
 
 using v1::dense;
@@ -81,6 +86,9 @@ public:
 
     descriptor_base();
 
+    /// The number of clusters $k$
+    /// @invariant :expr:`cluster_count > 0`
+    /// @remark default = 2
     std::int64_t get_cluster_count() const;
 
 protected:
@@ -104,6 +112,13 @@ using v1::is_valid_task_v;
 
 namespace v1 {
 
+/// @tparam Float  The floating-point type that the algorithm uses for
+///                intermediate computations. Can be :expr:`float` or
+///                :expr:`double`.
+/// @tparam Method Tag-type that specifies an implementation
+///                of K-Means Initialization algorithm.
+/// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
+///                be :expr:`task::init`.
 template <typename Float = detail::descriptor_base<>::float_t,
           typename Method = detail::descriptor_base<>::method_t,
           typename Task = detail::descriptor_base<>::task_t>
@@ -119,6 +134,7 @@ public:
     using method_t = Method;
     using task_t = Task;
 
+    /// Creates a new instance of the class with the given :literal:`cluster_count`
     explicit descriptor(std::int64_t cluster_count = 2) {
         set_cluster_count(cluster_count);
     }

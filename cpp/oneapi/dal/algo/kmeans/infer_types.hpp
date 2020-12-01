@@ -36,6 +36,8 @@ using v1::infer_result_impl;
 
 namespace v1 {
 
+/// @tparam Task Tag-type that specifies type of the problem to solve. Can
+///              be :expr:`task::clustering`.
 template <typename Task = task::by_default>
 class infer_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -43,8 +45,13 @@ class infer_input : public base {
 public:
     using task_t = Task;
 
+    /// Creates a new instance of the class with the given :literal:`model` and
+    /// :literal:`data`
     infer_input(const model<Task>& trained_model, const table& data);
 
+    /// An $n \\times p$ table with the data to be assigned to the clusters,
+    /// where each row stores one feature vector.
+    /// @remark default = model<Task>{}
     const model<Task>& get_model() const;
 
     auto& set_model(const model<Task>& value) {
@@ -52,6 +59,8 @@ public:
         return *this;
     }
 
+    /// The trained K-Means model
+    /// @remark default = table{}
     const table& get_data() const;
 
     auto& set_data(const table& value) {
@@ -67,6 +76,8 @@ private:
     dal::detail::pimpl<detail::infer_input_impl<Task>> impl_;
 };
 
+/// @tparam Task Tag-type that specifies type of the problem to solve. Can
+///              be :expr:`task::clustering`.
 template <typename Task = task::by_default>
 class infer_result {
     static_assert(detail::is_valid_task_v<Task>);
@@ -74,14 +85,22 @@ class infer_result {
 public:
     using task_t = Task;
 
+    /// Creates a new instance of the class with the default property values.
     infer_result();
 
+    /// An $n \\times 1$ table with assignments labels to feature
+    /// vectors in the input data.
+    /// @remark default = table{}
     const table& get_labels() const;
     auto& set_labels(const table& value) {
         set_labels_impl(value);
         return *this;
     }
 
+    /// The value of the objective function $\\Phi_X(C)$, where $C$ is
+    /// defined by the corresponding :expr:`infer_input::model::centroids`.
+    /// @invariant :expr:`objective_function_value >= 0.0`
+    /// @remark default = 0.0
     double get_objective_function_value() const;
 
     auto& set_objective_function_value(double value) {
