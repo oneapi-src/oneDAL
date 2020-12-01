@@ -4,4 +4,3 @@ source/examples/dpc/*
 docbuild-log.txt
 __pycache__
 doxygen/oneapi/doxygen/xml
-.vs*
