@@ -153,8 +153,6 @@ jobs:
       conda activate CB
       cd daal4py
       conda build --override-channels -c intel -c conda-forge --numpy=1.17 conda-recipe
-      sycl-ls
-      cat /proc/cpuinfo
     displayName: conda build
   - script: |
       export DPCPPROOT=/opt/intel/oneapi/compiler/latest
