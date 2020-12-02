@@ -1,3 +1,4 @@
+@echo off
 REM ===============================================================================
 REM Copyright 2020 Intel Corporation
 REM
@@ -13,8 +14,6 @@ REM WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 REM See the License for the specific language governing permissions and
 REM limitations under the License.
 REM ===============================================================================
-
-@echo off
 
 if /I %1 == html goto :html
 if /I %1 == doxygen goto :doxygen
