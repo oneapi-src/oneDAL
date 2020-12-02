@@ -41,7 +41,7 @@ namespace v1 {
    /// Tag-type that denotes `Covariance <pca_t_math_cov_>`_ computational
    /// method.
    struct cov {};
-    
+
    /// Tag-type that denotes `SVD <pca_t_math_svd_>`_ computational method.
    struct svd {};
 

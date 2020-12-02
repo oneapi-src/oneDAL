@@ -40,7 +40,7 @@ namespace method {
 namespace v1 {
     /// Tag-type that denotes `k-d tree <knn_t_math_kd_tree>`_ computational method.
     struct kd_tree {};
-    
+
     /// Tag-type that denotes `brute-force <knn_t_math_brute_force_>`_ computational
     /// method.
     struct brute_force {};

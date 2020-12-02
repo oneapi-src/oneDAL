@@ -25,7 +25,7 @@ namespace task {
 namespace v1 {
     /// Tag-type that parameterizes entities used for obtaining the initial K-Means centroids.
     struct init {};
-    
+
     /// Alias tag-type for the initialization task.
     using by_default = init;
 } // namespace v1

@@ -26,7 +26,7 @@ namespace v1 {
     /// Tag-type that parameterizes entities used for solving
     /// :capterm:`clustering problem <clustering>`.
     struct clustering {};
-    
+
     /// Alias tag-type for the clustering task.
     using by_default = clustering;
 } // namespace v1
@@ -41,7 +41,7 @@ namespace v1 {
     /// Tag-type that denotes `Lloyd's <kmeans_t_math_lloyd_>`_ computational
     /// method.
     struct lloyd_dense {};
-    
+
     /// Alias tag-type for `Lloyd's <kmeans_t_math_lloyd_>`_ computational
     /// method.
     using by_default = lloyd_dense;

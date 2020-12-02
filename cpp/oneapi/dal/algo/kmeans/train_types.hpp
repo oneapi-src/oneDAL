@@ -46,7 +46,7 @@ public:
     using task_t = Task;
 
     train_input(const table& data);
- 
+
     /// Creates a new instance of the class with the given :literal:`data` and
     /// :literal:`initial_centroids`
     train_input(const table& data, const table& initial_centroids);
