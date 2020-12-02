@@ -44,6 +44,8 @@ DAAL  = datastructures_soa                    \
         low_order_moms_dense_online           \
         gbt_reg_dense_batch                   \
         bf_knn_dense_batch                    \
+        bf_knn_dense_search_batch             \
+        bf_knn_dense_regression_batch         \
         svm_two_class_thunder_dense_batch     \
         svm_two_class_thunder_csr_batch       \
         df_reg_dense_batch                    \
