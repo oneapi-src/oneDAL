@@ -23,11 +23,11 @@ namespace oneapi::dal::kmeans_init {
 
 namespace task {
 namespace v1 {
-    /// Tag-type that parameterizes entities used for obtaining the initial K-Means centroids.
-    struct init {};
+/// Tag-type that parameterizes entities used for obtaining the initial K-Means centroids.
+struct init {};
 
-    /// Alias tag-type for the initialization task.
-    using by_default = init;
+/// Alias tag-type for the initialization task.
+using by_default = init;
 } // namespace v1
 
 using v1::init;
@@ -37,13 +37,13 @@ using v1::by_default;
 
 namespace method {
 namespace v1 {
-    /// Tag-type that denotes `dense <kmeans_init_c_math_dense_>`_
-    /// computational method.
-    struct dense {};
-    struct random_dense {};
-    struct plus_plus_dense {};
-    struct parallel_plus_dense {};
-    using by_default = dense;
+/// Tag-type that denotes `dense <kmeans_init_c_math_dense_>`_
+/// computational method.
+struct dense {};
+struct random_dense {};
+struct plus_plus_dense {};
+struct parallel_plus_dense {};
+using by_default = dense;
 } // namespace v1
 
 using v1::dense;

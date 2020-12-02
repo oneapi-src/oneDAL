@@ -23,12 +23,12 @@ namespace oneapi::dal::pca {
 
 namespace task {
 namespace v1 {
-   /// Tag-type that parameterizes entities used for solving
-   /// :capterm:`dimensionality reduction problem <dimensionality reduction>`.
-   struct dim_reduction {};
+/// Tag-type that parameterizes entities used for solving
+/// :capterm:`dimensionality reduction problem <dimensionality reduction>`.
+struct dim_reduction {};
 
-   /// Alias tag-type for dimensionality reduction task.
-   using by_default = dim_reduction;
+/// Alias tag-type for dimensionality reduction task.
+using by_default = dim_reduction;
 } // namespace v1
 
 using v1::dim_reduction;
@@ -38,16 +38,16 @@ using v1::by_default;
 
 namespace method {
 namespace v1 {
-   /// Tag-type that denotes `Covariance <pca_t_math_cov_>`_ computational
-   /// method.
-   struct cov {};
+/// Tag-type that denotes `Covariance <pca_t_math_cov_>`_ computational
+/// method.
+struct cov {};
 
-   /// Tag-type that denotes `SVD <pca_t_math_svd_>`_ computational method.
-   struct svd {};
+/// Tag-type that denotes `SVD <pca_t_math_svd_>`_ computational method.
+struct svd {};
 
-   /// Alias tag-type for `Covariance <pca_t_math_cov_>`_ computational
-   /// method.
-   using by_default = cov;
+/// Alias tag-type for `Covariance <pca_t_math_cov_>`_ computational
+/// method.
+using by_default = cov;
 } // namespace v1
 
 using v1::cov;
@@ -142,7 +142,6 @@ public:
     using float_t = Float;
     using method_t = Method;
     using task_t = Task;
-
 
     /// Creates a new instance of the class with the given :literal:`component_count`
     /// property value

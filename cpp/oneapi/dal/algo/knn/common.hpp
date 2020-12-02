@@ -23,12 +23,12 @@ namespace oneapi::dal::knn {
 
 namespace task {
 namespace v1 {
-    /// Tag-type that parameterizes entities used for solving
-    /// :capterm:`classification problem <classification>`.
-    struct classification {};
+/// Tag-type that parameterizes entities used for solving
+/// :capterm:`classification problem <classification>`.
+struct classification {};
 
-    /// Alias tag-type for classification task.
-    using by_default = classification;
+/// Alias tag-type for classification task.
+using by_default = classification;
 } // namespace v1
 
 using v1::classification;
@@ -38,16 +38,16 @@ using v1::by_default;
 
 namespace method {
 namespace v1 {
-    /// Tag-type that denotes `k-d tree <knn_t_math_kd_tree>`_ computational method.
-    struct kd_tree {};
+/// Tag-type that denotes `k-d tree <knn_t_math_kd_tree>`_ computational method.
+struct kd_tree {};
 
-    /// Tag-type that denotes `brute-force <knn_t_math_brute_force_>`_ computational
-    /// method.
-    struct brute_force {};
+/// Tag-type that denotes `brute-force <knn_t_math_brute_force_>`_ computational
+/// method.
+struct brute_force {};
 
-    /// Alias tag-type for `brute-force <knn_t_math_brute_force_>`_ computational
-    /// method.
-    using by_default = brute_force;
+/// Alias tag-type for `brute-force <knn_t_math_brute_force_>`_ computational
+/// method.
+using by_default = brute_force;
 } // namespace v1
 
 using v1::kd_tree;

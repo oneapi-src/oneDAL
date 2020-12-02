@@ -78,7 +78,6 @@ public:
     /// Creates a new instance of the class with the default property values.
     train_result();
 
-
     /// An $r \\times p$ table with the eigenvectors. Each row contains one
     /// eigenvector.
     /// @remark default = table{}
