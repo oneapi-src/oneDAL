@@ -28,14 +28,14 @@
 using namespace daal::data_management;
 
 #include <algorithm>
-#include <cstdarg>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <queue>
-#include <sstream>
 #include <string>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
+#include <cstdarg>
 #include <vector>
+#include <queue>
 
 #include "error_handling.h"
 
@@ -114,19 +114,19 @@ CSRNumericTable * createSparseTable(const std::string & datasetFileName)
 
     std::string str;
 
-    // read row offsets
+    //read row offsets
     std::getline(file, str);
     std::vector<size_t> rowOffsets;
     readRowUnknownLength<size_t>(&str[0], rowOffsets);
     if (!rowOffsets.size()) return NULL;
     const size_t nVectors = rowOffsets.size() - 1;
 
-    // read cols indices
+    //read cols indices
     std::getline(file, str);
     std::vector<size_t> colIndices;
     readRowUnknownLength<size_t>(&str[0], colIndices);
 
-    // read values
+    //read values
     std::getline(file, str);
     std::vector<item_type> data;
     readRowUnknownLength<item_type>(&str[0], data);
@@ -387,6 +387,7 @@ void printUpperArray(T * array, const size_t nPrintedCols, const size_t nPrinted
     std::cout << std::endl;
 }
 
+template <typename type = DAAL_DATA_TYPE>
 void printNumericTable(NumericTable * dataTable, const char * message = "", size_t nPrintedRows = 0, size_t nPrintedCols = 0, size_t interval = 10)
 {
     size_t nRows                            = dataTable->getNumberOfRows();
@@ -411,11 +412,11 @@ void printNumericTable(NumericTable * dataTable, const char * message = "", size
         nPrintedCols = nCols;
     }
 
-    BlockDescriptor<DAAL_DATA_TYPE> block;
+    BlockDescriptor<type> block;
     if (isFull(layout) || layout == NumericTableIface::csrArray)
     {
         dataTable->getBlockOfRows(0, nRows, readOnly, block);
-        printArray<DAAL_DATA_TYPE>(block.getBlockPtr(), nPrintedCols, nPrintedRows, nCols, message, interval);
+        printArray<type>(block.getBlockPtr(), nPrintedCols, nPrintedRows, nCols, message, interval);
         dataTable->releaseBlockOfRows(block);
     }
     else
@@ -424,25 +425,27 @@ void printNumericTable(NumericTable * dataTable, const char * message = "", size
         packedTable->getPackedArray(readOnly, block);
         if (isLower(layout))
         {
-            printLowerArray<DAAL_DATA_TYPE>(block.getBlockPtr(), nPrintedRows, message, interval);
+            printLowerArray<type>(block.getBlockPtr(), nPrintedRows, message, interval);
         }
         else if (isUpper(layout))
         {
-            printUpperArray<DAAL_DATA_TYPE>(block.getBlockPtr(), nPrintedCols, nPrintedRows, nCols, message, interval);
+            printUpperArray<type>(block.getBlockPtr(), nPrintedCols, nPrintedRows, nCols, message, interval);
         }
         packedTable->releasePackedArray(block);
     }
 }
 
+template <typename type = DAAL_DATA_TYPE>
 void printNumericTable(NumericTable & dataTable, const char * message = "", size_t nPrintedRows = 0, size_t nPrintedCols = 0, size_t interval = 10)
 {
-    printNumericTable(&dataTable, message, nPrintedRows, nPrintedCols, interval);
+    printNumericTable<type>(&dataTable, message, nPrintedRows, nPrintedCols, interval);
 }
 
+template <typename type = DAAL_DATA_TYPE>
 void printNumericTable(const NumericTablePtr & dataTable, const char * message = "", size_t nPrintedRows = 0, size_t nPrintedCols = 0,
                        size_t interval = 10)
 {
-    printNumericTable(dataTable.get(), message, nPrintedRows, nPrintedCols, interval);
+    printNumericTable<type>(dataTable.get(), message, nPrintedRows, nPrintedCols, interval);
 }
 
 void printPackedNumericTable(NumericTable * dataTable, size_t nFeatures, const char * message = "", size_t interval = 10)
@@ -475,7 +478,7 @@ void printPackedNumericTable(NumericTable & dataTable, size_t nFeatures, const c
     printPackedNumericTable(&dataTable, nFeatures, message);
 }
 
-template <typename type1, typename type2, int prec1 = 3, int prec2 = 0>
+template <typename type1, typename type2>
 void printNumericTables(NumericTable * dataTable1, NumericTable * dataTable2, const char * title1 = "", const char * title2 = "",
                         const char * message = "", size_t nPrintedRows = 0, size_t interval = 15)
 {
@@ -507,11 +510,12 @@ void printNumericTables(NumericTable * dataTable1, NumericTable * dataTable2, co
     {
         for (size_t j = 0; j < nCols1; j++)
         {
-            std::cout << std::setw(interval) << std::setiosflags(std::ios::fixed) << std::setprecision(prec1) << data1[i * nCols1 + j];
+            std::cout << std::setw(interval) << std::setiosflags(std::ios::fixed) << std::setprecision(3);
+            std::cout << data1[i * nCols1 + j];
         }
         for (size_t j = 0; j < nCols2; j++)
         {
-            std::cout << std::setprecision(prec2) << std::setw(interval) << data2[i * nCols2 + j];
+            std::cout << std::setprecision(0) << std::setw(interval) << data2[i * nCols2 + j];
         }
         std::cout << std::endl;
     }
@@ -521,14 +525,13 @@ void printNumericTables(NumericTable * dataTable1, NumericTable * dataTable2, co
     dataTable2->releaseBlockOfRows(block2);
 }
 
-template <typename type1, typename type2, int prec1 = 3, int prec2 = 0>
+template <typename type1, typename type2>
 void printNumericTables(NumericTable * dataTable1, NumericTable & dataTable2, const char * title1 = "", const char * title2 = "",
                         const char * message = "", size_t nPrintedRows = 0, size_t interval = 15)
 {
-    printNumericTables<type1, type2, prec1, prec2>(dataTable1, &dataTable2, title1, title2, message, nPrintedRows, interval);
+    printNumericTables<type1, type2>(dataTable1, &dataTable2, title1, title2, message, nPrintedRows, interval);
 }
 
-template <int prec1 = 3, int prec2 = 0>
 void printNumericTables(NumericTable * dataTable1, NumericTable * dataTable2, const char * title1 = "", const char * title2 = "",
                         const char * message = "", size_t nPrintedRows = 0, size_t interval = 15)
 {
@@ -560,11 +563,12 @@ void printNumericTables(NumericTable * dataTable1, NumericTable * dataTable2, co
     {
         for (size_t j = 0; j < nCols1; j++)
         {
-            std::cout << std::setw(interval) << std::setiosflags(std::ios::fixed) << std::setprecision(prec1) << data1[i * nCols1 + j];
+            std::cout << std::setw(interval) << std::setiosflags(std::ios::fixed) << std::setprecision(3);
+            std::cout << data1[i * nCols1 + j];
         }
         for (size_t j = 0; j < nCols2; j++)
         {
-            std::cout << std::setprecision(prec2) << std::setw(interval) << data2[i * nCols2 + j];
+            std::cout << std::setprecision(0) << std::setw(interval) << data2[i * nCols2 + j];
         }
         std::cout << std::endl;
     }
@@ -574,18 +578,17 @@ void printNumericTables(NumericTable * dataTable1, NumericTable * dataTable2, co
     dataTable2->releaseBlockOfRows(block2);
 }
 
-template <int prec1 = 3, int prec2 = 0>
 void printNumericTables(NumericTable * dataTable1, NumericTable & dataTable2, const char * title1 = "", const char * title2 = "",
                         const char * message = "", size_t nPrintedRows = 0, size_t interval = 15)
 {
-    printNumericTables<prec1, prec2>(dataTable1, &dataTable2, title1, title2, message, nPrintedRows, interval);
+    printNumericTables(dataTable1, &dataTable2, title1, title2, message, nPrintedRows, interval);
 }
 
-template <typename type1, typename type2, int prec1 = 3, int prec2 = 0>
+template <typename type1, typename type2>
 void printNumericTables(NumericTablePtr dataTable1, NumericTablePtr dataTable2, const char * title1 = "", const char * title2 = "",
                         const char * message = "", size_t nPrintedRows = 0, size_t interval = 15)
 {
-    printNumericTables<type1, type2, prec1, prec2>(dataTable1.get(), dataTable2.get(), title1, title2, message, nPrintedRows, interval);
+    printNumericTables<type1, type2>(dataTable1.get(), dataTable2.get(), title1, title2, message, nPrintedRows, interval);
 }
 
 bool checkFileIsAvailable(std::string filename, bool needExit = false)

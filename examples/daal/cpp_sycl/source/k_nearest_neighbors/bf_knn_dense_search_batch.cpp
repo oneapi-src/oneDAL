@@ -162,12 +162,14 @@ void readGroundTruth(NumericTablePtr & groundTruthIndices, NumericTablePtr & gro
 
 void printIndicesResults(NumericTablePtr & testGroundTruth, bf_knn_classification::prediction::ResultPtr & predictionResult)
 {
-    printNumericTables<int, int>(testGroundTruth, predictionResult->get(bf_knn_classification::prediction::indices), "Ground truth",
-                                 "Indices results", "BF kNN search results (first 20 observations):", 20);
+    auto indicesResult = predictionResult->get(bf_knn_classification::prediction::indices);
+    printNumericTable<int>(testGroundTruth, "Indices Ground Truth (first 10 rows):", 10);
+    printNumericTable<int>(indicesResult, "Computed Indices (first 10 rows):", 10);
 }
 
 void printDistancesResults(NumericTablePtr & testGroundTruth, bf_knn_classification::prediction::ResultPtr & predictionResult)
 {
-    printNumericTables<float, float, 3, 3>(testGroundTruth, predictionResult->get(bf_knn_classification::prediction::distances), "Ground truth",
-                                     "Distances results", "BF kNN search results (first 20 observations):", 20);
+    auto distancesResult = predictionResult->get(bf_knn_classification::prediction::distances);
+    printNumericTable(testGroundTruth, "Distances Ground Truth (first 10 rows):", 10);
+    printNumericTable(distancesResult, "Computed Distances (first 10 rows):", 10);
 }

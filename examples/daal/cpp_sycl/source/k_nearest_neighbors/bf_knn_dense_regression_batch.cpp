@@ -180,6 +180,6 @@ void doRegression(cl::sycl::queue & q, bf_knn_classification::prediction::Result
 
 void printResults(NumericTablePtr & testGroundTruth, NumericTablePtr & testPredictResult)
 {
-    printNumericTables<float, float, 3, 3>(testGroundTruth, testPredictResult, "Ground truth", "Regression results",
-                                     "BF kNN regression results (first 20 observations):", 20);
+    printNumericTable(testGroundTruth, "Regression Ground Truth (first 10 rows):", 10);
+    printNumericTable(testPredictResult, "Computed Responses (first 10 rows):", 10);
 }
