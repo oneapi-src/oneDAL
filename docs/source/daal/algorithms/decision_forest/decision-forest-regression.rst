@@ -126,7 +126,6 @@ the training algorithm for decision forest regression has the following paramete
        For CPU:
 
        - ``defaultDense`` - default performance-oriented method
-       - ``hist`` - inexact histogram computation method
 
        For GPU:
 
@@ -185,8 +184,7 @@ Examples
 
     Batch Processing:
 
-    - :cpp_example:`df_reg_default_dense_batch.cpp <decision_forest/df_reg_default_dense_batch.cpp>`
-    - :cpp_example:`df_reg_hist_dense_batch.cpp <decision_forest/df_reg_hist_dense_batch.cpp>`
+    - :cpp_example:`df_reg_dense_batch.cpp <decision_forest/df_reg_dense_batch.cpp>`
 
   .. tab:: Java*
   
@@ -194,7 +192,7 @@ Examples
 
     Batch Processing:
 
-    - :java_example:`DfRegDefaultDenseBatch.java <decision_forest/DfRegDefaultDenseBatch.java>`
+    - :java_example:`DfRegDenseBatch.java <decision_forest/DfRegDenseBatch.java>`
 
   .. tab:: Python*
 
