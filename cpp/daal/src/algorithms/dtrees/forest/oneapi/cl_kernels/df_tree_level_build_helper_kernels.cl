@@ -111,10 +111,10 @@ DECLARE_SOURCE(
                 int groupRowsToRight = 0;
                 for (int i = iStart + sub_group_local_id; i < iEnd; i += sub_group_size)
                 {
-                    int id                        = treeOrder[offset + i];
-                    int toRight                   = (int)(data[id * nFeatures + featId] > splitVal);
-                    int boundary                  = groupRowsToRight + sub_group_scan_exclusive_add(toRight);
-                    int posNew                    = (toRight ? nRowsLeft + groupRightBoundary + boundary : groupLeftBoundary + i - iStart - boundary);
+                    const int id                        = treeOrder[offset + i];
+                    const int toRight                   = (int)(data[id * nFeatures + featId] > splitVal);
+                    const int boundary                  = groupRowsToRight + sub_group_scan_exclusive_add(toRight);
+                    const int posNew                    = (toRight ? nRowsLeft + groupRightBoundary + boundary : groupLeftBoundary + i - iStart - boundary);
                     treeOrderBuf[offset + posNew] = id;
                     groupRowsToRight += sub_group_reduce_add(toRight);
                 }
