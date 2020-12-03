@@ -1,4 +1,4 @@
-/* file: covariance_dense_distributed_oneccl.cpp */
+/* file: pca_dense_distributed_oneccl.cpp */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -17,14 +17,14 @@
 
 /*
 !  Content:
-!    C++ sample of dense variance-covariance matrix computation in the
-!    distributed processing mode
+!    C++ sample of principal component analysis (PCA) using the correlation
+!    method in the distributed processing mode
 !
 !******************************************************************************/
 
 /**
- * <a name="DAAL-SAMPLE-CPP-COVARIANCE_DENSE_DISTRIBUTED"></a>
- * \example covariance_dense_distributed_oneccl.cpp
+ * <a name="DAAL-SAMPLE-CPP-PCA_DENSE_DISTRIBUTED"></a>
+ * \example pca_dense_distributed_oneccl.cpp
  */
 
 #include "daal_sycl.h"
@@ -45,8 +45,8 @@ typedef float algorithmFPType; /* Algorithm floating-point type */
 const size_t nBlocks     = 4;
 
 /* Input data set parameters */
-const string dataFileNames[4] = { "./data/covcormoments_dense_1.csv", "./data/covcormoments_dense_2.csv",
-                                  "./data/covcormoments_dense_3.csv", "./data/covcormoments_dense_4.csv" };
+const string dataFileNames[4] = { "./data/pca_normalized_1.csv", "./data/pca_normalized_2.csv",
+                                  "./data/pca_normalized_3.csv", "./data/pca_normalized_4.csv" };
 
 #define ccl_root 0
 
@@ -121,12 +121,12 @@ int main(int argc, char * argv[])
 
     const bool isRoot = (rank == ccl_root);
 
-    covariance::Distributed<step1Local> localAlgorithm;
+    pca::Distributed<step1Local> localAlgorithm;
 
     /* Set the input data set to the algorithm */
-    localAlgorithm.input.set(covariance::data, pData);
+    localAlgorithm.input.set(pca::data, pData);
 
-    /* Compute covariance */
+    /* Compute PCA decomposition */
     localAlgorithm.compute();
 
     /* Serialize partial results required by step 2 */
@@ -159,30 +159,30 @@ int main(int argc, char * argv[])
 
     if (isRoot)
     {
-        /* Create an algorithm to compute covariance on the master node */
-        covariance::Distributed<step2Master> masterAlgorithm;
+        /* Create an algorithm for principal component analysis using the correlation method on the master node */
+        pca::Distributed<step2Master> masterAlgorithm;
         for (size_t i = 0, shift = 0; i < nBlocks; shift += aPerNodeArchLength[i], ++i)
         {
             /* Deserialize partial results from step 1 */
             OutputDataArchive dataArch(&serializedData[shift], aPerNodeArchLength[i]);
 
-            covariance::PartialResultPtr dataForStep2FromStep1(new covariance::PartialResult());
+            services::SharedPtr<pca::PartialResult<pca::correlationDense> > dataForStep2FromStep1(new pca::PartialResult<pca::correlationDense>());
             dataForStep2FromStep1->deserialize(dataArch);
 
             /* Set local partial results as input for the master-node algorithm */
-            masterAlgorithm.input.add(covariance::partialResults, dataForStep2FromStep1);
+            masterAlgorithm.input.add(pca::partialResults, dataForStep2FromStep1);
         }
 
-        /* Merge and finalizeCompute covariance on the master node */
+        /* Merge and finalizeCompute PCA decomposition on the master node */
         masterAlgorithm.compute();
         masterAlgorithm.finalizeCompute();
 
         /* Retrieve the algorithm results */
-        covariance::ResultPtr result = masterAlgorithm.getResult();
+        pca::ResultPtr result = masterAlgorithm.getResult();
 
         /* Print the results */
-        printNumericTable(result->get(covariance::covariance), "Covariance matrix:");
-        printNumericTable(result->get(covariance::mean), "Mean vector:");
+        printNumericTable(result->get(pca::eigenvalues), "Eigenvalues:");
+        printNumericTable(result->get(pca::eigenvectors), "Eigenvectors:");
     }
 
     MPI_Finalize();
