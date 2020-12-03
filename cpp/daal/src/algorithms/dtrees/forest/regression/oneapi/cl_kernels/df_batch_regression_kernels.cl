@@ -437,9 +437,9 @@ DECLARE_SOURCE(
 
             algorithmFPType bestImpDec = sub_group_reduce_max(curImpDec);
 
-            int impDecIsBest     = fpEq(bestImpDec, curImpDec);
-            int bestFeatureId    = sub_group_reduce_min(impDecIsBest ? curFeatureId : valNotFound);
-            int bestFeatureValue = sub_group_reduce_min((bestFeatureId == curFeatureId && impDecIsBest) ? curFeatureValue : valNotFound);
+            const int impDecIsBest     = fpEq(bestImpDec, curImpDec);
+            const int bestFeatureId    = sub_group_reduce_min(impDecIsBest ? curFeatureId : valNotFound);
+            const int bestFeatureValue = sub_group_reduce_min((bestFeatureId == curFeatureId && impDecIsBest) ? curFeatureValue : valNotFound);
 
             bool noneSplitFoundBySubGroup = ((leafMark == bestFeatureId) && (0 == sub_group_local_id));
             bool mySplitIsBest            = (leafMark != bestFeatureId && curFeatureId == bestFeatureId && curFeatureValue == bestFeatureValue);
