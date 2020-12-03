@@ -11,7 +11,7 @@ tree-structured classifiers, which are known as decision trees. Decision forest 
 using the general technique of bagging, a bootstrap aggregation, and a random choice of features. Decision tree is
 a binary tree graph. Its internal (split) nodes represent a decision function used to select the child node at the 
 prediction stage. Its leaf, or terminal, nodes represent the corresponding response values, which are the result 
-of the prediction from the tree. For more details, see Classification and Regression > Decision Tree, [Breiman84]_ and [Breiman2001]_.
+of the prediction from the tree. For more details, see [Breiman84]_ and [Breiman2001]_.
 
 .. |t_math| replace:: `Training <df_t_math_>`_
 .. |t_dense| replace:: `Dense <df_t_math_dense_>`_
@@ -43,39 +43,38 @@ Mathematical formulation
 Training
 --------
 Given :math:`n` feature vectors :math:`X=\{x_1=(x_{11},\ldots,x_{1p}),\ldots,x_n=(x_{n1},\ldots,x_{np})\}` of
-size :math:`p` and :math:`n` responses :math:`Y=\{y_1,\ldots,y_n\}`, the problem is to build a decision forest
-classification or regression model.
+size :math:`p`, their non-negative observation weights :math:`W=\{w_1,\ldots,w_n\}` and :math:`n` responses :math:`Y=\{y_1,\ldots,y_n\}` (for classification, :math:`y_i \in \{0, \ldots, \mathrm{C-1}\}`, where :math:`C` is the number of classes), the problem is to build a decision forest classification or regression model.
 
-During the training stage, :math:`M` independent classification or regression trees are created using the following:
+During the training stage, :math:`\mathrm{M}` independent classification or regression trees are created using the following:
 
 #. New training set generated from the original one by sampling uniformly and with replacement
    (bootstrapping).
-#. Impurity metric (:math:`I`) and impurity reduction
-   (:math:`I_{\mathrm{reduction}}`) for splitting tree's nodes, calculated as follows:
+#. Impurity metric :math:`I` and impurity reduction
+   :math:`I_{\mathrm{reduction}}` for splitting tree's nodes, calculated as follows:
     - Gini impurity for classification:
-        - without sample weights: :math:`I(D)=1-\sum_{i=1}^{C}{p_i^2},` where :math:`p_i` is the fraction of observations in subset D that belong to the :math:`i`-th class.
-        - with sample weights: :math:`I(D)=1-\sum_{i=1}^{C}{p_i^2},` where :math:`p_i` is the weighted fraction of observations in subset D that belong to the :math:`i`-th class.
-	  :math:`p_i=(\sum_{d \in \{d \in D | y_{d}=i\}}w_d)/\sum_{d \in D}w_d,` where :math:`w_d` is a weight of sample :math:`d`. 
+        - without observation weights: :math:`I(D)=1-\sum_{i=1}^{C}{p_i^2},` where :math:`p_i` is the fraction of observations in subset :math:`D` that belong to the :math:`i`-th class.
+        - with observation weights: :math:`I(D)=1-\sum_{i=1}^{C}{p_i^2},` where :math:`p_i` is the weighted fraction of observations in subset :math:`D` that belong to the :math:`i`-th class,
+	  :math:`p_i=(\sum_{d \in \{d \in D | y_{d}=i\}}w_d)/\sum_{d \in D}w_d,` and :math:`w_d` is a weight of observation :math:`d`. 
     - Mean-Square Error (MSE) for regression: 
-	- without sample weights: :math:`I(D)=1/N\sum_{i=1}^{N}{(y_i - \bar{y})^2},` where :math:`N=|D|` and :math:`\bar{y}=1/N\sum_{i=1}^{N}y_i`.
-	- with sample weights: :math:`I(D)=1/W(D)\sum_{i=1}^{N}w_i{(y_i - \bar{y})^2},` where :math:`N=|D|` and :math:`\bar{y}=\sum_{i=1}^{N}w_{i}y_{i},` where :math:`W(D)=\sum_{i=1}^{N}w_{i},` and :math:`w_i` is a weight of sample :math:`i`.
+	- without observation weights: :math:`I(D)=\frac{1}{N} \sum_{i=1}^{N}{(y_i - \bar{y})^2},` where :math:`N=|D|` and :math:`\bar{y}=frac{1}{N} \sum_{i=1}^{N}y_i`.
+	- with observation weights: :math:`I(D)=\frac{1}{W(D)} \sum_{i=1}^{N}w_i{(y_i - \bar{y})^2},` where :math:`N=|D|`, :math:`\bar{y}=\sum_{i=1}^{N}w_{i}y_{i},`, :math:`W(D)=\sum_{i=1}^{N}w_{i},` and :math:`w_i` is a weight of observation :math:`i`.
     - :math:`I_{\mathrm{reduction}}={I} - (N_{\mathrm{left}}/N_{\mathrm{parent}}*I_{left} + N_{\mathrm{right}}/N_{\mathrm{parent}}*I_{\mathrm{right}}),` where :math:`N_{\mathrm{left}}` and :math:`N_{\mathrm{right}}` are the number of observations in the node on the corresponding side of the split.
 
 Due to each tree being fitted to a bootstrapped subset of observations, those that are not used to
 fit a given tree are referred to as out-of-bag (OOB) observations. We can calculate OOB error as the
-average prediction error on each training sample :math:`x_i`, using only the trees that did not have :math:`x_i`
-in their bootstrap sample.
+average prediction error on each training observation :math:`x_i`, using only the trees that did not have :math:`x_i`
+in their bootstrap observations.
 
 Mean Decrease Impurity (feature importance MDI) metric is calculated as the sum of the impurity
 reduction over all the nodes that are split on that feature (over all trees), averaged by a number
 of trees.
 
 Let :math:`S=(X,Y)` be the set of observations. Given the training parameters, such as the number of trees
-in the forest (:math:`\mathrm{nTrees}`), the fraction of observations used for the training of one tree
+in the forest (:math:`\mathrm{M}`), the fraction of observations used for the training of one tree
 (:math:`\mathrm{observationsPerTreeFraction}`), and the number of features to try as a possible split per
 node (:math:`\mathrm{featuresPerNode}`), the algorithm does the following:
 
-#. For each tree (:math:`1, \ldots, \mathrm{nTrees}`):
+#. For each tree (:math:`1, \ldots, \mathrm{M}`):
 #. Generate a bootstrapped set of observations with :math:`\mathrm{observationsPerTreeFraction} * |S|`
    elements in it.
 #. Start with the tree whose depth is equal to :math:`0`.
@@ -125,7 +124,7 @@ Inference methods: *Dense* and *Hist*
    which is voted for by the majority of the trees in the forest.
 
 #. For regression, the tree ensemble model uses the mean of :math:`M` functions' results to predict the
-   output, i.e. :math:`\hat{y}=1/M\sum_{k=1}^M{f_k(x_i)}, \; f_k \in F,` where :math:`F=\{f : \mathbb{R}^p \rightarrow W, \; W \subset \mathbb{R}, \; |W|=T\}` is a set of 
+   output, i.e. :math:`\hat{y}=\frac{1}{M} \sum_{k=1}^M{f_k(x_i)}, \; f_k \in F,` where :math:`F=\{f : \mathbb{R}^p \rightarrow W, \; W \subset \mathbb{R}, \; |W|=T\}` is a set of 
    regression trees, :math:`W` is a set of tree leaves' scores and :math:`T` is the number of leaves in the tree.
    In other words, each tree maps an observation to the corresponding leaf's score.
 
