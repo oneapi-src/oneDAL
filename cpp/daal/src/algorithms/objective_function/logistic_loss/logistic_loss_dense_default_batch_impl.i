@@ -39,6 +39,23 @@ namespace logistic_loss
 {
 namespace internal
 {
+template <typename algorithmFPType, Method method, CpuType cpu>
+LogLossKernel<algorithmFPType, method, cpu>::LogLossKernel() : _aX(nullptr), _aY(nullptr)
+{}
+
+template <typename algorithmFPType, Method method, CpuType cpu>
+LogLossKernel<algorithmFPType, method, cpu>::~LogLossKernel()
+{
+    if (_aX)
+    {
+        delete _aX;
+    }
+    if (_aY)
+    {
+        delete _aY;
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 // Logistic loss function, L(x,y,b) = -[y*ln(sigmoid(f)) + (1 - y)*ln(1-sigmoid(f))]
 // where sigmoid(f) = 1/(1 + exp(-f), f = x*b
@@ -123,12 +140,13 @@ void LogLossKernel<algorithmFPType, method, cpu>::sigmoid(const algorithmFPType 
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
-services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const algorithmFPType * x, const algorithmFPType * y, size_t n, size_t p,
-                                                                        NumericTable * betaNT, NumericTable * valueNT, NumericTable * hessianNT,
-                                                                        NumericTable * gradientNT, NumericTable * nonSmoothTermValue,
-                                                                        NumericTable * proximalProjection, NumericTable * lipschitzConstant,
-                                                                        Parameter * parameter)
+services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const NumericTable * dataNT, const NumericTable * dependentVariablesNT,
+                                                                        size_t n, size_t p, NumericTable * betaNT, NumericTable * valueNT,
+                                                                        NumericTable * hessianNT, NumericTable * gradientNT,
+                                                                        NumericTable * nonSmoothTermValue, NumericTable * proximalProjection,
+                                                                        NumericTable * lipschitzConstant, Parameter * parameter)
 {
+    SafeStatus safeStat;
     const size_t nBeta = p + 1;
     DAAL_ASSERT(betaNT->getNumberOfColumns() == 1);
     DAAL_ASSERT(betaNT->getNumberOfRows() == nBeta);
@@ -200,8 +218,11 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
             algorithmFPType & _maxNorm = *tlsData.local();
             const size_t startRow      = iBlock * blockSize;
             const size_t finishRow     = (iBlock + 1 == nBlocks ? n : (iBlock + 1) * blockSize);
-            algorithmFPType curentNorm = 0;
-            for (size_t i = startRow; i < finishRow; i++)
+            ReadRows<algorithmFPType, cpu> xr(const_cast<NumericTable *>(dataNT), startRow, finishRow - startRow);
+            DAAL_CHECK_BLOCK_STATUS_THR(xr);
+            const algorithmFPType * const x = xr.get();
+            algorithmFPType curentNorm      = 0;
+            for (size_t i = 0; i < finishRow - startRow; i++)
             {
                 curentNorm = 0;
                 for (size_t j = 0; j < p; j++)
@@ -246,7 +267,6 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
 
     if (valueNT || gradientNT || hessianNT)
     {
-        SafeStatus safeStat;
         TNArray<algorithmFPType, 16, cpu> f;
         TNArray<algorithmFPType, 32, cpu> sg;
 
@@ -308,10 +328,15 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
             const size_t iStartRow      = iBlock * nRowsInBlock;
             const size_t nRowsToProcess = (iBlock == nDataBlocks - 1) ? n - iBlock * nRowsInBlock : nRowsInBlock;
 
-            const algorithmFPType * const xLocal = x + iStartRow * p;
-            const algorithmFPType * const yLocal = y + iStartRow;
-            algorithmFPType * const fPtrLocal    = fPtr + iStartRow;
-            algorithmFPType * const sgPtrLocal   = sgPtr + iStartRow;
+            ReadRows<algorithmFPType, cpu> xr(const_cast<NumericTable *>(dataNT), iStartRow, nRowsToProcess);
+            DAAL_CHECK_BLOCK_STATUS_THR(xr);
+            ReadRows<algorithmFPType, cpu> yr(const_cast<NumericTable *>(dependentVariablesNT), iStartRow, nRowsToProcess);
+            DAAL_CHECK_BLOCK_STATUS_THR(yr);
+            const algorithmFPType * const xLocal = xr.get();
+            const algorithmFPType * const yLocal = yr.get();
+
+            algorithmFPType * const fPtrLocal  = fPtr + iStartRow;
+            algorithmFPType * const sgPtrLocal = sgPtr + iStartRow;
 
             //f = X*b + b0
             {
@@ -484,6 +509,9 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
 
         if (hessianNT)
         {
+            ReadRows<algorithmFPType, cpu> xr(const_cast<NumericTable *>(dataNT), 0, n);
+            DAAL_CHECK_BLOCK_STATUS(xr);
+            const algorithmFPType * const x = xr.get();
             DAAL_ASSERT(hessianNT->getNumberOfRows() == nBeta);
             WriteRows<algorithmFPType, cpu> hr(hessianNT, 0, nBeta * nBeta);
             DAAL_CHECK_BLOCK_STATUS(hr);
@@ -555,52 +583,48 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::compute(NumericTab
 {
     const size_t nRows                                = dataNT->getNumberOfRows();
     const daal::data_management::NumericTable * ntInd = parameter->batchIndices.get();
-
     if (ntInd && (ntInd->getNumberOfColumns() == nRows)) ntInd = nullptr;
-    services::Status s;
+
     const size_t p = dataNT->getNumberOfColumns();
     if (ntInd)
     {
-        const size_t n                                               = ntInd->getNumberOfColumns();
+        const size_t n = ntInd->getNumberOfColumns();
+        services::Status s;
         HomogenNumericTable<algorithmFPType> * hmgData               = dynamic_cast<HomogenNumericTable<algorithmFPType> *>(dataNT);
         HomogenNumericTable<algorithmFPType> * hmgDependentVariables = dynamic_cast<HomogenNumericTable<algorithmFPType> *>(dependentVariablesNT);
 
-        if (n == 1 && hmgData && hmgDependentVariables)
-        {
-            int ind                    = ntInd->getValue<int>(0, 0);
-            const algorithmFPType * aX = (*hmgData)[ind];
-            const algorithmFPType * aY = (*hmgDependentVariables)[ind];
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, sizeof(algorithmFPType));
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, p);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * p, sizeof(algorithmFPType));
 
-            s |=
-                doCompute(aX, aY, n, p, betaNT, valueNT, hessianNT, gradientNT, nonSmoothTermValue, proximalProjection, lipschitzConstant, parameter);
-            return s;
-        }
-        else
+        if (_aX == nullptr || _aX->size() != n * p)
         {
-            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, sizeof(algorithmFPType));
-            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, p);
-            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * p, sizeof(algorithmFPType));
-
-            TArrayScalable<algorithmFPType, cpu> aX(n * p);
-            TArrayScalable<algorithmFPType, cpu> aY(n);
-            {
-                DAAL_ITTNOTIFY_SCOPED_TASK(getXY);
-                s |= objective_function::internal::getXY<algorithmFPType, cpu>(dataNT, dependentVariablesNT, ntInd, aX.get(), aY.get(), nRows, n, p);
-            }
-            s |= doCompute(aX.get(), aY.get(), n, p, betaNT, valueNT, hessianNT, gradientNT, nonSmoothTermValue, proximalProjection,
-                           lipschitzConstant, parameter);
+            _aX = new TArrayScalable<algorithmFPType, cpu>(n * p);
+            DAAL_CHECK_MALLOC(_aX);
         }
+        if (_aY == nullptr || _aY->size() != n)
+        {
+            _aY = new TArrayScalable<algorithmFPType, cpu>(n);
+            DAAL_CHECK_MALLOC(_aY);
+        }
+
+        TArrayScalable<algorithmFPType, cpu> & aX = *_aX;
+        TArrayScalable<algorithmFPType, cpu> & aY = *_aY;
+
+        {
+            DAAL_ITTNOTIFY_SCOPED_TASK(getXY);
+            s |= objective_function::internal::getXY<algorithmFPType, cpu>(dataNT, dependentVariablesNT, ntInd, aX.get(), aY.get(), nRows, n, p);
+        }
+        auto internalDataNT = HomogenNumericTableCPU<algorithmFPType, cpu>::create(aX.get(), p, n);
+        DAAL_CHECK_MALLOC(internalDataNT.get());
+        auto internalDependentVariablesNT = HomogenNumericTableCPU<algorithmFPType, cpu>::create(aY.get(), 1, n);
+        DAAL_CHECK_MALLOC(internalDependentVariablesNT.get());
+        s |= doCompute(internalDataNT.get(), internalDependentVariablesNT.get(), n, p, betaNT, valueNT, hessianNT, gradientNT, nonSmoothTermValue,
+                       proximalProjection, lipschitzConstant, parameter);
         return s;
     }
-
-    ReadRows<algorithmFPType, cpu> xr(dataNT, 0, nRows);
-    ReadRows<algorithmFPType, cpu> yr(dependentVariablesNT, 0, nRows);
-    DAAL_CHECK_BLOCK_STATUS(xr);
-    DAAL_CHECK_BLOCK_STATUS(yr);
-
-    s |= doCompute(xr.get(), yr.get(), nRows, p, betaNT, valueNT, hessianNT, gradientNT, nonSmoothTermValue, proximalProjection, lipschitzConstant,
-                   parameter);
-    return s;
+    return doCompute(dataNT, dependentVariablesNT, nRows, p, betaNT, valueNT, hessianNT, gradientNT, nonSmoothTermValue, proximalProjection,
+                     lipschitzConstant, parameter);
 }
 
 } // namespace internal
