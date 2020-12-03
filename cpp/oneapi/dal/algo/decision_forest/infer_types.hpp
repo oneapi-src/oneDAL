@@ -74,7 +74,7 @@ private:
     dal::detail::pimpl<detail::infer_input_impl<Task>> impl_;
 };
 
-/// @tparam Task   Tag-type that specifies type of the problem to solve. Can
+/// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
 ///                be :expr:`task::classification` or :expr:`task::regression`.
 template <typename Task = task::by_default>
 class infer_result : public base {
