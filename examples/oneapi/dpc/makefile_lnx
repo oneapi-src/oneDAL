@@ -22,9 +22,9 @@ help:
 	@echo "Usage: make {lib|so|help}"
 	@echo "[example=name] [compiler=compiler_name] [mode=mode_name]"
 	@echo
-	@echo "name              - example name. Please see onedal.lst file"
+	@echo "name              - example name. Please see onedal_lnx.lst file"
 	@echo
-	@echo "compiler_name     - currently can be dpcpp only that stands
+	@echo "compiler_name     - currently can be dpcpp only that stands"
 	@echo "                    for Intel(R) oneAPI DPC++ Compiler."
 	@echo
 	@echo "mode_name         - can be build or run. Default is run"
