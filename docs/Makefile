@@ -31,7 +31,14 @@ create_rst_examples:
 	@echo "Creating rST files for oneAPI Examples..."
 	python3 rst_examples.py
 
-.PHONY: help Makefile create_rst_examples
+doxygen:
+	doxygen doxygen/oneapi/Doxyfile
+
+parse-doxygen: doxygen
+	mkdir -p build
+	python3 -m dalapi.doxypy.cli doxygen/xml --compact > build/tree.yaml
+
+.PHONY: help Makefile create_rst_examples doxygen parse-doxygen
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
