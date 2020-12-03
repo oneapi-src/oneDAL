@@ -29,7 +29,7 @@
  * \example log_reg_dense_online.cpp
  */
 
-#include "logistic_regression_online.hpp"
+#include "logistic_regression_online.h"
 #include "service.h"
 #include "service_sycl.h"
 
@@ -73,7 +73,6 @@ int main(int argc, char * argv[])
 logistic_regression::ModelPtr trainModel()
 {
     constexpr bool isIntercept           = false;
-    constexpr float l1Penalty            = 0.0f;
     constexpr float l2Penalty            = 0.0f;
     constexpr float learningRate         = 1.0f;
     constexpr size_t nEpochs             = 20;
@@ -85,7 +84,7 @@ logistic_regression::ModelPtr trainModel()
     NumericTablePtr mergedDataBlock(new MergedNumericTable(xBlock, yBlock));
 
     LogisticRegressionOnline alg;
-    alg.setParams(nClasses, nFeatures, isIntercept, l1Penalty, l2Penalty, dataBlockRowCount, nIterationsPerBlock);
+    alg.setParams(nClasses, nFeatures, isIntercept, l2Penalty, dataBlockRowCount, nIterationsPerBlock);
 
     for (size_t epoch = 0; epoch < nEpochs; epoch++)
     {

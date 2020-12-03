@@ -1,4 +1,4 @@
-/* file: logistic_regression_online.hpp */
+/* file: logistic_regression_online.h */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -22,6 +22,7 @@
 !******************************************************************************/
 
 #include "daal_sycl.h"
+#include <stdexcept>
 
 namespace daal_dm = daal::data_management;
 namespace daal_al = daal::algorithms;
@@ -42,42 +43,52 @@ class LogisticRegressionOnline
 
 public:
     LogisticRegressionOnline()
-        : _batchRowCount(0), _nFeatures(0), _nClasses(0), _nBetas(0), _nBetaCols(0), _isIntercept(false) {}
+        : _nFeatures(0), _nClasses(0), _nBetas(0), _nBetaCols(0), _isIntercept(false) {}
 
     // Sets the algorithm parameters
     void setParams(size_t nClasses,
                    size_t nFeatures,
                    bool isIntercept,
-                   Fptype l1_penalty,
-                   Fptype l2_penalty,
+                   Fptype l2Penalty,
                    size_t batchRowCount,
                    size_t batchIterationCount = 1)
     {
-        _batchRowCount = batchRowCount;
+        checkParameterDomains(nClasses, nFeatures, l2Penalty, batchRowCount);
+
         _nClasses = nClasses;
         _nFeatures = nFeatures;
         _isIntercept = isIntercept;
 
         if(nClasses == 2)
         {
-            LogLossPtr l (new LogLoss(_batchRowCount));
-            _solver = SGDMinibatchSolverPtr(new SGDMinibatchSolver(l));
+            LogLossPtr loss (new LogLoss(batchRowCount));
+            if (!loss)
+                throw std::runtime_error("Failed to create LogLoss function");
+
+            _solver = SGDMinibatchSolverPtr(new SGDMinibatchSolver(loss));
+            if (!_solver)
+                throw std::runtime_error("Failed to create SGD solver");
 
             // solver clones LogLoss so we need to retrieve an object it holds
             _logLoss = daal::services::staticPointerCast<LogLoss>(_solver->parameter.function);
-            _logLoss->parameter().penaltyL1 = l1_penalty;
-            _logLoss->parameter().penaltyL2 = l2_penalty;
+            _logLoss->parameter().penaltyL1 = 0.0;
+            _logLoss->parameter().penaltyL2 = l2Penalty;
             _logLoss->parameter().interceptFlag = isIntercept;
         }
         else
         {
-            CrossEntropyLossPtr l (new CrossEntropyLoss(nClasses, _batchRowCount));
-            _solver = SGDMinibatchSolverPtr(new SGDMinibatchSolver(l));
+            CrossEntropyLossPtr loss (new CrossEntropyLoss(nClasses, batchRowCount));
+            if (!loss)
+                throw std::runtime_error("Failed to create LogLoss function");
+
+            _solver = SGDMinibatchSolverPtr(new SGDMinibatchSolver(loss));
+            if (!_solver)
+                throw std::runtime_error("Failed to create SGD solver");
 
             // solver clones LogLoss so we need to retrieve an object it holds
             _crossEntropyLoss = daal::services::staticPointerCast<CrossEntropyLoss>(_solver->parameter.function);
-            _crossEntropyLoss->parameter().penaltyL1 = l1_penalty;
-            _crossEntropyLoss->parameter().penaltyL2 = l2_penalty;
+            _crossEntropyLoss->parameter().penaltyL1 = 0.0;
+            _crossEntropyLoss->parameter().penaltyL2 = l2Penalty;
             _crossEntropyLoss->parameter().interceptFlag = isIntercept;
         }
 
@@ -88,16 +99,18 @@ public:
         _solver->parameter.accuracyThreshold    = 0.0;
         _solver->parameter.nIterations          = batchIterationCount;
         _solver->parameter.innerNIterations     = batchIterationCount;
-        _solver->parameter.batchSize            = _batchRowCount;
+        _solver->parameter.batchSize            = batchRowCount;
         _solver->parameter.conservativeSequence = daal_dm::SyclHomogenNumericTable<Fptype>::create(1, 1, daal_dm::NumericTable::doAllocate, 0.0);
     }
 
     // Sets the parameters of current iteration of learning process
     void setIterationParams(Fptype learningRate)
     {
+        checkParametersInitialized();
+
         {
             daal_dm::BlockDescriptor<Fptype> bd;
-            _learningRateTable->getBlockOfRows(0, 1, daal_dm::readWrite, bd);
+            _learningRateTable->getBlockOfRows(0, 1, daal_dm::writeOnly, bd);
             auto value = bd.getBlockPtr();
             value[0] = learningRate;
             _learningRateTable->releaseBlockOfRows(bd);
@@ -108,6 +121,8 @@ public:
     // Sets the input for current iteration
     void setInput(const daal_dm::NumericTablePtr& x, const daal_dm::NumericTablePtr& y)
     {
+        checkParametersInitialized();
+
         if (_nClasses == 2)
         {
             _logLoss->input.set(daal_solver::logistic_loss::data, x);
@@ -125,6 +140,8 @@ public:
     {
         namespace solver = daal::algorithms::optimization_solver::iterative_solver;
 
+        checkParametersInitialized();
+
         _solver->input.set(solver::inputArgument, _workPoint);
         _solver->compute();
 
@@ -135,6 +152,8 @@ public:
     // Creates final beta parameter values and resets internal algorithm state to default values
     void finalizeCompute()
     {
+        checkParametersInitialized();
+
         daal_dm::BlockDescriptor<Fptype> bBetas;
         _workPoint->getBlockOfRows(0, _nBetas*_nBetaCols, daal_dm::readOnly, bBetas);
         if (_isIntercept)
@@ -174,6 +193,9 @@ public:
     // Provides final model
     auto getModel() const
     {
+        if (!_finalBetas)
+            throw std::runtime_error("Final parameters are not calculated: call finalizeCompute()");
+
         daal::algorithms::logistic_regression::ModelBuilder<Fptype> mBuilder (_nFeatures, _nClasses);
         mBuilder.setBeta(_finalBetas);
         return mBuilder.getModel();
@@ -200,6 +222,31 @@ private:
         }
     }
 
+    void checkParameterDomains(size_t nClasses,
+                               size_t nFeatures,
+                               Fptype l2Penalty,
+                               size_t batchRowCount)
+    {
+        if (nClasses < 2)
+            throw std::domain_error("Number of classes must be >= 2");
+
+        if (nFeatures < 1)
+            throw std::domain_error("Number of the features must be greater than zero");
+
+        if (l2Penalty < 0.0)
+            throw std::domain_error("L2 regularization must be >= 0");
+
+        if (batchRowCount < 1)
+            throw std::domain_error("Row count in a batch must be greater than zero");
+    }
+
+    void checkParametersInitialized()
+    {
+        // Its enought to check the solver since all parameters are initialized in one place
+        if (!_solver)
+            throw std::runtime_error("Algorithm parameters are not initialized: call setParams()");
+    }
+
 private:
     SGDMinibatchSolverPtr _solver;
 
@@ -210,7 +257,6 @@ private:
     daal_dm::NumericTablePtr _learningRateTable;
     daal_dm::NumericTablePtr _finalBetas;
 
-    size_t _batchRowCount;
     size_t _nFeatures;
     size_t _nClasses;
     size_t _nBetas;
