@@ -155,8 +155,6 @@ jobs:
       conda build --override-channels -c intel -c conda-forge --numpy=1.17 conda-recipe
     displayName: conda build
   - script: |
-      export DPCPPROOT=/opt/intel/oneapi/compiler/latest
-      source ${DPCPPROOT}/env/vars.sh
       $(Pipeline.Workspace)/s/.ci/scripts/conformance_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/oneapi
     timeoutInMinutes: 15
     displayName: conformance
