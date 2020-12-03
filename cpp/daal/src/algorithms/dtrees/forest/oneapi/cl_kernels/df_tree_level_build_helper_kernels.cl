@@ -63,8 +63,8 @@ DECLARE_SOURCE(
 
         for (int blockIndGlob = sub_group_id; blockIndGlob < totalBlocksNum; blockIndGlob += sub_groups_num)
         {
-            int nodeId   = blockIndGlob / maxBlocksNum;
-            int blockInd = blockIndGlob % maxBlocksNum;
+            const int nodeId   = blockIndGlob / maxBlocksNum;
+            const int blockInd = blockIndGlob % maxBlocksNum;
 
             __global const int * node = nodeList + nodeId * nNodeProp;
             const int offset          = node[0];
