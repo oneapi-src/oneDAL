@@ -68,7 +68,7 @@ int main(int argc, char * argv[])
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
         /* Create an algorithm object to train the decision forest regression model */
-        training::ResultPtr trainingResult = device.is_gpu() ? trainModel(training::Batch<float, training::hist>()) : trainModel(training::Batch<>());
+        training::ResultPtr trainingResult = trainModel(training::Batch<float, training::hist>());
 
         testModel(trainingResult);
     }

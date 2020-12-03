@@ -199,6 +199,7 @@ following parameters:
        For CPU:
 
        - ``defaultDense`` - default performance-oriented method
+       - ``hist`` - inexact histogram computation method
 
        For GPU:
 
@@ -275,7 +276,8 @@ Examples
 
     Batch Processing:
 
-    - :cpp_example:`df_cls_dense_batch.cpp <decision_forest/df_cls_dense_batch.cpp>`
+    - :cpp_example:`df_cls_default_dense_batch.cpp <decision_forest/df_cls_default_dense_batch.cpp>`
+    - :cpp_example:`df_cls_hist_dense_batch.cpp <decision_forest/df_cls_hist_dense_batch.cpp>`
 
   .. tab:: Java*
   
@@ -283,7 +285,8 @@ Examples
 
     Batch Processing:
     
-    - :java_example:`DfClsDenseBatch.java <decision_forest/DfClsDenseBatch.java>`
+    - :java_example:`DfClsDefaultDenseBatch.java <decision_forest/DfClsDefaultDenseBatch.java>`
+    - :java_example:`DfClsHistDenseBatch.java <decision_forest/DfClsHistDenseBatch.java>`
 
   .. tab:: Python*
 

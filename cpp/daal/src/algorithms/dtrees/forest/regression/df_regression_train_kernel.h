@@ -49,10 +49,7 @@ class RegressionTrainBatchKernel : public daal::algorithms::Kernel
 {
 public:
     services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, const NumericTable * w,
-                             decision_forest::regression::Model & m, Result & res, const Parameter & par)
-    {
-        return services::ErrorMethodNotImplemented;
-    }
+                             decision_forest::regression::Model & m, Result & res, const Parameter & par);
 };
 
 } // namespace internal

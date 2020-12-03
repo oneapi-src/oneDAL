@@ -3,18 +3,18 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.intel.daal</groupId>
-    <artifactId>daal-parent</artifactId>
+    <groupId>com.intel.dal</groupId>
+    <artifactId>dal-parent</artifactId>
     <version>{{version}}</version>
     <relativePath></relativePath>
   </parent>
 
-  <artifactId>daal-natives</artifactId>
+  <artifactId>dal-natives</artifactId>
   <packaging>jar</packaging>
 
   <name>Intel(R) oneAPI Data Analytics Library</name>
   <description>Boost machine learning and data analytics performance with this easy-to-use library</description>
-  <url>https://software.intel.com/en-us/intel-daal</url>
+  <url>https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onedal.html</url>
 
   <licenses>
     <license>
@@ -44,14 +44,14 @@
         <version>3.0.2</version>
         <executions>
           <execution>
-            <id>create-daal-nativies</id>
+            <id>create-dal-nativies</id>
             <phase>package</phase>
             <goals>
               <goal>jar</goal>
             </goals>
             <configuration>
-              <classesDirectory>${daal.os.name}-${daal.arch.name}</classesDirectory>
-              <classifier>${daal.os.name}-${daal.arch.name}</classifier>
+              <classesDirectory>${dal.os.name}-${dal.arch.name}</classesDirectory>
+              <classifier>${dal.os.name}-${dal.arch.name}</classifier>
               <includes>
                 <include>lib/*JavaAPI*</include>
                 <include>lib/*tbb*</include>

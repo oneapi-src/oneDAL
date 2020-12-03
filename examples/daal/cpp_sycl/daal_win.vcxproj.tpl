@@ -46,7 +46,7 @@
     <Link>
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
-      <AdditionalDependencies>onedal_sycl.lib;onedal_core_dll.1.lib;OpenCL.lib</AdditionalDependencies>
+      <AdditionalDependencies>onedal_sycl.lib;onedal_core_dll.lib;OpenCL.lib</AdditionalDependencies>
       <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>

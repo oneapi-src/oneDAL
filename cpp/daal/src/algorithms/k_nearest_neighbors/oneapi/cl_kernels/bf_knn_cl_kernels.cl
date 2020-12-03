@@ -38,6 +38,26 @@ DECLARE_SOURCE(
         distances[global_id_0 + global_id_1 * N] = dataSq[global_id_0];
     }
 
+    __kernel void scatter_row_col(__global const algorithmFPType * dataSq, __global const algorithmFPType * querySq,
+                                  __global algorithmFPType * distances, int N) {
+        const int global_id_0 = get_global_id(0);
+        const int global_id_1 = get_global_id(1);
+
+        distances[global_id_0 + global_id_1 * N] = dataSq[global_id_0] + querySq[global_id_1];
+    }
+
+    __kernel void distances_from_squares(__global algorithmFPType * data) {
+        const int global_id_0     = get_global_id(0);
+        const algorithmFPType val = data[global_id_0];
+        data[global_id_0]         = (val > 0) ? sqrt(val) : 0;
+    }
+
+    __kernel void initialize_indices(__global int * indices, const int from) {
+        const int global_id_0 = get_global_id(0);
+
+        indices[global_id_0] = global_id_0 + from;
+    }
+
     __kernel void copy_partial_selection(__global const algorithmFPType * distances, __global const int * categories,
                                          __global algorithmFPType * partialDistances, __global int * partialCategories, int K, int Part,
                                          int TotalParts) {

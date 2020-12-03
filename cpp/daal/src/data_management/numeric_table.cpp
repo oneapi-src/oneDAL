@@ -20,6 +20,7 @@
 
 #include "data_management/data/internal/numeric_table_sycl_homogen.h"
 #include "data_management/data/internal/numeric_table_sycl_soa.h"
+#include "data_management/data/internal/numeric_table_sycl_csr.h"
 
 #include "data_management/data/homogen_numeric_table.h"
 #include "data_management/data/merged_numeric_table.h"
@@ -307,6 +308,7 @@ namespace internal
 namespace interface1
 {
 IMPLEMENT_SERIALIZABLE_TAG(SyclSOANumericTable, SERIALIZATION_SYCL_SOA_NT_ID)
+IMPLEMENT_SERIALIZABLE_TAG(SyclCSRNumericTable, SERIALIZATION_SYCL_CSR_NT_ID)
 
 #define DAAL_INSTANTIATE_SER_TAG_SYCL(T) IMPLEMENT_SERIALIZABLE_TAG1T(SyclHomogenNumericTable, T, SERIALIZATION_SYCL_HOMOGEN_NT_ID)
 

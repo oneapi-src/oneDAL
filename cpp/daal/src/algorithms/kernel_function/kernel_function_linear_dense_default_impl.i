@@ -134,7 +134,7 @@ services::Status KernelImplLinear<defaultDense, algorithmFPType, cpu>::computeIn
 
     const services::Status retStat =
         Blas<algorithmFPType, cpu>::xgemm_blocked(&trans, &notrans, (DAAL_INT *)&nVectors2, (DAAL_INT *)&nVectors1, (DAAL_INT *)&nFeatures, &alpha,
-                                                  a2, (DAAL_INT *)&nFeatures, a1, (DAAL_INT *)&nFeatures, &beta, r, (DAAL_INT *)&nVectors2);
+                                                  a2, (DAAL_INT *)&nFeatures, a1, (DAAL_INT *)&nFeatures, &beta, r, (DAAL_INT *)&nVectors2, 128, 128);
     if (!retStat) return retStat;
 
     if (b != 0.0)

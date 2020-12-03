@@ -52,8 +52,8 @@ if exist "%DAAL_UP_OLD%\redist" (
 )
 set "CLASSPATH=%DAAL%\lib\onedal.jar;%CLASSPATH%"
 endlocal& ^
-set DAL_MAJOR_BINARY=1& ^
-set DAL_MINOR_BINARY=0& ^
+set DAL_MAJOR_BINARY=__DAL_MAJOR_BINARY__& ^
+set DAL_MINOR_BINARY=__DAL_MINOR_BINARY__& ^
 set DALROOT=%DAALROOT%& ^
 set DAALROOT=%DAALROOT%& ^
 set INCLUDE=%INCLUDE%& ^

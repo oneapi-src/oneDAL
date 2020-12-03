@@ -47,11 +47,6 @@ namespace oneapi
 {
 namespace internal
 {
-#define RET_IF_FAIL(st) \
-    if (!st)            \
-    {                   \
-        return;         \
-    }
 #define CHECK_AND_RET_IF_FAIL(st, expr) \
     (st) |= (expr);                     \
     if (!st)                            \
@@ -148,7 +143,7 @@ services::Status LowOrderMomentsBatchKernelOneAPI<algorithmFPType, method>::comp
         }
     }
 
-    return status;
+    return services::Status(ErrorMethodNotImplemented);
 }
 
 template <typename T, typename Q, typename P>

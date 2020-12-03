@@ -55,11 +55,12 @@ Java_example_list=( association_rules/AssocRulesAprioriBatch         \
                     datasource/DataStructuresRowMerged               \
                     dbscan/DBSCANDenseBatch                          \
                     dbscan/DBSCANDenseDistr                          \
-                    decision_forest/DfClsDenseBatch                  \
+                    decision_forest/DfClsDefaultDenseBatch           \
                     decision_forest/DfClsDenseBatchModelBuilder      \
+                    decision_forest/DfClsHistDenseBatch              \
                     decision_forest/DfClsTraversedModelBuilder       \
                     decision_forest/DfClsTraverseModel               \
-                    decision_forest/DfRegDenseBatch                  \
+                    decision_forest/DfRegDefaultDenseBatch           \
                     decision_forest/DfRegTraverseModel               \
                     decision_tree/DtClsDenseBatch                    \
                     decision_tree/DtClsTraverseModel                 \

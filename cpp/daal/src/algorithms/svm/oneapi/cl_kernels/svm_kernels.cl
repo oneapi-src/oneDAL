@@ -95,6 +95,38 @@ DECLARE_SOURCE_DAAL(
         newXi[jCol] = xi[jCol];
     }
 
+    __kernel void copyRowIndicesByIndices(const __global ulong * const rowIndex, const __global uint * const ind, __global ulong * newRowIndex,
+                                          const ulong nRows, __global ulong * dataSize) {
+        newRowIndex[0] = 1;
+        for (ulong iRow = 0; iRow < nRows; ++iRow)
+        {
+            const ulong wRow                = ind[iRow];
+            const ulong nNonZeroValuesInRow = rowIndex[wRow + 1] - rowIndex[wRow];
+            newRowIndex[iRow + 1]           = newRowIndex[iRow] + nNonZeroValuesInRow;
+        }
+        *dataSize = newRowIndex[nRows];
+    }
+
+    __kernel void copyCSRByIndices(const __global ulong * const rowIndexIn, const __global ulong * const rowIndexOut, const __global uint * const ind,
+                                   const __global algorithmFPType * const valuesIn, const __global ulong * const columnsIn,
+                                   __global algorithmFPType * valuesOut, __global ulong * columnsOut) {
+        const ulong iRowOut             = get_global_id(0);
+        const ulong nNonZeroValuesInRow = rowIndexOut[iRowOut + 1] - rowIndexOut[iRowOut];
+
+        const ulong j = get_global_id(1);
+        if (j >= nNonZeroValuesInRow)
+        {
+            return;
+        }
+
+        const ulong iRowIn    = ind[iRowOut];
+        const ulong offsetIn  = rowIndexIn[iRowIn] - rowIndexIn[0];
+        const ulong offsetOut = rowIndexOut[iRowOut] - rowIndexOut[0];
+
+        valuesOut[j + offsetOut]  = valuesIn[j + offsetIn];
+        columnsOut[j + offsetOut] = columnsIn[j + offsetIn];
+    }
+
     __kernel void computeDualCoeffs(const __global algorithmFPType * const y, __global algorithmFPType * a) {
         const uint i = get_global_id(0);
         a[i]         = a[i] * y[i];
