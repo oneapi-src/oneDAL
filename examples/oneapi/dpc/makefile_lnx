@@ -45,7 +45,7 @@ help:
 ##
 ##------------------------------------------------------------------------------
 
-include onedal.lst
+include onedal_lnx.lst
 
 ifndef example
     example = $(ONEDAL)
@@ -116,9 +116,9 @@ endif
 CC := $(if $(COVFILE), cov01 -1; covc -i  $(CC),$(CC))
 
 lib libintel64:
-	$(MAKE) _make_ex RES_EXT=a
+	$(MAKE) -f makefile_lnx _make_ex RES_EXT=a
 so sointel64:
-	$(MAKE) _make_ex RES_EXT=so
+	$(MAKE) -f makefile_lnx _make_ex RES_EXT=so
 
 _make_ex: $(RES)
 
