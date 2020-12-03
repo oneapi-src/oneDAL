@@ -63,8 +63,8 @@ DECLARE_SOURCE(
 
         for (int blockIndGlob = sub_group_id; blockIndGlob < totalBlocksNum; blockIndGlob += sub_groups_num)
         {
-            int nodeId   = blockIndGlob / maxBlocksNum;
-            int blockInd = blockIndGlob % maxBlocksNum;
+            const int nodeId   = blockIndGlob / maxBlocksNum;
+            const int blockInd = blockIndGlob % maxBlocksNum;
 
             __global const int * node = nodeList + nodeId * nNodeProp;
             const int offset          = node[0];
@@ -111,10 +111,10 @@ DECLARE_SOURCE(
                 int groupRowsToRight = 0;
                 for (int i = iStart + sub_group_local_id; i < iEnd; i += sub_group_size)
                 {
-                    int id                        = treeOrder[offset + i];
-                    int toRight                   = (int)(data[id * nFeatures + featId] > splitVal);
-                    int boundary                  = groupRowsToRight + sub_group_scan_exclusive_add(toRight);
-                    int posNew                    = (toRight ? nRowsLeft + groupRightBoundary + boundary : groupLeftBoundary + i - iStart - boundary);
+                    const int id                        = treeOrder[offset + i];
+                    const int toRight                   = (int)(data[id * nFeatures + featId] > splitVal);
+                    const int boundary                  = groupRowsToRight + sub_group_scan_exclusive_add(toRight);
+                    const int posNew                    = (toRight ? nRowsLeft + groupRightBoundary + boundary : groupLeftBoundary + i - iStart - boundary);
                     treeOrderBuf[offset + posNew] = id;
                     groupRowsToRight += sub_group_reduce_add(toRight);
                 }

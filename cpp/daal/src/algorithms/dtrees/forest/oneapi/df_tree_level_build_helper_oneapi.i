@@ -524,7 +524,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::doLevelPartition(c
         args.set(5, static_cast<int32_t>(nNodes));
         args.set(6, static_cast<int32_t>(nFeatures));
 
-        size_t localSize = _preferablePartitionGroupSize;
+        const size_t localSize = _preferablePartitionGroupSize;
 
         KernelRange local_range(localSize);
         KernelRange global_range(localSize * _preferablePartitionGroupsNum);
