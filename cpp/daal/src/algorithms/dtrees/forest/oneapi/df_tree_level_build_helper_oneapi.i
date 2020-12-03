@@ -539,9 +539,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::doLevelPartition(c
         DAAL_CHECK_STATUS_VAR(status);
     }
 
-    UniversalBuffer _temp = treeOrder;
-    treeOrder             = treeOrderBuf;
-    treeOrderBuf          = _temp;
+    swap<sse2>(treeOrder, treeOrderBuf);
 
     return status;
 }
