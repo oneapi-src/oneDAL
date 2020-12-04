@@ -461,18 +461,17 @@ DECLARE_SOURCE(
     __kernel void computePartialHistograms(const __global int * data, const __global int * treeOrder, const __global int * nodeList,
                                            const __global int * nodeIndices, int nodeIndicesOffset, const __global int * selectedFeatures,
                                            const __global algorithmFPType * response, const __global int * binOffsets, int nMaxBinsAmongFtrs,
-                                           int nFeatures, __global algorithmFPType * partialHistograms) {
+                                           int nFeatures, __global algorithmFPType * partialHistograms, int nSelectedFeatures) {
         const int nProp     = HIST_PROPS; // num of characteristics in histogram
         const int nNodeProp = NODE_PROPS; // num of node properties in nodeOffsets
 
-        const int nodeIdx           = get_global_id(2);
-        const int nodeId            = nodeIndices[nodeIndicesOffset + nodeIdx];
-        const int featIdx           = get_local_id(1);
-        const int nSelectedFeatures = get_local_size(1);
-        const int histIdx           = get_global_id(0);
-        const int nPartHist         = get_global_size(0);
+        const int nodeIdx    = get_global_id(1);
+        const int nodeId     = nodeIndices[nodeIndicesOffset + nodeIdx];
+        const int ftrGrpIdx  = get_local_id(0);
+        const int ftrGrpSize = get_local_size(0);
+        const int nPartHist  = get_num_groups(0);
+        const int histIdx    = get_group_id(0);
 
-        const int featId     = selectedFeatures[nodeId * nSelectedFeatures + featIdx];
         const int rowsOffset = nodeList[nodeId * nNodeProp + 0];
         const int nRows      = nodeList[nodeId * nNodeProp + 1];
 
@@ -483,26 +482,24 @@ DECLARE_SOURCE(
 
         iEnd = (iEnd > nRows) ? nRows : iEnd;
 
-        __global algorithmFPType * histogram =
-            partialHistograms + ((nodeIdx * nPartHist + histIdx) * nSelectedFeatures + featIdx) * nMaxBinsAmongFtrs * nProp;
-
-        int nBins = binOffsets[featId + 1] - binOffsets[featId];
-
-        for (int i = 0; i < nProp * nBins; i++)
-        {
-            histogram[i] = (algorithmFPType)0;
-        }
-
         for (int i = iStart; i < iEnd; i++)
         {
-            int id  = treeOrder[rowsOffset + i];
-            int bin = data[id * nFeatures + featId];
+            int id = treeOrder[rowsOffset + i];
+            for (int featIdx = ftrGrpIdx; featIdx < nSelectedFeatures; featIdx += ftrGrpSize)
+            {
+                const int featId = selectedFeatures[nodeId * nSelectedFeatures + featIdx];
 
-            histogram[bin * nProp + 0] += 1.0; // N + 1
-            algorithmFPType invN  = ((algorithmFPType)1) / histogram[bin * nProp + 0];
-            algorithmFPType delta = response[id] - histogram[bin * nProp + 1];                 // y[i] - mean
-            histogram[bin * nProp + 1] += delta * invN;                                        // updated mean
-            histogram[bin * nProp + 2] += delta * (response[id] - histogram[bin * nProp + 1]); // updated sum2Cent
+                __global algorithmFPType * histogram =
+                    partialHistograms + ((nodeIdx * nPartHist + histIdx) * nSelectedFeatures + featIdx) * nMaxBinsAmongFtrs * nProp;
+
+                int bin = data[id * nFeatures + featId];
+
+                histogram[bin * nProp + 0] += 1.0; // N + 1
+                algorithmFPType invN  = ((algorithmFPType)1) / histogram[bin * nProp + 0];
+                algorithmFPType delta = response[id] - histogram[bin * nProp + 1];                 // y[i] - mean
+                histogram[bin * nProp + 1] += delta * invN;                                        // updated mean
+                histogram[bin * nProp + 2] += delta * (response[id] - histogram[bin * nProp + 1]); // updated sum2Cent
+            }
         }
     }
 
