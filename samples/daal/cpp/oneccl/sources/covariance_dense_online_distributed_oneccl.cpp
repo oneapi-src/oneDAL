@@ -23,8 +23,8 @@
 !******************************************************************************/
 
 /**
- * <a name="DAAL-SAMPLE-CPP-COVARIANCE_DENSE_DISTRIBUTED"></a>
- * \example covariance_dense_distributed_oneccl.cpp
+ * <a name="DAAL-SAMPLE-CPP-COVARIANCE_DENSE_ONLINE_DISTRIBUTED"></a>
+ * \example covariance_dense_online_distributed_oneccl.cpp
  */
 
 #include "daal_sycl.h"
@@ -37,9 +37,6 @@
 using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
-
-//typedef std::vector<char> ByteBuffer;
-typedef float algorithmFPType; /* Algorithm floating-point type */
 
 /* Covariance algorithm parameters */
 const size_t nBlocks     = 4;
