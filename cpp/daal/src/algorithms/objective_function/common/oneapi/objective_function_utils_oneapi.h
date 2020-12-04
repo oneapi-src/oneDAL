@@ -82,9 +82,9 @@ struct HelperObjectiveFunction
         services::internal::sycl::KernelArguments args(3, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        DAAL_ASSERT(x.size() == n);
-        DAAL_ASSERT(y.size() == n);
-        DAAL_ASSERT(result.size() == n);
+        DAAL_ASSERT(x.size() >= n);
+        DAAL_ASSERT(y.size() >= n);
+        DAAL_ASSERT(result.size() >= n);
 
         args.set(0, x, services::internal::sycl::AccessModeIds::read);
         args.set(1, y, services::internal::sycl::AccessModeIds::read);
@@ -308,7 +308,7 @@ struct HelperObjectiveFunction
         services::internal::sycl::KernelArguments args(3, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        DAAL_ASSERT(x.size() == n);
+        DAAL_ASSERT(x.size() >= n);
 
         args.set(0, x, services::internal::sycl::AccessModeIds::read);
         args.set(1, n);
@@ -340,7 +340,7 @@ struct HelperObjectiveFunction
 
         services::internal::sycl::KernelArguments args(2, status);
         DAAL_CHECK_STATUS_VAR(status);
-        DAAL_ASSERT(x.size() == n);
+        DAAL_ASSERT(x.size() >= n);
 
         args.set(0, x, services::internal::sycl::AccessModeIds::write);
         args.set(1, alpha);
@@ -372,7 +372,7 @@ struct HelperObjectiveFunction
         services::internal::sycl::KernelArguments args(3, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        DAAL_ASSERT(x.size() == n);
+        DAAL_ASSERT(x.size() >= n);
         DAAL_ASSERT(y.size() > id);
 
         args.set(0, x, services::internal::sycl::AccessModeIds::write);

@@ -120,7 +120,7 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
     if (nClasses != 2)
     {
         const algorithmFPType initialVal = algorithmFPType(1e-3);
-        DAAL_CHECK_STATUS(status, HelperObjectiveFunction::setColElem(0, initialVal, argumentBuff, nClasses, p));
+        DAAL_CHECK_STATUS(status, HelperObjectiveFunction::setColElem(0, initialVal, argumentBuff, nClasses, nBeta));
     }
 
     //initialize solver arguments
