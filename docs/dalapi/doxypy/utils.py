@@ -1,5 +1,6 @@
+# file: utils.py
 #===============================================================================
-# Copyright 2020 Intel Corporation
+# Copyright 2019-2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,9 +15,19 @@
 # limitations under the License.
 #===============================================================================
 
-##  Content:
-##     Intel(R) oneAPI Data Analytics Library samples list
-##******************************************************************************
+def split_compound_name(compoundname):
+    try:
+        namespace, name = compoundname.rsplit('::', 1)
+    except ValueError:
+        namespace, name = '', compoundname
+    return namespace, name
 
-ONECCL  =  kmeans_dense_distributed_oneccl        \
-           covariance_dense_distributed_oneccl
+def return_list(func):
+    def wrapper(*args, **kwargs):
+        return list(func(*args, **kwargs))
+    return wrapper
+
+def return_dict(func):
+    def wrapper(*args, **kwargs):
+        return dict(func(*args, **kwargs))
+    return wrapper

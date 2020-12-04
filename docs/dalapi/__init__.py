@@ -1,5 +1,6 @@
+# file: __init__.py
 #===============================================================================
-# Copyright 2020 Intel Corporation
+# Copyright 2019-2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,9 +15,13 @@
 # limitations under the License.
 #===============================================================================
 
-##  Content:
-##     Intel(R) oneAPI Data Analytics Library samples list
-##******************************************************************************
+__version__ = '0.0.1'
 
-ONECCL  =  kmeans_dense_distributed_oneccl        \
-           covariance_dense_distributed_oneccl
+def setup(app):
+    from . import extension
+    extension.setup(app)
+    return {
+        'version': __version__,
+        'parallel_read_safe': True,
+        'parallel_write_safe': True
+    }

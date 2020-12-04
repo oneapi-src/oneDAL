@@ -1,5 +1,6 @@
+# file: __init__.py
 #===============================================================================
-# Copyright 2020 Intel Corporation
+# Copyright 2019-2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,9 +15,26 @@
 # limitations under the License.
 #===============================================================================
 
-##  Content:
-##     Intel(R) oneAPI Data Analytics Library samples list
-##******************************************************************************
+import os
+from typing import (
+    Any,
+    Dict,
+    List,
+    Text,
+    Union,
+)
+from .index import parse as parse_index
+from .compound import parse as parse_compound
 
-ONECCL  =  kmeans_dense_distributed_oneccl        \
-           covariance_dense_distributed_oneccl
+class Parser(object):
+    def __init__(self, xml_dir: Text):
+        self._dir = xml_dir
+
+    def parse(self, refid):
+        xml_filename = self._resolve_path(refid)
+        parse = parse_index if refid == 'index' else parse_compound
+        return parse(xml_filename, silence=True)
+
+    def _resolve_path(self, refid):
+        xml_name = os.path.join(self._dir, refid)
+        return f'{xml_name}.xml'

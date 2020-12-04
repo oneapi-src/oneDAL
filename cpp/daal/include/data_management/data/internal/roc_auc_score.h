@@ -1,6 +1,6 @@
-/* file: pca_dense_correlation_distr_step2_fpt_dispatcher.cpp */
+/* file: roc_auc_score.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,20 +15,21 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of PCA Correlation algorithm container.
-//--
-*/
+#ifndef __DATA_MANAGEMENT_DATA_INTERNAL_ROC_AUC_SCORE_H__
+#define __DATA_MANAGEMENT_DATA_INTERNAL_ROC_AUC_SCORE_H__
 
-#include "algorithms/pca/pca_distributed.h"
-#include "src/algorithms/pca/pca_dense_correlation_distr_step2_container.h"
-#include "src/algorithms/pca/pca_dense_correlation_distr_step2_kernel.h"
+#include "data_management/data/numeric_table.h"
 
 namespace daal
 {
-namespace algorithms
+namespace data_management
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(pca::DistributedContainer, distributed, step2Master, DAAL_FPTYPE, pca::correlationDense)
-}
+namespace internal
+{
+template <typename FPType>
+DAAL_EXPORT FPType rocAucScore(const NumericTablePtr & truePrediction, const NumericTablePtr & testPrediction);
+} // namespace internal
+} // namespace data_management
 } // namespace daal
+
+#endif

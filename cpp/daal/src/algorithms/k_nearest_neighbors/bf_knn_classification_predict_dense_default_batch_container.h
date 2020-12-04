@@ -72,15 +72,8 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
     }
     else
     {
-        if (par->resultsToEvaluate & daal::algorithms::classifier::computeClassLabels)
-        {
-            __DAAL_CALL_KERNEL_SYCL(env, internal::KNNClassificationPredictKernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFpType), compute, a.get(),
-                                    m.get(), label.get(), par);
-        }
-        else
-        {
-            return services::Status(services::ErrorDeviceSupportNotImplemented);
-        }
+        __DAAL_CALL_KERNEL_SYCL(env, internal::KNNClassificationPredictKernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFpType), compute, a.get(),
+                                m.get(), label.get(), indices.get(), distances.get(), par);
     }
 }
 

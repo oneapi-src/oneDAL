@@ -24,6 +24,7 @@
 #define _SERVICE_H
 
 #include "daal.h"
+#include "error_handling.h"
 
 using namespace daal::data_management;
 
@@ -36,8 +37,6 @@ using namespace daal::data_management;
 #include <cstdarg>
 #include <vector>
 #include <queue>
-
-#include "error_handling.h"
 
 typedef std::vector<daal::byte> ByteBuffer;
 
