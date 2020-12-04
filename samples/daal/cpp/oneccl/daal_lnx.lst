@@ -20,4 +20,5 @@
 
 ONECCL  =  covariance_dense_distributed_oneccl                \
            kmeans_dense_distributed_oneccl                    \
-           low_order_moments_dense_distributed_oneccl            
+           low_order_moments_dense_distributed_oneccl         \
+           pca_dense_distributed_oneccl
