@@ -48,10 +48,6 @@ const size_t nBlocks     = 4;
 const string dataFileNames[4] = { "./data/covcormoments_dense_1.csv", "./data/covcormoments_dense_2.csv",
                                   "./data/covcormoments_dense_3.csv", "./data/covcormoments_dense_4.csv" };
 
-#define _P(...) do{ \
-    printf(__VA_ARGS__); printf("\n"); fflush(0); \
-    }while(0)
-
 #define ccl_root 0
 
 int getLocalRank(ccl::communicator& comm, int size, int rank) 
