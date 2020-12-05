@@ -299,7 +299,7 @@ static _threaded_malloc_t _threaded_malloc_ptr = NULL;
 static _threaded_free_t _threaded_free_ptr     = NULL;
 
 static _daal_threader_for_t _daal_threader_for_ptr                         = NULL;
-static _daal_threader_for_t _daal_static_threader_for_ptr                  = NULL;
+static _daal_static_threader_for_t _daal_static_threader_for_ptr           = NULL;
 static _daal_threader_for_blocked_t _daal_threader_for_blocked_ptr         = NULL;
 static _daal_threader_for_t _daal_threader_for_optional_ptr                = NULL;
 static _daal_threader_get_max_threads_t _daal_threader_get_max_threads_ptr = NULL;
