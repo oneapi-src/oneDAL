@@ -191,7 +191,7 @@ inline void threader_for(int n, int threads_request, const F & lambda)
 }
 
 template <typename F>
-inline void static_threader_for(size_t n, const F &lambda)
+inline void static_threader_for(size_t n, const F & lambda)
 {
     const void * a = static_cast<const void *>(&lambda);
 
@@ -332,9 +332,9 @@ public:
         }
 
         lambdaType * locall = new lambdaType(lambda);
-        const void * ac = static_cast<const void *>(locall);
-        void * a        = const_cast<void *>(ac);
-        _creater        = a;
+        const void * ac     = static_cast<const void *>(locall);
+        void * a            = const_cast<void *>(ac);
+        _creater            = a;
 
         _creater_func = creater_func<F, lambdaType>;
     }
@@ -371,9 +371,9 @@ public:
     }
 
 private:
-    F * _storage     = nullptr;
-    size_t _nThreads = 0;
-    void * _creater  = nullptr;
+    F * _storage                     = nullptr;
+    size_t _nThreads                 = 0;
+    void * _creater                  = nullptr;
     daal::tls_functype _creater_func = nullptr;
 };
 
