@@ -326,6 +326,12 @@ public:
         _nThreads = threader_get_max_threads_number();
 
         _storage = new F[_nThreads];
+
+        if (!_storage)
+        {
+            return;
+        }
+
         for (size_t i = 0; i < _nThreads; ++i)
         {
             _storage[i] = nullptr;
