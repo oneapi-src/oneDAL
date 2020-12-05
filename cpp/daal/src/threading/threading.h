@@ -25,6 +25,7 @@
 #define __THREADING_H__
 
 #include "services/daal_defines.h"
+#include <tbb/tbb.h>
 
 namespace daal
 {
@@ -182,6 +183,23 @@ inline void threader_for(int n, int threads_request, const F & lambda)
 }
 
 template <typename F>
+void static_threader_for(size_t nBlocks, F func)
+{
+    const size_t nThreads         = threader_get_max_threads_number();
+    const size_t nBlocksPerThread = nBlocks / nThreads + !!(nBlocks % nThreads);
+
+    daal::threader_for(nThreads, nThreads, [&](const size_t tid) {
+        const size_t begin = tid * nBlocksPerThread;
+        const size_t end   = nBlocks < begin + nBlocksPerThread ? nBlocks : begin + nBlocksPerThread;
+
+        for (size_t i = begin; i < end; ++i)
+        {
+            func(i, tid);
+        }
+    });
+}
+
+template <typename F>
 inline void threader_for_blocked(int n, int threads_request, const F & lambda)
 {
     const void * a = static_cast<const void *>(&lambda);
@@ -290,6 +308,53 @@ private:
     void * tlsPtr;
     void * voidLambda;
     tls_deleter * d;
+};
+
+template <typename F>
+class static_tls
+{
+public:
+    template <typename lambdaType>
+    explicit static_tls(const lambdaType & lambda)
+    {
+        _nThreads = threader_get_max_threads_number();
+
+        _storage = new F[_nThreads];
+        for (size_t i = 0; i < _nThreads; ++i)
+        {
+            _storage[i] = lambda();
+        }
+    }
+
+    virtual ~static_tls() { delete _storage; }
+
+    F local(size_t tid)
+    {
+        if (_storage)
+        {
+            return _storage[tid];
+        }
+        else
+        {
+            return nullptr;
+        }
+    }
+
+    template <typename lambdaType>
+    void reduce(const lambdaType & lambda)
+    {
+        if (_storage)
+        {
+            for (size_t i = 0; i < _nThreads; ++i)
+            {
+                lambda(_storage[i]);
+            }
+        }
+    }
+
+private:
+    F * _storage     = nullptr;
+    size_t _nThreads = 0;
 };
 
 template <typename F>
