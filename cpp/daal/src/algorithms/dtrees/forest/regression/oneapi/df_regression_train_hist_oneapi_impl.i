@@ -160,7 +160,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
         args.set(11, static_cast<int32_t>(minObservationsInLeafNode));
         args.set(12, impurityThreshold);
 
-        const size_t numOfSubGroupsPerNode = 4; //add logic for adjusting it in accordance with nNodes
+        const size_t numOfSubGroupsPerNode = 8; //add logic for adjusting it in accordance with nNodes
         size_t localSize                   = _preferableSubGroup * numOfSubGroupsPerNode;
 
         KernelRange local_range(localSize, 1);
@@ -229,7 +229,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
         args.set(13, static_cast<int32_t>(minObservationsInLeafNode));
         args.set(14, impurityThreshold);
 
-        const size_t numOfSubGroupsPerNode = 4; //add logic for adjusting it in accordance with nNodes
+        const size_t numOfSubGroupsPerNode = 8; //add logic for adjusting it in accordance with nNodes
         size_t localSize                   = _preferableSubGroup * numOfSubGroupsPerNode;
 
         KernelRange local_range(localSize, 1);
@@ -382,7 +382,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
         args.set(10, partialHistograms, AccessModeIds::write);
         args.set(11, static_cast<int32_t>(nSelectedFeatures));
 
-        size_t localSize = _maxLocalSize;
+        size_t localSize = _preferableGroupSize;
 
         KernelRange local_range(localSize, 1);
         KernelRange global_range(nPartialHistograms * localSize, nNodes);
@@ -825,11 +825,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
     engines::internal::EnginesCollection<sse2> enginesCollection(par.engine, technique, params, engines, &status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    if (!par.bootstrap)
-    {
-        DAAL_CHECK_STATUS_VAR(_treeLevelBuildHelper.initializeTreeOrder(_nSelectedRows, treeOrderLev));
-    }
-
     for (size_t iter = 0; (iter < par.nTrees) && !algorithms::internal::isCancelled(status, pHostApp); ++iter)
     {
         BlockDescriptor<algorithmFPType> responseBlock;
@@ -867,6 +862,10 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
 
             context.copy(treeOrderLev, 0, (void *)selectedRowsHost.get(), _nSelectedRows, 0, _nSelectedRows, status);
             DAAL_CHECK_STATUS_VAR(status);
+        }
+        else
+        {
+            DAAL_CHECK_STATUS_VAR(_treeLevelBuildHelper.initializeTreeOrder(_nSelectedRows, treeOrderLev));
         }
 
         if (oobRequired)

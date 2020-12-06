@@ -169,7 +169,7 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
         args.set(11, static_cast<int32_t>(minObservationsInLeafNode));
         args.set(12, impurityThreshold);
 
-        const size_t numOfSubGroupsPerNode = 4; //add logic for adjusting it in accordance with nNodes
+        const size_t numOfSubGroupsPerNode = 8; //add logic for adjusting it in accordance with nNodes
         size_t localSize                   = _preferableSubGroup * numOfSubGroupsPerNode;
 
         KernelRange local_range(localSize, 1);
@@ -238,7 +238,7 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
         args.set(13, static_cast<int32_t>(minObservationsInLeafNode));
         args.set(14, impurityThreshold);
 
-        const size_t numOfSubGroupsPerNode = 4; //add logic for adjusting it in accordance with nNodes
+        const size_t numOfSubGroupsPerNode = 8; //add logic for adjusting it in accordance with nNodes
         size_t localSize                   = _preferableSubGroup * numOfSubGroupsPerNode;
 
         KernelRange local_range(localSize, 1);
@@ -830,11 +830,6 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
     engines::internal::EnginesCollection<sse2> enginesCollection(par.engine, technique, params, engines, &status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    if (!par.bootstrap)
-    {
-        DAAL_CHECK_STATUS_VAR(_treeLevelBuildHelper.initializeTreeOrder(_nSelectedRows, treeOrderLev));
-    }
-
     for (size_t iter = 0; (iter < par.nTrees) && !algorithms::internal::isCancelled(status, pHostApp); ++iter)
     {
         BlockDescriptor<algorithmFPType> responseBlock;
@@ -870,10 +865,13 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.RNG);
             daal::internal::RNGs<int, sse2> rng;
             rng.uniform(_nSelectedRows, selectedRowsHost.get(), engineImpl->getState(), 0, _nRows);
-            daal::algorithms::internal::qSort<int, sse2>(_nSelectedRows, selectedRowsHost.get());
 
             context.copy(treeOrderLev, 0, (void *)selectedRowsHost.get(), _nSelectedRows, 0, _nSelectedRows, status);
             DAAL_CHECK_STATUS_VAR(status);
+        }
+        else
+        {
+            DAAL_CHECK_STATUS_VAR(_treeLevelBuildHelper.initializeTreeOrder(_nSelectedRows, treeOrderLev));
         }
 
         if (oobRequired)

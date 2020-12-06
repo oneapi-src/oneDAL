@@ -210,20 +210,20 @@ DECLARE_SOURCE(
         if (1 < n_sub_groups && 0 == sub_group_id)
         {
             // first sub group for current node reduces over local buffer if required
-            algorithmFPType curImpDec = (sub_group_local_id < n_sub_groups) ? bufI[bufIdx + sub_group_local_id] : minImpDec;
+            const algorithmFPType curImpDec = (sub_group_local_id < n_sub_groups) ? bufI[bufIdx + sub_group_local_id] : minImpDec;
 
-            int curFeatureId    = sub_group_local_id < n_sub_groups ? bufS[(bufIdx + sub_group_local_id) * nNodeProp + 0] : valNotFound;
-            int curFeatureValue = sub_group_local_id < n_sub_groups ? bufS[(bufIdx + sub_group_local_id) * nNodeProp + 1] : valNotFound;
-            int LN              = sub_group_local_id < n_sub_groups ? bufS[(bufIdx + sub_group_local_id) * nNodeProp + 2] : 0;
+            const int curFeatureId    = sub_group_local_id < n_sub_groups ? bufS[(bufIdx + sub_group_local_id) * nNodeProp + 0] : valNotFound;
+            const int curFeatureValue = sub_group_local_id < n_sub_groups ? bufS[(bufIdx + sub_group_local_id) * nNodeProp + 1] : valNotFound;
+            const int LN              = sub_group_local_id < n_sub_groups ? bufS[(bufIdx + sub_group_local_id) * nNodeProp + 2] : 0;
 
-            algorithmFPType bestImpDec = sub_group_reduce_max(curImpDec);
+            const algorithmFPType bestImpDec = sub_group_reduce_max(curImpDec);
 
-            int impDecIsBest     = fpEq(bestImpDec, curImpDec);
-            int bestFeatureId    = sub_group_reduce_min(impDecIsBest ? curFeatureId : valNotFound);
-            int bestFeatureValue = sub_group_reduce_min((bestFeatureId == curFeatureId && impDecIsBest) ? curFeatureValue : valNotFound);
+            const int impDecIsBest     = fpEq(bestImpDec, curImpDec);
+            const int bestFeatureId    = sub_group_reduce_min(impDecIsBest ? curFeatureId : valNotFound);
+            const int bestFeatureValue = sub_group_reduce_min((bestFeatureId == curFeatureId && impDecIsBest) ? curFeatureValue : valNotFound);
 
-            bool noneSplitFoundBySubGroup = ((leafMark == bestFeatureId) && (0 == sub_group_local_id));
-            bool mySplitIsBest            = (leafMark != bestFeatureId && curFeatureId == bestFeatureId && curFeatureValue == bestFeatureValue);
+            const bool noneSplitFoundBySubGroup = ((leafMark == bestFeatureId) && (0 == sub_group_local_id));
+            const bool mySplitIsBest            = (leafMark != bestFeatureId && curFeatureId == bestFeatureId && curFeatureValue == bestFeatureValue);
             if (noneSplitFoundBySubGroup || mySplitIsBest)
             {
                 __global algorithmFPType * splitNodeInfo = splitInfo + nodeId * nImpProp;
@@ -442,19 +442,20 @@ DECLARE_SOURCE(
         if (1 < n_sub_groups && 0 == sub_group_id)
         {
             // first sub group for current node reduces over local buffer if required
-            algorithmFPType curImpDec = (sub_group_local_id < n_sub_groups) ? bufI[bufIdx + sub_group_local_id] : minImpDec;
+            const algorithmFPType curImpDec = (sub_group_local_id < n_sub_groups) ? bufI[bufIdx + sub_group_local_id] : minImpDec;
 
-            int curFeatureId    = sub_group_local_id < n_sub_groups ? bufS[(bufIdx + sub_group_local_id) * nNodeProp + 0] : valNotFound;
-            int curFeatureValue = sub_group_local_id < n_sub_groups ? bufS[(bufIdx + sub_group_local_id) * nNodeProp + 1] : valNotFound;
-            int LN              = sub_group_local_id < n_sub_groups ? bufS[(bufIdx + sub_group_local_id) * nNodeProp + 2] : 0;
+            const int curFeatureId    = sub_group_local_id < n_sub_groups ? bufS[(bufIdx + sub_group_local_id) * nNodeProp + 0] : valNotFound;
+            const int curFeatureValue = sub_group_local_id < n_sub_groups ? bufS[(bufIdx + sub_group_local_id) * nNodeProp + 1] : valNotFound;
+            const int LN              = sub_group_local_id < n_sub_groups ? bufS[(bufIdx + sub_group_local_id) * nNodeProp + 2] : 0;
 
-            algorithmFPType bestImpDec = sub_group_reduce_max(curImpDec);
+            const algorithmFPType bestImpDec = sub_group_reduce_max(curImpDec);
 
-            int bestFeatureId    = sub_group_reduce_min(bestImpDec == curImpDec ? curFeatureId : valNotFound);
-            int bestFeatureValue = sub_group_reduce_min((bestFeatureId == curFeatureId && bestImpDec == curImpDec) ? curFeatureValue : valNotFound);
+            const int impDecIsBest     = fpEq(bestImpDec, curImpDec);
+            const int bestFeatureId    = sub_group_reduce_min(impDecIsBest ? curFeatureId : valNotFound);
+            const int bestFeatureValue = sub_group_reduce_min((bestFeatureId == curFeatureId && impDecIsBest) ? curFeatureValue : valNotFound);
 
-            bool noneSplitFoundBySubGroup = ((leafMark == bestFeatureId) && (0 == sub_group_local_id));
-            bool mySplitIsBest            = (leafMark != bestFeatureId && curFeatureId == bestFeatureId && curFeatureValue == bestFeatureValue);
+            const bool noneSplitFoundBySubGroup = ((leafMark == bestFeatureId) && (0 == sub_group_local_id));
+            const bool mySplitIsBest            = (leafMark != bestFeatureId && curFeatureId == bestFeatureId && curFeatureValue == bestFeatureValue);
             if (noneSplitFoundBySubGroup || mySplitIsBest)
             {
                 __global algorithmFPType * splitNodeInfo = splitInfo + nodeId * nImpProp;
