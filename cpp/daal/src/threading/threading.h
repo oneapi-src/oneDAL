@@ -337,9 +337,9 @@ public:
             _storage[i] = nullptr;
         }
 
-        const void * ac     = static_cast<const void *>(&lambda);
-        void * a            = const_cast<void *>(ac);
-        _creater            = a;
+        const void * ac = static_cast<const void *>(&lambda);
+        void * a        = const_cast<void *>(ac);
+        _creater        = a;
 
         _creater_func = creater_func<F, lambdaType>;
     }
