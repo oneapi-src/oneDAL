@@ -24,7 +24,12 @@ namespace oneapi::dal::svm {
 
 namespace task {
 namespace v1 {
+
+/// Tag-type that parameterizes entities used for solving
+/// :capterm:`classification problem <classification>`.
 struct classification {};
+
+/// Alias tag-type for classification task.
 using by_default = classification;
 } // namespace v1
 
@@ -35,8 +40,17 @@ using v1::by_default;
 
 namespace method {
 namespace v1 {
+
+/// Tag-type that denotes `Thunder` <svm_t_math_thunder>`_ computational
+/// method.
 struct thunder {};
+
+/// Tag-type that denotes `Thunder` <svm_t_math_smo>`_ computational
+/// method.
 struct smo {};
+
+/// Alias tag-type for `dense <svm_t_math_thunder>`_ computational
+/// method.
 using by_default = thunder;
 } // namespace v1
 
@@ -83,11 +97,30 @@ public:
     using task_t = Task;
     using kernel_t = linear_kernel::descriptor<float_t>;
 
+    /// The upper bound in conditions of the quadratic optimization problem. $C$
+    /// @invariant :expr:`c > 0`
+    /// @remark default = 1.0
     double get_c() const;
-    double get_accuracy_threshold() const;
+
+    /// The maximum number of iterations $T$
+    /// @invariant :expr:`max_iteration_count >= 0`
+    /// @remark default = 100000
     std::int64_t get_max_iteration_count() const;
+
+    /// The threshold $\\varepsilon$ for the stop condition
+    /// @invariant :expr:`accuracy_threshold >= 0.0`
+    /// @remark default = 0.0
+    double get_accuracy_threshold() const;
+
+    /// The size of cache in megabytes for storing values of the kernel matrix.
+    /// @invariant :expr:`cache_size >= 0.0`
+    /// @remark default = 200.0
     double get_cache_size() const;
+
     double get_tau() const;
+
+    /// A flag that enables use of a shrinking optimization technique. Used with :expr:`method::thunder` split finding method only.
+    /// @remark default = True
     bool get_shrinking() const;
 
 protected:
@@ -123,6 +156,14 @@ using v1::is_valid_kernel_v;
 
 namespace v1 {
 
+/// @tparam Float  The floating-point type that the algorithm uses for
+///                intermediate computations. Can be :expr:`float` or
+///                :expr:`double`.
+/// @tparam Method Tag-type that specifies an implementation of algorithm. Can
+///                be :expr:`method::thunder` or :expr:`method::smo`.
+/// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
+///                be :expr:`task::classification`.
+/// @tparam Kernel TODO
 template <typename Float = detail::descriptor_base<>::float_t,
           typename Method = detail::descriptor_base<>::method_t,
           typename Task = detail::descriptor_base<>::task_t,
@@ -143,9 +184,12 @@ public:
     using task_t = Task;
     using kernel_t = Kernel;
 
+    /// Creates a new instance of the class with the given :literal:`kernel`
     explicit descriptor(const Kernel& kernel = kernel_t{})
             : base_t(std::make_shared<detail::kernel_function<Kernel>>(kernel)) {}
 
+    /// TODO.
+    /// @remark default = :literal:`kernel`
     const Kernel& get_kernel() const {
         using kf_t = detail::kernel_function<Kernel>;
         const auto kf = std::static_pointer_cast<kf_t>(base_t::get_kernel_impl());
@@ -188,6 +232,8 @@ public:
     }
 };
 
+/// @tparam Task Tag-type that specifies the type of the problem to solve. Can
+///              be :expr:`task::classification`.
 template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -196,10 +242,16 @@ class model : public base {
 public:
     using task_t = Task;
 
+    /// Creates a new instance of the class with the default property values.
     model();
 
+    /// The number of support vectors
+    /// @remark default = 0
+    /// @invariant :expr:`support_vector_count >= 0`
     std::int64_t get_support_vector_count() const;
 
+    /// Support vectors
+    /// @remark default = table{}
     const table& get_support_vectors() const;
 
     auto& set_support_vectors(const table& value) {
@@ -207,6 +259,8 @@ public:
         return *this;
     }
 
+    /// The coefficients of Lagrange
+    /// @remark default = table{}
     const table& get_coeffs() const;
 
     auto& set_coeffs(const table& value) {
@@ -214,6 +268,8 @@ public:
         return *this;
     }
 
+    /// The bias
+    /// @remark default = table{}
     double get_bias() const;
 
     auto& set_bias(double value) {
@@ -221,6 +277,7 @@ public:
         return *this;
     }
 
+    /// The first unique class from labels
     std::int64_t get_first_class_label() const;
 
     auto& set_first_class_label(std::int64_t value) {
@@ -228,6 +285,7 @@ public:
         return *this;
     }
 
+    /// The second unique class from labels
     std::int64_t get_second_class_label() const;
 
     auto& set_second_class_label(std::int64_t value) {
