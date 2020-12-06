@@ -161,10 +161,11 @@ services::Status ModelImpl::deserializeImpl(const data_management::OutputDataArc
     return s.add(ImplType::serialImpl<const data_management::OutputDataArchive, true>(arch));
 }
 
-bool ModelImpl::add(const TreeType & tree, size_t nClasses)
+bool ModelImpl::add(const TreeType & tree, size_t nClasses, size_t iTree)
 {
     DAAL_CHECK_STATUS_VAR(!(size() >= _serializationData->size()));
-    size_t i           = _nTree.inc();
+    size_t i = iTree;
+    _nTree.inc();
     const size_t nNode = tree.getNumberOfNodes();
 
     auto pTbl           = new DecisionTreeTable(nNode);
@@ -183,10 +184,10 @@ bool ModelImpl::add(const TreeType & tree, size_t nClasses)
 
     tree.convertToTable(pTbl, impTbl, nodeSamplesTbl, probTbl, 0);
 
-    (*_serializationData)[i - 1].reset(pTbl);
-    (*_impurityTables)[i - 1].reset(impTbl);
-    (*_nNodeSampleTables)[i - 1].reset(nodeSamplesTbl);
-    (*_probTbl)[i - 1].reset(probTbl);
+    (*_serializationData)[i].reset(pTbl);
+    (*_impurityTables)[i].reset(impTbl);
+    (*_nNodeSampleTables)[i].reset(nodeSamplesTbl);
+    (*_probTbl)[i].reset(probTbl);
 
     return true;
 }

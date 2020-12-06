@@ -375,6 +375,8 @@ public:
         }
     }
 
+    size_t nthreads() const { return _nThreads; }
+
 private:
     F * _storage                     = nullptr;
     size_t _nThreads                 = 0;

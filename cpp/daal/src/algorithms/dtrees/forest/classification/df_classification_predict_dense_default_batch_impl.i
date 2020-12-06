@@ -256,8 +256,7 @@ template <typename algorithmFPType, CpuType cpu>
 void PredictClassificationTask<algorithmFPType, cpu>::predictByTrees(const size_t iFirstTree, const size_t nTrees, const algorithmFPType * const x,
                                                                      algorithmFPType * const resPtr, const size_t nTreesTotal)
 {
-    const algorithmFPType inverseTreesCount = 1.0 / algorithmFPType(nTreesTotal);
-    const size_t iLastTree                  = iFirstTree + nTrees;
+    const size_t iLastTree = iFirstTree + nTrees;
     for (size_t iTree = iFirstTree; iTree < iLastTree; ++iTree)
     {
         const dtrees::internal::DecisionTreeNode * const pNode =
@@ -270,6 +269,7 @@ void PredictClassificationTask<algorithmFPType, cpu>::predictByTrees(const size_
 
         if (_votingMethod == VotingMethod::unweighted || probas == nullptr)
         {
+            const algorithmFPType inverseTreesCount = 1.0 / algorithmFPType(nTreesTotal);
             resPtr[pNode->leftIndexOrClass] += inverseTreesCount;
         }
         else if (_votingMethod == VotingMethod::weighted)
@@ -278,7 +278,25 @@ void PredictClassificationTask<algorithmFPType, cpu>::predictByTrees(const size_
             PRAGMA_VECTOR_ALWAYS
             for (size_t i = 0; i < _nClasses; ++i)
             {
-                resPtr[i] += probas[idx * _nClasses + i] * inverseTreesCount;
+                resPtr[i] += probas[idx * _nClasses + i];
+            }
+
+            if (iTree + 1 == nTreesTotal)
+            {
+                algorithmFPType sum(0);
+
+                PRAGMA_VECTOR_ALWAYS
+                for (size_t i = 0; i < _nClasses; ++i)
+                {
+                    sum += resPtr[i];
+                }
+
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for (size_t i = 0; i < _nClasses; ++i)
+                {
+                    resPtr[i] = resPtr[i] / sum;
+                }
             }
         }
     }
@@ -322,6 +340,24 @@ void PredictClassificationTask<algorithmFPType, cpu>::predictByTreesWithoutConve
             for (size_t i = 0; i < _nClasses; ++i)
             {
                 resPtr[i] += probas[idx * _nClasses + i];
+            }
+
+            if (iTree + 1 == nTreesTotal)
+            {
+                algorithmFPType sum(0);
+
+                PRAGMA_VECTOR_ALWAYS
+                for (size_t i = 0; i < _nClasses; ++i)
+                {
+                    sum += resPtr[i];
+                }
+
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for (size_t i = 0; i < _nClasses; ++i)
+                {
+                    resPtr[i] = resPtr[i] / sum;
+                }
             }
         }
     }
@@ -923,101 +959,119 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
     {
         commonBufVal = prob;
     }
-    services::internal::service_memset<algorithmFPType, cpu>(commonBufVal, algorithmFPType(0), _nClasses * nRowsOfRes);
 
     ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), 0, nRowsOfRes);
     DAAL_CHECK_BLOCK_STATUS(xBD);
-    const algorithmFPType * const aX         = xBD.get();
-    const algorithmFPType inverseNTreesTotal = (algorithmFPType)1.0 / algorithmFPType(nTreesTotal);
-    daal::TlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> > * tlsDataPtr = nullptr;
+    const algorithmFPType * const aX = xBD.get();
     if (numberOfTrees > _MIN_TREES_FOR_THREADING)
     {
-        tlsDataPtr     = new daal::TlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> >(_nClasses * nRowsOfRes);
-        auto & tlsData = *tlsDataPtr;
-        daal::threader_for(numberOfTrees, numberOfTrees, [&, nCols](const size_t iTree) {
+        daal::static_tls<algorithmFPType *> tlsData([=]() { return service_scalable_calloc<algorithmFPType, cpu>(_nClasses * nRowsOfRes); });
+
+        daal::static_threader_for(numberOfTrees, [&, nCols](const size_t iTree, size_t tid) {
             const size_t treeSize                = _aTree[iTree]->getNumberOfRows();
             const DecisionTreeNode * const aNode = (const DecisionTreeNode *)(*_aTree[iTree]).getArray();
-            parallelPredict(aX, aNode, treeSize, nBlocks, nCols, blockSize, residualSize, tlsData.local(), iTree);
+            parallelPredict(aX, aNode, treeSize, nBlocks, nCols, blockSize, residualSize, tlsData.local(tid), iTree);
         });
-        if (threader_get_threads_number())
-        {
-            if (prob == nullptr)
+
+        const size_t nThreads  = tlsData.nthreads();
+        const size_t blockSize = 256;
+        const size_t nBlocks   = nRowsOfRes / blockSize + !!(nRowsOfRes % blockSize);
+
+        daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+            const size_t begin = iBlock * blockSize;
+            const size_t end   = services::internal::min<cpu, size_t>(nRowsOfRes, begin + blockSize);
+
+            services::internal::service_memset_seq<algorithmFPType, cpu>(commonBufVal + begin * _nClasses, algorithmFPType(0),
+                                                                         (end - begin) * _nClasses);
+
+            for (size_t tid = 0; tid < nThreads; ++tid)
             {
-                tlsData.reduce([&](algorithmFPType * buf) {
-                    for (size_t i = 0; i < nRowsOfRes; ++i)
-                    {
-                        PRAGMA_IVDEP
-                        PRAGMA_VECTOR_ALWAYS
-                        for (size_t j = 0; j < _nClasses; ++j)
-                        {
-                            commonBufVal[i * _nClasses + j] += buf[i * _nClasses + j];
-                        }
-                    }
-                });
-            }
-            else
-            {
-                tlsData.reduce([&](algorithmFPType * buf) {
-                    for (size_t i = 0; i < nRowsOfRes; ++i)
-                    {
-                        PRAGMA_IVDEP
-                        PRAGMA_VECTOR_ALWAYS
-                        for (size_t j = 0; j < _nClasses; ++j)
-                        {
-                            commonBufVal[i * _nClasses + j] += buf[i * _nClasses + j] * inverseNTreesTotal;
-                        }
-                    }
-                });
-            }
-        }
-        else
-        {
-            algorithmFPType * const localPtr = tlsData.local();
-            if (prob == nullptr)
-            {
-                commonBufVal = tlsData.local();
-            }
-            else
-            {
-                for (size_t i = 0; i < nRowsOfRes; ++i)
+                algorithmFPType * buf = tlsData.local(tid);
+                for (size_t i = begin; i < end; ++i)
                 {
-                    PRAGMA_IVDEP
-                    PRAGMA_VECTOR_ALWAYS
                     for (size_t j = 0; j < _nClasses; ++j)
                     {
-                        commonBufVal[i * _nClasses + j] += localPtr[i * _nClasses + j] * inverseNTreesTotal;
+                        commonBufVal[i * _nClasses + j] += buf[i * _nClasses + j];
                     }
                 }
             }
-        }
+
+            if (prob != nullptr)
+            {
+                for (size_t i = begin; i < end; ++i)
+                {
+                    algorithmFPType sum(0);
+
+                    for (size_t j = 0; j < _nClasses; ++j)
+                    {
+                        sum += commonBufVal[i * _nClasses + j];
+                    }
+
+                    for (size_t j = 0; j < _nClasses; ++j)
+                    {
+                        commonBufVal[i * _nClasses + j] = commonBufVal[i * _nClasses + j] / sum;
+                    }
+                }
+            }
+
+            if (res != nullptr)
+            {
+                for (size_t i = begin; i < end; ++i)
+                {
+                    res[i] = algorithmFPType(getMaxClass(commonBufVal + i * _nClasses));
+                }
+            }
+        });
+
+        tlsData.reduce([&](algorithmFPType * buf) { service_scalable_free<algorithmFPType, cpu>(buf); });
     }
     else
     {
+        services::internal::service_memset<algorithmFPType, cpu>(commonBufVal, algorithmFPType(0), nRowsOfRes * _nClasses);
+
         for (size_t iTree = 0; iTree < numberOfTrees; ++iTree)
         {
             const size_t treeSize                = _aTree[iTree]->getNumberOfRows();
             const DecisionTreeNode * const aNode = (const DecisionTreeNode *)(*_aTree[iTree]).getArray();
             parallelPredict(aX, aNode, treeSize, nBlocks, nCols, blockSize, residualSize, commonBufVal, iTree);
         }
-        if (prob != nullptr)
+        if (prob != nullptr || res != nullptr)
         {
-            for (size_t i = 0; i < nRowsOfRes; ++i)
-            {
-                PRAGMA_IVDEP
-                PRAGMA_VECTOR_ALWAYS
-                for (size_t j = 0; j < _nClasses; ++j)
+            const size_t blockSize = 256;
+            const size_t nBlocks   = nRowsOfRes / blockSize + !!(nRowsOfRes % blockSize);
+
+            daal::threader_for(nBlocks, nBlocks, [&, nCols](const size_t iBlock) {
+                const size_t begin = iBlock * blockSize;
+                const size_t end   = services::internal::min<cpu, size_t>(nRowsOfRes, begin + blockSize);
+
+                if (prob != nullptr)
                 {
-                    commonBufVal[i * _nClasses + j] *= inverseNTreesTotal;
+                    for (size_t i = begin; i < end; ++i)
+                    {
+                        algorithmFPType sum(0);
+
+                        for (size_t j = 0; j < _nClasses; ++j)
+                        {
+                            sum += commonBufVal[i * _nClasses + j];
+                        }
+
+                        for (size_t j = 0; j < _nClasses; ++j)
+                        {
+                            commonBufVal[i * _nClasses + j] = commonBufVal[i * _nClasses + j] / sum;
+                        }
+                    }
                 }
-            }
+
+                if (res != nullptr)
+                {
+                    for (size_t i = begin; i < end; ++i)
+                    {
+                        res[i] = algorithmFPType(getMaxClass(commonBufVal + i * _nClasses));
+                    }
+                }
+            });
         }
     }
-    if (res != nullptr)
-    {
-        daal::threader_for(nRowsOfRes, nRowsOfRes,
-                           [&](const size_t iRes) { res[iRes] = algorithmFPType(getMaxClass(commonBufVal + iRes * _nClasses)); });
-    }
-    delete tlsDataPtr;
     return safeStat.detach();
 }
 
