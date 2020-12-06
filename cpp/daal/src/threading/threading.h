@@ -337,8 +337,7 @@ public:
             _storage[i] = nullptr;
         }
 
-        lambdaType * locall = new lambdaType(lambda);
-        const void * ac     = static_cast<const void *>(locall);
+        const void * ac     = static_cast<const void *>(&lambda);
         void * a            = const_cast<void *>(ac);
         _creater            = a;
 
