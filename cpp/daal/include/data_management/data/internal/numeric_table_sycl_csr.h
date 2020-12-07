@@ -592,7 +592,7 @@ protected:
 
             if (rowOffsetsNewPtr == NULL || rowOffsetsPtr == NULL)
             {
-                return services::Status(services::ErrorMemoryAllocationFailed);
+                return services::Status(services::ErrorNullPtr);
             }
 
             rowOffsetsNewPtr[0] = 1;

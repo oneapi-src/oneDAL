@@ -1216,7 +1216,7 @@ protected:
             size_t * row_offsets = block.getBlockRowIndicesSharedPtr().get();
             if (row_offsets == NULL)
             {
-                return services::Status(services::ErrorMemoryAllocationFailed);
+                return services::Status(services::ErrorNullPtr);
             }
             for (size_t i = 0; i < nrows + 1; i++)
             {
