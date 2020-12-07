@@ -57,18 +57,17 @@ DECLARE_SOURCE(
         const int sub_group_id       = local_id / sub_group_size;
         const int max_sub_groups_num = 16; //replace with define
 
-        const int bufIdx  = get_global_id(1) % (max_sub_groups_num / n_sub_groups); // local buffer is shared between 16 sub groups
         const int nodeIdx = get_global_id(1);
         const int nodeId  = nodeIndices[nodeIndicesOffset + nodeIdx];
 
         const int rowsOffset = nodeList[nodeId * nNodeProp + 0];
         const int nRows      = nodeList[nodeId * nNodeProp + 1];
 
-        // each sub group will process 16 bins and produce 1 best split for it
-        // expect maximum 16 subgroups only for each node
-        const int maxBinsBlocks = 16;
-        __local algorithmFPType bufI[maxBinsBlocks]; // storage for impurity decrease
-        __local int bufS[maxBinsBlocks * nNodeProp]; // storage for split info
+        // each sub group will process sub_group_size bins and produce 1 best split for it
+        const int maxBinsBlocks = max_sub_groups_num;
+        __local algorithmFPType bufI[maxBinsBlocks];            // storage for impurity decrease
+        __local algorithmFPType bufHist[maxBinsBlocks * nProp]; // storage for classes info
+        __local int bufS[maxBinsBlocks * nNodeProp];            // storage for split info
 
         const algorithmFPType minImpDec = (algorithmFPType)-1e30;
         const int valNotFound           = 1 << 30;
@@ -198,23 +197,50 @@ DECLARE_SOURCE(
             }
             else
             {
-                bufS[(bufIdx + sub_group_id) * nNodeProp + 0] = curFeatureId;
-                bufS[(bufIdx + sub_group_id) * nNodeProp + 1] = curFeatureValue;
-                bufS[(bufIdx + sub_group_id) * nNodeProp + 2] = (int)bestLN;
+                bufS[sub_group_id * nNodeProp + 0] = curFeatureId;
+                bufS[sub_group_id * nNodeProp + 1] = curFeatureValue;
+                bufS[sub_group_id * nNodeProp + 2] = (int)bestLN;
 
-                bufI[bufIdx + sub_group_id] = curImpDec;
+                for (int i = 0; i < nProp; i++)
+                {
+                    bufHist[sub_group_id * nProp + i] = mrgCls[i];
+                }
+
+                bufI[sub_group_id] = curImpDec;
             }
         }
 
         barrier(CLK_LOCAL_MEM_FENCE);
+
         if (1 < n_sub_groups && 0 == sub_group_id)
         {
             // first sub group for current node reduces over local buffer if required
-            const algorithmFPType curImpDec = (sub_group_local_id < n_sub_groups) ? bufI[bufIdx + sub_group_local_id] : minImpDec;
+            algorithmFPType curImpDec = (sub_group_local_id < n_sub_groups) ? bufI[sub_group_local_id] : minImpDec;
 
-            const int curFeatureId    = sub_group_local_id < n_sub_groups ? bufS[(bufIdx + sub_group_local_id) * nNodeProp + 0] : valNotFound;
-            const int curFeatureValue = sub_group_local_id < n_sub_groups ? bufS[(bufIdx + sub_group_local_id) * nNodeProp + 1] : valNotFound;
-            const int LN              = sub_group_local_id < n_sub_groups ? bufS[(bufIdx + sub_group_local_id) * nNodeProp + 2] : 0;
+            int curFeatureId    = sub_group_local_id < n_sub_groups ? bufS[sub_group_local_id * nNodeProp + 0] : valNotFound;
+            int curFeatureValue = sub_group_local_id < n_sub_groups ? bufS[sub_group_local_id * nNodeProp + 1] : valNotFound;
+            int LN              = sub_group_local_id < n_sub_groups ? bufS[sub_group_local_id * nNodeProp + 2] : 0;
+            int bestValBufIdx   = sub_group_local_id; // index of best value in shared buffer between subgroups, need to escape classes info copying
+
+            for (int i = sub_group_size + sub_group_local_id; i < n_sub_groups; i += sub_group_size)
+            {
+                algorithmFPType impDec = bufI[i];
+                int featId             = bufS[i * nNodeProp + 0];
+                int featVal            = bufS[i * nNodeProp + 1];
+                int tLN                = bufS[i * nNodeProp + 2];
+                if ((algorithmFPType)0 < impDec
+                    && (curFeatureValue == leafMark || fpGt(impDec, curImpDec)
+                        || (fpEq(impDec, curImpDec) && (featId < curFeatureId || (featId == curFeatureId && featVal < curFeatureValue)))))
+                {
+                    curFeatureId    = featId;
+                    curFeatureValue = featVal;
+                    curImpDec       = impDec;
+
+                    LN            = tLN;
+                    bestValBufIdx = i;
+                }
+            }
+            // now all info in the range of one subgroup
 
             const algorithmFPType bestImpDec = sub_group_reduce_max(curImpDec);
 
@@ -233,10 +259,12 @@ DECLARE_SOURCE(
                 int maxInd                               = 0;
                 for (int i = 0; i < nProp; i++)
                 {
-                    nodeHistInfo[i] = mrgCls[i];
-                    if (mrgCls[i] > maxVal)
+                    algorithmFPType curVal = bufHist[bestValBufIdx * nProp + i];
+                    nodeHistInfo[i]        = curVal;
+
+                    if (curVal > maxVal)
                     {
-                        maxVal = mrgCls[i];
+                        maxVal = curVal;
                         maxInd = i;
                     }
                 }
@@ -280,17 +308,16 @@ DECLARE_SOURCE(
         const int local_size         = get_local_size(0);
         const int n_sub_groups       = local_size / sub_group_size; // num of subgroups for current node processing
         const int sub_group_id       = local_id / sub_group_size;
-        const int max_sub_groups_num = 16;                                                     //replace with define
-        const int bufIdx             = get_global_id(1) % (max_sub_groups_num / n_sub_groups); // local buffer is shared between 16 sub groups
+        const int max_sub_groups_num = 16; //replace with define
 
         const int rowsOffset = nodeList[nodeId * nNodeProp + 0];
         const int nRows      = nodeList[nodeId * nNodeProp + 1];
 
-        // each sub group will process 16 bins and produce 1 best split for it
-        // expect maximum 16 subgroups only for each node
-        const int maxBinsBlocks = 16;
-        __local algorithmFPType bufI[maxBinsBlocks]; // storage for impurity decrease
-        __local int bufS[maxBinsBlocks * nNodeProp]; // storage for split info
+        // each sub group will process sub_group_size bins and produce 1 best split for it
+        const int maxBinsBlocks = max_sub_groups_num;
+        __local algorithmFPType bufI[maxBinsBlocks];            // storage for impurity decrease
+        __local algorithmFPType bufHist[maxBinsBlocks * nProp]; // storage for classes info
+        __local int bufS[maxBinsBlocks * nNodeProp];            // storage for split info
 
         int valNotFound     = 1 << 30;
         int curFeatureValue = leafMark;
@@ -430,11 +457,16 @@ DECLARE_SOURCE(
             }
             else
             {
-                bufS[(bufIdx + sub_group_id) * nNodeProp + 0] = curFeatureId;
-                bufS[(bufIdx + sub_group_id) * nNodeProp + 1] = curFeatureValue;
-                bufS[(bufIdx + sub_group_id) * nNodeProp + 2] = (int)bestLN;
+                bufS[sub_group_id * nNodeProp + 0] = curFeatureId;
+                bufS[sub_group_id * nNodeProp + 1] = curFeatureValue;
+                bufS[sub_group_id * nNodeProp + 2] = (int)bestLN;
 
-                bufI[bufIdx + sub_group_id] = curImpDec;
+                for (int i = 0; i < nProp; i++)
+                {
+                    bufHist[sub_group_id * nProp + i] = mrgCls[i];
+                }
+
+                bufI[sub_group_id] = curImpDec;
             }
         }
 
@@ -442,11 +474,32 @@ DECLARE_SOURCE(
         if (1 < n_sub_groups && 0 == sub_group_id)
         {
             // first sub group for current node reduces over local buffer if required
-            const algorithmFPType curImpDec = (sub_group_local_id < n_sub_groups) ? bufI[bufIdx + sub_group_local_id] : minImpDec;
+            algorithmFPType curImpDec = (sub_group_local_id < n_sub_groups) ? bufI[sub_group_local_id] : minImpDec;
 
-            const int curFeatureId    = sub_group_local_id < n_sub_groups ? bufS[(bufIdx + sub_group_local_id) * nNodeProp + 0] : valNotFound;
-            const int curFeatureValue = sub_group_local_id < n_sub_groups ? bufS[(bufIdx + sub_group_local_id) * nNodeProp + 1] : valNotFound;
-            const int LN              = sub_group_local_id < n_sub_groups ? bufS[(bufIdx + sub_group_local_id) * nNodeProp + 2] : 0;
+            int curFeatureId    = sub_group_local_id < n_sub_groups ? bufS[sub_group_local_id * nNodeProp + 0] : valNotFound;
+            int curFeatureValue = sub_group_local_id < n_sub_groups ? bufS[sub_group_local_id * nNodeProp + 1] : valNotFound;
+            int LN              = sub_group_local_id < n_sub_groups ? bufS[sub_group_local_id * nNodeProp + 2] : 0;
+            int bestValBufIdx   = sub_group_local_id; // index of best value in shared buffer between subgroups, need to escape classes info copying
+
+            for (int i = sub_group_size + sub_group_local_id; i < n_sub_groups; i += sub_group_size)
+            {
+                algorithmFPType impDec = bufI[i];
+                int featId             = bufS[i * nNodeProp + 0];
+                int featVal            = bufS[i * nNodeProp + 1];
+                int tLN                = bufS[i * nNodeProp + 2];
+                if ((algorithmFPType)0 < impDec
+                    && (curFeatureValue == leafMark || fpGt(impDec, curImpDec)
+                        || (fpEq(impDec, curImpDec) && (featId < curFeatureId || (featId == curFeatureId && featVal < curFeatureValue)))))
+                {
+                    curFeatureId    = featId;
+                    curFeatureValue = featVal;
+                    curImpDec       = impDec;
+
+                    LN            = tLN;
+                    bestValBufIdx = i;
+                }
+            }
+            // now all info in the range of one subgroup
 
             const algorithmFPType bestImpDec = sub_group_reduce_max(curImpDec);
 
@@ -460,16 +513,17 @@ DECLARE_SOURCE(
             {
                 __global algorithmFPType * splitNodeInfo = splitInfo + nodeId * nImpProp;
                 __global algorithmFPType * nodeHistInfo  = splitInfo + nodeId * nImpProp + IMPURITY_PROPS;
-
-                splitNodeInfo[0]       = imp;
-                algorithmFPType maxVal = (algorithmFPType)0;
-                int maxInd             = 0;
+                splitNodeInfo[0]                         = imp;
+                algorithmFPType maxVal                   = (algorithmFPType)0;
+                int maxInd                               = 0;
                 for (int i = 0; i < nProp; i++)
                 {
-                    nodeHistInfo[i] = mrgCls[i];
-                    if (mrgCls[i] > maxVal)
+                    algorithmFPType curVal = bufHist[bestValBufIdx * nProp + i];
+                    nodeHistInfo[i]        = curVal;
+
+                    if (curVal > maxVal)
                     {
-                        maxVal = mrgCls[i];
+                        maxVal = curVal;
                         maxInd = i;
                     }
                 }
@@ -487,18 +541,17 @@ DECLARE_SOURCE(
     __kernel void computePartialHistograms(const __global int * data, const __global int * treeOrder, const __global int * nodeList,
                                            const __global int * nodeIndices, int nodeIndicesOffset, const __global int * selectedFeatures,
                                            const __global algorithmFPType * response, const __global int * binOffsets, int nMaxBinsAmongFtrs,
-                                           int nFeatures, __global algorithmFPType * partialHistograms) {
+                                           int nFeatures, __global algorithmFPType * partialHistograms, int nSelectedFeatures) {
         const int nProp     = HIST_PROPS; // num of characteristics in histogram (i.e. classes)
         const int nNodeProp = NODE_PROPS; // num of node properties in nodeOffsets
 
-        const int nodeIdx           = get_global_id(2);
-        const int nodeId            = nodeIndices[nodeIndicesOffset + nodeIdx];
-        const int featIdx           = get_local_id(1);
-        const int nSelectedFeatures = get_local_size(1);
-        const int histIdx           = get_global_id(0);
-        const int nPartHist         = get_global_size(0);
+        const int nodeIdx    = get_global_id(1);
+        const int nodeId     = nodeIndices[nodeIndicesOffset + nodeIdx];
+        const int ftrGrpIdx  = get_local_id(0);
+        const int ftrGrpSize = get_local_size(0);
+        const int nPartHist  = get_num_groups(0);
+        const int histIdx    = get_group_id(0);
 
-        const int featId     = selectedFeatures[nodeId * nSelectedFeatures + featIdx];
         const int rowsOffset = nodeList[nodeId * nNodeProp + 0];
         const int nRows      = nodeList[nodeId * nNodeProp + 1];
 
@@ -509,23 +562,21 @@ DECLARE_SOURCE(
 
         iEnd = (iEnd > nRows) ? nRows : iEnd;
 
-        __global algorithmFPType * histogram =
-            partialHistograms + ((nodeIdx * nPartHist + histIdx) * nSelectedFeatures + featIdx) * nMaxBinsAmongFtrs * nProp;
-
-        int nBins = binOffsets[featId + 1] - binOffsets[featId];
-
-        for (int i = 0; i < nProp * nBins; i++)
-        {
-            histogram[i] = (algorithmFPType)0;
-        }
-
         for (int i = iStart; i < iEnd; i++)
         {
-            int id      = treeOrder[rowsOffset + i];
-            int bin     = data[id * nFeatures + featId];
-            int classId = (int)response[id];
+            int id = treeOrder[rowsOffset + i];
+            for (int featIdx = ftrGrpIdx; featIdx < nSelectedFeatures; featIdx += ftrGrpSize)
+            {
+                const int featId = selectedFeatures[nodeId * nSelectedFeatures + featIdx];
 
-            histogram[bin * nProp + classId] += (algorithmFPType)1;
+                __global algorithmFPType * histogram =
+                    partialHistograms + ((nodeIdx * nPartHist + histIdx) * nSelectedFeatures + featIdx) * nMaxBinsAmongFtrs * nProp;
+
+                int bin     = data[id * nFeatures + featId];
+                int classId = (int)response[id];
+
+                histogram[bin * nProp + classId] += (algorithmFPType)1;
+            }
         }
     }
 

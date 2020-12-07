@@ -294,32 +294,43 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
 
         if (maxGroupBlocksNum > 1)
         {
-            size_t nPartialHistograms = maxGroupBlocksNum < _maxLocalHistograms / 2 ? maxGroupBlocksNum : _maxLocalHistograms / 2;
-            //_maxLocalHistograms/2 (128) showed better performance than _maxLocalHistograms need to investigate
-            int reduceLocalSize = 16; // add logic for its adjustment
+            const size_t nPartialHistograms = maxGroupBlocksNum > _minRowsBlocksForMaxPartHistNum ?
+                                                  _maxLocalHistograms / 2 :
+                                                  maxGroupBlocksNum < _maxLocalHistograms / 4 ? maxGroupBlocksNum : _maxLocalHistograms / 4;
 
             // mul overflow for nSelectedFeatures * _nMaxBinsAmongFtrs and for nHistBins * _nClasses were checked before kernel call in compute
-            size_t nHistBins    = nSelectedFeatures * _nMaxBinsAmongFtrs;
-            size_t partHistSize = nHistBins * _nClasses;
+            const size_t nHistBins    = nSelectedFeatures * _nMaxBinsAmongFtrs;
+            const size_t partHistSize = nHistBins * _nClasses;
 
             DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nGroupNodes, partHistSize);
             DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nGroupNodes * partHistSize, nPartialHistograms);
 
-            auto partialHistograms = context.allocate(TypeIds::id<algorithmFPType>(), nGroupNodes * nPartialHistograms * partHistSize, status);
-            DAAL_CHECK_STATUS_VAR(status);
-            auto nodesHistograms = context.allocate(TypeIds::id<algorithmFPType>(), nGroupNodes * partHistSize, status);
-            DAAL_CHECK_STATUS_VAR(status);
+            const size_t nPHBlockElems   = nGroupNodes * nPartialHistograms * partHistSize;
+            const size_t maxPHBlockElems = _maxPartHistCumulativeSize / sizeof(algorithmFPType);
+            const size_t nPHBlocks = nPHBlockElems / maxPHBlockElems ? (nPHBlockElems / maxPHBlockElems + !!(nPHBlockElems % maxPHBlockElems)) : 1;
 
-            DAAL_CHECK_STATUS_VAR(computePartialHistograms(data, treeOrder, selectedFeatures, nSelectedFeatures, response, nodeList, nodeIndices,
-                                                           groupIndicesOffset, binOffsets, _nMaxBinsAmongFtrs, nFeatures, nGroupNodes,
-                                                           partialHistograms, nPartialHistograms));
+            size_t nBlockNodes = nGroupNodes / nPHBlocks + !!(nGroupNodes % nPHBlocks);
 
-            DAAL_CHECK_STATUS_VAR(reducePartialHistograms(partialHistograms, nodesHistograms, nPartialHistograms, nGroupNodes, nSelectedFeatures,
-                                                          _nMaxBinsAmongFtrs, reduceLocalSize));
+            for (size_t blockIndicesOffset = groupIndicesOffset; blockIndicesOffset < groupIndicesOffset + nGroupNodes;
+                 blockIndicesOffset += nBlockNodes)
+            {
+                nBlockNodes            = services::internal::min<sse2>(nBlockNodes, groupIndicesOffset + nGroupNodes - blockIndicesOffset);
+                auto partialHistograms = context.allocate(TypeIds::id<algorithmFPType>(), nBlockNodes * nPartialHistograms * partHistSize, status);
+                DAAL_CHECK_STATUS_VAR(status);
+                auto nodesHistograms = context.allocate(TypeIds::id<algorithmFPType>(), nBlockNodes * partHistSize, status);
+                DAAL_CHECK_STATUS_VAR(status);
 
-            DAAL_CHECK_STATUS_VAR(computeBestSplitByHistogram(nodesHistograms, selectedFeatures, nSelectedFeatures, nodeList, nodeIndices,
-                                                              groupIndicesOffset, binOffsets, impList, nodeImpDecreaseList, updateImpDecreaseRequired,
-                                                              nGroupNodes, _nMaxBinsAmongFtrs, minObservationsInLeafNode, impurityThreshold));
+                DAAL_CHECK_STATUS_VAR(computePartialHistograms(data, treeOrder, selectedFeatures, nSelectedFeatures, response, nodeList, nodeIndices,
+                                                               blockIndicesOffset, binOffsets, _nMaxBinsAmongFtrs, nFeatures, nBlockNodes,
+                                                               partialHistograms, nPartialHistograms));
+
+                DAAL_CHECK_STATUS_VAR(reducePartialHistograms(partialHistograms, nodesHistograms, nPartialHistograms, nBlockNodes, nSelectedFeatures,
+                                                              _nMaxBinsAmongFtrs, _reduceLocalSizePartHist));
+
+                DAAL_CHECK_STATUS_VAR(computeBestSplitByHistogram(
+                    nodesHistograms, selectedFeatures, nSelectedFeatures, nodeList, nodeIndices, blockIndicesOffset, binOffsets, impList,
+                    nodeImpDecreaseList, updateImpDecreaseRequired, nBlockNodes, _nMaxBinsAmongFtrs, minObservationsInLeafNode, impurityThreshold));
+            }
         }
         else
         {
@@ -363,7 +374,10 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
         DAAL_ASSERT_UNIVERSAL_BUFFER(partialHistograms, algorithmFPType,
                                      nNodes * nPartialHistograms * nSelectedFeatures * _nMaxBinsAmongFtrs * _nClasses);
 
-        KernelArguments args(11, status);
+        context.fill(partialHistograms, (algorithmFPType)0, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        KernelArguments args(12, status);
         DAAL_CHECK_STATUS_VAR(status);
         args.set(0, data, AccessModeIds::read);
         args.set(1, treeOrder, AccessModeIds::read);
@@ -376,13 +390,14 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
         args.set(8, static_cast<int32_t>(nMaxBinsAmongFtrs)); // max num of bins among all ftrs
         args.set(9, static_cast<int32_t>(nFeatures));
         args.set(10, partialHistograms, AccessModeIds::write);
+        args.set(11, static_cast<int32_t>(nSelectedFeatures));
 
-        size_t localSize = nSelectedFeatures < _maxLocalSize ? nSelectedFeatures : _maxLocalSize;
+        size_t localSize = _preferableGroupSize;
 
-        KernelRange local_range(1, localSize, 1);
-        KernelRange global_range(nPartialHistograms, localSize, nNodes);
+        KernelRange local_range(localSize, 1);
+        KernelRange global_range(nPartialHistograms * localSize, nNodes);
 
-        KernelNDRange range(3);
+        KernelNDRange range(2);
         range.local(local_range, status);
         DAAL_CHECK_STATUS_VAR(status);
         range.global(global_range, status);
