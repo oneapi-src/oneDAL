@@ -42,6 +42,8 @@ std::vector<sycl::device> get_gpus()
             return devices;
         }
     }
+    std::cout << "No GPUs!" << std::endl;
+    exit(-3);
     return {};
 }
 
