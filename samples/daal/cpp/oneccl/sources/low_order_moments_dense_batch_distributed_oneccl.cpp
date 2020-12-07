@@ -43,7 +43,7 @@ typedef services::SharedPtr<SyclHomogenNumericTable<>>
     SyclHomogenNumericTablePtr;
 
 /* Low order moments algorithm parameters */
-const size_t nBlocks = 4;
+const size_t nProcs = 4;
 
 /* Input data set parameters */
 const string dataFileNames[4] = {
@@ -145,7 +145,7 @@ int main(int argc, char *argv[]) {
 
   /* Serialized data is of equal size on each node if each node called compute()
    * equal number of times */
-  serializedData.resize(perNodeArchLength * nBlocks);
+  serializedData.resize(perNodeArchLength * nProcs);
 
   ByteBuffer nodeResults(perNodeArchLength);
   dataArch.copyArchiveToArray(&nodeResults[0], perNodeArchLength);
@@ -159,7 +159,7 @@ int main(int argc, char *argv[]) {
     /* Create an algorithm to compute low order moments on the master node */
     low_order_moments::Distributed<step2Master> masterAlgorithm;
 
-    for (int i = 0; i < nBlocks; i++) {
+    for (int i = 0; i < nProcs; i++) {
       /* Deserialize partial results from step 1 */
       OutputDataArchive dataArch(&serializedData[perNodeArchLength * i],
                                  perNodeArchLength);

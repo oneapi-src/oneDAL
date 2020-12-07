@@ -17,7 +17,9 @@
 
 /*
 !  Content:
-!    C++ sample of K-Means clustering in the distributed processing mode
+!    C++ sample of dense variance-covariance matrix computation in the
+!    distributed processing mode
+!
 !******************************************************************************/
 
 /**
@@ -37,7 +39,7 @@ using namespace daal;
 using namespace daal::algorithms;
 
 /* Covariance algorithm parameters */
-const size_t nBlocks     = 4;
+const size_t nProcs     = 4;
 
 /* Input data set parameters */
 const string dataFileNames[4] = { "./data/covcormoments_dense_1.csv", "./data/covcormoments_dense_2.csv",
@@ -137,8 +139,8 @@ int main(int argc, char * argv[])
     ByteBuffer serializedData;
     /* Calculate total archive length */
     int totalArchLength = 0;
-    int displs[nBlocks];
-    for (size_t i = 0; i < nBlocks; ++i)
+
+    for (size_t i = 0; i < nProcs; ++i)
     {
         totalArchLength += aPerNodeArchLength[i];
     }
@@ -156,7 +158,7 @@ int main(int argc, char * argv[])
     {
         /* Create an algorithm to compute covariance on the master node */
         covariance::Distributed<step2Master> masterAlgorithm;
-        for (size_t i = 0, shift = 0; i < nBlocks; shift += aPerNodeArchLength[i], ++i)
+        for (size_t i = 0, shift = 0; i < nProcs; shift += aPerNodeArchLength[i], ++i)
         {
             /* Deserialize partial results from step 1 */
             OutputDataArchive dataArch(&serializedData[shift], aPerNodeArchLength[i]);

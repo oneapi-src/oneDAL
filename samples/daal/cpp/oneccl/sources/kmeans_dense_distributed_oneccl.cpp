@@ -42,7 +42,7 @@ typedef float algorithmFPType; /* Algorithm floating-point type */
 /* K-Means algorithm parameters */
 const size_t nClusters   = 20;
 const size_t nIterations = 5;
-const size_t nBlocks     = 4;
+const size_t nProcs     = 4;
 
 /* Input data set parameters */
 const string dataFileNames[4] = { "./data/kmeans_dense.csv", "./data/kmeans_dense.csv", "./data/kmeans_dense.csv",
@@ -136,7 +136,7 @@ NumericTablePtr init(int rankId, const NumericTablePtr & pData, ccl::communicato
     const size_t nVectorsInBlock = pData->getNumberOfRows();
 
     /* Create an algorithm to compute k-means on local nodes */
-    kmeans::init::Distributed<step1Local, algorithmFPType, kmeans::init::randomDense> localInit(nClusters, nBlocks * nVectorsInBlock,
+    kmeans::init::Distributed<step1Local, algorithmFPType, kmeans::init::randomDense> localInit(nClusters, nProcs * nVectorsInBlock,
                                                                                                 rankId * nVectorsInBlock);
 
     /* Set the input data set to the algorithm */
@@ -158,8 +158,8 @@ NumericTablePtr init(int rankId, const NumericTablePtr & pData, ccl::communicato
     ByteBuffer serializedData;
     /* Calculate total archive length */
     int totalArchLength = 0;
-    int displs[nBlocks];
-    for (size_t i = 0; i < nBlocks; ++i)
+    int displs[nProcs];
+    for (size_t i = 0; i < nProcs; ++i)
     {
         totalArchLength += aPerNodeArchLength[i];
     }
@@ -176,7 +176,7 @@ NumericTablePtr init(int rankId, const NumericTablePtr & pData, ccl::communicato
     {
         /* Create an algorithm to compute k-means on the master node */
         kmeans::init::Distributed<step2Master, algorithmFPType, kmeans::init::randomDense> masterInit(nClusters);
-        for (size_t i = 0, shift = 0; i < nBlocks; shift += aPerNodeArchLength[i], ++i)
+        for (size_t i = 0, shift = 0; i < nProcs; shift += aPerNodeArchLength[i], ++i)
         {
             /* Deserialize partial results from step 1 */
             OutputDataArchive dataArch(&serializedData[shift], aPerNodeArchLength[i]);
@@ -240,7 +240,7 @@ NumericTablePtr compute(int rankId, const NumericTablePtr & pData, const Numeric
     ByteBuffer serializedData;
 
     /* Serialized data is of equal size on each node if each node called compute() equal number of times */
-    serializedData.resize(perNodeArchLength * nBlocks);
+    serializedData.resize(perNodeArchLength * nProcs);
 
     ByteBuffer nodeResults(perNodeArchLength);
     dataArch.copyArchiveToArray(&nodeResults[0], perNodeArchLength);
@@ -253,7 +253,7 @@ NumericTablePtr compute(int rankId, const NumericTablePtr & pData, const Numeric
         /* Create an algorithm to compute k-means on the master node */
         kmeans::Distributed<step2Master> masterAlgorithm(nClusters);
 
-        for (size_t i = 0; i < nBlocks; i++)
+        for (size_t i = 0; i < nProcs; i++)
         {
             /* Deserialize partial results from step 1 */
             OutputDataArchive dataArch(&serializedData[perNodeArchLength * i], perNodeArchLength);
