@@ -1214,7 +1214,10 @@ protected:
             }
 
             size_t * row_offsets = block.getBlockRowIndicesSharedPtr().get();
-
+            if (row_offsets == NULL)
+            {
+                return services::Status(services::ErrorNullPtr);
+            }
             for (size_t i = 0; i < nrows + 1; i++)
             {
                 row_offsets[i] = rowOffsets[idx + i] - rowOffsets[idx] + 1;
