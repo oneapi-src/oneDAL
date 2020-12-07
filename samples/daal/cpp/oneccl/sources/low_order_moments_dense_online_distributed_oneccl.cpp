@@ -75,7 +75,7 @@ int getLocalRank(ccl::communicator &comm, int size, int rank) {
   return localRank;
 }
 
-FileDataSourcePtr getData(int rankId) {
+FileDataSourcePtr loadData(int rankId) {
   /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data
    * from a .csv file */
   auto data =
@@ -124,15 +124,14 @@ int main(int argc, char *argv[]) {
   services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
   /* Retrieve the input data */
-  auto pDataSource = getData(rank);
+  auto pData = loadData(rank);
 
   /* Create an algorithm to compute low order moments on local nodes */
   low_order_moments::Distributed<step1Local> localAlgorithm;
 
-  while (pDataSource->loadDataBlock(nVectorsInBlock) == nVectorsInBlock) {
+  while (pData->loadDataBlock(nVectorsInBlock) == nVectorsInBlock) {
     /* Set input objects for the algorithm */
-    localAlgorithm.input.set(low_order_moments::data,
-                             pDataSource->getNumericTable());
+    localAlgorithm.input.set(low_order_moments::data, pData->getNumericTable());
 
     /* Compute partial estimates */
     localAlgorithm.compute();
