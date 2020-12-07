@@ -1,4 +1,4 @@
-/* file: low_order_moments_dense_distributed_oneccl.cpp */
+/* file: low_order_moments_dense_batch_distributed_oneccl.cpp */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
