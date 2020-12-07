@@ -1,4 +1,4 @@
-/* file: low_order_moments_dense_distributed_oneccl.cpp */
+/* file: low_order_moments_dense_online_distributed_oneccl.cpp */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -39,11 +39,12 @@ using namespace daal;
 using namespace daal::algorithms;
 
 typedef float algorithmFPType; /* Algorithm floating-point type */
-typedef services::SharedPtr<SyclHomogenNumericTable<>>
-    SyclHomogenNumericTablePtr;
+typedef services::SharedPtr<FileDataSource<CSVFeatureManager>>
+    FileDataSourcePtr;
 
 /* Low order moments algorithm parameters */
 const size_t nBlocks = 4;
+const size_t nVectorsInBlock = 25;
 
 /* Input data set parameters */
 const string dataFileNames[4] = {
@@ -74,18 +75,15 @@ int getLocalRank(ccl::communicator &comm, int size, int rank) {
   return localRank;
 }
 
-SyclHomogenNumericTablePtr loadData(int rankId) {
+FileDataSourcePtr loadData(int rankId) {
   /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data
    * from a .csv file */
-  FileDataSource<CSVFeatureManager> dataSource(
-      dataFileNames[rankId], DataSource::notAllocateNumericTable,
-      DataSource::doDictionaryFromContext);
-
-  /* Retrieve the data from the input file */
   auto data =
       SyclHomogenNumericTable<>::create(10, 0, NumericTable::notAllocate);
-  dataSource.loadDataBlock(data.get());
-  return data;
+
+  return FileDataSourcePtr(new FileDataSource<CSVFeatureManager>(
+      dataFileNames[rankId], DataSource::doAllocateNumericTable,
+      DataSource::doDictionaryFromContext));
 }
 
 int main(int argc, char *argv[]) {
@@ -131,11 +129,13 @@ int main(int argc, char *argv[]) {
   /* Create an algorithm to compute low order moments on local nodes */
   low_order_moments::Distributed<step1Local> localAlgorithm;
 
-  /* Set the input data set to the algorithm */
-  localAlgorithm.input.set(low_order_moments::data, pData);
+  while (pData->loadDataBlock(nVectorsInBlock) == nVectorsInBlock) {
+    /* Set input objects for the algorithm */
+    localAlgorithm.input.set(low_order_moments::data, pData->getNumericTable());
 
-  /* Compute low order moments */
-  localAlgorithm.compute();
+    /* Compute partial estimates */
+    localAlgorithm.compute();
+  }
 
   /* Serialize partial results required by step 2 */
   ByteBuffer serializedData;
