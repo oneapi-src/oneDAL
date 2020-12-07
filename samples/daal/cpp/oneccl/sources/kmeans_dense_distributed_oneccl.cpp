@@ -42,15 +42,14 @@ typedef float algorithmFPType; /* Algorithm floating-point type */
 /* K-Means algorithm parameters */
 const size_t nClusters   = 20;
 const size_t nIterations = 5;
-const size_t nBlocks     = 4;
+const size_t nProcs      = 4;
 
 /* Input data set parameters */
-const string dataFileNames[4] = { "./data/kmeans_dense.csv", "./data/kmeans_dense.csv", "./data/kmeans_dense.csv",
-                                  "./data/kmeans_dense.csv" };
+const string dataFileNames[4] = { "./data/kmeans_dense.csv", "./data/kmeans_dense.csv", "./data/kmeans_dense.csv", "./data/kmeans_dense.csv" };
 
 #define ccl_root 0
 
-int getLocalRank(ccl::communicator& comm, int size, int rank)
+int getLocalRank(ccl::communicator & comm, int size, int rank)
 {
     /* Obtain local rank among nodes sharing the same host name */
     char zero = static_cast<char>(0);
@@ -60,13 +59,13 @@ int getLocalRank(ccl::communicator& comm, int size, int rank)
     std::string str(name.begin(), name.end());
     std::vector<char> allNames((MPI_MAX_PROCESSOR_NAME + 1) * size, zero);
     std::vector<size_t> aReceiveCount(size, MPI_MAX_PROCESSOR_NAME + 1);
-    ccl::allgatherv((int8_t*)name.data(), name.size(),  (int8_t*)allNames.data(), aReceiveCount, comm).wait();
+    ccl::allgatherv((int8_t *)name.data(), name.size(), (int8_t *)allNames.data(), aReceiveCount, comm).wait();
     int localRank = 0;
-    for(int i = 0; i < rank; i++) {
+    for (int i = 0; i < rank; i++)
+    {
         auto nameBegin = allNames.begin() + i * (MPI_MAX_PROCESSOR_NAME + 1);
         std::string nbrName(nameBegin, nameBegin + (MPI_MAX_PROCESSOR_NAME + 1));
-        if(nbrName == str)
-            localRank++;
+        if (nbrName == str) localRank++;
     }
     return localRank;
 }
@@ -81,8 +80,8 @@ NumericTablePtr loadData(int rankId)
     return dataSource.getNumericTable();
 }
 
-NumericTablePtr init(int rankId, const NumericTablePtr & pData, ccl::communicator& comm);
-NumericTablePtr compute(int rankId, const NumericTablePtr & pData, const NumericTablePtr & initialCentroids, ccl::communicator& comm);
+NumericTablePtr init(int rankId, const NumericTablePtr & pData, ccl::communicator & comm);
+NumericTablePtr compute(int rankId, const NumericTablePtr & pData, const NumericTablePtr & initialCentroids, ccl::communicator & comm);
 
 int main(int argc, char * argv[])
 {
@@ -96,13 +95,15 @@ int main(int argc, char * argv[])
 
     ccl::shared_ptr_class<ccl::kvs> kvs;
     ccl::kvs::address_type main_addr;
-    if (rank == 0) {
-        kvs = ccl::create_main_kvs();
+    if (rank == 0)
+    {
+        kvs       = ccl::create_main_kvs();
         main_addr = kvs->get_address();
-        MPI_Bcast((void*)main_addr.data(), main_addr.size(), MPI_BYTE, 0, MPI_COMM_WORLD);
+        MPI_Bcast((void *)main_addr.data(), main_addr.size(), MPI_BYTE, 0, MPI_COMM_WORLD);
     }
-    else {
-        MPI_Bcast((void*)main_addr.data(), main_addr.size(), MPI_BYTE, 0, MPI_COMM_WORLD);
+    else
+    {
+        MPI_Bcast((void *)main_addr.data(), main_addr.size(), MPI_BYTE, 0, MPI_COMM_WORLD);
         kvs = ccl::create_kvs(main_addr);
     }
 
@@ -110,8 +111,8 @@ int main(int argc, char * argv[])
 
     /* Create GPU device from local rank and set execution context */
     auto local_rank = getLocalRank(comm, size, rank);
-    auto gpus = get_gpus();
-    auto rank_gpu = gpus[local_rank % gpus.size()];
+    auto gpus       = get_gpus();
+    auto rank_gpu   = gpus[local_rank % gpus.size()];
     cl::sycl::queue queue(rank_gpu);
     daal::services::SyclExecutionContext ctx(queue);
     services::Environment::getInstance()->setDefaultExecutionContext(ctx);
@@ -129,14 +130,14 @@ int main(int argc, char * argv[])
     return 0;
 }
 
-NumericTablePtr init(int rankId, const NumericTablePtr & pData, ccl::communicator& comm)
+NumericTablePtr init(int rankId, const NumericTablePtr & pData, ccl::communicator & comm)
 {
     const bool isRoot = (rankId == ccl_root);
 
     const size_t nVectorsInBlock = pData->getNumberOfRows();
 
     /* Create an algorithm to compute k-means on local nodes */
-    kmeans::init::Distributed<step1Local, algorithmFPType, kmeans::init::randomDense> localInit(nClusters, nBlocks * nVectorsInBlock,
+    kmeans::init::Distributed<step1Local, algorithmFPType, kmeans::init::randomDense> localInit(nClusters, nProcs * nVectorsInBlock,
                                                                                                 rankId * nVectorsInBlock);
 
     /* Set the input data set to the algorithm */
@@ -153,13 +154,13 @@ NumericTablePtr init(int rankId, const NumericTablePtr & pData, ccl::communicato
     std::vector<uint64_t> aPerNodeArchLength(comm.size());
     std::vector<size_t> aReceiveCount(comm.size(), 1);
     /* Transfer archive length to the step 2 on the root node */
-    ccl::allgatherv(&perNodeArchLength, 1,  aPerNodeArchLength.data(), aReceiveCount, comm).wait();
+    ccl::allgatherv(&perNodeArchLength, 1, aPerNodeArchLength.data(), aReceiveCount, comm).wait();
 
     ByteBuffer serializedData;
     /* Calculate total archive length */
     int totalArchLength = 0;
-    int displs[nBlocks];
-    for (size_t i = 0; i < nBlocks; ++i)
+    int displs[nProcs];
+    for (size_t i = 0; i < nProcs; ++i)
     {
         totalArchLength += aPerNodeArchLength[i];
     }
@@ -171,12 +172,12 @@ NumericTablePtr init(int rankId, const NumericTablePtr & pData, ccl::communicato
     dataArch.copyArchiveToArray(&nodeResults[0], perNodeArchLength);
 
     /* Transfer partial results to step 2 on the root node */
-    ccl::allgatherv((int8_t*)&nodeResults[0], perNodeArchLength,  (int8_t*)&serializedData[0], aPerNodeArchLength, comm).wait();
+    ccl::allgatherv((int8_t *)&nodeResults[0], perNodeArchLength, (int8_t *)&serializedData[0], aPerNodeArchLength, comm).wait();
     if (isRoot)
     {
         /* Create an algorithm to compute k-means on the master node */
         kmeans::init::Distributed<step2Master, algorithmFPType, kmeans::init::randomDense> masterInit(nClusters);
-        for (size_t i = 0, shift = 0; i < nBlocks; shift += aPerNodeArchLength[i], ++i)
+        for (size_t i = 0, shift = 0; i < nProcs; shift += aPerNodeArchLength[i], ++i)
         {
             /* Deserialize partial results from step 1 */
             OutputDataArchive dataArch(&serializedData[shift], aPerNodeArchLength[i]);
@@ -196,9 +197,9 @@ NumericTablePtr init(int rankId, const NumericTablePtr & pData, ccl::communicato
     return NumericTablePtr();
 }
 
-NumericTablePtr compute(int rankId, const NumericTablePtr & pData, const NumericTablePtr & initialCentroids, ccl::communicator& comm)
+NumericTablePtr compute(int rankId, const NumericTablePtr & pData, const NumericTablePtr & initialCentroids, ccl::communicator & comm)
 {
-    const bool isRoot          = (rankId == ccl_root);
+    const bool isRoot            = (rankId == ccl_root);
     uint64_t CentroidsArchLength = 0;
     InputDataArchive inputArch;
     if (isRoot)
@@ -214,7 +215,7 @@ NumericTablePtr compute(int rankId, const NumericTablePtr & pData, const Numeric
     ByteBuffer nodeCentroids(CentroidsArchLength);
     if (isRoot) inputArch.copyArchiveToArray(&nodeCentroids[0], CentroidsArchLength);
 
-    ccl::broadcast((int8_t*)&nodeCentroids[0], CentroidsArchLength, ccl_root, comm).wait();
+    ccl::broadcast((int8_t *)&nodeCentroids[0], CentroidsArchLength, ccl_root, comm).wait();
 
     /* Deserialize centroids data */
     OutputDataArchive outArch(nodeCentroids.size() ? &nodeCentroids[0] : NULL, CentroidsArchLength);
@@ -240,20 +241,20 @@ NumericTablePtr compute(int rankId, const NumericTablePtr & pData, const Numeric
     ByteBuffer serializedData;
 
     /* Serialized data is of equal size on each node if each node called compute() equal number of times */
-    serializedData.resize(perNodeArchLength * nBlocks);
+    serializedData.resize(perNodeArchLength * nProcs);
 
     ByteBuffer nodeResults(perNodeArchLength);
     dataArch.copyArchiveToArray(&nodeResults[0], perNodeArchLength);
     std::vector<size_t> aReceiveCount(comm.size(), perNodeArchLength);
     /* Transfer partial results to step 2 on the root node */
-    ccl::allgatherv((int8_t*)&nodeResults[0], perNodeArchLength,  (int8_t*)&serializedData[0], aReceiveCount, comm).wait();
+    ccl::allgatherv((int8_t *)&nodeResults[0], perNodeArchLength, (int8_t *)&serializedData[0], aReceiveCount, comm).wait();
 
     if (isRoot)
     {
         /* Create an algorithm to compute k-means on the master node */
         kmeans::Distributed<step2Master> masterAlgorithm(nClusters);
 
-        for (size_t i = 0; i < nBlocks; i++)
+        for (size_t i = 0; i < nProcs; i++)
         {
             /* Deserialize partial results from step 1 */
             OutputDataArchive dataArch(&serializedData[perNodeArchLength * i], perNodeArchLength);
