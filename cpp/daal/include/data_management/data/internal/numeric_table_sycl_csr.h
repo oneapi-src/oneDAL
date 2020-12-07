@@ -590,6 +590,11 @@ protected:
             size_t * rowOffsetsNewPtr    = hostRowOffsetsNew.get();
             const size_t * rowOffsetsPtr = hostRowOffsets.get();
 
+            if (rowOffsetsNewPtr == NULL || rowOffsetsPtr == NULL)
+            {
+                return services::Status(services::ErrorMemoryAllocationFailed);
+            }
+
             rowOffsetsNewPtr[0] = 1;
             for (size_t i = 0; i < nrows; ++i)
             {

@@ -1214,7 +1214,7 @@ protected:
             }
 
             size_t * row_offsets = block.getBlockRowIndicesSharedPtr().get();
-            if (!row_offsets)
+            if (row_offsets == NULL)
             {
                 return services::Status(services::ErrorMemoryAllocationFailed);
             }
