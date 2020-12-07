@@ -38,8 +38,11 @@ using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 
+typedef services::SharedPtr<FileDataSource<CSVFeatureManager> > FileDataSourcePtr;
+
 /* Covariance algorithm parameters */
-const size_t nProcs = 4;
+const size_t nProcs          = 4;
+const size_t nVectorsInBlock = 25;
 
 /* Input data set parameters */
 const string dataFileNames[4] = { "./data/covcormoments_dense_1.csv", "./data/covcormoments_dense_2.csv", "./data/covcormoments_dense_3.csv",
@@ -68,14 +71,14 @@ int getLocalRank(ccl::communicator & comm, int size, int rank)
     return localRank;
 }
 
-NumericTablePtr loadData(int rankId)
+FileDataSourcePtr loadData(int rankId)
 {
-    /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(dataFileNames[rankId], DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+    /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data
+   * from a .csv file */
+    auto data = SyclHomogenNumericTable<>::create(10, 0, NumericTable::notAllocate);
 
-    /* Retrieve the data from the input file */
-    dataSource.loadDataBlock();
-    return dataSource.getNumericTable();
+    return FileDataSourcePtr(
+        new FileDataSource<CSVFeatureManager>(dataFileNames[rankId], DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext));
 }
 
 NumericTablePtr init(int rankId, const NumericTablePtr & pData, ccl::communicator & comm);
@@ -118,14 +121,14 @@ int main(int argc, char * argv[])
     const bool isRoot = (rank == ccl_root);
 
     /* Retrieve the input data */
-    auto pData = getData(rank);
+    auto pData = loadData(rank);
 
     covariance::Distributed<step1Local> localAlgorithm;
 
     while (pData->loadDataBlock(nVectorsInBlock) == nVectorsInBlock)
     {
         /* Set input objects for the algorithm */
-        localAlgorithm.input.set(low_order_moments::data, pData->getNumericTable());
+        localAlgorithm.input.set(covariance::data, pData->getNumericTable());
 
         /* Compute partial estimates */
         localAlgorithm.compute();
