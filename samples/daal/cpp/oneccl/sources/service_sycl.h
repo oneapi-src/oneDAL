@@ -31,11 +31,14 @@
 
 #include "service.h"
 
-std::vector<sycl::device> get_gpus() {
+std::vector<sycl::device> get_gpus()
+{
     auto platforms = sycl::platform::get_platforms();
-    for (auto p : platforms) {
+    for (auto p : platforms)
+    {
         auto devices = p.get_devices(sycl::info::device_type::gpu);
-        if (!devices.empty()) {
+        if (!devices.empty())
+        {
             return devices;
         }
     }
