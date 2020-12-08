@@ -96,7 +96,7 @@ enum class error_metric_mode : std::uint64_t {
     none = 0x00000000ULL,
     /// Train produces $1 \\times 1$ table with cumulative prediction error for out of bag observations
     out_of_bag_error = 0x00000001ULL,
-    /// Train produces $n \\times 1$ table with prediction error for out of bag observations
+    /// Train produces $n \\times 1$ table with prediction error for out-of-bag observations
     out_of_bag_error_per_observation = 0x00000002ULL
 };
 
