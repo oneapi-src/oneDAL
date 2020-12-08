@@ -258,7 +258,7 @@ public:
     /// @remark default = 256
     std::int64_t get_max_bins() const;
 
-    /// The minimal number of observations in a bin. Used with :expr:`method::hist` split finding method only.
+    /// The minimal number of observations in a bin. Used with :expr:`method::hist` split-finding method only.
     /// @invariant :expr:`min_bin_size > 0`
     /// @remark default = 5
     std::int64_t get_min_bin_size() const;
