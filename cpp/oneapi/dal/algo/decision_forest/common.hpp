@@ -65,9 +65,7 @@ using v1::by_default;
 
 namespace v1 {
 
-///
 /// Available identifiers to specify the variable importance mode
-///
 enum class variable_importance_mode {
     /// Do not compute variable importance
     none,
@@ -88,9 +86,7 @@ enum class variable_importance_mode {
     mda_scaled
 };
 
-///
 /// Available identifiers to specify the error metric mode
-///
 enum class error_metric_mode : std::uint64_t {
     /// Do not compute error metric
     none = 0x00000000ULL,
@@ -100,9 +96,7 @@ enum class error_metric_mode : std::uint64_t {
     out_of_bag_error_per_observation = 0x00000002ULL
 };
 
-///
 /// Available identifiers to specify the infer mode
-///
 enum class infer_mode : std::uint64_t {
     /// Infer produces a $n \\times 1$  table with the predicted labels
     class_labels = 0x00000001ULL,
@@ -110,9 +104,7 @@ enum class infer_mode : std::uint64_t {
     class_probabilities = 0x00000002ULL
 };
 
-///
 /// Available voting modes for averaging trees predictions
-///
 enum class voting_mode {
     /// The final prediction is combined through a weighted majority voting
     weighted,
@@ -368,82 +360,61 @@ public:
     using method_t = Method;
     using task_t = Task;
 
-    /// @invariant {observations_per_tree_fraction > 0.0}
-    /// @invariant {observations_per_tree_fraction <= 1.0}
-    /// @remark default = 1.0
     auto& set_observations_per_tree_fraction(double value) {
         base_t::set_observations_per_tree_fraction_impl(value);
         return *this;
     }
 
-    /// @invariant {impurity_threshold >= 0.0}
-    /// @remark default = 0.0
     auto& set_impurity_threshold(double value) {
         base_t::set_impurity_threshold_impl(value);
         return *this;
     }
 
-    /// @invariant :expr:`min_weight_fraction_in_leaf_node >= 0.0`
-    /// @invariant :expr:`min_weight_fraction_in_leaf_node <= 0.5`
-    /// @remark default = 0.0
     auto& set_min_weight_fraction_in_leaf_node(double value) {
         base_t::set_min_weight_fraction_in_leaf_node_impl(value);
         return *this;
     }
 
-    /// @invariant :expr:`min_impurity_decrease_in_split_node >= 0.0`
-    /// @remark default = 0.0
     auto& set_min_impurity_decrease_in_split_node(double value) {
         base_t::set_min_impurity_decrease_in_split_node_impl(value);
         return *this;
     }
 
-    /// @invariant :expr:`tree_count > 0`
-    /// @remark default = 100
     auto& set_tree_count(std::int64_t value) {
         base_t::set_tree_count_impl(value);
         return *this;
     }
 
-    /// @remark default = task::classification ? sqrt(p) : p/3, where p is the total number of features
     auto& set_features_per_node(std::int64_t value) {
         base_t::set_features_per_node_impl(value);
         return *this;
     }
 
-    /// @remark default = 0
     auto& set_max_tree_depth(std::int64_t value) {
         base_t::set_max_tree_depth_impl(value);
         return *this;
     }
 
-    /// @invariant :expr:`min_observations_in_leaf_node > 0`
-    /// @remark default = task::classification ? 1 : 5
     auto& set_min_observations_in_leaf_node(std::int64_t value) {
         base_t::set_min_observations_in_leaf_node_impl(value);
         return *this;
     }
 
-    /// @invariant :expr:`min_observations_in_split_node > 1`
-    /// @remark default = 2
     auto& set_min_observations_in_split_node(std::int64_t value) {
         base_t::set_min_observations_in_split_node_impl(value);
         return *this;
     }
 
-    /// @remark default = 0
     auto& set_max_leaf_nodes(std::int64_t value) {
         base_t::set_max_leaf_nodes_impl(value);
         return *this;
     }
 
-    /// @remark default = 256
     auto& set_max_bins(std::int64_t value) {
         base_t::set_max_bins_impl(value);
         return *this;
     }
 
-    /// @remark default = 5
     auto& set_min_bin_size(std::int64_t value) {
         base_t::set_min_bin_size_impl(value);
         return *this;
