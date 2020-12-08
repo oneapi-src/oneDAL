@@ -221,7 +221,7 @@ public:
     /// @remark default = 0.0
     double get_min_weight_fraction_in_leaf_node() const;
 
-    /// The min impurity decrease in a split node - a threshold for early stopping in tree growth. A node will split if its impurity is above the threshold, otherwise it is a leaf.
+    /// The min impurity decrease in a split node is a threshold for stopping the tree growth early. A node will be split if its impurity is above the threshold, otherwise it is a leaf.
     /// @invariant :expr:`min_impurity_decrease_in_split_node >= 0.0`
     /// @remark default = 0.0
     double get_min_impurity_decrease_in_split_node() const;
