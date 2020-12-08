@@ -214,7 +214,7 @@ public:
     /// @remark default = 0.0
     double get_impurity_threshold() const;
 
-    /// The min weight fraction in leaf node. The minimum weighted fraction of the sum total of weights (of all the input observations)
+    /// The min weight fraction in a leaf node. The minimum weighted fraction of the total sum of weights (of all input observations)
     /// required to be at a leaf node
     /// @invariant :expr:`min_weight_fraction_in_leaf_node >= 0.0`
     /// @invariant :expr:`min_weight_fraction_in_leaf_node <= 0.5`
