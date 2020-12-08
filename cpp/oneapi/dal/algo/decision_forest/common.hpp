@@ -263,7 +263,7 @@ public:
     /// @remark default = 5
     std::int64_t get_min_bin_size() const;
 
-    /// The memory saving (but slower) mode.
+    /// The memory saving mode.
     /// @remark default = False
     bool get_memory_saving_mode() const;
 
