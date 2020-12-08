@@ -72,7 +72,7 @@ During the training stage, :math:`\mathrm{M}` independent classification or regr
         - with observation weights: :math:`I(D)=1-\sum_{i=1}^{C}{p_i^2},` where :math:`p_i` is the weighted fraction of observations in subset :math:`D` that belong to the :math:`i`-th class,
 	  :math:`p_i=(\sum_{d \in \{d \in D | y_{d}=i\}}w_d)/\sum_{d \in D}w_d,` and :math:`w_d` is a weight of observation :math:`d`. 
     - Mean-Square Error (MSE) for regression: 
-	- without observation weights: :math:`I(D)=\frac{1}{N} \sum_{i=1}^{N}{(y_i - \bar{y})^2},` where :math:`N=|D|` and :math:`\bar{y}=frac{1}{N} \sum_{i=1}^{N}y_i`.
+	- without observation weights: :math:`I(D)=\frac{1}{N} \sum_{i=1}^{N}{(y_i - \bar{y})^2},` where :math:`N=|D|` and :math:`\bar{y}=\frac{1}{N} \sum_{i=1}^{N}y_i`.
 	- with observation weights: :math:`I(D)=\frac{1}{W(D)} \sum_{i=1}^{N}w_i{(y_i - \bar{y})^2},` where :math:`N=|D|`, :math:`\bar{y}=\sum_{i=1}^{N}w_{i}y_{i},`, :math:`W(D)=\sum_{i=1}^{N}w_{i},` and :math:`w_i` is a weight of observation :math:`i`.
     - :math:`I_{\mathrm{reduction}}={I} - (N_{\mathrm{left}}/N_{\mathrm{parent}}*I_{left} + N_{\mathrm{right}}/N_{\mathrm{parent}}*I_{\mathrm{right}}),` where :math:`N_{\mathrm{left}}` and :math:`N_{\mathrm{right}}` are the number of observations in the node on the corresponding side of the split.
 
