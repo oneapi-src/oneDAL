@@ -253,7 +253,7 @@ public:
     /// @remark default = 0
     std::int64_t get_max_leaf_nodes() const;
 
-    /// The maximal number of discrete bins to bucket continuous features. Used with :expr:`method::hist` split finding method only. Increasing the number results in higher computation costs.
+    /// The maximal number of discrete bins to bucket continuous features. Used with :expr:`method::hist` split-finding method only. Increasing the number results in higher computation costs.
     /// @invariant :expr:`max_bins > 1`
     /// @remark default = 256
     std::int64_t get_max_bins() const;
