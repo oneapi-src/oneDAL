@@ -74,7 +74,7 @@ public:
 
     descriptor_base();
 
-    /// The coefficient $\sigma$ of the RBF kernel.
+    /// The coefficient $\\sigma$ of the RBF kernel.
     /// @remark default = 1.0
     double get_sigma() const;
 
