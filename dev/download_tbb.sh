@@ -64,7 +64,6 @@ if [ ! -d "${DST}/${OS}/bin" ]; then
   echo tar -xvf "${DST}/${TBB_PACKAGE}.tgz" -C "${DST}"
   tar -C "${DST}/${OS}" --strip-components=1 -xvf "${DST}/${TBB_PACKAGE}.tgz"
   ls -al "${DST}/${OS}/"
-  mv -f "${DST}/${OS}/${TBB_VERSION}"/* "${DST}/${OS}/"
   echo "Downloaded and unpacked oneTBB to ${DST}/${OS}"
 else
   echo "oneTBB is already installed in ${DST}/${OS}"
