@@ -1,4 +1,4 @@
-/* file: covariance_dense_distributed_oneccl.cpp */
+/* file: covariance_dense_batch_distributed_oneccl.cpp */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -23,8 +23,8 @@
 !******************************************************************************/
 
 /**
- * <a name="DAAL-SAMPLE-CPP-COVARIANCE_DENSE_DISTRIBUTED"></a>
- * \example covariance_dense_distributed_oneccl.cpp
+ * <a name="DAAL-SAMPLE-CPP-COVARIANCE_DENSE_BATCH_DISTRIBUTED"></a>
+ * \example covariance_dense_batch_distributed_oneccl.cpp
  */
 
 #include "daal_sycl.h"
@@ -38,19 +38,16 @@ using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 
-//typedef std::vector<char> ByteBuffer;
-typedef float algorithmFPType; /* Algorithm floating-point type */
-
 /* Covariance algorithm parameters */
-const size_t nBlocks     = 4;
+const size_t nProcs = 4;
 
 /* Input data set parameters */
-const string dataFileNames[4] = { "./data/covcormoments_dense_1.csv", "./data/covcormoments_dense_2.csv",
-                                  "./data/covcormoments_dense_3.csv", "./data/covcormoments_dense_4.csv" };
+const string dataFileNames[4] = { "./data/covcormoments_dense_1.csv", "./data/covcormoments_dense_2.csv", "./data/covcormoments_dense_3.csv",
+                                  "./data/covcormoments_dense_4.csv" };
 
 #define ccl_root 0
 
-int getLocalRank(ccl::communicator& comm, int size, int rank)
+int getLocalRank(ccl::communicator & comm, int size, int rank)
 {
     /* Obtain local rank among nodes sharing the same host name */
     char zero = static_cast<char>(0);
@@ -60,13 +57,13 @@ int getLocalRank(ccl::communicator& comm, int size, int rank)
     std::string str(name.begin(), name.end());
     std::vector<char> allNames((MPI_MAX_PROCESSOR_NAME + 1) * size, zero);
     std::vector<size_t> aReceiveCount(size, MPI_MAX_PROCESSOR_NAME + 1);
-    ccl::allgatherv((int8_t*)name.data(), name.size(),  (int8_t*)allNames.data(), aReceiveCount, comm).wait();
+    ccl::allgatherv((int8_t *)name.data(), name.size(), (int8_t *)allNames.data(), aReceiveCount, comm).wait();
     int localRank = 0;
-    for(int i = 0; i < rank; i++) {
+    for (int i = 0; i < rank; i++)
+    {
         auto nameBegin = allNames.begin() + i * (MPI_MAX_PROCESSOR_NAME + 1);
         std::string nbrName(nameBegin, nameBegin + (MPI_MAX_PROCESSOR_NAME + 1));
-        if(nbrName == str)
-            localRank++;
+        if (nbrName == str) localRank++;
     }
     return localRank;
 }
@@ -81,8 +78,8 @@ NumericTablePtr loadData(int rankId)
     return dataSource.getNumericTable();
 }
 
-NumericTablePtr init(int rankId, const NumericTablePtr & pData, ccl::communicator& comm);
-NumericTablePtr compute(int rankId, const NumericTablePtr & pData, const NumericTablePtr & initialCentroids, ccl::communicator& comm);
+NumericTablePtr init(int rankId, const NumericTablePtr & pData, ccl::communicator & comm);
+NumericTablePtr compute(int rankId, const NumericTablePtr & pData, const NumericTablePtr & initialCentroids, ccl::communicator & comm);
 
 int main(int argc, char * argv[])
 {
@@ -96,13 +93,15 @@ int main(int argc, char * argv[])
 
     ccl::shared_ptr_class<ccl::kvs> kvs;
     ccl::kvs::address_type main_addr;
-    if (rank == 0) {
-        kvs = ccl::create_main_kvs();
+    if (rank == 0)
+    {
+        kvs       = ccl::create_main_kvs();
         main_addr = kvs->get_address();
-        MPI_Bcast((void*)main_addr.data(), main_addr.size(), MPI_BYTE, 0, MPI_COMM_WORLD);
+        MPI_Bcast((void *)main_addr.data(), main_addr.size(), MPI_BYTE, 0, MPI_COMM_WORLD);
     }
-    else {
-        MPI_Bcast((void*)main_addr.data(), main_addr.size(), MPI_BYTE, 0, MPI_COMM_WORLD);
+    else
+    {
+        MPI_Bcast((void *)main_addr.data(), main_addr.size(), MPI_BYTE, 0, MPI_COMM_WORLD);
         kvs = ccl::create_kvs(main_addr);
     }
 
@@ -110,14 +109,14 @@ int main(int argc, char * argv[])
 
     /* Create GPU device from local rank and set execution context */
     auto local_rank = getLocalRank(comm, size, rank);
-    auto gpus = get_gpus();
-    auto rank_gpu = gpus[local_rank % gpus.size()];
+    auto gpus       = get_gpus();
+    auto rank_gpu   = gpus[local_rank % gpus.size()];
     cl::sycl::queue queue(rank_gpu);
     daal::services::SyclExecutionContext ctx(queue);
     services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
     /* Start data processing */
-    NumericTablePtr pData     = loadData(rank);
+    NumericTablePtr pData = loadData(rank);
 
     const bool isRoot = (rank == ccl_root);
 
@@ -137,13 +136,13 @@ int main(int argc, char * argv[])
     std::vector<uint64_t> aPerNodeArchLength(comm.size());
     std::vector<size_t> aReceiveCount(comm.size(), 1);
     /* Transfer archive length to the step 2 on the root node */
-    ccl::allgatherv(&perNodeArchLength, 1,  aPerNodeArchLength.data(), aReceiveCount, comm).wait();
+    ccl::allgatherv(&perNodeArchLength, 1, aPerNodeArchLength.data(), aReceiveCount, comm).wait();
 
     ByteBuffer serializedData;
     /* Calculate total archive length */
     int totalArchLength = 0;
-    int displs[nBlocks];
-    for (size_t i = 0; i < nBlocks; ++i)
+
+    for (size_t i = 0; i < nProcs; ++i)
     {
         totalArchLength += aPerNodeArchLength[i];
     }
@@ -155,13 +154,13 @@ int main(int argc, char * argv[])
     dataArch.copyArchiveToArray(&nodeResults[0], perNodeArchLength);
 
     /* Transfer partial results to step 2 on the root node */
-    ccl::allgatherv((int8_t*)&nodeResults[0], perNodeArchLength,  (int8_t*)&serializedData[0], aPerNodeArchLength, comm).wait();
+    ccl::allgatherv((int8_t *)&nodeResults[0], perNodeArchLength, (int8_t *)&serializedData[0], aPerNodeArchLength, comm).wait();
 
     if (isRoot)
     {
         /* Create an algorithm to compute covariance on the master node */
         covariance::Distributed<step2Master> masterAlgorithm;
-        for (size_t i = 0, shift = 0; i < nBlocks; shift += aPerNodeArchLength[i], ++i)
+        for (size_t i = 0, shift = 0; i < nProcs; shift += aPerNodeArchLength[i], ++i)
         {
             /* Deserialize partial results from step 1 */
             OutputDataArchive dataArch(&serializedData[shift], aPerNodeArchLength[i]);

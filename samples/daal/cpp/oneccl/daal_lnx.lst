@@ -18,7 +18,9 @@
 ##     Intel(R) oneAPI Data Analytics Library samples list
 ##******************************************************************************
 
-ONECCL  =  covariance_dense_distributed_oneccl                \
-           kmeans_dense_distributed_oneccl                    \
-           low_order_moments_dense_distributed_oneccl         \
+ONECCL  =  covariance_dense_batch_distributed_oneccl                \
+           covariance_dense_online_distributed_oneccl               \
+           kmeans_dense_distributed_oneccl                          \
+           low_order_moments_dense_batch_distributed_oneccl         \
+           low_order_moments_dense_online_distributed_oneccl        \
            pca_dense_distributed_oneccl

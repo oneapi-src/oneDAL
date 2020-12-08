@@ -23,7 +23,11 @@ namespace oneapi::dal::knn {
 
 namespace task {
 namespace v1 {
+/// Tag-type that parameterizes entities used for solving
+/// :capterm:`classification problem <classification>`.
 struct classification {};
+
+/// Alias tag-type for classification task.
 using by_default = classification;
 } // namespace v1
 
@@ -34,8 +38,15 @@ using v1::by_default;
 
 namespace method {
 namespace v1 {
+/// Tag-type that denotes `k-d tree <knn_t_math_kd_tree>`_ computational method.
 struct kd_tree {};
+
+/// Tag-type that denotes `brute-force <knn_t_math_brute_force_>`_ computational
+/// method.
 struct brute_force {};
+
+/// Alias tag-type for `brute-force <knn_t_math_brute_force_>`_ computational
+/// method.
 using by_default = brute_force;
 } // namespace v1
 
@@ -76,7 +87,12 @@ public:
 
     descriptor_base();
 
+    /// The number of classes c
+    /// @invariant :expr:`class_count > 1`
     std::int64_t get_class_count() const;
+
+    /// The number of neighbors k
+    /// @invariant :expr:`neighbor_count > 0`
     std::int64_t get_neighbor_count() const;
 
 protected:
@@ -102,6 +118,13 @@ using v1::is_valid_task_v;
 
 namespace v1 {
 
+/// @tparam Float  The floating-point type that the algorithm uses for
+///                intermediate computations. Can be :expr:`float` or
+///                :expr:`double`.
+/// @tparam Method Tag-type that specifies an implementation of algorithm. Can
+///                be :expr:`method::bruteforce` or :expr:`method::kd_tree`.
+/// @tparam Task   Tag-type that specifies type of the problem to solve. Can
+///                be :expr:`task::classification`.
 template <typename Float = detail::descriptor_base<>::float_t,
           typename Method = detail::descriptor_base<>::method_t,
           typename Task = detail::descriptor_base<>::task_t>
@@ -117,6 +140,8 @@ public:
     using method_t = Method;
     using task_t = Task;
 
+    /// Creates a new instance of the class with the given :literal:`class_count`
+    /// and :literal:`neighbor_count` property values
     explicit descriptor(std::int64_t class_count, std::int64_t neighbor_count) {
         set_class_count(class_count);
         set_neighbor_count(neighbor_count);
@@ -133,12 +158,15 @@ public:
     }
 };
 
+/// @tparam Task Tag-type that specifies type of the problem to solve. Can
+///              be :expr:`task::classification`.
 template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);
     friend dal::detail::pimpl_accessor;
 
 public:
+    /// Creates a new instance of the class with the default property values.
     model();
 
 private:
