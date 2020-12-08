@@ -36,6 +36,8 @@ using v1::compute_result_impl;
 
 namespace v1 {
 
+/// @tparam Task Tag-type that specifies type of the problem to solve. Can
+///              be :expr:`task::compute`.
 template <typename Task = task::by_default>
 class compute_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -43,8 +45,12 @@ class compute_input : public base {
 public:
     using task_t = Task;
 
+    /// Creates a new instance of the class with the given :literal:`x` and :literal:`y`.
     compute_input(const table& x, const table& y);
 
+    /// An $n1 \\times p$ table with the data x, where each row
+    /// stores one feature vector.
+    /// @remark default = table{}
     const table& get_x() const;
 
     auto& set_x(const table& data) {
@@ -52,6 +58,9 @@ public:
         return *this;
     }
 
+    /// An $n2 \\times p$ table with the data y, where each row
+    /// stores one feature vector.
+    /// @remark default = table{}
     const table& get_y() const;
 
     auto& set_y(const table& data) {
@@ -67,6 +76,8 @@ private:
     dal::detail::pimpl<detail::compute_input_impl<Task>> impl_;
 };
 
+/// @tparam Task Tag-type that specifies type of the problem to solve. Can
+///              be :expr:`task::compute`.
 template <typename Task = task::by_default>
 class compute_result : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -74,8 +85,11 @@ class compute_result : public base {
 public:
     using task_t = Task;
 
+    /// Creates a new instance of the class with the default property values.
     compute_result();
 
+    /// A $n1 \\times n2$ table with the result kernel functions.
+    /// @remark default = table{}
     const table& get_values() const;
 
     auto& set_values(const table& value) {

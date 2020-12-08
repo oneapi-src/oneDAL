@@ -23,7 +23,10 @@ namespace oneapi::dal::linear_kernel {
 
 namespace task {
 namespace v1 {
+
+/// Tag-type that parameterizes entities used for compute of statisticics, distance, etc.
 struct compute {};
+/// Alias tag-type for the compute task.
 using by_default = compute;
 } // namespace v1
 
@@ -34,7 +37,9 @@ using v1::by_default;
 
 namespace method {
 namespace v1 {
+
 struct dense {};
+/// Alias tag-type for the dense method.
 using by_default = dense;
 } // namespace v1
 
@@ -71,7 +76,12 @@ public:
 
     descriptor_base();
 
+    /// The coefficient $K$ of the linear kernel.
+    /// @remark default = 1.0
     double get_scale() const;
+
+    /// The coefficient $b$ of the linear kernel.
+    /// @remark default = 0.0
     double get_shift() const;
 
 protected:
@@ -96,6 +106,13 @@ using v1::is_valid_task_v;
 
 namespace v1 {
 
+/// @tparam Float  The floating-point type that the algorithm uses for
+///                intermediate computations. Can be :expr:`float` or
+///                :expr:`double`.
+/// @tparam Method Tag-type that specifies an implementation of algorithm. Can
+///                be :expr:`method::dense`.
+/// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
+///                be :expr:`task::compute`.
 template <typename Float = detail::descriptor_base<>::float_t,
           typename Method = detail::descriptor_base<>::method_t,
           typename Task = detail::descriptor_base<>::task_t>

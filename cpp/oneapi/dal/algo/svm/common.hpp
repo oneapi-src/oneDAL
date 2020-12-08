@@ -117,6 +117,9 @@ public:
     /// @remark default = 200.0
     double get_cache_size() const;
 
+    /// The parameter of the WSS scheme $\\tau$.
+    /// @invariant :expr:`tau >= 0.0`
+    /// @remark default = 1e-6
     double get_tau() const;
 
     /// A flag that enables use of a shrinking optimization technique. Used with :expr:`method::thunder` split finding method only.
@@ -163,7 +166,6 @@ namespace v1 {
 ///                be :expr:`method::thunder` or :expr:`method::smo`.
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
 ///                be :expr:`task::classification`.
-/// @tparam Kernel TODO
 template <typename Float = detail::descriptor_base<>::float_t,
           typename Method = detail::descriptor_base<>::method_t,
           typename Task = detail::descriptor_base<>::task_t,
@@ -184,11 +186,13 @@ public:
     using task_t = Task;
     using kernel_t = Kernel;
 
-    /// Creates a new instance of the class with the given :literal:`kernel`
+    /// Creates a new instance of the class with the given descriptor of the kernel function
+    /// @remark default = :literal:`kernel`
     explicit descriptor(const Kernel& kernel = kernel_t{})
             : base_t(std::make_shared<detail::kernel_function<Kernel>>(kernel)) {}
 
-    /// TODO.
+    /// The descriptor of kernel function `K(x,y)`. Can be :expr:`linear_kernel::descriptor` or
+    /// :expr:`rbf_kernel::descriptor`.
     /// @remark default = :literal:`kernel`
     const Kernel& get_kernel() const {
         using kf_t = detail::kernel_function<Kernel>;
@@ -250,7 +254,8 @@ public:
     /// @invariant :expr:`support_vector_count >= 0`
     std::int64_t get_support_vector_count() const;
 
-    /// Support vectors
+    /// A $nsv \\times p$ table containing support vectors.
+    /// Where $nsv$ - number of support vectors.
     /// @remark default = table{}
     const table& get_support_vectors() const;
 
@@ -259,7 +264,7 @@ public:
         return *this;
     }
 
-    /// The coefficients of Lagrange
+    /// A $nsv \\times 1$ table containing coefficients of Lagrange multiplier
     /// @remark default = table{}
     const table& get_coeffs() const;
 
@@ -269,7 +274,7 @@ public:
     }
 
     /// The bias
-    /// @remark default = table{}
+    /// @remark default = 0.0
     double get_bias() const;
 
     auto& set_bias(double value) {
@@ -277,7 +282,8 @@ public:
         return *this;
     }
 
-    /// The first unique class from labels
+    /// The first unique value of class from labels
+    /// @remark default = 0
     std::int64_t get_first_class_label() const;
 
     auto& set_first_class_label(std::int64_t value) {
@@ -285,7 +291,8 @@ public:
         return *this;
     }
 
-    /// The second unique class from labels
+    /// The second unique value of class from labels
+    /// @remark default = 0
     std::int64_t get_second_class_label() const;
 
     auto& set_second_class_label(std::int64_t value) {

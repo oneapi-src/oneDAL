@@ -36,6 +36,8 @@ using v1::train_result_impl;
 
 namespace v1 {
 
+/// @tparam Task   Tag-type that specifies type of the problem to solve. Can
+///                be :expr:`task::classification`.
 template <typename Task = task::by_default>
 class train_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -43,8 +45,12 @@ class train_input : public base {
 public:
     using task_t = Task;
 
+    /// Creates a new instance of the class with the given :literal:`data`,
+    /// :literal:`labels` and :literal:`weights`
     train_input(const table& data, const table& labels, const table& weights = table{});
 
+    /// The training set $X$
+    /// @remark default = table{}
     const table& get_data() const;
 
     auto& set_data(const table& value) {
@@ -52,6 +58,8 @@ public:
         return *this;
     }
 
+    /// Vector of labels $y$ for the training set $X$
+    /// @remark default = table{}
     const table& get_labels() const;
 
     auto& set_labels(const table& value) {
@@ -59,6 +67,8 @@ public:
         return *this;
     }
 
+    /// Vector of weights $w$ for the training set $X$
+    /// @remark default = table{}
     const table& get_weights() const;
 
     auto& set_weights(const table& value) {
@@ -75,6 +85,8 @@ private:
     dal::detail::pimpl<detail::train_input_impl<Task>> impl_;
 };
 
+/// @tparam Task Tag-type that specifies type of the problem to solve. Can
+///              be :expr:`task::classification`.
 template <typename Task = task::by_default>
 class train_result : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -82,10 +94,15 @@ class train_result : public base {
 public:
     using task_t = Task;
 
+    /// Creates a new instance of the class with the default property values.
     train_result();
 
+    /// The number of support vectors
+    /// @remark default = 0
     std::int64_t get_support_vector_count() const;
 
+    /// The trained SVM model
+    /// @remark default = model<Task>{}
     const model<Task>& get_model() const;
 
     auto& set_model(const model<Task>& value) {
@@ -93,6 +110,9 @@ public:
         return *this;
     }
 
+    /// A $nsv \\times p$ table containing support vectors.
+    /// Where $nsv$ - number of support vectors.
+    /// @remark default = table{}
     const table& get_support_vectors() const;
 
     auto& set_support_vectors(const table& value) {
@@ -100,6 +120,8 @@ public:
         return *this;
     }
 
+    /// A $nsv \\times 1$ table containing support indices
+    /// @remark default = table{}
     const table& get_support_indices() const;
 
     auto& set_support_indices(const table& value) {
@@ -107,6 +129,8 @@ public:
         return *this;
     }
 
+    /// A $nsv \\times 1$ table containing coefficients of Lagrange multiplier
+    /// @remark default = table{}
     const table& get_coeffs() const;
 
     auto& set_coeffs(const table& value) {
@@ -114,6 +138,8 @@ public:
         return *this;
     }
 
+    /// The bias
+    /// @remark default = 0.0
     double get_bias() const;
 
     auto& set_bias(double value) {
