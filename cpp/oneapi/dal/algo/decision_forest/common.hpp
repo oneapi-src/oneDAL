@@ -249,7 +249,7 @@ public:
     /// @remark default = 2
     std::int64_t get_min_observations_in_split_node() const;
 
-    /// The maximal number of the leaf nodes. If 0, then no limit for the number of leaf nodes.
+    /// The maximal number of the leaf nodes. If 0, the number of leaf nodes is not limited.
     /// @remark default = 0
     std::int64_t get_max_leaf_nodes() const;
 
