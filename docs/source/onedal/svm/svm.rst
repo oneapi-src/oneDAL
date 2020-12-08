@@ -18,9 +18,9 @@
 
 .. _alg_svm:
 
-===================================
+=======================================
 Support Vector Machine Classifier (SVM)
-===================================
+=======================================
 
 Support Vector Machine (SVM) :capterm:`classification`  is among popular classification
 algorithms. It belongs to a family of generalized linear classification problems.
@@ -94,13 +94,13 @@ coefficient and the corresponding :math:`x_k` is called a support vector.
 .. _svm_t_math_smo:
 
 Training method: *smo*
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
 In *smo* training method, the all vectors from training dataset is used for each iteration.
 
 .. _svm_t_math_thunder:
 
 Training method: *thunder*
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 In *thunder* training method, the algorithm iteratively solves the convex optimization problem
 with the linear constraints by selecting the fixed set of active constrains (working set) and 
 applying Sequential Minimal Optimization (SMO) solver to the selected subproblem.
@@ -111,7 +111,7 @@ The description of this method is given in Algorithm [Wen2018]_.
 .. _svm_i_math_thunder:
 
 Inference methods: *smo* and *thunder*
--------------------------------------
+--------------------------------------
 *smo* and *thunder* inference methods performs prediction by the same way:
 
 Given the SVM classifier and :math:`r` feature vectors :math:`x_1, \ldots, x_r`, 
