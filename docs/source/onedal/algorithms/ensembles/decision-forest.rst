@@ -72,22 +72,25 @@ During the training stage, :math:`B` independent classification or regression tr
    (bootstrapping).
 #. Impurity metric :math:`I` and impurity reduction :math:`\Delta I` for splitting tree's nodes, calculated as follows:
     - Gini impurity for classification:
-        - without observation weights: :math:`I(D)=1-\sum_{i=1}^{C}{p_i^2},` where :math:`p_i` is the fraction of observations in subset :math:`D` that belong to the :math:`i`-th class.
-        - with observation weights: :math:`I(D)=1-\sum_{i=1}^{C}{p_i^2},` where :math:`p_i` is the weighted fraction of observations in subset :math:`D` that belong to the :math:`i`-th class, computed as follows:
+
+      - without observation weights: :math:`I(D)=1-\sum_{i=1}^{C}{p_i^2},` where :math:`p_i` is the fraction of observations in subset :math:`D` that belong to the :math:`i`-th class.
+      - with observation weights: :math:`I(D)=1-\sum_{i=1}^{C}{p_i^2},` where :math:`p_i` is the weighted fraction of observations in subset :math:`D` that belong to the :math:`i`-th class, computed as follows:
 	   
-        .. math:
-            p_i=(\sum_{d \in \{d \in D | y_{d}=i\}}w_d)/\sum_{d \in D}w_d
-          
-            where :math:`w_d` is a weight of observation :math:`d`.
+        .. math::
+           p_i=(\sum_{d \in \{d \in D | y_{d}=i\}}w_d)/\sum_{d \in D}w_d
+        
+        where :math:`w_d` is a weight of observation :math:`d`.
+
     - Mean-Square Error (MSE) for regression: 
-        - without observation weights: :math:`I(D)=\frac{1}{N} \sum_{i=1}^{N}{(y_i - \bar{y})^2},` where :math:`N=|D|` and :math:`\bar{y}=\frac{1}{N} \sum_{i=1}^{N}y_i`.
-        - with observation weights: :math:`I(D)=\frac{1}{W(D)} \sum_{i=1}^{N}w_i{(y_i - \bar{y})^2},` where :math:`N=|D|`, :math:`\bar{y}=\sum_{i=1}^{N}w_{i}y_{i},`, :math:`W(D)=\sum_{i=1}^{N}w_{i},` and :math:`w_i` is a weight of observation :math:`i`.
+
+      - without observation weights: :math:`I(D)=\frac{1}{N} \sum_{i=1}^{N}{(y_i - \bar{y})^2},` where :math:`N=|D|` and :math:`\bar{y}=\frac{1}{N} \sum_{i=1}^{N}y_i`.
+      - with observation weights: :math:`I(D)=\frac{1}{W(D)} \sum_{i=1}^{N}w_i{(y_i - \bar{y})^2},` where :math:`N=|D|`, :math:`\bar{y}=\sum_{i=1}^{N}w_{i}y_{i},`, :math:`W(D)=\sum_{i=1}^{N}w_{i},` and :math:`w_i` is a weight of observation :math:`i`.
     - :math:`\Delta I` is computed as follows:
        
-        .. math:
-            \Delta I={I} - (\frac{N_{\mathrm{left}}}{N_{\mathrm{parent}}} I_{left} + \frac{N_{\mathrm{right}}}{N_{\mathrm{parent}}} I_{\mathrm{right}}) 
+      .. math::
+         \Delta I={I} - (\frac{N_{\mathrm{left}}}{N_{\mathrm{parent}}} I_{left} + \frac{N_{\mathrm{right}}}{N_{\mathrm{parent}}} I_{\mathrm{right}}) 
        
-            where :math:`N_{\mathrm{left}}` and :math:`N_{\mathrm{right}}` are the number of observations in the node on the corresponding side of the split.
+      where :math:`N_{\mathrm{left}}` and :math:`N_{\mathrm{right}}` are the number of observations in the node on the corresponding side of the split.
 
 Let :math:`S=(X,Y)` be the set of observations. Given the training parameters, such as the number of trees
 in the forest (:math:`B`), the fraction of observations used for the training of one tree
@@ -162,67 +165,67 @@ The estimate of the generalization error based on the training
 data can be obtained and calculated as follows:
 
 -  For classification:
-    -  For each vector :math:`x_i` in the dataset :math:`X`, predict its label :math:`\hat{y_i}` by having the majority of votes from the trees that
-       contain :math:`x_i` in their OOB set, and vote for that label.
+    - For each vector :math:`x_i` in the dataset :math:`X`, predict its label :math:`\hat{y_i}` by having the majority of votes from the trees that
+      contain :math:`x_i` in their OOB set, and vote for that label.
 
-    -  Calculate the OOB error of the decision forest :math:`T` as the average
-       of misclassifications:
+    - Calculate the OOB error of the decision forest :math:`T` as the average
+      of misclassifications:
 
-        .. math::
-            OOB(T) = \frac{1}{|{D}^{\text{'}}|}\sum _{y_i \in {D}^{\text{'}}}I\{y_i \ne \hat{y_i}\}\text{,where }{D}^{\text{'}}={\bigcup }_{b=1}^{B}\overline{D_b}.
+      .. math::
+         OOB(T) = \frac{1}{|{D}^{\text{'}}|}\sum _{y_i \in {D}^{\text{'}}}I\{y_i \ne \hat{y_i}\}\text{,where }{D}^{\text{'}}={\bigcup }_{b=1}^{B}\overline{D_b}.
 
-    -  If OOB error value per each observation is required, then calculate the prediction error for :math:`x_i`: :math:`OOB(x_i) = I\{{y}_{i}\ne \hat{{y}_{i}}\}`
+    - If OOB error value per each observation is required, then calculate the prediction error for :math:`x_i`: :math:`OOB(x_i) = I\{{y}_{i}\ne \hat{{y}_{i}}\}`
 
 -  For regression:
-    -  For each vector :math:`x_i` in the dataset :math:`X`, predict its response :math:`\hat{y_i}`
-       as the mean of prediction from the trees that contain :math:`x_i` in their OOB set:
+    - For each vector :math:`x_i` in the dataset :math:`X`, predict its response :math:`\hat{y_i}`
+      as the mean of prediction from the trees that contain :math:`x_i` in their OOB set:
 
-            :math:`\hat{y_i} = \frac{1}{{|B}_{i}|}\sum _{b=1}^{|B_i|}\hat{y_{ib}}`, where :math:`B_i= \bigcup{T_b}: x_i \in \overline{D_b}` and :math:`\hat{y_{ib}}` is the result of prediction
-            :math:`x_i` by :math:`T_b`.
+      :math:`\hat{y_i} = \frac{1}{{|B}_{i}|}\sum _{b=1}^{|B_i|}\hat{y_{ib}}`, where :math:`B_i= \bigcup{T_b}: x_i \in \overline{D_b}` and :math:`\hat{y_{ib}}` is the result of prediction
+      :math:`x_i` by :math:`T_b`.
 
-    -  Calculate the OOB error of the decision forest :math:`T` as the Mean-Square Error (MSE):
+    - Calculate the OOB error of the decision forest :math:`T` as the Mean-Square Error (MSE):
 
-        .. math::
-            OOB(T) = \frac{1}{|{D}^{\text{'}}|}\sum _{{y}_{i} \in {D}^{\text{'}}}\sum {(y_i-\hat{y_i})}^{2}, \text{where } {D}^{\text{'}}={\bigcup}_{b=1}^{B}\overline{{D}_{b}}
+      .. math::
+         OOB(T) = \frac{1}{|{D}^{\text{'}}|}\sum _{{y}_{i} \in {D}^{\text{'}}}\sum {(y_i-\hat{y_i})}^{2}, \text{where } {D}^{\text{'}}={\bigcup}_{b=1}^{B}\overline{{D}_{b}}
 
-    -  If OOB error value per each observation is required, then calculate the prediction error for :math:`x_i`:
+    - If OOB error value per each observation is required, then calculate the prediction error for :math:`x_i`:
 
-        .. math::
-            OOB(x_i) = {(y_i-\hat{y_i})}^{2}
+      .. math::
+         OOB(x_i) = {(y_i-\hat{y_i})}^{2}
 
 Variable Importance
 +++++++++++++++++++
 
 There are two main types of variable importance measures:
 
--  *Mean Decrease Impurity* importance (MDI).
+- *Mean Decrease Impurity* importance (MDI).
 
- Importance of the :math:`j`-th variable for predicting :math:`Y` is the sum of
- weighted impurity decreases :math:`p(t) \Delta i(s_t, t)` for all nodes
- :math:`t` that use :math:`x_j`, averaged over all :math:`B` trees in the
- forest:
+  Importance of the :math:`j`-th variable for predicting :math:`Y` is the sum of
+  weighted impurity decreases :math:`p(t) \Delta i(s_t, t)` for all nodes
+  :math:`t` that use :math:`x_j`, averaged over all :math:`B` trees in the
+  forest:
 
- .. math::
-	MDI\left(j\right)=\frac{1}{B}\sum _{b=1}^{B} \sum _{t\in {T}_{b}:v\left({s}_{t}\right)=j}p\left(t\right)\Delta i\left({s}_{t},t\right),
+  .. math::
+     MDI\left(j\right)=\frac{1}{B}\sum _{b=1}^{B} \sum _{t\in {T}_{b}:v\left({s}_{t}\right)=j}p\left(t\right)\Delta i\left({s}_{t},t\right),
 
- where :math:`p\left(t\right)=\frac{|{D}_{t}|}{|D|}` is the fraction of observations reaching node :math:`t`
- in the tree :math:`T_b`, and :math:`v(s_t)` is the index of the
- variable used in split :math:`s_t` .
+  where :math:`p\left(t\right)=\frac{|{D}_{t}|}{|D|}` is the fraction of observations reaching node :math:`t`
+  in the tree :math:`T_b`, and :math:`v(s_t)` is the index of the
+  variable used in split :math:`s_t` .
 
--  *Mean Decrease Accuracy* (MDA).
+- *Mean Decrease Accuracy* (MDA).
 
- Importance of the :math:`j`-th variable for predicting :math:`Y` is the average
- increase in the OOB error over all trees in the forest when the
- values of the :math:`j`-th variable are randomly permuted in the OOB
- set. For that reason, this latter measure is also known as
- *permutation importance*.
+  Importance of the :math:`j`-th variable for predicting :math:`Y` is the average
+  increase in the OOB error over all trees in the forest when the
+  values of the :math:`j`-th variable are randomly permuted in the OOB
+  set. For that reason, this latter measure is also known as
+  *permutation importance*.
 
- In more details, the library calculates MDA importance as
- follows:
+  In more details, the library calculates MDA importance as
+  follows:
 
- -  Let :math:`\pi (X,j)` be the set of feature vectors where the :math:`j`-th variable is randomly permuted over all vectors in the set.
- -  Let :math:`E_b` be the OOB error calculated for :math:`T_b:` on its out-of-bag dataset :math:`\overline{D_b}`.
- -  Let :math:`E_{b,j}` be the OOB error calculated for :math:`T_b:` using :math:`\pi \left(\overline{{X}_{b}},j\right)`, and its out-of-bag dataset :math:`\overline{D_b}` is permuted on the :math:`j`-th variable. Then
+  - Let :math:`\pi (X,j)` be the set of feature vectors where the :math:`j`-th variable is randomly permuted over all vectors in the set.
+  - Let :math:`E_b` be the OOB error calculated for :math:`T_b:` on its out-of-bag dataset :math:`\overline{D_b}`.
+  - Let :math:`E_{b,j}` be the OOB error calculated for :math:`T_b:` using :math:`\pi \left(\overline{{X}_{b}},j\right)`, and its out-of-bag dataset :math:`\overline{D_b}` is permuted on the :math:`j`-th variable. Then
 
 	* :math:`{\delta }_{b,j}={E}_{b}-{E}_{b,j}` is the OOB error increase for the tree :math:`T_b`.
 	* :math:`Raw MDA\left(j\right)=\frac{1}{B}\sum _{b=1}^{B}{\delta }_{b,j}` is MDA importance.
