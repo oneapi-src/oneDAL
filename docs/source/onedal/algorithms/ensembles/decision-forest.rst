@@ -59,9 +59,9 @@ Mathematical formulation
 Training
 --------
 Given :math:`n` feature vectors :math:`X=\{x_1=(x_{11},\ldots,x_{1p}),\ldots,x_n=(x_{n1},\ldots,x_{np})\}` of
-size :math:`p`, their non-negative observation weights :math:`W=\{w_1,\ldots,w_n\}` and :math:`n` responses :math:`Y=\{y_1,\ldots,y_n\}` (for classification, :math:`y_i \in \{0, \ldots, \mathrm{C-1}\}`, where :math:`C` is the number of classes), the problem is to build a decision forest classification or regression model.
+size :math:`p`, their non-negative observation weights :math:`W=\{w_1,\ldots,w_n\}` and :math:`n` responses :math:`Y=\{y_1,\ldots,y_n\}` (for classification, :math:`y_i \in \{0, \ldots, C-1\}`, where :math:`C` is the number of classes), the problem is to build a decision forest classification or regression model.
 
-During the training stage, :math:`\mathrm{M}` independent classification or regression trees are created using the following:
+During the training stage, :math:`M` independent classification or regression trees are created using the following:
 
 #. New training set generated from the original one by sampling uniformly and with replacement
    (bootstrapping).
@@ -86,11 +86,11 @@ reduction over all the nodes that are split on that feature (over all trees), av
 of trees.
 
 Let :math:`S=(X,Y)` be the set of observations. Given the training parameters, such as the number of trees
-in the forest (:math:`\mathrm{M}`), the fraction of observations used for the training of one tree
+in the forest (:math:`M`), the fraction of observations used for the training of one tree
 (:math:`\mathrm{observationsPerTreeFraction}`), and the number of features to try as a possible split per
 node (:math:`\mathrm{featuresPerNode}`), the algorithm does the following:
 
-#. For each tree (:math:`1, \ldots, \mathrm{M}`):
+#. For each tree (:math:`1, \ldots, M`):
 #. Generate a bootstrapped set of observations with :math:`\mathrm{observationsPerTreeFraction} * |S|`
    elements in it.
 #. Start with the tree whose depth is equal to :math:`0`.
@@ -116,14 +116,14 @@ The library supports the following termination criteria to stop growing the tree
 
 Training method: *Dense*
 ~~~~~~~~~~~~~~~~~~~~~~~~
-In "Dense" training method all possible split variants for each feature (from selected features' subset for current node) are evaluated 
+In *dense* training method all possible split variants for each feature (from selected features' subset for current node) are evaluated 
 for best split computation.
 
 .. _df_t_math_hist:
 
 Training method: *Hist*
 ~~~~~~~~~~~~~~~~~~~~~~~~
-"inexact" (also called "histogram") training method. In this method we consider only some selected subset of splits for best split computation. 
+In *hist* training method, we consider only some selected subset of splits for best split computation. 
 This subset of splits is computed for each feature on initialization stage of the algorithm. After computing subset of splits, we substitute 
 each value from initially provided data with the value of the corresponding bin. Bins are continuous intervals between selected splits.
 
@@ -133,9 +133,9 @@ each value from initially provided data with the value of the corresponding bin.
 
 Inference methods: *Dense* and *Hist*
 -------------------------------------
-"Dense" and "Hist" inference methods performs prediction by the same way:
+*Dense* and *hist* inference methods performs prediction by the same way:
 
-#. For classification, :math:`y_i \in \{0, \ldots, \mathrm{C-1}\}`, where :math:`C` is the number of classes,
+#. For classification, :math:`y_i \in \{0, \ldots, C-1\}`, where :math:`C` is the number of classes,
    the tree ensemble model predicts the output by selecting the response :math:`y`,
    which is voted for by the majority of the trees in the forest.
 
