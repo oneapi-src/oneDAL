@@ -63,9 +63,9 @@ public:
     ///
     /// @tparam Data        The type of elements in the data block that will be stored into the table.
     ///                     The table initializes data types of metadata with this data type.
-    ///                     The feature types should be set to default values for $Data$ type: contiguous for floating-point,
+    ///                     The feature types should be set to default values for :literal:`Data` type: contiguous for floating-point,
     ///                     ordinal for integer types.
-    ///                     The $Data$ type should be at least :expr:`float`, :expr:`double` or :expr:`std::int32_t`.
+    ///                     The :literal:`Data` type should be at least :expr:`float`, :expr:`double` or :expr:`std::int32_t`.
     /// @param data_pointer The pointer to a homogeneous data block.
     /// @param row_count    The number of rows in the table.
     /// @param column_count The number of columns in the table.
@@ -91,14 +91,14 @@ public:
     ///
     /// @tparam Data        The type of elements in the data block that will be stored into the table.
     ///                     The table initializes data types of metadata with this data type.
-    ///                     The feature types should be set to default values for $Data$ type: contiguous for floating-point,
+    ///                     The feature types should be set to default values for :literal:`Data` type: contiguous for floating-point,
     ///                     ordinal for integer types.
-    ///                     The $Data$ type should be at least :expr:`float`, :expr:`double` or :expr:`std::int32_t`.
+    ///                     The :literal:`Data` type should be at least :expr:`float`, :expr:`double` or :expr:`std::int32_t`.
     /// @param queue        The SYCL* queue object
     /// @param data_pointer The pointer to a homogeneous data block.
     /// @param row_count    The number of rows in the table.
     /// @param column_count The number of columns in the table.
-    /// @param dependencies Events indicating availability of the $data$ for reading or writing.
+    /// @param dependencies Events indicating availability of the :literal:`Data` for reading or writing.
     /// @param layout       The layout of the data. Should be ``data_layout::row_major`` or
     ///                     ``data_layout::column_major``.
     template <typename Data>
@@ -137,7 +137,7 @@ public:
     /// The :expr:`data` should point to the ``data_pointer`` memory block.
     ///
     /// @tparam Data         The type of elements in the data block that will be stored into the table.
-    ///                      The $Data$ type should be at least :expr:`float`, :expr:`double` or :expr:`std::int32_t`.
+    ///                      The :literal:`Data` type should be at least :expr:`float`, :expr:`double` or :expr:`std::int32_t`.
     /// @tparam ConstDeleter The type of a deleter called on ``data_pointer`` when
     ///                      the last table that refers it is out of the scope.
     ///
@@ -168,7 +168,7 @@ public:
     /// The :expr:`data` should point to the ``data_pointer`` memory block.
     ///
     /// @tparam Data         The type of elements in the data block that will be stored into the table.
-    ///                      The $Data$ type should be at least :expr:`float`, :expr:`double` or :expr:`std::int32_t`.
+    ///                      The :literal:`Data` type should be at least :expr:`float`, :expr:`double` or :expr:`std::int32_t`.
     /// @tparam ConstDeleter The type of a deleter called on ``data_pointer`` when
     ///                      the last table that refers it is out of the scope.
     ///
@@ -178,7 +178,7 @@ public:
     /// @param column_count  The number of columns in the table.
     /// @param data_deleter  The deleter that is called on the ``data_pointer`` when the last table that refers it
     ///                      is out of the scope.
-    /// @param dependencies  Events indicating availability of the $data$ for reading or writing.
+    /// @param dependencies  Events indicating availability of the :literal:`Data` for reading or writing.
     /// @param layout        The layout of the data. Should be ``data_layout::row_major`` or
     ///                     ``data_layout::column_major``.
     template <typename Data, typename ConstDeleter>
@@ -199,7 +199,7 @@ public:
     }
 #endif
 
-    /// Returns the :expr:`data` pointer cast to the $Data$ type. No checks are
+    /// Returns the :expr:`data` pointer cast to the :literal:`Data` type. No checks are
     /// performed that this type is the actual type of the data within the table.
     template <typename Data>
     const Data* get_data() const {

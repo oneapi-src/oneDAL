@@ -58,7 +58,7 @@ public:
         return *this;
     }
 
-    /// The trained $k$-NN model
+    /// The trained k-NN model
     /// @remark default = model<Task>{}
     const model<Task>& get_model() const;
 

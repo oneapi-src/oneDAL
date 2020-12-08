@@ -49,7 +49,7 @@ public:
     /// and :literal:`labels` property values
     train_input(const table& data, const table& labels);
 
-    /// The training set $X$
+    /// The training set X
     /// @remark default = table{}
     const table& get_data() const;
 
@@ -58,7 +58,7 @@ public:
         return *this;
     }
 
-    /// Vector of labels $y$ for the training set $X$
+    /// Vector of labels y for the training set X
     /// @remark default = table{}
     const table& get_labels() const;
 
@@ -87,7 +87,7 @@ public:
     /// Creates a new instance of the class with the default property values.
     train_result();
 
-    /// The trained $k$-NN model
+    /// The trained k-NN model
     /// @remark default = model<Task>{}
     const model<Task>& get_model() const;
 

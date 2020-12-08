@@ -24,7 +24,7 @@ namespace v1 {
 
 /// @tparam T The type of data values in blocks returned by the accessor.
 ///              Should be const-qualified for read-only access.
-///              An accessor supports at least :expr:`float`, :expr:`double`, and :expr:`std::int32_t` types of $T$.
+///              An accessor supports at least :expr:`float`, :expr:`double`, and :expr:`std::int32_t` types of :literal:`T`.
 template <typename T>
 class column_accessor : private detail::accessor_base<T, detail::column_values_block> {
     using base = detail::accessor_base<T, detail::column_values_block>;
@@ -35,8 +35,8 @@ public:
 
 public:
     /// Creates a new read-only accessor object from the table.
-    /// The check that the accessor supports the table kind of $obj$ is performed.
-    /// The reference to the $obj$ table is stored within the accessor to
+    /// The check that the accessor supports the table kind of :literal:`obj` is performed.
+    /// The reference to the :literal:`obj` table is stored within the accessor to
     /// obtain data from the table.
     template <
         typename K,
@@ -61,7 +61,7 @@ public:
     ///
     /// @param[in] queue        The SYCL* queue object.
     /// @param[in] column_index The index of the column from which the data is returned by the accessor.
-    /// @param[in] rows         The range of rows that should be read in the $column_index$ block.
+    /// @param[in] rows         The range of rows that should be read in the :literal:`column_index` block.
     /// @param[in] alloc        The requested kind of USM in the returned block.
     ///
     /// @pre ``rows`` are within the range of ``[0, obj.row_count)``.
@@ -95,7 +95,7 @@ public:
     ///                         If the block is reset to use a direct memory pointer from the object,
     ///                         it refers to this pointer as to immutable memory block.
     /// @param[in] column_index The index of the column from which the data is returned by the accessor.
-    /// @param[in] rows         The range of rows that should be read in the $column_index$ block.
+    /// @param[in] rows         The range of rows that should be read in the :literal:`column_index` block.
     /// @param[in] alloc        The requested kind of USM in the returned block.
     ///
     /// @pre ``rows`` are within the range of ``[0, obj.row_count)``.

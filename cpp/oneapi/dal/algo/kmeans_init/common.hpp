@@ -86,7 +86,7 @@ public:
 
     descriptor_base();
 
-    /// The number of clusters $k$
+    /// The number of clusters k
     /// @invariant :expr:`cluster_count > 0`
     /// @remark default = 2
     std::int64_t get_cluster_count() const;

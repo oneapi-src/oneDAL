@@ -24,7 +24,7 @@ namespace v1 {
 
 /// @tparam T The type of data values in blocks returned by the accessor.
 ///           Should be const-qualified for read-only access.
-///           An accessor supports at least :expr:`float`, :expr:`double`, and :expr:`std::int32_t` types of $T$.
+///           An accessor supports at least :expr:`float`, :expr:`double`, and :expr:`std::int32_t` types of :literal:`T`.
 template <typename T>
 class row_accessor : private detail::accessor_base<T, detail::row_block> {
     using base = detail::accessor_base<T, detail::row_block>;
@@ -34,8 +34,8 @@ public:
     static constexpr bool is_readonly = base::is_readonly;
 
     /// Creates a new read-only accessor object from the table.
-    /// The check that the accessor supports the table kind of $obj$ is performed.
-    /// The reference to the $obj$ table is stored within the accessor to
+    /// The check that the accessor supports the table kind of :literal:`obj` is performed.
+    /// The reference to the :literal:`obj` table is stored within the accessor to
     /// obtain data from the table.
     template <
         typename K,

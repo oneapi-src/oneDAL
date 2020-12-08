@@ -87,11 +87,11 @@ public:
 
     descriptor_base();
 
-    /// The number of classes $c$
+    /// The number of classes c
     /// @invariant :expr:`class_count > 1`
     std::int64_t get_class_count() const;
 
-    /// The number of neighbors $k$
+    /// The number of neighbors k
     /// @invariant :expr:`neighbor_count > 0`
     std::int64_t get_neighbor_count() const;
 

@@ -94,7 +94,7 @@ public:
     }
 
     /// A $1 \\times r$ table that contains the eigenvalues for for the first
-    /// $r$ features.
+    /// :literal:`r` features.
     /// @remark default = table{}
     const table& get_eigenvalues() const;
 
@@ -103,7 +103,7 @@ public:
         return *this;
     }
 
-    /// A $1 \\times r$ table that contains the variances for the first $r$
+    /// A $1 \\times r$ table that contains the variances for the first :literal:`r`
     /// features.
     /// @remark default = table{}
     const table& get_variances() const;
@@ -113,7 +113,7 @@ public:
         return *this;
     }
 
-    /// A $1 \\times r$ table that contains the mean values for the first $r$
+    /// A $1 \\times r$ table that contains the mean values for the first :literal:`r`
     /// features.
     /// @remark default = table{}
     const table& get_means() const;

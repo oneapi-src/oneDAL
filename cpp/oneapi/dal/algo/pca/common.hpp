@@ -87,7 +87,7 @@ public:
 
     descriptor_base();
 
-    /// The number of principal components $r$. If it is zero, the algorithm
+    /// The number of principal components :literal:`r`. If it is zero, the algorithm
     /// computes the eigenvectors for all features, $r = p$.
     /// @remark default = 0
     /// @invariant :expr:`component_count >= 0`

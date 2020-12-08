@@ -83,12 +83,12 @@ public:
 
     descriptor_base();
 
-    /// The number of clusters $k$
+    /// The number of clusters k
     /// @invariant :expr:`cluster_count > 0`
     /// @remark default = 2
     std::int64_t get_cluster_count() const;
 
-    /// The maximum number of iterations $T$
+    /// The maximum number of iterations :literal:`T`
     /// @invariant :expr:`max_iteration_count >= 0`
     /// @remark default = 100
     std::int64_t get_max_iteration_count() const;
@@ -188,7 +188,7 @@ public:
         return *this;
     }
 
-    /// Number of clusters $k$ in the trained model.
+    /// Number of clusters k in the trained model.
     /// @invariant :expr:`cluster_count == centroids.row_count`
     /// @remark default = 0
     std::int64_t get_cluster_count() const;

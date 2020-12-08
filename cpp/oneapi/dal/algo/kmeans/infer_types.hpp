@@ -97,7 +97,7 @@ public:
         return *this;
     }
 
-    /// The value of the objective function $\\Phi_X(C)$, where $C$ is
+    /// The value of the objective function $\\Phi_X(C)$, where C is
     /// defined by the corresponding :expr:`infer_input::model::centroids`.
     /// @invariant :expr:`objective_function_value >= 0.0`
     /// @remark default = 0.0
