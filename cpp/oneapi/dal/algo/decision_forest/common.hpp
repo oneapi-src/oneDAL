@@ -187,7 +187,7 @@ template <typename Task>
 constexpr bool is_valid_task_v =
     dal::detail::is_one_of_v<Task, task::classification, task::regression>;
 
-/// @tparam Task   Tag-type that specifies type of the problem to solve. Can
+/// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
 ///                be :expr:`task::classification` or :expr:`task::regression`.
 template <typename Task = task::by_default>
 class descriptor_base : public base {
