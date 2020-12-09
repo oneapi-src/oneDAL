@@ -24,7 +24,7 @@ namespace oneapi::dal::linear_kernel {
 namespace task {
 namespace v1 {
 
-/// Tag-type that parameterizes entities used for compute of statisticics, distance, etc.
+/// Tag-type that parameterizes entities that are used to compute statistics, distance, and so on.
 struct compute {};
 /// Alias tag-type for the compute task.
 using by_default = compute;

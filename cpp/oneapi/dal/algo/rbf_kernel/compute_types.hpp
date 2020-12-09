@@ -36,7 +36,7 @@ using v1::compute_result_impl;
 
 namespace v1 {
 
-/// @tparam Task Tag-type that specifies type of the problem to solve. Can
+/// @tparam Task Tag-type that specifies the type of the problem to solve. Can
 ///              be :expr:`task::compute`.
 template <typename Task = task::by_default>
 class compute_input : public base {
@@ -76,7 +76,7 @@ private:
     dal::detail::pimpl<detail::compute_input_impl<Task>> impl_;
 };
 
-/// @tparam Task Tag-type that specifies type of the problem to solve. Can
+/// @tparam Task Tag-type that specifies the type of the problem to solve. Can
 ///              be :expr:`task::compute`.
 template <typename Task = task::by_default>
 class compute_result : public base {

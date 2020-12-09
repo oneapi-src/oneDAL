@@ -36,7 +36,7 @@ using v1::train_result_impl;
 
 namespace v1 {
 
-/// @tparam Task   Tag-type that specifies type of the problem to solve. Can
+/// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
 ///                be :expr:`task::classification`.
 template <typename Task = task::by_default>
 class train_input : public base {
@@ -58,7 +58,7 @@ public:
         return *this;
     }
 
-    /// Vector of labels $y$ for the training set $X$
+    /// The vector of labels $y$ for the training set $X$
     /// @remark default = table{}
     const table& get_labels() const;
 
@@ -67,7 +67,7 @@ public:
         return *this;
     }
 
-    /// Vector of weights $w$ for the training set $X$
+    /// The vector of weights $w$ for the training set $X$
     /// @remark default = table{}
     const table& get_weights() const;
 
@@ -85,7 +85,7 @@ private:
     dal::detail::pimpl<detail::train_input_impl<Task>> impl_;
 };
 
-/// @tparam Task Tag-type that specifies type of the problem to solve. Can
+/// @tparam Task Tag-type that specifies the type of the problem to solve. Can
 ///              be :expr:`task::classification`.
 template <typename Task = task::by_default>
 class train_result : public base {
@@ -110,8 +110,8 @@ public:
         return *this;
     }
 
-    /// A $nsv \\times p$ table containing support vectors.
-    /// Where $nsv$ - number of support vectors.
+    /// A $nsv \\times p$ table containing support vectors,
+    /// where $nsv$ is the number of support vectors.
     /// @remark default = table{}
     const table& get_support_vectors() const;
 

@@ -25,7 +25,7 @@ namespace oneapi::dal::svm {
 namespace task {
 namespace v1 {
 
-/// Tag-type that parameterizes entities used for solving
+/// Tag-type that parameterizes entities that are used for solving
 /// :capterm:`classification problem <classification>`.
 struct classification {};
 
@@ -45,7 +45,7 @@ namespace v1 {
 /// method.
 struct thunder {};
 
-/// Tag-type that denotes `Smo <svm_t_math_smo>`_ computational
+/// Tag-type that denotes `SMO <svm_t_math_smo>`_ computational
 /// method.
 struct smo {};
 
@@ -97,7 +97,7 @@ public:
     using task_t = Task;
     using kernel_t = linear_kernel::descriptor<float_t>;
 
-    /// The upper bound in conditions of the quadratic optimization problem. $C$
+    /// The upper bound in constraints of the quadratic optimization problem. $C$
     /// @invariant :expr:`c > 0`
     /// @remark default = 1.0
     double get_c() const;
@@ -122,7 +122,7 @@ public:
     /// @remark default = 1e-6
     double get_tau() const;
 
-    /// A flag that enables use of a shrinking optimization technique. Used with :expr:`method::thunder` split finding method only.
+    /// A flag that enables the use of a shrinking optimization technique. Used with :expr:`method::thunder` split-finding method only.
     /// @remark default = True
     bool get_shrinking() const;
 
@@ -282,7 +282,7 @@ public:
         return *this;
     }
 
-    /// The first unique value of class from labels
+    /// The first unique value in class labels
     /// @remark default = 0
     std::int64_t get_first_class_label() const;
 
@@ -291,7 +291,7 @@ public:
         return *this;
     }
 
-    /// The second unique value of class from labels
+    /// The second unique value in class labels
     /// @remark default = 0
     std::int64_t get_second_class_label() const;
 

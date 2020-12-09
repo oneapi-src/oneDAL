@@ -22,19 +22,19 @@
 Support Vector Machine Classifier (SVM)
 =======================================
 
-Support Vector Machine (SVM) :capterm:`classification`  is among popular classification
+Support Vector Machine (SVM) :capterm:`classification` is among popular classification
 algorithms. It belongs to a family of generalized linear classification problems.
 
 
 .. |t_math| replace::    `Training <svm_t_math_>`_
 .. |t_thunder| replace:: `Thunder <svm_t_math_thunder_>`_
-.. |t_smo| replace::     `Smo <svm_t_math_smo_>`_
+.. |t_smo| replace::     `SMO <svm_t_math_smo_>`_
 .. |t_input| replace::   `train_input <svm_t_api_input_>`_
 .. |t_result| replace::  `train_result <svm_t_api_result_>`_
 .. |t_op| replace::      `train(...) <svm_t_api_>`_
 
 .. |i_math| replace::    `Inference <svm_i_math_>`_
-.. |i_smo| replace::     `Smo <svm_i_math_smo_>`_
+.. |i_smo| replace::     `SMO <svm_i_math_smo_>`_
 .. |i_thunder| replace:: `Thunder <svm_i_math_thunder_>`_
 .. |i_input| replace::   `infer_input <svm_i_api_input_>`_
 .. |i_result| replace::  `infer_result <svm_i_api_result_>`_
@@ -86,7 +86,7 @@ The scheme can be optimized using one of these techniques or both:
          related computations (see [Joachims99]_).
 
 The solution of the problem defines the separating hyperplane and
-corresponding decision function :math:`D(x)= \sum_{k} {y_k \alpha_k K(x_k, x)} + b` 
+corresponding decision function :math:`D(x)= \sum_{k} {y_k \alpha_k K(x_k, x)} + b`,
 where only those :math:`x_k` that correspond to non-zero :math:`\alpha_k` appear in the sum,
 and :math:`b` is a bias. Each non-zero :math:`\alpha_k` is called a classification
 coefficient and the corresponding :math:`x_k` is called a support vector.
@@ -95,7 +95,7 @@ coefficient and the corresponding :math:`x_k` is called a support vector.
 
 Training method: *smo*
 ~~~~~~~~~~~~~~~~~~~~~~
-In *smo* training method, the all vectors from training dataset is used for each iteration.
+In *smo* training method, all vectors from the training dataset are used for each iteration.
 
 .. _svm_t_math_thunder:
 
@@ -112,20 +112,20 @@ The description of this method is given in Algorithm [Wen2018]_.
 
 Inference methods: *smo* and *thunder*
 --------------------------------------
-*smo* and *thunder* inference methods performs prediction by the same way:
+*smo* and *thunder* inference methods perform prediction in the same way:
 
 Given the SVM classifier and :math:`r` feature vectors :math:`x_1, \ldots, x_r`, 
 the problem is to calculate the signed value of the
 decision function :math:`D(x_i)`, :math:`i=1, \ldots, r`. The sign of the
 value defines the class of the feature vector, and the absolute
 value of the function is a multiple of the distance between the
-feature vector and separating hyperplane.
+feature vector and the separating hyperplane.
 
 ---------------------
 Programming Interface
 ---------------------
-All types and functions in this section shall be declared in the
-``oneapi::dal::svm`` namespace and be available via inclusion of the
+All types and functions in this section are declared in the
+``oneapi::dal::svm`` namespace and are available via inclusion of the
 ``oneapi/dal/algo/svm.hpp`` header file.
                    
 Descriptor
@@ -164,7 +164,17 @@ Result
 
 Operation
 ~~~~~~~~~
-.. onedal_func:: oneapi::dal::v1::train
+.. function:: template <typename Descriptor> \
+              svm::train_result train(const Descriptor& desc, \
+                                      const svm::train_input& input)
+
+   :tparam Descriptor: SVM algorithm descriptor :expr:`svm::desc`.
+
+   Preconditions
+      | :expr:`input.data.is_empty == false`
+      | :expr:`input.labels.is_empty == false`
+      | :expr:`input.labels.column_count == 1`
+      | :expr:`input.data.row_count == input.labels.row_count`
 
 .. _svm_i_api:
 
@@ -186,3 +196,11 @@ Result
 Operation
 ~~~~~~~~~
 .. onedal_func:: oneapi::dal::v1::infer
+.. function:: template <typename Descriptor> \
+              svm::infer_result infer(const Descriptor& desc, \
+                                      const svm::infer_input& input)
+
+   :tparam Descriptor: SVM algorithm descriptor :expr:`svm::desc`.
+
+   Preconditions
+      | :expr:`input.data.is_empty == false`

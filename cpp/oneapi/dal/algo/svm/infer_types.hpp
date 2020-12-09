@@ -49,7 +49,7 @@ public:
     /// and :literal:`data` property values
     infer_input(const model<Task>& trained_model, const table& data);
 
-    /// The trained Decision Forest model
+    /// The trained SVM model
     /// @remark default = model<Task>{}
     const model<Task>& get_model() const;
 
