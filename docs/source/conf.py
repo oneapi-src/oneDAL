@@ -249,7 +249,7 @@ nitpick_ignore = [
     ('cpp:identifier', 'table_metadata'),
     ('cpp:identifier', 'mutable_data'),
     ('cpp:identifier', 'data'),
-    ('cpp:identifier', 'count'),    
+    ('cpp:identifier', 'count'),
     # array
     ('cpp:identifier', 'array'),
     ('cpp:identifier', 'T'),
