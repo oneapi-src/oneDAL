@@ -259,8 +259,8 @@ public:
     /// @remark default = False
     bool get_memory_saving_mode() const;
 
-    /// The bootstrap mode, if True, the training set for a tree is a bootstrap of the whole training set, if False, the whole dataset is used to build each tree.
-    /// @remark default = True
+    /// The bootstrap mode, if true, the training set for a tree is a bootstrap of the whole training set, if False, the whole dataset is used to build each tree.
+    /// @remark default = true
     bool get_bootstrap() const;
 
     /// The error metric mode

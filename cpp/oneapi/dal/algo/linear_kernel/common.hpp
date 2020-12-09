@@ -110,9 +110,9 @@ namespace v1 {
 ///                intermediate computations. Can be :expr:`float` or
 ///                :expr:`double`.
 /// @tparam Method Tag-type that specifies an implementation of algorithm. Can
-///                be :expr:`method::dense`.
+///                be :expr:`method::v1::dense`.
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::compute`.
+///                be :expr:`task::v1::compute`.
 template <typename Float = detail::descriptor_base<>::float_t,
           typename Method = detail::descriptor_base<>::method_t,
           typename Task = detail::descriptor_base<>::task_t>

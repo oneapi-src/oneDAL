@@ -159,9 +159,11 @@ nitpick_ignore = [
     ('cpp:identifier', 'detail::is_table_impl_v<ImplType>'),
     ('cpp:identifier', 'detail::is_homogen_table_impl_v<ImplType>'),
     ('cpp:identifier', 'detail::enable_if_classification_t<T>'),
+    ('cpp:identifier', 'detail::descriptor_base<>::kernel_t'),
     # data types
     ('cpp:identifier', 'int64_t'),
     ('cpp:identifier', 'data_t'),
+    ('cpp:identifier', 'kernel_t'),
     # knn
     ('cpp:identifier', 'knn'),
     ('cpp:identifier', 'knn::desc'),
@@ -204,12 +206,15 @@ nitpick_ignore = [
     ('cpp:identifier', 'svm::train_input'),
     ('cpp:identifier', 'svm::infer_result'),
     ('cpp:identifier', 'svm::infer_input'),
+    ('cpp:identifier', 'Kernel'),
     # linear kernel
     ('cpp:identifier', 'linear_kernel'),
+    ('cpp:identifier', 'linear_kernel::desc'),
     ('cpp:identifier', 'linear_kernel::compute_result'),
     ('cpp:identifier', 'linear_kernel::compute_input'),
     # rbf kernel
     ('cpp:identifier', 'rbf_kernel'),
+    ('cpp:identifier', 'rbf_kernel::desc'),
     ('cpp:identifier', 'rbf_kernel::compute_result'),
     ('cpp:identifier', 'rbf_kernel::compute_input'),
     # decision forest
@@ -268,5 +273,8 @@ nitpick_ignore = [
     ('cpp:identifier', 'oneapi::dal::kmeans::task::v1'),
     ('cpp:identifier', 'oneapi::dal::decision_forest'),
     ('cpp:identifier', 'oneapi::dal::decision_forest::task'),
-    ('cpp:identifier', 'oneapi::dal::decision_forest::task::v1')
+    ('cpp:identifier', 'oneapi::dal::decision_forest::task::v1'),
+    ('cpp:identifier', 'oneapi::dal::svm'),
+    ('cpp:identifier', 'oneapi::dal::svm::method'),
+    ('cpp:identifier', 'oneapi::dal::svm::method::v1'),
     ]

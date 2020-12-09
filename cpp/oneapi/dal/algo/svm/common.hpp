@@ -122,8 +122,8 @@ public:
     /// @remark default = 1e-6
     double get_tau() const;
 
-    /// A flag that enables the use of a shrinking optimization technique. Used with :expr:`method::thunder` split-finding method only.
-    /// @remark default = True
+    /// A flag that enables the use of a shrinking optimization technique. Used with :expr:`oneapi::dal::svm::method::v1::thunder` split-finding method only.
+    /// @remark default = true
     bool get_shrinking() const;
 
 protected:
@@ -163,9 +163,9 @@ namespace v1 {
 ///                intermediate computations. Can be :expr:`float` or
 ///                :expr:`double`.
 /// @tparam Method Tag-type that specifies an implementation of algorithm. Can
-///                be :expr:`method::thunder` or :expr:`method::smo`.
+///                be :expr:`method::v1::thunder` or :expr:`method::v1::smo`.
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::classification`.
+///                be :expr:`task::v1::classification`.
 template <typename Float = detail::descriptor_base<>::float_t,
           typename Method = detail::descriptor_base<>::method_t,
           typename Task = detail::descriptor_base<>::task_t,
@@ -191,8 +191,8 @@ public:
     explicit descriptor(const Kernel& kernel = kernel_t{})
             : base_t(std::make_shared<detail::kernel_function<Kernel>>(kernel)) {}
 
-    /// The descriptor of kernel function `K(x,y)`. Can be :expr:`linear_kernel::descriptor` or
-    /// :expr:`rbf_kernel::descriptor`.
+    /// The descriptor of kernel function `K(x,y)`. Can be :expr:`linear_kernel::desc` or
+    /// :expr:`rbf_kernel::desc`.
     /// @remark default = :literal:`kernel`
     const Kernel& get_kernel() const {
         using kf_t = detail::kernel_function<Kernel>;
@@ -237,7 +237,7 @@ public:
 };
 
 /// @tparam Task Tag-type that specifies the type of the problem to solve. Can
-///              be :expr:`task::classification`.
+///              be :expr:`task::v1::classification`.
 template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);
