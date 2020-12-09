@@ -24,8 +24,15 @@ namespace oneapi::dal::decision_forest {
 
 namespace task {
 namespace v1 {
+/// Tag-type that parameterizes entities used for solving
+/// :capterm:`classification problem <classification>`.
 struct classification {};
+
+/// Tag-type that parameterizes entities used for solving
+/// :capterm:`regression problem <regression>`.
 struct regression {};
+
+/// Alias tag-type for classification task.
 using by_default = classification;
 } // namespace v1
 
@@ -37,8 +44,16 @@ using v1::by_default;
 
 namespace method {
 namespace v1 {
+/// Tag-type that denotes `dense <df_t_math_dense_>`_ computational
+/// method.
 struct dense {};
+
+/// Tag-type that denotes `hist <df_t_math_hist_>`_ computational
+/// method.
 struct hist {};
+
+/// Alias tag-type for `dense <df_t_math_dense>`_ computational
+/// method.
 using by_default = dense;
 } // namespace v1
 
@@ -50,33 +65,52 @@ using v1::by_default;
 
 namespace v1 {
 
+/// Available identifiers to specify the variable importance mode
 enum class variable_importance_mode {
-    none, /* Do not compute */
-    mdi, /* Mean Decrease Impurity.
-                       Computed as the sum of weighted impurity decreases for all nodes where the variable is used,
-                       averaged over all trees in the forest */
-    mda_raw, /* Mean Decrease Accuracy (permutation importance).
-                       For each tree, the prediction error on the out-of-bag portion of the data is computed
-                       (error rate for classification, MSE for regression).
-                       The same is done after permuting each predictor variable.
-                       The difference between the two are then averaged over all trees. */
-    mda_scaled /* Mean Decrease Accuracy (permutation importance).
-                       This is MDA_Raw value scaled by its standard deviation. */
+    /// Do not compute variable importance
+    none,
+
+    /// Mean Decrease Impurity.
+    /// Computed as the sum of weighted impurity decreases for all nodes where the variable is used,
+    /// averaged over all trees in the forest
+    mdi,
+    /// Mean Decrease Accuracy (permutation importance).
+    /// For each tree, the prediction error on the out-of-bag portion of the data is computed
+    /// (error rate for classification, MSE for regression).
+    /// The same is done after permuting each predictor variable.
+    /// The difference between the two are then averaged over all trees.
+    mda_raw,
+
+    /// Mean Decrease Accuracy (permutation importance).
+    /// This is MDA_Raw value scaled by its standard deviation.
+    mda_scaled
 };
 
+/// Available identifiers to specify the error metric mode
 enum class error_metric_mode : std::uint64_t {
+    /// Do not compute error metric
     none = 0x00000000ULL,
+    /// Train produces $1 \\times 1$ table with cumulative prediction error for out of bag observations
     out_of_bag_error = 0x00000001ULL,
+    /// Train produces $n \\times 1$ table with prediction error for out-of-bag observations
     out_of_bag_error_per_observation = 0x00000002ULL
 };
 
+/// Available identifiers to specify the infer mode
 enum class infer_mode : std::uint64_t {
-    class_labels = 0x00000001ULL, /*!< Numeric table of size n x 1 with the predicted labels >*/
-    class_probabilities =
-        0x00000002ULL /*!< Numeric table of size n x p with the predicted class probabilities for each observation >*/
+    /// Infer produces a $n \\times 1$  table with the predicted labels
+    class_labels = 0x00000001ULL,
+    /// Infer produces $n \\times c$ table with the predicted class probabilities for each observation
+    class_probabilities = 0x00000002ULL
 };
 
-enum class voting_mode { weighted, unweighted };
+/// Available voting modes for averaging trees predictions
+enum class voting_mode {
+    /// The final prediction is combined through a weighted majority voting
+    weighted,
+    /// The final prediction is combined through a simple majority voting
+    unweighted
+};
 
 inline infer_mode operator|(infer_mode value_left, infer_mode value_right) {
     return bitwise_or(value_left, value_right);
@@ -145,6 +179,8 @@ template <typename Task>
 constexpr bool is_valid_task_v =
     dal::detail::is_one_of_v<Task, task::classification, task::regression>;
 
+/// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
+///                be :expr:`task::classification` or :expr:`task::regression`.
 template <typename Task = task::by_default>
 class descriptor_base : public base {
     static_assert(is_valid_task_v<Task>);
@@ -156,39 +192,100 @@ public:
     using method_t = method::by_default;
     using task_t = Task;
 
+    /// Creates a new instance of the class with the default property values.
     descriptor_base();
 
+    /// The fraction of observations per tree
+    /// @invariant :expr:`observations_per_tree_fraction > 0.0`
+    /// @invariant :expr:`observations_per_tree_fraction <= 1.0`
+    /// @remark default = 1.0
     double get_observations_per_tree_fraction() const;
+
+    /// The impurity threshold, a node will be split if this split induces a decrease of the impurity greater than or equal to the input value
+    /// @invariant :expr:`impurity_threshold >= 0.0`
+    /// @remark default = 0.0
     double get_impurity_threshold() const;
+
+    /// The min weight fraction in a leaf node. The minimum weighted fraction of the total sum of weights (of all input observations)
+    /// required to be at a leaf node
+    /// @invariant :expr:`min_weight_fraction_in_leaf_node >= 0.0`
+    /// @invariant :expr:`min_weight_fraction_in_leaf_node <= 0.5`
+    /// @remark default = 0.0
     double get_min_weight_fraction_in_leaf_node() const;
+
+    /// The min impurity decrease in a split node is a threshold for stopping the tree growth early. A node will be split if its impurity is above the threshold, otherwise it is a leaf.
+    /// @invariant :expr:`min_impurity_decrease_in_split_node >= 0.0`
+    /// @remark default = 0.0
     double get_min_impurity_decrease_in_split_node() const;
 
+    /// The number of trees in the forest.
+    /// @invariant :expr:`tree_count > 0`
+    /// @remark default = 100
     std::int64_t get_tree_count() const;
+
+    /// The number of features to consider when looking for the best split for a node.
+    /// @remark default = task::classification ? sqrt(p) : p/3, where p is the total number of features
     std::int64_t get_features_per_node() const;
+
+    /// The maximal depth of the tree. If 0, then nodes are expanded until all leaves are pure or until all leaves contain less or equal to min observations in leaf node samples.
+    /// @remark default = 0
     std::int64_t get_max_tree_depth() const;
+
+    /// The minimal number of observations in a leaf node.
+    /// @invariant :expr:`min_observations_in_leaf_node > 0`
+    /// @remark default = task::classification ? 1 : 5
     std::int64_t get_min_observations_in_leaf_node() const;
+
+    /// The minimal number of observations in a split node.
+    /// @invariant :expr:`min_observations_in_split_node > 1`
+    /// @remark default = 2
     std::int64_t get_min_observations_in_split_node() const;
+
+    /// The maximal number of the leaf nodes. If 0, the number of leaf nodes is not limited.
+    /// @remark default = 0
     std::int64_t get_max_leaf_nodes() const;
+
+    /// The maximal number of discrete bins to bucket continuous features. Used with :expr:`method::hist` split-finding method only. Increasing the number results in higher computation costs.
+    /// @invariant :expr:`max_bins > 1`
+    /// @remark default = 256
     std::int64_t get_max_bins() const;
+
+    /// The minimal number of observations in a bin. Used with :expr:`method::hist` split-finding method only.
+    /// @invariant :expr:`min_bin_size > 0`
+    /// @remark default = 5
     std::int64_t get_min_bin_size() const;
 
+    /// The memory saving mode.
+    /// @remark default = False
     bool get_memory_saving_mode() const;
+
+    /// The bootstrap mode, if True, the training set for a tree is a bootstrap of the whole training set, if False, the whole dataset is used to build each tree.
+    /// @remark default = True
     bool get_bootstrap() const;
 
+    /// The error metric mode
+    /// @remark default = error_metric_mode::none
     error_metric_mode get_error_metric_mode() const;
+
+    /// The variable importance mode
+    /// @remark default = variable_importance_mode::none
     variable_importance_mode get_variable_importance_mode() const;
 
     template <typename T = Task, typename = enable_if_classification_t<T>>
+    /// The class count. Used with :expr:`task::classification` only.
+    /// @remark default = 2
     std::int64_t get_class_count() const {
         return get_class_count_impl();
     }
 
     template <typename T = Task, typename = enable_if_classification_t<T>>
+    /// The infer mode. Used with :expr:`task::classification` only.
     infer_mode get_infer_mode() const {
         return get_infer_mode_impl();
     }
 
     template <typename T = Task, typename = enable_if_classification_t<T>>
+    /// The voting mode. Used with :expr:`task::classification` only.
     voting_mode get_voting_mode() const {
         return get_voting_mode_impl();
     }
@@ -241,7 +338,13 @@ using v1::is_valid_task_v;
 } // namespace detail
 
 namespace v1 {
-
+/// @tparam Float  The floating-point type that the algorithm uses for
+///                intermediate computations. Can be :expr:`float` or
+///                :expr:`double`.
+/// @tparam Method Tag-type that specifies an implementation of algorithm. Can
+///                be :expr:`method::dense` or :expr:`method::hist`.
+/// @tparam Task   Tag-type that specifies type of the problem to solve. Can
+///                be :expr:`task::classification` or :expr:`task::regression`.
 template <typename Float = detail::descriptor_base<>::float_t,
           typename Method = detail::descriptor_base<>::method_t,
           typename Task = detail::descriptor_base<>::task_t>
@@ -356,6 +459,8 @@ public:
     }
 };
 
+/// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
+///                be :expr:`task::classification` or :expr:`task::regression`.
 template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -364,11 +469,17 @@ class model : public base {
 public:
     using task_t = Task;
 
+    /// Creates a new instance of the class with the default property values.
     model();
 
+    /// The number of trees in the forest.
+    /// @invariant :expr:`tree_count > 0`
+    /// @remark default = 100
     std::int64_t get_tree_count() const;
 
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+    /// The class count. Used with :expr:`task::classification` only.
+    /// @remark default = 2
     std::int64_t get_class_count() const {
         return get_class_count_impl();
     }
