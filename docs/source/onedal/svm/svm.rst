@@ -195,7 +195,6 @@ Result
 
 Operation
 ~~~~~~~~~
-.. onedal_func:: oneapi::dal::v1::infer
 .. function:: template <typename Descriptor> \
               svm::infer_result infer(const Descriptor& desc, \
                                       const svm::infer_input& input)
