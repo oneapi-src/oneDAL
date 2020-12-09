@@ -121,6 +121,12 @@ value defines the class of the feature vector, and the absolute
 value of the function is a multiple of the distance between the
 feature vector and the separating hyperplane.
 
+--------
+Examples
+--------
+
+.. include:: ./includes/svm-examples.rst
+
 ---------------------
 Programming Interface
 ---------------------
