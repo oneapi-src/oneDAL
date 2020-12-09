@@ -36,6 +36,8 @@ using v1::infer_result_impl;
 
 namespace v1 {
 
+/// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
+///                be :expr:`task::classification`.
 template <typename Task = task::by_default>
 class infer_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -43,8 +45,12 @@ class infer_input : public base {
 public:
     using task_t = Task;
 
+    /// Creates a new instance of the class with the given :literal:`model`
+    /// and :literal:`data` property values
     infer_input(const model<Task>& trained_model, const table& data);
 
+    /// The trained SVM model
+    /// @remark default = model<Task>{}
     const model<Task>& get_model() const;
 
     auto& set_model(const model<Task>& value) {
@@ -52,6 +58,8 @@ public:
         return *this;
     }
 
+    /// The dataset for inference $X'$
+    /// @remark default = table{}
     const table& get_data() const;
 
     auto& set_data(const table& value) {
@@ -67,6 +75,8 @@ private:
     dal::detail::pimpl<detail::infer_input_impl<Task>> impl_;
 };
 
+/// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
+///                be :expr:`task::classification`.
 template <typename Task = task::by_default>
 class infer_result : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -74,8 +84,11 @@ class infer_result : public base {
 public:
     using task_t = Task;
 
+    /// Creates a new instance of the class with the default property values.
     infer_result();
 
+    /// The $n \\times 1$ table with the predicted labels
+    /// @remark default = table{}
     const table& get_labels() const;
 
     auto& set_labels(const table& value) {
@@ -83,6 +96,9 @@ public:
         return *this;
     }
 
+    /// The $n \\times 1$ table with the predicted class
+    /// decistion function for each observation
+    /// @remark default = table{}
     const table& get_decision_function() const;
 
     auto& set_decision_function(const table& value) {
