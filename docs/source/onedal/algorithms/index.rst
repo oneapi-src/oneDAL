@@ -29,6 +29,6 @@ and regression algorithms, as well as association rules discovery.
    clustering/index.rst
    decomposition/index.rst
    ensembles/index.rst   
-   kernel_functions/index.rst
+   kernel-functions/index.rst
    nearest-neighbors/index.rst
    svm/index.rst
