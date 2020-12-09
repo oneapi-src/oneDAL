@@ -161,15 +161,14 @@ An implementation of the :capterm:`data layout` concept.
 .. .. namespace:: oneapi::dal
 .. .. enum-class:: data_layout
 
-::
-   data_layout::unknown
-      Represents the :capterm:`data layout` that is undefined or unknown at this moment.
+data_layout::unknown
+   Represents the :capterm:`data layout` that is undefined or unknown at this moment.
 
-   data_layout::row_major
-      The data block elements are stored in raw-major layout.
+data_layout::row_major
+   The data block elements are stored in raw-major layout.
 
-   data_layout::column_major
-      The data block elements are stored in column_major layout.
+data_layout::column_major
+   The data block elements are stored in column_major layout.
 
 .. _feature_type:
 
@@ -185,19 +184,17 @@ An implementation of the logical data types.
 .. .. namespace:: oneapi::dal
 .. .. enum-class:: feature_type
 
-::
+feature_type::nominal
+   Represents the type of :capterm:`Nominal feature`.
 
-   feature_type::nominal
-      Represents the type of :capterm:`Nominal feature`.
+feature_type::ordinal
+   Represents the type of :capterm:`Ordinal feature`.
 
-   feature_type::ordinal
-      Represents the type of :capterm:`Ordinal feature`.
+feature_type::interval
+   Represents the type of :capterm:`Interval feature`.
 
-   feature_type::interval
-      Represents the type of :capterm:`Interval feature`.
-
-   feature_type::ratio
-      Represents the type of :capterm:`Ratio feature`.
+feature_type::ratio
+   Represents the type of :capterm:`Ratio feature`.
 
 
 .. toctree::
