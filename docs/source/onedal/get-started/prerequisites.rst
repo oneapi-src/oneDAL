@@ -27,12 +27,12 @@ is the directory in which Intel\ |reg|\  oneAPI Toolkit was installed.
 
 The current version of |short_name| with
 DPC++ is available for Linux\* and Windows\* 64-bit operating systems. The
-prebuilt |short_name| libraries can be found in the :file:`<install_dir>/daal/<version>/redist`
+prebuilt |short_name| libraries can be found in the :file:`<install_dir>/dal/<version>/redist`
 directory.
 
 The dependencies needed to build examples with DPC++ extensions:
 
-- |dpcpp_comp|_ 2021.1-beat10 release or later (for DPC++ support)
+- |dpcpp_comp|_ 2021.1 release or later (for DPC++ support)
 - OpenCL™ runtime 1.2 or later (to run the DPC++ runtime)
 - GNU\* Make on Linux\*, nmake on Windows\*
 
