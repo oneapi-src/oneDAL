@@ -56,8 +56,8 @@ any pair of input vectors: :math:`K(x_i, y_i) = k {X_i}^T y_i + b`.
 ---------------------
 Programming Interface
 ---------------------
-All types and functions in this section shall be declared in the
-``oneapi::dal::linear_kernel`` namespace and be available via inclusion of the
+All types and functions in this section are declared in the
+``oneapi::dal::linear_kernel`` namespace and are available via inclusion of the
 ``oneapi/dal/algo/linear_kernel.hpp`` header file.
                    
 Descriptor

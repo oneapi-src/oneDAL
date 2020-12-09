@@ -60,8 +60,8 @@ the problem is to compute the RBF kernel function :math:`K(x_i,, y_i)` for any p
 ---------------------
 Programming Interface
 ---------------------
-All types and functions in this section shall be declared in the
-``oneapi::dal::rbf_kernel`` namespace and be available via inclusion of the
+All types and functions in this section are declared in the
+``oneapi::dal::rbf_kernel`` namespace and are available via inclusion of the
 ``oneapi/dal/algo/rbf_kernel.hpp`` header file.
                    
 Descriptor
