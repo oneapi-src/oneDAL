@@ -266,8 +266,8 @@ Inference methods: *Dense* and *Hist*
 ---------------------
 Programming Interface
 ---------------------
-All types and functions in this section shall be declared in the
-``oneapi::dal::decision_forest`` namespace and be available via inclusion of the
+All types and functions in this section are declared in the
+``oneapi::dal::decision_forest`` namespace and are available via inclusion of the
 ``oneapi/dal/algo/decision_forest.hpp`` header file.
                    
 Enum classes
