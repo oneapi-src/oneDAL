@@ -27,7 +27,7 @@ and regression algorithms, as well as association rules discovery.
    :maxdepth: 2
 
    clustering/index.rst
-   nearest-neighbors/index.rst
    decomposition/index.rst
-   ensembles/index.rst
-   support-vector-machines/index.rst
+   ensembles/index.rst   
+   nearest-neighbors/index.rst
+   svm/index.rst

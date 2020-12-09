@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020 Intel Corporation
+.. * Copyright 2019-2020 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,18 +14,26 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-=======================
-Nearest Neighbors (kNN)
-=======================
+.. |idz| replace:: |short_name| home page
+.. _idz: https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onedal.html
 
-.. toctree::
-   :titlesonly:
+.. |github_rls| replace:: |short_name| GitHub\*
+.. _github_rls: https://github.com/oneapi-src/oneDAL/releases
 
-   knn-classification.rst
+.. |install_sources| replace:: install |short_name| from sources
+.. _install_sources: https://github.com/oneapi-src/oneDAL/blob/master/INSTALL.md
 
-Examples
+Installation
+============
+
+You can obtain the latest version of |short_name|: 
+
+- from |idz|_ as a part of |base_tk|.
+- from |github_rls|_ as a binary file.
+
+You can also |install_sources|_.
+
+See Also
 ********
 
-.. rubric:: k-Nearest Neighbors Classification
-
-.. include:: ./includes/knn-examples.rst
+- :ref:`onedal_get_started`

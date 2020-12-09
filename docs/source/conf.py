@@ -36,7 +36,7 @@ sys.path.insert(0, os.path.abspath('../'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'Intel&reg; oneAPI Data Analytics Library Documentation (Beta)'
+project = 'Intel&reg; oneAPI Data Analytics Library Documentation'
 copyright = '2014 - 2020, Intel Corporation' # pylint: disable=redefined-builtin
 author = 'Intel'
 
@@ -82,7 +82,7 @@ exclude_patterns = ["opt-notice.rst", 'daal/data-management/numeric-tables/*.rst
                     'daal/algorithms/dbscan/distributed-steps/*',
                     'daal/algorithms/kmeans/includes/*',
                     'notes/issues/2021.1-beta06/includes/*',
-                    'daal/includes/*', 'daal/index.rst']
+                    'daal/includes/*', 'onedal/algorithms/.*/includes/*']
 
 extlinks = {
     'cpp_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/%s', ''),

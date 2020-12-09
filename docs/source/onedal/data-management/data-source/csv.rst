@@ -118,7 +118,7 @@ All types and functions in this section are declared in the
 
 
 Reading :cpp:expr:`oneapi::dal::read<Object>(...)`
-------------------------------------------------
+-------------------------------------------------------
 
 Args
 ~~~~

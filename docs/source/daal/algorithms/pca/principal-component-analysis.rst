@@ -19,6 +19,12 @@
 Principal Component Analysis
 ============================
 
+.. note::
+
+   Principal Component Analysis is also available with oneAPI interfaces:
+
+   - :ref:`alg_pca`
+
 .. toctree::
    :glob:
    :maxdepth: 4

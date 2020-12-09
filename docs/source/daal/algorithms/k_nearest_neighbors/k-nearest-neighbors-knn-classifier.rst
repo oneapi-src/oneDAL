@@ -19,6 +19,12 @@
 k-Nearest Neighbors (kNN) Classifier
 ************************************
 
+.. note::
+
+   k-Nearest Neighbors Classifier is also available with oneAPI interfaces:
+
+   - :ref:`alg_knn`
+
 .. toctree::
    :glob:
    :maxdepth: 4

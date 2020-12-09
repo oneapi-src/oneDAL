@@ -19,8 +19,21 @@
 Clustering
 ==========
 
+This chapter describes clustering algorithms implemented in |short_name|:
+
 .. toctree::
    :titlesonly:
 
    kmeans.rst
    kmeans-init.rst
+
+Examples
+********
+
+.. rubric:: K-Means
+
+.. include:: ./includes/kmeans-examples.rst
+
+.. rubric:: K-Means Initialization
+
+.. include:: ./includes/kmeans-init-examples.rst

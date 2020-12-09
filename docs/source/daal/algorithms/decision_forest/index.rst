@@ -17,6 +17,12 @@
 Decision Forest
 ---------------
 
+.. note::
+
+   Decision Forest is also available with oneAPI interfaces:
+
+   - :ref:`alg_df`
+
 The library provides decision forest classification and regression
 algorithms based on an ensemble of tree-structured classifiers,
 which are known as decision trees.

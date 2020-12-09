@@ -15,17 +15,15 @@
 .. *******************************************************************************/
 
 =======================
-Nearest Neighbors (kNN)
+Support Vector Machines
 =======================
 
 .. toctree::
    :titlesonly:
 
-   knn-classification.rst
+   svm.rst
 
 Examples
 ********
 
-.. rubric:: k-Nearest Neighbors Classification
-
-.. include:: ./includes/knn-examples.rst
+.. include:: ./includes/svm-examples.rst

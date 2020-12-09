@@ -14,11 +14,34 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-=======================
-Support Vector Machines
-=======================
+.. |daal-docs| replace:: oneAPI Data Analytics Library
+.. _daal-docs: https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onedal.html
+
+.. _oneapi_dal_guide:
+
+oneAPI Interfaces
+=================
+
+Refer to |daal-docs|_ official page for general information.
+
+Introduction
+************
 
 .. toctree::
-   :titlesonly:
+   :maxdepth: 2
 
-   svm-classification.rst
+   onedal/get-started.rst
+   onedal/build_app/build-application.rst
+   onedal/glossary.rst
+
+Developer Guide and Reference
+*****************************
+
+.. toctree::
+   :maxdepth: 2
+
+   onedal/programming-model/computational-modes.rst
+   onedal/data-management/index.rst
+   onedal/algorithms/index.rst
+   examples.rst
+   onedal/appendix/index.rst

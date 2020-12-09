@@ -18,13 +18,13 @@
 
 
 ===============
-Data management
+Data Management
 ===============
 
 This section includes concepts and objects that operate on data. For
 |short_name|, such set of operations, or **data management**, is distributed
 between different stages of the :txtref:`data analytics pipeline
-<data_analytics_pipeline>`. From a perspective of data management, this pipeline
+<onedal_data_analytics_pipeline>`. From a perspective of data management, this pipeline
 contains three main steps of data acquisition, preparation, and computation (see
 :txtref:`the picture below <typical_data_management_flow>`):
 
@@ -64,7 +64,7 @@ Key concepts
 
 |short_name| provides a set of concepts to operate on out-of-memory and
 in-memory data during different stages of the :txtref:`data analytics pipeline
-<data_analytics_pipeline>`.
+<onedal_data_analytics_pipeline>`.
 
 .. _dataset:
 
@@ -89,9 +89,8 @@ example:
 2. At the preparation stage, it is converted into a numerical
    representation.
 
-3. At the computation stage, it is used as one of the :txtref:`inputs <Input>` or
-   :txtref:`results <Result>` of an algorithm or a :txtref:`descriptor <descriptors>`
-   properties.
+3. At the computation stage, it is used as one of the inputs or
+   results of an algorithm or a descriptor properties.
 
 .. _data-source:
 

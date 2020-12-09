@@ -140,11 +140,45 @@ Usage example
 -------------
 Training
 --------
-.. .. onedal_code:: oneapi::dal::kmeans::example::run_training
+
+::
+
+   kmeans::model<> run_training(const table& data,
+                              const table& initial_centroids) {
+      const auto kmeans_desc = kmeans::descriptor<float>{}
+         .set_cluster_count(10)
+         .set_max_iteration_count(50)
+         .set_accuracy_threshold(1e-4);
+
+      const auto result = train(kmeans_desc, data, initial_centroids);
+
+      print_table("labels", result.get_labels());
+      print_table("centroids", result.get_model().get_centroids());
+      print_value("objective", result.get_objective_function_value());
+
+      return result.get_model();
+   }
 
 Inference
 ---------
-.. .. onedal_code:: oneapi::dal::kmeans::example::run_inference
+
+::
+
+   table run_inference(const kmeans::model<>& model,
+                     const table& new_data) {
+      const auto kmeans_desc = kmeans::descriptor<float>{}
+         .set_cluster_count(model.get_cluster_count());
+
+      const auto result = infer(kmeans_desc, model, new_data);
+
+      print_table("labels", result.get_labels());
+   }
+
+--------
+Examples
+--------
+
+.. include:: ./includes/kmeans-examples.rst
 
 ---------------------
 Programming Interface
@@ -189,8 +223,26 @@ Result
 
 Operation
 ~~~~~~~~~
-.. .. onedal_func:: oneapi::dal::kmeans::v1::train
 
+.. function:: template <typename Descriptor> \
+              kmeans::train_result train(const Descriptor& desc, \
+                                         const kmeans::train_input& input)
+
+   :tparam desc: K-Means algorithm descriptor :expr:`kmeans::desc`
+   :tparam input: Input data for the training operation
+
+   Preconditions
+      | :expr:`input.data.has_data == true`
+      | :expr:`input.initial_centroids.row_count == desc.cluster_count`
+      | :expr:`input.initial_centroids.column_count == input.data.column_count`
+   Postconditions
+      | :expr:`result.labels.row_count == input.data.row_count`
+      | :expr:`result.labels.column_count == 1`
+      | :expr:`result.labels[i] >= 0`
+      | :expr:`result.labels[i] < desc.cluster_count`
+      | :expr:`result.iteration_count <= desc.max_iteration_count`
+      | :expr:`result.model.centroids.row_count == desc.cluster_count`
+      | :expr:`result.model.centroids.column_count == input.data.column_count`
 
 .. _kmeans_i_api:
 
@@ -211,4 +263,21 @@ Result
 
 Operation
 ~~~~~~~~~
-.. .. onedal_func:: oneapi::dal::kmeans::v1::infer
+
+.. function:: template <typename Descriptor> \
+              kmeans::infer_result infer(const Descriptor& desc, \
+                                         const kmeans::infer_input& input)
+
+   :tparam desc: K-Means algorithm descriptor :expr:`kmeans::desc`
+   :tparam input: Input data for the inference operation
+
+   Preconditions
+      | :expr:`input.data.has_data == true`
+      | :expr:`input.model.centroids.has_data == true`
+      | :expr:`input.model.centroids.row_count == desc.cluster_count`
+      | :expr:`input.model.centroids.column_count == input.data.column_count`
+   Postconditions
+      | :expr:`result.labels.row_count == input.data.row_count`
+      | :expr:`result.labels.column_count == 1`
+      | :expr:`result.labels[i] >= 0`
+      | :expr:`result.labels[i] < desc.cluster_count`

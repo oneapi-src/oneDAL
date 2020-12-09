@@ -23,46 +23,42 @@ and `Linux\* <https://software.intel.com/content/www/us/en/develop/documentation
 for instruction on how to build applications for C++.
 This section contains instructions for building applications with |short_name| for SYCL\*.
 
-.. note::
-  If you encounter a problem while building an application with |short_name|,
-  refer to the list of :ref:`known issues <known_issues>`.
+- :ref:`app_on_win`
+- :ref:`app_on_lin`
 
-- `Applications on Windows`_
-- `Applications on Linux`_
+.. _app_on_win:
 
-Applications on Windows
------------------------
+Applications on Windows* OS
+---------------------------
 
 #. Download and install |base_tk|.
 
-#. In Microsoft Visual Studio* Integrated Development environment (IDE),
+#. In Microsoft Visual Studio* Integrated Development Environment (IDE),
    open or create a C++ project for your |short_name| application to build.
 
-#. In project properties set |dpcpp| platform toolset:
+#. In project properties:
 
-   .. image:: ./images/MSVSPlatformToolset.jpg
-     :width: 600
-     :align: center
+   - Set |dpcpp| platform toolset:
 
-#. In project properties add |short_name| ``includes`` folder to :guilabel:`Additional Include Directories`:
+     .. image:: ./images/MSVSPlatformToolset.jpg
+       :width: 600
+       :align: center
+       :alt: In General configuration properties, choose Platform Toolset property
 
+   - Add |short_name| ``includes`` folder to :guilabel:`Additional Include Directories`.
+   - Add folders with |short_name| and oneTBB libraries to :guilabel:`Library Directories`:
 
-   .. image:: ./images/AdditionalIncludeDirs.jpg
-     :width: 600
-     :align: center
+     .. image:: ./images/LibraryDirectories.jpg
+       :width: 600
+       :align: center
+       :alt: In VC++ Directories, choose Library Directories property
 
+   - Add |short_name| and OpenCL libraries to :guilabel:`Additional Dependencies`:
 
-#. In project properties add folders with |short_name| and TBB libraries to :guilabel:`Library Directories`:
-
-   .. image:: ./images/LibraryDirectories.jpg
-     :width: 600
-     :align: center
-
-#. In project properties add |short_name| and OpenCL libraries to :guilabel:`Additional Dependencies`:
-
-   .. image:: ./images/AdditionalDependencies.jpg
-     :width: 600
-     :align: center
+     .. image:: ./images/AdditionalDependencies.jpg
+       :width: 600
+       :align: center
+       :alt: In Linker configuration properties, choose Input.
 
 #. Add the appropriate libraries to your project based on |short_name| threading mode and linking method:
 
@@ -81,15 +77,10 @@ Applications on Windows
             - onedal_core_dll.lib
             - onedal_core_dll.lib
 
-Applications on Linux
----------------------
+.. _app_on_lin:
 
-.. note::
-
-  Known issues that you might encounter:
-
-  - Static linking results in :ref:`incorrect linker behavior <issue_incorrect_linker_behavior>`
-  - :ref:`No Level Zero in your environment <issue_level_zero>`
+Applications on Linux* OS
+-------------------------
 
 #. Download and install |base_tk|.
 

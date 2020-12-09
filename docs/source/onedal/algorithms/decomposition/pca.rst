@@ -167,13 +167,47 @@ Covariance and SVD inference methods compute :math:`x_{j}''` according to
 -------------
 Usage example
 -------------
+
 Training
 --------
-.. .. onedal_code:: oneapi::dal::pca::example::run_training
+
+::
+
+   pca::model<> run_training(const table& data) {
+      const auto pca_desc = pca::descriptor<float>{}
+         .set_component_count(5)
+         .set_deterministic(true);
+
+      const auto result = train(pca_desc, data);
+
+      print_table("means", result.get_means());
+      print_table("variances", result.get_variances());
+      print_table("eigenvalues", result.get_eigenvalues());
+      print_table("eigenvectors", result.get_eigenvectors());
+
+      return result.get_model();
+   }
 
 Inference
 ---------
-.. .. onedal_code:: oneapi::dal::pca::example::run_inference
+
+::
+
+   table run_inference(const pca::model<>& model,
+                     const table& new_data) {
+      const auto pca_desc = pca::descriptor<float>{}
+         .set_component_count(model.get_component_count());
+
+      const auto result = infer(pca_desc, model, new_data);
+
+      print_table("labels", result.get_transformed_data());
+   }
+
+--------
+Examples
+--------
+
+.. include:: ./includes/pca-examples.rst
 
 ---------------------
 Programming Interface
@@ -218,8 +252,27 @@ Result
 
 Operation
 ~~~~~~~~~
-.. .. onedal_func:: oneapi::dal::pca::v1::train
 
+.. function:: template <typename Descriptor> \
+              pca::train_result train(const Descriptor& desc, \
+                                         const pca::train_input& input)
+
+   :tparam desc: PCA algorithm descriptor :expr:`pca::desc`
+   :tparam input: Input data for the training operation
+
+   Preconditions
+      | :expr:`input.data.has_data == true`
+      | :expr:`input.data.column_count >= desc.component_count`
+   Postconditions
+      | :expr:`result.means.row_count == 1`
+      | :expr:`result.means.column_count == desc.component_count`
+      | :expr:`result.variances.row_count == 1`
+      | :expr:`result.variances.column_count == desc.component_count`
+      | :expr:`result.variances[i] >= 0.0`
+      | :expr:`result.eigenvalues.row_count == 1`
+      | :expr:`result.eigenvalues.column_count == desc.component_count`
+      | :expr:`result.model.eigenvectors.row_count == 1`
+      | :expr:`result.model.eigenvectors.column_count == desc.component_count`
 
 .. _pca_i_api:
 
@@ -240,4 +293,18 @@ Result
 
 Operation
 ~~~~~~~~~
-.. .. onedal_func:: oneapi::dal::pca::v1::infer
+
+.. function:: template <typename Descriptor> \
+              pca::infer_result infer(const Descriptor& desc, \
+                                         const pca::infer_input& input)
+
+   :tparam desc: PCA algorithm descriptor :expr:`pca::desc`
+   :tparam input: Input data for the inference operation
+
+   Preconditions
+      | :expr:`input.data.has_data == true`
+      | :expr:`input.model.eigenvectors.row_count == desc.component_count`
+      | :expr:`input.model.eigenvectors.column_count == input.data.column_count`
+   Postconditions
+      | :expr:`result.transformed_data.row_count == input.data.row_count`
+      | :expr:`result.transformed_data.column_count == desc.component_count`

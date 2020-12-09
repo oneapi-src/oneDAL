@@ -22,3 +22,10 @@ Decomposition
    :titlesonly:
 
    pca.rst
+
+Examples
+********
+
+.. rubric:: PCA
+
+.. include:: ./includes/pca-examples.rst

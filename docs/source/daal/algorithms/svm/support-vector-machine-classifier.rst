@@ -19,6 +19,12 @@
 Support Vector Machine Classifier
 =================================
 
+.. note::
+
+   Support Vector Machine Classifier is also available with oneAPI interfaces:
+
+   - :ref:`alg_svm`
+
 .. toctree::
    :glob:
    :maxdepth: 4

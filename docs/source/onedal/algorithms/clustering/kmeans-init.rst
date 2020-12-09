@@ -67,7 +67,26 @@ Usage example
 
 Computing
 ---------
-.. .. onedal_code:: oneapi::dal::kmeans_init::example::run_compute
+
+::
+
+   table run_compute(const table& data) {
+      const auto kmeans_desc = kmeans_init::descriptor<float,
+                                                      kmeans_init::method::dense>{}
+         .set_cluster_count(10)
+
+      const auto result = compute(kmeans_desc, data);
+
+      print_table("centroids", result.get_centroids());
+
+      return result.get_centroids();
+   }
+
+--------
+Examples
+--------
+
+.. include:: ./includes/kmeans-init-examples.rst
 
 ---------------------
 Programming Interface
@@ -108,4 +127,18 @@ Result
 
 Operation
 ~~~~~~~~~
-.. .. onedal_func:: oneapi::dal::kmeans_init::v1::compute
+
+.. function:: template <typename Descriptor> \
+              kmeans_init::compute_result compute(const Descriptor& desc, \
+                                         const kmeans_init::compute_input& input)
+
+   :tparam desc: K-Means algorithm descriptor :expr:`kmeans_init::desc`
+   :tparam input: Input data for the computing operation
+
+   Preconditions
+      | :expr:`input.data.has_data == true`
+      | :expr:`input.data.row_count == desc.cluster_count`
+   Postconditions
+      | :expr:`result.centroids.has_data == true`
+      | :expr:`result.centroids.row_count == desc.cluster_count`
+      | :expr:`result.centroids.column_count == input.data.column_count`

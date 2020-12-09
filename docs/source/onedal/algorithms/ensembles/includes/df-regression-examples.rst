@@ -14,18 +14,16 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-=======================
-Nearest Neighbors (kNN)
-=======================
+.. tabs::
 
-.. toctree::
-   :titlesonly:
+  .. group-tab:: oneAPI DPC++
 
-   knn-classification.rst
+    Batch Processing:
 
-Examples
-********
+    - :ref:`dpc_df_reg_dense_batch.cpp`
 
-.. rubric:: k-Nearest Neighbors Classification
+  .. group-tab:: oneAPI C++
 
-.. include:: ./includes/knn-examples.rst
+    Batch Processing:
+
+    - :ref:`cpp_df_reg_dense_batch.cpp`

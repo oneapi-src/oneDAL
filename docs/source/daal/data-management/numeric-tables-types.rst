@@ -17,8 +17,6 @@
 Types of Numeric Tables
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-.. include:: ./numeric-tables/sycl-numeric-tables.rst
-
 .. include:: ./numeric-tables/heterogen-numeric-tables.rst
 
 .. include:: ./numeric-tables/homogen-numeric-tables.rst

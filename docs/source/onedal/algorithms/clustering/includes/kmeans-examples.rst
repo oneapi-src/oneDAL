@@ -14,18 +14,23 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-=======================
-Nearest Neighbors (kNN)
-=======================
 
-.. toctree::
-   :titlesonly:
+.. tabs:: 
 
-   knn-classification.rst
+  .. group-tab:: oneAPI DPC++
 
-Examples
-********
+    Batch Processing:
 
-.. rubric:: k-Nearest Neighbors Classification
+    - :ref:`dpc_kmeans_lloyd_dense_batch.cpp`
 
-.. include:: ./includes/knn-examples.rst
+  .. group-tab:: oneAPI C++
+
+    Batch Processing:
+
+    - :ref:`cpp_kmeans_lloyd_dense_batch.cpp`
+
+  .. group-tab:: Python* with DPC++ support
+
+    Batch Processing:
+
+    - :daal4py_sycl_example:`kmeans_batch.py`

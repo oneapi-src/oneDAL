@@ -144,14 +144,44 @@ distance between :math:`x_j'` and the most distant feature vector from
 -------------
 Usage example
 -------------
+
 Training
 --------
-.. .. onedal_code:: oneapi::dal::knn::example::run_training
+
+::
+
+   knn::model<> run_training(const table& data,
+                           const table& labels) {
+      const std::int64_t class_count = 10;
+      const std::int64_t neighbor_count = 5;
+      const auto knn_desc = knn::descriptor<float>{class_count, neighbor_count};
+
+      const auto result = train(knn_desc, data, labels);
+
+      return result.get_model();
+   }
 
 Inference
 ---------
-.. .. onedal_code:: oneapi::dal::knn::example::run_inference
 
+::
+
+   table run_inference(const knn::model<>& model,
+                     const table& new_data) {
+      const std::int64_t class_count = 10;
+      const std::int64_t neighbor_count = 5;
+      const auto knn_desc = knn::descriptor<float>{class_count, neighbor_count};
+
+      const auto result = infer(knn_desc, model, new_data);
+
+      print_table("labels", result.get_labels());
+   }
+
+--------
+Examples
+--------
+
+.. include:: ./includes/knn-examples.rst
 
 ---------------------
 Programming Interface
@@ -196,8 +226,21 @@ Result
 
 Operation
 ~~~~~~~~~
-.. .. onedal_func:: oneapi::dal::knn::v1::train
 
+.. function:: template <typename Descriptor> \
+              knn::train_result train(const Descriptor& desc, \
+                                         const knn::train_input& input)
+
+   :tparam desc: k-NN algorithm descriptor :expr:`knn::desc`
+   :tparam input: Input data for the training operation
+
+   Preconditions
+      | :expr:`input.data.has_data == true`
+      | :expr:`input.labels.has_data == true`
+      | :expr:`input.data.row_count == input.labels.row_count`
+      | :expr:`input.labels.column_count == 1`
+      | :expr:`input.labels[i] >= 0`
+      | :expr:`input.labels[i] < desc.class_count`
 
 .. _knn_i_api:
 
@@ -218,4 +261,18 @@ Result
 
 Operation
 ~~~~~~~~~
-.. .. onedal_func:: oneapi::dal::knn::v1::infer
+
+.. function:: template <typename Descriptor> \
+              knn::infer_result infer(const Descriptor& desc, \
+                                         const knn::infer_input& input)
+
+   :tparam desc: k-NN algorithm descriptor :expr:`knn::desc`
+   :tparam input: Input data for the inference operation
+
+   Preconditions
+      | :expr:`input.data.has_data == true`
+   Postconditions
+     | :expr:`result.labels.row_count == input.data.row_count`
+     | :expr:`result.labels.column_count == 1`
+     | :expr:`result.labels[i] >= 0`
+     | :expr:`result.labels[i] < desc.class_count`

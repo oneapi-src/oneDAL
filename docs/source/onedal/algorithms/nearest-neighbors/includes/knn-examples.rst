@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2019-2020 Intel Corporation
+.. * Copyright 2020 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,17 +14,22 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. |idz| replace:: |short_name| home page
-.. _idz: https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onedal.html
+.. tabs::
 
-.. |github_rls| replace:: |short_name| GitHub\*
-.. _github_rls: https://github.com/oneapi-src/oneDAL/releases
+  .. group-tab:: oneAPI DPC++
 
-Installation
-~~~~~~~~~~~~
+    Batch Processing:
 
-You can obtain the latest version of |short_name|: 
+    - :ref:`dpc_knn_cls_brute_force_dense_batch.cpp`
+  
+  .. group-tab:: oneAPI C++
 
-- from |idz|_ as a part of |base_tk|.
-- from |github_rls|_ as a binary file.
+    Batch Processing:
 
+    - :ref:`cpp_knn_cls_kd_tree_dense_batch.cpp`
+
+  .. group-tab:: Python* with DPC++ support
+
+    Batch Processing:
+
+    - :daal4py_sycl_example:`bf_knn_classification_batch.py`

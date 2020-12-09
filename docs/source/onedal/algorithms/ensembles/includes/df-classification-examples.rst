@@ -14,13 +14,16 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Developer Guide
+.. tabs::
 
-   cpu-vs-gpu.rst
-   usage/index.rst
-   data-management/data-management.rst
-   analysis.rst
-   training-prediction.rst
-   services/services.rst
+  .. group-tab:: oneAPI DPC++
+
+    Batch Processing:
+
+    - :ref:`dpc_df_cls_dense_batch.cpp`
+
+  .. group-tab:: oneAPI C++
+
+    Batch Processing:
+
+    - :ref:`cpp_df_cls_dense_batch.cpp`

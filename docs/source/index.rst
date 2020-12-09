@@ -19,8 +19,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-.. |daal-docs| replace:: official Intel\ |reg|\  DAAL website
-.. _daal-docs: https://software.intel.com/content/www/us/en/develop/tools/data-analytics-acceleration-library.html
+.. |daal-docs| replace:: oneAPI Data Analytics Library
+.. _daal-docs: https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onedal.html
 
 .. |github| replace:: |short_name| GitHub\* page
 .. _github: https://github.com/oneapi-src/oneDAL
@@ -36,39 +36,34 @@ decision making) in batch, online, and distributed processing modes of
 computation. The current version of |short_name| provides
 Data Parallel C++ (DPC++) API extensions to the traditional C++ interface.
 
-For general information, visit |github|_. The complete
-list of features and documentation is available at |daal-docs|_.
+For general information, refer to |daal-docs|_ official page.
 
 .. toctree::
-   :maxdepth: 2
+   :hidden:
    :caption: Introduction
 
-   intro/data-analytics-pipeline.rst
+   installation.rst
 
 .. toctree::
-   :maxdepth: 2
-   :caption: oneAPI Interfaces
+   :maxdepth: 3
+   :caption: Developer Guide and Reference
 
-   onedal/index.rst
-   examples.rst
-   onedal/appendix/index.rst
-
-.. toctree::
-   :maxdepth: 2
-   :caption: DAAL Interfaces
-
-   daal/index.rst
+   data-analytics-pipeline.rst
+   oneapi-interfaces.rst
+   daal-interfaces.rst
+   bibliography.rst
 
 .. toctree::
    :maxdepth: 1
+   :hidden:
    :caption: Notes
 
    notes/known_issues.rst
-   bibliography.rst
    legal.rst
 
 .. toctree::
    :maxdepth: 1
+   :hidden:
    :caption: Contributing Guide
 
    contribution/coding_guide.rst

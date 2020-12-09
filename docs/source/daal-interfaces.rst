@@ -14,18 +14,30 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+DAAL Interfaces
+===============
+
+This chapter documents algorithms implemented in `DAAL interfaces <https://github.com/oneapi-src/oneDAL/tree/master/cpp/daal>`_.
+See :ref:`oneapi_dal_guide` to find documentation on oneAPI interfaces.
+
+Developer Guide
+***************
+
 .. toctree::
    :maxdepth: 2
-   :caption: Introduction
 
-   get-started.rst
-   build_app/build-application.rst
-   glossary.rst
+   daal/cpu-vs-gpu.rst
+   daal/usage/index.rst
+   daal/data-management/data-management.rst
+   daal/analysis.rst
+   daal/training-prediction.rst
+   daal/services/services.rst
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Developer Guide
+Examples
+********
 
-   data-management/index.rst
-   algorithms/index.rst
+You can find examples on Github*:
 
+- `C++ <https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source>`_ (CPU)
+- `Java* <https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples>`_ (not supported on GPU)
+- `Python* <https://github.com/IntelPython/daal4py/tree/master/examples>`_

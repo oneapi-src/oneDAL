@@ -14,7 +14,7 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. _data_analytics_pipeline:
+.. _onedal_data_analytics_pipeline:
 
 Data Analytics Pipeline
 =======================

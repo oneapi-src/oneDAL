@@ -50,8 +50,3 @@ The optimal data layout for homogeneous and heterogeneous numeric
 tables highly depends on a particular algorithm. You can find
 algorithm-specific guidance in the Performance Considerations section
 for the appropriate algorithm.
-
-For DPC++ interfaces, |product| defines ``SyclNumericTable`` class that
-holds data on the device side. All numeric table implementations without *SYCL\** prefix in their name
-hold data on the host side. We recommend using classes derived from ``SyclNumericTable`` when
-computations are planned to be performed on a non-host device.

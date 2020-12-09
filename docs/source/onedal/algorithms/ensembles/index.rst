@@ -22,3 +22,14 @@ Ensembles
    :titlesonly:
 
    decision-forest.rst
+
+Examples
+********
+
+.. rubric:: Decifion Forest Classification
+
+.. include:: ./includes/df-classification-examples.rst
+
+.. rubric:: Decifion Forest Regression
+
+.. include:: ./includes/df-regression-examples.rst

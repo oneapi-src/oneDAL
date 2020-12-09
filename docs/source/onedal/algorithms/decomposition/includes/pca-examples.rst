@@ -14,6 +14,23 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-Support Vector Machine Classification
-=====================================
 
+.. tabs::
+
+   .. group-tab:: oneAPI DPC++
+
+      Batch Processing:
+
+      - :ref:`dpc_pca_cor_dense_batch.cpp`
+
+   .. group-tab:: oneAPI C++
+
+      Batch Processing:
+
+      - :ref:`cpp_pca_dense_batch.cpp`
+
+   .. group-tab:: Python* with DPC++ support
+
+      Batch Processing:
+
+      - :daal4py_sycl_example:`pca_batch.py`

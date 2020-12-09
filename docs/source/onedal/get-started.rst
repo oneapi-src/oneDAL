@@ -14,16 +14,21 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _onedal_get_started:
+
 Get Started with oneDAL
 =======================
 
 .. toctree::
    :maxdepth: 4
 
-.. include:: ./get-started/installation.rst
-
 .. include:: ./get-started/prerequisites.rst
 
 .. include:: ./get-started/end-to-end-example.rst
 
 .. include:: ./get-started/build-and-run-examples.rst
+
+See Also
+~~~~~~~~
+
+- :ref:`oneapi_dal_examples`
