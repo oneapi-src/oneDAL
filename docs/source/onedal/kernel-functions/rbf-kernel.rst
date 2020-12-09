@@ -31,11 +31,11 @@ used in kernelized learning algorithms.
 .. |c_result| replace:: `compute_result <rbf_kernel_c_api_result_>`_
 .. |c_op| replace::     `compute(...) <rbf_kernel_c_api_>`_
 
-=============== =============== ======== =========== =================
- **Operation**  **Computational methods**   **Programming Interface**
---------------- ------------------------ -----------------------------
-   |c_math|      |c_dense|       |c_op|   |c_input|   |c_result|
-=============== =============== ======== =========== =================
+=============  ===============  =========  =============  ===========
+**Operation**  **Computational  methods**  **Programming  Interface**
+-------------  --------------------------  --------------------------
+|c_math|       |c_dense|        |c_op|     |c_input|      |c_result|
+=============  ===============  =========  =============  ===========
 
 ------------------------
 Mathematical formulation
