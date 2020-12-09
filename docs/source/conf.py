@@ -158,6 +158,7 @@ nitpick_ignore = [
     ('cpp:identifier', 'detail::table_builder'),
     ('cpp:identifier', 'detail::is_table_impl_v<ImplType>'),
     ('cpp:identifier', 'detail::is_homogen_table_impl_v<ImplType>'),
+    ('cpp:identifier', 'detail::enable_if_classification_t<T>'),
     # data types
     ('cpp:identifier', 'int64_t'),
     ('cpp:identifier', 'data_t'),
@@ -196,6 +197,36 @@ nitpick_ignore = [
     ('cpp:identifier', 'pca::train_input'),
     ('cpp:identifier', 'pca::infer_result'),
     ('cpp:identifier', 'pca::infer_input'),
+    # svm
+    ('cpp:identifier', 'svm'),
+    ('cpp:identifier', 'svm::desc'),
+    ('cpp:identifier', 'svm::train_result'),
+    ('cpp:identifier', 'svm::train_input'),
+    ('cpp:identifier', 'svm::infer_result'),
+    ('cpp:identifier', 'svm::infer_input'),
+    # linear kernel
+    ('cpp:identifier', 'linear_kernel'),
+    ('cpp:identifier', 'linear_kernel::compute_result'),
+    ('cpp:identifier', 'linear_kernel::compute_input'),
+    # rbf kernel
+    ('cpp:identifier', 'rbf_kernel'),
+    ('cpp:identifier', 'rbf_kernel::compute_result'),
+    ('cpp:identifier', 'rbf_kernel::compute_input'),
+    # decision forest
+    ('cpp:identifier', 'decision_forest'),
+    ('cpp:identifier', 'decision_forest::infer_result'),
+    ('cpp:identifier', 'decision_forest::infer_input'),
+    ('cpp:identifier', 'decision_forest::train_result'),
+    ('cpp:identifier', 'decision_forest::train_input'),
+    ('cpp:identifier', 'decision_forest::desc'),
+    ('cpp:identifier', 'variable_importance_mode'),
+    ('cpp:identifier', 'variable_importance_mode::none'),
+    ('cpp:identifier', 'variable_importance_mode::mda_raw'),
+    ('cpp:identifier', 'variable_importance_mode::mda_scaled'),
+    ('cpp:identifier', 'error_metric_mode'),
+    ('cpp:identifier', 'error_metric_mode::none'),
+    ('cpp:identifier', 'error_metric_mode::out_of_bag_error'),
+    ('cpp:identifier', 'error_metric_mode::out_of_bag_error_per_observation'),
     # common for algorithms
     ('cpp:identifier', 'result'),
     # tables
@@ -234,5 +265,8 @@ nitpick_ignore = [
     # oneapi - kmeans
     ('cpp:identifier', 'oneapi::dal::kmeans'),
     ('cpp:identifier', 'oneapi::dal::kmeans::task'),
-    ('cpp:identifier', 'oneapi::dal::kmeans::task::v1')
+    ('cpp:identifier', 'oneapi::dal::kmeans::task::v1'),
+    ('cpp:identifier', 'oneapi::dal::decision_forest'),
+    ('cpp:identifier', 'oneapi::dal::decision_forest::task'),
+    ('cpp:identifier', 'oneapi::dal::decision_forest::task::v1')
     ]
