@@ -14,21 +14,16 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-Algorithms
-==========
+.. tabs::
 
-The Algorithms component consists of classes that implement algorithms
-for data analysis (data mining) and data modeling (training and prediction).
-These algorithms include matrix decompositions, clustering, classification,
-and regression algorithms, as well as association rules discovery.
+  .. group-tab:: oneAPI DPC++
 
+    Batch Processing:
 
-.. toctree::
-   :maxdepth: 2
+    - :ref:`dpc_rbf_kernel_dense_batch.cpp`
 
-   clustering/index.rst
-   decomposition/index.rst
-   ensembles/index.rst   
-   kernel_functions/index.rst
-   nearest-neighbors/index.rst
-   svm/index.rst
+  .. group-tab:: oneAPI C++
+
+    Batch Processing:
+
+    - :ref:`cpp_rbf_kernel_dense_batch.cpp`

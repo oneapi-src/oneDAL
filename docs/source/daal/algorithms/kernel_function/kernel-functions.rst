@@ -19,6 +19,13 @@
 Kernel Functions
 ----------------
 
+.. note::
+
+   Kernel functions are also available with oneAPI interfaces:
+
+   - :ref:`alg_linear_kernel`
+   - :ref:`alg_rbf_kernel`
+
 .. toctree::
    :glob:
    :maxdepth: 4
