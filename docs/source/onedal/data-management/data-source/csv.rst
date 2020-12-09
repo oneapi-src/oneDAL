@@ -31,7 +31,7 @@ transform it into numerical representation, and store it as an in-memory
 :txtref:`dataset` of a chosen type.
 
 Supported type of in-memory object for :cpp:expr:`read` operation with CSV data
-source is :cpp:expr:`oneapi::dal::table`.
+source is :cpp:expr:`oneapi::dal::v1::table`.
 
 CSV data source requires input file name to be set in the constructor, while the
 other parameters of the constructor such as delimiter and read options rely on
@@ -142,7 +142,7 @@ Args
 Operation
 ~~~~~~~~~
 
-:cpp:expr:`oneapi::dal::table` is the only supported value of the :code:`Object`
+:cpp:expr:`oneapi::dal::v1::table` is the only supported value of the :code:`Object`
 template parameter for :cpp:expr:`read` operation with CSV data source.
 
 .. namespace:: oneapi::dal

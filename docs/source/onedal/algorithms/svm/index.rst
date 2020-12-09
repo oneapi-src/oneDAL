@@ -23,7 +23,6 @@ Support Vector Machines
 
    svm.rst
 
-Examples
-********
+.. rubric:: Examples: SVM
 
 .. include:: ./includes/svm-examples.rst

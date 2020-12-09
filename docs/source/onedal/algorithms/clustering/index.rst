@@ -27,13 +27,10 @@ This chapter describes clustering algorithms implemented in |short_name|:
    kmeans.rst
    kmeans-init.rst
 
-Examples
-********
-
-.. rubric:: K-Means
+.. rubric:: Examples: K-Means
 
 .. include:: ./includes/kmeans-examples.rst
 
-.. rubric:: K-Means Initialization
+.. rubric:: Examples: K-Means Initialization
 
 .. include:: ./includes/kmeans-init-examples.rst

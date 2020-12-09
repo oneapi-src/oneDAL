@@ -24,13 +24,10 @@ Kernel Functions
    linear-kernel.rst
    rbf-kernel.rst
 
-Examples
-********
-
-.. rubric:: Linear Kernel
+.. rubric:: Examples: Linear Kernel
 
 .. include:: ./includes/linear-kernel-examples.rst
 
-.. rubric:: RBF Kernel
+.. rubric:: Examples: RBF Kernel
 
 .. include:: ./includes/rbf-kernel-examples.rst

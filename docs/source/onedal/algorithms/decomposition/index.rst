@@ -23,9 +23,6 @@ Decomposition
 
    pca.rst
 
-Examples
-********
-
-.. rubric:: PCA
+.. rubric:: Examples: PCA
 
 .. include:: ./includes/pca-examples.rst

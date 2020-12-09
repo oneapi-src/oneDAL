@@ -63,14 +63,14 @@ class ONEDAL_EXPORT table_metadata {
 
 public:
     /// Creates the metadata instance without information about the features.
-    /// The :expr:`feature_count` sshould be set to zero.
-    /// The :expr:`data_type` and :expr:`feature_type` properties should not be initialized.
+    /// The :literal:`feature_count` should be set to zero.
+    /// The :literal:`data_type` and :literal:`feature_type` properties should not be initialized.
     table_metadata();
 
     /// Creates the metadata instance from external information about the data types and the
     /// feature types.
-    /// @param dtypes The data types of the features. Assigned into the :expr:`data_type` property.
-    /// @param ftypes The feature types. Assigned into the :expr:`feature_type` property.
+    /// @param dtypes The data types of the features. Assigned into the :literal:`data_type` property.
+    /// @param ftypes The feature types. Assigned into the :literal:`feature_type` property.
     /// @pre :expr:`dtypes.get_count() == ftypes.get_count()`
     table_metadata(const array<data_type>& dtypes, const array<feature_type>& ftypes);
 
