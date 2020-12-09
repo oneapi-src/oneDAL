@@ -76,7 +76,7 @@ public:
 
     descriptor_base();
 
-    /// The coefficient $K$ of the linear kernel.
+    /// The coefficient $k$ of the linear kernel.
     /// @remark default = 1.0
     double get_scale() const;
 
