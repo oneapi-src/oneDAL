@@ -87,6 +87,8 @@ void CrossEntropyLossKernel<algorithmFPType, method, cpu>::softmax(const algorit
                                                                    size_t nCols, algorithmFPType * const softmaxSums,
                                                                    const algorithmFPType * const yLocal)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(softmax);
+
     const algorithmFPType expThreshold = daal::internal::Math<algorithmFPType, cpu>::vExpThreshold();
     if (softmaxSums != nullptr)
     {
@@ -164,7 +166,7 @@ template <typename algorithmFPType, Method method, CpuType cpu>
 void CrossEntropyLossKernel<algorithmFPType, method, cpu>::softmaxThreaded(const algorithmFPType * arg, algorithmFPType * res, size_t nRows,
                                                                            size_t nCols)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(softmax);
+    DAAL_ITTNOTIFY_SCOPED_TASK(softmaxThreaded);
 
     const size_t nRowsInBlockDefault = 500;
     const size_t nRowsInBlock        = services::internal::getNumElementsFitInMemory(services::internal::getL1CacheSize() * 0.8,
