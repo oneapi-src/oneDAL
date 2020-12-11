@@ -338,6 +338,7 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const Nu
 
             if (valueNT)
             {
+                DAAL_ITTNOTIFY_SCOPED_TASK(computeLogProbabilities);
                 algorithmFPType * const ls = tlsData.local();
                 DAAL_CHECK_THR(ls, services::ErrorMemoryAllocationFailed);
                 algorithmFPType * const ls1 = ls + nRowsInBlock;
@@ -358,6 +359,7 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const Nu
 
             if (gradientNT)
             {
+                DAAL_ITTNOTIFY_SCOPED_TASK(applyGradient);
                 DAAL_ASSERT(gradientNT->getNumberOfRows() == nBeta);
 
                 const char notrans         = 'N';
@@ -403,6 +405,8 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const Nu
 
         if (valueNT)
         {
+            DAAL_ITTNOTIFY_SCOPED_TASK(computeLogProbabilities);
+
             WriteRows<algorithmFPType, cpu> vr(valueNT, 0, 1);
             DAAL_CHECK_BLOCK_STATUS(vr);
             algorithmFPType & value = *vr.get();
@@ -564,6 +568,8 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::compute(NumericTab
                                                                       NumericTable * proximalProjection, NumericTable * lipschitzConstant,
                                                                       Parameter * parameter)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(LogLossKernel.compute);
+
     const size_t nRows                                = dataNT->getNumberOfRows();
     const daal::data_management::NumericTable * ntInd = parameter->batchIndices.get();
     if (ntInd && (ntInd->getNumberOfColumns() == nRows)) ntInd = nullptr;

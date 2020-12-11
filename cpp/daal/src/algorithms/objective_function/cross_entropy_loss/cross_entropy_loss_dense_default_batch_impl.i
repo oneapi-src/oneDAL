@@ -383,6 +383,8 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
 
             if (valueNT)
             {
+                DAAL_ITTNOTIFY_SCOPED_TASK(computeLogProbabilities);
+
                 algorithmFPType * const logP = tlsLogP.local();
                 DAAL_CHECK_THR(logP, services::ErrorMemoryAllocationFailed);
                 daal::internal::Math<algorithmFPType, cpu>::vLog(nRowsToProcess * nClasses, fPtrLocal, logP);
@@ -397,6 +399,8 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
             }
             if (gradientNT)
             {
+                DAAL_ITTNOTIFY_SCOPED_TASK(applyGradient);
+
                 algorithmFPType * const g = grads.get() + iBlock * nBeta;
 
                 for (size_t i = 0; i < nRowsToProcess; ++i)
@@ -451,6 +455,8 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
 
         if (valueNT)
         {
+            DAAL_ITTNOTIFY_SCOPED_TASK(computeLogProbabilities);
+
             WriteRows<algorithmFPType, cpu> vr(valueNT, 0, 1);
             DAAL_CHECK_BLOCK_STATUS(vr);
             algorithmFPType & value = *vr.get();
@@ -577,6 +583,8 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::compute(N
                                                                                NumericTable * nonSmoothTermValue, NumericTable * proximalProjection,
                                                                                NumericTable * lipschitzConstant, Parameter * parameter)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(CrossEntropyLossKernel.compute);
+
     const size_t nRows                                = dataNT->getNumberOfRows();
     const daal::data_management::NumericTable * ntInd = parameter->batchIndices.get();
     if (ntInd && (ntInd->getNumberOfColumns() == nRows)) ntInd = nullptr;
