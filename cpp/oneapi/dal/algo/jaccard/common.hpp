@@ -24,6 +24,7 @@ namespace jaccard {
 namespace detail {
 struct tag {};
 class descriptor_impl;
+
 } // namespace detail
 
 namespace method {
@@ -112,5 +113,19 @@ struct ONEDAL_EXPORT caching_builder {
     std::shared_ptr<byte_t> result_ptr;
     std::size_t size = 0;
 };
+
+namespace detail {
+
+template <typename Graph>
+constexpr bool is_valid_graph =
+    dal::detail::is_one_of_v<Graph,
+                             undirected_adjacency_array_graph<vertex_user_value_type<Graph>,
+                                                              edge_user_value_type<Graph>,
+                                                              graph_user_value_type<Graph>,
+                                                              vertex_type<Graph>,
+                                                              graph_allocator<Graph>>>;
+
+} // namespace detail
+
 } // namespace jaccard
 } // namespace oneapi::dal::preview

@@ -16,27 +16,33 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/jaccard/detail/vertex_similarity_ops.hpp"
-#include "oneapi/dal/algo/jaccard/backend/cpu/select_kernel.hpp"
+#include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
+#include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::preview {
 namespace jaccard {
 namespace detail {
 
-template <typename Policy, typename Float, class Method, typename Graph>
-vertex_similarity_result vertex_similarity_ops_dispatcher<Policy, Float, Method, Graph>::operator()(
-    const Policy &policy,
-    const descriptor_base &desc,
-    vertex_similarity_input<Graph> &input) const {
-    static auto impl = get_backend<Float, Method>(desc, input);
-    return (*impl)(dal::backend::context_cpu{ policy }, desc, input);
+template <typename Float, typename Method>
+vertex_similarity_result backend_default<dal::detail::host_policy,
+                                         Float,
+                                         Method,
+                                         dal::preview::detail::topology<std::int32_t>>::
+operator()(const dal::detail::host_policy &policy,
+           const descriptor_base &desc,
+           const dal::preview::detail::topology<std::int32_t> &data,
+           void *result_ptr) {
+    //call specialization function by Index in tpology
+    return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
+        return call_jaccard_default_kernel_int32<decltype(cpu)>(desc, data, result_ptr);
+    });
 }
 
-#define INSTANTIATE(F, M, G)      \
-    template struct ONEDAL_EXPORT \
-        vertex_similarity_ops_dispatcher<dal::detail::host_policy, F, M, G>;
-
-INSTANTIATE(float, dal::preview::jaccard::method::by_default, undirected_adjacency_array_graph<>)
+template struct backend_default<dal::detail::host_policy,
+                                float,
+                                dal::preview::jaccard::method::fast,
+                                dal::preview::detail::topology<std::int32_t>>;
 
 } // namespace detail
 } // namespace jaccard

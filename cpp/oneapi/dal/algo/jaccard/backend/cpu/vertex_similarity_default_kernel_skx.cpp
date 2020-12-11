@@ -19,29 +19,29 @@
 #include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
 #include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel_avx512.hpp"
 #include "oneapi/dal/algo/jaccard/common.hpp"
-#include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
-#include "oneapi/dal/backend/interop/common.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/graph/detail/graph_service_functions_impl.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
+#include "oneapi/dal/graph/detail/undirected_adjacency_array_graph_impl.hpp"
 
 namespace oneapi::dal::preview {
 namespace jaccard {
 namespace detail {
 
-template vertex_similarity_result
-call_jaccard_default_kernel_avx512<dal::backend::cpu_dispatch_avx512>(
-    const descriptor_base &desc,
-    vertex_similarity_input<undirected_adjacency_array_graph<>> &input);
+template vertex_similarity_result call_jaccard_default_kernel_avx512<
+    dal::backend::cpu_dispatch_avx512>(const descriptor_base &desc,
+                                       const dal::preview::detail::topology<std::int32_t> &data,
+                                       void *result_ptr);
 
 template <>
-vertex_similarity_result
-call_jaccard_default_kernel<undirected_adjacency_array_graph<>, dal::backend::cpu_dispatch_avx512>(
+vertex_similarity_result call_jaccard_default_kernel_int32<dal::backend::cpu_dispatch_avx512>(
     const descriptor_base &desc,
-    vertex_similarity_input<undirected_adjacency_array_graph<>> &input) {
-    return call_jaccard_default_kernel_avx512<dal::backend::cpu_dispatch_avx512>(desc, input);
+    const dal::preview::detail::topology<std::int32_t> &data,
+    void *result_ptr) {
+    return call_jaccard_default_kernel_avx512<dal::backend::cpu_dispatch_avx512>(desc,
+                                                                                 data,
+                                                                                 result_ptr);
 }
 } // namespace detail
 } // namespace jaccard

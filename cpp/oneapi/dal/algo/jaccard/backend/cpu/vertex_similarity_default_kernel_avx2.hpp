@@ -14,6 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#pragma once
+
 #include <immintrin.h>
 
 #include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
@@ -263,12 +265,12 @@ DAAL_FORCEINLINE std::size_t intersection(const std::int32_t *neigh_u,
 template <typename Cpu>
 vertex_similarity_result call_jaccard_default_kernel_avx2(
     const descriptor_base &desc,
-    vertex_similarity_input<undirected_adjacency_array_graph<>> &input) {
-    const auto &my_graph = input.get_graph();
-    const auto &g = dal::detail::get_impl(my_graph);
-    auto g_edge_offsets = g._edge_offsets.data();
-    auto g_vertex_neighbors = g._vertex_neighbors.data();
-    auto g_degrees = g._degrees.data();
+    const dal::preview::detail::topology<std::int32_t> &data,
+    void *result_ptr) {
+    const auto g_edge_offsets = data._edge_offsets.get_data();
+    const auto g_vertex_neighbors = data._vertex_neighbors.get_data();
+    const auto g_degrees = data._degrees.get_data();
+
     const auto row_begin = dal::detail::integral_cast<std::int32_t>(desc.get_row_range_begin());
     const auto row_end = dal::detail::integral_cast<std::int32_t>(desc.get_row_range_end());
     const auto column_begin =
@@ -276,8 +278,6 @@ vertex_similarity_result call_jaccard_default_kernel_avx2(
     const auto column_end = dal::detail::integral_cast<std::int32_t>(desc.get_column_range_end());
     const auto number_elements_in_block =
         compute_number_elements_in_block(row_begin, row_end, column_begin, column_end);
-    const auto max_block_size = compute_max_block_size(number_elements_in_block);
-    void *result_ptr = input.get_caching_builder()(max_block_size);
     int *first_vertices = reinterpret_cast<int *>(result_ptr);
     int *second_vertices = first_vertices + number_elements_in_block;
     float *jaccard = reinterpret_cast<float *>(second_vertices + number_elements_in_block);

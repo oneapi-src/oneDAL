@@ -19,4 +19,4 @@
 
 #pragma once
 
-//#include "oneapi/dal/algo/jaccard/vertex_similarity.hpp"
+#include "oneapi/dal/algo/jaccard/vertex_similarity.hpp"
