@@ -36,12 +36,12 @@ sys.path.insert(0, os.path.abspath('../'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'Intel&reg; oneAPI Data Analytics Library Documentation'
+project = 'Intel® oneAPI Data Analytics Library Documentation'
 copyright = '2014 - 2020, Intel Corporation' # pylint: disable=redefined-builtin
 author = 'Intel'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0'
+release = '2021'
 
 rst_prolog = """
 .. |full_name| replace:: Intel\ |reg|\  oneAPI Data Analytics Library
