@@ -1,0 +1,808 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Data Management &mdash; Intel® oneAPI Data Analytics Library Documentation 2021 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinx_tabs/semantic-ui-2.4.1/segment.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinx_tabs/semantic-ui-2.4.1/menu.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinx_tabs/semantic-ui-2.4.1/tab.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinx_tabs/tabs.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Array" href="array.html" />
+    <link rel="prev" title="Computational Modes" href="../programming-model/computational-modes.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Intel® oneAPI Data Analytics Library Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#see-also">See Also</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Developer Guide and Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../data-analytics-pipeline.html">Data Analytics Pipeline</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../oneapi-interfaces.html">oneAPI Interfaces</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html">Introduction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../get-started.html">Get Started with oneDAL</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../get-started.html#before-you-begin">Before You Begin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../get-started.html#end-to-end-example">End-to-end Example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../get-started.html#build-and-run-examples">Build and Run Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../get-started.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../build_app/build-application.html">Build applications with oneDAL</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../build_app/build-application.html#applications-on-windows-os">Applications on Windows* OS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../build_app/build-application.html#applications-on-linux-os">Applications on Linux* OS</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../glossary.html">Glossary</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../glossary.html#machine-learning-terms">Machine learning terms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../glossary.html#short-name-terms">oneDAL terms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../glossary.html#common-oneapi-terms">Common oneAPI terms</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../programming-model/computational-modes.html">Computational Modes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../programming-model/computational-modes.html#batch">Batch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../programming-model/computational-modes.html#online">Online</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../programming-model/computational-modes.html#distributed">Distributed</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Data Management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#key-concepts">Key concepts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#dataset">Dataset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#data-source">Data source</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#table">Table</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#table-metadata">Table metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#accessor">Accessor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#example-of-interaction-between-table-and-accessor-objects">Example of interaction between table and accessor objects</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#details">Details</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="array.html">Array</a></li>
+<li class="toctree-l4"><a class="reference internal" href="accessors.html">Accessors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="data-sources.html">Data Sources</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tables.html">Tables</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../algorithms/index.html">Algorithms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering/index.html">Clustering</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering/kmeans.html">K-Means</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering/kmeans-init.html">K-Means initialization</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/decomposition/index.html">Decomposition</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/decomposition/pca.html">Principal Components Analysis (PCA)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/ensembles/index.html">Ensembles</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/ensembles/decision-forest.html">Decision Forest Classification and Regression (DF)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/kernel-functions/index.html">Kernel Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/kernel-functions/linear-kernel.html">Linear kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/kernel-functions/rbf-kernel.html">Radial Basis Function (RBF) kernel</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/nearest-neighbors/index.html">Nearest Neighbors (kNN)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/nearest-neighbors/knn-classification.html">k-Nearest Neighbors Classification (k-NN)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/svm/index.html">Support Vector Machines</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/svm/svm.html">Support Vector Machine Classifier (SVM)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples.html">oneAPI Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/dpc.html">DPC++</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/dpc/column_accessor_homogen.html">column_accessor_homogen.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/dpc/df_cls_dense_batch.html">df_cls_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/dpc/df_reg_dense_batch.html">df_reg_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/dpc/kmeans_init_dense.html">kmeans_init_dense.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/dpc/kmeans_lloyd_dense_batch.html">kmeans_lloyd_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/dpc/knn_cls_brute_force_dense_batch.html">knn_cls_brute_force_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/dpc/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/dpc/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/dpc/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/dpc/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/cpp.html">C++</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/column_accessor_homogen.html">column_accessor_homogen.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/df_cls_dense_batch.html">df_cls_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/df_reg_dense_batch.html">df_reg_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/graph_service_functions.html">graph_service_functions.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/jaccard_batch.html">jaccard_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/jaccard_batch_app.html">jaccard_batch_app.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/kmeans_init_dense.html">kmeans_init_dense.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/kmeans_lloyd_dense_batch.html">kmeans_lloyd_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/knn_cls_kd_tree_dense_batch.html">knn_cls_kd_tree_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/load_graph.html">load_graph.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/pca_dense_batch.html">pca_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/svm_two_class_smo_dense_batch.html">svm_two_class_smo_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/index.html">Appendix</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../appendix/kd_tree.html">k-d Tree</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../appendix/kd_tree.html#related-terms">Related terms</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../daal-interfaces.html">DAAL Interfaces</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../daal-interfaces.html#developer-guide">Developer Guide</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../daal/cpu-vs-gpu.html">CPU and GPU Support</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/cpu-vs-gpu.html#computation-modes">Computation modes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/cpu-vs-gpu.html#methods">Methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/cpu-vs-gpu.html#parameters">Parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../daal/usage/index.html">Library Usage</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/usage/algorithms.html">Algorithms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/usage/computation-modes.html">Computation Modes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/usage/training-and-prediction/index.html">Training and Prediction</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../daal/data-management/data-management.html">Data Management</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/data-management/numeric-tables.html">Numeric Tables</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/data-management/data-sources.html">Data Sources</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/data-management/data-dictionaries.html">Data Dictionaries</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/data-management/data-serialization-and-deserialization.html">Data Serialization and Deserialization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/data-management/data-compression.html">Data Compression</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/data-management/data-model.html">Data Model</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../daal/analysis.html">Analysis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/kmeans/k-means-clustering.html">K-Means Clustering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/dbscan/index.html">Density-Based Spatial Clustering of Applications with Noise</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/covariance/correlation-and-variance-covariance-matrices.html">Correlation and Variance-Covariance Matrices</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/pca/principal-component-analysis.html">Principal Component Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/pca/transform.html">Principal Components Analysis Transform</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/svd/singular-value-decomposition.html">Singular Value Decomposition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/association_rules/association-rules.html">Association Rules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/kernel_function/kernel-functions.html">Kernel Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/em/expectation-maximization.html">Expectation-Maximization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/cholesky/cholesky.html">Cholesky Decomposition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/qr/qr-decomposition.html">QR Decomposition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/outlier_detection/index.html">Outlier Detection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/distance/index.html">Distance Matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/distributions/index.html">Distributions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/engines/index.html">Engines</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/moments/moments-of-low-order.html">Moments of Low Order</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/quantiles/index.html">Quantile</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/quality_metrics/index.html">Quality Metrics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/sorting/index.html">Sorting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/normalization/index.html">Normalization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/optimization-solvers/optimization-solvers.html">Optimization Solvers</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../daal/training-prediction.html">Training and Prediction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/decision_forest/index.html">Decision Forest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/decision_tree/index.html">Decision Trees</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/gradient_boosted_trees/index.html">Gradient Boosted Trees</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/stump/index.html">Stump</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/linear_ridge_regression/index.html">Linear and Ridge Regressions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/lasso_elastic_net/index.html">LASSO and Elastic Net Regressions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html">k-Nearest Neighbors (kNN) Classifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/implicit_als/implicit-alternating-least-squares.html">Implicit Alternating Least Squares</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/logistic_regression/logistic-regression.html">Logistic Regression</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/naive_bayes/naive-bayes-classifier.html">Naïve Bayes Classifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/svm/support-vector-machine-classifier.html">Support Vector Machine Classifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/svm_multi_class/multi-class-classifier.html">Multi-class Classifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/boosting/index.html">Boosting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/training-prediction.html#training-alternative">Training Alternative</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../daal/services/services.html">Services</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/services/extracting-version-information.html">Extracting Version Information</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/services/handling-errors.html">Handling Errors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/services/managing-memory.html">Managing Memory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/services/managing-computational-environment.html">Managing the Computational Environment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/services/callback-for-host-application.html">Providing a Callback for the Host Application</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../daal-interfaces.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Notes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/known_issues.html">Known Issues</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../notes/issues/2021.1-beta09/oneapi-examples-segfault.html">oneAPI examples failing with segfault</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../notes/issues/2021.1-beta09/oneapi-examples-segfault.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../notes/issues/2021.1-beta09/pca-examples-on-gpu.html">PCA examples failing on GPU devices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../notes/issues/2021.1-beta09/pca-examples-on-gpu.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../notes/issues/2021.1-beta08/windows-static-debug-config.html">Static debug configuration not working</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../notes/issues/2021.1-beta08/windows-static-debug-config.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../notes/issues/2021.1-beta06/dpcpp-examples-in-vs2017.html">DPC++ examples not working</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../notes/issues/2021.1-beta06/dpcpp-examples-in-vs2017.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../notes/issues/2021.1-beta06/incorrect-linker-behavior.html">Incorrect linker behavior</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../notes/issues/2021.1-beta06/incorrect-linker-behavior.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../notes/issues/2021.1-beta06/level-zero-not-found.html">Level Zero runtime dependency</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../notes/issues/2021.1-beta06/level-zero-not-found.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../notes/issues/2021.1-beta06/performance-degradations.html">Potential performance degradations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../notes/issues/2021.1-beta06/performance-degradations.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../notes/issues/2021.1-beta06/undeclared-identifier.html">Undeclared identifier <code class="docutils literal notranslate"><span class="pre">CL_DEVICE_IL_VERSION_KHR</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../notes/issues/2021.1-beta06/undeclared-identifier.html#how-to-fix">How to fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../notes/issues/2021.1-beta04/dll-file-not-found.html">DLL file not found</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../notes/issues/2021.1-beta04/dll-file-not-found.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../legal.html">Notices and Disclaimers</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../contribution/coding_guide.html">Coding Guidelines</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../contribution/coding_guide.html#coding-style">Coding Style</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../contribution/coding_guide.html#general-rules">General Rules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#whitespaces">Whitespaces</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#c-files">C++ Files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#header-files">Header Files</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../contribution/coding_guide.html#naming-conventions">Naming Conventions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#file-names">File Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#type-names">Type Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#function-names">Function Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#variable-names">Variable Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#class-member-names-and-method-names">Class Member Names and Method Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#constant-names">Constant Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#distributed-and-streaming-computational-schemes">Distributed and streaming computational schemes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../contribution/coding_guide.html#declaration-order">Declaration Order</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../contribution/coding_guide.html#typedefs">Typedefs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../contribution/coding_guide.html#defines">Defines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../contribution/coding_guide.html#common-definitions">Common definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../contribution/coding_guide.html#statements">Statements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../contribution/coding_guide.html#comments">Comments</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#function-comments">Function Comments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#variable-comments">Variable Comments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#class-data-members-comments">Class Data Members Comments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#function-declarations-comments">Function Declarations Comments</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../contribution/coding_guide.html#templates-declaration">Templates declaration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../contribution/coding_guide.html#deprecated-api">Deprecated API</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#notes">Notes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../contribution/coding_guide.html#programming-guidelines">Programming guidelines</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../contribution/coding_guide.html#local-variables">Local Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../contribution/coding_guide.html#constants">Constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../contribution/coding_guide.html#static-and-global-variables">Static and Global Variables</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#undetermined-order-of-construction-and-destruction">Undetermined order of construction and destruction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#static-variables-within-a-function-scope">Static variables within a function scope</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../contribution/coding_guide.html#usage-of-const">Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#usage-of-const-in-functions">Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code> in Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#usage-of-const-methods">Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code> Methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#usage-of-const-and-mutable-data-members">Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code> and <code class="docutils literal notranslate"><span class="pre">mutable</span></code> Data Members</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../contribution/coding_guide.html#ownership-raii-resource-acquisition-is-initialization">Ownership (RAII – Resource Acquisition Is Initialization)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../contribution/coding_guide.html#smart-pointers">Smart Pointers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../contribution/coding_guide.html#passing-parameters-of-non-primitive-types-by-reference">Passing parameters of non-primitive types by reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../contribution/coding_guide.html#preprocessor-macros">Preprocessor Macros</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../contribution/coding_guide.html#namespaces">Namespaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../contribution/coding_guide.html#id1">Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#write-short-functions">Write short functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#function-s-arguments">Function’s arguments</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../contribution/coding_guide.html#infix-and-postfix-increment-operators">Infix and postfix increment operators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../contribution/coding_guide.html#assertions">Assertions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../contribution/coding_guide.html#classes">Classes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#initialization">Initialization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#clone-all-parts-of-an-object">Clone all parts of an object</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#assignment">Assignment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#new-and-delete">New and delete</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#access-control">Access Control</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#template-metaprogramming">Template metaprogramming</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../contribution/coding_guide.html#hiding-the-implementation-in-model-classes">Hiding the implementation in <code class="docutils literal notranslate"><span class="pre">Model</span></code> classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../contribution/coding_guide.html#sdl-requirements">SDL Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#handling-primitive-data-types">Handling Primitive Data Types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#working-with-pointers">Working with Pointers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#working-with-buffers">Working with Buffers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#handling-exceptions">Handling exceptions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../contribution/coding_guide.html#handling-null-byte-injection">Handling null byte injection</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Intel® oneAPI Data Analytics Library Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../oneapi-interfaces.html">oneAPI Interfaces</a> &raquo;</li>
+        
+      <li>Data Management</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/onedal/data-management/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="data-management">
+<span id="id1"></span><h1>Data Management<a class="headerlink" href="#data-management" title="Permalink to this headline">¶</a></h1>
+<p>This section includes concepts and objects that operate on data. For
+oneDAL, such set of operations, or <strong>data management</strong>, is distributed
+between different stages of the <a class="reference internal" href="../../data-analytics-pipeline.html#onedal-data-analytics-pipeline"><span class="std std-ref">data analytics pipeline</span></a>. From a perspective of data management, this pipeline
+contains three main steps of data acquisition, preparation, and computation (see
+<a class="reference internal" href="#typical-data-management-flow"><span class="std std-ref">the picture below</span></a>):</p>
+<ol class="arabic simple">
+<li><p>Raw data acquisition</p></li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><p>Transfer out-of-memory data from various sources (databases, files, remote
+storage) into an in-memory representation.</p></li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>Data preparation</p></li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><p>Support different in-memory <a class="reference internal" href="../glossary.html#term-Data-format"><span class="xref std std-term">data formats</span></a>.</p></li>
+<li><p>Compress and decompress the data.</p></li>
+<li><p>Convert the data into numeric representation.</p></li>
+<li><p>Recover missing values.</p></li>
+<li><p>Filter the data and perform data normalization.</p></li>
+<li><p>Compute various statistical metrics for numerical data, such as mean, variance,
+and covariance.</p></li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li><p>Algorithm computation</p></li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><p>Stream in-memory numerical data to the algorithm.</p></li>
+</ul>
+</div></blockquote>
+<p>In complex usage scenarios, data flow goes through these three stages back and
+forth. For example, when the data are not fully available at the start of the
+computation, it can be done step-by-step using blocks of data. After the
+computation on the current block is completed, the next block should be obtained
+and prepared.</p>
+<a class="reference internal image-reference" href="../../_images/data_management_flow.png" id="typical-data-management-flow"><img alt="Typical data management flow" id="typical-data-management-flow" src="../../_images/data_management_flow.png" style="width: 800px;" /></a>
+<div class="section" id="key-concepts">
+<h2>Key concepts<a class="headerlink" href="#key-concepts" title="Permalink to this headline">¶</a></h2>
+<p>oneDAL provides a set of concepts to operate on out-of-memory and
+in-memory data during different stages of the <a class="reference internal" href="../../data-analytics-pipeline.html#onedal-data-analytics-pipeline"><span class="std std-ref">data analytics pipeline</span></a>.</p>
+<div class="section" id="dataset">
+<span id="id2"></span><h3>Dataset<a class="headerlink" href="#dataset" title="Permalink to this headline">¶</a></h3>
+<p>The main data-related concept that oneDAL works with is a
+<a class="reference internal" href="../glossary.html#term-Dataset"><span class="xref std std-term">dataset</span></a>. It is a tabular view of data, where table rows represent the
+<a class="reference internal" href="../glossary.html#term-Observation"><span class="xref std std-term">observations</span></a> and columns represent the
+<a class="reference internal" href="../glossary.html#term-Feature"><span class="xref std std-term">features</span></a>.</p>
+<a class="reference internal image-reference" href="../../_images/dataset.png"><img alt="Dataset" src="../../_images/dataset.png" style="width: 400px;" /></a>
+<p>The dataset is used across all stages of the data analytics pipeline. For
+example:</p>
+<ol class="arabic simple">
+<li><p>At the acquisition stage, it is downloaded into the
+local memory.</p></li>
+<li><p>At the preparation stage, it is converted into a numerical
+representation.</p></li>
+<li><p>At the computation stage, it is used as one of the inputs or
+results of an algorithm or a descriptor properties.</p></li>
+</ol>
+</div>
+<div class="section" id="data-source">
+<span id="id3"></span><h3>Data source<a class="headerlink" href="#data-source" title="Permalink to this headline">¶</a></h3>
+<p>Data source is a concept of an out-of-memory storage for a <a class="reference internal" href="../glossary.html#term-Dataset"><span class="xref std std-term">dataset</span></a>.
+It is used at the data acquisition and data preparation stages to:</p>
+<ul class="simple">
+<li><p>Extract datasets from external sources such as databases, files, remote
+storage.</p></li>
+<li><p>Load datasets into the device’s local memory. Data do not always fit
+the local memory, especially when processing with accelerators. A data source
+provides the ability to load data by batches and extracts it directly into the
+device’s local memory. Therefore, a data source enables complex data analytics
+scenarios, such as <a class="reference internal" href="../glossary.html#term-Online-mode"><span class="xref std std-term">online computations</span></a>.</p></li>
+<li><p>Transform datasets into their numerical representation. Data source
+automatically transforms non-numeric <a class="reference internal" href="../glossary.html#term-Categorical-feature"><span class="xref std std-term">categorical</span></a> and <a class="reference internal" href="../glossary.html#term-Continuous-feature"><span class="xref std std-term">continuous</span></a> data values into one
+of the numeric <a class="reference internal" href="../glossary.html#term-Data-format"><span class="xref std std-term">data formats</span></a>.</p></li>
+</ul>
+<p>For details, see <a class="reference internal" href="data-sources.html#data-sources"><span class="std std-ref">data sources</span></a> section.</p>
+</div>
+<div class="section" id="table">
+<span id="id4"></span><h3>Table<a class="headerlink" href="#table" title="Permalink to this headline">¶</a></h3>
+<p>Table is a concept of in-memory numerical data that are organized in a tabular
+view with several rows and columns. It is used at the data preparation and data
+processing stages to:</p>
+<ul class="simple">
+<li><p>Be an in-memory representation of a <a class="reference internal" href="#dataset"><span class="std std-ref">dataset</span></a> or another tabular
+data (for example, matrices, vectors, and scalars).</p></li>
+<li><p>Store heterogeneous data in various
+<a class="reference internal" href="../glossary.html#term-Data-format"><span class="xref std std-term">data formats</span></a>, such as dense, sparse, chunked,
+contiguous.</p></li>
+<li><p>Avoid unnecessary data copies during conversion from external data
+representations.</p></li>
+<li><p>Transfer memory ownership of the data from user application to the table,
+or share it between them.</p></li>
+<li><p>Connect with the <a class="reference internal" href="#data-source"><span class="std std-ref">data source</span></a> to convert data from an
+out-of-memory into an in-memory representation.</p></li>
+<li><p>Support streaming of the data to the algorithm.</p></li>
+<li><p>Access the underlying data on a device in a required <a class="reference internal" href="../glossary.html#term-Data-format"><span class="xref std std-term">data
+format</span></a>, e.g. by blocks with the defined <a class="reference internal" href="../glossary.html#term-Data-layout"><span class="xref std std-term">data layout</span></a>.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For thread-safety reasons and better integration with external entities, a
+table provides a read-only access to the data within it, thus, table object
+is <a class="reference internal" href="../glossary.html#term-Immutability"><span class="xref std std-term">immutable</span></a>.</p>
+</div>
+<p>This concept has different logical organization and physical <a class="reference internal" href="../glossary.html#term-Data-format"><span class="xref std std-term">format of
+the data</span></a>:</p>
+<ul class="simple">
+<li><p>Logically, a table contains <span class="math notranslate nohighlight">\(n\)</span> rows and <span class="math notranslate nohighlight">\(p\)</span> columns.
+Every column may have its own type of data values and a set of allowed
+operations.</p></li>
+<li><p>Physically, a table can be organized in different ways: as a
+<a class="reference internal" href="../glossary.html#term-Homogeneous-data"><span class="xref std std-term">homogeneous</span></a>, <a class="reference internal" href="../glossary.html#term-Contiguous-data"><span class="xref std std-term">contiguous</span></a> array of bytes, as a <a class="reference internal" href="../glossary.html#term-Heterogeneous-data"><span class="xref std std-term">heterogeneous</span></a> list
+of arrays of different <a class="reference internal" href="../glossary.html#term-Data-type"><span class="xref std std-term">data types</span></a>, in a
+compressed-sparse-row format. The number of bytes needed to store the data
+differs from the number of elements <span class="math notranslate nohighlight">\(n \times p\)</span> within a table.</p></li>
+</ul>
+<p>For details, see <a class="reference internal" href="tables.html#tables"><span class="std std-ref">tables</span></a> section.</p>
+</div>
+<div class="section" id="table-metadata">
+<span id="id5"></span><h3>Table metadata<a class="headerlink" href="#table-metadata" title="Permalink to this headline">¶</a></h3>
+<p>Table metadata concept provides an additional information about data in the
+table:</p>
+<ol class="arabic simple">
+<li><p>The <a class="reference internal" href="../glossary.html#term-Data-type"><span class="xref std std-term">data types</span></a> of the columns.</p></li>
+<li><p>The logical types of data in the columns:
+<a class="reference internal" href="../glossary.html#term-Nominal-feature"><span class="xref std std-term">nominal</span></a>, <a class="reference internal" href="../glossary.html#term-Ordinal-feature"><span class="xref std std-term">ordinal</span></a>,
+<a class="reference internal" href="../glossary.html#term-Interval-feature"><span class="xref std std-term">interval</span></a>, or <a class="reference internal" href="../glossary.html#term-Ratio-feature"><span class="xref std std-term">ratio</span></a>.</p></li>
+</ol>
+<p>Only the properties of data that do not affect table concept definition is
+a part of metadata concept.</p>
+</div>
+<div class="section" id="accessor">
+<span id="id6"></span><h3>Accessor<a class="headerlink" href="#accessor" title="Permalink to this headline">¶</a></h3>
+<p>Accessor is a concept that defines a single way to extract the data from a
+<a class="reference internal" href="#table"><span class="std std-ref">table</span></a>. It allows to:</p>
+<ul class="simple">
+<li><p>Have unified access to the data from <a class="reference internal" href="#table"><span class="std std-ref">table</span></a> objects of different
+types, without exposing their implementation details.</p></li>
+<li><p>Provide a <a class="reference internal" href="../glossary.html#term-Flat-data"><span class="xref std std-term">flat</span></a> view on the data blocks of a
+<a class="reference internal" href="#table"><span class="std std-ref">table</span></a> for better data locality. For example, the accessor returns a
+column of the table stored in row-major format as a contiguous array.</p></li>
+<li><p>Acquire data in a desired <a class="reference internal" href="../glossary.html#term-Data-format"><span class="xref std std-term">data format</span></a> for which
+a specific set of operations is defined.</p></li>
+<li><p>Have read-only access to the data.</p></li>
+</ul>
+<p>For details, see <a class="reference internal" href="accessors.html#accessors"><span class="std std-ref">accessors</span></a> section.</p>
+</div>
+<div class="section" id="example-of-interaction-between-table-and-accessor-objects">
+<h3>Example of interaction between table and accessor objects<a class="headerlink" href="#example-of-interaction-between-table-and-accessor-objects" title="Permalink to this headline">¶</a></h3>
+<p>This section provides a basic usage scenario of the <a class="reference internal" href="#table"><span class="std std-ref">table</span></a> and
+<a class="reference internal" href="#accessor"><span class="std std-ref">accessor</span></a> concepts and demonstrates the relations between them.
+<a class="reference internal" href="#table-accessor-usage-example"><span class="std std-ref">The following diagram</span></a> shows objects
+of these concepts, which are highlighted by colors:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#table"><span class="std std-ref">table</span></a> object is dark blue</p></li>
+<li><p><a class="reference internal" href="#accessor"><span class="std std-ref">accessor</span></a> is orange</p></li>
+<li><p><a class="reference internal" href="#table-metadata"><span class="std std-ref">table metadata</span></a> is light blue</p></li>
+</ul>
+<a class="reference internal image-reference" href="../../_images/table_accessor_usage_example.png" id="table-accessor-usage-example"><img alt="Sequence diagram of accessor-builder-table relations" id="table-accessor-usage-example" src="../../_images/table_accessor_usage_example.png" style="width: 800px;" /></a>
+<p>To perform computations on a dataset, you have to create a <a class="reference internal" href="#table"><span class="std std-ref">table</span></a> object
+first. It can be done either using a <a class="reference internal" href="#data-source"><span class="std std-ref">data source</span></a> or directly from
+user-defined memory. The diagram shows the creation of a <a class="reference internal" href="#table"><span class="std std-ref">table</span></a> object
+<cite>t</cite> from the data provided by user (not shown on the diagram). During a table
+creation, an object <cite>tm</cite> of table metadata is constructed and initialized using
+the data.</p>
+<p>Once a table object is created, it can be used as an input in computations or as
+a parameter of some algorithm. The data in the table can be accessed via its own
+interface or via read-only accessor as shown on the diagram.</p>
+</div>
+</div>
+<div class="section" id="details">
+<h2>Details<a class="headerlink" href="#details" title="Permalink to this headline">¶</a></h2>
+<p>This section includes the detailed descriptions of all data management objects in
+oneDAL.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="array.html">Array</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="array.html#usage-example">Usage example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="array.html#data-ownership-requirements">Data ownership requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="array.html#programming-interface">Programming interface</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="accessors.html">Accessors</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="accessors.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="accessors.html#accessor-types">Accessor Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="accessors.html#details">Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="accessor/column.html">Column accessor</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="accessor/column.html#usage-example">Usage example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="accessor/column.html#programming-interface">Programming interface</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="accessor/row.html">Row accessor</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="accessor/row.html#usage-example">Usage example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="accessor/row.html#programming-interface">Programming interface</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data-sources.html">Data Sources</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="data-sources.html#read">Read</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="data-sources.html#read-operation-definition">Read operation definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="data-sources.html#read-operation-shortcuts">Read operation shortcuts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="data-sources.html#args">Args</a></li>
+<li class="toctree-l3"><a class="reference internal" href="data-sources.html#result">Result</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="data-sources.html#data-source-types">Data Source Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data-sources.html#details">Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="data-source/csv.html">CSV data source</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="data-source/csv.html#usage-example">Usage example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="data-source/csv.html#programming-interface">Programming Interface</a></li>
+<li class="toctree-l4"><a class="reference internal" href="data-source/csv.html#reading-oneapi-dal-read-object">Reading <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">oneapi</span><span class="pre">::</span><span class="pre">dal</span><span class="pre">::</span><span class="pre">read</span><span class="pre">&lt;</span><span class="pre">Object</span><span class="pre">&gt;</span><span class="sig-paren">(</span><span class="pre">...</span><span class="sig-paren">)</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="data-source/csv.html#args">Args</a></li>
+<li class="toctree-l5"><a class="reference internal" href="data-source/csv.html#operation">Operation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tables.html">Tables</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tables.html#requirements-on-table-types">Requirements on table types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tables.html#table-types">Table types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tables.html#programming-interface">Programming interface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tables.html#table">Table</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tables.html#table-metadata">Table metadata</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tables.html#data-layout">Data layout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tables.html#feature-type">Feature type</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="table/homogen.html">Homogeneous table</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="table/homogen.html#programming-interface">Programming interface</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="array.html" class="btn btn-neutral float-right" title="Array" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../programming-model/computational-modes.html" class="btn btn-neutral float-left" title="Computational Modes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2014 - 2020, Intel Corporation
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
