@@ -107,6 +107,12 @@ public:
 #endif
 
 public:
+<<<<<<< HEAD
+=======
+    /// Creates a new instance of the class without memory allocation:
+    /// :literal:`mutable_data` and :literal:`data` pointers should be set to ``nullptr``,
+    /// :literal:`count` should be zero; the pointer to the ownership structure should be set to ``nullptr``.
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
     array() : impl_(new impl_t()) {
         const T* null_data = nullptr;
         update_data(null_data, 0);
@@ -116,6 +122,11 @@ public:
         update_data(impl_.get());
     }
 
+<<<<<<< HEAD
+=======
+    /// Moves :literal:`data`, :literal:`mutable_data` pointers, :literal:`count`, and pointer to the ownership structure
+    /// in :literal:`other` to the new array instance
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
     array(array<T>&& a) : impl_(std::move(a.impl_)) {
         update_data(impl_.get());
     }
@@ -144,6 +155,20 @@ public:
         detail::wait_and_throw(dependencies);
     }
 
+<<<<<<< HEAD
+=======
+    /// Creates the ownership structure for memory block of externally-allocated immutable data,
+    /// assigns input :literal:`deleter` object to it,
+    /// sets :literal:`data` pointer to this block.
+    ///
+    /// @tparam ConstDeleter The type of a deleter used to free.
+    ///                      The deleter implements `void operator()(const T*)`` member function.
+    ///
+    /// @param data          The immutable memory block pointer to be assigned inside the array
+    /// @param count         The number of elements of type :literal:`T` into the block
+    /// @param deleter       The object used to free :literal:`Data`.
+    /// @param dependencies  Events indicating availability of the :literal:`Data` for reading or writing.
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
     template <typename ConstDeleter>
     explicit array(const sycl::queue& queue,
                    const T* data,
@@ -162,12 +187,26 @@ public:
         update_data(impl_.get());
     }
 
+<<<<<<< HEAD
+=======
+    /// Replaces the :literal:`data`, :literal:`mutable_data` pointers, :literal:`count`, and pointer
+    /// to the ownership structure in the array instance by the values in :literal:`other`.
+    ///
+    /// @post :expr:`data == other.data`
+    /// @post :expr:`mutable_data == other.mutable_data`
+    /// @post :expr:`count == other.count`
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
     array<T> operator=(const array<T>& other) {
         array<T> tmp{ other };
         swap(*this, tmp);
         return *this;
     }
 
+<<<<<<< HEAD
+=======
+    /// Swaps the values of :literal:`data`, :literal:`mutable_data` pointers, :literal:`count`, and pointer
+    /// to the ownership structure in the array instance and :literal:`other`.
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
     array<T> operator=(array<T>&& other) {
         swap(*this, other);
         return *this;
@@ -184,10 +223,25 @@ public:
         return data_ptr_;
     }
 
+<<<<<<< HEAD
+=======
+    /// Returns whether array contains :literal:`mutable_data` or not
+    ///
+    /// @invariant :expr:`mutable_data != nullptr` if this returns `true` and :expr:`count > 0`
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
     bool has_mutable_data() const noexcept {
         return mutable_data_ptr_ != nullptr;
     }
 
+<<<<<<< HEAD
+=======
+    /// Returns mutable_data, if array contains it. Otherwise, allocates a
+    /// memory block for mutable data and fills it with the data stored at :literal:`data`.
+    /// Creates the ownership structure for allocated memory block and stores
+    /// the pointer.
+    ///
+    /// @post :expr:`has_mutable_data() == true`
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
     array& need_mutable_data() {
         impl_->need_mutable_data(detail::default_host_policy{}, detail::host_allocator<data_t>{});
         update_data(impl_->get_mutable_data(), impl_->get_count());
@@ -195,6 +249,18 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
+<<<<<<< HEAD
+=======
+    /// Returns mutable_data, if array contains it. Otherwise, allocates a
+    /// memory block for mutable data and fills it with the data stored at :literal:`data`.
+    /// Creates the ownership structure for allocated memory block and stores
+    /// the pointer.
+    ///
+    /// @param queue The SYCL* queue object.
+    /// @param alloc The kind of USM to be allocated
+    ///
+    /// @post :expr:`has_mutable_data() == true`
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
     array& need_mutable_data(sycl::queue& queue,
                              const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
         impl_->need_mutable_data(detail::data_parallel_policy{ queue },
@@ -212,6 +278,11 @@ public:
         return count_ * sizeof(T);
     }
 
+<<<<<<< HEAD
+=======
+    /// Resets ownership structure pointer to ``nullptr``,
+    /// sets :literal:`count` to zero, :literal:`data` and :literal:`mutable_data` to :expr:`nullptr`.
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
     void reset() {
         impl_->reset();
         const T* null_data = nullptr;
@@ -234,6 +305,19 @@ public:
     }
 #endif
 
+<<<<<<< HEAD
+=======
+    /// Creates the ownership structure for memory block of externally-allocated mutable data,
+    /// assigns input :literal:`deleter` object to it,
+    /// sets :literal:`data` and :literal:`mutable_data` pointers to this block.
+    ///
+    /// @tparam Deleter     The type of a deleter used to free the :literal:`Data`.
+    ///                     The deleter implements ``void operator()(Data*)`` member function.
+    ///
+    /// @param data         The mutable memory block pointer to be assigned inside the array
+    /// @param count        The number of elements of type :literal:`Data` into the block
+    /// @param deleter      The object used to free :literal:`Data`.
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
     template <typename Deleter>
     void reset(T* data, std::int64_t count, Deleter&& deleter) {
         // TODO: check input parameters
@@ -241,6 +325,19 @@ public:
         update_data(data, count);
     }
 
+<<<<<<< HEAD
+=======
+    /// Creates the ownership structure for memory block of externally-allocated immutable data,
+    /// assigns input :literal:`deleter` object to it,
+    /// sets :literal:`data` pointer to this block.
+    ///
+    /// @tparam ConstDeleter The type of a deleter used to free.
+    ///                      The deleter implements `void operator()(const Data*)`` member function.
+    ///
+    /// @param data          The immutable memory block pointer to be assigned inside the array
+    /// @param count         The number of elements of type :literal:`Data` into the block
+    /// @param deleter       The object used to free :literal:`Data`.
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
     template <typename ConstDeleter>
     void reset(const T* data, std::int64_t count, ConstDeleter&& deleter) {
         // TODO: check input parameters
@@ -259,12 +356,38 @@ public:
     }
 #endif
 
+<<<<<<< HEAD
+=======
+    /// Initializes :literal:`data` and :literal:`mutable_data` with data pointer,
+    /// :literal:`count` with input :literal:`count` value, initializes
+    /// the pointer to ownership structure with the one from ref. Array
+    /// returns :literal:`Data` pointer as its mutable block.
+
+    /// @tparam ref    The type of elements in the referenced array.
+    ///
+    /// @param ref   The array which is used to share ownership structure with current one.
+    /// @param data  Mutable unmanaged pointer to be assigned to the array.
+    /// @param count The number of elements of type :literal:`T` in the :literal:`Data`.
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
     template <typename Y>
     void reset(const array<Y>& ref, T* data, std::int64_t count) {
         impl_->reset(*ref.impl_, data, count);
         update_data(data, count);
     }
 
+<<<<<<< HEAD
+=======
+    /// Initializes :literal:`data` with data pointer,
+    /// :literal:`count` with input :literal:`count` value, initializes
+    /// the pointer to ownership structure with the one from ref. Array
+    /// returns :literal:`Data` pointer as its immutable block.
+    ///
+    /// @tparam ref    The type of elements in the referenced array.
+    ///
+    /// @param ref   The array which is used to share ownership structure with current one.
+    /// @param data  Immutable unmanaged pointer to be assigned to the array.
+    /// @param count The number of elements of type :literal:`T` in the :literal:`Data`.
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
     template <typename Y>
     void reset(const array<Y>& ref, const T* data, std::int64_t count) {
         impl_->reset(*ref.impl_, data, count);

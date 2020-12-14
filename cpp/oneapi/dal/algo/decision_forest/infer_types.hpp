@@ -36,6 +36,11 @@ using v1::infer_result_impl;
 
 namespace v1 {
 
+<<<<<<< HEAD
+=======
+/// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
+///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
 template <typename Task = task::by_default>
 class infer_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -66,6 +71,11 @@ private:
     dal::detail::pimpl<detail::infer_input_impl<Task>> impl_;
 };
 
+<<<<<<< HEAD
+=======
+/// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
+///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
 template <typename Task = task::by_default>
 class infer_result : public base {
     static_assert(detail::is_valid_task_v<Task>);

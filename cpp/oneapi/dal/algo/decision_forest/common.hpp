@@ -145,6 +145,11 @@ template <typename Task>
 constexpr bool is_valid_task_v =
     dal::detail::is_one_of_v<Task, task::classification, task::regression>;
 
+<<<<<<< HEAD
+=======
+/// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
+///                be :expr:`task::classification` or :expr:`task::v1::regression`.
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
 template <typename Task = task::by_default>
 class descriptor_base : public base {
     static_assert(is_valid_task_v<Task>);
@@ -173,6 +178,12 @@ public:
     std::int64_t get_min_bin_size() const;
 
     bool get_memory_saving_mode() const;
+<<<<<<< HEAD
+=======
+
+    /// The bootstrap mode, if true, the training set for a tree is a bootstrap of the whole training set, if False, the whole dataset is used to build each tree.
+    /// @remark default = true
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
     bool get_bootstrap() const;
 
     error_metric_mode get_error_metric_mode() const;
@@ -241,7 +252,17 @@ using v1::is_valid_task_v;
 } // namespace detail
 
 namespace v1 {
+<<<<<<< HEAD
 
+=======
+/// @tparam Float  The floating-point type that the algorithm uses for
+///                intermediate computations. Can be :expr:`float` or
+///                :expr:`double`.
+/// @tparam Method Tag-type that specifies an implementation of algorithm. Can
+///                be :expr:`method::v1::dense` or :expr:`method::v1::hist`.
+/// @tparam Task   Tag-type that specifies type of the problem to solve. Can
+///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
 template <typename Float = detail::descriptor_base<>::float_t,
           typename Method = detail::descriptor_base<>::method_t,
           typename Task = detail::descriptor_base<>::task_t>
@@ -356,6 +377,11 @@ public:
     }
 };
 
+<<<<<<< HEAD
+=======
+/// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
+///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
 template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -369,6 +395,11 @@ public:
     std::int64_t get_tree_count() const;
 
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+<<<<<<< HEAD
+=======
+    /// The class count. Used with :expr:`oneapi::dal::decision_forest::task::v1::classification` only.
+    /// @remark default = 2
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
     std::int64_t get_class_count() const {
         return get_class_count_impl();
     }

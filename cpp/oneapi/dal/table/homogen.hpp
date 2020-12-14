@@ -55,6 +55,24 @@ class ONEDAL_EXPORT homogen_table : public table {
 public:
     static std::int64_t kind();
 
+<<<<<<< HEAD
+=======
+    /// Creates a new ``homogen_table`` instance from externally-defined data block. Table
+    /// object refers to the data but does not own it. The responsibility to
+    /// free the data remains on the user side.
+    /// The :literal:`data` should point to the ``data_pointer`` memory block.
+    ///
+    /// @tparam Data        The type of elements in the data block that will be stored into the table.
+    ///                     The table initializes data types of metadata with this data type.
+    ///                     The feature types should be set to default values for :literal:`Data` type: contiguous for floating-point,
+    ///                     ordinal for integer types.
+    ///                     The :literal:`Data` type should be at least :expr:`float`, :expr:`double` or :expr:`std::int32_t`.
+    /// @param data_pointer The pointer to a homogeneous data block.
+    /// @param row_count    The number of rows in the table.
+    /// @param column_count The number of columns in the table.
+    /// @param layout       The layout of the data. Should be :literal:`data_layout::row_major` or
+    ///                     :literal:`data_layout::column_major`.
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
     template <typename Data>
     static homogen_table wrap(const Data* data_pointer,
                               std::int64_t row_count,
@@ -68,6 +86,26 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
+<<<<<<< HEAD
+=======
+    /// Creates a new ``homogen_table`` instance from externally-defined data block. Table
+    /// object refers to the data but does not own it. The responsibility to
+    /// free the data remains on the user side.
+    /// The :literal:`data` should point to the ``data_pointer`` memory block.
+    ///
+    /// @tparam Data        The type of elements in the data block that will be stored into the table.
+    ///                     The table initializes data types of metadata with this data type.
+    ///                     The feature types should be set to default values for :literal:`Data` type: contiguous for floating-point,
+    ///                     ordinal for integer types.
+    ///                     The :literal:`Data` type should be at least :expr:`float`, :expr:`double` or :expr:`std::int32_t`.
+    /// @param queue        The SYCL* queue object
+    /// @param data_pointer The pointer to a homogeneous data block.
+    /// @param row_count    The number of rows in the table.
+    /// @param column_count The number of columns in the table.
+    /// @param dependencies Events indicating availability of the :literal:`Data` for reading or writing.
+    /// @param layout       The layout of the data. Should be :literal:`data_layout::row_major` or
+    ///                     :literal:`data_layout::column_major`.
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
     template <typename Data>
     static homogen_table wrap(const sycl::queue& queue,
                               const Data* data_pointer,
@@ -96,6 +134,25 @@ public:
         init_impl(std::forward<Impl>(impl));
     }
 
+<<<<<<< HEAD
+=======
+    /// Creates a new ``homogen_table`` instance from externally-defined data block.
+    /// Table object owns the data pointer.
+    /// The :literal:`data` should point to the ``data_pointer`` memory block.
+    ///
+    /// @tparam Data         The type of elements in the data block that will be stored into the table.
+    ///                      The :literal:`Data` type should be at least :expr:`float`, :expr:`double` or :expr:`std::int32_t`.
+    /// @tparam ConstDeleter The type of a deleter called on ``data_pointer`` when
+    ///                      the last table that refers it is out of the scope.
+    ///
+    /// @param data_pointer  The pointer to a homogeneous data block.
+    /// @param row_count     The number of rows in the table.
+    /// @param column_count  The number of columns in the table.
+    /// @param data_deleter  The deleter that is called on the ``data_pointer`` when the last table that refers it
+    ///                      is out of the scope.
+    /// @param layout        The layout of the data. Should be :literal:`data_layout::row_major` or
+    ///                      :literal:`data_layout::column_major`.
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
     template <typename Data, typename ConstDeleter>
     homogen_table(const Data* data_pointer,
                   std::int64_t row_count,
@@ -111,6 +168,27 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
+<<<<<<< HEAD
+=======
+    /// Creates a new ``homogen_table`` instance from externally-defined data block.
+    /// Table object owns the data pointer.
+    /// The :literal:`data` should point to the ``data_pointer`` memory block.
+    ///
+    /// @tparam Data         The type of elements in the data block that will be stored into the table.
+    ///                      The :literal:`Data` type should be at least :expr:`float`, :expr:`double` or :expr:`std::int32_t`.
+    /// @tparam ConstDeleter The type of a deleter called on ``data_pointer`` when
+    ///                      the last table that refers it is out of the scope.
+    ///
+    /// @param queue         The SYCL* queue object
+    /// @param data_pointer  The pointer to a homogeneous data block.
+    /// @param row_count     The number of rows in the table.
+    /// @param column_count  The number of columns in the table.
+    /// @param data_deleter  The deleter that is called on the ``data_pointer`` when the last table that refers it
+    ///                      is out of the scope.
+    /// @param dependencies  Events indicating availability of the :literal:`Data` for reading or writing.
+    /// @param layout        The layout of the data. Should be :literal:`data_layout::row_major` or
+    ///                      :literal:`data_layout::column_major`.
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
     template <typename Data, typename ConstDeleter>
     homogen_table(const sycl::queue& queue,
                   const Data* data_pointer,
@@ -129,6 +207,11 @@ public:
     }
 #endif
 
+<<<<<<< HEAD
+=======
+    /// Returns the :literal:`data` pointer cast to the :literal:`Data` type. No checks are
+    /// performed that this type is the actual type of the data within the table.
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
     template <typename Data>
     const Data* get_data() const {
         return reinterpret_cast<const Data*>(this->get_data());

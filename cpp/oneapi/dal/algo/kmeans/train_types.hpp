@@ -36,6 +36,11 @@ using v1::train_result_impl;
 
 namespace v1 {
 
+<<<<<<< HEAD
+=======
+/// @tparam Task Tag-type that specifies type of the problem to solve. Can
+///              be :expr:`task::v1::clustering`.
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
 template <typename Task = task::by_default>
 class train_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -68,6 +73,11 @@ private:
     dal::detail::pimpl<detail::train_input_impl<Task>> impl_;
 };
 
+<<<<<<< HEAD
+=======
+/// @tparam Task Tag-type that specifies type of the problem to solve. Can
+///              be :expr:`task::v1::clustering`.
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
 template <typename Task = task::by_default>
 class train_result {
     static_assert(detail::is_valid_task_v<Task>);
@@ -98,6 +108,12 @@ public:
         return *this;
     }
 
+<<<<<<< HEAD
+=======
+    /// The value of the objective function $\\Phi_X(C)$, where C is
+    /// :expr:`model.centroids` (see :expr:`kmeans::v1::model::centroids`).
+    /// @invariant :expr:`objective_function_value >= 0.0`
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
     double get_objective_function_value() const;
 
     auto& set_objective_function_value(double value) {

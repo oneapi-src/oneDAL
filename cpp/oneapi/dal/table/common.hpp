@@ -62,7 +62,20 @@ class ONEDAL_EXPORT table_metadata {
     using pimpl = detail::pimpl<detail::table_metadata_impl>;
 
 public:
+<<<<<<< HEAD
     table_metadata();
+=======
+    /// Creates the metadata instance without information about the features.
+    /// The :literal:`feature_count` should be set to zero.
+    /// The :literal:`data_type` and :literal:`feature_type` properties should not be initialized.
+    table_metadata();
+
+    /// Creates the metadata instance from external information about the data types and the
+    /// feature types.
+    /// @param dtypes The data types of the features. Assigned into the :literal:`data_type` property.
+    /// @param ftypes The feature types. Assigned into the :literal:`feature_type` property.
+    /// @pre :expr:`dtypes.get_count() == ftypes.get_count()`
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
     table_metadata(const array<data_type>& dtypes, const array<feature_type>& ftypes);
 
     std::int64_t get_feature_count() const;

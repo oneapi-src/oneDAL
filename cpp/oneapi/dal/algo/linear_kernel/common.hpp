@@ -96,6 +96,16 @@ using v1::is_valid_task_v;
 
 namespace v1 {
 
+<<<<<<< HEAD
+=======
+/// @tparam Float  The floating-point type that the algorithm uses for
+///                intermediate computations. Can be :expr:`float` or
+///                :expr:`double`.
+/// @tparam Method Tag-type that specifies an implementation of algorithm. Can
+///                be :expr:`method::v1::dense`.
+/// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
+///                be :expr:`task::v1::compute`.
+>>>>>>> 99407ef3e... [DOC] New structure (#1326)
 template <typename Float = detail::descriptor_base<>::float_t,
           typename Method = detail::descriptor_base<>::method_t,
           typename Task = detail::descriptor_base<>::task_t>
