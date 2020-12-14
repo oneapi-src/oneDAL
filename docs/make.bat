@@ -22,7 +22,7 @@ if /I %1 == clean goto :clean
 
 :html
 python3 rst_examples.py
-sphinx-build -M html source build -q
+sphinx-build -W --keep-going -w docbuild-log.txt -n -b html source build
 goto :eof
 
 :doxygen

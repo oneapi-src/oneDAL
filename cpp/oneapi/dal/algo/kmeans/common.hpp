@@ -126,9 +126,9 @@ namespace v1 {
 ///                intermediate computations. Can be :expr:`float` or
 ///                :expr:`double`.
 /// @tparam Method Tag-type that specifies an implementation of algorithm. Can
-///                be :expr:`method::lloyd`.
+///                be :expr:`method::v1::lloyd_dense`.
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::clustering`.
+///                be :expr:`task::v1::clustering`.
 template <typename Float = detail::descriptor_base<>::float_t,
           typename Method = detail::descriptor_base<>::method_t,
           typename Task = detail::descriptor_base<>::task_t>
@@ -166,7 +166,7 @@ public:
 };
 
 /// @tparam Task Tag-type that specifies type of the problem to solve. Can
-///              be :expr:`task::clustering`.
+///              be :expr:`task::v1::clustering`.
 template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);

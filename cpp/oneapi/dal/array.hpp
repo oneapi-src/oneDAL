@@ -183,8 +183,8 @@ public:
 
 public:
     /// Creates a new instance of the class without memory allocation:
-    /// :expr:`mutable_data` and :expr:`data` pointers should be set to ``nullptr``,
-    /// :expr:`count` should be zero; the pointer to the ownership structure should be set to ``nullptr``.
+    /// :literal:`mutable_data` and :literal:`data` pointers should be set to ``nullptr``,
+    /// :literal:`count` should be zero; the pointer to the ownership structure should be set to ``nullptr``.
     array() : impl_(new impl_t()) {
         const T* null_data = nullptr;
         update_data(null_data, 0);
@@ -195,7 +195,7 @@ public:
         update_data(impl_.get());
     }
 
-    /// Moves :expr:`data`, :expr:`mutable_data` pointers, :expr:`count`, and pointer to the ownership structure
+    /// Moves :literal:`data`, :literal:`mutable_data` pointers, :literal:`count`, and pointer to the ownership structure
     /// in :literal:`other` to the new array instance
     array(array<T>&& a) : impl_(std::move(a.impl_)) {
         update_data(impl_.get());
@@ -259,7 +259,7 @@ public:
 
     /// Creates the ownership structure for memory block of externally-allocated immutable data,
     /// assigns input :literal:`deleter` object to it,
-    /// sets :expr:`data` pointer to this block.
+    /// sets :literal:`data` pointer to this block.
     ///
     /// @tparam ConstDeleter The type of a deleter used to free.
     ///                      The deleter implements `void operator()(const T*)`` member function.
@@ -301,7 +301,7 @@ public:
         update_data(impl_.get());
     }
 
-    /// Replaces the :expr:`data`, :expr:`mutable_data` pointers, :expr:`count`, and pointer
+    /// Replaces the :literal:`data`, :literal:`mutable_data` pointers, :literal:`count`, and pointer
     /// to the ownership structure in the array instance by the values in :literal:`other`.
     ///
     /// @post :expr:`data == other.data`
@@ -313,7 +313,7 @@ public:
         return *this;
     }
 
-    /// Swaps the values of :expr:`data`, :expr:`mutable_data` pointers, :expr:`count`, and pointer
+    /// Swaps the values of :literal:`data`, :literal:`mutable_data` pointers, :literal:`count`, and pointer
     /// to the ownership structure in the array instance and :literal:`other`.
     array<T> operator=(array<T>&& other) {
         swap(*this, other);
@@ -337,7 +337,7 @@ public:
         return data_ptr_;
     }
 
-    /// Returns whether array contains :expr:`mutable_data` or not
+    /// Returns whether array contains :literal:`mutable_data` or not
     ///
     /// @invariant :expr:`mutable_data != nullptr` if this returns `true` and :expr:`count > 0`
     bool has_mutable_data() const noexcept {
@@ -345,7 +345,7 @@ public:
     }
 
     /// Returns mutable_data, if array contains it. Otherwise, allocates a
-    /// memory block for mutable data and fills it with the data stored at :expr:`data`.
+    /// memory block for mutable data and fills it with the data stored at :literal:`data`.
     /// Creates the ownership structure for allocated memory block and stores
     /// the pointer.
     ///
@@ -358,7 +358,7 @@ public:
 
 #ifdef ONEDAL_DATA_PARALLEL
     /// Returns mutable_data, if array contains it. Otherwise, allocates a
-    /// memory block for mutable data and fills it with the data stored at :expr:`data`.
+    /// memory block for mutable data and fills it with the data stored at :literal:`data`.
     /// Creates the ownership structure for allocated memory block and stores
     /// the pointer.
     ///
@@ -387,7 +387,7 @@ public:
     }
 
     /// Resets ownership structure pointer to ``nullptr``,
-    /// sets :expr:`count` to zero, :expr:`data` and :expr:`mutable_data` to :expr:`nullptr`.
+    /// sets :literal:`count` to zero, :literal:`data` and :literal:`mutable_data` to :expr:`nullptr`.
     void reset() {
         impl_->reset();
         const T* null_data = nullptr;
@@ -424,7 +424,7 @@ public:
 
     /// Creates the ownership structure for memory block of externally-allocated mutable data,
     /// assigns input :literal:`deleter` object to it,
-    /// sets :expr:`data` and :expr:`mutable_data` pointers to this block.
+    /// sets :literal:`data` and :literal:`mutable_data` pointers to this block.
     ///
     /// @tparam Deleter     The type of a deleter used to free the :literal:`Data`.
     ///                     The deleter implements ``void operator()(Data*)`` member function.
@@ -441,7 +441,7 @@ public:
 
     /// Creates the ownership structure for memory block of externally-allocated immutable data,
     /// assigns input :literal:`deleter` object to it,
-    /// sets :expr:`data` pointer to this block.
+    /// sets :literal:`data` pointer to this block.
     ///
     /// @tparam ConstDeleter The type of a deleter used to free.
     ///                      The deleter implements `void operator()(const Data*)`` member function.
@@ -467,8 +467,8 @@ public:
     }
 #endif
 
-    /// Initializes :expr:`data` and :expr:`mutable_data` with data pointer,
-    /// :expr:`count` with input :literal:`count` value, initializes
+    /// Initializes :literal:`data` and :literal:`mutable_data` with data pointer,
+    /// :literal:`count` with input :literal:`count` value, initializes
     /// the pointer to ownership structure with the one from ref. Array
     /// returns :literal:`Data` pointer as its mutable block.
 
@@ -483,8 +483,8 @@ public:
         update_data(data, count);
     }
 
-    /// Initializes :expr:`data` with data pointer,
-    /// :expr:`count` with input :literal:`count` value, initializes
+    /// Initializes :literal:`data` with data pointer,
+    /// :literal:`count` with input :literal:`count` value, initializes
     /// the pointer to ownership structure with the one from ref. Array
     /// returns :literal:`Data` pointer as its immutable block.
     ///

@@ -37,7 +37,7 @@ using v1::train_result_impl;
 namespace v1 {
 
 /// @tparam Task   Tag-type that specifies type of the problem to solve. Can
-///                be :expr:`task::classification` or :expr:`task::regression`.
+///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
 template <typename Task = task::by_default>
 class train_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -75,7 +75,7 @@ private:
 };
 
 /// @tparam Task   Tag-type that specifies type of the problem to solve. Can
-///                be :expr:`task::classification` or :expr:`task::regression`.
+///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
 template <typename Task = task::by_default>
 class train_result {
     static_assert(detail::is_valid_task_v<Task>);
@@ -96,7 +96,7 @@ public:
     }
 
     /// A $1 \\times 1$ table containing cumulative out-of-bag error value.
-    /// Computed when error_metric_mode set with :expr:`error_metric_mode::out_of_bag_error`
+    /// Computed when :literal:`error_metric_mode` set with :literal:`error_metric_mode::out_of_bag_error`
     /// @remark default = table{}
     const table& get_oob_err() const;
 
@@ -106,7 +106,7 @@ public:
     }
 
     /// A $n \\times 1$ table containing out-of-bag error value per observation.
-    /// Computed when error_metric_mode set with :expr:`error_metric_mode::out_of_bag_error_per_observation`
+    /// Computed when :literal:`error_metric_mode` set with :literal:`error_metric_mode::out_of_bag_error_per_observation`
     /// @remark default = table{}
     const table& get_oob_err_per_observation() const;
 
