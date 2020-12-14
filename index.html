@@ -499,9 +499,15 @@ that helps speed up big data analysis by providing highly optimized
 algorithmic building blocks for all stages of data analytics
 (preprocessing, transformation, analysis, modeling, validation, and
 decision making) in batch, online, and distributed processing modes of
-computation. The current version of oneDAL provides
-Data Parallel C++ (DPC++) API extensions to the traditional C++ interface.</p>
+computation. The library provides two different sets of C++ interfaces: <a class="reference internal" href="#oneapi-vs-daal"><span class="std std-ref">oneAPI and DAAL</span></a>.</p>
 <p>For general information, refer to <a class="reference external" href="https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onedal.html">oneAPI Data Analytics Library</a> official page.</p>
+<div class="section" id="oneapi-vs-daal-interfaces">
+<span id="oneapi-vs-daal"></span><h2>oneAPI vs. DAAL Interfaces<a class="headerlink" href="#oneapi-vs-daal-interfaces" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="oneapi-interfaces.html#oneapi-dal-guide"><span class="std std-ref">oneAPI Interfaces</span></a> are based on open <a class="reference external" href="https://spec.oneapi.com/versions/latest/elements/oneDAL/source/index.html">oneDAL specificaion</a> and are currently under an active development.
+They work on various hardware but only a limited set of algorithms is available at the moment.</p></li>
+<li><p><a class="reference internal" href="daal-interfaces.html#daal-guide"><span class="std std-ref">DAAL Interfaces</span></a> are CPU-only interfaces that provide implementations for a wide range of algorithms.</p></li>
+</ul>
 <div class="toctree-wrapper compound">
 </div>
 <div class="toctree-wrapper compound">
@@ -565,6 +571,7 @@ Data Parallel C++ (DPC++) API extensions to the traditional C++ interface.</p>
 <div class="toctree-wrapper compound">
 </div>
 <div class="toctree-wrapper compound">
+</div>
 </div>
 </div>
 
