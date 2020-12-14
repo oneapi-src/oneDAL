@@ -14,11 +14,14 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _daal_guide:
+
 DAAL Interfaces
 ===============
 
 This chapter documents algorithms implemented in `DAAL interfaces <https://github.com/oneapi-src/oneDAL/tree/master/cpp/daal>`_.
 See :ref:`oneapi_dal_guide` to find documentation on oneAPI interfaces.
+Refer to :ref:`oneapi_vs_daal` to learn the difference between them.
 
 Developer Guide
 ***************
