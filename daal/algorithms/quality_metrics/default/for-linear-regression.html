@@ -1,0 +1,961 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Quality Metrics for Linear Regression &mdash; Intel® oneAPI Data Analytics Library Documentation 2021 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/sphinx_tabs/semantic-ui-2.4.1/segment.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/sphinx_tabs/semantic-ui-2.4.1/menu.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/sphinx_tabs/semantic-ui-2.4.1/tab.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/sphinx_tabs/tabs.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+        <script src="../../../../_static/sphinx_tabs/semantic-ui-2.4.1/tab.min.js"></script>
+        <script src="../../../../_static/sphinx_tabs/tabs.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="Quality Metrics for Principal Components Analysis" href="for-pca.html" />
+    <link rel="prev" title="Quality Metrics for Multi-class Classification Algorithms" href="for-multi-class-classification.html" />
+    <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home" alt="Documentation Home"> Intel® oneAPI Data Analytics Library Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#see-also">See Also</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Developer Guide and Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../data-analytics-pipeline.html">Data Analytics Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../oneapi-interfaces.html">oneAPI Interfaces</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../onedal/introduction.html">Introduction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../onedal/get-started.html">Get Started with oneDAL</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/get-started.html#before-you-begin">Before You Begin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/get-started.html#end-to-end-example">End-to-end Example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/get-started.html#build-and-run-examples">Build and Run Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/get-started.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../onedal/build_app/build-application.html">Build applications with oneDAL</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/build_app/build-application.html#applications-on-windows-os">Applications on Windows* OS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/build_app/build-application.html#applications-on-linux-os">Applications on Linux* OS</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../onedal/glossary.html">Glossary</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/glossary.html#machine-learning-terms">Machine learning terms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/glossary.html#short-name-terms">oneDAL terms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/glossary.html#common-oneapi-terms">Common oneAPI terms</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../onedal/programming-model/computational-modes.html">Computational Modes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../onedal/programming-model/computational-modes.html#batch">Batch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../onedal/programming-model/computational-modes.html#online">Online</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../onedal/programming-model/computational-modes.html#distributed">Distributed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../onedal/data-management/index.html">Data Management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../onedal/data-management/index.html#key-concepts">Key concepts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/data-management/index.html#dataset">Dataset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/data-management/index.html#data-source">Data source</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/data-management/index.html#table">Table</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/data-management/index.html#table-metadata">Table metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/data-management/index.html#accessor">Accessor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/data-management/index.html#example-of-interaction-between-table-and-accessor-objects">Example of interaction between table and accessor objects</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../onedal/data-management/index.html#details">Details</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/data-management/array.html">Array</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/data-management/accessors.html">Accessors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/data-management/data-sources.html">Data Sources</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/data-management/tables.html">Tables</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../onedal/algorithms/index.html">Algorithms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../onedal/algorithms/clustering/index.html">Clustering</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/algorithms/clustering/kmeans.html">K-Means</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/algorithms/clustering/kmeans-init.html">K-Means initialization</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../onedal/algorithms/decomposition/index.html">Decomposition</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/algorithms/decomposition/pca.html">Principal Components Analysis (PCA)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../onedal/algorithms/ensembles/index.html">Ensembles</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/algorithms/ensembles/decision-forest.html">Decision Forest Classification and Regression (DF)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../onedal/algorithms/kernel-functions/index.html">Kernel Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/algorithms/kernel-functions/linear-kernel.html">Linear kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/algorithms/kernel-functions/rbf-kernel.html">Radial Basis Function (RBF) kernel</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../onedal/algorithms/nearest-neighbors/index.html">Nearest Neighbors (kNN)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/algorithms/nearest-neighbors/knn-classification.html">k-Nearest Neighbors Classification (k-NN)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../onedal/algorithms/svm/index.html">Support Vector Machines</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/algorithms/svm/svm.html">Support Vector Machine Classifier (SVM)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../examples.html">oneAPI Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/dpc.html">DPC++</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../examples/dpc/column_accessor_homogen.html">column_accessor_homogen.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../examples/dpc/df_cls_dense_batch.html">df_cls_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../examples/dpc/df_reg_dense_batch.html">df_reg_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../examples/dpc/kmeans_init_dense.html">kmeans_init_dense.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../examples/dpc/kmeans_lloyd_dense_batch.html">kmeans_lloyd_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../examples/dpc/knn_cls_brute_force_dense_batch.html">knn_cls_brute_force_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../examples/dpc/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../examples/dpc/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../examples/dpc/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../examples/dpc/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/cpp.html">C++</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../examples/cpp/column_accessor_homogen.html">column_accessor_homogen.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../examples/cpp/df_cls_dense_batch.html">df_cls_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../examples/cpp/df_reg_dense_batch.html">df_reg_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../examples/cpp/graph_service_functions.html">graph_service_functions.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../examples/cpp/jaccard_batch.html">jaccard_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../examples/cpp/jaccard_batch_app.html">jaccard_batch_app.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../examples/cpp/kmeans_init_dense.html">kmeans_init_dense.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../examples/cpp/kmeans_lloyd_dense_batch.html">kmeans_lloyd_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../examples/cpp/knn_cls_kd_tree_dense_batch.html">knn_cls_kd_tree_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../examples/cpp/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../examples/cpp/load_graph.html">load_graph.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../examples/cpp/pca_dense_batch.html">pca_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../examples/cpp/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../examples/cpp/svm_two_class_smo_dense_batch.html">svm_two_class_smo_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../examples/cpp/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../onedal/appendix/index.html">Appendix</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../onedal/appendix/kd_tree.html">k-d Tree</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../onedal/appendix/kd_tree.html#related-terms">Related terms</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../../daal-interfaces.html">DAAL Interfaces</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../../../../daal-interfaces.html#developer-guide">Developer Guide</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../../../cpu-vs-gpu.html">CPU and GPU Support</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cpu-vs-gpu.html#computation-modes">Computation modes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../cpu-vs-gpu.html#methods">Methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../cpu-vs-gpu.html#parameters">Parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../usage/index.html">Library Usage</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../usage/algorithms.html">Algorithms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../usage/computation-modes.html">Computation Modes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../usage/training-and-prediction/index.html">Training and Prediction</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../data-management/data-management.html">Data Management</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../data-management/numeric-tables.html">Numeric Tables</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../data-management/data-sources.html">Data Sources</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../data-management/data-dictionaries.html">Data Dictionaries</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../data-management/data-serialization-and-deserialization.html">Data Serialization and Deserialization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../data-management/data-compression.html">Data Compression</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../data-management/data-model.html">Data Model</a></li>
+</ul>
+</li>
+<li class="toctree-l3 current"><a class="reference internal" href="../../../analysis.html">Analysis</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../../kmeans/k-means-clustering.html">K-Means Clustering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dbscan/index.html">Density-Based Spatial Clustering of Applications with Noise</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../covariance/correlation-and-variance-covariance-matrices.html">Correlation and Variance-Covariance Matrices</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../pca/principal-component-analysis.html">Principal Component Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../pca/transform.html">Principal Components Analysis Transform</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../svd/singular-value-decomposition.html">Singular Value Decomposition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../association_rules/association-rules.html">Association Rules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../kernel_function/kernel-functions.html">Kernel Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../em/expectation-maximization.html">Expectation-Maximization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cholesky/cholesky.html">Cholesky Decomposition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../qr/qr-decomposition.html">QR Decomposition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../outlier_detection/index.html">Outlier Detection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../distance/index.html">Distance Matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../distributions/index.html">Distributions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../engines/index.html">Engines</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../moments/moments-of-low-order.html">Moments of Low Order</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../quantiles/index.html">Quantile</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../index.html">Quality Metrics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../sorting/index.html">Sorting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../normalization/index.html">Normalization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../optimization-solvers/optimization-solvers.html">Optimization Solvers</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../training-prediction.html">Training and Prediction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../decision_forest/index.html">Decision Forest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../decision_tree/index.html">Decision Trees</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../gradient_boosted_trees/index.html">Gradient Boosted Trees</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../stump/index.html">Stump</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../linear_ridge_regression/index.html">Linear and Ridge Regressions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../lasso_elastic_net/index.html">LASSO and Elastic Net Regressions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html">k-Nearest Neighbors (kNN) Classifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../implicit_als/implicit-alternating-least-squares.html">Implicit Alternating Least Squares</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../logistic_regression/logistic-regression.html">Logistic Regression</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../naive_bayes/naive-bayes-classifier.html">Naïve Bayes Classifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../svm/support-vector-machine-classifier.html">Support Vector Machine Classifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../svm_multi_class/multi-class-classifier.html">Multi-class Classifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../boosting/index.html">Boosting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../training-prediction.html#training-alternative">Training Alternative</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../services/services.html">Services</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../services/extracting-version-information.html">Extracting Version Information</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../services/handling-errors.html">Handling Errors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../services/managing-memory.html">Managing Memory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../services/managing-computational-environment.html">Managing the Computational Environment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../services/callback-for-host-application.html">Providing a Callback for the Host Application</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../daal-interfaces.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../bibliography.html">Bibliography</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Notes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/known_issues.html">Known Issues</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../notes/issues/2021.1-beta09/oneapi-examples-segfault.html">oneAPI examples failing with segfault</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../notes/issues/2021.1-beta09/oneapi-examples-segfault.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../notes/issues/2021.1-beta09/pca-examples-on-gpu.html">PCA examples failing on GPU devices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../notes/issues/2021.1-beta09/pca-examples-on-gpu.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../notes/issues/2021.1-beta08/windows-static-debug-config.html">Static debug configuration not working</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../notes/issues/2021.1-beta08/windows-static-debug-config.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../notes/issues/2021.1-beta06/dpcpp-examples-in-vs2017.html">DPC++ examples not working</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../notes/issues/2021.1-beta06/dpcpp-examples-in-vs2017.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../notes/issues/2021.1-beta06/incorrect-linker-behavior.html">Incorrect linker behavior</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../notes/issues/2021.1-beta06/incorrect-linker-behavior.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../notes/issues/2021.1-beta06/level-zero-not-found.html">Level Zero runtime dependency</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../notes/issues/2021.1-beta06/level-zero-not-found.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../notes/issues/2021.1-beta06/performance-degradations.html">Potential performance degradations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../notes/issues/2021.1-beta06/performance-degradations.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../notes/issues/2021.1-beta06/undeclared-identifier.html">Undeclared identifier <code class="docutils literal notranslate"><span class="pre">CL_DEVICE_IL_VERSION_KHR</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../notes/issues/2021.1-beta06/undeclared-identifier.html#how-to-fix">How to fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../notes/issues/2021.1-beta04/dll-file-not-found.html">DLL file not found</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../notes/issues/2021.1-beta04/dll-file-not-found.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../legal.html">Notices and Disclaimers</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contribution/coding_guide.html">Coding Guidelines</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../contribution/coding_guide.html#coding-style">Coding Style</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../contribution/coding_guide.html#general-rules">General Rules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#whitespaces">Whitespaces</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#c-files">C++ Files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#header-files">Header Files</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../contribution/coding_guide.html#naming-conventions">Naming Conventions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#file-names">File Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#type-names">Type Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#function-names">Function Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#variable-names">Variable Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#class-member-names-and-method-names">Class Member Names and Method Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#constant-names">Constant Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#distributed-and-streaming-computational-schemes">Distributed and streaming computational schemes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../contribution/coding_guide.html#declaration-order">Declaration Order</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../contribution/coding_guide.html#typedefs">Typedefs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../contribution/coding_guide.html#defines">Defines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../contribution/coding_guide.html#common-definitions">Common definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../contribution/coding_guide.html#statements">Statements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../contribution/coding_guide.html#comments">Comments</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#function-comments">Function Comments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#variable-comments">Variable Comments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#class-data-members-comments">Class Data Members Comments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#function-declarations-comments">Function Declarations Comments</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../contribution/coding_guide.html#templates-declaration">Templates declaration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../contribution/coding_guide.html#deprecated-api">Deprecated API</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#notes">Notes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../contribution/coding_guide.html#programming-guidelines">Programming guidelines</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../contribution/coding_guide.html#local-variables">Local Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../contribution/coding_guide.html#constants">Constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../contribution/coding_guide.html#static-and-global-variables">Static and Global Variables</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#undetermined-order-of-construction-and-destruction">Undetermined order of construction and destruction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#static-variables-within-a-function-scope">Static variables within a function scope</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../contribution/coding_guide.html#usage-of-const">Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#usage-of-const-in-functions">Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code> in Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#usage-of-const-methods">Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code> Methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#usage-of-const-and-mutable-data-members">Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code> and <code class="docutils literal notranslate"><span class="pre">mutable</span></code> Data Members</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../contribution/coding_guide.html#ownership-raii-resource-acquisition-is-initialization">Ownership (RAII – Resource Acquisition Is Initialization)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../contribution/coding_guide.html#smart-pointers">Smart Pointers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../contribution/coding_guide.html#passing-parameters-of-non-primitive-types-by-reference">Passing parameters of non-primitive types by reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../contribution/coding_guide.html#preprocessor-macros">Preprocessor Macros</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../contribution/coding_guide.html#namespaces">Namespaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../contribution/coding_guide.html#id1">Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#write-short-functions">Write short functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#function-s-arguments">Function’s arguments</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../contribution/coding_guide.html#infix-and-postfix-increment-operators">Infix and postfix increment operators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../contribution/coding_guide.html#assertions">Assertions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../contribution/coding_guide.html#classes">Classes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#initialization">Initialization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#clone-all-parts-of-an-object">Clone all parts of an object</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#assignment">Assignment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#new-and-delete">New and delete</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#access-control">Access Control</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#template-metaprogramming">Template metaprogramming</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../contribution/coding_guide.html#hiding-the-implementation-in-model-classes">Hiding the implementation in <code class="docutils literal notranslate"><span class="pre">Model</span></code> classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../contribution/coding_guide.html#sdl-requirements">SDL Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#handling-primitive-data-types">Handling Primitive Data Types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#working-with-pointers">Working with Pointers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#working-with-buffers">Working with Buffers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#handling-exceptions">Handling exceptions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../contribution/coding_guide.html#handling-null-byte-injection">Handling null byte injection</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Intel® oneAPI Data Analytics Library Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../../daal-interfaces.html">DAAL Interfaces</a> &raquo;</li>
+        
+          <li><a href="../../../analysis.html">Analysis</a> &raquo;</li>
+        
+          <li><a href="../index.html">Quality Metrics</a> &raquo;</li>
+        
+          <li><a href="../default-metric-set.html">Working with the Default Metric Set</a> &raquo;</li>
+        
+      <li>Quality Metrics for Linear Regression</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../../../_sources/daal/algorithms/quality_metrics/default/for-linear-regression.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="quality-metrics-for-linear-regression">
+<h1>Quality Metrics for Linear Regression<a class="headerlink" href="#quality-metrics-for-linear-regression" title="Permalink to this headline">¶</a></h1>
+<p>Given a data set <span class="math notranslate nohighlight">\(X = (x_i)\)</span> that contains vectors of input variables <span class="math notranslate nohighlight">\(x_i = (x_{i1}, \ldots, x_{ip})\)</span>,
+respective responses <span class="math notranslate nohighlight">\(z_i = (z_{i1}, \ldots, z_{ik})\)</span> computed at the prediction stage of the linear regression model
+defined by its coefficients <span class="math notranslate nohighlight">\(\beta_{ht}\)</span>, <span class="math notranslate nohighlight">\(h = 1, \ldots, k\)</span>, <span class="math notranslate nohighlight">\(t = 1, \ldots, p\)</span>,
+and expected responses <span class="math notranslate nohighlight">\(y_i = (y_{i1}, \ldots, y_{ik})\)</span>, <span class="math notranslate nohighlight">\(i = 1, \ldots, n\)</span>,
+the problem is to evaluate the linear regression model by computing the root mean square error,
+variance-covariance matrix of beta coefficients, various statistics functions, and so on.
+See <a class="reference internal" href="../../linear_ridge_regression/linear-regression.html#linear-regression"><span class="std std-ref">Linear Regression</span></a> for additional details and notations.</p>
+<p>For linear regressions, the library computes statistics listed in tables below
+for testing insignificance of beta coefficients and one of the following values of <code class="docutils literal notranslate"><span class="pre">QualityMetricsId</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">singleBeta</span></code> for <a class="reference internal" href="#qm-lin-reg-single-beta"><span class="std std-ref">a single coefficient</span></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">groupOfBetas</span></code> for <a class="reference internal" href="#qm-lin-reg-group-of-betas"><span class="std std-ref">a group of coefficients</span></a></p></li>
+</ul>
+<p>For more details, see <a class="reference internal" href="../../../../bibliography.html#hastie2009" id="id1"><span>[Hastie2009]</span></a>.</p>
+<div class="section" id="details">
+<h2>Details<a class="headerlink" href="#details" title="Permalink to this headline">¶</a></h2>
+<p>The statistics are computed given the following assumptions about the data distribution:</p>
+<ul class="simple">
+<li><p>Responses <span class="math notranslate nohighlight">\(y_{ij}\)</span>, <span class="math notranslate nohighlight">\(i = 1, \ldots, n\)</span>, are independent and have a constant variance <span class="math notranslate nohighlight">\(\sigma_j^2\)</span>, <span class="math notranslate nohighlight">\(j = 1, \ldots, k\)</span></p></li>
+<li><p>Conditional expectation of responses <span class="math notranslate nohighlight">\(y_{.j}\)</span>, <span class="math notranslate nohighlight">\(j = 1, \ldots, k\)</span>, is linear in input variables <span class="math notranslate nohighlight">\(x_{.} = (x_{.1}, \ldots , x_{.p})\)</span></p></li>
+<li><p>Deviations of <span class="math notranslate nohighlight">\(y_{ij}\)</span>, <span class="math notranslate nohighlight">\(i = 1, \ldots, n\)</span>, around the mean of expected responses <span class="math notranslate nohighlight">\(\text{ERM}_j\)</span>, <span class="math notranslate nohighlight">\(j = 1, \ldots, k\)</span>, are additive and Gaussian.</p></li>
+</ul>
+<div class="section" id="testing-insignificance-of-a-single-beta">
+<span id="qm-lin-reg-single-beta"></span><h3>Testing Insignificance of a Single Beta<a class="headerlink" href="#testing-insignificance-of-a-single-beta" title="Permalink to this headline">¶</a></h3>
+<p>The library uses the following quality metrics:</p>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Quality Metric</p></th>
+<th class="head"><p>Definition</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Root Mean Square (RMS) Error</p></td>
+<td><p><span class="math notranslate nohighlight">\(\sqrt{\frac{1}{n} \sum _{i=1}^{n} (y_{ij} - x_{ij})^2}\)</span>, <span class="math notranslate nohighlight">\(j = 1, \ldots, k\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>Vector of variances <span class="math notranslate nohighlight">\(\sigma^2 = (\sigma_1^2, \ldots, \sigma_k^2)\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(\sigma_j^2 = \frac {1}{n - p - 1} \sum _{i=1}^{n} (y_{ij} - x_{ij})^2\)</span>, <span class="math notranslate nohighlight">\(j = 1, \ldots, k\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>A set of variance-covariance matrices <span class="math notranslate nohighlight">\(C = C_1, \ldots, C_k\)</span> for vectors of betas <span class="math notranslate nohighlight">\(\beta_{jt}\)</span>, <span class="math notranslate nohighlight">\(j = 1, \ldots, k\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(C_j = {(X^T X)}^{-1} \sigma_j^2\)</span>, <span class="math notranslate nohighlight">\(j = 1, \ldots, k\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>Z-score statistics used in testing of insignificance of a single coefficient <span class="math notranslate nohighlight">\(\beta_{jt}\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(\text{zscore}_{jt} = \frac {\beta_{jt}}{\sigma_j \sqrt{v_t}}\)</span>, <span class="math notranslate nohighlight">\(j = 1, \ldots, k\)</span>,
+<span class="math notranslate nohighlight">\(\sigma_j\)</span> is the <span class="math notranslate nohighlight">\(j\)</span>-th element of the vector of variance <span class="math notranslate nohighlight">\(\sigma^2\)</span> and
+<span class="math notranslate nohighlight">\(ν_t\)</span> is the <span class="math notranslate nohighlight">\(t\)</span>-th diagonal element of the matrix <span class="math notranslate nohighlight">\({(X^T X)}^{-1}\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>Confidence interval for <span class="math notranslate nohighlight">\(\beta_{jt}\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\((\beta_{jt} - \text{pc}_{1-\alpha} \sqrt{v_t}, \beta_{jt} + \text{pc}_{1-\alpha} \sqrt{v_t})\)</span>, <span class="math notranslate nohighlight">\(j = 1, \ldots, k\)</span>,
+<span class="math notranslate nohighlight">\(\text{pc}_{1-\alpha}\)</span> is the <span class="math notranslate nohighlight">\((1-\alpha)\)</span> percentile of the Gaussian distribution,
+<span class="math notranslate nohighlight">\(\sigma_j\)</span> is the <span class="math notranslate nohighlight">\(j\)</span>-th element of the vector of variance <span class="math notranslate nohighlight">\(\sigma^2\)</span>,
+<span class="math notranslate nohighlight">\(ν_t\)</span> is the <span class="math notranslate nohighlight">\(t\)</span>-th diagonal element of the matrix <span class="math notranslate nohighlight">\({(X^T X)}^{-1}\)</span></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="testing-insignificance-of-a-group-of-betas">
+<span id="qm-lin-reg-group-of-betas"></span><h3>Testing Insignificance of a Group of Betas<a class="headerlink" href="#testing-insignificance-of-a-group-of-betas" title="Permalink to this headline">¶</a></h3>
+<p>The library uses the following quality metrics:</p>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Quality Metric</p></th>
+<th class="head"><p>Definition</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Mean of expected responses, <span class="math notranslate nohighlight">\(\text{ERM} = (\text{ERM}_1, \ldots, \text{ERM}_k)\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(\text{ERM}_j = \frac {1}{n} \sum _{i=1}^{n} y_{ij}\)</span>, <span class="math notranslate nohighlight">\(j = 1, \ldots, k\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>Variance of expected responses, <span class="math notranslate nohighlight">\(\text{ERV} = (\text{ERV}_1, \ldots, \text{ERV}_k)\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(\text{ERV}_j = \frac {1}{n - 1} \sum _{i=1}^{n} (y_{ij} - \text{ERM}_j)^2\)</span>, <span class="math notranslate nohighlight">\(j = 1, \ldots, k\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>Regression Sum of Squares <span class="math notranslate nohighlight">\(\text{RegSS} = (\text{RegSS}_1, \ldots, \text{RegSS}_k)\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(\text{RegSS}_j = \frac {1}{n} \sum _{i=1}^{n} (z_{ij} - \text{ERM}_j)^2\)</span>, <span class="math notranslate nohighlight">\(j = 1, \ldots, k\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>Sum of Squares of Residuals <span class="math notranslate nohighlight">\(\text{ResSS} = (\text{ResSS}_1, \ldots, \text{ResSS}_k)\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(\text{ResSS}_j = \sum _{i=1}^{n} (y_{ij} - z_{ij})^2\)</span>, <span class="math notranslate nohighlight">\(j = 1, \ldots, k\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>Total Sum of Squares <span class="math notranslate nohighlight">\(\text{TSS} = (\text{TSS}_1, \ldots, \text{TSS}_k)\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(\text{TTS}_j = \sum _{i=1}^{n} (y_{ij} - \text{ERM}_j)^2\)</span>, <span class="math notranslate nohighlight">\(j = 1, \ldots, k\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>Determination Coefficient <span class="math notranslate nohighlight">\(R^2 = (R_1^2, \ldots, R_k^2)\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(R^2_j = \frac {\text{RegSS}_j}{\text{TTS}_j }\)</span>, <span class="math notranslate nohighlight">\(j = 1, \ldots, k\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>F-statistics used in testing insignificance of a group of betas <span class="math notranslate nohighlight">\(F = (F_1, \ldots, F_k)\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(F_j = \frac {(\text{ResSS}_{0j} - \text{ResSS}_j)/(p - p_0)}
+{{\text{ResSS}_j}/(n - p - 1)}\)</span>, <span class="math notranslate nohighlight">\(j = 1, \ldots, k\)</span>,
+where <span class="math notranslate nohighlight">\(\text{ResSS}_j\)</span> are computed for a model with <span class="math notranslate nohighlight">\(p + 1\)</span> betas and
+<span class="math notranslate nohighlight">\(\text{ResSS}_{0j}\)</span> are computed for a reduced model with <span class="math notranslate nohighlight">\(p_0 + 1\)</span> betas (<span class="math notranslate nohighlight">\(p - p_0\)</span> betas are set to zero)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="batch-processing">
+<h2>Batch Processing<a class="headerlink" href="#batch-processing" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#qm-lin-reg-single-beta-batch"><span class="std std-ref">Testing Insignificance of a Single Beta</span></a></p></li>
+<li><p><a class="reference internal" href="#qm-lin-reg-group-of-betas-batch"><span class="std std-ref">Testing Insignificance of a Group of Betas</span></a></p></li>
+</ul>
+<div class="section" id="qm-lin-reg-single-beta-batch">
+<span id="id2"></span><h3>Testing Insignificance of a Single Beta<a class="headerlink" href="#qm-lin-reg-single-beta-batch" title="Permalink to this headline">¶</a></h3>
+<p class="rubric">Algorithm Input</p>
+<p>The quality metric algorithm for linear regression accepts the input described below.
+Pass the <code class="docutils literal notranslate"><span class="pre">Input</span> <span class="pre">ID</span></code> as a parameter to the methods that provide input for your algorithm.
+For more details, see <a class="reference internal" href="../../../usage/algorithms.html#algorithms"><span class="std std-ref">Algorithms</span></a>.</p>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 86%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Input ID</p></th>
+<th class="head"><p>Input</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">expectedResponses</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(n \times k\)</span> numeric table with responses (<span class="math notranslate nohighlight">\(k\)</span> dependent variables) used for training the linear regression model.</p>
+<p>This table can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">model</span></code></p></td>
+<td><p>Pointer to the model computed at the training stage of the linear regression algorithm.</p>
+<p>The model can only be an object of the <code class="docutils literal notranslate"><span class="pre">linear_regression::Model</span></code> class.</p>
+</td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">predictedResponses</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(n \times k\)</span> numeric table with responses (<span class="math notranslate nohighlight">\(k\)</span> dependent variables) computed at the prediction stage of the linear regression algorithm.</p>
+<p>This table can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Algorithm Parameters</p>
+<p>The quality metric algorithm for linear regression has the following parameters:</p>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 75%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Default Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
+<td><p>Performance-oriented computation method, the only method supported by the algorithm.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">alpha</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.05\)</span></p></td>
+<td><p>Significance level used in the computation of confidence intervals for coefficients of the linear regression model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">accuracyThreshold</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.001\)</span></p></td>
+<td><p>Values below this threshold are considered equal to it.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Algorithm Output</p>
+<p>The quality metric algorithm for linear regression calculates the result described below.
+Pass the <code class="docutils literal notranslate"><span class="pre">Result</span> <span class="pre">ID</span></code> as a parameter to the methods that access the results of your algorithm.
+For more details, see <a class="reference internal" href="../../../usage/algorithms.html#algorithms"><span class="std std-ref">Algorithms</span></a>.</p>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 86%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Result ID</p></th>
+<th class="head"><p>Result</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rms</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(1 \times k\)</span> numeric table that contains root mean square errors computed for each response (dependent variable)</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class, but you can define the result as an object of any class
+derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>, except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">variance</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(1 \times k\)</span> numeric table that contains variances <span class="math notranslate nohighlight">\(\sigma^2_j\)</span>, <span class="math notranslate nohighlight">\(j = 1, \ldots, k\)</span> computed for each response (dependent variable).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class, but you can define the result as an object of any class
+derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>, except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">betaCovariances</span></code></p></td>
+<td><p>Pointer to the DataCollection object that contains <span class="math notranslate nohighlight">\(k\)</span> numeric tables, each with the <span class="math notranslate nohighlight">\(m \times m\)</span> variance-covariance matrix for betas of the j-th response (dependent variable), where m is the number of betas in the model (m is equal to p when interceptFlag is set to false at the training stage of the linear regression algorithm; otherwise, m is equal to p + 1 ).</p>
+<p>The collection can contain objects of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">zScore</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(k \times m\)</span> numeric table that contains the Z-score statistics used in the testing of insignificance of individual linear regression coefficients,
+where <span class="math notranslate nohighlight">\(m\)</span> is the number of betas in the model (<span class="math notranslate nohighlight">\(m\)</span> is equal to <span class="math notranslate nohighlight">\(p\)</span> when <code class="docutils literal notranslate"><span class="pre">interceptFlag</span></code> is set to <code class="docutils literal notranslate"><span class="pre">false</span></code> at the training stage
+of the linear regression algorithm; otherwise, <span class="math notranslate nohighlight">\(m\)</span> is equal to <span class="math notranslate nohighlight">\(p + 1\)</span>).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class, but you can define the result as an object of any class
+derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>, except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">confidenceIntervals</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(k \times 2 \times m\)</span> numeric table that contains limits of the confidence intervals for linear regression coefficients:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\text{confidenceIntervals}[t][2*j]\)</span> is the left limit of the confidence interval
+computed for the <span class="math notranslate nohighlight">\(j\)</span>-th beta of the <span class="math notranslate nohighlight">\(t\)</span>-th response (dependent variable)</p></li>
+<li><p><span class="math notranslate nohighlight">\(\text{confidenceIntervals}[t][2*j+1]\)</span> is the right limit of the confidence interval
+computed for the <span class="math notranslate nohighlight">\(j\)</span>-th beta of the <span class="math notranslate nohighlight">\(t\)</span>-th response (dependent variable),</p></li>
+</ul>
+<p>where <span class="math notranslate nohighlight">\(m\)</span> is the number of betas in the model (<span class="math notranslate nohighlight">\(m\)</span> is equal to <span class="math notranslate nohighlight">\(p\)</span> when <code class="docutils literal notranslate"><span class="pre">interceptFlag</span></code> is set to <code class="docutils literal notranslate"><span class="pre">false</span></code> at the training stage
+of the linear regression algorithm; otherwise, <span class="math notranslate nohighlight">\(m\)</span> is equal to <span class="math notranslate nohighlight">\(p + 1\)</span>).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class, but you can define the result as an object of any class
+derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>, except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">inverseOfXtX</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(m \times m\)</span> numeric table that contains the <span class="math notranslate nohighlight">\({(X^TX)}^{-1}\)</span> matrix,
+where <span class="math notranslate nohighlight">\(m\)</span> is the number of betas in the model (<span class="math notranslate nohighlight">\(m\)</span> is equal to <span class="math notranslate nohighlight">\(p\)</span> when <code class="docutils literal notranslate"><span class="pre">interceptFlag</span></code> is set to <code class="docutils literal notranslate"><span class="pre">false</span></code> at the training stage
+of the linear regression algorithm; otherwise, <span class="math notranslate nohighlight">\(m\)</span> is equal to <span class="math notranslate nohighlight">\(p + 1\)</span>).</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="qm-lin-reg-group-of-betas-batch">
+<span id="id3"></span><h3>Testing Insignificance of a Group of Betas<a class="headerlink" href="#qm-lin-reg-group-of-betas-batch" title="Permalink to this headline">¶</a></h3>
+<p class="rubric">Algorithm Input</p>
+<p>The quality metric algorithm for linear regression accepts the input described below.
+Pass the <code class="docutils literal notranslate"><span class="pre">Input</span> <span class="pre">ID</span></code> as a parameter to the methods that provide input for your algorithm.
+For more details, see <a class="reference internal" href="../../../usage/algorithms.html#algorithms"><span class="std std-ref">Algorithms</span></a>.</p>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 86%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Input ID</p></th>
+<th class="head"><p>Input</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">expectedResponses</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(n \times k\)</span> numeric table with responses (<span class="math notranslate nohighlight">\(k\)</span> dependent variables) used for training the linear regression model.</p>
+<p>This table can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">predictedResponses</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(n \times k\)</span> numeric table with responses (<span class="math notranslate nohighlight">\(k\)</span> dependent variables) computed at the prediction stage of the linear regression algorithm.</p>
+<p>This table can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p>
+</td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">predictedReducedModelResponses</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(n \times k\)</span> numeric table with responses (<span class="math notranslate nohighlight">\(k\)</span> dependent variables) computed at the prediction stage of the linear regression algorithm
+using the reduced linear regression model, where <span class="math notranslate nohighlight">\(p - p_0\)</span> out of <span class="math notranslate nohighlight">\(p\)</span> beta coefficients are set to zero.</p>
+<p>This table can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Algorithm Parameters</p>
+<p>The quality metric algorithm for linear regression has the following parameters:</p>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 75%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Default Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
+<td><p>Performance-oriented computation method, the only method supported by the algorithm.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">numBeta</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(0\)</span></p></td>
+<td><p>Number of beta coefficients used for prediction.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">numBetaReducedModel</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(0\)</span></p></td>
+<td><p>Number of beta coefficients (<span class="math notranslate nohighlight">\(p_0\)</span>) used for prediction with the reduced linear regression model,
+where <span class="math notranslate nohighlight">\(p - p_0\)</span> out of <span class="math notranslate nohighlight">\(p\)</span> beta coefficients are set to zero.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Algorithm Output</p>
+<p>The quality metric algorithm for linear regression calculates the result described below.
+Pass the <code class="docutils literal notranslate"><span class="pre">Result</span> <span class="pre">ID</span></code> as a parameter to the methods that access the results of your algorithm.
+For more details, see <a class="reference internal" href="../../../usage/algorithms.html#algorithms"><span class="std std-ref">Algorithms</span></a>.</p>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 86%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Result ID</p></th>
+<th class="head"><p>Result</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">expectedMeans</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(1 \times k\)</span> numeric table that contains the mean of expected responses computed for each dependent variable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">expectedVariance</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(1 \times k\)</span> numeric table that contains the variance of expected responses computed for each dependent variable.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">regSS</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(1 \times k\)</span> numeric table that contains the regression sum of squares computed for each dependent variable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">resSS</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(1 \times k\)</span> numeric table that contains the sum of squares of residuals computed for each dependent variable.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tSS</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(1 \times k\)</span> numeric table that contains the total sum of squares computed for each dependent variable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">determinationCoeff</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(1 \times k\)</span> numeric table that contains the determination coefficient computed for each dependent variable.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">fStatistics</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(1 \times k\)</span> numeric table that contains the F-statistics computed for each dependent variable.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, these results are objects of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class, but you can define the result as an object of any class
+derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>, except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="sphinx-tabs docutils container">
+<div class="ui top attached tabular menu sphinx-menu docutils container">
+<div class="active item sphinx-data-tab-0-0 docutils container">
+<div class="docutils container">
+<p>C++ (CPU)</p>
+</div>
+</div>
+<div class="item sphinx-data-tab-0-1 docutils container">
+<div class="docutils container">
+<p>Java*</p>
+</div>
+</div>
+</div>
+<div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-0 active docutils container">
+<p>Batch Processing:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/quality_metrics/lin_reg_metrics_dense_batch.cpp">lin_reg_metrics_dense_batch.cpp</a></p></li>
+</ul>
+</div>
+<div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-1 docutils container">
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There is no support for Java on GPU.</p>
+</div>
+<p>Batch Processing:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/quality_metrics/LinRegMetricsDenseBatch.java">LinRegMetricsDenseBatch.java</a></p></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="for-pca.html" class="btn btn-neutral float-right" title="Quality Metrics for Principal Components Analysis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="for-multi-class-classification.html" class="btn btn-neutral float-left" title="Quality Metrics for Multi-class Classification Algorithms" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2014 - 2020, Intel Corporation
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

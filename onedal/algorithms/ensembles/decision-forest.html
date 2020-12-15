@@ -1,0 +1,1343 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Decision Forest Classification and Regression (DF) &mdash; Intel® oneAPI Data Analytics Library Documentation 2021 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sphinx_tabs/semantic-ui-2.4.1/segment.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sphinx_tabs/semantic-ui-2.4.1/menu.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sphinx_tabs/semantic-ui-2.4.1/tab.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sphinx_tabs/tabs.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Kernel Functions" href="../kernel-functions/index.html" />
+    <link rel="prev" title="Ensembles" href="index.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> Intel® oneAPI Data Analytics Library Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#see-also">See Also</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Developer Guide and Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../data-analytics-pipeline.html">Data Analytics Pipeline</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../oneapi-interfaces.html">oneAPI Interfaces</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../introduction.html">Introduction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../get-started.html">Get Started with oneDAL</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../get-started.html#before-you-begin">Before You Begin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../get-started.html#end-to-end-example">End-to-end Example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../get-started.html#build-and-run-examples">Build and Run Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../get-started.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../build_app/build-application.html">Build applications with oneDAL</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../build_app/build-application.html#applications-on-windows-os">Applications on Windows* OS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../build_app/build-application.html#applications-on-linux-os">Applications on Linux* OS</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../glossary.html">Glossary</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../glossary.html#machine-learning-terms">Machine learning terms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../glossary.html#short-name-terms">oneDAL terms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../glossary.html#common-oneapi-terms">Common oneAPI terms</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../programming-model/computational-modes.html">Computational Modes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../programming-model/computational-modes.html#batch">Batch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../programming-model/computational-modes.html#online">Online</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../programming-model/computational-modes.html#distributed">Distributed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../data-management/index.html">Data Management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../data-management/index.html#key-concepts">Key concepts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../data-management/index.html#dataset">Dataset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../data-management/index.html#data-source">Data source</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../data-management/index.html#table">Table</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../data-management/index.html#table-metadata">Table metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../data-management/index.html#accessor">Accessor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../data-management/index.html#example-of-interaction-between-table-and-accessor-objects">Example of interaction between table and accessor objects</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../data-management/index.html#details">Details</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../data-management/array.html">Array</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../data-management/accessors.html">Accessors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../data-management/data-sources.html">Data Sources</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../data-management/tables.html">Tables</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Algorithms</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../clustering/index.html">Clustering</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../clustering/kmeans.html">K-Means</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../clustering/kmeans-init.html">K-Means initialization</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../decomposition/index.html">Decomposition</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../decomposition/pca.html">Principal Components Analysis (PCA)</a></li>
+</ul>
+</li>
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Ensembles</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Decision Forest Classification and Regression (DF)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../kernel-functions/index.html">Kernel Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../kernel-functions/linear-kernel.html">Linear kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../kernel-functions/rbf-kernel.html">Radial Basis Function (RBF) kernel</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../nearest-neighbors/index.html">Nearest Neighbors (kNN)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../nearest-neighbors/knn-classification.html">k-Nearest Neighbors Classification (k-NN)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../svm/index.html">Support Vector Machines</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../svm/svm.html">Support Vector Machine Classifier (SVM)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples.html">oneAPI Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc.html">DPC++</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/column_accessor_homogen.html">column_accessor_homogen.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/df_cls_dense_batch.html">df_cls_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/df_reg_dense_batch.html">df_reg_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/kmeans_init_dense.html">kmeans_init_dense.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/kmeans_lloyd_dense_batch.html">kmeans_lloyd_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/knn_cls_brute_force_dense_batch.html">knn_cls_brute_force_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp.html">C++</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/column_accessor_homogen.html">column_accessor_homogen.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/df_cls_dense_batch.html">df_cls_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/df_reg_dense_batch.html">df_reg_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/graph_service_functions.html">graph_service_functions.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/jaccard_batch.html">jaccard_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/jaccard_batch_app.html">jaccard_batch_app.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/kmeans_init_dense.html">kmeans_init_dense.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/kmeans_lloyd_dense_batch.html">kmeans_lloyd_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/knn_cls_kd_tree_dense_batch.html">knn_cls_kd_tree_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/load_graph.html">load_graph.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/pca_dense_batch.html">pca_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/svm_two_class_smo_dense_batch.html">svm_two_class_smo_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix/index.html">Appendix</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix/kd_tree.html">k-d Tree</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../appendix/kd_tree.html#related-terms">Related terms</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../daal-interfaces.html">DAAL Interfaces</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal-interfaces.html#developer-guide">Developer Guide</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../daal/cpu-vs-gpu.html">CPU and GPU Support</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/cpu-vs-gpu.html#computation-modes">Computation modes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/cpu-vs-gpu.html#methods">Methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/cpu-vs-gpu.html#parameters">Parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../daal/usage/index.html">Library Usage</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/usage/algorithms.html">Algorithms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/usage/computation-modes.html">Computation Modes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/usage/training-and-prediction/index.html">Training and Prediction</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../daal/data-management/data-management.html">Data Management</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/data-management/numeric-tables.html">Numeric Tables</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/data-management/data-sources.html">Data Sources</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/data-management/data-dictionaries.html">Data Dictionaries</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/data-management/data-serialization-and-deserialization.html">Data Serialization and Deserialization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/data-management/data-compression.html">Data Compression</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/data-management/data-model.html">Data Model</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../daal/analysis.html">Analysis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/kmeans/k-means-clustering.html">K-Means Clustering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/dbscan/index.html">Density-Based Spatial Clustering of Applications with Noise</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/covariance/correlation-and-variance-covariance-matrices.html">Correlation and Variance-Covariance Matrices</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/pca/principal-component-analysis.html">Principal Component Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/pca/transform.html">Principal Components Analysis Transform</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/svd/singular-value-decomposition.html">Singular Value Decomposition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/association_rules/association-rules.html">Association Rules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/kernel_function/kernel-functions.html">Kernel Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/em/expectation-maximization.html">Expectation-Maximization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/cholesky/cholesky.html">Cholesky Decomposition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/qr/qr-decomposition.html">QR Decomposition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/outlier_detection/index.html">Outlier Detection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/distance/index.html">Distance Matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/distributions/index.html">Distributions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/engines/index.html">Engines</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/moments/moments-of-low-order.html">Moments of Low Order</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/quantiles/index.html">Quantile</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/quality_metrics/index.html">Quality Metrics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/sorting/index.html">Sorting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/normalization/index.html">Normalization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/optimization-solvers/optimization-solvers.html">Optimization Solvers</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../daal/training-prediction.html">Training and Prediction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/decision_forest/index.html">Decision Forest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/decision_tree/index.html">Decision Trees</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/gradient_boosted_trees/index.html">Gradient Boosted Trees</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/stump/index.html">Stump</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/linear_ridge_regression/index.html">Linear and Ridge Regressions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/lasso_elastic_net/index.html">LASSO and Elastic Net Regressions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html">k-Nearest Neighbors (kNN) Classifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/implicit_als/implicit-alternating-least-squares.html">Implicit Alternating Least Squares</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/logistic_regression/logistic-regression.html">Logistic Regression</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/naive_bayes/naive-bayes-classifier.html">Naïve Bayes Classifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/svm/support-vector-machine-classifier.html">Support Vector Machine Classifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/svm_multi_class/multi-class-classifier.html">Multi-class Classifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/boosting/index.html">Boosting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/training-prediction.html#training-alternative">Training Alternative</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../daal/services/services.html">Services</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/services/extracting-version-information.html">Extracting Version Information</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/services/handling-errors.html">Handling Errors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/services/managing-memory.html">Managing Memory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/services/managing-computational-environment.html">Managing the Computational Environment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/services/callback-for-host-application.html">Providing a Callback for the Host Application</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal-interfaces.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Notes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/known_issues.html">Known Issues</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../notes/issues/2021.1-beta09/oneapi-examples-segfault.html">oneAPI examples failing with segfault</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notes/issues/2021.1-beta09/oneapi-examples-segfault.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notes/issues/2021.1-beta09/pca-examples-on-gpu.html">PCA examples failing on GPU devices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notes/issues/2021.1-beta09/pca-examples-on-gpu.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notes/issues/2021.1-beta08/windows-static-debug-config.html">Static debug configuration not working</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notes/issues/2021.1-beta08/windows-static-debug-config.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notes/issues/2021.1-beta06/dpcpp-examples-in-vs2017.html">DPC++ examples not working</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notes/issues/2021.1-beta06/dpcpp-examples-in-vs2017.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notes/issues/2021.1-beta06/incorrect-linker-behavior.html">Incorrect linker behavior</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notes/issues/2021.1-beta06/incorrect-linker-behavior.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notes/issues/2021.1-beta06/level-zero-not-found.html">Level Zero runtime dependency</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notes/issues/2021.1-beta06/level-zero-not-found.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notes/issues/2021.1-beta06/performance-degradations.html">Potential performance degradations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notes/issues/2021.1-beta06/performance-degradations.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notes/issues/2021.1-beta06/undeclared-identifier.html">Undeclared identifier <code class="docutils literal notranslate"><span class="pre">CL_DEVICE_IL_VERSION_KHR</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notes/issues/2021.1-beta06/undeclared-identifier.html#how-to-fix">How to fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notes/issues/2021.1-beta04/dll-file-not-found.html">DLL file not found</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notes/issues/2021.1-beta04/dll-file-not-found.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../legal.html">Notices and Disclaimers</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contribution/coding_guide.html">Coding Guidelines</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../contribution/coding_guide.html#coding-style">Coding Style</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../contribution/coding_guide.html#general-rules">General Rules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#whitespaces">Whitespaces</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#c-files">C++ Files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#header-files">Header Files</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contribution/coding_guide.html#naming-conventions">Naming Conventions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#file-names">File Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#type-names">Type Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#function-names">Function Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#variable-names">Variable Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#class-member-names-and-method-names">Class Member Names and Method Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#constant-names">Constant Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#distributed-and-streaming-computational-schemes">Distributed and streaming computational schemes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contribution/coding_guide.html#declaration-order">Declaration Order</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contribution/coding_guide.html#typedefs">Typedefs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contribution/coding_guide.html#defines">Defines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contribution/coding_guide.html#common-definitions">Common definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contribution/coding_guide.html#statements">Statements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contribution/coding_guide.html#comments">Comments</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#function-comments">Function Comments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#variable-comments">Variable Comments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#class-data-members-comments">Class Data Members Comments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#function-declarations-comments">Function Declarations Comments</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contribution/coding_guide.html#templates-declaration">Templates declaration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contribution/coding_guide.html#deprecated-api">Deprecated API</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#notes">Notes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contribution/coding_guide.html#programming-guidelines">Programming guidelines</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../contribution/coding_guide.html#local-variables">Local Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contribution/coding_guide.html#constants">Constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contribution/coding_guide.html#static-and-global-variables">Static and Global Variables</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#undetermined-order-of-construction-and-destruction">Undetermined order of construction and destruction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#static-variables-within-a-function-scope">Static variables within a function scope</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contribution/coding_guide.html#usage-of-const">Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#usage-of-const-in-functions">Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code> in Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#usage-of-const-methods">Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code> Methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#usage-of-const-and-mutable-data-members">Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code> and <code class="docutils literal notranslate"><span class="pre">mutable</span></code> Data Members</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contribution/coding_guide.html#ownership-raii-resource-acquisition-is-initialization">Ownership (RAII – Resource Acquisition Is Initialization)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contribution/coding_guide.html#smart-pointers">Smart Pointers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contribution/coding_guide.html#passing-parameters-of-non-primitive-types-by-reference">Passing parameters of non-primitive types by reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contribution/coding_guide.html#preprocessor-macros">Preprocessor Macros</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contribution/coding_guide.html#namespaces">Namespaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contribution/coding_guide.html#id1">Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#write-short-functions">Write short functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#function-s-arguments">Function’s arguments</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contribution/coding_guide.html#infix-and-postfix-increment-operators">Infix and postfix increment operators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contribution/coding_guide.html#assertions">Assertions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contribution/coding_guide.html#classes">Classes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#initialization">Initialization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#clone-all-parts-of-an-object">Clone all parts of an object</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#assignment">Assignment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#new-and-delete">New and delete</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#access-control">Access Control</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#template-metaprogramming">Template metaprogramming</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contribution/coding_guide.html#hiding-the-implementation-in-model-classes">Hiding the implementation in <code class="docutils literal notranslate"><span class="pre">Model</span></code> classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contribution/coding_guide.html#sdl-requirements">SDL Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#handling-primitive-data-types">Handling Primitive Data Types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#working-with-pointers">Working with Pointers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#working-with-buffers">Working with Buffers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#handling-exceptions">Handling exceptions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../contribution/coding_guide.html#handling-null-byte-injection">Handling null byte injection</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Intel® oneAPI Data Analytics Library Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../oneapi-interfaces.html">oneAPI Interfaces</a> &raquo;</li>
+        
+          <li><a href="../index.html">Algorithms</a> &raquo;</li>
+        
+          <li><a href="index.html">Ensembles</a> &raquo;</li>
+        
+      <li>Decision Forest Classification and Regression (DF)</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../../_sources/onedal/algorithms/ensembles/decision-forest.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="decision-forest-classification-and-regression-df">
+<span id="alg-df"></span><h1>Decision Forest Classification and Regression (DF)<a class="headerlink" href="#decision-forest-classification-and-regression-df" title="Permalink to this headline">¶</a></h1>
+<p>Decision Forest (DF) <a class="reference internal" href="../../glossary.html#term-Classification"><span class="xref std std-term">classification</span></a> and <a class="reference internal" href="../../glossary.html#term-Regression"><span class="xref std std-term">regression</span></a> algorithms are based on an ensemble of
+tree-structured classifiers, which are known as decision trees. Decision forest is built
+using the general technique of bagging, a bootstrap aggregation, and a random choice of features. Decision tree is
+a binary tree graph. Its internal (split) nodes represent a decision function used to select the child node at the
+prediction stage. Its leaf, or terminal, nodes represent the corresponding response values, which are the result
+of the prediction from the tree. For more details, see <a class="reference internal" href="../../../bibliography.html#breiman84" id="id1"><span>[Breiman84]</span></a> and <a class="reference internal" href="../../../bibliography.html#breiman2001" id="id2"><span>[Breiman2001]</span></a>.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 18%" />
+<col style="width: 18%" />
+<col style="width: 11%" />
+<col style="width: 15%" />
+<col style="width: 17%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>Operation</strong></p></td>
+<td colspan="2"><p><strong>Computational methods</strong></p></td>
+<td colspan="3"><p><strong>Programming Interface</strong></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#df-t-math">Training</a></p></td>
+<td><p><a class="reference internal" href="#df-t-math-dense">Dense</a></p></td>
+<td><p><a class="reference internal" href="#df-t-math-hist">Hist</a></p></td>
+<td><p><a class="reference internal" href="#df-t-api">train(…)</a></p></td>
+<td><p><a class="reference internal" href="#df-t-api-input">train_input</a></p></td>
+<td><p><a class="reference internal" href="#df-t-api-result">train_result</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#df-i-math">Inference</a></p></td>
+<td><p><a class="reference internal" href="#df-i-math-dense">Dense</a></p></td>
+<td><p><a class="reference internal" href="#df-i-math-hist">Hist</a></p></td>
+<td><p><a class="reference internal" href="#df-i-api">infer(…)</a></p></td>
+<td><p><a class="reference internal" href="#df-i-api-input">infer_input</a></p></td>
+<td><p><a class="reference internal" href="#df-i-api-result">infer_result</a></p></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="mathematical-formulation">
+<h2>Mathematical formulation<a class="headerlink" href="#mathematical-formulation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="training">
+<span id="df-t-math"></span><h3>Training<a class="headerlink" href="#training" title="Permalink to this headline">¶</a></h3>
+<p>Given <span class="math notranslate nohighlight">\(n\)</span> feature vectors <span class="math notranslate nohighlight">\(X=\{x_1=(x_{11},\ldots,x_{1p}),\ldots,x_n=(x_{n1},\ldots,x_{np})\}\)</span> of
+size <span class="math notranslate nohighlight">\(p\)</span>, their non-negative observation weights <span class="math notranslate nohighlight">\(W=\{w_1,\ldots,w_n\}\)</span> and <span class="math notranslate nohighlight">\(n\)</span> responses <span class="math notranslate nohighlight">\(Y=\{y_1,\ldots,y_n\}\)</span>,</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(y_i \in \{0, \ldots, C-1\}\)</span>, where <span class="math notranslate nohighlight">\(C\)</span> is the number of classes, for classification</p></li>
+<li><p><span class="math notranslate nohighlight">\(y_i \in \mathbb{R}\)</span>, for regression</p></li>
+</ul>
+</div></blockquote>
+<p>the problem is to build a decision forest classification or regression model.</p>
+<p>During the training stage, <span class="math notranslate nohighlight">\(B\)</span> independent classification or regression trees are created using the following:</p>
+<ol class="arabic">
+<li><p>New training set generated from the original one by sampling uniformly and with replacement
+(bootstrapping).</p></li>
+<li><dl>
+<dt>Impurity metric <span class="math notranslate nohighlight">\(I\)</span> and impurity reduction <span class="math notranslate nohighlight">\(\Delta I\)</span> for splitting tree’s nodes, calculated as follows:</dt><dd><ul>
+<li><p>Gini impurity for classification:</p>
+<ul>
+<li><p>without observation weights: <span class="math notranslate nohighlight">\(I(D)=1-\sum_{i=1}^{C}{p_i^2},\)</span> where <span class="math notranslate nohighlight">\(p_i\)</span> is the fraction of observations in subset <span class="math notranslate nohighlight">\(D\)</span> that belong to the <span class="math notranslate nohighlight">\(i\)</span>-th class.</p></li>
+<li><p>with observation weights: <span class="math notranslate nohighlight">\(I(D)=1-\sum_{i=1}^{C}{p_i^2},\)</span> where <span class="math notranslate nohighlight">\(p_i\)</span> is the weighted fraction of observations in subset <span class="math notranslate nohighlight">\(D\)</span> that belong to the <span class="math notranslate nohighlight">\(i\)</span>-th class, computed as follows:</p>
+<div class="math notranslate nohighlight">
+\[p_i=(\sum_{d \in \{d \in D | y_{d}=i\}}w_d)/\sum_{d \in D}w_d\]</div>
+<p>where <span class="math notranslate nohighlight">\(w_d\)</span> is a weight of observation <span class="math notranslate nohighlight">\(d\)</span>.</p>
+</li>
+</ul>
+</li>
+<li><p>Mean-Square Error (MSE) for regression:</p>
+<ul class="simple">
+<li><p>without observation weights: <span class="math notranslate nohighlight">\(I(D)=\frac{1}{N} \sum_{i=1}^{N}{(y_i - \bar{y})^2},\)</span> where <span class="math notranslate nohighlight">\(N=|D|\)</span> and <span class="math notranslate nohighlight">\(\bar{y}=\frac{1}{N} \sum_{i=1}^{N}y_i\)</span>.</p></li>
+<li><p>with observation weights: <span class="math notranslate nohighlight">\(I(D)=\frac{1}{W(D)} \sum_{i=1}^{N}w_i{(y_i - \bar{y})^2},\)</span> where <span class="math notranslate nohighlight">\(N=|D|\)</span>, <span class="math notranslate nohighlight">\(\bar{y}=\sum_{i=1}^{N}w_{i}y_{i},\)</span>, <span class="math notranslate nohighlight">\(W(D)=\sum_{i=1}^{N}w_{i},\)</span> and <span class="math notranslate nohighlight">\(w_i\)</span> is a weight of observation <span class="math notranslate nohighlight">\(i\)</span>.</p></li>
+</ul>
+</li>
+<li><p><span class="math notranslate nohighlight">\(\Delta I\)</span> is computed as follows:</p>
+<div class="math notranslate nohighlight">
+\[\Delta I={I} - (\frac{N_{\mathrm{left}}}{N_{\mathrm{parent}}} I_{left} + \frac{N_{\mathrm{right}}}{N_{\mathrm{parent}}} I_{\mathrm{right}})\]</div>
+<p>where <span class="math notranslate nohighlight">\(N_{\mathrm{left}}\)</span> and <span class="math notranslate nohighlight">\(N_{\mathrm{right}}\)</span> are the number of observations in the node on the corresponding side of the split.</p>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ol>
+<p>Let <span class="math notranslate nohighlight">\(S=(X,Y)\)</span> be the set of observations. Given the training parameters, such as the number of trees
+in the forest (<span class="math notranslate nohighlight">\(B\)</span>), the fraction of observations used for the training of one tree
+(<span class="math notranslate nohighlight">\(f\)</span>), and the number of features to try as a possible split per
+node (<span class="math notranslate nohighlight">\(m\)</span>), the algorithm does the following:</p>
+<ol class="arabic simple">
+<li><p>For each tree (<span class="math notranslate nohighlight">\(1, \ldots, B\)</span>):</p></li>
+<li><p>Generate a bootstrapped set of observations with <span class="math notranslate nohighlight">\(f * |S|\)</span>
+elements in it.</p></li>
+<li><p>Start with the tree whose depth is equal to <span class="math notranslate nohighlight">\(0\)</span>.</p></li>
+<li><dl class="simple">
+<dt>For each terminal node <span class="math notranslate nohighlight">\(t\)</span> in the tree:</dt><dd><ul class="simple">
+<li><p>Choose randomly without replacement <span class="math notranslate nohighlight">\(m\)</span> feature indices <span class="math notranslate nohighlight">\(J_t \in \{0, 1, \ldots, p-1\}\)</span>.</p></li>
+<li><p>For each <span class="math notranslate nohighlight">\(j \in J_t\)</span>, find the best split <span class="math notranslate nohighlight">\(s_{j,t}\)</span> that
+partitions subset <span class="math notranslate nohighlight">\(D_t\)</span> and maximizes impurity decrease <span class="math notranslate nohighlight">\(\Delta I_t\)</span>.</p></li>
+<li><p>Get the best split <span class="math notranslate nohighlight">\(s_t\)</span> that maximizes impurity decrease <span class="math notranslate nohighlight">\(\Delta I_t\)</span> in all <span class="math notranslate nohighlight">\(s_{j,t}\)</span> splits.</p></li>
+<li><p>Split current node into two based the best split.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Stop when a termination criterion is met.</p></li>
+</ol>
+<div class="section" id="termination-criteria">
+<h4>Termination Criteria<a class="headerlink" href="#termination-criteria" title="Permalink to this headline">¶</a></h4>
+<dl class="simple">
+<dt>The library supports the following termination criteria to stop growing the tree:</dt><dd><ul class="simple">
+<li><p><em>Minimal number of observations in a leaf node</em>. Node <span class="math notranslate nohighlight">\(t\)</span> is not processed if the subset of
+<em>observations</em> is smaller than the predefined value. Splits that produce nodes with the number of
+<em>observations</em> smaller than that value are not allowed.</p></li>
+<li><p><em>Maximal tree depth</em>. Node <span class="math notranslate nohighlight">\(t\)</span> is not processed if its depth in the tree reaches the predefined
+maximal value.</p></li>
+<li><p><em>Impurity threshold</em>. Node <span class="math notranslate nohighlight">\(t\)</span> is not processed if its <span class="math notranslate nohighlight">\(I\)</span> value is smaller than the predefined threshold.</p></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="random-numbers-generation">
+<h4>Random Numbers Generation<a class="headerlink" href="#random-numbers-generation" title="Permalink to this headline">¶</a></h4>
+<p>To create a <em>bootstrap</em> set and choose feature indices in the
+performant way, the training algorithm requires the source of
+random numbers, capable to produce sequences of random numbers in
+parallel.</p>
+<p>Initialization of the engine in the decision forest is based on
+the scheme below:</p>
+<p>The state of the engine is updated once the training of the
+decision forest model is completed. The library provides support
+to retrieve the instance of the engine with updated state that can
+be used in other computations. The update of the state is
+engine-specific and depends on the parallelization technique used
+as defined earlier:</p>
+<ul class="simple">
+<li><p>Family: the updated state is the set of states that represent
+individual engines in the family.</p></li>
+<li><p>Leapfrog: the updated state is the state of the sequence with
+the rightmost position on the sequence. The example below
+demonstrates the idea for case of 2 subsequences (‘x’ and ‘o’)
+of the random number sequence:</p></li>
+<li><p>SkipAhead: the updated state is the state of the independent
+sequence with the rightmost position on the sequence. The
+example below demonstrates the idea for case of 2 subsequences
+(‘x’ and ‘o’) of the random number sequence:</p></li>
+</ul>
+</div>
+<div class="section" id="additional-characteristics-calculated-by-the-decision-forest">
+<h4>Additional Characteristics Calculated by the Decision Forest<a class="headerlink" href="#additional-characteristics-calculated-by-the-decision-forest" title="Permalink to this headline">¶</a></h4>
+<p>Decision forests can produce additional characteristics, such as
+an estimate of generalization error and an importance measure
+(relative decisive power) of each of p features (variables).</p>
+<div class="section" id="out-of-bag-error">
+<h5>Out-of-bag Error<a class="headerlink" href="#out-of-bag-error" title="Permalink to this headline">¶</a></h5>
+<p>The estimate of the generalization error based on the training
+data can be obtained and calculated as follows:</p>
+<ul>
+<li><dl>
+<dt>For classification:</dt><dd><ul>
+<li><p>For each vector <span class="math notranslate nohighlight">\(x_i\)</span> in the dataset <span class="math notranslate nohighlight">\(X\)</span>, predict its label <span class="math notranslate nohighlight">\(\hat{y_i}\)</span> by having the majority of votes from the trees that
+contain <span class="math notranslate nohighlight">\(x_i\)</span> in their OOB set, and vote for that label.</p></li>
+<li><p>Calculate the OOB error of the decision forest <span class="math notranslate nohighlight">\(T\)</span> as the average
+of misclassifications:</p>
+<div class="math notranslate nohighlight">
+\[OOB(T) = \frac{1}{|{D}^{\text{'}}|}\sum _{y_i \in {D}^{\text{'}}}I\{y_i \ne \hat{y_i}\}\text{,where }{D}^{\text{'}}={\bigcup }_{b=1}^{B}\overline{D_b}.\]</div>
+</li>
+<li><p>If OOB error value per each observation is required, then calculate the prediction error for <span class="math notranslate nohighlight">\(x_i\)</span>: <span class="math notranslate nohighlight">\(OOB(x_i) = I\{{y}_{i}\ne \hat{{y}_{i}}\}\)</span></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt>For regression:</dt><dd><ul>
+<li><p>For each vector <span class="math notranslate nohighlight">\(x_i\)</span> in the dataset <span class="math notranslate nohighlight">\(X\)</span>, predict its response <span class="math notranslate nohighlight">\(\hat{y_i}\)</span>
+as the mean of prediction from the trees that contain <span class="math notranslate nohighlight">\(x_i\)</span> in their OOB set:</p>
+<p><span class="math notranslate nohighlight">\(\hat{y_i} = \frac{1}{{|B}_{i}|}\sum _{b=1}^{|B_i|}\hat{y_{ib}}\)</span>, where <span class="math notranslate nohighlight">\(B_i= \bigcup{T_b}: x_i \in \overline{D_b}\)</span> and <span class="math notranslate nohighlight">\(\hat{y_{ib}}\)</span> is the result of prediction
+<span class="math notranslate nohighlight">\(x_i\)</span> by <span class="math notranslate nohighlight">\(T_b\)</span>.</p>
+</li>
+<li><p>Calculate the OOB error of the decision forest <span class="math notranslate nohighlight">\(T\)</span> as the Mean-Square Error (MSE):</p>
+<div class="math notranslate nohighlight">
+\[OOB(T) = \frac{1}{|{D}^{\text{'}}|}\sum _{{y}_{i} \in {D}^{\text{'}}}\sum {(y_i-\hat{y_i})}^{2}, \text{where } {D}^{\text{'}}={\bigcup}_{b=1}^{B}\overline{{D}_{b}}\]</div>
+</li>
+<li><p>If OOB error value per each observation is required, then calculate the prediction error for <span class="math notranslate nohighlight">\(x_i\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[OOB(x_i) = {(y_i-\hat{y_i})}^{2}\]</div>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="variable-importance">
+<h5>Variable Importance<a class="headerlink" href="#variable-importance" title="Permalink to this headline">¶</a></h5>
+<p>There are two main types of variable importance measures:</p>
+<ul>
+<li><p><em>Mean Decrease Impurity</em> importance (MDI).</p>
+<p>Importance of the <span class="math notranslate nohighlight">\(j\)</span>-th variable for predicting <span class="math notranslate nohighlight">\(Y\)</span> is the sum of
+weighted impurity decreases <span class="math notranslate nohighlight">\(p(t) \Delta i(s_t, t)\)</span> for all nodes
+<span class="math notranslate nohighlight">\(t\)</span> that use <span class="math notranslate nohighlight">\(x_j\)</span>, averaged over all <span class="math notranslate nohighlight">\(B\)</span> trees in the
+forest:</p>
+<div class="math notranslate nohighlight">
+\[MDI\left(j\right)=\frac{1}{B}\sum _{b=1}^{B} \sum _{t\in {T}_{b}:v\left({s}_{t}\right)=j}p\left(t\right)\Delta i\left({s}_{t},t\right),\]</div>
+<p>where <span class="math notranslate nohighlight">\(p\left(t\right)=\frac{|{D}_{t}|}{|D|}\)</span> is the fraction of observations reaching node <span class="math notranslate nohighlight">\(t\)</span>
+in the tree <span class="math notranslate nohighlight">\(T_b\)</span>, and <span class="math notranslate nohighlight">\(v(s_t)\)</span> is the index of the
+variable used in split <span class="math notranslate nohighlight">\(s_t\)</span> .</p>
+</li>
+<li><p><em>Mean Decrease Accuracy</em> (MDA).</p>
+<p>Importance of the <span class="math notranslate nohighlight">\(j\)</span>-th variable for predicting <span class="math notranslate nohighlight">\(Y\)</span> is the average
+increase in the OOB error over all trees in the forest when the
+values of the <span class="math notranslate nohighlight">\(j\)</span>-th variable are randomly permuted in the OOB
+set. For that reason, this latter measure is also known as
+<em>permutation importance</em>.</p>
+<p>In more details, the library calculates MDA importance as
+follows:</p>
+<ul>
+<li><p>Let <span class="math notranslate nohighlight">\(\pi (X,j)\)</span> be the set of feature vectors where the <span class="math notranslate nohighlight">\(j\)</span>-th variable is randomly permuted over all vectors in the set.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\(E_b\)</span> be the OOB error calculated for <span class="math notranslate nohighlight">\(T_b:\)</span> on its out-of-bag dataset <span class="math notranslate nohighlight">\(\overline{D_b}\)</span>.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\(E_{b,j}\)</span> be the OOB error calculated for <span class="math notranslate nohighlight">\(T_b:\)</span> using <span class="math notranslate nohighlight">\(\pi \left(\overline{{X}_{b}},j\right)\)</span>, and its out-of-bag dataset <span class="math notranslate nohighlight">\(\overline{D_b}\)</span> is permuted on the <span class="math notranslate nohighlight">\(j\)</span>-th variable. Then</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\({\delta }_{b,j}={E}_{b}-{E}_{b,j}\)</span> is the OOB error increase for the tree <span class="math notranslate nohighlight">\(T_b\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\(Raw MDA\left(j\right)=\frac{1}{B}\sum _{b=1}^{B}{\delta }_{b,j}\)</span> is MDA importance.</p></li>
+<li><p><span class="math notranslate nohighlight">\(Scaled MDA\left(j\right)=\frac{Raw MDA\left({x}_{j}\right)}{\frac{{\sigma }_{j}}{\sqrt{B}}}\)</span>, where <span class="math notranslate nohighlight">\({\sigma }_{j}^{2}\)</span> is the variance of <span class="math notranslate nohighlight">\(D_{b,j}\)</span></p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="training-method-dense">
+<span id="df-t-math-dense"></span><h3>Training method: <em>Dense</em><a class="headerlink" href="#training-method-dense" title="Permalink to this headline">¶</a></h3>
+<p>In <em>dense</em> training method all possible split variants for each feature (from selected features’ subset for current node) are evaluated
+for best split computation.</p>
+</div>
+<div class="section" id="training-method-hist">
+<span id="df-t-math-hist"></span><h3>Training method: <em>Hist</em><a class="headerlink" href="#training-method-hist" title="Permalink to this headline">¶</a></h3>
+<p>In <em>hist</em> training method, we consider only some selected subset of splits for best split computation.
+This subset of splits is computed for each feature on initialization stage of the algorithm. After computing subset of splits, we substitute
+each value from initially provided data with the value of the corresponding bin. Bins are continuous intervals between selected splits.</p>
+</div>
+<div class="section" id="inference-methods-dense-and-hist">
+<span id="df-i-math-hist"></span><span id="df-i-math-dense"></span><span id="df-i-math"></span><h3>Inference methods: <em>Dense</em> and <em>Hist</em><a class="headerlink" href="#inference-methods-dense-and-hist" title="Permalink to this headline">¶</a></h3>
+<p><em>Dense</em> and <em>hist</em> inference methods performs prediction by the same way:</p>
+<ol class="arabic simple">
+<li><p>For classification, <span class="math notranslate nohighlight">\(y_i \in \{0, \ldots, C-1\}\)</span>, where <span class="math notranslate nohighlight">\(C\)</span> is the number of classes,
+the tree ensemble model predicts the output by selecting the response <span class="math notranslate nohighlight">\(y\)</span>,
+which is voted for by the majority of the trees in the forest.</p></li>
+<li><p>For regression, the tree ensemble model uses the mean of <span class="math notranslate nohighlight">\(B\)</span> functions’ results to predict the
+output, i.e. <span class="math notranslate nohighlight">\(\hat{y}=\frac{1}{M} \sum_{k=1}^M{f_k(x_i)}, \; f_k \in F,\)</span> where <span class="math notranslate nohighlight">\(f_k\)</span> are
+regression trees, <span class="math notranslate nohighlight">\(W\)</span> is a set of tree leaves’ scores and <span class="math notranslate nohighlight">\(T\)</span> is the number of leaves in the tree.
+In other words, each tree maps an observation to the corresponding leaf’s score.</p></li>
+</ol>
+</div>
+</div>
+<div class="section" id="programming-interface">
+<h2>Programming Interface<a class="headerlink" href="#programming-interface" title="Permalink to this headline">¶</a></h2>
+<p>All types and functions in this section are declared in the
+<code class="docutils literal notranslate"><span class="pre">oneapi::dal::decision_forest</span></code> namespace and are available via inclusion of the
+<code class="docutils literal notranslate"><span class="pre">oneapi/dal/algo/decision_forest.hpp</span></code> header file.</p>
+<div class="section" id="enum-classes">
+<h3>Enum classes<a class="headerlink" href="#enum-classes" title="Permalink to this headline">¶</a></h3>
+<dl class="cpp enum-class">
+<dt id="_CPPv4N6oneapi3dal15decision_forest2v117error_metric_modeE">
+<span id="_CPPv3N6oneapi3dal15decision_forest2v117error_metric_modeE"></span><span id="_CPPv2N6oneapi3dal15decision_forest2v117error_metric_modeE"></span><em class="property">enum class </em><code class="sig-name descname">error_metric_mode</code><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest2v117error_metric_modeE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><dl class="simple">
+<dt>error_metric_mode::none</dt><dd><p>Do not compute error metric.</p>
+</dd>
+<dt>error_metric_mode::out_of_bag_error</dt><dd><p>Train produces <span class="math notranslate nohighlight">\(1 \times 1\)</span> table with cumulative prediction error for out of bag observations.</p>
+</dd>
+<dt>error_metric_mode::out_of_bag_error_per_observation</dt><dd><p>Train produces <span class="math notranslate nohighlight">\(n \times 1\)</span> table with prediction error for out-of-bag observations.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp enum-class">
+<dt id="_CPPv4N6oneapi3dal15decision_forest2v124variable_importance_modeE">
+<span id="_CPPv3N6oneapi3dal15decision_forest2v124variable_importance_modeE"></span><span id="_CPPv2N6oneapi3dal15decision_forest2v124variable_importance_modeE"></span><em class="property">enum class </em><code class="sig-name descname">variable_importance_mode</code><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest2v124variable_importance_modeE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><dl class="simple">
+<dt>variable_importance_mode::none</dt><dd><p>Do not compute variable importance.</p>
+</dd>
+<dt>variable_importance_mode::mdi</dt><dd><p>Mean Decrease Impurity. Computed as the sum of weighted impurity decreases for all nodes where the variable is used, averaged over all trees in the forest.</p>
+</dd>
+<dt>variable_importance_mode::mda_raw</dt><dd><p>Mean Decrease Accuracy (permutation importance). For each tree, the prediction error on the out-of-bag portion of the data is computed (error rate for classification, MSE for regression). The same is done after permuting each predictor variable. The difference between the two are then averaged over all trees.</p>
+</dd>
+<dt>variable_importance_mode::mda_scaled</dt><dd><p>Mean Decrease Accuracy (permutation importance). This is MDA_Raw value scaled by its standard deviation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp enum-class">
+<dt id="_CPPv4N6oneapi3dal15decision_forest2v110infer_modeE">
+<span id="_CPPv3N6oneapi3dal15decision_forest2v110infer_modeE"></span><span id="_CPPv2N6oneapi3dal15decision_forest2v110infer_modeE"></span><em class="property">enum class </em><code class="sig-name descname">infer_mode</code><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest2v110infer_modeE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><dl class="simple">
+<dt>infer_mode::class_labels</dt><dd><p>Infer produces a <span class="math notranslate nohighlight">\(n \times 1\)</span> table with the predicted labels.</p>
+</dd>
+<dt>infer_mode::class_probabilities</dt><dd><p>Infer produces <span class="math notranslate nohighlight">\(n \times c\)</span> table with the predicted class probabilities for each observation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp enum-class">
+<dt id="_CPPv4N6oneapi3dal15decision_forest2v111voting_modeE">
+<span id="_CPPv3N6oneapi3dal15decision_forest2v111voting_modeE"></span><span id="_CPPv2N6oneapi3dal15decision_forest2v111voting_modeE"></span><em class="property">enum class </em><code class="sig-name descname">voting_mode</code><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest2v111voting_modeE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><dl class="simple">
+<dt>voting_mode::weighted</dt><dd><p>The final prediction is combined through a weighted majority voting.</p>
+</dd>
+<dt>voting_mode::unweighted</dt><dd><p>The final prediction is combined through a simple majority voting.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="descriptor">
+<h3>Descriptor<a class="headerlink" href="#descriptor" title="Permalink to this headline">¶</a></h3>
+<dl class="cpp class">
+<dt id="_CPPv4I000EN6oneapi3dal15decision_forest2v110descriptorE">
+<span id="_CPPv3I000EN6oneapi3dal15decision_forest2v110descriptorE"></span><span id="_CPPv2I000EN6oneapi3dal15decision_forest2v110descriptorE"></span>template&lt;typename <code class="sig-name descname">Float</code> = detail::descriptor_base&lt;&gt;::float_t, typename <code class="sig-name descname">Method</code> = detail::descriptor_base&lt;&gt;::method_t, typename <code class="sig-name descname">Task</code> = detail::descriptor_base&lt;&gt;::task_t&gt;<br /><em class="property">class </em><code class="sig-name descname">descriptor</code><a class="headerlink" href="#_CPPv4I000EN6oneapi3dal15decision_forest2v110descriptorE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Template Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Float</strong> – The floating-point type that the algorithm uses for intermediate computations. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">float</span></code> or <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">double</span></code>.</p></li>
+<li><p><strong>Method</strong> – Tag-type that specifies an implementation of algorithm. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">method</span><span class="pre">::</span><span class="pre">v1</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal15decision_forest6method2v15denseE" title="oneapi::dal::decision_forest::method::v1::dense"><span class="pre">dense</span></a></code> or <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">method</span><span class="pre">::</span><span class="pre">v1</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal15decision_forest6method2v14histE" title="oneapi::dal::decision_forest::method::v1::hist"><span class="pre">hist</span></a></code>.</p></li>
+<li><p><strong>Task</strong> – Tag-type that specifies type of the problem to solve. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><span class="pre">v1</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal15decision_forest4task2v114classificationE" title="oneapi::dal::decision_forest::task::v1::classification"><span class="pre">classification</span></a></code> or <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><span class="pre">v1</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal15decision_forest4task2v110regressionE" title="oneapi::dal::decision_forest::task::v1::regression"><span class="pre">regression</span></a></code>.</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Public Methods</strong></p>
+<dl class="cpp function">
+<dt id="_CPPv4N6oneapi3dal15decision_forest2v110descriptor34set_observations_per_tree_fractionEd">
+<span id="_CPPv3N6oneapi3dal15decision_forest2v110descriptor34set_observations_per_tree_fractionEd"></span><span id="_CPPv2N6oneapi3dal15decision_forest2v110descriptor34set_observations_per_tree_fractionEd"></span><span id="oneapi::dal::decision_forest::v1::descriptor::set_observations_per_tree_fraction__double"></span>auto &amp;<code class="sig-name descname">set_observations_per_tree_fraction</code><span class="sig-paren">(</span>double <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest2v110descriptor34set_observations_per_tree_fractionEd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N6oneapi3dal15decision_forest2v110descriptor22set_impurity_thresholdEd">
+<span id="_CPPv3N6oneapi3dal15decision_forest2v110descriptor22set_impurity_thresholdEd"></span><span id="_CPPv2N6oneapi3dal15decision_forest2v110descriptor22set_impurity_thresholdEd"></span><span id="oneapi::dal::decision_forest::v1::descriptor::set_impurity_threshold__double"></span>auto &amp;<code class="sig-name descname">set_impurity_threshold</code><span class="sig-paren">(</span>double <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest2v110descriptor22set_impurity_thresholdEd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N6oneapi3dal15decision_forest2v110descriptor36set_min_weight_fraction_in_leaf_nodeEd">
+<span id="_CPPv3N6oneapi3dal15decision_forest2v110descriptor36set_min_weight_fraction_in_leaf_nodeEd"></span><span id="_CPPv2N6oneapi3dal15decision_forest2v110descriptor36set_min_weight_fraction_in_leaf_nodeEd"></span><span id="oneapi::dal::decision_forest::v1::descriptor::set_min_weight_fraction_in_leaf_node__double"></span>auto &amp;<code class="sig-name descname">set_min_weight_fraction_in_leaf_node</code><span class="sig-paren">(</span>double <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest2v110descriptor36set_min_weight_fraction_in_leaf_nodeEd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N6oneapi3dal15decision_forest2v110descriptor39set_min_impurity_decrease_in_split_nodeEd">
+<span id="_CPPv3N6oneapi3dal15decision_forest2v110descriptor39set_min_impurity_decrease_in_split_nodeEd"></span><span id="_CPPv2N6oneapi3dal15decision_forest2v110descriptor39set_min_impurity_decrease_in_split_nodeEd"></span><span id="oneapi::dal::decision_forest::v1::descriptor::set_min_impurity_decrease_in_split_node__double"></span>auto &amp;<code class="sig-name descname">set_min_impurity_decrease_in_split_node</code><span class="sig-paren">(</span>double <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest2v110descriptor39set_min_impurity_decrease_in_split_nodeEd" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N6oneapi3dal15decision_forest2v110descriptor14set_tree_countENSt7int64_tE">
+<span id="_CPPv3N6oneapi3dal15decision_forest2v110descriptor14set_tree_countENSt7int64_tE"></span><span id="_CPPv2N6oneapi3dal15decision_forest2v110descriptor14set_tree_countENSt7int64_tE"></span><span id="oneapi::dal::decision_forest::v1::descriptor::set_tree_count__std::int64_t"></span>auto &amp;<code class="sig-name descname">set_tree_count</code><span class="sig-paren">(</span>std::int64_t <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest2v110descriptor14set_tree_countENSt7int64_tE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N6oneapi3dal15decision_forest2v110descriptor21set_features_per_nodeENSt7int64_tE">
+<span id="_CPPv3N6oneapi3dal15decision_forest2v110descriptor21set_features_per_nodeENSt7int64_tE"></span><span id="_CPPv2N6oneapi3dal15decision_forest2v110descriptor21set_features_per_nodeENSt7int64_tE"></span><span id="oneapi::dal::decision_forest::v1::descriptor::set_features_per_node__std::int64_t"></span>auto &amp;<code class="sig-name descname">set_features_per_node</code><span class="sig-paren">(</span>std::int64_t <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest2v110descriptor21set_features_per_nodeENSt7int64_tE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N6oneapi3dal15decision_forest2v110descriptor18set_max_tree_depthENSt7int64_tE">
+<span id="_CPPv3N6oneapi3dal15decision_forest2v110descriptor18set_max_tree_depthENSt7int64_tE"></span><span id="_CPPv2N6oneapi3dal15decision_forest2v110descriptor18set_max_tree_depthENSt7int64_tE"></span><span id="oneapi::dal::decision_forest::v1::descriptor::set_max_tree_depth__std::int64_t"></span>auto &amp;<code class="sig-name descname">set_max_tree_depth</code><span class="sig-paren">(</span>std::int64_t <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest2v110descriptor18set_max_tree_depthENSt7int64_tE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N6oneapi3dal15decision_forest2v110descriptor33set_min_observations_in_leaf_nodeENSt7int64_tE">
+<span id="_CPPv3N6oneapi3dal15decision_forest2v110descriptor33set_min_observations_in_leaf_nodeENSt7int64_tE"></span><span id="_CPPv2N6oneapi3dal15decision_forest2v110descriptor33set_min_observations_in_leaf_nodeENSt7int64_tE"></span><span id="oneapi::dal::decision_forest::v1::descriptor::set_min_observations_in_leaf_node__std::int64_t"></span>auto &amp;<code class="sig-name descname">set_min_observations_in_leaf_node</code><span class="sig-paren">(</span>std::int64_t <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest2v110descriptor33set_min_observations_in_leaf_nodeENSt7int64_tE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N6oneapi3dal15decision_forest2v110descriptor34set_min_observations_in_split_nodeENSt7int64_tE">
+<span id="_CPPv3N6oneapi3dal15decision_forest2v110descriptor34set_min_observations_in_split_nodeENSt7int64_tE"></span><span id="_CPPv2N6oneapi3dal15decision_forest2v110descriptor34set_min_observations_in_split_nodeENSt7int64_tE"></span><span id="oneapi::dal::decision_forest::v1::descriptor::set_min_observations_in_split_node__std::int64_t"></span>auto &amp;<code class="sig-name descname">set_min_observations_in_split_node</code><span class="sig-paren">(</span>std::int64_t <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest2v110descriptor34set_min_observations_in_split_nodeENSt7int64_tE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N6oneapi3dal15decision_forest2v110descriptor18set_max_leaf_nodesENSt7int64_tE">
+<span id="_CPPv3N6oneapi3dal15decision_forest2v110descriptor18set_max_leaf_nodesENSt7int64_tE"></span><span id="_CPPv2N6oneapi3dal15decision_forest2v110descriptor18set_max_leaf_nodesENSt7int64_tE"></span><span id="oneapi::dal::decision_forest::v1::descriptor::set_max_leaf_nodes__std::int64_t"></span>auto &amp;<code class="sig-name descname">set_max_leaf_nodes</code><span class="sig-paren">(</span>std::int64_t <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest2v110descriptor18set_max_leaf_nodesENSt7int64_tE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N6oneapi3dal15decision_forest2v110descriptor12set_max_binsENSt7int64_tE">
+<span id="_CPPv3N6oneapi3dal15decision_forest2v110descriptor12set_max_binsENSt7int64_tE"></span><span id="_CPPv2N6oneapi3dal15decision_forest2v110descriptor12set_max_binsENSt7int64_tE"></span><span id="oneapi::dal::decision_forest::v1::descriptor::set_max_bins__std::int64_t"></span>auto &amp;<code class="sig-name descname">set_max_bins</code><span class="sig-paren">(</span>std::int64_t <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest2v110descriptor12set_max_binsENSt7int64_tE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N6oneapi3dal15decision_forest2v110descriptor16set_min_bin_sizeENSt7int64_tE">
+<span id="_CPPv3N6oneapi3dal15decision_forest2v110descriptor16set_min_bin_sizeENSt7int64_tE"></span><span id="_CPPv2N6oneapi3dal15decision_forest2v110descriptor16set_min_bin_sizeENSt7int64_tE"></span><span id="oneapi::dal::decision_forest::v1::descriptor::set_min_bin_size__std::int64_t"></span>auto &amp;<code class="sig-name descname">set_min_bin_size</code><span class="sig-paren">(</span>std::int64_t <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest2v110descriptor16set_min_bin_sizeENSt7int64_tE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N6oneapi3dal15decision_forest2v110descriptor21set_error_metric_modeE17error_metric_mode">
+<span id="_CPPv3N6oneapi3dal15decision_forest2v110descriptor21set_error_metric_modeE17error_metric_mode"></span><span id="_CPPv2N6oneapi3dal15decision_forest2v110descriptor21set_error_metric_modeE17error_metric_mode"></span><span id="oneapi::dal::decision_forest::v1::descriptor::set_error_metric_mode__error_metric_mode"></span>auto &amp;<code class="sig-name descname">set_error_metric_mode</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N6oneapi3dal15decision_forest2v117error_metric_modeE" title="oneapi::dal::decision_forest::v1::error_metric_mode">error_metric_mode</a> <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest2v110descriptor21set_error_metric_modeE17error_metric_mode" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N6oneapi3dal15decision_forest2v110descriptor22set_memory_saving_modeEb">
+<span id="_CPPv3N6oneapi3dal15decision_forest2v110descriptor22set_memory_saving_modeEb"></span><span id="_CPPv2N6oneapi3dal15decision_forest2v110descriptor22set_memory_saving_modeEb"></span><span id="oneapi::dal::decision_forest::v1::descriptor::set_memory_saving_mode__b"></span>auto &amp;<code class="sig-name descname">set_memory_saving_mode</code><span class="sig-paren">(</span>bool <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest2v110descriptor22set_memory_saving_modeEb" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N6oneapi3dal15decision_forest2v110descriptor13set_bootstrapEb">
+<span id="_CPPv3N6oneapi3dal15decision_forest2v110descriptor13set_bootstrapEb"></span><span id="_CPPv2N6oneapi3dal15decision_forest2v110descriptor13set_bootstrapEb"></span><span id="oneapi::dal::decision_forest::v1::descriptor::set_bootstrap__b"></span>auto &amp;<code class="sig-name descname">set_bootstrap</code><span class="sig-paren">(</span>bool <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest2v110descriptor13set_bootstrapEb" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N6oneapi3dal15decision_forest2v110descriptor28set_variable_importance_modeE24variable_importance_mode">
+<span id="_CPPv3N6oneapi3dal15decision_forest2v110descriptor28set_variable_importance_modeE24variable_importance_mode"></span><span id="_CPPv2N6oneapi3dal15decision_forest2v110descriptor28set_variable_importance_modeE24variable_importance_mode"></span><span id="oneapi::dal::decision_forest::v1::descriptor::set_variable_importance_mode__variable_importance_mode"></span>auto &amp;<code class="sig-name descname">set_variable_importance_mode</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N6oneapi3dal15decision_forest2v124variable_importance_modeE" title="oneapi::dal::decision_forest::v1::variable_importance_mode">variable_importance_mode</a> <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest2v110descriptor28set_variable_importance_modeE24variable_importance_mode" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4I00EN6oneapi3dal15decision_forest2v110descriptor15set_class_countERDaNSt7int64_tE">
+<span id="_CPPv3I00EN6oneapi3dal15decision_forest2v110descriptor15set_class_countENSt7int64_tE"></span><span id="_CPPv2I00EN6oneapi3dal15decision_forest2v110descriptor15set_class_countENSt7int64_tE"></span>template&lt;typename <code class="sig-name descname">T</code> = Task, typename <code class="sig-name descname">None</code> = detail::enable_if_classification_t&lt;<a class="reference internal" href="#_CPPv4I00EN6oneapi3dal15decision_forest2v110descriptor15set_class_countERDaNSt7int64_tE" title="oneapi::dal::decision_forest::v1::descriptor::set_class_count::T">T</a>&gt;&gt;<br />auto &amp;<code class="sig-name descname">set_class_count</code><span class="sig-paren">(</span>std::int64_t <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EN6oneapi3dal15decision_forest2v110descriptor15set_class_countERDaNSt7int64_tE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4I00EN6oneapi3dal15decision_forest2v110descriptor14set_infer_modeERDa10infer_mode">
+<span id="_CPPv3I00EN6oneapi3dal15decision_forest2v110descriptor14set_infer_modeE10infer_mode"></span><span id="_CPPv2I00EN6oneapi3dal15decision_forest2v110descriptor14set_infer_modeE10infer_mode"></span>template&lt;typename <code class="sig-name descname">T</code> = Task, typename <code class="sig-name descname">None</code> = detail::enable_if_classification_t&lt;<a class="reference internal" href="#_CPPv4I00EN6oneapi3dal15decision_forest2v110descriptor14set_infer_modeERDa10infer_mode" title="oneapi::dal::decision_forest::v1::descriptor::set_infer_mode::T">T</a>&gt;&gt;<br />auto &amp;<code class="sig-name descname">set_infer_mode</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N6oneapi3dal15decision_forest2v110infer_modeE" title="oneapi::dal::decision_forest::v1::infer_mode">infer_mode</a> <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EN6oneapi3dal15decision_forest2v110descriptor14set_infer_modeERDa10infer_mode" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4I00EN6oneapi3dal15decision_forest2v110descriptor15set_voting_modeERDa11voting_mode">
+<span id="_CPPv3I00EN6oneapi3dal15decision_forest2v110descriptor15set_voting_modeE11voting_mode"></span><span id="_CPPv2I00EN6oneapi3dal15decision_forest2v110descriptor15set_voting_modeE11voting_mode"></span>template&lt;typename <code class="sig-name descname">T</code> = Task, typename <code class="sig-name descname">None</code> = detail::enable_if_classification_t&lt;<a class="reference internal" href="#_CPPv4I00EN6oneapi3dal15decision_forest2v110descriptor15set_voting_modeERDa11voting_mode" title="oneapi::dal::decision_forest::v1::descriptor::set_voting_mode::T">T</a>&gt;&gt;<br />auto &amp;<code class="sig-name descname">set_voting_mode</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N6oneapi3dal15decision_forest2v111voting_modeE" title="oneapi::dal::decision_forest::v1::voting_mode">voting_mode</a> <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EN6oneapi3dal15decision_forest2v110descriptor15set_voting_modeERDa11voting_mode" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<div class="section" id="method-tags">
+<h4>Method tags<a class="headerlink" href="#method-tags" title="Permalink to this headline">¶</a></h4>
+<dl class="cpp struct">
+<dt id="_CPPv4N6oneapi3dal15decision_forest6method2v15denseE">
+<span id="_CPPv3N6oneapi3dal15decision_forest6method2v15denseE"></span><span id="_CPPv2N6oneapi3dal15decision_forest6method2v15denseE"></span><span id="oneapi::dal::decision_forest::method::v1::dense"></span><em class="property">struct </em><code class="sig-name descname">dense</code><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest6method2v15denseE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Tag-type that denotes <a class="reference internal" href="#df-t-math-dense">dense</a> computational method.</p>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt id="_CPPv4N6oneapi3dal15decision_forest6method2v14histE">
+<span id="_CPPv3N6oneapi3dal15decision_forest6method2v14histE"></span><span id="_CPPv2N6oneapi3dal15decision_forest6method2v14histE"></span><span id="oneapi::dal::decision_forest::method::v1::hist"></span><em class="property">struct </em><code class="sig-name descname">hist</code><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest6method2v14histE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Tag-type that denotes <a class="reference internal" href="#df-t-math-hist">hist</a> computational method.</p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt id="_CPPv4N6oneapi3dal15decision_forest6method2v110by_defaultE">
+<span id="_CPPv3N6oneapi3dal15decision_forest6method2v110by_defaultE"></span><span id="_CPPv2N6oneapi3dal15decision_forest6method2v110by_defaultE"></span><em class="property">using </em><code class="sig-name descname">by_default</code> = <a class="reference internal" href="#_CPPv4N6oneapi3dal15decision_forest6method2v15denseE" title="oneapi::dal::decision_forest::method::v1::dense">dense</a><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest6method2v110by_defaultE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Alias tag-type for <a class="reference external" href="df_t_math_dense">dense</a> computational method.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="task-tags">
+<h4>Task tags<a class="headerlink" href="#task-tags" title="Permalink to this headline">¶</a></h4>
+<dl class="cpp struct">
+<dt id="_CPPv4N6oneapi3dal15decision_forest4task2v114classificationE">
+<span id="_CPPv3N6oneapi3dal15decision_forest4task2v114classificationE"></span><span id="_CPPv2N6oneapi3dal15decision_forest4task2v114classificationE"></span><span id="oneapi::dal::decision_forest::task::v1::classification"></span><em class="property">struct </em><code class="sig-name descname">classification</code><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest4task2v114classificationE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Tag-type that parameterizes entities used for solving <a class="reference internal" href="../../glossary.html#term-Classification"><span class="xref std std-term">classification problem</span></a>.</p>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt id="_CPPv4N6oneapi3dal15decision_forest4task2v110regressionE">
+<span id="_CPPv3N6oneapi3dal15decision_forest4task2v110regressionE"></span><span id="_CPPv2N6oneapi3dal15decision_forest4task2v110regressionE"></span><span id="oneapi::dal::decision_forest::task::v1::regression"></span><em class="property">struct </em><code class="sig-name descname">regression</code><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest4task2v110regressionE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Tag-type that parameterizes entities used for solving <a class="reference internal" href="../../glossary.html#term-Regression"><span class="xref std std-term">regression problem</span></a>.</p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt id="_CPPv4N6oneapi3dal15decision_forest4task2v110by_defaultE">
+<span id="_CPPv3N6oneapi3dal15decision_forest4task2v110by_defaultE"></span><span id="_CPPv2N6oneapi3dal15decision_forest4task2v110by_defaultE"></span><em class="property">using </em><code class="sig-name descname">by_default</code> = <a class="reference internal" href="#_CPPv4N6oneapi3dal15decision_forest4task2v114classificationE" title="oneapi::dal::decision_forest::task::v1::classification">classification</a><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest4task2v110by_defaultE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Alias tag-type for classification task.</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="model">
+<h3>Model<a class="headerlink" href="#model" title="Permalink to this headline">¶</a></h3>
+<dl class="cpp class">
+<dt id="_CPPv4I0EN6oneapi3dal15decision_forest2v15modelE">
+<span id="_CPPv3I0EN6oneapi3dal15decision_forest2v15modelE"></span><span id="_CPPv2I0EN6oneapi3dal15decision_forest2v15modelE"></span>template&lt;typename <code class="sig-name descname">Task</code> = task::by_default&gt;<br /><em class="property">class </em><code class="sig-name descname">model</code><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal15decision_forest2v15modelE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Template Parameters</dt>
+<dd class="field-odd"><p><strong>Task</strong> – Tag-type that specifies the type of the problem to solve. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><span class="pre">v1</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal15decision_forest4task2v114classificationE" title="oneapi::dal::decision_forest::task::v1::classification"><span class="pre">classification</span></a></code> or <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><span class="pre">v1</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal15decision_forest4task2v110regressionE" title="oneapi::dal::decision_forest::task::v1::regression"><span class="pre">regression</span></a></code>.</p>
+</dd>
+</dl>
+<p><strong>Constructors</strong></p>
+<dl class="cpp function">
+<dt id="_CPPv4N6oneapi3dal15decision_forest2v15model5modelEv">
+<span id="_CPPv3N6oneapi3dal15decision_forest2v15model5modelEv"></span><span id="_CPPv2N6oneapi3dal15decision_forest2v15model5modelEv"></span><span id="oneapi::dal::decision_forest::v1::model::model"></span><code class="sig-name descname">model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest2v15model5modelEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Creates a new instance of the class with the default property values.</p>
+</dd></dl>
+
+<p><strong>Properties</strong></p>
+<dl class="cpp member">
+<dt id="_CPPv4N46oneapi_dal_decision_forest_v1_model_properties10tree_countE">
+<span id="_CPPv3N46oneapi_dal_decision_forest_v1_model_properties10tree_countE"></span><span id="_CPPv2N46oneapi_dal_decision_forest_v1_model_properties10tree_countE"></span><span id="oneapi_dal_decision_forest_v1_model_properties::tree_count__std::int64_t"></span>std::int64_t <code class="sig-name descname">tree_count</code> = 100<a class="headerlink" href="#_CPPv4N46oneapi_dal_decision_forest_v1_model_properties10tree_countE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The number of trees in the forest.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">std::int64_t</span> <span class="pre">get_tree_count()</span> <span class="pre">const</span></code></div>
+</div>
+</dd>
+<dt>Invariants</dt><dd><div class="line-block">
+<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4N46oneapi_dal_decision_forest_v1_model_properties10tree_countE" title="oneapi_dal_decision_forest_v1_model_properties::tree_count"><span class="pre">tree_count</span></a> <span class="pre">&gt;</span> <span class="pre">0</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt id="_CPPv4N46oneapi_dal_decision_forest_v1_model_properties11class_countE">
+<span id="_CPPv3N46oneapi_dal_decision_forest_v1_model_properties11class_countE"></span><span id="_CPPv2N46oneapi_dal_decision_forest_v1_model_properties11class_countE"></span><span id="oneapi_dal_decision_forest_v1_model_properties::class_count__std::int64_t"></span>std::int64_t <code class="sig-name descname">class_count</code> = 2<a class="headerlink" href="#_CPPv4N46oneapi_dal_decision_forest_v1_model_properties11class_countE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The class count. Used with <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">oneapi</span><span class="pre">::</span><span class="pre">dal</span><span class="pre">::</span><span class="pre">decision_forest</span><span class="pre">::</span><span class="pre">task</span><span class="pre">::</span><span class="pre">v1</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal15decision_forest4task2v114classificationE" title="oneapi::dal::decision_forest::task::v1::classification"><span class="pre">classification</span></a></code> only.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">template</span> <span class="pre">&lt;typename</span> <span class="pre">T</span> <span class="pre">=</span> <span class="pre">Task,</span> <span class="pre">typename</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">detail::enable_if_classification_t&lt;T&gt;&gt;</span> <span class="pre">std::int64_t</span> <span class="pre">get_class_count()</span> <span class="pre">const</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="training-train">
+<span id="df-t-api"></span><h3>Training <code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal15decision_forest2v15trainEN15decision_forest12train_resultERK10DescriptorRKN15decision_forest11train_inputE" title="oneapi::dal::decision_forest::v1::train"><span class="pre">train</span></a><span class="sig-paren">(</span><span class="pre">...</span><span class="sig-paren">)</span></code><a class="headerlink" href="#training-train" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="input">
+<span id="df-t-api-input"></span><h4>Input<a class="headerlink" href="#input" title="Permalink to this headline">¶</a></h4>
+<dl class="cpp class">
+<dt id="_CPPv4I0EN6oneapi3dal15decision_forest2v111train_inputE">
+<span id="_CPPv3I0EN6oneapi3dal15decision_forest2v111train_inputE"></span><span id="_CPPv2I0EN6oneapi3dal15decision_forest2v111train_inputE"></span>template&lt;typename <code class="sig-name descname">Task</code> = task::by_default&gt;<br /><em class="property">class </em><code class="sig-name descname">train_input</code><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal15decision_forest2v111train_inputE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Template Parameters</dt>
+<dd class="field-odd"><p><strong>Task</strong> – Tag-type that specifies type of the problem to solve. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><span class="pre">v1</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal15decision_forest4task2v114classificationE" title="oneapi::dal::decision_forest::task::v1::classification"><span class="pre">classification</span></a></code> or <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><span class="pre">v1</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal15decision_forest4task2v110regressionE" title="oneapi::dal::decision_forest::task::v1::regression"><span class="pre">regression</span></a></code>.</p>
+</dd>
+</dl>
+<p><strong>Constructors</strong></p>
+<dl class="cpp function">
+<dt id="_CPPv4N6oneapi3dal15decision_forest2v111train_input11train_inputERK5tableRK5table">
+<span id="_CPPv3N6oneapi3dal15decision_forest2v111train_input11train_inputERK5tableRK5table"></span><span id="_CPPv2N6oneapi3dal15decision_forest2v111train_input11train_inputERK5tableRK5table"></span><span id="oneapi::dal::decision_forest::v1::train_input::train_input__tableCR.tableCR"></span><code class="sig-name descname">train_input</code><span class="sig-paren">(</span><em class="property">const</em> table &amp;<em>data</em>, <em class="property">const</em> table &amp;<em>labels</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest2v111train_input11train_inputERK5tableRK5table" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Creates a new instance of the class with the given <code class="docutils literal notranslate"><span class="pre">data</span></code> and <code class="docutils literal notranslate"><span class="pre">labels</span></code> property values.</p>
+</dd></dl>
+
+<p><strong>Properties</strong></p>
+<dl class="cpp member">
+<dt id="_CPPv4N52oneapi_dal_decision_forest_v1_train_input_properties4dataE">
+<span id="_CPPv3N52oneapi_dal_decision_forest_v1_train_input_properties4dataE"></span><span id="_CPPv2N52oneapi_dal_decision_forest_v1_train_input_properties4dataE"></span><span id="oneapi_dal_decision_forest_v1_train_input_properties::data__tableCR"></span><em class="property">const</em> table &amp;<code class="sig-name descname">data</code> = table{}<a class="headerlink" href="#_CPPv4N52oneapi_dal_decision_forest_v1_train_input_properties4dataE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The training set <span class="math notranslate nohighlight">\(X\)</span>.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_data()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_data(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt id="_CPPv4N52oneapi_dal_decision_forest_v1_train_input_properties6labelsE">
+<span id="_CPPv3N52oneapi_dal_decision_forest_v1_train_input_properties6labelsE"></span><span id="_CPPv2N52oneapi_dal_decision_forest_v1_train_input_properties6labelsE"></span><span id="oneapi_dal_decision_forest_v1_train_input_properties::labels__tableCR"></span><em class="property">const</em> table &amp;<code class="sig-name descname">labels</code> = table{}<a class="headerlink" href="#_CPPv4N52oneapi_dal_decision_forest_v1_train_input_properties6labelsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Vector of labels <span class="math notranslate nohighlight">\(y\)</span> for the training set <span class="math notranslate nohighlight">\(X\)</span>.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_labels()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_labels(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="result">
+<span id="df-t-api-result"></span><h4>Result<a class="headerlink" href="#result" title="Permalink to this headline">¶</a></h4>
+<dl class="cpp class">
+<dt id="_CPPv4I0EN6oneapi3dal15decision_forest2v112train_resultE">
+<span id="_CPPv3I0EN6oneapi3dal15decision_forest2v112train_resultE"></span><span id="_CPPv2I0EN6oneapi3dal15decision_forest2v112train_resultE"></span>template&lt;typename <code class="sig-name descname">Task</code> = task::by_default&gt;<br /><em class="property">class </em><code class="sig-name descname">train_result</code><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal15decision_forest2v112train_resultE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Template Parameters</dt>
+<dd class="field-odd"><p><strong>Task</strong> – Tag-type that specifies type of the problem to solve. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><span class="pre">v1</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal15decision_forest4task2v114classificationE" title="oneapi::dal::decision_forest::task::v1::classification"><span class="pre">classification</span></a></code> or <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><span class="pre">v1</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal15decision_forest4task2v110regressionE" title="oneapi::dal::decision_forest::task::v1::regression"><span class="pre">regression</span></a></code>.</p>
+</dd>
+</dl>
+<p><strong>Constructors</strong></p>
+<dl class="cpp function">
+<dt id="_CPPv4N6oneapi3dal15decision_forest2v112train_result12train_resultEv">
+<span id="_CPPv3N6oneapi3dal15decision_forest2v112train_result12train_resultEv"></span><span id="_CPPv2N6oneapi3dal15decision_forest2v112train_result12train_resultEv"></span><span id="oneapi::dal::decision_forest::v1::train_result::train_result"></span><code class="sig-name descname">train_result</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest2v112train_result12train_resultEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Creates a new instance of the class with the default property values.</p>
+</dd></dl>
+
+<p><strong>Properties</strong></p>
+<dl class="cpp member">
+<dt id="_CPPv4N53oneapi_dal_decision_forest_v1_train_result_properties5modelE">
+<span id="_CPPv3N53oneapi_dal_decision_forest_v1_train_result_properties5modelE"></span><span id="_CPPv2N53oneapi_dal_decision_forest_v1_train_result_properties5modelE"></span><span id="oneapi_dal_decision_forest_v1_train_result_properties::model__model:Task:CR"></span><em class="property">const</em> <a class="reference internal" href="#_CPPv4N53oneapi_dal_decision_forest_v1_train_result_properties5modelE" title="oneapi_dal_decision_forest_v1_train_result_properties::model">model</a>&lt;Task&gt; &amp;<code class="sig-name descname">model</code> = <a class="reference internal" href="#_CPPv4N53oneapi_dal_decision_forest_v1_train_result_properties5modelE" title="oneapi_dal_decision_forest_v1_train_result_properties::model">model</a>&lt;Task&gt;{}<a class="headerlink" href="#_CPPv4N53oneapi_dal_decision_forest_v1_train_result_properties5modelE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The trained Decision Forest model.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">model&lt;</span> <span class="pre">Task</span> <span class="pre">&gt;</span> <span class="pre">&amp;</span> <span class="pre">get_model()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_model(const</span> <span class="pre">model&lt;</span> <span class="pre">Task</span> <span class="pre">&gt;</span> <span class="pre">&amp;value)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt id="_CPPv4N53oneapi_dal_decision_forest_v1_train_result_properties7oob_errE">
+<span id="_CPPv3N53oneapi_dal_decision_forest_v1_train_result_properties7oob_errE"></span><span id="_CPPv2N53oneapi_dal_decision_forest_v1_train_result_properties7oob_errE"></span><span id="oneapi_dal_decision_forest_v1_train_result_properties::oob_err__tableCR"></span><em class="property">const</em> table &amp;<code class="sig-name descname">oob_err</code> = table{}<a class="headerlink" href="#_CPPv4N53oneapi_dal_decision_forest_v1_train_result_properties7oob_errE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A <span class="math notranslate nohighlight">\(1 \times 1\)</span> table containing cumulative out-of-bag error value. Computed when <code class="docutils literal notranslate"><span class="pre">error_metric_mode</span></code> set with <code class="docutils literal notranslate"><span class="pre">error_metric_mode::out_of_bag_error</span></code>.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_oob_err()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_oob_err(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt id="_CPPv4N53oneapi_dal_decision_forest_v1_train_result_properties23oob_err_per_observationE">
+<span id="_CPPv3N53oneapi_dal_decision_forest_v1_train_result_properties23oob_err_per_observationE"></span><span id="_CPPv2N53oneapi_dal_decision_forest_v1_train_result_properties23oob_err_per_observationE"></span><span id="oneapi_dal_decision_forest_v1_train_result_properties::oob_err_per_observation__tableCR"></span><em class="property">const</em> table &amp;<code class="sig-name descname">oob_err_per_observation</code> = table{}<a class="headerlink" href="#_CPPv4N53oneapi_dal_decision_forest_v1_train_result_properties23oob_err_per_observationE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A <span class="math notranslate nohighlight">\(n \times 1\)</span> table containing out-of-bag error value per observation. Computed when <code class="docutils literal notranslate"><span class="pre">error_metric_mode</span></code> set with <code class="docutils literal notranslate"><span class="pre">error_metric_mode::out_of_bag_error_per_observation</span></code>.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_oob_err_per_observation()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_oob_err_per_observation(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt id="_CPPv4N53oneapi_dal_decision_forest_v1_train_result_properties14var_importanceE">
+<span id="_CPPv3N53oneapi_dal_decision_forest_v1_train_result_properties14var_importanceE"></span><span id="_CPPv2N53oneapi_dal_decision_forest_v1_train_result_properties14var_importanceE"></span><span id="oneapi_dal_decision_forest_v1_train_result_properties::var_importance__tableCR"></span><em class="property">const</em> table &amp;<code class="sig-name descname">var_importance</code> = table{}<a class="headerlink" href="#_CPPv4N53oneapi_dal_decision_forest_v1_train_result_properties14var_importanceE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A <span class="math notranslate nohighlight">\(1 \times p\)</span> table containing variable importance value for each feature. Computed when <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">variable_importance_mode</span> <span class="pre">!=</span> <span class="pre">variable_importance_mode</span><span class="pre">::</span><span class="pre">none</span></code>.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_var_importance()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_var_importance(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="operation">
+<h4>Operation<a class="headerlink" href="#operation" title="Permalink to this headline">¶</a></h4>
+<dl class="cpp function">
+<dt id="_CPPv4I0EN6oneapi3dal15decision_forest2v15trainEN15decision_forest12train_resultERK10DescriptorRKN15decision_forest11train_inputE">
+<span id="_CPPv3I0EN6oneapi3dal15decision_forest2v15trainERK10DescriptorRKN15decision_forest11train_inputE"></span><span id="_CPPv2I0EN6oneapi3dal15decision_forest2v15trainERK10DescriptorRKN15decision_forest11train_inputE"></span>template&lt;typename <code class="sig-name descname">Descriptor</code>&gt;<br />decision_forest::train_result <code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="#_CPPv4I0EN6oneapi3dal15decision_forest2v15trainEN15decision_forest12train_resultERK10DescriptorRKN15decision_forest11train_inputE" title="oneapi::dal::decision_forest::v1::train::Descriptor">Descriptor</a> &amp;<em>desc</em>, <em class="property">const</em> decision_forest::train_input &amp;<em>input</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal15decision_forest2v15trainEN15decision_forest12train_resultERK10DescriptorRKN15decision_forest11train_inputE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Template Parameters</dt>
+<dd class="field-odd"><p><strong>Descriptor</strong> – Decision Forest algorithm descriptor <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">decision_forest</span><span class="pre">::</span><span class="pre">desc</span></code>.</p>
+</dd>
+</dl>
+<dl>
+<dt>Preconditions</dt><dd><div class="line-block">
+<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal15decision_forest2v15trainEN15decision_forest12train_resultERK10DescriptorRKN15decision_forest11train_inputE" title="oneapi::dal::decision_forest::v1::train::input"><span class="pre">input</span></a><span class="pre">.</span><span class="pre">data</span><span class="pre">.</span><span class="pre">is_empty</span> <span class="pre">==</span> <span class="pre">false</span></code></div>
+<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal15decision_forest2v15trainEN15decision_forest12train_resultERK10DescriptorRKN15decision_forest11train_inputE" title="oneapi::dal::decision_forest::v1::train::input"><span class="pre">input</span></a><span class="pre">.</span><span class="pre">labels</span><span class="pre">.</span><span class="pre">is_empty</span> <span class="pre">==</span> <span class="pre">false</span></code></div>
+<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal15decision_forest2v15trainEN15decision_forest12train_resultERK10DescriptorRKN15decision_forest11train_inputE" title="oneapi::dal::decision_forest::v1::train::input"><span class="pre">input</span></a><span class="pre">.</span><span class="pre">labels</span><span class="pre">.</span><span class="pre">column_count</span> <span class="pre">==</span> <span class="pre">1</span></code></div>
+<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal15decision_forest2v15trainEN15decision_forest12train_resultERK10DescriptorRKN15decision_forest11train_inputE" title="oneapi::dal::decision_forest::v1::train::input"><span class="pre">input</span></a><span class="pre">.</span><span class="pre">data</span><span class="pre">.</span><span class="pre">row_count</span> <span class="pre">==</span> <a class="reference internal" href="#_CPPv4I0EN6oneapi3dal15decision_forest2v15trainEN15decision_forest12train_resultERK10DescriptorRKN15decision_forest11train_inputE" title="oneapi::dal::decision_forest::v1::train::input"><span class="pre">input</span></a><span class="pre">.</span><span class="pre">labels</span><span class="pre">.</span><span class="pre">row_count</span></code></div>
+<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal15decision_forest2v15trainEN15decision_forest12train_resultERK10DescriptorRKN15decision_forest11train_inputE" title="oneapi::dal::decision_forest::v1::train::desc"><span class="pre">desc</span></a><span class="pre">.</span><span class="pre">get_bootstrap</span><span class="pre">(</span><span class="pre">)</span> <span class="pre">==</span> <span class="pre">true</span> <span class="pre">||</span> <span class="pre">(</span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal15decision_forest2v15trainEN15decision_forest12train_resultERK10DescriptorRKN15decision_forest11train_inputE" title="oneapi::dal::decision_forest::v1::train::desc"><span class="pre">desc</span></a><span class="pre">.</span><span class="pre">get_bootstrap</span><span class="pre">(</span><span class="pre">)</span> <span class="pre">==</span> <span class="pre">false</span> <span class="pre">&amp;&amp;</span> <a class="reference internal" href="#_CPPv4I0EN6oneapi3dal15decision_forest2v15trainEN15decision_forest12train_resultERK10DescriptorRKN15decision_forest11train_inputE" title="oneapi::dal::decision_forest::v1::train::desc"><span class="pre">desc</span></a><span class="pre">.</span><span class="pre">get_variable_importance_mode</span><span class="pre">(</span><span class="pre">)</span> <span class="pre">!=</span> <a class="reference internal" href="#_CPPv4N6oneapi3dal15decision_forest2v124variable_importance_modeE" title="oneapi::dal::decision_forest::v1::variable_importance_mode"><span class="pre">variable_importance_mode</span></a><span class="pre">::</span><span class="pre">mda_raw</span> <span class="pre">&amp;&amp;</span> <a class="reference internal" href="#_CPPv4I0EN6oneapi3dal15decision_forest2v15trainEN15decision_forest12train_resultERK10DescriptorRKN15decision_forest11train_inputE" title="oneapi::dal::decision_forest::v1::train::desc"><span class="pre">desc</span></a><span class="pre">.</span><span class="pre">get_variable_importance_mode</span><span class="pre">(</span><span class="pre">)</span> <span class="pre">!=</span> <a class="reference internal" href="#_CPPv4N6oneapi3dal15decision_forest2v124variable_importance_modeE" title="oneapi::dal::decision_forest::v1::variable_importance_mode"><span class="pre">variable_importance_mode</span></a><span class="pre">::</span><span class="pre">mda_scaled</span><span class="pre">)</span></code></div>
+<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal15decision_forest2v15trainEN15decision_forest12train_resultERK10DescriptorRKN15decision_forest11train_inputE" title="oneapi::dal::decision_forest::v1::train::desc"><span class="pre">desc</span></a><span class="pre">.</span><span class="pre">get_bootstrap</span><span class="pre">(</span><span class="pre">)</span> <span class="pre">==</span> <span class="pre">true</span> <span class="pre">||</span> <span class="pre">(</span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal15decision_forest2v15trainEN15decision_forest12train_resultERK10DescriptorRKN15decision_forest11train_inputE" title="oneapi::dal::decision_forest::v1::train::desc"><span class="pre">desc</span></a><span class="pre">.</span><span class="pre">get_bootstrap</span><span class="pre">(</span><span class="pre">)</span> <span class="pre">==</span> <span class="pre">false</span> <span class="pre">&amp;&amp;</span> <a class="reference internal" href="#_CPPv4I0EN6oneapi3dal15decision_forest2v15trainEN15decision_forest12train_resultERK10DescriptorRKN15decision_forest11train_inputE" title="oneapi::dal::decision_forest::v1::train::desc"><span class="pre">desc</span></a><span class="pre">.</span><span class="pre">get_error_metric_mode</span><span class="pre">(</span><span class="pre">)</span> <span class="pre">==</span> <a class="reference internal" href="#_CPPv4N6oneapi3dal15decision_forest2v117error_metric_modeE" title="oneapi::dal::decision_forest::v1::error_metric_mode"><span class="pre">error_metric_mode</span></a><span class="pre">::</span><span class="pre">none</span><span class="pre">)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="inference-infer">
+<span id="df-i-api"></span><h3>Inference <code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal15decision_forest2v15inferEN15decision_forest12infer_resultERK10DescriptorRKN15decision_forest11infer_inputE" title="oneapi::dal::decision_forest::v1::infer"><span class="pre">infer</span></a><span class="sig-paren">(</span><span class="pre">...</span><span class="sig-paren">)</span></code><a class="headerlink" href="#inference-infer" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="df-i-api-input">
+<span id="id3"></span><h4>Input<a class="headerlink" href="#df-i-api-input" title="Permalink to this headline">¶</a></h4>
+<dl class="cpp class">
+<dt id="_CPPv4I0EN6oneapi3dal15decision_forest2v111infer_inputE">
+<span id="_CPPv3I0EN6oneapi3dal15decision_forest2v111infer_inputE"></span><span id="_CPPv2I0EN6oneapi3dal15decision_forest2v111infer_inputE"></span>template&lt;typename <code class="sig-name descname">Task</code> = task::by_default&gt;<br /><em class="property">class </em><code class="sig-name descname">infer_input</code><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal15decision_forest2v111infer_inputE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Template Parameters</dt>
+<dd class="field-odd"><p><strong>Task</strong> – Tag-type that specifies the type of the problem to solve. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><span class="pre">v1</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal15decision_forest4task2v114classificationE" title="oneapi::dal::decision_forest::task::v1::classification"><span class="pre">classification</span></a></code> or <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><span class="pre">v1</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal15decision_forest4task2v110regressionE" title="oneapi::dal::decision_forest::task::v1::regression"><span class="pre">regression</span></a></code>.</p>
+</dd>
+</dl>
+<p><strong>Constructors</strong></p>
+<dl class="cpp function">
+<dt id="_CPPv4N6oneapi3dal15decision_forest2v111infer_input11infer_inputERK5modelI4TaskERK5table">
+<span id="_CPPv3N6oneapi3dal15decision_forest2v111infer_input11infer_inputERK5modelI4TaskERK5table"></span><span id="_CPPv2N6oneapi3dal15decision_forest2v111infer_input11infer_inputERK5modelI4TaskERK5table"></span><span id="oneapi::dal::decision_forest::v1::infer_input::infer_input__model:Task:CR.tableCR"></span><code class="sig-name descname">infer_input</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="#_CPPv4I0EN6oneapi3dal15decision_forest2v15modelE" title="oneapi::dal::decision_forest::v1::model">model</a>&lt;Task&gt; &amp;<em>trained_model</em>, <em class="property">const</em> table &amp;<em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest2v111infer_input11infer_inputERK5modelI4TaskERK5table" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Creates a new instance of the class with the given <code class="docutils literal notranslate"><span class="pre">model</span></code> and <code class="docutils literal notranslate"><span class="pre">data</span></code> property values.</p>
+</dd></dl>
+
+<p><strong>Properties</strong></p>
+<dl class="cpp member">
+<dt id="_CPPv4N52oneapi_dal_decision_forest_v1_infer_input_properties5modelE">
+<span id="_CPPv3N52oneapi_dal_decision_forest_v1_infer_input_properties5modelE"></span><span id="_CPPv2N52oneapi_dal_decision_forest_v1_infer_input_properties5modelE"></span><span id="oneapi_dal_decision_forest_v1_infer_input_properties::model__model:Task:CR"></span><em class="property">const</em> <a class="reference internal" href="#_CPPv4N52oneapi_dal_decision_forest_v1_infer_input_properties5modelE" title="oneapi_dal_decision_forest_v1_infer_input_properties::model">model</a>&lt;Task&gt; &amp;<code class="sig-name descname">model</code> = <a class="reference internal" href="#_CPPv4N52oneapi_dal_decision_forest_v1_infer_input_properties5modelE" title="oneapi_dal_decision_forest_v1_infer_input_properties::model">model</a>&lt;Task&gt;{}<a class="headerlink" href="#_CPPv4N52oneapi_dal_decision_forest_v1_infer_input_properties5modelE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The trained Decision Forest model.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">model&lt;</span> <span class="pre">Task</span> <span class="pre">&gt;</span> <span class="pre">&amp;</span> <span class="pre">get_model()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_model(const</span> <span class="pre">model&lt;</span> <span class="pre">Task</span> <span class="pre">&gt;</span> <span class="pre">&amp;value)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt id="_CPPv4N52oneapi_dal_decision_forest_v1_infer_input_properties4dataE">
+<span id="_CPPv3N52oneapi_dal_decision_forest_v1_infer_input_properties4dataE"></span><span id="_CPPv2N52oneapi_dal_decision_forest_v1_infer_input_properties4dataE"></span><span id="oneapi_dal_decision_forest_v1_infer_input_properties::data__tableCR"></span><em class="property">const</em> table &amp;<code class="sig-name descname">data</code> = table{}<a class="headerlink" href="#_CPPv4N52oneapi_dal_decision_forest_v1_infer_input_properties4dataE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The dataset for inference <span class="math notranslate nohighlight">\(X'\)</span>.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_data()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_data(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="df-i-api-result">
+<span id="id4"></span><h4>Result<a class="headerlink" href="#df-i-api-result" title="Permalink to this headline">¶</a></h4>
+<dl class="cpp class">
+<dt id="_CPPv4I0EN6oneapi3dal15decision_forest2v112infer_resultE">
+<span id="_CPPv3I0EN6oneapi3dal15decision_forest2v112infer_resultE"></span><span id="_CPPv2I0EN6oneapi3dal15decision_forest2v112infer_resultE"></span>template&lt;typename <code class="sig-name descname">Task</code> = task::by_default&gt;<br /><em class="property">class </em><code class="sig-name descname">infer_result</code><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal15decision_forest2v112infer_resultE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Template Parameters</dt>
+<dd class="field-odd"><p><strong>Task</strong> – Tag-type that specifies the type of the problem to solve. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><span class="pre">v1</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal15decision_forest4task2v114classificationE" title="oneapi::dal::decision_forest::task::v1::classification"><span class="pre">classification</span></a></code> or <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><span class="pre">v1</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal15decision_forest4task2v110regressionE" title="oneapi::dal::decision_forest::task::v1::regression"><span class="pre">regression</span></a></code>.</p>
+</dd>
+</dl>
+<p><strong>Constructors</strong></p>
+<dl class="cpp function">
+<dt id="_CPPv4N6oneapi3dal15decision_forest2v112infer_result12infer_resultEv">
+<span id="_CPPv3N6oneapi3dal15decision_forest2v112infer_result12infer_resultEv"></span><span id="_CPPv2N6oneapi3dal15decision_forest2v112infer_result12infer_resultEv"></span><span id="oneapi::dal::decision_forest::v1::infer_result::infer_result"></span><code class="sig-name descname">infer_result</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal15decision_forest2v112infer_result12infer_resultEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Creates a new instance of the class with the default property values.</p>
+</dd></dl>
+
+<p><strong>Properties</strong></p>
+<dl class="cpp member">
+<dt id="_CPPv4N53oneapi_dal_decision_forest_v1_infer_result_properties6labelsE">
+<span id="_CPPv3N53oneapi_dal_decision_forest_v1_infer_result_properties6labelsE"></span><span id="_CPPv2N53oneapi_dal_decision_forest_v1_infer_result_properties6labelsE"></span><span id="oneapi_dal_decision_forest_v1_infer_result_properties::labels__tableCR"></span><em class="property">const</em> table &amp;<code class="sig-name descname">labels</code> = table{}<a class="headerlink" href="#_CPPv4N53oneapi_dal_decision_forest_v1_infer_result_properties6labelsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The <span class="math notranslate nohighlight">\(n \times 1\)</span> table with the predicted labels.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_labels()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_labels(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt id="_CPPv4N53oneapi_dal_decision_forest_v1_infer_result_properties13probabilitiesE">
+<span id="_CPPv3N53oneapi_dal_decision_forest_v1_infer_result_properties13probabilitiesE"></span><span id="_CPPv2N53oneapi_dal_decision_forest_v1_infer_result_properties13probabilitiesE"></span><span id="oneapi_dal_decision_forest_v1_infer_result_properties::probabilities__tableCR"></span><em class="property">const</em> table &amp;<code class="sig-name descname">probabilities</code><a class="headerlink" href="#_CPPv4N53oneapi_dal_decision_forest_v1_infer_result_properties13probabilitiesE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A <span class="math notranslate nohighlight">\(n \times c\)</span> table with the predicted class probabilities for each observation.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">template</span> <span class="pre">&lt;typename</span> <span class="pre">T</span> <span class="pre">=</span> <span class="pre">Task,</span> <span class="pre">typename</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">detail::enable_if_classification_t&lt;T&gt;&gt;</span> <span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_probabilities()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">template</span> <span class="pre">&lt;typename</span> <span class="pre">T</span> <span class="pre">=</span> <span class="pre">Task,</span> <span class="pre">typename</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">detail::enable_if_classification_t&lt;T&gt;&gt;</span> <span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_probabilities(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="id5">
+<h4>Operation<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
+<dl class="cpp function">
+<dt id="_CPPv4I0EN6oneapi3dal15decision_forest2v15inferEN15decision_forest12infer_resultERK10DescriptorRKN15decision_forest11infer_inputE">
+<span id="_CPPv3I0EN6oneapi3dal15decision_forest2v15inferERK10DescriptorRKN15decision_forest11infer_inputE"></span><span id="_CPPv2I0EN6oneapi3dal15decision_forest2v15inferERK10DescriptorRKN15decision_forest11infer_inputE"></span>template&lt;typename <code class="sig-name descname">Descriptor</code>&gt;<br />decision_forest::infer_result <code class="sig-name descname">infer</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="#_CPPv4I0EN6oneapi3dal15decision_forest2v15inferEN15decision_forest12infer_resultERK10DescriptorRKN15decision_forest11infer_inputE" title="oneapi::dal::decision_forest::v1::infer::Descriptor">Descriptor</a> &amp;<em>desc</em>, <em class="property">const</em> decision_forest::infer_input &amp;<em>input</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal15decision_forest2v15inferEN15decision_forest12infer_resultERK10DescriptorRKN15decision_forest11infer_inputE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Template Parameters</dt>
+<dd class="field-odd"><p><strong>Descriptor</strong> – Decision Forest algorithm descriptor <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">decision_forest</span><span class="pre">::</span><span class="pre">desc</span></code>.</p>
+</dd>
+</dl>
+<dl>
+<dt>Preconditions</dt><dd><div class="line-block">
+<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal15decision_forest2v15inferEN15decision_forest12infer_resultERK10DescriptorRKN15decision_forest11infer_inputE" title="oneapi::dal::decision_forest::v1::infer::input"><span class="pre">input</span></a><span class="pre">.</span><span class="pre">data</span><span class="pre">.</span><span class="pre">is_empty</span> <span class="pre">==</span> <span class="pre">false</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../kernel-functions/index.html" class="btn btn-neutral float-right" title="Kernel Functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Ensembles" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2014 - 2020, Intel Corporation
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
