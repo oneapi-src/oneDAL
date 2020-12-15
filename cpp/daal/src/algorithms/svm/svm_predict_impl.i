@@ -193,15 +193,16 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
 {
     services::Status compute(const NumericTablePtr & xTable, Model * model, NumericTable & r, const svm::Parameter * par)
     {
-        const size_t nVectors = xTable->getNumberOfRows();
-
         kernel_function::KernelIfacePtr kernel = par->kernel->clone();
         DAAL_CHECK(kernel, ErrorNullParameterNotSupported);
 
-        NumericTablePtr svCoeffTable = model->getClassificationCoefficients();
+        const NumericTablePtr svCoeffTable = model->getClassificationCoefficients();
+        const NumericTablePtr svTable      = model->getSupportVectors();
+
         const algorithmFPType bias(model->getBias());
 
-        const size_t nSV = svCoeffTable->getNumberOfRows();
+        const size_t nVectors = xTable->getNumberOfRows();
+        const size_t nSV      = svTable->getNumberOfRows();
 
         size_t nRowsPerBlock = 0;
         DAAL_SAFE_CPU_CALL((nRowsPerBlock = 256), (nRowsPerBlock = nVectors));
@@ -209,8 +210,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
 
         size_t nSVPerBlock = 0;
         DAAL_SAFE_CPU_CALL((nSVPerBlock = 256), (nRowsPerBlock = nSV));
-        const size_t nBlocksSV        = nSV / nSVPerBlock + !!(nSV % nSVPerBlock);
-        const NumericTablePtr svTable = model->getSupportVectors();
+        const size_t nBlocksSV = nSV / nSVPerBlock + !!(nSV % nSVPerBlock);
 
         const bool isSparse = xTable->getDataLayout() == NumericTableIface::csrArray;
 
@@ -232,7 +232,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocksSV, nRowsPerBlock);
         daal::LsMem<algorithmFPType, cpu> lsDistance(nBlocksSV * nRowsPerBlock, nSV <= 256);
         SafeStatus safeStat;
-        daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+        daal::threader_for(nBlocks, nBlocks, [&, nVectors, nBlocks](const size_t iBlock) {
             const size_t startRow          = iBlock * nRowsPerBlock;
             const size_t nRowsPerBlockReal = (iBlock != nBlocks - 1) ? nRowsPerBlock : nVectors - startRow;
 
@@ -240,7 +240,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
             DAAL_CHECK_MALLOC_THR(distanceLocal);
             DAAL_LS_RELEASE(algorithmFPType, lsDistance, distanceLocal); //releases local storage when leaving this scope
 
-            daal::conditional_threader_for((nSV > 256), nBlocksSV, [&](const size_t iBlockSV) {
+            daal::conditional_threader_for((nSV > 256), nBlocksSV, [&, nSV, nBlocksSV](const size_t iBlockSV) {
                 TPredictTask * lsLocal = lsTask.local();
                 DAAL_CHECK_MALLOC_THR(lsLocal);
                 DAAL_LS_RELEASE(TPredictTask, lsTask, lsLocal); //releases local storage when leaving this scope
