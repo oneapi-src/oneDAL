@@ -36,7 +36,7 @@ sys.path.insert(0, os.path.abspath('../'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'Intel® oneAPI Data Analytics Library Documentation'
+project = 'Intel(R) oneAPI Data Analytics Library Documentation'
 copyright = '2014 - 2020, Intel Corporation' # pylint: disable=redefined-builtin
 author = 'Intel'
 
