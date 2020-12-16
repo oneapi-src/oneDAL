@@ -151,6 +151,7 @@ jobs:
       export DALROOT=$(Pipeline.Workspace)/daal/latest
       . $HOME/miniconda/etc/profile.d/conda.sh
       conda activate CB
+      cd daal4py
       export NO_DIST=1
       export CC=dpcpp
       export CXX=dpcpp
