@@ -143,17 +143,19 @@ jobs:
       export PATH="$HOME/miniconda/bin:$PATH"
       conda config --set always_yes yes --set changeps1 no
       conda update -q conda
-      conda create -q -y -n CB python=3.7 conda-build conda-verify
+      conda create -q -y -n CB python=3.7
     displayName: Create Anaconda environment
   - script: |
       export DPCPPROOT=/opt/intel/oneapi/compiler/latest
+      source ${DPCPPROOT}/env/vars.sh
       export DALROOT=$(Pipeline.Workspace)/daal/latest
-      export TBBROOT=$(Pipeline.Workspace)/tbb/latest
       . $HOME/miniconda/etc/profile.d/conda.sh
       conda activate CB
-      cd daal4py
-      conda build --override-channels -c intel -c conda-forge --numpy=1.17 conda-recipe
-    displayName: conda build
+      export NO_DIST=1
+      export CC=dpcpp
+      export CXX=dpcpp
+      python setup.py install --single-version-externally-managed --record=record.txt
+      displayName: conda build and test
   - script: |
       export DPCPPROOT=/opt/intel/oneapi/compiler/latest
       source ${DPCPPROOT}/env/vars.sh
