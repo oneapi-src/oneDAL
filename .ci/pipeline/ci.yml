@@ -144,6 +144,8 @@ jobs:
       conda config --set always_yes yes --set changeps1 no
       conda update -q conda
       conda create -q -y -n CB python=3.7
+      conda activate CB
+      conda install -q scikit-learn pandas pyyaml joblib numpydoc cython jinja2 numpy clang-tools
     displayName: Create Anaconda environment
   - script: |
       export DPCPPROOT=/opt/intel/oneapi/compiler/latest
