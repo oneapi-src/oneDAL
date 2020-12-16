@@ -151,6 +151,7 @@ jobs:
       export DPCPPROOT=/opt/intel/oneapi/compiler/latest
       source ${DPCPPROOT}/env/vars.sh
       export DALROOT=$(Pipeline.Workspace)/daal/latest
+      source ${DALROOT}/env/vars.sh
       . $HOME/miniconda/etc/profile.d/conda.sh
       conda activate CB
       cd daal4py
@@ -158,7 +159,21 @@ jobs:
       export CC=dpcpp
       export CXX=dpcpp
       python setup.py install --single-version-externally-managed --record=record.txt
-    displayName: conda build and test
+    displayName: daal4py build
+  - script: |
+      export DPCPPROOT=/opt/intel/oneapi/compiler/latest
+      source ${DPCPPROOT}/env/vars.sh
+      export DALROOT=$(Pipeline.Workspace)/daal/latest
+      source ${DALROOT}/env/vars.sh
+      . $HOME/miniconda/etc/profile.d/conda.sh
+      conda activate CB
+      cd daal4py
+      python -c "import daal4py"
+      python -m unittest discover -v -s tests -p test*.py
+      pytest --pyargs daal4py/sklearn/
+      python examples/run_examples.py
+      python -m daal4py examples/sycl/sklearn_sycl.py
+    displayName: daal4py test
   - script: |
       export DPCPPROOT=/opt/intel/oneapi/compiler/latest
       source ${DPCPPROOT}/env/vars.sh
