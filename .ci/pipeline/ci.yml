@@ -159,6 +159,7 @@ jobs:
       export NO_DIST=1
       export CC=dpcpp
       export CXX=dpcpp
+      export LDFLAGS="-fPIC"
       python setup.py install --single-version-externally-managed --record=record.txt
     displayName: daal4py build
   - script: |
