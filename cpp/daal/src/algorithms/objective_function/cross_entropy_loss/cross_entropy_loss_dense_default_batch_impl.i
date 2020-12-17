@@ -383,7 +383,7 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
 
             if (valueNT)
             {
-                DAAL_ITTNOTIFY_SCOPED_TASK(computeLogProbabilities);
+                DAAL_ITTNOTIFY_SCOPED_TASK(crossEntropy.computeValueResult);
 
                 algorithmFPType * const logP = tlsLogP.local();
                 DAAL_CHECK_THR(logP, services::ErrorMemoryAllocationFailed);
@@ -455,7 +455,7 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
 
         if (valueNT)
         {
-            DAAL_ITTNOTIFY_SCOPED_TASK(computeLogProbabilities);
+            DAAL_ITTNOTIFY_SCOPED_TASK(crossEntropy.computeValueResult);
 
             WriteRows<algorithmFPType, cpu> vr(valueNT, 0, 1);
             DAAL_CHECK_BLOCK_STATUS(vr);
