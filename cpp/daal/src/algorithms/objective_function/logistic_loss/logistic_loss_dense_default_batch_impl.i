@@ -338,7 +338,7 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const Nu
 
             if (valueNT)
             {
-                DAAL_ITTNOTIFY_SCOPED_TASK(computeLogProbabilities);
+                DAAL_ITTNOTIFY_SCOPED_TASK(logLoss.computeValueResult);
                 algorithmFPType * const ls = tlsData.local();
                 DAAL_CHECK_THR(ls, services::ErrorMemoryAllocationFailed);
                 algorithmFPType * const ls1 = ls + nRowsInBlock;
@@ -405,7 +405,7 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const Nu
 
         if (valueNT)
         {
-            DAAL_ITTNOTIFY_SCOPED_TASK(computeLogProbabilities);
+            DAAL_ITTNOTIFY_SCOPED_TASK(logLoss.computeValueResult);
 
             WriteRows<algorithmFPType, cpu> vr(valueNT, 0, 1);
             DAAL_CHECK_BLOCK_STATUS(vr);
