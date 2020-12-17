@@ -145,7 +145,8 @@ jobs:
       conda update -q conda
       conda create -q -y -n CB python=3.7
       source activate CB
-      conda install -q scikit-learn pandas pyyaml joblib numpydoc cython jinja2 numpy clang-tools
+      conda install -q scikit-learn pandas pyyaml joblib numpydoc jinja2 numpy clang-tools
+      conda install -q -c intel cython
     displayName: Create Anaconda environment
   - script: |
       export DPCPPROOT=/opt/intel/oneapi/compiler/latest
