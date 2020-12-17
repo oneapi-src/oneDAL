@@ -179,6 +179,10 @@ jobs:
   - script: |
       export DPCPPROOT=/opt/intel/oneapi/compiler/latest
       source ${DPCPPROOT}/env/vars.sh
+      export DALROOT=$(Pipeline.Workspace)/daal/latest
+      source ${DALROOT}/env/vars.sh
+      . $HOME/miniconda/etc/profile.d/conda.sh
+      conda activate CB
       $(Pipeline.Workspace)/s/.ci/scripts/conformance_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/oneapi
     timeoutInMinutes: 15
     displayName: conformance
