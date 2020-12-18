@@ -10,7 +10,7 @@ Jinja2==2.11.2
 lxml==4.4.1
 MarkupSafe==1.1.1
 packaging==20.4
-Pygments==2.7.2
+Pygments==2.7.3
 pyparsing==2.4.7
 pytz==2020.4
 PyYAML==5.3.1
