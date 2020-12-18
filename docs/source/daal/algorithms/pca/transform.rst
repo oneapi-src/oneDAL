@@ -107,7 +107,7 @@ Pass the ``Result ID`` as a parameter to the methods that access the results of 
    * - Result ID
      - Result
    * - ``transformedData``
-     - Pointer to the :math:`n \times p_r` numeric table that contains data projected to the proncipal components basis. 
+     - Pointer to the :math:`n \times p_r` numeric table that contains data projected to the principal components basis. 
      
        .. note::
 

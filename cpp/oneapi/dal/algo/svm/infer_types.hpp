@@ -97,7 +97,7 @@ public:
     }
 
     /// The $n \\times 1$ table with the predicted class
-    /// decistion function for each observation
+    /// decision function for each observation
     /// @remark default = table{}
     const table& get_decision_function() const;
 
