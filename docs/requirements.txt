@@ -14,7 +14,7 @@ Pygments==2.7.2
 pyparsing==2.4.7
 pytz==2020.4
 PyYAML==5.3.1
-requests==2.25.0
+requests==2.25.1
 six==1.15.0
 snowballstemmer==2.0.0
 Sphinx==3.3.0
