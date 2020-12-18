@@ -21,7 +21,7 @@
 !******************************************************************************/
 
 /**
- * <a name="DAAL-EXAMPLE-CPP-kdtree_KNN_DENSE_SEARCH_BATCH"></a>
+ * <a name="DAAL-EXAMPLE-CPP-KDTREE_KNN_DENSE_SEARCH_BATCH"></a>
  * \example kdtree_knn_dense_search_batch.cpp
  */
 
@@ -97,7 +97,7 @@ void trainModel(
   /* Retrieve the data from the input file */
   trainDataSource.loadDataBlock(mergedData.get());
 
-  /* Create an algorithm object to train the kdtree kNN model */
+  /* Create an algorithm object to train the KD-tree based kNN model */
   kdtree_knn_classification::training::Batch<> algorithm;
 
   /* Pass the training data set and dependent values to the algorithm */
@@ -109,7 +109,7 @@ void trainModel(
       kdtree_knn_classification::computeDistances |
       kdtree_knn_classification::computeIndicesOfNeighbors;
 
-  /* Train the kdtree kNN model */
+  /* Train the KD-tree based kNN model */
   algorithm.compute();
   /* Retrieve the results of the training algorithm  */
   trainingResult = algorithm.getResult();
@@ -134,7 +134,7 @@ void testModel(
   /* Retrieve the data from input file */
   testDataSource.loadDataBlock(mergedData.get());
 
-  /* Create algorithm objects for kdtree kNN prediction with the default method
+  /* Create algorithm objects for KD-tree based kNN prediction with the default method
    */
   kdtree_knn_classification::prediction::Batch<> algorithm;
 
