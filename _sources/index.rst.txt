@@ -25,7 +25,7 @@
 .. |github| replace:: |short_name| GitHub\* page
 .. _github: https://github.com/oneapi-src/oneDAL
 
-.. |spec| replace:: |short_name| specificaion
+.. |spec| replace:: |short_name| specification
 .. _spec: https://spec.oneapi.com/versions/latest/elements/oneDAL/source/index.html
 
 |full_name|
