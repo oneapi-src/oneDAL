@@ -23,9 +23,6 @@ This chapter documents algorithms implemented in `DAAL interfaces <https://githu
 See :ref:`oneapi_dal_guide` to find documentation on oneAPI interfaces.
 Refer to :ref:`oneapi_vs_daal` to learn the difference between them.
 
-Developer Guide
-***************
-
 .. toctree::
    :maxdepth: 2
 

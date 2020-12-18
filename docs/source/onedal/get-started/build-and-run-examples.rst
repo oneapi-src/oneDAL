@@ -116,7 +116,7 @@ basic usage scenarios of |short_name| with DPCPP. Go to
         nmake libintel64 example=cor_dense_batch+ # This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ compiler
         nmake libintel64 mode=build			     # This will compile all DPC++ examples
 
-  To see all avaliable parameters of the build procedure, type ``make`` on Linux\* or ``nmake`` on Windows\*.
+  To see all available parameters of the build procedure, type ``make`` on Linux\* or ``nmake`` on Windows\*.
 
 5. The resulting example binaries and log files are written into the :file:`_results` directory.
 

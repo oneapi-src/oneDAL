@@ -26,7 +26,7 @@ validation, and decision making.
 
 .. image:: _static/data_analytics_stages.png
   :width: 800
-  :alt: Data analytis stages
+  :alt: Data analytics stages
 
 |short_name| supports the concept of the end-to-end analytics when
 some of data analytics stages are performed on the edge devices (close
