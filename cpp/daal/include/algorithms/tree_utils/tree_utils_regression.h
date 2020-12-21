@@ -46,7 +46,7 @@ namespace interface1
 {
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__TREE_UTILS__REGRESSION__LEAFNODEDESCRIPTOR"></a>
- * \brief %Struct containing description of leaf node in regression descision tree
+ * \brief %Struct containing description of leaf node in regression decision tree
  */
 struct DAAL_EXPORT LeafNodeDescriptor : public NodeDescriptor
 {

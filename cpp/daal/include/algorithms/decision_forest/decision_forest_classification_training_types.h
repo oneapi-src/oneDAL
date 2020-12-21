@@ -64,7 +64,7 @@ enum Method
 */
 enum ResultNumericTableId
 {
-    outOfBagError = classifier::training::model + 1, /*!< %Numeric table 1x1 containing out-of-bag erro.
+    outOfBagError = classifier::training::model + 1, /*!< %Numeric table 1x1 containing out-of-bag error.
                                                            Computed when computeOutOfBagError option is on */
     variableImportance,                              /*!< %Numeric table 1x(number of features) containing variable importance value.
                                                            Computed when parameter.varImportance != none */
