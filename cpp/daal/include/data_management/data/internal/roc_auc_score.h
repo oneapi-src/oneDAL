@@ -27,7 +27,7 @@ namespace data_management
 namespace internal
 {
 template <typename FPType>
-DAAL_EXPORT FPType rocAucScore(const NumericTablePtr & truePrediction, const NumericTablePtr & testPrediction);
+DAAL_EXPORT double rocAucScore(const NumericTablePtr & truePrediction, const NumericTablePtr & testPrediction);
 } // namespace internal
 } // namespace data_management
 } // namespace daal
