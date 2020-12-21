@@ -219,7 +219,7 @@ enum ErrorID
     ErrorEMInitIncorrectToleranceToConverge   = -6101, /*!< Incorrect tolerance to converge value in EM initialization parameter */
     ErrorEMInitIncorrectDepthNumberIterations = -6102, /*!< Incorrect depth number of iterations value in EM init parameter */
     ErrorEMInitIncorrectNumberOfTrials        = -6103, /*!< Incorrect number of trials value in EM initialization parameter */
-    ErrorEMInitIncorrectNumberOfComponents    = -6104, /*!< Incorrect numeber of components value in EM initialization parameter */
+    ErrorEMInitIncorrectNumberOfComponents    = -6104, /*!< Incorrect number of components value in EM initialization parameter */
     ErrorEMInitInconsistentNumberOfComponents = -6105, /*!< Inconsistent number of component: number of observations should be
                                                                              greater than number of components */
     ErrorVarianceComputation                  = -6106, /*!< Error during variance computation */
@@ -354,8 +354,8 @@ enum ErrorID
 
     //Covolution layer error: -16000..-17000
     ErrorConvolutionInternal  = -16000, /*!< Convoltion internal error */
-    ErrorIncorrectKernelSise1 = -16001, /*!< Convolution2d bakward: incorrect parameter kernelSize1 */
-    ErrorIncorrectKernelSise2 = -16002, /*!< Convolution2d bakward: incorrect parameter kernelSize2 */
+    ErrorIncorrectKernelSise1 = -16001, /*!< Convolution2d backward: incorrect parameter kernelSize1 */
+    ErrorIncorrectKernelSise2 = -16002, /*!< Convolution2d backward: incorrect parameter kernelSize2 */
 
     // Ridge Regression errors: -17000..-17999
     ErrorRidgeRegressionInternal                   = -17000, /*!< Ridge Regression internal error */

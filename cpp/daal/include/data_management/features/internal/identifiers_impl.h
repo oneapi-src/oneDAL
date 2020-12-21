@@ -219,7 +219,7 @@ public:
         }
 
         /* Positive indices in the range [0, nf - 1] and negative indices in the range [ -nf, -1 ] are allowed.
-         * Negative indices shoud be interpreted as a result of subtraction nf - abs(index) */
+         * Negative indices should be interpreted as a result of subtraction nf - abs(index) */
         const InternalIndex nf = (InternalIndex)numberOfFeatures;
         if (_index >= nf || _index < -nf)
         {

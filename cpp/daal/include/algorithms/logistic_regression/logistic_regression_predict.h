@@ -83,7 +83,7 @@ public:
  * \brief Predicts logistic regression results   \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-LOGISTIC-REGRESSION-ALGORITHM">logistic regression algorithm description and usage models</a> -->
  *
- * \tparam algorithmFPType  Data type to use in intermediate computations for the logistic regression algortithm, double or float
+ * \tparam algorithmFPType  Data type to use in intermediate computations for the logistic regression algorithm, double or float
  * \tparam method           logistic regression computation method, \ref Method
  *
  * \par Enumerations
@@ -228,7 +228,7 @@ public:
  * \brief Predicts logistic regression results
  * <!-- \n<a href="DAAL-REF-LOGISTIC-REGRESSION-ALGORITHM">logistic regression algorithm description and usage models</a> -->
  *
- * \tparam algorithmFPType  Data type to use in intermediate computations for the logistic regression algortithm, double or float
+ * \tparam algorithmFPType  Data type to use in intermediate computations for the logistic regression algorithm, double or float
  * \tparam method           logistic regression computation method, \ref Method
  *
  * \par Enumerations

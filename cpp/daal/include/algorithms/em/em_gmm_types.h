@@ -95,7 +95,7 @@ enum ResultId
 {
     weights,      /*!< Weights */
     means,        /*!< Means */
-    goalFunction, /*!< Table containing log-likelyhood value */
+    goalFunction, /*!< Table containing log-likelihood value */
     nIterations,  /*!< Table containing the number of executed iterations */
     lastResultId = nIterations
 };

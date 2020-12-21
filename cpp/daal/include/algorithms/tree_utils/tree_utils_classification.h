@@ -46,7 +46,7 @@ namespace interface1
 {
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__TREE_UTILS__CLASSIFICATION__LEAFNODEDESCRIPTOR"></a>
- * \brief %Struct containing description of leaf node in classification descision tree
+ * \brief %Struct containing description of leaf node in classification decision tree
  */
 struct DAAL_EXPORT LeafNodeDescriptor : public NodeDescriptor
 {
@@ -65,7 +65,7 @@ namespace interface2
 {
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__TREE_UTILS__CLASSIFICATION__LEAFNODEDESCRIPTOR"></a>
- * \brief %Struct containing description of leaf node in classification descision tree
+ * \brief %Struct containing description of leaf node in classification decision tree
  */
 struct DAAL_EXPORT LeafNodeDescriptor : public NodeDescriptor
 {

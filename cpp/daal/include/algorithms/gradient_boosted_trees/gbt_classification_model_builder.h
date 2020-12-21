@@ -119,8 +119,8 @@ public:
     *  \param[in] treeId          Tree to which new node is added
     *  \param[in] parentId        Parent node to which new node is added (use noParent for root node)
     *  \param[in] position        Position in parent (e.g. 0 for left and 1 for right child in a binary tree)
-    *  \param[in] featureIndex    Feature index for spliting
-    *  \param[in] featureValue    Feature value for spliting
+    *  \param[in] featureIndex    Feature index for splitting
+    *  \param[in] featureValue    Feature value for splitting
     *  \return Node identifier
     */
     NodeId addSplitNode(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue)
