@@ -91,6 +91,9 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(compute.full);
 
+        bool needCorrelation = covarianceAlg->parameter.outputMatrixType == covariance::correlationMatrix;
+        covarianceAlg->parameter.outputMatrixType = covariance::covarianceMatrix;
+
         DAAL_CHECK(covarianceAlg, services::ErrorNullPtr);
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.covariance);
@@ -111,6 +114,7 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
             DAAL_CHECK_STATUS(status, this->copyVarianceFromCovarianceTable(covarianceTable, variances));
         }
 
+        if (needCorrelation)
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.correlationFromCovariance);
             DAAL_CHECK_STATUS(status, this->correlationFromCovarianceTable(covarianceTable));

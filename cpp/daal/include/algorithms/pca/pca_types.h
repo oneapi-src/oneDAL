@@ -693,7 +693,7 @@ public:
     /** Constructs PCA parameters */
     BatchParameter(const services::SharedPtr<covariance::BatchImpl> & covarianceForBatchParameter =
                        services::SharedPtr<covariance::Batch<algorithmFPType, covariance::defaultDense> >(
-                           new covariance::Batch<algorithmFPType, covariance::defaultDense>()));
+                           new covariance::Batch<algorithmFPType, covariance::defaultDense>(covariance::correlationMatrix)));
 
     services::SharedPtr<covariance::BatchImpl> covariance; /*!< Pointer to batch covariance */
 

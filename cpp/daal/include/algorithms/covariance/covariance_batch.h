@@ -343,6 +343,16 @@ public:
 
     /**
      * Constructs an algorithm for correlation or variance-covariance matrix computation
+     * \param[in] outMatrixType The type of matrix (covariance or correlation) to calculate
+     */
+    Batch(OutputMatrixType outMatrixType)
+    {
+        initialize();
+        parameter.outputMatrixType = outMatrixType;
+    }
+
+    /**
+     * Constructs an algorithm for correlation or variance-covariance matrix computation
      * by copying input objects and parameters of another algorithm for correlation or variance-covariance
      * matrix computation
      * \param[in] other An algorithm to be used as the source to initialize the input objects
