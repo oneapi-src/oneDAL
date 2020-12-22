@@ -46,8 +46,6 @@ template <typename algorithmFPType, Method method, CpuType cpu>
 class LogLossKernel : public Kernel
 {
 public:
-    LogLossKernel();
-    ~LogLossKernel();
     services::Status compute(NumericTable * data, NumericTable * dependentVariables, NumericTable * argument, NumericTable * value,
                              NumericTable * hessian, NumericTable * gradient, NumericTable * nonSmoothTermValue, NumericTable * proximalProjection,
                              NumericTable * lipschitzConstant, Parameter * parameter);
@@ -61,8 +59,8 @@ protected:
                                NumericTable * proximalProjection, NumericTable * lipschitzConstant, Parameter * parameter);
 
 private:
-    TArrayScalable<algorithmFPType, cpu> * _aX;
-    TArrayScalable<algorithmFPType, cpu> * _aY;
+    TArrayScalable<algorithmFPType, cpu> _aX;
+    TArrayScalable<algorithmFPType, cpu> _aY;
 };
 
 } // namespace internal

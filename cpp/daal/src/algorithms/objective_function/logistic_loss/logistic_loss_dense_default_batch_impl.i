@@ -39,23 +39,6 @@ namespace logistic_loss
 {
 namespace internal
 {
-template <typename algorithmFPType, Method method, CpuType cpu>
-LogLossKernel<algorithmFPType, method, cpu>::LogLossKernel() : _aX(nullptr), _aY(nullptr)
-{}
-
-template <typename algorithmFPType, Method method, CpuType cpu>
-LogLossKernel<algorithmFPType, method, cpu>::~LogLossKernel()
-{
-    if (_aX)
-    {
-        delete _aX;
-    }
-    if (_aY)
-    {
-        delete _aY;
-    }
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////
 // Logistic loss function, L(x,y,b) = -[y*ln(sigmoid(f)) + (1 - y)*ln(1-sigmoid(f))]
 // where sigmoid(f) = 1/(1 + exp(-f), f = x*b
@@ -597,27 +580,24 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::compute(NumericTab
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, p);
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * p, sizeof(algorithmFPType));
 
-        if (_aX == nullptr || _aX->size() != n * p)
+        if (_aX.size() != n * p)
         {
-            _aX = new TArrayScalable<algorithmFPType, cpu>(n * p);
-            DAAL_CHECK_MALLOC(_aX);
+            _aX.reset(n * p);
+            DAAL_CHECK_MALLOC(_aX.get());
         }
-        if (_aY == nullptr || _aY->size() != n)
+        if (_aY.size() != n)
         {
-            _aY = new TArrayScalable<algorithmFPType, cpu>(n);
-            DAAL_CHECK_MALLOC(_aY);
+            _aY.reset(n);
+            DAAL_CHECK_MALLOC(_aY.get());
         }
-
-        TArrayScalable<algorithmFPType, cpu> & aX = *_aX;
-        TArrayScalable<algorithmFPType, cpu> & aY = *_aY;
 
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(getXY);
-            s |= objective_function::internal::getXY<algorithmFPType, cpu>(dataNT, dependentVariablesNT, ntInd, aX.get(), aY.get(), nRows, n, p);
+            s |= objective_function::internal::getXY<algorithmFPType, cpu>(dataNT, dependentVariablesNT, ntInd, _aX.get(), _aY.get(), nRows, n, p);
         }
-        auto internalDataNT = HomogenNumericTableCPU<algorithmFPType, cpu>::create(aX.get(), p, n);
+        auto internalDataNT = HomogenNumericTableCPU<algorithmFPType, cpu>::create(_aX.get(), p, n);
         DAAL_CHECK_MALLOC(internalDataNT.get());
-        auto internalDependentVariablesNT = HomogenNumericTableCPU<algorithmFPType, cpu>::create(aY.get(), 1, n);
+        auto internalDependentVariablesNT = HomogenNumericTableCPU<algorithmFPType, cpu>::create(_aY.get(), 1, n);
         DAAL_CHECK_MALLOC(internalDependentVariablesNT.get());
         s |= doCompute(internalDataNT.get(), internalDependentVariablesNT.get(), n, p, betaNT, valueNT, hessianNT, gradientNT, nonSmoothTermValue,
                        proximalProjection, lipschitzConstant, parameter);
