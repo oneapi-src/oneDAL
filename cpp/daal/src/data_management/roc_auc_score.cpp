@@ -31,20 +31,14 @@ namespace data_management
 {
 namespace internal
 {
-template <typename FPType, daal::CpuType cpu>
-services::Status rocAucScoreImpl(const NumericTablePtr & truePrediction, const NumericTablePtr & testPrediction, FPType & score)
+template <daal::CpuType cpu>
+services::Status rocAucScoreImpl(const NumericTablePtr & truePrediction, const NumericTablePtr & testPrediction, double & score)
 {
     services::Status s;
-    const size_t nElements = truePrediction->getNumberOfColumns();
-    ReadRows<FPType, cpu> testPredictionBlock(testPrediction.get(), 0, 1);
-    const FPType * const testPredictionPtr = testPredictionBlock.get();
-    DAAL_CHECK_BLOCK_STATUS(testPredictionBlock);
-
-    TArrayScalable<IdxValType<FPType>, cpu> predict(nElements);
+    SafeStatus safeStat;
+    const size_t nElements = truePrediction->getNumberOfRows();
+    TArrayScalable<IdxValType<double>, cpu> predict(nElements);
     DAAL_CHECK_MALLOC(predict.get());
-
-    TArray<FPType, cpu> predictedRank(nElements);
-    DAAL_CHECK_MALLOC(predictedRank.get());
 
     const size_t blockSizeDefault = 256;
     const size_t nBlocks          = nElements / blockSizeDefault + !!(nElements % blockSizeDefault);
@@ -52,19 +46,26 @@ services::Status rocAucScoreImpl(const NumericTablePtr & truePrediction, const N
     daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
         const size_t blockBegin = iBlock * blockSizeDefault;
         const size_t blockSize  = (iBlock == nBlocks - 1) ? nElements - blockBegin : blockSizeDefault;
+
+        ReadColumns<double, cpu> testPredictionBlock(testPrediction.get(), 0, blockBegin, blockSize);
+        DAAL_CHECK_BLOCK_STATUS_THR(testPredictionBlock);
+        const double * const testPredictionPtr = testPredictionBlock.get();
+
         for (size_t i = 0; i < blockSize; ++i)
         {
             const size_t idx   = blockBegin + i;
-            predict[idx].value = testPredictionPtr[idx];
+            predict[idx].value = testPredictionPtr[i];
             predict[idx].index = idx;
         }
     });
 
-    daal::parallel_sort<FPType>(predict.get(), predict.get() + nElements);
+    daal::parallel_sort<double>(predict.get(), predict.get() + nElements);
 
     size_t rank            = 1;
     size_t elementsInBlock = 1;
     size_t i               = 0;
+    TArray<double, cpu> predictedRank(nElements);
+    DAAL_CHECK_MALLOC(predictedRank.get());
     while (i < nElements)
     {
         size_t j = i;
@@ -79,57 +80,45 @@ services::Status rocAucScoreImpl(const NumericTablePtr & truePrediction, const N
         for (size_t j = 0; j < elementsInBlock; ++j)
         {
             const size_t idx   = predict[i + j].index;
-            predictedRank[idx] = static_cast<FPType>(rank) + ((static_cast<FPType>(elementsInBlock) - FPType(1.0)) * FPType(0.5));
+            predictedRank[idx] = static_cast<double>(rank) + ((static_cast<double>(elementsInBlock) - double(1.0)) * double(0.5));
         }
         rank += elementsInBlock;
         i += elementsInBlock;
     }
 
-    ReadRows<FPType, cpu> truePredictionBlock(truePrediction.get(), 0, 1);
-    const FPType * const truePredictionPtr = truePredictionBlock.get();
-    DAAL_CHECK_BLOCK_STATUS(truePredictionBlock);
-    FPType sum = FPType(0);
-
-    PRAGMA_IVDEP
-    PRAGMA_VECTOR_ALWAYS
-    for (size_t i = 0; i < nElements; ++i)
+    double nPos            = double(0);
+    double filteredRankSum = double(0);
+    for (size_t iBlock = 0; iBlock < nBlocks; ++iBlock)
     {
-        sum += truePredictionPtr[i];
-    }
-    const FPType nPos = sum;
-    const FPType nNeg = static_cast<FPType>(nElements) - nPos;
-
-    FPType filteredRankSum = FPType(0);
-
-    PRAGMA_IVDEP
-    PRAGMA_VECTOR_ALWAYS
-    for (size_t i = 0; i < nElements; ++i) // parallel this
-    {
-        if (truePredictionPtr[i] == FPType(1))
+        const size_t blockBegin = iBlock * blockSizeDefault;
+        const size_t blockSize  = (iBlock == nBlocks - 1) ? nElements - blockBegin : blockSizeDefault;
+        ReadColumns<int, cpu> truePredictionBlock(truePrediction.get(), 0, blockBegin, blockSize);
+        DAAL_CHECK_BLOCK_STATUS(truePredictionBlock);
+        const int * const truePredictionPtr = truePredictionBlock.get();
+        for (size_t i = 0; i < blockSize; ++i)
         {
-            filteredRankSum += predictedRank[i];
+            nPos += truePredictionPtr[i];
+            if (truePredictionPtr[i] == 1)
+            {
+                filteredRankSum += predictedRank[i + blockBegin];
+            }
         }
     }
-
-    score = (filteredRankSum - (nPos * (nPos + FPType(1.0)) * FPType(0.5))) / (nPos * nNeg);
+    const double nNeg = static_cast<double>(nElements) - nPos;
+    score             = (filteredRankSum - (nPos * (nPos + double(1.0)) * double(0.5))) / (nPos * nNeg);
     return s;
 }
 
-template <typename FPType>
-DAAL_EXPORT FPType rocAucScore(const NumericTablePtr & truePrediction, const NumericTablePtr & testPrediction)
+DAAL_EXPORT double rocAucScore(const NumericTablePtr & truePrediction, const NumericTablePtr & testPrediction)
 {
-    FPType score = FPType(0);
-#define DAAL_ROC_AUC_SCORE(cpuId, ...) rocAucScoreImpl<FPType, cpuId>(__VA_ARGS__);
+    double score = double(0);
+#define DAAL_ROC_AUC_SCORE(cpuId, ...) rocAucScoreImpl<cpuId>(__VA_ARGS__);
 
     DAAL_DISPATCH_FUNCTION_BY_CPU_SAFE(DAAL_ROC_AUC_SCORE, truePrediction, testPrediction, score);
 
 #undef DAAL_ROC_AUC_SCORE
     return score;
 }
-
-template DAAL_EXPORT float rocAucScore<float>(const NumericTablePtr & truePrediction, const NumericTablePtr & testPrediction);
-template DAAL_EXPORT double rocAucScore<double>(const NumericTablePtr & truePrediction, const NumericTablePtr & testPrediction);
-
 } // namespace internal
 } // namespace data_management
 } // namespace daal
