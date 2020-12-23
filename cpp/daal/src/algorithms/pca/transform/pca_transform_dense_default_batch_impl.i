@@ -82,13 +82,16 @@ services::Status ComputeInvSigmas(NumericTable * pVariances, TArray<algorithmFPT
         PRAGMA_VECTOR_ALWAYS
         for (size_t varianceId = 0; varianceId < numFeatures; ++varianceId)
         {
-            if (pRawVariances[varianceId] > 0) {
+            if (pRawVariances[varianceId] > 0)
+            {
                 pInvSigmas[varianceId] = algorithmFPType(1.0) / daal::internal::Math<algorithmFPType, cpu>::sSqrt(pRawVariances[varianceId]);
             }
-            else if (pRawVariances[varianceId] < 0) {
+            else if (pRawVariances[varianceId] < 0)
+            {
                 pInvSigmas[varianceId] = algorithmFPType(1.0) / daal::internal::Math<algorithmFPType, cpu>::sSqrt(-pRawVariances[varianceId]);
             }
-            else {
+            else
+            {
                 pInvSigmas[varianceId] = algorithmFPType(0.0);
             }
         }

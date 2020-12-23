@@ -91,7 +91,7 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(compute.full);
 
-        bool needCorrelation = covarianceAlg->parameter.outputMatrixType == covariance::correlationMatrix;
+        bool needCorrelation                      = covarianceAlg->parameter.outputMatrixType == covariance::correlationMatrix;
         covarianceAlg->parameter.outputMatrixType = covariance::covarianceMatrix;
 
         DAAL_CHECK(covarianceAlg, services::ErrorNullPtr);
