@@ -580,12 +580,12 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::compute(NumericTab
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, p);
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * p, sizeof(algorithmFPType));
 
-        if (_aX.size() != n * p)
+        if (_aX.size() < n * p)
         {
             _aX.reset(n * p);
             DAAL_CHECK_MALLOC(_aX.get());
         }
-        if (_aY.size() != n)
+        if (_aY.size() < n)
         {
             _aY.reset(n);
             DAAL_CHECK_MALLOC(_aY.get());
