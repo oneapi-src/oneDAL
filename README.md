@@ -194,7 +194,7 @@ Except C++ and Python API oneDAL also provide API for C++ SYCL and Java language
 
 ## Documentation
 - [System Requirements](https://software.intel.com/content/www/us/en/develop/articles/system-requirements-for-oneapi-data-analytics-library.html)
-- [Get Started Guide](http://oneapi-src.github.io/oneDAL/getstarted.html)
+- [Get Started Guide](http://oneapi-src.github.io/oneDAL/onedal/get-started.html#onedal-get-started)
 - [Developer Guide](http://oneapi-src.github.io/oneDAL/)
 - [daal4py documentation](https://intelpython.github.io/daal4py/)
 - [Specification](https://spec.oneapi.com/versions/latest/elements/oneDAL/source/index.html)
