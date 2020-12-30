@@ -88,8 +88,6 @@ rreadlink() (
 # code block below that contain elements that are specific to a shell. The
 # shell-specific elements are needed to identify the sourcing shell.
 
-vars_script_name="vars.sh"
-
 vars_sourced=0 ;
 vars_sourced_sh="$(ps -p "$$" -o  command= | awk '{print $1}')" ;
 vars_sourced_nm="$(ps -p "$$" -o  command= | awk '{print $2}')" ;
@@ -161,7 +159,7 @@ fi
 __daal_tmp_dir="<INSTALLDIR>"
 __daal_tmp_dir=$__daal_tmp_dir/dal
 if [ ! -d $__daal_tmp_dir ]; then
-    __daal_tmp_dir=$(dirname -- "$(rreadlink "$vars_script_name")")
+    __daal_tmp_dir=$(dirname -- "$(rreadlink "$vars_sourced_nm")")
 fi
 
 export DAL_MAJOR_BINARY=__DAL_MAJOR_BINARY__
