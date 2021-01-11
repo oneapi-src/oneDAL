@@ -59,9 +59,14 @@ public:
     static void softmaxThreaded(const algorithmFPType * arg, algorithmFPType * res, size_t nRows, size_t nCols);
 
 protected:
-    services::Status doCompute(const algorithmFPType * x, const algorithmFPType * y, size_t nRows, size_t n, size_t p, NumericTable * betaNT,
-                               NumericTable * valueNT, NumericTable * hessianNT, NumericTable * gradientNT, NumericTable * nonSmoothTermValue,
-                               NumericTable * proximalProjection, NumericTable * lipschitzConstant, Parameter * parameter);
+    services::Status doCompute(const NumericTable * dataNT, const NumericTable * dependentVariablesNT, size_t nRows, size_t n, size_t p,
+                               NumericTable * betaNT, NumericTable * valueNT, NumericTable * hessianNT, NumericTable * gradientNT,
+                               NumericTable * nonSmoothTermValue, NumericTable * proximalProjection, NumericTable * lipschitzConstant,
+                               Parameter * parameter);
+
+private:
+    TArrayScalable<algorithmFPType, cpu> _aX;
+    TArrayScalable<algorithmFPType, cpu> _aY;
 };
 
 } // namespace internal
