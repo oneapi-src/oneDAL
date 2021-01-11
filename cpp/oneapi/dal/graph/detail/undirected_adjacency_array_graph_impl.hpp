@@ -132,7 +132,7 @@ public:
         }
     }
 
-    void set_topology(vertex_size_type vertex_count,
+    inline void set_topology(vertex_size_type vertex_count,
                       edge_size_type edge_count,
                       edge_type* offsets,
                       vertex_type* neighbors,
@@ -144,27 +144,27 @@ public:
         _topology._vertex_neighbors = vertex_set::wrap(neighbors, edge_count * 2);
     }
 
-    topology<IndexType>& get_topology() {
+    inline topology<IndexType>& get_topology() {
         return _topology;
     }
 
-    vertex_values<VertexValue>& get_vertex_values() {
+    inline vertex_values<VertexValue>& get_vertex_values() {
         return _vertex_values;
     }
 
-    edge_values<EdgeValue>& get_edge_values() {
+    inline edge_values<EdgeValue>& get_edge_values() {
         return _edge_values;
     }
 
-    const topology<IndexType>& get_topology() const {
+    inline const topology<IndexType>& get_topology() const {
         return _topology;
     }
 
-    const vertex_values<VertexValue>& get_vertex_values() const {
+    inline const vertex_values<VertexValue>& get_vertex_values() const {
         return _vertex_values;
     }
 
-    const edge_values<EdgeValue>& get_edge_values() const {
+    inline const edge_values<EdgeValue>& get_edge_values() const {
         return _edge_values;
     }
 
