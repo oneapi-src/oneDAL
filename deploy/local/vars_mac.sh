@@ -88,6 +88,8 @@ rreadlink() (
 # code block below that contain elements that are specific to a shell. The
 # shell-specific elements are needed to identify the sourcing shell.
 
+vars_script_name="vars.sh"
+
 vars_sourced=0 ;
 vars_sourced_sh="$(ps -p "$$" -o  command= | awk '{print $1}')" ;
 vars_sourced_nm="$(ps -p "$$" -o  command= | awk '{print $2}')" ;
