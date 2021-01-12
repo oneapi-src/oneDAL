@@ -17,46 +17,45 @@ dal_module(
 )
 
 dal_test_suite(
-    name = "common_tests",
-    dpc = False,
-    srcs = glob([
-        "common_*_test.cpp",
-    ]),
-    dal_deps = [
-        ":pca",
-    ],
-)
-
-dal_test_suite(
     name = "cpu_tests",
-    dpc = False,
     srcs = glob([
-        "backend/cpu/*_test.cpp",
+        "backend/cpu/test/*.cpp",
     ]),
     dal_deps = [
         ":pca",
     ],
+    tags = [
+        "cpu-only",
+    ]
 )
 
 dal_test_suite(
     name = "gpu_tests_dpc",
     host = False,
     srcs = glob([
-        "backend/gpu/*_test.cpp",
+        "backend/gpu/test/*.cpp",
     ]),
     dal_deps = [
         ":pca",
     ],
-    tags = ["gpu", "exclusive"],
+    tags = [
+        "gpu-only",
+    ]
 )
 
 dal_test_suite(
     name = "tests",
-    host_tests = [
-        ":common_tests",
-        ":cpu_tests",
+    srcs = glob([
+        "test/*.cpp",
+    ]),
+    dal_deps = [
+        ":pca",
+        "@onedal//cpp/oneapi/dal/test/engine:datasets",
+        "@onedal//cpp/oneapi/dal/test/util",
+        "@onedal//cpp/oneapi/dal/backend/linalg",
     ],
-    dpc_tests = [
+    tests = [
+        ":cpu_tests",
         ":gpu_tests_dpc",
     ],
 )

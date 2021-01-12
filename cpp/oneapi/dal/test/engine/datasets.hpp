@@ -18,10 +18,10 @@
 
 #include <string>
 
-#include "oneapi/dal/test/common.hpp"
+#include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/table/common.hpp"
 
-namespace oneapi::dal::test {
+namespace oneapi::dal::test::engine {
 
 #define GENERATE_DATASET(...) \
     GENERATE(as<oneapi::dal::test::dataset_builder>{}, __VA_ARGS__).build()
@@ -135,4 +135,4 @@ protected:
     };
 };
 
-} // namespace oneapi::dal::test
+} // namespace oneapi::dal::test::engine

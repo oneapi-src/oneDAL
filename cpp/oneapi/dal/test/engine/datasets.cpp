@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/test/datasets.hpp"
+#include "oneapi/dal/test/engine/datasets.hpp"
 
 #include <regex>
 #include <memory>
@@ -26,7 +26,7 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
-namespace oneapi::dal::test {
+namespace oneapi::dal::test::engine {
 
 class dataset::impl {
 public:
@@ -127,4 +127,4 @@ table dataset::get_table(device_test_policy& policy, const std::string& table_ty
 INSTANTIATE(float)
 INSTANTIATE(double)
 
-} // namespace oneapi::dal::test
+} // namespace oneapi::dal::test::engine

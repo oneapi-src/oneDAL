@@ -16,10 +16,16 @@
 
 #pragma once
 
-namespace oneapi::dal::test {
+#include <string>
 
-void global_setup();
+namespace oneapi::dal::test::engine {
+
+struct global_config {
+    std::string device_selector;
+};
+
+void global_setup(const global_config& config);
 
 void global_cleanup();
 
-} //namespace oneapi::dal::test
+} //namespace oneapi::dal::test::engine

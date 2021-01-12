@@ -145,10 +145,8 @@ def dal_test(name, hdrs=[], srcs=[],
              host=True, dpc=True, framework="gtest",
              data=[], tags=[], **kwargs):
     # TODO: Refactor this rule once decision on the tests structure is made
-    if not framework in ["gtest", "catch2", "none"]:
+    if not framework in ["gtest"]:
         fail("Unknown test framework '{}' in test rule '{}'".format(framework, name))
-    gtest = (framework == "gtest")
-    catch2 = (framework == "catch2")
     module_name = "__" + name
     if not host and dpc:
         module_name = _remove_dpc_suffix(module_name) + "_dpc"
@@ -178,11 +176,11 @@ def dal_test(name, hdrs=[], srcs=[],
             "@config//:release_dynamic_test_link_mode": [
                 "@onedal_release//:onedal_dynamic",
             ],
-        }) + ([
-            "@onedal//cpp/oneapi:include_root"
-        ]) + ([
-            "@onedal//cpp/oneapi/dal/test:common",
-        ] if catch2 else []),
+        }) + [
+            "@onedal//cpp/oneapi:include_root",
+            "@onedal//cpp/oneapi/dal/test/engine:common",
+            "@onedal//cpp/oneapi/dal/test/engine:main",
+        ],
         extra_deps = _select({
             "@config//:dev_test_link_mode": [
                 "@onedal//cpp/daal:threading_static",
@@ -203,12 +201,7 @@ def dal_test(name, hdrs=[], srcs=[],
                 "@onedal_release//:core_dynamic",
                 "@onedal//cpp/daal:threading_release_dynamic",
             ],
-        }) + ([
-            "@gtest//:gtest_main",
-        ] if gtest else []) + ([
-            "@onedal//cpp/oneapi/dal/test:catch2_main",
-        ] if catch2 else []) +
-        extra_deps,
+        }) + extra_deps,
         testonly = True,
         **kwargs,
     )
@@ -231,7 +224,7 @@ def dal_test(name, hdrs=[], srcs=[],
             tags = tags + ["dpc"],
         )
 
-def dal_test_suite(name, srcs=[], tests=[], host_tests=[], dpc_tests=[],
+def dal_test_suite(name, srcs=[], tests=[],
                    host=True, dpc=True, **kwargs):
     _check_target_name(name, host, dpc)
     targets = []
@@ -249,18 +242,9 @@ def dal_test_suite(name, srcs=[], tests=[], host_tests=[], dpc_tests=[],
             targets.append(":" + target)
         if dpc:
             targets_dpc.append(":" + _get_dpc_target_name(target, host, dpc))
-    # TODO: Empty test_suites (where the field tests = []) run all
-    # tests in package (not sure bug or feature of Bazel). Probably,
-    # need to create test suite with one fake test to workaround it.
-    _add_test_suite_if_condition(
-        condition = host,
-        name = _remove_dpc_suffix(name),
-        tests = tests + host_tests + targets,
-    )
-    _add_test_suite_if_condition(
-        condition = dpc,
-        name = _get_dpc_target_name(name, host, dpc),
-        tests = _get_dpc_deps(tests) + dpc_tests + targets_dpc,
+    native.test_suite(
+        name = name,
+        tests = tests + targets + targets_dpc,
     )
 
 def dal_collect_test_suites(name, root, modules, tests=[], **kwargs):
@@ -442,12 +426,6 @@ def _add_module_if_condition(condition, name, is_dpc=False, **kwargs):
         _dal_module(name=name, is_dpc=is_dpc, **kwargs)
     else:
         _dal_module(name=name, is_dpc=is_dpc)
-
-def _add_test_suite_if_condition(condition, name, **kwargs):
-    if condition:
-        native.test_suite(name=name, **kwargs)
-    else:
-        native.test_suite(name=name)
 
 def _select(x):
     return [x]

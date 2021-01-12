@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include "gtest/gtest.h"
+
 #include <tuple>
 #include <memory>
 #include <iostream>
@@ -25,18 +27,18 @@
 #include "oneapi/dal/infer.hpp"
 #include "oneapi/dal/compute.hpp"
 #include "oneapi/dal/exceptions.hpp"
-#include "oneapi/dal/test/macro.hpp"
+#include "oneapi/dal/test/engine/macro.hpp"
 
 // Disable clang-format as it dramatically
 // affects redability of macro definitions
 
 #ifdef ONEDAL_DATA_PARALLEL
-#define DECLARE_TEST_POLICY(policy_name) oneapi::dal::test::device_test_policy policy_name
+#define DECLARE_TEST_POLICY(policy_name) oneapi::dal::test::engine::device_test_policy policy_name
 #else
-#define DECLARE_TEST_POLICY(policy_name) oneapi::dal::test::host_test_policy policy_name
+#define DECLARE_TEST_POLICY(policy_name) oneapi::dal::test::engine::host_test_policy policy_name
 #endif
 
-namespace oneapi::dal::test {
+namespace oneapi::dal::test::engine {
 
 template <typename Float>
 inline double get_tolerance(double double_tol, double float_tol) {
@@ -68,11 +70,9 @@ class test_queue_provider {
 public:
     static test_queue_provider& get_instance();
 
-    const sycl::queue& get_global_queue() const {
+    sycl::queue& get_global_queue() {
         if (!queue_) {
-            throw internal_error{
-                dal::detail::error_messages::test_queue_provider_is_not_initialized()
-            };
+            throw internal_error{ "Test queue provider is not initialized" };
         }
         return *queue_;
     }
@@ -125,4 +125,32 @@ inline auto compute(device_test_policy& policy, Args&&... args) {
 }
 #endif
 
-} // namespace oneapi::dal::test
+class policy_fixture : public ::testing::Test {
+public:
+    auto& get_policy() {
+        return policy_;
+    }
+
+private:
+    DECLARE_TEST_POLICY(policy_);
+};
+
+class algo_fixture : public policy_fixture {
+public:
+    template <typename... Args>
+    auto train(Args&&... args) {
+        return oneapi::dal::test::engine::train(get_policy(), std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto infer(Args&&... args) {
+        return oneapi::dal::test::engine::infer(get_policy(), std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto compute(Args&&... args) {
+        return oneapi::dal::test::engine::compute(get_policy(), std::forward<Args>(args)...);
+    }
+};
+
+} // namespace oneapi::dal::test::engine

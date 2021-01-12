@@ -19,6 +19,23 @@ dal_module(
     dal_deps = [
         "@onedal//cpp/oneapi/dal:common",
     ],
+    extra_deps = [
+        "@gtest//:gtest",
+    ],
+    testonly = True,
+)
+
+dal_module(
+    name = "main",
+    srcs = [
+        "main.cpp",
+    ],
+    dal_deps = [
+        ":common",
+    ],
+    extra_deps = [
+        "@gtest//:gtest",
+    ],
     testonly = True,
 )
 

@@ -1,3 +1,10 @@
 build -c opt \
       --incompatible_enable_cc_toolchain_resolution \
       --incompatible_require_linker_input_cc_api
+
+
+test:host --test_tag_filters="host"
+test:dpc-cpu --test_tag_filters="dpc" --test_arg="--device=cpu"
+test:dpc-gpu --test_tag_filters="dpc" --test_arg="--device=gpu"
+test:cpu-only --test_tag_filters="cpu-only" --test_arg="--device=cpu"
+test:gpu-only --test_tag_filters="gpu-only" --test_arg="--device=gpu"

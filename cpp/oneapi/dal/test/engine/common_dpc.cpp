@@ -14,13 +14,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/test/common.hpp"
+#include "oneapi/dal/test/engine/common.hpp"
 
-namespace oneapi::dal::test {
+namespace oneapi::dal::test::engine {
 
 test_queue_provider& test_queue_provider::get_instance() {
     static test_queue_provider provider;
     return provider;
 }
 
-} // namespace oneapi::dal::test
+} // namespace oneapi::dal::test::engine

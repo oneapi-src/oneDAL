@@ -50,6 +50,8 @@ def get_default_flags(arch_id, os_id, compiler_id, category="common"):
         if compiler_id == "dpcpp" and category == "pedantic":
             # TODO: Consider removing
             flags = flags + ["-Wno-unused-command-line-argument"]
+        if compiler_id == "gcc" or compiler_id == "dpcpp":
+            flags = flags + ["-Wno-gnu-zero-variadic-macro-arguments"]
         return flags
     fail("Unsupported OS")
 
