@@ -39,7 +39,6 @@
 #define __ONEDAL_ASSERT_MESSAGE__(condition, message) \
     if (!(condition)) {                               \
         std::cerr << message << std::endl;            \
-        std::cerr.flush();                            \
         assert(condition);                            \
     }
 

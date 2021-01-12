@@ -93,7 +93,7 @@ public:
  * \brief Predicts decision_forest classification results   \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-decision_forest-ALGORITHM">decision_forest algorithm description and usage models</a> -->
  *
- * \tparam algorithmFPType  Data type to use in intermediate computations for the decision_forest algortithm, double or float
+ * \tparam algorithmFPType  Data type to use in intermediate computations for the decision_forest algorithm, double or float
  * \tparam method           decision_forest computation method, \ref Method
  *
  * \par Enumerations
@@ -223,7 +223,7 @@ public:
  * \brief Predicts decision_forest classification results
  * <!-- \n<a href="DAAL-REF-decision_forest-ALGORITHM">decision_forest algorithm description and usage models</a> -->
  *
- * \tparam algorithmFPType  Data type to use in intermediate computations for the decision_forest algortithm, double or float
+ * \tparam algorithmFPType  Data type to use in intermediate computations for the decision_forest algorithm, double or float
  * \tparam method           decision_forest computation method, \ref Method
  *
  * \par Enumerations
@@ -350,7 +350,7 @@ public:
  * \brief Predicts decision_forest classification results
  * <!-- \n<a href="DAAL-REF-decision_forest-ALGORITHM">decision_forest algorithm description and usage models</a> -->
  *
- * \tparam algorithmFPType  Data type to use in intermediate computations for the decision_forest algortithm, double or float
+ * \tparam algorithmFPType  Data type to use in intermediate computations for the decision_forest algorithm, double or float
  * \tparam method           decision_forest computation method, \ref Method
  *
  * \par Enumerations

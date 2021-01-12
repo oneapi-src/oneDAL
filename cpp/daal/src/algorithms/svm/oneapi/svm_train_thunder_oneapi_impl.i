@@ -238,7 +238,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, thunder>::compute(const Numeric
 
         DAAL_CHECK_STATUS(status, workSet.selectWS(yBuff, alphaBuff, gradBuff, C));
 
-        const services::internal::Buffer<uint32_t> & wsIndices = workSet.getWSIndeces();
+        const services::internal::Buffer<uint32_t> & wsIndices = workSet.getWSIndices();
         DAAL_CHECK_STATUS(status, cachePtr->compute(xTable, wsIndices, nFeatures));
 
         const services::internal::Buffer<algorithmFPType> & kernelWS = cachePtr->getRowsBlock();
@@ -258,7 +258,6 @@ services::Status SVMTrainOneAPI<algorithmFPType, thunder>::compute(const Numeric
         if (checkStopCondition(diff, diffPrev, eps, sameLocalDiff)) break;
         diffPrev = diff;
     }
-
     SaveResultModel<algorithmFPType> result(alphaBuff, gradBuff, yBuff, C, nVectors);
 
     DAAL_CHECK_STATUS(status, result.init());

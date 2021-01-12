@@ -46,7 +46,10 @@ private:
     backend::model_interop* interop_ = nullptr;
 };
 
+namespace backend {
+
 using model_impl_cls = detail::model_impl<task::classification>;
 using model_impl_reg = detail::model_impl<task::regression>;
 
+} // namespace backend
 } // namespace oneapi::dal::decision_forest

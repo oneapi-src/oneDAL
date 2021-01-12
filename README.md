@@ -15,9 +15,9 @@
 * limitations under the License.
 *******************************************************************************/-->
 
-# Intel&reg; oneAPI Data Analytics Library
+# Intel&reg; oneAPI Data Analytics Library <!-- omit in toc -->
 
-[Installation](#installation)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Documentation](http://oneapi-src.github.io/oneDAL/)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Examples](#examples)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Get Help](https://software.intel.com/en-us/forums/intel-data-analytics-acceleration-library)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[How to Contribute](CONTRIBUTING.md)&nbsp;&nbsp;&nbsp;
+[Installation](#installation)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Documentation](#documentation)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Examples](#examples)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Samples](#samples)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Get Help](https://community.intel.com/t5/Intel-oneAPI-Data-Analytics/bd-p/oneapi-data-analytics-library)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[How to Contribute](CONTRIBUTING.md)&nbsp;&nbsp;&nbsp;
 
 [![Build Status](https://dev.azure.com/daal/DAAL/_apis/build/status/oneapi-src.oneDAL?branchName=master)](https://dev.azure.com/daal/DAAL/_build/latest?definitionId=5&branchName=master) ![License](https://img.shields.io/github/license/oneapi-src/oneDAL.svg)
 
@@ -26,23 +26,20 @@ Intel&reg; oneAPI Data Analytics Library (oneDAL) is a powerful machine learning
 Intel&reg; oneAPI Data Analytics Library is an extension of Intel&reg; Data Analytics Acceleration Library (Intel&reg; DAAL).
 
 
-## Table of Contents
-- [Build yours high-performance data science application with intel&reg; oneDAL](#build-yours-high-performance-data-science-application-with-intel-onedal)
+## Table of Contents <!-- omit in toc -->
 - [Python API](#python-api)
-- [Scikit-learn patching](#scikit-learn-patching)
-- [Distributed multi-node mode](#distributed-multi-node-mode)
+  - [Scikit-learn patching](#scikit-learn-patching)
+  - [Distributed multi-node mode](#distributed-multi-node-mode)
 - [oneDAL Apache Spark MLlib samples](#onedal-apache-spark-mllib-samples)
 - [Installation](#installation)
-- [Installation from Source](#installation-from-source)
-- [Examples](#examples)
-- [Samples](#samples)
 - [Documentation](#documentation)
 - [Technical Preview Features](#technical-preview-features)
 - [oneDAL and Intel&reg; DAAL](#onedal-and-intel-daal)
 
-## Build yours high-performance data science application with intel&reg; oneDAL
 
-Intel&reg; oneDAL uses all capabilities of Intel&reg; hardware, which allows you to get an significant performance boost on the classic machine learning algorithms.
+## Build yours high-performance data science application with oneDAL <!-- omit in toc -->
+
+oneDAL uses all capabilities of Intel&reg; hardware, which allows you to get an significant performance boost on the classic machine learning algorithms.
 
 We provide highly optimized algorithmic building blocks for all stages of data analytics: **preprocessing**, **transformation**, **analysis**, **modeling**, **validation**, and **decision making**.
 
@@ -51,17 +48,17 @@ The current version of oneDAL provides Data Parallel C++ (DPC++) API extensions 
 The size of the data is growing exponentially, as is the need for high-performance and scalable frameworks to analyze all this data and extract some benefits from it.
 Besides superior performance on a single node, the oneDAL distributed computation mode also provides excellent strong and weak scaling (check charts below).
 
-Intel&reg; oneDAL K-means fit, strong scaling result | Intel&reg; oneDAL K-means fit, weak scaling results
+oneDAL K-means fit, strong scaling result | oneDAL K-means fit, weak scaling results
 :-------------------------:|:-------------------------:
 ![](docs/readme-charts/Intel%20oneDAL%20KMeans%20strong%20scaling.png)  |   ![](docs/readme-charts/intel%20oneDAL%20KMeans%20weak%20scaling.png)
 
 >*technical details: FPType: float32; HW: Intel Xeon Processor E5-2698 v3 @2.3GHz, 2 sockets, 16 cores per socket; SW: Intel® DAAL (2019.3), MPI4Py (3.0.0), Intel® Distribution Of Python (IDP) 3.6.8; Details available in the article https://arxiv.org/abs/1909.11822*
 
-Check out our [examples](#examples)  and [documentation](#documentation)  for information about our API
+Refer to our [examples](#examples) and [documentation](#documentation) for more information about our API.
 
 ## Python API
 
-Intel&reg; oneDAL has a python API that is provided as a standalone python library called [daal4py](https://github.com/IntelPython/daal4py).
+oneDAL has a python API that is provided as a standalone python library called [daal4py](https://github.com/IntelPython/daal4py).
 Below is an example of how daal4py can be used for calculation KMeans clusters
 
 ```python
@@ -85,7 +82,7 @@ result = alg.compute(data, centroids)
 
 Python interface to efficient Intel® oneDAL provided by daal4py allows one to create scikit-learn compatible estimators, transformers, clusterers, etc. powered by oneDAL which are nearly as efficient as native programs.
 
-| *Speedups of Intel&reg; oneDAL powered Scikit-learn over the original Scikit-learn, 28 cores, 1 thread/core* |
+| *Speedups of oneDAL powered Scikit-learn over the original Scikit-learn, 28 cores, 1 thread/core* |
 |:--:|
 | ![](docs/readme-charts/IDP%20scikit-learn%20accelearation%20compared%20with%20stock%20scikit-learn.png) |
 | *technical details: FPType: float32; HW: Intel(R) Xeon(R) Platinum 8276L CPU @ 2.20GHz, 2 sockets, 28 cores per socket; SW: scikit-learn 0.22.2, Intel® DAAL (2019.5), Intel® Distribution Of Python (IDP) 3.7.4; Details available in the article https://medium.com/intel-analytics-software/accelerate-your-scikit-learn-applications-a06cacf44912* |
@@ -164,7 +161,7 @@ alg = d4p.kmeans(nClusters = 10, maxIterations = 50, fptype = "float",
 result = alg.compute(data, centroids)
 ```
 
-For more details browse our [daal4py documentation](https://intelpython.github.io/daal4py/).
+For more details browse [daal4py documentation](https://intelpython.github.io/daal4py/).
 
 ## oneDAL Apache Spark MLlib samples
 
@@ -183,10 +180,10 @@ You can install oneDAL:
 - from [oneDAL home page](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onedal.html) as a part of Intel&reg; oneAPI Base Toolkit.
 - from [GitHub\*](https://github.com/oneapi-src/oneDAL/releases).
 
-### Installation from Source
+### Installation from Source <!-- omit in toc -->
 See [Installation from Sources](INSTALL.md) for details.
 
-## Examples
+## Examples <!-- omit in toc -->
 
 Except C++ and Python API oneDAL also provide API for C++ SYCL and Java languages. Check out tabs below for more examples.
 - [C++](https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp)
@@ -196,14 +193,15 @@ Except C++ and Python API oneDAL also provide API for C++ SYCL and Java language
 - [Python](https://github.com/IntelPython/daal4py/tree/master/examples)
 
 ## Documentation
-- [Get Started](http://oneapi-src.github.io/oneDAL/getstarted.html)
 - [System Requirements](https://software.intel.com/content/www/us/en/develop/articles/system-requirements-for-oneapi-data-analytics-library.html)
-- [oneDAL documentation](http://oneapi-src.github.io/oneDAL/)
+- [Get Started Guide](http://oneapi-src.github.io/oneDAL/onedal/get-started.html#onedal-get-started)
+- [Developer Guide](http://oneapi-src.github.io/oneDAL/)
+- [daal4py documentation](https://intelpython.github.io/daal4py/)
 - [Specification](https://spec.oneapi.com/versions/latest/elements/oneDAL/source/index.html)
 - [Release Notes](https://software.intel.com/content/www/us/en/develop/articles/oneapi-dal-release-notes.html)
 - [Known Issues](https://oneapi-src.github.io/oneDAL/notes/known_issues.html)
 
-## Samples
+## Samples <!-- omit in toc -->
 Samples is an examples of how oneDAL can be used in different applications.
 - [Apache Arrow](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/arrow)
 - [KDB](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/kdb)
@@ -216,11 +214,13 @@ Samples is an examples of how oneDAL can be used in different applications.
 ## Technical Preview Features
 
 Technical preview features are introduced to gain early feedback from developers. A technical preview feature is subject to change in the future releases. Using a technical preview feature in a production code base is therefore strongly discouraged.
+
 In C++ APIs, technical preview features are located in `daal::preview` and `oneapi::dal::preview` namespaces. In Java APIs, technical preview features are located in packages that have the `com.intel.daal.preview` name prefix.
+
 The preview features list:
-- Graph Analytics: 
-	- Undirected graph without edge and vertex weights (undirected_adjacency_array_graph) - 32bit vertex index only
-	- Jaccard Similarity Coefficients for all vertex pairs, a batch algorithm which processes the graph by blocks
+- Graph Analytics:
+	- Undirected graph without edge and vertex weights (`undirected_adjacency_array_graph`), where vertex indices can only be of type int32
+	- Jaccard Similarity Coefficients for all pairs of vertices, a batch algorithm that processes the graph by blocks
 
 ## oneDAL and Intel&reg; DAAL
 
@@ -230,5 +230,18 @@ This repository contains branches corresponding to both oneAPI and classical ver
 
 |Product|Latest release|Branch|Resources|
 |-------|--------------|------|:-------------:|
-|oneDAL       |2021.1-beta08|[master](https://github.com/oneapi-src/oneDAL)</br>[rls/onedal-beta08-rls](https://github.com/oneapi-src/oneDAL/tree/rls/onedal-beta08-rls)|&nbsp;&nbsp;&nbsp;[Home page](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onedal.html)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[Documentation](http://oneapi-src.github.io/oneDAL/)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[System Requirements](https://software.intel.com/content/www/us/en/develop/articles/system-requirements-for-oneapi-data-analytics-library.html)|
-|Intel&reg; DAAL|2020 Gold|[rls/daal-2020-u2-rls](https://github.com/oneapi-src/oneDAL/tree/rls/daal-2020-u2-rls)|&nbsp;&nbsp;&nbsp;[Home page](https://software.intel.com/content/www/us/en/develop/tools/data-analytics-acceleration-library.html)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[Developer Guide](https://software.intel.com/content/www/us/en/develop/documentation/daal-programming-guide/top.html)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[System Requirements](https://software.intel.com/content/www/us/en/develop/articles/intel-data-analytics-acceleration-library-2020-system-requirements.html)|
+|oneDAL       |2021.1|[master](https://github.com/oneapi-src/oneDAL)</br>[rls/2021-gold-mnt](https://github.com/oneapi-src/oneDAL/tree/rls/2021-gold-mnt)|&nbsp;&nbsp;&nbsp;[Home page](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onedal.html)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[Documentation](http://oneapi-src.github.io/oneDAL/)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[System Requirements](https://software.intel.com/content/www/us/en/develop/articles/system-requirements-for-oneapi-data-analytics-library.html)|
+|Intel&reg; DAAL|2020 Update 3|[rls/daal-2020-u3-rls](https://github.com/oneapi-src/oneDAL/tree/rls/daal-2020-u3-rls)|&nbsp;&nbsp;&nbsp;[Home page](https://software.intel.com/content/www/us/en/develop/tools/data-analytics-acceleration-library.html)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[Developer Guide](https://software.intel.com/content/www/us/en/develop/documentation/daal-programming-guide/top.html)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[System Requirements](https://software.intel.com/content/www/us/en/develop/articles/intel-data-analytics-acceleration-library-2020-system-requirements.html)|
+
+## Contribute <!-- omit in toc -->
+
+See [CONTRIBUTING](CONTRIBUTING.md) for more information.
+
+## License <!-- omit in toc -->
+
+Distributed under the Apache License 2.0 license. See [LICENSE](LICENSE) for more
+information.
+
+## Security <!-- omit in toc -->
+
+To report a vulnerability, refer to [Intel vulnerability reporting policy](https://www.intel.com/content/www/us/en/security-center/default.html).

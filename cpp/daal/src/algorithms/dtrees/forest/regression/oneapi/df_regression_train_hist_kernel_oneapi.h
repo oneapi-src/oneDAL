@@ -133,15 +133,19 @@ private:
 
     decision_forest::internal::TreeLevelBuildHelperOneAPI<algorithmFPType> _treeLevelBuildHelper;
 
-    const size_t _maxWorkItemsPerGroup = 256;   // should be a power of two for interal needs
-    const size_t _maxLocalBuffer       = 30000; // should be less than a half of local memory (two buffers)
-    const size_t _preferableSubGroup   = 16;    // preferable maximal sub-group size
-    const size_t _maxLocalSize         = 128;
-    const size_t _maxLocalSums         = 256;
-    const size_t _maxLocalHistograms   = 256;
-    const size_t _preferableGroupSize  = 256;
-    const size_t _minRowsBlock         = 256;
-    const size_t _maxBins              = 256;
+    const size_t _maxWorkItemsPerGroup    = 256;   // should be a power of two for interal needs
+    const size_t _maxLocalBuffer          = 30000; // should be less than a half of local memory (two buffers)
+    const size_t _preferableSubGroup      = 16;    // preferable maximal sub-group size
+    const size_t _maxLocalSize            = 128;
+    const size_t _maxLocalSums            = 256;
+    const size_t _maxLocalHistograms      = 256;
+    const size_t _preferableGroupSize     = 256;
+    const size_t _minRowsBlock            = 256;
+    const size_t _maxBins                 = 256;
+    const size_t _reduceLocalSizePartHist = 64;
+
+    const size_t _maxPartHistCumulativeSize      = 805306368; // 768 Mb
+    const size_t _minRowsBlocksForMaxPartHistNum = 1024;
 
     const size_t _nOOBProps      = 2; // number of props for each OOB row to compute prediction (i.e. mean and num of predictions)
     const size_t _nHistProps     = 3; // number of properties in bins histogram (i.e. n, mean and var)

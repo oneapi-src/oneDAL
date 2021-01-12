@@ -23,14 +23,14 @@ namespace v1 {
 
 template <typename... Args>
 auto compute(Args&&... args) {
-    return detail::compute_dispatch(std::forward<Args>(args)...);
+    return dal::detail::compute_dispatch(std::forward<Args>(args)...);
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename... Args>
 auto compute(sycl::queue& queue, Args&&... args) {
-    return detail::compute_dispatch(detail::data_parallel_policy{ queue },
-                                    std::forward<Args>(args)...);
+    return dal::detail::compute_dispatch(detail::data_parallel_policy{ queue },
+                                         std::forward<Args>(args)...);
 }
 #endif
 

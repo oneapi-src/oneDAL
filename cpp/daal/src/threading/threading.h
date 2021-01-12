@@ -28,6 +28,16 @@
 
 namespace daal
 {
+template <typename FPType>
+struct IdxValType
+{
+    FPType value;
+    size_t index;
+
+    bool operator<(const IdxValType & o) const { return o.value == value ? index < o.index : value < o.value; }
+    bool operator>(const IdxValType & o) const { return o.value == value ? index > o.index : value > o.value; }
+    bool operator<=(const IdxValType & o) const { return value < o.value || (value == o.value && index == o.index); }
+};
 typedef void (*functype)(int i, const void * a);
 typedef void (*functype2)(int i, int n, const void * a);
 typedef void * (*tls_functype)(const void * a);
@@ -74,10 +84,33 @@ extern "C"
 
     DAAL_EXPORT void * _threaded_scalable_malloc(const size_t size, const size_t alignment);
     DAAL_EXPORT void _threaded_scalable_free(void * ptr);
+
+#define DAAL_PARALLEL_SORT_DECL(TYPE, NAMESUFFIX) DAAL_EXPORT void _daal_parallel_sort_##NAMESUFFIX(TYPE * begin_ptr, TYPE * end_ptr);
+    DAAL_PARALLEL_SORT_DECL(int, int32)
+    DAAL_PARALLEL_SORT_DECL(size_t, uint64)
+    DAAL_PARALLEL_SORT_DECL(daal::IdxValType<float>, pair_fp32_uint64)
+    DAAL_PARALLEL_SORT_DECL(daal::IdxValType<double>, pair_fp64_uint64)
+#undef DAAL_PARALLEL_SORT_DECL
 }
 
 namespace daal
 {
+template <typename FPType>
+inline void parallel_sort(daal::IdxValType<FPType> * beginPtr, daal::IdxValType<FPType> * endPtr)
+{}
+
+template <>
+inline void parallel_sort<float>(daal::IdxValType<float> * beginPtr, daal::IdxValType<float> * endPtr)
+{
+    _daal_parallel_sort_pair_fp32_uint64(beginPtr, endPtr);
+}
+
+template <>
+inline void parallel_sort<double>(daal::IdxValType<double> * beginPtr, daal::IdxValType<double> * endPtr)
+{
+    _daal_parallel_sort_pair_fp64_uint64(beginPtr, endPtr);
+}
+
 inline int threader_get_max_threads_number()
 {
     return _daal_threader_get_max_threads();
@@ -264,8 +297,9 @@ class ls : public tlsBase
 {
 public:
     template <typename lambdaType>
-    explicit ls(const lambdaType & lambda)
+    explicit ls(const lambdaType & lambda, const bool isTls = false)
     {
+        _isTls              = isTls;
         lambdaType * locall = new lambdaType(lambda);
         d                   = new tls_deleter_<lambdaType>();
 
@@ -274,36 +308,40 @@ public:
         void * a        = const_cast<void *>(ac);
         voidLambda      = a;
 
-        lsPtr = _daal_get_ls_ptr(a, tls_func<lambdaType>);
+        lsPtr = _isTls ? _daal_get_tls_ptr(a, tls_func<lambdaType>) : _daal_get_ls_ptr(a, tls_func<lambdaType>);
     }
 
     virtual ~ls()
     {
         d->del(voidLambda);
         delete d;
-        _daal_del_ls_ptr(lsPtr);
+        _isTls ? _daal_del_tls_ptr(lsPtr) : _daal_del_ls_ptr(lsPtr);
     }
 
     F local()
     {
-        void * pf = _daal_get_ls_local(lsPtr);
+        void * pf = _isTls ? _daal_get_tls_local(lsPtr) : _daal_get_ls_local(lsPtr);
         return (static_cast<F>(pf));
     }
 
-    void release(F p) { _daal_release_ls_local(lsPtr, p); }
+    void release(F p)
+    {
+        if (!_isTls) _daal_release_ls_local(lsPtr, p);
+    }
 
     template <typename lambdaType>
     void reduce(const lambdaType & lambda)
     {
         const void * ac = static_cast<const void *>(&lambda);
         void * a        = const_cast<void *>(ac);
-        _daal_reduce_ls(lsPtr, a, tls_reduce_func<F, lambdaType>);
+        _isTls ? _daal_reduce_tls(lsPtr, a, tls_reduce_func<F, lambdaType>) : _daal_reduce_ls(lsPtr, a, tls_reduce_func<F, lambdaType>);
     }
 
 private:
     void * lsPtr;
     void * voidLambda;
     tls_deleter * d;
+    bool _isTls;
 };
 
 template <typename F>

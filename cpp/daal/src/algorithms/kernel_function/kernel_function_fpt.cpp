@@ -50,7 +50,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
-    if (method == 0 && !deviceInfo.isCpu)
+    if (!deviceInfo.isCpu)
     {
         set(values, data_management::internal::SyclHomogenNumericTable<algorithmFPType>::create(nVectors2, nVectors1,
                                                                                                 data_management::NumericTable::doAllocate, &status));

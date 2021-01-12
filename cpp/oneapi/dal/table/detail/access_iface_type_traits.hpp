@@ -20,6 +20,7 @@
 #include "oneapi/dal/util/detail/type_traits.hpp"
 
 namespace oneapi::dal::detail {
+namespace v1 {
 
 template <typename T, typename Data>
 struct has_pull_rows_host {
@@ -85,6 +86,20 @@ struct has_push_column_dpc {
     static constexpr bool value = has_method_push_column_v<T>;
 };
 
+#endif // ONEDAL_DATA_PARALLEL
+
+} // namespace v1
+
+using v1::has_pull_rows_host;
+using v1::has_push_rows_host;
+using v1::has_pull_column_host;
+using v1::has_push_column_host;
+
+#ifdef ONEDAL_DATA_PARALLEL
+using v1::has_pull_rows_dpc;
+using v1::has_push_rows_dpc;
+using v1::has_pull_column_dpc;
+using v1::has_push_column_dpc;
 #endif
 
 } // namespace oneapi::dal::detail

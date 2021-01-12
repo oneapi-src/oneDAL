@@ -21,14 +21,14 @@
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
-#include <daal/src/algorithms/kernel_function/oneapi/kernel_function_linear_dense_default_kernel_oneapi.h>
+#include <daal/src/algorithms/kernel_function/oneapi/kernel_function_linear_kernel_oneapi.h>
 
 namespace oneapi::dal::linear_kernel::backend {
 
 using dal::backend::context_gpu;
 using input_t = compute_input<task::compute>;
 using result_t = compute_result<task::compute>;
-using descriptor_t = descriptor_base<task::compute>;
+using descriptor_t = detail::descriptor_base<task::compute>;
 
 namespace daal_linear_kernel = daal::algorithms::kernel_function::linear;
 namespace interop = dal::backend::interop;

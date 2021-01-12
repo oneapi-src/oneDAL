@@ -164,12 +164,12 @@ static HMODULE WINAPI _daal_LoadLibrary(LPTSTR filename)
 
 DAAL_EXPORT HMODULE load_onedal_thread_dll()
 {
-    return DAAL_LOAD_DLL("onedal_thread.dll");
+    return DAAL_LOAD_DLL("onedal_thread.1.dll");
 }
 
 DAAL_EXPORT HMODULE load_onedal_sequential_dll()
 {
-    return DAAL_LOAD_DLL("onedal_sequential.dll");
+    return DAAL_LOAD_DLL("onedal_sequential.1.dll");
 }
 
 static void load_daal_thr_dll(void)
@@ -186,7 +186,7 @@ static void load_daal_thr_dll(void)
         daal_thr_dll_handle = load_onedal_thread_dll();
         if (daal_thr_dll_handle == NULL)
         {
-            printf("Intel oneDAL FATAL ERROR: Cannot load onedal_thread.dll.\n");
+            printf("Intel oneDAL FATAL ERROR: Cannot load onedal_thread.1.dll.\n");
             exit(1);
         }
         break;
@@ -196,7 +196,7 @@ static void load_daal_thr_dll(void)
         daal_thr_dll_handle = load_onedal_sequential_dll();
         if (daal_thr_dll_handle == NULL)
         {
-            printf("Intel oneDAL FATAL ERROR: Cannot load onedal_sequential.dll.\n");
+            printf("Intel oneDAL FATAL ERROR: Cannot load onedal_sequential.1.dll.\n");
             exit(1);
         }
         break;
@@ -215,7 +215,7 @@ static void load_daal_thr_dll(void)
             return;
         }
 
-        printf("Intel oneDAL FATAL ERROR: Cannot load neither onedal_thread.dll nor onedal_sequential.dll.\n");
+        printf("Intel oneDAL FATAL ERROR: Cannot load neither onedal_thread.1.dll nor onedal_sequential.1.dll.\n");
         exit(1);
     }
     }
@@ -277,6 +277,11 @@ typedef void (*_daal_tbb_task_scheduler_free_t)(void *& globalControl);
 typedef size_t (*_setNumberOfThreads_t)(const size_t, void **);
 typedef void * (*_daal_threader_env_t)();
 
+typedef void (*_daal_parallel_sort_int32_t)(int *, int *);
+typedef void (*_daal_parallel_sort_uint64_t)(size_t *, size_t *);
+typedef void (*_daal_parallel_sort_pair_fp32_uint64_t)(daal::IdxValType<float> *, daal::IdxValType<float> *);
+typedef void (*_daal_parallel_sort_pair_fp64_uint64_t)(daal::IdxValType<double> *, daal::IdxValType<double> *);
+
 #if !(defined DAAL_THREAD_PINNING_DISABLED)
 typedef void (*_thread_pinner_thread_pinner_init_t)();
 typedef void (*_thread_pinner_read_topology_t)();
@@ -325,6 +330,11 @@ static _daal_tbb_task_scheduler_free_t _daal_tbb_task_scheduler_free_ptr = NULL;
 static _setNumberOfThreads_t _setNumberOfThreads_ptr                     = NULL;
 static _daal_threader_env_t _daal_threader_env_ptr                       = NULL;
 
+static _daal_parallel_sort_int32_t _daal_parallel_sort_int32_ptr                       = NULL;
+static _daal_parallel_sort_uint64_t _daal_parallel_sort_uint64_ptr                     = NULL;
+static _daal_parallel_sort_pair_fp32_uint64_t _daal_parallel_sort_pair_fp32_uint64_ptr = NULL;
+static _daal_parallel_sort_pair_fp64_uint64_t _daal_parallel_sort_pair_fp64_uint64_ptr = NULL;
+
 #if !(defined DAAL_THREAD_PINNING_DISABLED)
 static _thread_pinner_thread_pinner_init_t _thread_pinner_thread_pinner_init_ptr = NULL;
 static _thread_pinner_read_topology_t _thread_pinner_read_topology_ptr           = NULL;
@@ -365,6 +375,46 @@ DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, 
         _daal_threader_for_ptr = (_daal_threader_for_t)load_daal_thr_func("_daal_threader_for");
     }
     _daal_threader_for_ptr(n, threads_request, a, func);
+}
+
+DAAL_EXPORT void _daal_parallel_sort_int32(int * begin_ptr, int * end_ptr)
+{
+    load_daal_thr_dll();
+    if (_daal_parallel_sort_int32_ptr == NULL)
+    {
+        _daal_parallel_sort_int32_ptr = (_daal_parallel_sort_int32_t)load_daal_thr_func("_daal_parallel_sort_int32");
+    }
+    _daal_parallel_sort_int32_ptr(begin_ptr, end_ptr);
+}
+
+DAAL_EXPORT void _daal_parallel_sort_uint64(size_t * begin_ptr, size_t * end_ptr)
+{
+    load_daal_thr_dll();
+    if (_daal_parallel_sort_uint64_ptr == NULL)
+    {
+        _daal_parallel_sort_uint64_ptr = (_daal_parallel_sort_uint64_t)load_daal_thr_func("_daal_parallel_sort_uint64");
+    }
+    _daal_parallel_sort_uint64_ptr(begin_ptr, end_ptr);
+}
+
+DAAL_EXPORT void _daal_parallel_sort_pair_fp32_uint64(daal::IdxValType<float> * begin_ptr, daal::IdxValType<float> * end_ptr)
+{
+    load_daal_thr_dll();
+    if (_daal_parallel_sort_pair_fp32_uint64_ptr == NULL)
+    {
+        _daal_parallel_sort_pair_fp32_uint64_ptr = (_daal_parallel_sort_pair_fp32_uint64_t)load_daal_thr_func("_daal_parallel_sort_pair_fp32_uint64");
+    }
+    _daal_parallel_sort_pair_fp32_uint64_ptr(begin_ptr, end_ptr);
+}
+
+DAAL_EXPORT void _daal_parallel_sort_pair_fp64_uint64(daal::IdxValType<double> * begin_ptr, daal::IdxValType<double> * end_ptr)
+{
+    load_daal_thr_dll();
+    if (_daal_parallel_sort_pair_fp64_uint64_ptr == NULL)
+    {
+        _daal_parallel_sort_pair_fp64_uint64_ptr = (_daal_parallel_sort_pair_fp64_uint64_t)load_daal_thr_func("_daal_parallel_sort_pair_fp64_uint64");
+    }
+    _daal_parallel_sort_pair_fp64_uint64_ptr(begin_ptr, end_ptr);
 }
 
 DAAL_EXPORT void _daal_threader_for_blocked(int n, int threads_request, const void * a, daal::functype2 func)

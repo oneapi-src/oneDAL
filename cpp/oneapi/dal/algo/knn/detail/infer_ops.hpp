@@ -20,12 +20,10 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::knn::detail {
+namespace v1 {
 
-template <typename Context,
-          typename Float,
-          typename Method = method::by_default,
-          typename Task = task::by_default>
-struct ONEDAL_EXPORT infer_ops_dispatcher {
+template <typename Context, typename Float, typename Method, typename Task, typename... Options>
+struct infer_ops_dispatcher {
     infer_result<Task> operator()(const Context&,
                                   const descriptor_base<Task>&,
                                   const infer_input<Task>&) const;
@@ -64,5 +62,9 @@ struct infer_ops {
         return result;
     }
 };
+
+} // namespace v1
+
+using v1::infer_ops;
 
 } // namespace oneapi::dal::knn::detail

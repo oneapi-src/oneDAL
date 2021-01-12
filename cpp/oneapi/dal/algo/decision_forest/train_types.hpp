@@ -22,10 +22,10 @@ namespace oneapi::dal::decision_forest {
 
 namespace detail {
 namespace v1 {
-template <typename Task = task::by_default>
+template <typename Task>
 class train_input_impl;
 
-template <typename Task = task::by_default>
+template <typename Task>
 class train_result_impl;
 } // namespace v1
 
@@ -36,13 +36,21 @@ using v1::train_result_impl;
 
 namespace v1 {
 
+/// @tparam Task   Tag-type that specifies type of the problem to solve. Can
+///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
 template <typename Task = task::by_default>
 class train_input : public base {
+    static_assert(detail::is_valid_task_v<Task>);
+
 public:
     using task_t = Task;
 
+    /// Creates a new instance of the class with the given :literal:`data`
+    /// and :literal:`labels` property values
     train_input(const table& data, const table& labels);
 
+    /// The training set $X$
+    /// @remark default = table{}
     const table& get_data() const;
 
     auto& set_data(const table& value) {
@@ -50,6 +58,8 @@ public:
         return *this;
     }
 
+    /// Vector of labels $y$ for the training set $X$
+    /// @remark default = table{}
     const table& get_labels() const;
 
     auto& set_labels(const table& value) {
@@ -64,13 +74,20 @@ private:
     dal::detail::pimpl<detail::train_input_impl<Task>> impl_;
 };
 
+/// @tparam Task   Tag-type that specifies type of the problem to solve. Can
+///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
 template <typename Task = task::by_default>
 class train_result {
+    static_assert(detail::is_valid_task_v<Task>);
+
 public:
     using task_t = Task;
 
+    /// Creates a new instance of the class with the default property values.
     train_result();
 
+    /// The trained Decision Forest model
+    /// @remark default = model<Task>{}
     const model<Task>& get_model() const;
 
     auto& set_model(const model<Task>& value) {
@@ -78,6 +95,9 @@ public:
         return *this;
     }
 
+    /// A $1 \\times 1$ table containing cumulative out-of-bag error value.
+    /// Computed when :literal:`error_metric_mode` set with :literal:`error_metric_mode::out_of_bag_error`
+    /// @remark default = table{}
     const table& get_oob_err() const;
 
     auto& set_oob_err(const table& value) {
@@ -85,6 +105,9 @@ public:
         return *this;
     }
 
+    /// A $n \\times 1$ table containing out-of-bag error value per observation.
+    /// Computed when :literal:`error_metric_mode` set with :literal:`error_metric_mode::out_of_bag_error_per_observation`
+    /// @remark default = table{}
     const table& get_oob_err_per_observation() const;
 
     auto& set_oob_err_per_observation(const table& value) {
@@ -92,6 +115,9 @@ public:
         return *this;
     }
 
+    /// A $1 \\times p$ table containing variable importance value for each feature.
+    /// Computed when :expr:`variable_importance_mode != variable_importance_mode::none`
+    /// @remark default = table{}
     const table& get_var_importance() const;
 
     auto& set_var_importance(const table& value) {

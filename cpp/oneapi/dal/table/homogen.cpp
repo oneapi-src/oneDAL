@@ -20,6 +20,7 @@
 using std::int64_t;
 
 namespace oneapi::dal {
+namespace v1 {
 
 int64_t homogen_table::kind() {
     return 1;
@@ -58,4 +59,5 @@ template ONEDAL_EXPORT void homogen_table::init_impl(const detail::data_parallel
                                                      data_layout);
 #endif
 
+} // namespace v1
 } // namespace oneapi::dal

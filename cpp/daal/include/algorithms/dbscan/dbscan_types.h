@@ -179,7 +179,7 @@ enum DistributedPartialResultStep3Id
 enum Step4LocalCollectionInputId
 {
     step4PartialSplits = lastLocalCollectionInputId + 1, /*!< Collection of input tables containing information about split
-                                                                for current iteration of gemoetric repartitioning */
+                                                                for current iteration of geometric repartitioning */
     step4PartialOrders,                                  /*!< Collection of input tables containing information about observations:
                                                                 identifier of initial block and index in initial block */
     lastStep4LocalCollectionInputId = step4PartialOrders
@@ -349,7 +349,7 @@ enum Step9MasterCollectionInputId
  */
 enum DistributedResultStep9Id
 {
-    step9NClusters, /*!< Table contianing the total number of clusters */
+    step9NClusters, /*!< Table containing the total number of clusters */
     lastDistributedResultStep9Id = step9NClusters
 };
 

@@ -21,43 +21,74 @@
 namespace oneapi::dal::knn {
 
 namespace detail {
-template <typename Task = task::by_default>
+namespace v1 {
+template <typename Task>
 class infer_input_impl;
 
-template <typename Task = task::by_default>
+template <typename Task>
 class infer_result_impl;
+} // namespace v1
+
+using v1::infer_input_impl;
+using v1::infer_result_impl;
+
 } // namespace detail
 
+namespace v1 {
+
+/// @tparam Task Tag-type that specifies type of the problem to solve. Can
+///              be :expr:`task::v1::classification`.
 template <typename Task = task::by_default>
-class ONEDAL_EXPORT infer_input : public base {
+class infer_input : public base {
+    static_assert(detail::is_valid_task_v<Task>);
+
 public:
+    using task_t = Task;
+
+    /// Creates a new instance of the class with the given :literal:`model`
+    /// and :literal:`data` property values
     infer_input(const table& data, const model<Task>& model);
 
+    /// The dataset for inference $X'$
+    /// @remark default = table{}
     const table& get_data() const;
-    const model<Task>& get_model() const;
 
     auto& set_data(const table& data) {
         set_data_impl(data);
         return *this;
     }
 
+    /// The trained k-NN model
+    /// @remark default = model<Task>{}
+    const model<Task>& get_model() const;
+
     auto& set_model(const model<Task>& m) {
         set_model_impl(m);
         return *this;
     }
 
-private:
+protected:
     void set_data_impl(const table& data);
     void set_model_impl(const model<Task>& model);
 
+private:
     dal::detail::pimpl<detail::infer_input_impl<Task>> impl_;
 };
 
+/// @tparam Task Tag-type that specifies type of the problem to solve. Can
+///              be :expr:`task::v1::classification`.
 template <typename Task = task::by_default>
-class ONEDAL_EXPORT infer_result {
+class infer_result {
+    static_assert(detail::is_valid_task_v<Task>);
+
 public:
+    using task_t = Task;
+
+    /// Creates a new instance of the class with the default property values.
     infer_result();
 
+    /// The predicted labels
+    /// @remark default = table{}
     const table& get_labels() const;
 
     auto& set_labels(const table& value) {
@@ -65,10 +96,17 @@ public:
         return *this;
     }
 
-private:
+protected:
     void set_labels_impl(const table&);
     const table& get_labels_impl() const;
+
+private:
     dal::detail::pimpl<detail::infer_result_impl<Task>> impl_;
 };
+
+} // namespace v1
+
+using v1::infer_input;
+using v1::infer_result;
 
 } // namespace oneapi::dal::knn

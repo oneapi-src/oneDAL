@@ -28,6 +28,7 @@
 #include "src/data_management/service_numeric_table.h"
 #include "src/externals/service_blas.h"
 #include "src/externals/service_memory.h"
+#include "src/services/service_environment.h"
 
 namespace daal
 {
@@ -52,17 +53,21 @@ public:
 
     bool isValid() const { return _buff.get(); }
 
-    services::Status kernelCompute(const size_t startRow, const size_t nRows)
+    services::Status kernelCompute(const size_t startRow, const size_t nRows, const size_t startSV, const size_t nSV)
     {
         services::Status status;
-        NumericTablePtr shResNT = HomogenNumericTableCPU<algorithmFPType, cpu>::create(_buff.get(), _nSV, nRows, &status);
+        NumericTablePtr shResNT = HomogenNumericTableCPU<algorithmFPType, cpu>::create(_buff.get(), nSV, nRows, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
         auto xBlockNT = getBlockNTData(startRow, nRows, status);
         DAAL_CHECK_STATUS_VAR(status);
 
+        auto svBlockNT = getBlockNTSV(startSV, nSV, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
         _shRes->set(kernel_function::values, shResNT);
         _kernel->getInput()->set(kernel_function::X, xBlockNT);
+        _kernel->getInput()->set(kernel_function::Y, svBlockNT);
         _kernel->getParameter()->computationMode = kernel_function::matrixMatrix;
 
         return _kernel->computeNoThrow();
@@ -71,21 +76,22 @@ public:
     const algorithmFPType * getBuff() const { return _buff.get(); }
 
 protected:
-    PredictTask(const size_t nRowsPerBlock, const NumericTablePtr & xTable, const NumericTablePtr & svTable, kernel_function::KernelIfacePtr & kernel)
-        : _xTable(xTable), _nSV(svTable->getNumberOfRows()), _nFeatures(svTable->getNumberOfColumns())
+    PredictTask(const size_t nRowsPerBlock, const size_t nSVPerBlock, const NumericTablePtr & xTable, const NumericTablePtr & svTable,
+                kernel_function::KernelIfacePtr & kernel)
+        : _xTable(xTable), _svTable(svTable), _nFeatures(svTable->getNumberOfColumns())
     {
-        _buff.reset(_nSV * nRowsPerBlock);
+        _buff.reset(nSVPerBlock * nRowsPerBlock);
         _kernel = kernel->clone();
         _shRes  = kernel_function::ResultPtr(new kernel_function::Result());
         _kernel->setResult(_shRes);
-        _kernel->getInput()->set(kernel_function::Y, svTable);
     }
 
     virtual NumericTablePtr getBlockNTData(const size_t startRow, const size_t nRows, services::Status & status) = 0;
+    virtual NumericTablePtr getBlockNTSV(const size_t startSV, const size_t nSV, services::Status & status)      = 0;
 
 protected:
     const NumericTablePtr & _xTable;
-    const size_t _nSV;
+    const NumericTablePtr & _svTable;
     const size_t _nFeatures;
     TArrayScalable<algorithmFPType, cpu> _buff;
     kernel_function::KernelIfacePtr _kernel;
@@ -97,22 +103,21 @@ class PredictTaskDense : PredictTask<algorithmFPType, cpu>
 {
 public:
     using Super = PredictTask<algorithmFPType, cpu>;
-    DAAL_NEW_DELETE();
     virtual ~PredictTaskDense() {}
 
-    static Super * create(const size_t nRowsPerBlock, const NumericTablePtr & xTable, const NumericTablePtr & svTable,
+    static Super * create(const size_t nRowsPerBlock, const size_t nSVPerBlock, const NumericTablePtr & xTable, const NumericTablePtr & svTable,
                           kernel_function::KernelIfacePtr & kernel)
     {
-        auto val = new PredictTaskDense(nRowsPerBlock, xTable, svTable, kernel);
+        auto val = new PredictTaskDense(nRowsPerBlock, nSVPerBlock, xTable, svTable, kernel);
         if (val && val->isValid()) return val;
         delete val;
         return nullptr;
     }
 
 protected:
-    PredictTaskDense(const size_t nRowsPerBlock, const NumericTablePtr & xTable, const NumericTablePtr & svTable,
+    PredictTaskDense(const size_t nRowsPerBlock, const size_t nSVPerBlock, const NumericTablePtr & xTable, const NumericTablePtr & svTable,
                      kernel_function::KernelIfacePtr & kernel)
-        : Super(nRowsPerBlock, xTable, svTable, kernel)
+        : Super(nRowsPerBlock, nSVPerBlock, xTable, svTable, kernel)
     {}
 
     NumericTablePtr getBlockNTData(const size_t startRow, const size_t nRows, services::Status & status) override
@@ -122,8 +127,16 @@ protected:
         return HomogenNumericTableCPU<algorithmFPType, cpu>::create(xData, Super::_nFeatures, nRows, &status);
     }
 
+    NumericTablePtr getBlockNTSV(const size_t startSV, const size_t nSV, services::Status & status) override
+    {
+        algorithmFPType * svData = const_cast<algorithmFPType *>(_svBlock.set(*Super::_svTable, startSV, nSV));
+        if (!svData) status |= services::Status(services::ErrorMemoryAllocationFailed);
+        return HomogenNumericTableCPU<algorithmFPType, cpu>::create(svData, Super::_nFeatures, nSV, &status);
+    }
+
 private:
     ReadRows<algorithmFPType, cpu> _xBlock;
+    ReadRows<algorithmFPType, cpu> _svBlock;
 };
 
 template <typename algorithmFPType, CpuType cpu>
@@ -131,22 +144,21 @@ class PredictTaskCSR : PredictTask<algorithmFPType, cpu>
 {
 public:
     using Super = PredictTask<algorithmFPType, cpu>;
-    DAAL_NEW_DELETE();
     virtual ~PredictTaskCSR() {}
 
-    static Super * create(const size_t nRowsPerBlock, const NumericTablePtr & xTable, const NumericTablePtr & svTable,
+    static Super * create(const size_t nRowsPerBlock, const size_t nSVPerBlock, const NumericTablePtr & xTable, const NumericTablePtr & svTable,
                           kernel_function::KernelIfacePtr & kernel)
     {
-        auto val = new PredictTaskCSR(nRowsPerBlock, xTable, svTable, kernel);
+        auto val = new PredictTaskCSR(nRowsPerBlock, nSVPerBlock, xTable, svTable, kernel);
         if (val && val->isValid()) return val;
         delete val;
         return nullptr;
     }
 
 protected:
-    PredictTaskCSR(const size_t nRowsPerBlock, const NumericTablePtr & xTable, const NumericTablePtr & svTable,
+    PredictTaskCSR(const size_t nRowsPerBlock, const size_t nSVPerBlock, const NumericTablePtr & xTable, const NumericTablePtr & svTable,
                    kernel_function::KernelIfacePtr & kernel)
-        : Super(nRowsPerBlock, xTable, svTable, kernel), _rowOffsets(nRowsPerBlock + 1)
+        : Super(nRowsPerBlock, nSVPerBlock, xTable, svTable, kernel)
     {}
 
     NumericTablePtr getBlockNTData(const size_t startRow, const size_t nRows, services::Status & status) override
@@ -160,9 +172,20 @@ protected:
         return CSRNumericTable::create(values, cols, rows, Super::_nFeatures, nRows, CSRNumericTableIface::CSRIndexing::oneBased, &status);
     }
 
+    NumericTablePtr getBlockNTSV(const size_t startSV, const size_t nSV, services::Status & status) override
+    {
+        const bool toOneBaseRowIndices = true;
+        _svBlock.set(dynamic_cast<CSRNumericTableIface *>(Super::_svTable.get()), startSV, nSV, toOneBaseRowIndices);
+        algorithmFPType * const values = const_cast<algorithmFPType *>(_svBlock.values());
+        size_t * const cols            = const_cast<size_t *>(_svBlock.cols());
+        size_t * const rows            = const_cast<size_t *>(_svBlock.rows());
+
+        return CSRNumericTable::create(values, cols, rows, Super::_nFeatures, nSV, CSRNumericTableIface::CSRIndexing::oneBased, &status);
+    }
+
 private:
-    TArrayScalable<size_t, cpu> _rowOffsets;
     ReadRowsCSR<algorithmFPType, cpu> _xBlock;
+    ReadRowsCSR<algorithmFPType, cpu> _svBlock;
 };
 
 template <typename algorithmFPType, CpuType cpu>
@@ -170,78 +193,101 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
 {
     services::Status compute(const NumericTablePtr & xTable, Model * model, NumericTable & r, const svm::Parameter * par)
     {
-        const size_t nVectors = xTable->getNumberOfRows();
-        WriteOnlyColumns<algorithmFPType, cpu> mtR(r, 0, 0, nVectors);
-        DAAL_CHECK_BLOCK_STATUS(mtR);
-        algorithmFPType * const distance = mtR.get();
-
         kernel_function::KernelIfacePtr kernel = par->kernel->clone();
         DAAL_CHECK(kernel, ErrorNullParameterNotSupported);
 
-        NumericTablePtr svCoeffTable = model->getClassificationCoefficients();
+        const NumericTablePtr svCoeffTable = model->getClassificationCoefficients();
+        const NumericTablePtr svTable      = model->getSupportVectors();
+
         const algorithmFPType bias(model->getBias());
 
-        const size_t nSV = svCoeffTable->getNumberOfRows();
-        if (nSV == 0)
-        {
-            const algorithmFPType zero(0.0);
-            service_memset<algorithmFPType, cpu>(distance, zero, nVectors);
-            return Status();
-        }
+        const size_t nVectors = xTable->getNumberOfRows();
+        const size_t nSV      = svTable->getNumberOfRows();
 
-        ReadColumns<algorithmFPType, cpu> mtSVCoeff(*svCoeffTable, 0, 0, nSV);
-        DAAL_CHECK_BLOCK_STATUS(mtSVCoeff);
-        const algorithmFPType * const svCoeff = mtSVCoeff.get();
-        const size_t nOptimalSizeBlock        = nSV > 2048 ? 256 : 2048;
-
-        size_t nRowsPerBlock = 1;
-        DAAL_SAFE_CPU_CALL((nRowsPerBlock = nOptimalSizeBlock), (nRowsPerBlock = nVectors));
+        size_t nRowsPerBlock = 0;
+        DAAL_SAFE_CPU_CALL((nRowsPerBlock = 256), (nRowsPerBlock = nVectors));
         const size_t nBlocks = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
 
-        const NumericTablePtr svTable = model->getSupportVectors();
-        /* LS data initialization */
+        size_t nSVPerBlock = 0;
+        DAAL_SAFE_CPU_CALL((nSVPerBlock = 256), (nRowsPerBlock = nSV));
+        const size_t nBlocksSV = nSV / nSVPerBlock + !!(nSV % nSVPerBlock);
+
+        const bool isSparse = xTable->getDataLayout() == NumericTableIface::csrArray;
+
+        /* TLS data initialization */
         using TPredictTask = PredictTask<algorithmFPType, cpu>;
-        daal::ls<TPredictTask *> lsTask([&]() {
-            if (xTable->getDataLayout() == NumericTableIface::csrArray)
-            {
-                return PredictTaskCSR<algorithmFPType, cpu>::create(nRowsPerBlock, xTable, svTable, kernel);
-            }
-            else
-            {
-                return PredictTaskDense<algorithmFPType, cpu>::create(nRowsPerBlock, xTable, svTable, kernel);
-            }
-        });
+        daal::ls<TPredictTask *> lsTask(
+            [&]() {
+                if (isSparse)
+                {
+                    return PredictTaskCSR<algorithmFPType, cpu>::create(nRowsPerBlock, nSVPerBlock, xTable, svTable, kernel);
+                }
+                else
+                {
+                    return PredictTaskDense<algorithmFPType, cpu>::create(nRowsPerBlock, nSVPerBlock, xTable, svTable, kernel);
+                }
+            },
+            !isSparse);
 
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocksSV, nRowsPerBlock);
+        daal::LsMem<algorithmFPType, cpu> lsDistance(nBlocksSV * nRowsPerBlock, nSV <= 256);
         SafeStatus safeStat;
-        daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
-            TPredictTask * lsLocal = lsTask.local();
-            DAAL_CHECK_MALLOC_THR(lsLocal);
-            DAAL_LS_RELEASE(TPredictTask, lsTask, lsLocal); //releases local storage when leaving this scope
-
+        daal::threader_for(nBlocks, nBlocks, [&, nVectors, nBlocks](const size_t iBlock) {
             const size_t startRow          = iBlock * nRowsPerBlock;
-            const size_t nRowsPerBlockReal = (iBlock != nBlocks - 1) ? nRowsPerBlock : nVectors - iBlock * nRowsPerBlock;
+            const size_t nRowsPerBlockReal = (iBlock != nBlocks - 1) ? nRowsPerBlock : nVectors - startRow;
 
-            DAAL_CHECK_THR(lsLocal->kernelCompute(startRow, nRowsPerBlockReal), services::ErrorSVMPredictKernerFunctionCall);
+            algorithmFPType * const distanceLocal = lsDistance.local();
+            DAAL_CHECK_MALLOC_THR(distanceLocal);
+            DAAL_LS_RELEASE(algorithmFPType, lsDistance, distanceLocal); //releases local storage when leaving this scope
 
-            const algorithmFPType * const bufBlock = lsLocal->getBuff();
-            algorithmFPType * const distanceBlock  = distance + startRow;
+            daal::conditional_threader_for((nSV > 256), nBlocksSV, [&, nSV, nBlocksSV](const size_t iBlockSV) {
+                TPredictTask * lsLocal = lsTask.local();
+                DAAL_CHECK_MALLOC_THR(lsLocal);
+                DAAL_LS_RELEASE(TPredictTask, lsTask, lsLocal); //releases local storage when leaving this scope
+
+                const size_t startSV         = iBlockSV * nSVPerBlock;
+                const size_t nSVPerBlockReal = (iBlockSV != nBlocksSV - 1) ? nSVPerBlock : nSV - startSV;
+
+                DAAL_CHECK_THR(lsLocal->kernelCompute(startRow, nRowsPerBlockReal, startSV, nSVPerBlockReal),
+                               services::ErrorSVMPredictKernerFunctionCall);
+
+                const algorithmFPType * const buffBlock = lsLocal->getBuff();
+
+                char trans = 'T';
+                DAAL_INT m = nSVPerBlockReal;
+                DAAL_INT n = nRowsPerBlockReal;
+                algorithmFPType alpha(1.0);
+                DAAL_INT ldA = nSVPerBlockReal;
+                DAAL_INT incX(1);
+                algorithmFPType beta(0.0);
+                DAAL_INT incY(1);
+
+                ReadColumns<algorithmFPType, cpu> mtSVCoeff(*svCoeffTable, 0, startSV, nSVPerBlockReal);
+                DAAL_CHECK_BLOCK_STATUS_THR(mtSVCoeff);
+                const algorithmFPType * const svCoeff = mtSVCoeff.get();
+                algorithmFPType * const distanceSV    = &distanceLocal[iBlockSV * nRowsPerBlock];
+
+                if (nBlocks == 1)
+                {
+                    Blas<algorithmFPType, cpu>::xgemv(&trans, &m, &n, &alpha, buffBlock, &ldA, svCoeff, &incX, &beta, distanceSV, &incY);
+                }
+                else
+                {
+                    Blas<algorithmFPType, cpu>::xxgemv(&trans, &m, &n, &alpha, buffBlock, &ldA, svCoeff, &incX, &beta, distanceSV, &incY);
+                }
+            });
+
+            WriteOnlyColumns<algorithmFPType, cpu> mtR(r, 0, startRow, nRowsPerBlockReal);
+            DAAL_CHECK_BLOCK_STATUS_THR(mtR);
+            algorithmFPType * const distanceBlock = mtR.get();
             service_memset_seq<algorithmFPType, cpu>(distanceBlock, bias, nRowsPerBlockReal);
-
-            char trans = 'T';
-            DAAL_INT m = nSV;
             DAAL_INT n = nRowsPerBlockReal;
             algorithmFPType alpha(1.0);
-            DAAL_INT ldA = m;
-            DAAL_INT incX(1);
-            algorithmFPType beta(1.0);
             DAAL_INT incY(1);
-            if (nBlocks == 1)
+            DAAL_INT incX(1);
+            for (size_t iBlockSV = 0; iBlockSV < nBlocksSV; ++iBlockSV)
             {
-                Blas<algorithmFPType, cpu>::xgemv(&trans, &m, &n, &alpha, bufBlock, &ldA, svCoeff, &incX, &beta, distanceBlock, &incY);
-            }
-            else
-            {
-                Blas<algorithmFPType, cpu>::xxgemv(&trans, &m, &n, &alpha, bufBlock, &ldA, svCoeff, &incX, &beta, distanceBlock, &incY);
+                Blas<algorithmFPType, cpu>::xxaxpy(&n, &alpha, &distanceLocal[iBlockSV * nRowsPerBlock], &incX, distanceBlock, &incY);
             }
         });
 

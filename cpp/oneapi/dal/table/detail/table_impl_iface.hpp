@@ -19,9 +19,13 @@
 #include "oneapi/dal/table/detail/access_iface.hpp"
 
 namespace oneapi::dal {
-
+namespace v1 {
 class table_metadata;
 enum class data_layout;
+} // namespace v1
+
+using v1::table_metadata;
+using v1::data_layout;
 
 } // namespace oneapi::dal
 

@@ -20,6 +20,7 @@
 
 DAAL  = datastructures_soa                    \
         datastructures_usm                    \
+        datastructures_csr                    \
         dbscan_dense_batch                    \
         cor_dense_batch                       \
         cor_dense_distr                       \
@@ -28,12 +29,17 @@ DAAL  = datastructures_soa                    \
         lin_reg_norm_eq_dense_online          \
         log_reg_binary_dense_batch            \
         log_reg_dense_batch                   \
+        log_reg_binary_dense_online           \
+        log_reg_dense_online                  \
         sgd_mini_log_loss_dense_batch         \
         pca_cor_dense_batch                   \
+        pca_cor_dense_distr                   \
         pca_cor_dense_online                  \
         pca_transform_dense_batch             \
         kernel_func_lin_dense_batch           \
+        kernel_func_lin_csr_batch             \
         kernel_func_rbf_dense_batch           \
+        kernel_func_rbf_csr_batch             \
         kmeans_dense_batch                    \
         kmeans_dense_distr                    \
         kmeans_init_dense_batch               \
@@ -41,6 +47,9 @@ DAAL  = datastructures_soa                    \
         low_order_moms_dense_online           \
         gbt_reg_dense_batch                   \
         bf_knn_dense_batch                    \
+        bf_knn_dense_search_batch             \
+        bf_knn_dense_regression_batch         \
         svm_two_class_thunder_dense_batch     \
+        svm_two_class_thunder_csr_batch       \
         df_reg_dense_batch                    \
         df_cls_dense_batch

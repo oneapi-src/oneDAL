@@ -34,7 +34,7 @@ using dal::backend::context_gpu;
 using model_t = model<task::classification>;
 using input_t = train_input<task::classification>;
 using result_t = train_result<task::classification>;
-using descriptor_t = descriptor_base<task::classification>;
+using descriptor_t = detail::descriptor_base<task::classification>;
 
 namespace daal_df = daal::algorithms::decision_forest;
 namespace daal_df_cls_train = daal_df::classification::training;

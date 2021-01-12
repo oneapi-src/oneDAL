@@ -22,7 +22,7 @@ using std::int64_t;
 
 namespace oneapi::dal {
 
-class detail::table_metadata_impl {
+class detail::v1::table_metadata_impl {
 public:
     virtual ~table_metadata_impl() {}
 
@@ -31,16 +31,19 @@ public:
     virtual const data_type& get_data_type(int64_t index) const = 0;
 };
 
-namespace backend {
+namespace v1 {
+
 class empty_metadata_impl : public detail::table_metadata_impl {
 public:
     int64_t get_feature_count() const override {
         return 0;
     }
+
     const feature_type& get_feature_type(int64_t) const override {
         throw domain_error(
             dal::detail::error_messages::cannot_get_feature_type_from_empty_metadata());
     }
+
     const data_type& get_data_type(int64_t) const override {
         throw domain_error(dal::detail::error_messages::cannot_get_data_type_from_empty_metadata());
     }
@@ -61,12 +64,14 @@ public:
     int64_t get_feature_count() const override {
         return dtypes_.get_count();
     }
+
     const feature_type& get_feature_type(int64_t i) const override {
         if (!is_in_range(i)) {
             throw out_of_range(dal::detail::error_messages::feature_index_is_out_of_range());
         }
         return ftypes_[i];
     }
+
     const data_type& get_data_type(int64_t i) const override {
         if (!is_in_range(i)) {
             throw out_of_range(dal::detail::error_messages::feature_index_is_out_of_range());
@@ -83,12 +88,11 @@ private:
     array<data_type> dtypes_;
     array<feature_type> ftypes_;
 };
-} // namespace backend
 
-table_metadata::table_metadata() : impl_(new backend::empty_metadata_impl()) {}
+table_metadata::table_metadata() : impl_(new empty_metadata_impl()) {}
 
 table_metadata::table_metadata(const array<data_type>& dtypes, const array<feature_type>& ftypes)
-        : impl_(new backend::simple_metadata_impl(dtypes, ftypes)) {}
+        : impl_(new simple_metadata_impl(dtypes, ftypes)) {}
 
 int64_t table_metadata::get_feature_count() const {
     return impl_->get_feature_count();
@@ -144,4 +148,5 @@ void table::init_impl(detail::table_impl_iface* impl) {
     impl_ = pimpl{ impl };
 }
 
+} // namespace v1
 } // namespace oneapi::dal

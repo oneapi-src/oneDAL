@@ -20,7 +20,6 @@
 #include <daal/include/algorithms/decision_forest/decision_forest_regression_training_batch.h>
 #include <daal/include/algorithms/decision_forest/decision_forest_regression_training_types.h>
 #include <daal/src/algorithms/dtrees/forest/regression/df_regression_train_kernel.h>
-#include <daal/src/algorithms/dtrees/forest/regression/df_regression_train_dense_default_kernel.h>
 
 #include "oneapi/dal/algo/decision_forest/backend/cpu/train_kernel.hpp"
 
@@ -36,7 +35,7 @@ using dal::backend::context_cpu;
 using model_t = model<task::regression>;
 using input_t = train_input<task::regression>;
 using result_t = train_result<task::regression>;
-using descriptor_t = descriptor_base<task::regression>;
+using descriptor_t = detail::descriptor_base<task::regression>;
 
 namespace daal_df = daal::algorithms::decision_forest;
 namespace daal_df_reg_train = daal_df::regression::training;

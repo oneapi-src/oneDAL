@@ -24,7 +24,7 @@ namespace oneapi::dal::linear_kernel::backend {
 template <typename Float, typename Method, typename Task>
 struct compute_kernel_gpu {
     compute_result<Task> operator()(const dal::backend::context_gpu& ctx,
-                                    const descriptor_base<Task>& params,
+                                    const detail::descriptor_base<Task>& params,
                                     const compute_input<Task>& input) const;
 };
 

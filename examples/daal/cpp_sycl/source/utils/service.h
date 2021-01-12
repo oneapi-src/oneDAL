@@ -387,6 +387,7 @@ void printUpperArray(T * array, const size_t nPrintedCols, const size_t nPrinted
     std::cout << std::endl;
 }
 
+template <typename type = DAAL_DATA_TYPE>
 void printNumericTable(NumericTable * dataTable, const char * message = "", size_t nPrintedRows = 0, size_t nPrintedCols = 0, size_t interval = 10)
 {
     size_t nRows                            = dataTable->getNumberOfRows();
@@ -411,11 +412,11 @@ void printNumericTable(NumericTable * dataTable, const char * message = "", size
         nPrintedCols = nCols;
     }
 
-    BlockDescriptor<DAAL_DATA_TYPE> block;
+    BlockDescriptor<type> block;
     if (isFull(layout) || layout == NumericTableIface::csrArray)
     {
         dataTable->getBlockOfRows(0, nRows, readOnly, block);
-        printArray<DAAL_DATA_TYPE>(block.getBlockPtr(), nPrintedCols, nPrintedRows, nCols, message, interval);
+        printArray<type>(block.getBlockPtr(), nPrintedCols, nPrintedRows, nCols, message, interval);
         dataTable->releaseBlockOfRows(block);
     }
     else
@@ -424,25 +425,27 @@ void printNumericTable(NumericTable * dataTable, const char * message = "", size
         packedTable->getPackedArray(readOnly, block);
         if (isLower(layout))
         {
-            printLowerArray<DAAL_DATA_TYPE>(block.getBlockPtr(), nPrintedRows, message, interval);
+            printLowerArray<type>(block.getBlockPtr(), nPrintedRows, message, interval);
         }
         else if (isUpper(layout))
         {
-            printUpperArray<DAAL_DATA_TYPE>(block.getBlockPtr(), nPrintedCols, nPrintedRows, nCols, message, interval);
+            printUpperArray<type>(block.getBlockPtr(), nPrintedCols, nPrintedRows, nCols, message, interval);
         }
         packedTable->releasePackedArray(block);
     }
 }
 
+template <typename type = DAAL_DATA_TYPE>
 void printNumericTable(NumericTable & dataTable, const char * message = "", size_t nPrintedRows = 0, size_t nPrintedCols = 0, size_t interval = 10)
 {
-    printNumericTable(&dataTable, message, nPrintedRows, nPrintedCols, interval);
+    printNumericTable<type>(&dataTable, message, nPrintedRows, nPrintedCols, interval);
 }
 
+template <typename type = DAAL_DATA_TYPE>
 void printNumericTable(const NumericTablePtr & dataTable, const char * message = "", size_t nPrintedRows = 0, size_t nPrintedCols = 0,
                        size_t interval = 10)
 {
-    printNumericTable(dataTable.get(), message, nPrintedRows, nPrintedCols, interval);
+    printNumericTable<type>(dataTable.get(), message, nPrintedRows, nPrintedCols, interval);
 }
 
 void printPackedNumericTable(NumericTable * dataTable, size_t nFeatures, const char * message = "", size_t interval = 10)

@@ -18,7 +18,7 @@
 #include <daal/src/algorithms/svm/svm_train_thunder_kernel.h>
 
 #include "oneapi/dal/algo/svm/backend/cpu/train_kernel.hpp"
-#include "oneapi/dal/algo/svm/backend/interop_model.hpp"
+#include "oneapi/dal/algo/svm/backend/model_interop.hpp"
 #include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
 #include "oneapi/dal/algo/svm/backend/utils.hpp"
 
@@ -34,7 +34,7 @@ using dal::backend::context_cpu;
 using model_t = model<task::classification>;
 using input_t = train_input<task::classification>;
 using result_t = train_result<task::classification>;
-using descriptor_t = descriptor_base<task::classification>;
+using descriptor_t = detail::descriptor_base<task::classification>;
 
 namespace daal_svm = daal::algorithms::svm;
 namespace daal_kernel_function = daal::algorithms::kernel_function;
@@ -67,7 +67,10 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     const auto daal_labels = interop::convert_to_daal_homogen_table(arr_new_label, row_count, 1);
     const auto daal_weights = interop::convert_to_daal_homogen_table(arr_weights, row_count, 1);
 
-    auto kernel_impl = desc.get_kernel_impl()->get_impl();
+    auto kernel_impl = detail::get_kernel_function_impl(desc);
+    if (!kernel_impl) {
+        throw internal_error{ dal::detail::error_messages::unknown_kernel_function_type() };
+    }
     const auto daal_kernel = kernel_impl->get_daal_kernel_function();
 
     const std::uint64_t cache_megabyte = static_cast<std::uint64_t>(desc.get_cache_size());

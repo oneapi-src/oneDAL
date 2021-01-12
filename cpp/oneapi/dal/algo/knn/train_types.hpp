@@ -21,43 +21,74 @@
 namespace oneapi::dal::knn {
 
 namespace detail {
-template <typename Task = task::by_default>
+namespace v1 {
+template <typename Task>
 class train_input_impl;
 
-template <typename Task = task::by_default>
+template <typename Task>
 class train_result_impl;
+} // namespace v1
+
+using v1::train_input_impl;
+using v1::train_result_impl;
+
 } // namespace detail
 
+namespace v1 {
+
+/// @tparam Task Tag-type that specifies type of the problem to solve. Can
+///              be :expr:`task::v1::classification`.
 template <typename Task = task::by_default>
-class ONEDAL_EXPORT train_input : public base {
+class train_input : public base {
+    static_assert(detail::is_valid_task_v<Task>);
+
 public:
+    using task_t = Task;
+
+    /// Creates a new instance of the class with the given :literal:`data`
+    /// and :literal:`labels` property values
     train_input(const table& data, const table& labels);
 
+    /// The training set X
+    /// @remark default = table{}
     const table& get_data() const;
-    const table& get_labels() const;
 
     auto& set_data(const table& data) {
         set_data_impl(data);
         return *this;
     }
 
+    /// Vector of labels y for the training set X
+    /// @remark default = table{}
+    const table& get_labels() const;
+
     auto& set_labels(const table& labels) {
         set_data_impl(labels);
         return *this;
     }
 
-private:
+protected:
     void set_data_impl(const table& data);
     void set_labels_impl(const table& labels);
 
+private:
     dal::detail::pimpl<detail::train_input_impl<Task>> impl_;
 };
 
+/// @tparam Task Tag-type that specifies type of the problem to solve. Can
+///              be :expr:`task::v1::classification`.
 template <typename Task = task::by_default>
-class ONEDAL_EXPORT train_result {
+class train_result {
+    static_assert(detail::is_valid_task_v<Task>);
+
 public:
+    using task_t = Task;
+
+    /// Creates a new instance of the class with the default property values.
     train_result();
 
+    /// The trained k-NN model
+    /// @remark default = model<Task>{}
     const model<Task>& get_model() const;
 
     auto& set_model(const model<Task>& value) {
@@ -65,9 +96,16 @@ public:
         return *this;
     }
 
-private:
+protected:
     void set_model_impl(const model<Task>&);
+
+private:
     dal::detail::pimpl<detail::train_result_impl<Task>> impl_;
 };
+
+} // namespace v1
+
+using v1::train_input;
+using v1::train_result;
 
 } // namespace oneapi::dal::knn

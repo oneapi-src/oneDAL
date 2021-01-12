@@ -22,62 +22,125 @@
 namespace oneapi::dal::linear_kernel {
 
 namespace task {
+namespace v1 {
+
+/// Tag-type that parameterizes entities that are used to compute statistics, distance, and so on.
 struct compute {};
+/// Alias tag-type for the compute task.
 using by_default = compute;
+} // namespace v1
+
+using v1::compute;
+using v1::by_default;
+
 } // namespace task
 
-namespace detail {
-struct tag {};
-
-template <typename Task = task::by_default>
-class descriptor_impl;
-
-} // namespace detail
-
 namespace method {
+namespace v1 {
+
 struct dense {};
-struct csr {};
+/// Alias tag-type for the dense method.
 using by_default = dense;
+} // namespace v1
+
+using v1::dense;
+using v1::by_default;
+
 } // namespace method
 
+namespace detail {
+namespace v1 {
+struct descriptor_tag {};
+
+template <typename Task>
+class descriptor_impl;
+
+template <typename Float>
+constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
+
+template <typename Method>
+constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::dense>;
+
+template <typename Task>
+constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::compute>;
+
 template <typename Task = task::by_default>
-class ONEDAL_EXPORT descriptor_base : public base {
+class descriptor_base : public base {
+    static_assert(is_valid_task_v<Task>);
+
 public:
-    using tag_t = detail::tag;
+    using tag_t = descriptor_tag;
     using float_t = float;
     using method_t = method::by_default;
     using task_t = Task;
 
     descriptor_base();
 
+    /// The coefficient $k$ of the linear kernel.
+    /// @remark default = 1.0
     double get_scale() const;
+
+    /// The coefficient $b$ of the linear kernel.
+    /// @remark default = 0.0
     double get_shift() const;
 
 protected:
     void set_scale_impl(double value);
     void set_shift_impl(double value);
 
-    dal::detail::pimpl<detail::descriptor_impl<task_t>> impl_;
+private:
+    dal::detail::pimpl<descriptor_impl<Task>> impl_;
 };
 
-template <typename Float = descriptor_base<task::by_default>::float_t,
-          typename Method = descriptor_base<task::by_default>::method_t,
-          typename Task = task::by_default>
-class descriptor : public descriptor_base<Task> {
+} // namespace v1
+
+using v1::descriptor_tag;
+using v1::descriptor_impl;
+using v1::descriptor_base;
+
+using v1::is_valid_float_v;
+using v1::is_valid_method_v;
+using v1::is_valid_task_v;
+
+} // namespace detail
+
+namespace v1 {
+
+/// @tparam Float  The floating-point type that the algorithm uses for
+///                intermediate computations. Can be :expr:`float` or
+///                :expr:`double`.
+/// @tparam Method Tag-type that specifies an implementation of algorithm. Can
+///                be :expr:`method::v1::dense`.
+/// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
+///                be :expr:`task::v1::compute`.
+template <typename Float = detail::descriptor_base<>::float_t,
+          typename Method = detail::descriptor_base<>::method_t,
+          typename Task = detail::descriptor_base<>::task_t>
+class descriptor : public detail::descriptor_base<Task> {
+    static_assert(detail::is_valid_float_v<Float>);
+    static_assert(detail::is_valid_method_v<Method>);
+    static_assert(detail::is_valid_task_v<Task>);
+
+    using base_t = detail::descriptor_base<Task>;
+
 public:
     using float_t = Float;
     using method_t = Method;
     using task_t = Task;
 
     auto& set_scale(double value) {
-        descriptor_base<task_t>::set_scale_impl(value);
+        base_t::set_scale_impl(value);
         return *this;
     }
 
     auto& set_shift(double value) {
-        descriptor_base<task_t>::set_shift_impl(value);
+        base_t::set_shift_impl(value);
         return *this;
     }
 };
+
+} // namespace v1
+
+using v1::descriptor;
 
 } // namespace oneapi::dal::linear_kernel

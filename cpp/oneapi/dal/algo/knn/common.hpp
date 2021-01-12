@@ -22,81 +22,161 @@
 namespace oneapi::dal::knn {
 
 namespace task {
+namespace v1 {
+/// Tag-type that parameterizes entities used for solving
+/// :capterm:`classification problem <classification>`.
 struct classification {};
+
+/// Alias tag-type for classification task.
 using by_default = classification;
+} // namespace v1
+
+using v1::classification;
+using v1::by_default;
+
 } // namespace task
 
-namespace detail {
-struct tag {};
+namespace method {
+namespace v1 {
+/// Tag-type that denotes `k-d tree <knn_t_math_kd_tree>`_ computational method.
+struct kd_tree {};
 
-template <typename Task = task::by_default>
+/// Tag-type that denotes `brute-force <knn_t_math_brute_force_>`_ computational
+/// method.
+struct brute_force {};
+
+/// Alias tag-type for `brute-force <knn_t_math_brute_force_>`_ computational
+/// method.
+using by_default = brute_force;
+} // namespace v1
+
+using v1::kd_tree;
+using v1::brute_force;
+using v1::by_default;
+
+} // namespace method
+
+namespace detail {
+namespace v1 {
+struct descriptor_tag {};
+template <typename Task>
 class descriptor_impl;
 
+template <typename Task>
 class model_impl;
-} // namespace detail
 
-namespace method {
-struct kd_tree {};
-struct brute_force {};
-using by_default = brute_force;
-} // namespace method
+template <typename Float>
+constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
+
+template <typename Method>
+constexpr bool is_valid_method_v =
+    dal::detail::is_one_of_v<Method, method::kd_tree, method::brute_force>;
+
+template <typename Task>
+constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::classification>;
 
 template <typename Task = task::by_default>
 class descriptor_base : public base {
+    static_assert(is_valid_task_v<Task>);
+
 public:
-    using tag_t = detail::tag;
+    using tag_t = descriptor_tag;
     using float_t = float;
     using method_t = method::by_default;
     using task_t = Task;
 
     descriptor_base();
 
+    /// The number of classes c
+    /// @invariant :expr:`class_count > 1`
     std::int64_t get_class_count() const;
+
+    /// The number of neighbors k
+    /// @invariant :expr:`neighbor_count > 0`
     std::int64_t get_neighbor_count() const;
 
 protected:
     void set_class_count_impl(std::int64_t value);
     void set_neighbor_count_impl(std::int64_t value);
 
-    dal::detail::pimpl<detail::descriptor_impl<task_t>> impl_;
+private:
+    dal::detail::pimpl<descriptor_impl<Task>> impl_;
 };
 
-template <typename Float = descriptor_base<task::by_default>::float_t,
-          typename Method = descriptor_base<task::by_default>::method_t,
-          typename Task = task::by_default>
-class descriptor : public descriptor_base<Task> {
+} // namespace v1
+
+using v1::descriptor_tag;
+using v1::descriptor_impl;
+using v1::model_impl;
+using v1::descriptor_base;
+
+using v1::is_valid_float_v;
+using v1::is_valid_method_v;
+using v1::is_valid_task_v;
+
+} // namespace detail
+
+namespace v1 {
+
+/// @tparam Float  The floating-point type that the algorithm uses for
+///                intermediate computations. Can be :expr:`float` or
+///                :expr:`double`.
+/// @tparam Method Tag-type that specifies an implementation of algorithm. Can
+///                be :expr:`method::v1::brute_force` or :expr:`method::v1::kd_tree`.
+/// @tparam Task   Tag-type that specifies type of the problem to solve. Can
+///                be :expr:`task::v1::classification`.
+template <typename Float = detail::descriptor_base<>::float_t,
+          typename Method = detail::descriptor_base<>::method_t,
+          typename Task = detail::descriptor_base<>::task_t>
+class descriptor : public detail::descriptor_base<Task> {
+    static_assert(detail::is_valid_float_v<Float>);
+    static_assert(detail::is_valid_method_v<Method>);
+    static_assert(detail::is_valid_task_v<Task>);
+
+    using base_t = detail::descriptor_base<Task>;
+
 public:
-    using tag_t = detail::tag;
     using float_t = Float;
     using method_t = Method;
     using task_t = Task;
 
+    /// Creates a new instance of the class with the given :literal:`class_count`
+    /// and :literal:`neighbor_count` property values
     explicit descriptor(std::int64_t class_count, std::int64_t neighbor_count) {
         set_class_count(class_count);
         set_neighbor_count(neighbor_count);
     }
 
     auto& set_class_count(std::int64_t value) {
-        descriptor_base<task_t>::set_class_count_impl(value);
+        base_t::set_class_count_impl(value);
         return *this;
     }
 
     auto& set_neighbor_count(std::int64_t value) {
-        descriptor_base<task_t>::set_neighbor_count_impl(value);
+        base_t::set_neighbor_count_impl(value);
         return *this;
     }
 };
 
+/// @tparam Task Tag-type that specifies type of the problem to solve. Can
+///              be :expr:`task::v1::classification`.
 template <typename Task = task::by_default>
 class model : public base {
+    static_assert(detail::is_valid_task_v<Task>);
     friend dal::detail::pimpl_accessor;
 
 public:
+    /// Creates a new instance of the class with the default property values.
     model();
 
 private:
-    explicit model(const std::shared_ptr<detail::model_impl>& impl);
-    dal::detail::pimpl<detail::model_impl> impl_;
+    explicit model(const std::shared_ptr<detail::model_impl<Task>>& impl);
+    dal::detail::pimpl<detail::model_impl<Task>> impl_;
 };
+
+} // namespace v1
+
+using v1::descriptor;
+using v1::model;
 
 } // namespace oneapi::dal::knn

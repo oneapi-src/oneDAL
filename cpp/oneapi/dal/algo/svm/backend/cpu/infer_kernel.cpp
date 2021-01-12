@@ -17,7 +17,7 @@
 #include <daal/src/algorithms/svm/svm_predict_kernel.h>
 
 #include "oneapi/dal/algo/svm/backend/cpu/infer_kernel.hpp"
-#include "oneapi/dal/algo/svm/backend/interop_model.hpp"
+#include "oneapi/dal/algo/svm/backend/model_interop.hpp"
 #include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
@@ -31,7 +31,7 @@ using dal::backend::context_cpu;
 using model_t = model<task::classification>;
 using input_t = infer_input<task::classification>;
 using result_t = infer_result<task::classification>;
-using descriptor_t = descriptor_base<task::classification>;
+using descriptor_t = detail::descriptor_base<task::classification>;
 
 namespace daal_svm = daal::algorithms::svm;
 namespace daal_kernel_function = daal::algorithms::kernel_function;
@@ -69,7 +69,10 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                           .set_coeffs(daal_coeffs)
                           .set_bias(trained_model.get_bias());
 
-    auto kernel_impl = desc.get_kernel_impl()->get_impl();
+    auto kernel_impl = detail::get_kernel_function_impl(desc);
+    if (!kernel_impl) {
+        throw internal_error{ dal::detail::error_messages::unknown_kernel_function_type() };
+    }
     const auto daal_kernel = kernel_impl->get_daal_kernel_function();
 
     daal_svm::Parameter daal_parameter(daal_kernel);

@@ -24,7 +24,7 @@ namespace oneapi::dal::pca::backend {
 template <typename Float, typename Task>
 struct infer_kernel_gpu {
     infer_result<Task> operator()(const dal::backend::context_gpu& ctx,
-                                  const descriptor_base<Task>& params,
+                                  const detail::descriptor_base<Task>& params,
                                   const infer_input<Task>& input) const;
 };
 

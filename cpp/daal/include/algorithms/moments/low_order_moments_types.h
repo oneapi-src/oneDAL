@@ -61,7 +61,7 @@ enum Method
 
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__LOW_ORDER_MOMENTS__ESTIMATESTOCOMPUTE"></a>
- * Available sets of moment resuls for the low order %moments algorithm
+ * Available sets of moment results for the low order %moments algorithm
  */
 enum EstimatesToCompute
 {

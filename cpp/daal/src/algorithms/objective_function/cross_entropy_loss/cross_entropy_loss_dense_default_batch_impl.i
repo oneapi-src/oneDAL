@@ -199,8 +199,9 @@ void addHessInPt(algorithmFPType * h, const algorithmFPType * xi, const algorith
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
-services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute(const algorithmFPType * x, const algorithmFPType * y, size_t nRows,
-                                                                                 size_t n, size_t p, NumericTable * betaNT, NumericTable * valueNT,
+services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute(const NumericTable * dataNT,
+                                                                                 const NumericTable * dependentVariablesNT, size_t nRows, size_t n,
+                                                                                 size_t p, NumericTable * betaNT, NumericTable * valueNT,
                                                                                  NumericTable * hessianNT, NumericTable * gradientNT,
                                                                                  NumericTable * nonSmoothTermValue, NumericTable * proximalProjection,
                                                                                  NumericTable * lipschitzConstant, Parameter * parameter)
@@ -277,12 +278,16 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
         algorithmFPType globalMaxNorm = 0;
 
         TlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> > tlsData(lipschitzConstant->getNumberOfRows());
+        SafeStatus safeStat;
         daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
             algorithmFPType & _maxNorm = *tlsData.local();
             const size_t startRow      = iBlock * blockSize;
             const size_t finishRow     = (iBlock + 1 == nBlocks ? n : (iBlock + 1) * blockSize);
             algorithmFPType curentNorm = 0;
-            for (size_t i = startRow; i < finishRow; i++)
+            ReadRows<algorithmFPType, cpu> xr(const_cast<NumericTable *>(dataNT), startRow, finishRow - startRow);
+            DAAL_CHECK_BLOCK_STATUS_THR(xr);
+            const algorithmFPType * const x = xr.get();
+            for (size_t i = 0; i < finishRow - startRow; i++)
             {
                 curentNorm = 0;
 
@@ -343,8 +348,13 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
             const size_t iStartRow      = iBlock * nRowsInBlock;
             const size_t nRowsToProcess = (iBlock == nDataBlocks - 1) ? n - iBlock * nRowsInBlock : nRowsInBlock;
 
-            const algorithmFPType * const xLocal = x + iStartRow * p;
-            const algorithmFPType * const yLocal = y + iStartRow;
+            ReadRows<algorithmFPType, cpu> xr(const_cast<NumericTable *>(dataNT), iStartRow, nRowsToProcess);
+            DAAL_CHECK_BLOCK_STATUS_THR(xr);
+            const algorithmFPType * const xLocal = xr.get();
+
+            ReadRows<algorithmFPType, cpu> yr(const_cast<NumericTable *>(dependentVariablesNT), iStartRow, nRowsToProcess);
+            DAAL_CHECK_BLOCK_STATUS_THR(yr);
+            const algorithmFPType * const yLocal = yr.get();
 
             algorithmFPType * const fPtrLocal = f.get() + iStartRow * nClasses;
 
@@ -524,9 +534,12 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
             const algorithmFPType interceptFactor = (parameter->interceptFlag ? 1 : 0);
             const auto hSize                      = nBeta * nBeta;
             TlsSum<algorithmFPType, cpu> tlsData(hSize);
-
+            SafeStatus safeStat;
             daal::threader_for(n, n, [&](size_t i) {
-                addHessInPt<algorithmFPType, cpu>(tlsData.local(), x + i * p, pp + i * nClasses, interceptFactor, nClasses, nBetaPerClass, nBeta);
+                ReadRows<algorithmFPType, cpu> xr(const_cast<NumericTable *>(dataNT), i, 1);
+                DAAL_CHECK_BLOCK_STATUS_THR(xr);
+                const algorithmFPType * const x = xr.get();
+                addHessInPt<algorithmFPType, cpu>(tlsData.local(), x, pp + i * nClasses, interceptFactor, nClasses, nBetaPerClass, nBeta);
             });
             tlsData.reduceTo(h, hSize);
 
@@ -573,19 +586,28 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::compute(N
 
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, sizeof(algorithmFPType));
 
-        TArrayScalable<algorithmFPType, cpu> aX(n * p);
-        TArrayScalable<algorithmFPType, cpu> aY(n);
-        s |= objective_function::internal::getXY<algorithmFPType, cpu>(dataNT, dependentVariablesNT, ntInd, aX.get(), aY.get(), nRows, n, p);
-        s |= doCompute(aX.get(), aY.get(), nRows, n, p, betaNT, valueNT, hessianNT, gradientNT, nonSmoothTermValue, proximalProjection,
-                       lipschitzConstant, parameter);
+        if (_aX.size() < n * p)
+        {
+            _aX.reset(n * p);
+            DAAL_CHECK_MALLOC(_aX.get());
+        }
+        if (_aY.size() < n)
+        {
+            _aY.reset(n);
+            DAAL_CHECK_MALLOC(_aY.get());
+        }
+
+        s |= objective_function::internal::getXY<algorithmFPType, cpu>(dataNT, dependentVariablesNT, ntInd, _aX.get(), _aY.get(), nRows, n, p);
+        auto internalDataNT = HomogenNumericTableCPU<algorithmFPType, cpu>::create(_aX.get(), p, n);
+        DAAL_CHECK_MALLOC(internalDataNT.get());
+        auto internalDependentVariablesNT = HomogenNumericTableCPU<algorithmFPType, cpu>::create(_aY.get(), 1, n);
+        DAAL_CHECK_MALLOC(internalDependentVariablesNT.get());
+        s |= doCompute(internalDataNT.get(), internalDependentVariablesNT.get(), nRows, n, p, betaNT, valueNT, hessianNT, gradientNT,
+                       nonSmoothTermValue, proximalProjection, lipschitzConstant, parameter);
         return s;
     }
-    ReadRows<algorithmFPType, cpu> xr(dataNT, 0, nRows);
-    ReadRows<algorithmFPType, cpu> yr(dependentVariablesNT, 0, nRows);
-    DAAL_CHECK_BLOCK_STATUS(xr);
-    DAAL_CHECK_BLOCK_STATUS(yr);
 
-    return doCompute(xr.get(), yr.get(), nRows, nRows, p, betaNT, valueNT, hessianNT, gradientNT, nonSmoothTermValue, proximalProjection,
+    return doCompute(dataNT, dependentVariablesNT, nRows, nRows, p, betaNT, valueNT, hessianNT, gradientNT, nonSmoothTermValue, proximalProjection,
                      lipschitzConstant, parameter);
 }
 

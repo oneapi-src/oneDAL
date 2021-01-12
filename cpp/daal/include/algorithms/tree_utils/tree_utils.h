@@ -42,7 +42,7 @@ namespace interface1
 {
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__TREE_UTILS__NODEDESCRIPTOR"></a>
- * \brief %Struct containing base description of node in descision tree
+ * \brief %Struct containing base description of node in decision tree
  */
 struct DAAL_EXPORT NodeDescriptor
 {
@@ -53,7 +53,7 @@ struct DAAL_EXPORT NodeDescriptor
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__TREE_UTILS__SPLITNODEDESCRIPTOR"></a>
- * \brief %Struct containing description of split node in descision tree
+ * \brief %Struct containing description of split node in decision tree
  */
 struct DAAL_EXPORT SplitNodeDescriptor : public NodeDescriptor
 {

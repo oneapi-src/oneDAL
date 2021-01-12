@@ -21,6 +21,21 @@
 
 using namespace oneapi::dal;
 
+TEST(kmeans_init_cpu, throws_if_cluster_count_leads_to_overflow) {
+    constexpr std::int64_t row_count = 8;
+    constexpr std::int64_t column_count = 2;
+
+    const float data[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
+                           -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
+    const auto data_table = homogen_table::wrap(data, row_count, column_count);
+
+    const auto kmeans_desc =
+        kmeans_init::descriptor<float, kmeans_init::method::dense>().set_cluster_count(
+            0x7FFFFFFFFFFFFFFF);
+
+    ASSERT_THROW(compute(kmeans_desc, data_table), range_error);
+}
+
 TEST(kmeans_init_cpu, compute_result) {
     constexpr std::int64_t row_count = 8;
     constexpr std::int64_t column_count = 2;

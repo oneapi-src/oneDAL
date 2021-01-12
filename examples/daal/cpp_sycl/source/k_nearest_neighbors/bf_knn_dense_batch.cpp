@@ -34,8 +34,8 @@ using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 
-using daal::services::internal::SyclExecutionContext;
 using daal::data_management::internal::SyclHomogenNumericTable;
+using daal::services::internal::SyclExecutionContext;
 
 /* Input data set parameters */
 const string trainDatasetFileName = "../data/batch/k_nearest_neighbors_train.csv";
@@ -57,7 +57,6 @@ int main(int argc, char * argv[])
     {
         const auto & nameDevice = deviceSelector.first;
         const auto & device     = deviceSelector.second;
-        if (!device.is_gpu()) continue;
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
@@ -77,7 +76,8 @@ int main(int argc, char * argv[])
 
 void trainModel(bf_knn_classification::training::ResultPtr & trainingResult)
 {
-    /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
+    /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data
+   * from a .csv file */
     FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and labels */
@@ -103,7 +103,8 @@ void trainModel(bf_knn_classification::training::ResultPtr & trainingResult)
 void testModel(bf_knn_classification::training::ResultPtr & trainingResult, classifier::prediction::ResultPtr & predictionResult,
                NumericTablePtr & testGroundTruth)
 {
-    /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
+    /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from
+   * a .csv file */
     FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for testing data and labels */
@@ -120,6 +121,7 @@ void testModel(bf_knn_classification::training::ResultPtr & trainingResult, clas
     /* Pass the testing data set and trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);
     algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
+    algorithm.parameter().nClasses = nClasses;
 
     /* Compute prediction results */
     algorithm.compute();
