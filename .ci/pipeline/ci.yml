@@ -143,10 +143,9 @@ jobs:
       export PATH="$HOME/miniconda/bin:$PATH"
       conda config --set always_yes yes --set changeps1 no
       conda update -q conda
-      conda create -q -y -n CB python=3.7
-      source activate CB
-      conda install -q -c conda-forge cython scikit-learn pandas pyyaml joblib numpydoc jinja2 numpy clang-tools pytest
-      conda install -q -c intel tbb
+      conda create -q -y -n CB python=3.8
+      conda install -q -n CB -c conda-forge cython scikit-learn pandas pyyaml joblib numpydoc jinja2 numpy clang-tools pytest
+      conda install -q -n CB -c intel tbb
     displayName: Create Anaconda environment
   - script: |
       export DPCPPROOT=/opt/intel/oneapi/compiler/latest
