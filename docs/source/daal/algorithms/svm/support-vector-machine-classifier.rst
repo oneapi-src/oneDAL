@@ -297,5 +297,3 @@ equal to :math:`n^2 \cdot \text{sizeof(algorithmFPType)}`. However, avoid
 setting the cache size to a larger value than the number of bytes
 required to store :math:`n^2` data elements because the algorithm
 does not fully utilize the cache in this case.
-
-.. include:: ../../../opt-notice.rst
