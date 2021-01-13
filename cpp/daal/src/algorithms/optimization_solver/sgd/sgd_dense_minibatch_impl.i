@@ -57,6 +57,8 @@ services::Status SGDKernel<algorithmFPType, miniBatch, cpu>::compute(HostAppIfac
                                                                      OptionalArgument * optionalArgument, OptionalArgument * optionalResult,
                                                                      engines::BatchBase & engine)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(SGDKernel(miniBatch).compute);
+
     services::Status s;
     int result                = 0;
     const size_t argumentSize = inputArgument->getNumberOfRows();
