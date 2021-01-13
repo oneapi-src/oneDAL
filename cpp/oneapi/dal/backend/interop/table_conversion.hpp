@@ -23,19 +23,9 @@
 #endif
 
 #include "oneapi/dal/table/detail/table_builder.hpp"
+#include "oneapi/dal/backend/interop/daal_array_owner.hpp"
 
 namespace oneapi::dal::backend::interop {
-
-template <typename T>
-struct daal_array_owner {
-    explicit daal_array_owner(const array<T>& arr) : array_(arr) {}
-
-    void operator()(const void*) {
-        array_.reset();
-    }
-
-    array<T> array_;
-};
 
 template <typename T>
 inline auto allocate_daal_homogen_table(std::int64_t row_count, std::int64_t column_count) {
