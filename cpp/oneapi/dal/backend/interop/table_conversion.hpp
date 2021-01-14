@@ -63,19 +63,19 @@ inline table convert_from_daal_homogen_table(const daal::data_management::Numeri
     return detail::homogen_table_builder{}.reset(arr, row_count, column_count).build();
 }
 
-inline NumericTablePtr wrap_by_host_homogen_adapter(const homogen_table& table) {
+inline daal::data_management::NumericTablePtr wrap_by_host_homogen_adapter(const homogen_table& table) {
     const auto& dtype = table.get_metadata().get_data_type(0);
 
     switch (dtype) {
         case data_type::float32: return host_homogen_table_adapter<float>::create(table);
         case data_type::float64: return host_homogen_table_adapter<double>::create(table);
         case data_type::int32: return host_homogen_table_adapter<std::int32_t>::create(table);
-        default: return NumericTablePtr();
+        default: return daal::data_management::NumericTablePtr();
     }
 }
 
 template <typename Float>
-inline NumericTablePtr copy_to_daal_homogen_table(const table& table) {
+inline daal::data_management::NumericTablePtr copy_to_daal_homogen_table(const table& table) {
     auto rows = row_accessor<const Float>{ table }.pull();
     return convert_to_daal_homogen_table(rows,
                                          table.get_row_count(),
@@ -83,7 +83,7 @@ inline NumericTablePtr copy_to_daal_homogen_table(const table& table) {
 }
 
 template <typename Float>
-inline NumericTablePtr convert_to_daal_table(const homogen_table& table) {
+inline daal::data_management::NumericTablePtr convert_to_daal_table(const homogen_table& table) {
     auto wrapper = wrap_by_host_homogen_adapter(table);
     if (!wrapper) {
         return copy_to_daal_homogen_table<Float>(table);
@@ -94,7 +94,7 @@ inline NumericTablePtr convert_to_daal_table(const homogen_table& table) {
 }
 
 template <typename Float>
-inline NumericTablePtr convert_to_daal_table(const table& table) {
+inline daal::data_management::NumericTablePtr convert_to_daal_table(const table& table) {
     if (table.get_kind() == homogen_table::kind()) {
         const auto& homogen = static_cast<const homogen_table&>(table);
         return convert_to_daal_table<Float>(homogen);

@@ -52,17 +52,12 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
                                dal::detail::integral_cast<std::size_t>(max_iteration_count));
     par.resultsToEvaluate = static_cast<DAAL_UINT64>(daal_kmeans::computeAssignments);
 
-    auto arr_data = row_accessor<const Float>{ data }.pull();
-    auto arr_initial_centroids = row_accessor<const Float>{ trained_model.get_centroids() }.pull();
-
     array<int> arr_labels = array<int>::empty(row_count);
     array<Float> arr_objective_function_value = array<Float>::empty(1);
     array<int> arr_iteration_count = array<int>::empty(1);
 
-    const auto daal_data =
-        interop::convert_to_daal_homogen_table(arr_data, row_count, column_count);
-    const auto daal_initial_centroids =
-        interop::convert_to_daal_homogen_table(arr_initial_centroids, cluster_count, column_count);
+    const auto daal_data = interop::convert_to_daal_table<Float>(data);
+    const auto daal_initial_centroids = interop::convert_to_daal_table<Float>(trained_model.get_centroids());
     const auto daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
     const auto daal_objective_function_value =
         interop::convert_to_daal_homogen_table(arr_objective_function_value, 1, 1);
