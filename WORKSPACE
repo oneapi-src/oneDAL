@@ -66,3 +66,10 @@ http_archive(
     sha256 = "9dc9157a9a1551ec7a7e43daea9a694a0bb5fb8bec81235d8a1e6ef64c716dcb",
     strip_prefix = "googletest-release-1.10.0",
 )
+
+http_archive(
+    name = "catch2",
+    url = "https://github.com/catchorg/Catch2/archive/v2.13.1.tar.gz",
+    sha256 = "36bcc9e6190923961be11e589d747e606515de95f10779e29853cfeae560bd6c",
+    strip_prefix = "Catch2-2.13.1",
+)

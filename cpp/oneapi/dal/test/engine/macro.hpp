@@ -24,9 +24,10 @@
 #define _TS_EXPAND(...)  __VA_ARGS__
 #define _TS_UNPACK(x)    _TS_EXPAND x
 
-#define _TS_CONCAT_2(_1, _2)         _1##_2
-#define _TS_CONCAT_3(_1, _2, _3)     _1##_2##_3
-#define _TS_CONCAT_4(_1, _2, _3, _4) _1##_2##_3##_4
+#define _TS_CONCAT_2(_1, _2)             _1##_2
+#define _TS_CONCAT_3(_1, _2, _3)         _1##_2##_3
+#define _TS_CONCAT_4(_1, _2, _3, _4)     _1##_2##_3##_4
+#define _TS_CONCAT_5(_1, _2, _3, _4, _5) _1##_2##_3##_4##_5
 
 #define _TS_NARGS_GET(_1, _2, _3, _4, _5, N, ...) N
 #define _TS_NARGS(...) _TS_NARGS_GET(__VA_ARGS__, 5, 4, 3, 2, 1, 0)
@@ -49,9 +50,12 @@
     _TS_FOR_EACH_(_TS_NARGS(__VA_ARGS__), ctx, action, __VA_ARGS__)
 
 #define _TS_GET_N1_0(_0) _0
+#define _TS_GET_N1_1(_0) _0
+#define _TS_GET_N1_2(_0) _0
 
 #define _TS_GET_N2_0(_0, _1) _0
 #define _TS_GET_N2_1(_0, _1) _1
+#define _TS_GET_N2_2(_0, _1) _1
 
 #define _TS_GET_N3_0(_0, _1, _2) _0
 #define _TS_GET_N3_1(_0, _1, _2) _1

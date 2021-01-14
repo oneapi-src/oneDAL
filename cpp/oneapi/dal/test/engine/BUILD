@@ -20,21 +20,7 @@ dal_module(
         "@onedal//cpp/oneapi/dal:common",
     ],
     extra_deps = [
-        "@gtest//:gtest",
-    ],
-    testonly = True,
-)
-
-dal_module(
-    name = "main",
-    srcs = [
-        "main.cpp",
-    ],
-    dal_deps = [
-        ":common",
-    ],
-    extra_deps = [
-        "@gtest//:gtest",
+        "@catch2//:catch2",
     ],
     testonly = True,
 )
@@ -46,6 +32,34 @@ dal_module(
     dal_deps = [
         ":common",
         "@onedal//cpp/oneapi/dal:table",
+    ],
+    testonly = True,
+)
+
+dal_module(
+    name = "gtest_main",
+    srcs = [
+        "gtest_main.cpp",
+    ],
+    dal_deps = [
+        ":common",
+    ],
+    extra_deps = [
+        "@gtest//:gtest",
+    ],
+    testonly = True,
+)
+
+dal_module(
+    name = "catch2_main",
+    srcs = [
+        "catch_main.cpp",
+    ],
+    dal_deps = [
+        ":common",
+    ],
+    extra_deps = [
+        "@catch2//:catch2",
     ],
     testonly = True,
 )

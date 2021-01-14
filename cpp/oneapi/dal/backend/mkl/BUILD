@@ -5,21 +5,16 @@ load("@onedal//dev/bazel:dal.bzl",
 )
 
 dal_module(
-    name = "linalg",
+    name = "mkl",
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal:common",
-        "@onedal//cpp/oneapi/dal/table",
-        "@onedal//cpp/oneapi/dal/backend/mkl",
     ],
 )
 
 dal_test_suite(
     name = "tests",
     dpc = False, # TODO: Remove this once DPC++ support
-                 #       is added to `linalg` module
-    srcs = glob(["test/*.cpp"]),
-    dal_deps = [
-        ":linalg",
-    ],
+                 #       is added to `mkl` module
+
 )

@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "gtest/gtest.h"
+#include <catch2/catch.hpp>
 
 #include <tuple>
 #include <memory>
@@ -31,6 +31,34 @@
 
 // Disable clang-format as it dramatically
 // affects redability of macro definitions
+
+// Workaround DPC++ Compiler's warning on unused
+// variable declared by Catch2's TEST_CASE macro
+#ifdef __clang__
+#define _TS_DISABLE_UNUSED_VARIABLE  \
+    _Pragma("clang diagnostic push") \
+    _Pragma("clang diagnostic ignored \"-Wunused-variable\"")
+
+#define _TS_ENABLE_UNUSED_VARIABLE _Pragma("clang diagnostic pop")
+
+#undef TEST_CASE
+#define TEST_CASE(...)                   \
+    _TS_DISABLE_UNUSED_VARIABLE          \
+    INTERNAL_CATCH_TESTCASE(__VA_ARGS__) \
+    _TS_ENABLE_UNUSED_VARIABLE
+
+#undef TEMPLATE_TEST_CASE
+#define TEMPLATE_TEST_CASE(...)                    \
+    _TS_DISABLE_UNUSED_VARIABLE                    \
+    INTERNAL_CATCH_TEMPLATE_TEST_CASE(__VA_ARGS__) \
+    _TS_ENABLE_UNUSED_VARIABLE
+
+#undef TEMPLATE_TEST_CASE_METHOD
+#define TEMPLATE_TEST_CASE_METHOD(...)                    \
+    _TS_DISABLE_UNUSED_VARIABLE                    \
+    INTERNAL_CATCH_TEMPLATE_TEST_CASE_METHOD(__VA_ARGS__) \
+    _TS_ENABLE_UNUSED_VARIABLE
+#endif // __clang__
 
 #ifdef ONEDAL_DATA_PARALLEL
 #define DECLARE_TEST_POLICY(policy_name) oneapi::dal::test::engine::device_test_policy policy_name
@@ -125,7 +153,7 @@ inline auto compute(device_test_policy& policy, Args&&... args) {
 }
 #endif
 
-class policy_fixture : public ::testing::Test {
+class policy_fixture {
 public:
     auto& get_policy() {
         return policy_;

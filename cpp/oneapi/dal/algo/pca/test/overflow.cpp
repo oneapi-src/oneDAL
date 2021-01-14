@@ -52,30 +52,23 @@ public:
     }
 };
 
-TYPED_TEST_SUITE_P(pca_overflow_test);
+#define PCA_OVERFLOW_TEST(name) \
+    TEMPLATE_TEST_CASE_METHOD(pca_overflow_test, name, "[pca][overflow]", \
+        pca::method::cov, pca::method::svd)
 
-TYPED_TEST_P(pca_overflow_test, train_throws_if_component_count_leads_to_overflow) {
+PCA_OVERFLOW_TEST("train throws if component count leads to overflow") {
     const auto pca_desc = this->get_descriptor_with_invalid_component_count();
     const auto train_data = this->get_train_data_with_invalid_column_count();
 
-    ASSERT_THROW(this->train(pca_desc, train_data), range_error);
+    REQUIRE_THROWS_AS(this->train(pca_desc, train_data), range_error);
 }
 
-TYPED_TEST_P(pca_overflow_test, infer_throws_if_component_count_leads_to_overflow) {
+PCA_OVERFLOW_TEST("infer throws if component count leads to overflow") {
     const auto pca_desc = this->get_descriptor_with_invalid_component_count();
     const auto model = this->get_model_with_invalid_component_count();
     const auto infer_data = this->get_infer_data();
 
-    ASSERT_THROW(this->infer(pca_desc, model, infer_data), range_error);
+    REQUIRE_THROWS_AS(this->infer(pca_desc, model, infer_data), range_error);
 }
-
-REGISTER_TYPED_TEST_SUITE_P(pca_overflow_test,
-                            infer_throws_if_component_count_leads_to_overflow,
-                            train_throws_if_component_count_leads_to_overflow);
-
-using pca_methods = testing::Types<pca::method::cov, pca::method::svd>;
-INSTANTIATE_TYPED_TEST_SUITE_P(pca,
-                               pca_overflow_test,
-                               pca_methods);
 
 } // namespace oneapi::dal::pca::test

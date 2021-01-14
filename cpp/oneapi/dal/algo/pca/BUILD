@@ -45,6 +45,7 @@ dal_test_suite(
 
 dal_test_suite(
     name = "tests",
+    framework = "catch2",
     srcs = glob([
         "test/*.cpp",
     ]),

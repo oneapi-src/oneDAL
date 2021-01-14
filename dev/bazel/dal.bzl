@@ -145,8 +145,10 @@ def dal_test(name, hdrs=[], srcs=[],
              host=True, dpc=True, framework="gtest",
              data=[], tags=[], **kwargs):
     # TODO: Refactor this rule once decision on the tests structure is made
-    if not framework in ["gtest"]:
+    if not framework in ["gtest", "catch2"]:
         fail("Unknown test framework '{}' in test rule '{}'".format(framework, name))
+    is_gtest = framework == "gtest"
+    is_catch2 = framework == "catch2"
     module_name = "__" + name
     if not host and dpc:
         module_name = _remove_dpc_suffix(module_name) + "_dpc"
@@ -176,10 +178,13 @@ def dal_test(name, hdrs=[], srcs=[],
             "@config//:release_dynamic_test_link_mode": [
                 "@onedal_release//:onedal_dynamic",
             ],
-        }) + [
-            "@onedal//cpp/oneapi:include_root",
+        }) + ([
+            "@onedal//cpp/oneapi/dal/test/engine:gtest_main",
+        ] if is_gtest else []) + ([
             "@onedal//cpp/oneapi/dal/test/engine:common",
-            "@onedal//cpp/oneapi/dal/test/engine:main",
+            "@onedal//cpp/oneapi/dal/test/engine:catch2_main",
+        ] if is_catch2 else []) + [
+            "@onedal//cpp/oneapi:include_root",
         ],
         extra_deps = _select({
             "@config//:dev_test_link_mode": [

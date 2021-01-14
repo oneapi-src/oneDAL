@@ -72,57 +72,51 @@ private:
     };
 };
 
-TYPED_TEST_SUITE_P(pca_badarg_test);
+#define PCA_BADARG_TEST(name) \
+    TEMPLATE_TEST_CASE_METHOD(pca_badarg_test, name, "[pca][badarg]", \
+        pca::method::cov, pca::method::svd)
 
-TYPED_TEST_P(pca_badarg_test, test_set_component_count) {
-    ASSERT_THROW(this->get_descriptor().set_component_count(-1), domain_error);
-    ASSERT_NO_THROW(this->get_descriptor().set_component_count(0));
+PCA_BADARG_TEST("accepts non-negative component_count") {
+    REQUIRE_NOTHROW(this->get_descriptor().set_component_count(0));
 }
 
-TYPED_TEST_P(pca_badarg_test, throws_if_train_data_is_empty) {
+PCA_BADARG_TEST("throws if component_count is negative") {
+    REQUIRE_THROWS_AS(this->get_descriptor().set_component_count(-1), domain_error);
+}
+
+PCA_BADARG_TEST("throws if train data is empty") {
     const auto pca_desc = this->get_descriptor().set_component_count(2);
 
-    ASSERT_THROW(this->train(pca_desc, homogen_table{}), domain_error);
+    REQUIRE_THROWS_AS(this->train(pca_desc, homogen_table{}), domain_error);
 }
 
-TYPED_TEST_P(pca_badarg_test, throws_if_train_data_columns_less_than_component_count) {
+PCA_BADARG_TEST("throws if train data columns less than component count") {
     const auto pca_desc = this->get_descriptor().set_component_count(4);
 
-    ASSERT_THROW(this->train(pca_desc, this->get_train_data()), invalid_argument);
+    REQUIRE_THROWS_AS(this->train(pca_desc, this->get_train_data()), invalid_argument);
 }
 
-TYPED_TEST_P(pca_badarg_test, throws_if_infer_data_is_empty) {
+PCA_BADARG_TEST("throws if infer data is empty") {
     const auto pca_desc = this->get_descriptor().set_component_count(2);
     const auto model = this->train(pca_desc, this->get_train_data()).get_model();
 
-    ASSERT_THROW(this->infer(pca_desc, model, homogen_table{}), domain_error);
+    REQUIRE_THROWS_AS(this->infer(pca_desc, model, homogen_table{}), domain_error);
 }
 
-TYPED_TEST_P(pca_badarg_test, throws_if_component_count_neq_eigenvector_rows) {
+PCA_BADARG_TEST("throws if component count neq eigenvector_rows") {
     auto pca_desc = this->get_descriptor().set_component_count(2);
     const auto model = this->train(pca_desc, this->get_train_data()).get_model();
     pca_desc.set_component_count(4);
 
-    ASSERT_THROW(this->infer(pca_desc, model, this->get_infer_data()), invalid_argument);
+    REQUIRE_THROWS_AS(this->infer(pca_desc, model, this->get_infer_data()), invalid_argument);
 }
 
-TYPED_TEST_P(pca_badarg_test, throws_if_infer_data_column_count_neq_eigenvector_columns) {
+PCA_BADARG_TEST("throws if infer data column count neq eigenvector columns") {
     const auto pca_desc = this->get_descriptor().set_component_count(2);
     const auto model = this->train(pca_desc, this->get_train_data()).get_model();
     const auto infer_data = this->get_infer_data(4, 4);
 
-    ASSERT_THROW(this->infer(pca_desc, model, infer_data), invalid_argument);
+    REQUIRE_THROWS_AS(this->infer(pca_desc, model, infer_data), invalid_argument);
 }
-
-REGISTER_TYPED_TEST_SUITE_P(pca_badarg_test,
-                            test_set_component_count,
-                            throws_if_train_data_is_empty,
-                            throws_if_train_data_columns_less_than_component_count,
-                            throws_if_infer_data_is_empty,
-                            throws_if_component_count_neq_eigenvector_rows,
-                            throws_if_infer_data_column_count_neq_eigenvector_columns);
-
-using pca_methods = ::testing::Types<pca::method::cov, pca::method::svd>;
-INSTANTIATE_TYPED_TEST_SUITE_P(pca, pca_badarg_test, pca_methods);
 
 } // namespace oneapi::dal::pca::test

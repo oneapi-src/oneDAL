@@ -16,106 +16,129 @@
 
 #include <iostream>
 
-#include "oneapi/dal/test/common.hpp"
+#include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/backend/linalg/dot.hpp"
+#include "oneapi/dal/backend/linalg/io.hpp"
 
 namespace oneapi::dal::backend::linalg::test {
 
-void check_ones_matrix_dot(std::int64_t m, std::int64_t n, std::int64_t k, const matrix<float>& c) {
-    REQUIRE(c.get_shape() == shape{ m, n });
-    c.for_each([&](float x) {
-        REQUIRE(std::int64_t(x) == k);
-    });
+using test_param_t = std::tuple<
+    std::int64_t, std::int64_t, std::int64_t,
+    layout, layout, layout>;
+
+class dot_test : public ::testing::TestWithParam<test_param_t> {
+public:
+    std::int64_t get_m() const {
+        return  std::get<0>(GetParam());
+    }
+
+    std::int64_t get_n() const {
+        return  std::get<1>(GetParam());
+    }
+
+    std::int64_t get_k() const {
+        return  std::get<2>(GetParam());
+    }
+
+    layout get_A_layout() const {
+        return std::get<3>(GetParam());
+    }
+
+    layout get_B_layout() const {
+        return std::get<4>(GetParam());
+    }
+
+    layout get_C_layout() const {
+        return std::get<5>(GetParam());
+    }
+
+    matrix<float> get_A() const {
+        return matrix<float>::ones({ get_m(), get_k() }, get_A_layout());
+    }
+
+    matrix<float> get_At() const {
+        return matrix<float>::ones({ get_k(), get_m() }, get_A_layout()).t();
+    }
+
+    matrix<float> get_B() const {
+        return matrix<float>::ones({ get_k(), get_n() }, get_B_layout());
+    }
+
+    matrix<float> get_Bt() const {
+        return matrix<float>::ones({ get_n(), get_k() }, get_B_layout()).t();
+    }
+
+    matrix<float> get_C() const {
+        return matrix<float>::empty({ get_m(), get_n() }, get_C_layout());
+    }
+
+    void check_ones_matrix_dot(const matrix<float>& c) const {
+        ASSERT_TRUE(c.get_shape() == shape(get_m(), get_n()));
+        const float* c_ptr = c.get_data();
+
+        for (std::int64_t i = 0; i < c.get_count(); i++) {
+            const float x = c_ptr[i];
+            ASSERT_TRUE(std::int64_t(x) == get_k());
+        }
+    }
+
+};
+
+TEST_P(dot_test, check_simple_AxB) {
+    const auto C = dot(get_A(), get_B());
+    check_ones_matrix_dot(C);
 }
 
-TEST_CASE("matrix dot simple", "[linalg][host]") {
-    const std::int64_t m = GENERATE(3, 6);
-    const std::int64_t n = GENERATE(4, 7);
-    const std::int64_t k = GENERATE(5, 8);
-    const layout l = GENERATE(layout::row_major, layout::column_major);
-
-    const auto stringify_params = [&]() {
-        return fmt::format("m = {}, n = {}, k = {}, l = {}", m, n, k, l);
-    };
-
-    SECTION("A x B, " + stringify_params()) {
-        const auto A = matrix<float>::ones({ m, k }, l);
-        const auto B = matrix<float>::ones({ k, n }, l);
-        const auto C = dot(A, B);
-        check_ones_matrix_dot(m, n, k, C);
-    }
-
-    SECTION("A^T x B, " + stringify_params()) {
-        const auto A = matrix<float>::ones({ k, m }, l);
-        const auto B = matrix<float>::ones({ k, n }, l);
-        const auto C = dot(A.T(), B);
-        check_ones_matrix_dot(m, n, k, C);
-    }
-
-    SECTION("A x B^T, " + stringify_params()) {
-        const auto A = matrix<float>::ones({ m, k }, l);
-        const auto B = matrix<float>::ones({ n, k }, l);
-        const auto C = dot(A, B.T());
-        check_ones_matrix_dot(m, n, k, C);
-    }
-
-    SECTION("A^T x B^T, " + stringify_params()) {
-        const auto A = matrix<float>::ones({ k, m }, l);
-        const auto B = matrix<float>::ones({ n, k }, l);
-        const auto C = dot(A.T(), B.T());
-        check_ones_matrix_dot(m, n, k, C);
-    }
+TEST_P(dot_test, check_simple_AtxB) {
+    const auto C = dot(get_At(), get_B());
+    check_ones_matrix_dot(C);
 }
 
-TEST_CASE("matrix dot in-place", "[linalg][host]") {
-    const std::int64_t m = GENERATE(3, 6);
-    const std::int64_t n = GENERATE(4, 7);
-    const std::int64_t k = GENERATE(5, 8);
-    const layout a_l = GENERATE(layout::row_major, layout::column_major);
-    const layout b_l = GENERATE(layout::row_major, layout::column_major);
-    const layout c_l = GENERATE(layout::row_major, layout::column_major);
-
-    const auto stringify_params = [&]() {
-        return fmt::format("m = {}, n = {}, k = {}, a_l = {}, b_l = {}, c_l = {}",
-                           m,
-                           n,
-                           k,
-                           a_l,
-                           b_l,
-                           c_l);
-    };
-
-    SECTION("A x B, " + stringify_params()) {
-        const auto A = matrix<float>::ones({ m, k }, a_l);
-        const auto B = matrix<float>::ones({ k, n }, b_l);
-        auto C = matrix<float>::empty({ m, n }, c_l);
-        dot(A, B, C);
-        check_ones_matrix_dot(m, n, k, C);
-    }
-
-    SECTION("A^T x B, " + stringify_params()) {
-        const auto A = matrix<float>::ones({ k, m }, a_l);
-        const auto B = matrix<float>::ones({ k, n }, b_l);
-        auto C = matrix<float>::empty({ m, n }, c_l);
-        dot(A.T(), B, C);
-        check_ones_matrix_dot(m, n, k, C);
-    }
-
-    SECTION("A x B^T, " + stringify_params()) {
-        const auto A = matrix<float>::ones({ m, k }, a_l);
-        const auto B = matrix<float>::ones({ n, k }, b_l);
-        auto C = matrix<float>::empty({ m, n }, c_l);
-        dot(A, B.T(), C);
-        check_ones_matrix_dot(m, n, k, C);
-    }
-
-    SECTION("A^T x B^T, " + stringify_params()) {
-        const auto A = matrix<float>::ones({ k, m }, a_l);
-        const auto B = matrix<float>::ones({ n, k }, b_l);
-        auto C = matrix<float>::empty({ m, n }, c_l);
-        dot(A.T(), B.T(), C);
-        check_ones_matrix_dot(m, n, k, C);
-    }
+TEST_P(dot_test, check_simple_AxBt) {
+    const auto C = dot(get_A(), get_Bt());
+    check_ones_matrix_dot(C);
 }
+
+TEST_P(dot_test, check_simple_AtxBt) {
+    const auto C = dot(get_At(), get_Bt());
+    check_ones_matrix_dot(C);
+}
+
+TEST_P(dot_test, check_inplace_AxB) {
+    auto C = get_C();
+    dot(get_A(), get_B(), C);
+    check_ones_matrix_dot(C);
+}
+
+TEST_P(dot_test, check_inplace_AtxB) {
+    auto C = get_C();
+    dot(get_At(), get_B(), C);
+    check_ones_matrix_dot(C);
+}
+
+TEST_P(dot_test, check_inplace_AxBt) {
+    auto C = get_C();
+    dot(get_A(), get_Bt(), C);
+    check_ones_matrix_dot(C);
+}
+
+TEST_P(dot_test, check_inplace_AtxBt) {
+    auto C = get_C();
+    dot(get_At(), get_Bt(), C);
+    check_ones_matrix_dot(C);
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    dot_params,
+    dot_test,
+    ::testing::Combine(
+        ::testing::Values(3, 4, 5),
+        ::testing::Values(4, 5, 6),
+        ::testing::Values(5, 6, 7),
+        ::testing::Values(layout::row_major, layout::column_major),
+        ::testing::Values(layout::row_major, layout::column_major),
+        ::testing::Values(layout::row_major, layout::column_major)
+    )
+);
 
 } // namespace oneapi::dal::backend::linalg::test
