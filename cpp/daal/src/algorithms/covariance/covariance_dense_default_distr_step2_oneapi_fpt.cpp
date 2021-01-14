@@ -1,6 +1,6 @@
 /* file: covariance_dense_default_distr_step2_oneapi_fpt.cpp */
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
