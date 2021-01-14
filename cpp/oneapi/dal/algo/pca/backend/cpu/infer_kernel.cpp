@@ -43,7 +43,6 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                  const table& data,
                                  const model_t& model) {
     const std::int64_t row_count = data.get_row_count();
-    const std::int64_t column_count = data.get_column_count();
     const std::int64_t component_count = desc.get_component_count();
 
     dal::detail::check_mul_overflow(row_count, component_count);

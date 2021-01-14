@@ -43,8 +43,6 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const model<Task>& trained_model,
                                            const table& data) {
     const int64_t row_count = data.get_row_count();
-    const int64_t column_count = data.get_column_count();
-
     const int64_t cluster_count = desc.get_cluster_count();
     const int64_t max_iteration_count = 0;
 

@@ -56,7 +56,6 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                  const model_t& trained_model,
                                  const table& data) {
     const int64_t row_count = data.get_row_count();
-    const int64_t column_count = data.get_column_count();
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
 
