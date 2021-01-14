@@ -26,7 +26,9 @@
 #include <CL/sycl.hpp>
 
 #include "services/error_handling.h"
-#include "services/internal/sycl/level_zero_common.h"
+#ifndef DAAL_DISABLE_LEVEL_ZERO
+    #include "services/internal/sycl/level_zero_common.h"
+#endif
 
 #define DAAL_CHECK_OPENCL(cl_error, status)                   \
     {                                                         \
