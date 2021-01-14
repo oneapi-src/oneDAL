@@ -23,7 +23,7 @@ Decision Forest Classification and Regression (DF)
 ==================================================
 
 Decision Forest (DF) :capterm:`classification` and :capterm:`regression` algorithms are based on an ensemble of 
-tree-structured classifiers, which are known as :ref:`decision trees <decision_tree>`. Decision forest is built 
+tree-structured classifiers, which are known as :ref:`decision trees <dt>`. Decision forest is built 
 using the general technique of bagging, a bootstrap aggregation, and a random choice of features.
 For more details, see [Breiman84]_ and [Breiman2001]_.
 
@@ -65,7 +65,7 @@ size :math:`p`, their non-negative observation weights :math:`W=\{w_1,\ldots,w_n
 
 the problem is to build a decision forest classification or regression model.
 
-Library uses the following algorithmic framework for the training
+The library uses the following algorithmic framework for the training
 stage. Let :math:`S = (X, Y)` be the set of observations. Given a positive
 integer parameters, such as the number of trees :math:`B`, the bootstrap
 parameter :math:`N = f*n`, where :math:`f` is a fraction of observations used for
@@ -75,10 +75,10 @@ algorithm does the following for :math:`b = 1, \ldots ,B`:
 - Selects randomly with replacement the set :math:`D_b` of :math:`N`
   vectors from the set :math:`S`. The set :math:`D_b` is called a
   *bootstrap* set.
-- Trains a :ref:`decision tree <decision_tree>` classifier :math:`T_b` on :math:`D_b`
+- Trains a :ref:`decision tree <dt>` classifier :math:`T_b` on :math:`D_b`
   using parameter :math:`m` for each tree.
 
-:ref:`Decision tree <decision_tree>` :math:`T` is trained using the training set :math:`D` of size :math:`N`.
+:ref:`Decision tree <dt>` :math:`T` is trained using the training set :math:`D` of size :math:`N`.
 Each node :math:`t` in the tree corresponds to the subset :math:`D_t` of
 the training set :math:`D`, with the root node being :math:`D` itself. Its
 internal nodes :math:`t` represent a binary test (split) dividing their
@@ -197,7 +197,7 @@ Maximal number of leaf nodes defines the strategy of tree building:
 Depth-first Strategy
 ~~~~~~~~~~~~~~~~~~~~
 
-If maximal number of leaf nodes equals zero, a :ref:`decision tree <decision_tree>` is built using depth-first strategy.
+If maximal number of leaf nodes equals zero, a :ref:`decision tree <dt>` is built using depth-first strategy.
 In each terminal node :math:`t`, the following recursive procedure is applied: 
 
 - Stop if the termination criteria are met.
@@ -215,7 +215,7 @@ In each terminal node :math:`t`, the following recursive procedure is applied:
 Best-first Strategy
 ~~~~~~~~~~~~~~~~~~~
 
-If maximal number of leaf nodes is positive, a :ref:`decision tree <decision_tree>` is built using best-first strategy.
+If maximal number of leaf nodes is positive, a :ref:`decision tree <dt>` is built using best-first strategy.
 In each terminal node :math:`t`, the following steps are applied:
 
 - Stop if the termination criteria are met.
