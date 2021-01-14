@@ -43,7 +43,8 @@ public:
                std::size_t row_begin_index,
                std::size_t row_count) {
         const auto bd_row_count = detail::integral_cast<std::int64_t>(block.getNumberOfRows());
-        const auto bd_column_count = detail::integral_cast<std::int64_t>(block.getNumberOfColumns());
+        const auto bd_column_count =
+            detail::integral_cast<std::int64_t>(block.getNumberOfColumns());
 
         this->row_begin_index = detail::integral_cast<std::int64_t>(row_begin_index);
         this->row_count = detail::integral_cast<std::int64_t>(row_count);

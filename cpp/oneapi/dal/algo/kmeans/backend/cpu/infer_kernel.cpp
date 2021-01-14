@@ -57,7 +57,8 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
     array<int> arr_iteration_count = array<int>::empty(1);
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
-    const auto daal_initial_centroids = interop::convert_to_daal_table<Float>(trained_model.get_centroids());
+    const auto daal_initial_centroids =
+        interop::convert_to_daal_table<Float>(trained_model.get_centroids());
     const auto daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
     const auto daal_objective_function_value =
         interop::convert_to_daal_homogen_table(arr_objective_function_value, 1, 1);

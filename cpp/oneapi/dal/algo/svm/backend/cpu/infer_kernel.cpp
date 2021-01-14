@@ -51,7 +51,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     const std::int64_t support_vector_count = trained_model.get_support_vector_count();
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
-    const auto daal_support_vectors = interop::convert_to_daal_table<Float>(trained_model.get_support_vectors());
+    const auto daal_support_vectors =
+        interop::convert_to_daal_table<Float>(trained_model.get_support_vectors());
     const auto daal_coeffs = interop::convert_to_daal_table<Float>(trained_model.get_coeffs());
 
     auto daal_model = daal_model_builder{}

@@ -296,7 +296,7 @@ public:
 
         if (_rwFlag != rwFlag)
         {
-            _rwFlag     = rwFlag;
+            _rwFlag = rwFlag;
             _hostSharedPtr.reset(); // need to reallocate cached pointer when rwFlag is changed
         }
     }

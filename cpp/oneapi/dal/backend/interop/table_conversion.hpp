@@ -63,7 +63,8 @@ inline table convert_from_daal_homogen_table(const daal::data_management::Numeri
     return detail::homogen_table_builder{}.reset(arr, row_count, column_count).build();
 }
 
-inline daal::data_management::NumericTablePtr wrap_by_host_homogen_adapter(const homogen_table& table) {
+inline daal::data_management::NumericTablePtr wrap_by_host_homogen_adapter(
+    const homogen_table& table) {
     const auto& dtype = table.get_metadata().get_data_type(0);
 
     switch (dtype) {
@@ -77,9 +78,7 @@ inline daal::data_management::NumericTablePtr wrap_by_host_homogen_adapter(const
 template <typename Float>
 inline daal::data_management::NumericTablePtr copy_to_daal_homogen_table(const table& table) {
     auto rows = row_accessor<const Float>{ table }.pull();
-    return convert_to_daal_homogen_table(rows,
-                                         table.get_row_count(),
-                                         table.get_column_count());
+    return convert_to_daal_homogen_table(rows, table.get_row_count(), table.get_column_count());
 }
 
 template <typename Float>
@@ -103,7 +102,6 @@ inline daal::data_management::NumericTablePtr convert_to_daal_table(const table&
         return copy_to_daal_homogen_table<Float>(table);
     }
 }
-
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename T>

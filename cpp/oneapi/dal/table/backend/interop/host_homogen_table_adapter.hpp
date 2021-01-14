@@ -184,7 +184,9 @@ private:
                 const std::int64_t requested_element_count = info.row_count * column_count;
 
                 if (block_ptr != nullptr && info.bd_element_count >= requested_element_count) {
-                    values.reset(block_ptr, info.bd_element_count, detail::empty_delete<BlockData>());
+                    values.reset(block_ptr,
+                                 info.bd_element_count,
+                                 detail::empty_delete<BlockData>());
                 }
 
                 const row_accessor<const BlockData> acc{ original_table_ };
@@ -236,7 +238,9 @@ private:
                 array<BlockData> values;
                 auto block_ptr = block.getBlockPtr();
                 if (block_ptr != nullptr && info.bd_element_count >= info.row_count) {
-                    values.reset(block_ptr, info.bd_element_count, detail::empty_delete<BlockData>());
+                    values.reset(block_ptr,
+                                 info.bd_element_count,
+                                 detail::empty_delete<BlockData>());
                 }
 
                 const column_accessor<const BlockData> acc{ original_table_ };
@@ -292,12 +296,13 @@ private:
     host_homogen_table_adapter(const homogen_table& table, status_t& stat)
             // The following const_cast is safe only when this class is used for read-only
             // operations. Use on write leads to undefined behaviour.
-            : base(daal::data_management::DictionaryIface::equal,
-                   ptr_data_t{ const_cast<Data*>(table.get_data<Data>()), daal_object_owner(table) },
-                   table.get_column_count(),
-                   table.get_row_count(),
-                   stat),
-             is_rowmajor_(table.get_data_layout() == data_layout::row_major) {
+            : base(
+                  daal::data_management::DictionaryIface::equal,
+                  ptr_data_t{ const_cast<Data*>(table.get_data<Data>()), daal_object_owner(table) },
+                  table.get_column_count(),
+                  table.get_row_count(),
+                  stat),
+              is_rowmajor_(table.get_data_layout() == data_layout::row_major) {
         if (stat.ok() == false) {
             return;
         }
