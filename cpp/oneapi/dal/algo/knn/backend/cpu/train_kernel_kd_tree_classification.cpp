@@ -55,7 +55,7 @@ static train_result<task::classification> call_daal_kernel(const context_cpu& ct
     const auto daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
 
     const std::int64_t dummy_seed = 777;
-    const auto data_use_in_model = daal_knn::doNotUse;
+    const auto data_use_in_model = daal_knn::doUse;
     daal_knn::Parameter daal_parameter(
         dal::detail::integral_cast<std::size_t>(desc.get_class_count()),
         dal::detail::integral_cast<std::size_t>(desc.get_neighbor_count()),
