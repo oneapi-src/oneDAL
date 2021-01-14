@@ -22,7 +22,7 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/table/column_accessor.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
-#include "oneapi/dal/backend/interop/daal_array_owner.hpp" //create
+#include "oneapi/dal/backend/interop/daal_object_owner.hpp"
 #include "oneapi/dal/table/backend/interop/block_info.hpp"
 
 namespace oneapi::dal::backend::interop {
@@ -184,7 +184,7 @@ private:
                 const std::int64_t requested_element_count = info.row_count * column_count;
 
                 if (block_ptr != nullptr && info.bd_element_count >= requested_element_count) {
-                    values.reset(block_ptr, info.bd_element_count, dal::empty_delete<BlockData>());
+                    values.reset(block_ptr, info.bd_element_count, detail::empty_delete<BlockData>());
                 }
 
                 const row_accessor<const BlockData> acc{ original_table_ };
@@ -235,8 +235,8 @@ private:
             try {
                 array<BlockData> values;
                 auto block_ptr = block.getBlockPtr();
-                if (block_ptr != nullptr && info.size >= info.row_count) {
-                    values.reset(block_ptr, info.size, dal::empty_delete<BlockData>());
+                if (block_ptr != nullptr && info.bd_element_count >= info.row_count) {
+                    values.reset(block_ptr, info.bd_element_count, detail::empty_delete<BlockData>());
                 }
 
                 const column_accessor<const BlockData> acc{ original_table_ };
@@ -284,7 +284,7 @@ private:
         if (block.getBlockPtr() != acc.pull(values, std::forward<Args>(args)...)) {
             auto raw_ptr = const_cast<BlockData*>(values.get_data());
             auto data_shared =
-                daal::services::SharedPtr<BlockData>(raw_ptr, daal_array_owner(values));
+                daal::services::SharedPtr<BlockData>(raw_ptr, daal_object_owner(values));
             block.setSharedPtr(data_shared, column_count, row_count);
         }
     }
@@ -293,10 +293,7 @@ private:
             // The following const_cast is safe only when this class is used for read-only
             // operations. Use on write leads to undefined behaviour.
             : base(daal::data_management::DictionaryIface::equal,
-                   ptr_data_t{ const_cast<Data*>(table.get_data<Data>()),
-                               [data_owner = homogen_table{ table }](auto ptr) mutable {
-                                   data_owner = homogen_table{};
-                               } },
+                   ptr_data_t{ const_cast<Data*>(table.get_data<Data>()), daal_object_owner(table) },
                    table.get_column_count(),
                    table.get_row_count(),
                    stat),

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,19 +16,17 @@
 
 #pragma once
 
-#include "oneapi/dal/array.hpp"
-
 namespace oneapi::dal::backend::interop {
 
 template <typename T>
-struct daal_array_owner {
-    explicit daal_array_owner(const array<T>& arr) : array_(arr) {}
+struct daal_object_owner {
+    explicit daal_object_owner(const T& obj) : obj_(obj) {}
 
     void operator()(const void*) {
-        array_.reset();
+        obj_ = T{};
     }
 
-    array<T> array_;
+    T obj_;
 };
 
 } // namespace oneapi::dal::backend::interop

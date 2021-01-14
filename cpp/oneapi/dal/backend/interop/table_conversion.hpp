@@ -16,14 +16,12 @@
 
 #pragma once
 
-#include <daal/include/data_management/data/homogen_numeric_table.h>
-
 #ifdef ONEDAL_DATA_PARALLEL
 #include <daal/include/data_management/data/internal/numeric_table_sycl_homogen.h>
 #endif
 
 #include "oneapi/dal/table/detail/table_builder.hpp"
-#include "oneapi/dal/backend/interop/daal_array_owner.hpp"
+#include "oneapi/dal/table/backend/interop/host_homogen_table_adapter.hpp"
 
 namespace oneapi::dal::backend::interop {
 
@@ -43,7 +41,7 @@ inline auto convert_to_daal_homogen_table(array<T>& data,
         return daal::services::SharedPtr<daal::data_management::HomogenNumericTable<T>>();
     data.need_mutable_data();
     const auto daal_data =
-        daal::services::SharedPtr<T>(data.get_mutable_data(), daal_array_owner<T>{ data });
+        daal::services::SharedPtr<T>(data.get_mutable_data(), daal_object_owner{ data });
 
     return daal::data_management::HomogenNumericTable<T>::create(
         daal_data,
@@ -65,6 +63,48 @@ inline table convert_from_daal_homogen_table(const daal::data_management::Numeri
     return detail::homogen_table_builder{}.reset(arr, row_count, column_count).build();
 }
 
+inline NumericTablePtr wrap_by_host_homogen_adapter(const homogen_table& table) {
+    const auto& dtype = table.get_metadata().get_data_type(0);
+
+    switch (dtype) {
+        case data_type::float32: return host_homogen_table_adapter<float>::create(table);
+        case data_type::float64: return host_homogen_table_adapter<double>::create(table);
+        case data_type::int32: return host_homogen_table_adapter<std::int32_t>::create(table);
+        default: return NumericTablePtr();
+    }
+}
+
+template <typename Float>
+inline NumericTablePtr copy_to_daal_homogen_table(const table& table) {
+    auto rows = row_accessor<const Float>{ table }.pull();
+    return convert_to_daal_homogen_table(rows,
+                                         table.get_row_count(),
+                                         table.get_column_count());
+}
+
+template <typename Float>
+inline NumericTablePtr convert_to_daal_table(const homogen_table& table) {
+    auto wrapper = wrap_by_host_homogen_adapter(table);
+    if (!wrapper) {
+        return copy_to_daal_homogen_table<Float>(table);
+    }
+    else {
+        return wrapper;
+    }
+}
+
+template <typename Float>
+inline NumericTablePtr convert_to_daal_table(const table& table) {
+    if (table.get_kind() == homogen_table::kind()) {
+        const auto& homogen = static_cast<const homogen_table&>(table);
+        return convert_to_daal_table<Float>(homogen);
+    }
+    else {
+        return copy_to_daal_homogen_table<Float>(table);
+    }
+}
+
+
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename T>
 inline auto convert_to_daal_sycl_homogen_table(sycl::queue& queue,
@@ -73,7 +113,7 @@ inline auto convert_to_daal_sycl_homogen_table(sycl::queue& queue,
                                                std::int64_t column_count) {
     data.need_mutable_data(queue);
     const auto daal_data =
-        daal::services::SharedPtr<T>(data.get_mutable_data(), daal_array_owner<T>{ data });
+        daal::services::SharedPtr<T>(data.get_mutable_data(), daal_object_owner{ data });
 
     using daal::data_management::internal::SyclHomogenNumericTable;
     return SyclHomogenNumericTable<T>::create(daal_data,
