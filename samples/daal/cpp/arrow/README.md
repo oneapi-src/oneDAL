@@ -140,7 +140,7 @@ Intel, and the Intel logo are trademarks of Intel Corporation in the U.S. and/or
 
 \*Other names and brands may be claimed as the property of others.
 
-&copy; Copyright 2021-2021, Intel Corporation
+&copy; Copyright 2020-2021, Intel Corporation
 
 <!-- Links -->
 [arrow_repo]: https://github.com/apache/arrow
