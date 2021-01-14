@@ -19,7 +19,7 @@
 #include "example_util/output_helpers_graph.hpp"
 #include "example_util/utils.hpp"
 #include "oneapi/dal/algo/jaccard.hpp"
-#include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
+#include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
 #include "oneapi/dal/io/graph_csv_data_source.hpp"
 #include "oneapi/dal/io/load_graph.hpp"
 #include "oneapi/dal/table/common.hpp"

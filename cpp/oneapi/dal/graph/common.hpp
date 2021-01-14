@@ -1,4 +1,4 @@
-/* file: graph_common.hpp */
+/* file: common.hpp */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -22,7 +22,7 @@
 
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
-#include "oneapi/dal/graph/detail/graph_container.hpp"
+#include "oneapi/dal/graph/detail/container.hpp"
 
 namespace oneapi::dal::preview {
 

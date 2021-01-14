@@ -22,7 +22,7 @@
 
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
-#include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
+#include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
 #include "oneapi/dal/table/common.hpp"
 
 namespace oneapi::dal::preview {
@@ -42,7 +42,7 @@ template <typename Graph>
 class ONEDAL_EXPORT vertex_similarity_input {
 public:
     static_assert(detail::is_valid_graph<Graph>,
-                  "Only undirected_adjacency_array_graph is supported.");
+                  "Only undirected_adjacency_vector_graph is supported.");
     /// Constructs the algorithm input initialized with the graph and the caching builder.
     ///
     /// @param [in]   graph  The input graph

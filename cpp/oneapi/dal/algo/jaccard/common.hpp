@@ -16,7 +16,7 @@
 
 #pragma once
 #include "oneapi/dal/detail/common.hpp"
-#include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
+#include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
 #include "oneapi/dal/table/common.hpp"
 
 namespace oneapi::dal::preview {
@@ -119,11 +119,11 @@ namespace detail {
 template <typename Graph>
 constexpr bool is_valid_graph =
     dal::detail::is_one_of_v<Graph,
-                             undirected_adjacency_array_graph<vertex_user_value_type<Graph>,
-                                                              edge_user_value_type<Graph>,
-                                                              graph_user_value_type<Graph>,
-                                                              vertex_type<Graph>,
-                                                              graph_allocator<Graph>>>;
+                             undirected_adjacency_vector_graph<vertex_user_value_type<Graph>,
+                                                               edge_user_value_type<Graph>,
+                                                               graph_user_value_type<Graph>,
+                                                               vertex_type<Graph>,
+                                                               graph_allocator<Graph>>>;
 
 } // namespace detail
 

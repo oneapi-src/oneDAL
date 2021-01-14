@@ -14,9 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/graph/detail/undirected_adjacency_array_graph_impl.hpp"
-
-#include <iostream>
+#include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 
 namespace oneapi::dal::preview::detail {
 

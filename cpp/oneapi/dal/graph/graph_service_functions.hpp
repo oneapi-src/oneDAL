@@ -22,7 +22,7 @@
 
 #include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/graph/detail/graph_service_functions_impl.hpp"
-#include "oneapi/dal/graph/graph_common.hpp"
+#include "oneapi/dal/graph/common.hpp"
 
 namespace oneapi::dal::preview {
 

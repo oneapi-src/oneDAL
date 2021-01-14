@@ -22,7 +22,7 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/algo/jaccard/detail/vertex_similarity_ops.hpp"
 
-#include "oneapi/dal/graph/detail/undirected_adjacency_array_graph_impl.hpp"
+#include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 
 namespace oneapi::dal::preview::jaccard::detail {
 

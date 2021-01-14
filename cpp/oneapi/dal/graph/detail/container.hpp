@@ -17,14 +17,15 @@
 #pragma once
 
 #include <vector>
+
 #include "oneapi/dal/array.hpp"
 
 namespace oneapi::dal::preview::detail {
 
-template <class T>
-using graph_container = dal::v1::array<T>;
+template <typename T>
+using container = dal::v1::array<T>;
 
-template <class T>
+template <typename T>
 using edge_list_container = std::vector<T>;
 
 } // namespace oneapi::dal::preview::detail

@@ -1,3 +1,4 @@
+/* file: undirected_adjacency_vector_graph.hpp */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -19,10 +20,10 @@
 
 #pragma once
 
-#include "oneapi/dal/graph/detail/graph_container.hpp"
-#include "oneapi/dal/graph/detail/undirected_adjacency_array_graph_impl.hpp"
-#include "oneapi/dal/graph/detail/graph_service_functions_impl.hpp"
-#include "oneapi/dal/graph/graph_common.hpp"
+#include "oneapi/dal/graph/common.hpp"
+#include "oneapi/dal/graph/detail/container.hpp"
+#include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
+#include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_service.hpp"
 
 namespace oneapi::dal::preview {
 
@@ -42,41 +43,41 @@ template <typename VertexValue = empty_value,
           typename GraphValue = empty_value,
           typename IndexType = std::int32_t,
           typename Allocator = std::allocator<char>>
-class ONEDAL_EXPORT undirected_adjacency_array_graph {
+class ONEDAL_EXPORT undirected_adjacency_vector_graph {
 public:
     using graph_type =
-        undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>;
+        undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>;
 
     static_assert(std::is_integral_v<IndexType> && std::is_signed_v<IndexType>,
                   "Use signed integer for vertex index type");
 
-    /// Constructs an empty undirected_adjacency_array_graph
-    undirected_adjacency_array_graph();
+    /// Constructs an empty undirected_adjacency_vector_graph
+    undirected_adjacency_vector_graph();
 
-    /// Constructs an empty undirected_adjacency_array_graph
-    virtual ~undirected_adjacency_array_graph() = default;
+    /// Constructs an empty undirected_adjacency_vector_graph
+    virtual ~undirected_adjacency_vector_graph() = default;
 
-    /// Move constructor for undirected_adjacency_array_graph
-    undirected_adjacency_array_graph(undirected_adjacency_array_graph &&graph);
+    /// Move constructor for undirected_adjacency_vector_graph
+    undirected_adjacency_vector_graph(undirected_adjacency_vector_graph &&graph);
 
-    /// Copy constructor for undirected_adjacency_array_graph
-    undirected_adjacency_array_graph(const undirected_adjacency_array_graph &graph);
+    /// Copy constructor for undirected_adjacency_vector_graph
+    undirected_adjacency_vector_graph(const undirected_adjacency_vector_graph &graph);
 
-    /// Constructs an empty undirected_adjacency_array_graph with specified graph properties
+    /// Constructs an empty undirected_adjacency_vector_graph with specified graph properties
     /// and allocator
-    undirected_adjacency_array_graph(const GraphValue &graph_user_value,
-                                     Allocator allocator = Allocator()){};
+    undirected_adjacency_vector_graph(const GraphValue &graph_user_value,
+                                      Allocator allocator = Allocator()){};
 
-    /// Constructs an empty undirected_adjacency_array_graph with move graph properties and
+    /// Constructs an empty undirected_adjacency_vector_graph with move graph properties and
     /// allocator
-    undirected_adjacency_array_graph(graph_user_value_type<graph_type> &&graph_user_value,
-                                     Allocator allocator = Allocator()){};
+    undirected_adjacency_vector_graph(graph_user_value_type<graph_type> &&graph_user_value,
+                                      Allocator allocator = Allocator()){};
 
-    /// Copy operator for undirected_adjacency_array_graph
-    undirected_adjacency_array_graph &operator=(const undirected_adjacency_array_graph &graph);
+    /// Copy operator for undirected_adjacency_vector_graph
+    undirected_adjacency_vector_graph &operator=(const undirected_adjacency_vector_graph &graph);
 
-    /// Move operator for undirected_adjacency_array_graph
-    undirected_adjacency_array_graph &operator=(undirected_adjacency_array_graph &&graph);
+    /// Move operator for undirected_adjacency_vector_graph
+    undirected_adjacency_vector_graph &operator=(undirected_adjacency_vector_graph &&graph);
 
 private:
     using pimpl = dal::detail::pimpl<typename graph_traits<graph_type>::impl_type>;
@@ -92,14 +93,14 @@ template <typename VertexValue,
           typename IndexType,
           typename Allocator>
 struct graph_traits<
-    undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>> {
+    undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>> {
     using graph_type =
-        undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>;
-    using impl_type = detail::undirected_adjacency_array_graph_impl<VertexValue,
-                                                                    EdgeValue,
-                                                                    GraphValue,
-                                                                    IndexType,
-                                                                    Allocator>;
+        undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>;
+    using impl_type = detail::undirected_adjacency_vector_graph_impl<VertexValue,
+                                                                     EdgeValue,
+                                                                     GraphValue,
+                                                                     IndexType,
+                                                                     Allocator>;
     using allocator_type = Allocator;
 
     // graph weight types
@@ -152,22 +153,22 @@ template <typename VertexValue,
           typename GraphValue,
           typename IndexType,
           typename Allocator>
-undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::
-    undirected_adjacency_array_graph()
-        : impl_(new detail::undirected_adjacency_array_graph_impl<VertexValue,
-                                                                  EdgeValue,
-                                                                  GraphValue,
-                                                                  IndexType,
-                                                                  Allocator>) {}
+undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::
+    undirected_adjacency_vector_graph()
+        : impl_(new detail::undirected_adjacency_vector_graph_impl<VertexValue,
+                                                                   EdgeValue,
+                                                                   GraphValue,
+                                                                   IndexType,
+                                                                   Allocator>) {}
 
 template <typename VertexValue,
           typename EdgeValue,
           typename GraphValue,
           typename IndexType,
           typename Allocator>
-undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::
-    undirected_adjacency_array_graph(const undirected_adjacency_array_graph &graph)
-        : undirected_adjacency_array_graph() {
+undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::
+    undirected_adjacency_vector_graph(const undirected_adjacency_vector_graph &graph)
+        : undirected_adjacency_vector_graph() {
     const auto &layout = dal::detail::get_impl(graph).get_topology();
 
     impl_->get_topology()._vertex_count = layout._vertex_count;
@@ -183,9 +184,9 @@ template <typename VertexValue,
           typename GraphValue,
           typename IndexType,
           typename Allocator>
-undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::
-    undirected_adjacency_array_graph(undirected_adjacency_array_graph &&graph)
-        : undirected_adjacency_array_graph() {
+undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::
+    undirected_adjacency_vector_graph(undirected_adjacency_vector_graph &&graph)
+        : undirected_adjacency_vector_graph() {
     auto &layout = dal::detail::get_impl(graph).get_topology();
 
     impl_->get_topology()._vertex_count = layout._vertex_count;
@@ -204,9 +205,9 @@ template <typename VertexValue,
           typename GraphValue,
           typename IndexType,
           typename Allocator>
-undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>
-    &undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::
-    operator=(const undirected_adjacency_array_graph &graph) {
+undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>
+    &undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::
+    operator=(const undirected_adjacency_vector_graph &graph) {
     if (&graph != this) {
         const auto &layout = dal::detail::get_impl(graph).get_topology();
 
@@ -225,9 +226,9 @@ template <typename VertexValue,
           typename GraphValue,
           typename IndexType,
           typename Allocator>
-undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>
-    &undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::
-    operator=(undirected_adjacency_array_graph &&graph) {
+undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>
+    &undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::
+    operator=(undirected_adjacency_vector_graph &&graph) {
     if (&graph != this) {
         auto &layout = dal::detail::get_impl(graph).get_topology();
 
@@ -246,6 +247,7 @@ undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, 
 
 namespace detail {
 
+/*
 template <typename Graph>
 constexpr auto get_vertex_count_impl(const Graph &graph) noexcept -> vertex_size_type<Graph> {
     const auto &layout = dal::detail::get_impl(graph).get_topology();
@@ -272,6 +274,7 @@ constexpr auto get_vertex_neighbors_impl(const Graph &graph, const vertex_type<G
     const auto &layout = dal::detail::get_impl(graph).get_topology();
     return get_topology_vertex_neighbors(layout, vertex);
 }
+*/
 
 // service to construct required csr for an algorithm
 template <typename Graph>
@@ -287,13 +290,13 @@ template <typename VertexValue,
           typename IndexType,
           typename Allocator>
 struct csr_topology_builder<
-    undirected_adjacency_array_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>> {
+    undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>> {
     const topology<IndexType> &operator()(
-        const undirected_adjacency_array_graph<VertexValue,
-                                               EdgeValue,
-                                               GraphValue,
-                                               IndexType,
-                                               Allocator> &graph) {
+        const undirected_adjacency_vector_graph<VertexValue,
+                                                EdgeValue,
+                                                GraphValue,
+                                                IndexType,
+                                                Allocator> &graph) {
         return dal::detail::get_impl(graph).get_topology();
     }
 };

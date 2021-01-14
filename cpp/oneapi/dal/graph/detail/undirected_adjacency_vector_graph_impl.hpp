@@ -18,20 +18,20 @@
 
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
-#include "oneapi/dal/graph/detail/graph_container.hpp"
-#include "oneapi/dal/graph/graph_common.hpp"
+#include "oneapi/dal/graph/detail/container.hpp"
+#include "oneapi/dal/graph/common.hpp"
 
 namespace oneapi::dal::preview::detail {
 
-template <typename Index>
+template <typename IndexType>
 class topology {
 public:
     topology() = default;
     virtual ~topology() = default;
 
-    graph_container<Index> _vertex_neighbors;
-    graph_container<Index> _degrees;
-    graph_container<Index> _edge_offsets;
+    container<IndexType> _vertex_neighbors;
+    container<IndexType> _degrees;
+    container<IndexType> _edge_offsets;
     int64_t _vertex_count = 0;
     int64_t _edge_count = 0;
 };
@@ -41,7 +41,7 @@ class vertex_values {
 public:
     vertex_values() = default;
     virtual ~vertex_values() = default;
-    graph_container<VertexValue> _vertex_value;
+    container<VertexValue> _vertex_value;
 };
 
 template <typename EdgeValue>
@@ -49,7 +49,7 @@ class edge_values {
 public:
     edge_values() = default;
     virtual ~edge_values() = default;
-    graph_container<EdgeValue> _edge_value;
+    container<EdgeValue> _edge_value;
 };
 
 template <typename VertexValue = empty_value,
@@ -57,7 +57,7 @@ template <typename VertexValue = empty_value,
           typename GraphValue = empty_value,
           typename IndexType = std::int32_t,
           typename Allocator = std::allocator<char>>
-class ONEDAL_EXPORT undirected_adjacency_array_graph_impl {
+class ONEDAL_EXPORT undirected_adjacency_vector_graph_impl {
 public:
     using allocator_type = Allocator;
 
@@ -67,7 +67,7 @@ public:
     using vertex_allocator_traits =
         typename std::allocator_traits<Allocator>::template rebind_traits<vertex_type>;
 
-    using vertex_set = graph_container<vertex_type>;
+    using vertex_set = container<vertex_type>;
     using vertex_iterator = vertex_type*;
     using const_vertex_iterator = const vertex_type*;
     using vertex_size_type = std::int64_t;
@@ -77,7 +77,7 @@ public:
         typename std::allocator_traits<Allocator>::template rebind_alloc<edge_type>;
     using edge_allocator_traits =
         typename std::allocator_traits<Allocator>::template rebind_traits<edge_type>;
-    using edge_set = graph_container<edge_type>;
+    using edge_set = container<edge_type>;
     using edge_iterator = edge_type*;
     using const_edge_iterator = const edge_type*;
     using edge_size_type = std::int64_t;
@@ -87,18 +87,18 @@ public:
         typename std::allocator_traits<Allocator>::template rebind_alloc<vertex_user_value_type>;
     using vertex_user_value_allocator_traits =
         typename std::allocator_traits<Allocator>::template rebind_traits<vertex_user_value_type>;
-    using vertex_user_value_set = graph_container<vertex_user_value_type>;
+    using vertex_user_value_set = container<vertex_user_value_type>;
 
     using edge_user_value_type = EdgeValue;
     using edge_user_value_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<edge_user_value_type>;
     using edge_user_value_allocator_traits =
         typename std::allocator_traits<Allocator>::template rebind_traits<edge_user_value_type>;
-    using edge_user_value_set = graph_container<edge_user_value_type>;
+    using edge_user_value_set = container<edge_user_value_type>;
 
-    undirected_adjacency_array_graph_impl() = default;
+    undirected_adjacency_vector_graph_impl() = default;
 
-    virtual ~undirected_adjacency_array_graph_impl() {
+    virtual ~undirected_adjacency_vector_graph_impl() {
         auto& vertex_neighbors = _topology._vertex_neighbors;
         auto& degrees = _topology._degrees;
         auto& edge_offsets = _topology._edge_offsets;
@@ -133,10 +133,10 @@ public:
     }
 
     inline void set_topology(vertex_size_type vertex_count,
-                      edge_size_type edge_count,
-                      edge_type* offsets,
-                      vertex_type* neighbors,
-                      vertex_type* degrees) {
+                             edge_size_type edge_count,
+                             edge_type* offsets,
+                             vertex_type* neighbors,
+                             vertex_type* degrees) {
         _topology._vertex_count = vertex_count;
         _topology._edge_count = edge_count;
         _topology._edge_offsets = edge_set::wrap(offsets, vertex_count + 1);
@@ -180,28 +180,28 @@ private:
     edge_values<EdgeValue> _edge_values;
 };
 
-template <typename Index>
-inline std::int64_t get_topology_vertex_count(const topology<Index>& _topology) {
+template <typename IndexType>
+inline std::int64_t get_topology_vertex_count(const topology<IndexType>& _topology) {
     return _topology._vertex_count;
 }
 
-template <typename Index>
-inline std::int64_t get_topology_edge_count(const topology<Index>& _topology) {
+template <typename IndexType>
+inline std::int64_t get_topology_edge_count(const topology<IndexType>& _topology) {
     return _topology._edge_count;
 }
 
-template <typename Index>
-inline auto get_topology_vertex_degree(const topology<Index>& _topology,
-                                       const Index& vertex) noexcept {
+template <typename IndexType>
+inline auto get_topology_vertex_degree(const topology<IndexType>& _topology,
+                                       const IndexType& vertex) noexcept -> IndexType {
     return _topology._degrees[vertex];
 }
 
-template <typename Index>
-inline auto get_topology_vertex_neighbors(const topology<Index>& _topology,
-                                          const Index& vertex) noexcept {
-    const Index* vertex_neighbors_begin =
+template <typename IndexType>
+inline auto get_topology_vertex_neighbors(const topology<IndexType>& _topology,
+                                          const IndexType& vertex) noexcept {
+    const IndexType* vertex_neighbors_begin =
         _topology._vertex_neighbors.get_data() + _topology._edge_offsets[vertex];
-    const Index* vertex_neighbors_end =
+    const IndexType* vertex_neighbors_end =
         _topology._vertex_neighbors.get_data() + _topology._edge_offsets[vertex + 1];
     return std::make_pair(vertex_neighbors_begin, vertex_neighbors_end);
 }
