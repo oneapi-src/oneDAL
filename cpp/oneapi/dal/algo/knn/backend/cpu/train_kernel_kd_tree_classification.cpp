@@ -68,7 +68,7 @@ static train_result<task::classification> call_daal_kernel(const context_cpu& ct
     interop::status_to_exception(status);
 
     auto knn_model = static_cast<daal_knn::Model*>(model_ptr.get());
-    const bool copy_data_labels = true;
+    const bool copy_data_labels = data_use_in_model == daal_knn::doNotUse;
     knn_model->impl()->setData<Float>(daal_data, copy_data_labels);
     knn_model->impl()->setLabels<Float>(daal_labels, copy_data_labels);
 
