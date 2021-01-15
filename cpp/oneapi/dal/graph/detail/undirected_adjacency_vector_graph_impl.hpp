@@ -207,13 +207,15 @@ constexpr std::int64_t get_topology_edge_count(const topology<IndexType>& _topol
 
 template <typename IndexType>
 constexpr auto get_topology_vertex_degree(const topology<IndexType>& _topology,
-                                          const IndexType& vertex) noexcept -> IndexType {
+                                          const IndexType& vertex) noexcept ->
+    typename topology<IndexType>::edge_size_type {
     return _topology._degrees[vertex];
 }
 
 template <typename IndexType>
 constexpr auto get_topology_vertex_neighbors(const topology<IndexType>& _topology,
-                                             const IndexType& vertex) noexcept {
+                                             const IndexType& vertex) noexcept ->
+    typename topology<IndexType>::const_edge_range_type {
     const IndexType* vertex_neighbors_begin =
         _topology._vertex_neighbors.get_data() + _topology._edge_offsets[vertex];
     const IndexType* vertex_neighbors_end =
