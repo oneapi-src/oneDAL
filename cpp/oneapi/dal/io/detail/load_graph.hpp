@@ -21,21 +21,20 @@
 
 #include <iostream>
 
-#include "oneapi/dal/detail/common.hpp"
-#include "oneapi/dal/exceptions.hpp"
-#include "oneapi/dal/graph/detail/container.hpp"
-#include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
-#include "oneapi/dal/graph/common.hpp"
 #include "oneapi/dal/common.hpp"
+#include "oneapi/dal/detail/threading.hpp"
+#include "oneapi/dal/exceptions.hpp"
+#include "oneapi/dal/graph/common.hpp"
+#include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
 #include "oneapi/dal/io/detail/load_graph_service.hpp"
-#include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/io/graph_csv_data_source.hpp"
 #include "oneapi/dal/io/load_graph_descriptor.hpp"
 #include "services/daal_atomic_int.h"
 #include "services/daal_memory.h"
 
 namespace oneapi::dal::preview::load_graph::detail {
+
 template <typename Vertex>
 edge_list<Vertex> load_edge_list(const std::string &name);
 

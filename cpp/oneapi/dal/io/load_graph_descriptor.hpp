@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "oneapi/dal/graph/common.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
+#include "oneapi/dal/io/common.hpp"
 
 namespace oneapi::dal::preview::load_graph {
 

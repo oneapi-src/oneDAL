@@ -1,3 +1,4 @@
+/* file: common.hpp */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -13,12 +14,11 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+#pragma once
 
-#include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
+#include <vector>
 
 namespace oneapi::dal::preview::detail {
-
-template class ONEDAL_EXPORT topology<int32_t>;
-
-template class ONEDAL_EXPORT dal::v1::array<float>;
+template <typename T>
+using edge_list_container = std::vector<T>;
 } // namespace oneapi::dal::preview::detail

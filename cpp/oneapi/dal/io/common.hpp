@@ -1,3 +1,4 @@
+/* file: common.hpp */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -14,11 +15,16 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
+/// @file
+/// Io related common data type aliases
 
-namespace oneapi::dal::preview::detail {
+#pragma once
 
-template class ONEDAL_EXPORT topology<int32_t>;
+#include "oneapi/dal/io/detail/common.hpp"
 
-template class ONEDAL_EXPORT dal::v1::array<float>;
-} // namespace oneapi::dal::preview::detail
+namespace oneapi::dal::preview {
+/// Type of graph representation as an edge list
+/// @tparam IndexType Type of the graph vertex indicies
+template <typename IndexType = std::int32_t>
+using edge_list = detail::edge_list_container<std::pair<IndexType, IndexType>>;
+} // namespace oneapi::dal::preview

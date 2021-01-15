@@ -102,12 +102,11 @@ struct graph_traits<
     using allocator_type = Allocator;
 
     // graph weight types
-    using graph_user_value_type = GraphValue;
-    using const_graph_user_value_type = const graph_user_value_type;
+    using graph_user_value_type = typename impl_type::graph_user_value_type;
+    using const_graph_user_value_type = typename impl_type::const_graph_user_value_type;
 
     // vertex types
-    using vertex_type = IndexType;
-    using const_vertex_type = const vertex_type;
+    using vertex_type = typename impl_type::vertex_type;
     using vertex_allocator_type = typename impl_type::vertex_allocator_type;
     using vertex_set = typename impl_type::vertex_set;
     using vertex_iterator = typename impl_type::vertex_iterator;
@@ -118,13 +117,12 @@ struct graph_traits<
     using const_vertex_key_type = const vertex_key_type;
 
     // vertex weight types
-    using vertex_user_value_type = VertexValue;
-    using const_vertex_user_value_type = const vertex_user_value_type;
+    using vertex_user_value_type = typename impl_type::vertex_user_value_type;
     using vertex_user_value_allocator_type = typename impl_type::vertex_user_value_allocator_type;
     using vertex_user_value_set = typename impl_type::vertex_user_value_set;
 
     // edge types
-    using edge_type = IndexType;
+    using edge_type = typename impl_type::edge_type;
     using edge_allocator_type = typename impl_type::edge_allocator_type;
     using edge_set = typename impl_type::edge_set;
     using edge_iterator = typename impl_type::edge_iterator;
@@ -132,7 +130,7 @@ struct graph_traits<
     using edge_size_type = typename impl_type::edge_size_type;
 
     // edge weight types
-    using edge_user_value_type = EdgeValue;
+    using edge_user_value_type = typename impl_type::edge_user_value_type;
     using edge_user_value_allocator_type = typename impl_type::edge_user_value_allocator_type;
     using edge_user_value_set = typename impl_type::edge_user_value_set;
 
@@ -142,8 +140,8 @@ struct graph_traits<
     using edge_index = IndexType;
 
     // ranges
-    using edge_range = range<edge_iterator>;
-    using const_edge_range = range<const_edge_iterator>;
+    using edge_range = typename impl_type::edge_range;
+    using const_edge_range = typename impl_type::const_edge_range;
 };
 
 template <typename VertexValue,
