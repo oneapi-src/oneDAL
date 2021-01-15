@@ -78,7 +78,7 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["opt-notice.rst", 'daal/data-management/numeric-tables/*.rst', 'onedal/get-started/*.rst',
+exclude_patterns = ['daal/data-management/numeric-tables/*.rst', 'onedal/get-started/*.rst',
                     'daal/algorithms/dbscan/distributed-steps/*',
                     'daal/algorithms/kmeans/includes/*',
                     'notes/issues/2021.1-beta06/includes/*',
