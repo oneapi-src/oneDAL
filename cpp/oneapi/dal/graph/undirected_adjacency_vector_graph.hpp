@@ -58,26 +58,24 @@ public:
     virtual ~undirected_adjacency_vector_graph() = default;
 
     /// Move constructor for undirected_adjacency_vector_graph
-    undirected_adjacency_vector_graph(undirected_adjacency_vector_graph &&graph);
+    undirected_adjacency_vector_graph(undirected_adjacency_vector_graph &&g);
 
     /// Copy constructor for undirected_adjacency_vector_graph
-    undirected_adjacency_vector_graph(const undirected_adjacency_vector_graph &graph);
+    undirected_adjacency_vector_graph(const undirected_adjacency_vector_graph &g);
 
     /// Constructs an empty undirected_adjacency_vector_graph with specified graph properties
     /// and allocator
-    undirected_adjacency_vector_graph(const GraphValue &graph_user_value,
-                                      Allocator allocator = Allocator()){};
+    undirected_adjacency_vector_graph(const GraphValue &value, Allocator allocator = Allocator()){};
 
     /// Constructs an empty undirected_adjacency_vector_graph with move graph properties and
     /// allocator
-    undirected_adjacency_vector_graph(graph_user_value_type<graph_type> &&graph_user_value,
-                                      Allocator allocator = Allocator()){};
+    undirected_adjacency_vector_graph(GraphValue &&value, Allocator allocator = Allocator()){};
 
     /// Copy operator for undirected_adjacency_vector_graph
-    undirected_adjacency_vector_graph &operator=(const undirected_adjacency_vector_graph &graph);
+    undirected_adjacency_vector_graph &operator=(const undirected_adjacency_vector_graph &g);
 
     /// Move operator for undirected_adjacency_vector_graph
-    undirected_adjacency_vector_graph &operator=(undirected_adjacency_vector_graph &&graph);
+    undirected_adjacency_vector_graph &operator=(undirected_adjacency_vector_graph &&g);
 
 private:
     using pimpl = dal::detail::pimpl<typename graph_traits<graph_type>::impl_type>;
