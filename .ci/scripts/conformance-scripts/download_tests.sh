@@ -30,7 +30,7 @@ while [[ $# -gt 0 ]]; do
     shift
     shift
 done
-SKLEARN_PATH="`pip show scikit-learn | grep Location | cut -d ' ' -f 2`/sklearn/"
+SKLEARN_PATH="$(pip show scikit-learn | grep Location | cut -d ' ' -f 2)/sklearn/"
 
 case ${ALG_NAME} in
     "dbscan")
