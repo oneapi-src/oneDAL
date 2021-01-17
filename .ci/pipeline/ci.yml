@@ -166,6 +166,8 @@ jobs:
       source ${DPCPPROOT}/env/vars.sh
       export DALROOT=$(Pipeline.Workspace)/daal/latest
       source ${DALROOT}/env/vars.sh
+      export TBBROOT=/opt/intel/oneapi/tbb/latest
+      source ${TBBROOT}/env/vars.sh
       cd daal4py
       python -c "import daal4py"
       python -m unittest discover -v -s tests -p test*.py
@@ -179,6 +181,8 @@ jobs:
       source ${DPCPPROOT}/env/vars.sh
       export DALROOT=$(Pipeline.Workspace)/daal/latest
       source ${DALROOT}/env/vars.sh
+      export TBBROOT=/opt/intel/oneapi/tbb/latest
+      source ${TBBROOT}/env/vars.sh
       $(Pipeline.Workspace)/s/.ci/scripts/conformance_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/oneapi
     timeoutInMinutes: 15
     displayName: Conformance tests
