@@ -138,14 +138,15 @@ jobs:
       git clone https://github.com/IntelPython/daal4py.git
     displayName: clone daal4py
   - script: |
+      .ci/env/clang.sh
       wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
       bash miniconda.sh -b -p $HOME/miniconda
       export PATH="$HOME/miniconda/bin:$PATH"
       conda config --set always_yes yes --set changeps1 no
       conda update -q conda
       conda create -q -y -n CB python=3.8
-      conda install -q -n CB -c conda-forge cython scikit-learn pandas pyyaml joblib numpydoc jinja2 numpy clang-tools pytest
-      conda install -q -n CB -c intel tbb
+      conda activate CB
+      pip install -r .ci/scripts/conformance-scripts/requirements.txt
     displayName: Create Anaconda environment
   - script: |
       export DPCPPROOT=/opt/intel/oneapi/compiler/latest
