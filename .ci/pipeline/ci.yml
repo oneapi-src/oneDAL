@@ -143,9 +143,12 @@ jobs:
     displayName: Clone daal4py
   - script: |
       .ci/env/clang.sh
-      sudo pip install -r .ci/scripts/conformance-scripts/requirements.txt
+      python -m venv venv
+      source venv/bin/activate
+      pip install -r .ci/scripts/conformance-scripts/requirements.txt
     displayName: Create python environment
   - script: |
+      source venv/bin/activate
       export DPCPPROOT=/opt/intel/oneapi/compiler/latest
       source ${DPCPPROOT}/env/vars.sh
       export DALROOT=$(Pipeline.Workspace)/daal/latest
@@ -155,9 +158,10 @@ jobs:
       export CC=dpcpp
       export CXX=dpcpp
       export LDFLAGS="-fPIC"
-      sudo python setup.py install --single-version-externally-managed --record=record.txt
+      python setup.py install --single-version-externally-managed --record=record.txt
     displayName: daal4py build
   - script: |
+      source venv/bin/activate
       export DPCPPROOT=/opt/intel/oneapi/compiler/latest
       source ${DPCPPROOT}/env/vars.sh
       export DALROOT=$(Pipeline.Workspace)/daal/latest
@@ -170,6 +174,7 @@ jobs:
       python -m daal4py examples/sycl/sklearn_sycl.py
     displayName: daal4py test
   - script: |
+      source venv/bin/activate
       export DPCPPROOT=/opt/intel/oneapi/compiler/latest
       source ${DPCPPROOT}/env/vars.sh
       export DALROOT=$(Pipeline.Workspace)/daal/latest
