@@ -132,29 +132,20 @@ jobs:
       path: $(Pipeline.Workspace)
   - script: |
         .ci/env/dpcpp.sh
-    displayName: 'create dpcpp enviroment'
+    displayName: 'Create dpcpp enviroment'
   - script: |
       sudo apt-get install git
       git clone https://github.com/IntelPython/daal4py.git
-    displayName: clone daal4py
+    displayName: Clone daal4py
   - script: |
       .ci/env/clang.sh
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-      bash miniconda.sh -b -p $HOME/miniconda
-      export PATH="$HOME/miniconda/bin:$PATH"
-      conda config --set always_yes yes --set changeps1 no
-      conda update -q conda
-      conda create -q -y -n CB python=3.8
-      conda activate CB
       pip install -r .ci/scripts/conformance-scripts/requirements.txt
-    displayName: Create Anaconda environment
+    displayName: Create python environment
   - script: |
       export DPCPPROOT=/opt/intel/oneapi/compiler/latest
       source ${DPCPPROOT}/env/vars.sh
       export DALROOT=$(Pipeline.Workspace)/daal/latest
       source ${DALROOT}/env/vars.sh
-      . $HOME/miniconda/etc/profile.d/conda.sh
-      conda activate CB
       cd daal4py
       export NO_DIST=1
       export CC=dpcpp
@@ -167,8 +158,6 @@ jobs:
       source ${DPCPPROOT}/env/vars.sh
       export DALROOT=$(Pipeline.Workspace)/daal/latest
       source ${DALROOT}/env/vars.sh
-      . $HOME/miniconda/etc/profile.d/conda.sh
-      conda activate CB
       cd daal4py
       python -c "import daal4py"
       python -m unittest discover -v -s tests -p test*.py
@@ -181,11 +170,9 @@ jobs:
       source ${DPCPPROOT}/env/vars.sh
       export DALROOT=$(Pipeline.Workspace)/daal/latest
       source ${DALROOT}/env/vars.sh
-      . $HOME/miniconda/etc/profile.d/conda.sh
-      conda activate CB
       $(Pipeline.Workspace)/s/.ci/scripts/conformance_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/oneapi
     timeoutInMinutes: 15
-    displayName: conformance
+    displayName: Conformance tests
   - script: |
       cp -R $(Pipeline.Workspace)/s/.ci/scripts/conformance-scripts/_log_* $(Build.ArtifactStagingDirectory)/
       cp -R $(Pipeline.Workspace)/s/.ci/scripts/conformance-scripts/report.html $(Build.ArtifactStagingDirectory)/
