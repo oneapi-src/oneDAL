@@ -125,6 +125,10 @@ jobs:
   pool:
     vmImage: 'ubuntu-20.04'
     maxParallel: 2
+  strategy:
+    matrix:
+      Python38:
+        python.version: '3.8'
   steps:
   - task: DownloadPipelineArtifact@2
     inputs:
@@ -151,7 +155,7 @@ jobs:
       export CC=dpcpp
       export CXX=dpcpp
       export LDFLAGS="-fPIC"
-      python setup.py install --single-version-externally-managed --record=record.txt
+      sudo python setup.py install --single-version-externally-managed --record=record.txt
     displayName: daal4py build
   - script: |
       export DPCPPROOT=/opt/intel/oneapi/compiler/latest

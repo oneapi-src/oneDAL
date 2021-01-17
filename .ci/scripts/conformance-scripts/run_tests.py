@@ -28,7 +28,6 @@ except:
 
 algs_filename = "algorithms.txt"
 report_filename = "report.html"
-python_version = "3.8" if len(sys.argv) == 1 else sys.argv[1]
 
 if __name__ == "__main__":
     with open(algs_filename, "r") as file_algs:
@@ -37,7 +36,7 @@ if __name__ == "__main__":
 
     print("Confromance testing start")
     for alg_name in algs:
-        code = subprocess.call(["./download_tests.sh", "--alg-name", "%s" % (alg_name) , "--python-version", "%s" % (python_version)])
+        code = subprocess.call(["./download_tests.sh", "--alg-name", "%s" % (alg_name) ])
         if code: raise Exception('Error while copying test files')
         print(alg_name)
 

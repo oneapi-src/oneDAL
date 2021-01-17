@@ -22,9 +22,6 @@ while [[ $# -gt 0 ]]; do
         --alg-name)
         ALG_NAME="$2"
         ;;
-        --python-version)
-        PYTHON_VERSION="$2"
-        ;;
         *)
         echo "Unknown option: $1"
         exit 1
@@ -33,7 +30,7 @@ while [[ $# -gt 0 ]]; do
     shift
     shift
 done
-SKLEARN_PATH="$CONDA_PREFIX/lib/python${PYTHON_VERSION}/site-packages/sklearn/"
+SKLEARN_PATH="`pip show scikit-learn | grep Location | cut -d ' ' -f 2`/sklearn/"
 
 case ${ALG_NAME} in
     "dbscan")
