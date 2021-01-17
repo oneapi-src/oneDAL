@@ -28,7 +28,7 @@ except:
 
 algs_filename = "algorithms.txt"
 report_filename = "report.html"
-python_version = "3.7" if len(sys.argv) == 1 else sys.argv[1]
+python_version = "3.8" if len(sys.argv) == 1 else sys.argv[1]
 
 if __name__ == "__main__":
     with open(algs_filename, "r") as file_algs:
