@@ -70,7 +70,7 @@ stage. Let :math:`S = (X, Y)` be the set of observations. Given positive
 integer parameters, such as the number of trees :math:`B`, the bootstrap
 parameter :math:`N = f*n`, where :math:`f` is a fraction of observations used for
 a training of one tree, and the number of features per node :math:`m`, the
-algorithm does the following for :math:`b = 1, \ldots ,B`:
+algorithm does the following for :math:`b = 1, \ldots, B`:
 
 - Selects randomly with replacement the set :math:`D_b` of :math:`N`
   vectors from the set :math:`S`. The set :math:`D_b` is called a
