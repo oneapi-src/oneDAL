@@ -80,10 +80,10 @@ algorithm does the following for :math:`b = 1, \ldots, B`:
 
 :ref:`Decision tree <dt>` :math:`T` is trained using the training set :math:`D` of size :math:`N`.
 Each node :math:`t` in the tree corresponds to the subset :math:`D_t` of
-the training set :math:`D`, with the root node being :math:`D` itself. Its
-internal nodes :math:`t` represent a binary test (split) dividing their
-subset :math:`X_t` in two subsets :math:`X_{t_L}` and :math:`X_{t_R}`,
-corresponding to their children :math:`t_L` and :math:`t_R`.
+the training set :math:`D`, with the root node being :math:`D` itself. Each
+internal node :math:`t` represents a binary test (split) that divides the
+subset :math:`X_t` in two subsets, :math:`X_{t_L}` and :math:`X_{t_R}`,
+corresponding to their children, :math:`t_L` and :math:`t_R`.
 
 .. _df_t_math_dense:
 
