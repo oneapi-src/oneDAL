@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020 Intel Corporation
+.. * Copyright 2020-2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -87,5 +87,3 @@ Performance Considerations
 
 To get the best overall performance when using the Bernoulli distribution random number generator,
 provide the 32-bit signed integer homogeneous numeric table constructed with enabled equal features.
-
-.. include:: ../../../opt-notice.rst

@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020 Intel Corporation
+.. * Copyright 2020-2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -128,5 +128,3 @@ To get the best overall performance when Cholesky decomposition:
 - If input data is homogeneous, for input matrix :math:`X` and output matrix :math:`L` use homogeneous numeric tables
   of the same type as specified in the ``algorithmFPType`` class template parameter.
 - If input data is non-homogeneous, use :ref:`AOS <aos_layout>` layout rather than SOA layout.
-
-.. include:: ../../../opt-notice.rst

@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020 Intel Corporation
+.. * Copyright 2020-2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -130,5 +130,3 @@ For more details, see :ref:`algorithms`.
      - Estimates for the standard deviations
    * - ``variation``
      - Estimates for the variations
-
-.. include:: ../../../opt-notice.rst
