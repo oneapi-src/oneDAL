@@ -66,7 +66,7 @@ size :math:`p`, their non-negative observation weights :math:`W=\{w_1,\ldots,w_n
 the problem is to build a decision forest classification or regression model.
 
 The library uses the following algorithmic framework for the training
-stage. Let :math:`S = (X, Y)` be the set of observations. Given a positive
+stage. Let :math:`S = (X, Y)` be the set of observations. Given positive
 integer parameters, such as the number of trees :math:`B`, the bootstrap
 parameter :math:`N = f*n`, where :math:`f` is a fraction of observations used for
 a training of one tree, and the number of features per node :math:`m`, the
