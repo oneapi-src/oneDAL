@@ -161,7 +161,7 @@ fi
 __daal_tmp_dir="<INSTALLDIR>"
 __daal_tmp_dir=$__daal_tmp_dir/dal
 if [ ! -d $__daal_tmp_dir ]; then
-    __daal_tmp_dir=$(dirname -- "$(rreadlink "$vars_sourced_nm")")
+    __daal_tmp_dir=$(dirname -- "$(dirname -- "$(rreadlink "$vars_sourced_nm")")../")
 fi
 
 export DAL_MAJOR_BINARY=__DAL_MAJOR_BINARY__
