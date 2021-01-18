@@ -90,7 +90,7 @@ corresponding to their children, :math:`t_L` and :math:`t_R`.
 Training method: *Dense*
 ++++++++++++++++++++++++
 
-In *dense* training method all possible split variants for each feature (from selected features' subset for current node) are evaluated 
+In *dense* training method, all possible splits for each feature are taken from the subset of selected features for the current node and evaluated 
 for best split computation.
 
 .. _df_t_math_hist:
