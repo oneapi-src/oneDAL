@@ -16,7 +16,17 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/linalg/matrix.hpp"
-#include "oneapi/dal/backend/linalg/loops.hpp"
-#include "oneapi/dal/backend/linalg/umath.hpp"
-#include "oneapi/dal/backend/linalg/dot.hpp"
+#include "oneapi/dal/algo/pca/common.hpp"
+
+namespace oneapi::dal::pca::backend {
+
+template <typename Descriptor>
+inline std::int64_t get_component_count(const Descriptor& desc, const table& data) {
+    ONEDAL_ASSERT(desc.get_component_count() >= 0);
+    if (desc.get_component_count() == 0) {
+        return data.get_column_count();
+    }
+    return desc.get_component_count();
+}
+
+} // namespace oneapi::dal::pca::backend

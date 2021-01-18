@@ -21,30 +21,38 @@
 
 namespace oneapi::dal::backend::linalg {
 
-template <typename Float>
+template <typename Float,
+          layout lyt_a,
+          layout lyt_b,
+          layout lyt_c>
 struct dot_op {
     void operator()(const context_cpu& ctx,
-                    const matrix<Float>& a,
-                    const matrix<Float>& b,
-                    matrix<Float>& c,
+                    const matrix<Float, lyt_a>& a,
+                    const matrix<Float, lyt_b>& b,
+                    matrix<Float, lyt_c>& c,
                     Float alpha,
                     Float beta) const;
 };
 
-template <typename Float>
-inline matrix<Float> dot(const matrix<Float>& a, const matrix<Float>& b, Float alpha = Float(1)) {
-    auto c = matrix<Float>::empty({ a.get_row_count(), b.get_column_count() });
-    dot(a, b, c, alpha);
-    return c;
-}
-
-template <typename Float>
-inline void dot(const matrix<Float>& a,
-                const matrix<Float>& b,
-                matrix<Float>& c,
+template <typename Float,
+          layout lyt_a,
+          layout lyt_b,
+          layout lyt_c>
+inline void dot(const matrix<Float, lyt_a>& a,
+                const matrix<Float, lyt_b>& b,
+                matrix<Float, lyt_c>& c,
                 Float alpha = Float(1),
                 Float beta = Float(0)) {
-    dot_op<Float>{}(context_cpu{}, a, b, c, alpha, beta);
+    dot_op<Float, lyt_a, lyt_b, lyt_c>{}(context_cpu{}, a, b, c, alpha, beta);
+}
+
+template <typename Float, layout lyt_a, layout lyt_b, layout lyt_c = layout::row_major>
+inline matrix<Float> dot(const matrix<Float, lyt_a>& a,
+                         const matrix<Float, lyt_b>& b,
+                         Float alpha = Float(1)) {
+    auto c = matrix<Float, lyt_c>::empty({ a.get_row_count(), b.get_column_count() });
+    dot(a, b, c, alpha);
+    return c;
 }
 
 } // namespace oneapi::dal::backend::linalg

@@ -23,7 +23,7 @@
 
 namespace oneapi::dal::pca::test {
 
-namespace te = oneapi::dal::test::engine;
+namespace te = dal::test::engine;
 
 template <typename Method>
 class pca_badarg_test : public te::algo_fixture {
@@ -73,7 +73,7 @@ private:
 };
 
 #define PCA_BADARG_TEST(name) \
-    TEMPLATE_TEST_CASE_METHOD(pca_badarg_test, name, "[pca][badarg]", \
+    TEMPLATE_TEST_M(pca_badarg_test, name, "[pca][badarg]", \
         pca::method::cov, pca::method::svd)
 
 PCA_BADARG_TEST("accepts non-negative component_count") {

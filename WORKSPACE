@@ -73,3 +73,11 @@ http_archive(
     sha256 = "36bcc9e6190923961be11e589d747e606515de95f10779e29853cfeae560bd6c",
     strip_prefix = "Catch2-2.13.1",
 )
+
+http_archive(
+    name = "fmt",
+    url = "https://github.com/fmtlib/fmt/archive/7.0.3.tar.gz",
+    sha256 = "b4b51bc16288e2281cddc59c28f0b4f84fed58d016fb038273a09f05f8473297",
+    strip_prefix = "fmt-7.0.3",
+    build_file = "@onedal//dev/bazel/deps:fmt.tpl.BUILD",
+)

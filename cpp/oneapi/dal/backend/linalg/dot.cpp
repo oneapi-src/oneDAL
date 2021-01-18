@@ -21,17 +21,25 @@ namespace oneapi::dal::backend::linalg {
 
 namespace mkl = oneapi::dal::backend::mkl;
 
-template <typename Float>
-void dot_op<Float>::operator()(const context_cpu &ctx,
-                               const matrix<Float> &a,
-                               const matrix<Float> &b,
-                               matrix<Float> &c,
-                               Float alpha,
-                               Float beta) const {
-    const bool is_c_trans = (c.get_layout() == layout::row_major);
-    if (is_c_trans) {
-        const bool is_a_trans = (a.get_layout() == layout::column_major);
-        const bool is_b_trans = (b.get_layout() == layout::column_major);
+template <typename Float,
+          layout lyt_a,
+          layout lyt_b,
+          layout lyt_c>
+void dot_op<Float, lyt_a, lyt_b, lyt_c>::operator()(const context_cpu &ctx,
+                                                    const matrix<Float, lyt_a> &a,
+                                                    const matrix<Float, lyt_b> &b,
+                                                    matrix<Float, lyt_c> &c,
+                                                    Float alpha,
+                                                    Float beta) const {
+    ONEDAL_ASSERT(a.get_row_count() == c.get_row_count());
+    ONEDAL_ASSERT(a.get_column_count() == b.get_row_count());
+    ONEDAL_ASSERT(b.get_column_count() == c.get_column_count());
+
+    constexpr bool is_c_trans = (lyt_c == layout::row_major);
+    if constexpr (is_c_trans) {
+        constexpr bool is_a_trans = (lyt_a == layout::column_major);
+        constexpr bool is_b_trans = (lyt_b == layout::column_major);
+
         mkl::gemm<Float>(ctx,
                          is_b_trans,
                          is_a_trans,
@@ -48,8 +56,9 @@ void dot_op<Float>::operator()(const context_cpu &ctx,
                          c.get_stride());
     }
     else {
-        const bool is_a_trans = (a.get_layout() == layout::row_major);
-        const bool is_b_trans = (b.get_layout() == layout::row_major);
+        constexpr bool is_a_trans = (lyt_a == layout::row_major);
+        constexpr bool is_b_trans = (lyt_b == layout::row_major);
+
         mkl::gemm<Float>(ctx,
                          is_a_trans,
                          is_b_trans,
@@ -67,9 +76,20 @@ void dot_op<Float>::operator()(const context_cpu &ctx,
     }
 }
 
-#define INSTANTIATE(Float) template struct dot_op<Float>;
+#define INSTANTIATE(Float, lyt_a, lyt_b, lyt_c) \
+    template struct dot_op<Float, layout::lyt_a, layout::lyt_b, layout::lyt_c>;
 
-INSTANTIATE(float)
-INSTANTIATE(double)
+#define INSTANTIATE_LAYOUTS(Float)                            \
+    INSTANTIATE(Float, row_major, row_major, row_major)       \
+    INSTANTIATE(Float, row_major, row_major, column_major)    \
+    INSTANTIATE(Float, row_major, column_major, row_major)    \
+    INSTANTIATE(Float, row_major, column_major, column_major) \
+    INSTANTIATE(Float, column_major, row_major, row_major)    \
+    INSTANTIATE(Float, column_major, row_major, column_major) \
+    INSTANTIATE(Float, column_major, column_major, row_major) \
+    INSTANTIATE(Float, column_major, column_major, column_major)
+
+INSTANTIATE_LAYOUTS(float)
+INSTANTIATE_LAYOUTS(double)
 
 } // namespace oneapi::dal::backend::linalg

@@ -22,8 +22,8 @@
 
 namespace oneapi::dal::pca::test {
 
-namespace tu = oneapi::dal::test::util;
-namespace te = oneapi::dal::test::engine;
+namespace tu = dal::test::util;
+namespace te = dal::test::engine;
 
 template <typename Method>
 class pca_overflow_test : public te::algo_fixture {
@@ -53,7 +53,7 @@ public:
 };
 
 #define PCA_OVERFLOW_TEST(name) \
-    TEMPLATE_TEST_CASE_METHOD(pca_overflow_test, name, "[pca][overflow]", \
+    TEMPLATE_TEST_M(pca_overflow_test, name, "[pca][overflow]", \
         pca::method::cov, pca::method::svd)
 
 PCA_OVERFLOW_TEST("train throws if component count leads to overflow") {

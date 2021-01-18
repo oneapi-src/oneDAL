@@ -16,21 +16,19 @@
 
 #pragma once
 
-#include <catch2/catch.hpp>
-
 #include <tuple>
 #include <memory>
 #include <iostream>
 #include <type_traits>
+
+#include <fmt/core.h>
+#include <catch2/catch.hpp>
 
 #include "oneapi/dal/train.hpp"
 #include "oneapi/dal/infer.hpp"
 #include "oneapi/dal/compute.hpp"
 #include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/test/engine/macro.hpp"
-
-// Disable clang-format as it dramatically
-// affects redability of macro definitions
 
 // Workaround DPC++ Compiler's warning on unused
 // variable declared by Catch2's TEST_CASE macro
@@ -53,28 +51,42 @@
     INTERNAL_CATCH_TEMPLATE_TEST_CASE(__VA_ARGS__) \
     _TS_ENABLE_UNUSED_VARIABLE
 
+#undef TEMPLATE_LIST_TEST_CASE
+#define TEMPLATE_LIST_TEST_CASE(...)                    \
+    _TS_DISABLE_UNUSED_VARIABLE                         \
+    INTERNAL_CATCH_TEMPLATE_LIST_TEST_CASE(__VA_ARGS__) \
+    _TS_ENABLE_UNUSED_VARIABLE
+
+#undef TEST_CASE_METHOD
+#define TEST_CASE_METHOD(...)                    \
+    _TS_DISABLE_UNUSED_VARIABLE                  \
+    INTERNAL_CATCH_TEST_CASE_METHOD(__VA_ARGS__) \
+    _TS_ENABLE_UNUSED_VARIABLE
+
 #undef TEMPLATE_TEST_CASE_METHOD
 #define TEMPLATE_TEST_CASE_METHOD(...)                    \
-    _TS_DISABLE_UNUSED_VARIABLE                    \
+    _TS_DISABLE_UNUSED_VARIABLE                           \
     INTERNAL_CATCH_TEMPLATE_TEST_CASE_METHOD(__VA_ARGS__) \
+    _TS_ENABLE_UNUSED_VARIABLE
+
+#undef TEMPLATE_LIST_TEST_CASE_METHOD
+#define TEMPLATE_LIST_TEST_CASE_METHOD(...)                    \
+    _TS_DISABLE_UNUSED_VARIABLE                                \
+    INTERNAL_CATCH_TEMPLATE_LIST_TEST_CASE_METHOD(__VA_ARGS__) \
     _TS_ENABLE_UNUSED_VARIABLE
 #endif // __clang__
 
-#ifdef ONEDAL_DATA_PARALLEL
-#define DECLARE_TEST_POLICY(policy_name) oneapi::dal::test::engine::device_test_policy policy_name
-#else
-#define DECLARE_TEST_POLICY(policy_name) oneapi::dal::test::engine::host_test_policy policy_name
-#endif
+// Shortcuts for Catch2 defines
+#define TEST                  TEST_CASE
+#define TEMPLATE_TEST         TEMPLATE_TEST_CASE
+#define TEMPLATE_LIST_TEST    TEMPLATE_LIST_TEST_CASE
+#define TEMPLATE_SIG_TEST     TEMPLATE_TEST_CASE_SIG
+#define TEST_M                TEST_CASE_METHOD
+#define TEMPLATE_TEST_M       TEMPLATE_TEST_CASE_METHOD
+#define TEMPLATE_LIST_TEST_M  TEMPLATE_LIST_TEST_CASE_METHOD
+#define TEMPLATE_SIG_TEST_M   TEMPLATE_TEST_CASE_METHOD_SIG
 
 namespace oneapi::dal::test::engine {
-
-template <typename Float>
-inline double get_tolerance(double double_tol, double float_tol) {
-    if constexpr (std::is_same_v<std::decay_t<Float>, double>) {
-        return double_tol;
-    }
-    return float_tol;
-}
 
 class host_test_policy {};
 
@@ -153,6 +165,12 @@ inline auto compute(device_test_policy& policy, Args&&... args) {
 }
 #endif
 
+#ifdef ONEDAL_DATA_PARALLEL
+#define DECLARE_TEST_POLICY(policy_name) oneapi::dal::test::engine::device_test_policy policy_name
+#else
+#define DECLARE_TEST_POLICY(policy_name) oneapi::dal::test::engine::host_test_policy policy_name
+#endif
+
 class policy_fixture {
 public:
     auto& get_policy() {
@@ -180,5 +198,57 @@ public:
         return oneapi::dal::test::engine::compute(get_policy(), std::forward<Args>(args)...);
     }
 };
+
+template <typename Float>
+inline double get_tolerance(double f32_tol, double f64_tol) {
+    static_assert(std::is_same_v<Float, float> || std::is_same_v<Float, double>,
+                  "Only single or double precision is allowed");
+
+    if constexpr (std::is_same_v<Float, float>) {
+        return f32_tol;
+    }
+
+    if constexpr (std::is_same_v<Float, double>) {
+        return f64_tol;
+    }
+}
+
+template <std::size_t index, typename TupleX, typename TupleY>
+struct combine_types_element {
+private:
+    static constexpr std::size_t count_y = std::tuple_size_v<TupleY>;
+    static constexpr std::size_t i = index / count_y;
+    static constexpr std::size_t j = index % count_y;
+
+public:
+    using type = std::tuple<std::tuple_element_t<i, TupleX>,
+                            std::tuple_element_t<j, TupleY>>;
+};
+
+template <std::size_t index, typename TupleX, typename TupleY>
+using combine_types_element_t = typename combine_types_element<
+    index, TupleX, TupleY>::type;
+
+template <typename TupleX, typename TupleY>
+struct combine_types {
+private:
+    static constexpr std::size_t count_x = std::tuple_size_v<TupleX>;
+    static constexpr std::size_t count_y = std::tuple_size_v<TupleY>;
+
+    template <std::size_t... indices>
+    static constexpr auto index_helper(std::index_sequence<indices...>) ->
+        std::tuple<combine_types_element_t<indices, TupleX, TupleY>...>;
+
+public:
+    static constexpr std::size_t count = count_x * count_y;
+    using type = decltype(index_helper(std::make_index_sequence<count>{}));
+};
+
+template <typename TupleX, typename TupleY>
+using combine_types_t = typename combine_types<TupleX, TupleY>::type;
+
+#define COMBINE_TYPES(x, y) \
+    oneapi::dal::test::engine::combine_types_t< \
+        std::tuple<_TE_UNPACK(x)>, std::tuple<_TE_UNPACK(y)>>
 
 } // namespace oneapi::dal::test::engine

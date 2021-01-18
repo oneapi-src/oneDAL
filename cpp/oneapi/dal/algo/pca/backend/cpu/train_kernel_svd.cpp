@@ -17,6 +17,7 @@
 #include <daal/src/algorithms/pca/pca_dense_svd_batch_kernel.h>
 #include <daal/include/algorithms/normalization/zscore_types.h>
 
+#include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
@@ -44,7 +45,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                  const table& data) {
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
-    const std::int64_t component_count = desc.get_component_count();
+    const std::int64_t component_count = get_component_count(desc, data);
 
     auto arr_data = row_accessor<const Float>{ data }.pull();
 

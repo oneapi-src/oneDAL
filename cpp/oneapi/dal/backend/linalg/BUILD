@@ -16,6 +16,7 @@ dal_module(
 
 dal_test_suite(
     name = "tests",
+    framework = "catch2",
     dpc = False, # TODO: Remove this once DPC++ support
                  #       is added to `linalg` module
     srcs = glob(["test/*.cpp"]),

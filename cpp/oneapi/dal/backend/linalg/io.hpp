@@ -23,13 +23,13 @@
 
 namespace oneapi::dal::backend::linalg {
 
-template <typename T>
+template <typename T, layout lyt>
 class matrix_formatter {
 public:
-    matrix_formatter(const matrix<T>& m)
+    matrix_formatter(const matrix<T, lyt>& m)
             : matrix_(m) {}
 
-    const matrix<T>& get_matrix() const {
+    const matrix<T, lyt>& get_matrix() const {
         return matrix_;
     }
 
@@ -61,19 +61,19 @@ public:
     }
 
 private:
-    matrix<T> matrix_;
+    matrix<T, lyt> matrix_;
     int symbol_width_ = 10;
     int precision_ = 3;
     std::ios::fmtflags iosflags_ = std::ios::fixed;
 };
 
-template <typename T>
-inline matrix_formatter<T> format_matrix(const matrix<T>& m) {
-    return matrix_formatter<T>{ m };
+template <typename T, layout lyt>
+inline matrix_formatter<T, lyt> format_matrix(const matrix<T, lyt>& m) {
+    return matrix_formatter<T, lyt>{ m };
 }
 
-template <typename T>
-inline std::ostream& operator<<(std::ostream& stream, const matrix_formatter<T>& mf) {
+template <typename T, layout lyt>
+inline std::ostream& operator<<(std::ostream& stream, const matrix_formatter<T, lyt>& mf) {
     const auto& m = mf.get_matrix();
     for (std::int64_t i = 0; i < m.get_row_count(); i++) {
         for (std::int64_t j = 0; j < m.get_column_count(); j++) {

@@ -19,126 +19,123 @@
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/backend/linalg/dot.hpp"
 #include "oneapi/dal/backend/linalg/io.hpp"
+#include "oneapi/dal/backend/linalg/loops.hpp"
 
 namespace oneapi::dal::backend::linalg::test {
 
-using test_param_t = std::tuple<
-    std::int64_t, std::int64_t, std::int64_t,
-    layout, layout, layout>;
-
-class dot_test : public ::testing::TestWithParam<test_param_t> {
+template <layout lyt_a, layout lyt_b, layout lyt_c>
+class dot_test {
 public:
-    std::int64_t get_m() const {
-        return  std::get<0>(GetParam());
+    dot_test() {
+        m_ = GENERATE(3, 4, 5);
+        n_ = GENERATE(4, 5, 6);
+        k_ = GENERATE(5, 6, 7);
+        CAPTURE(m_, n_, k_);
     }
 
-    std::int64_t get_n() const {
-        return  std::get<1>(GetParam());
+    auto A() const {
+        return matrix<float, lyt_a>::ones({ m_, k_ });
     }
 
-    std::int64_t get_k() const {
-        return  std::get<2>(GetParam());
+    auto At() const {
+        return matrix<float, lyt_a>::ones({ k_, m_ }).t();
     }
 
-    layout get_A_layout() const {
-        return std::get<3>(GetParam());
+    auto B() const {
+        return matrix<float, lyt_b>::ones({ k_, n_ });
     }
 
-    layout get_B_layout() const {
-        return std::get<4>(GetParam());
+    auto Bt() const {
+        return matrix<float, lyt_b>::ones({ n_, k_ }).t();
     }
 
-    layout get_C_layout() const {
-        return std::get<5>(GetParam());
+    auto C() const {
+        return matrix<float, lyt_c>::empty({ m_, n_ });
     }
 
-    matrix<float> get_A() const {
-        return matrix<float>::ones({ get_m(), get_k() }, get_A_layout());
+    void check_ones_matrix_dot(const matrix<float, lyt_c>& mat) const {
+        REQUIRE(mat.get_shape() == shape{ m_, n_ });
+        for_each(mat, [&](float x) {
+            REQUIRE(std::int64_t(x) == k_);
+        });
     }
 
-    matrix<float> get_At() const {
-        return matrix<float>::ones({ get_k(), get_m() }, get_A_layout()).t();
-    }
-
-    matrix<float> get_B() const {
-        return matrix<float>::ones({ get_k(), get_n() }, get_B_layout());
-    }
-
-    matrix<float> get_Bt() const {
-        return matrix<float>::ones({ get_n(), get_k() }, get_B_layout()).t();
-    }
-
-    matrix<float> get_C() const {
-        return matrix<float>::empty({ get_m(), get_n() }, get_C_layout());
-    }
-
-    void check_ones_matrix_dot(const matrix<float>& c) const {
-        ASSERT_TRUE(c.get_shape() == shape(get_m(), get_n()));
-        const float* c_ptr = c.get_data();
-
-        for (std::int64_t i = 0; i < c.get_count(); i++) {
-            const float x = c_ptr[i];
-            ASSERT_TRUE(std::int64_t(x) == get_k());
-        }
-    }
-
+private:
+    std::int64_t m_;
+    std::int64_t n_;
+    std::int64_t k_;
 };
 
-TEST_P(dot_test, check_simple_AxB) {
-    const auto C = dot(get_A(), get_B());
-    check_ones_matrix_dot(C);
+
+#define LAYOUT_VEC2(x, y)    (layout::x, layout::y)
+#define LAYOUT_VEC3(x, y, z) (layout::x, layout::y, layout::z)
+
+#define LAYOUTS_AB                                     \
+    LAYOUT_VEC3(row_major, row_major, row_major),      \
+    LAYOUT_VEC3(row_major, column_major, row_major),   \
+    LAYOUT_VEC3(column_major, row_major, row_major),   \
+    LAYOUT_VEC3(column_major, column_major, row_major)
+
+#define LAYOUTS_ABC                                       \
+    LAYOUT_VEC3(row_major, row_major, row_major),         \
+    LAYOUT_VEC3(row_major, row_major, column_major),      \
+    LAYOUT_VEC3(row_major, column_major, row_major),      \
+    LAYOUT_VEC3(row_major, column_major, column_major),   \
+    LAYOUT_VEC3(column_major, row_major, row_major),      \
+    LAYOUT_VEC3(column_major, row_major, column_major),   \
+    LAYOUT_VEC3(column_major, column_major, row_major),   \
+    LAYOUT_VEC3(column_major, column_major, column_major)
+
+#define DOT_TEST_TEMPLATE_SIG \
+    ((layout lyt_a, layout lyt_b, layout lyt_c), lyt_a, lyt_b, lyt_c)
+
+#define DOT_TEST(name, tags, layouts) \
+    TEMPLATE_SIG_TEST_M(dot_test, name, tags, DOT_TEST_TEMPLATE_SIG, layouts)
+
+DOT_TEST("dot simple", "[linalg][dot]", LAYOUTS_AB) {
+    SECTION("A x B") {
+        const auto C = dot(this->A(), this->B());
+        this->check_ones_matrix_dot(C);
+    }
+
+    SECTION("A x Bt") {
+        const auto C = dot(this->A(), this->Bt());
+        this->check_ones_matrix_dot(C);
+    }
+
+    SECTION("At x B") {
+        const auto C = dot(this->At(), this->B());
+        this->check_ones_matrix_dot(C);
+    }
+
+    SECTION("At x Bt") {
+        const auto C = dot(this->At(), this->Bt());
+        this->check_ones_matrix_dot(C);
+    }
 }
 
-TEST_P(dot_test, check_simple_AtxB) {
-    const auto C = dot(get_At(), get_B());
-    check_ones_matrix_dot(C);
-}
+DOT_TEST("dot in-place", "[linalg][dot]", LAYOUTS_ABC) {
+    auto C = this->C();
 
-TEST_P(dot_test, check_simple_AxBt) {
-    const auto C = dot(get_A(), get_Bt());
-    check_ones_matrix_dot(C);
-}
+    SECTION("A x B") {
+        dot(this->A(), this->B(), C);
+        this->check_ones_matrix_dot(C);
+    }
 
-TEST_P(dot_test, check_simple_AtxBt) {
-    const auto C = dot(get_At(), get_Bt());
-    check_ones_matrix_dot(C);
-}
+    SECTION("A x Bt") {
+        dot(this->A(), this->Bt(), C);
+        this->check_ones_matrix_dot(C);
+    }
 
-TEST_P(dot_test, check_inplace_AxB) {
-    auto C = get_C();
-    dot(get_A(), get_B(), C);
-    check_ones_matrix_dot(C);
-}
+    SECTION("At x B") {
+        dot(this->At(), this->B(), C);
+        this->check_ones_matrix_dot(C);
+    }
 
-TEST_P(dot_test, check_inplace_AtxB) {
-    auto C = get_C();
-    dot(get_At(), get_B(), C);
-    check_ones_matrix_dot(C);
+    SECTION("At x Bt") {
+        dot(this->At(), this->Bt(), C);
+        this->check_ones_matrix_dot(C);
+    }
 }
-
-TEST_P(dot_test, check_inplace_AxBt) {
-    auto C = get_C();
-    dot(get_A(), get_Bt(), C);
-    check_ones_matrix_dot(C);
-}
-
-TEST_P(dot_test, check_inplace_AtxBt) {
-    auto C = get_C();
-    dot(get_At(), get_Bt(), C);
-    check_ones_matrix_dot(C);
-}
-
-INSTANTIATE_TEST_SUITE_P(
-    dot_params,
-    dot_test,
-    ::testing::Combine(
-        ::testing::Values(3, 4, 5),
-        ::testing::Values(4, 5, 6),
-        ::testing::Values(5, 6, 7),
-        ::testing::Values(layout::row_major, layout::column_major),
-        ::testing::Values(layout::row_major, layout::column_major),
-        ::testing::Values(layout::row_major, layout::column_major)
-    )
-);
 
 } // namespace oneapi::dal::backend::linalg::test

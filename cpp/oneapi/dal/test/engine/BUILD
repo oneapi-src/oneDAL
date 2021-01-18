@@ -21,14 +21,15 @@ dal_module(
     ],
     extra_deps = [
         "@catch2//:catch2",
+        "@fmt//:fmt",
     ],
     testonly = True,
 )
 
 dal_module(
-    name = "datasets",
-    hdrs = glob(["datasets.hpp"]),
-    srcs = glob(["datasets.cpp"]),
+    name = "dataframes",
+    hdrs = glob(["dataframes.hpp"]),
+    srcs = glob(["dataframes.cpp"]),
     dal_deps = [
         ":common",
         "@onedal//cpp/oneapi/dal:table",

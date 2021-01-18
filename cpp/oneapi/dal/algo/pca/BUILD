@@ -51,9 +51,9 @@ dal_test_suite(
     ]),
     dal_deps = [
         ":pca",
-        "@onedal//cpp/oneapi/dal/test/engine:datasets",
         "@onedal//cpp/oneapi/dal/test/util",
         "@onedal//cpp/oneapi/dal/backend/linalg",
+        "@onedal//cpp/oneapi/dal/test/engine:dataframes",
     ],
     tests = [
         ":cpu_tests",
