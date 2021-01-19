@@ -40,9 +40,9 @@ the figure below, where:
 .. image:: images/decision-tree-structure.png
   :width: 600
 
-The test is a rule for partitioning of the feature space. The test
-depends on feature values. Each outcome of the test represents an
-appropriate hypercube associated with both the test and one of
+A test is a rule for partitioning the feature space. A test
+depends on feature values. Each outcome of a test represents an
+appropriate hypercube associated with both the test and one of the
 descending branches. If the test is a Boolean expression (for
 example, :math:`f < c` or :math:`f = c`, where :math:`f` is a feature and :math:`c` is a constant fitted
 during decision tree induction), the inducted decision tree is a
