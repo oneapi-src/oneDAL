@@ -51,7 +51,7 @@ binary tree, so its non-leaf nodes have exactly two branches,
 expression.
 
 Prediction is performed by starting at the root node of the tree,
-testing features by the test specified by this node, then moving down
+testing features by the test specified in this node, then moving down
 the tree branch corresponding to the outcome of the test for the
 given example. This process is then repeated for the subtree rooted
 at the new node. The final result is the prediction of the simple
