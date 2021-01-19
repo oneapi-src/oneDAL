@@ -57,4 +57,4 @@ given example. This process is then repeated for the subtree rooted
 at the new node. The final result is the prediction of the simple
 model at the leaf node.
 
-Decision trees are often used in popular ensembles (e.g. boosting, bagging or decision forest).
+Decision trees are often used in ensemble algorithms, such as boosting, bagging, or decision forest.
