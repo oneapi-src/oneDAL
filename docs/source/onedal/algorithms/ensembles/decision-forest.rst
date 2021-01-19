@@ -246,7 +246,7 @@ the problem is to calculate the responses for those vectors.
 Inference methods: *Dense* and *Hist*
 -------------------------------------
 
-*Dense* and *hist* inference methods performs prediction by the same way:
+*Dense* and *hist* inference methods perform prediction in the same way:
 to solve the problem for each given query vector :math:`x_i`, the
 algorithm finds the leaf node in a tree in the forest that gives:
 
