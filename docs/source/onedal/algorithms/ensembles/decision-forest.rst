@@ -316,7 +316,7 @@ There are two main types of variable importance measures:
 
  where :math:`p\left(t\right)=\frac{|{D}_{t}|}{|D|}` is the fraction of observations reaching node :math:`t`
  in the tree :math:`T_b`, and :math:`v(s_t)` is the index of the
- variable used in split :math:`s_t` .
+ variable used in split :math:`s_t`.
 
 -  *Mean Decrease Accuracy* (MDA).
 
