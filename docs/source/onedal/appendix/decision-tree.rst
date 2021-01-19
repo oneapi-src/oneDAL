@@ -46,8 +46,8 @@ appropriate hypercube associated with both the test and one of
 descending branches. If the test is a Boolean expression (for
 example, :math:`f < c` or :math:`f = c`, where :math:`f` is a feature and :math:`c` is a constant fitted
 during decision tree induction), the inducted decision tree is a
-binary tree, so its each non-leaf node has exactly two branches
-('true' and 'false') according to the result of the Boolean
+binary tree, so its non-leaf nodes have exactly two branches,
+'true' and 'false', each corresponding to the result of the Boolean
 expression.
 
 Prediction is performed by starting at the root node of the tree,
