@@ -33,7 +33,7 @@ Decision tree induction forms a tree-like graph structure as shown in
 the figure below, where:
 
 -  Each internal (non-leaf) node denotes a test on features
--  Each branch descending from node corresponds to an outcome of the
+-  Each branch descending from a non-leaf node corresponds to an outcome of the
    test
 -  Each external node (leaf) denotes the mentioned simple model
 
