@@ -304,7 +304,7 @@ Variable Importance
 
 There are two main types of variable importance measures:
 
--  *Mean Decrease Impurity* importance (MDI).
+-  *Mean Decrease Impurity* importance (MDI)
 
  Importance of the :math:`j`-th variable for predicting :math:`Y` is the sum of
  weighted impurity decreases :math:`p(t) \Delta i(s_t, t)` for all nodes
