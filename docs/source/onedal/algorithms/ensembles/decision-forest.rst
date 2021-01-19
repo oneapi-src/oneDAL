@@ -318,7 +318,7 @@ There are two main types of variable importance measures:
  in the tree :math:`T_b`, and :math:`v(s_t)` is the index of the
  variable used in split :math:`s_t`.
 
--  *Mean Decrease Accuracy* (MDA).
+-  *Mean Decrease Accuracy* (MDA)
 
  Importance of the :math:`j`-th variable for predicting :math:`Y` is the average
  increase in the OOB error over all trees in the forest when the
