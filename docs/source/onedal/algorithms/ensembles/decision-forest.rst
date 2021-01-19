@@ -99,7 +99,7 @@ Training method: *Hist*
 +++++++++++++++++++++++
 
 In *hist* training method, we consider only some selected subset of splits for best split computation. 
-This subset of splits is computed for each feature on initialization stage of the algorithm. 
+This subset of splits is computed for each feature at the initialization stage of the algorithm. 
 After computing subset of splits, we substitute each value from initially provided data 
 with the value of the corresponding bin. 
 Bins are continuous intervals between selected splits.
