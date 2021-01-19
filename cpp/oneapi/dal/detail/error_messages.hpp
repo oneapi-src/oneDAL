@@ -74,6 +74,10 @@ public:
     MSG(small_data_block);
     MSG(invalid_data_block_size);
     MSG(method_not_implemented);
+    MSG(fill_memory_error);
+    MSG(dst_size_leq_zero);
+    MSG(src_size_leq_zero);
+    MSG(fill_pattern_size_divides_src_size_with_remainder);
 
     /* Tables */
     MSG(cannot_get_data_type_from_empty_metadata);
