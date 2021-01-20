@@ -267,8 +267,8 @@ vertex_similarity_result call_jaccard_default_kernel_avx2(
     const descriptor_base &desc,
     const dal::preview::detail::topology<std::int32_t> &data,
     void *result_ptr) {
-    const auto g_edge_offsets = data._edge_offsets.get_data();
-    const auto g_vertex_neighbors = data._vertex_neighbors.get_data();
+    const auto g_edge_offsets = data._rows.get_data();
+    const auto g_vertex_neighbors = data._cols.get_data();
     const auto g_degrees = data._degrees.get_data();
 
     const auto row_begin = dal::detail::integral_cast<std::int32_t>(desc.get_row_range_begin());

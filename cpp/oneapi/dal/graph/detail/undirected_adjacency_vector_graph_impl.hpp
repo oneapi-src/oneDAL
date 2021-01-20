@@ -45,9 +45,9 @@ public:
     topology() = default;
     virtual ~topology() = default;
 
-    vertex_set _vertex_neighbors;
+    vertex_set _cols;
     edge_set _degrees;
-    edge_set _edge_offsets;
+    edge_set _rows;
     int64_t _vertex_count = 0;
     int64_t _edge_count = 0;
 };
@@ -116,24 +116,24 @@ public:
     undirected_adjacency_vector_graph_impl() = default;
 
     virtual ~undirected_adjacency_vector_graph_impl() {
-        auto& vertex_neighbors = _topology._vertex_neighbors;
+        auto& cols = _topology._cols;
         auto& degrees = _topology._degrees;
-        auto& edge_offsets = _topology._edge_offsets;
+        auto& rows = _topology._rows;
 
-        if (vertex_neighbors.get_data() != nullptr && vertex_neighbors.has_mutable_data()) {
+        if (cols.get_data() != nullptr && cols.has_mutable_data()) {
             vertex_allocator_traits::deallocate(_vertex_allocator,
-                                                vertex_neighbors.get_mutable_data(),
-                                                vertex_neighbors.get_count());
+                                                cols.get_mutable_data(),
+                                                cols.get_count());
         }
         if (degrees.get_data() != nullptr && degrees.has_mutable_data()) {
             vertex_allocator_traits::deallocate(_vertex_allocator,
                                                 degrees.get_mutable_data(),
                                                 degrees.get_count());
         }
-        if (edge_offsets.get_data() != nullptr && edge_offsets.has_mutable_data()) {
+        if (rows.get_data() != nullptr && rows.has_mutable_data()) {
             edge_allocator_traits::deallocate(_edge_allocator,
-                                              edge_offsets.get_mutable_data(),
-                                              edge_offsets.get_count());
+                                              rows.get_mutable_data(),
+                                              rows.get_count());
         }
         if (_vertex_values.get_data() != nullptr && _vertex_values.has_mutable_data()) {
             vertex_user_value_allocator_traits::deallocate(_vertex_user_value_allocator,
@@ -154,9 +154,9 @@ public:
                              edge_type* degrees) {
         _topology._vertex_count = vertex_count;
         _topology._edge_count = edge_count;
-        _topology._edge_offsets = edge_set::wrap(offsets, vertex_count + 1);
+        _topology._rows = edge_set::wrap(offsets, vertex_count + 1);
         _topology._degrees = edge_set::wrap(degrees, vertex_count);
-        _topology._vertex_neighbors = vertex_set::wrap(neighbors, edge_count * 2);
+        _topology._cols = vertex_set::wrap(neighbors, edge_count * 2);
     }
 
     inline topology<IndexType>& get_topology() {
@@ -213,13 +213,12 @@ constexpr auto get_topology_vertex_degree(const topology<IndexType>& _topology,
 }
 
 template <typename IndexType>
-constexpr auto get_topology_vertex_neighbors(const topology<IndexType>& _topology,
-                                             const IndexType& vertex) noexcept ->
+constexpr auto get_topology_cols(const topology<IndexType>& _topology,
+                                 const IndexType& vertex) noexcept ->
     typename topology<IndexType>::const_edge_range {
-    const IndexType* vertex_neighbors_begin =
-        _topology._vertex_neighbors.get_data() + _topology._edge_offsets[vertex];
+    const IndexType* vertex_neighbors_begin = _topology._cols.get_data() + _topology._rows[vertex];
     const IndexType* vertex_neighbors_end =
-        _topology._vertex_neighbors.get_data() + _topology._edge_offsets[vertex + 1];
+        _topology._cols.get_data() + _topology._rows[vertex + 1];
     return std::make_pair(vertex_neighbors_begin, vertex_neighbors_end);
 }
 
