@@ -21,7 +21,7 @@
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/detail/policy.hpp"
-#include "oneapi/dal/graph/detail/graph_service_functions_impl.hpp"
+#include "oneapi/dal/graph/detail/service_functions_impl.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
 namespace oneapi::dal::preview {

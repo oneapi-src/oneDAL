@@ -18,9 +18,24 @@
 
 #include "oneapi/dal/graph/common.hpp"
 #include "oneapi/dal/graph/detail/container.hpp"
-#include "oneapi/dal/graph/detail/graph_service_functions_impl.hpp"
 
 namespace oneapi::dal::preview::detail {
+
+template <typename Topology>
+constexpr std::int64_t get_topology_vertex_count(const Topology &_topology);
+
+template <typename Topology>
+constexpr std::int64_t get_topology_edge_count(const Topology &_topology);
+
+template <typename Topology>
+constexpr auto get_topology_vertex_degree(const Topology &_topology,
+                                          const typename Topology::vertex_type &vertex) noexcept ->
+    typename Topology::edge_size_type;
+
+template <typename Topology>
+constexpr auto get_topology_vertex_neighbors(const Topology &_topology,
+                                             const typename Topology::vertex_type &vertex) noexcept
+    -> typename Topology::const_edge_range;
 
 template <typename Graph>
 constexpr auto get_vertex_count_impl(const Graph &graph) noexcept -> vertex_size_type<Graph> {
@@ -32,7 +47,6 @@ template <typename Graph>
 constexpr auto get_edge_count_impl(const Graph &graph) noexcept -> edge_size_type<Graph> {
     const auto &layout = dal::detail::get_impl(graph).get_topology();
     return get_topology_edge_count(layout);
-    layout._edge_count;
 }
 
 template <typename Graph>
@@ -47,7 +61,8 @@ constexpr auto get_vertex_neighbors_impl(const Graph &graph,
                                          const vertex_type<Graph> &vertex) noexcept
     -> const_edge_range_type<Graph> {
     const auto &layout = dal::detail::get_impl(graph).get_topology();
-    return get_topology_vertex_neighbors(layout, vertex);
+    return get_topology_vertex_neighbors /*<typename graph_traits<Graph>::impl_type::topology_type>*/
+        (layout, vertex);
 }
 
 } // namespace oneapi::dal::preview::detail

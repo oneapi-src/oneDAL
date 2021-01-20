@@ -20,7 +20,7 @@
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
 #include "oneapi/dal/detail/policy.hpp"
-#include "oneapi/dal/graph/detail/graph_service_functions_impl.hpp"
+#include "oneapi/dal/graph/detail/service_functions_impl.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 

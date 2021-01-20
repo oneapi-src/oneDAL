@@ -18,8 +18,8 @@
 
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
-#include "oneapi/dal/graph/detail/container.hpp"
 #include "oneapi/dal/graph/common.hpp"
+#include "oneapi/dal/graph/detail/container.hpp"
 
 namespace oneapi::dal::preview::detail {
 
@@ -151,11 +151,11 @@ public:
                              edge_size_type edge_count,
                              edge_type* offsets,
                              vertex_type* neighbors,
-                             vertex_type* degrees) {
+                             edge_type* degrees) {
         _topology._vertex_count = vertex_count;
         _topology._edge_count = edge_count;
         _topology._edge_offsets = edge_set::wrap(offsets, vertex_count + 1);
-        _topology._degrees = vertex_set::wrap(degrees, vertex_count);
+        _topology._degrees = edge_set::wrap(degrees, vertex_count);
         _topology._vertex_neighbors = vertex_set::wrap(neighbors, edge_count * 2);
     }
 
@@ -171,15 +171,15 @@ public:
         return _edge_values;
     }
 
-    inline const topology<IndexType>& get_topology() const {
+    inline const topology<IndexType> get_topology() const {
         return _topology;
     }
 
-    inline const vertex_values<VertexValue>& get_vertex_values() const {
+    inline const vertex_values<VertexValue> get_vertex_values() const {
         return _vertex_values;
     }
 
-    inline const edge_values<EdgeValue>& get_edge_values() const {
+    inline const edge_values<EdgeValue> get_edge_values() const {
         return _edge_values;
     }
 
@@ -215,7 +215,7 @@ constexpr auto get_topology_vertex_degree(const topology<IndexType>& _topology,
 template <typename IndexType>
 constexpr auto get_topology_vertex_neighbors(const topology<IndexType>& _topology,
                                              const IndexType& vertex) noexcept ->
-    typename topology<IndexType>::const_edge_range_type {
+    typename topology<IndexType>::const_edge_range {
     const IndexType* vertex_neighbors_begin =
         _topology._vertex_neighbors.get_data() + _topology._edge_offsets[vertex];
     const IndexType* vertex_neighbors_end =

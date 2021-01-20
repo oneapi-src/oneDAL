@@ -33,7 +33,7 @@
 
 /* Graphs */
 #include "oneapi/dal/graph/graph_common.hpp"
-#include "oneapi/dal/graph/graph_service_functions.hpp"
+#include "oneapi/dal/graph/service_functions.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
 
 /* I/O */
