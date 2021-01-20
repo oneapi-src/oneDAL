@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #===============================================================================
 # Copyright 2014-2021 Intel Corporation
 #
@@ -16,26 +16,21 @@
 #===============================================================================
 
 # shellcheck shell=sh
-# Get absolute pathname to script, when sourced from bash, zsh and ksh shells.
-# see https://stackoverflow.com/a/29835459/2914328 for detailed "how it works"
+# ############################################################################
+
+# Get absolute path/filename of this script.
+# Uses only POSIX compliant commands.
 #
-# Attribution of this rreadlink() function goes to Michael Klement, aka
-# "mklement0" on StackOverflow. Based on "edited Sep 16 '19" version of SO post.
+# Attribution of this rreadlink() function goes to Michael Klement.
 # Based on https://github.com/mklement0/rreadlink/blob/master/bin/rreadlink#L125
 # Above licensed under MIT license > https://spdx.org/licenses/MIT#licenseText
-#     User profile: https://stackoverflow.com/users/45375/mklement0
-#         LinkedIn: https://www.linkedin.com/in/mklement0/
-#          SO post: https://stackoverflow.com/a/29835459/2914328
-# SO License terms: https://stackoverflow.com/help/licensing
-#     CC BY-SA 4.0: https://creativecommons.org/licenses/by-sa/4.0/
-#
-# Adapted and modified by Paul A. Fischer, Intel Corporation
+# See https://stackoverflow.com/a/29835459/2914328 for detailed "how it works."
 #
 # This POSIX-compliant shell function implements an equivalent to the GNU
 # `readlink -e` command and is a reasonably robust solution that only fails
 # in two rare edge cases:
 #   * paths with embedded newlines (very rare)
-#   * filenames containing literal string -> (also rare)
+#   * filenames containing the literal string " -> " (also rare)
 
 # Usage:
 #   script_path=$(rreadlink "$vars_script_rel_path")
@@ -54,7 +49,7 @@ rreadlink() (
   # shellcheck disable=SC2034
   [ -n "${ZSH_VERSION:-}" ] && options[POSIX_BUILTINS]=on
   while :; do
-    [ -L "$target" ] || [ -e "$target" ] || { command printf '%s\n' ":: ERROR: rreadlink(): '$target' does not exist." >&2; return 1; }
+    [ -L "$target" ] || [ -e "$target" ] || { command printf '%s\n' "   ERROR: rreadlink(): '$target' does not exist." >&2; return 1; }
     command cd "$(command dirname -- "$target")" >/dev/null 2>&1
     fname=$(command basename -- "$target")
     [ "$fname" = '/' ] && fname=''
@@ -78,90 +73,160 @@ rreadlink() (
 
 # ############################################################################
 
-# Check to insure that this script is being sourced, not executed.
-# see https://stackoverflow.com/a/38128348/2914328
-# see https://stackoverflow.com/a/28776166/2914328
-# see https://stackoverflow.com/a/60783610/2914328
-# see https://stackoverflow.com/a/2942183/2914328
+# Determine if we are being executed or sourced. Need to detect being sourced
+# within an executed script, which can happen on a CI system. We also must
+# detect being sourced at a shell prompt (CLI). The setvars.sh script will
+# always source this script, but this script can also be called directly.
 
-# This script is designed to be POSIX compatible, there are a few lines in the
-# code block below that contain elements that are specific to a shell. The
-# shell-specific elements are needed to identify the sourcing shell.
+# We are assuming we know the name of this script, which is a reasonable
+# assumption. This script _must_ be named "vars.sh" or it will not work
+# with the top-level setvars.sh script. Making this assumption simplifies
+# the process of detecting if the script has been sourced or executed. It
+# also simplifies the process of detecting the location of this script.
 
-vars_script_name="vars.sh"
+# Using `readlink` to remove possible symlinks in the name of the script.
+# Also, "ps -o comm=" is limited to a 15 character result, but it works
+# fine here, because we are only looking for the name of this script or the
+# name of the execution shell, both always fit into fifteen characters.
 
-vars_sourced=0 ;
-vars_sourced_sh="$(ps -p "$$" -o  command= | awk '{print $1}')" ;
-vars_sourced_nm="$(ps -p "$$" -o  command= | awk '{print $2}')" ;
+# TODO: Edge cases exist when executed by way of "/bin/sh setvars.sh"
+# Most shells detect or fall thru to error message, sometimes ksh does not.
+# This is an odd and unusual situation; not a high priority issue.
 
+_vars_get_proc_name() {
+  if [ -n "${ZSH_VERSION:-}" ] ; then
+    script="$(ps -p "$$" -o comm=)"
+  else
+    script="$1"
+    while [ -L "$script" ] ; do
+      script="$(readlink "$script")"
+    done
+  fi
+  basename -- "$script"
+}
+
+_vars_this_script_name="vars.sh"
+if [ "$_vars_this_script_name" = "$(_vars_get_proc_name "$0")" ] ; then
+  echo "   ERROR: Incorrect usage: this script must be sourced."
+  echo "   Usage: . path/to/${_vars_this_script_name}"
+  return 255 2>/dev/null || exit 255
+fi
+
+
+# ############################################################################
+
+# Prepend path segment(s) to path-like env vars (PATH, CPATH, etc.).
+
+# prepend_path() avoids dangling ":" that affects some env vars (PATH and CPATH)
+# prepend_manpath() includes dangling ":" needed by MANPATH.
+# PATH > https://www.gnu.org/software/libc/manual/html_node/Standard-Environment.html
+# MANPATH > https://manpages.debian.org/stretch/man-db/manpath.1.en.html
+
+# Usage:
+#   env_var=$(prepend_path "$prepend_to_var" "$existing_env_var")
+#   export env_var
+#
+#   env_var=$(prepend_manpath "$prepend_to_var" "$existing_env_var")
+#   export env_var
+#
+# Inputs:
+#   $1 == path segment to be prepended to $2
+#   $2 == value of existing path-like environment variable
+
+prepend_path() (
+  path_to_add="$1"
+  path_is_now="$2"
+
+  if [ "" = "${path_is_now}" ] ; then   # avoid dangling ":"
+    printf "%s" "${path_to_add}"
+  else
+    printf "%s" "${path_to_add}:${path_is_now}"
+  fi
+)
+
+prepend_manpath() (
+  path_to_add="$1"
+  path_is_now="$2"
+
+  if [ "" = "${path_is_now}" ] ; then   # include dangling ":"
+    printf "%s" "${path_to_add}:"
+  else
+    printf "%s" "${path_to_add}:${path_is_now}"
+  fi
+)
+
+
+# ############################################################################
+
+# Extract the name and location of this sourced script.
+
+# Generally, "ps -o comm=" is limited to a 15 character result, but it works
+# fine for this usage, because we are primarily interested in finding the name
+# of the execution shell, not the name of any calling script.
+
+vars_script_name=""
+vars_script_shell="$(ps -p "$$" -o comm=)"
 # ${var:-} needed to pass "set -eu" checks
 # see https://unix.stackexchange.com/a/381465/103967
 # see https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_06_02
-if [ -n "${ZSH_VERSION:-}" ] ; then     # only executed in zsh
-  vars_sourced=0 ; #echo "   ZSH version \"$ZSH_VERSION\""
-  vars_sourced_sh="zsh" ;               # only meaningful if vars_sourced=1
-  vars_sourced_nm="${(%):-%x}" ;        # ditto
-  if [ -n "$ZSH_EVAL_CONTEXT" ] ; then  # only present in zsh 5.x and later
-    case $ZSH_EVAL_CONTEXT in (*:file*) vars_sourced=1 ;; esac ;
+if [ -n "${ZSH_VERSION:-}" ] && [ -n "${ZSH_EVAL_CONTEXT:-}" ] ; then     # zsh 5.x and later
+  # shellcheck disable=2249
+  case $ZSH_EVAL_CONTEXT in (*:file*) vars_script_name="${(%):-%x}" ;; esac ;
+elif [ -n "${KSH_VERSION:-}" ] ; then                                     # ksh, mksh or lksh
+  if [ "$(set | grep -Fq "KSH_VERSION=.sh.version" ; echo $?)" -eq 0 ] ; then # ksh
+    vars_script_name="${.sh.file}" ;
+  else # mksh or lksh or [lm]ksh masquerading as ksh or sh
+    # force [lm]ksh to issue error msg; which contains this script's path/filename, e.g.:
+    # mksh: /home/ubuntu/intel/oneapi/vars.sh[137]: ${.sh.file}: bad substitution
+    vars_script_name="$( (echo "${.sh.file}") 2>&1 )" || : ;
+    vars_script_name="$(expr "${vars_script_name:-}" : '^.*sh: \(.*\)\[[0-9]*\]:')" ;
   fi
-elif [ -n "${KSH_VERSION:-}" ] ; then   # only executed in ksh or mksh or lksh
-  vars_sourced=0 ; #echo "   KSH version \"$KSH_VERSION\""
-  if [ "$(set | grep KSH_VERSION)" = "KSH_VERSION=.sh.version" ] ; then # ksh
-    if [ "$(cd "$(dirname -- "$0")" && pwd -P)/$(basename -- "$0")" \
-      != "$(cd "$(dirname -- "${.sh.file}")" && pwd -P)/$(basename -- "${.sh.file}")" ] ; then
-      vars_sourced=1 ;
-      vars_sourced_sh="ksh" ;           # only meaningful if sourced=1
-      vars_sourced_nm="${.sh.file}" ;   # ditto
-    fi
-  else # mksh or lksh detected (also check for [lm]ksh renamed as ksh)
-    vars_sourced_sh="$(basename -- "$0")"
-    if [ "mksh" = "$vars_sourced_sh" ] || [ "lksh" = "$vars_sourced_sh" ] || [ "ksh" = "$vars_sourced_sh" ] ; then
-      vars_sourced=1 ;
-      # force [lm]ksh to issue error msg; contains this script's rel/path/filename
-      vars_sourced_nm="$( (echo "${.sh.file}") 2>&1 )" || : ;
-      vars_sourced_nm="$(expr "$vars_sourced_nm" : '^.*ksh: \(.*\)\[[0-9]*\]:')" ;
-    fi
-  fi
-elif [ -n "${BASH_VERSION:-}" ] ; then  # only executed in bash
-  vars_sourced=0 ; #echo "   BASH version \"$BASH_VERSION\""
-  vars_sourced_sh="bash" ;              # only meaningful if vars_sourced=1
+elif [ -n "${BASH_VERSION:-}" ] ; then        # bash
   # shellcheck disable=2128
-  vars_sourced_nm="$BASH_SOURCE" ;      # ditto
-  (return 0 2>/dev/null) && vars_sourced=1 ;
-# TODO: following needs further testing to work in dash
-elif [ "${0:-}" = "dash" ] ; then
-  vars_sourced=1 ;                      # see error messages below for outcome
-  vars_sourced_sh="dash" ;              # see error messages below for outcome
-  vars_sourced_nm="$vars_sourced_nm" ;
-# Only reliable way to detect sh source is to know the name of this script.
-# TODO: following needs further testing to work in sh
-elif [ "$(basename -- "$0")" != "$vars_script_name" ] ; then
-  vars_sourced=1 ;                  # see error messages below for outcome
-  vars_sourced_sh="sh" ;            # see error messages below for outcome
-  vars_sourced_nm="$vars_sourced_nm" ;
-fi
-
-if [ ${vars_sourced:-} -eq 0 ] ; then
-  >&2 echo ":: ERROR: Incorrect usage: \"$vars_sourced_nm\" must be sourced." ;
-  if [ "zsh" = "$vars_sourced_sh" ] ; then
-    >&2 echo "   Sourcing in ZSH requires version 5+. You have version $ZSH_VERSION."
+  (return 0 2>/dev/null) && vars_script_name="${BASH_SOURCE}" ;
+elif [ "dash" = "$vars_script_shell" ] ; then # dash
+  # force dash to issue error msg; which contains this script's rel/path/filename, e.g.:
+  # dash: 146: /home/ubuntu/intel/oneapi/vars.sh: Bad substitution
+  vars_script_name="$( (echo "${.sh.file}") 2>&1 )" || : ;
+  vars_script_name="$(expr "${vars_script_name:-}" : '^.*dash: [0-9]*: \(.*\):')" ;
+elif [ "sh" = "$vars_script_shell" ] ; then   # could be dash masquerading as /bin/sh
+  # force a shell error msg; which should contain this script's path/filename
+  # sample error msg shown; assume this file is named "vars.sh"; as required by setvars.sh
+  vars_script_name="$( (echo "${.sh.file}") 2>&1 )" || : ;
+  if [ "$(printf "%s" "$vars_script_name" | grep -Eq "sh: [0-9]+: .*vars\.sh: " ; echo $?)" -eq 0 ] ; then # dash as sh
+    # sh: 155: /home/ubuntu/intel/oneapi/vars.sh: Bad substitution
+    vars_script_name="$(expr "${vars_script_name:-}" : '^.*sh: [0-9]*: \(.*\):')" ;
   fi
-  # usage # if you want to add a usage() function, put a call to it here
-  return 255 2>/dev/null || exit 255 ;
+else  # unrecognized shell or dash being sourced from within a user's script
+  # force a shell error msg; which should contain this script's path/filename
+  # sample error msg shown; assume this file is named "vars.sh"; as required by setvars.sh
+  vars_script_name="$( (echo "${.sh.file}") 2>&1 )" || : ;
+  if [ "$(printf "%s" "$vars_script_name" | grep -Eq "^.+: [0-9]+: .*vars\.sh: " ; echo $?)" -eq 0 ] ; then # dash
+    # .*: 164: intel/oneapi/vars.sh: Bad substitution
+    vars_script_name="$(expr "${vars_script_name:-}" : '^.*: [0-9]*: \(.*\):')" ;
+  else
+    vars_script_name="" ;
+  fi
 fi
 
 if [ "" = "$vars_script_name" ] ; then
-  >&2 echo ":: ERROR: Unable to proceed: no support for sourcing from '[dash|sh]' shell." ;
+  >&2 echo "   ERROR: Unable to proceed: possible causes listed below."
   >&2 echo "   This script must be sourced. Did you execute or source this script?" ;
-  >&2 echo "   Can be caused by sourcing from inside a \"shebang-less\" script." ;
-  >&2 echo "   Can also be caused by sourcing from ZSH version 4.x or older." ;
-  return 1 2>/dev/null || exit 1
+  >&2 echo "   Unrecognized/unsupported shell (supported: bash, zsh, ksh, m/lksh, dash)." ;
+  >&2 echo "   May fail in dash if you rename this script (assumes \"vars.sh\")." ;
+  >&2 echo "   Can be caused by sourcing from ZSH version 4.x or older." ;
+  return 255 2>/dev/null || exit 255
 fi
+
+
+# ############################################################################
+my_script_path=$(dirname -- "$(rreadlink "${vars_script_name:-}")")
+component_root=$(dirname -- "${my_script_path}")
 
 __daal_tmp_dir="<INSTALLDIR>"
 __daal_tmp_dir=$__daal_tmp_dir/dal
 if [ ! -d $__daal_tmp_dir ]; then
-    __daal_tmp_dir=$(dirname -- "$(dirname -- "$(rreadlink "$vars_sourced_nm")")../")
+    __daal_tmp_dir=${component_root}
 fi
 
 export DAL_MAJOR_BINARY=__DAL_MAJOR_BINARY__
