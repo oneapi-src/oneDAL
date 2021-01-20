@@ -40,6 +40,13 @@ using daal_pca_svd_kernel_t = daal_pca::internal::
     PCASVDBatchKernel<Float, daal_pca::interface3::BatchParameter<Float, daal_pca::svdDense>, Cpu>;
 
 template <typename Float>
+inline auto get_normalization_algorithm() {
+    using normalization_alg_t = daal::algorithms::normalization::zscore::Batch<
+        Float, daal::algorithms::normalization::zscore::defaultDense>;
+    return daal::services::SharedPtr<normalization_alg_t>{ new normalization_alg_t{} };
+}
+
+template <typename Float>
 static result_t call_daal_kernel(const context_cpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data) {
@@ -62,7 +69,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     const auto daal_data =
         interop::convert_to_daal_homogen_table(arr_data, row_count, column_count);
     const auto daal_eigenvectors =
-        interop::convert_to_daal_homogen_table(arr_eigvec, column_count, component_count);
+        interop::convert_to_daal_homogen_table(arr_eigvec, component_count, column_count);
     const auto daal_eigenvalues =
         interop::convert_to_daal_homogen_table(arr_eigval, 1, component_count);
     const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, column_count);
@@ -70,13 +77,15 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 
     daal_pca::internal::InputDataType dtype = daal_pca::internal::nonNormalizedDataset;
 
-    daal_pca::interface3::BatchParameter<Float, daal_pca::svdDense> parameter;
+    auto norm_alg = get_normalization_algorithm<Float>();
+    norm_alg->input.set(daal::algorithms::normalization::zscore::data, daal_data);
+    norm_alg->parameter().resultsToCompute |= daal::algorithms::normalization::zscore::mean;
+    norm_alg->parameter().resultsToCompute |= daal::algorithms::normalization::zscore::variance;
 
-    auto normalizationAlgorithm = parameter.normalization;
-    normalizationAlgorithm->input.set(daal::algorithms::normalization::zscore::data, daal_data);
-    auto algParameter = &(normalizationAlgorithm->parameter());
-    algParameter->resultsToCompute |= daal::algorithms::normalization::zscore::mean;
-    algParameter->resultsToCompute |= daal::algorithms::normalization::zscore::variance;
+    daal_pca::interface3::BatchParameter<Float, daal_pca::svdDense> parameter;
+    parameter.normalization = norm_alg;
+    parameter.resultsToCompute =
+        std::uint64_t(daal_pca::mean | daal_pca::variance | daal_pca::eigenvalue);
 
     interop::status_to_exception(
         interop::call_daal_kernel<Float, daal_pca_svd_kernel_t>(ctx,

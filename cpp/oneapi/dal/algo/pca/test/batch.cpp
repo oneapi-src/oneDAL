@@ -16,7 +16,8 @@
 
 #include "oneapi/dal/algo/pca/train.hpp"
 #include "oneapi/dal/backend/linalg.hpp"
-#include "oneapi/dal/test/engine/dataframes.hpp"
+#include "oneapi/dal/backend/linalg/io.hpp"
+#include "oneapi/dal/test/engine/dataframe.hpp"
 
 namespace oneapi::dal::pca::test {
 
@@ -35,8 +36,87 @@ public:
                 .set_deterministic(false);
     }
 
-    table get_table(const te::dataframe& df, const std::string& table_type) {
+    table get_input_data(const te::dataframe& df, const std::string& table_type) {
         return df.get_table<Float>(this->get_policy(), table_type);
+    }
+
+    void general_checks(const te::dataframe& data,
+                        std::int64_t component_count,
+                        const std::string& table_type) {
+        CAPTURE(component_count, table_type);
+
+        const table x = get_input_data(data, table_type);
+        const auto pca_desc = get_descriptor(component_count);
+
+        SECTION("training") {
+            const auto result = this->train(pca_desc, x);
+            check_train_result(pca_desc, data, result);
+        }
+    }
+
+    void check_train_result(const pca::descriptor<Float, Method>& desc,
+                            const te::dataframe& data,
+                            const pca::train_result<>& result) {
+        const auto [means, variances, eigenvalues, eigenvectors] = unpack_result(result);
+
+        check_shapes(desc, data, result);
+        check_nans(result);
+
+        SECTION("eigenvectors order is descending") {
+            this->check_eigenvalues_order(eigenvalues);
+        }
+
+        SECTION("eigenvectors matrix is orthogonal") {
+            check_eigenvectors_orthogonality(eigenvectors);
+        }
+
+        const auto bs = te::compute_basic_statistics<double>(data);
+
+        SECTION("means are expected") {
+            check_means(bs, means);
+        }
+
+        SECTION("variances are expected") {
+            check_variances(bs, variances);
+        }
+    }
+
+    void check_shapes(const pca::descriptor<Float, Method>& desc,
+                      const te::dataframe& data,
+                      const pca::train_result<>& result) {
+        const auto [means, variances, eigenvalues, eigenvectors] = unpack_result(result);
+
+        const std::int64_t expected_component_count =
+            (desc.get_component_count() > 0) ? desc.get_component_count() : data.get_column_count();
+
+        SECTION("eigenvalues shape is expected") {
+            REQUIRE(eigenvalues.get_row_count() == 1);
+            REQUIRE(eigenvalues.get_column_count() == expected_component_count);
+        }
+
+        SECTION("eigenvectors shape is expected") {
+            REQUIRE(eigenvectors.get_row_count() == expected_component_count);
+            REQUIRE(eigenvectors.get_column_count() == data.get_column_count());
+        }
+
+        SECTION("means shape is expected") {
+            REQUIRE(means.get_row_count() == 1);
+            REQUIRE(means.get_column_count() == data.get_column_count());
+        }
+
+        SECTION("variances shape is expected") {
+            REQUIRE(variances.get_row_count() == 1);
+            REQUIRE(variances.get_column_count() == data.get_column_count());
+        }
+    }
+
+    void check_nans(const pca::train_result<>& result) {
+        const auto [means, variances, eigenvalues, eigenvectors] = unpack_result(result);
+
+        SECTION("there is no NaN in means") {}
+        SECTION("there is no NaN in variances") {}
+        SECTION("there is no NaN in eigenvalues") {}
+        SECTION("there is no NaN in eigenvectors") {}
     }
 
     void check_eigenvalues_order(const table& eigenvalues) const {
@@ -55,10 +135,32 @@ public:
         const auto V = la::matrix<double>::wrap(eigenvectors);
         const auto E = la::matrix<double>::eye(V.get_row_count());
         const auto VxVT = la::dot(V, V.t());
-        const double diff = la::max(la::abs(la::difference(VxVT, E)));
+        const double diff = la::l_inf_norm(VxVT, E);
         const double tol = te::get_tolerance<Float>(1e-4, 1e-10);
         CHECK(diff < tol);
     }
+
+    void check_means(const te::basic_statistics<double>& reference, const table& means) {
+        const double tol = te::get_tolerance<Float>(1e-4, 1e-10);
+        const double diff = te::l_inf_norm(reference.get_means(), means);
+        CHECK(diff < tol);
+    }
+
+    void check_variances(const te::basic_statistics<double>& reference, const table& variances) {
+        const double tol = te::get_tolerance<Float>(1e-4, 1e-10);
+        const double diff = te::l_inf_norm(reference.get_variances(), variances);
+        CHECK(diff < tol);
+    }
+
+private:
+    static auto unpack_result(const pca::train_result<>& result) {
+        const auto means = result.get_means();
+        const auto variances = result.get_variances();
+        const auto eigenvalues = result.get_eigenvalues();
+        const auto eigenvectors = result.get_eigenvectors();
+        return std::make_tuple(means, variances, eigenvalues, eigenvectors);
+    }
+
 };
 
 using pca_types = COMBINE_TYPES((float, double), (pca::method::cov, pca::method::svd));
@@ -66,8 +168,8 @@ using pca_types = COMBINE_TYPES((float, double), (pca::method::cov, pca::method:
 TEMPLATE_LIST_TEST_M(pca_batch_test, "common flow",
                      "[pca][integration][batch]", pca_types) {
     const te::dataframe data =
-        GENERATE_DATAFRAME(te::dataframe_builder{1000, 100}.fill_uniform(-2, 5),
-                           te::dataframe_builder{100, 1000}.fill_uniform(-0.2, 1.5));
+        GENERATE_DATAFRAME(te::dataframe_builder{100, 10}.fill_uniform(0.2, 0.5),
+                           te::dataframe_builder{100000, 10}.fill_uniform(-0.2, 1.5));
 
     const std::int64_t component_count =
         GENERATE_COPY(0, 1, data.get_column_count(),
@@ -76,39 +178,7 @@ TEMPLATE_LIST_TEST_M(pca_batch_test, "common flow",
 
     const std::string table_type = GENERATE("homogen");
 
-    SECTION("training") {
-        const table x = this->get_table(data, table_type);
-        const auto pca_desc = this->get_descriptor(component_count);
-
-        CAPTURE(component_count, table_type);
-        const auto result = this->train(pca_desc, x);
-        const auto eigenvalues = result.get_eigenvalues();
-        const auto eigenvectors = result.get_eigenvectors();
-
-        const std::int64_t expected_component_count =
-            (component_count > 0) ? component_count : x.get_column_count();
-
-        SECTION("eigenvalues shape is expected") {
-            CHECK(eigenvalues.get_row_count() == 1);
-            CHECK(eigenvalues.get_column_count() == expected_component_count);
-        }
-
-        SECTION("eigenvectors shape is expected") {
-            CHECK(eigenvectors.get_row_count() == expected_component_count);
-            CHECK(eigenvectors.get_column_count() == x.get_column_count());
-        }
-
-        SECTION("there is no NaN in eigenvalues") {}
-        SECTION("there is no NaN in eigenvectors") {}
-
-        SECTION("eigenvectors order is descending") {
-            this->check_eigenvalues_order(eigenvalues);
-        }
-
-        SECTION("eigenvectors matrix is orthogonal") {
-            this->check_eigenvectors_orthogonality(eigenvectors);
-        }
-    }
+    this->general_checks(data, component_count, table_type);
 }
 
 } // namespace oneapi::dal::pca::test

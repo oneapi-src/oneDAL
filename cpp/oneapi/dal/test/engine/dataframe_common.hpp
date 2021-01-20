@@ -16,9 +16,11 @@
 
 #pragma once
 
+#include <any>
 #include <string>
 #include <vector>
 #include <memory>
+#include <optional>
 
 #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/table/common.hpp"
@@ -77,10 +79,35 @@ public:
         return new dataframe_impl{ array_copy, row_count_, column_count_ };
     }
 
+    template <typename T>
+    void add_field(const std::string& name, T&& value) {
+        user_fields_.insert_or_assign(name, std::any{ std::forward<T>(value) });
+    }
+
+    void remove_field(const std::string& name) {
+        user_fields_.erase(name);
+    }
+
+    template <typename T>
+    std::optional<T> get_field(const std::string& name) const {
+        const auto it = user_fields_.find(name);
+        if (it == user_fields_.end()) {
+            return std::nullopt;
+        }
+
+        try {
+            return std::any_cast<T>(it->second);
+        }
+        catch (const std::bad_any_cast&) {
+            return std::nullopt;
+        }
+    }
+
 private:
     array<float> array_;
     std::int64_t row_count_;
     std::int64_t column_count_;
+    std::unordered_map<std::string, std::any> user_fields_;
 };
 
 class dataframe {
@@ -119,8 +146,39 @@ public:
         return impl_->get_size();
     }
 
+    const array<float>& get_array() const {
+        return impl_->get_array();
+    }
+
+    template <typename T>
+    void add_field(const std::string& name, T&& value) const {
+        impl_->add_field(name, std::forward<T>(value));
+    }
+
+    void remove_field(const std::string& name) const {
+        impl_->remove_field(name);
+    }
+
+    template <typename T>
+    std::optional<T> get_field(const std::string& name) const {
+        return impl_->template get_field<T>(name);
+    }
+
+    template <typename T, typename Op>
+    T get_or_add_field(const std::string& name, Op&& op) const {
+        const auto optional_value = impl_->template get_field<T>(name);
+        if (optional_value) {
+            return optional_value.value();
+        }
+        else {
+            const auto value = op();
+            impl_->add_field(name, value);
+            return value;
+        }
+    }
+
 private:
-    dal::detail::pimpl<dataframe_impl> impl_;
+    mutable dal::detail::pimpl<dataframe_impl> impl_;
 };
 
 class dataframe_builder_action {

@@ -170,6 +170,10 @@ public:
     using base::get_stride;
     using base::get_linear_index;
 
+    static matrix wrap(const array<Float>& x) {
+        return matrix{ x, { 1, x.get_count() } };
+    }
+
     static matrix wrap(const array<Float>& x, const shape& s) {
         return matrix{ x, s };
     }

@@ -29,6 +29,7 @@
 #include "oneapi/dal/compute.hpp"
 #include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/test/engine/macro.hpp"
+#include "oneapi/dal/test/engine/math.hpp"
 
 // Workaround DPC++ Compiler's warning on unused
 // variable declared by Catch2's TEST_CASE macro
@@ -198,20 +199,6 @@ public:
         return oneapi::dal::test::engine::compute(get_policy(), std::forward<Args>(args)...);
     }
 };
-
-template <typename Float>
-inline double get_tolerance(double f32_tol, double f64_tol) {
-    static_assert(std::is_same_v<Float, float> || std::is_same_v<Float, double>,
-                  "Only single or double precision is allowed");
-
-    if constexpr (std::is_same_v<Float, float>) {
-        return f32_tol;
-    }
-
-    if constexpr (std::is_same_v<Float, double>) {
-        return f64_tol;
-    }
-}
 
 template <std::size_t index, typename TupleX, typename TupleY>
 struct combine_types_element {

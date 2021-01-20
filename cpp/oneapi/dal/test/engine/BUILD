@@ -7,8 +7,9 @@ dal_module(
     name = "common",
     hdrs = [
         "common.hpp",
-        "macro.hpp",
         "config.hpp",
+        "math.hpp",
+        "macro.hpp",
     ],
     srcs = [
         "config.cpp",
@@ -18,6 +19,7 @@ dal_module(
     ],
     dal_deps = [
         "@onedal//cpp/oneapi/dal:common",
+        "@onedal//cpp/oneapi/dal/backend/linalg",
     ],
     extra_deps = [
         "@catch2//:catch2",
@@ -28,8 +30,8 @@ dal_module(
 
 dal_module(
     name = "dataframes",
-    hdrs = glob(["dataframes.hpp"]),
-    srcs = glob(["dataframes.cpp"]),
+    hdrs = glob([ "dataframe*.hpp" ]),
+    srcs = glob([ "dataframe*.cpp" ]),
     dal_deps = [
         ":common",
         "@onedal//cpp/oneapi/dal:table",

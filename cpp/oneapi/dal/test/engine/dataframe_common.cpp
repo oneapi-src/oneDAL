@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/test/engine/dataframes.hpp"
+#include "oneapi/dal/test/engine/dataframe_common.hpp"
 
 #include <list>
 #include <random>
@@ -289,75 +289,6 @@ dataframe dataframe_builder::build() const {
 #endif
     return df;
 }
-
-// array<double> dataframe::column_means() const {
-//     const auto cached_means = impl_->get_cached_column_means();
-//     if (cached_means.get_count()) {
-//         return cached_means;
-//     }
-
-//     const auto sums = array<double>::zeros(get_column_count());
-//     const auto sums_c = array<double>::zeros(get_column_count());
-
-//     const float* data = impl_->get_data();
-//     double* sums_data = sums.get_mutable_data();
-//     double* sums_c_data = sums_c.get_mutable_data();
-
-//     const std::int64_t row_count = get_row_count();
-//     const std::int64_t column_count = get_column_count();
-
-//     for (std::int64_t i = 0; i < row_count; i++) {
-//         for (std::int64_t j = 0; j < column_count; j++) {
-//             const double x = double(data[i * column_count + j]);
-//             kahan_add(x, sums_data[j], sums_c_data[j]);
-//         }
-//     }
-
-//     for (std::int64_t j = 0; j < column_count; j++) {
-//         sums_data[j] /= double(row_count);
-//     }
-
-//     impl_->update_cached_column_means(sums);
-//     return sums;
-// }
-
-// array<double> dataframe::column_variances() const {
-//     const auto cached_variances = impl_->get_cached_column_variances();
-//     if (cached_variances.get_count()) {
-//         return cached_variances;
-//     }
-
-//     const auto sums = array<double>::zeros(get_column_count());
-//     const auto sums_c = array<double>::zeros(get_column_count());
-//     const auto sums_sq = array<double>::zeros(get_column_count());
-//     const auto sums_sq_c = array<double>::zeros(get_column_count());
-
-//     const float* data = impl_->get_data();
-//     double* sums_data = sums.get_mutable_data();
-//     double* sums_c_data = sums_c.get_mutable_data();
-//     double* sums_sq_data = sums_sq.get_mutable_data();
-//     double* sums_sq_c_data = sums_sq_c.get_mutable_data();
-
-//     const std::int64_t row_count = get_row_count();
-//     const std::int64_t column_count = get_column_count();
-
-//     for (std::int64_t i = 0; i < row_count; i++) {
-//         for (std::int64_t j = 0; j < column_count; j++) {
-//             const double x = double(data[i * column_count + j]);
-//             kahan_add(x, sums_data[j], sums_c_data[j]);
-//             kahan_add(x * x, sums_sq_data[j], sums_sq_c_data[j]);
-//         }
-//     }
-
-//     for (std::int64_t j = 0; j < column_count; j++) {
-//         const double s = sums_data[j];
-//         const double sq = sums_sq_data[j];
-//         sums_data[j] = (sq - s * s / double(row_count)) / double(row_count - 1);
-//     }
-
-//     impl_->update_cached_column_variances(sums);
-//     return sums;
-// }
 
 template <typename Float>
 table dataframe::get_table(const std::string& table_type) const {

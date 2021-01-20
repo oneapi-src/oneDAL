@@ -138,4 +138,35 @@ DOT_TEST("dot in-place", "[linalg][dot]", LAYOUTS_ABC) {
     }
 }
 
+TEST("dot orthogonal matrix", "[linalg][dot]") {
+    const std::int64_t row_count = 5;
+    const std::int64_t column_count = 5;
+    const std::int64_t element_count = row_count * column_count;
+    const double X_ptr[element_count] = {
+         0.5728966506,  0.5677902077,  -0.4104886344,   0.0993844187,  0.4135523258,
+        -0.4590520326,  0.2834513205,  -0.6214677550,  -0.5114715156, -0.2471867686,
+         0.0506571111, -0.3713048334,   0.0645569868,  -0.6484125926,  0.6595150363,
+         0.3318135734,  0.4178413295,   0.5362188809,  -0.5381061517, -0.3717787744,
+        -0.5902493276,  0.5336768432,   0.3918910789,   0.1360974115,  0.4412410170
+    };
+
+    const auto X = matrix<double>::wrap(
+        array<double>::wrap(X_ptr, element_count), {row_count, column_count});
+
+    const auto C = dot(X, X.t());
+
+    SECTION("result is ones matrix") {
+        enumerate(C, [&](std::int64_t i, std::int64_t j, double x) {
+            CAPTURE(i, j);
+
+            if (i == j) {
+                REQUIRE(std::abs(x - 1.0) < 1e-9);
+            }
+            else {
+                REQUIRE(std::abs(x) < 1e-9);
+            }
+        });
+    }
+}
+
 } // namespace oneapi::dal::backend::linalg::test
