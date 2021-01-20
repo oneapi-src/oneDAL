@@ -50,6 +50,7 @@ static train_result<task::classification> call_daal_kernel(const context_cpu& ct
     auto arr_data = row_accessor<const Float>{ data }.pull();
     auto arr_labels = row_accessor<const Float>{ labels }.pull();
 
+    // TODO: change the copy logic to preserve table type and metadata
     const auto daal_data =
         interop::convert_to_daal_homogen_table(arr_data, row_count, column_count);
     const auto daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);

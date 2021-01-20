@@ -41,281 +41,77 @@ class host_homogen_table_adapter : public daal::data_management::HomogenNumericT
     using block_desc_t = daal::data_management::BlockDescriptor<T>;
 
 public:
-    static ptr_t create(const homogen_table& table) {
-        status_t internal_stat;
-        auto result = ptr_t{ new host_homogen_table_adapter(table, internal_stat) };
-        status_to_exception(internal_stat);
-        return result;
-    }
+    static ptr_t create(const homogen_table& table);
 
 private:
     status_t getBlockOfRows(std::size_t vector_idx,
                             std::size_t vector_num,
                             rw_mode_t rwflag,
-                            block_desc_t<double>& block) override {
-        return read_rows_impl(vector_idx, vector_num, rwflag, block);
-    }
+                            block_desc_t<double>& block) override;
     status_t getBlockOfRows(std::size_t vector_idx,
                             std::size_t vector_num,
                             rw_mode_t rwflag,
-                            block_desc_t<float>& block) override {
-        return read_rows_impl(vector_idx, vector_num, rwflag, block);
-    }
+                            block_desc_t<float>& block) override;
     status_t getBlockOfRows(std::size_t vector_idx,
                             std::size_t vector_num,
                             rw_mode_t rwflag,
-                            block_desc_t<int>& block) override {
-        return read_rows_impl(vector_idx, vector_num, rwflag, block);
-    }
+                            block_desc_t<int>& block) override;
 
     status_t getBlockOfColumnValues(std::size_t feature_idx,
                                     std::size_t vector_idx,
                                     std::size_t value_num,
                                     rw_mode_t rwflag,
-                                    block_desc_t<double>& block) override {
-        return read_column_values_impl(feature_idx, vector_idx, value_num, rwflag, block);
-    }
+                                    block_desc_t<double>& block) override;
     status_t getBlockOfColumnValues(std::size_t feature_idx,
                                     std::size_t vector_idx,
                                     std::size_t value_num,
                                     rw_mode_t rwflag,
-                                    block_desc_t<float>& block) override {
-        return read_column_values_impl(feature_idx, vector_idx, value_num, rwflag, block);
-    }
+                                    block_desc_t<float>& block) override;
     status_t getBlockOfColumnValues(std::size_t feature_idx,
                                     std::size_t vector_idx,
                                     std::size_t value_num,
                                     rw_mode_t rwflag,
-                                    block_desc_t<int>& block) override {
-        return read_column_values_impl(feature_idx, vector_idx, value_num, rwflag, block);
-    }
+                                    block_desc_t<int>& block) override;
 
-    status_t releaseBlockOfRows(block_desc_t<double>& block) override {
-        block.reset();
-        return status_t();
-    }
-    status_t releaseBlockOfRows(block_desc_t<float>& block) override {
-        block.reset();
-        return status_t();
-    }
-    status_t releaseBlockOfRows(block_desc_t<int>& block) override {
-        block.reset();
-        return status_t();
-    }
+    status_t releaseBlockOfRows(block_desc_t<double>& block) override;
+    status_t releaseBlockOfRows(block_desc_t<float>& block) override;
+    status_t releaseBlockOfRows(block_desc_t<int>& block) override;
 
-    status_t releaseBlockOfColumnValues(block_desc_t<double>& block) override {
-        block.reset();
-        return status_t();
-    }
-    status_t releaseBlockOfColumnValues(block_desc_t<float>& block) override {
-        block.reset();
-        return status_t();
-    }
-    status_t releaseBlockOfColumnValues(block_desc_t<int>& block) override {
-        block.reset();
-        return status_t();
-    }
+    status_t releaseBlockOfColumnValues(block_desc_t<double>& block) override;
+    status_t releaseBlockOfColumnValues(block_desc_t<float>& block) override;
+    status_t releaseBlockOfColumnValues(block_desc_t<int>& block) override;
 
-    status_t assign(float value) override {
-        return status_t(daal::services::ErrorMethodNotImplemented);
-    }
+    status_t assign(float value) override;
+    status_t assign(double value) override;
+    status_t assign(int value) override;
 
-    status_t assign(double value) override {
-        return status_t(daal::services::ErrorMethodNotImplemented);
-    }
+    status_t allocateDataMemoryImpl(daal::MemType /*type*/ = daal::dram) override;
 
-    status_t assign(int value) override {
-        return status_t(daal::services::ErrorMethodNotImplemented);
-    }
+    status_t setNumberOfColumnsImpl(std::size_t ncol) override;
 
-    status_t allocateDataMemoryImpl(daal::MemType /*type*/ = daal::dram) override {
-        return status_t(daal::services::ErrorMethodNotImplemented);
-    }
+    int getSerializationTag() const override;
+    status_t serializeImpl(daal::data_management::InputDataArchive* arch) override;
+    status_t deserializeImpl(const daal::data_management::OutputDataArchive* arch) override;
 
-    status_t setNumberOfColumnsImpl(std::size_t ncol) override {
-        return status_t(daal::services::ErrorMethodNotImplemented);
-    }
-
-    int getSerializationTag() const override {
-        DAAL_ASSERT(!"host_homogen_table_adapter: getSerializationTag() is not implemented");
-        return -1;
-    }
-
-    status_t serializeImpl(daal::data_management::InputDataArchive* arch) override {
-        return status_t(daal::services::ErrorMethodNotImplemented);
-    }
-
-    status_t deserializeImpl(const daal::data_management::OutputDataArchive* arch) override {
-        return status_t(daal::services::ErrorMethodNotImplemented);
-    }
-
-    void freeDataMemoryImpl() override {
-        base::freeDataMemoryImpl();
-        original_table_ = homogen_table{};
-    }
+    void freeDataMemoryImpl() override;
 
     template <typename BlockData>
     status_t read_rows_impl(std::size_t vector_idx,
                             std::size_t vector_num,
                             rw_mode_t rwflag,
-                            block_desc_t<BlockData>& block) {
-        if (rwflag != daal::data_management::readOnly) {
-            return status_t(daal::services::ErrorMethodNotImplemented);
-        }
-
-        if (is_rowmajor_) {
-            return base::getBlockOfRows(vector_idx, vector_num, rwflag, block);
-        }
-        else {
-            const std::int64_t column_count = original_table_.get_column_count();
-            const block_info info{ block, vector_idx, vector_num };
-
-            if (check_row_indexes_in_range(info) == false) {
-                return status_t(daal::services::ErrorIncorrectIndex);
-            }
-
-            block.setDetails(0, vector_idx, rwflag);
-
-            try {
-                array<BlockData> values;
-                auto block_ptr = block.getBlockPtr();
-
-                // multiplication is safe due to checks with 'info' variable
-                const std::int64_t requested_element_count = info.row_count * column_count;
-
-                if (block_ptr != nullptr && info.bd_element_count >= requested_element_count) {
-                    values.reset(block_ptr,
-                                 info.bd_element_count,
-                                 detail::empty_delete<BlockData>());
-                }
-
-                const row_accessor<const BlockData> acc{ original_table_ };
-                pull_values(block,
-                            info.row_count,
-                            column_count,
-                            acc,
-                            values,
-                            range{ info.row_begin_index, info.row_end_index });
-            }
-            catch (const bad_alloc&) {
-                return status_t(daal::services::ErrorMemoryAllocationFailed);
-            }
-            catch (const out_of_range&) {
-                return status_t(daal::services::ErrorIncorrectDataRange);
-            }
-            catch (const std::exception&) {
-                return status_t(daal::services::UnknownError);
-            }
-        }
-
-        return status_t();
-    }
+                            block_desc_t<BlockData>& block);
 
     template <typename BlockData>
     status_t read_column_values_impl(std::size_t feature_idx,
                                      std::size_t vector_idx,
                                      std::size_t value_num,
                                      rw_mode_t rwflag,
-                                     block_desc_t<BlockData>& block) {
-        if (rwflag != daal::data_management::readOnly) {
-            return status_t(daal::services::ErrorMethodNotImplemented);
-        }
+                                     block_desc_t<BlockData>& block);
 
-        if (is_rowmajor_) {
-            return base::getBlockOfColumnValues(feature_idx, vector_idx, value_num, rwflag, block);
-        }
-        else {
-            const block_info info{ block, vector_idx, value_num, feature_idx };
+    bool check_row_indexes_in_range(const block_info& info) const;
+    bool check_column_index_in_range(const block_info& info) const;
 
-            if (check_row_indexes_in_range(info) == false ||
-                check_column_index_in_range(info) == false) {
-                return status_t(daal::services::ErrorIncorrectIndex);
-            }
-
-            block.setDetails(feature_idx, vector_idx, rwflag);
-
-            try {
-                array<BlockData> values;
-                auto block_ptr = block.getBlockPtr();
-                if (block_ptr != nullptr && info.bd_element_count >= info.row_count) {
-                    values.reset(block_ptr,
-                                 info.bd_element_count,
-                                 detail::empty_delete<BlockData>());
-                }
-
-                const column_accessor<const BlockData> acc{ original_table_ };
-                pull_values(block,
-                            info.row_count,
-                            1,
-                            acc,
-                            values,
-                            info.column_index,
-                            range{ info.row_begin_index, info.row_end_index });
-            }
-            catch (const bad_alloc&) {
-                return status_t(daal::services::ErrorMemoryAllocationFailed);
-            }
-            catch (const out_of_range&) {
-                return status_t(daal::services::ErrorIncorrectDataRange);
-            }
-            catch (const std::exception&) {
-                return status_t(daal::services::UnknownError);
-            }
-        }
-        return status_t();
-    }
-
-    bool check_row_indexes_in_range(const block_info& info) const {
-        const std::int64_t row_count = original_table_.get_row_count();
-        return info.row_begin_index < row_count && info.row_end_index <= row_count;
-    }
-
-    bool check_column_index_in_range(const block_info& info) const {
-        const std::int64_t column_count = original_table_.get_column_count();
-        return info.single_column_requested && info.column_index < column_count;
-    }
-
-    template <typename Accessor, typename BlockData, typename... Args>
-    void pull_values(block_desc_t<BlockData>& block,
-                     std::int64_t row_count,
-                     std::int64_t column_count,
-                     const Accessor& acc,
-                     array<BlockData>& values,
-                     Args&&... args) const {
-        // The following const_cast operation is safe only when this class is used for read-only
-        // operations. Use on write leads to undefined behaviour.
-
-        if (block.getBlockPtr() != acc.pull(values, std::forward<Args>(args)...)) {
-            auto raw_ptr = const_cast<BlockData*>(values.get_data());
-            auto data_shared =
-                daal::services::SharedPtr<BlockData>(raw_ptr, daal_object_owner(values));
-            block.setSharedPtr(data_shared, column_count, row_count);
-        }
-    }
-
-    host_homogen_table_adapter(const homogen_table& table, status_t& stat)
-            // The following const_cast is safe only when this class is used for read-only
-            // operations. Use on write leads to undefined behaviour.
-            : base(
-                  daal::data_management::DictionaryIface::equal,
-                  ptr_data_t{ const_cast<Data*>(table.get_data<Data>()), daal_object_owner(table) },
-                  table.get_column_count(),
-                  table.get_row_count(),
-                  stat),
-              is_rowmajor_(table.get_data_layout() == data_layout::row_major) {
-        if (stat.ok() == false) {
-            return;
-        }
-        else if (table.has_data() == false) {
-            stat.add(daal::services::ErrorIncorrectParameter);
-            return;
-        }
-
-        original_table_ = table;
-
-        this->_memStatus = daal::data_management::NumericTableIface::userAllocated;
-        this->_layout = daal::data_management::NumericTableIface::aos;
-    }
+    host_homogen_table_adapter(const homogen_table& table, status_t& stat);
 
 private:
     const bool is_rowmajor_;

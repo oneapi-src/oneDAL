@@ -199,6 +199,33 @@ inline void check_mul_overflow(const Data& first, const Data& second) {
     integer_overflow_ops<Data>{}.check_mul_overflow(first, second);
 }
 
+#ifndef ONEDAL_ENABLE_ASSERT
+#define ONEDAL_ASSERT_SUM_OVERFLOW(...)
+#define ONEDAL_ASSERT_MUL_OVERFLOW(...)
+#else
+#define ONEDAL_ASSERT_SUM_OVERFLOW(first, second)                                               \
+    {                                                                                           \
+        try {                                                                                   \
+            oneapi::dal::detail::check_sum_overflow((first), (second));                         \
+        }                                                                                       \
+        catch (const oneapi::dal::range_error& ex) {                                            \
+            ONEDAL_ASSERT(false,                                                                \
+                          "Sum overflow assertion failed with operands" #first " and " #second) \
+        }                                                                                       \
+    }
+
+#define ONEDAL_ASSERT_MUL_OVERFLOW(first, second)                                                \
+    {                                                                                            \
+        try {                                                                                    \
+            oneapi::dal::detail::check_mul_overflow((first), (second));                          \
+        }                                                                                        \
+        catch (const oneapi::dal::range_error& ex) {                                             \
+            ONEDAL_ASSERT(false,                                                                 \
+                          "Mul overflow assertion failed with operands " #first " and " #second) \
+        }                                                                                        \
+    }
+#endif
+
 template <typename Data>
 struct limits {
     static constexpr Data min() {

@@ -35,7 +35,7 @@ public:
                std::size_t column_index)
             : block_info(block, row_begin_index, value_count) {
         this->column_index = detail::integral_cast<std::int64_t>(column_index);
-        this->single_column_requested = true;
+        single_column_requested = true;
     }
 
     template <typename BlockData>
@@ -49,18 +49,17 @@ public:
         this->row_begin_index = detail::integral_cast<std::int64_t>(row_begin_index);
         this->row_count = detail::integral_cast<std::int64_t>(row_count);
 
-        this->bd_element_count = bd_row_count * bd_column_count;
-        ONEDAL_ASSERT((bd_element_count > bd_row_count && bd_element_count > bd_column_count) ||
-                      (bd_element_count == 0 && (bd_row_count == 0 || bd_column_count == 0)));
+        ONEDAL_ASSERT_MUL_OVERFLOW(bd_row_count, bd_column_count);
+        allocated_element_count = bd_row_count * bd_column_count;
 
-        this->row_end_index = this->row_begin_index + this->row_count;
-        ONEDAL_ASSERT(row_end_index > this->row_begin_index && row_end_index >= this->row_count);
+        ONEDAL_ASSERT_SUM_OVERFLOW(this->row_begin_index, this->row_count);
+        row_end_index = this->row_begin_index + this->row_count;
 
-        this->column_index = -1;
-        this->single_column_requested = false;
+        column_index = -1;
+        single_column_requested = false;
     }
 
-    std::int64_t bd_element_count;
+    std::int64_t allocated_element_count;
     std::int64_t column_index;
     std::int64_t row_begin_index;
     std::int64_t row_end_index;
