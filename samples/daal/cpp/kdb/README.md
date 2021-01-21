@@ -102,17 +102,12 @@ make libintel64 mode=run
 
 The `make` command builds a static library for the Intel(R) 64 architecture and runs the executable.
 
-## Legal Information
+## Notices and Disclaimers
 Intel, and the Intel logo are trademarks of Intel Corporation in the U.S. and/or other countries.
 
 \*Other names and brands may be claimed as the property of others.
 
-&copy; Copyright 2017, Intel Corporation
-
-#### Optimization Notice
->Intel's compilers may or may not optimize to the same degree for non-Intel microprocessors for optimizations that are not unique to Intel microprocessors. These optimizations include SSE2, SSE3, and SSSE3 instruction sets and other optimizations. Intel does not guarantee the availability, functionality, or effectiveness of any optimization on microprocessors not manufactured by Intel. Microprocessor-dependent optimizations in this product are intended for use with Intel microprocessors. Certain optimizations not specific to Intel microarchitecture are reserved for Intel microprocessors. Please refer to the applicable product User and Reference Guides for more information regarding the specific instruction sets covered by this notice.
-
->Notice revision \#20110804
+&copy; Copyright 2017-2021, Intel Corporation
 
 <!-- Links -->
 [kdb]: https://kx.com/download

@@ -1,6 +1,6 @@
 /* file: sgd_dense_minibatch_impl.i */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -57,6 +57,8 @@ services::Status SGDKernel<algorithmFPType, miniBatch, cpu>::compute(HostAppIfac
                                                                      OptionalArgument * optionalArgument, OptionalArgument * optionalResult,
                                                                      engines::BatchBase & engine)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(SGDKernel(miniBatch).compute);
+
     services::Status s;
     int result                = 0;
     const size_t argumentSize = inputArgument->getNumberOfRows();

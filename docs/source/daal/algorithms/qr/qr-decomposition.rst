@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020 Intel Corporation
+.. * Copyright 2020-2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -54,5 +54,3 @@ Using QR decomposition in the distributed processing mode requires gathering loc
 When the amount of local-node work is small, that is, when the local-node data set is small,
 the network data transfer may become a bottleneck. To avoid this situation, ensure that local nodes have a sufficient amount of work.
 For example, distribute the input data set across a smaller number of nodes.
-
-.. include:: ../../../opt-notice.rst
