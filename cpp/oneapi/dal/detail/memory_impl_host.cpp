@@ -33,8 +33,10 @@ void free_impl_host(const default_host_policy&, void* pointer) {
 }
 
 void fill_impl_host(const default_host_policy&,
-                    void* dest, std::int64_t size,
-                    const void* pattern, std::int64_t pattern_size) {
+                    void* dest,
+                    std::int64_t size,
+                    const void* pattern,
+                    std::int64_t pattern_size) {
     // TODO: can be optimized in future
 
     auto dest_bytes = static_cast<std::uint8_t*>(dest);
@@ -49,7 +51,8 @@ void fill_impl_host(const default_host_policy&,
     }
 
     if (size % pattern_size != 0) {
-        throw dal::invalid_argument(detail::error_messages::fill_pattern_size_divides_src_size_with_remainder());
+        throw dal::invalid_argument(
+            detail::error_messages::fill_pattern_size_divides_src_size_with_remainder());
     }
 
     for (std::int64_t i = 0; i < size; i++) {
@@ -64,7 +67,8 @@ void memset(const default_host_policy&, void* dest, std::int32_t value, std::int
 
 void memcpy(const default_host_policy&, void* dest, const void* src, std::int64_t size) {
     const size_t converted_size = detail::integral_cast<std::size_t>(size);
-    std::int32_t status = daal::services::internal::daal_memcpy_s(dest, converted_size, src, converted_size);
+    std::int32_t status =
+        daal::services::internal::daal_memcpy_s(dest, converted_size, src, converted_size);
     if (status) {
         throw dal::internal_error(detail::error_messages::fill_memory_error());
     }

@@ -42,7 +42,8 @@ MSG(fill_memory_error, "Fill memory function returns error code")
 MSG(dst_size_leq_zero, "Destination array size is lower than or equal to zero")
 MSG(src_size_leq_zero, "Source array size is lower than or equal to zero")
 MSG(fill_pattern_size_divides_src_size_with_remainder,
-    "Size of fill pattern array divides the size source array size with remainder");
+    "Size of fill pattern array divides the size source array size with remainder")
+MSG(unknown_usm_pointer_type, "USM pointer type is unknown in the current context")
 
 /* Tables */
 MSG(cannot_get_data_type_from_empty_metadata, "Cannot get data type from empty metadata")

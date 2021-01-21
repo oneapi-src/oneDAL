@@ -27,8 +27,10 @@ namespace v1 {
 ONEDAL_EXPORT void* malloc_impl_host(const default_host_policy&, std::int64_t size);
 ONEDAL_EXPORT void free_impl_host(const default_host_policy&, void* pointer);
 ONEDAL_EXPORT void fill_impl_host(const default_host_policy&,
-                                  void* dest, std::int64_t size,
-                                  const void* pattern, std::int64_t pattern_size);
+                                  void* dest,
+                                  std::int64_t size,
+                                  const void* pattern,
+                                  std::int64_t pattern_size);
 
 template <typename T>
 T* malloc(const default_host_policy& policy, std::int64_t count) {
@@ -42,8 +44,14 @@ void free(const default_host_policy& policy, T* pointer) {
     free_impl_host(policy, pointer);
 }
 
-ONEDAL_EXPORT void memset(const default_host_policy&, void* dest, std::int32_t value, std::int64_t size);
-ONEDAL_EXPORT void memcpy(const default_host_policy&, void* dest, const void* src, std::int64_t size);
+ONEDAL_EXPORT void memset(const default_host_policy&,
+                          void* dest,
+                          std::int32_t value,
+                          std::int64_t size);
+ONEDAL_EXPORT void memcpy(const default_host_policy&,
+                          void* dest,
+                          const void* src,
+                          std::int64_t size);
 
 template <typename T>
 void fill(const default_host_policy& policy, T* dest, std::int64_t count, const T& value) {

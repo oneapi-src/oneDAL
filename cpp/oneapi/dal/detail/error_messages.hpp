@@ -78,6 +78,7 @@ public:
     MSG(dst_size_leq_zero);
     MSG(src_size_leq_zero);
     MSG(fill_pattern_size_divides_src_size_with_remainder);
+    MSG(unknown_usm_pointer_type);
 
     /* Tables */
     MSG(cannot_get_data_type_from_empty_metadata);

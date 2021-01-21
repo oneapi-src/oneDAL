@@ -111,8 +111,7 @@ TYPED_TEST_P(pca_common_overflow_cpu_tests, infer_throws_if_component_count_lead
         pca::descriptor<float, TypeParam, pca::task::dim_reduction>().set_component_count(
             component_count);
 
-    pca::model m;
-    m.set_eigenvectors(dummy_eigenvectors_table);
+    const auto m = pca::model{}.set_eigenvectors(dummy_eigenvectors_table);
 
     ASSERT_THROW(infer(pca_desc, m, data_infer_table), range_error);
 }
