@@ -144,6 +144,7 @@ protected:
         else {
             return s.get_row_count();
         }
+        return 0;
     }
 
 private:

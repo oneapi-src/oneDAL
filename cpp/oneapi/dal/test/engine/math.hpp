@@ -32,6 +32,8 @@ inline double get_tolerance(double f32_tol, double f64_tol) {
     if constexpr (std::is_same_v<Float, double>) {
         return f64_tol;
     }
+
+    return 0.0;
 }
 
 template <typename Reference, typename Actual>
