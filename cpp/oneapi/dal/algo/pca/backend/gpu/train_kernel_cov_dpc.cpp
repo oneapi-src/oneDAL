@@ -17,6 +17,7 @@
 #include <daal/src/algorithms/pca/pca_dense_correlation_batch_kernel.h>
 #include <daal/src/algorithms/pca/oneapi/pca_dense_correlation_batch_kernel_ucapi.h>
 
+#include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
@@ -74,7 +75,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
 
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
-    const std::int64_t component_count = desc.get_component_count();
+    const std::int64_t component_count = get_component_count(desc, data);
 
     auto arr_data = row_accessor<const Float>{ data }.pull(queue);
 

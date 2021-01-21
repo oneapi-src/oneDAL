@@ -129,6 +129,8 @@ MSG(input_model_eigenvectors_cc_neq_input_data_cc,
     "Input model eigenvectors column count is not equal to input data column count")
 MSG(input_model_eigenvectors_rc_neq_desc_component_count,
     "Eigenvectors' row count in input model is not equal to component count provided in descriptor")
+MSG(input_model_eigenvectors_rc_neq_input_data_cc,
+    "Eigenvectors' row count in input model is not equal to input data column count")
 MSG(pca_svd_based_method_is_not_implemented_for_gpu,
     "PCA SVD-based method is not implemented for GPU")
 

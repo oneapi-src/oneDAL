@@ -158,6 +158,7 @@ public:
     MSG(input_data_cc_lt_desc_component_count);
     MSG(input_model_eigenvectors_cc_neq_input_data_cc);
     MSG(input_model_eigenvectors_rc_neq_desc_component_count);
+    MSG(input_model_eigenvectors_rc_neq_input_data_cc);
     MSG(pca_svd_based_method_is_not_implemented_for_gpu);
 
     /* SVM */

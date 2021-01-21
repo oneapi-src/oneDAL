@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/pca/train.hpp"
+#include "oneapi/dal/algo/pca/infer.hpp"
 #include "oneapi/dal/backend/linalg.hpp"
 #include "oneapi/dal/backend/linalg/io.hpp"
 #include "oneapi/dal/test/engine/dataframe.hpp"
@@ -44,14 +45,19 @@ public:
                         std::int64_t component_count,
                         const std::string& table_type) {
         CAPTURE(component_count, table_type);
-
         const table x = get_input_data(data, table_type);
+
+        INFO("create descriptor")
         const auto pca_desc = get_descriptor(component_count);
 
-        SECTION("training") {
-            const auto result = this->train(pca_desc, x);
-            check_train_result(pca_desc, data, result);
-        }
+        INFO("run training");
+        const auto train_result = this->train(pca_desc, x);
+        const auto model = train_result.get_model();
+        check_train_result(pca_desc, data, train_result);
+
+        INFO("run inference");
+        const auto infer_result = this->infer(pca_desc, model, x);
+        check_infer_result(pca_desc, data, infer_result);
     }
 
     void check_train_result(const pca::descriptor<Float, Method>& desc,
@@ -79,6 +85,13 @@ public:
         SECTION("variances are expected") {
             check_variances(bs, variances);
         }
+    }
+
+    void check_infer_result(const pca::descriptor<Float, Method>& desc,
+                            const te::dataframe& data,
+                            const pca::infer_result<>& result) {
+
+
     }
 
     void check_shapes(const pca::descriptor<Float, Method>& desc,
@@ -113,10 +126,21 @@ public:
     void check_nans(const pca::train_result<>& result) {
         const auto [means, variances, eigenvalues, eigenvectors] = unpack_result(result);
 
-        SECTION("there is no NaN in means") {}
-        SECTION("there is no NaN in variances") {}
-        SECTION("there is no NaN in eigenvalues") {}
-        SECTION("there is no NaN in eigenvectors") {}
+        SECTION("there is no NaN in eigenvalues") {
+            REQUIRE(te::has_no_nans(eigenvalues));
+        }
+
+        SECTION("there is no NaN in eigenvectors") {
+            REQUIRE(te::has_no_nans(eigenvectors));
+        }
+
+        SECTION("there is no NaN in means") {
+            REQUIRE(te::has_no_nans(means));
+        }
+
+        SECTION("there is no NaN in variances") {
+            REQUIRE(te::has_no_nans(variances));
+        }
     }
 
     void check_eigenvalues_order(const table& eigenvalues) const {
@@ -165,7 +189,7 @@ private:
 
 using pca_types = COMBINE_TYPES((float, double), (pca::method::cov, pca::method::svd));
 
-TEMPLATE_LIST_TEST_M(pca_batch_test, "common flow",
+TEMPLATE_LIST_TEST_M(pca_batch_test, "pca common flow",
                      "[pca][integration][batch]", pca_types) {
     const te::dataframe data =
         GENERATE_DATAFRAME(te::dataframe_builder{100, 10}.fill_uniform(0.2, 0.5),

@@ -41,4 +41,23 @@ inline double l_inf_norm(const Reference& ref, const Actual& actual) {
     return backend::linalg::l_inf_norm(ref_mat, act_mat);
 }
 
+template <typename Container>
+inline bool has_nans(const Container& container) {
+    const auto container_mat = backend::linalg::matrix<double>::wrap(container);
+
+    const double* mat_ptr = container_mat.get_data();
+    for (std::int64_t i = 0; i < container_mat.get_count(); i++) {
+        if (mat_ptr[i] != mat_ptr[i]) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+template <typename Container>
+inline bool has_no_nans(const Container& container) {
+    return !has_nans<Container>(container);
+}
+
 } // oneapi::dal::test::engine
