@@ -40,5 +40,5 @@ done
 # testing
 cd .ci/scripts/conformance-scripts/ || exit 1
 export IDP_SKLEARN_VERBOSE=INFO
-python run_tests.py ${PYTHON_VERSION} || exit 1
+python run_tests.py || exit 1
 cd ../../..

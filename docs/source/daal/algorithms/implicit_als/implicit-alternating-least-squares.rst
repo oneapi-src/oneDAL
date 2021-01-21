@@ -155,5 +155,3 @@ To get the best overall performance of the implicit ALS recommender:
    results in homogeneous numeric tables of the same type as
    specified in the algorithmFPType class template parameter.
 -  If input data is sparse, use CSR numeric tables.
-
-.. include:: ../../../opt-notice.rst

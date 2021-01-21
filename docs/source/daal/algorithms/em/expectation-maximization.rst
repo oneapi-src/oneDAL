@@ -472,6 +472,3 @@ algorithm at the initialization and computation stages:
    results in homogeneous numeric tables of the same type as
    specified in the algorithmFPType class template parameter.
 -  If input data is non-homogeneous, use AOS layout rather than SOA layout.
-
-.. include:: ../../../opt-notice.rst
-
