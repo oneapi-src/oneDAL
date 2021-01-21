@@ -67,16 +67,10 @@ public:
     /// allocator
     undirected_adjacency_vector_graph(GraphValue &&value, Allocator allocator = Allocator()){};
 
-    /// Copy operator for undirected_adjacency_vector_graph
-    undirected_adjacency_vector_graph &operator=(const undirected_adjacency_vector_graph &other);
-
     /// Move operator for undirected_adjacency_vector_graph
     undirected_adjacency_vector_graph &operator=(undirected_adjacency_vector_graph &&other);
 
 private:
-    /// Copy constructor for undirected_adjacency_vector_graph
-    undirected_adjacency_vector_graph(const undirected_adjacency_vector_graph &other);
-
     using pimpl = dal::detail::pimpl<typename graph_traits<graph_type>::impl_type>;
 
     pimpl impl_;
@@ -155,48 +149,6 @@ undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType,
                                                                    GraphValue,
                                                                    IndexType,
                                                                    Allocator>) {}
-
-/*
-template <typename VertexValue,
-          typename EdgeValue,
-          typename GraphValue,
-          typename IndexType,
-          typename Allocator>
-undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::
-    undirected_adjacency_vector_graph(undirected_adjacency_vector_graph &&other)
-        : undirected_adjacency_vector_graph() {
-    auto &layout = dal::detail::get_impl(other).get_topology();
-
-    impl_->get_topology()._vertex_count = layout._vertex_count;
-    layout._vertex_count = 0;
-
-    impl_->get_topology()._edge_count = layout._edge_count;
-    layout._edge_count = 0;
-
-    impl_->get_topology()._cols = layout._cols;
-    impl_->get_topology()._rows = layout._rows;
-    impl_->get_topology()._degrees = layout._degrees;
-    layout._cols.reset();
-    layout._rows.reset();
-    layout._degrees.reset();
-}
-*/
-
-template <typename VertexValue,
-          typename EdgeValue,
-          typename GraphValue,
-          typename IndexType,
-          typename Allocator>
-undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>
-    &undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::
-    operator=(const undirected_adjacency_vector_graph &other) {
-    if (&other != this) {
-        undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>
-            tmp{ other };
-        swap(*this, tmp);
-    }
-    return *this;
-}
 
 template <typename VertexValue,
           typename EdgeValue,
