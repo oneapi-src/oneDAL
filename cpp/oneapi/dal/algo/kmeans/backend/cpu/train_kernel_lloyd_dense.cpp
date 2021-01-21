@@ -59,22 +59,20 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                dal::detail::integral_cast<std::size_t>(max_iteration_count));
     par.accuracyThreshold = accuracy_threshold;
 
-    auto arr_data = row_accessor<const Float>{ data }.pull();
-    const auto daal_data =
-        interop::convert_to_daal_homogen_table(arr_data, row_count, column_count);
+    const auto daal_data = interop::convert_to_daal_table<Float>(data);
+    daal::data_management::NumericTablePtr daal_initial_centroids;
 
-    auto new_initial_centroids = initial_centroids;
-    if (!new_initial_centroids.has_data()) {
+    if (!initial_centroids.has_data()) {
         daal_kmeans_init::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count));
 
         const size_t init_len_input = 1;
         daal::data_management::NumericTable* init_input[init_len_input] = { daal_data.get() };
 
-        auto daal_centroids =
+        daal_initial_centroids =
             interop::allocate_daal_homogen_table<Float>(cluster_count, column_count);
         const size_t init_len_output = 1;
         daal::data_management::NumericTable* init_output[init_len_output] = {
-            daal_centroids.get()
+            daal_initial_centroids.get()
         };
 
         interop::status_to_exception(
@@ -86,11 +84,10 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                 init_output,
                 &par,
                 *(par.engine)));
-
-        new_initial_centroids = interop::convert_from_daal_homogen_table<Float>(daal_centroids);
     }
-
-    auto arr_initial_centroids = row_accessor<const Float>{ new_initial_centroids }.pull();
+    else {
+        daal_initial_centroids = interop::convert_to_daal_table<Float>(initial_centroids);
+    }
 
     dal::detail::check_mul_overflow(cluster_count, column_count);
     array<Float> arr_centroids = array<Float>::empty(cluster_count * column_count);
@@ -98,10 +95,6 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     array<Float> arr_objective_function_value = array<Float>::empty(1);
     array<int> arr_iteration_count = array<int>::empty(1);
 
-    const auto daal_initial_centroids =
-        interop::convert_to_daal_homogen_table(arr_initial_centroids,
-                                               new_initial_centroids.get_row_count(),
-                                               new_initial_centroids.get_column_count());
     const auto daal_centroids =
         interop::convert_to_daal_homogen_table(arr_centroids, cluster_count, column_count);
     const auto daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
