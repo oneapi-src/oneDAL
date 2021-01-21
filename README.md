@@ -137,7 +137,7 @@ print(svm_d4p.score(X, y)) # output: 0.9905397885364496
 
 ### Distributed multi-node mode
 
-Often data scientists require different tools for analysis regular and big data. daal4py offers various processing models, which makes it easy to enable distributed multi-node mode.
+Data scientists often require different tools for analysis of regular and big data. daal4py offers various processing models, which makes it easy to enable distributed multi-node mode.
 
 ```python
 import numpy as np
