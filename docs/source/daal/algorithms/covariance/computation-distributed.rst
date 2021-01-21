@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020 Intel Corporation
+.. * Copyright 2020-2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -189,5 +189,3 @@ For more details, see :ref:`algorithms`.
           By default, this result is an object of the ``HomogenNumericTable`` class,
           but you can define the result as an object of any class derived from ``NumericTable``
           except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
-
-.. include:: ../../../opt-notice.rst

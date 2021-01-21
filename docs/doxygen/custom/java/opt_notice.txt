@@ -43,26 +43,4 @@
 <p>Read more about this license at http://www.opensource.org/licenses/mit-license.php</p>
 </li>
 </ul></div>
-<div class="tablenoborder">
-<table cellpadding="4" summary="" id="d16e18" frame="border" border="1" cellspacing="0" rules="all">
-<tr>
-<th class="cellrowborder" align="left" valign="top" width="100%" id="d54523e81" style="background-color:#0071C5;color:#FFFFFF;">
-<p id="d16e29">Optimization Notice</p>
-</th>
-</tr>
-<tr>
-<td class="bgcolor(#f5f5f5)" bgcolor="#f5f5f5" valign="top" width="100%" headers="d54523e81 ">
-<p>Intel's compilers may or may not optimize to the same degree for non-Intel microprocessors
-for optimizations that are not unique to Intel microprocessors. These optimizations include SSE2,
-SSE3, and SSSE3 instruction sets and other optimizations. Intel does not guarantee the availability,
-functionality, or effectiveness of any optimization on microprocessors not manufactured by Intel.
-Microprocessor-dependent optimizations in this product are intended for use with Intel microprocessors.
-Certain optimizations not specific to Intel microarchitecture are reserved for Intel microprocessors.
-Please refer to the applicable product User and Reference Guides for more information regarding the
-specific instruction sets covered by this notice.</p>
-<p>Notice revision #20110804</p>
-</td>
-</tr>
-</table>
-</div> 
 */

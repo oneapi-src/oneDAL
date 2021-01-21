@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2019-2020 Intel Corporation
+.. * Copyright 2019-2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -472,6 +472,3 @@ algorithm at the initialization and computation stages:
    results in homogeneous numeric tables of the same type as
    specified in the algorithmFPType class template parameter.
 -  If input data is non-homogeneous, use AOS layout rather than SOA layout.
-
-.. include:: ../../../opt-notice.rst
-
