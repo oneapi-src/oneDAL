@@ -185,6 +185,9 @@ template <typename Data>
 struct integer_overflow_ops {
     void check_mul_overflow(const Data& first, const Data& second);
     void check_sum_overflow(const Data& first, const Data& second);
+
+    bool is_safe_sum(const Data& first, const Data& second, Data& sum_result);
+    bool is_safe_mul(const Data& first, const Data& second, Data& mul_result);
 };
 
 template <typename Data>
@@ -198,33 +201,6 @@ inline void check_mul_overflow(const Data& first, const Data& second) {
     static_assert(std::is_integral_v<Data>, "The check requires integral operands");
     integer_overflow_ops<Data>{}.check_mul_overflow(first, second);
 }
-
-#ifndef ONEDAL_ENABLE_ASSERT
-#define ONEDAL_ASSERT_SUM_OVERFLOW(...)
-#define ONEDAL_ASSERT_MUL_OVERFLOW(...)
-#else
-#define ONEDAL_ASSERT_SUM_OVERFLOW(first, second)                                               \
-    {                                                                                           \
-        try {                                                                                   \
-            oneapi::dal::detail::check_sum_overflow((first), (second));                         \
-        }                                                                                       \
-        catch (const oneapi::dal::range_error& ex) {                                            \
-            ONEDAL_ASSERT(false,                                                                \
-                          "Sum overflow assertion failed with operands" #first " and " #second) \
-        }                                                                                       \
-    }
-
-#define ONEDAL_ASSERT_MUL_OVERFLOW(first, second)                                                \
-    {                                                                                            \
-        try {                                                                                    \
-            oneapi::dal::detail::check_mul_overflow((first), (second));                          \
-        }                                                                                        \
-        catch (const oneapi::dal::range_error& ex) {                                             \
-            ONEDAL_ASSERT(false,                                                                 \
-                          "Mul overflow assertion failed with operands " #first " and " #second) \
-        }                                                                                        \
-    }
-#endif
 
 template <typename Data>
 struct limits {
@@ -280,6 +256,7 @@ using v1::make_private;
 using v1::make_data_type;
 using v1::get_data_type_size;
 using v1::is_floating_point;
+using v1::integer_overflow_ops;
 using v1::check_sum_overflow;
 using v1::check_mul_overflow;
 using v1::integral_cast;

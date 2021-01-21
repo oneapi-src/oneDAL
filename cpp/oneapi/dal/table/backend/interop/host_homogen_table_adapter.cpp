@@ -49,7 +49,7 @@ daal::data_management::features::FeatureType get_daal_feature_type(feature_type 
 
 void convert_feature_information_to_daal(const table_metadata& src,
                                          daal::data_management::NumericTableDictionary& dst) {
-    ONEDAL_ASSERT(std::size_t(src.get_feature_count()) == dst->getNumberOfFeatures());
+    ONEDAL_ASSERT(std::size_t(src.get_feature_count()) == dst.getNumberOfFeatures());
     for (std::int64_t i = 0; i < src.get_feature_count(); i++) {
         auto& daal_feature = dst[i];
         daal_feature.featureType = get_daal_feature_type(src.get_feature_type(i));
@@ -362,33 +362,5 @@ host_homogen_table_adapter<Data>::host_homogen_table_adapter(const homogen_table
 template class host_homogen_table_adapter<std::int32_t>;
 template class host_homogen_table_adapter<float>;
 template class host_homogen_table_adapter<double>;
-
-#define INSTANTIATE_READ_COLUMN_VALUES_IMPL(DataType, BlockType)                 \
-    template auto host_homogen_table_adapter<DataType>::read_column_values_impl( \
-        std::size_t,                                                             \
-        std::size_t,                                                             \
-        std::size_t,                                                             \
-        rw_mode_t,                                                               \
-        block_desc_t<BlockType>&)                                                \
-        ->status_t;
-
-#define INSTANTIATE_READ_ROWS_IMPL(DataType, BlockType)                                          \
-    template auto host_homogen_table_adapter<DataType>::read_rows_impl(std::size_t,              \
-                                                                       std::size_t,              \
-                                                                       rw_mode_t,                \
-                                                                       block_desc_t<BlockType>&) \
-        ->status_t;
-
-#define INSTANTIATE_READ_IMPL_FUNCTIONS(Data)               \
-    INSTANTIATE_READ_ROWS_IMPL(Data, std::int32_t)          \
-    INSTANTIATE_READ_ROWS_IMPL(Data, float)                 \
-    INSTANTIATE_READ_ROWS_IMPL(Data, double)                \
-    INSTANTIATE_READ_COLUMN_VALUES_IMPL(Data, std::int32_t) \
-    INSTANTIATE_READ_COLUMN_VALUES_IMPL(Data, float)        \
-    INSTANTIATE_READ_COLUMN_VALUES_IMPL(Data, double)
-
-INSTANTIATE_READ_IMPL_FUNCTIONS(std::int32_t)
-INSTANTIATE_READ_IMPL_FUNCTIONS(float)
-INSTANTIATE_READ_IMPL_FUNCTIONS(double)
 
 } // namespace oneapi::dal::backend::interop

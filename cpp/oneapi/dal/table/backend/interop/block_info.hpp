@@ -19,7 +19,7 @@
 #include <limits>
 #include <daal/include/data_management/data/numeric_table.h>
 
-#include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/detail/assert.hpp"
 
 namespace oneapi::dal::backend::interop {
 
@@ -49,10 +49,10 @@ public:
         this->row_begin_index = detail::integral_cast<std::int64_t>(row_begin_index);
         this->row_count = detail::integral_cast<std::int64_t>(row_count);
 
-        ONEDAL_ASSERT_MUL_OVERFLOW(bd_row_count, bd_column_count);
+        ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, bd_row_count, bd_column_count);
         allocated_element_count = bd_row_count * bd_column_count;
 
-        ONEDAL_ASSERT_SUM_OVERFLOW(this->row_begin_index, this->row_count);
+        ONEDAL_ASSERT_SUM_OVERFLOW(std::int64_t, this->row_begin_index, this->row_count);
         row_end_index = this->row_begin_index + this->row_count;
 
         column_index = -1;
