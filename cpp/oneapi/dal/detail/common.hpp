@@ -23,6 +23,31 @@
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 
+#ifndef ONEDAL_ENABLE_ASSERT
+#define ONEDAL_ASSERT_SUM_OVERFLOW(...)
+#define ONEDAL_ASSERT_MUL_OVERFLOW(...)
+#else
+#define ONEDAL_ASSERT_SUM_OVERFLOW(Data, first, second)                                       \
+    {                                                                                         \
+        static_assert(std::is_integral_v<Data>, "The check requires integral operands");      \
+        Data result;                                                                          \
+        ONEDAL_ASSERT(oneapi::dal::detail::integer_overflow_ops<Data>{}.is_safe_sum((first),  \
+                                                                                    (second), \
+                                                                                    result),  \
+                      "Sum overflow assertion failed with operands" #first " and " #second)   \
+    }
+
+#define ONEDAL_ASSERT_MUL_OVERFLOW(Data, first, second)                                       \
+    {                                                                                         \
+        static_assert(std::is_integral_v<Data>, "The check requires integral operands");      \
+        Data result;                                                                          \
+        ONEDAL_ASSERT(oneapi::dal::detail::integer_overflow_ops<Data>{}.is_safe_mul((first),  \
+                                                                                    (second), \
+                                                                                    result),  \
+                      "Mul overflow assertion failed with operands" #first " and " #second)   \
+    }
+#endif
+
 namespace oneapi::dal::detail {
 namespace v1 {
 

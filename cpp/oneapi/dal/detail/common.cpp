@@ -50,13 +50,12 @@ template <typename Data>
 bool integer_overflow_ops<Data>::is_safe_mul(const Data& first,
                                              const Data& second,
                                              Data& mul_result) {
+    mul_result = first * second;
     if (first != 0 && second != 0) {
-        mul_result = first * second;
         volatile Data tmp = mul_result;
         tmp /= first;
         return tmp == second;
     }
-    mul_result = 0;
     return true;
 }
 

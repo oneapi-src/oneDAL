@@ -19,7 +19,7 @@
 #include <limits>
 #include <daal/include/data_management/data/numeric_table.h>
 
-#include "oneapi/dal/detail/assert.hpp"
+#include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::backend::interop {
 
